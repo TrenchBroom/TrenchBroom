@@ -33,55 +33,72 @@
 #include <vecmath/mat_ext.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 UVViewHelper::UVViewHelper(Renderer::OrthographicCamera& camera)
   : m_camera(camera)
   , m_zoomValid(false)
   , m_faceHandle()
-  , m_subDivisions(1, 1) {}
+  , m_subDivisions(1, 1)
+{
+}
 
-bool UVViewHelper::valid() const {
+bool UVViewHelper::valid() const
+{
   return m_faceHandle.has_value();
 }
 
-const Model::BrushFace* UVViewHelper::face() const {
-  if (m_faceHandle.has_value()) {
+const Model::BrushFace* UVViewHelper::face() const
+{
+  if (m_faceHandle.has_value())
+  {
     return &m_faceHandle->face();
-  } else {
+  }
+  else
+  {
     return nullptr;
   }
 }
 
-const Assets::Texture* UVViewHelper::texture() const {
+const Assets::Texture* UVViewHelper::texture() const
+{
   if (!valid())
     return nullptr;
   return face()->texture();
 }
 
-void UVViewHelper::setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle) {
-  if (faceHandle != m_faceHandle) {
+void UVViewHelper::setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle)
+{
+  if (faceHandle != m_faceHandle)
+  {
     m_faceHandle = std::move(faceHandle);
-    if (m_faceHandle != std::nullopt) {
+    if (m_faceHandle != std::nullopt)
+    {
       resetCamera();
       resetOrigin();
     }
   }
 }
 
-void UVViewHelper::cameraViewportChanged() {
-  // If the user selects a face before the texturing view was shown for the first time, the size of
-  // the view might still have been off, resulting in invalid zoom factors. Therefore we must reset
-  // the zoom whenever the viewport changes until a valid zoom factor can be computed.
+void UVViewHelper::cameraViewportChanged()
+{
+  // If the user selects a face before the texturing view was shown for the first time,
+  // the size of the view might still have been off, resulting in invalid zoom factors.
+  // Therefore we must reset the zoom whenever the viewport changes until a valid zoom
+  // factor can be computed.
   if (valid() && !m_zoomValid)
     resetZoom();
 }
 
-const vm::vec2i& UVViewHelper::subDivisions() const {
+const vm::vec2i& UVViewHelper::subDivisions() const
+{
   return m_subDivisions;
 }
 
-vm::vec2 UVViewHelper::stripeSize() const {
+vm::vec2 UVViewHelper::stripeSize() const
+{
   assert(valid());
 
   const Assets::Texture* texture = face()->texture();
@@ -89,28 +106,32 @@ vm::vec2 UVViewHelper::stripeSize() const {
     return vm::vec2::zero();
   const FloatType width =
     static_cast<FloatType>(texture->width()) / static_cast<FloatType>(m_subDivisions.x());
-  const FloatType height =
-    static_cast<FloatType>(texture->height()) / static_cast<FloatType>(m_subDivisions.y());
+  const FloatType height = static_cast<FloatType>(texture->height())
+                           / static_cast<FloatType>(m_subDivisions.y());
   return vm::vec2(width, height);
 }
 
-void UVViewHelper::setSubDivisions(const vm::vec2i& subDivisions) {
+void UVViewHelper::setSubDivisions(const vm::vec2i& subDivisions)
+{
   m_subDivisions = subDivisions;
 }
 
-const vm::vec3 UVViewHelper::origin() const {
+const vm::vec3 UVViewHelper::origin() const
+{
   assert(valid());
 
   return m_origin;
 }
 
-const vm::vec2f UVViewHelper::originInFaceCoords() const {
+const vm::vec2f UVViewHelper::originInFaceCoords() const
+{
   const vm::mat4x4 toFace =
     face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
   return vm::vec2f(toFace * origin());
 }
 
-const vm::vec2f UVViewHelper::originInTexCoords() const {
+const vm::vec2f UVViewHelper::originInTexCoords() const
+{
   assert(valid());
 
   const vm::mat4x4 toFace = face()->toTexCoordSystemMatrix(
@@ -118,34 +139,40 @@ const vm::vec2f UVViewHelper::originInTexCoords() const {
   return vm::vec2f(toFace * origin());
 }
 
-void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords) {
+void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
+{
   const vm::mat4x4 fromFace =
     face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
   m_origin = fromFace * vm::vec3(originInFaceCoords);
 }
 
-const Renderer::OrthographicCamera& UVViewHelper::camera() const {
+const Renderer::OrthographicCamera& UVViewHelper::camera() const
+{
   return m_camera;
 }
 
-float UVViewHelper::cameraZoom() const {
+float UVViewHelper::cameraZoom() const
+{
   return m_camera.zoom();
 }
 
 void UVViewHelper::pickTextureGrid(
-  const vm::ray3& ray, const Model::HitType::Type hitTypes[2],
-  Model::PickResult& pickResult) const {
+  const vm::ray3& ray,
+  const Model::HitType::Type hitTypes[2],
+  Model::PickResult& pickResult) const
+{
   assert(valid());
 
   const auto* texture = face()->texture();
-  if (texture != nullptr) {
+  if (texture != nullptr)
+  {
     const auto& boundary = face()->boundary();
     const FloatType distance = vm::intersect_ray_plane(ray, boundary);
     const vm::vec3 hitPointInWorldCoords = vm::point_at_distance(ray, distance);
     const vm::vec2f hitPointInTexCoords = vm::vec2f(
       face()->toTexCoordSystemMatrix(
-        face()->attributes().offset(), face()->attributes().scale(), true) *
-      hitPointInWorldCoords);
+        face()->attributes().offset(), face()->attributes().scale(), true)
+      * hitPointInWorldCoords);
     const vm::vec2f hitPointInViewCoords = texToViewCoords(hitPointInTexCoords);
 
     // X and Y distance in texels to the closest grid intersection.
@@ -154,37 +181,47 @@ void UVViewHelper::pickTextureGrid(
     const vm::vec2f distanceFromGridTexCoords =
       computeDistanceFromTextureGrid(vm::vec3(hitPointInTexCoords, 0.0f));
     const vm::vec2f closestPointsOnGridInTexCoords[2] = {
-      hitPointInTexCoords +
-        vm::vec2f(distanceFromGridTexCoords.x(), 0.0f), // closest point on a vertical gridline
-      hitPointInTexCoords +
-        vm::vec2f(0.0f, distanceFromGridTexCoords.y()), // closest point on a horizontal gridline
+      hitPointInTexCoords
+        + vm::vec2f(
+          distanceFromGridTexCoords.x(), 0.0f), // closest point on a vertical gridline
+      hitPointInTexCoords
+        + vm::vec2f(
+          0.0f, distanceFromGridTexCoords.y()), // closest point on a horizontal gridline
     };
 
     // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
     const float distToClosestGridInViewCoords[2] = {
-      vm::distance(hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[0])),
-      vm::distance(hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[1]))};
+      vm::distance(
+        hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[0])),
+      vm::distance(
+        hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[1]))};
 
     // FIXME: factor out and share with other tools
     constexpr float maxDistance = static_cast<float>(5.0);
 
-    for (size_t i = 0; i < 2; ++i) {
+    for (size_t i = 0; i < 2; ++i)
+    {
       const float error = distToClosestGridInViewCoords[i];
 
-      if (error <= maxDistance) {
+      if (error <= maxDistance)
+      {
         const vm::vec2 stripeSize = UVViewHelper::stripeSize();
-        const int index = static_cast<int>(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
-        pickResult.addHit(Model::Hit(hitTypes[i], distance, hitPointInWorldCoords, index, error));
+        const int index =
+          static_cast<int>(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
+        pickResult.addHit(
+          Model::Hit(hitTypes[i], distance, hitPointInWorldCoords, index, error));
       }
     }
   }
 }
 
-vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const {
+vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const
+{
   const float zoom = cameraZoom();
 
   vm::vec2f result;
-  for (size_t i = 0; i < 2; ++i) {
+  for (size_t i = 0; i < 2; ++i)
+  {
     if (vm::abs(distance[i]) < 4.0f / zoom)
       result[i] = delta[i] + distance[i];
     else
@@ -193,7 +230,8 @@ vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& dista
   return result;
 }
 
-vm::vec2f UVViewHelper::computeDistanceFromTextureGrid(const vm::vec3& position) const {
+vm::vec2f UVViewHelper::computeDistanceFromTextureGrid(const vm::vec3& position) const
+{
   const vm::vec2 stripe = stripeSize();
   assert(stripe.x() != 0.0 && stripe.y() != 0);
 
@@ -202,16 +240,20 @@ vm::vec2f UVViewHelper::computeDistanceFromTextureGrid(const vm::vec3& position)
 }
 
 void UVViewHelper::computeOriginHandleVertices(
-  vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const {
+  vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const
+{
   assert(valid());
 
-  const auto toTex = face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  const auto toWorld = face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+  const auto toTex =
+    face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+  const auto toWorld =
+    face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
   computeLineVertices(vm::vec2(originInFaceCoords()), x1, x2, y1, y2, toTex, toWorld);
 }
 
 void UVViewHelper::computeScaleHandleVertices(
-  const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const {
+  const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const
+{
   assert(valid());
 
   const vm::mat4x4 toTex = face()->toTexCoordSystemMatrix(
@@ -222,8 +264,14 @@ void UVViewHelper::computeScaleHandleVertices(
 }
 
 void UVViewHelper::computeLineVertices(
-  const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2,
-  const vm::mat4x4& toTex, const vm::mat4x4& toWorld) const {
+  const vm::vec2& pos,
+  vm::vec3& x1,
+  vm::vec3& x2,
+  vm::vec3& y1,
+  vm::vec3& y2,
+  const vm::mat4x4& toTex,
+  const vm::mat4x4& toWorld) const
+{
   const auto viewportVertices = toTex * m_camera.viewportVertices();
   const auto viewportBounds =
     vm::bbox3::merge_all(std::begin(viewportVertices), std::end(viewportVertices));
@@ -236,19 +284,22 @@ void UVViewHelper::computeLineVertices(
   y2 = toWorld * vm::vec3(max.x(), pos.y(), 0.0);
 }
 
-vm::vec2f UVViewHelper::texToViewCoords(const vm::vec2f& pos) const {
+vm::vec2f UVViewHelper::texToViewCoords(const vm::vec2f& pos) const
+{
   const vm::vec3 posInWorldCoords =
     face()->fromTexCoordSystemMatrix(
-      face()->attributes().offset(), face()->attributes().scale(), true) *
-    vm::vec3(pos, 0.0f);
+      face()->attributes().offset(), face()->attributes().scale(), true)
+    * vm::vec3(pos, 0.0f);
   const vm::vec2f posInViewCoords = m_camera.project(vm::vec3f(posInWorldCoords)).xy();
   return posInViewCoords;
 }
 
-void UVViewHelper::resetOrigin() {
+void UVViewHelper::resetOrigin()
+{
   assert(valid());
 
-  const auto toTex = face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+  const auto toTex =
+    face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
   const auto texVertices = toTex * face()->vertexPositions();
 
   const auto toCam = vm::mat4x4(m_camera.viewMatrix());
@@ -257,10 +308,13 @@ void UVViewHelper::resetOrigin() {
   // The origin is at the "lower left" corner of the bounding box.
   auto originFace = texVertices[0];
   auto originCam = camVertices[0];
-  for (size_t i = 1; i < texVertices.size(); ++i) {
+  for (size_t i = 1; i < texVertices.size(); ++i)
+  {
     auto vertexCam = camVertices[i];
-    for (size_t j = 0; j < 2; ++j) {
-      if (vertexCam[j] < originCam[j]) {
+    for (size_t j = 0; j < 2; ++j)
+    {
+      if (vertexCam[j] < originCam[j])
+      {
         originCam[j] = vertexCam[j];
         originFace[j] = texVertices[i][j];
       }
@@ -270,15 +324,19 @@ void UVViewHelper::resetOrigin() {
   setOriginInFaceCoords(vm::vec2f(originFace));
 }
 
-void UVViewHelper::resetCamera() {
+void UVViewHelper::resetCamera()
+{
   assert(valid());
 
   const auto& normal = face()->boundary().normal;
   vm::vec3 right;
 
-  if (vm::abs(dot(vm::vec3::pos_z(), normal)) < FloatType(1.0)) {
+  if (vm::abs(dot(vm::vec3::pos_z(), normal)) < FloatType(1.0))
+  {
     right = normalize(cross(vm::vec3::pos_z(), normal));
-  } else {
+  }
+  else
+  {
     right = vm::vec3::pos_x();
   }
   const auto up = normalize(cross(normal, right));
@@ -292,20 +350,24 @@ void UVViewHelper::resetCamera() {
   resetZoom();
 }
 
-void UVViewHelper::resetZoom() {
+void UVViewHelper::resetZoom()
+{
   assert(valid());
 
   auto w = static_cast<float>(m_camera.viewport().width);
   auto h = static_cast<float>(m_camera.viewport().height);
 
-  if (w <= 1.0f || h <= 1.0f) {
+  if (w <= 1.0f || h <= 1.0f)
+  {
     return;
   }
 
-  if (w > 80.0f) {
+  if (w > 80.0f)
+  {
     w -= 80.0f;
   }
-  if (h > 80.0f) {
+  if (h > 80.0f)
+  {
     h -= 80.0f;
   }
 
@@ -315,17 +377,21 @@ void UVViewHelper::resetZoom() {
   auto zoom = 3.0f;
   zoom = vm::min(zoom, w / boundsSize.x());
   zoom = vm::min(zoom, h / boundsSize.y());
-  if (zoom > 0.0f) {
+  if (zoom > 0.0f)
+  {
     m_camera.setZoom(zoom);
     m_zoomValid = true;
   }
 }
 
-vm::bbox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
+vm::bbox3 UVViewHelper::computeFaceBoundsInCameraCoords() const
+{
   assert(valid());
 
   const auto transform = vm::coordinate_system_matrix(
-    vm::vec3(m_camera.right()), vm::vec3(m_camera.up()), vm::vec3(-m_camera.direction()),
+    vm::vec3(m_camera.right()),
+    vm::vec3(m_camera.up()),
+    vm::vec3(-m_camera.direction()),
     vm::vec3(m_camera.position()));
 
   vm::bbox3 result;
@@ -334,7 +400,8 @@ vm::bbox3 UVViewHelper::computeFaceBoundsInCameraCoords() const {
   auto end = std::end(vertices);
 
   result.min = result.max = transform * (*it++)->position();
-  while (it != end) {
+  while (it != end)
+  {
     result = merge(result, transform * (*it++)->position());
   }
   return result;

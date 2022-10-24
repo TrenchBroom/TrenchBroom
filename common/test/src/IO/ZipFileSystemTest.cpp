@@ -28,10 +28,14 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("ZipFileSystemTest.directoryExists", "[ZipFileSystemTest]") {
-  const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("ZipFileSystemTest.directoryExists", "[ZipFileSystemTest]")
+{
+  const Path zipPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
   const ZipFileSystem fs(zipPath);
   CHECK_THROWS_AS(fs.directoryExists(Path("/asdf")), FileSystemException);
@@ -42,8 +46,10 @@ TEST_CASE("ZipFileSystemTest.directoryExists", "[ZipFileSystemTest]") {
   CHECK_FALSE(fs.directoryExists(Path("pics/tag1.pcx")));
 }
 
-TEST_CASE("ZipFileSystemTest.fileExists", "[ZipFileSystemTest]") {
-  const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
+TEST_CASE("ZipFileSystemTest.fileExists", "[ZipFileSystemTest]")
+{
+  const Path zipPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
   const ZipFileSystem fs(zipPath);
   CHECK_THROWS_AS(fs.fileExists(Path("/asdf.blah")), FileSystemException);
@@ -53,8 +59,10 @@ TEST_CASE("ZipFileSystemTest.fileExists", "[ZipFileSystemTest]") {
   CHECK(fs.fileExists(Path("PICS/TAG1.pcX")));
 }
 
-TEST_CASE("ZipFileSystemTest.findItems", "[ZipFileSystemTest]") {
-  const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
+TEST_CASE("ZipFileSystemTest.findItems", "[ZipFileSystemTest]")
+{
+  const Path zipPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
   const ZipFileSystem fs(zipPath);
   CHECK_THROWS_AS(fs.findItems(Path("/")), FileSystemException);
@@ -63,8 +71,8 @@ TEST_CASE("ZipFileSystemTest.findItems", "[ZipFileSystemTest]") {
 
   CHECK_THAT(
     fs.findItems(Path("")),
-    Catch::UnorderedEquals(
-      std::vector<Path>{Path("pics"), Path("textures"), Path("amnet.cfg"), Path("bear.cfg")}));
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("pics"), Path("textures"), Path("amnet.cfg"), Path("bear.cfg")}));
 
   CHECK_THAT(
     fs.findItems(Path(""), FileExtensionMatcher("cfg")),
@@ -76,11 +84,14 @@ TEST_CASE("ZipFileSystemTest.findItems", "[ZipFileSystemTest]") {
 
   CHECK_THAT(
     fs.findItems(Path("pics")),
-    Catch::UnorderedEquals(std::vector<Path>{Path("pics/tag1.pcx"), Path("pics/tag2.pcx")}));
+    Catch::UnorderedEquals(
+      std::vector<Path>{Path("pics/tag1.pcx"), Path("pics/tag2.pcx")}));
 }
 
-TEST_CASE("ZipFileSystemTest.findItemsRecursively", "[ZipFileSystemTest]") {
-  const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
+TEST_CASE("ZipFileSystemTest.findItemsRecursively", "[ZipFileSystemTest]")
+{
+  const Path zipPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
   const ZipFileSystem fs(zipPath);
   CHECK_THROWS_AS(fs.findItemsRecursively(Path("/")), FileSystemException);
@@ -88,24 +99,25 @@ TEST_CASE("ZipFileSystemTest.findItemsRecursively", "[ZipFileSystemTest]") {
   CHECK_THROWS_AS(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
 
   CHECK_THAT(
-    fs.findItemsRecursively(Path("")), Catch::UnorderedEquals(std::vector<Path>{
-                                         Path("pics"),
-                                         Path("pics/tag1.pcx"),
-                                         Path("pics/tag2.pcx"),
-                                         Path("textures/e1u1"),
-                                         Path("textures/e1u1/box1_3.wal"),
-                                         Path("textures/e1u1/brlava.wal"),
-                                         Path("textures/e1u2"),
-                                         Path("textures/e1u2/angle1_1.wal"),
-                                         Path("textures/e1u2/angle1_2.wal"),
-                                         Path("textures/e1u2/basic1_7.wal"),
-                                         Path("textures/e1u3"),
-                                         Path("textures/e1u3/stairs1_3.wal"),
-                                         Path("textures/e1u3/stflr1_5.wal"),
-                                         Path("textures"),
-                                         Path("amnet.cfg"),
-                                         Path("bear.cfg"),
-                                       }));
+    fs.findItemsRecursively(Path("")),
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("pics"),
+      Path("pics/tag1.pcx"),
+      Path("pics/tag2.pcx"),
+      Path("textures/e1u1"),
+      Path("textures/e1u1/box1_3.wal"),
+      Path("textures/e1u1/brlava.wal"),
+      Path("textures/e1u2"),
+      Path("textures/e1u2/angle1_1.wal"),
+      Path("textures/e1u2/angle1_2.wal"),
+      Path("textures/e1u2/basic1_7.wal"),
+      Path("textures/e1u3"),
+      Path("textures/e1u3/stairs1_3.wal"),
+      Path("textures/e1u3/stflr1_5.wal"),
+      Path("textures"),
+      Path("amnet.cfg"),
+      Path("bear.cfg"),
+    }));
 
   CHECK_THAT(
     fs.findItemsRecursively(Path(""), FileExtensionMatcher("wal")),
@@ -132,8 +144,10 @@ TEST_CASE("ZipFileSystemTest.findItemsRecursively", "[ZipFileSystemTest]") {
     }));
 }
 
-TEST_CASE("ZipFileSystemTest.openFile", "[ZipFileSystemTest]") {
-  const Path zipPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
+TEST_CASE("ZipFileSystemTest.openFile", "[ZipFileSystemTest]")
+{
+  const Path zipPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
 
   const ZipFileSystem fs(zipPath);
   CHECK_THROWS_AS(fs.openFile(Path("")), FileSystemException);

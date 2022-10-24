@@ -31,20 +31,25 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class PickResult;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class Camera;
 }
 
-namespace View {
+namespace View
+{
 class Grid;
 class MapDocument;
 
-class ShearObjectsTool : public Tool {
+class ShearObjectsTool : public Tool
+{
 public:
   static const Model::HitType::Type ShearToolSideHitType;
 
@@ -65,11 +70,17 @@ public:
   bool applies() const;
 
   void pickBackSides(
-    const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+    const vm::ray3& pickRay,
+    const Renderer::Camera& camera,
+    Model::PickResult& pickResult);
   void pick2D(
-    const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+    const vm::ray3& pickRay,
+    const Renderer::Camera& camera,
+    Model::PickResult& pickResult);
   void pick3D(
-    const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult);
+    const vm::ray3& pickRay,
+    const Renderer::Camera& camera,
+    Model::PickResult& pickResult);
 
 public:
   vm::bbox3 bounds() const;

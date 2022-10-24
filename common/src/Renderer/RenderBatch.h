@@ -21,15 +21,18 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class Renderable;
 class DirectRenderable;
 class IndexedRenderable;
 class RenderContext;
 class VboManager;
 
-class RenderBatch {
+class RenderBatch
+{
 private:
   VboManager& m_vboManager;
 

@@ -30,24 +30,32 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
-namespace {
+namespace TrenchBroom
+{
+namespace Model
+{
+namespace
+{
 static const auto Type = freeIssueType();
 } // namespace
 
 EmptyBrushEntityValidator::EmptyBrushEntityValidator()
-  : Validator{Type, "Empty brush entity"} {
+  : Validator{Type, "Empty brush entity"}
+{
   addQuickFix(makeDeleteNodesQuickFix());
 }
 
 void EmptyBrushEntityValidator::doValidate(
-  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   const auto* definition =
     dynamic_cast<const Assets::BrushEntityDefinition*>(entityNode.entity().definition());
-  if (definition && !entityNode.hasChildren()) {
+  if (definition && !entityNode.hasChildren())
+  {
     issues.push_back(std::make_unique<Issue>(
-      Type, entityNode, "Entity '" + entityNode.name() + "' does not contain any brushes"));
+      Type,
+      entityNode,
+      "Entity '" + entityNode.name() + "' does not contain any brushes"));
   }
 }
 } // namespace Model

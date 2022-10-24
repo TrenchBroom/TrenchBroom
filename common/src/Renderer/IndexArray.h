@@ -29,18 +29,24 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 /**
- * Represents an array of indices. Optionally, multiple instances of this class can share the same
- * data. Index arrays can be copied around without incurring the cost of copying the actual data.
+ * Represents an array of indices. Optionally, multiple instances of this class can share
+ * the same data. Index arrays can be copied around without incurring the cost of copying
+ * the actual data.
  *
- * An index array can be uploaded into a vertex buffer object by calling the prepare method.
- * Furthermore, an index array can be rendered by calling the provided render method.
+ * An index array can be uploaded into a vertex buffer object by calling the prepare
+ * method. Furthermore, an index array can be rendered by calling the provided render
+ * method.
  */
-class IndexArray {
+class IndexArray
+{
 private:
-  class BaseHolder {
+  class BaseHolder
+  {
   public:
     using Ptr = std::shared_ptr<BaseHolder>;
     virtual ~BaseHolder() {}
@@ -59,7 +65,9 @@ private:
     virtual void doRender(PrimType primType, size_t offset, size_t count) const = 0;
   };
 
-  template <typename Index> class Holder : public BaseHolder {
+  template <typename Index>
+  class Holder : public BaseHolder
+  {
   protected:
     using IndexList = std::vector<Index>;
 
@@ -73,15 +81,18 @@ private:
 
     size_t sizeInBytes() const override { return sizeof(Index) * m_indexCount; }
 
-    virtual void prepare(VboManager& vboManager) override {
-      if (m_indexCount > 0 && m_vbo == nullptr) {
+    virtual void prepare(VboManager& vboManager) override
+    {
+      if (m_indexCount > 0 && m_vbo == nullptr)
+      {
         m_vboManager = &vboManager;
         m_vbo = vboManager.allocateVbo(VboType::ElementArrayBuffer, sizeInBytes());
         m_vbo->writeBuffer(0, doGetIndices());
       }
     }
 
-    void setup() override {
+    void setup() override
+    {
       ensure(m_vbo != nullptr, "block is null");
       m_vbo->bind();
     }
@@ -92,21 +103,28 @@ private:
     Holder(const size_t indexCount)
       : m_vboManager{nullptr}
       , m_vbo{nullptr}
-      , m_indexCount{indexCount} {}
+      , m_indexCount{indexCount}
+    {
+    }
 
-    virtual ~Holder() override {
+    virtual ~Holder() override
+    {
       // TODO: Revisit this revisiting OpenGL resource management. We should not store the
       // VboManager, since it represents a safe time to delete the OpenGL buffer object.
-      if (m_vbo != nullptr) {
+      if (m_vbo != nullptr)
+      {
         m_vboManager->destroyVbo(m_vbo);
         m_vbo = nullptr;
       }
     }
 
   private:
-    void doRender(PrimType primType, size_t offset, size_t count) const override {
+    void doRender(PrimType primType, size_t offset, size_t count) const override
+    {
       glAssert(glDrawElements(
-        toGL(primType), static_cast<GLsizei>(count), GL_UNSIGNED_INT,
+        toGL(primType),
+        static_cast<GLsizei>(count),
+        GL_UNSIGNED_INT,
         reinterpret_cast<void*>(offset * 4u)));
     }
 
@@ -114,7 +132,9 @@ private:
     virtual const IndexList& doGetIndices() const = 0;
   };
 
-  template <typename Index> class ByValueHolder : public Holder<Index> {
+  template <typename Index>
+  class ByValueHolder : public Holder<Index>
+  {
   public:
     using IndexList = typename Holder<Index>::IndexList;
 
@@ -124,9 +144,12 @@ private:
   public:
     ByValueHolder(IndexList indices)
       : Holder<Index>{indices.size()}
-      , m_indices{std::move(indices)} {}
+      , m_indices{std::move(indices)}
+    {
+    }
 
-    void prepare(VboManager& vboManager) {
+    void prepare(VboManager& vboManager)
+    {
       Holder<Index>::prepare(vboManager);
       kdl::vec_clear_to_zero(m_indices);
     }
@@ -135,7 +158,9 @@ private:
     const IndexList& doGetIndices() const { return m_indices; }
   };
 
-  template <typename Index> class ByRefHolder : public Holder<Index> {
+  template <typename Index>
+  class ByRefHolder : public Holder<Index>
+  {
   public:
     using IndexList = typename Holder<Index>::IndexList;
 
@@ -145,7 +170,9 @@ private:
   public:
     ByRefHolder(const IndexList& indices)
       : Holder<Index>{indices.size()}
-      , m_indices{indices} {}
+      , m_indices{indices}
+    {
+    }
 
   private:
     const IndexList& doGetIndices() const { return m_indices; }
@@ -163,41 +190,49 @@ public:
   IndexArray();
 
   /**
-   * Creates a new index array by copying the given indices. After this operation, the given vector
-   * of indices is left unchanged.
+   * Creates a new index array by copying the given indices. After this operation, the
+   * given vector of indices is left unchanged.
    *
    * @tparam Index the index type
    * @param indices the indices to copy
    * @return the index array
    */
-  template <typename Index> static IndexArray copy(const std::vector<Index>& indices) {
+  template <typename Index>
+  static IndexArray copy(const std::vector<Index>& indices)
+  {
     return IndexArray(BaseHolder::Ptr(new ByValueHolder<Index>(indices)));
   }
 
   /**
-   * Creates a new index array by swapping the contents of the given indices. After this operation,
-   * the given vector of indices is empty.
+   * Creates a new index array by swapping the contents of the given indices. After this
+   * operation, the given vector of indices is empty.
    *
    * @tparam Index the index type
    * @param indices the indices to swap
    * @return the index array
    */
-  template <typename Index> static IndexArray move(std::vector<Index>&& indices) {
+  template <typename Index>
+  static IndexArray move(std::vector<Index>&& indices)
+  {
     return IndexArray(BaseHolder::Ptr(new ByValueHolder<Index>(std::move(indices))));
   }
 
   /**
-   * Creates a new index array by referencing the contents of the given indices. After this
-   * operation, the given vector of indices is left unchanged. Since this index array will only
-   * store a reference to the given vector, changes to the given vector are reflected in this array.
+   * Creates a new index array by referencing the contents of the given indices. After
+   * this operation, the given vector of indices is left unchanged. Since this index array
+   * will only store a reference to the given vector, changes to the given vector are
+   * reflected in this array.
    *
-   * A caller must ensure that this index array does not outlive the given vector of indices.
+   * A caller must ensure that this index array does not outlive the given vector of
+   * indices.
    *
    * @tparam Index the index type
    * @param indices the indices to copy
    * @return the index array
    */
-  template <typename Index> static IndexArray ref(const std::vector<Index>& indices) {
+  template <typename Index>
+  static IndexArray ref(const std::vector<Index>& indices)
+  {
     return IndexArray(BaseHolder::Ptr(new ByRefHolder<Index>(indices)));
   }
 
@@ -230,30 +265,33 @@ public:
   bool prepared() const;
 
   /**
-   * Prepares this index array by uploading its contents into the given vertex buffer object.
+   * Prepares this index array by uploading its contents into the given vertex buffer
+   * object.
    *
-   * @param vboManager the vertex buffer object to upload the contents of this index array into
+   * @param vboManager the vertex buffer object to upload the contents of this index array
+   * into
    */
   void prepare(VboManager& vboManager);
 
   /**
-   * Sets this index array up for rendering. If this index array is only rendered once, then there
-   * is no need to call this method (or the corresponding cleanup method), since the render method
-   * will perform setup and cleanup automatically unless the index array is already set up when the
-   * render method is called.
+   * Sets this index array up for rendering. If this index array is only rendered once,
+   * then there is no need to call this method (or the corresponding cleanup method),
+   * since the render method will perform setup and cleanup automatically unless the index
+   * array is already set up when the render method is called.
    *
-   * In the case the the index array was already setup before a render method was called, the render
-   * method will skip the setup and cleanup, and it is the callers' responsibility to perform proper
-   * cleanup.
+   * In the case the the index array was already setup before a render method was called,
+   * the render method will skip the setup and cleanup, and it is the callers'
+   * responsibility to perform proper cleanup.
    *
-   * It is only useful to perform setup and cleanup for a caller if the caller intends to issue
-   * multiple render calls to this index array.
+   * It is only useful to perform setup and cleanup for a caller if the caller intends to
+   * issue multiple render calls to this index array.
    */
   bool setup();
 
   /**
-   * Renders a range of primitives of the given type using the indices stored in this index array.
-   * Assumes that an appropriate vertex array has been set up that contains the actual vertex data.
+   * Renders a range of primitives of the given type using the indices stored in this
+   * index array. Assumes that an appropriate vertex array has been set up that contains
+   * the actual vertex data.
    *
    * @param primType the type of primitive to render
    * @param offset the offset of the range of indices to render

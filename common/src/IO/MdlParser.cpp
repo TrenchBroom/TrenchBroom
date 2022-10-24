@@ -33,9 +33,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
-namespace MdlLayout {
+namespace TrenchBroom
+{
+namespace IO
+{
+namespace MdlLayout
+{
 static const int Ident = (('O' << 24) + ('P' << 16) + ('D' << 8) + 'I');
 static const int Version6 = 6;
 
@@ -48,98 +51,184 @@ static const unsigned int MultiFrameTimes = 0xC;
 } // namespace MdlLayout
 
 const vm::vec3f MdlParser::Normals[] = {
-  vm::vec3f(-0.525731f, 0.000000f, 0.850651f),   vm::vec3f(-0.442863f, 0.238856f, 0.864188f),
-  vm::vec3f(-0.295242f, 0.000000f, 0.955423f),   vm::vec3f(-0.309017f, 0.500000f, 0.809017f),
-  vm::vec3f(-0.162460f, 0.262866f, 0.951056f),   vm::vec3f(-0.000000f, 0.000000f, 1.000000f),
-  vm::vec3f(-0.000000f, 0.850651f, 0.525731f),   vm::vec3f(-0.147621f, 0.716567f, 0.681718f),
-  vm::vec3f(-0.147621f, 0.716567f, 0.681718f),   vm::vec3f(-0.000000f, 0.525731f, 0.850651f),
-  vm::vec3f(-0.309017f, 0.500000f, 0.809017f),   vm::vec3f(-0.525731f, 0.000000f, 0.850651f),
-  vm::vec3f(-0.295242f, 0.000000f, 0.955423f),   vm::vec3f(-0.442863f, 0.238856f, 0.864188f),
-  vm::vec3f(-0.162460f, 0.262866f, 0.951056f),   vm::vec3f(-0.681718f, 0.147621f, 0.716567f),
-  vm::vec3f(-0.809017f, 0.309017f, 0.500000f),   vm::vec3f(-0.587785f, 0.425325f, 0.688191f),
-  vm::vec3f(-0.850651f, 0.525731f, 0.000000f),   vm::vec3f(-0.864188f, 0.442863f, 0.238856f),
-  vm::vec3f(-0.716567f, 0.681718f, 0.147621f),   vm::vec3f(-0.688191f, 0.587785f, 0.425325f),
-  vm::vec3f(-0.500000f, 0.809017f, 0.309017f),   vm::vec3f(-0.238856f, 0.864188f, 0.442863f),
-  vm::vec3f(-0.425325f, 0.688191f, 0.587785f),   vm::vec3f(-0.716567f, 0.681718f, -0.147621f),
-  vm::vec3f(-0.500000f, 0.809017f, -0.309017f),  vm::vec3f(-0.525731f, 0.850651f, 0.000000f),
-  vm::vec3f(-0.000000f, 0.850651f, -0.525731f),  vm::vec3f(-0.238856f, 0.864188f, -0.442863f),
-  vm::vec3f(-0.000000f, 0.955423f, -0.295242f),  vm::vec3f(-0.262866f, 0.951056f, -0.162460f),
-  vm::vec3f(-0.000000f, 1.000000f, 0.000000f),   vm::vec3f(-0.000000f, 0.955423f, 0.295242f),
-  vm::vec3f(-0.262866f, 0.951056f, 0.162460f),   vm::vec3f(-0.238856f, 0.864188f, 0.442863f),
-  vm::vec3f(-0.262866f, 0.951056f, 0.162460f),   vm::vec3f(-0.500000f, 0.809017f, 0.309017f),
-  vm::vec3f(-0.238856f, 0.864188f, -0.442863f),  vm::vec3f(-0.262866f, 0.951056f, -0.162460f),
-  vm::vec3f(-0.500000f, 0.809017f, -0.309017f),  vm::vec3f(-0.850651f, 0.525731f, 0.000000f),
-  vm::vec3f(-0.716567f, 0.681718f, 0.147621f),   vm::vec3f(-0.716567f, 0.681718f, -0.147621f),
-  vm::vec3f(-0.525731f, 0.850651f, 0.000000f),   vm::vec3f(-0.425325f, 0.688191f, 0.587785f),
-  vm::vec3f(-0.864188f, 0.442863f, 0.238856f),   vm::vec3f(-0.688191f, 0.587785f, 0.425325f),
-  vm::vec3f(-0.809017f, 0.309017f, 0.500000f),   vm::vec3f(-0.681718f, 0.147621f, 0.716567f),
-  vm::vec3f(-0.587785f, 0.425325f, 0.688191f),   vm::vec3f(-0.955423f, 0.295242f, 0.000000f),
-  vm::vec3f(1.000000f, 0.000000f, 0.000000f),    vm::vec3f(-0.951056f, 0.162460f, 0.262866f),
-  vm::vec3f(-0.850651f, -0.525731f, 0.000000f),  vm::vec3f(-0.955423f, -0.295242f, 0.000000f),
-  vm::vec3f(-0.864188f, -0.442863f, 0.238856f),  vm::vec3f(-0.951056f, -0.162460f, 0.262866f),
-  vm::vec3f(-0.809017f, -0.309017f, 0.500000f),  vm::vec3f(-0.681718f, -0.147621f, 0.716567f),
-  vm::vec3f(-0.850651f, 0.000000f, 0.525731f),   vm::vec3f(-0.864188f, 0.442863f, -0.238856f),
-  vm::vec3f(-0.809017f, 0.309017f, -0.500000f),  vm::vec3f(-0.951056f, 0.162460f, -0.262866f),
-  vm::vec3f(-0.525731f, 0.000000f, -0.850651f),  vm::vec3f(-0.681718f, 0.147621f, -0.716567f),
-  vm::vec3f(-0.681718f, -0.147621f, -0.716567f), vm::vec3f(-0.850651f, 0.000000f, -0.525731f),
-  vm::vec3f(-0.809017f, -0.309017f, -0.500000f), vm::vec3f(-0.864188f, -0.442863f, -0.238856f),
-  vm::vec3f(-0.951056f, -0.162460f, -0.262866f), vm::vec3f(-0.147621f, 0.716567f, -0.681718f),
-  vm::vec3f(-0.309017f, 0.500000f, -0.809017f),  vm::vec3f(-0.425325f, 0.688191f, -0.587785f),
-  vm::vec3f(-0.442863f, 0.238856f, -0.864188f),  vm::vec3f(-0.587785f, 0.425325f, -0.688191f),
-  vm::vec3f(-0.688191f, 0.587785f, -0.425325f),  vm::vec3f(-0.147621f, 0.716567f, -0.681718f),
-  vm::vec3f(-0.309017f, 0.500000f, -0.809017f),  vm::vec3f(-0.000000f, 0.525731f, -0.850651f),
-  vm::vec3f(-0.525731f, 0.000000f, -0.850651f),  vm::vec3f(-0.442863f, 0.238856f, -0.864188f),
-  vm::vec3f(-0.295242f, 0.000000f, -0.955423f),  vm::vec3f(-0.162460f, 0.262866f, -0.951056f),
-  vm::vec3f(-0.000000f, 0.000000f, -1.000000f),  vm::vec3f(-0.295242f, 0.000000f, -0.955423f),
-  vm::vec3f(-0.162460f, 0.262866f, -0.951056f),  vm::vec3f(-0.442863f, -0.238856f, -0.864188f),
-  vm::vec3f(-0.309017f, -0.500000f, -0.809017f), vm::vec3f(-0.162460f, -0.262866f, -0.951056f),
-  vm::vec3f(-0.000000f, -0.850651f, -0.525731f), vm::vec3f(-0.147621f, -0.716567f, -0.681718f),
-  vm::vec3f(-0.147621f, -0.716567f, -0.681718f), vm::vec3f(-0.000000f, -0.525731f, -0.850651f),
-  vm::vec3f(-0.309017f, -0.500000f, -0.809017f), vm::vec3f(-0.442863f, -0.238856f, -0.864188f),
-  vm::vec3f(-0.162460f, -0.262866f, -0.951056f), vm::vec3f(-0.238856f, -0.864188f, -0.442863f),
-  vm::vec3f(-0.500000f, -0.809017f, -0.309017f), vm::vec3f(-0.425325f, -0.688191f, -0.587785f),
-  vm::vec3f(-0.716567f, -0.681718f, -0.147621f), vm::vec3f(-0.688191f, -0.587785f, -0.425325f),
-  vm::vec3f(-0.587785f, -0.425325f, -0.688191f), vm::vec3f(-0.000000f, -0.955423f, -0.295242f),
-  vm::vec3f(-0.000000f, -1.000000f, 0.000000f),  vm::vec3f(-0.262866f, -0.951056f, -0.162460f),
-  vm::vec3f(-0.000000f, -0.850651f, 0.525731f),  vm::vec3f(-0.000000f, -0.955423f, 0.295242f),
-  vm::vec3f(-0.238856f, -0.864188f, 0.442863f),  vm::vec3f(-0.262866f, -0.951056f, 0.162460f),
-  vm::vec3f(-0.500000f, -0.809017f, 0.309017f),  vm::vec3f(-0.716567f, -0.681718f, 0.147621f),
-  vm::vec3f(-0.525731f, -0.850651f, 0.000000f),  vm::vec3f(-0.238856f, -0.864188f, -0.442863f),
-  vm::vec3f(-0.500000f, -0.809017f, -0.309017f), vm::vec3f(-0.262866f, -0.951056f, -0.162460f),
-  vm::vec3f(-0.850651f, -0.525731f, 0.000000f),  vm::vec3f(-0.716567f, -0.681718f, -0.147621f),
-  vm::vec3f(-0.716567f, -0.681718f, 0.147621f),  vm::vec3f(-0.525731f, -0.850651f, 0.000000f),
-  vm::vec3f(-0.500000f, -0.809017f, 0.309017f),  vm::vec3f(-0.238856f, -0.864188f, 0.442863f),
-  vm::vec3f(-0.262866f, -0.951056f, 0.162460f),  vm::vec3f(-0.864188f, -0.442863f, 0.238856f),
-  vm::vec3f(-0.809017f, -0.309017f, 0.500000f),  vm::vec3f(-0.688191f, -0.587785f, 0.425325f),
-  vm::vec3f(-0.681718f, -0.147621f, 0.716567f),  vm::vec3f(-0.442863f, -0.238856f, 0.864188f),
-  vm::vec3f(-0.587785f, -0.425325f, 0.688191f),  vm::vec3f(-0.309017f, -0.500000f, 0.809017f),
-  vm::vec3f(-0.147621f, -0.716567f, 0.681718f),  vm::vec3f(-0.425325f, -0.688191f, 0.587785f),
-  vm::vec3f(-0.162460f, -0.262866f, 0.951056f),  vm::vec3f(-0.442863f, -0.238856f, 0.864188f),
-  vm::vec3f(-0.162460f, -0.262866f, 0.951056f),  vm::vec3f(-0.309017f, -0.500000f, 0.809017f),
-  vm::vec3f(-0.147621f, -0.716567f, 0.681718f),  vm::vec3f(-0.000000f, -0.525731f, 0.850651f),
-  vm::vec3f(-0.425325f, -0.688191f, 0.587785f),  vm::vec3f(-0.587785f, -0.425325f, 0.688191f),
-  vm::vec3f(-0.688191f, -0.587785f, 0.425325f),  vm::vec3f(-0.955423f, 0.295242f, 0.000000f),
-  vm::vec3f(-0.951056f, 0.162460f, 0.262866f),   vm::vec3f(-1.000000f, 0.000000f, 0.000000f),
-  vm::vec3f(-0.850651f, 0.000000f, 0.525731f),   vm::vec3f(-0.955423f, -0.295242f, 0.000000f),
-  vm::vec3f(-0.951056f, -0.162460f, 0.262866f),  vm::vec3f(-0.864188f, 0.442863f, -0.238856f),
-  vm::vec3f(-0.951056f, 0.162460f, -0.262866f),  vm::vec3f(-0.809017f, 0.309017f, -0.500000f),
-  vm::vec3f(-0.864188f, -0.442863f, -0.238856f), vm::vec3f(-0.951056f, -0.162460f, -0.262866f),
-  vm::vec3f(-0.809017f, -0.309017f, -0.500000f), vm::vec3f(-0.681718f, 0.147621f, -0.716567f),
-  vm::vec3f(-0.681718f, -0.147621f, -0.716567f), vm::vec3f(-0.850651f, 0.000000f, -0.525731f),
-  vm::vec3f(-0.688191f, 0.587785f, -0.425325f),  vm::vec3f(-0.587785f, 0.425325f, -0.688191f),
-  vm::vec3f(-0.425325f, 0.688191f, -0.587785f),  vm::vec3f(-0.425325f, -0.688191f, -0.587785f),
-  vm::vec3f(-0.587785f, -0.425325f, -0.688191f), vm::vec3f(-0.688191f, -0.587785f, -0.425325f),
+  vm::vec3f(-0.525731f, 0.000000f, 0.850651f),
+  vm::vec3f(-0.442863f, 0.238856f, 0.864188f),
+  vm::vec3f(-0.295242f, 0.000000f, 0.955423f),
+  vm::vec3f(-0.309017f, 0.500000f, 0.809017f),
+  vm::vec3f(-0.162460f, 0.262866f, 0.951056f),
+  vm::vec3f(-0.000000f, 0.000000f, 1.000000f),
+  vm::vec3f(-0.000000f, 0.850651f, 0.525731f),
+  vm::vec3f(-0.147621f, 0.716567f, 0.681718f),
+  vm::vec3f(-0.147621f, 0.716567f, 0.681718f),
+  vm::vec3f(-0.000000f, 0.525731f, 0.850651f),
+  vm::vec3f(-0.309017f, 0.500000f, 0.809017f),
+  vm::vec3f(-0.525731f, 0.000000f, 0.850651f),
+  vm::vec3f(-0.295242f, 0.000000f, 0.955423f),
+  vm::vec3f(-0.442863f, 0.238856f, 0.864188f),
+  vm::vec3f(-0.162460f, 0.262866f, 0.951056f),
+  vm::vec3f(-0.681718f, 0.147621f, 0.716567f),
+  vm::vec3f(-0.809017f, 0.309017f, 0.500000f),
+  vm::vec3f(-0.587785f, 0.425325f, 0.688191f),
+  vm::vec3f(-0.850651f, 0.525731f, 0.000000f),
+  vm::vec3f(-0.864188f, 0.442863f, 0.238856f),
+  vm::vec3f(-0.716567f, 0.681718f, 0.147621f),
+  vm::vec3f(-0.688191f, 0.587785f, 0.425325f),
+  vm::vec3f(-0.500000f, 0.809017f, 0.309017f),
+  vm::vec3f(-0.238856f, 0.864188f, 0.442863f),
+  vm::vec3f(-0.425325f, 0.688191f, 0.587785f),
+  vm::vec3f(-0.716567f, 0.681718f, -0.147621f),
+  vm::vec3f(-0.500000f, 0.809017f, -0.309017f),
+  vm::vec3f(-0.525731f, 0.850651f, 0.000000f),
+  vm::vec3f(-0.000000f, 0.850651f, -0.525731f),
+  vm::vec3f(-0.238856f, 0.864188f, -0.442863f),
+  vm::vec3f(-0.000000f, 0.955423f, -0.295242f),
+  vm::vec3f(-0.262866f, 0.951056f, -0.162460f),
+  vm::vec3f(-0.000000f, 1.000000f, 0.000000f),
+  vm::vec3f(-0.000000f, 0.955423f, 0.295242f),
+  vm::vec3f(-0.262866f, 0.951056f, 0.162460f),
+  vm::vec3f(-0.238856f, 0.864188f, 0.442863f),
+  vm::vec3f(-0.262866f, 0.951056f, 0.162460f),
+  vm::vec3f(-0.500000f, 0.809017f, 0.309017f),
+  vm::vec3f(-0.238856f, 0.864188f, -0.442863f),
+  vm::vec3f(-0.262866f, 0.951056f, -0.162460f),
+  vm::vec3f(-0.500000f, 0.809017f, -0.309017f),
+  vm::vec3f(-0.850651f, 0.525731f, 0.000000f),
+  vm::vec3f(-0.716567f, 0.681718f, 0.147621f),
+  vm::vec3f(-0.716567f, 0.681718f, -0.147621f),
+  vm::vec3f(-0.525731f, 0.850651f, 0.000000f),
+  vm::vec3f(-0.425325f, 0.688191f, 0.587785f),
+  vm::vec3f(-0.864188f, 0.442863f, 0.238856f),
+  vm::vec3f(-0.688191f, 0.587785f, 0.425325f),
+  vm::vec3f(-0.809017f, 0.309017f, 0.500000f),
+  vm::vec3f(-0.681718f, 0.147621f, 0.716567f),
+  vm::vec3f(-0.587785f, 0.425325f, 0.688191f),
+  vm::vec3f(-0.955423f, 0.295242f, 0.000000f),
+  vm::vec3f(1.000000f, 0.000000f, 0.000000f),
+  vm::vec3f(-0.951056f, 0.162460f, 0.262866f),
+  vm::vec3f(-0.850651f, -0.525731f, 0.000000f),
+  vm::vec3f(-0.955423f, -0.295242f, 0.000000f),
+  vm::vec3f(-0.864188f, -0.442863f, 0.238856f),
+  vm::vec3f(-0.951056f, -0.162460f, 0.262866f),
+  vm::vec3f(-0.809017f, -0.309017f, 0.500000f),
+  vm::vec3f(-0.681718f, -0.147621f, 0.716567f),
+  vm::vec3f(-0.850651f, 0.000000f, 0.525731f),
+  vm::vec3f(-0.864188f, 0.442863f, -0.238856f),
+  vm::vec3f(-0.809017f, 0.309017f, -0.500000f),
+  vm::vec3f(-0.951056f, 0.162460f, -0.262866f),
+  vm::vec3f(-0.525731f, 0.000000f, -0.850651f),
+  vm::vec3f(-0.681718f, 0.147621f, -0.716567f),
+  vm::vec3f(-0.681718f, -0.147621f, -0.716567f),
+  vm::vec3f(-0.850651f, 0.000000f, -0.525731f),
+  vm::vec3f(-0.809017f, -0.309017f, -0.500000f),
+  vm::vec3f(-0.864188f, -0.442863f, -0.238856f),
+  vm::vec3f(-0.951056f, -0.162460f, -0.262866f),
+  vm::vec3f(-0.147621f, 0.716567f, -0.681718f),
+  vm::vec3f(-0.309017f, 0.500000f, -0.809017f),
+  vm::vec3f(-0.425325f, 0.688191f, -0.587785f),
+  vm::vec3f(-0.442863f, 0.238856f, -0.864188f),
+  vm::vec3f(-0.587785f, 0.425325f, -0.688191f),
+  vm::vec3f(-0.688191f, 0.587785f, -0.425325f),
+  vm::vec3f(-0.147621f, 0.716567f, -0.681718f),
+  vm::vec3f(-0.309017f, 0.500000f, -0.809017f),
+  vm::vec3f(-0.000000f, 0.525731f, -0.850651f),
+  vm::vec3f(-0.525731f, 0.000000f, -0.850651f),
+  vm::vec3f(-0.442863f, 0.238856f, -0.864188f),
+  vm::vec3f(-0.295242f, 0.000000f, -0.955423f),
+  vm::vec3f(-0.162460f, 0.262866f, -0.951056f),
+  vm::vec3f(-0.000000f, 0.000000f, -1.000000f),
+  vm::vec3f(-0.295242f, 0.000000f, -0.955423f),
+  vm::vec3f(-0.162460f, 0.262866f, -0.951056f),
+  vm::vec3f(-0.442863f, -0.238856f, -0.864188f),
+  vm::vec3f(-0.309017f, -0.500000f, -0.809017f),
+  vm::vec3f(-0.162460f, -0.262866f, -0.951056f),
+  vm::vec3f(-0.000000f, -0.850651f, -0.525731f),
+  vm::vec3f(-0.147621f, -0.716567f, -0.681718f),
+  vm::vec3f(-0.147621f, -0.716567f, -0.681718f),
+  vm::vec3f(-0.000000f, -0.525731f, -0.850651f),
+  vm::vec3f(-0.309017f, -0.500000f, -0.809017f),
+  vm::vec3f(-0.442863f, -0.238856f, -0.864188f),
+  vm::vec3f(-0.162460f, -0.262866f, -0.951056f),
+  vm::vec3f(-0.238856f, -0.864188f, -0.442863f),
+  vm::vec3f(-0.500000f, -0.809017f, -0.309017f),
+  vm::vec3f(-0.425325f, -0.688191f, -0.587785f),
+  vm::vec3f(-0.716567f, -0.681718f, -0.147621f),
+  vm::vec3f(-0.688191f, -0.587785f, -0.425325f),
+  vm::vec3f(-0.587785f, -0.425325f, -0.688191f),
+  vm::vec3f(-0.000000f, -0.955423f, -0.295242f),
+  vm::vec3f(-0.000000f, -1.000000f, 0.000000f),
+  vm::vec3f(-0.262866f, -0.951056f, -0.162460f),
+  vm::vec3f(-0.000000f, -0.850651f, 0.525731f),
+  vm::vec3f(-0.000000f, -0.955423f, 0.295242f),
+  vm::vec3f(-0.238856f, -0.864188f, 0.442863f),
+  vm::vec3f(-0.262866f, -0.951056f, 0.162460f),
+  vm::vec3f(-0.500000f, -0.809017f, 0.309017f),
+  vm::vec3f(-0.716567f, -0.681718f, 0.147621f),
+  vm::vec3f(-0.525731f, -0.850651f, 0.000000f),
+  vm::vec3f(-0.238856f, -0.864188f, -0.442863f),
+  vm::vec3f(-0.500000f, -0.809017f, -0.309017f),
+  vm::vec3f(-0.262866f, -0.951056f, -0.162460f),
+  vm::vec3f(-0.850651f, -0.525731f, 0.000000f),
+  vm::vec3f(-0.716567f, -0.681718f, -0.147621f),
+  vm::vec3f(-0.716567f, -0.681718f, 0.147621f),
+  vm::vec3f(-0.525731f, -0.850651f, 0.000000f),
+  vm::vec3f(-0.500000f, -0.809017f, 0.309017f),
+  vm::vec3f(-0.238856f, -0.864188f, 0.442863f),
+  vm::vec3f(-0.262866f, -0.951056f, 0.162460f),
+  vm::vec3f(-0.864188f, -0.442863f, 0.238856f),
+  vm::vec3f(-0.809017f, -0.309017f, 0.500000f),
+  vm::vec3f(-0.688191f, -0.587785f, 0.425325f),
+  vm::vec3f(-0.681718f, -0.147621f, 0.716567f),
+  vm::vec3f(-0.442863f, -0.238856f, 0.864188f),
+  vm::vec3f(-0.587785f, -0.425325f, 0.688191f),
+  vm::vec3f(-0.309017f, -0.500000f, 0.809017f),
+  vm::vec3f(-0.147621f, -0.716567f, 0.681718f),
+  vm::vec3f(-0.425325f, -0.688191f, 0.587785f),
+  vm::vec3f(-0.162460f, -0.262866f, 0.951056f),
+  vm::vec3f(-0.442863f, -0.238856f, 0.864188f),
+  vm::vec3f(-0.162460f, -0.262866f, 0.951056f),
+  vm::vec3f(-0.309017f, -0.500000f, 0.809017f),
+  vm::vec3f(-0.147621f, -0.716567f, 0.681718f),
+  vm::vec3f(-0.000000f, -0.525731f, 0.850651f),
+  vm::vec3f(-0.425325f, -0.688191f, 0.587785f),
+  vm::vec3f(-0.587785f, -0.425325f, 0.688191f),
+  vm::vec3f(-0.688191f, -0.587785f, 0.425325f),
+  vm::vec3f(-0.955423f, 0.295242f, 0.000000f),
+  vm::vec3f(-0.951056f, 0.162460f, 0.262866f),
+  vm::vec3f(-1.000000f, 0.000000f, 0.000000f),
+  vm::vec3f(-0.850651f, 0.000000f, 0.525731f),
+  vm::vec3f(-0.955423f, -0.295242f, 0.000000f),
+  vm::vec3f(-0.951056f, -0.162460f, 0.262866f),
+  vm::vec3f(-0.864188f, 0.442863f, -0.238856f),
+  vm::vec3f(-0.951056f, 0.162460f, -0.262866f),
+  vm::vec3f(-0.809017f, 0.309017f, -0.500000f),
+  vm::vec3f(-0.864188f, -0.442863f, -0.238856f),
+  vm::vec3f(-0.951056f, -0.162460f, -0.262866f),
+  vm::vec3f(-0.809017f, -0.309017f, -0.500000f),
+  vm::vec3f(-0.681718f, 0.147621f, -0.716567f),
+  vm::vec3f(-0.681718f, -0.147621f, -0.716567f),
+  vm::vec3f(-0.850651f, 0.000000f, -0.525731f),
+  vm::vec3f(-0.688191f, 0.587785f, -0.425325f),
+  vm::vec3f(-0.587785f, 0.425325f, -0.688191f),
+  vm::vec3f(-0.425325f, 0.688191f, -0.587785f),
+  vm::vec3f(-0.425325f, -0.688191f, -0.587785f),
+  vm::vec3f(-0.587785f, -0.425325f, -0.688191f),
+  vm::vec3f(-0.688191f, -0.587785f, -0.425325f),
 };
 
 static const int MF_HOLEY = (1 << 14);
 
-MdlParser::MdlParser(const std::string& name, const Reader& reader, const Assets::Palette& palette)
+MdlParser::MdlParser(
+  const std::string& name, const Reader& reader, const Assets::Palette& palette)
   : m_name{name}
   , m_reader{reader}
-  , m_palette{palette} {}
+  , m_palette{palette}
+{
+}
 
-bool MdlParser::canParse(const Path& path, Reader reader) {
-  if (kdl::str_to_lower(path.extension()) != "mdl") {
+bool MdlParser::canParse(const Path& path, Reader reader)
+{
+  if (kdl::str_to_lower(path.extension()) != "mdl")
+  {
     return false;
   }
 
@@ -149,16 +238,19 @@ bool MdlParser::canParse(const Path& path, Reader reader) {
   return ident == MdlLayout::Ident && version == MdlLayout::Version6;
 }
 
-std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& /* logger */) {
+std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& /* logger */)
+{
   auto reader = m_reader;
 
   const auto ident = reader.readInt<int32_t>();
   const auto version = reader.readInt<int32_t>();
 
-  if (ident != MdlLayout::Ident) {
+  if (ident != MdlLayout::Ident)
+  {
     throw AssetException("Unknown MDL model ident: " + std::to_string(ident));
   }
-  if (version != MdlLayout::Version6) {
+  if (version != MdlLayout::Version6)
+  {
     throw AssetException("Unknown MDL model version: " + std::to_string(version));
   }
 
@@ -177,7 +269,8 @@ std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& /* log
 
   auto model = std::make_unique<Assets::EntityModel>(
     m_name, Assets::PitchType::MdlInverted, Assets::Orientation::Oriented);
-  for (size_t i = 0; i < frameCount; ++i) {
+  for (size_t i = 0; i < frameCount; ++i)
+  {
     model->addFrame();
   }
 
@@ -190,16 +283,19 @@ std::unique_ptr<Assets::EntityModel> MdlParser::doInitializeModel(Logger& /* log
 }
 
 void MdlParser::doLoadFrame(
-  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
+  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
+{
   auto reader = m_reader;
 
   const auto ident = reader.readInt<int32_t>();
   const auto version = reader.readInt<int32_t>();
 
-  if (ident != MdlLayout::Ident) {
+  if (ident != MdlLayout::Ident)
+  {
     throw AssetException("Unknown MDL model ident: " + std::to_string(ident));
   }
-  if (version != MdlLayout::Version6) {
+  if (version != MdlLayout::Version6)
+  {
     throw AssetException("Unknown MDL model version: " + std::to_string(version));
   }
 
@@ -225,15 +321,30 @@ void MdlParser::doLoadFrame(
   auto& surface = model.surface(0);
   skipFrames(reader, frameIndex, vertexCount);
   parseFrame(
-    reader, model, frameIndex, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
+    reader,
+    model,
+    frameIndex,
+    surface,
+    triangles,
+    vertices,
+    skinWidth,
+    skinHeight,
+    origin,
+    scale);
 }
 
 void MdlParser::parseSkins(
-  Reader& reader, Assets::EntityModelSurface& surface, const size_t count, const size_t width,
-  const size_t height, const int flags) {
+  Reader& reader,
+  Assets::EntityModelSurface& surface,
+  const size_t count,
+  const size_t width,
+  const size_t height,
+  const int flags)
+{
   const auto size = width * height;
-  const auto transparency = (flags & MF_HOLEY) ? Assets::PaletteTransparency::Index255Transparent
-                                               : Assets::PaletteTransparency::Opaque;
+  const auto transparency = (flags & MF_HOLEY)
+                              ? Assets::PaletteTransparency::Index255Transparent
+                              : Assets::PaletteTransparency::Opaque;
   const auto type = (transparency == Assets::PaletteTransparency::Index255Transparent)
                       ? Assets::TextureType::Masked
                       : Assets::TextureType::Opaque;
@@ -241,16 +352,20 @@ void MdlParser::parseSkins(
   std::vector<Assets::Texture> textures;
   textures.reserve(count);
 
-  for (size_t i = 0; i < count; ++i) {
+  for (size_t i = 0; i < count; ++i)
+  {
     const auto skinGroup = reader.readSize<int32_t>();
-    if (skinGroup == 0) {
+    if (skinGroup == 0)
+    {
       Assets::TextureBuffer rgbaImage(size * 4);
       m_palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
       const std::string textureName = m_name + "_" + kdl::str_to_string(i);
       textures.emplace_back(
         textureName, width, height, avgColor, std::move(rgbaImage), GL_RGBA, type);
-    } else {
+    }
+    else
+    {
       const auto pictureCount = reader.readSize<int32_t>();
 
       Assets::TextureBuffer rgbaImage(size * 4);
@@ -269,15 +384,23 @@ void MdlParser::parseSkins(
 }
 
 void MdlParser::skipSkins(
-  Reader& reader, const size_t count, const size_t width, const size_t height,
-  const int /* flags */) {
+  Reader& reader,
+  const size_t count,
+  const size_t width,
+  const size_t height,
+  const int /* flags */)
+{
   const auto size = width * height;
 
-  for (size_t i = 0; i < count; ++i) {
+  for (size_t i = 0; i < count; ++i)
+  {
     const auto skinGroup = reader.readSize<int32_t>();
-    if (skinGroup == 0) {
+    if (skinGroup == 0)
+    {
       reader.seekForward(size);
-    } else {
+    }
+    else
+    {
       const auto pictureCount = reader.readSize<int32_t>();
       reader.seekForward(pictureCount * 4);    // skip the picture times
       reader.seekForward(pictureCount * size); // skip all pictures
@@ -285,9 +408,11 @@ void MdlParser::skipSkins(
   }
 }
 
-MdlParser::MdlSkinVertexList MdlParser::parseVertices(Reader& reader, size_t count) {
+MdlParser::MdlSkinVertexList MdlParser::parseVertices(Reader& reader, size_t count)
+{
   MdlSkinVertexList vertices(count);
-  for (size_t i = 0; i < count; ++i) {
+  for (size_t i = 0; i < count; ++i)
+  {
     vertices[i].onseam = reader.readBool<int32_t>();
     vertices[i].s = reader.readInt<int32_t>();
     vertices[i].t = reader.readInt<int32_t>();
@@ -295,30 +420,39 @@ MdlParser::MdlSkinVertexList MdlParser::parseVertices(Reader& reader, size_t cou
   return vertices;
 }
 
-MdlParser::MdlSkinTriangleList MdlParser::parseTriangles(Reader& reader, size_t count) {
+MdlParser::MdlSkinTriangleList MdlParser::parseTriangles(Reader& reader, size_t count)
+{
   MdlSkinTriangleList triangles(count);
-  for (size_t i = 0; i < count; ++i) {
+  for (size_t i = 0; i < count; ++i)
+  {
     triangles[i].front = reader.readBool<int32_t>();
-    for (size_t j = 0; j < 3; ++j) {
+    for (size_t j = 0; j < 3; ++j)
+    {
       triangles[i].vertices[j] = reader.readSize<int32_t>();
     }
   }
   return triangles;
 }
 
-void MdlParser::skipFrames(Reader& reader, const size_t count, size_t vertexCount) {
+void MdlParser::skipFrames(Reader& reader, const size_t count, size_t vertexCount)
+{
   const auto frameLength =
     MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + vertexCount * 4;
 
-  for (size_t i = 0; i < count; ++i) {
+  for (size_t i = 0; i < count; ++i)
+  {
     const auto type = reader.readInt<int32_t>();
-    if (type == 0) { // single frame
+    if (type == 0)
+    { // single frame
       reader.seekForward(frameLength);
-    } else { // frame group, but we only read the first frame
+    }
+    else
+    { // frame group, but we only read the first frame
       const auto groupFrameCount = reader.readSize<int32_t>();
       reader.seekBackward(sizeof(int32_t));
 
-      const auto frameTimeLength = MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
+      const auto frameTimeLength =
+        MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
 
       // forward to after the last group frame as if we had read them
       reader.seekForward(frameTimeLength + groupFrameCount * frameLength);
@@ -327,45 +461,83 @@ void MdlParser::skipFrames(Reader& reader, const size_t count, size_t vertexCoun
 }
 
 void MdlParser::parseFrame(
-  Reader& reader, Assets::EntityModel& model, size_t frameIndex,
-  Assets::EntityModelSurface& surface, const MdlSkinTriangleList& triangles,
-  const MdlSkinVertexList& vertices, size_t skinWidth, size_t skinHeight, const vm::vec3f& origin,
-  const vm::vec3f& scale) {
+  Reader& reader,
+  Assets::EntityModel& model,
+  size_t frameIndex,
+  Assets::EntityModelSurface& surface,
+  const MdlSkinTriangleList& triangles,
+  const MdlSkinVertexList& vertices,
+  size_t skinWidth,
+  size_t skinHeight,
+  const vm::vec3f& origin,
+  const vm::vec3f& scale)
+{
   const auto frameLength =
     MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + vertices.size() * 4;
 
   const auto type = reader.readInt<int32_t>();
-  if (type == 0) { // single frame
+  if (type == 0)
+  { // single frame
     doParseFrame(
-      reader.subReaderFromCurrent(frameLength), model, frameIndex, surface, triangles, vertices,
-      skinWidth, skinHeight, origin, scale);
-  } else { // frame group, but we only read the first frame
+      reader.subReaderFromCurrent(frameLength),
+      model,
+      frameIndex,
+      surface,
+      triangles,
+      vertices,
+      skinWidth,
+      skinHeight,
+      origin,
+      scale);
+  }
+  else
+  { // frame group, but we only read the first frame
     const auto groupFrameCount = reader.readSize<int32_t>();
     reader.seekBackward(sizeof(int32_t));
 
-    const auto frameTimeLength = MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
+    const auto frameTimeLength =
+      MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
     doParseFrame(
-      reader.subReaderFromCurrent(frameTimeLength, frameLength), model, frameIndex, surface,
-      triangles, vertices, skinWidth, skinHeight, origin, scale);
+      reader.subReaderFromCurrent(frameTimeLength, frameLength),
+      model,
+      frameIndex,
+      surface,
+      triangles,
+      vertices,
+      skinWidth,
+      skinHeight,
+      origin,
+      scale);
   }
 }
 
 void MdlParser::doParseFrame(
-  Reader reader, Assets::EntityModel& model, size_t frameIndex, Assets::EntityModelSurface& surface,
-  const MdlSkinTriangleList& triangles, const MdlSkinVertexList& vertices, const size_t skinWidth,
-  const size_t skinHeight, const vm::vec3f& origin, const vm::vec3f& scale) {
+  Reader reader,
+  Assets::EntityModel& model,
+  size_t frameIndex,
+  Assets::EntityModelSurface& surface,
+  const MdlSkinTriangleList& triangles,
+  const MdlSkinVertexList& vertices,
+  const size_t skinWidth,
+  const size_t skinHeight,
+  const vm::vec3f& origin,
+  const vm::vec3f& scale)
+{
   reader.seekForward(MdlLayout::SimpleFrameName);
   const auto name = reader.readString(MdlLayout::SimpleFrameLength);
 
   PackedFrameVertexList packedVertices(vertices.size());
-  for (size_t i = 0; i < vertices.size(); ++i) {
-    for (size_t j = 0; j < 4; ++j) {
+  for (size_t i = 0; i < vertices.size(); ++i)
+  {
+    for (size_t j = 0; j < 4; ++j)
+    {
       packedVertices[i][j] = reader.readUnsignedChar<char>();
     }
   }
 
   std::vector<vm::vec3f> positions(vertices.size());
-  for (size_t i = 0; i < vertices.size(); ++i) {
+  for (size_t i = 0; i < vertices.size(); ++i)
+  {
     positions[i] = unpackFrameVertex(packedVertices[i], origin, scale);
   }
 
@@ -373,15 +545,18 @@ void MdlParser::doParseFrame(
 
   std::vector<Assets::EntityModelVertex> frameTriangles;
   frameTriangles.reserve(triangles.size());
-  for (size_t i = 0; i < triangles.size(); ++i) {
+  for (size_t i = 0; i < triangles.size(); ++i)
+  {
     const auto& triangle = triangles[i];
-    for (size_t j = 0; j < 3; ++j) {
+    for (size_t j = 0; j < 3; ++j)
+    {
       const auto vertexIndex = triangle.vertices[j];
       const auto& skinVertex = vertices[vertexIndex];
 
-      auto texCoords =
-        vm::vec2f(float(skinVertex.s) / float(skinWidth), float(skinVertex.t) / float(skinHeight));
-      if (skinVertex.onseam && !triangle.front) {
+      auto texCoords = vm::vec2f(
+        float(skinVertex.s) / float(skinWidth), float(skinVertex.t) / float(skinHeight));
+      if (skinVertex.onseam && !triangle.front)
+      {
         texCoords[0] += 0.5f;
       }
 
@@ -399,13 +574,16 @@ void MdlParser::doParseFrame(
   builder.addTriangles(frameTriangles);
 
   auto& frame = model.loadFrame(frameIndex, name, bounds.bounds());
-  surface.addIndexedMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
+  surface.addIndexedMesh(
+    frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 
 vm::vec3f MdlParser::unpackFrameVertex(
-  const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const {
+  const PackedFrameVertex& vertex, const vm::vec3f& origin, const vm::vec3f& scale) const
+{
   vm::vec3f result;
-  for (size_t i = 0; i < 3; ++i) {
+  for (size_t i = 0; i < 3; ++i)
+  {
     result[i] = origin[i] + scale[i] * static_cast<float>(vertex[i]);
   }
   return result;

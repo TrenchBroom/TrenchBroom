@@ -26,17 +26,21 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapDocumentCommandFacade;
 
-class UpdateLinkedGroupsCommandBase : public UndoableCommand {
+class UpdateLinkedGroupsCommandBase : public UndoableCommand
+{
 private:
   UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
 
 protected:
   UpdateLinkedGroupsCommandBase(
-    std::string name, bool updateModificationCount,
+    std::string name,
+    bool updateModificationCount,
     std::vector<Model::GroupNode*> changedLinkedGroups = {});
 
 public:

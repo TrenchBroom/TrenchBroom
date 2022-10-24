@@ -30,17 +30,21 @@
 class QWidget;
 class QTableView;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Issue;
 class IssueQuickFix;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class IssueBrowserModel;
 class MapDocument;
 
-class IssueBrowserView : public QWidget {
+class IssueBrowserView : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -54,7 +58,8 @@ private:
   IssueBrowserModel* m_tableModel;
 
 public:
-  explicit IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit IssueBrowserView(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
 private:
   void createGui();
@@ -96,7 +101,8 @@ public slots:
  * Trivial QAbstractTableModel subclass, when the issues list changes,
  * it just refreshes the entire list with beginResetModel()/endResetModel().
  */
-class IssueBrowserModel : public QAbstractTableModel {
+class IssueBrowserModel : public QAbstractTableModel
+{
   Q_OBJECT
 private:
   std::vector<const Model::Issue*> m_issues;

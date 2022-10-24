@@ -22,41 +22,49 @@
 #include <cstddef>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
-template <typename... AttrTypes> struct GLVertexType;
+namespace TrenchBroom
+{
+namespace Renderer
+{
+template <typename... AttrTypes>
+struct GLVertexType;
 
 /**
- * Stores the attribute values of an OpenGL vertex such as the position, the texture coordinates or
- * the normal.
+ * Stores the attribute values of an OpenGL vertex such as the position, the texture
+ * coordinates or the normal.
  *
- * Refer to the corresponding vertex type to see how to use vertices in conjunction with OpenGL
- * vertex buffers.
+ * Refer to the corresponding vertex type to see how to use vertices in conjunction with
+ * OpenGL vertex buffers.
  *
  * @tparam AttrTypes the attribute types
  */
-template <typename... AttrTypes> struct GLVertex;
+template <typename... AttrTypes>
+struct GLVertex;
 
 /**
- * Template specialization of the GLVertex template for the case of multiple vertex attributes. The
- * first attribute is handled in this template, while the remaining attributes are delegated to
- * another GLVertex that is stored inside of this struct in the "rest" attribute.
+ * Template specialization of the GLVertex template for the case of multiple vertex
+ * attributes. The first attribute is handled in this template, while the remaining
+ * attributes are delegated to another GLVertex that is stored inside of this struct in
+ * the "rest" attribute.
  *
- * Together, this struct and the "rest" attribute form a recursive structure that ends when all but
- * one vertex attributes have been "peeled off" the given attribute type parameter pack.
+ * Together, this struct and the "rest" attribute form a recursive structure that ends
+ * when all but one vertex attributes have been "peeled off" the given attribute type
+ * parameter pack.
  *
- * The design of this struct achieves standard layout so that a vertex can be uploaded directly into
- * an OpenGL vertex buffer.
+ * The design of this struct achieves standard layout so that a vertex can be uploaded
+ * directly into an OpenGL vertex buffer.
  *
  * @tparam AttrType the type of the vertex attribute stored here
  * @tparam AttrTypeRest the types of the remaining vertex attributes
  */
-template <typename AttrType, typename... AttrTypeRest> struct GLVertex<AttrType, AttrTypeRest...> {
+template <typename AttrType, typename... AttrTypeRest>
+struct GLVertex<AttrType, AttrTypeRest...>
+{
   using Type = GLVertexType<AttrType, AttrTypeRest...>;
 
-  // To achieve standard memory layout and to allow a vector of vertices to be uploaded, this
-  // template stores the value of its first attribute type parameter as a member, and the remaining
-  // attribute values using the 'rest' attribute.
+  // To achieve standard memory layout and to allow a vector of vertices to be uploaded,
+  // this template stores the value of its first attribute type parameter as a member, and
+  // the remaining attribute values using the 'rest' attribute.
   typename AttrType::ElementType attr;
   GLVertex<AttrTypeRest...> rest;
 
@@ -70,13 +78,13 @@ template <typename AttrType, typename... AttrTypeRest> struct GLVertex<AttrType,
   GLVertex(GLVertex<AttrType, AttrTypeRest...>&& other) noexcept = default;
 
   // Assignment operators
-  GLVertex<AttrType, AttrTypeRest...>& operator=(const GLVertex<AttrType, AttrTypeRest...>& other) =
-    default;
+  GLVertex<AttrType, AttrTypeRest...>& operator=(
+    const GLVertex<AttrType, AttrTypeRest...>& other) = default;
   GLVertex<AttrType, AttrTypeRest...>& operator=(
     GLVertex<AttrType, AttrTypeRest...>&& other) noexcept = default;
 
-  // explicitly declare the following two constructors instead of using type deduction with an
-  // rvalue reference to avoid any clashes with the copy / move constructors
+  // explicitly declare the following two constructors instead of using type deduction
+  // with an rvalue reference to avoid any clashes with the copy / move constructors
 
   /**
    * Creates a new vertex by moving the given attribute values into this vertex.
@@ -85,9 +93,12 @@ template <typename AttrType, typename... AttrTypeRest> struct GLVertex<AttrType,
    * @param i_rest the values of the remaining attributes
    */
   explicit GLVertex(
-    typename AttrType::ElementType&& i_attr, typename AttrTypeRest::ElementType&&... i_rest)
+    typename AttrType::ElementType&& i_attr,
+    typename AttrTypeRest::ElementType&&... i_rest)
     : attr(std::move(i_attr))
-    , rest(std::move(i_rest)...) {}
+    , rest(std::move(i_rest)...)
+  {
+  }
 
   /**
    * Creates a new vertex by copying the given attribute values into this vertex.
@@ -99,12 +110,15 @@ template <typename AttrType, typename... AttrTypeRest> struct GLVertex<AttrType,
     const typename AttrType::ElementType& i_attr,
     const typename AttrTypeRest::ElementType&... i_rest)
     : attr(i_attr)
-    , rest(i_rest...) {}
+    , rest(i_rest...)
+  {
+  }
 
   /**
-   * Creates a list of vertices from the given data. The attribute values for each vertex are taken
-   * from the given iterators, which are incremented for each vertex to be created. The iterators
-   * must be given in the correct order according the type of this vertex.
+   * Creates a list of vertices from the given data. The attribute values for each vertex
+   * are taken from the given iterators, which are incremented for each vertex to be
+   * created. The iterators must be given in the correct order according the type of this
+   * vertex.
    *
    * @tparam I the types of the given iterators
    * @param count the number of vertices to obtain from the given iterators
@@ -112,13 +126,16 @@ template <typename AttrType, typename... AttrTypeRest> struct GLVertex<AttrType,
    * @return the list of vertices
    */
   template <typename... I>
-  static std::vector<GLVertex<AttrType, AttrTypeRest...>> toList(const size_t count, I... cur) {
+  static std::vector<GLVertex<AttrType, AttrTypeRest...>> toList(
+    const size_t count, I... cur)
+  {
     static_assert(
       sizeof...(I) == sizeof...(AttrTypeRest) + 1,
       "number of iterators must match number of vertex attributes");
     std::vector<GLVertex<AttrType, AttrTypeRest...>> result;
     result.reserve(count);
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i)
+    {
       result.emplace_back((*cur++)...);
     }
     return result;
@@ -126,13 +143,15 @@ template <typename AttrType, typename... AttrTypeRest> struct GLVertex<AttrType,
 };
 
 /**
- * Template specialization of the GLVertex template for the case of a single vertex attribute. This
- * attribute is handled in this template. This specialization is the base case for the recursive
- * GLVertex template.
+ * Template specialization of the GLVertex template for the case of a single vertex
+ * attribute. This attribute is handled in this template. This specialization is the base
+ * case for the recursive GLVertex template.
  *
  * @tparam AttrType the type of the vertex attribute stored here
  */
-template <typename AttrType> struct GLVertex<AttrType> {
+template <typename AttrType>
+struct GLVertex<AttrType>
+{
   using Type = GLVertexType<AttrType>;
 
   typename AttrType::ElementType attr;
@@ -150,8 +169,8 @@ template <typename AttrType> struct GLVertex<AttrType> {
   GLVertex<AttrType>& operator=(const GLVertex<AttrType>& other) = default;
   GLVertex<AttrType>& operator=(GLVertex<AttrType>&& other) noexcept = default;
 
-  // explicitly declare the following two constructors instead of using type deduction with an
-  // rvalue reference to avoid any clashes with the copy / move constructors
+  // explicitly declare the following two constructors instead of using type deduction
+  // with an rvalue reference to avoid any clashes with the copy / move constructors
 
   /**
    * Creates a new vertex by moving the given attribute value into this vertex.
@@ -159,7 +178,9 @@ template <typename AttrType> struct GLVertex<AttrType> {
    * @param i_attr the value of the first attribute
    */
   explicit GLVertex(typename AttrType::ElementType&& i_attr)
-    : attr(std::move(i_attr)) {}
+    : attr(std::move(i_attr))
+  {
+  }
 
   /**
    * Creates a new vertex by copying the given attribute value into this vertex.
@@ -167,21 +188,27 @@ template <typename AttrType> struct GLVertex<AttrType> {
    * @param i_attr the value of the first attribute
    */
   explicit GLVertex(const typename AttrType::ElementType& i_attr)
-    : attr(i_attr) {}
+    : attr(i_attr)
+  {
+  }
 
   /**
-   * Creates a list of vertices from the given data. The attribute values for each vertex are taken
-   * from the given iterator, which is incremented for each vertex to be created.
+   * Creates a list of vertices from the given data. The attribute values for each vertex
+   * are taken from the given iterator, which is incremented for each vertex to be
+   * created.
    *
    * @tparam I the type of the given iterator
    * @param count the number of vertices to obtain from the given iterator
    * @param cur the attribute value iterator
    * @return the list of vertices
    */
-  template <typename I> static std::vector<GLVertex<AttrType>> toList(const size_t count, I cur) {
+  template <typename I>
+  static std::vector<GLVertex<AttrType>> toList(const size_t count, I cur)
+  {
     std::vector<GLVertex<AttrType>> result;
     result.reserve(count);
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i)
+    {
       result.emplace_back(*cur++);
     }
     return result;
@@ -189,13 +216,15 @@ template <typename AttrType> struct GLVertex<AttrType> {
 };
 
 /**
- * A helper to access the value of a vertex attribute. The index of the value to be accessed is
- * given as the template parameter. The struct uses recursion to access the value, and there is a
- * specialization for the base case where I becomes 0.
+ * A helper to access the value of a vertex attribute. The index of the value to be
+ * accessed is given as the template parameter. The struct uses recursion to access the
+ * value, and there is a specialization for the base case where I becomes 0.
  *
  * @tparam I the index of the vertex attribute whose value should be accessed
  */
-template <size_t I> struct GetVertexComponent {
+template <size_t I>
+struct GetVertexComponent
+{
   /**
    * Returns the value of the attribute at index I of the given vertex.
    *
@@ -203,7 +232,9 @@ template <size_t I> struct GetVertexComponent {
    * @param v the vertex
    * @return the value of the attribute at index I
    */
-  template <typename... AttrTypes> static const auto& get(const GLVertex<AttrTypes...>& v) {
+  template <typename... AttrTypes>
+  static const auto& get(const GLVertex<AttrTypes...>& v)
+  {
     return GetVertexComponent<I - 1>::get(v.rest);
   }
 
@@ -214,7 +245,9 @@ template <size_t I> struct GetVertexComponent {
    * @param v the vertex
    * @return the value of the attribute at index I
    */
-  template <typename... AttrTypes> const auto& operator()(const GLVertex<AttrTypes...>& v) const {
+  template <typename... AttrTypes>
+  const auto& operator()(const GLVertex<AttrTypes...>& v) const
+  {
     return get(v);
   }
 };
@@ -222,7 +255,9 @@ template <size_t I> struct GetVertexComponent {
 /**
  * Specialization for the base case with index 0.
  */
-template <> struct GetVertexComponent<0> {
+template <>
+struct GetVertexComponent<0>
+{
   /**
    * Returns the value of the first attribute of the given vertex.
    *
@@ -230,7 +265,9 @@ template <> struct GetVertexComponent<0> {
    * @param v the vertex
    * @return the value of the first attribute
    */
-  template <typename... AttrTypes> static const auto& get(const GLVertex<AttrTypes...>& v) {
+  template <typename... AttrTypes>
+  static const auto& get(const GLVertex<AttrTypes...>& v)
+  {
     return v.attr;
   }
 
@@ -241,7 +278,9 @@ template <> struct GetVertexComponent<0> {
    * @param v the vertex
    * @return the value of the first attribute
    */
-  template <typename... AttrTypes> const auto& operator()(const GLVertex<AttrTypes...>& v) const {
+  template <typename... AttrTypes>
+  const auto& operator()(const GLVertex<AttrTypes...>& v) const
+  {
     return get(v);
   }
 };
@@ -254,7 +293,9 @@ template <> struct GetVertexComponent<0> {
  * @param v the vertex
  * @return a reference to the attribute value
  */
-template <size_t I, typename... Attrs> const auto& getVertexComponent(const GLVertex<Attrs...>& v) {
+template <size_t I, typename... Attrs>
+const auto& getVertexComponent(const GLVertex<Attrs...>& v)
+{
   return GetVertexComponent<I>::get(v);
 }
 } // namespace Renderer

@@ -26,23 +26,28 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class BufferedReader;
 class FileSystem;
 class Path;
 } // namespace IO
 
-namespace Assets {
+namespace Assets
+{
 struct PaletteData;
 class TextureBuffer;
 
-enum class PaletteTransparency {
+enum class PaletteTransparency
+{
   Opaque,
   Index255Transparent
 };
 
-class Palette {
+class Palette
+{
 private:
   std::shared_ptr<PaletteData> m_data;
 
@@ -75,15 +80,19 @@ public:
    * @param pixelCount number of pixels (bytes) to read
    * @param rgbaImage the destination buffer, size must be exactly `pixelCount` * 4 bytes
    * @param transparency controls whether or not the palette contains a transparent index
-   * @param averageColor output parameter for the average color of the generated pixel buffer
-   * @return true if the given index buffer did contain a transparent index, unless the transparency
-   * parameter indicates that the image is opaque
+   * @param averageColor output parameter for the average color of the generated pixel
+   * buffer
+   * @return true if the given index buffer did contain a transparent index, unless the
+   * transparency parameter indicates that the image is opaque
    *
    * @throws ReaderException if reader doesn't have pixelCount bytes available
    */
   bool indexedToRgba(
-    IO::Reader& reader, size_t pixelCount, TextureBuffer& rgbaImage,
-    const PaletteTransparency transparency, Color& averageColor) const;
+    IO::Reader& reader,
+    size_t pixelCount,
+    TextureBuffer& rgbaImage,
+    const PaletteTransparency transparency,
+    Color& averageColor) const;
 };
 } // namespace Assets
 } // namespace TrenchBroom

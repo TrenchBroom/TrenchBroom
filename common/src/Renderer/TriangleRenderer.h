@@ -24,11 +24,14 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class RenderContext;
 
-class TriangleRenderer : public DirectRenderable {
+class TriangleRenderer : public DirectRenderable
+{
 private:
   VertexArray m_vertexArray;
   IndexRangeMap m_indexArray;

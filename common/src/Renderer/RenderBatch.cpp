@@ -25,88 +25,113 @@
 
 #include <kdl/vector_utils.h>
 
-namespace TrenchBroom {
-namespace Renderer {
-class RenderBatch::IndexedRenderableWrapper : public IndexedRenderable {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+class RenderBatch::IndexedRenderableWrapper : public IndexedRenderable
+{
 private:
   IndexedRenderable* m_wrappee;
 
 public:
   IndexedRenderableWrapper(VboManager&, IndexedRenderable* wrappee)
-    : m_wrappee(wrappee) {
+    : m_wrappee(wrappee)
+  {
     ensure(m_wrappee != nullptr, "wrappee is null");
   }
 
 private:
-  void prepareVerticesAndIndices(VboManager& vboManager) override {
+  void prepareVerticesAndIndices(VboManager& vboManager) override
+  {
     m_wrappee->prepareVerticesAndIndices(vboManager);
   }
 
-  void doRender(RenderContext& renderContext) override { m_wrappee->render(renderContext); }
+  void doRender(RenderContext& renderContext) override
+  {
+    m_wrappee->render(renderContext);
+  }
 };
 
 RenderBatch::RenderBatch(VboManager& vboManager)
-  : m_vboManager(vboManager) {}
+  : m_vboManager(vboManager)
+{
+}
 
-RenderBatch::~RenderBatch() {
+RenderBatch::~RenderBatch()
+{
   kdl::vec_clear_and_delete(m_oneshots);
   kdl::vec_clear_and_delete(m_indexedRenderables);
 }
 
-void RenderBatch::add(Renderable* renderable) {
+void RenderBatch::add(Renderable* renderable)
+{
   doAdd(renderable);
 }
 
-void RenderBatch::add(DirectRenderable* renderable) {
+void RenderBatch::add(DirectRenderable* renderable)
+{
   doAdd(renderable);
   m_directRenderables.push_back(renderable);
 }
 
-void RenderBatch::add(IndexedRenderable* renderable) {
-  IndexedRenderableWrapper* wrapper = new IndexedRenderableWrapper(m_vboManager, renderable);
+void RenderBatch::add(IndexedRenderable* renderable)
+{
+  IndexedRenderableWrapper* wrapper =
+    new IndexedRenderableWrapper(m_vboManager, renderable);
   doAdd(wrapper);
   m_indexedRenderables.push_back(wrapper);
 }
 
-void RenderBatch::addOneShot(Renderable* renderable) {
+void RenderBatch::addOneShot(Renderable* renderable)
+{
   doAdd(renderable);
   m_oneshots.push_back(renderable);
 }
 
-void RenderBatch::addOneShot(DirectRenderable* renderable) {
+void RenderBatch::addOneShot(DirectRenderable* renderable)
+{
   doAdd(renderable);
   m_directRenderables.push_back(renderable);
   m_oneshots.push_back(renderable);
 }
 
-void RenderBatch::addOneShot(IndexedRenderable* renderable) {
-  IndexedRenderableWrapper* wrapper = new IndexedRenderableWrapper(m_vboManager, renderable);
+void RenderBatch::addOneShot(IndexedRenderable* renderable)
+{
+  IndexedRenderableWrapper* wrapper =
+    new IndexedRenderableWrapper(m_vboManager, renderable);
 
   doAdd(wrapper);
   m_indexedRenderables.push_back(wrapper);
   m_oneshots.push_back(renderable);
 }
 
-void RenderBatch::render(RenderContext& renderContext) {
+void RenderBatch::render(RenderContext& renderContext)
+{
   prepareRenderables();
   renderRenderables(renderContext);
 }
 
-void RenderBatch::doAdd(Renderable* renderable) {
+void RenderBatch::doAdd(Renderable* renderable)
+{
   ensure(renderable != nullptr, "renderable is null");
   m_batch.push_back(renderable);
 }
 
-void RenderBatch::prepareRenderables() {
-  for (DirectRenderable* renderable : m_directRenderables) {
+void RenderBatch::prepareRenderables()
+{
+  for (DirectRenderable* renderable : m_directRenderables)
+  {
     renderable->prepareVertices(m_vboManager);
   }
-  for (IndexedRenderable* renderable : m_indexedRenderables) {
+  for (IndexedRenderable* renderable : m_indexedRenderables)
+  {
     renderable->prepareVerticesAndIndices(m_vboManager);
   }
 }
 
-void RenderBatch::renderRenderables(RenderContext& renderContext) {
+void RenderBatch::renderRenderables(RenderContext& renderContext)
+{
   for (Renderable* renderable : m_batch)
     renderable->render(renderContext);
 }

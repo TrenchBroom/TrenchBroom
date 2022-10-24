@@ -19,11 +19,14 @@
 
 #pragma once
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class InputState;
 
-class DropTracker {
+class DropTracker
+{
 public:
   virtual ~DropTracker();
 

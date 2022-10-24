@@ -26,30 +26,39 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class EntityDefinitionParser;
 }
 
-namespace Assets {
+namespace Assets
+{
 class EntityDefinition;
 class ModelDefinition;
 struct ModelSpecification;
 
 void assertModelDefinition(
-  const ModelSpecification& expected, IO::EntityDefinitionParser& parser,
+  const ModelSpecification& expected,
+  IO::EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr = "{}");
 void assertModelDefinition(
-  const ModelSpecification& expected, const EntityDefinition* definition,
+  const ModelSpecification& expected,
+  const EntityDefinition* definition,
   const std::string& entityPropertiesStr = "{}");
 void assertModelDefinition(
-  const ModelSpecification& expected, const ModelDefinition& actual,
+  const ModelSpecification& expected,
+  const ModelDefinition& actual,
   const std::string& entityPropertiesStr = "{}");
 
 template <typename Parser>
 void assertModelDefinition(
-  const ModelSpecification& expected, const std::string& modelStr, const std::string& templateStr,
-  const std::string& entityPropertiesStr = "{}") {
+  const ModelSpecification& expected,
+  const std::string& modelStr,
+  const std::string& templateStr,
+  const std::string& entityPropertiesStr = "{}")
+{
   const std::string defStr = kdl::str_replace_every(templateStr, "${MODEL}", modelStr);
   Parser parser(defStr, Color(1.0f, 1.0f, 1.0f, 1.0f));
   assertModelDefinition(expected, parser, entityPropertiesStr);

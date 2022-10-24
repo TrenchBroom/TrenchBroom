@@ -52,17 +52,20 @@
 #include "Catch2.h"
 #include "TestUtils.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 /*
  Regex to turn a face definition into a c++ statement to add a face to a vector of faces:
  Find:
  \(\s*(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s*\)\s*\(\s*(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s*\)\s*\(\s*(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s*\)\s*[^\n]+
- Replace: faces.push_back(createParaxial(vm::vec3($1, $2, $3), vm::vec3($4, $5, $6), vm::vec3($7,
- $8, $9)));
+ Replace: faces.push_back(createParaxial(vm::vec3($1, $2, $3), vm::vec3($4, $5, $6),
+ vm::vec3($7, $8, $9)));
  */
 
-TEST_CASE("BrushTest.constructWithFailingFaces", "[BrushTest]") {
+TEST_CASE("BrushTest.constructWithFailingFaces", "[BrushTest]")
+{
   /* from rtz_q1
    {
    ( -192 704 128 ) ( -156 650 128 ) ( -156 650 160 ) mt_sr_v16 32 0 -180 1 -1
@@ -81,25 +84,32 @@ TEST_CASE("BrushTest.constructWithFailingFaces", "[BrushTest]") {
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(-192.0, 704.0, 128.0), vm::vec3(-156.0, 650.0, 128.0),
+                            vm::vec3(-192.0, 704.0, 128.0),
+                            vm::vec3(-156.0, 650.0, 128.0),
                             vm::vec3(-156.0, 650.0, 160.0)),
                           createParaxial(
-                            vm::vec3(-202.0, 604.0, 160.0), vm::vec3(-164.0, 664.0, 128.0),
+                            vm::vec3(-202.0, 604.0, 160.0),
+                            vm::vec3(-164.0, 664.0, 128.0),
                             vm::vec3(-216.0, 613.0, 128.0)),
                           createParaxial(
-                            vm::vec3(-156.0, 650.0, 128.0), vm::vec3(-202.0, 604.0, 128.0),
+                            vm::vec3(-156.0, 650.0, 128.0),
+                            vm::vec3(-202.0, 604.0, 128.0),
                             vm::vec3(-202.0, 604.0, 160.0)),
                           createParaxial(
-                            vm::vec3(-192.0, 704.0, 160.0), vm::vec3(-256.0, 640.0, 160.0),
+                            vm::vec3(-192.0, 704.0, 160.0),
+                            vm::vec3(-256.0, 640.0, 160.0),
                             vm::vec3(-256.0, 640.0, 128.0)),
                           createParaxial(
-                            vm::vec3(-256.0, 640.0, 160.0), vm::vec3(-202.0, 604.0, 160.0),
+                            vm::vec3(-256.0, 640.0, 160.0),
+                            vm::vec3(-202.0, 604.0, 160.0),
                             vm::vec3(-202.0, 604.0, 128.0)),
                           createParaxial(
-                            vm::vec3(-217.0, 672.0, 160.0), vm::vec3(-161.0, 672.0, 160.0),
+                            vm::vec3(-217.0, 672.0, 160.0),
+                            vm::vec3(-161.0, 672.0, 160.0),
                             vm::vec3(-161.0, 603.0, 160.0)),
                           createParaxial(
-                            vm::vec3(-161.0, 603.0, 128.0), vm::vec3(-161.0, 672.0, 128.0),
+                            vm::vec3(-161.0, 603.0, 128.0),
+                            vm::vec3(-161.0, 672.0, 128.0),
                             vm::vec3(-217.0, 672.0, 128.0)),
                         })
                         .value();
@@ -108,19 +118,21 @@ TEST_CASE("BrushTest.constructWithFailingFaces", "[BrushTest]") {
   CHECK(brush.faceCount() == 7u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces2", "[BrushTest]") {
+TEST_CASE("BrushTest.constructWithFailingFaces2", "[BrushTest]")
+{
   /* from ne_ruins
    {
-   ( 3488 1152 1340 ) ( 3488 1248 1344 ) ( 3488 1344 1340 ) *lavaskip 0 0 0 1 1 // right face
-   (normal 1 0 0) ( 3232 1344 1576 ) ( 3232 1152 1576 ) ( 3232 1152 1256 ) *lavaskip 0 0 0 1 1 //
-   left face (normal -1 0 0) ( 3488 1344 1576 ) ( 3264 1344 1576 ) ( 3264 1344 1256 ) *lavaskip 0 0
-   0 1 1 // back face (normal 0 1 0) ( 3280 1152 1576 ) ( 3504 1152 1576 ) ( 3504 1152 1256 )
-   *lavaskip 0 0 0 1 1 // front face (normal 0 -1 0) ( 3488 1248 1344 ) ( 3488 1152 1340 ) ( 3232
-   1152 1340 ) *lavaskip 0 0 0 1 1 // top triangle facing front ( 3488 1248 1344 ) ( 3232 1248 1344
-   ) ( 3232 1344 1340 ) *lavaskip 0 0 0 1 1 // top triangle facing back ( 3488 1152 1340 ) ( 3360
-   1152 1344 ) ( 3424 1344 1342 ) *lavaskip 0 0 0 1 1 // top triangle facing right ( 3360 1152 1344
-   ) ( 3232 1152 1340 ) ( 3296 1344 1342 ) *lavaskip 0 0 0 1 1 // top triangle facing left --> clip
-   algorithm cannot find the initial edge ( 3504 1344 1280 ) ( 3280 1344 1280 ) ( 3280 1152 1280 )
+   ( 3488 1152 1340 ) ( 3488 1248 1344 ) ( 3488 1344 1340 ) *lavaskip 0 0 0 1 1 // right
+   face (normal 1 0 0) ( 3232 1344 1576 ) ( 3232 1152 1576 ) ( 3232 1152 1256 ) *lavaskip
+   0 0 0 1 1 // left face (normal -1 0 0) ( 3488 1344 1576 ) ( 3264 1344 1576 ) ( 3264
+   1344 1256 ) *lavaskip 0 0 0 1 1 // back face (normal 0 1 0) ( 3280 1152 1576 ) ( 3504
+   1152 1576 ) ( 3504 1152 1256 ) *lavaskip 0 0 0 1 1 // front face (normal 0 -1 0) ( 3488
+   1248 1344 ) ( 3488 1152 1340 ) ( 3232 1152 1340 ) *lavaskip 0 0 0 1 1 // top triangle
+   facing front ( 3488 1248 1344 ) ( 3232 1248 1344 ) ( 3232 1344 1340 ) *lavaskip 0 0 0 1
+   1 // top triangle facing back ( 3488 1152 1340 ) ( 3360 1152 1344 ) ( 3424 1344 1342 )
+   *lavaskip 0 0 0 1 1 // top triangle facing right ( 3360 1152 1344 ) ( 3232 1152 1340 )
+   ( 3296 1344 1342 ) *lavaskip 0 0 0 1 1 // top triangle facing left --> clip algorithm
+   cannot find the initial edge ( 3504 1344 1280 ) ( 3280 1344 1280 ) ( 3280 1152 1280 )
    *lavaskip 0 0 0 1 1 // bottom face (normal 0 0 -1)
    }
    */
@@ -131,31 +143,40 @@ TEST_CASE("BrushTest.constructWithFailingFaces2", "[BrushTest]") {
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(3488.0, 1152.0, 1340.0), vm::vec3(3488.0, 1248.0, 1344.0),
+                            vm::vec3(3488.0, 1152.0, 1340.0),
+                            vm::vec3(3488.0, 1248.0, 1344.0),
                             vm::vec3(3488.0, 1344.0, 1340.0)),
                           createParaxial(
-                            vm::vec3(3232.0, 1344.0, 1576.0), vm::vec3(3232.0, 1152.0, 1576.0),
+                            vm::vec3(3232.0, 1344.0, 1576.0),
+                            vm::vec3(3232.0, 1152.0, 1576.0),
                             vm::vec3(3232.0, 1152.0, 1256.0)),
                           createParaxial(
-                            vm::vec3(3488.0, 1344.0, 1576.0), vm::vec3(3264.0, 1344.0, 1576.0),
+                            vm::vec3(3488.0, 1344.0, 1576.0),
+                            vm::vec3(3264.0, 1344.0, 1576.0),
                             vm::vec3(3264.0, 1344.0, 1256.0)),
                           createParaxial(
-                            vm::vec3(3280.0, 1152.0, 1576.0), vm::vec3(3504.0, 1152.0, 1576.0),
+                            vm::vec3(3280.0, 1152.0, 1576.0),
+                            vm::vec3(3504.0, 1152.0, 1576.0),
                             vm::vec3(3504.0, 1152.0, 1256.0)),
                           createParaxial(
-                            vm::vec3(3488.0, 1248.0, 1344.0), vm::vec3(3488.0, 1152.0, 1340.0),
+                            vm::vec3(3488.0, 1248.0, 1344.0),
+                            vm::vec3(3488.0, 1152.0, 1340.0),
                             vm::vec3(3232.0, 1152.0, 1340.0)),
                           createParaxial(
-                            vm::vec3(3488.0, 1248.0, 1344.0), vm::vec3(3232.0, 1248.0, 1344.0),
+                            vm::vec3(3488.0, 1248.0, 1344.0),
+                            vm::vec3(3232.0, 1248.0, 1344.0),
                             vm::vec3(3232.0, 1344.0, 1340.0)),
                           createParaxial(
-                            vm::vec3(3488.0, 1152.0, 1340.0), vm::vec3(3360.0, 1152.0, 1344.0),
+                            vm::vec3(3488.0, 1152.0, 1340.0),
+                            vm::vec3(3360.0, 1152.0, 1344.0),
                             vm::vec3(3424.0, 1344.0, 1342.0)),
                           createParaxial(
-                            vm::vec3(3360.0, 1152.0, 1344.0), vm::vec3(3232.0, 1152.0, 1340.0),
+                            vm::vec3(3360.0, 1152.0, 1344.0),
+                            vm::vec3(3232.0, 1152.0, 1340.0),
                             vm::vec3(3296.0, 1344.0, 1342.0)),
                           createParaxial(
-                            vm::vec3(3504.0, 1344.0, 1280.0), vm::vec3(3280.0, 1344.0, 1280.0),
+                            vm::vec3(3504.0, 1344.0, 1280.0),
+                            vm::vec3(3280.0, 1344.0, 1280.0),
                             vm::vec3(3280.0, 1152.0, 1280.0)),
                         })
                         .value();
@@ -164,7 +185,8 @@ TEST_CASE("BrushTest.constructWithFailingFaces2", "[BrushTest]") {
   CHECK(brush.faceCount() == 9u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces3", "[BrushTest]") {
+TEST_CASE("BrushTest.constructWithFailingFaces3", "[BrushTest]")
+{
   /* from ne_ruins
    {
    ( -32 -1088 896 ) ( -64 -1120 896 ) ( -64 -1120 912 ) trims2b 0 0 0 1 1  // front face
@@ -182,22 +204,28 @@ TEST_CASE("BrushTest.constructWithFailingFaces3", "[BrushTest]") {
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(-32.0, -1088.0, 896.0), vm::vec3(-64.0, -1120.0, 896.0),
+                            vm::vec3(-32.0, -1088.0, 896.0),
+                            vm::vec3(-64.0, -1120.0, 896.0),
                             vm::vec3(-64.0, -1120.0, 912.0)),
                           createParaxial(
-                            vm::vec3(-32.0, -832.0, 896.0), vm::vec3(-32.0, -1088.0, 896.0),
+                            vm::vec3(-32.0, -832.0, 896.0),
+                            vm::vec3(-32.0, -1088.0, 896.0),
                             vm::vec3(-32.0, -1088.0, 912.0)),
                           createParaxial(
-                            vm::vec3(-64.0, -848.0, 912.0), vm::vec3(-64.0, -1120.0, 912.0),
+                            vm::vec3(-64.0, -848.0, 912.0),
+                            vm::vec3(-64.0, -1120.0, 912.0),
                             vm::vec3(-64.0, -1120.0, 896.0)),
                           createParaxial(
-                            vm::vec3(-32.0, -896.0, 896.0), vm::vec3(-32.0, -912.0, 912.0),
+                            vm::vec3(-32.0, -896.0, 896.0),
+                            vm::vec3(-32.0, -912.0, 912.0),
                             vm::vec3(-64.0, -912.0, 912.0)),
                           createParaxial(
-                            vm::vec3(-64.0, -1088.0, 912.0), vm::vec3(-64.0, -848.0, 912.0),
+                            vm::vec3(-64.0, -1088.0, 912.0),
+                            vm::vec3(-64.0, -848.0, 912.0),
                             vm::vec3(-32.0, -848.0, 912.0)),
                           createParaxial(
-                            vm::vec3(-64.0, -864.0, 896.0), vm::vec3(-32.0, -864.0, 896.0),
+                            vm::vec3(-64.0, -864.0, 896.0),
+                            vm::vec3(-32.0, -864.0, 896.0),
                             vm::vec3(-32.0, -832.0, 896.0)),
                         })
                         .value();
@@ -206,16 +234,18 @@ TEST_CASE("BrushTest.constructWithFailingFaces3", "[BrushTest]") {
   CHECK(brush.faceCount() == 6u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces4", "[BrushTest]") {
+TEST_CASE("BrushTest.constructWithFailingFaces4", "[BrushTest]")
+{
   /* from ne_ruins
    {
-   ( -1268 272 2524 ) ( -1268 272 2536 ) ( -1268 288 2540 ) wall1_128 0 0 0 0.5 0.5      faces right
-   ( -1280 265 2534 ) ( -1268 272 2524 ) ( -1268 288 2528 ) wall1_128 128 128 0 0.5 0.5  faces left
-   / down, there's just a minimal difference between this and the next face ( -1268 288 2528 ) (
-   -1280 288 2540 ) ( -1280 265 2534 ) wall1_128 128 128 0 0.5 0.5  faces left / up ( -1268 288 2540
-   ) ( -1280 288 2540 ) ( -1280 288 2536 ) wall1_128 128 0 0 0.5 0.5    faces back ( -1268 265 2534
-   ) ( -1280 265 2534 ) ( -1280 288 2540 ) wall1_128 128 128 0 0.5 0.5  faces front / up ( -1268 265
-   2534 ) ( -1268 272 2524 ) ( -1280 265 2534 ) wall1_128 128 0 0 0.5 0.5    faces front / down
+   ( -1268 272 2524 ) ( -1268 272 2536 ) ( -1268 288 2540 ) wall1_128 0 0 0 0.5 0.5 faces
+   right ( -1280 265 2534 ) ( -1268 272 2524 ) ( -1268 288 2528 ) wall1_128 128 128 0 0.5
+   0.5  faces left / down, there's just a minimal difference between this and the next
+   face ( -1268 288 2528 ) ( -1280 288 2540 ) ( -1280 265 2534 ) wall1_128 128 128 0 0.5
+   0.5  faces left / up ( -1268 288 2540 ) ( -1280 288 2540 ) ( -1280 288 2536 ) wall1_128
+   128 0 0 0.5 0.5    faces back ( -1268 265 2534 ) ( -1280 265 2534 ) ( -1280 288 2540 )
+   wall1_128 128 128 0 0.5 0.5  faces front / up ( -1268 265 2534 ) ( -1268 272 2524 ) (
+   -1280 265 2534 ) wall1_128 128 0 0 0.5 0.5    faces front / down
    }
    */
 
@@ -225,22 +255,28 @@ TEST_CASE("BrushTest.constructWithFailingFaces4", "[BrushTest]") {
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(-1268.0, 272.0, 2524.0), vm::vec3(-1268.0, 272.0, 2536.0),
+                            vm::vec3(-1268.0, 272.0, 2524.0),
+                            vm::vec3(-1268.0, 272.0, 2536.0),
                             vm::vec3(-1268.0, 288.0, 2540.0)),
                           createParaxial(
-                            vm::vec3(-1280.0, 265.0, 2534.0), vm::vec3(-1268.0, 272.0, 2524.0),
+                            vm::vec3(-1280.0, 265.0, 2534.0),
+                            vm::vec3(-1268.0, 272.0, 2524.0),
                             vm::vec3(-1268.0, 288.0, 2528.0)),
                           createParaxial(
-                            vm::vec3(-1268.0, 288.0, 2528.0), vm::vec3(-1280.0, 288.0, 2540.0),
+                            vm::vec3(-1268.0, 288.0, 2528.0),
+                            vm::vec3(-1280.0, 288.0, 2540.0),
                             vm::vec3(-1280.0, 265.0, 2534.0)),
                           createParaxial(
-                            vm::vec3(-1268.0, 288.0, 2540.0), vm::vec3(-1280.0, 288.0, 2540.0),
+                            vm::vec3(-1268.0, 288.0, 2540.0),
+                            vm::vec3(-1280.0, 288.0, 2540.0),
                             vm::vec3(-1280.0, 288.0, 2536.0)),
                           createParaxial(
-                            vm::vec3(-1268.0, 265.0, 2534.0), vm::vec3(-1280.0, 265.0, 2534.0),
+                            vm::vec3(-1268.0, 265.0, 2534.0),
+                            vm::vec3(-1280.0, 265.0, 2534.0),
                             vm::vec3(-1280.0, 288.0, 2540.0)),
                           createParaxial(
-                            vm::vec3(-1268.0, 265.0, 2534.0), vm::vec3(-1268.0, 272.0, 2524.0),
+                            vm::vec3(-1268.0, 265.0, 2534.0),
+                            vm::vec3(-1268.0, 272.0, 2524.0),
                             vm::vec3(-1280.0, 265.0, 2534.0)),
                         })
                         .value();
@@ -249,18 +285,20 @@ TEST_CASE("BrushTest.constructWithFailingFaces4", "[BrushTest]") {
   CHECK(brush.faceCount() == 6u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces5", "[BrushTest]") {
+TEST_CASE("BrushTest.constructWithFailingFaces5", "[BrushTest]")
+{
   /* from jam6_ericwtronyn
-   Interestingly, the order in which the faces appear in the map file is okay, but when they get
-   reordered during load, the resulting order leads to a crash. The order below is the reordered
-   one.
+   Interestingly, the order in which the faces appear in the map file is okay, but when
+   they get reordered during load, the resulting order leads to a crash. The order below
+   is the reordered one.
    {
    ( 1296 896 944 ) ( 1296 1008 1056 ) ( 1280 1008 1008 ) rock18clean 0 0 0 1 1 // bottom
    ( 1296 1008 1168 ) ( 1296 1008 1056 ) ( 1296 896 944 ) rock18clean 0 64 0 1 1 // right
-   ( 1280 1008 1008 ) ( 1280 1008 1168 ) ( 1280 896 1056 ) rock18clean 0 64 0 1 1 // left, fails
-   here ( 1280 1008 1168 ) ( 1280 1008 1008 ) ( 1296 1008 1056 ) rock18clean 0 64 0 1 1 // back (
-   1296 1008 1168 ) ( 1296 896 1056 ) ( 1280 896 1056 ) rock18clean 0 64 0 1 1 // top ( 1280 896 896
-   ) ( 1280 896 1056 ) ( 1296 896 1056 ) rock18clean 0 64 0 1 1 // front
+   ( 1280 1008 1008 ) ( 1280 1008 1168 ) ( 1280 896 1056 ) rock18clean 0 64 0 1 1 // left,
+   fails here ( 1280 1008 1168 ) ( 1280 1008 1008 ) ( 1296 1008 1056 ) rock18clean 0 64 0
+   1 1 // back ( 1296 1008 1168 ) ( 1296 896 1056 ) ( 1280 896 1056 ) rock18clean 0 64 0 1
+   1 // top ( 1280 896 896 ) ( 1280 896 1056 ) ( 1296 896 1056 ) rock18clean 0 64 0 1 1 //
+   front
    }
    */
 
@@ -270,22 +308,28 @@ TEST_CASE("BrushTest.constructWithFailingFaces5", "[BrushTest]") {
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(1296.0, 896.0, 944.0), vm::vec3(1296.0, 1008.0, 1056.0),
+                            vm::vec3(1296.0, 896.0, 944.0),
+                            vm::vec3(1296.0, 1008.0, 1056.0),
                             vm::vec3(1280.0, 1008.0, 1008.0)),
                           createParaxial(
-                            vm::vec3(1296.0, 1008.0, 1168.0), vm::vec3(1296.0, 1008.0, 1056.0),
+                            vm::vec3(1296.0, 1008.0, 1168.0),
+                            vm::vec3(1296.0, 1008.0, 1056.0),
                             vm::vec3(1296.0, 896.0, 944.0)),
                           createParaxial(
-                            vm::vec3(1280.0, 1008.0, 1008.0), vm::vec3(1280.0, 1008.0, 1168.0),
+                            vm::vec3(1280.0, 1008.0, 1008.0),
+                            vm::vec3(1280.0, 1008.0, 1168.0),
                             vm::vec3(1280.0, 896.0, 1056.0)),
                           createParaxial(
-                            vm::vec3(1280.0, 1008.0, 1168.0), vm::vec3(1280.0, 1008.0, 1008.0),
+                            vm::vec3(1280.0, 1008.0, 1168.0),
+                            vm::vec3(1280.0, 1008.0, 1008.0),
                             vm::vec3(1296.0, 1008.0, 1056.0)),
                           createParaxial(
-                            vm::vec3(1296.0, 1008.0, 1168.0), vm::vec3(1296.0, 896.0, 1056.0),
+                            vm::vec3(1296.0, 1008.0, 1168.0),
+                            vm::vec3(1296.0, 896.0, 1056.0),
                             vm::vec3(1280.0, 896.0, 1056.0)),
                           createParaxial(
-                            vm::vec3(1280.0, 896.0, 896.0), vm::vec3(1280.0, 896.0, 1056.0),
+                            vm::vec3(1280.0, 896.0, 896.0),
+                            vm::vec3(1280.0, 896.0, 1056.0),
                             vm::vec3(1296.0, 896.0, 1056.0)),
                         })
                         .value();
@@ -294,14 +338,16 @@ TEST_CASE("BrushTest.constructWithFailingFaces5", "[BrushTest]") {
   CHECK(brush.faceCount() == 6u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces6", "[BrushTest]") {
+TEST_CASE("BrushTest.constructWithFailingFaces6", "[BrushTest]")
+{
   /* from 768_negke
    {
-   ( -80 -80 -3840  ) ( -80 -80 -3824  ) ( -32 -32 -3808 ) mmetal1_2b 0 0 0 1 1 // front / right
-   ( -96 -32 -3840  ) ( -96 -32 -3824  ) ( -80 -80 -3824 ) mmetal1_2 0 0 0 1 1 // left
-   ( -96 -32 -3824  ) ( -32 -32 -3808  ) ( -80 -80 -3824 ) mmetal1_2b 0 0 0 1 1 // top
-   ( -32 -32 -3840  ) ( -32 -32 -3808  ) ( -96 -32 -3824 ) mmetal1_2b 0 0 0 1 1 // back
-   ( -32 -32 -3840  ) ( -96 -32 -3840  ) ( -80 -80 -3840 ) mmetal1_2b 0 0 0 1 1 // bottom
+   ( -80 -80 -3840  ) ( -80 -80 -3824  ) ( -32 -32 -3808 ) mmetal1_2b 0 0 0 1 1 // front /
+   right ( -96 -32 -3840  ) ( -96 -32 -3824  ) ( -80 -80 -3824 ) mmetal1_2 0 0 0 1 1 //
+   left ( -96 -32 -3824  ) ( -32 -32 -3808  ) ( -80 -80 -3824 ) mmetal1_2b 0 0 0 1 1 //
+   top ( -32 -32 -3840  ) ( -32 -32 -3808  ) ( -96 -32 -3824 ) mmetal1_2b 0 0 0 1 1 //
+   back ( -32 -32 -3840  ) ( -96 -32 -3840  ) ( -80 -80 -3840 ) mmetal1_2b 0 0 0 1 1 //
+   bottom
    }
    */
 
@@ -311,19 +357,24 @@ TEST_CASE("BrushTest.constructWithFailingFaces6", "[BrushTest]") {
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(-80.0, -80.0, -3840.0), vm::vec3(-80.0, -80.0, -3824.0),
+                            vm::vec3(-80.0, -80.0, -3840.0),
+                            vm::vec3(-80.0, -80.0, -3824.0),
                             vm::vec3(-32.0, -32.0, -3808.0)),
                           createParaxial(
-                            vm::vec3(-96.0, -32.0, -3840.0), vm::vec3(-96.0, -32.0, -3824.0),
+                            vm::vec3(-96.0, -32.0, -3840.0),
+                            vm::vec3(-96.0, -32.0, -3824.0),
                             vm::vec3(-80.0, -80.0, -3824.0)),
                           createParaxial(
-                            vm::vec3(-96.0, -32.0, -3824.0), vm::vec3(-32.0, -32.0, -3808.0),
+                            vm::vec3(-96.0, -32.0, -3824.0),
+                            vm::vec3(-32.0, -32.0, -3808.0),
                             vm::vec3(-80.0, -80.0, -3824.0)),
                           createParaxial(
-                            vm::vec3(-32.0, -32.0, -3840.0), vm::vec3(-32.0, -32.0, -3808.0),
+                            vm::vec3(-32.0, -32.0, -3840.0),
+                            vm::vec3(-32.0, -32.0, -3808.0),
                             vm::vec3(-96.0, -32.0, -3824.0)),
                           createParaxial(
-                            vm::vec3(-32.0, -32.0, -3840.0), vm::vec3(-96.0, -32.0, -3840.0),
+                            vm::vec3(-32.0, -32.0, -3840.0),
+                            vm::vec3(-96.0, -32.0, -3840.0),
                             vm::vec3(-80.0, -80.0, -3840.0)),
                         })
                         .value();
@@ -332,11 +383,12 @@ TEST_CASE("BrushTest.constructWithFailingFaces6", "[BrushTest]") {
   CHECK(brush.faceCount() == 5u);
 }
 
-TEST_CASE("BrushTest.constructBrushWithManySides", "[BrushTest]") {
+TEST_CASE("BrushTest.constructBrushWithManySides", "[BrushTest]")
+{
   /*
    See https://github.com/TrenchBroom/TrenchBroom/issues/1153
-   The faces have been reordered according to Model::BrushFace::sortFaces and all non-interesting
-   faces have been removed from the brush.
+   The faces have been reordered according to Model::BrushFace::sortFaces and all
+   non-interesting faces have been removed from the brush.
 
    {
    ( 624 688 -456 ) ( 656 760 -480 ) ( 624 680 -480 ) face7 8 0 180 1 -1
@@ -356,29 +408,45 @@ TEST_CASE("BrushTest.constructBrushWithManySides", "[BrushTest]") {
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(624.0, 688.0, -456.0), vm::vec3(656.0, 760.0, -480.0),
-                            vm::vec3(624.0, 680.0, -480.0), "face7"),
+                            vm::vec3(624.0, 688.0, -456.0),
+                            vm::vec3(656.0, 760.0, -480.0),
+                            vm::vec3(624.0, 680.0, -480.0),
+                            "face7"),
                           createParaxial(
-                            vm::vec3(536.0, 792.0, -480.0), vm::vec3(536.0, 792.0, -432.0),
-                            vm::vec3(488.0, 720.0, -480.0), "face12"),
+                            vm::vec3(536.0, 792.0, -480.0),
+                            vm::vec3(536.0, 792.0, -432.0),
+                            vm::vec3(488.0, 720.0, -480.0),
+                            "face12"),
                           createParaxial(
-                            vm::vec3(568.0, 656.0, -464.0), vm::vec3(568.0, 648.0, -480.0),
-                            vm::vec3(520.0, 672.0, -456.0), "face14"),
+                            vm::vec3(568.0, 656.0, -464.0),
+                            vm::vec3(568.0, 648.0, -480.0),
+                            vm::vec3(520.0, 672.0, -456.0),
+                            "face14"),
                           createParaxial(
-                            vm::vec3(520.0, 672.0, -456.0), vm::vec3(520.0, 664.0, -480.0),
-                            vm::vec3(488.0, 720.0, -452.0), "face15"),
+                            vm::vec3(520.0, 672.0, -456.0),
+                            vm::vec3(520.0, 664.0, -480.0),
+                            vm::vec3(488.0, 720.0, -452.0),
+                            "face15"),
                           createParaxial(
-                            vm::vec3(560.0, 728.0, -440.0), vm::vec3(488.0, 720.0, -452.0),
-                            vm::vec3(536.0, 792.0, -432.0), "face17"),
+                            vm::vec3(560.0, 728.0, -440.0),
+                            vm::vec3(488.0, 720.0, -452.0),
+                            vm::vec3(536.0, 792.0, -432.0),
+                            "face17"),
                           createParaxial(
-                            vm::vec3(568.0, 656.0, -464.0), vm::vec3(520.0, 672.0, -456.0),
-                            vm::vec3(624.0, 688.0, -456.0), "face19"),
+                            vm::vec3(568.0, 656.0, -464.0),
+                            vm::vec3(520.0, 672.0, -456.0),
+                            vm::vec3(624.0, 688.0, -456.0),
+                            "face19"),
                           createParaxial(
-                            vm::vec3(560.0, 728.0, -440.0), vm::vec3(624.0, 688.0, -456.0),
-                            vm::vec3(520.0, 672.0, -456.0), "face20"),
+                            vm::vec3(560.0, 728.0, -440.0),
+                            vm::vec3(624.0, 688.0, -456.0),
+                            vm::vec3(520.0, 672.0, -456.0),
+                            "face20"),
                           createParaxial(
-                            vm::vec3(600.0, 840.0, -480.0), vm::vec3(536.0, 792.0, -480.0),
-                            vm::vec3(636.0, 812.0, -480.0), "face22"),
+                            vm::vec3(600.0, 840.0, -480.0),
+                            vm::vec3(536.0, 792.0, -480.0),
+                            vm::vec3(636.0, 812.0, -480.0),
+                            "face22"),
                         })
                         .value();
 
@@ -386,28 +454,37 @@ TEST_CASE("BrushTest.constructBrushWithManySides", "[BrushTest]") {
   CHECK(brush.faceCount() == 8u);
 }
 
-TEST_CASE("BrushTest.constructBrushAfterRotateFail", "[BrushTest]") {
+TEST_CASE("BrushTest.constructBrushAfterRotateFail", "[BrushTest]")
+{
   /*
    See https://github.com/TrenchBroom/TrenchBroom/issues/1173
 
    This is the brush after rotation. Rebuilding the geometry should assert.
 
    {
-   (-729.68857812925364 -128 2061.2927432882448) (-910.70791411301013 128 2242.3120792720015)
+   (-729.68857812925364 -128 2061.2927432882448) (-910.70791411301013 128
+   2242.3120792720015)
    (-820.19824612113155 -128 1970.7830752963655) 0 0 0 5 5
-   (-639.17891013737574 -640 1970.7830752963669) (-729.68857812925364 -128 2061.2927432882448)
+   (-639.17891013737574 -640 1970.7830752963669) (-729.68857812925364 -128
+   2061.2927432882448)
    (-729.68857812925364 -640 1880.2734073044885) 0 0 0 5 5
-   (-639.17891013737574 -1024 1970.7830752963669) (-820.19824612113177 -640 2151.8024112801227)
+   (-639.17891013737574 -1024 1970.7830752963669) (-820.19824612113177 -640
+   2151.8024112801227)
    (-639.17891013737574 -640 1970.7830752963669) 0 0 0 5 5
-   (-639.17891013737574 -1024 1970.7830752963669) (-639.17891013737574 -640 1970.7830752963669)
+   (-639.17891013737574 -1024 1970.7830752963669) (-639.17891013737574 -640
+   1970.7830752963669)
    (-729.68857812925364 -1024 1880.2734073044885) 0 0 0 5 5
-   (-1001.2175821048878 -128 2151.8024112801222) (-910.70791411301013 -128 2242.3120792720015)
+   (-1001.2175821048878 -128 2151.8024112801222) (-910.70791411301013 -128
+   2242.3120792720015)
    (-910.70791411300991 -640 2061.2927432882443) 0 0 0 5 5
-   (-639.17891013737574 -1024 1970.7830752963669) (-729.68857812925364 -1024 1880.2734073044885)
+   (-639.17891013737574 -1024 1970.7830752963669) (-729.68857812925364 -1024
+   1880.2734073044885)
    (-820.19824612113177 -640 2151.8024112801227) 0 0 0 5 5
-   (-1001.2175821048878 -128 2151.8024112801222) (-1001.2175821048878 128 2151.8024112801222)
+   (-1001.2175821048878 -128 2151.8024112801222) (-1001.2175821048878 128
+   2151.8024112801222)
    (-910.70791411301013 -128 2242.3120792720015) 0 0 0 5 5 // long upper face
-   (-729.68857812925364 -1024 1880.2734073044885) (-729.68857812925364 -640 1880.2734073044885)
+   (-729.68857812925364 -1024 1880.2734073044885) (-729.68857812925364 -640
+   1880.2734073044885)
    (-910.70791411300991 -640 2061.2927432882443) 0 0 0 5 5 // lower face
    }
    */
@@ -440,7 +517,8 @@ TEST_CASE("BrushTest.constructBrushAfterRotateFail", "[BrushTest]") {
         createParaxial(
           vm::vec3(-639.17891013737574, -1024, 1970.7830752963669),
           vm::vec3(-729.68857812925364, -1024, 1880.2734073044885),
-          vm::vec3(-820.19824612113177, -640, 2151.8024112801227)), // assertion failure here
+          vm::vec3(
+            -820.19824612113177, -640, 2151.8024112801227)), // assertion failure here
         createParaxial(
           vm::vec3(-1001.2175821048878, -128, 2151.8024112801222),
           vm::vec3(-1001.2175821048878, 128, 2151.8024112801222),
@@ -455,7 +533,8 @@ TEST_CASE("BrushTest.constructBrushAfterRotateFail", "[BrushTest]") {
   CHECK(brush.fullySpecified());
 }
 
-TEST_CASE("BrushTest.moveVertexFailing1", "[BrushTest]") {
+TEST_CASE("BrushTest.moveVertexFailing1", "[BrushTest]")
+{
   const vm::vec3d p1(-64.0, -64.0, 0.0);
   const vm::vec3d p2(+64.0, -64.0, 0.0);
   const vm::vec3d p3(0.0, +64.0, 0.0);
@@ -472,31 +551,37 @@ TEST_CASE("BrushTest.moveVertexFailing1", "[BrushTest]") {
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush = builder.createBrush(oldPositions, "texture").value();
 
-  for (size_t i = 0; i < oldPositions.size(); ++i) {
-    for (size_t j = 0; j < oldPositions.size(); ++j) {
-      if (i != j) {
+  for (size_t i = 0; i < oldPositions.size(); ++i)
+  {
+    for (size_t j = 0; j < oldPositions.size(); ++j)
+    {
+      if (i != j)
+      {
         CHECK_FALSE(brush.canMoveVertices(
-          worldBounds, std::vector<vm::vec3d>(1, oldPositions[i]),
+          worldBounds,
+          std::vector<vm::vec3d>(1, oldPositions[i]),
           oldPositions[j] - oldPositions[i]));
       }
     }
   }
 }
 
-TEST_CASE("BrushTest.moveVertexFail_2158", "[BrushTest]") {
+TEST_CASE("BrushTest.moveVertexFail_2158", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2158
-  const std::string data("{\n"
-                         "( 320 256 320 ) ( 384 192 320 ) ( 352 224 384 ) sky1 0 96 0 1 1\n"
-                         "( 384 128 320 ) ( 320 64 320 ) ( 352 96 384 ) sky1 0 96 0 1 1\n"
-                         "( 384 32 320 ) ( 384 32 384 ) ( 384 256 384 ) sky1 0 96 0 1 1\n"
-                         "( 192 192 320 ) ( 256 256 320 ) ( 224 224 384 ) sky1 0 96 0 1 1\n"
-                         "( 256 64 320 ) ( 192 128 320 ) ( 224 96 384 ) sky1 0 96 0 1 1\n"
-                         "( 192 32 384 ) ( 192 32 320 ) ( 192 256 320 ) sky1 0 96 0 1 1\n"
-                         "( 384 256 320 ) ( 384 256 384 ) ( 192 256 384 ) sky1 0 96 0 1 1\n"
-                         "( 320 64 320 ) ( 256 64 320 ) ( 288 64 384 ) sky1 0 96 0 1 1\n"
-                         "( 192 64 352 ) ( 192 240 352 ) ( 368 240 352 ) sky1 0 0 0 1 1\n"
-                         "( 384 240 320 ) ( 208 240 320 ) ( 208 64 320 ) sky1 0 0 0 1 1\n"
-                         "}\n");
+  const std::string data(
+    "{\n"
+    "( 320 256 320 ) ( 384 192 320 ) ( 352 224 384 ) sky1 0 96 0 1 1\n"
+    "( 384 128 320 ) ( 320 64 320 ) ( 352 96 384 ) sky1 0 96 0 1 1\n"
+    "( 384 32 320 ) ( 384 32 384 ) ( 384 256 384 ) sky1 0 96 0 1 1\n"
+    "( 192 192 320 ) ( 256 256 320 ) ( 224 224 384 ) sky1 0 96 0 1 1\n"
+    "( 256 64 320 ) ( 192 128 320 ) ( 224 96 384 ) sky1 0 96 0 1 1\n"
+    "( 192 32 384 ) ( 192 32 320 ) ( 192 256 320 ) sky1 0 96 0 1 1\n"
+    "( 384 256 320 ) ( 384 256 384 ) ( 192 256 384 ) sky1 0 96 0 1 1\n"
+    "( 320 64 320 ) ( 256 64 320 ) ( 288 64 384 ) sky1 0 96 0 1 1\n"
+    "( 192 64 352 ) ( 192 240 352 ) ( 368 240 352 ) sky1 0 0 0 1 1\n"
+    "( 384 240 320 ) ( 208 240 320 ) ( 208 64 320 ) sky1 0 0 0 1 1\n"
+    "}\n");
 
   const vm::bbox3 worldBounds(4096.0);
 
@@ -520,7 +605,8 @@ TEST_CASE("BrushTest.moveVertexFail_2158", "[BrushTest]") {
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.moveVerticesFail_2158", "[BrushTest]") {
+TEST_CASE("BrushTest.moveVerticesFail_2158", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2158
   const vm::bbox3 worldBounds(4096.0);
 
@@ -584,12 +670,14 @@ TEST_CASE("BrushTest.moveVerticesFail_2158", "[BrushTest]") {
       vm::vec3(1120.5128684458623, -1855.3192739534061, 574.53563498325116))};
 
   CHECK(brush.canMoveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
-  CHECK_NOTHROW(brush.moveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
+  CHECK_NOTHROW(
+    brush.moveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
 
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082", "[BrushTest]") {
+TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2082
 
   const vm::bbox3 worldBounds(4096.0);
@@ -611,7 +699,8 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082", "[BrushTest]") {
 
   IO::TestParserStatus status;
 
-  std::vector<Node*> nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  std::vector<Node*> nodes =
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -667,7 +756,8 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082", "[BrushTest]") {
   // top faces
   assertTexture("*slime", brush, std::vector<vm::vec3d>{p6, p2, p11});
   assertTexture("*slime0", brush, std::vector<vm::vec3d>{p2, p8, p11});
-  assertTexture("*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11}); // failure, becomes *slime0
+  assertTexture(
+    "*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11}); // failure, becomes *slime0
   assertTexture("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
 
   kdl::col_delete_all(nodes);
@@ -675,7 +765,8 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082", "[BrushTest]") {
 
 // snap vertices tests
 
-static void assertCannotSnapTo(const std::string& data, const FloatType gridSize) {
+static void assertCannotSnapTo(const std::string& data, const FloatType gridSize)
+{
   const vm::bbox3 worldBounds(8192.0);
 
   IO::TestParserStatus status;
@@ -690,11 +781,13 @@ static void assertCannotSnapTo(const std::string& data, const FloatType gridSize
   kdl::col_delete_all(nodes);
 }
 
-static void assertCannotSnap(const std::string& data) {
+static void assertCannotSnap(const std::string& data)
+{
   assertCannotSnapTo(data, 1.0);
 }
 
-static void assertSnapTo(const std::string& data, const FloatType gridSize) {
+static void assertSnapTo(const std::string& data, const FloatType gridSize)
+{
   const vm::bbox3 worldBounds(8192.0);
 
   IO::TestParserStatus status;
@@ -711,7 +804,8 @@ static void assertSnapTo(const std::string& data, const FloatType gridSize) {
 
   // Ensure they were actually snapped
   {
-    for (const Model::BrushVertex* vertex : brush.vertices()) {
+    for (const Model::BrushVertex* vertex : brush.vertices())
+    {
       const vm::vec3& pos = vertex->position();
       CHECK(vm::is_integral(pos, 0.001));
     }
@@ -720,37 +814,51 @@ static void assertSnapTo(const std::string& data, const FloatType gridSize) {
   kdl::col_delete_all(nodes);
 }
 
-static void assertSnapToInteger(const std::string& data) {
+static void assertSnapToInteger(const std::string& data)
+{
   assertSnapTo(data, 1.0);
 }
 
-TEST_CASE("BrushTest.snapIssue1198", "[BrushTest]") {
+TEST_CASE("BrushTest.snapIssue1198", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1198
   const std::string data(
     "{\n"
-    "( 167.63423 -46.88446 472.36551 ) ( 66.06285 -1.98675 573.93711 ) ( 139.12681 -168.36963 "
+    "( 167.63423 -46.88446 472.36551 ) ( 66.06285 -1.98675 573.93711 ) ( 139.12681 "
+    "-168.36963 "
     "500.87299 ) rock_1736 -158 527 166.79401 0.97488 -0.85268 //TX1\n"
-    "( 208 -298.77704 309.53674 ) ( 208 -283.89740 159.77713 ) ( 208 -425.90924 294.65701 ) "
+    "( 208 -298.77704 309.53674 ) ( 208 -283.89740 159.77713 ) ( 208 -425.90924 "
+    "294.65701 ) "
     "rock_1736 -261 -291 186.67561 1 1.17558 //TX1\n"
-    "( -495.37965 -970.19919 2420.40004 ) ( -369.12126 -979.60987 2439.22145 ) ( -516.42274 "
+    "( -495.37965 -970.19919 2420.40004 ) ( -369.12126 -979.60987 2439.22145 ) ( "
+    "-516.42274 "
     "-1026.66357 2533.32892 ) skill_ground -2752 -44 100.55540 0.89744 -0.99664 //TX1\n"
-    "( 208 -103.52284 489.43151 ) ( 208 -63.04567 610.86296 ) ( 80 -103.52284 489.43151 ) "
+    "( 208 -103.52284 489.43151 ) ( 208 -63.04567 610.86296 ) ( 80 -103.52284 489.43151 "
+    ") "
     "rock_1736 208 516 0 -1 0.94868 //TX1\n"
-    "( -450.79344 -2050.77028 440.48261 ) ( -333.56544 -2071.81325 487.37381 ) ( -470.33140 "
+    "( -450.79344 -2050.77028 440.48261 ) ( -333.56544 -2071.81325 487.37381 ) ( "
+    "-470.33140 "
     "-2177.02858 432.66743 ) skill_ground -2100 -142 261.20348 0.99813 0.93021 //TX1\n"
-    "( -192.25073 -2050.77026 159.49851 ) ( -135.78626 -2071.81323 272.42748 ) ( -201.66146 "
+    "( -192.25073 -2050.77026 159.49851 ) ( -135.78626 -2071.81323 272.42748 ) ( "
+    "-201.66146 "
     "-2177.02856 140.67705 ) skill_ground -2010 513 188.47871 0.99729 -0.89685 //TX1\n"
-    "( 181.06874 -76.56186 495.11416 ) ( 172.37248 -56.19832 621.18438 ) ( 63.35341 -126.83229 "
+    "( 181.06874 -76.56186 495.11416 ) ( 172.37248 -56.19832 621.18438 ) ( 63.35341 "
+    "-126.83229 "
     "495.11416 ) rock_1736 197 503 0 -0.91965 0.98492 //TX1\n"
-    "( 171.46251 -48.09583 474.98238 ) ( 129.03154 -21.91225 616.98017 ) ( 105.41315 -157.70143 "
+    "( 171.46251 -48.09583 474.98238 ) ( 129.03154 -21.91225 616.98017 ) ( 105.41315 "
+    "-157.70143 "
     "477.82758 ) rock_1736 -71 425 178.51302 0.85658 -1.11429 //TX1\n"
-    "( -37.21422 -6.81390 22.01408 ) ( -12.34518 -24.34492 146.34503 ) ( -92.55376 -122.11616 "
+    "( -37.21422 -6.81390 22.01408 ) ( -12.34518 -24.34492 146.34503 ) ( -92.55376 "
+    "-122.11616 "
     "16.82534 ) skill_ground -6 23 182.57664 0.90171 -0.97651 //TX1\n"
-    "( -975.92228 -1778.45799 1072.52401 ) ( -911.46425 -1772.13654 1182.92865 ) ( -1036.18913 "
+    "( -975.92228 -1778.45799 1072.52401 ) ( -911.46425 -1772.13654 1182.92865 ) ( "
+    "-1036.18913 "
     "-1883.59588 1113.72975 ) skill_ground -2320 426 158.59875 0.88222 -0.82108 //TX1\n"
-    "( -984.28431 -1006.06166 2136.35663 ) ( -881.58265 -976.76783 2206.91312 ) ( -1039.55007 "
+    "( -984.28431 -1006.06166 2136.35663 ) ( -881.58265 -976.76783 2206.91312 ) ( "
+    "-1039.55007 "
     "-1059.19179 2238.85958 ) skill_ground -2580 152 118.33189 0.90978 -0.96784 //TX1\n"
-    "( -495.37960 -2050.77026 672 ) ( -369.12118 -2071.81323 672 ) ( -516.42263 -2177.02856 672 ) "
+    "( -495.37960 -2050.77026 672 ) ( -369.12118 -2071.81323 672 ) ( -516.42263 "
+    "-2177.02856 672 ) "
     "skill_ground -2104 -151 260.53769 1 1 //TX1\n"
     "( 0 -192 512 ) ( 0 -192 640 ) ( 128 -192 512 ) skill_ground 0 512 0 1 1 //TX1\n"
     "( 0 0 512 ) ( 0 -128 512 ) ( 128 0 512 ) skill_ground 0 0 0 1 -1 //TX1\n"
@@ -758,192 +866,264 @@ TEST_CASE("BrushTest.snapIssue1198", "[BrushTest]") {
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1202", "[BrushTest]") {
+TEST_CASE("BrushTest.snapIssue1202", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1202
   const std::string data(
     "{\n"
-    "( -384 -1440 416 ) ( -384 -1440 544 ) ( -512 -1440 416 ) skip -384 416 0 -1 1 //TX1\n"
-    "( -479.20200 -1152 448 ) ( -388.69232 -1242.50967 448 ) ( -607.20203 -1152 448 ) skip -476 "
+    "( -384 -1440 416 ) ( -384 -1440 544 ) ( -512 -1440 416 ) skip -384 416 0 -1 1 "
+    "//TX1\n"
+    "( -479.20200 -1152 448 ) ( -388.69232 -1242.50967 448 ) ( -607.20203 -1152 448 ) "
+    "skip -476 "
     "1631 -45 1 -0.70711 //TX2\n"
-    "( -202.75913 -1259.70123 365.61488 ) ( -293.26877 -1169.19156 365.61487 ) ( -288.09239 "
+    "( -202.75913 -1259.70123 365.61488 ) ( -293.26877 -1169.19156 365.61487 ) ( "
+    "-288.09239 "
     "-1345.03450 408.28175 ) city6_8 747 1097 135 1 0.94281 //TX2\n"
-    "( -672 -1664 112 ) ( -800 -1664 112 ) ( -672 -1664 240 ) bricka2_4 -672 112 0 -1 1 //TX2\n"
-    "( -166.47095 -1535.24850 432 ) ( -294.41554 -1539.01482 432 ) ( -38.47095 -1663.24847 432 ) "
+    "( -672 -1664 112 ) ( -800 -1664 112 ) ( -672 -1664 240 ) bricka2_4 -672 112 0 -1 1 "
+    "//TX2\n"
+    "( -166.47095 -1535.24850 432 ) ( -294.41554 -1539.01482 432 ) ( -38.47095 "
+    "-1663.24847 432 ) "
     "bricka2_4 -212 1487 181.68613 1 1.02899 //TX2\n"
-    "( 96 -2840.62573 176 ) ( 96 -3021.64502 176 ) ( 96 -2840.62573 304 ) bricka2_4 -2009 176 0 "
+    "( 96 -2840.62573 176 ) ( 96 -3021.64502 176 ) ( 96 -2840.62573 304 ) bricka2_4 "
+    "-2009 176 0 "
     "-1.41421 1 //TX2\n"
-    "( -128 -288 176 ) ( -128 -160 176 ) ( -128 -288 304 ) bricka2_4 288 176 0 1 1 //TX2\n"
+    "( -128 -288 176 ) ( -128 -160 176 ) ( -128 -288 304 ) bricka2_4 288 176 0 1 1 "
+    "//TX2\n"
     "}");
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1203", "[BrushTest]") {
+TEST_CASE("BrushTest.snapIssue1203", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1203
   const std::string data(
     "{\n"
-    "( -2255.07542 -1621.75354 1184 ) ( -2340.26373 -1524.09826 1184 ) ( -2255.07542 -1621.75354 "
+    "( -2255.07542 -1621.75354 1184 ) ( -2340.26373 -1524.09826 1184 ) ( -2255.07542 "
+    "-1621.75354 "
     "1312 ) metal5_6 2126 1184 0 0.76293 1 //TX2\n"
-    "( -2274.59294 -1572.67199 1077.14252 ) ( -2216.18139 -1643.55025 1214.27523 ) ( -2179.93925 "
+    "( -2274.59294 -1572.67199 1077.14252 ) ( -2216.18139 -1643.55025 1214.27523 ) ( "
+    "-2179.93925 "
     "-1486.72565 1086.37772 ) metal1_2 -86 -3857 66.92847 1.16449 -0.65206 //TX2\n"
-    "( -2294.68465 -1559.17687 1145.06418 ) ( -2209.49633 -1656.83209 1145.06409 ) ( -2226.47948 "
+    "( -2294.68465 -1559.17687 1145.06418 ) ( -2209.49633 -1656.83209 1145.06409 ) ( "
+    "-2226.47948 "
     "-1499.67881 1009.29941 ) metal1_2 -2044 -1080 180.00005 0.76293 1.06066 //TX2\n"
-    "( -2277.90664 -1569.35830 1229.87757 ) ( -2219.49502 -1640.23662 1092.74492 ) ( -2183.25294 "
+    "( -2277.90664 -1569.35830 1229.87757 ) ( -2219.49502 -1640.23662 1092.74492 ) ( "
+    "-2183.25294 "
     "-1483.41196 1220.64238 ) metal1_2 1738 -2475 -66.92843 1.16449 0.65206 //TX2\n"
-    "( -2291.16152 -1556.10351 1161.99537 ) ( -2205.97305 -1653.75857 1161.99532 ) ( -2222.95604 "
+    "( -2291.16152 -1556.10351 1161.99537 ) ( -2205.97305 -1653.75857 1161.99532 ) ( "
+    "-2222.95604 "
     "-1496.60517 1297.75964 ) metal1_2 -2040 1096 180.00003 0.76293 -1.06066 //TX2\n"
-    "( -2081.99036 -1805.83188 1184 ) ( -2022.45370 -1920.93607 1184 ) ( -2195.68224 -1864.63800 "
+    "( -2081.99036 -1805.83188 1184 ) ( -2022.45370 -1920.93607 1184 ) ( -2195.68224 "
+    "-1864.63800 "
     "1184 ) skinsore -640 2679 -62.65012 1.01242 -1 //TX2\n"
-    "( -2243.07853 -1621.15697 1184 ) ( -2243.07799 -1621.15750 1312 ) ( -2152.56935 -1530.64682 "
+    "( -2243.07853 -1621.15697 1184 ) ( -2243.07799 -1621.15750 1312 ) ( -2152.56935 "
+    "-1530.64682 "
     "1184 ) metal5_6 2293 1184 0 0.70711 1 //TX1\n"
-    "( -2288.33311 -1643.78464 1184 ) ( -2197.82344 -1553.27497 1184 ) ( -2288.33311 -1643.78464 "
+    "( -2288.33311 -1643.78464 1184 ) ( -2197.82344 -1553.27497 1184 ) ( -2288.33311 "
+    "-1643.78464 "
     "1312 ) metal5_6 2325 1184 0 0.70711 1 //TX2\n"
-    "( -2243.76171 -1610.43983 1184 ) ( -2243.76171 -1610.43983 1312 ) ( -2327.90482 -1513.98290 "
+    "( -2243.76171 -1610.43983 1184 ) ( -2243.76171 -1610.43983 1312 ) ( -2327.90482 "
+    "-1513.98290 "
     "1184 ) metal5_6 2137 1184 0 0.75357 1 //TX1\n"
     "}");
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1205", "[BrushTest]") {
+TEST_CASE("BrushTest.snapIssue1205", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1205
   const std::string data(
     "{\n"
-    "( 304 -895.52890 1232 ) ( 304 -763.64662 1232 ) ( 304 -895.52890 1104 ) bookshelf1w 1232 -869 "
+    "( 304 -895.52890 1232 ) ( 304 -763.64662 1232 ) ( 304 -895.52890 1104 ) bookshelf1w "
+    "1232 -869 "
     "-90 1 1.03033 //TX1\n"
-    "( -23.76447 -759.76453 1232 ) ( 69.49032 -666.50962 1232 ) ( -23.76447 -759.76453 1104 ) "
+    "( -23.76447 -759.76453 1232 ) ( 69.49032 -666.50962 1232 ) ( -23.76447 -759.76453 "
+    "1104 ) "
     "bookshelf1w 1232 -1043 -90 1 0.72855 //TX1\n"
-    "( -139.64675 -480 1232 ) ( -7.76448 -480 1232 ) ( -139.64675 -480 1104 ) bookshelf1w 1232 "
+    "( -139.64675 -480 1232 ) ( -7.76448 -480 1232 ) ( -139.64675 -480 1104 ) "
+    "bookshelf1w 1232 "
     "-136 -90 1 1.03033 //TX1\n"
-    "( -42.50967 -245.49033 1232 ) ( 50.74518 -338.74518 1232 ) ( -42.50967 -245.49033 1104 ) "
+    "( -42.50967 -245.49033 1232 ) ( 50.74518 -338.74518 1232 ) ( -42.50967 -245.49033 "
+    "1104 ) "
     "bookshelf1w 1232 337 -90 1 -0.72855 //TX1\n"
-    "( 323.88225 -320 1232 ) ( 191.99998 -320 1232 ) ( 323.88225 -320 1104 ) bookshelf1w 1232 -314 "
+    "( 323.88225 -320 1232 ) ( 191.99998 -320 1232 ) ( 323.88225 -320 1104 ) bookshelf1w "
+    "1232 -314 "
     "-90 1 -1.03033 //TX1\n"
-    "( 144 -168.23550 1232 ) ( 144 -300.11777 1232 ) ( 144 -168.23550 1104 ) bookshelf1w 1232 163 "
+    "( 144 -168.23550 1232 ) ( 144 -300.11777 1232 ) ( 144 -168.23550 1104 ) bookshelf1w "
+    "1232 163 "
     "-90 1 -1.03033 //TX1\n"
     "( 303.99988 -432.00012 1248.00050 ) ( 278.89702 -432.00012 1373.51482 ) ( 303.99988 "
     "-304.00012 1248.00050 ) rfslte1 432 1273 0 1 0.98058 //TX1\n"
-    "( 303.99995 -367.99981 1248 ) ( 286.42119 -385.57861 1373.56263 ) ( 213.49015 -277.49027 1248 "
+    "( 303.99995 -367.99981 1248 ) ( 286.42119 -385.57861 1373.56263 ) ( 213.49015 "
+    "-277.49027 1248 "
     ") rfslte1 430 1272 0 -0.70711 0.98096 //TX1\n"
-    "( 256 -320 1247.99999 ) ( 256 -345.10286 1373.51432 ) ( 128 -320.00005 1247.99999 ) rfslte1 "
+    "( 256 -320 1247.99999 ) ( 256 -345.10286 1373.51432 ) ( 128 -320.00005 1247.99999 ) "
+    "rfslte1 "
     "256 1273 0 -1 0.98058 //TX1\n"
     "( 191.99988 -320.00012 1248.00049 ) ( 209.57867 -337.57891 1373.56311 ) ( 101.49021 "
     "-410.50979 1248.00049 ) rfslte1 -453 1272 0 -0.70711 0.98096 //TX1\n"
-    "( 144 -368 1248.00049 ) ( 169.10289 -368 1373.51481 ) ( 144 -496 1248.00049 ) rfslte1 -368 "
+    "( 144 -368 1248.00049 ) ( 169.10289 -368 1373.51481 ) ( 144 -496 1248.00049 ) "
+    "rfslte1 -368 "
     "1273 0 -1 0.98058 //TX1\n"
-    "( 144 -432 1248.00049 ) ( 161.57879 -414.42121 1373.56311 ) ( 234.50967 -522.50967 1248.00049 "
+    "( 144 -432 1248.00049 ) ( 161.57879 -414.42121 1373.56311 ) ( 234.50967 -522.50967 "
+    "1248.00049 "
     ") rfslte1 -611 1272 0 -0.70711 0.98096 //TX1\n"
-    "( 192 -480 1248.00049 ) ( 192 -454.89711 1373.51481 ) ( 320 -480 1248.00049 ) rfslte1 -192 "
+    "( 192 -480 1248.00049 ) ( 192 -454.89711 1373.51481 ) ( 320 -480 1248.00049 ) "
+    "rfslte1 -192 "
     "1273 0 1 0.98058 //TX1\n"
-    "( 256 -480 1248.00049 ) ( 238.42121 -462.42121 1373.56311 ) ( 346.50967 -389.49033 1248.00049 "
+    "( 256 -480 1248.00049 ) ( 238.42121 -462.42121 1373.56311 ) ( 346.50967 -389.49033 "
+    "1248.00049 "
     ") rfslte1 679 1272 0 0.70711 0.98096 //TX1\n"
-    "( 144 -320 1232 ) ( 144 -448 1232 ) ( 272 -320 1232 ) rfslte1 -144 320 0 1 -1 //TX1\n"
-    "( 285.25483 -226.74517 1232 ) ( 191.99999 -320.00001 1232 ) ( 285.25483 -226.74517 1104 ) "
+    "( 144 -320 1232 ) ( 144 -448 1232 ) ( 272 -320 1232 ) rfslte1 -144 320 0 1 -1 "
+    "//TX1\n"
+    "( 285.25483 -226.74517 1232 ) ( 191.99999 -320.00001 1232 ) ( 285.25483 -226.74517 "
+    "1104 ) "
     "bookshelf1w 1232 311 -90 1 -0.72855 //TX1\n"
-    "( 304 -368 1232 ) ( 210.74516 -274.74516 1232 ) ( 304 -368 1104 ) bookshelf1w 1232 -505 -90 1 "
+    "( 304 -368 1232 ) ( 210.74516 -274.74516 1232 ) ( 304 -368 1104 ) bookshelf1w 1232 "
+    "-505 -90 1 "
     "0.72855 //TX1\n"
     "}");
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1206", "[BrushTest]") {
+TEST_CASE("BrushTest.snapIssue1206", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1206
   const std::string data(
     "{\n"
-    "( -637.50000 1446.44631 1339.47316 ) ( -637.50000 1560.93298 1396.71649 ) ( -765.50000 "
+    "( -637.50000 1446.44631 1339.47316 ) ( -637.50000 1560.93298 1396.71649 ) ( "
+    "-765.50000 "
     "1446.44631 1339.47316 ) column01_3 -638 1617 0 -1 0.89443 //TX1\n"
-    "( -632.50000 1438.33507 1340.33194 ) ( -632.50000 1538.28627 1260.37098 ) ( -760.50000 "
+    "( -632.50000 1438.33507 1340.33194 ) ( -632.50000 1538.28627 1260.37098 ) ( "
+    "-760.50000 "
     "1438.33507 1340.33194 ) column01_3 -632 1842 0 -1 0.78087 //TX1\n"
-    "( -646 1397.33116 1362.08442 ) ( -646 1511.81782 1304.84109 ) ( -518 1397.33116 1362.08442 ) "
+    "( -646 1397.33116 1362.08442 ) ( -646 1511.81782 1304.84109 ) ( -518 1397.33116 "
+    "1362.08442 ) "
     "column01_3 646 1562 0 1 0.89443 //TX1\n"
-    "( -637.50000 1436 1338 ) ( -637.50000 1436 1466 ) ( -637.50000 1308 1338 ) column01_3 1436 "
+    "( -637.50000 1436 1338 ) ( -637.50000 1436 1466 ) ( -637.50000 1308 1338 ) "
+    "column01_3 1436 "
     "1338 0 -1 1 //TX1\n"
-    "( -637 1438.91806 1338.87292 ) ( -637 1367.91644 1445.37534 ) ( -509 1438.91806 1338.87292 ) "
+    "( -637 1438.91806 1338.87292 ) ( -637 1367.91644 1445.37534 ) ( -509 1438.91806 "
+    "1338.87292 ) "
     "column01_3 637 1609 0 1 0.83205 //TX1\n"
-    "( -637 1440.50000 1338 ) ( -637 1440.50000 1466 ) ( -637 1568.50000 1338 ) column01_3 -1440 "
+    "( -637 1440.50000 1338 ) ( -637 1440.50000 1466 ) ( -637 1568.50000 1338 ) "
+    "column01_3 -1440 "
     "1338 0 1 1 //TX1\n"
-    "( -638 1435.27452 1340.35014 ) ( -638 1312.19946 1375.51444 ) ( -510 1435.27452 1340.35014 ) "
+    "( -638 1435.27452 1340.35014 ) ( -638 1312.19946 1375.51444 ) ( -510 1435.27452 "
+    "1340.35014 ) "
     "column01_3 638 -1493 0 1 -0.96152 //TX1\n"
     "}");
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1207", "[BrushTest]") {
+TEST_CASE("BrushTest.snapIssue1207", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1207
   const std::string data(
     "{\n"
-    "( -635.50000 1442.50000 1353.50012 ) ( -763.50000 1442.50000 1353.50012 ) ( -635.50000 "
+    "( -635.50000 1442.50000 1353.50012 ) ( -763.50000 1442.50000 1353.50012 ) ( "
+    "-635.50000 "
     "1314.50000 1353.50012 ) column01_3 1442 635 -90 1 -1 //TX1\n"
-    "( -635.50000 1442.50000 1355 ) ( -507.50000 1442.50000 1355 ) ( -635.50000 1314.50000 1355 ) "
+    "( -635.50000 1442.50000 1355 ) ( -507.50000 1442.50000 1355 ) ( -635.50000 "
+    "1314.50000 1355 ) "
     "column01_3 1442 -635 -90 1 1 //TX1\n"
-    "( -636 1442.50000 1354 ) ( -636 1442.50000 1482 ) ( -764 1442.50000 1354 ) column01_3 -636 "
+    "( -636 1442.50000 1354 ) ( -636 1442.50000 1482 ) ( -764 1442.50000 1354 ) "
+    "column01_3 -636 "
     "1354 0 -1 1 //TX1\n"
-    "( -636 1438 1354 ) ( -636 1438 1482 ) ( -636 1310 1354 ) column01_3 1438 1354 0 -1 1 //TX1\n"
-    "( -635.50000 1438 1354 ) ( -635.50000 1438 1482 ) ( -507.50000 1438 1354 ) column01_3 636 "
+    "( -636 1438 1354 ) ( -636 1438 1482 ) ( -636 1310 1354 ) column01_3 1438 1354 0 -1 "
+    "1 //TX1\n"
+    "( -635.50000 1438 1354 ) ( -635.50000 1438 1482 ) ( -507.50000 1438 1354 ) "
+    "column01_3 636 "
     "1354 0 1 1 //TX1\n"
-    "( -635.50000 1442.50000 1354 ) ( -635.50000 1442.50000 1482 ) ( -635.50000 1570.50000 1354 ) "
+    "( -635.50000 1442.50000 1354 ) ( -635.50000 1442.50000 1482 ) ( -635.50000 "
+    "1570.50000 1354 ) "
     "column01_3 -1442 1354 0 1 1 //TX1\n"
     "}\n");
   assertCannotSnap(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1232", "[BrushTest]") {
+TEST_CASE("BrushTest.snapIssue1232", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1232
   const std::string data(
     "{\n"
-    "  ( 2152.22540 381.27455 2072 ) ( 2152.22540 381.27455 2200 ) ( 2020.34268 513.15633 2072 ) "
+    "  ( 2152.22540 381.27455 2072 ) ( 2152.22540 381.27455 2200 ) ( 2020.34268 "
+    "513.15633 2072 ) "
     "wbord05 2089 2072 0 -1.03033 1 //TX1\n"
-    "  ( 2042 335.61771 2072 ) ( 2042 335.61771 2200 ) ( 2042 522.12738 2072 ) wbord05 -230 2072 0 "
+    "  ( 2042 335.61771 2072 ) ( 2042 335.61771 2200 ) ( 2042 522.12738 2072 ) wbord05 "
+    "-230 2072 0 "
     "1.45711 1 //TX1\n"
-    "  ( 1948.74515 374.24515 2072 ) ( 1948.74515 374.24515 2200 ) ( 2080.62741 506.12741 2072 ) "
+    "  ( 1948.74515 374.24515 2072 ) ( 1948.74515 374.24515 2200 ) ( 2080.62741 "
+    "506.12741 2072 ) "
     "wbord05 -363 2072 0 1.03033 1 //TX1\n"
-    "  ( 1916.74515 451.50000 2072 ) ( 1916.74515 451.50000 2200 ) ( 2103.25482 451.50000 2072 ) "
+    "  ( 1916.74515 451.50000 2072 ) ( 1916.74515 451.50000 2200 ) ( 2103.25482 "
+    "451.50000 2072 ) "
     "wbord05 -1315 2072 0 1.45711 1 //TX1\n"
-    "  ( 2043.56919 493.06919 2026.43074 ) ( 1969.66841 419.16841 2100.33167 ) ( 2134.07889 "
+    "  ( 2043.56919 493.06919 2026.43074 ) ( 1969.66841 419.16841 2100.33167 ) ( "
+    "2134.07889 "
     "402.55957 2026.43079 ) kjwall2 -1096 -2197 -44.99997 1 -0.81650 //TX1\n"
-    "  ( 2028.72645 441.39868 2036.31307 ) ( 2140.35950 385.25273 2064.05640 ) ( 2063.24398 "
+    "  ( 2028.72645 441.39868 2036.31307 ) ( 2140.35950 385.25273 2064.05640 ) ( "
+    "2063.24398 "
     "543.87358 2104.80712 ) kjwall2 -1262 1843 71.38448 0.84478 -0.96653 //TX1\n"
-    "  ( 1980.74480 497.22377 2022.51040 ) ( 2011.04246 392.71223 2089.91507 ) ( 2093.59579 "
+    "  ( 1980.74480 497.22377 2022.51040 ) ( 2011.04246 392.71223 2089.91507 ) ( "
+    "2093.59579 "
     "549.47972 2052.80842 ) kjwall2 -2065 453 24.84662 0.97158 -0.84038 //TX1\n"
-    "  ( 2026.09563 451.97825 2028.19126 ) ( 1995.79798 556.48977 2095.59597 ) ( 1913.24475 "
+    "  ( 2026.09563 451.97825 2028.19126 ) ( 1995.79798 556.48977 2095.59597 ) ( "
+    "1913.24475 "
     "399.72220 2058.48949 ) kjwall2 2088 -525 204.84669 0.97158 -0.84038 //TX1\n"
-    "  ( 1994 515.89878 2035.80067 ) ( 1994 401.41210 2093.04401 ) ( 2122 515.89859 2035.80028 ) "
+    "  ( 1994 515.89878 2035.80067 ) ( 1994 401.41210 2093.04401 ) ( 2122 515.89859 "
+    "2035.80028 ) "
     "kjwall2 -1994 -577 -0.00009 1 -0.89443 //TX1\n"
-    "  ( 2010 443.10126 2035.80060 ) ( 2010 557.58793 2093.04394 ) ( 1881.99999 443.10145 "
+    "  ( 2010 443.10126 2035.80060 ) ( 2010 557.58793 2093.04394 ) ( 1881.99999 "
+    "443.10145 "
     "2035.80021 ) kjwall2 2010 495 179.99991 1 -0.89443 //TX1\n"
-    "  ( 2018.70638 436.61696 2056.35332 ) ( 2119.11026 375.11218 2106.55513 ) ( 2073.71821 "
+    "  ( 2018.70638 436.61696 2056.35332 ) ( 2119.11026 375.11218 2106.55513 ) ( "
+    "2073.71821 "
     "548.87185 2083.85853 ) kjwall2 -1311 1770 63.89229 0.97664 -0.91582 //TX1\n"
-    "  ( 2034 453.83437 2044 ) ( 1982.79994 568.32105 2069.59989 ) ( 1931.59947 396.59103 "
+    "  ( 2034 453.83437 2044 ) ( 1982.79994 568.32105 2069.59989 ) ( 1931.59947 "
+    "396.59103 "
     "2095.19895 ) kjwall2 2179 -611 209.20580 0.91652 -0.97590 //TX1\n"
-    "  ( 2018 507.50000 2072 ) ( 2018 507.50000 2200 ) ( 1831.49033 507.50000 2072 ) wbord05 1385 "
+    "  ( 2018 507.50000 2072 ) ( 2018 507.50000 2200 ) ( 1831.49033 507.50000 2072 ) "
+    "wbord05 1385 "
     "2072 0 -1.45711 1 //TX1\n"
-    "  ( 1986 530.12743 2072 ) ( 1986 530.12743 2200 ) ( 1986 343.61775 2072 ) wbord05 364 2072 0 "
+    "  ( 1986 530.12743 2072 ) ( 1986 530.12743 2200 ) ( 1986 343.61775 2072 ) wbord05 "
+    "364 2072 0 "
     "-1.45711 1 //TX1\n"
-    "  ( 2010 479.50000 2072 ) ( 2010 607.50000 2072 ) ( 2138 479.50000 2072 ) kjwall2 -2010 480 0 "
+    "  ( 2010 479.50000 2072 ) ( 2010 607.50000 2072 ) ( 2138 479.50000 2072 ) kjwall2 "
+    "-2010 480 0 "
     "1 1 //TX1\n"
-    "  ( 2010 479.50000 2060 ) ( 2010 351.50000 2060 ) ( 2138 479.50000 2060 ) kjwall2 -2010 -480 "
+    "  ( 2010 479.50000 2060 ) ( 2010 351.50000 2060 ) ( 2138 479.50000 2060 ) kjwall2 "
+    "-2010 -480 "
     "0 1 -1 //TX1\n"
-    "  ( 2013.31371 518.81371 2072 ) ( 2013.31371 518.81371 2200 ) ( 1881.43146 386.93146 2072 ) "
+    "  ( 2013.31371 518.81371 2072 ) ( 2013.31371 518.81371 2200 ) ( 1881.43146 "
+    "386.93146 2072 ) "
     "wbord05 504 2072 0 -1.03033 1 //TX1\n"
-    "  ( 1941.71572 511.78427 2072 ) ( 1941.71572 511.78427 2200 ) ( 2073.59785 379.90191 2072 ) "
+    "  ( 1941.71572 511.78427 2072 ) ( 1941.71572 511.78427 2200 ) ( 2073.59785 "
+    "379.90191 2072 ) "
     "wbord05 497 2072 0 -1.03033 1 //TX1\n"
     " }\n");
 
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1395_24202", "[BrushTest]") {
+TEST_CASE("BrushTest.snapIssue1395_24202", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1395 brush at line 24202
   const std::string data(
     "{\n"
-    "( -4 -325 952 ) ( -16 -356 1032 ) ( -44 -309 1016 ) rock3_8 -1.28601 -6.46194 113.395 "
+    "( -4 -325 952 ) ( -16 -356 1032 ) ( -44 -309 1016 ) rock3_8 -1.28601 -6.46194 "
+    "113.395 "
     "0.943603 1.06043\n"
     "( -17.57635498046875 -263.510009765625 988.9852294921875 ) ( -137.5655517578125 "
-    "-375.941162109375 743.296875 ) ( 34.708740234375 -300.228759765625 1073.855712890625 ) "
+    "-375.941162109375 743.296875 ) ( 34.708740234375 -300.228759765625 "
+    "1073.855712890625 ) "
     "rock3_8 -1.28595 -6.46191 113.395 0.943603 1.06043\n"
     "( -135.7427978515625 -370.1265869140625 739.753173828125 ) ( -15.768181800842285 "
     "-257.6954345703125 985.42547607421875 ) ( -449.98324584960937 -364.254638671875 "
     "589.064697265625 ) rock3_8 -26.8653 -10.137 25.6205 1.15394 -1\n"
     "( -399.50726318359375 -406.7877197265625 677.47894287109375 ) ( -137.5655517578125 "
-    "-375.941162109375 743.296875 ) ( -451.79229736328125 -370.0692138671875 592.6083984375 ) "
+    "-375.941162109375 743.296875 ) ( -451.79229736328125 -370.0692138671875 "
+    "592.6083984375 ) "
     "rock3_8 26.1202 -7.68527 81.5004 0.875611 -1\n"
     "( -280.1622314453125 -291.92608642578125 924.623779296875 ) ( -18.227519989013672 "
     "-261.07952880859375 990.43829345703125 ) ( -227.88420104980469 -328.64483642578125 "
@@ -951,7 +1131,8 @@ TEST_CASE("BrushTest.snapIssue1395_24202", "[BrushTest]") {
     "( -195.9036865234375 -282.3568115234375 876.8590087890625 ) ( -143.6192626953125 "
     "-319.08740234375 961.7213134765625 ) ( -368.19818115234375 -358.08740234375 "
     "546.27716064453125 ) rock3_8 -25.9692 -19.1265 113.395 0.943603 1.06043\n"
-    "( -276.88287353515625 -332.21014404296875 930.47674560546875 ) ( -449.17929077148437 "
+    "( -276.88287353515625 -332.21014404296875 930.47674560546875 ) ( "
+    "-449.17929077148437 "
     "-407.92318725585937 599.90850830078125 ) ( -14.952971458435059 -301.37832641601562 "
     "996.28533935546875 ) rock3_8 -20.4888 -8.56413 -87.0938 1.30373 1.02112\n"
     "( 37.161830902099609 -335.35406494140625 1080.605712890625 ) ( -135.12174987792969 "
@@ -960,14 +1141,16 @@ TEST_CASE("BrushTest.snapIssue1395_24202", "[BrushTest]") {
     "( -290.354736328125 -397.304931640625 703.53790283203125 ) ( -470.618896484375 "
     "-265.4686279296875 632.53790283203125 ) ( -400.5767822265625 -391.6395263671875 "
     "703.53790283203125 ) rock3_8 8.25781 -11.1122 -165 0.865994 1\n"
-    "( -96 -299 1019 ) ( -96 -171 1019 ) ( 50 -400 1017 ) rock3_8 -28.9783 0.638519 81.5019 "
+    "( -96 -299 1019 ) ( -96 -171 1019 ) ( 50 -400 1017 ) rock3_8 -28.9783 0.638519 "
+    "81.5019 "
     "0.875609 -1\n"
     "}\n");
 
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1395_18995", "[BrushTest]") {
+TEST_CASE("BrushTest.snapIssue1395_18995", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1395 brush at line 24202
   const std::string data(
     "{\n"
@@ -986,7 +1169,8 @@ TEST_CASE("BrushTest.snapIssue1395_18995", "[BrushTest]") {
     "( 310.50375366210937 879.1187744140625 676.45660400390625 ) ( 313.50375366210937 "
     "880.1187744140625 679.45660400390625 ) ( 342.50375366210937 757.1187744140625 "
     "679.45660400390625 ) wswamp1_2 2 0 0 1 1\n"
-    "( 308.35256958007812 876 676.95867919921875 ) ( 316.35256958007813 823 671.95867919921875 ) ( "
+    "( 308.35256958007812 876 676.95867919921875 ) ( 316.35256958007813 823 "
+    "671.95867919921875 ) ( "
     "316.35256958007813 880 671.95867919921875 ) wswamp1_2 2 0 0 1 1\n"
     "( 342 757 680 ) ( 446 754 680 ) ( 330 754 667 ) wswamp1_2 -16 0 0 1 1\n"
     "( 446 754 665 ) ( 328 754 665 ) ( 446 754 680 ) wswamp1_2 -16 0 0 1 1\n"
@@ -998,7 +1182,8 @@ TEST_CASE("BrushTest.snapIssue1395_18995", "[BrushTest]") {
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapToGrid64", "[BrushTest]") {
+TEST_CASE("BrushTest.snapToGrid64", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1415
   const std::string data(
     "{\n"
@@ -1016,7 +1201,8 @@ TEST_CASE("BrushTest.snapToGrid64", "[BrushTest]") {
   assertCannotSnapTo(data, 64.0);
 }
 
-TEST_CASE("BrushNodeTest.moveEdgesFail_2361", "[BrushNodeTest]") {
+TEST_CASE("BrushNodeTest.moveEdgesFail_2361", "[BrushNodeTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2361
 
   const vm::bbox3 worldBounds(8192.0);
@@ -1105,18 +1291,20 @@ TEST_CASE("BrushNodeTest.moveEdgesFail_2361", "[BrushNodeTest]") {
 
   const auto vertex1 =
     brush.findClosestVertexPosition(vm::vec3(-5774.7302805949275, 488.0, 1108.0));
-  const auto vertex2 = brush.findClosestVertexPosition(vm::vec3(-5730.730280440197, 486.0, 1108.0));
+  const auto vertex2 =
+    brush.findClosestVertexPosition(vm::vec3(-5730.730280440197, 486.0, 1108.0));
   const auto segment = vm::segment3(vertex1, vertex2);
 
-  CHECK(
-    brush.canMoveEdges(worldBounds, std::vector<vm::segment3>{segment}, vm::vec3(0.0, -4.0, 0.0)));
-  CHECK_NOTHROW(
-    brush.moveEdges(worldBounds, std::vector<vm::segment3>{segment}, vm::vec3(0.0, -4.0, 0.0)));
+  CHECK(brush.canMoveEdges(
+    worldBounds, std::vector<vm::segment3>{segment}, vm::vec3(0.0, -4.0, 0.0)));
+  CHECK_NOTHROW(brush.moveEdges(
+    worldBounds, std::vector<vm::segment3>{segment}, vm::vec3(0.0, -4.0, 0.0)));
 
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.moveFaceFailure_1499", "[BrushTest]") {
+TEST_CASE("BrushTest.moveFaceFailure_1499", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1499
 
   const vm::vec3 p1(-4408.0, 16.0, 288.0);
@@ -1175,12 +1363,13 @@ TEST_CASE("BrushTest.moveFaceFailure_1499", "[BrushTest]") {
     worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
 }
 
-TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]") {
+TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2789
   const vm::bbox3 worldBounds(4096.0);
 
-  const auto path =
-    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/curvetut-crash.map");
+  const auto path = IO::Disk::getCurrentWorkingDir()
+                    + IO::Path("fixture/test/Model/Brush/curvetut-crash.map");
   const std::string data = IO::Disk::readTextFile(path);
   REQUIRE(!data.empty());
 
@@ -1190,9 +1379,12 @@ TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]") {
   REQUIRE(!nodes.empty());
 
   std::vector<vm::vec3> points;
-  for (const auto* node : nodes) {
-    if (const auto* brushNode = dynamic_cast<const BrushNode*>(node)) {
-      for (const auto* vertex : brushNode->brush().vertices()) {
+  for (const auto* node : nodes)
+  {
+    if (const auto* brushNode = dynamic_cast<const BrushNode*>(node))
+    {
+      for (const auto* vertex : brushNode->brush().vertices())
+      {
         points.push_back(vertex->position());
       }
     }
@@ -1230,19 +1422,21 @@ TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]") {
   // We currently generate some extra vertices/faces, so just check
   // that all vertices in the cleaned-up expected output exist in the
   // computed output.
-  for (const auto& position : expectedPositions) {
+  for (const auto& position : expectedPositions)
+  {
     CHECK(polyhedron.hasVertex(position, 0.01));
   }
 
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.convexMergeIncorrectResult_2789", "[BrushTest]") {
+TEST_CASE("BrushTest.convexMergeIncorrectResult_2789", "[BrushTest]")
+{
   // weirdcurvemerge.map from https://github.com/TrenchBroom/TrenchBroom/issues/2789
   const vm::bbox3 worldBounds(8192.0);
 
-  const auto path =
-    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/weirdcurvemerge.map");
+  const auto path = IO::Disk::getCurrentWorkingDir()
+                    + IO::Path("fixture/test/Model/Brush/weirdcurvemerge.map");
   const std::string data = IO::Disk::readTextFile(path);
   REQUIRE(!data.empty());
 
@@ -1253,10 +1447,12 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789", "[BrushTest]") {
   REQUIRE(nodes.size() == 28);
 
   std::vector<vm::vec3> points;
-  for (const auto* node : nodes) {
+  for (const auto* node : nodes)
+  {
     const auto* brushNode = dynamic_cast<const BrushNode*>(node);
     REQUIRE(brushNode != nullptr);
-    for (const auto* vertex : brushNode->brush().vertices()) {
+    for (const auto* vertex : brushNode->brush().vertices())
+    {
       points.push_back(vertex->position());
     }
   }
@@ -1289,7 +1485,8 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789", "[BrushTest]") {
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.subtractTruncatedCones", "[BrushTest]") {
+TEST_CASE("BrushTest.subtractTruncatedCones", "[BrushTest]")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/1469
 
   const std::string minuendStr(R"({
@@ -1370,7 +1567,8 @@ TEST_CASE("BrushTest.subtractTruncatedCones", "[BrushTest]") {
   kdl::col_delete_all(subtrahendNodes);
 }
 
-TEST_CASE("BrushTest.subtractDome", "[BrushTest]") {
+TEST_CASE("BrushTest.subtractDome", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2707
 
   const std::string minuendStr(R"({
@@ -1382,8 +1580,8 @@ TEST_CASE("BrushTest.subtractDome", "[BrushTest]") {
                 ( -1178 54.02274375211438695 -20 ) ( -1178 -277.57717407067275417 -20 ) ( -1178 54.02274375211438695 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
             })");
 
-  const auto subtrahendPath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/Model/Brush/subtrahend.map");
+  const auto subtrahendPath = IO::Disk::getCurrentWorkingDir()
+                              + IO::Path("fixture/test/Model/Brush/subtrahend.map");
   std::ifstream stream = openPathAsInputStream(subtrahendPath);
   std::stringstream subtrahendStr;
   subtrahendStr << stream.rdbuf();
@@ -1393,8 +1591,8 @@ TEST_CASE("BrushTest.subtractDome", "[BrushTest]") {
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
     IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
-  const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr.str(), MapFormat::Standard, worldBounds, {}, status);
+  const std::vector<Node*> subtrahendNodes = IO::NodeReader::read(
+    subtrahendStr.str(), MapFormat::Standard, worldBounds, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1406,7 +1604,8 @@ TEST_CASE("BrushTest.subtractDome", "[BrushTest]") {
   kdl::col_delete_all(subtrahendNodes);
 }
 
-TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments", "[BrushTest]") {
+TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/pull/1764#issuecomment-296341588
   // subtract creates missing fragments
 
@@ -1422,45 +1621,68 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments", "[BrushTest]") {
 
   const std::string subtrahendStr(
     "{\n"
-    "( 174.71990352490863074 -62.14359353944905706 75.16563707012221585 ) ( 175.1529162268008406 "
-    "-62.39359353944905706 76.03166247390666399 ) ( 175.60378700139182229 -61.83740732160116238 "
+    "( 174.71990352490863074 -62.14359353944905706 75.16563707012221585 ) ( "
+    "175.1529162268008406 "
+    "-62.39359353944905706 76.03166247390666399 ) ( 175.60378700139182229 "
+    "-61.83740732160116238 "
     "74.81208367952893923 ) __TB_empty 0.78229904174804688 -0.29628753662109375 "
     "338.198577880859375 0.95197159051895142 0.96824586391448975\n"
-    "( 36.41270357552525638 -34.54767559718354875 115.33507514292870155 ) ( 36.84571627741747335 "
-    "-34.79767559718354875 116.2011005467131497 ) ( 36.58948027082188759 -35.46623425072723279 "
+    "( 36.41270357552525638 -34.54767559718354875 115.33507514292870155 ) ( "
+    "36.84571627741747335 "
+    "-34.79767559718354875 116.2011005467131497 ) ( 36.58948027082188759 "
+    "-35.46623425072723279 "
     "114.98152175233542494 ) __TB_empty -0.04352569580078125 0.71729850769042969 "
     "201.0517425537109375 0.98425096273422241 -0.90138787031173706\n"
-    "( 199.8900184844443686 -128.93134736624534753 80.25103299325476769 ) ( 200.77390196092756014 "
-    "-128.62516114839746706 79.89747960266149107 ) ( 200.0667951797410069 -129.84990601978904579 "
-    "79.89747960266149107 ) __TB_empty -0.59069061279296875 -0.1404876708984375 280.89337158203125 "
+    "( 199.8900184844443686 -128.93134736624534753 80.25103299325476769 ) ( "
+    "200.77390196092756014 "
+    "-128.62516114839746706 79.89747960266149107 ) ( 200.0667951797410069 "
+    "-129.84990601978904579 "
+    "79.89747960266149107 ) __TB_empty -0.59069061279296875 -0.1404876708984375 "
+    "280.89337158203125 "
     "0.93541437387466431 0.93541431427001953\n"
     "( -116.00776749053582648 53.45232440281647257 -189.5058669891937484 ) ( "
-    "-115.83099079523915975 52.53376574927277431 -189.85942037978702501 ) ( -115.12388401405260652 "
+    "-115.83099079523915975 52.53376574927277431 -189.85942037978702501 ) ( "
+    "-115.12388401405260652 "
     "53.75851062066436725 -189.85942037978702501 ) __TB_empty -0.02112197875976562 "
     "-0.22997283935546875 280.89337158203125 0.93541437387466431 0.93541431427001953\n"
-    "( 72.6107978708658095 -94.6384909672807737 153.79013823665565042 ) ( 145.00698646154697258 "
-    "-136.4364499384135172 253.32768142207908113 ) ( 89.58136061934294503 -104.43644993841348878 "
-    "142.47642973767091235 ) __TB_empty 0.93064975738525391 -0.637969970703125 326.3099365234375 "
+    "( 72.6107978708658095 -94.6384909672807737 153.79013823665565042 ) ( "
+    "145.00698646154697258 "
+    "-136.4364499384135172 253.32768142207908113 ) ( 89.58136061934294503 "
+    "-104.43644993841348878 "
+    "142.47642973767091235 ) __TB_empty 0.93064975738525391 -0.637969970703125 "
+    "326.3099365234375 "
     "1.27475488185882568 0.96824580430984497\n"
-    "( 69.78237074611962498 -79.94155251058168687 159.44699248614801945 ) ( 81.0960792451044199 "
-    "-60.34563456831627803 159.44699248614801945 ) ( 136.52170508730841902 -92.34563456831628514 "
+    "( 69.78237074611962498 -79.94155251058168687 159.44699248614801945 ) ( "
+    "81.0960792451044199 "
+    "-60.34563456831627803 159.44699248614801945 ) ( 136.52170508730841902 "
+    "-92.34563456831628514 "
     "270.29824417055618824 ) __TB_empty 0.81418228149414062 0.05062103271484375 -0 "
     "1.22474479675292969 0.90138781070709229\n"
-    "( 81.0960792451044199 -60.34563456831627803 159.44699248614801945 ) ( 95.23821486883537091 "
-    "-55.4466550827499276 153.79013823665565042 ) ( 150.66384071103937003 -87.44665508274994181 "
+    "( 81.0960792451044199 -60.34563456831627803 159.44699248614801945 ) ( "
+    "95.23821486883537091 "
+    "-55.4466550827499276 153.79013823665565042 ) ( 150.66384071103937003 "
+    "-87.44665508274994181 "
     "264.6413899210638192 ) __TB_empty 0.67885684967041016 -0.27746772766113281 "
     "338.198577880859375 0.95197159051895142 0.96824586391448975\n"
-    "( 95.23821486883537091 -55.4466550827499276 153.79013823665565042 ) ( 112.20877761731250644 "
-    "-65.24461405388265689 142.47642973767091235 ) ( 167.63440345951653399 -97.2446140538826711 "
-    "253.32768142207908113 ) __TB_empty 0.16141700744628906 -0.67490577697753906 326.3099365234375 "
+    "( 95.23821486883537091 -55.4466550827499276 153.79013823665565042 ) ( "
+    "112.20877761731250644 "
+    "-65.24461405388265689 142.47642973767091235 ) ( 167.63440345951653399 "
+    "-97.2446140538826711 "
+    "253.32768142207908113 ) __TB_empty 0.16141700744628906 -0.67490577697753906 "
+    "326.3099365234375 "
     "1.27475488185882568 0.96824580430984497\n"
-    "( 112.20877761731250644 -65.24461405388265689 142.47642973767091235 ) ( 115.03720474205866253 "
-    "-79.9415525105817153 136.81957548817854331 ) ( 170.46283058426269008 -111.94155251058172951 "
+    "( 112.20877761731250644 -65.24461405388265689 142.47642973767091235 ) ( "
+    "115.03720474205866253 "
+    "-79.9415525105817153 136.81957548817854331 ) ( 170.46283058426269008 "
+    "-111.94155251058172951 "
     "247.67082717258671209 ) __TB_empty -0.30159759521484375 0.28987884521484375 "
     "201.0517425537109375 0.98425096273422241 -0.90138787031173706\n"
-    "( 115.03720474205866253 -79.9415525105817153 136.81957548817854331 ) ( 103.72349624307389604 "
-    "-99.53747045284714545 136.81957548817854331 ) ( 159.14912208527792359 -131.53747045284714545 "
-    "247.67082717258671209 ) __TB_empty 0.81418418884277344 0.94775390625 -0 1.22474479675292969 "
+    "( 115.03720474205866253 -79.9415525105817153 136.81957548817854331 ) ( "
+    "103.72349624307389604 "
+    "-99.53747045284714545 136.81957548817854331 ) ( 159.14912208527792359 "
+    "-131.53747045284714545 "
+    "247.67082717258671209 ) __TB_empty 0.81418418884277344 0.94775390625 -0 "
+    "1.22474479675292969 "
     "0.90138781070709229\n"
     "}\n");
 
@@ -1486,7 +1708,8 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments", "[BrushTest]") {
 
 // TODO: add tests for Brush::intersect
 
-TEST_CASE("BrushTest.healEdgesCrash", "[BrushTest]") {
+TEST_CASE("BrushTest.healEdgesCrash", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3711
 
   const std::string brushString(R"({
@@ -1529,14 +1752,16 @@ TEST_CASE("BrushTest.healEdgesCrash", "[BrushTest]") {
     {1313.7309227127589, 1688.8888096909686, -768}};
 
   CHECK(brush.vertexCount() == expectedVertexPositions.size());
-  for (const vm::vec3d& position : expectedVertexPositions) {
+  for (const vm::vec3d& position : expectedVertexPositions)
+  {
     CHECK(brush.hasVertex(position, 0.01));
   }
 
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.healEdgesCrash2", "[BrushTest]") {
+TEST_CASE("BrushTest.healEdgesCrash2", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3655
 
   const std::string brushString(R"({
@@ -1583,14 +1808,16 @@ TEST_CASE("BrushTest.healEdgesCrash2", "[BrushTest]") {
     {-1752.3480981016994, 538.5046672528224, 56}};
 
   CHECK(brush.vertexCount() == expectedVertexPositions.size());
-  for (const vm::vec3d& position : expectedVertexPositions) {
+  for (const vm::vec3d& position : expectedVertexPositions)
+  {
     CHECK(brush.hasVertex(position, 0.01));
   }
 
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.healEdgesCrash3", "[BrushTest]") {
+TEST_CASE("BrushTest.healEdgesCrash3", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3655
 
   const std::string brushString(R"({
@@ -1721,14 +1948,16 @@ TEST_CASE("BrushTest.healEdgesCrash3", "[BrushTest]") {
     {-2128, 2160, 448}};
 
   CHECK(brush.vertexCount() == expectedVertexPositions.size());
-  for (const vm::vec3d& position : expectedVertexPositions) {
+  for (const vm::vec3d& position : expectedVertexPositions)
+  {
     CHECK(brush.hasVertex(position, 0.01));
   }
 
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.findInitialEdgeFail", "[BrushTest]") {
+TEST_CASE("BrushTest.findInitialEdgeFail", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3898
 
   const std::string brushString(R"({
@@ -1757,21 +1986,23 @@ TEST_CASE("BrushTest.findInitialEdgeFail", "[BrushTest]") {
   const auto& brush = brushNode->brush();
 
   CHECK_THAT(
-    brush.vertexPositions(), UnorderedApproxVecMatches(
-                               std::vector<vm::vec3>{
-                                 {832, -256, 48},
-                                 {841.391, -256, 88.6956},
-                                 {841.391, -272, 88.6956},
-                                 {877.818, -272, 106.909},
-                                 {852.571, -272, 48},
-                                 {852.571, -256, 48},
-                                 {832, -272, 48},
-                                 {877.818, -256, 106.909},
-                               },
-                               0.001));
+    brush.vertexPositions(),
+    UnorderedApproxVecMatches(
+      std::vector<vm::vec3>{
+        {832, -256, 48},
+        {841.391, -256, 88.6956},
+        {841.391, -272, 88.6956},
+        {877.818, -272, 106.909},
+        {852.571, -272, 48},
+        {852.571, -256, 48},
+        {832, -272, 48},
+        {877.818, -256, 106.909},
+      },
+      0.001));
 }
 
-TEST_CASE("BrushTest.headEdgesFail", "[BrushTest]") {
+TEST_CASE("BrushTest.headEdgesFail", "[BrushTest]")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3886
   // this test would previously fail due on an assertion error
 
@@ -1798,7 +2029,8 @@ TEST_CASE("BrushTest.headEdgesFail", "[BrushTest]") {
   const auto worldBounds = vm::bbox3{8192.0};
 
   auto status = IO::TestParserStatus{};
-  const auto nodes = IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
+  const auto nodes =
+    IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 }
 } // namespace Model

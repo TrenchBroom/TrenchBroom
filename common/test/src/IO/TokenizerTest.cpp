@@ -26,9 +26,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-namespace SimpleToken {
+namespace TrenchBroom
+{
+namespace IO
+{
+namespace SimpleToken
+{
 using Type = unsigned int;
 static const Type Integer = 1 << 0;   // integer number
 static const Type Decimal = 1 << 1;   // decimal number
@@ -40,44 +43,49 @@ static const Type Semicolon = 1 << 6; // semicolon: ;
 static const Type Eof = 1 << 7;       // end of file
 } // namespace SimpleToken
 
-class SimpleTokenizer : public Tokenizer<SimpleToken::Type> {
+class SimpleTokenizer : public Tokenizer<SimpleToken::Type>
+{
 public:
   using Token = Tokenizer<SimpleToken::Type>::Token;
 
 private:
-  Token emitToken() override {
-    while (!eof()) {
+  Token emitToken() override
+  {
+    while (!eof())
+    {
       size_t startLine = line();
       size_t startColumn = column();
       const char* c = curPos();
-      switch (*c) {
-        case '{':
+      switch (*c)
+      {
+      case '{':
+        advance();
+        return Token(SimpleToken::OBrace, c, c + 1, offset(c), startLine, startColumn);
+      case '}':
+        advance();
+        return Token(SimpleToken::CBrace, c, c + 1, offset(c), startLine, startColumn);
+      case '=':
+        advance();
+        return Token(SimpleToken::Equals, c, c + 1, offset(c), startLine, startColumn);
+      case ';':
+        advance();
+        return Token(SimpleToken::Semicolon, c, c + 1, offset(c), startLine, startColumn);
+      default: { // integer, decimal, or string
+        if (isWhitespace(*c))
+        {
           advance();
-          return Token(SimpleToken::OBrace, c, c + 1, offset(c), startLine, startColumn);
-        case '}':
-          advance();
-          return Token(SimpleToken::CBrace, c, c + 1, offset(c), startLine, startColumn);
-        case '=':
-          advance();
-          return Token(SimpleToken::Equals, c, c + 1, offset(c), startLine, startColumn);
-        case ';':
-          advance();
-          return Token(SimpleToken::Semicolon, c, c + 1, offset(c), startLine, startColumn);
-        default: { // integer, decimal, or string
-          if (isWhitespace(*c)) {
-            advance();
-            break;
-          }
-          const char* e = readInteger("{};= \n\r\t");
-          if (e != nullptr)
-            return Token(SimpleToken::Integer, c, e, offset(c), startLine, startColumn);
-          e = readDecimal("{};= \n\r\t");
-          if (e != nullptr)
-            return Token(SimpleToken::Decimal, c, e, offset(c), startLine, startColumn);
-          e = readUntil("{};= \n\r\t");
-          assert(e != nullptr);
-          return Token(SimpleToken::String, c, e, offset(c), startLine, startColumn);
+          break;
         }
+        const char* e = readInteger("{};= \n\r\t");
+        if (e != nullptr)
+          return Token(SimpleToken::Integer, c, e, offset(c), startLine, startColumn);
+        e = readDecimal("{};= \n\r\t");
+        if (e != nullptr)
+          return Token(SimpleToken::Decimal, c, e, offset(c), startLine, startColumn);
+        e = readUntil("{};= \n\r\t");
+        assert(e != nullptr);
+        return Token(SimpleToken::String, c, e, offset(c), startLine, startColumn);
+      }
       }
     }
     return Token(SimpleToken::Eof, nullptr, nullptr, length(), line(), column());
@@ -85,24 +93,30 @@ private:
 
 public:
   SimpleTokenizer(std::string_view str)
-    : Tokenizer<SimpleToken::Type>(std::move(str), "", 0) {}
+    : Tokenizer<SimpleToken::Type>(std::move(str), "", 0)
+  {
+  }
 };
 
-TEST_CASE("TokenizerTest.simpleLanguageEmptyString", "[TokenizerTest]") {
+TEST_CASE("TokenizerTest.simpleLanguageEmptyString", "[TokenizerTest]")
+{
   const std::string testString("");
   SimpleTokenizer tokenizer(testString);
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlankString", "[TokenizerTest]") {
+TEST_CASE("TokenizerTest.simpleLanguageBlankString", "[TokenizerTest]")
+{
   const std::string testString("\n  \t ");
   SimpleTokenizer tokenizer(testString);
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageEmptyBlock", "[TokenizerTest]") {
-  const std::string testString("{"
-                               "}");
+TEST_CASE("TokenizerTest.simpleLanguageEmptyBlock", "[TokenizerTest]")
+{
+  const std::string testString(
+    "{"
+    "}");
 
   SimpleTokenizer tokenizer(testString);
   CHECK(tokenizer.nextToken().type() == SimpleToken::OBrace);
@@ -110,9 +124,11 @@ TEST_CASE("TokenizerTest.simpleLanguageEmptyBlock", "[TokenizerTest]") {
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguagePushPeekPopToken", "[TokenizerTest]") {
-  const std::string testString("{\n"
-                               "}");
+TEST_CASE("TokenizerTest.simpleLanguagePushPeekPopToken", "[TokenizerTest]")
+{
+  const std::string testString(
+    "{\n"
+    "}");
 
   SimpleTokenizer tokenizer(testString);
   SimpleTokenizer::Token token;
@@ -125,9 +141,12 @@ TEST_CASE("TokenizerTest.simpleLanguagePushPeekPopToken", "[TokenizerTest]") {
 }
 
 TEST_CASE(
-  "TokenizerTest.simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace", "[TokenizerTest]") {
-  const std::string testString(" \t{"
-                               " }  ");
+  "TokenizerTest.simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace",
+  "[TokenizerTest]")
+{
+  const std::string testString(
+    " \t{"
+    " }  ");
 
   SimpleTokenizer tokenizer(testString);
   CHECK(tokenizer.nextToken().type() == SimpleToken::OBrace);
@@ -135,10 +154,12 @@ TEST_CASE(
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithStringAttribute", "[TokenizerTest]") {
-  const std::string testString("{\n"
-                               "    attribute =value;\n"
-                               "}\n");
+TEST_CASE("TokenizerTest.simpleLanguageBlockWithStringAttribute", "[TokenizerTest]")
+{
+  const std::string testString(
+    "{\n"
+    "    attribute =value;\n"
+    "}\n");
 
   SimpleTokenizer tokenizer(testString);
   SimpleTokenizer::Token token;
@@ -155,10 +176,12 @@ TEST_CASE("TokenizerTest.simpleLanguageBlockWithStringAttribute", "[TokenizerTes
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithIntegerAttribute", "[TokenizerTest]") {
-  const std::string testString("{"
-                               "    attribute =  12328;"
-                               "}");
+TEST_CASE("TokenizerTest.simpleLanguageBlockWithIntegerAttribute", "[TokenizerTest]")
+{
+  const std::string testString(
+    "{"
+    "    attribute =  12328;"
+    "}");
 
   SimpleTokenizer tokenizer(testString);
   SimpleTokenizer::Token token;
@@ -173,10 +196,13 @@ TEST_CASE("TokenizerTest.simpleLanguageBlockWithIntegerAttribute", "[TokenizerTe
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeIntegerAttribute", "[TokenizerTest]") {
-  const std::string testString("{"
-                               "    attribute =  -12328;"
-                               "}");
+TEST_CASE(
+  "TokenizerTest.simpleLanguageBlockWithNegativeIntegerAttribute", "[TokenizerTest]")
+{
+  const std::string testString(
+    "{"
+    "    attribute =  -12328;"
+    "}");
 
   SimpleTokenizer tokenizer(testString);
   SimpleTokenizer::Token token;
@@ -191,10 +217,12 @@ TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeIntegerAttribute", "[Tok
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttribute", "[TokenizerTest]") {
-  const std::string testString("{"
-                               "    attribute =  12328.38283;"
-                               "}");
+TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttribute", "[TokenizerTest]")
+{
+  const std::string testString(
+    "{"
+    "    attribute =  12328.38283;"
+    "}");
 
   SimpleTokenizer tokenizer(testString);
   SimpleTokenizer::Token token;
@@ -210,10 +238,13 @@ TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttribute", "[TokenizerTe
 }
 
 TEST_CASE(
-  "TokenizerTest.simpleLanguageBlockWithDecimalAttributeStartingWithDot", "[TokenizerTest]") {
-  const std::string testString("{"
-                               "    attribute =  .38283;"
-                               "}");
+  "TokenizerTest.simpleLanguageBlockWithDecimalAttributeStartingWithDot",
+  "[TokenizerTest]")
+{
+  const std::string testString(
+    "{"
+    "    attribute =  .38283;"
+    "}");
 
   SimpleTokenizer tokenizer(testString);
   SimpleTokenizer::Token token;
@@ -228,10 +259,13 @@ TEST_CASE(
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeDecimalAttribute", "[TokenizerTest]") {
-  const std::string testString("{"
-                               "    attribute =  -343.38283;"
-                               "}");
+TEST_CASE(
+  "TokenizerTest.simpleLanguageBlockWithNegativeDecimalAttribute", "[TokenizerTest]")
+{
+  const std::string testString(
+    "{"
+    "    attribute =  -343.38283;"
+    "}");
 
   SimpleTokenizer tokenizer(testString);
   SimpleTokenizer::Token token;

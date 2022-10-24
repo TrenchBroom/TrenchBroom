@@ -31,24 +31,31 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushNode;
 class BrushFace;
 class EditorContext;
 } // namespace Model
 
-namespace Renderer {
-class BrushRenderer {
+namespace Renderer
+{
+class BrushRenderer
+{
 public:
-  class Filter {
+  class Filter
+  {
   public:
-    enum class FaceRenderPolicy {
+    enum class FaceRenderPolicy
+    {
       RenderMarked,
       RenderNone
     };
 
-    enum class EdgeRenderPolicy {
+    enum class EdgeRenderPolicy
+    {
       RenderAll,
       RenderIfEitherFaceMarked,
       RenderIfBothFacesMarked,
@@ -66,11 +73,11 @@ public:
     /**
      * Classifies whether the brush will be rendered, and which faces/edges.
      *
-     * If both FaceRenderPolicy::RenderNone and EdgeRenderPolicy::RenderNone are returned, the brush
-     * is skipped (not added to the vertex array or index arrays at all).
+     * If both FaceRenderPolicy::RenderNone and EdgeRenderPolicy::RenderNone are returned,
+     * the brush is skipped (not added to the vertex array or index arrays at all).
      *
-     * Otherwise, markFaces() should call BrushFace::setMarked() on *all* faces, passing true or
-     * false as needed to select the faces to be rendered.
+     * Otherwise, markFaces() should call BrushFace::setMarked() on *all* faces, passing
+     * true or false as needed to select the faces to be rendered.
      */
     virtual RenderSettings markFaces(const Model::BrushNode* brush) const = 0;
 
@@ -81,7 +88,8 @@ public:
     static RenderSettings renderNothing();
   };
 
-  class DefaultFilter : public Filter {
+  class DefaultFilter : public Filter
+  {
   private:
     const Model::EditorContext& m_context;
 
@@ -108,7 +116,8 @@ public:
     DefaultFilter& operator=(const DefaultFilter& other);
   };
 
-  class NoFilter : public Filter {
+  class NoFilter : public Filter
+  {
   public:
     using Filter::Filter;
     RenderSettings markFaces(const Model::BrushNode* brushNode) const override;
@@ -123,16 +132,18 @@ private:
 private:
   std::unique_ptr<Filter> m_filter;
 
-  struct BrushInfo {
+  struct BrushInfo
+  {
     AllocationTracker::Block* vertexHolderKey;
     AllocationTracker::Block* edgeIndicesKey;
-    std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>> opaqueFaceIndicesKeys;
+    std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>>
+      opaqueFaceIndicesKeys;
     std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>>
       transparentFaceIndicesKeys;
   };
   /**
-   * Tracks all brushes that are stored in the VBO, with the information necessary to remove them
-   * from the VBO later.
+   * Tracks all brushes that are stored in the VBO, with the information necessary to
+   * remove them from the VBO later.
    */
   std::unordered_map<const Model::BrushNode*, BrushInfo> m_brushInfo;
 
@@ -180,7 +191,8 @@ public:
     , m_showOccludedEdges(false)
     , m_forceTransparent(false)
     , m_transparencyAlpha(1.0f)
-    , m_showHiddenBrushes(false) {
+    , m_showHiddenBrushes(false)
+  {
     clear();
   }
 
@@ -192,18 +204,18 @@ public:
   void clear();
 
   /**
-   * Marks all of the brushes as invalid, meaning that next time one of the render() methods is
-   * called,
-   * - the Filter will be re-evaluated for each brush, possibly changing whether the brush is
-   * included/excluded
+   * Marks all of the brushes as invalid, meaning that next time one of the render()
+   * methods is called,
+   * - the Filter will be re-evaluated for each brush, possibly changing whether the brush
+   * is included/excluded
    * - all brushes vertices will be re-fetched from the Brush object.
    *
-   * Until a brush is invalidated, we don't re-evaluate the Filter, and don't check the Brush object
-   * for modification.
+   * Until a brush is invalidated, we don't re-evaluate the Filter, and don't check the
+   * Brush object for modification.
    *
-   * Additionally, calling `invalidate()` guarantees the m_brushInfo, m_transparentFaces, and
-   * m_opaqueFaces maps will be empty, so the BrushRenderer will not have any lingering Texture*
-   * pointers.
+   * Additionally, calling `invalidate()` guarantees the m_brushInfo, m_transparentFaces,
+   * and m_opaqueFaces maps will be empty, so the BrushRenderer will not have any
+   * lingering Texture* pointers.
    */
   void invalidate();
   void invalidateBrush(const Model::BrushNode* brush);
@@ -252,10 +264,11 @@ public:
   void setOccludedEdgeColor(const Color& occludedEdgeColor);
 
   /**
-   * Specifies whether or not faces should be rendered transparent. Overrides any transparency
-   * settings from the face itself or its material.
+   * Specifies whether or not faces should be rendered transparent. Overrides any
+   * transparency settings from the face itself or its material.
    *
-   * Note: setTransparencyAlpha must be set to something less than 1.0 for this to have any effect.
+   * Note: setTransparencyAlpha must be set to something less than 1.0 for this to have
+   * any effect.
    *
    * @see setTransparencyAlpha
    */
@@ -264,13 +277,14 @@ public:
   /**
    * The alpha value to render transparent faces with.
    *
-   * Note: this defaults to 1.0, which means requests for transparency from the brush, face,
-   * or setForceTransparent() are ignored by default.
+   * Note: this defaults to 1.0, which means requests for transparency from the brush,
+   * face, or setForceTransparent() are ignored by default.
    */
   void setTransparencyAlpha(float transparencyAlpha);
 
   /**
-   * Specifies whether or not brushes which are currently hidden should be rendered regardless.
+   * Specifies whether or not brushes which are currently hidden should be rendered
+   * regardless.
    */
   void setShowHiddenBrushes(bool showHiddenBrushes);
 
@@ -297,8 +311,8 @@ private:
 
 public:
   /**
-   * Adds a brush. Calling with an already-added brush is allowed, but ignored (not guaranteed to
-   * invalidate it).
+   * Adds a brush. Calling with an already-added brush is allowed, but ignored (not
+   * guaranteed to invalidate it).
    */
   void addBrush(const Model::BrushNode* brush);
   /**
@@ -309,8 +323,9 @@ public:
 private:
   /**
    * If the given brush is not currently in the VBO, it's silently ignored.
-   * Otherwise, it's removed from the VBO (having its indices zeroed out, causing it to no longer
-   * draw). The brush's "valid" state is not touched inside here, but the m_brushInfo is updated.
+   * Otherwise, it's removed from the VBO (having its indices zeroed out, causing it to no
+   * longer draw). The brush's "valid" state is not touched inside here, but the
+   * m_brushInfo is updated.
    */
   void removeBrushFromVbo(const Model::BrushNode* brush);
 

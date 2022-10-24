@@ -28,17 +28,21 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class PatchNode;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 class VboManager;
 
-class PatchRenderer : public IndexedRenderable {
+class PatchRenderer : public IndexedRenderable
+{
 private:
   bool m_valid = true;
   kdl::vector_set<const Model::PatchNode*> m_patchNodes;
@@ -96,8 +100,8 @@ public:
   void clear();
 
   /**
-   * Adds a patch. Calling with an already-added patch is allowed, but ignored (not guaranteed to
-   * invalidate it).
+   * Adds a patch. Calling with an already-added patch is allowed, but ignored (not
+   * guaranteed to invalidate it).
    */
   void addPatch(const Model::PatchNode* patchNode);
   /**
@@ -105,7 +109,8 @@ public:
    */
   void removePatch(const Model::PatchNode* patchNode);
   /**
-   * Causes cached renderer data to be rebuilt for the given patch (on the next render() call).
+   * Causes cached renderer data to be rebuilt for the given patch (on the next render()
+   * call).
    */
   void invalidatePatch(const Model::PatchNode* patchNode);
 

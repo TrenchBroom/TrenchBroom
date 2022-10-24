@@ -31,7 +31,8 @@
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
   // Set OpenGL defaults
   // Needs to be done here before QApplication is created
   // (see: https://doc.qt.io/qt-5/qsurfaceformat.html#setDefaultFormat)
@@ -41,8 +42,8 @@ int main(int argc, char* argv[]) {
   QSurfaceFormat::setDefaultFormat(format);
 
   // Makes all QOpenGLWidget in the application share a single context
-  // (default behaviour would be for QOpenGLWidget's in a single top-level window to share a
-  // context.) see: http://doc.qt.io/qt-5/qopenglwidget.html#context-sharing
+  // (default behaviour would be for QOpenGLWidget's in a single top-level window to share
+  // a context.) see: http://doc.qt.io/qt-5/qopenglwidget.html#context-sharing
   QApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QSettings::setDefaultFormat(QSettings::IniFormat);
 
@@ -56,10 +57,9 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Workaround bug in Qt's Ctrl+Click = RMB emulation (a macOS feature.)
-  // In Qt 5.13.0 / macOS 10.14.6, Ctrl+trackpad click+Drag produces no mouse events at all, but
-  // it should produce RMB down/move events.
-  // This environment variable disables Qt's emulation so we can implement it ourselves in
-  // InputEventRecorder::recordEvent
+  // In Qt 5.13.0 / macOS 10.14.6, Ctrl+trackpad click+Drag produces no mouse events at
+  // all, but it should produce RMB down/move events. This environment variable disables
+  // Qt's emulation so we can implement it ourselves in InputEventRecorder::recordEvent
   qputenv("QT_MAC_DONT_OVERRIDE_CTRL_LMB", "1");
 
   // Disable Qt OpenGL buglist; since we require desktop OpenGL 2.1 there's no point in

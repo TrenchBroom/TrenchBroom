@@ -28,22 +28,27 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Renderer {
+namespace Renderer
+{
 class MapRenderer;
 }
 
-namespace View {
+namespace View
+{
 class GLContextManager;
 class MapDocument;
 class MapViewToolBox;
 
-class CyclingMapView : public MapViewContainer, public CameraLinkableView {
+class CyclingMapView : public MapViewContainer, public CameraLinkableView
+{
   Q_OBJECT
 public:
-  typedef enum {
+  typedef enum
+  {
     View_3D = 1,
     View_XY = 2,
     View_XZ = 4,
@@ -65,13 +70,19 @@ private:
 
 public:
   CyclingMapView(
-    std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
-    Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, View views,
-    Logger* logger, QWidget* parent = nullptr);
+    std::weak_ptr<MapDocument> document,
+    MapViewToolBox& toolBox,
+    Renderer::MapRenderer& mapRenderer,
+    GLContextManager& contextManager,
+    View views,
+    Logger* logger,
+    QWidget* parent = nullptr);
 
 private:
   void createGui(
-    MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager,
+    MapViewToolBox& toolBox,
+    Renderer::MapRenderer& mapRenderer,
+    GLContextManager& contextManager,
     View views);
   void addMapView(MapViewBase* mapView);
 

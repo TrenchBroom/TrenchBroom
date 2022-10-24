@@ -25,20 +25,24 @@
 
 class QAbstractButton;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class GameEngineConfig;
 class GameEngineProfile;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class GameEngineProfileEditor;
 class GameEngineProfileListBox;
 
 /**
  * Widget for editing game engine profiles (name/path, not parameters).
  */
-class GameEngineProfileManager : public QWidget {
+class GameEngineProfileManager : public QWidget
+{
   Q_OBJECT
 private:
   Model::GameEngineConfig m_config;
@@ -47,7 +51,8 @@ private:
   QAbstractButton* m_removeProfileButton;
 
 public:
-  explicit GameEngineProfileManager(Model::GameEngineConfig config, QWidget* parent = nullptr);
+  explicit GameEngineProfileManager(
+    Model::GameEngineConfig config, QWidget* parent = nullptr);
   const Model::GameEngineConfig& config() const;
 private slots:
   void addProfile();

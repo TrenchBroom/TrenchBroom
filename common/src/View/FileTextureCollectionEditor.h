@@ -30,15 +30,19 @@ class QAbstractButton;
 class QDragEnterEvent;
 class QDropEvent;
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
 
-namespace View {
+namespace View
+{
 class MapDocument;
 
-class FileTextureCollectionEditor : public QWidget {
+class FileTextureCollectionEditor : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;

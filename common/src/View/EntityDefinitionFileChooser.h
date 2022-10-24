@@ -29,11 +29,14 @@ class QPushButton;
 class QListWidget;
 class QLabel;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapDocument;
 
-class SingleSelectionListWidget : public QListWidget {
+class SingleSelectionListWidget : public QListWidget
+{
   Q_OBJECT
 private:
   bool m_allowDeselectAll;
@@ -44,12 +47,14 @@ public:
   bool allowDeselectAll() const;
 
 protected: // QAbstractItemView overrides
-  void selectionChanged(const QItemSelection& selected, const QItemSelection& deselected) override;
-  // QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex& index, const QEvent*
-  // event) const override;
+  void selectionChanged(
+    const QItemSelection& selected, const QItemSelection& deselected) override;
+  // QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex& index, const
+  // QEvent* event) const override;
 };
 
-class EntityDefinitionFileChooser : public QWidget {
+class EntityDefinitionFileChooser : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;

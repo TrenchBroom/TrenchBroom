@@ -26,8 +26,10 @@
 #include <memory>
 #include <optional>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class DragTracker;
 class MapDocument;
 
@@ -44,7 +46,8 @@ class MapDocument;
  * - LMB Drag: applies to all faces dragged over
  * - LMB Double click: applies to all faces of target brush
  */
-class SetBrushFaceAttributesTool : public ToolController, public Tool {
+class SetBrushFaceAttributesTool : public ToolController, public Tool
+{
 private:
   std::weak_ptr<MapDocument> m_document;
 

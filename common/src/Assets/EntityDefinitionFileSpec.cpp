@@ -24,19 +24,26 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 EntityDefinitionFileSpec::EntityDefinitionFileSpec()
   : m_type(Type::Unset)
-  , m_path("") {}
+  , m_path("")
+{
+}
 
-EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str) {
-  if (kdl::cs::str_is_prefix(str, "external:")) {
+EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str)
+{
+  if (kdl::cs::str_is_prefix(str, "external:"))
+  {
     const IO::Path path(str.substr(9));
     return EntityDefinitionFileSpec::external(path);
   }
 
-  if (kdl::cs::str_is_prefix(str, "builtin:")) {
+  if (kdl::cs::str_is_prefix(str, "builtin:"))
+  {
     const IO::Path path(str.substr(8));
     return EntityDefinitionFileSpec::builtin(path);
   }
@@ -49,55 +56,68 @@ EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str)
   return EntityDefinitionFileSpec::builtin(path);
 }
 
-EntityDefinitionFileSpec EntityDefinitionFileSpec::builtin(const IO::Path& path) {
+EntityDefinitionFileSpec EntityDefinitionFileSpec::builtin(const IO::Path& path)
+{
   return EntityDefinitionFileSpec(Type::Builtin, path);
 }
 
-EntityDefinitionFileSpec EntityDefinitionFileSpec::external(const IO::Path& path) {
+EntityDefinitionFileSpec EntityDefinitionFileSpec::external(const IO::Path& path)
+{
   return EntityDefinitionFileSpec(Type::External, path);
 }
 
-EntityDefinitionFileSpec EntityDefinitionFileSpec::unset() {
+EntityDefinitionFileSpec EntityDefinitionFileSpec::unset()
+{
   return EntityDefinitionFileSpec();
 }
 
-bool operator<(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs) {
-  if (lhs.m_type < rhs.m_type) {
+bool operator<(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs)
+{
+  if (lhs.m_type < rhs.m_type)
+  {
     return true;
   }
 
-  if (lhs.m_type > rhs.m_type) {
+  if (lhs.m_type > rhs.m_type)
+  {
     return false;
   }
 
   return lhs.m_path < rhs.m_path;
 }
 
-bool operator==(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs) {
+bool operator==(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs)
+{
   return lhs.m_type == rhs.m_type && lhs.m_path == rhs.m_path;
 }
 
-bool operator!=(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs) {
+bool operator!=(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs)
+{
   return !(lhs == rhs);
 }
 
-bool EntityDefinitionFileSpec::valid() const {
+bool EntityDefinitionFileSpec::valid() const
+{
   return m_type != Type::Unset;
 }
 
-bool EntityDefinitionFileSpec::builtin() const {
+bool EntityDefinitionFileSpec::builtin() const
+{
   return m_type == Type::Builtin;
 }
 
-bool EntityDefinitionFileSpec::external() const {
+bool EntityDefinitionFileSpec::external() const
+{
   return m_type == Type::External;
 }
 
-const IO::Path& EntityDefinitionFileSpec::path() const {
+const IO::Path& EntityDefinitionFileSpec::path() const
+{
   return m_path;
 }
 
-std::string EntityDefinitionFileSpec::asString() const {
+std::string EntityDefinitionFileSpec::asString() const
+{
   if (!valid())
     return "";
   if (builtin())
@@ -107,7 +127,8 @@ std::string EntityDefinitionFileSpec::asString() const {
 
 EntityDefinitionFileSpec::EntityDefinitionFileSpec(const Type type, const IO::Path& path)
   : m_type(type)
-  , m_path(path) {
+  , m_path(path)
+{
   assert(valid());
   assert(!path.isEmpty());
 }

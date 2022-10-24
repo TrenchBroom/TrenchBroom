@@ -24,22 +24,27 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class Palette;
 }
 
-namespace IO {
+namespace IO
+{
 class BufferedReader;
 class File;
 class FileSystem;
 class Reader;
 
-class MipTextureReader : public TextureReader {
+class MipTextureReader : public TextureReader
+{
 protected:
-  explicit MipTextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  explicit MipTextureReader(
+    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
 
 public:
   ~MipTextureReader() override;

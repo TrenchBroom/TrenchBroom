@@ -25,9 +25,12 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace IO {
-class ConfigParserBase {
+namespace TrenchBroom
+{
+namespace IO
+{
+class ConfigParserBase
+{
 private:
   ELParser m_parser;
 
@@ -45,7 +48,8 @@ protected:
 
   void expectType(const EL::Value& value, EL::ValueType type) const;
   void expectStructure(const EL::Value& value, const std::string& structure) const;
-  void expectMapEntry(const EL::Value& value, const std::string& key, EL::ValueType type) const;
+  void expectMapEntry(
+    const EL::Value& value, const std::string& key, EL::ValueType type) const;
 };
 } // namespace IO
 } // namespace TrenchBroom

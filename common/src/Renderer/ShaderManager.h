@@ -25,17 +25,21 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class Shader;
 class ShaderConfig;
 class ShaderProgram;
 
-class ShaderManager {
+class ShaderManager
+{
 private:
   friend class ShaderProgram;
   using ShaderCache = std::map<std::string, std::unique_ptr<Shader>>;
-  using ShaderProgramCache = std::map<const ShaderConfig*, std::unique_ptr<ShaderProgram>>;
+  using ShaderProgramCache =
+    std::map<const ShaderConfig*, std::unique_ptr<ShaderProgram>>;
 
   ShaderCache m_shaders;
   ShaderProgramCache m_programs;

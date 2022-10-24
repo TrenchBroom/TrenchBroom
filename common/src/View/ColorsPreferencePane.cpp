@@ -28,12 +28,14 @@
 #include <QSortFilterProxyModel>
 #include <QTableView>
 
-namespace TrenchBroom::View {
+namespace TrenchBroom::View
+{
 ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
   : PreferencePane(parent)
   , m_table(nullptr)
   , m_model(nullptr)
-  , m_proxy(nullptr) {
+  , m_proxy(nullptr)
+{
   m_model = new ColorModel(this);
   m_proxy = new QSortFilterProxyModel(this);
   m_proxy->setSourceModel(m_model);
@@ -47,11 +49,13 @@ ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
   m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));
   m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Fixed);
   m_table->horizontalHeader()->resizeSection(0, 80);
-  m_table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::ResizeToContents);
+  m_table->horizontalHeader()->setSectionResizeMode(
+    1, QHeaderView::ResizeMode::ResizeToContents);
   m_table->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Stretch);
 
   // Tighter than default vertical row height, without the overhead of autoresizing
-  m_table->verticalHeader()->setDefaultSectionSize(m_table->fontMetrics().lineSpacing() + 2);
+  m_table->verticalHeader()->setDefaultSectionSize(
+    m_table->fontMetrics().lineSpacing() + 2);
 
   m_table->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
 
@@ -63,7 +67,9 @@ ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
 
   auto* infoAndSearchLayout = new QHBoxLayout();
   infoAndSearchLayout->setContentsMargins(
-    LayoutConstants::WideHMargin, LayoutConstants::MediumVMargin, LayoutConstants::MediumHMargin,
+    LayoutConstants::WideHMargin,
+    LayoutConstants::MediumVMargin,
+    LayoutConstants::MediumHMargin,
     LayoutConstants::MediumVMargin);
   infoAndSearchLayout->setSpacing(LayoutConstants::WideHMargin);
   infoAndSearchLayout->addWidget(infoLabel, 1);
@@ -87,19 +93,23 @@ ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
   });
 }
 
-bool ColorsPreferencePane::doCanResetToDefaults() {
+bool ColorsPreferencePane::doCanResetToDefaults()
+{
   return true;
 }
 
-void ColorsPreferencePane::doResetToDefaults() {
+void ColorsPreferencePane::doResetToDefaults()
+{
   m_model->reset();
 }
 
-void ColorsPreferencePane::doUpdateControls() {
+void ColorsPreferencePane::doUpdateControls()
+{
   m_table->update();
 }
 
-bool ColorsPreferencePane::doValidate() {
+bool ColorsPreferencePane::doValidate()
+{
   return true;
 }
 } // namespace TrenchBroom::View

@@ -33,14 +33,18 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("DefParserTest.parseIncludedDefFiles", "[DefParserTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("DefParserTest.parseIncludedDefFiles", "[DefParserTest]")
+{
   const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
   const std::vector<Path> cfgFiles =
     Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
 
-  for (const Path& path : cfgFiles) {
+  for (const Path& path : cfgFiles)
+  {
     CAPTURE(path);
 
     auto file = Disk::openFile(path);
@@ -71,14 +75,16 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles", "[DefParserTest]") {
   }
 }
 
-TEST_CASE("DefParserTest.parseExtraDefFiles", "[DefParserTest]") {
+TEST_CASE("DefParserTest.parseExtraDefFiles", "[DefParserTest]")
+{
   const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
   const std::vector<Path> cfgFiles =
     Disk::findItems(basePath, [](const Path& path, bool directory) {
       return !directory && kdl::ci::str_is_equal(path.extension(), "def");
     });
 
-  for (const Path& path : cfgFiles) {
+  for (const Path& path : cfgFiles)
+  {
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
     const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -91,7 +97,8 @@ TEST_CASE("DefParserTest.parseExtraDefFiles", "[DefParserTest]") {
   }
 }
 
-TEST_CASE("DefParserTest.parseEmptyFile", "[DefParserTest]") {
+TEST_CASE("DefParserTest.parseEmptyFile", "[DefParserTest]")
+{
   const std::string file = "";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
   DefParser parser(file, defaultColor);
@@ -102,7 +109,8 @@ TEST_CASE("DefParserTest.parseEmptyFile", "[DefParserTest]") {
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parseWhitespaceFile", "[DefParserTest]") {
+TEST_CASE("DefParserTest.parseWhitespaceFile", "[DefParserTest]")
+{
   const std::string file = "     \n  \t \n  ";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
   DefParser parser(file, defaultColor);
@@ -113,7 +121,8 @@ TEST_CASE("DefParserTest.parseWhitespaceFile", "[DefParserTest]") {
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parseCommentsFile", "[DefParserTest]") {
+TEST_CASE("DefParserTest.parseCommentsFile", "[DefParserTest]")
+{
   const std::string file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
   DefParser parser(file, defaultColor);
@@ -124,21 +133,23 @@ TEST_CASE("DefParserTest.parseCommentsFile", "[DefParserTest]") {
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parseSolidClass", "[DefParserTest]") {
-  const std::string file = "/*QUAKED worldspawn (0.0 0.0 0.0) ?\n"
-                           "{\n"
-                           "choice \"worldtype\"\n"
-                           " (\n"
-                           "  (0,\"medieval\")\n"
-                           "  (1,\"metal\")\n"
-                           "  (2,\"base\")\n"
-                           " );\n"
-                           "}\n"
-                           "Only used for the world entity. "
-                           "Set message to the level name. "
-                           "Set sounds to the cd track to play. "
-                           "\"worldtype\"	type of world\n"
-                           "*/\n";
+TEST_CASE("DefParserTest.parseSolidClass", "[DefParserTest]")
+{
+  const std::string file =
+    "/*QUAKED worldspawn (0.0 0.0 0.0) ?\n"
+    "{\n"
+    "choice \"worldtype\"\n"
+    " (\n"
+    "  (0,\"medieval\")\n"
+    "  (1,\"metal\")\n"
+    "  (2,\"base\")\n"
+    " );\n"
+    "}\n"
+    "Only used for the world entity. "
+    "Set message to the level name. "
+    "Set sounds to the cd track to play. "
+    "\"worldtype\"	type of world\n"
+    "*/\n";
 
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
   DefParser parser(file, defaultColor);
@@ -152,10 +163,11 @@ TEST_CASE("DefParserTest.parseSolidClass", "[DefParserTest]") {
   CHECK(definition->name() == std::string("worldspawn"));
   CHECK(definition->color() == Color(0.0f, 0.0f, 0.0f, 1.0f));
   CHECK(
-    definition->description() == std::string("Only used for the world entity. "
-                                             "Set message to the level name. "
-                                             "Set sounds to the cd track to play. "
-                                             "\"worldtype\"	type of world"));
+    definition->description()
+    == std::string("Only used for the world entity. "
+                   "Set message to the level name. "
+                   "Set sounds to the cd track to play. "
+                   "\"worldtype\"	type of world"));
 
   const auto& properties = definition->propertyDefinitions();
   CHECK(properties.size() == 1u);
@@ -163,7 +175,8 @@ TEST_CASE("DefParserTest.parseSolidClass", "[DefParserTest]") {
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parsePointClass", "[DefParserTest]") {
+TEST_CASE("DefParserTest.parsePointClass", "[DefParserTest]")
+{
   const std::string file =
     "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
     "If crucified, stick the bounding box 12 pixels back into a wall to look right.\n"
@@ -181,8 +194,9 @@ TEST_CASE("DefParserTest.parsePointClass", "[DefParserTest]") {
   CHECK(definition->name() == std::string("monster_zombie"));
   CHECK(definition->color() == Color(1.0f, 0.0f, 0.0f, 1.0f));
   CHECK(
-    definition->description() ==
-    std::string("If crucified, stick the bounding box 12 pixels back into a wall to look right."));
+    definition->description()
+    == std::string(
+      "If crucified, stick the bounding box 12 pixels back into a wall to look right."));
 
   Assets::PointEntityDefinition* pointDefinition =
     static_cast<Assets::PointEntityDefinition*>(definition);
@@ -212,7 +226,8 @@ TEST_CASE("DefParserTest.parsePointClass", "[DefParserTest]") {
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parseSpawnflagWithSkip", "[DefParserTest]") {
+TEST_CASE("DefParserTest.parseSpawnflagWithSkip", "[DefParserTest]")
+{
   const std::string file =
     "/*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) - SUSPENDED SPIN - RESPAWN\n"
     "some desc\n"
@@ -268,10 +283,13 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip", "[DefParserTest]") {
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark", "[DefParserTest]") {
-  const std::string file = "/*QUAKED item_health (.3 .3 1) SUSPENDED SPIN - RESPAWN\n"
-                           "some desc\n"
-                           "*/\n";
+TEST_CASE(
+  "DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark", "[DefParserTest]")
+{
+  const std::string file =
+    "/*QUAKED item_health (.3 .3 1) SUSPENDED SPIN - RESPAWN\n"
+    "some desc\n"
+    "*/\n";
 
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
   DefParser parser(file, defaultColor);
@@ -315,36 +333,38 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark", "[De
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parsePointClassWithBaseClasses", "[DefParserTest]") {
-  const std::string file = "/*QUAKED _light_style\n"
-                           "{\n"
-                           "choice \"style\"\n"
-                           " (\n"
-                           "  (0,\"normal\")\n"
-                           "  (1,\"flicker (first variety)\")\n"
-                           "  (2,\"slow strong pulse\")\n"
-                           "  (3,\"candle (first variety)\")\n"
-                           "  (4,\"fast strobe\")\n"
-                           "  (5,\"gentle pulse 1\")\n"
-                           "  (6,\"flicker (second variety)\")\n"
-                           "  (7,\"candle (second variety)\")\n"
-                           "  (8,\"candle (third variety)\")\n"
-                           "  (9,\"slow strobe (fourth variety)\")\n"
-                           "  (10,\"fluorescent flicker\")\n"
-                           "  (11,\"slow pulse not fade to black\")\n"
-                           " );\n"
-                           "}\n"
-                           "*/\n"
-                           "\n"
-                           "/*QUAKED light (0.0 1.0 0.0) (-8 -8 -8) (8 8 8) START_OFF\n"
-                           "{\n"
-                           "base(\"_light_style\");\n"
-                           "}\n"
-                           "Non-displayed light.\n"
-                           "Default light value is 300\n"
-                           "If targeted, it will toggle between on or off.\n"
-                           "Default \"style\" is 0.\n"
-                           "*/\n";
+TEST_CASE("DefParserTest.parsePointClassWithBaseClasses", "[DefParserTest]")
+{
+  const std::string file =
+    "/*QUAKED _light_style\n"
+    "{\n"
+    "choice \"style\"\n"
+    " (\n"
+    "  (0,\"normal\")\n"
+    "  (1,\"flicker (first variety)\")\n"
+    "  (2,\"slow strong pulse\")\n"
+    "  (3,\"candle (first variety)\")\n"
+    "  (4,\"fast strobe\")\n"
+    "  (5,\"gentle pulse 1\")\n"
+    "  (6,\"flicker (second variety)\")\n"
+    "  (7,\"candle (second variety)\")\n"
+    "  (8,\"candle (third variety)\")\n"
+    "  (9,\"slow strobe (fourth variety)\")\n"
+    "  (10,\"fluorescent flicker\")\n"
+    "  (11,\"slow pulse not fade to black\")\n"
+    " );\n"
+    "}\n"
+    "*/\n"
+    "\n"
+    "/*QUAKED light (0.0 1.0 0.0) (-8 -8 -8) (8 8 8) START_OFF\n"
+    "{\n"
+    "base(\"_light_style\");\n"
+    "}\n"
+    "Non-displayed light.\n"
+    "Default light value is 300\n"
+    "If targeted, it will toggle between on or off.\n"
+    "Default \"style\" is 0.\n"
+    "*/\n";
 
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
   DefParser parser(file, defaultColor);
@@ -362,13 +382,16 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses", "[DefParserTest]") {
   const auto* stylePropertyDefinition = definition->propertyDefinition("style");
   CHECK(stylePropertyDefinition != nullptr);
   CHECK(stylePropertyDefinition->key() == "style");
-  CHECK(stylePropertyDefinition->type() == Assets::PropertyDefinitionType::ChoiceProperty);
+  CHECK(
+    stylePropertyDefinition->type() == Assets::PropertyDefinitionType::ChoiceProperty);
 
   const auto* spawnflagsPropertyDefinition =
     definition->propertyDefinition(Model::EntityPropertyKeys::Spawnflags);
   CHECK(spawnflagsPropertyDefinition != nullptr);
   CHECK(spawnflagsPropertyDefinition->key() == Model::EntityPropertyKeys::Spawnflags);
-  CHECK(spawnflagsPropertyDefinition->type() == Assets::PropertyDefinitionType::FlagsProperty);
+  CHECK(
+    spawnflagsPropertyDefinition->type()
+    == Assets::PropertyDefinitionType::FlagsProperty);
 
   const Assets::ChoicePropertyDefinition* choice =
     static_cast<const Assets::ChoicePropertyDefinition*>(stylePropertyDefinition);
@@ -386,49 +409,62 @@ static const std::string DefModelDefinitionTemplate =
 
 using Assets::assertModelDefinition;
 
-TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition", "[DefParserTest]") {
+TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition", "[DefParserTest]")
+{
   static const std::string ModelDefinition =
     "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0), ModelDefinition,
+    Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
+    ModelDefinition,
     DefModelDefinitionTemplate);
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0), ModelDefinition,
-    DefModelDefinitionTemplate, "{ 'spawnflags': 1 }");
+    Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
+    ModelDefinition,
+    DefModelDefinitionTemplate,
+    "{ 'spawnflags': 1 }");
 }
 
-TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition", "[DefParserTest]") {
+TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition", "[DefParserTest]")
+{
   static const std::string ModelDefinition =
     "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0), ModelDefinition,
-    DefModelDefinitionTemplate, "{ 'model': 'maps/b_shell1.bsp' }");
+    Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
+    ModelDefinition,
+    DefModelDefinitionTemplate,
+    "{ 'model': 'maps/b_shell1.bsp' }");
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2), ModelDefinition,
-    DefModelDefinitionTemplate, "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
+    Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
+    ModelDefinition,
+    DefModelDefinitionTemplate,
+    "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
 }
 
-TEST_CASE("DefParserTest.parseELModelDefinition", "[DefParserTest]") {
+TEST_CASE("DefParserTest.parseELModelDefinition", "[DefParserTest]")
+{
   static const std::string ModelDefinition =
     "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0), ModelDefinition,
+    Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
+    ModelDefinition,
     DefModelDefinitionTemplate);
 }
 
-TEST_CASE("DefParserTest.parseInvalidBounds", "[DefParserTest]") {
-  const std::string file = "/*QUAKED light (0.0 1.0 0.0) (8 -8 -8) (-8 8 8) START_OFF\n"
-                           "{\n"
-                           "base(\"_light_style\");\n"
-                           "}\n"
-                           "Non-displayed light.\n"
-                           "Default light value is 300\n"
-                           "If targeted, it will toggle between on or off.\n"
-                           "Default \"style\" is 0.\n"
-                           "*/\n";
+TEST_CASE("DefParserTest.parseInvalidBounds", "[DefParserTest]")
+{
+  const std::string file =
+    "/*QUAKED light (0.0 1.0 0.0) (8 -8 -8) (-8 8 8) START_OFF\n"
+    "{\n"
+    "base(\"_light_style\");\n"
+    "}\n"
+    "Non-displayed light.\n"
+    "Default light value is 300\n"
+    "If targeted, it will toggle between on or off.\n"
+    "Default \"style\" is 0.\n"
+    "*/\n";
 
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
   DefParser parser(file, defaultColor);

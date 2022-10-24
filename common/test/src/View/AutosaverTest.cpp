@@ -32,9 +32,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE("AutosaverTest.backupFileMatcher", "[AutosaverTest]") {
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE("AutosaverTest.backupFileMatcher", "[AutosaverTest]")
+{
   Autosaver::BackupFileMatcher matcher(IO::Path("test"));
 
   CHECK(matcher(IO::Path("test.1.map"), false));
@@ -46,7 +49,8 @@ TEST_CASE("AutosaverTest.backupFileMatcher", "[AutosaverTest]") {
   CHECK_FALSE(matcher(IO::Path("test.2-crash.map"), false));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInterval") {
+TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInterval")
+{
   using namespace std::literals::chrono_literals;
 
   IO::TestEnvironment env;
@@ -66,7 +70,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInter
   CHECK_FALSE(env.directoryExists(IO::Path("autosave")));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveOfUnchangedMap") {
+TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveOfUnchangedMap")
+{
   using namespace std::literals::chrono_literals;
 
   IO::TestEnvironment env;
@@ -82,7 +87,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveOfUnchangedMap
   CHECK_FALSE(env.directoryExists(IO::Path("autosave")));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterval") {
+TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterval")
+{
   using namespace std::literals::chrono_literals;
 
   IO::TestEnvironment env;
@@ -106,7 +112,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterv
   CHECK(env.directoryExists(IO::Path("autosave")));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveInterval") {
+TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveInterval")
+{
   using namespace std::literals::chrono_literals;
 
   IO::TestEnvironment env;
@@ -143,7 +150,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
   CHECK(env.fileExists(IO::Path("autosave/test.2.map")));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesPresent") {
+TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesPresent")
+{
   // https://github.com/TrenchBroom/TrenchBroom/issues/2544
 
   using namespace std::literals::chrono_literals;

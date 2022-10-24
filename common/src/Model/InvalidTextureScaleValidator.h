@@ -23,14 +23,18 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-class InvalidTextureScaleValidator : public Validator {
+namespace TrenchBroom
+{
+namespace Model
+{
+class InvalidTextureScaleValidator : public Validator
+{
 public:
   InvalidTextureScaleValidator();
 
 private:
-  void doValidate(BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(
+    BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

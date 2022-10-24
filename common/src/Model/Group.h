@@ -26,9 +26,12 @@
 #include <optional>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
-class Group {
+namespace TrenchBroom
+{
+namespace Model
+{
+class Group
+{
 private:
   std::string m_name;
   std::optional<std::string> m_linkedGroupId;

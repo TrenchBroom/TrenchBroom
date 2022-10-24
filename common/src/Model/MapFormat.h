@@ -22,9 +22,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-enum class MapFormat {
+namespace TrenchBroom
+{
+namespace Model
+{
+enum class MapFormat
+{
   /**
    * Unknown map format.
    */
@@ -38,7 +41,8 @@ enum class MapFormat {
    */
   Quake2,
   /**
-   * Quake 2 with Valve 220 format texturing, supported by https://github.com/qbism/q2tools-220
+   * Quake 2 with Valve 220 format texturing, supported by
+   * https://github.com/qbism/q2tools-220
    */
   Quake2_Valve,
   /**
@@ -69,8 +73,8 @@ enum class MapFormat {
 };
 
 /**
- * Returns the map format enum value with the given name. If the given name is not recognized,
- * MapFormat::Unknown is returned.
+ * Returns the map format enum value with the given name. If the given name is not
+ * recognized, MapFormat::Unknown is returned.
  *
  * @param formatName the name
  * @return the enum value
@@ -85,8 +89,8 @@ MapFormat formatFromName(const std::string& formatName);
  */
 std::string formatName(MapFormat format);
 /**
- * Returns a vector starting with the given format, then the other formats which are compatible with
- * it.
+ * Returns a vector starting with the given format, then the other formats which are
+ * compatible with it.
  *
  * @param format the preferred format
  * @return the preferred format, then the other compatible formats

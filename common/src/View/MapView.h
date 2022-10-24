@@ -24,13 +24,16 @@
 
 #include <vecmath/forward.h>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapViewActivationTracker;
 class MapViewBase;
 class MapViewContainer;
 
-class MapView : public ViewEffectsService {
+class MapView : public ViewEffectsService
+{
 private:
   MapViewContainer* m_container;
 
@@ -47,7 +50,8 @@ public:
   bool canSelectTall();
   void selectTall();
 
-  vm::vec3 pasteObjectsDelta(const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
+  vm::vec3 pasteObjectsDelta(
+    const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
 
   void focusCameraOnSelection(bool animate);
   void moveCameraToPosition(const vm::vec3& position, bool animate);
@@ -63,12 +67,14 @@ public:
   void cycleMapView();
 
   /**
-   * Requests repaint of the managed map views. Note, this must be used instead of QWidget::update()
+   * Requests repaint of the managed map views. Note, this must be used instead of
+   * QWidget::update()
    */
   void refreshViews();
 
 private:
-  virtual void doInstallActivationTracker(MapViewActivationTracker& activationTracker) = 0;
+  virtual void doInstallActivationTracker(
+    MapViewActivationTracker& activationTracker) = 0;
 
   virtual bool doGetIsCurrent() const = 0;
   virtual MapViewBase* doGetFirstMapViewBase() = 0;

@@ -32,14 +32,18 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTest]")
+{
   const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
   const std::vector<Path> cfgFiles =
     Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
 
-  for (const Path& path : cfgFiles) {
+  for (const Path& path : cfgFiles)
+  {
     CAPTURE(path);
 
     auto file = Disk::openFile(path);
@@ -50,19 +54,22 @@ TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTes
   }
 }
 
-TEST_CASE("GameConfigParserTest.parseBlankConfig", "[GameConfigParserTest]") {
+TEST_CASE("GameConfigParserTest.parseBlankConfig", "[GameConfigParserTest]")
+{
   const std::string config("   ");
   GameConfigParser parser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE("GameConfigParserTest.parseEmptyConfig", "[GameConfigParserTest]") {
+TEST_CASE("GameConfigParserTest.parseEmptyConfig", "[GameConfigParserTest]")
+{
   const std::string config("  {  } ");
   GameConfigParser parser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]") {
+TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]")
+{
   const std::string config(R"(
 {
     "version": 3,
@@ -127,14 +134,15 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]") {
 )");
 
   CHECK(
-    GameConfigParser(config).parse() ==
-    Model::GameConfig{
+    GameConfigParser(config).parse()
+    == Model::GameConfig{
       "Quake",
       Path{},
       Path{"Icon.png"},
       false,
       {// map formats
-       Model::MapFormatConfig{"Standard", Path{}}, Model::MapFormatConfig{"Valve", Path{}}},
+       Model::MapFormatConfig{"Standard", Path{}},
+       Model::MapFormatConfig{"Valve", Path{}}},
       Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
       Model::TextureConfig{
         Model::TextureFilePackageConfig{Model::PackageFormatConfig{{"wad"}, "wad2"}},
@@ -144,7 +152,10 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]") {
         Path{},
         {}},
       Model::EntityConfig{
-        {Path{"Quake.fgd"}, Path{"Quoth2.fgd"}, Path{"Rubicon2.def"}, Path{"Teamfortress.fgd"}},
+        {Path{"Quake.fgd"},
+         Path{"Quoth2.fgd"},
+         Path{"Rubicon2.def"},
+         Path{"Teamfortress.fgd"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
         {}},
       Model::FaceAttribsConfig{},
@@ -165,14 +176,16 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]") {
           "Hint",
           {Model::TagAttribute{1u, "transparent"}},
           std::make_unique<Model::TextureNameTagMatcher>("hint*")},
-        Model::SmartTag{"Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")},
+        Model::SmartTag{
+          "Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")},
       },            // smart tags
       std::nullopt, // soft map bounds
       {}            // compilation tools
     });
 }
 
-TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
+TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]")
+{
   const std::string config(R"%(
 {
     "version": 4,
@@ -384,14 +397,15 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
 )%");
 
   CHECK(
-    GameConfigParser(config).parse() ==
-    Model::GameConfig{
+    GameConfigParser(config).parse()
+    == Model::GameConfig{
       "Quake 2",
       Path{},
       Path{"Icon.png"},
       false,
       {Model::MapFormatConfig{"Quake2", Path{}}},
-      Model::FileSystemConfig{Path{"baseq2"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+      Model::FileSystemConfig{
+        Path{"baseq2"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
       Model::TextureConfig{
         Model::TextureDirectoryPackageConfig{Path{"textures"}},
         Model::PackageFormatConfig{{"wal"}, "wal"},
@@ -401,17 +415,20 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
         {}},
       Model::EntityConfig{{Path{"Quake2.fgd"}}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}},
       Model::FaceAttribsConfig{
-        {{{"light", "Emit light from the surface, brightness is specified in the 'value' field",
+        {{{"light",
+           "Emit light from the surface, brightness is specified in the 'value' field",
            1 << 0},
           {"slick", "The surface is slippery", 1 << 1},
           {"sky",
-           "The surface is sky, the texture will not be drawn, but the background sky box is used "
+           "The surface is sky, the texture will not be drawn, but the background sky "
+           "box is used "
            "instead",
            1 << 2},
           {"warp", "The surface warps (like water textures do)", 1 << 3},
           {"trans33", "The surface is 33% transparent", 1 << 4},
           {"trans66", "The surface is 66% transparent", 1 << 5},
-          {"flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)",
+          {"flowing",
+           "The texture wraps in a downward 'flowing' pattern (warp must also be set)",
            1 << 6},
           {"nodraw", "Used for non-fixed-size brush triggers and clip brushes", 1 << 7},
           {"hint", "Make a primary bsp splitter", 1 << 8},
@@ -423,8 +440,11 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
           {"slime", "The brush is slime", 1 << 4},
           {"water", "The brush is water", 1 << 5},
           {"mist", "The brush is non-solid", 1 << 6},
-          {"playerclip", "Player cannot pass through the brush (other things can)", 1 << 16},
-          {"monsterclip", "Monster cannot pass through the brush (player and other things can)",
+          {"playerclip",
+           "Player cannot pass through the brush (other things can)",
+           1 << 16},
+          {"monsterclip",
+           "Monster cannot pass through the brush (player and other things can)",
            1 << 17},
           {"current_0", "Brush has a current in direction of 0 degrees", 1 << 18},
           {"current_90", "Brush has a current in direction of 90 degrees", 1 << 19},
@@ -432,13 +452,15 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
           {"current_270", "Brush has a current in direction of 270 degrees", 1 << 21},
           {"current_up", "Brush has a current in the up direction", 1 << 22},
           {"current_dn", "Brush has a current in the down direction", 1 << 23},
-          {"origin", "Special brush used for specifying origin of rotation for rotating brushes",
+          {"origin",
+           "Special brush used for specifying origin of rotation for rotating brushes",
            1 << 24},
           {"monster", "Purpose unknown", 1 << 25},
           {"corpse", "Purpose unknown", 1 << 26},
           {"detail", "Detail brush", 1 << 27},
           {"translucent", "Use for opaque water that does not block vis", 1 << 28},
-          {"ladder", "Brushes with this flag allow a player to move up and down a vertical surface",
+          {"ladder",
+           "Brushes with this flag allow a player to move up and down a vertical surface",
            1 << 29}}},
         Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName}},
       {
@@ -458,20 +480,25 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]") {
           "Hint",
           {Model::TagAttribute{1u, "transparent"}},
           std::make_unique<Model::TextureNameTagMatcher>("hint*")},
-        Model::SmartTag{"Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
+        Model::SmartTag{
+          "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
         Model::SmartTag{
           "Liquid",
           {},
-          std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))},
+          std::make_unique<Model::ContentFlagsTagMatcher>(
+            (1 << 3) | (1 << 4) | (1 << 5))},
         Model::SmartTag{
-          "trans", {}, std::make_unique<Model::SurfaceFlagsTagMatcher>((1 << 4) | (1 << 5))},
+          "trans",
+          {},
+          std::make_unique<Model::SurfaceFlagsTagMatcher>((1 << 4) | (1 << 5))},
       },            // smart tags
       std::nullopt, // soft map bounds
       {}            // compilation tools
     });
 }
 
-TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
+TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]")
+{
   const std::string config(R"%(
 {
     "version": 4,
@@ -700,8 +727,8 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
   expectedBrushFaceAttributes.setColor(Color(255, 255, 255, 255));
 
   CHECK(
-    GameConfigParser(config).parse() ==
-    Model::GameConfig{
+    GameConfigParser(config).parse()
+    == Model::GameConfig{
       "Extras",
       Path{},
       Path{},
@@ -724,19 +751,23 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
             EL::Expression{EL::VariableExpression{"modelscale"}, 0, 0},
             EL::Expression{EL::VariableExpression{"modelscale_vec"}, 0, 0},
           }},
-          0, 0}},
+          0,
+          0}},
       Model::FaceAttribsConfig{
-        {{{"light", "Emit light from the surface, brightness is specified in the 'value' field",
+        {{{"light",
+           "Emit light from the surface, brightness is specified in the 'value' field",
            1 << 0},
           {"slick", "The surface is slippery", 1 << 1},
           {"sky",
-           "The surface is sky, the texture will not be drawn, but the background sky box is used "
+           "The surface is sky, the texture will not be drawn, but the background sky "
+           "box is used "
            "instead",
            1 << 2},
           {"warp", "The surface warps (like water textures do)", 1 << 3},
           {"trans33", "The surface is 33% transparent", 1 << 4},
           {"trans66", "The surface is 66% transparent", 1 << 5},
-          {"flowing", "The texture wraps in a downward 'flowing' pattern (warp must also be set)",
+          {"flowing",
+           "The texture wraps in a downward 'flowing' pattern (warp must also be set)",
            1 << 6},
           {"nodraw", "Used for non-fixed-size brush triggers and clip brushes", 1 << 7},
           {"hint", "Make a primary bsp splitter", 1 << 8},
@@ -748,8 +779,11 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
           {"slime", "The brush is slime", 1 << 4},
           {"water", "The brush is water", 1 << 5},
           {"mist", "The brush is non-solid", 1 << 6},
-          {"playerclip", "Player cannot pass through the brush (other things can)", 1 << 16},
-          {"monsterclip", "Monster cannot pass through the brush (player and other things can)",
+          {"playerclip",
+           "Player cannot pass through the brush (other things can)",
+           1 << 16},
+          {"monsterclip",
+           "Monster cannot pass through the brush (player and other things can)",
            1 << 17},
           {"current_0", "Brush has a current in direction of 0 degrees", 1 << 18},
           {"current_90", "Brush has a current in direction of 90 degrees", 1 << 19},
@@ -757,13 +791,15 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
           {"current_270", "Brush has a current in direction of 270 degrees", 1 << 21},
           {"current_up", "Brush has a current in the up direction", 1 << 22},
           {"current_dn", "Brush has a current in the down direction", 1 << 23},
-          {"origin", "Special brush used for specifying origin of rotation for rotating brushes",
+          {"origin",
+           "Special brush used for specifying origin of rotation for rotating brushes",
            1 << 24},
           {"monster", "Purpose unknown", 1 << 25},
           {"corpse", "Purpose unknown", 1 << 26},
           {"detail", "Detail brush", 1 << 27},
           {"translucent", "Use for opaque water that does not block vis", 1 << 28},
-          {"ladder", "Brushes with this flag allow a player to move up and down a vertical surface",
+          {"ladder",
+           "Brushes with this flag allow a player to move up and down a vertical surface",
            1 << 29}}},
         expectedBrushFaceAttributes},
       {
@@ -783,18 +819,21 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]") {
           "Hint",
           {Model::TagAttribute{1u, "transparent"}},
           std::make_unique<Model::TextureNameTagMatcher>("hint*")},
-        Model::SmartTag{"Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
+        Model::SmartTag{
+          "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
         Model::SmartTag{
           "Liquid",
           {},
-          std::make_unique<Model::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))},
+          std::make_unique<Model::ContentFlagsTagMatcher>(
+            (1 << 3) | (1 << 4) | (1 << 5))},
       },            // smart tags
       std::nullopt, // soft map bounds
       {}            // compilation tools
     });
 }
 
-TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]") {
+TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]")
+{
   const std::string config(R"(
 {
     "version": 3,

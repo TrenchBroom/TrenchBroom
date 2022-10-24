@@ -42,23 +42,31 @@
 
 #include <cassert>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(
   CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
-  , m_document{document} {}
+  , m_document{document}
+{
+}
 
-Tool& CreateSimpleBrushToolController3D::tool() {
+Tool& CreateSimpleBrushToolController3D::tool()
+{
   return m_tool;
 }
 
-const Tool& CreateSimpleBrushToolController3D::tool() const {
+const Tool& CreateSimpleBrushToolController3D::tool() const
+{
   return m_tool;
 }
 
-namespace {
-class CreateSimpleBrushDragDelegate : public HandleDragTrackerDelegate {
+namespace
+{
+class CreateSimpleBrushDragDelegate : public HandleDragTrackerDelegate
+{
 private:
   CreateSimpleBrushTool& m_tool;
   vm::bbox3 m_worldBounds;
@@ -66,12 +74,17 @@ private:
 public:
   CreateSimpleBrushDragDelegate(CreateSimpleBrushTool& tool, const vm::bbox3& worldBounds)
     : m_tool{tool}
-    , m_worldBounds{worldBounds} {}
+    , m_worldBounds{worldBounds}
+  {
+  }
 
   HandlePositionProposer start(
-    const InputState& inputState, const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) {
-    const auto currentBounds = makeBounds(inputState, initialHandlePosition, initialHandlePosition);
+    const InputState& inputState,
+    const vm::vec3& initialHandlePosition,
+    const vm::vec3& handleOffset)
+  {
+    const auto currentBounds =
+      makeBounds(inputState, initialHandlePosition, initialHandlePosition);
     m_tool.update(currentBounds);
     m_tool.refreshViews();
 
@@ -81,12 +94,15 @@ public:
   }
 
   std::optional<UpdateDragConfig> modifierKeyChange(
-    const InputState& inputState, const DragState& dragState) {
-    if (inputState.modifierKeys() == ModifierKeys::MKAlt) {
+    const InputState& inputState, const DragState& dragState)
+  {
+    if (inputState.modifierKeys() == ModifierKeys::MKAlt)
+    {
       return UpdateDragConfig{
         makeHandlePositionProposer(
           makeLineHandlePicker(
-            vm::line3{dragState.currentHandlePosition, vm::vec3::pos_z()}, dragState.handleOffset),
+            vm::line3{dragState.currentHandlePosition, vm::vec3::pos_z()},
+            dragState.handleOffset),
           makeIdentityHandleSnapper()),
         ResetInitialHandlePosition::Keep};
     }
@@ -100,11 +116,16 @@ public:
   }
 
   DragStatus drag(
-    const InputState& inputState, const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) {
+    const InputState& inputState,
+    const DragState& dragState,
+    const vm::vec3& proposedHandlePosition)
+  {
     if (updateBounds(
-          inputState, dragState.initialHandlePosition, dragState.currentHandlePosition,
-          proposedHandlePosition)) {
+          inputState,
+          dragState.initialHandlePosition,
+          dragState.currentHandlePosition,
+          proposedHandlePosition))
+    {
       m_tool.refreshViews();
       return DragStatus::Continue;
     }
@@ -116,19 +137,28 @@ public:
   void cancel(const DragState&) { m_tool.cancel(); }
 
   void render(
-    const InputState&, const DragState&, Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const {
+    const InputState&,
+    const DragState&,
+    Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch) const
+  {
     m_tool.render(renderContext, renderBatch);
   }
 
 private:
   bool updateBounds(
-    const InputState& inputState, const vm::vec3& initialHandlePosition,
-    const vm::vec3& lastHandlePosition, const vm::vec3& currentHandlePosition) {
-    const auto lastBounds = makeBounds(inputState, initialHandlePosition, lastHandlePosition);
-    const auto currentBounds = makeBounds(inputState, initialHandlePosition, currentHandlePosition);
+    const InputState& inputState,
+    const vm::vec3& initialHandlePosition,
+    const vm::vec3& lastHandlePosition,
+    const vm::vec3& currentHandlePosition)
+  {
+    const auto lastBounds =
+      makeBounds(inputState, initialHandlePosition, lastHandlePosition);
+    const auto currentBounds =
+      makeBounds(inputState, initialHandlePosition, currentHandlePosition);
 
-    if (currentBounds.is_empty() || currentBounds == lastBounds) {
+    if (currentBounds.is_empty() || currentBounds == lastBounds)
+    {
       return false;
     }
 
@@ -137,15 +167,18 @@ private:
   }
 
   vm::bbox3 makeBounds(
-    const InputState& inputState, const vm::vec3& initialHandlePosition,
-    const vm::vec3& currentHandlePosition) const {
+    const InputState& inputState,
+    const vm::vec3& initialHandlePosition,
+    const vm::vec3& currentHandlePosition) const
+  {
     const auto bounds = vm::bbox3{
       vm::min(initialHandlePosition, currentHandlePosition),
       vm::max(initialHandlePosition, currentHandlePosition)};
     return vm::intersect(snapBounds(inputState, bounds), m_worldBounds);
   }
 
-  vm::bbox3 snapBounds(const InputState& inputState, vm::bbox3 bounds) const {
+  vm::bbox3 snapBounds(const InputState& inputState, vm::bbox3 bounds) const
+  {
 
     // prevent flickering due to very small rounding errors
     bounds.min = vm::correct(bounds.min);
@@ -158,11 +191,16 @@ private:
     const auto& camera = inputState.camera();
     const auto cameraPosition = vm::vec3{camera.position()};
 
-    for (size_t i = 0; i < 3; i++) {
-      if (bounds.max[i] <= bounds.min[i]) {
-        if (bounds.min[i] < cameraPosition[i]) {
+    for (size_t i = 0; i < 3; i++)
+    {
+      if (bounds.max[i] <= bounds.min[i])
+      {
+        if (bounds.min[i] < cameraPosition[i])
+        {
           bounds.max[i] = bounds.min[i] + grid.actualSize();
-        } else {
+        }
+        else
+        {
           bounds.min[i] = bounds.max[i] - grid.actualSize();
         }
       }
@@ -174,19 +212,23 @@ private:
 } // namespace
 
 std::unique_ptr<DragTracker> CreateSimpleBrushToolController3D::acceptMouseDrag(
-  const InputState& inputState) {
+  const InputState& inputState)
+{
   using namespace Model::HitFilters;
 
-  if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft)) {
+  if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+  {
     return nullptr;
   }
 
-  if (!inputState.modifierKeysPressed(ModifierKeys::MKNone)) {
+  if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+  {
     return nullptr;
   }
 
   auto document = kdl::mem_lock(m_document);
-  if (document->hasSelection()) {
+  if (document->hasSelection())
+  {
     return nullptr;
   }
 
@@ -195,11 +237,14 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController3D::acceptMouseDrag(
     hit.isMatch() ? hit.hitPoint() : inputState.defaultPointUnderMouse();
 
   return createHandleDragTracker(
-    CreateSimpleBrushDragDelegate{m_tool, document->worldBounds()}, inputState,
-    initialHandlePosition, initialHandlePosition);
+    CreateSimpleBrushDragDelegate{m_tool, document->worldBounds()},
+    inputState,
+    initialHandlePosition,
+    initialHandlePosition);
 }
 
-bool CreateSimpleBrushToolController3D::cancel() {
+bool CreateSimpleBrushToolController3D::cancel()
+{
   return false;
 }
 } // namespace View

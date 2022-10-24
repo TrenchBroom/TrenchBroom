@@ -27,13 +27,16 @@
 
 #include <map>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class ActiveShader;
 class RenderContext;
 class VboManager;
 
-class PointHandleRenderer : public DirectRenderable {
+class PointHandleRenderer : public DirectRenderable
+{
 private:
   using HandleMap = std::map<Color, std::vector<vm::vec3f>>;
 

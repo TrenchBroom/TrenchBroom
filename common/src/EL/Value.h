@@ -30,9 +30,12 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom {
-namespace EL {
-class NullType {
+namespace TrenchBroom
+{
+namespace EL
+{
+class NullType
+{
 private:
   NullType();
 
@@ -40,7 +43,8 @@ public:
   static const NullType Value;
 };
 
-class UndefinedType {
+class UndefinedType
+{
 private:
   UndefinedType();
 
@@ -48,10 +52,18 @@ public:
   static const UndefinedType Value;
 };
 
-class Value {
+class Value
+{
 private:
   using VariantType = std::variant<
-    BooleanType, StringType, NumberType, ArrayType, MapType, RangeType, NullType, UndefinedType>;
+    BooleanType,
+    StringType,
+    NumberType,
+    ArrayType,
+    MapType,
+    RangeType,
+    NullType,
+    UndefinedType>;
   std::shared_ptr<VariantType> m_value;
   std::optional<Expression> m_expression;
 
@@ -72,7 +84,8 @@ public:
   explicit Value(MapType value, std::optional<Expression> expression = std::nullopt);
   explicit Value(RangeType value, std::optional<Expression> expression = std::nullopt);
   explicit Value(NullType value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(UndefinedType value, std::optional<Expression> expression = std::nullopt);
+  explicit Value(
+    UndefinedType value, std::optional<Expression> expression = std::nullopt);
 
   Value(Value value, std::optional<Expression> expression);
 

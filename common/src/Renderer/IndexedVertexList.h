@@ -25,9 +25,13 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
-template <typename T> class IndexedVertexList {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+template <typename T>
+class IndexedVertexList
+{
 private:
   using IndexArray = std::vector<GLint>;
   using CountArray = std::vector<GLsizei>;
@@ -44,55 +48,68 @@ public:
     , m_primStart(0)
     , m_vertices(0)
     , m_indices(0)
-    , m_counts(0) {}
+    , m_counts(0)
+  {
+  }
 
   IndexedVertexList(const size_t vertexCount, const size_t primCount)
     : m_allowDynamicGrowth(false)
     , m_primStart(0)
     , m_vertices(0)
     , m_indices(0)
-    , m_counts(0) {
+    , m_counts(0)
+  {
     reserve(vertexCount, primCount);
   }
 
-  void reserve(const size_t vertexCount, const size_t primitiveCount) {
+  void reserve(const size_t vertexCount, const size_t primitiveCount)
+  {
     m_vertices.reserve(vertexCount);
     m_indices.reserve(primitiveCount);
     m_counts.reserve(primitiveCount);
   }
 
-  void addVertex(const typename T::Vertex& vertex) {
+  void addVertex(const typename T::Vertex& vertex)
+  {
     assert(m_allowDynamicGrowth || m_vertices.capacity() > m_vertices.size());
     m_vertices.push_back(vertex);
   }
 
-  void addVertices(const typename T::Vertex::List& vertices) {
-    assert(m_allowDynamicGrowth || vertices.size() <= m_vertices.capacity() - m_vertices.size());
+  void addVertices(const typename T::Vertex::List& vertices)
+  {
+    assert(
+      m_allowDynamicGrowth
+      || vertices.size() <= m_vertices.capacity() - m_vertices.size());
     m_vertices = kdl::vec_concat(std::move(m_vertices), vertices);
   }
 
-  void addPrimitive(const typename T::Vertex::List& vertices) {
+  void addPrimitive(const typename T::Vertex::List& vertices)
+  {
     addVertices(vertices);
     endPrimitive();
   }
 
-  void addPrimitives(const IndexedVertexList& primitives) {
+  void addPrimitives(const IndexedVertexList& primitives)
+  {
     assert(
-      m_allowDynamicGrowth ||
-      primitives.vertices().size() <= m_vertices.capacity() - m_vertices.size());
+      m_allowDynamicGrowth
+      || primitives.vertices().size() <= m_vertices.capacity() - m_vertices.size());
     assert(
-      m_allowDynamicGrowth ||
-      primitives.indices().size() <= m_indices.capacity() - m_indices.size());
+      m_allowDynamicGrowth
+      || primitives.indices().size() <= m_indices.capacity() - m_indices.size());
     assert(
-      m_allowDynamicGrowth || primitives.counts().size() <= m_counts.capacity() - m_counts.size());
+      m_allowDynamicGrowth
+      || primitives.counts().size() <= m_counts.capacity() - m_counts.size());
     m_vertices = kdl::vec_concat(std::move(m_vertices), primitives.vertices());
     m_indices = kdl::vec_concat(std::move(m_indices), primitives.indices());
     m_counts = kdl::vec_concat(std::move(m_counts), primitives.counts());
     m_primStart = m_vertices.size();
   }
 
-  void endPrimitive() {
-    if (m_primStart < m_vertices.size()) {
+  void endPrimitive()
+  {
+    if (m_primStart < m_vertices.size())
+    {
       assert(m_allowDynamicGrowth || m_indices.capacity() > m_indices.size());
       assert(m_allowDynamicGrowth || m_counts.capacity() > m_counts.size());
 
@@ -106,7 +123,8 @@ public:
 
   size_t vertexCount() const { return m_vertices.size(); }
 
-  size_t primCount() const {
+  size_t primCount() const
+  {
     assert(m_indices.size() == m_counts.size());
     return m_indices.size();
   }
@@ -123,7 +141,8 @@ public:
 
   const typename T::Vertex::List& vertices() const { return m_vertices; }
 
-  void clear() {
+  void clear()
+  {
     m_vertices.clear();
     m_indices.clear();
     m_counts.clear();

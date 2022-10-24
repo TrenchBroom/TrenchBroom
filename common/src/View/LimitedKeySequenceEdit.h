@@ -21,9 +21,12 @@
 
 #include <QKeySequenceEdit>
 
-namespace TrenchBroom {
-namespace View {
-class LimitedKeySequenceEdit : public QKeySequenceEdit {
+namespace TrenchBroom
+{
+namespace View
+{
+class LimitedKeySequenceEdit : public QKeySequenceEdit
+{
   Q_OBJECT
 public:
   static const size_t MaxCount = 4;

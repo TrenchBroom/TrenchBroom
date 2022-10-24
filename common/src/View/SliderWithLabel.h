@@ -24,9 +24,12 @@
 class QLabel;
 class QSlider;
 
-namespace TrenchBroom {
-namespace View {
-class SliderWithLabel : public QWidget {
+namespace TrenchBroom
+{
+namespace View
+{
+class SliderWithLabel : public QWidget
+{
   Q_OBJECT
 private:
   QSlider* m_slider;

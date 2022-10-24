@@ -26,14 +26,18 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class GroupNode;
 class Node;
 } // namespace Model
 
-namespace View {
-class ReparentNodesCommand : public UpdateLinkedGroupsCommandBase {
+namespace View
+{
+class ReparentNodesCommand : public UpdateLinkedGroupsCommandBase
+{
 private:
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
   std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
@@ -49,7 +53,8 @@ public:
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(
+    MapDocumentCommandFacade* document) override;
 
   deleteCopyAndMove(ReparentNodesCommand);
 };

@@ -37,43 +37,61 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-namespace {
-struct EntityDefinitionInfo {
+namespace TrenchBroom
+{
+namespace Model
+{
+namespace
+{
+struct EntityDefinitionInfo
+{
   Assets::EntityDefinitionType type;
   std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
   vm::bbox3 bounds = vm::bbox3{16.0};
 };
 
 std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
-  const std::optional<EntityDefinitionInfo>& info) {
-  if (!info.has_value()) {
+  const std::optional<EntityDefinitionInfo>& info)
+{
+  if (!info.has_value())
+  {
     return nullptr;
   }
 
-  switch (info->type) {
-    case Assets::EntityDefinitionType::PointEntity:
-      return std::make_unique<Assets::PointEntityDefinition>(
-        "", Color{}, info->bounds, "", info->propertyDefinitions, Assets::ModelDefinition{});
-    case Assets::EntityDefinitionType::BrushEntity:
-      return std::make_unique<Assets::BrushEntityDefinition>(
-        "", Color{}, "", info->propertyDefinitions);
-      switchDefault();
+  switch (info->type)
+  {
+  case Assets::EntityDefinitionType::PointEntity:
+    return std::make_unique<Assets::PointEntityDefinition>(
+      "",
+      Color{},
+      info->bounds,
+      "",
+      info->propertyDefinitions,
+      Assets::ModelDefinition{});
+  case Assets::EntityDefinitionType::BrushEntity:
+    return std::make_unique<Assets::BrushEntityDefinition>(
+      "", Color{}, "", info->propertyDefinitions);
+    switchDefault();
   }
 }
 } // namespace
 
-TEST_CASE("entityRotationInfo") {
+TEST_CASE("entityRotationInfo")
+{
   using namespace Assets;
 
-  auto manglePropertyDef = std::make_shared<StringPropertyDefinition>("mangle", "", "", false);
-  auto normalPitch = EntityModelLoadedFrame{0, "", {}, PitchType::Normal, Orientation::Oriented};
+  auto manglePropertyDef =
+    std::make_shared<StringPropertyDefinition>("mangle", "", "", false);
+  auto normalPitch =
+    EntityModelLoadedFrame{0, "", {}, PitchType::Normal, Orientation::Oriented};
   auto invertedPitch =
     EntityModelLoadedFrame{0, "", {}, PitchType::MdlInverted, Orientation::Oriented};
 
   using T = std::tuple<
-    std::vector<EntityProperty>, bool, std::optional<EntityDefinitionInfo>, EntityModelFrame*,
+    std::vector<EntityProperty>,
+    bool,
+    std::optional<EntityDefinitionInfo>,
+    EntityModelFrame*,
     EntityRotationInfo>;
 
   // clang-format off
@@ -173,10 +191,12 @@ TEST_CASE("entityRotationInfo") {
   CHECK(entityRotationInfo(entity) == expectedRotationInfo);
 }
 
-TEST_CASE("entityRotation") {
+TEST_CASE("entityRotation")
+{
   using T = std::tuple<std::vector<EntityProperty>, EntityRotationInfo, vm::mat4x4>;
   using ERT = EntityRotationType;
-  const auto usage = GENERATE(EntityRotationUsage::Allowed, EntityRotationUsage::BlockRotation);
+  const auto usage =
+    GENERATE(EntityRotationUsage::Allowed, EntityRotationUsage::BlockRotation);
 
   // clang-format off
   const auto
@@ -203,7 +223,8 @@ TEST_CASE("entityRotation") {
   CHECK(entityRotation(properties, info) == vm::approx{expectedTransformation});
 }
 
-TEST_CASE("entityYawPitchRoll") {
+TEST_CASE("entityYawPitchRoll")
+{
   using T = std::tuple<double, double, double, vm::mat4x4d, vm::vec3d>;
 
   // clang-format off
@@ -224,9 +245,13 @@ TEST_CASE("entityYawPitchRoll") {
   CHECK(entityYawPitchRoll(transformation, rotation) == vm::approx{expectedYawPitchRoll});
 }
 
-TEST_CASE("applyEntityRotation") {
+TEST_CASE("applyEntityRotation")
+{
   using T = std::tuple<
-    std::vector<EntityProperty>, EntityRotationInfo, vm::mat4x4, std::optional<EntityProperty>>;
+    std::vector<EntityProperty>,
+    EntityRotationInfo,
+    vm::mat4x4,
+    std::optional<EntityProperty>>;
   using ERT = EntityRotationType;
   using ERU = EntityRotationUsage;
 

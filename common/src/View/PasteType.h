@@ -19,9 +19,12 @@
 
 #pragma once
 
-namespace TrenchBroom {
-namespace View {
-enum class PasteType {
+namespace TrenchBroom
+{
+namespace View
+{
+enum class PasteType
+{
   Node,
   BrushFace,
   Failed

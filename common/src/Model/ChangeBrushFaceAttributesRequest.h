@@ -27,16 +27,20 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushFace;
 class BrushFaceHandle;
 class BrushFaceAttributes;
 
-class ChangeBrushFaceAttributesRequest {
+class ChangeBrushFaceAttributesRequest
+{
 public:
   // TODO: replace with class based enum
-  typedef enum {
+  typedef enum
+  {
     AxisOp_None,
     AxisOp_Reset,
     AxisOp_ToParaxial,
@@ -44,7 +48,8 @@ public:
   } AxisOp;
 
   // TODO: replace with class based enum
-  typedef enum {
+  typedef enum
+  {
     ValueOp_None,
     ValueOp_Set,
     ValueOp_Add,
@@ -52,7 +57,8 @@ public:
   } ValueOp;
 
   // TODO: replace with class based enum
-  typedef enum {
+  typedef enum
+  {
     FlagOp_None,
     FlagOp_Replace,
     FlagOp_Set,   // TODO: rename to SetBits
@@ -60,7 +66,8 @@ public:
   } FlagOp;
 
   // TODO: replace with class based enum
-  typedef enum {
+  typedef enum
+  {
     TextureOp_None,
     TextureOp_Set
   } TextureOp;
@@ -135,13 +142,13 @@ public:
   void mulYScale(float yScale);
 
   /**
-   * When evaluated, the flags in `surfaceFlags` are set on the target face's surface flags
-   * (leaving other surface flags on the target face as-is).
+   * When evaluated, the flags in `surfaceFlags` are set on the target face's surface
+   * flags (leaving other surface flags on the target face as-is).
    */
   void setSurfaceFlags(int surfaceFlags);
   /**
-   * When evaluated, the flags in `surfaceFlags` are cleared on the target face's surface flags
-   * (leaving other surface flags on the target face as-is).
+   * When evaluated, the flags in `surfaceFlags` are cleared on the target face's surface
+   * flags (leaving other surface flags on the target face as-is).
    */
   void unsetSurfaceFlags(int surfaceFlags);
   /**

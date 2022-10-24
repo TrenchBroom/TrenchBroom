@@ -23,9 +23,12 @@
 
 #include <cassert>
 
-namespace TrenchBroom {
-namespace View {
-KeyStrings::KeyStrings() {
+namespace TrenchBroom
+{
+namespace View
+{
+KeyStrings::KeyStrings()
+{
   putKey(Qt::Key_Escape);
   putKey(Qt::Key_Tab);
   putKey(Qt::Key_Backtab);
@@ -235,15 +238,18 @@ KeyStrings::KeyStrings() {
   putKey(Qt::Key_ydiaeresis);
 }
 
-KeyStrings::const_iterator KeyStrings::begin() const {
+KeyStrings::const_iterator KeyStrings::begin() const
+{
   return std::begin(m_keys);
 }
 
-KeyStrings::const_iterator KeyStrings::end() const {
+KeyStrings::const_iterator KeyStrings::end() const
+{
   return std::end(m_keys);
 }
 
-void KeyStrings::putKey(const Qt::Key key) {
+void KeyStrings::putKey(const Qt::Key key)
+{
   const auto keySequence = QKeySequence(key);
 
   m_keys.push_back(std::make_pair(
@@ -251,7 +257,8 @@ void KeyStrings::putKey(const Qt::Key key) {
     keySequence.toString(QKeySequence::NativeText)));
 }
 
-void KeyStrings::putModifier(int key) {
+void KeyStrings::putModifier(int key)
+{
   const auto keySequence = QKeySequence(key);
 
   // QKeySequence doesn't totally support being given just a modifier
@@ -264,7 +271,8 @@ void KeyStrings::putModifier(int key) {
   portableLabel.chop(1);               // Remove last character
 
   QString nativeLabel = keySequence.toString(QKeySequence::NativeText);
-  if (nativeLabel.endsWith("+")) {
+  if (nativeLabel.endsWith("+"))
+  {
     // On Linux we get nativeLabel as something like "Ctrl+"
     // On macOS it's just the special Command character, with no +
     nativeLabel.chop(1); // Remove last character

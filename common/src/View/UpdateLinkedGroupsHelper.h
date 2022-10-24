@@ -28,14 +28,17 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class GroupNode;
 class Node;
 enum class UpdateLinkedGroupsError;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class MapDocumentCommandFacade;
 
 /**
@@ -49,14 +52,15 @@ bool checkLinkedGroupsToUpdate(const std::vector<Model::GroupNode*>& changedLink
 /**
  * A helper class to add support for updating linked groups to commands.
  *
- * The class is initialized with a vector of group nodes whose changes should be propagated
- * to the members of their respective link sets. When applyLinkedGroupUpdates is first called,
- * a replacement node is created for each linked group that needs to be updated, and these
- * linked groups are replaced with their replacements. Calling applyLinkedGroupUpdates replaces
- * the replacement nodes with their original corresponding groups again, effectively undoing the
- * change.
+ * The class is initialized with a vector of group nodes whose changes should be
+ * propagated to the members of their respective link sets. When applyLinkedGroupUpdates
+ * is first called, a replacement node is created for each linked group that needs to be
+ * updated, and these linked groups are replaced with their replacements. Calling
+ * applyLinkedGroupUpdates replaces the replacement nodes with their original
+ * corresponding groups again, effectively undoing the change.
  */
-class UpdateLinkedGroupsHelper {
+class UpdateLinkedGroupsHelper
+{
 private:
   using ChangedLinkedGroups = std::vector<Model::GroupNode*>;
   using LinkedGroupUpdates =
@@ -75,7 +79,8 @@ public:
 private:
   kdl::result<void, Model::UpdateLinkedGroupsError> computeLinkedGroupUpdates(
     MapDocumentCommandFacade& document);
-  static kdl::result<LinkedGroupUpdates, Model::UpdateLinkedGroupsError> computeLinkedGroupUpdates(
+  static kdl::result<LinkedGroupUpdates, Model::UpdateLinkedGroupsError>
+  computeLinkedGroupUpdates(
     const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document);
 
   void doApplyOrUndoLinkedGroupUpdates(MapDocumentCommandFacade& document);

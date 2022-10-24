@@ -21,12 +21,15 @@
 
 #include <string>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 enum class LogLevel;
 
-namespace IO {
-class ParserStatus {
+namespace IO
+{
+class ParserStatus
+{
 private:
   Logger& m_logger;
   std::string m_prefix;

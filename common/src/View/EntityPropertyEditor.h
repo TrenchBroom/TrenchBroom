@@ -30,17 +30,21 @@
 class QTextEdit;
 class QSplitter;
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class PropertyDefinition;
 class EntityDefinition;
 } // namespace Assets
 
-namespace Model {
+namespace Model
+{
 class Node;
 }
 
-namespace View {
+namespace View
+{
 class EntityPropertyGrid;
 class MapDocument;
 class Selection;
@@ -50,7 +54,8 @@ class SmartPropertyEditorManager;
  * Panel containing the EntityPropertyGrid (the key/value editor table),
  * smart editor, and documentation text view.
  */
-class EntityPropertyEditor : public QWidget {
+class EntityPropertyEditor : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -63,7 +68,8 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit EntityPropertyEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit EntityPropertyEditor(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
   ~EntityPropertyEditor() override;
 
 private:
@@ -78,8 +84,8 @@ private:
   void updateDocumentationAndSmartEditor();
 
   /**
-   * Returns a description of the options for ChoicePropertyOption and FlagsPropertyDefinition,
-   * other subclasses return an empty string.
+   * Returns a description of the options for ChoicePropertyOption and
+   * FlagsPropertyDefinition, other subclasses return an empty string.
    */
   static QString optionDescriptions(const Assets::PropertyDefinition& definition);
 

@@ -27,9 +27,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("ObjParserTest.loadValidObj", "[ObjParserTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("ObjParserTest.loadValidObj", "[ObjParserTest]")
+{
   NullLogger logger;
 
   const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Obj");

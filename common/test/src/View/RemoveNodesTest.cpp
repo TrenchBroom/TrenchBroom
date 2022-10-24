@@ -33,10 +33,14 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes") {
-  SECTION("Update linked groups") {
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes")
+{
+  SECTION("Update linked groups")
+  {
     auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
     auto* brushNode = createBrushNode();
 
@@ -45,12 +49,9 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes") {
       CreateNode{[](const auto&) -> Model::Node* {
         return new Model::EntityNode{Model::Entity{}};
       }},
-      CreateNode{[](const auto& test) -> Model::Node* {
-        return test.createBrushNode();
-      }},
-      CreateNode{[](const auto& test) -> Model::Node* {
-        return test.createPatchNode();
-      }});
+      CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
+      CreateNode{
+        [](const auto& test) -> Model::Node* { return test.createPatchNode(); }});
 
     auto* nodeToRemove = createNode(*this);
     groupNode->addChildren({brushNode, nodeToRemove});
@@ -71,7 +72,8 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes") {
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer") {
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer")
+{
   Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
   document->addNodes({{document->world(), {layer}}});
 
@@ -82,7 +84,8 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer") {
   CHECK(layer->parent() == document->world());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity") {
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity")
+{
   Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
   document->addNodes({{document->world(), {layer}}});
 
@@ -101,7 +104,8 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity") {
   CHECK(entity->parent() == layer);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup") {
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup")
+{
   Model::GroupNode* group = new Model::GroupNode(Model::Group("group"));
   document->addNodes({{document->parentForNodes(), {group}}});
 
@@ -121,7 +125,8 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup") {
   CHECK(group->parent() == document->world()->defaultLayer());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups") {
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups")
+{
   Model::GroupNode* outer = new Model::GroupNode(Model::Group("outer"));
   document->addNodes({{document->parentForNodes(), {outer}}});
 
@@ -148,7 +153,8 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups"
   CHECK(outer->parent() == document->world()->defaultLayer());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroups") {
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroups")
+{
   auto* groupNode = new Model::GroupNode(Model::Group("outer"));
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
@@ -177,7 +183,8 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroups") {
   CHECK(linkedGroupNode->childCount() == groupNode->childCount());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsWithRecursiveDelete") {
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsWithRecursiveDelete")
+{
   auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));
   document->addNodes({{document->parentForNodes(), {outerGroupNode}}});
 
@@ -212,7 +219,8 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsWithRecursi
   CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.unlinkSingletonLinkedGroups") {
+TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.unlinkSingletonLinkedGroups")
+{
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 

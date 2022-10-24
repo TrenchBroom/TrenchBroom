@@ -19,9 +19,12 @@
 
 #pragma once
 
-namespace TrenchBroom {
-namespace View {
-class ViewEffectsService {
+namespace TrenchBroom
+{
+namespace View
+{
+class ViewEffectsService
+{
 public:
   virtual ~ViewEffectsService();
   void flashSelection();

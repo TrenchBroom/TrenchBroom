@@ -36,8 +36,10 @@
 #include <QToolButton>
 #include <QtGlobal>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 // LayerListBoxWidget
 
 LayerListBoxWidget::LayerListBoxWidget(
@@ -50,10 +52,12 @@ LayerListBoxWidget::LayerListBoxWidget(
   , m_infoText(nullptr)
   , m_omitFromExportButton(nullptr)
   , m_hiddenButton(nullptr)
-  , m_lockButton(nullptr) {
+  , m_lockButton(nullptr)
+{
   m_nameText = new QLabel(QString::fromStdString(m_layer->name()));
-  // Ignore the label's minimum width, this prevents a horizontal scroll bar from appearing on the
-  // list widget, and instead just cuts off the label for long layer names.
+  // Ignore the label's minimum width, this prevents a horizontal scroll bar from
+  // appearing on the list widget, and instead just cuts off the label for long layer
+  // names.
   m_nameText->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_infoText = new QLabel("");
   makeInfo(m_infoText);
@@ -104,25 +108,31 @@ LayerListBoxWidget::LayerListBoxWidget(
   updateLayerItem();
 }
 
-void LayerListBoxWidget::updateItem() {
+void LayerListBoxWidget::updateItem()
+{
   updateLayerItem();
 }
 
 /**
- * This is factored out from updateItem() so the constructor can call it without doing a virtual
- * function call
+ * This is factored out from updateItem() so the constructor can call it without doing a
+ * virtual function call
  */
-void LayerListBoxWidget::updateLayerItem() {
+void LayerListBoxWidget::updateLayerItem()
+{
   // Update labels
   m_nameText->setText(tr("%1").arg(QString::fromStdString(m_layer->name())));
-  if (kdl::mem_lock(m_document)->currentLayer() == m_layer) {
+  if (kdl::mem_lock(m_document)->currentLayer() == m_layer)
+  {
     makeEmphasized(m_nameText);
-  } else {
+  }
+  else
+  {
     makeUnemphasized(m_nameText);
   }
 
-  const auto info =
-    tr("%1 %2").arg(m_layer->childCount()).arg(m_layer->childCount() == 1 ? "object" : "objects");
+  const auto info = tr("%1 %2")
+                      .arg(m_layer->childCount())
+                      .arg(m_layer->childCount() == 1 ? "object" : "objects");
   m_infoText->setText(info);
 
   // Update buttons
@@ -133,20 +143,27 @@ void LayerListBoxWidget::updateLayerItem() {
   m_omitFromExportButton->setChecked(m_layer->layer().omitFromExport());
 }
 
-Model::LayerNode* LayerListBoxWidget::layer() const {
+Model::LayerNode* LayerListBoxWidget::layer() const
+{
   return m_layer;
 }
 
-bool LayerListBoxWidget::eventFilter(QObject* target, QEvent* event) {
-  if (event->type() == QEvent::MouseButtonDblClick) {
+bool LayerListBoxWidget::eventFilter(QObject* target, QEvent* event)
+{
+  if (event->type() == QEvent::MouseButtonDblClick)
+  {
     auto* mouseEvent = static_cast<QMouseEvent*>(event);
-    if (mouseEvent->button() == Qt::LeftButton) {
+    if (mouseEvent->button() == Qt::LeftButton)
+    {
       emit layerDoubleClicked(m_layer);
       return true;
     }
-  } else if (event->type() == QEvent::MouseButtonRelease) {
+  }
+  else if (event->type() == QEvent::MouseButtonRelease)
+  {
     auto* mouseEvent = static_cast<QMouseEvent*>(event);
-    if (mouseEvent->button() == Qt::RightButton) {
+    if (mouseEvent->button() == Qt::RightButton)
+    {
       emit layerRightClicked(m_layer);
       return true;
     }
@@ -158,17 +175,22 @@ bool LayerListBoxWidget::eventFilter(QObject* target, QEvent* event) {
 
 LayerListBox::LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent)
   : ControlListBox("", true, parent)
-  , m_document(std::move(document)) {
+  , m_document(std::move(document))
+{
   connectObservers();
 }
 
-Model::LayerNode* LayerListBox::selectedLayer() const {
+Model::LayerNode* LayerListBox::selectedLayer() const
+{
   return layerForRow(currentRow());
 }
 
-void LayerListBox::setSelectedLayer(Model::LayerNode* layer) {
-  for (int i = 0; i < count(); ++i) {
-    if (layerForRow(i) == layer) {
+void LayerListBox::setSelectedLayer(Model::LayerNode* layer)
+{
+  for (int i = 0; i < count(); ++i)
+  {
+    if (layerForRow(i) == layer)
+    {
       setCurrentRow(i);
       return;
     }
@@ -176,7 +198,8 @@ void LayerListBox::setSelectedLayer(Model::LayerNode* layer) {
   setCurrentRow(-1);
 }
 
-void LayerListBox::connectObservers() {
+void LayerListBox::connectObservers()
+{
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection +=
     document->documentWasNewedNotifier.connect(this, &LayerListBox::documentDidChange);
@@ -184,29 +207,33 @@ void LayerListBox::connectObservers() {
     document->documentWasLoadedNotifier.connect(this, &LayerListBox::documentDidChange);
   m_notifierConnection +=
     document->documentWasClearedNotifier.connect(this, &LayerListBox::documentDidChange);
-  m_notifierConnection +=
-    document->currentLayerDidChangeNotifier.connect(this, &LayerListBox::currentLayerDidChange);
+  m_notifierConnection += document->currentLayerDidChangeNotifier.connect(
+    this, &LayerListBox::currentLayerDidChange);
   m_notifierConnection +=
     document->nodesWereAddedNotifier.connect(this, &LayerListBox::nodesDidChange);
   m_notifierConnection +=
     document->nodesWereRemovedNotifier.connect(this, &LayerListBox::nodesDidChange);
   m_notifierConnection +=
     document->nodesDidChangeNotifier.connect(this, &LayerListBox::nodesDidChange);
-  m_notifierConnection +=
-    document->nodeVisibilityDidChangeNotifier.connect(this, &LayerListBox::nodesDidChange);
+  m_notifierConnection += document->nodeVisibilityDidChangeNotifier.connect(
+    this, &LayerListBox::nodesDidChange);
   m_notifierConnection +=
     document->nodeLockingDidChangeNotifier.connect(this, &LayerListBox::nodesDidChange);
 }
 
-void LayerListBox::documentDidChange(MapDocument*) {
+void LayerListBox::documentDidChange(MapDocument*)
+{
   reload();
 }
 
-void LayerListBox::nodesDidChange(const std::vector<Model::Node*>&) {
+void LayerListBox::nodesDidChange(const std::vector<Model::Node*>&)
+{
   const auto documentLayers = kdl::mem_lock(m_document)->world()->allLayersUserSorted();
 
-  if (layers() != documentLayers) {
-    // A layer was added or removed or modified, so we need to clear and repopulate the list
+  if (layers() != documentLayers)
+  {
+    // A layer was added or removed or modified, so we need to clear and repopulate the
+    // list
     auto* previouslySelectedLayer = selectedLayer();
     reload();
     setSelectedLayer(previouslySelectedLayer);
@@ -215,71 +242,110 @@ void LayerListBox::nodesDidChange(const std::vector<Model::Node*>&) {
   updateItems();
 }
 
-void LayerListBox::currentLayerDidChange(const Model::LayerNode*) {
+void LayerListBox::currentLayerDidChange(const Model::LayerNode*)
+{
   updateItems();
 }
 
-size_t LayerListBox::itemCount() const {
+size_t LayerListBox::itemCount() const
+{
   auto document = kdl::mem_lock(m_document);
   const auto* world = document->world();
-  if (world == nullptr) {
+  if (world == nullptr)
+  {
     return 0;
   }
   return world->allLayers().size();
 }
 
-ControlListBoxItemRenderer* LayerListBox::createItemRenderer(QWidget* parent, const size_t index) {
+ControlListBoxItemRenderer* LayerListBox::createItemRenderer(
+  QWidget* parent, const size_t index)
+{
   auto document = kdl::mem_lock(m_document);
   auto* world = document->world();
 
   Model::LayerNode* layer;
-  if (index == 0) {
+  if (index == 0)
+  {
     layer = world->defaultLayer();
-  } else {
+  }
+  else
+  {
     layer = world->customLayersUserSorted().at(index - 1);
   }
   auto* renderer = new LayerListBoxWidget(document, layer, parent);
-  connect(renderer, &LayerListBoxWidget::layerActiveClicked, this, &LayerListBox::layerSetCurrent);
-  connect(renderer, &LayerListBoxWidget::layerDoubleClicked, this, &LayerListBox::layerSetCurrent);
-  connect(renderer, &LayerListBoxWidget::layerRightClicked, this, &LayerListBox::layerRightClicked);
   connect(
-    renderer, &LayerListBoxWidget::layerOmitFromExportToggled, this,
+    renderer,
+    &LayerListBoxWidget::layerActiveClicked,
+    this,
+    &LayerListBox::layerSetCurrent);
+  connect(
+    renderer,
+    &LayerListBoxWidget::layerDoubleClicked,
+    this,
+    &LayerListBox::layerSetCurrent);
+  connect(
+    renderer,
+    &LayerListBoxWidget::layerRightClicked,
+    this,
+    &LayerListBox::layerRightClicked);
+  connect(
+    renderer,
+    &LayerListBoxWidget::layerOmitFromExportToggled,
+    this,
     &LayerListBox::layerOmitFromExportToggled);
   connect(
-    renderer, &LayerListBoxWidget::layerVisibilityToggled, this,
+    renderer,
+    &LayerListBoxWidget::layerVisibilityToggled,
+    this,
     &LayerListBox::layerVisibilityToggled);
-  connect(renderer, &LayerListBoxWidget::layerLockToggled, this, &LayerListBox::layerLockToggled);
+  connect(
+    renderer,
+    &LayerListBoxWidget::layerLockToggled,
+    this,
+    &LayerListBox::layerLockToggled);
   return renderer;
 }
 
-void LayerListBox::selectedRowChanged(const int index) {
+void LayerListBox::selectedRowChanged(const int index)
+{
   emit layerSelected(layerForRow(index));
 }
 
-const LayerListBoxWidget* LayerListBox::widgetAtRow(const int row) const {
+const LayerListBoxWidget* LayerListBox::widgetAtRow(const int row) const
+{
   auto* renderer = this->renderer(row);
-  if (renderer == nullptr) {
+  if (renderer == nullptr)
+  {
     return nullptr;
-  } else {
+  }
+  else
+  {
     return static_cast<const LayerListBoxWidget*>(renderer);
   }
 }
 
-Model::LayerNode* LayerListBox::layerForRow(const int row) const {
+Model::LayerNode* LayerListBox::layerForRow(const int row) const
+{
   const auto* widget = widgetAtRow(row);
-  if (widget == nullptr) {
+  if (widget == nullptr)
+  {
     return nullptr;
-  } else {
+  }
+  else
+  {
     return widget->layer();
   }
 }
 
-std::vector<Model::LayerNode*> LayerListBox::layers() const {
+std::vector<Model::LayerNode*> LayerListBox::layers() const
+{
   const int rowCount = count();
 
   std::vector<Model::LayerNode*> result;
   result.reserve(static_cast<size_t>(rowCount));
-  for (int i = 0; i < rowCount; ++i) {
+  for (int i = 0; i < rowCount; ++i)
+  {
     result.push_back(layerForRow(i));
   }
   return result;

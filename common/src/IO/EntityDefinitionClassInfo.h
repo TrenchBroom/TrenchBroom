@@ -33,13 +33,17 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class PropertyDefinition;
 }
 
-namespace IO {
-enum class EntityDefinitionClassType {
+namespace IO
+{
+enum class EntityDefinitionClassType
+{
   PointClass,
   BrushClass,
   BaseClass
@@ -47,7 +51,8 @@ enum class EntityDefinitionClassType {
 
 std::ostream& operator<<(std::ostream& str, EntityDefinitionClassType type);
 
-struct EntityDefinitionClassInfo {
+struct EntityDefinitionClassInfo
+{
   EntityDefinitionClassType type;
   size_t line;
   size_t column;
@@ -62,8 +67,17 @@ struct EntityDefinitionClassInfo {
   std::vector<std::string> superClasses;
 
   kdl_reflect_decl(
-    EntityDefinitionClassInfo, type, line, column, name, description, color, size, modelDefinition,
-    propertyDefinitions, superClasses);
+    EntityDefinitionClassInfo,
+    type,
+    line,
+    column,
+    name,
+    description,
+    color,
+    size,
+    modelDefinition,
+    propertyDefinitions,
+    superClasses);
 };
 
 bool addPropertyDefinition(

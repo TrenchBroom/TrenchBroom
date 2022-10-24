@@ -40,9 +40,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-struct TestDelegateData {
+namespace TrenchBroom
+{
+namespace View
+{
+struct TestDelegateData
+{
   std::vector<std::tuple<vm::vec3, vm::vec3>> initializeArguments;
   HandlePositionProposer initialGetHandlePositionToReturn;
 
@@ -58,51 +61,72 @@ struct TestDelegateData {
   std::vector<DragState> mouseScrollArguments;
 
   TestDelegateData(HandlePositionProposer i_initialGetHandlePositionToReturn)
-    : initialGetHandlePositionToReturn{std::move(i_initialGetHandlePositionToReturn)} {}
+    : initialGetHandlePositionToReturn{std::move(i_initialGetHandlePositionToReturn)}
+  {
+  }
 };
 
-struct TestDelegate : public HandleDragTrackerDelegate {
+struct TestDelegate : public HandleDragTrackerDelegate
+{
   TestDelegateData& data;
 
   TestDelegate(TestDelegateData& i_data)
-    : data{i_data} {}
+    : data{i_data}
+  {
+  }
 
   HandlePositionProposer start(
-    const InputState&, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) {
+    const InputState&,
+    const vm::vec3& initialHandlePosition,
+    const vm::vec3& handleOffset)
+  {
     data.initializeArguments.emplace_back(initialHandlePosition, handleOffset);
     return data.initialGetHandlePositionToReturn;
   }
 
   DragStatus drag(
-    const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition) {
+    const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition)
+  {
     data.dragArguments.emplace_back(dragState, proposedHandlePosition);
     return data.dragStatusToReturn;
   }
 
-  void end(const InputState&, const DragState& dragState) {
+  void end(const InputState&, const DragState& dragState)
+  {
     data.endArguments.emplace_back(dragState);
   }
 
-  void cancel(const DragState& dragState) { data.cancelArguments.emplace_back(dragState); }
+  void cancel(const DragState& dragState)
+  {
+    data.cancelArguments.emplace_back(dragState);
+  }
 
-  std::optional<UpdateDragConfig> modifierKeyChange(const InputState&, const DragState& dragState) {
+  std::optional<UpdateDragConfig> modifierKeyChange(
+    const InputState&, const DragState& dragState)
+  {
     data.modifierKeyChangeArguments.emplace_back(dragState);
     return data.updateDragConfigToReturn;
   }
 
-  void mouseScroll(const InputState&, const DragState& dragState) {
+  void mouseScroll(const InputState&, const DragState& dragState)
+  {
     data.mouseScrollArguments.emplace_back(dragState);
   }
 };
 
 static auto makeHandleTracker(
-  TestDelegateData& data, const vm::vec3& initialHandlePosition, const vm::vec3& handleOffset) {
+  TestDelegateData& data,
+  const vm::vec3& initialHandlePosition,
+  const vm::vec3& handleOffset)
+{
   return HandleDragTracker<TestDelegate>{
     TestDelegate{data}, InputState{}, initialHandlePosition, handleOffset};
 }
 
-TEST_CASE("RestrictedDragTracker.constructor") {
-  GIVEN("A delegate") {
+TEST_CASE("RestrictedDragTracker.constructor")
+{
+  GIVEN("A delegate")
+  {
     const auto initialHandlePosition = vm::vec3{1, 1, 1};
     const auto initialHitPoint = vm::vec3{1, 1, 0};
     const auto handleOffset = initialHandlePosition - initialHitPoint;
@@ -116,96 +140,117 @@ TEST_CASE("RestrictedDragTracker.constructor") {
 
     auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
-    THEN("The initial handle position was passed to initialize") {
+    THEN("The initial handle position was passed to initialize")
+    {
       CHECK(
-        data.initializeArguments ==
-        std::vector<std::tuple<vm::vec3, vm::vec3>>{{initialHandlePosition, handleOffset}});
+        data.initializeArguments
+        == std::vector<std::tuple<vm::vec3, vm::vec3>>{
+          {initialHandlePosition, handleOffset}});
 
-      AND_THEN("The initial handle position is passed to drag for the initial and the last handle "
-               "position") {
+      AND_THEN(
+        "The initial handle position is passed to drag for the initial and the last "
+        "handle "
+        "position")
+      {
         tracker.drag(InputState{});
 
         CHECK(
-          data.dragArguments ==
-          std::vector<std::tuple<DragState, vm::vec3>>{
-            {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}}, vm::vec3{2, 2, 2}},
+          data.dragArguments
+          == std::vector<std::tuple<DragState, vm::vec3>>{
+            {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}},
+             vm::vec3{2, 2, 2}},
           });
       }
     }
   }
 }
 
-TEST_CASE("RestrictedDragTracker.drag") {
-  GIVEN("A drag tracker") {
+TEST_CASE("RestrictedDragTracker.drag")
+{
+  GIVEN("A drag tracker")
+  {
     const auto initialHandlePosition = vm::vec3{1, 1, 1};
     const auto initialHitPoint = initialHandlePosition;
     auto handlePositionToReturn = vm::vec3{};
 
     auto data = TestDelegateData{makeHandlePositionProposer(
       // always returns the same hit position
-      [&](const auto&) {
-        return handlePositionToReturn;
-      },
+      [&](const auto&) { return handlePositionToReturn; },
       makeIdentityHandleSnapper())};
 
     auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
-    WHEN("drag is called for the first time after the drag started") {
+    WHEN("drag is called for the first time after the drag started")
+    {
       handlePositionToReturn = vm::vec3{2, 2, 2};
       REQUIRE(tracker.drag(InputState{}));
 
-      THEN("drag got the initial and the next handle positions") {
+      THEN("drag got the initial and the next handle positions")
+      {
         CHECK(
-          data.dragArguments ==
-          std::vector<std::tuple<DragState, vm::vec3>>{
-            {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}}, vm::vec3{2, 2, 2}},
+          data.dragArguments
+          == std::vector<std::tuple<DragState, vm::vec3>>{
+            {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}},
+             vm::vec3{2, 2, 2}},
           });
 
-        AND_WHEN("drag is called again") {
+        AND_WHEN("drag is called again")
+        {
           handlePositionToReturn = vm::vec3{3, 3, 3};
           REQUIRE(tracker.drag(InputState{}));
 
-          THEN("drag got the last and the next handle positions") {
+          THEN("drag got the last and the next handle positions")
+          {
             CHECK(
-              data.dragArguments ==
-              std::vector<std::tuple<DragState, vm::vec3>>{
-                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}}, vm::vec3{2, 2, 2}},
-                {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 0}}, vm::vec3{3, 3, 3}},
+              data.dragArguments
+              == std::vector<std::tuple<DragState, vm::vec3>>{
+                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}},
+                 vm::vec3{2, 2, 2}},
+                {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 0}},
+                 vm::vec3{3, 3, 3}},
               });
           }
         }
       }
     }
 
-    WHEN("drag returns drag status deny") {
+    WHEN("drag returns drag status deny")
+    {
       handlePositionToReturn = vm::vec3{2, 2, 2};
       data.dragStatusToReturn = DragStatus::Deny;
       REQUIRE(tracker.drag(InputState{}));
 
-      THEN("drag got the initial and the next handle positions") {
+      THEN("drag got the initial and the next handle positions")
+      {
         CHECK(
-          data.dragArguments ==
-          std::vector<std::tuple<DragState, vm::vec3>>{
-            {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}}, vm::vec3{2, 2, 2}},
+          data.dragArguments
+          == std::vector<std::tuple<DragState, vm::vec3>>{
+            {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}},
+             vm::vec3{2, 2, 2}},
           });
 
-        AND_WHEN("drag is called again") {
+        AND_WHEN("drag is called again")
+        {
           handlePositionToReturn = vm::vec3{3, 3, 3};
           REQUIRE(tracker.drag(InputState{}));
 
-          THEN("drag got the initial handle position for the last handle position again") {
+          THEN("drag got the initial handle position for the last handle position again")
+          {
             CHECK(
-              data.dragArguments ==
-              std::vector<std::tuple<DragState, vm::vec3>>{
-                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}}, vm::vec3{2, 2, 2}},
-                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}}, vm::vec3{3, 3, 3}},
+              data.dragArguments
+              == std::vector<std::tuple<DragState, vm::vec3>>{
+                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}},
+                 vm::vec3{2, 2, 2}},
+                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 0}},
+                 vm::vec3{3, 3, 3}},
               });
           }
         }
       }
     }
 
-    WHEN("drag returns drag status cancel") {
+    WHEN("drag returns drag status cancel")
+    {
       handlePositionToReturn = vm::vec3{2, 2, 2};
       data.dragStatusToReturn = DragStatus::End;
       const auto dragResult = tracker.drag(InputState{});
@@ -215,19 +260,19 @@ TEST_CASE("RestrictedDragTracker.drag") {
   }
 }
 
-TEST_CASE("RestrictedDragTracker.handlePositionComputations") {
+TEST_CASE("RestrictedDragTracker.handlePositionComputations")
+{
   const auto initialHandlePosition = vm::vec3{1, 1, 1};
   const auto initialHitPoint = vm::vec3{1, 1, 0};
 
   auto getHandlePositionArguments = std::vector<std::tuple<DragState, vm::vec3>>{};
   auto handlePositionToReturn = vm::vec3{};
 
-  GIVEN("A drag tracker") {
+  GIVEN("A drag tracker")
+  {
     auto data = TestDelegateData{makeHandlePositionProposer(
       // returns the handle position set above
-      [&](const InputState&) {
-        return handlePositionToReturn;
-      },
+      [&](const InputState&) { return handlePositionToReturn; },
       // returns the proposed handle position, but records the arguments
       [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
         getHandlePositionArguments.emplace_back(dragState, proposedHandlePosition);
@@ -236,44 +281,56 @@ TEST_CASE("RestrictedDragTracker.handlePositionComputations") {
 
     auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
-    WHEN("drag is called for the first time") {
+    WHEN("drag is called for the first time")
+    {
       handlePositionToReturn = vm::vec3{2, 2, 2};
       REQUIRE(tracker.drag(InputState{}));
 
-      THEN("getHandlePosition is called with the expected arguments") {
+      THEN("getHandlePosition is called with the expected arguments")
+      {
         CHECK(
-          getHandlePositionArguments ==
-          std::vector<std::tuple<DragState, vm::vec3>>{
-            {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}}, vm::vec3{2, 2, 2}},
+          getHandlePositionArguments
+          == std::vector<std::tuple<DragState, vm::vec3>>{
+            {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}},
+             vm::vec3{2, 2, 2}},
           });
 
-        AND_THEN("The new handle position was passed to the delegate's drag function") {
+        AND_THEN("The new handle position was passed to the delegate's drag function")
+        {
           CHECK(
-            data.dragArguments ==
-            std::vector<std::tuple<DragState, vm::vec3>>{
-              {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}}, vm::vec3{2, 2, 2}},
+            data.dragArguments
+            == std::vector<std::tuple<DragState, vm::vec3>>{
+              {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}},
+               vm::vec3{2, 2, 2}},
             });
         }
       }
 
-      AND_WHEN("drag is called again") {
+      AND_WHEN("drag is called again")
+      {
         handlePositionToReturn = vm::vec3{3, 3, 3};
         REQUIRE(tracker.drag(InputState{}));
 
-        THEN("getHandlePosition is called with the expected arguments") {
+        THEN("getHandlePosition is called with the expected arguments")
+        {
           CHECK(
-            getHandlePositionArguments ==
-            std::vector<std::tuple<DragState, vm::vec3>>{
-              {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}}, vm::vec3{2, 2, 2}},
-              {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}}, vm::vec3{3, 3, 3}},
+            getHandlePositionArguments
+            == std::vector<std::tuple<DragState, vm::vec3>>{
+              {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}},
+               vm::vec3{2, 2, 2}},
+              {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}},
+               vm::vec3{3, 3, 3}},
             });
 
-          AND_THEN("The hit position was passed to the delegate's drag function") {
+          AND_THEN("The hit position was passed to the delegate's drag function")
+          {
             CHECK(
-              data.dragArguments ==
-              std::vector<std::tuple<DragState, vm::vec3>>{
-                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}}, vm::vec3{2, 2, 2}},
-                {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}}, vm::vec3{3, 3, 3}},
+              data.dragArguments
+              == std::vector<std::tuple<DragState, vm::vec3>>{
+                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}},
+                 vm::vec3{2, 2, 2}},
+                {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}},
+                 vm::vec3{3, 3, 3}},
               });
           }
         }
@@ -282,13 +339,15 @@ TEST_CASE("RestrictedDragTracker.handlePositionComputations") {
   }
 }
 
-TEST_CASE("RestrictedDragTracker.modifierKeyChange") {
+TEST_CASE("RestrictedDragTracker.modifierKeyChange")
+{
   const auto initialHandlePosition = vm::vec3{1, 1, 1};
   const auto initialHitPoint = vm::vec3{1, 1, 0};
 
   auto initialGetHandlePositionArguments = std::vector<std::tuple<DragState, vm::vec3>>{};
 
-  GIVEN("A delegate that returns null from modifierKeyChange") {
+  GIVEN("A delegate that returns null from modifierKeyChange")
+  {
     auto data = TestDelegateData{makeHandlePositionProposer(
       // returns a constant handle position
       [&](const InputState&) {
@@ -305,15 +364,19 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange") {
     tracker.drag(InputState{});
     REQUIRE(initialGetHandlePositionArguments.size() == 1);
 
-    WHEN("A modifier key change is notified") {
+    WHEN("A modifier key change is notified")
+    {
       tracker.modifierKeyChange(InputState{});
 
-      THEN("The drag state are passed to the delegate") {
+      THEN("The drag state are passed to the delegate")
+      {
         CHECK(
-          data.modifierKeyChangeArguments ==
-          std::vector<DragState>{{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}}});
+          data.modifierKeyChangeArguments
+          == std::vector<DragState>{
+            {vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}}});
 
-        AND_THEN("The next call to drag uses the initial drag config") {
+        AND_THEN("The next call to drag uses the initial drag config")
+        {
           tracker.drag(InputState{});
           CHECK(initialGetHandlePositionArguments.size() == 2);
         }
@@ -321,7 +384,8 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange") {
     }
   }
 
-  GIVEN("A delegate that returns a new drag config from modifierKeyChange") {
+  GIVEN("A delegate that returns a new drag config from modifierKeyChange")
+  {
     auto otherGetHandlePositionArguments = std::vector<std::tuple<DragState, vm::vec3>>{};
     auto otherHitPositionToReturn = vm::vec3{};
 
@@ -339,9 +403,7 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange") {
     data.updateDragConfigToReturn = UpdateDragConfig{
       makeHandlePositionProposer(
         // returns a constant hit position
-        [&](const InputState&) {
-          return otherHitPositionToReturn;
-        },
+        [&](const InputState&) { return otherHitPositionToReturn; },
         // returns the proposed handle position, but records the arguments
         [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
           otherGetHandlePositionArguments.emplace_back(dragState, proposedHandlePosition);
@@ -354,47 +416,60 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange") {
     tracker.drag(InputState{});
     REQUIRE(initialGetHandlePositionArguments.size() == 1);
     REQUIRE(
-      data.dragArguments ==
-      std::vector<std::tuple<DragState, vm::vec3>>{
+      data.dragArguments
+      == std::vector<std::tuple<DragState, vm::vec3>>{
         {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}}, vm::vec3{2, 2, 2}},
       });
 
-    WHEN("A modifier key change is notified") {
+    WHEN("A modifier key change is notified")
+    {
       otherHitPositionToReturn = vm::vec3{3, 3, 3};
       tracker.modifierKeyChange(InputState{});
 
-      THEN("The drag state was passed to the delegate") {
+      THEN("The drag state was passed to the delegate")
+      {
         CHECK(
-          data.modifierKeyChangeArguments ==
-          std::vector<DragState>{{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}}});
+          data.modifierKeyChangeArguments
+          == std::vector<DragState>{
+            {vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}}});
 
         AND_THEN(
-          "A synthetic drag to the new handle position happens using the other drag config") {
+          "A synthetic drag to the new handle position happens using the other drag "
+          "config")
+        {
           CHECK(initialGetHandlePositionArguments.size() == 1);
           CHECK(otherGetHandlePositionArguments.size() == 1);
 
           CHECK(
-            data.dragArguments ==
-            std::vector<std::tuple<DragState, vm::vec3>>{
-              {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}}, vm::vec3{2, 2, 2}},
-              {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}}, vm::vec3{3, 3, 3}},
+            data.dragArguments
+            == std::vector<std::tuple<DragState, vm::vec3>>{
+              {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}},
+               vm::vec3{2, 2, 2}},
+              {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}},
+               vm::vec3{3, 3, 3}},
             });
         }
 
-        AND_WHEN("drag is called again") {
+        AND_WHEN("drag is called again")
+        {
           otherHitPositionToReturn = vm::vec3{4, 4, 4};
           tracker.drag(InputState{});
 
-          AND_THEN("The other handle position is passed") {
+          AND_THEN("The other handle position is passed")
+          {
             CHECK(
-              data.dragArguments ==
-              std::vector<std::tuple<DragState, vm::vec3>>{
-                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}}, vm::vec3{2, 2, 2}},
-                {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}}, vm::vec3{3, 3, 3}},
-                {{vm::vec3{1, 1, 1}, vm::vec3{3, 3, 3}, vm::vec3{0, 0, 1}}, vm::vec3{4, 4, 4}},
+              data.dragArguments
+              == std::vector<std::tuple<DragState, vm::vec3>>{
+                {{vm::vec3{1, 1, 1}, vm::vec3{1, 1, 1}, vm::vec3{0, 0, 1}},
+                 vm::vec3{2, 2, 2}},
+                {{vm::vec3{1, 1, 1}, vm::vec3{2, 2, 2}, vm::vec3{0, 0, 1}},
+                 vm::vec3{3, 3, 3}},
+                {{vm::vec3{1, 1, 1}, vm::vec3{3, 3, 3}, vm::vec3{0, 0, 1}},
+                 vm::vec3{4, 4, 4}},
               });
 
-            AND_THEN("The other drag config was used") {
+            AND_THEN("The other drag config was used")
+            {
               CHECK(initialGetHandlePositionArguments.size() == 1);
               CHECK(otherGetHandlePositionArguments.size() == 2);
             }
@@ -405,7 +480,8 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange") {
   }
 }
 
-TEST_CASE("makeLineHandlePicker") {
+TEST_CASE("makeLineHandlePicker")
+{
   using T = std::tuple<vm::line3, vm::vec3, vm::ray3, vm::vec3>;
 
   // clang-format off
@@ -426,7 +502,8 @@ TEST_CASE("makeLineHandlePicker") {
   CHECK(makeLineHandlePicker(line, handleOffset)(inputState) == expectedHandlePosition);
 }
 
-TEST_CASE("makePlaneHandlePicker") {
+TEST_CASE("makePlaneHandlePicker")
+{
   using T = std::tuple<vm::plane3, vm::vec3, vm::ray3, vm::vec3>;
 
   // clang-format off
@@ -447,7 +524,8 @@ TEST_CASE("makePlaneHandlePicker") {
   CHECK(makePlaneHandlePicker(plane, handleOffset)(inputState) == expectedHandlePosition);
 }
 
-TEST_CASE("makeCircleHandlePicker") {
+TEST_CASE("makeCircleHandlePicker")
+{
   using T = std::tuple<vm::vec3, vm::vec3, FloatType, vm::vec3, vm::ray3, vm::vec3>;
 
   // clang-format off
@@ -467,11 +545,12 @@ TEST_CASE("makeCircleHandlePicker") {
   inputState.setPickRequest(PickRequest{pickRay, camera});
 
   CHECK(
-    makeCircleHandlePicker(center, normal, radius, handleOffset)(inputState) ==
-    vm::approx{expectedHandlePosition});
+    makeCircleHandlePicker(center, normal, radius, handleOffset)(inputState)
+    == vm::approx{expectedHandlePosition});
 }
 
-TEST_CASE("makeSurfaceHandlePicker") {
+TEST_CASE("makeSurfaceHandlePicker")
+{
   using namespace Model::HitFilters;
 
   static const auto HitType = Model::HitType::freeType();
@@ -504,10 +583,13 @@ TEST_CASE("makeSurfaceHandlePicker") {
   pickResult.addHit(otherHit);
   inputState.setPickResult(std::move(pickResult));
 
-  CHECK(makeSurfaceHandlePicker(hitFilter, handleOffset)(inputState) == expectedHandlePosition);
+  CHECK(
+    makeSurfaceHandlePicker(hitFilter, handleOffset)(inputState)
+    == expectedHandlePosition);
 }
 
-TEST_CASE("makeIdentityHandleSnapper") {
+TEST_CASE("makeIdentityHandleSnapper")
+{
   using T = std::tuple<vm::vec3, vm::vec3>;
 
   // clang-format off
@@ -521,11 +603,12 @@ TEST_CASE("makeIdentityHandleSnapper") {
   CAPTURE(proposedHandlePosition);
 
   CHECK(
-    makeIdentityHandleSnapper()(InputState{}, DragState{}, proposedHandlePosition) ==
-    expectedHandlePosition);
+    makeIdentityHandleSnapper()(InputState{}, DragState{}, proposedHandlePosition)
+    == expectedHandlePosition);
 }
 
-TEST_CASE("makeRelativeHandleSnapper") {
+TEST_CASE("makeRelativeHandleSnapper")
+{
   using T = std::tuple<vm::vec3, vm::vec3, int, vm::vec3>;
 
   // clang-format off
@@ -545,11 +628,14 @@ TEST_CASE("makeRelativeHandleSnapper") {
   const auto grid = Grid{gridSize};
   CHECK(
     makeRelativeHandleSnapper(grid)(
-      InputState{}, DragState{initialHandlePosition, vm::vec3{}, vm::vec3{}},
-      proposedHandlePosition) == expectedHandlePosition);
+      InputState{},
+      DragState{initialHandlePosition, vm::vec3{}, vm::vec3{}},
+      proposedHandlePosition)
+    == expectedHandlePosition);
 }
 
-TEST_CASE("makeAbsoluteHandleSnapper") {
+TEST_CASE("makeAbsoluteHandleSnapper")
+{
   using T = std::tuple<vm::vec3, int, vm::vec3>;
 
   // clang-format off
@@ -568,11 +654,12 @@ TEST_CASE("makeAbsoluteHandleSnapper") {
   const auto grid = Grid{gridSize};
   CHECK(
     makeAbsoluteHandleSnapper(grid)(
-      InputState{}, DragState{vm::vec3{}, vm::vec3{}, vm::vec3{}}, proposedHandlePosition) ==
-    expectedHandlePosition);
+      InputState{}, DragState{vm::vec3{}, vm::vec3{}, vm::vec3{}}, proposedHandlePosition)
+    == expectedHandlePosition);
 }
 
-TEST_CASE("makeRelativeLineHandleSnapper") {
+TEST_CASE("makeRelativeLineHandleSnapper")
+{
   using T = std::tuple<vm::vec3, vm::vec3, int, vm::line3, vm::vec3>;
 
   // clang-format off
@@ -593,11 +680,14 @@ TEST_CASE("makeRelativeLineHandleSnapper") {
   const auto grid = Grid{gridSize};
   CHECK(
     makeRelativeLineHandleSnapper(grid, line)(
-      InputState{}, DragState{initialHandlePosition, vm::vec3{}, vm::vec3{}},
-      proposedHandlePosition) == expectedHandlePosition);
+      InputState{},
+      DragState{initialHandlePosition, vm::vec3{}, vm::vec3{}},
+      proposedHandlePosition)
+    == expectedHandlePosition);
 }
 
-TEST_CASE("makeAbsoluteLineHandleSnapper") {
+TEST_CASE("makeAbsoluteLineHandleSnapper")
+{
   using T = std::tuple<vm::vec3, int, vm::line3, vm::vec3>;
 
   // clang-format off
@@ -617,11 +707,12 @@ TEST_CASE("makeAbsoluteLineHandleSnapper") {
   const auto grid = Grid{gridSize};
   CHECK(
     makeAbsoluteLineHandleSnapper(grid, line)(
-      InputState{}, DragState{vm::vec3{}, vm::vec3{}, vm::vec3{}}, proposedHandlePosition) ==
-    expectedHandlePosition);
+      InputState{}, DragState{vm::vec3{}, vm::vec3{}, vm::vec3{}}, proposedHandlePosition)
+    == expectedHandlePosition);
 }
 
-TEST_CASE("makeCircleHandleSnapper") {
+TEST_CASE("makeCircleHandleSnapper")
+{
   using T = std::tuple<vm::vec3, vm::vec3, FloatType, vm::vec3>;
 
   // clang-format off
@@ -642,8 +733,10 @@ TEST_CASE("makeCircleHandleSnapper") {
   const auto radius = 10.0;
   CHECK(
     makeCircleHandleSnapper(grid, vm::to_radians(snapAngle), center, normal, radius)(
-      InputState{}, DragState{initialHandlePosition, vm::vec3{0, 0, 0}, vm::vec3{0, 0, 0}},
-      proposedHandlePosition) == vm::approx{radius * expectedHandlePosition});
+      InputState{},
+      DragState{initialHandlePosition, vm::vec3{0, 0, 0}, vm::vec3{0, 0, 0}},
+      proposedHandlePosition)
+    == vm::approx{radius * expectedHandlePosition});
 }
 } // namespace View
 } // namespace TrenchBroom

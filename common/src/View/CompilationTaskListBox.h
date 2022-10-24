@@ -31,8 +31,10 @@ class QLayout;
 class QLineEdit;
 class QWidget;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class CompilationCopyFiles;
 class CompilationExportMap;
 class CompilationProfile;
@@ -40,12 +42,14 @@ class CompilationRunTool;
 class CompilationTask;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class MapDocument;
 class MultiCompletionLineEdit;
 class TitledPanel;
 
-class CompilationTaskEditorBase : public ControlListBoxItemRenderer {
+class CompilationTaskEditorBase : public ControlListBoxItemRenderer
+{
   Q_OBJECT
 protected:
   const QString m_title;
@@ -60,8 +64,11 @@ protected:
 
 protected:
   CompilationTaskEditorBase(
-    const QString& title, std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile,
-    Model::CompilationTask& task, QWidget* parent);
+    const QString& title,
+    std::weak_ptr<MapDocument> document,
+    Model::CompilationProfile& profile,
+    Model::CompilationTask& task,
+    QWidget* parent);
 
 protected:
   void setupCompleter(MultiCompletionLineEdit* lineEdit);
@@ -74,15 +81,18 @@ private:
   void updateCompleter(QCompleter* completer);
 };
 
-class CompilationExportMapTaskEditor : public CompilationTaskEditorBase {
+class CompilationExportMapTaskEditor : public CompilationTaskEditorBase
+{
   Q_OBJECT
 private:
   MultiCompletionLineEdit* m_targetEditor;
 
 public:
   CompilationExportMapTaskEditor(
-    std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile,
-    Model::CompilationExportMap& task, QWidget* parent = nullptr);
+    std::weak_ptr<MapDocument> document,
+    Model::CompilationProfile& profile,
+    Model::CompilationExportMap& task,
+    QWidget* parent = nullptr);
 
 private:
   void updateItem() override;
@@ -91,7 +101,8 @@ private slots:
   void targetSpecChanged(const QString& text);
 };
 
-class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase {
+class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase
+{
   Q_OBJECT
 private:
   MultiCompletionLineEdit* m_sourceEditor;
@@ -99,8 +110,10 @@ private:
 
 public:
   CompilationCopyFilesTaskEditor(
-    std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile,
-    Model::CompilationCopyFiles& task, QWidget* parent = nullptr);
+    std::weak_ptr<MapDocument> document,
+    Model::CompilationProfile& profile,
+    Model::CompilationCopyFiles& task,
+    QWidget* parent = nullptr);
 
 private:
   void updateItem() override;
@@ -110,7 +123,8 @@ private slots:
   void targetSpecChanged(const QString& text);
 };
 
-class CompilationRunToolTaskEditor : public CompilationTaskEditorBase {
+class CompilationRunToolTaskEditor : public CompilationTaskEditorBase
+{
   Q_OBJECT
 private:
   MultiCompletionLineEdit* m_toolEditor;
@@ -118,8 +132,10 @@ private:
 
 public:
   CompilationRunToolTaskEditor(
-    std::weak_ptr<MapDocument> document, Model::CompilationProfile& profile,
-    Model::CompilationRunTool& task, QWidget* parent = nullptr);
+    std::weak_ptr<MapDocument> document,
+    Model::CompilationProfile& profile,
+    Model::CompilationRunTool& task,
+    QWidget* parent = nullptr);
 
 private:
   void updateItem() override;
@@ -130,14 +146,16 @@ private slots:
   void parameterSpecChanged(const QString& text);
 };
 
-class CompilationTaskListBox : public ControlListBox {
+class CompilationTaskListBox : public ControlListBox
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
   Model::CompilationProfile* m_profile;
 
 public:
-  explicit CompilationTaskListBox(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit CompilationTaskListBox(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
   void setProfile(Model::CompilationProfile* profile);
 

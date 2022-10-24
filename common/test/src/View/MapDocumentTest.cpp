@@ -40,19 +40,25 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 MapDocumentTest::MapDocumentTest()
-  : MapDocumentTest(Model::MapFormat::Standard) {}
+  : MapDocumentTest(Model::MapFormat::Standard)
+{
+}
 
 MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat)
   : m_mapFormat(mapFormat)
   , m_pointEntityDef(nullptr)
-  , m_brushEntityDef(nullptr) {
+  , m_brushEntityDef(nullptr)
+{
   SetUp();
 }
 
-void MapDocumentTest::SetUp() {
+void MapDocumentTest::SetUp()
+{
   game = std::make_shared<Model::TestGame>();
   document = MapDocumentCommandFacade::newMapDocument();
   document->newDocument(m_mapFormat, vm::bbox3(8192.0), game);
@@ -60,20 +66,23 @@ void MapDocumentTest::SetUp() {
   // create two entity definitions
   m_pointEntityDef = new Assets::PointEntityDefinition(
     "point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {});
-  m_brushEntityDef =
-    new Assets::BrushEntityDefinition("brush_entity", Color(), "this is a brush entity", {});
+  m_brushEntityDef = new Assets::BrushEntityDefinition(
+    "brush_entity", Color(), "this is a brush entity", {});
 
   document->setEntityDefinitions(
     std::vector<Assets::EntityDefinition*>{m_pointEntityDef, m_brushEntityDef});
 }
 
-MapDocumentTest::~MapDocumentTest() {
+MapDocumentTest::~MapDocumentTest()
+{
   m_pointEntityDef = nullptr;
   m_brushEntityDef = nullptr;
 }
 
 Model::BrushNode* MapDocumentTest::createBrushNode(
-  const std::string& textureName, const std::function<void(Model::Brush&)>& brushFunc) const {
+  const std::string& textureName,
+  const std::function<void(Model::Brush&)>& brushFunc) const
+{
   const Model::WorldNode* world = document->world();
   Model::BrushBuilder builder(
     world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs());
@@ -82,7 +91,8 @@ Model::BrushNode* MapDocumentTest::createBrushNode(
   return new Model::BrushNode(std::move(brush));
 }
 
-Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureName) const {
+Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureName) const
+{
   // clang-format off
   return new Model::PatchNode{Model::BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
@@ -92,50 +102,64 @@ Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureNam
 }
 
 ValveMapDocumentTest::ValveMapDocumentTest()
-  : MapDocumentTest(Model::MapFormat::Valve) {}
+  : MapDocumentTest(Model::MapFormat::Valve)
+{
+}
 
 Quake3MapDocumentTest::Quake3MapDocumentTest()
-  : MapDocumentTest{Model::MapFormat::Quake3} {}
+  : MapDocumentTest{Model::MapFormat::Quake3}
+{
+}
 
-TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.throwExceptionDuringCommand") {
+TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.throwExceptionDuringCommand")
+{
   CHECK_THROWS_AS(document->throwExceptionDuringCommand(), CommandProcessorException);
 }
 
-TEST_CASE("MapDocumentTest.detectValveFormatMap", "[MapDocumentTest]") {
+TEST_CASE("MapDocumentTest.detectValveFormatMap", "[MapDocumentTest]")
+{
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"), "Quake",
+    IO::Path("fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"),
+    "Quake",
     Model::MapFormat::Unknown);
   CHECK(document->world()->mapFormat() == Model::MapFormat::Valve);
   CHECK(document->world()->defaultLayer()->childCount() == 1);
 }
 
-TEST_CASE("MapDocumentTest.detectStandardFormatMap", "[MapDocumentTest]") {
+TEST_CASE("MapDocumentTest.detectStandardFormatMap", "[MapDocumentTest]")
+{
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/MapDocumentTest/standardFormatMapWithoutFormatTag.map"), "Quake",
+    IO::Path("fixture/test/View/MapDocumentTest/standardFormatMapWithoutFormatTag.map"),
+    "Quake",
     Model::MapFormat::Unknown);
   CHECK(document->world()->mapFormat() == Model::MapFormat::Standard);
   CHECK(document->world()->defaultLayer()->childCount() == 1);
 }
 
-TEST_CASE("MapDocumentTest.detectEmptyMap", "[MapDocumentTest]") {
+TEST_CASE("MapDocumentTest.detectEmptyMap", "[MapDocumentTest]")
+{
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/MapDocumentTest/emptyMapWithoutFormatTag.map"), "Quake",
+    IO::Path("fixture/test/View/MapDocumentTest/emptyMapWithoutFormatTag.map"),
+    "Quake",
     Model::MapFormat::Unknown);
   // an empty map detects as Valve because Valve is listed first in the Quake game config
   CHECK(document->world()->mapFormat() == Model::MapFormat::Valve);
   CHECK(document->world()->defaultLayer()->childCount() == 0);
 }
 
-TEST_CASE("MapDocumentTest.mixedFormats", "[MapDocumentTest]") {
+TEST_CASE("MapDocumentTest.mixedFormats", "[MapDocumentTest]")
+{
   // map has both Standard and Valve brushes
   CHECK_THROWS_AS(
     View::loadMapDocument(
-      IO::Path("fixture/test/View/MapDocumentTest/mixedFormats.map"), "Quake",
+      IO::Path("fixture/test/View/MapDocumentTest/mixedFormats.map"),
+      "Quake",
       Model::MapFormat::Unknown),
     IO::WorldReaderException);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection") {
+TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
+{
   auto* brushNodeInDefaultLayer = createBrushNode("brushNodeInDefaultLayer");
   auto* brushNodeInCustomLayer = createBrushNode("brushNodeInCustomLayer");
   auto* brushNodeInEntity = createBrushNode("brushNodeInEntity");
@@ -166,13 +190,15 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection") {
   };
   const auto resolvePaths = [&](const std::vector<Model::NodePath>& paths) {
     auto result = std::vector<Model::Node*>{};
-    for (const auto& path : paths) {
+    for (const auto& path : paths)
+    {
       result.push_back(document->world()->resolvePath(path));
     }
     return result;
   };
 
-  SECTION("allSelectedBrushNodes") {
+  SECTION("allSelectedBrushNodes")
+  {
     using T = std::vector<Model::NodePath>;
 
     // clang-format off
@@ -192,10 +218,12 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection") {
 
     document->selectNodes(nodes);
 
-    CHECK_THAT(document->allSelectedBrushNodes(), Catch::Matchers::UnorderedEquals(brushNodes));
+    CHECK_THAT(
+      document->allSelectedBrushNodes(), Catch::Matchers::UnorderedEquals(brushNodes));
   }
 
-  SECTION("hasAnySelectedBrushNodes") {
+  SECTION("hasAnySelectedBrushNodes")
+  {
     using T = std::tuple<std::vector<Model::NodePath>, bool>;
 
     // clang-format off
@@ -222,15 +250,16 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection") {
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups") {
+TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups")
+{
   auto* innerGroupNode = new Model::GroupNode{Model::Group{"inner"}};
   setLinkedGroupId(*innerGroupNode, "asdf");
 
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   innerGroupNode->addChild(entityNode);
 
-  auto* linkedInnerGroupNode =
-    static_cast<Model::GroupNode*>(innerGroupNode->cloneRecursively(document->worldBounds()));
+  auto* linkedInnerGroupNode = static_cast<Model::GroupNode*>(
+    innerGroupNode->cloneRecursively(document->worldBounds()));
 
   auto* linkedEntityNode =
     dynamic_cast<Model::EntityNode*>(linkedInnerGroupNode->children().front());
@@ -245,26 +274,32 @@ TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups") {
   const auto entityNodes = document->allSelectedEntityNodes();
   REQUIRE_THAT(
     entityNodes,
-    Catch::UnorderedEquals(std::vector<Model::EntityNodeBase*>{entityNode, linkedEntityNode}));
+    Catch::UnorderedEquals(
+      std::vector<Model::EntityNodeBase*>{entityNode, linkedEntityNode}));
 
   CHECK(document->canUpdateLinkedGroups({entityNode}));
   CHECK(document->canUpdateLinkedGroups({linkedEntityNode}));
-  CHECK_FALSE(document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes)));
+  CHECK_FALSE(
+    document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes)));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "createPointEntity") {
+TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
+{
   document->selectAllNodes();
   document->deleteObjects();
 
-  SECTION("Point entity is created and selected") {
-    auto* entityNode = document->createPointEntity(m_pointEntityDef, vm::vec3{16.0, 32.0, 48.0});
+  SECTION("Point entity is created and selected")
+  {
+    auto* entityNode =
+      document->createPointEntity(m_pointEntityDef, vm::vec3{16.0, 32.0, 48.0});
     CHECK(entityNode != nullptr);
     CHECK(entityNode->entity().definition() == m_pointEntityDef);
     CHECK(entityNode->entity().origin() == vm::vec3{16.0, 32.0, 48.0});
     CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{entityNode});
   }
 
-  SECTION("Selected objects are deselect and not translated") {
+  SECTION("Selected objects are deselect and not translated")
+  {
     auto* existingNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
     document->selectNodes({existingNode});
 
@@ -275,11 +310,13 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity") {
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity") {
+TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
+{
   document->selectAllNodes();
   document->deleteObjects();
 
-  SECTION("Brush entity is created and selected") {
+  SECTION("Brush entity is created and selected")
+  {
     auto* brushNode = createBrushNode("some_texture");
     document->addNodes({{document->parentForNodes(), {brushNode}}});
 
@@ -290,11 +327,13 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity") {
     CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{brushNode});
   }
 
-  SECTION("Copies properties from existing brush entity") {
+  SECTION("Copies properties from existing brush entity")
+  {
     auto* brushNode1 = createBrushNode("some_texture");
     auto* brushNode2 = createBrushNode("some_texture");
     auto* brushNode3 = createBrushNode("some_texture");
-    document->addNodes({{document->parentForNodes(), {brushNode1, brushNode2, brushNode3}}});
+    document->addNodes(
+      {{document->parentForNodes(), {brushNode1, brushNode2, brushNode3}}});
 
     document->selectNodes({brushNode1, brushNode2, brushNode3});
     auto* previousEntityNode = document->createBrushEntity(m_brushEntityDef);

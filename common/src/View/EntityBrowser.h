@@ -31,20 +31,25 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
-namespace Model {
+namespace Model
+{
 class Node;
 }
 
-namespace View {
+namespace View
+{
 class EntityBrowserView;
 class GLContextManager;
 class MapDocument;
 
-class EntityBrowser : public QWidget {
+class EntityBrowser : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -59,7 +64,8 @@ private:
 
 public:
   EntityBrowser(
-    std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    std::weak_ptr<MapDocument> document,
+    GLContextManager& contextManager,
     QWidget* parent = nullptr);
 
   void reload();

@@ -24,14 +24,17 @@
 #include <iosfwd>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class CompilationTaskConstVisitor;
 class CompilationTaskVisitor;
 class ConstCompilationTaskConstVisitor;
 class ConstCompilationTaskVisitor;
 
-class CompilationTask {
+class CompilationTask
+{
 protected:
   bool m_enabled;
 
@@ -59,7 +62,8 @@ public:
 
 std::ostream& operator<<(std::ostream& str, const CompilationTask& task);
 
-class CompilationExportMap : public CompilationTask {
+class CompilationExportMap : public CompilationTask
+{
 private:
   std::string m_targetSpec;
 
@@ -82,13 +86,15 @@ public:
   deleteCopyAndMove(CompilationExportMap);
 };
 
-class CompilationCopyFiles : public CompilationTask {
+class CompilationCopyFiles : public CompilationTask
+{
 private:
   std::string m_sourceSpec;
   std::string m_targetSpec;
 
 public:
-  CompilationCopyFiles(bool enabled, const std::string& sourceSpec, const std::string& targetSpec);
+  CompilationCopyFiles(
+    bool enabled, const std::string& sourceSpec, const std::string& targetSpec);
 
   void accept(CompilationTaskVisitor& visitor) override;
   void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -108,13 +114,15 @@ public:
   deleteCopyAndMove(CompilationCopyFiles);
 };
 
-class CompilationRunTool : public CompilationTask {
+class CompilationRunTool : public CompilationTask
+{
 private:
   std::string m_toolSpec;
   std::string m_parameterSpec;
 
 public:
-  CompilationRunTool(bool enabled, const std::string& toolSpec, const std::string& parameterSpec);
+  CompilationRunTool(
+    bool enabled, const std::string& toolSpec, const std::string& parameterSpec);
 
   void accept(CompilationTaskVisitor& visitor) override;
   void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -134,7 +142,8 @@ public:
   deleteCopyAndMove(CompilationRunTool);
 };
 
-class CompilationTaskVisitor {
+class CompilationTaskVisitor
+{
 public:
   virtual ~CompilationTaskVisitor();
 
@@ -143,7 +152,8 @@ public:
   virtual void visit(CompilationRunTool& task) = 0;
 };
 
-class ConstCompilationTaskVisitor {
+class ConstCompilationTaskVisitor
+{
 public:
   virtual ~ConstCompilationTaskVisitor();
 
@@ -152,7 +162,8 @@ public:
   virtual void visit(const CompilationRunTool& task) = 0;
 };
 
-class CompilationTaskConstVisitor {
+class CompilationTaskConstVisitor
+{
 public:
   virtual ~CompilationTaskConstVisitor();
 
@@ -161,7 +172,8 @@ public:
   virtual void visit(CompilationRunTool& task) const = 0;
 };
 
-class ConstCompilationTaskConstVisitor {
+class ConstCompilationTaskConstVisitor
+{
 public:
   virtual ~ConstCompilationTaskConstVisitor();
 

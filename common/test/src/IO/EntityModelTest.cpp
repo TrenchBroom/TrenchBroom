@@ -39,9 +39,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("BSP model intersection test", "[EntityModelTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("BSP model intersection test", "[EntityModelTest]")
+{
   auto logger = TestLogger();
   auto [game, gameConfig] = Model::loadGame("Quake");
 
@@ -56,12 +59,16 @@ TEST_CASE("BSP model intersection test", "[EntityModelTest]") {
   CHECK(box == frame->bounds());
 
   // test some hitting rays
-  for (int x = -45; x <= 45; x += 15) {
-    for (int y = -45; y <= 45; y += 15) {
-      for (int z = -45; z <= 45; z += 15) {
+  for (int x = -45; x <= 45; x += 15)
+  {
+    for (int y = -45; y <= 45; y += 15)
+    {
+      for (int z = -45; z <= 45; z += 15)
+      {
         // shoot a ray from (x, y, z) to (0, 0, 0), it will hit the box
         const auto startPoint = vm::vec3f(x, y, z);
-        if (box.contains(startPoint)) {
+        if (box.contains(startPoint))
+        {
           continue;
         }
         const auto endPoint = vm::vec3f::zero();

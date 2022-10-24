@@ -29,19 +29,23 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EntityNodeBase;
 class Node;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class MapDocument;
 class Selection;
 class SmartPropertyEditor;
 class SmartPropertyEditorMatcher;
 
-class SmartPropertyEditorManager : public QWidget {
+class SmartPropertyEditorManager : public QWidget
+{
 private:
   using EditorPtr = SmartPropertyEditor*;
   using MatcherPtr = std::shared_ptr<SmartPropertyEditorMatcher>;
@@ -74,7 +78,8 @@ private:
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
   EditorPtr selectEditor(
-    const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const;
+    const std::string& propertyKey,
+    const std::vector<Model::EntityNodeBase*>& nodes) const;
   EditorPtr defaultEditor() const;
 
   void activateEditor(EditorPtr editor, const std::string& propertyKey);

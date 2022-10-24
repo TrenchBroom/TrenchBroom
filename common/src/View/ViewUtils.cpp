@@ -37,10 +37,15 @@
 #include <QString>
 #include <QWidget>
 
-namespace TrenchBroom {
-namespace View {
-void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags) {
-  for (size_t i = 0; i < numFlags; ++i) {
+namespace TrenchBroom
+{
+namespace View
+{
+void combineFlags(
+  const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags)
+{
+  for (size_t i = 0; i < numFlags; ++i)
+  {
     const bool alreadySet = (newFlagValue & (1 << i)) != 0;
     const bool willBeSet = (setFlags & (1 << i)) != 0;
     if (alreadySet == willBeSet)
@@ -52,13 +57,16 @@ void combineFlags(const size_t numFlags, const int newFlagValue, int& setFlags, 
 }
 
 bool loadTextureCollection(
-  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path) {
+  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path)
+{
   return loadTextureCollections(document, parent, QStringList{path}) == 1;
 }
 
 size_t loadTextureCollections(
-  std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs) {
-  if (pathStrs.empty()) {
+  std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs)
+{
+  if (pathStrs.empty())
+  {
     return 0;
   }
 
@@ -72,15 +80,20 @@ size_t loadTextureCollections(
   const IO::Path gamePath = gameFactory.gamePath(game->gameName());
   const IO::Path docPath = document->path();
 
-  for (int i = 0; i < pathStrs.size(); ++i) {
+  for (int i = 0; i < pathStrs.size(); ++i)
+  {
     const QString& pathStr = pathStrs[i];
     const IO::Path absPath = IO::pathFromQString(pathStr);
-    if (game->isTextureCollection(absPath)) {
+    if (game->isTextureCollection(absPath))
+    {
       ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
       const int result = pathDialog.exec();
-      if (result == QDialog::Rejected) {
+      if (result == QDialog::Rejected)
+      {
         return 0;
-      } else if (result == QDialog::Accepted) {
+      }
+      else if (result == QDialog::Accepted)
+      {
         collections.push_back(pathDialog.path());
         ++count;
       }
@@ -93,13 +106,16 @@ size_t loadTextureCollections(
 }
 
 bool loadEntityDefinitionFile(
-  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path) {
+  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path)
+{
   return loadEntityDefinitionFile(document, parent, QStringList{path}) == 0;
 }
 
 size_t loadEntityDefinitionFile(
-  std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs) {
-  if (pathStrs.empty()) {
+  std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs)
+{
+  if (pathStrs.empty())
+  {
     return 0;
   }
 
@@ -109,13 +125,17 @@ size_t loadEntityDefinitionFile(
   const IO::Path gamePath = gameFactory.gamePath(game->gameName());
   const IO::Path docPath = document->path();
 
-  try {
-    for (int i = 0; i < pathStrs.size(); ++i) {
+  try
+  {
+    for (int i = 0; i < pathStrs.size(); ++i)
+    {
       const QString& pathStr = pathStrs[i];
       const IO::Path absPath = IO::pathFromQString(pathStr);
-      if (game->isEntityDefinitionFile(absPath)) {
+      if (game->isEntityDefinitionFile(absPath))
+      {
         ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
-        if (pathDialog.exec() == QDialog::Accepted) {
+        if (pathDialog.exec() == QDialog::Accepted)
+        {
           const Assets::EntityDefinitionFileSpec spec =
             Assets::EntityDefinitionFileSpec::external(pathDialog.path());
           document->setEntityDefinitionFile(spec);
@@ -123,49 +143,77 @@ size_t loadEntityDefinitionFile(
         }
       }
     }
-  } catch (...) { throw; }
+  }
+  catch (...)
+  {
+    throw;
+  }
 
   return static_cast<size_t>(pathStrs.size());
 }
 
 static std::string queryObjectName(
-  QWidget* parent, const QString& objectType, const std::string& suggestion) {
-  while (true) {
+  QWidget* parent, const QString& objectType, const std::string& suggestion)
+{
+  while (true)
+  {
     bool ok = false;
     const std::string name = QInputDialog::getText(
-                               parent, "Enter a name", QObject::tr("%1 Name").arg(objectType),
-                               QLineEdit::Normal, QString::fromStdString(suggestion), &ok)
+                               parent,
+                               "Enter a name",
+                               QObject::tr("%1 Name").arg(objectType),
+                               QLineEdit::Normal,
+                               QString::fromStdString(suggestion),
+                               &ok)
                                .toStdString();
 
-    if (!ok) {
+    if (!ok)
+    {
       return "";
     }
 
-    if (kdl::str_is_blank(name)) {
+    if (kdl::str_is_blank(name))
+    {
       if (
         QMessageBox::warning(
-          parent, "Error", QObject::tr("%1 names cannot be blank.").arg(objectType),
-          QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
+          parent,
+          "Error",
+          QObject::tr("%1 names cannot be blank.").arg(objectType),
+          QMessageBox::Ok | QMessageBox::Cancel,
+          QMessageBox::Ok)
+        != QMessageBox::Ok)
+      {
         return "";
       }
-    } else if (kdl::ci::str_contains(name, "\"")) {
+    }
+    else if (kdl::ci::str_contains(name, "\""))
+    {
       if (
         QMessageBox::warning(
-          parent, "Error", QObject::tr("%1 names cannot contain double quotes.").arg(objectType),
-          QMessageBox::Ok | QMessageBox::Cancel, QMessageBox::Ok) != QMessageBox::Ok) {
+          parent,
+          "Error",
+          QObject::tr("%1 names cannot contain double quotes.").arg(objectType),
+          QMessageBox::Ok | QMessageBox::Cancel,
+          QMessageBox::Ok)
+        != QMessageBox::Ok)
+      {
         return "";
       }
-    } else {
+    }
+    else
+    {
       return name;
     }
   }
 }
 
-std::string queryGroupName(QWidget* parent, const std::string& suggestion) {
+std::string queryGroupName(QWidget* parent, const std::string& suggestion)
+{
   return queryObjectName(parent, QObject::tr("Group"), suggestion);
 }
 
-std::string queryLayerName(QWidget* parent, const std::string& suggestion) {
+std::string queryLayerName(QWidget* parent, const std::string& suggestion)
+{
   return queryObjectName(parent, QObject::tr("Layer"), suggestion);
 }
 } // namespace View

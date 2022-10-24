@@ -25,17 +25,21 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 
-class DiskFileSystem : public FileSystem {
+class DiskFileSystem : public FileSystem
+{
 protected:
   Path m_root;
 
 public:
   explicit DiskFileSystem(const Path& root, bool ensureExists = true);
-  DiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
+  DiskFileSystem(
+    std::shared_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
 
   const Path& root() const;
 
@@ -51,12 +55,14 @@ protected:
 };
 
 #ifdef _MSC_VER
-// MSVC complains about the fact that this class inherits some (pure virtual) method declarations
-// several times from different base classes, even though there is only one definition.
+// MSVC complains about the fact that this class inherits some (pure virtual) method
+// declarations several times from different base classes, even though there is only one
+// definition.
 #pragma warning(push)
 #pragma warning(disable : 4250)
 #endif
-class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem {
+class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem
+{
 public:
   WritableDiskFileSystem(const Path& root, bool create);
   WritableDiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool create);

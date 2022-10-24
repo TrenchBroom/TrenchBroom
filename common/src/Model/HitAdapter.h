@@ -21,8 +21,10 @@
 
 #include <optional>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushFaceHandle;
 class EntityNode;
 class Hit;

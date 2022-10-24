@@ -27,9 +27,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace EL {
-TEST_CASE("ELTest.constructValues", "[ELTest]") {
+namespace TrenchBroom
+{
+namespace EL
+{
+TEST_CASE("ELTest.constructValues", "[ELTest]")
+{
   CHECK(Value(true).type() == ValueType::Boolean);
   CHECK(Value(false).type() == ValueType::Boolean);
   CHECK(Value("test").type() == ValueType::String);
@@ -39,7 +42,8 @@ TEST_CASE("ELTest.constructValues", "[ELTest]") {
   CHECK(Value().type() == ValueType::Null);
 }
 
-TEST_CASE("ELTest.typeConversions", "[ELTest]") {
+TEST_CASE("ELTest.typeConversions", "[ELTest]")
+{
   CHECK(Value(true).convertTo(ValueType::Boolean) == Value(true));
   CHECK(Value(false).convertTo(ValueType::Boolean) == Value(false));
   CHECK(Value(true).convertTo(ValueType::String) == Value("true"));
@@ -123,11 +127,13 @@ TEST_CASE("ELTest.typeConversions", "[ELTest]") {
   CHECK(Value::Undefined.convertTo(ValueType::Undefined) == Value::Undefined);
 }
 
-TEST_CASE("ELTest.serializeValues", "[ELTest]") {
+TEST_CASE("ELTest.serializeValues", "[ELTest]")
+{
   CHECK(Value(16.0).asString() == std::string("16"));
 }
 
-TEST_CASE("ELTest.subscriptOperator", "[ELTest]") {
+TEST_CASE("ELTest.subscriptOperator", "[ELTest]")
+{
   CHECK_THROWS_AS(Value(true)[Value(0)], EvaluationError);
   CHECK_THROWS_AS(Value(1.0)[Value(0)], EvaluationError);
   CHECK_THROWS_AS(Value()[Value(0)], EvaluationError);
@@ -143,7 +149,9 @@ TEST_CASE("ELTest.subscriptOperator", "[ELTest]") {
   CHECK(Value("test")[Value(ArrayType({Value(0), Value(1)}))] == Value("te"));
   CHECK(Value("test")[Value(ArrayType({Value(1), Value(2)}))] == Value("es"));
   CHECK(Value("test")[Value(ArrayType({Value(0), Value(3)}))] == Value("tt"));
-  CHECK(Value("test")[Value(ArrayType({Value(0), Value(1), Value(2), Value(3)}))] == Value("test"));
+  CHECK(
+    Value("test")[Value(ArrayType({Value(0), Value(1), Value(2), Value(3)}))]
+    == Value("test"));
   CHECK(Value("test")[Value(ArrayType({Value(4)}))] == Value(""));
   CHECK(Value("test")[Value(ArrayType({Value(0), Value(4)}))] == Value("t"));
 
@@ -162,12 +170,13 @@ TEST_CASE("ELTest.subscriptOperator", "[ELTest]") {
   CHECK(arrayValue[Value(ArrayType({Value(0)}))] == Value(ArrayType({Value(1.0)})));
   CHECK(arrayValue[Value(ArrayType({Value(1)}))] == Value(ArrayType({Value("test")})));
   CHECK(
-    arrayValue[Value(ArrayType({Value(0), Value(1)}))] ==
-    Value(ArrayType({Value(1.0), Value("test")})));
+    arrayValue[Value(ArrayType({Value(0), Value(1)}))]
+    == Value(ArrayType({Value(1.0), Value("test")})));
   CHECK_THROWS_AS(arrayValue[Value(ArrayType({Value(2)}))], EvaluationError);
   CHECK_THROWS_AS(arrayValue[Value(ArrayType({Value(1), Value(2)}))], EvaluationError);
   CHECK_THROWS_AS(arrayValue[Value(ArrayType({Value("test")}))], ConversionError);
-  CHECK_THROWS_AS(arrayValue[Value(ArrayType({Value(0), Value("test")}))], ConversionError);
+  CHECK_THROWS_AS(
+    arrayValue[Value(ArrayType({Value(0), Value("test")}))], ConversionError);
 
   MapType map;
   map["test"] = Value(1.0);

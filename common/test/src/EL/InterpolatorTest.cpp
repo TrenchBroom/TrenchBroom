@@ -25,24 +25,32 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace EL {
+namespace TrenchBroom
+{
+namespace EL
+{
 static void interpolateAndCheck(
-  const std::string& expression, const std::string& expected,
-  const EvaluationContext& context = EvaluationContext()) {
+  const std::string& expression,
+  const std::string& expected,
+  const EvaluationContext& context = EvaluationContext())
+{
   CHECK(Interpolator(expression).interpolate(context) == expected);
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateEmptyString", "[ELInterpolatorTest]") {
+TEST_CASE("ELInterpolatorTest.interpolateEmptyString", "[ELInterpolatorTest]")
+{
   interpolateAndCheck("", "");
   interpolateAndCheck("   ", "   ");
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithoutExpression", "[ELInterpolatorTest]") {
+TEST_CASE("ELInterpolatorTest.interpolateStringWithoutExpression", "[ELInterpolatorTest]")
+{
   interpolateAndCheck(" asdfasdf  sdf ", " asdfasdf  sdf ");
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithSimpleExpression", "[ELInterpolatorTest]") {
+TEST_CASE(
+  "ELInterpolatorTest.interpolateStringWithSimpleExpression", "[ELInterpolatorTest]")
+{
   interpolateAndCheck(" asdfasdf ${'asdf'}  sdf ", " asdfasdf asdf  sdf ");
   interpolateAndCheck(" asdfasdf ${'asdf'} ${'AND'}  sdf ", " asdfasdf asdf AND  sdf ");
   interpolateAndCheck(" asdfasdf ${'asdf'}${' AND'}  sdf ", " asdfasdf asdf AND  sdf ");
@@ -50,30 +58,40 @@ TEST_CASE("ELInterpolatorTest.interpolateStringWithSimpleExpression", "[ELInterp
   interpolateAndCheck(" ${ 'this'+' and ' }${'that'} ", " this and that ");
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithNestedExpression", "[ELInterpolatorTest]") {
+TEST_CASE(
+  "ELInterpolatorTest.interpolateStringWithNestedExpression", "[ELInterpolatorTest]")
+{
   interpolateAndCheck(
     " asdfasdf ${ 'nested ${TEST} expression' }  sdf ",
     " asdfasdf nested ${TEST} expression  sdf ");
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithVariable", "[ELInterpolatorTest]") {
+TEST_CASE("ELInterpolatorTest.interpolateStringWithVariable", "[ELInterpolatorTest]")
+{
   EvaluationContext context;
   context.declareVariable("TEST", Value("interesting"));
   interpolateAndCheck(" an ${TEST} expression", " an interesting expression", context);
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithBackslashAndVariable", "[ELInterpolatorTest]") {
+TEST_CASE(
+  "ELInterpolatorTest.interpolateStringWithBackslashAndVariable", "[ELInterpolatorTest]")
+{
   EvaluationContext context;
   context.declareVariable("TEST", Value("interesting"));
-  interpolateAndCheck(" an \\${TEST} expression", " an \\interesting expression", context);
+  interpolateAndCheck(
+    " an \\${TEST} expression", " an \\interesting expression", context);
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithUnknownVariable", "[ELInterpolatorTest]") {
+TEST_CASE(
+  "ELInterpolatorTest.interpolateStringWithUnknownVariable", "[ELInterpolatorTest]")
+{
   EvaluationContext context;
   CHECK_THROWS(interpolate(" an ${TEST} expression", context));
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithUnterminatedEL", "[ELInterpolatorTest]") {
+TEST_CASE(
+  "ELInterpolatorTest.interpolateStringWithUnterminatedEL", "[ELInterpolatorTest]")
+{
   EvaluationContext context;
   CHECK_THROWS(interpolate(" an ${TEST", context));
   CHECK_THROWS(interpolate(" an ${TEST expression", context));

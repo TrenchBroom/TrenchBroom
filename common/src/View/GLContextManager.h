@@ -24,15 +24,19 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class FontManager;
 class ShaderManager;
 class VboManager;
 } // namespace Renderer
 
-namespace View {
-class GLContextManager {
+namespace View
+{
+class GLContextManager
+{
 public:
   static std::string GLVendor;
   static std::string GLRenderer;

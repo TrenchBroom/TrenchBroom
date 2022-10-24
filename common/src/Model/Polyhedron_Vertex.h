@@ -23,17 +23,24 @@
 
 #include <kdl/intrusive_circular_list.h>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 template <typename T, typename FP, typename VP>
 kdl::intrusive_circular_link<Polyhedron_Vertex<T, FP, VP>>& Polyhedron_GetVertexLink<
-  T, FP, VP>::operator()(Polyhedron_Vertex<T, FP, VP>* vertex) const {
+  T,
+  FP,
+  VP>::operator()(Polyhedron_Vertex<T, FP, VP>* vertex) const
+{
   return vertex->m_link;
 }
 
 template <typename T, typename FP, typename VP>
-const kdl::intrusive_circular_link<Polyhedron_Vertex<T, FP, VP>>& Polyhedron_GetVertexLink<
-  T, FP, VP>::operator()(const Polyhedron_Vertex<T, FP, VP>* vertex) const {
+const kdl::intrusive_circular_link<Polyhedron_Vertex<T, FP, VP>>&
+Polyhedron_GetVertexLink<T, FP, VP>::operator()(
+  const Polyhedron_Vertex<T, FP, VP>* vertex) const
+{
   return vertex->m_link;
 }
 
@@ -43,8 +50,8 @@ Polyhedron_Vertex<T, FP, VP>::Polyhedron_Vertex(const vm::vec<T, 3>& position)
   , m_leaving(nullptr)
   ,
 #ifdef _MSC_VER
-// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay
-// because we just store the pointer there.
+// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's
+// okay because we just store the pointer there.
 #pragma warning(push)
 #pragma warning(disable : 4355)
   m_link(this)
@@ -54,64 +61,77 @@ Polyhedron_Vertex<T, FP, VP>::Polyhedron_Vertex(const vm::vec<T, 3>& position)
   m_link(this)
   ,
 #endif
-  m_payload(VP::defaultValue()) {
+  m_payload(VP::defaultValue())
+{
 }
 
 template <typename T, typename FP, typename VP>
-const vm::vec<T, 3>& Polyhedron_Vertex<T, FP, VP>::position() const {
+const vm::vec<T, 3>& Polyhedron_Vertex<T, FP, VP>::position() const
+{
   return m_position;
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron_Vertex<T, FP, VP>::setPosition(const vm::vec<T, 3>& position) {
+void Polyhedron_Vertex<T, FP, VP>::setPosition(const vm::vec<T, 3>& position)
+{
   m_position = position;
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Vertex<T, FP, VP>::HalfEdge* Polyhedron_Vertex<T, FP, VP>::leaving() const {
+typename Polyhedron_Vertex<T, FP, VP>::HalfEdge* Polyhedron_Vertex<T, FP, VP>::leaving()
+  const
+{
   return m_leaving;
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron_Vertex<T, FP, VP>::setLeaving(HalfEdge* edge) {
+void Polyhedron_Vertex<T, FP, VP>::setLeaving(HalfEdge* edge)
+{
   assert(edge == nullptr || edge->origin() == this);
   m_leaving = edge;
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron_Vertex<T, FP, VP>* Polyhedron_Vertex<T, FP, VP>::next() const {
+Polyhedron_Vertex<T, FP, VP>* Polyhedron_Vertex<T, FP, VP>::next() const
+{
   return m_link.next();
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron_Vertex<T, FP, VP>* Polyhedron_Vertex<T, FP, VP>::previous() const {
+Polyhedron_Vertex<T, FP, VP>* Polyhedron_Vertex<T, FP, VP>::previous() const
+{
   return m_link.previous();
 }
 
 template <typename T, typename FP, typename VP>
-typename VP::Type Polyhedron_Vertex<T, FP, VP>::payload() const {
+typename VP::Type Polyhedron_Vertex<T, FP, VP>::payload() const
+{
   return m_payload;
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron_Vertex<T, FP, VP>::setPayload(typename VP::Type payload) {
+void Polyhedron_Vertex<T, FP, VP>::setPayload(typename VP::Type payload)
+{
   m_payload = payload;
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron_Vertex<T, FP, VP>::hasTwoIncidentEdges() const {
+bool Polyhedron_Vertex<T, FP, VP>::hasTwoIncidentEdges() const
+{
   assert(m_leaving != nullptr);
   HalfEdge* nextLeaving = m_leaving->nextIncident();
   return nextLeaving != m_leaving && nextLeaving->nextIncident() == m_leaving;
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron_Vertex<T, FP, VP>::incident(const Face* face) const {
+bool Polyhedron_Vertex<T, FP, VP>::incident(const Face* face) const
+{
   assert(face != nullptr);
   assert(m_leaving != nullptr);
 
   HalfEdge* curEdge = m_leaving;
-  do {
+  do
+  {
     if (curEdge->face() == face)
       return true;
     curEdge = curEdge->nextIncident();
@@ -120,7 +140,8 @@ bool Polyhedron_Vertex<T, FP, VP>::incident(const Face* face) const {
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron_Vertex<T, FP, VP>::correctPosition(const size_t decimals, const T epsilon) {
+void Polyhedron_Vertex<T, FP, VP>::correctPosition(const size_t decimals, const T epsilon)
+{
   m_position = vm::correct(m_position, decimals, epsilon);
 }
 } // namespace Model

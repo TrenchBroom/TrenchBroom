@@ -31,10 +31,13 @@
 
 #include "MapDocumentTest.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 static void updatePickState(
-  InputState& inputState, const Renderer::Camera& camera, const MapDocument& document) {
+  InputState& inputState, const Renderer::Camera& camera, const MapDocument& document)
+{
   Model::PickResult pickResult = Model::PickResult::byDistance();
   const PickRequest pickRequest(
     vm::ray3(camera.pickRay(
@@ -48,7 +51,9 @@ static void updatePickState(
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2602
-TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolControllerTest.testTwoPointsCreateClipPlane") {
+TEST_CASE_METHOD(
+  ValveMapDocumentTest, "ClipToolControllerTest.testTwoPointsCreateClipPlane")
+{
   const auto data = R"(
 // entity 0
 {
@@ -77,7 +82,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolControllerTest.testTwoPointsCrea
 
   // Camera at 0 -160 64 looking towards +y
   Renderer::PerspectiveCamera camera(
-    90.0f, 1.0f, 8000.0f, viewport, vm::vec3f(0.0f, -160.0f, 64.0f), vm::vec3f::pos_y(),
+    90.0f,
+    1.0f,
+    8000.0f,
+    viewport,
+    vm::vec3f(0.0f, -160.0f, 64.0f),
+    vm::vec3f::pos_y(),
     vm::vec3f::pos_z());
 
   // The following test places these 2 clip points
@@ -89,16 +99,18 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolControllerTest.testTwoPointsCrea
 
   // Transform the points so (0, 0) is in the upper left
   clipPoint1ScreenSpace = vm::vec2f(
-    clipPoint1ScreenSpace.x(), static_cast<float>(viewport.height) - clipPoint1ScreenSpace.y());
+    clipPoint1ScreenSpace.x(),
+    static_cast<float>(viewport.height) - clipPoint1ScreenSpace.y());
   clipPoint2ScreenSpace = vm::vec2f(
-    clipPoint2ScreenSpace.x(), static_cast<float>(viewport.height) - clipPoint2ScreenSpace.y());
+    clipPoint2ScreenSpace.x(),
+    static_cast<float>(viewport.height) - clipPoint2ScreenSpace.y());
 
   CHECK_FALSE(tool.canClip());
   CHECK(tool.canAddPoint(clipPoint1));
 
   // HACK: bias the points towards the center of the screen a bit
-  // There's no way around this unless the clip tool allowed the mouse to be slightly outside of the
-  // brush
+  // There's no way around this unless the clip tool allowed the mouse to be slightly
+  // outside of the brush
   InputState inputState(clipPoint1ScreenSpace.x() + 2.0f, clipPoint1ScreenSpace.y());
   updatePickState(inputState, camera, *document);
   REQUIRE(inputState.pickResult().size() == 1u);
@@ -111,7 +123,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolControllerTest.testTwoPointsCrea
   CHECK(tool.canAddPoint(clipPoint2));
 
   // HACK: bias the points towards the center of the screen a bit
-  inputState.mouseMove(clipPoint2ScreenSpace.x() - 2.0f, clipPoint2ScreenSpace.y(), 0.0f, 0.0f);
+  inputState.mouseMove(
+    clipPoint2ScreenSpace.x() - 2.0f, clipPoint2ScreenSpace.y(), 0.0f, 0.0f);
   updatePickState(inputState, camera, *document);
   REQUIRE(inputState.pickResult().size() == 1u);
 
@@ -125,13 +138,15 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolControllerTest.testTwoPointsCrea
 
   // Check the clip result
   // TODO: would be better to check the clip plane but it's not public
-  const std::vector<Model::Node*>& objects = document->world()->defaultLayer()->children();
+  const std::vector<Model::Node*>& objects =
+    document->world()->defaultLayer()->children();
   REQUIRE(objects.size() == 1u);
 
   auto* brush = dynamic_cast<Model::BrushNode*>(objects.at(0));
   REQUIRE(brush != nullptr);
 
-  CHECK(brush->logicalBounds() == vm::bbox3(vm::vec3(-16, -16, 52), vm::vec3(20, 16, 72)));
+  CHECK(
+    brush->logicalBounds() == vm::bbox3(vm::vec3(-16, -16, 52), vm::vec3(20, 16, 72)));
 }
 } // namespace View
 } // namespace TrenchBroom

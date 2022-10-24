@@ -31,18 +31,22 @@
 
 class QScrollBar;
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 class TextureCollection;
 } // namespace Assets
 
-namespace View {
+namespace View
+{
 class GLContextManager;
 class MapDocument;
 using TextureGroupData = std::string;
 
-struct TextureCellData {
+struct TextureCellData
+{
   const Assets::Texture* texture;
   std::string mainTitle;
   std::string subTitle;
@@ -52,12 +56,14 @@ struct TextureCellData {
   Renderer::FontDescriptor subTitleFont;
 };
 
-enum class TextureSortOrder {
+enum class TextureSortOrder
+{
   Name,
   Usage
 };
 
-class TextureBrowserView : public CellView {
+class TextureBrowserView : public CellView
+{
   Q_OBJECT
 private:
   using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
@@ -75,7 +81,9 @@ private:
 
 public:
   TextureBrowserView(
-    QScrollBar* scrollBar, GLContextManager& contextManager, std::weak_ptr<MapDocument> document);
+    QScrollBar* scrollBar,
+    GLContextManager& contextManager,
+    std::weak_ptr<MapDocument> document);
   ~TextureBrowserView() override;
 
   void setSortOrder(TextureSortOrder sortOrder);
@@ -94,7 +102,9 @@ private:
   void doInitLayout(Layout& layout) override;
   void doReloadLayout(Layout& layout) override;
   void addTextureToLayout(
-    Layout& layout, const Assets::Texture* texture, const std::string& groupName,
+    Layout& layout,
+    const Assets::Texture* texture,
+    const std::string& groupName,
     const Renderer::FontDescriptor& font);
 
   struct CompareByUsageCount;

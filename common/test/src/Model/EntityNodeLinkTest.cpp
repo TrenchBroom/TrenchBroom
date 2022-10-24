@@ -30,9 +30,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("EntityNodeLinkTest.testCreateLink", "[EntityNodeLinkTest]") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("EntityNodeLinkTest.testCreateLink", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
   EntityNode* targetNode = new Model::EntityNode(Model::Entity());
@@ -52,7 +55,8 @@ TEST_CASE("EntityNodeLinkTest.testCreateLink", "[EntityNodeLinkTest]") {
   CHECK(sources.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode1 = new Model::EntityNode(Model::Entity());
   EntityNode* sourceNode2 = new Model::EntityNode(Model::Entity());
@@ -81,7 +85,8 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink", "[EntityNodeLinkTest]"
   CHECK(kdl::vec_contains(sources, sourceNode2));
 }
 
-TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
   EntityNode* targetNode1 = new Model::EntityNode(Model::Entity());
@@ -91,8 +96,9 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink", "[EntityNodeLinkTest]"
   world.defaultLayer()->addChild(targetNode2);
 
   sourceNode->setEntity(Entity(
-    {}, {{EntityPropertyKeys::Target + "1", "target_name1"},
-         {EntityPropertyKeys::Target + "2", "target_name2"}}));
+    {},
+    {{EntityPropertyKeys::Target + "1", "target_name1"},
+     {EntityPropertyKeys::Target + "2", "target_name2"}}));
 
   // here we need to query for all entities having a numbered "target" property,
   // not just those having a "target" property
@@ -114,12 +120,13 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink", "[EntityNodeLinkTest]"
   CHECK(sources2.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testLoadLink", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testLoadLink", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);
@@ -133,12 +140,13 @@ TEST_CASE("EntityNodeLinkTest.testLoadLink", "[EntityNodeLinkTest]") {
   CHECK(sources.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);
@@ -152,12 +160,13 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource", "[EntityNodeLinkT
   CHECK(sources.empty());
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);
@@ -171,12 +180,13 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget", "[EntityNodeLinkT
   CHECK(sources.empty());
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);
@@ -192,12 +202,13 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource", "[EntityNodeLinkT
   delete sourceNode;
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);
@@ -213,7 +224,8 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget", "[EntityNodeLinkT
   delete targetNode;
 }
 
-TEST_CASE("EntityNodeLinkTest.testCreateKillLink", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testCreateKillLink", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
   EntityNode* targetNode = new Model::EntityNode(Model::Entity());
@@ -233,12 +245,13 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLink", "[EntityNodeLinkTest]") {
   CHECK(sources.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testLoadKillLink", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testLoadKillLink", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);
@@ -252,12 +265,13 @@ TEST_CASE("EntityNodeLinkTest.testLoadKillLink", "[EntityNodeLinkTest]") {
   CHECK(sources.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);
@@ -271,12 +285,13 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource", "[EntityNodeL
   CHECK(sources.empty());
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);
@@ -290,12 +305,13 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget", "[EntityNodeL
   CHECK(sources.empty());
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);
@@ -311,12 +327,13 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource", "[EntityNodeL
   delete sourceNode;
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget", "[EntityNodeLinkTest]") {
+TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget", "[EntityNodeLinkTest]")
+{
   WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode =
-    new Model::EntityNode(Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  EntityNode* sourceNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
+  EntityNode* targetNode = new Model::EntityNode(
+    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
 
   world.defaultLayer()->addChild(sourceNode);
   world.defaultLayer()->addChild(targetNode);

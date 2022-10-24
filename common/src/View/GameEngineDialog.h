@@ -26,14 +26,17 @@
 class QKeyEvent;
 class QCloseEvent;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class GameEngineProfileManager;
 
 /**
  * Dialog for editing game engine profiles (name/path, not parameters).
  */
-class GameEngineDialog : public QDialog {
+class GameEngineDialog : public QDialog
+{
   Q_OBJECT
 private:
   const std::string m_gameName;

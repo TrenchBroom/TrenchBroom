@@ -24,13 +24,17 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
 
-namespace Renderer {
-class Shader {
+namespace Renderer
+{
+class Shader
+{
 private:
   std::string m_name;
   GLenum m_type;

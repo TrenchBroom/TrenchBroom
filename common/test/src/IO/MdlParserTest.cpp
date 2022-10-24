@@ -29,15 +29,20 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]")
+{
   NullLogger logger;
 
   DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-  const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
+  const Assets::Palette palette =
+    Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
-  const auto mdlPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/armor.mdl");
+  const auto mdlPath =
+    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/armor.mdl");
   const auto mdlFile = Disk::openFile(mdlPath);
   REQUIRE(mdlFile != nullptr);
 
@@ -56,11 +61,13 @@ TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]") {
   CHECK(surface.frameCount() == 1u);
 }
 
-TEST_CASE("MdlParserTest.loadInvalidMdl", "[MdlParserTest]") {
+TEST_CASE("MdlParserTest.loadInvalidMdl", "[MdlParserTest]")
+{
   NullLogger logger;
 
   DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-  const Assets::Palette palette = Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
+  const Assets::Palette palette =
+    Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
 
   const auto mdlPath =
     IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/invalid.mdl");

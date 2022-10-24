@@ -26,9 +26,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
-class TextureCollection {
+namespace TrenchBroom
+{
+namespace Assets
+{
+class TextureCollection
+{
 private:
   using TextureIdList = std::vector<GLuint>;
 

@@ -37,8 +37,10 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
@@ -47,11 +49,13 @@ bool pointExactlyIntegral(const vm::vec3d& point);
 bool UVListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
 
-namespace IO {
+namespace IO
+{
 class Path;
 }
 
-namespace Model {
+namespace Model
+{
 class Brush;
 class BrushFace;
 class BrushNode;
@@ -61,7 +65,9 @@ class GroupNode;
 class Node;
 
 BrushFace createParaxial(
-  const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2,
+  const vm::vec3& point0,
+  const vm::vec3& point1,
+  const vm::vec3& point2,
   const std::string& textureName = "");
 
 std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges);
@@ -70,65 +76,95 @@ std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces);
 void assertTexture(
   const std::string& expected, const BrushNode* brush, const vm::vec3d& faceNormal);
 void assertTexture(
-  const std::string& expected, const BrushNode* brush, const vm::vec3d& v1, const vm::vec3d& v2,
+  const std::string& expected,
+  const BrushNode* brush,
+  const vm::vec3d& v1,
+  const vm::vec3d& v2,
   const vm::vec3d& v3);
 void assertTexture(
-  const std::string& expected, const BrushNode* brush, const vm::vec3d& v1, const vm::vec3d& v2,
-  const vm::vec3d& v3, const vm::vec3d& v4);
+  const std::string& expected,
+  const BrushNode* brush,
+  const vm::vec3d& v1,
+  const vm::vec3d& v2,
+  const vm::vec3d& v3,
+  const vm::vec3d& v4);
 void assertTexture(
-  const std::string& expected, const BrushNode* brush, const std::vector<vm::vec3d>& vertices);
+  const std::string& expected,
+  const BrushNode* brush,
+  const std::vector<vm::vec3d>& vertices);
 void assertTexture(
   const std::string& expected, const BrushNode* brush, const vm::polygon3d& vertices);
 
-void assertTexture(const std::string& expected, const Brush& brush, const vm::vec3d& faceNormal);
 void assertTexture(
-  const std::string& expected, const Brush& brush, const vm::vec3d& v1, const vm::vec3d& v2,
+  const std::string& expected, const Brush& brush, const vm::vec3d& faceNormal);
+void assertTexture(
+  const std::string& expected,
+  const Brush& brush,
+  const vm::vec3d& v1,
+  const vm::vec3d& v2,
   const vm::vec3d& v3);
 void assertTexture(
-  const std::string& expected, const Brush& brush, const vm::vec3d& v1, const vm::vec3d& v2,
-  const vm::vec3d& v3, const vm::vec3d& v4);
+  const std::string& expected,
+  const Brush& brush,
+  const vm::vec3d& v1,
+  const vm::vec3d& v2,
+  const vm::vec3d& v3,
+  const vm::vec3d& v4);
 void assertTexture(
-  const std::string& expected, const Brush& brush, const std::vector<vm::vec3d>& vertices);
-void assertTexture(const std::string& expected, const Brush& brush, const vm::polygon3d& vertices);
+  const std::string& expected,
+  const Brush& brush,
+  const std::vector<vm::vec3d>& vertices);
+void assertTexture(
+  const std::string& expected, const Brush& brush, const vm::polygon3d& vertices);
 
-void transformNode(Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds);
+void transformNode(
+  Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds);
 
-struct GameAndConfig {
+struct GameAndConfig
+{
   std::shared_ptr<Model::Game> game;
   std::unique_ptr<Model::GameConfig> gameConfig;
 };
 GameAndConfig loadGame(const std::string& gameName);
 
 const Model::BrushFace* findFaceByPoints(
-  const std::vector<Model::BrushFace>& faces, const vm::vec3& point0, const vm::vec3& point1,
+  const std::vector<Model::BrushFace>& faces,
+  const vm::vec3& point0,
+  const vm::vec3& point1,
   const vm::vec3& point2);
 void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel);
-void checkBrushTexCoordSystem(const Model::BrushNode* brushNode, const bool expectParallel);
+void checkBrushTexCoordSystem(
+  const Model::BrushNode* brushNode, const bool expectParallel);
 
 void setLinkedGroupId(GroupNode& groupNode, std::string linkedGroupId);
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class MapDocument;
 
-struct DocumentGameConfig {
+struct DocumentGameConfig
+{
   std::shared_ptr<MapDocument> document;
   std::shared_ptr<Model::Game> game;
   std::unique_ptr<Model::GameConfig> gameConfig;
 };
 DocumentGameConfig loadMapDocument(
   const IO::Path& mapPath, const std::string& gameName, Model::MapFormat mapFormat);
-DocumentGameConfig newMapDocument(const std::string& gameName, Model::MapFormat mapFormat);
+DocumentGameConfig newMapDocument(
+  const std::string& gameName, Model::MapFormat mapFormat);
 } // namespace View
 
-enum class Component {
+enum class Component
+{
   R,
   G,
   B,
   A
 };
 
-enum class ColorMatch {
+enum class ColorMatch
+{
   Exact,
   Approximate
 };
@@ -136,10 +172,17 @@ enum class ColorMatch {
 int getComponentOfPixel(
   const Assets::Texture& texture, std::size_t x, std::size_t y, Component component);
 void checkColor(
-  const Assets::Texture& texture, std::size_t x, std::size_t y, int r, int g, int b, int a,
+  const Assets::Texture& texture,
+  std::size_t x,
+  std::size_t y,
+  int r,
+  int g,
+  int b,
+  int a,
   ColorMatch match = ColorMatch::Exact);
 
-class GlobMatcher : public Catch::MatcherBase<std::string> {
+class GlobMatcher : public Catch::MatcherBase<std::string>
+{
 private:
   std::string m_glob;
 
@@ -153,47 +196,61 @@ GlobMatcher MatchesGlob(const std::string& glob);
 
 /**
  * Catch2 matcher that compares two `std::vector`s of `vm::vec<T,S>`s,
- * ignoring order of the `std::vector`s, and checking equality of `vm::vec<T,S>`s with an epsilon.
+ * ignoring order of the `std::vector`s, and checking equality of `vm::vec<T,S>`s with an
+ * epsilon.
  */
 template <typename T, std::size_t S>
-class UnorderedApproxVecMatcher : public Catch::MatcherBase<std::vector<vm::vec<T, S>>> {
+class UnorderedApproxVecMatcher : public Catch::MatcherBase<std::vector<vm::vec<T, S>>>
+{
 private:
   std::vector<vm::vec<T, S>> m_expected;
   T m_epsilon;
 
 public:
-  explicit UnorderedApproxVecMatcher(const std::vector<vm::vec<T, S>>& expected, const T epsilon)
+  explicit UnorderedApproxVecMatcher(
+    const std::vector<vm::vec<T, S>>& expected, const T epsilon)
     : m_expected(expected)
-    , m_epsilon(epsilon) {}
+    , m_epsilon(epsilon)
+  {
+  }
 
-  bool match(const std::vector<vm::vec<T, S>>& actual) const override {
-    if (actual.size() != m_expected.size()) {
+  bool match(const std::vector<vm::vec<T, S>>& actual) const override
+  {
+    if (actual.size() != m_expected.size())
+    {
       return false;
     }
 
-    for (auto& actualElement : actual) {
+    for (auto& actualElement : actual)
+    {
       bool foundMatch = false;
 
-      for (size_t i = 0; i < m_expected.size(); ++i) {
-        if (vm::is_equal(m_expected[i], actualElement, m_epsilon)) {
+      for (size_t i = 0; i < m_expected.size(); ++i)
+      {
+        if (vm::is_equal(m_expected[i], actualElement, m_epsilon))
+        {
           foundMatch = true;
           break;
         }
       }
 
-      if (!foundMatch) {
+      if (!foundMatch)
+      {
         return false;
       }
     }
     return true;
   }
 
-  std::string describe() const override {
+  std::string describe() const override
+  {
     std::stringstream ss;
     ss << "approximatetly unordered matches vecs (";
-    for (size_t i = 0; i < m_expected.size(); ++i) {
+    for (size_t i = 0; i < m_expected.size(); ++i)
+    {
       ss << m_expected[i];
-      if (i + 1 < m_expected.size()) {
+      if (i + 1 < m_expected.size())
+      {
         ss << ", ";
       }
     }
@@ -204,7 +261,8 @@ public:
 
 template <typename T, std::size_t S>
 UnorderedApproxVecMatcher<T, S> UnorderedApproxVecMatches(
-  const std::vector<vm::vec<T, S>>& actual, const T epsilon) {
+  const std::vector<vm::vec<T, S>>& actual, const T epsilon)
+{
   return UnorderedApproxVecMatcher(actual, epsilon);
 }
 } // namespace TrenchBroom

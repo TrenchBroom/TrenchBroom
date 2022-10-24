@@ -45,12 +45,16 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 
-namespace {
+namespace
+{
 
-class AssimpIOStream : public Assimp::IOStream {
+class AssimpIOStream : public Assimp::IOStream
+{
   friend class AssimpIOSystem;
 
 private:
@@ -62,39 +66,53 @@ protected:
   AssimpIOStream(const Path& path, const FileSystem& fs)
     : m_fs{fs}
     , m_file{m_fs.openFile(path)}
-    , m_reader{m_file->reader()} {}
+    , m_reader{m_file->reader()}
+  {
+  }
 
 public:
-  size_t Read(void* buffer, const size_t size, const size_t count) override {
-    if (m_reader.canRead(size * count)) {
+  size_t Read(void* buffer, const size_t size, const size_t count) override
+  {
+    if (m_reader.canRead(size * count))
+    {
       m_reader.read(reinterpret_cast<char*>(buffer), size * count);
       return count;
-    } else {
+    }
+    else
+    {
       return 0;
     }
   }
 
   size_t Write(
-    const void* /* buffer */, const size_t /* size */, const size_t /* count */) override {
+    const void* /* buffer */, const size_t /* size */, const size_t /* count */) override
+  {
     return 0; // unsupported
   }
 
-  aiReturn Seek(const size_t offset, const aiOrigin origin) override {
-    try {
-      switch (origin) {
-        case aiOrigin_SET:
-          m_reader.seekFromBegin(offset);
-          return aiReturn_SUCCESS;
-        case aiOrigin_CUR:
-          m_reader.seekForward(offset);
-          return aiReturn_SUCCESS;
-        case aiOrigin_END:
-          m_reader.seekFromEnd(offset);
-          return aiReturn_SUCCESS;
-        case _AI_ORIGIN_ENFORCE_ENUM_SIZE:
-          break;
+  aiReturn Seek(const size_t offset, const aiOrigin origin) override
+  {
+    try
+    {
+      switch (origin)
+      {
+      case aiOrigin_SET:
+        m_reader.seekFromBegin(offset);
+        return aiReturn_SUCCESS;
+      case aiOrigin_CUR:
+        m_reader.seekForward(offset);
+        return aiReturn_SUCCESS;
+      case aiOrigin_END:
+        m_reader.seekFromEnd(offset);
+        return aiReturn_SUCCESS;
+      case _AI_ORIGIN_ENFORCE_ENUM_SIZE:
+        break;
       }
-    } catch (const ReaderException& /*e*/) { return aiReturn_FAILURE; }
+    }
+    catch (const ReaderException& /*e*/)
+    {
+      return aiReturn_FAILURE;
+    }
     return aiReturn_FAILURE;
   }
 
@@ -106,13 +124,16 @@ public:
   void Flush() override {}
 };
 
-class AssimpIOSystem : public Assimp::IOSystem {
+class AssimpIOSystem : public Assimp::IOSystem
+{
 private:
   const FileSystem& m_fs;
 
 public:
   explicit AssimpIOSystem(const FileSystem& fs)
-    : m_fs{fs} {}
+    : m_fs{fs}
+  {
+  }
 
   bool Exists(const char* path) const override { return m_fs.fileExists(Path{path}); }
 
@@ -120,8 +141,10 @@ public:
 
   void Close(Assimp::IOStream* file) override { delete file; }
 
-  Assimp::IOStream* Open(const char* path, const char* mode) override {
-    if (mode[0] != 'r') {
+  Assimp::IOStream* Open(const char* path, const char* mode) override
+  {
+    if (mode[0] != 'r')
+    {
       throw ParserException{"Assimp attempted to open a file not for reading."};
     }
     return new AssimpIOStream{Path{path}, m_fs};
@@ -130,7 +153,9 @@ public:
 
 } // namespace
 
-std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(TrenchBroom::Logger& logger) {
+std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
+  TrenchBroom::Logger& logger)
+{
   // Create model.
   auto model = std::make_unique<Assets::EntityModel>(
     m_path.asString(), Assets::PitchType::Normal, Assets::Orientation::Oriented);
@@ -147,10 +172,12 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(TrenchBroom
   importer.SetIOHandler(new AssimpIOSystem{m_fs});
 
   const auto* scene = importer.ReadFile(
-    m_path.asString(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |
-                         aiProcess_FlipWindingOrder | aiProcess_SortByPType | aiProcess_FlipUVs);
+    m_path.asString(),
+    aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_FlipWindingOrder
+      | aiProcess_SortByPType | aiProcess_FlipUVs);
 
-  if (!scene) {
+  if (!scene)
+  {
     throw ParserException{
       std::string{"Assimp couldn't import the file: "} + importer.GetErrorString()};
   }
@@ -160,16 +187,23 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(TrenchBroom
 
   surface.setSkins(std::move(m_textures));
 
-  // Assimp files import as y-up. We must multiply the root transform with an axis transform matrix.
+  // Assimp files import as y-up. We must multiply the root transform with an axis
+  // transform matrix.
   processNode(
-    *scene->mRootNode, *scene, scene->mRootNode->mTransformation, get_axis_transform(*scene));
+    *scene->mRootNode,
+    *scene,
+    scene->mRootNode->mTransformation,
+    get_axis_transform(*scene));
 
   // Build bounds.
   auto bounds = vm::bbox3f::builder{};
-  if (m_positions.empty()) {
+  if (m_positions.empty())
+  {
     // Passing empty bounds as bbox crashes the program, don't let it happen.
     throw ParserException{"Model has no vertices. (So no valid bounding box.)"};
-  } else {
+  }
+  else
+  {
     bounds.add(std::begin(m_positions), std::end(m_positions));
   }
 
@@ -177,17 +211,20 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(TrenchBroom
   // Part 1: Collation
   size_t totalVertexCount = 0;
   auto size = Renderer::TexturedIndexRangeMap::Size{};
-  for (const auto& face : m_faces) {
-    size.inc(surface.skin(face.m_material), Renderer::PrimType::Polygon, face.m_vertices.size());
+  for (const auto& face : m_faces)
+  {
+    size.inc(
+      surface.skin(face.m_material), Renderer::PrimType::Polygon, face.m_vertices.size());
     totalVertexCount += face.m_vertices.size();
   }
 
   // Part 2: Building
   auto& frame = model->loadFrame(0, m_path.asString(), bounds.bounds());
-  auto builder =
-    Renderer::TexturedIndexRangeMapBuilder<Assets::EntityModelVertex::Type>{totalVertexCount, size};
+  auto builder = Renderer::TexturedIndexRangeMapBuilder<Assets::EntityModelVertex::Type>{
+    totalVertexCount, size};
 
-  for (const auto& face : m_faces) {
+  for (const auto& face : m_faces)
+  {
     auto entityVertices = kdl::vec_transform(face.m_vertices, [&](const auto& index) {
       return Assets::EntityModelVertex{
         m_positions[m_vertices[index].m_position], m_vertices[index].m_texcoords};
@@ -201,9 +238,12 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(TrenchBroom
 
 AssimpParser::AssimpParser(Path path, const FileSystem& fs)
   : m_path{std::move(path)}
-  , m_fs{fs} {}
+  , m_fs{fs}
+{
+}
 
-bool AssimpParser::canParse(const Path& path) {
+bool AssimpParser::canParse(const Path& path)
+{
   // clang-format off
   static const auto supportedExtensions = std::vector<std::string>{
     // Quake model formats have been omitted since Trenchbroom's got its own parsers
@@ -224,29 +264,41 @@ bool AssimpParser::canParse(const Path& path) {
 }
 
 void AssimpParser::processNode(
-  const aiNode& node, const aiScene& scene, const aiMatrix4x4& transform,
-  const aiMatrix4x4& axisTransform) {
-  for (unsigned int i = 0; i < node.mNumMeshes; i++) {
+  const aiNode& node,
+  const aiScene& scene,
+  const aiMatrix4x4& transform,
+  const aiMatrix4x4& axisTransform)
+{
+  for (unsigned int i = 0; i < node.mNumMeshes; i++)
+  {
     const auto* mesh = scene.mMeshes[node.mMeshes[i]];
     processMesh(*mesh, transform, axisTransform);
   }
-  for (unsigned int i = 0; i < node.mNumChildren; i++) {
+  for (unsigned int i = 0; i < node.mNumChildren; i++)
+  {
     processNode(
-      *node.mChildren[i], scene, transform * node.mChildren[i]->mTransformation, axisTransform);
+      *node.mChildren[i],
+      scene,
+      transform * node.mChildren[i]->mTransformation,
+      axisTransform);
   }
 }
 
 void AssimpParser::processMesh(
-  const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform) {
-  // Meshes have been sorted by primitive type, so we know for sure we'll ONLY get triangles in a
-  // single mesh.
-  if (mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE) {
+  const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
+{
+  // Meshes have been sorted by primitive type, so we know for sure we'll ONLY get
+  // triangles in a single mesh.
+  if (mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
+  {
     const auto offset = m_vertices.size();
     // Add all the vertices of the mesh.
-    for (unsigned int i = 0; i < mesh.mNumVertices; i++) {
-      const auto texcoords = mesh.mTextureCoords[0]
-                               ? vm::vec2f{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y}
-                               : vm::vec2f{0.0f, 0.0f};
+    for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+    {
+      const auto texcoords =
+        mesh.mTextureCoords[0]
+          ? vm::vec2f{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y}
+          : vm::vec2f{0.0f, 0.0f};
 
       m_vertices.emplace_back(m_positions.size(), texcoords);
 
@@ -256,11 +308,13 @@ void AssimpParser::processMesh(
       m_positions.emplace_back(meshVertices.x, meshVertices.y, meshVertices.z);
     }
 
-    for (unsigned int i = 0; i < mesh.mNumFaces; i++) {
+    for (unsigned int i = 0; i < mesh.mNumFaces; i++)
+    {
       auto verts = std::vector<size_t>{};
       verts.reserve(mesh.mFaces[i].mNumIndices);
 
-      for (unsigned int j = 0; j < mesh.mFaces[i].mNumIndices; j++) {
+      for (unsigned int j = 0; j < mesh.mFaces[i].mNumIndices; j++)
+      {
         verts.push_back(mesh.mFaces[i].mIndices[j] + offset);
       }
       m_faces.emplace_back(mesh.mMaterialIndex, verts);
@@ -268,43 +322,63 @@ void AssimpParser::processMesh(
   }
 }
 
-namespace {
+namespace
+{
 
-Assets::Texture loadTextureFromFileSystem(const Path& path, const FileSystem& fs, Logger& logger) {
-  auto imageReader = FreeImageTextureReader{TextureReader::StaticNameStrategy{""}, fs, logger};
+Assets::Texture loadTextureFromFileSystem(
+  const Path& path, const FileSystem& fs, Logger& logger)
+{
+  auto imageReader =
+    FreeImageTextureReader{TextureReader::StaticNameStrategy{""}, fs, logger};
   return imageReader.readTexture(fs.openFile(path));
 }
 
 Assets::Texture loadUncompressedEmbeddedTexture(
-  const aiTexel* data, const std::string& name, const size_t width, const size_t height) {
+  const aiTexel* data, const std::string& name, const size_t width, const size_t height)
+{
   auto buffer = Assets::TextureBuffer{width * height * sizeof(aiTexel)};
   std::memcpy(buffer.data(), data, width * height * sizeof(aiTexel));
 
   const auto averageColor = FreeImageTextureReader::getAverageColor(buffer, GL_BGRA);
   return {
-    name, width, height, averageColor, std::move(buffer), GL_BGRA, Assets::TextureType::Masked};
+    name,
+    width,
+    height,
+    averageColor,
+    std::move(buffer),
+    GL_BGRA,
+    Assets::TextureType::Masked};
 }
 
 Assets::Texture loadCompressedEmbeddedTexture(
-  const aiTexel* data, const std::string& name, const size_t width) {
+  const aiTexel* data, const std::string& name, const size_t width)
+{
   return FreeImageTextureReader::readTextureFromMemory(
     name, reinterpret_cast<const uint8_t*>(data), width);
 }
 
-std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs, Logger& logger) {
+std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs, Logger& logger)
+{
   static const auto texturePaths = std::vector<Path>{
-    Path{"textures"} + Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("png"),
-    Path{"textures"} + Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
+    Path{"textures"}
+      + Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("png"),
+    Path{"textures"}
+      + Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
     Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("png"),
     Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
   };
 
-  auto imageReader = FreeImageTextureReader{TextureReader::StaticNameStrategy(""), fs, logger};
+  auto imageReader =
+    FreeImageTextureReader{TextureReader::StaticNameStrategy(""), fs, logger};
 
-  for (const auto& texturePath : texturePaths) {
-    try {
+  for (const auto& texturePath : texturePaths)
+  {
+    try
+    {
       return imageReader.readTexture(fs.openFile(texturePath));
-    } catch (const Exception& /*ex1*/) {
+    }
+    catch (const Exception& /*ex1*/)
+    {
       // ignore and try the next texture path
     }
   }
@@ -314,11 +388,15 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs, Logger&
 
 } // namespace
 
-void AssimpParser::processMaterials(const aiScene& scene, Logger& logger) {
-  for (unsigned int i = 0; i < scene.mNumMaterials; i++) {
-    try {
+void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
+{
+  for (unsigned int i = 0; i < scene.mNumMaterials; i++)
+  {
+    try
+    {
       // Is there even a single diffuse texture? If not, fail and load fallback material.
-      if (scene.mMaterials[i]->GetTextureCount(aiTextureType_DIFFUSE) == 0) {
+      if (scene.mMaterials[i]->GetTextureCount(aiTextureType_DIFFUSE) == 0)
+      {
         throw Exception{"Material does not contain a texture."};
       }
 
@@ -327,22 +405,33 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger) {
 
       const auto texturePath = Path{path.C_Str()};
       const auto* texture = scene.GetEmbeddedTexture(path.C_Str());
-      if (!texture) {
+      if (!texture)
+      {
         // The texture is not embedded. Load it using the file system.
         const auto filePath = m_path.deleteLastComponent() + texturePath;
         m_textures.push_back(loadTextureFromFileSystem(filePath, m_fs, logger));
-      } else if (texture->mHeight != 0) {
+      }
+      else if (texture->mHeight != 0)
+      {
         // The texture is uncompressed, load it directly.
         m_textures.push_back(loadUncompressedEmbeddedTexture(
-          texture->pcData, texture->mFilename.C_Str(), texture->mWidth, texture->mHeight));
-      } else {
+          texture->pcData,
+          texture->mFilename.C_Str(),
+          texture->mWidth,
+          texture->mHeight));
+      }
+      else
+      {
         // The texture is embedded, but compressed. Let FreeImage load it from memory.
         m_textures.push_back(loadCompressedEmbeddedTexture(
           texture->pcData, texture->mFilename.C_Str(), texture->mWidth));
       }
-    } catch (Exception& exception) {
+    }
+    catch (Exception& exception)
+    {
       // Load fallback material in case we get any error.
-      if (auto fallbackTexture = loadFallbackTexture(m_fs, logger)) {
+      if (auto fallbackTexture = loadFallbackTexture(m_fs, logger))
+      {
         m_textures.push_back(std::move(*fallbackTexture));
       }
 
@@ -351,30 +440,33 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger) {
                                   ? scene.mMaterials[i]->GetName().C_Str()
                                   : "nr. " + std::to_string(i + 1);
       logger.error(
-        "Model " + m_path.asString() + ": Loading fallback material for material " + materialName +
-        ": " + exception.what());
+        "Model " + m_path.asString() + ": Loading fallback material for material "
+        + materialName + ": " + exception.what());
     }
   }
 }
 
-aiMatrix4x4 AssimpParser::get_axis_transform(const aiScene& scene) {
+aiMatrix4x4 AssimpParser::get_axis_transform(const aiScene& scene)
+{
   aiMatrix4x4 matrix = aiMatrix4x4();
 
-  if (scene.mMetaData) {
+  if (scene.mMetaData)
+  {
     // These MUST be in32_t, or the metadata 'Get' function will get confused.
     int32_t upAxis = 0, frontAxis = 0, coordAxis = 0, upAxisSign = 0, frontAxisSign = 0,
             coordAxisSign = 0;
     float unitScale = 1.0f;
 
-    bool metadataPresent = scene.mMetaData->Get("UpAxis", upAxis) &&
-                           scene.mMetaData->Get("UpAxisSign", upAxisSign) &&
-                           scene.mMetaData->Get("FrontAxis", frontAxis) &&
-                           scene.mMetaData->Get("FrontAxisSign", frontAxisSign) &&
-                           scene.mMetaData->Get("CoordAxis", coordAxis) &&
-                           scene.mMetaData->Get("CoordAxisSign", coordAxisSign) &&
-                           scene.mMetaData->Get("UnitScaleFactor", unitScale);
+    bool metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
+                           && scene.mMetaData->Get("UpAxisSign", upAxisSign)
+                           && scene.mMetaData->Get("FrontAxis", frontAxis)
+                           && scene.mMetaData->Get("FrontAxisSign", frontAxisSign)
+                           && scene.mMetaData->Get("CoordAxis", coordAxis)
+                           && scene.mMetaData->Get("CoordAxisSign", coordAxisSign)
+                           && scene.mMetaData->Get("UnitScaleFactor", unitScale);
 
-    if (!metadataPresent) {
+    if (!metadataPresent)
+    {
       // By default, all 3D data from is provided in a right-handed coordinate system.
       // +X to the right. -Z into the screen. +Y upwards.
       upAxis = 1;
@@ -388,12 +480,28 @@ aiMatrix4x4 AssimpParser::get_axis_transform(const aiScene& scene) {
 
     aiVector3D up, front, coord;
     up[static_cast<unsigned int>(upAxis)] = static_cast<float>(upAxisSign) * unitScale;
-    front[static_cast<unsigned int>(frontAxis)] = static_cast<float>(frontAxisSign) * unitScale;
-    coord[static_cast<unsigned int>(coordAxis)] = static_cast<float>(coordAxisSign) * unitScale;
+    front[static_cast<unsigned int>(frontAxis)] =
+      static_cast<float>(frontAxisSign) * unitScale;
+    coord[static_cast<unsigned int>(coordAxis)] =
+      static_cast<float>(coordAxisSign) * unitScale;
 
     matrix = aiMatrix4x4t(
-      coord.x, coord.y, coord.z, 0.0f, -front.x, -front.y, -front.z, 0.0f, up.x, up.y, up.z, 0.0f,
-      0.0f, 0.0f, 0.0f, 1.0f);
+      coord.x,
+      coord.y,
+      coord.z,
+      0.0f,
+      -front.x,
+      -front.y,
+      -front.z,
+      0.0f,
+      up.x,
+      up.y,
+      up.z,
+      0.0f,
+      0.0f,
+      0.0f,
+      0.0f,
+      1.0f);
   }
 
   return matrix;

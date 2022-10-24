@@ -53,13 +53,16 @@ class QTableView;
 class QVBoxLayout;
 class QWidget;
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Color;
 
-namespace View {
+namespace View
+{
 enum class MapTextEncoding;
 
-class DisableWindowUpdates {
+class DisableWindowUpdates
+{
 private:
   QWidget* m_widget;
 
@@ -68,7 +71,8 @@ public:
   ~DisableWindowUpdates();
 };
 
-class SyncHeightEventFilter : public QObject {
+class SyncHeightEventFilter : public QObject
+{
 private:
   QPointer<QWidget> m_primary;
   QPointer<QWidget> m_secondary;
@@ -80,7 +84,8 @@ public:
   bool eventFilter(QObject* target, QEvent* event) override;
 };
 
-enum class FileDialogDir {
+enum class FileDialogDir
+{
   Map,
   TextureCollection,
   CompileTool,
@@ -94,7 +99,8 @@ enum class FileDialogDir {
  */
 QString fileDialogDefaultDirectory(FileDialogDir type);
 
-void updateFileDialogDefaultDirectoryWithFilename(FileDialogDir type, const QString& filename);
+void updateFileDialogDefaultDirectoryWithFilename(
+  FileDialogDir type, const QString& filename);
 void updateFileDialogDefaultDirectoryWithDirectory(
   FileDialogDir type, const QString& newDefaultDirectory);
 
@@ -103,7 +109,9 @@ QString windowSettingsPath(const QWidget* window, const QString& suffix = "");
 void saveWindowGeometry(QWidget* window);
 void restoreWindowGeometry(QWidget* window);
 
-template <typename T> void saveWindowState(const T* window) {
+template <typename T>
+void saveWindowState(const T* window)
+{
   ensure(window != nullptr, "window must not be null");
 
   const auto path = windowSettingsPath(window, "State");
@@ -111,7 +119,9 @@ template <typename T> void saveWindowState(const T* window) {
   settings.setValue(path, window->saveState());
 }
 
-template <typename T> void restoreWindowState(T* window) {
+template <typename T>
+void restoreWindowState(T* window)
+{
   ensure(window != nullptr, "window must not be null");
 
   const auto path = windowSettingsPath(window, "State");
@@ -149,20 +159,25 @@ template <typename... Rest>
 void addToMiniToolBarLayout(QBoxLayout* layout, int first, Rest... rest);
 
 template <typename... Rest>
-void addToMiniToolBarLayout(QBoxLayout* layout, QWidget* first, Rest... rest) {
+void addToMiniToolBarLayout(QBoxLayout* layout, QWidget* first, Rest... rest)
+{
   layout->addWidget(first);
   addToMiniToolBarLayout(layout, rest...);
 }
 
 template <typename... Rest>
-void addToMiniToolBarLayout(QBoxLayout* layout, int first, Rest... rest) {
+void addToMiniToolBarLayout(QBoxLayout* layout, int first, Rest... rest)
+{
   layout->addSpacing(first - LayoutConstants::NarrowHMargin);
   addToMiniToolBarLayout(layout, rest...);
 }
 
-template <typename... Rest> QLayout* createMiniToolBarLayout(QWidget* first, Rest... rest) {
+template <typename... Rest>
+QLayout* createMiniToolBarLayout(QWidget* first, Rest... rest)
+{
   auto* layout = new QHBoxLayout();
-  layout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
+  layout->setContentsMargins(
+    LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
   layout->setSpacing(LayoutConstants::NarrowHMargin);
   addToMiniToolBarLayout(layout, first, rest...);
   layout->addStretch(1);
@@ -170,9 +185,11 @@ template <typename... Rest> QLayout* createMiniToolBarLayout(QWidget* first, Res
 }
 
 template <typename... Rest>
-QLayout* createMiniToolBarLayoutRightAligned(QWidget* first, Rest... rest) {
+QLayout* createMiniToolBarLayoutRightAligned(QWidget* first, Rest... rest)
+{
   auto* layout = new QHBoxLayout();
-  layout->setContentsMargins(LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
+  layout->setContentsMargins(
+    LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
   layout->setSpacing(LayoutConstants::NarrowHMargin);
   layout->addStretch(1);
   addToMiniToolBarLayout(layout, first, rest...);
@@ -213,16 +230,20 @@ void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool che
  */
 void insertTitleBarSeparator(QVBoxLayout* layout);
 
-template <typename I> QStringList toQStringList(I cur, I end) {
+template <typename I>
+QStringList toQStringList(I cur, I end)
+{
   QStringList result;
-  while (cur != end) {
+  while (cur != end)
+  {
     result.push_back(QString::fromStdString(*cur));
     ++cur;
   }
   return result;
 }
 
-class AutoResizeRowsEventFilter : public QObject {
+class AutoResizeRowsEventFilter : public QObject
+{
   Q_OBJECT
 private:
   QTableView* m_tableView;

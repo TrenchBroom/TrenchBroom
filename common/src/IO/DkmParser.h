@@ -28,13 +28,16 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class FileSystem;
 class Path;
 class Reader;
 
-namespace DkmLayout {
+namespace DkmLayout
+{
 static const int Ident = (('D' << 24) + ('M' << 16) + ('K' << 8) + 'D');
 static const int Version1 = 1;
 static const int Version2 = 2;
@@ -43,20 +46,23 @@ static const size_t FrameNameLength = 16;
 } // namespace DkmLayout
 
 // see http://tfc.duke.free.fr/coding/md2-specs-en.html
-class DkmParser : public EntityModelParser {
+class DkmParser : public EntityModelParser
+{
 private:
   static const vm::vec3f Normals[162];
 
   using DkmSkinList = std::vector<std::string>;
 
-  struct DkmVertex {
+  struct DkmVertex
+  {
     unsigned int x, y, z;
     unsigned char normalIndex;
   };
 
   using DkmVertexList = std::vector<DkmVertex>;
 
-  struct DkmFrame {
+  struct DkmFrame
+  {
     vm::vec3f scale;
     vm::vec3f offset;
     std::string name;
@@ -67,14 +73,17 @@ private:
     const vm::vec3f& normal(size_t index) const;
   };
 
-  struct DkmMeshVertex {
+  struct DkmMeshVertex
+  {
     vm::vec2f texCoords;
     size_t vertexIndex;
   };
   using DkmMeshVertexList = std::vector<DkmMeshVertex>;
 
-  struct DkmMesh {
-    enum Type {
+  struct DkmMesh
+  {
+    enum Type
+    {
       Fan,
       Strip
     };
@@ -98,18 +107,23 @@ public:
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
-  void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
+  void doLoadFrame(
+    size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
   DkmSkinList parseSkins(Reader reader, size_t skinCount);
   DkmFrame parseFrame(Reader reader, size_t frameIndex, size_t vertexCount, int version);
   DkmMeshList parseMeshes(Reader reader, size_t commandCount);
 
-  void loadSkins(Assets::EntityModelSurface& surface, const DkmSkinList& skins, Logger& logger);
+  void loadSkins(
+    Assets::EntityModelSurface& surface, const DkmSkinList& skins, Logger& logger);
   Path findSkin(const std::string& skin) const;
 
   void buildFrame(
-    Assets::EntityModel& model, Assets::EntityModelSurface& surface, size_t frameIndex,
-    const DkmFrame& frame, const DkmMeshList& meshes);
+    Assets::EntityModel& model,
+    Assets::EntityModelSurface& surface,
+    size_t frameIndex,
+    const DkmFrame& frame,
+    const DkmMeshList& meshes);
   std::vector<Assets::EntityModelVertex> getVertices(
     const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const;
 };

@@ -30,19 +30,23 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class ModelDefinition;
 }
 
-namespace IO {
+namespace IO
+{
 struct EntityDefinitionClassInfo;
 enum class EntityDefinitionClassType;
 class FileSystem;
 class ParserStatus;
 class Path;
 
-namespace FgdToken {
+namespace FgdToken
+{
 using Type = unsigned int;
 static const Type Integer = 1 << 0;      // integer number
 static const Type Decimal = 1 << 1;      // decimal number
@@ -59,7 +63,8 @@ static const Type Plus = 1 << 11;        // plus: + (not used in string continua
 static const Type Eof = 1 << 12;         // end of file
 } // namespace FgdToken
 
-class FgdTokenizer : public Tokenizer<FgdToken::Type> {
+class FgdTokenizer : public Tokenizer<FgdToken::Type>
+{
 public:
   explicit FgdTokenizer(std::string_view str);
 
@@ -68,7 +73,8 @@ private:
   Token emitToken() override;
 };
 
-class FgdParser : public EntityDefinitionParser, public Parser<FgdToken::Type> {
+class FgdParser : public EntityDefinitionParser, public Parser<FgdToken::Type>
+{
 private:
   using Token = FgdTokenizer::Token;
 
@@ -141,7 +147,8 @@ private:
   std::string parseString(ParserStatus& status);
 
   std::vector<EntityDefinitionClassInfo> parseInclude(ParserStatus& status);
-  std::vector<EntityDefinitionClassInfo> handleInclude(ParserStatus& status, const Path& path);
+  std::vector<EntityDefinitionClassInfo> handleInclude(
+    ParserStatus& status, const Path& path);
 };
 } // namespace IO
 } // namespace TrenchBroom

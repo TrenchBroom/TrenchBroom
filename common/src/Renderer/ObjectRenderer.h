@@ -26,15 +26,18 @@
 
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Color;
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class EntityModelManager;
 }
 
-namespace Model {
+namespace Model
+{
 class BrushNode;
 class EditorContext;
 class EntityNode;
@@ -43,11 +46,13 @@ class Node;
 class PatchNode;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class FontManager;
 class RenderBatch;
 
-class ObjectRenderer {
+class ObjectRenderer
+{
 private:
   GroupRenderer m_groupRenderer;
   EntityRenderer m_entityRenderer;
@@ -57,12 +62,16 @@ private:
 public:
   template <typename BrushFilterT>
   ObjectRenderer(
-    Logger& logger, Assets::EntityModelManager& entityModelManager,
-    const Model::EditorContext& editorContext, const BrushFilterT& brushFilter)
+    Logger& logger,
+    Assets::EntityModelManager& entityModelManager,
+    const Model::EditorContext& editorContext,
+    const BrushFilterT& brushFilter)
     : m_groupRenderer(editorContext)
     , m_entityRenderer(logger, entityModelManager, editorContext)
     , m_brushRenderer(brushFilter)
-    , m_patchRenderer{} {}
+    , m_patchRenderer{}
+  {
+  }
 
 public: // object management
   void addNode(Model::Node* node);

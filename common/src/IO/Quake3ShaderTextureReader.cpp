@@ -30,21 +30,28 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 Quake3ShaderTextureReader::Quake3ShaderTextureReader(
   const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader(nameStrategy, fs, logger) {}
+  : TextureReader(nameStrategy, fs, logger)
+{
+}
 
-Assets::Texture Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> file) const {
+Assets::Texture Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> file) const
+{
   const auto* shaderFile = dynamic_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
-  if (shaderFile == nullptr) {
+  if (shaderFile == nullptr)
+  {
     throw AssetException("File is not a shader");
   }
 
   const auto& shader = shaderFile->object();
   const auto texturePath = findTexturePath(shader);
-  if (texturePath.isEmpty()) {
+  if (texturePath.isEmpty())
+  {
     throw AssetException(
       "Could not find texture path for shader '" + shader.shaderPath.asString() + "'");
   }
@@ -53,25 +60,31 @@ Assets::Texture Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> f
   texture.setSurfaceParms(shader.surfaceParms);
   texture.setOpaque();
 
-  // Note that Quake 3 has a different understanding of front and back, so we need to invert them.
-  switch (shader.culling) {
-    case Assets::Quake3Shader::Culling::Front:
-      texture.setCulling(Assets::TextureCulling::CullBack);
-      break;
-    case Assets::Quake3Shader::Culling::Back:
-      texture.setCulling(Assets::TextureCulling::CullFront);
-      break;
-    case Assets::Quake3Shader::Culling::None:
-      texture.setCulling(Assets::TextureCulling::CullNone);
-      break;
+  // Note that Quake 3 has a different understanding of front and back, so we need to
+  // invert them.
+  switch (shader.culling)
+  {
+  case Assets::Quake3Shader::Culling::Front:
+    texture.setCulling(Assets::TextureCulling::CullBack);
+    break;
+  case Assets::Quake3Shader::Culling::Back:
+    texture.setCulling(Assets::TextureCulling::CullFront);
+    break;
+  case Assets::Quake3Shader::Culling::None:
+    texture.setCulling(Assets::TextureCulling::CullNone);
+    break;
   }
 
-  if (!shader.stages.empty()) {
+  if (!shader.stages.empty())
+  {
     const auto& stage = shader.stages.front();
-    if (stage.blendFunc.enable()) {
+    if (stage.blendFunc.enable())
+    {
       texture.setBlendFunc(
         glGetEnum(stage.blendFunc.srcFactor), glGetEnum(stage.blendFunc.destFactor));
-    } else {
+    }
+    else
+    {
       texture.disableBlend();
     }
   }
@@ -80,9 +93,11 @@ Assets::Texture Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> f
 }
 
 Assets::Texture Quake3ShaderTextureReader::loadTextureImage(
-  const Path& shaderPath, const Path& imagePath) const {
+  const Path& shaderPath, const Path& imagePath) const
+{
   const auto name = textureName(shaderPath);
-  if (!m_fs.fileExists(imagePath)) {
+  if (!m_fs.fileExists(imagePath))
+  {
     throw AssetException("Image file '" + imagePath.asString() + "' does not exist");
   }
 
@@ -90,18 +105,24 @@ Assets::Texture Quake3ShaderTextureReader::loadTextureImage(
   return imageReader.readTexture(m_fs.openFile(imagePath));
 }
 
-Path Quake3ShaderTextureReader::findTexturePath(const Assets::Quake3Shader& shader) const {
+Path Quake3ShaderTextureReader::findTexturePath(const Assets::Quake3Shader& shader) const
+{
   Path texturePath = findTexture(shader.editorImage);
-  if (texturePath.isEmpty()) {
+  if (texturePath.isEmpty())
+  {
     texturePath = findTexture(shader.shaderPath);
   }
-  if (texturePath.isEmpty()) {
+  if (texturePath.isEmpty())
+  {
     texturePath = findTexture(shader.lightImage);
   }
-  if (texturePath.isEmpty()) {
-    for (const auto& stage : shader.stages) {
+  if (texturePath.isEmpty())
+  {
+    for (const auto& stage : shader.stages)
+    {
       texturePath = findTexture(stage.map);
-      if (!texturePath.isEmpty()) {
+      if (!texturePath.isEmpty())
+      {
         break;
       }
     }
@@ -109,14 +130,20 @@ Path Quake3ShaderTextureReader::findTexturePath(const Assets::Quake3Shader& shad
   return texturePath;
 }
 
-Path Quake3ShaderTextureReader::findTexture(const Path& texturePath) const {
+Path Quake3ShaderTextureReader::findTexture(const Path& texturePath) const
+{
   if (
-    !texturePath.isEmpty() && (texturePath.extension().empty() || !m_fs.fileExists(texturePath))) {
+    !texturePath.isEmpty()
+    && (texturePath.extension().empty() || !m_fs.fileExists(texturePath)))
+  {
     const auto candidates = m_fs.findItemsWithBaseName(
       texturePath, std::vector<std::string>{"tga", "png", "jpg", "jpeg"});
-    if (!candidates.empty()) {
+    if (!candidates.empty())
+    {
       return candidates.front();
-    } else {
+    }
+    else
+    {
       return Path();
     }
   }

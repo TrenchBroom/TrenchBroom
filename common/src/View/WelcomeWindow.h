@@ -23,15 +23,19 @@
 
 class QPushButton;
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
 
-namespace View {
+namespace View
+{
 class RecentDocumentListBox;
 
-class WelcomeWindow : public QMainWindow {
+class WelcomeWindow : public QMainWindow
+{
   Q_OBJECT
 private:
   RecentDocumentListBox* m_recentDocumentListBox;

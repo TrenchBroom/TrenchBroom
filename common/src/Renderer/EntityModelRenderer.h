@@ -24,24 +24,29 @@
 
 #include <unordered_map>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class EntityModelManager;
 }
 
-namespace Model {
+namespace Model
+{
 class EditorContext;
 class EntityNode;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderBatch;
 class ShaderConfig;
 class TexturedRenderer;
 
-class EntityModelRenderer : public DirectRenderable {
+class EntityModelRenderer : public DirectRenderable
+{
 private:
   Logger& m_logger;
 
@@ -57,24 +62,33 @@ private:
 
 public:
   EntityModelRenderer(
-    Logger& logger, Assets::EntityModelManager& entityModelManager,
+    Logger& logger,
+    Assets::EntityModelManager& entityModelManager,
     const Model::EditorContext& editorContext);
   ~EntityModelRenderer() override;
 
-  template <typename I> void setEntities(I cur, I end) {
+  template <typename I>
+  void setEntities(I cur, I end)
+  {
     clear();
     addEntities(cur, end);
   }
 
-  template <typename I> void addEntities(I cur, I end) {
-    while (cur != end) {
+  template <typename I>
+  void addEntities(I cur, I end)
+  {
+    while (cur != end)
+    {
       addEntity(*cur);
       ++cur;
     }
   }
 
-  template <typename I> void updateEntities(I cur, I end) {
-    while (cur != end) {
+  template <typename I>
+  void updateEntities(I cur, I end)
+  {
+    while (cur != end)
+    {
       updateEntity(*cur);
       ++cur;
     }

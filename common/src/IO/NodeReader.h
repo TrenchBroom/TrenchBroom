@@ -25,21 +25,24 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class ParserStatus;
 
 /**
  * MapReader subclass for loading the clipboard contents, rather than an entire .map
  */
-class NodeReader : public MapReader {
+class NodeReader : public MapReader
+{
 private:
   std::vector<Model::Node*> m_nodes;
 
 public:
   /**
-   * Creates a new parser where the given string is expected to be formatted in the given source map
-   * format, and the created objects are converted to the given target format.
+   * Creates a new parser where the given string is expected to be formatted in the given
+   * source map format, and the created objects are converted to the given target format.
    *
    * @param str the string to parse
    * @param sourceMapFormat the expected format of the given string
@@ -47,17 +50,25 @@ public:
    * @param entityPropertyConfig the entity property config to use
    */
   NodeReader(
-    std::string_view str, Model::MapFormat sourceMapFormat, Model::MapFormat targetMapFormat,
+    std::string_view str,
+    Model::MapFormat sourceMapFormat,
+    Model::MapFormat targetMapFormat,
     const Model::EntityPropertyConfig& entityPropertyConfig);
 
   static std::vector<Model::Node*> read(
-    const std::string& str, Model::MapFormat preferredMapFormat, const vm::bbox3& worldBounds,
-    const Model::EntityPropertyConfig& entityPropertyConfig, ParserStatus& status);
+    const std::string& str,
+    Model::MapFormat preferredMapFormat,
+    const vm::bbox3& worldBounds,
+    const Model::EntityPropertyConfig& entityPropertyConfig,
+    ParserStatus& status);
 
 private:
   static std::vector<Model::Node*> readAsFormat(
-    Model::MapFormat sourceMapFormat, Model::MapFormat targetMapFormat, const std::string& str,
-    const vm::bbox3& worldBounds, const Model::EntityPropertyConfig& entityPropertyConfig,
+    Model::MapFormat sourceMapFormat,
+    Model::MapFormat targetMapFormat,
+    const std::string& str,
+    const vm::bbox3& worldBounds,
+    const Model::EntityPropertyConfig& entityPropertyConfig,
     ParserStatus& status);
 
 private: // implement MapReader interface
@@ -65,7 +76,9 @@ private: // implement MapReader interface
     std::unique_ptr<Model::WorldNode> worldNode, ParserStatus& status) override;
   void onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus& status) override;
   void onNode(
-    Model::Node* parentNode, std::unique_ptr<Model::Node> node, ParserStatus& status) override;
+    Model::Node* parentNode,
+    std::unique_ptr<Model::Node> node,
+    ParserStatus& status) override;
 };
 } // namespace IO
 } // namespace TrenchBroom

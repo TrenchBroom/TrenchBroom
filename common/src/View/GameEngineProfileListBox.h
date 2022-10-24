@@ -21,16 +21,20 @@
 
 #include "View/ControlListBox.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class GameEngineConfig;
 class GameEngineProfile;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class ElidedLabel;
 
-class GameEngineProfileItemRenderer : public ControlListBoxItemRenderer {
+class GameEngineProfileItemRenderer : public ControlListBoxItemRenderer
+{
   Q_OBJECT
 private:
   Model::GameEngineProfile* m_profile;
@@ -50,7 +54,8 @@ private:
   void profileDidChange();
 };
 
-class GameEngineProfileListBox : public ControlListBox {
+class GameEngineProfileListBox : public ControlListBox
+{
   Q_OBJECT
 private:
   const Model::GameEngineConfig* m_config;

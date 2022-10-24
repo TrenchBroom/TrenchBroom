@@ -28,9 +28,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace EL {
-class ExpressionImpl {
+namespace TrenchBroom
+{
+namespace EL
+{
+class ExpressionImpl
+{
 public:
   virtual ~ExpressionImpl();
 
@@ -57,7 +60,8 @@ private:
   virtual void appendToStream(std::ostream& str) const = 0;
 };
 
-class LiteralExpression : public ExpressionImpl {
+class LiteralExpression : public ExpressionImpl
+{
 private:
   Value m_value;
 
@@ -74,7 +78,8 @@ private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class VariableExpression : public ExpressionImpl {
+class VariableExpression : public ExpressionImpl
+{
 private:
   std::string m_variableName;
 
@@ -91,7 +96,8 @@ private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class ArrayExpression : public ExpressionImpl {
+class ArrayExpression : public ExpressionImpl
+{
 private:
   std::vector<Expression> m_elements;
 
@@ -108,7 +114,8 @@ private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class MapExpression : public ExpressionImpl {
+class MapExpression : public ExpressionImpl
+{
 private:
   std::map<std::string, Expression> m_elements;
 
@@ -125,7 +132,8 @@ private:
   void appendToStream(std::ostream& str) const override;
 };
 
-enum class UnaryOperator {
+enum class UnaryOperator
+{
   Plus,
   Minus,
   LogicalNegation,
@@ -133,7 +141,8 @@ enum class UnaryOperator {
   Group
 };
 
-class UnaryExpression : public ExpressionImpl {
+class UnaryExpression : public ExpressionImpl
+{
 private:
   UnaryOperator m_operator;
   Expression m_operand;
@@ -151,7 +160,8 @@ private:
   void appendToStream(std::ostream& str) const override;
 };
 
-enum class BinaryOperator {
+enum class BinaryOperator
+{
   Addition,
   Subtraction,
   Multiplication,
@@ -174,7 +184,8 @@ enum class BinaryOperator {
   Case,
 };
 
-class BinaryExpression : public ExpressionImpl {
+class BinaryExpression : public ExpressionImpl
+{
 public:
   friend class Expression;
 
@@ -184,7 +195,8 @@ private:
   Expression m_rightOperand;
 
 public:
-  BinaryExpression(BinaryOperator i_operator, Expression leftOperand, Expression rightOperand);
+  BinaryExpression(
+    BinaryOperator i_operator, Expression leftOperand, Expression rightOperand);
   static Expression createAutoRangeWithRightOperand(
     Expression rightOperand, size_t line, size_t column);
   static Expression createAutoRangeWithLeftOperand(
@@ -202,7 +214,8 @@ private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class SubscriptExpression : public ExpressionImpl {
+class SubscriptExpression : public ExpressionImpl
+{
 public:
   static const std::string& AutoRangeParameterName();
 
@@ -223,7 +236,8 @@ private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class SwitchExpression : public ExpressionImpl {
+class SwitchExpression : public ExpressionImpl
+{
 private:
   std::vector<Expression> m_cases;
 

@@ -28,26 +28,37 @@
 
 #include <QHBoxLayout>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 TwoPaneMapView::TwoPaneMapView(
-  std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer,
-  GLContextManager& contextManager, Logger* logger, QWidget* parent)
+  std::weak_ptr<MapDocument> document,
+  MapViewToolBox& toolBox,
+  Renderer::MapRenderer& mapRenderer,
+  GLContextManager& contextManager,
+  Logger* logger,
+  QWidget* parent)
   : MultiMapView(parent)
   , m_logger(logger)
   , m_document(std::move(document))
   , m_splitter(nullptr)
   , m_mapView3D(nullptr)
-  , m_mapView2D(nullptr) {
+  , m_mapView2D(nullptr)
+{
   createGui(toolBox, mapRenderer, contextManager);
 }
 
-TwoPaneMapView::~TwoPaneMapView() {
+TwoPaneMapView::~TwoPaneMapView()
+{
   saveWindowState(m_splitter);
 }
 
 void TwoPaneMapView::createGui(
-  MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
+  MapViewToolBox& toolBox,
+  Renderer::MapRenderer& mapRenderer,
+  GLContextManager& contextManager)
+{
 
   // See comment in CyclingMapView::createGui
   m_splitter = new Splitter();
@@ -80,17 +91,21 @@ void TwoPaneMapView::createGui(
   restoreWindowState(m_splitter);
 }
 
-void TwoPaneMapView::doMaximizeView(MapView* view) {
+void TwoPaneMapView::doMaximizeView(MapView* view)
+{
   assert(view == m_mapView2D || view == m_mapView3D);
-  if (view == m_mapView2D) {
+  if (view == m_mapView2D)
+  {
     m_mapView3D->hide();
   }
-  if (view == m_mapView3D) {
+  if (view == m_mapView3D)
+  {
     m_mapView2D->hide();
   }
 }
 
-void TwoPaneMapView::doRestoreViews() {
+void TwoPaneMapView::doRestoreViews()
+{
   m_mapView3D->show();
   m_mapView2D->show();
 }

@@ -21,14 +21,20 @@
 
 #include "Renderer/IndexArray.h"
 
-namespace TrenchBroom {
-namespace Renderer {
-IndexArrayMap::IndexArrayRange::IndexArrayRange(const size_t i_offset, const size_t i_capacity)
+namespace TrenchBroom
+{
+namespace Renderer
+{
+IndexArrayMap::IndexArrayRange::IndexArrayRange(
+  const size_t i_offset, const size_t i_capacity)
   : offset{i_offset}
   , capacity{i_capacity}
-  , count{0u} {}
+  , count{0u}
+{
+}
 
-size_t IndexArrayMap::IndexArrayRange::add(const size_t i_count) {
+size_t IndexArrayMap::IndexArrayRange::add(const size_t i_count)
+{
   assert(capacity - count >= i_count);
   const auto result = offset + count;
   count += i_count;
@@ -36,55 +42,72 @@ size_t IndexArrayMap::IndexArrayRange::add(const size_t i_count) {
 }
 
 IndexArrayMap::Size::Size()
-  : m_indexCount{0u} {}
+  : m_indexCount{0u}
+{
+}
 
-void IndexArrayMap::Size::inc(const PrimType primType, const size_t count) {
+void IndexArrayMap::Size::inc(const PrimType primType, const size_t count)
+{
   m_sizes[primType] +=
     count; // unknown map values are value constructed, which initializes to 0 for size_t
   m_indexCount += count;
 }
 
-void IndexArrayMap::Size::inc(const IndexArrayMap::Size& other) {
-  for (const auto& [primType, size] : other.m_sizes) {
+void IndexArrayMap::Size::inc(const IndexArrayMap::Size& other)
+{
+  for (const auto& [primType, size] : other.m_sizes)
+  {
     inc(primType, size);
   }
 }
 
-size_t IndexArrayMap::Size::indexCount() const {
+size_t IndexArrayMap::Size::indexCount() const
+{
   return m_indexCount;
 }
 
-void IndexArrayMap::Size::initialize(PrimTypeToRangeMap& data, const size_t baseOffset) const {
+void IndexArrayMap::Size::initialize(
+  PrimTypeToRangeMap& data, const size_t baseOffset) const
+{
   auto offset = baseOffset;
-  for (const auto& [primType, size] : m_sizes) {
+  for (const auto& [primType, size] : m_sizes)
+  {
     data.emplace(primType, IndexArrayRange{offset, size});
     offset += size;
   }
 }
 
 IndexArrayMap::IndexArrayMap(const Size& size)
-  : IndexArrayMap{size, 0u} {}
+  : IndexArrayMap{size, 0u}
+{
+}
 
-IndexArrayMap::IndexArrayMap(const Size& size, const size_t baseOffset) {
+IndexArrayMap::IndexArrayMap(const Size& size, const size_t baseOffset)
+{
   size.initialize(m_ranges, baseOffset);
 }
 
-IndexArrayMap::Size IndexArrayMap::size() const {
+IndexArrayMap::Size IndexArrayMap::size() const
+{
   Size result;
-  for (const auto& [primType, range] : m_ranges) {
+  for (const auto& [primType, range] : m_ranges)
+  {
     result.inc(primType, range.capacity);
   }
   return result;
 }
 
-size_t IndexArrayMap::add(const PrimType primType, const size_t count) {
+size_t IndexArrayMap::add(const PrimType primType, const size_t count)
+{
   auto it = m_ranges.find(primType);
   assert(it != std::end(m_ranges));
   return it->second.add(count);
 }
 
-void IndexArrayMap::render(IndexArray& indexArray) const {
-  for (const auto& [primType, range] : m_ranges) {
+void IndexArrayMap::render(IndexArray& indexArray) const
+{
+  for (const auto& [primType, range] : m_ranges)
+  {
     indexArray.render(primType, range.offset, range.count);
   }
 }

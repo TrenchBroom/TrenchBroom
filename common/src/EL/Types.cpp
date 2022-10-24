@@ -23,31 +23,36 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace EL {
-std::string typeName(const ValueType type) {
-  switch (type) {
-    case ValueType::Boolean:
-      return "Boolean";
-    case ValueType::String:
-      return "String";
-    case ValueType::Number:
-      return "Number";
-    case ValueType::Array:
-      return "Array";
-    case ValueType::Map:
-      return "Map";
-    case ValueType::Range:
-      return "Range";
-    case ValueType::Null:
-      return "Null";
-    case ValueType::Undefined:
-      return "Undefined";
-      switchDefault();
+namespace TrenchBroom
+{
+namespace EL
+{
+std::string typeName(const ValueType type)
+{
+  switch (type)
+  {
+  case ValueType::Boolean:
+    return "Boolean";
+  case ValueType::String:
+    return "String";
+  case ValueType::Number:
+    return "Number";
+  case ValueType::Array:
+    return "Array";
+  case ValueType::Map:
+    return "Map";
+  case ValueType::Range:
+    return "Range";
+  case ValueType::Null:
+    return "Null";
+  case ValueType::Undefined:
+    return "Undefined";
+    switchDefault();
   }
 }
 
-ValueType typeForName(const std::string& type) {
+ValueType typeForName(const std::string& type)
+{
   if (type == "Boolean")
     return ValueType::Boolean;
   if (type == "String")

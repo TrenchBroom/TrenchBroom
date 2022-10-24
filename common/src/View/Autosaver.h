@@ -24,20 +24,25 @@
 #include <chrono>
 #include <memory>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace IO {
+namespace IO
+{
 class WritableDiskFileSystem;
 }
 
-namespace View {
+namespace View
+{
 class Command;
 class MapDocument;
 
-class Autosaver {
+class Autosaver
+{
 public:
-  class BackupFileMatcher {
+  class BackupFileMatcher
+  {
   private:
     const IO::Path m_mapBasename;
 
@@ -57,8 +62,8 @@ private:
   std::chrono::milliseconds m_saveInterval;
 
   /**
-   * The maximum number of backups to create. When this number is exceeded, old backups are deleted
-   * until the number of backups is equal to the number of backups again.
+   * The maximum number of backups to create. When this number is exceeded, old backups
+   * are deleted until the number of backups is equal to the number of backups again.
    */
   size_t m_maxBackups;
 
@@ -82,13 +87,15 @@ public:
 
 private:
   void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
-  IO::WritableDiskFileSystem createBackupFileSystem(Logger& logger, const IO::Path& mapPath) const;
+  IO::WritableDiskFileSystem createBackupFileSystem(
+    Logger& logger, const IO::Path& mapPath) const;
   std::vector<IO::Path> collectBackups(
     const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
   void thinBackups(
     Logger& logger, IO::WritableDiskFileSystem& fs, std::vector<IO::Path>& backups) const;
   void cleanBackups(
-    IO::WritableDiskFileSystem& fs, std::vector<IO::Path>& backups,
+    IO::WritableDiskFileSystem& fs,
+    std::vector<IO::Path>& backups,
     const IO::Path& mapBasename) const;
   IO::Path makeBackupName(const IO::Path& mapBasename, const size_t index) const;
 };

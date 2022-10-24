@@ -30,62 +30,61 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 Validator::~Validator() = default;
 
-IssueType Validator::type() const {
+IssueType Validator::type() const
+{
   return m_type;
 }
 
-const std::string& Validator::description() const {
+const std::string& Validator::description() const
+{
   return m_description;
 }
 
-std::vector<const IssueQuickFix*> Validator::quickFixes() const {
+std::vector<const IssueQuickFix*> Validator::quickFixes() const
+{
   return kdl::vec_transform(m_quickFixes, [](const auto& quickFix) {
     return const_cast<const IssueQuickFix*>(&quickFix);
   });
 }
 
-void Validator::validate(Node& node, std::vector<std::unique_ptr<Issue>>& issues) const {
+void Validator::validate(Node& node, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   node.accept(kdl::overload(
-    [&](WorldNode* worldNode) {
-      doValidate(*worldNode, issues);
-    },
-    [&](LayerNode* layerNode) {
-      doValidate(*layerNode, issues);
-    },
-    [&](GroupNode* groupNode) {
-      doValidate(*groupNode, issues);
-    },
-    [&](EntityNode* entityNode) {
-      doValidate(*entityNode, issues);
-    },
-    [&](BrushNode* brushNode) {
-      doValidate(*brushNode, issues);
-    },
-    [&](PatchNode* patchNode) {
-      doValidate(*patchNode, issues);
-    }));
+    [&](WorldNode* worldNode) { doValidate(*worldNode, issues); },
+    [&](LayerNode* layerNode) { doValidate(*layerNode, issues); },
+    [&](GroupNode* groupNode) { doValidate(*groupNode, issues); },
+    [&](EntityNode* entityNode) { doValidate(*entityNode, issues); },
+    [&](BrushNode* brushNode) { doValidate(*brushNode, issues); },
+    [&](PatchNode* patchNode) { doValidate(*patchNode, issues); }));
 }
 
 Validator::Validator(const IssueType type, const std::string& description)
   : m_type{type}
-  , m_description{description} {}
+  , m_description{description}
+{
+}
 
-void Validator::addQuickFix(IssueQuickFix quickFix) {
+void Validator::addQuickFix(IssueQuickFix quickFix)
+{
   m_quickFixes.push_back(std::move(quickFix));
 }
 
 void Validator::doValidate(
-  WorldNode& worldNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  WorldNode& worldNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   doValidate(static_cast<EntityNodeBase&>(worldNode), issues);
 }
 void Validator::doValidate(LayerNode&, std::vector<std::unique_ptr<Issue>>&) const {}
 void Validator::doValidate(GroupNode&, std::vector<std::unique_ptr<Issue>>&) const {}
 void Validator::doValidate(
-  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   doValidate(static_cast<EntityNodeBase&>(entityNode), issues);
 }
 void Validator::doValidate(BrushNode&, std::vector<std::unique_ptr<Issue>>&) const {}

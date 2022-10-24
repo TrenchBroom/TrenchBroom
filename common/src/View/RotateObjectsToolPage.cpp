@@ -41,8 +41,10 @@
 #include <QPushButton>
 #include <QtGlobal>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 RotateObjectsToolPage::RotateObjectsToolPage(
   std::weak_ptr<MapDocument> document, RotateObjectsTool& tool, QWidget* parent)
   : QWidget(parent)
@@ -52,47 +54,56 @@ RotateObjectsToolPage::RotateObjectsToolPage(
   , m_resetCenterButton(nullptr)
   , m_angle(nullptr)
   , m_axis(nullptr)
-  , m_rotateButton(nullptr) {
+  , m_rotateButton(nullptr)
+{
   createGui();
   connectObservers();
   m_angle->setValue(vm::to_degrees(m_tool.angle()));
 }
 
-void RotateObjectsToolPage::connectObservers() {
+void RotateObjectsToolPage::connectObservers()
+{
   auto document = kdl::mem_lock(m_document);
-  m_notifierConnection +=
-    document->selectionDidChangeNotifier.connect(this, &RotateObjectsToolPage::selectionDidChange);
+  m_notifierConnection += document->selectionDidChangeNotifier.connect(
+    this, &RotateObjectsToolPage::selectionDidChange);
 }
 
-void RotateObjectsToolPage::setAxis(const vm::axis::type axis) {
+void RotateObjectsToolPage::setAxis(const vm::axis::type axis)
+{
   m_axis->setCurrentIndex(static_cast<int>(axis));
 }
 
-void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& centers) {
+void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& centers)
+{
   m_recentlyUsedCentersList->clear();
 
-  for (auto it = centers.rbegin(), end = centers.rend(); it != end; ++it) {
+  for (auto it = centers.rbegin(), end = centers.rend(); it != end; ++it)
+  {
     const auto& center = *it;
-    m_recentlyUsedCentersList->addItem(QString::fromStdString(kdl::str_to_string(center)));
+    m_recentlyUsedCentersList->addItem(
+      QString::fromStdString(kdl::str_to_string(center)));
   }
 
   if (m_recentlyUsedCentersList->count() > 0)
     m_recentlyUsedCentersList->setCurrentIndex(0);
 }
 
-void RotateObjectsToolPage::setCurrentCenter(const vm::vec3& center) {
-  m_recentlyUsedCentersList->setCurrentText(QString::fromStdString(kdl::str_to_string(center)));
+void RotateObjectsToolPage::setCurrentCenter(const vm::vec3& center)
+{
+  m_recentlyUsedCentersList->setCurrentText(
+    QString::fromStdString(kdl::str_to_string(center)));
 }
 
-void RotateObjectsToolPage::createGui() {
+void RotateObjectsToolPage::createGui()
+{
   auto* centerText = new QLabel(tr("Center"));
   m_recentlyUsedCentersList = new QComboBox();
   m_recentlyUsedCentersList->setMinimumContentsLength(16);
   m_recentlyUsedCentersList->setEditable(true);
 
   m_resetCenterButton = new QPushButton(tr("Reset"));
-  m_resetCenterButton->setToolTip(
-    tr("Reset the position of the rotate handle to the center of the current selection."));
+  m_resetCenterButton->setToolTip(tr(
+    "Reset the position of the rotate handle to the center of the current selection."));
 
   auto* text1 = new QLabel(tr("Rotate objects"));
   auto* text2 = new QLabel(tr("degs about"));
@@ -110,15 +121,25 @@ void RotateObjectsToolPage::createGui() {
   m_rotateButton = new QPushButton(tr("Apply"));
 
   connect(
-    m_recentlyUsedCentersList, QOverload<const QString&>::of(&QComboBox::activated), this,
+    m_recentlyUsedCentersList,
+    QOverload<const QString&>::of(&QComboBox::activated),
+    this,
     &RotateObjectsToolPage::centerChanged);
   connect(
-    m_resetCenterButton, &QAbstractButton::clicked, this,
+    m_resetCenterButton,
+    &QAbstractButton::clicked,
+    this,
     &RotateObjectsToolPage::resetCenterClicked);
   connect(
-    m_angle, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this,
+    m_angle,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
     &RotateObjectsToolPage::angleChanged);
-  connect(m_rotateButton, &QAbstractButton::clicked, this, &RotateObjectsToolPage::rotateClicked);
+  connect(
+    m_rotateButton,
+    &QAbstractButton::clicked,
+    this,
+    &RotateObjectsToolPage::rotateClicked);
 
   auto* layout = new QHBoxLayout();
   layout->setContentsMargins(0, 0, 0, 0);
@@ -150,7 +171,8 @@ void RotateObjectsToolPage::createGui() {
   updateGui();
 }
 
-void RotateObjectsToolPage::updateGui() {
+void RotateObjectsToolPage::updateGui()
+{
   const auto& grid = kdl::mem_lock(m_document)->grid();
   m_angle->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
 
@@ -158,29 +180,35 @@ void RotateObjectsToolPage::updateGui() {
   m_rotateButton->setEnabled(document->hasSelectedNodes());
 }
 
-void RotateObjectsToolPage::selectionDidChange(const Selection&) {
+void RotateObjectsToolPage::selectionDidChange(const Selection&)
+{
   updateGui();
 }
 
-void RotateObjectsToolPage::centerChanged() {
+void RotateObjectsToolPage::centerChanged()
+{
   if (
     const auto center =
-      vm::parse<FloatType, 3>(m_recentlyUsedCentersList->currentText().toStdString())) {
+      vm::parse<FloatType, 3>(m_recentlyUsedCentersList->currentText().toStdString()))
+  {
     m_tool.setRotationCenter(*center);
   }
 }
 
-void RotateObjectsToolPage::resetCenterClicked() {
+void RotateObjectsToolPage::resetCenterClicked()
+{
   m_tool.resetRotationCenter();
 }
 
-void RotateObjectsToolPage::angleChanged(double value) {
+void RotateObjectsToolPage::angleChanged(double value)
+{
   const double newAngleDegs = vm::correct(value);
   m_angle->setValue(newAngleDegs);
   m_tool.setAngle(vm::to_radians(newAngleDegs));
 }
 
-void RotateObjectsToolPage::rotateClicked() {
+void RotateObjectsToolPage::rotateClicked()
+{
   const auto center = m_tool.rotationCenter();
   const auto axis = getAxis();
   const auto angle = vm::to_radians(m_angle->value());
@@ -189,14 +217,16 @@ void RotateObjectsToolPage::rotateClicked() {
   document->rotateObjects(center, axis, angle);
 }
 
-vm::vec3 RotateObjectsToolPage::getAxis() const {
-  switch (m_axis->currentIndex()) {
-    case 0:
-      return vm::vec3::pos_x();
-    case 1:
-      return vm::vec3::pos_y();
-    default:
-      return vm::vec3::pos_z();
+vm::vec3 RotateObjectsToolPage::getAxis() const
+{
+  switch (m_axis->currentIndex())
+  {
+  case 0:
+    return vm::vec3::pos_x();
+  case 1:
+    return vm::vec3::pos_y();
+  default:
+    return vm::vec3::pos_z();
   }
 }
 } // namespace View

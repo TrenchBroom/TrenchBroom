@@ -23,11 +23,14 @@
 
 class QToolButton;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class PopupWindow;
 
-class PopupButton : public QWidget {
+class PopupButton : public QWidget
+{
   Q_OBJECT
 private:
   QToolButton* m_button;

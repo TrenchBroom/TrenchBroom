@@ -26,15 +26,18 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class CompilationTask;
 class CompilationTaskConstVisitor;
 class CompilationTaskVisitor;
 class ConstCompilationTaskVisitor;
 class ConstCompilationTaskConstVisitor;
 
-class CompilationProfile {
+class CompilationProfile
+{
 private:
   std::string m_name;
   std::string m_workDirSpec;
@@ -43,7 +46,8 @@ private:
 public:
   CompilationProfile(const std::string& name, const std::string& workDirSpec);
   CompilationProfile(
-    const std::string& name, const std::string& workDirSpec,
+    const std::string& name,
+    const std::string& workDirSpec,
     std::vector<std::unique_ptr<CompilationTask>> tasks);
   ~CompilationProfile();
 

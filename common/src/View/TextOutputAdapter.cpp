@@ -28,9 +28,12 @@
 #include <QString>
 #include <QTextEdit>
 
-namespace TrenchBroom {
-namespace View {
-TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit) {
+namespace TrenchBroom
+{
+namespace View
+{
+TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit)
+{
   ensure(textEdit != nullptr, "textEdit is null");
   m_textEdit = textEdit;
 
@@ -40,27 +43,32 @@ TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit) {
   m_insertionCursor.movePosition(QTextCursor::End);
 }
 
-void TextOutputAdapter::appendString(const QString& string) {
+void TextOutputAdapter::appendString(const QString& string)
+{
   QScrollBar* scrollBar = m_textEdit->verticalScrollBar();
   const bool wasAtBottom = (scrollBar->value() >= scrollBar->maximum());
 
   const int size = string.size();
-  for (int i = 0; i < size; ++i) {
+  for (int i = 0; i < size; ++i)
+  {
     const QChar c = string[i];
     const QChar n = (i + 1) < size ? string[i + 1] : static_cast<QChar>(0);
 
     // Handle CRLF by advancing to the LF, which is handled below
-    if (c == '\r' && n == '\n') {
+    if (c == '\r' && n == '\n')
+    {
       continue;
     }
     // Handle LF
-    if (c == '\n') {
+    if (c == '\n')
+    {
       m_insertionCursor.movePosition(QTextCursor::End);
       m_insertionCursor.insertBlock();
       continue;
     }
     // Handle CR, next character not LF
-    if (c == '\r') {
+    if (c == '\r')
+    {
       m_insertionCursor.movePosition(QTextCursor::StartOfLine);
       continue;
     }
@@ -68,16 +76,19 @@ void TextOutputAdapter::appendString(const QString& string) {
     // Insert characters from index i, up to but excluding the next
     // CR or LF, as a literal string
     int lastToInsert = i;
-    for (int j = i; j < size; ++j) {
+    for (int j = i; j < size; ++j)
+    {
       const QChar charJ = string[j];
-      if (charJ == '\r' || charJ == '\n') {
+      if (charJ == '\r' || charJ == '\n')
+      {
         break;
       }
       lastToInsert = j;
     }
     const int insertionSize = lastToInsert - i + 1;
     const QString substring = string.mid(i, insertionSize);
-    if (!m_insertionCursor.atEnd()) {
+    if (!m_insertionCursor.atEnd())
+    {
       // This means a CR was previously used. We need to select
       // the same number of characters as we're inserting, so the
       // text is overwritten.
@@ -88,7 +99,8 @@ void TextOutputAdapter::appendString(const QString& string) {
     i = lastToInsert;
   }
 
-  if (wasAtBottom) {
+  if (wasAtBottom)
+  {
     m_textEdit->verticalScrollBar()->setValue(m_textEdit->verticalScrollBar()->maximum());
   }
 }

@@ -26,20 +26,24 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Color;
 
-namespace IO {
+namespace IO
+{
 class Path;
 }
 
-namespace View {
+namespace View
+{
 // FIXME: Renderer should not depend on View
 class MapDocument;
 class Selection;
 } // namespace View
 
-namespace Model {
+namespace Model
+{
 class BrushNode;
 class BrushFaceHandle;
 class GroupNode;
@@ -47,14 +51,16 @@ class LayerNode;
 class Node;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class EntityLinkRenderer;
 class GroupLinkRenderer;
 class ObjectRenderer;
 class RenderBatch;
 class RenderContext;
 
-class MapRenderer {
+class MapRenderer
+{
 private:
   class SelectedBrushRendererFilter;
   class LockedBrushRendererFilter;
@@ -68,7 +74,8 @@ private:
   std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
   std::unique_ptr<GroupLinkRenderer> m_groupLinkRenderer;
 
-  typedef enum {
+  typedef enum
+  {
     Renderer_Default = 1,
     Renderer_Selection = 2,
     Renderer_Locked = 4,

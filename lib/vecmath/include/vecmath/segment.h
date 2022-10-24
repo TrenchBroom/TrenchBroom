@@ -2,20 +2,21 @@
  Copyright 2010-2019 Kristian Duske
  Copyright 2015-2019 Eric Wasylishen
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ software and associated documentation files (the "Software"), to deal in the Software
+ without restriction, including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in all copies or
  substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
 */
 
 #pragma once
@@ -24,17 +25,20 @@
 #include "mat.h"
 #include "vec.h"
 
-namespace vm {
+namespace vm
+{
 /**
  * A line segment, represented by its two end points.
  *
- * This class enforces the following invariant: the start point of the segment is always less than
- * or equal to the end point.
+ * This class enforces the following invariant: the start point of the segment is always
+ * less than or equal to the end point.
  *
  * @tparam T the component type
  * @tparam S the number of components
  */
-template <typename T, size_t S> class segment {
+template <typename T, size_t S>
+class segment
+{
 public:
   using component_type = T;
   using float_type = segment<float, S>;
@@ -66,11 +70,13 @@ public:
    */
   constexpr segment(const vec<T, S>& p1, const vec<T, S>& p2)
     : m_start(p1 < p2 ? p1 : p2)
-    , m_end(p1 < p2 ? p2 : p1) {}
+    , m_end(p1 < p2 ? p2 : p1)
+  {
+  }
 
   /**
-   * Creates a new segment by copying the values from the given segment. If the given segment has a
-   * different component type, the values are converted using static_cast.
+   * Creates a new segment by copying the values from the given segment. If the given
+   * segment has a different component type, the values are converted using static_cast.
    *
    * @tparam U the component type of the given segment
    * @param other the segment to copy the values from
@@ -78,7 +84,9 @@ public:
   template <typename U>
   explicit constexpr segment(const segment<U, S>& other)
     : m_start(other.start())
-    , m_end(other.end()) {}
+    , m_end(other.end())
+  {
+  }
 
   /**
    * Returns the origin of this segment.
@@ -118,11 +126,15 @@ public:
    * @param maxDistance the maximum distance from the point and this segment
    * @return true if the given point is contained in this segment and false otherwise
    */
-  bool contains(const vec<T, S>& point, const T maxDistance) const {
+  bool contains(const vec<T, S>& point, const T maxDistance) const
+  {
     const auto f = distance_to_projected_point(*this, point);
-    if (f < -maxDistance || f * f > squared_length() + maxDistance * maxDistance) {
+    if (f < -maxDistance || f * f > squared_length() + maxDistance * maxDistance)
+    {
       return false;
-    } else {
+    }
+    else
+    {
       const auto proj = point_at_distance(*this, f);
       return squared_distance(proj, point) <= (maxDistance * maxDistance);
     }
@@ -134,7 +146,8 @@ public:
    * @param transform the transformation to apply
    * @return the transformed segment
    */
-  constexpr segment<T, S> transform(const mat<T, S + 1, S + 1>& transform) const {
+  constexpr segment<T, S> transform(const mat<T, S + 1, S + 1>& transform) const
+  {
     return segment<T, S>(transform * m_start, transform * m_end);
   }
 
@@ -144,7 +157,8 @@ public:
    * @param delta the offset by which to translate the segment
    * @return the translated segment
    */
-  constexpr segment<T, S> translate(const vec<T, S>& delta) const {
+  constexpr segment<T, S> translate(const vec<T, S>& delta) const
+  {
     return segment<T, S>(m_start + delta, m_end + delta);
   }
 
@@ -170,16 +184,18 @@ public:
   constexpr vec<T, S> center() const { return (m_start + m_end) / static_cast<T>(2.0); }
 
   /**
-   * Returns the normalized direction vector of this segment, i.e., a unit vector which points at
-   * the end point, assuming the start point is the origin of the vector.
+   * Returns the normalized direction vector of this segment, i.e., a unit vector which
+   * points at the end point, assuming the start point is the origin of the vector.
    *
    * @return the direction vector
    */
   vec<T, S> direction() const { return normalize(m_end - m_start); }
 
-  // FIXME: this is only here because TB's VertexToolBase needs it, it should be moved elsewhere
+  // FIXME: this is only here because TB's VertexToolBase needs it, it should be moved
+  // elsewhere
   /**
-   * Adds the start and end points of the given range of segments to the given output iterator.
+   * Adds the start and end points of the given range of segments to the given output
+   * iterator.
    *
    * @tparam I the range iterator type
    * @tparam O the output iterator type
@@ -187,8 +203,11 @@ public:
    * @param end the range end
    * @param out the output iterator
    */
-  template <typename I, typename O> static void get_vertices(I cur, I end, O out) {
-    while (cur != end) {
+  template <typename I, typename O>
+  static void get_vertices(I cur, I end, O out)
+  {
+    while (cur != end)
+    {
       const auto& segment = *cur;
       out = segment.start();
       ++out;
@@ -200,30 +219,38 @@ public:
 };
 
 /**
- * Compares the given segments using the given epsilon value. Thereby, the start points of the
- * segments are compared first, and if the comparison yields a value other than 0, that value is
- * returned. Otherwise, the result of comparing the end points is returned.
+ * Compares the given segments using the given epsilon value. Thereby, the start points of
+ * the segments are compared first, and if the comparison yields a value other than 0,
+ * that value is returned. Otherwise, the result of comparing the end points is returned.
  *
- * Note that by the invariant of the segment class, the start point is always less than or equal to
- * the end point.
+ * Note that by the invariant of the segment class, the start point is always less than or
+ * equal to the end point.
  *
  * @tparam T the component type
  * @tparam S the number of components
  * @param lhs the first segment
  * @param rhs the second segment
  * @param epsilon an epsilon value
- * @return -1 if the first segment is less than the second segment, +1 in the opposite case, and 0
- * if the segments are equal
+ * @return -1 if the first segment is less than the second segment, +1 in the opposite
+ * case, and 0 if the segments are equal
  */
 template <typename T, size_t S>
 constexpr int compare(
-  const segment<T, S>& lhs, const segment<T, S>& rhs, const T epsilon = static_cast<T>(0.0)) {
+  const segment<T, S>& lhs,
+  const segment<T, S>& rhs,
+  const T epsilon = static_cast<T>(0.0))
+{
   const int startCmp = compare(lhs.start(), rhs.start(), epsilon);
-  if (startCmp < 0) {
+  if (startCmp < 0)
+  {
     return -1;
-  } else if (startCmp > 0) {
+  }
+  else if (startCmp > 0)
+  {
     return 1;
-  } else {
+  }
+  else
+  {
     return compare(lhs.end(), rhs.end(), epsilon);
   }
 }
@@ -239,7 +266,9 @@ constexpr int compare(
  * @return true if all components of the given segments are equal, and false otherwise
  */
 template <typename T, size_t S>
-constexpr bool is_equal(const segment<T, S>& lhs, const segment<T, S>& rhs, const T epsilon) {
+constexpr bool is_equal(
+  const segment<T, S>& lhs, const segment<T, S>& rhs, const T epsilon)
+{
   return compare(lhs, rhs, epsilon) == 0;
 }
 
@@ -253,7 +282,8 @@ constexpr bool is_equal(const segment<T, S>& lhs, const segment<T, S>& rhs, cons
  * @return true if the segments are identical and false otherwise
  */
 template <typename T, size_t S>
-constexpr bool operator==(const segment<T, S>& lhs, const segment<T, S>& rhs) {
+constexpr bool operator==(const segment<T, S>& lhs, const segment<T, S>& rhs)
+{
   return compare(lhs, rhs, T(0.0)) == 0;
 }
 
@@ -267,7 +297,8 @@ constexpr bool operator==(const segment<T, S>& lhs, const segment<T, S>& rhs) {
  * @return false if the segments are identical and true otherwise
  */
 template <typename T, size_t S>
-constexpr bool operator!=(const segment<T, S>& lhs, const segment<T, S>& rhs) {
+constexpr bool operator!=(const segment<T, S>& lhs, const segment<T, S>& rhs)
+{
   return compare(lhs, rhs, T(0.0)) != 0;
 }
 
@@ -281,7 +312,8 @@ constexpr bool operator!=(const segment<T, S>& lhs, const segment<T, S>& rhs) {
  * @return true if the first segment is less than the second and false otherwise
  */
 template <typename T, size_t S>
-constexpr bool operator<(const segment<T, S>& lhs, const segment<T, S>& rhs) {
+constexpr bool operator<(const segment<T, S>& lhs, const segment<T, S>& rhs)
+{
   return compare(lhs, rhs, T(0.0)) < 0;
 }
 
@@ -292,10 +324,12 @@ constexpr bool operator<(const segment<T, S>& lhs, const segment<T, S>& rhs) {
  * @tparam S the number of components
  * @param lhs the first segment
  * @param rhs the second segment
- * @return true if the first segment is less than or equal to the second and false otherwise
+ * @return true if the first segment is less than or equal to the second and false
+ * otherwise
  */
 template <typename T, size_t S>
-constexpr bool operator<=(const segment<T, S>& lhs, const segment<T, S>& rhs) {
+constexpr bool operator<=(const segment<T, S>& lhs, const segment<T, S>& rhs)
+{
   return compare(lhs, rhs, T(0.0)) <= 0;
 }
 
@@ -309,7 +343,8 @@ constexpr bool operator<=(const segment<T, S>& lhs, const segment<T, S>& rhs) {
  * @return true if the first segment is greater than the second and false otherwise
  */
 template <typename T, size_t S>
-constexpr bool operator>(const segment<T, S>& lhs, const segment<T, S>& rhs) {
+constexpr bool operator>(const segment<T, S>& lhs, const segment<T, S>& rhs)
+{
   return compare(lhs, rhs, T(0.0)) > 0;
 }
 
@@ -320,10 +355,12 @@ constexpr bool operator>(const segment<T, S>& lhs, const segment<T, S>& rhs) {
  * @tparam S the number of components
  * @param lhs the first segment
  * @param rhs the second segment
- * @return true if the first segment is greater than or equal to the second and false otherwise
+ * @return true if the first segment is greater than or equal to the second and false
+ * otherwise
  */
 template <typename T, size_t S>
-constexpr bool operator>=(const segment<T, S>& lhs, const segment<T, S>& rhs) {
+constexpr bool operator>=(const segment<T, S>& lhs, const segment<T, S>& rhs)
+{
   return compare(lhs, rhs, T(0.0)) >= 0;
 }
 
@@ -337,7 +374,8 @@ constexpr bool operator>=(const segment<T, S>& lhs, const segment<T, S>& rhs) {
  * @return the translated segment
  */
 template <typename T, size_t S>
-constexpr segment<T, S> translate(const segment<T, S>& s, const vec<T, S>& offset) {
+constexpr segment<T, S> translate(const segment<T, S>& s, const vec<T, S>& offset)
+{
   return s.translate(offset);
 }
 } // namespace vm

@@ -25,9 +25,12 @@ class QLabel;
 class QPixmap;
 class QString;
 
-namespace TrenchBroom {
-namespace View {
-class DialogHeader : public QWidget {
+namespace TrenchBroom
+{
+namespace View
+{
+class DialogHeader : public QWidget
+{
   Q_OBJECT
 private:
   QLabel* m_iconLabel;

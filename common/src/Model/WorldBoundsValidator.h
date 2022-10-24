@@ -26,9 +26,12 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-class WorldBoundsValidator : public Validator {
+namespace TrenchBroom
+{
+namespace Model
+{
+class WorldBoundsValidator : public Validator
+{
 private:
   const vm::bbox3 m_bounds;
 
@@ -38,8 +41,10 @@ public:
 private:
   void doValidate(
     EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
-  void doValidate(BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
-  void doValidate(PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(
+    BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(
+    PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

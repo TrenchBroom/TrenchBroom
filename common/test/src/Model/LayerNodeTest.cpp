@@ -36,9 +36,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("LayerNodeTest.canAddChild") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("LayerNodeTest.canAddChild")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -64,7 +67,8 @@ TEST_CASE("LayerNodeTest.canAddChild") {
   CHECK(layerNode.canAddChild(&patchNode));
 }
 
-TEST_CASE("LayerNodeTest.canRemoveChild") {
+TEST_CASE("LayerNodeTest.canRemoveChild")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 

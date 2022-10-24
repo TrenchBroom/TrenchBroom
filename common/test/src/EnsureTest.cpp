@@ -22,12 +22,13 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Ensure {
-TEST_CASE("EnsureTest.successfulEnsure", "[EnsureTest]") {
-  CHECK_NOTHROW([]() {
-    ensure(true, "this shouldn't fail");
-  }());
+namespace TrenchBroom
+{
+namespace Ensure
+{
+TEST_CASE("EnsureTest.successfulEnsure", "[EnsureTest]")
+{
+  CHECK_NOTHROW([]() { ensure(true, "this shouldn't fail"); }());
 }
 
 // Disable a clang warning when using ASSERT_DEATH
@@ -36,7 +37,8 @@ TEST_CASE("EnsureTest.successfulEnsure", "[EnsureTest]") {
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-TEST_CASE("EnsureTest.failingEnsure", "[EnsureTest]") {
+TEST_CASE("EnsureTest.failingEnsure", "[EnsureTest]")
+{
   // FIXME: not with catch2
   // ASSERT_DEATH(ensure(false, "this should fail"), "");
 }

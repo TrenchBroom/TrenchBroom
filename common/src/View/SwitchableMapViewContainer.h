@@ -28,14 +28,17 @@
 
 #include <QWidget>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Renderer {
+namespace Renderer
+{
 class MapRenderer;
 }
 
-namespace View {
+namespace View
+{
 class ClipTool;
 class EdgeTool;
 class FaceTool;
@@ -48,7 +51,8 @@ class MapViewToolBox;
 class Tool;
 class VertexTool;
 
-class SwitchableMapViewContainer : public QWidget, public MapView {
+class SwitchableMapViewContainer : public QWidget, public MapView
+{
   Q_OBJECT
 private:
   Logger* m_logger;
@@ -67,7 +71,9 @@ private:
 
 public:
   SwitchableMapViewContainer(
-    Logger* logger, std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    Logger* logger,
+    std::weak_ptr<MapDocument> document,
+    GLContextManager& contextManager,
     QWidget* parent = nullptr);
   ~SwitchableMapViewContainer() override;
 

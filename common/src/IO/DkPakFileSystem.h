@@ -23,13 +23,17 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 
-class DkPakFileSystem : public ImageFileSystem {
+class DkPakFileSystem : public ImageFileSystem
+{
 private:
-  class DkCompressedFile : public CompressedFileEntry {
+  class DkCompressedFile : public CompressedFileEntry
+  {
   public:
     using CompressedFileEntry::CompressedFileEntry;
 

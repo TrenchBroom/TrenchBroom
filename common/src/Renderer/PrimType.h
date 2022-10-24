@@ -21,9 +21,12 @@
 
 #include <cstddef>
 
-namespace TrenchBroom {
-namespace Renderer {
-enum class PrimType {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+enum class PrimType
+{
   Points,
   Lines,
   Triangles,
@@ -38,9 +41,16 @@ enum class PrimType {
 
 constexpr std::size_t PrimTypeCount = 10u;
 constexpr PrimType PrimTypeValues[PrimTypeCount] = {
-  PrimType::Points,    PrimType::Lines,    PrimType::Triangles,   PrimType::Quads,
-  PrimType::LineStrip, PrimType::LineLoop, PrimType::TriangleFan, PrimType::TriangleStrip,
-  PrimType::QuadStrip, PrimType::Polygon};
+  PrimType::Points,
+  PrimType::Lines,
+  PrimType::Triangles,
+  PrimType::Quads,
+  PrimType::LineStrip,
+  PrimType::LineLoop,
+  PrimType::TriangleFan,
+  PrimType::TriangleStrip,
+  PrimType::QuadStrip,
+  PrimType::Polygon};
 
 /**
  * Maps the given primitive type to its corresponding OpenGL enum.

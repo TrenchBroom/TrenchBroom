@@ -27,7 +27,8 @@
 
 #include "Catch2.h"
 
-int main(int argc, char** argv) {
+int main(int argc, char** argv)
+{
   TrenchBroom::PreferenceManager::createInstance<TrenchBroom::TestPreferenceManager>();
   TrenchBroom::View::TrenchBroomApp app(argc, argv);
 

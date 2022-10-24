@@ -24,9 +24,12 @@
 
 class QCompleter;
 
-namespace TrenchBroom {
-namespace View {
-class MultiCompletionLineEdit : public QLineEdit {
+namespace TrenchBroom
+{
+namespace View
+{
+class MultiCompletionLineEdit : public QLineEdit
+{
 private:
   QCompleter* m_multiCompleter;
   QRegularExpression m_leftDelimiter;

@@ -26,16 +26,20 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EntityNodeBase;
 class EntityProperty;
 
 using EntityNodeStringIndex = kdl::compact_trie<EntityNodeBase*>;
 
-class EntityNodeIndexQuery {
+class EntityNodeIndexQuery
+{
 public:
-  typedef enum {
+  typedef enum
+  {
     Type_Exact,
     Type_Prefix,
     Type_Numbered,
@@ -60,7 +64,8 @@ private:
   explicit EntityNodeIndexQuery(Type type, const std::string& pattern = "");
 };
 
-class EntityNodeIndex {
+class EntityNodeIndex
+{
 private:
   std::unique_ptr<EntityNodeStringIndex> m_keyIndex;
   std::unique_ptr<EntityNodeStringIndex> m_valueIndex;
@@ -72,8 +77,10 @@ public:
   void addEntityNode(EntityNodeBase* node);
   void removeEntityNode(EntityNodeBase* node);
 
-  void addProperty(EntityNodeBase* node, const std::string& key, const std::string& value);
-  void removeProperty(EntityNodeBase* node, const std::string& key, const std::string& value);
+  void addProperty(
+    EntityNodeBase* node, const std::string& key, const std::string& value);
+  void removeProperty(
+    EntityNodeBase* node, const std::string& key, const std::string& value);
 
   std::vector<EntityNodeBase*> findEntityNodes(
     const EntityNodeIndexQuery& keyQuery, const std::string& value) const;

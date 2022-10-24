@@ -42,9 +42,12 @@
 #include "Catch2.h"
 #include "TestUtils.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("WorldNodeTest.canAddChild") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("WorldNodeTest.canAddChild")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -70,7 +73,8 @@ TEST_CASE("WorldNodeTest.canAddChild") {
   CHECK_FALSE(worldNode.canAddChild(&patchNode));
 }
 
-TEST_CASE("WorldNodeTest.canRemoveChild") {
+TEST_CASE("WorldNodeTest.canRemoveChild")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -97,7 +101,8 @@ TEST_CASE("WorldNodeTest.canRemoveChild") {
   CHECK_FALSE(worldNode.canRemoveChild(&patchNode));
 }
 
-TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
+TEST_CASE("WorldNodeTest.nodeTreeUpdates")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -105,8 +110,8 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
   auto* layerNode = new LayerNode{Layer{"layer"}};
   auto* groupNode = new GroupNode{Group{"group"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -117,7 +122,8 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
 
   const auto& nodeTree = worldNode.nodeTree();
 
-  SECTION("Adding a single node inserts into node tree") {
+  SECTION("Adding a single node inserts into node tree")
+  {
     auto* node = GENERATE_COPY(entityNode, brushNode, patchNode);
 
     REQUIRE_FALSE(nodeTree.contains(node));
@@ -125,7 +131,8 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
     CHECK(nodeTree.contains(node));
   }
 
-  SECTION("Adding a nested node inserts into node tree") {
+  SECTION("Adding a nested node inserts into node tree")
+  {
     worldNode.defaultLayer()->addChild(groupNode);
 
     auto* node = GENERATE_COPY(entityNode, brushNode, patchNode);
@@ -135,13 +142,15 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
     CHECK(nodeTree.contains(node));
   }
 
-  SECTION("Adding a layer does not insert it into node tree") {
+  SECTION("Adding a layer does not insert it into node tree")
+  {
     REQUIRE_FALSE(nodeTree.contains(layerNode));
     worldNode.addChild(layerNode);
     CHECK_FALSE(nodeTree.contains(layerNode));
   }
 
-  SECTION("Adding a group node does not insert it into node tree") {
+  SECTION("Adding a group node does not insert it into node tree")
+  {
     groupNode->addChild(entityNode);
 
     REQUIRE_FALSE(nodeTree.contains(groupNode));
@@ -149,7 +158,8 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
     CHECK_FALSE(nodeTree.contains(groupNode));
   }
 
-  SECTION("Adding a subtree inserts all children into node tree") {
+  SECTION("Adding a subtree inserts all children into node tree")
+  {
     groupNode->addChildren({entityNode, brushNode, patchNode});
 
     REQUIRE_FALSE(nodeTree.contains(groupNode));
@@ -163,7 +173,8 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
     CHECK(nodeTree.contains(patchNode));
   }
 
-  SECTION("Removing a single node removes from node tree") {
+  SECTION("Removing a single node removes from node tree")
+  {
     auto* node = GENERATE_COPY(entityNode, brushNode, patchNode);
 
     worldNode.defaultLayer()->addChild(node);
@@ -173,7 +184,8 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
     CHECK_FALSE(nodeTree.contains(node));
   }
 
-  SECTION("Removing a nested node removes from node tree") {
+  SECTION("Removing a nested node removes from node tree")
+  {
     groupNode->addChildren({entityNode, brushNode, patchNode});
     worldNode.defaultLayer()->addChild(groupNode);
 
@@ -184,7 +196,8 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
     CHECK_FALSE(nodeTree.contains(node));
   }
 
-  SECTION("Removing a subtree removes all children from node tree") {
+  SECTION("Removing a subtree removes all children from node tree")
+  {
     groupNode->addChildren({entityNode, brushNode, patchNode});
 
     worldNode.defaultLayer()->addChild(groupNode);
@@ -198,7 +211,8 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
     CHECK_FALSE(nodeTree.contains(patchNode));
   }
 
-  SECTION("Updating a descendant updates it in node tree") {
+  SECTION("Updating a descendant updates it in node tree")
+  {
     groupNode->addChildren({entityNode, brushNode, patchNode});
     worldNode.defaultLayer()->addChild(groupNode);
 
@@ -209,7 +223,8 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
       nodeTree.findContainers(vm::vec3d::zero()),
       Catch::UnorderedEquals(std::vector<Node*>{entityNode, brushNode, patchNode}));
     REQUIRE_THAT(
-      nodeTree.findContainers(vm::vec3d{64, 0, 0}), Catch::UnorderedEquals(std::vector<Node*>{}));
+      nodeTree.findContainers(vm::vec3d{64, 0, 0}),
+      Catch::UnorderedEquals(std::vector<Node*>{}));
 
     transformNode(*entityNode, vm::translation_matrix(vm::vec3d(64, 0, 0)), worldBounds);
     transformNode(*brushNode, vm::translation_matrix(vm::vec3d(64, 0, 0)), worldBounds);
@@ -219,14 +234,16 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates") {
     CHECK(nodeTree.contains(brushNode));
     CHECK(nodeTree.contains(patchNode));
     CHECK_THAT(
-      nodeTree.findContainers(vm::vec3d::zero()), Catch::UnorderedEquals(std::vector<Node*>{}));
+      nodeTree.findContainers(vm::vec3d::zero()),
+      Catch::UnorderedEquals(std::vector<Node*>{}));
     CHECK_THAT(
       nodeTree.findContainers(vm::vec3d{64, 0, 0}),
       Catch::UnorderedEquals(std::vector<Node*>{entityNode, brushNode, patchNode}));
   }
 }
 
-TEST_CASE("WorldNodeTest.rebuildNodeTree") {
+TEST_CASE("WorldNodeTest.rebuildNodeTree")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -234,8 +251,8 @@ TEST_CASE("WorldNodeTest.rebuildNodeTree") {
   auto* layerNode = new LayerNode{Layer{"layer"}};
   auto* groupNode = new GroupNode{Group{"group"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -266,7 +283,8 @@ TEST_CASE("WorldNodeTest.rebuildNodeTree") {
   CHECK(nodeTree.contains(patchNode));
 }
 
-TEST_CASE("WorldNodeTest.disableNodeTreeUpdates") {
+TEST_CASE("WorldNodeTest.disableNodeTreeUpdates")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -274,8 +292,8 @@ TEST_CASE("WorldNodeTest.disableNodeTreeUpdates") {
   auto* layerNode = new LayerNode{Layer{"layer"}};
   auto* groupNode = new GroupNode{Group{"group"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode =
-    new BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto* brushNode = new BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -302,12 +320,14 @@ TEST_CASE("WorldNodeTest.disableNodeTreeUpdates") {
   CHECK(nodeTree.contains(patchNode));
 }
 
-TEST_CASE("WorldNodeTest.persistentIdOfDefaultLayer", "[WorldNodeTest]") {
+TEST_CASE("WorldNodeTest.persistentIdOfDefaultLayer", "[WorldNodeTest]")
+{
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   CHECK(worldNode.defaultLayer()->persistentId() == std::nullopt);
 }
 
-TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingLayer", "[WorldNodeTest]") {
+TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingLayer", "[WorldNodeTest]")
+{
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   auto* initialLayerNode = new LayerNode{Layer{"name"}};
 
@@ -315,7 +335,8 @@ TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingLayer", "[WorldNodeTest]") {
   worldNode.addChild(initialLayerNode);
   CHECK(initialLayerNode->persistentId() == 1u);
 
-  SECTION("Adding a layer node that already has a persistent ID") {
+  SECTION("Adding a layer node that already has a persistent ID")
+  {
     const auto id = *initialLayerNode->persistentId() + 10u;
 
     auto* layerNodeWithId = new LayerNode{Layer{"name"}};
@@ -330,7 +351,8 @@ TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingLayer", "[WorldNodeTest]") {
     REQUIRE(layerNodeWithoutId->persistentId() != std::nullopt);
     CHECK(*layerNodeWithoutId->persistentId() == id + 1u);
 
-    SECTION("Adding a layer node that already has a lower persistent ID") {
+    SECTION("Adding a layer node that already has a lower persistent ID")
+    {
       const auto lowerId = id - 1u;
 
       auto* layerNodeWithLowerId = new LayerNode{Layer{"name"}};
@@ -348,7 +370,8 @@ TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingLayer", "[WorldNodeTest]") {
   }
 }
 
-TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingGroup", "[WorldNodeTest]") {
+TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingGroup", "[WorldNodeTest]")
+{
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   auto* initialGroupNode = new GroupNode{Group{"name"}};
 
@@ -356,7 +379,8 @@ TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingGroup", "[WorldNodeTest]") {
   worldNode.defaultLayer()->addChild(initialGroupNode);
   CHECK(initialGroupNode->persistentId() == 1u);
 
-  SECTION("Adding a layer node that already has a persistent ID") {
+  SECTION("Adding a layer node that already has a persistent ID")
+  {
     const auto id = *initialGroupNode->persistentId() + 10u;
 
     auto* groupNodeWithId = new GroupNode{Group{"name"}};
@@ -371,7 +395,8 @@ TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingGroup", "[WorldNodeTest]") {
     REQUIRE(groupNodeWithoutId->persistentId() != std::nullopt);
     CHECK(*groupNodeWithoutId->persistentId() == id + 1u);
 
-    SECTION("Adding a layer node that already has a lower persistent ID") {
+    SECTION("Adding a layer node that already has a lower persistent ID")
+    {
       const auto lowerId = id - 1u;
 
       auto* groupNodeWithLowerId = new GroupNode{Group{"name"}};
@@ -389,7 +414,8 @@ TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingGroup", "[WorldNodeTest]") {
   }
 }
 
-TEST_CASE("WorldNodeTest.setPersistentIdsWhenAddingLayersAndGroups", "[WorldNodeTest]") {
+TEST_CASE("WorldNodeTest.setPersistentIdsWhenAddingLayersAndGroups", "[WorldNodeTest]")
+{
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
   auto* layerNode = new LayerNode{Layer{"name"}};

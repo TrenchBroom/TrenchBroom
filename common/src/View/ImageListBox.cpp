@@ -28,14 +28,17 @@
 
 #include <cassert>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 ImageListBoxItemRenderer::ImageListBoxItemRenderer(
   const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent)
   : ControlListBoxItemRenderer(parent)
   , m_titleLabel(nullptr)
   , m_subtitleLabel(nullptr)
-  , m_imageLabel(nullptr) {
+  , m_imageLabel(nullptr)
+{
   m_titleLabel = new ElidedLabel(title, Qt::ElideRight);
   makeEmphasized(m_titleLabel);
 
@@ -60,14 +63,17 @@ ImageListBoxItemRenderer::ImageListBoxItemRenderer(
   imageAndTextLayout->addLayout(textLayout, 1);
 }
 
-void ImageListBoxItemRenderer::updateItem() {
+void ImageListBoxItemRenderer::updateItem()
+{
   QObject* element = this->parent();
   ImageListBox* listBox = nullptr;
-  do {
+  do
+  {
     listBox = dynamic_cast<ImageListBox*>(element);
     element = element->parent();
   } while (listBox == nullptr && element != nullptr);
-  if (listBox != nullptr) {
+  if (listBox != nullptr)
+  {
     m_titleLabel->setText(listBox->title(m_index));
     m_subtitleLabel->setText(listBox->subtitle(m_index));
     m_imageLabel->setPixmap(listBox->image(m_index));
@@ -75,13 +81,19 @@ void ImageListBoxItemRenderer::updateItem() {
 }
 
 ImageListBox::ImageListBox(const QString& emptyText, bool showSeparator, QWidget* parent)
-  : ControlListBox(emptyText, showSeparator, parent) {}
-
-ControlListBoxItemRenderer* ImageListBox::createItemRenderer(QWidget* parent, const size_t index) {
-  return new ImageListBoxItemRenderer(title(index), subtitle(index), image(index), parent);
+  : ControlListBox(emptyText, showSeparator, parent)
+{
 }
 
-QPixmap ImageListBox::image(const size_t /* index */) const {
+ControlListBoxItemRenderer* ImageListBox::createItemRenderer(
+  QWidget* parent, const size_t index)
+{
+  return new ImageListBoxItemRenderer(
+    title(index), subtitle(index), image(index), parent);
+}
+
+QPixmap ImageListBox::image(const size_t /* index */) const
+{
   return QPixmap();
 }
 } // namespace View

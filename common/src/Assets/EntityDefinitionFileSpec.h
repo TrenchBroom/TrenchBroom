@@ -26,11 +26,15 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace Assets {
-class EntityDefinitionFileSpec {
+namespace TrenchBroom
+{
+namespace Assets
+{
+class EntityDefinitionFileSpec
+{
 private:
-  enum class Type {
+  enum class Type
+  {
     Builtin,
     External,
     Unset
@@ -47,9 +51,12 @@ public:
   static EntityDefinitionFileSpec external(const IO::Path& path);
   static EntityDefinitionFileSpec unset();
 
-  friend bool operator<(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
-  friend bool operator==(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
-  friend bool operator!=(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
+  friend bool operator<(
+    const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
+  friend bool operator==(
+    const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
+  friend bool operator!=(
+    const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
 
   bool valid() const;
   bool builtin() const;

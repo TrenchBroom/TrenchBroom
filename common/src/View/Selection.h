@@ -23,13 +23,17 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Node;
 }
 
-namespace View {
-class Selection {
+namespace View
+{
+class Selection
+{
 private:
   std::vector<Model::Node*> m_selectedNodes;
   std::vector<Model::Node*> m_deselectedNodes;

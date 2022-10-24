@@ -27,13 +27,16 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class CreateSimpleBrushTool;
 class DragTracker;
 class MapDocument;
 
-class CreateSimpleBrushToolController2D : public ToolController {
+class CreateSimpleBrushToolController2D : public ToolController
+{
 private:
   CreateSimpleBrushTool& m_tool;
   std::weak_ptr<MapDocument> m_document;

@@ -23,23 +23,27 @@
 
 #include <ostream>
 
-namespace TrenchBroom {
-namespace Model {
-std::ostream& operator<<(std::ostream& str, const BrushError error) {
-  switch (error) {
-    case BrushError::EmptyBrush:
-      str << "Brush is empty";
-      break;
-    case BrushError::IncompleteBrush:
-      str << "Brush is incomplete";
-      break;
-    case BrushError::InvalidBrush:
-      str << "Brush is invalid";
-      break;
-    case BrushError::InvalidFace:
-      str << "Brush has invalid face";
-      break;
-      switchDefault();
+namespace TrenchBroom
+{
+namespace Model
+{
+std::ostream& operator<<(std::ostream& str, const BrushError error)
+{
+  switch (error)
+  {
+  case BrushError::EmptyBrush:
+    str << "Brush is empty";
+    break;
+  case BrushError::IncompleteBrush:
+    str << "Brush is incomplete";
+    break;
+  case BrushError::InvalidBrush:
+    str << "Brush is invalid";
+    break;
+  case BrushError::InvalidFace:
+    str << "Brush has invalid face";
+    break;
+    switchDefault();
   }
 
   return str;

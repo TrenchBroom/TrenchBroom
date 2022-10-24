@@ -26,10 +26,14 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("IdPakFileSystemTest.directoryExists", "[IdPakFileSystemTest]") {
-  const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("IdPakFileSystemTest.directoryExists", "[IdPakFileSystemTest]")
+{
+  const Path pakPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
 
   const IdPakFileSystem fs(pakPath);
   CHECK_THROWS_AS(fs.directoryExists(Path("/asdf")), FileSystemException);
@@ -40,8 +44,10 @@ TEST_CASE("IdPakFileSystemTest.directoryExists", "[IdPakFileSystemTest]") {
   CHECK_FALSE(fs.directoryExists(Path("gfx/palette.lmp")));
 }
 
-TEST_CASE("IdPakFileSystemTest.fileExists", "[IdPakFileSystemTest]") {
-  const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
+TEST_CASE("IdPakFileSystemTest.fileExists", "[IdPakFileSystemTest]")
+{
+  const Path pakPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
 
   const IdPakFileSystem fs(pakPath);
   CHECK_THROWS_AS(fs.fileExists(Path("/asdf.blah")), FileSystemException);
@@ -51,8 +57,10 @@ TEST_CASE("IdPakFileSystemTest.fileExists", "[IdPakFileSystemTest]") {
   CHECK(fs.fileExists(Path("GFX/Palette.LMP")));
 }
 
-TEST_CASE("IdPakFileSystemTest.findItems", "[IdPakFileSystemTest]") {
-  const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
+TEST_CASE("IdPakFileSystemTest.findItems", "[IdPakFileSystemTest]")
+{
+  const Path pakPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
 
   const IdPakFileSystem fs(pakPath);
   CHECK_THROWS_AS(fs.findItems(Path("/")), FileSystemException);
@@ -61,8 +69,8 @@ TEST_CASE("IdPakFileSystemTest.findItems", "[IdPakFileSystemTest]") {
 
   CHECK_THAT(
     fs.findItems(Path("")),
-    Catch::UnorderedEquals(
-      std::vector<Path>{Path("pics"), Path("textures"), Path("amnet.cfg"), Path("bear.cfg")}));
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("pics"), Path("textures"), Path("amnet.cfg"), Path("bear.cfg")}));
 
   CHECK_THAT(
     fs.findItems(Path(""), FileExtensionMatcher("cfg")),
@@ -74,11 +82,14 @@ TEST_CASE("IdPakFileSystemTest.findItems", "[IdPakFileSystemTest]") {
 
   CHECK_THAT(
     fs.findItems(Path("pics")),
-    Catch::UnorderedEquals(std::vector<Path>{Path("pics/tag1.pcx"), Path("pics/tag2.pcx")}));
+    Catch::UnorderedEquals(
+      std::vector<Path>{Path("pics/tag1.pcx"), Path("pics/tag2.pcx")}));
 }
 
-TEST_CASE("IdPakFileSystemTest.findItemsRecursively", "[IdPakFileSystemTest]") {
-  const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
+TEST_CASE("IdPakFileSystemTest.findItemsRecursively", "[IdPakFileSystemTest]")
+{
+  const Path pakPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
 
   const IdPakFileSystem fs(pakPath);
   CHECK_THROWS_AS(fs.findItemsRecursively(Path("/")), FileSystemException);
@@ -86,24 +97,25 @@ TEST_CASE("IdPakFileSystemTest.findItemsRecursively", "[IdPakFileSystemTest]") {
   CHECK_THROWS_AS(fs.findItemsRecursively(Path("pics/tag1.pcx")), FileSystemException);
 
   CHECK_THAT(
-    fs.findItemsRecursively(Path("")), Catch::UnorderedEquals(std::vector<Path>{
-                                         Path("pics"),
-                                         Path("pics/tag1.pcx"),
-                                         Path("pics/tag2.pcx"),
-                                         Path("textures/e1u1"),
-                                         Path("textures/e1u1/box1_3.wal"),
-                                         Path("textures/e1u1/brlava.wal"),
-                                         Path("textures/e1u2"),
-                                         Path("textures/e1u2/angle1_1.wal"),
-                                         Path("textures/e1u2/angle1_2.wal"),
-                                         Path("textures/e1u2/basic1_7.wal"),
-                                         Path("textures/e1u3"),
-                                         Path("textures/e1u3/stairs1_3.wal"),
-                                         Path("textures/e1u3/stflr1_5.wal"),
-                                         Path("textures"),
-                                         Path("amnet.cfg"),
-                                         Path("bear.cfg"),
-                                       }));
+    fs.findItemsRecursively(Path("")),
+    Catch::UnorderedEquals(std::vector<Path>{
+      Path("pics"),
+      Path("pics/tag1.pcx"),
+      Path("pics/tag2.pcx"),
+      Path("textures/e1u1"),
+      Path("textures/e1u1/box1_3.wal"),
+      Path("textures/e1u1/brlava.wal"),
+      Path("textures/e1u2"),
+      Path("textures/e1u2/angle1_1.wal"),
+      Path("textures/e1u2/angle1_2.wal"),
+      Path("textures/e1u2/basic1_7.wal"),
+      Path("textures/e1u3"),
+      Path("textures/e1u3/stairs1_3.wal"),
+      Path("textures/e1u3/stflr1_5.wal"),
+      Path("textures"),
+      Path("amnet.cfg"),
+      Path("bear.cfg"),
+    }));
 
   CHECK_THAT(
     fs.findItemsRecursively(Path(""), FileExtensionMatcher("wal")),
@@ -130,8 +142,10 @@ TEST_CASE("IdPakFileSystemTest.findItemsRecursively", "[IdPakFileSystemTest]") {
     }));
 }
 
-TEST_CASE("IdPakFileSystemTest.openFile", "[IdPakFileSystemTest]") {
-  const Path pakPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
+TEST_CASE("IdPakFileSystemTest.openFile", "[IdPakFileSystemTest]")
+{
+  const Path pakPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
 
   const IdPakFileSystem fs(pakPath);
   CHECK_THROWS_AS(fs.openFile(Path("")), FileSystemException);

@@ -23,12 +23,15 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class Tool;
 class VertexTool;
 
-class VertexToolController : public VertexToolControllerBase<VertexTool> {
+class VertexToolController : public VertexToolControllerBase<VertexTool>
+{
 protected:
   static Model::Hit findHandleHit(
     const InputState& inputState, const VertexToolController::PartBase& base);

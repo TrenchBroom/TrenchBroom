@@ -29,37 +29,43 @@
 
 #include <QVBoxLayout>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 TextureCollectionEditor::TextureCollectionEditor(
   std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget(parent)
-  , m_document(std::move(document)) {
+  , m_document(std::move(document))
+{
   auto doc = kdl::mem_lock(m_document);
-  m_notifierConnection +=
-    doc->documentWasNewedNotifier.connect(this, &TextureCollectionEditor::documentWasNewedOrLoaded);
+  m_notifierConnection += doc->documentWasNewedNotifier.connect(
+    this, &TextureCollectionEditor::documentWasNewedOrLoaded);
   m_notifierConnection += doc->documentWasLoadedNotifier.connect(
     this, &TextureCollectionEditor::documentWasNewedOrLoaded);
 }
 
-void TextureCollectionEditor::documentWasNewedOrLoaded(MapDocument*) {
+void TextureCollectionEditor::documentWasNewedOrLoaded(MapDocument*)
+{
   createGui();
 }
 
-void TextureCollectionEditor::createGui() {
+void TextureCollectionEditor::createGui()
+{
   deleteChildWidgetsLaterAndDeleteLayout(this);
 
   QWidget* collectionEditor = nullptr;
 
   auto document = kdl::mem_lock(m_document);
   const auto type = document->game()->texturePackageType();
-  switch (type) {
-    case Model::Game::TexturePackageType::File:
-      collectionEditor = new FileTextureCollectionEditor(m_document);
-      break;
-    case Model::Game::TexturePackageType::Directory:
-      collectionEditor = new DirectoryTextureCollectionEditor(m_document);
-      break;
+  switch (type)
+  {
+  case Model::Game::TexturePackageType::File:
+    collectionEditor = new FileTextureCollectionEditor(m_document);
+    break;
+  case Model::Game::TexturePackageType::Directory:
+    collectionEditor = new DirectoryTextureCollectionEditor(m_document);
+    break;
   }
 
   auto* layout = new QVBoxLayout();

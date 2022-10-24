@@ -26,9 +26,12 @@
 
 class QCheckBox;
 
-namespace TrenchBroom {
-namespace View {
-class FlagsEditor : public QWidget {
+namespace TrenchBroom
+{
+namespace View
+{
+class FlagsEditor : public QWidget
+{
   Q_OBJECT
 private:
   using CheckBoxList = std::vector<QCheckBox*>;
@@ -43,7 +46,8 @@ public:
 
   void setFlags(const QStringList& labels, const QStringList& tooltips = QStringList());
   void setFlags(
-    const QList<int>& values, const QStringList& labels,
+    const QList<int>& values,
+    const QStringList& labels,
     const QStringList& tooltips = QStringList());
   void setFlagValue(int set, int mixed = 0);
 
@@ -58,15 +62,15 @@ public:
 signals:
   /**
    * Sent when a checkbox is clicked.
-   * If (value & setFlag) != 0 it means the checkbox's bit value was just set, otherwise it was
-   * unset.
+   * If (value & setFlag) != 0 it means the checkbox's bit value was just set, otherwise
+   * it was unset.
    *
    * @param index the index of the checkbox (not the bit position)
    * @param value the bit value represented by the checkbox
-   * @param setFlag the bitwise OR of the values of all currently checked checkboxes (same as
-   * `getSetFlagValue()`)
-   * @param mixedFlag the bitwise OR of the values of all currently mixed checkboxes (same as
-   * `getMixedFlagValue()`)
+   * @param setFlag the bitwise OR of the values of all currently checked checkboxes (same
+   * as `getSetFlagValue()`)
+   * @param mixedFlag the bitwise OR of the values of all currently mixed checkboxes (same
+   * as `getMixedFlagValue()`)
    */
   void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
 };

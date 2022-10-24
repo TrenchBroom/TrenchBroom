@@ -29,14 +29,18 @@
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Model {
+namespace Model
+{
 
-class BrushFaceAttributes {
+class BrushFaceAttributes
+{
 public:
   static const std::string NoTextureName;
 
@@ -61,8 +65,15 @@ public:
   BrushFaceAttributes& operator=(BrushFaceAttributes other);
 
   kdl_reflect_decl(
-    BrushFaceAttributes, m_textureName, m_offset, m_scale, m_rotation, m_surfaceContents,
-    m_surfaceFlags, m_surfaceValue, m_color);
+    BrushFaceAttributes,
+    m_textureName,
+    m_offset,
+    m_scale,
+    m_rotation,
+    m_surfaceContents,
+    m_surfaceFlags,
+    m_surfaceValue,
+    m_color);
 
   friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
 

@@ -30,9 +30,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("AssimpParserTest.loadBlenderModel") {
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("AssimpParserTest.loadBlenderModel")
+{
   auto logger = NullLogger{};
 
   const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/assimp");

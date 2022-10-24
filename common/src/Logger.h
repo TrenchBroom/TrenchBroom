@@ -24,17 +24,21 @@
 
 class QString;
 
-namespace TrenchBroom {
-enum class LogLevel {
+namespace TrenchBroom
+{
+enum class LogLevel
+{
   Debug,
   Info,
   Warn,
   Error
 };
 
-class Logger {
+class Logger
+{
 public:
-  class stream {
+  class stream
+  {
   private:
     Logger* m_logger;
     LogLevel m_logLevel;
@@ -45,7 +49,9 @@ public:
     ~stream();
 
   public:
-    template <typename T> stream& operator<<(T&& arg) {
+    template <typename T>
+    stream& operator<<(T&& arg)
+    {
       m_buf << std::forward<T>(arg);
       return *this;
     }
@@ -82,7 +88,8 @@ private:
   virtual void doLog(LogLevel level, const QString& message) = 0;
 };
 
-class NullLogger : public Logger {
+class NullLogger : public Logger
+{
 private:
   void doLog(LogLevel level, const std::string& message) override;
   void doLog(LogLevel level, const QString& message) override;

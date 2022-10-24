@@ -21,21 +21,28 @@
 
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* parent)
-  : QFrame(parent) {
+  : QFrame(parent)
+{
   setObjectName("borderLine");
   setContentsMargins(0, 0, 0, 0);
   setFrameShadow(QFrame::Plain);
   setForegroundRole(QPalette::Mid);
   setLineWidth(thickness - 1);
-  if (direction == Direction::Horizontal) {
+  if (direction == Direction::Horizontal)
+  {
     setFrameShape(QFrame::HLine);
 #if !defined __APPLE__
-    setFixedHeight(thickness); // necessary to remove extra space around the horizontal line
+    setFixedHeight(
+      thickness); // necessary to remove extra space around the horizontal line
 #endif
-  } else {
+  }
+  else
+  {
     setFrameShape(QFrame::VLine);
 #if !defined __APPLE__
     setFixedWidth(thickness); // this makes the vertical line disappear on macOS

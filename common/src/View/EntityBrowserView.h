@@ -33,10 +33,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class EntityDefinitionManager;
 enum class EntityDefinitionSortOrder;
 class EntityModelManager;
@@ -44,16 +46,19 @@ enum class Orientation;
 class PointEntityDefinition;
 } // namespace Assets
 
-namespace Renderer {
+namespace Renderer
+{
 class FontDescriptor;
 class TexturedRenderer;
 class Transformation;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 using EntityGroupData = std::string;
 
-struct EntityCellData {
+struct EntityCellData
+{
   using EntityRenderer = Renderer::TexturedRenderer;
   const Assets::PointEntityDefinition* entityDefinition;
   EntityRenderer* modelRenderer;
@@ -63,7 +68,8 @@ struct EntityCellData {
   vm::vec3f modelScale;
 };
 
-class EntityBrowserView : public CellView {
+class EntityBrowserView : public CellView
+{
   Q_OBJECT
 private:
   using EntityRenderer = Renderer::TexturedRenderer;
@@ -90,13 +96,16 @@ private:
 
 public:
   EntityBrowserView(
-    QScrollBar* scrollBar, GLContextManager& contextManager,
+    QScrollBar* scrollBar,
+    GLContextManager& contextManager,
     Assets::EntityDefinitionManager& entityDefinitionManager,
-    Assets::EntityModelManager& entityModelManager, Logger& logger);
+    Assets::EntityModelManager& entityModelManager,
+    Logger& logger);
   ~EntityBrowserView() override;
 
 public:
-  void setDefaultModelScaleExpression(std::optional<EL::Expression> defaultModelScaleExpression);
+  void setDefaultModelScaleExpression(
+    std::optional<EL::Expression> defaultModelScaleExpression);
 
   void setSortOrder(Assets::EntityDefinitionSortOrder sortOrder);
   void setGroup(bool group);
@@ -111,7 +120,8 @@ private:
   QString dndData(const Cell& cell) override;
 
   void addEntityToLayout(
-    Layout& layout, const Assets::PointEntityDefinition* definition,
+    Layout& layout,
+    const Assets::PointEntityDefinition* definition,
     const Renderer::FontDescriptor& font);
 
   void doClear() override;

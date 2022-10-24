@@ -32,37 +32,47 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 TestEnvironment::TestEnvironment(const std::string& dir, const SetupFunction& setup)
   : m_sandboxPath{pathFromQString(QDir::current().path()) + Path{generateUuid()}}
-  , m_dir{m_sandboxPath + Path{dir}} {
+  , m_dir{m_sandboxPath + Path{dir}}
+{
   createTestEnvironment(setup);
 }
 
 TestEnvironment::TestEnvironment(const SetupFunction& setup)
-  : TestEnvironment{Catch::getResultCapture().getCurrentTestName(), setup} {}
+  : TestEnvironment{Catch::getResultCapture().getCurrentTestName(), setup}
+{
+}
 
-TestEnvironment::~TestEnvironment() {
+TestEnvironment::~TestEnvironment()
+{
   assertResult(deleteTestEnvironment());
 }
 
-const Path& TestEnvironment::dir() const {
+const Path& TestEnvironment::dir() const
+{
   return m_dir;
 }
 
-void TestEnvironment::createTestEnvironment(const SetupFunction& setup) {
+void TestEnvironment::createTestEnvironment(const SetupFunction& setup)
+{
   deleteTestEnvironment();
   createDirectory(Path{});
   setup(*this);
 }
 
-void TestEnvironment::createDirectory(const Path& path) {
+void TestEnvironment::createDirectory(const Path& path)
+{
   const auto dir = QDir{IO::pathAsQString(m_dir + path)};
   assertResult(dir.mkpath("."));
 }
 
-void TestEnvironment::createFile(const Path& path, const std::string& contents) {
+void TestEnvironment::createFile(const Path& path, const std::string& contents)
+{
   auto file = QFile{IO::pathAsQString(m_dir + path)};
   assertResult(file.open(QIODevice::ReadWrite));
 
@@ -72,26 +82,31 @@ void TestEnvironment::createFile(const Path& path, const std::string& contents) 
   assert(stream.status() == QTextStream::Ok);
 }
 
-static bool deleteDirectoryAbsolute(const Path& absolutePath) {
+static bool deleteDirectoryAbsolute(const Path& absolutePath)
+{
   auto dir = QDir{IO::pathAsQString(absolutePath)};
-  if (!dir.exists()) {
+  if (!dir.exists())
+  {
     return true;
   }
 
   return dir.removeRecursively();
 }
 
-bool TestEnvironment::deleteTestEnvironment() {
+bool TestEnvironment::deleteTestEnvironment()
+{
   return deleteDirectoryAbsolute(m_sandboxPath);
 }
 
-bool TestEnvironment::directoryExists(const Path& path) const {
+bool TestEnvironment::directoryExists(const Path& path) const
+{
   const auto file = QFileInfo{IO::pathAsQString(m_dir + path)};
 
   return file.exists() && file.isDir();
 }
 
-bool TestEnvironment::fileExists(const Path& path) const {
+bool TestEnvironment::fileExists(const Path& path) const
+{
   const auto file = QFileInfo{IO::pathAsQString(m_dir + path)};
 
   return file.exists() && file.isFile();

@@ -25,25 +25,32 @@
 
 #include <ostream>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 GameEngineConfigWriter::GameEngineConfigWriter(
   const Model::GameEngineConfig& config, std::ostream& stream)
   : m_config(config)
-  , m_stream(stream) {
+  , m_stream(stream)
+{
   assert(!m_stream.bad());
 }
 
-void GameEngineConfigWriter::writeConfig() {
+void GameEngineConfigWriter::writeConfig()
+{
   EL::MapType map;
   map["version"] = EL::Value(1.0);
   map["profiles"] = writeProfiles(m_config);
   m_stream << EL::Value(std::move(map)) << "\n";
 }
 
-EL::Value GameEngineConfigWriter::writeProfiles(const Model::GameEngineConfig& config) const {
+EL::Value GameEngineConfigWriter::writeProfiles(
+  const Model::GameEngineConfig& config) const
+{
   EL::ArrayType array;
-  for (size_t i = 0; i < config.profileCount(); ++i) {
+  for (size_t i = 0; i < config.profileCount(); ++i)
+  {
     const Model::GameEngineProfile* profile = config.profile(i);
     array.push_back(writeProfile(profile));
   }
@@ -51,7 +58,9 @@ EL::Value GameEngineConfigWriter::writeProfiles(const Model::GameEngineConfig& c
   return EL::Value(std::move(array));
 }
 
-EL::Value GameEngineConfigWriter::writeProfile(const Model::GameEngineProfile* profile) const {
+EL::Value GameEngineConfigWriter::writeProfile(
+  const Model::GameEngineProfile* profile) const
+{
   EL::MapType map;
   map["name"] = EL::Value(profile->name());
   map["path"] = EL::Value(profile->path().asString());

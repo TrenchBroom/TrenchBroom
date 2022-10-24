@@ -41,10 +41,12 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Color;
 
-namespace Assets {
+namespace Assets
+{
 class EntityDefinition;
 class EntityDefinitionFileSpec;
 class EntityDefinitionManager;
@@ -53,7 +55,8 @@ class Texture;
 class TextureManager;
 } // namespace Assets
 
-namespace Model {
+namespace Model
+{
 class Brush;
 class BrushFace;
 class BrushFaceHandle;
@@ -73,7 +76,8 @@ class WorldNode;
 enum class WrapStyle;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class Action;
 class Command;
 class CommandResult;
@@ -86,12 +90,14 @@ class ViewEffectsService;
 enum class MapTextEncoding;
 enum class TransactionScope;
 
-struct PointFile {
+struct PointFile
+{
   Model::PointTrace trace;
   IO::Path path;
 };
 
-class MapDocument : public Model::MapFacade, public CachingLogger {
+class MapDocument : public Model::MapFacade, public CachingLogger
+{
 public:
   static const vm::bbox3 DefaultWorldBounds;
   static const std::string DefaultDocumentName;
@@ -231,13 +237,14 @@ public:
   /**
    * Suggests a parent to use for new nodes.
    *
-   * If reference nodes are given, return the parent (either a group, if there is one, otherwise the
-   * layer) of the first node in the given vector.
+   * If reference nodes are given, return the parent (either a group, if there is one,
+   * otherwise the layer) of the first node in the given vector.
    *
    * Otherwise, returns the current group if one is open, otherwise the current layer.
    */
   Model::Node* parentForNodes(
-    const std::vector<Model::Node*>& referenceNodes = std::vector<Model::Node*>()) const override;
+    const std::vector<Model::Node*>& referenceNodes =
+      std::vector<Model::Node*>()) const override;
 
   Model::EditorContext& editorContext() const;
 
@@ -253,19 +260,24 @@ public:
   void setViewEffectsService(ViewEffectsService* viewEffectsService);
 
 public: // tag and entity definition actions
-  template <typename ActionVisitor> void visitTagActions(const ActionVisitor& visitor) const {
+  template <typename ActionVisitor>
+  void visitTagActions(const ActionVisitor& visitor) const
+  {
     visitActions(visitor, m_tagActions);
   }
 
   template <typename ActionVisitor>
-  void visitEntityDefinitionActions(const ActionVisitor& visitor) const {
+  void visitEntityDefinitionActions(const ActionVisitor& visitor) const
+  {
     visitActions(visitor, m_entityDefinitionActions);
   }
 
 private: // tag and entity definition actions
   template <typename ActionVisitor>
-  void visitActions(const ActionVisitor& visitor, const ActionList& actions) const {
-    for (const std::unique_ptr<Action>& action : actions) {
+  void visitActions(const ActionVisitor& visitor, const ActionList& actions) const
+  {
+    for (const std::unique_ptr<Action>& action : actions)
+    {
       visitor(*action);
     }
   }
@@ -276,9 +288,13 @@ private: // tag and entity definition actions
 
 public: // new, load, save document
   void newDocument(
-    Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game);
+    Model::MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
+    std::shared_ptr<Model::Game> game);
   void loadDocument(
-    Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game,
+    Model::MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
+    std::shared_ptr<Model::Game> game,
     const IO::Path& path);
   void saveDocument();
   void saveDocumentAs(const IO::Path& path);
@@ -323,42 +339,42 @@ public: // selection
   bool hasAnySelectedBrushFaces() const override;
 
   /**
-   * For commands that modify entities, this returns all entities that should be acted on, based on
-   * the current selection.
+   * For commands that modify entities, this returns all entities that should be acted on,
+   * based on the current selection.
    *
    * - selected brushes/patches act on their parent entities
    * - selected groups implicitly act on any contained entities
    *
-   * If multiple linked groups are selected, returns entities from all of them, so attempting to
-   * perform commands on all of them will be blocked as a conflict.
+   * If multiple linked groups are selected, returns entities from all of them, so
+   * attempting to perform commands on all of them will be blocked as a conflict.
    */
   std::vector<Model::EntityNodeBase*> allSelectedEntityNodes() const override;
 
   /**
-   * For commands that modify brushes, this returns all brushes that should be acted on, based on
-   * the current selection.
+   * For commands that modify brushes, this returns all brushes that should be acted on,
+   * based on the current selection.
    *
    * - selected groups implicitly act on any contained brushes
    *
-   * If multiple linked groups are selected, returns brushes from all of them, so attempting to
-   * perform commands on all of them will be blocked as a conflict.
+   * If multiple linked groups are selected, returns brushes from all of them, so
+   * attempting to perform commands on all of them will be blocked as a conflict.
    */
   std::vector<Model::BrushNode*> allSelectedBrushNodes() const;
   bool hasAnySelectedBrushNodes() const;
   const Model::NodeCollection& selectedNodes() const override;
 
   /**
-   * For commands that modify brush faces, this returns all that should be acted on, based on the
-   * current selection.
+   * For commands that modify brush faces, this returns all that should be acted on, based
+   * on the current selection.
    *
    * - if brush faces are explicitly selected (hasSelectedBrushFaces()), use those
    * - selected groups implicitly act on any contained brushes
    * - selected brushes implicitly act on their faces
    *
-   * Unlike allSelectedBrushNodes()/allSelectedEntityNodes(), if multiple groups in a link set are
-   * selected, only return one representative face per brush, so that user actions can be performed
-   * without generating conflicts. (e.g. this allows selecting 2 closed linked groups in a link set
-   * and applying textures.)
+   * Unlike allSelectedBrushNodes()/allSelectedEntityNodes(), if multiple groups in a link
+   * set are selected, only return one representative face per brush, so that user actions
+   * can be performed without generating conflicts. (e.g. this allows selecting 2 closed
+   * linked groups in a link set and applying textures.)
    */
   std::vector<Model::BrushFaceHandle> allSelectedBrushFaces() const override;
   std::vector<Model::BrushFaceHandle> selectedBrushFaces() const override;
@@ -393,7 +409,8 @@ private:
   void validateSelectionBounds() const;
   void clearSelection();
 
-public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade interface
+public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade
+        // interface
   std::vector<Model::Node*> addNodes(
     const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) override;
   void removeNodes(const std::vector<Model::Node*>& nodes) override;
@@ -403,15 +420,19 @@ private:
     const std::map<Model::Node*, std::vector<Model::Node*>>& nodes) const;
 
   struct CompareByAncestry;
-  std::vector<Model::Node*> removeImplicitelyRemovedNodes(std::vector<Model::Node*> nodes) const;
+  std::vector<Model::Node*> removeImplicitelyRemovedNodes(
+    std::vector<Model::Node*> nodes) const;
 
-  void closeRemovedGroups(const std::map<Model::Node*, std::vector<Model::Node*>>& toRemove);
+  void closeRemovedGroups(
+    const std::map<Model::Node*, std::vector<Model::Node*>>& toRemove);
 
 public:
-  bool reparentNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) override;
+  bool reparentNodes(
+    const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) override;
 
 private:
-  bool checkReparenting(const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const;
+  bool checkReparenting(
+    const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd) const;
 
 public:
   void deleteObjects() override;
@@ -420,7 +441,8 @@ public:
 public: // entity management
   Model::EntityNode* createPointEntity(
     const Assets::PointEntityDefinition* definition, const vm::vec3& delta) override;
-  Model::EntityNode* createBrushEntity(const Assets::BrushEntityDefinition* definition) override;
+  Model::EntityNode* createBrushEntity(
+    const Assets::BrushEntityDefinition* definition) override;
 
 public: // group management
   Model::GroupNode* groupSelection(const std::string& name);
@@ -434,10 +456,11 @@ public:
   void closeGroup();
 
   /**
-   * Creates a new group that is linked to the currently selected group and returns the newly
-   * created group.
+   * Creates a new group that is linked to the currently selected group and returns the
+   * newly created group.
    *
-   * If the current selection does not consist of exactly one group, then null is returned.
+   * If the current selection does not consist of exactly one group, then null is
+   * returned.
    */
   Model::GroupNode* createLinkedDuplicate();
   bool canCreateLinkedDuplicate() const;
@@ -456,10 +479,10 @@ public:
   /**
    * Unlinks the selected linked groups.
    *
-   * For every set of selected linked groups that belong to the same link set, the selected groups
-   * will be added to a new link set with the effect that these groups will still be linked to each
-   * other, but they will no longer be linked to any other member of their original link set that
-   * was not selected.
+   * For every set of selected linked groups that belong to the same link set, the
+   * selected groups will be added to a new link set with the effect that these groups
+   * will still be linked to each other, but they will no longer be linked to any other
+   * member of their original link set that was not selected.
    */
   void separateLinkedGroups();
   bool canSeparateLinkedGroups() const;
@@ -478,7 +501,8 @@ public: // layer management
   void renameLayer(Model::LayerNode* layer, const std::string& name);
 
 private:
-  enum class MoveDirection {
+  enum class MoveDirection
+  {
     Up,
     Down
   };
@@ -499,7 +523,8 @@ public:
 
 public: // modifying transient node attributes, declared in MapFacade interface
   void isolate();
-  void hide(std::vector<Model::Node*> nodes) override; // Don't take the nodes by reference!
+  void hide(
+    std::vector<Model::Node*> nodes) override; // Don't take the nodes by reference!
   void hideSelection();
   void show(const std::vector<Model::Node*>& nodes) override;
   void showAll();
@@ -526,7 +551,8 @@ public: // modifying objects, declared in MapFacade interface
   bool transformObjects(const std::string& commandName, const vm::mat4x4& transformation);
 
   bool translateObjects(const vm::vec3& delta) override;
-  bool rotateObjects(const vm::vec3& center, const vm::vec3& axis, FloatType angle) override;
+  bool rotateObjects(
+    const vm::vec3& center, const vm::vec3& axis, FloatType angle) override;
   bool scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) override;
   bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) override;
   bool shearObjects(
@@ -545,11 +571,14 @@ public: // Clipping operations, declared in MapFacade interface
 
 public: // modifying entity properties, declared in MapFacade interface
   bool setProperty(
-    const std::string& key, const std::string& value, bool defaultToProtected = false) override;
+    const std::string& key,
+    const std::string& value,
+    bool defaultToProtected = false) override;
   bool renameProperty(const std::string& oldKey, const std::string& newKey) override;
   bool removeProperty(const std::string& key) override;
 
-  bool convertEntityColorRange(const std::string& key, Assets::ColorRange::Type range) override;
+  bool convertEntityColorRange(
+    const std::string& key, Assets::ColorRange::Type range) override;
   bool updateSpawnflag(const std::string& key, size_t flagIndex, bool setFlag) override;
 
   bool setProtectedProperty(const std::string& key, bool value);
@@ -557,22 +586,28 @@ public: // modifying entity properties, declared in MapFacade interface
   bool canClearProtectedProperties() const;
 
 public: // brush resizing, declared in MapFacade interface
-  bool extrudeBrushes(const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
+  bool extrudeBrushes(
+    const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
 
 public:
   bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
-  bool setFaceAttributesExceptContentFlags(const Model::BrushFaceAttributes& attributes) override;
+  bool setFaceAttributesExceptContentFlags(
+    const Model::BrushFaceAttributes& attributes) override;
   bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) override;
   bool copyTexCoordSystemFromFace(
     const Model::TexCoordSystemSnapshot& coordSystemSnapshot,
-    const Model::BrushFaceAttributes& attribs, const vm::plane3& sourceFacePlane,
+    const Model::BrushFaceAttributes& attribs,
+    const vm::plane3& sourceFacePlane,
     Model::WrapStyle wrapStyle);
   bool moveTextures(
-    const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) override;
+    const vm::vec3f& cameraUp,
+    const vm::vec3f& cameraRight,
+    const vm::vec2f& delta) override;
   bool rotateTextures(float angle) override;
   bool shearTextures(const vm::vec2f& factors) override;
   bool flipTextures(
-    const vm::vec3f& cameraUp, const vm::vec3f& cameraRight,
+    const vm::vec3f& cameraUp,
+    const vm::vec3f& cameraRight,
     vm::direction cameraRelativeFlipDirection);
 
 public: // modifying vertices, declared in MapFacade interface
@@ -584,7 +619,8 @@ public: // modifying vertices, declared in MapFacade interface
   bool moveFaces(std::vector<vm::polygon3> facePositions, const vm::vec3& delta) override;
 
   bool addVertex(const vm::vec3& vertexPosition);
-  bool removeVertices(const std::string& commandName, std::vector<vm::vec3> vertexPositions);
+  bool removeVertices(
+    const std::string& commandName, std::vector<vm::vec3> vertexPositions);
 
 public: // debug commands
   void printVertices();
@@ -611,7 +647,8 @@ public: // transactions
 
 private:
   std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
-  std::unique_ptr<CommandResult> executeAndStore(std::unique_ptr<UndoableCommand>&& command);
+  std::unique_ptr<CommandResult> executeAndStore(
+    std::unique_ptr<UndoableCommand>&& command);
 
 private: // subclassing interface for command processing
   virtual bool doCanUndoCommand() const = 0;
@@ -639,9 +676,13 @@ public: // picking
 
 private: // world management
   void createWorld(
-    Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game);
+    Model::MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
+    std::shared_ptr<Model::Game> game);
   void loadWorld(
-    Model::MapFormat mapFormat, const vm::bbox3& worldBounds, std::shared_ptr<Model::Game> game,
+    Model::MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
+    std::shared_ptr<Model::Game> game,
     const IO::Path& path);
   void clearWorld();
 
@@ -764,9 +805,11 @@ private: // observers
   void transactionUndone(const std::string& name);
 };
 
-class Transaction {
+class Transaction
+{
 private:
-  enum class TransactionState {
+  enum class TransactionState
+  {
     Running,
     Committed,
     Cancelled,

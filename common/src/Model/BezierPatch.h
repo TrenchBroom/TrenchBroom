@@ -31,13 +31,17 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Model {
-class BezierPatch {
+namespace Model
+{
+class BezierPatch
+{
 public:
   using Point = vm::vec<FloatType, 5>;
 
@@ -52,7 +56,9 @@ private:
 
 public:
   BezierPatch(
-    size_t pointRowCount, size_t pointColumnCount, std::vector<Point> controlPoints,
+    size_t pointRowCount,
+    size_t pointColumnCount,
+    std::vector<Point> controlPoints,
     std::string textureName);
   ~BezierPatch();
 
@@ -88,7 +94,12 @@ public:
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
 
   kdl_reflect_decl(
-    BezierPatch, m_pointRowCount, m_pointColumnCount, m_bounds, m_controlPoints, m_textureName);
+    BezierPatch,
+    m_pointRowCount,
+    m_pointColumnCount,
+    m_bounds,
+    m_controlPoints,
+    m_textureName);
 };
 
 } // namespace Model

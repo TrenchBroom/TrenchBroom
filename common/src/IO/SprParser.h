@@ -24,18 +24,22 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Palette;
 }
 
-namespace IO {
+namespace IO
+{
 class File;
 class FileSystem;
 class Path;
 class Reader;
 
-class SprParser : public EntityModelParser {
+class SprParser : public EntityModelParser
+{
 private:
   std::string m_name;
   const Reader& m_reader;
@@ -48,7 +52,8 @@ public:
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
-  void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
+  void doLoadFrame(
+    size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 };
 } // namespace IO
 } // namespace TrenchBroom

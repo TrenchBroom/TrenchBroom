@@ -26,31 +26,43 @@
 
 #include <vecmath/polygon.h>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document)
   : VertexToolBase(document)
-  , m_edgeHandles(std::make_unique<EdgeHandleManager>()) {}
+  , m_edgeHandles(std::make_unique<EdgeHandleManager>())
+{
+}
 
-std::vector<Model::BrushNode*> EdgeTool::findIncidentBrushes(const vm::segment3& handle) const {
+std::vector<Model::BrushNode*> EdgeTool::findIncidentBrushes(
+  const vm::segment3& handle) const
+{
   return findIncidentBrushes(*m_edgeHandles, handle);
 }
 
 void EdgeTool::pick(
-  const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const {
+  const vm::ray3& pickRay,
+  const Renderer::Camera& camera,
+  Model::PickResult& pickResult) const
+{
   m_edgeHandles->pickCenterHandle(pickRay, camera, pickResult);
 }
 
-EdgeHandleManager& EdgeTool::handleManager() {
+EdgeHandleManager& EdgeTool::handleManager()
+{
   return *m_edgeHandles;
 }
 
-const EdgeHandleManager& EdgeTool::handleManager() const {
+const EdgeHandleManager& EdgeTool::handleManager() const
+{
   return *m_edgeHandles;
 }
 
 std::tuple<vm::vec3, vm::vec3> EdgeTool::handlePositionAndHitPoint(
-  const std::vector<Model::Hit>& hits) const {
+  const std::vector<Model::Hit>& hits) const
+{
   assert(!hits.empty());
 
   const auto& hit = hits.front();
@@ -59,22 +71,26 @@ std::tuple<vm::vec3, vm::vec3> EdgeTool::handlePositionAndHitPoint(
   return {hit.target<vm::segment3>().center(), hit.hitPoint()};
 }
 
-EdgeTool::MoveResult EdgeTool::move(const vm::vec3& delta) {
+EdgeTool::MoveResult EdgeTool::move(const vm::vec3& delta)
+{
   auto document = kdl::mem_lock(m_document);
 
   auto handles = m_edgeHandles->selectedHandles();
-  if (document->moveEdges(std::move(handles), delta)) {
+  if (document->moveEdges(std::move(handles), delta))
+  {
     m_dragHandlePosition = translate(m_dragHandlePosition, delta);
     return MoveResult::Continue;
   }
   return MoveResult::Deny;
 }
 
-std::string EdgeTool::actionName() const {
+std::string EdgeTool::actionName() const
+{
   return kdl::str_plural(m_edgeHandles->selectedHandleCount(), "Move Edge", "Move Edges");
 }
 
-void EdgeTool::removeSelection() {
+void EdgeTool::removeSelection()
+{
   const auto handles = m_edgeHandles->selectedHandles();
   auto vertexPositions = std::vector<vm::vec3>{};
   vertexPositions.reserve(2 * vertexPositions.size());

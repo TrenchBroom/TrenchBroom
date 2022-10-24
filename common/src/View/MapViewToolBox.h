@@ -27,8 +27,10 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class ClipTool;
 class CreateComplexBrushTool;
 class CreateEntityTool;
@@ -43,7 +45,8 @@ class EdgeTool;
 class FaceTool;
 class MapDocument;
 
-class MapViewToolBox : public ToolBox {
+class MapViewToolBox : public ToolBox
+{
 private:
   std::weak_ptr<MapDocument> m_document;
 

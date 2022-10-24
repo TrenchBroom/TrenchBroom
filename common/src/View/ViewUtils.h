@@ -26,10 +26,12 @@ class QWidget;
 class QString;
 class QStringList;
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace View {
+namespace View
+{
 class MapDocument;
 
 void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);

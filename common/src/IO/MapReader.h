@@ -37,8 +37,10 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushNode;
 class EntityNode;
 class EntityNodeBase;
@@ -50,7 +52,8 @@ class Node;
 class WorldNode;
 } // namespace Model
 
-namespace IO {
+namespace IO
+{
 class ParserStatus;
 
 /**
@@ -62,29 +65,34 @@ class ParserStatus;
  *
  * The flow of control is:
  *
- * 1. MapParser callbacks get called with the raw data, which we just store (m_objectInfos).
- * 2. Convert the raw data to nodes in parallel (createNodes) and record any additional information
- *    necessary to restore the parent / child relationships.
+ * 1. MapParser callbacks get called with the raw data, which we just store
+ * (m_objectInfos).
+ * 2. Convert the raw data to nodes in parallel (createNodes) and record any additional
+ * information necessary to restore the parent / child relationships.
  * 3. Validate the created nodes.
  * 4. Post process the nodes to find the correct parent nodes (createNodes).
  * 5. Call the appropriate callbacks (onWorldspawn, onLayer, ...).
  */
-class MapReader : public StandardMapParser {
+class MapReader : public StandardMapParser
+{
 public: // only public so that helper methods can see these declarations
-  struct EntityInfo {
+  struct EntityInfo
+  {
     std::vector<Model::EntityProperty> properties;
     size_t startLine;
     size_t lineCount;
   };
 
-  struct BrushInfo {
+  struct BrushInfo
+  {
     std::vector<Model::BrushFace> faces;
     size_t startLine;
     size_t lineCount;
     std::optional<size_t> parentIndex;
   };
 
-  struct PatchInfo {
+  struct PatchInfo
+  {
     size_t rowCount;
     size_t columnCount;
     std::vector<Model::BezierPatch::Point> controlPoints;
@@ -106,8 +114,8 @@ private: // data populated in response to MapParser callbacks
 
 protected:
   /**
-   * Creates a new reader where the given string is expected to be formatted in the given source map
-   * format, and the created objects are converted to the given target format.
+   * Creates a new reader where the given string is expected to be formatted in the given
+   * source map format, and the created objects are converted to the given target format.
    *
    * @param str the string to parse
    * @param sourceMapFormat the expected format of the given string
@@ -115,7 +123,9 @@ protected:
    * @param entityPropertyConfig the entity property config to use
    */
   MapReader(
-    std::string_view str, Model::MapFormat sourceMapFormat, Model::MapFormat targetMapFormat,
+    std::string_view str,
+    Model::MapFormat sourceMapFormat,
+    Model::MapFormat targetMapFormat,
     const Model::EntityPropertyConfig& entityPropertyConfig);
 
   /**
@@ -139,36 +149,54 @@ protected:
 
 protected: // implement MapParser interface
   void onBeginEntity(
-    size_t line, std::vector<Model::EntityProperty> properties, ParserStatus& status) override;
+    size_t line,
+    std::vector<Model::EntityProperty> properties,
+    ParserStatus& status) override;
   void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
   void onBeginBrush(size_t line, ParserStatus& status) override;
   void onEndBrush(size_t startLine, size_t lineCount, ParserStatus& status) override;
   void onStandardBrushFace(
-    size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2,
-    const vm::vec3& point3, const Model::BrushFaceAttributes& attribs,
+    size_t line,
+    Model::MapFormat targetMapFormat,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const vm::vec3& point3,
+    const Model::BrushFaceAttributes& attribs,
     ParserStatus& status) override;
   void onValveBrushFace(
-    size_t line, Model::MapFormat targetMapFormat, const vm::vec3& point1, const vm::vec3& point2,
-    const vm::vec3& point3, const Model::BrushFaceAttributes& attribs, const vm::vec3& texAxisX,
-    const vm::vec3& texAxisY, ParserStatus& status) override;
+    size_t line,
+    Model::MapFormat targetMapFormat,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const vm::vec3& point3,
+    const Model::BrushFaceAttributes& attribs,
+    const vm::vec3& texAxisX,
+    const vm::vec3& texAxisY,
+    ParserStatus& status) override;
   void onPatch(
-    size_t startLine, size_t lineCount, Model::MapFormat targetMapFormat, size_t rowCount,
-    size_t columnCount, std::vector<vm::vec<FloatType, 5>> controlPoints, std::string textureName,
+    size_t startLine,
+    size_t lineCount,
+    Model::MapFormat targetMapFormat,
+    size_t rowCount,
+    size_t columnCount,
+    std::vector<vm::vec<FloatType, 5>> controlPoints,
+    std::string textureName,
     ParserStatus& status) override;
 
 private: // helper methods
   void createNodes(ParserStatus& status);
 
-private: // subclassing interface - these will be called in the order that nodes should be inserted
+private: // subclassing interface - these will be called in the order that nodes should be
+         // inserted
   /**
-   * Called for the first worldspawn entity. Subclasses cannot capture the given world node but must
-   * create their own instead.
+   * Called for the first worldspawn entity. Subclasses cannot capture the given world
+   * node but must create their own instead.
    *
-   * If a world node was created, then this function is guaranteed to be called before any other
-   * callback.
+   * If a world node was created, then this function is guaranteed to be called before any
+   * other callback.
    *
-   * Returns a pointer to a node which should become the parent of any node that belongs to the
-   * world. This could be the default layer of the world node, or a dummy entity.
+   * Returns a pointer to a node which should become the parent of any node that belongs
+   * to the world. This could be the default layer of the world node, or a dummy entity.
    */
   virtual Model::Node* onWorldNode(
     std::unique_ptr<Model::WorldNode> worldNode, ParserStatus& status) = 0;
@@ -176,7 +204,8 @@ private: // subclassing interface - these will be called in the order that nodes
   /**
    * Called for each custom layer.
    */
-  virtual void onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus& status) = 0;
+  virtual void onLayerNode(
+    std::unique_ptr<Model::Node> layerNode, ParserStatus& status) = 0;
 
   /**
    * Called for each group, entity entity or brush node. The given parent can be null.

@@ -28,17 +28,25 @@
 #include <vecmath/segment.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 template <typename T, typename FP, typename VP>
 kdl::intrusive_circular_link<Polyhedron_Edge<T, FP, VP>>& Polyhedron_GetEdgeLink<
-  T, FP, VP>::operator()(Polyhedron_Edge<T, FP, VP>* edge) const {
+  T,
+  FP,
+  VP>::operator()(Polyhedron_Edge<T, FP, VP>* edge) const
+{
   return edge->m_link;
 }
 
 template <typename T, typename FP, typename VP>
 const kdl::intrusive_circular_link<Polyhedron_Edge<T, FP, VP>>& Polyhedron_GetEdgeLink<
-  T, FP, VP>::operator()(const Polyhedron_Edge<T, FP, VP>* edge) const {
+  T,
+  FP,
+  VP>::operator()(const Polyhedron_Edge<T, FP, VP>* edge) const
+{
   return edge->m_link;
 }
 
@@ -48,8 +56,8 @@ Polyhedron_Edge<T, FP, VP>::Polyhedron_Edge(HalfEdge* first, HalfEdge* second)
   , m_second(second)
   ,
 #ifdef _MSC_VER
-// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's okay
-// because we just store the pointer there.
+// MSVC throws a warning because we're passing this to the FaceLink constructor, but it's
+// okay because we just store the pointer there.
 #pragma warning(push)
 #pragma warning(disable : 4355)
   m_link(this)
@@ -60,105 +68,131 @@ Polyhedron_Edge<T, FP, VP>::Polyhedron_Edge(HalfEdge* first, HalfEdge* second)
 {
   assert(m_first != nullptr);
   m_first->setEdge(this);
-  if (m_second != nullptr) {
+  if (m_second != nullptr)
+  {
     m_second->setEdge(this);
   }
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Edge<T, FP, VP>::Vertex* Polyhedron_Edge<T, FP, VP>::firstVertex() const {
+typename Polyhedron_Edge<T, FP, VP>::Vertex* Polyhedron_Edge<T, FP, VP>::firstVertex()
+  const
+{
   assert(m_first != nullptr);
   return m_first->origin();
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Edge<T, FP, VP>::Vertex* Polyhedron_Edge<T, FP, VP>::secondVertex() const {
+typename Polyhedron_Edge<T, FP, VP>::Vertex* Polyhedron_Edge<T, FP, VP>::secondVertex()
+  const
+{
   assert(m_first != nullptr);
-  if (m_second != nullptr) {
+  if (m_second != nullptr)
+  {
     return m_second->origin();
-  } else {
+  }
+  else
+  {
     return m_first->next()->origin();
   }
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Edge<T, FP, VP>::HalfEdge* Polyhedron_Edge<T, FP, VP>::firstEdge() const {
+typename Polyhedron_Edge<T, FP, VP>::HalfEdge* Polyhedron_Edge<T, FP, VP>::firstEdge()
+  const
+{
   assert(m_first != nullptr);
   return m_first;
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Edge<T, FP, VP>::HalfEdge* Polyhedron_Edge<T, FP, VP>::secondEdge() const {
+typename Polyhedron_Edge<T, FP, VP>::HalfEdge* Polyhedron_Edge<T, FP, VP>::secondEdge()
+  const
+{
   assert(m_second != nullptr);
   return m_second;
 }
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron_Edge<T, FP, VP>::HalfEdge* Polyhedron_Edge<T, FP, VP>::twin(
-  const HalfEdge* halfEdge) const {
+  const HalfEdge* halfEdge) const
+{
   assert(halfEdge != nullptr);
   assert(halfEdge == m_first || halfEdge == m_second);
-  if (halfEdge == m_first) {
+  if (halfEdge == m_first)
+  {
     return m_second;
-  } else {
+  }
+  else
+  {
     return m_first;
   }
 }
 
 template <typename T, typename FP, typename VP>
-vm::vec<T, 3> Polyhedron_Edge<T, FP, VP>::vector() const {
+vm::vec<T, 3> Polyhedron_Edge<T, FP, VP>::vector() const
+{
   return secondVertex()->position() - firstVertex()->position();
 }
 
 template <typename T, typename FP, typename VP>
-vm::segment<T, 3> Polyhedron_Edge<T, FP, VP>::segment() const {
+vm::segment<T, 3> Polyhedron_Edge<T, FP, VP>::segment() const
+{
   assert(fullySpecified());
   return vm::segment<T, 3>{m_first->origin()->position(), m_second->origin()->position()};
 }
 
 template <typename T, typename FP, typename VP>
-vm::vec<T, 3> Polyhedron_Edge<T, FP, VP>::center() const {
+vm::vec<T, 3> Polyhedron_Edge<T, FP, VP>::center() const
+{
   assert(fullySpecified());
-  return (m_first->origin()->position() + m_second->origin()->position()) / static_cast<T>(2.0);
+  return (m_first->origin()->position() + m_second->origin()->position())
+         / static_cast<T>(2.0);
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Edge<T, FP, VP>::Face* Polyhedron_Edge<T, FP, VP>::firstFace() const {
+typename Polyhedron_Edge<T, FP, VP>::Face* Polyhedron_Edge<T, FP, VP>::firstFace() const
+{
   assert(m_first != nullptr);
   return m_first->face();
 }
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Edge<T, FP, VP>::Face* Polyhedron_Edge<T, FP, VP>::secondFace() const {
+typename Polyhedron_Edge<T, FP, VP>::Face* Polyhedron_Edge<T, FP, VP>::secondFace() const
+{
   assert(m_second != nullptr);
   return m_second->face();
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron_Edge<T, FP, VP>::hasVertex(const Vertex* vertex) const {
+bool Polyhedron_Edge<T, FP, VP>::hasVertex(const Vertex* vertex) const
+{
   return firstVertex() == vertex || secondVertex() == vertex;
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron_Edge<T, FP, VP>::hasPosition(const vm::vec<T, 3>& position, const T epsilon) const {
+bool Polyhedron_Edge<T, FP, VP>::hasPosition(
+  const vm::vec<T, 3>& position, const T epsilon) const
+{
   return (
-    vm::is_equal(firstVertex()->position(), position, epsilon) ||
-    vm::is_equal(secondVertex()->position(), position, epsilon));
+    vm::is_equal(firstVertex()->position(), position, epsilon)
+    || vm::is_equal(secondVertex()->position(), position, epsilon));
 }
 
 template <typename T, typename FP, typename VP>
 bool Polyhedron_Edge<T, FP, VP>::hasPositions(
-  const vm::vec<T, 3>& position1, const vm::vec<T, 3>& position2, const T epsilon) const {
+  const vm::vec<T, 3>& position1, const vm::vec<T, 3>& position2, const T epsilon) const
+{
   return (
-    (vm::is_equal(firstVertex()->position(), position1, epsilon) &&
-     vm::is_equal(secondVertex()->position(), position2, epsilon)) ||
-    (vm::is_equal(firstVertex()->position(), position2, epsilon) &&
-     vm::is_equal(secondVertex()->position(), position1, epsilon)));
+    (vm::is_equal(firstVertex()->position(), position1, epsilon)
+     && vm::is_equal(secondVertex()->position(), position2, epsilon))
+    || (vm::is_equal(firstVertex()->position(), position2, epsilon) && vm::is_equal(secondVertex()->position(), position1, epsilon)));
 }
 
 template <typename T, typename FP, typename VP>
 T Polyhedron_Edge<T, FP, VP>::distanceTo(
-  const vm::vec<T, 3>& position1, const vm::vec<T, 3>& position2) const {
+  const vm::vec<T, 3>& position1, const vm::vec<T, 3>& position2) const
+{
   const T pos1Distance = vm::min(
     vm::squared_distance(firstVertex()->position(), position1),
     vm::squared_distance(secondVertex()->position(), position1));
@@ -169,24 +203,28 @@ T Polyhedron_Edge<T, FP, VP>::distanceTo(
 }
 
 template <typename T, typename FP, typename VP>
-bool Polyhedron_Edge<T, FP, VP>::fullySpecified() const {
+bool Polyhedron_Edge<T, FP, VP>::fullySpecified() const
+{
   assert(m_first != nullptr);
   return m_second != nullptr;
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::next() const {
+Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::next() const
+{
   return m_link.next();
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::previous() const {
+Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::previous() const
+{
   return m_link.previous();
 }
 
 template <typename T, typename FP, typename VP>
 Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::split(
-  const vm::plane<T, 3>& plane, const T epsilon) {
+  const vm::plane<T, 3>& plane, const T epsilon)
+{
   unused(epsilon);
   assert(epsilon >= static_cast<T>(0));
 
@@ -219,7 +257,8 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::split(
 
 template <typename T, typename FP, typename VP>
 Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::insertVertex(
-  const vm::vec<T, 3>& position) {
+  const vm::vec<T, 3>& position)
+{
   /*
    before:
 
@@ -265,43 +304,53 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::insertVertex(
   return new Edge(newFirstEdge, oldSecondEdge);
 }
 
-template <typename T, typename FP, typename VP> void Polyhedron_Edge<T, FP, VP>::flip() {
+template <typename T, typename FP, typename VP>
+void Polyhedron_Edge<T, FP, VP>::flip()
+{
   using std::swap;
   swap(m_first, m_second);
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron_Edge<T, FP, VP>::makeFirstEdge(HalfEdge* edge) {
+void Polyhedron_Edge<T, FP, VP>::makeFirstEdge(HalfEdge* edge)
+{
   assert(edge != nullptr);
   assert(m_first == edge || m_second == edge);
-  if (edge != m_first) {
+  if (edge != m_first)
+  {
     flip();
   }
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron_Edge<T, FP, VP>::makeSecondEdge(HalfEdge* edge) {
+void Polyhedron_Edge<T, FP, VP>::makeSecondEdge(HalfEdge* edge)
+{
   assert(edge != nullptr);
   assert(m_first == edge || m_second == edge);
-  if (edge != m_second) {
+  if (edge != m_second)
+  {
     flip();
   }
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron_Edge<T, FP, VP>::setFirstAsLeaving() {
+void Polyhedron_Edge<T, FP, VP>::setFirstAsLeaving()
+{
   assert(m_first != nullptr);
   m_first->setAsLeaving();
 }
 
-template <typename T, typename FP, typename VP> void Polyhedron_Edge<T, FP, VP>::unsetSecondEdge() {
+template <typename T, typename FP, typename VP>
+void Polyhedron_Edge<T, FP, VP>::unsetSecondEdge()
+{
   assert(m_second != nullptr);
   m_second->unsetEdge();
   m_second = nullptr;
 }
 
 template <typename T, typename FP, typename VP>
-void Polyhedron_Edge<T, FP, VP>::setSecondEdge(HalfEdge* second) {
+void Polyhedron_Edge<T, FP, VP>::setSecondEdge(HalfEdge* second)
+{
   assert(second != nullptr);
   assert(m_second == nullptr);
   assert(second->edge() == nullptr);

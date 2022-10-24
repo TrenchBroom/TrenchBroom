@@ -26,24 +26,29 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class PickResult;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class Camera;
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class PickRequest;
 class ToolController;
 class ToolBox;
 class ToolChain;
 
-class ToolBoxConnector : public InputEventProcessor {
+class ToolBoxConnector : public InputEventProcessor
+{
 private:
   ToolBox* m_toolBox;
   ToolChain* m_toolChain;
@@ -79,7 +84,8 @@ public: // cancel
 
 protected: // rendering
   void setRenderOptions(Renderer::RenderContext& renderContext);
-  void renderTools(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderTools(
+    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
 private:
   ModifierKeyState modifierKeys();

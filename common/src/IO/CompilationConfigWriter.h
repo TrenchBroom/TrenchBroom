@@ -25,14 +25,18 @@
 #include <iosfwd>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class CompilationConfig;
 class CompilationProfile;
 } // namespace Model
 
-namespace IO {
-class CompilationConfigWriter {
+namespace IO
+{
+class CompilationConfigWriter
+{
 private:
   const Model::CompilationConfig& m_config;
   std::ostream& m_stream;

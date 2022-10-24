@@ -24,12 +24,15 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class IssueQuickFix;
 class Validator;
 
-class ValidatorRegistry {
+class ValidatorRegistry
+{
 private:
   std::vector<std::unique_ptr<Validator>> m_validators;
 

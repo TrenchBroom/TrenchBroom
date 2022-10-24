@@ -22,9 +22,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
-namespace ColorRange {
+namespace TrenchBroom
+{
+namespace Assets
+{
+namespace ColorRange
+{
 using Type = int;
 static const Type Unset = 0;
 static const Type Float = 1;

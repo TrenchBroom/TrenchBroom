@@ -25,9 +25,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Renderer {
-TEST_CASE("AllocationTrackerTest.constructor", "[AllocationTrackerTest]") {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+TEST_CASE("AllocationTrackerTest.constructor", "[AllocationTrackerTest]")
+{
   AllocationTracker t(100);
   CHECK(t.capacity() == 100u);
   CHECK(t.largestPossibleAllocation() == 100u);
@@ -36,7 +39,8 @@ TEST_CASE("AllocationTrackerTest.constructor", "[AllocationTrackerTest]") {
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.emptyConstructor", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.emptyConstructor", "[AllocationTrackerTest]")
+{
   AllocationTracker t;
   CHECK(t.capacity() == 0u);
   CHECK(t.largestPossibleAllocation() == 0u);
@@ -46,7 +50,8 @@ TEST_CASE("AllocationTrackerTest.emptyConstructor", "[AllocationTrackerTest]") {
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.constructWithZeroCapacity", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.constructWithZeroCapacity", "[AllocationTrackerTest]")
+{
   AllocationTracker t(0);
   CHECK(t.capacity() == 0u);
   CHECK(t.largestPossibleAllocation() == 0u);
@@ -56,7 +61,8 @@ TEST_CASE("AllocationTrackerTest.constructWithZeroCapacity", "[AllocationTracker
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.invalidAllocate", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.invalidAllocate", "[AllocationTrackerTest]")
+{
   AllocationTracker t(100);
 
   CHECK_THROWS(t.allocate(0));
@@ -66,7 +72,8 @@ TEST_CASE("AllocationTrackerTest.invalidAllocate", "[AllocationTrackerTest]") {
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]")
+{
   AllocationTracker t(500);
 
   // allocate all the memory
@@ -92,7 +99,8 @@ TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]") {
   CHECK(blocks[2]->pos == 200u);
   CHECK(blocks[2]->size == 100u);
   CHECK(
-    t.usedBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}, {100, 100}, {200, 100}}));
+    t.usedBlocks()
+    == (std::vector<AllocationTracker::Range>{{0, 100}, {100, 100}, {200, 100}}));
   CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{300, 200}}));
 
   blocks[3] = t.allocate(100);
@@ -100,8 +108,9 @@ TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]") {
   CHECK(blocks[3]->pos == 300u);
   CHECK(blocks[3]->size == 100u);
   CHECK(
-    t.usedBlocks() ==
-    (std::vector<AllocationTracker::Range>{{0, 100}, {100, 100}, {200, 100}, {300, 100}}));
+    t.usedBlocks()
+    == (std::vector<AllocationTracker::Range>{
+      {0, 100}, {100, 100}, {200, 100}, {300, 100}}));
   CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{400, 100}}));
 
   blocks[4] = t.allocate(100);
@@ -109,8 +118,9 @@ TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]") {
   CHECK(blocks[4]->pos == 400u);
   CHECK(blocks[4]->size == 100u);
   CHECK(
-    t.usedBlocks() == (std::vector<AllocationTracker::Range>{
-                        {0, 100}, {100, 100}, {200, 100}, {300, 100}, {400, 100}}));
+    t.usedBlocks()
+    == (std::vector<AllocationTracker::Range>{
+      {0, 100}, {100, 100}, {200, 100}, {300, 100}, {400, 100}}));
   CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{}));
 
   // further allocations throw
@@ -119,14 +129,17 @@ TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]") {
   // now start freeing
   t.free(blocks[1]);
   CHECK(
-    t.usedBlocks() ==
-    (std::vector<AllocationTracker::Range>{{0, 100}, {200, 100}, {300, 100}, {400, 100}}));
+    t.usedBlocks()
+    == (std::vector<AllocationTracker::Range>{
+      {0, 100}, {200, 100}, {300, 100}, {400, 100}}));
   CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{100, 100}}));
 
   t.free(blocks[3]);
   CHECK(
-    t.usedBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}, {200, 100}, {400, 100}}));
-  CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{100, 100}, {300, 100}}));
+    t.usedBlocks()
+    == (std::vector<AllocationTracker::Range>{{0, 100}, {200, 100}, {400, 100}}));
+  CHECK(
+    t.freeBlocks() == (std::vector<AllocationTracker::Range>{{100, 100}, {300, 100}}));
   CHECK(t.largestPossibleAllocation() == 100u);
 
   // this will cause a merge with the left and right free blocks
@@ -142,11 +155,13 @@ TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]") {
   CHECK(newBlock->pos == 100u);
   CHECK(newBlock->size == 300u);
   CHECK(
-    t.usedBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}, {100, 300}, {400, 100}}));
+    t.usedBlocks()
+    == (std::vector<AllocationTracker::Range>{{0, 100}, {100, 300}, {400, 100}}));
   CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{}));
 }
 
-TEST_CASE("AllocationTrackerTest.freeMergeRight", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.freeMergeRight", "[AllocationTrackerTest]")
+{
   AllocationTracker t(400);
 
   // allocate all the memory
@@ -161,7 +176,8 @@ TEST_CASE("AllocationTrackerTest.freeMergeRight", "[AllocationTrackerTest]") {
   // now start freeing
   t.free(blocks[2]);
   CHECK(
-    t.usedBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}, {100, 100}, {300, 100}}));
+    t.usedBlocks()
+    == (std::vector<AllocationTracker::Range>{{0, 100}, {100, 100}, {300, 100}}));
   CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{200, 100}}));
 
   // this will merge with the right free block
@@ -172,7 +188,8 @@ TEST_CASE("AllocationTrackerTest.freeMergeRight", "[AllocationTrackerTest]") {
   CHECK(t.largestPossibleAllocation() == 200u);
 }
 
-TEST_CASE("AllocationTrackerTest.freeMergeLeft", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.freeMergeLeft", "[AllocationTrackerTest]")
+{
   AllocationTracker t(400);
 
   // allocate all the memory
@@ -187,7 +204,8 @@ TEST_CASE("AllocationTrackerTest.freeMergeLeft", "[AllocationTrackerTest]") {
   // now start freeing
   t.free(blocks[1]);
   CHECK(
-    t.usedBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}, {200, 100}, {300, 100}}));
+    t.usedBlocks()
+    == (std::vector<AllocationTracker::Range>{{0, 100}, {200, 100}, {300, 100}}));
   CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{100, 100}}));
 
   // this will merge with the left free block
@@ -198,7 +216,8 @@ TEST_CASE("AllocationTrackerTest.freeMergeLeft", "[AllocationTrackerTest]") {
   CHECK(t.largestPossibleAllocation() == 200u);
 }
 
-TEST_CASE("AllocationTrackerTest.expandEmpty", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.expandEmpty", "[AllocationTrackerTest]")
+{
   AllocationTracker t;
 
   t.expand(100);
@@ -211,7 +230,8 @@ TEST_CASE("AllocationTrackerTest.expandEmpty", "[AllocationTrackerTest]") {
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.expandWithFreeSpaceAtEnd", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.expandWithFreeSpaceAtEnd", "[AllocationTrackerTest]")
+{
   AllocationTracker t(200);
 
   AllocationTracker::Block* newBlock = t.allocate(100);
@@ -229,7 +249,8 @@ TEST_CASE("AllocationTrackerTest.expandWithFreeSpaceAtEnd", "[AllocationTrackerT
   CHECK(t.usedBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}}));
 }
 
-TEST_CASE("AllocationTrackerTest.expandWithUsedSpaceAtEnd", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.expandWithUsedSpaceAtEnd", "[AllocationTrackerTest]")
+{
   AllocationTracker t(200);
 
   {
@@ -259,7 +280,8 @@ TEST_CASE("AllocationTrackerTest.expandWithUsedSpaceAtEnd", "[AllocationTrackerT
 static constexpr size_t NumBrushes = 64'000;
 
 // between 12 and 140, inclusive.
-static size_t getBrushSizeFromRandEngine(std::mt19937& engine) {
+static size_t getBrushSizeFromRandEngine(std::mt19937& engine)
+{
   return 12 + (4 * (engine() % 33));
 }
 
@@ -267,14 +289,18 @@ static size_t getBrushSizeFromRandEngine(std::mt19937& engine) {
  * This doesn't use std::uniform_int_distribution or
  * std::shuffle because we want the same results on all C++ implementations.
  */
-template <typename T> static void shuffle(std::vector<T>& vec, std::mt19937& engine) {
+template <typename T>
+static void shuffle(std::vector<T>& vec, std::mt19937& engine)
+{
   // https://en.wikipedia.org/wiki/Fisher–Yates_shuffle
   const size_t vecSize = vec.size();
-  if (vecSize < 2) {
+  if (vecSize < 2)
+  {
     return;
   }
 
-  for (size_t i = 0; i <= (vecSize - 2); ++i) {
+  for (size_t i = 0; i <= (vecSize - 2); ++i)
+  {
     // pick j to be a random integer in [i, vecSize)
     const size_t rangeExclusive = (vecSize - i);
     // Note, this has modulo bias, but it's good enough for generating test cases
@@ -284,9 +310,11 @@ template <typename T> static void shuffle(std::vector<T>& vec, std::mt19937& eng
   }
 }
 
-TEST_CASE("AllocationTrackerTest.testShuffle", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.testShuffle", "[AllocationTrackerTest]")
+{
   std::vector<int> ints;
-  for (int i = 0; i < 10; ++i) {
+  for (int i = 0; i < 10; ++i)
+  {
     ints.push_back(i);
   }
 
@@ -296,18 +324,21 @@ TEST_CASE("AllocationTrackerTest.testShuffle", "[AllocationTrackerTest]") {
   CHECK(ints == (std::vector<int>{8, 0, 7, 6, 4, 3, 5, 1, 2, 9}));
 }
 
-TEST_CASE("AllocationTrackerTest.benchmarkAllocOnly", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.benchmarkAllocOnly", "[AllocationTrackerTest]")
+{
   std::mt19937 randEngine;
 
   AllocationTracker t(140 * NumBrushes);
-  for (size_t i = 0; i < NumBrushes; ++i) {
+  for (size_t i = 0; i < NumBrushes; ++i)
+  {
     const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
 
     CHECK(t.allocate(brushSize) != nullptr);
   }
 }
 
-TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc", "[AllocationTrackerTest]")
+{
   std::mt19937 randEngine;
 
   AllocationTracker t(140 * NumBrushes);
@@ -315,7 +346,8 @@ TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc", "[AllocationTrackerTe
   std::vector<AllocationTracker::Block*> allocations;
   allocations.resize(NumBrushes);
 
-  for (size_t i = 0; i < NumBrushes; ++i) {
+  for (size_t i = 0; i < NumBrushes; ++i)
+  {
     const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
 
     allocations[i] = t.allocate(brushSize);
@@ -324,7 +356,8 @@ TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc", "[AllocationTrackerTe
 
   shuffle(allocations, randEngine);
 
-  for (size_t i = 0; i < NumBrushes; ++i) {
+  for (size_t i = 0; i < NumBrushes; ++i)
+  {
     t.free(allocations[i]);
   }
 
@@ -332,7 +365,8 @@ TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc", "[AllocationTrackerTe
   CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{{0, 140 * NumBrushes}}));
   CHECK_FALSE(t.hasAllocations());
 
-  for (size_t i = 0; i < NumBrushes; ++i) {
+  for (size_t i = 0; i < NumBrushes; ++i)
+  {
     const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
 
     allocations[i] = t.allocate(brushSize);
@@ -340,15 +374,18 @@ TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc", "[AllocationTrackerTe
   }
 }
 
-TEST_CASE("AllocationTrackerTest.benchmarkAllocAndExpand", "[AllocationTrackerTest]") {
+TEST_CASE("AllocationTrackerTest.benchmarkAllocAndExpand", "[AllocationTrackerTest]")
+{
   std::mt19937 randEngine;
 
   AllocationTracker t;
-  for (size_t i = 0; i < NumBrushes; ++i) {
+  for (size_t i = 0; i < NumBrushes; ++i)
+  {
     const size_t brushSize = getBrushSizeFromRandEngine(randEngine);
 
     auto key = t.allocate(brushSize);
-    if (key == nullptr) {
+    if (key == nullptr)
+    {
       const size_t newSize = t.capacity() + brushSize;
       t.expand(newSize);
 

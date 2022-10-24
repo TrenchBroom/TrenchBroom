@@ -30,9 +30,12 @@
 #include <string>
 #include <thread>
 
-namespace TrenchBroom {
-namespace View {
-namespace CompilationVariableNames {
+namespace TrenchBroom
+{
+namespace View
+{
+namespace CompilationVariableNames
+{
 const std::string WORK_DIR_PATH = "WORK_DIR_PATH";
 const std::string MAP_DIR_PATH = "MAP_DIR_PATH";
 const std::string MAP_BASE_NAME = "MAP_BASE_NAME";
@@ -43,7 +46,8 @@ const std::string MODS = "MODS";
 const std::string APP_DIR_PATH = "APP_DIR_PATH";
 } // namespace CompilationVariableNames
 
-CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document) {
+CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
+{
   const IO::Path filename = document->path().lastComponent();
   const IO::Path gamePath = document->game()->gamePath();
 
@@ -54,21 +58,25 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document) {
   using namespace CompilationVariableNames;
   declare(MAP_BASE_NAME, EL::Value(filename.deleteExtension().asString()));
   declare(GAME_DIR_PATH, EL::Value(gamePath.asString()));
-  declare(MODS, EL::Value{kdl::vec_transform(mods, [](const auto& mod) {
-            return EL::Value{mod};
-          })});
+  declare(
+    MODS,
+    EL::Value{kdl::vec_transform(mods, [](const auto& mod) { return EL::Value{mod}; })});
 
   const auto& factory = Model::GameFactory::instance();
-  for (const Model::CompilationTool& tool : document->game()->compilationTools()) {
-    const IO::Path toolPath = factory.compilationToolPath(document->game()->gameName(), tool.name);
-    // e.g. variable name might be "qbsp", and the value is the path to the user's local qbsp
-    // executable
+  for (const Model::CompilationTool& tool : document->game()->compilationTools())
+  {
+    const IO::Path toolPath =
+      factory.compilationToolPath(document->game()->gameName(), tool.name);
+    // e.g. variable name might be "qbsp", and the value is the path to the user's local
+    // qbsp executable
     declare(tool.name, EL::Value(toolPath.asString()));
   }
 }
 
-CommonCompilationVariables::CommonCompilationVariables(std::shared_ptr<MapDocument> document)
-  : CommonVariables(document) {
+CommonCompilationVariables::CommonCompilationVariables(
+  std::shared_ptr<MapDocument> document)
+  : CommonVariables(document)
+{
   const IO::Path filename = document->path().lastComponent();
   const IO::Path filePath = document->path().deleteLastComponent();
   const IO::Path appPath = IO::SystemPaths::appDirectory();
@@ -79,20 +87,28 @@ CommonCompilationVariables::CommonCompilationVariables(std::shared_ptr<MapDocume
   declare(APP_DIR_PATH, EL::Value(appPath.asString()));
 }
 
-CompilationWorkDirVariables::CompilationWorkDirVariables(std::shared_ptr<MapDocument> document)
-  : CommonCompilationVariables(document) {}
+CompilationWorkDirVariables::CompilationWorkDirVariables(
+  std::shared_ptr<MapDocument> document)
+  : CommonCompilationVariables(document)
+{
+}
 
 CompilationVariables::CompilationVariables(
   std::shared_ptr<MapDocument> document, const std::string& workDir)
-  : CommonCompilationVariables(document) {
-  const auto cpuCount = static_cast<size_t>(std::max(std::thread::hardware_concurrency(), 1u));
+  : CommonCompilationVariables(document)
+{
+  const auto cpuCount =
+    static_cast<size_t>(std::max(std::thread::hardware_concurrency(), 1u));
 
   using namespace CompilationVariableNames;
   declare(CPU_COUNT, EL::Value(cpuCount));
   declare(WORK_DIR_PATH, EL::Value(workDir));
 }
 
-LaunchGameEngineVariables::LaunchGameEngineVariables(std::shared_ptr<MapDocument> document)
-  : CommonVariables(document) {}
+LaunchGameEngineVariables::LaunchGameEngineVariables(
+  std::shared_ptr<MapDocument> document)
+  : CommonVariables(document)
+{
+}
 } // namespace View
 } // namespace TrenchBroom

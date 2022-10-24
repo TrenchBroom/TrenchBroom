@@ -23,16 +23,20 @@
 
 class QPoint;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class CompilationConfig;
 class CompilationProfile;
 } // namespace Model
 
-namespace View {
+namespace View
+{
 class ElidedLabel;
 
-class CompilationProfileItemRenderer : public ControlListBoxItemRenderer {
+class CompilationProfileItemRenderer : public ControlListBoxItemRenderer
+{
   Q_OBJECT
 private:
   Model::CompilationProfile* m_profile;
@@ -48,7 +52,8 @@ private:
   void updateItem() override;
 };
 
-class CompilationProfileListBox : public ControlListBox {
+class CompilationProfileListBox : public ControlListBox
+{
   Q_OBJECT
 private:
   const Model::CompilationConfig& m_config;
@@ -65,7 +70,8 @@ private:
   size_t itemCount() const override;
   ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
 signals:
-  void profileContextMenuRequested(const QPoint& globalPos, Model::CompilationProfile* profile);
+  void profileContextMenuRequested(
+    const QPoint& globalPos, Model::CompilationProfile* profile);
 };
 } // namespace View
 } // namespace TrenchBroom

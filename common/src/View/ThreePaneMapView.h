@@ -26,15 +26,18 @@
 
 class QSplitter;
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Renderer {
+namespace Renderer
+{
 class MapRenderer;
 class VboManager;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class CyclingMapView;
 class GLContextManager;
 class MapDocument;
@@ -43,7 +46,8 @@ class MapView2D;
 class MapView3D;
 class MapViewToolBox;
 
-class ThreePaneMapView : public MultiMapView {
+class ThreePaneMapView : public MultiMapView
+{
   Q_OBJECT
 private:
   Logger* m_logger;
@@ -58,14 +62,19 @@ private:
 
 public:
   ThreePaneMapView(
-    std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox,
-    Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager, Logger* logger,
+    std::weak_ptr<MapDocument> document,
+    MapViewToolBox& toolBox,
+    Renderer::MapRenderer& mapRenderer,
+    GLContextManager& contextManager,
+    Logger* logger,
     QWidget* parent = nullptr);
   ~ThreePaneMapView() override;
 
 private:
   void createGui(
-    MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager);
+    MapViewToolBox& toolBox,
+    Renderer::MapRenderer& mapRenderer,
+    GLContextManager& contextManager);
 
 private: // implement MultiMapView subclassing interface
   void doMaximizeView(MapView* view) override;

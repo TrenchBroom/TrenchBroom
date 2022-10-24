@@ -34,110 +34,133 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 Issue::Issue(const IssueType type, Node& node, std::string description)
   : m_seqId{nextSeqId()}
   , m_type{type}
   , m_node{node}
-  , m_description{std::move(description)} {}
+  , m_description{std::move(description)}
+{
+}
 
 Issue::~Issue() = default;
 
-size_t Issue::seqId() const {
+size_t Issue::seqId() const
+{
   return m_seqId;
 }
 
-size_t Issue::lineNumber() const {
+size_t Issue::lineNumber() const
+{
   return doGetLineNumber();
 }
 
-const std::string& Issue::description() const {
+const std::string& Issue::description() const
+{
   return m_description;
 }
 
-IssueType Issue::type() const {
+IssueType Issue::type() const
+{
   return m_type;
 }
 
-Node& Issue::node() const {
+Node& Issue::node() const
+{
   return m_node;
 }
 
-bool Issue::addSelectableNodes(std::vector<Model::Node*>& nodes) const {
-  if (m_node.parent() == nullptr) {
+bool Issue::addSelectableNodes(std::vector<Model::Node*>& nodes) const
+{
+  if (m_node.parent() == nullptr)
+  {
     return false;
   }
 
   m_node.accept(kdl::overload(
-    [](WorldNode*) {}, [](LayerNode*) {},
-    [&](GroupNode* group) {
-      nodes.push_back(group);
-    },
+    [](WorldNode*) {},
+    [](LayerNode*) {},
+    [&](GroupNode* group) { nodes.push_back(group); },
     [&](auto&& thisLambda, EntityNode* entity) {
-      if (!entity->hasChildren()) {
+      if (!entity->hasChildren())
+      {
         nodes.push_back(entity);
-      } else {
+      }
+      else
+      {
         entity->visitChildren(thisLambda);
       }
     },
-    [&](BrushNode* brush) {
-      nodes.push_back(brush);
-    },
-    [&](PatchNode* patch) {
-      nodes.push_back(patch);
-    }));
+    [&](BrushNode* brush) { nodes.push_back(brush); },
+    [&](PatchNode* patch) { nodes.push_back(patch); }));
 
   return true;
 }
 
-bool Issue::hidden() const {
+bool Issue::hidden() const
+{
   return m_node.issueHidden(type());
 }
 
-size_t Issue::nextSeqId() {
+size_t Issue::nextSeqId()
+{
   static size_t seqId = 0;
   return seqId++;
 }
 
-size_t Issue::doGetLineNumber() const {
+size_t Issue::doGetLineNumber() const
+{
   return m_node.lineNumber();
 }
 
 BrushFaceIssue::BrushFaceIssue(
   const IssueType type, BrushNode& node, const size_t faceIndex, std::string description)
   : Issue{type, node, std::move(description)}
-  , m_faceIndex{faceIndex} {}
+  , m_faceIndex{faceIndex}
+{
+}
 
 BrushFaceIssue::~BrushFaceIssue() = default;
 
-size_t BrushFaceIssue::faceIndex() const {
+size_t BrushFaceIssue::faceIndex() const
+{
   return m_faceIndex;
 }
 
-const BrushFace& BrushFaceIssue::face() const {
+const BrushFace& BrushFaceIssue::face() const
+{
   const auto& brushNode = static_cast<const BrushNode&>(node());
   const auto& brush = brushNode.brush();
   return brush.face(m_faceIndex);
 }
 
-size_t BrushFaceIssue::doGetLineNumber() const {
+size_t BrushFaceIssue::doGetLineNumber() const
+{
   return face().lineNumber();
 }
 
 EntityPropertyIssue::EntityPropertyIssue(
-  const IssueType type, EntityNodeBase& entityNode, std::string propertyKey,
+  const IssueType type,
+  EntityNodeBase& entityNode,
+  std::string propertyKey,
   std::string description)
   : Issue{type, entityNode, std::move(description)}
-  , m_propertyKey{std::move(propertyKey)} {}
+  , m_propertyKey{std::move(propertyKey)}
+{
+}
 
 EntityPropertyIssue::~EntityPropertyIssue() = default;
 
-const std::string& EntityPropertyIssue::propertyKey() const {
+const std::string& EntityPropertyIssue::propertyKey() const
+{
   return m_propertyKey;
 }
 
-const std::string& EntityPropertyIssue::propertyValue() const {
+const std::string& EntityPropertyIssue::propertyValue() const
+{
   static const auto NoValue = std::string{""};
   const auto& entityNode = static_cast<EntityNodeBase&>(node());
   const auto* value = entityNode.entity().property(propertyKey());

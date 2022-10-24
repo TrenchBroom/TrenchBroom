@@ -30,12 +30,17 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 CompilationConfigParser::CompilationConfigParser(std::string_view str, const Path& path)
-  : ConfigParserBase(std::move(str), path) {}
+  : ConfigParserBase(std::move(str), path)
+{
+}
 
-Model::CompilationConfig CompilationConfigParser::parse() {
+Model::CompilationConfig CompilationConfigParser::parse()
+{
   const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
   expectType(root, EL::ValueType::Map);
 
@@ -49,20 +54,24 @@ Model::CompilationConfig CompilationConfigParser::parse() {
   return Model::CompilationConfig(std::move(profiles));
 }
 
-std::vector<std::unique_ptr<Model::CompilationProfile>> CompilationConfigParser::parseProfiles(
-  const EL::Value& value) const {
+std::vector<std::unique_ptr<Model::CompilationProfile>> CompilationConfigParser::
+  parseProfiles(const EL::Value& value) const
+{
   std::vector<std::unique_ptr<Model::CompilationProfile>> result;
   result.reserve(value.length());
 
-  for (size_t i = 0; i < value.length(); ++i) {
+  for (size_t i = 0; i < value.length(); ++i)
+  {
     result.push_back(parseProfile(value[i]));
   }
   return result;
 }
 
 std::unique_ptr<Model::CompilationProfile> CompilationConfigParser::parseProfile(
-  const EL::Value& value) const {
-  expectStructure(value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
+  const EL::Value& value) const
+{
+  expectStructure(
+    value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
   const std::string name = value["name"].stringValue();
   const std::string workdir = value["workdir"].stringValue();
@@ -72,45 +81,59 @@ std::unique_ptr<Model::CompilationProfile> CompilationConfigParser::parseProfile
 }
 
 std::vector<std::unique_ptr<Model::CompilationTask>> CompilationConfigParser::parseTasks(
-  const EL::Value& value) const {
+  const EL::Value& value) const
+{
   std::vector<std::unique_ptr<Model::CompilationTask>> result;
   result.reserve(value.length());
 
-  for (size_t i = 0; i < value.length(); ++i) {
+  for (size_t i = 0; i < value.length(); ++i)
+  {
     result.push_back(parseTask(value[i]));
   }
   return result;
 }
 
 std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseTask(
-  const EL::Value& value) const {
+  const EL::Value& value) const
+{
   expectMapEntry(value, "type", EL::ValueType::String);
   const std::string type = value["type"].stringValue();
 
-  if (type == "export") {
+  if (type == "export")
+  {
     return parseExportTask(value);
-  } else if (type == "copy") {
+  }
+  else if (type == "copy")
+  {
     return parseCopyTask(value);
-  } else if (type == "tool") {
+  }
+  else if (type == "tool")
+  {
     return parseToolTask(value);
-  } else {
+  }
+  else
+  {
     throw ParserException("Unknown compilation task type '" + type + "'");
   }
 }
 
 std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseExportTask(
-  const EL::Value& value) const {
-  expectStructure(value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+  const EL::Value& value) const
+{
+  expectStructure(
+    value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
   const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
   const std::string target = value["target"].stringValue();
   return std::make_unique<Model::CompilationExportMap>(enabled, target);
 }
 
 std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(
-  const EL::Value& value) const {
+  const EL::Value& value) const
+{
   expectStructure(
     value,
-    "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+    "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
+    "'Boolean' } ]");
 
   const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
   const std::string source = value["source"].stringValue();
@@ -120,10 +143,12 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(
 }
 
 std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(
-  const EL::Value& value) const {
+  const EL::Value& value) const
+{
   expectStructure(
     value,
-    "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': 'Boolean' } ]");
+    "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': "
+    "'Boolean' } ]");
 
   const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
   const std::string tool = value["tool"].stringValue();

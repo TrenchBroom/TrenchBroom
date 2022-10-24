@@ -2,20 +2,21 @@
  Copyright 2010-2019 Kristian Duske
  Copyright 2015-2019 Eric Wasylishen
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ software and associated documentation files (the "Software"), to deal in the Software
+ without restriction, including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in all copies or
  substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
 */
 
 #include <vecmath/approx.h>
@@ -36,21 +37,25 @@
 
 #include <catch2/catch.hpp>
 
-namespace vm {
-TEST_CASE("plane.constructor_default") {
+namespace vm
+{
+TEST_CASE("plane.constructor_default")
+{
   constexpr auto p = plane3f();
   CER_CHECK(p.distance == 0.0f);
   CER_CHECK(p.normal == vec3f::zero());
 }
 
-TEST_CASE("plane.constructor_convert") {
+TEST_CASE("plane.constructor_convert")
+{
   constexpr auto p = plane3d(1.0, vec3d::pos_z());
   constexpr auto q = plane3f(p);
   CER_CHECK(q.distance == approx(1.0f));
   CER_CHECK(q.normal == approx(vec3f::pos_z()));
 }
 
-TEST_CASE("plane.constructor_with_distance_and_normal") {
+TEST_CASE("plane.constructor_with_distance_and_normal")
+{
   constexpr auto d = 123.0f;
   constexpr auto n = normalize_c(vec3f(1.0f, 2.0f, 3.0f));
   constexpr auto p = plane3f(d, n);
@@ -58,7 +63,8 @@ TEST_CASE("plane.constructor_with_distance_and_normal") {
   CER_CHECK(p.normal == approx(n));
 }
 
-TEST_CASE("plane.constructor_with_anchor_and_normal") {
+TEST_CASE("plane.constructor_with_anchor_and_normal")
+{
   constexpr auto a = vec3f(-2038.034f, 0.0023f, 32.0f);
   constexpr auto n = normalize_c(vec3f(9.734f, -3.393f, 2.033f));
   constexpr auto p = plane3f(a, n);
@@ -66,34 +72,40 @@ TEST_CASE("plane.constructor_with_anchor_and_normal") {
   CER_CHECK(p.normal == approx(n));
 }
 
-TEST_CASE("plane.anchor") {
+TEST_CASE("plane.anchor")
+{
   constexpr auto a = vec3f(-2038.034f, 0.0023f, 32.0f);
   constexpr auto n = normalize_c(vec3f(9.734f, -3.393f, 2.033f));
   constexpr auto p = plane3f(a, n);
   CER_CHECK(p.anchor() == approx(p.distance * n));
 }
 
-TEST_CASE("plane.at") {
+TEST_CASE("plane.at")
+{
   constexpr auto a = vec3f(-2038.034f, 0.0023f, 32.0f);
   constexpr auto n = normalize_c(vec3f(9.734f, -3.393f, 2.033f));
   constexpr auto p = plane3f(a, n);
   constexpr auto point1 = vec2f(27.022f, -12.0123223f);
 
   CER_CHECK(
-    p.at(point1, axis::x) ==
-    approx(
-      (p.distance - point1.x() * p.normal.y() - point1.y() * p.normal.z()) / p.normal[axis::x]));
+    p.at(point1, axis::x)
+    == approx(
+      (p.distance - point1.x() * p.normal.y() - point1.y() * p.normal.z())
+      / p.normal[axis::x]));
   CER_CHECK(
-    p.at(point1, axis::y) ==
-    approx(
-      (p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.z()) / p.normal[axis::y]));
+    p.at(point1, axis::y)
+    == approx(
+      (p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.z())
+      / p.normal[axis::y]));
   CER_CHECK(
-    p.at(point1, axis::z) ==
-    approx(
-      (p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.y()) / p.normal[axis::z]));
+    p.at(point1, axis::z)
+    == approx(
+      (p.distance - point1.x() * p.normal.x() - point1.y() * p.normal.y())
+      / p.normal[axis::z]));
 }
 
-TEST_CASE("plane.at_parallel_planes") {
+TEST_CASE("plane.at_parallel_planes")
+{
   constexpr auto p1 = plane3f(10.0f, vec3f::pos_x());
 
   CER_CHECK(p1.at(vec2f(2.0f, 1.0f), axis::x) == approx(p1.distance));
@@ -104,7 +116,8 @@ TEST_CASE("plane.at_parallel_planes") {
   CER_CHECK(p1.at(vec2f(22.0f, -34322.0232f), axis::z) == approx(0.0f));
 }
 
-TEST_CASE("plane.xyz_at") {
+TEST_CASE("plane.xyz_at")
+{
   constexpr auto a = vec3f(-2038.034f, 0.0023f, 32.0f);
   constexpr auto n = normalize_c(vec3f(9.734f, -3.393f, 2.033f));
   constexpr auto p = plane3f(a, n);
@@ -115,7 +128,8 @@ TEST_CASE("plane.xyz_at") {
   CER_CHECK(p.zAt(point1) == approx(p.at(point1, axis::z)));
 }
 
-TEST_CASE("plane.point_distance") {
+TEST_CASE("plane.point_distance")
+{
   constexpr auto a = vec3f(-2038.034f, 0.0023f, 32.0f);
   constexpr auto n = normalize_c(vec3f(9.734f, -3.393f, 2.033f));
   constexpr auto p = plane3f(a, n);
@@ -123,19 +137,22 @@ TEST_CASE("plane.point_distance") {
   CER_CHECK(p.point_distance(point) == dot(point, p.normal) - p.distance);
 }
 
-TEST_CASE("plane.point_status") {
+TEST_CASE("plane.point_status")
+{
   constexpr auto p = plane3f(10.0f, vec3f::pos_z());
   CER_CHECK(p.point_status(vec3f(0.0f, 0.0f, 11.0f)) == plane_status::above);
   CER_CHECK(p.point_status(vec3f(0.0f, 0.0f, 9.0f)) == plane_status::below);
   CER_CHECK(p.point_status(vec3f(0.0f, 0.0f, 10.0f)) == plane_status::inside);
 }
 
-TEST_CASE("plane.flip") {
+TEST_CASE("plane.flip")
+{
   constexpr auto p = plane3f(10.0f, vec3f::pos_z());
   CER_CHECK(p.flip() == plane3f(-10.0f, vec3f::neg_z()));
 }
 
-TEST_CASE("plane.transform") {
+TEST_CASE("plane.transform")
+{
   const auto p = plane3d(vec3d::one(), vec3d::pos_z());
   const auto rm = rotation_matrix(to_radians(15.0), to_radians(20.0), to_radians(-12.0));
   const auto tm = translation_matrix(vec3d::one());
@@ -146,7 +163,8 @@ TEST_CASE("plane.transform") {
   CHECK(pt.normal == approx(rm * p.normal));
 }
 
-TEST_CASE("plane.transform_c") {
+TEST_CASE("plane.transform_c")
+{
   constexpr auto p = plane3d(vec3d::one(), vec3d::pos_z());
   constexpr auto sm = scaling_matrix(vec3d(2.0, 0.5, 3.0));
   constexpr auto tm = translation_matrix(vec3d::one());
@@ -157,66 +175,88 @@ TEST_CASE("plane.transform_c") {
   CHECK(pt.normal == approx(normalize_c(sm * p.normal)));
 }
 
-TEST_CASE("plane.project_point") {
-  CER_CHECK(plane3d(0.0, vec3d::pos_z()).project_point(vec3d(0, 0, 10)) == approx(vec3d(0, 0, 0)));
-  CER_CHECK(plane3d(0.0, vec3d::pos_z()).project_point(vec3d(1, 2, 10)) == approx(vec3d(1, 2, 0)));
+TEST_CASE("plane.project_point")
+{
   CER_CHECK(
-    plane3d(0.0, normalize_c(vec3d(1, 1, 1))).project_point(vec3d(10, 10, 10)) ==
-    approx(vec3d(0, 0, 0)));
+    plane3d(0.0, vec3d::pos_z()).project_point(vec3d(0, 0, 10))
+    == approx(vec3d(0, 0, 0)));
+  CER_CHECK(
+    plane3d(0.0, vec3d::pos_z()).project_point(vec3d(1, 2, 10))
+    == approx(vec3d(1, 2, 0)));
+  CER_CHECK(
+    plane3d(0.0, normalize_c(vec3d(1, 1, 1))).project_point(vec3d(10, 10, 10))
+    == approx(vec3d(0, 0, 0)));
 }
 
-TEST_CASE("plane.project_point_direction") {
+TEST_CASE("plane.project_point_direction")
+{
   CER_CHECK(
-    plane3d(0.0, vec3d::pos_z()).project_point(vec3d(0, 0, 10), vec3d::pos_z()) ==
-    approx(vec3d(0, 0, 0)));
+    plane3d(0.0, vec3d::pos_z()).project_point(vec3d(0, 0, 10), vec3d::pos_z())
+    == approx(vec3d(0, 0, 0)));
   CER_CHECK(
-    plane3d(0.0, vec3d::pos_z()).project_point(vec3d(1, 2, 10), vec3d::pos_z()) ==
-    approx(vec3d(1, 2, 0)));
+    plane3d(0.0, vec3d::pos_z()).project_point(vec3d(1, 2, 10), vec3d::pos_z())
+    == approx(vec3d(1, 2, 0)));
   CER_CHECK(
-    plane3d(0.0, vec3d::pos_z()).project_point(vec3d(10, 10, 10), normalize_c(vec3d(1, 1, 1))) ==
-    approx(vec3d(0, 0, 0)));
+    plane3d(0.0, vec3d::pos_z())
+      .project_point(vec3d(10, 10, 10), normalize_c(vec3d(1, 1, 1)))
+    == approx(vec3d(0, 0, 0)));
 }
 
-TEST_CASE("plane.project_vector") {
-  CER_CHECK(plane3d(0.0, vec3d::pos_z()).project_vector(vec3d(1, 1, 1)) == approx(vec3d(1, 1, 0)));
-  CER_CHECK(plane3d(1.0, vec3d::pos_z()).project_vector(vec3d(1, 1, 1)) == approx(vec3d(1, 1, 0)));
+TEST_CASE("plane.project_vector")
+{
+  CER_CHECK(
+    plane3d(0.0, vec3d::pos_z()).project_vector(vec3d(1, 1, 1))
+    == approx(vec3d(1, 1, 0)));
+  CER_CHECK(
+    plane3d(1.0, vec3d::pos_z()).project_vector(vec3d(1, 1, 1))
+    == approx(vec3d(1, 1, 0)));
 }
 
-TEST_CASE("plane.project_vector_direction") {
+TEST_CASE("plane.project_vector_direction")
+{
   CER_CHECK(
-    plane3d(0.0, vec3d::pos_z()).project_vector(vec3d(1, 1, 1), vec3d::pos_z()) ==
-    approx(vec3d(1, 1, 0)));
+    plane3d(0.0, vec3d::pos_z()).project_vector(vec3d(1, 1, 1), vec3d::pos_z())
+    == approx(vec3d(1, 1, 0)));
   CER_CHECK(
-    plane3d(1.0, vec3d::pos_z()).project_vector(vec3d(1, 1, 1), vec3d::pos_z()) ==
-    approx(vec3d(1, 1, 0)));
+    plane3d(1.0, vec3d::pos_z()).project_vector(vec3d(1, 1, 1), vec3d::pos_z())
+    == approx(vec3d(1, 1, 0)));
   CER_CHECK(
-    plane3d(0.0, vec3d::pos_z()).project_vector(vec3d(1, 1, 1), normalize_c(vec3d(1, 1, -1))) ==
-    approx(vec3d(2, 2, 0)));
+    plane3d(0.0, vec3d::pos_z())
+      .project_vector(vec3d(1, 1, 1), normalize_c(vec3d(1, 1, -1)))
+    == approx(vec3d(2, 2, 0)));
 }
 
 TEST_CASE("plane.is_equal"){CER_CHECK(is_equal(
-  plane3f(0.0f, vec3f::pos_x()), plane3f(0.0f, vec3f::pos_x()), constants<float>::almost_zero()))
+  plane3f(0.0f, vec3f::pos_x()),
+  plane3f(0.0f, vec3f::pos_x()),
+  constants<float>::almost_zero()))
                               CER_CHECK(is_equal(
-                                plane3f(0.0f, vec3f::pos_y()), plane3f(0.0f, vec3f::pos_y()),
+                                plane3f(0.0f, vec3f::pos_y()),
+                                plane3f(0.0f, vec3f::pos_y()),
                                 constants<float>::almost_zero()))
                                 CER_CHECK(is_equal(
-                                  plane3f(0.0f, vec3f::pos_z()), plane3f(0.0f, vec3f::pos_z()),
+                                  plane3f(0.0f, vec3f::pos_z()),
+                                  plane3f(0.0f, vec3f::pos_z()),
                                   constants<float>::almost_zero()))
                                   CER_CHECK_FALSE(is_equal(
-                                    plane3f(0.0f, vec3f::pos_x()), plane3f(0.0f, vec3f::neg_x()),
+                                    plane3f(0.0f, vec3f::pos_x()),
+                                    plane3f(0.0f, vec3f::neg_x()),
                                     constants<float>::almost_zero()))
                                     CER_CHECK_FALSE(is_equal(
-                                      plane3f(0.0f, vec3f::pos_x()), plane3f(0.0f, vec3f::pos_y()),
+                                      plane3f(0.0f, vec3f::pos_x()),
+                                      plane3f(0.0f, vec3f::pos_y()),
                                       constants<float>::almost_zero()))}
 
 TEST_CASE("plane.operator_equal"){
   CER_CHECK(plane3d() == plane3d())
-    CER_CHECK(plane3d(10.0, vec3d::pos_z()) == plane3d(10.0, vec3d::pos_z())) CER_CHECK_FALSE(
-      plane3d(20.0, vec3d::pos_z()) == plane3d(10.0, vec3d::pos_z()))
-      CER_CHECK_FALSE(plane3d(10.0, vec3d::neg_z()) == plane3d(10.0, vec3d::pos_z()))
-        CER_CHECK_FALSE(plane3d(10.0, normalize_c(vec3d::one())) == plane3d(10.0, vec3d::pos_z()))}
+    CER_CHECK(plane3d(10.0, vec3d::pos_z()) == plane3d(10.0, vec3d::pos_z()))
+      CER_CHECK_FALSE(plane3d(20.0, vec3d::pos_z()) == plane3d(10.0, vec3d::pos_z()))
+        CER_CHECK_FALSE(plane3d(10.0, vec3d::neg_z()) == plane3d(10.0, vec3d::pos_z()))
+          CER_CHECK_FALSE(
+            plane3d(10.0, normalize_c(vec3d::one())) == plane3d(10.0, vec3d::pos_z()))}
 
-TEST_CASE("plane.operator_not_equal") {
+TEST_CASE("plane.operator_not_equal")
+{
   CER_CHECK_FALSE(plane3d() != plane3d())
   CER_CHECK_FALSE(plane3d(10.0, vec3d::pos_z()) != plane3d(10.0, vec3d::pos_z()))
   CER_CHECK(plane3d(20.0, vec3d::pos_z()) != plane3d(10.0, vec3d::pos_z()))
@@ -226,28 +266,37 @@ TEST_CASE("plane.operator_not_equal") {
 
 template <typename T>
 void checkValidPlaneNormal(
-  const vec<T, 3>& expected, const vec<T, 3>& p1, const vec<T, 3>& p2, const vec<T, 3>& p3) {
+  const vec<T, 3>& expected,
+  const vec<T, 3>& p1,
+  const vec<T, 3>& p2,
+  const vec<T, 3>& p3)
+{
   const auto result = plane_normal(p1, p2, p3);
   CHECK(std::get<0>(result));
   CHECK(std::get<1>(result) == approx(expected));
 }
 
 template <typename T>
-void checkInvalidPlaneNormal(const vec<T, 3>& p1, const vec<T, 3>& p2, const vec<T, 3>& p3) {
+void checkInvalidPlaneNormal(
+  const vec<T, 3>& p1, const vec<T, 3>& p2, const vec<T, 3>& p3)
+{
   const auto result = plane_normal(p1, p2, p3);
   CHECK_FALSE(std::get<0>(result));
 }
 
-TEST_CASE("plane.plane_normal") {
+TEST_CASE("plane.plane_normal")
+{
   checkValidPlaneNormal(vec3d::pos_z(), vec3d::zero(), vec3d::pos_y(), vec3d::pos_x());
-  checkValidPlaneNormal(vec3d::pos_z(), vec3d::zero(), normalize(vec3d(1, 1, 0)), vec3d::pos_x());
+  checkValidPlaneNormal(
+    vec3d::pos_z(), vec3d::zero(), normalize(vec3d(1, 1, 0)), vec3d::pos_x());
   checkInvalidPlaneNormal(vec3d::zero(), vec3d::zero(), vec3d::pos_x());
   checkInvalidPlaneNormal(vec3d::zero(), vec3d::pos_x(), vec3d::pos_x());
   checkInvalidPlaneNormal(vec3d::zero(), vec3d::neg_x(), vec3d::pos_x());
   checkInvalidPlaneNormal(vec3d::zero(), vec3d::zero(), vec3d::pos_x());
 }
 
-TEST_CASE("plane.from_points") {
+TEST_CASE("plane.from_points")
+{
   bool valid;
   plane3f plane;
   std::array<vec3f, 3> points;
@@ -344,14 +393,16 @@ TEST_CASE("plane.from_points") {
   CHECK_FALSE(valid);
 }
 
-TEST_CASE("plane.horizontal_plane") {
+TEST_CASE("plane.horizontal_plane")
+{
   constexpr auto position = vec3f(322.0f, -122.2392f, 34.0f);
   constexpr auto p = horizontal_plane(position);
   CER_CHECK(p.point_status(position) == plane_status::inside)
   CER_CHECK(p.normal == approx(vec3f::pos_z()));
 }
 
-TEST_CASE("plane.orthogonal_plane") {
+TEST_CASE("plane.orthogonal_plane")
+{
   const auto position = vec3f(322.0f, -122.2392f, 34.0f);
   const auto direction = normalize(vec3f(1.0f, 2.0f, -3.0f));
   const auto p = orthogonal_plane(position, direction);
@@ -359,7 +410,8 @@ TEST_CASE("plane.orthogonal_plane") {
   CHECK(p.normal == approx(direction));
 }
 
-TEST_CASE("plane.aligned_orthogonal_plane") {
+TEST_CASE("plane.aligned_orthogonal_plane")
+{
   constexpr auto position = vec3f(322.0f, -122.2392f, 34.0f);
   constexpr auto direction = normalize_c(vec3f(1.0f, 2.0f, -3.0f));
   constexpr auto p = aligned_orthogonal_plane(position, direction);
@@ -367,7 +419,8 @@ TEST_CASE("plane.aligned_orthogonal_plane") {
   CER_CHECK(p.normal == approx(vec3f::neg_z()));
 }
 
-TEST_CASE("plane.stream_insertion") {
+TEST_CASE("plane.stream_insertion")
+{
   std::stringstream str;
   str << plane3d(10.0, vec3d::pos_z());
   CHECK(str.str() == "{ normal: (0 0 1), distance: 10 }");

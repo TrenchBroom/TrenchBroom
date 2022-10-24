@@ -38,9 +38,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
-namespace BspLayout {
+namespace TrenchBroom
+{
+namespace IO
+{
+namespace BspLayout
+{
 static const size_t DirTexturesAddress = 0x14;
 // static const size_t DirTexturesSize       = 0x18;
 static const size_t DirVerticesAddress = 0x1C;
@@ -73,15 +76,21 @@ static const size_t ModelFaceIndex = 0x38;
 } // namespace BspLayout
 
 Bsp29Parser::Bsp29Parser(
-  const std::string& name, const Reader& reader, const Assets::Palette& palette,
+  const std::string& name,
+  const Reader& reader,
+  const Assets::Palette& palette,
   const FileSystem& fs)
   : m_name(name)
   , m_reader(reader)
   , m_palette(palette)
-  , m_fs(fs) {}
+  , m_fs(fs)
+{
+}
 
-bool Bsp29Parser::canParse(const Path& path, Reader reader) {
-  if (kdl::str_to_lower(path.extension()) != "bsp") {
+bool Bsp29Parser::canParse(const Path& path, Reader reader)
+{
+  if (kdl::str_to_lower(path.extension()) != "bsp")
+  {
     return false;
   }
 
@@ -89,10 +98,12 @@ bool Bsp29Parser::canParse(const Path& path, Reader reader) {
   return version == 29;
 }
 
-std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger) {
+std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logger)
+{
   auto reader = m_reader;
   const auto version = reader.readInt<int32_t>();
-  if (version != 29) {
+  if (version != 29)
+  {
     throw AssetException("Unsupported BSP model version: " + std::to_string(version));
   }
 
@@ -108,7 +119,8 @@ std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logg
 
   auto model = std::make_unique<Assets::EntityModel>(
     m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-  for (size_t i = 0; i < frameCount; ++i) {
+  for (size_t i = 0; i < frameCount; ++i)
+  {
     model->addFrame();
   }
 
@@ -119,10 +131,12 @@ std::unique_ptr<Assets::EntityModel> Bsp29Parser::doInitializeModel(Logger& logg
 }
 
 void Bsp29Parser::doLoadFrame(
-  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */) {
+  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
+{
   auto reader = m_reader;
   const auto version = reader.readInt<int32_t>();
-  if (version != 29) {
+  if (version != 29)
+  {
     throw AssetException("Unsupported BSP model version: " + std::to_string(version));
   }
 
@@ -160,18 +174,29 @@ void Bsp29Parser::doLoadFrame(
 
   const auto textureInfos =
     parseTextureInfos(reader.subReaderFromBegin(textureInfoOffset), textureInfoCount);
-  const auto vertices = parseVertices(reader.subReaderFromBegin(vertexOffset), vertexCount);
-  const auto edgeInfos = parseEdgeInfos(reader.subReaderFromBegin(edgeInfoOffset), edgeInfoCount);
-  const auto faceInfos = parseFaceInfos(reader.subReaderFromBegin(faceInfoOffset), faceInfoCount);
-  const auto faceEdges = parseFaceEdges(reader.subReaderFromBegin(faceEdgesOffset), faceEdgesCount);
+  const auto vertices =
+    parseVertices(reader.subReaderFromBegin(vertexOffset), vertexCount);
+  const auto edgeInfos =
+    parseEdgeInfos(reader.subReaderFromBegin(edgeInfoOffset), edgeInfoCount);
+  const auto faceInfos =
+    parseFaceInfos(reader.subReaderFromBegin(faceInfoOffset), faceInfoCount);
+  const auto faceEdges =
+    parseFaceEdges(reader.subReaderFromBegin(faceEdgesOffset), faceEdgesCount);
 
   parseFrame(
     reader.subReaderFromBegin(
       modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize),
-    frameIndex, model, textureInfos, vertices, edgeInfos, faceInfos, faceEdges);
+    frameIndex,
+    model,
+    textureInfos,
+    vertices,
+    edgeInfos,
+    faceInfos,
+    faceEdges);
 }
 
-std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& logger) {
+std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& logger)
+{
   const TextureReader::TextureNameStrategy nameStrategy;
   IdMipTextureReader textureReader(nameStrategy, m_fs, logger, m_palette);
 
@@ -179,28 +204,32 @@ std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& l
   std::vector<Assets::Texture> result;
   result.reserve(textureCount);
 
-  for (size_t i = 0; i < textureCount; ++i) {
+  for (size_t i = 0; i < textureCount; ++i)
+  {
     const auto textureOffset = reader.readInt<int32_t>();
     // 2153: Some BSPs contain negative texture offsets.
-    if (textureOffset < 0) {
+    if (textureOffset < 0)
+    {
       result.push_back(loadDefaultTexture(m_fs, logger, "unknown"));
       continue;
     }
 
-    auto subReader = reader.subReaderFromBegin(static_cast<size_t>(textureOffset)).buffer();
+    auto subReader =
+      reader.subReaderFromBegin(static_cast<size_t>(textureOffset)).buffer();
 
-    // MipTextureReader::doReadTexture requires a texture name to be provided in the File's Path.
-    // So we must peek into the mip data to get a name.
+    // MipTextureReader::doReadTexture requires a texture name to be provided in the
+    // File's Path. So we must peek into the mip data to get a name.
     auto texturePath = Path(MipTextureReader::getTextureName(subReader));
-    if (texturePath.isEmpty()) {
+    if (texturePath.isEmpty())
+    {
       texturePath = Path("unknown");
     }
 
-    // We can't easily tell where the texture ends without duplicating all of the parsing code
-    // (including HlMip) here. Just prevent the texture reader from reading past the end of the .bsp
-    // file.
-    auto fileView =
-      std::make_shared<NonOwningBufferFile>(texturePath, subReader.begin(), subReader.end());
+    // We can't easily tell where the texture ends without duplicating all of the parsing
+    // code (including HlMip) here. Just prevent the texture reader from reading past the
+    // end of the .bsp file.
+    auto fileView = std::make_shared<NonOwningBufferFile>(
+      texturePath, subReader.begin(), subReader.end());
     result.push_back(textureReader.readTexture(fileView));
   }
 
@@ -208,9 +237,11 @@ std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& l
 }
 
 Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos(
-  Reader reader, const size_t textureInfoCount) {
+  Reader reader, const size_t textureInfoCount)
+{
   TextureInfoList result(textureInfoCount);
-  for (size_t i = 0; i < textureInfoCount; ++i) {
+  for (size_t i = 0; i < textureInfoCount; ++i)
+  {
     result[i].sAxis = reader.readVec<float, 3>();
     result[i].sOffset = reader.readFloat<float>();
     result[i].tAxis = reader.readVec<float, 3>();
@@ -221,26 +252,34 @@ Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos(
   return result;
 }
 
-std::vector<vm::vec3f> Bsp29Parser::parseVertices(Reader reader, const size_t vertexCount) {
+std::vector<vm::vec3f> Bsp29Parser::parseVertices(Reader reader, const size_t vertexCount)
+{
   std::vector<vm::vec3f> result(vertexCount);
-  for (size_t i = 0; i < vertexCount; ++i) {
+  for (size_t i = 0; i < vertexCount; ++i)
+  {
     result[i] = reader.readVec<float, 3>();
   }
   return result;
 }
 
-Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos(Reader reader, const size_t edgeInfoCount) {
+Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos(
+  Reader reader, const size_t edgeInfoCount)
+{
   EdgeInfoList result(edgeInfoCount);
-  for (size_t i = 0; i < edgeInfoCount; ++i) {
+  for (size_t i = 0; i < edgeInfoCount; ++i)
+  {
     result[i].vertexIndex1 = reader.readSize<uint16_t>();
     result[i].vertexIndex2 = reader.readSize<uint16_t>();
   }
   return result;
 }
 
-Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos(Reader reader, const size_t faceInfoCount) {
+Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos(
+  Reader reader, const size_t faceInfoCount)
+{
   FaceInfoList result(faceInfoCount);
-  for (size_t i = 0; i < faceInfoCount; ++i) {
+  for (size_t i = 0; i < faceInfoCount; ++i)
+  {
     reader.seekForward(BspLayout::FaceEdgeIndex);
     result[i].edgeIndex = reader.readSize<int32_t>();
     result[i].edgeCount = reader.readSize<uint16_t>();
@@ -251,19 +290,26 @@ Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos(Reader reader, const size_
 }
 
 Bsp29Parser::FaceEdgeIndexList Bsp29Parser::parseFaceEdges(
-  Reader reader, const size_t faceEdgeCount) {
+  Reader reader, const size_t faceEdgeCount)
+{
   FaceEdgeIndexList result(faceEdgeCount);
-  for (size_t i = 0; i < faceEdgeCount; ++i) {
+  for (size_t i = 0; i < faceEdgeCount; ++i)
+  {
     result[i] = reader.readInt<int32_t>();
   }
   return result;
 }
 
 void Bsp29Parser::parseFrame(
-  Reader reader, const size_t frameIndex, Assets::EntityModel& model,
-  const TextureInfoList& textureInfos, const std::vector<vm::vec3f>& vertices,
-  const EdgeInfoList& edgeInfos, const FaceInfoList& faceInfos,
-  const FaceEdgeIndexList& faceEdges) {
+  Reader reader,
+  const size_t frameIndex,
+  Assets::EntityModel& model,
+  const TextureInfoList& textureInfos,
+  const std::vector<vm::vec3f>& vertices,
+  const EdgeInfoList& edgeInfos,
+  const FaceInfoList& faceInfos,
+  const FaceEdgeIndexList& faceEdges)
+{
   using Vertex = Assets::EntityModelVertex;
   using VertexList = std::vector<Vertex>;
 
@@ -275,11 +321,13 @@ void Bsp29Parser::parseFrame(
   size_t totalVertexCount = 0;
   Renderer::TexturedIndexRangeMap::Size size;
 
-  for (size_t i = 0; i < modelFaceCount; ++i) {
+  for (size_t i = 0; i < modelFaceCount; ++i)
+  {
     const auto& faceInfo = faceInfos[modelFaceIndex + i];
     const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
     auto* skin = surface.skin(textureInfo.textureIndex);
-    if (skin != nullptr) {
+    if (skin != nullptr)
+    {
       const auto faceVertexCount = faceInfo.edgeCount;
       size.inc(skin, Renderer::PrimType::Polygon, faceVertexCount);
       totalVertexCount += faceVertexCount;
@@ -289,21 +337,27 @@ void Bsp29Parser::parseFrame(
   vm::bbox3f::builder bounds;
 
   Renderer::TexturedIndexRangeMapBuilder<Vertex::Type> builder(totalVertexCount, size);
-  for (size_t i = 0; i < modelFaceCount; ++i) {
+  for (size_t i = 0; i < modelFaceCount; ++i)
+  {
     const auto& faceInfo = faceInfos[modelFaceIndex + i];
     const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
     auto* skin = surface.skin(textureInfo.textureIndex);
-    if (skin != nullptr) {
+    if (skin != nullptr)
+    {
       const auto faceVertexCount = faceInfo.edgeCount;
 
       VertexList faceVertices;
       faceVertices.reserve(faceVertexCount);
-      for (size_t k = 0; k < faceVertexCount; ++k) {
+      for (size_t k = 0; k < faceVertexCount; ++k)
+      {
         const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
         size_t vertexIndex;
-        if (faceEdgeIndex < 0) {
+        if (faceEdgeIndex < 0)
+        {
           vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
-        } else {
+        }
+        else
+        {
           vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
         }
 
@@ -323,19 +377,26 @@ void Bsp29Parser::parseFrame(
   frameName << m_name << "_" << frameIndex;
 
   auto& frame = model.loadFrame(frameIndex, frameName.str(), bounds.bounds());
-  surface.addTexturedMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
+  surface.addTexturedMesh(
+    frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 
 vm::vec2f Bsp29Parser::textureCoords(
-  const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture) const {
-  if (texture == nullptr) {
+  const vm::vec3f& vertex,
+  const TextureInfo& textureInfo,
+  const Assets::Texture* texture) const
+{
+  if (texture == nullptr)
+  {
     return vm::vec2f::zero();
-  } else {
+  }
+  else
+  {
     return vm::vec2f(
-      (vm::dot(vertex, textureInfo.sAxis) + textureInfo.sOffset) /
-        static_cast<float>(texture->width()),
-      (vm::dot(vertex, textureInfo.tAxis) + textureInfo.tOffset) /
-        static_cast<float>(texture->height()));
+      (vm::dot(vertex, textureInfo.sAxis) + textureInfo.sOffset)
+        / static_cast<float>(texture->width()),
+      (vm::dot(vertex, textureInfo.tAxis) + textureInfo.tOffset)
+        / static_cast<float>(texture->height()));
   }
 }
 } // namespace IO

@@ -49,9 +49,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Model {
-TEST_CASE("EntityNodeTest.canAddChild") {
+namespace TrenchBroom
+{
+namespace Model
+{
+TEST_CASE("EntityNodeTest.canAddChild")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -77,7 +80,8 @@ TEST_CASE("EntityNodeTest.canAddChild") {
   CHECK(entityNode.canAddChild(&patchNode));
 }
 
-TEST_CASE("EntityNodeTest.canRemoveChild") {
+TEST_CASE("EntityNodeTest.canRemoveChild")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -103,7 +107,8 @@ TEST_CASE("EntityNodeTest.canRemoveChild") {
   CHECK(entityNode.canRemoveChild(&patchNode));
 }
 
-TEST_CASE("EntityNodeTest.setPointEntity") {
+TEST_CASE("EntityNodeTest.setPointEntity")
+{
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
 
@@ -125,9 +130,15 @@ TEST_CASE("EntityNodeTest.setPointEntity") {
   CHECK(entityNode.entity().pointEntity());
 }
 
-TEST_CASE("EntityNodeTest.area") {
+TEST_CASE("EntityNodeTest.area")
+{
   auto definition = Assets::PointEntityDefinition(
-    "some_name", Color(), vm::bbox3(vm::vec3::zero(), vm::vec3(1.0, 2.0, 3.0)), "", {}, {});
+    "some_name",
+    Color(),
+    vm::bbox3(vm::vec3::zero(), vm::vec3(1.0, 2.0, 3.0)),
+    "",
+    {},
+    {});
   auto entityNode = EntityNode{Entity{}};
   entityNode.setDefinition(&definition);
 
@@ -138,28 +149,33 @@ TEST_CASE("EntityNodeTest.area") {
 
 static const std::string TestClassname = "something";
 
-class EntityNodeTest {
+class EntityNodeTest
+{
 protected:
   vm::bbox3d m_worldBounds;
   EntityNode* m_entity;
   WorldNode* m_world;
 
-  EntityNodeTest() {
+  EntityNodeTest()
+  {
     m_worldBounds = vm::bbox3d(8192.0);
     m_entity = new EntityNode({}, {{EntityPropertyKeys::Classname, TestClassname}});
     m_world = new WorldNode({}, {}, MapFormat::Standard);
   }
 
-  virtual ~EntityNodeTest() {
+  virtual ~EntityNodeTest()
+  {
     // Only some of the tests add the entity to the world
-    if (m_entity->parent() == nullptr) {
+    if (m_entity->parent() == nullptr)
+    {
       delete m_entity;
     }
     delete m_world;
   }
 };
 
-TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties") {
+TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties")
+{
   const vm::vec3 newOrigin(10, 20, 30);
   const vm::bbox3 newBounds(
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
@@ -170,7 +186,8 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties")
   CHECK(m_entity->logicalBounds() == newBounds);
 }
 
-TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProperties") {
+TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProperties")
+{
   const vm::vec3 newOrigin(10, 20, 30);
   const vm::bbox3 newBounds(
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
@@ -182,7 +199,8 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProp
 }
 
 // Same as above, but add the entity to a world
-TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateInWorld") {
+TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateInWorld")
+{
   m_world->defaultLayer()->addChild(m_entity);
 
   const vm::vec3 newOrigin(10, 20, 30);

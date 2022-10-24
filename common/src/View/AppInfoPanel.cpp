@@ -32,13 +32,16 @@
 #include <QStringBuilder>
 #include <QVBoxLayout>
 
-namespace TrenchBroom::View {
+namespace TrenchBroom::View
+{
 AppInfoPanel::AppInfoPanel(QWidget* parent)
-  : QWidget{parent} {
+  : QWidget{parent}
+{
   createGui();
 }
 
-void AppInfoPanel::createGui() {
+void AppInfoPanel::createGui()
+{
   QPixmap appIconImage = IO::loadPixmapResource("AppIcon.png");
   QLabel* appIcon = new QLabel{};
   appIcon->setPixmap(appIconImage);
@@ -51,7 +54,8 @@ void AppInfoPanel::createGui() {
 
   ClickableLabel* version = new ClickableLabel{tr("Version ") % getBuildVersion()};
   ClickableLabel* build = new ClickableLabel{tr("Build ") % getBuildIdStr()};
-  ClickableLabel* qtVersion = new ClickableLabel{tr("Qt ") % QString::fromLocal8Bit(qVersion())};
+  ClickableLabel* qtVersion =
+    new ClickableLabel{tr("Qt ") % QString::fromLocal8Bit(qVersion())};
 
   makeInfo(version);
   makeInfo(build);
@@ -83,9 +87,11 @@ void AppInfoPanel::createGui() {
   setLayout(layout);
 }
 
-void AppInfoPanel::versionInfoClicked() {
+void AppInfoPanel::versionInfoClicked()
+{
   QClipboard* clipboard = QApplication::clipboard();
-  const QString str = tr("TrenchBroom ") % getBuildVersion() % tr(" Build ") % getBuildIdStr();
+  const QString str =
+    tr("TrenchBroom ") % getBuildVersion() % tr(" Build ") % getBuildIdStr();
   clipboard->setText(str);
 }
 } // namespace TrenchBroom::View

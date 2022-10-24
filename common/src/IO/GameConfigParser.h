@@ -31,15 +31,19 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushFaceAttributes;
 }
 
-namespace IO {
+namespace IO
+{
 class Path;
 
-class GameConfigParser : public ConfigParserBase {
+class GameConfigParser : public ConfigParserBase
+{
 private:
   EL::IntegerType m_version;
 
@@ -49,7 +53,8 @@ public:
   Model::GameConfig parse();
 
 private:
-  std::vector<Model::MapFormatConfig> parseMapFormatConfigs(const EL::Value& values) const;
+  std::vector<Model::MapFormatConfig> parseMapFormatConfigs(
+    const EL::Value& values) const;
   Model::FileSystemConfig parseFileSystemConfig(const EL::Value& values) const;
   Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& values) const;
   Model::TextureConfig parseTextureConfig(const EL::Value& values) const;
@@ -58,18 +63,23 @@ private:
   Model::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
   Model::FlagsConfig parseFlagsConfig(const EL::Value& values) const;
   void parseFlag(
-    const EL::Value& entry, const size_t index, std::vector<Model::FlagConfig>& flags) const;
+    const EL::Value& entry,
+    const size_t index,
+    std::vector<Model::FlagConfig>& flags) const;
   Model::BrushFaceAttributes parseFaceAttribsDefaults(
-    const EL::Value& value, const Model::FlagsConfig& surfaceFlags,
+    const EL::Value& value,
+    const Model::FlagsConfig& surfaceFlags,
     const Model::FlagsConfig& contentFlags) const;
   std::vector<Model::SmartTag> parseTags(
     const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfigs) const;
   std::optional<vm::bbox3> parseSoftMapBounds(const EL::Value& value) const;
   std::vector<Model::CompilationTool> parseCompilationTools(const EL::Value& value) const;
 
-  void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& results) const;
+  void parseBrushTags(
+    const EL::Value& value, std::vector<Model::SmartTag>& results) const;
   void parseFaceTags(
-    const EL::Value& value, const Model::FaceAttribsConfig& faceAttribsConfig,
+    const EL::Value& value,
+    const Model::FaceAttribsConfig& faceAttribsConfig,
     std::vector<Model::SmartTag>& results) const;
   void parseSurfaceParmTag(
     std::string name, const EL::Value& value, std::vector<Model::SmartTag>& result) const;

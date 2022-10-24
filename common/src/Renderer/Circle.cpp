@@ -31,28 +31,40 @@
 
 #include <cassert>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 Circle::Circle(const float radius, const size_t segments, const bool filled)
-  : m_filled(filled) {
+  : m_filled(filled)
+{
   assert(radius > 0.0f);
   assert(segments > 0);
   init2D(radius, segments, 0.0f, vm::Cf::two_pi());
 }
 
 Circle::Circle(
-  const float radius, const size_t segments, const bool filled, const float startAngle,
+  const float radius,
+  const size_t segments,
+  const bool filled,
+  const float startAngle,
   const float angleLength)
-  : m_filled(filled) {
+  : m_filled(filled)
+{
   assert(radius > 0.0f);
   assert(segments > 0);
   init2D(radius, segments, startAngle, angleLength);
 }
 
 Circle::Circle(
-  const float radius, const size_t segments, const bool filled, const vm::axis::type axis,
-  const vm::vec3f& startAxis, const vm::vec3f& endAxis)
-  : m_filled(filled) {
+  const float radius,
+  const size_t segments,
+  const bool filled,
+  const vm::axis::type axis,
+  const vm::vec3f& startAxis,
+  const vm::vec3f& endAxis)
+  : m_filled(filled)
+{
   assert(radius > 0.0f);
   assert(segments > 0);
 
@@ -61,45 +73,63 @@ Circle::Circle(
 }
 
 Circle::Circle(
-  const float radius, const size_t segments, const bool filled, const vm::axis::type axis,
-  const float startAngle, const float angleLength)
-  : m_filled(filled) {
+  const float radius,
+  const size_t segments,
+  const bool filled,
+  const vm::axis::type axis,
+  const float startAngle,
+  const float angleLength)
+  : m_filled(filled)
+{
   assert(radius > 0.0f);
   assert(segments > 0);
   assert(angleLength > 0.0f);
   init3D(radius, segments, axis, startAngle, angleLength);
 }
 
-bool Circle::prepared() const {
+bool Circle::prepared() const
+{
   return m_array.prepared();
 }
 
-void Circle::prepare(VboManager& vboManager) {
+void Circle::prepare(VboManager& vboManager)
+{
   m_array.prepare(vboManager);
 }
 
-void Circle::render() {
+void Circle::render()
+{
   m_array.render(m_filled ? PrimType::TriangleFan : PrimType::LineLoop);
 }
 
 void Circle::init2D(
-  const float radius, const size_t segments, const float startAngle, const float angleLength) {
+  const float radius,
+  const size_t segments,
+  const float startAngle,
+  const float angleLength)
+{
   using Vertex = GLVertexTypes::P2::Vertex;
 
   auto positions = circle2D(radius, startAngle, angleLength, segments);
-  if (m_filled) {
+  if (m_filled)
+  {
     positions.push_back(vm::vec2f::zero());
   }
   m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
 
 void Circle::init3D(
-  const float radius, const size_t segments, const vm::axis::type axis, const float startAngle,
-  const float angleLength) {
+  const float radius,
+  const size_t segments,
+  const vm::axis::type axis,
+  const float startAngle,
+  const float angleLength)
+{
   using Vertex = GLVertexTypes::P3::Vertex;
 
   auto positions = circle2D(radius, axis, startAngle, angleLength, segments);
-  if (m_filled) {
+  if (m_filled)
+  {
     positions.emplace_back(vm::vec3f::zero());
   }
   m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));

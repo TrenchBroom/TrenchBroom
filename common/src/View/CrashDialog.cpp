@@ -31,25 +31,32 @@
 #include <QPushButton>
 #include <QUrl>
 
-namespace TrenchBroom::View {
+namespace TrenchBroom::View
+{
 CrashDialog::CrashDialog(
-  const std::string& reason, const IO::Path& reportPath, const IO::Path& mapPath,
+  const std::string& reason,
+  const IO::Path& reportPath,
+  const IO::Path& mapPath,
   const IO::Path& logPath)
-  : QDialog{} {
+  : QDialog{}
+{
   createGui(reason, reportPath, mapPath, logPath);
 }
 
 void CrashDialog::createGui(
-  const std::string& reason, const IO::Path& reportPath, const IO::Path& mapPath,
-  const IO::Path& logPath) {
+  const std::string& reason,
+  const IO::Path& reportPath,
+  const IO::Path& mapPath,
+  const IO::Path& logPath)
+{
   setWindowTitle(tr("Crash"));
 
   auto* header = new DialogHeader{"Crash Report"};
 
-  auto* text1 =
-    new QLabel{tr("TrenchBroom has crashed, but was able to save a crash report,"
-                  "a log file and the current state of the map to the following locations.\n\n"
-                  "Please create an issue report and upload all three files.")};
+  auto* text1 = new QLabel{
+    tr("TrenchBroom has crashed, but was able to save a crash report,"
+       "a log file and the current state of the map to the following locations.\n\n"
+       "Please create an issue report and upload all three files.")};
   text1->setWordWrap(true);
 
   auto* reasonText = new QLabel{QString::fromStdString(reason)};
@@ -81,7 +88,8 @@ void CrashDialog::createGui(
   auto* reportButton = buttonBox->addButton(tr("Report"), QDialogButtonBox::AcceptRole);
 
   connect(reportButton, &QAbstractButton::clicked, this, []() {
-    QDesktopServices::openUrl(QUrl{"https://github.com/TrenchBroom/TrenchBroom/issues/new"});
+    QDesktopServices::openUrl(
+      QUrl{"https://github.com/TrenchBroom/TrenchBroom/issues/new"});
   });
   connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 

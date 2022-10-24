@@ -24,19 +24,23 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 /**
- * Builds index array map by recording textured rendering primitives. The corded data can be used to
- * create an index array that can be uploaded to video card memory, and to render the recorded
- * textured primitives with the indices from that array using the constructed textured index array
- * map.
+ * Builds index array map by recording textured rendering primitives. The corded data can
+ * be used to create an index array that can be uploaded to video card memory, and to
+ * render the recorded textured primitives with the indices from that array using the
+ * constructed textured index array map.
  */
-class TexturedIndexArrayMapBuilder {
+class TexturedIndexArrayMapBuilder
+{
 public:
   using Texture = Assets::Texture;
   using Index = GLuint;
@@ -48,7 +52,8 @@ private:
 
 public:
   /**
-   * Creates a new builder with the internal textured index array map initialized to the given size.
+   * Creates a new builder with the internal textured index array map initialized to the
+   * given size.
    *
    * @param size the size to initialize to
    */
@@ -77,8 +82,8 @@ public:
   void addPoint(const Texture* texture, Index i);
 
   /**
-   * Adds multiple textured points, represented by the vertices in a vertex array at the given
-   * indices.
+   * Adds multiple textured points, represented by the vertices in a vertex array at the
+   * given indices.
    *
    * @param texture the texture to use
    * @param indices the indices to record
@@ -86,7 +91,8 @@ public:
   void addPoints(const Texture* texture, const IndexList& indices);
 
   /**
-   * Adds a textured line, represented by the vertices in a vertex array at the given two indices.
+   * Adds a textured line, represented by the vertices in a vertex array at the given two
+   * indices.
    *
    * @param texture the texture to use
    * @param i1 the index of the start vertex to record
@@ -95,9 +101,9 @@ public:
   void addLine(const Texture* texture, Index i1, Index i2);
 
   /**
-   * Adds multiple textured lines, each represented by two vertices in a vertex array. The given
-   * index array contains pairs of indices, where each pair consists of the index of the first and
-   * the index of the second vertex.
+   * Adds multiple textured lines, each represented by two vertices in a vertex array. The
+   * given index array contains pairs of indices, where each pair consists of the index of
+   * the first and the index of the second vertex.
    *
    * @param texture the texture to use
    * @param indices a list of indices containing the pairs of vertex indices to record
@@ -105,7 +111,8 @@ public:
   void addLines(const Texture* texture, const IndexList& indices);
 
   /**
-   * Adds a textured triangle, represented by the vertices in a vertex array at the given indices.
+   * Adds a textured triangle, represented by the vertices in a vertex array at the given
+   * indices.
    *
    * @param texture the texture to use
    * @param i1 the index of the first vertex to record
@@ -115,9 +122,9 @@ public:
   void addTriangle(const Texture* texture, Index i1, Index i2, Index i3);
 
   /**
-   * Adds multiple textured triangles, each represented by three vertices in a vertex array. The
-   * given index array contains triples of indices, where each triple consists of the indices of the
-   * three vertices making up the triangle to add.
+   * Adds multiple textured triangles, each represented by three vertices in a vertex
+   * array. The given index array contains triples of indices, where each triple consists
+   * of the indices of the three vertices making up the triangle to add.
    *
    * @param texture the texture to use
    * @param indices a list of indices containing the triples of vertex indices to record
@@ -125,7 +132,8 @@ public:
   void addTriangles(const Texture* texture, const IndexList& indices);
 
   /**
-   * Adds a textured quad, represented by the vertices in a vertex array at the given indices.
+   * Adds a textured quad, represented by the vertices in a vertex array at the given
+   * indices.
    *
    * @param texture the texture to use
    * @param i1 the index of the first vertex to record
@@ -136,19 +144,20 @@ public:
   void addQuad(const Texture* texture, Index, Index i1, Index i2, Index i3, Index i4);
 
   /**
-   * Adds multiple textured quads, each represented by four vertices in a vertex array. The given
-   * index array contains four-tuples of indices, where each tuple consists of the indices of the
-   * four vertices making up the quad to add.
+   * Adds multiple textured quads, each represented by four vertices in a vertex array.
+   * The given index array contains four-tuples of indices, where each tuple consists of
+   * the indices of the four vertices making up the quad to add.
    *
    * @param texture the texture to use
-   * @param indices a list of indices containing the four-tuples of vertex indices to record
+   * @param indices a list of indices containing the four-tuples of vertex indices to
+   * record
    */
   void addQuads(const Texture* texture, const IndexList& indices);
 
   /**
-   * Adds multiple textured quads by adding a range of indices specified by the given base index and
-   * length. Specifically, a call to this method records a sequence of indices which is computed
-   * using the given base index and vertex count as follows.
+   * Adds multiple textured quads by adding a range of indices specified by the given base
+   * index and length. Specifically, a call to this method records a sequence of indices
+   * which is computed using the given base index and vertex count as follows.
    *
    * index 1 = baseIndex + 0;
    * index 2 = baseIndex + 1;
@@ -162,8 +171,8 @@ public:
   void addQuads(const Texture* texture, Index baseIndex, size_t vertexCount);
 
   /**
-   * Adds a textured polygon with the given indices. Note that the polygon is translated to a set of
-   * textured triangles and no actual polygon is recorded at all.
+   * Adds a textured polygon with the given indices. Note that the polygon is translated
+   * to a set of textured triangles and no actual polygon is recorded at all.
    *
    * @param texture the texture to use
    * @param indices the indices of the vertices making up the polygon to add
@@ -171,10 +180,10 @@ public:
   void addPolygon(const Texture* texture, const IndexList& indices);
 
   /**
-   * Adds a textured polygon with indices computed from the given range. The polygons vertices are
-   * expected to be stored sequentially in a vertex array, starting at the given base index. The
-   * given vertex count indicates the number of vertices to add. Note that the polygon is translated
-   * to a set of triangles.
+   * Adds a textured polygon with indices computed from the given range. The polygons
+   * vertices are expected to be stored sequentially in a vertex array, starting at the
+   * given base index. The given vertex count indicates the number of vertices to add.
+   * Note that the polygon is translated to a set of triangles.
    *
    * @param texture the texture to use
    * @param baseIndex the index of the first vertex of the polygon

@@ -23,18 +23,22 @@
 
 #include <kdl/overload.h>
 
-namespace TrenchBroom {
-namespace Model {
-NodeContents::NodeContents(std::variant<Layer, Group, Entity, Brush, BezierPatch> contents)
-  : m_contents(std::move(contents)) {
+namespace TrenchBroom
+{
+namespace Model
+{
+NodeContents::NodeContents(
+  std::variant<Layer, Group, Entity, Brush, BezierPatch> contents)
+  : m_contents(std::move(contents))
+{
   std::visit(
     kdl::overload(
-      [](Layer&) {}, [](Group&) {},
-      [](Entity& entity) {
-        entity.unsetEntityDefinitionAndModel();
-      },
+      [](Layer&) {},
+      [](Group&) {},
+      [](Entity& entity) { entity.unsetEntityDefinitionAndModel(); },
       [](Brush& brush) {
-        for (auto& face : brush.faces()) {
+        for (auto& face : brush.faces())
+        {
           face.setTexture(nullptr);
         }
       },
@@ -42,11 +46,13 @@ NodeContents::NodeContents(std::variant<Layer, Group, Entity, Brush, BezierPatch
     m_contents);
 }
 
-const std::variant<Layer, Group, Entity, Brush, BezierPatch>& NodeContents::get() const {
+const std::variant<Layer, Group, Entity, Brush, BezierPatch>& NodeContents::get() const
+{
   return m_contents;
 }
 
-std::variant<Layer, Group, Entity, Brush, BezierPatch>& NodeContents::get() {
+std::variant<Layer, Group, Entity, Brush, BezierPatch>& NodeContents::get()
+{
   return m_contents;
 }
 } // namespace Model

@@ -25,15 +25,19 @@
 
 #include <QKeySequence>
 
-namespace TrenchBroom {
-namespace Preferences {
+namespace TrenchBroom
+{
+namespace Preferences
+{
 Preference<int> MapViewLayout(
   IO::Path("Views/Map view layout"), static_cast<int>(View::MapViewLayout::OnePane));
 
-QString systemTheme() {
+QString systemTheme()
+{
   return QStringLiteral("System");
 }
-QString darkTheme() {
+QString darkTheme()
+{
   return QStringLiteral("Dark");
 }
 Preference<QString> Theme(IO::Path("Theme"), systemTheme());
@@ -41,7 +45,8 @@ Preference<QString> Theme(IO::Path("Theme"), systemTheme());
 Preference<bool> ShowAxes(IO::Path("Renderer/Show axes"), true);
 Preference<Color> SoftMapBoundsColor(
   IO::Path("Renderer/Colors/Soft map bounds color"), Color(241, 125, 37));
-Preference<Color> BackgroundColor(IO::Path("Renderer/Colors/Background"), Color(38, 38, 38));
+Preference<Color> BackgroundColor(
+  IO::Path("Renderer/Colors/Background"), Color(38, 38, 38));
 Preference<float> AxisLength(IO::Path("Renderer/Axis length"), 128.0f);
 Preference<Color> XAxisColor(
   IO::Path("Renderer/Colors/X axis"), Color(0xFF, 0x3D, 0x00, 0.7f), true);
@@ -57,22 +62,26 @@ Preference<Color> PortalFileFillColor(
   IO::Path("Renderer/Colors/Portal file fill"), Color(1.0f, 0.4f, 0.4f, 0.2f));
 Preference<bool> ShowFPS(IO::Path("Renderer/Show FPS"), false);
 
-Preference<Color>& axisColor(vm::axis::type axis) {
-  switch (axis) {
-    case vm::axis::x:
-      return Preferences::XAxisColor;
-    case vm::axis::y:
-      return Preferences::YAxisColor;
-    case vm::axis::z:
-    default:
-      return Preferences::ZAxisColor;
+Preference<Color>& axisColor(vm::axis::type axis)
+{
+  switch (axis)
+  {
+  case vm::axis::x:
+    return Preferences::XAxisColor;
+  case vm::axis::y:
+    return Preferences::YAxisColor;
+  case vm::axis::z:
+  default:
+    return Preferences::ZAxisColor;
   }
 }
 
 Preference<Color> CompassBackgroundColor(
   IO::Path("Renderer/Colors/Compass background"), Color(0.5f, 0.5f, 0.5f, 0.5f), true);
 Preference<Color> CompassBackgroundOutlineColor(
-  IO::Path("Renderer/Colors/Compass background outline"), Color(1.0f, 1.0f, 1.0f, 0.5f), true);
+  IO::Path("Renderer/Colors/Compass background outline"),
+  Color(1.0f, 1.0f, 1.0f, 0.5f),
+  true);
 Preference<Color> CompassAxisOutlineColor(
   IO::Path("Renderer/Colors/Compass axis outline"), Color(1.0f, 1.0f, 1.0f, 1.0f), true);
 
@@ -89,13 +98,16 @@ Preference<Color> TutorialOverlayTextColor(
 Preference<Color> TutorialOverlayBackgroundColor(
   IO::Path("Renderer/Colors/Tutorial overlay background"), Color(1.0f, 0.5f, 0.0f, 0.6f));
 
-Preference<Color> FaceColor(IO::Path("Renderer/Colors/Faces"), Color(0.2f, 0.2f, 0.2f, 1.0f));
+Preference<Color> FaceColor(
+  IO::Path("Renderer/Colors/Faces"), Color(0.2f, 0.2f, 0.2f, 1.0f));
 Preference<Color> SelectedFaceColor(
   IO::Path("Renderer/Colors/Selected faces"), Color(1.0f, 0.85f, 0.85f, 1.0f));
 Preference<Color> LockedFaceColor(
   IO::Path("Renderer/Colors/Locked faces"), Color(0.85f, 0.85f, 1.0f, 1.0f));
-Preference<float> TransparentFaceAlpha(IO::Path("Renderer/Colors/Transparent faces"), 0.4f);
-Preference<Color> EdgeColor(IO::Path("Renderer/Colors/Edges"), Color(0.9f, 0.9f, 0.9f, 1.0f));
+Preference<float> TransparentFaceAlpha(
+  IO::Path("Renderer/Colors/Transparent faces"), 0.4f);
+Preference<Color> EdgeColor(
+  IO::Path("Renderer/Colors/Edges"), Color(0.9f, 0.9f, 0.9f, 1.0f));
 Preference<Color> SelectedEdgeColor(
   IO::Path("Renderer/Colors/Selected edges"), Color(1.0f, 0.0f, 0.0f, 1.0f));
 Preference<float> OccludedSelectedEdgeAlpha(
@@ -119,15 +131,19 @@ Preference<float> WeakInfoOverlayBackgroundAlpha(
 Preference<Color> SelectedInfoOverlayTextColor(
   IO::Path("Renderer/Colors/Selected info overlay text"), Color(1.0f, 1.0f, 1.0f, 1.0f));
 Preference<Color> SelectedInfoOverlayBackgroundColor(
-  IO::Path("Renderer/Colors/Selected info overlay background"), Color(1.0f, 0.0f, 0.0f, 0.6f));
+  IO::Path("Renderer/Colors/Selected info overlay background"),
+  Color(1.0f, 0.0f, 0.0f, 0.6f));
 Preference<Color> LockedInfoOverlayTextColor(
   IO::Path("Renderer/Colors/Locked info overlay text"), Color(0.35f, 0.35f, 0.6f, 1.0f));
 Preference<Color> LockedInfoOverlayBackgroundColor(
-  IO::Path("Renderer/Colors/Locked info overlay background"), Color(0.0f, 0.0f, 0.0f, 0.6f));
+  IO::Path("Renderer/Colors/Locked info overlay background"),
+  Color(0.0f, 0.0f, 0.0f, 0.6f));
 
 Preference<float> HandleRadius(IO::Path("Controls/Handle radius"), 3.0f);
-Preference<float> MaximumHandleDistance(IO::Path("Controls/Maximum handle distance"), 1000.0f);
-Preference<Color> HandleColor(IO::Path("Renderer/Colors/Handle"), Color(248, 230, 60, 1.0f));
+Preference<float> MaximumHandleDistance(
+  IO::Path("Controls/Maximum handle distance"), 1000.0f);
+Preference<Color> HandleColor(
+  IO::Path("Renderer/Colors/Handle"), Color(248, 230, 60, 1.0f));
 Preference<Color> OccludedHandleColor(
   IO::Path("Renderer/Colors/Occluded handle"), Color(248, 230, 60, 0.4f));
 Preference<Color> SelectedHandleColor(
@@ -152,7 +168,8 @@ Preference<Color> ScaleFillColor(
   IO::Path("Renderer/Colors/Scale fill"), Color(77, 255, 80, 0.125f));
 Preference<Color> ScaleOutlineColor(
   IO::Path("Renderer/Colors/Scale outline"), Color(77, 255, 80, 1.0f));
-Preference<float> ScaleOutlineDimAlpha(IO::Path("Renderer/Colors/Scale outline dim alpha"), 0.3f);
+Preference<float> ScaleOutlineDimAlpha(
+  IO::Path("Renderer/Colors/Scale outline dim alpha"), 0.3f);
 Preference<Color> ShearFillColor(
   IO::Path("Renderer/Colors/Shear fill"), Color(45, 133, 255, 0.125f));
 Preference<Color> ShearOutlineColor(
@@ -176,7 +193,8 @@ Preference<Color> TextureSeamColor(
 
 Preference<float> Brightness(IO::Path("Renderer/Brightness"), 1.4f);
 Preference<float> GridAlpha(IO::Path("Renderer/Grid/Alpha"), 0.5f);
-Preference<Color> GridColor2D(IO::Path("Rendere/Grid/Color2D"), Color(0.8f, 0.8f, 0.8f, 0.8f));
+Preference<Color> GridColor2D(
+  IO::Path("Rendere/Grid/Color2D"), Color(0.8f, 0.8f, 0.8f, 0.8f));
 
 Preference<int> TextureMinFilter(IO::Path("Renderer/Texture mode min filter"), 0x2700);
 Preference<int> TextureMagFilter(IO::Path("Renderer/Texture mode mag filter"), 0x2600);
@@ -185,7 +203,8 @@ Preference<bool> EnableMSAA(IO::Path("Renderer/Enable multisampling"), true);
 Preference<bool> TextureLock(IO::Path("Editor/Texture lock"), true);
 Preference<bool> UVLock(IO::Path("Editor/UV lock"), false);
 
-Preference<IO::Path>& RendererFontPath() {
+Preference<IO::Path>& RendererFontPath()
+{
   static Preference<IO::Path> fontPath(
     IO::Path("Renderer/Font name"), IO::Path("fonts/SourceSansPro-Regular.otf"));
   return fontPath;
@@ -194,7 +213,8 @@ Preference<IO::Path>& RendererFontPath() {
 Preference<int> RendererFontSize(IO::Path("Renderer/Font size"), 13);
 
 Preference<int> BrowserFontSize(IO::Path("Browser/Font size"), 13);
-Preference<Color> BrowserTextColor(IO::Path("Browser/Text color"), Color(1.0f, 1.0f, 1.0f, 1.0f));
+Preference<Color> BrowserTextColor(
+  IO::Path("Browser/Text color"), Color(1.0f, 1.0f, 1.0f, 1.0f));
 Preference<Color> BrowserSubTextColor(
   IO::Path("Browser/Sub text color"), Color(0.65f, 0.65f, 0.65f, 1.0f));
 Preference<Color> BrowserGroupBackgroundColor(
@@ -210,12 +230,16 @@ Preference<Color> TextureBrowserUsedColor(
   IO::Path("Texture Browser/Used color"), Color(1.0f, 0.7f, 0.0f, 1.0f));
 
 Preference<float> CameraLookSpeed(IO::Path("Controls/Camera/Look speed"), 0.5f);
-Preference<bool> CameraLookInvertH(IO::Path("Controls/Camera/Invert horizontal look"), false);
-Preference<bool> CameraLookInvertV(IO::Path("Controls/Camera/Invert vertical look"), false);
+Preference<bool> CameraLookInvertH(
+  IO::Path("Controls/Camera/Invert horizontal look"), false);
+Preference<bool> CameraLookInvertV(
+  IO::Path("Controls/Camera/Invert vertical look"), false);
 Preference<float> CameraPanSpeed(IO::Path("Controls/Camera/Pan speed"), 0.5f);
-Preference<bool> CameraPanInvertH(IO::Path("Controls/Camera/Invert horizontal pan"), false);
+Preference<bool> CameraPanInvertH(
+  IO::Path("Controls/Camera/Invert horizontal pan"), false);
 Preference<bool> CameraPanInvertV(IO::Path("Controls/Camera/Invert vertical pan"), false);
-Preference<bool> CameraMouseWheelInvert(IO::Path("Controls/Camera/Invert mouse wheel"), false);
+Preference<bool> CameraMouseWheelInvert(
+  IO::Path("Controls/Camera/Invert mouse wheel"), false);
 Preference<float> CameraMoveSpeed(IO::Path("Controls/Camera/Move speed"), 0.3f);
 Preference<bool> CameraEnableAltMove(IO::Path("Controls/Camera/Use alt to move"), false);
 Preference<bool> CameraAltMoveInvert(
@@ -228,45 +252,62 @@ Preference<float> CameraFlyMoveSpeed(IO::Path("Controls/Camera/Fly move speed"),
 
 Preference<bool> Link2DCameras(IO::Path("Controls/Camera/Link 2D cameras"), true);
 
-Preference<QKeySequence>& CameraFlyForward() {
-  static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move forward"), QKeySequence('W'));
+Preference<QKeySequence>& CameraFlyForward()
+{
+  static Preference<QKeySequence> pref(
+    IO::Path("Controls/Camera/Move forward"), QKeySequence('W'));
   return pref;
 }
-Preference<QKeySequence>& CameraFlyBackward() {
+Preference<QKeySequence>& CameraFlyBackward()
+{
   static Preference<QKeySequence> pref(
     IO::Path("Controls/Camera/Move backward"), QKeySequence('S'));
   return pref;
 }
-Preference<QKeySequence>& CameraFlyLeft() {
-  static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move left"), QKeySequence('A'));
+Preference<QKeySequence>& CameraFlyLeft()
+{
+  static Preference<QKeySequence> pref(
+    IO::Path("Controls/Camera/Move left"), QKeySequence('A'));
   return pref;
 }
-Preference<QKeySequence>& CameraFlyRight() {
-  static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move right"), QKeySequence('D'));
+Preference<QKeySequence>& CameraFlyRight()
+{
+  static Preference<QKeySequence> pref(
+    IO::Path("Controls/Camera/Move right"), QKeySequence('D'));
   return pref;
 }
-Preference<QKeySequence>& CameraFlyUp() {
-  static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move up"), QKeySequence('Q'));
+Preference<QKeySequence>& CameraFlyUp()
+{
+  static Preference<QKeySequence> pref(
+    IO::Path("Controls/Camera/Move up"), QKeySequence('Q'));
   return pref;
 }
-Preference<QKeySequence>& CameraFlyDown() {
-  static Preference<QKeySequence> pref(IO::Path("Controls/Camera/Move down"), QKeySequence('X'));
+Preference<QKeySequence>& CameraFlyDown()
+{
+  static Preference<QKeySequence> pref(
+    IO::Path("Controls/Camera/Move down"), QKeySequence('X'));
   return pref;
 }
 
 Preference<bool> ShowEntityClassnames(IO::Path("Map view/Show entity classnames"), true);
 Preference<bool> ShowGroupBounds(IO::Path("Map view/Show group bounds"), true);
-Preference<bool> ShowBrushEntityBounds(IO::Path("Map view/Show brush entity bounds"), true);
-Preference<bool> ShowPointEntityBounds(IO::Path("Map view/Show point entity bounds"), true);
-Preference<bool> ShowPointEntityModels(IO::Path("Map view/Show point entity models"), true);
+Preference<bool> ShowBrushEntityBounds(
+  IO::Path("Map view/Show brush entity bounds"), true);
+Preference<bool> ShowPointEntityBounds(
+  IO::Path("Map view/Show point entity bounds"), true);
+Preference<bool> ShowPointEntityModels(
+  IO::Path("Map view/Show point entity models"), true);
 
-QString faceRenderModeTextured() {
+QString faceRenderModeTextured()
+{
   return "textured";
 }
-QString faceRenderModeFlat() {
+QString faceRenderModeFlat()
+{
   return "flat";
 }
-QString faceRenderModeSkip() {
+QString faceRenderModeSkip()
+{
   return "skip";
 }
 Preference<QString> FaceRenderMode(IO::Path("Map view/Face render mode"), "textured");
@@ -280,21 +321,26 @@ Preference<bool> ShowSoftMapBounds(IO::Path("Map view/Show soft map bounds"), tr
 Preference<bool> ShowPointEntities(IO::Path("Map view/Show point entities"), true);
 Preference<bool> ShowBrushes(IO::Path("Map view/Show brushes"), true);
 
-QString entityLinkModeAll() {
+QString entityLinkModeAll()
+{
   return "all";
 }
-QString entityLinkModeTransitive() {
+QString entityLinkModeTransitive()
+{
   return "transitive";
 }
-QString entityLinkModeDirect() {
+QString entityLinkModeDirect()
+{
   return "direct";
 }
-QString entityLinkModeNone() {
+QString entityLinkModeNone()
+{
   return "none";
 }
 Preference<QString> EntityLinkMode(IO::Path("Map view/Entity link mode"), "direct");
 
-const std::vector<PreferenceBase*>& staticPreferences() {
+const std::vector<PreferenceBase*>& staticPreferences()
+{
   static const std::vector<PreferenceBase*> list{
     &MapViewLayout,
     &Theme,
@@ -411,11 +457,14 @@ const std::vector<PreferenceBase*>& staticPreferences() {
   return list;
 }
 
-const std::map<IO::Path, PreferenceBase*>& staticPreferencesMap() {
+const std::map<IO::Path, PreferenceBase*>& staticPreferencesMap()
+{
   static std::map<IO::Path, PreferenceBase*> map;
 
-  if (map.empty()) {
-    for (PreferenceBase* pref : staticPreferences()) {
+  if (map.empty())
+  {
+    for (PreferenceBase* pref : staticPreferences())
+    {
       map[pref->path()] = pref;
     }
   }
@@ -423,12 +472,15 @@ const std::map<IO::Path, PreferenceBase*>& staticPreferencesMap() {
   return map;
 }
 
-std::vector<Preference<QKeySequence>*> keyPreferences() {
+std::vector<Preference<QKeySequence>*> keyPreferences()
+{
   std::vector<Preference<QKeySequence>*> result;
 
-  for (PreferenceBase* pref : staticPreferences()) {
+  for (PreferenceBase* pref : staticPreferences())
+  {
     auto* keyPref = dynamic_cast<Preference<QKeySequence>*>(pref);
-    if (keyPref != nullptr) {
+    if (keyPref != nullptr)
+    {
       result.push_back(keyPref);
     }
   }
@@ -439,17 +491,25 @@ std::vector<Preference<QKeySequence>*> keyPreferences() {
 DynamicPreferencePattern<QString> GamesPath(IO::Path("Games/*/Path"));
 DynamicPreferencePattern<QString> GamesToolPath(IO::Path("Games/*/Tool Path/*"));
 DynamicPreferencePattern<QString> GamesDefaultEngine(IO::Path("Games/*/Default Engine"));
-DynamicPreferencePattern<QKeySequence> FiltersTagsToggle(IO::Path("Filters/Tags/*/Toggle Visible"));
+DynamicPreferencePattern<QKeySequence> FiltersTagsToggle(
+  IO::Path("Filters/Tags/*/Toggle Visible"));
 DynamicPreferencePattern<QKeySequence> TagsEnable(IO::Path("Tags/*/Enable"));
 DynamicPreferencePattern<QKeySequence> TagsDisable(IO::Path("Tags/*/Disable"));
 DynamicPreferencePattern<QKeySequence> FiltersEntitiesToggleVisible(
   IO::Path("Filters/Entities/*/Toggle Visible"));
 DynamicPreferencePattern<QKeySequence> EntitiesCreate(IO::Path("Entities/*/Create"));
 
-const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns() {
+const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns()
+{
   static const std::vector<DynamicPreferencePatternBase*> list{
-    &GamesPath,  &GamesToolPath, &GamesDefaultEngine,           &FiltersTagsToggle,
-    &TagsEnable, &TagsDisable,   &FiltersEntitiesToggleVisible, &EntitiesCreate};
+    &GamesPath,
+    &GamesToolPath,
+    &GamesDefaultEngine,
+    &FiltersTagsToggle,
+    &TagsEnable,
+    &TagsDisable,
+    &FiltersEntitiesToggleVisible,
+    &EntitiesCreate};
   return list;
 }
 } // namespace Preferences

@@ -19,8 +19,10 @@
 
 #include "TexturedIndexRangeRenderer.h"
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 TexturedRenderer::~TexturedRenderer() = default;
 
 TexturedIndexRangeRenderer::TexturedIndexRangeRenderer() {}
@@ -28,32 +30,44 @@ TexturedIndexRangeRenderer::TexturedIndexRangeRenderer() {}
 TexturedIndexRangeRenderer::TexturedIndexRangeRenderer(
   const VertexArray& vertexArray, const TexturedIndexRangeMap& indexRange)
   : m_vertexArray(vertexArray)
-  , m_indexRange(indexRange) {}
+  , m_indexRange(indexRange)
+{
+}
 
 TexturedIndexRangeRenderer::TexturedIndexRangeRenderer(
-  const VertexArray& vertexArray, const Assets::Texture* texture, const IndexRangeMap& indexRange)
+  const VertexArray& vertexArray,
+  const Assets::Texture* texture,
+  const IndexRangeMap& indexRange)
   : m_vertexArray(vertexArray)
-  , m_indexRange(texture, indexRange) {}
+  , m_indexRange(texture, indexRange)
+{
+}
 
 TexturedIndexRangeRenderer::~TexturedIndexRangeRenderer() = default;
 
-bool TexturedIndexRangeRenderer::empty() const {
+bool TexturedIndexRangeRenderer::empty() const
+{
   return m_vertexArray.empty();
 }
 
-void TexturedIndexRangeRenderer::prepare(VboManager& vboManager) {
+void TexturedIndexRangeRenderer::prepare(VboManager& vboManager)
+{
   m_vertexArray.prepare(vboManager);
 }
 
-void TexturedIndexRangeRenderer::render() {
-  if (m_vertexArray.setup()) {
+void TexturedIndexRangeRenderer::render()
+{
+  if (m_vertexArray.setup())
+  {
     m_indexRange.render(m_vertexArray);
     m_vertexArray.cleanup();
   }
 }
 
-void TexturedIndexRangeRenderer::render(TextureRenderFunc& func) {
-  if (m_vertexArray.setup()) {
+void TexturedIndexRangeRenderer::render(TextureRenderFunc& func)
+{
+  if (m_vertexArray.setup())
+  {
     m_indexRange.render(m_vertexArray, func);
     m_vertexArray.cleanup();
   }
@@ -61,33 +75,44 @@ void TexturedIndexRangeRenderer::render(TextureRenderFunc& func) {
 
 MultiTexturedIndexRangeRenderer::MultiTexturedIndexRangeRenderer(
   std::vector<std::unique_ptr<TexturedIndexRangeRenderer>> renderers)
-  : m_renderers(std::move(renderers)) {}
+  : m_renderers(std::move(renderers))
+{
+}
 
 MultiTexturedIndexRangeRenderer::~MultiTexturedIndexRangeRenderer() = default;
 
-bool MultiTexturedIndexRangeRenderer::empty() const {
-  for (const auto& renderer : m_renderers) {
-    if (!renderer->empty()) {
+bool MultiTexturedIndexRangeRenderer::empty() const
+{
+  for (const auto& renderer : m_renderers)
+  {
+    if (!renderer->empty())
+    {
       return false;
     }
   }
   return true;
 }
 
-void MultiTexturedIndexRangeRenderer::prepare(VboManager& vboManager) {
-  for (auto& renderer : m_renderers) {
+void MultiTexturedIndexRangeRenderer::prepare(VboManager& vboManager)
+{
+  for (auto& renderer : m_renderers)
+  {
     renderer->prepare(vboManager);
   }
 }
 
-void MultiTexturedIndexRangeRenderer::render() {
-  for (auto& renderer : m_renderers) {
+void MultiTexturedIndexRangeRenderer::render()
+{
+  for (auto& renderer : m_renderers)
+  {
     renderer->render();
   }
 }
 
-void MultiTexturedIndexRangeRenderer::render(TextureRenderFunc& func) {
-  for (auto& renderer : m_renderers) {
+void MultiTexturedIndexRangeRenderer::render(TextureRenderFunc& func)
+{
+  for (auto& renderer : m_renderers)
+  {
     renderer->render(func);
   }
 }

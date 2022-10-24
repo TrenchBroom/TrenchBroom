@@ -27,16 +27,20 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class GameEngineConfig;
 class GameEngineProfile;
 } // namespace Model
 
-namespace IO {
+namespace IO
+{
 class Path;
 
-class GameEngineConfigParser : public ConfigParserBase {
+class GameEngineConfigParser : public ConfigParserBase
+{
 public:
   GameEngineConfigParser(std::string_view str, const Path& path);
 

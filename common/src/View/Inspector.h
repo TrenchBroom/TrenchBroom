@@ -23,8 +23,10 @@
 
 #include <QWidget>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class FaceInspector;
 class EntityInspector;
 class GLContextManager;
@@ -34,13 +36,15 @@ class MapViewBar;
 class SyncHeightEventFilter;
 class TabBook;
 
-enum class InspectorPage {
+enum class InspectorPage
+{
   Map = 0,
   Entity = 1,
   Face = 2
 };
 
-class Inspector : public QWidget {
+class Inspector : public QWidget
+{
   Q_OBJECT
 private:
   TabBook* m_tabBook;
@@ -52,7 +56,8 @@ private:
 
 public:
   Inspector(
-    std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    std::weak_ptr<MapDocument> document,
+    GLContextManager& contextManager,
     QWidget* parent = nullptr);
   void connectTopWidgets(MapViewBar* mapViewBar);
   void switchToPage(InspectorPage page);

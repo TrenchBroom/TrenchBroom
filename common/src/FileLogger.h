@@ -26,12 +26,15 @@
 
 class QString;
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
 
-class FileLogger : public Logger {
+class FileLogger : public Logger
+{
 private:
   FILE* m_file;
 

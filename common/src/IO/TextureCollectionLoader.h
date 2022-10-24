@@ -23,20 +23,24 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class TextureCollection;
 }
 
-namespace IO {
+namespace IO
+{
 class File;
 class FileSystem;
 class Path;
 class TextureReader;
 
-class TextureCollectionLoader {
+class TextureCollectionLoader
+{
 protected:
   using FileList = std::vector<std::shared_ptr<File>>;
 
@@ -45,36 +49,42 @@ protected:
   const std::vector<std::string> m_textureExclusions;
 
 protected:
-  explicit TextureCollectionLoader(Logger& logger, const std::vector<std::string>& exclusions);
+  explicit TextureCollectionLoader(
+    Logger& logger, const std::vector<std::string>& exclusions);
 
 public:
   virtual ~TextureCollectionLoader();
 
 public:
   virtual Assets::TextureCollection loadTextureCollection(
-    const Path& path, const std::vector<std::string>& textureExtensions,
+    const Path& path,
+    const std::vector<std::string>& textureExtensions,
     const TextureReader& textureReader) = 0;
 
 protected:
   bool shouldExclude(const std::string& textureName);
 };
 
-class FileTextureCollectionLoader : public TextureCollectionLoader {
+class FileTextureCollectionLoader : public TextureCollectionLoader
+{
 private:
   const std::vector<Path> m_searchPaths;
 
 public:
   FileTextureCollectionLoader(
-    Logger& logger, const std::vector<Path>& searchPaths,
+    Logger& logger,
+    const std::vector<Path>& searchPaths,
     const std::vector<std::string>& exclusions);
 
 private:
   Assets::TextureCollection loadTextureCollection(
-    const Path& path, const std::vector<std::string>& textureExtensions,
+    const Path& path,
+    const std::vector<std::string>& textureExtensions,
     const TextureReader& textureReader);
 };
 
-class DirectoryTextureCollectionLoader : public TextureCollectionLoader {
+class DirectoryTextureCollectionLoader : public TextureCollectionLoader
+{
 private:
   const FileSystem& m_gameFS;
 
@@ -84,7 +94,8 @@ public:
 
 private:
   Assets::TextureCollection loadTextureCollection(
-    const Path& path, const std::vector<std::string>& textureExtensions,
+    const Path& path,
+    const std::vector<std::string>& textureExtensions,
     const TextureReader& textureReader);
 };
 } // namespace IO

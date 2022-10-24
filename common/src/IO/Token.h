@@ -24,9 +24,13 @@
 
 #include <kdl/string_utils.h>
 
-namespace TrenchBroom {
-namespace IO {
-template <typename Type> class TokenTemplate {
+namespace TrenchBroom
+{
+namespace IO
+{
+template <typename Type>
+class TokenTemplate
+{
 private:
   Type m_type;
   const char* m_begin;
@@ -42,17 +46,24 @@ public:
     , m_end(nullptr)
     , m_position(0)
     , m_line(0)
-    , m_column(0) {}
+    , m_column(0)
+  {
+  }
 
   TokenTemplate(
-    const Type type, const char* begin, const char* end, const size_t position, const size_t line,
+    const Type type,
+    const char* begin,
+    const char* end,
+    const size_t position,
+    const size_t line,
     const size_t column)
     : m_type(type)
     , m_begin(begin)
     , m_end(end)
     , m_position(position)
     , m_line(line)
-    , m_column(column) {
+    , m_column(column)
+  {
     assert(end >= begin);
   }
 
@@ -74,11 +85,15 @@ public:
 
   size_t column() const { return m_column; }
 
-  template <typename T> T toFloat() const {
+  template <typename T>
+  T toFloat() const
+  {
     return static_cast<T>(kdl::str_to_double(std::string(m_begin, m_end)).value_or(0.0));
   }
 
-  template <typename T> T toInteger() const {
+  template <typename T>
+  T toInteger() const
+  {
     return static_cast<T>(kdl::str_to_long(std::string(m_begin, m_end)).value_or(0l));
   }
 };

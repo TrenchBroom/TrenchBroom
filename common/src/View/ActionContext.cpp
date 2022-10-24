@@ -24,67 +24,100 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace View {
-bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs) {
-  return actionContextMatches(lhs, rhs, ActionContext::AnyView) &&
-         actionContextMatches(lhs, rhs, ActionContext::AnyOrNoTool) &&
-         actionContextMatches(lhs, rhs, ActionContext::AnyOrNoSelection);
+namespace TrenchBroom
+{
+namespace View
+{
+bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs)
+{
+  return actionContextMatches(lhs, rhs, ActionContext::AnyView)
+         && actionContextMatches(lhs, rhs, ActionContext::AnyOrNoTool)
+         && actionContextMatches(lhs, rhs, ActionContext::AnyOrNoSelection);
 }
 
 bool actionContextMatches(
-  const ActionContext::Type lhs, const ActionContext::Type rhs, const ActionContext::Type mask) {
+  const ActionContext::Type lhs,
+  const ActionContext::Type rhs,
+  const ActionContext::Type mask)
+{
   return (lhs & rhs & mask) != 0;
 }
 
-std::string actionContextName(const ActionContext::Type actionContext) {
-  if (actionContext == ActionContext::Any) {
+std::string actionContextName(const ActionContext::Type actionContext)
+{
+  if (actionContext == ActionContext::Any)
+  {
     return "any";
   }
 
   std::vector<std::string> actionContexts;
-  if ((actionContext & ActionContext::AnyView) == ActionContext::AnyView) {
+  if ((actionContext & ActionContext::AnyView) == ActionContext::AnyView)
+  {
     actionContexts.emplace_back("any view");
-  } else if (actionContext & ActionContext::View3D) {
+  }
+  else if (actionContext & ActionContext::View3D)
+  {
     actionContexts.emplace_back("3D view");
-  } else if (actionContext & ActionContext::View2D) {
+  }
+  else if (actionContext & ActionContext::View2D)
+  {
     actionContexts.emplace_back("2D view");
   }
 
-  if ((actionContext & ActionContext::AnyOrNoSelection) == ActionContext::AnyOrNoSelection) {
+  if (
+    (actionContext & ActionContext::AnyOrNoSelection) == ActionContext::AnyOrNoSelection)
+  {
     actionContexts.emplace_back("any or no selection");
-  } else if ((actionContext & ActionContext::AnyOrNoSelection) == ActionContext::AnySelection) {
+  }
+  else if (
+    (actionContext & ActionContext::AnyOrNoSelection) == ActionContext::AnySelection)
+  {
     actionContexts.emplace_back("any selection");
-  } else {
-    if (actionContext & ActionContext::NoSelection) {
+  }
+  else
+  {
+    if (actionContext & ActionContext::NoSelection)
+    {
       actionContexts.emplace_back("no selection");
     }
-    if (actionContext & ActionContext::NodeSelection) {
+    if (actionContext & ActionContext::NodeSelection)
+    {
       actionContexts.emplace_back("objects selected");
     }
-    if (actionContext & ActionContext::FaceSelection) {
+    if (actionContext & ActionContext::FaceSelection)
+    {
       actionContexts.emplace_back("faces selected");
     }
   }
 
-  if ((actionContext & ActionContext::AnyOrNoTool) == ActionContext::AnyOrNoTool) {
+  if ((actionContext & ActionContext::AnyOrNoTool) == ActionContext::AnyOrNoTool)
+  {
     actionContexts.emplace_back("any or no tool");
-  } else if ((actionContext & ActionContext::AnyOrNoTool) == ActionContext::AnyTool) {
+  }
+  else if ((actionContext & ActionContext::AnyOrNoTool) == ActionContext::AnyTool)
+  {
     actionContexts.emplace_back("any tool");
-  } else {
-    if (actionContext & ActionContext::NoTool) {
+  }
+  else
+  {
+    if (actionContext & ActionContext::NoTool)
+    {
       actionContexts.emplace_back("no tool");
     }
-    if (actionContext & ActionContext::CreateComplexBrushTool) {
+    if (actionContext & ActionContext::CreateComplexBrushTool)
+    {
       actionContexts.emplace_back("brush tool");
     }
-    if (actionContext & ActionContext::ClipTool) {
+    if (actionContext & ActionContext::ClipTool)
+    {
       actionContexts.emplace_back("clip tool");
     }
-    if (actionContext & ActionContext::RotateTool) {
+    if (actionContext & ActionContext::RotateTool)
+    {
       actionContexts.emplace_back("rotate tool");
     }
-    if (actionContext & ActionContext::AnyVertexTool) {
+    if (actionContext & ActionContext::AnyVertexTool)
+    {
       actionContexts.emplace_back("any vertex tool");
     }
   }

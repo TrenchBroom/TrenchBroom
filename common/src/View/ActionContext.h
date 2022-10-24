@@ -21,9 +21,12 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace View {
-namespace ActionContext {
+namespace TrenchBroom
+{
+namespace View
+{
+namespace ActionContext
+{
 using Type = size_t;
 static const Type View3D = 1u << 0u;
 static const Type View2D = 1u << 1u;
@@ -52,7 +55,8 @@ bool actionContextMatches(
 
 std::string actionContextName(ActionContext::Type actionContext);
 
-typedef enum {
+typedef enum
+{
   ActionView_Map2D = 0,
   ActionView_Map3D = 1
 } ActionView;

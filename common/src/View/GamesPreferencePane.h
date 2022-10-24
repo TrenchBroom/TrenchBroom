@@ -25,8 +25,10 @@ class QLineEdit;
 class QPushButton;
 class QStackedWidget;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class GameListBox;
 class GamePreferencePane;
 class MapDocument;
@@ -34,7 +36,8 @@ class MapDocument;
 /**
  * List of all games with the ability to edit game path, compile tools for each game
  */
-class GamesPreferencePane : public PreferencePane {
+class GamesPreferencePane : public PreferencePane
+{
   Q_OBJECT
 private:
   MapDocument* m_document;
@@ -60,7 +63,8 @@ private:
 /**
  * Widget for configuring a single game
  */
-class GamePreferencePane : public QWidget {
+class GamePreferencePane : public QWidget
+{
   Q_OBJECT
 private:
   std::string m_gameName;

@@ -22,23 +22,28 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class PickResult;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class DragTracker;
 class DropTracker;
 class InputState;
 class ToolController;
 
-class ToolChain {
+class ToolChain
+{
 private:
   std::unique_ptr<ToolController> m_tool;
   std::unique_ptr<ToolChain> m_suffix;
@@ -61,11 +66,14 @@ public:
   void mouseMove(const InputState& inputState);
 
   std::unique_ptr<DragTracker> startMouseDrag(const InputState& inputState);
-  std::unique_ptr<DropTracker> dragEnter(const InputState& inputState, const std::string& payload);
+  std::unique_ptr<DropTracker> dragEnter(
+    const InputState& inputState, const std::string& payload);
 
-  void setRenderOptions(const InputState& inputState, Renderer::RenderContext& renderContext) const;
+  void setRenderOptions(
+    const InputState& inputState, Renderer::RenderContext& renderContext) const;
   void render(
-    const InputState& inputState, Renderer::RenderContext& renderContext,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch);
 
   bool cancel();

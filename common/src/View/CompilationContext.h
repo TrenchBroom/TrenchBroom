@@ -25,11 +25,14 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapDocument;
 
-class CompilationContext {
+class CompilationContext
+{
 private:
   std::weak_ptr<MapDocument> m_document;
   std::unique_ptr<EL::VariableStore> m_variables;
@@ -39,8 +42,10 @@ private:
 
 public:
   CompilationContext(
-    std::weak_ptr<MapDocument> document, const EL::VariableStore& variables,
-    const TextOutputAdapter& output, bool test);
+    std::weak_ptr<MapDocument> document,
+    const EL::VariableStore& variables,
+    const TextOutputAdapter& output,
+    bool test);
 
   std::shared_ptr<MapDocument> document() const;
   bool test() const;
@@ -48,7 +53,9 @@ public:
   std::string interpolate(const std::string& input) const;
   std::string variableValue(const std::string& variableName) const;
 
-  template <typename T> CompilationContext& operator<<(const T& t) {
+  template <typename T>
+  CompilationContext& operator<<(const T& t)
+  {
     m_output << t;
     return *this;
   }

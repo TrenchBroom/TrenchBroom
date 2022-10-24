@@ -19,7 +19,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 [[noreturn]] void ensureFailed(
   const char* file, int line, const char* condition, const char* message);
 }
@@ -29,9 +30,12 @@ namespace TrenchBroom {
 #define stringification(expression) #expression
 #define stringification2(expression) stringification(expression)
 
-#define ensure(condition, message)                                                                 \
-  do {                                                                                             \
-    if (!(condition)) {                                                                            \
-      TrenchBroom::ensureFailed(__FILE__, __LINE__, stringification2(condition), message);         \
-    }                                                                                              \
+#define ensure(condition, message)                                                       \
+  do                                                                                     \
+  {                                                                                      \
+    if (!(condition))                                                                    \
+    {                                                                                    \
+      TrenchBroom::ensureFailed(                                                         \
+        __FILE__, __LINE__, stringification2(condition), message);                       \
+    }                                                                                    \
   } while (false)

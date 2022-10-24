@@ -27,23 +27,30 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 enum class LockState;
 class Node;
 } // namespace Model
 
-namespace View {
-class SetLockStateCommand : public UndoableCommand {
+namespace View
+{
+class SetLockStateCommand : public UndoableCommand
+{
 private:
   std::vector<Model::Node*> m_nodes;
   Model::LockState m_lockState;
   std::map<Model::Node*, Model::LockState> m_oldLockState;
 
 public:
-  static std::unique_ptr<SetLockStateCommand> lock(const std::vector<Model::Node*>& nodes);
-  static std::unique_ptr<SetLockStateCommand> unlock(const std::vector<Model::Node*>& nodes);
-  static std::unique_ptr<SetLockStateCommand> reset(const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SetLockStateCommand> lock(
+    const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SetLockStateCommand> unlock(
+    const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SetLockStateCommand> reset(
+    const std::vector<Model::Node*>& nodes);
 
   SetLockStateCommand(const std::vector<Model::Node*>& nodes, Model::LockState lockState);
 
@@ -51,7 +58,8 @@ private:
   static std::string makeName(Model::LockState lockState);
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(
+    MapDocumentCommandFacade* document) override;
 
   deleteCopyAndMove(SetLockStateCommand);
 };

@@ -28,11 +28,14 @@ class QScrollBar;
 class QDrag;
 class QMimeData;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class GLContextManager;
 
-class CellView : public RenderView {
+class CellView : public RenderView
+{
   Q_OBJECT
 protected:
   using Layout = CellLayout;
@@ -66,13 +69,19 @@ public:
    * Scroll to a cell. Pass a visitor of type `const Cell& cell -> bool` that returns true
    * for the cell that should be scrolled to.
    */
-  template <class L> void scrollToCell(L&& visitor) {
+  template <class L>
+  void scrollToCell(L&& visitor)
+  {
 
-    for (const LayoutGroup& group : m_layout.groups()) {
-      for (const LayoutRow& row : group.rows()) {
-        for (const LayoutCell& cell : row.cells()) {
+    for (const LayoutGroup& group : m_layout.groups())
+    {
+      for (const LayoutRow& row : group.rows())
+      {
+        for (const LayoutCell& cell : row.cells())
+        {
           const bool foundCell = visitor(cell);
-          if (foundCell) {
+          if (foundCell)
+          {
             scrollToCellInternal(cell);
             return;
           }

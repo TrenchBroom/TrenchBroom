@@ -24,36 +24,45 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace IO {
+namespace IO
+{
 class Path;
 class Quake3ShaderFileSystem;
 } // namespace IO
 
-namespace Model {
+namespace Model
+{
 struct GameConfig;
 
-class GameFileSystem : public IO::FileSystem {
+class GameFileSystem : public IO::FileSystem
+{
 private:
   IO::Quake3ShaderFileSystem* m_shaderFS;
 
 public:
   GameFileSystem();
   void initialize(
-    const GameConfig& config, const IO::Path& gamePath,
-    const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
+    const GameConfig& config,
+    const IO::Path& gamePath,
+    const std::vector<IO::Path>& additionalSearchPaths,
+    Logger& logger);
   void reloadShaders();
 
 private:
   void addDefaultAssetPaths(const GameConfig& config, Logger& logger);
   void addGameFileSystems(
-    const GameConfig& config, const IO::Path& gamePath,
-    const std::vector<IO::Path>& additionalSearchPaths, Logger& logger);
+    const GameConfig& config,
+    const IO::Path& gamePath,
+    const std::vector<IO::Path>& additionalSearchPaths,
+    Logger& logger);
   void addShaderFileSystem(const GameConfig& config, Logger& logger);
   void addFileSystemPath(const IO::Path& path, Logger& logger);
-  void addFileSystemPackages(const GameConfig& config, const IO::Path& searchPath, Logger& logger);
+  void addFileSystemPackages(
+    const GameConfig& config, const IO::Path& searchPath, Logger& logger);
 
 private:
   bool doDirectoryExists(const IO::Path& path) const override;

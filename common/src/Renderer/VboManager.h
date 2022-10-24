@@ -23,22 +23,27 @@
 
 #include <cstddef> // for size_t
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class Vbo;
 class ShaderManager;
 
-enum class VboType {
+enum class VboType
+{
   ArrayBuffer,
   ElementArrayBuffer
 };
 
-enum class VboUsage {
+enum class VboUsage
+{
   StaticDraw,
   DynamicDraw
 };
 
-class VboManager {
+class VboManager
+{
 private:
   size_t m_peakVboCount;
   size_t m_currentVboCount;

@@ -22,16 +22,20 @@
 #include "View/RotateObjectsHandle.h"
 #include "View/ToolController.h"
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class RotateObjectsTool;
 
-class RotateObjectsToolController : public ToolControllerGroup {
+class RotateObjectsToolController : public ToolControllerGroup
+{
 protected:
   RotateObjectsTool& m_tool;
 
@@ -50,7 +54,8 @@ private:
   void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const override;
   void render(
-    const InputState& inputState, Renderer::RenderContext& renderContext,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
 
   bool cancel() override;
@@ -61,7 +66,8 @@ private: // subclassing interface
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
 };
 
-class RotateObjectsToolController2D : public RotateObjectsToolController {
+class RotateObjectsToolController2D : public RotateObjectsToolController
+{
 public:
   explicit RotateObjectsToolController2D(RotateObjectsTool& tool);
 
@@ -71,7 +77,8 @@ private:
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 };
 
-class RotateObjectsToolController3D : public RotateObjectsToolController {
+class RotateObjectsToolController3D : public RotateObjectsToolController
+{
 public:
   explicit RotateObjectsToolController3D(RotateObjectsTool& tool);
 

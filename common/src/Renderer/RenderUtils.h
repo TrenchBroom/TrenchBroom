@@ -25,38 +25,51 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 vm::vec3f gridColorForTexture(const Assets::Texture* texture);
 
 void glSetEdgeOffset(double f);
 void glResetEdgeOffset();
 
-void coordinateSystemVerticesX(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
-void coordinateSystemVerticesY(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
-void coordinateSystemVerticesZ(const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
+void coordinateSystemVerticesX(
+  const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
+void coordinateSystemVerticesY(
+  const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
+void coordinateSystemVerticesZ(
+  const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
 
-class TextureRenderFunc {
+class TextureRenderFunc
+{
 public:
   virtual ~TextureRenderFunc();
   virtual void before(const Assets::Texture* texture);
   virtual void after(const Assets::Texture* texture);
 };
 
-class DefaultTextureRenderFunc : public TextureRenderFunc {
+class DefaultTextureRenderFunc : public TextureRenderFunc
+{
 public:
   void before(const Assets::Texture* texture) override;
   void after(const Assets::Texture* texture) override;
 };
 
 std::vector<vm::vec2f> circle2D(float radius, size_t segments);
-std::vector<vm::vec2f> circle2D(float radius, float startAngle, float angleLength, size_t segments);
+std::vector<vm::vec2f> circle2D(
+  float radius, float startAngle, float angleLength, size_t segments);
 std::vector<vm::vec3f> circle2D(
-  float radius, vm::axis::type axis, float startAngle, float angleLength, size_t segments);
+  float radius,
+  vm::axis::type axis,
+  float startAngle,
+  float angleLength,
+  size_t segments);
 std::pair<float, float> startAngleAndLength(
   vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
 
@@ -66,7 +79,8 @@ std::vector<vm::vec2f> roundedRect2D(
 std::vector<vm::vec2f> roundedRect2D(
   float width, float height, float cornerRadius, size_t cornerSegments);
 
-struct VertsAndNormals {
+struct VertsAndNormals
+{
   std::vector<vm::vec3f> vertices;
   std::vector<vm::vec3f> normals;
 

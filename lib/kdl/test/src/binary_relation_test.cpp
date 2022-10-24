@@ -1,20 +1,21 @@
 /*
  Copyright 2010-2019 Kristian Duske
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ software and associated documentation files (the "Software"), to deal in the Software
+ without restriction, including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in all copies or
  substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
 */
 
 #include "kdl/binary_relation.h"
@@ -23,20 +24,25 @@
 
 #include <catch2/catch.hpp>
 
-namespace kdl {
+namespace kdl
+{
 template <typename L, typename R>
-bool checkRelation(const binary_relation<L, R>& act, const std::vector<std::pair<L, R>>& exp) {
+bool checkRelation(
+  const binary_relation<L, R>& act, const std::vector<std::pair<L, R>>& exp)
+{
   return std::equal(std::begin(act), std::end(act), std::begin(exp), std::end(exp));
 }
 
-TEST_CASE("binary_relation_test.constructor_default", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.constructor_default", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   relation r;
   CHECK(r.empty());
 }
 
-TEST_CASE("binary_relation_test.constructor_intializer_list", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.constructor_intializer_list", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   relation r({
@@ -49,23 +55,26 @@ TEST_CASE("binary_relation_test.constructor_intializer_list", "[binary_relation_
   });
 
   CHECK(checkRelation(
-    r, {
-         {1, "a"},
-         {1, "b"},
-         {2, "b"},
-         {3, "b"},
-         {4, "c"},
-       }));
+    r,
+    {
+      {1, "a"},
+      {1, "b"},
+      {2, "b"},
+      {3, "b"},
+      {4, "c"},
+    }));
 }
 
-TEST_CASE("binary_relation_test.empty", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.empty", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   CHECK(relation().empty());
   CHECK_FALSE(relation({{1, "a"}}).empty());
 }
 
-TEST_CASE("binary_relation_test.size", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.size", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   CHECK(relation().size() == 0u);
@@ -74,7 +83,8 @@ TEST_CASE("binary_relation_test.size", "[binary_relation_test]") {
   CHECK(relation({{1, "a"}, {1, "b"}, {2, "c"}}).size() == 3u);
 }
 
-TEST_CASE("binary_relation_test.contains", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.contains", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   CHECK_FALSE(relation().contains(1, "a"));
@@ -83,7 +93,8 @@ TEST_CASE("binary_relation_test.contains", "[binary_relation_test]") {
   CHECK(relation({{1, "a"}}).contains(1, "a"));
 }
 
-TEST_CASE("binary_relation_test.count_left", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.count_left", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   CHECK(relation().count_left("a") == 0u);
@@ -93,7 +104,8 @@ TEST_CASE("binary_relation_test.count_left", "[binary_relation_test]") {
   CHECK(relation({{1, "a"}, {1, "b"}, {2, "a"}}).count_left("a") == 2u);
 }
 
-TEST_CASE("binary_relation_test.count_right", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.count_right", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   CHECK(relation().count_right(1) == 0u);
@@ -103,7 +115,8 @@ TEST_CASE("binary_relation_test.count_right", "[binary_relation_test]") {
   CHECK(relation({{1, "a"}, {1, "b"}, {2, "a"}}).count_right(1) == 2u);
 }
 
-TEST_CASE("binary_relation_test.iterator", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.iterator", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   relation r;
@@ -143,11 +156,13 @@ TEST_CASE("binary_relation_test.iterator", "[binary_relation_test]") {
 }
 
 template <typename T, typename I>
-void assertRange(const std::vector<T>& exp, const std::pair<I, I>& act) {
+void assertRange(const std::vector<T>& exp, const std::pair<I, I>& act)
+{
   CHECK(std::equal(std::begin(exp), std::end(exp), act.first, act.second));
 }
 
-TEST_CASE("binary_relation_test.left_range", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.left_range", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   assertRange<int>({}, relation().left_range("a"));
@@ -156,16 +171,19 @@ TEST_CASE("binary_relation_test.left_range", "[binary_relation_test]") {
   assertRange<int>({1, 2}, relation({{1, "a"}, {2, "a"}, {3, "b"}}).left_range("a"));
 }
 
-TEST_CASE("binary_relation_test.right_range", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.right_range", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   assertRange<std::string>({}, relation().right_range(1));
   assertRange<std::string>({}, relation({{2, "b"}}).right_range(1));
   assertRange<std::string>({"a"}, relation({{1, "a"}}).right_range(1));
-  assertRange<std::string>({"a", "b"}, relation({{1, "a"}, {1, "b"}, {2, "c"}}).right_range(1));
+  assertRange<std::string>(
+    {"a", "b"}, relation({{1, "a"}, {1, "b"}, {2, "c"}}).right_range(1));
 }
 
-TEST_CASE("binary_relation_test.insert_relation", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.insert_relation", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   relation r;
@@ -179,16 +197,18 @@ TEST_CASE("binary_relation_test.insert_relation", "[binary_relation_test]") {
   }));
 
   CHECK(checkRelation(
-    r, {
-         {1, "a"},
-         {1, "b"},
-         {2, "b"},
-         {3, "b"},
-         {4, "c"},
-       }));
+    r,
+    {
+      {1, "a"},
+      {1, "b"},
+      {2, "b"},
+      {3, "b"},
+      {4, "c"},
+    }));
 }
 
-TEST_CASE("binary_relation_test.insert_right_range", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.insert_right_range", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   relation r;
@@ -234,7 +254,8 @@ TEST_CASE("binary_relation_test.insert_right_range", "[binary_relation_test]") {
   CHECK(std::equal(std::begin(right_3), std::end(right_3), r.right_begin(left_3)));
 }
 
-TEST_CASE("binary_relation_test.insert_left_range", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.insert_left_range", "[binary_relation_test]")
+{
   using relation = binary_relation<std::string, size_t>;
 
   relation r;
@@ -280,7 +301,8 @@ TEST_CASE("binary_relation_test.insert_left_range", "[binary_relation_test]") {
   CHECK(std::equal(std::begin(left_3), std::end(left_3), r.left_begin(right_3)));
 }
 
-TEST_CASE("binary_relation_test.insert_values", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.insert_values", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   relation r;
@@ -310,7 +332,8 @@ TEST_CASE("binary_relation_test.insert_values", "[binary_relation_test]") {
   CHECK(r.count_right(2) == 1u);
 }
 
-TEST_CASE("binary_relation_test.erase", "[binary_relation_test]") {
+TEST_CASE("binary_relation_test.erase", "[binary_relation_test]")
+{
   using relation = binary_relation<int, std::string>;
 
   relation r;

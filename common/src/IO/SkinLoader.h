@@ -21,15 +21,18 @@
 
 #include <memory>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class Palette;
 class Texture;
 } // namespace Assets
 
-namespace IO {
+namespace IO
+{
 class FileSystem;
 class Path;
 

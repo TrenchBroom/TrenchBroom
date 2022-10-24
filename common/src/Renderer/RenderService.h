@@ -29,8 +29,10 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class AttrString;
 class PointHandleRenderer;
 class PrimitiveRenderer;
@@ -41,7 +43,8 @@ class RenderContext;
 class TextAnchor;
 class TextRenderer;
 
-class RenderService {
+class RenderService
+{
 private:
   using OcclusionPolicy = PrimitiveRendererOcclusionPolicy;
   using CullingPolicy = PrimitiveRendererCullingPolicy;
@@ -107,18 +110,34 @@ public:
   void renderBounds(const vm::bbox3f& bounds);
 
   void renderCircle(
-    const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius,
-    const vm::vec3f& startAxis, const vm::vec3f& endAxis);
+    const vm::vec3f& position,
+    vm::axis::type normal,
+    size_t segments,
+    float radius,
+    const vm::vec3f& startAxis,
+    const vm::vec3f& endAxis);
   void renderCircle(
-    const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius,
-    float startAngle = 0.0f, float angleLength = vm::Cf::two_pi());
+    const vm::vec3f& position,
+    vm::axis::type normal,
+    size_t segments,
+    float radius,
+    float startAngle = 0.0f,
+    float angleLength = vm::Cf::two_pi());
 
   void renderFilledCircle(
-    const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius,
-    const vm::vec3f& startAxis, const vm::vec3f& endAxis);
+    const vm::vec3f& position,
+    vm::axis::type normal,
+    size_t segments,
+    float radius,
+    const vm::vec3f& startAxis,
+    const vm::vec3f& endAxis);
   void renderFilledCircle(
-    const vm::vec3f& position, vm::axis::type normal, size_t segments, float radius,
-    float startAngle = 0.0f, float angleLength = vm::Cf::two_pi());
+    const vm::vec3f& position,
+    vm::axis::type normal,
+    size_t segments,
+    float radius,
+    float startAngle = 0.0f,
+    float angleLength = vm::Cf::two_pi());
 
 private:
   void flush();

@@ -23,92 +23,124 @@
 
 #include <string>
 
-namespace TrenchBroom {
-void glCheckError(const std::string& msg) {
+namespace TrenchBroom
+{
+void glCheckError(const std::string& msg)
+{
   const GLenum error = glGetError();
-  if (error != GL_NO_ERROR) {
+  if (error != GL_NO_ERROR)
+  {
     throw RenderException(
-      "OpenGL error: " + std::to_string(error) + " (" + glGetErrorMessage(error) + ") " + msg);
+      "OpenGL error: " + std::to_string(error) + " (" + glGetErrorMessage(error) + ") "
+      + msg);
   }
 }
 
-std::string glGetErrorMessage(const GLenum code) {
-  switch (code) {
-    case GL_INVALID_ENUM:
-      return "GL_INVALID_ENUM";
-    case GL_INVALID_VALUE:
-      return "GL_INVALID_VALUE";
-    case GL_INVALID_OPERATION:
-      return "GL_INVALID_OPERATION";
-    case GL_STACK_OVERFLOW:
-      return "GL_STACK_OVERFLOW";
-    case GL_STACK_UNDERFLOW:
-      return "GL_STACK_UNDERFLOW";
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
-      return "GL_INVALID_FRAMEBUFFER_OPERATION";
-    case GL_CONTEXT_LOST:
-      return "GL_CONTEXT_LOST";
-    case GL_TABLE_TOO_LARGE:
-      return "GL_TABLE_TOO_LARGE";
-    default:
-      return "UNKNOWN";
+std::string glGetErrorMessage(const GLenum code)
+{
+  switch (code)
+  {
+  case GL_INVALID_ENUM:
+    return "GL_INVALID_ENUM";
+  case GL_INVALID_VALUE:
+    return "GL_INVALID_VALUE";
+  case GL_INVALID_OPERATION:
+    return "GL_INVALID_OPERATION";
+  case GL_STACK_OVERFLOW:
+    return "GL_STACK_OVERFLOW";
+  case GL_STACK_UNDERFLOW:
+    return "GL_STACK_UNDERFLOW";
+  case GL_INVALID_FRAMEBUFFER_OPERATION:
+    return "GL_INVALID_FRAMEBUFFER_OPERATION";
+  case GL_CONTEXT_LOST:
+    return "GL_CONTEXT_LOST";
+  case GL_TABLE_TOO_LARGE:
+    return "GL_TABLE_TOO_LARGE";
+  default:
+    return "UNKNOWN";
   }
 }
 
-GLenum glGetEnum(const std::string& name) {
-  if (name == "GL_ONE") {
+GLenum glGetEnum(const std::string& name)
+{
+  if (name == "GL_ONE")
+  {
     return GL_ONE;
-  } else if (name == "GL_ZERO") {
+  }
+  else if (name == "GL_ZERO")
+  {
     return GL_ZERO;
-  } else if (name == "GL_SRC_COLOR") {
+  }
+  else if (name == "GL_SRC_COLOR")
+  {
     return GL_SRC_COLOR;
-  } else if (name == "GL_DST_COLOR") {
+  }
+  else if (name == "GL_DST_COLOR")
+  {
     return GL_DST_COLOR;
-  } else if (name == "GL_ONE_MINUS_SRC_COLOR") {
+  }
+  else if (name == "GL_ONE_MINUS_SRC_COLOR")
+  {
     return GL_ONE_MINUS_SRC_COLOR;
-  } else if (name == "GL_ONE_MINUS_DST_COLOR") {
+  }
+  else if (name == "GL_ONE_MINUS_DST_COLOR")
+  {
     return GL_ONE_MINUS_DST_COLOR;
-  } else if (name == "GL_SRC_ALPHA") {
+  }
+  else if (name == "GL_SRC_ALPHA")
+  {
     return GL_SRC_ALPHA;
-  } else if (name == "GL_DST_ALPHA") {
+  }
+  else if (name == "GL_DST_ALPHA")
+  {
     return GL_DST_ALPHA;
-  } else if (name == "GL_ONE_MINUS_SRC_ALPHA") {
+  }
+  else if (name == "GL_ONE_MINUS_SRC_ALPHA")
+  {
     return GL_ONE_MINUS_SRC_ALPHA;
-  } else if (name == "GL_ONE_MINUS_DST_ALPHA") {
+  }
+  else if (name == "GL_ONE_MINUS_DST_ALPHA")
+  {
     return GL_ONE_MINUS_DST_ALPHA;
-  } else if (name == "GL_SRC_ALPHA_SATURATE") {
+  }
+  else if (name == "GL_SRC_ALPHA_SATURATE")
+  {
     return GL_SRC_ALPHA_SATURATE;
-  } else {
+  }
+  else
+  {
     throw RenderException("Unknown GL enum: " + name);
   }
 }
 
-std::string glGetEnumName(const GLenum _enum) {
-  switch (_enum) {
-    case GL_ONE:
-      return "GL_ONE";
-    case GL_ZERO:
-      return "GL_ZERO";
-    case GL_SRC_COLOR:
-      return "GL_SRC_COLOR";
-    case GL_DST_COLOR:
-      return "GL_DST_COLOR";
-    case GL_ONE_MINUS_SRC_COLOR:
-      return "GL_ONE_MINUS_SRC_COLOR";
-    case GL_ONE_MINUS_DST_COLOR:
-      return "GL_ONE_MINUS_DST_COLOR";
-    case GL_SRC_ALPHA:
-      return "GL_SRC_ALPHA";
-    case GL_DST_ALPHA:
-      return "GL_DST_ALPHA";
-    case GL_ONE_MINUS_SRC_ALPHA:
-      return "GL_ONE_MINUS_SRC_ALPHA";
-    case GL_ONE_MINUS_DST_ALPHA:
-      return "GL_ONE_MINUS_DST_ALPHA";
-    case GL_SRC_ALPHA_SATURATE:
-      return "GL_SRC_ALPHA_SATURATE";
-    default:
-      return "Unknown OpenGL enum";
+std::string glGetEnumName(const GLenum _enum)
+{
+  switch (_enum)
+  {
+  case GL_ONE:
+    return "GL_ONE";
+  case GL_ZERO:
+    return "GL_ZERO";
+  case GL_SRC_COLOR:
+    return "GL_SRC_COLOR";
+  case GL_DST_COLOR:
+    return "GL_DST_COLOR";
+  case GL_ONE_MINUS_SRC_COLOR:
+    return "GL_ONE_MINUS_SRC_COLOR";
+  case GL_ONE_MINUS_DST_COLOR:
+    return "GL_ONE_MINUS_DST_COLOR";
+  case GL_SRC_ALPHA:
+    return "GL_SRC_ALPHA";
+  case GL_DST_ALPHA:
+    return "GL_DST_ALPHA";
+  case GL_ONE_MINUS_SRC_ALPHA:
+    return "GL_ONE_MINUS_SRC_ALPHA";
+  case GL_ONE_MINUS_DST_ALPHA:
+    return "GL_ONE_MINUS_DST_ALPHA";
+  case GL_SRC_ALPHA_SATURATE:
+    return "GL_SRC_ALPHA_SATURATE";
+  default:
+    return "Unknown OpenGL enum";
   }
 }
 } // namespace TrenchBroom

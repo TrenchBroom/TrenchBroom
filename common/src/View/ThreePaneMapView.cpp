@@ -29,11 +29,17 @@
 
 #include <QHBoxLayout>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 ThreePaneMapView::ThreePaneMapView(
-  std::weak_ptr<MapDocument> document, MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer,
-  GLContextManager& contextManager, Logger* logger, QWidget* parent)
+  std::weak_ptr<MapDocument> document,
+  MapViewToolBox& toolBox,
+  Renderer::MapRenderer& mapRenderer,
+  GLContextManager& contextManager,
+  Logger* logger,
+  QWidget* parent)
   : MultiMapView(parent)
   , m_logger(logger)
   , m_document(document)
@@ -41,17 +47,22 @@ ThreePaneMapView::ThreePaneMapView(
   , m_vSplitter(nullptr)
   , m_mapView3D(nullptr)
   , m_mapViewXY(nullptr)
-  , m_mapViewZZ(nullptr) {
+  , m_mapViewZZ(nullptr)
+{
   createGui(toolBox, mapRenderer, contextManager);
 }
 
-ThreePaneMapView::~ThreePaneMapView() {
+ThreePaneMapView::~ThreePaneMapView()
+{
   saveWindowState(m_hSplitter);
   saveWindowState(m_vSplitter);
 }
 
 void ThreePaneMapView::createGui(
-  MapViewToolBox& toolBox, Renderer::MapRenderer& mapRenderer, GLContextManager& contextManager) {
+  MapViewToolBox& toolBox,
+  Renderer::MapRenderer& mapRenderer,
+  GLContextManager& contextManager)
+{
   m_hSplitter = new Splitter();
   m_hSplitter->setObjectName("ThreePaneMapView_HorizontalSplitter");
 
@@ -98,21 +109,29 @@ void ThreePaneMapView::createGui(
   restoreWindowState(m_vSplitter);
 }
 
-void ThreePaneMapView::doMaximizeView(MapView* view) {
+void ThreePaneMapView::doMaximizeView(MapView* view)
+{
   assert(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewZZ);
-  if (view == m_mapView3D) {
+  if (view == m_mapView3D)
+  {
     m_vSplitter->hide();
-  } else if (view == m_mapViewXY) {
+  }
+  else if (view == m_mapViewXY)
+  {
     m_mapViewZZ->hide();
     m_mapView3D->hide();
-  } else if (view == m_mapViewZZ) {
+  }
+  else if (view == m_mapViewZZ)
+  {
     m_mapViewXY->hide();
     m_mapView3D->hide();
   }
 }
 
-void ThreePaneMapView::doRestoreViews() {
-  for (int i = 0; i < 2; ++i) {
+void ThreePaneMapView::doRestoreViews()
+{
+  for (int i = 0; i < 2; ++i)
+  {
     m_hSplitter->widget(i)->show();
     m_vSplitter->widget(i)->show();
   }

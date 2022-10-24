@@ -25,11 +25,14 @@
 
 #include <FreeImage.h>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 
-class InitFreeImage {
+class InitFreeImage
+{
 private:
   InitFreeImage();
   ~InitFreeImage();
@@ -38,7 +41,8 @@ public:
   static void initialize();
 };
 
-class ImageLoaderImpl {
+class ImageLoaderImpl
+{
 private:
   FIMEMORY* m_stream;
   FIBITMAP* m_bitmap;

@@ -21,9 +21,12 @@
 
 #include <QFormLayout>
 
-namespace TrenchBroom {
-namespace View {
-class FormWithSectionsLayout : public QFormLayout {
+namespace TrenchBroom
+{
+namespace View
+{
+class FormWithSectionsLayout : public QFormLayout
+{
 public:
   using QFormLayout::QFormLayout;
 

@@ -24,21 +24,26 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 enum class PropertyDefinitionType;
 }
 
-namespace Model {
+namespace Model
+{
 class EntityNodeBase;
 }
 
-namespace View {
+namespace View
+{
 /**
- * Matches if all of the nodes have a property definition for the give property key that is of the
- * type passed to the constructor.
+ * Matches if all of the nodes have a property definition for the give property key that
+ * is of the type passed to the constructor.
  */
-class SmartTypeEditorMatcher : public SmartPropertyEditorMatcher {
+class SmartTypeEditorMatcher : public SmartPropertyEditorMatcher
+{
 private:
   Assets::PropertyDefinitionType m_type;
 
@@ -46,15 +51,17 @@ public:
   SmartTypeEditorMatcher(Assets::PropertyDefinitionType type);
 
 private:
-  bool doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes)
-    const override;
+  bool doMatches(
+    const std::string& propertyKey,
+    const std::vector<Model::EntityNodeBase*>& nodes) const override;
 };
 
 /**
- * Matches if all of the nodes have a property definition for the give property key that is of the
- * type passed to the constructor, and these property definitions are all equal.
+ * Matches if all of the nodes have a property definition for the give property key that
+ * is of the type passed to the constructor, and these property definitions are all equal.
  */
-class SmartTypeWithSameDefinitionEditorMatcher : public SmartPropertyEditorMatcher {
+class SmartTypeWithSameDefinitionEditorMatcher : public SmartPropertyEditorMatcher
+{
 private:
   Assets::PropertyDefinitionType m_type;
 
@@ -62,8 +69,9 @@ public:
   SmartTypeWithSameDefinitionEditorMatcher(Assets::PropertyDefinitionType type);
 
 private:
-  bool doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes)
-    const override;
+  bool doMatches(
+    const std::string& propertyKey,
+    const std::vector<Model::EntityNodeBase*>& nodes) const override;
 };
 } // namespace View
 } // namespace TrenchBroom

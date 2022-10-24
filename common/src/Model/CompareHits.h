@@ -25,11 +25,14 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Hit;
 
-class CompareHits {
+class CompareHits
+{
 public:
   virtual ~CompareHits();
   int compare(const Hit& lhs, const Hit& rhs) const;
@@ -38,29 +41,34 @@ private:
   virtual int doCompare(const Hit& lhs, const Hit& rhs) const = 0;
 };
 
-class CombineCompareHits : public CompareHits {
+class CombineCompareHits : public CompareHits
+{
 private:
   std::unique_ptr<CompareHits> m_first;
   std::unique_ptr<CompareHits> m_second;
 
 public:
-  CombineCompareHits(std::unique_ptr<CompareHits> first, std::unique_ptr<CompareHits> second);
+  CombineCompareHits(
+    std::unique_ptr<CompareHits> first, std::unique_ptr<CompareHits> second);
 
 private:
   int doCompare(const Hit& lhs, const Hit& rhs) const override;
 };
 
-class CompareHitsByType : public CompareHits {
+class CompareHitsByType : public CompareHits
+{
 private:
   int doCompare(const Hit& lhs, const Hit& rhs) const override;
 };
 
-class CompareHitsByDistance : public CompareHits {
+class CompareHitsByDistance : public CompareHits
+{
 private:
   int doCompare(const Hit& lhs, const Hit& rhs) const override;
 };
 
-class CompareHitsBySize : public CompareHits {
+class CompareHitsBySize : public CompareHits
+{
 private:
   const vm::axis::type m_axis;
   CompareHitsByDistance m_compareByDistance;

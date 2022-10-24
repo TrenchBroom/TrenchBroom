@@ -22,14 +22,17 @@
 #include <QString>
 #include <QTableView>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 /**
  * Hardcoded shortcuts:
  * - Ctrl+Enter emits the `addRowShortcutTriggered` signal
  * - Delete or Backspace emits the `removeRowsShortcutTriggered` signal
  */
-class EntityPropertyTable : public QTableView {
+class EntityPropertyTable : public QTableView
+{
   Q_OBJECT
 private:
   bool m_mousePressedOnSelectedCell;

@@ -41,8 +41,10 @@
 // for use in QVariant
 Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionSortOrder)
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 EntityBrowser::EntityBrowser(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget(parent)
@@ -52,13 +54,16 @@ EntityBrowser::EntityBrowser(
   , m_usedButton(nullptr)
   , m_filterBox(nullptr)
   , m_scrollBar(nullptr)
-  , m_view(nullptr) {
+  , m_view(nullptr)
+{
   createGui(contextManager);
   connectObservers();
 }
 
-void EntityBrowser::reload() {
-  if (m_view != nullptr) {
+void EntityBrowser::reload()
+{
+  if (m_view != nullptr)
+  {
     auto document = kdl::mem_lock(m_document);
     m_view->setDefaultModelScaleExpression(
       document->world()->entityPropertyConfig().defaultModelScaleExpression);
@@ -68,14 +73,18 @@ void EntityBrowser::reload() {
   }
 }
 
-void EntityBrowser::createGui(GLContextManager& contextManager) {
+void EntityBrowser::createGui(GLContextManager& contextManager)
+{
   m_scrollBar = new QScrollBar(Qt::Vertical);
 
   auto document = kdl::mem_lock(m_document);
 
   m_view = new EntityBrowserView(
-    m_scrollBar, contextManager, document->entityDefinitionManager(),
-    document->entityModelManager(), *document);
+    m_scrollBar,
+    contextManager,
+    document->entityDefinitionManager(),
+    document->entityModelManager(),
+    *document);
 
   auto* browserPanelSizer = new QHBoxLayout();
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
@@ -93,11 +102,12 @@ void EntityBrowser::createGui(GLContextManager& contextManager) {
     tr("Usage"), QVariant::fromValue(Assets::EntityDefinitionSortOrder::Usage));
   m_sortOrderChoice->setCurrentIndex(0);
   m_sortOrderChoice->setToolTip(tr("Select ordering criterion"));
-  connect(m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [=](int index) {
-    auto sortOrder =
-      static_cast<Assets::EntityDefinitionSortOrder>(m_sortOrderChoice->itemData(index).toInt());
-    m_view->setSortOrder(sortOrder);
-  });
+  connect(
+    m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [=](int index) {
+      auto sortOrder = static_cast<Assets::EntityDefinitionSortOrder>(
+        m_sortOrderChoice->itemData(index).toInt());
+      m_view->setSortOrder(sortOrder);
+    });
 
   m_groupButton = new QPushButton(tr("Group"));
   m_groupButton->setToolTip(tr("Group entity definitions by category"));
@@ -120,7 +130,9 @@ void EntityBrowser::createGui(GLContextManager& contextManager) {
 
   auto* controlSizer = new QHBoxLayout();
   controlSizer->setContentsMargins(
-    LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, LayoutConstants::NarrowHMargin,
+    LayoutConstants::NarrowHMargin,
+    LayoutConstants::NarrowVMargin,
+    LayoutConstants::NarrowHMargin,
     LayoutConstants::NarrowVMargin);
   controlSizer->setSpacing(LayoutConstants::NarrowHMargin);
   controlSizer->addWidget(m_sortOrderChoice, 0);
@@ -137,7 +149,8 @@ void EntityBrowser::createGui(GLContextManager& contextManager) {
   setLayout(outerSizer);
 }
 
-void EntityBrowser::connectObservers() {
+void EntityBrowser::connectObservers()
+{
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection +=
     document->documentWasNewedNotifier.connect(this, &EntityBrowser::documentWasNewed);
@@ -155,32 +168,41 @@ void EntityBrowser::connectObservers() {
     prefs.preferenceDidChangeNotifier.connect(this, &EntityBrowser::preferenceDidChange);
 }
 
-void EntityBrowser::documentWasNewed(MapDocument*) {
+void EntityBrowser::documentWasNewed(MapDocument*)
+{
   reload();
 }
 
-void EntityBrowser::documentWasLoaded(MapDocument*) {
+void EntityBrowser::documentWasLoaded(MapDocument*)
+{
   reload();
 }
 
-void EntityBrowser::modsDidChange() {
+void EntityBrowser::modsDidChange()
+{
   reload();
 }
 
-void EntityBrowser::nodesDidChange(const std::vector<Model::Node*>&) {
+void EntityBrowser::nodesDidChange(const std::vector<Model::Node*>&)
+{
   // to handle definition usage count changes
   reload();
 }
 
-void EntityBrowser::entityDefinitionsDidChange() {
+void EntityBrowser::entityDefinitionsDidChange()
+{
   reload();
 }
 
-void EntityBrowser::preferenceDidChange(const IO::Path& path) {
+void EntityBrowser::preferenceDidChange(const IO::Path& path)
+{
   auto document = kdl::mem_lock(m_document);
-  if (document->isGamePathPreference(path)) {
+  if (document->isGamePathPreference(path))
+  {
     reload();
-  } else {
+  }
+  else
+  {
     m_view->update();
   }
 }

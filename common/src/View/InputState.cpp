@@ -28,8 +28,10 @@
 
 #include <QCursor>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 InputState::InputState()
   : m_modifierKeys(ModifierKeys::MKNone)
   , m_mouseButtons(MouseButtons::MBNone)
@@ -39,7 +41,8 @@ InputState::InputState()
   , m_mouseDY(0.0f)
   , m_scrollX(0.0f)
   , m_scrollY(0.0f)
-  , m_anyToolDragging(false) {
+  , m_anyToolDragging(false)
+{
   const QPoint mouseState = QCursor::pos();
   m_mouseX = static_cast<float>(mouseState.x());
   m_mouseY = static_cast<float>(mouseState.y());
@@ -54,25 +57,33 @@ InputState::InputState(const float mouseX, const float mouseY)
   , m_mouseDY(0.0f)
   , m_scrollX(0.0f)
   , m_scrollY(0.0f)
-  , m_anyToolDragging(false) {}
+  , m_anyToolDragging(false)
+{
+}
 
 InputState::~InputState() {}
 
-ModifierKeyState InputState::modifierKeys() const {
+ModifierKeyState InputState::modifierKeys() const
+{
   return m_modifierKeys;
 }
 
-bool InputState::modifierKeysDown(const ModifierKeyState keys) const {
+bool InputState::modifierKeysDown(const ModifierKeyState keys) const
+{
   return (modifierKeys() & keys) != 0;
 }
 
-bool InputState::modifierKeysPressed(const ModifierKeyState keys) const {
+bool InputState::modifierKeysPressed(const ModifierKeyState keys) const
+{
   return modifierKeys() == keys;
 }
 
 bool InputState::checkModifierKeys(
-  const ModifierKeyState key1, const ModifierKeyState key2, const ModifierKeyState key3,
-  const ModifierKeyState key4) const {
+  const ModifierKeyState key1,
+  const ModifierKeyState key2,
+  const ModifierKeyState key3,
+  const ModifierKeyState key4) const
+{
   assert(key1 != ModifierKeys::MKDontCare);
   if (modifierKeysPressed(key1))
     return true;
@@ -86,127 +97,157 @@ bool InputState::checkModifierKeys(
 }
 
 bool InputState::checkModifierKeys(
-  const ModifierKeyPressed ctrl, const ModifierKeyPressed alt,
-  const ModifierKeyPressed shift) const {
+  const ModifierKeyPressed ctrl,
+  const ModifierKeyPressed alt,
+  const ModifierKeyPressed shift) const
+{
   return (
-    checkModifierKey(ctrl, ModifierKeys::MKCtrlCmd) && checkModifierKey(alt, ModifierKeys::MKAlt) &&
-    checkModifierKey(shift, ModifierKeys::MKShift));
+    checkModifierKey(ctrl, ModifierKeys::MKCtrlCmd)
+    && checkModifierKey(alt, ModifierKeys::MKAlt)
+    && checkModifierKey(shift, ModifierKeys::MKShift));
 }
 
-bool InputState::checkModifierKey(ModifierKeyPressed state, ModifierKeyState key) const {
-  switch (state) {
-    case MK_Yes:
-      return modifierKeysDown(key);
-    case MK_No:
-      return !modifierKeysDown(key);
-    case MK_DontCare:
-      return true;
-      switchDefault();
+bool InputState::checkModifierKey(ModifierKeyPressed state, ModifierKeyState key) const
+{
+  switch (state)
+  {
+  case MK_Yes:
+    return modifierKeysDown(key);
+  case MK_No:
+    return !modifierKeysDown(key);
+  case MK_DontCare:
+    return true;
+    switchDefault();
   }
 }
 
-MouseButtonState InputState::mouseButtons() const {
+MouseButtonState InputState::mouseButtons() const
+{
   return m_mouseButtons;
 }
 
-bool InputState::mouseButtonsDown(const MouseButtonState buttons) const {
+bool InputState::mouseButtonsDown(const MouseButtonState buttons) const
+{
   return (mouseButtons() & buttons) != 0;
 }
 
-bool InputState::mouseButtonsPressed(const MouseButtonState buttons) const {
+bool InputState::mouseButtonsPressed(const MouseButtonState buttons) const
+{
   return mouseButtons() == buttons;
 }
 
-float InputState::mouseX() const {
+float InputState::mouseX() const
+{
   return m_mouseX;
 }
 
-float InputState::mouseY() const {
+float InputState::mouseY() const
+{
   return m_mouseY;
 }
 
-float InputState::mouseDX() const {
+float InputState::mouseDX() const
+{
   return m_mouseDX;
 }
 
-float InputState::mouseDY() const {
+float InputState::mouseDY() const
+{
   return m_mouseDY;
 }
 
-float InputState::scrollX() const {
+float InputState::scrollX() const
+{
   return m_scrollX;
 }
 
-float InputState::scrollY() const {
+float InputState::scrollY() const
+{
   return m_scrollY;
 }
 
-void InputState::setModifierKeys(const ModifierKeyState keys) {
+void InputState::setModifierKeys(const ModifierKeyState keys)
+{
   m_modifierKeys = keys;
 }
 
-void InputState::clearModifierKeys() {
+void InputState::clearModifierKeys()
+{
   m_modifierKeys = ModifierKeys::MKNone;
 }
 
-void InputState::mouseDown(const MouseButtonState button) {
+void InputState::mouseDown(const MouseButtonState button)
+{
   m_mouseButtons |= button;
 }
 
-void InputState::mouseUp(const MouseButtonState button) {
+void InputState::mouseUp(const MouseButtonState button)
+{
   m_mouseButtons &= ~button;
 }
 
-void InputState::clearMouseButtons() {
+void InputState::clearMouseButtons()
+{
   m_mouseButtons = MouseButtons::MBNone;
 }
 
 void InputState::mouseMove(
-  const float mouseX, const float mouseY, const float mouseDX, const float mouseDY) {
+  const float mouseX, const float mouseY, const float mouseDX, const float mouseDY)
+{
   m_mouseX = mouseX;
   m_mouseY = mouseY;
   m_mouseDX = mouseDX;
   m_mouseDY = mouseDY;
 }
 
-void InputState::scroll(const float scrollX, const float scrollY) {
+void InputState::scroll(const float scrollX, const float scrollY)
+{
   m_scrollX = scrollX;
   m_scrollY = scrollY;
 }
 
-bool InputState::anyToolDragging() const {
+bool InputState::anyToolDragging() const
+{
   return m_anyToolDragging;
 }
 
-void InputState::setAnyToolDragging(const bool anyToolDragging) {
+void InputState::setAnyToolDragging(const bool anyToolDragging)
+{
   m_anyToolDragging = anyToolDragging;
 }
 
-const vm::ray3& InputState::pickRay() const {
+const vm::ray3& InputState::pickRay() const
+{
   return m_pickRequest.pickRay();
 }
 
-const vm::vec3 InputState::defaultPoint() const {
+const vm::vec3 InputState::defaultPoint() const
+{
   return vm::vec3(camera().defaultPoint());
 }
 
-const vm::vec3 InputState::defaultPointUnderMouse() const {
+const vm::vec3 InputState::defaultPointUnderMouse() const
+{
   return vm::vec3(camera().defaultPoint(pickRay()));
 }
 
-const Renderer::Camera& InputState::camera() const {
+const Renderer::Camera& InputState::camera() const
+{
   return m_pickRequest.camera();
 }
 
-void InputState::setPickRequest(const PickRequest& pickRequest) {
+void InputState::setPickRequest(const PickRequest& pickRequest)
+{
   m_pickRequest = pickRequest;
 }
 
-const Model::PickResult& InputState::pickResult() const {
+const Model::PickResult& InputState::pickResult() const
+{
   return m_pickResult;
 }
 
-void InputState::setPickResult(Model::PickResult&& pickResult) {
+void InputState::setPickResult(Model::PickResult&& pickResult)
+{
   m_pickResult = std::move(pickResult);
 }
 } // namespace View

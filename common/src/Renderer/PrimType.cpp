@@ -22,31 +22,35 @@
 #include "Macros.h"
 #include "Renderer/GL.h"
 
-namespace TrenchBroom {
-namespace Renderer {
-unsigned int toGL(const PrimType primType) {
-  switch (primType) {
-    case PrimType::Points:
-      return GL_POINTS;
-    case PrimType::Lines:
-      return GL_LINES;
-    case PrimType::Triangles:
-      return GL_TRIANGLES;
-    case PrimType::Quads:
-      return GL_QUADS;
-    case PrimType::LineStrip:
-      return GL_LINE_STRIP;
-    case PrimType::LineLoop:
-      return GL_LINE_LOOP;
-    case PrimType::TriangleFan:
-      return GL_TRIANGLE_FAN;
-    case PrimType::TriangleStrip:
-      return GL_TRIANGLE_STRIP;
-    case PrimType::QuadStrip:
-      return GL_QUAD_STRIP;
-    case PrimType::Polygon:
-      return GL_POLYGON;
-      switchDefault();
+namespace TrenchBroom
+{
+namespace Renderer
+{
+unsigned int toGL(const PrimType primType)
+{
+  switch (primType)
+  {
+  case PrimType::Points:
+    return GL_POINTS;
+  case PrimType::Lines:
+    return GL_LINES;
+  case PrimType::Triangles:
+    return GL_TRIANGLES;
+  case PrimType::Quads:
+    return GL_QUADS;
+  case PrimType::LineStrip:
+    return GL_LINE_STRIP;
+  case PrimType::LineLoop:
+    return GL_LINE_LOOP;
+  case PrimType::TriangleFan:
+    return GL_TRIANGLE_FAN;
+  case PrimType::TriangleStrip:
+    return GL_TRIANGLE_STRIP;
+  case PrimType::QuadStrip:
+    return GL_QUAD_STRIP;
+  case PrimType::Polygon:
+    return GL_POLYGON;
+    switchDefault();
   }
 }
 } // namespace Renderer

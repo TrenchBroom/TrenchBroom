@@ -44,21 +44,22 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createEmptyGroup", "[GroupNodesTest]") {
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createEmptyGroup", "[GroupNodesTest]")
+{
   CHECK(document->groupSelection("test") == nullptr);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createGroupWithOneNode", "[GroupNodesTest]") {
+TEST_CASE_METHOD(
+  MapDocumentTest, "GroupNodesTest.createGroupWithOneNode", "[GroupNodesTest]")
+{
   using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
   CreateNode createNode = GENERATE_COPY(
-    CreateNode{[](const auto& test) {
-      return test.createBrushNode();
-    }},
-    CreateNode{[](const auto& test) {
-      return test.createPatchNode();
-    }});
+    CreateNode{[](const auto& test) { return test.createBrushNode(); }},
+    CreateNode{[](const auto& test) { return test.createPatchNode(); }});
 
   auto* node = createNode(*this);
   document->addNodes({{document->parentForNodes(), {node}}});
@@ -78,7 +79,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createGroupWithOneNode", "[Gro
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "GroupNodesTest.createGroupWithPartialBrushEntity", "[GroupNodesTest]") {
+  MapDocumentTest, "GroupNodesTest.createGroupWithPartialBrushEntity", "[GroupNodesTest]")
+{
   Model::BrushNode* child1 = createBrushNode();
   document->addNodes({{document->parentForNodes(), {child1}}});
 
@@ -110,7 +112,8 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "GroupNodesTest.createGroupWithFullBrushEntity", "[GroupNodesTest]") {
+  MapDocumentTest, "GroupNodesTest.createGroupWithFullBrushEntity", "[GroupNodesTest]")
+{
   Model::BrushNode* child1 = createBrushNode();
   document->addNodes({{document->parentForNodes(), {child1}}});
 
@@ -143,9 +146,12 @@ TEST_CASE_METHOD(
   CHECK(child2->selected());
 }
 
-static bool hasEmptyName(const std::vector<std::string>& names) {
-  for (const auto& name : names) {
-    if (name.empty()) {
+static bool hasEmptyName(const std::vector<std::string>& names)
+{
+  for (const auto& name : names)
+  {
+    if (name.empty())
+    {
       return true;
     }
   }
@@ -153,7 +159,10 @@ static bool hasEmptyName(const std::vector<std::string>& names) {
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "GroupNodesTest.undoMoveGroupContainingBrushEntity", "[GroupNodesTest]") {
+  MapDocumentTest,
+  "GroupNodesTest.undoMoveGroupContainingBrushEntity",
+  "[GroupNodesTest]")
+{
   // Test for issue #1715
 
   Model::BrushNode* brush1 = createBrushNode();
@@ -178,7 +187,8 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "GroupNodesTest.rotateGroupContainingBrushEntity", "[GroupNodesTest]") {
+  MapDocumentTest, "GroupNodesTest.rotateGroupContainingBrushEntity", "[GroupNodesTest]")
+{
   // Test for issue #1754
 
   Model::BrushNode* brush1 = createBrushNode();
@@ -194,7 +204,8 @@ TEST_CASE_METHOD(
   CHECK(group->selected());
 
   CHECK_FALSE(entityNode->entity().hasProperty("origin"));
-  CHECK(document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), static_cast<FloatType>(10.0)));
+  CHECK(document->rotateObjects(
+    vm::vec3::zero(), vm::vec3::pos_z(), static_cast<FloatType>(10.0)));
   CHECK_FALSE(entityNode->entity().hasProperty("origin"));
 
   document->undoCommand();
@@ -202,7 +213,8 @@ TEST_CASE_METHOD(
   CHECK_FALSE(entityNode->entity().hasProperty("origin"));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]") {
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]")
+{
   Model::BrushNode* brush1 = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brush1}}});
   document->selectNodes({brush1});
@@ -219,7 +231,9 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup", "[GroupNodesTest
   CHECK(group->name() == "abc");
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateNodeInGroup", "[GroupNodesTest]") {
+TEST_CASE_METHOD(
+  MapDocumentTest, "GroupNodesTest.duplicateNodeInGroup", "[GroupNodesTest]")
+{
   Model::BrushNode* brush = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brush}}});
   document->selectNodes({brush});
@@ -236,7 +250,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateNodeInGroup", "[Group
   CHECK(brushCopy->parent() == group);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupInnerGroup") {
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupInnerGroup")
+{
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2050
   Model::EntityNode* outerEnt1 = new Model::EntityNode{Model::Entity{}};
   Model::EntityNode* outerEnt2 = new Model::EntityNode{Model::Entity{}};
@@ -290,51 +305,61 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupInnerGroup") {
   CHECK(innerEnt2->parent() == outer);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesPointEntitySelected") {
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesPointEntitySelected")
+{
   Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
 
   document->addNodes({{document->parentForNodes(), {ent1}}});
   document->selectNodes({ent1});
 
   Model::GroupNode* group = document->groupSelection("Group");
-  CHECK_THAT(document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group}));
+  CHECK_THAT(
+    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group}));
 
   document->ungroupSelection();
-  CHECK_THAT(document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{ent1}));
+  CHECK_THAT(
+    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{ent1}));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelected") {
-  const Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelected")
+{
+  const Model::BrushBuilder builder(
+    document->world()->mapFormat(), document->worldBounds());
 
   Model::EntityNode* ent1 = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {ent1}}});
 
   Model::BrushNode* brushNode1 = new Model::BrushNode(
-    builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture").value());
+    builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture")
+      .value());
   document->addNodes({{ent1, {brushNode1}}});
   document->selectNodes({ent1});
   CHECK_THAT(
-    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{brushNode1}));
+    document->selectedNodes().nodes(),
+    Catch::Equals(std::vector<Model::Node*>{brushNode1}));
   CHECK_FALSE(ent1->selected());
   CHECK(brushNode1->selected());
 
   Model::GroupNode* group = document->groupSelection("Group");
   CHECK_THAT(group->children(), Catch::Equals(std::vector<Model::Node*>{ent1}));
   CHECK_THAT(ent1->children(), Catch::Equals(std::vector<Model::Node*>{brushNode1}));
-  CHECK_THAT(document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group}));
+  CHECK_THAT(
+    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group}));
   CHECK(document->allSelectedBrushNodes() == std::vector<Model::BrushNode*>{brushNode1});
   CHECK(document->hasAnySelectedBrushNodes());
   CHECK(!document->selectedNodes().hasBrushes());
 
   document->ungroupSelection();
   CHECK_THAT(
-    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{brushNode1}));
+    document->selectedNodes().nodes(),
+    Catch::Equals(std::vector<Model::Node*>{brushNode1}));
   CHECK_FALSE(ent1->selected());
   CHECK(brushNode1->selected());
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/3824
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity") {
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity")
+{
   auto* ent1 = new Model::EntityNode{Model::Entity{}};
   auto* ent2 = new Model::EntityNode{Model::Entity{}};
 
@@ -354,7 +379,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity") {
     Catch::UnorderedEquals(std::vector<Model::Node*>{ent1, ent2}));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups") {
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups")
+{
   document->selectAllNodes();
   document->deleteObjects();
 
@@ -377,15 +403,20 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups") {
   document->selectNodes({group1, group2});
   document->mergeSelectedGroupsWithGroup(group2);
 
-  CHECK_THAT(document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group2}));
   CHECK_THAT(
-    document->currentLayer()->children(), Catch::Equals(std::vector<Model::Node*>{group2}));
+    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group2}));
+  CHECK_THAT(
+    document->currentLayer()->children(),
+    Catch::Equals(std::vector<Model::Node*>{group2}));
 
   CHECK_THAT(group1->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{}));
-  CHECK_THAT(group2->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{ent1, ent2}));
+  CHECK_THAT(
+    group2->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{ent1, ent2}));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupNodesTest]") {
+TEST_CASE_METHOD(
+  MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupNodesTest]")
+{
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
@@ -410,7 +441,9 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupN
     Catch::UnorderedEquals(
       std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
 
-  SECTION("Given three linked groups, we ungroup one of them, the other two remain linked") {
+  SECTION(
+    "Given three linked groups, we ungroup one of them, the other two remain linked")
+  {
     document->selectNodes({linkedGroupNode2});
 
     auto* linkedBrushNode2 = linkedGroupNode2->children().front();
@@ -425,8 +458,10 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupN
     CHECK(groupNode->group().linkedGroupId() == linkedGroupNode->group().linkedGroupId());
   }
 
-  SECTION("Given three linked groups, we ungroup two of them, and the remaining one becomes a "
-          "regular group") {
+  SECTION(
+    "Given three linked groups, we ungroup two of them, and the remaining one becomes a "
+    "regular group")
+  {
     document->selectNodes({linkedGroupNode});
     document->selectNodes({linkedGroupNode2});
 
@@ -441,7 +476,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupN
     CHECK_FALSE(groupNode->group().linkedGroupId().has_value());
   }
 
-  SECTION("Given three linked groups, we ungroup all of them") {
+  SECTION("Given three linked groups, we ungroup all of them")
+  {
     document->selectNodes({groupNode});
     document->selectNodes({linkedGroupNode});
     document->selectNodes({linkedGroupNode2});
@@ -468,7 +504,9 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups", "[GroupN
   CHECK(groupNode->group().linkedGroupId() == linkedGroupNode2->group().linkedGroupId());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createLinkedDuplicate", "[GroupNodesTest]") {
+TEST_CASE_METHOD(
+  MapDocumentTest, "GroupNodesTest.createLinkedDuplicate", "[GroupNodesTest]")
+{
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -491,7 +529,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createLinkedDuplicate", "[Grou
   CHECK(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNodesTest]") {
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNodesTest]")
+{
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
@@ -500,12 +539,14 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNo
   auto* groupNode = document->groupSelection("test");
   REQUIRE(groupNode != nullptr);
 
-  SECTION("Cannot select linked groups if selection is empty") {
+  SECTION("Cannot select linked groups if selection is empty")
+  {
     document->deselectAll();
     CHECK_FALSE(document->canSelectLinkedGroups());
   }
 
-  SECTION("Cannot select linked groups if selection contains non-groups") {
+  SECTION("Cannot select linked groups if selection contains non-groups")
+  {
     document->deselectAll();
     document->selectNodes({entityNode});
     CHECK_FALSE(document->canSelectLinkedGroups());
@@ -513,7 +554,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNo
     CHECK_FALSE(document->canSelectLinkedGroups());
   }
 
-  SECTION("Cannot select linked groups if selection contains unlinked groups") {
+  SECTION("Cannot select linked groups if selection contains unlinked groups")
+  {
     document->deselectAll();
     document->selectNodes({entityNode});
 
@@ -526,7 +568,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNo
     CHECK_FALSE(document->canSelectLinkedGroups());
   }
 
-  SECTION("Select linked groups") {
+  SECTION("Select linked groups")
+  {
     auto* linkedGroupNode = document->createLinkedDuplicate();
     REQUIRE(linkedGroupNode != nullptr);
 
@@ -541,7 +584,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNo
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodesTest]") {
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodesTest]")
+{
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -552,21 +596,25 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodes
   document->deselectAll();
   document->selectNodes({groupNode});
 
-  SECTION("Separating a group that isn't linked") {
+  SECTION("Separating a group that isn't linked")
+  {
     CHECK_FALSE(document->canSeparateLinkedGroups());
   }
 
-  SECTION("Separating all members of a link set") {
+  SECTION("Separating all members of a link set")
+  {
     auto* linkedGroupNode = document->createLinkedDuplicate();
     REQUIRE(linkedGroupNode != nullptr);
     REQUIRE(groupNode->group().linkedGroupId() != std::nullopt);
-    REQUIRE(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
+    REQUIRE(
+      linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
 
     document->selectNodes({groupNode, linkedGroupNode});
     CHECK_FALSE(document->canSeparateLinkedGroups());
   }
 
-  SECTION("Separating one group from a link set with two members") {
+  SECTION("Separating one group from a link set with two members")
+  {
     auto* linkedGroupNode = document->createLinkedDuplicate();
     REQUIRE(linkedGroupNode != nullptr);
 
@@ -587,7 +635,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodes
     CHECK(linkedGroupNode->group().linkedGroupId() == originalLinkedGroupId);
   }
 
-  SECTION("Separating multiple groups from a link set with several members") {
+  SECTION("Separating multiple groups from a link set with several members")
+  {
     auto* linkedGroupNode1 = document->createLinkedDuplicate();
     auto* linkedGroupNode2 = document->createLinkedDuplicate();
     auto* linkedGroupNode3 = document->createLinkedDuplicate();
@@ -612,7 +661,9 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodes
 
     CHECK(linkedGroupNode2->group().linkedGroupId() != std::nullopt);
     CHECK(linkedGroupNode2->group().linkedGroupId() != originalLinkedGroupId);
-    CHECK(linkedGroupNode3->group().linkedGroupId() == linkedGroupNode2->group().linkedGroupId());
+    CHECK(
+      linkedGroupNode3->group().linkedGroupId()
+      == linkedGroupNode2->group().linkedGroupId());
 
     CHECK(document->selectedNodes().groupCount() == 2u);
 
@@ -625,7 +676,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodes
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.newWithGroupOpen") {
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.newWithGroupOpen")
+{
   Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entity}}});
   document->selectNodes({entity});
@@ -634,14 +686,18 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.newWithGroupOpen") {
 
   CHECK(document->currentGroup() == group);
 
-  document->newDocument(Model::MapFormat::Valve, MapDocument::DefaultWorldBounds, document->game());
+  document->newDocument(
+    Model::MapFormat::Valve, MapDocument::DefaultWorldBounds, document->game());
 
   CHECK(document->currentGroup() == nullptr);
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/3768
 TEST_CASE_METHOD(
-  MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLinkSet", "[GroupNodesTest]") {
+  MapDocumentTest,
+  "GroupNodesTest.operationsOnSeveralGroupsInLinkSet",
+  "[GroupNodesTest]")
+{
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -654,7 +710,8 @@ TEST_CASE_METHOD(
 
   document->deselectAll();
 
-  SECTION("Face selection locks other groups in link set") {
+  SECTION("Face selection locks other groups in link set")
+  {
     CHECK(!linkedGroupNode->locked());
 
     document->selectBrushFaces({{brushNode, 0}});
@@ -664,7 +721,8 @@ TEST_CASE_METHOD(
     CHECK(!linkedGroupNode->locked());
   }
 
-  SECTION("Can select two linked groups and apply a texture") {
+  SECTION("Can select two linked groups and apply a texture")
+  {
     document->selectNodes({groupNode, linkedGroupNode});
 
     auto setTexture = Model::ChangeBrushFaceAttributesRequest{};
@@ -672,7 +730,8 @@ TEST_CASE_METHOD(
     CHECK(document->setFaceAttributes(setTexture));
 
     // check that the brushes in both linked groups were textured
-    for (auto* g : std::vector<Model::GroupNode*>{groupNode, linkedGroupNode}) {
+    for (auto* g : std::vector<Model::GroupNode*>{groupNode, linkedGroupNode})
+    {
       auto* brush = dynamic_cast<Model::BrushNode*>(g->children().at(0));
       REQUIRE(brush != nullptr);
 
@@ -681,10 +740,12 @@ TEST_CASE_METHOD(
     }
   }
 
-  SECTION("Can't snap to grid with both groups selected") {
+  SECTION("Can't snap to grid with both groups selected")
+  {
     document->selectNodes({groupNode, linkedGroupNode});
 
-    CHECK(document->transformObjects("", vm::translation_matrix(vm::vec3{0.5, 0.5, 0.0})));
+    CHECK(
+      document->transformObjects("", vm::translation_matrix(vm::vec3{0.5, 0.5, 0.0})));
 
     // This could generate conflicts, because what snaps one group could misalign another
     // group in the link set. So, just reject the change.
@@ -694,8 +755,10 @@ TEST_CASE_METHOD(
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/3768
 TEST_CASE_METHOD(
-  MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLinkSetWithPointEntities",
-  "[GroupNodesTest]") {
+  MapDocumentTest,
+  "GroupNodesTest.operationsOnSeveralGroupsInLinkSetWithPointEntities",
+  "[GroupNodesTest]")
+{
   {
     auto* entityNode = new Model::EntityNode{Model::Entity{}};
     document->addNodes({{document->parentForNodes(), {entityNode}}});
@@ -712,21 +775,24 @@ TEST_CASE_METHOD(
 
   document->deselectAll();
 
-  SECTION("Attempt to set a property with 2 out of 3 groups selected") {
+  SECTION("Attempt to set a property with 2 out of 3 groups selected")
+  {
     document->selectNodes({groupNode, linkedGroupNode1});
 
-    // Current design is to reject this because it's modifying entities from multiple groups in a
-    // link set. While in this case the change isn't conflicting, some entity changes are, e.g.
-    // unprotecting a property with 2 linked groups selected, where entities have different values
-    // for that protected property.
+    // Current design is to reject this because it's modifying entities from multiple
+    // groups in a link set. While in this case the change isn't conflicting, some entity
+    // changes are, e.g. unprotecting a property with 2 linked groups selected, where
+    // entities have different values for that protected property.
     //
-    // Additionally, the use case for editing entity properties with the entire map selected seems
-    // unlikely.
+    // Additionally, the use case for editing entity properties with the entire map
+    // selected seems unlikely.
     CHECK(!document->setProperty("key", "value"));
 
     auto* groupNodeEntity = dynamic_cast<Model::EntityNode*>(groupNode->children().at(0));
-    auto* linkedEntityNode1 = dynamic_cast<Model::EntityNode*>(linkedGroupNode1->children().at(0));
-    auto* linkedEntityNode2 = dynamic_cast<Model::EntityNode*>(linkedGroupNode2->children().at(0));
+    auto* linkedEntityNode1 =
+      dynamic_cast<Model::EntityNode*>(linkedGroupNode1->children().at(0));
+    auto* linkedEntityNode2 =
+      dynamic_cast<Model::EntityNode*>(linkedGroupNode2->children().at(0));
     REQUIRE(groupNodeEntity != nullptr);
     REQUIRE(linkedEntityNode1 != nullptr);
     REQUIRE(linkedEntityNode2 != nullptr);
@@ -738,7 +804,8 @@ TEST_CASE_METHOD(
 }
 
 TEST_CASE_METHOD(
-  MapDocumentTest, "GroupNodesTest.dontCrashWhenLinkedGroupUpdateFailsDuringEntityCreate") {
+  MapDocumentTest, "GroupNodesTest.dontCrashWhenLinkedGroupUpdateFailsDuringEntityCreate")
+{
 
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
@@ -746,7 +813,8 @@ TEST_CASE_METHOD(
 
   // move the entity down
   REQUIRE(document->translateObjects({0, 0, -256}));
-  REQUIRE(entityNode->physicalBounds() == vm::bbox3{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
+  REQUIRE(
+    entityNode->physicalBounds() == vm::bbox3{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
 
   auto* groupNode = document->groupSelection("test");
   auto* linkedGroupNode = document->createLinkedDuplicate();
@@ -757,23 +825,25 @@ TEST_CASE_METHOD(
   document->selectNodes({linkedGroupNode});
   document->translateObjects({0, 0, document->worldBounds().max.z()});
   REQUIRE(
-    linkedGroupNode->physicalBounds() ==
-    vm::bbox3{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
+    linkedGroupNode->physicalBounds()
+    == vm::bbox3{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
 
   // create a brush entity inside the original group
   document->openGroup(groupNode);
   document->deselectAll();
 
-  SECTION("create point entity") {
+  SECTION("create point entity")
+  {
     REQUIRE(m_pointEntityDef->bounds() == vm::bbox3{{-16, -16, -16}, {16, 16, 16}});
 
-    // create a new point entity below the origin -- this entity is temporarily created at the
-    // origin and then moved to its eventual position, but the entity at the origin is propagated
-    // into the linked group, where it ends up out of  world bounds
+    // create a new point entity below the origin -- this entity is temporarily created at
+    // the origin and then moved to its eventual position, but the entity at the origin is
+    // propagated into the linked group, where it ends up out of  world bounds
     CHECK(document->createPointEntity(m_pointEntityDef, {0, 0, -32}) != nullptr);
   }
 
-  SECTION("create brush entity") {
+  SECTION("create brush entity")
+  {
     auto* brushNode = createBrushNode();
     Model::transformNode(
       *brushNode, vm::translation_matrix(vm::vec3{0, 0, -32}), document->worldBounds());
@@ -783,8 +853,9 @@ TEST_CASE_METHOD(
     document->deselectAll();
     document->selectNodes({brushNode});
 
-    // create a brush entity - a temporarily empty entity will be created at the origin and
-    // propagated into the linked group, where it ends up out of world bounds and thus failing
+    // create a brush entity - a temporarily empty entity will be created at the origin
+    // and propagated into the linked group, where it ends up out of world bounds and thus
+    // failing
     CHECK(document->createBrushEntity(m_brushEntityDef) != nullptr);
   }
 }

@@ -38,9 +38,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-class ExecuteTask {
+namespace TrenchBroom
+{
+namespace View
+{
+class ExecuteTask
+{
 private:
   CompilationTaskRunner& m_runner;
   std::mutex m_mutex;
@@ -52,7 +55,8 @@ public:
   bool ended{false};
 
   ExecuteTask(CompilationTaskRunner& runner)
-    : m_runner{runner} {
+    : m_runner{runner}
+  {
     QObject::connect(&m_runner, &CompilationTaskRunner::start, [&]() {
       started = true;
       auto lock = std::unique_lock<std::mutex>{m_mutex};
@@ -70,17 +74,18 @@ public:
     });
   }
 
-  void executeAndWait(const int timeout) {
+  void executeAndWait(const int timeout)
+  {
     m_runner.execute();
 
     auto lock = std::unique_lock<std::mutex>{m_mutex};
-    m_condition.wait_for(lock, std::chrono::milliseconds{timeout}, [&]() {
-      return errored || ended;
-    });
+    m_condition.wait_for(
+      lock, std::chrono::milliseconds{timeout}, [&]() { return errored || ended; });
   }
 };
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool") {
+TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
+{
   auto variables = EL::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
@@ -98,7 +103,9 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
   CHECK_FALSE(exec.ended);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDirectories") {
+TEST_CASE_METHOD(
+  MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDirectories")
+{
   auto variables = EL::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
@@ -113,7 +120,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDi
   const auto targetPath = IO::Path("some/other/path");
 
   auto task = Model::CompilationCopyFiles{
-    true, (testEnvironment.dir() + sourcePath).asString(),
+    true,
+    (testEnvironment.dir() + sourcePath).asString(),
     (testEnvironment.dir() + targetPath).asString()};
   auto runner = CompilationCopyFilesTaskRunner{context, task};
 
@@ -122,9 +130,11 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDi
   CHECK(testEnvironment.directoryExists(targetPath));
 }
 
-TEST_CASE("CompilationRunner.interpolateToolsVariables") {
+TEST_CASE("CompilationRunner.interpolateToolsVariables")
+{
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path{"fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"}, "Quake",
+    IO::Path{"fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"},
+    "Quake",
     Model::MapFormat::Unknown);
   const auto testWorkDir = std::string{"/some/path"};
   auto variables = CompilationVariables{document, testWorkDir};
@@ -135,10 +145,10 @@ TEST_CASE("CompilationRunner.interpolateToolsVariables") {
 
   const auto startSubstr = std::string{"foo "};
   const auto midSubstr = std::string{" bar "};
-  const auto toInterpolate =
-    startSubstr + std::string{"${MAP_DIR_PATH}"} + midSubstr + std::string{"${WORK_DIR_PATH}"};
-  const auto expected =
-    startSubstr + document->path().deleteLastComponent().asString() + midSubstr + testWorkDir;
+  const auto toInterpolate = startSubstr + std::string{"${MAP_DIR_PATH}"} + midSubstr
+                             + std::string{"${WORK_DIR_PATH}"};
+  const auto expected = startSubstr + document->path().deleteLastComponent().asString()
+                        + midSubstr + testWorkDir;
 
   const auto interpolated = context.interpolate(toInterpolate);
 

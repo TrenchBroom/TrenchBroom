@@ -22,22 +22,27 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Color;
 
-namespace Assets {
-namespace ColorRange {
+namespace Assets
+{
+namespace ColorRange
+{
 using Type = int;
 }
 } // namespace Assets
 
-namespace Model {
+namespace Model
+{
 class EntityNodeBase;
 
 Assets::ColorRange::Type detectColorRange(
   const std::string& entityNode, const std::vector<EntityNodeBase*>& nodes);
 
-const std::string convertEntityColor(const std::string& str, Assets::ColorRange::Type colorRange);
+const std::string convertEntityColor(
+  const std::string& str, Assets::ColorRange::Type colorRange);
 Color parseEntityColor(const std::string& str);
 std::string entityColorAsString(const Color& color, Assets::ColorRange::Type colorRange);
 } // namespace Model

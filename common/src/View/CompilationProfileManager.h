@@ -28,12 +28,15 @@
 class QAbstractButton;
 class QPoint;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class CompilationProfile;
 }
 
-namespace View {
+namespace View
+{
 class CompilationProfileListBox;
 class CompilationProfileEditor;
 class MapDocument;
@@ -44,7 +47,8 @@ class MapDocument;
  * The UI updates our Model::CompilationConfig m_config; calling code can
  * read the modified config with `config()` and save it to disk.
  */
-class CompilationProfileManager : public QWidget {
+class CompilationProfileManager : public QWidget
+{
   Q_OBJECT
 private:
   Model::CompilationConfig m_config;
@@ -54,7 +58,8 @@ private:
 
 public:
   CompilationProfileManager(
-    std::weak_ptr<MapDocument> document, Model::CompilationConfig config,
+    std::weak_ptr<MapDocument> document,
+    Model::CompilationConfig config,
     QWidget* parent = nullptr);
 
   const Model::CompilationProfile* selectedProfile() const;
@@ -68,7 +73,8 @@ private slots:
   void removeProfile(size_t index);
   void removeProfile(Model::CompilationProfile* profile);
   void duplicateProfile(Model::CompilationProfile* profile);
-  void profileContextMenuRequested(const QPoint& globalPos, Model::CompilationProfile* profile);
+  void profileContextMenuRequested(
+    const QPoint& globalPos, Model::CompilationProfile* profile);
   void profileSelectionChanged();
 signals:
   /**

@@ -26,27 +26,33 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Node;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderContext;
 }
 
-namespace View {
+namespace View
+{
 class DragTracker;
 class MapDocument;
 
 /**
  * Applies the group picking logic of findOutermostClosedGroupOrNode() to a list of hits.
- * The order of the hits is preserved, but if multiple hits map to the same group, that group
- * will only be listed once in the output.
+ * The order of the hits is preserved, but if multiple hits map to the same group, that
+ * group will only be listed once in the output.
  */
-std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits);
+std::vector<Model::Node*> hitsToNodesWithGroupPicking(
+  const std::vector<Model::Hit>& hits);
 
-class SelectionTool : public ToolController, public Tool {
+class SelectionTool : public ToolController, public Tool
+{
 private:
   std::weak_ptr<MapDocument> m_document;
 

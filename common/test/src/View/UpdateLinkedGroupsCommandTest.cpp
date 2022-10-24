@@ -31,10 +31,13 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 
-TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith") {
+TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
+{
   const auto createLinkedGroup = [&]() {
     auto* brushNode = createBrushNode();
     document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -52,7 +55,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith") {
   auto [groupNode1, linkedGroupNode1] = createLinkedGroup();
   auto [groupNode2, linkedGroupNode2] = createLinkedGroup();
 
-  SECTION("Collate two UpdateLinkedGroupCommand instances") {
+  SECTION("Collate two UpdateLinkedGroupCommand instances")
+  {
     auto firstCommand = UpdateLinkedGroupsCommand{{groupNode1}};
     auto secondCommand = UpdateLinkedGroupsCommand{{groupNode1, groupNode2}};
 
@@ -62,7 +66,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith") {
     CHECK(firstCommand.collateWith(secondCommand));
   }
 
-  SECTION("Collate UpdateLinkedGroupCommand with another command") {
+  SECTION("Collate UpdateLinkedGroupCommand with another command")
+  {
     auto firstCommand = UpdateLinkedGroupsCommand{{groupNode1}};
     auto secondCommand = CurrentGroupCommand{groupNode2};
 

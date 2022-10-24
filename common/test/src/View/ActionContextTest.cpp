@@ -21,10 +21,14 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE("actionContextMatches_WithMask") {
-  using T = std::tuple<ActionContext::Type, ActionContext::Type, ActionContext::Type, bool>;
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE("actionContextMatches_WithMask")
+{
+  using T =
+    std::tuple<ActionContext::Type, ActionContext::Type, ActionContext::Type, bool>;
   const auto [lhs, rhs, mask, expected] = GENERATE(values<T>({
     // clang-format off
     {ActionContext::View3D,     ActionContext::View2D,  ActionContext::AnyView, false},
@@ -43,7 +47,8 @@ TEST_CASE("actionContextMatches_WithMask") {
   CHECK(actionContextMatches(lhs, rhs, mask) == expected);
 }
 
-TEST_CASE("actionContextMatches") {
+TEST_CASE("actionContextMatches")
+{
   using T = std::tuple<ActionContext::Type, ActionContext::Type, bool>;
   const auto [lhs, rhs, expected] = GENERATE(values<T>({
     // clang-format off

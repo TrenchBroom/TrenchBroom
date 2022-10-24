@@ -24,9 +24,12 @@
 #include <functional>
 #include <string>
 
-namespace TrenchBroom {
-namespace IO {
-class TestEnvironment {
+namespace TrenchBroom
+{
+namespace IO
+{
+class TestEnvironment
+{
 private:
   using SetupFunction = std::function<void(TestEnvironment&)>;
   Path m_sandboxPath;

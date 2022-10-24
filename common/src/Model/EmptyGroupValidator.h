@@ -23,14 +23,18 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-class EmptyGroupValidator : public Validator {
+namespace TrenchBroom
+{
+namespace Model
+{
+class EmptyGroupValidator : public Validator
+{
 public:
   EmptyGroupValidator();
 
 private:
-  void doValidate(GroupNode& groupNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
+  void doValidate(
+    GroupNode& groupNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

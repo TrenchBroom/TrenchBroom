@@ -33,25 +33,30 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Hit;
 class HitQuery;
 class PickResult;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class DragTracker;
 class DropTracker;
 class InputState;
 class Tool;
 
-class ToolController {
+class ToolController
+{
 public:
   virtual ~ToolController();
 
@@ -79,7 +84,8 @@ public:
   virtual void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const;
   virtual void render(
-    const InputState& inputState, Renderer::RenderContext& renderContext,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch);
 
   virtual bool cancel();
@@ -88,7 +94,8 @@ protected:
   void refreshViews();
 };
 
-class ToolControllerGroup : public ToolController {
+class ToolControllerGroup : public ToolController
+{
 private:
   ToolChain m_chain;
 
@@ -118,14 +125,16 @@ public:
   void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const override;
   void render(
-    const InputState& inputState, Renderer::RenderContext& renderContext,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
 
   bool cancel() override;
 
 private: // subclassing interface
   virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;
-  virtual bool doShouldHandleDrop(const InputState& inputState, const std::string& payload) const;
+  virtual bool doShouldHandleDrop(
+    const InputState& inputState, const std::string& payload) const;
 };
 } // namespace View
 } // namespace TrenchBroom

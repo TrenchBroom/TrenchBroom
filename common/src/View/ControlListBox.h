@@ -25,9 +25,12 @@ class QLabel;
 class QListWidget;
 class QListWidgetItem;
 
-namespace TrenchBroom {
-namespace View {
-class ControlListBoxItemRenderer : public QWidget {
+namespace TrenchBroom
+{
+namespace View
+{
+class ControlListBoxItemRenderer : public QWidget
+{
   Q_OBJECT
 protected:
   size_t m_index;
@@ -51,7 +54,8 @@ signals:
 /**
  * Wraps a renderer and adds a separator line at the bottom.
  */
-class ControlListBoxItemRendererWrapper : public QWidget {
+class ControlListBoxItemRendererWrapper : public QWidget
+{
   Q_OBJECT
 private:
   ControlListBoxItemRenderer* m_renderer;
@@ -64,7 +68,8 @@ public:
   const ControlListBoxItemRenderer* renderer() const;
 };
 
-class ControlListBox : public QWidget {
+class ControlListBox : public QWidget
+{
   Q_OBJECT
 public:
   static constexpr auto LabelColorShouldNotUpdateWhenSelected =
@@ -79,7 +84,9 @@ private:
 
 public:
   ControlListBox(
-    const QString& emptyText, const QMargins& itemMargins, bool showSeparator,
+    const QString& emptyText,
+    const QMargins& itemMargins,
+    bool showSeparator,
     QWidget* parent = nullptr);
   ControlListBox(const QString& emptyText, bool showSeparator, QWidget* parent = nullptr);
 
@@ -100,8 +107,9 @@ protected:
   /**
    * Calls updateItem() on each ControlListBoxItemRenderer in the list box.
    *
-   * You should call this when you know that the order and number of items hasn't changed, but
-   * you want to update the details displayed in the item renderers (e.g. if the labels changed.)
+   * You should call this when you know that the order and number of items hasn't changed,
+   * but you want to update the details displayed in the item renderers (e.g. if the
+   * labels changed.)
    */
   void updateItems();
 
@@ -115,7 +123,8 @@ private:
 
 private:
   virtual size_t itemCount() const = 0;
-  virtual ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) = 0;
+  virtual ControlListBoxItemRenderer* createItemRenderer(
+    QWidget* parent, size_t index) = 0;
   virtual void selectedRowChanged(int index);
   virtual void doubleClicked(size_t index);
 private slots:

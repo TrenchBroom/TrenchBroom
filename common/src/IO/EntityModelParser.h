@@ -21,15 +21,19 @@
 
 #include <memory>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class EntityModel;
 }
 
-namespace IO {
-class EntityModelParser {
+namespace IO
+{
+class EntityModelParser
+{
 public:
   virtual ~EntityModelParser();
 

@@ -27,15 +27,19 @@
 
 class QObject;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class Action;
 class MapDocument;
 
-class KeyboardShortcutModel : public QAbstractTableModel {
+class KeyboardShortcutModel : public QAbstractTableModel
+{
   Q_OBJECT
 private:
-  struct ActionInfo {
+  struct ActionInfo
+  {
     /**
      * Path displayed to the user, unrelated to the preference path.
      */

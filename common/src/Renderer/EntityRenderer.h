@@ -30,22 +30,27 @@
 
 #include <vector>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class EntityModelManager;
 }
 
-namespace Model {
+namespace Model
+{
 class EditorContext;
 class EntityNode;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class AttrString;
 
-class EntityRenderer {
+class EntityRenderer
+{
 private:
   class EntityClassnameAnchor;
 
@@ -76,7 +81,8 @@ private:
 
 public:
   EntityRenderer(
-    Logger& logger, Assets::EntityModelManager& entityModelManager,
+    Logger& logger,
+    Assets::EntityModelManager& entityModelManager,
     const Model::EditorContext& editorContext);
 
   /**
@@ -90,8 +96,8 @@ public:
   void reloadModels();
 
   /**
-   * Adds an entity. Calling with an already-added entity is allowed, but ignored (not guaranteed to
-   * invalidate it).
+   * Adds an entity. Calling with an already-added entity is allowed, but ignored (not
+   * guaranteed to invalidate it).
    */
   void addEntity(const Model::EntityNode* entity);
   /**
@@ -99,7 +105,8 @@ public:
    */
   void removeEntity(const Model::EntityNode* entity);
   /**
-   * Causes cached renderer data to be rebuilt for the given entity (on the next render() call).
+   * Causes cached renderer data to be rebuilt for the given entity (on the next render()
+   * call).
    */
   void invalidateEntity(const Model::EntityNode* entity);
 

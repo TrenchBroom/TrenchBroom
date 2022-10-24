@@ -25,11 +25,14 @@
 
 #include <string_view>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class ParserStatus;
 
-namespace MdlToken {
+namespace MdlToken
+{
 using Type = size_t;
 static const Type Integer = 1 << 0;
 static const Type Equality = 1 << 1;
@@ -40,7 +43,8 @@ static const Type CParenthesis = 1 << 5;
 static const Type Eof = 1 << 6;
 } // namespace MdlToken
 
-class LegacyModelDefinitionTokenizer : public Tokenizer<MdlToken::Type> {
+class LegacyModelDefinitionTokenizer : public Tokenizer<MdlToken::Type>
+{
 public:
   LegacyModelDefinitionTokenizer(std::string_view str, size_t line, size_t column);
 
@@ -49,7 +53,8 @@ private:
   Token emitToken() override;
 };
 
-class LegacyModelDefinitionParser : public Parser<MdlToken::Type> {
+class LegacyModelDefinitionParser : public Parser<MdlToken::Type>
+{
 private:
   using Token = LegacyModelDefinitionTokenizer::Token;
   LegacyModelDefinitionTokenizer m_tokenizer;

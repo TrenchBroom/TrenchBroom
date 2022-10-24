@@ -22,18 +22,23 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
-class AttrString {
+namespace TrenchBroom
+{
+namespace Renderer
+{
+class AttrString
+{
 private:
-  enum class Justify {
+  enum class Justify
+  {
     Left,
     Right,
     Center
   };
 
 public:
-  class LineFunc {
+  class LineFunc
+  {
   public:
     virtual ~LineFunc();
     void process(const std::string& str, Justify justify);
@@ -45,7 +50,8 @@ public:
   };
 
 private:
-  struct Line {
+  struct Line
+  {
     std::string string;
     Justify justify;
     Line(const std::string& i_string, Justify i_justify);

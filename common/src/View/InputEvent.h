@@ -30,8 +30,10 @@
 // Undefine this symbol since it interferes somehow with our enums.
 #undef None
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class CancelEvent;
 class InputEventProcessor;
 class KeyEvent;
@@ -40,7 +42,8 @@ class MouseEvent;
 /**
  * Superclass for all input events. Provides protocols for event collation and processing.
  */
-class InputEvent {
+class InputEvent
+{
 public:
   virtual ~InputEvent();
 
@@ -79,9 +82,11 @@ public:
 /**
  * A keyboard event. Supports only key up and down events.
  */
-class KeyEvent : public InputEvent {
+class KeyEvent : public InputEvent
+{
 public:
-  enum class Type {
+  enum class Type
+  {
     /**
      * A key was pressed.
      */
@@ -117,12 +122,14 @@ public:
 std::ostream& operator<<(std::ostream& lhs, const KeyEvent::Type& rhs);
 
 /**
- * A mouse event. Supports several event types such as button down and button up, up to five mouse
- * buttons, and mouse wheel events.
+ * A mouse event. Supports several event types such as button down and button up, up to
+ * five mouse buttons, and mouse wheel events.
  */
-class MouseEvent : public InputEvent {
+class MouseEvent : public InputEvent
+{
 public:
-  enum class Type {
+  enum class Type
+  {
     /**
      * A button was pressed.
      */
@@ -160,7 +167,8 @@ public:
      */
     DragEnd
   };
-  enum class Button {
+  enum class Button
+  {
     None,
     Left,
     Middle,
@@ -168,7 +176,8 @@ public:
     Aux1,
     Aux2
   };
-  enum class WheelAxis {
+  enum class WheelAxis
+  {
     None,
     Vertical,
     Horizontal
@@ -196,15 +205,21 @@ public:
    * @param scrollDistance the distance by which the mouse wheel was scrolled, in lines
    */
   MouseEvent(
-    Type type, Button button, WheelAxis wheelAxis, float posX, float posY, float scrollDistance);
+    Type type,
+    Button button,
+    WheelAxis wheelAxis,
+    float posX,
+    float posY,
+    float scrollDistance);
 
 public:
   /**
-   * Collates this mouse event with the given mouse event. Only successive Motion, Drag and Scroll
-   * events are collated.
+   * Collates this mouse event with the given mouse event. Only successive Motion, Drag
+   * and Scroll events are collated.
    *
    * @param event the mouse event to collate with
-   * @return true if this event was collated with the given mouse event and false otherwise
+   * @return true if this event was collated with the given mouse event and false
+   * otherwise
    */
   bool collateWith(const MouseEvent& event) override;
 
@@ -223,10 +238,11 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Button& rhs);
 std::ostream& operator<<(std::ostream& lhs, const MouseEvent::WheelAxis& rhs);
 
 /**
- * Event to signal that a mouse drag was cancelled by the windowing system, e.g. when the window
- * lost focus.
+ * Event to signal that a mouse drag was cancelled by the windowing system, e.g. when the
+ * window lost focus.
  */
-class CancelEvent : public InputEvent {
+class CancelEvent : public InputEvent
+{
 public:
   /**
    * Process this event using the given event processor.
@@ -241,28 +257,32 @@ public:
 /**
  * Collects input events in a queue and processes them when instructed.
  */
-class InputEventQueue {
+class InputEventQueue
+{
 private:
   using EventQueue = std::vector<std::unique_ptr<InputEvent>>;
   EventQueue m_eventQueue;
 
 public:
   /**
-   * Enqueues an event into this event queue. The given event will be collated with the last event
-   * in this queue, if any. If the event was collated, the given event is discarded since its
-   * information will be recorded in the last event.
+   * Enqueues an event into this event queue. The given event will be collated with the
+   * last event in this queue, if any. If the event was collated, the given event is
+   * discarded since its information will be recorded in the last event.
    *
    * @tparam T the type of the event to enqueue
    * @param event the event to enqueue
    */
-  template <typename T> void enqueueEvent(std::unique_ptr<T> event) {
-    if (m_eventQueue.empty() || !m_eventQueue.back()->collateWith(*event)) {
+  template <typename T>
+  void enqueueEvent(std::unique_ptr<T> event)
+  {
+    if (m_eventQueue.empty() || !m_eventQueue.back()->collateWith(*event))
+    {
       m_eventQueue.push_back(std::move(event));
     }
   }
   /**
-   * Process the events in this queue with the given event processor. The events are forwarded to
-   * the processor in the order in which they were enqeued.
+   * Process the events in this queue with the given event processor. The events are
+   * forwarded to the processor in the order in which they were enqeued.
    *
    * When all events have been processed, the event queue is cleared.
    *
@@ -272,17 +292,20 @@ public:
 };
 
 /**
- * Handles and records input events. May synthesize new events such as mouse click and drag events
- * depending on the current state of this handler and the information of the events being recorded.
+ * Handles and records input events. May synthesize new events such as mouse click and
+ * drag events depending on the current state of this handler and the information of the
+ * events being recorded.
  *
- * Mouse clicks are generated only if a mouse down and a mouse up event were recorded within 100ms
- * and the mouse pointer has not travelled by more than 1 pixel in each direction.
+ * Mouse clicks are generated only if a mouse down and a mouse up event were recorded
+ * within 100ms and the mouse pointer has not travelled by more than 1 pixel in each
+ * direction.
  *
- * Drag events are synthesized once a motion event occurs while a mouse button is pressed and the
- * total distance from the position at which the mouse button was pressed is more than 1 pixel in
- * any direction.
+ * Drag events are synthesized once a motion event occurs while a mouse button is pressed
+ * and the total distance from the position at which the mouse button was pressed is more
+ * than 1 pixel in any direction.
  */
-class InputEventRecorder {
+class InputEventRecorder
+{
 private:
   InputEventQueue m_queue;
 
@@ -348,8 +371,8 @@ public:
 
 private:
   /**
-   * Determines if the given mouse position should start a drag when compared to the last click
-   * position.
+   * Determines if the given mouse position should start a drag when compared to the last
+   * click position.
    *
    * @param posX the X position
    * @param posY the Y position
@@ -385,7 +408,8 @@ private:
 /**
  * Processes input events.
  */
-class InputEventProcessor {
+class InputEventProcessor
+{
 public:
   virtual ~InputEventProcessor();
 

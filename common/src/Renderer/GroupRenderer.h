@@ -27,17 +27,21 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EditorContext;
 class GroupNode;
 } // namespace Model
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 
-class GroupRenderer {
+class GroupRenderer
+{
 private:
   class GroupNameAnchor;
 
@@ -69,8 +73,8 @@ public:
   void clear();
 
   /**
-   * Adds a group. Calling with an already-added group is allowed, but ignored (not guaranteed to
-   * invalidate it).
+   * Adds a group. Calling with an already-added group is allowed, but ignored (not
+   * guaranteed to invalidate it).
    */
   void addGroup(const Model::GroupNode* group);
   /**
@@ -78,7 +82,8 @@ public:
    */
   void removeGroup(const Model::GroupNode* group);
   /**
-   * Causes cached renderer data to be rebuilt for the given group (on the next render() call).
+   * Causes cached renderer data to be rebuilt for the given group (on the next render()
+   * call).
    */
   void invalidateGroup(const Model::GroupNode* group);
 

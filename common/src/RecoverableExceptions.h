@@ -26,8 +26,10 @@
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom {
-class RecoverableException : public Exception {
+namespace TrenchBroom
+{
+class RecoverableException : public Exception
+{
 protected:
   using Exception::Exception;
 
@@ -36,7 +38,8 @@ public:
   virtual void recover() const = 0;
 };
 
-class FileDeletingException : public RecoverableException {
+class FileDeletingException : public RecoverableException
+{
 private:
   IO::Path m_path;
 

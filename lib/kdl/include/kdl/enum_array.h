@@ -1,20 +1,21 @@
 /*
  Copyright 2010-2019 Kristian Duske
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ software and associated documentation files (the "Software"), to deal in the Software
+ without restriction, including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in all copies or
  substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
 */
 
 #pragma once
@@ -23,16 +24,19 @@
 #include <cstddef>
 #include <utility>
 
-namespace kdl {
+namespace kdl
+{
 /**
- * A thin wrapper around a statically sized array that allows accessing the elements using an enum
- * as the index.
+ * A thin wrapper around a statically sized array that allows accessing the elements using
+ * an enum as the index.
  *
  * @tparam T the value type
  * @tparam Enum the type of the enum used to index the values
  * @tparam Size the size of the array, must be greater than 0
  */
-template <typename T, typename Enum, std::size_t Size> class enum_array {
+template <typename T, typename Enum, std::size_t Size>
+class enum_array
+{
   static_assert(Size > 0u, "enum_array must have size > 0");
 
 private:
@@ -48,13 +52,17 @@ public:
    * Creates a new empty array. The array values are value initialized.
    */
   enum_array()
-    : m_array{} {}
+    : m_array{}
+  {
+  }
 
   /**
    * Creates a new array with the values in the given initializer list.
    */
   enum_array(std::initializer_list<T> list)
-    : m_array(list) {}
+    : m_array(list)
+  {
+  }
 
   /**
    * Returns a const reference to the element at the given index.
@@ -84,7 +92,8 @@ public:
    * @param index the index
    * @return a const reference to the element at the given index
    */
-  const T& get(const Enum index) const {
+  const T& get(const Enum index) const
+  {
     const auto i = static_cast<std::size_t>(index);
     assert(i < Size);
     return m_array[i];
@@ -98,7 +107,8 @@ public:
    * @param index the index
    * @return a reference to the element at the given index
    */
-  T& get(const Enum index) {
+  T& get(const Enum index)
+  {
     const auto i = static_cast<std::size_t>(index);
     assert(i < Size);
     return m_array[i];

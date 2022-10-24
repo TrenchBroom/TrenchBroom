@@ -27,9 +27,12 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
-class GameEngineProfile {
+namespace TrenchBroom
+{
+namespace Model
+{
+class GameEngineProfile
+{
 private:
   std::string m_name;
   IO::Path m_path;

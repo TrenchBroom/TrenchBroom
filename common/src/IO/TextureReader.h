@@ -24,21 +24,26 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class Texture;
 }
 
-namespace IO {
+namespace IO
+{
 class File;
 class FileSystem;
 class Path;
 
-class TextureReader {
+class TextureReader
+{
 public:
-  class NameStrategy {
+  class NameStrategy
+  {
   protected:
     NameStrategy();
 
@@ -57,31 +62,34 @@ public:
     deleteCopyAndMove(NameStrategy);
   };
 
-  class TextureNameStrategy : public NameStrategy {
+  class TextureNameStrategy : public NameStrategy
+  {
   public:
     TextureNameStrategy();
 
   private:
     NameStrategy* doClone() const override;
-    std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
+    std::string doGetTextureName(
+      const std::string& textureName, const Path& path) const override;
 
     deleteCopyAndMove(TextureNameStrategy);
   };
 
   /**
-   * Determines a texture name from a path removing a prefix of the path and returning the remaining
-   * suffix as a string, with the extension removed.
+   * Determines a texture name from a path removing a prefix of the path and returning the
+   * remaining suffix as a string, with the extension removed.
    *
-   * Note that the length of a prefix refers to the number of path components and not to the number
-   * of characetrs.
+   * Note that the length of a prefix refers to the number of path components and not to
+   * the number of characetrs.
    *
-   * For example, given the path /this/that/over/here/texture.png and a prefix length of 3, this
-   * strategy will return here/texture as the texture name.
+   * For example, given the path /this/that/over/here/texture.png and a prefix length of
+   * 3, this strategy will return here/texture as the texture name.
    *
-   * Given a path with fewer than or the same number of components as the prefix length, an empty
-   * string is returned.
+   * Given a path with fewer than or the same number of components as the prefix length,
+   * an empty string is returned.
    */
-  class PathSuffixNameStrategy : public NameStrategy {
+  class PathSuffixNameStrategy : public NameStrategy
+  {
   private:
     size_t m_prefixLength;
 
@@ -90,12 +98,14 @@ public:
 
   private:
     NameStrategy* doClone() const override;
-    std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
+    std::string doGetTextureName(
+      const std::string& textureName, const Path& path) const override;
 
     deleteCopyAndMove(PathSuffixNameStrategy);
   };
 
-  class StaticNameStrategy : public NameStrategy {
+  class StaticNameStrategy : public NameStrategy
+  {
   private:
     std::string m_name;
 
@@ -104,7 +114,8 @@ public:
 
   private:
     NameStrategy* doClone() const override;
-    std::string doGetTextureName(const std::string& textureName, const Path& path) const override;
+    std::string doGetTextureName(
+      const std::string& textureName, const Path& path) const override;
 
     deleteCopyAndMove(StaticNameStrategy);
   };
@@ -117,14 +128,15 @@ protected:
   Logger& m_logger;
 
 protected:
-  explicit TextureReader(const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  explicit TextureReader(
+    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
 
 public:
   virtual ~TextureReader();
 
   /**
-   * Loads a texture from the given file and returns it. If an error occurs while loading the
-   * texture, the default texture is returned.
+   * Loads a texture from the given file and returns it. If an error occurs while loading
+   * the texture, the default texture is returned.
    *
    * @param file the file containing the texture
    * @return an Assets::Texture object
@@ -137,9 +149,9 @@ protected:
 
 private:
   /**
-   * Loads a texture and returns an Assets::Texture object allocated with new. Should not throw
-   * exceptions to report errors loading textures except for unrecoverable errors (out of memory,
-   * bugs, etc.).
+   * Loads a texture and returns an Assets::Texture object allocated with new. Should not
+   * throw exceptions to report errors loading textures except for unrecoverable errors
+   * (out of memory, bugs, etc.).
    *
    * @param file the file containing the texture
    * @return an Assets::Texture object

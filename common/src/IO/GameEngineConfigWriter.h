@@ -24,14 +24,18 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class GameEngineConfig;
 class GameEngineProfile;
 } // namespace Model
 
-namespace IO {
-class GameEngineConfigWriter {
+namespace IO
+{
+class GameEngineConfigWriter
+{
 private:
   const Model::GameEngineConfig& m_config;
   std::ostream& m_stream;

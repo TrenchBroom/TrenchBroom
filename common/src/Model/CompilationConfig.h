@@ -23,11 +23,14 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class CompilationProfile;
 
-class CompilationConfig {
+class CompilationConfig
+{
 private:
   std::vector<std::unique_ptr<CompilationProfile>> m_profiles;
 

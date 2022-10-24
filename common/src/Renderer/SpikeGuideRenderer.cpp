@@ -37,34 +37,47 @@
 #include <vecmath/ray.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 SpikeGuideRenderer::SpikeGuideRenderer()
-  : m_valid(false) {}
+  : m_valid(false)
+{
+}
 
-void SpikeGuideRenderer::setColor(const Color& color) {
+void SpikeGuideRenderer::setColor(const Color& color)
+{
   m_color = color;
   m_valid = false;
 }
 
 void SpikeGuideRenderer::add(
-  const vm::ray3& ray, const FloatType length, std::shared_ptr<View::MapDocument> document) {
+  const vm::ray3& ray,
+  const FloatType length,
+  std::shared_ptr<View::MapDocument> document)
+{
   Model::PickResult pickResult = Model::PickResult::byDistance();
   document->pick(ray, pickResult);
 
   using namespace Model::HitFilters;
-  const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType) && minDistance(1.0));
-  if (hit.isMatch()) {
+  const auto& hit =
+    pickResult.first(type(Model::BrushNode::BrushHitType) && minDistance(1.0));
+  if (hit.isMatch())
+  {
     if (hit.distance() <= length)
       addPoint(vm::point_at_distance(ray, hit.distance() - 0.01));
     addSpike(ray, vm::min(length, hit.distance()), length);
-  } else {
+  }
+  else
+  {
     addSpike(ray, length, length);
   }
   m_valid = false;
 }
 
-void SpikeGuideRenderer::clear() {
+void SpikeGuideRenderer::clear()
+{
   m_spikeVertices.clear();
   m_pointVertices.clear();
   m_spikeArray = VertexArray();
@@ -72,14 +85,16 @@ void SpikeGuideRenderer::clear() {
   m_valid = true;
 }
 
-void SpikeGuideRenderer::doPrepareVertices(VboManager& vboManager) {
+void SpikeGuideRenderer::doPrepareVertices(VboManager& vboManager)
+{
   if (!m_valid)
     validate();
   m_pointArray.prepare(vboManager);
   m_spikeArray.prepare(vboManager);
 }
 
-void SpikeGuideRenderer::doRender(RenderContext& renderContext) {
+void SpikeGuideRenderer::doRender(RenderContext& renderContext)
+{
   ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
   m_spikeArray.render(PrimType::Lines);
 
@@ -88,12 +103,14 @@ void SpikeGuideRenderer::doRender(RenderContext& renderContext) {
   glAssert(glPointSize(1.0f));
 }
 
-void SpikeGuideRenderer::addPoint(const vm::vec3& position) {
+void SpikeGuideRenderer::addPoint(const vm::vec3& position)
+{
   m_pointVertices.emplace_back(vm::vec3f(position), m_color);
 }
 
 void SpikeGuideRenderer::addSpike(
-  const vm::ray3& ray, const FloatType length, const FloatType maxLength) {
+  const vm::ray3& ray, const FloatType length, const FloatType maxLength)
+{
   const auto mix = static_cast<float>(maxLength / length / 2.0);
 
   m_spikeVertices.emplace_back(vm::vec3f(ray.origin), m_color);
@@ -101,7 +118,8 @@ void SpikeGuideRenderer::addSpike(
     vm::vec3f(vm::point_at_distance(ray, length)), Color(m_color, m_color.a() * mix));
 }
 
-void SpikeGuideRenderer::validate() {
+void SpikeGuideRenderer::validate()
+{
   m_pointArray = VertexArray::move(std::move(m_pointVertices));
   m_spikeArray = VertexArray::move(std::move(m_spikeVertices));
   m_valid = true;

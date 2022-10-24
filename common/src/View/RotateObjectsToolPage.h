@@ -32,14 +32,17 @@
 class QAbstractButton;
 class QComboBox;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class MapDocument;
 class RotateObjectsTool;
 class Selection;
 class SpinControl;
 
-class RotateObjectsToolPage : public QWidget {
+class RotateObjectsToolPage : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -56,7 +59,9 @@ private:
 
 public:
   RotateObjectsToolPage(
-    std::weak_ptr<MapDocument> document, RotateObjectsTool& tool, QWidget* parent = nullptr);
+    std::weak_ptr<MapDocument> document,
+    RotateObjectsTool& tool,
+    QWidget* parent = nullptr);
 
   void setAxis(vm::axis::type axis);
   void setRecentlyUsedCenters(const std::vector<vm::vec3>& centers);

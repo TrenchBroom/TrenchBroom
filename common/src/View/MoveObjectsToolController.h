@@ -21,12 +21,15 @@
 
 #include "View/ToolController.h"
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class DragTracker;
 class MoveObjectsTool;
 
-class MoveObjectsToolController : public ToolController {
+class MoveObjectsToolController : public ToolController
+{
 private:
   MoveObjectsTool& m_tool;
 

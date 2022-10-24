@@ -21,9 +21,12 @@
 
 #include <QWidget>
 
-namespace TrenchBroom {
-namespace View {
-class PopupWindow : public QWidget {
+namespace TrenchBroom
+{
+namespace View
+{
+class PopupWindow : public QWidget
+{
   Q_OBJECT
 public:
   explicit PopupWindow(QWidget* parent = nullptr);

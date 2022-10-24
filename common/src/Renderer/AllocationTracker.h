@@ -22,16 +22,20 @@
 #include <cstddef>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 /**
  * Implements bookkeeping for dynamic memory allocation (like malloc).
  */
-class AllocationTracker {
+class AllocationTracker
+{
 public:
   using Index = size_t;
 
-  struct Block {
+  struct Block
+  {
   public:
     Index pos;
     Index size;
@@ -81,8 +85,8 @@ private:
 
   /**
    * Instead of always calling new/delete on Blocks when splitting/merging,
-   * we keep a singly-linked list of "recycled" blocks (using the nextRecycledBlock pointer).
-   * If the list is empty, then fall back to calling `new Block`.
+   * we keep a singly-linked list of "recycled" blocks (using the nextRecycledBlock
+   * pointer). If the list is empty, then fall back to calling `new Block`.
    */
   Block* m_recycledBlockList;
 
@@ -95,7 +99,8 @@ private:
   std::vector<Block*> m_freeBlockSizeBins;
 
   /**
-   * Unlinks a Block from m_freeBlockSizeBins. Must be called before modifying Block::size.
+   * Unlinks a Block from m_freeBlockSizeBins. Must be called before modifying
+   * Block::size.
    */
   void unlinkFromBinList(Block* block);
   void linkToBinList(Block* block);
@@ -109,10 +114,12 @@ public:
   ~AllocationTracker();
 
   /**
-   * Tries to make an allocation. Returns nullptr if there is no room for the requested allocation.
+   * Tries to make an allocation. Returns nullptr if there is no room for the requested
+   * allocation.
    *
-   * If the allocation is successful, the returned block->size is guaranteed to equal `size`.
-   * The caller can read block->pos to find out where in the buffer the allocation was made.
+   * If the allocation is successful, the returned block->size is guaranteed to equal
+   * `size`. The caller can read block->pos to find out where in the buffer the allocation
+   * was made.
    *
    * The AllocationTracker owns the Block object itself.
    */
@@ -121,14 +128,16 @@ public:
   size_t capacity() const;
   void expand(Index newCapacity);
   /**
-   * @return whether there are any allocations. i.e. returns false iff the whole range managed by
-   * the allocation tracker is free. Returns false if `capacity() == 0`. Constant time.
+   * @return whether there are any allocations. i.e. returns false iff the whole range
+   * managed by the allocation tracker is free. Returns false if `capacity() == 0`.
+   * Constant time.
    */
   bool hasAllocations() const;
 
   // Testing / debugging
 
-  class Range {
+  class Range
+  {
   public:
     Index pos;
     Index size;

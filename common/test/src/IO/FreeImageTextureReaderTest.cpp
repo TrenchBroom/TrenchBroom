@@ -32,9 +32,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-static Assets::Texture loadTexture(const std::string& name) {
+namespace TrenchBroom
+{
+namespace IO
+{
+static Assets::Texture loadTexture(const std::string& name)
+{
   const auto imagePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Image/");
   DiskFileSystem diskFS(imagePath);
 
@@ -45,7 +48,9 @@ static Assets::Texture loadTexture(const std::string& name) {
   return textureLoader.readTexture(diskFS.openFile(Path(name)));
 }
 
-static void assertTexture(const std::string& name, const size_t width, const size_t height) {
+static void assertTexture(
+  const std::string& name, const size_t width, const size_t height)
+{
   const auto texture = loadTexture(name);
 
   CHECK(texture.name() == name);
@@ -55,12 +60,14 @@ static void assertTexture(const std::string& name, const size_t width, const siz
   CHECK(texture.type() == Assets::TextureType::Opaque);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testLoadPngs", "[FreeImageTextureReaderTest]") {
+TEST_CASE("FreeImageTextureReaderTest.testLoadPngs", "[FreeImageTextureReaderTest]")
+{
   assertTexture("5x5.png", 5, 5);
   assertTexture("707x710.png", 707, 710);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testLoadCorruptPng", "[FreeImageTextureReaderTest]") {
+TEST_CASE("FreeImageTextureReaderTest.testLoadCorruptPng", "[FreeImageTextureReaderTest]")
+{
   const auto texture = loadTexture("corruptPngTest.png");
 
   // TextureReader::readTexture is supposed to return a placeholder for corrupt textures
@@ -69,7 +76,8 @@ TEST_CASE("FreeImageTextureReaderTest.testLoadCorruptPng", "[FreeImageTextureRea
   CHECK(texture.height() != 0u);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testLoad16BitPng", "[FreeImageTextureReaderTest]") {
+TEST_CASE("FreeImageTextureReaderTest.testLoad16BitPng", "[FreeImageTextureReaderTest]")
+{
   const auto texture = loadTexture("16bitGrayscale.png");
 
   // we don't support this format currently
@@ -79,7 +87,8 @@ TEST_CASE("FreeImageTextureReaderTest.testLoad16BitPng", "[FreeImageTextureReade
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2474
-static void testImageContents(const Assets::Texture& texture, const ColorMatch match) {
+static void testImageContents(const Assets::Texture& texture, const ColorMatch match)
+{
   const std::size_t w = 64u;
   const std::size_t h = 64u;
 
@@ -89,15 +98,22 @@ static void testImageContents(const Assets::Texture& texture, const ColorMatch m
   CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
   CHECK(texture.type() == Assets::TextureType::Opaque);
 
-  for (std::size_t y = 0; y < h; ++y) {
-    for (std::size_t x = 0; x < w; ++x) {
-      if (x == 0 && y == 0) {
+  for (std::size_t y = 0; y < h; ++y)
+  {
+    for (std::size_t x = 0; x < w; ++x)
+    {
+      if (x == 0 && y == 0)
+      {
         // top left pixel is red
         checkColor(texture, x, y, 255, 0, 0, 255, match);
-      } else if (x == (w - 1) && y == (h - 1)) {
+      }
+      else if (x == (w - 1) && y == (h - 1))
+      {
         // bottom right pixel is green
         checkColor(texture, x, y, 0, 255, 0, 255, match);
-      } else {
+      }
+      else
+      {
         // others are 161, 161, 161
         checkColor(texture, x, y, 161, 161, 161, 255, match);
       }
@@ -105,15 +121,18 @@ static void testImageContents(const Assets::Texture& texture, const ColorMatch m
   }
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testPNGContents", "[FreeImageTextureReaderTest]") {
+TEST_CASE("FreeImageTextureReaderTest.testPNGContents", "[FreeImageTextureReaderTest]")
+{
   testImageContents(loadTexture("pngContentsTest.png"), ColorMatch::Exact);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testJPGContents", "[FreeImageTextureReaderTest]") {
+TEST_CASE("FreeImageTextureReaderTest.testJPGContents", "[FreeImageTextureReaderTest]")
+{
   testImageContents(loadTexture("jpgContentsTest.jpg"), ColorMatch::Approximate);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.alphaMaskTest", "[FreeImageTextureReaderTest]") {
+TEST_CASE("FreeImageTextureReaderTest.alphaMaskTest", "[FreeImageTextureReaderTest]")
+{
   const auto texture = loadTexture("alphaMaskTest.png");
   const std::size_t w = 25u;
   const std::size_t h = 10u;
@@ -127,15 +146,20 @@ TEST_CASE("FreeImageTextureReaderTest.alphaMaskTest", "[FreeImageTextureReaderTe
   auto& mip0Data = texture.buffersIfUnprepared().at(0);
   CHECK(mip0Data.size() == w * h * 4);
 
-  for (std::size_t y = 0; y < h; ++y) {
-    for (std::size_t x = 0; x < w; ++x) {
-      if (x == 0 && y == 0) {
+  for (std::size_t y = 0; y < h; ++y)
+  {
+    for (std::size_t x = 0; x < w; ++x)
+    {
+      if (x == 0 && y == 0)
+      {
         // top left pixel is green opaque
         CHECK(getComponentOfPixel(texture, x, y, Component::R) == 0 /* R */);
         CHECK(getComponentOfPixel(texture, x, y, Component::G) == 255 /* G */);
         CHECK(getComponentOfPixel(texture, x, y, Component::B) == 0 /* B */);
         CHECK(getComponentOfPixel(texture, x, y, Component::A) == 255 /* A */);
-      } else {
+      }
+      else
+      {
         // others are fully transparent (RGB values are unknown)
         CHECK(getComponentOfPixel(texture, x, y, Component::A) == 0 /* A */);
       }

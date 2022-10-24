@@ -30,21 +30,25 @@
 class QMenu;
 class QSettings;
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 class RecoverableException;
 
-namespace IO {
+namespace IO
+{
 class Path;
 }
 
-namespace View {
+namespace View
+{
 class ExecutableEvent;
 class FrameManager;
 class RecentDocuments;
 class WelcomeWindow;
 
-class TrenchBroomApp : public QApplication {
+class TrenchBroomApp : public QApplication
+{
   Q_OBJECT
 private:
   std::unique_ptr<FrameManager> m_frameManager;
@@ -74,7 +78,8 @@ public:
   void updateRecentDocument(const IO::Path& path);
 
   bool openDocument(const IO::Path& path);
-  bool recoverFromException(const RecoverableException& e, const std::function<bool()>& retry);
+  bool recoverFromException(
+    const RecoverableException& e, const std::function<bool()>& retry);
   void openPreferences();
   void openAbout();
   bool initializeGameFactory();
@@ -105,7 +110,8 @@ signals:
 };
 
 void setCrashReportGUIEnbled(bool guiEnabled);
-[[noreturn]] void reportCrashAndExit(const std::string& stacktrace, const std::string& reason);
+[[noreturn]] void reportCrashAndExit(
+  const std::string& stacktrace, const std::string& reason);
 bool isReportingCrash();
 } // namespace View
 } // namespace TrenchBroom

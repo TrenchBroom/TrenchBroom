@@ -27,25 +27,31 @@
 
 #include <optional>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class ActiveShader;
 class Camera;
 class OrthographicCamera;
 class RenderContext;
 } // namespace Renderer
 
-namespace Model {
+namespace Model
+{
 class BrushFace;
 class PickResult;
 } // namespace Model
 
-namespace View {
-class UVViewHelper {
+namespace View
+{
+class UVViewHelper
+{
 private:
   Renderer::OrthographicCamera& m_camera;
   bool m_zoomValid;
@@ -81,18 +87,25 @@ public:
   float cameraZoom() const;
 
   void pickTextureGrid(
-    const vm::ray3& ray, const Model::HitType::Type hitTypes[2],
+    const vm::ray3& ray,
+    const Model::HitType::Type hitTypes[2],
     Model::PickResult& pickResult) const;
 
   vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
   vm::vec2f computeDistanceFromTextureGrid(const vm::vec3& position) const;
 
-  void computeOriginHandleVertices(vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
+  void computeOriginHandleVertices(
+    vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
   void computeScaleHandleVertices(
     const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
   void computeLineVertices(
-    const vm::vec2& pos, vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2,
-    const vm::mat4x4& toTex, const vm::mat4x4& toWorld) const;
+    const vm::vec2& pos,
+    vm::vec3& x1,
+    vm::vec3& x2,
+    vm::vec3& y1,
+    vm::vec3& y2,
+    const vm::mat4x4& toTex,
+    const vm::mat4x4& toWorld) const;
 
   /**
    * Converts texture space to view space (pixels in the UV viewport).

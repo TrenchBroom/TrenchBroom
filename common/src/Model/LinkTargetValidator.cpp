@@ -30,29 +30,40 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-namespace {
+namespace TrenchBroom
+{
+namespace Model
+{
+namespace
+{
 static const auto Type = freeIssueType();
 
 void validateInternal(
-  EntityNodeBase& entityNode, const std::vector<std::string>& propertyKeys,
-  std::vector<std::unique_ptr<Issue>>& issues) {
+  EntityNodeBase& entityNode,
+  const std::vector<std::string>& propertyKeys,
+  std::vector<std::unique_ptr<Issue>>& issues)
+{
   issues.reserve(issues.size() + propertyKeys.size());
-  for (const auto& key : propertyKeys) {
+  for (const auto& key : propertyKeys)
+  {
     issues.push_back(std::make_unique<EntityPropertyIssue>(
-      Type, entityNode, key, entityNode.name() + " has missing target for key '" + key + "'"));
+      Type,
+      entityNode,
+      key,
+      entityNode.name() + " has missing target for key '" + key + "'"));
   }
 }
 } // namespace
 
 LinkTargetValidator::LinkTargetValidator()
-  : Validator{Type, "Missing entity link target"} {
+  : Validator{Type, "Missing entity link target"}
+{
   addQuickFix(makeRemoveEntityPropertiesQuickFix(Type));
 }
 
 void LinkTargetValidator::doValidate(
-  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const {
+  EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
+{
   validateInternal(entityNode, entityNode.findMissingLinkTargets(), issues);
   validateInternal(entityNode, entityNode.findMissingKillTargets(), issues);
 }

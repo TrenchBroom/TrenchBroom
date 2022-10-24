@@ -28,40 +28,53 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 PropertyDefinition::PropertyDefinition(
-  const std::string& key, const PropertyDefinitionType type, const std::string& shortDescription,
-  const std::string& longDescription, const bool readOnly)
+  const std::string& key,
+  const PropertyDefinitionType type,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  const bool readOnly)
   : m_key(key)
   , m_type(type)
   , m_shortDescription(shortDescription)
   , m_longDescription(longDescription)
-  , m_readOnly(readOnly) {}
+  , m_readOnly(readOnly)
+{
+}
 
 PropertyDefinition::~PropertyDefinition() = default;
 
-const std::string& PropertyDefinition::key() const {
+const std::string& PropertyDefinition::key() const
+{
   return m_key;
 }
 
-PropertyDefinitionType PropertyDefinition::type() const {
+PropertyDefinitionType PropertyDefinition::type() const
+{
   return m_type;
 }
 
-const std::string& PropertyDefinition::shortDescription() const {
+const std::string& PropertyDefinition::shortDescription() const
+{
   return m_shortDescription;
 }
 
-const std::string& PropertyDefinition::longDescription() const {
+const std::string& PropertyDefinition::longDescription() const
+{
   return m_longDescription;
 }
 
-bool PropertyDefinition::readOnly() const {
+bool PropertyDefinition::readOnly() const
+{
   return m_readOnly;
 }
 
-bool PropertyDefinition::equals(const PropertyDefinition* other) const {
+bool PropertyDefinition::equals(const PropertyDefinition* other) const
+{
   ensure(other != nullptr, "other is null");
   if (type() != other->type())
     return false;
@@ -70,214 +83,306 @@ bool PropertyDefinition::equals(const PropertyDefinition* other) const {
   return doEquals(other);
 }
 
-bool PropertyDefinition::doEquals(const PropertyDefinition* /* other */) const {
+bool PropertyDefinition::doEquals(const PropertyDefinition* /* other */) const
+{
   return true;
 }
 
-std::string PropertyDefinition::defaultValue(const PropertyDefinition& definition) {
-  switch (definition.type()) {
-    case PropertyDefinitionType::StringProperty: {
-      const auto& stringDef = static_cast<const StringPropertyDefinition&>(definition);
-      if (!stringDef.hasDefaultValue())
-        return "";
-      return stringDef.defaultValue();
-    }
-    case PropertyDefinitionType::BooleanProperty: {
-      const auto& boolDef = static_cast<const BooleanPropertyDefinition&>(definition);
-      if (!boolDef.hasDefaultValue())
-        return "";
-      std::stringstream str;
-      str << boolDef.defaultValue();
-      return str.str();
-    }
-    case PropertyDefinitionType::IntegerProperty: {
-      const auto& intDef = static_cast<const IntegerPropertyDefinition&>(definition);
-      if (!intDef.hasDefaultValue())
-        return "";
-      std::stringstream str;
-      str << intDef.defaultValue();
-      return str.str();
-    }
-    case PropertyDefinitionType::FloatProperty: {
-      const auto& floatDef = static_cast<const FloatPropertyDefinition&>(definition);
-      if (!floatDef.hasDefaultValue())
-        return "";
-      std::stringstream str;
-      str << floatDef.defaultValue();
-      return str.str();
-    }
-    case PropertyDefinitionType::ChoiceProperty: {
-      const auto& choiceDef = static_cast<const ChoicePropertyDefinition&>(definition);
-      if (!choiceDef.hasDefaultValue())
-        return "";
-      std::stringstream str;
-      str << choiceDef.defaultValue();
-      return str.str();
-    }
-    case PropertyDefinitionType::FlagsProperty: {
-      const auto& flagsDef = static_cast<const FlagsPropertyDefinition&>(definition);
-      std::stringstream str;
-      str << flagsDef.defaultValue();
-      return str.str();
-    }
-    case PropertyDefinitionType::TargetSourceProperty:
-    case PropertyDefinitionType::TargetDestinationProperty:
+std::string PropertyDefinition::defaultValue(const PropertyDefinition& definition)
+{
+  switch (definition.type())
+  {
+  case PropertyDefinitionType::StringProperty: {
+    const auto& stringDef = static_cast<const StringPropertyDefinition&>(definition);
+    if (!stringDef.hasDefaultValue())
       return "";
-      switchDefault();
+    return stringDef.defaultValue();
+  }
+  case PropertyDefinitionType::BooleanProperty: {
+    const auto& boolDef = static_cast<const BooleanPropertyDefinition&>(definition);
+    if (!boolDef.hasDefaultValue())
+      return "";
+    std::stringstream str;
+    str << boolDef.defaultValue();
+    return str.str();
+  }
+  case PropertyDefinitionType::IntegerProperty: {
+    const auto& intDef = static_cast<const IntegerPropertyDefinition&>(definition);
+    if (!intDef.hasDefaultValue())
+      return "";
+    std::stringstream str;
+    str << intDef.defaultValue();
+    return str.str();
+  }
+  case PropertyDefinitionType::FloatProperty: {
+    const auto& floatDef = static_cast<const FloatPropertyDefinition&>(definition);
+    if (!floatDef.hasDefaultValue())
+      return "";
+    std::stringstream str;
+    str << floatDef.defaultValue();
+    return str.str();
+  }
+  case PropertyDefinitionType::ChoiceProperty: {
+    const auto& choiceDef = static_cast<const ChoicePropertyDefinition&>(definition);
+    if (!choiceDef.hasDefaultValue())
+      return "";
+    std::stringstream str;
+    str << choiceDef.defaultValue();
+    return str.str();
+  }
+  case PropertyDefinitionType::FlagsProperty: {
+    const auto& flagsDef = static_cast<const FlagsPropertyDefinition&>(definition);
+    std::stringstream str;
+    str << flagsDef.defaultValue();
+    return str.str();
+  }
+  case PropertyDefinitionType::TargetSourceProperty:
+  case PropertyDefinitionType::TargetDestinationProperty:
+    return "";
+    switchDefault();
   }
 }
 
 PropertyDefinition* PropertyDefinition::clone(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  bool readOnly) const {
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  bool readOnly) const
+{
   return doClone(key, shortDescription, longDescription, readOnly);
 }
 
 PropertyDefinition* PropertyDefinition::doClone(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  bool readOnly) const {
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  bool readOnly) const
+{
   return new PropertyDefinition(key, type(), shortDescription, longDescription, readOnly);
 }
 
 StringPropertyDefinition::StringPropertyDefinition(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  const bool readOnly, std::optional<std::string> defaultValue)
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  const bool readOnly,
+  std::optional<std::string> defaultValue)
   : PropertyDefinitionWithDefaultValue(
-      key, PropertyDefinitionType::StringProperty, shortDescription, longDescription, readOnly,
-      std::move(defaultValue)) {}
+    key,
+    PropertyDefinitionType::StringProperty,
+    shortDescription,
+    longDescription,
+    readOnly,
+    std::move(defaultValue))
+{
+}
 
 PropertyDefinition* StringPropertyDefinition::doClone(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  bool readOnly) const {
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  bool readOnly) const
+{
   return new StringPropertyDefinition(
     key, shortDescription, longDescription, readOnly, m_defaultValue);
 }
 
 BooleanPropertyDefinition::BooleanPropertyDefinition(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  const bool readOnly, std::optional<bool> defaultValue)
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  const bool readOnly,
+  std::optional<bool> defaultValue)
   : PropertyDefinitionWithDefaultValue(
-      key, PropertyDefinitionType::BooleanProperty, shortDescription, longDescription, readOnly,
-      std::move(defaultValue)) {}
+    key,
+    PropertyDefinitionType::BooleanProperty,
+    shortDescription,
+    longDescription,
+    readOnly,
+    std::move(defaultValue))
+{
+}
 
 PropertyDefinition* BooleanPropertyDefinition::doClone(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  bool readOnly) const {
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  bool readOnly) const
+{
   return new BooleanPropertyDefinition(
     key, shortDescription, longDescription, readOnly, m_defaultValue);
 }
 
 IntegerPropertyDefinition::IntegerPropertyDefinition(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  const bool readOnly, std::optional<int> defaultValue)
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  const bool readOnly,
+  std::optional<int> defaultValue)
   : PropertyDefinitionWithDefaultValue(
-      key, PropertyDefinitionType::IntegerProperty, shortDescription, longDescription, readOnly,
-      std::move(defaultValue)) {}
+    key,
+    PropertyDefinitionType::IntegerProperty,
+    shortDescription,
+    longDescription,
+    readOnly,
+    std::move(defaultValue))
+{
+}
 
 PropertyDefinition* IntegerPropertyDefinition::doClone(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  bool readOnly) const {
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  bool readOnly) const
+{
   return new IntegerPropertyDefinition(
     key, shortDescription, longDescription, readOnly, m_defaultValue);
 }
 
 FloatPropertyDefinition::FloatPropertyDefinition(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  const bool readOnly, std::optional<float> defaultValue)
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  const bool readOnly,
+  std::optional<float> defaultValue)
   : PropertyDefinitionWithDefaultValue(
-      key, PropertyDefinitionType::FloatProperty, shortDescription, longDescription, readOnly,
-      std::move(defaultValue)) {}
+    key,
+    PropertyDefinitionType::FloatProperty,
+    shortDescription,
+    longDescription,
+    readOnly,
+    std::move(defaultValue))
+{
+}
 
 PropertyDefinition* FloatPropertyDefinition::doClone(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  bool readOnly) const {
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  bool readOnly) const
+{
   return new FloatPropertyDefinition(
     key, shortDescription, longDescription, readOnly, m_defaultValue);
 }
 
-ChoicePropertyOption::ChoicePropertyOption(const std::string& value, const std::string& description)
+ChoicePropertyOption::ChoicePropertyOption(
+  const std::string& value, const std::string& description)
   : m_value(value)
-  , m_description(description) {}
+  , m_description(description)
+{
+}
 
-const std::string& ChoicePropertyOption::value() const {
+const std::string& ChoicePropertyOption::value() const
+{
   return m_value;
 }
 
-const std::string& ChoicePropertyOption::description() const {
+const std::string& ChoicePropertyOption::description() const
+{
   return m_description;
 }
 
 kdl_reflect_impl(ChoicePropertyOption);
 
 ChoicePropertyDefinition::ChoicePropertyDefinition(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  const ChoicePropertyOption::List& options, const bool readOnly,
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  const ChoicePropertyOption::List& options,
+  const bool readOnly,
   std::optional<std::string> defaultValue)
   : PropertyDefinitionWithDefaultValue(
-      key, PropertyDefinitionType::ChoiceProperty, shortDescription, longDescription, readOnly,
-      std::move(defaultValue))
-  , m_options(options) {}
+    key,
+    PropertyDefinitionType::ChoiceProperty,
+    shortDescription,
+    longDescription,
+    readOnly,
+    std::move(defaultValue))
+  , m_options(options)
+{
+}
 
-const ChoicePropertyOption::List& ChoicePropertyDefinition::options() const {
+const ChoicePropertyOption::List& ChoicePropertyDefinition::options() const
+{
   return m_options;
 }
 
-bool ChoicePropertyDefinition::doEquals(const PropertyDefinition* other) const {
+bool ChoicePropertyDefinition::doEquals(const PropertyDefinition* other) const
+{
   return options() == static_cast<const ChoicePropertyDefinition*>(other)->options();
 }
 
 PropertyDefinition* ChoicePropertyDefinition::doClone(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  bool readOnly) const {
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  bool readOnly) const
+{
   return new ChoicePropertyDefinition(
     key, shortDescription, longDescription, options(), readOnly, m_defaultValue);
 }
 
 FlagsPropertyOption::FlagsPropertyOption(
-  const int value, const std::string& shortDescription, const std::string& longDescription,
+  const int value,
+  const std::string& shortDescription,
+  const std::string& longDescription,
   const bool isDefault)
   : m_value(value)
   , m_shortDescription(shortDescription)
   , m_longDescription(longDescription)
-  , m_isDefault(isDefault) {}
+  , m_isDefault(isDefault)
+{
+}
 
-int FlagsPropertyOption::value() const {
+int FlagsPropertyOption::value() const
+{
   return m_value;
 }
 
-const std::string& FlagsPropertyOption::shortDescription() const {
+const std::string& FlagsPropertyOption::shortDescription() const
+{
   return m_shortDescription;
 }
 
-const std::string& FlagsPropertyOption::longDescription() const {
+const std::string& FlagsPropertyOption::longDescription() const
+{
   return m_longDescription;
 }
 
-bool FlagsPropertyOption::isDefault() const {
+bool FlagsPropertyOption::isDefault() const
+{
   return m_isDefault;
 }
 
 kdl_reflect_impl(FlagsPropertyOption);
 
 FlagsPropertyDefinition::FlagsPropertyDefinition(const std::string& key)
-  : PropertyDefinition(key, PropertyDefinitionType::FlagsProperty, "", "", false) {}
+  : PropertyDefinition(key, PropertyDefinitionType::FlagsProperty, "", "", false)
+{
+}
 
-int FlagsPropertyDefinition::defaultValue() const {
+int FlagsPropertyDefinition::defaultValue() const
+{
   int value = 0;
-  for (const FlagsPropertyOption& option : m_options) {
+  for (const FlagsPropertyOption& option : m_options)
+  {
     if (option.isDefault())
       value |= option.value();
   }
   return value;
 }
 
-const FlagsPropertyOption::List& FlagsPropertyDefinition::options() const {
+const FlagsPropertyOption::List& FlagsPropertyDefinition::options() const
+{
   return m_options;
 }
 
-const FlagsPropertyOption* FlagsPropertyDefinition::option(const int value) const {
-  for (const auto& option : m_options) {
-    if (option.value() == value) {
+const FlagsPropertyOption* FlagsPropertyDefinition::option(const int value) const
+{
+  for (const auto& option : m_options)
+  {
+    if (option.value() == value)
+    {
       return &option;
     }
   }
@@ -285,35 +390,55 @@ const FlagsPropertyOption* FlagsPropertyDefinition::option(const int value) cons
 }
 
 void FlagsPropertyDefinition::addOption(
-  const int value, const std::string& shortDescription, const std::string& longDescription,
-  const bool isDefault) {
-  m_options.push_back(FlagsPropertyOption(value, shortDescription, longDescription, isDefault));
+  const int value,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  const bool isDefault)
+{
+  m_options.push_back(
+    FlagsPropertyOption(value, shortDescription, longDescription, isDefault));
 }
 
-bool FlagsPropertyDefinition::doEquals(const PropertyDefinition* other) const {
+bool FlagsPropertyDefinition::doEquals(const PropertyDefinition* other) const
+{
   return options() == static_cast<const FlagsPropertyDefinition*>(other)->options();
 }
 
 PropertyDefinition* FlagsPropertyDefinition::doClone(
-  const std::string& key, const std::string& /* shortDescription */,
-  const std::string& /* longDescription */, bool /* readOnly */) const {
+  const std::string& key,
+  const std::string& /* shortDescription */,
+  const std::string& /* longDescription */,
+  bool /* readOnly */) const
+{
   auto result = std::make_unique<FlagsPropertyDefinition>(key);
-  for (const auto& option : options()) {
+  for (const auto& option : options())
+  {
     result->addOption(
-      option.value(), option.shortDescription(), option.longDescription(), option.isDefault());
+      option.value(),
+      option.shortDescription(),
+      option.longDescription(),
+      option.isDefault());
   }
   return result.release();
 }
 
 UnknownPropertyDefinition::UnknownPropertyDefinition(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  const bool readOnly, std::optional<std::string> defaultValue)
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  const bool readOnly,
+  std::optional<std::string> defaultValue)
   : StringPropertyDefinition(
-      key, shortDescription, longDescription, readOnly, std::move(defaultValue)) {}
+    key, shortDescription, longDescription, readOnly, std::move(defaultValue))
+{
+}
 
 PropertyDefinition* UnknownPropertyDefinition::doClone(
-  const std::string& key, const std::string& shortDescription, const std::string& longDescription,
-  bool readOnly) const {
+  const std::string& key,
+  const std::string& shortDescription,
+  const std::string& longDescription,
+  bool readOnly) const
+{
   return new UnknownPropertyDefinition(
     key, shortDescription, longDescription, readOnly, m_defaultValue);
 }

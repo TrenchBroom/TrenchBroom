@@ -28,21 +28,28 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
-  std::string name, const bool updateModificationCount,
+  std::string name,
+  const bool updateModificationCount,
   std::vector<Model::GroupNode*> changedLinkedGroups)
   : UndoableCommand{std::move(name), updateModificationCount}
-  , m_updateLinkedGroupsHelper{std::move(changedLinkedGroups)} {}
+  , m_updateLinkedGroupsHelper{std::move(changedLinkedGroups)}
+{
+}
 
 UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() {}
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
-  MapDocumentCommandFacade* document) {
+  MapDocumentCommandFacade* document)
+{
   // reimplemented from UndoableCommand::performDo
   auto commandResult = Command::performDo(document);
-  if (!commandResult->success()) {
+  if (!commandResult->success())
+  {
     return commandResult;
   }
 
@@ -50,12 +57,14 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
     m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document).handle_errors(
       [&](const Model::UpdateLinkedGroupsError& e) {
         doPerformUndo(document);
-        if (document) {
+        if (document)
+        {
           document->error() << e;
         }
       });
 
-  if (!linkedGroupUpdateResult) {
+  if (!linkedGroupUpdateResult)
+  {
     return std::make_unique<CommandResult>(false);
   }
 
@@ -65,26 +74,34 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
 }
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(
-  MapDocumentCommandFacade* document) {
+  MapDocumentCommandFacade* document)
+{
   auto commandResult = UndoableCommand::performUndo(document);
-  if (commandResult->success()) {
+  if (commandResult->success())
+  {
     m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(*document);
   }
   return commandResult;
 }
 
-bool UpdateLinkedGroupsCommandBase::collateWith(UndoableCommand& command) {
+bool UpdateLinkedGroupsCommandBase::collateWith(UndoableCommand& command)
+{
   assert(&command != this);
 
-  if (auto* updateLinkedGroupsCommand = dynamic_cast<UpdateLinkedGroupsCommand*>(&command)) {
-    m_updateLinkedGroupsHelper.collateWith(updateLinkedGroupsCommand->m_updateLinkedGroupsHelper);
+  if (
+    auto* updateLinkedGroupsCommand = dynamic_cast<UpdateLinkedGroupsCommand*>(&command))
+  {
+    m_updateLinkedGroupsHelper.collateWith(
+      updateLinkedGroupsCommand->m_updateLinkedGroupsHelper);
     return true;
   }
 
-  if (UndoableCommand::collateWith(command)) {
+  if (UndoableCommand::collateWith(command))
+  {
     if (
       auto* updateLinkedGroupsCommandBase =
-        dynamic_cast<UpdateLinkedGroupsCommandBase*>(&command)) {
+        dynamic_cast<UpdateLinkedGroupsCommandBase*>(&command))
+    {
       m_updateLinkedGroupsHelper.collateWith(
         updateLinkedGroupsCommandBase->m_updateLinkedGroupsHelper);
     }

@@ -21,9 +21,12 @@
 
 #include <QSplitter>
 
-namespace TrenchBroom {
-namespace View {
-class SplitterHandle : public QSplitterHandle {
+namespace TrenchBroom
+{
+namespace View
+{
+class SplitterHandle : public QSplitterHandle
+{
   Q_OBJECT
 public:
   explicit SplitterHandle(Qt::Orientation orientation, QSplitter* parent = nullptr);
@@ -34,7 +37,8 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 };
 
-class Splitter : public QSplitter {
+class Splitter : public QSplitter
+{
   Q_OBJECT
 public:
   explicit Splitter(Qt::Orientation orientation, QWidget* parent = nullptr);
@@ -44,8 +48,8 @@ protected:
   QSplitterHandle* createHandle() override;
 
 #ifdef __APPLE__
-  // on macOS, the widgets are not repainted properly when the splitter moves, so we force them to
-  // repaint
+  // on macOS, the widgets are not repainted properly when the splitter moves, so we force
+  // them to repaint
 private slots:
   void doSplitterMoved();
 #endif

@@ -26,18 +26,22 @@
 #include <cstdint>
 #include <memory>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 class Logger;
 
-namespace Assets {
+namespace Assets
+{
 class TextureBuffer;
 }
 
-namespace IO {
+namespace IO
+{
 class File;
 class FileSystem;
 
-class FreeImageTextureReader : public TextureReader {
+class FreeImageTextureReader : public TextureReader
+{
 public:
   static Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
 

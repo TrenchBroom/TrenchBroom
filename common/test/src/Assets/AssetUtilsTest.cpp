@@ -27,41 +27,43 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace Assets {
-TEST_CASE("AssetUtilsTest.safeGetModelSpecification", "[AssetUtilsTest]") {
+namespace TrenchBroom
+{
+namespace Assets
+{
+TEST_CASE("AssetUtilsTest.safeGetModelSpecification", "[AssetUtilsTest]")
+{
   TestLogger logger;
 
   const auto expected = ModelSpecification(IO::Path("test/test"), 1, 2);
   std::optional<ModelSpecification> actual;
 
   // regular execution is fine
-  SECTION("Regular execution") {
-    CHECK_NOTHROW(actual = safeGetModelSpecification(logger, "", [&]() {
-                    return expected;
-                  }));
+  SECTION("Regular execution")
+  {
+    CHECK_NOTHROW(
+      actual = safeGetModelSpecification(logger, "", [&]() { return expected; }));
     CHECK(logger.countMessages() == 0u);
     CHECK(actual.has_value());
     CHECK(*actual == expected);
   }
 
   // only ELExceptions are caught, and nothing is logged
-  SECTION("Only ELExceptions are caught, and nothing is logged") {
+  SECTION("Only ELExceptions are caught, and nothing is logged")
+  {
     CHECK_THROWS_AS(
       safeGetModelSpecification(
-        logger, "",
-        []() -> ModelSpecification {
-          throw AssetException();
-        }),
+        logger, "", []() -> ModelSpecification { throw AssetException(); }),
       AssetException);
     CHECK(logger.countMessages() == 0u);
   }
 
   // throwing an EL exception logs and returns an empty model spec
-  SECTION("Throwing an EL exception logs and returns an empty model spec") {
-    CHECK_NOTHROW(actual = safeGetModelSpecification(logger, "", []() -> ModelSpecification {
-                    throw EL::Exception();
-                  }));
+  SECTION("Throwing an EL exception logs and returns an empty model spec")
+  {
+    CHECK_NOTHROW(
+      actual = safeGetModelSpecification(
+        logger, "", []() -> ModelSpecification { throw EL::Exception(); }));
     CHECK(logger.countMessages() == 1u);
     CHECK(logger.countMessages(LogLevel::Error) == 1u);
     CHECK(actual.has_value());

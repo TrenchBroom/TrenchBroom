@@ -22,18 +22,22 @@
 #include "Renderer/EdgeRenderer.h"
 #include "View/ToolController.h"
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class DirectEdgeRenderer;
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class DragTracker;
 class ExtrudeTool;
 
-class ExtrudeToolController : public ToolController {
+class ExtrudeToolController : public ToolController
+{
 protected:
   ExtrudeTool& m_tool;
 
@@ -56,7 +60,8 @@ private:
   std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void render(
-    const InputState& inputState, Renderer::RenderContext& renderContext,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
 
   bool cancel() override;
@@ -65,24 +70,29 @@ private:
 
 private:
   virtual bool doHandleInput(const InputState& inputState) const = 0;
-  virtual Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) = 0;
+  virtual Model::Hit doPick(
+    const vm::ray3& pickRay, const Model::PickResult& pickResult) = 0;
 };
 
-class ExtrudeToolController2D : public ExtrudeToolController {
+class ExtrudeToolController2D : public ExtrudeToolController
+{
 public:
   explicit ExtrudeToolController2D(ExtrudeTool& tool);
 
 private:
-  Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
+  Model::Hit doPick(
+    const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
   bool doHandleInput(const InputState& inputState) const override;
 };
 
-class ExtrudeToolController3D : public ExtrudeToolController {
+class ExtrudeToolController3D : public ExtrudeToolController
+{
 public:
   explicit ExtrudeToolController3D(ExtrudeTool& tool);
 
 private:
-  Model::Hit doPick(const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
+  Model::Hit doPick(
+    const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
   bool doHandleInput(const InputState& inputState) const override;
 };
 } // namespace View

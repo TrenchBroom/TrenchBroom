@@ -23,11 +23,14 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class CreateEntityTool;
 
-class CreateEntityToolController : public ToolController {
+class CreateEntityToolController : public ToolController
+{
 protected:
   CreateEntityTool& m_tool;
 
@@ -47,23 +50,28 @@ private:
   bool cancel() override;
 
 private:
-  virtual std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const = 0;
+  virtual std::unique_ptr<DropTracker> createDropTracker(
+    const InputState& inputState) const = 0;
 };
 
-class CreateEntityToolController2D : public CreateEntityToolController {
+class CreateEntityToolController2D : public CreateEntityToolController
+{
 public:
   CreateEntityToolController2D(CreateEntityTool& tool);
 
 private:
-  std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
+  std::unique_ptr<DropTracker> createDropTracker(
+    const InputState& inputState) const override;
 };
 
-class CreateEntityToolController3D : public CreateEntityToolController {
+class CreateEntityToolController3D : public CreateEntityToolController
+{
 public:
   CreateEntityToolController3D(CreateEntityTool& tool);
 
 private:
-  std::unique_ptr<DropTracker> createDropTracker(const InputState& inputState) const override;
+  std::unique_ptr<DropTracker> createDropTracker(
+    const InputState& inputState) const override;
 };
 } // namespace View
 } // namespace TrenchBroom

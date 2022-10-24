@@ -27,9 +27,12 @@
 
 #include <any>
 
-namespace TrenchBroom {
-namespace Model {
-class Hit {
+namespace TrenchBroom
+{
+namespace Model
+{
+class Hit
+{
 public:
   static const Hit NoHit;
 
@@ -43,13 +46,18 @@ private:
 public:
   template <typename T>
   Hit(
-    const HitType::Type type, const FloatType distance, const vm::vec3& hitPoint, T target,
+    const HitType::Type type,
+    const FloatType distance,
+    const vm::vec3& hitPoint,
+    T target,
     const FloatType error = 0.0)
     : m_type(type)
     , m_distance(distance)
     , m_hitPoint(hitPoint)
     , m_target(std::move(target))
-    , m_error(error) {}
+    , m_error(error)
+  {
+  }
 
   bool isMatch() const;
   HitType::Type type() const;
@@ -58,12 +66,18 @@ public:
   const vm::vec3& hitPoint() const;
   FloatType error() const;
 
-  template <typename T> T target() const { return std::any_cast<T>(m_target); }
+  template <typename T>
+  T target() const
+  {
+    return std::any_cast<T>(m_target);
+  }
 };
 
 Hit selectClosest(const Hit& first, const Hit& second);
 
-template <typename... Hits> Hit selectClosest(const Hit& first, const Hits&... rest) {
+template <typename... Hits>
+Hit selectClosest(const Hit& first, const Hits&... rest)
+{
   return selectClosest(first, selectClosest(rest...));
 }
 } // namespace Model

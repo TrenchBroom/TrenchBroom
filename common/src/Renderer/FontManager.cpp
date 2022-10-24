@@ -24,33 +24,46 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 FontManager::FontManager()
-  : m_factory(std::make_unique<FreeTypeFontFactory>()) {}
+  : m_factory(std::make_unique<FreeTypeFontFactory>())
+{
+}
 
 FontManager::~FontManager() = default;
 
-void FontManager::clearCache() {
+void FontManager::clearCache()
+{
   m_cache.clear();
 }
 
-TextureFont& FontManager::font(const FontDescriptor& fontDescriptor) {
+TextureFont& FontManager::font(const FontDescriptor& fontDescriptor)
+{
   auto it = m_cache.lower_bound(fontDescriptor);
-  if (it == std::end(m_cache) || it->first.compare(fontDescriptor) != 0) {
-    it = m_cache.insert(it, std::make_pair(fontDescriptor, m_factory->createFont(fontDescriptor)));
+  if (it == std::end(m_cache) || it->first.compare(fontDescriptor) != 0)
+  {
+    it = m_cache.insert(
+      it, std::make_pair(fontDescriptor, m_factory->createFont(fontDescriptor)));
   }
 
   return *it->second;
 }
 
 FontDescriptor FontManager::selectFontSize(
-  const FontDescriptor& fontDescriptor, const std::string& string, const float maxWidth,
-  const size_t minFontSize) {
+  const FontDescriptor& fontDescriptor,
+  const std::string& string,
+  const float maxWidth,
+  const size_t minFontSize)
+{
   FontDescriptor actualDescriptor = fontDescriptor;
   vm::vec2f actualBounds = font(actualDescriptor).measure(string);
-  while (actualBounds.x() > maxWidth && actualDescriptor.size() > minFontSize) {
-    actualDescriptor = FontDescriptor(actualDescriptor.path(), actualDescriptor.size() - 1);
+  while (actualBounds.x() > maxWidth && actualDescriptor.size() > minFontSize)
+  {
+    actualDescriptor =
+      FontDescriptor(actualDescriptor.path(), actualDescriptor.size() - 1);
     actualBounds = font(actualDescriptor).measure(string);
   }
   return actualDescriptor;

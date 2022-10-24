@@ -26,20 +26,25 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class BrushEntityDefinition;
 class PointEntityDefinition;
 } // namespace Assets
 
-namespace Model {
+namespace Model
+{
 class Brush;
 class PatchNode;
 class TestGame;
 } // namespace Model
 
-namespace View {
-class MapDocumentTest {
+namespace View
+{
+class MapDocumentTest
+{
 private:
   Model::MapFormat m_mapFormat;
 
@@ -66,12 +71,14 @@ public:
   Model::PatchNode* createPatchNode(const std::string& textureName = "texture") const;
 };
 
-class ValveMapDocumentTest : public MapDocumentTest {
+class ValveMapDocumentTest : public MapDocumentTest
+{
 protected:
   ValveMapDocumentTest();
 };
 
-class Quake3MapDocumentTest : public MapDocumentTest {
+class Quake3MapDocumentTest : public MapDocumentTest
+{
 public:
   Quake3MapDocumentTest();
 };

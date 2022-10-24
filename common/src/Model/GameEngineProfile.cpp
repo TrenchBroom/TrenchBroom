@@ -25,39 +25,50 @@
 #include <ostream>
 #include <string>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 GameEngineProfile::GameEngineProfile(
   const std::string& name, const IO::Path& path, const std::string& parameterSpec)
   : m_name(name)
   , m_path(path)
-  , m_parameterSpec(parameterSpec) {}
+  , m_parameterSpec(parameterSpec)
+{
+}
 
-std::unique_ptr<GameEngineProfile> GameEngineProfile::clone() const {
+std::unique_ptr<GameEngineProfile> GameEngineProfile::clone() const
+{
   return std::make_unique<GameEngineProfile>(m_name, m_path, m_parameterSpec);
 }
 
-const std::string& GameEngineProfile::name() const {
+const std::string& GameEngineProfile::name() const
+{
   return m_name;
 }
 
-const IO::Path& GameEngineProfile::path() const {
+const IO::Path& GameEngineProfile::path() const
+{
   return m_path;
 }
 
-const std::string& GameEngineProfile::parameterSpec() const {
+const std::string& GameEngineProfile::parameterSpec() const
+{
   return m_parameterSpec;
 }
 
-void GameEngineProfile::setName(const std::string& name) {
+void GameEngineProfile::setName(const std::string& name)
+{
   m_name = name;
 }
 
-void GameEngineProfile::setPath(const IO::Path& path) {
+void GameEngineProfile::setPath(const IO::Path& path)
+{
   m_path = path;
 }
 
-void GameEngineProfile::setParameterSpec(const std::string& parameterSpec) {
+void GameEngineProfile::setParameterSpec(const std::string& parameterSpec)
+{
   m_parameterSpec = parameterSpec;
 }
 

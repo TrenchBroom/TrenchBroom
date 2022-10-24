@@ -30,15 +30,18 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Brush;
 class ModelFactory;
 
 enum class BrushError;
 enum class MapFormat;
 
-class BrushBuilder {
+class BrushBuilder
+{
 private:
   MapFormat m_mapFormat;
   const vm::bbox3 m_worldBounds;
@@ -47,26 +50,41 @@ private:
 public:
   BrushBuilder(MapFormat mapFormat, const vm::bbox3& worldBounds);
   BrushBuilder(
-    MapFormat mapFormat, const vm::bbox3& worldBounds, const BrushFaceAttributes& defaultAttribs);
+    MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
+    const BrushFaceAttributes& defaultAttribs);
 
-  kdl::result<Brush, BrushError> createCube(FloatType size, const std::string& textureName) const;
   kdl::result<Brush, BrushError> createCube(
-    FloatType size, const std::string& leftTexture, const std::string& rightTexture,
-    const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture,
+    FloatType size, const std::string& textureName) const;
+  kdl::result<Brush, BrushError> createCube(
+    FloatType size,
+    const std::string& leftTexture,
+    const std::string& rightTexture,
+    const std::string& frontTexture,
+    const std::string& backTexture,
+    const std::string& topTexture,
     const std::string& bottomTexture) const;
 
   kdl::result<Brush, BrushError> createCuboid(
     const vm::vec3& size, const std::string& textureName) const;
   kdl::result<Brush, BrushError> createCuboid(
-    const vm::vec3& size, const std::string& leftTexture, const std::string& rightTexture,
-    const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture,
+    const vm::vec3& size,
+    const std::string& leftTexture,
+    const std::string& rightTexture,
+    const std::string& frontTexture,
+    const std::string& backTexture,
+    const std::string& topTexture,
     const std::string& bottomTexture) const;
 
   kdl::result<Brush, BrushError> createCuboid(
     const vm::bbox3& bounds, const std::string& textureName) const;
   kdl::result<Brush, BrushError> createCuboid(
-    const vm::bbox3& bounds, const std::string& leftTexture, const std::string& rightTexture,
-    const std::string& frontTexture, const std::string& backTexture, const std::string& topTexture,
+    const vm::bbox3& bounds,
+    const std::string& leftTexture,
+    const std::string& rightTexture,
+    const std::string& frontTexture,
+    const std::string& backTexture,
+    const std::string& topTexture,
     const std::string& bottomTexture) const;
 
   kdl::result<Brush, BrushError> createBrush(

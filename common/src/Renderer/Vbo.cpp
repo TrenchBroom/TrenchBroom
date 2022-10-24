@@ -23,11 +23,14 @@
 
 #include <cassert>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 Vbo::Vbo(GLenum type, const size_t capacity, const GLenum usage)
   : m_type(type)
-  , m_capacity(capacity) {
+  , m_capacity(capacity)
+{
   assert(m_type == GL_ELEMENT_ARRAY_BUFFER || m_type == GL_ARRAY_BUFFER);
 
   glAssert(glGenBuffers(1, &m_bufferId));
@@ -35,30 +38,36 @@ Vbo::Vbo(GLenum type, const size_t capacity, const GLenum usage)
   glAssert(glBufferData(m_type, static_cast<GLsizeiptr>(m_capacity), nullptr, usage));
 }
 
-void Vbo::free() {
+void Vbo::free()
+{
   assert(m_bufferId != 0);
   glAssert(glDeleteBuffers(1, &m_bufferId));
   m_bufferId = 0;
 }
 
-Vbo::~Vbo() {
+Vbo::~Vbo()
+{
   assert(m_bufferId == 0);
 }
 
-size_t Vbo::offset() const {
+size_t Vbo::offset() const
+{
   return 0;
 }
 
-size_t Vbo::capacity() const {
+size_t Vbo::capacity() const
+{
   return m_capacity;
 }
 
-void Vbo::bind() {
+void Vbo::bind()
+{
   assert(m_bufferId != 0);
   glAssert(glBindBuffer(m_type, m_bufferId));
 }
 
-void Vbo::unbind() {
+void Vbo::unbind()
+{
   assert(m_bufferId != 0);
   glAssert(glBindBuffer(m_type, 0));
 }

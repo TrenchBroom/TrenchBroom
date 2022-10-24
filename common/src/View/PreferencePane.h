@@ -21,9 +21,12 @@
 
 #include <QWidget>
 
-namespace TrenchBroom {
-namespace View {
-class PreferencePane : public QWidget {
+namespace TrenchBroom
+{
+namespace View
+{
+class PreferencePane : public QWidget
+{
 public:
   explicit PreferencePane(QWidget* parent = nullptr);
   ~PreferencePane() override;
@@ -33,7 +36,8 @@ public:
   void updateControls();
   /**
    * Returns whether the settings in the preference pane are valid to save.
-   * If the aren't, it also displays an error dialog box asking the user to correct the issues.
+   * If the aren't, it also displays an error dialog box asking the user to correct the
+   * issues.
    */
   bool validate();
 

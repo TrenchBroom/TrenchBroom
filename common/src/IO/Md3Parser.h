@@ -28,24 +28,29 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace IO {
+namespace IO
+{
 class FileSystem;
 class Path;
 class Reader;
 
-class Md3Parser : public EntityModelParser {
+class Md3Parser : public EntityModelParser
+{
 private:
   std::string m_name;
   const Reader& m_reader;
   const FileSystem& m_fs;
 
 private:
-  struct Md3Triangle {
+  struct Md3Triangle
+  {
     size_t i1, i2, i3;
   };
 
@@ -56,14 +61,20 @@ public:
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
-  void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
+  void doLoadFrame(
+    size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 
   void parseSurfaces(
-    Reader surfaceReader, size_t surfaceCount, Assets::EntityModel& model, Logger& logger);
+    Reader surfaceReader,
+    size_t surfaceCount,
+    Assets::EntityModel& model,
+    Logger& logger);
   Assets::EntityModelLoadedFrame& parseFrame(
     Reader frameReader, size_t frameIndex, Assets::EntityModel& model);
   void parseFrameSurfaces(
-    Reader surfaceReader, Assets::EntityModelLoadedFrame& frame, Assets::EntityModel& model);
+    Reader surfaceReader,
+    Assets::EntityModelLoadedFrame& frame,
+    Assets::EntityModel& model);
 
   std::vector<Md3Triangle> parseTriangles(Reader reader, size_t triangleCount);
   std::vector<Path> parseShaders(Reader reader, size_t shaderCount);
@@ -73,11 +84,14 @@ private:
     const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& texCoords);
 
   void loadSurfaceSkins(
-    Assets::EntityModelSurface& surface, const std::vector<Path>& shaders, Logger& logger);
+    Assets::EntityModelSurface& surface,
+    const std::vector<Path>& shaders,
+    Logger& logger);
   Assets::Texture loadShader(Logger& logger, const Path& path) const;
 
   void buildFrameSurface(
-    Assets::EntityModelLoadedFrame& frame, Assets::EntityModelSurface& surface,
+    Assets::EntityModelLoadedFrame& frame,
+    Assets::EntityModelSurface& surface,
     const std::vector<Md3Parser::Md3Triangle>& triangles,
     const std::vector<Assets::EntityModelVertex>& vertices);
 };

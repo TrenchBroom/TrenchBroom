@@ -26,13 +26,17 @@
 #include <iosfwd>
 #include <string>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 
 FILE* openPathAsFILE(const Path& path, const std::string& mode);
-std::ofstream openPathAsOutputStream(const Path& path, std::ios::openmode mode = std::ios::out);
-std::ifstream openPathAsInputStream(const Path& path, std::ios::openmode mode = std::ios::in);
+std::ofstream openPathAsOutputStream(
+  const Path& path, std::ios::openmode mode = std::ios::out);
+std::ifstream openPathAsInputStream(
+  const Path& path, std::ios::openmode mode = std::ios::in);
 
 size_t fileSize(std::FILE* file);
 

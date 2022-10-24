@@ -28,8 +28,10 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class BrushFace;
 class BrushFaceHandle;
 class BrushFaceReference;
@@ -37,10 +39,13 @@ class BrushNode;
 class Node;
 } // namespace Model
 
-namespace View {
-class SelectionCommand : public UndoableCommand {
+namespace View
+{
+class SelectionCommand : public UndoableCommand
+{
 private:
-  enum class Action {
+  enum class Action
+  {
     SelectNodes,
     SelectFaces,
     SelectAllNodes,
@@ -61,19 +66,22 @@ private:
 
 public:
   static std::unique_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
-  static std::unique_ptr<SelectionCommand> select(const std::vector<Model::BrushFaceHandle>& faces);
+  static std::unique_ptr<SelectionCommand> select(
+    const std::vector<Model::BrushFaceHandle>& faces);
 
   static std::unique_ptr<SelectionCommand> convertToFaces();
   static std::unique_ptr<SelectionCommand> selectAllNodes();
   static std::unique_ptr<SelectionCommand> selectAllFaces();
 
-  static std::unique_ptr<SelectionCommand> deselect(const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SelectionCommand> deselect(
+    const std::vector<Model::Node*>& nodes);
   static std::unique_ptr<SelectionCommand> deselect(
     const std::vector<Model::BrushFaceHandle>& faces);
   static std::unique_ptr<SelectionCommand> deselectAll();
 
   SelectionCommand(
-    Action action, const std::vector<Model::Node*>& nodes,
+    Action action,
+    const std::vector<Model::Node*>& nodes,
     const std::vector<Model::BrushFaceHandle>& faces);
   ~SelectionCommand() override;
 
@@ -81,7 +89,8 @@ private:
   static std::string makeName(Action action, size_t nodeCount, size_t faceCount);
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(
+    MapDocumentCommandFacade* document) override;
 
   deleteCopyAndMove(SelectionCommand);
 };

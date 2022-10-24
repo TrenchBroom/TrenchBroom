@@ -1,28 +1,29 @@
 /*
  Copyright 2010-2019 Kristian Duske
 
- Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
- associated documentation files (the "Software"), to deal in the Software without restriction,
- including without limitation the rights to use, copy, modify, merge, publish, distribute,
- sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ software and associated documentation files (the "Software"), to deal in the Software
+ without restriction, including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+ persons to whom the Software is furnished to do so, subject to the following conditions:
 
  The above copyright notice and this permission notice shall be included in all copies or
  substantial portions of the Software.
 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT
- NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
- NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT
- OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE
+ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS IN THE SOFTWARE.
 */
 
 #pragma once
 
 #include "collection_utils.h"
 
-// Note: all except <cassert> are included by <vector> anyway, so there's no point in splitting this
-// up further
+// Note: all except <cassert> are included by <vector> anyway, so there's no point in
+// splitting this up further
 #include <algorithm> // for std::sort, std::unique, std::find, std::find_if, std::remove, std::remove_if
 #include <cassert>
 #include <functional> // for std::less
@@ -31,7 +32,8 @@
 #include <type_traits> // for std::less
 #include <vector>
 
-namespace kdl {
+namespace kdl
+{
 /**
  * Returns the vector element at the given index.
  *
@@ -42,7 +44,9 @@ namespace kdl {
  * @param index the index
  * @return a const reference to the element at the given index
  */
-template <typename T, typename I> const T& vec_at(const std::vector<T>& v, const I index) {
+template <typename T, typename I>
+const T& vec_at(const std::vector<T>& v, const I index)
+{
   assert(index >= 0);
   const auto index_s = static_cast<typename std::vector<T>::size_type>(index);
   assert(index_s < v.size());
@@ -59,7 +63,9 @@ template <typename T, typename I> const T& vec_at(const std::vector<T>& v, const
  * @param index the index
  * @return a const reference to the element at the given index
  */
-template <typename T, typename I> T& vec_at(std::vector<T>& v, const I index) {
+template <typename T, typename I>
+T& vec_at(std::vector<T>& v, const I index)
+{
   assert(index >= 0);
   const auto index_s = static_cast<typename std::vector<T>::size_type>(index);
   assert(index_s < v.size());
@@ -75,7 +81,9 @@ template <typename T, typename I> T& vec_at(std::vector<T>& v, const I index) {
  * @param v the vector
  * @return the last element of the given vector
  */
-template <typename T> T vec_pop_back(std::vector<T>& v) {
+template <typename T>
+T vec_pop_back(std::vector<T>& v)
+{
   assert(!v.empty());
   T result = std::move(v.back());
   v.pop_back();
@@ -91,7 +99,9 @@ template <typename T> T vec_pop_back(std::vector<T>& v) {
  * @param v the vector
  * @return the first element of the given vector
  */
-template <typename T> T vec_pop_front(std::vector<T>& v) {
+template <typename T>
+T vec_pop_front(std::vector<T>& v)
+{
   assert(!v.empty());
   T result = std::move(v.front());
   v.erase(v.begin(), v.begin() + 1);
@@ -99,9 +109,9 @@ template <typename T> T vec_pop_front(std::vector<T>& v) {
 }
 
 /**
- * Returns a vector containing elements of type O, each of which is constructed by passing the
- * corresponding element of v to the constructor of o, e.g. result.push_back(O(e)), where result is
- * the resulting vector, and e is an element from v.
+ * Returns a vector containing elements of type O, each of which is constructed by passing
+ * the corresponding element of v to the constructor of o, e.g. result.push_back(O(e)),
+ * where result is the resulting vector, and e is an element from v.
  *
  * Precondition: O must be constructible with an argument of type T
  *
@@ -111,13 +121,19 @@ template <typename T> T vec_pop_front(std::vector<T>& v) {
  * @param v the vector to cast
  * @return a vector containing the elements of a, but with O as the element type
  */
-template <typename O, typename T, typename A> std::vector<O> vec_element_cast(std::vector<T, A> v) {
-  if constexpr (std::is_same_v<T, O>) {
+template <typename O, typename T, typename A>
+std::vector<O> vec_element_cast(std::vector<T, A> v)
+{
+  if constexpr (std::is_same_v<T, O>)
+  {
     return v;
-  } else {
+  }
+  else
+  {
     std::vector<O> result;
     result.reserve(v.size());
-    for (const auto& e : v) {
+    for (const auto& e : v)
+    {
       result.push_back(O(e));
     }
     return result;
@@ -125,25 +141,30 @@ template <typename O, typename T, typename A> std::vector<O> vec_element_cast(st
 }
 
 /**
- * Finds the smallest index at which the given predicate is satisified in the given vector. If the
- * given vector does not such a value, an empty optional is returned.
+ * Finds the smallest index at which the given predicate is satisified in the given
+ * vector. If the given vector does not such a value, an empty optional is returned.
  *
  * @tparam T the type of the vector elements
  * @tparam A the vector's allocator type
  * @tparam P the predicate type
  * @param v the vector to check
  * @param p the predicate
- * @return the smallest index at which the given predicate is satisfied in the given vector or an
- * empty optional if the given vector does not contain such a value
+ * @return the smallest index at which the given predicate is satisfied in the given
+ * vector or an empty optional if the given vector does not contain such a value
  */
 template <
-  typename T, typename A, typename P,
+  typename T,
+  typename A,
+  typename P,
   typename std::enable_if_t<std::is_invocable_r_v<bool, P, const T&>>* = nullptr>
 std::optional<typename std::vector<T, A>::size_type> vec_index_of(
-  const std::vector<T, A>& v, P&& p) {
+  const std::vector<T, A>& v, P&& p)
+{
   using IndexType = typename std::vector<T, A>::size_type;
-  for (IndexType i = 0; i < v.size(); ++i) {
-    if (p(v[i])) {
+  for (IndexType i = 0; i < v.size(); ++i)
+  {
+    if (p(v[i]))
+    {
       return i;
     }
   }
@@ -151,28 +172,27 @@ std::optional<typename std::vector<T, A>::size_type> vec_index_of(
 }
 
 /**
- * Finds the smallest index at which the given value is found in the given vector. If the given
- * vector does not contain the given value, the size of the vector is returned.
+ * Finds the smallest index at which the given value is found in the given vector. If the
+ * given vector does not contain the given value, the size of the vector is returned.
  *
  * @tparam T the type of the vector elements
  * @tparam A the vector's allocator type
  * @tparam X the value type
  * @param v the vector to check
  * @param x the value to find
- * @return the smallest index at which the given value is found in the given vector or the vector's
- * size if the given vector does not contain the given value
+ * @return the smallest index at which the given value is found in the given vector or the
+ * vector's size if the given vector does not contain the given value
  */
 template <typename T, typename A, typename X>
 std::optional<typename std::vector<T, A>::size_type> vec_index_of(
-  const std::vector<T, A>& v, const X& x) {
-  return vec_index_of(v, [&](const auto& e) {
-    return e == x;
-  });
+  const std::vector<T, A>& v, const X& x)
+{
+  return vec_index_of(v, [&](const auto& e) { return e == x; });
 }
 
 /**
- * Finds the smallest index at which the given predicate is satisified in the given vector. If the
- * given vector does not such a value, an empty optional is returned.
+ * Finds the smallest index at which the given predicate is satisified in the given
+ * vector. If the given vector does not such a value, an empty optional is returned.
  *
  * @tparam T the type of the vector elements
  * @tparam A the vector's allocator type
@@ -182,9 +202,12 @@ std::optional<typename std::vector<T, A>::size_type> vec_index_of(
  * @return true if the given vector contains an element that satisfies the given predicate
  */
 template <
-  typename T, typename A, typename P,
+  typename T,
+  typename A,
+  typename P,
   typename std::enable_if_t<std::is_invocable_r_v<bool, P, const T&>>* = nullptr>
-bool vec_contains(const std::vector<T, A>& v, P&& p) {
+bool vec_contains(const std::vector<T, A>& v, P&& p)
+{
   return vec_index_of(v, std::forward<P>(p)).has_value();
 }
 
@@ -199,41 +222,52 @@ bool vec_contains(const std::vector<T, A>& v, P&& p) {
  * @return true if the given vector contains the given value and false otherwise
  */
 template <typename T, typename A, typename X>
-bool vec_contains(const std::vector<T, A>& v, const X& x) {
+bool vec_contains(const std::vector<T, A>& v, const X& x)
+{
   return vec_index_of(v, x).has_value();
 }
 
-namespace detail {
-template <typename T, typename A> void vec_append(std::vector<T, A>&) {}
+namespace detail
+{
+template <typename T, typename A>
+void vec_append(std::vector<T, A>&)
+{
+}
 
 template <typename T, typename A, typename Arg>
-void vec_append(std::vector<T, A>& v1, const Arg& arg) {
+void vec_append(std::vector<T, A>& v1, const Arg& arg)
+{
   v1.insert(std::end(v1), std::begin(arg), std::end(arg));
 }
 
 template <typename T, typename A, typename Arg, typename... Rest>
-void vec_append(std::vector<T, A>& v1, const Arg& arg, Rest&&... rest) {
+void vec_append(std::vector<T, A>& v1, const Arg& arg, Rest&&... rest)
+{
   vec_append(v1, arg);
   vec_append(v1, std::forward<Rest>(rest)...);
 }
 
-template <typename T, typename A, typename Arg> void vec_append(std::vector<T, A>& v1, Arg&& arg) {
-  for (auto& x : arg) {
+template <typename T, typename A, typename Arg>
+void vec_append(std::vector<T, A>& v1, Arg&& arg)
+{
+  for (auto& x : arg)
+  {
     v1.push_back(std::move(x));
   }
 }
 
 template <typename T, typename A, typename Arg, typename... Rest>
-void vec_append(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest) {
+void vec_append(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest)
+{
   vec_append(v1, std::move(arg));
   vec_append(v1, std::forward<Rest>(rest)...);
 }
 } // namespace detail
 
 /**
- * Concatenates the given vectors. Each element of function argument pack args must be a vector with
- * value_type T and allocator A. If a vector is passed by rvalue reference, its elements will be
- * moved into the result, otherwise they will be copied.
+ * Concatenates the given vectors. Each element of function argument pack args must be a
+ * vector with value_type T and allocator A. If a vector is passed by rvalue reference,
+ * its elements will be moved into the result, otherwise they will be copied.
  *
  * @tparam T the element type
  * @tparam A the allocator type
@@ -242,7 +276,8 @@ void vec_append(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest) {
  * @param args the remaining vectors to concatenate
  */
 template <typename T, typename A, typename... Args>
-std::vector<T, A> vec_concat(std::vector<T, A> v, Args... args) {
+std::vector<T, A> vec_concat(std::vector<T, A> v, Args... args)
+{
   v.reserve(kdl::col_total_size(v, args...));
   detail::vec_append(v, std::move(args)...);
   return v;
@@ -264,13 +299,15 @@ std::vector<T, A> vec_concat(std::vector<T, A> v, Args... args) {
  */
 template <typename T, typename A>
 std::vector<T, A> vec_slice(
-  const std::vector<T, A>& v, const std::size_t offset, const std::size_t count) {
+  const std::vector<T, A>& v, const std::size_t offset, const std::size_t count)
+{
   assert(offset + count <= v.size());
 
   std::vector<T, A> result;
   result.reserve(count);
 
-  for (std::size_t i = 0u; i < count; ++i) {
+  for (std::size_t i = 0u; i < count; ++i)
+  {
     result.push_back(v[i + offset]);
   }
 
@@ -293,13 +330,15 @@ std::vector<T, A> vec_slice(
  */
 template <typename T, typename A>
 std::vector<T, A> vec_slice(
-  std::vector<T, A>&& v, const std::size_t offset, const std::size_t count) {
+  std::vector<T, A>&& v, const std::size_t offset, const std::size_t count)
+{
   assert(offset + count <= v.size());
 
   std::vector<T, A> result;
   result.reserve(count);
 
-  for (std::size_t i = 0u; i < count; ++i) {
+  for (std::size_t i = 0u; i < count; ++i)
+  {
     result.push_back(std::move(v[i + offset]));
   }
 
@@ -320,7 +359,8 @@ std::vector<T, A> vec_slice(
  * @return a vector containing the prefix of the given vector
  */
 template <typename T, typename A>
-std::vector<T, A> vec_slice_prefix(const std::vector<T, A>& v, const std::size_t count) {
+std::vector<T, A> vec_slice_prefix(const std::vector<T, A>& v, const std::size_t count)
+{
   assert(count <= v.size());
   return vec_slice(v, 0u, count);
 }
@@ -339,7 +379,8 @@ std::vector<T, A> vec_slice_prefix(const std::vector<T, A>& v, const std::size_t
  * @return a vector containing the prefix of the given vector
  */
 template <typename T, typename A>
-std::vector<T, A> vec_slice_prefix(std::vector<T, A>&& v, const std::size_t count) {
+std::vector<T, A> vec_slice_prefix(std::vector<T, A>&& v, const std::size_t count)
+{
   assert(count <= v.size());
   return vec_slice(std::move(v), 0u, count);
 }
@@ -358,7 +399,8 @@ std::vector<T, A> vec_slice_prefix(std::vector<T, A>&& v, const std::size_t coun
  * @return a vector containing the prefix of the given vector
  */
 template <typename T, typename A>
-std::vector<T, A> vec_slice_suffix(const std::vector<T, A>& v, const std::size_t count) {
+std::vector<T, A> vec_slice_suffix(const std::vector<T, A>& v, const std::size_t count)
+{
   assert(count <= v.size());
   return vec_slice(v, v.size() - count, count);
 }
@@ -377,7 +419,8 @@ std::vector<T, A> vec_slice_suffix(const std::vector<T, A>& v, const std::size_t
  * @return a vector containing the prefix of the given vector
  */
 template <typename T, typename A>
-std::vector<T, A> vec_slice_suffix(std::vector<T, A>&& v, const std::size_t count) {
+std::vector<T, A> vec_slice_suffix(std::vector<T, A>&& v, const std::size_t count)
+{
   assert(count <= v.size());
   return vec_slice(std::move(v), v.size() - count, count);
 }
@@ -394,14 +437,15 @@ std::vector<T, A> vec_slice_suffix(std::vector<T, A>&& v, const std::size_t coun
  * @return a vector with the remaining elements
  */
 template <typename T, typename A, typename X>
-std::vector<T, A> vec_erase(std::vector<T, A> v, const X& x) {
+std::vector<T, A> vec_erase(std::vector<T, A> v, const X& x)
+{
   v.erase(std::remove(std::begin(v), std::end(v), x), std::end(v));
   return v;
 }
 
 /**
- * Erases every element from the given vector for which the given predicate evaluates to true using
- * the erase-remove idiom. Returns a vector with the remaining elements.
+ * Erases every element from the given vector for which the given predicate evaluates to
+ * true using the erase-remove idiom. Returns a vector with the remaining elements.
  *
  * @tparam T the type of the vector elements
  * @tparam A the vector's allocator type
@@ -411,35 +455,40 @@ std::vector<T, A> vec_erase(std::vector<T, A> v, const X& x) {
  * @return a vector with the remaining elements
  */
 template <typename T, typename A, typename P>
-std::vector<T, A> vec_erase_if(std::vector<T, A> v, const P& predicate) {
+std::vector<T, A> vec_erase_if(std::vector<T, A> v, const P& predicate)
+{
   v.erase(std::remove_if(std::begin(v), std::end(v), predicate), std::end(v));
   return v;
 }
 
 /**
- * Erases the element at the given index from the given vector. The element is swapped with the last
- * element of the vector, and then the last element is erased. Returns a vector with the remaining
- * elements.
+ * Erases the element at the given index from the given vector. The element is swapped
+ * with the last element of the vector, and then the last element is erased. Returns a
+ * vector with the remaining elements.
  *
  * Precondition: i < v.size()
  *
  * @tparam T the type of the vector elements
  * @tparam A the vector's allocator type
  * @param v the vector
- * @param i the index of the element to erase, which must be less than the given vector's size
+ * @param i the index of the element to erase, which must be less than the given vector's
+ * size
  * @return a vector with the remaining elements
  */
 template <typename T, typename A>
-std::vector<T, A> vec_erase_at(std::vector<T, A> v, const typename std::vector<T, A>::size_type i) {
+std::vector<T, A> vec_erase_at(
+  std::vector<T, A> v, const typename std::vector<T, A>::size_type i)
+{
   assert(i < v.size());
-  auto it = std::next(std::begin(v), static_cast<typename std::vector<T, A>::difference_type>(i));
+  auto it =
+    std::next(std::begin(v), static_cast<typename std::vector<T, A>::difference_type>(i));
   v.erase(it);
   return v;
 }
 
 /**
- * Erases every value from the given vector which is equal to any value in the given collection.
- * Returns a vector with the remaining elements.
+ * Erases every value from the given vector which is equal to any value in the given
+ * collection. Returns a vector with the remaining elements.
  *
  * @tparam T the type of the vector elements
  * @tparam A the vector's allocator type
@@ -449,8 +498,10 @@ std::vector<T, A> vec_erase_at(std::vector<T, A> v, const typename std::vector<T
  * @return a vector with the remaining elements
  */
 template <typename T, typename A, typename C>
-std::vector<T, A> vec_erase_all(std::vector<T, A> v, const C& c) {
-  for (const auto& x : c) {
+std::vector<T, A> vec_erase_all(std::vector<T, A> v, const C& c)
+{
+  for (const auto& x : c)
+  {
     v = vec_erase(std::move(v), x);
   }
   return v;
@@ -468,15 +519,16 @@ std::vector<T, A> vec_erase_all(std::vector<T, A> v, const C& c) {
  * @return a vector with the sorted elements
  */
 template <typename T, typename A, typename Compare = std::less<T>>
-std::vector<T, A> vec_sort(std::vector<T, A> v, const Compare& cmp = Compare()) {
+std::vector<T, A> vec_sort(std::vector<T, A> v, const Compare& cmp = Compare())
+{
   std::sort(std::begin(v), std::end(v), cmp);
   return v;
 }
 
 /**
- * Sorts the elements of the given vector and removes all duplicate values. A value is a duplicate
- * if it is equivalent to its predecessor in the vector. Returns a vector with the remaining sorted
- * elements.
+ * Sorts the elements of the given vector and removes all duplicate values. A value is a
+ * duplicate if it is equivalent to its predecessor in the vector. Returns a vector with
+ * the remaining sorted elements.
  *
  * @tparam T the type of the vector elements
  * @tparam A the vector's allocator type
@@ -487,16 +539,19 @@ std::vector<T, A> vec_sort(std::vector<T, A> v, const Compare& cmp = Compare()) 
  */
 template <typename T, typename A, typename Compare = std::less<T>>
 std::vector<T, A> vec_sort_and_remove_duplicates(
-  std::vector<T, A> v, const Compare& cmp = Compare()) {
+  std::vector<T, A> v, const Compare& cmp = Compare())
+{
   std::sort(std::begin(v), std::end(v), cmp);
-  v.erase(std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)), std::end(v));
+  v.erase(
+    std::unique(std::begin(v), std::end(v), kdl::equivalence<T, Compare>(cmp)),
+    std::end(v));
   return v;
 }
 
 /**
- * Returns a vector containing every element of the given vector that passes the given filter.
- * The elements are moved into the returned vector in the same order as they are in the given
- * vector.
+ * Returns a vector containing every element of the given vector that passes the given
+ * filter. The elements are moved into the returned vector in the same order as they are
+ * in the given vector.
  *
  * @tparam T the type of the vector elements
  * @tparam A the vector's allocator type
@@ -506,14 +561,19 @@ std::vector<T, A> vec_sort_and_remove_duplicates(
  * @return a vector containing the elements that passed the filter
  */
 template <
-  typename T, typename A, typename F,
+  typename T,
+  typename A,
+  typename F,
   typename std::enable_if_t<std::is_invocable_v<F, const T&>>* = nullptr>
-std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter) {
+std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter)
+{
   std::vector<T, A> result;
   result.reserve(v.size());
 
-  for (auto& x : v) {
-    if (filter(x)) {
+  for (auto& x : v)
+  {
+    if (filter(x))
+    {
       result.push_back(std::move(x));
     }
   }
@@ -522,28 +582,34 @@ std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter) {
 }
 
 /**
- * Returns a vector containing every element of the given vector that passes the given filter.
- * The elements are moved into the returned vector in the same order as they are in the given
- * vector.
+ * Returns a vector containing every element of the given vector that passes the given
+ * filter. The elements are moved into the returned vector in the same order as they are
+ * in the given vector.
  *
  * This version passes the vector element indices to the filter function.
  *
  * @tparam T the type of the vector elements
  * @tparam A the vector's allocator type
- * @tparam F the type of the filter to apply, must be of type `bool(const T&, std::size_t)`
+ * @tparam F the type of the filter to apply, must be of type `bool(const T&,
+ * std::size_t)`
  * @param v the vector
  * @param filter the filter to apply
  * @return a vector containing the elements that passed the filter
  */
 template <
-  typename T, typename A, typename F,
+  typename T,
+  typename A,
+  typename F,
   typename std::enable_if_t<std::is_invocable_v<F, const T&, std::size_t>>* = nullptr>
-std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter) {
+std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter)
+{
   std::vector<T, A> result;
   result.reserve(v.size());
 
-  for (std::size_t i = 0u; i < v.size(); ++i) {
-    if (filter(v[i], i)) {
+  for (std::size_t i = 0u; i < v.size(); ++i)
+  {
+    if (filter(v[i], i))
+    {
       result.push_back(std::move(v[i]));
     }
   }
@@ -552,8 +618,9 @@ std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter) {
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector containing the
- * resulting values, in order in which their original elements appeared in v.
+ * Applies the given lambda to each element of the given vector and returns a vector
+ * containing the resulting values, in order in which their original elements appeared in
+ * v.
  *
  * The elements are passed to the given lambda as const lvalue references.
  *
@@ -565,14 +632,18 @@ std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter) {
  * @return a vector containing the transformed values
  */
 template <
-  typename T, typename A, typename L,
+  typename T,
+  typename A,
+  typename L,
   typename std::enable_if_t<std::is_invocable_v<L, const T&>>* = nullptr>
-auto vec_transform(const std::vector<T, A>& v, L&& transform) {
+auto vec_transform(const std::vector<T, A>& v, L&& transform)
+{
   using ResultType = decltype(transform(std::declval<const T&>()));
 
   std::vector<ResultType> result;
   result.reserve(v.size());
-  for (const auto& x : v) {
+  for (const auto& x : v)
+  {
     result.push_back(transform(x));
   }
 
@@ -580,8 +651,9 @@ auto vec_transform(const std::vector<T, A>& v, L&& transform) {
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector containing the
- * resulting values, in order in which their original elements appeared in v.
+ * Applies the given lambda to each element of the given vector and returns a vector
+ * containing the resulting values, in order in which their original elements appeared in
+ * v.
  *
  * The elements are passed to the given lambda as const lvalue references.
  *
@@ -595,15 +667,20 @@ auto vec_transform(const std::vector<T, A>& v, L&& transform) {
  * @return a vector containing the transformed values
  */
 template <
-  typename T, typename A, typename L,
+  typename T,
+  typename A,
+  typename L,
   typename std::enable_if_t<std::is_invocable_v<L, const T&, std::size_t>>* = nullptr>
-auto vec_transform(const std::vector<T, A>& v, L&& transform) {
-  using ResultType = decltype(transform(std::declval<const T&>(), std::declval<std::size_t>()));
+auto vec_transform(const std::vector<T, A>& v, L&& transform)
+{
+  using ResultType =
+    decltype(transform(std::declval<const T&>(), std::declval<std::size_t>()));
 
   std::vector<ResultType> result;
   result.reserve(v.size());
 
-  for (std::size_t i = 0u; i < v.size(); ++i) {
+  for (std::size_t i = 0u; i < v.size(); ++i)
+  {
     result.push_back(transform(v[i], i));
   }
 
@@ -611,8 +688,9 @@ auto vec_transform(const std::vector<T, A>& v, L&& transform) {
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector containing the
- * resulting values, in order in which their original elements appeared in v.
+ * Applies the given lambda to each element of the given vector and returns a vector
+ * containing the resulting values, in order in which their original elements appeared in
+ * v.
  *
  * The elements are passed to the given lambda as lvalue references.
  *
@@ -624,14 +702,18 @@ auto vec_transform(const std::vector<T, A>& v, L&& transform) {
  * @return a vector containing the transformed values
  */
 template <
-  typename T, typename A, typename L,
+  typename T,
+  typename A,
+  typename L,
   typename std::enable_if_t<std::is_invocable_v<L, T&>>* = nullptr>
-auto vec_transform(std::vector<T, A>& v, L&& transform) {
+auto vec_transform(std::vector<T, A>& v, L&& transform)
+{
   using ResultType = decltype(transform(std::declval<T&>()));
 
   std::vector<ResultType> result;
   result.reserve(v.size());
-  for (auto& x : v) {
+  for (auto& x : v)
+  {
     result.push_back(transform(x));
   }
 
@@ -639,8 +721,9 @@ auto vec_transform(std::vector<T, A>& v, L&& transform) {
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector containing the
- * resulting values, in order in which their original elements appeared in v.
+ * Applies the given lambda to each element of the given vector and returns a vector
+ * containing the resulting values, in order in which their original elements appeared in
+ * v.
  *
  * The elements are passed to the given lambda as lvalue references.
  *
@@ -654,15 +737,19 @@ auto vec_transform(std::vector<T, A>& v, L&& transform) {
  * @return a vector containing the transformed values
  */
 template <
-  typename T, typename A, typename L,
+  typename T,
+  typename A,
+  typename L,
   typename std::enable_if_t<std::is_invocable_v<L, T&, std::size_t>>* = nullptr>
-auto vec_transform(std::vector<T, A>& v, L&& transform) {
+auto vec_transform(std::vector<T, A>& v, L&& transform)
+{
   using ResultType = decltype(transform(std::declval<T&>(), std::declval<std::size_t>()));
 
   std::vector<ResultType> result;
   result.reserve(v.size());
 
-  for (std::size_t i = 0u; i < v.size(); ++i) {
+  for (std::size_t i = 0u; i < v.size(); ++i)
+  {
     result.push_back(transform(v[i], i));
   }
 
@@ -670,8 +757,9 @@ auto vec_transform(std::vector<T, A>& v, L&& transform) {
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector containing the
- * resulting values, in order in which their original elements appeared in v.
+ * Applies the given lambda to each element of the given vector and returns a vector
+ * containing the resulting values, in order in which their original elements appeared in
+ * v.
  *
  * The elements are passed to the given lambda as rvalue references.
  *
@@ -683,14 +771,18 @@ auto vec_transform(std::vector<T, A>& v, L&& transform) {
  * @return a vector containing the transformed values
  */
 template <
-  typename T, typename A, typename L,
+  typename T,
+  typename A,
+  typename L,
   typename std::enable_if_t<std::is_invocable_v<L, T&&>>* = nullptr>
-auto vec_transform(std::vector<T, A>&& v, L&& transform) {
+auto vec_transform(std::vector<T, A>&& v, L&& transform)
+{
   using ResultType = decltype(transform(std::declval<T&&>()));
 
   std::vector<ResultType> result;
   result.reserve(v.size());
-  for (auto&& x : v) {
+  for (auto&& x : v)
+  {
     result.push_back(transform(std::move(x)));
   }
 
@@ -698,8 +790,9 @@ auto vec_transform(std::vector<T, A>&& v, L&& transform) {
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector containing the
- * resulting values, in order in which their original elements appeared in v.
+ * Applies the given lambda to each element of the given vector and returns a vector
+ * containing the resulting values, in order in which their original elements appeared in
+ * v.
  *
  * The elements are passed to the given lambda as rvalue references.
  *
@@ -713,15 +806,20 @@ auto vec_transform(std::vector<T, A>&& v, L&& transform) {
  * @return a vector containing the transformed values
  */
 template <
-  typename T, typename A, typename L,
+  typename T,
+  typename A,
+  typename L,
   typename std::enable_if_t<std::is_invocable_v<L, T&&, std::size_t>>* = nullptr>
-auto vec_transform(std::vector<T, A>&& v, L&& transform) {
-  using ResultType = decltype(transform(std::declval<T&&>(), std::declval<std::size_t>()));
+auto vec_transform(std::vector<T, A>&& v, L&& transform)
+{
+  using ResultType =
+    decltype(transform(std::declval<T&&>(), std::declval<std::size_t>()));
 
   std::vector<ResultType> result;
   result.reserve(v.size());
 
-  for (std::size_t i = 0u; i < v.size(); ++i) {
+  for (std::size_t i = 0u; i < v.size(); ++i)
+  {
     result.push_back(transform(std::move(v[i]), i));
   }
 
@@ -729,10 +827,11 @@ auto vec_transform(std::vector<T, A>&& v, L&& transform) {
 }
 
 /**
- * Given a vector of nested vectors, this function returns a vector that contains the elements of
- * the nested vectors.
+ * Given a vector of nested vectors, this function returns a vector that contains the
+ * elements of the nested vectors.
  *
- * The resulting vector contains the elements of the given vector in the order in which they appear.
+ * The resulting vector contains the elements of the given vector in the order in which
+ * they appear.
  *
  * @tparam T the element type
  * @tparam A1 the nested vector allocator type
@@ -741,16 +840,19 @@ auto vec_transform(std::vector<T, A>&& v, L&& transform) {
  * @result the flattened vector
  */
 template <typename T, typename A1, typename A2>
-auto vec_flatten(std::vector<std::vector<T, A1>, A2> vec) {
+auto vec_flatten(std::vector<std::vector<T, A1>, A2> vec)
+{
   std::size_t totalSize = 0u;
-  for (const auto& nested : vec) {
+  for (const auto& nested : vec)
+  {
     totalSize += nested.size();
   }
 
   auto result = std::vector<T, A1>{};
   result.reserve(totalSize);
 
-  for (auto& nested : vec) {
+  for (auto& nested : vec)
+  {
     result = vec_concat(std::move(result), std::move(nested));
   }
 
@@ -758,16 +860,16 @@ auto vec_flatten(std::vector<std::vector<T, A1>, A2> vec) {
 }
 
 /**
- * Returns a vector containing those values from s1 which are not also in s2. Values from s1 and s2
- * are compared using the common comparator from both sets.
+ * Returns a vector containing those values from s1 which are not also in s2. Values from
+ * s1 and s2 are compared using the common comparator from both sets.
  *
  * Expects that both S1 and S2 declare the types of their values with ::value_type and the
  * comparator used to compare the values with ::value_compare. Additionally, the type of
  * value_compare must be identical in both sets.
  *
- * The value type of the returned vector is the common type of S1 and S2's member types. The values
- * from s1 which are not also in s2 are added to the returned vector in the order in which they
- * appear in s2.
+ * The value type of the returned vector is the common type of S1 and S2's member types.
+ * The values from s1 which are not also in s2 are added to the returned vector in the
+ * order in which they appear in s2.
  *
  * @tparam S1 the type of the first set
  * @tparam S2 the type of the second set
@@ -775,7 +877,9 @@ auto vec_flatten(std::vector<std::vector<T, A1>, A2> vec) {
  * @param s2 the second set
  * @return a vector containing the set difference of s1 and s2.
  */
-template <typename S1, typename S2> auto set_difference(const S1& s1, const S2& s2) {
+template <typename S1, typename S2>
+auto set_difference(const S1& s1, const S2& s2)
+{
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
   using C1 = typename S1::value_compare;
@@ -788,21 +892,27 @@ template <typename S1, typename S2> auto set_difference(const S1& s1, const S2& 
   std::vector<T> result;
   result.reserve(s1.size());
   std::set_difference(
-    std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), std::back_inserter(result), C());
+    std::begin(s1),
+    std::end(s1),
+    std::begin(s2),
+    std::end(s2),
+    std::back_inserter(result),
+    C());
   return result;
 }
 
 /**
- * Returns a vector containing all values from s1 and s2 without duplicates. A pair of values from
- * s1 and s2 is a duplicate if the values are equivalent according to the common comparator of s1
- * and s2.
+ * Returns a vector containing all values from s1 and s2 without duplicates. A pair of
+ * values from s1 and s2 is a duplicate if the values are equivalent according to the
+ * common comparator of s1 and s2.
  *
  * Expects that both S1 and S2 declare the types of their values with ::value_type and the
  * comparator used to compare the values with ::value_compare. Additionally, the type of
  * value_compare must be identical in both sets.
  *
- * The value type of the returned vector is the common type of S1 and S2's member types. The order
- * of the values in the returned vector complies with the common comparator of s1 and s2.
+ * The value type of the returned vector is the common type of S1 and S2's member types.
+ * The order of the values in the returned vector complies with the common comparator of
+ * s1 and s2.
  *
  * @tparam S1 the type of the first set
  * @tparam S2 the type of the second set
@@ -810,7 +920,9 @@ template <typename S1, typename S2> auto set_difference(const S1& s1, const S2& 
  * @param s2 the second set
  * @return a vector containing the set union of s1 and s2.
  */
-template <typename S1, typename S2> auto set_union(const S1& s1, const S2& s2) {
+template <typename S1, typename S2>
+auto set_union(const S1& s1, const S2& s2)
+{
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
   using C1 = typename S1::value_compare;
@@ -823,7 +935,12 @@ template <typename S1, typename S2> auto set_union(const S1& s1, const S2& s2) {
   std::vector<T> result;
   result.reserve(s1.size() + s2.size());
   std::set_union(
-    std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), std::back_inserter(result), C());
+    std::begin(s1),
+    std::end(s1),
+    std::begin(s2),
+    std::end(s2),
+    std::back_inserter(result),
+    C());
   return result;
 }
 
@@ -834,8 +951,9 @@ template <typename S1, typename S2> auto set_union(const S1& s1, const S2& s2) {
  * comparator used to compare the values with ::value_compare. Additionally, the type of
  * value_compare must be identical in both sets.
  *
- * The value type of the returned vector is the common type of S1 and S2's member types. The order
- * of the values in the returned vector complies with the common comparator of s1 and s2.
+ * The value type of the returned vector is the common type of S1 and S2's member types.
+ * The order of the values in the returned vector complies with the common comparator of
+ * s1 and s2.
  *
  * @tparam S1 the type of the first set
  * @tparam S2 the type of the second set
@@ -843,7 +961,9 @@ template <typename S1, typename S2> auto set_union(const S1& s1, const S2& s2) {
  * @param s2 the second set
  * @return a vector containing the set union of s1 and s2.
  */
-template <typename S1, typename S2> auto set_intersection(const S1& s1, const S2& s2) {
+template <typename S1, typename S2>
+auto set_intersection(const S1& s1, const S2& s2)
+{
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
   using C1 = typename S1::value_compare;
@@ -856,7 +976,12 @@ template <typename S1, typename S2> auto set_intersection(const S1& s1, const S2
   std::vector<T> result;
   result.reserve(s1.size() + s2.size());
   std::set_intersection(
-    std::begin(s1), std::end(s1), std::begin(s2), std::end(s2), std::back_inserter(result), C());
+    std::begin(s1),
+    std::end(s1),
+    std::begin(s2),
+    std::end(s2),
+    std::back_inserter(result),
+    C());
   return result;
 }
 
@@ -866,19 +991,23 @@ template <typename S1, typename S2> auto set_intersection(const S1& s1, const S2
  * @tparam T the type of the vector elements
  * @param v the vector
  */
-template <typename T> void vec_clear_to_zero(std::vector<T>& v) {
+template <typename T>
+void vec_clear_to_zero(std::vector<T>& v)
+{
   v.clear();
   v.shrink_to_fit();
 }
 
 /**
- * Applies the given deleter to every element of the given vector, and clears the vector afterwards.
+ * Applies the given deleter to every element of the given vector, and clears the vector
+ * afterwards.
  *
  * @tparam T the type of the vector elements
  * @param v the vector
  */
 template <typename T, typename D = deleter<T*>>
-void vec_clear_and_delete(std::vector<T*>& v, const D& deleter = D()) {
+void vec_clear_and_delete(std::vector<T*>& v, const D& deleter = D())
+{
   kdl::col_delete_all(v, deleter);
   v.clear();
 }

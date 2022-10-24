@@ -26,13 +26,17 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Node;
 }
 
-namespace View {
-class DuplicateNodesCommand : public UndoableCommand {
+namespace View
+{
+class DuplicateNodesCommand : public UndoableCommand
+{
 public:
   static const CommandType Type;
 
@@ -50,7 +54,8 @@ public:
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(
+    MapDocumentCommandFacade* document) override;
 
   bool shouldCloneParentWhenCloningNode(const Model::Node* node) const;
 

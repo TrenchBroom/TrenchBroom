@@ -24,21 +24,26 @@
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class PickResult;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class RenderBatch;
 class RenderContext;
 } // namespace Renderer
 
-namespace View {
+namespace View
+{
 class DragTracker;
 class UVViewHelper;
 
-class UVOriginTool : public ToolController, public Tool {
+class UVOriginTool : public ToolController, public Tool
+{
 public:
   static const Model::HitType::Type XHandleHitType;
   static const Model::HitType::Type YHandleHitType;
@@ -61,7 +66,8 @@ private:
   std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void render(
-    const InputState& inputState, Renderer::RenderContext& renderContext,
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override;
 
   bool cancel() override;

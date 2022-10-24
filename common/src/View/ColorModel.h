@@ -25,8 +25,10 @@
 
 #include <QAbstractTableModel>
 
-namespace TrenchBroom::View {
-class ColorModel : public QAbstractTableModel {
+namespace TrenchBroom::View
+{
+class ColorModel : public QAbstractTableModel
+{
   Q_OBJECT
 private:
   std::vector<Preference<Color>*> m_colors;

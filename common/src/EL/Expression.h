@@ -26,8 +26,10 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom {
-namespace EL {
+namespace TrenchBroom
+{
+namespace EL
+{
 class ExpressionImpl;
 
 class LiteralExpression;
@@ -41,7 +43,8 @@ class BinaryExpression;
 class SubscriptExpression;
 class SwitchExpression;
 
-class Expression {
+class Expression
+{
 private:
   std::shared_ptr<ExpressionImpl> m_expression;
   size_t m_line;

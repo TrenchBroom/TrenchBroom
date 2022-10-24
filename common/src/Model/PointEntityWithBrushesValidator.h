@@ -23,9 +23,12 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-class PointEntityWithBrushesValidator : public Validator {
+namespace TrenchBroom
+{
+namespace Model
+{
+class PointEntityWithBrushesValidator : public Validator
+{
 public:
   PointEntityWithBrushesValidator();
 

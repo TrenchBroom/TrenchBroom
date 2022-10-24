@@ -52,16 +52,20 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes") {
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes")
+{
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const auto originalBrush = brushNode->brush();
   auto modifiedBrush = originalBrush;
   REQUIRE(modifiedBrush
-            .transform(document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false)
+            .transform(
+              document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false)
             .is_success());
 
   auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
@@ -74,7 +78,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes") {
   CHECK(brushNode->brush() == originalBrush);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches") {
+TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches")
+{
   auto* patchNode = createPatchNode();
   document->addNodes({{document->parentForNodes(), {patchNode}}});
 
@@ -92,7 +97,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches") {
   CHECK(patchNode->patch() == originalPatch);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount") {
+TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount")
+{
   document->setEnabledTextureCollections({IO::Path("fixture/test/IO/Wad/cr8_czg.wad")});
 
   constexpr auto TextureName = "bongs2";
@@ -105,7 +111,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount") {
   const auto& originalBrush = brushNode->brush();
   auto modifiedBrush = originalBrush;
   REQUIRE(modifiedBrush
-            .transform(document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false)
+            .transform(
+              document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false)
             .is_success());
 
   auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
@@ -120,10 +127,12 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount") {
   CHECK(texture->usageCount() == 6u);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCount") {
+TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCount")
+{
   constexpr auto Classname = "point_entity";
 
-  auto* entityNode = new Model::EntityNode{{}, {{Model::EntityPropertyKeys::Classname, Classname}}};
+  auto* entityNode =
+    new Model::EntityNode{{}, {{Model::EntityPropertyKeys::Classname, Classname}}};
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
@@ -143,7 +152,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCou
   CHECK(m_pointEntityDef->usageCount() == 1u);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroups") {
+TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroups")
+{
   auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
   auto* brushNode = createBrushNode();
   groupNode->addChild(brushNode);
@@ -162,15 +172,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   document->selectNodes({brushNode});
   document->translateObjects(vm::vec3(0.0, 16.0, 0.0));
 
-  REQUIRE(brushNode->physicalBounds() == originalBrushBounds.translate(vm::vec3(0.0, 16.0, 0.0)));
+  REQUIRE(
+    brushNode->physicalBounds()
+    == originalBrushBounds.translate(vm::vec3(0.0, 16.0, 0.0)));
 
   REQUIRE(linkedGroupNode->childCount() == 1u);
-  auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+  auto* linkedBrushNode =
+    dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedBrushNode != nullptr);
 
   CHECK(
-    linkedBrushNode->physicalBounds() ==
-    brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+    linkedBrushNode->physicalBounds()
+    == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
 
   document->undoCommand();
 
@@ -178,11 +191,12 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   REQUIRE(linkedBrushNode != nullptr);
 
   CHECK(
-    linkedBrushNode->physicalBounds() ==
-    brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+    linkedBrushNode->physicalBounds()
+    == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroupsFails") {
+TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroupsFails")
+{
   auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
   auto* brushNode = createBrushNode();
   groupNode->addChild(brushNode);
@@ -192,7 +206,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   auto* linkedGroupNode = document->createLinkedDuplicate();
   document->deselectAll();
 
-  // moving the brush in linked group node will fail because it will go out of world bounds
+  // moving the brush in linked group node will fail because it will go out of world
+  // bounds
   document->selectNodes({linkedGroupNode});
   REQUIRE(document->translateObjects(
     document->worldBounds().max - linkedGroupNode->physicalBounds().size()));
@@ -206,12 +221,13 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   REQUIRE(brushNode->physicalBounds() == originalBrushBounds);
 
   REQUIRE(linkedGroupNode->childCount() == 1u);
-  auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+  auto* linkedBrushNode =
+    dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedBrushNode != nullptr);
 
   CHECK(
-    linkedBrushNode->physicalBounds() ==
-    brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+    linkedBrushNode->physicalBounds()
+    == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
 }
 } // namespace View
 } // namespace TrenchBroom

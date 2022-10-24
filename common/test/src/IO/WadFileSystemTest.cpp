@@ -25,10 +25,14 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace IO {
-TEST_CASE("WadFileSystemTest.loadEntries", "[WadFileSystemTest]") {
-  const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
+namespace TrenchBroom
+{
+namespace IO
+{
+TEST_CASE("WadFileSystemTest.loadEntries", "[WadFileSystemTest]")
+{
+  const Path wadPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
   NullLogger logger;
   WadFileSystem fs(wadPath, logger);
 

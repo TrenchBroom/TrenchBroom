@@ -23,44 +23,54 @@
 
 #include <string>
 
-namespace TrenchBroom {
-namespace EL {
+namespace TrenchBroom
+{
+namespace EL
+{
 class Value;
 enum class ValueType;
 
-class Exception : public TrenchBroom::Exception {
+class Exception : public TrenchBroom::Exception
+{
 public:
   using TrenchBroom::Exception::Exception;
 };
 
-class ConversionError : public Exception {
+class ConversionError : public Exception
+{
 public:
   ConversionError(const std::string& value, ValueType from, ValueType to);
 };
 
-class DereferenceError : public Exception {
+class DereferenceError : public Exception
+{
 public:
   DereferenceError(const std::string& value, ValueType from, ValueType to);
 };
 
-class EvaluationError : public Exception {
+class EvaluationError : public Exception
+{
 public:
   using Exception::Exception;
 };
 
-class IndexError : public EvaluationError {
+class IndexError : public EvaluationError
+{
 public:
   IndexError(const Value& indexableValue, const Value& indexValue);
   IndexError(const Value& indexableValue, size_t index);
   IndexError(const Value& indexableValue, const std::string& key);
 };
 
-class IndexOutOfBoundsError : public EvaluationError {
+class IndexOutOfBoundsError : public EvaluationError
+{
 public:
   IndexOutOfBoundsError(
     const Value& indexableValue, const Value& indexValue, size_t outOfBoundsIndex);
   IndexOutOfBoundsError(
-    const Value& indexableValue, const Value& indexValue, const std::string& outOfBoundsIndex);
+    const Value& indexableValue,
+    const Value& indexValue,
+    const std::string& outOfBoundsIndex);
   IndexOutOfBoundsError(const Value& indexableValue, size_t index);
   IndexOutOfBoundsError(const Value& indexableValue, const std::string& key);
 };

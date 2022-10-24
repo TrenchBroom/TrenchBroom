@@ -24,7 +24,8 @@
 
 #include <GL/glew.h>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 using GLIndices = std::vector<GLint>;
 using GLCounts = std::vector<GLsizei>;
 
@@ -39,49 +40,126 @@ std::string glGetEnumName(GLenum _enum);
 
 #if !defined(NDEBUG) && defined(GL_DEBUG) // in debug mode
 #if defined(GL_LOG)
-#define glAssert(C)                                                                                \
-  do {                                                                                             \
-    std::cout << #C << std::endl;                                                                  \
-    glCheckError("before " #C);                                                                    \
-    (C);                                                                                           \
-    glCheckError("after " #C);                                                                     \
+#define glAssert(C)                                                                      \
+  do                                                                                     \
+  {                                                                                      \
+    std::cout << #C << std::endl;                                                        \
+    glCheckError("before " #C);                                                          \
+    (C);                                                                                 \
+    glCheckError("after " #C);                                                           \
   } while (0)
 #else
-#define glAssert(C)                                                                                \
-  do {                                                                                             \
-    glCheckError("before " #C);                                                                    \
-    (C);                                                                                           \
-    glCheckError("after " #C);                                                                     \
+#define glAssert(C)                                                                      \
+  do                                                                                     \
+  {                                                                                      \
+    glCheckError("before " #C);                                                          \
+    (C);                                                                                 \
+    glCheckError("after " #C);                                                           \
   } while (0)
 #endif
 #else
-#define glAssert(C)                                                                                \
-  do {                                                                                             \
-    (C);                                                                                           \
+#define glAssert(C)                                                                      \
+  do                                                                                     \
+  {                                                                                      \
+    (C);                                                                                 \
   } while (0)
 #endif
 
-template <GLenum T> struct GLType { using Type = GLvoid; };
-template <> struct GLType<GL_BYTE> { using Type = GLbyte; };
-template <> struct GLType<GL_UNSIGNED_BYTE> { using Type = GLubyte; };
-template <> struct GLType<GL_SHORT> { using Type = GLshort; };
-template <> struct GLType<GL_UNSIGNED_SHORT> { using Type = GLushort; };
-template <> struct GLType<GL_INT> { using Type = GLint; };
-template <> struct GLType<GL_UNSIGNED_INT> { using Type = GLuint; };
-template <> struct GLType<GL_FLOAT> { using Type = GLfloat; };
-template <> struct GLType<GL_DOUBLE> { using Type = GLdouble; };
+template <GLenum T>
+struct GLType
+{
+  using Type = GLvoid;
+};
+template <>
+struct GLType<GL_BYTE>
+{
+  using Type = GLbyte;
+};
+template <>
+struct GLType<GL_UNSIGNED_BYTE>
+{
+  using Type = GLubyte;
+};
+template <>
+struct GLType<GL_SHORT>
+{
+  using Type = GLshort;
+};
+template <>
+struct GLType<GL_UNSIGNED_SHORT>
+{
+  using Type = GLushort;
+};
+template <>
+struct GLType<GL_INT>
+{
+  using Type = GLint;
+};
+template <>
+struct GLType<GL_UNSIGNED_INT>
+{
+  using Type = GLuint;
+};
+template <>
+struct GLType<GL_FLOAT>
+{
+  using Type = GLfloat;
+};
+template <>
+struct GLType<GL_DOUBLE>
+{
+  using Type = GLdouble;
+};
 
-template <typename T> struct GLEnum { static const GLenum Value = GL_INVALID_ENUM; };
-template <> struct GLEnum<GLbyte> { static const GLenum Value = GL_BYTE; };
-template <> struct GLEnum<GLubyte> { static const GLenum Value = GL_UNSIGNED_BYTE; };
-template <> struct GLEnum<GLshort> { static const GLenum Value = GL_SHORT; };
-template <> struct GLEnum<GLushort> { static const GLenum Value = GL_UNSIGNED_SHORT; };
-template <> struct GLEnum<GLint> { static const GLenum Value = GL_INT; };
-template <> struct GLEnum<GLuint> { static const GLenum Value = GL_UNSIGNED_INT; };
-template <> struct GLEnum<GLfloat> { static const GLenum Value = GL_FLOAT; };
-template <> struct GLEnum<GLdouble> { static const GLenum Value = GL_DOUBLE; };
+template <typename T>
+struct GLEnum
+{
+  static const GLenum Value = GL_INVALID_ENUM;
+};
+template <>
+struct GLEnum<GLbyte>
+{
+  static const GLenum Value = GL_BYTE;
+};
+template <>
+struct GLEnum<GLubyte>
+{
+  static const GLenum Value = GL_UNSIGNED_BYTE;
+};
+template <>
+struct GLEnum<GLshort>
+{
+  static const GLenum Value = GL_SHORT;
+};
+template <>
+struct GLEnum<GLushort>
+{
+  static const GLenum Value = GL_UNSIGNED_SHORT;
+};
+template <>
+struct GLEnum<GLint>
+{
+  static const GLenum Value = GL_INT;
+};
+template <>
+struct GLEnum<GLuint>
+{
+  static const GLenum Value = GL_UNSIGNED_INT;
+};
+template <>
+struct GLEnum<GLfloat>
+{
+  static const GLenum Value = GL_FLOAT;
+};
+template <>
+struct GLEnum<GLdouble>
+{
+  static const GLenum Value = GL_DOUBLE;
+};
 
-template <typename T> GLenum glType() {
+template <typename T>
+GLenum glType()
+{
   return GLEnum<T>::Value;
 }
 } // namespace TrenchBroom

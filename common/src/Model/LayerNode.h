@@ -31,9 +31,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
-class LayerNode : public Node {
+namespace TrenchBroom
+{
+namespace Model
+{
+class LayerNode : public Node
+{
 private:
   Layer m_layer;
 
@@ -42,9 +45,9 @@ private:
   mutable bool m_boundsValid;
 
   /**
-   * The ID used to serialize layer nodes (see MapReader and NodeSerializer). This is set by
-   * MapReader when a layer is read, or by WorldNode when a layer is added that doesn't yet have a
-   * persistent ID.
+   * The ID used to serialize layer nodes (see MapReader and NodeSerializer). This is set
+   * by MapReader when a layer is read, or by WorldNode when a layer is added that doesn't
+   * yet have a persistent ID.
    */
   std::optional<IdType> m_persistentId;
 
@@ -79,7 +82,9 @@ private: // implement Node interface
   bool doSelectable() const override;
 
   void doPick(
-    const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
+    const EditorContext& editorContext,
+    const vm::ray3& ray,
+    PickResult& pickResult) override;
   void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
   void doAccept(NodeVisitor& visitor) override;

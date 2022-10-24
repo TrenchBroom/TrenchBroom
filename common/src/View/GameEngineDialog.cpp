@@ -32,18 +32,22 @@
 #include <QCloseEvent>
 #include <QDialogButtonBox>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 GameEngineDialog::GameEngineDialog(const std::string& gameName, QWidget* parent)
   : QDialog(parent)
   , m_gameName(gameName)
-  , m_profileManager(nullptr) {
+  , m_profileManager(nullptr)
+{
   setWindowTitle("Game Engines");
   setWindowIconTB(this);
   createGui();
 }
 
-void GameEngineDialog::createGui() {
+void GameEngineDialog::createGui()
+{
   auto* gameIndicator = new CurrentGameIndicator(m_gameName);
 
   auto& gameFactory = Model::GameFactory::instance();
@@ -68,13 +72,15 @@ void GameEngineDialog::createGui() {
   connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::accept);
 }
 
-void GameEngineDialog::done(const int r) {
+void GameEngineDialog::done(const int r)
+{
   saveConfig();
 
   QDialog::done(r);
 }
 
-void GameEngineDialog::saveConfig() {
+void GameEngineDialog::saveConfig()
+{
   auto& gameFactory = Model::GameFactory::instance();
   gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config());
 }

@@ -24,8 +24,10 @@
 #include <QApplication>
 #include <QThread>
 
-namespace TrenchBroom {
-bool isMainThread() {
+namespace TrenchBroom
+{
+bool isMainThread()
+{
   ensure(qApp != nullptr, "QApplication must have been created");
   return (qApp->thread() == QThread::currentThread());
 }

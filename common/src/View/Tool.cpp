@@ -26,46 +26,58 @@
 
 #include <cassert>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 Tool::Tool(const bool initiallyActive)
   : m_active(initiallyActive)
   , m_book(nullptr)
-  , m_pageIndex(0) {}
+  , m_pageIndex(0)
+{
+}
 
 Tool::~Tool() {}
 
-bool Tool::active() const {
+bool Tool::active() const
+{
   return m_active;
 }
 
-bool Tool::activate() {
+bool Tool::activate()
+{
   assert(!active());
-  if (doActivate()) {
+  if (doActivate())
+  {
     m_active = true;
     toolActivatedNotifier(*this);
   }
   return m_active;
 }
 
-bool Tool::deactivate() {
+bool Tool::deactivate()
+{
   assert(active());
-  if (doDeactivate()) {
+  if (doDeactivate())
+  {
     m_active = false;
     toolDeactivatedNotifier(*this);
   }
   return !m_active;
 }
 
-void Tool::refreshViews() {
+void Tool::refreshViews()
+{
   refreshViewsNotifier(*this);
 }
 
-void Tool::notifyToolHandleSelectionChanged() {
+void Tool::notifyToolHandleSelectionChanged()
+{
   toolHandleSelectionChangedNotifier(*this);
 }
 
-void Tool::createPage(QStackedLayout* book) {
+void Tool::createPage(QStackedLayout* book)
+{
   assert(m_book == nullptr);
 
   m_book = book;
@@ -73,19 +85,23 @@ void Tool::createPage(QStackedLayout* book) {
   m_book->addWidget(doCreatePage(m_book->parentWidget()));
 }
 
-void Tool::showPage() {
+void Tool::showPage()
+{
   m_book->setCurrentIndex(m_pageIndex);
 }
 
-bool Tool::doActivate() {
+bool Tool::doActivate()
+{
   return true;
 }
 
-bool Tool::doDeactivate() {
+bool Tool::doDeactivate()
+{
   return true;
 }
 
-QWidget* Tool::doCreatePage(QWidget* parent) {
+QWidget* Tool::doCreatePage(QWidget* parent)
+{
   return new QWidget(parent);
 }
 } // namespace View

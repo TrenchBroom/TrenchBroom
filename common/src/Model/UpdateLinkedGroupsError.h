@@ -21,9 +21,12 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom {
-namespace Model {
-enum class UpdateLinkedGroupsError {
+namespace TrenchBroom
+{
+namespace Model
+{
+enum class UpdateLinkedGroupsError
+{
   TransformIsNotInvertible,
   TransformFailed,
   UpdateExceedsWorldBounds,

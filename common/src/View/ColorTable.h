@@ -25,9 +25,12 @@
 
 class QColor;
 
-namespace TrenchBroom {
-namespace View {
-class ColorTable : public QWidget {
+namespace TrenchBroom
+{
+namespace View
+{
+class ColorTable : public QWidget
+{
   Q_OBJECT
 private:
   int m_cellSize;

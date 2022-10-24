@@ -26,13 +26,16 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class PropertyDefinition;
 class EntityDefinition;
 } // namespace Assets
 
-namespace IO {
+namespace IO
+{
 struct EntityDefinitionClassInfo;
 class ParserStatus;
 
@@ -40,7 +43,8 @@ class ParserStatus;
 std::vector<EntityDefinitionClassInfo> resolveInheritance(
   ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos);
 
-class EntityDefinitionParser {
+class EntityDefinitionParser
+{
 private:
   Color m_defaultEntityColor;
 
@@ -62,7 +66,8 @@ private:
   std::vector<Assets::EntityDefinition*> createDefinitions(
     ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos) const;
 
-  virtual std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) = 0;
+  virtual std::vector<EntityDefinitionClassInfo> parseClassInfos(
+    ParserStatus& status) = 0;
 };
 } // namespace IO
 } // namespace TrenchBroom

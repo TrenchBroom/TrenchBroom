@@ -23,24 +23,31 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class EntityNodeBase;
 }
 
-namespace View {
-class SmartPropertyEditorMatcher {
+namespace View
+{
+class SmartPropertyEditorMatcher
+{
 public:
   virtual ~SmartPropertyEditorMatcher();
   bool matches(
-    const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const;
+    const std::string& propertyKey,
+    const std::vector<Model::EntityNodeBase*>& nodes) const;
 
 private:
   virtual bool doMatches(
-    const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const = 0;
+    const std::string& propertyKey,
+    const std::vector<Model::EntityNodeBase*>& nodes) const = 0;
 };
 
-class SmartPropertyEditorKeyMatcher : public SmartPropertyEditorMatcher {
+class SmartPropertyEditorKeyMatcher : public SmartPropertyEditorMatcher
+{
 private:
   std::vector<std::string> m_patterns;
 
@@ -49,14 +56,17 @@ public:
   SmartPropertyEditorKeyMatcher(std::initializer_list<std::string> patterns);
 
 private:
-  bool doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes)
-    const override;
+  bool doMatches(
+    const std::string& propertyKey,
+    const std::vector<Model::EntityNodeBase*>& nodes) const override;
 };
 
-class SmartPropertyEditorDefaultMatcher : public SmartPropertyEditorMatcher {
+class SmartPropertyEditorDefaultMatcher : public SmartPropertyEditorMatcher
+{
 private:
-  bool doMatches(const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes)
-    const override;
+  bool doMatches(
+    const std::string& propertyKey,
+    const std::vector<Model::EntityNodeBase*>& nodes) const override;
 };
 } // namespace View
 } // namespace TrenchBroom

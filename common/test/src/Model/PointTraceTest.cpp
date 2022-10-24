@@ -26,8 +26,10 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model {
-TEST_CASE("PointTrace") {
+namespace TrenchBroom::Model
+{
+TEST_CASE("PointTrace")
+{
   const auto points = std::vector<vm::vec3f>{
     {1, 1, 1},
     {1, 1, 2},
@@ -69,7 +71,8 @@ TEST_CASE("PointTrace") {
   CHECK(trace.currentPoint() == vm::vec3f{1, 1, 1});
 }
 
-TEST_CASE("loadPointFile") {
+TEST_CASE("loadPointFile")
+{
   using T = std::tuple<std::string, std::optional<PointTrace>>;
   // clang-format off
   const auto

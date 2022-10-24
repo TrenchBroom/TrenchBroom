@@ -24,9 +24,12 @@
 
 #include <memory>
 
-namespace TrenchBroom {
-namespace View {
-class CreateComplexBrushTool : public CreateBrushToolBase {
+namespace TrenchBroom
+{
+namespace View
+{
+class CreateComplexBrushTool : public CreateBrushToolBase
+{
 private:
   std::unique_ptr<Model::Polyhedron3> m_polyhedron;
 

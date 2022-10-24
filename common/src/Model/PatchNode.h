@@ -31,16 +31,21 @@
 
 #include <optional>
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Model {
+namespace Model
+{
 class EntityNodeBase;
 
-struct PatchGrid {
-  struct Point {
+struct PatchGrid
+{
+  struct Point
+  {
     vm::vec3 position;
     vm::vec2 texCoords;
     vm::vec3 normal;
@@ -63,13 +68,15 @@ struct PatchGrid {
 
 // public for testing
 std::vector<vm::vec3> computeGridNormals(
-  const std::vector<BezierPatch::Point> patchGrid, const size_t pointRowCount,
+  const std::vector<BezierPatch::Point> patchGrid,
+  const size_t pointRowCount,
   const size_t pointColumnCount);
 
 // public for testing
 PatchGrid makePatchGrid(const BezierPatch& patch, size_t subdivisionsPerSurface);
 
-class PatchNode : public Node, public Object {
+class PatchNode : public Node, public Object
+{
 public:
   static const HitType::Type PatchHitType;
 
@@ -108,7 +115,9 @@ private: // implement Node interface
   bool doSelectable() const override;
 
   void doPick(
-    const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) override;
+    const EditorContext& editorContext,
+    const vm::ray3& ray,
+    PickResult& pickResult) override;
   void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
 
   void doAccept(NodeVisitor& visitor) override;

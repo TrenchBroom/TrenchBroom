@@ -19,10 +19,12 @@
 
 #include "TestPreferenceManager.h"
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 void TestPreferenceManager::initialize() {}
 
-bool TestPreferenceManager::saveInstantly() const {
+bool TestPreferenceManager::saveInstantly() const
+{
   return false;
 }
 
@@ -30,7 +32,8 @@ void TestPreferenceManager::saveChanges() {}
 
 void TestPreferenceManager::discardChanges() {}
 
-void TestPreferenceManager::validatePreference(PreferenceBase& preference) {
+void TestPreferenceManager::validatePreference(PreferenceBase& preference)
+{
   preference.setValid(true);
 }
 

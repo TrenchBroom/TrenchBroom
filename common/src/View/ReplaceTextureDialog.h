@@ -26,21 +26,26 @@
 
 class QPushButton;
 
-namespace TrenchBroom {
-namespace Assets {
+namespace TrenchBroom
+{
+namespace Assets
+{
 class Texture;
 }
 
-namespace Model {
+namespace Model
+{
 class BrushFaceHandle;
 }
 
-namespace View {
+namespace View
+{
 class GLContextManager;
 class MapDocument;
 class TextureBrowser;
 
-class ReplaceTextureDialog : public QDialog {
+class ReplaceTextureDialog : public QDialog
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -51,7 +56,8 @@ private:
 
 public:
   ReplaceTextureDialog(
-    std::weak_ptr<MapDocument> document, GLContextManager& contextManager,
+    std::weak_ptr<MapDocument> document,
+    GLContextManager& contextManager,
     QWidget* parent = nullptr);
 
 private:

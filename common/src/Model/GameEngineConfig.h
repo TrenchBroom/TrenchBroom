@@ -24,11 +24,14 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class GameEngineProfile;
 
-class GameEngineConfig {
+class GameEngineConfig
+{
 private:
   std::vector<std::unique_ptr<GameEngineProfile>> m_profiles;
 

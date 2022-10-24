@@ -32,24 +32,30 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class PickResult;
 }
 
-namespace Renderer {
+namespace Renderer
+{
 class Camera;
 }
 
-namespace View {
+namespace View
+{
 class Grid;
 class MapDocument;
 class ScaleObjectsToolPage;
 
 /**
- * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along X, Y, or Z.
+ * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along
+ * X, Y, or Z.
  */
-class BBoxSide {
+class BBoxSide
+{
 public:
   vm::vec3 normal;
 
@@ -63,7 +69,8 @@ public:
  * Identifies a bbox corner, using a point on a bbox whose corners are at +/- 1.0
  * (i.e. a 2x2x2 box centered at 0, 0, 0).
  */
-class BBoxCorner {
+class BBoxCorner
+{
 public:
   vm::vec3 corner;
 
@@ -74,10 +81,11 @@ public:
 };
 
 /**
- * Identifies a directed edge of a bbox, using points on a bbox whose corners are at +/- 1.0
- * (i.e. a 2x2x2 box centered at 0, 0, 0).
+ * Identifies a directed edge of a bbox, using points on a bbox whose corners are at
+ * +/- 1.0 (i.e. a 2x2x2 box centered at 0, 0, 0).
  */
-class BBoxEdge {
+class BBoxEdge
+{
 public:
   vm::vec3 point0;
   vm::vec3 point1;
@@ -87,7 +95,8 @@ public:
   bool operator==(const BBoxEdge& other) const;
 };
 
-enum class AnchorPos {
+enum class AnchorPos
+{
   Opposite,
   Center
 };
@@ -96,7 +105,8 @@ enum class AnchorPos {
  * A set containing a subset of (X, Y, Z). Identifies which axes will be scaled.
  * Used for recording which axes the Shift key affects in 2D views.
  */
-class ProportionalAxes {
+class ProportionalAxes
+{
 private:
   std::bitset<3> m_bits;
 
@@ -136,8 +146,11 @@ vm::vec3 centerForBBoxSide(const vm::bbox3& box, const BBoxSide& side);
  * because the specified delta either collapses the bbox, or inverts it.
  */
 vm::bbox3 moveBBoxSide(
-  const vm::bbox3& in, const BBoxSide& side, const vm::vec3& delta,
-  const ProportionalAxes& proportional, AnchorPos anchor);
+  const vm::bbox3& in,
+  const BBoxSide& side,
+  const vm::vec3& delta,
+  const ProportionalAxes& proportional,
+  AnchorPos anchor);
 
 /**
  * Computes a new bbox after moving the given corner by the given delta.
@@ -160,8 +173,11 @@ vm::bbox3 moveBBoxCorner(
  * because the specified delta either collapses the bbox, or inverts it.
  */
 vm::bbox3 moveBBoxEdge(
-  const vm::bbox3& in, const BBoxEdge& edge, const vm::vec3& delta,
-  const ProportionalAxes& proportional, AnchorPos anchor);
+  const vm::bbox3& in,
+  const BBoxEdge& edge,
+  const vm::vec3& delta,
+  const ProportionalAxes& proportional,
+  AnchorPos anchor);
 
 /**
  * Returns the line through the bbox that an invisible handle should be dragged, assuming
@@ -174,31 +190,37 @@ vm::line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& h
 /**
  * Wrapper around moveBBoxSide/moveBBoxEdge/moveBBoxCorner.
  *
- * Looks in the `dragStartHit` and calls the appropriate move function based on whether a side,
- * edge, or corner handle was grabbed.
+ * Looks in the `dragStartHit` and calls the appropriate move function based on whether a
+ * side, edge, or corner handle was grabbed.
  */
 vm::bbox3 moveBBoxForHit(
-  const vm::bbox3& bboxAtDragStart, const Model::Hit& dragStartHit, const vm::vec3& delta,
-  const ProportionalAxes& proportional, AnchorPos anchor);
+  const vm::bbox3& bboxAtDragStart,
+  const Model::Hit& dragStartHit,
+  const vm::vec3& delta,
+  const ProportionalAxes& proportional,
+  AnchorPos anchor);
 
-struct BackSide {
+struct BackSide
+{
   FloatType distAlongRay;
   vm::vec3 pickedSideNormal;
 };
 
 /**
- * Picks a "back side" of the given box; this is used when the mouse is not over the selection.
+ * Picks a "back side" of the given box; this is used when the mouse is not over the
+ * selection.
  *
- * Among the faces of the box that are facing away from the camera, finds the one that comes closest
- * to the pick ray.
+ * Among the faces of the box that are facing away from the camera, finds the one that
+ * comes closest to the pick ray.
  *
- * Returns the point on the pick ray (stored as a distance along the ray) that is closest to the
- * selected face, as well as that face's normal.
+ * Returns the point on the pick ray (stored as a distance along the ray) that is closest
+ * to the selected face, as well as that face's normal.
  */
 BackSide pickBackSideOfBox(
   const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::bbox3& box);
 
-class ScaleObjectsTool : public Tool {
+class ScaleObjectsTool : public Tool
+{
 public:
   static const Model::HitType::Type ScaleToolSideHitType;
   static const Model::HitType::Type ScaleToolEdgeHitType;
@@ -226,11 +248,17 @@ public:
   bool applies() const;
 
   void pickBackSides(
-    const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+    const vm::ray3& pickRay,
+    const Renderer::Camera& camera,
+    Model::PickResult& pickResult) const;
   void pick2D(
-    const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+    const vm::ray3& pickRay,
+    const Renderer::Camera& camera,
+    Model::PickResult& pickResult) const;
   void pick3D(
-    const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult) const;
+    const vm::ray3& pickRay,
+    const Renderer::Camera& camera,
+    Model::PickResult& pickResult) const;
 
 public:
   vm::bbox3 bounds() const;
@@ -251,7 +279,8 @@ public:
   vm::vec3f dragAnchor() const;
 
   /**
-   * Returns the bbox at the start of the drag. Only allowed to call while m_resizing is true.
+   * Returns the bbox at the start of the drag. Only allowed to call while m_resizing is
+   * true.
    */
   vm::bbox3 bboxAtDragStart() const;
 

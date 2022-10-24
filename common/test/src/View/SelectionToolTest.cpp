@@ -43,16 +43,20 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
+{
   const auto* world = document->world();
   auto builder = Model::BrushBuilder{
     world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs()};
 
   auto tool = SelectionTool{document};
 
-  GIVEN("A group node") {
+  GIVEN("A group node")
+  {
     auto* brushNode = new Model::BrushNode{builder.createCube(32.0, "some_face").value()};
     auto* entityNode = new Model::EntityNode{{}, {{"origin", "64 0 0"}}};
     auto* groupNode = new Model::GroupNode(Model::Group{"some_group"});
@@ -62,7 +66,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
 
     auto camera = Renderer::OrthographicCamera{};
 
-    AND_GIVEN("A pick ray that points at the top face of the brush") {
+    AND_GIVEN("A pick ray that points at the top face of the brush")
+    {
       camera.moveTo({0, 0, 32});
       camera.setDirection({0, 0, -1}, {0, 1, 0});
 
@@ -78,23 +83,27 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
       inputState.setPickRequest({pickRay, camera});
       inputState.setPickResult(std::move(pickResult));
 
-      WHEN("I click once") {
+      WHEN("I click once")
+      {
         inputState.mouseDown(MouseButtons::MBLeft);
         tool.mouseClick(inputState);
         inputState.mouseUp(MouseButtons::MBLeft);
 
-        THEN("The group gets selected") {
+        THEN("The group gets selected")
+        {
           CHECK(document->selectedBrushFaces().empty());
           CHECK(document->selectedNodes() == Model::NodeCollection{{groupNode}});
         }
       }
 
-      WHEN("I double click") {
+      WHEN("I double click")
+      {
         inputState.mouseDown(MouseButtons::MBLeft);
         tool.mouseDoubleClick(inputState);
         inputState.mouseUp(MouseButtons::MBLeft);
 
-        THEN("The group is opened") {
+        THEN("The group is opened")
+        {
           CHECK(document->selectedBrushFaces().empty());
           CHECK(document->selectedNodes().empty());
           CHECK(document->currentGroup() == groupNode);
@@ -103,12 +112,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
     }
   }
 
-  GIVEN("A brush node and an entity node") {
-    auto brush =
-      builder
-        .createCube(
-          32.0, "left_face", "right_face", "front_face", "back_face", "top_face", "bottom_face")
-        .value();
+  GIVEN("A brush node and an entity node")
+  {
+    auto brush = builder
+                   .createCube(
+                     32.0,
+                     "left_face",
+                     "right_face",
+                     "front_face",
+                     "back_face",
+                     "top_face",
+                     "bottom_face")
+                   .value();
     auto* brushNode = new Model::BrushNode{std::move(brush)};
 
     const auto topFaceIndex = brushNode->brush().findFace("top_face").value();
@@ -120,7 +135,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
 
     auto camera = Renderer::OrthographicCamera{};
 
-    AND_GIVEN("A pick ray that points at the top face of the brush") {
+    AND_GIVEN("A pick ray that points at the top face of the brush")
+    {
       camera.moveTo({0, 0, 32});
       camera.setDirection({0, 0, -1}, {0, 1, 0});
 
@@ -136,127 +152,149 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
       inputState.setPickRequest({pickRay, camera});
       inputState.setPickResult(std::move(pickResult));
 
-      WHEN("I shift click once") {
+      WHEN("I shift click once")
+      {
         inputState.setModifierKeys(ModifierKeys::MKShift);
         inputState.mouseDown(MouseButtons::MBLeft);
         tool.mouseClick(inputState);
         inputState.mouseUp(MouseButtons::MBLeft);
 
-        THEN("The top face get selected") {
+        THEN("The top face get selected")
+        {
           CHECK(
-            document->selectedBrushFaces() ==
-            std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+            document->selectedBrushFaces()
+            == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
           CHECK(document->selectedNodes().empty());
         }
 
-        AND_WHEN("I shift click on the selected face again") {
+        AND_WHEN("I shift click on the selected face again")
+        {
           inputState.setModifierKeys(ModifierKeys::MKShift);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The top face remains selected") {
+          THEN("The top face remains selected")
+          {
             CHECK(
-              document->selectedBrushFaces() ==
-              std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              document->selectedBrushFaces()
+              == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
             CHECK(document->selectedNodes().empty());
           }
         }
 
-        AND_WHEN("I shift+ctrl click on the selected face again") {
+        AND_WHEN("I shift+ctrl click on the selected face again")
+        {
           inputState.setModifierKeys(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The top face gets deselected") {
+          THEN("The top face gets deselected")
+          {
             CHECK(document->selectedBrushFaces().empty());
             CHECK(document->selectedNodes().empty());
           }
         }
       }
 
-      WHEN("I click once") {
+      WHEN("I click once")
+      {
         inputState.mouseDown(MouseButtons::MBLeft);
         tool.mouseClick(inputState);
         inputState.mouseUp(MouseButtons::MBLeft);
 
-        THEN("The brush gets selected") {
+        THEN("The brush gets selected")
+        {
           CHECK(document->selectedBrushFaces().empty());
           CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
         }
 
-        AND_WHEN("I click on the selected brushagain") {
+        AND_WHEN("I click on the selected brushagain")
+        {
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The brush remains selected") {
+          THEN("The brush remains selected")
+          {
             CHECK(document->selectedBrushFaces().empty());
             CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
           }
         }
 
-        AND_WHEN("I ctrl click on the selected brush again") {
+        AND_WHEN("I ctrl click on the selected brush again")
+        {
           inputState.setModifierKeys(ModifierKeys::MKCtrlCmd);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The brush gets deselected") {
+          THEN("The brush gets deselected")
+          {
             CHECK(document->selectedBrushFaces().empty());
             CHECK(document->selectedNodes().empty());
           }
         }
       }
 
-      WHEN("I shift double click") {
+      WHEN("I shift double click")
+      {
         inputState.setModifierKeys(ModifierKeys::MKShift);
         inputState.mouseDown(MouseButtons::MBLeft);
         tool.mouseDoubleClick(inputState);
         inputState.mouseUp(MouseButtons::MBLeft);
 
-        THEN("All brush faces are selected") {
+        THEN("All brush faces are selected")
+        {
           CHECK(document->selectedBrushFaces().size() == 6);
           CHECK(document->selectedNodes().empty());
         }
       }
 
-      WHEN("I double click") {
+      WHEN("I double click")
+      {
         inputState.mouseDown(MouseButtons::MBLeft);
         tool.mouseDoubleClick(inputState);
         inputState.mouseUp(MouseButtons::MBLeft);
 
-        THEN("All nodes are selected") {
+        THEN("All nodes are selected")
+        {
           CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode, entityNode}});
+          CHECK(
+            document->selectedNodes() == Model::NodeCollection{{brushNode, entityNode}});
         }
       }
 
-      AND_GIVEN("The front face of the brush is selected") {
+      AND_GIVEN("The front face of the brush is selected")
+      {
         document->selectBrushFaces({{brushNode, frontFaceIndex}});
 
-        WHEN("I shift click once") {
+        WHEN("I shift click once")
+        {
           inputState.setModifierKeys(ModifierKeys::MKShift);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The top face get selected") {
+          THEN("The top face get selected")
+          {
             CHECK(
-              document->selectedBrushFaces() ==
-              std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              document->selectedBrushFaces()
+              == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
             CHECK(document->selectedNodes().empty());
           }
         }
 
-        WHEN("I shift+ctrl click once") {
+        WHEN("I shift+ctrl click once")
+        {
           inputState.setModifierKeys(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("Both the front and the top faces are selected") {
+          THEN("Both the front and the top faces are selected")
+          {
             CHECK_THAT(
               document->selectedBrushFaces(),
               Catch::Matchers::UnorderedEquals(std::vector<Model::BrushFaceHandle>{
@@ -265,86 +303,102 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
           }
         }
 
-        WHEN("I click once") {
+        WHEN("I click once")
+        {
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The brush gets selected") {
+          THEN("The brush gets selected")
+          {
             CHECK(document->selectedBrushFaces().empty());
             CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
           }
         }
 
-        WHEN("I ctrl click once") {
+        WHEN("I ctrl click once")
+        {
           inputState.setModifierKeys(ModifierKeys::MKCtrlCmd);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The brush gets selected") {
+          THEN("The brush gets selected")
+          {
             CHECK(document->selectedBrushFaces().empty());
             CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
           }
         }
       }
 
-      AND_GIVEN("The entity is selected") {
+      AND_GIVEN("The entity is selected")
+      {
         document->selectNodes({entityNode});
 
-        WHEN("I shift click once") {
+        WHEN("I shift click once")
+        {
           inputState.setModifierKeys(ModifierKeys::MKShift);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The top face get selected") {
+          THEN("The top face get selected")
+          {
             CHECK(
-              document->selectedBrushFaces() ==
-              std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              document->selectedBrushFaces()
+              == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
             CHECK(document->selectedNodes().empty());
           }
         }
 
-        WHEN("I shift+ctrl click once") {
+        WHEN("I shift+ctrl click once")
+        {
           inputState.setModifierKeys(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The top face get selected") {
+          THEN("The top face get selected")
+          {
             CHECK(
-              document->selectedBrushFaces() ==
-              std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              document->selectedBrushFaces()
+              == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
             CHECK(document->selectedNodes().empty());
           }
         }
 
-        WHEN("I click once") {
+        WHEN("I click once")
+        {
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The brush gets selected") {
+          THEN("The brush gets selected")
+          {
             CHECK(document->selectedBrushFaces().empty());
             CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
           }
         }
 
-        WHEN("I ctrl click once") {
+        WHEN("I ctrl click once")
+        {
           inputState.setModifierKeys(ModifierKeys::MKCtrlCmd);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("The brush and entity both get selected") {
+          THEN("The brush and entity both get selected")
+          {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == Model::NodeCollection{{entityNode, brushNode}});
+            CHECK(
+              document->selectedNodes()
+              == Model::NodeCollection{{entityNode, brushNode}});
           }
         }
       }
 
-      AND_GIVEN("The top face is hidden") {
+      AND_GIVEN("The top face is hidden")
+      {
 
         auto hiddenTag = Model::Tag{"hidden", {}};
 
@@ -356,27 +410,31 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking") {
         REQUIRE(brushNode->brush().face(topFaceIndex).hasTag(hiddenTag));
 
         document->editorContext().setHiddenTags(hiddenTag.type());
-        REQUIRE_FALSE(
-          document->editorContext().visible(brushNode, brushNode->brush().face(topFaceIndex)));
+        REQUIRE_FALSE(document->editorContext().visible(
+          brushNode, brushNode->brush().face(topFaceIndex)));
 
-        WHEN("I shift click once") {
+        WHEN("I shift click once")
+        {
           inputState.setModifierKeys(ModifierKeys::MKShift);
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("Nothing happens") {
+          THEN("Nothing happens")
+          {
             CHECK(document->selectedBrushFaces().empty());
             CHECK(document->selectedNodes().empty());
           }
         }
 
-        WHEN("I click once") {
+        WHEN("I click once")
+        {
           inputState.mouseDown(MouseButtons::MBLeft);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::MBLeft);
 
-          THEN("Nothing happens") {
+          THEN("Nothing happens")
+          {
             CHECK(document->selectedBrushFaces().empty());
             CHECK(document->selectedNodes().empty());
           }

@@ -33,16 +33,20 @@ class QLabel;
 class QLineEdit;
 class QRadioButton;
 
-namespace TrenchBroom {
-namespace Model {
+namespace TrenchBroom
+{
+namespace Model
+{
 class Node;
 }
 
-namespace View {
+namespace View
+{
 class CollapsibleTitledPanel;
 class MapDocument;
 
-class MapInspector : public TabBookPage {
+class MapInspector : public TabBookPage
+{
   Q_OBJECT
 private:
   CollapsibleTitledPanel* m_mapPropertiesEditor;
@@ -62,7 +66,8 @@ private:
 /**
  * Currently just the soft bounds editor
  */
-class MapPropertiesEditor : public QWidget {
+class MapPropertiesEditor : public QWidget
+{
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -79,7 +84,8 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapPropertiesEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit MapPropertiesEditor(
+    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
 private:
   std::optional<vm::bbox3> parseLineEdits();

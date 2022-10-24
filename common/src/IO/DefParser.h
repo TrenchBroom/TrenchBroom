@@ -34,9 +34,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
-namespace DefToken {
+namespace TrenchBroom
+{
+namespace IO
+{
+namespace DefToken
+{
 using Type = unsigned int;
 static const Type Integer = 1 << 0;      // integer number
 static const Type Decimal = 1 << 1;      // decimal number
@@ -56,7 +59,8 @@ static const Type Minus = 1 << 15;       // minus sign: -
 static const Type Eof = 1 << 16;         // end of file
 } // namespace DefToken
 
-class DefTokenizer : public Tokenizer<DefToken::Type> {
+class DefTokenizer : public Tokenizer<DefToken::Type>
+{
 public:
   explicit DefTokenizer(std::string_view str);
 
@@ -65,7 +69,8 @@ private:
   Token emitToken() override;
 };
 
-class DefParser : public EntityDefinitionParser, public Parser<DefToken::Type> {
+class DefParser : public EntityDefinitionParser, public Parser<DefToken::Type>
+{
 private:
   using Token = DefTokenizer::Token;
 

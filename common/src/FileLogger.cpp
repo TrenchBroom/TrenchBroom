@@ -30,36 +30,44 @@
 
 #include <QString>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 FileLogger::FileLogger(const IO::Path& filePath)
-  : m_file(nullptr) {
+  : m_file(nullptr)
+{
   const auto fixedPath = IO::Disk::fixPath(filePath);
   IO::Disk::ensureDirectoryExists(fixedPath.deleteLastComponent());
   m_file = openPathAsFILE(fixedPath, "w");
   ensure(m_file != nullptr, "log file could not be opened");
 }
 
-FileLogger::~FileLogger() {
-  if (m_file != nullptr) {
+FileLogger::~FileLogger()
+{
+  if (m_file != nullptr)
+  {
     fclose(m_file);
     m_file = nullptr;
   }
 }
 
-FileLogger& FileLogger::instance() {
+FileLogger& FileLogger::instance()
+{
   static FileLogger Instance(IO::SystemPaths::logFilePath());
   return Instance;
 }
 
-void FileLogger::doLog(const LogLevel /* level */, const std::string& message) {
+void FileLogger::doLog(const LogLevel /* level */, const std::string& message)
+{
   assert(m_file != nullptr);
-  if (m_file != nullptr) {
+  if (m_file != nullptr)
+  {
     std::fprintf(m_file, "%s\n", message.c_str());
     std::fflush(m_file);
   }
 }
 
-void FileLogger::doLog(const LogLevel level, const QString& message) {
+void FileLogger::doLog(const LogLevel level, const QString& message)
+{
   log(level, message.toStdString());
 }
 } // namespace TrenchBroom

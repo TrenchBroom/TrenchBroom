@@ -39,10 +39,14 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom {
-namespace View {
-TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes") {
-  SECTION("Update linked groups") {
+namespace TrenchBroom
+{
+namespace View
+{
+TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes")
+{
+  SECTION("Update linked groups")
+  {
     auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
     auto* brushNode = createBrushNode();
     groupNode->addChild(brushNode);
@@ -57,12 +61,9 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes") {
       CreateNode{[](const auto&) -> Model::Node* {
         return new Model::EntityNode{Model::Entity{}};
       }},
-      CreateNode{[](const auto& test) -> Model::Node* {
-        return test.createBrushNode();
-      }},
-      CreateNode{[](const auto& test) -> Model::Node* {
-        return test.createPatchNode();
-      }});
+      CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
+      CreateNode{
+        [](const auto& test) -> Model::Node* { return test.createPatchNode(); }});
 
     auto* nodeToAdd = createNode(*this);
     document->addNodes({{groupNode, {nodeToAdd}}});
@@ -71,7 +72,8 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes") {
 
     auto* linkedNode = linkedGroupNode->children().back();
     linkedNode->accept(kdl::overload(
-      [](const Model::WorldNode*) {}, [](const Model::LayerNode*) {},
+      [](const Model::WorldNode*) {},
+      [](const Model::LayerNode*) {},
       [](const Model::GroupNode*) {},
       [&](const Model::EntityNode* linkedEntityNode) {
         const auto* originalEntityNode = dynamic_cast<Model::EntityNode*>(nodeToAdd);
@@ -96,7 +98,8 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes") {
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups") {
+TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups")
+{
   auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
@@ -114,12 +117,13 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups") {
   REQUIRE(groupNode->childCount() == 1u);
   CHECK(linkedGroupNode->childCount() == 1u);
 
-  auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+  auto* linkedBrushNode =
+    dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
   CHECK(linkedBrushNode != nullptr);
 
   CHECK(
-    linkedBrushNode->physicalBounds() ==
-    brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
+    linkedBrushNode->physicalBounds()
+    == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
 
   document->undoCommand();
   REQUIRE(groupNode->childCount() == 0u);
@@ -130,7 +134,8 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups") {
   CHECK(linkedGroupNode->childCount() == 1u);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails") {
+TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails")
+{
   auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
@@ -138,7 +143,8 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails") {
   auto* linkedGroupNode = document->createLinkedDuplicate();
   document->deselectAll();
 
-  // adding a brush to the linked group node will fail because it will go out of world bounds
+  // adding a brush to the linked group node will fail because it will go out of world
+  // bounds
   document->selectNodes({linkedGroupNode});
   document->translateObjects(document->worldBounds().max);
   document->deselectAll();

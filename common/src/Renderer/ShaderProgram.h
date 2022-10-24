@@ -26,12 +26,15 @@
 #include <map>
 #include <string>
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class ShaderManager;
 class Shader;
 
-class ShaderProgram {
+class ShaderProgram
+{
 private:
   using UniformVariableCache = std::map<std::string, GLint>;
   using AttributeLocationCache = std::map<std::string, GLint>;

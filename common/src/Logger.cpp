@@ -23,95 +23,117 @@
 
 #include <QString>
 
-namespace TrenchBroom {
+namespace TrenchBroom
+{
 Logger::stream::stream(Logger* logger, const LogLevel logLevel)
   : m_logger(logger)
-  , m_logLevel(logLevel) {}
+  , m_logLevel(logLevel)
+{
+}
 
-Logger::stream::~stream() {
+Logger::stream::~stream()
+{
   m_logger->log(m_logLevel, m_buf.str());
 }
 
 Logger::~Logger() {}
 
-Logger::stream Logger::debug() {
+Logger::stream Logger::debug()
+{
   return Logger::stream(this, LogLevel::Debug);
 }
 
-void Logger::debug([[maybe_unused]] const char* message) {
+void Logger::debug([[maybe_unused]] const char* message)
+{
 #ifndef NDEBUG
   debug(QString(message));
 #endif
 }
 
-void Logger::debug([[maybe_unused]] const std::string& message) {
+void Logger::debug([[maybe_unused]] const std::string& message)
+{
 #ifndef NDEBUG
   log(LogLevel::Debug, message);
 #endif
 }
 
-void Logger::debug([[maybe_unused]] const QString& message) {
+void Logger::debug([[maybe_unused]] const QString& message)
+{
 #ifndef NDEBUG
   log(LogLevel::Debug, message);
 #endif
 }
 
-Logger::stream Logger::info() {
+Logger::stream Logger::info()
+{
   return stream(this, LogLevel::Info);
 }
 
-void Logger::info(const char* message) {
+void Logger::info(const char* message)
+{
   info(QString(message));
 }
 
-void Logger::info(const std::string& message) {
+void Logger::info(const std::string& message)
+{
   log(LogLevel::Info, message);
 }
 
-void Logger::info(const QString& message) {
+void Logger::info(const QString& message)
+{
   log(LogLevel::Info, message);
 }
 
-Logger::stream Logger::warn() {
+Logger::stream Logger::warn()
+{
   return stream(this, LogLevel::Warn);
 }
 
-void Logger::warn(const char* message) {
+void Logger::warn(const char* message)
+{
   warn(QString(message));
 }
 
-void Logger::warn(const std::string& message) {
+void Logger::warn(const std::string& message)
+{
   log(LogLevel::Warn, message);
 }
 
-void Logger::warn(const QString& message) {
+void Logger::warn(const QString& message)
+{
   log(LogLevel::Warn, message);
 }
 
-Logger::stream Logger::error() {
+Logger::stream Logger::error()
+{
   return stream(this, LogLevel::Error);
 }
 
-void Logger::error(const char* message) {
+void Logger::error(const char* message)
+{
   error(QString(message));
 }
 
-void Logger::error(const std::string& message) {
+void Logger::error(const std::string& message)
+{
   log(LogLevel::Error, message);
 }
 
-void Logger::error(const QString& message) {
+void Logger::error(const QString& message)
+{
   log(LogLevel::Error, message);
 }
 
-void Logger::log(const LogLevel level, const std::string& message) {
+void Logger::log(const LogLevel level, const std::string& message)
+{
 #ifdef NDEBUG
   if (level != LogLevel::Debug)
 #endif
     doLog(level, message);
 }
 
-void Logger::log(const LogLevel level, const QString& message) {
+void Logger::log(const LogLevel level, const QString& message)
+{
 #ifdef NDEBUG
   if (level != LogLevel::Debug)
 #endif

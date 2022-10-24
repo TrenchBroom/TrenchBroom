@@ -27,14 +27,18 @@
 #include <map>
 #include <memory>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class CFile;
 class File;
 
-class ImageFileSystemBase : public FileSystem {
+class ImageFileSystemBase : public FileSystem
+{
 protected:
-  class FileEntry {
+  class FileEntry
+  {
   public:
     virtual ~FileEntry();
 
@@ -44,7 +48,8 @@ protected:
     virtual std::shared_ptr<File> doOpen() const = 0;
   };
 
-  class SimpleFileEntry : public FileEntry {
+  class SimpleFileEntry : public FileEntry
+  {
   private:
     std::shared_ptr<File> m_file;
 
@@ -55,7 +60,8 @@ protected:
     std::shared_ptr<File> doOpen() const override;
   };
 
-  class CompressedFileEntry : public FileEntry {
+  class CompressedFileEntry : public FileEntry
+  {
   private:
     std::shared_ptr<File> m_file;
     const size_t m_uncompressedSize;
@@ -70,10 +76,13 @@ protected:
       std::shared_ptr<File> file, size_t uncompressedSize) const = 0;
   };
 
-  class Directory {
+  class Directory
+  {
   private:
-    using DirMap = std::map<Path, std::unique_ptr<Directory>, Path::Less<kdl::ci::string_less>>;
-    using FileMap = std::map<Path, std::unique_ptr<FileEntry>, Path::Less<kdl::ci::string_less>>;
+    using DirMap =
+      std::map<Path, std::unique_ptr<Directory>, Path::Less<kdl::ci::string_less>>;
+    using FileMap =
+      std::map<Path, std::unique_ptr<FileEntry>, Path::Less<kdl::ci::string_less>>;
 
     Path m_path;
     DirMap m_directories;
@@ -126,7 +135,8 @@ private:
   virtual void doReadDirectory() = 0;
 };
 
-class ImageFileSystem : public ImageFileSystemBase {
+class ImageFileSystem : public ImageFileSystemBase
+{
 protected:
   std::shared_ptr<CFile> m_file;
 

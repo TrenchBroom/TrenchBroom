@@ -23,12 +23,16 @@
 
 #include <vector>
 
-namespace TrenchBroom {
-namespace IO {
+namespace TrenchBroom
+{
+namespace IO
+{
 class Path;
 }
-namespace Model {
-class PortalFile {
+namespace Model
+{
+class PortalFile
+{
 private:
   std::vector<vm::polygon3f> m_portals;
 

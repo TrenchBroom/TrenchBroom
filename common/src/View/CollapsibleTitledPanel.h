@@ -25,17 +25,21 @@
 
 class QLabel;
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 class BorderLine;
 
-class CollapsibleTitleBar : public TitleBar {
+class CollapsibleTitleBar : public TitleBar
+{
   Q_OBJECT
 private:
   QLabel* m_stateText;
 
 public:
-  CollapsibleTitleBar(const QString& title, const QString& stateText, QWidget* parent = nullptr);
+  CollapsibleTitleBar(
+    const QString& title, const QString& stateText, QWidget* parent = nullptr);
 
   void setStateText(const QString& stateText);
 signals:
@@ -45,7 +49,8 @@ protected:
   void mousePressEvent(QMouseEvent* event) override;
 };
 
-class CollapsibleTitledPanel : public QWidget {
+class CollapsibleTitledPanel : public QWidget
+{
   Q_OBJECT
 private:
   CollapsibleTitleBar* m_titleBar;

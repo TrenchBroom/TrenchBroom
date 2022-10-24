@@ -37,8 +37,10 @@
 
 #include <cassert>
 
-namespace TrenchBroom {
-namespace View {
+namespace TrenchBroom
+{
+namespace View
+{
 DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(
   std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget(parent)
@@ -47,18 +49,21 @@ DirectoryTextureCollectionEditor::DirectoryTextureCollectionEditor(
   , m_enabledCollectionsList(nullptr)
   , m_addCollectionsButton(nullptr)
   , m_removeCollectionsButton(nullptr)
-  , m_reloadCollectionsButton(nullptr) {
+  , m_reloadCollectionsButton(nullptr)
+{
   createGui();
   connectObservers();
   updateAllTextureCollections();
   updateButtons();
 }
 
-void DirectoryTextureCollectionEditor::addSelectedTextureCollections() {
+void DirectoryTextureCollectionEditor::addSelectedTextureCollections()
+{
   const auto availableCollections = availableTextureCollections();
   auto enabledCollections = enabledTextureCollections();
 
-  for (QListWidgetItem* selectedItem : m_availableCollectionsList->selectedItems()) {
+  for (QListWidgetItem* selectedItem : m_availableCollectionsList->selectedItems())
+  {
     const auto index = static_cast<size_t>(m_availableCollectionsList->row(selectedItem));
     enabledCollections.push_back(availableCollections[index]);
   }
@@ -69,16 +74,20 @@ void DirectoryTextureCollectionEditor::addSelectedTextureCollections() {
   document->setEnabledTextureCollections(enabledCollections);
 }
 
-void DirectoryTextureCollectionEditor::removeSelectedTextureCollections() {
+void DirectoryTextureCollectionEditor::removeSelectedTextureCollections()
+{
   auto enabledCollections = enabledTextureCollections();
 
   std::vector<int> selections;
-  for (QListWidgetItem* selectedItem : m_enabledCollectionsList->selectedItems()) {
+  for (QListWidgetItem* selectedItem : m_enabledCollectionsList->selectedItems())
+  {
     selections.push_back(m_enabledCollectionsList->row(selectedItem));
   }
 
   // erase back to front
-  for (auto sIt = std::rbegin(selections), sEnd = std::rend(selections); sIt != sEnd; ++sIt) {
+  for (auto sIt = std::rbegin(selections), sEnd = std::rend(selections); sIt != sEnd;
+       ++sIt)
+  {
     const auto index = static_cast<size_t>(*sIt);
     enabledCollections = kdl::vec_erase_at(std::move(enabledCollections), index);
   }
@@ -87,35 +96,42 @@ void DirectoryTextureCollectionEditor::removeSelectedTextureCollections() {
   document->setEnabledTextureCollections(enabledCollections);
 }
 
-void DirectoryTextureCollectionEditor::reloadTextureCollections() {
+void DirectoryTextureCollectionEditor::reloadTextureCollections()
+{
   auto document = kdl::mem_lock(m_document);
   document->reloadTextureCollections();
 }
 
-void DirectoryTextureCollectionEditor::availableTextureCollectionSelectionChanged() {
+void DirectoryTextureCollectionEditor::availableTextureCollectionSelectionChanged()
+{
   updateButtons();
 }
 
-void DirectoryTextureCollectionEditor::enabledTextureCollectionSelectionChanged() {
+void DirectoryTextureCollectionEditor::enabledTextureCollectionSelectionChanged()
+{
   updateButtons();
 }
 
-bool DirectoryTextureCollectionEditor::canAddTextureCollections() const {
+bool DirectoryTextureCollectionEditor::canAddTextureCollections() const
+{
   return !m_availableCollectionsList->selectedItems().empty();
 }
 
-bool DirectoryTextureCollectionEditor::canRemoveTextureCollections() const {
+bool DirectoryTextureCollectionEditor::canRemoveTextureCollections() const
+{
   return !m_enabledCollectionsList->selectedItems().empty();
 }
 
-bool DirectoryTextureCollectionEditor::canReloadTextureCollections() const {
+bool DirectoryTextureCollectionEditor::canReloadTextureCollections() const
+{
   return m_enabledCollectionsList->count() != 0;
 }
 
 /**
  * See ModEditor::createGui
  */
-void DirectoryTextureCollectionEditor::createGui() {
+void DirectoryTextureCollectionEditor::createGui()
+{
   auto* availableCollectionsContainer = new TitledPanel("Available", false, true);
   availableCollectionsContainer->setBackgroundRole(QPalette::Base);
   availableCollectionsContainer->setAutoFillBackground(true);
@@ -127,7 +143,8 @@ void DirectoryTextureCollectionEditor::createGui() {
   availableCollectionsContainerLayout->setContentsMargins(0, 0, 0, 0);
   availableCollectionsContainerLayout->setSpacing(0);
   availableCollectionsContainerLayout->addWidget(m_availableCollectionsList);
-  availableCollectionsContainer->getPanel()->setLayout(availableCollectionsContainerLayout);
+  availableCollectionsContainer->getPanel()->setLayout(
+    availableCollectionsContainerLayout);
 
   auto* enabledCollectionsContainer = new TitledPanel("Enabled", false, true);
   enabledCollectionsContainer->setBackgroundRole(QPalette::Base);
@@ -144,13 +161,15 @@ void DirectoryTextureCollectionEditor::createGui() {
 
   m_addCollectionsButton =
     createBitmapButton("Add.svg", tr("Enable the selected texture collections"), this);
-  m_removeCollectionsButton =
-    createBitmapButton("Remove.svg", tr("Disable the selected texture collections"), this);
+  m_removeCollectionsButton = createBitmapButton(
+    "Remove.svg", tr("Disable the selected texture collections"), this);
   m_reloadCollectionsButton =
     createBitmapButton("Refresh.svg", tr("Reload all enabled texture collections"), this);
 
   auto* toolBar = createMiniToolBarLayout(
-    m_addCollectionsButton, m_removeCollectionsButton, LayoutConstants::WideHMargin,
+    m_addCollectionsButton,
+    m_removeCollectionsButton,
+    LayoutConstants::WideHMargin,
     m_reloadCollectionsButton);
 
   auto* layout = new QGridLayout();
@@ -166,99 +185,127 @@ void DirectoryTextureCollectionEditor::createGui() {
   setLayout(layout);
 
   connect(
-    m_availableCollectionsList, &QListWidget::itemSelectionChanged, this,
+    m_availableCollectionsList,
+    &QListWidget::itemSelectionChanged,
+    this,
     &DirectoryTextureCollectionEditor::availableTextureCollectionSelectionChanged);
   connect(
-    m_enabledCollectionsList, &QListWidget::itemSelectionChanged, this,
+    m_enabledCollectionsList,
+    &QListWidget::itemSelectionChanged,
+    this,
     &DirectoryTextureCollectionEditor::enabledTextureCollectionSelectionChanged);
   connect(
-    m_availableCollectionsList, &QListWidget::itemDoubleClicked, this,
+    m_availableCollectionsList,
+    &QListWidget::itemDoubleClicked,
+    this,
     &DirectoryTextureCollectionEditor::addSelectedTextureCollections);
   connect(
-    m_enabledCollectionsList, &QListWidget::itemDoubleClicked, this,
+    m_enabledCollectionsList,
+    &QListWidget::itemDoubleClicked,
+    this,
     &DirectoryTextureCollectionEditor::removeSelectedTextureCollections);
   connect(
-    m_addCollectionsButton, &QAbstractButton::clicked, this,
+    m_addCollectionsButton,
+    &QAbstractButton::clicked,
+    this,
     &DirectoryTextureCollectionEditor::addSelectedTextureCollections);
   connect(
-    m_removeCollectionsButton, &QAbstractButton::clicked, this,
+    m_removeCollectionsButton,
+    &QAbstractButton::clicked,
+    this,
     &DirectoryTextureCollectionEditor::removeSelectedTextureCollections);
   connect(
-    m_reloadCollectionsButton, &QAbstractButton::clicked, this,
+    m_reloadCollectionsButton,
+    &QAbstractButton::clicked,
+    this,
     &DirectoryTextureCollectionEditor::reloadTextureCollections);
 }
 
-void DirectoryTextureCollectionEditor::updateButtons() {
+void DirectoryTextureCollectionEditor::updateButtons()
+{
   m_addCollectionsButton->setEnabled(canAddTextureCollections());
   m_removeCollectionsButton->setEnabled(canRemoveTextureCollections());
   m_reloadCollectionsButton->setEnabled(canReloadTextureCollections());
 }
 
-void DirectoryTextureCollectionEditor::connectObservers() {
+void DirectoryTextureCollectionEditor::connectObservers()
+{
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
     this, &DirectoryTextureCollectionEditor::textureCollectionsDidChange);
-  m_notifierConnection +=
-    document->modsDidChangeNotifier.connect(this, &DirectoryTextureCollectionEditor::modsDidChange);
+  m_notifierConnection += document->modsDidChangeNotifier.connect(
+    this, &DirectoryTextureCollectionEditor::modsDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(
     this, &DirectoryTextureCollectionEditor::preferenceDidChange);
 }
 
-void DirectoryTextureCollectionEditor::textureCollectionsDidChange() {
+void DirectoryTextureCollectionEditor::textureCollectionsDidChange()
+{
   updateAllTextureCollections();
   updateButtons();
 }
 
-void DirectoryTextureCollectionEditor::modsDidChange() {
+void DirectoryTextureCollectionEditor::modsDidChange()
+{
   updateAllTextureCollections();
   updateButtons();
 }
 
-void DirectoryTextureCollectionEditor::preferenceDidChange(const IO::Path& path) {
+void DirectoryTextureCollectionEditor::preferenceDidChange(const IO::Path& path)
+{
   auto document = kdl::mem_lock(m_document);
-  if (document->isGamePathPreference(path)) {
+  if (document->isGamePathPreference(path))
+  {
     updateAllTextureCollections();
     updateButtons();
   }
 }
 
-void DirectoryTextureCollectionEditor::updateAllTextureCollections() {
+void DirectoryTextureCollectionEditor::updateAllTextureCollections()
+{
   updateAvailableTextureCollections();
   updateEnabledTextureCollections();
 }
 
-void DirectoryTextureCollectionEditor::updateAvailableTextureCollections() {
+void DirectoryTextureCollectionEditor::updateAvailableTextureCollections()
+{
   updateListBox(m_availableCollectionsList, availableTextureCollections());
 }
 
-void DirectoryTextureCollectionEditor::updateEnabledTextureCollections() {
+void DirectoryTextureCollectionEditor::updateEnabledTextureCollections()
+{
   updateListBox(m_enabledCollectionsList, enabledTextureCollections());
 }
 
 void DirectoryTextureCollectionEditor::updateListBox(
-  QListWidget* box, const std::vector<IO::Path>& paths) {
-  // We need to block QListWidget::itemSelectionChanged from firing while clearing and rebuilding
-  // the list because it will cause debugUIConsistency() to fail, as the number of list items in the
-  // UI won't match the document's texture collections lists.
+  QListWidget* box, const std::vector<IO::Path>& paths)
+{
+  // We need to block QListWidget::itemSelectionChanged from firing while clearing and
+  // rebuilding the list because it will cause debugUIConsistency() to fail, as the number
+  // of list items in the UI won't match the document's texture collections lists.
   QSignalBlocker blocker(box);
 
   box->clear();
-  for (const auto& path : paths) {
+  for (const auto& path : paths)
+  {
     box->addItem(IO::pathAsQString(path));
   }
 }
 
-std::vector<IO::Path> DirectoryTextureCollectionEditor::availableTextureCollections() const {
+std::vector<IO::Path> DirectoryTextureCollectionEditor::availableTextureCollections()
+  const
+{
   auto document = kdl::mem_lock(m_document);
   auto availableCollections = document->availableTextureCollections();
-  availableCollections =
-    kdl::vec_erase_all(std::move(availableCollections), document->enabledTextureCollections());
+  availableCollections = kdl::vec_erase_all(
+    std::move(availableCollections), document->enabledTextureCollections());
   return availableCollections;
 }
 
-std::vector<IO::Path> DirectoryTextureCollectionEditor::enabledTextureCollections() const {
+std::vector<IO::Path> DirectoryTextureCollectionEditor::enabledTextureCollections() const
+{
   auto document = kdl::mem_lock(m_document);
   return document->enabledTextureCollections();
 }

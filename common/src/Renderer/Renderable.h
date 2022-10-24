@@ -21,12 +21,15 @@
 
 #include "Macros.h"
 
-namespace TrenchBroom {
-namespace Renderer {
+namespace TrenchBroom
+{
+namespace Renderer
+{
 class RenderContext;
 class VboManager;
 
-class Renderable {
+class Renderable
+{
 public:
   Renderable() = default;
   virtual ~Renderable() = default;
@@ -39,7 +42,8 @@ private:
   defineCopyAndMove(Renderable);
 };
 
-class DirectRenderable : public Renderable {
+class DirectRenderable : public Renderable
+{
 public:
   DirectRenderable() = default;
   ~DirectRenderable() override = default;
@@ -52,7 +56,8 @@ private:
   defineCopyAndMove(DirectRenderable);
 };
 
-class IndexedRenderable : public Renderable {
+class IndexedRenderable : public Renderable
+{
 public:
   IndexedRenderable() = default;
   ~IndexedRenderable() override = default;
