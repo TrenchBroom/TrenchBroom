@@ -57,7 +57,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-TEST_CASE("BrushNodeTest.buildBrush_1186", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_1186")
 {
   /*
    See https://github.com/TrenchBroom/TrenchBroom/issues/1186
@@ -66,7 +66,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1186", "[BrushNodeTest]")
    resulting in problems when building the seam.
    */
 
-  const std::string data(
+  const auto data(
     "{\n"
     "( 656 976 672 ) ( 656 1104 672 ) ( 656 976 800 ) black -976 672 0 1 1 //TX2\n"
     "( 632 496.00295 640 ) ( 632 688.00137 768 ) ( 504 496.00295 640 ) doortrim2 632 331 "
@@ -81,16 +81,17 @@ TEST_CASE("BrushNodeTest.buildBrush_1186", "[BrushNodeTest]")
     "skip 1 2 0 -666 470.93310 //TX2\n"
     "}\n");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const auto worldBounds = vm::bbox3{4096.0};
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
-  const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
+
+  kdl::vec_clear_and_delete(nodes);
 }
 
-TEST_CASE("BrushNodeTest.buildBrush_1185", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_1185")
 {
   /*
    See https://github.com/TrenchBroom/TrenchBroom/issues/1185
@@ -99,7 +100,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1185", "[BrushNodeTest]")
    Polyhedron::Edge::split.
    */
 
-  const std::string data(
+  const auto data(
     "{\n"
     "( 32 1392 960 ) ( 32 1392 1088 ) ( 32 1264 960 ) black 1392 960 0 -1 1 //TX1\n"
     "( 64 1137.02125 916.65252 ) ( 64 1243.52363 845.65079 ) ( -64 1137.02125 916.65252 "
@@ -116,16 +117,17 @@ TEST_CASE("BrushNodeTest.buildBrush_1185", "[BrushNodeTest]")
     "skip 0 -3 0 666 -470.93310 //TX2\n"
     "}\n");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const auto worldBounds = vm::bbox3{4096.0};
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
-  const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
+
+  kdl::vec_clear_and_delete(nodes);
 }
 
-TEST_CASE("BrushNodeTest.buildBrush_1697", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_1697")
 {
   // From https://github.com/TrenchBroom/TrenchBroom/issues/1697
 
@@ -140,7 +142,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1697", "[BrushNodeTest]")
    With the revised face sort order (sort by normal), this brush can now be built.
    */
 
-  const std::string data(
+  const auto data(
     "{\n"
     "( -24 1844 112.527 ) ( -24 1844 112 ) ( -24 1844.27 113.544 ) "
     "O_METAL1_19AD [ 0 -1 0 -0 ] [ 0 0 1 -0 ] 180 1 -1\n"
@@ -306,22 +308,23 @@ TEST_CASE("BrushNodeTest.buildBrush_1697", "[BrushNodeTest]")
     "1851.2 114.289 ) O_METAL1_19AD [ -1 0 0 -16 ] [ 0 0 1 -0 ] 180 1 -1\n"
     "}\n");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const auto worldBounds = vm::bbox3{4096.0};
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
-  const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
+
+  kdl::vec_clear_and_delete(nodes);
 }
 
-TEST_CASE("BrushNodeTest.buildBrush_1194", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_1194")
 {
   /*
    See https://github.com/TrenchBroom/TrenchBroom/issues/1194
    */
 
-  const std::string data(
+  const auto data(
     "{\n"
     "( -1248 -2144 1168 ) ( -1120 -2144 1168 ) ( -1248 -2272 1168 ) rock_1732 "
     "1248 2144 0 1 -1 //TX2\n"
@@ -335,19 +338,20 @@ TEST_CASE("BrushNodeTest.buildBrush_1194", "[BrushNodeTest]")
     "-1120 -2144 976 ) rock_1732 1248 2144 0 1 -1 //TX1\n"
     "}\n");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const auto worldBounds = vm::bbox3{4096.0};
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
-  const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.empty());
+
+  kdl::vec_clear_and_delete(nodes);
 }
 
-TEST_CASE("BrushNodeTest.buildBrush_1332", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_1332")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1332
-  const std::string data(
+  const auto data(
     "{\n"
     "( 91.428573608  0  4.57144165 ) ( 96 16  0 ) ( 82.285690308  0  0          ) "
     "rock5_2 0 0 0 1 "
@@ -386,19 +390,19 @@ TEST_CASE("BrushNodeTest.buildBrush_1332", "[BrushNodeTest]")
     "1\n"
     "}");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const auto worldBounds = vm::bbox3{4096.0};
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
-  std::vector<Node*> nodes = IO::NodeReader::read(
+  auto nodes = IO::NodeReader::read(
     data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
   kdl::vec_clear_and_delete(nodes);
 }
 
-TEST_CASE("BrushNodeTest.buildBrush_1395", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_1395")
 {
   // Brush causes assertion to fail after having had its vertices snapped
-  const std::string data(
+  const auto data(
     "{\n"
     "( -72 497 878 ) ( -77 465 878 ) ( -77 396 878 ) rock4_2 -30 1 0 1 1\n"
     "( -72 497 878 ) ( -59 536 878 ) ( -65 536 905 ) rock4_2 -30 33 0 1 1\n"
@@ -437,21 +441,21 @@ TEST_CASE("BrushNodeTest.buildBrush_1395", "[BrushNodeTest]")
     "( -67 328 878 ) ( -77 465 890 ) ( -69 515 908 ) rock4_2 -1 33 0 1 1\n"
     "}\n");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const auto worldBounds = vm::bbox3{4096.0};
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
-  std::vector<Node*> nodes = IO::NodeReader::read(
+  auto nodes = IO::NodeReader::read(
     data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
   kdl::vec_clear_and_delete(nodes);
 }
 
-TEST_CASE("BrushNodeTest.buildBrush_1801", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_1801")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/1801
   // see PolyhedronTest::clipWithInvalidSeam
 
-  const std::string data(
+  const auto data(
     "{\n"
     "( -484 1513 395 ) ( -483 1371 131 ) ( -483 1777 253 ) *water1 -0 -0 -0 1 1\n"
     "( -483 1371 131 ) ( -459 1579 -115 ) ( -483 1777 253 ) *water1 -0 -0 -0 1 1\n"
@@ -465,22 +469,22 @@ TEST_CASE("BrushNodeTest.buildBrush_1801", "[BrushNodeTest]")
     "( -483 1777 253 ) ( -459 1579 -115 ) ( -183 1692 95 ) *water1 -0 -0 -0 1 1\n"
     "}\n");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const auto worldBounds = vm::bbox3{4096.0};
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
-  std::vector<Node*> nodes = IO::NodeReader::read(
+  auto nodes = IO::NodeReader::read(
     data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
   kdl::vec_clear_and_delete(nodes);
 }
 
-TEST_CASE("BrushNodeTest.buildBrush_2361", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_2361")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/pull/2372#issuecomment-432893836
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  const std::string data = R"(
+  const auto data = R"(
 {
 ( -5706.7302805113286 648 1090 ) ( -5730.730280567378 730 1100 ) ( -5706.7302804991377 722 1076 ) so_b4b -0 -0 -0 1 1
 ( -5730.7302804970022 574 1112 ) ( -5706.7302805113286 648 1090 ) ( -5706.7302621135759 484 1090 ) so_b4b -41.2695 6 -0 1 1
@@ -558,18 +562,18 @@ TEST_CASE("BrushNodeTest.buildBrush_2361", "[BrushNodeTest]")
 }
 )";
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
   CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
 }
 
-TEST_CASE("BrushNodeTest.buildBrush_2491", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_2491")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2491
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  const std::string data = R"(
+  const auto data = R"(
             {
                 ( -179 -179 -63 ) ( -158 -158 -69 ) ( 1.055125500745701e+154 1.0551255007456758e+154 -5.2756275037285048e+153 ) _core/tangerine -2.82843 -0 -0 0.0625 0.0625
                 ( -132 -126.3431457505086 -60 ) ( -132 188 -60 ) ( -132 -126.34314575050865 -64 ) _core/tangerine 0 0 0 0.0625 0.0625
@@ -580,18 +584,18 @@ TEST_CASE("BrushNodeTest.buildBrush_2491", "[BrushNodeTest]")
             }
             )";
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
   CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
 }
 
-TEST_CASE("BrushNodeTest.buildBrush_2686", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.buildBrush_2686")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2686
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  const std::string data = R"(
+  const auto data = R"(
 {
 ( -751 -623.07933525052886 159.27097151882481 ) ( -753.39055027600557 -658.05150554216561 45.762341114124865 ) ( -752.04220703008457 -655.64774857459861 45.762340887734425 ) wood1_1 [ -0.499995 -0.836519 0.224145 8.59912 ] [ -0.0094517 -0.253533 -0.967281 -43.4648 ] 346.992 1 1
 ( -746.54446646023075 -654.12665614912589 45.762340832676934 ) ( -743.99141084100086 -655.64759047173152 45.762340853972965 ) ( -746.90192378883967 -622.0185651831514 158.98673884436587 ) wood1_1 [ -0.866028 0.482959 -0.129408 -4.96463 ] [ 0.00536862 -0.249822 -0.968277 -43.5033 ] 7.53177 1 1
@@ -620,15 +624,46 @@ TEST_CASE("BrushNodeTest.buildBrush_2686", "[BrushNodeTest]")
 }
             )";
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
+
+  CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
+}
+
+TEST_CASE("BrushNodeTest.buildBrush_4100")
+{
+  // see https://github.com/TrenchBroom/TrenchBroom/issues/4100
+
+  const auto worldBounds = vm::bbox3{8192.0};
+
+  const auto data = R"(
+{
+( -0 -80 -0 ) ( -1 -80 0 ) ( 0 -80 1 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -3392 -0 -0 ) ( -3392 -1 0 ) ( -3392 0 1 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -3528 -0 0 ) ( -3528 0 -1 ) ( -3528 1 0 ) skip [ 0 0.98994946 -0.14142132 -380.57144 ] [ -0 2.7755576e-17 1 -552 ] 0 0.98994946 1
+( -84.15374000220254 -12.021963428584286 -420.76866163129307 ) ( -84.15374000220254 -13.002159487334438 -420.74065602572955 ) ( -83.17354394345239 -12.021963428584286 -420.9647008609245 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -933.6469106166005 -933.646967978988 1400.4702225189321 ) ( -934.3745174495816 -933.646967978988 1399.9851512472742 ) ( -933.6469106166005 -932.9193611460068 1400.9552938203924 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -1246.8555535894411 -178.12222674131772 1870.2785592149885 ) ( -1247.6850030642527 -178.12222674131772 1869.7255914878042 ) ( -1246.8555535894411 -177.29277726650616 1870.357554606715 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( 0 -136.827543669222 342.0691556266538 ) ( -0.9284768104553223 -136.827543669222 342.0691556266538 ) ( 0 -135.89906685876667 342.44054602897086 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -1345.2486912173918 1765.6389784157363 882.8194892078682 ) ( -1345.2486912173918 1766.008538687238 882.0803686648651 ) ( -1344.5095706743887 1766.2021178543655 882.8194892078682 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -82.4465011313232 -32.97859542561855 -412.23246795478553 ) ( -82.4465011313232 -33.956172754300496 -412.15426177325935 ) ( -81.46892380264126 -32.97859542561855 -412.4279834384033 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -1465.480714365578 1923.4434556211636 -0 ) ( -1465.480714365578 1923.4434556211636 -0.7954317331314087 ) ( -1464.6852826324466 1924.04949884073 -0 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -2504.4823210718605 -357.7817825879538 -1252.2410764080996 ) ( -2504.355576712129 -358.6689965929472 -1252.2410764080996 ) ( -2504.925928044555 -357.7817825879538 -1251.3538624031062 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -2505.5292536972556 -1002.2154964029323 1252.7645381821785 ) ( -2505.19239178882 -1003.0576479851734 1252.7645381821785 ) ( -2505.1081779359374 -1002.2154964029323 1253.6066897644196 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -1844.0403514477657 -263.4333678404364 1844.0406639118446 ) ( -1844.0403514477657 -264.13689439692826 1843.9401605044259 ) ( -1843.3368248912739 -263.4333678404364 1844.7441903491272 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -0 0 320 ) ( 0 -1 320 ) ( 1 0 320 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( 0 -0 384 ) ( -1 0 384 ) ( 0 1 384 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+( -0 128 -0 ) ( -1 128 0 ) ( -0 128 1 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
+})";
+
+  auto status = IO::TestParserStatus{};
 
   CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/1893
-TEST_CASE("BrushNodeTest.intersects_1893", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.intersects_1893")
 {
-  const std::string data(
+  const auto data(
     "{\n"
     "\"classname\" \"worldspawn\"\n"
     "{\n"
@@ -751,21 +786,22 @@ TEST_CASE("BrushNodeTest.intersects_1893", "[BrushNodeTest]")
     "}\n"
     "}\n");
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
 
-  std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
   CHECK(nodes.at(0)->hasChildren());
   CHECK(nodes.at(0)->children().size() == 2u);
 
-  BrushNode* pipe = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
-  BrushNode* cube = static_cast<BrushNode*>(nodes.at(0)->children().at(1));
+  auto* pipe = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
+  auto* cube = static_cast<BrushNode*>(nodes.at(0)->children().at(1));
 
   CHECK(pipe->intersects(cube));
   CHECK(cube->intersects(pipe));
+
+  kdl::vec_clear_and_delete(nodes);
 }
 } // namespace Model
 } // namespace TrenchBroom
