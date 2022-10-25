@@ -36,7 +36,7 @@ private:
 
 public:
   IndexedRenderableWrapper(VboManager&, IndexedRenderable* wrappee)
-    : m_wrappee(wrappee)
+    : m_wrappee{wrappee}
   {
     ensure(m_wrappee != nullptr, "wrappee is null");
   }
@@ -54,7 +54,7 @@ private:
 };
 
 RenderBatch::RenderBatch(VboManager& vboManager)
-  : m_vboManager(vboManager)
+  : m_vboManager{vboManager}
 {
 }
 
@@ -77,8 +77,7 @@ void RenderBatch::add(DirectRenderable* renderable)
 
 void RenderBatch::add(IndexedRenderable* renderable)
 {
-  IndexedRenderableWrapper* wrapper =
-    new IndexedRenderableWrapper(m_vboManager, renderable);
+  auto* wrapper = new IndexedRenderableWrapper{m_vboManager, renderable};
   doAdd(wrapper);
   m_indexedRenderables.push_back(wrapper);
 }
@@ -98,9 +97,7 @@ void RenderBatch::addOneShot(DirectRenderable* renderable)
 
 void RenderBatch::addOneShot(IndexedRenderable* renderable)
 {
-  IndexedRenderableWrapper* wrapper =
-    new IndexedRenderableWrapper(m_vboManager, renderable);
-
+  auto* wrapper = new IndexedRenderableWrapper{m_vboManager, renderable};
   doAdd(wrapper);
   m_indexedRenderables.push_back(wrapper);
   m_oneshots.push_back(renderable);
@@ -120,11 +117,11 @@ void RenderBatch::doAdd(Renderable* renderable)
 
 void RenderBatch::prepareRenderables()
 {
-  for (DirectRenderable* renderable : m_directRenderables)
+  for (auto* renderable : m_directRenderables)
   {
     renderable->prepareVertices(m_vboManager);
   }
-  for (IndexedRenderable* renderable : m_indexedRenderables)
+  for (auto* renderable : m_indexedRenderables)
   {
     renderable->prepareVerticesAndIndices(m_vboManager);
   }
@@ -132,8 +129,10 @@ void RenderBatch::prepareRenderables()
 
 void RenderBatch::renderRenderables(RenderContext& renderContext)
 {
-  for (Renderable* renderable : m_batch)
+  for (auto* renderable : m_batch)
+  {
     renderable->render(renderContext);
+  }
 }
 } // namespace Renderer
 } // namespace TrenchBroom

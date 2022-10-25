@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Macros.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/EntityRenderer.h"
 #include "Renderer/GroupRenderer.h"
@@ -66,10 +67,10 @@ public:
     Assets::EntityModelManager& entityModelManager,
     const Model::EditorContext& editorContext,
     const BrushFilterT& brushFilter)
-    : m_groupRenderer(editorContext)
-    , m_entityRenderer(logger, entityModelManager, editorContext)
-    , m_brushRenderer(brushFilter)
-    , m_patchRenderer{}
+    : m_groupRenderer{editorContext}
+    , m_entityRenderer{logger, entityModelManager, editorContext}
+    , m_brushRenderer{brushFilter}
+    , m_patchRenderer{editorContext}
   {
   }
 
@@ -114,9 +115,7 @@ public: // rendering
   void renderOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
 
-private:
-  ObjectRenderer(const ObjectRenderer&);
-  ObjectRenderer& operator=(const ObjectRenderer&);
+  deleteCopy(ObjectRenderer);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

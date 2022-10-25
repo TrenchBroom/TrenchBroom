@@ -44,6 +44,7 @@ public:
     bool onTop;
     bool useColor;
     Color color;
+
     Params(float i_width, double i_offset, bool i_onTop);
     Params(float i_width, double i_offset, bool i_onTop, const Color& i_color);
     Params(
@@ -60,7 +61,7 @@ public:
     const Params m_params;
 
   public:
-    RenderBase(const Params& params);
+    explicit RenderBase(const Params& params);
     virtual ~RenderBase();
 
   protected:
@@ -133,13 +134,8 @@ private:
 
 public:
   DirectEdgeRenderer();
-  DirectEdgeRenderer(const VertexArray& vertexArray, const IndexRangeMap& indexRanges);
-  DirectEdgeRenderer(const VertexArray& vertexArray, PrimType primType);
-
-  DirectEdgeRenderer(const DirectEdgeRenderer& other);
-  DirectEdgeRenderer& operator=(DirectEdgeRenderer other);
-
-  friend void swap(DirectEdgeRenderer& left, DirectEdgeRenderer& right);
+  DirectEdgeRenderer(VertexArray vertexArray, IndexRangeMap indexRanges);
+  DirectEdgeRenderer(VertexArray vertexArray, PrimType primType);
 
 private:
   void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) override;
@@ -175,11 +171,6 @@ public:
   IndexedEdgeRenderer(
     std::shared_ptr<BrushVertexArray> vertexArray,
     std::shared_ptr<BrushIndexArray> indexArray);
-
-  IndexedEdgeRenderer(const IndexedEdgeRenderer& other);
-  IndexedEdgeRenderer& operator=(IndexedEdgeRenderer other);
-
-  friend void swap(IndexedEdgeRenderer& left, IndexedEdgeRenderer& right);
 
 private:
   void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) override;

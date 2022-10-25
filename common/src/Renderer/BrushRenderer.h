@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Color.h"
+#include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/EdgeRenderer.h"
@@ -65,10 +66,7 @@ public:
     using RenderSettings = std::tuple<FaceRenderPolicy, EdgeRenderPolicy>;
 
     Filter();
-    Filter(const Filter& other);
     virtual ~Filter();
-
-    Filter& operator=(const Filter& other);
 
     /**
      * Classifies whether the brush will be rendered, and which faces/edges.
@@ -79,7 +77,7 @@ public:
      * Otherwise, markFaces() should call BrushFace::setMarked() on *all* faces, passing
      * true or false as needed to select the faces to be rendered.
      */
-    virtual RenderSettings markFaces(const Model::BrushNode* brush) const = 0;
+    virtual RenderSettings markFaces(const Model::BrushNode& brush) const = 0;
 
   protected:
     /**
@@ -98,32 +96,25 @@ public:
 
   protected:
     explicit DefaultFilter(const Model::EditorContext& context);
-    DefaultFilter(const DefaultFilter& other);
 
-    bool visible(const Model::BrushNode* brush) const;
-    bool visible(const Model::BrushNode* brush, const Model::BrushFace& face) const;
-    bool visible(const Model::BrushNode* brush, const Model::BrushEdge* edge) const;
+    bool visible(const Model::BrushNode& brush) const;
+    bool visible(const Model::BrushNode& brush, const Model::BrushFace& face) const;
+    bool visible(const Model::BrushNode& brush, const Model::BrushEdge& edge) const;
 
-    bool editable(const Model::BrushNode* brush) const;
-    bool editable(const Model::BrushNode* brush, const Model::BrushFace& face) const;
+    bool editable(const Model::BrushNode& brush) const;
+    bool editable(const Model::BrushNode& brush, const Model::BrushFace& face) const;
 
-    bool selected(const Model::BrushNode* brush) const;
-    bool selected(const Model::BrushNode* brush, const Model::BrushFace& face) const;
-    bool selected(const Model::BrushNode* brush, const Model::BrushEdge* edge) const;
-    bool hasSelectedFaces(const Model::BrushNode* brush) const;
-
-  private:
-    DefaultFilter& operator=(const DefaultFilter& other);
+    bool selected(const Model::BrushNode& brush) const;
+    bool selected(const Model::BrushNode& brush, const Model::BrushFace& face) const;
+    bool selected(const Model::BrushNode& brush, const Model::BrushEdge& edge) const;
+    bool hasSelectedFaces(const Model::BrushNode& brush) const;
   };
 
   class NoFilter : public Filter
   {
   public:
     using Filter::Filter;
-    RenderSettings markFaces(const Model::BrushNode* brushNode) const override;
-
-  private:
-    deleteCopyAndMove(NoFilter);
+    RenderSettings markFaces(const Model::BrushNode& brushNode) const override;
   };
 
 private:
@@ -184,14 +175,14 @@ private:
 public:
   template <typename FilterT>
   explicit BrushRenderer(const FilterT& filter)
-    : m_filter(std::make_unique<FilterT>(filter))
-    , m_showEdges(false)
-    , m_grayscale(false)
-    , m_tint(false)
-    , m_showOccludedEdges(false)
-    , m_forceTransparent(false)
-    , m_transparencyAlpha(1.0f)
-    , m_showHiddenBrushes(false)
+    : m_filter{std::make_unique<FilterT>(filter)}
+    , m_showEdges{false}
+    , m_grayscale{false}
+    , m_tint{false}
+    , m_showOccludedEdges{false}
+    , m_forceTransparent{false}
+    , m_transparencyAlpha{1.0f}
+    , m_showHiddenBrushes{false}
   {
     clear();
   }
@@ -306,19 +297,19 @@ public:
 
 private:
   bool shouldDrawFaceInTransparentPass(
-    const Model::BrushNode* brush, const Model::BrushFace& face) const;
-  void validateBrush(const Model::BrushNode* brush);
+    const Model::BrushNode& brushNode, const Model::BrushFace& face) const;
+  void validateBrush(const Model::BrushNode& brushNode);
 
 public:
   /**
    * Adds a brush. Calling with an already-added brush is allowed, but ignored (not
    * guaranteed to invalidate it).
    */
-  void addBrush(const Model::BrushNode* brush);
+  void addBrush(const Model::BrushNode* brushNode);
   /**
    * Removes a brush. Calling with an unknown brush is allowed, but ignored.
    */
-  void removeBrush(const Model::BrushNode* brush);
+  void removeBrush(const Model::BrushNode* brushNode);
 
 private:
   /**
@@ -327,11 +318,9 @@ private:
    * longer draw). The brush's "valid" state is not touched inside here, but the
    * m_brushInfo is updated.
    */
-  void removeBrushFromVbo(const Model::BrushNode* brush);
+  void removeBrushFromVbo(const Model::BrushNode& brush);
 
-private:
-  BrushRenderer(const BrushRenderer& other);
-  BrushRenderer& operator=(const BrushRenderer& other);
+  deleteCopyAndMove(BrushRenderer);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

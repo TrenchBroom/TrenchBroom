@@ -29,34 +29,34 @@ namespace TrenchBroom
 namespace View
 {
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::show(
-  const std::vector<Model::Node*>& nodes)
+  std::vector<Model::Node*> nodes)
 {
-  return std::make_unique<SetVisibilityCommand>(nodes, Action::Show);
+  return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Show);
 }
 
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::hide(
-  const std::vector<Model::Node*>& nodes)
+  std::vector<Model::Node*> nodes)
 {
-  return std::make_unique<SetVisibilityCommand>(nodes, Action::Hide);
+  return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Hide);
 }
 
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::ensureVisible(
-  const std::vector<Model::Node*>& nodes)
+  std::vector<Model::Node*> nodes)
 {
-  return std::make_unique<SetVisibilityCommand>(nodes, Action::Ensure);
+  return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Ensure);
 }
 
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::reset(
-  const std::vector<Model::Node*>& nodes)
+  std::vector<Model::Node*> nodes)
 {
-  return std::make_unique<SetVisibilityCommand>(nodes, Action::Reset);
+  return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Reset);
 }
 
 SetVisibilityCommand::SetVisibilityCommand(
-  const std::vector<Model::Node*>& nodes, const Action action)
+  std::vector<Model::Node*> nodes, const Action action)
   : UndoableCommand(makeName(action), false)
-  , m_nodes(nodes)
-  , m_action(action)
+  , m_nodes{std::move(nodes)}
+  , m_action{action}
 {
 }
 

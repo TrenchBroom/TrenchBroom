@@ -98,7 +98,7 @@ private:
 
 public:
   EntityProperty();
-  EntityProperty(const std::string& key, const std::string& value);
+  EntityProperty(std::string key, std::string value);
 
   kdl_reflect_decl(EntityProperty, m_key, m_value);
 
@@ -113,8 +113,8 @@ public:
   bool hasNumberedPrefix(std::string_view prefix) const;
   bool hasNumberedPrefixAndValue(std::string_view prefix, std::string_view value) const;
 
-  void setKey(const std::string& key);
-  void setValue(const std::string& value);
+  void setKey(std::string key);
+  void setValue(std::string value);
 };
 
 bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties);
