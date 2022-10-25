@@ -508,7 +508,7 @@
 ]
 
 // The following three entities are eye-candy - they don't do anything
-@PointClass base(Appearflags) color(255 128 0) size(-32 -32 -16, 32 32 32) model({ "path": ":models/monsters/tank/tris.md2",	"frame":254, "skin": 2}) = misc_eastertank : "Tank sitting down. Make him a chair out of brushes." []
+@PointClass base(Appearflags) color(255 128 0) size(-32 -32 -16, 32 32 32) model({ "path": ":models/monsters/tank/tris.md2",	"frame":254, "skin": 0}) = misc_eastertank : "Tank sitting down. Make him a chair out of brushes." []
 @PointClass base(Appearflags) color(255 128 0) size(-32 -32 0, 32 32 32) model({ "path": ":models/monsters/bitch/tris.md2", "frame":208}) = misc_easterchick : "Chick #1 sitting: Place her near misc_eastertank." []
 @PointClass base(Appearflags) color(255 128 0) size(-32 -32 0, 32 32 32) model({ "path": ":models/monsters/bitch/tris.md2", "frame":248}) = misc_easterchick2 : "Chick #2 sitting w/ different pose. Can be placed close to misc_eastertank's for full effect." []
 
