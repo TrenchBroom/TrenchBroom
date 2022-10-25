@@ -102,7 +102,7 @@ jobs:
       # this time.
       - name: Restore artifacts or setup vcpkg (do not install any package)
         uses: lukka/run-vcpkg@v10
-        # with:
+        with:
           # This is the default location of the directory containing vcpkg sources.
           # Change it to the right location if needed.
           # vcpkgDirectory: '${{ github.workspace }}/vcpkg'
@@ -115,7 +115,7 @@ jobs:
           # This is the glob expression used to locate the vcpkg.json and add its
           # hash to the cache key. Change it to match a single manifest file you want
           # to use.
-          # vcpkgJsonGlob: '**/vcpkg.json'
+          vcpkgJsonGlob: 'vcpkg.json'
 
           # This is needed to run `vcpkg install` command (after vcpkg is built) in
           # the directory where vcpkg.json has been located. Default is false,
