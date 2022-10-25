@@ -39,7 +39,7 @@ jobs:
     steps:
       # See: https://github.com/actions/checkout
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: 'recursive'
@@ -79,14 +79,14 @@ jobs:
 
       - name: Install Qt on Windows (x64)
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           arch: 'win64_msvc2019_64'
 
       - name: Install Qt on Windows (Win32)
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           arch: 'win32_msvc2019'
@@ -155,7 +155,7 @@ jobs:
 
       # win64
       - name: Upload win64 artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
         with:
           name: win64
@@ -165,7 +165,7 @@ jobs:
 
       # win32
       - name: Upload win32 artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
         with:
           name: win32
@@ -175,7 +175,7 @@ jobs:
 
       # Linux
       - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
         with:
           name: linux
@@ -186,7 +186,7 @@ jobs:
 
       # macOS
       - name: Upload macOS artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ matrix.os == 'macos-11' && matrix.tb-build-type != 'asan' }}
         with:
           name: macos
