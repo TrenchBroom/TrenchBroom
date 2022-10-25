@@ -851,7 +851,10 @@ bool Polyhedron<T, FP, VP>::healEdges(const T minLength)
   for (auto* edge = findShortEdge(); edge != nullptr && polyhedron();
        edge = findShortEdge())
   {
-    removeEdge(edge);
+    if (removeEdge(edge) == nullptr)
+    {
+      return false;
+    }
   }
 
   assert(!polyhedron() || checkEdgeLengths(minLength));
@@ -887,6 +890,11 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
   auto* validEdge = edge->next();
   auto* v1 = edge->firstVertex();
   auto* v2 = edge->secondVertex();
+  if (v1 == v2)
+  {
+    // This should happen, but rarely it does. For now, we signal an error and abort.
+    return nullptr;
+  }
 
   // Lambda to check if v2 was removed. We check if v2 is still incident to v1. This is
   // safe to do even if v2 was deleted because just check the addresses, and we also do
