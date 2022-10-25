@@ -41,16 +41,9 @@ namespace Renderer
 {
 // Filter
 
-BrushRenderer::Filter::Filter() {}
+BrushRenderer::Filter::Filter() = default;
 
-BrushRenderer::Filter::Filter(const Filter& /* other */) {}
-
-BrushRenderer::Filter::~Filter() {}
-
-BrushRenderer::Filter& BrushRenderer::Filter::operator=(const Filter& /* other */)
-{
-  return *this;
-}
+BrushRenderer::Filter::~Filter() = default;
 
 BrushRenderer::Filter::RenderSettings BrushRenderer::Filter::renderNothing()
 {
@@ -59,121 +52,115 @@ BrushRenderer::Filter::RenderSettings BrushRenderer::Filter::renderNothing()
 
 // DefaultFilter
 
-BrushRenderer::DefaultFilter::~DefaultFilter() {}
+BrushRenderer::DefaultFilter::~DefaultFilter() = default;
 BrushRenderer::DefaultFilter::DefaultFilter(const Model::EditorContext& context)
-  : m_context(context)
+  : m_context{context}
 {
 }
 
-BrushRenderer::DefaultFilter::DefaultFilter(const DefaultFilter& other)
-  : Filter()
-  , m_context(other.m_context)
+bool BrushRenderer::DefaultFilter::visible(const Model::BrushNode& brush) const
 {
-}
-
-bool BrushRenderer::DefaultFilter::visible(const Model::BrushNode* brush) const
-{
-  return m_context.visible(brush);
+  return m_context.visible(&brush);
 }
 
 bool BrushRenderer::DefaultFilter::visible(
-  const Model::BrushNode* brush, const Model::BrushFace& face) const
+  const Model::BrushNode& brush, const Model::BrushFace& face) const
 {
-  return m_context.visible(brush, face);
+  return m_context.visible(&brush, face);
 }
 
 bool BrushRenderer::DefaultFilter::visible(
-  const Model::BrushNode* brushNode, const Model::BrushEdge* edge) const
+  const Model::BrushNode& brushNode, const Model::BrushEdge& edge) const
 {
-  const Model::Brush& brush = brushNode->brush();
-  const auto firstFaceIndex = edge->firstFace()->payload();
-  const auto secondFaceIndex = edge->secondFace()->payload();
+  const auto& brush = brushNode.brush();
+  const auto firstFaceIndex = edge.firstFace()->payload();
+  const auto secondFaceIndex = edge.secondFace()->payload();
   assert(firstFaceIndex && secondFaceIndex);
 
-  const Model::BrushFace& firstFace = brush.face(*firstFaceIndex);
-  const Model::BrushFace& secondFace = brush.face(*secondFaceIndex);
+  const auto& firstFace = brush.face(*firstFaceIndex);
+  const auto& secondFace = brush.face(*secondFaceIndex);
 
-  return m_context.visible(brushNode, firstFace)
-         || m_context.visible(brushNode, secondFace);
+  return m_context.visible(&brushNode, firstFace)
+         || m_context.visible(&brushNode, secondFace);
 }
 
-bool BrushRenderer::DefaultFilter::editable(const Model::BrushNode* brush) const
+bool BrushRenderer::DefaultFilter::editable(const Model::BrushNode& brush) const
 {
-  return m_context.editable(brush);
+  return m_context.editable(&brush);
 }
 
 bool BrushRenderer::DefaultFilter::editable(
-  const Model::BrushNode* brush, const Model::BrushFace& face) const
+  const Model::BrushNode& brush, const Model::BrushFace& face) const
 {
-  return m_context.editable(brush, face);
+  return m_context.editable(&brush, face);
 }
 
-bool BrushRenderer::DefaultFilter::selected(const Model::BrushNode* brush) const
+bool BrushRenderer::DefaultFilter::selected(const Model::BrushNode& brush) const
 {
-  return brush->selected() || brush->parentSelected();
+  return brush.selected() || brush.parentSelected();
 }
 
 bool BrushRenderer::DefaultFilter::selected(
-  const Model::BrushNode*, const Model::BrushFace& face) const
+  const Model::BrushNode&, const Model::BrushFace& face) const
 {
   return face.selected();
 }
 
 bool BrushRenderer::DefaultFilter::selected(
-  const Model::BrushNode* brushNode, const Model::BrushEdge* edge) const
+  const Model::BrushNode& brushNode, const Model::BrushEdge& edge) const
 {
-  const Model::Brush& brush = brushNode->brush();
-  const auto firstFaceIndex = edge->firstFace()->payload();
-  const auto secondFaceIndex = edge->secondFace()->payload();
+  const auto& brush = brushNode.brush();
+  const auto firstFaceIndex = edge.firstFace()->payload();
+  const auto secondFaceIndex = edge.secondFace()->payload();
   assert(firstFaceIndex && secondFaceIndex);
 
-  const Model::BrushFace& firstFace = brush.face(*firstFaceIndex);
-  const Model::BrushFace& secondFace = brush.face(*secondFaceIndex);
+  const auto& firstFace = brush.face(*firstFaceIndex);
+  const auto& secondFace = brush.face(*secondFaceIndex);
 
   return selected(brushNode) || selected(brushNode, firstFace)
          || selected(brushNode, secondFace);
 }
 
-bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::BrushNode* brush) const
+bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::BrushNode& brush) const
 {
-  return brush->descendantSelected();
+  return brush.descendantSelected();
 }
 
 // NoFilter
 
 BrushRenderer::Filter::RenderSettings BrushRenderer::NoFilter::markFaces(
-  const Model::BrushNode* brushNode) const
+  const Model::BrushNode& brushNode) const
 {
-  const Model::Brush& brush = brushNode->brush();
-  for (const Model::BrushFace& face : brush.faces())
+  const auto& brush = brushNode.brush();
+  for (const auto& face : brush.faces())
   {
     face.setMarked(true);
   }
-  return std::make_tuple(FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderAll);
+  return {FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderAll};
 }
 
 // BrushRenderer
 
 BrushRenderer::BrushRenderer()
-  : m_filter(std::make_unique<NoFilter>())
-  , m_showEdges(false)
-  , m_grayscale(false)
-  , m_tint(false)
-  , m_showOccludedEdges(false)
-  , m_forceTransparent(false)
-  , m_transparencyAlpha(1.0f)
-  , m_showHiddenBrushes(false)
+  : m_filter{std::make_unique<NoFilter>()}
+  , m_showEdges{false}
+  , m_grayscale{false}
+  , m_tint{false}
+  , m_showOccludedEdges{false}
+  , m_forceTransparent{false}
+  , m_transparencyAlpha{1.0f}
+  , m_showHiddenBrushes{false}
 {
   clear();
 }
 
 void BrushRenderer::invalidate()
 {
-  for (auto& brush : m_allBrushes)
+  for (auto* brushNode : m_allBrushes)
   {
     // this will also invalidate already invalid brushes, which
     // is unnecessary
-    removeBrushFromVbo(brush);
+    removeBrushFromVbo(*brushNode);
   }
   m_invalidBrushes = m_allBrushes;
 
@@ -182,19 +169,19 @@ void BrushRenderer::invalidate()
   assert(m_opaqueFaces->empty());
 }
 
-void BrushRenderer::invalidateBrush(const Model::BrushNode* brush)
+void BrushRenderer::invalidateBrush(const Model::BrushNode* brushNode)
 {
   // skip brushes that are not in the renderer
-  if (m_allBrushes.find(brush) == std::end(m_allBrushes))
+  if (m_allBrushes.find(brushNode) == std::end(m_allBrushes))
   {
-    assert(m_brushInfo.find(brush) == std::end(m_brushInfo));
-    assert(m_invalidBrushes.find(brush) == std::end(m_invalidBrushes));
+    assert(m_brushInfo.find(brushNode) == std::end(m_brushInfo));
+    assert(m_invalidBrushes.find(brushNode) == std::end(m_invalidBrushes));
     return;
   }
   // if it's not in the invalid set, put it in
-  if (m_invalidBrushes.insert(brush).second)
+  if (m_invalidBrushes.insert(brushNode).second)
   {
-    removeBrushFromVbo(brush);
+    removeBrushFromVbo(*brushNode);
   }
 }
 
@@ -214,10 +201,10 @@ void BrushRenderer::clear()
   m_transparentFaces = std::make_shared<TextureToBrushIndicesMap>();
   m_opaqueFaces = std::make_shared<TextureToBrushIndicesMap>();
 
-  m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, m_opaqueFaces, m_faceColor);
+  m_opaqueFaceRenderer = FaceRenderer{m_vertexArray, m_opaqueFaces, m_faceColor};
   m_transparentFaceRenderer =
-    FaceRenderer(m_vertexArray, m_transparentFaces, m_faceColor);
-  m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, m_edgeIndices);
+    FaceRenderer{m_vertexArray, m_transparentFaces, m_faceColor};
+  m_edgeRenderer = IndexedEdgeRenderer{m_vertexArray, m_edgeIndices};
 }
 
 void BrushRenderer::setFaceColor(const Color& faceColor)
@@ -375,12 +362,12 @@ private:
 
 public:
   FilterWrapper(const Filter& filter, const bool showHiddenBrushes)
-    : m_filter(filter)
-    , m_showHiddenBrushes(showHiddenBrushes)
+    : m_filter{filter}
+    , m_showHiddenBrushes{showHiddenBrushes}
   {
   }
 
-  RenderSettings markFaces(const Model::BrushNode* brush) const override
+  RenderSettings markFaces(const Model::BrushNode& brush) const override
   {
     return resolve().markFaces(brush);
   }
@@ -390,17 +377,17 @@ void BrushRenderer::validate()
 {
   assert(!valid());
 
-  for (auto brush : m_invalidBrushes)
+  for (auto* brushNode : m_invalidBrushes)
   {
-    validateBrush(brush);
+    validateBrush(*brushNode);
   }
   m_invalidBrushes.clear();
   assert(valid());
 
-  m_opaqueFaceRenderer = FaceRenderer(m_vertexArray, m_opaqueFaces, m_faceColor);
+  m_opaqueFaceRenderer = FaceRenderer{m_vertexArray, m_opaqueFaces, m_faceColor};
   m_transparentFaceRenderer =
-    FaceRenderer(m_vertexArray, m_transparentFaces, m_faceColor);
-  m_edgeRenderer = IndexedEdgeRenderer(m_vertexArray, m_edgeIndices);
+    FaceRenderer{m_vertexArray, m_transparentFaces, m_faceColor};
+  m_edgeRenderer = IndexedEdgeRenderer{m_vertexArray, m_edgeIndices};
 }
 
 static size_t triIndicesCountForPolygon(const size_t vertexCount)
@@ -445,7 +432,7 @@ static inline bool shouldRenderEdge(
 }
 
 static size_t countMarkedEdgeIndices(
-  const Model::BrushNode* brush, const BrushRenderer::Filter::EdgeRenderPolicy policy)
+  const Model::BrushNode& brushNode, const BrushRenderer::Filter::EdgeRenderPolicy policy)
 {
   using EdgeRenderPolicy = BrushRenderer::Filter::EdgeRenderPolicy;
 
@@ -455,7 +442,7 @@ static size_t countMarkedEdgeIndices(
   }
 
   size_t indexCount = 0;
-  for (const auto& edge : brush->brushRendererBrushCache().cachedEdges())
+  for (const auto& edge : brushNode.brushRendererBrushCache().cachedEdges())
   {
     if (shouldRenderEdge(edge, policy))
     {
@@ -466,7 +453,7 @@ static size_t countMarkedEdgeIndices(
 }
 
 static void getMarkedEdgeIndices(
-  const Model::BrushNode* brush,
+  const Model::BrushNode& brushNode,
   const BrushRenderer::Filter::EdgeRenderPolicy policy,
   const GLuint brushVerticesStartIndex,
   GLuint* dest)
@@ -479,7 +466,7 @@ static void getMarkedEdgeIndices(
   }
 
   size_t i = 0;
-  for (const auto& edge : brush->brushRendererBrushCache().cachedEdges())
+  for (const auto& edge : brushNode.brushRendererBrushCache().cachedEdges())
   {
     if (shouldRenderEdge(edge, policy))
     {
@@ -492,7 +479,7 @@ static void getMarkedEdgeIndices(
 }
 
 bool BrushRenderer::shouldDrawFaceInTransparentPass(
-  const Model::BrushNode* brush, const Model::BrushFace& face) const
+  const Model::BrushNode& brushNode, const Model::BrushFace& face) const
 {
   if (m_transparencyAlpha >= 1.0f)
   {
@@ -505,7 +492,7 @@ bool BrushRenderer::shouldDrawFaceInTransparentPass(
   {
     return true;
   }
-  if (brush->hasAttribute(Model::TagAttributes::Transparency))
+  if (brushNode.hasAttribute(Model::TagAttributes::Transparency))
   {
     return true;
   }
@@ -516,16 +503,16 @@ bool BrushRenderer::shouldDrawFaceInTransparentPass(
   return false;
 }
 
-void BrushRenderer::validateBrush(const Model::BrushNode* brush)
+void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
 {
-  assert(m_allBrushes.find(brush) != std::end(m_allBrushes));
-  assert(m_invalidBrushes.find(brush) != std::end(m_invalidBrushes));
-  assert(m_brushInfo.find(brush) == std::end(m_brushInfo));
+  assert(m_allBrushes.find(&brushNode) != std::end(m_allBrushes));
+  assert(m_invalidBrushes.find(&brushNode) != std::end(m_invalidBrushes));
+  assert(m_brushInfo.find(&brushNode) == std::end(m_brushInfo));
 
-  const FilterWrapper wrapper(*m_filter, m_showHiddenBrushes);
+  const auto wrapper = FilterWrapper{*m_filter, m_showHiddenBrushes};
 
   // evaluate filter. only evaluate the filter once per brush.
-  const auto settings = wrapper.markFaces(brush);
+  const auto settings = wrapper.markFaces(brushNode);
   const auto [facePolicy, edgePolicy] = settings;
 
   if (
@@ -536,11 +523,11 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush)
     return;
   }
 
-  BrushInfo& info = m_brushInfo[brush];
+  BrushInfo& info = m_brushInfo[&brushNode];
 
   // collect vertices
-  auto& brushCache = brush->brushRendererBrushCache();
-  brushCache.validateVertexCache(brush);
+  auto& brushCache = brushNode.brushRendererBrushCache();
+  brushCache.validateVertexCache(brushNode);
   const auto& cachedVertices = brushCache.cachedVertices();
   ensure(!cachedVertices.empty(), "Brush must have cached vertices");
 
@@ -554,13 +541,13 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush)
 
   // insert edge indices into VBO
   {
-    const size_t edgeIndexCount = countMarkedEdgeIndices(brush, edgePolicy);
+    const size_t edgeIndexCount = countMarkedEdgeIndices(brushNode, edgePolicy);
     if (edgeIndexCount > 0)
     {
       auto [key, insertDest] =
         m_edgeIndices->getPointerToInsertElementsAt(edgeIndexCount);
       info.edgeIndicesKey = key;
-      getMarkedEdgeIndices(brush, edgePolicy, brushVerticesStartIndex, insertDest);
+      getMarkedEdgeIndices(brushNode, edgePolicy, brushVerticesStartIndex, insertDest);
     }
     else
     {
@@ -579,7 +566,7 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush)
   size_t nextI;
   for (size_t i = 0; i < facesSortedByTexSize; i = nextI)
   {
-    const Assets::Texture* texture = facesSortedByTex[i].texture;
+    const auto* texture = facesSortedByTex[i].texture;
 
     size_t opaqueIndexCount = 0;
     size_t transparentIndexCount = 0;
@@ -594,11 +581,11 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush)
     // process all faces with this texture (they'll be consecutive)
     for (size_t j = i; j < nextI; ++j)
     {
-      const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
+      const auto& cache = facesSortedByTex[j];
       if (cache.face->isMarked())
       {
         assert(cache.texture == texture);
-        if (shouldDrawFaceInTransparentPass(brush, *cache.face))
+        if (shouldDrawFaceInTransparentPass(brushNode, *cache.face))
         {
           transparentIndexCount += triIndicesCountForPolygon(cache.vertexCount);
         }
@@ -611,7 +598,7 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush)
 
     if (transparentIndexCount > 0)
     {
-      TextureToBrushIndicesMap& faceVboMap = *m_transparentFaces;
+      auto& faceVboMap = *m_transparentFaces;
       auto& holderPtr = faceVboMap[texture];
       if (holderPtr == nullptr)
       {
@@ -621,14 +608,16 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush)
 
       auto [key, insertDest] =
         holderPtr->getPointerToInsertElementsAt(transparentIndexCount);
-      info.transparentFaceIndicesKeys.push_back({texture, key});
+      info.transparentFaceIndicesKeys.emplace_back(texture, key);
 
       // process all faces with this texture (they'll be consecutive)
-      GLuint* currentDest = insertDest;
+      auto* currentDest = insertDest;
       for (size_t j = i; j < nextI; ++j)
       {
-        const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
-        if (cache.face->isMarked() && shouldDrawFaceInTransparentPass(brush, *cache.face))
+        const auto& cache = facesSortedByTex[j];
+        if (
+          cache.face->isMarked()
+          && shouldDrawFaceInTransparentPass(brushNode, *cache.face))
         {
           addTriIndicesForPolygon(
             currentDest,
@@ -644,7 +633,7 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush)
 
     if (opaqueIndexCount > 0)
     {
-      TextureToBrushIndicesMap& faceVboMap = *m_opaqueFaces;
+      auto& faceVboMap = *m_opaqueFaces;
       auto& holderPtr = faceVboMap[texture];
       if (holderPtr == nullptr)
       {
@@ -653,15 +642,16 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush)
       }
 
       auto [key, insertDest] = holderPtr->getPointerToInsertElementsAt(opaqueIndexCount);
-      info.opaqueFaceIndicesKeys.push_back({texture, key});
+      info.opaqueFaceIndicesKeys.emplace_back(texture, key);
 
       // process all faces with this texture (they'll be consecutive)
-      GLuint* currentDest = insertDest;
+      auto* currentDest = insertDest;
       for (size_t j = i; j < nextI; ++j)
       {
-        const BrushRendererBrushCache::CachedFace& cache = facesSortedByTex[j];
+        const auto& cache = facesSortedByTex[j];
         if (
-          cache.face->isMarked() && !shouldDrawFaceInTransparentPass(brush, *cache.face))
+          cache.face->isMarked()
+          && !shouldDrawFaceInTransparentPass(brushNode, *cache.face))
         {
           addTriIndicesForPolygon(
             currentDest,
@@ -677,35 +667,35 @@ void BrushRenderer::validateBrush(const Model::BrushNode* brush)
   }
 }
 
-void BrushRenderer::addBrush(const Model::BrushNode* brush)
+void BrushRenderer::addBrush(const Model::BrushNode* brushNode)
 {
   // i.e. insert the brush as "invalid" if it's not already present.
   // if it is present, its validity is unchanged.
-  if (m_allBrushes.insert(brush).second)
+  if (m_allBrushes.insert(brushNode).second)
   {
-    assert(m_brushInfo.find(brush) == std::end(m_brushInfo));
-    assertResult(m_invalidBrushes.insert(brush).second);
+    assert(m_brushInfo.find(brushNode) == std::end(m_brushInfo));
+    assertResult(m_invalidBrushes.insert(brushNode).second);
   }
 }
 
-void BrushRenderer::removeBrush(const Model::BrushNode* brush)
+void BrushRenderer::removeBrush(const Model::BrushNode* brushNode)
 {
   // update m_brushValid
-  m_allBrushes.erase(brush);
+  m_allBrushes.erase(brushNode);
 
-  if (m_invalidBrushes.erase(brush) > 0u)
+  if (m_invalidBrushes.erase(brushNode) > 0u)
   {
     // invalid brushes are not in the VBO, so we can return  now.
-    assert(m_brushInfo.find(brush) == std::end(m_brushInfo));
+    assert(m_brushInfo.find(brushNode) == std::end(m_brushInfo));
     return;
   }
 
-  removeBrushFromVbo(brush);
+  removeBrushFromVbo(*brushNode);
 }
 
-void BrushRenderer::removeBrushFromVbo(const Model::BrushNode* brush)
+void BrushRenderer::removeBrushFromVbo(const Model::BrushNode& brushNode)
 {
-  auto it = m_brushInfo.find(brush);
+  auto it = m_brushInfo.find(&brushNode);
 
   if (it == std::end(m_brushInfo))
   {

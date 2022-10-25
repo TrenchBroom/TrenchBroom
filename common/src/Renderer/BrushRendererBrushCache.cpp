@@ -52,7 +52,7 @@ BrushRendererBrushCache::CachedEdge::CachedEdge(
 }
 
 BrushRendererBrushCache::BrushRendererBrushCache()
-  : m_rendererCacheValid(false)
+  : m_rendererCacheValid{false}
 {
 }
 
@@ -64,7 +64,7 @@ void BrushRendererBrushCache::invalidateVertexCache()
   m_cachedFacesSortedByTexture.clear();
 }
 
-void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode* brushNode)
+void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode& brushNode)
 {
   if (m_rendererCacheValid)
   {
@@ -72,7 +72,7 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode* brushN
   }
 
   // build vertex cache and face cache
-  const Model::Brush& brush = brushNode->brush();
+  const auto& brush = brushNode.brush();
 
   m_cachedVertices.clear();
   m_cachedVertices.reserve(brush.vertexCount());
@@ -80,7 +80,7 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode* brushN
   m_cachedFacesSortedByTexture.clear();
   m_cachedFacesSortedByTexture.reserve(brush.faceCount());
 
-  for (const Model::BrushFace& face : brush.faces())
+  for (const auto& face : brush.faces())
   {
     const auto indexOfFirstVertexRelativeToBrush = m_cachedVertices.size();
 
@@ -88,8 +88,8 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode* brushN
     auto& boundary = face.geometry()->boundary();
     for (auto it = std::rbegin(boundary), end = std::rend(boundary); it != end; ++it)
     {
-      Model::BrushHalfEdge* current = *it;
-      Model::BrushVertex* vertex = current->origin();
+      auto* currentHalfEdge = *it;
+      auto* vertex = currentHalfEdge->origin();
 
       // Set the vertex payload to the index, relative to the brush's first vertex being
       // 0. This is used below when building the edge cache. NOTE: we'll overwrite the
@@ -100,11 +100,11 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode* brushN
 
       const auto& position = vertex->position();
       m_cachedVertices.emplace_back(
-        vm::vec3f(position),
-        vm::vec3f(face.boundary().normal),
+        vm::vec3f{position},
+        vm::vec3f{face.boundary().normal},
         face.textureCoords(position));
 
-      current = current->previous();
+      currentHalfEdge = currentHalfEdge->previous();
     }
 
     // face cache
@@ -125,7 +125,7 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode* brushN
   m_cachedEdges.clear();
   m_cachedEdges.reserve(brush.edgeCount());
 
-  for (const Model::BrushEdge* currentEdge : brush.edges())
+  for (const auto* currentEdge : brush.edges())
   {
     const auto faceIndex1 = currentEdge->firstFace()->payload();
     const auto faceIndex2 = currentEdge->secondFace()->payload();

@@ -75,7 +75,7 @@ const std::string LayerClassname = "func_group";
 const std::string GroupClassname = "func_group";
 const std::string GroupTypeLayer = "_tb_layer";
 const std::string GroupTypeGroup = "_tb_group";
-const std::string DefaultValue = "";
+const std::string DefaultValue;
 const std::string NoSoftMapBounds = "none";
 const std::string LayerLockedValue = "1";
 const std::string LayerHiddenValue = "1";
@@ -93,9 +93,9 @@ bool isNumberedProperty(std::string_view prefix, std::string_view key)
 
 EntityProperty::EntityProperty() = default;
 
-EntityProperty::EntityProperty(const std::string& key, const std::string& value)
-  : m_key(key)
-  , m_value(value)
+EntityProperty::EntityProperty(std::string key, std::string value)
+  : m_key{std::move(key)}
+  , m_value{std::move(value)}
 {
 }
 
@@ -148,14 +148,14 @@ bool EntityProperty::hasNumberedPrefixAndValue(
   return hasNumberedPrefix(prefix) && hasValue(value);
 }
 
-void EntityProperty::setKey(const std::string& key)
+void EntityProperty::setKey(std::string key)
 {
-  m_key = key;
+  m_key = std::move(key);
 }
 
-void EntityProperty::setValue(const std::string& value)
+void EntityProperty::setValue(std::string value)
 {
-  m_value = value;
+  m_value = std::move(value);
 }
 
 bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties)

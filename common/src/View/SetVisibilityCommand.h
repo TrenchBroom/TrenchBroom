@@ -53,16 +53,13 @@ private:
   std::map<Model::Node*, Model::VisibilityState> m_oldState;
 
 public:
-  static std::unique_ptr<SetVisibilityCommand> show(
-    const std::vector<Model::Node*>& nodes);
-  static std::unique_ptr<SetVisibilityCommand> hide(
-    const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SetVisibilityCommand> show(std::vector<Model::Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> hide(std::vector<Model::Node*> nodes);
   static std::unique_ptr<SetVisibilityCommand> ensureVisible(
-    const std::vector<Model::Node*>& nodes);
-  static std::unique_ptr<SetVisibilityCommand> reset(
-    const std::vector<Model::Node*>& nodes);
+    std::vector<Model::Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> reset(std::vector<Model::Node*> nodes);
 
-  SetVisibilityCommand(const std::vector<Model::Node*>& nodes, Action action);
+  SetVisibilityCommand(std::vector<Model::Node*> nodes, Action action);
 
 private:
   static std::string makeName(Action action);

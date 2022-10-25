@@ -62,10 +62,6 @@ class RenderContext;
 class MapRenderer
 {
 private:
-  class SelectedBrushRendererFilter;
-  class LockedBrushRendererFilter;
-  class UnselectedBrushRendererFilter;
-
   std::weak_ptr<View::MapDocument> m_document;
 
   std::unique_ptr<ObjectRenderer> m_defaultRenderer;
@@ -74,13 +70,13 @@ private:
   std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
   std::unique_ptr<GroupLinkRenderer> m_groupLinkRenderer;
 
-  typedef enum
+  enum class Renderer
   {
-    Renderer_Default = 1,
-    Renderer_Selection = 2,
-    Renderer_Locked = 4,
-    Renderer_All = Renderer_Default | Renderer_Selection | Renderer_Locked
-  } Renderer;
+    Default = 1,
+    Selection = 2,
+    Locked = 4,
+    All = Default | Selection | Locked
+  };
 
   std::unordered_map<Model::Node*, Renderer> m_trackedNodes;
 

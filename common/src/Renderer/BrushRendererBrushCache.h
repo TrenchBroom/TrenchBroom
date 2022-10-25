@@ -90,7 +90,7 @@ public:
    * different rendering styles (default/selected/locked), or need to re-evaluate the
    * BrushRenderer::Filter to exclude certain faces/edges.
    */
-  void validateVertexCache(const Model::BrushNode* brushNode);
+  void validateVertexCache(const Model::BrushNode& brushNode);
 
   /**
    * Returns all vertices for all faces of the brush.

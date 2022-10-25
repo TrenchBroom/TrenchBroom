@@ -47,9 +47,9 @@ namespace TrenchBroom
 namespace Renderer
 {
 PatchRenderer::PatchRenderer()
-  : m_grayscale(false)
-  , m_tint(false)
-  , m_alpha(1.0f)
+  : m_grayscale{false}
+  , m_tint{false}
+  , m_alpha{1.0f}
 {
 }
 
@@ -278,7 +278,7 @@ static DirectEdgeRenderer buildEdgeRenderer(
     }
     assert(row == t && col == l);
 
-    indexRangeMapBuilder.addLineLoop(std::move(edgeLoopVertices));
+    indexRangeMapBuilder.addLineLoop(edgeLoopVertices);
   }
 
   auto vertexArray = VertexArray::move(std::move(indexRangeMapBuilder.vertices()));
@@ -312,9 +312,9 @@ struct RenderFunc : public TextureRenderFunc
 
   RenderFunc(
     ActiveShader& i_shader, const bool i_applyTexture, const Color& i_defaultColor)
-    : shader(i_shader)
-    , applyTexture(i_applyTexture)
-    , defaultColor(i_defaultColor)
+    : shader{i_shader}
+    , applyTexture{i_applyTexture}
+    , defaultColor{i_defaultColor}
   {
   }
 
@@ -346,9 +346,9 @@ struct RenderFunc : public TextureRenderFunc
 
 void PatchRenderer::doRender(RenderContext& context)
 {
-  ShaderManager& shaderManager = context.shaderManager();
-  ActiveShader shader(shaderManager, Shaders::FaceShader);
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& shaderManager = context.shaderManager();
+  auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
+  auto& prefs = PreferenceManager::instance();
 
   const bool applyTexture = context.showTextures();
   const bool shadeFaces = context.shadeFaces();
@@ -378,13 +378,13 @@ void PatchRenderer::doRender(RenderContext& context)
   shader.set("SoftMapBoundsMax", context.softMapBounds().max);
   shader.set(
     "SoftMapBoundsColor",
-    vm::vec4f(
+    vm::vec4f{
       prefs.get(Preferences::SoftMapBoundsColor).r(),
       prefs.get(Preferences::SoftMapBoundsColor).g(),
       prefs.get(Preferences::SoftMapBoundsColor).b(),
-      0.1f));
+      0.1f});
 
-  RenderFunc func(shader, applyTexture, m_defaultColor);
+  auto func = RenderFunc{shader, applyTexture, m_defaultColor};
   /*
   if (m_alpha < 1.0f) {
       glAssert(glDepthMask(GL_FALSE));
