@@ -20,6 +20,7 @@
 #include "PatchRenderer.h"
 
 #include "Assets/Texture.h"
+#include "Model/EditorContext.h"
 #include "Model/PatchNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -46,8 +47,9 @@ namespace TrenchBroom
 {
 namespace Renderer
 {
-PatchRenderer::PatchRenderer()
-  : m_grayscale{false}
+PatchRenderer::PatchRenderer(const Model::EditorContext& editorContext)
+  : m_editorContext{editorContext}
+  , m_grayscale{false}
   , m_tint{false}
   , m_alpha{1.0f}
 {
@@ -154,19 +156,23 @@ void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatc
 }
 
 static TexturedIndexArrayRenderer buildMeshRenderer(
-  const std::vector<const Model::PatchNode*>& patchNodes)
+  const std::vector<const Model::PatchNode*>& patchNodes,
+  const Model::EditorContext& editorContext)
 {
   size_t vertexCount = 0u;
   auto indexArrayMapSize = TexturedIndexArrayMap::Size{};
 
   for (const auto* patchNode : patchNodes)
   {
-    vertexCount += patchNode->grid().pointRowCount * patchNode->grid().pointColumnCount;
+    if (editorContext.visible(patchNode))
+    {
+      vertexCount += patchNode->grid().pointRowCount * patchNode->grid().pointColumnCount;
 
-    const auto* texture = patchNode->patch().texture();
-    const auto quadCount =
-      patchNode->grid().quadRowCount() * patchNode->grid().quadColumnCount();
-    indexArrayMapSize.inc(texture, PrimType::Triangles, 6u * quadCount);
+      const auto* texture = patchNode->patch().texture();
+      const auto quadCount =
+        patchNode->grid().quadRowCount() * patchNode->grid().quadColumnCount();
+      indexArrayMapSize.inc(texture, PrimType::Triangles, 6u * quadCount);
+    }
   }
 
   using Vertex = GLVertexTypes::P3NT2::Vertex;
@@ -178,36 +184,39 @@ static TexturedIndexArrayRenderer buildMeshRenderer(
 
   for (const auto* patchNode : patchNodes)
   {
-    const auto vertexOffset = vertices.size();
-
-    const auto& grid = patchNode->grid();
-    auto gridVertices = kdl::vec_transform(grid.points, [](const auto& p) {
-      return Vertex{vm::vec3f{p.position}, vm::vec3f{p.normal}, vm::vec2f{p.texCoords}};
-    });
-    vertices = kdl::vec_concat(std::move(vertices), std::move(gridVertices));
-
-    const auto* texture = patchNode->patch().texture();
-
-    const auto pointsPerRow = grid.pointColumnCount;
-    for (size_t row = 0u; row < grid.quadRowCount(); ++row)
+    if (editorContext.visible(patchNode))
     {
-      for (size_t col = 0u; col < grid.quadColumnCount(); ++col)
-      {
-        const auto i0 = vertexOffset + row * pointsPerRow + col;
-        const auto i1 = vertexOffset + row * pointsPerRow + col + 1u;
-        const auto i2 = vertexOffset + (row + 1u) * pointsPerRow + col + 1u;
-        const auto i3 = vertexOffset + (row + 1u) * pointsPerRow + col;
+      const auto vertexOffset = vertices.size();
 
-        indexArrayMapBuilder.addTriangle(
-          texture,
-          static_cast<Index>(i0),
-          static_cast<Index>(i1),
-          static_cast<Index>(i2));
-        indexArrayMapBuilder.addTriangle(
-          texture,
-          static_cast<Index>(i2),
-          static_cast<Index>(i3),
-          static_cast<Index>(i0));
+      const auto& grid = patchNode->grid();
+      auto gridVertices = kdl::vec_transform(grid.points, [](const auto& p) {
+        return Vertex{vm::vec3f{p.position}, vm::vec3f{p.normal}, vm::vec2f{p.texCoords}};
+      });
+      vertices = kdl::vec_concat(std::move(vertices), std::move(gridVertices));
+
+      const auto* texture = patchNode->patch().texture();
+
+      const auto pointsPerRow = grid.pointColumnCount;
+      for (size_t row = 0u; row < grid.quadRowCount(); ++row)
+      {
+        for (size_t col = 0u; col < grid.quadColumnCount(); ++col)
+        {
+          const auto i0 = vertexOffset + row * pointsPerRow + col;
+          const auto i1 = vertexOffset + row * pointsPerRow + col + 1u;
+          const auto i2 = vertexOffset + (row + 1u) * pointsPerRow + col + 1u;
+          const auto i3 = vertexOffset + (row + 1u) * pointsPerRow + col;
+
+          indexArrayMapBuilder.addTriangle(
+            texture,
+            static_cast<Index>(i0),
+            static_cast<Index>(i1),
+            static_cast<Index>(i2));
+          indexArrayMapBuilder.addTriangle(
+            texture,
+            static_cast<Index>(i2),
+            static_cast<Index>(i3),
+            static_cast<Index>(i0));
+        }
       }
     }
   }
@@ -221,16 +230,20 @@ static TexturedIndexArrayRenderer buildMeshRenderer(
 }
 
 static DirectEdgeRenderer buildEdgeRenderer(
-  const std::vector<const Model::PatchNode*>& patchNodes)
+  const std::vector<const Model::PatchNode*>& patchNodes,
+  const Model::EditorContext& editorContext)
 {
   size_t vertexCount = 0u;
   auto indexRangeMapSize = IndexRangeMap::Size{};
 
   for (const auto* patchNode : patchNodes)
   {
-    vertexCount +=
-      (patchNode->grid().pointRowCount + patchNode->grid().pointColumnCount - 2u) * 2u;
-    indexRangeMapSize.inc(PrimType::LineLoop, vertexCount);
+    if (editorContext.visible(patchNode))
+    {
+      vertexCount +=
+        (patchNode->grid().pointRowCount + patchNode->grid().pointColumnCount - 2u) * 2u;
+      indexRangeMapSize.inc(PrimType::LineLoop, vertexCount);
+    }
   }
 
   auto indexRangeMapBuilder =
@@ -238,47 +251,50 @@ static DirectEdgeRenderer buildEdgeRenderer(
 
   for (const auto* patchNode : patchNodes)
   {
-    const auto& grid = patchNode->grid();
-
-    auto edgeLoopVertices = std::vector<GLVertexTypes::P3::Vertex>{};
-    edgeLoopVertices.reserve((grid.pointRowCount + grid.pointColumnCount - 2u) * 2u);
-
-    // walk around the patch to collect the edge vertices
-    // for each side, collect the first vertex up to but not including the last vertex
-
-    const auto t = 0u;
-    const auto b = grid.pointRowCount - 1u;
-    const auto l = 0u;
-    const auto r = grid.pointColumnCount - 1u;
-
-    size_t row = t;
-    size_t col = l;
-
-    while (col < r)
+    if (editorContext.visible(patchNode))
     {
-      edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row, col++).position});
-    }
-    assert(row == t && col == r);
+      const auto& grid = patchNode->grid();
 
-    while (row < b)
-    {
-      edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row++, col).position});
-    }
-    assert(row == b && col == r);
+      auto edgeLoopVertices = std::vector<GLVertexTypes::P3::Vertex>{};
+      edgeLoopVertices.reserve((grid.pointRowCount + grid.pointColumnCount - 2u) * 2u);
 
-    while (col > l)
-    {
-      edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row, col--).position});
-    }
-    assert(row == b && col == l);
+      // walk around the patch to collect the edge vertices
+      // for each side, collect the first vertex up to but not including the last vertex
 
-    while (row > t)
-    {
-      edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row--, col).position});
-    }
-    assert(row == t && col == l);
+      const auto t = 0u;
+      const auto b = grid.pointRowCount - 1u;
+      const auto l = 0u;
+      const auto r = grid.pointColumnCount - 1u;
 
-    indexRangeMapBuilder.addLineLoop(edgeLoopVertices);
+      size_t row = t;
+      size_t col = l;
+
+      while (col < r)
+      {
+        edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row, col++).position});
+      }
+      assert(row == t && col == r);
+
+      while (row < b)
+      {
+        edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row++, col).position});
+      }
+      assert(row == b && col == r);
+
+      while (col > l)
+      {
+        edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row, col--).position});
+      }
+      assert(row == b && col == l);
+
+      while (row > t)
+      {
+        edgeLoopVertices.emplace_back(vm::vec3f{grid.point(row--, col).position});
+      }
+      assert(row == t && col == l);
+
+      indexRangeMapBuilder.addLineLoop(edgeLoopVertices);
+    }
   }
 
   auto vertexArray = VertexArray::move(std::move(indexRangeMapBuilder.vertices()));
@@ -290,8 +306,8 @@ void PatchRenderer::validate()
 {
   if (!m_valid)
   {
-    m_patchMeshRenderer = buildMeshRenderer(m_patchNodes.get_data());
-    m_edgeRenderer = buildEdgeRenderer(m_patchNodes.get_data());
+    m_patchMeshRenderer = buildMeshRenderer(m_patchNodes.get_data(), m_editorContext);
+    m_edgeRenderer = buildEdgeRenderer(m_patchNodes.get_data(), m_editorContext);
 
     m_valid = true;
   }

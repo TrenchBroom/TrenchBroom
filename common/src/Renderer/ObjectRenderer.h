@@ -70,7 +70,7 @@ public:
     : m_groupRenderer{editorContext}
     , m_entityRenderer{logger, entityModelManager, editorContext}
     , m_brushRenderer{brushFilter}
-    , m_patchRenderer{}
+    , m_patchRenderer{editorContext}
   {
   }
 

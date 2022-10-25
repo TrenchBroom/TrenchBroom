@@ -32,8 +32,9 @@ namespace TrenchBroom
 {
 namespace Model
 {
+class EditorContext;
 class PatchNode;
-}
+} // namespace Model
 
 namespace Renderer
 {
@@ -44,6 +45,8 @@ class VboManager;
 class PatchRenderer : public IndexedRenderable
 {
 private:
+  const Model::EditorContext& m_editorContext;
+
   bool m_valid = true;
   kdl::vector_set<const Model::PatchNode*> m_patchNodes;
 
@@ -62,7 +65,7 @@ private:
   Color m_occludedEdgeColor;
 
 public:
-  PatchRenderer();
+  explicit PatchRenderer(const Model::EditorContext& editorContext);
 
   void setDefaultColor(const Color& faceColor);
   void setGrayscale(bool grayscale);
