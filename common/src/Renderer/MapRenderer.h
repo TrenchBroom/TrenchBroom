@@ -78,7 +78,7 @@ private:
     All = Default | Selection | Locked
   };
 
-  std::unordered_map<Model::Node*, Renderer> m_trackedNodes;
+  std::unordered_map<Model::Node*, int> m_trackedNodes;
 
   NotifierConnection m_notifierConnection;
 
@@ -121,7 +121,7 @@ private:
   void setupSelectionRenderer(ObjectRenderer& renderer);
   void setupLockedRenderer(ObjectRenderer& renderer);
 
-  static Renderer determineDesiredRenderers(Model::Node* node);
+  static int determineDesiredRenderers(Model::Node* node);
   void updateAndInvalidateNode(Model::Node* node);
   void updateAndInvalidateNodeRecursive(Model::Node* node);
   void removeNode(Model::Node* node);

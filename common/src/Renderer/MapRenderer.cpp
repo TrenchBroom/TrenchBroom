@@ -395,9 +395,9 @@ static bool selected(const Model::Node* node)
   return node->selected() || node->descendantSelected() || node->parentSelected();
 }
 
-MapRenderer::Renderer MapRenderer::determineDesiredRenderers(Model::Node* node)
+int MapRenderer::determineDesiredRenderers(Model::Node* node)
 {
-  auto result = Renderer{};
+  int result = 0;
 
   node->accept(kdl::overload(
     [](Model::WorldNode*) {},
@@ -405,57 +405,57 @@ MapRenderer::Renderer MapRenderer::determineDesiredRenderers(Model::Node* node)
     [&](Model::GroupNode* group) {
       if (group->locked())
       {
-        result = Renderer::Locked;
+        result = static_cast<int>(Renderer::Locked);
       }
       else if (selected(group) || group->opened())
       {
-        result = Renderer::Selection;
+        result = static_cast<int>(Renderer::Selection);
       }
       else
       {
-        result = Renderer::Default;
+        result = static_cast<int>(Renderer::Default);
       }
     },
     [&](Model::EntityNode* entity) {
       if (entity->locked())
       {
-        result = Renderer::Locked;
+        result = static_cast<int>(Renderer::Locked);
       }
       else if (selected(entity))
       {
-        result = Renderer::Selection;
+        result = static_cast<int>(Renderer::Selection);
       }
       else
       {
-        result = Renderer::Default;
+        result = static_cast<int>(Renderer::Default);
       }
     },
     [&](Model::BrushNode* brush) {
       if (brush->locked())
       {
-        result = Renderer::Locked;
+        result = static_cast<int>(Renderer::Locked);
       }
       else if (selected(brush) || brush->hasSelectedFaces())
       {
-        result = Renderer::Selection;
+        result = static_cast<int>(Renderer::Selection);
       }
       if (!brush->selected() && !brush->parentSelected() && !brush->locked())
       {
-        result = Renderer::Default;
+        result |= static_cast<int>(Renderer::Default);
       }
     },
     [&](Model::PatchNode* patchNode) {
       if (patchNode->locked())
       {
-        result = Renderer::Locked;
+        result = static_cast<int>(Renderer::Locked);
       }
       else if (selected(patchNode))
       {
-        result = Renderer::Selection;
+        result = static_cast<int>(Renderer::Selection);
       }
       if (!patchNode->selected() && !patchNode->parentSelected() && !patchNode->locked())
       {
-        result = Renderer::Default;
+        result |= static_cast<int>(Renderer::Default);
       }
     }));
   return result;
@@ -470,22 +470,16 @@ MapRenderer::Renderer MapRenderer::determineDesiredRenderers(Model::Node* node)
 void MapRenderer::updateAndInvalidateNode(Model::Node* node)
 {
   const auto desiredRenderers = determineDesiredRenderers(node);
-  auto currentRenderers = Renderer{};
+  int currentRenderers = 0;
 
   if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end())
   {
     currentRenderers = it->second;
   }
-  else
-  {
-    currentRenderers = static_cast<Renderer>(0);
-  }
 
   auto updateForRenderer = [&](const Renderer r, ObjectRenderer* o) {
-    const auto isRDesired =
-      (static_cast<int>(desiredRenderers) & static_cast<int>(r)) != 0;
-    const auto isRCurrent =
-      (static_cast<int>(currentRenderers) & static_cast<int>(r)) != 0;
+    const auto isRDesired = (desiredRenderers & static_cast<int>(r)) != 0;
+    const auto isRCurrent = (currentRenderers & static_cast<int>(r)) != 0;
 
     if (isRCurrent && !isRDesired)
     {
@@ -541,15 +535,15 @@ void MapRenderer::removeNode(Model::Node* node)
   {
     const auto renderers = it->second;
 
-    if (static_cast<int>(renderers) & static_cast<int>(Renderer::Default))
+    if (renderers & static_cast<int>(Renderer::Default))
     {
       m_defaultRenderer->removeNode(node);
     }
-    if (static_cast<int>(renderers) & static_cast<int>(Renderer::Selection))
+    if (renderers & static_cast<int>(Renderer::Selection))
     {
       m_selectionRenderer->removeNode(node);
     }
-    if (static_cast<int>(renderers) & static_cast<int>(Renderer::Locked))
+    if (renderers & static_cast<int>(Renderer::Locked))
     {
       m_lockedRenderer->removeNode(node);
     }
@@ -592,17 +586,17 @@ void MapRenderer::updateAllNodes()
  * Marks the nodes that are already tracked in the given renderers as invalid, i.e.
  * needing to be re-rendered.
  */
-void MapRenderer::invalidateRenderers(Renderer renderers)
+void MapRenderer::invalidateRenderers(const Renderer renderers)
 {
-  if ((static_cast<int>(renderers) & static_cast<int>(Renderer::Default)) != 0)
+  if (static_cast<int>(renderers) & static_cast<int>(Renderer::Default))
   {
     m_defaultRenderer->invalidate();
   }
-  if ((static_cast<int>(renderers) & static_cast<int>(Renderer::Selection)) != 0)
+  if (static_cast<int>(renderers) & static_cast<int>(Renderer::Selection))
   {
     m_selectionRenderer->invalidate();
   }
-  if ((static_cast<int>(renderers) & static_cast<int>(Renderer::Locked)) != 0)
+  if (static_cast<int>(renderers) & static_cast<int>(Renderer::Locked))
   {
     m_lockedRenderer->invalidate();
   }
