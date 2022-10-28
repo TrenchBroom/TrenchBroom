@@ -327,6 +327,7 @@ void IssueBrowserView::hideIssues()
 void IssueBrowserView::invalidate()
 {
   m_valid = false;
+  m_tableModel->setIssues({});
 
   QMetaObject::invokeMethod(this, "validate", Qt::QueuedConnection);
 }
@@ -335,9 +336,8 @@ void IssueBrowserView::validate()
 {
   if (!m_valid)
   {
-    m_valid = true;
-
     updateIssues();
+    m_valid = true;
   }
 }
 
