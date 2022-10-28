@@ -48,7 +48,7 @@ endif()
 
 # Clear all fixtures
 add_custom_command(TARGET common-benchmark POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "${BENCHMARK_FIXTURE_DEST_DIR}")
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "${BENCHMARK_FIXTURE_DEST_DIR}")
 
 # Copy test fixtures
 add_custom_command(TARGET common-benchmark POST_BUILD
