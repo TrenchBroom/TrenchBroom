@@ -204,7 +204,7 @@ macro(configure_test_target TARGET)
 
     # Clear all fixtures
     add_custom_command(TARGET ${TARGET} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E remove_directory "${TEST_FIXTURE_DEST_DIR}")
+            COMMAND ${CMAKE_COMMAND} -E rm -rf "${TEST_FIXTURE_DEST_DIR}")
 
     # Copy test fixtures
     add_custom_command(TARGET ${TARGET} POST_BUILD

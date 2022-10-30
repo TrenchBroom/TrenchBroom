@@ -161,7 +161,7 @@ const std::string& EntityPropertyIssue::propertyKey() const
 
 const std::string& EntityPropertyIssue::propertyValue() const
 {
-  static const auto NoValue = std::string{""};
+  static const auto NoValue = std::string{};
   const auto& entityNode = static_cast<EntityNodeBase&>(node());
   const auto* value = entityNode.entity().property(propertyKey());
   return value ? *value : NoValue;
