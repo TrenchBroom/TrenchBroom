@@ -1,5 +1,9 @@
 include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateManual.cmake)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    option(APPIMAGE_BUILD "Prepare AppImage build" OFF)
+endif()
+
 set(APP_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(APP_RESOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/resources")
 
@@ -99,7 +103,7 @@ if(WIN32)
     endif()
 endif()
 
-# Set CPACK_PACKAGE_VERSION which is used by CPack.
+# Set CPACK_PACKAGE_ which is used by CPack.
 # Strip the "v" prefix off GIT_DESCRIBE (e.g. "v2020.1-RC1") to produce a CPACK_PACKAGE_VERSION of "2020.1-RC1"
 # Debian wants the first character to be a number
 string(REGEX REPLACE "^v(.*)" "\\1" CPACK_PACKAGE_VERSION "${GIT_DESCRIBE}")
@@ -335,67 +339,86 @@ elseif(APPLE)
     set(CPACK_PACKAGE_FILE_EXT "dmg")
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum.sh" @ONLY)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # add architecture to filename
-    set(APP_PACKAGE_FILE_NAME "${APP_PACKAGE_FILE_NAME}.${CMAKE_SYSTEM_PROCESSOR}")
-    set(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 
-    # generate deb and rpm packages
-    set(CPACK_GENERATOR "DEB;RPM")
-    set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+    # either build AppImage or generate deb and rpm packages
+    if(APPIMAGE_BUILD)
+        install(TARGETS TrenchBroom RUNTIME DESTINATION bin COMPONENT TrenchBroom)
+        install(FILES "${APP_DIR}/resources/linux/trenchbroom.desktop" DESTINATION "share/applications" COMPONENT TrenchBroom)
 
-    set(LINUX_RESOURCE_LOCATION "share/TrenchBroom")
-    set(LINUX_TARGET_RESOURCE_DIRECTORY ${CPACK_PACKAGING_INSTALL_PREFIX}/${LINUX_RESOURCE_LOCATION})
+        # filter and install all icons
+        file(GLOB ICON_FILES "${APP_DIR}/resources/linux/icons/*.png")
+        list(FILTER ICON_FILES EXCLUDE REGEX ".*tb_icon_orig\\.png$")
+        foreach(icon ${ICON_FILES})
+            if (${icon} MATCHES "_([0-9]+)\\.png$")
+                set(IR ${CMAKE_MATCH_1})
+                install(FILES "${APP_DIR}/resources/linux/icons/icon_${IR}.png" DESTINATION "share/icons/hicolor/${IR}x${IR}/apps/" COMPONENT TrenchBroom RENAME "trenchbroom.png")
+            endif()
+        endforeach()
+    else()
+        # add architecture to filename
+        set(APP_PACKAGE_FILE_NAME "${APP_PACKAGE_FILE_NAME}.${CMAKE_SYSTEM_PROCESSOR}")
+        set(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 
-    # add mime type definitions
-    install(FILES "${APP_DIR}/resources/linux/trenchbroom.xml" DESTINATION "${CPACK_PACKAGING_INSTALL_PREFIX}/share/mime/packages/" COMPONENT TrenchBroom)
+        # generate deb and rpm packages
+        set(CPACK_GENERATOR "DEB;RPM")
+        set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
 
-    # configure install scripts
-    configure_file(${APP_DIR}/resources/linux/postinst ${CMAKE_CURRENT_BINARY_DIR}/linux/postinst @ONLY)
-    configure_file(${APP_DIR}/resources/linux/prerm ${CMAKE_CURRENT_BINARY_DIR}/linux/prerm @ONLY)
-    configure_file(${APP_DIR}/resources/linux/postrm ${CMAKE_CURRENT_BINARY_DIR}/linux/postrm @ONLY)
+        set(LINUX_RESOURCE_LOCATION "share/TrenchBroom")
+        set(LINUX_TARGET_RESOURCE_DIRECTORY ${CPACK_PACKAGING_INSTALL_PREFIX}/${LINUX_RESOURCE_LOCATION})
 
-    # add files
-    install(TARGETS TrenchBroom RUNTIME DESTINATION bin COMPONENT TrenchBroom)
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/fonts"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/defaults"        DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/games"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/manual"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/images"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shader"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/stylesheets"     DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    install(DIRECTORY "${APP_DIR}/resources/linux/icons"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom FILES_MATCHING PATTERN "*.png")
-    install(FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt"                 DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    install(FILES "${APP_DIR}/resources/linux/copyright"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
-    install(FILES "${APP_DIR}/resources/linux/trenchbroom.desktop"  DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        # add mime type definitions
+        install(FILES "${APP_DIR}/resources/linux/trenchbroom.xml" DESTINATION "${CPACK_PACKAGING_INSTALL_PREFIX}/share/mime/packages/" COMPONENT TrenchBroom)
 
-    # deb package specifics
-    set(CPACK_DEBIAN_PACKAGE_MAINTAINER ${CPACK_PACKAGE_VENDOR})
-    set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
-    # The following dependencies were generated by running with CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON and dumping the list of dependencies with dpkg-deb --info <debfile>,
-    # and making the following modification(s)
-    # - remove libgcc-s1 (>= 3.0)
-    # set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.27), libgl1, libqt5core5a (>= 5.9.0~beta), libqt5gui5 (>= 5.6.0~beta), libqt5svg5 (>= 5.6.0~beta), libqt5widgets5 (>= 5.7.0), libstdc++6 (>= 7)")
-    set(CPACK_DEBIAN_PACKAGE_SECTION "games")
-    set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://kristianduske.com/trenchbroom/")
-    set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst;${CMAKE_CURRENT_BINARY_DIR}/linux/prerm;${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
+        # configure install scripts
+        configure_file(${APP_DIR}/resources/linux/postinst ${CMAKE_CURRENT_BINARY_DIR}/linux/postinst @ONLY)
+        configure_file(${APP_DIR}/resources/linux/prerm ${CMAKE_CURRENT_BINARY_DIR}/linux/prerm @ONLY)
+        configure_file(${APP_DIR}/resources/linux/postrm ${CMAKE_CURRENT_BINARY_DIR}/linux/postrm @ONLY)
 
-    # rpm package specifics
-    set(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
-    set(CPACK_RPM_PACKAGE_GROUP "Applications/Editors")
-    set(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
-    set(CPACK_RPM_PACKAGE_SUMMARY ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
-    set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst")
-    set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/prerm")
-    set(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
-    set(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
+        # add files
+        install(TARGETS TrenchBroom RUNTIME DESTINATION bin COMPONENT TrenchBroom)
+        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/fonts"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/defaults"        DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/games"           DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/manual"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/images"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shader"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/stylesheets"     DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        install(DIRECTORY "${APP_DIR}/resources/linux/icons"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom FILES_MATCHING PATTERN "*.png")
+        install(FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt"                 DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        install(FILES "${APP_DIR}/resources/linux/copyright"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+        install(FILES "${APP_DIR}/resources/linux/trenchbroom.desktop"  DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
 
-    set(CPACK_PACKAGE_FILE_EXT "rpm")
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_rpm.sh" @ONLY)
+        # deb package specifics
+        set(CPACK_DEBIAN_PACKAGE_MAINTAINER ${CPACK_PACKAGE_VENDOR})
+        set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+        # The following dependencies were generated by running with CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON and dumping the list of dependencies with dpkg-deb --info <debfile>,
+        # and making the following modification(s)
+        # - remove libgcc-s1 (>= 3.0)
+        # set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.27), libgl1, libqt5core5a (>= 5.9.0~beta), libqt5gui5 (>= 5.6.0~beta), libqt5svg5 (>= 5.6.0~beta), libqt5widgets5 (>= 5.7.0), libstdc++6 (>= 7)")
+        set(CPACK_DEBIAN_PACKAGE_SECTION "games")
+        set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://kristianduske.com/trenchbroom/")
+        set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst;${CMAKE_CURRENT_BINARY_DIR}/linux/prerm;${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
 
-    set(CPACK_PACKAGE_FILE_EXT "deb")
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_deb.sh" @ONLY)
+        # rpm package specifics
+        set(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
+        set(CPACK_RPM_PACKAGE_GROUP "Applications/Editors")
+        set(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
+        set(CPACK_RPM_PACKAGE_SUMMARY ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
+        set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst")
+        set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/prerm")
+        set(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
+        set(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
 
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PrintLinuxPackageInfo.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/print_linux_package_info.sh" @ONLY)
+        set(CPACK_PACKAGE_FILE_EXT "rpm")
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_rpm.sh" @ONLY)
+
+        set(CPACK_PACKAGE_FILE_EXT "deb")
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_deb.sh" @ONLY)
+
+        configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/PrintLinuxPackageInfo.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/print_linux_package_info.sh" @ONLY)
+    endif()
+
 endif()
+
 
 include(CPack)

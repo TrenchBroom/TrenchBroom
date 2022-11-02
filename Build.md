@@ -100,7 +100,7 @@ sudo apt-get install g++ qt5-default libqt5svg5-dev libxi-dev libgl1-mesa-dev li
 Or, on Fedora:
 
 ```bash
-sudo dnf install g++ cmake qt5-qtbase-devel qt5-qtsvg-devel ninja-build pandoc mesa-libGLU-devel
+sudo dnf install g++ cmake qt5-qtbase-devel qt5-qtsvg-devel ninja-build pandoc mesa-libGLU-devel freeimage-devel tinyxml2-devel freetype-devel fmt-devel miniz-devel catch-devel glew-devel
 ```
 
 ### Build TrenchBroom

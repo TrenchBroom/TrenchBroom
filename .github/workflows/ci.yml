@@ -56,7 +56,7 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           sudo apt update
-          sudo apt install qtbase5-dev libqt5svg5-dev
+          sudo apt install qtbase5-dev libqt5svg5-dev libfuse2
 
       - name: Install Qt5 on Ubuntu 20.04
         if: ${{ matrix.os == 'ubuntu-20.04' }}
@@ -96,6 +96,13 @@ jobs:
         run: |
           brew install cmake p7zip pandoc qt5 ninja autoconf automake
 
+      # taken from here https://github.com/marketplace/actions/install-linuxdeploy
+      - name: Install LinuxDeploy
+        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+        uses: miurahr/install-linuxdeploy-action@v1
+        with:
+          plugins: qt appimage
+
       # Restore from cache the previously built ports. If a "cache miss" occurs,
       # then vcpkg is bootstrapped. Since a the vcpkg.json is being used later on
       # to install the packages when `run-cmake` runs, no packages are installed at
@@ -127,7 +134,7 @@ jobs:
 
       - name: Linux build
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
-        run: ./CI-linux.sh
+        run: ./CI-linux.sh && ./CI-linux-AppImage.sh
 
       - name: macOS build
         if: ${{ matrix.os == 'macos-11' }}
@@ -183,6 +190,7 @@ jobs:
             build/*.deb
             build/*.rpm
             build/*.md5
+            buildAppImage/*.AppImage
 
       # macOS
       - name: Upload macOS artifact
@@ -210,6 +218,7 @@ jobs:
             build/*.md5
             cmakebuild/*.7z
             cmakebuild/*.7z.md5
+            buildAppImage/*.AppImage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
