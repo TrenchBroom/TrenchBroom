@@ -97,12 +97,6 @@ If you have a debian-based distribution, open a command prompt and execute this 
 sudo apt-get install g++ qt5-default libqt5svg5-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev freeglut3-dev mesa-common-dev libglew-dev libxrandr-dev build-essential libglm-dev libxxf86vm-dev libfreetype6-dev libfreeimage-dev libtinyxml2-dev pandoc cmake p7zip-full ninja-build curl
 ```
 
-Or, on Fedora:
-
-```bash
-sudo dnf install g++ cmake qt5-qtbase-devel qt5-qtsvg-devel ninja-build pandoc mesa-libGLU-devel
-```
-
 ### Build TrenchBroom
 
 Create a subdirectory in TrenchBroom directory called `build`.
