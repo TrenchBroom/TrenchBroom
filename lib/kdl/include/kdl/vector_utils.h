@@ -34,6 +34,16 @@
 
 namespace kdl
 {
+template <typename T, typename... Rest>
+std::vector<T> vec_from(T t, Rest... rest)
+{
+  auto result = std::vector<T>{};
+  result.reserve(sizeof...(rest) + 1);
+  result.push_back(std::move(t));
+  (..., result.push_back(std::move(rest)));
+  return result;
+}
+
 /**
  * Returns the vector element at the given index.
  *
