@@ -4112,21 +4112,21 @@ void MapDocument::clearRepeatableCommands()
 
 void MapDocument::startTransaction(std::string name, const TransactionScope scope)
 {
-  debug("Starting transaction '" + name + "'");
+  info("Starting transaction '" + name + "'");
   doStartTransaction(std::move(name), scope);
   m_repeatStack->startTransaction();
 }
 
 void MapDocument::rollbackTransaction()
 {
-  debug("Rolling back transaction");
+  info("Rolling back transaction");
   doRollbackTransaction();
   m_repeatStack->rollbackTransaction();
 }
 
 bool MapDocument::commitTransaction()
 {
-  debug("Committing transaction");
+  info("Committing transaction");
 
   if (!updateLinkedGroups())
   {
@@ -4141,7 +4141,7 @@ bool MapDocument::commitTransaction()
 
 void MapDocument::cancelTransaction()
 {
-  debug("Cancelling transaction");
+  info("Cancelling transaction");
   doRollbackTransaction();
   m_repeatStack->rollbackTransaction();
   doCommitTransaction();
@@ -5005,22 +5005,22 @@ void MapDocument::preferenceDidChange(const IO::Path& path)
 
 void MapDocument::commandDone(Command& command)
 {
-  debug() << "Command '" << command.name() << "' executed";
+  info() << "Command '" << command.name() << "' executed";
 }
 
 void MapDocument::commandUndone(UndoableCommand& command)
 {
-  debug() << "Command '" << command.name() << "' undone";
+  info() << "Command '" << command.name() << "' undone";
 }
 
 void MapDocument::transactionDone(const std::string& name)
 {
-  debug() << "Transaction '" << name << "' executed";
+  info() << "Transaction '" << name << "' executed";
 }
 
 void MapDocument::transactionUndone(const std::string& name)
 {
-  debug() << "Transaction '" << name << "' undone";
+  info() << "Transaction '" << name << "' undone";
 }
 
 Transaction::Transaction(std::weak_ptr<MapDocument> document, std::string name)
