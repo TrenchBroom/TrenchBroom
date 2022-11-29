@@ -1548,6 +1548,12 @@ Copy Files
     Source 		The file(s) to copy. To specify more than one file, you can use wildcards (*,?) in the filename. Variables are allowed.
     Target  	The directory to copy the files to. The directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
 
+Delete Files
+:	Deletes one or more files.
+
+    Parameter 	Description
+    ---------   -----------
+    Target 		The file(s) to delete. To specify more than one file, you can use wildcards (*,?) in the filename. Variables are allowed.
 
 You can use [expressions](#expression_language) when specifying the working directory of a profile and also for the task parameters. The following table lists the available variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list.
 

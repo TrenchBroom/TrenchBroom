@@ -193,6 +193,7 @@ void CompilationProfileEditor::addTask()
   auto menu = QMenu{};
   auto* exportMapAction = menu.addAction("Export Map");
   auto* copyFilesAction = menu.addAction("Copy Files");
+  auto* deleteFilesAction = menu.addAction("Delete Files");
   auto* runToolAction = menu.addAction("Run Tool");
 
   auto task = std::unique_ptr<Model::CompilationTask>{};
@@ -205,6 +206,10 @@ void CompilationProfileEditor::addTask()
   else if (chosenAction == copyFilesAction)
   {
     task = std::make_unique<Model::CompilationCopyFiles>(true, "", "");
+  }
+  else if (chosenAction == deleteFilesAction)
+  {
+    task = std::make_unique<Model::CompilationDeleteFiles>(true, "");
   }
   else if (chosenAction == runToolAction)
   {

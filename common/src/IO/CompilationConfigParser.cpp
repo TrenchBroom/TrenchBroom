@@ -107,6 +107,10 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseTask(
   {
     return parseCopyTask(value);
   }
+  if (typeName == "delete")
+  {
+    return parseDeleteTask(value);
+  }
   if (typeName == "tool")
   {
     return parseToolTask(value);
@@ -141,6 +145,18 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(
 
   return std::make_unique<Model::CompilationCopyFiles>(
     enabled, std::move(source), std::move(target));
+}
+
+std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseDeleteTask(
+  const EL::Value& value) const
+{
+  expectStructure(
+    value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  auto target = value["target"].stringValue();
+
+  return std::make_unique<Model::CompilationDeleteFiles>(enabled, std::move(target));
 }
 
 std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(

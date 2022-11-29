@@ -107,6 +107,18 @@ public:
     m_array.emplace_back(std::move(map));
   }
 
+  void visit(const Model::CompilationDeleteFiles& task) override
+  {
+    auto map = EL::MapType{};
+    if (!task.enabled())
+    {
+      map["enabled"] = EL::Value{false};
+    }
+    map["type"] = EL::Value{"delete"};
+    map["target"] = EL::Value{task.targetSpec()};
+    m_array.emplace_back(std::move(map));
+  }
+
   void visit(const Model::CompilationRunTool& task) override
   {
     auto map = EL::MapType{};
