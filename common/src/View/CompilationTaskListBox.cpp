@@ -272,6 +272,63 @@ void CompilationCopyFilesTaskEditor::targetSpecChanged(const QString& text)
   }
 }
 
+CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
+  std::weak_ptr<MapDocument> document,
+  Model::CompilationProfile& profile,
+  Model::CompilationDeleteFiles& task,
+  QWidget* parent)
+  : CompilationTaskEditorBase("Delete Files", std::move(document), profile, task, parent)
+  , m_targetEditor(nullptr)
+{
+  auto* formLayout = new QFormLayout();
+  formLayout->setContentsMargins(
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin,
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+  addMainLayout(formLayout);
+
+  m_targetEditor = new MultiCompletionLineEdit();
+  m_targetEditor->setFont(Fonts::fixedWidthFont());
+  setupCompleter(m_targetEditor);
+  formLayout->addRow("Target", m_targetEditor);
+
+  connect(
+    m_targetEditor,
+    &QLineEdit::textChanged,
+    this,
+    &CompilationDeleteFilesTaskEditor::targetSpecChanged);
+}
+
+void CompilationDeleteFilesTaskEditor::updateItem()
+{
+  CompilationTaskEditorBase::updateItem();
+
+  const auto targetSpec = QString::fromStdString(task().targetSpec());
+  if (m_targetEditor->text() != targetSpec)
+  {
+    m_targetEditor->setText(targetSpec);
+  }
+}
+
+Model::CompilationDeleteFiles& CompilationDeleteFilesTaskEditor::task()
+{
+  // This is safe because we know what type of task the editor was initialized with.
+  // We have to do this to avoid using a template as the base class.
+  return static_cast<Model::CompilationDeleteFiles&>(*m_task);
+}
+
+void CompilationDeleteFilesTaskEditor::targetSpecChanged(const QString& text)
+{
+  const auto targetSpec = text.toStdString();
+  if (task().targetSpec() != targetSpec)
+  {
+    task().setTargetSpec(targetSpec);
+  }
+}
+
 // CompilationRunToolTaskEditor
 
 CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
@@ -438,6 +495,12 @@ public:
   void visit(Model::CompilationCopyFiles& task) override
   {
     m_result = new CompilationCopyFilesTaskEditor(m_document, m_profile, task, m_parent);
+  }
+
+  void visit(Model::CompilationDeleteFiles& task) override
+  {
+    m_result =
+      new CompilationDeleteFilesTaskEditor(m_document, m_profile, task, m_parent);
   }
 
   void visit(Model::CompilationRunTool& task) override

@@ -172,6 +172,50 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
 void CompilationCopyFilesTaskRunner::doTerminate() {}
 
+CompilationDeleteFilesTaskRunner::CompilationDeleteFilesTaskRunner(
+  CompilationContext& context, const Model::CompilationDeleteFiles& task)
+  : CompilationTaskRunner{context}
+  , m_task{task.clone()}
+{
+}
+
+CompilationDeleteFilesTaskRunner::~CompilationDeleteFilesTaskRunner() = default;
+
+void CompilationDeleteFilesTaskRunner::doExecute()
+{
+  emit start();
+
+  try
+  {
+    const auto targetPath = IO::Path{interpolate(m_task->targetSpec())};
+
+    const auto targetDirPath = targetPath.deleteLastComponent();
+    const auto targetPattern = targetPath.lastComponent().asString();
+
+    try
+    {
+      m_context << "#### Deleting '" << IO::pathAsQString(targetPath) << "'\n";
+      if (!m_context.test())
+      {
+        IO::Disk::deleteFiles(targetDirPath, IO::FileNameMatcher{targetPattern});
+      }
+      emit end();
+    }
+    catch (const Exception& e)
+    {
+      m_context << "#### Could not delete '" << IO::pathAsQString(targetPath)
+                << "': " << e.what() << "\n";
+      throw;
+    }
+  }
+  catch (const Exception&)
+  {
+    emit error();
+  }
+}
+
+void CompilationDeleteFilesTaskRunner::doTerminate() {}
+
 CompilationRunToolTaskRunner::CompilationRunToolTaskRunner(
   CompilationContext& context, const Model::CompilationRunTool& task)
   : CompilationTaskRunner{context}
@@ -354,6 +398,14 @@ public:
     if (task.enabled())
     {
       appendRunner(std::make_unique<CompilationCopyFilesTaskRunner>(m_context, task));
+    }
+  }
+
+  void visit(const Model::CompilationDeleteFiles& task) override
+  {
+    if (task.enabled())
+    {
+      appendRunner(std::make_unique<CompilationDeleteFilesTaskRunner>(m_context, task));
     }
   }
 

@@ -209,6 +209,74 @@ void CompilationCopyFiles::appendToStream(std::ostream& str) const
                           << "m_targetSpec" << m_targetSpec;
 }
 
+// CompilationDeleteFiles
+
+CompilationDeleteFiles::CompilationDeleteFiles(
+  const bool enabled, const std::string& targetSpec)
+  : CompilationTask(enabled)
+  , m_targetSpec(targetSpec)
+{
+}
+
+void CompilationDeleteFiles::accept(CompilationTaskVisitor& visitor)
+{
+  visitor.visit(*this);
+}
+
+void CompilationDeleteFiles::accept(ConstCompilationTaskVisitor& visitor) const
+{
+  visitor.visit(*this);
+}
+
+void CompilationDeleteFiles::accept(const CompilationTaskConstVisitor& visitor)
+{
+  visitor.visit(*this);
+}
+
+void CompilationDeleteFiles::accept(const ConstCompilationTaskConstVisitor& visitor) const
+{
+  visitor.visit(*this);
+}
+
+const std::string& CompilationDeleteFiles::targetSpec() const
+{
+  return m_targetSpec;
+}
+
+void CompilationDeleteFiles::setTargetSpec(const std::string& targetSpec)
+{
+  m_targetSpec = targetSpec;
+}
+
+CompilationDeleteFiles* CompilationDeleteFiles::clone() const
+{
+  return new CompilationDeleteFiles(enabled(), m_targetSpec);
+}
+
+bool CompilationDeleteFiles::operator==(const CompilationTask& other) const
+{
+  auto* otherCasted = dynamic_cast<const CompilationDeleteFiles*>(&other);
+  if (otherCasted == nullptr)
+  {
+    return false;
+  }
+  if (m_enabled != otherCasted->m_enabled)
+  {
+    return false;
+  }
+  if (m_targetSpec != otherCasted->m_targetSpec)
+  {
+    return false;
+  }
+  return true;
+}
+
+void CompilationDeleteFiles::appendToStream(std::ostream& str) const
+{
+  kdl::struct_stream{str} << "CompilationDeleteFiles"
+                          << "m_enabled" << m_enabled << "m_targetSpec" << m_targetSpec;
+}
+
 // CompilationRunTool
 
 CompilationRunTool::CompilationRunTool(

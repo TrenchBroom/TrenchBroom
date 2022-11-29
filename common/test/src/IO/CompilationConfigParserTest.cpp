@@ -248,6 +248,29 @@ TEST_CASE(
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
+TEST_CASE(
+  "CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTaskWithMissingTarget",
+  "[CompilationConfigParserTest]")
+{
+  const std::string config(
+    "{\n"
+    "    'version': 1,\n"
+    "    'profiles': [\n"
+    "        {\n"
+    "             'name': 'A profile',\n"
+    "             'workdir': '',\n"
+    "             'tasks': [\n"
+    "                 {\n"
+    "                      'type':'delete',\n"
+    "                 }\n"
+    "             ]\n"
+    "        }\n"
+    "    ]\n"
+    "}\n");
+  CompilationConfigParser parser(config);
+  CHECK_THROWS_AS(parser.parse(), ParserException);
+}
+
 class AssertCompilationCopyFilesVisitor : public Model::ConstCompilationTaskConstVisitor
 {
 private:
@@ -276,6 +299,43 @@ public:
     CHECK(m_enabled == task.enabled());
   }
 
+  void visit(const Model::CompilationDeleteFiles& /* task */) const override
+  {
+    CHECK(false);
+  }
+
+  void visit(const Model::CompilationRunTool& /* task */) const override { CHECK(false); }
+};
+
+class AssertCompilationDeleteFilesVisitor : public Model::ConstCompilationTaskConstVisitor
+{
+private:
+  const bool& m_enabled;
+  const std::string& m_targetSpec;
+
+public:
+  AssertCompilationDeleteFilesVisitor(const bool& enabled, const std::string& targetSpec)
+    : m_enabled(enabled)
+    , m_targetSpec(targetSpec)
+  {
+  }
+
+  void visit(const Model::CompilationExportMap& /* task */) const override
+  {
+    CHECK(false);
+  }
+
+  void visit(const Model::CompilationCopyFiles& /* task */) const override
+  {
+    CHECK(false);
+  }
+
+  void visit(const Model::CompilationDeleteFiles& task) const override
+  {
+    CHECK(task.targetSpec() == m_targetSpec);
+    CHECK(m_enabled == task.enabled());
+  }
+
   void visit(const Model::CompilationRunTool& /* task */) const override { CHECK(false); }
 };
 
@@ -299,6 +359,11 @@ public:
   }
 
   void visit(const Model::CompilationCopyFiles& /* task */) const override
+  {
+    CHECK(false);
+  }
+
+  void visit(const Model::CompilationDeleteFiles& /* task */) const override
   {
     CHECK(false);
   }
@@ -342,6 +407,38 @@ TEST_CASE(
 
   profile->task(0)->accept(
     AssertCompilationCopyFilesVisitor(true, "the source", "the target"));
+}
+
+TEST_CASE(
+  "CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask",
+  "[CompilationConfigParserTest]")
+{
+  const std::string config(
+    "{\n"
+    "    'version': 1,\n"
+    "    'profiles': [\n"
+    "        {\n"
+    "             'name': 'A profile',\n"
+    "             'workdir': '',\n"
+    "             'tasks': [\n"
+    "                 {\n"
+    "                      'type':'delete',\n"
+    "                      'target': 'the target'\n"
+    "                 }\n"
+    "             ]\n"
+    "        }\n"
+    "    ]\n"
+    "}\n");
+  CompilationConfigParser parser(config);
+
+  Model::CompilationConfig result = parser.parse();
+  CHECK(result.profileCount() == 1u);
+
+  const Model::CompilationProfile* profile = result.profile(0);
+  CHECK(profile->name() == std::string("A profile"));
+  CHECK(profile->taskCount() == 1u);
+
+  profile->task(0)->accept(AssertCompilationDeleteFilesVisitor(true, "the target"));
 }
 
 TEST_CASE(
@@ -431,7 +528,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndTwoTasks",
+  "CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks",
   "[CompilationConfigParserTest]")
 {
   const std::string config(
@@ -452,6 +549,11 @@ TEST_CASE(
     "                      'source': 'the source',\n"
     "                      'target': 'the target',\n"
     "                      'enabled': false\n"
+    "                 },\n"
+    "                 {\n"
+    "                      'type':'delete',\n"
+    "                      'target': 'some other target',\n"
+    "                      'enabled': false\n"
     "                 }\n"
     "             ]\n"
     "        }\n"
@@ -464,12 +566,14 @@ TEST_CASE(
 
   const Model::CompilationProfile* profile = result.profile(0);
   CHECK(profile->name() == std::string("A profile"));
-  CHECK(profile->taskCount() == 2u);
+  CHECK(profile->taskCount() == 3u);
 
   profile->task(0)->accept(
     AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
   profile->task(1)->accept(
     AssertCompilationCopyFilesVisitor(false, "the source", "the target"));
+  profile->task(2)->accept(
+    AssertCompilationDeleteFilesVisitor(false, "some other target"));
 }
 
 TEST_CASE(

@@ -106,6 +106,18 @@ public:
     m_array.push_back(EL::Value(std::move(map)));
   }
 
+  void visit(const Model::CompilationDeleteFiles& task) override
+  {
+    EL::MapType map;
+    if (!task.enabled())
+    {
+      map["enabled"] = EL::Value(false);
+    }
+    map["type"] = EL::Value("delete");
+    map["target"] = EL::Value(task.targetSpec());
+    m_array.push_back(EL::Value(std::move(map)));
+  }
+
   void visit(const Model::CompilationRunTool& task) override
   {
     EL::MapType map;
