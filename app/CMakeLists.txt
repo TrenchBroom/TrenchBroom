@@ -339,8 +339,8 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(APP_PACKAGE_FILE_NAME "${APP_PACKAGE_FILE_NAME}.${CMAKE_SYSTEM_PROCESSOR}")
     set(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 
-    # generate deb and rpm packages
-    set(CPACK_GENERATOR "DEB;RPM")
+    # generate deb packages
+    set(CPACK_GENERATOR "DEB")
     set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
 
     set(LINUX_RESOURCE_LOCATION "share/TrenchBroom")
@@ -378,19 +378,6 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CPACK_DEBIAN_PACKAGE_SECTION "games")
     set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "http://kristianduske.com/trenchbroom/")
     set(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst;${CMAKE_CURRENT_BINARY_DIR}/linux/prerm;${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
-
-    # rpm package specifics
-    set(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
-    set(CPACK_RPM_PACKAGE_GROUP "Applications/Editors")
-    set(CPACK_RPM_PACKAGE_DESCRIPTION ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
-    set(CPACK_RPM_PACKAGE_SUMMARY ${CPACK_PACKAGE_DESCRIPTION_SUMMARY})
-    set(CPACK_RPM_POST_INSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postinst")
-    set(CPACK_RPM_PRE_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/prerm")
-    set(CPACK_RPM_POST_UNINSTALL_SCRIPT_FILE "${CMAKE_CURRENT_BINARY_DIR}/linux/postrm")
-    set(CPACK_RPM_SPEC_INSTALL_POST "/bin/true") # prevents stripping of debug symbols during rpmbuild
-
-    set(CPACK_PACKAGE_FILE_EXT "rpm")
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_rpm.sh" @ONLY)
 
     set(CPACK_PACKAGE_FILE_EXT "deb")
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum_deb.sh" @ONLY)
