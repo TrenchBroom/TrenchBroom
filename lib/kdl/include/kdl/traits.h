@@ -21,6 +21,10 @@
 #pragma once
 
 #include <iterator>
+#include <optional>
+#include <tuple>
+#include <utility>
+#include <variant>
 
 namespace kdl
 {
@@ -51,12 +55,12 @@ inline constexpr bool is_iterable_v = is_iterable<T>::value;
 namespace detail
 {
 template <typename T, typename S, typename = void>
-struct can_print : std::false_type
+struct is_streamable : std::false_type
 {
 };
 
 template <typename T, typename S>
-struct can_print<
+struct is_streamable<
   T,
   S,
   std::void_t<decltype(std::declval<S&>() << std::declval<const T&>())>> : std::true_type
@@ -66,9 +70,66 @@ struct can_print<
 } // namespace detail
 
 template <typename T, typename S = std::ostream>
-using can_print = detail::can_print<T, S>;
+using is_streamable = detail::is_streamable<T, S>;
 
 template <typename T, typename S = std::ostream>
-inline constexpr bool can_print_v = can_print<T, S>::value;
+inline constexpr bool is_streamable_v = is_streamable<T, S>::value;
+
+namespace detail
+{
+template <typename>
+struct is_optional : std::false_type
+{
+};
+
+template <typename T>
+struct is_optional<std::optional<T>> : std::true_type
+{
+};
+} // namespace detail
+
+template <typename T>
+using is_optional = detail::is_optional<T>;
+
+template <typename T>
+inline constexpr bool is_optional_v = is_optional<T>::value;
+
+namespace detail
+{
+template <typename>
+struct is_tuple : std::false_type
+{
+};
+
+template <typename... T>
+struct is_tuple<std::tuple<T...>> : std::true_type
+{
+};
+} // namespace detail
+
+template <typename T>
+using is_tuple = detail::is_tuple<T>;
+
+template <typename T>
+inline constexpr bool is_tuple_v = is_tuple<T>::value;
+
+namespace detail
+{
+template <typename>
+struct is_variant : std::false_type
+{
+};
+
+template <typename... T>
+struct is_variant<std::variant<T...>> : std::true_type
+{
+};
+} // namespace detail
+
+template <typename T>
+using is_variant = detail::is_variant<T>;
+
+template <typename T>
+inline constexpr bool is_variant_v = is_variant<T>::value;
 
 } // namespace kdl
