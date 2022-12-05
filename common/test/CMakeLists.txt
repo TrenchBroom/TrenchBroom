@@ -132,6 +132,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/AABBTreeTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EnsureTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/NotifierTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/octree_test.cpp"
         "${COMMON_TEST_SOURCE_DIR}/PreferencesTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/StackWalkerTest.cpp"
 )

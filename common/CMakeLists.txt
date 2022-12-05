@@ -473,6 +473,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/Logger.cpp
         ${COMMON_SOURCE_DIR}/NotifierConnection.cpp
+        ${COMMON_SOURCE_DIR}/octree.cpp
         ${COMMON_SOURCE_DIR}/PreferenceManager.cpp
         ${COMMON_SOURCE_DIR}/Preference.cpp
         ${COMMON_SOURCE_DIR}/Preferences.cpp
@@ -1001,6 +1002,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/Notifier.h
         ${COMMON_SOURCE_DIR}/NotifierConnection.h
+        ${COMMON_SOURCE_DIR}/octree.h
         ${COMMON_SOURCE_DIR}/Preference.h
         ${COMMON_SOURCE_DIR}/PreferenceManager.h
         ${COMMON_SOURCE_DIR}/Preferences.h
