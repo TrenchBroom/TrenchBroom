@@ -35,7 +35,10 @@ struct streamable_optional_wrapper;
 template <typename T>
 struct streamable_tuple_wrapper;
 
-template <typename... T>
+template <typename T>
+struct streamable_pair_wrapper;
+
+template <typename T>
 struct streamable_variant_wrapper;
 
 template <typename R>
@@ -55,6 +58,10 @@ auto make_streamable(const T& x)
   else if constexpr (!is_streamable_v<T> && is_tuple_v<T>)
   {
     return detail::streamable_tuple_wrapper<T>{x};
+  }
+  else if constexpr (!is_streamable_v<T> && is_pair_v<T>)
+  {
+    return detail::streamable_pair_wrapper<T>{x};
   }
   else if constexpr (!is_streamable_v<T> && is_variant_v<T>)
   {
@@ -124,14 +131,28 @@ std::ostream& operator<<(std::ostream& lhs, const streamable_tuple_wrapper<T>& r
   return lhs;
 }
 
-template <typename... T>
-struct streamable_variant_wrapper
+template <typename T>
+struct streamable_pair_wrapper
 {
-  const std::variant<T...>& variant;
+  const T& pair;
 };
 
-template <typename... T>
-std::ostream& operator<<(std::ostream& lhs, const streamable_variant_wrapper<T...>& rhs)
+template <typename T>
+std::ostream& operator<<(std::ostream& lhs, const streamable_pair_wrapper<T>& rhs)
+{
+  lhs << "{" << make_streamable(rhs.pair.first) << ", "
+      << make_streamable(rhs.pair.second) << "}";
+  return lhs;
+}
+
+template <typename T>
+struct streamable_variant_wrapper
+{
+  const T& variant;
+};
+
+template <typename T>
+std::ostream& operator<<(std::ostream& lhs, const streamable_variant_wrapper<T>& rhs)
 {
   std::visit([&](const auto& x) { lhs << make_streamable(x); }, rhs.variant);
   return lhs;

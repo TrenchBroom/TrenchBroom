@@ -116,6 +116,25 @@ inline constexpr bool is_tuple_v = is_tuple<T>::value;
 namespace detail
 {
 template <typename>
+struct is_pair : std::false_type
+{
+};
+
+template <typename T1, typename T2>
+struct is_pair<std::pair<T1, T2>> : std::true_type
+{
+};
+} // namespace detail
+
+template <typename T>
+using is_pair = detail::is_pair<T>;
+
+template <typename T>
+inline constexpr bool is_pair_v = is_pair<T>::value;
+
+namespace detail
+{
+template <typename>
 struct is_variant : std::false_type
 {
 };
