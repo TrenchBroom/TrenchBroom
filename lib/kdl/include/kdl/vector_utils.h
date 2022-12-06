@@ -269,7 +269,7 @@ void vec_append(std::vector<T, A>& v1, Arg&& arg)
 template <typename T, typename A, typename Arg, typename... Rest>
 void vec_append(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest)
 {
-  vec_append(v1, std::move(arg));
+  vec_append(v1, std::forward<Arg>(arg));
   vec_append(v1, std::forward<Rest>(rest)...);
 }
 } // namespace detail
