@@ -133,13 +133,16 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(
   expectStructure(
     value,
     "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
-    "'Boolean' } ]");
+    "'Boolean', 'targetIsFile': 'Boolean' } ]");
 
   const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  const bool targetIsFile =
+    value.contains("targetIsFile") ? value["targetIsFile"].booleanValue() : false;
   const std::string source = value["source"].stringValue();
   const std::string target = value["target"].stringValue();
 
-  return std::make_unique<Model::CompilationCopyFiles>(enabled, source, target);
+  return std::make_unique<Model::CompilationCopyFiles>(
+    enabled, targetIsFile, source, target);
 }
 
 std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(

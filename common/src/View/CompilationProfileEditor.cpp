@@ -213,7 +213,7 @@ void CompilationProfileEditor::addTask()
   }
   else if (chosenAction == copyFilesAction)
   {
-    task = std::make_unique<Model::CompilationCopyFiles>(true, "", "");
+    task = std::make_unique<Model::CompilationCopyFiles>(true, false, "", "");
   }
   else if (chosenAction == runToolAction)
   {

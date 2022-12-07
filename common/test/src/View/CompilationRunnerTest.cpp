@@ -121,6 +121,7 @@ TEST_CASE_METHOD(
 
   auto task = Model::CompilationCopyFiles{
     true,
+    false,
     (testEnvironment.dir() + sourcePath).asString(),
     (testEnvironment.dir() + targetPath).asString()};
   auto runner = CompilationCopyFilesTaskRunner{context, task};

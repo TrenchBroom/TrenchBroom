@@ -89,21 +89,27 @@ public:
 class CompilationCopyFiles : public CompilationTask
 {
 private:
+  bool m_targetIsFileSpec;
   std::string m_sourceSpec;
   std::string m_targetSpec;
 
 public:
   CompilationCopyFiles(
-    bool enabled, const std::string& sourceSpec, const std::string& targetSpec);
+    bool enabled,
+    bool targetIsFileSpec,
+    const std::string& sourceSpec,
+    const std::string& targetSpec);
 
   void accept(CompilationTaskVisitor& visitor) override;
   void accept(ConstCompilationTaskVisitor& visitor) const override;
   void accept(const CompilationTaskConstVisitor& visitor) override;
   void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
 
+  bool targetIsFileSpec() const;
   const std::string& sourceSpec() const;
   const std::string& targetSpec() const;
 
+  void setTargetIsFileSpec(const bool targetIsFileSpec);
   void setSourceSpec(const std::string& sourceSpec);
   void setTargetSpec(const std::string& targetSpec);
 

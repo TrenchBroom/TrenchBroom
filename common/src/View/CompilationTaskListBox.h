@@ -105,6 +105,7 @@ class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT
 private:
+  QCheckBox* m_targetIsFileCheckbox;
   MultiCompletionLineEdit* m_sourceEditor;
   MultiCompletionLineEdit* m_targetEditor;
 
@@ -119,6 +120,7 @@ private:
   void updateItem() override;
   Model::CompilationCopyFiles& task();
 private slots:
+  void targetIsFileSpecChanged(const bool checked);
   void sourceSpecChanged(const QString& text);
   void targetSpecChanged(const QString& text);
 };

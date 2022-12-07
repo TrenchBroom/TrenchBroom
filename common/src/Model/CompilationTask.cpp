@@ -128,8 +128,12 @@ void CompilationExportMap::appendToStream(std::ostream& str) const
 // CompilationCopyFiles
 
 CompilationCopyFiles::CompilationCopyFiles(
-  const bool enabled, const std::string& sourceSpec, const std::string& targetSpec)
+  const bool enabled,
+  const bool targetIsFileSpec,
+  const std::string& sourceSpec,
+  const std::string& targetSpec)
   : CompilationTask(enabled)
+  , m_targetIsFileSpec(targetIsFileSpec)
   , m_sourceSpec(sourceSpec)
   , m_targetSpec(targetSpec)
 {
@@ -155,6 +159,11 @@ void CompilationCopyFiles::accept(const ConstCompilationTaskConstVisitor& visito
   visitor.visit(*this);
 }
 
+bool CompilationCopyFiles::targetIsFileSpec() const
+{
+  return m_targetIsFileSpec;
+}
+
 const std::string& CompilationCopyFiles::sourceSpec() const
 {
   return m_sourceSpec;
@@ -163,6 +172,11 @@ const std::string& CompilationCopyFiles::sourceSpec() const
 const std::string& CompilationCopyFiles::targetSpec() const
 {
   return m_targetSpec;
+}
+
+void CompilationCopyFiles::setTargetIsFileSpec(const bool targetIsFileSpec)
+{
+  m_targetIsFileSpec = targetIsFileSpec;
 }
 
 void CompilationCopyFiles::setSourceSpec(const std::string& sourceSpec)
@@ -177,7 +191,8 @@ void CompilationCopyFiles::setTargetSpec(const std::string& targetSpec)
 
 CompilationCopyFiles* CompilationCopyFiles::clone() const
 {
-  return new CompilationCopyFiles(enabled(), m_sourceSpec, m_targetSpec);
+  return new CompilationCopyFiles(
+    enabled(), m_targetIsFileSpec, m_sourceSpec, m_targetSpec);
 }
 
 bool CompilationCopyFiles::operator==(const CompilationTask& other) const
@@ -188,6 +203,10 @@ bool CompilationCopyFiles::operator==(const CompilationTask& other) const
     return false;
   }
   if (m_enabled != otherCasted->m_enabled)
+  {
+    return false;
+  }
+  if (m_targetIsFileSpec != otherCasted->m_targetIsFileSpec)
   {
     return false;
   }
@@ -205,7 +224,8 @@ bool CompilationCopyFiles::operator==(const CompilationTask& other) const
 void CompilationCopyFiles::appendToStream(std::ostream& str) const
 {
   kdl::struct_stream{str} << "CompilationCopyFiles"
-                          << "m_enabled" << m_enabled << "m_sourceSpec" << m_sourceSpec
+                          << "m_enabled" << m_enabled << "m_targetIsFileSpec"
+                          << m_targetIsFileSpec << "m_sourceSpec" << m_sourceSpec
                           << "m_targetSpec" << m_targetSpec;
 }
 

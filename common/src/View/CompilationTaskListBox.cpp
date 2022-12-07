@@ -195,6 +195,7 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
   Model::CompilationCopyFiles& task,
   QWidget* parent)
   : CompilationTaskEditorBase("Copy Files", std::move(document), profile, task, parent)
+  , m_targetIsFileCheckbox(nullptr)
   , m_sourceEditor(nullptr)
   , m_targetEditor(nullptr)
 {
@@ -218,6 +219,16 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
   setupCompleter(m_targetEditor);
   formLayout->addRow("Target", m_targetEditor);
 
+  m_targetIsFileCheckbox = new QCheckBox();
+  m_targetIsFileCheckbox->setToolTip(
+    tr("Whether the Target path represents a file (rather than a directory)"));
+  formLayout->addRow("Target is File", m_targetIsFileCheckbox);
+
+  connect(
+    m_targetIsFileCheckbox,
+    &QCheckBox::clicked,
+    this,
+    &CompilationCopyFilesTaskEditor::targetIsFileSpecChanged);
   connect(
     m_sourceEditor,
     &QLineEdit::textChanged,
@@ -233,6 +244,9 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
 void CompilationCopyFilesTaskEditor::updateItem()
 {
   CompilationTaskEditorBase::updateItem();
+
+  const auto targetIsFileSpec = task().targetIsFileSpec();
+  m_targetIsFileCheckbox->setChecked(targetIsFileSpec);
 
   const auto sourceSpec = QString::fromStdString(task().sourceSpec());
   if (m_sourceEditor->text() != sourceSpec)
@@ -252,6 +266,11 @@ Model::CompilationCopyFiles& CompilationCopyFilesTaskEditor::task()
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
   return static_cast<Model::CompilationCopyFiles&>(*m_task);
+}
+
+void CompilationCopyFilesTaskEditor::targetIsFileSpecChanged(const bool checked)
+{
+  task().setTargetIsFileSpec(checked);
 }
 
 void CompilationCopyFilesTaskEditor::sourceSpecChanged(const QString& text)

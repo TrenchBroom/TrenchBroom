@@ -139,21 +139,40 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
   try
   {
+    const auto targetIsFile = m_task->targetIsFileSpec();
     const auto sourcePath = IO::Path{interpolate(m_task->sourceSpec())};
     const auto targetPath = IO::Path{interpolate(m_task->targetSpec())};
 
     const auto sourceDirPath = sourcePath.deleteLastComponent();
-    const auto sourcePattern = sourcePath.lastComponent().asString();
+    const auto sourcePattern = IO::FileNameMatcher{sourcePath.lastComponent().asString()};
 
     try
     {
       m_context << "#### Copying '" << IO::pathAsQString(sourcePath) << "' to '"
                 << IO::pathAsQString(targetPath) << "'\n";
+      const auto sources = IO::Disk::findItems(sourceDirPath, sourcePattern);
+      const auto numSources = sources.size();
+      if (numSources == 0)
+      {
+        throw Exception("Source file(s) do not exist");
+      }
+      if (targetIsFile && (numSources != 1))
+      {
+        throw Exception(
+          "When \"Target is File\" is selected, only one source file can be copied");
+      }
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath);
-        IO::Disk::copyFiles(
-          sourceDirPath, IO::FileNameMatcher{sourcePattern}, targetPath, true);
+        if (targetIsFile)
+        {
+          IO::Disk::ensureDirectoryExists(targetPath.deleteLastComponent());
+          IO::Disk::copyFile(sources[0], targetPath, true);
+        }
+        else
+        {
+          IO::Disk::ensureDirectoryExists(targetPath);
+          IO::Disk::copyFiles(sourceDirPath, sourcePattern, targetPath, true);
+        }
       }
       emit end();
     }

@@ -101,6 +101,7 @@ public:
       map["enabled"] = EL::Value(false);
     }
     map["type"] = EL::Value("copy");
+    map["targetIsFile"] = EL::Value(task.targetIsFileSpec());
     map["source"] = EL::Value(task.sourceSpec());
     map["target"] = EL::Value(task.targetSpec());
     m_array.push_back(EL::Value(std::move(map)));

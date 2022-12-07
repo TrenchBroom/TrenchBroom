@@ -1525,10 +1525,11 @@ Run Tool
 Copy Files
 :	Copies one or more files.
 
-    Parameter 	Description
-    ---------   -----------
-    Source 		The file(s) to copy. To specify more than one file, you can use wildcards (*,?) in the filename. Variables are allowed.
-    Target  	The directory to copy the files to. The directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
+    Parameter 		Description
+    ---------   	-----------
+    Source 			The file(s) to copy. If "Target is File" (see below) is unchecked, this parameter can use wildcards (*,?) in the filename to specify more than one file to copy into the target directory. Variables are allowed.
+    Target  		This is the path for the file or directory (as indicated by "Target is File") to copy the source file(s) to. Any directories in this path are created if they do not exist. Existing files are overwritten without prompt. Variables are allowed.
+    Target is File 	Whether the Target path represents a file (rather than a directory).
 
 
 You can use [expressions](#expression_language) when specifying the working directory of a profile and also for the task parameters. The following table lists the available variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list.
@@ -1553,7 +1554,7 @@ It is recommended to use the following general process for compiling maps and to
 1. Set the working directory to `${MAP_DIR_PATH}`.
 2. Add an *Export Map* task and set its target to `${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map`.
 3. Add *Run Tool* tasks for the compilation tools that you wish to run. Use the expressions `${MAP_BASE_NAME}-compile.map` and `${MAP_BASE_NAME}.bsp` to specify the input and output files for the tools. Since you have set a working directory, you don't need to specify absolute paths here.
-4. Finally, add a *Copy Files* task and set its source to `${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp` and its target to `${GAME_DIR_PATH}/${MODS[-1]}/maps`. This copies the file to the maps directory within the last enabled mod.
+4. Finally, add a *Copy Files* task and set its source to `${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp` and its target to `${GAME_DIR_PATH}/${MODS[-1]}/maps`. Leave *Target is File* **un**checked, to indicate that the target path is a directory. This setup copies the file to the maps directory within the last enabled mod.
 
 The last step will copy the bsp file to the appropriate directory within the game path. You can add more *Copy Files* tasks if the compilation produces more than just a bsp file (e.g. lightmap files). Alternatively, you can use a wildcard expression such as `${WORK_DIR_PATH}/${MAP_BASE_NAME}.*` to copy related files.
 
