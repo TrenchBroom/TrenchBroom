@@ -103,8 +103,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
   CHECK_FALSE(exec.ended);
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDirectories")
+TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.copyToDir")
 {
   auto variables = EL::NullVariableStore{};
   auto output = QTextEdit{};
@@ -117,18 +116,145 @@ TEST_CASE_METHOD(
   const auto sourcePath = IO::Path("my_map.map");
   testEnvironment.createFile(sourcePath, "{}");
 
-  const auto targetPath = IO::Path("some/other/path");
+  const auto targetDirPath = IO::Path("some/other/path");
 
   auto task = Model::CompilationCopyFiles{
     true,
     false,
     (testEnvironment.dir() + sourcePath).asString(),
-    (testEnvironment.dir() + targetPath).asString()};
+    (testEnvironment.dir() + targetDirPath).asString()};
   auto runner = CompilationCopyFilesTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
 
-  CHECK(testEnvironment.directoryExists(targetPath));
+  CHECK(testEnvironment.fileExists(targetDirPath + sourcePath));
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.copyWildcardToDir")
+{
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  auto testEnvironment = IO::TestEnvironment{};
+
+  const auto sourcePath1 = IO::Path("my_map.map");
+  testEnvironment.createFile(sourcePath1, "{}");
+  const auto sourcePath2 = IO::Path("my_map.lit");
+  testEnvironment.createFile(sourcePath2, "pretty colors");
+  const auto sourcePath3 = IO::Path("my_other_map.map");
+  testEnvironment.createFile(sourcePath3, "{}");
+
+  const auto targetDirPath = IO::Path("some/other/path");
+
+  auto task = Model::CompilationCopyFiles{
+    true,
+    false,
+    (testEnvironment.dir() + IO::Path("my_map.*")).asString(),
+    (testEnvironment.dir() + targetDirPath).asString()};
+  auto runner = CompilationCopyFilesTaskRunner{context, task};
+
+  REQUIRE_NOTHROW(runner.execute());
+
+  CHECK(testEnvironment.fileExists(targetDirPath + sourcePath1));
+  CHECK(testEnvironment.fileExists(targetDirPath + sourcePath2));
+  CHECK(!testEnvironment.fileExists(targetDirPath + sourcePath3));
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.badCopyToDir")
+{
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  auto testEnvironment = IO::TestEnvironment{};
+
+  const auto sourcePath1 = IO::Path("my_map.map");
+  testEnvironment.createFile(sourcePath1, "{}");
+  const auto sourcePath2 = IO::Path("my_map.lit");
+  testEnvironment.createFile(sourcePath2, "pretty colors");
+  const auto sourcePath3 = IO::Path("my_other_map.map");
+  testEnvironment.createFile(sourcePath3, "{}");
+
+  const auto targetDirPath = IO::Path("some/other/path");
+
+  auto task = Model::CompilationCopyFiles{
+    true,
+    false,
+    (testEnvironment.dir() + IO::Path("some_other_map.*")).asString(),
+    (testEnvironment.dir() + targetDirPath).asString()};
+  auto runner = CompilationCopyFilesTaskRunner{context, task};
+
+  REQUIRE_NOTHROW(runner.execute());
+
+  CHECK(!testEnvironment.fileExists(targetDirPath + sourcePath1));
+  CHECK(!testEnvironment.fileExists(targetDirPath + sourcePath2));
+  CHECK(!testEnvironment.fileExists(targetDirPath + sourcePath3));
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.copyToFile")
+{
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  auto testEnvironment = IO::TestEnvironment{};
+
+  const auto sourcePath = IO::Path("my_map.map");
+  testEnvironment.createFile(sourcePath, "{}");
+
+  const auto targetFilePath = IO::Path("some/other/path/renamed.map");
+
+  auto task = Model::CompilationCopyFiles{
+    true,
+    true,
+    (testEnvironment.dir() + sourcePath).asString(),
+    (testEnvironment.dir() + targetFilePath).asString()};
+  auto runner = CompilationCopyFilesTaskRunner{context, task};
+
+  REQUIRE_NOTHROW(runner.execute());
+
+  CHECK(testEnvironment.fileExists(targetFilePath));
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner.badCopyToFile")
+{
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  auto testEnvironment = IO::TestEnvironment{};
+
+  const auto sourcePath1 = IO::Path("my_map.map");
+  testEnvironment.createFile(sourcePath1, "{}");
+  const auto sourcePath2 = IO::Path("my_map.lit");
+  testEnvironment.createFile(sourcePath2, "pretty colors");
+  const auto sourcePath3 = IO::Path("my_other_map.map");
+  testEnvironment.createFile(sourcePath3, "{}");
+
+  const auto targetFilePath = IO::Path("some/other/path/renamed.map");
+
+  auto task = Model::CompilationCopyFiles{
+    true,
+    true,
+    (testEnvironment.dir() + IO::Path("my_map.*")).asString(),
+    (testEnvironment.dir() + targetFilePath).asString()};
+  auto runner = CompilationCopyFilesTaskRunner{context, task};
+
+  REQUIRE_NOTHROW(runner.execute());
+
+  CHECK(!testEnvironment.fileExists(targetFilePath));
+  CHECK(!testEnvironment.fileExists(targetFilePath + sourcePath2));
+  CHECK(!testEnvironment.fileExists(targetFilePath + sourcePath3));
+  CHECK(!testEnvironment.fileExists(targetFilePath + sourcePath3));
 }
 
 TEST_CASE("CompilationRunner.interpolateToolsVariables")

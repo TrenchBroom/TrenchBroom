@@ -252,13 +252,18 @@ class AssertCompilationCopyFilesVisitor : public Model::ConstCompilationTaskCons
 {
 private:
   const bool& m_enabled;
+  const bool& m_targetIsFileSpec;
   const std::string& m_sourceSpec;
   const std::string& m_targetSpec;
 
 public:
   AssertCompilationCopyFilesVisitor(
-    const bool& enabled, const std::string& sourceSpec, const std::string& targetSpec)
+    const bool& enabled,
+    const bool& targetIsFileSpec,
+    const std::string& sourceSpec,
+    const std::string& targetSpec)
     : m_enabled(enabled)
+    , m_targetIsFileSpec(targetIsFileSpec)
     , m_sourceSpec(sourceSpec)
     , m_targetSpec(targetSpec)
   {
@@ -271,6 +276,7 @@ public:
 
   void visit(const Model::CompilationCopyFiles& task) const override
   {
+    CHECK(task.targetIsFileSpec() == m_targetIsFileSpec);
     CHECK(task.sourceSpec() == m_sourceSpec);
     CHECK(task.targetSpec() == m_targetSpec);
     CHECK(m_enabled == task.enabled());
@@ -311,7 +317,7 @@ public:
 };
 
 TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTask",
+  "CompilationConfigParserTest.parseOneProfileWithNameAndCopyTasks",
   "[CompilationConfigParserTest]")
 {
   const std::string config(
@@ -325,7 +331,19 @@ TEST_CASE(
     "                 {\n"
     "                      'type':'copy',\n"
     "                      'source': 'the source',\n"
-    "                      'target': 'the target'\n"
+    "                      'target': 'the target dir'\n"
+    "                 },\n"
+    "                 {\n"
+    "                      'type':'copy',\n"
+    "                      'targetIsFile': false,\n"
+    "                      'source': 'the source',\n"
+    "                      'target': 'another target dir'\n"
+    "                 },\n"
+    "                 {\n"
+    "                      'type':'copy',\n"
+    "                      'targetIsFile': true,\n"
+    "                      'source': 'the source',\n"
+    "                      'target': 'the target file'\n"
     "                 }\n"
     "             ]\n"
     "        }\n"
@@ -338,10 +356,14 @@ TEST_CASE(
 
   const Model::CompilationProfile* profile = result.profile(0);
   CHECK(profile->name() == std::string("A profile"));
-  CHECK(profile->taskCount() == 1u);
+  CHECK(profile->taskCount() == 3u);
 
   profile->task(0)->accept(
-    AssertCompilationCopyFilesVisitor(true, "the source", "the target"));
+    AssertCompilationCopyFilesVisitor(true, false, "the source", "the target dir"));
+  profile->task(1)->accept(
+    AssertCompilationCopyFilesVisitor(true, false, "the source", "another target dir"));
+  profile->task(2)->accept(
+    AssertCompilationCopyFilesVisitor(true, true, "the source", "the target file"));
 }
 
 TEST_CASE(
@@ -469,7 +491,7 @@ TEST_CASE(
   profile->task(0)->accept(
     AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
   profile->task(1)->accept(
-    AssertCompilationCopyFilesVisitor(false, "the source", "the target"));
+    AssertCompilationCopyFilesVisitor(false, false, "the source", "the target"));
 }
 
 TEST_CASE(
@@ -509,7 +531,7 @@ TEST_CASE(
   CHECK(profile->taskCount() == 1u);
 
   profile->task(0)->accept(AssertCompilationCopyFilesVisitor(
-    true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", "C:\\quake2\\chaos\\maps\\"));
+    true, false, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", "C:\\quake2\\chaos\\maps\\"));
 }
 } // namespace IO
 } // namespace TrenchBroom
