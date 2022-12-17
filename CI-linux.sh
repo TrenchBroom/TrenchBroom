@@ -41,7 +41,6 @@ cd "$BUILD_DIR"
 cpack || exit 1
 
 ./app/generate_checksum_deb.sh
-./app/generate_checksum_rpm.sh
 
 echo "Shared libraries used:"
 ldd --verbose ./app/trenchbroom
