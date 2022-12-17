@@ -484,7 +484,6 @@ set(COMMON_SOURCE
 )
 
 set(COMMON_HEADER
-        ${COMMON_SOURCE_DIR}/AABBTree.h
         ${COMMON_SOURCE_DIR}/Assets/AssetReference.h
         ${COMMON_SOURCE_DIR}/Assets/AssetUtils.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h

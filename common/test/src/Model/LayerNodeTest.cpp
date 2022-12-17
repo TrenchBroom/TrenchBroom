@@ -18,7 +18,6 @@
  */
 
 #include "Model/LayerNode.h"
-#include "AABBTree.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
