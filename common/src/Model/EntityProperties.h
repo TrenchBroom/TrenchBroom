@@ -84,8 +84,10 @@ extern const std::string LayerOmitFromExportValue;
 struct EntityPropertyConfig
 {
   std::optional<EL::Expression> defaultModelScaleExpression;
+  bool setDefaultProperties{false};
 
-  kdl_reflect_decl(EntityPropertyConfig, defaultModelScaleExpression);
+  kdl_reflect_decl(
+    EntityPropertyConfig, defaultModelScaleExpression, setDefaultProperties);
 };
 
 bool isNumberedProperty(std::string_view prefix, std::string_view key);
