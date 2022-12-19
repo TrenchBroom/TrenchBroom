@@ -194,7 +194,7 @@ std::unique_ptr<WorldNode> GameImpl::doNewMap(
       || format == MapFormat::Quake3_Valve)
     {
       worldEntity.addOrUpdateProperty(
-        entityPropertyConfig(), EntityPropertyKeys::ValveVersion, "220");
+        propertyConfig, EntityPropertyKeys::ValveVersion, "220");
     }
 
     auto worldNode = std::make_unique<WorldNode>(
