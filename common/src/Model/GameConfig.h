@@ -105,8 +105,10 @@ struct EntityConfig
   std::vector<IO::Path> defFilePaths;
   Color defaultColor;
   std::optional<EL::Expression> scaleExpression;
+  bool setDefaultProperties;
 
-  kdl_reflect_decl(EntityConfig, defFilePaths, defaultColor, scaleExpression);
+  kdl_reflect_decl(
+    EntityConfig, defFilePaths, defaultColor, scaleExpression, setDefaultProperties);
 };
 
 struct FlagConfig

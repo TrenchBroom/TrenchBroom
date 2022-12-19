@@ -157,7 +157,8 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]")
          Path{"Rubicon2.def"},
          Path{"Teamfortress.fgd"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
-        {}},
+        {},
+        false},
       Model::FaceAttribsConfig{},
       {
         Model::SmartTag{
@@ -413,7 +414,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]")
         "_tb_textures",
         Path{},
         {}},
-      Model::EntityConfig{{Path{"Quake2.fgd"}}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}},
+      Model::EntityConfig{{Path{"Quake2.fgd"}}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}, false},
       Model::FaceAttribsConfig{
         {{{"light",
            "Emit light from the surface, brightness is specified in the 'value' field",
@@ -752,7 +753,8 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]")
             EL::Expression{EL::VariableExpression{"modelscale_vec"}, 0, 0},
           }},
           0,
-          0}},
+          0},
+        false},
       Model::FaceAttribsConfig{
         {{{"light",
            "Emit light from the surface, brightness is specified in the 'value' field",
@@ -880,6 +882,65 @@ TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]")
 
   GameConfigParser parser(config);
   REQUIRE_THROWS_AS(parser.parse(), ParserException);
+}
+TEST_CASE("GameConfigParserTest.parseSetDefaultProperties", "[GameConfigParserTest]")
+{
+  const std::string config(R"(
+{
+    "version": 6,
+    "name": "Quake",
+    "icon": "Icon.png",
+    "fileformats": [
+        { "format": "Standard" }
+    ],
+    "filesystem": {
+        "searchpath": "id1",
+        "packageformat": { "extension": "pak", "format": "idpak" }
+    },
+    "textures": {
+        "package": { "type": "file", "format": { "extension": "wad", "format": "wad2" } },
+        "format": { "extension": "D", "format": "idmip" },
+        "palette": "gfx/palette.lmp",
+        "attribute": "wad"
+    },
+    "entities": {
+        "definitions": [ "Quake.fgd", "Quoth2.fgd", "Rubicon2.def", "Teamfortress.fgd" ],
+        "defaultcolor": "0.6 0.6 0.6 1.0",
+        "modelformats": [ "mdl", "bsp" ],
+        "setDefaultProperties": true
+    }
+}
+)");
+
+  CHECK(
+    GameConfigParser(config).parse()
+    == Model::GameConfig{
+      "Quake",
+      Path{},
+      Path{"Icon.png"},
+      false,
+      {Model::MapFormatConfig{"Standard", Path{}}},
+      Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+      Model::TextureConfig{
+        Model::TextureFilePackageConfig{Model::PackageFormatConfig{{"wad"}, "wad2"}},
+        Model::PackageFormatConfig{{"D"}, "idmip"},
+        Path{"gfx/palette.lmp"},
+        "wad",
+        Path{},
+        {}},
+      Model::EntityConfig{
+        {Path{"Quake.fgd"},
+         Path{"Quoth2.fgd"},
+         Path{"Rubicon2.def"},
+         Path{"Teamfortress.fgd"}},
+        Color{0.6f, 0.6f, 0.6f, 1.0f},
+        {},
+        true}, // setDefaultProperties
+      Model::FaceAttribsConfig{},
+      {},
+      std::nullopt, // soft map bounds
+      {}            // compilation tools
+    });
 }
 } // namespace IO
 } // namespace TrenchBroom

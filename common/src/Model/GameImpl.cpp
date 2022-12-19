@@ -785,7 +785,8 @@ const std::vector<CompilationTool>& GameImpl::doCompilationTools() const
 
 EntityPropertyConfig GameImpl::entityPropertyConfig() const
 {
-  return EntityPropertyConfig{m_config.entityConfig.scaleExpression};
+  return EntityPropertyConfig{
+    m_config.entityConfig.scaleExpression, m_config.entityConfig.setDefaultProperties};
 }
 
 void GameImpl::writeLongAttribute(
