@@ -63,9 +63,7 @@ private:
   Model::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
   Model::FlagsConfig parseFlagsConfig(const EL::Value& values) const;
   void parseFlag(
-    const EL::Value& entry,
-    const size_t index,
-    std::vector<Model::FlagConfig>& flags) const;
+    const EL::Value& entry, size_t index, std::vector<Model::FlagConfig>& flags) const;
   Model::BrushFaceAttributes parseFaceAttribsDefaults(
     const EL::Value& value,
     const Model::FlagsConfig& surfaceFlags,
