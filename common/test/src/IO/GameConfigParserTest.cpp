@@ -501,7 +501,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]")
 {
   const std::string config(R"%(
 {
-    "version": 4,
+    "version": 5,
     "name": "Extras",
     "fileformats": [ { "format": "Quake3" } ],
     "filesystem": {
