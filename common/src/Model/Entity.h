@@ -42,6 +42,20 @@ struct ModelSpecification;
 
 namespace Model
 {
+class Entity;
+
+enum class SetDefaultPropertyMode
+{
+  SetExisting,
+  SetMissing,
+  SetAll
+};
+
+void setDefaultProperties(
+  const EntityPropertyConfig& propertyConfig,
+  const Assets::EntityDefinition& entityDefinition,
+  Entity& entity,
+  SetDefaultPropertyMode mode);
 
 /**
  * An entity is essentially a collection of key / value pairs called properties.

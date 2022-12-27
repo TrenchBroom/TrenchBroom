@@ -22,6 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Assets/ModelDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Model/EntityProperties.h"
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotation.h"
@@ -41,6 +42,32 @@ namespace TrenchBroom
 {
 namespace Model
 {
+
+void setDefaultProperties(
+  const EntityPropertyConfig& propertyConfig,
+  const Assets::EntityDefinition& entityDefinition,
+  Entity& entity,
+  const SetDefaultPropertyMode mode)
+{
+  for (const auto& propertyDefinition : entityDefinition.propertyDefinitions())
+  {
+    if (const auto defaultValue =
+          Assets::PropertyDefinition::defaultValue(*propertyDefinition);
+        !defaultValue.empty())
+    {
+      const auto hasProperty = entity.hasProperty(propertyDefinition->key());
+      if (
+        mode == SetDefaultPropertyMode::SetAll
+        || (mode == SetDefaultPropertyMode::SetExisting && hasProperty)
+        || (mode == SetDefaultPropertyMode::SetMissing && !hasProperty))
+      {
+        entity.addOrUpdateProperty(
+          propertyConfig, propertyDefinition->key(), defaultValue);
+      }
+    }
+  }
+}
+
 const vm::bbox3 Entity::DefaultBounds = vm::bbox3{8.0};
 
 Entity::Entity()
