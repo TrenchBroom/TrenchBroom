@@ -47,37 +47,32 @@ namespace TrenchBroom
 namespace View
 {
 CreateEntityTool::CreateEntityTool(std::weak_ptr<MapDocument> document)
-  : Tool(true)
-  , m_document(document)
-  , m_entity(nullptr)
+  : Tool{true(initiallyActive)}
+  , m_document{std::move(document)}
+  , m_entity{nullptr}
 {
 }
 
 bool CreateEntityTool::createEntity(const std::string& classname)
 {
   auto document = kdl::mem_lock(m_document);
-  const Assets::EntityDefinitionManager& definitionManager =
-    document->entityDefinitionManager();
-  Assets::EntityDefinition* definition = definitionManager.definition(classname);
-  if (definition == nullptr)
+  const auto& definitionManager = document->entityDefinitionManager();
+  auto* definition = definitionManager.definition(classname);
+  if (
+    definition == nullptr
+    || definition->type() != Assets::EntityDefinitionType::PointEntity)
+  {
     return false;
-
-  if (definition->type() != Assets::EntityDefinitionType::PointEntity)
-    return false;
-
-  m_entity = new Model::EntityNode{Model::Entity{
-    document->world()->entityPropertyConfig(),
-    {{Model::EntityPropertyKeys::Classname, definition->name()}}}};
+  }
 
   m_referenceBounds = document->referenceBounds();
 
   document->startTransaction(
     "Create '" + definition->name() + "'", TransactionScope::LongRunning);
-  document->deselectAll();
-  document->addNodes({{document->parentForNodes(), {m_entity}}});
-  document->selectNodes({m_entity});
+  m_entity = document->createPointEntity(
+    static_cast<Assets::PointEntityDefinition*>(definition), {0, 0, 0});
 
-  return true;
+  return m_entity != nullptr;
 }
 
 void CreateEntityTool::removeEntity()
@@ -110,18 +105,17 @@ void CreateEntityTool::updateEntityPosition2D(const vm::ray3& pickRay)
   const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
 
   const auto distance = vm::intersect_ray_plane(pickRay, dragPlane);
-  if (vm::is_nan(distance))
+  if (!vm::is_nan(distance))
   {
-    return;
-  }
 
-  const auto& grid = document->grid();
-  const auto delta = grid.moveDeltaForBounds(
-    dragPlane, m_entity->logicalBounds(), document->worldBounds(), pickRay);
+    const auto& grid = document->grid();
+    const auto delta = grid.moveDeltaForBounds(
+      dragPlane, m_entity->logicalBounds(), document->worldBounds(), pickRay);
 
-  if (!vm::is_zero(delta, vm::C::almost_zero()))
-  {
-    document->translateObjects(delta);
+    if (!vm::is_zero(delta, vm::C::almost_zero()))
+    {
+      document->translateObjects(delta);
+    }
   }
 }
 
@@ -134,7 +128,7 @@ void CreateEntityTool::updateEntityPosition3D(
 
   auto document = kdl::mem_lock(m_document);
 
-  vm::vec3 delta;
+  auto delta = vm::vec3{};
   const auto& grid = document->grid();
   const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType));
   if (const auto faceHandle = Model::hitToFaceHandle(hit))
