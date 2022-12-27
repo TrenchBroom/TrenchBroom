@@ -1775,32 +1775,22 @@ Model::EntityNode* MapDocument::createBrushEntity(
   const auto brushes = selectedNodes().brushes();
   assert(!brushes.empty());
 
-  auto entity = Model::Entity{};
-
   // if all brushes belong to the same entity, and that entity is not worldspawn, copy its
   // properties
-  auto* entityTemplate = brushes.front()->entity();
-  if (entityTemplate != m_world.get())
-  {
-    for (auto* brush : brushes)
-    {
-      if (brush->entity() != entityTemplate)
-      {
-        entityTemplate = nullptr;
-        break;
-      }
-    }
-
-    if (entityTemplate != nullptr)
-    {
-      entity = entityTemplate->entity();
-    }
-  }
+  auto entity =
+    (brushes.front()->entity() != m_world.get()
+     && std::all_of(
+       std::next(brushes.begin()),
+       brushes.end(),
+       [&](const auto* brush) { return brush->entity() == brushes.front()->entity(); }))
+      ? brushes.front()->entity()->entity()
+      : Model::Entity{};
 
   entity.addOrUpdateProperty(
     m_world->entityPropertyConfig(),
     Model::EntityPropertyKeys::Classname,
     definition->name());
+
   auto* entityNode = new Model::EntityNode{std::move(entity)};
 
   const auto nodes = kdl::vec_element_cast<Model::Node*>(brushes);
