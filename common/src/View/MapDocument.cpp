@@ -1741,9 +1741,20 @@ Model::EntityNode* MapDocument::createPointEntity(
 {
   ensure(definition != nullptr, "definition is null");
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{
+  auto entity = Model::Entity{
     m_world->entityPropertyConfig(),
-    {{Model::EntityPropertyKeys::Classname, definition->name()}}}};
+    {{Model::EntityPropertyKeys::Classname, definition->name()}}};
+
+  if (m_world->entityPropertyConfig().setDefaultProperties)
+  {
+    Model::setDefaultProperties(
+      m_world->entityPropertyConfig(),
+      *definition,
+      entity,
+      Model::SetDefaultPropertyMode::SetAll);
+  }
+
+  auto* entityNode = new Model::EntityNode{std::move(entity)};
 
   auto transaction = Transaction{*this, "Create " + definition->name()};
   deselectAll();
@@ -1790,6 +1801,15 @@ Model::EntityNode* MapDocument::createBrushEntity(
     m_world->entityPropertyConfig(),
     Model::EntityPropertyKeys::Classname,
     definition->name());
+
+  if (m_world->entityPropertyConfig().setDefaultProperties)
+  {
+    Model::setDefaultProperties(
+      m_world->entityPropertyConfig(),
+      *definition,
+      entity,
+      Model::SetDefaultPropertyMode::SetAll);
+  }
 
   auto* entityNode = new Model::EntityNode{std::move(entity)};
 

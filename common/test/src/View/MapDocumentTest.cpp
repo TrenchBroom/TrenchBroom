@@ -21,6 +21,7 @@
 #include "TestUtils.h"
 
 #include "Assets/EntityDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Exceptions.h"
 #include "IO/WorldReader.h"
 #include "Model/BrushBuilder.h"
@@ -308,6 +309,38 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
 
     CHECK(existingNode->entity().origin() == origin);
   }
+
+  SECTION("Default entity properties")
+  {
+    // set up a document with an entity config having setDefaultProperties set to true
+    game->setWorldNodeToLoad(std::make_unique<Model::WorldNode>(
+      Model::EntityPropertyConfig{{}, true(setDefaultProperties)},
+      Model::Entity{},
+      Model::MapFormat::Standard));
+    document->loadDocument(
+      Model::MapFormat::Standard, document->worldBounds(), game, IO::Path{});
+
+    auto* definitionWithDefaults = new Assets::PointEntityDefinition{
+      "some_name",
+      Color{},
+      vm::bbox3{32.0},
+      "",
+      {
+        std::make_shared<Assets::StringPropertyDefinition>(
+          "some_default_prop", "", "", !true(readOnly), "value"),
+      },
+      {}};
+    document->setEntityDefinitions({definitionWithDefaults});
+
+    auto* entityNode = document->createPointEntity(definitionWithDefaults, {0, 0, 0});
+    REQUIRE(entityNode != nullptr);
+    CHECK_THAT(
+      entityNode->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {Model::EntityPropertyKeys::Classname, "some_name"},
+        {"some_default_prop", "value"},
+      }));
+  }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
@@ -347,6 +380,40 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
     auto* newEntityNode = document->createBrushEntity(m_brushEntityDef);
     CHECK(newEntityNode != nullptr);
     CHECK(newEntityNode->entity().hasProperty("prop", "value"));
+  }
+
+  SECTION("Default entity properties")
+  {
+    // set up a document with an entity config having setDefaultProperties set to true
+    game->setWorldNodeToLoad(std::make_unique<Model::WorldNode>(
+      Model::EntityPropertyConfig{{}, true(setDefaultProperties)},
+      Model::Entity{},
+      Model::MapFormat::Standard));
+    document->loadDocument(
+      Model::MapFormat::Standard, document->worldBounds(), game, IO::Path{});
+
+    auto* definitionWithDefaults = new Assets::BrushEntityDefinition{
+      "some_name",
+      Color{},
+      "",
+      {
+        std::make_shared<Assets::StringPropertyDefinition>(
+          "some_default_prop", "", "", !true(readOnly), "value"),
+      }};
+    document->setEntityDefinitions({definitionWithDefaults});
+
+    auto* brushNode = createBrushNode("some_texture");
+    document->addNodes({{document->parentForNodes(), {brushNode}}});
+
+    document->selectNodes({brushNode});
+    auto* entityNode = document->createBrushEntity(definitionWithDefaults);
+    REQUIRE(entityNode != nullptr);
+    CHECK_THAT(
+      entityNode->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {Model::EntityPropertyKeys::Classname, "some_name"},
+        {"some_default_prop", "value"},
+      }));
   }
 }
 
