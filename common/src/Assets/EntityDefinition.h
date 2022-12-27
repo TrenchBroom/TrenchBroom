@@ -52,17 +52,13 @@ enum class EntityDefinitionSortOrder
 
 class EntityDefinition
 {
-protected:
-  using PropertyDefinitionPtr = std::shared_ptr<PropertyDefinition>;
-  using PropertyDefinitionList = std::vector<PropertyDefinitionPtr>;
-
 private:
   size_t m_index;
   std::string m_name;
   Color m_color;
   std::string m_description;
   std::atomic<size_t> m_usageCount;
-  PropertyDefinitionList m_propertyDefinitions;
+  std::vector<std::shared_ptr<PropertyDefinition>> m_propertyDefinitions;
 
 public:
   virtual ~EntityDefinition();
@@ -81,7 +77,7 @@ public:
   void decUsageCount();
 
   const FlagsPropertyDefinition* spawnflags() const;
-  const PropertyDefinitionList& propertyDefinitions() const;
+  const std::vector<std::shared_ptr<PropertyDefinition>>& propertyDefinitions() const;
   const PropertyDefinition* propertyDefinition(const std::string& propertyKey) const;
 
   static const PropertyDefinition* safeGetPropertyDefinition(
@@ -96,10 +92,10 @@ public:
 
 protected:
   EntityDefinition(
-    const std::string& name,
+    std::string name,
     const Color& color,
-    const std::string& description,
-    const PropertyDefinitionList& propertyDefinitions);
+    std::string description,
+    std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions);
 };
 
 class PointEntityDefinition : public EntityDefinition
@@ -110,12 +106,12 @@ private:
 
 public:
   PointEntityDefinition(
-    const std::string& name,
+    std::string name,
     const Color& color,
     const vm::bbox3& bounds,
-    const std::string& description,
-    const PropertyDefinitionList& propertyDefinitions,
-    const ModelDefinition& modelDefinition);
+    std::string description,
+    std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions,
+    ModelDefinition modelDefinition);
 
   EntityDefinitionType type() const override;
   const vm::bbox3& bounds() const;
@@ -126,10 +122,10 @@ class BrushEntityDefinition : public EntityDefinition
 {
 public:
   BrushEntityDefinition(
-    const std::string& name,
+    std::string name,
     const Color& color,
-    const std::string& description,
-    const PropertyDefinitionList& propertyDefinitions);
+    std::string description,
+    std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions);
   EntityDefinitionType type() const override;
 };
 } // namespace Assets
