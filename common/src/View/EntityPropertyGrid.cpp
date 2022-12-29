@@ -42,6 +42,7 @@
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QKeySequence>
+#include <QMenu>
 #include <QShortcut>
 #include <QSortFilterProxyModel>
 #include <QTableView>
@@ -281,6 +282,25 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
     this,
     [=](const bool /* checked */) { removeSelectedProperties(); });
 
+  auto* setDefaultPropertiesMenu = new QMenu{this};
+  setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [=]() {
+    kdl::mem_lock(m_document)
+      ->setDefaultProperties(Model::SetDefaultPropertyMode::SetExisting);
+  });
+  setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [=]() {
+    kdl::mem_lock(m_document)
+      ->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
+  });
+  setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [=]() {
+    kdl::mem_lock(m_document)
+      ->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
+  });
+
+  m_setDefaultPropertiesButton =
+    createBitmapButton("SetDefaultProperties.svg", tr("Set default properties"), this);
+  m_setDefaultPropertiesButton->setPopupMode(QToolButton::InstantPopup);
+  m_setDefaultPropertiesButton->setMenu(setDefaultPropertiesMenu);
+
   m_showDefaultPropertiesCheckBox = new QCheckBox{tr("Show default properties")};
   connect(
     m_showDefaultPropertiesCheckBox,
@@ -340,6 +360,8 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
     m_addPropertyButton,
     m_addProtectedPropertyButton,
     m_removePropertiesButton,
+    LayoutConstants::WideHMargin,
+    m_setDefaultPropertiesButton,
     LayoutConstants::WideHMargin,
     m_showDefaultPropertiesCheckBox);
 
@@ -434,6 +456,7 @@ void EntityPropertyGrid::updateControlsEnabled()
   m_addPropertyButton->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_removePropertiesButton->setEnabled(
     !nodes.empty() && canUpdateLinkedGroups && canRemoveSelectedProperties());
+  m_setDefaultPropertiesButton->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 }
 
