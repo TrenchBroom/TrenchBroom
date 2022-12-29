@@ -428,11 +428,12 @@ void EntityPropertyGrid::updateControlsEnabled()
 {
   auto document = kdl::mem_lock(m_document);
   const auto nodes = document->allSelectedEntityNodes();
-  m_table->setEnabled(!nodes.empty());
-  m_addPropertyButton->setEnabled(
-    !nodes.empty()
-    && document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(nodes)));
-  m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedProperties());
+  const auto canUpdateLinkedGroups =
+    document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(nodes));
+  m_table->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
+  m_addPropertyButton->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
+  m_removePropertiesButton->setEnabled(
+    !nodes.empty() && canUpdateLinkedGroups && canRemoveSelectedProperties());
   m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 }
 
