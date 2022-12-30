@@ -17,3 +17,7 @@ QCheckBox#entityDefinition_checkboxWidget {
 QToolButton#toolButton_borderless {
   border: none;
 }
+
+QToolButton#toolButton_borderless::menu-indicator {
+ image: none;
+}
