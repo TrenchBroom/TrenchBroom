@@ -32,7 +32,6 @@
 #include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
 
-#include <QAbstractButton>
 #include <QDragEnterEvent>
 #include <QDropEvent>
 #include <QFileDialog>
@@ -40,6 +39,7 @@
 #include <QMimeData>
 #include <QSignalBlocker>
 #include <QStringList>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 namespace TrenchBroom

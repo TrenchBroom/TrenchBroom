@@ -34,7 +34,6 @@
 #include <QStringList>
 #include <QWidget>
 
-class QAbstractButton;
 class QButtonGroup;
 class QColor;
 class QCompleter;
@@ -50,6 +49,7 @@ class QSlider;
 class QSplitter;
 class QString;
 class QTableView;
+class QToolButton;
 class QVBoxLayout;
 class QWidget;
 
@@ -127,11 +127,11 @@ bool widgetOrChildHasFocus(const QWidget* widget);
 class MapFrame;
 MapFrame* findMapFrame(QWidget* widget);
 
-QAbstractButton* createBitmapButton(
+QToolButton* createBitmapButton(
   const std::string& image, const QString& tooltip, QWidget* parent = nullptr);
-QAbstractButton* createBitmapButton(
+QToolButton* createBitmapButton(
   const QIcon& icon, const QString& tooltip, QWidget* parent = nullptr);
-QAbstractButton* createBitmapToggleButton(
+QToolButton* createBitmapToggleButton(
   const std::string& image, const QString& tooltip, QWidget* parent = nullptr);
 
 QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);

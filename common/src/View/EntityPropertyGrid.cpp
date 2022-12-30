@@ -36,7 +36,6 @@
 
 #include <vector>
 
-#include <QAbstractButton>
 #include <QCheckBox>
 #include <QDebug>
 #include <QHBoxLayout>
@@ -47,6 +46,7 @@
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QTimer>
+#include <QToolButton>
 
 #define GRID_LOG(x)
 

@@ -31,12 +31,12 @@
 
 #include <kdl/memory_utils.h>
 
-#include <QAbstractButton>
 #include <QCompleter>
 #include <QFormLayout>
 #include <QLineEdit>
 #include <QMenu>
 #include <QStackedWidget>
+#include <QToolButton>
 
 namespace TrenchBroom
 {

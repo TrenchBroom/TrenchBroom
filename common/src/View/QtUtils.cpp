@@ -30,7 +30,6 @@
 #include "View/MapTextEncoding.h"
 #include "View/ViewConstants.h"
 
-#include <QAbstractButton>
 #include <QApplication>
 #include <QBoxLayout>
 #include <QButtonGroup>
@@ -343,13 +342,13 @@ QColor toQColor(const Color& color)
     int(color.a() * 255.0f));
 }
 
-QAbstractButton* createBitmapButton(
+QToolButton* createBitmapButton(
   const std::string& image, const QString& tooltip, QWidget* parent)
 {
   return createBitmapButton(loadSVGIcon(IO::Path(image)), tooltip, parent);
 }
 
-QAbstractButton* createBitmapButton(
+QToolButton* createBitmapButton(
   const QIcon& icon, const QString& tooltip, QWidget* parent)
 {
   // NOTE: QIcon::availableSizes() is not high-dpi friendly, it returns pixels when we
@@ -359,8 +358,6 @@ QAbstractButton* createBitmapButton(
     !icon.availableSizes().empty(),
     "expected a non-empty icon. Fails when the image file couldn't be found.");
 
-  // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more
-  // correctly be a QToolButton, but the QToolButton doesn't have a flat style on macOS
   auto* button = new QToolButton{parent};
   button->setMinimumSize(icon.availableSizes().front());
   // button->setAutoDefault(false);
@@ -372,7 +369,7 @@ QAbstractButton* createBitmapButton(
   return button;
 }
 
-QAbstractButton* createBitmapToggleButton(
+QToolButton* createBitmapToggleButton(
   const std::string& image, const QString& tooltip, QWidget* parent)
 {
   auto* button = createBitmapButton(image, tooltip, parent);

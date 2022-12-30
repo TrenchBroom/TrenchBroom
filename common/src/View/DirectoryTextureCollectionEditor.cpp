@@ -28,11 +28,10 @@
 #include "View/ViewConstants.h"
 
 #include <kdl/memory_utils.h>
-
 #include <kdl/vector_utils.h>
 
-#include <QAbstractButton>
 #include <QListWidget>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 #include <cassert>

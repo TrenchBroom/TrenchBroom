@@ -40,10 +40,10 @@
 #include <string>
 #include <vector>
 
-#include <QAbstractButton>
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QToolButton>
 #include <QVBoxLayout>
 
 #include "ViewUtils.h"

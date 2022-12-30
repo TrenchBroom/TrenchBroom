@@ -44,6 +44,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QStackedWidget>
+#include <QToolButton>
 #include <QWidget>
 
 #include "IO/DiskIO.h"
