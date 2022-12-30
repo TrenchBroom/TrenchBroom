@@ -61,16 +61,6 @@ namespace View
 {
 enum class MapTextEncoding;
 
-class DisableWindowUpdates
-{
-private:
-  QWidget* m_widget;
-
-public:
-  explicit DisableWindowUpdates(QWidget* widget);
-  ~DisableWindowUpdates();
-};
-
 class SyncHeightEventFilter : public QObject
 {
 private:
@@ -79,7 +69,7 @@ private:
 
 public:
   SyncHeightEventFilter(QWidget* primary, QWidget* secondary, QObject* parent = nullptr);
-  ~SyncHeightEventFilter();
+  ~SyncHeightEventFilter() override;
 
   bool eventFilter(QObject* target, QEvent* event) override;
 };
@@ -115,7 +105,7 @@ void saveWindowState(const T* window)
   ensure(window != nullptr, "window must not be null");
 
   const auto path = windowSettingsPath(window, "State");
-  QSettings settings;
+  auto settings = QSettings{};
   settings.setValue(path, window->saveState());
 }
 
@@ -125,7 +115,7 @@ void restoreWindowState(T* window)
   ensure(window != nullptr, "window must not be null");
 
   const auto path = windowSettingsPath(window, "State");
-  const QSettings settings;
+  auto settings = QSettings{};
   window->restoreState(settings.value(path).toByteArray());
 }
 
@@ -175,7 +165,7 @@ void addToMiniToolBarLayout(QBoxLayout* layout, int first, Rest... rest)
 template <typename... Rest>
 QLayout* createMiniToolBarLayout(QWidget* first, Rest... rest)
 {
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(
     LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
   layout->setSpacing(LayoutConstants::NarrowHMargin);
@@ -187,7 +177,7 @@ QLayout* createMiniToolBarLayout(QWidget* first, Rest... rest)
 template <typename... Rest>
 QLayout* createMiniToolBarLayoutRightAligned(QWidget* first, Rest... rest)
 {
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(
     LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
   layout->setSpacing(LayoutConstants::NarrowHMargin);
@@ -233,12 +223,10 @@ void insertTitleBarSeparator(QVBoxLayout* layout);
 template <typename I>
 QStringList toQStringList(I cur, I end)
 {
-  QStringList result;
-  while (cur != end)
-  {
-    result.push_back(QString::fromStdString(*cur));
-    ++cur;
-  }
+  auto result = QStringList{};
+  std::transform(cur, end, std::back_inserter(result), [](const auto& str) {
+    return QString::fromStdString(str);
+  });
   return result;
 }
 
