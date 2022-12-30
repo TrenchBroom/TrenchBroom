@@ -1016,7 +1016,21 @@ An entity is, essentially, a collection of properties, and a property is a key v
 
 ![Entity Property Editor](images/EntityPropertyEditor.png)
 
-The entity property editor is split into two separate areas. At the top, there is a tabular representation of the properties of the currently selected entities and, if applicable, the defaults for those properties which are not present in the selected entities. The default properties are shown in _italics_ below the actual properties of the selected entities. To hide the default properties, you can uncheck the checkbox at the bottom of the table.
+The entity property editor is split into two separate areas. At the top, there is a tabular representation of the properties of the currently selected entities and, if applicable, the defaults for those properties which are not present in the selected entities.
+
+### Default Entity Properties {#entity_properties_defaults}
+
+The default properties are shown in _italics_ below the actual properties of the selected entities. To hide the default properties, you can uncheck the checkbox at the bottom of the table. Default entity properties are defined in an entity definition file such as an FGD file, and their meaning depends on the game. Some games, like Quake, have builtin default values for entity properties, and the default entity properties reflect these defaults (if set up correctly in the entity definition file).
+
+Other games such as Half Life don't provide default values for entity properties, and expect the defaults to be set explicitly for every entity. If configured in the [game configuration](#game_configuration_files_entities), then TrenchBroom will automatically instantiate the default entity properties (with default values) when a new entity is created. Note that not every default property will be instantiated by TrenchBroom - only those properties which have a default value configured in the entity definition file can be instantiated by TrenchBroom.
+
+![Setting Default Entity Properties](images/SetDefaultPropertiesMenu.png)
+
+Below the entity property editor, there is a small button which pops up a menu when pressed. This menu has three entries:
+
+- **Set existing default properties**: This resets all entity properties to their default values if they have one. No entity property is added or removed, and no entity property is changed unless it has a default value.
+- **Set missing default properties**: This adds all default entity properties that aren't set. Only adds new entity properties. No entity property is removed and no existing entity property is changed.
+- **Set all default properties**: This is a combination of the above. Every entity property having a default value is set to its default, regardless of its current value. Missing default properties are added. No entity properties are removed, and only default entity properties are changed.
 
 ### Editing Properties
 
@@ -2492,12 +2506,19 @@ The game configuration files are versioned. Whenever a breaking change to the ga
 
 **Current Versions**
 
-TrenchBroom currently supports game config versions 3 and 4. Version 4 has the following changes from version 3:
+TrenchBroom currently supports game config versions 3 through 6.
 
-* Version 4 adds support for the `unused` key in surface flags and content flags; this key does not exist in version 3.
-* Version 4 adds support for specifying a list of values for the `pattern` key in surfaceparm-type smart tags; in version 3 only a single value is allowed.
-* Version 4 adds the optional `softMapBounds` key.
-* Version 4 adds the optional `compilationTools` key.
+**Version History**
+
+* Version 6
+  - Adds the optional `setDefaultProperties` key to the entity configuration.
+* Version 5
+  - Makes the model format whitelist optional. If a whitelist is still present in a config file, it is ignored. 
+* Version 4
+  - Adds support for the `unused` key in surface flags and content flags; this key does not exist in version 3.
+  - Adds support for specifying a list of values for the `pattern` key in surfaceparm-type smart tags; in version 3 only a single value is allowed.
+  - Adds the optional `softMapBounds` key.
+  - Adds the optional `compilationTools` key.
 
 **Migrating from Version 2**
 
@@ -2629,7 +2650,8 @@ In the entity configuration section, you can specify which entity definition fil
   	"entities": { // the builtin entity definition files for this game
 		"definitions": [ "Quake2/Quake2.fgd" ],
     	"defaultcolor": "0.6 0.6 0.6 1.0",
-      "scale": [ modelscale, modelscale_vec ]
+      "scale": [ modelscale, modelscale_vec ],
+      "setDefaultProperties": true
     },
 
 The `definitions` key provides a list of entity definition files. These files are specified by a path that is relative to the `games` directory where TrenchBroom searches for the game configurations.
@@ -2644,6 +2666,8 @@ Example                                   Description
 `"scale": [ modelscale, modelscale_vec ]` Try the individual values in the array until we find one that doesn't evaluate to `Undefined` or `Null`.
 
 Of course, you could use the switch and case operators for more complicated cases.
+
+The optional `setDefaultProperties` key controls whether [default entity properties](#entity_properties_defaults) are instantiated automatically when TrenchBroom creates a new entity. Defaults to `false` if not set.
 
 #### Tags {#game_configuration_files_tags}
 
