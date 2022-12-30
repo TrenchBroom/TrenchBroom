@@ -417,5 +417,240 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
   }
 }
 
+TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
+{
+  document->selectAllNodes();
+  document->deleteObjects();
+
+  // Note: The test document does not automatically set the default properties
+  auto* definitionWithDefaults = new Assets::PointEntityDefinition{
+    "some_name",
+    Color{},
+    vm::bbox3{32.0},
+    "",
+    {
+      std::make_shared<Assets::StringPropertyDefinition>(
+        "some_prop", "", "", !true(readOnly)),
+      std::make_shared<Assets::StringPropertyDefinition>(
+        "default_prop_a", "", "", !true(readOnly), "default_value_a"),
+      std::make_shared<Assets::StringPropertyDefinition>(
+        "default_prop_b", "", "", !true(readOnly), "default_value_b"),
+    },
+    {}};
+  document->setEntityDefinitions({definitionWithDefaults});
+
+  auto* entityNodeWithoutDefinition = new Model::EntityNode{
+    document->world()->entityPropertyConfig(),
+    {
+      {"classname", "some_class"},
+    }};
+  document->addNodes({{document->parentForNodes(), {entityNodeWithoutDefinition}}});
+  document->selectNodes({entityNodeWithoutDefinition});
+  document->setProperty("some_prop", "some_value");
+  document->deselectAll();
+
+  auto* entityNodeWithProp =
+    document->createPointEntity(definitionWithDefaults, {0, 0, 0});
+  REQUIRE(entityNodeWithProp != nullptr);
+  REQUIRE(entityNodeWithProp->entity().definition() == definitionWithDefaults);
+  document->selectNodes({entityNodeWithProp});
+  document->setProperty("some_prop", "some_value");
+  document->deselectAll();
+
+  auto* entityNodeWithPropA =
+    document->createPointEntity(definitionWithDefaults, {0, 0, 0});
+  REQUIRE(entityNodeWithPropA != nullptr);
+  REQUIRE(entityNodeWithPropA->entity().definition() == definitionWithDefaults);
+  document->selectNodes({entityNodeWithPropA});
+  document->setProperty("some_prop", "some_value");
+  document->setProperty("default_prop_a", "default_value_a");
+  document->deselectAll();
+
+  auto* entityNodeWithPropAWithValueChanged =
+    document->createPointEntity(definitionWithDefaults, {0, 0, 0});
+  REQUIRE(entityNodeWithPropAWithValueChanged != nullptr);
+  REQUIRE(
+    entityNodeWithPropAWithValueChanged->entity().definition() == definitionWithDefaults);
+  document->selectNodes({entityNodeWithPropAWithValueChanged});
+  document->setProperty("default_prop_a", "some_other_value");
+  document->deselectAll();
+
+  auto* entityNodeWithPropsAB =
+    document->createPointEntity(definitionWithDefaults, {0, 0, 0});
+  REQUIRE(entityNodeWithPropsAB != nullptr);
+  REQUIRE(entityNodeWithPropsAB->entity().definition() == definitionWithDefaults);
+  document->selectNodes({entityNodeWithPropsAB});
+  document->setProperty("some_prop", "some_value");
+  document->setProperty("default_prop_a", "default_value_a");
+  document->setProperty("default_prop_b", "yet_another_value");
+  document->deselectAll();
+
+  REQUIRE_THAT(
+    entityNodeWithoutDefinition->entity().properties(),
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      {"classname", "some_class"},
+      {"some_prop", "some_value"},
+    }));
+  REQUIRE_THAT(
+    entityNodeWithProp->entity().properties(),
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      {"classname", "some_name"},
+      {"some_prop", "some_value"},
+    }));
+  REQUIRE_THAT(
+    entityNodeWithPropA->entity().properties(),
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      {"classname", "some_name"},
+      {"some_prop", "some_value"},
+      {"default_prop_a", "default_value_a"},
+    }));
+  REQUIRE_THAT(
+    entityNodeWithPropAWithValueChanged->entity().properties(),
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      {"classname", "some_name"},
+      {"default_prop_a", "some_other_value"},
+    }));
+  REQUIRE_THAT(
+    entityNodeWithPropsAB->entity().properties(),
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      {"classname", "some_name"},
+      {"some_prop", "some_value"},
+      {"default_prop_a", "default_value_a"},
+      {"default_prop_b", "yet_another_value"},
+    }));
+
+  document->selectNodes(
+    {entityNodeWithoutDefinition,
+     entityNodeWithProp,
+     entityNodeWithPropA,
+     entityNodeWithPropAWithValueChanged,
+     entityNodeWithPropsAB});
+
+  SECTION("Set Existing Default Properties")
+  {
+    document->setDefaultProperties(Model::SetDefaultPropertyMode::SetExisting);
+
+    CHECK_THAT(
+      entityNodeWithoutDefinition->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_class"},
+        {"some_prop", "some_value"},
+      }));
+    CHECK_THAT(
+      entityNodeWithProp->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"some_prop", "some_value"},
+      }));
+    CHECK_THAT(
+      entityNodeWithPropA->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"some_prop", "some_value"},
+        {"default_prop_a", "default_value_a"},
+      }));
+    CHECK_THAT(
+      entityNodeWithPropAWithValueChanged->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"default_prop_a", "default_value_a"},
+      }));
+    CHECK_THAT(
+      entityNodeWithPropsAB->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"some_prop", "some_value"},
+        {"default_prop_a", "default_value_a"},
+        {"default_prop_b", "default_value_b"},
+      }));
+  }
+
+  SECTION("Set Missing Default Properties")
+  {
+    document->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
+
+    CHECK_THAT(
+      entityNodeWithoutDefinition->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_class"},
+        {"some_prop", "some_value"},
+      }));
+    CHECK_THAT(
+      entityNodeWithProp->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"some_prop", "some_value"},
+        {"default_prop_a", "default_value_a"},
+        {"default_prop_b", "default_value_b"},
+      }));
+    CHECK_THAT(
+      entityNodeWithPropA->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"some_prop", "some_value"},
+        {"default_prop_a", "default_value_a"},
+        {"default_prop_b", "default_value_b"},
+      }));
+    CHECK_THAT(
+      entityNodeWithPropAWithValueChanged->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"default_prop_a", "some_other_value"},
+        {"default_prop_b", "default_value_b"},
+      }));
+    CHECK_THAT(
+      entityNodeWithPropsAB->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"some_prop", "some_value"},
+        {"default_prop_a", "default_value_a"},
+        {"default_prop_b", "yet_another_value"},
+      }));
+  }
+
+  SECTION("Set All Default Properties")
+  {
+    document->setDefaultProperties(Model::SetDefaultPropertyMode::SetAll);
+
+    CHECK_THAT(
+      entityNodeWithoutDefinition->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_class"},
+        {"some_prop", "some_value"},
+      }));
+    CHECK_THAT(
+      entityNodeWithProp->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"some_prop", "some_value"},
+        {"default_prop_a", "default_value_a"},
+        {"default_prop_b", "default_value_b"},
+      }));
+    CHECK_THAT(
+      entityNodeWithPropA->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"some_prop", "some_value"},
+        {"default_prop_a", "default_value_a"},
+        {"default_prop_b", "default_value_b"},
+      }));
+    CHECK_THAT(
+      entityNodeWithPropAWithValueChanged->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"default_prop_a", "default_value_a"},
+        {"default_prop_b", "default_value_b"},
+      }));
+    CHECK_THAT(
+      entityNodeWithPropsAB->entity().properties(),
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+        {"classname", "some_name"},
+        {"some_prop", "some_value"},
+        {"default_prop_a", "default_value_a"},
+        {"default_prop_b", "default_value_b"},
+      }));
+  }
+}
+
 } // namespace View
 } // namespace TrenchBroom

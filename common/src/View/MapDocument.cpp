@@ -3518,6 +3518,29 @@ bool MapDocument::canClearProtectedProperties() const
   return canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes));
 }
 
+void MapDocument::setDefaultProperties(const Model::SetDefaultPropertyMode mode)
+{
+  const auto entityNodes = allSelectedEntityNodes();
+  applyAndSwap(
+    *this,
+    "Reset Default Properties",
+    entityNodes,
+    findContainingLinkedGroups(*m_world, entityNodes),
+    kdl::overload(
+      [](Model::Layer&) { return true; },
+      [](Model::Group&) { return true; },
+      [&](Model::Entity& entity) {
+        if (const auto* definition = entity.definition())
+        {
+          Model::setDefaultProperties(
+            m_world->entityPropertyConfig(), *definition, entity, mode);
+        }
+        return true;
+      },
+      [](Model::Brush&) { return true; },
+      [](Model::BezierPatch&) { return true; }));
+}
+
 bool MapDocument::extrudeBrushes(
   const std::vector<vm::polygon3>& faces, const vm::vec3& delta)
 {
