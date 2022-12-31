@@ -320,6 +320,10 @@ static Value evaluateUnaryPlus(const Value& v)
   case ValueType::Number:
     return Value{v.convertTo(ValueType::Number).numberValue()};
   case ValueType::String:
+    if (const auto result = v.tryConvertTo(ValueType::Number))
+    {
+      return Value{result->numberValue()};
+    }
   case ValueType::Array:
   case ValueType::Map:
   case ValueType::Range:
@@ -339,6 +343,10 @@ static Value evaluateUnaryMinus(const Value& v)
   case ValueType::Number:
     return Value{-v.convertTo(ValueType::Number).numberValue()};
   case ValueType::String:
+    if (const auto result = v.tryConvertTo(ValueType::Number))
+    {
+      return Value{-result->numberValue()};
+    }
   case ValueType::Array:
   case ValueType::Map:
   case ValueType::Range:
@@ -376,8 +384,12 @@ static Value evaluateBitwiseNegation(const Value& v)
   {
   case ValueType::Number:
     return Value{~v.integerValue()};
-  case ValueType::Boolean:
   case ValueType::String:
+    if (const auto result = v.tryConvertTo(ValueType::Number))
+    {
+      return Value{~result->integerValue()};
+    }
+  case ValueType::Boolean:
   case ValueType::Array:
   case ValueType::Map:
   case ValueType::Range:
@@ -511,6 +523,24 @@ static std::optional<Value> tryEvaluateAlgebraicOperator(
   {
     return Value{
       eval(lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
+  }
+
+  if (
+    lhs.hasType(ValueType::Boolean, ValueType::Number) && rhs.hasType(ValueType::String))
+  {
+    if (const auto rhsAsNumber = rhs.tryConvertTo(ValueType::Number))
+    {
+      return Value{eval(lhs.convertTo(ValueType::Number), *rhsAsNumber)};
+    }
+  }
+
+  if (
+    lhs.hasType(ValueType::String) && rhs.hasType(ValueType::Boolean, ValueType::Number))
+  {
+    if (const auto lhsAsNumber = lhs.tryConvertTo(ValueType::Number))
+    {
+      return Value{eval(*lhsAsNumber, rhs.convertTo(ValueType::Number))};
+    }
   }
 
   return std::nullopt;
