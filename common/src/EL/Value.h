@@ -112,6 +112,7 @@ public:
   size_t length() const;
   bool convertibleTo(ValueType toType) const;
   Value convertTo(ValueType toType) const;
+  std::optional<Value> tryConvertTo(ValueType toType) const;
 
   std::string asString(bool multiline = false) const;
   void appendToStream(

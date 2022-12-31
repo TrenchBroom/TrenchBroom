@@ -719,6 +719,18 @@ Value Value::convertTo(const ValueType toType) const
     *m_value);
 }
 
+std::optional<Value> Value::tryConvertTo(const ValueType toType) const
+{
+  try
+  {
+    return convertTo(toType);
+  }
+  catch (const ConversionError&)
+  {
+    return std::nullopt;
+  }
+}
+
 std::string Value::asString(const bool multiline) const
 {
   std::stringstream str;
