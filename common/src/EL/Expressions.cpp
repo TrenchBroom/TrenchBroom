@@ -496,7 +496,9 @@ Expression BinaryExpression::createAutoRangeWithLeftOperand(
     column};
 }
 
-static Value evaluateAddition(const Value& lhs, const Value& rhs)
+template <typename Eval>
+static std::optional<Value> tryEvaluateAlgebraicOperator(
+  const Value& lhs, const Value& rhs, const Eval& eval)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
@@ -508,8 +510,21 @@ static Value evaluateAddition(const Value& lhs, const Value& rhs)
     && rhs.hasType(ValueType::Boolean, ValueType::Number))
   {
     return Value{
-      lhs.convertTo(ValueType::Number).numberValue()
-      + rhs.convertTo(ValueType::Number).numberValue()};
+      eval(lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
+  }
+
+  return std::nullopt;
+}
+
+static Value evaluateAddition(const Value& lhs, const Value& rhs)
+{
+  if (
+    const auto result = tryEvaluateAlgebraicOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return lhsNumber.numberValue() + rhsNumber.numberValue();
+      }))
+  {
+    return *result;
   }
 
   if (lhs.hasType(ValueType::String) && rhs.hasType(ValueType::String))
@@ -536,18 +551,13 @@ static Value evaluateAddition(const Value& lhs, const Value& rhs)
 
 static Value evaluateSubtraction(const Value& lhs, const Value& rhs)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
-  {
-    return Value::Undefined;
-  }
-
   if (
-    lhs.hasType(ValueType::Boolean, ValueType::Number)
-    && rhs.hasType(ValueType::Boolean, ValueType::Number))
+    const auto result = tryEvaluateAlgebraicOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return lhsNumber.numberValue() - rhsNumber.numberValue();
+      }))
   {
-    return Value{
-      lhs.convertTo(ValueType::Number).numberValue()
-      - rhs.convertTo(ValueType::Number).numberValue()};
+    return *result;
   }
 
   throw EvaluationError{
@@ -557,18 +567,13 @@ static Value evaluateSubtraction(const Value& lhs, const Value& rhs)
 
 static Value evaluateMultiplication(const Value& lhs, const Value& rhs)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
-  {
-    return Value::Undefined;
-  }
-
   if (
-    lhs.hasType(ValueType::Boolean, ValueType::Number)
-    && rhs.hasType(ValueType::Boolean, ValueType::Number))
+    const auto result = tryEvaluateAlgebraicOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return lhsNumber.numberValue() * rhsNumber.numberValue();
+      }))
   {
-    return Value{
-      lhs.convertTo(ValueType::Number).numberValue()
-      * rhs.convertTo(ValueType::Number).numberValue()};
+    return *result;
   }
 
   throw EvaluationError{
@@ -578,18 +583,13 @@ static Value evaluateMultiplication(const Value& lhs, const Value& rhs)
 
 static Value evaluateDivision(const Value& lhs, const Value& rhs)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
-  {
-    return Value::Undefined;
-  }
-
   if (
-    lhs.hasType(ValueType::Boolean, ValueType::Number)
-    && rhs.hasType(ValueType::Boolean, ValueType::Number))
+    const auto result = tryEvaluateAlgebraicOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return lhsNumber.numberValue() / rhsNumber.numberValue();
+      }))
   {
-    return Value{
-      lhs.convertTo(ValueType::Number).numberValue()
-      / rhs.convertTo(ValueType::Number).numberValue()};
+    return *result;
   }
 
   throw EvaluationError{
@@ -599,18 +599,13 @@ static Value evaluateDivision(const Value& lhs, const Value& rhs)
 
 static Value evaluateModulus(const Value& lhs, const Value& rhs)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
-  {
-    return Value::Undefined;
-  }
-
   if (
-    lhs.hasType(ValueType::Boolean, ValueType::Number)
-    && rhs.hasType(ValueType::Boolean, ValueType::Number))
+    const auto result = tryEvaluateAlgebraicOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return std::fmod(lhsNumber.numberValue(), rhsNumber.numberValue());
+      }))
   {
-    return Value{std::fmod(
-      lhs.convertTo(ValueType::Number).numberValue(),
-      rhs.convertTo(ValueType::Number).numberValue())};
+    return *result;
   }
 
   throw EvaluationError{
