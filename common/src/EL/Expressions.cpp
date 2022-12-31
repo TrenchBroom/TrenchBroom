@@ -167,7 +167,7 @@ Value ArrayExpression::evaluate(const EvaluationContext& context) const
   for (const auto& element : m_elements)
   {
     auto value = element.evaluate(context);
-    if (value.type() == ValueType::Range)
+    if (value.hasType(ValueType::Range))
     {
       const auto& range = value.rangeValue();
       if (!range.empty())
@@ -498,82 +498,35 @@ Expression BinaryExpression::createAutoRangeWithLeftOperand(
 
 static Value evaluateAddition(const Value& lhs, const Value& rhs)
 {
-  switch (lhs.type())
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
-  case ValueType::Undefined:
     return Value::Undefined;
-  case ValueType::Boolean:
-  case ValueType::Number:
-    switch (rhs.type())
-    {
-    case ValueType::Undefined:
-      return Value::Undefined;
-    case ValueType::Boolean:
-    case ValueType::Number:
-      return Value{
-        lhs.convertTo(ValueType::Number).numberValue()
-        + rhs.convertTo(ValueType::Number).numberValue()};
-    case ValueType::String:
-    case ValueType::Array:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Null:
-      break;
-    }
-    break;
-  case ValueType::String:
-    switch (rhs.type())
-    {
-    case ValueType::Undefined:
-      return Value::Undefined;
-    case ValueType::String:
-      return Value{
-        lhs.convertTo(ValueType::String).stringValue()
-        + rhs.convertTo(ValueType::String).stringValue()};
-    case ValueType::Boolean:
-    case ValueType::Number:
-    case ValueType::Array:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Null:
-      break;
-    }
-    break;
-  case ValueType::Array:
-    switch (rhs.type())
-    {
-    case ValueType::Undefined:
-      return Value::Undefined;
-    case ValueType::Array:
-      return Value{kdl::vec_concat(lhs.arrayValue(), rhs.arrayValue())};
-    case ValueType::Boolean:
-    case ValueType::Number:
-    case ValueType::String:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Null:
-      break;
-    }
-    break;
-  case ValueType::Map:
-    switch (rhs.type())
-    {
-    case ValueType::Undefined:
-      return Value::Undefined;
-    case ValueType::Map:
-      return Value{kdl::map_union(lhs.mapValue(), rhs.mapValue())};
-    case ValueType::Boolean:
-    case ValueType::Number:
-    case ValueType::String:
-    case ValueType::Array:
-    case ValueType::Range:
-    case ValueType::Null:
-      break;
-    }
-    break;
-  case ValueType::Range:
-  case ValueType::Null:
-    break;
+  }
+
+  if (
+    lhs.hasType(ValueType::Boolean, ValueType::Number)
+    && rhs.hasType(ValueType::Boolean, ValueType::Number))
+  {
+    return Value{
+      lhs.convertTo(ValueType::Number).numberValue()
+      + rhs.convertTo(ValueType::Number).numberValue()};
+  }
+
+  if (lhs.hasType(ValueType::String) && rhs.hasType(ValueType::String))
+  {
+    return Value{
+      lhs.convertTo(ValueType::String).stringValue()
+      + rhs.convertTo(ValueType::String).stringValue()};
+  }
+
+  if (lhs.hasType(ValueType::Array) && rhs.hasType(ValueType::Array))
+  {
+    return Value{kdl::vec_concat(lhs.arrayValue(), rhs.arrayValue())};
+  }
+
+  if (lhs.hasType(ValueType::Map) && rhs.hasType(ValueType::Map))
+  {
+    return Value{kdl::map_union(lhs.mapValue(), rhs.mapValue())};
   }
 
   throw EvaluationError{
@@ -583,35 +536,18 @@ static Value evaluateAddition(const Value& lhs, const Value& rhs)
 
 static Value evaluateSubtraction(const Value& lhs, const Value& rhs)
 {
-  switch (lhs.type())
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
-  case ValueType::Undefined:
     return Value::Undefined;
-  case ValueType::Boolean:
-  case ValueType::Number:
-    switch (rhs.type())
-    {
-    case ValueType::Undefined:
-      return Value::Undefined;
-    case ValueType::Boolean:
-    case ValueType::Number:
-      return Value{
-        lhs.convertTo(ValueType::Number).numberValue()
-        - rhs.convertTo(ValueType::Number).numberValue()};
-    case ValueType::String:
-    case ValueType::Array:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Null:
-      break;
-    }
-    break;
-  case ValueType::String:
-  case ValueType::Array:
-  case ValueType::Map:
-  case ValueType::Range:
-  case ValueType::Null:
-    break;
+  }
+
+  if (
+    lhs.hasType(ValueType::Boolean, ValueType::Number)
+    && rhs.hasType(ValueType::Boolean, ValueType::Number))
+  {
+    return Value{
+      lhs.convertTo(ValueType::Number).numberValue()
+      - rhs.convertTo(ValueType::Number).numberValue()};
   }
 
   throw EvaluationError{
@@ -621,35 +557,18 @@ static Value evaluateSubtraction(const Value& lhs, const Value& rhs)
 
 static Value evaluateMultiplication(const Value& lhs, const Value& rhs)
 {
-  switch (lhs.type())
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
-  case ValueType::Undefined:
     return Value::Undefined;
-  case ValueType::Boolean:
-  case ValueType::Number:
-    switch (rhs.type())
-    {
-    case ValueType::Undefined:
-      return Value::Undefined;
-    case ValueType::Boolean:
-    case ValueType::Number:
-      return Value{
-        lhs.convertTo(ValueType::Number).numberValue()
-        * rhs.convertTo(ValueType::Number).numberValue()};
-    case ValueType::String:
-    case ValueType::Array:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Null:
-      break;
-    }
-    break;
-  case ValueType::String:
-  case ValueType::Array:
-  case ValueType::Map:
-  case ValueType::Range:
-  case ValueType::Null:
-    break;
+  }
+
+  if (
+    lhs.hasType(ValueType::Boolean, ValueType::Number)
+    && rhs.hasType(ValueType::Boolean, ValueType::Number))
+  {
+    return Value{
+      lhs.convertTo(ValueType::Number).numberValue()
+      * rhs.convertTo(ValueType::Number).numberValue()};
   }
 
   throw EvaluationError{
@@ -659,35 +578,18 @@ static Value evaluateMultiplication(const Value& lhs, const Value& rhs)
 
 static Value evaluateDivision(const Value& lhs, const Value& rhs)
 {
-  switch (lhs.type())
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
-  case ValueType::Undefined:
     return Value::Undefined;
-  case ValueType::Boolean:
-  case ValueType::Number:
-    switch (rhs.type())
-    {
-    case ValueType::Undefined:
-      return Value::Undefined;
-    case ValueType::Boolean:
-    case ValueType::Number:
-      return Value{
-        lhs.convertTo(ValueType::Number).numberValue()
-        / rhs.convertTo(ValueType::Number).numberValue()};
-    case ValueType::String:
-    case ValueType::Array:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Null:
-      break;
-    }
-    break;
-  case ValueType::String:
-  case ValueType::Array:
-  case ValueType::Map:
-  case ValueType::Range:
-  case ValueType::Null:
-    break;
+  }
+
+  if (
+    lhs.hasType(ValueType::Boolean, ValueType::Number)
+    && rhs.hasType(ValueType::Boolean, ValueType::Number))
+  {
+    return Value{
+      lhs.convertTo(ValueType::Number).numberValue()
+      / rhs.convertTo(ValueType::Number).numberValue()};
   }
 
   throw EvaluationError{
@@ -697,35 +599,18 @@ static Value evaluateDivision(const Value& lhs, const Value& rhs)
 
 static Value evaluateModulus(const Value& lhs, const Value& rhs)
 {
-  switch (lhs.type())
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
-  case ValueType::Undefined:
     return Value::Undefined;
-  case ValueType::Boolean:
-  case ValueType::Number:
-    switch (rhs.type())
-    {
-    case ValueType::Undefined:
-      return Value::Undefined;
-    case ValueType::Boolean:
-    case ValueType::Number:
-      return Value{std::fmod(
-        lhs.convertTo(ValueType::Number).numberValue(),
-        rhs.convertTo(ValueType::Number).numberValue())};
-    case ValueType::String:
-    case ValueType::Array:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Null:
-      break;
-    }
-    break;
-  case ValueType::String:
-  case ValueType::Array:
-  case ValueType::Map:
-  case ValueType::Range:
-  case ValueType::Null:
-    break;
+  }
+
+  if (
+    lhs.hasType(ValueType::Boolean, ValueType::Number)
+    && rhs.hasType(ValueType::Boolean, ValueType::Number))
+  {
+    return Value{std::fmod(
+      lhs.convertTo(ValueType::Number).numberValue(),
+      rhs.convertTo(ValueType::Number).numberValue())};
   }
 
   throw EvaluationError{
@@ -740,12 +625,12 @@ static Value evaluateLogicalAnd(
   const auto lhs = evaluateLhs();
   auto rhs = std::make_optional<Value>();
 
-  if (lhs.type() == ValueType::Undefined)
+  if (lhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
 
-  if (lhs.type() == ValueType::Boolean || lhs.type() == ValueType::Null)
+  if (lhs.hasType(ValueType::Boolean, ValueType::Null))
   {
     const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
     if (!lhsValue)
@@ -754,7 +639,7 @@ static Value evaluateLogicalAnd(
     }
 
     rhs = evaluateRhs();
-    if (rhs->type() == ValueType::Boolean || rhs->type() == ValueType::Null)
+    if (rhs->hasType(ValueType::Boolean, ValueType::Null))
     {
       return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
     }
@@ -765,7 +650,7 @@ static Value evaluateLogicalAnd(
     rhs = evaluateRhs();
   }
 
-  if (rhs->type() == ValueType::Undefined)
+  if (rhs->hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
@@ -783,12 +668,12 @@ static Value evaluateLogicalOr(
   const auto lhs = evaluateLhs();
   auto rhs = std::make_optional<Value>();
 
-  if (lhs.type() == ValueType::Undefined)
+  if (lhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
 
-  if (lhs.type() == ValueType::Boolean || lhs.type() == ValueType::Null)
+  if (lhs.hasType(ValueType::Boolean, ValueType::Null))
   {
     const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
     if (lhsValue)
@@ -797,7 +682,7 @@ static Value evaluateLogicalOr(
     }
 
     rhs = evaluateRhs();
-    if (rhs->type() == ValueType::Boolean || rhs->type() == ValueType::Null)
+    if (rhs->hasType(ValueType::Boolean, ValueType::Null))
     {
       return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
     }
@@ -808,7 +693,7 @@ static Value evaluateLogicalOr(
     rhs = evaluateRhs();
   }
 
-  if (rhs->type() == ValueType::Undefined)
+  if (rhs->hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
@@ -821,7 +706,7 @@ static Value evaluateLogicalOr(
 
 static Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs)
 {
-  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined)
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
@@ -839,7 +724,7 @@ static Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs)
 
 static Value evaluateBitwiseXOr(const Value& lhs, const Value& rhs)
 {
-  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined)
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
@@ -857,7 +742,7 @@ static Value evaluateBitwiseXOr(const Value& lhs, const Value& rhs)
 
 static Value evaluateBitwiseOr(const Value& lhs, const Value& rhs)
 {
-  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined)
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
@@ -875,7 +760,7 @@ static Value evaluateBitwiseOr(const Value& lhs, const Value& rhs)
 
 static Value evaluateBitwiseShiftLeft(const Value& lhs, const Value& rhs)
 {
-  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined)
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
@@ -894,7 +779,7 @@ static Value evaluateBitwiseShiftLeft(const Value& lhs, const Value& rhs)
 
 static Value evaluateBitwiseShiftRight(const Value& lhs, const Value& rhs)
 {
-  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined)
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
@@ -1005,7 +890,7 @@ static int evaluateCompare(const Value& lhs, const Value& rhs)
       }
       break;
     case ValueType::Null:
-      if (rhs.type() == ValueType::Null)
+      if (rhs.hasType(ValueType::Null))
       {
         return 0;
       }
@@ -1014,7 +899,7 @@ static int evaluateCompare(const Value& lhs, const Value& rhs)
         return -1;
       }
     case ValueType::Undefined:
-      if (rhs.type() == ValueType::Undefined)
+      if (rhs.hasType(ValueType::Undefined))
       {
         return 0;
       }
@@ -1092,7 +977,7 @@ static int evaluateCompare(const Value& lhs, const Value& rhs)
 
 static Value evaluateRange(const Value& lhs, const Value& rhs)
 {
-  if (lhs.type() == ValueType::Undefined || rhs.type() == ValueType::Undefined)
+  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }

@@ -146,6 +146,11 @@ ValueType Value::type() const
     *m_value);
 }
 
+bool Value::hasType(ValueType type) const
+{
+  return this->type() == type;
+}
+
 std::string Value::typeName() const
 {
   return EL::typeName(type());

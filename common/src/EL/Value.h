@@ -90,6 +90,15 @@ public:
   Value(Value value, std::optional<Expression> expression);
 
   ValueType type() const;
+
+  bool hasType(ValueType type) const;
+
+  template <typename... T>
+  bool hasType(const T... types) const
+  {
+    return (... || hasType(types));
+  }
+
   std::string typeName() const;
   std::string describe() const;
 
