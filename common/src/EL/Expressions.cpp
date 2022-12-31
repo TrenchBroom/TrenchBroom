@@ -699,7 +699,9 @@ static Value evaluateLogicalOr(
     + typeName(rhs->type()) + "'"};
 }
 
-static Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs)
+template <typename Eval>
+static std::optional<Value> tryEvaluateBitwiseOperator(
+  const Value& lhs, const Value& rhs, const Eval& eval)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
@@ -708,10 +710,24 @@ static Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs)
 
   if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number))
   {
-    const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
-    const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
-    return Value{lhsInt & rhsInt};
+    return Value{
+      eval(lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
   }
+
+  return std::nullopt;
+}
+
+static Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs)
+{
+  if (
+    const auto result = tryEvaluateBitwiseOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return lhsNumber.integerValue() & rhsNumber.integerValue();
+      }))
+  {
+    return *result;
+  }
+
   throw EvaluationError{
     "Cannot apply operator & to '" + lhs.describe() + "' of type '" + typeName(lhs.type())
     + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'"};
@@ -719,17 +735,15 @@ static Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs)
 
 static Value evaluateBitwiseXOr(const Value& lhs, const Value& rhs)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  if (
+    const auto result = tryEvaluateBitwiseOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return lhsNumber.integerValue() ^ rhsNumber.integerValue();
+      }))
   {
-    return Value::Undefined;
+    return *result;
   }
 
-  if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number))
-  {
-    const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
-    const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
-    return Value{lhsInt ^ rhsInt};
-  }
   throw EvaluationError{
     "Cannot apply operator ^ to '" + lhs.describe() + "' of type '" + typeName(lhs.type())
     + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'"};
@@ -737,17 +751,15 @@ static Value evaluateBitwiseXOr(const Value& lhs, const Value& rhs)
 
 static Value evaluateBitwiseOr(const Value& lhs, const Value& rhs)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  if (
+    const auto result = tryEvaluateBitwiseOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return lhsNumber.integerValue() | rhsNumber.integerValue();
+      }))
   {
-    return Value::Undefined;
+    return *result;
   }
 
-  if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number))
-  {
-    const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
-    const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
-    return Value{lhsInt | rhsInt};
-  }
   throw EvaluationError{
     "Cannot apply operator | to '" + lhs.describe() + "' of type '" + typeName(lhs.type())
     + " and '" + rhs.describe() + "' of type '" + typeName(rhs.type()) + "'"};
@@ -755,17 +767,15 @@ static Value evaluateBitwiseOr(const Value& lhs, const Value& rhs)
 
 static Value evaluateBitwiseShiftLeft(const Value& lhs, const Value& rhs)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  if (
+    const auto result = tryEvaluateBitwiseOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return lhsNumber.integerValue() << rhsNumber.integerValue();
+      }))
   {
-    return Value::Undefined;
+    return *result;
   }
 
-  if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number))
-  {
-    const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
-    const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
-    return Value{lhsInt << rhsInt};
-  }
   throw EvaluationError{
     "Cannot apply operator << to '" + lhs.describe() + "' of type '"
     + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '"
@@ -774,17 +784,15 @@ static Value evaluateBitwiseShiftLeft(const Value& lhs, const Value& rhs)
 
 static Value evaluateBitwiseShiftRight(const Value& lhs, const Value& rhs)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+  if (
+    const auto result = tryEvaluateBitwiseOperator(
+      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+        return lhsNumber.integerValue() >> rhsNumber.integerValue();
+      }))
   {
-    return Value::Undefined;
+    return *result;
   }
 
-  if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number))
-  {
-    const IntegerType lhsInt = lhs.convertTo(ValueType::Number).integerValue();
-    const IntegerType rhsInt = rhs.convertTo(ValueType::Number).integerValue();
-    return Value{lhsInt >> rhsInt};
-  }
   throw EvaluationError{
     "Cannot apply operator >> to '" + lhs.describe() + "' of type '"
     + typeName(lhs.type()) + " and '" + rhs.describe() + "' of type '"
