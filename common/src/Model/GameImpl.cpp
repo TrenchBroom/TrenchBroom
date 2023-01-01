@@ -223,8 +223,6 @@ std::unique_ptr<WorldNode> GameImpl::doLoadMap(
   const IO::Path& path,
   Logger& logger) const
 {
-  const auto entityPropertyConfig =
-    Model::EntityPropertyConfig{m_config.entityConfig.scaleExpression};
   IO::SimpleParserStatus parserStatus(logger);
   auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
   auto fileReader = file->reader().buffer();
@@ -238,12 +236,12 @@ std::unique_ptr<WorldNode> GameImpl::doLoadMap(
       fileReader.stringView(),
       possibleFormats,
       worldBounds,
-      entityPropertyConfig,
+      entityPropertyConfig(),
       parserStatus);
   }
   else
   {
-    IO::WorldReader worldReader(fileReader.stringView(), format, entityPropertyConfig);
+    IO::WorldReader worldReader(fileReader.stringView(), format, entityPropertyConfig());
     return worldReader.read(worldBounds, parserStatus);
   }
 }
