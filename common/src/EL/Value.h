@@ -90,6 +90,15 @@ public:
   Value(Value value, std::optional<Expression> expression);
 
   ValueType type() const;
+
+  bool hasType(ValueType type) const;
+
+  template <typename... T>
+  bool hasType(const T... types) const
+  {
+    return (... || hasType(types));
+  }
+
   std::string typeName() const;
   std::string describe() const;
 
@@ -112,6 +121,7 @@ public:
   size_t length() const;
   bool convertibleTo(ValueType toType) const;
   Value convertTo(ValueType toType) const;
+  std::optional<Value> tryConvertTo(ValueType toType) const;
 
   std::string asString(bool multiline = false) const;
   void appendToStream(

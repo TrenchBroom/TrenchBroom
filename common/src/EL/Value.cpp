@@ -146,6 +146,11 @@ ValueType Value::type() const
     *m_value);
 }
 
+bool Value::hasType(ValueType type) const
+{
+  return this->type() == type;
+}
+
 std::string Value::typeName() const
 {
   return EL::typeName(type());
@@ -717,6 +722,18 @@ Value Value::convertTo(const ValueType toType) const
         throw ConversionError{describe(), type(), toType};
       }),
     *m_value);
+}
+
+std::optional<Value> Value::tryConvertTo(const ValueType toType) const
+{
+  try
+  {
+    return convertTo(toType);
+  }
+  catch (const ConversionError&)
+  {
+    return std::nullopt;
+  }
 }
 
 std::string Value::asString(const bool multiline) const

@@ -1848,28 +1848,32 @@ A unary operator is an operator that applies to a single operand. In TrenchBroom
 The following table explains the effects of applying the unary operators to values depending on the type of the values.
 
 -------------------------------------------------------------------------------------------------------
-Operator 			`Boolean`         `String` `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
---------            ----              ----     ----         ----    ----    ----    ----    ----
-`Plus`   			convert to number error    no effect    error   error   error   error   error
+Operator 	        `Boolean`         `String`     `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
+--------           ----              ----         ----         ----    ----    ----    ----    ----
+`Plus`             convert to number see below    no effect    error   error   error   error   error
 
-`Minus`  			convert to number error    negate value error   error   error   error   error
-         			and negate value
+`Minus`            convert to number see below    negate value error   error   error   error   error
+                   and negate value
 
-`LogicalNegation` 	invert value      error    error        error   error   error   error   error
+`LogicalNegation`  invert value      error        error        error   error   error   error   error
 
-`BinaryNegation` 	error 			  error    invert bits  error   error   error   error   error
+`BinaryNegation`   error             see below    invert bits  error   error   error   error   error
 -------------------------------------------------------------------------------------------------------
+
+Note on using applying a unary operator to a value of type `String`: Every operator except `LogicalNegation` will try to convert a value of type `String` to a number if possible.
 
 Some examples of using unary operators follow.
 
     +1.0   //  1.0
     -1.0   // -1.0
+    -'1'   // -1.0
     +true  //  1.0
     -true  // -1.0
     !true  // false
     !false // true
     ~1     // -2
     ~-2    // 1
+    ~'-2'  // 1
 
 ### Binary Operator Terms
 
@@ -1886,6 +1890,12 @@ Algebraic terms are terms that use the binary operators `+`, `-`, `*`, `/`, or `
 	Modulus        = SimpleTerm "%" Expression
 
 All of these operators can be applied to operands of type `Boolean` or `Number`. If an operand is of type `Boolean`, it is converted to type `Number` before the operation is applied.
+
+If one of the operators is of type `Boolean` or `Number` and the other operand is of type `String`, and its value can be converted to a number, then the operand can be applied, and the operand of type `String` is also converted to type `Number`.
+
+    "1.23" + 1 // 2.23
+    1.23 + "1" // 2.23
+    "1" + "2"  // 12, see below
 
 In addition, the `+` operator can be applied if both operands are of type `String`, if both are of type `Array`, or if both are of type `Map`.
 
@@ -1916,7 +1926,7 @@ The following table shows the effects of applying the logical operators.
 
 #### Binary Terms
 
-Binary terms manipulate the bit representation of operands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If one of the operands is not of type `Number`, the operand is converted to type `Number` according to the [type conversion rules](#el_type_conversion).
+Binary terms manipulate the bit representation of operands of type `Number`. Note that, since manipulating the bit representation of a floating point number does not make much sense, the operands are converted to an integer representation first by omitting their fractional portion. If either of the operands is not of type `Number`, the operand is converted to type `Number` according to the [type conversion rules](#el_type_conversion).
 
     BinaryAnd        = SimpleTerm "&" SimpleTerm
     BinaryXor        = SimpleTerm "|" SimpleTerm
