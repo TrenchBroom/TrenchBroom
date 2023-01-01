@@ -552,6 +552,78 @@ TEST_CASE("resolveInheritance.mergeSpawnflagsSimpleInheritance", "[resolveInheri
     })));
 }
 
+TEST_CASE("resolveInheritance.chainOfBaseClasses", "[resolveInheritance]")
+{
+  const auto a1_1 =
+    std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
+  const auto a1_2 =
+    std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
+  const auto a2 = std::make_shared<Assets::StringPropertyDefinition>("a2", "", "", false);
+  const auto a3 = std::make_shared<Assets::StringPropertyDefinition>("a3", "", "", false);
+
+  const auto base1ModelDef = Assets::ModelDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("abc")), 0, 0));
+  const auto base2ModelDef = Assets::ModelDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("def")), 0, 0));
+  const auto pointModelDef = Assets::ModelDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("xyz")), 0, 0));
+  auto mergedModelDef = pointModelDef;
+  mergedModelDef.append(base2ModelDef);
+  mergedModelDef.append(base1ModelDef);
+
+  const auto input = std::vector<EntityDefinitionClassInfo>({
+    // type                                   l  c  name     description   color size
+    // modelDef        properties      superclasses
+    {EntityDefinitionClassType::BaseClass,
+     0,
+     0,
+     "base1",
+     "base1",
+     std::nullopt,
+     vm::bbox3(-2, 2),
+     base1ModelDef,
+     {a1_1, a2},
+     {}},
+    {EntityDefinitionClassType::BaseClass,
+     0,
+     0,
+     "base2",
+     "base2",
+     Color(1, 2, 3),
+     std::nullopt,
+     base2ModelDef,
+     {a1_2, a3},
+     {"base1"}},
+    {EntityDefinitionClassType::PointClass,
+     0,
+     0,
+     "point",
+     std::nullopt,
+     std::nullopt,
+     std::nullopt,
+     pointModelDef,
+     {},
+     {"base2"}},
+  });
+  const auto expected = std::vector<EntityDefinitionClassInfo>({
+    {EntityDefinitionClassType::PointClass,
+     0,
+     0,
+     "point",
+     "base2",
+     Color(1, 2, 3),
+     vm::bbox3(-2, 2),
+     mergedModelDef,
+     {a1_2, a3, a2},
+     {"base2"}},
+  });
+
+  TestParserStatus status;
+  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK(status.countStatus(LogLevel::Warn) == 0u);
+  CHECK(status.countStatus(LogLevel::Error) == 0u);
+}
+
 TEST_CASE("resolveInheritance.multipleBaseClasses", "[resolveInheritance]")
 {
   const auto a1_1 =
