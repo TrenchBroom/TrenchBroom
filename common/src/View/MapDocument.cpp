@@ -1223,23 +1223,70 @@ void MapDocument::selectInverse()
 
 void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positions)
 {
-  const auto nodes = kdl::vec_filter(
-    Model::collectSelectableNodes(
-      std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
-    [&](const auto* node) {
-      for (const size_t position : positions)
+  auto nodesToSelect = std::vector<Model::Node*>{};
+  const auto hasFilePosition = [&](const auto* node) {
+    return std::any_of(positions.begin(), positions.end(), [&](const auto position) {
+      return node->containsLine(position);
+    });
+  };
+
+  m_world->accept(kdl::overload(
+    [&](auto&& thisLambda, Model::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, Model::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, Model::GroupNode* groupNode) {
+      if (hasFilePosition(groupNode))
       {
-        if (node->containsLine(position))
+        if (m_editorContext->selectable(groupNode))
         {
-          return true;
+          nodesToSelect.push_back(groupNode);
+        }
+        else
+        {
+          groupNode->visitChildren(thisLambda);
         }
       }
-      return false;
-    });
+    },
+    [&](auto&& thisLambda, Model::EntityNode* entityNode) {
+      if (hasFilePosition(entityNode))
+      {
+        if (m_editorContext->selectable(entityNode))
+        {
+          nodesToSelect.push_back(entityNode);
+        }
+        else
+        {
+          const auto previousCount = nodesToSelect.size();
+          entityNode->visitChildren(thisLambda);
+          if (previousCount == nodesToSelect.size())
+          {
+            // no child was selected, select all children
+            nodesToSelect = kdl::vec_concat(
+              std::move(nodesToSelect),
+              Model::collectSelectableNodes(entityNode->children(), *m_editorContext));
+          }
+        }
+      }
+    },
+    [&](Model::BrushNode* brushNode) {
+      if (hasFilePosition(brushNode) && m_editorContext->selectable(brushNode))
+      {
+        nodesToSelect.push_back(brushNode);
+      }
+    },
+    [&](Model::PatchNode* patchNode) {
+      if (hasFilePosition(patchNode) && m_editorContext->selectable(patchNode))
+      {
+        nodesToSelect.push_back(patchNode);
+      }
+    }));
 
   auto transaction = Transaction{*this, "Select by Line Number"};
   deselectAll();
-  selectNodes(nodes);
+  selectNodes(nodesToSelect);
   transaction.commit();
 }
 
