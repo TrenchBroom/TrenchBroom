@@ -36,12 +36,7 @@ class SmartPropertyEditorMatcher
 {
 public:
   virtual ~SmartPropertyEditorMatcher();
-  bool matches(
-    const std::string& propertyKey,
-    const std::vector<Model::EntityNodeBase*>& nodes) const;
-
-private:
-  virtual bool doMatches(
+  virtual bool matches(
     const std::string& propertyKey,
     const std::vector<Model::EntityNodeBase*>& nodes) const = 0;
 };
@@ -52,19 +47,18 @@ private:
   std::vector<std::string> m_patterns;
 
 public:
-  SmartPropertyEditorKeyMatcher(const std::string& pattern);
-  SmartPropertyEditorKeyMatcher(std::initializer_list<std::string> patterns);
+  explicit SmartPropertyEditorKeyMatcher(std::vector<std::string> patterns);
 
-private:
-  bool doMatches(
+public:
+  bool matches(
     const std::string& propertyKey,
     const std::vector<Model::EntityNodeBase*>& nodes) const override;
 };
 
 class SmartPropertyEditorDefaultMatcher : public SmartPropertyEditorMatcher
 {
-private:
-  bool doMatches(
+public:
+  bool matches(
     const std::string& propertyKey,
     const std::vector<Model::EntityNodeBase*>& nodes) const override;
 };

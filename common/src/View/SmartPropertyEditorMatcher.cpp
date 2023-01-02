@@ -22,52 +22,31 @@
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
+#include <algorithm>
 #include <vector>
 
 namespace TrenchBroom
 {
 namespace View
 {
-SmartPropertyEditorMatcher::~SmartPropertyEditorMatcher() {}
-
-bool SmartPropertyEditorMatcher::matches(
-  const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const
-{
-  return doMatches(propertyKey, nodes);
-}
-
-SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(const std::string& pattern)
-  : SmartPropertyEditorKeyMatcher({pattern})
-{
-}
+SmartPropertyEditorMatcher::~SmartPropertyEditorMatcher() = default;
 
 SmartPropertyEditorKeyMatcher::SmartPropertyEditorKeyMatcher(
-  const std::initializer_list<std::string> patterns)
-  : m_patterns(patterns)
+  std::vector<std::string> patterns)
+  : m_patterns{kdl::vec_sort_and_remove_duplicates(std::move(patterns))}
 {
-  m_patterns = kdl::vec_sort_and_remove_duplicates(std::move(m_patterns));
 }
 
-bool SmartPropertyEditorKeyMatcher::doMatches(
+bool SmartPropertyEditorKeyMatcher::matches(
   const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const
 {
-  if (nodes.empty())
-  {
-    return false;
-  }
-
-  for (const std::string& pattern : m_patterns)
-  {
-    if (kdl::cs::str_matches_glob(propertyKey, pattern))
-    {
-      return true;
-    }
-  }
-
-  return false;
+  return !nodes.empty()
+         && std::any_of(m_patterns.begin(), m_patterns.end(), [&](const auto& pattern) {
+              return kdl::cs::str_matches_glob(propertyKey, pattern);
+            });
 }
 
-bool SmartPropertyEditorDefaultMatcher::doMatches(
+bool SmartPropertyEditorDefaultMatcher::matches(
   const std::string& /* propertyKey */,
   const std::vector<Model::EntityNodeBase*>& /* nodes */) const
 {

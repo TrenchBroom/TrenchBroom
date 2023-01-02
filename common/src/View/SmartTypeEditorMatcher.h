@@ -48,10 +48,9 @@ private:
   Assets::PropertyDefinitionType m_type;
 
 public:
-  SmartTypeEditorMatcher(Assets::PropertyDefinitionType type);
+  explicit SmartTypeEditorMatcher(Assets::PropertyDefinitionType type);
 
-private:
-  bool doMatches(
+  bool matches(
     const std::string& propertyKey,
     const std::vector<Model::EntityNodeBase*>& nodes) const override;
 };
@@ -66,10 +65,9 @@ private:
   Assets::PropertyDefinitionType m_type;
 
 public:
-  SmartTypeWithSameDefinitionEditorMatcher(Assets::PropertyDefinitionType type);
+  explicit SmartTypeWithSameDefinitionEditorMatcher(Assets::PropertyDefinitionType type);
 
-private:
-  bool doMatches(
+  bool matches(
     const std::string& propertyKey,
     const std::vector<Model::EntityNodeBase*>& nodes) const override;
 };

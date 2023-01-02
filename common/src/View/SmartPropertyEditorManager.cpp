@@ -41,10 +41,9 @@ namespace View
 {
 SmartPropertyEditorManager::SmartPropertyEditorManager(
   std::weak_ptr<MapDocument> document, QWidget* parent)
-  : QWidget(parent)
-  , m_document(document)
-  , m_propertyKey("")
-  , m_stackedLayout(nullptr)
+  : QWidget{parent}
+  , m_document{std::move(document)}
+  , m_stackedLayout{nullptr}
 {
   createEditors();
   activateEditor(defaultEditor(), "");
@@ -54,7 +53,7 @@ SmartPropertyEditorManager::SmartPropertyEditorManager(
 void SmartPropertyEditorManager::switchEditor(
   const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes)
 {
-  EditorPtr editor = selectEditor(propertyKey, nodes);
+  auto* editor = selectEditor(propertyKey, nodes);
   activateEditor(editor, propertyKey);
   updateEditor();
 }
@@ -73,24 +72,26 @@ void SmartPropertyEditorManager::createEditors()
 {
   assert(m_editors.empty());
 
-  m_editors.push_back(MatcherEditorPair(
-    MatcherPtr(new SmartTypeEditorMatcher(Assets::PropertyDefinitionType::FlagsProperty)),
-    new SmartFlagsEditor(m_document)));
-  m_editors.push_back(MatcherEditorPair(
-    MatcherPtr(new SmartPropertyEditorKeyMatcher({"*_color", "*_color2", "*_colour"})),
-    new SmartColorEditor(m_document)));
-  m_editors.push_back(MatcherEditorPair(
-    MatcherPtr(new SmartTypeWithSameDefinitionEditorMatcher(
-      Assets::PropertyDefinitionType::ChoiceProperty)),
-    new SmartChoiceEditor(m_document)));
-  m_editors.push_back(MatcherEditorPair(
-    MatcherPtr(new SmartPropertyEditorDefaultMatcher()),
-    new SmartDefaultPropertyEditor(m_document)));
+  m_editors.emplace_back(
+    std::make_unique<SmartTypeEditorMatcher>(
+      Assets::PropertyDefinitionType::FlagsProperty),
+    new SmartFlagsEditor{m_document});
+  m_editors.emplace_back(
+    std::make_unique<SmartPropertyEditorKeyMatcher>(
+      std::vector<std::string>{"*_color", "*_color2", "*_colour"}),
+    new SmartColorEditor{m_document});
+  m_editors.emplace_back(
+    std::make_unique<SmartTypeWithSameDefinitionEditorMatcher>(
+      Assets::PropertyDefinitionType::ChoiceProperty),
+    new SmartChoiceEditor{m_document});
+  m_editors.emplace_back(
+    std::make_unique<SmartPropertyEditorDefaultMatcher>(),
+    new SmartDefaultPropertyEditor{m_document});
 
-  m_stackedLayout = new QStackedLayout();
-  for (auto& [matcherPtr, editor] : m_editors)
+  m_stackedLayout = new QStackedLayout{};
+  for (auto& [matcher, editor] : m_editors)
   {
-    unused(matcherPtr);
+    unused(matcher);
     m_stackedLayout->addWidget(editor);
   }
   setLayout(m_stackedLayout);
@@ -117,13 +118,15 @@ void SmartPropertyEditorManager::nodesDidChange(const std::vector<Model::Node*>&
   switchEditor(m_propertyKey, document->allSelectedEntityNodes());
 }
 
-SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::selectEditor(
+SmartPropertyEditor* SmartPropertyEditorManager::selectEditor(
   const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const
 {
   for (const auto& [matcher, editor] : m_editors)
   {
     if (matcher->matches(propertyKey, nodes))
+    {
       return editor;
+    }
   }
 
   // should never happen
@@ -131,13 +134,13 @@ SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::selectEditor(
   return defaultEditor();
 }
 
-SmartPropertyEditorManager::EditorPtr SmartPropertyEditorManager::defaultEditor() const
+SmartPropertyEditor* SmartPropertyEditorManager::defaultEditor() const
 {
-  return m_editors.back().second;
+  return std::get<1>(m_editors.back());
 }
 
 void SmartPropertyEditorManager::activateEditor(
-  EditorPtr editor, const std::string& propertyKey)
+  SmartPropertyEditor* editor, const std::string& propertyKey)
 {
   if (
     m_stackedLayout->currentWidget() != editor
@@ -153,7 +156,7 @@ void SmartPropertyEditorManager::activateEditor(
 
 void SmartPropertyEditorManager::deactivateEditor()
 {
-  if (activeEditor() != nullptr)
+  if (activeEditor())
   {
     activeEditor()->deactivate();
     m_stackedLayout->setCurrentIndex(-1);
@@ -163,7 +166,7 @@ void SmartPropertyEditorManager::deactivateEditor()
 
 void SmartPropertyEditorManager::updateEditor()
 {
-  if (activeEditor() != nullptr)
+  if (activeEditor())
   {
     auto document = kdl::mem_lock(m_document);
     activeEditor()->update(document->allSelectedEntityNodes());

@@ -47,14 +47,11 @@ class SmartPropertyEditorMatcher;
 class SmartPropertyEditorManager : public QWidget
 {
 private:
-  using EditorPtr = SmartPropertyEditor*;
-  using MatcherPtr = std::shared_ptr<SmartPropertyEditorMatcher>;
-  using MatcherEditorPair = std::pair<MatcherPtr, EditorPtr>;
-  using EditorList = std::vector<MatcherEditorPair>;
-
   std::weak_ptr<MapDocument> m_document;
 
-  EditorList m_editors;
+  std::vector<
+    std::tuple<std::unique_ptr<SmartPropertyEditorMatcher>, SmartPropertyEditor*>>
+    m_editors;
   std::string m_propertyKey;
   QStackedLayout* m_stackedLayout;
 
@@ -77,12 +74,12 @@ private:
   void selectionDidChange(const Selection& selection);
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
 
-  EditorPtr selectEditor(
+  SmartPropertyEditor* selectEditor(
     const std::string& propertyKey,
     const std::vector<Model::EntityNodeBase*>& nodes) const;
-  EditorPtr defaultEditor() const;
+  SmartPropertyEditor* defaultEditor() const;
 
-  void activateEditor(EditorPtr editor, const std::string& propertyKey);
+  void activateEditor(SmartPropertyEditor* editor, const std::string& propertyKey);
   void deactivateEditor();
   void updateEditor();
 };
