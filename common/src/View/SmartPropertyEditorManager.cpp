@@ -78,7 +78,7 @@ void SmartPropertyEditorManager::createEditors()
     new SmartFlagsEditor{m_document});
   m_editors.emplace_back(
     std::make_unique<SmartPropertyEditorKeyMatcher>(
-      std::vector<std::string>{"*_color", "*_color2", "*_colour"}),
+      std::vector<std::string>{"color", "*_color", "*_color2", "*_colour"}),
     new SmartColorEditor{m_document});
   m_editors.emplace_back(
     std::make_unique<SmartTypeWithSameDefinitionEditorMatcher>(
