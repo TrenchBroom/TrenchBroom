@@ -337,10 +337,7 @@ TEST_CASE_METHOD(MapDocumentTest, "selectByLineNumber")
       {{7}, {}},
       {{12}, {"pointEntity"}},
       {{16}, {"patch"}},
-      /* EXPECTED:
       {{20}, {"brushInEntity1", "brushInEntity2"}},
-      ACTUAL: */
-      {{20}, {}},
       {{24}, {"brushInEntity1"}},
       {{26}, {"brushInEntity2"}},
       {{31}, {"outerGroup"}},
