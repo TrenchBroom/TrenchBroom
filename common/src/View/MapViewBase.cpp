@@ -915,6 +915,7 @@ void MapViewBase::focusInEvent(QFocusEvent* event)
 
 void MapViewBase::focusOutEvent(QFocusEvent* event)
 {
+  cancelMouseDrag();
   clearModifierKeys();
   update();
   RenderView::focusOutEvent(event);
