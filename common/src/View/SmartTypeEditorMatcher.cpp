@@ -29,46 +29,32 @@ namespace View
 // SmartTypeEditorMatcher
 
 SmartTypeEditorMatcher::SmartTypeEditorMatcher(const Assets::PropertyDefinitionType type)
-  : m_type(type)
+  : m_type{type}
 {
 }
 
-bool SmartTypeEditorMatcher::doMatches(
+bool SmartTypeEditorMatcher::matches(
   const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const
 {
-  if (nodes.empty())
-  {
-    return false;
-  }
-  for (const auto* node : nodes)
-  {
+  return !nodes.empty() && std::all_of(nodes.begin(), nodes.end(), [&](const auto* node) {
     const auto* propDef = Model::propertyDefinition(node, propertyKey);
-    if (propDef == nullptr)
-    {
-      return false;
-    }
-    if (propDef->type() != m_type)
-    {
-      return false;
-    }
-  }
-  return true;
+    return propDef && propDef->type() == m_type;
+  });
 }
 
 // SmartTypeWithSameDefinitionEditorMatcher
 
 SmartTypeWithSameDefinitionEditorMatcher::SmartTypeWithSameDefinitionEditorMatcher(
   const Assets::PropertyDefinitionType type)
-  : m_type(type)
+  : m_type{type}
 {
 }
 
-bool SmartTypeWithSameDefinitionEditorMatcher::doMatches(
+bool SmartTypeWithSameDefinitionEditorMatcher::matches(
   const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const
 {
-  const Assets::PropertyDefinition* propDef =
-    Model::selectPropertyDefinition(propertyKey, nodes);
-  return propDef != nullptr && propDef->type() == m_type;
+  const auto* propDef = Model::selectPropertyDefinition(propertyKey, nodes);
+  return propDef && propDef->type() == m_type;
 }
 } // namespace View
 } // namespace TrenchBroom
