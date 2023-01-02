@@ -1224,17 +1224,11 @@ void MapDocument::selectInverse()
 void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positions)
 {
   const auto nodes = kdl::vec_filter(
-    Model::collectSelectableNodes(
-      std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
+    Model::collectSelectableNodes({m_world.get()}, *m_editorContext),
     [&](const auto* node) {
-      for (const size_t position : positions)
-      {
-        if (node->containsLine(position))
-        {
-          return true;
-        }
-      }
-      return false;
+      return std::any_of(positions.begin(), positions.end(), [&](const auto position) {
+        return node->containsLine(position);
+      });
     });
 
   auto transaction = Transaction{*this, "Select by Line Number"};
