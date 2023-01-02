@@ -29,10 +29,10 @@
 
 #include <kdl/memory_utils.h>
 
-#include <QAbstractButton>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QSpinBox>
+#include <QToolButton>
 #include <QtGlobal>
 
 namespace TrenchBroom

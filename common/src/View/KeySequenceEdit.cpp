@@ -23,9 +23,9 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-#include <QAbstractButton>
 #include <QBoxLayout>
 #include <QStyle>
+#include <QToolButton>
 
 namespace TrenchBroom
 {

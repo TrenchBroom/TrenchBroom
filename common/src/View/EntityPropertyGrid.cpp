@@ -36,17 +36,18 @@
 
 #include <vector>
 
-#include <QAbstractButton>
 #include <QCheckBox>
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QKeyEvent>
 #include <QKeySequence>
+#include <QMenu>
 #include <QShortcut>
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QTimer>
+#include <QToolButton>
 
 #define GRID_LOG(x)
 
@@ -56,10 +57,10 @@ namespace View
 {
 EntityPropertyGrid::EntityPropertyGrid(
   std::weak_ptr<MapDocument> document, QWidget* parent)
-  : QWidget(parent)
-  , m_document(document)
+  : QWidget{parent}
+  , m_document{std::move(document)}
 {
-  createGui(document);
+  createGui(m_document);
   connectObservers();
 }
 
@@ -68,10 +69,10 @@ void EntityPropertyGrid::backupSelection()
   m_selectionBackup.clear();
 
   GRID_LOG(qDebug() << "Backup selection");
-  for (const QModelIndex& index : m_table->selectionModel()->selectedIndexes())
+  for (const auto& index : m_table->selectionModel()->selectedIndexes())
   {
-    const QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
-    const std::string propertyKey = m_model->propertyKey(sourceIndex.row());
+    const auto sourceIndex = m_proxyModel->mapToSource(index);
+    const auto propertyKey = m_model->propertyKey(sourceIndex.row());
     m_selectionBackup.push_back({propertyKey, sourceIndex.column()});
 
     GRID_LOG(
@@ -87,7 +88,7 @@ void EntityPropertyGrid::restoreSelection()
   GRID_LOG(qDebug() << "Restore selection");
   for (const auto& selection : m_selectionBackup)
   {
-    const int row = m_model->rowForPropertyKey(selection.propertyKey);
+    const auto row = m_model->rowForPropertyKey(selection.propertyKey);
     if (row == -1)
     {
       GRID_LOG(
@@ -95,8 +96,8 @@ void EntityPropertyGrid::restoreSelection()
                  << QString::fromStdString(selection.propertyKey));
       continue;
     }
-    const QModelIndex sourceIndex = m_model->index(row, selection.column);
-    const QModelIndex proxyIndex = m_proxyModel->mapFromSource(sourceIndex);
+    const auto sourceIndex = m_model->index(row, selection.column);
+    const auto proxyIndex = m_proxyModel->mapFromSource(sourceIndex);
     m_table->selectionModel()->select(proxyIndex, QItemSelectionModel::Select);
     m_table->selectionModel()->setCurrentIndex(proxyIndex, QItemSelectionModel::Current);
 
@@ -112,7 +113,7 @@ void EntityPropertyGrid::restoreSelection()
 void EntityPropertyGrid::addProperty(const bool defaultToProtected)
 {
   auto document = kdl::mem_lock(m_document);
-  const std::string newPropertyKey =
+  const auto newPropertyKey =
     PropertyRow::newPropertyKeyForEntityNodes(document->allSelectedEntityNodes());
 
   if (!document->setProperty(newPropertyKey, "", defaultToProtected))
@@ -125,15 +126,15 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected)
   // EntityPropertyGrid::updateControls), so we can select the new row.
   m_model->updateFromMapDocument();
 
-  const int row = m_model->rowForPropertyKey(newPropertyKey);
+  const auto row = m_model->rowForPropertyKey(newPropertyKey);
   ensure(row != -1, "row should have been inserted");
 
   // Select the newly inserted property key
-  const QModelIndex mi =
+  const auto mappedIndex =
     m_proxyModel->mapFromSource(m_model->index(row, EntityPropertyModel::ColumnKey));
 
   m_table->clearSelection();
-  m_table->setCurrentIndex(mi);
+  m_table->setCurrentIndex(mappedIndex);
   m_table->setFocus();
 }
 
@@ -145,12 +146,8 @@ void EntityPropertyGrid::removeSelectedProperties()
   }
 
   const auto selectedRows = selectedRowsAndCursorRow();
-
-  auto propertyKeys = std::vector<std::string>{};
-  for (const auto row : selectedRows)
-  {
-    propertyKeys.push_back(m_model->propertyKey(row));
-  }
+  const auto propertyKeys = kdl::vec_transform(
+    selectedRows, [&](const auto row) { return m_model->propertyKey(row); });
 
   const auto numRows = propertyKeys.size();
   auto document = kdl::mem_lock(m_document);
@@ -158,34 +155,24 @@ void EntityPropertyGrid::removeSelectedProperties()
   auto transaction = Transaction{
     document, kdl::str_plural(numRows, "Remove Property", "Remove Properties")};
 
-  auto success = true;
   for (const auto& propertyKey : propertyKeys)
   {
-    success = success && document->removeProperty(propertyKey);
+    if (!document->removeProperty(propertyKey))
+    {
+      transaction.cancel();
+      return;
+    }
   }
 
-  if (success)
-  {
-    transaction.commit();
-  }
-  else
-  {
-    transaction.cancel();
-  }
+  transaction.commit();
 }
 
 bool EntityPropertyGrid::canRemoveSelectedProperties() const
 {
   const auto rows = selectedRowsAndCursorRow();
-  if (rows.empty())
-    return false;
-
-  for (const int row : rows)
-  {
-    if (!m_model->canRemove(row))
-      return false;
-  }
-  return true;
+  return !rows.empty() && std::all_of(rows.begin(), rows.end(), [&](const auto row) {
+    return m_model->canRemove(row);
+  });
 }
 
 /**
@@ -193,22 +180,21 @@ bool EntityPropertyGrid::canRemoveSelectedProperties() const
  */
 std::vector<int> EntityPropertyGrid::selectedRowsAndCursorRow() const
 {
-  kdl::vector_set<int> result;
+  auto result = kdl::vector_set<int>{};
 
-  QItemSelectionModel* selection = m_table->selectionModel();
+  auto* selection = m_table->selectionModel();
 
   // current row
-  const QModelIndex currentIndexInSource =
-    m_proxyModel->mapToSource(selection->currentIndex());
+  const auto currentIndexInSource = m_proxyModel->mapToSource(selection->currentIndex());
   if (currentIndexInSource.isValid())
   {
     result.insert(currentIndexInSource.row());
   }
 
   // selected rows
-  for (const QModelIndex& index : selection->selectedIndexes())
+  for (const auto& index : selection->selectedIndexes())
   {
-    const QModelIndex indexInSource = m_proxyModel->mapToSource(index);
+    const auto indexInSource = m_proxyModel->mapToSource(index);
     if (indexInSource.isValid())
     {
       result.insert(indexInSource.row());
@@ -222,16 +208,14 @@ class EntitySortFilterProxyModel : public QSortFilterProxyModel
 {
 public:
   explicit EntitySortFilterProxyModel(QObject* parent = nullptr)
-    : QSortFilterProxyModel(parent)
+    : QSortFilterProxyModel{parent}
   {
   }
 
 protected:
-  bool lessThan(const QModelIndex& left, const QModelIndex& right) const
+  bool lessThan(const QModelIndex& left, const QModelIndex& right) const override
   {
-    const EntityPropertyModel& source =
-      dynamic_cast<const EntityPropertyModel&>(*sourceModel());
-
+    const auto& source = dynamic_cast<const EntityPropertyModel&>(*sourceModel());
     return source.lessThan(
       static_cast<size_t>(left.row()), static_cast<size_t>(right.row()));
   }
@@ -239,22 +223,24 @@ protected:
 
 void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
 {
-  m_table = new EntityPropertyTable();
+  m_table = new EntityPropertyTable{};
 
-  m_model = new EntityPropertyModel(document, this);
-  m_model->setParent(
-    m_table); // ensure the table takes ownership of the model in setModel //
-              // FIXME: why? this looks unnecessary
+  m_model = new EntityPropertyModel{document, this};
 
-  m_proxyModel = new EntitySortFilterProxyModel(this);
+  // ensure the table takes ownership of the model in setModel
+  // FIXME: why? this looks unnecessary
+  m_model->setParent(m_table);
+
+  m_proxyModel = new EntitySortFilterProxyModel{this};
   m_proxyModel->setSourceModel(m_model);
-  m_proxyModel->sort(
-    0); // NOTE: must be column 0, because EntitySortFilterProxyModel::lessThan
-        // ignores the column part of the QModelIndex
+
+  // NOTE: must be column 0, because EntitySortFilterProxyModel::lessThan ignores the
+  // column part of the QModelIndex
+  m_proxyModel->sort(0);
   m_table->setModel(m_proxyModel);
 
   m_table->setItemDelegate(
-    new EntityPropertyItemDelegate(m_table, m_model, m_proxyModel, m_table));
+    new EntityPropertyItemDelegate{m_table, m_model, m_proxyModel, m_table});
 
   autoResizeRows(m_table);
 
@@ -296,7 +282,26 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
     this,
     [=](const bool /* checked */) { removeSelectedProperties(); });
 
-  m_showDefaultPropertiesCheckBox = new QCheckBox(tr("Show default properties"));
+  auto* setDefaultPropertiesMenu = new QMenu{this};
+  setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [=]() {
+    kdl::mem_lock(m_document)
+      ->setDefaultProperties(Model::SetDefaultPropertyMode::SetExisting);
+  });
+  setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [=]() {
+    kdl::mem_lock(m_document)
+      ->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
+  });
+  setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [=]() {
+    kdl::mem_lock(m_document)
+      ->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
+  });
+
+  m_setDefaultPropertiesButton =
+    createBitmapButton("SetDefaultProperties.svg", tr("Set default properties"), this);
+  m_setDefaultPropertiesButton->setPopupMode(QToolButton::InstantPopup);
+  m_setDefaultPropertiesButton->setMenu(setDefaultPropertiesMenu);
+
+  m_showDefaultPropertiesCheckBox = new QCheckBox{tr("Show default properties")};
   connect(
     m_showDefaultPropertiesCheckBox,
     &QCheckBox::stateChanged,
@@ -356,13 +361,15 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
     m_addProtectedPropertyButton,
     m_removePropertiesButton,
     LayoutConstants::WideHMargin,
+    m_setDefaultPropertiesButton,
+    LayoutConstants::WideHMargin,
     m_showDefaultPropertiesCheckBox);
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(m_table, 1);
-  layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
+  layout->addWidget(new BorderLine{BorderLine::Direction::Horizontal}, 0);
   layout->addLayout(toolBar, 0);
   setLayout(layout);
 
@@ -443,24 +450,21 @@ void EntityPropertyGrid::updateControlsEnabled()
 {
   auto document = kdl::mem_lock(m_document);
   const auto nodes = document->allSelectedEntityNodes();
-  m_table->setEnabled(!nodes.empty());
-  m_addPropertyButton->setEnabled(
-    !nodes.empty()
-    && document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(nodes)));
-  m_removePropertiesButton->setEnabled(!nodes.empty() && canRemoveSelectedProperties());
+  const auto canUpdateLinkedGroups =
+    document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(nodes));
+  m_table->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
+  m_addPropertyButton->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
+  m_removePropertiesButton->setEnabled(
+    !nodes.empty() && canUpdateLinkedGroups && canRemoveSelectedProperties());
+  m_setDefaultPropertiesButton->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 }
 
 std::string EntityPropertyGrid::selectedRowName() const
 {
-  QModelIndex current = m_proxyModel->mapToSource(m_table->currentIndex());
-  const PropertyRow* rowModel = m_model->dataForModelIndex(current);
-  if (rowModel == nullptr)
-  {
-    return "";
-  }
-
-  return rowModel->key();
+  const auto current = m_proxyModel->mapToSource(m_table->currentIndex());
+  const auto* rowModel = m_model->dataForModelIndex(current);
+  return rowModel ? rowModel->key() : "";
 }
 } // namespace View
 } // namespace TrenchBroom

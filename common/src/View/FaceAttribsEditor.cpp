@@ -49,9 +49,9 @@
 #include <memory>
 #include <string>
 
-#include <QAbstractButton>
 #include <QLabel>
 #include <QLineEdit>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QtGlobal>
 

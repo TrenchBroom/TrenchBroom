@@ -19,8 +19,11 @@
 
 #pragma once
 
+#include <kdl/reflection_decl.h>
+
 #include <QAbstractTableModel>
 
+#include <iosfwd>
 #include <map>
 #include <memory>
 #include <string>
@@ -59,6 +62,8 @@ enum class ValueType
   MultipleValues
 };
 
+std::ostream& operator<<(std::ostream& lhs, const ValueType& rhs);
+
 enum class PropertyProtection
 {
   NotProtectable,
@@ -66,6 +71,8 @@ enum class PropertyProtection
   NotProtected,
   Mixed
 };
+
+std::ostream& operator<<(std::ostream& lhs, const PropertyProtection& rhs);
 
 /**
  * Viewmodel (as in MVVM) for a single row in the table
@@ -84,9 +91,8 @@ private:
 
 public:
   PropertyRow();
-  PropertyRow(const std::string& key, const Model::EntityNodeBase* node);
-  bool operator==(const PropertyRow& other) const;
-  bool operator<(const PropertyRow& other) const;
+  PropertyRow(std::string key, const Model::EntityNodeBase* node);
+
   void merge(const Model::EntityNodeBase* other);
 
   const std::string& key() const;
@@ -104,16 +110,26 @@ public:
   static std::vector<std::string> allKeys(
     const std::vector<Model::EntityNodeBase*>& nodes,
     bool showDefaultRows,
-    const bool showPreservedProperties);
+    bool showPreservedProperties);
   static std::map<std::string, PropertyRow> rowsForEntityNodes(
     const std::vector<Model::EntityNodeBase*>& nodes,
     bool showDefaultRows,
-    const bool showPreservedProperties);
+    bool showPreservedProperties);
   /**
    * Suggests a new, unused property name of the form "property X".
    */
   static std::string newPropertyKeyForEntityNodes(
     const std::vector<Model::EntityNodeBase*>& nodes);
+
+  kdl_reflect_decl(
+    PropertyRow,
+    m_key,
+    m_value,
+    m_valueType,
+    m_keyMutable,
+    m_valueMutable,
+    m_protected,
+    m_tooltip);
 };
 
 /**

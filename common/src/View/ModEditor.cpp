@@ -34,9 +34,9 @@
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
-#include <QAbstractButton>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QToolButton>
 #include <QVBoxLayout>
 #include <QWidget>
 

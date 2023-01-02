@@ -117,6 +117,12 @@ private:
   void skipClassProperty(ParserStatus& status);
 
   PropertyDefinitionList parsePropertyDefinitions(ParserStatus& status);
+  PropertyDefinitionPtr parsePropertyDefinition(
+    ParserStatus& status,
+    const std::string& propertyKey,
+    const std::string& typeName,
+    size_t line,
+    size_t column);
   PropertyDefinitionPtr parseTargetSourcePropertyDefinition(
     ParserStatus& status, const std::string& propertyKey);
   PropertyDefinitionPtr parseTargetDestinationPropertyDefinition(

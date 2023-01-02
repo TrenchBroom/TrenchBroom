@@ -38,6 +38,7 @@
 
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
+#include <kdl/reflection_impl.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
@@ -134,70 +135,52 @@ static PropertyProtection isPropertyProtected(
   return PropertyProtection::NotProtectable;
 }
 
-// AttributeRow
+std::ostream& operator<<(std::ostream& lhs, const ValueType& rhs)
+{
+  switch (rhs)
+  {
+  case ValueType::Unset:
+    return lhs << "Unset";
+  case ValueType::SingleValue:
+    return lhs << "SingleValue";
+  case ValueType::SingleValueAndUnset:
+    return lhs << "SingleValueAndUnset";
+  case ValueType::MultipleValues:
+    return lhs << "MultipleValues";
+    switchDefault();
+  }
+}
+
+std::ostream& operator<<(std::ostream& lhs, const PropertyProtection& rhs)
+{
+  switch (rhs)
+  {
+  case PropertyProtection::NotProtectable:
+    return lhs << "NotProtectable";
+  case PropertyProtection::Protected:
+    return lhs << "Protected";
+  case PropertyProtection::NotProtected:
+    return lhs << "NotProtected";
+  case PropertyProtection::Mixed:
+    return lhs << "Mixed";
+    switchDefault();
+  }
+}
 
 PropertyRow::PropertyRow()
-  : m_valueType(ValueType::Unset)
-  , m_keyMutable(true)
-  , m_valueMutable(true)
-  , m_protected(PropertyProtection::NotProtectable)
+  : m_valueType{ValueType::Unset}
+  , m_keyMutable{true}
+  , m_valueMutable{true}
+  , m_protected{PropertyProtection::NotProtectable}
 {
 }
 
-bool PropertyRow::operator==(const PropertyRow& other) const
+PropertyRow::PropertyRow(std::string key, const Model::EntityNodeBase* node)
+  : m_key{std::move(key)}
 {
-  return m_key == other.m_key && m_value == other.m_value
-         && m_valueType == other.m_valueType && m_keyMutable == other.m_keyMutable
-         && m_valueMutable == other.m_valueMutable && m_protected == other.m_protected
-         && m_tooltip == other.m_tooltip;
-}
+  const auto* definition = Model::propertyDefinition(node, m_key);
 
-bool PropertyRow::operator<(const PropertyRow& other) const
-{
-  if (m_key < other.m_key)
-    return true;
-  if (m_key > other.m_key)
-    return false;
-
-  if (m_value < other.m_value)
-    return true;
-  if (m_value > other.m_value)
-    return false;
-
-  if (m_valueType < other.m_valueType)
-    return true;
-  if (m_valueType > other.m_valueType)
-    return false;
-
-  if (m_keyMutable < other.m_keyMutable)
-    return true;
-  if (m_keyMutable > other.m_keyMutable)
-    return false;
-
-  if (m_valueMutable < other.m_valueMutable)
-    return true;
-  if (m_valueMutable > other.m_valueMutable)
-    return false;
-
-  if (m_protected < other.m_protected)
-    return true;
-  if (m_protected > other.m_protected)
-    return false;
-
-  if (m_tooltip < other.m_tooltip)
-    return true;
-  if (m_tooltip > other.m_tooltip)
-    return false;
-
-  return false;
-}
-
-PropertyRow::PropertyRow(const std::string& key, const Model::EntityNodeBase* node)
-  : m_key(key)
-{
-  const Assets::PropertyDefinition* definition = Model::propertyDefinition(node, key);
-
-  if (const auto* value = node->entity().property(key))
+  if (const auto* value = node->entity().property(m_key))
   {
     m_value = *value;
     m_valueType = ValueType::SingleValue;
@@ -213,9 +196,9 @@ PropertyRow::PropertyRow(const std::string& key, const Model::EntityNodeBase* no
     m_valueType = ValueType::Unset;
   }
 
-  m_keyMutable = isPropertyKeyMutable(node->entity(), key);
-  m_valueMutable = isPropertyValueMutable(node->entity(), key);
-  m_protected = isPropertyProtected(*node, key);
+  m_keyMutable = isPropertyKeyMutable(node->entity(), m_key);
+  m_valueMutable = isPropertyValueMutable(node->entity(), m_key);
+  m_protected = isPropertyProtected(*node, m_key);
   m_tooltip = (definition != nullptr ? definition->shortDescription() : "");
   if (m_tooltip.empty())
   {
@@ -326,23 +309,16 @@ bool PropertyRow::subset() const
 PropertyRow PropertyRow::rowForEntityNodes(
   const std::string& key, const std::vector<Model::EntityNodeBase*>& nodes)
 {
-  ensure(nodes.size() > 0, "rowForEntityNodes requries a non-empty node list");
+  ensure(!nodes.empty(), "rowForEntityNodes requries a non-empty node list");
 
-  std::optional<PropertyRow> result;
-  for (const Model::EntityNodeBase* node : nodes)
-  {
-    if (!result.has_value())
-    {
-      result = PropertyRow(key, node);
-    }
-    else
-    {
-      result->merge(node);
-    }
-  }
-
-  assert(result.has_value());
-  return result.value();
+  return std::accumulate(
+    std::next(nodes.begin()),
+    nodes.end(),
+    PropertyRow{key, nodes.front()},
+    [](PropertyRow& lhs, const Model::EntityNodeBase* rhs) {
+      lhs.merge(rhs);
+      return lhs;
+    });
 }
 
 std::vector<std::string> PropertyRow::allKeys(
@@ -350,12 +326,12 @@ std::vector<std::string> PropertyRow::allKeys(
   const bool showDefaultRows,
   const bool showProtectedProperties)
 {
-  kdl::vector_set<std::string> result;
+  auto result = kdl::vector_set<std::string>{};
 
-  for (const Model::EntityNodeBase* node : nodes)
+  for (const auto* node : nodes)
   {
     // Add explicitly set properties
-    for (const Model::EntityProperty& property : node->entity().properties())
+    for (const auto& property : node->entity().properties())
     {
       result.insert(property.key());
     }
@@ -363,10 +339,9 @@ std::vector<std::string> PropertyRow::allKeys(
     // Add default properties from the entity definition
     if (showDefaultRows)
     {
-      const Assets::EntityDefinition* entityDefinition = node->entity().definition();
-      if (entityDefinition != nullptr)
+      if (const auto* entityDefinition = node->entity().definition())
       {
-        for (auto propertyDefinition : entityDefinition->propertyDefinitions())
+        for (const auto& propertyDefinition : entityDefinition->propertyDefinitions())
         {
           result.insert(propertyDefinition->key());
         }
@@ -376,7 +351,7 @@ std::vector<std::string> PropertyRow::allKeys(
 
   if (showProtectedProperties)
   {
-    for (const Model::EntityNodeBase* node : nodes)
+    for (const auto* node : nodes)
     {
       const auto& protectedProperties = node->entity().protectedProperties();
       result.insert(std::begin(protectedProperties), std::end(protectedProperties));
@@ -391,8 +366,8 @@ std::map<std::string, PropertyRow> PropertyRow::rowsForEntityNodes(
   const bool showDefaultRows,
   const bool showProtectedProperties)
 {
-  std::map<std::string, PropertyRow> result;
-  for (const std::string& key : allKeys(nodes, showDefaultRows, showProtectedProperties))
+  auto result = std::map<std::string, PropertyRow>{};
+  for (const auto& key : allKeys(nodes, showDefaultRows, showProtectedProperties))
   {
     result[key] = rowForEntityNodes(key, nodes);
   }
@@ -402,11 +377,11 @@ std::map<std::string, PropertyRow> PropertyRow::rowsForEntityNodes(
 std::string PropertyRow::newPropertyKeyForEntityNodes(
   const std::vector<Model::EntityNodeBase*>& nodes)
 {
-  const std::map<std::string, PropertyRow> rows = rowsForEntityNodes(nodes, true, false);
+  const auto rows = rowsForEntityNodes(nodes, true, false);
 
   for (int i = 1;; ++i)
   {
-    const std::string newKey = kdl::str_to_string("property ", i);
+    const auto newKey = kdl::str_to_string("property ", i);
     if (rows.find(newKey) == rows.end())
     {
       return newKey;
@@ -415,29 +390,29 @@ std::string PropertyRow::newPropertyKeyForEntityNodes(
   // unreachable
 }
 
+kdl_reflect_impl(PropertyRow);
+
 // EntityPropertyModel
 
 EntityPropertyModel::EntityPropertyModel(
   std::weak_ptr<MapDocument> document, QObject* parent)
-  : QAbstractTableModel(parent)
-  , m_showDefaultRows(true)
-  , m_shouldShowProtectedProperties(false)
-  , m_document(std::move(document))
+  : QAbstractTableModel{parent}
+  , m_showDefaultRows{true}
+  , m_shouldShowProtectedProperties{false}
+  , m_document{std::move(document)}
 {
   updateFromMapDocument();
 }
 
 static auto makeKeyToPropertyRowMap(const std::vector<PropertyRow>& rows)
 {
-  std::map<std::string, PropertyRow> result;
+  auto result = std::map<std::string, PropertyRow>{};
   for (const auto& row : rows)
   {
     result[row.key()] = row;
   }
   return result;
 }
-
-using PropertyRowMap = std::map<std::string, PropertyRow>;
 
 struct KeyDiff
 {
@@ -448,9 +423,10 @@ struct KeyDiff
 };
 
 static KeyDiff comparePropertyMaps(
-  const PropertyRowMap& oldRows, const PropertyRowMap& newRows)
+  const std::map<std::string, PropertyRow>& oldRows,
+  const std::map<std::string, PropertyRow>& newRows)
 {
-  KeyDiff result;
+  auto result = KeyDiff{};
   result.removed.reserve(oldRows.size());
   result.added.reserve(newRows.size());
   result.updated.reserve(newRows.size());
@@ -516,19 +492,20 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
     return;
   }
 
-  const KeyDiff diff = comparePropertyMaps(oldRowMap, newRowMap);
+  const auto diff = comparePropertyMaps(oldRowMap, newRowMap);
 
   // If exactly one row was changed
-  // we can tell Qt the row was edited instead. This allows the selection/current index
-  // to be preserved, whereas removing the row would invalidate the current index.
+  // we can tell Qt the row was edited instead. This allows the selection/current
+  // index to be preserved, whereas removing the row would invalidate the current
+  // index.
   //
   // This situation happens when you rename a key and then press Tab to switch
   // to editing the value for the newly renamed key.
 
   if (diff.removed.size() == 1 && diff.added.size() == 1 && diff.updated.empty())
   {
-    const PropertyRow& oldDeletion = oldRowMap.at(diff.removed[0]);
-    const PropertyRow& newAddition = newRowMap.at(diff.added[0]);
+    const auto& oldDeletion = oldRowMap.at(diff.removed[0]);
+    const auto& newAddition = newRowMap.at(diff.added[0]);
 
     MODEL_LOG(
       qDebug() << "EntityPropertyModel::setRows: one row changed: "
@@ -541,8 +518,8 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
     m_rows.at(*oldIndex) = newAddition;
 
     // Notify Qt
-    const QModelIndex topLeft = index(static_cast<int>(*oldIndex), 0);
-    const QModelIndex bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
+    const auto topLeft = index(static_cast<int>(*oldIndex), 0);
+    const auto bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
     emit dataChanged(topLeft, bottomRight);
     return;
   }
@@ -554,8 +531,8 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
              << " common keys");
   for (const auto& key : diff.updated)
   {
-    const PropertyRow& oldRow = oldRowMap.at(key);
-    const PropertyRow& newRow = newRowMap.at(key);
+    const auto& oldRow = oldRowMap.at(key);
+    const auto& newRow = newRowMap.at(key);
     const auto oldIndex = kdl::vec_index_of(m_rows, oldRow);
 
     MODEL_LOG(
@@ -565,8 +542,8 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
     m_rows.at(*oldIndex) = newRow;
 
     // Notify Qt
-    const QModelIndex topLeft = index(static_cast<int>(*oldIndex), 0);
-    const QModelIndex bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
+    const auto topLeft = index(static_cast<int>(*oldIndex), 0);
+    const auto bottomRight = index(static_cast<int>(*oldIndex), NumColumns - 1);
     emit dataChanged(topLeft, bottomRight);
   }
 
@@ -577,14 +554,14 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
       qDebug() << "EntityPropertyModel::setRows: inserting " << diff.added.size()
                << " rows");
 
-    const int firstNewRow = static_cast<int>(m_rows.size());
-    const int lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
+    const auto firstNewRow = static_cast<int>(m_rows.size());
+    const auto lastNewRow = firstNewRow + static_cast<int>(diff.added.size()) - 1;
     assert(lastNewRow >= firstNewRow);
 
     beginInsertRows(QModelIndex(), firstNewRow, lastNewRow);
-    for (const std::string& key : diff.added)
+    for (const auto& key : diff.added)
     {
-      const PropertyRow& row = newRowMap.at(key);
+      const auto& row = newRowMap.at(key);
       m_rows.push_back(row);
     }
     endInsertRows();
@@ -597,13 +574,13 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
       qDebug() << "EntityPropertyModel::setRows: deleting " << diff.removed.size()
                << " rows");
 
-    for (const std::string& key : diff.removed)
+    for (const auto& key : diff.removed)
     {
-      const PropertyRow& row = oldRowMap.at(key);
+      const auto& row = oldRowMap.at(key);
       const auto index = kdl::vec_index_of(m_rows, row);
       assert(index);
 
-      beginRemoveRows(QModelIndex(), static_cast<int>(*index), static_cast<int>(*index));
+      beginRemoveRows(QModelIndex{}, static_cast<int>(*index), static_cast<int>(*index));
       m_rows.erase(std::next(m_rows.begin(), static_cast<int>(*index)));
       endRemoveRows();
     }
@@ -621,23 +598,17 @@ const PropertyRow* EntityPropertyModel::dataForModelIndex(const QModelIndex& ind
 
 int EntityPropertyModel::rowForPropertyKey(const std::string& propertyKey) const
 {
-  for (size_t i = 0; i < m_rows.size(); ++i)
-  {
-    auto& row = m_rows.at(i);
-
-    if (row.key() == propertyKey)
-    {
-      return static_cast<int>(i);
-    }
-  }
-  return -1;
+  const auto it = std::find_if(m_rows.begin(), m_rows.end(), [&](const auto& row) {
+    return row.key() == propertyKey;
+  });
+  return it != m_rows.end() ? static_cast<int>(std::distance(m_rows.begin(), it)) : -1;
 }
 
 QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
 {
   const auto key = propertyKey(index.row());
 
-  std::vector<std::string> result;
+  auto result = std::vector<std::string>{};
   if (index.column() == ColumnKey)
   {
     result = getAllPropertyKeys();
@@ -679,7 +650,7 @@ std::string EntityPropertyModel::propertyKey(const int row) const
 std::vector<std::string> EntityPropertyModel::propertyKeys(
   const int row, const int count) const
 {
-  std::vector<std::string> result;
+  auto result = std::vector<std::string>{};
   result.reserve(static_cast<std::size_t>(count));
 
   for (int i = 0; i < count; ++i)
@@ -778,7 +749,7 @@ void EntityPropertyModel::updateFromMapDocument()
   auto document = kdl::mem_lock(m_document);
 
   const auto entityNodes = document->allSelectedEntityNodes();
-  const std::map<std::string, PropertyRow> rowsMap =
+  const auto rowsMap =
     PropertyRow::rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
 
   setRows(rowsMap);
@@ -813,7 +784,7 @@ Qt::ItemFlags EntityPropertyModel::flags(const QModelIndex& index) const
 
   const PropertyRow& row = m_rows.at(static_cast<size_t>(index.row()));
 
-  Qt::ItemFlags flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+  auto flags = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
   if (index.column() == ColumnProtected)
   {
@@ -846,11 +817,11 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     !index.isValid() || index.row() < 0 || index.row() >= static_cast<int>(m_rows.size())
     || index.column() < 0 || index.column() >= NumColumns)
   {
-    return QVariant();
+    return QVariant{};
   }
 
   auto document = kdl::mem_lock(m_document);
-  const PropertyRow& row = m_rows.at(static_cast<size_t>(index.row()));
+  const auto& row = m_rows.at(static_cast<size_t>(index.row()));
 
   if (role == Qt::DecorationRole)
   {
@@ -859,17 +830,17 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     {
       if (!row.keyMutable())
       {
-        return QVariant(IO::loadSVGIcon(IO::Path("Locked_small.svg")));
+        return QVariant{IO::loadSVGIcon(IO::Path("Locked_small.svg"))};
       }
     }
     else if (index.column() == ColumnValue)
     {
       if (!row.valueMutable())
       {
-        return QVariant(IO::loadSVGIcon(IO::Path("Locked_small.svg")));
+        return QVariant{IO::loadSVGIcon(IO::Path("Locked_small.svg"))};
       }
     }
-    return QVariant();
+    return QVariant{};
   }
 
   if (role == Qt::ForegroundRole)
@@ -892,7 +863,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
   {
     if (row.isDefault())
     {
-      QFont italicFont;
+      auto italicFont = QFont{};
       italicFont.setItalic(true);
       return QVariant(italicFont);
     }
@@ -900,23 +871,23 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     {
       if (row.multi())
       {
-        QFont italicFont;
+        auto italicFont = QFont{};
         italicFont.setItalic(true);
         return QVariant(italicFont);
       }
     }
-    return QVariant();
+    return QVariant{};
   }
 
   if (role == Qt::DisplayRole || role == Qt::EditRole)
   {
     if (index.column() == ColumnKey)
     {
-      return QVariant(mapStringToUnicode(document->encoding(), row.key()));
+      return QVariant{mapStringToUnicode(document->encoding(), row.key())};
     }
     else if (index.column() == ColumnValue)
     {
-      return QVariant(mapStringToUnicode(document->encoding(), row.value()));
+      return QVariant{mapStringToUnicode(document->encoding(), row.value())};
     }
   }
 
@@ -926,15 +897,15 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     {
       if (row.isProtected() == PropertyProtection::Protected)
       {
-        return QVariant(Qt::CheckState::Checked);
+        return QVariant{Qt::CheckState::Checked};
       }
       else if (row.isProtected() == PropertyProtection::Mixed)
       {
-        return QVariant(Qt::CheckState::PartiallyChecked);
+        return QVariant{Qt::CheckState::PartiallyChecked};
       }
       else
       {
-        return QVariant(Qt::CheckState::Unchecked);
+        return QVariant{Qt::CheckState::Unchecked};
       }
     }
   }
@@ -943,18 +914,18 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
   {
     if (index.column() == ColumnProtected)
     {
-      return QVariant("Property is protected from changes in linked groups if checked");
+      return QVariant{"Property is protected from changes in linked groups if checked"};
     }
     else
     {
       if (!row.tooltip().empty())
       {
-        return QVariant(mapStringToUnicode(document->encoding(), row.tooltip()));
+        return QVariant{mapStringToUnicode(document->encoding(), row.tooltip())};
       }
     }
   }
 
-  return QVariant();
+  return QVariant{};
 }
 
 bool EntityPropertyModel::setData(
@@ -970,8 +941,8 @@ bool EntityPropertyModel::setData(
 
   auto document = kdl::mem_lock(m_document);
 
-  const size_t rowIndex = static_cast<size_t>(index.row());
-  const std::vector<Model::EntityNodeBase*> nodes = document->allSelectedEntityNodes();
+  const auto rowIndex = static_cast<size_t>(index.row());
+  const auto nodes = document->allSelectedEntityNodes();
   if (nodes.empty())
   {
     return false;
@@ -985,8 +956,7 @@ bool EntityPropertyModel::setData(
                << mapStringToUnicode(document->encoding(), propertyRow.key()) << " to "
                << value.toString());
 
-    const std::string newName =
-      mapStringFromUnicode(document->encoding(), value.toString());
+    const auto newName = mapStringFromUnicode(document->encoding(), value.toString());
     if (renameProperty(rowIndex, newName, nodes))
     {
       return true;
@@ -1037,11 +1007,11 @@ QVariant EntityPropertyModel::headerData(
     {
       if (section == ColumnKey)
       {
-        return QVariant(tr("Key"));
+        return QVariant{tr("Key")};
       }
       else if (section == ColumnValue)
       {
-        return QVariant(tr("Value"));
+        return QVariant{tr("Value")};
       }
     }
   }
@@ -1049,18 +1019,18 @@ QVariant EntityPropertyModel::headerData(
   {
     if (section == ColumnProtected)
     {
-      return QVariant(IO::loadSVGIcon(IO::Path("Protected_small.svg")));
+      return QVariant{IO::loadSVGIcon(IO::Path("Protected_small.svg"))};
     }
   }
   else if (role == Qt::ToolTipRole)
   {
     if (section == ColumnProtected)
     {
-      return QVariant(tr("Protect properties from changes in linked groups"));
+      return QVariant{tr("Protect properties from changes in linked groups")};
     }
   }
 
-  return QVariant();
+  return QVariant{};
 }
 
 bool EntityPropertyModel::canRemove(const int rowIndexInt)
@@ -1070,7 +1040,7 @@ bool EntityPropertyModel::canRemove(const int rowIndexInt)
     return false;
   }
 
-  const PropertyRow& row = m_rows.at(static_cast<size_t>(rowIndexInt));
+  const auto& row = m_rows.at(static_cast<size_t>(rowIndexInt));
   if (row.isDefault())
   {
     return false;
@@ -1091,11 +1061,13 @@ bool EntityPropertyModel::renameProperty(
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
   auto document = kdl::mem_lock(m_document);
-  const PropertyRow& row = m_rows.at(rowIndex);
-  const std::string& oldKey = row.key();
+  const auto& row = m_rows.at(rowIndex);
+  const auto& oldKey = row.key();
 
   if (oldKey == newKey)
+  {
     return true;
+  }
 
   ensure(
     row.keyMutable(),
@@ -1104,7 +1076,7 @@ bool EntityPropertyModel::renameProperty(
 
   if (hasRowWithPropertyKey(newKey))
   {
-    const PropertyRow& rowToOverwrite =
+    const auto& rowToOverwrite =
       m_rows.at(static_cast<size_t>(rowForPropertyKey(newKey)));
     if (!rowToOverwrite.valueMutable())
     {
@@ -1113,7 +1085,7 @@ bool EntityPropertyModel::renameProperty(
       return false;
     }
 
-    QMessageBox msgBox;
+    auto msgBox = QMessageBox{};
     msgBox.setWindowTitle(tr("Error"));
     msgBox.setText(
       tr("A property with key '%1' already exists.\n\n Do you wish to overwrite it?")
@@ -1136,16 +1108,16 @@ bool EntityPropertyModel::updateProperty(
 {
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
-  bool hasChange = false;
-  const std::string& key = m_rows.at(rowIndex).key();
-  for (const Model::EntityNodeBase* node : nodes)
+  auto hasChange = false;
+  const auto& key = m_rows.at(rowIndex).key();
+  for (const auto* node : nodes)
   {
     if (const auto* oldValue = node->entity().property(key))
     {
       ensure(
         isPropertyValueMutable(node->entity(), key),
-        "tried to modify immutable property value"); // this should be guaranteed by the
-                                                     // PropertyRow constructor
+        "tried to modify immutable property value"); // this should be guaranteed by
+                                                     // the PropertyRow constructor
       if (*oldValue != newValue)
       {
         hasChange = true;
@@ -1158,7 +1130,9 @@ bool EntityPropertyModel::updateProperty(
   }
 
   if (!hasChange)
+  {
     return true;
+  }
 
   auto document = kdl::mem_lock(m_document);
   return document->setProperty(key, newValue);
@@ -1175,8 +1149,8 @@ bool EntityPropertyModel::setProtectedProperty(const size_t rowIndex, const bool
 
 bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndexB) const
 {
-  const PropertyRow& rowA = m_rows.at(rowIndexA);
-  const PropertyRow& rowB = m_rows.at(rowIndexB);
+  const auto& rowA = m_rows.at(rowIndexA);
+  const auto& rowB = m_rows.at(rowIndexB);
 
   // 1. non-default sorts before default
   if (!rowA.isDefault() && rowB.isDefault())

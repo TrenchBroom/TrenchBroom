@@ -28,6 +28,32 @@
 
 namespace kdl
 {
+TEST_CASE("collection_utils_test.compare_cmp")
+{
+  using namespace std::string_literals;
+
+  CHECK(combine_cmp(std::less<int>{})(1, 2));
+  CHECK_FALSE(combine_cmp(std::less<int>{})(1, 1));
+  CHECK_FALSE(combine_cmp(std::less<int>{})(2, 1));
+
+  const auto cmpInt = [](const auto& lhs, const auto& rhs) {
+    return std::get<0>(lhs) < std::get<0>(rhs);
+  };
+
+  const auto cmpChr = [](const auto& lhs, const auto& rhs) {
+    return std::get<1>(lhs) < std::get<1>(rhs);
+  };
+
+  CHECK(combine_cmp(cmpInt, cmpChr)(std::make_tuple(1, 'a'), std::make_tuple(2, 'b')));
+  CHECK(combine_cmp(cmpInt, cmpChr)(std::make_tuple(1, 'a'), std::make_tuple(1, 'b')));
+  CHECK_FALSE(
+    combine_cmp(cmpInt, cmpChr)(std::make_tuple(2, 'a'), std::make_tuple(1, 'b')));
+  CHECK_FALSE(
+    combine_cmp(cmpInt, cmpChr)(std::make_tuple(1, 'b'), std::make_tuple(1, 'a')));
+  CHECK_FALSE(
+    combine_cmp(cmpInt, cmpChr)(std::make_tuple(1, 'a'), std::make_tuple(1, 'a')));
+}
+
 TEST_CASE("collection_utils_test.col_total_size", "[collection_utils_test]")
 {
   using vec = std::vector<int>;

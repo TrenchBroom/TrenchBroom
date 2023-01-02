@@ -30,7 +30,6 @@
 #include "View/MapTextEncoding.h"
 #include "View/ViewConstants.h"
 
-#include <QAbstractButton>
 #include <QApplication>
 #include <QBoxLayout>
 #include <QButtonGroup>
@@ -70,22 +69,12 @@ namespace TrenchBroom
 {
 namespace View
 {
-DisableWindowUpdates::DisableWindowUpdates(QWidget* widget)
-  : m_widget(widget)
-{
-  m_widget->setUpdatesEnabled(false);
-}
-
-DisableWindowUpdates::~DisableWindowUpdates()
-{
-  m_widget->setUpdatesEnabled(true);
-}
 
 SyncHeightEventFilter::SyncHeightEventFilter(
   QWidget* primary, QWidget* secondary, QObject* parent)
-  : QObject(parent)
-  , m_primary(primary)
-  , m_secondary(secondary)
+  : QObject{parent}
+  , m_primary{primary}
+  , m_secondary{secondary}
 {
   ensure(m_primary != nullptr, "primary is not null");
   ensure(m_secondary != nullptr, "secondary is not null");
@@ -147,27 +136,27 @@ static QString fileDialogDefaultDirectorySettingsPath(const FileDialogDir dir)
 
 QString fileDialogDefaultDirectory(const FileDialogDir dir)
 {
-  const QString key = fileDialogDefaultDirectorySettingsPath(dir);
+  const auto key = fileDialogDefaultDirectorySettingsPath(dir);
 
-  const QSettings settings;
-  const QString defaultDir = settings.value(key).toString();
+  const auto settings = QSettings{};
+  const auto defaultDir = settings.value(key).toString();
   return defaultDir;
 }
 
 void updateFileDialogDefaultDirectoryWithFilename(
   FileDialogDir type, const QString& filename)
 {
-  const QDir dirQDir = QFileInfo(filename).absoluteDir();
-  const QString dirString = dirQDir.absolutePath();
+  const auto dirQDir = QFileInfo(filename).absoluteDir();
+  const auto dirString = dirQDir.absolutePath();
   updateFileDialogDefaultDirectoryWithDirectory(type, dirString);
 }
 
 void updateFileDialogDefaultDirectoryWithDirectory(
   FileDialogDir type, const QString& newDefaultDirectory)
 {
-  const QString key = fileDialogDefaultDirectorySettingsPath(type);
+  const auto key = fileDialogDefaultDirectorySettingsPath(type);
 
-  QSettings settings;
+  auto settings = QSettings{};
   settings.setValue(key, newDefaultDirectory);
 }
 
@@ -184,7 +173,7 @@ void saveWindowGeometry(QWidget* window)
   ensure(window != nullptr, "window must not be null");
 
   const auto path = windowSettingsPath(window, "Geometry");
-  QSettings settings;
+  auto settings = QSettings{};
   settings.setValue(path, window->saveGeometry());
 }
 
@@ -193,7 +182,7 @@ void restoreWindowGeometry(QWidget* window)
   ensure(window != nullptr, "window must not be null");
 
   const auto path = windowSettingsPath(window, "Geometry");
-  const QSettings settings;
+  auto settings = QSettings{};
   window->restoreGeometry(settings.value(path).toByteArray());
 }
 
@@ -201,7 +190,7 @@ bool widgetOrChildHasFocus(const QWidget* widget)
 {
   ensure(widget != nullptr, "widget must not be null");
 
-  const QObject* currentWidget = QApplication::focusWidget();
+  const auto* currentWidget = static_cast<QObject*>(QApplication::focusWidget());
   while (currentWidget != nullptr)
   {
     if (currentWidget == widget)
@@ -242,8 +231,8 @@ void centerOnScreen(QWidget* window)
 
 QWidget* makeDefault(QWidget* widget)
 {
-  widget->setFont(QFont());
-  widget->setPalette(QPalette());
+  widget->setFont(QFont{});
+  widget->setPalette(QPalette{});
   return widget;
 }
 
@@ -257,7 +246,7 @@ QWidget* makeEmphasized(QWidget* widget)
 
 QWidget* makeUnemphasized(QWidget* widget)
 {
-  widget->setFont(QFont());
+  widget->setFont(QFont{});
   return widget;
 }
 
@@ -267,7 +256,7 @@ QWidget* makeInfo(QWidget* widget)
 
   widget = makeSmall(widget);
 
-  const auto defaultPalette = QPalette();
+  const auto defaultPalette = QPalette{};
   auto palette = widget->palette();
   // Set all color groups (active, inactive, disabled) to use the disabled color, so it's
   // dimmer
@@ -353,13 +342,13 @@ QColor toQColor(const Color& color)
     int(color.a() * 255.0f));
 }
 
-QAbstractButton* createBitmapButton(
+QToolButton* createBitmapButton(
   const std::string& image, const QString& tooltip, QWidget* parent)
 {
   return createBitmapButton(loadSVGIcon(IO::Path(image)), tooltip, parent);
 }
 
-QAbstractButton* createBitmapButton(
+QToolButton* createBitmapButton(
   const QIcon& icon, const QString& tooltip, QWidget* parent)
 {
   // NOTE: QIcon::availableSizes() is not high-dpi friendly, it returns pixels when we
@@ -369,9 +358,7 @@ QAbstractButton* createBitmapButton(
     !icon.availableSizes().empty(),
     "expected a non-empty icon. Fails when the image file couldn't be found.");
 
-  // NOTE: according to http://doc.qt.io/qt-5/qpushbutton.html this would be more
-  // correctly be a QToolButton, but the QToolButton doesn't have a flat style on macOS
-  auto* button = new QToolButton(parent);
+  auto* button = new QToolButton{parent};
   button->setMinimumSize(icon.availableSizes().front());
   // button->setAutoDefault(false);
   button->setToolTip(tooltip);
@@ -382,7 +369,7 @@ QAbstractButton* createBitmapButton(
   return button;
 }
 
-QAbstractButton* createBitmapToggleButton(
+QToolButton* createBitmapToggleButton(
   const std::string& image, const QString& tooltip, QWidget* parent)
 {
   auto* button = createBitmapButton(image, tooltip, parent);
@@ -392,10 +379,10 @@ QAbstractButton* createBitmapToggleButton(
 
 QWidget* createDefaultPage(const QString& message, QWidget* parent)
 {
-  auto* container = new QWidget(parent);
-  auto* layout = new QVBoxLayout();
+  auto* container = new QWidget{parent};
+  auto* layout = new QVBoxLayout{};
 
-  auto* messageLabel = new QLabel(message);
+  auto* messageLabel = new QLabel{message};
   makeEmphasized(messageLabel);
   layout->addWidget(messageLabel, 0, Qt::AlignHCenter | Qt::AlignTop);
   container->setLayout(layout);
@@ -405,7 +392,7 @@ QWidget* createDefaultPage(const QString& message, QWidget* parent)
 
 QSlider* createSlider(const int min, const int max)
 {
-  auto* slider = new QSlider();
+  auto* slider = new QSlider{};
   slider->setMinimum(min);
   slider->setMaximum(max);
   slider->setTickPosition(QSlider::TicksBelow);
@@ -429,7 +416,7 @@ void setSliderRatio(QSlider* slider, float ratio)
 
 QLayout* wrapDialogButtonBox(QWidget* buttonBox)
 {
-  auto* innerLayout = new QHBoxLayout();
+  auto* innerLayout = new QHBoxLayout{};
   innerLayout->setContentsMargins(
     LayoutConstants::DialogButtonLeftMargin,
     LayoutConstants::DialogButtonTopMargin,
@@ -438,10 +425,10 @@ QLayout* wrapDialogButtonBox(QWidget* buttonBox)
   innerLayout->setSpacing(0);
   innerLayout->addWidget(buttonBox);
 
-  auto* outerLayout = new QVBoxLayout();
-  outerLayout->setContentsMargins(QMargins());
+  auto* outerLayout = new QVBoxLayout{};
+  outerLayout->setContentsMargins(QMargins{});
   outerLayout->setSpacing(0);
-  outerLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+  outerLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
   outerLayout->addLayout(innerLayout);
 
   return outerLayout;
@@ -449,7 +436,7 @@ QLayout* wrapDialogButtonBox(QWidget* buttonBox)
 
 QLayout* wrapDialogButtonBox(QLayout* buttonBox)
 {
-  auto* innerLayout = new QHBoxLayout();
+  auto* innerLayout = new QHBoxLayout{};
   innerLayout->setContentsMargins(
     LayoutConstants::DialogButtonLeftMargin,
     LayoutConstants::DialogButtonTopMargin,
@@ -458,10 +445,10 @@ QLayout* wrapDialogButtonBox(QLayout* buttonBox)
   innerLayout->setSpacing(0);
   innerLayout->addLayout(buttonBox);
 
-  auto* outerLayout = new QVBoxLayout();
-  outerLayout->setContentsMargins(QMargins());
+  auto* outerLayout = new QVBoxLayout{};
+  outerLayout->setContentsMargins(QMargins{});
   outerLayout->setSpacing(0);
-  outerLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+  outerLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
   outerLayout->addLayout(innerLayout);
 
   return outerLayout;
@@ -472,12 +459,12 @@ void addToMiniToolBarLayout(QBoxLayout*) {}
 void setWindowIconTB(QWidget* window)
 {
   ensure(window != nullptr, "window is null");
-  window->setWindowIcon(QIcon(IO::loadPixmapResource(IO::Path("AppIcon.png"))));
+  window->setWindowIcon(QIcon{IO::loadPixmapResource(IO::Path{"AppIcon.png"})});
 }
 
 void setDebugBackgroundColor(QWidget* widget, const QColor& color)
 {
-  QPalette p = widget->palette();
+  auto p = widget->palette();
   p.setColor(QPalette::Window, color);
 
   widget->setAutoFillBackground(true);
@@ -504,28 +491,26 @@ void setHighlightWindowColor(QWidget* widget)
 
 QLineEdit* createSearchBox()
 {
-  auto* widget = new QLineEdit();
+  auto* widget = new QLineEdit{};
   widget->setClearButtonEnabled(true);
   widget->setPlaceholderText(QLineEdit::tr("Search..."));
 
-  QIcon icon = loadSVGIcon(IO::Path("Search.svg"));
+  const auto icon = loadSVGIcon(IO::Path{"Search.svg"});
   widget->addAction(icon, QLineEdit::LeadingPosition);
   return widget;
 }
 
 void checkButtonInGroup(QButtonGroup* group, const int id, const bool checked)
 {
-  QAbstractButton* button = group->button(id);
-  if (button == nullptr)
+  if (auto* button = group->button(id))
   {
-    return;
+    button->setChecked(checked);
   }
-  button->setChecked(checked);
 }
 
 void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool checked)
 {
-  for (QAbstractButton* button : group->buttons())
+  for (auto* button : group->buttons())
   {
     if (button->objectName() == objectName)
     {
@@ -538,14 +523,14 @@ void checkButtonInGroup(QButtonGroup* group, const QString& objectName, bool che
 void insertTitleBarSeparator(QVBoxLayout* layout)
 {
 #ifdef _WIN32
-  layout->insertWidget(0, new BorderLine(), 1);
+  layout->insertWidget(0, new BorderLine{}, 1);
 #endif
   unused(layout);
 }
 
 AutoResizeRowsEventFilter::AutoResizeRowsEventFilter(QTableView* tableView)
-  : QObject(tableView)
-  , m_tableView(tableView)
+  : QObject{tableView}
+  , m_tableView{tableView}
 {
   m_tableView->installEventFilter(this);
 }
@@ -563,15 +548,14 @@ bool AutoResizeRowsEventFilter::eventFilter(QObject* watched, QEvent* event)
 void autoResizeRows(QTableView* tableView)
 {
   tableView->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-  tableView->installEventFilter(new AutoResizeRowsEventFilter(tableView));
+  tableView->installEventFilter(new AutoResizeRowsEventFilter{tableView});
   tableView->resizeRowsToContents();
 }
 
 void deleteChildWidgetsLaterAndDeleteLayout(QWidget* widget)
 {
-  const QList<QWidget*> children =
-    widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly);
-  for (QWidget* childWidget : children)
+  const auto children = widget->findChildren<QWidget*>("", Qt::FindDirectChildrenOnly);
+  for (auto* childWidget : children)
   {
     childWidget->deleteLater();
   }
@@ -606,7 +590,7 @@ static QTextCodec* codecForEncoding(const MapTextEncoding encoding)
 
 QString mapStringToUnicode(const MapTextEncoding encoding, const std::string& string)
 {
-  QTextCodec* codec = codecForEncoding(encoding);
+  auto* codec = codecForEncoding(encoding);
   ensure(codec != nullptr, "null codec");
 
   return codec->toUnicode(QByteArray::fromStdString(string));
@@ -614,7 +598,7 @@ QString mapStringToUnicode(const MapTextEncoding encoding, const std::string& st
 
 std::string mapStringFromUnicode(const MapTextEncoding encoding, const QString& string)
 {
-  QTextCodec* codec = codecForEncoding(encoding);
+  auto* codec = codecForEncoding(encoding);
   ensure(codec != nullptr, "null codec");
 
   return codec->fromUnicode(string).toStdString();
@@ -633,7 +617,7 @@ QString nativeModifierLabel(const int modifier)
   // it turns into native text as "Shift+" or the Shift symbol on macOS,
   // and portable text as "Shift+".
 
-  QString nativeLabel = keySequence.toString(QKeySequence::NativeText);
+  auto nativeLabel = keySequence.toString(QKeySequence::NativeText);
   if (nativeLabel.endsWith("+"))
   {
     // On Linux we get nativeLabel as something like "Ctrl+"

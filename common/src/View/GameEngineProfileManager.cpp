@@ -28,8 +28,8 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 
-#include <QAbstractButton>
 #include <QBoxLayout>
+#include <QToolButton>
 
 namespace TrenchBroom
 {

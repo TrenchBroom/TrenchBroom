@@ -24,6 +24,7 @@
 #include "Model/EntityProperties.h"
 
 #include <kdl/string_compare.h>
+#include <kdl/vector_utils.h>
 
 #include <algorithm>
 #include <cassert>
@@ -54,18 +55,14 @@ const std::string& EntityDefinition::name() const
 
 std::string EntityDefinition::shortName() const
 {
-  const size_t index = m_name.find_first_of('_');
-  if (index == std::string::npos)
-    return m_name;
-  return m_name.substr(index + 1);
+  const auto index = m_name.find_first_of('_');
+  return index == std::string::npos ? m_name : m_name.substr(index + 1);
 }
 
 std::string EntityDefinition::groupName() const
 {
-  const size_t index = m_name.find_first_of('_');
-  if (index == std::string::npos)
-    return m_name;
-  return m_name.substr(0, index);
+  const auto index = m_name.find_first_of('_');
+  return index == std::string::npos ? m_name : m_name.substr(0, index);
 }
 
 const Color& EntityDefinition::color() const
@@ -90,27 +87,16 @@ void EntityDefinition::incUsageCount()
 
 void EntityDefinition::decUsageCount()
 {
-  const size_t previous = m_usageCount--;
-  assert(previous > 0);
-  unused(previous);
+  assertResult((m_usageCount--) > 0);
 }
 
 const FlagsPropertyDefinition* EntityDefinition::spawnflags() const
 {
-  for (const auto& propertyDefinition : m_propertyDefinitions)
-  {
-    if (
-      propertyDefinition->type() == PropertyDefinitionType::FlagsProperty
-      && propertyDefinition->key() == Model::EntityPropertyKeys::Spawnflags)
-    {
-      return static_cast<FlagsPropertyDefinition*>(propertyDefinition.get());
-    }
-  }
-  return nullptr;
+  return safeGetFlagsPropertyDefinition(this, Model::EntityPropertyKeys::Spawnflags);
 }
 
-const EntityDefinition::PropertyDefinitionList& EntityDefinition::propertyDefinitions()
-  const
+const std::vector<std::shared_ptr<PropertyDefinition>>& EntityDefinition::
+  propertyDefinitions() const
 {
   return m_propertyDefinitions;
 }
@@ -118,38 +104,46 @@ const EntityDefinition::PropertyDefinitionList& EntityDefinition::propertyDefini
 const PropertyDefinition* EntityDefinition::propertyDefinition(
   const std::string& propertyKey) const
 {
-  for (const auto& propertyDefinition : m_propertyDefinitions)
-  {
-    if (propertyDefinition->key() == propertyKey)
-    {
-      return propertyDefinition.get();
-    }
-  }
-  return nullptr;
+  return safeGetPropertyDefinition(this, propertyKey);
 }
 
 const PropertyDefinition* EntityDefinition::safeGetPropertyDefinition(
   const EntityDefinition* entityDefinition, const std::string& propertyKey)
 {
   if (entityDefinition == nullptr)
+  {
     return nullptr;
-  return entityDefinition->propertyDefinition(propertyKey);
+  }
+
+  const auto& propertyDefinitions = entityDefinition->propertyDefinitions();
+  const auto it = std::find_if(
+    propertyDefinitions.begin(),
+    propertyDefinitions.end(),
+    [&](const auto& propertyDefinition) {
+      return propertyDefinition->key() == propertyKey;
+    });
+  return it != propertyDefinitions.end() ? it->get() : nullptr;
 }
 
 const FlagsPropertyDefinition* EntityDefinition::safeGetFlagsPropertyDefinition(
   const EntityDefinition* entityDefinition, const std::string& propertyKey)
 {
   if (entityDefinition == nullptr)
-    return nullptr;
-  const PropertyDefinition* propertyDefinition =
-    entityDefinition->propertyDefinition(propertyKey);
-  if (
-    propertyDefinition == nullptr
-    || propertyDefinition->type() != PropertyDefinitionType::FlagsProperty)
   {
     return nullptr;
   }
-  return static_cast<const FlagsPropertyDefinition*>(propertyDefinition);
+
+  const auto& propertyDefinitions = entityDefinition->propertyDefinitions();
+  const auto it = std::find_if(
+    propertyDefinitions.begin(),
+    propertyDefinitions.end(),
+    [&](const auto& propertyDefinition) {
+      return propertyDefinition->type() == PropertyDefinitionType::FlagsProperty
+             && propertyDefinition->key() == propertyKey;
+    });
+  return it != propertyDefinitions.end()
+           ? static_cast<FlagsPropertyDefinition*>(it->get())
+           : nullptr;
 }
 
 std::vector<EntityDefinition*> EntityDefinition::filterAndSort(
@@ -157,76 +151,50 @@ std::vector<EntityDefinition*> EntityDefinition::filterAndSort(
   const EntityDefinitionType type,
   const EntityDefinitionSortOrder order)
 {
-  std::vector<EntityDefinition*> result;
-  for (const auto& definition : definitions)
-  {
-    if (definition->type() == type)
-    {
-      result.push_back(definition);
-    }
-  }
+  auto result = kdl::vec_filter(
+    definitions, [&](const auto& definition) { return definition->type() == type; });
+
+  const auto compareNames = [](const auto& lhs, const auto& rhs) {
+    return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
+  };
+
+  const auto compareUsageCount = [](const auto& lhs, const auto& rhs) {
+    return lhs->usageCount() > rhs->usageCount();
+  };
 
   if (order == EntityDefinitionSortOrder::Usage)
   {
-    std::sort(
-      std::begin(result),
-      std::end(result),
-      [](const EntityDefinition* lhs, const EntityDefinition* rhs) {
-        if (lhs->usageCount() == rhs->usageCount())
-        {
-          return lhs->name() < rhs->name();
-        }
-        else
-        {
-          return lhs->usageCount() > rhs->usageCount();
-        }
-      });
+    return kdl::vec_sort(
+      std::move(result), kdl::combine_cmp(compareUsageCount, compareNames));
   }
-  else
-  {
-    std::sort(
-      std::begin(result),
-      std::end(result),
-      [](const EntityDefinition* lhs, const EntityDefinition* rhs) {
-        const int strCmp = kdl::ci::str_compare(lhs->name(), rhs->name());
-        if (strCmp == 0)
-        {
-          return lhs->usageCount() > rhs->usageCount();
-        }
-        else
-        {
-          return strCmp < 0;
-        }
-      });
-  }
-
-  return result;
+  return kdl::vec_sort(
+    std::move(result), kdl::combine_cmp(compareNames, compareUsageCount));
 }
 
 EntityDefinition::EntityDefinition(
-  const std::string& name,
+  std::string name,
   const Color& color,
-  const std::string& description,
-  const PropertyDefinitionList& propertyDefinitions)
-  : m_index(0)
-  , m_name(name)
-  , m_color(color)
-  , m_description(description)
-  , m_usageCount(0u)
-  , m_propertyDefinitions(propertyDefinitions)
+  std::string description,
+  std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions)
+  : m_index{0}
+  , m_name{std::move(name)}
+  , m_color{color}
+  , m_description{std::move(description)}
+  , m_usageCount{0}
+  , m_propertyDefinitions{std::move(propertyDefinitions)}
 {
 }
 
 PointEntityDefinition::PointEntityDefinition(
-  const std::string& name,
+  std::string name,
   const Color& color,
   const vm::bbox3& bounds,
-  const std::string& description,
-  const PropertyDefinitionList& propertyDefinitions,
-  const ModelDefinition& modelDefinition)
-  : EntityDefinition(name, color, description, propertyDefinitions)
-  , m_bounds(bounds)
-  , m_modelDefinition(modelDefinition)
+  std::string description,
+  std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions,
+  ModelDefinition modelDefinition)
+  : EntityDefinition{std::move(name), color, std::move(description), std::move(propertyDefinitions)}
+  , m_bounds{bounds}
+  , m_modelDefinition{std::move(modelDefinition)}
 {
 }
 
@@ -246,11 +214,12 @@ const ModelDefinition& PointEntityDefinition::modelDefinition() const
 }
 
 BrushEntityDefinition::BrushEntityDefinition(
-  const std::string& name,
+  std::string name,
   const Color& color,
-  const std::string& description,
-  const PropertyDefinitionList& propertyDefinitions)
-  : EntityDefinition(name, color, description, propertyDefinitions)
+  std::string description,
+  std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions)
+  : EntityDefinition{
+    std::move(name), color, std::move(description), std::move(propertyDefinitions)}
 {
 }
 

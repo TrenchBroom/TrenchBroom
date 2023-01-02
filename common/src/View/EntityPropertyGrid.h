@@ -29,9 +29,9 @@
 
 class QTableView;
 class QCheckBox;
-class QAbstractButton;
 class QShortcut;
 class QSortFilterProxyModel;
+class QToolButton;
 
 namespace TrenchBroom
 {
@@ -67,9 +67,10 @@ private:
   EntityPropertyModel* m_model;
   QSortFilterProxyModel* m_proxyModel;
   EntityPropertyTable* m_table;
-  QAbstractButton* m_addProtectedPropertyButton;
-  QAbstractButton* m_addPropertyButton;
-  QAbstractButton* m_removePropertiesButton;
+  QToolButton* m_addProtectedPropertyButton;
+  QToolButton* m_addPropertyButton;
+  QToolButton* m_removePropertiesButton;
+  QToolButton* m_setDefaultPropertiesButton;
   QCheckBox* m_showDefaultPropertiesCheckBox;
   std::vector<PropertyGridSelection> m_selectionBackup;
 
@@ -87,6 +88,7 @@ private:
   void removeSelectedProperties();
 
   bool canRemoveSelectedProperties() const;
+
   std::vector<int> selectedRowsAndCursorRow() const;
 
 private:

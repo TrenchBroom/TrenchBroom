@@ -27,8 +27,8 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 
-#include <QAbstractButton>
 #include <QMenu>
+#include <QToolButton>
 
 namespace TrenchBroom
 {

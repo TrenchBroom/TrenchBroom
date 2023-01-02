@@ -31,8 +31,8 @@ namespace TrenchBroom
 namespace View
 {
 EntityPropertyTable::EntityPropertyTable(QWidget* parent)
-  : QTableView(parent)
-  , m_mousePressedOnSelectedCell(false)
+  : QTableView{parent}
+  , m_mousePressedOnSelectedCell{false}
 {
 }
 
@@ -48,7 +48,7 @@ void EntityPropertyTable::finishEditing(QWidget* editor)
  */
 QString EntityPropertyTable::insertRowShortcutString()
 {
-  return QKeySequence(Qt::Key_Return | Qt::CTRL).toString(QKeySequence::NativeText);
+  return QKeySequence{Qt::Key_Return | Qt::CTRL}.toString(QKeySequence::NativeText);
 }
 
 /**
@@ -57,8 +57,8 @@ QString EntityPropertyTable::insertRowShortcutString()
 QString EntityPropertyTable::removeRowShortcutString()
 {
   return QObject::tr("%1 or %2")
-    .arg(QKeySequence(Qt::Key_Delete).toString(QKeySequence::NativeText))
-    .arg(QKeySequence(Qt::Key_Backspace).toString(QKeySequence::NativeText));
+    .arg(QKeySequence{Qt::Key_Delete}.toString(QKeySequence::NativeText))
+    .arg(QKeySequence{Qt::Key_Backspace}.toString(QKeySequence::NativeText));
 }
 
 static bool isInsertRowShortcut(QKeyEvent* event)
@@ -76,7 +76,7 @@ bool EntityPropertyTable::event(QEvent* event)
 {
   if (event->type() == QEvent::ShortcutOverride)
   {
-    QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+    auto* keyEvent = static_cast<QKeyEvent*>(event);
 
     // Accepting a QEvent::ShortcutOverride suppresses QShortcut/QAction from being
     // triggered and causes a normal key press to be delivered to the focused widget.
@@ -140,11 +140,11 @@ void EntityPropertyTable::keyPressEvent(QKeyEvent* event)
  */
 QStyleOptionViewItem EntityPropertyTable::viewOptions() const
 {
-  QStyleOptionViewItem options = QTableView::viewOptions();
+  auto options = QTableView::viewOptions();
   options.decorationPosition = QStyleOptionViewItem::Right;
   // Qt high-dpi bug: if we don't specify the size explicitly Qt, sees the larger
   // pixmap in the QIcon and tries to draw the icon larger than its actual 12x12 size.
-  options.decorationSize = QSize(12, 12);
+  options.decorationSize = QSize{12, 12};
   return options;
 }
 
@@ -153,7 +153,7 @@ QStyleOptionViewItem EntityPropertyTable::viewOptions() const
  * Keyboard search was causing selection navigation when typing with a disabled cell
  * selected. See: https://github.com/TrenchBroom/TrenchBroom/issues/3582
  */
-void EntityPropertyTable::keyboardSearch(const QString& /* search */) {}
+void EntityPropertyTable::keyboardSearch(const QString&) {}
 
 /**
  * Implement our own version of the QAbstractItemView::SelectedClicked edit trigger.
@@ -162,7 +162,7 @@ void EntityPropertyTable::keyboardSearch(const QString& /* search */) {}
  */
 void EntityPropertyTable::mousePressEvent(QMouseEvent* event)
 {
-  const QModelIndex modelIndex = indexAt(event->pos());
+  const auto modelIndex = indexAt(event->pos());
   m_mousePressedOnSelectedCell = selectedIndexes().contains(modelIndex);
 
   TABLE_LOG(
@@ -181,7 +181,7 @@ void EntityPropertyTable::mouseReleaseEvent(QMouseEvent* event)
 
   TABLE_LOG(qDebug() << "EntityPropertyTable::mouseReleaseEvent");
 
-  const QModelIndex modelIndex = indexAt(event->pos());
+  const auto modelIndex = indexAt(event->pos());
   if (selectedIndexes().contains(modelIndex) && m_mousePressedOnSelectedCell)
   {
     TABLE_LOG(qDebug() << "opening editor");

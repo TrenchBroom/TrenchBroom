@@ -32,6 +32,31 @@ struct deleter
   void operator()(T ptr) const { delete ptr; }
 };
 
+template <typename First>
+auto combine_cmp(First first)
+{
+  return first;
+}
+
+/**
+ * Returns a comparator that applies the given comparators in lexicographical order.
+ *
+ * @tparam First the type of the first comparator
+ * @tparam Rest the types of the remaining comparators
+ * @param first the first comparator
+ * @param rest the remaining comparators
+ */
+template <typename First, typename... Rest>
+auto combine_cmp(First first, Rest... rest)
+{
+  return [first = std::move(first), rest = std::move(rest...)](
+           const auto& lhs, const auto& rhs) {
+    return first(lhs, rhs)   ? true
+           : first(rhs, lhs) ? false
+                             : combine_cmp(std::move(rest))(lhs, rhs);
+  };
+}
+
 /**
  * Provides a notion of equivalence using a comparator. Two values are equivalent if they
  * are mutually incomparable by means of the comparator.

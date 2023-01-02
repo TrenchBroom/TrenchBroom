@@ -51,7 +51,7 @@ private:
   std::vector<IO::Path> m_additionalSearchPaths;
 
 public:
-  GameImpl(GameConfig& config, const IO::Path& gamePath, Logger& logger);
+  GameImpl(GameConfig& config, IO::Path gamePath, Logger& logger);
 
 private:
   void initializeFileSystem(Logger& logger);
