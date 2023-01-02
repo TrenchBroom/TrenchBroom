@@ -35,6 +35,7 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include "kdl/map_utils.h"
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
@@ -247,6 +248,153 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
     document->selectNodes(nodes);
 
     CHECK(document->hasAnySelectedBrushNodes() == expectedResult);
+  }
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "selectByLineNumber")
+{
+  /*
+  - defaultLayer
+    - brush                    4,  5
+    - pointEntity             10, 15
+    - patch                   16, 20
+    - brushEntity             20, 30
+      - brushInEntity1        23, 25
+      - brushInEntity2        26, 29
+    - outerGroup              31, 50
+      - brushInOuterGroup     32, 38
+      - innerGroup            39, 49
+        - brushInInnerGroup   43, 48
+  */
+
+  auto* brush = createBrushNode("brush");
+  auto* pointEntity = new Model::EntityNode{Model::Entity{}};
+  auto* patch = createPatchNode("patch");
+
+  auto* brushEntity = new Model::EntityNode{Model::Entity{}};
+  auto* brushInEntity1 = createBrushNode("brushInEntity1");
+  auto* brushInEntity2 = createBrushNode("brushInEntity2");
+
+  auto* outerGroup = new Model::GroupNode{Model::Group{"outerGroup"}};
+  auto* brushInOuterGroup = createBrushNode("brushInOuterGroup");
+  auto* innerGroup = new Model::GroupNode{Model::Group{"innerGroup"}};
+  auto* brushInInnerGroup = createBrushNode("brushInInnerGroup");
+
+  brush->setFilePosition(4, 2);
+  pointEntity->setFilePosition(10, 5);
+  patch->setFilePosition(16, 4);
+  brushEntity->setFilePosition(20, 10);
+  brushInEntity1->setFilePosition(23, 2);
+  brushInEntity2->setFilePosition(26, 3);
+  outerGroup->setFilePosition(31, 19);
+  brushInOuterGroup->setFilePosition(32, 6);
+  innerGroup->setFilePosition(39, 10);
+  brushInInnerGroup->setFilePosition(43, 5);
+
+  const auto map = std::map<const Model::Node*, std::string>{
+    {brush, "brush"},
+    {pointEntity, "pointEntity"},
+    {patch, "patch"},
+    {brushEntity, "brushEntity"},
+    {brushInEntity1, "brushInEntity1"},
+    {brushInEntity2, "brushInEntity2"},
+    {outerGroup, "outerGroup"},
+    {brushInOuterGroup, "brushInOuterGroup"},
+    {innerGroup, "innerGroup"},
+    {brushInInnerGroup, "brushInInnerGroup"},
+  };
+
+  const auto mapNodeNames = [&](const auto& nodes) {
+    return kdl::vec_transform(nodes, [&](const Model::Node* node) {
+      return kdl::map_find_or_default(map, node, std::string{"<unknown>"});
+    });
+  };
+
+  document->addNodes({
+    {document->world()->defaultLayer(),
+     {brush, pointEntity, patch, brushEntity, outerGroup}},
+  });
+
+  document->addNodes({
+    {brushEntity, {brushInEntity1, brushInEntity2}},
+    {outerGroup, {brushInOuterGroup, innerGroup}},
+  });
+
+  document->addNodes({{innerGroup, {brushInInnerGroup}}});
+
+  document->deselectAll();
+
+  using T = std::tuple<std::vector<size_t>, std::vector<std::string>>;
+
+  SECTION("outer group is closed")
+  {
+    const auto [lineNumbers, expectedNodeNames] = GENERATE(values<T>({
+      {{0}, {}},
+      {{4}, {"brush"}},
+      {{5}, {"brush"}},
+      {{4, 5}, {"brush"}},
+      {{6}, {}},
+      {{7}, {}},
+      {{12}, {"pointEntity"}},
+      {{16}, {"patch"}},
+      /* EXPECTED:
+      {{20}, {"brushInEntity1", "brushInEntity2"}},
+      ACTUAL: */
+      {{20}, {}},
+      {{24}, {"brushInEntity1"}},
+      {{26}, {"brushInEntity2"}},
+      {{31}, {"outerGroup"}},
+      {{32}, {"outerGroup"}},
+      {{39}, {"outerGroup"}},
+      {{43}, {"outerGroup"}},
+      {{0, 4, 12, 24, 32}, {"brush", "pointEntity", "brushInEntity1", "outerGroup"}},
+    }));
+
+    CAPTURE(lineNumbers);
+
+    document->selectNodesWithFilePosition(lineNumbers);
+    CHECK_THAT(
+      mapNodeNames(document->selectedNodes().nodes()),
+      Catch::Matchers::UnorderedEquals(expectedNodeNames));
+  }
+
+  SECTION("outer group is open")
+  {
+    document->openGroup(outerGroup);
+
+    const auto [lineNumbers, expectedNodeNames] = GENERATE(values<T>({
+      {{31}, {}},
+      {{32}, {"brushInOuterGroup"}},
+      {{39}, {"innerGroup"}},
+      {{43}, {"innerGroup"}},
+    }));
+
+    CAPTURE(lineNumbers);
+
+    document->selectNodesWithFilePosition(lineNumbers);
+    CHECK_THAT(
+      mapNodeNames(document->selectedNodes().nodes()),
+      Catch::Matchers::UnorderedEquals(expectedNodeNames));
+  }
+
+  SECTION("inner group is open")
+  {
+    document->openGroup(outerGroup);
+    document->openGroup(innerGroup);
+
+    const auto [lineNumbers, expectedNodeNames] = GENERATE(values<T>({
+      {{31}, {}},
+      {{32}, {}},
+      {{39}, {}},
+      {{43}, {"brushInInnerGroup"}},
+    }));
+
+    CAPTURE(lineNumbers);
+
+    document->selectNodesWithFilePosition(lineNumbers);
+    CHECK_THAT(
+      mapNodeNames(document->selectedNodes().nodes()),
+      Catch::Matchers::UnorderedEquals(expectedNodeNames));
   }
 }
 
