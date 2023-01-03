@@ -2805,11 +2805,11 @@ bool MapDocument::transformObjects(
   auto nodesToTransform = std::vector<Model::Node*>{};
 
   const auto addEntity = [&](auto* node) {
-    if (auto* entity = node->entity())
+    if (auto* entityNode = node->entity())
     {
-      if (entity->childSelectionCount() == entity->childCount())
+      if (entityNode->childSelectionCount() == entityNode->childCount())
       {
-        nodesToTransform.push_back(entity);
+        nodesToTransform.push_back(entityNode);
       }
     }
   };
@@ -2817,31 +2817,33 @@ bool MapDocument::transformObjects(
   for (auto* node : m_selectedNodes)
   {
     node->accept(kdl::overload(
-      [&](
-        auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
-      [&](
-        auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [&](auto&& thisLambda, Model::GroupNode* group) {
-        nodesToTransform.push_back(group);
-        group->visitChildren(thisLambda);
+      [&](auto&& thisLambda, Model::WorldNode* worldNode) {
+        worldNode->visitChildren(thisLambda);
       },
-      [&](auto&& thisLambda, Model::EntityNode* entity) {
-        if (!entity->hasChildren())
+      [&](auto&& thisLambda, Model::LayerNode* layerNode) {
+        layerNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, Model::GroupNode* groupNode) {
+        nodesToTransform.push_back(groupNode);
+        groupNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, Model::EntityNode* entityNode) {
+        if (!entityNode->hasChildren())
         {
-          nodesToTransform.push_back(entity);
+          nodesToTransform.push_back(entityNode);
         }
         else
         {
-          entity->visitChildren(thisLambda);
+          entityNode->visitChildren(thisLambda);
         }
       },
-      [&](Model::BrushNode* brush) {
-        nodesToTransform.push_back(brush);
-        addEntity(brush);
+      [&](Model::BrushNode* brushNode) {
+        nodesToTransform.push_back(brushNode);
+        addEntity(brushNode);
       },
-      [&](Model::PatchNode* patch) {
-        nodesToTransform.push_back(patch);
-        addEntity(patch);
+      [&](Model::PatchNode* patchNode) {
+        nodesToTransform.push_back(patchNode);
+        addEntity(patchNode);
       }));
   }
 
