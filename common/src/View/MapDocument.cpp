@@ -751,8 +751,7 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
         nodesToAdd[parent].push_back(group);
       },
       [&](auto&& thisLambda, Model::EntityNode* entityNode) {
-        if (Model::isWorldspawn(
-              entityNode->entity().classname(), entityNode->entity().properties()))
+        if (Model::isWorldspawn(entityNode->entity().classname()))
         {
           entityNode->visitChildren(thisLambda);
           nodesToDetach.push_back(entityNode);

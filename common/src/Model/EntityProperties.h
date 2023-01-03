@@ -121,8 +121,7 @@ public:
 
 bool isLayer(const std::string& classname, const std::vector<EntityProperty>& properties);
 bool isGroup(const std::string& classname, const std::vector<EntityProperty>& properties);
-bool isWorldspawn(
-  const std::string& classname, const std::vector<EntityProperty>& properties);
+bool isWorldspawn(const std::string& classname);
 
 std::vector<EntityProperty>::const_iterator findEntityProperty(
   const std::vector<EntityProperty>& properties, const std::string& key);
