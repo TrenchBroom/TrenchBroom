@@ -2802,16 +2802,7 @@ bool MapDocument::transformObjects(
   const std::string& commandName, const vm::mat4x4& transformation)
 {
   auto nodesToTransform = std::vector<Model::Node*>{};
-
-  const auto addEntity = [&](auto* node) {
-    if (auto* entityNode = node->entity())
-    {
-      if (entityNode->childSelectionCount() == entityNode->childCount())
-      {
-        nodesToTransform.push_back(entityNode);
-      }
-    }
-  };
+  auto entitiesToTransform = std::unordered_map<Model::EntityNodeBase*, size_t>{};
 
   for (auto* node : m_selectedNodes)
   {
@@ -2838,16 +2829,24 @@ bool MapDocument::transformObjects(
       },
       [&](Model::BrushNode* brushNode) {
         nodesToTransform.push_back(brushNode);
-        addEntity(brushNode);
+        entitiesToTransform[brushNode->entity()]++;
       },
       [&](Model::PatchNode* patchNode) {
         nodesToTransform.push_back(patchNode);
-        addEntity(patchNode);
+        entitiesToTransform[patchNode->entity()]++;
       }));
   }
 
-  // brush entites can be added many times
-  nodesToTransform = kdl::vec_sort_and_remove_duplicates(std::move(nodesToTransform));
+  // add entities if all of their children are transformed
+  for (const auto& [entityNode, transformedChildCount] : entitiesToTransform)
+  {
+    if (
+      transformedChildCount == entityNode->childCount()
+      && !Model::isWorldspawn(entityNode->entity().classname()))
+    {
+      nodesToTransform.push_back(entityNode);
+    }
+  }
 
   using TransformResult =
     kdl::result<std::pair<Model::Node*, Model::NodeContents>, Model::BrushError>;

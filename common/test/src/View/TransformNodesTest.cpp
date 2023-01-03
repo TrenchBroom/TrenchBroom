@@ -290,10 +290,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
     document->rotateObjects(
       document->selectionBounds().center(), vm::vec3::pos_z(), vm::to_radians(90.0));
 
-    /* EXPECTED:
     CHECK(*entityNode->entity().property("angle") == "135");
-    ACTUAL: */
-    CHECK(*entityNode->entity().property("angle") == "45");
   }
 }
 
