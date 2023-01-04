@@ -2409,6 +2409,7 @@ Game configuration files need to specify the following information.
 	* The builtin **entity definition files**
 	* The **default color** to use in the UI
   * A default **model scale expression**
+  * Whether to automatically set default entity properties
 * **Tags** to attach additional information to faces or brushes in the editor, e.g. whether a face is detail or hint. (optional)
 * **Face attributes** to specify which additional attributes to allow on brush faces (optional)
 * **Map bounds** to be displayed in the 2D viewports (optional)
