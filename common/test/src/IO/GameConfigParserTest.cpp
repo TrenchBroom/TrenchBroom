@@ -883,6 +883,7 @@ TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]")
   GameConfigParser parser(config);
   REQUIRE_THROWS_AS(parser.parse(), ParserException);
 }
+
 TEST_CASE("GameConfigParserTest.parseSetDefaultProperties", "[GameConfigParserTest]")
 {
   const std::string config(R"(
