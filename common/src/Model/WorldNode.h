@@ -41,8 +41,6 @@ class octree;
 namespace Model
 {
 class EntityNodeIndex;
-enum class BrushError;
-class BrushFace;
 class IssueQuickFix;
 enum class MapFormat;
 class PickResult;
