@@ -71,6 +71,9 @@ public:
     MapFormat mapFormat);
   ~WorldNode() override;
 
+  using Node::entityPropertyConfig;
+  EntityPropertyConfig& entityPropertyConfig();
+
   MapFormat mapFormat() const;
 
   const NodeTree& nodeTree() const;

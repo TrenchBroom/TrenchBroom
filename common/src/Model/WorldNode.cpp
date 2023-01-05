@@ -76,6 +76,11 @@ WorldNode::WorldNode(
 
 WorldNode::~WorldNode() = default;
 
+EntityPropertyConfig& WorldNode::entityPropertyConfig()
+{
+  return m_entityPropertyConfig;
+}
+
 MapFormat WorldNode::mapFormat() const
 {
   return m_mapFormat;
