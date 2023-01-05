@@ -20,6 +20,8 @@
 #include "RotateObjectsToolPage.h"
 
 #include "FloatType.h"
+#include "Model/EntityProperties.h"
+#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -34,6 +36,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <QCheckBox>
 #include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -55,6 +58,7 @@ RotateObjectsToolPage::RotateObjectsToolPage(
   , m_angle{nullptr}
   , m_axis{nullptr}
   , m_rotateButton{nullptr}
+  , m_updateAnglePropertyAfterTransformCheckBox{nullptr}
 {
   createGui();
   connectObservers();
@@ -66,6 +70,10 @@ void RotateObjectsToolPage::connectObservers()
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->selectionDidChangeNotifier.connect(
     this, &RotateObjectsToolPage::selectionDidChange);
+  m_notifierConnection += document->documentWasNewedNotifier.connect(
+    this, &RotateObjectsToolPage::documentWasNewedOrLoaded);
+  m_notifierConnection += document->documentWasLoadedNotifier.connect(
+    this, &RotateObjectsToolPage::documentWasNewedOrLoaded);
 }
 
 void RotateObjectsToolPage::setAxis(const vm::axis::type axis)
@@ -120,6 +128,9 @@ void RotateObjectsToolPage::createGui()
 
   m_rotateButton = new QPushButton{tr("Apply")};
 
+  m_updateAnglePropertyAfterTransformCheckBox =
+    new QCheckBox{tr("Update entity properties")};
+
   connect(
     m_recentlyUsedCentersList,
     QOverload<const QString&>::of(&QComboBox::activated),
@@ -140,6 +151,11 @@ void RotateObjectsToolPage::createGui()
     &QAbstractButton::clicked,
     this,
     &RotateObjectsToolPage::rotateClicked);
+  connect(
+    m_updateAnglePropertyAfterTransformCheckBox,
+    &QCheckBox::clicked,
+    this,
+    &RotateObjectsToolPage::updateAnglePropertyAfterTransformClicked);
 
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
@@ -164,6 +180,10 @@ void RotateObjectsToolPage::createGui()
   layout->addWidget(text3, 0, Qt::AlignVCenter);
   layout->addSpacing(LayoutConstants::NarrowHMargin);
   layout->addWidget(m_rotateButton, 0, Qt::AlignVCenter);
+  layout->addSpacing(LayoutConstants::WideHMargin);
+  layout->addWidget(new BorderLine{BorderLine::Direction::Vertical}, 0);
+  layout->addSpacing(LayoutConstants::WideHMargin);
+  layout->addWidget(m_updateAnglePropertyAfterTransformCheckBox);
   layout->addStretch(1);
 
   setLayout(layout);
@@ -178,9 +198,20 @@ void RotateObjectsToolPage::updateGui()
 
   auto document = kdl::mem_lock(m_document);
   m_rotateButton->setEnabled(document->hasSelectedNodes());
+
+  if (const auto* worldNode = document->world())
+  {
+    m_updateAnglePropertyAfterTransformCheckBox->setChecked(
+      worldNode->entityPropertyConfig().updateAnglePropertyAfterTransform);
+  }
 }
 
 void RotateObjectsToolPage::selectionDidChange(const Selection&)
+{
+  updateGui();
+}
+
+void RotateObjectsToolPage::documentWasNewedOrLoaded(MapDocument*)
 {
   updateGui();
 }
@@ -215,6 +246,13 @@ void RotateObjectsToolPage::rotateClicked()
 
   auto document = kdl::mem_lock(m_document);
   document->rotateObjects(center, axis, angle);
+}
+
+void RotateObjectsToolPage::updateAnglePropertyAfterTransformClicked()
+{
+  auto document = kdl::mem_lock(m_document);
+  document->world()->entityPropertyConfig().updateAnglePropertyAfterTransform =
+    m_updateAnglePropertyAfterTransformCheckBox->isChecked();
 }
 
 vm::vec3 RotateObjectsToolPage::getAxis() const

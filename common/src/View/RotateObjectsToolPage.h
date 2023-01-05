@@ -29,6 +29,7 @@
 
 #include <QWidget>
 
+class QCheckBox;
 class QComboBox;
 class QPushButton;
 
@@ -54,6 +55,7 @@ private:
   SpinControl* m_angle;
   QComboBox* m_axis;
   QPushButton* m_rotateButton;
+  QCheckBox* m_updateAnglePropertyAfterTransformCheckBox;
 
   NotifierConnection m_notifierConnection;
 
@@ -74,11 +76,13 @@ private:
   void updateGui();
 
   void selectionDidChange(const Selection& selection);
+  void documentWasNewedOrLoaded(MapDocument* document);
 
   void centerChanged();
   void resetCenterClicked();
   void angleChanged(double value);
   void rotateClicked();
+  void updateAnglePropertyAfterTransformClicked();
   vm::vec3 getAxis() const;
 };
 } // namespace View
