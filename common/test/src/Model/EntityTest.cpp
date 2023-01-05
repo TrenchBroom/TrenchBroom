@@ -648,6 +648,19 @@ TEST_CASE("EntityTest.transform")
       == vm::translation_matrix(vm::vec3{8, 7, 6})
            * vm::scaling_matrix(vm::vec3{2, 2, 2}));
   }
+
+  SECTION("Updates angle property")
+  {
+    auto entityPropertyConfig = EntityPropertyConfig{};
+
+    entity.setClassname(entityPropertyConfig, "light");
+    entity.addOrUpdateProperty(entityPropertyConfig, EntityPropertyKeys::Angle, "0");
+
+    const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
+    entity.transform(entityPropertyConfig, rotation);
+
+    CHECK(*entity.property(EntityPropertyKeys::Angle) == "90");
+  }
 }
 } // namespace Model
 } // namespace TrenchBroom
