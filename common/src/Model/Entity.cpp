@@ -422,7 +422,10 @@ void Entity::transform(
 void Entity::applyRotation(
   const EntityPropertyConfig& propertyConfig, const vm::mat4x4& rotation)
 {
-  applyEntityRotation(*this, propertyConfig, rotation);
+  if (propertyConfig.updateAnglePropertyAfterTransform)
+  {
+    applyEntityRotation(*this, propertyConfig, rotation);
+  }
 }
 
 void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig)
