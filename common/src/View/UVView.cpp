@@ -78,6 +78,12 @@ void UVView::setSubDivisions(const vm::vec2i& subDivisions)
   update();
 }
 
+void UVView::focusOutEvent(QFocusEvent* event)
+{
+  ToolBoxConnector::cancelDrag();
+  RenderView::focusOutEvent(event);
+}
+
 void UVView::createTools()
 {
   addTool(std::make_unique<UVRotateTool>(m_document, m_helper));

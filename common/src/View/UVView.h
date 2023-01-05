@@ -91,6 +91,9 @@ public:
 
   void setSubDivisions(const vm::vec2i& subDivisions);
 
+protected:
+  void focusOutEvent(QFocusEvent* event) override;
+
 private:
   void createTools();
 
