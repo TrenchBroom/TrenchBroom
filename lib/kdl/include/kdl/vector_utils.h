@@ -34,6 +34,16 @@
 
 namespace kdl
 {
+template <typename T, typename... Rest>
+std::vector<T> vec_from(T t, Rest... rest)
+{
+  auto result = std::vector<T>{};
+  result.reserve(sizeof...(rest) + 1);
+  result.push_back(std::move(t));
+  (..., result.push_back(std::move(rest)));
+  return result;
+}
+
 /**
  * Returns the vector element at the given index.
  *
@@ -259,7 +269,7 @@ void vec_append(std::vector<T, A>& v1, Arg&& arg)
 template <typename T, typename A, typename Arg, typename... Rest>
 void vec_append(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest)
 {
-  vec_append(v1, std::move(arg));
+  vec_append(v1, std::forward<Arg>(arg));
   vec_append(v1, std::forward<Rest>(rest)...);
 }
 } // namespace detail

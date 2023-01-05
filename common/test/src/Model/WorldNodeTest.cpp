@@ -18,7 +18,6 @@
  */
 
 #include "Model/WorldNode.h"
-#include "AABBTree.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -30,6 +29,7 @@
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
+#include "octree.h"
 
 #include <kdl/result.h>
 #include <kdl/result_io.h>
@@ -220,24 +220,27 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates")
     REQUIRE(nodeTree.contains(brushNode));
     REQUIRE(nodeTree.contains(patchNode));
     REQUIRE_THAT(
-      nodeTree.findContainers(vm::vec3d::zero()),
+      nodeTree.find_containers(vm::vec3d::zero()),
       Catch::UnorderedEquals(std::vector<Node*>{entityNode, brushNode, patchNode}));
     REQUIRE_THAT(
-      nodeTree.findContainers(vm::vec3d{64, 0, 0}),
+      nodeTree.find_containers(vm::vec3d{384, 384, 384}),
       Catch::UnorderedEquals(std::vector<Node*>{}));
 
-    transformNode(*entityNode, vm::translation_matrix(vm::vec3d(64, 0, 0)), worldBounds);
-    transformNode(*brushNode, vm::translation_matrix(vm::vec3d(64, 0, 0)), worldBounds);
-    transformNode(*patchNode, vm::translation_matrix(vm::vec3d(64, 0, 0)), worldBounds);
+    transformNode(
+      *entityNode, vm::translation_matrix(vm::vec3d(384, 384, 384)), worldBounds);
+    transformNode(
+      *brushNode, vm::translation_matrix(vm::vec3d(384, 384, 384)), worldBounds);
+    transformNode(
+      *patchNode, vm::translation_matrix(vm::vec3d(384, 384, 384)), worldBounds);
 
     CHECK(nodeTree.contains(entityNode));
     CHECK(nodeTree.contains(brushNode));
     CHECK(nodeTree.contains(patchNode));
     CHECK_THAT(
-      nodeTree.findContainers(vm::vec3d::zero()),
+      nodeTree.find_containers(vm::vec3d::zero()),
       Catch::UnorderedEquals(std::vector<Node*>{}));
     CHECK_THAT(
-      nodeTree.findContainers(vm::vec3d{64, 0, 0}),
+      nodeTree.find_containers(vm::vec3d{384, 384, 384}),
       Catch::UnorderedEquals(std::vector<Node*>{entityNode, brushNode, patchNode}));
   }
 }

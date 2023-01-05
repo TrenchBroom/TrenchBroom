@@ -47,8 +47,24 @@ TEST_CASE("streamable_struct")
 
   CHECK(build_string("type", "a", std::vector<int>{1, 2, 3}) == "type{a: [1,2,3]}");
   CHECK(build_string("type", "a", std::optional<int>{1}) == "type{a: 1}");
+
   CHECK(
     build_string("type", "a", std::tuple<int, std::string>{1, "asdf"})
     == "type{a: {1, asdf}}");
+
+  CHECK(
+    build_string(
+      "type",
+      "a",
+      std::tuple<std::vector<int>, std::optional<std::string>>{{1, 2}, "asdf"})
+    == "type{a: {[1,2], asdf}}");
+
+  CHECK(
+    build_string("type", "a", std::optional<std::tuple<int, std::string>>{{1, "asdf"}})
+    == "type{a: {1, asdf}}");
+
+  CHECK(
+    build_string("type", "a", std::vector<std::optional<int>>{{1, std::nullopt, 2}})
+    == "type{a: [1,nullopt,2]}");
 }
 } // namespace kdl

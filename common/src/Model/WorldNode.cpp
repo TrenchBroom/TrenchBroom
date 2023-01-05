@@ -19,7 +19,6 @@
 
 #include "WorldNode.h"
 
-#include "AABBTree.h"
 #include "Ensure.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -31,6 +30,7 @@
 #include "Model/TagVisitor.h"
 #include "Model/Validator.h"
 #include "Model/ValidatorRegistry.h"
+#include "octree.h"
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
@@ -49,12 +49,12 @@ namespace Model
 WorldNode::WorldNode(
   EntityPropertyConfig entityPropertyConfig, Entity entity, const MapFormat mapFormat)
   : m_entityPropertyConfig{std::move(entityPropertyConfig)}
-  , m_mapFormat(mapFormat)
-  , m_defaultLayer(nullptr)
-  , m_entityNodeIndex(std::make_unique<EntityNodeIndex>())
-  , m_validatorRegistry(std::make_unique<ValidatorRegistry>())
-  , m_nodeTree(std::make_unique<NodeTree>())
-  , m_updateNodeTree(true)
+  , m_mapFormat{mapFormat}
+  , m_defaultLayer{nullptr}
+  , m_entityNodeIndex{std::make_unique<EntityNodeIndex>()}
+  , m_validatorRegistry{std::make_unique<ValidatorRegistry>()}
+  , m_nodeTree{std::make_unique<NodeTree>(256.0)}
+  , m_updateNodeTree{true}
 {
   entity.addOrUpdateProperty(
     m_entityPropertyConfig,
@@ -244,8 +244,11 @@ void WorldNode::rebuildNodeTree()
     [&](BrushNode* brush) { addNode(brush); },
     [&](PatchNode* patch) { addNode(patch); }));
 
-  m_nodeTree->clearAndBuild(
-    nodes, [](const auto* node) { return node->physicalBounds(); });
+  m_nodeTree->clear();
+  for (auto* node : nodes)
+  {
+    m_nodeTree->insert(node->physicalBounds(), node);
+  }
 }
 
 void WorldNode::invalidateAllIssues()
@@ -276,7 +279,7 @@ FloatType WorldNode::doGetProjectedArea(const vm::axis::type) const
 
 Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const
 {
-  WorldNode* worldNode = new WorldNode(entityPropertyConfig(), entity(), mapFormat());
+  auto* worldNode = new WorldNode{entityPropertyConfig(), entity(), mapFormat()};
   cloneAttributes(worldNode);
   return worldNode;
 }
@@ -286,13 +289,13 @@ Node* WorldNode::doCloneRecursively(const vm::bbox3& worldBounds) const
   const std::vector<Node*>& myChildren = children();
   assert(myChildren[0] == m_defaultLayer);
 
-  WorldNode* worldNode = static_cast<WorldNode*>(clone(worldBounds));
+  auto* worldNode = static_cast<WorldNode*>(clone(worldBounds));
   worldNode->defaultLayer()->addChildren(
     cloneRecursively(worldBounds, m_defaultLayer->children()));
 
   if (myChildren.size() > 1)
   {
-    std::vector<Node*> childClones;
+    auto childClones = std::vector<Node*>{};
     childClones.reserve(myChildren.size() - 1);
     cloneRecursively(
       worldBounds,
@@ -438,7 +441,7 @@ bool WorldNode::doSelectable() const
 void WorldNode::doPick(
   const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult)
 {
-  for (auto* node : m_nodeTree->findIntersectors(ray))
+  for (auto* node : m_nodeTree->find_intersectors(ray))
   {
     node->pick(editorContext, ray, pickResult);
   }
@@ -446,7 +449,7 @@ void WorldNode::doPick(
 
 void WorldNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result)
 {
-  for (auto* node : m_nodeTree->findContainers(point))
+  for (auto* node : m_nodeTree->find_containers(point))
   {
     node->findNodesContaining(point, result);
   }

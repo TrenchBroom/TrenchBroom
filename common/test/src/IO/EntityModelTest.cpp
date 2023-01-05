@@ -74,10 +74,10 @@ TEST_CASE("BSP model intersection test", "[EntityModelTest]")
         const auto endPoint = vm::vec3f::zero();
         const auto ray = vm::ray3f(startPoint, vm::normalize(endPoint - startPoint));
 
-        const float aabbDist = frame->intersect(ray);
+        const float treeDist = frame->intersect(ray);
         const float expected = vm::intersect_ray_bbox(ray, box);
 
-        CHECK(expected == Approx(aabbDist));
+        CHECK(expected == Approx(treeDist));
       }
     }
   }

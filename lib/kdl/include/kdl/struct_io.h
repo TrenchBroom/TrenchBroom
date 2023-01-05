@@ -20,35 +20,13 @@
 
 #pragma once
 
-#include <kdl/optional_io.h>
-#include <kdl/range_io.h>
+#include <kdl/std_io.h>
 #include <kdl/traits.h>
-#include <kdl/tuple_io.h>
-#include <kdl/variant_io.h>
 
 #include <ostream>
-#include <string_view>
 
 namespace kdl
 {
-namespace detail
-{
-template <typename T, typename = void>
-struct can_make_streamable : std::false_type
-{
-};
-
-template <typename T>
-struct can_make_streamable<
-  T,
-  std::void_t<decltype(kdl::make_streamable(std::declval<const T&>()))>> : std::true_type
-{
-};
-
-template <typename T = std::ostream>
-inline constexpr bool can_make_streamable_v = can_make_streamable<T>::value;
-
-} // namespace detail
 
 class struct_stream
 {
@@ -87,28 +65,13 @@ public:
   }
 
 private:
-  template <typename T, typename std::enable_if<can_print_v<T>, bool>::type = true>
-  static void append_to_stream(std::ostream& lhs, const T& rhs)
-  {
-    lhs << rhs;
-  }
-
-  template <
-    typename T,
-    typename std::enable_if<!can_print_v<T> && detail::can_make_streamable_v<T>, bool>::
-      type = true>
-  static void append_to_stream(std::ostream& lhs, const T& rhs)
-  {
-    lhs << make_streamable(rhs);
-  }
-
   template <typename T>
   static void append_to_stream(struct_stream& lhs, const T& rhs)
   {
     switch (lhs.m_expected)
     {
     case expected::type_name:
-      append_to_stream(lhs.m_str, rhs);
+      lhs.m_str << make_streamable(rhs);
       lhs.m_str << "{";
       lhs.m_expected = expected::attr_name;
       break;
@@ -118,12 +81,12 @@ private:
         lhs.m_str << ", ";
       }
       lhs.m_first_attr = false;
-      append_to_stream(lhs.m_str, rhs);
+      lhs.m_str << make_streamable(rhs);
       lhs.m_str << ": ";
       lhs.m_expected = expected::attr_value;
       break;
     case expected::attr_value:
-      append_to_stream(lhs.m_str, rhs);
+      lhs.m_str << make_streamable(rhs);
       lhs.m_expected = expected::attr_name;
       break;
     }

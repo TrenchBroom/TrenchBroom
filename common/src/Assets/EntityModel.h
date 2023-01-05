@@ -30,8 +30,8 @@
 
 namespace TrenchBroom
 {
-template <typename T, size_t S, typename U>
-class AABBTree;
+template <typename T, typename U>
+class octree;
 
 namespace Renderer
 {
@@ -165,7 +165,7 @@ private:
   // For hit testing
   std::vector<vm::vec3f> m_tris;
   using TriNum = size_t;
-  using SpacialTree = AABBTree<float, 3, TriNum>;
+  using SpacialTree = octree<float, TriNum>;
   std::unique_ptr<SpacialTree> m_spacialTree;
 
 public:

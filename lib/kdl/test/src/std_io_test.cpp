@@ -18,16 +18,38 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/optional_io.h"
+#include "kdl/std_io.h"
 #include "kdl/string_utils.h"
 
-#include <optional>
 #include <sstream>
+#include <string>
+#include <variant>
 
 #include <catch2/catch.hpp>
 
+namespace some_ns
+{
+struct test
+{
+};
+
+inline std::ostream& operator<<(std::ostream& lhs, const test&)
+{
+  return lhs << "test";
+}
+} // namespace some_ns
+
 namespace kdl
 {
+
+TEST_CASE("range IO")
+{
+  CHECK(str_to_string(make_streamable(std::vector<int>{})) == "[]");
+  CHECK(str_to_string(make_streamable(std::vector<int>{1})) == "[1]");
+  CHECK(str_to_string(make_streamable(std::vector<int>{1, 2})) == "[1,2]");
+  CHECK(
+    str_to_string(make_streamable(std::vector<some_ns::test>{{}, {}})) == "[test,test]");
+}
 
 TEST_CASE("optional IO")
 {
@@ -35,15 +57,45 @@ TEST_CASE("optional IO")
   CHECK(str_to_string(make_streamable(std::optional<int>{0})) == "0");
 }
 
+TEST_CASE("tuple IO")
+{
+  CHECK(str_to_string(make_streamable(std::tuple<int>{0})) == "{0}");
+  CHECK(
+    str_to_string(make_streamable(std::tuple<int, std::string>{0, "asdf"}))
+    == "{0, asdf}");
+}
+
+TEST_CASE("variant IO")
+{
+  CHECK(str_to_string(make_streamable(std::variant<int, std::string>{0})) == "0");
+  CHECK(str_to_string(make_streamable(std::variant<int, std::string>{"asdf"})) == "asdf");
+}
 } // namespace kdl
 
 namespace sibling
 {
+TEST_CASE("range IO - ADL from sibling namespace")
+{
+  auto str = std::stringstream{};
+  str << kdl::make_streamable(std::vector<int>{1});
+}
 
 TEST_CASE("optional IO - ADL from sibling namespace")
 {
   auto str = std::stringstream{};
   str << kdl::make_streamable(std::optional<int>{0});
+}
+
+TEST_CASE("tuple IO - ADL from sibling namespace")
+{
+  auto str = std::stringstream{};
+  str << kdl::make_streamable(std::tuple<int>{0});
+}
+
+TEST_CASE("variant IO - ADL from sibling namespace")
+{
+  auto str = std::stringstream{};
+  str << kdl::make_streamable(std::variant<int, std::string>{0});
 }
 
 } // namespace sibling

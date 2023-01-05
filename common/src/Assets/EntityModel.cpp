@@ -19,12 +19,12 @@
 
 #include "EntityModel.h"
 
-#include "AABBTree.h"
 #include "Assets/TextureCollection.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeRenderer.h"
+#include "octree.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
@@ -76,7 +76,7 @@ EntityModelLoadedFrame::EntityModelLoadedFrame(
   , m_bounds{bounds}
   , m_pitchType{pitchType}
   , m_orientation{orientation}
-  , m_spacialTree{std::make_unique<SpacialTree>()}
+  , m_spacialTree{std::make_unique<SpacialTree>(16.0f)}
 {
 }
 
@@ -111,7 +111,7 @@ float EntityModelLoadedFrame::intersect(const vm::ray3f& ray) const
 {
   auto closestDistance = vm::nan<float>();
 
-  const auto candidates = m_spacialTree->findIntersectors(ray);
+  const auto candidates = m_spacialTree->find_intersectors(ray);
   for (const TriNum triNum : candidates)
   {
     const vm::vec3f& p1 = m_tris[triNum * 3 + 0];
