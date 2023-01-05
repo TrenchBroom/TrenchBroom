@@ -70,7 +70,7 @@ static bool isPropertyKeyMutable(const Model::Entity& entity, const std::string&
   assert(!Model::isGroup(entity.classname(), entity.properties()));
   assert(!Model::isLayer(entity.classname(), entity.properties()));
 
-  if (Model::isWorldspawn(entity.classname(), entity.properties()))
+  if (Model::isWorldspawn(entity.classname()))
   {
     return !(
       key == Model::EntityPropertyKeys::Classname
@@ -93,7 +93,7 @@ static bool isPropertyValueMutable(const Model::Entity& entity, const std::strin
   assert(!Model::isGroup(entity.classname(), entity.properties()));
   assert(!Model::isLayer(entity.classname(), entity.properties()));
 
-  if (Model::isWorldspawn(entity.classname(), entity.properties()))
+  if (Model::isWorldspawn(entity.classname()))
   {
     return !(
       key == Model::EntityPropertyKeys::Classname

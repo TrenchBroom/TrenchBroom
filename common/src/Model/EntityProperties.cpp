@@ -186,8 +186,7 @@ bool isGroup(const std::string& classname, const std::vector<EntityProperty>& pr
   }
 }
 
-bool isWorldspawn(
-  const std::string& classname, const std::vector<EntityProperty>& /* properties */)
+bool isWorldspawn(const std::string& classname)
 {
   return classname == EntityPropertyValues::WorldspawnClassname;
 }

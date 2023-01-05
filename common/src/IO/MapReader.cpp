@@ -538,7 +538,7 @@ static CreateNodeResult createNodeFromEntityInfo(
 {
   const auto& classname = findEntityPropertyOrDefault(
     entityInfo.properties, Model::EntityPropertyKeys::Classname);
-  if (isWorldspawn(classname, entityInfo.properties))
+  if (Model::isWorldspawn(classname))
   {
     return createWorldNode(std::move(entityInfo), entityPropertyConfig, mapFormat);
   }

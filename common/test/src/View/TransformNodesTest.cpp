@@ -279,6 +279,19 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
 
     CHECK(*entityNode->entity().property("angle") == "135");
   }
+
+  SECTION("Rotating grouped brush entity")
+  {
+    document->selectNodes({entityNode});
+    auto* groupNode = document->groupSelection("some_name");
+
+    document->deselectAll();
+    document->selectNodes({groupNode});
+    document->rotateObjects(
+      document->selectionBounds().center(), vm::vec3::pos_z(), vm::to_radians(90.0));
+
+    CHECK(*entityNode->entity().property("angle") == "135");
+  }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")

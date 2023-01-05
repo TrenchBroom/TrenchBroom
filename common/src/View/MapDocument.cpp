@@ -751,8 +751,7 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
         nodesToAdd[parent].push_back(group);
       },
       [&](auto&& thisLambda, Model::EntityNode* entityNode) {
-        if (Model::isWorldspawn(
-              entityNode->entity().classname(), entityNode->entity().properties()))
+        if (Model::isWorldspawn(entityNode->entity().classname()))
         {
           entityNode->visitChildren(thisLambda);
           nodesToDetach.push_back(entityNode);
@@ -2803,50 +2802,51 @@ bool MapDocument::transformObjects(
   const std::string& commandName, const vm::mat4x4& transformation)
 {
   auto nodesToTransform = std::vector<Model::Node*>{};
-
-  const auto addEntity = [&](auto* node) {
-    if (auto* entity = node->entity())
-    {
-      if (entity->childSelectionCount() == entity->childCount())
-      {
-        nodesToTransform.push_back(entity);
-      }
-    }
-  };
+  auto entitiesToTransform = std::unordered_map<Model::EntityNodeBase*, size_t>{};
 
   for (auto* node : m_selectedNodes)
   {
     node->accept(kdl::overload(
-      [&](
-        auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
-      [&](
-        auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [&](auto&& thisLambda, Model::GroupNode* group) {
-        nodesToTransform.push_back(group);
-        group->visitChildren(thisLambda);
+      [&](auto&& thisLambda, Model::WorldNode* worldNode) {
+        worldNode->visitChildren(thisLambda);
       },
-      [&](auto&& thisLambda, Model::EntityNode* entity) {
-        if (!entity->hasChildren())
+      [&](auto&& thisLambda, Model::LayerNode* layerNode) {
+        layerNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, Model::GroupNode* groupNode) {
+        nodesToTransform.push_back(groupNode);
+        groupNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, Model::EntityNode* entityNode) {
+        if (!entityNode->hasChildren())
         {
-          nodesToTransform.push_back(entity);
+          nodesToTransform.push_back(entityNode);
         }
         else
         {
-          entity->visitChildren(thisLambda);
+          entityNode->visitChildren(thisLambda);
         }
       },
-      [&](Model::BrushNode* brush) {
-        nodesToTransform.push_back(brush);
-        addEntity(brush);
+      [&](Model::BrushNode* brushNode) {
+        nodesToTransform.push_back(brushNode);
+        entitiesToTransform[brushNode->entity()]++;
       },
-      [&](Model::PatchNode* patch) {
-        nodesToTransform.push_back(patch);
-        addEntity(patch);
+      [&](Model::PatchNode* patchNode) {
+        nodesToTransform.push_back(patchNode);
+        entitiesToTransform[patchNode->entity()]++;
       }));
   }
 
-  // brush entites can be added many times
-  nodesToTransform = kdl::vec_sort_and_remove_duplicates(std::move(nodesToTransform));
+  // add entities if all of their children are transformed
+  for (const auto& [entityNode, transformedChildCount] : entitiesToTransform)
+  {
+    if (
+      transformedChildCount == entityNode->childCount()
+      && !Model::isWorldspawn(entityNode->entity().classname()))
+    {
+      nodesToTransform.push_back(entityNode);
+    }
+  }
 
   using TransformResult =
     kdl::result<std::pair<Model::Node*, Model::NodeContents>, Model::BrushError>;
