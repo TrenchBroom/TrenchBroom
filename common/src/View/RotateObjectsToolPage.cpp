@@ -47,14 +47,14 @@ namespace View
 {
 RotateObjectsToolPage::RotateObjectsToolPage(
   std::weak_ptr<MapDocument> document, RotateObjectsTool& tool, QWidget* parent)
-  : QWidget(parent)
-  , m_document(std::move(document))
-  , m_tool(tool)
-  , m_recentlyUsedCentersList(nullptr)
-  , m_resetCenterButton(nullptr)
-  , m_angle(nullptr)
-  , m_axis(nullptr)
-  , m_rotateButton(nullptr)
+  : QWidget{parent}
+  , m_document{std::move(document)}
+  , m_tool{tool}
+  , m_recentlyUsedCentersList{nullptr}
+  , m_resetCenterButton{nullptr}
+  , m_angle{nullptr}
+  , m_axis{nullptr}
+  , m_rotateButton{nullptr}
 {
   createGui();
   connectObservers();
@@ -79,13 +79,13 @@ void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& 
 
   for (auto it = centers.rbegin(), end = centers.rend(); it != end; ++it)
   {
-    const auto& center = *it;
-    m_recentlyUsedCentersList->addItem(
-      QString::fromStdString(kdl::str_to_string(center)));
+    m_recentlyUsedCentersList->addItem(QString::fromStdString(kdl::str_to_string(*it)));
   }
 
   if (m_recentlyUsedCentersList->count() > 0)
+  {
     m_recentlyUsedCentersList->setCurrentIndex(0);
+  }
 }
 
 void RotateObjectsToolPage::setCurrentCenter(const vm::vec3& center)
@@ -96,29 +96,29 @@ void RotateObjectsToolPage::setCurrentCenter(const vm::vec3& center)
 
 void RotateObjectsToolPage::createGui()
 {
-  auto* centerText = new QLabel(tr("Center"));
-  m_recentlyUsedCentersList = new QComboBox();
+  auto* centerText = new QLabel{tr("Center")};
+  m_recentlyUsedCentersList = new QComboBox{};
   m_recentlyUsedCentersList->setMinimumContentsLength(16);
   m_recentlyUsedCentersList->setEditable(true);
 
-  m_resetCenterButton = new QPushButton(tr("Reset"));
+  m_resetCenterButton = new QPushButton{tr("Reset")};
   m_resetCenterButton->setToolTip(tr(
     "Reset the position of the rotate handle to the center of the current selection."));
 
-  auto* text1 = new QLabel(tr("Rotate objects"));
-  auto* text2 = new QLabel(tr("degs about"));
-  auto* text3 = new QLabel(tr("axis"));
-  m_angle = new SpinControl(this);
+  auto* text1 = new QLabel{tr("Rotate objects")};
+  auto* text2 = new QLabel{tr("degs about")};
+  auto* text3 = new QLabel{tr("axis")};
+  m_angle = new SpinControl{this};
   m_angle->setRange(-360.0, 360.0);
   m_angle->setValue(vm::to_degrees(m_tool.angle()));
 
-  m_axis = new QComboBox();
+  m_axis = new QComboBox{};
   m_axis->addItem("X");
   m_axis->addItem("Y");
   m_axis->addItem("Z");
   m_axis->setCurrentIndex(2);
 
-  m_rotateButton = new QPushButton(tr("Apply"));
+  m_rotateButton = new QPushButton{tr("Apply")};
 
   connect(
     m_recentlyUsedCentersList,
@@ -141,7 +141,7 @@ void RotateObjectsToolPage::createGui()
     this,
     &RotateObjectsToolPage::rotateClicked);
 
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
@@ -151,7 +151,7 @@ void RotateObjectsToolPage::createGui()
   layout->addSpacing(LayoutConstants::MediumHMargin);
   layout->addWidget(m_resetCenterButton, 0, Qt::AlignVCenter);
   layout->addSpacing(LayoutConstants::WideHMargin);
-  layout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0);
+  layout->addWidget(new BorderLine{BorderLine::Direction::Vertical}, 0);
   layout->addSpacing(LayoutConstants::WideHMargin);
   layout->addWidget(text1, 0, Qt::AlignVCenter);
   layout->addSpacing(LayoutConstants::NarrowHMargin);
@@ -202,7 +202,7 @@ void RotateObjectsToolPage::resetCenterClicked()
 
 void RotateObjectsToolPage::angleChanged(double value)
 {
-  const double newAngleDegs = vm::correct(value);
+  const auto newAngleDegs = vm::correct(value);
   m_angle->setValue(newAngleDegs);
   m_tool.setAngle(vm::to_radians(newAngleDegs));
 }

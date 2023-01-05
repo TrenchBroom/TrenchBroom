@@ -29,8 +29,8 @@
 
 #include <QWidget>
 
-class QAbstractButton;
 class QComboBox;
+class QPushButton;
 
 namespace TrenchBroom
 {
@@ -49,11 +49,11 @@ private:
   RotateObjectsTool& m_tool;
 
   QComboBox* m_recentlyUsedCentersList;
-  QAbstractButton* m_resetCenterButton;
+  QPushButton* m_resetCenterButton;
 
   SpinControl* m_angle;
   QComboBox* m_axis;
-  QAbstractButton* m_rotateButton;
+  QPushButton* m_rotateButton;
 
   NotifierConnection m_notifierConnection;
 
