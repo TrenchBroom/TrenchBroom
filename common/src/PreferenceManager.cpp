@@ -306,6 +306,20 @@ AppPreferenceManager::AppPreferenceManager()
   , m_fileSystemWatcher{nullptr}
   , m_fileReadWriteDisabled{false}
 {
+  m_saveTimer.setSingleShot(true);
+  connect(&m_saveTimer, &QTimer::timeout, this, [this] {
+    qDebug() << "Saving preferences";
+    saveChangesImmediately();
+  });
+}
+
+AppPreferenceManager::~AppPreferenceManager()
+{
+  if (m_saveTimer.isActive())
+  {
+    m_saveTimer.stop();
+    saveChangesImmediately();
+  }
 }
 
 void AppPreferenceManager::initialize()
@@ -328,7 +342,10 @@ void AppPreferenceManager::initialize()
       m_fileSystemWatcher,
       &QFileSystemWatcher::QFileSystemWatcher::fileChanged,
       this,
-      [this]() { loadCacheFromDisk(); });
+      [this]() {
+        qDebug() << "Reloading preferences after file change";
+        loadCacheFromDisk();
+      });
   }
 }
 
@@ -351,23 +368,31 @@ void AppPreferenceManager::saveChanges()
   }
   m_unsavedPreferences.clear();
 
-  if (m_fileReadWriteDisabled)
+  if (!m_fileReadWriteDisabled)
   {
-    return;
+    m_saveTimer.start(500);
   }
+}
 
+void AppPreferenceManager::discardChanges()
+{
+  if (m_saveTimer.isActive())
+  {
+    m_saveTimer.stop();
+    saveChangesImmediately();
+  }
+  m_unsavedPreferences.clear();
+  invalidatePreferences();
+}
+
+void AppPreferenceManager::saveChangesImmediately()
+{
   if (!writeV2SettingsToPath(m_preferencesFilePath, m_cache))
   {
     showErrorAndDisableFileReadWrite(
       tr("An error occurrend while attempting to save the preferences file:"),
       tr("ensure the directory is writable"));
   }
-}
-
-void AppPreferenceManager::discardChanges()
-{
-  m_unsavedPreferences.clear();
-  invalidatePreferences();
 }
 
 void AppPreferenceManager::markAsUnsaved(PreferenceBase& preference)

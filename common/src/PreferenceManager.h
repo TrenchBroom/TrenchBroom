@@ -36,6 +36,7 @@
 #include <QJsonParseError>
 #include <QString>
 #include <QThread>
+#include <QTimer>
 
 class QTextStream;
 class QFileSystemWatcher;
@@ -196,6 +197,8 @@ private:
   QString m_preferencesFilePath;
   bool m_saveInstantly;
   UnsavedPreferences m_unsavedPreferences;
+  QTimer m_saveTimer;
+
   /**
    * This should always be in sync with what is on disk.
    * Preference objects may have different values if there are unsaved changes.
@@ -213,6 +216,8 @@ private:
 
 public:
   AppPreferenceManager();
+  ~AppPreferenceManager() override;
+
   void initialize() override;
 
   bool saveInstantly() const override;
@@ -220,6 +225,8 @@ public:
   void discardChanges() override;
 
 private:
+  void saveChangesImmediately();
+
   void markAsUnsaved(PreferenceBase& preference);
   void showErrorAndDisableFileReadWrite(const QString& reason, const QString& suggestion);
   void loadCacheFromDisk();
