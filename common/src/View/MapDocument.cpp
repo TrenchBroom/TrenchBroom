@@ -813,14 +813,18 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
     }
   }
 
+  auto transaction = Transaction{*this, "Paste Nodes"};
+
   const auto addedNodes = addNodes(nodesToAdd);
   if (addedNodes.empty())
   {
+    transaction.cancel();
     return false;
   }
 
   deselectAll();
   selectNodes(Model::collectSelectableNodes(addedNodes, editorContext()));
+  transaction.commit();
 
   return true;
 }

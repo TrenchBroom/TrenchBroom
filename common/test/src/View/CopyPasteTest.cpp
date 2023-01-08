@@ -365,10 +365,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo", "[CopyPasteTest]")
 
   CHECK(document->canUndoCommand());
   document->undoCommand();
-  /* EXPECTED:
   CHECK(defaultLayer.childCount() == 0u);
-  ACTUAL: */
-  CHECK(defaultLayer.childCount() == 1u);
   CHECK(document->selectedNodes().brushCount() == 0u);
 
   document->redoCommand();
