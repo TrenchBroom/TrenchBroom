@@ -775,8 +775,7 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
 
   for (auto* node : nodesToDetach)
   {
-    auto* nodeParent = node->parent();
-    if (nodeParent != nullptr)
+    if (auto* nodeParent = node->parent())
     {
       nodeParent->removeChild(node);
     }
@@ -814,14 +813,14 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
     }
   }
 
-  const std::vector<Model::Node*> addedNodes = addNodes(nodesToAdd);
+  const auto addedNodes = addNodes(nodesToAdd);
   if (addedNodes.empty())
+  {
     return false;
+  }
 
   deselectAll();
-
-  const auto nodesToSelect = Model::collectSelectableNodes(addedNodes, editorContext());
-  selectNodes(nodesToSelect);
+  selectNodes(Model::collectSelectableNodes(addedNodes, editorContext()));
 
   return true;
 }
