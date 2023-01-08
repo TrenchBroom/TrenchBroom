@@ -337,5 +337,44 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]
   Model::EntityNode* light = document->selectedNodes().entities().front();
   CHECK(light->parent() == group);
 }
+
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo", "[CopyPasteTest]")
+{
+  // https://github.com/TrenchBroom/TrenchBroom/issues/4174
+
+  const auto data = R"(
+{
+( -0 -0 -16 ) ( -0 -0  -0 ) ( 64 -0 -16 ) tex1 1 2 3 4 5
+( -0 -0 -16 ) ( -0 64 -16 ) ( -0 -0  -0 ) tex2 0 0 0 1 1
+( -0 -0 -16 ) ( 64 -0 -16 ) ( -0 64 -16 ) tex3 0 0 0 1 1
+( 64 64  -0 ) ( -0 64  -0 ) ( 64 64 -16 ) tex4 0 0 0 1 1
+( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) tex5 0 0 0 1 1
+( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
+})";
+
+  const auto& world = *document->world();
+
+  const auto& defaultLayer = *world.defaultLayer();
+  REQUIRE(document->selectedNodes().brushCount() == 0u);
+  REQUIRE(defaultLayer.childCount() == 0u);
+
+  REQUIRE(document->paste(data) == PasteType::Node);
+  REQUIRE(defaultLayer.childCount() == 1u);
+  REQUIRE(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
+  REQUIRE(document->selectedNodes().brushCount() == 1u);
+
+  CHECK(document->canUndoCommand());
+  document->undoCommand();
+  /* EXPECTED:
+  CHECK(defaultLayer.childCount() == 0u);
+  ACTUAL: */
+  CHECK(defaultLayer.childCount() == 1u);
+  CHECK(document->selectedNodes().brushCount() == 0u);
+
+  document->redoCommand();
+  CHECK(defaultLayer.childCount() == 1u);
+  CHECK(dynamic_cast<Model::BrushNode*>(defaultLayer.children().front()) != nullptr);
+  CHECK(document->selectedNodes().brushCount() == 1u);
+}
 } // namespace View
 } // namespace TrenchBroom
