@@ -306,6 +306,17 @@ AppPreferenceManager::AppPreferenceManager()
   , m_fileSystemWatcher{nullptr}
   , m_fileReadWriteDisabled{false}
 {
+  connect(
+    &m_saveTimer, &QTimer::timeout, this, &AppPreferenceManager::saveChangesImmediately);
+}
+
+AppPreferenceManager::~AppPreferenceManager()
+{
+  if (m_saveTimer.isActive())
+  {
+    m_saveTimer.stop();
+    saveChangesImmediately();
+  }
 }
 
 void AppPreferenceManager::initialize()
@@ -351,23 +362,31 @@ void AppPreferenceManager::saveChanges()
   }
   m_unsavedPreferences.clear();
 
-  if (m_fileReadWriteDisabled)
+  if (!m_fileReadWriteDisabled)
   {
-    return;
+    m_saveTimer.start(500);
   }
+}
 
+void AppPreferenceManager::discardChanges()
+{
+  if (m_saveTimer.isActive())
+  {
+    m_saveTimer.stop();
+    saveChangesImmediately();
+  }
+  m_unsavedPreferences.clear();
+  invalidatePreferences();
+}
+
+void AppPreferenceManager::saveChangesImmediately()
+{
   if (!writeV2SettingsToPath(m_preferencesFilePath, m_cache))
   {
     showErrorAndDisableFileReadWrite(
       tr("An error occurrend while attempting to save the preferences file:"),
       tr("ensure the directory is writable"));
   }
-}
-
-void AppPreferenceManager::discardChanges()
-{
-  m_unsavedPreferences.clear();
-  invalidatePreferences();
 }
 
 void AppPreferenceManager::markAsUnsaved(PreferenceBase& preference)
