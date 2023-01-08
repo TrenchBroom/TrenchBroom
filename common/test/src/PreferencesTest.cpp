@@ -434,7 +434,7 @@ static std::optional<PrimitiveType> maybeDeserialize(const QJsonValue& string)
 {
   const Serializer s;
   PrimitiveType result;
-  if (s.readFromJSON(string, &result))
+  if (s.readFromJSON(string, result))
   {
     return {result};
   }

@@ -50,13 +50,13 @@ class Color;
 class PreferenceSerializerV1 : public PrefSerializer
 {
 public:
-  bool readFromJSON(const QJsonValue& in, bool* out) const override;
-  bool readFromJSON(const QJsonValue& in, Color* out) const override;
-  bool readFromJSON(const QJsonValue& in, float* out) const override;
-  bool readFromJSON(const QJsonValue& in, int* out) const override;
-  bool readFromJSON(const QJsonValue& in, IO::Path* out) const override;
-  bool readFromJSON(const QJsonValue& in, QKeySequence* out) const override;
-  bool readFromJSON(const QJsonValue& in, QString* out) const override;
+  bool readFromJSON(const QJsonValue& in, bool& out) const override;
+  bool readFromJSON(const QJsonValue& in, Color& out) const override;
+  bool readFromJSON(const QJsonValue& in, float& out) const override;
+  bool readFromJSON(const QJsonValue& in, int& out) const override;
+  bool readFromJSON(const QJsonValue& in, IO::Path& out) const override;
+  bool readFromJSON(const QJsonValue& in, QKeySequence& out) const override;
+  bool readFromJSON(const QJsonValue& in, QString& out) const override;
 
   QJsonValue writeToJSON(bool in) const override;
   QJsonValue writeToJSON(const Color& in) const override;
@@ -79,10 +79,10 @@ public:
 class PreferenceSerializerV2 : public PreferenceSerializerV1
 {
 public:
-  bool readFromJSON(const QJsonValue& in, bool* out) const override;
-  bool readFromJSON(const QJsonValue& in, float* out) const override;
-  bool readFromJSON(const QJsonValue& in, int* out) const override;
-  bool readFromJSON(const QJsonValue& in, QKeySequence* out) const override;
+  bool readFromJSON(const QJsonValue& in, bool& out) const override;
+  bool readFromJSON(const QJsonValue& in, float& out) const override;
+  bool readFromJSON(const QJsonValue& in, int& out) const override;
+  bool readFromJSON(const QJsonValue& in, QKeySequence& out) const override;
 
   QJsonValue writeToJSON(bool in) const override;
   QJsonValue writeToJSON(float in) const override;
@@ -317,7 +317,7 @@ using PreferencesResult = kdl::result<
   PreferenceErrors::FileReadError>;
 
 // V1 settings
-std::map<IO::Path, QJsonValue> parseINI(QTextStream* iniStream);
+std::map<IO::Path, QJsonValue> parseINI(QTextStream& iniStream);
 std::map<IO::Path, QJsonValue> getINISettingsV1(const QString& path);
 std::map<IO::Path, QJsonValue> readV1Settings();
 std::map<IO::Path, QJsonValue> migrateV1ToV2(

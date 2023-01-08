@@ -40,13 +40,13 @@ class PrefSerializer
 public:
   virtual ~PrefSerializer();
 
-  virtual bool readFromJSON(const QJsonValue& in, bool* out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, Color* out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, float* out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, int* out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, IO::Path* out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, QKeySequence* out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, QString* out) const = 0;
+  virtual bool readFromJSON(const QJsonValue& in, bool& out) const = 0;
+  virtual bool readFromJSON(const QJsonValue& in, Color& out) const = 0;
+  virtual bool readFromJSON(const QJsonValue& in, float& out) const = 0;
+  virtual bool readFromJSON(const QJsonValue& in, int& out) const = 0;
+  virtual bool readFromJSON(const QJsonValue& in, IO::Path& out) const = 0;
+  virtual bool readFromJSON(const QJsonValue& in, QKeySequence& out) const = 0;
+  virtual bool readFromJSON(const QJsonValue& in, QString& out) const = 0;
 
   virtual QJsonValue writeToJSON(bool in) const = 0;
   virtual QJsonValue writeToJSON(const Color& in) const = 0;
@@ -61,8 +61,8 @@ template <class T>
 std::optional<QJsonValue> migratePreference(
   const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input)
 {
-  T result;
-  if (!from.readFromJSON(input, &result))
+  auto result = T{};
+  if (!from.readFromJSON(input, result))
   {
     return {};
   }
@@ -73,15 +73,16 @@ std::optional<QJsonValue> migratePreference(
 class PreferenceBase
 {
 public:
-  PreferenceBase() = default;
+  PreferenceBase();
   virtual ~PreferenceBase();
 
-  PreferenceBase(const PreferenceBase& other) = default;
-  PreferenceBase(PreferenceBase&& other) noexcept = default;
-  PreferenceBase& operator=(const PreferenceBase& other) = default;
-  PreferenceBase& operator=(PreferenceBase&& other) = default;
+  PreferenceBase(const PreferenceBase& other);
+  PreferenceBase(PreferenceBase&& other) noexcept;
+  PreferenceBase& operator=(const PreferenceBase& other);
+  PreferenceBase& operator=(PreferenceBase&& other);
 
-  bool operator==(const PreferenceBase& other) const { return this == &other; }
+  friend bool operator==(const PreferenceBase& lhs, const PreferenceBase& rhs);
+  friend bool operator!=(const PreferenceBase& lhs, const PreferenceBase& rhs);
 
   virtual const IO::Path& path() const = 0;
 
@@ -116,8 +117,8 @@ private:
   IO::Path m_pathPattern;
 
 public:
-  explicit DynamicPreferencePattern(const IO::Path& pathPattern)
-    : m_pathPattern(pathPattern)
+  explicit DynamicPreferencePattern(IO::Path pathPattern)
+    : m_pathPattern{std::move(pathPattern)}
   {
   }
 
@@ -147,18 +148,19 @@ private:
   bool m_readOnly;
 
 public:
-  Preference(const IO::Path& path, const T& defaultValue, const bool readOnly = false)
-    : m_path(path)
-    , m_defaultValue(defaultValue)
-    , m_value(m_defaultValue)
-    , m_valid(false)
-    , m_readOnly(readOnly)
+  Preference(IO::Path path, const T& defaultValue, const bool readOnly = false)
+    : m_path{std::move(path)}
+    , m_defaultValue{defaultValue}
+    , m_value{m_defaultValue}
+    , m_valid{false}
+    , m_readOnly{readOnly}
   {
   }
 
   Preference(const Preference& other) = default;
-  Preference(Preference&& other) =
-    default; // cannot be noexcept because it will call QKeySequence's copy constructor
+
+  // cannot be noexcept because it will call QKeySequence's copy constructor
+  Preference(Preference&& other) = default;
 
   Preference& operator=(const Preference& other) = default;
   Preference& operator=(Preference&& other) = default;
@@ -196,13 +198,13 @@ public: // PreferenceManager private
 
   bool loadFromJSON(const PrefSerializer& format, const QJsonValue& value) override
   {
-    T res;
-    bool ok = format.readFromJSON(value, &res);
-    if (ok)
+    auto result = T{};
+    if (format.readFromJSON(value, result))
     {
-      m_value = res;
+      m_value = result;
+      return true;
     }
-    return ok;
+    return false;
   }
 
   QJsonValue writeToJSON(const PrefSerializer& format) const override

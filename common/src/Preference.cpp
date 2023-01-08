@@ -21,9 +21,26 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace TrenchBroom
 {
-PrefSerializer::~PrefSerializer() {}
+PrefSerializer::~PrefSerializer() = default;
 
-PreferenceBase::~PreferenceBase() {}
+PreferenceBase::PreferenceBase() = default;
 
-DynamicPreferencePatternBase::~DynamicPreferencePatternBase() {}
+PreferenceBase::PreferenceBase(const PreferenceBase& other) = default;
+PreferenceBase::PreferenceBase(PreferenceBase&& other) noexcept = default;
+PreferenceBase& PreferenceBase::operator=(const PreferenceBase& other) = default;
+PreferenceBase& PreferenceBase::operator=(PreferenceBase&& other) = default;
+
+bool operator==(const PreferenceBase& lhs, const PreferenceBase& rhs)
+{
+  return &lhs == &rhs;
+}
+
+bool operator!=(const PreferenceBase& lhs, const PreferenceBase& rhs)
+{
+  return !(lhs == rhs);
+}
+
+PreferenceBase::~PreferenceBase() = default;
+
+DynamicPreferencePatternBase::~DynamicPreferencePatternBase() = default;
 } // namespace TrenchBroom
