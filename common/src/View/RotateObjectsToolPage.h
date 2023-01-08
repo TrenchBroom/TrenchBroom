@@ -29,8 +29,9 @@
 
 #include <QWidget>
 
-class QAbstractButton;
+class QCheckBox;
 class QComboBox;
+class QPushButton;
 
 namespace TrenchBroom
 {
@@ -49,11 +50,12 @@ private:
   RotateObjectsTool& m_tool;
 
   QComboBox* m_recentlyUsedCentersList;
-  QAbstractButton* m_resetCenterButton;
+  QPushButton* m_resetCenterButton;
 
   SpinControl* m_angle;
   QComboBox* m_axis;
-  QAbstractButton* m_rotateButton;
+  QPushButton* m_rotateButton;
+  QCheckBox* m_updateAnglePropertyAfterTransformCheckBox;
 
   NotifierConnection m_notifierConnection;
 
@@ -74,11 +76,13 @@ private:
   void updateGui();
 
   void selectionDidChange(const Selection& selection);
+  void documentWasNewedOrLoaded(MapDocument* document);
 
   void centerChanged();
   void resetCenterClicked();
   void angleChanged(double value);
   void rotateClicked();
+  void updateAnglePropertyAfterTransformClicked();
   vm::vec3 getAxis() const;
 };
 } // namespace View

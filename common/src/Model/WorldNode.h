@@ -41,8 +41,6 @@ class octree;
 namespace Model
 {
 class EntityNodeIndex;
-enum class BrushError;
-class BrushFace;
 class IssueQuickFix;
 enum class MapFormat;
 class PickResult;
@@ -72,6 +70,9 @@ public:
     std::initializer_list<EntityProperty> properties,
     MapFormat mapFormat);
   ~WorldNode() override;
+
+  using Node::entityPropertyConfig;
+  EntityPropertyConfig& entityPropertyConfig();
 
   MapFormat mapFormat() const;
 

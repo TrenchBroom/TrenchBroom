@@ -246,8 +246,10 @@ Model::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(
   const EL::Value& value) const
 {
   if (value == EL::Value::Null)
+  {
     return Model::FaceAttribsConfig{
       {}, {}, Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName}};
+  }
 
   expectStructure(
     value,
@@ -261,7 +263,7 @@ Model::FaceAttribsConfig GameConfigParser::parseFaceAttribsConfig(
   auto defaults = parseFaceAttribsDefaults(value["defaults"], surfaceFlags, contentFlags);
 
   return Model::FaceAttribsConfig{
-    std::move(surfaceFlags), std::move(contentFlags), std::move(defaults)};
+    std::move(surfaceFlags), std::move(contentFlags), defaults};
 }
 
 Model::FlagsConfig GameConfigParser::parseFlagsConfig(const EL::Value& value) const

@@ -76,6 +76,11 @@ WorldNode::WorldNode(
 
 WorldNode::~WorldNode() = default;
 
+EntityPropertyConfig& WorldNode::entityPropertyConfig()
+{
+  return m_entityPropertyConfig;
+}
+
 MapFormat WorldNode::mapFormat() const
 {
   return m_mapFormat;
@@ -100,7 +105,7 @@ const LayerNode* WorldNode::defaultLayer() const
 
 std::vector<LayerNode*> WorldNode::allLayers()
 {
-  std::vector<LayerNode*> layers;
+  auto layers = std::vector<LayerNode*>{};
   visitChildren(kdl::overload(
     [](WorldNode*) {},
     [&](LayerNode* layer) { layers.push_back(layer); },
@@ -119,11 +124,10 @@ std::vector<const LayerNode*> WorldNode::allLayers() const
 
 std::vector<LayerNode*> WorldNode::customLayers()
 {
-  std::vector<LayerNode*> layers;
+  auto layers = std::vector<LayerNode*>{};
 
-  const std::vector<Node*>& children = Node::children();
-  for (auto it = std::next(std::begin(children)), end = std::end(children); it != end;
-       ++it)
+  const auto& children = Node::children();
+  for (auto it = std::next(std::begin(children)); it != std::end(children); ++it)
   {
     (*it)->accept(kdl::overload(
       [](WorldNode*) {},
@@ -145,7 +149,7 @@ std::vector<const LayerNode*> WorldNode::customLayers() const
 
 std::vector<LayerNode*> WorldNode::allLayersUserSorted()
 {
-  std::vector<LayerNode*> result = allLayers();
+  auto result = allLayers();
   LayerNode::sortLayers(result);
   return result;
 }
@@ -158,7 +162,7 @@ std::vector<const LayerNode*> WorldNode::allLayersUserSorted() const
 
 std::vector<LayerNode*> WorldNode::customLayersUserSorted()
 {
-  std::vector<LayerNode*> result = customLayers();
+  auto result = customLayers();
   LayerNode::sortLayers(result);
   return result;
 }
@@ -172,7 +176,7 @@ std::vector<const LayerNode*> WorldNode::customLayersUserSorted() const
 
 void WorldNode::createDefaultLayer()
 {
-  m_defaultLayer = new LayerNode(Layer("Default Layer", true));
+  m_defaultLayer = new LayerNode{Layer{"Default Layer", true(defaultLayer)}};
   addChild(m_defaultLayer);
   assert(m_defaultLayer->layer().sortIndex() == Layer::defaultLayerSortIndex());
 }
@@ -279,14 +283,15 @@ FloatType WorldNode::doGetProjectedArea(const vm::axis::type) const
 
 Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const
 {
-  auto* worldNode = new WorldNode{entityPropertyConfig(), entity(), mapFormat()};
-  cloneAttributes(worldNode);
-  return worldNode;
+  auto worldNode =
+    std::make_unique<WorldNode>(entityPropertyConfig(), entity(), mapFormat());
+  cloneAttributes(worldNode.get());
+  return worldNode.release();
 }
 
 Node* WorldNode::doCloneRecursively(const vm::bbox3& worldBounds) const
 {
-  const std::vector<Node*>& myChildren = children();
+  const auto& myChildren = children();
   assert(myChildren[0] == m_defaultLayer);
 
   auto* worldNode = static_cast<WorldNode*>(clone(worldBounds));
@@ -299,7 +304,7 @@ Node* WorldNode::doCloneRecursively(const vm::bbox3& worldBounds) const
     childClones.reserve(myChildren.size() - 1);
     cloneRecursively(
       worldBounds,
-      std::begin(myChildren) + 1,
+      std::next(std::begin(myChildren)),
       std::end(myChildren),
       std::back_inserter(childClones));
     worldNode->addChildren(childClones);
@@ -402,7 +407,7 @@ void WorldNode::doDescendantWillBeRemoved(Node* node, const size_t /* depth */)
         auto str = std::stringstream();
         str << "Node not found with bounds " << nodeToRemove->physicalBounds() << ": "
             << nodeToRemove;
-        throw NodeTreeException(str.str());
+        throw NodeTreeException{str.str()};
       }
     };
 
