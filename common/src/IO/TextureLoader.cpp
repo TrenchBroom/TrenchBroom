@@ -23,6 +23,7 @@
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
 #include "Ensure.h"
+#include "IO/DdsTextureReader.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/HlMipTextureReader.h"
@@ -97,6 +98,10 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   else if (textureConfig.format.format == "m8")
   {
     return std::make_unique<M8TextureReader>(nameStrategy, gameFS, logger);
+  }
+  else if (textureConfig.format.format == "dds")
+  {
+    return std::make_unique<DdsTextureReader>(nameStrategy, gameFS, logger);
   }
   else
   {
