@@ -31,6 +31,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QLockFile>
 #include <QMessageBox>
 #include <QSaveFile>
 #if defined(Q_OS_WIN)
@@ -343,13 +344,20 @@ void AppPreferenceManager::initialize()
           });
       }
     })
-    .handle_errors([&](const PreferenceErrors::FileAccessError&) {
-      // This happens e.g. if you don't have read permissions for
-      // m_preferencesFilePath
-      showErrorAndDisableFileReadWrite(
-        tr("A file IO error occurred while attempting to write the preference file:"),
-        tr("ensure the file is writable"));
-    });
+    .handle_errors(kdl::overload(
+      [&](const PreferenceErrors::FileAccessError&) {
+        // This happens e.g. if you don't have read permissions for
+        // m_preferencesFilePath
+        showErrorAndDisableFileReadWrite(
+          tr("A file IO error occurred while attempting to write the preference file:"),
+          tr("ensure the file is writable"));
+      },
+      [&](const PreferenceErrors::LockFileError&) {
+        // This happens if the lock file couldn't be acquired
+        showErrorAndDisableFileReadWrite(
+          tr("Could not acquire lock file for reading the preference file:"),
+          tr("check for stale lock files"));
+      }));
 }
 
 bool AppPreferenceManager::saveInstantly() const
@@ -391,13 +399,20 @@ void AppPreferenceManager::discardChanges()
 void AppPreferenceManager::saveChangesImmediately()
 {
   writeV2SettingsToPath(m_preferencesFilePath, m_cache)
-    .handle_errors([&](const PreferenceErrors::FileAccessError&) {
-      // This happens e.g. if you don't have read permissions for
-      // m_preferencesFilePath
-      showErrorAndDisableFileReadWrite(
-        tr("A file IO error occurred while attempting to write the preference file:"),
-        tr("ensure the file is writable"));
-    });
+    .handle_errors(kdl::overload(
+      [&](const PreferenceErrors::FileAccessError&) {
+        // This happens e.g. if you don't have read permissions for
+        // m_preferencesFilePath
+        showErrorAndDisableFileReadWrite(
+          tr("A file IO error occurred while attempting to write the preference file:"),
+          tr("ensure the file is writable"));
+      },
+      [&](const PreferenceErrors::LockFileError&) {
+        // This happens if the lock file couldn't be acquired
+        showErrorAndDisableFileReadWrite(
+          tr("Could not acquire lock file for reading the preference file:"),
+          tr("check for stale lock files"));
+      }));
 }
 
 void AppPreferenceManager::markAsUnsaved(PreferenceBase& preference)
@@ -487,6 +502,12 @@ void AppPreferenceManager::loadCacheFromDisk()
         showErrorAndDisableFileReadWrite(
           tr("A file IO error occurred while attempting to read the preference file:"),
           tr("ensure the file is readable"));
+      },
+      [&](const PreferenceErrors::LockFileError&) {
+        // This happens if the lock file couldn't be acquired
+        showErrorAndDisableFileReadWrite(
+          tr("Could not acquire lock file for reading the preference file:"),
+          tr("check for stale lock files"));
       },
       [&](const PreferenceErrors::JsonParseError&) {
         showErrorAndDisableFileReadWrite(
@@ -836,8 +857,20 @@ QString v2SettingsPath()
     IO::SystemPaths::userDataDirectory() + IO::Path{"Preferences.json"});
 }
 
+static QLockFile getLockFile(const QString& settingsFilePath)
+{
+  const auto lockFilePath = settingsFilePath + ".lck";
+  return QLockFile{lockFilePath};
+}
+
 ReadPreferencesResult readV2SettingsFromPath(const QString& path)
 {
+  auto lockFile = getLockFile(path);
+  if (!lockFile.lock())
+  {
+    return PreferenceErrors::LockFileError{};
+  }
+
   auto file = QFile{path};
   if (!file.exists())
   {
@@ -848,7 +881,12 @@ ReadPreferencesResult readV2SettingsFromPath(const QString& path)
     return PreferenceErrors::FileAccessError{};
   }
 
-  return parseV2SettingsFromJSON(file.readAll());
+  const auto contents = file.readAll();
+
+  file.close();
+  lockFile.unlock();
+
+  return parseV2SettingsFromJSON(contents);
 }
 
 WritePreferencesResult writeV2SettingsToPath(
@@ -860,6 +898,12 @@ WritePreferencesResult writeV2SettingsToPath(
   if (!QDir().mkpath(settingsDir))
   {
     return PreferenceErrors::FileAccessError{};
+  }
+
+  auto lockFile = getLockFile(path);
+  if (!lockFile.lock())
+  {
+    return PreferenceErrors::LockFileError{};
   }
 
   auto saveFile = QSaveFile{path};

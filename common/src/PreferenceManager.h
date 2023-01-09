@@ -315,15 +315,20 @@ struct JsonParseError
 struct FileAccessError
 {
 };
+struct LockFileError
+{
+};
 } // namespace PreferenceErrors
 
 using ReadPreferencesResult = kdl::result<
   std::map<IO::Path, QJsonValue>, // Success case
   PreferenceErrors::NoFilePresent,
   PreferenceErrors::JsonParseError,
-  PreferenceErrors::FileAccessError>;
+  PreferenceErrors::FileAccessError,
+  PreferenceErrors::LockFileError>;
 
-using WritePreferencesResult = kdl::result<void, PreferenceErrors::FileAccessError>;
+using WritePreferencesResult =
+  kdl::result<void, PreferenceErrors::FileAccessError, PreferenceErrors::LockFileError>;
 
 // V1 settings
 std::map<IO::Path, QJsonValue> parseINI(QTextStream& iniStream);
