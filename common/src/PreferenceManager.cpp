@@ -343,13 +343,20 @@ void AppPreferenceManager::initialize()
         this,
         &AppPreferenceManager::saveChangesImmediately);
     })
-    .handle_errors([&](const PreferenceErrors::FileAccessError&) {
-      // This happens e.g. if you don't have read permissions for
-      // m_preferencesFilePath
-      showErrorAndDisableFileReadWrite(
-        tr("A file IO error occurred while attempting to write the preference file:"),
-        tr("ensure the file is writable"));
-    });
+    .handle_errors(kdl::overload(
+      [&](const PreferenceErrors::FileAccessError&) {
+        // This happens e.g. if you don't have read permissions for
+        // m_preferencesFilePath
+        showErrorAndDisableFileReadWrite(
+          tr("A file IO error occurred while attempting to write the preference file:"),
+          tr("ensure the file is writable"));
+      },
+      [&](const PreferenceErrors::LockFileError&) {
+        // This happens if the lock file couldn't be acquired
+        showErrorAndDisableFileReadWrite(
+          tr("Could not acquire lock file for reading the preference file:"),
+          tr("check for stale lock files"));
+      }));
 }
 
 bool AppPreferenceManager::saveInstantly() const
@@ -391,13 +398,20 @@ void AppPreferenceManager::discardChanges()
 void AppPreferenceManager::saveChangesImmediately()
 {
   writeV2SettingsToPath(m_preferencesFilePath, m_cache)
-    .handle_errors([&](const PreferenceErrors::FileAccessError&) {
-      // This happens e.g. if you don't have read permissions for
-      // m_preferencesFilePath
-      showErrorAndDisableFileReadWrite(
-        tr("A file IO error occurred while attempting to write the preference file:"),
-        tr("ensure the file is writable"));
-    });
+    .handle_errors(kdl::overload(
+      [&](const PreferenceErrors::FileAccessError&) {
+        // This happens e.g. if you don't have read permissions for
+        // m_preferencesFilePath
+        showErrorAndDisableFileReadWrite(
+          tr("A file IO error occurred while attempting to write the preference file:"),
+          tr("ensure the file is writable"));
+      },
+      [&](const PreferenceErrors::LockFileError&) {
+        // This happens if the lock file couldn't be acquired
+        showErrorAndDisableFileReadWrite(
+          tr("Could not acquire lock file for reading the preference file:"),
+          tr("check for stale lock files"));
+      }));
 }
 
 void AppPreferenceManager::markAsUnsaved(PreferenceBase& preference)
@@ -487,6 +501,12 @@ void AppPreferenceManager::loadCacheFromDisk()
         showErrorAndDisableFileReadWrite(
           tr("A file IO error occurred while attempting to read the preference file:"),
           tr("ensure the file is readable"));
+      },
+      [&](const PreferenceErrors::LockFileError&) {
+        // This happens if the lock file couldn't be acquired
+        showErrorAndDisableFileReadWrite(
+          tr("Could not acquire lock file for reading the preference file:"),
+          tr("check for stale lock files"));
       },
       [&](const PreferenceErrors::JsonParseError&) {
         showErrorAndDisableFileReadWrite(
