@@ -72,6 +72,27 @@ vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t l
     std::max(size_t(1), width >> level), std::max(size_t(1), height >> level));
 }
 
+bool isCompressedFormat(const GLenum format)
+{
+  return (
+    format >= GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
+    && format <= GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+}
+
+size_t blockSizeForFormat(const GLenum format)
+{
+  switch (format)
+  {
+  case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+    return 8U;
+  case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+  case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+    return 16U;
+  }
+  ensure(false, "unknown compressed format");
+  return 0U;
+}
+
 size_t bytesPerPixelForFormat(const GLenum format)
 {
   switch (format)
@@ -94,13 +115,17 @@ void setMipBufferSize(
   const size_t height,
   const GLenum format)
 {
-  const size_t bytesPerPixel = bytesPerPixelForFormat(format);
+  const bool compressed = isCompressedFormat(format);
+  const size_t bytesPerPixel = compressed ? 0U : bytesPerPixelForFormat(format);
+  const size_t blockSize = compressed ? blockSizeForFormat(format) : 0U;
 
   buffers.resize(mipLevels);
   for (size_t level = 0u; level < buffers.size(); ++level)
   {
     const auto mipSize = sizeAtMipLevel(width, height, level);
-    const auto numBytes = bytesPerPixel * mipSize.x() * mipSize.y();
+    const auto numBytes = compressed ? (
+                            blockSize * std::max(size_t(1), mipSize.x() / 4) * std::max(size_t(1), mipSize.y() / 4))
+                                     : (bytesPerPixel * mipSize.x() * mipSize.y());
     buffers[level] = TextureBuffer(numBytes);
   }
 }

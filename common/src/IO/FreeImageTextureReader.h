@@ -21,6 +21,7 @@
 
 #include "Color.h"
 #include "IO/TextureReader.h"
+#include "Assets/TextureBuffer.h"
 #include "Renderer/GL.h"
 
 #include <cstdint>
@@ -39,6 +40,7 @@ namespace IO
 {
 class File;
 class FileSystem;
+class Reader;
 
 class FreeImageTextureReader : public TextureReader
 {
@@ -53,6 +55,12 @@ public:
 
 private:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
+  Assets::Texture readDdsTexture(std::shared_ptr<File> file) const;
+  static void readDdsMips(
+    const size_t width,
+    const size_t height,
+    Reader& reader,
+    Assets::TextureBufferList& buffers);
 };
 } // namespace IO
 } // namespace TrenchBroom

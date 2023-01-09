@@ -48,6 +48,8 @@ public:
 using TextureBufferList = std::vector<TextureBuffer>;
 
 vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
+bool isCompressedFormat(const GLenum format);
+size_t blockSizeForFormat(const GLenum format);
 size_t bytesPerPixelForFormat(GLenum format);
 void setMipBufferSize(
   TextureBufferList& buffers,

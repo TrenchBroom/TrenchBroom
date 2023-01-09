@@ -90,12 +90,17 @@ Texture::Texture(
   assert(m_width > 0);
   assert(m_height > 0);
 
-  [[maybe_unused]] const auto bytesPerPixel = bytesPerPixelForFormat(format);
+  const auto compressed = isCompressedFormat(format);
+  [[maybe_unused]] const auto bytesPerPixel = compressed ? 0U : bytesPerPixelForFormat(format);
+  [[maybe_unused]] const auto blockSize = compressed ? blockSizeForFormat(format) : 0U;
 
   for (size_t level = 0; level < m_buffers.size(); ++level)
   {
-    [[maybe_unused]] const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
-    [[maybe_unused]] const auto numBytes = bytesPerPixel * mipSize.x() * mipSize.y();
+    const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
+    const auto numBytes = compressed ? (
+                            blockSize * std::max(size_t(1), mipSize.x() / 4)
+                            * std::max(size_t(1), mipSize.y() / 4))
+                                     : (bytesPerPixel * mipSize.x() * mipSize.y());
     assert(m_buffers[level].size() >= numBytes);
   }
 }
@@ -303,6 +308,8 @@ void Texture::prepare(const GLuint textureId, const int minFilter, const int mag
 
   if (!m_buffers.empty())
   {
+    const auto compressed = isCompressedFormat(m_format);
+
     glAssert(glPixelStorei(GL_UNPACK_SWAP_BYTES, false));
     glAssert(glPixelStorei(GL_UNPACK_LSB_FIRST, false));
     glAssert(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
@@ -343,16 +350,33 @@ void Texture::prepare(const GLuint textureId, const int minFilter, const int mag
       const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
 
       const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].data());
-      glAssert(glTexImage2D(
-        GL_TEXTURE_2D,
-        static_cast<GLint>(j),
-        GL_RGBA,
-        static_cast<GLsizei>(mipSize.x()),
-        static_cast<GLsizei>(mipSize.y()),
-        0,
-        m_format,
-        GL_UNSIGNED_BYTE,
-        data));
+      if (compressed)
+      {
+        const GLsizei dataSize = static_cast<GLsizei>(m_buffers[j].size());
+
+        glAssert(glCompressedTexImage2D(
+          GL_TEXTURE_2D,
+          static_cast<GLint>(j),
+          m_format,
+          static_cast<GLsizei>(mipSize.x()),
+          static_cast<GLsizei>(mipSize.y()),
+          0,
+          dataSize,
+          data));
+      }
+      else
+      {
+        glAssert(glTexImage2D(
+          GL_TEXTURE_2D,
+          static_cast<GLint>(j),
+          GL_RGBA,
+          static_cast<GLsizei>(mipSize.x()),
+          static_cast<GLsizei>(mipSize.y()),
+          0,
+          m_format,
+          GL_UNSIGNED_BYTE,
+          data));
+      }
     }
 
     m_buffers.clear();
