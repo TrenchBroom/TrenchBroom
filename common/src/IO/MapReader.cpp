@@ -849,8 +849,8 @@ static NodeToParentMap buildNodeToParentMap(
  * group. If such a node belongs to a custom layer or a group, the ID of the containing
  * layer or group is stored in the entity properties of the entity info from which the
  * node was created. Since the entity properties of these nodes are discarded when the
- * node is created, we record this information in a separate map before creating we create
- * nodes. We later use it to find the parent layer or group of a group or entity node.
+ * node is created, we record this information in a separate map before creating nodes. We
+ * later use it to find the parent layer or group of a group or entity node.
  *
  * Nodes for which the parent node is not known (e.g. when parsing only brushes) are added
  * to a default parent, which is returned from the `onWorldNode` callback.
