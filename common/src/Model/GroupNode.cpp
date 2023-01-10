@@ -485,12 +485,58 @@ Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const
   return groupNode.release();
 }
 
+/** Check whether the given parent node or any of its ancestors and the given group node
+ *  or any of its descendants have the same linked group id.
+ */
+static bool checkRecursiveLinkedGroups(
+  const Node& parentNode, const GroupNode& groupNodeToAdd)
+{
+  const auto ancestorLinkedGroupIds = [&]() {
+    auto result = std::vector<std::string>{};
+    const auto* node = &parentNode;
+    while (node)
+    {
+      const auto* groupNode = dynamic_cast<const Model::GroupNode*>(node);
+      const auto linkedGroupId =
+        groupNode ? groupNode->group().linkedGroupId() : std::nullopt;
+      if (linkedGroupId)
+      {
+        result.push_back(*linkedGroupId);
+      }
+      node = node->parent();
+    }
+    return kdl::vec_sort_and_remove_duplicates(std::move(result));
+  }();
+
+  const auto linkedGroupIdsToAdd = [&]() {
+    auto result = std::vector<std::string>{};
+    groupNodeToAdd.accept(kdl::overload(
+      [](const WorldNode*) {},
+      [](const LayerNode*) {},
+      [&](auto&& thisLambda, const GroupNode* groupNode) {
+        if (const auto linkedGroupId = groupNode->group().linkedGroupId())
+        {
+          result.push_back(*linkedGroupId);
+        }
+        Node::visitAll(groupNode->children(), thisLambda);
+      },
+      [](const EntityNode*) {},
+      [](const BrushNode*) {},
+      [](const PatchNode*) {}));
+    return kdl::vec_sort_and_remove_duplicates(std::move(result));
+  }();
+
+  return kdl::set_has_shared_element(ancestorLinkedGroupIds, linkedGroupIdsToAdd);
+}
+
 bool GroupNode::doCanAddChild(const Node* child) const
 {
   return child->accept(kdl::overload(
     [](const WorldNode*) { return false; },
     [](const LayerNode*) { return false; },
-    [](const GroupNode*) { return true; },
+    [&](const GroupNode* groupNode) {
+      return !checkRecursiveLinkedGroups(*this, *groupNode);
+    },
     [](const EntityNode*) { return true; },
     [](const BrushNode*) { return true; },
     [](const PatchNode*) { return true; }));

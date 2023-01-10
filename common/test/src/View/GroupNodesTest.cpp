@@ -529,6 +529,42 @@ TEST_CASE_METHOD(
   CHECK(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
 }
 
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.recursiveLinkedGroups")
+{
+  auto* brushNode = createBrushNode();
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
+  document->selectNodes({brushNode});
+
+  auto* groupNode = document->groupSelection("test");
+  REQUIRE(groupNode != nullptr);
+
+  document->deselectAll();
+  document->selectNodes({groupNode});
+  auto* linkedGroupNode = document->createLinkedDuplicate();
+  document->deselectAll();
+
+  REQUIRE(linkedGroupNode != nullptr);
+  REQUIRE(groupNode->group().linkedGroupId() != std::nullopt);
+  REQUIRE(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
+
+  SECTION("Adding a linked group to its linked sibling does nothing")
+  {
+    CHECK_FALSE(document->reparentNodes({{groupNode, {linkedGroupNode}}}));
+  }
+
+  SECTION(
+    "Adding a group containing a nested linked sibling to a linked group does nothing")
+  {
+    document->selectNodes({linkedGroupNode});
+
+    auto* outerGroupNode = document->groupSelection("outer");
+    REQUIRE(outerGroupNode != nullptr);
+
+    document->deselectAll();
+    CHECK_FALSE(document->reparentNodes({{groupNode, {outerGroupNode}}}));
+  }
+}
+
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups")
 {
   auto* entityNode = new Model::EntityNode{Model::Entity{}};

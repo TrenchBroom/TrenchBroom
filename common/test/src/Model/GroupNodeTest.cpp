@@ -131,6 +131,18 @@ TEST_CASE("GroupNodeTest.canAddChild")
   CHECK(groupNode.canAddChild(&entityNode));
   CHECK(groupNode.canAddChild(&brushNode));
   CHECK(groupNode.canAddChild(&patchNode));
+
+  SECTION("Recursive linked groups")
+  {
+    auto linkedGroupNode = std::make_unique<GroupNode>(Group{"group"});
+    setLinkedGroupId(groupNode, "linked_group_id");
+    setLinkedGroupId(*linkedGroupNode, *groupNode.group().linkedGroupId());
+    CHECK_FALSE(groupNode.canAddChild(linkedGroupNode.get()));
+
+    auto outerGroupNode = GroupNode{Group{"outer_group"}};
+    outerGroupNode.addChild(linkedGroupNode.release());
+    CHECK_FALSE(groupNode.canAddChild(&outerGroupNode));
+  }
 }
 
 TEST_CASE("GroupNodeTest.canRemoveChild")
