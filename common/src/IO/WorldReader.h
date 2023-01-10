@@ -43,7 +43,7 @@ class WorldReaderException : public Exception
 {
 public:
   WorldReaderException();
-  WorldReaderException(
+  explicit WorldReaderException(
     const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions);
 };
 

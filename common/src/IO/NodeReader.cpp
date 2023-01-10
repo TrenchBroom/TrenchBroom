@@ -42,7 +42,7 @@ NodeReader::NodeReader(
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
   const Model::EntityPropertyConfig& entityPropertyConfig)
-  : MapReader(str, sourceMapFormat, targetMapFormat, entityPropertyConfig)
+  : MapReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig}
 {
 }
 
@@ -91,7 +91,7 @@ std::vector<Model::Node*> NodeReader::readAsFormat(
   ParserStatus& status)
 {
   {
-    NodeReader reader(str, sourceMapFormat, targetMapFormat, entityPropertyConfig);
+    auto reader = NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
     try
     {
       reader.readEntities(worldBounds, status);
@@ -109,7 +109,7 @@ std::vector<Model::Node*> NodeReader::readAsFormat(
   }
 
   {
-    NodeReader reader(str, sourceMapFormat, targetMapFormat, entityPropertyConfig);
+    auto reader = NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
     try
     {
       reader.readBrushes(worldBounds, status);

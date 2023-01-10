@@ -126,7 +126,7 @@ protected:
     std::string_view str,
     Model::MapFormat sourceMapFormat,
     Model::MapFormat targetMapFormat,
-    const Model::EntityPropertyConfig& entityPropertyConfig);
+    Model::EntityPropertyConfig entityPropertyConfig);
 
   /**
    * Attempts to parse as one or more entities.

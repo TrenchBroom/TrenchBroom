@@ -54,10 +54,8 @@ static std::string formatParserExceptions(
   return result.str();
 }
 
-WorldReaderException::WorldReaderException()
-  : Exception()
-{
-}
+WorldReaderException::WorldReaderException() = default;
+
 WorldReaderException::WorldReaderException(
   const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions)
   : Exception{formatParserExceptions(parserExceptions)}
