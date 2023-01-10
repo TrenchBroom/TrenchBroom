@@ -1740,6 +1740,137 @@ TEST_CASE("WorldReaderTest.parseGroupWithUnnecessaryTransformation")
   CHECK(groupNode->group().transformation() == vm::mat4x4d{});
 }
 
+TEST_CASE("WorldReaderTest.parseRecursiveLinkedGroups")
+{
+  const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "1"
+"_tb_linked_group_id" "abcd"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 2"
+"_tb_id" "2"
+"_tb_group" "1"
+"_tb_linked_group_id" "abcd"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 3"
+"_tb_id" "3"
+"_tb_linked_group_id" "xyz"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 4"
+"_tb_id" "4"
+"_tb_group" "3"
+"_tb_linked_group_id" "xyz"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 5"
+"_tb_id" "5"
+"_tb_linked_group_id" "xyz"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 6"
+"_tb_id" "6"
+"_tb_linked_group_id" "fgh"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 7"
+"_tb_id" "7"
+"_tb_group" "6"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 8"
+"_tb_id" "8"
+"_tb_group" "7"
+"_tb_linked_group_id" "fgh"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+            )";
+
+  const auto worldBounds = vm::bbox3{8192.0};
+
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+
+  auto world = reader.read(worldBounds, status);
+  REQUIRE(world != nullptr);
+  CHECK(world->defaultLayer()->childCount() == 4u);
+
+  const auto* groupNode1 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[0]);
+
+  CHECK(groupNode1->childCount() == 1u);
+  const auto* groupNode2 =
+    dynamic_cast<Model::GroupNode*>(groupNode1->children().front());
+
+  const auto* groupNode3 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[1]);
+
+  CHECK(groupNode3->childCount() == 1u);
+  const auto* groupNode4 =
+    dynamic_cast<Model::GroupNode*>(groupNode3->children().front());
+
+  const auto* groupNode5 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[2]);
+
+  const auto* groupNode6 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[3]);
+
+  CHECK(groupNode6->childCount() == 1u);
+  const auto* groupNode7 =
+    dynamic_cast<Model::GroupNode*>(groupNode6->children().front());
+
+  CHECK(groupNode7->childCount() == 1u);
+  const auto* groupNode8 =
+    dynamic_cast<Model::GroupNode*>(groupNode7->children().front());
+
+  CHECK(groupNode1->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode1->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode2->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode2->group().transformation() == vm::mat4x4::identity());
+
+  CHECK(groupNode3->group().linkedGroupId() != std::nullopt);
+  CHECK(groupNode3->group().transformation() != vm::mat4x4::identity());
+  CHECK(groupNode4->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode4->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode5->group().linkedGroupId() == groupNode3->group().linkedGroupId());
+  CHECK(groupNode5->group().transformation() != vm::mat4x4::identity());
+
+  CHECK(groupNode6->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode6->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode7->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode7->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode8->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode8->group().transformation() == vm::mat4x4::identity());
+}
+
 TEST_CASE("WorldReaderTest.parseProtectedEntityProperties")
 {
   const auto data = R"(

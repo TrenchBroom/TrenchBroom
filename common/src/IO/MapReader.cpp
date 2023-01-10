@@ -793,6 +793,52 @@ static void logValidationIssues(
   }
 }
 
+static bool isRecursiveLinkedGroup(
+  const std::string& nestedLinkedGroupId, Model::Node* parentNode)
+{
+  if (auto* parentGroupNode = dynamic_cast<Model::GroupNode*>(parentNode))
+  {
+    return nestedLinkedGroupId == parentGroupNode->group().linkedGroupId();
+  }
+  return false;
+}
+
+static void validateRecursiveLinkedGroups(
+  std::vector<std::optional<NodeInfo>>& nodeInfos,
+  const std::unordered_map<Model::Node*, Model::Node*>& nodeToParentMap,
+  ParserStatus& status)
+{
+  for (auto& nodeInfo : nodeInfos)
+  {
+    if (nodeInfo)
+    {
+      if (auto* groupNode = dynamic_cast<Model::GroupNode*>(nodeInfo->node.get()))
+      {
+        if (const auto groupNodeLinkedGroupId = groupNode->group().linkedGroupId())
+        {
+          auto iParent = nodeToParentMap.find(groupNode);
+          while (iParent != nodeToParentMap.end())
+          {
+            if (isRecursiveLinkedGroup(*groupNodeLinkedGroupId, iParent->second))
+            {
+              status.error(
+                groupNode->lineNumber(),
+                kdl::str_to_string(
+                  "Unlinking recursive linked group with ID '",
+                  *groupNode->persistentId(),
+                  "'"));
+
+              unlinkGroup(*groupNode);
+              break;
+            }
+            iParent = nodeToParentMap.find(iParent->second);
+          }
+        }
+      }
+    }
+  }
+}
+
 /**
  * Builds a map of nodes to their intended parents using the parent info stored in each
  * node info object (this either refers to a parent node by index or a parent layer or
@@ -944,13 +990,16 @@ void MapReader::createNodes(ParserStatus& status)
   }
 
   validateDuplicateLayersAndGroups(nodeInfos, status);
-  validateOrphanedLinkedGroups(nodeInfos, status);
-  logValidationIssues(nodeInfos, status);
 
   // build a map that maps nodes to their intended parents
   // if a node is not in this map, we will pass defaultParent to the callbacks for the
   // parent
   const auto nodeToParentMap = buildNodeToParentMap(nodeInfos, status);
+
+  validateRecursiveLinkedGroups(nodeInfos, nodeToParentMap, status);
+  validateOrphanedLinkedGroups(nodeInfos, status);
+
+  logValidationIssues(nodeInfos, status);
 
   // call the callbacks now
   for (auto& nodeInfo : nodeInfos)
