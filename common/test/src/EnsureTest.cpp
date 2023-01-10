@@ -26,7 +26,7 @@ namespace TrenchBroom
 {
 namespace Ensure
 {
-TEST_CASE("EnsureTest.successfulEnsure", "[EnsureTest]")
+TEST_CASE("EnsureTest.successfulEnsure")
 {
   CHECK_NOTHROW([]() { ensure(true, "this shouldn't fail"); }());
 }
@@ -37,7 +37,7 @@ TEST_CASE("EnsureTest.successfulEnsure", "[EnsureTest]")
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-TEST_CASE("EnsureTest.failingEnsure", "[EnsureTest]")
+TEST_CASE("EnsureTest.failingEnsure")
 {
   // FIXME: not with catch2
   // ASSERT_DEATH(ensure(false, "this should fail"), "");

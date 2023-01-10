@@ -37,7 +37,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("DefParserTest.parseIncludedDefFiles", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
   const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
   const std::vector<Path> cfgFiles =
@@ -75,7 +75,7 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles", "[DefParserTest]")
   }
 }
 
-TEST_CASE("DefParserTest.parseExtraDefFiles", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseExtraDefFiles")
 {
   const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
   const std::vector<Path> cfgFiles =
@@ -97,7 +97,7 @@ TEST_CASE("DefParserTest.parseExtraDefFiles", "[DefParserTest]")
   }
 }
 
-TEST_CASE("DefParserTest.parseEmptyFile", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseEmptyFile")
 {
   const std::string file = "";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -109,7 +109,7 @@ TEST_CASE("DefParserTest.parseEmptyFile", "[DefParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parseWhitespaceFile", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseWhitespaceFile")
 {
   const std::string file = "     \n  \t \n  ";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -121,7 +121,7 @@ TEST_CASE("DefParserTest.parseWhitespaceFile", "[DefParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parseCommentsFile", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseCommentsFile")
 {
   const std::string file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -133,7 +133,7 @@ TEST_CASE("DefParserTest.parseCommentsFile", "[DefParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parseSolidClass", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseSolidClass")
 {
   const std::string file =
     "/*QUAKED worldspawn (0.0 0.0 0.0) ?\n"
@@ -175,7 +175,7 @@ TEST_CASE("DefParserTest.parseSolidClass", "[DefParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parsePointClass", "[DefParserTest]")
+TEST_CASE("DefParserTest.parsePointClass")
 {
   const std::string file =
     "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
@@ -226,7 +226,7 @@ TEST_CASE("DefParserTest.parsePointClass", "[DefParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parseSpawnflagWithSkip", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
 {
   const std::string file =
     "/*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) - SUSPENDED SPIN - RESPAWN\n"
@@ -333,7 +333,7 @@ TEST_CASE(
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("DefParserTest.parsePointClassWithBaseClasses", "[DefParserTest]")
+TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
 {
   const std::string file =
     "/*QUAKED _light_style\n"
@@ -409,7 +409,7 @@ static const std::string DefModelDefinitionTemplate =
 
 using Assets::assertModelDefinition;
 
-TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
 {
   static const std::string ModelDefinition =
     "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
@@ -425,7 +425,7 @@ TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition", "[DefParserTest]")
     "{ 'spawnflags': 1 }");
 }
 
-TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
 {
   static const std::string ModelDefinition =
     "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
@@ -442,7 +442,7 @@ TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition", "[DefParserTest]")
     "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
 }
 
-TEST_CASE("DefParserTest.parseELModelDefinition", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseELModelDefinition")
 {
   static const std::string ModelDefinition =
     "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
@@ -453,7 +453,7 @@ TEST_CASE("DefParserTest.parseELModelDefinition", "[DefParserTest]")
     DefModelDefinitionTemplate);
 }
 
-TEST_CASE("DefParserTest.parseInvalidBounds", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseInvalidBounds")
 {
   const std::string file =
     "/*QUAKED light (0.0 1.0 0.0) (8 -8 -8) (-8 8 8) START_OFF\n"

@@ -33,7 +33,7 @@ bool checkRelation(
   return std::equal(std::begin(act), std::end(act), std::begin(exp), std::end(exp));
 }
 
-TEST_CASE("binary_relation_test.constructor_default", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.constructor_default")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -41,7 +41,7 @@ TEST_CASE("binary_relation_test.constructor_default", "[binary_relation_test]")
   CHECK(r.empty());
 }
 
-TEST_CASE("binary_relation_test.constructor_intializer_list", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.constructor_intializer_list")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -65,7 +65,7 @@ TEST_CASE("binary_relation_test.constructor_intializer_list", "[binary_relation_
     }));
 }
 
-TEST_CASE("binary_relation_test.empty", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.empty")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -73,7 +73,7 @@ TEST_CASE("binary_relation_test.empty", "[binary_relation_test]")
   CHECK_FALSE(relation({{1, "a"}}).empty());
 }
 
-TEST_CASE("binary_relation_test.size", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.size")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -83,7 +83,7 @@ TEST_CASE("binary_relation_test.size", "[binary_relation_test]")
   CHECK(relation({{1, "a"}, {1, "b"}, {2, "c"}}).size() == 3u);
 }
 
-TEST_CASE("binary_relation_test.contains", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.contains")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -93,7 +93,7 @@ TEST_CASE("binary_relation_test.contains", "[binary_relation_test]")
   CHECK(relation({{1, "a"}}).contains(1, "a"));
 }
 
-TEST_CASE("binary_relation_test.count_left", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.count_left")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -104,7 +104,7 @@ TEST_CASE("binary_relation_test.count_left", "[binary_relation_test]")
   CHECK(relation({{1, "a"}, {1, "b"}, {2, "a"}}).count_left("a") == 2u);
 }
 
-TEST_CASE("binary_relation_test.count_right", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.count_right")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -115,7 +115,7 @@ TEST_CASE("binary_relation_test.count_right", "[binary_relation_test]")
   CHECK(relation({{1, "a"}, {1, "b"}, {2, "a"}}).count_right(1) == 2u);
 }
 
-TEST_CASE("binary_relation_test.iterator", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.iterator")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -161,7 +161,7 @@ void assertRange(const std::vector<T>& exp, const std::pair<I, I>& act)
   CHECK(std::equal(std::begin(exp), std::end(exp), act.first, act.second));
 }
 
-TEST_CASE("binary_relation_test.left_range", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.left_range")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -171,7 +171,7 @@ TEST_CASE("binary_relation_test.left_range", "[binary_relation_test]")
   assertRange<int>({1, 2}, relation({{1, "a"}, {2, "a"}, {3, "b"}}).left_range("a"));
 }
 
-TEST_CASE("binary_relation_test.right_range", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.right_range")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -182,7 +182,7 @@ TEST_CASE("binary_relation_test.right_range", "[binary_relation_test]")
     {"a", "b"}, relation({{1, "a"}, {1, "b"}, {2, "c"}}).right_range(1));
 }
 
-TEST_CASE("binary_relation_test.insert_relation", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.insert_relation")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -207,7 +207,7 @@ TEST_CASE("binary_relation_test.insert_relation", "[binary_relation_test]")
     }));
 }
 
-TEST_CASE("binary_relation_test.insert_right_range", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.insert_right_range")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -254,7 +254,7 @@ TEST_CASE("binary_relation_test.insert_right_range", "[binary_relation_test]")
   CHECK(std::equal(std::begin(right_3), std::end(right_3), r.right_begin(left_3)));
 }
 
-TEST_CASE("binary_relation_test.insert_left_range", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.insert_left_range")
 {
   using relation = binary_relation<std::string, size_t>;
 
@@ -301,7 +301,7 @@ TEST_CASE("binary_relation_test.insert_left_range", "[binary_relation_test]")
   CHECK(std::equal(std::begin(left_3), std::end(left_3), r.left_begin(right_3)));
 }
 
-TEST_CASE("binary_relation_test.insert_values", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.insert_values")
 {
   using relation = binary_relation<int, std::string>;
 
@@ -332,7 +332,7 @@ TEST_CASE("binary_relation_test.insert_values", "[binary_relation_test]")
   CHECK(r.count_right(2) == 1u);
 }
 
-TEST_CASE("binary_relation_test.erase", "[binary_relation_test]")
+TEST_CASE("binary_relation_test.erase")
 {
   using relation = binary_relation<int, std::string>;
 

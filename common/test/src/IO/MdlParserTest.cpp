@@ -33,7 +33,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]")
+TEST_CASE("MdlParserTest.loadValidMdl")
 {
   NullLogger logger;
 
@@ -61,7 +61,7 @@ TEST_CASE("MdlParserTest.loadValidMdl", "[MdlParserTest]")
   CHECK(surface.frameCount() == 1u);
 }
 
-TEST_CASE("MdlParserTest.loadInvalidMdl", "[MdlParserTest]")
+TEST_CASE("MdlParserTest.loadInvalidMdl")
 {
   NullLogger logger;
 

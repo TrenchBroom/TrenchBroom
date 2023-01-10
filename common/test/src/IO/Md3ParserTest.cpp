@@ -40,7 +40,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("Md3ParserTest.loadValidMd3", "[Md3ParserTest]")
+TEST_CASE("Md3ParserTest.loadValidMd3")
 {
   NullLogger logger;
   const auto shaderSearchPath = Path("scripts");

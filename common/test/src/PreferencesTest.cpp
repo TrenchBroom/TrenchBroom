@@ -52,7 +52,7 @@ static QJsonValue getValue(const std::map<IO::Path, QJsonValue>& map, const IO::
   return it->second;
 }
 
-TEST_CASE("PreferencesTest.migrateLocalV1Settings", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.migrateLocalV1Settings")
 {
   const std::map<IO::Path, QJsonValue> reg = readV1Settings();
 
@@ -62,7 +62,7 @@ TEST_CASE("PreferencesTest.migrateLocalV1Settings", "[PreferencesTest]")
   // has any settings on it.
 }
 
-TEST_CASE("PreferencesTest.parseV1", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.parseV1")
 {
   const std::map<IO::Path, QJsonValue> parsed =
     getINISettingsV1("fixture/test/preferences-v1.ini");
@@ -374,7 +374,7 @@ static void testV2Prefs(const std::map<IO::Path, QJsonValue>& v2)
   CHECK(getValue(v2, IO::Path("RecentDocuments/0")) == QJsonValue(QJsonValue::Undefined));
 }
 
-TEST_CASE("PreferencesTest.migrateV1", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.migrateV1")
 {
   const std::map<IO::Path, QJsonValue> v1 =
     getINISettingsV1("fixture/test/preferences-v1.ini");
@@ -385,7 +385,7 @@ TEST_CASE("PreferencesTest.migrateV1", "[PreferencesTest]")
   // CHECK(writeV2SettingsToPath("C:\\Users\\Eric\\Desktop\\Preferences.json", v2));
 }
 
-TEST_CASE("PreferencesTest.readV2", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.readV2")
 {
   // Invalid JSON -> parse error -> parseV2SettingsFromJSON() is expected to return
   // nullopt
@@ -409,7 +409,7 @@ TEST_CASE("PreferencesTest.readV2", "[PreferencesTest]")
     [](const PreferenceErrors::FileReadError&) { FAIL_CHECK(); }));
 }
 
-TEST_CASE("PreferencesTest.testWriteReadV2", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.testWriteReadV2")
 {
   const std::map<IO::Path, QJsonValue> v1 =
     getINISettingsV1("fixture/test/preferences-v1.ini");
@@ -460,7 +460,7 @@ static void testSerialize(const QJsonValue& str, const PrimitiveType& value)
   CHECK(testSerialize == str);
 }
 
-TEST_CASE("PreferencesTest.serializeV1Bool", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV1Bool")
 {
   CHECK_FALSE((maybeDeserialize<PreferenceSerializerV1, bool>("").has_value()));
   CHECK_FALSE((maybeDeserialize<PreferenceSerializerV1, bool>("-1").has_value()));
@@ -469,7 +469,7 @@ TEST_CASE("PreferencesTest.serializeV1Bool", "[PreferencesTest]")
   testSerialize<PreferenceSerializerV1, bool>(QJsonValue("1"), true);
 }
 
-TEST_CASE("PreferencesTest.serializeV1Color", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV1Color")
 {
   CHECK_FALSE(
     (maybeDeserialize<PreferenceSerializerV1, Color>(QJsonValue("0.921569 0.666667"))
@@ -480,19 +480,19 @@ TEST_CASE("PreferencesTest.serializeV1Color", "[PreferencesTest]")
     Color(0.921569f, 0.666667f, 0.45098f, 0.5f));
 }
 
-TEST_CASE("PreferencesTest.serializeV1float", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV1float")
 {
   testSerialize<PreferenceSerializerV1, float>(QJsonValue("0.921569"), 0.921569f);
 }
 
-TEST_CASE("PreferencesTest.serializeV1int", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV1int")
 {
   testSerialize<PreferenceSerializerV1, int>(QJsonValue("0"), 0);
   testSerialize<PreferenceSerializerV1, int>(QJsonValue("-1"), -1);
   testSerialize<PreferenceSerializerV1, int>(QJsonValue("1000"), 1000);
 }
 
-TEST_CASE("PreferencesTest.serializeV1Path", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV1Path")
 {
 #ifdef _WIN32
   testSerialize<PreferenceSerializerV1, IO::Path>(
@@ -516,7 +516,7 @@ TEST_CASE("PreferencesTest.serializeV1Path", "[PreferencesTest]")
   testSerialize<PreferenceSerializerV1, IO::Path>(QJsonValue(""), IO::Path());
 }
 
-TEST_CASE("PreferencesTest.serializeV1KeyboardShortcut", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV1KeyboardShortcut")
 {
   // These come from wxWidgets TrenchBroom 2019.6, on Windows
   testSerialize<PreferenceSerializerV1, QKeySequence>(
@@ -543,7 +543,7 @@ TEST_CASE("PreferencesTest.serializeV1KeyboardShortcut", "[PreferencesTest]")
     QKeySequence::fromString("Alt+P")); // "Alt" in Qt = Alt in macOS
 }
 
-TEST_CASE("PreferencesTest.serializeV2Bool", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV2Bool")
 {
   CHECK_FALSE(
     (maybeDeserialize<PreferenceSerializerV2, bool>(QJsonValue("")).has_value()));
@@ -554,7 +554,7 @@ TEST_CASE("PreferencesTest.serializeV2Bool", "[PreferencesTest]")
   testSerialize<PreferenceSerializerV2, bool>(QJsonValue(true), true);
 }
 
-TEST_CASE("PreferencesTest.serializeV2float", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV2float")
 {
   CHECK_FALSE(
     (maybeDeserialize<PreferenceSerializerV2, float>(QJsonValue("1.25")).has_value()));
@@ -562,7 +562,7 @@ TEST_CASE("PreferencesTest.serializeV2float", "[PreferencesTest]")
   testSerialize<PreferenceSerializerV2, float>(QJsonValue(1.25), 1.25f);
 }
 
-TEST_CASE("PreferencesTest.serializeV2int", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV2int")
 {
   CHECK_FALSE(
     (maybeDeserialize<PreferenceSerializerV2, int>(QJsonValue("0")).has_value()));
@@ -574,7 +574,7 @@ TEST_CASE("PreferencesTest.serializeV2int", "[PreferencesTest]")
   testSerialize<PreferenceSerializerV2, int>(QJsonValue(1000), 1000);
 }
 
-TEST_CASE("PreferencesTest.serializeV2KeyboardShortcut", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.serializeV2KeyboardShortcut")
 {
   testSerialize<PreferenceSerializerV2, QKeySequence>(
     QJsonValue("Alt+Shift+W"), QKeySequence::fromString("Alt+Shift+W"));
@@ -755,7 +755,7 @@ TEST_CASE(
   }
 }
 
-TEST_CASE("PreferencesTest.testWxEntityShortcuts", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.testWxEntityShortcuts")
 {
   auto hellKnight = Assets::PointEntityDefinition(
     "monster_hell_knight",
@@ -789,7 +789,7 @@ TEST_CASE("PreferencesTest.testWxEntityShortcuts", "[PreferencesTest]")
   }
 }
 
-TEST_CASE("PreferencesTest.testWxTagShortcuts", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.testWxTagShortcuts")
 {
   const auto tags = std::vector<Model::SmartTag>{Model::SmartTag(
     "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27))};

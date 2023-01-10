@@ -29,7 +29,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("WadFileSystemTest.loadEntries", "[WadFileSystemTest]")
+TEST_CASE("WadFileSystemTest.loadEntries")
 {
   const Path wadPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");

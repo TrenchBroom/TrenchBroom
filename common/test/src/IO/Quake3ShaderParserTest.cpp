@@ -33,7 +33,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("Quake3ShaderParserTest.parseEmptyShader", "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseEmptyShader")
 {
   const std::string data("");
   Quake3ShaderParser parser(data);
@@ -234,7 +234,7 @@ textures/eerie/ironcrosslt2_10000
     }}));
 }
 
-TEST_CASE("Quake3ShaderParserTest.parseTwoShaders", "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseTwoShaders")
 {
   const std::string data(R"(
 textures/eerie/ironcrosslt2_10000
@@ -369,7 +369,7 @@ waterBubble
   CHECK_NOTHROW(parser.parse(status));
 }
 
-TEST_CASE("Quake3ShaderParserTest.parseBlendFuncParameters", "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseBlendFuncParameters")
 {
   // see
   // https://github.com/id-Software/Quake-III-Arena/blob/master/code/renderer/tr_shader.c#L176

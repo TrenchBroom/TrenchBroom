@@ -23,7 +23,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace TrenchBroom
 {
-TEST_CASE("StackWalkerTest.testStackTraceSymbols", "[StackWalkerTest]")
+TEST_CASE("StackWalkerTest.testStackTraceSymbols")
 {
   const std::string stackTrace = TrenchBroomStackWalker::getStackTrace();
 

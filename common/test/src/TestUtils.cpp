@@ -109,7 +109,7 @@ bool UVListsEqual(
   return true;
 }
 
-TEST_CASE("TestUtilsTest.testTexCoordsEqual", "[TestUtilsTest]")
+TEST_CASE("TestUtilsTest.testTexCoordsEqual")
 {
   CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.0, 0.0)));
   CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(1.0, 0.0)));
@@ -125,7 +125,7 @@ TEST_CASE("TestUtilsTest.testTexCoordsEqual", "[TestUtilsTest]")
   CHECK_FALSE(texCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
 }
 
-TEST_CASE("TestUtilsTest.UVListsEqual", "[TestUtilsTest]")
+TEST_CASE("TestUtilsTest.UVListsEqual")
 {
   CHECK(UVListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}}));
   CHECK(UVListsEqual(
@@ -143,7 +143,7 @@ TEST_CASE("TestUtilsTest.UVListsEqual", "[TestUtilsTest]")
     UVListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {2, 0}, {0, 2}})); // unwanted scaling
 }
 
-TEST_CASE("TestUtilsTest.pointExactlyIntegral", "[TestUtilsTest]")
+TEST_CASE("TestUtilsTest.pointExactlyIntegral")
 {
   CHECK(pointExactlyIntegral(vm::vec3d(0.0, 0.0, 0.0)));
   CHECK(pointExactlyIntegral(vm::vec3d(1024.0, 1204.0, 1024.0)));
@@ -513,7 +513,7 @@ GlobMatcher MatchesGlob(const std::string& glob)
   return GlobMatcher(glob);
 }
 
-TEST_CASE("TestUtilsTest.testUnorderedApproxVecMatcher", "[TestUtilsTest]")
+TEST_CASE("TestUtilsTest.testUnorderedApproxVecMatcher")
 {
   using V = std::vector<vm::vec3>;
   CHECK_THAT((V{{1, 1, 1}}), UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}}, 0.02));

@@ -56,7 +56,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("NodeWriterTest.writeEmptyMap", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeEmptyMap")
 {
   Model::WorldNode map({}, {}, Model::MapFormat::Standard);
 
@@ -74,7 +74,7 @@ TEST_CASE("NodeWriterTest.writeEmptyMap", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeWorldspawn", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeWorldspawn")
 {
   Model::WorldNode map({}, {{"message", "holy damn"}}, Model::MapFormat::Standard);
 
@@ -93,7 +93,7 @@ TEST_CASE("NodeWriterTest.writeWorldspawn", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeDefaultLayerProperties", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeDefaultLayerProperties")
 {
   Model::WorldNode map({}, {}, Model::MapFormat::Standard);
   map.defaultLayer()->setVisibilityState(Model::VisibilityState::Hidden);
@@ -122,7 +122,7 @@ TEST_CASE("NodeWriterTest.writeDefaultLayerProperties", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeDaikatanaMap", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeDaikatanaMap")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -175,7 +175,7 @@ TEST_CASE("NodeWriterTest.writeDaikatanaMap", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeQuake2ValveMap", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -239,7 +239,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeQuake3ValveMap", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeQuake3ValveMap")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -274,7 +274,7 @@ TEST_CASE("NodeWriterTest.writeQuake3ValveMap", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -308,7 +308,7 @@ TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer", "[NodeWriterT
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -399,7 +399,7 @@ TEST_CASE(
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -444,7 +444,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -501,7 +501,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -570,7 +570,7 @@ TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer", "[NodeWriterTes
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -650,7 +650,7 @@ TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -736,7 +736,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers", "[NodeWriterTest]")
   CHECK_THAT(actual, MatchesGlob(expected));
 }
 
-TEST_CASE("NodeWriterTest.writeMapWithInheritedLock", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeMapWithInheritedLock")
 {
   Model::WorldNode map({}, {}, Model::MapFormat::Standard);
 
@@ -773,7 +773,7 @@ TEST_CASE("NodeWriterTest.writeMapWithInheritedLock", "[NodeWriterTest]")
   CHECK_THAT(actual, MatchesGlob(expected));
 }
 
-TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -837,7 +837,7 @@ TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -925,7 +925,7 @@ TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups", "[NodeWriterTest]")
   }
 }
 
-TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -967,7 +967,7 @@ TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup", "[NodeWriterTest]")
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeProtectedEntityProperties", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeProtectedEntityProperties")
 {
   auto worldNode = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
@@ -1013,7 +1013,7 @@ TEST_CASE("NodeWriterTest.writeProtectedEntityProperties", "[NodeWriterTest]")
   }
 }
 
-TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeFaces")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -1041,7 +1041,7 @@ TEST_CASE("NodeWriterTest.writeFaces", "[NodeWriterTest]")
   delete brushNode;
 }
 
-TEST_CASE("NodeWriterTest.writePropertiesWithQuotationMarks", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writePropertiesWithQuotationMarks")
 {
   Model::WorldNode map(
     {}, {{"message", "\"holy damn\", he said"}}, Model::MapFormat::Standard);
@@ -1062,7 +1062,7 @@ TEST_CASE("NodeWriterTest.writePropertiesWithQuotationMarks", "[NodeWriterTest]"
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writePropertiesWithEscapedQuotationMarks", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writePropertiesWithEscapedQuotationMarks")
 {
   Model::WorldNode map(
     {}, {{"message", "\\\"holy damn\\\", he said"}}, Model::MapFormat::Standard);
@@ -1084,7 +1084,7 @@ TEST_CASE("NodeWriterTest.writePropertiesWithEscapedQuotationMarks", "[NodeWrite
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/1739
-TEST_CASE("NodeWriterTest.writePropertiesWithNewlineEscapeSequence", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writePropertiesWithNewlineEscapeSequence")
 {
   Model::WorldNode map(
     {}, {{"message", "holy damn\\nhe said"}}, Model::MapFormat::Standard);
@@ -1106,7 +1106,7 @@ TEST_CASE("NodeWriterTest.writePropertiesWithNewlineEscapeSequence", "[NodeWrite
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2556
-TEST_CASE("NodeWriterTest.writePropertiesWithTrailingBackslash", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writePropertiesWithTrailingBackslash")
 {
   Model::WorldNode map(
     {},
@@ -1135,7 +1135,7 @@ TEST_CASE("NodeWriterTest.writePropertiesWithTrailingBackslash", "[NodeWriterTes
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.writeSmallValuesWithoutScientificNotation", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeSmallValuesWithoutScientificNotation")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -1187,7 +1187,7 @@ TEST_CASE("NodeWriterTest.writeSmallValuesWithoutScientificNotation", "[NodeWrit
   CHECK(actual == expected);
 }
 
-TEST_CASE("NodeWriterTest.quoteTextureNamesIfNecessary", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.quoteTextureNamesIfNecessary")
 {
   using FormatInfo = std::tuple<Model::MapFormat, std::string>;
 
@@ -1254,7 +1254,7 @@ R"(// entity 0
   CHECK(str.str() == fmt::format(expectedSerializationTemplate, expectedName));
 }
 
-TEST_CASE("NodeWriterTest.writePatch", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writePatch")
 {
   auto patch = Model::BezierPatch{
     5,

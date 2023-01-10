@@ -34,7 +34,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("TextureLoaderTest.testLoad", "[TextureLoaderTest]")
+TEST_CASE("TextureLoaderTest.testLoad")
 {
   const std::vector<IO::Path> paths({Path("fixture/test/IO/Wad/cr8_czg.wad")});
 
@@ -92,7 +92,7 @@ TEST_CASE("TextureLoaderTest.testLoad", "[TextureLoaderTest]")
   }
 }
 
-TEST_CASE("TextureLoaderTest.testLoadExclusions", "[TextureLoaderTest]")
+TEST_CASE("TextureLoaderTest.testLoadExclusions")
 {
   const std::vector<IO::Path> paths({Path("fixture/test/IO/Wad/cr8_czg.wad")});
 

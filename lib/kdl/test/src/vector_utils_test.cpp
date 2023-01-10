@@ -30,7 +30,7 @@
 
 namespace kdl
 {
-TEST_CASE("vector_utils_test.vec_at", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_at")
 {
   const auto cv = std::vector<int>{1, 2, 3};
   for (std::size_t i = 0u; i < cv.size(); ++i)
@@ -43,7 +43,7 @@ TEST_CASE("vector_utils_test.vec_at", "[vector_utils_test]")
   CHECK(mv[2] == 4);
 }
 
-TEST_CASE("vector_utils_test.vec_pop_back", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_pop_back")
 {
   auto v = std::vector<int>{1, 2, 3};
   CHECK(vec_pop_back(v) == 3);
@@ -68,7 +68,7 @@ struct derived : public base
 
 derived::~derived() = default;
 
-TEST_CASE("vector_utils_test.vec_element_cast", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_element_cast")
 {
   auto vd = std::vector<derived*>{new derived(), new derived()};
   auto vb = vec_element_cast<base*>(vd);
@@ -89,7 +89,7 @@ TEST_CASE("vector_utils_test.vec_element_cast", "[vector_utils_test]")
   vec_clear_and_delete(vd);
 }
 
-TEST_CASE("vector_utils_test.vec_index_of", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_index_of")
 {
   using vec = std::vector<int>;
 
@@ -112,7 +112,7 @@ TEST_CASE("vector_utils_test.vec_index_of", "[vector_utils_test]")
   CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 4; }) == std::nullopt);
 }
 
-TEST_CASE("vector_utils_test.vec_contains", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_contains")
 {
   using vec = std::vector<int>;
 
@@ -142,7 +142,7 @@ static auto makeVec(T&& t, R... r)
   return result;
 }
 
-TEST_CASE("vector_utils_test.vec_concat", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_concat")
 {
   using vec = std::vector<int>;
 
@@ -152,7 +152,7 @@ TEST_CASE("vector_utils_test.vec_concat", "[vector_utils_test]")
   CHECK_THAT(vec_concat(vec{1}, vec{2}), Catch::Equals(vec{1, 2}));
 }
 
-TEST_CASE("vector_utils_test.vec_concat_move", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_concat_move")
 {
   auto v = makeVec(std::make_unique<int>(1));
   v = vec_concat(std::move(v), makeVec(std::make_unique<int>(2)));
@@ -161,7 +161,7 @@ TEST_CASE("vector_utils_test.vec_concat_move", "[vector_utils_test]")
   CHECK(*v[1] == 2);
 }
 
-TEST_CASE("vector_utils_test.vec_slice", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_slice")
 {
   using vec = std::vector<int>;
 
@@ -178,7 +178,7 @@ TEST_CASE("vector_utils_test.vec_slice", "[vector_utils_test]")
   CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 3), Catch::Equals(vec{1, 2, 3}));
 }
 
-TEST_CASE("vector_utils_test.vec_slice_prefix", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_slice_prefix")
 {
   using vec = std::vector<int>;
 
@@ -191,7 +191,7 @@ TEST_CASE("vector_utils_test.vec_slice_prefix", "[vector_utils_test]")
   CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 0), Catch::Equals(vec{}));
 }
 
-TEST_CASE("vector_utils_test.vec_slice_suffix", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_slice_suffix")
 {
   using vec = std::vector<int>;
 
@@ -213,7 +213,7 @@ void test_erase(std::vector<T> from, const T& x, const std::vector<T>& exp)
   CHECK_THAT(vec_erase(std::move(from), x), Catch::Equals(exp));
 }
 
-TEST_CASE("vector_utils_test.vec_erase", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_erase")
 {
   test_erase<int>({}, 1, {});
   test_erase<int>({1}, 1, {});
@@ -231,7 +231,7 @@ void test_erase_if(std::vector<T> from, const P& pred, const std::vector<T>& exp
   CHECK_THAT(vec_erase_if(std::move(from), pred), Catch::Equals(exp));
 }
 
-TEST_CASE("vector_utils_test.vec_erase_if", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_erase_if")
 {
   const auto pred = [](const int n) { return n % 2 == 0; };
 
@@ -250,7 +250,7 @@ void test_erase_at(std::vector<T> from, const std::size_t i, const std::vector<T
   CHECK_THAT(vec_erase_at(std::move(from), i), Catch::Equals(exp));
 }
 
-TEST_CASE("vector_utils_test.vec_erase_at", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_erase_at")
 {
   test_erase_at<int>({1}, 0u, {});
   test_erase_at<int>({1, 2, 1}, 1u, {1, 1});
@@ -267,7 +267,7 @@ void test_erase_all(
   CHECK_THAT(vec_erase_all(std::move(from), which), Catch::Equals(exp));
 }
 
-TEST_CASE("vector_utils_test.vec_erase_all", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_erase_all")
 {
   test_erase_all<int>({}, {}, {});
   test_erase_all<int>({1, 2, 3}, {}, {1, 2, 3});
@@ -277,14 +277,14 @@ TEST_CASE("vector_utils_test.vec_erase_all", "[vector_utils_test]")
   test_erase_all<int>({1, 2, 2, 3}, {2}, {1, 3});
 }
 
-TEST_CASE("vector_utils_test.vec_sort", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_sort")
 {
   // just a smoke test since we're just forwarding to std::sort
   CHECK_THAT(
     vec_sort(std::vector<int>{2, 3, 2, 1}), Catch::Equals(std::vector<int>{1, 2, 2, 3}));
 }
 
-TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates")
 {
   // just a smoke test since we're just forwarding to std::sort and std::unique
   CHECK_THAT(
@@ -292,7 +292,7 @@ TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates", "[vector_utils_tes
     Catch::Equals(std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("vector_utils_test.vec_filter", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_filter")
 {
   CHECK_THAT(
     vec_filter(std::vector<int>{}, [](auto) { return false; }),
@@ -323,7 +323,7 @@ struct MoveOnly
   MoveOnly& operator=(MoveOnly&& other) = default;
 };
 
-TEST_CASE("vector_utils_test.vec_filter_rvalue", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_filter_rvalue")
 {
   const auto makeVec = []() {
     auto vec = std::vector<MoveOnly>{};
@@ -337,7 +337,7 @@ TEST_CASE("vector_utils_test.vec_filter_rvalue", "[vector_utils_test]")
     vec_filter(makeVec(), [](const auto&, auto i) { return i % 2u == 1u; }).size() == 1u);
 }
 
-TEST_CASE("vector_utils_test.vec_transform", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_transform")
 {
   CHECK_THAT(
     vec_transform(std::vector<int>{}, [](auto x) { return x + 10; }),
@@ -359,7 +359,7 @@ struct X
 {
 };
 
-TEST_CASE("vector_utils_test.vec_transform_lvalue", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_transform_lvalue")
 {
   std::vector<X> v{X{}, X{}, X{}};
 
@@ -367,7 +367,7 @@ TEST_CASE("vector_utils_test.vec_transform_lvalue", "[vector_utils_test]")
   CHECK(vec_transform(v, [](X& x, std::size_t) { return x; }).size() == 3u);
 }
 
-TEST_CASE("vector_utils_test.vec_transform_rvalue", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_transform_rvalue")
 {
   CHECK(
     vec_transform(std::vector<X>{X()}, [](X&& x) { return std::move(x); }).size() == 1u);
@@ -377,7 +377,7 @@ TEST_CASE("vector_utils_test.vec_transform_rvalue", "[vector_utils_test]")
     == 1u);
 }
 
-TEST_CASE("vector_utils_test.vec_flatten", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_flatten")
 {
   CHECK_THAT(
     vec_flatten(std::vector<std::vector<int>>{}), Catch::Equals(std::vector<int>{}));
@@ -406,7 +406,7 @@ TEST_CASE("vector_utils_test.vec_flatten", "[vector_utils_test]")
     Catch::Equals(std::vector<int>{1, 2, 2, 3}));
 }
 
-TEST_CASE("vector_utils_test.set_difference", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.set_difference")
 {
   using vec = std::vector<int>;
   using set = std::set<int>;
@@ -420,7 +420,7 @@ TEST_CASE("vector_utils_test.set_difference", "[vector_utils_test]")
   CHECK_THAT(set_difference(set({1, 2, 3}), set({2})), Catch::Equals(vec{1, 3}));
 }
 
-TEST_CASE("vector_utils_test.set_union", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.set_union")
 {
   using vec = std::vector<int>;
   using set = std::set<int>;
@@ -432,7 +432,7 @@ TEST_CASE("vector_utils_test.set_union", "[vector_utils_test]")
   CHECK_THAT(set_union(set({1, 2, 3}), set({2, 4})), Catch::Equals(vec{1, 2, 3, 4}));
 }
 
-TEST_CASE("vector_utils_test.set_intersection", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.set_intersection")
 {
   using vec = std::vector<int>;
   using set = std::set<int>;
@@ -446,7 +446,7 @@ TEST_CASE("vector_utils_test.set_intersection", "[vector_utils_test]")
     set_intersection(set({1, 2, 3, 4}), set({1, 3, 5})), Catch::Equals(vec{1, 3}));
 }
 
-TEST_CASE("vector_utils_test.vec_clear_to_zero", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_clear_to_zero")
 {
   auto v = std::vector<int>{1, 2, 3};
   CHECK(v.capacity() > 0u);
@@ -456,7 +456,7 @@ TEST_CASE("vector_utils_test.vec_clear_to_zero", "[vector_utils_test]")
   CHECK(v.capacity() == 0u);
 }
 
-TEST_CASE("vector_utils_test.vec_clear_and_delete", "[vector_utils_test]")
+TEST_CASE("vector_utils_test.vec_clear_and_delete")
 {
   bool d1 = false;
   bool d2 = false;

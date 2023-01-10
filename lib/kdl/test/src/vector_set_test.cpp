@@ -65,14 +65,14 @@ static void assertVset(
   CHECK(actual == create_vset_from_range(expected));
 }
 
-TEST_CASE("vector_set_test.constructor_default", "[vector_set_test]")
+TEST_CASE("vector_set_test.constructor_default")
 {
   vset s;
   CHECK(s.empty());
   CHECK(s.size() == 0u);
 }
 
-TEST_CASE("vector_set_test.constructor_default_with_capacity", "[vector_set_test]")
+TEST_CASE("vector_set_test.constructor_default_with_capacity")
 {
   vset s(7u);
   CHECK(s.empty());
@@ -80,7 +80,7 @@ TEST_CASE("vector_set_test.constructor_default_with_capacity", "[vector_set_test
   CHECK(s.capacity() == 7u);
 }
 
-TEST_CASE("vector_set_test.constructor_with_range", "[vector_set_test]")
+TEST_CASE("vector_set_test.constructor_with_range")
 {
   assertVset(create_vset_from_range({}), {});
   assertVset(create_vset_from_range({1}), {1});
@@ -90,7 +90,7 @@ TEST_CASE("vector_set_test.constructor_with_range", "[vector_set_test]")
   assertVset(create_vset_from_range({2, 1, 3, 1, 2}), {1, 2, 3});
 }
 
-TEST_CASE("vector_set_test.constructor_with_range_and_capacity", "[vector_set_test]")
+TEST_CASE("vector_set_test.constructor_with_range_and_capacity")
 {
   assertVset(create_vset_from_range(10u, {}), {}, 10u);
   assertVset(create_vset_from_range(10u, {1}), {1}, 10u);
@@ -100,7 +100,7 @@ TEST_CASE("vector_set_test.constructor_with_range_and_capacity", "[vector_set_te
   assertVset(create_vset_from_range(10u, {2, 1, 3, 1, 2}), {1, 2, 3}, 10u);
 }
 
-TEST_CASE("vector_set_test.constructor_with_initializer_list", "[vector_set_test]")
+TEST_CASE("vector_set_test.constructor_with_initializer_list")
 {
   assertVset(create_vset_from_list({}), {});
   assertVset(create_vset_from_list({1}), {1});
@@ -121,7 +121,7 @@ TEST_CASE(
   assertVset(create_vset_from_list(10u, {2, 1, 3, 1, 2}), {1, 2, 3}, 10u);
 }
 
-TEST_CASE("vector_set_test.constructor_with_vector", "[vector_set_test]")
+TEST_CASE("vector_set_test.constructor_with_vector")
 {
   assertVset(create_vset_from_vector({}), {});
   assertVset(create_vset_from_vector({1}), {1});
@@ -131,7 +131,7 @@ TEST_CASE("vector_set_test.constructor_with_vector", "[vector_set_test]")
   assertVset(create_vset_from_vector({2, 1, 3, 1, 2}), {1, 2, 3});
 }
 
-TEST_CASE("vector_set_test.assignment_from_initializer_list", "[vector_set_test]")
+TEST_CASE("vector_set_test.assignment_from_initializer_list")
 {
   assertVset(vset() = {}, {});
   assertVset(vset() = {1}, {1});
@@ -148,7 +148,7 @@ TEST_CASE("vector_set_test.assignment_from_initializer_list", "[vector_set_test]
   assertVset(vset({7, 8, 9}) = {2, 1, 3, 1, 2}, {1, 2, 3});
 }
 
-TEST_CASE("vector_set_test.assignment_from_vector", "[vector_set_test]")
+TEST_CASE("vector_set_test.assignment_from_vector")
 {
   assertVset(vset() = std::vector<int>({}), {});
   assertVset(vset() = std::vector<int>({1}), {1});
@@ -165,13 +165,13 @@ TEST_CASE("vector_set_test.assignment_from_vector", "[vector_set_test]")
   assertVset(vset({7, 8, 9}) = std::vector<int>({2, 1, 3, 1, 2}), {1, 2, 3});
 }
 
-TEST_CASE("vector_set_test.deduction_guide_range", "[vector_set_test]")
+TEST_CASE("vector_set_test.deduction_guide_range")
 {
   std::vector<int> v({1, 2, 3});
   vector_set s(std::begin(v), std::end(v));
 }
 
-TEST_CASE("vector_set_test.deduction_guide_range_and_capacity", "[vector_set_test]")
+TEST_CASE("vector_set_test.deduction_guide_range_and_capacity")
 {
   std::vector<int> v({1, 2, 3});
   vector_set s(3u, std::begin(v), std::end(v));

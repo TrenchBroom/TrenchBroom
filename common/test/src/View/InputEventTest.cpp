@@ -36,7 +36,7 @@ namespace TrenchBroom
 {
 namespace View
 {
-TEST_CASE("KeyEventTest.collateWith", "[KeyEventTest]")
+TEST_CASE("KeyEventTest.collateWith")
 {
   static const std::array<KeyEvent::Type, 2> eventTypes = {
     KeyEvent::Type::Down, KeyEvent::Type::Up};
@@ -52,7 +52,7 @@ TEST_CASE("KeyEventTest.collateWith", "[KeyEventTest]")
   }
 }
 
-TEST_CASE("MouseEventTest.collateWith", "[MouseEventTest]")
+TEST_CASE("MouseEventTest.collateWith")
 {
   static const std::array<MouseEvent::Type, 9> eventTypes = {
     MouseEvent::Type::Down,
@@ -267,7 +267,7 @@ inline QWheelEvent makeWheelEvent(const QPoint& angleDelta)
 #endif
 }
 
-TEST_CASE("InputEventRecorderTest.recordKeyEvents", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordKeyEvents")
 {
   InputEventRecorder r;
 
@@ -277,7 +277,7 @@ TEST_CASE("InputEventRecorderTest.recordKeyEvents", "[InputEventRecorderTest]")
   checkEventQueue(r, KeyEvent(KeyEvent::Type::Down), KeyEvent(KeyEvent::Type::Up));
 }
 
-TEST_CASE("InputEventRecorderTest.recordLeftClick", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordLeftClick")
 {
   InputEventRecorder r;
 
@@ -311,7 +311,7 @@ TEST_CASE("InputEventRecorderTest.recordLeftClick", "[InputEventRecorderTest]")
       0.0f));
 }
 
-TEST_CASE("InputEventRecorderTest.recordLeftDoubleClick", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordLeftDoubleClick")
 {
   InputEventRecorder r;
 
@@ -376,7 +376,7 @@ TEST_CASE("InputEventRecorderTest.recordLeftDoubleClick", "[InputEventRecorderTe
       0.0f));
 }
 
-TEST_CASE("InputEventRecorderTest.recordCtrlLeftClick", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordCtrlLeftClick")
 {
   InputEventRecorder r;
 
@@ -416,7 +416,7 @@ TEST_CASE("InputEventRecorderTest.recordCtrlLeftClick", "[InputEventRecorderTest
       0.0f));
 }
 
-TEST_CASE("InputEventRecorderTest.recordRightClick", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordRightClick")
 {
   InputEventRecorder r;
 
@@ -456,7 +456,7 @@ TEST_CASE("InputEventRecorderTest.recordRightClick", "[InputEventRecorderTest]")
       0.0f));
 }
 
-TEST_CASE("InputEventRecorderTest.recordMotionWithCollation", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordMotionWithCollation")
 {
   InputEventRecorder r;
 
@@ -477,7 +477,7 @@ TEST_CASE("InputEventRecorderTest.recordMotionWithCollation", "[InputEventRecord
       0.0f));
 }
 
-TEST_CASE("InputEventRecorderTest.recordHScrollWithCollation", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordHScrollWithCollation")
 {
   InputEventRecorder r;
   const auto qWheel1 = makeWheelEvent({2, 0});
@@ -504,7 +504,7 @@ TEST_CASE("InputEventRecorderTest.recordHScrollWithCollation", "[InputEventRecor
       expectedScrollLines));
 }
 
-TEST_CASE("InputEventRecorderTest.recordVScrollWithCollation", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordVScrollWithCollation")
 {
   InputEventRecorder r;
   const auto qWheel1 = makeWheelEvent({0, 3});
@@ -531,7 +531,7 @@ TEST_CASE("InputEventRecorderTest.recordVScrollWithCollation", "[InputEventRecor
       expectedScrollLines));
 }
 
-TEST_CASE("InputEventRecorderTest.recordDiagonalScroll", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordDiagonalScroll")
 {
   InputEventRecorder r;
   const auto qWheel1 = makeWheelEvent({1, 3});
@@ -712,7 +712,7 @@ TEST_CASE(
       0.0f));
 }
 
-TEST_CASE("InputEventRecorderTest.recordLeftDrag", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordLeftDrag")
 {
   InputEventRecorder r;
 

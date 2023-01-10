@@ -38,14 +38,14 @@ static auto evaluate(
   return ELParser::parseStrict(str).evaluate(context);
 }
 
-TEST_CASE("ELParserTest.parseEmptyExpression", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseEmptyExpression")
 {
   CHECK_THROWS_AS(evaluate(""), ParserException);
   CHECK_THROWS_AS(evaluate("    "), ParserException);
   CHECK_THROWS_AS(evaluate("\n"), ParserException);
 }
 
-TEST_CASE("ELParserTest.parseStringLiteral", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseStringLiteral")
 {
   CHECK_THROWS_AS(evaluate("\"asdf"), ParserException);
 
@@ -53,14 +53,14 @@ TEST_CASE("ELParserTest.parseStringLiteral", "[ELParserTest]")
   CHECK(evaluate("\"asdf\"") == EL::Value("asdf"));
 }
 
-TEST_CASE("ELParserTest.parseStringLiteralWithDoubleQuotationMarks", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseStringLiteralWithDoubleQuotationMarks")
 {
   // MSVC complains about an illegal escape sequence if we use a raw string literal for
   // the expression
   CHECK(evaluate("\"asdf\\\" \\\"asdf\"") == EL::Value(R"(asdf" "asdf)"));
 }
 
-TEST_CASE("ELParserTest.parseNumberLiteral", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseNumberLiteral")
 {
   CHECK_THROWS_AS(evaluate("1.123.34"), ParserException);
 
@@ -71,13 +71,13 @@ TEST_CASE("ELParserTest.parseNumberLiteral", "[ELParserTest]")
   CHECK(evaluate("0") == EL::Value(0.0));
 }
 
-TEST_CASE("ELParserTest.parseBooleanLiteral", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseBooleanLiteral")
 {
   CHECK(evaluate("true") == EL::Value(true));
   CHECK(evaluate("false") == EL::Value(false));
 }
 
-TEST_CASE("ELParserTest.parseArrayLiteral", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseArrayLiteral")
 {
   EL::ArrayType array, nestedArray;
   array.push_back(EL::Value(1.0));
@@ -102,7 +102,7 @@ TEST_CASE("ELParserTest.parseArrayLiteral", "[ELParserTest]")
       EL::ArrayType({EL::Value(-2.0), EL::Value(-1.0), EL::Value(0.0), EL::Value(1.0)})));
 }
 
-TEST_CASE("ELParserTest.parseMapLiteral", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseMapLiteral")
 {
   EL::MapType map, nestedMap;
   map.insert(std::make_pair("testkey1", EL::Value(1.0)));
@@ -117,7 +117,7 @@ TEST_CASE("ELParserTest.parseMapLiteral", "[ELParserTest]")
     == EL::Value(map));
 }
 
-TEST_CASE("ELParserTest.parseMapLiteralNestedInArray", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseMapLiteralNestedInArray")
 {
   EL::MapType map;
   map.insert(std::make_pair("key", EL::Value("value")));
@@ -128,7 +128,7 @@ TEST_CASE("ELParserTest.parseMapLiteralNestedInArray", "[ELParserTest]")
   CHECK(evaluate(R"([ { "key": "value" } ])") == EL::Value(array));
 }
 
-TEST_CASE("ELParserTest.parseMapLiteralNestedInArrayNestedInMap", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseMapLiteralNestedInArrayNestedInMap")
 {
   EL::MapType inner;
   inner.insert(std::make_pair("key", EL::Value("value")));
@@ -145,7 +145,7 @@ TEST_CASE("ELParserTest.parseMapLiteralNestedInArrayNestedInMap", "[ELParserTest
     == EL::Value(outer));
 }
 
-TEST_CASE("ELParserTest.parseMapLiteralWithTrailingGarbage", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseMapLiteralWithTrailingGarbage")
 {
   CHECK_THROWS_AS(
     evaluate("{\n"
@@ -156,7 +156,7 @@ TEST_CASE("ELParserTest.parseMapLiteralWithTrailingGarbage", "[ELParserTest]")
     ParserException);
 }
 
-TEST_CASE("ELParserTest.parseVariable", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseVariable")
 {
   EL::EvaluationContext context;
   context.declareVariable("test", EL::Value(1.0));
@@ -164,17 +164,17 @@ TEST_CASE("ELParserTest.parseVariable", "[ELParserTest]")
   CHECK(evaluate("test", context) == EL::Value(1.0));
 }
 
-TEST_CASE("ELParserTest.parseUnaryPlus", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseUnaryPlus")
 {
   CHECK(evaluate("+1.0") == EL::Value(1.0));
 }
 
-TEST_CASE("ELParserTest.parseUnaryMinus", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseUnaryMinus")
 {
   CHECK(evaluate("-1.0") == EL::Value(-1.0));
 }
 
-TEST_CASE("ELParserTest.parseLogicalNegation", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseLogicalNegation")
 {
   CHECK(evaluate("!true") == EL::Value(false));
   CHECK(evaluate("!false") == EL::Value(true));
@@ -183,28 +183,28 @@ TEST_CASE("ELParserTest.parseLogicalNegation", "[ELParserTest]")
   CHECK_THROWS_AS(evaluate("!'true'"), EL::EvaluationError);
 }
 
-TEST_CASE("ELParserTest.parseBitwiseNegation", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseBitwiseNegation")
 {
   CHECK(evaluate("~393") == EL::Value(~393));
   CHECK_THROWS_AS(evaluate("~"), ParserException);
   CHECK_THROWS_AS(evaluate("~~"), ParserException);
 }
 
-TEST_CASE("ELParserTest.parseAddition", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseAddition")
 {
   CHECK(evaluate("2 + 3") == EL::Value(5.0));
   CHECK(evaluate("\"as\"+\"df\"") == EL::Value("asdf"));
   CHECK(evaluate("2 + 3 + 4") == EL::Value(9.0));
 }
 
-TEST_CASE("ELParserTest.parseSubtraction", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseSubtraction")
 {
   CHECK(evaluate("2 - 3.0") == EL::Value(-1.0));
   CHECK(evaluate("2 - 3 - 4") == EL::Value(-5.0));
   CHECK(evaluate("2 - 3 - 4 - 2") == EL::Value(-7.0));
 }
 
-TEST_CASE("ELParserTest.parseMultiplication", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseMultiplication")
 {
   CHECK(evaluate("2 * 3.0") == EL::Value(6.0));
 
@@ -212,21 +212,21 @@ TEST_CASE("ELParserTest.parseMultiplication", "[ELParserTest]")
   CHECK(evaluate("2 * 3 * 4 * 2") == EL::Value(48.0));
 }
 
-TEST_CASE("ELParserTest.parseDivision", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseDivision")
 {
   CHECK(evaluate("12 / 2.0") == EL::Value(6.0));
   CHECK(evaluate("12 / 2 / 2") == EL::Value(3.0));
   CHECK(evaluate("12 / 2 / 2 / 3") == EL::Value(1.0));
 }
 
-TEST_CASE("ELParserTest.parseModulus", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseModulus")
 {
   CHECK(evaluate("12 % 2.0") == EL::Value(0.0));
   CHECK(evaluate("12 % 5 % 3") == EL::Value(2.0));
   CHECK(evaluate("12 % 5 % 3 % 3") == EL::Value(2.0));
 }
 
-TEST_CASE("ELParserTest.parseLogicalAnd", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseLogicalAnd")
 {
   CHECK(evaluate("true && true") == EL::Value(true));
   CHECK(evaluate("false && true") == EL::Value(false));
@@ -234,7 +234,7 @@ TEST_CASE("ELParserTest.parseLogicalAnd", "[ELParserTest]")
   CHECK(evaluate("false && false") == EL::Value(false));
 }
 
-TEST_CASE("ELParserTest.parseLogicalOr", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseLogicalOr")
 {
   CHECK(evaluate("true || true") == EL::Value(true));
   CHECK(evaluate("false || true") == EL::Value(true));
@@ -242,33 +242,33 @@ TEST_CASE("ELParserTest.parseLogicalOr", "[ELParserTest]")
   CHECK(evaluate("false || false") == EL::Value(false));
 }
 
-TEST_CASE("ELParserTest.parseBitwiseAnd", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseBitwiseAnd")
 {
   CHECK(evaluate("23 & 24") == EL::Value(23 & 24));
 }
 
-TEST_CASE("ELParserTest.parseBitwiseOr", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseBitwiseOr")
 {
   CHECK(evaluate("23 | 24") == EL::Value(23 | 24));
 }
 
-TEST_CASE("ELParserTest.parseBitwiseXor", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseBitwiseXor")
 {
   CHECK(evaluate("23 ^ 24") == EL::Value((23 ^ 24)));
   CHECK_THROWS_AS(evaluate("23 ^^ 23"), ParserException);
 }
 
-TEST_CASE("ELParserTest.parseBitwiseShiftLeft", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseBitwiseShiftLeft")
 {
   CHECK(evaluate("1 << 7") == EL::Value(1 << 7));
 }
 
-TEST_CASE("ELParserTest.parseBitwiseShiftRight", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseBitwiseShiftRight")
 {
   CHECK(evaluate("8 >> 2") == EL::Value(8 >> 2));
 }
 
-TEST_CASE("ELParserTest.parseSubscript", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseSubscript")
 {
   CHECK(evaluate("[ 1.0, 2.0, \"test\" ][0]") == EL::Value(1.0));
   CHECK(evaluate("[ 1.0, 2.0, \"test\" ][1]") == EL::Value(2.0));
@@ -322,7 +322,7 @@ TEST_CASE("ELParserTest.parseSubscript", "[ELParserTest]")
   CHECK(evaluate("\"test\"[1..]") == EL::Value("est"));
 }
 
-TEST_CASE("ELParserTest.parseCaseOperator", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseCaseOperator")
 {
   CHECK(evaluate("true -> false") == EL::Value(false));
   CHECK(evaluate("true -> true && true") == EL::Value(true));
@@ -330,12 +330,12 @@ TEST_CASE("ELParserTest.parseCaseOperator", "[ELParserTest]")
   CHECK(evaluate("false -> true") == EL::Value(EL::Value::Undefined));
 }
 
-TEST_CASE("ELParserTest.parseBinaryNegation", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseBinaryNegation")
 {
   CHECK(evaluate("~1") == EL::Value(~1l));
 }
 
-TEST_CASE("ELParserTest.parseSwitchExpression", "[ELParserTest]")
+TEST_CASE("ELParserTest.parseSwitchExpression")
 {
   CHECK(evaluate("{{}}") == EL::Value::Undefined);
   CHECK(evaluate("{{'asdf'}}") == EL::Value("asdf"));
@@ -344,7 +344,7 @@ TEST_CASE("ELParserTest.parseSwitchExpression", "[ELParserTest]")
   CHECK(evaluate("{{false -> false}}") == EL::Value::Undefined);
 }
 
-TEST_CASE("ELParserTest.testComparisonOperators", "[ELParserTest]")
+TEST_CASE("ELParserTest.testComparisonOperators")
 {
   CHECK(evaluate("1 < 2") == EL::Value(true));
   CHECK(evaluate("2 < 2") == EL::Value(false));
@@ -364,7 +364,7 @@ TEST_CASE("ELParserTest.testComparisonOperators", "[ELParserTest]")
   CHECK(evaluate("2 >= 3") == EL::Value(false));
 }
 
-TEST_CASE("ELParserTest.testOperatorPrecedence", "[ELParserTest]")
+TEST_CASE("ELParserTest.testOperatorPrecedence")
 {
   CHECK(evaluate("7 + 2 * 3") == evaluate("2 * 3 + 7"));
   CHECK(evaluate("7 + 2 * 3 + 2") == evaluate("2 * 3 + 7 + 2"));
@@ -378,7 +378,7 @@ TEST_CASE("ELParserTest.testOperatorPrecedence", "[ELParserTest]")
   CHECK(evaluate("false && (false || true)") == EL::Value(false));
 }
 
-TEST_CASE("ELParserTest.testParseGrouping", "[ELParserTest]")
+TEST_CASE("ELParserTest.testParseGrouping")
 {
   CHECK_THROWS_AS(evaluate("()"), ParserException);
   CHECK(evaluate("(1)") == EL::Value(1.0));

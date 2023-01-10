@@ -31,7 +31,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-TEST_CASE("AssetUtilsTest.safeGetModelSpecification", "[AssetUtilsTest]")
+TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
 {
   TestLogger logger;
 

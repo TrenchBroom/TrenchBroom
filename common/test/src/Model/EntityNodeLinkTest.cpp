@@ -34,7 +34,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-TEST_CASE("EntityNodeLinkTest.testCreateLink", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testCreateLink")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
@@ -55,7 +55,7 @@ TEST_CASE("EntityNodeLinkTest.testCreateLink", "[EntityNodeLinkTest]")
   CHECK(sources.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode1 = new Model::EntityNode(Model::Entity());
@@ -85,7 +85,7 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink", "[EntityNodeLinkTest]"
   CHECK(kdl::vec_contains(sources, sourceNode2));
 }
 
-TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
@@ -120,7 +120,7 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink", "[EntityNodeLinkTest]"
   CHECK(sources2.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testLoadLink", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testLoadLink")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(
@@ -140,7 +140,7 @@ TEST_CASE("EntityNodeLinkTest.testLoadLink", "[EntityNodeLinkTest]")
   CHECK(sources.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(
@@ -160,7 +160,7 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource", "[EntityNodeLinkT
   CHECK(sources.empty());
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(
@@ -180,7 +180,7 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget", "[EntityNodeLinkT
   CHECK(sources.empty());
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(
@@ -202,7 +202,7 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource", "[EntityNodeLinkT
   delete sourceNode;
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(
@@ -224,7 +224,7 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget", "[EntityNodeLinkT
   delete targetNode;
 }
 
-TEST_CASE("EntityNodeLinkTest.testCreateKillLink", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testCreateKillLink")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
@@ -245,7 +245,7 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLink", "[EntityNodeLinkTest]")
   CHECK(sources.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testLoadKillLink", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testLoadKillLink")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(
@@ -265,7 +265,7 @@ TEST_CASE("EntityNodeLinkTest.testLoadKillLink", "[EntityNodeLinkTest]")
   CHECK(sources.front() == sourceNode);
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(
@@ -285,7 +285,7 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource", "[EntityNodeL
   CHECK(sources.empty());
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(
@@ -305,7 +305,7 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget", "[EntityNodeL
   CHECK(sources.empty());
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(
@@ -327,7 +327,7 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource", "[EntityNodeL
   delete sourceNode;
 }
 
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget", "[EntityNodeLinkTest]")
+TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   EntityNode* sourceNode = new Model::EntityNode(

@@ -219,7 +219,7 @@ static Model::PickResult performPick(
 /**
  * Test for https://github.com/TrenchBroom/TrenchBroom/issues/3726
  */
-TEST_CASE("ExtrudeToolTest.findDragFaces", "[ExtrudeToolTest]")
+TEST_CASE("ExtrudeToolTest.findDragFaces")
 {
   using T = std::tuple<IO::Path, std::vector<std::string>>;
 
@@ -274,7 +274,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces", "[ExtrudeToolTest]")
     Catch::UnorderedEquals(expectedDragFaceTextureNames));
 }
 
-TEST_CASE("ExtrudeToolTest.splitBrushes", "[ExtrudeToolTest]")
+TEST_CASE("ExtrudeToolTest.splitBrushes")
 {
   using namespace Model::HitFilters;
 

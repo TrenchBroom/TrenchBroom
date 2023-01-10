@@ -27,7 +27,7 @@
 
 namespace kdl
 {
-TEST_CASE("zip_iterator_test.construct", "[zip_iterator_test]")
+TEST_CASE("zip_iterator_test.construct")
 {
   using Catch::Matchers::Equals;
 
@@ -41,7 +41,7 @@ TEST_CASE("zip_iterator_test.construct", "[zip_iterator_test]")
   CHECK_THAT(vz, Equals(std::vector<std::tuple<int, int>>{{1, 4}, {2, 5}, {3, 6}}));
 }
 
-TEST_CASE("zip_iterator_test.make_zip_range", "[zip_iterator_test]")
+TEST_CASE("zip_iterator_test.make_zip_range")
 {
   using Catch::Matchers::Equals;
 

@@ -160,7 +160,7 @@ TEST_CASE("GroupNodeTest.canRemoveChild")
   CHECK(groupNode.canRemoveChild(&patchNode));
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroups", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateLinkedGroups")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -232,7 +232,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroups", "[GroupNodeTest]")
   }
 }
 
-TEST_CASE("GroupNodeTest.updateNestedLinkedGroups", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateNestedLinkedGroups")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -320,7 +320,7 @@ TEST_CASE("GroupNodeTest.updateNestedLinkedGroups", "[GroupNodeTest]")
   }
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroupsRecursively", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateLinkedGroupsRecursively")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -393,7 +393,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsRecursively", "[GroupNodeTest]")
     [](const auto&) { FAIL(); }));
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroupsExceedsWorldBounds", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateLinkedGroupsExceedsWorldBounds")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 

@@ -34,7 +34,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("AseParserTest.parseFailure_2657", "[AseParserTest]")
+TEST_CASE("AseParserTest.parseFailure_2657")
 {
   NullLogger logger;
 
@@ -62,7 +62,7 @@ TEST_CASE("AseParserTest.parseFailure_2657", "[AseParserTest]")
   CHECK(model->frame(0)->loaded());
 }
 
-TEST_CASE("AseParserTest.parseFailure_2679", "[AseParserTest]")
+TEST_CASE("AseParserTest.parseFailure_2679")
 {
   NullLogger logger;
 
@@ -90,7 +90,7 @@ TEST_CASE("AseParserTest.parseFailure_2679", "[AseParserTest]")
   CHECK(model->frame(0)->loaded());
 }
 
-TEST_CASE("AseParserTest.parseFailure_2898_vertex_index", "[AseParserTest]")
+TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
 {
   NullLogger logger;
 
@@ -118,7 +118,7 @@ TEST_CASE("AseParserTest.parseFailure_2898_vertex_index", "[AseParserTest]")
   CHECK(model->frame(0)->loaded());
 }
 
-TEST_CASE("AseParserTest.parseFailure_2898_no_uv", "[AseParserTest]")
+TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
 {
   NullLogger logger;
 

@@ -373,7 +373,7 @@ void test_visit_error_rvalue_ref_with_opt_value(E&& e)
   CHECK(y.copies == 0u);
 }
 
-TEST_CASE("result_test.void_success", "[result_test]")
+TEST_CASE("result_test.void_success")
 {
   kdl::result<void, Error1> r1 =
     result<int, Error1>(1).and_then([](int) { return void_success; });
@@ -381,7 +381,7 @@ TEST_CASE("result_test.void_success", "[result_test]")
   CHECK(r1.is_success());
 }
 
-TEST_CASE("result_test.constructor", "[result_test]")
+TEST_CASE("result_test.constructor")
 {
   CHECK((result<int, float, std::string>(1).is_success()));
   CHECK((result<int, float, std::string>(1.0f).is_error()));
@@ -403,7 +403,7 @@ TEST_CASE("result_test.constructor", "[result_test]")
   test_construct_error<result<const int, Error1, Error2>>(Error2{});
 }
 
-TEST_CASE("result_test.converting_constructor", "[result_test]")
+TEST_CASE("result_test.converting_constructor")
 {
   CHECK(result<int, std::string, float>{result<int, std::string, float>{1}}.is_success());
   CHECK(
@@ -423,7 +423,7 @@ TEST_CASE("result_test.converting_constructor", "[result_test]")
   // CHECK(result<int, std::string, float>{result<int, float, double>{1.0f}}.is_error());
 }
 
-TEST_CASE("result_test.visit", "[result_test]")
+TEST_CASE("result_test.visit")
 {
   test_visit_success_const_lvalue_ref<const result<int, Error1, Error2>>(1);
   test_visit_success_const_lvalue_ref<result<int, Error1, Error2>>(1);
@@ -438,7 +438,7 @@ TEST_CASE("result_test.visit", "[result_test]")
   test_visit_error_rvalue_ref<result<int, Counter, Error2>>(Counter{});
 }
 
-TEST_CASE("result_test.and_then", "[result_test]")
+TEST_CASE("result_test.and_then")
 {
   test_and_then_const_lvalue_ref<const result<int, Error1, Error2>, float>(1);
   test_and_then_const_lvalue_ref<result<int, Error1, Error2>, float>(1);
@@ -447,7 +447,7 @@ TEST_CASE("result_test.and_then", "[result_test]")
   test_and_then_rvalue_ref<result<Counter, Error1, Error2>, Counter>(Counter{});
 }
 
-TEST_CASE("result_test.map_errors", "[result_test]")
+TEST_CASE("result_test.map_errors")
 {
   SECTION("map error of success result by const lvalue")
   {
@@ -484,7 +484,7 @@ TEST_CASE("result_test.map_errors", "[result_test]")
   }
 }
 
-TEST_CASE("void_result_test.constructor", "[void_result_test]")
+TEST_CASE("void_result_test.constructor")
 {
   CHECK((result<void, float, std::string>().is_success()));
   CHECK((result<void, float, std::string>(1.0f).is_error()));
@@ -500,7 +500,7 @@ TEST_CASE("void_result_test.constructor", "[void_result_test]")
   test_construct_error<result<void, Error1, Error2>>(Error2{});
 }
 
-TEST_CASE("void_result_test.converting_constructor", "[result_test]")
+TEST_CASE("void_result_test.converting_constructor")
 {
   CHECK(
     result<void, std::string, float>{result<void, std::string, float>{}}.is_success());
@@ -523,7 +523,7 @@ TEST_CASE("void_result_test.converting_constructor", "[result_test]")
   // double>{1.0f}}.is_error());
 }
 
-TEST_CASE("void_result_test.visit", "[void_result_test]")
+TEST_CASE("void_result_test.visit")
 {
   test_visit_success_with_opt_value<const result<void, Error1, Error2>>();
   test_visit_success_with_opt_value<result<void, Error1, Error2>>();
@@ -535,7 +535,7 @@ TEST_CASE("void_result_test.visit", "[void_result_test]")
   test_visit_error_rvalue_ref_with_opt_value<result<void, Counter, Error2>>(Counter{});
 }
 
-TEST_CASE("void_result_test.and_then", "[void_result_test]")
+TEST_CASE("void_result_test.and_then")
 {
   const auto r_success = result<void, Error1, Error2>();
   const auto r_error = result<void, Error1, Error2>(Error2{});

@@ -29,7 +29,7 @@ namespace TrenchBroom
 {
 namespace Renderer
 {
-TEST_CASE("AllocationTrackerTest.constructor", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.constructor")
 {
   AllocationTracker t(100);
   CHECK(t.capacity() == 100u);
@@ -39,7 +39,7 @@ TEST_CASE("AllocationTrackerTest.constructor", "[AllocationTrackerTest]")
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.emptyConstructor", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.emptyConstructor")
 {
   AllocationTracker t;
   CHECK(t.capacity() == 0u);
@@ -50,7 +50,7 @@ TEST_CASE("AllocationTrackerTest.emptyConstructor", "[AllocationTrackerTest]")
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.constructWithZeroCapacity", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.constructWithZeroCapacity")
 {
   AllocationTracker t(0);
   CHECK(t.capacity() == 0u);
@@ -61,7 +61,7 @@ TEST_CASE("AllocationTrackerTest.constructWithZeroCapacity", "[AllocationTracker
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.invalidAllocate", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.invalidAllocate")
 {
   AllocationTracker t(100);
 
@@ -72,7 +72,7 @@ TEST_CASE("AllocationTrackerTest.invalidAllocate", "[AllocationTrackerTest]")
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.fiveAllocations")
 {
   AllocationTracker t(500);
 
@@ -160,7 +160,7 @@ TEST_CASE("AllocationTrackerTest.fiveAllocations", "[AllocationTrackerTest]")
   CHECK(t.freeBlocks() == (std::vector<AllocationTracker::Range>{}));
 }
 
-TEST_CASE("AllocationTrackerTest.freeMergeRight", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.freeMergeRight")
 {
   AllocationTracker t(400);
 
@@ -188,7 +188,7 @@ TEST_CASE("AllocationTrackerTest.freeMergeRight", "[AllocationTrackerTest]")
   CHECK(t.largestPossibleAllocation() == 200u);
 }
 
-TEST_CASE("AllocationTrackerTest.freeMergeLeft", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.freeMergeLeft")
 {
   AllocationTracker t(400);
 
@@ -216,7 +216,7 @@ TEST_CASE("AllocationTrackerTest.freeMergeLeft", "[AllocationTrackerTest]")
   CHECK(t.largestPossibleAllocation() == 200u);
 }
 
-TEST_CASE("AllocationTrackerTest.expandEmpty", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.expandEmpty")
 {
   AllocationTracker t;
 
@@ -230,7 +230,7 @@ TEST_CASE("AllocationTrackerTest.expandEmpty", "[AllocationTrackerTest]")
   CHECK_FALSE(t.hasAllocations());
 }
 
-TEST_CASE("AllocationTrackerTest.expandWithFreeSpaceAtEnd", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.expandWithFreeSpaceAtEnd")
 {
   AllocationTracker t(200);
 
@@ -249,7 +249,7 @@ TEST_CASE("AllocationTrackerTest.expandWithFreeSpaceAtEnd", "[AllocationTrackerT
   CHECK(t.usedBlocks() == (std::vector<AllocationTracker::Range>{{0, 100}}));
 }
 
-TEST_CASE("AllocationTrackerTest.expandWithUsedSpaceAtEnd", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.expandWithUsedSpaceAtEnd")
 {
   AllocationTracker t(200);
 
@@ -310,7 +310,7 @@ static void shuffle(std::vector<T>& vec, std::mt19937& engine)
   }
 }
 
-TEST_CASE("AllocationTrackerTest.testShuffle", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.testShuffle")
 {
   std::vector<int> ints;
   for (int i = 0; i < 10; ++i)
@@ -324,7 +324,7 @@ TEST_CASE("AllocationTrackerTest.testShuffle", "[AllocationTrackerTest]")
   CHECK(ints == (std::vector<int>{8, 0, 7, 6, 4, 3, 5, 1, 2, 9}));
 }
 
-TEST_CASE("AllocationTrackerTest.benchmarkAllocOnly", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.benchmarkAllocOnly")
 {
   std::mt19937 randEngine;
 
@@ -337,7 +337,7 @@ TEST_CASE("AllocationTrackerTest.benchmarkAllocOnly", "[AllocationTrackerTest]")
   }
 }
 
-TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc")
 {
   std::mt19937 randEngine;
 
@@ -374,7 +374,7 @@ TEST_CASE("AllocationTrackerTest.benchmarkAllocFreeAlloc", "[AllocationTrackerTe
   }
 }
 
-TEST_CASE("AllocationTrackerTest.benchmarkAllocAndExpand", "[AllocationTrackerTest]")
+TEST_CASE("AllocationTrackerTest.benchmarkAllocAndExpand")
 {
   std::mt19937 randEngine;
 

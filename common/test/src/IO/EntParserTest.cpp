@@ -51,7 +51,7 @@ static void assertPropertyDefinition(
   CHECK(propDefinition->type() == expectedType);
 }
 
-TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseIncludedEntFiles")
 {
   const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
   const std::vector<Path> cfgFiles =
@@ -90,7 +90,7 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles", "[EntParserTest]")
   }
 }
 
-TEST_CASE("EntParserTest.parseEmptyFile", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseEmptyFile")
 {
   const std::string file = "";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -102,7 +102,7 @@ TEST_CASE("EntParserTest.parseEmptyFile", "[EntParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseWhitespaceFile", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseWhitespaceFile")
 {
   const std::string file = "     \n  \t \n  ";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -114,7 +114,7 @@ TEST_CASE("EntParserTest.parseWhitespaceFile", "[EntParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseMalformedXML", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseMalformedXML")
 {
   const std::string file =
     R"(<?xml version="1.0"?>
@@ -128,7 +128,7 @@ TEST_CASE("EntParserTest.parseMalformedXML", "[EntParserTest]")
   CHECK_THROWS_AS(parser.parseDefinitions(status), ParserException);
 }
 
-TEST_CASE("EntParserTest.parseSimplePointEntityDefinition", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseSimplePointEntityDefinition")
 {
   const std::string file = R"(
 <?xml version="1.0"?>
@@ -258,7 +258,7 @@ Updated: 2011-03-02
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseSimpleGroupEntityDefinition", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseSimpleGroupEntityDefinition")
 {
   const std::string file = R"(
 <?xml version="1.0"?>
@@ -346,7 +346,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseListPropertyDefinition", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseListPropertyDefinition")
 {
   const std::string file = R"(
 <?xml version="1.0"?>
@@ -426,7 +426,7 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition", "[EntParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
 {
   const std::string file = R"(
 <?xml version="1.0"?>
@@ -466,7 +466,7 @@ TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition", "[EntParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseLegacyModelDefinition", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseLegacyModelDefinition")
 {
   const std::string file = R"(
 <?xml version="1.0"?>
@@ -496,7 +496,7 @@ TEST_CASE("EntParserTest.parseLegacyModelDefinition", "[EntParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("EntParserTest.parseELStaticModelDefinition", "[EntParserTest]")
+TEST_CASE("EntParserTest.parseELStaticModelDefinition")
 {
   const std::string file = R"(
             <?xml version="1.0"?>

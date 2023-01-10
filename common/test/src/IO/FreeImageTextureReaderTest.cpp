@@ -60,13 +60,13 @@ static void assertTexture(
   CHECK(texture.type() == Assets::TextureType::Opaque);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testLoadPngs", "[FreeImageTextureReaderTest]")
+TEST_CASE("FreeImageTextureReaderTest.testLoadPngs")
 {
   assertTexture("5x5.png", 5, 5);
   assertTexture("707x710.png", 707, 710);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testLoadCorruptPng", "[FreeImageTextureReaderTest]")
+TEST_CASE("FreeImageTextureReaderTest.testLoadCorruptPng")
 {
   const auto texture = loadTexture("corruptPngTest.png");
 
@@ -76,7 +76,7 @@ TEST_CASE("FreeImageTextureReaderTest.testLoadCorruptPng", "[FreeImageTextureRea
   CHECK(texture.height() != 0u);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testLoad16BitPng", "[FreeImageTextureReaderTest]")
+TEST_CASE("FreeImageTextureReaderTest.testLoad16BitPng")
 {
   const auto texture = loadTexture("16bitGrayscale.png");
 
@@ -121,17 +121,17 @@ static void testImageContents(const Assets::Texture& texture, const ColorMatch m
   }
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testPNGContents", "[FreeImageTextureReaderTest]")
+TEST_CASE("FreeImageTextureReaderTest.testPNGContents")
 {
   testImageContents(loadTexture("pngContentsTest.png"), ColorMatch::Exact);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testJPGContents", "[FreeImageTextureReaderTest]")
+TEST_CASE("FreeImageTextureReaderTest.testJPGContents")
 {
   testImageContents(loadTexture("jpgContentsTest.jpg"), ColorMatch::Approximate);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.alphaMaskTest", "[FreeImageTextureReaderTest]")
+TEST_CASE("FreeImageTextureReaderTest.alphaMaskTest")
 {
   const auto texture = loadTexture("alphaMaskTest.png");
   const std::size_t w = 25u;

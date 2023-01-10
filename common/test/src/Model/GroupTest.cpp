@@ -38,7 +38,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-TEST_CASE("GroupTest.transform", "[GroupNodeTest]")
+TEST_CASE("GroupTest.transform")
 {
   auto group = Group{"name"};
   REQUIRE(group.transformation() == vm::mat4x4());

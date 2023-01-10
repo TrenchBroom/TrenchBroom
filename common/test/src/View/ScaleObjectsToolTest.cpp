@@ -26,7 +26,7 @@ namespace TrenchBroom
 {
 namespace View
 {
-TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_NonProportional", "[ScaleObjectsToolTest]")
+TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_NonProportional")
 {
   const auto input1 = vm::bbox3(vm::vec3(-100, -100, -100), vm::vec3(100, 100, 100));
 
@@ -84,7 +84,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_NonProportional", "[ScaleObjectsToo
           .is_empty());
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_Proportional", "[ScaleObjectsToolTest]")
+TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_Proportional")
 {
   const auto input1 = vm::bbox3(vm::vec3(-100, -100, -100), vm::vec3(100, 100, 100));
 
@@ -144,7 +144,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_Proportional", "[ScaleObjectsToolTe
           .is_empty());
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxCorner", "[ScaleObjectsToolTest]")
+TEST_CASE("ScaleObjectsToolTest.moveBBoxCorner")
 {
   const auto input1 = vm::bbox3(vm::vec3(-100, -100, -100), vm::vec3(100, 100, 100));
 
@@ -180,7 +180,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxCorner", "[ScaleObjectsToolTest]")
           .is_empty());
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional", "[ScaleObjectsToolTest]")
+TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional")
 {
   const auto input1 = vm::bbox3(vm::vec3(-100, -100, -100), vm::vec3(100, 100, 100));
 
@@ -270,7 +270,7 @@ TEST_CASE(
     == exp2);
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_Proportional", "[ScaleObjectsToolTest]")
+TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_Proportional")
 {
   const auto input1 = vm::bbox3(vm::vec3(-100, -100, -100), vm::vec3(100, 100, 100));
 
@@ -329,7 +329,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_Proportional", "[ScaleObjectsToolTe
           .is_empty());
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge", "[ScaleObjectsToolTest]")
+TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge")
 {
   const auto input1 = vm::bbox3(vm::vec3(-64, -64, -16), vm::vec3(64, 64, 16));
 

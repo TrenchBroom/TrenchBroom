@@ -118,7 +118,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.throwExceptionDuringCommand")
   CHECK_THROWS_AS(document->throwExceptionDuringCommand(), CommandProcessorException);
 }
 
-TEST_CASE("MapDocumentTest.detectValveFormatMap", "[MapDocumentTest]")
+TEST_CASE("MapDocumentTest.detectValveFormatMap")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
     IO::Path("fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"),
@@ -128,7 +128,7 @@ TEST_CASE("MapDocumentTest.detectValveFormatMap", "[MapDocumentTest]")
   CHECK(document->world()->defaultLayer()->childCount() == 1);
 }
 
-TEST_CASE("MapDocumentTest.detectStandardFormatMap", "[MapDocumentTest]")
+TEST_CASE("MapDocumentTest.detectStandardFormatMap")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
     IO::Path("fixture/test/View/MapDocumentTest/standardFormatMapWithoutFormatTag.map"),
@@ -138,7 +138,7 @@ TEST_CASE("MapDocumentTest.detectStandardFormatMap", "[MapDocumentTest]")
   CHECK(document->world()->defaultLayer()->childCount() == 1);
 }
 
-TEST_CASE("MapDocumentTest.detectEmptyMap", "[MapDocumentTest]")
+TEST_CASE("MapDocumentTest.detectEmptyMap")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
     IO::Path("fixture/test/View/MapDocumentTest/emptyMapWithoutFormatTag.map"),
@@ -149,7 +149,7 @@ TEST_CASE("MapDocumentTest.detectEmptyMap", "[MapDocumentTest]")
   CHECK(document->world()->defaultLayer()->childCount() == 0);
 }
 
-TEST_CASE("MapDocumentTest.mixedFormats", "[MapDocumentTest]")
+TEST_CASE("MapDocumentTest.mixedFormats")
 {
   // map has both Standard and Valve brushes
   CHECK_THROWS_AS(

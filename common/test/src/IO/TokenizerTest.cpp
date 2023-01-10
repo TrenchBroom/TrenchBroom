@@ -98,21 +98,21 @@ public:
   }
 };
 
-TEST_CASE("TokenizerTest.simpleLanguageEmptyString", "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageEmptyString")
 {
   const std::string testString("");
   SimpleTokenizer tokenizer(testString);
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlankString", "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageBlankString")
 {
   const std::string testString("\n  \t ");
   SimpleTokenizer tokenizer(testString);
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageEmptyBlock", "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageEmptyBlock")
 {
   const std::string testString(
     "{"
@@ -124,7 +124,7 @@ TEST_CASE("TokenizerTest.simpleLanguageEmptyBlock", "[TokenizerTest]")
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguagePushPeekPopToken", "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguagePushPeekPopToken")
 {
   const std::string testString(
     "{\n"
@@ -154,7 +154,7 @@ TEST_CASE(
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithStringAttribute", "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageBlockWithStringAttribute")
 {
   const std::string testString(
     "{\n"
@@ -176,7 +176,7 @@ TEST_CASE("TokenizerTest.simpleLanguageBlockWithStringAttribute", "[TokenizerTes
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithIntegerAttribute", "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageBlockWithIntegerAttribute")
 {
   const std::string testString(
     "{"
@@ -217,7 +217,7 @@ TEST_CASE(
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttribute", "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttribute")
 {
   const std::string testString(
     "{"

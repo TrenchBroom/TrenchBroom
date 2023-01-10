@@ -313,7 +313,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
   CHECK(document->selectionBounds() == box.translate(delta));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]")
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1734
 
@@ -338,7 +338,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]
   CHECK(light->parent() == group);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo", "[CopyPasteTest]")
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/4174
 

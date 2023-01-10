@@ -26,13 +26,13 @@
 
 namespace kdl
 {
-TEST_CASE("const_set_adapter_test.wrap_set", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.wrap_set")
 {
   const auto v = std::vector<int>{1, 2, 3, 4};
   CHECK_THAT(wrap_set(v).get_data(), Catch::Equals(v));
 }
 
-TEST_CASE("const_set_adapter_test.iterators", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.iterators")
 {
   const auto v = std::vector<int>{1, 2, 3, 4};
   const auto s = wrap_set(v);
@@ -46,7 +46,7 @@ TEST_CASE("const_set_adapter_test.iterators", "[const_set_adapter_test]")
   CHECK(it == std::end(s));
 }
 
-TEST_CASE("const_set_adapter_test.reverse_iterators", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.reverse_iterators")
 {
   const auto v = std::vector<int>{1, 2, 3, 4};
   const auto s = wrap_set(v);
@@ -60,7 +60,7 @@ TEST_CASE("const_set_adapter_test.reverse_iterators", "[const_set_adapter_test]"
   CHECK(it == std::rend(s));
 }
 
-TEST_CASE("const_set_adapter_test.empty", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.empty")
 {
   const auto v1 = std::vector<int>();
   CHECK(wrap_set(v1).empty());
@@ -69,7 +69,7 @@ TEST_CASE("const_set_adapter_test.empty", "[const_set_adapter_test]")
   CHECK_FALSE(wrap_set(v2).empty());
 }
 
-TEST_CASE("const_set_adapter_test.col_total_size", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.col_total_size")
 {
   const auto v1 = std::vector<int>();
   CHECK(wrap_set(v1).size() == 0u);
@@ -78,13 +78,13 @@ TEST_CASE("const_set_adapter_test.col_total_size", "[const_set_adapter_test]")
   CHECK(wrap_set(v2).size() == 2u);
 }
 
-TEST_CASE("const_set_adapter_test.max_size", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.max_size")
 {
   const auto v = std::vector<int>();
   CHECK(wrap_set(v).max_size() == v.max_size());
 }
 
-TEST_CASE("const_set_adapter_test.count", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.count")
 {
   const auto v1 = std::vector<int>();
   CHECK(wrap_set(v1).count(1) == 0u);
@@ -97,7 +97,7 @@ TEST_CASE("const_set_adapter_test.count", "[const_set_adapter_test]")
   CHECK(wrap_set(v2).count(4) == 0u);
 }
 
-TEST_CASE("const_set_adapter_test.find", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.find")
 {
   const auto v1 = std::vector<int>();
   const auto s1 = wrap_set(v1);
@@ -112,7 +112,7 @@ TEST_CASE("const_set_adapter_test.find", "[const_set_adapter_test]")
   CHECK(s2.find(4) == std::end(s2));
 }
 
-TEST_CASE("const_set_adapter_test.equal_range", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.equal_range")
 {
   const auto v1 = std::vector<int>();
   const auto s1 = wrap_set(v1);
@@ -137,7 +137,7 @@ TEST_CASE("const_set_adapter_test.equal_range", "[const_set_adapter_test]")
     == std::make_pair(std::next(std::begin(s2), 3), std::next(std::begin(s2), 3)));
 }
 
-TEST_CASE("const_set_adapter_test.lower_bound", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.lower_bound")
 {
   const auto v1 = std::vector<int>();
   const auto s1 = wrap_set(v1);
@@ -152,7 +152,7 @@ TEST_CASE("const_set_adapter_test.lower_bound", "[const_set_adapter_test]")
   CHECK(s2.lower_bound(4) == std::next(std::begin(s2), 3));
 }
 
-TEST_CASE("const_set_adapter_test.upper_bound", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.upper_bound")
 {
   const auto v1 = std::vector<int>();
   const auto s1 = wrap_set(v1);
@@ -167,14 +167,14 @@ TEST_CASE("const_set_adapter_test.upper_bound", "[const_set_adapter_test]")
   CHECK(s2.upper_bound(4) == std::next(std::begin(s2), 3));
 }
 
-TEST_CASE("const_set_adapter_test.capacity", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.capacity")
 {
   const auto v1 = std::vector<int>();
   const auto s1 = wrap_set(v1);
   CHECK(s1.capacity() == v1.capacity());
 }
 
-TEST_CASE("const_set_adapter_test.get_data", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.get_data")
 {
   const auto v1 = std::vector<int>();
   const auto s1 = wrap_set(v1);
@@ -182,7 +182,7 @@ TEST_CASE("const_set_adapter_test.get_data", "[const_set_adapter_test]")
   CHECK(&d == &v1);
 }
 
-TEST_CASE("const_set_adapter_test.operator_equal", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.operator_equal")
 {
   CHECK(wrap_set(std::vector<int>({})) == wrap_set(std::vector<int>({})));
   CHECK(wrap_set(std::vector<int>({1, 2, 3})) == wrap_set(std::vector<int>({1, 2, 3})));
@@ -194,7 +194,7 @@ TEST_CASE("const_set_adapter_test.operator_equal", "[const_set_adapter_test]")
   CHECK_FALSE(wrap_set(std::vector<int>({1, 2, 3})) == wrap_set(std::vector<int>({3})));
 }
 
-TEST_CASE("const_set_adapter_test.operator_not_equal", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.operator_not_equal")
 {
   CHECK_FALSE(wrap_set(std::vector<int>({})) != wrap_set(std::vector<int>({})));
   CHECK_FALSE(
@@ -205,7 +205,7 @@ TEST_CASE("const_set_adapter_test.operator_not_equal", "[const_set_adapter_test]
   CHECK(wrap_set(std::vector<int>({1, 2, 3})) != wrap_set(std::vector<int>({3})));
 }
 
-TEST_CASE("const_set_adapter_test.operator_less_than", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.operator_less_than")
 {
   CHECK_FALSE(wrap_set(std::vector<int>({})) < wrap_set(std::vector<int>({})));
   CHECK(wrap_set(std::vector<int>({})) < wrap_set(std::vector<int>({1})));
@@ -234,7 +234,7 @@ TEST_CASE(
   CHECK(wrap_set(std::vector<int>({1, 2, 3})) <= wrap_set(std::vector<int>({2, 3})));
 }
 
-TEST_CASE("const_set_adapter_test.operator_greater_than", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.operator_greater_than")
 {
   CHECK_FALSE(wrap_set(std::vector<int>({})) > wrap_set(std::vector<int>({})));
   CHECK_FALSE(wrap_set(std::vector<int>({})) > wrap_set(std::vector<int>({1})));
@@ -264,19 +264,19 @@ TEST_CASE(
     wrap_set(std::vector<int>({1, 2, 3})) >= wrap_set(std::vector<int>({2, 3})));
 }
 
-TEST_CASE("set_adapter_test.wrap_set", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.wrap_set")
 {
   auto v = std::vector<int>{1, 2, 3};
   CHECK_THAT(wrap_set(v).get_data(), Catch::Equals(v));
 }
 
-TEST_CASE("set_adapter_test.create_set", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.create_set")
 {
   auto v = std::vector<int>{1, 2, 3, 2, 5};
   CHECK_THAT(create_set(v).get_data(), Catch::Equals(std::vector<int>{1, 2, 3, 5}));
 }
 
-TEST_CASE("set_adapter_test.operator_assign_with_initializer_list", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.operator_assign_with_initializer_list")
 {
   auto v = std::vector<int>{1, 2, 3, 2, 5};
   auto s = create_set(v);
@@ -285,7 +285,7 @@ TEST_CASE("set_adapter_test.operator_assign_with_initializer_list", "[set_adapte
   CHECK_THAT(s.get_data(), Catch::Equals(std::vector<int>{3, 5, 6, 7}));
 }
 
-TEST_CASE("set_adapter_test.clear", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.clear")
 {
   auto v = std::vector<int>{1, 2, 3};
   auto s = wrap_set(v);
@@ -295,7 +295,7 @@ TEST_CASE("set_adapter_test.clear", "[set_adapter_test]")
   CHECK(v.empty());
 }
 
-TEST_CASE("set_adapter_test.insert_with_value", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.insert_with_value")
 {
   auto v = std::vector<int>();
   auto s = wrap_set(v);
@@ -323,7 +323,7 @@ TEST_CASE("set_adapter_test.insert_with_value", "[set_adapter_test]")
   CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("set_adapter_test.insert_with_value_and_hint", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.insert_with_value_and_hint")
 {
   auto v = std::vector<int>();
   auto s = wrap_set(v);
@@ -343,7 +343,7 @@ TEST_CASE("set_adapter_test.insert_with_value_and_hint", "[set_adapter_test]")
   CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("set_adapter_test.insert_with_range", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.insert_with_range")
 {
   auto v = std::vector<int>();
   auto s = wrap_set(v);
@@ -354,7 +354,7 @@ TEST_CASE("set_adapter_test.insert_with_range", "[set_adapter_test]")
   CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3, 4}));
 }
 
-TEST_CASE("set_adapter_test.insert_with_range_and_count", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.insert_with_range_and_count")
 {
   auto v = std::vector<int>();
   auto s = wrap_set(v);
@@ -365,7 +365,7 @@ TEST_CASE("set_adapter_test.insert_with_range_and_count", "[set_adapter_test]")
   CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3, 4}));
 }
 
-TEST_CASE("set_adapter_test.emplace", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.emplace")
 {
   auto v = std::vector<int>();
   auto s = wrap_set(v);
@@ -396,7 +396,7 @@ TEST_CASE("set_adapter_test.emplace", "[set_adapter_test]")
   CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("set_adapter_test.emplace_hint", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.emplace_hint")
 {
   auto v = std::vector<int>();
   auto s = wrap_set(v);
@@ -419,7 +419,7 @@ TEST_CASE("set_adapter_test.emplace_hint", "[set_adapter_test]")
   CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("set_adapter_test.erase_with_iterator", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.erase_with_iterator")
 {
   auto v = std::vector<int>{1, 2, 3};
   auto s = wrap_set(v);
@@ -434,7 +434,7 @@ TEST_CASE("set_adapter_test.erase_with_iterator", "[set_adapter_test]")
   CHECK_THAT(v, Catch::Equals(std::vector<int>{}));
 }
 
-TEST_CASE("set_adapter_test.erase_with_range", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.erase_with_range")
 {
   auto v = std::vector<int>{1, 2, 3};
   auto s = wrap_set(v);
@@ -448,7 +448,7 @@ TEST_CASE("set_adapter_test.erase_with_range", "[set_adapter_test]")
   CHECK_THAT(v, Catch::Equals(std::vector<int>{}));
 }
 
-TEST_CASE("set_adapter_test.erase_with_value", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.erase_with_value")
 {
   auto v = std::vector<int>{1, 2, 3};
   auto s = wrap_set(v);
@@ -469,7 +469,7 @@ TEST_CASE("set_adapter_test.erase_with_value", "[set_adapter_test]")
   CHECK_THAT(v, Catch::Equals(std::vector<int>{}));
 }
 
-TEST_CASE("set_adapter_test.swap", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.swap")
 {
   // swap only works if the underlying collection is stored by value
   auto s = set_adapter<std::vector<int>, std::less<int>>(std::vector<int>({1, 2, 3}));
@@ -485,7 +485,7 @@ TEST_CASE("set_adapter_test.swap", "[set_adapter_test]")
   CHECK_THAT(t.get_data(), Catch::Equals(std::vector<int>{1, 2, 3}));
 }
 
-TEST_CASE("set_adapter_test.release_data", "[set_adapter_test]")
+TEST_CASE("set_adapter_test.release_data")
 {
   auto v = std::vector<int>{1, 2, 3};
   auto s = wrap_set(v);

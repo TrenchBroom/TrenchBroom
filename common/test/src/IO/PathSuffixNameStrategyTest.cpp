@@ -26,7 +26,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("PathSuffixNameStrategyTest.getTextureName", "[PathSuffixNameStrategyTest]")
+TEST_CASE("PathSuffixNameStrategyTest.getTextureName")
 {
   CHECK(TextureReader::PathSuffixNameStrategy(1u).textureName("", Path()) == "");
   CHECK(

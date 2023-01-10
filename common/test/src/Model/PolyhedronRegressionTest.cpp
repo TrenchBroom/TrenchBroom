@@ -50,7 +50,7 @@ using PFace = Polyhedron3d::Face;
 using EdgeInfo = std::pair<vm::vec3d, vm::vec3d>;
 using EdgeInfoList = std::vector<EdgeInfo>;
 
-TEST_CASE("PolyhedronTest.convexHullWithFailingPoints", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.convexHullWithFailingPoints")
 {
   const auto vertices = std::vector<vm::vec3>({
     vm::vec3d(-64.0, -45.5049, -34.4752),
@@ -67,7 +67,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 7u);
 }
 
-TEST_CASE("PolyhedronTest.convexHullWithFailingPoints2", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.convexHullWithFailingPoints2")
 {
   const auto vertices = std::vector<vm::vec3>({
     vm::vec3d(-64.0, 48.7375, -34.4752),
@@ -88,7 +88,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints2", "[PolyhedronTest]")
   }
 }
 
-TEST_CASE("PolyhedronTest.convexHullWithFailingPoints3", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.convexHullWithFailingPoints3")
 {
   const auto vertices = std::vector<vm::vec3>({
     vm::vec3d(-64, -64, -48),
@@ -104,7 +104,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints3", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 5u);
 }
 
-TEST_CASE("PolyhedronTest.convexHullWithFailingPoints4", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.convexHullWithFailingPoints4")
 {
   const auto vertices = std::vector<vm::vec3>({
     vm::vec3d(-64, 64, -48),
@@ -127,7 +127,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints4", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 13);
 }
 
-TEST_CASE("PolyhedronTest.convexHullWithFailingPoints5", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.convexHullWithFailingPoints5")
 {
   const auto vertices = std::vector<vm::vec3>({
     vm::vec3d(-64, -64, -64),
@@ -146,7 +146,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints5", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 8u);
 }
 
-TEST_CASE("PolyhedronTest.convexHullWithFailingPoints6", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.convexHullWithFailingPoints6")
 {
   const auto vertices = std::vector<vm::vec3>({
     vm::vec3d(-32, -16, -32),
@@ -163,7 +163,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints6", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 7u);
 }
 
-TEST_CASE("PolyhedronTest.convexHullWithFailingPoints7", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.convexHullWithFailingPoints7")
 {
   const auto vertices = std::vector<vm::vec3>({
     vm::vec3d(12.8616, -36.5751, 32),
@@ -180,7 +180,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints7", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 6u);
 }
 
-TEST_CASE("PolyhedronTest.convexHullWithFailingPoints8", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.convexHullWithFailingPoints8")
 {
   // Cause of https://github.com/TrenchBroom/TrenchBroom/issues/1469
   // See also BrushTest.subtractTruncatedCones
@@ -202,7 +202,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints8", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 9u);
 }
 
-TEST_CASE("PolyhedronTest.testAddManyPointsCrash", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.testAddManyPointsCrash")
 {
   const vm::vec3d p1(8, 10, 0);
   const vm::vec3d p2(0, 24, 0);
@@ -368,7 +368,7 @@ TEST_CASE("PolyhedronTest.testAddManyPointsCrash", "[PolyhedronTest]")
   CHECK(p.hasFace({p7, p5, p6}));
 }
 
-TEST_CASE("PolyhedronTest.testAdd8PointsCrash", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.testAdd8PointsCrash")
 {
   const auto vertices = std::vector<vm::vec3>({
     // a horizontal rectangle
@@ -388,7 +388,7 @@ TEST_CASE("PolyhedronTest.testAdd8PointsCrash", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 6u);
 }
 
-TEST_CASE("PolyhedronTest.crashWhileAddingPoints1", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.crashWhileAddingPoints1")
 {
   const auto vertices = std::vector<vm::vec3>({
     vm::vec3d(224, 336, 0),
@@ -404,7 +404,7 @@ TEST_CASE("PolyhedronTest.crashWhileAddingPoints1", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 6u);
 }
 
-TEST_CASE("PolyhedronTest.crashWhileAddingPoints2", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.crashWhileAddingPoints2")
 {
   const vm::vec3d p1(256, 39, 160);
   const vm::vec3d p4(256, 39, 64);
@@ -444,7 +444,7 @@ TEST_CASE("PolyhedronTest.crashWhileAddingPoints2", "[PolyhedronTest]")
   CHECK(p.hasFace({p6, p14, p15, p9}));
 }
 
-TEST_CASE("PolyhedronTest.crashWhileAddingPoints3", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.crashWhileAddingPoints3")
 {
   const auto vertices = std::vector<vm::vec3>({
     vm::vec3d(256, 39, 160),
@@ -468,7 +468,7 @@ TEST_CASE("PolyhedronTest.crashWhileAddingPoints3", "[PolyhedronTest]")
   CHECK(p.vertexCount() == 9u);
 }
 
-TEST_CASE("PolyhedronTest.crashWhileAddingPoints4", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.crashWhileAddingPoints4")
 {
   //
   // p2 .  |  . p3
@@ -487,7 +487,7 @@ TEST_CASE("PolyhedronTest.crashWhileAddingPoints4", "[PolyhedronTest]")
   CHECK(p.hasFace({p1, p2, p3, p4}));
 }
 
-TEST_CASE("PolyhedronTest.badClip", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.badClip")
 {
   std::vector<vm::vec3d> polyVertices;
   vm::parse_all<double, 3>(
@@ -522,7 +522,7 @@ TEST_CASE("PolyhedronTest.badClip", "[PolyhedronTest]")
   CHECK_NOTHROW(poly.clip(plane));
 }
 
-TEST_CASE("PolyhedronTest.clipWithInvalidSeam", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.clipWithInvalidSeam")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/1801
   // see BrushTest::invalidBrush1801
@@ -577,7 +577,7 @@ TEST_CASE("PolyhedronTest.clipWithInvalidSeam", "[PolyhedronTest]")
     vm::vec3d(-184.0, 1428.0, 237.0))));
 }
 
-TEST_CASE("PolyhedronTest.subtractFailWithMissingFragments", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractFailWithMissingFragments")
 {
   const std::vector<vm::vec3d> minuendVertices{
     vm::vec3d(-1056, 864, -192),
@@ -630,7 +630,7 @@ TEST_CASE(
   CHECK(result.size() == 3u);
 }
 
-TEST_CASE("PolyhedronTest.addVertexToPolygonAndAllFacesCoplanar", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.addVertexToPolygonAndAllFacesCoplanar")
 {
   auto p = Polyhedron3d{
     vm::vec3{-64.0, 64.0, -16.0},

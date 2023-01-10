@@ -24,7 +24,7 @@
 
 namespace kdl
 {
-TEST_CASE("set_temp_test.set_unset", "[set_temp_test]")
+TEST_CASE("set_temp_test.set_unset")
 {
   int value = 0;
   {
@@ -34,7 +34,7 @@ TEST_CASE("set_temp_test.set_unset", "[set_temp_test]")
   CHECK(value == 0);
 }
 
-TEST_CASE("set_temp_test.set_unset_bool", "[set_temp_test]")
+TEST_CASE("set_temp_test.set_unset_bool")
 {
   bool value = false;
   {
@@ -56,7 +56,7 @@ TEST_CASE("set_temp_test.set_unset_bool", "[set_temp_test]")
   CHECK_FALSE(value);
 }
 
-TEST_CASE("set_later_test.set", "[set_later_test]")
+TEST_CASE("set_later_test.set")
 {
   int value = 0;
 
@@ -67,7 +67,7 @@ TEST_CASE("set_later_test.set", "[set_later_test]")
   CHECK(value == 1);
 }
 
-TEST_CASE("inc_temp.inc_dec", "[inc_temp]")
+TEST_CASE("inc_temp.inc_dec")
 {
   int value = 0;
 
@@ -78,7 +78,7 @@ TEST_CASE("inc_temp.inc_dec", "[inc_temp]")
   CHECK(value == 0);
 }
 
-TEST_CASE("dec_temp.dec_inc", "[dec_temp]")
+TEST_CASE("dec_temp.dec_inc")
 {
   int value = 0;
   {

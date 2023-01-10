@@ -53,7 +53,7 @@ TEST_CASE_METHOD(
   CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer", "[LayerNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer")
 {
   // delete default brush
   document->selectAllNodes();
@@ -323,7 +323,7 @@ TEST_CASE_METHOD(
   CHECK(!entity1->locked());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer", "[LayerNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer")
 {
   // delete default brush
   document->selectAllNodes();

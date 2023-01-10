@@ -33,7 +33,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-TEST_CASE("NodeReaderTest.parseFaceAsNode", "[NodeReaderTest]")
+TEST_CASE("NodeReaderTest.parseFaceAsNode")
 {
   const std::string data(R"(
 ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
@@ -46,7 +46,7 @@ TEST_CASE("NodeReaderTest.parseFaceAsNode", "[NodeReaderTest]")
   CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
 }
 
-TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat", "[NodeReaderTest]")
+TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat")
 {
   const std::string data(R"(
 // entity 0
@@ -80,7 +80,7 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat", "[NodeReaderTest]")
     != nullptr);
 }
 
-TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups", "[NodeReaderTest]")
+TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups")
 {
   // Data comes from copying a Group in 2020.2
   const std::string data(R"(// entity 0

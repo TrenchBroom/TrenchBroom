@@ -31,7 +31,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("ObjParserTest.loadValidObj", "[ObjParserTest]")
+TEST_CASE("ObjParserTest.loadValidObj")
 {
   NullLogger logger;
 

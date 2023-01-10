@@ -40,7 +40,7 @@ static void assertMatches(
   CHECK_THAT(matches, Catch::UnorderedEquals(expectedMatches));
 }
 
-TEST_CASE("compact_trie_test.insert", "[compact_trie_test]")
+TEST_CASE("compact_trie_test.insert")
 {
   test_index index;
   index.insert("key", "value");
@@ -76,7 +76,7 @@ TEST_CASE("compact_trie_test.insert", "[compact_trie_test]")
   assertMatches(index, "*", {"value", "value", "value2", "value3", "value4", "value4"});
 }
 
-TEST_CASE("compact_trie_test.remove", "[compact_trie_test]")
+TEST_CASE("compact_trie_test.remove")
 {
   test_index index;
   index.insert("andrew", "value");
@@ -113,7 +113,7 @@ TEST_CASE("compact_trie_test.remove", "[compact_trie_test]")
   assertMatches(index, "*", {});
 }
 
-TEST_CASE("compact_trie_test.find_matches_with_exact_pattern", "[compact_trie_test]")
+TEST_CASE("compact_trie_test.find_matches_with_exact_pattern")
 {
   test_index index;
   index.insert("key", "value");
@@ -133,7 +133,7 @@ TEST_CASE("compact_trie_test.find_matches_with_exact_pattern", "[compact_trie_te
   assertMatches(index, "", {});
 }
 
-TEST_CASE("compact_trie_test.find_matches_with_wildcards", "[compact_trie_test]")
+TEST_CASE("compact_trie_test.find_matches_with_wildcards")
 {
   test_index index;
   index.insert("key", "value");
@@ -172,7 +172,7 @@ TEST_CASE("compact_trie_test.find_matches_with_wildcards", "[compact_trie_test]"
   assertMatches(index, "t*%*", {});
 }
 
-TEST_CASE("compact_trie_test.find_matches_with_digit_suffix", "[compact_trie_test]")
+TEST_CASE("compact_trie_test.find_matches_with_digit_suffix")
 {
   test_index index;
   index.insert("key", "value");
@@ -191,7 +191,7 @@ TEST_CASE("compact_trie_test.find_matches_with_digit_suffix", "[compact_trie_tes
   assertMatches(index, "k%*", {});
 }
 
-TEST_CASE("compact_trie_test.get_keys", "[compact_trie_test]")
+TEST_CASE("compact_trie_test.get_keys")
 {
   test_index index;
   index.insert("key", "value");

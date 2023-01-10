@@ -43,13 +43,13 @@ namespace View
 {
 static const vm::bbox3 worldBounds(8192.0);
 
-TEST_CASE("GridTest.size", "[GridTest]")
+TEST_CASE("GridTest.size")
 {
   for (int i = Grid::MinSize; i < Grid::MaxSize; ++i)
     CHECK(Grid(i).size() == i);
 }
 
-TEST_CASE("GridTest.actualSizeInteger", "[GridTest]")
+TEST_CASE("GridTest.actualSizeInteger")
 {
   for (int i = 0; i < Grid::MaxSize; ++i)
   {
@@ -58,14 +58,14 @@ TEST_CASE("GridTest.actualSizeInteger", "[GridTest]")
   }
 }
 
-TEST_CASE("GridTest.actualSizeSubInteger", "[GridTest]")
+TEST_CASE("GridTest.actualSizeSubInteger")
 {
   CHECK(Grid(-1).actualSize() == 0.5);
   CHECK(Grid(-2).actualSize() == 0.25);
   CHECK(Grid(-3).actualSize() == 0.125);
 }
 
-TEST_CASE("GridTest.changeSize", "[GridTest]")
+TEST_CASE("GridTest.changeSize")
 {
   Grid g(0);
   g.incSize();
@@ -79,7 +79,7 @@ TEST_CASE("GridTest.changeSize", "[GridTest]")
   CHECK(g.size() == 4);
 }
 
-TEST_CASE("GridTest.offsetScalars", "[GridTest]")
+TEST_CASE("GridTest.offsetScalars")
 {
   CHECK(Grid(2u).offset(0.0) == vm::approx(0.0));
   CHECK(Grid(2u).offset(0.3) == vm::approx(0.3));
@@ -93,7 +93,7 @@ TEST_CASE("GridTest.offsetScalars", "[GridTest]")
   CHECK(Grid(2u).offset(5.0) == vm::approx(1.0));
 }
 
-TEST_CASE("GridTest.snapScalars", "[GridTest]")
+TEST_CASE("GridTest.snapScalars")
 {
   CHECK(Grid(-1).snap(0.0) == vm::approx(0.0));
   CHECK(Grid(-1).snap(0.1) == vm::approx(0.0));
@@ -129,7 +129,7 @@ TEST_CASE("GridTest.snapScalars", "[GridTest]")
   CHECK(Grid(2u).snapUp(-4.0, true) == vm::approx(0.0));
 }
 
-TEST_CASE("GridTest.snapOnLine", "[GridTest]")
+TEST_CASE("GridTest.snapOnLine")
 {
   const vm::line3d X(vm::vec3d(5.0, 0.0, 0.0), vm::vec3d::pos_x());
 
@@ -150,7 +150,7 @@ TEST_CASE("GridTest.snapOnLine", "[GridTest]")
     Grid(2u).snap(vm::vec3(7.5, 0.0, 0.0), L) == vm::approx(vm::vec3d(2.0, 4.0, 0.0)));
 }
 
-TEST_CASE("GridTest.snapOnEdge", "[GridTest]")
+TEST_CASE("GridTest.snapOnEdge")
 {
   const vm::segment3d E(vm::vec3d::zero(), vm::vec3d(1.0, 2.0, 0.0) * 2.0);
   CHECK(Grid(2u).snap(vm::vec3d::zero(), E) == vm::approx(vm::vec3d::zero()));
@@ -163,7 +163,7 @@ TEST_CASE("GridTest.snapOnEdge", "[GridTest]")
   CHECK(vm::is_nan(Grid(2u).snap(vm::vec3(-10.0, 0.0, 0.0), E)));
 }
 
-TEST_CASE("GridTest.snapOnQuad", "[GridTest]")
+TEST_CASE("GridTest.snapOnQuad")
 {
   const vm::polygon3d quad{
     vm::vec3d(-9.0, -9.0, 0.0),
@@ -189,7 +189,7 @@ TEST_CASE("GridTest.snapOnQuad", "[GridTest]")
     == vm::approx(vm::vec3d(9.0, -4.0, 0.0)));
 }
 
-TEST_CASE("GridTest.moveDeltaForPoint", "[GridTest]")
+TEST_CASE("GridTest.moveDeltaForPoint")
 {
   const auto grid16 = Grid(4);
 
@@ -200,7 +200,7 @@ TEST_CASE("GridTest.moveDeltaForPoint", "[GridTest]")
   CHECK(pointOffGrid + grid16.moveDeltaForPoint(pointOffGrid, inputDelta) == pointOnGrid);
 }
 
-TEST_CASE("GridTest.moveDeltaForPoint_SubInteger", "[GridTest]")
+TEST_CASE("GridTest.moveDeltaForPoint_SubInteger")
 {
   const auto grid05 = Grid(-1);
 
@@ -212,7 +212,7 @@ TEST_CASE("GridTest.moveDeltaForPoint_SubInteger", "[GridTest]")
   CHECK(pointOffGrid + grid05.moveDeltaForPoint(pointOffGrid, inputDelta) == pointOnGrid);
 }
 
-TEST_CASE("GridTest.moveDeltaForPoint_SubInteger2", "[GridTest]")
+TEST_CASE("GridTest.moveDeltaForPoint_SubInteger2")
 {
   const auto grid05 = Grid(-1);
 
@@ -229,7 +229,7 @@ static vm::ray3 make_ray_from_to(const vm::vec3& from, const vm::vec3& to)
   return vm::ray3(from, vm::normalize(to - from));
 }
 
-TEST_CASE("GridTest.moveDeltaForBounds", "[GridTest]")
+TEST_CASE("GridTest.moveDeltaForBounds")
 {
   const auto grid16 = Grid(4);
 
