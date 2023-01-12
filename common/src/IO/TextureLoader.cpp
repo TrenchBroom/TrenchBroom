@@ -28,6 +28,7 @@
 #include "IO/HlMipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/M8TextureReader.h"
+#include "IO/DdsTextureReader.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderTextureReader.h"
 #include "IO/TextureCollectionLoader.h"
@@ -97,6 +98,10 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   else if (textureConfig.format.format == "m8")
   {
     return std::make_unique<M8TextureReader>(nameStrategy, gameFS, logger);
+  }
+  else if (textureConfig.format.format == "dds")
+  {
+    return std::make_unique<DdsTextureReader>(nameStrategy, gameFS, logger);
   }
   else
   {

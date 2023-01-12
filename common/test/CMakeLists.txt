@@ -35,6 +35,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/EntityModelTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/FgdParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/FreeImageTextureReaderTest.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/DdsTextureReaderTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/GameConfigParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/GameEngineConfigParserTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/HlMipTextureReaderTest.cpp"

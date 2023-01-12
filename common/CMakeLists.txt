@@ -49,6 +49,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/FileMatcher.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/FreeImageTextureReader.cpp
+        ${COMMON_SOURCE_DIR}/IO/DdsTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.cpp
@@ -536,6 +537,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/FileMatcher.h
         ${COMMON_SOURCE_DIR}/IO/FileSystem.h
         ${COMMON_SOURCE_DIR}/IO/FreeImageTextureReader.h
+        ${COMMON_SOURCE_DIR}/IO/DdsTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.h
