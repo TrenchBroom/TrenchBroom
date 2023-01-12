@@ -1632,6 +1632,14 @@ TEST_CASE("WorldReaderTest.parseLinkedGroupsWithMissingTransformation")
 "_tb_linked_group_id" "1"
 "_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
 }
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 3"
+"_tb_id" "3"
+"_tb_linked_group_id" "1"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
             )";
 
   const auto worldBounds = vm::bbox3{8192.0};
@@ -1641,22 +1649,29 @@ TEST_CASE("WorldReaderTest.parseLinkedGroupsWithMissingTransformation")
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
-  CHECK(world->defaultLayer()->childCount() == 2u);
+  CHECK(world->defaultLayer()->childCount() == 3u);
 
   auto* groupNode1 =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[0]);
   auto* groupNode2 =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().back());
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[1]);
+  auto* groupNode3 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[2]);
 
   CHECK(groupNode1 != nullptr);
   CHECK(groupNode2 != nullptr);
+  CHECK(groupNode3 != nullptr);
 
   CHECK(groupNode1->group().linkedGroupId() == std::nullopt);
   CHECK(groupNode2->group().linkedGroupId() == "1");
+  CHECK(groupNode3->group().linkedGroupId() == "1");
 
-  CHECK(groupNode1->group().transformation() == vm::mat4x4d{});
+  CHECK(groupNode1->group().transformation() == vm::mat4x4d::identity());
   CHECK(
     groupNode2->group().transformation()
+    == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
+  CHECK(
+    groupNode3->group().transformation()
     == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
 }
 
