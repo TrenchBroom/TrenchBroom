@@ -55,12 +55,6 @@ public:
 
 private:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
-  Assets::Texture readDdsTexture(std::shared_ptr<File> file) const;
-  static void readDdsMips(
-    const size_t width,
-    const size_t height,
-    Reader& reader,
-    Assets::TextureBufferList& buffers);
 };
 } // namespace IO
 } // namespace TrenchBroom
