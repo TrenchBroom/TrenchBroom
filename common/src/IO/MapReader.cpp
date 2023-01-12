@@ -698,6 +698,60 @@ static void validateDuplicateLayersAndGroups(
   }
 }
 
+static void validateOrphanedLinkedGroups(
+  std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
+{
+  auto linkedGroupCounts = std::unordered_map<std::string, size_t>{};
+  for (const auto& nodeInfo : nodeInfos)
+  {
+    if (nodeInfo)
+    {
+      nodeInfo->node->accept(kdl::overload(
+        [](const Model::WorldNode*) {},
+        [](const Model::LayerNode*) {},
+        [&](const Model::GroupNode* groupNode) {
+          if (const auto linkedGroupId = groupNode->group().linkedGroupId())
+          {
+            linkedGroupCounts[*linkedGroupId]++;
+          }
+        },
+        [](const Model::EntityNode*) {},
+        [](const Model::BrushNode*) {},
+        [](const Model::PatchNode*) {}));
+    }
+  }
+
+  for (auto& nodeInfo : nodeInfos)
+  {
+    if (nodeInfo)
+    {
+      nodeInfo->node->accept(kdl::overload(
+        [](const Model::WorldNode*) {},
+        [](const Model::LayerNode*) {},
+        [&](Model::GroupNode* groupNode) {
+          if (const auto linkedGroupId = groupNode->group().linkedGroupId())
+          {
+            if (linkedGroupCounts[*linkedGroupId] == 1)
+            {
+              status.error(
+                groupNode->lineNumber(),
+                kdl::str_to_string(
+                  "Unlinking orphaned linked group with ID '", *linkedGroupId, "'"));
+
+              auto newGroup = groupNode->group();
+              newGroup.resetLinkedGroupId();
+              newGroup.setTransformation(vm::mat4x4::identity());
+              groupNode->setGroup(std::move(newGroup));
+            }
+          }
+        },
+        [](const Model::EntityNode*) {},
+        [](const Model::BrushNode*) {},
+        [](const Model::PatchNode*) {}));
+    }
+  }
+}
+
 static void logValidationIssues(
   std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
 {
@@ -886,6 +940,7 @@ void MapReader::createNodes(ParserStatus& status)
   }
 
   validateDuplicateLayersAndGroups(nodeInfos, status);
+  validateOrphanedLinkedGroups(nodeInfos, status);
   logValidationIssues(nodeInfos, status);
 
   // build a map that maps nodes to their intended parents
