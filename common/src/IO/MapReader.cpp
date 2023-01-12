@@ -736,19 +736,6 @@ static void logValidationIssues(
 }
 
 /**
- * Validates the given node infos.
- *
- * - Removes layer and group nodes with duplicate IDs.
- * - Logs issues that occured during node creation.
- */
-static void validateNodes(
-  std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
-{
-  validateDuplicateLayersAndGroups(nodeInfos, status);
-  logValidationIssues(nodeInfos, status);
-}
-
-/**
  * Builds a map of nodes to their intended parents using the parent info stored in each
  * node info object (this either refers to a parent node by index or a parent layer or
  * group by ID).
@@ -898,7 +885,8 @@ void MapReader::createNodes(ParserStatus& status)
     }
   }
 
-  validateNodes(nodeInfos, status);
+  validateDuplicateLayersAndGroups(nodeInfos, status);
+  logValidationIssues(nodeInfos, status);
 
   // build a map that maps nodes to their intended parents
   // if a node is not in this map, we will pass defaultParent to the callbacks for the
