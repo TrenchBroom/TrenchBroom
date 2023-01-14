@@ -91,16 +91,18 @@ Texture::Texture(
   assert(m_height > 0);
 
   const auto compressed = isCompressedFormat(format);
-  [[maybe_unused]] const auto bytesPerPixel = compressed ? 0U : bytesPerPixelForFormat(format);
+  [[maybe_unused]] const auto bytesPerPixel =
+    compressed ? 0U : bytesPerPixelForFormat(format);
   [[maybe_unused]] const auto blockSize = compressed ? blockSizeForFormat(format) : 0U;
 
   for (size_t level = 0; level < m_buffers.size(); ++level)
   {
-    const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
-    const auto numBytes = compressed ? (
-                            blockSize * std::max(size_t(1), mipSize.x() / 4)
-                            * std::max(size_t(1), mipSize.y() / 4))
-                                     : (bytesPerPixel * mipSize.x() * mipSize.y());
+    [[maybe_unused]] const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
+    [[maybe_unused]] const auto numBytes =
+      compressed ? (
+        blockSize * std::max(size_t(1), mipSize.x() / 4)
+        * std::max(size_t(1), mipSize.y() / 4))
+                 : (bytesPerPixel * mipSize.x() * mipSize.y());
     assert(m_buffers[level].size() >= numBytes);
   }
 }

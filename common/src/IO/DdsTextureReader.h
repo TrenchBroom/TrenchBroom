@@ -19,9 +19,9 @@
 
 #pragma once
 
+#include "Assets/TextureBuffer.h"
 #include "Color.h"
 #include "IO/TextureReader.h"
-#include "Assets/TextureBuffer.h"
 #include "Renderer/GL.h"
 
 #include <cstdint>

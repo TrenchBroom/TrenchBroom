@@ -160,12 +160,12 @@ Assets::Texture DdsTextureReader::doReadTexture(std::shared_ptr<File> file) cons
       return Assets::Texture(textureName(path), 16, 16);
     }
 
-    /*const auto size =*/ reader.readSize<uint32_t>();
-    const auto flags = reader.readSize<uint32_t>();
+    /*const auto size =*/reader.readSize<uint32_t>();
+    /*const auto flags =*/reader.readSize<uint32_t>();
     const auto height = reader.readSize<uint32_t>();
     const auto width = reader.readSize<uint32_t>();
-    const auto pitch = reader.readSize<uint32_t>();
-    /*const auto depth =*/ reader.readSize<uint32_t>();
+    /*const auto pitch =*/reader.readSize<uint32_t>();
+    /*const auto depth =*/reader.readSize<uint32_t>();
     const auto mipMapsCount = reader.readSize<uint32_t>();
 
     if (!checkTextureDimensions(width, height))
@@ -174,7 +174,7 @@ Assets::Texture DdsTextureReader::doReadTexture(std::shared_ptr<File> file) cons
     }
 
     reader.seekFromBegin(DdsLayout::PixelFormatOffset);
-    /*const auto ddpfSize =*/ reader.readSize<uint32_t>();
+    /*const auto ddpfSize =*/reader.readSize<uint32_t>();
     const auto ddpfFlags = reader.readSize<uint32_t>();
     const auto ddpfFourcc = reader.readSize<uint32_t>();
     const auto ddpfRgbBitcount = reader.readSize<uint32_t>();
@@ -183,7 +183,7 @@ Assets::Texture DdsTextureReader::doReadTexture(std::shared_ptr<File> file) cons
     const auto ddpfBBitMask = reader.readSize<uint32_t>();
     const auto ddpfABitMask = reader.readSize<uint32_t>();
 
-    /*const auto caps =*/ reader.readSize<uint32_t>();
+    /*const auto caps =*/reader.readSize<uint32_t>();
     const auto caps2 = reader.readSize<uint32_t>();
 
     reader.seekFromBegin(DdsLayout::BasicHeaderLengthWithIdent);
