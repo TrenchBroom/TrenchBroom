@@ -657,13 +657,7 @@ static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
     });
 }
 
-/**
- * Validates the given node infos.
- *
- * - Removes layer and group nodes with duplicate IDs.
- * - Logs issues that occured during node creation.
- */
-static void validateNodes(
+static void validateDuplicateLayersAndGroups(
   std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
 {
   auto layerIds = std::unordered_set<Model::IdType>{};
@@ -673,8 +667,8 @@ static void validateNodes(
   {
     if (nodeInfo)
     {
-      const bool clearNode = nodeInfo->node->accept(kdl::overload(
-        [](Model::WorldNode*) { return false; },
+      nodeInfo->node->accept(kdl::overload(
+        [](Model::WorldNode*) {},
         [&](Model::LayerNode* layerNode) {
           const auto persistentId = *layerNode->persistentId();
           if (!layerIds.emplace(persistentId).second)
@@ -683,9 +677,8 @@ static void validateNodes(
               layerNode->lineNumber(),
               kdl::str_to_string(
                 "Skipping duplicate layer with ID '", persistentId, "'"));
-            return true;
+            nodeInfo.reset();
           }
-          return false;
         },
         [&](Model::GroupNode* groupNode) {
           const auto persistentId = *groupNode->persistentId();
@@ -695,49 +688,64 @@ static void validateNodes(
               groupNode->lineNumber(),
               kdl::str_to_string(
                 "Skipping duplicate group with ID '", persistentId, "'"));
-            return true;
+            nodeInfo.reset();
           }
-          return false;
         },
-        [](Model::EntityNode*) { return false; },
-        [](Model::BrushNode*) { return false; },
-        [](Model::PatchNode*) { return false; }));
-
-      if (clearNode)
-      {
-        nodeInfo.reset();
-      }
-      else
-      {
-        // log issues
-        for (const auto& issue : nodeInfo->issues)
-        {
-          std::visit(
-            kdl::overload(
-              [&](const MalformedTransformationIssue& m) {
-                status.warn(
-                  nodeInfo->node->lineNumber(),
-                  kdl::str_to_string(
-                    "Not linking group: malformed transformation '",
-                    m.transformationStr,
-                    "'"));
-              },
-              [&](const InvalidContainerId& c) {
-                status.warn(
-                  nodeInfo->node->lineNumber(),
-                  kdl::str_to_string(
-                    "Adding object to default layer: Invalid ",
-                    c.type,
-                    " ID '",
-                    c.idStr,
-                    "'"));
-              }),
-            issue);
-        }
-        nodeInfo->issues.clear();
-      }
+        [](Model::EntityNode*) {},
+        [](Model::BrushNode*) {},
+        [](Model::PatchNode*) {}));
     }
   }
+}
+
+static void logValidationIssues(
+  std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
+{
+  for (auto& nodeInfo : nodeInfos)
+  {
+    if (nodeInfo)
+    {
+      // log issues
+      for (const auto& issue : nodeInfo->issues)
+      {
+        std::visit(
+          kdl::overload(
+            [&](const MalformedTransformationIssue& m) {
+              status.warn(
+                nodeInfo->node->lineNumber(),
+                kdl::str_to_string(
+                  "Not linking group: malformed transformation '",
+                  m.transformationStr,
+                  "'"));
+            },
+            [&](const InvalidContainerId& c) {
+              status.warn(
+                nodeInfo->node->lineNumber(),
+                kdl::str_to_string(
+                  "Adding object to default layer: Invalid ",
+                  c.type,
+                  " ID '",
+                  c.idStr,
+                  "'"));
+            }),
+          issue);
+      }
+      nodeInfo->issues.clear();
+    }
+  }
+}
+
+/**
+ * Validates the given node infos.
+ *
+ * - Removes layer and group nodes with duplicate IDs.
+ * - Logs issues that occured during node creation.
+ */
+static void validateNodes(
+  std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
+{
+  validateDuplicateLayersAndGroups(nodeInfos, status);
+  logValidationIssues(nodeInfos, status);
 }
 
 /**
