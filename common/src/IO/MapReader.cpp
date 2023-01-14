@@ -698,6 +698,14 @@ static void validateDuplicateLayersAndGroups(
   }
 }
 
+static void unlinkGroup(Model::GroupNode& groupNode)
+{
+  auto newGroup = groupNode.group();
+  newGroup.resetLinkedGroupId();
+  newGroup.setTransformation(vm::mat4x4::identity());
+  groupNode.setGroup(std::move(newGroup));
+}
+
 static void validateOrphanedLinkedGroups(
   std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
 {
@@ -737,11 +745,7 @@ static void validateOrphanedLinkedGroups(
                 groupNode->lineNumber(),
                 kdl::str_to_string(
                   "Unlinking orphaned linked group with ID '", *linkedGroupId, "'"));
-
-              auto newGroup = groupNode->group();
-              newGroup.resetLinkedGroupId();
-              newGroup.setTransformation(vm::mat4x4::identity());
-              groupNode->setGroup(std::move(newGroup));
+              unlinkGroup(*groupNode);
             }
           }
         },
