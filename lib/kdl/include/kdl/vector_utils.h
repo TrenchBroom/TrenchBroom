@@ -996,6 +996,44 @@ auto set_intersection(const S1& s1, const S2& s2)
 }
 
 /**
+ * Checks if the given sets have a shared element.
+ *
+ * @tparam S1 the type of the first set
+ * @tparam S2 the type of the second set
+ * @tparam C the comparator to use when comparing set elements
+ * @param s1 the first set
+ * @param s2 the second set
+ * @return true if the given sets have a shared element and false otherwise
+ */
+template <
+  typename S1,
+  typename S2,
+  typename C =
+    std::less<std::common_type_t<typename S1::value_type, typename S2::value_type>>>
+auto set_has_shared_element(const S1& s1, const S2& s2, const C& cmp = C{})
+{
+  auto it1 = std::begin(s1);
+  auto it2 = std::begin(s2);
+  while (it1 != std::end(s1) && it2 != std::end(s2))
+  {
+    if (cmp(*it1, *it2))
+    {
+      ++it1;
+    }
+    else if (cmp(*it2, *it1))
+    {
+      ++it2;
+    }
+    else
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
  * Clears the given vector and ensures that it has a capacity of 0 afterwards.
  *
  * @tparam T the type of the vector elements

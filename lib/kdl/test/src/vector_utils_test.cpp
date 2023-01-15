@@ -446,6 +446,22 @@ TEST_CASE("vector_utils_test.set_intersection")
     set_intersection(set({1, 2, 3, 4}), set({1, 3, 5})), Catch::Equals(vec{1, 3}));
 }
 
+TEST_CASE("vector_utils_test.set_has_shared_element")
+{
+  using vec = std::vector<int>;
+  CHECK_FALSE(set_has_shared_element(vec{}, vec{}));
+  CHECK_FALSE(set_has_shared_element(vec{}, vec{4}));
+  CHECK_FALSE(set_has_shared_element(vec{1}, vec{4}));
+  CHECK_FALSE(set_has_shared_element(vec{1, 2, 3}, vec{4}));
+  CHECK(set_has_shared_element(vec{1}, vec{1}));
+  CHECK(set_has_shared_element(vec{1, 2, 3}, vec{1}));
+  CHECK(set_has_shared_element(vec{1}, vec{1, 2, 3}));
+  CHECK(set_has_shared_element(vec{1, 2, 3}, vec{2}));
+  CHECK(set_has_shared_element(vec{2}, vec{1, 2, 3}));
+  CHECK(set_has_shared_element(vec{1, 2, 3}, vec{3}));
+  CHECK(set_has_shared_element(vec{3}, vec{1, 2, 3}));
+}
+
 TEST_CASE("vector_utils_test.vec_clear_to_zero")
 {
   auto v = std::vector<int>{1, 2, 3};
