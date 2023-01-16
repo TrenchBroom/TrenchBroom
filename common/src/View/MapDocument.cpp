@@ -673,6 +673,37 @@ std::string MapDocument::serializeSelectedBrushFaces()
   return stream.str();
 }
 
+template <typename O>
+static void getLinkedGroupIdsRecursively(const std::vector<Model::Node*>& nodes, O out)
+{
+  Model::Node::visitAll(
+    nodes,
+    kdl::overload(
+      [](auto&& thisLambda, const Model::WorldNode* worldNode) {
+        worldNode->visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, const Model::LayerNode* layerNode) {
+        layerNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
+        if (const auto& linkedGroupId = groupNode->group().linkedGroupId())
+        {
+          out++ = *linkedGroupId;
+        }
+        groupNode->visitChildren(thisLambda);
+      },
+      [](const Model::EntityNode*) {},
+      [](const Model::BrushNode*) {},
+      [](const Model::PatchNode*) {}));
+}
+
+static auto getLinkedGroupIdsRecursively(const std::vector<Model::Node*>& nodes)
+{
+  auto linkedGroupIds = std::vector<std::string>{};
+  getLinkedGroupIdsRecursively(nodes, std::back_inserter(linkedGroupIds));
+  return kdl::vec_sort_and_remove_duplicates(std::move(linkedGroupIds));
+}
+
 PasteType MapDocument::paste(const std::string& str)
 {
   // Try parsing as entities, then as brushes, in all compatible formats
@@ -1469,28 +1500,10 @@ std::vector<Model::Node*> MapDocument::addNodes(
 static std::vector<std::string> getLinkedGroupIdsRecursively(
   const std::map<Model::Node*, std::vector<Model::Node*>>& parentChildrenMap)
 {
-  std::vector<std::string> linkedGroupIds;
+  auto linkedGroupIds = std::vector<std::string>{};
   for (const auto& [parent, children] : parentChildrenMap)
   {
-    Model::Node::visitAll(
-      children,
-      kdl::overload(
-        [](auto&& thisLambda, const Model::WorldNode* worldNode) {
-          worldNode->visitChildren(thisLambda);
-        },
-        [](auto&& thisLambda, const Model::LayerNode* layerNode) {
-          layerNode->visitChildren(thisLambda);
-        },
-        [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
-          if (const auto& linkedGroupId = groupNode->group().linkedGroupId())
-          {
-            linkedGroupIds.push_back(*linkedGroupId);
-          }
-          groupNode->visitChildren(thisLambda);
-        },
-        [](const Model::EntityNode*) {},
-        [](const Model::BrushNode*) {},
-        [](const Model::PatchNode*) {}));
+    getLinkedGroupIdsRecursively(children, std::back_inserter(linkedGroupIds));
   }
 
   return kdl::vec_sort_and_remove_duplicates(std::move(linkedGroupIds));
