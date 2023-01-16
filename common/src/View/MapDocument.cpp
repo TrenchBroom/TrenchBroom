@@ -706,9 +706,11 @@ static auto getLinkedGroupIdsRecursively(const std::vector<Model::Node*>& nodes)
 
 PasteType MapDocument::paste(const std::string& str)
 {
+  const auto linkedGroupIds = getLinkedGroupIdsRecursively({m_world.get()});
+
   // Try parsing as entities, then as brushes, in all compatible formats
-  const std::vector<Model::Node*> nodes =
-    m_game->parseNodes(str, m_world->mapFormat(), m_worldBounds, logger());
+  const std::vector<Model::Node*> nodes = m_game->parseNodes(
+    str, m_world->mapFormat(), m_worldBounds, linkedGroupIds, logger());
   if (!nodes.empty())
   {
     if (pasteNodes(nodes))

@@ -83,6 +83,7 @@ private:
     const std::string& str,
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
+    const std::vector<std::string>& linkedGroupsToKeep,
     Logger& logger) const override;
   std::vector<BrushFace> doParseBrushFaces(
     const std::string& str,

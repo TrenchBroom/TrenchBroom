@@ -60,9 +60,11 @@ MapReader::MapReader(
   std::string_view str,
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
-  Model::EntityPropertyConfig entityPropertyConfig)
+  Model::EntityPropertyConfig entityPropertyConfig,
+  std::vector<std::string> linkedGroupsToKeep)
   : StandardMapParser(std::move(str), sourceMapFormat, targetMapFormat)
   , m_entityPropertyConfig{std::move(entityPropertyConfig)}
+  , m_linkedGroupsToKeep{std::move(linkedGroupsToKeep)}
 {
 }
 
@@ -707,9 +709,16 @@ static void unlinkGroup(Model::GroupNode& groupNode)
 }
 
 static void validateOrphanedLinkedGroups(
-  std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
+  std::vector<std::optional<NodeInfo>>& nodeInfos,
+  const std::vector<std::string> linkedGroupsToKeep,
+  ParserStatus& status)
 {
   auto linkedGroupCounts = std::unordered_map<std::string, size_t>{};
+  for (const auto& linkedGroupId : linkedGroupsToKeep)
+  {
+    linkedGroupCounts[linkedGroupId] = 1;
+  }
+
   for (const auto& nodeInfo : nodeInfos)
   {
     if (nodeInfo)
@@ -997,7 +1006,7 @@ void MapReader::createNodes(ParserStatus& status)
   const auto nodeToParentMap = buildNodeToParentMap(nodeInfos, status);
 
   validateRecursiveLinkedGroups(nodeInfos, nodeToParentMap, status);
-  validateOrphanedLinkedGroups(nodeInfos, status);
+  validateOrphanedLinkedGroups(nodeInfos, m_linkedGroupsToKeep, status);
 
   logValidationIssues(nodeInfos, status);
 

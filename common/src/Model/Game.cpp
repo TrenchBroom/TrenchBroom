@@ -119,9 +119,10 @@ std::vector<Node*> Game::parseNodes(
   const std::string& str,
   const MapFormat mapFormat,
   const vm::bbox3& worldBounds,
+  const std::vector<std::string>& linkedGroupsToKeep,
   Logger& logger) const
 {
-  return doParseNodes(str, mapFormat, worldBounds, logger);
+  return doParseNodes(str, mapFormat, worldBounds, linkedGroupsToKeep, logger);
 }
 
 std::vector<BrushFace> Game::parseBrushFaces(

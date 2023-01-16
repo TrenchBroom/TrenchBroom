@@ -43,7 +43,8 @@ TEST_CASE("NodeReaderTest.parseFaceAsNode")
 
   IO::TestParserStatus status;
 
-  CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
+  CHECK(
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status).empty());
 }
 
 TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat")
@@ -70,7 +71,7 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(brushNode != nullptr);
 
@@ -106,7 +107,7 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
 
   auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
   REQUIRE(groupNode != nullptr);

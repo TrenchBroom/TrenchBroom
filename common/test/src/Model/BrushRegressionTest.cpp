@@ -588,7 +588,7 @@ TEST_CASE("BrushTest.moveVertexFail_2158")
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -654,7 +654,8 @@ TEST_CASE("BrushTest.moveVerticesFail_2158")
 
   IO::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes =
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -700,7 +701,7 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -772,7 +773,7 @@ static void assertCannotSnapTo(const std::string& data, const FloatType gridSize
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -793,7 +794,7 @@ static void assertSnapTo(const std::string& data, const FloatType gridSize)
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -1284,7 +1285,8 @@ TEST_CASE("BrushNodeTest.moveEdgesFail_2361")
 
   IO::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes =
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   REQUIRE(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -1375,7 +1377,7 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
 
   IO::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   REQUIRE(!nodes.empty());
 
   std::vector<vm::vec3> points;
@@ -1443,7 +1445,7 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   REQUIRE(nodes.size() == 28);
 
   std::vector<vm::vec3> points;
@@ -1551,9 +1553,9 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(minuendStr, MapFormat::Valve, worldBounds, {}, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(subtrahendStr, MapFormat::Valve, worldBounds, {}, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1590,9 +1592,9 @@ TEST_CASE("BrushTest.subtractDome")
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, {}, status);
   const std::vector<Node*> subtrahendNodes = IO::NodeReader::read(
-    subtrahendStr.str(), MapFormat::Standard, worldBounds, {}, status);
+    subtrahendStr.str(), MapFormat::Standard, worldBounds, {}, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1690,9 +1692,9 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1730,7 +1732,7 @@ TEST_CASE("BrushTest.healEdgesCrash")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Valve, worldBounds, {}, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1790,7 +1792,7 @@ TEST_CASE("BrushTest.healEdgesCrash2")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1932,7 +1934,7 @@ TEST_CASE("BrushTest.healEdgesCrash3")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1978,7 +1980,7 @@ TEST_CASE("BrushTest.findInitialEdgeFail")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
@@ -2030,7 +2032,7 @@ TEST_CASE("BrushTest.headEdgesFail")
 
   auto status = IO::TestParserStatus{};
   const auto nodes =
-    IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 }
 } // namespace Model

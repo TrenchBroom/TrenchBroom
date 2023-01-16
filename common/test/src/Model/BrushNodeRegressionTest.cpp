@@ -85,7 +85,8 @@ TEST_CASE("BrushNodeTest.buildBrush_1186")
 
   auto status = IO::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes =
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   kdl::vec_clear_and_delete(nodes);
@@ -121,7 +122,8 @@ TEST_CASE("BrushNodeTest.buildBrush_1185")
 
   auto status = IO::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes =
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   kdl::vec_clear_and_delete(nodes);
@@ -312,7 +314,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1697")
 
   auto status = IO::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   kdl::vec_clear_and_delete(nodes);
@@ -342,7 +344,8 @@ TEST_CASE("BrushNodeTest.buildBrush_1194")
 
   auto status = IO::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes =
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.empty());
 
   kdl::vec_clear_and_delete(nodes);
@@ -395,7 +398,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1332")
   auto status = IO::TestParserStatus{};
 
   auto nodes = IO::NodeReader::read(
-    data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
+    data, MapFormat::Standard, worldBounds, {}, {}, status); // assertion failure
   kdl::vec_clear_and_delete(nodes);
 }
 
@@ -446,7 +449,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1395")
   auto status = IO::TestParserStatus{};
 
   auto nodes = IO::NodeReader::read(
-    data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
+    data, MapFormat::Standard, worldBounds, {}, {}, status); // assertion failure
   kdl::vec_clear_and_delete(nodes);
 }
 
@@ -474,7 +477,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1801")
   auto status = IO::TestParserStatus{};
 
   auto nodes = IO::NodeReader::read(
-    data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
+    data, MapFormat::Standard, worldBounds, {}, {}, status); // assertion failure
   kdl::vec_clear_and_delete(nodes);
 }
 
@@ -564,7 +567,8 @@ TEST_CASE("BrushNodeTest.buildBrush_2361")
 
   auto status = IO::TestParserStatus{};
 
-  CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
+  CHECK_NOTHROW(
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status));
 }
 
 TEST_CASE("BrushNodeTest.buildBrush_2491")
@@ -586,7 +590,8 @@ TEST_CASE("BrushNodeTest.buildBrush_2491")
 
   auto status = IO::TestParserStatus{};
 
-  CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
+  CHECK_NOTHROW(
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status));
 }
 
 TEST_CASE("BrushNodeTest.buildBrush_2686")
@@ -626,7 +631,8 @@ TEST_CASE("BrushNodeTest.buildBrush_2686")
 
   auto status = IO::TestParserStatus{};
 
-  CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
+  CHECK_NOTHROW(
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status));
 }
 
 TEST_CASE("BrushNodeTest.buildBrush_4100")
@@ -657,7 +663,8 @@ TEST_CASE("BrushNodeTest.buildBrush_4100")
 
   auto status = IO::TestParserStatus{};
 
-  CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
+  CHECK_NOTHROW(
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status));
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/1893
@@ -790,7 +797,7 @@ TEST_CASE("BrushNodeTest.intersects_1893")
 
   auto status = IO::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
   CHECK(nodes.at(0)->hasChildren());
   CHECK(nodes.at(0)->children().size() == 2u);
