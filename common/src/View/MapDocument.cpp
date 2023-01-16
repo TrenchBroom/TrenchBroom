@@ -846,6 +846,42 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
     }
   }
 
+  // unlink any recursive linked groups
+  for (auto& [newParent, nodesToAddToParent] : nodesToAdd)
+  {
+    const auto linkedGroupIds =
+      kdl::vec_sort(Model::collectParentLinkedGroupIds(*newParent));
+    for (auto* node : nodesToAddToParent)
+    {
+      node->accept(kdl::overload(
+        [&](auto&& thisLambda, Model::WorldNode* worldNode) {
+          worldNode->visitChildren(thisLambda);
+        },
+        [&](auto&& thisLambda, Model::LayerNode* layerNode) {
+          layerNode->visitChildren(thisLambda);
+        },
+        [&](auto&& thisLambda, Model::GroupNode* groupNode) {
+          if (const auto& linkedGroupId = groupNode->group().linkedGroupId())
+          {
+            if (std::binary_search(
+                  linkedGroupIds.begin(), linkedGroupIds.end(), *linkedGroupId))
+            {
+              warn() << "Unlinking recursive linked group with ID '" << *linkedGroupId
+                     << "'";
+              auto group = groupNode->group();
+              group.resetLinkedGroupId();
+              groupNode->setGroup(std::move(group));
+            }
+          }
+          groupNode->visitChildren(thisLambda);
+        },
+        [](Model::EntityNode*) {},
+        [](Model::BrushNode*) {},
+        [](Model::PatchNode*) {}));
+    }
+  }
+
+
   auto transaction = Transaction{*this, "Paste Nodes"};
 
   const auto addedNodes = addNodes(nodesToAdd);
