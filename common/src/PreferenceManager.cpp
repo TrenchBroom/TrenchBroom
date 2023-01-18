@@ -326,27 +326,30 @@ void AppPreferenceManager::initialize()
 {
   m_preferencesFilePath = v2SettingsPath();
 
-  if (!migrateSettingsFromV1IfPathDoesNotExist(m_preferencesFilePath))
-  {
-    showErrorAndDisableFileReadWrite(
-      tr("An error occurrend while attempting to migrate the preferences to:"),
-      tr("ensure the directory is writable"));
-  }
+  migrateSettingsFromV1IfPathDoesNotExist(m_preferencesFilePath)
+    .and_then([&]() {
+      loadCacheFromDisk();
 
-  loadCacheFromDisk();
-
-  m_fileSystemWatcher = new QFileSystemWatcher{this};
-  if (m_fileSystemWatcher->addPath(m_preferencesFilePath))
-  {
-    connect(
-      m_fileSystemWatcher,
-      &QFileSystemWatcher::QFileSystemWatcher::fileChanged,
-      this,
-      [this]() {
-        qDebug() << "Reloading preferences after file change";
-        loadCacheFromDisk();
-      });
-  }
+      m_fileSystemWatcher = new QFileSystemWatcher{this};
+      if (m_fileSystemWatcher->addPath(m_preferencesFilePath))
+      {
+        connect(
+          m_fileSystemWatcher,
+          &QFileSystemWatcher::QFileSystemWatcher::fileChanged,
+          this,
+          [this]() {
+            qDebug() << "Reloading preferences after file change";
+            loadCacheFromDisk();
+          });
+      }
+    })
+    .handle_errors([&](const PreferenceErrors::FileAccessError&) {
+      // This happens e.g. if you don't have read permissions for
+      // m_preferencesFilePath
+      showErrorAndDisableFileReadWrite(
+        tr("A file IO error occurred while attempting to write the preference file:"),
+        tr("ensure the file is writable"));
+    });
 }
 
 bool AppPreferenceManager::saveInstantly() const
@@ -387,12 +390,14 @@ void AppPreferenceManager::discardChanges()
 
 void AppPreferenceManager::saveChangesImmediately()
 {
-  if (!writeV2SettingsToPath(m_preferencesFilePath, m_cache))
-  {
-    showErrorAndDisableFileReadWrite(
-      tr("An error occurrend while attempting to save the preferences file:"),
-      tr("ensure the directory is writable"));
-  }
+  writeV2SettingsToPath(m_preferencesFilePath, m_cache)
+    .handle_errors([&](const PreferenceErrors::FileAccessError&) {
+      // This happens e.g. if you don't have read permissions for
+      // m_preferencesFilePath
+      showErrorAndDisableFileReadWrite(
+        tr("A file IO error occurred while attempting to write the preference file:"),
+        tr("ensure the file is writable"));
+    });
 }
 
 void AppPreferenceManager::markAsUnsaved(PreferenceBase& preference)
@@ -846,7 +851,7 @@ ReadPreferencesResult readV2SettingsFromPath(const QString& path)
   return parseV2SettingsFromJSON(file.readAll());
 }
 
-bool writeV2SettingsToPath(
+WritePreferencesResult writeV2SettingsToPath(
   const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs)
 {
   const auto serialized = writeV2SettingsToJSON(v2Prefs);
@@ -854,22 +859,27 @@ bool writeV2SettingsToPath(
   const auto settingsDir = QFileInfo{path}.path();
   if (!QDir().mkpath(settingsDir))
   {
-    return false;
+    return PreferenceErrors::FileAccessError{};
   }
 
   auto saveFile = QSaveFile{path};
   if (!saveFile.open(QIODevice::WriteOnly))
   {
-    return false;
+    return PreferenceErrors::FileAccessError{};
   }
 
   const qint64 written = saveFile.write(serialized);
   if (written != static_cast<qint64>(serialized.size()))
   {
-    return false;
+    return PreferenceErrors::FileAccessError{};
   }
 
-  return saveFile.commit();
+  if (!saveFile.commit())
+  {
+    return PreferenceErrors::FileAccessError{};
+  }
+
+  return kdl::void_success;
 }
 
 ReadPreferencesResult readV2Settings()
@@ -908,13 +918,14 @@ QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs)
   return document.toJson(QJsonDocument::Indented);
 }
 
-bool migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath)
+WritePreferencesResult migrateSettingsFromV1IfPathDoesNotExist(
+  const QString& destinationPath)
 {
   // Check if the Preferences.json exists, migrate if not
   auto prefsFileInfo = QFileInfo{destinationPath};
   if (prefsFileInfo.exists())
   {
-    return true;
+    return kdl::void_success;
   }
 
   const auto v2Prefs = migrateV1ToV2(readV1Settings());
