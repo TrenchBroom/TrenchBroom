@@ -406,7 +406,7 @@ TEST_CASE("PreferencesTest.readV2", "[PreferencesTest]")
     [](const std::map<IO::Path, QJsonValue>& prefs) { testV2Prefs(prefs); },
     [](const PreferenceErrors::NoFilePresent&) { FAIL_CHECK(); },
     [](const PreferenceErrors::JsonParseError&) { FAIL_CHECK(); },
-    [](const PreferenceErrors::FileReadError&) { FAIL_CHECK(); }));
+    [](const PreferenceErrors::FileAccessError&) { FAIL_CHECK(); }));
 }
 
 TEST_CASE("PreferencesTest.testWriteReadV2", "[PreferencesTest]")
@@ -423,7 +423,7 @@ TEST_CASE("PreferencesTest.testWriteReadV2", "[PreferencesTest]")
     [&](const std::map<IO::Path, QJsonValue>& prefs) { CHECK(v2 == prefs); },
     [](const PreferenceErrors::NoFilePresent&) { FAIL_CHECK(); },
     [](const PreferenceErrors::JsonParseError&) { FAIL_CHECK(); },
-    [](const PreferenceErrors::FileReadError&) { FAIL_CHECK(); }));
+    [](const PreferenceErrors::FileAccessError&) { FAIL_CHECK(); }));
 }
 
 /**

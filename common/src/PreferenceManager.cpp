@@ -476,7 +476,7 @@ void AppPreferenceManager::loadCacheFromDisk()
   readV2SettingsFromPath(m_preferencesFilePath)
     .and_then([&](std::map<IO::Path, QJsonValue>&& prefs) { m_cache = std::move(prefs); })
     .handle_errors(kdl::overload(
-      [&](const PreferenceErrors::FileReadError&) {
+      [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
         // m_preferencesFilePath
         showErrorAndDisableFileReadWrite(
@@ -840,7 +840,7 @@ PreferencesResult readV2SettingsFromPath(const QString& path)
   }
   if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
   {
-    return PreferenceErrors::FileReadError{};
+    return PreferenceErrors::FileAccessError{};
   }
 
   return parseV2SettingsFromJSON(file.readAll());
