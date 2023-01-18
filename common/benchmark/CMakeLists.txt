@@ -45,10 +45,7 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>" "$<TARGET_FILE_DIR:common-benchmark>/styles")
 endif()
 
-# Clear all fixtures
-add_custom_command(TARGET common-benchmark POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E rm -rf "${BENCHMARK_FIXTURE_DEST_DIR}")
-
 # Copy test fixtures
 add_custom_command(TARGET common-benchmark POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E rm -rf "${BENCHMARK_FIXTURE_DEST_DIR}"
         COMMAND ${CMAKE_COMMAND} -E copy_directory "${BENCHMARK_FIXTURE_SOURCE_DIR}" "${BENCHMARK_FIXTURE_DEST_DIR}/benchmark")
