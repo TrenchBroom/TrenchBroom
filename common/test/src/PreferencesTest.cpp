@@ -400,7 +400,8 @@ TEST_CASE("PreferencesTest.readV2", "[PreferencesTest]")
   CHECK(parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar"})")).is_success());
   CHECK(parseV2SettingsFromJSON(QByteArray("{}")).is_success());
 
-  const PreferencesResult v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json");
+  const ReadPreferencesResult v2 =
+    readV2SettingsFromPath("fixture/test/preferences-v2.json");
   CHECK(v2.is_success());
   v2.visit(kdl::overload(
     [](const std::map<IO::Path, QJsonValue>& prefs) { testV2Prefs(prefs); },

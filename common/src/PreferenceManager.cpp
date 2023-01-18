@@ -825,7 +825,7 @@ QString v2SettingsPath()
     IO::SystemPaths::userDataDirectory() + IO::Path{"Preferences.json"});
 }
 
-PreferencesResult readV2SettingsFromPath(const QString& path)
+ReadPreferencesResult readV2SettingsFromPath(const QString& path)
 {
   auto file = QFile{path};
   if (!file.exists())
@@ -866,12 +866,12 @@ bool writeV2SettingsToPath(
   return saveFile.commit();
 }
 
-PreferencesResult readV2Settings()
+ReadPreferencesResult readV2Settings()
 {
   return readV2SettingsFromPath(v2SettingsPath());
 }
 
-PreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData)
+ReadPreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData)
 {
   auto error = QJsonParseError();
   const auto document = QJsonDocument::fromJson(jsonData, &error);

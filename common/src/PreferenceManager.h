@@ -317,7 +317,7 @@ struct FileAccessError
 };
 } // namespace PreferenceErrors
 
-using PreferencesResult = kdl::result<
+using ReadPreferencesResult = kdl::result<
   std::map<IO::Path, QJsonValue>, // Success case
   PreferenceErrors::NoFilePresent,
   PreferenceErrors::JsonParseError,
@@ -332,12 +332,12 @@ std::map<IO::Path, QJsonValue> migrateV1ToV2(
 
 // V2 settings
 QString v2SettingsPath();
-PreferencesResult readV2SettingsFromPath(const QString& path);
-PreferencesResult readV2Settings();
+ReadPreferencesResult readV2SettingsFromPath(const QString& path);
+ReadPreferencesResult readV2Settings();
 
 bool writeV2SettingsToPath(
   const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs);
-PreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData);
+ReadPreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData);
 QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs);
 
 // Migration
