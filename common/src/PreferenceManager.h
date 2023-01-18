@@ -323,6 +323,8 @@ using ReadPreferencesResult = kdl::result<
   PreferenceErrors::JsonParseError,
   PreferenceErrors::FileAccessError>;
 
+using WritePreferencesResult = kdl::result<void, PreferenceErrors::FileAccessError>;
+
 // V1 settings
 std::map<IO::Path, QJsonValue> parseINI(QTextStream& iniStream);
 std::map<IO::Path, QJsonValue> getINISettingsV1(const QString& path);
@@ -335,11 +337,12 @@ QString v2SettingsPath();
 ReadPreferencesResult readV2SettingsFromPath(const QString& path);
 ReadPreferencesResult readV2Settings();
 
-bool writeV2SettingsToPath(
+WritePreferencesResult writeV2SettingsToPath(
   const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs);
 ReadPreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData);
 QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs);
 
 // Migration
-bool migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
+WritePreferencesResult migrateSettingsFromV1IfPathDoesNotExist(
+  const QString& destinationPath);
 } // namespace TrenchBroom
