@@ -31,6 +31,9 @@
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
+#include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
+
 #include <string>
 
 #include <QDir>
@@ -143,17 +146,20 @@ void CompilationCopyFilesTaskRunner::doExecute()
     const auto targetPath = IO::Path{interpolate(m_task->targetSpec())};
 
     const auto sourceDirPath = sourcePath.deleteLastComponent();
-    const auto sourcePattern = sourcePath.lastComponent().asString();
+    const auto sourcePattern = IO::FileNameMatcher{sourcePath.lastComponent().asString()};
 
     try
     {
-      m_context << "#### Copying '" << IO::pathAsQString(sourcePath) << "' to '"
-                << IO::pathAsQString(targetPath) << "'\n";
+      const auto sourcePaths = IO::Disk::findItems(sourceDirPath, sourcePattern);
+      const auto sourceStrs = kdl::vec_transform(
+        sourcePaths, [](const auto& path) { return "'" + path.asString() + "'"; });
+      const auto sourceListQStr = QString::fromStdString(kdl::str_join(sourceStrs, ", "));
+      m_context << "#### Copying to '" << IO::pathAsQString(targetPath)
+                << "/': " << sourceListQStr << "\n";
       if (!m_context.test())
       {
         IO::Disk::ensureDirectoryExists(targetPath);
-        IO::Disk::copyFiles(
-          sourceDirPath, IO::FileNameMatcher{sourcePattern}, targetPath, true);
+        IO::Disk::copyFiles(sourceDirPath, sourcePattern, targetPath, true);
       }
       emit end();
     }
@@ -190,14 +196,18 @@ void CompilationDeleteFilesTaskRunner::doExecute()
     const auto targetPath = IO::Path{interpolate(m_task->targetSpec())};
 
     const auto targetDirPath = targetPath.deleteLastComponent();
-    const auto targetPattern = targetPath.lastComponent().asString();
+    const auto targetPattern = IO::FileNameMatcher{targetPath.lastComponent().asString()};
 
     try
     {
-      m_context << "#### Deleting '" << IO::pathAsQString(targetPath) << "'\n";
+      const auto targetPaths = IO::Disk::findItems(targetDirPath, targetPattern);
+      const auto targetStrs = kdl::vec_transform(
+        targetPaths, [](const auto& path) { return "'" + path.asString() + "'"; });
+      const auto targetListQStr = QString::fromStdString(kdl::str_join(targetStrs, ", "));
+      m_context << "#### Deleting: " << targetListQStr << "\n";
       if (!m_context.test())
       {
-        IO::Disk::deleteFiles(targetDirPath, IO::FileNameMatcher{targetPattern});
+        IO::Disk::deleteFiles(targetDirPath, targetPattern);
       }
       emit end();
     }
