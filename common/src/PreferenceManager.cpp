@@ -31,11 +31,11 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QMessageBox>
 #include <QSaveFile>
 #if defined(Q_OS_WIN)
 #include <QSettings>
 #endif
-#include <QMessageBox>
 #include <QStandardPaths>
 #include <QStringBuilder>
 
