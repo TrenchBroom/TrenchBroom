@@ -143,10 +143,12 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
   const auto file1 = IO::Path("file1.lit");
   const auto file2 = IO::Path("file2.lit");
   const auto file3 = IO::Path("file3.map");
+  const auto dir = IO::Path("somedir.lit");
 
   testEnvironment.createFile(file1, "");
   testEnvironment.createFile(file2, "");
   testEnvironment.createFile(file3, "");
+  testEnvironment.createDirectory(dir);
 
   auto task = Model::CompilationDeleteFiles{
     true, (testEnvironment.dir() + IO::Path("*.lit")).asString()};
@@ -157,6 +159,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
   CHECK(!testEnvironment.fileExists(file1));
   CHECK(!testEnvironment.fileExists(file2));
   CHECK(testEnvironment.fileExists(file3));
+  CHECK(testEnvironment.directoryExists(dir));
 }
 
 TEST_CASE("CompilationRunner.interpolateToolsVariables")
