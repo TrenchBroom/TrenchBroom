@@ -31,6 +31,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonValue>
+#include <QLockFile>
 #include <QMessageBox>
 #include <QSaveFile>
 #if defined(Q_OS_WIN)
