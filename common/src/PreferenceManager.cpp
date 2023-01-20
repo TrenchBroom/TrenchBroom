@@ -857,6 +857,12 @@ QString v2SettingsPath()
     IO::SystemPaths::userDataDirectory() + IO::Path{"Preferences.json"});
 }
 
+[[maybe_unused]] static QLockFile getLockFile(const QString& settingsFilePath)
+{
+  const auto lockFilePath = settingsFilePath + ".lck";
+  return QLockFile{lockFilePath};
+}
+
 ReadPreferencesResult readV2SettingsFromPath(const QString& path)
 {
   auto file = QFile{path};
