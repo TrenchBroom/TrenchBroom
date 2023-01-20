@@ -78,20 +78,24 @@ void ImageSpriteParser::doLoadFrame(
   {
     const auto w = static_cast<float>(texture->width());
     const auto h = static_cast<float>(texture->height());
-    const auto x = w / 2.0f;
-    const auto y = h / 2.0f;
+    const auto x1 = -w / 2.0f;
+    const auto y1 = -h / 2.0f;
+    const auto x2 = x1 + w;
+    const auto y2 = y1 + h;
 
-    auto& frame = model.loadFrame(
-      frameIndex, m_name, vm::bbox3f{vm::vec3f{-x, -y, 0}, vm::vec3f{x, y, 0}});
+
+    const auto bboxMin = vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
+    const auto bboxMax = vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
+    auto& frame = model.loadFrame(frameIndex, m_name, {bboxMin, bboxMax});
 
     const auto triangles = std::vector<Assets::EntityModelVertex>{
-      Assets::EntityModelVertex{{-x, -y, 0}, {0, 1}},
-      Assets::EntityModelVertex{{-x, +y, 0}, {0, 0}},
-      Assets::EntityModelVertex{{+x, +y, 0}, {1, 0}},
+      Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+      Assets::EntityModelVertex{{x1, y2, 0}, {0, 0}},
+      Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
 
-      Assets::EntityModelVertex{{+x, +y, 0}, {1, 0}},
-      Assets::EntityModelVertex{{+x, -y, 0}, {1, 1}},
-      Assets::EntityModelVertex{{-x, -y, 0}, {0, 1}},
+      Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+      Assets::EntityModelVertex{{x2, y1, 0}, {1, 1}},
+      Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
     };
 
     auto size = Renderer::IndexRangeMap::Size{};

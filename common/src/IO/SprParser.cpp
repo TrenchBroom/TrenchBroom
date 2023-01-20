@@ -294,12 +294,13 @@ std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* log
     const auto w = static_cast<float>(pictureFrame.width);
     const auto h = static_cast<float>(pictureFrame.height);
     const auto x1 = static_cast<float>(pictureFrame.x);
-    const auto y1 = -static_cast<float>(pictureFrame.y);
+    const auto y1 = static_cast<float>(pictureFrame.y) - h;
     const auto x2 = x1 + w;
     const auto y2 = y1 + h;
 
-    auto& modelFrame = model->loadFrame(
-      i, std::to_string(i), {vm::vec3f{x1, y1, 0}, vm::vec3f{x2, y2, 0}});
+    const auto bboxMin = vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
+    const auto bboxMax = vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
+    auto& modelFrame = model->loadFrame(i, std::to_string(i), {bboxMin, bboxMax});
 
     const auto triangles = std::vector<Assets::EntityModelVertex>{
       Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
