@@ -36,7 +36,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTest]")
+TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
 {
   const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
   const std::vector<Path> cfgFiles =
@@ -54,21 +54,21 @@ TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs", "[GameConfigParserTes
   }
 }
 
-TEST_CASE("GameConfigParserTest.parseBlankConfig", "[GameConfigParserTest]")
+TEST_CASE("GameConfigParserTest.parseBlankConfig")
 {
   const std::string config("   ");
   GameConfigParser parser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE("GameConfigParserTest.parseEmptyConfig", "[GameConfigParserTest]")
+TEST_CASE("GameConfigParserTest.parseEmptyConfig")
 {
   const std::string config("  {  } ");
   GameConfigParser parser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]")
+TEST_CASE("GameConfigParserTest.parseQuakeConfig")
 {
   const std::string config(R"(
 {
@@ -185,7 +185,7 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig", "[GameConfigParserTest]")
     });
 }
 
-TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]")
+TEST_CASE("GameConfigParserTest.parseQuake2Config")
 {
   const std::string config(R"%(
 {
@@ -498,7 +498,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config", "[GameConfigParserTest]")
     });
 }
 
-TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]")
+TEST_CASE("GameConfigParserTest.parseExtrasConfig")
 {
   const std::string config(R"%(
 {
@@ -834,7 +834,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig", "[GameConfigParserTest]")
     });
 }
 
-TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]")
+TEST_CASE("GameConfigParserTest.parseDuplicateTags")
 {
   const std::string config(R"(
 {
@@ -884,7 +884,7 @@ TEST_CASE("GameConfigParserTest.parseDuplicateTags", "[GameConfigParserTest]")
   REQUIRE_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE("GameConfigParserTest.parseSetDefaultProperties", "[GameConfigParserTest]")
+TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
 {
   const std::string config(R"(
 {

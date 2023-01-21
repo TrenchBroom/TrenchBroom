@@ -323,13 +323,13 @@ TEST_CASE("WorldNodeTest.disableNodeTreeUpdates")
   CHECK(nodeTree.contains(patchNode));
 }
 
-TEST_CASE("WorldNodeTest.persistentIdOfDefaultLayer", "[WorldNodeTest]")
+TEST_CASE("WorldNodeTest.persistentIdOfDefaultLayer")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   CHECK(worldNode.defaultLayer()->persistentId() == std::nullopt);
 }
 
-TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingLayer", "[WorldNodeTest]")
+TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingLayer")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   auto* initialLayerNode = new LayerNode{Layer{"name"}};
@@ -373,7 +373,7 @@ TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingLayer", "[WorldNodeTest]")
   }
 }
 
-TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingGroup", "[WorldNodeTest]")
+TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingGroup")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   auto* initialGroupNode = new GroupNode{Group{"name"}};
@@ -417,7 +417,7 @@ TEST_CASE("WorldNodeTest.setPersistentIdWhenAddingGroup", "[WorldNodeTest]")
   }
 }
 
-TEST_CASE("WorldNodeTest.setPersistentIdsWhenAddingLayersAndGroups", "[WorldNodeTest]")
+TEST_CASE("WorldNodeTest.setPersistentIdsWhenAddingLayersAndGroups")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 

@@ -37,13 +37,13 @@ static void interpolateAndCheck(
   CHECK(Interpolator(expression).interpolate(context) == expected);
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateEmptyString", "[ELInterpolatorTest]")
+TEST_CASE("ELInterpolatorTest.interpolateEmptyString")
 {
   interpolateAndCheck("", "");
   interpolateAndCheck("   ", "   ");
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithoutExpression", "[ELInterpolatorTest]")
+TEST_CASE("ELInterpolatorTest.interpolateStringWithoutExpression")
 {
   interpolateAndCheck(" asdfasdf  sdf ", " asdfasdf  sdf ");
 }
@@ -66,7 +66,7 @@ TEST_CASE(
     " asdfasdf nested ${TEST} expression  sdf ");
 }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithVariable", "[ELInterpolatorTest]")
+TEST_CASE("ELInterpolatorTest.interpolateStringWithVariable")
 {
   EvaluationContext context;
   context.declareVariable("TEST", Value("interesting"));

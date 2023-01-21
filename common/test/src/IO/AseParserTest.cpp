@@ -34,7 +34,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("AseParserTest.loadWithoutException", "[AseParserTest]")
+TEST_CASE("AseParserTest.loadWithoutException")
 {
   NullLogger logger;
 
@@ -62,7 +62,7 @@ TEST_CASE("AseParserTest.loadWithoutException", "[AseParserTest]")
   CHECK(model->frame(0)->loaded());
 }
 
-TEST_CASE("AseParserTest.fallbackToMaterialName", "[AseParserTest]")
+TEST_CASE("AseParserTest.fallbackToMaterialName")
 {
   NullLogger logger;
 
@@ -94,7 +94,7 @@ TEST_CASE("AseParserTest.fallbackToMaterialName", "[AseParserTest]")
   CHECK(model->surface(0).skin(0)->name() == "textures/bigtile");
 }
 
-TEST_CASE("AseParserTest.loadDefaultMaterial", "[AseParserTest]")
+TEST_CASE("AseParserTest.loadDefaultMaterial")
 {
   NullLogger logger;
 

@@ -274,7 +274,7 @@ public:
   ~DestroyableNode() override { m_destroyed = true; }
 };
 
-TEST_CASE("NodeTest.destroyChild", "[NodeTest]")
+TEST_CASE("NodeTest.destroyChild")
 {
   TestNode* root = new TestNode();
   bool childDestroyed = false;
@@ -286,7 +286,7 @@ TEST_CASE("NodeTest.destroyChild", "[NodeTest]")
   CHECK(childDestroyed);
 }
 
-TEST_CASE("NodeTest.addRemoveChild", "[NodeTest]")
+TEST_CASE("NodeTest.addRemoveChild")
 {
   MockNode root;
   MockNode* child = new MockNode();
@@ -406,7 +406,7 @@ TEST_CASE("NodeTest.replaceChildren")
   CHECK(child3->parent() == &root);
 }
 
-TEST_CASE("NodeTest.partialSelection", "[NodeTest]")
+TEST_CASE("NodeTest.partialSelection")
 {
   TestNode root;
   TestNode* child1 = new TestNode();
@@ -447,7 +447,7 @@ TEST_CASE("NodeTest.partialSelection", "[NodeTest]")
   CHECK(root.descendantSelectionCount() == 2u);
 }
 
-TEST_CASE("NodeTest.isAncestorOf", "[NodeTest]")
+TEST_CASE("NodeTest.isAncestorOf")
 {
   TestNode root;
   TestNode* child1 = new TestNode();
@@ -502,7 +502,7 @@ TEST_CASE("NodeTest.isAncestorOf", "[NodeTest]")
     std::vector<Node*>{&root, child1, child2, grandChild1_1, grandChild1_2}));
 }
 
-TEST_CASE("NodeTest.isDescendantOf", "[NodeTest]")
+TEST_CASE("NodeTest.isDescendantOf")
 {
   TestNode root;
   TestNode* child1 = new TestNode();
@@ -603,7 +603,7 @@ const auto constNodeTestVisitor = kdl::overload(
   [](const BrushNode*) { return Visited::Brush; },
   [](const PatchNode*) { return Visited::Patch; });
 
-TEST_CASE("NodeTest.accept", "[NodeTest]")
+TEST_CASE("NodeTest.accept")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -661,7 +661,7 @@ TEST_CASE("NodeTest.accept", "[NodeTest]")
   }
 }
 
-TEST_CASE("NodeTest.acceptAndVisitChildren", "[NodeTest]")
+TEST_CASE("NodeTest.acceptAndVisitChildren")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   auto* layer = world.defaultLayer();
@@ -711,7 +711,7 @@ TEST_CASE("NodeTest.acceptAndVisitChildren", "[NodeTest]")
     collectRecursively(*entityNode1), Catch::Equals(std::vector<Node*>{entityNode1}));
 }
 
-TEST_CASE("NodeTest.visitParent", "[NodeTest]")
+TEST_CASE("NodeTest.visitParent")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   auto* layer = world.defaultLayer();
@@ -737,7 +737,7 @@ static auto makeCollectVisitedNodesVisitor(std::vector<Node*>& visited)
     [&](PatchNode* patch) { visited.push_back(patch); });
 }
 
-TEST_CASE("NodeTest.visitAll", "[NodeTest]")
+TEST_CASE("NodeTest.visitAll")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   LayerNode layer(Layer("name"));
@@ -751,7 +751,7 @@ TEST_CASE("NodeTest.visitAll", "[NodeTest]")
   CHECK_THAT(visited, Catch::Equals(toVisit));
 }
 
-TEST_CASE("NodeTest.visitChildren", "[NodeTest]")
+TEST_CASE("NodeTest.visitChildren")
 {
   WorldNode world({}, {}, MapFormat::Standard);
   auto* layer = world.defaultLayer();
@@ -783,7 +783,7 @@ TEST_CASE("NodeTest.visitChildren", "[NodeTest]")
   }
 }
 
-TEST_CASE("NodeTest.pathFrom", "[NodeTest]")
+TEST_CASE("NodeTest.pathFrom")
 {
   auto root = TestNode{};
   auto& child1 = root.addChild(new TestNode{});
@@ -802,7 +802,7 @@ TEST_CASE("NodeTest.pathFrom", "[NodeTest]")
   CHECK(root.pathFrom(root) == NodePath{{}});
 }
 
-TEST_CASE("Nodepath.resolvePath", "[NodeTest]")
+TEST_CASE("Nodepath.resolvePath")
 {
   auto root = TestNode{};
   auto& child1 = root.addChild(new TestNode{});

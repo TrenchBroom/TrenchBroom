@@ -31,7 +31,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("ResourceUtilsTest.loadDefaultTexture", "[ResourceUtilsTest]")
+TEST_CASE("ResourceUtilsTest.loadDefaultTexture")
 {
   auto fs = std::make_shared<DiskFileSystem>(
     IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets"));

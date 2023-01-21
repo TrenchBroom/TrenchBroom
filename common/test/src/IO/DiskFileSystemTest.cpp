@@ -61,7 +61,7 @@ static TestEnvironment makeTestEnvironment()
     }};
 }
 
-TEST_CASE("FileSystemTest.makeAbsolute", "[FileSystemTest]")
+TEST_CASE("FileSystemTest.makeAbsolute")
 {
   const auto env = makeTestEnvironment();
 
@@ -78,7 +78,7 @@ TEST_CASE("FileSystemTest.makeAbsolute", "[FileSystemTest]")
   CHECK(absPathNotExisting == env.dir() + Path("dir1/asdf.map"));
 }
 
-TEST_CASE("DiskTest.fixPath", "[DiskTest]")
+TEST_CASE("DiskTest.fixPath")
 {
   const auto env = makeTestEnvironment();
 
@@ -106,7 +106,7 @@ TEST_CASE("DiskTest.fixPath", "[DiskTest]")
     Disk::fixPath(env.dir() + Path("anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP")))));
 }
 
-TEST_CASE("DiskTest.directoryExists", "[DiskTest]")
+TEST_CASE("DiskTest.directoryExists")
 {
   const auto env = makeTestEnvironment();
 
@@ -128,7 +128,7 @@ TEST_CASE("DiskTest.directoryExists", "[DiskTest]")
     env.dir() + Path("anotherDir/asdf"))); // asdf directory doesn't exist
 }
 
-TEST_CASE("DiskTest.fileExists", "[DiskTest]")
+TEST_CASE("DiskTest.fileExists")
 {
   const auto env = makeTestEnvironment();
 
@@ -138,7 +138,7 @@ TEST_CASE("DiskTest.fileExists", "[DiskTest]")
   CHECK(Disk::fileExists(env.dir() + Path("anotherDir/subDirTest/test2.map")));
 }
 
-TEST_CASE("DiskTest.getDirectoryContents", "[DiskTest]")
+TEST_CASE("DiskTest.getDirectoryContents")
 {
   const auto env = makeTestEnvironment();
 
@@ -157,7 +157,7 @@ TEST_CASE("DiskTest.getDirectoryContents", "[DiskTest]")
     }));
 }
 
-TEST_CASE("DiskTest.openFile", "[DiskTest]")
+TEST_CASE("DiskTest.openFile")
 {
   const auto env = makeTestEnvironment();
 
@@ -171,7 +171,7 @@ TEST_CASE("DiskTest.openFile", "[DiskTest]")
   CHECK(Disk::openFile(env.dir() + Path("anotherDir/subDirTest/test2.map")) != nullptr);
 }
 
-TEST_CASE("DiskTest.resolvePath", "[DiskTest]")
+TEST_CASE("DiskTest.resolvePath")
 {
   const auto env = makeTestEnvironment();
 
@@ -196,7 +196,7 @@ TEST_CASE("DiskTest.resolvePath", "[DiskTest]")
   CHECK(Disk::resolvePath(rootPaths, paths[4]) == Path(""));
 }
 
-TEST_CASE("DiskFileSystemTest.createDiskFileSystem", "[DiskFileSystemTest]")
+TEST_CASE("DiskFileSystemTest.createDiskFileSystem")
 {
   const auto env = makeTestEnvironment();
 
@@ -211,7 +211,7 @@ TEST_CASE("DiskFileSystemTest.createDiskFileSystem", "[DiskFileSystemTest]")
   CHECK(fs.makeAbsolute(Path("")) == fs.root());
 }
 
-TEST_CASE("DiskFileSystemTest.directoryExists", "[DiskFileSystemTest]")
+TEST_CASE("DiskFileSystemTest.directoryExists")
 {
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
@@ -232,7 +232,7 @@ TEST_CASE("DiskFileSystemTest.directoryExists", "[DiskFileSystemTest]")
   CHECK_FALSE(fs.directoryExists(Path("fasdf")));
 }
 
-TEST_CASE("DiskFileSystemTest.fileExists", "[DiskFileSystemTest]")
+TEST_CASE("DiskFileSystemTest.fileExists")
 {
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
@@ -254,7 +254,7 @@ TEST_CASE("DiskFileSystemTest.fileExists", "[DiskFileSystemTest]")
   CHECK_FALSE(fs.fileExists(Path("fdfdf.blah")));
 }
 
-TEST_CASE("DiskFileSystemTest.getDirectoryContents", "[DiskFileSystemTest]")
+TEST_CASE("DiskFileSystemTest.getDirectoryContents")
 {
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
@@ -269,7 +269,7 @@ TEST_CASE("DiskFileSystemTest.getDirectoryContents", "[DiskFileSystemTest]")
     }));
 }
 
-TEST_CASE("DiskFileSystemTest.findItems", "[DiskFileSystemTest]")
+TEST_CASE("DiskFileSystemTest.findItems")
 {
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
@@ -305,7 +305,7 @@ TEST_CASE("DiskFileSystemTest.findItems", "[DiskFileSystemTest]")
     }));
 }
 
-TEST_CASE("DiskFileSystemTest.findItemsRecursively", "[DiskFileSystemTest]")
+TEST_CASE("DiskFileSystemTest.findItemsRecursively")
 {
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
@@ -349,7 +349,7 @@ TEST_CASE("DiskFileSystemTest.findItemsRecursively", "[DiskFileSystemTest]")
 
 // getDirectoryContents gets tested thoroughly by the tests for the find* methods
 
-TEST_CASE("DiskFileSystemTest.openFile", "[DiskFileSystemTest]")
+TEST_CASE("DiskFileSystemTest.openFile")
 {
   const auto env = makeTestEnvironment();
   const DiskFileSystem fs(env.dir());
@@ -392,7 +392,7 @@ TEST_CASE(
   CHECK(fs.makeAbsolute(Path("")) == env.dir());
 }
 
-TEST_CASE("WritableDiskFileSystemTest.createDirectory", "[WritableDiskFileSystemTest]")
+TEST_CASE("WritableDiskFileSystemTest.createDirectory")
 {
   const auto env = makeTestEnvironment();
   WritableDiskFileSystem fs(env.dir(), false);
@@ -420,7 +420,7 @@ TEST_CASE("WritableDiskFileSystemTest.createDirectory", "[WritableDiskFileSystem
   CHECK(fs.directoryExists(Path("newDir/yetAnotherDir")));
 }
 
-TEST_CASE("WritableDiskFileSystemTest.deleteFile", "[WritableDiskFileSystemTest]")
+TEST_CASE("WritableDiskFileSystemTest.deleteFile")
 {
   const auto env = makeTestEnvironment();
   WritableDiskFileSystem fs(env.dir(), false);
@@ -449,7 +449,7 @@ TEST_CASE("WritableDiskFileSystemTest.deleteFile", "[WritableDiskFileSystemTest]
   CHECK_FALSE(fs.fileExists(Path("anotherDir/subDirTest/test2.map")));
 }
 
-TEST_CASE("WritableDiskFileSystemTest.moveFile", "[WritableDiskFileSystemTest]")
+TEST_CASE("WritableDiskFileSystemTest.moveFile")
 {
   const auto env = makeTestEnvironment();
   WritableDiskFileSystem fs(env.dir(), false);
@@ -492,7 +492,7 @@ TEST_CASE("WritableDiskFileSystemTest.moveFile", "[WritableDiskFileSystemTest]")
   CHECK(fs.fileExists(Path("dir1/test2.map")));
 }
 
-TEST_CASE("WritableDiskFileSystemTest.copyFile", "[WritableDiskFileSystemTest]")
+TEST_CASE("WritableDiskFileSystemTest.copyFile")
 {
   const auto env = makeTestEnvironment();
   WritableDiskFileSystem fs(env.dir(), false);

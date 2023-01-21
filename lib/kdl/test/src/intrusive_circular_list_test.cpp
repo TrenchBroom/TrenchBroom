@@ -164,7 +164,7 @@ TEST_CASE(
   CHECK(t3_deleted);
 }
 
-TEST_CASE("intrusive_circular_list_test.iterators", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.iterators")
 {
   list l;
 
@@ -228,7 +228,7 @@ TEST_CASE(
   CHECK(end == it);
 }
 
-TEST_CASE("intrusive_circular_list_test.empty", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.empty")
 {
   list l;
   CHECK(l.empty());
@@ -238,7 +238,7 @@ TEST_CASE("intrusive_circular_list_test.empty", "[intrusive_circular_list_test]"
   CHECK_FALSE(l.empty());
 }
 
-TEST_CASE("intrusive_circular_list_test.size", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.size")
 {
   list l;
   CHECK(l.size() == 0u);
@@ -248,7 +248,7 @@ TEST_CASE("intrusive_circular_list_test.size", "[intrusive_circular_list_test]")
   CHECK(l.size() == 1u);
 }
 
-TEST_CASE("intrusive_circular_list_test.front", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.front")
 {
   list l;
 
@@ -268,7 +268,7 @@ TEST_CASE("intrusive_circular_list_test.front", "[intrusive_circular_list_test]"
   CHECK(l.front() == e1);
 }
 
-TEST_CASE("intrusive_circular_list_test.back", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.back")
 {
   list l;
 
@@ -288,7 +288,7 @@ TEST_CASE("intrusive_circular_list_test.back", "[intrusive_circular_list_test]")
   CHECK(l.back() == e3);
 }
 
-TEST_CASE("intrusive_circular_list_test.contains", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.contains")
 {
   list l;
 
@@ -307,7 +307,7 @@ TEST_CASE("intrusive_circular_list_test.contains", "[intrusive_circular_list_tes
   CHECK(l.contains(e3));
 }
 
-TEST_CASE("intrusive_circular_list_test.push_back", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.push_back")
 {
   list l;
   auto* e1 = new element();
@@ -365,7 +365,7 @@ TEST_CASE(
   assertList({e1, e2}, l);
 }
 
-TEST_CASE("intrusive_circular_list_test.remove_single", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.remove_single")
 {
   auto e1_deleted = false;
   auto e2_deleted = false;
@@ -445,7 +445,7 @@ TEST_CASE(
   assertList({e2, e3}, l);
 }
 
-TEST_CASE("intrusive_circular_list_test.remove_all", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.remove_all")
 {
   auto e1_deleted = false;
   auto e2_deleted = false;
@@ -464,7 +464,7 @@ TEST_CASE("intrusive_circular_list_test.remove_all", "[intrusive_circular_list_t
   assertList({}, l);
 }
 
-TEST_CASE("intrusive_circular_list_test.release_single", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.release_single")
 {
   auto e1_deleted = false;
   auto e2_deleted = false;
@@ -549,7 +549,7 @@ TEST_CASE(
   assertLinks(e4, {e1, e4});
 }
 
-TEST_CASE("intrusive_circular_list_test.release_all", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.release_all")
 {
   auto e1_deleted = false;
   auto e2_deleted = false;
@@ -569,7 +569,7 @@ TEST_CASE("intrusive_circular_list_test.release_all", "[intrusive_circular_list_
   assertLinks(e1, {e1, e2});
 }
 
-TEST_CASE("intrusive_circular_list_test.emplace_back", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.emplace_back")
 {
   list l;
 
@@ -595,7 +595,7 @@ TEST_CASE(
   CHECK(e1_deleted);
 }
 
-TEST_CASE("intrusive_circular_list_test.reverse", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.reverse")
 {
   auto* e1 = new element();
   auto* e2 = new element();
@@ -606,7 +606,7 @@ TEST_CASE("intrusive_circular_list_test.reverse", "[intrusive_circular_list_test
   assertList({e3, e2, e1}, l);
 }
 
-TEST_CASE("intrusive_circular_list_test.append_list", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.append_list")
 {
   list from;
   list to;
@@ -1557,7 +1557,7 @@ TEST_CASE(
   CHECK(t3_deleted);
 }
 
-TEST_CASE("intrusive_circular_list_test.release", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.release")
 {
   auto e1_deleted = false;
   auto e2_deleted = false;

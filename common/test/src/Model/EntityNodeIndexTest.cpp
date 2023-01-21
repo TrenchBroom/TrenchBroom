@@ -44,7 +44,7 @@ static std::vector<EntityNodeBase*> findNumberedExact(
   return index.findEntityNodes(EntityNodeIndexQuery::numbered(name), value);
 }
 
-TEST_CASE("EntityNodeIndexTest.addEntityNode", "[EntityNodeIndexTest]")
+TEST_CASE("EntityNodeIndexTest.addEntityNode")
 {
   EntityNodeIndex index;
 
@@ -71,7 +71,7 @@ TEST_CASE("EntityNodeIndexTest.addEntityNode", "[EntityNodeIndexTest]")
   delete entity2;
 }
 
-TEST_CASE("EntityNodeIndexTest.removeEntityNode", "[EntityNodeIndexTest]")
+TEST_CASE("EntityNodeIndexTest.removeEntityNode")
 {
   EntityNodeIndex index;
 
@@ -93,7 +93,7 @@ TEST_CASE("EntityNodeIndexTest.removeEntityNode", "[EntityNodeIndexTest]")
   delete entity2;
 }
 
-TEST_CASE("EntityNodeIndexTest.addProperty", "[EntityNodeIndexTest]")
+TEST_CASE("EntityNodeIndexTest.addProperty")
 {
   EntityNodeIndex index;
 
@@ -131,7 +131,7 @@ TEST_CASE("EntityNodeIndexTest.addProperty", "[EntityNodeIndexTest]")
   delete entity2;
 }
 
-TEST_CASE("EntityNodeIndexTest.removeProperty", "[EntityNodeIndexTest]")
+TEST_CASE("EntityNodeIndexTest.removeProperty")
 {
   EntityNodeIndex index;
 
@@ -156,7 +156,7 @@ TEST_CASE("EntityNodeIndexTest.removeProperty", "[EntityNodeIndexTest]")
   delete entity2;
 }
 
-TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty", "[EntityNodeIndexTest]")
+TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty")
 {
   EntityNodeIndex index;
 
@@ -174,7 +174,7 @@ TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty", "[EntityNodeIndexTest
   delete entity1;
 }
 
-TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty", "[EntityNodeIndexTest]")
+TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty")
 {
   EntityNodeIndex index;
 
@@ -191,7 +191,7 @@ TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty", "[EntityNodeIndexTest]")
   delete entity1;
 }
 
-TEST_CASE("EntityNodeIndexTest.allKeys", "[EntityNodeIndexTest]")
+TEST_CASE("EntityNodeIndexTest.allKeys")
 {
   EntityNodeIndex index;
 
@@ -207,7 +207,7 @@ TEST_CASE("EntityNodeIndexTest.allKeys", "[EntityNodeIndexTest]")
     index.allKeys(), Catch::UnorderedEquals(std::vector<std::string>{"test", "other"}));
 }
 
-TEST_CASE("EntityNodeIndexTest.allValuesForKeys", "[EntityNodeIndexTest]")
+TEST_CASE("EntityNodeIndexTest.allValuesForKeys")
 {
   EntityNodeIndex index;
 

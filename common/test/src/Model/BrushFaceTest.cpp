@@ -55,7 +55,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-TEST_CASE("BrushFaceTest.constructWithValidPoints", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.constructWithValidPoints")
 {
   const vm::vec3 p0(0.0, 0.0, 4.0);
   const vm::vec3 p1(1.0, 0.0, 4.0);
@@ -73,7 +73,7 @@ TEST_CASE("BrushFaceTest.constructWithValidPoints", "[BrushFaceTest]")
   CHECK(face.boundary().distance == 4.0);
 }
 
-TEST_CASE("BrushFaceTest.constructWithColinearPoints", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.constructWithColinearPoints")
 {
   const vm::vec3 p0(0.0, 0.0, 4.0);
   const vm::vec3 p1(1.0, 0.0, 4.0);
@@ -86,7 +86,7 @@ TEST_CASE("BrushFaceTest.constructWithColinearPoints", "[BrushFaceTest]")
       .is_success());
 }
 
-TEST_CASE("BrushFaceTest.textureUsageCount", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.textureUsageCount")
 {
   const vm::vec3 p0(0.0, 0.0, 4.0);
   const vm::vec3 p1(1.0, 0.0, 4.0);
@@ -564,7 +564,7 @@ static void checkTextureLockOffWithScale(const Brush& cube)
   CHECK(transformed_U_width.y() == vm::approx(orig_U_width.y()));
 }
 
-TEST_CASE("BrushFaceTest.testSetRotation_Paraxial", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
 {
   const vm::bbox3 worldBounds(8192.0);
   Assets::Texture texture("testTexture", 64, 64);
@@ -589,7 +589,7 @@ TEST_CASE("BrushFaceTest.testSetRotation_Paraxial", "[BrushFaceTest]")
   CHECK(face.textureYAxis() == vm::approx(newYAxis));
 }
 
-TEST_CASE("BrushFaceTest.testTextureLock_Paraxial", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.testTextureLock_Paraxial")
 {
   const vm::bbox3 worldBounds(8192.0);
   Assets::Texture texture("testTexture", 64, 64);
@@ -609,7 +609,7 @@ TEST_CASE("BrushFaceTest.testTextureLock_Paraxial", "[BrushFaceTest]")
   checkTextureLockOffWithScale(cube);
 }
 
-TEST_CASE("BrushFaceTest.testTextureLock_Parallel", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.testTextureLock_Parallel")
 {
   const vm::bbox3 worldBounds(8192.0);
   Assets::Texture texture("testTexture", 64, 64);
@@ -630,7 +630,7 @@ TEST_CASE("BrushFaceTest.testTextureLock_Parallel", "[BrushFaceTest]")
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2001
-TEST_CASE("BrushFaceTest.testValveRotation", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.testValveRotation")
 {
   const std::string data(
     "{\n"
@@ -650,7 +650,7 @@ TEST_CASE("BrushFaceTest.testValveRotation", "[BrushFaceTest]")
 
   IO::TestParserStatus status;
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   BrushNode* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(pyramidLight != nullptr);
 
@@ -692,7 +692,7 @@ TEST_CASE("BrushFaceTest.testValveRotation", "[BrushFaceTest]")
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/1995
-TEST_CASE("BrushFaceTest.testCopyTexCoordSystem", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
 {
   const std::string data(
     "{\n"
@@ -719,7 +719,7 @@ TEST_CASE("BrushFaceTest.testCopyTexCoordSystem", "[BrushFaceTest]")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   BrushNode* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(pyramidLight != nullptr);
 
@@ -771,7 +771,7 @@ TEST_CASE("BrushFaceTest.testCopyTexCoordSystem", "[BrushFaceTest]")
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2315
-TEST_CASE("BrushFaceTest.move45DegreeFace", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.move45DegreeFace")
 {
   const std::string data(R"(
 // entity 0
@@ -793,7 +793,7 @@ TEST_CASE("BrushFaceTest.move45DegreeFace", "[BrushFaceTest]")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   BrushNode* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   CHECK(brushNode != nullptr);
 
@@ -815,7 +815,7 @@ TEST_CASE("BrushFaceTest.move45DegreeFace", "[BrushFaceTest]")
   kdl::vec_clear_and_delete(nodes);
 }
 
-TEST_CASE("BrushFaceTest.formatConversion", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.formatConversion")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -859,7 +859,7 @@ TEST_CASE("BrushFaceTest.formatConversion", "[BrushFaceTest]")
   doWithTextureLockTestTransforms(true, testTransform);
 }
 
-TEST_CASE("BrushFaceTest.flipTexture", "[BrushFaceTest]")
+TEST_CASE("BrushFaceTest.flipTexture")
 {
   const std::string data(R"(
 // entity 0
@@ -883,7 +883,7 @@ TEST_CASE("BrushFaceTest.flipTexture", "[BrushFaceTest]")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(brushNode != nullptr);
 

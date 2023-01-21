@@ -33,7 +33,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking", "[Quake3ShaderFileSystemTest]")
+TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
 {
   NullLogger logger;
 

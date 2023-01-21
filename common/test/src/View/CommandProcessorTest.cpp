@@ -242,7 +242,7 @@ public:
   }
 };
 
-TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand", "[CommandProcessorTest]")
+TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand")
 {
   /*
    * Execute a successful command, then undo it successfully.
@@ -329,7 +329,7 @@ TEST_CASE(
     }));
 }
 
-TEST_CASE("CommandProcessorTest.doFailingCommand", "[CommandProcessorTest]")
+TEST_CASE("CommandProcessorTest.doFailingCommand")
 {
   /*
    * Execute a failing command.
@@ -356,7 +356,7 @@ TEST_CASE("CommandProcessorTest.doFailingCommand", "[CommandProcessorTest]")
     }));
 }
 
-TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTest]")
+TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction")
 {
   /*
    * Execute two successful commands in a transaction, then undo the transaction
@@ -438,7 +438,7 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction", "[CommandProcessorTe
     }));
 }
 
-TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]")
+TEST_CASE("CommandProcessorTest.rollbackTransaction")
 {
   /*
    * Execute two successful commands in a transaction, then rollback the transaction and
@@ -502,7 +502,7 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction", "[CommandProcessorTest]")
   REQUIRE(observer.popNotifications().empty());
 }
 
-TEST_CASE("CommandProcessorTest.nestedTransactions", "[CommandProcessorTest]")
+TEST_CASE("CommandProcessorTest.nestedTransactions")
 {
   /*
    * Execute a command in a transaction, start a nested transaction, execute a command,
@@ -662,7 +662,7 @@ TEST_CASE("CommandProceossor.isCurrentDocumentStateObservable")
   }
 }
 
-TEST_CASE("CommandProcessorTest.collateCommands", "[CommandProcessorTest]")
+TEST_CASE("CommandProcessorTest.collateCommands")
 {
   /*
    * Execute a command and collate the next command, then undo.
@@ -720,7 +720,7 @@ TEST_CASE("CommandProcessorTest.collateCommands", "[CommandProcessorTest]")
     }));
 }
 
-TEST_CASE("CommandProcessorTest.collationInterval", "[CommandProcessorTest]")
+TEST_CASE("CommandProcessorTest.collationInterval")
 {
   /*
    * Execute two commands, with time passing between their execution exceeding the
@@ -783,7 +783,7 @@ TEST_CASE("CommandProcessorTest.collationInterval", "[CommandProcessorTest]")
   REQUIRE(commandProcessor.redoCommandName() == commandName2);
 }
 
-TEST_CASE("CommandProcessorTest.collateTransactions", "[CommandProcessorTest]")
+TEST_CASE("CommandProcessorTest.collateTransactions")
 {
   auto commandProcessor = CommandProcessor{nullptr};
   auto observer = TestObserver{commandProcessor};

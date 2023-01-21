@@ -64,7 +64,7 @@ namespace Model
  vm::vec3($7, $8, $9)));
  */
 
-TEST_CASE("BrushTest.constructWithFailingFaces", "[BrushTest]")
+TEST_CASE("BrushTest.constructWithFailingFaces")
 {
   /* from rtz_q1
    {
@@ -118,7 +118,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces", "[BrushTest]")
   CHECK(brush.faceCount() == 7u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces2", "[BrushTest]")
+TEST_CASE("BrushTest.constructWithFailingFaces2")
 {
   /* from ne_ruins
    {
@@ -185,7 +185,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces2", "[BrushTest]")
   CHECK(brush.faceCount() == 9u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces3", "[BrushTest]")
+TEST_CASE("BrushTest.constructWithFailingFaces3")
 {
   /* from ne_ruins
    {
@@ -234,7 +234,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces3", "[BrushTest]")
   CHECK(brush.faceCount() == 6u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces4", "[BrushTest]")
+TEST_CASE("BrushTest.constructWithFailingFaces4")
 {
   /* from ne_ruins
    {
@@ -285,7 +285,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces4", "[BrushTest]")
   CHECK(brush.faceCount() == 6u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces5", "[BrushTest]")
+TEST_CASE("BrushTest.constructWithFailingFaces5")
 {
   /* from jam6_ericwtronyn
    Interestingly, the order in which the faces appear in the map file is okay, but when
@@ -338,7 +338,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces5", "[BrushTest]")
   CHECK(brush.faceCount() == 6u);
 }
 
-TEST_CASE("BrushTest.constructWithFailingFaces6", "[BrushTest]")
+TEST_CASE("BrushTest.constructWithFailingFaces6")
 {
   /* from 768_negke
    {
@@ -383,7 +383,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces6", "[BrushTest]")
   CHECK(brush.faceCount() == 5u);
 }
 
-TEST_CASE("BrushTest.constructBrushWithManySides", "[BrushTest]")
+TEST_CASE("BrushTest.constructBrushWithManySides")
 {
   /*
    See https://github.com/TrenchBroom/TrenchBroom/issues/1153
@@ -454,7 +454,7 @@ TEST_CASE("BrushTest.constructBrushWithManySides", "[BrushTest]")
   CHECK(brush.faceCount() == 8u);
 }
 
-TEST_CASE("BrushTest.constructBrushAfterRotateFail", "[BrushTest]")
+TEST_CASE("BrushTest.constructBrushAfterRotateFail")
 {
   /*
    See https://github.com/TrenchBroom/TrenchBroom/issues/1173
@@ -533,7 +533,7 @@ TEST_CASE("BrushTest.constructBrushAfterRotateFail", "[BrushTest]")
   CHECK(brush.fullySpecified());
 }
 
-TEST_CASE("BrushTest.moveVertexFailing1", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexFailing1")
 {
   const vm::vec3d p1(-64.0, -64.0, 0.0);
   const vm::vec3d p2(+64.0, -64.0, 0.0);
@@ -566,7 +566,7 @@ TEST_CASE("BrushTest.moveVertexFailing1", "[BrushTest]")
   }
 }
 
-TEST_CASE("BrushTest.moveVertexFail_2158", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexFail_2158")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2158
   const std::string data(
@@ -588,7 +588,7 @@ TEST_CASE("BrushTest.moveVertexFail_2158", "[BrushTest]")
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -605,7 +605,7 @@ TEST_CASE("BrushTest.moveVertexFail_2158", "[BrushTest]")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.moveVerticesFail_2158", "[BrushTest]")
+TEST_CASE("BrushTest.moveVerticesFail_2158")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2158
   const vm::bbox3 worldBounds(4096.0);
@@ -654,7 +654,8 @@ TEST_CASE("BrushTest.moveVerticesFail_2158", "[BrushTest]")
 
   IO::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes =
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -676,7 +677,7 @@ TEST_CASE("BrushTest.moveVerticesFail_2158", "[BrushTest]")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082", "[BrushTest]")
+TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2082
 
@@ -700,7 +701,7 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082", "[BrushTest]")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -772,7 +773,7 @@ static void assertCannotSnapTo(const std::string& data, const FloatType gridSize
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -793,7 +794,7 @@ static void assertSnapTo(const std::string& data, const FloatType gridSize)
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -819,7 +820,7 @@ static void assertSnapToInteger(const std::string& data)
   assertSnapTo(data, 1.0);
 }
 
-TEST_CASE("BrushTest.snapIssue1198", "[BrushTest]")
+TEST_CASE("BrushTest.snapIssue1198")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1198
   const std::string data(
@@ -866,7 +867,7 @@ TEST_CASE("BrushTest.snapIssue1198", "[BrushTest]")
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1202", "[BrushTest]")
+TEST_CASE("BrushTest.snapIssue1202")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1202
   const std::string data(
@@ -893,7 +894,7 @@ TEST_CASE("BrushTest.snapIssue1202", "[BrushTest]")
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1203", "[BrushTest]")
+TEST_CASE("BrushTest.snapIssue1203")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1203
   const std::string data(
@@ -929,7 +930,7 @@ TEST_CASE("BrushTest.snapIssue1203", "[BrushTest]")
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1205", "[BrushTest]")
+TEST_CASE("BrushTest.snapIssue1205")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1205
   const std::string data(
@@ -986,7 +987,7 @@ TEST_CASE("BrushTest.snapIssue1205", "[BrushTest]")
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1206", "[BrushTest]")
+TEST_CASE("BrushTest.snapIssue1206")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1206
   const std::string data(
@@ -1016,7 +1017,7 @@ TEST_CASE("BrushTest.snapIssue1206", "[BrushTest]")
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1207", "[BrushTest]")
+TEST_CASE("BrushTest.snapIssue1207")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1207
   const std::string data(
@@ -1042,7 +1043,7 @@ TEST_CASE("BrushTest.snapIssue1207", "[BrushTest]")
   assertCannotSnap(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1232", "[BrushTest]")
+TEST_CASE("BrushTest.snapIssue1232")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1232
   const std::string data(
@@ -1106,7 +1107,7 @@ TEST_CASE("BrushTest.snapIssue1232", "[BrushTest]")
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1395_24202", "[BrushTest]")
+TEST_CASE("BrushTest.snapIssue1395_24202")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1395 brush at line 24202
   const std::string data(
@@ -1149,7 +1150,7 @@ TEST_CASE("BrushTest.snapIssue1395_24202", "[BrushTest]")
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapIssue1395_18995", "[BrushTest]")
+TEST_CASE("BrushTest.snapIssue1395_18995")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1395 brush at line 24202
   const std::string data(
@@ -1182,7 +1183,7 @@ TEST_CASE("BrushTest.snapIssue1395_18995", "[BrushTest]")
   assertSnapToInteger(data);
 }
 
-TEST_CASE("BrushTest.snapToGrid64", "[BrushTest]")
+TEST_CASE("BrushTest.snapToGrid64")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1415
   const std::string data(
@@ -1201,7 +1202,7 @@ TEST_CASE("BrushTest.snapToGrid64", "[BrushTest]")
   assertCannotSnapTo(data, 64.0);
 }
 
-TEST_CASE("BrushNodeTest.moveEdgesFail_2361", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.moveEdgesFail_2361")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2361
 
@@ -1284,7 +1285,8 @@ TEST_CASE("BrushNodeTest.moveEdgesFail_2361", "[BrushNodeTest]")
 
   IO::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes =
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
   REQUIRE(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -1303,7 +1305,7 @@ TEST_CASE("BrushNodeTest.moveEdgesFail_2361", "[BrushNodeTest]")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.moveFaceFailure_1499", "[BrushTest]")
+TEST_CASE("BrushTest.moveFaceFailure_1499")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1499
 
@@ -1363,7 +1365,7 @@ TEST_CASE("BrushTest.moveFaceFailure_1499", "[BrushTest]")
     worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
 }
 
-TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]")
+TEST_CASE("BrushTest.convexMergeCrash_2789")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2789
   const vm::bbox3 worldBounds(4096.0);
@@ -1375,7 +1377,7 @@ TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]")
 
   IO::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   REQUIRE(!nodes.empty());
 
   std::vector<vm::vec3> points;
@@ -1430,7 +1432,7 @@ TEST_CASE("BrushTest.convexMergeCrash_2789", "[BrushTest]")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.convexMergeIncorrectResult_2789", "[BrushTest]")
+TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
 {
   // weirdcurvemerge.map from https://github.com/TrenchBroom/TrenchBroom/issues/2789
   const vm::bbox3 worldBounds(8192.0);
@@ -1443,7 +1445,7 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789", "[BrushTest]")
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
   REQUIRE(nodes.size() == 28);
 
   std::vector<vm::vec3> points;
@@ -1485,7 +1487,7 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789", "[BrushTest]")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.subtractTruncatedCones", "[BrushTest]")
+TEST_CASE("BrushTest.subtractTruncatedCones")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1469
 
@@ -1551,9 +1553,9 @@ TEST_CASE("BrushTest.subtractTruncatedCones", "[BrushTest]")
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(minuendStr, MapFormat::Valve, worldBounds, {}, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(subtrahendStr, MapFormat::Valve, worldBounds, {}, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1567,7 +1569,7 @@ TEST_CASE("BrushTest.subtractTruncatedCones", "[BrushTest]")
   kdl::col_delete_all(subtrahendNodes);
 }
 
-TEST_CASE("BrushTest.subtractDome", "[BrushTest]")
+TEST_CASE("BrushTest.subtractDome")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2707
 
@@ -1590,9 +1592,9 @@ TEST_CASE("BrushTest.subtractDome", "[BrushTest]")
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, {}, status);
   const std::vector<Node*> subtrahendNodes = IO::NodeReader::read(
-    subtrahendStr.str(), MapFormat::Standard, worldBounds, {}, status);
+    subtrahendStr.str(), MapFormat::Standard, worldBounds, {}, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1604,7 +1606,7 @@ TEST_CASE("BrushTest.subtractDome", "[BrushTest]")
   kdl::col_delete_all(subtrahendNodes);
 }
 
-TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments", "[BrushTest]")
+TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/pull/1764#issuecomment-296341588
   // subtract creates missing fragments
@@ -1690,9 +1692,9 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments", "[BrushTest]")
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1708,7 +1710,7 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments", "[BrushTest]")
 
 // TODO: add tests for Brush::intersect
 
-TEST_CASE("BrushTest.healEdgesCrash", "[BrushTest]")
+TEST_CASE("BrushTest.healEdgesCrash")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3711
 
@@ -1730,7 +1732,7 @@ TEST_CASE("BrushTest.healEdgesCrash", "[BrushTest]")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Valve, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Valve, worldBounds, {}, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1760,7 +1762,7 @@ TEST_CASE("BrushTest.healEdgesCrash", "[BrushTest]")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.healEdgesCrash2", "[BrushTest]")
+TEST_CASE("BrushTest.healEdgesCrash2")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3655
 
@@ -1790,7 +1792,7 @@ TEST_CASE("BrushTest.healEdgesCrash2", "[BrushTest]")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1816,7 +1818,7 @@ TEST_CASE("BrushTest.healEdgesCrash2", "[BrushTest]")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.healEdgesCrash3", "[BrushTest]")
+TEST_CASE("BrushTest.healEdgesCrash3")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3655
 
@@ -1932,7 +1934,7 @@ TEST_CASE("BrushTest.healEdgesCrash3", "[BrushTest]")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1956,7 +1958,7 @@ TEST_CASE("BrushTest.healEdgesCrash3", "[BrushTest]")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.findInitialEdgeFail", "[BrushTest]")
+TEST_CASE("BrushTest.findInitialEdgeFail")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3898
 
@@ -1978,7 +1980,7 @@ TEST_CASE("BrushTest.findInitialEdgeFail", "[BrushTest]")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
@@ -2001,7 +2003,7 @@ TEST_CASE("BrushTest.findInitialEdgeFail", "[BrushTest]")
       0.001));
 }
 
-TEST_CASE("BrushTest.headEdgesFail", "[BrushTest]")
+TEST_CASE("BrushTest.headEdgesFail")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3886
   // this test would previously fail due on an assertion error
@@ -2030,7 +2032,7 @@ TEST_CASE("BrushTest.headEdgesFail", "[BrushTest]")
 
   auto status = IO::TestParserStatus{};
   const auto nodes =
-    IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, {}, status);
   CHECK(nodes.size() == 1u);
 }
 } // namespace Model

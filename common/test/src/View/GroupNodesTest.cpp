@@ -48,7 +48,7 @@ namespace TrenchBroom
 {
 namespace View
 {
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createEmptyGroup", "[GroupNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createEmptyGroup")
 {
   CHECK(document->groupSelection("test") == nullptr);
 }
@@ -213,7 +213,7 @@ TEST_CASE_METHOD(
   CHECK_FALSE(entityNode->entity().hasProperty("origin"));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup", "[GroupNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup")
 {
   Model::BrushNode* brush1 = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brush1}}});
@@ -529,7 +529,43 @@ TEST_CASE_METHOD(
   CHECK(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.recursiveLinkedGroups")
+{
+  auto* brushNode = createBrushNode();
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
+  document->selectNodes({brushNode});
+
+  auto* groupNode = document->groupSelection("test");
+  REQUIRE(groupNode != nullptr);
+
+  document->deselectAll();
+  document->selectNodes({groupNode});
+  auto* linkedGroupNode = document->createLinkedDuplicate();
+  document->deselectAll();
+
+  REQUIRE(linkedGroupNode != nullptr);
+  REQUIRE(groupNode->group().linkedGroupId() != std::nullopt);
+  REQUIRE(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
+
+  SECTION("Adding a linked group to its linked sibling does nothing")
+  {
+    CHECK_FALSE(document->reparentNodes({{groupNode, {linkedGroupNode}}}));
+  }
+
+  SECTION(
+    "Adding a group containing a nested linked sibling to a linked group does nothing")
+  {
+    document->selectNodes({linkedGroupNode});
+
+    auto* outerGroupNode = document->groupSelection("outer");
+    REQUIRE(outerGroupNode != nullptr);
+
+    document->deselectAll();
+    CHECK_FALSE(document->reparentNodes({{groupNode, {outerGroupNode}}}));
+  }
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups")
 {
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   auto* brushNode = createBrushNode();
@@ -584,7 +620,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups", "[GroupNo
   }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups", "[GroupNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
 {
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});

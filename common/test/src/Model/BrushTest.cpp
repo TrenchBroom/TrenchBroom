@@ -68,7 +68,7 @@ static bool canMoveBoundary(
       [](const BrushError) { return false; }));
 }
 
-TEST_CASE("BrushTest.constructBrushWithFaces", "[BrushTest]")
+TEST_CASE("BrushTest.constructBrushWithFaces")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -108,7 +108,7 @@ TEST_CASE("BrushTest.constructBrushWithFaces", "[BrushTest]")
   CHECK(brush.findFace(vm::vec3::neg_z()));
 }
 
-TEST_CASE("BrushTest.constructBrushWithRedundantFaces", "[BrushTest]")
+TEST_CASE("BrushTest.constructBrushWithRedundantFaces")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -125,7 +125,7 @@ TEST_CASE("BrushTest.constructBrushWithRedundantFaces", "[BrushTest]")
           .is_error());
 }
 
-TEST_CASE("BrushTest.clip", "[BrushTest]")
+TEST_CASE("BrushTest.clip")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -160,7 +160,7 @@ TEST_CASE("BrushTest.clip", "[BrushTest]")
   CHECK_FALSE(brush.findFace(right.boundary()));
 }
 
-TEST_CASE("BrushTest.moveBoundary", "[BrushTest]")
+TEST_CASE("BrushTest.moveBoundary")
 {
   const vm::bbox3 worldBounds(4096.0);
   Brush brush = Brush::create(
@@ -213,7 +213,7 @@ TEST_CASE("BrushTest.moveBoundary", "[BrushTest]")
   CHECK(brush.bounds().size().z() == 7.0);
 }
 
-TEST_CASE("BrushTest.resizePastWorldBounds", "[BrushTest]")
+TEST_CASE("BrushTest.resizePastWorldBounds")
 {
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
@@ -237,7 +237,7 @@ TEST_CASE("BrushTest.resizePastWorldBounds", "[BrushTest]")
   CHECK(!canMoveBoundary(brush1, worldBounds, *rightFaceIndex, vm::vec3(8000, 0, 0)));
 }
 
-TEST_CASE("BrushTest.expand", "[BrushTest]")
+TEST_CASE("BrushTest.expand")
 {
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
@@ -257,7 +257,7 @@ TEST_CASE("BrushTest.expand", "[BrushTest]")
   CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
 }
 
-TEST_CASE("BrushTest.contract", "[BrushTest]")
+TEST_CASE("BrushTest.contract")
 {
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
@@ -277,7 +277,7 @@ TEST_CASE("BrushTest.contract", "[BrushTest]")
   CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
 }
 
-TEST_CASE("BrushTest.contractToZero", "[BrushTest]")
+TEST_CASE("BrushTest.contractToZero")
 {
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
@@ -289,7 +289,7 @@ TEST_CASE("BrushTest.contractToZero", "[BrushTest]")
   CHECK(brush1.expand(worldBounds, -64, true).is_error());
 }
 
-TEST_CASE("BrushTest.moveVertex", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertex")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -339,7 +339,7 @@ TEST_CASE("BrushTest.moveVertex", "[BrushTest]")
   assertTexture("bottom", brush, p1, p3, p7, p5);
 }
 
-TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide", "[BrushTest]")
+TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -364,7 +364,7 @@ TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide", "[BrushTest]")
   CHECK(brush.fullySpecified());
 }
 
-TEST_CASE("BrushTest.moveVertexInwardWithoutMerges", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexInwardWithoutMerges")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -439,7 +439,7 @@ TEST_CASE("BrushTest.moveVertexInwardWithoutMerges", "[BrushTest]")
   CHECK(brush.hasFace({p9, p7, p4}));
 }
 
-TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -514,7 +514,7 @@ TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges", "[BrushTest]")
   CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9})));
 }
 
-TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -587,7 +587,7 @@ TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge", "[BrushTest]")
   CHECK(brush.hasFace(vm::polygon3d({p9, p7, p4})));
 }
 
-TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -658,7 +658,7 @@ TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges", "[BrushTest]")
   CHECK(brush.hasFace(vm::polygon3d({p9, p4, p6})));
 }
 
-TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -727,7 +727,7 @@ TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges", "[BrushTest]")
   CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9, p6})));
 }
 
-TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -795,7 +795,7 @@ TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge", "[BrushTest]")
   CHECK(brush.hasFace(vm::polygon3d({p4, p6, p7})));
 }
 
-TEST_CASE("BrushTest.moveVertexUpThroughPlane", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexUpThroughPlane")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -866,7 +866,7 @@ TEST_CASE("BrushTest.moveVertexUpThroughPlane", "[BrushTest]")
   CHECK(brush.hasFace(vm::polygon3d({p2, p6, p9})));
 }
 
-TEST_CASE("BrushTest.moveVertexOntoEdge", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexOntoEdge")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -934,7 +934,7 @@ TEST_CASE("BrushTest.moveVertexOntoEdge", "[BrushTest]")
   CHECK(brush.hasFace(vm::polygon3d({p4, p6, p7})));
 }
 
-TEST_CASE("BrushTest.moveVertexOntoIncidentVertex", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexOntoIncidentVertex")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -1002,7 +1002,7 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertex", "[BrushTest]")
   CHECK(brush.hasFace(vm::polygon3d({p4, p6, p7})));
 }
 
-TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -1070,7 +1070,7 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection", "[BrushTe
   CHECK(brush.hasFace(vm::polygon3d({p3, p8, p5})));
 }
 
-TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -1209,7 +1209,7 @@ TEST_CASE(
   CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9})));
 }
 
-TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -1279,7 +1279,7 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex", "[Brush
   CHECK(brush.hasFace(vm::polygon3d({p5, p7, p8, p6})));
 }
 
-TEST_CASE("BrushTest.moveVerticesPastWorldBounds", "[BrushTest]")
+TEST_CASE("BrushTest.moveVerticesPastWorldBounds")
 {
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
@@ -1359,7 +1359,7 @@ static void assertCanNotMoveVertex(
 
 // NOTE: Different than movePolygonRemainingPoint, because in this case we allow
 // point moves that flip the normal of the remaining polygon
-TEST_CASE("BrushTest.movePointRemainingPolygon", "[BrushTest]")
+TEST_CASE("BrushTest.movePointRemainingPolygon")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1422,7 +1422,7 @@ TEST_CASE("BrushTest.movePointRemainingPolygon", "[BrushTest]")
                                                         // quad, without moving through it
 }
 
-TEST_CASE("BrushTest.movePointRemainingPolyhedron", "[BrushTest]")
+TEST_CASE("BrushTest.movePointRemainingPolyhedron")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1461,7 +1461,7 @@ TEST_CASE("BrushTest.movePointRemainingPolyhedron", "[BrushTest]")
 
 // remove vertex tests
 
-TEST_CASE("BrushTest.removeSingleVertex", "[BrushTest]")
+TEST_CASE("BrushTest.removeSingleVertex")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1538,7 +1538,7 @@ TEST_CASE("BrushTest.removeSingleVertex", "[BrushTest]")
     worldBounds, std::vector<vm::vec3>(1, vm::vec3(+32.0, -32.0, -32.0))));
 }
 
-TEST_CASE("BrushTest.removeMultipleVertices", "[BrushTest]")
+TEST_CASE("BrushTest.removeMultipleVertices")
 {
   const vm::bbox3 worldBounds(4096.0);
   BrushBuilder builder(MapFormat::Standard, worldBounds);
@@ -1582,7 +1582,7 @@ TEST_CASE("BrushTest.removeMultipleVertices", "[BrushTest]")
 
 // "Move edge" tests
 
-TEST_CASE("BrushTest.moveEdge", "[BrushTest]")
+TEST_CASE("BrushTest.moveEdge")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1671,7 +1671,7 @@ static void assertCanNotMoveEdges(
   CHECK_FALSE(brush.canMoveEdges(worldBounds, edges, delta));
 }
 
-TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron", "[BrushTest]")
+TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1703,7 +1703,7 @@ TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron", "[BrushTest]")
 }
 
 // Same as above, but moving 2 edges
-TEST_CASE("BrushTest.moveEdgesRemainingPolyhedron", "[BrushTest]")
+TEST_CASE("BrushTest.moveEdgesRemainingPolyhedron")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1734,7 +1734,7 @@ TEST_CASE("BrushTest.moveEdgesRemainingPolyhedron", "[BrushTest]")
 
 // "Move face" tests
 
-TEST_CASE("BrushTest.moveFace", "[BrushTest]")
+TEST_CASE("BrushTest.moveFace")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1776,7 +1776,7 @@ TEST_CASE("BrushTest.moveFace", "[BrushTest]")
     CHECK(newFacePositions[0].hasVertex(face.vertices()[i]));
 }
 
-TEST_CASE("BrushNodeTest.cannotMoveFace", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.cannotMoveFace")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1864,7 +1864,7 @@ static void assertCanNotMoveTopFaceBeyond127UnitsDown(const Brush& brush)
   assertCanNotMoveTopFace(brush, vm::vec3(256, 0, -129));
 }
 
-TEST_CASE("BrushTest.movePolygonRemainingPoint", "[BrushTest]")
+TEST_CASE("BrushTest.movePolygonRemainingPoint")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1885,7 +1885,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPoint", "[BrushTest]")
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
 
-TEST_CASE("BrushTest.movePolygonRemainingEdge", "[BrushTest]")
+TEST_CASE("BrushTest.movePolygonRemainingEdge")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1906,7 +1906,7 @@ TEST_CASE("BrushTest.movePolygonRemainingEdge", "[BrushTest]")
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
 
-TEST_CASE("BrushTest.movePolygonRemainingPolygon", "[BrushTest]")
+TEST_CASE("BrushTest.movePolygonRemainingPolygon")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1917,7 +1917,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon", "[BrushTest]")
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
 
-TEST_CASE("BrushTest.movePolygonRemainingPolygon2", "[BrushTest]")
+TEST_CASE("BrushTest.movePolygonRemainingPolygon2")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1943,7 +1943,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon2", "[BrushTest]")
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
 
-TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining", "[BrushTest]")
+TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -1984,7 +1984,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining", "[Bru
   assertCanNotMoveFace(brush, topFaceIndex, vm::vec3(0, 0, -129));
 }
 
-TEST_CASE("BrushTest.movePolygonRemainingPolyhedron", "[BrushTest]")
+TEST_CASE("BrushTest.movePolygonRemainingPolyhedron")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -2045,7 +2045,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolyhedron", "[BrushTest]")
     vm::vec3(-32.0, -32.0, 0.0)); // Causes face merging and a vert to be deleted at z=-64
 }
 
-TEST_CASE("BrushTest.moveTwoFaces", "[BrushTest]")
+TEST_CASE("BrushTest.moveTwoFaces")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -2105,7 +2105,7 @@ TEST_CASE("BrushTest.moveTwoFaces", "[BrushTest]")
 
 // "Move polyhedron" tests
 
-TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -2170,7 +2170,7 @@ class UVLockTest
   MapFormat param = F;
 };
 
-TEST_CASE("moveFaceWithUVLock", "[UVLockTest]")
+TEST_CASE("moveFaceWithUVLock")
 {
   auto format = GENERATE(MapFormat::Valve, MapFormat::Standard);
 
@@ -2250,7 +2250,7 @@ TEST_CASE("moveFaceWithUVLock", "[UVLockTest]")
   }
 }
 
-TEST_CASE("BrushTest.subtractCuboidFromCuboid", "[BrushTest]")
+TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -2389,7 +2389,7 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid", "[BrushTest]")
     == minuendTexture);
 }
 
-TEST_CASE("BrushTest.subtractDisjoint", "[BrushTest]")
+TEST_CASE("BrushTest.subtractDisjoint")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -2412,7 +2412,7 @@ TEST_CASE("BrushTest.subtractDisjoint", "[BrushTest]")
     subtraction.vertexPositions(), Catch::UnorderedEquals(brush1.vertexPositions()));
 }
 
-TEST_CASE("BrushTest.subtractEnclosed", "[BrushTest]")
+TEST_CASE("BrushTest.subtractEnclosed")
 {
   const vm::bbox3 worldBounds(4096.0);
 

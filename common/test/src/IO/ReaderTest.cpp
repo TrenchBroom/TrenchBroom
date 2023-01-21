@@ -57,12 +57,12 @@ static void createEmpty(Reader&& r)
   CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
 }
 
-TEST_CASE("BufferReaderTest.createEmpty", "[BufferReaderTest]")
+TEST_CASE("BufferReaderTest.createEmpty")
 {
   createEmpty(Reader::from(buff(), buff()));
 }
 
-TEST_CASE("FileReaderTest.createEmpty", "[FileReaderTest]")
+TEST_CASE("FileReaderTest.createEmpty")
 {
   const auto emptyFile =
     Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/empty"));
@@ -94,12 +94,12 @@ static void createNonEmpty(Reader&& r)
   CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
 }
 
-TEST_CASE("BufferReaderTest.createNonEmpty", "[BufferReaderTest]")
+TEST_CASE("BufferReaderTest.createNonEmpty")
 {
   createNonEmpty(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.createNonEmpty", "[FileReaderTest]")
+TEST_CASE("FileReaderTest.createNonEmpty")
 {
   createNonEmpty(file()->reader());
 }
@@ -119,12 +119,12 @@ static void seekFromBegin(Reader&& r)
   CHECK(r.position() == 2U);
 }
 
-TEST_CASE("BufferReaderTest.seekFromBegin", "[BufferReaderTest]")
+TEST_CASE("BufferReaderTest.seekFromBegin")
 {
   seekFromBegin(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.seekFromBegin", "[FileReaderTest]")
+TEST_CASE("FileReaderTest.seekFromBegin")
 {
   seekFromBegin(file()->reader());
 }
@@ -144,12 +144,12 @@ static void seekFromEnd(Reader&& r)
   CHECK(r.position() == 0U);
 }
 
-TEST_CASE("BufferReaderTest.seekFromEnd", "[BufferReaderTest]")
+TEST_CASE("BufferReaderTest.seekFromEnd")
 {
   seekFromEnd(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.seekFromEnd", "[FileReaderTest]")
+TEST_CASE("FileReaderTest.seekFromEnd")
 {
   seekFromEnd(file()->reader());
 }
@@ -166,12 +166,12 @@ static void seekForward(Reader&& r)
   CHECK(r.position() == 2U);
 }
 
-TEST_CASE("BufferReaderTest.seekForward", "[BufferReaderTest]")
+TEST_CASE("BufferReaderTest.seekForward")
 {
   seekForward(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.seekForward", "[FileReaderTest]")
+TEST_CASE("FileReaderTest.seekForward")
 {
   seekForward(file()->reader());
 }
@@ -196,12 +196,12 @@ static void subReader(Reader&& r)
   CHECK(s.position() == 3U);
 }
 
-TEST_CASE("BufferReaderTest.subReader", "[BufferReaderTest]")
+TEST_CASE("BufferReaderTest.subReader")
 {
   subReader(Reader::from(buff(), buff() + 10));
 }
 
-TEST_CASE("FileReaderTest.subReader", "[FileReaderTest]")
+TEST_CASE("FileReaderTest.subReader")
 {
   subReader(file()->reader());
 }

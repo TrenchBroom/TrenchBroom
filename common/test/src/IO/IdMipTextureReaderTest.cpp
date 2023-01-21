@@ -38,7 +38,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("IdMipTextureReaderTest.testLoadWad", "[IdMipTextureReaderTest]")
+TEST_CASE("IdMipTextureReaderTest.testLoadWad")
 {
   using TexInfo = std::tuple<std::string, size_t, size_t>;
 

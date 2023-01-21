@@ -38,7 +38,7 @@ struct TestVertex
   vm::vec4f color;
 };
 
-TEST_CASE("VertexTest.memoryLayoutSingleVertex", "[VertexTest]")
+TEST_CASE("VertexTest.memoryLayoutSingleVertex")
 {
   using Vertex = GLVertexTypes::P3T2C4::Vertex;
 
@@ -53,7 +53,7 @@ TEST_CASE("VertexTest.memoryLayoutSingleVertex", "[VertexTest]")
   REQUIRE(std::memcmp(&expected, &actual, sizeof(expected)) == 0);
 }
 
-TEST_CASE("VertexTest.memoryLayoutVertexList", "[VertexTest]")
+TEST_CASE("VertexTest.memoryLayoutVertexList")
 {
   using Vertex = GLVertexTypes::P3T2C4::Vertex;
 

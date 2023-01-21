@@ -35,7 +35,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("M8TextureReaderTest.testBasicLoading", "[M8TextureReaderTest]")
+TEST_CASE("M8TextureReaderTest.testBasicLoading")
 {
   DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
   const Path filePath = Path("fixture/test/IO/M8/test.m8");

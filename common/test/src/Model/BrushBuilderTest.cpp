@@ -33,7 +33,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]")
+TEST_CASE("BrushBuilderTest.createCube")
 {
   const vm::bbox3 worldBounds(8192.0);
 
@@ -51,7 +51,7 @@ TEST_CASE("BrushBuilderTest.createCube", "[BrushBuilderTest]")
   }
 }
 
-TEST_CASE("BrushBuilderTest.createCubeDefaults", "[BrushBuilderTest]")
+TEST_CASE("BrushBuilderTest.createCubeDefaults")
 {
   const vm::bbox3 worldBounds(8192.0);
 

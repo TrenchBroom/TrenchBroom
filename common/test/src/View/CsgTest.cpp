@@ -265,7 +265,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
 }
 
 // Test for https://github.com/TrenchBroom/TrenchBroom/issues/3755
-TEST_CASE("CsgTest.csgSubtractFailure", "[MapDocumentTest]")
+TEST_CASE("CsgTest.csgSubtractFailure")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
     IO::Path("fixture/test/View/MapDocumentTest/csgSubtractFailure.map"),
@@ -301,7 +301,7 @@ TEST_CASE("CsgTest.csgSubtractFailure", "[MapDocumentTest]")
       0.001));
 }
 
-TEST_CASE("CsgTest.csgHollow", "[MapDocumentTest]")
+TEST_CASE("CsgTest.csgHollow")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
     IO::Path("fixture/test/View/MapDocumentTest/csgHollow.map"),

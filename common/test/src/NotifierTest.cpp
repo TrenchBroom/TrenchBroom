@@ -59,7 +59,7 @@ public:
   void notify2(const int& a1, const int& a2) { notify2Calls.push_back({a1, a2}); }
 };
 
-TEST_CASE("NotifierTest.testAddRemoveObservers", "[NotifierTest]")
+TEST_CASE("NotifierTest.testAddRemoveObservers")
 {
   auto o1 = Observer{};
   auto o2 = Observer{};
@@ -82,7 +82,7 @@ TEST_CASE("NotifierTest.testAddRemoveObservers", "[NotifierTest]")
   CHECK(o2.notify0Calls == 1);
 }
 
-TEST_CASE("NotifierTest.testNotifyObservers", "[NotifierTest]")
+TEST_CASE("NotifierTest.testNotifyObservers")
 {
   auto o1 = Observer{};
   auto o2 = Observer{};

@@ -201,6 +201,24 @@ std::vector<Model::GroupNode*> findAllLinkedGroups(Model::WorldNode& worldNode)
   return result;
 }
 
+std::vector<std::string> collectParentLinkedGroupIds(const Model::Node& parentNode)
+{
+  auto result = std::vector<std::string>{};
+  const auto* currentNode = &parentNode;
+  while (currentNode)
+  {
+    if (const auto* currentGroupNode = dynamic_cast<const Model::GroupNode*>(currentNode))
+    {
+      if (const auto& linkedGroupId = currentGroupNode->group().linkedGroupId())
+      {
+        result.push_back(*linkedGroupId);
+      }
+    }
+    currentNode = currentNode->parent();
+  }
+  return result;
+}
+
 static void collectWithParents(Node* node, std::vector<Node*>& result)
 {
   if (node != nullptr)

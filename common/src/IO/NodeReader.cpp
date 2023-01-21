@@ -41,8 +41,14 @@ NodeReader::NodeReader(
   std::string_view str,
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
-  const Model::EntityPropertyConfig& entityPropertyConfig)
-  : MapReader(str, sourceMapFormat, targetMapFormat, entityPropertyConfig)
+  const Model::EntityPropertyConfig& entityPropertyConfig,
+  std::vector<std::string> linkedGroupsToKeep)
+  : MapReader{
+    str,
+    sourceMapFormat,
+    targetMapFormat,
+    entityPropertyConfig,
+    std::move(linkedGroupsToKeep)}
 {
 }
 
@@ -51,6 +57,7 @@ std::vector<Model::Node*> NodeReader::read(
   const Model::MapFormat preferredMapFormat,
   const vm::bbox3& worldBounds,
   const Model::EntityPropertyConfig& entityPropertyConfig,
+  const std::vector<std::string>& linkedGroupsToKeep,
   ParserStatus& status)
 {
   // Try preferred format first
@@ -62,6 +69,7 @@ std::vector<Model::Node*> NodeReader::read(
           str,
           worldBounds,
           entityPropertyConfig,
+          linkedGroupsToKeep,
           status);
         !result.empty())
     {
@@ -88,10 +96,12 @@ std::vector<Model::Node*> NodeReader::readAsFormat(
   const std::string& str,
   const vm::bbox3& worldBounds,
   const Model::EntityPropertyConfig& entityPropertyConfig,
+  const std::vector<std::string>& linkedGroupsToKeep,
   ParserStatus& status)
 {
   {
-    NodeReader reader(str, sourceMapFormat, targetMapFormat, entityPropertyConfig);
+    auto reader = NodeReader{
+      str, sourceMapFormat, targetMapFormat, entityPropertyConfig, linkedGroupsToKeep};
     try
     {
       reader.readEntities(worldBounds, status);
@@ -109,7 +119,8 @@ std::vector<Model::Node*> NodeReader::readAsFormat(
   }
 
   {
-    NodeReader reader(str, sourceMapFormat, targetMapFormat, entityPropertyConfig);
+    auto reader = NodeReader{
+      str, sourceMapFormat, targetMapFormat, entityPropertyConfig, linkedGroupsToKeep};
     try
     {
       reader.readBrushes(worldBounds, status);

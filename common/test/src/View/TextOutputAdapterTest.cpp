@@ -27,7 +27,7 @@ namespace TrenchBroom
 {
 namespace View
 {
-TEST_CASE("TextOutputAdapterTest.test", "[TextOutputAdapterTest]")
+TEST_CASE("TextOutputAdapterTest.test")
 {
   QTextEdit textEdit;
   TextOutputAdapter adapter(&textEdit);

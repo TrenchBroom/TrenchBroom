@@ -313,7 +313,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
   CHECK(document->selectionBounds() == box.translate(delta));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]")
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1734
 
@@ -338,7 +338,80 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup", "[CopyPasteTest]
   CHECK(light->parent() == group);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo", "[CopyPasteTest]")
+TEST_CASE_METHOD(
+  MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedLinkedGroupId")
+{
+  auto* brushNode = createBrushNode();
+  document->addNodes({{document->parentForNodes(), {brushNode}}});
+  document->selectNodes({brushNode});
+
+  auto* groupNode = document->groupSelection("test");
+
+  document->deselectAll();
+  document->selectNodes({groupNode});
+  auto* linkedGroup = document->createLinkedDuplicate();
+
+  document->deselectAll();
+  document->selectNodes({linkedGroup});
+  const auto data = document->serializeSelectedNodes();
+
+  document->deselectAll();
+
+  SECTION("Pasting unknown linked group ID")
+  {
+    const auto linkedGroupId = groupNode->group().linkedGroupId();
+    REQUIRE(linkedGroupId);
+
+    document->selectAllNodes();
+    document->deleteObjects();
+
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(document->world()->defaultLayer()->childCount() == 1);
+
+    const auto* pastedGroup = dynamic_cast<Model::GroupNode*>(
+      document->world()->defaultLayer()->children().back());
+    REQUIRE(pastedGroup);
+
+    CHECK(pastedGroup->group().linkedGroupId() == std::nullopt);
+  }
+
+  SECTION("Pasting duplicate linked group ID")
+  {
+    const auto linkedGroupId = groupNode->group().linkedGroupId();
+    REQUIRE(linkedGroupId);
+
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(document->world()->defaultLayer()->childCount() == 3);
+
+    const auto* pastedGroup = dynamic_cast<Model::GroupNode*>(
+      document->world()->defaultLayer()->children().back());
+    REQUIRE(pastedGroup);
+
+    CHECK(pastedGroup->group().linkedGroupId() == linkedGroupId);
+  }
+
+  SECTION("Pasting recursive linked group")
+  {
+    document->openGroup(groupNode);
+
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(groupNode->childCount() == 2);
+    CHECK(linkedGroup->childCount() == 2);
+
+    auto* pastedGroup = dynamic_cast<Model::GroupNode*>(groupNode->children().back());
+    REQUIRE(pastedGroup);
+
+    CHECK(pastedGroup->group().linkedGroupId() == std::nullopt);
+
+    auto* linkedPastedGroup =
+      dynamic_cast<Model::GroupNode*>(linkedGroup->children().back());
+    REQUIRE(linkedPastedGroup);
+
+    CHECK(linkedPastedGroup->group().linkedGroupId() == std::nullopt);
+  }
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/4174
 

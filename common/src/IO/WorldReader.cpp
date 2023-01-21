@@ -54,10 +54,8 @@ static std::string formatParserExceptions(
   return result.str();
 }
 
-WorldReaderException::WorldReaderException()
-  : Exception()
-{
-}
+WorldReaderException::WorldReaderException() = default;
+
 WorldReaderException::WorldReaderException(
   const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions)
   : Exception{formatParserExceptions(parserExceptions)}
@@ -74,7 +72,8 @@ WorldReader::WorldReader(
     std::move(str),
     sourceAndTargetMapFormat,
     sourceAndTargetMapFormat,
-    entityPropertyConfig)
+    entityPropertyConfig,
+    {})
   , m_world(std::make_unique<Model::WorldNode>(
       entityPropertyConfig, Model::Entity{}, sourceAndTargetMapFormat))
 {

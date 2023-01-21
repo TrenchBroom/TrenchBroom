@@ -62,6 +62,11 @@ std::vector<Model::GroupNode*> findLinkedGroups(
   Model::WorldNode& worldNode, const std::string& linkedGroupId);
 std::vector<Model::GroupNode*> findAllLinkedGroups(Model::WorldNode& worldNode);
 
+/**
+ * Collect the linked group IDs of the given node and all of its ancestors.
+ */
+std::vector<std::string> collectParentLinkedGroupIds(const Model::Node& parent);
+
 std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
 std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
 std::vector<Node*> collectParents(

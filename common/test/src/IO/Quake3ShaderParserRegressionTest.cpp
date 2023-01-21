@@ -74,7 +74,7 @@ TEST_CASE(
   CHECK_NOTHROW(parser.parse(status));
 }
 
-TEST_CASE("Quake3ShaderParserTest.parseShaderAbsolutePath", "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseShaderAbsolutePath")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2633
   // apparently, the Q3 engine can handle this

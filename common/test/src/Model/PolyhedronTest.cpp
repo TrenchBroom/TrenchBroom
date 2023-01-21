@@ -88,13 +88,13 @@ static bool mutuallyNotIntersects(const Polyhedron3d& lhs, const Polyhedron3d& r
   return !lhs.intersects(rhs) && !rhs.intersects(lhs);
 }
 
-TEST_CASE("PolyhedronTest.constructEmpty", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructEmpty")
 {
   Polyhedron3d p;
   CHECK(p.empty());
 }
 
-TEST_CASE("PolyhedronTest.constructWithOnePoint", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructWithOnePoint")
 {
   const vm::vec3d p1(-8.0, -8.0, -8.0);
 
@@ -112,7 +112,7 @@ TEST_CASE("PolyhedronTest.constructWithOnePoint", "[PolyhedronTest]")
   CHECK(hasVertices(p, points));
 }
 
-TEST_CASE("PolyhedronTest.constructWithTwoIdenticalPoints", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructWithTwoIdenticalPoints")
 {
   const vm::vec3d p1(-8.0, -8.0, -8.0);
 
@@ -130,7 +130,7 @@ TEST_CASE("PolyhedronTest.constructWithTwoIdenticalPoints", "[PolyhedronTest]")
   CHECK(hasVertices(p, points));
 }
 
-TEST_CASE("PolyhedronTest.constructWithTwoPoints", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructWithTwoPoints")
 {
   const vm::vec3d p1(0.0, 0.0, 0.0);
   const vm::vec3d p2(3.0, 0.0, 0.0);
@@ -150,7 +150,7 @@ TEST_CASE("PolyhedronTest.constructWithTwoPoints", "[PolyhedronTest]")
   CHECK(hasVertices(p, points));
 }
 
-TEST_CASE("PolyhedronTest.constructWithThreeColinearPoints", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructWithThreeColinearPoints")
 {
   const vm::vec3d p1(0.0, 0.0, 0.0);
   const vm::vec3d p2(3.0, 0.0, 0.0);
@@ -171,7 +171,7 @@ TEST_CASE("PolyhedronTest.constructWithThreeColinearPoints", "[PolyhedronTest]")
   CHECK(hasVertices(p, points));
 }
 
-TEST_CASE("PolyhedronTest.constructWithThreePoints", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructWithThreePoints")
 {
   const vm::vec3d p1(0.0, 0.0, 0.0);
   const vm::vec3d p2(3.0, 0.0, 0.0);
@@ -193,7 +193,7 @@ TEST_CASE("PolyhedronTest.constructWithThreePoints", "[PolyhedronTest]")
   CHECK(hasVertices(p, points));
 }
 
-TEST_CASE("PolyhedronTest.constructTriangleWithContainedPoint", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructTriangleWithContainedPoint")
 {
   const vm::vec3d p1(0.0, 0.0, 0.0);
   const vm::vec3d p2(6.0, 0.0, 0.0);
@@ -216,7 +216,7 @@ TEST_CASE("PolyhedronTest.constructTriangleWithContainedPoint", "[PolyhedronTest
   CHECK(hasVertices(p, points));
 }
 
-TEST_CASE("PolyhedronTest.constructWithFourCoplanarPoints", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructWithFourCoplanarPoints")
 {
   const vm::vec3d p1(0.0, 0.0, 0.0);
   const vm::vec3d p2(6.0, 0.0, 0.0);
@@ -239,7 +239,7 @@ TEST_CASE("PolyhedronTest.constructWithFourCoplanarPoints", "[PolyhedronTest]")
   CHECK(hasVertices(p, points));
 }
 
-TEST_CASE("PolyhedronTest.constructWith4Points", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructWith4Points")
 {
   const vm::vec3d p1(0.0, 0.0, 8.0);
   const vm::vec3d p2(8.0, 0.0, 0.0);
@@ -272,7 +272,7 @@ TEST_CASE("PolyhedronTest.constructWith4Points", "[PolyhedronTest]")
   CHECK(p.hasFace({p1, p4, p3}));
 }
 
-TEST_CASE("PolyhedronTest.constructRectangleWithRedundantPoint", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructRectangleWithRedundantPoint")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1659
   /*
@@ -299,7 +299,7 @@ TEST_CASE("PolyhedronTest.constructRectangleWithRedundantPoint", "[PolyhedronTes
   CHECK_FALSE(p.hasVertex(p5));
 }
 
-TEST_CASE("PolyhedronTest.constructTrapezoidWithRedundantPoint", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructTrapezoidWithRedundantPoint")
 {
   /*
    p4    p3 p5
@@ -325,7 +325,7 @@ TEST_CASE("PolyhedronTest.constructTrapezoidWithRedundantPoint", "[PolyhedronTes
   CHECK_FALSE(p.hasVertex(p3));
 }
 
-TEST_CASE("PolyhedronTest.constructPolygonWithRedundantPoint", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructPolygonWithRedundantPoint")
 {
   auto p = Polyhedron3d{
     vm::vec3{-64.0, 64.0, -16.0},
@@ -348,7 +348,7 @@ TEST_CASE("PolyhedronTest.constructPolygonWithRedundantPoint", "[PolyhedronTest]
     0.0));
 }
 
-TEST_CASE("PolyhedronTest.constructTetrahedonWithRedundantPoint", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructTetrahedonWithRedundantPoint")
 {
   const vm::vec3d p1(0.0, 4.0, 8.0);
   const vm::vec3d p2(8.0, 0.0, 0.0);
@@ -382,7 +382,7 @@ TEST_CASE("PolyhedronTest.constructTetrahedonWithRedundantPoint", "[PolyhedronTe
   CHECK(p.hasFace({p5, p4, p3}));
 }
 
-TEST_CASE("PolyhedronTest.constructTetrahedonWithCoplanarFaces", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructTetrahedonWithCoplanarFaces")
 {
   const vm::vec3d p1(0.0, 0.0, 8.0);
   const vm::vec3d p2(8.0, 0.0, 0.0);
@@ -414,7 +414,7 @@ TEST_CASE("PolyhedronTest.constructTetrahedonWithCoplanarFaces", "[PolyhedronTes
   CHECK(p.hasFace({p5, p4, p3}));
 }
 
-TEST_CASE("PolyhedronTest.constructCube", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.constructCube")
 {
   const vm::vec3d p1(-8.0, -8.0, -8.0);
   const vm::vec3d p2(-8.0, -8.0, +8.0);
@@ -465,7 +465,7 @@ TEST_CASE("PolyhedronTest.constructCube", "[PolyhedronTest]")
   CHECK(p.hasFace({p2, p6, p8, p4}));
 }
 
-TEST_CASE("PolyhedronTest.copy", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.copy")
 {
   const vm::vec3d p1(0.0, 0.0, 8.0);
   const vm::vec3d p2(8.0, 0.0, 0.0);
@@ -480,7 +480,7 @@ TEST_CASE("PolyhedronTest.copy", "[PolyhedronTest]")
     Polyhedron3d({p1, p2, p3, p4}) == (Polyhedron3d() = Polyhedron3d({p1, p2, p3, p4})));
 }
 
-TEST_CASE("PolyhedronTest.swap", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.swap")
 {
   const vm::vec3d p1(0.0, 0.0, 8.0);
   const vm::vec3d p2(8.0, 0.0, 0.0);
@@ -507,7 +507,7 @@ TEST_CASE("PolyhedronTest.swap", "[PolyhedronTest]")
   CHECK(rhs.bounds() == original.bounds());
 }
 
-TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlane", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlane")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -556,7 +556,7 @@ TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlane", "[PolyhedronTest]")
   CHECK(p.hasFace({p5, p7, p8 + d, p6 + d}));
 }
 
-TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAtTop", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAtTop")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -604,7 +604,7 @@ TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAtTop", "[PolyhedronTest]")
   CHECK(p.hasFace({p5, p7, p8, p6}));
 }
 
-TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAboveTop", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAboveTop")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -652,7 +652,7 @@ TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAboveTop", "[PolyhedronTest
   CHECK(p.hasFace({p5, p7, p8, p6}));
 }
 
-TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAtBottom", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAtBottom")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);
@@ -679,7 +679,7 @@ TEST_CASE("PolyhedronTest.clipCubeWithHorizontalPlaneAtBottom", "[PolyhedronTest
   CHECK(p.clip(plane).empty());
 }
 
-TEST_CASE("PolyhedronTest.clipCubeWithSlantedPlane", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.clipCubeWithSlantedPlane")
 {
   Polyhedron3d p(vm::bbox3d(64.0));
 
@@ -737,7 +737,7 @@ TEST_CASE("PolyhedronTest.clipCubeWithSlantedPlane", "[PolyhedronTest]")
   CHECK(p.hasFace({p9, p11, p10}, 0.0001));
 }
 
-TEST_CASE("PolyhedronTest.clipCubeDiagonally", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.clipCubeDiagonally")
 {
   Polyhedron3d p(vm::bbox3d(64.0));
 
@@ -778,7 +778,7 @@ TEST_CASE("PolyhedronTest.clipCubeDiagonally", "[PolyhedronTest]")
   CHECK(p.hasFace({p2, p6, p4}));
 }
 
-TEST_CASE("PolyhedronTest.clipCubeWithVerticalSlantedPlane", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.clipCubeWithVerticalSlantedPlane")
 {
   Polyhedron3d p(vm::bbox3d(64.0));
 
@@ -838,7 +838,7 @@ bool findAndRemove(
   return false;
 }
 
-TEST_CASE("PolyhedronTest.subtractInnerCuboidFromCuboid", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractInnerCuboidFromCuboid")
 {
   const Polyhedron3d minuend(vm::bbox3d(32.0));
   const Polyhedron3d subtrahend(vm::bbox3d(16.0));
@@ -891,7 +891,7 @@ TEST_CASE("PolyhedronTest.subtractInnerCuboidFromCuboid", "[PolyhedronTest]")
   CHECK(result.empty());
 }
 
-TEST_CASE("PolyhedronTest.subtractDisjointCuboidFromCuboid", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractDisjointCuboidFromCuboid")
 {
   const Polyhedron3d minuend(vm::bbox3d(64.0));
   const Polyhedron3d subtrahend(
@@ -904,7 +904,7 @@ TEST_CASE("PolyhedronTest.subtractDisjointCuboidFromCuboid", "[PolyhedronTest]")
   CHECK(resultPolyhedron == minuend);
 }
 
-TEST_CASE("PolyhedronTest.subtractCuboidFromInnerCuboid", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractCuboidFromInnerCuboid")
 {
   const Polyhedron3d minuend(vm::bbox3d(32.0));
   const Polyhedron3d subtrahend(vm::bbox3d(64.0));
@@ -913,7 +913,7 @@ TEST_CASE("PolyhedronTest.subtractCuboidFromInnerCuboid", "[PolyhedronTest]")
   CHECK(result.empty());
 }
 
-TEST_CASE("PolyhedronTest.subtractCuboidFromIdenticalCuboid", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractCuboidFromIdenticalCuboid")
 {
   const Polyhedron3d minuend(vm::bbox3d(64.0));
   const Polyhedron3d subtrahend(vm::bbox3d(64.0));
@@ -922,7 +922,7 @@ TEST_CASE("PolyhedronTest.subtractCuboidFromIdenticalCuboid", "[PolyhedronTest]"
   CHECK(result.empty());
 }
 
-TEST_CASE("PolyhedronTest.subtractCuboidProtrudingThroughCuboid", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractCuboidProtrudingThroughCuboid")
 {
   const Polyhedron3d minuend(
     vm::bbox3d(vm::vec3d(-32.0, -32.0, -16.0), vm::vec3d(32.0, 32.0, 16.0)));
@@ -981,7 +981,7 @@ TEST_CASE("PolyhedronTest.subtractCuboidProtrudingThroughCuboid", "[PolyhedronTe
   CHECK(result.empty());
 }
 
-TEST_CASE("PolyhedronTest.subtractCuboidProtrudingFromCuboid", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractCuboidProtrudingFromCuboid")
 {
   /*
    ____________
@@ -1002,7 +1002,7 @@ TEST_CASE("PolyhedronTest.subtractCuboidProtrudingFromCuboid", "[PolyhedronTest]
   CHECK(result.size() == 3u);
 }
 
-TEST_CASE("PolyhedronTest.subtractCuboidProtrudingFromCuboid2", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractCuboidProtrudingFromCuboid2")
 {
   /*
    ____________
@@ -1021,7 +1021,7 @@ TEST_CASE("PolyhedronTest.subtractCuboidProtrudingFromCuboid2", "[PolyhedronTest
   CHECK(result.size() == 3u);
 }
 
-TEST_CASE("PolyhedronTest.subtractCuboidFromCuboidWithCutCorners", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractCuboidFromCuboidWithCutCorners")
 {
 
   /*
@@ -1074,7 +1074,7 @@ TEST_CASE("PolyhedronTest.subtractCuboidFromCuboidWithCutCorners", "[PolyhedronT
   CHECK(result.empty());
 }
 
-TEST_CASE("PolyhedronTest.subtractRhombusFromCuboid", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractRhombusFromCuboid")
 {
 
   /*
@@ -1123,7 +1123,7 @@ TEST_CASE("PolyhedronTest.subtractRhombusFromCuboid", "[PolyhedronTest]")
   CHECK(result.size() == 0u);
 }
 
-TEST_CASE("PolyhedronTest.intersection_empty_polyhedron", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_empty_polyhedron")
 {
   const Polyhedron3d empty;
   const Polyhedron3d point{vm::vec3d(1.0, 0.0, 0.0)};
@@ -1143,7 +1143,7 @@ TEST_CASE("PolyhedronTest.intersection_empty_polyhedron", "[PolyhedronTest]")
   CHECK(mutuallyNotIntersects(empty, polyhedron));
 }
 
-TEST_CASE("PolyhedronTest.intersection_point_point", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_point_point")
 {
   const Polyhedron3d point{vm::vec3d(0.0, 0.0, 0.0)};
 
@@ -1151,7 +1151,7 @@ TEST_CASE("PolyhedronTest.intersection_point_point", "[PolyhedronTest]")
   CHECK(mutuallyNotIntersects(point, Polyhedron3d{vm::vec3d(0.0, 0.0, 1.0)}));
 }
 
-TEST_CASE("PolyhedronTest.intersection_point_edge", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_point_edge")
 {
   const vm::vec3d pointPos(0.0, 0.0, 0.0);
   const Polyhedron3d point{pointPos};
@@ -1171,7 +1171,7 @@ TEST_CASE("PolyhedronTest.intersection_point_edge", "[PolyhedronTest]")
       vm::vec3d(-1.0, 0.0, 1.0), vm::vec3d(1.0, 0.0, 1.0)})); // point / unrelated edge
 }
 
-TEST_CASE("PolyhedronTest.intersection_point_polygon", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_point_polygon")
 {
   const vm::vec3d pointPos(0.0, 0.0, 0.0);
   const Polyhedron3d point{pointPos};
@@ -1203,7 +1203,7 @@ TEST_CASE("PolyhedronTest.intersection_point_polygon", "[PolyhedronTest]")
       vm::vec3d(0.0, 1.0, 1.0)})); // point / triangle above point
 }
 
-TEST_CASE("PolyhedronTest.intersection_point_polyhedron", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_point_polyhedron")
 {
   const vm::vec3d pointPos(0.0, 0.0, 0.0);
   const Polyhedron3d point{pointPos};
@@ -1246,7 +1246,7 @@ TEST_CASE("PolyhedronTest.intersection_point_polyhedron", "[PolyhedronTest]")
       vm::vec3d(0.0, 0.0, 2.0)})); // point / tetrahedron above point
 }
 
-TEST_CASE("PolyhedronTest.intersection_edge_edge", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_edge_edge")
 {
   const vm::vec3d point1(-1.0, 0.0, 0.0);
   const vm::vec3d point2(+1.0, 0.0, 0.0);
@@ -1266,7 +1266,7 @@ TEST_CASE("PolyhedronTest.intersection_edge_edge", "[PolyhedronTest]")
     edge, Polyhedron3d{point1 + vm::vec3d::pos_z(), point2 + vm::vec3d::pos_z()}));
 }
 
-TEST_CASE("PolyhedronTest.intersection_edge_polygon_same_plane", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_edge_polygon_same_plane")
 {
   const vm::vec3d point1(-1.0, 0.0, 0.0);
   const vm::vec3d point2(+1.0, 0.0, 0.0);
@@ -1324,7 +1324,7 @@ TEST_CASE("PolyhedronTest.intersection_edge_polygon_same_plane", "[PolyhedronTes
       vm::vec3d(+3.0, 1.0, 0.0)})); // no intersection
 }
 
-TEST_CASE("PolyhedronTest.intersection_edge_polygon_different_plane", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_edge_polygon_different_plane")
 {
   const vm::vec3d point1(0.0, 0.0, 1.0);
   const vm::vec3d point2(0.0, 0.0, -1.0);
@@ -1403,7 +1403,7 @@ TEST_CASE("PolyhedronTest.intersection_edge_polygon_different_plane", "[Polyhedr
       vm::vec3d(0.0, 2.0, 0.0)}));
 }
 
-TEST_CASE("PolyhedronTest.intersection_edge_polyhedron", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_edge_polyhedron")
 {
   const Polyhedron3d tetrahedron{
     vm::vec3d(-1.0, -1.0, 0.0),
@@ -1438,7 +1438,7 @@ TEST_CASE("PolyhedronTest.intersection_edge_polyhedron", "[PolyhedronTest]")
     tetrahedron)); // no intersection
 }
 
-TEST_CASE("PolyhedronTest.intersection_polygon_polygon_same_plane", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_polygon_polygon_same_plane")
 {
   const Polyhedron3d square{
     vm::vec3d(-1.0, -1.0, 0.0),

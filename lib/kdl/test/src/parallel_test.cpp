@@ -33,14 +33,14 @@
 
 namespace kdl
 {
-TEST_CASE("for 0", "[parallel_test]")
+TEST_CASE("for 0")
 {
   bool ran = false;
   kdl::parallel_for(0, [&](size_t) { ran = true; });
   CHECK(!ran);
 }
 
-TEST_CASE("for 10000", "[parallel_test]")
+TEST_CASE("for 10000")
 {
   constexpr size_t TestSize = 10'000;
 
@@ -73,7 +73,7 @@ TEST_CASE("for 10000", "[parallel_test]")
   }
 }
 
-TEST_CASE("transform", "[parallel_test]")
+TEST_CASE("transform")
 {
   const auto L = [](const int& v) { return v * 10; };
 
@@ -83,7 +83,7 @@ TEST_CASE("transform", "[parallel_test]")
     == kdl::vec_parallel_transform(std::vector<int>{1, 2, 3}, L));
 }
 
-TEST_CASE("transform_many", "[parallel_test]")
+TEST_CASE("transform_many")
 {
   std::vector<int> input;
   std::vector<std::string> expected;
@@ -99,7 +99,7 @@ TEST_CASE("transform_many", "[parallel_test]")
         }));
 }
 
-TEST_CASE("overhead for small work batches", "[parallel_test]")
+TEST_CASE("overhead for small work batches")
 {
   constexpr size_t OuterLoop = 1'000;
   constexpr size_t InnerLoop = 10;

@@ -26,7 +26,7 @@
 
 namespace kdl
 {
-TEST_CASE("transform_iterator_test.operator_less_than", "[transform_iterator_test]")
+TEST_CASE("transform_iterator_test.operator_less_than")
 {
   const auto v1 = std::vector<int>({});
   const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
@@ -43,7 +43,7 @@ TEST_CASE("transform_iterator_test.operator_less_than", "[transform_iterator_tes
   CHECK_FALSE(it < end);
 }
 
-TEST_CASE("transform_iterator_test.operator_greater_than", "[transform_iterator_test]")
+TEST_CASE("transform_iterator_test.operator_greater_than")
 {
   const auto v1 = std::vector<int>({});
   const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
@@ -60,7 +60,7 @@ TEST_CASE("transform_iterator_test.operator_greater_than", "[transform_iterator_
   CHECK_FALSE(end > it);
 }
 
-TEST_CASE("transform_iterator_test.operator_equal", "[transform_iterator_test]")
+TEST_CASE("transform_iterator_test.operator_equal")
 {
   const auto v1 = std::vector<int>({});
   const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
@@ -77,7 +77,7 @@ TEST_CASE("transform_iterator_test.operator_equal", "[transform_iterator_test]")
   CHECK(it == end);
 }
 
-TEST_CASE("transform_iterator_test.operator_not_equal", "[transform_iterator_test]")
+TEST_CASE("transform_iterator_test.operator_not_equal")
 {
   const auto v1 = std::vector<int>({});
   const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
@@ -132,14 +132,14 @@ TEST_CASE(
   CHECK(it == std::begin(t));
 }
 
-TEST_CASE("transform_iterator_test.operator_star", "[transform_iterator_test]")
+TEST_CASE("transform_iterator_test.operator_star")
 {
   const auto v = std::vector<int>({1});
   const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });
   CHECK(*std::begin(t) == 3);
 }
 
-TEST_CASE("transform_adapter_test.empty", "[transform_adapter_test]")
+TEST_CASE("transform_adapter_test.empty")
 {
   const auto v1 = std::vector<int>({});
   const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
@@ -150,7 +150,7 @@ TEST_CASE("transform_adapter_test.empty", "[transform_adapter_test]")
   CHECK_FALSE(t2.empty());
 }
 
-TEST_CASE("transform_adapter_test.size", "[transform_adapter_test]")
+TEST_CASE("transform_adapter_test.size")
 {
   const auto v1 = std::vector<int>({});
   const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
@@ -161,7 +161,7 @@ TEST_CASE("transform_adapter_test.size", "[transform_adapter_test]")
   CHECK(t2.size() == 3u);
 }
 
-TEST_CASE("transform_adapter_test.iterators", "[transform_adapter_test]")
+TEST_CASE("transform_adapter_test.iterators")
 {
   const auto v1 = std::vector<int>({});
   const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });
@@ -187,7 +187,7 @@ TEST_CASE("transform_adapter_test.iterators", "[transform_adapter_test]")
   CHECK(end == it);
 }
 
-TEST_CASE("transform_adapter_test.reverse_iterators", "[transform_adapter_test]")
+TEST_CASE("transform_adapter_test.reverse_iterators")
 {
   const auto v1 = std::vector<int>({});
   const auto t1 = transform_adapter(v1, [](const auto& i) { return i + 2; });

@@ -37,7 +37,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-TEST_CASE("GameTest.findTextureCollections", "[GameTest]")
+TEST_CASE("GameTest.findTextureCollections")
 {
   auto config = GameConfig{
     "Quake2",
@@ -70,7 +70,7 @@ TEST_CASE("GameTest.findTextureCollections", "[GameTest]")
       IO::Path("textures"), IO::Path("textures/e1m1"), IO::Path("textures/e1m1/f1")}));
 }
 
-TEST_CASE("GameTest.loadCorruptPackages", "[GameTest]")
+TEST_CASE("GameTest.loadCorruptPackages")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/2496
 
@@ -94,7 +94,7 @@ TEST_CASE("GameTest.loadCorruptPackages", "[GameTest]")
   }
 }
 
-TEST_CASE("GameTest.loadQuake3Shaders", "[GameTest]")
+TEST_CASE("GameTest.loadQuake3Shaders")
 {
   const auto configPath =
     IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games//Quake3/GameConfig.cfg");

@@ -131,6 +131,18 @@ TEST_CASE("GroupNodeTest.canAddChild")
   CHECK(groupNode.canAddChild(&entityNode));
   CHECK(groupNode.canAddChild(&brushNode));
   CHECK(groupNode.canAddChild(&patchNode));
+
+  SECTION("Recursive linked groups")
+  {
+    auto linkedGroupNode = std::make_unique<GroupNode>(Group{"group"});
+    setLinkedGroupId(groupNode, "linked_group_id");
+    setLinkedGroupId(*linkedGroupNode, *groupNode.group().linkedGroupId());
+    CHECK_FALSE(groupNode.canAddChild(linkedGroupNode.get()));
+
+    auto outerGroupNode = GroupNode{Group{"outer_group"}};
+    outerGroupNode.addChild(linkedGroupNode.release());
+    CHECK_FALSE(groupNode.canAddChild(&outerGroupNode));
+  }
 }
 
 TEST_CASE("GroupNodeTest.canRemoveChild")
@@ -160,7 +172,7 @@ TEST_CASE("GroupNodeTest.canRemoveChild")
   CHECK(groupNode.canRemoveChild(&patchNode));
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroups", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateLinkedGroups")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -232,7 +244,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroups", "[GroupNodeTest]")
   }
 }
 
-TEST_CASE("GroupNodeTest.updateNestedLinkedGroups", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateNestedLinkedGroups")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -320,7 +332,7 @@ TEST_CASE("GroupNodeTest.updateNestedLinkedGroups", "[GroupNodeTest]")
   }
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroupsRecursively", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateLinkedGroupsRecursively")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -393,7 +405,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsRecursively", "[GroupNodeTest]")
     [](const auto&) { FAIL(); }));
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroupsExceedsWorldBounds", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateLinkedGroupsExceedsWorldBounds")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 

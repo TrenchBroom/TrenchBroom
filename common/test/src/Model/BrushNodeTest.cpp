@@ -58,7 +58,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-TEST_CASE("BrushNodeTest.entity", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.entity")
 {
   const auto worldBounds = vm::bbox3{4096.0};
 
@@ -72,7 +72,7 @@ TEST_CASE("BrushNodeTest.entity", "[BrushNodeTest]")
   CHECK(brushNode->entity() == &entityNode);
 }
 
-TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.hasSelectedFaces")
 {
   const vm::bbox3 worldBounds(4096.0);
 
@@ -167,7 +167,7 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces", "[BrushNodeTest]")
   }
 }
 
-TEST_CASE("BrushNodeTest.containsPatchNode", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.containsPatchNode")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
@@ -194,7 +194,7 @@ TEST_CASE("BrushNodeTest.containsPatchNode", "[BrushNodeTest]")
   CHECK_FALSE(brushNode.contains(&patchNode));
 }
 
-TEST_CASE("BrushNodeTest.intersectsPatchNode", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.intersectsPatchNode")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
@@ -254,7 +254,7 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode", "[BrushNodeTest]")
   }
 }
 
-TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.pick")
 {
   const vm::bbox3 worldBounds(4096.0);
   const auto editorContext = EditorContext{};
@@ -298,7 +298,7 @@ TEST_CASE("BrushNodeTest.pick", "[BrushNodeTest]")
   CHECK(hits2.empty());
 }
 
-TEST_CASE("BrushNodeTest.clone", "[BrushNodeTest]")
+TEST_CASE("BrushNodeTest.clone")
 {
   const vm::bbox3 worldBounds(4096.0);
 

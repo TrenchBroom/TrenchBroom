@@ -296,11 +296,17 @@ std::vector<Node*> GameImpl::doParseNodes(
   const std::string& str,
   const MapFormat mapFormat,
   const vm::bbox3& worldBounds,
+  const std::vector<std::string>& linkedGroupsToKeep,
   Logger& logger) const
 {
   auto parserStatus = IO::SimpleParserStatus{logger};
   return IO::NodeReader::read(
-    str, mapFormat, worldBounds, entityPropertyConfig(), parserStatus);
+    str,
+    mapFormat,
+    worldBounds,
+    entityPropertyConfig(),
+    linkedGroupsToKeep,
+    parserStatus);
 }
 
 std::vector<BrushFace> GameImpl::doParseBrushFaces(

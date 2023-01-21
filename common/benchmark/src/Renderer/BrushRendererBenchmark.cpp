@@ -92,7 +92,7 @@ makeBrushes()
   return {result, textures};
 }
 
-TEST_CASE("BrushRendererBenchmark.benchBrushRenderer", "[BrushRendererBenchmark]")
+TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
 {
   auto brushesTextures = makeBrushes();
   std::vector<Model::BrushNode*> brushes = brushesTextures.first;

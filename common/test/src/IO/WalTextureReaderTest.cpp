@@ -33,7 +33,7 @@ namespace IO
 {
 static const auto fixturePath = Path("fixture/test/IO/Wal");
 
-TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir", "[WalTextureReaderTest]")
+TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir")
 {
   DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
   const Assets::Palette palette =

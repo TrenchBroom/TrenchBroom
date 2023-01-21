@@ -123,6 +123,7 @@ public: // parsing and serializing objects
     const std::string& str,
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
+    const std::vector<std::string>& linkedGroupsToKeep,
     Logger& logger) const;
   std::vector<BrushFace> parseBrushFaces(
     const std::string& str,
@@ -202,6 +203,7 @@ private: // subclassing interface
     const std::string& str,
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
+    const std::vector<std::string>& linkedGroupsToKeep,
     Logger& logger) const = 0;
   virtual std::vector<BrushFace> doParseBrushFaces(
     const std::string& str,

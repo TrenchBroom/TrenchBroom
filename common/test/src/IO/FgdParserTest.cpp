@@ -39,7 +39,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("FgdParserTest.parseIncludedFgdFiles", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
 {
   const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
   const std::vector<Path> cfgFiles =
@@ -78,7 +78,7 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles", "[FgdParserTest]")
   }
 }
 
-TEST_CASE("FgdParserTest.parseEmptyFile", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseEmptyFile")
 {
   const std::string file = "";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -90,7 +90,7 @@ TEST_CASE("FgdParserTest.parseEmptyFile", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseWhitespaceFile", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseWhitespaceFile")
 {
   const std::string file = "     \n  \t \n  ";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -102,7 +102,7 @@ TEST_CASE("FgdParserTest.parseWhitespaceFile", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseCommentsFile", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseCommentsFile")
 {
   const std::string file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
   const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -114,7 +114,7 @@ TEST_CASE("FgdParserTest.parseCommentsFile", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseEmptyFlagDescription", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseEmptyFlagDescription")
 {
   const std::string file =
     "@PointClass color(0 255 0) size(-2 -2 -12, 2 2 12) = light_mine1 : "
@@ -135,7 +135,7 @@ TEST_CASE("FgdParserTest.parseEmptyFlagDescription", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseSolidClass", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseSolidClass")
 {
   const std::string file =
     "@SolidClass = worldspawn : \"World entity\"\n"
@@ -172,7 +172,7 @@ TEST_CASE("FgdParserTest.parseSolidClass", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parsePointClass", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parsePointClass")
 {
   const std::string file =
     "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
@@ -203,7 +203,7 @@ TEST_CASE("FgdParserTest.parsePointClass", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseBaseProperty", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseBaseProperty")
 {
   const std::string file =
     "@baseclass = Appearflags [\n"
@@ -225,7 +225,7 @@ TEST_CASE("FgdParserTest.parseBaseProperty", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses")
 {
   const std::string file =
     "@baseclass = Appearflags [\n"
@@ -271,7 +271,7 @@ TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parsePointClassWithUnknownClassProperties", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parsePointClassWithUnknownClassProperties")
 {
   const std::string file =
     "@PointClass unknown1 unknown2(spaghetti) = info_notnull : \"Wildcard entity\" // I "
@@ -303,7 +303,7 @@ TEST_CASE("FgdParserTest.parsePointClassWithUnknownClassProperties", "[FgdParser
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseType_TargetSourcePropertyDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseType_TargetSourcePropertyDefinition")
 {
   const std::string file =
     "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
@@ -373,7 +373,7 @@ TEST_CASE(
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseStringPropertyDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
 {
   const std::string file =
     "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
@@ -436,7 +436,7 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition", "[FgdParserTest]")
  * Technically a type mismatch, but appears in the wild; see:
  * https://github.com/TrenchBroom/TrenchBroom/issues/2833
  */
-TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault")
 {
   const std::string file = R"(@PointClass = info_notnull : "Wildcard entity"
 [
@@ -488,7 +488,7 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault", "[FgdParserT
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition")
 {
   const std::string file =
     "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
@@ -543,7 +543,7 @@ TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseReadOnlyPropertyDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseReadOnlyPropertyDefinition")
 {
   const std::string file =
     "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
@@ -574,7 +574,7 @@ TEST_CASE("FgdParserTest.parseReadOnlyPropertyDefinition", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseFloatPropertyDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseFloatPropertyDefinition")
 {
   const std::string file =
     "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
@@ -635,7 +635,7 @@ TEST_CASE("FgdParserTest.parseFloatPropertyDefinition", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseChoicePropertyDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 {
   const std::string file = R"%(
             @PointClass = info_notnull : "Wildcard entity" // I love you\n
@@ -798,7 +798,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
 {
   const std::string file =
     "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"
@@ -863,7 +863,7 @@ static const std::string FgdModelDefinitionTemplate =
 
 using Assets::assertModelDefinition;
 
-TEST_CASE("FgdParserTest.parseLegacyStaticModelDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseLegacyStaticModelDefinition")
 {
   static const std::string ModelDefinition =
     "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
@@ -879,7 +879,7 @@ TEST_CASE("FgdParserTest.parseLegacyStaticModelDefinition", "[FgdParserTest]")
     "{ 'spawnflags': 1 }");
 }
 
-TEST_CASE("FgdParserTest.parseLegacyDynamicModelDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseLegacyDynamicModelDefinition")
 {
   static const std::string ModelDefinition =
     "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
@@ -896,7 +896,7 @@ TEST_CASE("FgdParserTest.parseLegacyDynamicModelDefinition", "[FgdParserTest]")
     "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
 }
 
-TEST_CASE("FgdParserTest.parseELModelDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseELModelDefinition")
 {
   static const std::string ModelDefinition =
     "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
@@ -907,7 +907,7 @@ TEST_CASE("FgdParserTest.parseELModelDefinition", "[FgdParserTest]")
     FgdModelDefinitionTemplate);
 }
 
-TEST_CASE("FgdParserTest.parseLegacyModelWithParseError", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseLegacyModelWithParseError")
 {
   const std::string file =
     "@PointClass base(Monster) size(-16 -16 -24, 16 16 40) model(\":progs/polyp.mdl\" 0 "
@@ -931,7 +931,7 @@ TEST_CASE("FgdParserTest.parseLegacyModelWithParseError", "[FgdParserTest]")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseInvalidBounds", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseInvalidBounds")
 {
   const std::string file = R"(
 @PointClass size(32 32 0, -32 -32 256) model({"path" : ":progs/goddess-statue.mdl" }) =
@@ -952,7 +952,7 @@ decor_goddess_statue : "Goddess Statue" [])";
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE("FgdParserTest.parseInvalidModel", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseInvalidModel")
 {
   const std::string file = R"(@PointClass
 size(-16 -16 -24, 16 16 40)
@@ -971,7 +971,7 @@ decor_goddess_statue : "Goddess Statue" [])";
     Catch::Matchers::StartsWith("At line 3, column 8:"));
 }
 
-TEST_CASE("FgdParserTest.parseErrorAfterModel", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseErrorAfterModel")
 {
   const std::string file = R"(@PointClass
 size(-16 -16 -24, 16 16 40)
@@ -990,7 +990,7 @@ model({"path"
     Catch::Matchers::StartsWith("At line 4, column 64:"));
 }
 
-TEST_CASE("FgdParserTest.parseInclude", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseInclude")
 {
   const Path path =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Fgd/parseInclude/host.fgd");
@@ -1013,7 +1013,7 @@ TEST_CASE("FgdParserTest.parseInclude", "[FgdParserTest]")
   kdl::vec_clear_and_delete(defs);
 }
 
-TEST_CASE("FgdParserTest.parseNestedInclude", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseNestedInclude")
 {
   const Path path = Disk::getCurrentWorkingDir()
                     + Path("fixture/test/IO/Fgd/parseNestedInclude/host.fgd");
@@ -1039,7 +1039,7 @@ TEST_CASE("FgdParserTest.parseNestedInclude", "[FgdParserTest]")
   kdl::vec_clear_and_delete(defs);
 }
 
-TEST_CASE("FgdParserTest.parseRecursiveInclude", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseRecursiveInclude")
 {
   const Path path = Disk::getCurrentWorkingDir()
                     + Path("fixture/test/IO/Fgd/parseRecursiveInclude/host.fgd");
@@ -1059,7 +1059,7 @@ TEST_CASE("FgdParserTest.parseRecursiveInclude", "[FgdParserTest]")
   kdl::vec_clear_and_delete(defs);
 }
 
-TEST_CASE("FgdParserTest.parseStringContinuations", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseStringContinuations")
 {
   const std::string file =
     "@PointClass = cont_description :\n"

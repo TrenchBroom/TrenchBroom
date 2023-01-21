@@ -43,7 +43,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("WorldReaderTest.parseFailure_1424", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseFailure_1424")
 {
   const std::string data(R"(
 {
@@ -68,7 +68,7 @@ TEST_CASE("WorldReaderTest.parseFailure_1424", "[WorldReaderTest]")
   CHECK(world != nullptr);
 }
 
-TEST_CASE("WorldReaderTest.parseProblematicBrush1", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseProblematicBrush1")
 {
   const std::string data(R"(
 {
@@ -142,7 +142,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush1", "[WorldReaderTest]")
     != nullptr);
 }
 
-TEST_CASE("WorldReaderTest.parseProblematicBrush2", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseProblematicBrush2")
 {
   const std::string data(R"(
 {
@@ -171,7 +171,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush2", "[WorldReaderTest]")
   checkBrushTexCoordSystem(brush, false);
 }
 
-TEST_CASE("WorldReaderTest.parseProblematicBrush3", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseProblematicBrush3")
 {
   const std::string data(R"(
 {

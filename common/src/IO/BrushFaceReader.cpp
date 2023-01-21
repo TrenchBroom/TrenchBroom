@@ -35,7 +35,7 @@ namespace IO
 {
 BrushFaceReader::BrushFaceReader(
   const std::string& str, const Model::MapFormat sourceAndTargetMapFormat)
-  : MapReader(str, sourceAndTargetMapFormat, sourceAndTargetMapFormat, {})
+  : MapReader(str, sourceAndTargetMapFormat, sourceAndTargetMapFormat, {}, {})
 {
 }
 

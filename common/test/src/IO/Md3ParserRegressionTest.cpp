@@ -40,7 +40,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("Md3ParserTest.loadFailure_2659", "[Md3ParserTest]")
+TEST_CASE("Md3ParserTest.loadFailure_2659")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2659
 

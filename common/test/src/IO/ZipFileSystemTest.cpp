@@ -32,7 +32,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("ZipFileSystemTest.directoryExists", "[ZipFileSystemTest]")
+TEST_CASE("ZipFileSystemTest.directoryExists")
 {
   const Path zipPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
@@ -46,7 +46,7 @@ TEST_CASE("ZipFileSystemTest.directoryExists", "[ZipFileSystemTest]")
   CHECK_FALSE(fs.directoryExists(Path("pics/tag1.pcx")));
 }
 
-TEST_CASE("ZipFileSystemTest.fileExists", "[ZipFileSystemTest]")
+TEST_CASE("ZipFileSystemTest.fileExists")
 {
   const Path zipPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
@@ -59,7 +59,7 @@ TEST_CASE("ZipFileSystemTest.fileExists", "[ZipFileSystemTest]")
   CHECK(fs.fileExists(Path("PICS/TAG1.pcX")));
 }
 
-TEST_CASE("ZipFileSystemTest.findItems", "[ZipFileSystemTest]")
+TEST_CASE("ZipFileSystemTest.findItems")
 {
   const Path zipPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
@@ -88,7 +88,7 @@ TEST_CASE("ZipFileSystemTest.findItems", "[ZipFileSystemTest]")
       std::vector<Path>{Path("pics/tag1.pcx"), Path("pics/tag2.pcx")}));
 }
 
-TEST_CASE("ZipFileSystemTest.findItemsRecursively", "[ZipFileSystemTest]")
+TEST_CASE("ZipFileSystemTest.findItemsRecursively")
 {
   const Path zipPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");
@@ -144,7 +144,7 @@ TEST_CASE("ZipFileSystemTest.findItemsRecursively", "[ZipFileSystemTest]")
     }));
 }
 
-TEST_CASE("ZipFileSystemTest.openFile", "[ZipFileSystemTest]")
+TEST_CASE("ZipFileSystemTest.openFile")
 {
   const Path zipPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Zip/zip_test.zip");

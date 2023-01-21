@@ -27,7 +27,7 @@
 
 namespace kdl
 {
-TEST_CASE("string_utils_test.str_split", "[string_utils_test]")
+TEST_CASE("string_utils_test.str_split")
 {
   CHECK_THAT(str_split("", " "), Catch::Equals(std::vector<std::string>{}));
   CHECK_THAT(str_split(" ", " "), Catch::Equals(std::vector<std::string>{}));
@@ -67,7 +67,7 @@ TEST_CASE("string_utils_test.str_split", "[string_utils_test]")
     str_split("c:\\x\\y", "\\"), Catch::Equals(std::vector<std::string>{"c:", "x", "y"}));
 }
 
-TEST_CASE("string_utils_test.str_join", "[string_utils_test]")
+TEST_CASE("string_utils_test.str_join")
 {
   CHECK(str_join(std::vector<std::string_view>{}, ", ", " and ", ", and ") == "");
   CHECK(str_join(std::vector<std::string_view>{"one"}, ", ", " and ", ", and ") == "one");
@@ -87,7 +87,7 @@ TEST_CASE("string_utils_test.str_join", "[string_utils_test]")
     == "one, two, three");
 }
 
-TEST_CASE("string_utils_test.str_replace_every", "[string_utils_test]")
+TEST_CASE("string_utils_test.str_replace_every")
 {
   CHECK(str_replace_every("", "", "haha") == "");
   CHECK(str_replace_every("asdf", "", "haha") == "asdf");
@@ -113,7 +113,7 @@ inline std::ostream& operator<<(std::ostream& o, const to_string& t)
   return o;
 }
 
-TEST_CASE("string_format_test.str_to_string", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_string")
 {
   CHECK(str_to_string("abc") == "abc");
   CHECK(str_to_string(1234) == "1234");
@@ -121,7 +121,7 @@ TEST_CASE("string_format_test.str_to_string", "[string_format_test]")
   CHECK(str_to_string(to_string{"xyz"}) == "xyz;");
 }
 
-TEST_CASE("string_format_test.str_to_int", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_int")
 {
   CHECK(str_to_int("0") == std::optional<int>{0});
   CHECK(str_to_int("1") == std::optional<int>{1});
@@ -134,7 +134,7 @@ TEST_CASE("string_format_test.str_to_int", "[string_format_test]")
   CHECK(str_to_int("") == std::nullopt);
 }
 
-TEST_CASE("string_format_test.str_to_long", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_long")
 {
   CHECK(str_to_long("0") == std::optional<long>{0l});
   CHECK(str_to_long("1") == std::optional<long>{1l});
@@ -149,7 +149,7 @@ TEST_CASE("string_format_test.str_to_long", "[string_format_test]")
   CHECK(str_to_long("") == std::nullopt);
 }
 
-TEST_CASE("string_format_test.str_to_long_long", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_long_long")
 {
   CHECK(str_to_long_long("0") == std::optional<long long>{0ll});
   CHECK(str_to_long_long("1") == std::optional<long long>{1ll});
@@ -170,7 +170,7 @@ TEST_CASE("string_format_test.str_to_long_long", "[string_format_test]")
   CHECK(str_to_long_long("") == std::nullopt);
 }
 
-TEST_CASE("string_format_test.str_to_u_long", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_u_long")
 {
 
   CHECK(str_to_u_long("0") == std::optional<unsigned long>{0ul});
@@ -184,7 +184,7 @@ TEST_CASE("string_format_test.str_to_u_long", "[string_format_test]")
   CHECK(str_to_u_long("") == std::nullopt);
 }
 
-TEST_CASE("string_format_test.str_to_u_long_long", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_u_long_long")
 {
   CHECK(str_to_u_long_long("0") == std::optional<unsigned long long>{0ull});
   CHECK(str_to_u_long_long("1") == std::optional<unsigned long long>{1ull});
@@ -202,7 +202,7 @@ TEST_CASE("string_format_test.str_to_u_long_long", "[string_format_test]")
   CHECK(str_to_u_long_long("") == std::nullopt);
 }
 
-TEST_CASE("string_format_test.str_to_size", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_size")
 {
   CHECK(str_to_size("0") == std::optional<std::size_t>{0u});
   CHECK(str_to_size("1") == std::optional<std::size_t>{1u});
@@ -215,7 +215,7 @@ TEST_CASE("string_format_test.str_to_size", "[string_format_test]")
   CHECK(str_to_size("") == std::nullopt);
 }
 
-TEST_CASE("string_format_test.str_to_float", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_float")
 {
   CHECK(str_to_float("0") == std::optional<float>{0.0f});
   CHECK(str_to_float("1.0") == std::optional<float>{1.0f});
@@ -224,7 +224,7 @@ TEST_CASE("string_format_test.str_to_float", "[string_format_test]")
   CHECK(str_to_float("") == std::nullopt);
 }
 
-TEST_CASE("string_format_test.str_to_double", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_double")
 {
   CHECK(str_to_double("0") == std::optional<double>{0.0});
   CHECK(str_to_double("1.0") == std::optional<double>{1.0});
@@ -233,7 +233,7 @@ TEST_CASE("string_format_test.str_to_double", "[string_format_test]")
   CHECK(str_to_double("") == std::nullopt);
 }
 
-TEST_CASE("string_format_test.str_to_long_double", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_long_double")
 {
   CHECK(str_to_long_double("0") == std::optional<long double>{0.0L});
   CHECK(str_to_long_double("1.0") == std::optional<long double>{1.0L});

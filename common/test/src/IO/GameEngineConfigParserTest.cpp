@@ -35,14 +35,14 @@ static GameEngineConfigParser makeParser(std::string_view config)
   return GameEngineConfigParser(config, Path());
 }
 
-TEST_CASE("GameEngineConfigParserTest.parseBlankConfig", "[GameEngineConfigParserTest]")
+TEST_CASE("GameEngineConfigParserTest.parseBlankConfig")
 {
   const std::string config(R"(   )");
   auto parser = makeParser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE("GameEngineConfigParserTest.parseEmptyConfig", "[GameEngineConfigParserTest]")
+TEST_CASE("GameEngineConfigParserTest.parseEmptyConfig")
 {
   const std::string config(R"( { } )");
   auto parser = makeParser(config);
@@ -74,7 +74,7 @@ TEST_CASE(
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE("GameEngineConfigParserTest.parseEmptyProfiles", "[GameEngineConfigParserTest]")
+TEST_CASE("GameEngineConfigParserTest.parseEmptyProfiles")
 {
   const std::string config(R"(  { 'version': 1, 'profiles': [] } )");
   auto parser = makeParser(config);
@@ -99,7 +99,7 @@ TEST_CASE(
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles", "[GameEngineConfigParserTest]")
+TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
 {
   const std::string config(R"(
 {

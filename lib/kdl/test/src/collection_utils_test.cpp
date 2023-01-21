@@ -54,7 +54,7 @@ TEST_CASE("collection_utils_test.compare_cmp")
     combine_cmp(cmpInt, cmpChr)(std::make_tuple(1, 'a'), std::make_tuple(1, 'a')));
 }
 
-TEST_CASE("collection_utils_test.col_total_size", "[collection_utils_test]")
+TEST_CASE("collection_utils_test.col_total_size")
 {
   using vec = std::vector<int>;
 
@@ -74,7 +74,7 @@ void test_range_remove_all(
   CHECK(std::vector<T>(std::begin(col), it) == exp1);
 }
 
-TEST_CASE("collection_utils_test.range_remove_all", "[collection_utils_test]")
+TEST_CASE("collection_utils_test.range_remove_all")
 {
   test_range_remove_all<int>(
     {1, 2, 3, 4, 5, 6, 7, 8, 9}, {}, {1, 2, 3, 4, 5, 6, 7, 8, 9});
@@ -82,7 +82,7 @@ TEST_CASE("collection_utils_test.range_remove_all", "[collection_utils_test]")
   test_range_remove_all<int>({1, 2, 3, 4, 5, 6, 7, 8, 9}, {7, 3, 4}, {1, 2, 5, 6, 8, 9});
 }
 
-TEST_CASE("collection_utils_test.range_delete_all", "[collection_utils_test]")
+TEST_CASE("collection_utils_test.range_delete_all")
 {
   bool d1 = false;
   bool d2 = false;
@@ -118,13 +118,13 @@ TEST_CASE(
   test_range_lexicographical_compare<int>({1, 2, 3}, {3}, -1);
 }
 
-TEST_CASE("collection_utils_test.col_size", "[collection_utils_test]")
+TEST_CASE("collection_utils_test.col_size")
 {
   CHECK(col_size<int>(std::vector<int>({1, 2})) == 2);
   CHECK(col_size<unsigned>(std::vector<int>({1, 2})) == 2u);
 }
 
-TEST_CASE("collection_utils_test.col_delete_all", "[collection_utils_test]")
+TEST_CASE("collection_utils_test.col_delete_all")
 {
   bool d1 = false;
   bool d2 = false;
@@ -145,7 +145,7 @@ void test_col_is_equivalent(
   CHECK(col_is_equivalent(lhs, rhs) == exp);
 }
 
-TEST_CASE("collection_utils_test.col_is_equivalent", "[collection_utils_test]")
+TEST_CASE("collection_utils_test.col_is_equivalent")
 {
   test_col_is_equivalent<int>({}, {}, true);
   test_col_is_equivalent<int>({}, {1}, false);

@@ -48,13 +48,13 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("WorldReaderTest.parseEmptyMap", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseEmptyMap")
 {
-  const std::string data("");
-  const vm::bbox3 worldBounds(8192.0);
+  const auto data = "";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -63,13 +63,13 @@ TEST_CASE("WorldReaderTest.parseEmptyMap", "[WorldReaderTest]")
   CHECK_FALSE(world->children().front()->hasChildren());
 }
 
-TEST_CASE("WorldReaderTest.parseMapWithEmptyEntity", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseMapWithEmptyEntity")
 {
-  const std::string data("{}");
-  const vm::bbox3 worldBounds(8192.0);
+  const auto data = "{}";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -78,19 +78,19 @@ TEST_CASE("WorldReaderTest.parseMapWithEmptyEntity", "[WorldReaderTest]")
   CHECK(world->children().front()->childCount() == 1u);
 }
 
-TEST_CASE("WorldReaderTest.parseMapWithWorldspawn", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseMapWithWorldspawn")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "message" "yay"
 }
-)");
+)";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -110,9 +110,9 @@ TEST_CASE("WorldReaderTest.parseMapWithWorldspawn", "[WorldReaderTest]")
   CHECK(!defaultLayer->layer().omitFromExport());
 }
 
-TEST_CASE("WorldReaderTest.parseDefaultLayerProperties", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseDefaultLayerProperties")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "_tb_layer_color" "0.0 1.0 0.0"
@@ -120,12 +120,12 @@ TEST_CASE("WorldReaderTest.parseDefaultLayerProperties", "[WorldReaderTest]")
 "_tb_layer_hidden" "1"
 "_tb_layer_omit_from_export" "1"
 }
-)");
+)";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -140,9 +140,9 @@ TEST_CASE("WorldReaderTest.parseDefaultLayerProperties", "[WorldReaderTest]")
   CHECK(defaultLayer->layer().omitFromExport());
 }
 
-TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "message" "yay"
@@ -152,12 +152,12 @@ TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReade
 "origin" "1 22 -3"
 "angle" " -1 "
 }
-)");
+)";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -167,13 +167,12 @@ TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReade
   CHECK(*worldNode->entity().property("message") == "yay");
 
   CHECK(worldNode->childCount() == 1u);
-  Model::LayerNode* defaultLayerNode =
-    dynamic_cast<Model::LayerNode*>(worldNode->children().front());
+  auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(worldNode->children().front());
   CHECK(defaultLayerNode != nullptr);
   CHECK(defaultLayerNode->childCount() == 1u);
   CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
 
-  Model::EntityNode* entityNode =
+  auto* entityNode =
     static_cast<Model::EntityNode*>(defaultLayerNode->children().front());
   CHECK(entityNode->entity().hasProperty("classname"));
   CHECK(*entityNode->entity().property("classname") == "info_player_deathmatch");
@@ -183,9 +182,9 @@ TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity", "[WorldReade
   CHECK(*entityNode->entity().property("angle") == " -1 ");
 }
 
-TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -196,29 +195,28 @@ TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush", "[WorldReaderTest
 ( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) tex5 0 0 0 1 1
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
-  Model::BrushNode* brushNode =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
 
-  const Model::BrushFace* face1 = findFaceByPoints(
+  const auto* face1 = findFaceByPoints(
     faces,
-    vm::vec3(0.0, 0.0, -16.0),
-    vm::vec3(0.0, 0.0, 0.0),
-    vm::vec3(64.0, 0.0, -16.0));
+    vm::vec3{0.0, 0.0, -16.0},
+    vm::vec3{0.0, 0.0, 0.0},
+    vm::vec3{64.0, 0.0, -16.0});
   CHECK(face1 != nullptr);
   CHECK(face1->attributes().textureName() == "tex1");
   CHECK(face1->attributes().xOffset() == 1.0);
@@ -230,43 +228,43 @@ TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush", "[WorldReaderTest
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(0.0, 0.0, -16.0),
-      vm::vec3(0.0, 64.0, -16.0),
-      vm::vec3(0.0, 0.0, 0.0))
+      vm::vec3{0.0, 0.0, -16.0},
+      vm::vec3{0.0, 64.0, -16.0},
+      vm::vec3{0.0, 0.0, 0.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(0.0, 0.0, -16.0),
-      vm::vec3(64.0, 0.0, -16.0),
-      vm::vec3(0.0, 64.0, -16.0))
+      vm::vec3{0.0, 0.0, -16.0},
+      vm::vec3{64.0, 0.0, -16.0},
+      vm::vec3{0.0, 64.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(64.0, 64.0, 0.0),
-      vm::vec3(0.0, 64.0, 0.0),
-      vm::vec3(64.0, 64.0, -16.0))
+      vm::vec3{64.0, 64.0, 0.0},
+      vm::vec3{0.0, 64.0, 0.0},
+      vm::vec3{64.0, 64.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(64.0, 64.0, 0.0),
-      vm::vec3(64.0, 64.0, -16.0),
-      vm::vec3(64.0, 0.0, 0.0))
+      vm::vec3{64.0, 64.0, 0.0},
+      vm::vec3{64.0, 64.0, -16.0},
+      vm::vec3{64.0, 0.0, 0.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(64.0, 64.0, 0.0),
-      vm::vec3(64.0, 0.0, 0.0),
-      vm::vec3(0.0, 64.0, 0.0))
+      vm::vec3{64.0, 64.0, 0.0},
+      vm::vec3{64.0, 0.0, 0.0},
+      vm::vec3{0.0, 64.0, 0.0})
     != nullptr);
 }
 
-TEST_CASE("WorldReaderTest.parseMapAndCheckFaceFlags", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseMapAndCheckFaceFlags")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -277,29 +275,28 @@ TEST_CASE("WorldReaderTest.parseMapAndCheckFaceFlags", "[WorldReaderTest]")
 ( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) none 0 0 0 1 1
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
-  Model::BrushNode* brushNode =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
 
-  const Model::BrushFace* face = findFaceByPoints(
+  const auto* face = findFaceByPoints(
     faces,
-    vm::vec3(0.0, 0.0, -16.0),
-    vm::vec3(0.0, 0.0, 0.0),
-    vm::vec3(64.0, 0.0, -16.0));
+    vm::vec3{0.0, 0.0, -16.0},
+    vm::vec3{0.0, 0.0, 0.0},
+    vm::vec3{64.0, 0.0, -16.0});
   CHECK(face != nullptr);
   CHECK(face->attributes().xOffset() == 22.0f);
   CHECK(face->attributes().xOffset() == 22.0f);
@@ -308,9 +305,9 @@ TEST_CASE("WorldReaderTest.parseMapAndCheckFaceFlags", "[WorldReaderTest]")
   CHECK(face->attributes().yScale() == -0.55f);
 }
 
-TEST_CASE("WorldReaderTest.parseBrushWithCurlyBraceInTextureName", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseBrushWithCurlyBraceInTextureName")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -321,20 +318,19 @@ TEST_CASE("WorldReaderTest.parseBrushWithCurlyBraceInTextureName", "[WorldReader
 ( 64 64  -0 ) ( 64 64 -16 ) ( 64 -0  -0 ) none 0 0 0 1 1
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
-  Model::BrushNode* brushNode =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
@@ -342,50 +338,50 @@ TEST_CASE("WorldReaderTest.parseBrushWithCurlyBraceInTextureName", "[WorldReader
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(0.0, 0.0, -16.0),
-      vm::vec3(0.0, 0.0, 0.0),
-      vm::vec3(64.0, 0.0, -16.0))
+      vm::vec3{0.0, 0.0, -16.0},
+      vm::vec3{0.0, 0.0, 0.0},
+      vm::vec3{64.0, 0.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(0.0, 0.0, -16.0),
-      vm::vec3(0.0, 64.0, -16.0),
-      vm::vec3(0.0, 0.0, 0.0))
+      vm::vec3{0.0, 0.0, -16.0},
+      vm::vec3{0.0, 64.0, -16.0},
+      vm::vec3{0.0, 0.0, 0.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(0.0, 0.0, -16.0),
-      vm::vec3(64.0, 0.0, -16.0),
-      vm::vec3(0.0, 64.0, -16.0))
+      vm::vec3{0.0, 0.0, -16.0},
+      vm::vec3{64.0, 0.0, -16.0},
+      vm::vec3{0.0, 64.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(64.0, 64.0, 0.0),
-      vm::vec3(0.0, 64.0, 0.0),
-      vm::vec3(64.0, 64.0, -16.0))
+      vm::vec3{64.0, 64.0, 0.0},
+      vm::vec3{0.0, 64.0, 0.0},
+      vm::vec3{64.0, 64.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(64.0, 64.0, 0.0),
-      vm::vec3(64.0, 64.0, -16.0),
-      vm::vec3(64.0, 0.0, 0.0))
+      vm::vec3{64.0, 64.0, 0.0},
+      vm::vec3{64.0, 64.0, -16.0},
+      vm::vec3{64.0, 0.0, 0.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3(64.0, 64.0, 0.0),
-      vm::vec3(64.0, 0.0, 0.0),
-      vm::vec3(0.0, 64.0, 0.0))
+      vm::vec3{64.0, 64.0, 0.0},
+      vm::vec3{64.0, 0.0, 0.0},
+      vm::vec3{0.0, 64.0, 0.0})
     != nullptr);
 }
 
-TEST_CASE("WorldReaderTest.parseValveBrush", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseValveBrush")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -396,25 +392,24 @@ TEST_CASE("WorldReaderTest.parseValveBrush", "[WorldReaderTest]")
 ( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) METAL4_5 [ 1 0 0 64 ] [ 0 0 -1 0 ] 0 1 1
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 [ 1 0 0 64 ] [ 0 -1 0 0 ] 0 1 1
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Valve, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Valve, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  Model::BrushNode* brush =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brush, true);
 }
 
-TEST_CASE("WorldReaderTest.parseQuake2Brush", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseQuake2Brush")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -425,19 +420,18 @@ TEST_CASE("WorldReaderTest.parseQuake2Brush", "[WorldReaderTest]")
 ( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake2, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  Model::BrushNode* brush =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brush, false);
 
   SECTION("surface attributes for face attribsExplicit")
@@ -480,9 +474,9 @@ TEST_CASE("WorldReaderTest.parseQuake2Brush", "[WorldReaderTest]")
   }
 }
 
-TEST_CASE("WorldReaderTest.parseQuake2ValveBrush", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseQuake2ValveBrush")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "mapversion" "220"
@@ -496,25 +490,24 @@ TEST_CASE("WorldReaderTest.parseQuake2ValveBrush", "[WorldReaderTest]")
 ( 224 -52 -176 ) ( 208 -62 -176 ) ( 224 -52 80 ) e1u2/basic1_1 [ 1 0 0 -23.7303 ] [ 0 0 -1 0 ] 35.6251 1 1 0 1 0
 ( 224 -52 80 ) ( 224 200 80 ) ( 224 -52 -176 ) e1u2/basic1_1 [ -0.625 1 0 44 ] [ 0 0 -1 0 ] 32.6509 1 1 0 1 0
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake2_Valve, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake2_Valve, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  Model::BrushNode* brush =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brush, true);
 }
 
-TEST_CASE("WorldReaderTest.parseQuake3ValveBrush", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseQuake3ValveBrush")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "mapversion" "220"
@@ -528,25 +521,24 @@ TEST_CASE("WorldReaderTest.parseQuake3ValveBrush", "[WorldReaderTest]")
 ( 224 -52 -176 ) ( 208 -62 -176 ) ( 224 -52 80 ) gothic_block/blocks18c_3 [ 1 0 0 -23.7303 ] [ 0 0 -1 0 ] 35.6251 0.25 0.25 0 0 0
 ( 224 -52 80 ) ( 224 200 80 ) ( 224 -52 -176 ) gothic_block/blocks18c_3 [ -0.625 1 0 44 ] [ 0 0 -1 0 ] 32.6509 0.25 0.25 0 0 0
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake3_Valve, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake3_Valve, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  Model::BrushNode* brush =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brush, true);
 }
 
-TEST_CASE("WorldReaderTest.parseDaikatanaBrush", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseDaikatanaBrush")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -557,16 +549,16 @@ TEST_CASE("WorldReaderTest.parseDaikatanaBrush", "[WorldReaderTest]")
 ( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Daikatana, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Daikatana, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
   const auto* brushNode =
@@ -591,9 +583,9 @@ TEST_CASE("WorldReaderTest.parseDaikatanaBrush", "[WorldReaderTest]")
   CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
 }
 
-TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader")
 {
-  const std::string data(R"(
+  const auto data = R"(
 ////////////////////////////////////////////////////////////
 // ldef 000 "Base Brush Layer"
 ////////////////////////////////////////////////////////////
@@ -619,26 +611,25 @@ TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader", "[WorldReaderTest]")
 ( 968 2120 -48 ) ( 944 2120 -48 ) ( 956 2120 80 ) e3m1/rooftrim -18 -26 -135 0.999873 -0.499936 134217728 0 0
 }
 }
-)");
+)";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Daikatana, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Daikatana, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  Model::BrushNode* brush =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brush, false);
 }
 
-TEST_CASE("WorldReaderTest.parseQuakeBrushWithNumericalTextureName", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseQuakeBrushWithNumericalTextureName")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -649,25 +640,24 @@ TEST_CASE("WorldReaderTest.parseQuakeBrushWithNumericalTextureName", "[WorldRead
 ( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) c_mf_v3c 56 96 0 1 1
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) c_mf_v3c 16 96 0 1 1
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  Model::BrushNode* brush =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
   checkBrushTexCoordSystem(brush, false);
 }
 
-TEST_CASE("WorldReaderTest.parseBrushesWithLayer", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseBrushesWithLayer")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -700,28 +690,25 @@ TEST_CASE("WorldReaderTest.parseBrushesWithLayer", "[WorldReaderTest]")
 ( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake2, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 2u);
 
-  Model::LayerNode* defaultLayerNode =
-    dynamic_cast<Model::LayerNode*>(world->children().at(0));
-  Model::LayerNode* myLayerNode =
-    dynamic_cast<Model::LayerNode*>(world->children().at(1));
+  auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+  auto* myLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(1));
   CHECK(defaultLayerNode != nullptr);
   CHECK(myLayerNode != nullptr);
 
   CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
-  CHECK(
-    myLayerNode->layer().sortIndex()
-    == 0); // The layer didn't have a sort index (saved in an
-           // older version of TB), so it's assigned 0
+  // The layer didn't have a sort index (saved in an older version of TB), so it's
+  // assigned 0
+  CHECK(myLayerNode->layer().sortIndex() == 0);
 
   CHECK(defaultLayerNode->childCount() == 2u);
   CHECK(myLayerNode->childCount() == 1u);
@@ -729,9 +716,9 @@ TEST_CASE("WorldReaderTest.parseBrushesWithLayer", "[WorldReaderTest]")
   CHECK(!myLayerNode->locked());
 }
 
-TEST_CASE("WorldReaderTest.parseLayersWithReverseSort", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseLayersWithReverseSort")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 }
@@ -751,11 +738,11 @@ TEST_CASE("WorldReaderTest.parseLayersWithReverseSort", "[WorldReaderTest]")
 "_tb_layer_sort_index" "0"
 "_tb_layer_hidden" "1"
 "_tb_layer_omit_from_export" "1"
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake2, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -787,10 +774,9 @@ TEST_CASE("WorldReaderTest.parseLayersWithReverseSort", "[WorldReaderTest]")
   CHECK(!sortNode1->layer().omitFromExport());
 }
 
-TEST_CASE(
-  "WorldReaderTest.parseLayersWithReversedSortIndicesWithGaps", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseLayersWithReversedSortIndicesWithGaps")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 }
@@ -814,11 +800,11 @@ TEST_CASE(
 "_tb_name" "Sort Index 1"
 "_tb_id" "3"
 "_tb_layer_sort_index" "1"
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake2, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -846,8 +832,7 @@ TEST_CASE(
   CHECK(sortNode5->layer().sortIndex() == 5);
 }
 
-TEST_CASE(
-  "WorldReaderTest.parseLayersWithSortIndicesWithGapsAndDuplicates", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseLayersWithSortIndicesWithGapsAndDuplicates")
 {
   const std::string data = R"end(
 {
@@ -895,10 +880,10 @@ TEST_CASE(
 "_tb_id" "6"
 "_tb_layer_sort_index" "12"
 })end";
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake2, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -929,23 +914,23 @@ TEST_CASE(
   CHECK(sortNode12->name() == "Sort Index 12");
 
   CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
-  CHECK(
-    sortMinusOneNode->layer().sortIndex()
-    == 13); // This one was invalid so it got moved to the end
+
+  // This one was invalid so it got moved to the end
+  CHECK(sortMinusOneNode->layer().sortIndex() == 13);
   CHECK(sortNode8->layer().sortIndex() == 8);
-  CHECK(
-    sortNode8second->layer().sortIndex()
-    == 14); // This one was invalid so it got moved to the end
+
+  // This one was invalid so it got moved to the end
+  CHECK(sortNode8second->layer().sortIndex() == 14);
   CHECK(sortNode10->layer().sortIndex() == 10);
-  CHECK(
-    sortNode10second->layer().sortIndex()
-    == 15); // This one was invalid so it got moved to the end
+
+  // This one was invalid so it got moved to the end
+  CHECK(sortNode10second->layer().sortIndex() == 15);
   CHECK(sortNode12->layer().sortIndex() == 12);
 }
 
-TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -990,11 +975,11 @@ TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]
 ( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake2, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -1004,9 +989,9 @@ TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer", "[WorldReaderTest]
   CHECK(world->children().back()->children().back()->childCount() == 1u);
 }
 
-TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithGroup", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithGroup")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -1066,29 +1051,29 @@ TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithGroup", "[WorldReaderTest]
 ( -800 224 1024 ) ( -736 224 1024 ) ( -736 224 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake2, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
 
-  Model::Node* defaultLayer = world->children().front();
+  auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 3u);
 
-  Model::Node* myGroup = defaultLayer->children().back();
+  auto* myGroup = defaultLayer->children().back();
   CHECK(myGroup->childCount() == 3u);
 
-  Model::Node* mySubGroup = myGroup->children().back();
+  auto* mySubGroup = myGroup->children().back();
   CHECK(mySubGroup->childCount() == 1u);
 }
 
-TEST_CASE("WorldReaderTest.parseLayersAndGroupsAndRetainIds", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseLayersAndGroupsAndRetainIds")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 }
@@ -1111,11 +1096,11 @@ TEST_CASE("WorldReaderTest.parseLayersAndGroupsAndRetainIds", "[WorldReaderTest]
 "_tb_name" "Group 2"
 "_tb_id" "22"
 }
-)");
-  const vm::bbox3 worldBounds(8192.0);
+)";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -1141,9 +1126,9 @@ TEST_CASE("WorldReaderTest.parseLayersAndGroupsAndRetainIds", "[WorldReaderTest]
   CHECK(groupNode2->persistentId() == 22u);
 }
 
-TEST_CASE("WorldReaderTest.parseBrushPrimitive", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseBrushPrimitive")
 {
-  const std::string data(R"(
+  const auto data = R"(
             {
                 "classname" "worldspawn"
                 {
@@ -1157,12 +1142,12 @@ TEST_CASE("WorldReaderTest.parseBrushPrimitive", "[WorldReaderTest]")
                         ( -64 -64 64 ) ( -64 64 -64 ) ( -64 64 64 ) ( ( 0.015625 0 -0 ) ( -0 0.015625 0 ) ) common/caulk 0 0 0
                     }
                 }
-            })");
+            })";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake3, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake3, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -1170,9 +1155,9 @@ TEST_CASE("WorldReaderTest.parseBrushPrimitive", "[WorldReaderTest]")
   CHECK(world->defaultLayer()->childCount() == 0u);
 }
 
-TEST_CASE("WorldReaderTest.parseBrushPrimitiveAndLegacyBrush", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseBrushPrimitiveAndLegacyBrush")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -1194,12 +1179,12 @@ brushDef
 ( -64 -64 -64 ) ( -64 -64 64 ) ( 64 -64 -64 ) common/caulk 0 0 0 1 1 134217728 0 0
 ( -64 -64 -64 ) ( -64 64 -64 ) ( -64 -64 64 ) common/caulk 0 0 0 1 1 134217728 0 0
 }
-})");
+})";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake3, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake3, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -1207,9 +1192,9 @@ brushDef
   CHECK(world->defaultLayer()->childCount() == 1u);
 }
 
-TEST_CASE("WorldReaderTest.parseQuake3Patch", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseQuake3Patch")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -1226,11 +1211,11 @@ common/caulk
 )
 }
 }
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake3, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake3, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -1266,35 +1251,35 @@ common/caulk
     }));
 }
 
-TEST_CASE("WorldReaderTest.parseMultipleClassnames", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseMultipleClassnames")
 {
   // See https://github.com/TrenchBroom/TrenchBroom/issues/1485
 
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "classname" "worldspawn"
-})");
+})";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Quake2, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
 
   CHECK_NOTHROW(reader.read(worldBounds, status));
 }
 
-TEST_CASE("WorldReaderTest.parseEscapedDoubleQuotationMarks", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseEscapedDoubleQuotationMarks")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "message" "yay \"Mr. Robot!\""
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1311,15 +1296,15 @@ TEST_CASE(
   "WorldReaderTest.parsePropertyWithUnescapedPathAndTrailingBackslash",
   "[WorldReaderTest]")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "path" "c:\a\b\c\"
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1332,18 +1317,17 @@ TEST_CASE(
   CHECK(*worldNode->entity().property("path") == "c:\\a\\b\\c\\");
 }
 
-TEST_CASE(
-  "WorldReaderTest.parsePropertyWithEscapedPathAndTrailingBackslash", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parsePropertyWithEscapedPathAndTrailingBackslash")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "path" "c:\\a\\b\\c\\"
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1356,17 +1340,17 @@ TEST_CASE(
   CHECK(*worldNode->entity().property("path") == "c:\\\\a\\\\b\\\\c\\\\");
 }
 
-TEST_CASE("WorldReaderTest.parsePropertyTrailingEscapedBackslash", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parsePropertyTrailingEscapedBackslash")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "message" "test\\"
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1380,17 +1364,17 @@ TEST_CASE("WorldReaderTest.parsePropertyTrailingEscapedBackslash", "[WorldReader
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/1739
-TEST_CASE("WorldReaderTest.parsePropertyNewlineEscapeSequence", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parsePropertyNewlineEscapeSequence")
 {
-  const std::string data(R"(
+  const auto data = R"(
 {
 "classname" "worldspawn"
 "message" "vm::line1\nvm::line2"
-})");
-  const vm::bbox3 worldBounds(8192.0);
+})";
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1404,8 +1388,8 @@ TEST_CASE("WorldReaderTest.parsePropertyNewlineEscapeSequence", "[WorldReaderTes
 }
 
 /*
-TEST_CASE("WorldReaderTest.parseIssueIgnoreFlags", "[WorldReaderTest]") {
-    const std::string data("{"
+TEST_CASE("WorldReaderTest.parseIssueIgnoreFlags") {
+    const auto data = "{"
                       "\"classname\" \"worldspawn\""
                       "{\n"
                       "/// hideIssues 2\n"
@@ -1450,17 +1434,17 @@ doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
 }
  */
 
-TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap")
 {
-  const IO::Path mapPath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Map/Heretic2Quark.map");
-  const std::shared_ptr<File> file = IO::Disk::openFile(mapPath);
+  const Path mapPath =
+    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Map/Heretic2Quark.map");
+  const std::shared_ptr<File> file = Disk::openFile(mapPath);
   auto fileReader = file->reader().buffer();
 
-  IO::TestParserStatus status;
-  IO::WorldReader worldReader(fileReader.stringView(), Model::MapFormat::Quake2, {});
+  auto status = TestParserStatus{};
+  auto worldReader = WorldReader{fileReader.stringView(), Model::MapFormat::Quake2, {}};
 
-  const auto worldBounds = vm::bbox3(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
   auto worldNode = worldReader.read(worldBounds, status);
 
   REQUIRE(worldNode != nullptr);
@@ -1473,18 +1457,16 @@ TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap", "[WorldReaderTest]")
   auto* brushNode = dynamic_cast<Model::BrushNode*>(layerNode->children().at(0));
   REQUIRE(brushNode != nullptr);
 
-  CHECK(
-    vm::bbox3(vm::vec3(-512, -512, -64), vm::vec3(512, 512, 0))
-    == brushNode->logicalBounds());
-  for (const Model::BrushFace& face : brushNode->brush().faces())
+  CHECK(brushNode->logicalBounds() == vm::bbox3{{-512, -512, -64}, {512, 512, 0}});
+  for (const auto& face : brushNode->brush().faces())
   {
     CHECK("general/sand1" == face.attributes().textureName());
   }
 }
 
-TEST_CASE("WorldReaderTest.parseTBEmptyTextureName", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseTBEmptyTextureName")
 {
-  const std::string data(R"(
+  const auto data = R"(
 // entity 0
 {
 "classname" "worldspawn"
@@ -1497,34 +1479,32 @@ TEST_CASE("WorldReaderTest.parseTBEmptyTextureName", "[WorldReaderTest]")
 ( 64 64 16 ) ( 65 64 16 ) ( 64 64 17 ) __TB_empty 0 0 0 1 1
 ( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty 0 0 0 1 1
 }
-})");
+})";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
   REQUIRE(world->childCount() == 1u);
 
-  Model::LayerNode* defaultLayer =
-    dynamic_cast<Model::LayerNode*>(world->children().front());
+  auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().front());
   REQUIRE(defaultLayer != nullptr);
   REQUIRE(defaultLayer->childCount() == 1u);
 
-  Model::BrushNode* brush =
-    dynamic_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = dynamic_cast<Model::BrushNode*>(defaultLayer->children().front());
   REQUIRE(brush != nullptr);
 
-  for (const Model::BrushFace& face : brush->brush().faces())
+  for (const auto& face : brush->brush().faces())
   {
     CHECK(!face.attributes().textureName().empty());
     CHECK(face.attributes().textureName() == Model::BrushFaceAttributes::NoTextureName);
   }
 }
 
-TEST_CASE("WorldReaderTest.parseQuotedTextureNames", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseQuotedTextureNames")
 {
   using NameInfo = std::tuple<std::string, std::string>;
 
@@ -1560,7 +1540,7 @@ TEST_CASE("WorldReaderTest.parseQuotedTextureNames", "[WorldReaderTest]")
 
   const auto worldBounds = vm::bbox3{8192.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
@@ -1579,7 +1559,7 @@ TEST_CASE("WorldReaderTest.parseQuotedTextureNames", "[WorldReaderTest]")
   CHECK(brushNode->brush().face(0).attributes().textureName() == expectedName);
 }
 
-TEST_CASE("WorldReaderTest.parseLinkedGroups", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseLinkedGroups")
 {
   const auto data = R"(
 {
@@ -1603,10 +1583,10 @@ TEST_CASE("WorldReaderTest.parseLinkedGroups", "[WorldReaderTest]")
 }
             )";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
@@ -1625,14 +1605,46 @@ TEST_CASE("WorldReaderTest.parseLinkedGroups", "[WorldReaderTest]")
 
   CHECK(
     groupNode1->group().transformation()
-    == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+    == vm::translation_matrix(vm::vec3{32.0, 0.0, 0.0}));
   CHECK(
     groupNode2->group().transformation()
-    == vm::translation_matrix(vm::vec3(32.0, 16.0, 0.0)));
+    == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
 }
 
-TEST_CASE(
-  "WorldReaderTest.parseLinkedGroupsWithMissingTransformation", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseOrphanedLinkedGroups")
+{
+  const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "1"
+"_tb_linked_group_id" "abcd"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+            )";
+
+  const auto worldBounds = vm::bbox3{8192.0};
+
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+
+  auto world = reader.read(worldBounds, status);
+  REQUIRE(world != nullptr);
+  CHECK(world->defaultLayer()->childCount() == 1);
+
+  auto* groupNode =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+
+  CHECK(groupNode != nullptr);
+  CHECK(groupNode->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode->group().transformation() == vm::mat4x4::identity());
+}
+
+TEST_CASE("WorldReaderTest.parseLinkedGroupsWithMissingTransformation")
 {
   const auto data = R"(
 {
@@ -1653,35 +1665,50 @@ TEST_CASE(
 "_tb_linked_group_id" "1"
 "_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
 }
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 3"
+"_tb_id" "3"
+"_tb_linked_group_id" "1"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
             )";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
-  CHECK(world->defaultLayer()->childCount() == 2u);
+  CHECK(world->defaultLayer()->childCount() == 3u);
 
   auto* groupNode1 =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[0]);
   auto* groupNode2 =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().back());
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[1]);
+  auto* groupNode3 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[2]);
 
   CHECK(groupNode1 != nullptr);
   CHECK(groupNode2 != nullptr);
+  CHECK(groupNode3 != nullptr);
 
   CHECK(groupNode1->group().linkedGroupId() == std::nullopt);
   CHECK(groupNode2->group().linkedGroupId() == "1");
+  CHECK(groupNode3->group().linkedGroupId() == "1");
 
-  CHECK(groupNode1->group().transformation() == vm::mat4x4d{});
+  CHECK(groupNode1->group().transformation() == vm::mat4x4d::identity());
   CHECK(
     groupNode2->group().transformation()
-    == vm::translation_matrix(vm::vec3(32.0, 16.0, 0.0)));
+    == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
+  CHECK(
+    groupNode3->group().transformation()
+    == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
 }
 
-TEST_CASE("WorldReaderTest.parseGroupWithUnnecessaryTransformation", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseGroupWithUnnecessaryTransformation")
 {
   const auto data = R"(
 {
@@ -1696,10 +1723,10 @@ TEST_CASE("WorldReaderTest.parseGroupWithUnnecessaryTransformation", "[WorldRead
 }
             )";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
@@ -1713,7 +1740,138 @@ TEST_CASE("WorldReaderTest.parseGroupWithUnnecessaryTransformation", "[WorldRead
   CHECK(groupNode->group().transformation() == vm::mat4x4d{});
 }
 
-TEST_CASE("WorldReaderTest.parseProtectedEntityProperties", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseRecursiveLinkedGroups")
+{
+  const auto data = R"(
+{
+"classname" "worldspawn"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 1"
+"_tb_id" "1"
+"_tb_linked_group_id" "abcd"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 2"
+"_tb_id" "2"
+"_tb_group" "1"
+"_tb_linked_group_id" "abcd"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 3"
+"_tb_id" "3"
+"_tb_linked_group_id" "xyz"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 4"
+"_tb_id" "4"
+"_tb_group" "3"
+"_tb_linked_group_id" "xyz"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 5"
+"_tb_id" "5"
+"_tb_linked_group_id" "xyz"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 6"
+"_tb_id" "6"
+"_tb_linked_group_id" "fgh"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 7"
+"_tb_id" "7"
+"_tb_group" "6"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "Group 8"
+"_tb_id" "8"
+"_tb_group" "7"
+"_tb_linked_group_id" "fgh"
+"_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
+}
+            )";
+
+  const auto worldBounds = vm::bbox3{8192.0};
+
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+
+  auto world = reader.read(worldBounds, status);
+  REQUIRE(world != nullptr);
+  CHECK(world->defaultLayer()->childCount() == 4u);
+
+  const auto* groupNode1 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[0]);
+
+  CHECK(groupNode1->childCount() == 1u);
+  const auto* groupNode2 =
+    dynamic_cast<Model::GroupNode*>(groupNode1->children().front());
+
+  const auto* groupNode3 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[1]);
+
+  CHECK(groupNode3->childCount() == 1u);
+  const auto* groupNode4 =
+    dynamic_cast<Model::GroupNode*>(groupNode3->children().front());
+
+  const auto* groupNode5 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[2]);
+
+  const auto* groupNode6 =
+    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[3]);
+
+  CHECK(groupNode6->childCount() == 1u);
+  const auto* groupNode7 =
+    dynamic_cast<Model::GroupNode*>(groupNode6->children().front());
+
+  CHECK(groupNode7->childCount() == 1u);
+  const auto* groupNode8 =
+    dynamic_cast<Model::GroupNode*>(groupNode7->children().front());
+
+  CHECK(groupNode1->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode1->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode2->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode2->group().transformation() == vm::mat4x4::identity());
+
+  CHECK(groupNode3->group().linkedGroupId() != std::nullopt);
+  CHECK(groupNode3->group().transformation() != vm::mat4x4::identity());
+  CHECK(groupNode4->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode4->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode5->group().linkedGroupId() == groupNode3->group().linkedGroupId());
+  CHECK(groupNode5->group().transformation() != vm::mat4x4::identity());
+
+  CHECK(groupNode6->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode6->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode7->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode7->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode8->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode8->group().transformation() == vm::mat4x4::identity());
+}
+
+TEST_CASE("WorldReaderTest.parseProtectedEntityProperties")
 {
   const auto data = R"(
 {
@@ -1733,10 +1891,10 @@ TEST_CASE("WorldReaderTest.parseProtectedEntityProperties", "[WorldReaderTest]")
 }
             )";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
-  WorldReader reader(data, Model::MapFormat::Standard, {});
+  auto status = TestParserStatus{};
+  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
@@ -1776,7 +1934,7 @@ TEST_CASE("WorldReaderTest.parseProtectedEntityProperties", "[WorldReaderTest]")
   }
 }
 
-TEST_CASE("WorldReaderTest.parseUnknownFormatEmptyMap", "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parseUnknownFormatEmptyMap")
 {
   const auto data = R"(
 {
@@ -1784,9 +1942,9 @@ TEST_CASE("WorldReaderTest.parseUnknownFormatEmptyMap", "[WorldReaderTest]")
 }
             )";
 
-  const vm::bbox3 worldBounds(8192.0);
+  const auto worldBounds = vm::bbox3{8192.0};
 
-  IO::TestParserStatus status;
+  auto status = TestParserStatus{};
   auto world = WorldReader::tryRead(
     data, {Model::MapFormat::Standard, Model::MapFormat::Valve}, worldBounds, {}, status);
   REQUIRE(world != nullptr);

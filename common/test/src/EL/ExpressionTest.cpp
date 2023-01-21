@@ -48,7 +48,7 @@ static Value evaluate(const std::string& expression, const MapType& variables = 
   return IO::ELParser::parseStrict(expression).evaluate(context);
 }
 
-TEST_CASE("ExpressionTest.testValueLiterals", "[ExpressionTest]")
+TEST_CASE("ExpressionTest.testValueLiterals")
 {
   using T = std::tuple<std::string, Value>;
 
@@ -70,7 +70,7 @@ TEST_CASE("ExpressionTest.testValueLiterals", "[ExpressionTest]")
   CHECK(evaluate(expression) == expectedValue);
 }
 
-TEST_CASE("ExpressionTest.testVariableExpression", "[ExpressionTest]")
+TEST_CASE("ExpressionTest.testVariableExpression")
 {
   using T = std::tuple<std::string, MapType, Value>;
 
@@ -89,7 +89,7 @@ TEST_CASE("ExpressionTest.testVariableExpression", "[ExpressionTest]")
   CHECK(evaluate(expression, variables) == expectedValue);
 }
 
-TEST_CASE("ExpressionTest.testArrayExpression", "[ExpressionTest]")
+TEST_CASE("ExpressionTest.testArrayExpression")
 {
   using T = std::tuple<std::string, MapType, ArrayType>;
 
@@ -107,7 +107,7 @@ TEST_CASE("ExpressionTest.testArrayExpression", "[ExpressionTest]")
   CHECK(evaluate(expression, variables) == Value{expectedValue});
 }
 
-TEST_CASE("ExpressionTest.testMapExpression", "[ExpressionTest]")
+TEST_CASE("ExpressionTest.testMapExpression")
 {
   using T = std::tuple<std::string, MapType, MapType>;
 
@@ -126,7 +126,7 @@ TEST_CASE("ExpressionTest.testMapExpression", "[ExpressionTest]")
   CHECK(evaluate(expression, variables) == Value{expectedValue});
 }
 
-TEST_CASE("ExpressionTest.testOperators", "[ExpressionTest]")
+TEST_CASE("ExpressionTest.testOperators")
 {
   using T = std::tuple<std::string, std::variant<Value, EvaluationError>>;
 
@@ -684,7 +684,7 @@ TEST_CASE("ExpressionTest.testOperators", "[ExpressionTest]")
   }
 }
 
-TEST_CASE("ExpressionTest.testOperatorPrecedence", "[ExpressionTest]")
+TEST_CASE("ExpressionTest.testOperatorPrecedence")
 {
   using T = std::tuple<std::string, Value>;
 

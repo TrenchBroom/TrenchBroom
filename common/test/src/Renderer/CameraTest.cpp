@@ -26,7 +26,7 @@ namespace TrenchBroom
 {
 namespace Renderer
 {
-TEST_CASE("CameraTest.testInvalidUp", "[CameraTest]")
+TEST_CASE("CameraTest.testInvalidUp")
 {
   PerspectiveCamera c;
   c.setDirection(vm::vec3f(0, 0, 1), vm::vec3f(0, 0, 1));
@@ -36,7 +36,7 @@ TEST_CASE("CameraTest.testInvalidUp", "[CameraTest]")
   CHECK_FALSE(vm::is_nan(c.up()));
 }
 
-TEST_CASE("CameraTest.testOrbitDown", "[CameraTest]")
+TEST_CASE("CameraTest.testOrbitDown")
 {
   PerspectiveCamera c;
   c.setDirection(vm::vec3f(1, 0, 0), vm::vec3f(0, 0, 1));
@@ -48,7 +48,7 @@ TEST_CASE("CameraTest.testOrbitDown", "[CameraTest]")
   CHECK_FALSE(vm::is_nan(c.up()));
 }
 
-TEST_CASE("CameraTest.testOrbitWhileInverted", "[CameraTest]")
+TEST_CASE("CameraTest.testOrbitWhileInverted")
 {
   PerspectiveCamera c;
   c.setDirection(vm::vec3f(1, 0, 0), vm::vec3f(0, 0, -1));
@@ -60,7 +60,7 @@ TEST_CASE("CameraTest.testOrbitWhileInverted", "[CameraTest]")
   CHECK_FALSE(vm::is_nan(c.up()));
 }
 
-TEST_CASE("CameraTest.testYawWhenPitchedDown", "[CameraTest]")
+TEST_CASE("CameraTest.testYawWhenPitchedDown")
 {
   PerspectiveCamera c;
   c.setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_x());

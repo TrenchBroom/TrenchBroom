@@ -27,7 +27,7 @@ namespace kdl
 {
 namespace cs
 {
-TEST_CASE("string_utils_cs_test.str_mismatch", "[string_utils_cs_test]")
+TEST_CASE("string_utils_cs_test.str_mismatch")
 {
   CHECK(str_mismatch("", "") == 0u);
   CHECK(str_mismatch("asdf", "asdf") == 4u);
@@ -44,7 +44,7 @@ TEST_CASE("string_utils_cs_test.str_mismatch", "[string_utils_cs_test]")
   CHECK(str_mismatch("asDf", "asdf") == 2u);
 }
 
-TEST_CASE("string_utils_cs_test.str_contains", "[string_utils_cs_test]")
+TEST_CASE("string_utils_cs_test.str_contains")
 {
   CHECK_FALSE(str_contains("", ""));
   CHECK(str_contains("asdf", ""));
@@ -72,7 +72,7 @@ TEST_CASE("string_utils_cs_test.str_contains", "[string_utils_cs_test]")
   CHECK_FALSE(str_contains("asdf", "ASDF"));
 }
 
-TEST_CASE("string_utils_cs_test.str_is_prefix", "[string_utils_cs_test]")
+TEST_CASE("string_utils_cs_test.str_is_prefix")
 {
   CHECK(str_is_prefix("asdf", ""));
   CHECK(str_is_prefix("asdf", "a"));
@@ -89,7 +89,7 @@ TEST_CASE("string_utils_cs_test.str_is_prefix", "[string_utils_cs_test]")
   CHECK_FALSE(str_is_prefix("asdf", "asDF"));
 }
 
-TEST_CASE("string_utils_cs_test.str_is_suffix", "[string_utils_cs_test]")
+TEST_CASE("string_utils_cs_test.str_is_suffix")
 {
   CHECK(str_is_suffix("asdf", ""));
   CHECK(str_is_suffix("asdf", "f"));
@@ -105,7 +105,7 @@ TEST_CASE("string_utils_cs_test.str_is_suffix", "[string_utils_cs_test]")
   CHECK_FALSE(str_is_suffix("asdf", "ASDf"));
 }
 
-TEST_CASE("string_utils_cs_test.str_compare", "[string_utils_cs_test]")
+TEST_CASE("string_utils_cs_test.str_compare")
 {
   CHECK(str_compare("", "") == 0);
   CHECK(str_compare("a", "a") == 0);
@@ -118,7 +118,7 @@ TEST_CASE("string_utils_cs_test.str_compare", "[string_utils_cs_test]")
   CHECK(str_compare("Asdf", "Wxyt") == -1);
 }
 
-TEST_CASE("string_utils_cs_test.str_is_equal", "[string_utils_cs_test]")
+TEST_CASE("string_utils_cs_test.str_is_equal")
 {
   CHECK(str_is_equal("", ""));
   CHECK(str_is_equal("asdf", "asdf"));
@@ -126,7 +126,7 @@ TEST_CASE("string_utils_cs_test.str_is_equal", "[string_utils_cs_test]")
   CHECK_FALSE(str_is_equal("AsdF", "Asdf"));
 }
 
-TEST_CASE("string_utils_cs_test.str_matches_glob", "[string_utils_cs_test]")
+TEST_CASE("string_utils_cs_test.str_matches_glob")
 {
   CHECK(str_matches_glob("", ""));
   CHECK(str_matches_glob("", "*"));
@@ -179,7 +179,7 @@ C sorted(C c)
   return kdl::col_sort(std::move(c), string_less());
 }
 
-TEST_CASE("string_utils_cs_test.sort", "[string_utils_cs_test]")
+TEST_CASE("string_utils_cs_test.sort")
 {
   CHECK_THAT(
     sorted(std::vector<std::string>{}), Catch::Equals(std::vector<std::string>{}));
@@ -206,7 +206,7 @@ TEST_CASE("string_utils_cs_test.sort", "[string_utils_cs_test]")
 
 namespace ci
 {
-TEST_CASE("string_utils_ci_test.str_mismatch", "[string_utils_ci_test]")
+TEST_CASE("string_utils_ci_test.str_mismatch")
 {
   CHECK(str_mismatch("", "") == 0u);
   CHECK(str_mismatch("asdf", "asdf") == 4u);
@@ -223,7 +223,7 @@ TEST_CASE("string_utils_ci_test.str_mismatch", "[string_utils_ci_test]")
   CHECK(str_mismatch("asDf", "asdf") == 4u);
 }
 
-TEST_CASE("string_utils_ci_test.str_contains", "[string_utils_ci_test]")
+TEST_CASE("string_utils_ci_test.str_contains")
 {
   CHECK_FALSE(str_contains("", ""));
   CHECK(str_contains("asdf", ""));
@@ -251,7 +251,7 @@ TEST_CASE("string_utils_ci_test.str_contains", "[string_utils_ci_test]")
   CHECK(str_contains("asdf", "ASDF"));
 }
 
-TEST_CASE("string_utils_ci_test.str_is_prefix", "[string_utils_ci_test]")
+TEST_CASE("string_utils_ci_test.str_is_prefix")
 {
   CHECK(str_is_prefix("asdf", ""));
   CHECK(str_is_prefix("asdf", "a"));
@@ -270,7 +270,7 @@ TEST_CASE("string_utils_ci_test.str_is_prefix", "[string_utils_ci_test]")
   CHECK_FALSE(str_is_prefix("asdf", "DF"));
 }
 
-TEST_CASE("string_utils_ci_test.str_is_suffix", "[string_utils_ci_test]")
+TEST_CASE("string_utils_ci_test.str_is_suffix")
 {
   CHECK(str_is_suffix("asdf", ""));
   CHECK(str_is_suffix("asdf", "f"));
@@ -288,7 +288,7 @@ TEST_CASE("string_utils_ci_test.str_is_suffix", "[string_utils_ci_test]")
   CHECK(str_is_suffix("asdf", "ASDf"));
 }
 
-TEST_CASE("string_utils_ci_test.str_compare", "[string_utils_ci_test]")
+TEST_CASE("string_utils_ci_test.str_compare")
 {
   CHECK(str_compare("", "") == 0);
   CHECK(str_compare("a", "a") == 0);
@@ -301,7 +301,7 @@ TEST_CASE("string_utils_ci_test.str_compare", "[string_utils_ci_test]")
   CHECK(str_compare("Asdf", "Wxyt") == -1);
 }
 
-TEST_CASE("string_utils_ci_test.str_is_equal", "[string_utils_ci_test]")
+TEST_CASE("string_utils_ci_test.str_is_equal")
 {
   CHECK(str_is_equal("", ""));
   CHECK(str_is_equal("asdf", "asdf"));
@@ -311,7 +311,7 @@ TEST_CASE("string_utils_ci_test.str_is_equal", "[string_utils_ci_test]")
   CHECK_FALSE(str_is_equal("dfdd", "Asdf"));
 }
 
-TEST_CASE("string_utils_ci_test.str_matches_glob", "[string_utils_ci_test]")
+TEST_CASE("string_utils_ci_test.str_matches_glob")
 {
   CHECK(str_matches_glob("ASdf", "asdf"));
   CHECK(str_matches_glob("AsdF", "*"));
@@ -333,7 +333,7 @@ C sorted(C c)
   return kdl::col_sort(std::move(c), string_less());
 }
 
-TEST_CASE("string_utils_ci_test.sort", "[string_utils_ci_test]")
+TEST_CASE("string_utils_ci_test.sort")
 {
   CHECK_THAT(
     sorted(std::vector<std::string>{}), Catch::Equals(std::vector<std::string>{}));

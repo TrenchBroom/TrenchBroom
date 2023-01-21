@@ -32,7 +32,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("resolveInheritance.filterBaseClasses", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.filterBaseClasses")
 {
   const auto input = std::vector<EntityDefinitionClassInfo>({
     // type                                   l  c  name     description   color size
@@ -97,7 +97,7 @@ TEST_CASE("resolveInheritance.filterBaseClasses", "[resolveInheritance]")
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.filterRedundantClasses", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.filterRedundantClasses")
 {
   const auto input = std::vector<EntityDefinitionClassInfo>({
     // type                                   l  c  name     description   color size
@@ -292,7 +292,7 @@ TEST_CASE("resolveInheritance.filterRedundantClasses", "[resolveInheritance]")
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.overrideMembersIfNotPresent", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.overrideMembersIfNotPresent")
 {
   const auto baseModelDef = Assets::ModelDefinition(
     EL::Expression(EL::LiteralExpression(EL::Value("abc")), 0, 0));
@@ -340,7 +340,7 @@ TEST_CASE("resolveInheritance.overrideMembersIfNotPresent", "[resolveInheritance
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.skipMembersIfPresent", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.skipMembersIfPresent")
 {
   const auto input = std::vector<EntityDefinitionClassInfo>({
     // type                                   l  c  name     description    color size
@@ -385,7 +385,7 @@ TEST_CASE("resolveInheritance.skipMembersIfPresent", "[resolveInheritance]")
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.mergeModelDefinitions", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.mergeModelDefinitions")
 {
   const auto baseModelDef = Assets::ModelDefinition(
     EL::Expression(EL::LiteralExpression(EL::Value("abc")), 0, 0));
@@ -437,7 +437,7 @@ TEST_CASE("resolveInheritance.mergeModelDefinitions", "[resolveInheritance]")
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.inheritPropertyDefinitions", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.inheritPropertyDefinitions")
 {
   const auto a1_1 =
     std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
@@ -489,7 +489,7 @@ TEST_CASE("resolveInheritance.inheritPropertyDefinitions", "[resolveInheritance]
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.mergeSpawnflagsSimpleInheritance", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.mergeSpawnflagsSimpleInheritance")
 {
   auto a1 = std::make_shared<Assets::FlagsPropertyDefinition>(
     Model::EntityPropertyKeys::Spawnflags);
@@ -552,7 +552,7 @@ TEST_CASE("resolveInheritance.mergeSpawnflagsSimpleInheritance", "[resolveInheri
     })));
 }
 
-TEST_CASE("resolveInheritance.chainOfBaseClasses", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.chainOfBaseClasses")
 {
   const auto a1_1 =
     std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
@@ -624,7 +624,7 @@ TEST_CASE("resolveInheritance.chainOfBaseClasses", "[resolveInheritance]")
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.multipleBaseClasses", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.multipleBaseClasses")
 {
   const auto a1_1 =
     std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
@@ -696,7 +696,7 @@ TEST_CASE("resolveInheritance.multipleBaseClasses", "[resolveInheritance]")
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.diamondInheritance", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.diamondInheritance")
 {
   const auto a1 = std::make_shared<Assets::StringPropertyDefinition>("a1", "", "", false);
   const auto a2_1 =
@@ -788,7 +788,7 @@ TEST_CASE("resolveInheritance.diamondInheritance", "[resolveInheritance]")
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.overloadedSuperClass", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.overloadedSuperClass")
 {
   const auto input = std::vector<EntityDefinitionClassInfo>({
     // type                                   l  c  name      description   color size
@@ -883,7 +883,7 @@ TEST_CASE("resolveInheritance.overloadedSuperClass", "[resolveInheritance]")
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
 
-TEST_CASE("resolveInheritance.indirectOverloadedSuperClass", "[resolveInheritance]")
+TEST_CASE("resolveInheritance.indirectOverloadedSuperClass")
 {
   const auto input = std::vector<EntityDefinitionClassInfo>({
     // type                                   l  c  name      description   color size

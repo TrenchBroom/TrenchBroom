@@ -24,7 +24,7 @@
 
 namespace kdl
 {
-TEST_CASE("meta_utils_test.contains", "[meta_utils_test]")
+TEST_CASE("meta_utils_test.contains")
 {
   static_assert(meta_contains_v<int, int>);
   static_assert(!meta_contains_v<int, float>);
@@ -32,7 +32,7 @@ TEST_CASE("meta_utils_test.contains", "[meta_utils_test]")
   static_assert(!meta_contains_v<int, float, double>);
 }
 
-TEST_CASE("meta_utils_test.append", "[meta_utils_test]")
+TEST_CASE("meta_utils_test.append")
 {
   static_assert(std::is_same_v<
                 meta_append<int, float, double>::result,
@@ -42,7 +42,7 @@ TEST_CASE("meta_utils_test.append", "[meta_utils_test]")
                 meta_type_list<int, float, double, int>>);
 }
 
-TEST_CASE("meta_utils_test.append_if", "[meta_utils_test]")
+TEST_CASE("meta_utils_test.append_if")
 {
   static_assert(std::is_same_v<
                 meta_append_if<true, int, float, double>::result,
@@ -52,7 +52,7 @@ TEST_CASE("meta_utils_test.append_if", "[meta_utils_test]")
                 meta_type_list<float, double>>);
 }
 
-TEST_CASE("meta_utils_test.front", "[meta_utils_test]")
+TEST_CASE("meta_utils_test.front")
 {
   static_assert(std::is_same_v<meta_front<int>::front, int>);
   static_assert(std::is_same_v<meta_front<int>::remainder, meta_type_list<>>);
@@ -62,7 +62,7 @@ TEST_CASE("meta_utils_test.front", "[meta_utils_test]")
                 meta_type_list<float, double>>);
 }
 
-TEST_CASE("meta_utils_test.remove_duplicates", "[meta_utils_test]")
+TEST_CASE("meta_utils_test.remove_duplicates")
 {
   static_assert(std::is_same_v<
                 meta_remove_duplicates<int, float, double>::result,

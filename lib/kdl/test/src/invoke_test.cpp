@@ -24,7 +24,7 @@
 
 namespace kdl
 {
-TEST_CASE("invoke_test.invoke_later_lvalue", "[invoke_test]")
+TEST_CASE("invoke_test.invoke_later_lvalue")
 {
   bool invoked = false;
   auto lambda = [&invoked]() { invoked = true; };
@@ -36,7 +36,7 @@ TEST_CASE("invoke_test.invoke_later_lvalue", "[invoke_test]")
   CHECK(invoked);
 }
 
-TEST_CASE("invoke_test.invoke_later_rvalue", "[invoke_test]")
+TEST_CASE("invoke_test.invoke_later_rvalue")
 {
   bool invoked = false;
 

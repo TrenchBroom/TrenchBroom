@@ -30,7 +30,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("IdPakFileSystemTest.directoryExists", "[IdPakFileSystemTest]")
+TEST_CASE("IdPakFileSystemTest.directoryExists")
 {
   const Path pakPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
@@ -44,7 +44,7 @@ TEST_CASE("IdPakFileSystemTest.directoryExists", "[IdPakFileSystemTest]")
   CHECK_FALSE(fs.directoryExists(Path("gfx/palette.lmp")));
 }
 
-TEST_CASE("IdPakFileSystemTest.fileExists", "[IdPakFileSystemTest]")
+TEST_CASE("IdPakFileSystemTest.fileExists")
 {
   const Path pakPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak3.pak");
@@ -57,7 +57,7 @@ TEST_CASE("IdPakFileSystemTest.fileExists", "[IdPakFileSystemTest]")
   CHECK(fs.fileExists(Path("GFX/Palette.LMP")));
 }
 
-TEST_CASE("IdPakFileSystemTest.findItems", "[IdPakFileSystemTest]")
+TEST_CASE("IdPakFileSystemTest.findItems")
 {
   const Path pakPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
@@ -86,7 +86,7 @@ TEST_CASE("IdPakFileSystemTest.findItems", "[IdPakFileSystemTest]")
       std::vector<Path>{Path("pics/tag1.pcx"), Path("pics/tag2.pcx")}));
 }
 
-TEST_CASE("IdPakFileSystemTest.findItemsRecursively", "[IdPakFileSystemTest]")
+TEST_CASE("IdPakFileSystemTest.findItemsRecursively")
 {
   const Path pakPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");
@@ -142,7 +142,7 @@ TEST_CASE("IdPakFileSystemTest.findItemsRecursively", "[IdPakFileSystemTest]")
     }));
 }
 
-TEST_CASE("IdPakFileSystemTest.openFile", "[IdPakFileSystemTest]")
+TEST_CASE("IdPakFileSystemTest.openFile")
 {
   const Path pakPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Pak/pak1.pak");

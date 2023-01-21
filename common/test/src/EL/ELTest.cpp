@@ -31,7 +31,7 @@ namespace TrenchBroom
 {
 namespace EL
 {
-TEST_CASE("ELTest.constructValues", "[ELTest]")
+TEST_CASE("ELTest.constructValues")
 {
   CHECK(Value(true).type() == ValueType::Boolean);
   CHECK(Value(false).type() == ValueType::Boolean);
@@ -42,7 +42,7 @@ TEST_CASE("ELTest.constructValues", "[ELTest]")
   CHECK(Value().type() == ValueType::Null);
 }
 
-TEST_CASE("ELTest.typeConversions", "[ELTest]")
+TEST_CASE("ELTest.typeConversions")
 {
   CHECK(Value(true).convertTo(ValueType::Boolean) == Value(true));
   CHECK(Value(false).convertTo(ValueType::Boolean) == Value(false));
@@ -127,12 +127,12 @@ TEST_CASE("ELTest.typeConversions", "[ELTest]")
   CHECK(Value::Undefined.convertTo(ValueType::Undefined) == Value::Undefined);
 }
 
-TEST_CASE("ELTest.serializeValues", "[ELTest]")
+TEST_CASE("ELTest.serializeValues")
 {
   CHECK(Value(16.0).asString() == std::string("16"));
 }
 
-TEST_CASE("ELTest.subscriptOperator", "[ELTest]")
+TEST_CASE("ELTest.subscriptOperator")
 {
   CHECK_THROWS_AS(Value(true)[Value(0)], EvaluationError);
   CHECK_THROWS_AS(Value(1.0)[Value(0)], EvaluationError);

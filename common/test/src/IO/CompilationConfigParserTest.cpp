@@ -31,14 +31,14 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("CompilationConfigParserTest.parseBlankConfig", "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseBlankConfig")
 {
   const std::string config("   ");
   CompilationConfigParser parser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE("CompilationConfigParserTest.parseEmptyConfig", "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseEmptyConfig")
 {
   const std::string config("  {  } ");
   CompilationConfigParser parser(config);

@@ -26,7 +26,7 @@
 
 namespace kdl
 {
-TEST_CASE("skip_iterator_test.prefix_increment", "[skip_iterator_test]")
+TEST_CASE("skip_iterator_test.prefix_increment")
 {
   std::vector<int> vec({1, 2, 3, 4, 5});
   auto it = skip_iterator(std::begin(vec), std::end(vec), 1, 2);
@@ -36,7 +36,7 @@ TEST_CASE("skip_iterator_test.prefix_increment", "[skip_iterator_test]")
   CHECK(std::end(vec) == ++it);
 }
 
-TEST_CASE("skip_iterator_test.postfix_increment", "[skip_iterator_test]")
+TEST_CASE("skip_iterator_test.postfix_increment")
 {
   std::vector<int> vec({1, 2, 3, 4, 5});
   auto it = skip_iterator(std::begin(vec), std::end(vec), 1, 2);
@@ -46,7 +46,7 @@ TEST_CASE("skip_iterator_test.postfix_increment", "[skip_iterator_test]")
   CHECK(std::end(vec) == it);
 }
 
-TEST_CASE("skip_iterator_test.empty_sequence", "[skip_iterator_test]")
+TEST_CASE("skip_iterator_test.empty_sequence")
 {
   std::vector<size_t> vec;
 
@@ -56,7 +56,7 @@ TEST_CASE("skip_iterator_test.empty_sequence", "[skip_iterator_test]")
   CHECK(skip_iterator(std::begin(vec), std::end(vec), 1) == std::end(vec));
 }
 
-TEST_CASE("skip_iterator_test.zero_stride", "[skip_iterator_test]")
+TEST_CASE("skip_iterator_test.zero_stride")
 {
   std::vector<size_t> vec({1});
 
@@ -65,7 +65,7 @@ TEST_CASE("skip_iterator_test.zero_stride", "[skip_iterator_test]")
     std::next(skip_iterator(std::begin(vec), std::end(vec), 0, 0)) == std::begin(vec));
 }
 
-TEST_CASE("skip_iterator_test.oneElement_sequence", "[skip_iterator_test]")
+TEST_CASE("skip_iterator_test.oneElement_sequence")
 {
   std::vector<size_t> vec({1});
 

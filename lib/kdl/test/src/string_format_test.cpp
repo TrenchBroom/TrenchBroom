@@ -24,27 +24,27 @@
 
 namespace kdl
 {
-TEST_CASE("string_format_test.str_select", "[string_format_test]")
+TEST_CASE("string_format_test.str_select")
 {
   CHECK(str_select(true, "yes", "no") == "yes");
   CHECK(str_select(false, "yes", "no") == "no");
 }
 
-TEST_CASE("string_format_test.str_plural", "[string_format_test]")
+TEST_CASE("string_format_test.str_plural")
 {
   CHECK(str_plural(0, "one", "many") == "many");
   CHECK(str_plural(1, "one", "many") == "one");
   CHECK(str_plural(2, "one", "many") == "many");
 }
 
-TEST_CASE("string_format_test.str_plural_with_prefix_suffix", "[string_format_test]")
+TEST_CASE("string_format_test.str_plural_with_prefix_suffix")
 {
   CHECK(str_plural("prefix ", 0, "one", "many", " suffix") == "prefix many suffix");
   CHECK(str_plural("prefix ", 1, "one", "many", " suffix") == "prefix one suffix");
   CHECK(str_plural("prefix ", 2, "one", "many", " suffix") == "prefix many suffix");
 }
 
-TEST_CASE("string_format_test.str_trim", "[string_format_test]")
+TEST_CASE("string_format_test.str_trim")
 {
   CHECK(str_trim("") == "");
   CHECK(str_trim("abc") == "abc");
@@ -55,7 +55,7 @@ TEST_CASE("string_format_test.str_trim", "[string_format_test]")
   CHECK(str_trim("xyxxabczzxzyz", "xyz") == "abc");
 }
 
-TEST_CASE("string_format_test.str_to_lower_char", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_lower_char")
 {
   constexpr auto input =
     " !\"#$%&\\'()*+,-./"
@@ -69,7 +69,7 @@ TEST_CASE("string_format_test.str_to_lower_char", "[string_format_test]")
   }
 }
 
-TEST_CASE("string_format_test.str_to_upper_char", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_upper_char")
 {
   constexpr auto input =
     " !\"#$%&\\'()*+,-./"
@@ -83,7 +83,7 @@ TEST_CASE("string_format_test.str_to_upper_char", "[string_format_test]")
   }
 }
 
-TEST_CASE("string_format_test.str_to_lower", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_lower")
 {
   CHECK(str_to_lower("") == "");
   CHECK(str_to_lower("#?\"abc73474") == "#?\"abc73474");
@@ -92,7 +92,7 @@ TEST_CASE("string_format_test.str_to_lower", "[string_format_test]")
   CHECK(str_to_lower("XYZ") == "xyz");
 }
 
-TEST_CASE("string_format_test.str_to_upper", "[string_format_test]")
+TEST_CASE("string_format_test.str_to_upper")
 {
   CHECK(str_to_lower("") == "");
   CHECK(str_to_upper("#?\"ABC73474") == "#?\"ABC73474");
@@ -101,14 +101,14 @@ TEST_CASE("string_format_test.str_to_upper", "[string_format_test]")
   CHECK(str_to_upper("xyz") == "XYZ");
 }
 
-TEST_CASE("string_format_test.str_capitalize", "[string_format_test]")
+TEST_CASE("string_format_test.str_capitalize")
 {
   CHECK(
     str_capitalize("the quick brown fOX, .he jumped!")
     == "The Quick Brown FOX, .he Jumped!");
 }
 
-TEST_CASE("string_format_test.str_escape", "[string_format_test]")
+TEST_CASE("string_format_test.str_escape")
 {
   CHECK(str_escape("", "") == "");
   CHECK(str_escape("", ";") == "");
@@ -124,7 +124,7 @@ TEST_CASE("string_format_test.str_escape", "[string_format_test]")
   CHECK(str_escape("asdf", "f") == "asd\\f");
 }
 
-TEST_CASE("string_format_test.str_escape_if_necessary", "[string_format_test]")
+TEST_CASE("string_format_test.str_escape_if_necessary")
 {
   CHECK(
     str_escape_if_necessary(
@@ -132,7 +132,7 @@ TEST_CASE("string_format_test.str_escape_if_necessary", "[string_format_test]")
     == "this \\# should be escaped, but not this \\#; this \\\\\\# however, should!");
 }
 
-TEST_CASE("string_format_test.str_unescape", "[string_format_test]")
+TEST_CASE("string_format_test.str_unescape")
 {
   CHECK(str_unescape("", "") == "");
   CHECK(str_unescape("", ";") == "");
@@ -151,7 +151,7 @@ TEST_CASE("string_format_test.str_unescape", "[string_format_test]")
   CHECK(str_unescape("asdf\\\\\\\\", "") == "asdf\\\\");
 }
 
-TEST_CASE("string_format_test.str_is_blank", "[string_format_test]")
+TEST_CASE("string_format_test.str_is_blank")
 {
   CHECK(str_is_blank(""));
   CHECK(str_is_blank(" "));
@@ -161,7 +161,7 @@ TEST_CASE("string_format_test.str_is_blank", "[string_format_test]")
   CHECK_FALSE(str_is_blank(" another one bites    "));
 }
 
-TEST_CASE("string_format_test.str_is_numeric", "[string_format_test]")
+TEST_CASE("string_format_test.str_is_numeric")
 {
   CHECK(str_is_numeric(""));
   CHECK_FALSE(str_is_numeric("a"));
