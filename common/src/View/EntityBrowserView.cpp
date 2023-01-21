@@ -69,16 +69,16 @@ EntityBrowserView::EntityBrowserView(
   Assets::EntityDefinitionManager& entityDefinitionManager,
   Assets::EntityModelManager& entityModelManager,
   Logger& logger)
-  : CellView(contextManager, scrollBar)
-  , m_entityDefinitionManager(entityDefinitionManager)
-  , m_entityModelManager(entityModelManager)
-  , m_logger(logger)
-  , m_group(false)
-  , m_hideUnused(false)
-  , m_sortOrder(Assets::EntityDefinitionSortOrder::Name)
+  : CellView{contextManager, scrollBar}
+  , m_entityDefinitionManager{entityDefinitionManager}
+  , m_entityModelManager{entityModelManager}
+  , m_logger{logger}
+  , m_group{false}
+  , m_hideUnused{false}
+  , m_sortOrder{Assets::EntityDefinitionSortOrder::Name}
 {
-  const vm::quatf hRotation = vm::quatf(vm::vec3f::pos_z(), vm::to_radians(-30.0f));
-  const vm::quatf vRotation = vm::quatf(vm::vec3f::pos_y(), vm::to_radians(20.0f));
+  const auto hRotation = vm::quatf{vm::vec3f::pos_z(), vm::to_radians(-30.0f)};
+  const auto vRotation = vm::quatf{vm::vec3f::pos_y(), vm::to_radians(20.0f)};
   m_rotation = vRotation * hRotation;
 }
 
@@ -95,46 +95,42 @@ void EntityBrowserView::setDefaultModelScaleExpression(
 
 void EntityBrowserView::setSortOrder(const Assets::EntityDefinitionSortOrder sortOrder)
 {
-  if (sortOrder == m_sortOrder)
+  if (sortOrder != m_sortOrder)
   {
-    return;
+    m_sortOrder = sortOrder;
+    invalidate();
+    update();
   }
-  m_sortOrder = sortOrder;
-  invalidate();
-  update();
 }
 
 void EntityBrowserView::setGroup(const bool group)
 {
-  if (group == m_group)
+  if (group != m_group)
   {
-    return;
+    m_group = group;
+    invalidate();
+    update();
   }
-  m_group = group;
-  invalidate();
-  update();
 }
 
 void EntityBrowserView::setHideUnused(const bool hideUnused)
 {
-  if (hideUnused == m_hideUnused)
+  if (hideUnused != m_hideUnused)
   {
-    return;
+    m_hideUnused = hideUnused;
+    invalidate();
+    update();
   }
-  m_hideUnused = hideUnused;
-  invalidate();
-  update();
 }
 
 void EntityBrowserView::setFilterText(const std::string& filterText)
 {
-  if (filterText == m_filterText)
+  if (filterText != m_filterText)
   {
-    return;
+    m_filterText = filterText;
+    invalidate();
+    update();
   }
-  m_filterText = filterText;
-  invalidate();
-  update();
 }
 
 void EntityBrowserView::doInitLayout(Layout& layout)
@@ -154,7 +150,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   const auto fontSize = pref(Preferences::BrowserFontSize);
   assert(fontSize > 0);
 
-  const Renderer::FontDescriptor font(fontPath, static_cast<size_t>(fontSize));
+  const auto font = Renderer::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
 
   if (m_group)
   {
@@ -168,12 +164,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
         const auto displayName = group.displayName();
         layout.addGroup(displayName, static_cast<float>(fontSize) + 2.0f);
 
-        for (const auto* definition : definitions)
-        {
-          const auto* pointEntityDefinition =
-            static_cast<const Assets::PointEntityDefinition*>(definition);
-          addEntityToLayout(layout, pointEntityDefinition, font);
-        }
+        addEntitiesToLayout(layout, definitions, font);
       }
     }
   }
@@ -181,12 +172,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   {
     const auto& definitions = m_entityDefinitionManager.definitions(
       Assets::EntityDefinitionType::PointEntity, m_sortOrder);
-    for (const auto* definition : definitions)
-    {
-      const auto* pointEntityDefinition =
-        static_cast<const Assets::PointEntityDefinition*>(definition);
-      addEntityToLayout(layout, pointEntityDefinition, font);
-    }
+    addEntitiesToLayout(layout, definitions, font);
   }
 }
 
@@ -197,9 +183,22 @@ bool EntityBrowserView::dndEnabled()
 
 QString EntityBrowserView::dndData(const Cell& cell)
 {
-  const QString prefix("entity:");
-  const QString name = QString::fromStdString(cellData(cell).entityDefinition->name());
+  static const auto prefix = QString{"entity:"};
+  const auto name = QString::fromStdString(cellData(cell).entityDefinition->name());
   return prefix + name;
+}
+
+void EntityBrowserView::addEntitiesToLayout(
+  Layout& layout,
+  const std::vector<Assets::EntityDefinition*>& definitions,
+  const Renderer::FontDescriptor& font)
+{
+  for (const auto* definition : definitions)
+  {
+    const auto* pointEntityDefinition =
+      static_cast<const Assets::PointEntityDefinition*>(definition);
+    addEntityToLayout(layout, pointEntityDefinition, font);
+  }
 }
 
 void EntityBrowserView::addEntityToLayout(
@@ -227,8 +226,8 @@ void EntityBrowserView::addEntityToLayout(
       EL::NullVariableStore{},
       m_defaultScaleModelExpression)};
 
-    Renderer::TexturedRenderer* modelRenderer = nullptr;
-    vm::bbox3f rotatedBounds;
+    auto* modelRenderer = static_cast<Renderer::TexturedRenderer*>(nullptr);
+    auto rotatedBounds = vm::bbox3f{};
     auto modelOrientation = Assets::Orientation::Oriented;
 
     if (frame != nullptr)
@@ -238,13 +237,14 @@ void EntityBrowserView::addEntityToLayout(
       const auto transform =
         vm::translation_matrix(center) * vm::rotation_matrix(m_rotation)
         * vm::scaling_matrix(modelScale) * vm::translation_matrix(-center);
-      rotatedBounds = bounds.transform(transform);
+
       modelRenderer = m_entityModelManager.renderer(spec);
+      rotatedBounds = bounds.transform(transform);
       modelOrientation = frame->orientation();
     }
     else
     {
-      rotatedBounds = vm::bbox3f(definition->bounds());
+      rotatedBounds = vm::bbox3f{definition->bounds()};
       const auto center = rotatedBounds.center();
       const auto transform = vm::translation_matrix(-center)
                              * vm::rotation_matrix(m_rotation)
@@ -272,16 +272,16 @@ void EntityBrowserView::doClear() {}
 
 void EntityBrowserView::doRender(Layout& layout, const float y, const float height)
 {
-  const float viewLeft = static_cast<float>(0);
-  const float viewTop = static_cast<float>(size().height());
-  const float viewRight = static_cast<float>(size().width());
-  const float viewBottom = static_cast<float>(0);
+  const auto viewLeft = static_cast<float>(0);
+  const auto viewTop = static_cast<float>(size().height());
+  const auto viewRight = static_cast<float>(size().width());
+  const auto viewBottom = static_cast<float>(0);
 
-  const vm::mat4x4f projection =
+  const auto projection =
     vm::ortho_matrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
-  const vm::mat4x4f view =
+  const auto view =
     vm::view_matrix(CameraDirection, CameraUp) * vm::translation_matrix(CameraPosition);
-  Renderer::Transformation transformation(projection, view);
+  auto transformation = Renderer::Transformation{projection, view};
 
   renderBounds(layout, y, height);
   renderModels(layout, y, height, transformation);
@@ -298,34 +298,10 @@ const Color& EntityBrowserView::getBackgroundColor()
   return pref(Preferences::BrowserBackgroundColor);
 }
 
-template <typename Vertex>
-struct CollectBoundsVertices
-{
-  const vm::mat4x4f& transformation;
-  const Color& color;
-  std::vector<Vertex>& vertices;
-
-  CollectBoundsVertices(
-    const vm::mat4x4f& i_transformation,
-    const Color& i_color,
-    std::vector<Vertex>& i_vertices)
-    : transformation(i_transformation)
-    , color(i_color)
-    , vertices(i_vertices)
-  {
-  }
-
-  void operator()(const vm::vec3f& v1, const vm::vec3f& v2)
-  {
-    vertices.emplace_back(transformation * v1, color);
-    vertices.emplace_back(transformation * v2, color);
-  }
-};
-
 void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height)
 {
   using BoundsVertex = Renderer::GLVertexTypes::P3C4::Vertex;
-  std::vector<BoundsVertex> vertices;
+  auto vertices = std::vector<BoundsVertex>{};
 
   for (const auto& group : layout.groups())
   {
@@ -344,8 +320,11 @@ void EntityBrowserView::renderBounds(Layout& layout, const float y, const float 
             {
               const auto itemTrans = itemTransformation(cell, y, height, false);
               const auto& color = definition->color();
-              CollectBoundsVertices<BoundsVertex> collect(itemTrans, color, vertices);
-              vm::bbox3f(definition->bounds()).for_each_edge(collect);
+              vm::bbox3f{definition->bounds()}.for_each_edge(
+                [&](const vm::vec3f& v1, const vm::vec3f& v2) {
+                  vertices.emplace_back(itemTrans * v1, color);
+                  vertices.emplace_back(itemTrans * v2, color);
+                });
             }
           }
         }
@@ -353,8 +332,9 @@ void EntityBrowserView::renderBounds(Layout& layout, const float y, const float 
     }
   }
 
-  Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::VaryingPCShader);
-  Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
+  auto shader =
+    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::VaryingPCShader};
+  auto vertexArray = Renderer::VertexArray::move(std::move(vertices));
 
   vertexArray.prepare(vboManager());
   vertexArray.render(Renderer::PrimType::Lines);
@@ -392,9 +372,7 @@ void EntityBrowserView::renderModels(
         {
           for (const auto& cell : row.cells())
           {
-            auto* modelRenderer = cellData(cell).modelRenderer;
-
-            if (modelRenderer != nullptr)
+            if (auto* modelRenderer = cellData(cell).modelRenderer)
             {
               shader.set(
                 "Orientation", static_cast<int>(cellData(cell).modelOrientation));
@@ -402,7 +380,8 @@ void EntityBrowserView::renderModels(
               const auto itemTrans = itemTransformation(cell, y, height, true);
               shader.set("ModelMatrix", itemTrans);
 
-              Renderer::MultiplyModelMatrix multMatrix(transformation, itemTrans);
+              const auto multMatrix =
+                Renderer::MultiplyModelMatrix{transformation, itemTrans};
               modelRenderer->render();
             }
           }
@@ -415,10 +394,10 @@ void EntityBrowserView::renderModels(
 void EntityBrowserView::renderNames(
   Layout& layout, const float y, const float height, const vm::mat4x4f& projection)
 {
-  Renderer::Transformation transformation(
+  auto transformation = Renderer::Transformation{
     projection,
     vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y())
-      * vm::translation_matrix(vm::vec3f(0.0f, 0.0f, -1.0f)));
+      * vm::translation_matrix(vm::vec3f{0.0f, 0.0f, -1.0f})};
 
   glAssert(glDisable(GL_DEPTH_TEST));
   glAssert(glFrontFace(GL_CCW));
@@ -431,27 +410,27 @@ void EntityBrowserView::renderGroupTitleBackgrounds(
   Layout& layout, const float y, const float height)
 {
   using Vertex = Renderer::GLVertexTypes::P2::Vertex;
-  std::vector<Vertex> vertices;
+  auto vertices = std::vector<Vertex>{};
 
   for (const auto& group : layout.groups())
   {
     if (group.intersectsY(y, height))
     {
-      const LayoutBounds titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-      vertices.push_back(
-        Vertex(vm::vec2f(titleBounds.left(), height - (titleBounds.top() - y))));
-      vertices.push_back(
-        Vertex(vm::vec2f(titleBounds.left(), height - (titleBounds.bottom() - y))));
-      vertices.push_back(
-        Vertex(vm::vec2f(titleBounds.right(), height - (titleBounds.bottom() - y))));
-      vertices.push_back(
-        Vertex(vm::vec2f(titleBounds.right(), height - (titleBounds.top() - y))));
+      const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
+      vertices.emplace_back(
+        vm::vec2f{titleBounds.left(), height - (titleBounds.top() - y)});
+      vertices.emplace_back(
+        vm::vec2f{titleBounds.left(), height - (titleBounds.bottom() - y)});
+      vertices.emplace_back(
+        vm::vec2f{titleBounds.right(), height - (titleBounds.bottom() - y)});
+      vertices.emplace_back(
+        vm::vec2f{titleBounds.right(), height - (titleBounds.top() - y)});
     }
   }
 
-  Renderer::VertexArray vertexArray = Renderer::VertexArray::move(std::move(vertices));
-  Renderer::ActiveShader shader(
-    shaderManager(), Renderer::Shaders::VaryingPUniformCShader);
+  auto vertexArray = Renderer::VertexArray::move(std::move(vertices));
+  auto shader =
+    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
   shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
   vertexArray.prepare(vboManager());
@@ -460,19 +439,17 @@ void EntityBrowserView::renderGroupTitleBackgrounds(
 
 void EntityBrowserView::renderStrings(Layout& layout, const float y, const float height)
 {
-  using StringRendererMap = std::map<Renderer::FontDescriptor, Renderer::VertexArray>;
-  StringRendererMap stringRenderers;
+  auto stringRenderers = std::map<Renderer::FontDescriptor, Renderer::VertexArray>{};
 
-  { // create and upload all vertex arrays
-    const auto stringVertices = collectStringVertices(layout, y, height);
-    for (const auto& [fontDescriptor, vertices] : stringVertices)
-    {
-      stringRenderers[fontDescriptor] = Renderer::VertexArray::ref(vertices);
-      stringRenderers[fontDescriptor].prepare(vboManager());
-    }
+  // create and upload all vertex arrays
+  for (const auto& [fontDescriptor, vertices] : collectStringVertices(layout, y, height))
+  {
+    stringRenderers[fontDescriptor] = Renderer::VertexArray::ref(vertices);
+    stringRenderers[fontDescriptor].prepare(vboManager());
   }
 
-  Renderer::ActiveShader shader(shaderManager(), Renderer::Shaders::ColoredTextShader);
+  auto shader =
+    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::ColoredTextShader};
   shader.set("Texture", 0);
 
   for (auto& entry : stringRenderers)
@@ -490,13 +467,13 @@ void EntityBrowserView::renderStrings(Layout& layout, const float y, const float
 EntityBrowserView::StringMap EntityBrowserView::collectStringVertices(
   Layout& layout, const float y, const float height)
 {
-  Renderer::FontDescriptor defaultDescriptor(
+  auto defaultDescriptor = Renderer::FontDescriptor{
     pref(Preferences::RendererFontPath()),
-    static_cast<size_t>(pref(Preferences::BrowserFontSize)));
+    static_cast<size_t>(pref(Preferences::BrowserFontSize))};
 
-  const std::vector<Color> textColor{pref(Preferences::BrowserTextColor)};
+  const auto textColor = std::vector<Color>{pref(Preferences::BrowserTextColor)};
 
-  StringMap stringVertices;
+  auto stringVertices = StringMap{};
   for (const auto& group : layout.groups())
   {
     if (group.intersectsY(y, height))
@@ -505,17 +482,17 @@ EntityBrowserView::StringMap EntityBrowserView::collectStringVertices(
       if (!title.empty())
       {
         const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
-        const auto offset = vm::vec2f(
+        const auto offset = vm::vec2f{
           titleBounds.left() + 2.0f,
-          height - (titleBounds.top() - y) - titleBounds.height);
+          height - (titleBounds.top() - y) - titleBounds.height};
 
         auto& font = fontManager().font(defaultDescriptor);
         const auto quads = font.quads(title, false, offset);
         const auto titleVertices = TextVertex::toList(
           quads.size() / 2,
-          kdl::skip_iterator(std::begin(quads), std::end(quads), 0, 2),
-          kdl::skip_iterator(std::begin(quads), std::end(quads), 1, 2),
-          kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
+          kdl::skip_iterator{std::begin(quads), std::end(quads), 0, 2},
+          kdl::skip_iterator{std::begin(quads), std::end(quads), 1, 2},
+          kdl::skip_iterator{std::begin(textColor), std::end(textColor), 0, 0});
         auto& allTitleVertices = stringVertices[defaultDescriptor];
         allTitleVertices = kdl::vec_concat(std::move(allTitleVertices), titleVertices);
       }
@@ -527,18 +504,17 @@ EntityBrowserView::StringMap EntityBrowserView::collectStringVertices(
           for (const auto& cell : row.cells())
           {
             const auto titleBounds = cell.titleBounds();
-            const auto offset = vm::vec2f(
-              titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height);
+            const auto offset = vm::vec2f{
+              titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height};
 
-            Renderer::TextureFont& font =
-              fontManager().font(cellData(cell).fontDescriptor);
+            auto& font = fontManager().font(cellData(cell).fontDescriptor);
             const auto quads =
               font.quads(cellData(cell).entityDefinition->name(), false, offset);
             const auto titleVertices = TextVertex::toList(
               quads.size() / 2,
-              kdl::skip_iterator(std::begin(quads), std::end(quads), 0, 2),
-              kdl::skip_iterator(std::begin(quads), std::end(quads), 1, 2),
-              kdl::skip_iterator(std::begin(textColor), std::end(textColor), 0, 0));
+              kdl::skip_iterator{std::begin(quads), std::end(quads), 0, 2},
+              kdl::skip_iterator{std::begin(quads), std::end(quads), 1, 2},
+              kdl::skip_iterator{std::begin(textColor), std::end(textColor), 0, 0});
             auto& allTitleVertices = stringVertices[cellData(cell).fontDescriptor];
             allTitleVertices =
               kdl::vec_concat(std::move(allTitleVertices), titleVertices);
@@ -558,19 +534,18 @@ vm::mat4x4f EntityBrowserView::itemTransformation(
   const auto* definition = cellData.entityDefinition;
 
   const auto offset =
-    vm::vec3f(0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y));
+    vm::vec3f{0.0f, cell.itemBounds().left(), height - (cell.itemBounds().bottom() - y)};
   const auto scaling = cell.scale();
   const auto& rotatedBounds = cellData.bounds;
   const auto modelScale = applyModelScale ? cellData.modelScale : vm::vec3f{1, 1, 1};
   const auto rotationOffset =
-    vm::vec3f(0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z());
-  const auto boundsCenter = vm::vec3f(definition->bounds().center());
+    vm::vec3f{0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z()};
+  const auto boundsCenter = vm::vec3f{definition->bounds().center()};
 
-  return (
-    vm::translation_matrix(offset) * vm::scaling_matrix(vm::vec3f::fill(scaling))
-    * vm::translation_matrix(rotationOffset) * vm::translation_matrix(boundsCenter)
-    * vm::rotation_matrix(m_rotation) * vm::scaling_matrix(modelScale)
-    * vm::translation_matrix(-boundsCenter));
+  return vm::translation_matrix(offset) * vm::scaling_matrix(vm::vec3f::fill(scaling))
+         * vm::translation_matrix(rotationOffset) * vm::translation_matrix(boundsCenter)
+         * vm::rotation_matrix(m_rotation) * vm::scaling_matrix(modelScale)
+         * vm::translation_matrix(-boundsCenter);
 }
 
 QString EntityBrowserView::tooltip(const Cell& cell)
