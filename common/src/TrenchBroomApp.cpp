@@ -427,7 +427,9 @@ bool TrenchBroomApp::recoverFromException(
   }
   else
   {
-    QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);
+    QTimer::singleShot(0, [message = e.what()] {
+      QMessageBox::critical(nullptr, "TrenchBroom", message, QMessageBox::Ok);
+    });
     return false;
   }
 }
