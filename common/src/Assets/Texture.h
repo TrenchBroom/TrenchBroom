@@ -132,7 +132,7 @@ private:
 
 public:
   Texture(
-    const std::string& name,
+    std::string name,
     size_t width,
     size_t height,
     const Color& averageColor,
@@ -141,16 +141,16 @@ public:
     TextureType type,
     GameData gameData = std::monostate{});
   Texture(
-    const std::string& name,
+    std::string name,
     size_t width,
     size_t height,
     const Color& averageColor,
-    BufferList&& buffers,
+    BufferList buffers,
     GLenum format,
     TextureType type,
     GameData gameData = std::monostate{});
   Texture(
-    const std::string& name,
+    std::string name,
     size_t width,
     size_t height,
     GLenum format = GL_RGB,
@@ -175,7 +175,7 @@ public:
    * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
    */
   const IO::Path& absolutePath() const;
-  void setAbsolutePath(const IO::Path& absolutePath);
+  void setAbsolutePath(IO::Path absolutePath);
 
   /**
    * Relative path of the texture in the game filesystem
@@ -183,7 +183,7 @@ public:
    * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
    */
   const IO::Path& relativePath() const;
-  void setRelativePath(const IO::Path& relativePath);
+  void setRelativePath(IO::Path relativePath);
 
   size_t width() const;
   size_t height() const;
@@ -193,7 +193,7 @@ public:
   void setOpaque();
 
   const std::set<std::string>& surfaceParms() const;
-  void setSurfaceParms(const std::set<std::string>& surfaceParms);
+  void setSurfaceParms(std::set<std::string> surfaceParms);
 
   TextureCulling culling() const;
   void setCulling(TextureCulling culling);

@@ -37,7 +37,7 @@ namespace Assets
 kdl_reflect_impl(Q2Data);
 
 Texture::Texture(
-  const std::string& name,
+  std::string name,
   const size_t width,
   const size_t height,
   const Color& averageColor,
@@ -45,15 +45,15 @@ Texture::Texture(
   const GLenum format,
   const TextureType type,
   GameData gameData)
-  : m_name(name)
-  , m_width(width)
-  , m_height(height)
-  , m_averageColor(averageColor)
-  , m_usageCount(0u)
-  , m_overridden(false)
-  , m_format(format)
-  , m_type(type)
-  , m_culling(TextureCulling::CullDefault)
+  : m_name{std::move(name)}
+  , m_width{width}
+  , m_height{height}
+  , m_averageColor{averageColor}
+  , m_usageCount{0u}
+  , m_overridden{false}
+  , m_format{format}
+  , m_type{type}
+  , m_culling{TextureCulling::CullDefault}
   , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
@@ -65,23 +65,23 @@ Texture::Texture(
 }
 
 Texture::Texture(
-  const std::string& name,
+  std::string name,
   const size_t width,
   const size_t height,
   const Color& averageColor,
-  BufferList&& buffers,
+  BufferList buffers,
   const GLenum format,
   const TextureType type,
   GameData gameData)
-  : m_name(name)
-  , m_width(width)
-  , m_height(height)
-  , m_averageColor(averageColor)
-  , m_usageCount(0u)
-  , m_overridden(false)
-  , m_format(format)
-  , m_type(type)
-  , m_culling(TextureCulling::CullDefault)
+  : m_name{std::move(name)}
+  , m_width{width}
+  , m_height{height}
+  , m_averageColor{averageColor}
+  , m_usageCount{0u}
+  , m_overridden{false}
+  , m_format{format}
+  , m_type{type}
+  , m_culling{TextureCulling::CullDefault}
   , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId(0)
   , m_buffers{std::move(buffers)}
@@ -101,21 +101,21 @@ Texture::Texture(
 }
 
 Texture::Texture(
-  const std::string& name,
+  std::string name,
   const size_t width,
   const size_t height,
   const GLenum format,
   const TextureType type,
   GameData gameData)
-  : m_name(name)
-  , m_width(width)
-  , m_height(height)
+  : m_name{std::move(name)}
+  , m_width{width}
+  , m_height{height}
   , m_averageColor(Color(0.0f, 0.0f, 0.0f, 1.0f))
-  , m_usageCount(0u)
-  , m_overridden(false)
-  , m_format(format)
-  , m_type(type)
-  , m_culling(TextureCulling::CullDefault)
+  , m_usageCount{0u}
+  , m_overridden{false}
+  , m_format{format}
+  , m_type{type}
+  , m_culling{TextureCulling::CullDefault}
   , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
@@ -167,14 +167,7 @@ Texture& Texture::operator=(Texture&& other)
 
 TextureType Texture::selectTextureType(const bool masked)
 {
-  if (masked)
-  {
-    return TextureType::Masked;
-  }
-  else
-  {
-    return TextureType::Opaque;
-  }
+  return masked ? TextureType::Masked : TextureType::Opaque;
 }
 
 const std::string& Texture::name() const
@@ -187,9 +180,9 @@ const IO::Path& Texture::absolutePath() const
   return m_absolutePath;
 }
 
-void Texture::setAbsolutePath(const IO::Path& absolutePath)
+void Texture::setAbsolutePath(IO::Path absolutePath)
 {
-  m_absolutePath = absolutePath;
+  m_absolutePath = std::move(absolutePath);
 }
 
 const IO::Path& Texture::relativePath() const
@@ -197,9 +190,9 @@ const IO::Path& Texture::relativePath() const
   return m_relativePath;
 }
 
-void Texture::setRelativePath(const IO::Path& relativePath)
+void Texture::setRelativePath(IO::Path relativePath)
 {
-  m_relativePath = relativePath;
+  m_relativePath = std::move(relativePath);
 }
 
 size_t Texture::width() const
@@ -232,9 +225,9 @@ const std::set<std::string>& Texture::surfaceParms() const
   return m_surfaceParms;
 }
 
-void Texture::setSurfaceParms(const std::set<std::string>& surfaceParms)
+void Texture::setSurfaceParms(std::set<std::string> surfaceParms)
 {
-  m_surfaceParms = surfaceParms;
+  m_surfaceParms = std::move(surfaceParms);
 }
 
 TextureCulling Texture::culling() const
@@ -247,7 +240,7 @@ void Texture::setCulling(const TextureCulling culling)
   m_culling = culling;
 }
 
-void Texture::setBlendFunc(GLenum srcFactor, GLenum destFactor)
+void Texture::setBlendFunc(const GLenum srcFactor, const GLenum destFactor)
 {
   m_blendFunc.enable = TextureBlendFunc::Enable::UseFactors;
   m_blendFunc.srcFactor = srcFactor;
@@ -342,7 +335,7 @@ void Texture::prepare(const GLuint textureId, const int minFilter, const int mag
     {
       const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
 
-      const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].data());
+      const auto* data = reinterpret_cast<const GLvoid*>(m_buffers[j].data());
       glAssert(glTexImage2D(
         GL_TEXTURE_2D,
         static_cast<GLint>(j),
