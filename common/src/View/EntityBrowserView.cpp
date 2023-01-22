@@ -232,11 +232,13 @@ void EntityBrowserView::addEntityToLayout(
 
     if (frame != nullptr)
     {
+      const auto scalingMatrix = vm::scaling_matrix(modelScale);
       const auto bounds = frame->bounds();
       const auto center = bounds.center();
-      const auto transform =
-        vm::translation_matrix(center) * vm::rotation_matrix(m_rotation)
-        * vm::scaling_matrix(modelScale) * vm::translation_matrix(-center);
+      const auto scaledCenter = scalingMatrix * center;
+      const auto transform = vm::translation_matrix(scaledCenter)
+                             * vm::rotation_matrix(m_rotation) * scalingMatrix
+                             * vm::translation_matrix(-center);
 
       modelRenderer = m_entityModelManager.renderer(spec);
       rotatedBounds = bounds.transform(transform);
@@ -538,14 +540,16 @@ vm::mat4x4f EntityBrowserView::itemTransformation(
   const auto scaling = cell.scale();
   const auto& rotatedBounds = cellData.bounds;
   const auto modelScale = applyModelScale ? cellData.modelScale : vm::vec3f{1, 1, 1};
+  const auto scalingMatrix = vm::scaling_matrix(modelScale);
   const auto rotationOffset =
     vm::vec3f{0.0f, -rotatedBounds.min.y(), -rotatedBounds.min.z()};
   const auto boundsCenter = vm::vec3f{definition->bounds().center()};
+  const auto scaledBoundsCenter = scalingMatrix * boundsCenter;
 
   return vm::translation_matrix(offset) * vm::scaling_matrix(vm::vec3f::fill(scaling))
-         * vm::translation_matrix(rotationOffset) * vm::translation_matrix(boundsCenter)
-         * vm::rotation_matrix(m_rotation) * vm::scaling_matrix(modelScale)
-         * vm::translation_matrix(-boundsCenter);
+         * vm::translation_matrix(rotationOffset)
+         * vm::translation_matrix(scaledBoundsCenter) * vm::rotation_matrix(m_rotation)
+         * scalingMatrix * vm::translation_matrix(-boundsCenter);
 }
 
 QString EntityBrowserView::tooltip(const Cell& cell)
