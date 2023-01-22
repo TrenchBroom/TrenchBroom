@@ -37,7 +37,7 @@ namespace Assets
 kdl_reflect_impl(Q2Data);
 
 Texture::Texture(
-  const std::string& name,
+  std::string name,
   const size_t width,
   const size_t height,
   const Color& averageColor,
@@ -45,15 +45,15 @@ Texture::Texture(
   const GLenum format,
   const TextureType type,
   GameData gameData)
-  : m_name(name)
-  , m_width(width)
-  , m_height(height)
-  , m_averageColor(averageColor)
-  , m_usageCount(0u)
-  , m_overridden(false)
-  , m_format(format)
-  , m_type(type)
-  , m_culling(TextureCulling::CullDefault)
+  : m_name{std::move(name)}
+  , m_width{width}
+  , m_height{height}
+  , m_averageColor{averageColor}
+  , m_usageCount{0u}
+  , m_overridden{false}
+  , m_format{format}
+  , m_type{type}
+  , m_culling{TextureCulling::CullDefault}
   , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
@@ -65,23 +65,23 @@ Texture::Texture(
 }
 
 Texture::Texture(
-  const std::string& name,
+  std::string name,
   const size_t width,
   const size_t height,
   const Color& averageColor,
-  BufferList&& buffers,
+  BufferList buffers,
   const GLenum format,
   const TextureType type,
   GameData gameData)
-  : m_name(name)
-  , m_width(width)
-  , m_height(height)
-  , m_averageColor(averageColor)
-  , m_usageCount(0u)
-  , m_overridden(false)
-  , m_format(format)
-  , m_type(type)
-  , m_culling(TextureCulling::CullDefault)
+  : m_name{std::move(name)}
+  , m_width{width}
+  , m_height{height}
+  , m_averageColor{averageColor}
+  , m_usageCount{0u}
+  , m_overridden{false}
+  , m_format{format}
+  , m_type{type}
+  , m_culling{TextureCulling::CullDefault}
   , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId(0)
   , m_buffers{std::move(buffers)}
@@ -90,32 +90,39 @@ Texture::Texture(
   assert(m_width > 0);
   assert(m_height > 0);
 
-  [[maybe_unused]] const auto bytesPerPixel = bytesPerPixelForFormat(format);
+  const auto compressed = isCompressedFormat(format);
+  [[maybe_unused]] const auto bytesPerPixel =
+    compressed ? 0U : bytesPerPixelForFormat(format);
+  [[maybe_unused]] const auto blockSize = compressed ? blockSizeForFormat(format) : 0U;
 
   for (size_t level = 0; level < m_buffers.size(); ++level)
   {
     [[maybe_unused]] const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
-    [[maybe_unused]] const auto numBytes = bytesPerPixel * mipSize.x() * mipSize.y();
+    [[maybe_unused]] const auto numBytes =
+      compressed ? (
+        blockSize * std::max(size_t(1), mipSize.x() / 4)
+        * std::max(size_t(1), mipSize.y() / 4))
+                 : (bytesPerPixel * mipSize.x() * mipSize.y());
     assert(m_buffers[level].size() >= numBytes);
   }
 }
 
 Texture::Texture(
-  const std::string& name,
+  std::string name,
   const size_t width,
   const size_t height,
   const GLenum format,
   const TextureType type,
   GameData gameData)
-  : m_name(name)
-  , m_width(width)
-  , m_height(height)
+  : m_name{std::move(name)}
+  , m_width{width}
+  , m_height{height}
   , m_averageColor(Color(0.0f, 0.0f, 0.0f, 1.0f))
-  , m_usageCount(0u)
-  , m_overridden(false)
-  , m_format(format)
-  , m_type(type)
-  , m_culling(TextureCulling::CullDefault)
+  , m_usageCount{0u}
+  , m_overridden{false}
+  , m_format{format}
+  , m_type{type}
+  , m_culling{TextureCulling::CullDefault}
   , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
@@ -167,14 +174,7 @@ Texture& Texture::operator=(Texture&& other)
 
 TextureType Texture::selectTextureType(const bool masked)
 {
-  if (masked)
-  {
-    return TextureType::Masked;
-  }
-  else
-  {
-    return TextureType::Opaque;
-  }
+  return masked ? TextureType::Masked : TextureType::Opaque;
 }
 
 const std::string& Texture::name() const
@@ -187,9 +187,9 @@ const IO::Path& Texture::absolutePath() const
   return m_absolutePath;
 }
 
-void Texture::setAbsolutePath(const IO::Path& absolutePath)
+void Texture::setAbsolutePath(IO::Path absolutePath)
 {
-  m_absolutePath = absolutePath;
+  m_absolutePath = std::move(absolutePath);
 }
 
 const IO::Path& Texture::relativePath() const
@@ -197,9 +197,9 @@ const IO::Path& Texture::relativePath() const
   return m_relativePath;
 }
 
-void Texture::setRelativePath(const IO::Path& relativePath)
+void Texture::setRelativePath(IO::Path relativePath)
 {
-  m_relativePath = relativePath;
+  m_relativePath = std::move(relativePath);
 }
 
 size_t Texture::width() const
@@ -232,9 +232,9 @@ const std::set<std::string>& Texture::surfaceParms() const
   return m_surfaceParms;
 }
 
-void Texture::setSurfaceParms(const std::set<std::string>& surfaceParms)
+void Texture::setSurfaceParms(std::set<std::string> surfaceParms)
 {
-  m_surfaceParms = surfaceParms;
+  m_surfaceParms = std::move(surfaceParms);
 }
 
 TextureCulling Texture::culling() const
@@ -247,7 +247,7 @@ void Texture::setCulling(const TextureCulling culling)
   m_culling = culling;
 }
 
-void Texture::setBlendFunc(GLenum srcFactor, GLenum destFactor)
+void Texture::setBlendFunc(const GLenum srcFactor, const GLenum destFactor)
 {
   m_blendFunc.enable = TextureBlendFunc::Enable::UseFactors;
   m_blendFunc.srcFactor = srcFactor;
@@ -303,6 +303,8 @@ void Texture::prepare(const GLuint textureId, const int minFilter, const int mag
 
   if (!m_buffers.empty())
   {
+    const auto compressed = isCompressedFormat(m_format);
+
     glAssert(glPixelStorei(GL_UNPACK_SWAP_BYTES, false));
     glAssert(glPixelStorei(GL_UNPACK_LSB_FIRST, false));
     glAssert(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
@@ -342,17 +344,34 @@ void Texture::prepare(const GLuint textureId, const int minFilter, const int mag
     {
       const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
 
-      const GLvoid* data = reinterpret_cast<const GLvoid*>(m_buffers[j].data());
-      glAssert(glTexImage2D(
-        GL_TEXTURE_2D,
-        static_cast<GLint>(j),
-        GL_RGBA,
-        static_cast<GLsizei>(mipSize.x()),
-        static_cast<GLsizei>(mipSize.y()),
-        0,
-        m_format,
-        GL_UNSIGNED_BYTE,
-        data));
+      const auto* data = reinterpret_cast<const GLvoid*>(m_buffers[j].data());
+      if (compressed)
+      {
+        const auto dataSize = static_cast<GLsizei>(m_buffers[j].size());
+
+        glAssert(glCompressedTexImage2D(
+          GL_TEXTURE_2D,
+          static_cast<GLint>(j),
+          m_format,
+          static_cast<GLsizei>(mipSize.x()),
+          static_cast<GLsizei>(mipSize.y()),
+          0,
+          dataSize,
+          data));
+      }
+      else
+      {
+        glAssert(glTexImage2D(
+          GL_TEXTURE_2D,
+          static_cast<GLint>(j),
+          GL_RGBA,
+          static_cast<GLsizei>(mipSize.x()),
+          static_cast<GLsizei>(mipSize.y()),
+          0,
+          m_format,
+          GL_UNSIGNED_BYTE,
+          data));
+      }
     }
 
     m_buffers.clear();
