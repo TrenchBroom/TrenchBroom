@@ -1609,7 +1609,7 @@ void MapFrame::selectByLineNumber()
     }
 
     auto positions = std::vector<size_t>{};
-    for (const auto& token : string.split(", "))
+    for (const auto& token : string.split(QRegExp{"[, ]"}))
     {
       bool ok;
       const auto position = token.toLong(&ok);
