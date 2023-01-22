@@ -525,5 +525,29 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition")
 
   kdl::vec_clear_and_delete(definitions);
 }
+
+TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
+{
+  const auto file = R"(
+<?xml version="1.0"?>
+  <classes>
+    <point name= "linkEmitter" color="0.2 0.5 0.2 ">
+      <target key="target" name="target"></target>
+    </point>
+  </classes>
+)";
+
+  const auto defaultColor = Color{1.0f, 1.0f, 1.0f, 1.0f};
+  auto parser = EntParser{file, defaultColor};
+
+  auto status = TestParserStatus{};
+  auto definitions = parser.parseDefinitions(status);
+  CHECK(definitions.size() == 1u);
+
+  const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
+  CHECK(definition->bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
+
+  kdl::vec_clear_and_delete(definitions);
+}
 } // namespace IO
 } // namespace TrenchBroom

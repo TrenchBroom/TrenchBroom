@@ -590,33 +590,37 @@ void EntParser::parseListDeclaration(
   }
 }
 
-vm::bbox3 EntParser::parseBounds(
+std::optional<vm::bbox3> EntParser::parseBounds(
   const tinyxml2::XMLElement& element,
   const std::string& attributeName,
   ParserStatus& status)
 {
   const auto parts = kdl::str_split(parseString(element, attributeName, status), " ");
-  if (parts.size() != 6)
+  if (parts.size() == 6)
   {
-    warn(element, "Invalid bounding box", status);
+    const auto it = std::begin(parts);
+    if (
+      const auto min = vm::parse<FloatType, 3>(kdl::str_join(it, std::next(it, 3), " ")))
+    {
+      if (
+        const auto max =
+          vm::parse<FloatType, 3>(kdl::str_join(std::next(it, 3), std::end(parts), " ")))
+      {
+        return vm::bbox3{*min, *max};
+      }
+    }
   }
 
-  const auto it = std::begin(parts);
-  vm::bbox3 result;
-  result.min = vm::parse<FloatType, 3>(kdl::str_join(it, std::next(it, 3), " "))
-                 .value_or(vm::vec3::zero());
-  result.max =
-    vm::parse<FloatType, 3>(kdl::str_join(std::next(it, 3), std::end(parts), " "))
-      .value_or(vm::vec3::zero());
-  return result;
+  warn(element, "Invalid bounding box", status);
+  return std::nullopt;
 }
 
-Color EntParser::parseColor(
+std::optional<Color> EntParser::parseColor(
   const tinyxml2::XMLElement& element,
   const std::string& attributeName,
   ParserStatus& status)
 {
-  return Color::parse(parseString(element, attributeName, status)).value_or(Color());
+  return Color::parse(parseString(element, attributeName, status));
 }
 
 std::optional<int> EntParser::parseInteger(
