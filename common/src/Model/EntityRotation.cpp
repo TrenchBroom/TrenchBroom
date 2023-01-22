@@ -197,6 +197,7 @@ EntityRotationInfo entityRotationInfo(const Entity& entity)
             entity,
             {{EntityPropertyKeys::Angles, eulerType},
              {EntityPropertyKeys::Mangle, eulerType},
+             {EntityPropertyKeys::ExternalMapAngles, eulerType},
              {EntityPropertyKeys::Angle, EntityRotationType::AngleUpDown}})
             .value_or(std::make_tuple(
               EntityPropertyKeys::Angle, EntityRotationType::AngleUpDown));

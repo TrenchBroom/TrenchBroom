@@ -46,6 +46,7 @@ extern const std::string Mangle;
 extern const std::string Target;
 extern const std::string Targetname;
 extern const std::string Killtarget;
+extern const std::string ExternalMapAngles;
 extern const std::string ProtectedEntityProperties;
 extern const std::string GroupType;
 extern const std::string LayerId;

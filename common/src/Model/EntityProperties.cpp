@@ -47,6 +47,7 @@ const std::string Mangle = "mangle";
 const std::string Target = "target";
 const std::string Targetname = "targetname";
 const std::string Killtarget = "killtarget";
+const std::string ExternalMapAngles = "_external_map_angles";
 const std::string ProtectedEntityProperties = "_tb_protected_properties";
 const std::string GroupType = "_tb_type";
 const std::string LayerId = "_tb_id";

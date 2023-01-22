@@ -88,7 +88,8 @@ static IO::Path path(const EL::Value& value)
     return IO::Path();
   }
   const std::string& path = value.stringValue();
-  return IO::Path{kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path};
+  auto p = IO::Path{kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path};
+  return p.hasExtension("map", false) ? p.replaceExtension("bsp") : p;
 }
 
 static size_t index(const EL::Value& value)
