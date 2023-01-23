@@ -30,13 +30,13 @@ namespace TrenchBroom
 {
 namespace IO
 {
-ConfigParserBase::ConfigParserBase(std::string_view str, const Path& path)
-  : m_parser(ELParser::Mode::Strict, std::move(str))
-  , m_path(path)
+ConfigParserBase::ConfigParserBase(const std::string_view str, Path path)
+  : m_parser{ELParser::Mode::Strict, str}
+  , m_path{std::move(path)}
 {
 }
 
-ConfigParserBase::~ConfigParserBase() {}
+ConfigParserBase::~ConfigParserBase() = default;
 
 EL::Expression ConfigParserBase::parseConfigFile()
 {
@@ -47,18 +47,18 @@ void ConfigParserBase::expectType(const EL::Value& value, const EL::ValueType ty
 {
   if (value.type() != type)
   {
-    throw ParserException(
+    throw ParserException{
       value.line(),
       value.column(),
       "Expected value of type '" + EL::typeName(type) + "', but got type '"
-        + value.typeName() + "'");
+        + value.typeName() + "'"};
   }
 }
 
 void ConfigParserBase::expectStructure(
   const EL::Value& value, const std::string& structure) const
 {
-  ELParser parser(ELParser::Mode::Strict, structure);
+  auto parser = ELParser{ELParser::Mode::Strict, structure};
   const auto expected = parser.parse().evaluate(EL::EvaluationContext());
   assert(expected.type() == EL::ValueType::Array);
 
@@ -81,14 +81,14 @@ void ConfigParserBase::expectStructure(
 }
 
 void ConfigParserBase::expectMapEntry(
-  const EL::Value& value, const std::string& key, EL::ValueType type) const
+  const EL::Value& value, const std::string& key, const EL::ValueType type) const
 {
   const auto& map = value.mapValue();
   const auto it = map.find(key);
   if (it == std::end(map))
   {
-    throw ParserException(
-      value.line(), value.column(), "Expected map entry '" + key + "'");
+    throw ParserException{
+      value.line(), value.column(), "Expected map entry '" + key + "'"};
   }
   expectType(it->second, type);
 }

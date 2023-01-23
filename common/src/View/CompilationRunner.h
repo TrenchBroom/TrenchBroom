@@ -164,8 +164,8 @@ public:
   bool running() const;
 
 private:
-  void bindEvents(CompilationTaskRunner* runner);
-  void unbindEvents(CompilationTaskRunner* runner);
+  void bindEvents(CompilationTaskRunner* runner) const;
+  void unbindEvents(CompilationTaskRunner* runner) const;
 private slots:
   void taskError();
   void taskEnd();

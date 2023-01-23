@@ -101,9 +101,7 @@ void CompilationExportMapTaskRunner::doExecute()
           IO::Disk::createDirectory(directoryPath);
         }
 
-        IO::MapExportOptions options;
-        options.exportPath = targetPath;
-
+        const auto options = IO::MapExportOptions{targetPath};
         const auto document = m_context.document();
         document->exportDocumentAs(options);
       }
@@ -190,7 +188,7 @@ void CompilationRunToolTaskRunner::doExecute()
 
 void CompilationRunToolTaskRunner::doTerminate()
 {
-  if (m_process != nullptr)
+  if (m_process)
   {
     disconnect(
       m_process,
@@ -422,13 +420,13 @@ bool CompilationRunner::running() const
   return m_currentTask != std::end(m_taskRunners);
 }
 
-void CompilationRunner::bindEvents(CompilationTaskRunner* runner)
+void CompilationRunner::bindEvents(CompilationTaskRunner* runner) const
 {
   connect(runner, &CompilationTaskRunner::error, this, &CompilationRunner::taskError);
   connect(runner, &CompilationTaskRunner::end, this, &CompilationRunner::taskEnd);
 }
 
-void CompilationRunner::unbindEvents(CompilationTaskRunner* runner)
+void CompilationRunner::unbindEvents(CompilationTaskRunner* runner) const
 {
   runner->disconnect(this);
 }

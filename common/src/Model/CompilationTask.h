@@ -68,7 +68,7 @@ private:
   std::string m_targetSpec;
 
 public:
-  CompilationExportMap(bool enabled, const std::string& targetSpec);
+  CompilationExportMap(bool enabled, std::string targetSpec);
 
   void accept(CompilationTaskVisitor& visitor) override;
   void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -77,7 +77,7 @@ public:
 
   const std::string& targetSpec() const;
 
-  void setTargetSpec(const std::string& targetSpec);
+  void setTargetSpec(std::string targetSpec);
 
   CompilationExportMap* clone() const override;
   bool operator==(const CompilationTask& other) const override;
@@ -93,8 +93,7 @@ private:
   std::string m_targetSpec;
 
 public:
-  CompilationCopyFiles(
-    bool enabled, const std::string& sourceSpec, const std::string& targetSpec);
+  CompilationCopyFiles(bool enabled, std::string sourceSpec, std::string targetSpec);
 
   void accept(CompilationTaskVisitor& visitor) override;
   void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -104,8 +103,8 @@ public:
   const std::string& sourceSpec() const;
   const std::string& targetSpec() const;
 
-  void setSourceSpec(const std::string& sourceSpec);
-  void setTargetSpec(const std::string& targetSpec);
+  void setSourceSpec(std::string sourceSpec);
+  void setTargetSpec(std::string targetSpec);
 
   CompilationCopyFiles* clone() const override;
   bool operator==(const CompilationTask& other) const override;
@@ -121,8 +120,7 @@ private:
   std::string m_parameterSpec;
 
 public:
-  CompilationRunTool(
-    bool enabled, const std::string& toolSpec, const std::string& parameterSpec);
+  CompilationRunTool(bool enabled, std::string toolSpec, std::string parameterSpec);
 
   void accept(CompilationTaskVisitor& visitor) override;
   void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -132,8 +130,8 @@ public:
   const std::string& toolSpec() const;
   const std::string& parameterSpec() const;
 
-  void setToolSpec(const std::string& toolSpec);
-  void setParameterSpec(const std::string& parameterSpec);
+  void setToolSpec(std::string toolSpec);
+  void setParameterSpec(std::string parameterSpec);
 
   CompilationRunTool* clone() const override;
   bool operator==(const CompilationTask& other) const override;

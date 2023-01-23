@@ -44,10 +44,10 @@ private:
   std::vector<std::unique_ptr<CompilationTask>> m_tasks;
 
 public:
-  CompilationProfile(const std::string& name, const std::string& workDirSpec);
+  CompilationProfile(std::string name, std::string workDirSpec);
   CompilationProfile(
-    const std::string& name,
-    const std::string& workDirSpec,
+    std::string name,
+    std::string workDirSpec,
     std::vector<std::unique_ptr<CompilationTask>> tasks);
   ~CompilationProfile();
 
@@ -57,10 +57,10 @@ public:
   friend std::ostream& operator<<(std::ostream& str, const CompilationProfile& profile);
 
   const std::string& name() const;
-  void setName(const std::string& name);
+  void setName(std::string name);
 
   const std::string& workDirSpec() const;
-  void setWorkDirSpec(const std::string& workDirSpec);
+  void setWorkDirSpec(std::string workDirSpec);
 
   size_t taskCount() const;
   CompilationTask* task(size_t index) const;
