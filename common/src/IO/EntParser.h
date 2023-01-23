@@ -143,11 +143,11 @@ private:
     PropertyDefinitionList& propertyDeclarations,
     ParserStatus& status);
 
-  vm::bbox3 parseBounds(
+  std::optional<vm::bbox3> parseBounds(
     const tinyxml2::XMLElement& element,
     const std::string& attributeName,
     ParserStatus& status);
-  Color parseColor(
+  std::optional<Color> parseColor(
     const tinyxml2::XMLElement& element,
     const std::string& attributeName,
     ParserStatus& status);
