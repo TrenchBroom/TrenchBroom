@@ -36,6 +36,7 @@
 #include <QJsonParseError>
 #include <QString>
 #include <QThread>
+#include <QTimer>
 
 class QTextStream;
 class QFileSystemWatcher;
@@ -50,13 +51,13 @@ class Color;
 class PreferenceSerializerV1 : public PrefSerializer
 {
 public:
-  bool readFromJSON(const QJsonValue& in, bool* out) const override;
-  bool readFromJSON(const QJsonValue& in, Color* out) const override;
-  bool readFromJSON(const QJsonValue& in, float* out) const override;
-  bool readFromJSON(const QJsonValue& in, int* out) const override;
-  bool readFromJSON(const QJsonValue& in, IO::Path* out) const override;
-  bool readFromJSON(const QJsonValue& in, QKeySequence* out) const override;
-  bool readFromJSON(const QJsonValue& in, QString* out) const override;
+  bool readFromJSON(const QJsonValue& in, bool& out) const override;
+  bool readFromJSON(const QJsonValue& in, Color& out) const override;
+  bool readFromJSON(const QJsonValue& in, float& out) const override;
+  bool readFromJSON(const QJsonValue& in, int& out) const override;
+  bool readFromJSON(const QJsonValue& in, IO::Path& out) const override;
+  bool readFromJSON(const QJsonValue& in, QKeySequence& out) const override;
+  bool readFromJSON(const QJsonValue& in, QString& out) const override;
 
   QJsonValue writeToJSON(bool in) const override;
   QJsonValue writeToJSON(const Color& in) const override;
@@ -79,10 +80,10 @@ public:
 class PreferenceSerializerV2 : public PreferenceSerializerV1
 {
 public:
-  bool readFromJSON(const QJsonValue& in, bool* out) const override;
-  bool readFromJSON(const QJsonValue& in, float* out) const override;
-  bool readFromJSON(const QJsonValue& in, int* out) const override;
-  bool readFromJSON(const QJsonValue& in, QKeySequence* out) const override;
+  bool readFromJSON(const QJsonValue& in, bool& out) const override;
+  bool readFromJSON(const QJsonValue& in, float& out) const override;
+  bool readFromJSON(const QJsonValue& in, int& out) const override;
+  bool readFromJSON(const QJsonValue& in, QKeySequence& out) const override;
 
   QJsonValue writeToJSON(bool in) const override;
   QJsonValue writeToJSON(float in) const override;
@@ -196,6 +197,8 @@ private:
   QString m_preferencesFilePath;
   bool m_saveInstantly;
   UnsavedPreferences m_unsavedPreferences;
+  QTimer m_saveTimer;
+
   /**
    * This should always be in sync with what is on disk.
    * Preference objects may have different values if there are unsaved changes.
@@ -213,6 +216,8 @@ private:
 
 public:
   AppPreferenceManager();
+  ~AppPreferenceManager() override;
+
   void initialize() override;
 
   bool saveInstantly() const override;
@@ -220,6 +225,8 @@ public:
   void discardChanges() override;
 
 private:
+  void saveChangesImmediately();
+
   void markAsUnsaved(PreferenceBase& preference);
   void showErrorAndDisableFileReadWrite(const QString& reason, const QString& suggestion);
   void loadCacheFromDisk();
@@ -305,19 +312,26 @@ struct JsonParseError
 {
   QJsonParseError jsonError;
 };
-struct FileReadError
+struct FileAccessError
+{
+};
+struct LockFileError
 {
 };
 } // namespace PreferenceErrors
 
-using PreferencesResult = kdl::result<
+using ReadPreferencesResult = kdl::result<
   std::map<IO::Path, QJsonValue>, // Success case
   PreferenceErrors::NoFilePresent,
   PreferenceErrors::JsonParseError,
-  PreferenceErrors::FileReadError>;
+  PreferenceErrors::FileAccessError,
+  PreferenceErrors::LockFileError>;
+
+using WritePreferencesResult =
+  kdl::result<void, PreferenceErrors::FileAccessError, PreferenceErrors::LockFileError>;
 
 // V1 settings
-std::map<IO::Path, QJsonValue> parseINI(QTextStream* iniStream);
+std::map<IO::Path, QJsonValue> parseINI(QTextStream& iniStream);
 std::map<IO::Path, QJsonValue> getINISettingsV1(const QString& path);
 std::map<IO::Path, QJsonValue> readV1Settings();
 std::map<IO::Path, QJsonValue> migrateV1ToV2(
@@ -325,14 +339,15 @@ std::map<IO::Path, QJsonValue> migrateV1ToV2(
 
 // V2 settings
 QString v2SettingsPath();
-PreferencesResult readV2SettingsFromPath(const QString& path);
-PreferencesResult readV2Settings();
+ReadPreferencesResult readV2SettingsFromPath(const QString& path);
+ReadPreferencesResult readV2Settings();
 
-bool writeV2SettingsToPath(
+WritePreferencesResult writeV2SettingsToPath(
   const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs);
-PreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData);
+ReadPreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData);
 QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs);
 
 // Migration
-bool migrateSettingsFromV1IfPathDoesNotExist(const QString& destinationPath);
+WritePreferencesResult migrateSettingsFromV1IfPathDoesNotExist(
+  const QString& destinationPath);
 } // namespace TrenchBroom
