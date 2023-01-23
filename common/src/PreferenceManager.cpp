@@ -39,6 +39,7 @@
 #endif
 #include <QStandardPaths>
 #include <QStringBuilder>
+#include <QTimer>
 
 #include <string>
 #include <vector>
@@ -473,9 +474,11 @@ void AppPreferenceManager::showErrorAndDisableFileReadWrite(
       .arg(m_preferencesFilePath)
       .arg(suggestion);
 
-  auto dialog =
-    QMessageBox(QMessageBox::Icon::Critical, tr("TrenchBroom"), message, QMessageBox::Ok);
-  dialog.exec();
+  QTimer::singleShot(0, [=] {
+    auto dialog = QMessageBox(
+      QMessageBox::Icon::Critical, tr("TrenchBroom"), message, QMessageBox::Ok);
+    dialog.exec();
+  });
 }
 
 /**
