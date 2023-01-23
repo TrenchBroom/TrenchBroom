@@ -39,6 +39,7 @@ class Logger;
 
 namespace Assets
 {
+class EntityDefinition;
 class EntityDefinitionManager;
 enum class EntityDefinitionSortOrder;
 class EntityModelManager;
@@ -119,6 +120,10 @@ private:
   bool dndEnabled() override;
   QString dndData(const Cell& cell) override;
 
+  void addEntitiesToLayout(
+    Layout& layout,
+    const std::vector<Assets::EntityDefinition*>& definitions,
+    const Renderer::FontDescriptor& font);
   void addEntityToLayout(
     Layout& layout,
     const Assets::PointEntityDefinition* definition,
