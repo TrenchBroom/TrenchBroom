@@ -586,8 +586,7 @@ TEST_CASE("PreferencesTest.serializeV2KeyboardShortcut")
     QKeySequence::fromString("Meta+W")); // "Meta" in Qt = Control in macOS
 }
 
-TEST_CASE(
-  "PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized", "[PreferencesTest]")
+TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
 {
   // All map view shortcuts, and all binadable menu items before the Qt port
   const std::vector<std::string> preferenceKeys{

@@ -60,7 +60,7 @@ static void assertTexture(
   CHECK(texture.type() == Assets::TextureType::Opaque);
 }
 
-TEST_CASE("DdsTextureReaderTest.testLoadDds", "[DdsTextureReader]")
+TEST_CASE("DdsTextureReaderTest.testLoadDds")
 {
   assertTexture("dds_rgb.dds", 128, 128, GL_BGR);
   assertTexture("dds_rgba.dds", 128, 128, GL_BGRA);

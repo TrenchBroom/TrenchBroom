@@ -606,9 +606,7 @@ TEST_CASE("PolyhedronTest.subtractFailWithMissingFragments")
   CHECK(result.size() == 4u);
 }
 
-TEST_CASE(
-  "PolyhedronTest.subtractTetrahedronFromCubeWithOverlappingFragments",
-  "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.subtractTetrahedronFromCubeWithOverlappingFragments")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/pull/1764#issuecomment-296342133
   // merge creates overlapping fragments

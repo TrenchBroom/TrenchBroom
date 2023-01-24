@@ -445,8 +445,7 @@ static void setGroupName(GroupNode& groupNode, const std::string& name)
   groupNode.setGroup(std::move(group));
 }
 
-TEST_CASE(
-  "GroupNodeTest.updateLinkedGroupsAndPreserveNestedGroupNames", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveNestedGroupNames")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -494,8 +493,7 @@ TEST_CASE(
   }
 }
 
-TEST_CASE(
-  "GroupNodeTest.updateLinkedGroupsAndPreserveEntityProperties", "[GroupNodeTest]")
+TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveEntityProperties")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 

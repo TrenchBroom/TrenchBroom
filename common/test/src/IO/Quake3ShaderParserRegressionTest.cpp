@@ -33,9 +33,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE(
-  "Quake3ShaderParserTest.parseShadersWithCommentTerminatingBlockEntry",
-  "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseShadersWithCommentTerminatingBlockEntry")
 {
   const std::string data(R"(
 waterBubble
@@ -57,8 +55,7 @@ waterBubble
   CHECK_NOTHROW(parser.parse(status));
 }
 
-TEST_CASE(
-  "Quake3ShaderParserTest.parseShadersWithInvalidWhitespace", "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseShadersWithInvalidWhitespace")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2537
   // The file contains a carriage return without a consecutive line feed, which tripped
@@ -103,8 +100,7 @@ TEST_CASE("Quake3ShaderParserTest.parseShaderAbsolutePath")
     }}));
 }
 
-TEST_CASE(
-  "Quake3ShaderParserTest.parseShaderWithMissingCBrace", "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseShaderWithMissingCBrace")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2663
   // Quake 3 allows this, too.

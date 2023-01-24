@@ -62,8 +62,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
     }));
 }
 
-TEST_CASE(
-  "Quake3ShaderFileSystemTest.testSkipMalformedFiles", "[Quake3ShaderFileSystemTest]")
+TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
 {
   NullLogger logger;
 

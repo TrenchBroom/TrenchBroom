@@ -140,9 +140,7 @@ TEST_CASE("TokenizerTest.simpleLanguagePushPeekPopToken")
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE(
-  "TokenizerTest.simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace",
-  "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageEmptyBlockWithLeadingAndTrailingWhitespace")
 {
   const std::string testString(
     " \t{"
@@ -196,8 +194,7 @@ TEST_CASE("TokenizerTest.simpleLanguageBlockWithIntegerAttribute")
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE(
-  "TokenizerTest.simpleLanguageBlockWithNegativeIntegerAttribute", "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeIntegerAttribute")
 {
   const std::string testString(
     "{"
@@ -237,9 +234,7 @@ TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttribute")
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE(
-  "TokenizerTest.simpleLanguageBlockWithDecimalAttributeStartingWithDot",
-  "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageBlockWithDecimalAttributeStartingWithDot")
 {
   const std::string testString(
     "{"
@@ -259,8 +254,7 @@ TEST_CASE(
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-TEST_CASE(
-  "TokenizerTest.simpleLanguageBlockWithNegativeDecimalAttribute", "[TokenizerTest]")
+TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeDecimalAttribute")
 {
   const std::string testString(
     "{"

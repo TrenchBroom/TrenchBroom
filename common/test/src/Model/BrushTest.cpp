@@ -1139,8 +1139,7 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex")
   CHECK(brush.hasFace(vm::polygon3d({p5, p7, p9})));
 }
 
-TEST_CASE(
-  "BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex2", "[BrushTest]")
+TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex2")
 {
   const vm::vec3d p1(-64.0, -64.0, -64.0);
   const vm::vec3d p2(-64.0, -64.0, +64.0);

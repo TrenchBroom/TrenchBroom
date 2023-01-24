@@ -1292,9 +1292,7 @@ TEST_CASE("WorldReaderTest.parseEscapedDoubleQuotationMarks")
   CHECK(*worldNode->entity().property("message") == "yay \\\"Mr. Robot!\\\"");
 }
 
-TEST_CASE(
-  "WorldReaderTest.parsePropertyWithUnescapedPathAndTrailingBackslash",
-  "[WorldReaderTest]")
+TEST_CASE("WorldReaderTest.parsePropertyWithUnescapedPathAndTrailingBackslash")
 {
   const auto data = R"(
 {

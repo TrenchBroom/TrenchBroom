@@ -374,9 +374,7 @@ TEST_CASE("DiskFileSystemTest.openFile")
   checkOpenFile(Path("anotherDir/../anotherDir/./test3.map"));
 }
 
-TEST_CASE(
-  "WritableDiskFileSystemTest.createWritableDiskFileSystem",
-  "[WritableDiskFileSystemTest]")
+TEST_CASE("WritableDiskFileSystemTest.createWritableDiskFileSystem")
 {
   const auto env = makeTestEnvironment();
 

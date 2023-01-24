@@ -45,33 +45,28 @@ TEST_CASE("CompilationConfigParserTest.parseEmptyConfig")
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseEmptyConfigWithTrailingGarbage",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseEmptyConfigWithTrailingGarbage")
 {
   const std::string config("  {  } asdf");
   CompilationConfigParser parser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseMissingProfiles", "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseMissingProfiles")
 {
   const std::string config("  { 'version' : 1 } ");
   CompilationConfigParser parser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseMissingVersion", "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseMissingVersion")
 {
   const std::string config("  { 'profiles': {} } ");
   CompilationConfigParser parser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseEmptyProfiles", "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseEmptyProfiles")
 {
   const std::string config("  { 'version': 1, 'profiles': [] } ");
   CompilationConfigParser parser(config);
@@ -80,9 +75,7 @@ TEST_CASE(
   CHECK(result.profileCount() == 0u);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithMissingNameAndMissingTasks",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithMissingNameAndMissingTasks")
 {
   const std::string config(
     "{"
@@ -95,9 +88,7 @@ TEST_CASE(
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndMissingTasks",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndMissingTasks")
 {
   const std::string config(
     "{"
@@ -112,9 +103,7 @@ TEST_CASE(
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithMissingNameAndEmptyTasks",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithMissingNameAndEmptyTasks")
 {
   const std::string config(
     "{"
@@ -129,9 +118,7 @@ TEST_CASE(
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndEmptyTasks",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndEmptyTasks")
 {
   const std::string config(
     "{\n"
@@ -154,9 +141,7 @@ TEST_CASE(
   CHECK(profile->taskCount() == 0u);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneInvalidTask",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneInvalidTask")
 {
   const std::string config(
     "{\n"
@@ -177,9 +162,7 @@ TEST_CASE(
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneTaskWithUnknownType",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneTaskWithUnknownType")
 {
   const std::string config(
     "{\n"
@@ -201,8 +184,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTaskWithMissingSource",
-  "[CompilationConfigParserTest]")
+  "CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTaskWithMissingSource")
 {
   const std::string config(
     "{\n"
@@ -225,8 +207,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTaskWithMissingTarget",
-  "[CompilationConfigParserTest]")
+  "CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTaskWithMissingTarget")
 {
   const std::string config(
     "{\n"
@@ -249,8 +230,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTaskWithMissingTarget",
-  "[CompilationConfigParserTest]")
+  "CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTaskWithMissingTarget")
 {
   const std::string config(
     "{\n"
@@ -375,9 +355,7 @@ public:
   }
 };
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTask",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTask")
 {
   const std::string config(
     "{\n"
@@ -409,9 +387,7 @@ TEST_CASE(
     AssertCompilationCopyFilesVisitor(true, "the source", "the target"));
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask")
 {
   const std::string config(
     "{\n"
@@ -442,8 +418,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTaskWithMissingTool",
-  "[CompilationConfigParserTest]")
+  "CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTaskWithMissingTool")
 {
   const std::string config(
     "{\n"
@@ -490,9 +465,7 @@ TEST_CASE(
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTask",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTask")
 {
   const std::string config(
     "{\n"
@@ -527,9 +500,7 @@ TEST_CASE(
     AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks")
 {
   const std::string config(
     "{\n"
@@ -576,9 +547,7 @@ TEST_CASE(
     AssertCompilationDeleteFilesVisitor(false, "some other target"));
 }
 
-TEST_CASE(
-  "CompilationConfigParserTest.parseUnescapedBackslashes",
-  "[CompilationConfigParserTest]")
+TEST_CASE("CompilationConfigParserTest.parseUnescapedBackslashes")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1437
   const std::string config(

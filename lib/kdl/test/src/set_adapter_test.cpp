@@ -219,8 +219,7 @@ TEST_CASE("const_set_adapter_test.operator_less_than")
   CHECK(wrap_set(std::vector<int>({1, 2, 3})) < wrap_set(std::vector<int>({2, 3})));
 }
 
-TEST_CASE(
-  "const_set_adapter_test.operator_less_than_or_equal", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.operator_less_than_or_equal")
 {
   CHECK(wrap_set(std::vector<int>({})) <= wrap_set(std::vector<int>({})));
   CHECK(wrap_set(std::vector<int>({})) <= wrap_set(std::vector<int>({1})));
@@ -248,8 +247,7 @@ TEST_CASE("const_set_adapter_test.operator_greater_than")
   CHECK_FALSE(wrap_set(std::vector<int>({1, 2, 3})) > wrap_set(std::vector<int>({2, 3})));
 }
 
-TEST_CASE(
-  "const_set_adapter_test.operator_greater_than_or_equal", "[const_set_adapter_test]")
+TEST_CASE("const_set_adapter_test.operator_greater_than_or_equal")
 {
   CHECK(wrap_set(std::vector<int>({})) >= wrap_set(std::vector<int>({})));
   CHECK_FALSE(wrap_set(std::vector<int>({})) >= wrap_set(std::vector<int>({1})));

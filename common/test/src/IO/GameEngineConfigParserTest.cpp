@@ -49,25 +49,21 @@ TEST_CASE("GameEngineConfigParserTest.parseEmptyConfig")
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "GameEngineConfigParserTest.parseEmptyConfigWithTrailingGarbage",
-  "[GameEngineConfigParserTest]")
+TEST_CASE("GameEngineConfigParserTest.parseEmptyConfigWithTrailingGarbage")
 {
   const std::string config(R"(  {  } asdf)");
   auto parser = makeParser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "GameEngineConfigParserTest.parseMissingProfiles", "[GameEngineConfigParserTest]")
+TEST_CASE("GameEngineConfigParserTest.parseMissingProfiles")
 {
   const std::string config(R"(  { 'version' : 1 } )");
   auto parser = makeParser(config);
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-TEST_CASE(
-  "GameEngineConfigParserTest.parseMissingVersion", "[GameEngineConfigParserTest]")
+TEST_CASE("GameEngineConfigParserTest.parseMissingVersion")
 {
   const std::string config(R"(  { 'profiles': {} } )");
   auto parser = makeParser(config);
@@ -82,9 +78,7 @@ TEST_CASE("GameEngineConfigParserTest.parseEmptyProfiles")
   CHECK(result.profileCount() == 0u);
 }
 
-TEST_CASE(
-  "GameEngineConfigParserTest.parseOneProfileWithMissingAttributes",
-  "[GameEngineConfigParserTest]")
+TEST_CASE("GameEngineConfigParserTest.parseOneProfileWithMissingAttributes")
 {
   const std::string config(R"(
 {
