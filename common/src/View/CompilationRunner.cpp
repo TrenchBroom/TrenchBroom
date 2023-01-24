@@ -31,6 +31,9 @@
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
+#include <kdl/string_utils.h>
+#include <kdl/vector_utils.h>
+
 #include <string>
 
 #include <QDir>
@@ -101,9 +104,7 @@ void CompilationExportMapTaskRunner::doExecute()
           IO::Disk::createDirectory(directoryPath);
         }
 
-        IO::MapExportOptions options;
-        options.exportPath = targetPath;
-
+        const auto options = IO::MapExportOptions{targetPath};
         const auto document = m_context.document();
         document->exportDocumentAs(options);
       }
@@ -143,17 +144,20 @@ void CompilationCopyFilesTaskRunner::doExecute()
     const auto targetPath = IO::Path{interpolate(m_task->targetSpec())};
 
     const auto sourceDirPath = sourcePath.deleteLastComponent();
-    const auto sourcePattern = sourcePath.lastComponent().asString();
+    const auto sourcePattern = IO::FileNameMatcher{sourcePath.lastComponent().asString()};
 
     try
     {
-      m_context << "#### Copying '" << IO::pathAsQString(sourcePath) << "' to '"
-                << IO::pathAsQString(targetPath) << "'\n";
+      const auto sourcePaths = IO::Disk::findItems(sourceDirPath, sourcePattern);
+      const auto sourceStrs = kdl::vec_transform(
+        sourcePaths, [](const auto& path) { return "'" + path.asString() + "'"; });
+      const auto sourceListQStr = QString::fromStdString(kdl::str_join(sourceStrs, ", "));
+      m_context << "#### Copying to '" << IO::pathAsQString(targetPath)
+                << "/': " << sourceListQStr << "\n";
       if (!m_context.test())
       {
         IO::Disk::ensureDirectoryExists(targetPath);
-        IO::Disk::copyFiles(
-          sourceDirPath, IO::FileNameMatcher{sourcePattern}, targetPath, true);
+        IO::Disk::copyFiles(sourceDirPath, sourcePattern, targetPath, true);
       }
       emit end();
     }
@@ -171,6 +175,54 @@ void CompilationCopyFilesTaskRunner::doExecute()
 }
 
 void CompilationCopyFilesTaskRunner::doTerminate() {}
+
+CompilationDeleteFilesTaskRunner::CompilationDeleteFilesTaskRunner(
+  CompilationContext& context, const Model::CompilationDeleteFiles& task)
+  : CompilationTaskRunner{context}
+  , m_task{task.clone()}
+{
+}
+
+CompilationDeleteFilesTaskRunner::~CompilationDeleteFilesTaskRunner() = default;
+
+void CompilationDeleteFilesTaskRunner::doExecute()
+{
+  emit start();
+
+  try
+  {
+    const auto targetPath = IO::Path{interpolate(m_task->targetSpec())};
+
+    const auto targetDirPath = targetPath.deleteLastComponent();
+    const auto targetPattern = IO::FileNameMatcher{targetPath.lastComponent().asString()};
+
+    try
+    {
+      const auto targetPaths = IO::Disk::findItems(targetDirPath, targetPattern);
+      const auto targetStrs = kdl::vec_transform(
+        targetPaths, [](const auto& path) { return "'" + path.asString() + "'"; });
+      const auto targetListQStr = QString::fromStdString(kdl::str_join(targetStrs, ", "));
+      m_context << "#### Deleting: " << targetListQStr << "\n";
+      if (!m_context.test())
+      {
+        IO::Disk::deleteFiles(targetDirPath, targetPattern);
+      }
+      emit end();
+    }
+    catch (const Exception& e)
+    {
+      m_context << "#### Could not delete '" << IO::pathAsQString(targetPath)
+                << "': " << e.what() << "\n";
+      throw;
+    }
+  }
+  catch (const Exception&)
+  {
+    emit error();
+  }
+}
+
+void CompilationDeleteFilesTaskRunner::doTerminate() {}
 
 CompilationRunToolTaskRunner::CompilationRunToolTaskRunner(
   CompilationContext& context, const Model::CompilationRunTool& task)
@@ -190,7 +242,7 @@ void CompilationRunToolTaskRunner::doExecute()
 
 void CompilationRunToolTaskRunner::doTerminate()
 {
-  if (m_process != nullptr)
+  if (m_process)
   {
     disconnect(
       m_process,
@@ -357,6 +409,14 @@ public:
     }
   }
 
+  void visit(const Model::CompilationDeleteFiles& task) override
+  {
+    if (task.enabled())
+    {
+      appendRunner(std::make_unique<CompilationDeleteFilesTaskRunner>(m_context, task));
+    }
+  }
+
   void visit(const Model::CompilationRunTool& task) override
   {
     if (task.enabled())
@@ -422,13 +482,13 @@ bool CompilationRunner::running() const
   return m_currentTask != std::end(m_taskRunners);
 }
 
-void CompilationRunner::bindEvents(CompilationTaskRunner* runner)
+void CompilationRunner::bindEvents(CompilationTaskRunner* runner) const
 {
   connect(runner, &CompilationTaskRunner::error, this, &CompilationRunner::taskError);
   connect(runner, &CompilationTaskRunner::end, this, &CompilationRunner::taskEnd);
 }
 
-void CompilationRunner::unbindEvents(CompilationTaskRunner* runner)
+void CompilationRunner::unbindEvents(CompilationTaskRunner* runner) const
 {
   runner->disconnect(this);
 }

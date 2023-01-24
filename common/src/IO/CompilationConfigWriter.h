@@ -50,7 +50,6 @@ private:
   EL::Value writeProfiles(const Model::CompilationConfig& config) const;
   EL::Value writeProfile(const Model::CompilationProfile* profile) const;
 
-  class WriteCompilationTaskVisitor;
   EL::Value writeTasks(const Model::CompilationProfile* profile) const;
 
   std::string escape(const std::string& str) const;

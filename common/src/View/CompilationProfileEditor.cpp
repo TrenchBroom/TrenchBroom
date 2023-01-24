@@ -44,26 +44,17 @@ namespace View
 {
 CompilationProfileEditor::CompilationProfileEditor(
   std::weak_ptr<MapDocument> document, QWidget* parent)
-  : QWidget(parent)
-  , m_document(document)
-  , m_profile(nullptr)
-  , m_stackedWidget(nullptr)
-  , m_nameTxt(nullptr)
-  , m_workDirTxt(nullptr)
-  , m_taskList(nullptr)
-  , m_addTaskButton(nullptr)
-  , m_removeTaskButton(nullptr)
-  , m_moveTaskUpButton(nullptr)
-  , m_moveTaskDownButton(nullptr)
+  : QWidget{parent}
+  , m_document{std::move(document)}
 {
   setBaseWindowColor(this);
 
-  m_stackedWidget = new QStackedWidget(this);
+  m_stackedWidget = new QStackedWidget{this};
   m_stackedWidget->addWidget(
     createDefaultPage("Select a compilation profile", m_stackedWidget));
   m_stackedWidget->addWidget(createEditorPage(m_stackedWidget));
 
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(m_stackedWidget);
@@ -72,22 +63,22 @@ CompilationProfileEditor::CompilationProfileEditor(
 
 QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
 {
-  auto* containerPanel = new QWidget(parent);
-  auto* upperPanel = new QWidget(containerPanel);
+  auto* containerPanel = new QWidget{parent};
+  auto* upperPanel = new QWidget{containerPanel};
   setDefaultWindowColor(upperPanel);
 
-  m_nameTxt = new QLineEdit();
-  m_workDirTxt = new MultiCompletionLineEdit();
+  m_nameTxt = new QLineEdit{};
+  m_workDirTxt = new MultiCompletionLineEdit{};
 
-  const auto variables = CompilationWorkDirVariables(kdl::mem_lock(m_document));
-  auto* completer = new QCompleter(new VariableStoreModel(variables));
+  const auto variables = CompilationWorkDirVariables{kdl::mem_lock(m_document)};
+  auto* completer = new QCompleter{new VariableStoreModel{variables}};
   completer->setCaseSensitivity(Qt::CaseInsensitive);
 
   m_workDirTxt->setMultiCompleter(completer);
-  m_workDirTxt->setWordDelimiters(QRegularExpression("\\$"), QRegularExpression("\\}"));
+  m_workDirTxt->setWordDelimiters(QRegularExpression{"\\$"}, QRegularExpression{"\\}"});
   m_workDirTxt->setFont(Fonts::fixedWidthFont());
 
-  auto* upperLayout = new QFormLayout();
+  auto* upperLayout = new QFormLayout{};
   upperLayout->setContentsMargins(
     LayoutConstants::MediumHMargin,
     LayoutConstants::WideVMargin,
@@ -100,7 +91,7 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
   upperLayout->addRow("Working Directory", m_workDirTxt);
   upperPanel->setLayout(upperLayout);
 
-  m_taskList = new CompilationTaskListBox(m_document, containerPanel);
+  m_taskList = new CompilationTaskListBox{m_document, containerPanel};
 
   m_addTaskButton = createBitmapButton("Add.svg", "Add task");
   m_removeTaskButton = createBitmapButton("Remove.svg", "Remove the selected task");
@@ -110,13 +101,13 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
   auto* buttonLayout = createMiniToolBarLayout(
     m_addTaskButton, m_removeTaskButton, m_moveTaskUpButton, m_moveTaskDownButton);
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(upperPanel);
-  layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+  layout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
   layout->addWidget(m_taskList, 1);
-  layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+  layout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
   layout->addLayout(buttonLayout);
 
   containerPanel->setLayout(layout);
@@ -140,10 +131,10 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
     [&](const QPoint& globalPos, Model::CompilationTask* task) {
       const int index = static_cast<int>(m_profile->indexOfTask(task));
 
-      QMenu menu(this);
-      QAction* moveUpAction =
+      auto menu = QMenu{this};
+      auto* moveUpAction =
         menu.addAction(tr("Move Up"), this, [=]() { moveTaskUp(index); });
-      QAction* moveDownAction =
+      auto* moveDownAction =
         menu.addAction(tr("Move Down"), this, [=]() { moveTaskDown(index); });
       menu.addSeparator();
       menu.addAction(tr("Duplicate"), this, [=]() { duplicateTask(index); });
@@ -178,10 +169,10 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
 void CompilationProfileEditor::nameChanged(const QString& text)
 {
   ensure(m_profile != nullptr, "profile is null");
-  const auto name = text.toStdString();
+  auto name = text.toStdString();
   if (m_profile->name() != name)
   {
-    m_profile->setName(name);
+    m_profile->setName(std::move(name));
     emit profileChanged();
   }
 }
@@ -189,22 +180,23 @@ void CompilationProfileEditor::nameChanged(const QString& text)
 void CompilationProfileEditor::workDirChanged(const QString& text)
 {
   ensure(m_profile != nullptr, "profile is null");
-  const auto workDirSpec = text.toStdString();
+  auto workDirSpec = text.toStdString();
   if (m_profile->workDirSpec() != workDirSpec)
   {
-    m_profile->setWorkDirSpec(workDirSpec);
+    m_profile->setWorkDirSpec(std::move(workDirSpec));
     emit profileChanged();
   }
 }
 
 void CompilationProfileEditor::addTask()
 {
-  QMenu menu;
+  auto menu = QMenu{};
   auto* exportMapAction = menu.addAction("Export Map");
   auto* copyFilesAction = menu.addAction("Copy Files");
+  auto* deleteFilesAction = menu.addAction("Delete Files");
   auto* runToolAction = menu.addAction("Run Tool");
 
-  std::unique_ptr<Model::CompilationTask> task = nullptr;
+  auto task = std::unique_ptr<Model::CompilationTask>{};
   auto* chosenAction = menu.exec(QCursor::pos());
   if (chosenAction == exportMapAction)
   {
@@ -215,6 +207,10 @@ void CompilationProfileEditor::addTask()
   {
     task = std::make_unique<Model::CompilationCopyFiles>(true, "", "");
   }
+  else if (chosenAction == deleteFilesAction)
+  {
+    task = std::make_unique<Model::CompilationDeleteFiles>(true, "");
+  }
   else if (chosenAction == runToolAction)
   {
     task = std::make_unique<Model::CompilationRunTool>(true, "", "");
@@ -224,7 +220,7 @@ void CompilationProfileEditor::addTask()
     return;
   }
 
-  const int index = m_taskList->currentRow();
+  const auto index = m_taskList->currentRow();
   if (index < 0)
   {
     m_profile->addTask(std::move(task));
@@ -273,7 +269,7 @@ void CompilationProfileEditor::removeTask(const int index)
 
 void CompilationProfileEditor::duplicateTask(const int index)
 {
-  Model::CompilationTask* task = m_profile->task(static_cast<size_t>(index));
+  auto* task = m_profile->task(static_cast<size_t>(index));
   m_profile->insertTask(
     static_cast<size_t>(index) + 1,
     std::unique_ptr<Model::CompilationTask>(task->clone()));
@@ -319,20 +315,13 @@ void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile)
 {
   m_profile = profile;
   m_taskList->setProfile(profile);
-  if (m_profile != nullptr)
-  {
-    m_stackedWidget->setCurrentIndex(1);
-  }
-  else
-  {
-    m_stackedWidget->setCurrentIndex(0);
-  }
+  m_stackedWidget->setCurrentIndex(m_profile ? 1 : 0);
   refresh();
 }
 
 void CompilationProfileEditor::refresh()
 {
-  if (m_profile != nullptr)
+  if (m_profile)
   {
     if (m_nameTxt->text().toStdString() != m_profile->name())
     {
@@ -343,11 +332,11 @@ void CompilationProfileEditor::refresh()
       m_workDirTxt->setText(QString::fromStdString(m_profile->workDirSpec()));
     }
   }
-  m_addTaskButton->setEnabled(m_profile != nullptr);
-  m_removeTaskButton->setEnabled(m_profile != nullptr && m_taskList->currentRow() >= 0);
-  m_moveTaskUpButton->setEnabled(m_profile != nullptr && m_taskList->currentRow() > 0);
+  m_addTaskButton->setEnabled(m_profile);
+  m_removeTaskButton->setEnabled(m_profile && m_taskList->currentRow() >= 0);
+  m_moveTaskUpButton->setEnabled(m_profile && m_taskList->currentRow() > 0);
   m_moveTaskDownButton->setEnabled(
-    m_profile != nullptr && m_taskList->currentRow() >= 0
+    m_profile && m_taskList->currentRow() >= 0
     && m_taskList->currentRow() < static_cast<int>(m_profile->taskCount()) - 1);
 }
 } // namespace View

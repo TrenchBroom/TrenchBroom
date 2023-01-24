@@ -130,6 +130,38 @@ TEST_CASE_METHOD(
   CHECK(testEnvironment.directoryExists(targetPath));
 }
 
+TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTargetPattern")
+{
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  auto testEnvironment = IO::TestEnvironment{};
+
+  const auto file1 = IO::Path("file1.lit");
+  const auto file2 = IO::Path("file2.lit");
+  const auto file3 = IO::Path("file3.map");
+  const auto dir = IO::Path("somedir.lit");
+
+  testEnvironment.createFile(file1, "");
+  testEnvironment.createFile(file2, "");
+  testEnvironment.createFile(file3, "");
+  testEnvironment.createDirectory(dir);
+
+  auto task = Model::CompilationDeleteFiles{
+    true, (testEnvironment.dir() + IO::Path("*.lit")).asString()};
+  auto runner = CompilationDeleteFilesTaskRunner{context, task};
+
+  REQUIRE_NOTHROW(runner.execute());
+
+  CHECK(!testEnvironment.fileExists(file1));
+  CHECK(!testEnvironment.fileExists(file2));
+  CHECK(testEnvironment.fileExists(file3));
+  CHECK(testEnvironment.directoryExists(dir));
+}
+
 TEST_CASE("CompilationRunner.interpolateToolsVariables")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(

@@ -33,13 +33,15 @@ namespace TrenchBroom
 {
 namespace Model
 {
-CompilationConfig::CompilationConfig() {}
+CompilationConfig::CompilationConfig() = default;
 
 CompilationConfig::CompilationConfig(
   std::vector<std::unique_ptr<CompilationProfile>> profiles)
-  : m_profiles(std::move(profiles))
+  : m_profiles{std::move(profiles)}
 {
 }
+
+CompilationConfig::~CompilationConfig() = default;
 
 CompilationConfig::CompilationConfig(const CompilationConfig& other)
 {
@@ -51,20 +53,15 @@ CompilationConfig::CompilationConfig(const CompilationConfig& other)
   }
 }
 
-CompilationConfig::~CompilationConfig() = default;
+CompilationConfig::CompilationConfig(CompilationConfig&& other) = default;
 
-CompilationConfig& CompilationConfig::operator=(CompilationConfig other)
+CompilationConfig& CompilationConfig::operator=(const CompilationConfig& other)
 {
-  using std::swap;
-  swap(*this, other);
+  *this = CompilationConfig{other};
   return *this;
 }
 
-void swap(CompilationConfig& lhs, CompilationConfig& rhs)
-{
-  using std::swap;
-  swap(lhs.m_profiles, rhs.m_profiles);
-}
+CompilationConfig& CompilationConfig::operator=(CompilationConfig&& other) = default;
 
 bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs)
 {
@@ -98,8 +95,7 @@ size_t CompilationConfig::indexOfProfile(CompilationProfile* profile) const
 {
   auto result =
     kdl::vec_index_of(m_profiles, [=](const auto& ptr) { return ptr.get() == profile; });
-  assert(result.has_value());
-  return result.value();
+  return *result;
 }
 
 void CompilationConfig::addProfile(std::unique_ptr<CompilationProfile> profile)

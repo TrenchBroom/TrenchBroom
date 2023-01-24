@@ -30,7 +30,7 @@ namespace Model
 // CompilationTask
 
 CompilationTask::CompilationTask(const bool enabled)
-  : m_enabled(enabled)
+  : m_enabled{enabled}
 {
 }
 
@@ -59,10 +59,9 @@ std::ostream& operator<<(std::ostream& str, const CompilationTask& task)
 
 // CompilationExportMap
 
-CompilationExportMap::CompilationExportMap(
-  const bool enabled, const std::string& targetSpec)
-  : CompilationTask(enabled)
-  , m_targetSpec(targetSpec)
+CompilationExportMap::CompilationExportMap(const bool enabled, std::string targetSpec)
+  : CompilationTask{enabled}
+  , m_targetSpec{std::move(targetSpec)}
 {
 }
 
@@ -91,32 +90,21 @@ const std::string& CompilationExportMap::targetSpec() const
   return m_targetSpec;
 }
 
-void CompilationExportMap::setTargetSpec(const std::string& targetSpec)
+void CompilationExportMap::setTargetSpec(std::string targetSpec)
 {
-  m_targetSpec = targetSpec;
+  m_targetSpec = std::move(targetSpec);
 }
 
 CompilationExportMap* CompilationExportMap::clone() const
 {
-  return new CompilationExportMap(enabled(), m_targetSpec);
+  return new CompilationExportMap{enabled(), m_targetSpec};
 }
 
 bool CompilationExportMap::operator==(const CompilationTask& other) const
 {
   auto* otherCasted = dynamic_cast<const CompilationExportMap*>(&other);
-  if (otherCasted == nullptr)
-  {
-    return false;
-  }
-  if (m_enabled != otherCasted->m_enabled)
-  {
-    return false;
-  }
-  if (m_targetSpec != otherCasted->m_targetSpec)
-  {
-    return false;
-  }
-  return true;
+  return otherCasted && m_enabled == otherCasted->m_enabled
+         && m_targetSpec == otherCasted->m_targetSpec;
 }
 
 void CompilationExportMap::appendToStream(std::ostream& str) const
@@ -128,10 +116,10 @@ void CompilationExportMap::appendToStream(std::ostream& str) const
 // CompilationCopyFiles
 
 CompilationCopyFiles::CompilationCopyFiles(
-  const bool enabled, const std::string& sourceSpec, const std::string& targetSpec)
-  : CompilationTask(enabled)
-  , m_sourceSpec(sourceSpec)
-  , m_targetSpec(targetSpec)
+  const bool enabled, std::string sourceSpec, std::string targetSpec)
+  : CompilationTask{enabled}
+  , m_sourceSpec{std::move(sourceSpec)}
+  , m_targetSpec{std::move(targetSpec)}
 {
 }
 
@@ -165,41 +153,27 @@ const std::string& CompilationCopyFiles::targetSpec() const
   return m_targetSpec;
 }
 
-void CompilationCopyFiles::setSourceSpec(const std::string& sourceSpec)
+void CompilationCopyFiles::setSourceSpec(std::string sourceSpec)
 {
-  m_sourceSpec = sourceSpec;
+  m_sourceSpec = std::move(sourceSpec);
 }
 
-void CompilationCopyFiles::setTargetSpec(const std::string& targetSpec)
+void CompilationCopyFiles::setTargetSpec(std::string targetSpec)
 {
-  m_targetSpec = targetSpec;
+  m_targetSpec = std::move(targetSpec);
 }
 
 CompilationCopyFiles* CompilationCopyFiles::clone() const
 {
-  return new CompilationCopyFiles(enabled(), m_sourceSpec, m_targetSpec);
+  return new CompilationCopyFiles{enabled(), m_sourceSpec, m_targetSpec};
 }
 
 bool CompilationCopyFiles::operator==(const CompilationTask& other) const
 {
   auto* otherCasted = dynamic_cast<const CompilationCopyFiles*>(&other);
-  if (otherCasted == nullptr)
-  {
-    return false;
-  }
-  if (m_enabled != otherCasted->m_enabled)
-  {
-    return false;
-  }
-  if (m_sourceSpec != otherCasted->m_sourceSpec)
-  {
-    return false;
-  }
-  if (m_targetSpec != otherCasted->m_targetSpec)
-  {
-    return false;
-  }
-  return true;
+  return otherCasted && m_enabled == otherCasted->m_enabled
+         && m_sourceSpec == otherCasted->m_sourceSpec
+         && m_targetSpec == otherCasted->m_targetSpec;
 }
 
 void CompilationCopyFiles::appendToStream(std::ostream& str) const
@@ -209,13 +183,69 @@ void CompilationCopyFiles::appendToStream(std::ostream& str) const
                           << "m_targetSpec" << m_targetSpec;
 }
 
+// CompilationDeleteFiles
+
+CompilationDeleteFiles::CompilationDeleteFiles(const bool enabled, std::string targetSpec)
+  : CompilationTask{enabled}
+  , m_targetSpec{std::move(targetSpec)}
+{
+}
+
+void CompilationDeleteFiles::accept(CompilationTaskVisitor& visitor)
+{
+  visitor.visit(*this);
+}
+
+void CompilationDeleteFiles::accept(ConstCompilationTaskVisitor& visitor) const
+{
+  visitor.visit(*this);
+}
+
+void CompilationDeleteFiles::accept(const CompilationTaskConstVisitor& visitor)
+{
+  visitor.visit(*this);
+}
+
+void CompilationDeleteFiles::accept(const ConstCompilationTaskConstVisitor& visitor) const
+{
+  visitor.visit(*this);
+}
+
+const std::string& CompilationDeleteFiles::targetSpec() const
+{
+  return m_targetSpec;
+}
+
+void CompilationDeleteFiles::setTargetSpec(std::string targetSpec)
+{
+  m_targetSpec = std::move(targetSpec);
+}
+
+CompilationDeleteFiles* CompilationDeleteFiles::clone() const
+{
+  return new CompilationDeleteFiles{enabled(), m_targetSpec};
+}
+
+bool CompilationDeleteFiles::operator==(const CompilationTask& other) const
+{
+  auto* otherCasted = dynamic_cast<const CompilationDeleteFiles*>(&other);
+  return otherCasted && m_enabled == otherCasted->m_enabled
+         && m_targetSpec == otherCasted->m_targetSpec;
+}
+
+void CompilationDeleteFiles::appendToStream(std::ostream& str) const
+{
+  kdl::struct_stream{str} << "CompilationDeleteFiles"
+                          << "m_enabled" << m_enabled << "m_targetSpec" << m_targetSpec;
+}
+
 // CompilationRunTool
 
 CompilationRunTool::CompilationRunTool(
-  const bool enabled, const std::string& toolSpec, const std::string& parameterSpec)
-  : CompilationTask(enabled)
-  , m_toolSpec(toolSpec)
-  , m_parameterSpec(parameterSpec)
+  const bool enabled, std::string toolSpec, std::string parameterSpec)
+  : CompilationTask{enabled}
+  , m_toolSpec{std::move(toolSpec)}
+  , m_parameterSpec{std::move(parameterSpec)}
 {
 }
 
@@ -249,41 +279,27 @@ const std::string& CompilationRunTool::parameterSpec() const
   return m_parameterSpec;
 }
 
-void CompilationRunTool::setToolSpec(const std::string& toolSpec)
+void CompilationRunTool::setToolSpec(std::string toolSpec)
 {
-  m_toolSpec = toolSpec;
+  m_toolSpec = std::move(toolSpec);
 }
 
-void CompilationRunTool::setParameterSpec(const std::string& parameterSpec)
+void CompilationRunTool::setParameterSpec(std::string parameterSpec)
 {
-  m_parameterSpec = parameterSpec;
+  m_parameterSpec = std::move(parameterSpec);
 }
 
 CompilationRunTool* CompilationRunTool::clone() const
 {
-  return new CompilationRunTool(enabled(), m_toolSpec, m_parameterSpec);
+  return new CompilationRunTool{enabled(), m_toolSpec, m_parameterSpec};
 }
 
 bool CompilationRunTool::operator==(const CompilationTask& other) const
 {
   auto* otherCasted = dynamic_cast<const CompilationRunTool*>(&other);
-  if (otherCasted == nullptr)
-  {
-    return false;
-  }
-  if (m_enabled != otherCasted->m_enabled)
-  {
-    return false;
-  }
-  if (m_toolSpec != otherCasted->m_toolSpec)
-  {
-    return false;
-  }
-  if (m_parameterSpec != otherCasted->m_parameterSpec)
-  {
-    return false;
-  }
-  return true;
+  return otherCasted && m_enabled == otherCasted->m_enabled
+         && m_toolSpec == otherCasted->m_toolSpec
+         && m_parameterSpec == otherCasted->m_parameterSpec;
 }
 
 void CompilationRunTool::appendToStream(std::ostream& str) const

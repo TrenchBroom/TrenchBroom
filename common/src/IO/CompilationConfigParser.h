@@ -43,7 +43,7 @@ class Path;
 class CompilationConfigParser : public ConfigParserBase
 {
 public:
-  explicit CompilationConfigParser(std::string_view str, const Path& path = Path(""));
+  explicit CompilationConfigParser(std::string_view str, Path path = Path{""});
 
   Model::CompilationConfig parse();
 
@@ -57,6 +57,7 @@ private:
   std::unique_ptr<Model::CompilationTask> parseTask(const EL::Value& value) const;
   std::unique_ptr<Model::CompilationTask> parseExportTask(const EL::Value& value) const;
   std::unique_ptr<Model::CompilationTask> parseCopyTask(const EL::Value& value) const;
+  std::unique_ptr<Model::CompilationTask> parseDeleteTask(const EL::Value& value) const;
   std::unique_ptr<Model::CompilationTask> parseToolTask(const EL::Value& value) const;
 
   deleteCopyAndMove(CompilationConfigParser);

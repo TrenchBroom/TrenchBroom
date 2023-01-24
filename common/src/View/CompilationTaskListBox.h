@@ -36,6 +36,7 @@ namespace TrenchBroom
 namespace Model
 {
 class CompilationCopyFiles;
+class CompilationDeleteFiles;
 class CompilationExportMap;
 class CompilationProfile;
 class CompilationRunTool;
@@ -54,17 +55,16 @@ class CompilationTaskEditorBase : public ControlListBoxItemRenderer
 protected:
   const QString m_title;
   std::weak_ptr<MapDocument> m_document;
-  Model::CompilationProfile* m_profile;
-  Model::CompilationTask* m_task;
-  QCheckBox* m_enabledCheckbox;
-  QHBoxLayout* m_taskLayout;
+  Model::CompilationProfile* m_profile{nullptr};
+  Model::CompilationTask* m_task{nullptr};
+  QCheckBox* m_enabledCheckbox{nullptr};
+  QHBoxLayout* m_taskLayout{nullptr};
 
-  using Completers = std::vector<QCompleter*>;
-  Completers m_completers;
+  std::vector<QCompleter*> m_completers;
 
 protected:
   CompilationTaskEditorBase(
-    const QString& title,
+    QString title,
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
     Model::CompilationTask& task,
@@ -85,7 +85,7 @@ class CompilationExportMapTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT
 private:
-  MultiCompletionLineEdit* m_targetEditor;
+  MultiCompletionLineEdit* m_targetEditor{nullptr};
 
 public:
   CompilationExportMapTaskEditor(
@@ -105,8 +105,8 @@ class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT
 private:
-  MultiCompletionLineEdit* m_sourceEditor;
-  MultiCompletionLineEdit* m_targetEditor;
+  MultiCompletionLineEdit* m_sourceEditor{nullptr};
+  MultiCompletionLineEdit* m_targetEditor{nullptr};
 
 public:
   CompilationCopyFilesTaskEditor(
@@ -123,12 +123,32 @@ private slots:
   void targetSpecChanged(const QString& text);
 };
 
+class CompilationDeleteFilesTaskEditor : public CompilationTaskEditorBase
+{
+  Q_OBJECT
+private:
+  MultiCompletionLineEdit* m_targetEditor{nullptr};
+
+public:
+  CompilationDeleteFilesTaskEditor(
+    std::weak_ptr<MapDocument> document,
+    Model::CompilationProfile& profile,
+    Model::CompilationDeleteFiles& task,
+    QWidget* parent = nullptr);
+
+private:
+  void updateItem() override;
+  Model::CompilationDeleteFiles& task();
+private slots:
+  void targetSpecChanged(const QString& text);
+};
+
 class CompilationRunToolTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT
 private:
-  MultiCompletionLineEdit* m_toolEditor;
-  MultiCompletionLineEdit* m_parametersEditor;
+  MultiCompletionLineEdit* m_toolEditor{nullptr};
+  MultiCompletionLineEdit* m_parametersEditor{nullptr};
 
 public:
   CompilationRunToolTaskEditor(
@@ -151,7 +171,7 @@ class CompilationTaskListBox : public ControlListBox
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  Model::CompilationProfile* m_profile;
+  Model::CompilationProfile* m_profile{nullptr};
 
 public:
   explicit CompilationTaskListBox(

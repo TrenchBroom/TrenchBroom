@@ -50,36 +50,34 @@ namespace View
 // CompilationTaskEditorBase
 
 CompilationTaskEditorBase::CompilationTaskEditorBase(
-  const QString& title,
+  QString title,
   std::weak_ptr<MapDocument> document,
   Model::CompilationProfile& profile,
   Model::CompilationTask& task,
   QWidget* parent)
-  : ControlListBoxItemRenderer(parent)
-  , m_title(title)
-  , m_document(std::move(document))
-  , m_profile(&profile)
-  , m_task(&task)
-  , m_enabledCheckbox(nullptr)
-  , m_taskLayout(nullptr)
+  : ControlListBoxItemRenderer{parent}
+  , m_title{std::move(title)}
+  , m_document{std::move(document)}
+  , m_profile{&profile}
+  , m_task{&task}
 {
-  setContextMenuPolicy(
-    Qt::CustomContextMenu); // request customContextMenuRequested() to be emitted
+  // request customContextMenuRequested() to be emitted
+  setContextMenuPolicy(Qt::CustomContextMenu);
 
-  auto* panel = new TitledPanel(m_title);
+  auto* panel = new TitledPanel{m_title};
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(panel);
-  layout->addWidget(new BorderLine());
+  layout->addWidget(new BorderLine{});
   setLayout(layout);
 
-  m_enabledCheckbox = new QCheckBox();
+  m_enabledCheckbox = new QCheckBox{};
   m_enabledCheckbox->setToolTip(
     tr("Whether to include this task when running the compile profile"));
 
-  m_taskLayout = new QHBoxLayout();
+  m_taskLayout = new QHBoxLayout{};
   m_taskLayout->setContentsMargins(0, 0, 0, 0);
   m_taskLayout->addSpacing(LayoutConstants::NarrowHMargin);
   m_taskLayout->addWidget(m_enabledCheckbox, 0, Qt::AlignVCenter);
@@ -94,10 +92,10 @@ CompilationTaskEditorBase::CompilationTaskEditorBase(
 
 void CompilationTaskEditorBase::setupCompleter(MultiCompletionLineEdit* lineEdit)
 {
-  auto* completer = new QCompleter();
+  auto* completer = new QCompleter{};
   completer->setCaseSensitivity(Qt::CaseInsensitive);
   lineEdit->setMultiCompleter(completer);
-  lineEdit->setWordDelimiters(QRegularExpression("\\$"), QRegularExpression("\\}"));
+  lineEdit->setWordDelimiters(QRegularExpression{"\\$"}, QRegularExpression{"\\}"});
 
   m_completers.push_back(completer);
   updateCompleter(completer);
@@ -115,7 +113,7 @@ void CompilationTaskEditorBase::updateItem()
 
 void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
 {
-  std::string workDir;
+  auto workDir = std::string{};
   try
   {
     workDir = EL::interpolate(
@@ -127,7 +125,7 @@ void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
   }
 
   const auto variables = CompilationVariables(kdl::mem_lock(m_document), workDir);
-  completer->setModel(new VariableStoreModel(variables));
+  completer->setModel(new VariableStoreModel{variables});
 }
 
 // CompilationExportMapTaskEditor
@@ -137,10 +135,9 @@ CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
   Model::CompilationProfile& profile,
   Model::CompilationExportMap& task,
   QWidget* parent)
-  : CompilationTaskEditorBase("Export Map", std::move(document), profile, task, parent)
-  , m_targetEditor(nullptr)
+  : CompilationTaskEditorBase{"Export Map", std::move(document), profile, task, parent}
 {
-  auto* formLayout = new QFormLayout();
+  auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin,
@@ -150,7 +147,7 @@ CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
-  m_targetEditor = new MultiCompletionLineEdit();
+  m_targetEditor = new MultiCompletionLineEdit{};
   m_targetEditor->setFont(Fonts::fixedWidthFont());
   setupCompleter(m_targetEditor);
   formLayout->addRow("Target", m_targetEditor);
@@ -182,10 +179,10 @@ Model::CompilationExportMap& CompilationExportMapTaskEditor::task()
 
 void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text)
 {
-  const auto targetSpec = text.toStdString();
+  auto targetSpec = text.toStdString();
   if (task().targetSpec() != targetSpec)
   {
-    task().setTargetSpec(targetSpec);
+    task().setTargetSpec(std::move(targetSpec));
   }
 }
 
@@ -194,11 +191,9 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
   Model::CompilationProfile& profile,
   Model::CompilationCopyFiles& task,
   QWidget* parent)
-  : CompilationTaskEditorBase("Copy Files", std::move(document), profile, task, parent)
-  , m_sourceEditor(nullptr)
-  , m_targetEditor(nullptr)
+  : CompilationTaskEditorBase{"Copy Files", std::move(document), profile, task, parent}
 {
-  auto* formLayout = new QFormLayout();
+  auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin,
@@ -208,12 +203,12 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
-  m_sourceEditor = new MultiCompletionLineEdit();
+  m_sourceEditor = new MultiCompletionLineEdit{};
   m_sourceEditor->setFont(Fonts::fixedWidthFont());
   setupCompleter(m_sourceEditor);
   formLayout->addRow("Source", m_sourceEditor);
 
-  m_targetEditor = new MultiCompletionLineEdit();
+  m_targetEditor = new MultiCompletionLineEdit{};
   m_targetEditor->setFont(Fonts::fixedWidthFont());
   setupCompleter(m_targetEditor);
   formLayout->addRow("Target", m_targetEditor);
@@ -256,19 +251,75 @@ Model::CompilationCopyFiles& CompilationCopyFilesTaskEditor::task()
 
 void CompilationCopyFilesTaskEditor::sourceSpecChanged(const QString& text)
 {
-  const auto sourceSpec = text.toStdString();
+  auto sourceSpec = text.toStdString();
   if (task().sourceSpec() != sourceSpec)
   {
-    task().setSourceSpec(sourceSpec);
+    task().setSourceSpec(std::move(sourceSpec));
   }
 }
 
 void CompilationCopyFilesTaskEditor::targetSpecChanged(const QString& text)
 {
-  const auto targetSpec = text.toStdString();
+  auto targetSpec = text.toStdString();
   if (task().targetSpec() != targetSpec)
   {
-    task().setTargetSpec(targetSpec);
+    task().setTargetSpec(std::move(targetSpec));
+  }
+}
+
+CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
+  std::weak_ptr<MapDocument> document,
+  Model::CompilationProfile& profile,
+  Model::CompilationDeleteFiles& task,
+  QWidget* parent)
+  : CompilationTaskEditorBase{"Delete Files", std::move(document), profile, task, parent}
+{
+  auto* formLayout = new QFormLayout{};
+  formLayout->setContentsMargins(
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin,
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+  addMainLayout(formLayout);
+
+  m_targetEditor = new MultiCompletionLineEdit{};
+  m_targetEditor->setFont(Fonts::fixedWidthFont());
+  setupCompleter(m_targetEditor);
+  formLayout->addRow("Target", m_targetEditor);
+
+  connect(
+    m_targetEditor,
+    &QLineEdit::textChanged,
+    this,
+    &CompilationDeleteFilesTaskEditor::targetSpecChanged);
+}
+
+void CompilationDeleteFilesTaskEditor::updateItem()
+{
+  CompilationTaskEditorBase::updateItem();
+
+  const auto targetSpec = QString::fromStdString(task().targetSpec());
+  if (m_targetEditor->text() != targetSpec)
+  {
+    m_targetEditor->setText(targetSpec);
+  }
+}
+
+Model::CompilationDeleteFiles& CompilationDeleteFilesTaskEditor::task()
+{
+  // This is safe because we know what type of task the editor was initialized with.
+  // We have to do this to avoid using a template as the base class.
+  return static_cast<Model::CompilationDeleteFiles&>(*m_task);
+}
+
+void CompilationDeleteFilesTaskEditor::targetSpecChanged(const QString& text)
+{
+  auto targetSpec = text.toStdString();
+  if (task().targetSpec() != targetSpec)
+  {
+    task().setTargetSpec(std::move(targetSpec));
   }
 }
 
@@ -279,11 +330,9 @@ CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
   Model::CompilationProfile& profile,
   Model::CompilationRunTool& task,
   QWidget* parent)
-  : CompilationTaskEditorBase("Run Tool", std::move(document), profile, task, parent)
-  , m_toolEditor(nullptr)
-  , m_parametersEditor(nullptr)
+  : CompilationTaskEditorBase{"Run Tool", std::move(document), profile, task, parent}
 {
-  auto* formLayout = new QFormLayout();
+  auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin,
@@ -293,14 +342,14 @@ CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
   formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
   addMainLayout(formLayout);
 
-  m_toolEditor = new MultiCompletionLineEdit();
+  m_toolEditor = new MultiCompletionLineEdit{};
   m_toolEditor->setFont(Fonts::fixedWidthFont());
   setupCompleter(m_toolEditor);
 
-  auto* browseToolButton = new QPushButton("...");
+  auto* browseToolButton = new QPushButton{"..."};
   browseToolButton->setToolTip("Click to browse");
 
-  auto* toolLayout = new QHBoxLayout();
+  auto* toolLayout = new QHBoxLayout{};
   toolLayout->setContentsMargins(0, 0, 0, 0);
   toolLayout->setSpacing(LayoutConstants::NarrowHMargin);
   toolLayout->addWidget(m_toolEditor, 1);
@@ -308,7 +357,7 @@ CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
 
   formLayout->addRow("Tool", toolLayout);
 
-  m_parametersEditor = new MultiCompletionLineEdit();
+  m_parametersEditor = new MultiCompletionLineEdit{};
   m_parametersEditor->setFont(Fonts::fixedWidthFont());
 
   setupCompleter(m_parametersEditor);
@@ -370,19 +419,19 @@ void CompilationRunToolTaskEditor::browseTool()
 
 void CompilationRunToolTaskEditor::toolSpecChanged(const QString& text)
 {
-  const auto toolSpec = text.toStdString();
+  auto toolSpec = text.toStdString();
   if (task().toolSpec() != toolSpec)
   {
-    task().setToolSpec(toolSpec);
+    task().setToolSpec(std::move(toolSpec));
   }
 }
 
 void CompilationRunToolTaskEditor::parameterSpecChanged(const QString& text)
 {
-  const auto parameterSpec = text.toStdString();
+  auto parameterSpec = text.toStdString();
   if (task().parameterSpec() != parameterSpec)
   {
-    task().setParameterSpec(parameterSpec);
+    task().setParameterSpec(std::move(parameterSpec));
   }
 }
 
@@ -390,9 +439,8 @@ void CompilationRunToolTaskEditor::parameterSpecChanged(const QString& text)
 
 CompilationTaskListBox::CompilationTaskListBox(
   std::weak_ptr<MapDocument> document, QWidget* parent)
-  : ControlListBox("Click the '+' button to create a task.", QMargins(), false, parent)
-  , m_document(std::move(document))
-  , m_profile(nullptr)
+  : ControlListBox{"Click the '+' button to create a task.", QMargins{}, false, parent}
+  , m_document{std::move(document)}
 {
 }
 
@@ -421,10 +469,9 @@ public:
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
     QWidget* parent)
-    : m_document(std::move(document))
-    , m_profile(profile)
-    , m_parent(parent)
-    , m_result(nullptr)
+    : m_document{std::move(document)}
+    , m_profile{profile}
+    , m_parent{parent}
   {
   }
 
@@ -432,27 +479,29 @@ public:
 
   void visit(Model::CompilationExportMap& task) override
   {
-    m_result = new CompilationExportMapTaskEditor(m_document, m_profile, task, m_parent);
+    m_result = new CompilationExportMapTaskEditor{m_document, m_profile, task, m_parent};
   }
 
   void visit(Model::CompilationCopyFiles& task) override
   {
-    m_result = new CompilationCopyFilesTaskEditor(m_document, m_profile, task, m_parent);
+    m_result = new CompilationCopyFilesTaskEditor{m_document, m_profile, task, m_parent};
+  }
+
+  void visit(Model::CompilationDeleteFiles& task) override
+  {
+    m_result =
+      new CompilationDeleteFilesTaskEditor(m_document, m_profile, task, m_parent);
   }
 
   void visit(Model::CompilationRunTool& task) override
   {
-    m_result = new CompilationRunToolTaskEditor(m_document, m_profile, task, m_parent);
+    m_result = new CompilationRunToolTaskEditor{m_document, m_profile, task, m_parent};
   }
 };
 
 size_t CompilationTaskListBox::itemCount() const
 {
-  if (m_profile == nullptr)
-  {
-    return 0;
-  }
-  return m_profile->taskCount();
+  return m_profile ? m_profile->taskCount() : 0;
 }
 
 ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
@@ -460,7 +509,7 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
 {
   ensure(m_profile != nullptr, "profile is null");
 
-  CompilationTaskEditorFactory factory(m_document, *m_profile, parent);
+  auto factory = CompilationTaskEditorFactory{m_document, *m_profile, parent};
   auto* task = m_profile->task(index);
   task->accept(factory);
   auto* renderer = factory.result();

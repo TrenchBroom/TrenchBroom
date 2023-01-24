@@ -38,7 +38,7 @@ protected:
   Path m_path;
 
 protected:
-  explicit ConfigParserBase(std::string_view str, const Path& path = Path(""));
+  explicit ConfigParserBase(std::string_view str, Path path = Path{""});
 
 public:
   virtual ~ConfigParserBase();

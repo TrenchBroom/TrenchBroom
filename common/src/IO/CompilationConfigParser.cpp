@@ -34,30 +34,29 @@ namespace TrenchBroom
 {
 namespace IO
 {
-CompilationConfigParser::CompilationConfigParser(std::string_view str, const Path& path)
-  : ConfigParserBase(std::move(str), path)
+CompilationConfigParser::CompilationConfigParser(const std::string_view str, Path path)
+  : ConfigParserBase{str, std::move(path)}
 {
 }
 
 Model::CompilationConfig CompilationConfigParser::parse()
 {
-  const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
+  const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
   expectType(root, EL::ValueType::Map);
 
   expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
-  const EL::NumberType version = root["version"].numberValue();
+  const auto version = root["version"].numberValue();
   unused(version);
   assert(version == 1.0);
 
-  auto profiles = parseProfiles(root["profiles"]);
-  return Model::CompilationConfig(std::move(profiles));
+  return Model::CompilationConfig{parseProfiles(root["profiles"])};
 }
 
 std::vector<std::unique_ptr<Model::CompilationProfile>> CompilationConfigParser::
   parseProfiles(const EL::Value& value) const
 {
-  std::vector<std::unique_ptr<Model::CompilationProfile>> result;
+  auto result = std::vector<std::unique_ptr<Model::CompilationProfile>>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -73,17 +72,18 @@ std::unique_ptr<Model::CompilationProfile> CompilationConfigParser::parseProfile
   expectStructure(
     value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
-  const std::string name = value["name"].stringValue();
-  const std::string workdir = value["workdir"].stringValue();
+  auto name = value["name"].stringValue();
+  auto workdir = value["workdir"].stringValue();
   auto tasks = parseTasks(value["tasks"]);
 
-  return std::make_unique<Model::CompilationProfile>(name, workdir, std::move(tasks));
+  return std::make_unique<Model::CompilationProfile>(
+    std::move(name), std::move(workdir), std::move(tasks));
 }
 
 std::vector<std::unique_ptr<Model::CompilationTask>> CompilationConfigParser::parseTasks(
   const EL::Value& value) const
 {
-  std::vector<std::unique_ptr<Model::CompilationTask>> result;
+  auto result = std::vector<std::unique_ptr<Model::CompilationTask>>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -97,24 +97,26 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseTask(
   const EL::Value& value) const
 {
   expectMapEntry(value, "type", EL::ValueType::String);
-  const std::string type = value["type"].stringValue();
+  const auto typeName = value["type"].stringValue();
 
-  if (type == "export")
+  if (typeName == "export")
   {
     return parseExportTask(value);
   }
-  else if (type == "copy")
+  if (typeName == "copy")
   {
     return parseCopyTask(value);
   }
-  else if (type == "tool")
+  if (typeName == "delete")
+  {
+    return parseDeleteTask(value);
+  }
+  if (typeName == "tool")
   {
     return parseToolTask(value);
   }
-  else
-  {
-    throw ParserException("Unknown compilation task type '" + type + "'");
-  }
+
+  throw ParserException{"Unknown compilation task type '" + typeName + "'"};
 }
 
 std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseExportTask(
@@ -122,9 +124,11 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseExportTask
 {
   expectStructure(
     value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
-  const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  const std::string target = value["target"].stringValue();
-  return std::make_unique<Model::CompilationExportMap>(enabled, target);
+
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  auto target = value["target"].stringValue();
+
+  return std::make_unique<Model::CompilationExportMap>(enabled, std::move(target));
 }
 
 std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(
@@ -135,11 +139,24 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(
     "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
     "'Boolean' } ]");
 
-  const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  const std::string source = value["source"].stringValue();
-  const std::string target = value["target"].stringValue();
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  auto source = value["source"].stringValue();
+  auto target = value["target"].stringValue();
 
-  return std::make_unique<Model::CompilationCopyFiles>(enabled, source, target);
+  return std::make_unique<Model::CompilationCopyFiles>(
+    enabled, std::move(source), std::move(target));
+}
+
+std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseDeleteTask(
+  const EL::Value& value) const
+{
+  expectStructure(
+    value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  auto target = value["target"].stringValue();
+
+  return std::make_unique<Model::CompilationDeleteFiles>(enabled, std::move(target));
 }
 
 std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(
@@ -150,11 +167,12 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(
     "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': "
     "'Boolean' } ]");
 
-  const bool enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  const std::string tool = value["tool"].stringValue();
-  const std::string parameters = value["parameters"].stringValue();
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  auto tool = value["tool"].stringValue();
+  auto parameters = value["parameters"].stringValue();
 
-  return std::make_unique<Model::CompilationRunTool>(enabled, tool, parameters);
+  return std::make_unique<Model::CompilationRunTool>(
+    enabled, std::move(tool), std::move(parameters));
 }
 } // namespace IO
 } // namespace TrenchBroom

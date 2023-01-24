@@ -33,6 +33,7 @@ namespace TrenchBroom
 namespace Model
 {
 class CompilationCopyFiles;
+class CompilationDeleteFiles;
 class CompilationExportMap;
 class CompilationProfile;
 class CompilationRunTool;
@@ -107,6 +108,24 @@ private:
   deleteCopyAndMove(CompilationCopyFilesTaskRunner);
 };
 
+class CompilationDeleteFilesTaskRunner : public CompilationTaskRunner
+{
+  Q_OBJECT
+private:
+  std::unique_ptr<const Model::CompilationDeleteFiles> m_task;
+
+public:
+  CompilationDeleteFilesTaskRunner(
+    CompilationContext& context, const Model::CompilationDeleteFiles& task);
+  ~CompilationDeleteFilesTaskRunner() override;
+
+private:
+  void doExecute() override;
+  void doTerminate() override;
+
+  deleteCopyAndMove(CompilationDeleteFilesTaskRunner);
+};
+
 class CompilationRunToolTaskRunner : public CompilationTaskRunner
 {
   Q_OBJECT
@@ -164,8 +183,8 @@ public:
   bool running() const;
 
 private:
-  void bindEvents(CompilationTaskRunner* runner);
-  void unbindEvents(CompilationTaskRunner* runner);
+  void bindEvents(CompilationTaskRunner* runner) const;
+  void unbindEvents(CompilationTaskRunner* runner) const;
 private slots:
   void taskError();
   void taskEnd();

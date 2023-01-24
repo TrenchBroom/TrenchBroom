@@ -33,20 +33,18 @@ namespace TrenchBroom
 {
 namespace Model
 {
-CompilationProfile::CompilationProfile(
-  const std::string& name, const std::string& workDirSpec)
-  : m_name(name)
-  , m_workDirSpec(workDirSpec)
+CompilationProfile::CompilationProfile(std::string name, std::string workDirSpec)
+  : CompilationProfile{std::move(name), std::move(workDirSpec), {}}
 {
 }
 
 CompilationProfile::CompilationProfile(
-  const std::string& name,
-  const std::string& workDirSpec,
+  std::string name,
+  std::string workDirSpec,
   std::vector<std::unique_ptr<CompilationTask>> tasks)
-  : m_name(name)
-  , m_workDirSpec(workDirSpec)
-  , m_tasks(std::move(tasks))
+  : m_name{std::move(name)}
+  , m_workDirSpec{std::move(workDirSpec)}
+  , m_tasks{std::move(tasks)}
 {
 }
 
@@ -54,12 +52,12 @@ CompilationProfile::~CompilationProfile() = default;
 
 std::unique_ptr<CompilationProfile> CompilationProfile::clone() const
 {
-  std::vector<std::unique_ptr<CompilationTask>> clones;
+  auto clones = std::vector<std::unique_ptr<CompilationTask>>{};
   clones.reserve(m_tasks.size());
 
   for (const auto& original : m_tasks)
   {
-    clones.push_back(std::unique_ptr<CompilationTask>(original->clone()));
+    clones.emplace_back(original->clone());
   }
 
   return std::make_unique<CompilationProfile>(m_name, m_workDirSpec, std::move(clones));
@@ -67,15 +65,8 @@ std::unique_ptr<CompilationProfile> CompilationProfile::clone() const
 
 bool operator==(const CompilationProfile& lhs, const CompilationProfile& rhs)
 {
-  if (lhs.m_name != rhs.m_name)
-  {
-    return false;
-  }
-  if (lhs.m_workDirSpec != rhs.m_workDirSpec)
-  {
-    return false;
-  }
-  return kdl::const_deref_range{lhs.m_tasks} == kdl::const_deref_range{rhs.m_tasks};
+  return lhs.m_name == rhs.m_name && lhs.m_workDirSpec == rhs.m_workDirSpec
+         && kdl::const_deref_range{lhs.m_tasks} == kdl::const_deref_range{rhs.m_tasks};
 }
 
 bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs)
@@ -97,9 +88,9 @@ const std::string& CompilationProfile::name() const
   return m_name;
 }
 
-void CompilationProfile::setName(const std::string& name)
+void CompilationProfile::setName(std::string name)
 {
-  m_name = name;
+  m_name = std::move(name);
 }
 
 const std::string& CompilationProfile::workDirSpec() const
@@ -107,9 +98,9 @@ const std::string& CompilationProfile::workDirSpec() const
   return m_workDirSpec;
 }
 
-void CompilationProfile::setWorkDirSpec(const std::string& workDirSpec)
+void CompilationProfile::setWorkDirSpec(std::string workDirSpec)
 {
-  m_workDirSpec = workDirSpec;
+  m_workDirSpec = std::move(workDirSpec);
 }
 
 size_t CompilationProfile::taskCount() const
@@ -127,7 +118,7 @@ size_t CompilationProfile::indexOfTask(CompilationTask* task) const
 {
   auto result =
     kdl::vec_index_of(m_tasks, [=](const auto& ptr) { return ptr.get() == task; });
-  return result.value();
+  return *result;
 }
 
 void CompilationProfile::addTask(std::unique_ptr<CompilationTask> task)

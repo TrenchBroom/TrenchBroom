@@ -49,15 +49,15 @@ class CompilationProfileEditor : public QWidget
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  Model::CompilationProfile* m_profile;
-  QStackedWidget* m_stackedWidget;
-  QLineEdit* m_nameTxt;
-  MultiCompletionLineEdit* m_workDirTxt;
-  CompilationTaskListBox* m_taskList;
-  QAbstractButton* m_addTaskButton;
-  QAbstractButton* m_removeTaskButton;
-  QAbstractButton* m_moveTaskUpButton;
-  QAbstractButton* m_moveTaskDownButton;
+  Model::CompilationProfile* m_profile{nullptr};
+  QStackedWidget* m_stackedWidget{nullptr};
+  QLineEdit* m_nameTxt{nullptr};
+  MultiCompletionLineEdit* m_workDirTxt{nullptr};
+  CompilationTaskListBox* m_taskList{nullptr};
+  QAbstractButton* m_addTaskButton{nullptr};
+  QAbstractButton* m_removeTaskButton{nullptr};
+  QAbstractButton* m_moveTaskUpButton{nullptr};
+  QAbstractButton* m_moveTaskDownButton{nullptr};
 
 public:
   explicit CompilationProfileEditor(

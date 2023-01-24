@@ -68,7 +68,7 @@ private:
   std::string m_targetSpec;
 
 public:
-  CompilationExportMap(bool enabled, const std::string& targetSpec);
+  CompilationExportMap(bool enabled, std::string targetSpec);
 
   void accept(CompilationTaskVisitor& visitor) override;
   void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -77,7 +77,7 @@ public:
 
   const std::string& targetSpec() const;
 
-  void setTargetSpec(const std::string& targetSpec);
+  void setTargetSpec(std::string targetSpec);
 
   CompilationExportMap* clone() const override;
   bool operator==(const CompilationTask& other) const override;
@@ -93,8 +93,7 @@ private:
   std::string m_targetSpec;
 
 public:
-  CompilationCopyFiles(
-    bool enabled, const std::string& sourceSpec, const std::string& targetSpec);
+  CompilationCopyFiles(bool enabled, std::string sourceSpec, std::string targetSpec);
 
   void accept(CompilationTaskVisitor& visitor) override;
   void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -104,14 +103,38 @@ public:
   const std::string& sourceSpec() const;
   const std::string& targetSpec() const;
 
-  void setSourceSpec(const std::string& sourceSpec);
-  void setTargetSpec(const std::string& targetSpec);
+  void setSourceSpec(std::string sourceSpec);
+  void setTargetSpec(std::string targetSpec);
 
   CompilationCopyFiles* clone() const override;
   bool operator==(const CompilationTask& other) const override;
   void appendToStream(std::ostream& str) const override;
 
   deleteCopyAndMove(CompilationCopyFiles);
+};
+
+class CompilationDeleteFiles : public CompilationTask
+{
+private:
+  std::string m_targetSpec;
+
+public:
+  CompilationDeleteFiles(bool enabled, std::string targetSpec);
+
+  void accept(CompilationTaskVisitor& visitor) override;
+  void accept(ConstCompilationTaskVisitor& visitor) const override;
+  void accept(const CompilationTaskConstVisitor& visitor) override;
+  void accept(const ConstCompilationTaskConstVisitor& visitor) const override;
+
+  const std::string& targetSpec() const;
+
+  void setTargetSpec(std::string targetSpec);
+
+  CompilationDeleteFiles* clone() const override;
+  bool operator==(const CompilationTask& other) const override;
+  void appendToStream(std::ostream& str) const override;
+
+  deleteCopyAndMove(CompilationDeleteFiles);
 };
 
 class CompilationRunTool : public CompilationTask
@@ -121,8 +144,7 @@ private:
   std::string m_parameterSpec;
 
 public:
-  CompilationRunTool(
-    bool enabled, const std::string& toolSpec, const std::string& parameterSpec);
+  CompilationRunTool(bool enabled, std::string toolSpec, std::string parameterSpec);
 
   void accept(CompilationTaskVisitor& visitor) override;
   void accept(ConstCompilationTaskVisitor& visitor) const override;
@@ -132,8 +154,8 @@ public:
   const std::string& toolSpec() const;
   const std::string& parameterSpec() const;
 
-  void setToolSpec(const std::string& toolSpec);
-  void setParameterSpec(const std::string& parameterSpec);
+  void setToolSpec(std::string toolSpec);
+  void setParameterSpec(std::string parameterSpec);
 
   CompilationRunTool* clone() const override;
   bool operator==(const CompilationTask& other) const override;
@@ -149,6 +171,7 @@ public:
 
   virtual void visit(CompilationExportMap& task) = 0;
   virtual void visit(CompilationCopyFiles& task) = 0;
+  virtual void visit(CompilationDeleteFiles& task) = 0;
   virtual void visit(CompilationRunTool& task) = 0;
 };
 
@@ -159,6 +182,7 @@ public:
 
   virtual void visit(const CompilationExportMap& task) = 0;
   virtual void visit(const CompilationCopyFiles& task) = 0;
+  virtual void visit(const CompilationDeleteFiles& task) = 0;
   virtual void visit(const CompilationRunTool& task) = 0;
 };
 
@@ -169,6 +193,7 @@ public:
 
   virtual void visit(CompilationExportMap& task) const = 0;
   virtual void visit(CompilationCopyFiles& task) const = 0;
+  virtual void visit(CompilationDeleteFiles& task) const = 0;
   virtual void visit(CompilationRunTool& task) const = 0;
 };
 
@@ -179,6 +204,7 @@ public:
 
   virtual void visit(const CompilationExportMap& task) const = 0;
   virtual void visit(const CompilationCopyFiles& task) const = 0;
+  virtual void visit(const CompilationDeleteFiles& task) const = 0;
   virtual void visit(const CompilationRunTool& task) const = 0;
 };
 } // namespace Model

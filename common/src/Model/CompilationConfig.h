@@ -37,11 +37,14 @@ private:
 public:
   CompilationConfig();
   explicit CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles);
-  CompilationConfig(const CompilationConfig& other);
   ~CompilationConfig();
 
-  CompilationConfig& operator=(CompilationConfig other);
-  friend void swap(CompilationConfig& lhs, CompilationConfig& rhs);
+  CompilationConfig(const CompilationConfig& other);
+  CompilationConfig(CompilationConfig&& other);
+
+  CompilationConfig& operator=(const CompilationConfig& other);
+  CompilationConfig& operator=(CompilationConfig&& other);
+
   friend bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs);
   friend bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs);
   friend std::ostream& operator<<(std::ostream& str, const CompilationConfig& config);
