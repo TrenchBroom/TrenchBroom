@@ -200,11 +200,11 @@ void CompilationDialog::startCompilation(const bool test)
 
     if (test)
     {
-      m_run.test(profile, m_mapFrame->document(), m_output);
+      m_run.test(*profile, m_mapFrame->document(), m_output);
     }
     else
     {
-      m_run.run(profile, m_mapFrame->document(), m_output);
+      m_run.run(*profile, m_mapFrame->document(), m_output);
     }
   }
 }

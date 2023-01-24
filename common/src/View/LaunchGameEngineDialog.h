@@ -51,10 +51,10 @@ class LaunchGameEngineDialog : public QDialog
 {
 private:
   std::weak_ptr<MapDocument> m_document;
-  GameEngineProfileListBox* m_gameEngineList;
-  MultiCompletionLineEdit* m_parameterText;
-  QPushButton* m_launchButton;
-  Model::GameEngineProfile* m_lastProfile;
+  GameEngineProfileListBox* m_gameEngineList{nullptr};
+  MultiCompletionLineEdit* m_parameterText{nullptr};
+  QPushButton* m_launchButton{nullptr};
+  Model::GameEngineProfile* m_lastProfile{nullptr};
   Model::GameEngineConfig m_config;
 
 public:

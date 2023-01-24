@@ -228,8 +228,6 @@ CompilationRunToolTaskRunner::CompilationRunToolTaskRunner(
   CompilationContext& context, const Model::CompilationRunTool& task)
   : CompilationTaskRunner{context}
   , m_task{task.clone()}
-  , m_process{nullptr}
-  , m_terminated{false}
 {
 }
 
@@ -367,7 +365,7 @@ void CompilationRunToolTaskRunner::processReadyReadStandardOutput()
 
 CompilationRunner::CompilationRunner(
   std::unique_ptr<CompilationContext> context,
-  const Model::CompilationProfile* profile,
+  const Model::CompilationProfile& profile,
   QObject* parent)
   : QObject{parent}
   , m_context{std::move(context)}
@@ -433,10 +431,10 @@ private:
 };
 
 CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(
-  CompilationContext& context, const Model::CompilationProfile* profile)
+  CompilationContext& context, const Model::CompilationProfile& profile)
 {
   auto visitor = CreateTaskRunnerVisitor{context};
-  profile->accept(visitor);
+  profile.accept(visitor);
   return visitor.runners();
 }
 
@@ -450,7 +448,7 @@ void CompilationRunner::execute()
     emit compilationEnded();
     return;
   }
-  bindEvents(m_currentTask->get());
+  bindEvents(*m_currentTask->get());
 
   emit compilationStarted();
 
@@ -470,7 +468,7 @@ void CompilationRunner::execute()
 void CompilationRunner::terminate()
 {
   assert(running());
-  unbindEvents(m_currentTask->get());
+  unbindEvents(*m_currentTask->get());
   m_currentTask->get()->terminate();
   m_currentTask = std::end(m_taskRunners);
 
@@ -482,22 +480,22 @@ bool CompilationRunner::running() const
   return m_currentTask != std::end(m_taskRunners);
 }
 
-void CompilationRunner::bindEvents(CompilationTaskRunner* runner) const
+void CompilationRunner::bindEvents(CompilationTaskRunner& runner) const
 {
-  connect(runner, &CompilationTaskRunner::error, this, &CompilationRunner::taskError);
-  connect(runner, &CompilationTaskRunner::end, this, &CompilationRunner::taskEnd);
+  connect(&runner, &CompilationTaskRunner::error, this, &CompilationRunner::taskError);
+  connect(&runner, &CompilationTaskRunner::end, this, &CompilationRunner::taskEnd);
 }
 
-void CompilationRunner::unbindEvents(CompilationTaskRunner* runner) const
+void CompilationRunner::unbindEvents(CompilationTaskRunner& runner) const
 {
-  runner->disconnect(this);
+  runner.disconnect(this);
 }
 
 void CompilationRunner::taskError()
 {
   if (running())
   {
-    unbindEvents(m_currentTask->get());
+    unbindEvents(*m_currentTask->get());
     m_currentTask = std::end(m_taskRunners);
     emit compilationEnded();
   }
@@ -507,11 +505,11 @@ void CompilationRunner::taskEnd()
 {
   if (running())
   {
-    unbindEvents(m_currentTask->get());
+    unbindEvents(*m_currentTask->get());
     ++m_currentTask;
     if (m_currentTask != std::end(m_taskRunners))
     {
-      bindEvents(m_currentTask->get());
+      bindEvents(*m_currentTask->get());
       m_currentTask->get()->execute();
     }
     else

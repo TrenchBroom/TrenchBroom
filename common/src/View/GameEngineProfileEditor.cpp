@@ -40,34 +40,30 @@ namespace TrenchBroom
 namespace View
 {
 GameEngineProfileEditor::GameEngineProfileEditor(QWidget* parent)
-  : QWidget(parent)
-  , m_profile(nullptr)
-  , m_stackedWidget(nullptr)
-  , m_nameEdit(nullptr)
-  , m_pathEdit(nullptr)
+  : QWidget{parent}
 {
-  m_stackedWidget = new QStackedWidget();
+  m_stackedWidget = new QStackedWidget{};
   m_stackedWidget->addWidget(createDefaultPage("Select a game engine profile"));
   m_stackedWidget->addWidget(createEditorPage());
 
-  auto* layout = new QVBoxLayout();
-  layout->setContentsMargins(QMargins());
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(QMargins{});
   setLayout(layout);
   layout->addWidget(m_stackedWidget);
 }
 
 QWidget* GameEngineProfileEditor::createEditorPage()
 {
-  auto* container = new QWidget();
+  auto* container = new QWidget{};
   setBaseWindowColor(container);
 
-  m_nameEdit = new QLineEdit();
+  m_nameEdit = new QLineEdit{};
   setHint(m_nameEdit, "Choose a name");
 
-  m_pathEdit = new QLineEdit();
+  m_pathEdit = new QLineEdit{};
   setHint(m_pathEdit, "Click on the button to choose...");
 
-  auto* button = new QPushButton("...");
+  auto* button = new QPushButton{"..."};
 
   connect(
     m_nameEdit, &QLineEdit::textEdited, this, &GameEngineProfileEditor::nameChanged);
@@ -76,11 +72,11 @@ QWidget* GameEngineProfileEditor::createEditorPage()
   connect(
     button, &QPushButton::clicked, this, &GameEngineProfileEditor::changePathClicked);
 
-  auto* pathLayout = new QHBoxLayout();
+  auto* pathLayout = new QHBoxLayout{};
   pathLayout->addWidget(m_pathEdit, 1);
   pathLayout->addWidget(button);
 
-  auto* formLayout = new QFormLayout();
+  auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin,
@@ -124,29 +120,14 @@ void GameEngineProfileEditor::updatePath(const QString& str)
 void GameEngineProfileEditor::setProfile(Model::GameEngineProfile* profile)
 {
   m_profile = profile;
-  if (m_profile != nullptr)
-  {
-    m_stackedWidget->setCurrentIndex(1);
-  }
-  else
-  {
-    m_stackedWidget->setCurrentIndex(0);
-  }
+  m_stackedWidget->setCurrentIndex(m_profile ? 1 : 0);
   refresh();
 }
 
 void GameEngineProfileEditor::refresh()
 {
-  if (m_profile != nullptr)
-  {
-    m_nameEdit->setText(QString::fromStdString(m_profile->name()));
-    m_pathEdit->setText(IO::pathAsQString(m_profile->path()));
-  }
-  else
-  {
-    m_nameEdit->setText("");
-    m_pathEdit->setText("");
-  }
+  m_nameEdit->setText(m_profile ? QString::fromStdString(m_profile->name()) : "");
+  m_pathEdit->setText(m_profile ? IO::pathAsQString(m_profile->path()) : "");
 }
 
 bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const
@@ -183,7 +164,7 @@ void GameEngineProfileEditor::pathChanged()
 
 void GameEngineProfileEditor::changePathClicked()
 {
-  const QString pathStr = QFileDialog::getOpenFileName(
+  const auto pathStr = QFileDialog::getOpenFileName(
     this, tr("Choose Engine"), fileDialogDefaultDirectory(FileDialogDir::Engine));
   if (!pathStr.isEmpty())
   {

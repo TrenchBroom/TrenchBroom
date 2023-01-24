@@ -39,9 +39,9 @@ class CompilationProfileItemRenderer : public ControlListBoxItemRenderer
 {
   Q_OBJECT
 private:
-  Model::CompilationProfile* m_profile;
-  ElidedLabel* m_nameText;
-  ElidedLabel* m_taskCountText;
+  Model::CompilationProfile& m_profile;
+  ElidedLabel* m_nameText{nullptr};
+  ElidedLabel* m_taskCountText{nullptr};
 
 public:
   explicit CompilationProfileItemRenderer(
@@ -71,7 +71,7 @@ private:
   ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
 signals:
   void profileContextMenuRequested(
-    const QPoint& globalPos, Model::CompilationProfile* profile);
+    const QPoint& globalPos, Model::CompilationProfile& profile);
 };
 } // namespace View
 } // namespace TrenchBroom

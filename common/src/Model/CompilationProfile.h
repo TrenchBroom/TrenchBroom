@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Macros.h"
+#include "Model/CompilationTask.h"
 
 #include <iosfwd>
 #include <memory>
@@ -30,12 +31,6 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationTask;
-class CompilationTaskConstVisitor;
-class CompilationTaskVisitor;
-class ConstCompilationTaskVisitor;
-class ConstCompilationTaskConstVisitor;
-
 class CompilationProfile
 {
 private:
@@ -44,11 +39,10 @@ private:
   std::vector<std::unique_ptr<CompilationTask>> m_tasks;
 
 public:
-  CompilationProfile(std::string name, std::string workDirSpec);
   CompilationProfile(
     std::string name,
     std::string workDirSpec,
-    std::vector<std::unique_ptr<CompilationTask>> tasks);
+    std::vector<std::unique_ptr<CompilationTask>> tasks = {});
   ~CompilationProfile();
 
   std::unique_ptr<CompilationProfile> clone() const;

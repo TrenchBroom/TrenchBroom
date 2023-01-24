@@ -44,19 +44,18 @@ class CompilationRun : public QObject
 {
   Q_OBJECT
 private:
-  CompilationRunner* m_currentRun;
+  CompilationRunner* m_currentRun{nullptr};
 
 public:
-  CompilationRun();
   ~CompilationRun() override;
 
   bool running() const;
   void run(
-    const Model::CompilationProfile* profile,
+    const Model::CompilationProfile& profile,
     std::shared_ptr<MapDocument> document,
     QTextEdit* currentOutput);
   void test(
-    const Model::CompilationProfile* profile,
+    const Model::CompilationProfile& profile,
     std::shared_ptr<MapDocument> document,
     QTextEdit* currentOutput);
   void terminate();
@@ -64,14 +63,14 @@ public:
 private:
   bool doIsRunning() const;
   void run(
-    const Model::CompilationProfile* profile,
+    const Model::CompilationProfile& profile,
     std::shared_ptr<MapDocument> document,
     QTextEdit* currentOutput,
     bool test);
 
 private:
   std::string buildWorkDir(
-    const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document);
+    const Model::CompilationProfile& profile, std::shared_ptr<MapDocument> document);
   void cleanup();
 signals:
   void compilationStarted();

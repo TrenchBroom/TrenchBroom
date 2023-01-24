@@ -22,6 +22,8 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 
+#include "kdl/vector_utils.h"
+
 #include <string>
 
 #include "Catch2.h"
@@ -30,57 +32,52 @@ namespace TrenchBroom
 {
 namespace IO
 {
-static GameEngineConfigParser makeParser(std::string_view config)
-{
-  return GameEngineConfigParser(config, Path());
-}
 
 TEST_CASE("GameEngineConfigParserTest.parseBlankConfig")
 {
-  const std::string config(R"(   )");
-  auto parser = makeParser(config);
+  const auto config = R"(   )";
+  auto parser = GameEngineConfigParser{config, Path{}};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseEmptyConfig")
 {
-  const std::string config(R"( { } )");
-  auto parser = makeParser(config);
+  const auto config = R"( { } )";
+  auto parser = GameEngineConfigParser{config, Path{}};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseEmptyConfigWithTrailingGarbage")
 {
-  const std::string config(R"(  {  } asdf)");
-  auto parser = makeParser(config);
+  const auto config = R"(  {  } asdf)";
+  auto parser = GameEngineConfigParser{config, Path{}};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseMissingProfiles")
 {
-  const std::string config(R"(  { 'version' : 1 } )");
-  auto parser = makeParser(config);
+  const auto config = R"(  { 'version' : 1 } )";
+  auto parser = GameEngineConfigParser{config, Path{}};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseMissingVersion")
 {
-  const std::string config(R"(  { 'profiles': {} } )");
-  auto parser = makeParser(config);
+  const auto config = R"(  { 'profiles': {} } )";
+  auto parser = GameEngineConfigParser{config, Path{}};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseEmptyProfiles")
 {
-  const std::string config(R"(  { 'version': 1, 'profiles': [] } )");
-  auto parser = makeParser(config);
-  auto result = parser.parse();
-  CHECK(result.profileCount() == 0u);
+  const auto config = R"(  { 'version': 1, 'profiles': [] } )";
+  auto parser = GameEngineConfigParser{config, Path{}};
+  CHECK(parser.parse() == Model::GameEngineConfig{});
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseOneProfileWithMissingAttributes")
 {
-  const std::string config(R"(
+  const auto config = R"(
 {
 	"profiles": [
 		{
@@ -88,14 +85,14 @@ TEST_CASE("GameEngineConfigParserTest.parseOneProfileWithMissingAttributes")
 	],
 	"version": 1
 }
-)");
-  auto parser = makeParser(config);
+)";
+  auto parser = GameEngineConfigParser{config, Path{}};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
 {
-  const std::string config(R"(
+  const auto config = R"(
 {
 	"profiles": [
 		{
@@ -113,16 +110,16 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
 	"version": 1,
     "extraKey": []
 }
-)");
+)";
 
-  auto expectedProfiles = std::vector<std::unique_ptr<Model::GameEngineProfile>>{};
-  expectedProfiles.push_back(std::make_unique<Model::GameEngineProfile>(
-    "winquake", Path("C:\\Quake\\winquake.exe"), "-flag1 -flag2"));
-  expectedProfiles.push_back(std::make_unique<Model::GameEngineProfile>(
-    "glquake", Path("C:\\Quake\\glquake.exe"), "-flag3 -flag4"));
-
+  auto parser = GameEngineConfigParser{config, Path{}};
   CHECK(
-    makeParser(config).parse() == Model::GameEngineConfig(std::move(expectedProfiles)));
+    parser.parse()
+    == Model::GameEngineConfig{kdl::vec_from(
+      std::make_unique<Model::GameEngineProfile>(
+        "winquake", Path(R"(C:\Quake\winquake.exe)"), "-flag1 -flag2"),
+      std::make_unique<Model::GameEngineProfile>(
+        "glquake", Path(R"(C:\Quake\glquake.exe)"), "-flag3 -flag4"))});
 }
 } // namespace IO
 } // namespace TrenchBroom

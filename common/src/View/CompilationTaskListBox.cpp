@@ -58,8 +58,8 @@ CompilationTaskEditorBase::CompilationTaskEditorBase(
   : ControlListBoxItemRenderer{parent}
   , m_title{std::move(title)}
   , m_document{std::move(document)}
-  , m_profile{&profile}
-  , m_task{&task}
+  , m_profile{profile}
+  , m_task{task}
 {
   // request customContextMenuRequested() to be emitted
   setContextMenuPolicy(Qt::CustomContextMenu);
@@ -86,7 +86,7 @@ CompilationTaskEditorBase::CompilationTaskEditorBase(
   panel->getPanel()->setLayout(m_taskLayout);
 
   connect(m_enabledCheckbox, &QCheckBox::clicked, this, [&](const bool checked) {
-    m_task->setEnabled(checked);
+    m_task.setEnabled(checked);
   });
 }
 
@@ -108,7 +108,7 @@ void CompilationTaskEditorBase::addMainLayout(QLayout* layout)
 
 void CompilationTaskEditorBase::updateItem()
 {
-  m_enabledCheckbox->setChecked(m_task->enabled());
+  m_enabledCheckbox->setChecked(m_task.enabled());
 }
 
 void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
@@ -117,14 +117,14 @@ void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
   try
   {
     workDir = EL::interpolate(
-      m_profile->workDirSpec(),
-      EL::EvaluationContext(CompilationWorkDirVariables(kdl::mem_lock(m_document))));
+      m_profile.workDirSpec(),
+      EL::EvaluationContext{CompilationWorkDirVariables{kdl::mem_lock(m_document)}});
   }
   catch (const Exception&)
   {
   }
 
-  const auto variables = CompilationVariables(kdl::mem_lock(m_document), workDir);
+  const auto variables = CompilationVariables{kdl::mem_lock(m_document), workDir};
   completer->setModel(new VariableStoreModel{variables});
 }
 
@@ -174,7 +174,7 @@ Model::CompilationExportMap& CompilationExportMapTaskEditor::task()
 {
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
-  return static_cast<Model::CompilationExportMap&>(*m_task);
+  return static_cast<Model::CompilationExportMap&>(m_task);
 }
 
 void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text)
@@ -246,7 +246,7 @@ Model::CompilationCopyFiles& CompilationCopyFilesTaskEditor::task()
 {
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
-  return static_cast<Model::CompilationCopyFiles&>(*m_task);
+  return static_cast<Model::CompilationCopyFiles&>(m_task);
 }
 
 void CompilationCopyFilesTaskEditor::sourceSpecChanged(const QString& text)
@@ -311,7 +311,7 @@ Model::CompilationDeleteFiles& CompilationDeleteFilesTaskEditor::task()
 {
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
-  return static_cast<Model::CompilationDeleteFiles&>(*m_task);
+  return static_cast<Model::CompilationDeleteFiles&>(m_task);
 }
 
 void CompilationDeleteFilesTaskEditor::targetSpecChanged(const QString& text)
@@ -401,7 +401,7 @@ Model::CompilationRunTool& CompilationRunToolTaskEditor::task()
 {
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
-  return static_cast<Model::CompilationRunTool&>(*m_task);
+  return static_cast<Model::CompilationRunTool&>(m_task);
 }
 
 void CompilationRunToolTaskEditor::browseTool()

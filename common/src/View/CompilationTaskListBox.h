@@ -55,8 +55,8 @@ class CompilationTaskEditorBase : public ControlListBoxItemRenderer
 protected:
   const QString m_title;
   std::weak_ptr<MapDocument> m_document;
-  Model::CompilationProfile* m_profile{nullptr};
-  Model::CompilationTask* m_task{nullptr};
+  Model::CompilationProfile& m_profile;
+  Model::CompilationTask& m_task;
   QCheckBox* m_enabledCheckbox{nullptr};
   QHBoxLayout* m_taskLayout{nullptr};
 

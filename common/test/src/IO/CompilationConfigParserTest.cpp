@@ -33,224 +33,213 @@ namespace IO
 {
 TEST_CASE("CompilationConfigParserTest.parseBlankConfig")
 {
-  const std::string config("   ");
-  CompilationConfigParser parser(config);
+  const auto config = "   ";
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseEmptyConfig")
 {
-  const std::string config("  {  } ");
-  CompilationConfigParser parser(config);
+  const auto config = "  {  } ";
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseEmptyConfigWithTrailingGarbage")
 {
-  const std::string config("  {  } asdf");
-  CompilationConfigParser parser(config);
+  const auto config = "  {  } asdf";
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseMissingProfiles")
 {
-  const std::string config("  { 'version' : 1 } ");
-  CompilationConfigParser parser(config);
+  const auto config = "  { 'version' : 1 } ";
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseMissingVersion")
 {
-  const std::string config("  { 'profiles': {} } ");
-  CompilationConfigParser parser(config);
+  const auto config = "  { 'profiles': {} } ";
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseEmptyProfiles")
 {
-  const std::string config("  { 'version': 1, 'profiles': [] } ");
-  CompilationConfigParser parser(config);
+  const auto config = "  { 'version': 1, 'profiles': [] } ";
+  auto parser = CompilationConfigParser{config};
 
-  Model::CompilationConfig result = parser.parse();
+  auto result = parser.parse();
   CHECK(result.profileCount() == 0u);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithMissingNameAndMissingTasks")
 {
-  const std::string config(
-    "{"
-    "    'version': 1,"
-    "    'profiles': ["
-    "        {}"
-    "    ]"
-    "}");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {}
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndMissingTasks")
 {
-  const std::string config(
-    "{"
-    "    'version': 1,"
-    "    'profiles': ["
-    "        {"
-    "             'name': 'A profile'"
-    "        }"
-    "    ]"
-    "}");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name': 'A profile'
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithMissingNameAndEmptyTasks")
 {
-  const std::string config(
-    "{"
-    "    'version': 1,"
-    "    'profiles': ["
-    "        {"
-    "             'tasks': []"
-    "        }"
-    "    ]"
-    "}");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'tasks': []
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndEmptyTasks")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': []\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile', 
+      'workdir' : '', 
+      'tasks' : []
+    }
+  ]
+})";
 
-  Model::CompilationConfig result = parser.parse();
+  auto parser = CompilationConfigParser{config};
+
+  auto result = parser.parse();
   CHECK(result.profileCount() == 1u);
 
-  const Model::CompilationProfile* profile = result.profile(0);
-  CHECK(profile->name() == std::string("A profile"));
+  const auto* profile = result.profile(0);
+  CHECK(profile->name() == "A profile");
   CHECK(profile->taskCount() == 0u);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneInvalidTask")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'asdf': 'asdf'"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks': [ { 'asdf' : 'asdf' } ]
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneTaskWithUnknownType")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type': 'unknown'"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks': [ { 'type' : 'unknown' } ]
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE(
   "CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTaskWithMissingSource")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type':'copy',\n"
-    "                      'target': 'somewhere'\n"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks': [ {  'type' : 'copy', 'target' : 'somewhere' } ]
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE(
   "CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTaskWithMissingTarget")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type':'copy',\n"
-    "                      'source': 'somewhere'\n"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks': [ {  'type' : 'copy', 'source' : 'somewhere' } ]
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE(
   "CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTaskWithMissingTarget")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type':'delete',\n"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks': [ {  'type' : 'delete', } ]
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
+namespace
+{
 class AssertCompilationCopyFilesVisitor : public Model::ConstCompilationTaskConstVisitor
 {
 private:
@@ -261,9 +250,9 @@ private:
 public:
   AssertCompilationCopyFilesVisitor(
     const bool& enabled, const std::string& sourceSpec, const std::string& targetSpec)
-    : m_enabled(enabled)
-    , m_sourceSpec(sourceSpec)
-    , m_targetSpec(targetSpec)
+    : m_enabled{enabled}
+    , m_sourceSpec{sourceSpec}
+    , m_targetSpec{targetSpec}
   {
   }
 
@@ -295,8 +284,8 @@ private:
 
 public:
   AssertCompilationDeleteFilesVisitor(const bool& enabled, const std::string& targetSpec)
-    : m_enabled(enabled)
-    , m_targetSpec(targetSpec)
+    : m_enabled{enabled}
+    , m_targetSpec{targetSpec}
   {
   }
 
@@ -328,8 +317,8 @@ private:
 public:
   AssertCompilationRunToolVisitor(
     const std::string& toolSpec, const std::string& parameterSpec)
-    : m_toolSpec(toolSpec)
-    , m_parameterSpec(parameterSpec)
+    : m_toolSpec{toolSpec}
+    , m_parameterSpec{parameterSpec}
   {
   }
 
@@ -354,235 +343,204 @@ public:
     CHECK(task.parameterSpec() == m_parameterSpec);
   }
 };
+} // namespace
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTask")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type':'copy',\n"
-    "                      'source': 'the source',\n"
-    "                      'target': 'the target'\n"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'copy', 'source' : 'the source', 'target' : 'the target' } ]
+    }
+  ]
+})";
 
-  Model::CompilationConfig result = parser.parse();
+  auto parser = CompilationConfigParser{config};
+
+  auto result = parser.parse();
   CHECK(result.profileCount() == 1u);
 
-  const Model::CompilationProfile* profile = result.profile(0);
-  CHECK(profile->name() == std::string("A profile"));
+  const auto* profile = result.profile(0);
+  CHECK(profile->name() == "A profile");
   CHECK(profile->taskCount() == 1u);
 
   profile->task(0)->accept(
-    AssertCompilationCopyFilesVisitor(true, "the source", "the target"));
+    AssertCompilationCopyFilesVisitor{true, "the source", "the target"});
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type':'delete',\n"
-    "                      'target': 'the target'\n"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks': [ {  'type' : 'delete', 'target' : 'the target' } ]
+    }
+  ]
+})";
 
-  Model::CompilationConfig result = parser.parse();
+  auto parser = CompilationConfigParser{config};
+
+  auto result = parser.parse();
   CHECK(result.profileCount() == 1u);
 
-  const Model::CompilationProfile* profile = result.profile(0);
-  CHECK(profile->name() == std::string("A profile"));
+  const auto* profile = result.profile(0);
+  CHECK(profile->name() == "A profile");
   CHECK(profile->taskCount() == 1u);
 
-  profile->task(0)->accept(AssertCompilationDeleteFilesVisitor(true, "the target"));
+  profile->task(0)->accept(AssertCompilationDeleteFilesVisitor{true, "the target"});
 }
 
 TEST_CASE(
   "CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTaskWithMissingTool")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type':'tool',\n"
-    "                      'parameters': 'this and that'\n"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks': [ {  'type' : 'tool', 'parameters' : 'this and that' } ]
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE(
   "CompilationConfigParserTest."
-  "parseOneProfileWithNameAndOneToolTaskWithMissingParameters",
-  "[CompilationConfigParserTest]")
+  "parseOneProfileWithNameAndOneToolTaskWithMissingParameters")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type':'tool',\n"
-    "                      'tool': 'tyrbsp.exe'\n"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks': [ {  'type' : 'tool', 'tool' : 'tyrbsp.exe' } ]
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTask")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'unexpectedKey': '',\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'unexpectedKey': '',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type':'tool',\n"
-    "                      'unexpectedKey': '',\n"
-    "                      'tool': 'tyrbsp.exe',\n"
-    "                      'parameters': 'this and that'\n"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'unexpectedKey': '',
+  'profiles': [{
+      'name' : 'A profile',
+      'unexpectedKey' : '',
+      'workdir' : '',
+      'tasks' : [{ 
+        'type' : 'tool',
+        'unexpectedKey' : '',
+        'tool' : 'tyrbsp.exe',
+        'parameters': 'this and that'
+      }]
+    }]
+})";
 
-  Model::CompilationConfig result = parser.parse();
+  auto parser = CompilationConfigParser{config};
+
+  auto result = parser.parse();
   CHECK(result.profileCount() == 1u);
 
-  const Model::CompilationProfile* profile = result.profile(0);
-  CHECK(profile->name() == std::string("A profile"));
+  const auto* profile = result.profile(0);
+  CHECK(profile->name() == "A profile");
   CHECK(profile->taskCount() == 1u);
 
   profile->task(0)->accept(
-    AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
+    AssertCompilationRunToolVisitor{"tyrbsp.exe", "this and that"});
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks")
 {
-  const std::string config(
-    "{\n"
-    "    'version': 1,\n"
-    "    'profiles': [\n"
-    "        {\n"
-    "             'name': 'A profile',\n"
-    "             'workdir': '',\n"
-    "             'tasks': [\n"
-    "                 {\n"
-    "                      'type':'tool',\n"
-    "                      'tool': 'tyrbsp.exe',\n"
-    "                      'parameters': 'this and that'\n"
-    "                 },\n"
-    "                 {\n"
-    "                      'type':'copy',\n"
-    "                      'source': 'the source',\n"
-    "                      'target': 'the target',\n"
-    "                      'enabled': false\n"
-    "                 },\n"
-    "                 {\n"
-    "                      'type':'delete',\n"
-    "                      'target': 'some other target',\n"
-    "                      'enabled': false\n"
-    "                 }\n"
-    "             ]\n"
-    "        }\n"
-    "    ]\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [{
+    'name': 'A profile',
+    'workdir': '',
+    'tasks': [{
+      'type':'tool',
+      'tool': 'tyrbsp.exe',
+      'parameters': 'this and that'
+    },
+    {
+      'type':'copy',
+      'source': 'the source',
+      'target': 'the target',
+      'enabled': false
+    },
+    {
+      'type':'delete',
+      'target': 'some other target',
+      'enabled': false
+    }]
+  }]
+})";
 
-  Model::CompilationConfig result = parser.parse();
+  auto parser = CompilationConfigParser{config};
+
+  auto result = parser.parse();
   CHECK(result.profileCount() == 1u);
 
-  const Model::CompilationProfile* profile = result.profile(0);
-  CHECK(profile->name() == std::string("A profile"));
+  const auto* profile = result.profile(0);
+  CHECK(profile->name() == "A profile");
   CHECK(profile->taskCount() == 3u);
 
   profile->task(0)->accept(
-    AssertCompilationRunToolVisitor("tyrbsp.exe", "this and that"));
+    AssertCompilationRunToolVisitor{"tyrbsp.exe", "this and that"});
   profile->task(1)->accept(
-    AssertCompilationCopyFilesVisitor(false, "the source", "the target"));
+    AssertCompilationCopyFilesVisitor{false, "the source", "the target"});
   profile->task(2)->accept(
-    AssertCompilationDeleteFilesVisitor(false, "some other target"));
+    AssertCompilationDeleteFilesVisitor{false, "some other target"});
 }
 
 TEST_CASE("CompilationConfigParserTest.parseUnescapedBackslashes")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1437
-  const std::string config(
-    "{\n"
-    "	\"profiles\": [\n"
-    "		{\n"
-    "			\"name\": \"Full Compile\",\n"
-    "			\"tasks\": [\n"
-    "				{\n"
-    "					\"source\": "
-    "\"${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp\",\n"
-    "					\"target\": "
-    "\"C:\\\\quake2\\\\chaos\\\\maps\\\\\",\n" // The trailing
-                                               // backslash of the
-                                               // path has to be
-                                               // escaped.
-    "					\"type\": \"copy\"\n"
-    "				}\n"
-    "			],\n"
-    "			\"workdir\": \"${MAP_DIR_PATH}\"\n"
-    "		}\n"
-    "	],\n"
-    "	\"version\": 1\n"
-    "}\n");
-  CompilationConfigParser parser(config);
+  const auto config = R"(
+{
+  "profiles": [{
+    "name": "Full Compile",
+    "tasks": [{
+      "source": "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp",
+      "target": "C:\\quake2\\chaos\\maps\\",
+      "type": "copy"
+    }],
+    "workdir": "${MAP_DIR_PATH}"
+  }],
+  "version": 1
+})";
 
-  Model::CompilationConfig result = parser.parse();
+  auto parser = CompilationConfigParser{config};
+
+  auto result = parser.parse();
   CHECK(result.profileCount() == 1u);
 
-  const Model::CompilationProfile* profile = result.profile(0);
-  CHECK(profile->name() == std::string("Full Compile"));
+  const auto* profile = result.profile(0);
+  CHECK(profile->name() == "Full Compile");
   CHECK(profile->taskCount() == 1u);
 
-  profile->task(0)->accept(AssertCompilationCopyFilesVisitor(
-    true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", "C:\\quake2\\chaos\\maps\\"));
+  profile->task(0)->accept(AssertCompilationCopyFilesVisitor{
+    true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", R"(C:\quake2\chaos\maps\)"});
 }
 } // namespace IO
 } // namespace TrenchBroom

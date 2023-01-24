@@ -40,10 +40,10 @@ class GameEngineProfileEditor : public QWidget
 {
   Q_OBJECT
 private:
-  Model::GameEngineProfile* m_profile;
-  QStackedWidget* m_stackedWidget;
-  QLineEdit* m_nameEdit;
-  QLineEdit* m_pathEdit;
+  Model::GameEngineProfile* m_profile{nullptr};
+  QStackedWidget* m_stackedWidget{nullptr};
+  QLineEdit* m_nameEdit{nullptr};
+  QLineEdit* m_pathEdit{nullptr};
 
 public:
   explicit GameEngineProfileEditor(QWidget* parent = nullptr);

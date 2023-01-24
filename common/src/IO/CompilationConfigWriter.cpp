@@ -55,18 +55,18 @@ EL::Value CompilationConfigWriter::writeProfiles(
   for (size_t i = 0; i < config.profileCount(); ++i)
   {
     const auto* profile = config.profile(i);
-    array.push_back(writeProfile(profile));
+    array.push_back(writeProfile(*profile));
   }
 
   return EL::Value{std::move(array)};
 }
 
 EL::Value CompilationConfigWriter::writeProfile(
-  const Model::CompilationProfile* profile) const
+  const Model::CompilationProfile& profile) const
 {
   auto map = EL::MapType{};
-  map["name"] = EL::Value{profile->name()};
-  map["workdir"] = EL::Value{profile->workDirSpec()};
+  map["name"] = EL::Value{profile.name()};
+  map["workdir"] = EL::Value{profile.workDirSpec()};
   map["tasks"] = writeTasks(profile);
   return EL::Value{std::move(map)};
 }
@@ -135,10 +135,10 @@ public:
 } // namespace
 
 EL::Value CompilationConfigWriter::writeTasks(
-  const Model::CompilationProfile* profile) const
+  const Model::CompilationProfile& profile) const
 {
   auto visitor = WriteCompilationTaskVisitor{};
-  profile->accept(visitor);
+  profile.accept(visitor);
   return visitor.result();
 }
 } // namespace IO

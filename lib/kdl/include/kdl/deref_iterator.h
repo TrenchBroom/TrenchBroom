@@ -40,7 +40,7 @@ private:
   I m_it;
 
 public:
-  deref_iterator(I it)
+  explicit deref_iterator(I it)
     : m_it{it}
   {
   }
@@ -158,7 +158,7 @@ private:
   R& m_range;
 
 public:
-  deref_range(R& range)
+  explicit deref_range(R& range)
     : m_range{range}
   {
   }
@@ -210,7 +210,7 @@ private:
   const R& m_range;
 
 public:
-  const_deref_range(const R& range)
+  explicit const_deref_range(const R& range)
     : m_range{range}
   {
   }

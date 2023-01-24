@@ -38,12 +38,12 @@ class GameEngineProfileItemRenderer : public ControlListBoxItemRenderer
   Q_OBJECT
 private:
   Model::GameEngineProfile* m_profile;
-  ElidedLabel* m_nameLabel;
-  ElidedLabel* m_pathLabel;
+  ElidedLabel* m_nameLabel{nullptr};
+  ElidedLabel* m_pathLabel{nullptr};
 
 public:
   explicit GameEngineProfileItemRenderer(
-    Model::GameEngineProfile* profile, QWidget* parent = nullptr);
+    Model::GameEngineProfile& profile, QWidget* parent = nullptr);
 
   void updateItem() override;
 
@@ -58,16 +58,16 @@ class GameEngineProfileListBox : public ControlListBox
 {
   Q_OBJECT
 private:
-  const Model::GameEngineConfig* m_config;
+  Model::GameEngineConfig* m_config;
 
 public:
   explicit GameEngineProfileListBox(
-    const Model::GameEngineConfig* config, QWidget* parent = nullptr);
+    Model::GameEngineConfig& config, QWidget* parent = nullptr);
 
   Model::GameEngineProfile* selectedProfile() const;
 
 public:
-  void setConfig(const Model::GameEngineConfig* config);
+  void setConfig(Model::GameEngineConfig& config);
   void reloadProfiles();
   void updateProfiles();
 
@@ -84,7 +84,7 @@ signals:
   /**
    * Emitted when a profile is double-clicked.
    */
-  void profileSelected(Model::GameEngineProfile* profile);
+  void profileSelected(Model::GameEngineProfile& profile);
 };
 } // namespace View
 } // namespace TrenchBroom

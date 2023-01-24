@@ -37,7 +37,7 @@ private:
 
 public:
   GameEngineConfig();
-  GameEngineConfig(std::vector<std::unique_ptr<GameEngineProfile>> profiles);
+  explicit GameEngineConfig(std::vector<std::unique_ptr<GameEngineProfile>> profiles);
   GameEngineConfig(const GameEngineConfig& other);
   ~GameEngineConfig();
 

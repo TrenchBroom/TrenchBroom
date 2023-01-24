@@ -37,17 +37,14 @@ namespace View
 {
 GameEngineProfileManager::GameEngineProfileManager(
   Model::GameEngineConfig config, QWidget* parent)
-  : QWidget(parent)
-  , m_config(std::move(config))
-  , m_profileList(nullptr)
-  , m_profileEditor(nullptr)
-  , m_removeProfileButton(nullptr)
+  : QWidget{parent}
+  , m_config{config}
 {
-  auto* listPanel = new TitledPanel("Profiles");
-  auto* editorPanel = new TitledPanel("Details");
+  auto* listPanel = new TitledPanel{"Profiles"};
+  auto* editorPanel = new TitledPanel{"Details"};
 
-  m_profileList = new GameEngineProfileListBox(&m_config, listPanel->getPanel());
-  m_profileEditor = new GameEngineProfileEditor(editorPanel->getPanel());
+  m_profileList = new GameEngineProfileListBox{m_config, listPanel->getPanel()};
+  m_profileEditor = new GameEngineProfileEditor{editorPanel->getPanel()};
 
   auto* addProfileButton = createBitmapButton("Add.svg", "Add profile");
   m_removeProfileButton = createBitmapButton("Remove.svg", "Remove the selected profile");
@@ -55,26 +52,26 @@ GameEngineProfileManager::GameEngineProfileManager(
 
   auto* buttonLayout = createMiniToolBarLayout(addProfileButton, m_removeProfileButton);
 
-  auto* listLayout = new QVBoxLayout();
-  listLayout->setContentsMargins(QMargins());
+  auto* listLayout = new QVBoxLayout{};
+  listLayout->setContentsMargins(QMargins{});
   listLayout->setSpacing(0);
   listPanel->getPanel()->setLayout(listLayout);
   listLayout->addWidget(m_profileList, 1);
-  listLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+  listLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
   listLayout->addLayout(buttonLayout);
 
-  auto* editorLayout = new QHBoxLayout();
-  editorLayout->setContentsMargins(QMargins());
+  auto* editorLayout = new QHBoxLayout{};
+  editorLayout->setContentsMargins(QMargins{});
   editorLayout->setSpacing(0);
   editorPanel->getPanel()->setLayout(editorLayout);
   editorLayout->addWidget(m_profileEditor);
 
-  auto* outerLayout = new QHBoxLayout();
-  outerLayout->setContentsMargins(QMargins());
+  auto* outerLayout = new QHBoxLayout{};
+  outerLayout->setContentsMargins(QMargins{});
   outerLayout->setSpacing(0);
   setLayout(outerLayout);
   outerLayout->addWidget(listPanel, 1);
-  outerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
+  outerLayout->addWidget(new BorderLine{BorderLine::Direction::Vertical});
   outerLayout->addWidget(editorPanel, 1);
 
   listPanel->setMaximumWidth(250);
@@ -108,31 +105,22 @@ const Model::GameEngineConfig& GameEngineProfileManager::config() const
 
 void GameEngineProfileManager::addProfile()
 {
-  m_config.addProfile(std::make_unique<Model::GameEngineProfile>("", IO::Path(), ""));
+  m_config.addProfile(std::make_unique<Model::GameEngineProfile>("", IO::Path{}, ""));
   m_profileList->reloadProfiles();
-  m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
+  m_profileList->setCurrentRow(int(m_config.profileCount() - 1));
 }
 
 void GameEngineProfileManager::removeProfile()
 {
-  const int index = m_profileList->currentRow();
-
+  const auto index = m_profileList->currentRow();
   if (index < 0)
   {
     return;
   }
 
-  m_config.removeProfile(static_cast<size_t>(index));
+  m_config.removeProfile(size_t(index));
   m_profileList->reloadProfiles();
-
-  if (index >= m_profileList->count())
-  {
-    m_profileList->setCurrentRow(index - 1);
-  }
-  else
-  {
-    m_profileList->setCurrentRow(index);
-  }
+  m_profileList->setCurrentRow(index >= m_profileList->count() ? index - 1 : index);
 }
 
 void GameEngineProfileManager::currentProfileChanged(Model::GameEngineProfile* profile)

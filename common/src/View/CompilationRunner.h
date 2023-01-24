@@ -131,8 +131,8 @@ class CompilationRunToolTaskRunner : public CompilationTaskRunner
   Q_OBJECT
 private:
   std::unique_ptr<const Model::CompilationRunTool> m_task;
-  QProcess* m_process;
-  bool m_terminated;
+  QProcess* m_process{nullptr};
+  bool m_terminated{false};
 
 public:
   CompilationRunToolTaskRunner(
@@ -168,14 +168,14 @@ private:
 public:
   CompilationRunner(
     std::unique_ptr<CompilationContext> context,
-    const Model::CompilationProfile* profile,
+    const Model::CompilationProfile& profile,
     QObject* parent = nullptr);
   ~CompilationRunner() override;
 
 private:
   class CreateTaskRunnerVisitor;
   static TaskRunnerList createTaskRunners(
-    CompilationContext& context, const Model::CompilationProfile* profile);
+    CompilationContext& context, const Model::CompilationProfile& profile);
 
 public:
   void execute();
@@ -183,8 +183,8 @@ public:
   bool running() const;
 
 private:
-  void bindEvents(CompilationTaskRunner* runner) const;
-  void unbindEvents(CompilationTaskRunner* runner) const;
+  void bindEvents(CompilationTaskRunner& runner) const;
+  void unbindEvents(CompilationTaskRunner& runner) const;
 private slots:
   void taskError();
   void taskEnd();

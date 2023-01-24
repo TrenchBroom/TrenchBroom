@@ -34,22 +34,20 @@ namespace View
 
 CompilationProfileItemRenderer::CompilationProfileItemRenderer(
   Model::CompilationProfile& profile, QWidget* parent)
-  : ControlListBoxItemRenderer(parent)
-  , m_profile(&profile)
-  , m_nameText(nullptr)
-  , m_taskCountText(nullptr)
+  : ControlListBoxItemRenderer{parent}
+  , m_profile{profile}
 {
-  setContextMenuPolicy(
-    Qt::CustomContextMenu); // request customContextMenuRequested() to be emitted
+  // request customContextMenuRequested() to be emitted
+  setContextMenuPolicy(Qt::CustomContextMenu);
 
-  m_nameText = new ElidedLabel("", Qt::ElideRight);
-  m_taskCountText = new ElidedLabel("", Qt::ElideMiddle);
+  m_nameText = new ElidedLabel{"", Qt::ElideRight};
+  m_taskCountText = new ElidedLabel{"", Qt::ElideMiddle};
 
   makeEmphasized(m_nameText);
   makeInfo(m_taskCountText);
 
-  auto* layout = new QVBoxLayout();
-  layout->setContentsMargins(QMargins());
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(QMargins{});
   layout->setSpacing(0);
   layout->addWidget(m_nameText);
   layout->addWidget(m_taskCountText);
@@ -61,24 +59,16 @@ CompilationProfileItemRenderer::~CompilationProfileItemRenderer() {}
 
 void CompilationProfileItemRenderer::updateItem()
 {
-  if (m_profile == nullptr)
-  {
-    m_nameText->setText("");
-    m_taskCountText->setText("");
-  }
-  else
-  {
-    m_nameText->setText(QString::fromStdString(m_profile->name()));
-    m_taskCountText->setText(QString::number(m_profile->taskCount()) + " tasks");
-  }
+  m_nameText->setText(QString::fromStdString(m_profile.name()));
+  m_taskCountText->setText(QString::number(m_profile.taskCount()) + " tasks");
 }
 
 // CompilationProfileListBox
 
 CompilationProfileListBox::CompilationProfileListBox(
   const Model::CompilationConfig& config, QWidget* parent)
-  : ControlListBox("Click the '+' button to create a compilation profile.", true, parent)
-  , m_config(config)
+  : ControlListBox{"Click the '+' button to create a compilation profile.", true, parent}
+  , m_config{config}
 {
   reload();
 }
@@ -102,9 +92,9 @@ ControlListBoxItemRenderer* CompilationProfileListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
   auto* profile = m_config.profile(index);
-  auto* renderer = new CompilationProfileItemRenderer(*profile, parent);
+  auto* renderer = new CompilationProfileItemRenderer{*profile, parent};
   connect(renderer, &QWidget::customContextMenuRequested, this, [=](const QPoint& pos) {
-    emit this->profileContextMenuRequested(renderer->mapToGlobal(pos), profile);
+    emit this->profileContextMenuRequested(renderer->mapToGlobal(pos), *profile);
   });
   return renderer;
 }

@@ -29,7 +29,6 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class GameEngineConfig;
 class GameEngineProfile;
 } // namespace Model
 
@@ -46,9 +45,9 @@ class GameEngineProfileManager : public QWidget
   Q_OBJECT
 private:
   Model::GameEngineConfig m_config;
-  GameEngineProfileListBox* m_profileList;
-  GameEngineProfileEditor* m_profileEditor;
-  QAbstractButton* m_removeProfileButton;
+  GameEngineProfileListBox* m_profileList{nullptr};
+  GameEngineProfileEditor* m_profileEditor{nullptr};
+  QAbstractButton* m_removeProfileButton{nullptr};
 
 public:
   explicit GameEngineProfileManager(

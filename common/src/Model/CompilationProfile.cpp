@@ -20,7 +20,6 @@
 #include "CompilationProfile.h"
 
 #include "Ensure.h"
-#include "Model/CompilationTask.h"
 
 #include <kdl/deref_iterator.h>
 #include <kdl/struct_io.h>
@@ -33,11 +32,6 @@ namespace TrenchBroom
 {
 namespace Model
 {
-CompilationProfile::CompilationProfile(std::string name, std::string workDirSpec)
-  : CompilationProfile{std::move(name), std::move(workDirSpec), {}}
-{
-}
-
 CompilationProfile::CompilationProfile(
   std::string name,
   std::string workDirSpec,
