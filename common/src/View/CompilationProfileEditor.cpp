@@ -128,7 +128,7 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
     m_taskList,
     &CompilationTaskListBox::taskContextMenuRequested,
     this,
-    [&](const QPoint& globalPos, Model::CompilationTask* task) {
+    [&](const QPoint& globalPos, const Model::CompilationTask& task) {
       const int index = static_cast<int>(m_profile->indexOfTask(task));
 
       auto menu = QMenu{this};
@@ -196,44 +196,46 @@ void CompilationProfileEditor::addTask()
   auto* deleteFilesAction = menu.addAction("Delete Files");
   auto* runToolAction = menu.addAction("Run Tool");
 
-  auto task = std::unique_ptr<Model::CompilationTask>{};
-  auto* chosenAction = menu.exec(QCursor::pos());
-  if (chosenAction == exportMapAction)
-  {
-    task = std::make_unique<Model::CompilationExportMap>(
-      true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map");
-  }
-  else if (chosenAction == copyFilesAction)
-  {
-    task = std::make_unique<Model::CompilationCopyFiles>(true, "", "");
-  }
-  else if (chosenAction == deleteFilesAction)
-  {
-    task = std::make_unique<Model::CompilationDeleteFiles>(true, "");
-  }
-  else if (chosenAction == runToolAction)
-  {
-    task = std::make_unique<Model::CompilationRunTool>(true, "", "");
-  }
-  else
-  {
-    return;
-  }
+  auto task = [&](const auto* chosenAction) -> std::optional<Model::CompilationTask> {
+    if (chosenAction == exportMapAction)
+    {
+      return Model::CompilationExportMap{
+        true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map"};
+    }
+    if (chosenAction == copyFilesAction)
+    {
+      return Model::CompilationCopyFiles{true, "", ""};
+    }
+    if (chosenAction == deleteFilesAction)
+    {
+      return Model::CompilationDeleteFiles{true, ""};
+    }
+    if (chosenAction == runToolAction)
+    {
+      return Model::CompilationRunTool{true, "", ""};
+    }
+    {
+      return std::nullopt;
+    }
+  }(menu.exec(QCursor::pos()));
 
-  const auto index = m_taskList->currentRow();
-  if (index < 0)
+  if (task)
   {
-    m_profile->addTask(std::move(task));
-    m_taskList->reloadTasks();
-    m_taskList->setCurrentRow(static_cast<int>(m_profile->taskCount()) - 1);
+    const auto index = m_taskList->currentRow();
+    if (index < 0)
+    {
+      m_profile->addTask(std::move(*task));
+      m_taskList->reloadTasks();
+      m_taskList->setCurrentRow(static_cast<int>(m_profile->taskCount()) - 1);
+    }
+    else
+    {
+      m_profile->insertTask(static_cast<size_t>(index + 1), std::move(*task));
+      m_taskList->reloadTasks();
+      m_taskList->setCurrentRow(index + 1);
+    }
+    emit profileChanged();
   }
-  else
-  {
-    m_profile->insertTask(static_cast<size_t>(index + 1), std::move(task));
-    m_taskList->reloadTasks();
-    m_taskList->setCurrentRow(index + 1);
-  }
-  emit profileChanged();
 }
 
 void CompilationProfileEditor::removeTask()
@@ -269,10 +271,8 @@ void CompilationProfileEditor::removeTask(const int index)
 
 void CompilationProfileEditor::duplicateTask(const int index)
 {
-  auto* task = m_profile->task(static_cast<size_t>(index));
-  m_profile->insertTask(
-    static_cast<size_t>(index) + 1,
-    std::unique_ptr<Model::CompilationTask>(task->clone()));
+  const auto& task = m_profile->task(static_cast<size_t>(index));
+  m_profile->insertTask(static_cast<size_t>(index) + 1, task);
   m_taskList->reloadTasks();
   m_taskList->setCurrentRow(index + 1);
   emit profileChanged();

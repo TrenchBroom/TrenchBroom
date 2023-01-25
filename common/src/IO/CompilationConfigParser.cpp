@@ -80,10 +80,10 @@ std::unique_ptr<Model::CompilationProfile> CompilationConfigParser::parseProfile
     std::move(name), std::move(workdir), std::move(tasks));
 }
 
-std::vector<std::unique_ptr<Model::CompilationTask>> CompilationConfigParser::parseTasks(
+std::vector<Model::CompilationTask> CompilationConfigParser::parseTasks(
   const EL::Value& value) const
 {
-  auto result = std::vector<std::unique_ptr<Model::CompilationTask>>{};
+  auto result = std::vector<Model::CompilationTask>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -93,8 +93,7 @@ std::vector<std::unique_ptr<Model::CompilationTask>> CompilationConfigParser::pa
   return result;
 }
 
-std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseTask(
-  const EL::Value& value) const
+Model::CompilationTask CompilationConfigParser::parseTask(const EL::Value& value) const
 {
   expectMapEntry(value, "type", EL::ValueType::String);
   const auto typeName = value["type"].stringValue();
@@ -119,19 +118,17 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseTask(
   throw ParserException{"Unknown compilation task type '" + typeName + "'"};
 }
 
-std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseExportTask(
+Model::CompilationExportMap CompilationConfigParser::parseExportTask(
   const EL::Value& value) const
 {
   expectStructure(
     value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
 
   const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  auto target = value["target"].stringValue();
-
-  return std::make_unique<Model::CompilationExportMap>(enabled, std::move(target));
+  return {enabled, value["target"].stringValue()};
 }
 
-std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(
+Model::CompilationCopyFiles CompilationConfigParser::parseCopyTask(
   const EL::Value& value) const
 {
   expectStructure(
@@ -140,26 +137,20 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseCopyTask(
     "'Boolean' } ]");
 
   const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  auto source = value["source"].stringValue();
-  auto target = value["target"].stringValue();
-
-  return std::make_unique<Model::CompilationCopyFiles>(
-    enabled, std::move(source), std::move(target));
+  return {enabled, value["source"].stringValue(), value["target"].stringValue()};
 }
 
-std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseDeleteTask(
+Model::CompilationDeleteFiles CompilationConfigParser::parseDeleteTask(
   const EL::Value& value) const
 {
   expectStructure(
     value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
 
   const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  auto target = value["target"].stringValue();
-
-  return std::make_unique<Model::CompilationDeleteFiles>(enabled, std::move(target));
+  return {enabled, value["target"].stringValue()};
 }
 
-std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(
+Model::CompilationRunTool CompilationConfigParser::parseToolTask(
   const EL::Value& value) const
 {
   expectStructure(
@@ -168,11 +159,7 @@ std::unique_ptr<Model::CompilationTask> CompilationConfigParser::parseToolTask(
     "'Boolean' } ]");
 
   const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  auto tool = value["tool"].stringValue();
-  auto parameters = value["parameters"].stringValue();
-
-  return std::make_unique<Model::CompilationRunTool>(
-    enabled, std::move(tool), std::move(parameters));
+  return {enabled, value["tool"].stringValue(), value["parameters"].stringValue()};
 }
 } // namespace IO
 } // namespace TrenchBroom

@@ -21,7 +21,6 @@
 
 #include "Ensure.h"
 
-#include <kdl/deref_iterator.h>
 #include <kdl/struct_io.h>
 #include <kdl/vector_utils.h>
 
@@ -33,34 +32,23 @@ namespace TrenchBroom
 namespace Model
 {
 CompilationProfile::CompilationProfile(
-  std::string name,
-  std::string workDirSpec,
-  std::vector<std::unique_ptr<CompilationTask>> tasks)
+  std::string name, std::string workDirSpec, std::vector<CompilationTask> tasks)
   : m_name{std::move(name)}
   , m_workDirSpec{std::move(workDirSpec)}
   , m_tasks{std::move(tasks)}
 {
 }
 
-CompilationProfile::~CompilationProfile() = default;
 
 std::unique_ptr<CompilationProfile> CompilationProfile::clone() const
 {
-  auto clones = std::vector<std::unique_ptr<CompilationTask>>{};
-  clones.reserve(m_tasks.size());
-
-  for (const auto& original : m_tasks)
-  {
-    clones.emplace_back(original->clone());
-  }
-
-  return std::make_unique<CompilationProfile>(m_name, m_workDirSpec, std::move(clones));
+  return std::make_unique<CompilationProfile>(m_name, m_workDirSpec, m_tasks);
 }
 
 bool operator==(const CompilationProfile& lhs, const CompilationProfile& rhs)
 {
   return lhs.m_name == rhs.m_name && lhs.m_workDirSpec == rhs.m_workDirSpec
-         && kdl::const_deref_range{lhs.m_tasks} == kdl::const_deref_range{rhs.m_tasks};
+         && lhs.m_tasks == rhs.m_tasks;
 }
 
 bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs)
@@ -72,8 +60,7 @@ std::ostream& operator<<(std::ostream& str, const CompilationProfile& profile)
 {
   kdl::struct_stream{str} << "CompilationProfile"
                           << "m_name" << profile.m_name << "m_workDirSpec"
-                          << profile.m_workDirSpec << "m_tasks"
-                          << kdl::const_deref_range{profile.m_tasks};
+                          << profile.m_workDirSpec << "m_tasks" << profile.m_tasks;
   return str;
 }
 
@@ -102,29 +89,37 @@ size_t CompilationProfile::taskCount() const
   return m_tasks.size();
 }
 
-CompilationTask* CompilationProfile::task(const size_t index) const
+size_t CompilationProfile::indexOfTask(const CompilationTask& task) const
 {
-  assert(index < taskCount());
-  return m_tasks[index].get();
-}
-
-size_t CompilationProfile::indexOfTask(CompilationTask* task) const
-{
-  auto result =
-    kdl::vec_index_of(m_tasks, [=](const auto& ptr) { return ptr.get() == task; });
+  auto result = kdl::vec_index_of(m_tasks, [=](const auto& t) { return t == task; });
   return *result;
 }
 
-void CompilationProfile::addTask(std::unique_ptr<CompilationTask> task)
+const std::vector<CompilationTask> CompilationProfile::tasks() const
+{
+  return m_tasks;
+}
+
+CompilationTask& CompilationProfile::task(const size_t index)
+{
+  assert(index < taskCount());
+  return m_tasks[index];
+}
+
+const CompilationTask& CompilationProfile::task(const size_t index) const
+{
+  return const_cast<const CompilationTask&>(
+    const_cast<CompilationProfile*>(this)->task(index));
+}
+
+void CompilationProfile::addTask(CompilationTask task)
 {
   insertTask(m_tasks.size(), std::move(task));
 }
 
-void CompilationProfile::insertTask(
-  const size_t index, std::unique_ptr<CompilationTask> task)
+void CompilationProfile::insertTask(const size_t index, CompilationTask task)
 {
   assert(index <= m_tasks.size());
-  ensure(task != nullptr, "task is null");
 
   if (index == m_tasks.size())
   {
@@ -171,36 +166,6 @@ void CompilationProfile::moveTaskDown(const size_t index)
   std::iter_swap(it, nx);
 }
 
-void CompilationProfile::accept(CompilationTaskVisitor& visitor)
-{
-  for (auto& task : m_tasks)
-  {
-    task->accept(visitor);
-  }
-}
 
-void CompilationProfile::accept(ConstCompilationTaskVisitor& visitor) const
-{
-  for (auto& task : m_tasks)
-  {
-    task->accept(visitor);
-  }
-}
-
-void CompilationProfile::accept(const CompilationTaskConstVisitor& visitor)
-{
-  for (auto& task : m_tasks)
-  {
-    task->accept(visitor);
-  }
-}
-
-void CompilationProfile::accept(const ConstCompilationTaskConstVisitor& visitor) const
-{
-  for (auto& task : m_tasks)
-  {
-    task->accept(visitor);
-  }
-}
 } // namespace Model
 } // namespace TrenchBroom

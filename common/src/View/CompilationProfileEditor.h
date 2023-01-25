@@ -32,7 +32,6 @@ namespace TrenchBroom
 namespace Model
 {
 class CompilationProfile;
-class CompilationTask;
 } // namespace Model
 
 namespace View

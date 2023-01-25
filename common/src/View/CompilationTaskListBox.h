@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Model/CompilationTask.h"
 #include "View/ControlListBox.h"
 
 #include <memory>
@@ -35,12 +36,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationCopyFiles;
-class CompilationDeleteFiles;
-class CompilationExportMap;
 class CompilationProfile;
-class CompilationRunTool;
-class CompilationTask;
 } // namespace Model
 
 namespace View
@@ -91,7 +87,7 @@ public:
   CompilationExportMapTaskEditor(
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
-    Model::CompilationExportMap& task,
+    Model::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
@@ -112,7 +108,7 @@ public:
   CompilationCopyFilesTaskEditor(
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
-    Model::CompilationCopyFiles& task,
+    Model::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
@@ -133,7 +129,7 @@ public:
   CompilationDeleteFilesTaskEditor(
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
-    Model::CompilationDeleteFiles& task,
+    Model::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
@@ -154,7 +150,7 @@ public:
   CompilationRunToolTaskEditor(
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
-    Model::CompilationRunTool& task,
+    Model::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
@@ -183,11 +179,10 @@ public:
   void reloadTasks();
 
 private:
-  class CompilationTaskEditorFactory;
   size_t itemCount() const override;
   ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
 signals:
-  void taskContextMenuRequested(const QPoint& globalPos, Model::CompilationTask* task);
+  void taskContextMenuRequested(const QPoint& globalPos, Model::CompilationTask& task);
 };
 } // namespace View
 } // namespace TrenchBroom

@@ -238,113 +238,6 @@ TEST_CASE(
   CHECK_THROWS_AS(parser.parse(), ParserException);
 }
 
-namespace
-{
-class AssertCompilationCopyFilesVisitor : public Model::ConstCompilationTaskConstVisitor
-{
-private:
-  const bool& m_enabled;
-  const std::string& m_sourceSpec;
-  const std::string& m_targetSpec;
-
-public:
-  AssertCompilationCopyFilesVisitor(
-    const bool& enabled, const std::string& sourceSpec, const std::string& targetSpec)
-    : m_enabled{enabled}
-    , m_sourceSpec{sourceSpec}
-    , m_targetSpec{targetSpec}
-  {
-  }
-
-  void visit(const Model::CompilationExportMap& /* task */) const override
-  {
-    CHECK(false);
-  }
-
-  void visit(const Model::CompilationCopyFiles& task) const override
-  {
-    CHECK(task.sourceSpec() == m_sourceSpec);
-    CHECK(task.targetSpec() == m_targetSpec);
-    CHECK(m_enabled == task.enabled());
-  }
-
-  void visit(const Model::CompilationDeleteFiles& /* task */) const override
-  {
-    CHECK(false);
-  }
-
-  void visit(const Model::CompilationRunTool& /* task */) const override { CHECK(false); }
-};
-
-class AssertCompilationDeleteFilesVisitor : public Model::ConstCompilationTaskConstVisitor
-{
-private:
-  const bool& m_enabled;
-  const std::string& m_targetSpec;
-
-public:
-  AssertCompilationDeleteFilesVisitor(const bool& enabled, const std::string& targetSpec)
-    : m_enabled{enabled}
-    , m_targetSpec{targetSpec}
-  {
-  }
-
-  void visit(const Model::CompilationExportMap& /* task */) const override
-  {
-    CHECK(false);
-  }
-
-  void visit(const Model::CompilationCopyFiles& /* task */) const override
-  {
-    CHECK(false);
-  }
-
-  void visit(const Model::CompilationDeleteFiles& task) const override
-  {
-    CHECK(task.targetSpec() == m_targetSpec);
-    CHECK(m_enabled == task.enabled());
-  }
-
-  void visit(const Model::CompilationRunTool& /* task */) const override { CHECK(false); }
-};
-
-class AssertCompilationRunToolVisitor : public Model::ConstCompilationTaskConstVisitor
-{
-private:
-  const std::string& m_toolSpec;
-  const std::string& m_parameterSpec;
-
-public:
-  AssertCompilationRunToolVisitor(
-    const std::string& toolSpec, const std::string& parameterSpec)
-    : m_toolSpec{toolSpec}
-    , m_parameterSpec{parameterSpec}
-  {
-  }
-
-  void visit(const Model::CompilationExportMap& /* task */) const override
-  {
-    CHECK(false);
-  }
-
-  void visit(const Model::CompilationCopyFiles& /* task */) const override
-  {
-    CHECK(false);
-  }
-
-  void visit(const Model::CompilationDeleteFiles& /* task */) const override
-  {
-    CHECK(false);
-  }
-
-  void visit(const Model::CompilationRunTool& task) const override
-  {
-    CHECK(task.toolSpec() == m_toolSpec);
-    CHECK(task.parameterSpec() == m_parameterSpec);
-  }
-};
-} // namespace
-
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTask")
 {
   const auto config = R"(
@@ -366,10 +259,10 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTask")
 
   const auto* profile = result.profile(0);
   CHECK(profile->name() == "A profile");
-  CHECK(profile->taskCount() == 1u);
-
-  profile->task(0)->accept(
-    AssertCompilationCopyFilesVisitor{true, "the source", "the target"});
+  CHECK(
+    profile->tasks()
+    == std::vector<Model::CompilationTask>{
+      Model::CompilationCopyFiles{true, "the source", "the target"}});
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask")
@@ -393,9 +286,10 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask")
 
   const auto* profile = result.profile(0);
   CHECK(profile->name() == "A profile");
-  CHECK(profile->taskCount() == 1u);
-
-  profile->task(0)->accept(AssertCompilationDeleteFilesVisitor{true, "the target"});
+  CHECK(
+    profile->tasks()
+    == std::vector<Model::CompilationTask>{
+      Model::CompilationDeleteFiles{true, "the target"}});
 }
 
 TEST_CASE(
@@ -463,10 +357,10 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTask")
 
   const auto* profile = result.profile(0);
   CHECK(profile->name() == "A profile");
-  CHECK(profile->taskCount() == 1u);
-
-  profile->task(0)->accept(
-    AssertCompilationRunToolVisitor{"tyrbsp.exe", "this and that"});
+  CHECK(
+    profile->tasks()
+    == std::vector<Model::CompilationTask>{
+      Model::CompilationRunTool{true, "tyrbsp.exe", "this and that"}});
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks")
@@ -503,14 +397,13 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks")
 
   const auto* profile = result.profile(0);
   CHECK(profile->name() == "A profile");
-  CHECK(profile->taskCount() == 3u);
-
-  profile->task(0)->accept(
-    AssertCompilationRunToolVisitor{"tyrbsp.exe", "this and that"});
-  profile->task(1)->accept(
-    AssertCompilationCopyFilesVisitor{false, "the source", "the target"});
-  profile->task(2)->accept(
-    AssertCompilationDeleteFilesVisitor{false, "some other target"});
+  CHECK(
+    profile->tasks()
+    == std::vector<Model::CompilationTask>{
+      Model::CompilationRunTool{true, "tyrbsp.exe", "this and that"},
+      Model::CompilationCopyFiles{false, "the source", "the target"},
+      Model::CompilationDeleteFiles{false, "some other target"},
+    });
 }
 
 TEST_CASE("CompilationConfigParserTest.parseUnescapedBackslashes")
@@ -537,10 +430,10 @@ TEST_CASE("CompilationConfigParserTest.parseUnescapedBackslashes")
 
   const auto* profile = result.profile(0);
   CHECK(profile->name() == "Full Compile");
-  CHECK(profile->taskCount() == 1u);
-
-  profile->task(0)->accept(AssertCompilationCopyFilesVisitor{
-    true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", R"(C:\quake2\chaos\maps\)"});
+  CHECK(
+    profile->tasks()
+    == std::vector<Model::CompilationTask>{Model::CompilationCopyFiles{
+      true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", R"(C:\quake2\chaos\maps\)"}});
 }
 } // namespace IO
 } // namespace TrenchBroom

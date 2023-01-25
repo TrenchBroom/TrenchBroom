@@ -36,14 +36,11 @@ class CompilationProfile
 private:
   std::string m_name;
   std::string m_workDirSpec;
-  std::vector<std::unique_ptr<CompilationTask>> m_tasks;
+  std::vector<CompilationTask> m_tasks;
 
 public:
   CompilationProfile(
-    std::string name,
-    std::string workDirSpec,
-    std::vector<std::unique_ptr<CompilationTask>> tasks = {});
-  ~CompilationProfile();
+    std::string name, std::string workDirSpec, std::vector<CompilationTask> tasks = {});
 
   std::unique_ptr<CompilationProfile> clone() const;
   friend bool operator==(const CompilationProfile& lhs, const CompilationProfile& rhs);
@@ -57,22 +54,19 @@ public:
   void setWorkDirSpec(std::string workDirSpec);
 
   size_t taskCount() const;
-  CompilationTask* task(size_t index) const;
-  size_t indexOfTask(CompilationTask* task) const;
+  size_t indexOfTask(const CompilationTask& task) const;
 
-  void addTask(std::unique_ptr<CompilationTask> task);
-  void insertTask(size_t index, std::unique_ptr<CompilationTask> task);
+  const std::vector<CompilationTask> tasks() const;
+
+  CompilationTask& task(size_t index);
+  const CompilationTask& task(size_t index) const;
+
+  void addTask(CompilationTask task);
+  void insertTask(size_t index, CompilationTask task);
   void removeTask(size_t index);
 
   void moveTaskUp(size_t index);
   void moveTaskDown(size_t index);
-
-  void accept(CompilationTaskVisitor& visitor);
-  void accept(ConstCompilationTaskVisitor& visitor) const;
-  void accept(const CompilationTaskConstVisitor& visitor);
-  void accept(const ConstCompilationTaskConstVisitor& visitor) const;
-
-  deleteCopyAndMove(CompilationProfile);
 };
 } // namespace Model
 } // namespace TrenchBroom
