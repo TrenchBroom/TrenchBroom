@@ -105,7 +105,7 @@ TEST_CASE("GameFactory.initialize")
 
   const auto& gameConfig = gameFactory.gameConfig("Quake");
   CHECK(gameConfig.name == "Quake");
-  CHECK(gameConfig.compilationConfig.profileCount() == 1);
+  CHECK(gameConfig.compilationConfig.profiles.size() == 1);
   CHECK(gameConfig.gameEngineConfig.profileCount() == 1);
 }
 } // namespace Model

@@ -55,7 +55,7 @@ EL::Value CompilationConfigWriter::writeProfiles(
   const Model::CompilationConfig& config) const
 {
   return EL::Value{kdl::vec_transform(
-    config.profiles(), [&](const auto& profile) { return writeProfile(profile); })};
+    config.profiles, [&](const auto& profile) { return writeProfile(profile); })};
 }
 
 EL::Value CompilationConfigWriter::writeProfile(

@@ -85,13 +85,13 @@ void CompilationProfileListBox::updateProfiles()
 
 size_t CompilationProfileListBox::itemCount() const
 {
-  return m_config.profileCount();
+  return m_config.profiles.size();
 }
 
 ControlListBoxItemRenderer* CompilationProfileListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
-  auto& profile = m_config.profile(index);
+  auto& profile = m_config.profiles[index];
   auto* renderer = new CompilationProfileItemRenderer{profile, parent};
   connect(renderer, &QWidget::customContextMenuRequested, this, [&](const QPoint& pos) {
     emit this->profileContextMenuRequested(renderer->mapToGlobal(pos), profile);

@@ -21,34 +21,17 @@
 
 #include "Model/CompilationProfile.h"
 
-#include <iosfwd>
-#include <vector>
+#include <kdl/reflection_decl.h>
 
 namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationConfig
+struct CompilationConfig
 {
-private:
-  std::vector<CompilationProfile> m_profiles;
+  std::vector<CompilationProfile> profiles;
 
-public:
-  CompilationConfig();
-  explicit CompilationConfig(std::vector<CompilationProfile> profiles);
-
-  friend bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs);
-  friend bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const CompilationConfig& config);
-
-  const std::vector<CompilationProfile>& profiles() const;
-  size_t profileCount() const;
-  size_t indexOfProfile(const CompilationProfile& profile) const;
-  CompilationProfile& profile(size_t index);
-  const CompilationProfile& profile(size_t index) const;
-
-  void addProfile(CompilationProfile profile);
-  void removeProfile(size_t index);
+  kdl_reflect_decl(CompilationConfig, profiles);
 };
 } // namespace Model
 } // namespace TrenchBroom

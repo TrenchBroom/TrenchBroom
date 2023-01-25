@@ -27,6 +27,8 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 
+#include "kdl/vector_utils.h"
+
 #include <QMenu>
 #include <QToolButton>
 
@@ -111,7 +113,7 @@ CompilationProfileManager::CompilationProfileManager(
 const Model::CompilationProfile* CompilationProfileManager::selectedProfile() const
 {
   const auto index = m_profileList->currentRow();
-  return index >= 0 ? &m_config.profile(static_cast<size_t>(index)) : nullptr;
+  return index >= 0 ? &m_config.profiles[size_t(index)] : nullptr;
 }
 
 const Model::CompilationConfig& CompilationProfileManager::config() const
@@ -121,9 +123,10 @@ const Model::CompilationConfig& CompilationProfileManager::config() const
 
 void CompilationProfileManager::addProfile()
 {
-  m_config.addProfile({"unnamed", "${MAP_DIR_PATH}", {}});
+  m_config.profiles.push_back(
+    Model::CompilationProfile{"unnamed", "${MAP_DIR_PATH}", {}});
   m_profileList->reloadProfiles();
-  m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
+  m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }
 
 void CompilationProfileManager::removeProfile()
@@ -135,7 +138,7 @@ void CompilationProfileManager::removeProfile()
 
 void CompilationProfileManager::removeProfile(const size_t index)
 {
-  m_config.removeProfile(index);
+  kdl::vec_erase_at(m_config.profiles, index);
   m_profileList->reloadProfiles();
 
   if (m_profileList->count() > 0)
@@ -153,14 +156,15 @@ void CompilationProfileManager::removeProfile(const size_t index)
 
 void CompilationProfileManager::removeProfile(const Model::CompilationProfile& profile)
 {
-  removeProfile(m_config.indexOfProfile(profile));
+  const auto index = kdl::vec_index_of(m_config.profiles, profile);
+  removeProfile(*index);
 }
 
 void CompilationProfileManager::duplicateProfile(const Model::CompilationProfile& profile)
 {
-  m_config.addProfile(profile);
+  m_config.profiles.push_back(profile);
   m_profileList->reloadProfiles();
-  m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
+  m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }
 
 void CompilationProfileManager::profileContextMenuRequested(
@@ -177,7 +181,7 @@ void CompilationProfileManager::profileSelectionChanged()
   const auto selection = m_profileList->currentRow();
   if (selection >= 0)
   {
-    auto& profile = m_config.profile(static_cast<size_t>(selection));
+    auto& profile = m_config.profiles[size_t(selection)];
     m_profileEditor->setProfile(&profile);
     m_removeProfileButton->setEnabled(true);
   }

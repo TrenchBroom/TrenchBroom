@@ -29,7 +29,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationConfig;
+struct CompilationConfig;
 struct CompilationProfile;
 } // namespace Model
 

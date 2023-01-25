@@ -19,81 +19,14 @@
 
 #include "CompilationConfig.h"
 
-#include "Ensure.h"
-#include "Model/CompilationProfile.h"
-
 #include <kdl/reflection_impl.h>
-#include <kdl/struct_io.h>
-#include <kdl/vector_utils.h>
-
-#include <ostream>
 
 namespace TrenchBroom
 {
 namespace Model
 {
-CompilationConfig::CompilationConfig() = default;
 
-CompilationConfig::CompilationConfig(std::vector<CompilationProfile> profiles)
-  : m_profiles{std::move(profiles)}
-{
-}
+kdl_reflect_impl(CompilationConfig);
 
-bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs)
-{
-  return lhs.m_profiles == rhs.m_profiles;
-}
-
-bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs)
-{
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const CompilationConfig& config)
-{
-  kdl::struct_stream{str} << "CompilationConfig"
-                          << "m_profiles" << config.m_profiles;
-  return str;
-}
-
-const std::vector<CompilationProfile>& CompilationConfig::profiles() const
-{
-  return m_profiles;
-}
-
-size_t CompilationConfig::profileCount() const
-{
-  return m_profiles.size();
-}
-
-size_t CompilationConfig::indexOfProfile(const CompilationProfile& profile) const
-{
-  auto result =
-    kdl::vec_index_of(m_profiles, [=](const auto& p) { return p == profile; });
-  return *result;
-}
-
-CompilationProfile& CompilationConfig::profile(const size_t index)
-{
-  assert(index < profileCount());
-  return m_profiles[index];
-}
-
-const CompilationProfile& CompilationConfig::profile(const size_t index) const
-{
-  assert(index < profileCount());
-  return m_profiles[index];
-}
-
-void CompilationConfig::addProfile(CompilationProfile profile)
-{
-  m_profiles.push_back(std::move(profile));
-}
-
-void CompilationConfig::removeProfile(const size_t index)
-{
-  assert(index < profileCount());
-  m_profiles = kdl::vec_erase_at(std::move(m_profiles), index);
-}
 } // namespace Model
 } // namespace TrenchBroom

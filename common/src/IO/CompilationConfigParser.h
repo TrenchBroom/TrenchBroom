@@ -22,6 +22,7 @@
 #include "EL/EL_Forward.h"
 #include "IO/ConfigParserBase.h"
 #include "Macros.h"
+#include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 
@@ -30,11 +31,6 @@
 
 namespace TrenchBroom
 {
-namespace Model
-{
-class CompilationConfig;
-} // namespace Model
-
 namespace IO
 {
 class Path;
