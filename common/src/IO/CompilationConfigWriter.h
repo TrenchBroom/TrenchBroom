@@ -30,7 +30,7 @@ namespace TrenchBroom
 namespace Model
 {
 class CompilationConfig;
-class CompilationProfile;
+struct CompilationProfile;
 } // namespace Model
 
 namespace IO

@@ -32,7 +32,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationProfile;
+struct CompilationProfile;
 }
 
 namespace View
@@ -71,8 +71,8 @@ private slots:
   void addProfile();
   void removeProfile();
   void removeProfile(size_t index);
-  void removeProfile(Model::CompilationProfile& profile);
-  void duplicateProfile(Model::CompilationProfile& profile);
+  void removeProfile(const Model::CompilationProfile& profile);
+  void duplicateProfile(const Model::CompilationProfile& profile);
   void profileContextMenuRequested(
     const QPoint& globalPos, Model::CompilationProfile& profile);
   void profileSelectionChanged();

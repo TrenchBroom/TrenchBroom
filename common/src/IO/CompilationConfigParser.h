@@ -22,9 +22,9 @@
 #include "EL/EL_Forward.h"
 #include "IO/ConfigParserBase.h"
 #include "Macros.h"
+#include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -33,7 +33,6 @@ namespace TrenchBroom
 namespace Model
 {
 class CompilationConfig;
-class CompilationProfile;
 } // namespace Model
 
 namespace IO
@@ -48,9 +47,8 @@ public:
   Model::CompilationConfig parse();
 
 private:
-  std::vector<std::unique_ptr<Model::CompilationProfile>> parseProfiles(
-    const EL::Value& value) const;
-  std::unique_ptr<Model::CompilationProfile> parseProfile(const EL::Value& value) const;
+  std::vector<Model::CompilationProfile> parseProfiles(const EL::Value& value) const;
+  Model::CompilationProfile parseProfile(const EL::Value& value) const;
   std::vector<Model::CompilationTask> parseTasks(const EL::Value& value) const;
   Model::CompilationTask parseTask(const EL::Value& value) const;
   Model::CompilationExportMap parseExportTask(const EL::Value& value) const;

@@ -138,11 +138,11 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndEmptyTasks")
   auto parser = CompilationConfigParser{config};
 
   auto result = parser.parse();
-  CHECK(result.profileCount() == 1u);
-
-  const auto* profile = result.profile(0);
-  CHECK(profile->name() == "A profile");
-  CHECK(profile->taskCount() == 0u);
+  CHECK(
+    result.profiles()
+    == std::vector<Model::CompilationProfile>{
+      {"A profile", "", {}},
+    });
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneInvalidTask")
@@ -255,14 +255,15 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTask")
   auto parser = CompilationConfigParser{config};
 
   auto result = parser.parse();
-  CHECK(result.profileCount() == 1u);
-
-  const auto* profile = result.profile(0);
-  CHECK(profile->name() == "A profile");
   CHECK(
-    profile->tasks()
-    == std::vector<Model::CompilationTask>{
-      Model::CompilationCopyFiles{true, "the source", "the target"}});
+    result.profiles()
+    == std::vector<Model::CompilationProfile>{
+      {"A profile",
+       "",
+       {
+         Model::CompilationCopyFiles{true, "the source", "the target"},
+       }},
+    });
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask")
@@ -282,14 +283,15 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask")
   auto parser = CompilationConfigParser{config};
 
   auto result = parser.parse();
-  CHECK(result.profileCount() == 1u);
-
-  const auto* profile = result.profile(0);
-  CHECK(profile->name() == "A profile");
   CHECK(
-    profile->tasks()
-    == std::vector<Model::CompilationTask>{
-      Model::CompilationDeleteFiles{true, "the target"}});
+    result.profiles()
+    == std::vector<Model::CompilationProfile>{
+      {"A profile",
+       "",
+       {
+         Model::CompilationDeleteFiles{true, "the target"},
+       }},
+    });
 }
 
 TEST_CASE(
@@ -353,14 +355,15 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTask")
   auto parser = CompilationConfigParser{config};
 
   auto result = parser.parse();
-  CHECK(result.profileCount() == 1u);
-
-  const auto* profile = result.profile(0);
-  CHECK(profile->name() == "A profile");
   CHECK(
-    profile->tasks()
-    == std::vector<Model::CompilationTask>{
-      Model::CompilationRunTool{true, "tyrbsp.exe", "this and that"}});
+    result.profiles()
+    == std::vector<Model::CompilationProfile>{
+      {"A profile",
+       "",
+       {
+         Model::CompilationRunTool{true, "tyrbsp.exe", "this and that"},
+       }},
+    });
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks")
@@ -393,16 +396,16 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks")
   auto parser = CompilationConfigParser{config};
 
   auto result = parser.parse();
-  CHECK(result.profileCount() == 1u);
-
-  const auto* profile = result.profile(0);
-  CHECK(profile->name() == "A profile");
   CHECK(
-    profile->tasks()
-    == std::vector<Model::CompilationTask>{
-      Model::CompilationRunTool{true, "tyrbsp.exe", "this and that"},
-      Model::CompilationCopyFiles{false, "the source", "the target"},
-      Model::CompilationDeleteFiles{false, "some other target"},
+    result.profiles()
+    == std::vector<Model::CompilationProfile>{
+      {"A profile",
+       "",
+       {
+         Model::CompilationRunTool{true, "tyrbsp.exe", "this and that"},
+         Model::CompilationCopyFiles{false, "the source", "the target"},
+         Model::CompilationDeleteFiles{false, "some other target"},
+       }},
     });
 }
 
@@ -426,14 +429,16 @@ TEST_CASE("CompilationConfigParserTest.parseUnescapedBackslashes")
   auto parser = CompilationConfigParser{config};
 
   auto result = parser.parse();
-  CHECK(result.profileCount() == 1u);
-
-  const auto* profile = result.profile(0);
-  CHECK(profile->name() == "Full Compile");
   CHECK(
-    profile->tasks()
-    == std::vector<Model::CompilationTask>{Model::CompilationCopyFiles{
-      true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", R"(C:\quake2\chaos\maps\)"}});
+    result.profiles()
+    == std::vector<Model::CompilationProfile>{
+      {"Full Compile",
+       "${MAP_DIR_PATH}",
+       {
+         Model::CompilationCopyFiles{
+           true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", R"(C:\quake2\chaos\maps\)"},
+       }},
+    });
 }
 } // namespace IO
 } // namespace TrenchBroom

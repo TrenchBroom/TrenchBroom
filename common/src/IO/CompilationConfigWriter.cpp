@@ -54,30 +54,24 @@ void CompilationConfigWriter::writeConfig()
 EL::Value CompilationConfigWriter::writeProfiles(
   const Model::CompilationConfig& config) const
 {
-  auto array = EL::ArrayType{};
-  for (size_t i = 0; i < config.profileCount(); ++i)
-  {
-    const auto* profile = config.profile(i);
-    array.push_back(writeProfile(*profile));
-  }
-
-  return EL::Value{std::move(array)};
+  return EL::Value{kdl::vec_transform(
+    config.profiles(), [&](const auto& profile) { return writeProfile(profile); })};
 }
 
 EL::Value CompilationConfigWriter::writeProfile(
   const Model::CompilationProfile& profile) const
 {
-  auto map = EL::MapType{};
-  map["name"] = EL::Value{profile.name()};
-  map["workdir"] = EL::Value{profile.workDirSpec()};
-  map["tasks"] = writeTasks(profile);
-  return EL::Value{std::move(map)};
+  return EL::Value{EL::MapType{
+    {"name", EL::Value{profile.name}},
+    {"workdir", EL::Value{profile.workDirSpec}},
+    {"tasks", writeTasks(profile)},
+  }};
 }
 
 EL::Value CompilationConfigWriter::writeTasks(
   const Model::CompilationProfile& profile) const
 {
-  return EL::Value{kdl::vec_transform(profile.tasks(), [](const auto& task) {
+  return EL::Value{kdl::vec_transform(profile.tasks, [](const auto& task) {
     return std::visit(
       kdl::overload(
         [](const Model::CompilationExportMap& exportMap) {

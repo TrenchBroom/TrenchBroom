@@ -31,7 +31,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationProfile;
+struct CompilationProfile;
 } // namespace Model
 
 namespace View

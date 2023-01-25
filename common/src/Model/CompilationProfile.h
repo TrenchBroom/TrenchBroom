@@ -19,54 +19,23 @@
 
 #pragma once
 
-#include "Macros.h"
 #include "Model/CompilationTask.h"
 
-#include <iosfwd>
-#include <memory>
-#include <string>
+#include <kdl/reflection_decl.h>
+
 #include <vector>
 
 namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationProfile
+struct CompilationProfile
 {
-private:
-  std::string m_name;
-  std::string m_workDirSpec;
-  std::vector<CompilationTask> m_tasks;
+  std::string name;
+  std::string workDirSpec;
+  std::vector<CompilationTask> tasks;
 
-public:
-  CompilationProfile(
-    std::string name, std::string workDirSpec, std::vector<CompilationTask> tasks = {});
-
-  std::unique_ptr<CompilationProfile> clone() const;
-  friend bool operator==(const CompilationProfile& lhs, const CompilationProfile& rhs);
-  friend bool operator!=(const CompilationProfile& lhs, const CompilationProfile& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const CompilationProfile& profile);
-
-  const std::string& name() const;
-  void setName(std::string name);
-
-  const std::string& workDirSpec() const;
-  void setWorkDirSpec(std::string workDirSpec);
-
-  size_t taskCount() const;
-  size_t indexOfTask(const CompilationTask& task) const;
-
-  const std::vector<CompilationTask> tasks() const;
-
-  CompilationTask& task(size_t index);
-  const CompilationTask& task(size_t index) const;
-
-  void addTask(CompilationTask task);
-  void insertTask(size_t index, CompilationTask task);
-  void removeTask(size_t index);
-
-  void moveTaskUp(size_t index);
-  void moveTaskDown(size_t index);
+  kdl_reflect_decl(CompilationProfile, name, workDirSpec, tasks);
 };
 } // namespace Model
 } // namespace TrenchBroom

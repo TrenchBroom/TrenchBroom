@@ -53,10 +53,10 @@ Model::CompilationConfig CompilationConfigParser::parse()
   return Model::CompilationConfig{parseProfiles(root["profiles"])};
 }
 
-std::vector<std::unique_ptr<Model::CompilationProfile>> CompilationConfigParser::
-  parseProfiles(const EL::Value& value) const
+std::vector<Model::CompilationProfile> CompilationConfigParser::parseProfiles(
+  const EL::Value& value) const
 {
-  auto result = std::vector<std::unique_ptr<Model::CompilationProfile>>{};
+  auto result = std::vector<Model::CompilationProfile>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -66,18 +66,16 @@ std::vector<std::unique_ptr<Model::CompilationProfile>> CompilationConfigParser:
   return result;
 }
 
-std::unique_ptr<Model::CompilationProfile> CompilationConfigParser::parseProfile(
+Model::CompilationProfile CompilationConfigParser::parseProfile(
   const EL::Value& value) const
 {
   expectStructure(
     value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
-  auto name = value["name"].stringValue();
-  auto workdir = value["workdir"].stringValue();
-  auto tasks = parseTasks(value["tasks"]);
-
-  return std::make_unique<Model::CompilationProfile>(
-    std::move(name), std::move(workdir), std::move(tasks));
+  return {
+    value["name"].stringValue(),
+    value["workdir"].stringValue(),
+    parseTasks(value["tasks"])};
 }
 
 std::vector<Model::CompilationTask> CompilationConfigParser::parseTasks(

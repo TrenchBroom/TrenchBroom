@@ -19,41 +19,35 @@
 
 #pragma once
 
+#include "Model/CompilationProfile.h"
+
 #include <iosfwd>
-#include <memory>
 #include <vector>
 
 namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationProfile;
-
 class CompilationConfig
 {
 private:
-  std::vector<std::unique_ptr<CompilationProfile>> m_profiles;
+  std::vector<CompilationProfile> m_profiles;
 
 public:
   CompilationConfig();
-  explicit CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles);
-  ~CompilationConfig();
-
-  CompilationConfig(const CompilationConfig& other);
-  CompilationConfig(CompilationConfig&& other);
-
-  CompilationConfig& operator=(const CompilationConfig& other);
-  CompilationConfig& operator=(CompilationConfig&& other);
+  explicit CompilationConfig(std::vector<CompilationProfile> profiles);
 
   friend bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs);
   friend bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs);
   friend std::ostream& operator<<(std::ostream& str, const CompilationConfig& config);
 
+  const std::vector<CompilationProfile>& profiles() const;
   size_t profileCount() const;
-  CompilationProfile* profile(size_t index) const;
-  size_t indexOfProfile(CompilationProfile* profile) const;
+  size_t indexOfProfile(const CompilationProfile& profile) const;
+  CompilationProfile& profile(size_t index);
+  const CompilationProfile& profile(size_t index) const;
 
-  void addProfile(std::unique_ptr<CompilationProfile> profile);
+  void addProfile(CompilationProfile profile);
   void removeProfile(size_t index);
 };
 } // namespace Model

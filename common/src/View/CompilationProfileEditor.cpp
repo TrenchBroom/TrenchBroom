@@ -29,6 +29,7 @@
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 
+#include "kdl/vector_utils.h"
 #include <kdl/memory_utils.h>
 
 #include <QCompleter>
@@ -129,7 +130,7 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
     &CompilationTaskListBox::taskContextMenuRequested,
     this,
     [&](const QPoint& globalPos, const Model::CompilationTask& task) {
-      const int index = static_cast<int>(m_profile->indexOfTask(task));
+      const auto index = static_cast<int>(*kdl::vec_index_of(m_profile->tasks, task));
 
       auto menu = QMenu{this};
       auto* moveUpAction =
@@ -141,7 +142,8 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
       menu.addAction(tr("Remove"), this, [=]() { removeTask(index); });
 
       moveUpAction->setEnabled(index > 0);
-      moveDownAction->setEnabled(static_cast<size_t>(index + 1) < m_profile->taskCount());
+      moveDownAction->setEnabled(
+        static_cast<size_t>(index + 1) < m_profile->tasks.size());
 
       menu.exec(globalPos);
     });
@@ -170,9 +172,9 @@ void CompilationProfileEditor::nameChanged(const QString& text)
 {
   ensure(m_profile != nullptr, "profile is null");
   auto name = text.toStdString();
-  if (m_profile->name() != name)
+  if (m_profile->name != name)
   {
-    m_profile->setName(std::move(name));
+    m_profile->name = std::move(name);
     emit profileChanged();
   }
 }
@@ -181,9 +183,9 @@ void CompilationProfileEditor::workDirChanged(const QString& text)
 {
   ensure(m_profile != nullptr, "profile is null");
   auto workDirSpec = text.toStdString();
-  if (m_profile->workDirSpec() != workDirSpec)
+  if (m_profile->workDirSpec != workDirSpec)
   {
-    m_profile->setWorkDirSpec(std::move(workDirSpec));
+    m_profile->workDirSpec = std::move(workDirSpec);
     emit profileChanged();
   }
 }
@@ -224,13 +226,14 @@ void CompilationProfileEditor::addTask()
     const auto index = m_taskList->currentRow();
     if (index < 0)
     {
-      m_profile->addTask(std::move(*task));
+      m_profile->tasks.push_back(std::move(*task));
       m_taskList->reloadTasks();
-      m_taskList->setCurrentRow(static_cast<int>(m_profile->taskCount()) - 1);
+      m_taskList->setCurrentRow(static_cast<int>(m_profile->tasks.size()) - 1);
     }
     else
     {
-      m_profile->insertTask(static_cast<size_t>(index + 1), std::move(*task));
+      m_profile->tasks.insert(
+        std::next(m_profile->tasks.begin(), index + 1), std::move(*task));
       m_taskList->reloadTasks();
       m_taskList->setCurrentRow(index + 1);
     }
@@ -247,22 +250,22 @@ void CompilationProfileEditor::removeTask(const int index)
 {
   assert(index >= 0);
 
-  if (m_profile->taskCount() == 1)
+  if (m_profile->tasks.size() == 1)
   {
     m_taskList->setCurrentRow(-1);
-    m_profile->removeTask(static_cast<size_t>(index));
+    m_profile->tasks.clear();
     m_taskList->reloadTasks();
   }
   else if (index > 0)
   {
     m_taskList->setCurrentRow(index - 1);
-    m_profile->removeTask(static_cast<size_t>(index));
+    kdl::vec_erase_at(m_profile->tasks, size_t(index));
     m_taskList->reloadTasks();
   }
   else
   {
     m_taskList->setCurrentRow(1);
-    m_profile->removeTask(static_cast<size_t>(index));
+    kdl::vec_erase_at(m_profile->tasks, size_t(index));
     m_taskList->reloadTasks();
     m_taskList->setCurrentRow(0);
   }
@@ -271,8 +274,9 @@ void CompilationProfileEditor::removeTask(const int index)
 
 void CompilationProfileEditor::duplicateTask(const int index)
 {
-  const auto& task = m_profile->task(static_cast<size_t>(index));
-  m_profile->insertTask(static_cast<size_t>(index) + 1, task);
+  auto task = m_profile->tasks[size_t(index)];
+  m_profile->tasks.insert(
+    std::next(m_profile->tasks.begin(), index + 1), std::move(task));
   m_taskList->reloadTasks();
   m_taskList->setCurrentRow(index + 1);
   emit profileChanged();
@@ -286,7 +290,9 @@ void CompilationProfileEditor::moveTaskUp()
 void CompilationProfileEditor::moveTaskUp(const int index)
 {
   assert(index > 0);
-  m_profile->moveTaskUp(static_cast<size_t>(index));
+
+  auto it = std::next(m_profile->tasks.begin(), index);
+  std::iter_swap(it, std::prev(it));
   m_taskList->reloadTasks();
   m_taskList->setCurrentRow(index - 1);
   emit profileChanged();
@@ -299,8 +305,10 @@ void CompilationProfileEditor::moveTaskDown()
 
 void CompilationProfileEditor::moveTaskDown(const int index)
 {
-  assert(index >= 0 && index < static_cast<int>(m_profile->taskCount()) - 1);
-  m_profile->moveTaskDown(static_cast<size_t>(index));
+  assert(index >= 0 && index < static_cast<int>(m_profile->tasks.size()) - 1);
+
+  auto it = std::next(m_profile->tasks.begin(), index);
+  std::iter_swap(it, std::next(it));
   m_taskList->reloadTasks();
   m_taskList->setCurrentRow(index + 1);
   emit profileChanged();
@@ -323,13 +331,13 @@ void CompilationProfileEditor::refresh()
 {
   if (m_profile)
   {
-    if (m_nameTxt->text().toStdString() != m_profile->name())
+    if (m_nameTxt->text().toStdString() != m_profile->name)
     {
-      m_nameTxt->setText(QString::fromStdString(m_profile->name()));
+      m_nameTxt->setText(QString::fromStdString(m_profile->name));
     }
-    if (m_workDirTxt->text().toStdString() != m_profile->workDirSpec())
+    if (m_workDirTxt->text().toStdString() != m_profile->workDirSpec)
     {
-      m_workDirTxt->setText(QString::fromStdString(m_profile->workDirSpec()));
+      m_workDirTxt->setText(QString::fromStdString(m_profile->workDirSpec));
     }
   }
   m_addTaskButton->setEnabled(m_profile);
@@ -337,7 +345,7 @@ void CompilationProfileEditor::refresh()
   m_moveTaskUpButton->setEnabled(m_profile && m_taskList->currentRow() > 0);
   m_moveTaskDownButton->setEnabled(
     m_profile && m_taskList->currentRow() >= 0
-    && m_taskList->currentRow() < static_cast<int>(m_profile->taskCount()) - 1);
+    && m_taskList->currentRow() < static_cast<int>(m_profile->tasks.size()) - 1);
 }
 } // namespace View
 } // namespace TrenchBroom

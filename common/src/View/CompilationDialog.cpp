@@ -177,7 +177,7 @@ void CompilationDialog::updateCompileButtons()
   else
   {
     const auto* profile = m_profileManager->selectedProfile();
-    const auto enable = profile != nullptr && profile->taskCount() > 0;
+    const auto enable = profile && !profile->tasks.empty();
 
     m_compileButton->setEnabled(enable);
     m_testCompileButton->setEnabled(enable);
@@ -196,7 +196,7 @@ void CompilationDialog::startCompilation(const bool test)
   {
     const auto* profile = m_profileManager->selectedProfile();
     ensure(profile != nullptr, "profile is null");
-    ensure(profile->taskCount() > 0, "profile has no tasks");
+    ensure(!profile->tasks.empty(), "profile has no tasks");
 
     if (test)
     {
@@ -244,7 +244,7 @@ void CompilationDialog::compilationStarted()
 {
   const auto* profile = m_profileManager->selectedProfile();
   ensure(profile != nullptr, "profile is null");
-  m_currentRunLabel->setText(QString::fromStdString("Running " + profile->name()));
+  m_currentRunLabel->setText(QString::fromStdString("Running " + profile->name));
   m_output->setText("");
 
   updateCompileButtons();

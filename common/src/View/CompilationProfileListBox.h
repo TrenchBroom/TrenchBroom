@@ -28,7 +28,7 @@ namespace TrenchBroom
 namespace Model
 {
 class CompilationConfig;
-class CompilationProfile;
+struct CompilationProfile;
 } // namespace Model
 
 namespace View
@@ -56,11 +56,11 @@ class CompilationProfileListBox : public ControlListBox
 {
   Q_OBJECT
 private:
-  const Model::CompilationConfig& m_config;
+  Model::CompilationConfig& m_config;
 
 public:
   explicit CompilationProfileListBox(
-    const Model::CompilationConfig& config, QWidget* parent = nullptr);
+    Model::CompilationConfig& config, QWidget* parent = nullptr);
 
 public:
   void reloadProfiles();

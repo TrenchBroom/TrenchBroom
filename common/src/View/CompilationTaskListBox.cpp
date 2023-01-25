@@ -118,7 +118,7 @@ void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
   try
   {
     workDir = EL::interpolate(
-      m_profile.workDirSpec(),
+      m_profile.workDirSpec,
       EL::EvaluationContext{CompilationWorkDirVariables{kdl::mem_lock(m_document)}});
   }
   catch (const Exception&)
@@ -442,7 +442,7 @@ void CompilationTaskListBox::reloadTasks()
 
 size_t CompilationTaskListBox::itemCount() const
 {
-  return m_profile ? m_profile->taskCount() : 0;
+  return m_profile ? m_profile->tasks.size() : 0;
 }
 
 ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
@@ -450,7 +450,7 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
 {
   ensure(m_profile != nullptr, "profile is null");
 
-  auto& task = m_profile->task(index);
+  auto& task = m_profile->tasks[index];
   auto* renderer = std::visit(
     kdl::overload(
       [&](const Model::CompilationExportMap&) -> ControlListBoxItemRenderer* {

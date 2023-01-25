@@ -59,14 +59,14 @@ CompilationProfileItemRenderer::~CompilationProfileItemRenderer() {}
 
 void CompilationProfileItemRenderer::updateItem()
 {
-  m_nameText->setText(QString::fromStdString(m_profile.name()));
-  m_taskCountText->setText(QString::number(m_profile.taskCount()) + " tasks");
+  m_nameText->setText(QString::fromStdString(m_profile.name));
+  m_taskCountText->setText(QString::number(m_profile.tasks.size()) + " tasks");
 }
 
 // CompilationProfileListBox
 
 CompilationProfileListBox::CompilationProfileListBox(
-  const Model::CompilationConfig& config, QWidget* parent)
+  Model::CompilationConfig& config, QWidget* parent)
   : ControlListBox{"Click the '+' button to create a compilation profile.", true, parent}
   , m_config{config}
 {
@@ -91,10 +91,10 @@ size_t CompilationProfileListBox::itemCount() const
 ControlListBoxItemRenderer* CompilationProfileListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
-  auto* profile = m_config.profile(index);
-  auto* renderer = new CompilationProfileItemRenderer{*profile, parent};
-  connect(renderer, &QWidget::customContextMenuRequested, this, [=](const QPoint& pos) {
-    emit this->profileContextMenuRequested(renderer->mapToGlobal(pos), *profile);
+  auto& profile = m_config.profile(index);
+  auto* renderer = new CompilationProfileItemRenderer{profile, parent};
+  connect(renderer, &QWidget::customContextMenuRequested, this, [&](const QPoint& pos) {
+    emit this->profileContextMenuRequested(renderer->mapToGlobal(pos), profile);
   });
   return renderer;
 }

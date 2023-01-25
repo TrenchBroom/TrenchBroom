@@ -32,7 +32,7 @@ class VariableTable;
 
 namespace Model
 {
-class CompilationProfile;
+struct CompilationProfile;
 }
 
 namespace View

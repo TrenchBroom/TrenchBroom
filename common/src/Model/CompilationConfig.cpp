@@ -22,7 +22,6 @@
 #include "Ensure.h"
 #include "Model/CompilationProfile.h"
 
-#include <kdl/deref_iterator.h>
 #include <kdl/reflection_impl.h>
 #include <kdl/struct_io.h>
 #include <kdl/vector_utils.h>
@@ -35,37 +34,14 @@ namespace Model
 {
 CompilationConfig::CompilationConfig() = default;
 
-CompilationConfig::CompilationConfig(
-  std::vector<std::unique_ptr<CompilationProfile>> profiles)
+CompilationConfig::CompilationConfig(std::vector<CompilationProfile> profiles)
   : m_profiles{std::move(profiles)}
 {
 }
 
-CompilationConfig::~CompilationConfig() = default;
-
-CompilationConfig::CompilationConfig(const CompilationConfig& other)
-{
-  m_profiles.reserve(other.m_profiles.size());
-
-  for (const auto& original : other.m_profiles)
-  {
-    m_profiles.push_back(original->clone());
-  }
-}
-
-CompilationConfig::CompilationConfig(CompilationConfig&& other) = default;
-
-CompilationConfig& CompilationConfig::operator=(const CompilationConfig& other)
-{
-  *this = CompilationConfig{other};
-  return *this;
-}
-
-CompilationConfig& CompilationConfig::operator=(CompilationConfig&& other) = default;
-
 bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs)
 {
-  return kdl::const_deref_range{lhs.m_profiles} == kdl::const_deref_range{rhs.m_profiles};
+  return lhs.m_profiles == rhs.m_profiles;
 }
 
 bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs)
@@ -76,8 +52,13 @@ bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs)
 std::ostream& operator<<(std::ostream& str, const CompilationConfig& config)
 {
   kdl::struct_stream{str} << "CompilationConfig"
-                          << "m_profiles" << kdl::const_deref_range{config.m_profiles};
+                          << "m_profiles" << config.m_profiles;
   return str;
+}
+
+const std::vector<CompilationProfile>& CompilationConfig::profiles() const
+{
+  return m_profiles;
 }
 
 size_t CompilationConfig::profileCount() const
@@ -85,22 +66,27 @@ size_t CompilationConfig::profileCount() const
   return m_profiles.size();
 }
 
-CompilationProfile* CompilationConfig::profile(const size_t index) const
-{
-  assert(index < profileCount());
-  return m_profiles[index].get();
-}
-
-size_t CompilationConfig::indexOfProfile(CompilationProfile* profile) const
+size_t CompilationConfig::indexOfProfile(const CompilationProfile& profile) const
 {
   auto result =
-    kdl::vec_index_of(m_profiles, [=](const auto& ptr) { return ptr.get() == profile; });
+    kdl::vec_index_of(m_profiles, [=](const auto& p) { return p == profile; });
   return *result;
 }
 
-void CompilationConfig::addProfile(std::unique_ptr<CompilationProfile> profile)
+CompilationProfile& CompilationConfig::profile(const size_t index)
 {
-  ensure(profile != nullptr, "profile is null");
+  assert(index < profileCount());
+  return m_profiles[index];
+}
+
+const CompilationProfile& CompilationConfig::profile(const size_t index) const
+{
+  assert(index < profileCount());
+  return m_profiles[index];
+}
+
+void CompilationConfig::addProfile(CompilationProfile profile)
+{
   m_profiles.push_back(std::move(profile));
 }
 

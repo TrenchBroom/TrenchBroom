@@ -380,7 +380,7 @@ CompilationRunner::~CompilationRunner() = default;
 CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(
   CompilationContext& context, const Model::CompilationProfile& profile)
 {
-  return kdl::vec_transform(profile.tasks(), [&](const auto& task) {
+  return kdl::vec_transform(profile.tasks, [&](const auto& task) {
     return std::visit(
       kdl::overload(
         [&](const Model::CompilationExportMap& exportMap)

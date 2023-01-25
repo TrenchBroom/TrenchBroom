@@ -85,7 +85,7 @@ void CompilationRun::run(
   QTextEdit* currentOutput,
   const bool test)
 {
-  ensure(profile.taskCount() > 0, "profile has no tasks");
+  ensure(!profile.tasks.empty(), "profile has no tasks");
   ensure(document != nullptr, "document is null");
   ensure(currentOutput != nullptr, "currentOutput is null");
 
@@ -115,7 +115,7 @@ std::string CompilationRun::buildWorkDir(
   try
   {
     return EL::interpolate(
-      profile.workDirSpec(),
+      profile.workDirSpec,
       EL::EvaluationContext{CompilationWorkDirVariables{std::move(document)}});
   }
   catch (const Exception&)
