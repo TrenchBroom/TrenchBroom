@@ -52,6 +52,8 @@ public:
 
   bool directoryExists(const Path& path) const;
   bool fileExists(const Path& path) const;
+
+  std::string loadFile(const Path& path) const;
 };
 } // namespace IO
 } // namespace TrenchBroom

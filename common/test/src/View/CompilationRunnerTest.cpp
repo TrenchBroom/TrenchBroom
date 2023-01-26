@@ -128,6 +128,7 @@ TEST_CASE_METHOD(
   REQUIRE_NOTHROW(runner.execute());
 
   CHECK(testEnvironment.directoryExists(targetPath));
+  CHECK(testEnvironment.loadFile(targetPath + sourcePath) == "{}");
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTargetPattern")
