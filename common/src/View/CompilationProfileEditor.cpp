@@ -195,6 +195,7 @@ void CompilationProfileEditor::addTask()
   auto menu = QMenu{};
   auto* exportMapAction = menu.addAction("Export Map");
   auto* copyFilesAction = menu.addAction("Copy Files");
+  auto* renameFileAction = menu.addAction("Rename File");
   auto* deleteFilesAction = menu.addAction("Delete Files");
   auto* runToolAction = menu.addAction("Run Tool");
 
@@ -207,6 +208,10 @@ void CompilationProfileEditor::addTask()
     if (chosenAction == copyFilesAction)
     {
       return Model::CompilationCopyFiles{true, "", ""};
+    }
+    if (chosenAction == renameFileAction)
+    {
+      return Model::CompilationRenameFile{true, "", ""};
     }
     if (chosenAction == deleteFilesAction)
     {

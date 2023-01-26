@@ -105,6 +105,24 @@ private:
   deleteCopyAndMove(CompilationCopyFilesTaskRunner);
 };
 
+class CompilationRenameFileTaskRunner : public CompilationTaskRunner
+{
+  Q_OBJECT
+private:
+  Model::CompilationRenameFile m_task;
+
+public:
+  CompilationRenameFileTaskRunner(
+    CompilationContext& context, Model::CompilationRenameFile task);
+  ~CompilationRenameFileTaskRunner() override;
+
+private:
+  void doExecute() override;
+  void doTerminate() override;
+
+  deleteCopyAndMove(CompilationRenameFileTaskRunner);
+};
+
 class CompilationDeleteFilesTaskRunner : public CompilationTaskRunner
 {
   Q_OBJECT

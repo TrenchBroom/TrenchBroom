@@ -177,6 +177,50 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
 void CompilationCopyFilesTaskRunner::doTerminate() {}
 
+CompilationRenameFileTaskRunner::CompilationRenameFileTaskRunner(
+  CompilationContext& context, Model::CompilationRenameFile task)
+  : CompilationTaskRunner{context}
+  , m_task{std::move(task)}
+{
+}
+
+CompilationRenameFileTaskRunner::~CompilationRenameFileTaskRunner() = default;
+
+void CompilationRenameFileTaskRunner::doExecute()
+{
+  emit start();
+
+  try
+  {
+    const auto sourcePath = IO::Path{interpolate(m_task.sourceSpec)};
+    const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
+
+    try
+    {
+      m_context << "#### Renaming '" << IO::pathAsQString(sourcePath) << "' to '"
+                << IO::pathAsQString(targetPath) << "'\n";
+      if (!m_context.test())
+      {
+        IO::Disk::ensureDirectoryExists(targetPath.deleteLastComponent());
+        IO::Disk::moveFile(sourcePath, targetPath, true);
+      }
+      emit end();
+    }
+    catch (const Exception& e)
+    {
+      m_context << "#### Could not rename '" << IO::pathAsQString(sourcePath) << "' to '"
+                << IO::pathAsQString(targetPath) << "': " << e.what() << "\n";
+      throw;
+    }
+  }
+  catch (const Exception&)
+  {
+    emit error();
+  }
+}
+
+void CompilationRenameFileTaskRunner::doTerminate() {}
+
 CompilationDeleteFilesTaskRunner::CompilationDeleteFilesTaskRunner(
   CompilationContext& context, Model::CompilationDeleteFiles task)
   : CompilationTaskRunner{context}
@@ -390,6 +434,10 @@ CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(
         [&](const Model::CompilationCopyFiles& copyFiles)
           -> std::unique_ptr<CompilationTaskRunner> {
           return std::make_unique<CompilationCopyFilesTaskRunner>(context, copyFiles);
+        },
+        [&](const Model::CompilationRenameFile& renameFile)
+          -> std::unique_ptr<CompilationTaskRunner> {
+          return std::make_unique<CompilationRenameFileTaskRunner>(context, renameFile);
         },
         [&](const Model::CompilationDeleteFiles& deleteFiles)
           -> std::unique_ptr<CompilationTaskRunner> {

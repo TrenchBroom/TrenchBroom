@@ -30,6 +30,8 @@ kdl_reflect_impl(CompilationExportMap);
 
 kdl_reflect_impl(CompilationCopyFiles);
 
+kdl_reflect_impl(CompilationRenameFile);
+
 kdl_reflect_impl(CompilationDeleteFiles);
 
 kdl_reflect_impl(CompilationRunTool);

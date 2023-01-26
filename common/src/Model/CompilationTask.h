@@ -47,6 +47,15 @@ struct CompilationCopyFiles
   kdl_reflect_decl(CompilationCopyFiles, enabled, sourceSpec, targetSpec);
 };
 
+struct CompilationRenameFile
+{
+  bool enabled;
+  std::string sourceSpec;
+  std::string targetSpec;
+
+  kdl_reflect_decl(CompilationRenameFile, enabled, sourceSpec, targetSpec);
+};
+
 struct CompilationDeleteFiles
 {
   bool enabled;
@@ -67,6 +76,7 @@ struct CompilationRunTool
 using CompilationTask = std::variant<
   CompilationExportMap,
   CompilationCopyFiles,
+  CompilationRenameFile,
   CompilationDeleteFiles,
   CompilationRunTool>;
 

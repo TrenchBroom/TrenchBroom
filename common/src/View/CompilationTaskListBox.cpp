@@ -260,6 +260,81 @@ void CompilationCopyFilesTaskEditor::targetSpecChanged(const QString& text)
   task().targetSpec = text.toStdString();
 }
 
+CompilationRenameFileTaskEditor::CompilationRenameFileTaskEditor(
+  std::weak_ptr<MapDocument> document,
+  Model::CompilationProfile& profile,
+  Model::CompilationTask& task,
+  QWidget* parent)
+  : CompilationTaskEditorBase{"Rename File", std::move(document), profile, task, parent}
+{
+  assert(std::holds_alternative<Model::CompilationRenameFile>(task));
+
+  auto* formLayout = new QFormLayout{};
+  formLayout->setContentsMargins(
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin,
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin);
+  formLayout->setVerticalSpacing(LayoutConstants::NarrowVMargin);
+  formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
+  addMainLayout(formLayout);
+
+  m_sourceEditor = new MultiCompletionLineEdit{};
+  m_sourceEditor->setFont(Fonts::fixedWidthFont());
+  setupCompleter(m_sourceEditor);
+  formLayout->addRow("Source", m_sourceEditor);
+
+  m_targetEditor = new MultiCompletionLineEdit{};
+  m_targetEditor->setFont(Fonts::fixedWidthFont());
+  setupCompleter(m_targetEditor);
+  formLayout->addRow("Target", m_targetEditor);
+
+  connect(
+    m_sourceEditor,
+    &QLineEdit::textChanged,
+    this,
+    &CompilationRenameFileTaskEditor::sourceSpecChanged);
+  connect(
+    m_targetEditor,
+    &QLineEdit::textChanged,
+    this,
+    &CompilationRenameFileTaskEditor::targetSpecChanged);
+}
+
+void CompilationRenameFileTaskEditor::updateItem()
+{
+  CompilationTaskEditorBase::updateItem();
+
+  const auto sourceSpec = QString::fromStdString(task().sourceSpec);
+  if (m_sourceEditor->text() != sourceSpec)
+  {
+    m_sourceEditor->setText(sourceSpec);
+  }
+
+  const auto targetSpec = QString::fromStdString(task().targetSpec);
+  if (m_targetEditor->text() != targetSpec)
+  {
+    m_targetEditor->setText(targetSpec);
+  }
+}
+
+Model::CompilationRenameFile& CompilationRenameFileTaskEditor::task()
+{
+  // This is safe because we know what type of task the editor was initialized with.
+  // We have to do this to avoid using a template as the base class.
+  return std::get<Model::CompilationRenameFile>(m_task);
+}
+
+void CompilationRenameFileTaskEditor::sourceSpecChanged(const QString& text)
+{
+  task().sourceSpec = text.toStdString();
+}
+
+void CompilationRenameFileTaskEditor::targetSpecChanged(const QString& text)
+{
+  task().targetSpec = text.toStdString();
+}
+
 CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
   std::weak_ptr<MapDocument> document,
   Model::CompilationProfile& profile,
@@ -458,6 +533,9 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
       },
       [&](const Model::CompilationCopyFiles&) -> ControlListBoxItemRenderer* {
         return new CompilationCopyFilesTaskEditor{m_document, *m_profile, task, parent};
+      },
+      [&](const Model::CompilationRenameFile&) -> ControlListBoxItemRenderer* {
+        return new CompilationRenameFileTaskEditor{m_document, *m_profile, task, parent};
       },
       [&](const Model::CompilationDeleteFiles&) -> ControlListBoxItemRenderer* {
         return new CompilationDeleteFilesTaskEditor(m_document, *m_profile, task, parent);

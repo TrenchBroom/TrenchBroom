@@ -104,6 +104,10 @@ Model::CompilationTask CompilationConfigParser::parseTask(const EL::Value& value
   {
     return parseCopyTask(value);
   }
+  if (typeName == "rename")
+  {
+    return parseRenameTask(value);
+  }
   if (typeName == "delete")
   {
     return parseDeleteTask(value);
@@ -127,6 +131,18 @@ Model::CompilationExportMap CompilationConfigParser::parseExportTask(
 }
 
 Model::CompilationCopyFiles CompilationConfigParser::parseCopyTask(
+  const EL::Value& value) const
+{
+  expectStructure(
+    value,
+    "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
+    "'Boolean' } ]");
+
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  return {enabled, value["source"].stringValue(), value["target"].stringValue()};
+}
+
+Model::CompilationRenameFile CompilationConfigParser::parseRenameTask(
   const EL::Value& value) const
 {
   expectStructure(

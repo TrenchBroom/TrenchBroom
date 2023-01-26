@@ -95,6 +95,17 @@ EL::Value CompilationConfigWriter::writeTasks(
           map["target"] = EL::Value{copyFiles.targetSpec};
           return EL::Value{std::move(map)};
         },
+        [](const Model::CompilationRenameFile& renameFile) {
+          auto map = EL::MapType{};
+          if (!renameFile.enabled)
+          {
+            map["enabled"] = EL::Value{false};
+          }
+          map["type"] = EL::Value{"rename"};
+          map["source"] = EL::Value{renameFile.sourceSpec};
+          map["target"] = EL::Value{renameFile.targetSpec};
+          return EL::Value{std::move(map)};
+        },
         [](const Model::CompilationDeleteFiles& deleteFiles) {
           auto map = EL::MapType{};
           if (!deleteFiles.enabled)

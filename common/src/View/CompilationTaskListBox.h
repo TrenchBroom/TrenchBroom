@@ -119,6 +119,28 @@ private slots:
   void targetSpecChanged(const QString& text);
 };
 
+class CompilationRenameFileTaskEditor : public CompilationTaskEditorBase
+{
+  Q_OBJECT
+private:
+  MultiCompletionLineEdit* m_sourceEditor{nullptr};
+  MultiCompletionLineEdit* m_targetEditor{nullptr};
+
+public:
+  CompilationRenameFileTaskEditor(
+    std::weak_ptr<MapDocument> document,
+    Model::CompilationProfile& profile,
+    Model::CompilationTask& task,
+    QWidget* parent = nullptr);
+
+private:
+  void updateItem() override;
+  Model::CompilationRenameFile& task();
+private slots:
+  void sourceSpecChanged(const QString& text);
+  void targetSpecChanged(const QString& text);
+};
+
 class CompilationDeleteFilesTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT

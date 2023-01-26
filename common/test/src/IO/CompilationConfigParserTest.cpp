@@ -260,6 +260,32 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTask")
     }});
 }
 
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneRenameTask")
+{
+  const auto config = R"(
+{
+  'version': 1,
+  'profiles': [
+    {
+      'name' : 'A profile',
+      'workdir' : '',
+      'tasks' : [ { 'type' : 'rename', 'source' : 'the source', 'target' : 'the target' } ]
+    }
+  ]
+})";
+
+  auto parser = CompilationConfigParser{config};
+  CHECK(
+    parser.parse()
+    == Model::CompilationConfig{{
+      {"A profile",
+       "",
+       {
+         Model::CompilationRenameFile{true, "the source", "the target"},
+       }},
+    }});
+}
+
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask")
 {
   const auto config = R"(
@@ -356,7 +382,7 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTask")
     }});
 }
 
-TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks")
+TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndFourTasks")
 {
   const auto config = R"(
 {
@@ -376,6 +402,12 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks")
       'enabled': false
     },
     {
+      'type':'rename',
+      'source': 'the source',
+      'target': 'the target',
+      'enabled': true
+    },
+    {
       'type':'delete',
       'target': 'some other target',
       'enabled': false
@@ -392,6 +424,7 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndThreeTasks")
        {
          Model::CompilationRunTool{true, "tyrbsp.exe", "this and that"},
          Model::CompilationCopyFiles{false, "the source", "the target"},
+         Model::CompilationRenameFile{true, "the source", "the target"},
          Model::CompilationDeleteFiles{false, "some other target"},
        }},
     }});
