@@ -25,8 +25,8 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class GameEngineConfig;
-class GameEngineProfile;
+struct GameEngineConfig;
+struct GameEngineProfile;
 } // namespace Model
 
 namespace View
@@ -64,7 +64,7 @@ public:
   explicit GameEngineProfileListBox(
     Model::GameEngineConfig& config, QWidget* parent = nullptr);
 
-  Model::GameEngineProfile* selectedProfile() const;
+  Model::GameEngineProfile* selectedProfile();
 
 public:
   void setConfig(Model::GameEngineConfig& config);

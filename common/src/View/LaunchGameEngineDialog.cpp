@@ -202,7 +202,7 @@ void LaunchGameEngineDialog::gameEngineProfileChanged()
 {
   m_lastProfile = m_gameEngineList->selectedProfile();
   m_parameterText->setText(
-    m_lastProfile ? QString::fromStdString(m_lastProfile->parameterSpec()) : "");
+    m_lastProfile ? QString::fromStdString(m_lastProfile->parameterSpec) : "");
   m_parameterText->setEnabled(m_lastProfile != nullptr);
   m_launchButton->setEnabled(m_lastProfile != nullptr);
 }
@@ -211,11 +211,7 @@ void LaunchGameEngineDialog::parametersChanged(const QString& text)
 {
   if (auto* profile = m_gameEngineList->selectedProfile())
   {
-    const auto parameterSpec = text.toStdString();
-    if (profile->parameterSpec() != parameterSpec)
-    {
-      profile->setParameterSpec(parameterSpec);
-    }
+    profile->parameterSpec = text.toStdString();
   }
 }
 
@@ -244,20 +240,17 @@ void LaunchGameEngineDialog::launchEngine()
     const auto* profile = m_gameEngineList->selectedProfile();
     ensure(profile != nullptr, "profile is null");
 
-    const auto& executablePath = profile->path();
-
-    const auto& parameterSpec = profile->parameterSpec();
     const auto parameters =
-      EL::interpolate(parameterSpec, EL::EvaluationContext{variables()});
+      EL::interpolate(profile->parameterSpec, EL::EvaluationContext{variables()});
 
-    const auto workDir = IO::pathAsQString(executablePath.deleteLastComponent());
+    const auto workDir = IO::pathAsQString(profile->path.deleteLastComponent());
 
 #ifdef __APPLE__
     // We have to launch apps via the 'open' command so that we can properly pass
     // parameters.
     const auto arguments = QStringList{
       "-a",
-      IO::pathAsQString(executablePath),
+      IO::pathAsQString(profile->path),
       "--args",
       QString::fromStdString(parameters)};
 
@@ -267,7 +260,7 @@ void LaunchGameEngineDialog::launchEngine()
     }
 #else
     const auto commandAndArgs = QString::fromLatin1("\"%1\" %2")
-                                  .arg(IO::pathAsQString(executablePath))
+                                  .arg(IO::pathAsQString(profile->path))
                                   .arg(QString::fromStdString(parameters));
 
     const auto oldWorkDir = QDir::currentPath();

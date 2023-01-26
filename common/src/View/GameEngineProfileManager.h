@@ -29,7 +29,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class GameEngineProfile;
+struct GameEngineProfile;
 } // namespace Model
 
 namespace View

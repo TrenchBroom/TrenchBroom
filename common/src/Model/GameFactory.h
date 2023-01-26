@@ -45,7 +45,7 @@ namespace Model
 struct CompilationConfig;
 class Game;
 struct GameConfig;
-class GameEngineConfig;
+struct GameEngineConfig;
 
 struct GamePathConfig
 {

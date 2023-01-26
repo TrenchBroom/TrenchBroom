@@ -65,8 +65,8 @@ void GameEngineProfileItemRenderer::createGui()
 
 void GameEngineProfileItemRenderer::refresh()
 {
-  m_nameLabel->setText(m_profile ? QString::fromStdString(m_profile->name()) : "");
-  m_pathLabel->setText(m_profile ? IO::pathAsQString(m_profile->path()) : "");
+  m_nameLabel->setText(m_profile ? QString::fromStdString(m_profile->name) : "");
+  m_pathLabel->setText(m_profile ? IO::pathAsQString(m_profile->path) : "");
 }
 
 void GameEngineProfileItemRenderer::profileWillBeRemoved()
@@ -89,10 +89,10 @@ GameEngineProfileListBox::GameEngineProfileListBox(
   reload();
 }
 
-Model::GameEngineProfile* GameEngineProfileListBox::selectedProfile() const
+Model::GameEngineProfile* GameEngineProfileListBox::selectedProfile()
 {
-  return currentRow() >= 0 && size_t(currentRow()) < m_config->profileCount()
-           ? m_config->profile(size_t(currentRow()))
+  return (currentRow() >= 0 && size_t(currentRow()) < m_config->profiles.size())
+           ? &m_config->profiles[size_t(currentRow())]
            : nullptr;
 }
 
@@ -114,26 +114,26 @@ void GameEngineProfileListBox::updateProfiles()
 
 size_t GameEngineProfileListBox::itemCount() const
 {
-  return m_config->profileCount();
+  return m_config->profiles.size();
 }
 
 ControlListBoxItemRenderer* GameEngineProfileListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
-  return new GameEngineProfileItemRenderer{*m_config->profile(index), parent};
+  return new GameEngineProfileItemRenderer{m_config->profiles[index], parent};
 }
 
 void GameEngineProfileListBox::selectedRowChanged(const int index)
 {
   emit currentProfileChanged(
-    index >= 0 && index < count() ? m_config->profile(size_t(index)) : nullptr);
+    (index >= 0 && index < count()) ? &m_config->profiles[size_t(index)] : nullptr);
 }
 
 void GameEngineProfileListBox::doubleClicked(const size_t index)
 {
   if (index < size_t(count()))
   {
-    emit profileSelected(*m_config->profile(index));
+    emit profileSelected(m_config->profiles[index]);
   }
 }
 } // namespace View

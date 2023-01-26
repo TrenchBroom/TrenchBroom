@@ -28,6 +28,8 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 
+#include "kdl/vector_utils.h"
+
 #include <QBoxLayout>
 #include <QToolButton>
 
@@ -38,7 +40,7 @@ namespace View
 GameEngineProfileManager::GameEngineProfileManager(
   Model::GameEngineConfig config, QWidget* parent)
   : QWidget{parent}
-  , m_config{config}
+  , m_config{std::move(config)}
 {
   auto* listPanel = new TitledPanel{"Profiles"};
   auto* editorPanel = new TitledPanel{"Details"};
@@ -105,9 +107,9 @@ const Model::GameEngineConfig& GameEngineProfileManager::config() const
 
 void GameEngineProfileManager::addProfile()
 {
-  m_config.addProfile(std::make_unique<Model::GameEngineProfile>("", IO::Path{}, ""));
+  m_config.profiles.push_back(Model::GameEngineProfile{"", IO::Path{}, ""});
   m_profileList->reloadProfiles();
-  m_profileList->setCurrentRow(int(m_config.profileCount() - 1));
+  m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }
 
 void GameEngineProfileManager::removeProfile()
@@ -118,7 +120,7 @@ void GameEngineProfileManager::removeProfile()
     return;
   }
 
-  m_config.removeProfile(size_t(index));
+  kdl::vec_erase_at(m_config.profiles, size_t(index));
   m_profileList->reloadProfiles();
   m_profileList->setCurrentRow(index >= m_profileList->count() ? index - 1 : index);
 }

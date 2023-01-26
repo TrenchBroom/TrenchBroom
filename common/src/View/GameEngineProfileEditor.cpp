@@ -97,11 +97,10 @@ void GameEngineProfileEditor::updatePath(const QString& str)
   const auto valid = isValidEnginePath(str);
   if (valid)
   {
-    const auto path = IO::pathFromQString(str);
-    m_profile->setPath(path);
-    if (m_profile->name().empty())
+    m_profile->path = IO::pathFromQString(str);
+    if (m_profile->name.empty())
     {
-      m_profile->setName(path.lastComponent().deleteExtension().asString());
+      m_profile->name = m_profile->path.lastComponent().deleteExtension().asString();
     }
     emit profileChanged();
     refresh();
@@ -126,8 +125,8 @@ void GameEngineProfileEditor::setProfile(Model::GameEngineProfile* profile)
 
 void GameEngineProfileEditor::refresh()
 {
-  m_nameEdit->setText(m_profile ? QString::fromStdString(m_profile->name()) : "");
-  m_pathEdit->setText(m_profile ? IO::pathAsQString(m_profile->path()) : "");
+  m_nameEdit->setText(m_profile ? QString::fromStdString(m_profile->name) : "");
+  m_pathEdit->setText(m_profile ? IO::pathAsQString(m_profile->path) : "");
 }
 
 bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const
@@ -151,7 +150,7 @@ void GameEngineProfileEditor::nameChanged(const QString& text)
 {
   ensure(m_profile != nullptr, "profile is null");
 
-  m_profile->setName(text.toStdString());
+  m_profile->name = text.toStdString();
   emit profileChanged();
 }
 

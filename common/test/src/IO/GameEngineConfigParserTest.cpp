@@ -115,11 +115,9 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
   auto parser = GameEngineConfigParser{config, Path{}};
   CHECK(
     parser.parse()
-    == Model::GameEngineConfig{kdl::vec_from(
-      std::make_unique<Model::GameEngineProfile>(
-        "winquake", Path(R"(C:\Quake\winquake.exe)"), "-flag1 -flag2"),
-      std::make_unique<Model::GameEngineProfile>(
-        "glquake", Path(R"(C:\Quake\glquake.exe)"), "-flag3 -flag4"))});
+    == Model::GameEngineConfig{
+      {{"winquake", Path(R"(C:\Quake\winquake.exe)"), "-flag1 -flag2"},
+       {"glquake", Path(R"(C:\Quake\glquake.exe)"), "-flag3 -flag4"}}});
 }
 } // namespace IO
 } // namespace TrenchBroom

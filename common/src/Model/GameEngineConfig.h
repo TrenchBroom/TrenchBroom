@@ -19,8 +19,10 @@
 
 #pragma once
 
-#include <iosfwd>
-#include <memory>
+#include "Model/GameEngineProfile.h"
+
+#include <kdl/reflection_decl.h>
+
 #include <string>
 #include <vector>
 
@@ -28,32 +30,11 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class GameEngineProfile;
-
-class GameEngineConfig
+struct GameEngineConfig
 {
-private:
-  std::vector<std::unique_ptr<GameEngineProfile>> m_profiles;
+  std::vector<GameEngineProfile> profiles;
 
-public:
-  GameEngineConfig();
-  explicit GameEngineConfig(std::vector<std::unique_ptr<GameEngineProfile>> profiles);
-  GameEngineConfig(const GameEngineConfig& other);
-  ~GameEngineConfig();
-
-  GameEngineConfig& operator=(GameEngineConfig other);
-  friend void swap(GameEngineConfig& lhs, GameEngineConfig& rhs);
-
-  size_t profileCount() const;
-  bool hasProfile(const std::string& name) const;
-  GameEngineProfile* profile(size_t index) const;
-
-  void addProfile(std::unique_ptr<GameEngineProfile> profile);
-  void removeProfile(size_t index);
-
-  friend bool operator==(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
-  friend bool operator!=(const GameEngineConfig& lhs, const GameEngineConfig& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const GameEngineConfig& config);
+  kdl_reflect_decl(GameEngineConfig, profiles);
 };
 } // namespace Model
 } // namespace TrenchBroom

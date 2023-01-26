@@ -36,30 +36,29 @@ namespace TrenchBroom
 {
 namespace IO
 {
-GameEngineConfigParser::GameEngineConfigParser(std::string_view str, const Path& path)
-  : ConfigParserBase(std::move(str), path)
+GameEngineConfigParser::GameEngineConfigParser(std::string_view str, Path path)
+  : ConfigParserBase{std::move(str), std::move(path)}
 {
 }
 
 Model::GameEngineConfig GameEngineConfigParser::parse()
 {
-  const EL::Value root = parseConfigFile().evaluate(EL::EvaluationContext());
+  const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
   expectType(root, EL::ValueType::Map);
 
   expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
-  const EL::NumberType version = root["version"].numberValue();
+  const auto version = root["version"].numberValue();
   unused(version);
   assert(version == 1.0);
 
-  auto profiles = parseProfiles(root["profiles"]);
-  return Model::GameEngineConfig(std::move(profiles));
+  return {parseProfiles(root["profiles"])};
 }
 
-std::vector<std::unique_ptr<Model::GameEngineProfile>> GameEngineConfigParser::
-  parseProfiles(const EL::Value& value) const
+std::vector<Model::GameEngineProfile> GameEngineConfigParser::parseProfiles(
+  const EL::Value& value) const
 {
-  std::vector<std::unique_ptr<Model::GameEngineProfile>> result;
+  auto result = std::vector<Model::GameEngineProfile>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -69,17 +68,16 @@ std::vector<std::unique_ptr<Model::GameEngineProfile>> GameEngineConfigParser::
   return result;
 }
 
-std::unique_ptr<Model::GameEngineProfile> GameEngineConfigParser::parseProfile(
+Model::GameEngineProfile GameEngineConfigParser::parseProfile(
   const EL::Value& value) const
 {
   expectStructure(
     value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
-  const std::string name = value["name"].stringValue();
-  const Path path = Path(value["path"].stringValue());
-  const std::string parameterSpec = value["parameters"].stringValue();
-
-  return std::make_unique<Model::GameEngineProfile>(name, path, parameterSpec);
+  return {
+    value["name"].stringValue(),
+    Path{value["path"].stringValue()},
+    value["parameters"].stringValue()};
 }
 } // namespace IO
 } // namespace TrenchBroom

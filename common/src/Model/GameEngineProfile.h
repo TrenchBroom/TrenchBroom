@@ -20,41 +20,22 @@
 #pragma once
 
 #include "IO/Path.h"
-#include "Macros.h"
 
 #include <kdl/reflection_decl.h>
 
-#include <memory>
 #include <string>
 
 namespace TrenchBroom
 {
 namespace Model
 {
-class GameEngineProfile
+struct GameEngineProfile
 {
-private:
-  std::string m_name;
-  IO::Path m_path;
-  std::string m_parameterSpec;
+  std::string name;
+  IO::Path path;
+  std::string parameterSpec;
 
-public:
-  GameEngineProfile(
-    const std::string& name, const IO::Path& path, const std::string& parameterSpec);
-
-  std::unique_ptr<GameEngineProfile> clone() const;
-
-  const std::string& name() const;
-  const IO::Path& path() const;
-  const std::string& parameterSpec() const;
-
-  void setName(const std::string& name);
-  void setPath(const IO::Path& path);
-  void setParameterSpec(const std::string& parameterSpec);
-
-  kdl_reflect_decl(GameEngineProfile, m_name, m_path, m_parameterSpec);
-
-  deleteCopyAndMove(GameEngineProfile);
+  kdl_reflect_decl(GameEngineProfile, name, path, parameterSpec);
 };
 } // namespace Model
 } // namespace TrenchBroom
