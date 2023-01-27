@@ -18,7 +18,7 @@ if [ ! -x "$XDG_DESKTOP_MENU" ]; then
   echo "Error: Could not find xdg-desktop-menu" >&2
   exit 1
 fi
-"$XDG_DESKTOP_MENU" install --novendor "@LINUX_TARGET_RESOURCE_DIRECTORY@/trenchbroom.desktop"
+test -d "/usr/share//desktop-directories" && "$XDG_DESKTOP_MENU" install --novendor "@LINUX_TARGET_RESOURCE_DIRECTORY@/trenchbroom.desktop"
 
 
 # Update menu cache
