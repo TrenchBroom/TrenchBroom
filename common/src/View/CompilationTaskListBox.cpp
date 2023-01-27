@@ -152,6 +152,8 @@ CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
 
   m_targetEditor = new MultiCompletionLineEdit{};
   m_targetEditor->setFont(Fonts::fixedWidthFont());
+  m_targetEditor->setToolTip(R"(The path of the exported file.
+Variables are allowed.)");
   setupCompleter(m_targetEditor);
   formLayout->addRow("Target", m_targetEditor);
 
@@ -206,11 +208,20 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
 
   m_sourceEditor = new MultiCompletionLineEdit{};
   m_sourceEditor->setFont(Fonts::fixedWidthFont());
+  m_sourceEditor->setToolTip(R"(The file(s) to copy.
+
+Use wildcards (*,?) in the filename to specify more than one file.
+Variables are allowed.)");
   setupCompleter(m_sourceEditor);
   formLayout->addRow("Source", m_sourceEditor);
 
   m_targetEditor = new MultiCompletionLineEdit{};
   m_targetEditor->setFont(Fonts::fixedWidthFont());
+  m_targetEditor->setToolTip(R"(The directory to copy the files to.
+
+The directory is recursively created if it does not exist.
+Existing files are overwritten without prompt.
+Variables are allowed.)");
   setupCompleter(m_targetEditor);
   formLayout->addRow("Target", m_targetEditor);
 
@@ -281,11 +292,21 @@ CompilationRenameFileTaskEditor::CompilationRenameFileTaskEditor(
 
   m_sourceEditor = new MultiCompletionLineEdit{};
   m_sourceEditor->setFont(Fonts::fixedWidthFont());
+  m_sourceEditor->setToolTip(R"(The file to rename or move.
+
+Wildcards are not supported.
+Variables are allowed.)");
   setupCompleter(m_sourceEditor);
   formLayout->addRow("Source", m_sourceEditor);
 
   m_targetEditor = new MultiCompletionLineEdit{};
   m_targetEditor->setFont(Fonts::fixedWidthFont());
+  m_targetEditor->setToolTip(R"(The new path for the file.
+
+The path must end in a filename.
+The containing directory is recursively created if it does not exist.
+Existing files are overwritten without prompt.
+Variables are allowed.)");
   setupCompleter(m_targetEditor);
   formLayout->addRow("Target", m_targetEditor);
 
@@ -356,6 +377,10 @@ CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
 
   m_targetEditor = new MultiCompletionLineEdit{};
   m_targetEditor->setFont(Fonts::fixedWidthFont());
+  m_targetEditor->setToolTip(R"(The file(s) to delete.
+
+Use wildcards (*,?) in the filename to specify more than one file.
+Variables are allowed.)");
   setupCompleter(m_targetEditor);
   formLayout->addRow("Target", m_targetEditor);
 
@@ -412,6 +437,11 @@ CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
 
   m_toolEditor = new MultiCompletionLineEdit{};
   m_toolEditor->setFont(Fonts::fixedWidthFont());
+  m_toolEditor->setToolTip(
+    R"(The absolute path to the executable of the tool that should be run.
+
+The working "directory is set to the profile's working directory if configured.
+Variables are allowed.)");
   setupCompleter(m_toolEditor);
 
   auto* browseToolButton = new QPushButton{"..."};
@@ -427,6 +457,9 @@ CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
 
   m_parametersEditor = new MultiCompletionLineEdit{};
   m_parametersEditor->setFont(Fonts::fixedWidthFont());
+  m_parametersEditor->setToolTip(
+    R"(The parameters that should be passed to the tool when it is executed.
+Variables are allowed.)");
 
   setupCompleter(m_parametersEditor);
   formLayout->addRow("Parameters", m_parametersEditor);

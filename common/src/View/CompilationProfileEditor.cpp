@@ -78,6 +78,8 @@ QWidget* CompilationProfileEditor::createEditorPage(QWidget* parent)
   m_workDirTxt->setMultiCompleter(completer);
   m_workDirTxt->setWordDelimiters(QRegularExpression{"\\$"}, QRegularExpression{"\\}"});
   m_workDirTxt->setFont(Fonts::fixedWidthFont());
+  m_workDirTxt->setToolTip(R"(A working directory for the compilation profile.
+Variables are allowed.)");
 
   auto* upperLayout = new QFormLayout{};
   upperLayout->setContentsMargins(
