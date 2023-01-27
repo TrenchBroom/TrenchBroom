@@ -155,7 +155,7 @@ CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
   m_targetEditor->setToolTip(R"(The path of the exported file.
 Variables are allowed.)");
   setupCompleter(m_targetEditor);
-  formLayout->addRow("Target", m_targetEditor);
+  formLayout->addRow("File Path", m_targetEditor);
 
   connect(
     m_targetEditor,
@@ -213,7 +213,7 @@ CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
 Use wildcards (*,?) in the filename to specify more than one file.
 Variables are allowed.)");
   setupCompleter(m_sourceEditor);
-  formLayout->addRow("Source", m_sourceEditor);
+  formLayout->addRow("Source File Path", m_sourceEditor);
 
   m_targetEditor = new MultiCompletionLineEdit{};
   m_targetEditor->setFont(Fonts::fixedWidthFont());
@@ -223,7 +223,7 @@ The directory is recursively created if it does not exist.
 Existing files are overwritten without prompt.
 Variables are allowed.)");
   setupCompleter(m_targetEditor);
-  formLayout->addRow("Target", m_targetEditor);
+  formLayout->addRow("Target Directory Path", m_targetEditor);
 
   connect(
     m_sourceEditor,
@@ -297,7 +297,7 @@ CompilationRenameFileTaskEditor::CompilationRenameFileTaskEditor(
 Wildcards are not supported.
 Variables are allowed.)");
   setupCompleter(m_sourceEditor);
-  formLayout->addRow("Source", m_sourceEditor);
+  formLayout->addRow("Source File Path", m_sourceEditor);
 
   m_targetEditor = new MultiCompletionLineEdit{};
   m_targetEditor->setFont(Fonts::fixedWidthFont());
@@ -308,7 +308,7 @@ The containing directory is recursively created if it does not exist.
 Existing files are overwritten without prompt.
 Variables are allowed.)");
   setupCompleter(m_targetEditor);
-  formLayout->addRow("Target", m_targetEditor);
+  formLayout->addRow("Target File Path", m_targetEditor);
 
   connect(
     m_sourceEditor,
@@ -382,7 +382,7 @@ CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
 Use wildcards (*,?) in the filename to specify more than one file.
 Variables are allowed.)");
   setupCompleter(m_targetEditor);
-  formLayout->addRow("Target", m_targetEditor);
+  formLayout->addRow("File Path", m_targetEditor);
 
   connect(
     m_targetEditor,
@@ -453,7 +453,7 @@ Variables are allowed.)");
   toolLayout->addWidget(m_toolEditor, 1);
   toolLayout->addWidget(browseToolButton);
 
-  formLayout->addRow("Tool", toolLayout);
+  formLayout->addRow("Tool Path", toolLayout);
 
   m_parametersEditor = new MultiCompletionLineEdit{};
   m_parametersEditor->setFont(Fonts::fixedWidthFont());
