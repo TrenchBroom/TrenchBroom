@@ -25,6 +25,9 @@
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 
+#include <kdl/overload.h>
+#include <kdl/vector_utils.h>
+
 #include <cassert>
 #include <ostream>
 
@@ -51,95 +54,81 @@ void CompilationConfigWriter::writeConfig()
 EL::Value CompilationConfigWriter::writeProfiles(
   const Model::CompilationConfig& config) const
 {
-  auto array = EL::ArrayType{};
-  for (size_t i = 0; i < config.profileCount(); ++i)
-  {
-    const auto* profile = config.profile(i);
-    array.push_back(writeProfile(profile));
-  }
-
-  return EL::Value{std::move(array)};
+  return EL::Value{kdl::vec_transform(
+    config.profiles, [&](const auto& profile) { return writeProfile(profile); })};
 }
 
 EL::Value CompilationConfigWriter::writeProfile(
-  const Model::CompilationProfile* profile) const
+  const Model::CompilationProfile& profile) const
 {
-  auto map = EL::MapType{};
-  map["name"] = EL::Value{profile->name()};
-  map["workdir"] = EL::Value{profile->workDirSpec()};
-  map["tasks"] = writeTasks(profile);
-  return EL::Value{std::move(map)};
+  return EL::Value{EL::MapType{
+    {"name", EL::Value{profile.name}},
+    {"workdir", EL::Value{profile.workDirSpec}},
+    {"tasks", writeTasks(profile)},
+  }};
 }
 
-namespace
-{
-class WriteCompilationTaskVisitor : public Model::ConstCompilationTaskVisitor
-{
-private:
-  EL::ArrayType m_array;
-
-public:
-  EL::Value result() const { return EL::Value(m_array); }
-
-public:
-  void visit(const Model::CompilationExportMap& task) override
-  {
-    auto map = EL::MapType{};
-    if (!task.enabled())
-    {
-      map["enabled"] = EL::Value{false};
-    }
-    map["type"] = EL::Value{"export"};
-    map["target"] = EL::Value{task.targetSpec()};
-    m_array.emplace_back(std::move(map));
-  }
-
-  void visit(const Model::CompilationCopyFiles& task) override
-  {
-    auto map = EL::MapType{};
-    if (!task.enabled())
-    {
-      map["enabled"] = EL::Value{false};
-    }
-    map["type"] = EL::Value{"copy"};
-    map["source"] = EL::Value{task.sourceSpec()};
-    map["target"] = EL::Value{task.targetSpec()};
-    m_array.emplace_back(std::move(map));
-  }
-
-  void visit(const Model::CompilationDeleteFiles& task) override
-  {
-    auto map = EL::MapType{};
-    if (!task.enabled())
-    {
-      map["enabled"] = EL::Value{false};
-    }
-    map["type"] = EL::Value{"delete"};
-    map["target"] = EL::Value{task.targetSpec()};
-    m_array.emplace_back(std::move(map));
-  }
-
-  void visit(const Model::CompilationRunTool& task) override
-  {
-    auto map = EL::MapType{};
-    if (!task.enabled())
-    {
-      map["enabled"] = EL::Value{false};
-    }
-    map["type"] = EL::Value{"tool"};
-    map["tool"] = EL::Value{task.toolSpec()};
-    map["parameters"] = EL::Value{task.parameterSpec()};
-    m_array.emplace_back(std::move(map));
-  }
-};
-} // namespace
-
 EL::Value CompilationConfigWriter::writeTasks(
-  const Model::CompilationProfile* profile) const
+  const Model::CompilationProfile& profile) const
 {
-  auto visitor = WriteCompilationTaskVisitor{};
-  profile->accept(visitor);
-  return visitor.result();
+  return EL::Value{kdl::vec_transform(profile.tasks, [](const auto& task) {
+    return std::visit(
+      kdl::overload(
+        [](const Model::CompilationExportMap& exportMap) {
+          auto map = EL::MapType{};
+          if (!exportMap.enabled)
+          {
+            map["enabled"] = EL::Value{false};
+          }
+          map["type"] = EL::Value{"export"};
+          map["target"] = EL::Value{exportMap.targetSpec};
+          return EL::Value{std::move(map)};
+        },
+        [](const Model::CompilationCopyFiles& copyFiles) {
+          auto map = EL::MapType{};
+          if (!copyFiles.enabled)
+          {
+            map["enabled"] = EL::Value{false};
+          }
+          map["type"] = EL::Value{"copy"};
+          map["source"] = EL::Value{copyFiles.sourceSpec};
+          map["target"] = EL::Value{copyFiles.targetSpec};
+          return EL::Value{std::move(map)};
+        },
+        [](const Model::CompilationRenameFile& renameFile) {
+          auto map = EL::MapType{};
+          if (!renameFile.enabled)
+          {
+            map["enabled"] = EL::Value{false};
+          }
+          map["type"] = EL::Value{"rename"};
+          map["source"] = EL::Value{renameFile.sourceSpec};
+          map["target"] = EL::Value{renameFile.targetSpec};
+          return EL::Value{std::move(map)};
+        },
+        [](const Model::CompilationDeleteFiles& deleteFiles) {
+          auto map = EL::MapType{};
+          if (!deleteFiles.enabled)
+          {
+            map["enabled"] = EL::Value{false};
+          }
+          map["type"] = EL::Value{"delete"};
+          map["target"] = EL::Value{deleteFiles.targetSpec};
+          return EL::Value{std::move(map)};
+        },
+        [](const Model::CompilationRunTool& exportMap) {
+          auto map = EL::MapType{};
+          if (!exportMap.enabled)
+          {
+            map["enabled"] = EL::Value{false};
+          }
+          map["type"] = EL::Value{"tool"};
+          map["tool"] = EL::Value{exportMap.toolSpec};
+          map["parameters"] = EL::Value{exportMap.parameterSpec};
+          return EL::Value{std::move(map)};
+        }),
+      task);
+  })};
 }
 } // namespace IO
 } // namespace TrenchBroom

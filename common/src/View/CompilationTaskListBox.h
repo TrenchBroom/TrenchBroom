@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Model/CompilationTask.h"
 #include "View/ControlListBox.h"
 
 #include <memory>
@@ -35,12 +36,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationCopyFiles;
-class CompilationDeleteFiles;
-class CompilationExportMap;
-class CompilationProfile;
-class CompilationRunTool;
-class CompilationTask;
+struct CompilationProfile;
 } // namespace Model
 
 namespace View
@@ -55,8 +51,8 @@ class CompilationTaskEditorBase : public ControlListBoxItemRenderer
 protected:
   const QString m_title;
   std::weak_ptr<MapDocument> m_document;
-  Model::CompilationProfile* m_profile{nullptr};
-  Model::CompilationTask* m_task{nullptr};
+  Model::CompilationProfile& m_profile;
+  Model::CompilationTask& m_task;
   QCheckBox* m_enabledCheckbox{nullptr};
   QHBoxLayout* m_taskLayout{nullptr};
 
@@ -91,7 +87,7 @@ public:
   CompilationExportMapTaskEditor(
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
-    Model::CompilationExportMap& task,
+    Model::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
@@ -112,12 +108,34 @@ public:
   CompilationCopyFilesTaskEditor(
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
-    Model::CompilationCopyFiles& task,
+    Model::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
   void updateItem() override;
   Model::CompilationCopyFiles& task();
+private slots:
+  void sourceSpecChanged(const QString& text);
+  void targetSpecChanged(const QString& text);
+};
+
+class CompilationRenameFileTaskEditor : public CompilationTaskEditorBase
+{
+  Q_OBJECT
+private:
+  MultiCompletionLineEdit* m_sourceEditor{nullptr};
+  MultiCompletionLineEdit* m_targetEditor{nullptr};
+
+public:
+  CompilationRenameFileTaskEditor(
+    std::weak_ptr<MapDocument> document,
+    Model::CompilationProfile& profile,
+    Model::CompilationTask& task,
+    QWidget* parent = nullptr);
+
+private:
+  void updateItem() override;
+  Model::CompilationRenameFile& task();
 private slots:
   void sourceSpecChanged(const QString& text);
   void targetSpecChanged(const QString& text);
@@ -133,7 +151,7 @@ public:
   CompilationDeleteFilesTaskEditor(
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
-    Model::CompilationDeleteFiles& task,
+    Model::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
@@ -154,7 +172,7 @@ public:
   CompilationRunToolTaskEditor(
     std::weak_ptr<MapDocument> document,
     Model::CompilationProfile& profile,
-    Model::CompilationRunTool& task,
+    Model::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
@@ -183,11 +201,10 @@ public:
   void reloadTasks();
 
 private:
-  class CompilationTaskEditorFactory;
   size_t itemCount() const override;
   ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
 signals:
-  void taskContextMenuRequested(const QPoint& globalPos, Model::CompilationTask* task);
+  void taskContextMenuRequested(const QPoint& globalPos, Model::CompilationTask& task);
 };
 } // namespace View
 } // namespace TrenchBroom

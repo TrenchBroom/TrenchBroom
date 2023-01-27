@@ -48,8 +48,7 @@ TEST_CASE("ELInterpolatorTest.interpolateStringWithoutExpression")
   interpolateAndCheck(" asdfasdf  sdf ", " asdfasdf  sdf ");
 }
 
-TEST_CASE(
-  "ELInterpolatorTest.interpolateStringWithSimpleExpression", "[ELInterpolatorTest]")
+TEST_CASE("ELInterpolatorTest.interpolateStringWithSimpleExpression")
 {
   interpolateAndCheck(" asdfasdf ${'asdf'}  sdf ", " asdfasdf asdf  sdf ");
   interpolateAndCheck(" asdfasdf ${'asdf'} ${'AND'}  sdf ", " asdfasdf asdf AND  sdf ");
@@ -58,8 +57,7 @@ TEST_CASE(
   interpolateAndCheck(" ${ 'this'+' and ' }${'that'} ", " this and that ");
 }
 
-TEST_CASE(
-  "ELInterpolatorTest.interpolateStringWithNestedExpression", "[ELInterpolatorTest]")
+TEST_CASE("ELInterpolatorTest.interpolateStringWithNestedExpression")
 {
   interpolateAndCheck(
     " asdfasdf ${ 'nested ${TEST} expression' }  sdf ",
@@ -73,8 +71,7 @@ TEST_CASE("ELInterpolatorTest.interpolateStringWithVariable")
   interpolateAndCheck(" an ${TEST} expression", " an interesting expression", context);
 }
 
-TEST_CASE(
-  "ELInterpolatorTest.interpolateStringWithBackslashAndVariable", "[ELInterpolatorTest]")
+TEST_CASE("ELInterpolatorTest.interpolateStringWithBackslashAndVariable")
 {
   EvaluationContext context;
   context.declareVariable("TEST", Value("interesting"));
@@ -82,15 +79,13 @@ TEST_CASE(
     " an \\${TEST} expression", " an \\interesting expression", context);
 }
 
-TEST_CASE(
-  "ELInterpolatorTest.interpolateStringWithUnknownVariable", "[ELInterpolatorTest]")
+TEST_CASE("ELInterpolatorTest.interpolateStringWithUnknownVariable")
 {
   EvaluationContext context;
   CHECK_THROWS(interpolate(" an ${TEST} expression", context));
 }
 
-TEST_CASE(
-  "ELInterpolatorTest.interpolateStringWithUnterminatedEL", "[ELInterpolatorTest]")
+TEST_CASE("ELInterpolatorTest.interpolateStringWithUnterminatedEL")
 {
   EvaluationContext context;
   CHECK_THROWS(interpolate(" an ${TEST", context));

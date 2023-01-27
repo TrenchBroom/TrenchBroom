@@ -111,5 +111,15 @@ bool TestEnvironment::fileExists(const Path& path) const
 
   return file.exists() && file.isFile();
 }
+
+std::string TestEnvironment::loadFile(const Path& path) const
+{
+  auto file = QFile{IO::pathAsQString(m_dir + path)};
+  if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+  {
+    return QTextStream{&file}.readAll().toStdString();
+  }
+  return "";
+}
 } // namespace IO
 } // namespace TrenchBroom

@@ -94,24 +94,21 @@ TEST_CASE("transform_iterator_test.operator_not_equal")
   CHECK_FALSE(it != end);
 }
 
-TEST_CASE(
-  "transform_iterator_test.operator_prefix_increment", "[transform_iterator_test]")
+TEST_CASE("transform_iterator_test.operator_prefix_increment")
 {
   const auto v = std::vector<int>({1});
   const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });
   CHECK(++std::begin(t) == std::end(t));
 }
 
-TEST_CASE(
-  "transform_iterator_test.operator_prefix_decrement", "[transform_iterator_test]")
+TEST_CASE("transform_iterator_test.operator_prefix_decrement")
 {
   const auto v = std::vector<int>({1});
   const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });
   CHECK(--std::end(t) == std::begin(t));
 }
 
-TEST_CASE(
-  "transform_iterator_test.operator_postfix_increment", "[transform_iterator_test]")
+TEST_CASE("transform_iterator_test.operator_postfix_increment")
 {
   const auto v = std::vector<int>({1});
   const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });
@@ -121,8 +118,7 @@ TEST_CASE(
   CHECK(it == std::end(t));
 }
 
-TEST_CASE(
-  "transform_iterator_test.operator_postfix_decrement", "[transform_iterator_test]")
+TEST_CASE("transform_iterator_test.operator_postfix_decrement")
 {
   const auto v = std::vector<int>({1});
   const auto t = transform_adapter(v, [](const auto& i) { return i + 2; });

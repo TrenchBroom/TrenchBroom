@@ -51,7 +51,7 @@ namespace Model
 class EntityNodeBase;
 class BrushFace;
 class BrushFaceAttributes;
-class CompilationConfig;
+struct CompilationConfig;
 class Entity;
 struct FlagsConfig;
 class Node;

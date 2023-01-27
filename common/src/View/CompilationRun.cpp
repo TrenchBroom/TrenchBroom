@@ -37,11 +37,6 @@ namespace TrenchBroom
 {
 namespace View
 {
-CompilationRun::CompilationRun()
-  : m_currentRun(nullptr)
-{
-}
-
 CompilationRun::~CompilationRun()
 {
   if (running())
@@ -56,7 +51,7 @@ bool CompilationRun::running() const
 }
 
 void CompilationRun::run(
-  const Model::CompilationProfile* profile,
+  const Model::CompilationProfile& profile,
   std::shared_ptr<MapDocument> document,
   QTextEdit* currentOutput)
 {
@@ -64,7 +59,7 @@ void CompilationRun::run(
 }
 
 void CompilationRun::test(
-  const Model::CompilationProfile* profile,
+  const Model::CompilationProfile& profile,
   std::shared_ptr<MapDocument> document,
   QTextEdit* currentOutput)
 {
@@ -85,24 +80,23 @@ bool CompilationRun::doIsRunning() const
 }
 
 void CompilationRun::run(
-  const Model::CompilationProfile* profile,
+  const Model::CompilationProfile& profile,
   std::shared_ptr<MapDocument> document,
   QTextEdit* currentOutput,
   const bool test)
 {
-  ensure(profile != nullptr, "profile is null");
-  ensure(profile->taskCount() > 0, "profile has no tasks");
+  ensure(!profile.tasks.empty(), "profile has no tasks");
   ensure(document != nullptr, "document is null");
   ensure(currentOutput != nullptr, "currentOutput is null");
 
   assert(!doIsRunning());
   cleanup();
 
-  CompilationVariables variables(document, buildWorkDir(profile, document));
+  auto variables = CompilationVariables{document, buildWorkDir(profile, document)};
 
   auto compilationContext = std::make_unique<CompilationContext>(
-    document, variables, TextOutputAdapter(currentOutput), test);
-  m_currentRun = new CompilationRunner(std::move(compilationContext), profile, this);
+    document, variables, TextOutputAdapter{currentOutput}, test);
+  m_currentRun = new CompilationRunner{std::move(compilationContext), profile, this};
   connect(
     m_currentRun,
     &CompilationRunner::compilationStarted,
@@ -116,13 +110,13 @@ void CompilationRun::run(
 }
 
 std::string CompilationRun::buildWorkDir(
-  const Model::CompilationProfile* profile, std::shared_ptr<MapDocument> document)
+  const Model::CompilationProfile& profile, std::shared_ptr<MapDocument> document)
 {
   try
   {
     return EL::interpolate(
-      profile->workDirSpec(),
-      EL::EvaluationContext(CompilationWorkDirVariables(document)));
+      profile.workDirSpec,
+      EL::EvaluationContext{CompilationWorkDirVariables{std::move(document)}});
   }
   catch (const Exception&)
   {
@@ -132,7 +126,7 @@ std::string CompilationRun::buildWorkDir(
 
 void CompilationRun::cleanup()
 {
-  if (m_currentRun != nullptr)
+  if (m_currentRun)
   {
     // It's not safe to delete a CompilationRunner during execution of one of its signals,
     // so use deleteLater()

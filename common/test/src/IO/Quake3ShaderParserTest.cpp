@@ -43,8 +43,7 @@ TEST_CASE("Quake3ShaderParserTest.parseEmptyShader")
     parser.parse(status), Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{}));
 }
 
-TEST_CASE(
-  "Quake3ShaderParserTest.parseSingleShaderWithEmptyBlock", "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseSingleShaderWithEmptyBlock")
 {
   const std::string data(R"(
 textures/liquids/lavahell2 //path and name of new texture
@@ -65,9 +64,7 @@ textures/liquids/lavahell2 //path and name of new texture
     }}));
 }
 
-TEST_CASE(
-  "Quake3ShaderParserTest.parseSingleSimpleShaderWithoutEditorImage",
-  "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseSingleSimpleShaderWithoutEditorImage")
 {
   const std::string data(R"(
 textures/liquids/lavahell2 //path and name of new texture
@@ -118,9 +115,7 @@ textures/liquids/lavahell2 //path and name of new texture
     }}));
 }
 
-TEST_CASE(
-  "Quake3ShaderParserTest.parseSingleSimpleShaderWithEditorImage",
-  "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseSingleSimpleShaderWithEditorImage")
 {
   const std::string data(R"(
 textures/liquids/lavahell2 //path and name of new texture
@@ -172,9 +167,7 @@ textures/liquids/lavahell2 //path and name of new texture
     }}));
 }
 
-TEST_CASE(
-  "Quake3ShaderParserTest.parseSingleComplexShaderWithEditorImage",
-  "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseSingleComplexShaderWithEditorImage")
 {
   const std::string data(R"(
 textures/eerie/ironcrosslt2_10000
@@ -341,8 +334,7 @@ textures/liquids/lavahell2 //path and name of new texture
       }}));
 }
 
-TEST_CASE(
-  "Quake3ShaderParserTest.parseShadersWithMultilineComment", "[Quake3ShaderParserTest]")
+TEST_CASE("Quake3ShaderParserTest.parseShadersWithMultilineComment")
 {
   const std::string data(R"(
 /*

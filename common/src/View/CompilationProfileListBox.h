@@ -27,8 +27,8 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationConfig;
-class CompilationProfile;
+struct CompilationConfig;
+struct CompilationProfile;
 } // namespace Model
 
 namespace View
@@ -39,9 +39,9 @@ class CompilationProfileItemRenderer : public ControlListBoxItemRenderer
 {
   Q_OBJECT
 private:
-  Model::CompilationProfile* m_profile;
-  ElidedLabel* m_nameText;
-  ElidedLabel* m_taskCountText;
+  Model::CompilationProfile& m_profile;
+  ElidedLabel* m_nameText{nullptr};
+  ElidedLabel* m_taskCountText{nullptr};
 
 public:
   explicit CompilationProfileItemRenderer(
@@ -56,11 +56,11 @@ class CompilationProfileListBox : public ControlListBox
 {
   Q_OBJECT
 private:
-  const Model::CompilationConfig& m_config;
+  Model::CompilationConfig& m_config;
 
 public:
   explicit CompilationProfileListBox(
-    const Model::CompilationConfig& config, QWidget* parent = nullptr);
+    Model::CompilationConfig& config, QWidget* parent = nullptr);
 
 public:
   void reloadProfiles();
@@ -71,7 +71,7 @@ private:
   ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
 signals:
   void profileContextMenuRequested(
-    const QPoint& globalPos, Model::CompilationProfile* profile);
+    const QPoint& globalPos, Model::CompilationProfile& profile);
 };
 } // namespace View
 } // namespace TrenchBroom

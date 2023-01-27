@@ -110,8 +110,7 @@ TEST_CASE("vector_set_test.constructor_with_initializer_list")
   assertVset(create_vset_from_list({2, 1, 3, 1, 2}), {1, 2, 3});
 }
 
-TEST_CASE(
-  "vector_set_test.constructor_with_initializer_list_and_capacity", "[vector_set_test]")
+TEST_CASE("vector_set_test.constructor_with_initializer_list_and_capacity")
 {
   assertVset(create_vset_from_list(10u, {}), {}, 10u);
   assertVset(create_vset_from_list(10u, {1}), {1}, 10u);

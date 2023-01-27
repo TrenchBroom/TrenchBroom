@@ -119,15 +119,12 @@ void assertList(
   }
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.constructor_default", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.constructor_default")
 {
   assertList({}, list());
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.constructor_initializer_list",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.constructor_initializer_list")
 {
   assertList({}, list({}));
 
@@ -139,8 +136,7 @@ TEST_CASE(
   assertList({e2, e3}, list({e2, e3}));
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.destructor_cleanup", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.destructor_cleanup")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -194,8 +190,7 @@ TEST_CASE("intrusive_circular_list_test.iterators")
   CHECK(end == it);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.reverse_iterators", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.reverse_iterators")
 {
   list l;
 
@@ -323,8 +318,7 @@ TEST_CASE("intrusive_circular_list_test.push_back")
   assertList({e1, e2, e3}, l);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.remove_single_item", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.remove_single_item")
 {
   auto* e1 = new element();
   list l({e1});
@@ -332,8 +326,7 @@ TEST_CASE(
   assertList({}, l);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.remove_front_item", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.remove_front_item")
 {
   auto* e1 = new element();
   auto* e2 = new element();
@@ -343,8 +336,7 @@ TEST_CASE(
   assertList({e2, e3}, l);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.remove_mid_item", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.remove_mid_item")
 {
   auto* e1 = new element();
   auto* e2 = new element();
@@ -354,8 +346,7 @@ TEST_CASE(
   assertList({e3, e1}, l); // removal affects list head
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.remove_back_item", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.remove_back_item")
 {
   auto* e1 = new element();
   auto* e2 = new element();
@@ -417,8 +408,7 @@ TEST_CASE("intrusive_circular_list_test.remove_single")
   assertList({}, l);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.remove_multiple", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.remove_multiple")
 {
   auto e1_deleted = false;
   auto e2_deleted = false;
@@ -520,8 +510,7 @@ TEST_CASE("intrusive_circular_list_test.release_single")
   assertLinks(e4, {e4});
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.release_multiple", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.release_multiple")
 {
   auto e1_deleted = false;
   auto e2_deleted = false;
@@ -583,8 +572,7 @@ TEST_CASE("intrusive_circular_list_test.emplace_back")
   assertList({e1, e2, e3}, l);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.emplace_back_subtype", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.emplace_back_subtype")
 {
   auto e1_deleted = false;
   {
@@ -630,8 +618,7 @@ TEST_CASE("intrusive_circular_list_test.append_list")
   assertList({}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.insert_list_front", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.insert_list_front")
 {
   list from;
   list to;
@@ -655,8 +642,7 @@ TEST_CASE(
   assertList({}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.insert_list_back", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.insert_list_back")
 {
   list from;
   list to;
@@ -680,8 +666,7 @@ TEST_CASE(
   assertList({}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_back_one_item", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_back_one_item")
 {
   list from;
   list to;
@@ -705,8 +690,7 @@ TEST_CASE(
   assertList({f2, f3}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_back_two_items", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_back_two_items")
 {
   list from;
   list to;
@@ -730,9 +714,7 @@ TEST_CASE(
   assertList({f3}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_one_item_into_empty_list",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_one_item_into_empty_list")
 {
   list from;
   list to;
@@ -750,9 +732,7 @@ TEST_CASE(
   assertList({f1, f3}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_two_items_into_empty_list",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_two_items_into_empty_list")
 {
   list from;
   list to;
@@ -770,9 +750,7 @@ TEST_CASE(
   assertList({f1}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_all_items_into_empty_list",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_all_items_into_empty_list")
 {
   list from;
   list to;
@@ -790,9 +768,7 @@ TEST_CASE(
   assertList({}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_one_item_into_front",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_one_item_into_front")
 {
   list from;
   list to;
@@ -818,9 +794,7 @@ TEST_CASE(
   assertList({f1, f3}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_one_item_into_mid",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_one_item_into_mid")
 {
   list from;
   list to;
@@ -846,9 +820,7 @@ TEST_CASE(
   assertList({f1, f3}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_one_item_into_last",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_one_item_into_last")
 {
   list from;
   list to;
@@ -874,9 +846,7 @@ TEST_CASE(
   assertList({f1, f3}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_last_two_items_into_front",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_last_two_items_into_front")
 {
   list from;
   list to;
@@ -902,9 +872,7 @@ TEST_CASE(
   assertList({f1}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_last_two_items_into_mid",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_last_two_items_into_mid")
 {
   list from;
   list to;
@@ -930,9 +898,7 @@ TEST_CASE(
   assertList({f1}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_last_two_items_into_last",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_last_two_items_into_last")
 {
   list from;
   list to;
@@ -958,9 +924,7 @@ TEST_CASE(
   assertList({f1}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_last_and_first_items_items_front",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_last_and_first_items_items_front")
 {
   list from;
   list to;
@@ -986,9 +950,7 @@ TEST_CASE(
   assertList({f2}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_all_items_into_front",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_all_items_into_front")
 {
   list from;
   list to;
@@ -1014,9 +976,7 @@ TEST_CASE(
   assertList({}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_all_items_into_mid",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_all_items_into_mid")
 {
   list from;
   list to;
@@ -1042,9 +1002,7 @@ TEST_CASE(
   assertList({}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_all_items_into_last",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_all_items_into_last")
 {
   list from;
   list to;
@@ -1070,9 +1028,7 @@ TEST_CASE(
   assertList({}, from);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_first_item_with_one_item",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_first_item_with_one_item")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1107,9 +1063,7 @@ TEST_CASE(
   CHECK_FALSE(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_mid_item_with_one_item",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_mid_item_with_one_item")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1144,9 +1098,7 @@ TEST_CASE(
   CHECK_FALSE(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_last_item_with_one_item",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_last_item_with_one_item")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1181,9 +1133,7 @@ TEST_CASE(
   CHECK(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_first_item_with_two_items",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_first_item_with_two_items")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1218,9 +1168,7 @@ TEST_CASE(
   CHECK_FALSE(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_mid_item_with_two_items",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_mid_item_with_two_items")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1255,9 +1203,7 @@ TEST_CASE(
   CHECK_FALSE(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_last_item_with_two_items",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_last_item_with_two_items")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1292,9 +1238,7 @@ TEST_CASE(
   CHECK(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_mid_item_with_all_items",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_mid_item_with_all_items")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1329,9 +1273,7 @@ TEST_CASE(
   CHECK_FALSE(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_first_two_items_with_two_items",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_first_two_items_with_two_items")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1366,9 +1308,7 @@ TEST_CASE(
   CHECK_FALSE(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_last_two_items_with_two_items",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_last_two_items_with_two_items")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1404,8 +1344,7 @@ TEST_CASE(
 }
 
 TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_last_and_first_items_with_two_items",
-  "[intrusive_circular_list_test]")
+  "intrusive_circular_list_test.splice_replace_last_and_first_items_with_two_items")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1440,9 +1379,7 @@ TEST_CASE(
   CHECK(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_all_items_with_two_items",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_all_items_with_two_items")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1477,9 +1414,7 @@ TEST_CASE(
   CHECK(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_all_items_with_one_item",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_all_items_with_one_item")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1514,9 +1449,7 @@ TEST_CASE(
   CHECK(t3_deleted);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.splice_replace_all_items_with_all_items",
-  "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.splice_replace_all_items_with_all_items")
 {
   auto t1_deleted = false;
   auto t2_deleted = false;
@@ -1577,8 +1510,7 @@ TEST_CASE("intrusive_circular_list_test.release")
   assertLinks(e1, {e1, e2});
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.clear_empty_list", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.clear_empty_list")
 {
   list l;
 
@@ -1586,8 +1518,7 @@ TEST_CASE(
   assertList({}, l);
 }
 
-TEST_CASE(
-  "intrusive_circular_list_test.clear_with_items", "[intrusive_circular_list_test]")
+TEST_CASE("intrusive_circular_list_test.clear_with_items")
 {
   auto e1_deleted = false;
   auto e2_deleted = false;

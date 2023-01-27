@@ -337,8 +337,7 @@ TEST_CASE("FgdParserTest.parseType_TargetSourcePropertyDefinition")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE(
-  "FgdParserTest.parseType_TargetDestinationPropertyDefinition", "[FgdParserTest]")
+TEST_CASE("FgdParserTest.parseType_TargetDestinationPropertyDefinition")
 {
   const std::string file =
     "@PointClass = info_notnull : \"Wildcard entity\" // I love you\n"

@@ -19,42 +19,19 @@
 
 #pragma once
 
-#include <iosfwd>
-#include <memory>
-#include <vector>
+#include "Model/CompilationProfile.h"
+
+#include <kdl/reflection_decl.h>
 
 namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationProfile;
-
-class CompilationConfig
+struct CompilationConfig
 {
-private:
-  std::vector<std::unique_ptr<CompilationProfile>> m_profiles;
+  std::vector<CompilationProfile> profiles;
 
-public:
-  CompilationConfig();
-  explicit CompilationConfig(std::vector<std::unique_ptr<CompilationProfile>> profiles);
-  ~CompilationConfig();
-
-  CompilationConfig(const CompilationConfig& other);
-  CompilationConfig(CompilationConfig&& other);
-
-  CompilationConfig& operator=(const CompilationConfig& other);
-  CompilationConfig& operator=(CompilationConfig&& other);
-
-  friend bool operator==(const CompilationConfig& lhs, const CompilationConfig& rhs);
-  friend bool operator!=(const CompilationConfig& lhs, const CompilationConfig& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const CompilationConfig& config);
-
-  size_t profileCount() const;
-  CompilationProfile* profile(size_t index) const;
-  size_t indexOfProfile(CompilationProfile* profile) const;
-
-  void addProfile(std::unique_ptr<CompilationProfile> profile);
-  void removeProfile(size_t index);
+  kdl_reflect_decl(CompilationConfig, profiles);
 };
 } // namespace Model
 } // namespace TrenchBroom

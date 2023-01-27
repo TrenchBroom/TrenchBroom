@@ -358,8 +358,7 @@ TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer")
   CHECK(actual == expected);
 }
 
-TEST_CASE(
-  "NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex", "[NodeWriterTest]")
+TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex")
 {
   Model::WorldNode map({}, {}, Model::MapFormat::Standard);
 

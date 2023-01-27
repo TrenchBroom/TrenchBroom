@@ -287,8 +287,7 @@ TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand")
     }));
 }
 
-TEST_CASE(
-  "CommandProcessorTest.doSuccessfulCommandAndFailAtUndo", "[CommandProcessorTest]")
+TEST_CASE("CommandProcessorTest.doSuccessfulCommandAndFailAtUndo")
 {
   /*
    * Execute a successful command, then undo fails.

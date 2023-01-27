@@ -128,6 +128,41 @@ TEST_CASE_METHOD(
   REQUIRE_NOTHROW(runner.execute());
 
   CHECK(testEnvironment.directoryExists(targetPath));
+  CHECK(testEnvironment.loadFile(targetPath + sourcePath) == "{}");
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
+{
+  const auto overwrite = GENERATE(true, false);
+
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  auto testEnvironment = IO::TestEnvironment{};
+
+  const auto sourcePath = IO::Path("my_map.map");
+  testEnvironment.createFile(sourcePath, "{}");
+
+  const auto targetPath = IO::Path("some/other/path/your_map.map");
+  if (overwrite)
+  {
+    testEnvironment.createDirectory(targetPath.deleteLastComponent());
+    testEnvironment.createFile(targetPath, "{...}");
+    REQUIRE(testEnvironment.loadFile(targetPath) == "{...}");
+  }
+
+  auto task = Model::CompilationRenameFile{
+    true,
+    (testEnvironment.dir() + sourcePath).asString(),
+    (testEnvironment.dir() + targetPath).asString()};
+  auto runner = CompilationRenameFileTaskRunner{context, task};
+
+  REQUIRE_NOTHROW(runner.execute());
+
+  CHECK(testEnvironment.loadFile(targetPath) == "{}");
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTargetPattern")

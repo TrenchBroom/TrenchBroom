@@ -42,10 +42,10 @@ class WritableDiskFileSystem;
 
 namespace Model
 {
-class CompilationConfig;
+struct CompilationConfig;
 class Game;
 struct GameConfig;
-class GameEngineConfig;
+struct GameEngineConfig;
 
 struct GamePathConfig
 {

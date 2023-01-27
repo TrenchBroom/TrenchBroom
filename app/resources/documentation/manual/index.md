@@ -1528,32 +1528,40 @@ Export Map
 
     Layers marked "Omit From Export" will not be present in the exported map.
 
-    Parameter 	Description
+    Parameter   Description
     ---------   -----------
-    Target 		The path of the exported file. Variables are allowed.
+    Target      The path of the exported file. Variables are allowed.
 
 Run Tool
 :	Runs an external tool and captures its output. Note that for the Tool parameter's value, you can use a compilation tool variable defined in the [game configuration](#game_configuration), as discussed below.
 
-    Parameter 	Description
+    Parameter   Description
     ---------   -----------
-    Tool 		The absolute path to the executable of the tool that should be run. The working directory is set to the profile's working directory if configured. Variables are allowed.
-    Parameters 	The parameters that should be passed to the tool when it is executed. Variables are allowed.
+    Tool        The absolute path to the executable of the tool that should be run. The working directory is set to the profile's working directory if configured. Variables are allowed.
+    Parameters  The parameters that should be passed to the tool when it is executed. Variables are allowed.
 
 Copy Files
 :	Copies one or more files.
 
-    Parameter 	Description
+    Parameter   Description
     ---------   -----------
-    Source 		The file(s) to copy. To specify more than one file, you can use wildcards (*,?) in the filename. Variables are allowed.
-    Target  	The directory to copy the files to. The directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
+    Source      The file(s) to copy. To specify more than one file, you can use wildcards (*,?) in the filename. Variables are allowed.
+    Target      The directory to copy the files to. The directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
+
+Rename File
+:	Renames or moves one file.
+
+    Parameter   Description
+    ---------   -----------
+    Source      The file to rename or move. Wildcards are not supported. Variables are allowed.
+    Target      The new path for the file. The path must end in a filename. The containing directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
 
 Delete Files
 :	Deletes one or more files.
 
-    Parameter 	Description
+    Parameter   Description
     ---------   -----------
-    Target 		The file(s) to delete. To specify more than one file, you can use wildcards (*,?) in the filename. Variables are allowed.
+    Target      The file(s) to delete. To specify more than one file, you can use wildcards (*,?) in the filename. Variables are allowed.
 
 You can use [expressions](#expression_language) when specifying the working directory of a profile and also for the task parameters. The following table lists the available variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list.
 

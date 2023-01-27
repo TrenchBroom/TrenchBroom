@@ -29,8 +29,8 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationConfig;
-class CompilationProfile;
+struct CompilationConfig;
+struct CompilationProfile;
 } // namespace Model
 
 namespace IO
@@ -48,9 +48,9 @@ public:
 
 private:
   EL::Value writeProfiles(const Model::CompilationConfig& config) const;
-  EL::Value writeProfile(const Model::CompilationProfile* profile) const;
+  EL::Value writeProfile(const Model::CompilationProfile& profile) const;
 
-  EL::Value writeTasks(const Model::CompilationProfile* profile) const;
+  EL::Value writeTasks(const Model::CompilationProfile& profile) const;
 
   std::string escape(const std::string& str) const;
 

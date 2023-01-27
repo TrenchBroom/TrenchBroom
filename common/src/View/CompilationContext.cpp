@@ -32,12 +32,12 @@ namespace View
 CompilationContext::CompilationContext(
   std::weak_ptr<MapDocument> document,
   const EL::VariableStore& variables,
-  const TextOutputAdapter& output,
+  TextOutputAdapter output,
   bool test)
-  : m_document(document)
-  , m_variables(variables.clone())
-  , m_output(output)
-  , m_test(test)
+  : m_document{std::move(document)}
+  , m_variables{variables.clone()}
+  , m_output{std::move(output)}
+  , m_test{test}
 {
 }
 
@@ -53,7 +53,7 @@ bool CompilationContext::test() const
 
 std::string CompilationContext::interpolate(const std::string& input) const
 {
-  return EL::interpolate(input, EL::EvaluationContext(*m_variables));
+  return EL::interpolate(input, EL::EvaluationContext{*m_variables});
 }
 
 std::string CompilationContext::variableValue(const std::string& variableName) const

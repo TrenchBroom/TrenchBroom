@@ -574,9 +574,7 @@ TEST_CASE("InputEventRecorderTest.recordDiagonalScroll")
       static_cast<float>(expectedScrollLines2.x())));
 }
 
-TEST_CASE(
-  "InputEventRecorderTest.recordLeftClickWithQuickSmallMotion",
-  "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordLeftClickWithQuickSmallMotion")
 {
   InputEventRecorder r;
 
@@ -620,8 +618,7 @@ TEST_CASE(
       0.0f));
 }
 
-TEST_CASE(
-  "InputEventRecorderTest.recordLeftClickWithSlowSmallMotion", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordLeftClickWithSlowSmallMotion")
 {
   InputEventRecorder r;
 
@@ -666,8 +663,7 @@ TEST_CASE(
       0.0f));
 }
 
-TEST_CASE(
-  "InputEventRecorderTest.recordLeftClickWithAccidentalDrag", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordLeftClickWithAccidentalDrag")
 {
   InputEventRecorder r;
 
@@ -764,8 +760,7 @@ TEST_CASE("InputEventRecorderTest.recordLeftDrag")
       0.0f));
 }
 
-TEST_CASE(
-  "InputEventRecorderTest.recordLeftDragWithCollation", "[InputEventRecorderTest]")
+TEST_CASE("InputEventRecorderTest.recordLeftDragWithCollation")
 {
   InputEventRecorder r;
 

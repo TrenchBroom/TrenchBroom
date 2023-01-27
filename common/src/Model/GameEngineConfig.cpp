@@ -19,104 +19,16 @@
 
 #include "GameEngineConfig.h"
 
-#include "Ensure.h"
 #include "Model/GameEngineProfile.h"
 
-#include <kdl/deref_iterator.h>
-#include <kdl/struct_io.h>
-#include <kdl/vector_utils.h>
-
-#include <ostream>
-#include <string>
-#include <vector>
+#include <kdl/reflection_impl.h>
 
 namespace TrenchBroom
 {
 namespace Model
 {
-GameEngineConfig::GameEngineConfig() {}
 
-GameEngineConfig::GameEngineConfig(
-  std::vector<std::unique_ptr<GameEngineProfile>> profiles)
-  : m_profiles(std::move(profiles))
-{
-}
+kdl_reflect_impl(GameEngineConfig);
 
-GameEngineConfig::GameEngineConfig(const GameEngineConfig& other)
-{
-  m_profiles.reserve(other.m_profiles.size());
-
-  for (const auto& original : other.m_profiles)
-  {
-    m_profiles.push_back(original->clone());
-  }
-}
-
-GameEngineConfig::~GameEngineConfig() = default;
-
-GameEngineConfig& GameEngineConfig::operator=(GameEngineConfig other)
-{
-  using std::swap;
-  swap(*this, other);
-  return *this;
-}
-
-void swap(GameEngineConfig& lhs, GameEngineConfig& rhs)
-{
-  using std::swap;
-  swap(lhs.m_profiles, rhs.m_profiles);
-}
-
-size_t GameEngineConfig::profileCount() const
-{
-  return m_profiles.size();
-}
-
-bool GameEngineConfig::hasProfile(const std::string& name) const
-{
-  for (size_t i = 0; i < m_profiles.size(); ++i)
-  {
-    if (m_profiles[i]->name() == name)
-    {
-      return true;
-    }
-  }
-  return false;
-}
-
-GameEngineProfile* GameEngineConfig::profile(const size_t index) const
-{
-  assert(index < profileCount());
-  return m_profiles[index].get();
-}
-
-void GameEngineConfig::addProfile(std::unique_ptr<GameEngineProfile> profile)
-{
-  ensure(profile != nullptr, "profile is null");
-  m_profiles.push_back(std::move(profile));
-}
-
-void GameEngineConfig::removeProfile(const size_t index)
-{
-  assert(index < profileCount());
-  m_profiles = kdl::vec_erase_at(std::move(m_profiles), index);
-}
-
-bool operator==(const GameEngineConfig& lhs, const GameEngineConfig& rhs)
-{
-  return kdl::const_deref_range{lhs.m_profiles} == kdl::const_deref_range{rhs.m_profiles};
-}
-
-bool operator!=(const GameEngineConfig& lhs, const GameEngineConfig& rhs)
-{
-  return !(lhs == rhs);
-}
-
-std::ostream& operator<<(std::ostream& str, const GameEngineConfig& config)
-{
-  kdl::struct_stream{str} << "GameEngineConfig"
-                          << "m_tasks" << kdl::const_deref_range{config.m_profiles};
-  return str;
-}
 } // namespace Model
 } // namespace TrenchBroom

@@ -283,8 +283,7 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
   kdl::vec_clear_and_delete(definitions);
 }
 
-TEST_CASE(
-  "DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark", "[DefParserTest]")
+TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
 {
   const std::string file =
     "/*QUAKED item_health (.3 .3 1) SUSPENDED SPIN - RESPAWN\n"

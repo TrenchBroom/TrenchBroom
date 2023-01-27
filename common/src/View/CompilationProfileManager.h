@@ -32,7 +32,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-class CompilationProfile;
+struct CompilationProfile;
 }
 
 namespace View
@@ -52,9 +52,9 @@ class CompilationProfileManager : public QWidget
   Q_OBJECT
 private:
   Model::CompilationConfig m_config;
-  CompilationProfileListBox* m_profileList;
-  CompilationProfileEditor* m_profileEditor;
-  QAbstractButton* m_removeProfileButton;
+  CompilationProfileListBox* m_profileList{nullptr};
+  CompilationProfileEditor* m_profileEditor{nullptr};
+  QAbstractButton* m_removeProfileButton{nullptr};
 
 public:
   CompilationProfileManager(
@@ -71,10 +71,10 @@ private slots:
   void addProfile();
   void removeProfile();
   void removeProfile(size_t index);
-  void removeProfile(Model::CompilationProfile* profile);
-  void duplicateProfile(Model::CompilationProfile* profile);
+  void removeProfile(const Model::CompilationProfile& profile);
+  void duplicateProfile(const Model::CompilationProfile& profile);
   void profileContextMenuRequested(
-    const QPoint& globalPos, Model::CompilationProfile* profile);
+    const QPoint& globalPos, Model::CompilationProfile& profile);
   void profileSelectionChanged();
 signals:
   /**

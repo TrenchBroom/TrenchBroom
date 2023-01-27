@@ -240,8 +240,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional")
           .is_empty());
 }
 
-TEST_CASE(
-  "ScaleObjectsToolTest.moveBBoxEdge_NonProportional_NegY", "[ScaleObjectsToolTest]")
+TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional_NegY")
 {
   const auto input1 = vm::bbox3(vm::vec3(-100, -100, -100), vm::vec3(100, 100, 100));
 

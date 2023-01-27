@@ -1500,8 +1500,7 @@ TEST_CASE("PolyhedronTest.intersection_polygon_polygon_same_plane")
     square));
 }
 
-TEST_CASE(
-  "PolyhedronTest.intersection_polygon_polygon_different_plane", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_polygon_polygon_different_plane")
 {
   const Polyhedron3d square{
     vm::vec3d(-1.0, -1.0, 0.0),
@@ -1571,8 +1570,7 @@ TEST_CASE(
     square));
 }
 
-TEST_CASE(
-  "PolyhedronTest.intersection_polygon_polyhedron_same_plane_as_face", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_polygon_polyhedron_same_plane_as_face")
 {
   const Polyhedron3d cube{
     vm::vec3d(-1.0, -1.0, -1.0),
@@ -1661,8 +1659,7 @@ TEST_CASE(
     cube));
 }
 
-TEST_CASE(
-  "PolyhedronTest.intersection_polygon_polyhedron_any_orientation", "[PolyhedronTest]")
+TEST_CASE("PolyhedronTest.intersection_polygon_polyhedron_any_orientation")
 {
   const Polyhedron3d cube{
     vm::vec3d(-1.0, -1.0, -1.0),

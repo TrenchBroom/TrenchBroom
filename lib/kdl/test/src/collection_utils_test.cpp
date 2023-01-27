@@ -103,8 +103,7 @@ void test_range_lexicographical_compare(
   CHECK(col_lexicographical_compare(lhs, rhs) == exp);
 }
 
-TEST_CASE(
-  "collection_utils_test.range_lexicographical_compare", "[collection_utils_test]")
+TEST_CASE("collection_utils_test.range_lexicographical_compare")
 {
   test_range_lexicographical_compare<int>({}, {}, 0);
   test_range_lexicographical_compare<int>({}, {1}, -1);

@@ -27,6 +27,8 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 
+#include "kdl/vector_utils.h"
+
 #include <QMenu>
 #include <QToolButton>
 
@@ -36,43 +38,41 @@ namespace View
 {
 CompilationProfileManager::CompilationProfileManager(
   std::weak_ptr<MapDocument> document, Model::CompilationConfig config, QWidget* parent)
-  : QWidget(parent)
-  , m_config(std::move(config))
-  , m_profileList(nullptr)
-  , m_profileEditor()
+  : QWidget{parent}
+  , m_config{std::move(config)}
 {
   setBaseWindowColor(this);
 
-  auto* listPanel = new TitledPanel("Profiles");
-  auto* editorPanel = new TitledPanel("Details");
+  auto* listPanel = new TitledPanel{"Profiles"};
+  auto* editorPanel = new TitledPanel{"Details"};
 
-  m_profileList = new CompilationProfileListBox(m_config, listPanel->getPanel());
+  m_profileList = new CompilationProfileListBox{m_config, listPanel->getPanel()};
   m_profileEditor =
-    new CompilationProfileEditor(std::move(document), editorPanel->getPanel());
+    new CompilationProfileEditor{std::move(document), editorPanel->getPanel()};
 
   auto* addProfileButton = createBitmapButton("Add.svg", "Add profile");
   m_removeProfileButton = createBitmapButton("Remove.svg", "Remove the selected profile");
   auto* buttonLayout = createMiniToolBarLayout(addProfileButton, m_removeProfileButton);
 
-  auto* listLayout = new QVBoxLayout();
+  auto* listLayout = new QVBoxLayout{};
   listLayout->setContentsMargins(0, 0, 0, 0);
   listLayout->setSpacing(0);
   listLayout->addWidget(m_profileList, 1);
-  listLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+  listLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
   listLayout->addLayout(buttonLayout);
   listPanel->getPanel()->setLayout(listLayout);
 
-  auto* editorLayout = new QVBoxLayout();
+  auto* editorLayout = new QVBoxLayout{};
   editorLayout->setContentsMargins(0, 0, 0, 0);
   editorLayout->setSpacing(0);
   editorLayout->addWidget(m_profileEditor);
   editorPanel->getPanel()->setLayout(editorLayout);
 
-  auto* outerLayout = new QHBoxLayout();
+  auto* outerLayout = new QHBoxLayout{};
   outerLayout->setContentsMargins(0, 0, 0, 0);
   outerLayout->setSpacing(0);
   outerLayout->addWidget(listPanel);
-  outerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
+  outerLayout->addWidget(new BorderLine{BorderLine::Direction::Vertical});
   outerLayout->addWidget(editorPanel, 1);
   setLayout(outerLayout);
 
@@ -113,14 +113,7 @@ CompilationProfileManager::CompilationProfileManager(
 const Model::CompilationProfile* CompilationProfileManager::selectedProfile() const
 {
   const auto index = m_profileList->currentRow();
-  if (index < 0)
-  {
-    return nullptr;
-  }
-  else
-  {
-    return m_config.profile(static_cast<size_t>(index));
-  }
+  return index >= 0 ? &m_config.profiles[size_t(index)] : nullptr;
 }
 
 const Model::CompilationConfig& CompilationProfileManager::config() const
@@ -130,10 +123,10 @@ const Model::CompilationConfig& CompilationProfileManager::config() const
 
 void CompilationProfileManager::addProfile()
 {
-  m_config.addProfile(
-    std::make_unique<Model::CompilationProfile>("unnamed", "${MAP_DIR_PATH}"));
+  m_config.profiles.push_back(
+    Model::CompilationProfile{"unnamed", "${MAP_DIR_PATH}", {}});
   m_profileList->reloadProfiles();
-  m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
+  m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }
 
 void CompilationProfileManager::removeProfile()
@@ -145,7 +138,7 @@ void CompilationProfileManager::removeProfile()
 
 void CompilationProfileManager::removeProfile(const size_t index)
 {
-  m_config.removeProfile(index);
+  kdl::vec_erase_at(m_config.profiles, index);
   m_profileList->reloadProfiles();
 
   if (m_profileList->count() > 0)
@@ -161,24 +154,25 @@ void CompilationProfileManager::removeProfile(const size_t index)
   }
 }
 
-void CompilationProfileManager::removeProfile(Model::CompilationProfile* profile)
+void CompilationProfileManager::removeProfile(const Model::CompilationProfile& profile)
 {
-  removeProfile(m_config.indexOfProfile(profile));
+  const auto index = kdl::vec_index_of(m_config.profiles, profile);
+  removeProfile(*index);
 }
 
-void CompilationProfileManager::duplicateProfile(Model::CompilationProfile* profile)
+void CompilationProfileManager::duplicateProfile(const Model::CompilationProfile& profile)
 {
-  m_config.addProfile(profile->clone());
+  m_config.profiles.push_back(profile);
   m_profileList->reloadProfiles();
-  m_profileList->setCurrentRow(static_cast<int>(m_config.profileCount() - 1));
+  m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }
 
 void CompilationProfileManager::profileContextMenuRequested(
-  const QPoint& globalPos, Model::CompilationProfile* profile)
+  const QPoint& globalPos, Model::CompilationProfile& profile)
 {
-  QMenu menu(this);
-  menu.addAction(tr("Duplicate"), this, [=]() { duplicateProfile(profile); });
-  menu.addAction(tr("Remove"), this, [=]() { removeProfile(profile); });
+  auto menu = QMenu{this};
+  menu.addAction(tr("Duplicate"), this, [&]() { duplicateProfile(profile); });
+  menu.addAction(tr("Remove"), this, [&]() { removeProfile(profile); });
   menu.exec(globalPos);
 }
 
@@ -187,8 +181,8 @@ void CompilationProfileManager::profileSelectionChanged()
   const auto selection = m_profileList->currentRow();
   if (selection >= 0)
   {
-    Model::CompilationProfile* profile = m_config.profile(static_cast<size_t>(selection));
-    m_profileEditor->setProfile(profile);
+    auto& profile = m_config.profiles[size_t(selection)];
+    m_profileEditor->setProfile(&profile);
     m_removeProfileButton->setEnabled(true);
   }
   else
