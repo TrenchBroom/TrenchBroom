@@ -2366,6 +2366,7 @@ void MapFrame::focusChange(QWidget* /* oldFocus */, QWidget* newFocus)
   }
 
   updateActionState();
+  updateUndoRedoActions();
 }
 
 MapViewBase* MapFrame::currentMapViewBase()
