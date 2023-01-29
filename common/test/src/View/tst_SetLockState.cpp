@@ -140,17 +140,17 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection")
 
     REQUIRE_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
     document->lock({document->world()->defaultLayer()});
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{unlockedBrushNode}));
+      Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{unlockedBrushNode}));
 
     document->undoCommand();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::Node*>{selectedBrushNode, unlockedBrushNode}));
   }
 
@@ -161,19 +161,19 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection")
 
     REQUIRE_THAT(
       document->selectedBrushFaces(),
-      Catch::UnorderedEquals(std::vector<Model::BrushFaceHandle>{
+      Catch::Matchers::UnorderedEquals(std::vector<Model::BrushFaceHandle>{
         {selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}}));
 
     document->lock({document->world()->defaultLayer()});
     CHECK_THAT(
       document->selectedBrushFaces(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::BrushFaceHandle>{{unlockedBrushNode, 0}}));
 
     document->undoCommand();
     CHECK_THAT(
       document->selectedBrushFaces(),
-      Catch::UnorderedEquals(std::vector<Model::BrushFaceHandle>{
+      Catch::Matchers::UnorderedEquals(std::vector<Model::BrushFaceHandle>{
         {selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}}));
   }
 }

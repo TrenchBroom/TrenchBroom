@@ -90,7 +90,7 @@ TEST_CASE("Quake3ShaderParserTest.parseShaderAbsolutePath")
 
   CHECK_THAT(
     parser.parse(status),
-    Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
+    Catch::Matchers::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
       IO::Path("textures/eerie/ironcrosslt2_10000"),      // shaderPath
       IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
       IO::Path(),                                         // lightImage

@@ -507,7 +507,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveEntityProperties")
   auto* targetEntityNode = static_cast<EntityNode*>(targetGroupNode->children().front());
   REQUIRE_THAT(
     targetEntityNode->entity().properties(),
-    Catch::Equals(sourceEntityNode->entity().properties()));
+    Catch::Matchers::Equals(sourceEntityNode->entity().properties()));
 
   using T = std::tuple<
     std::vector<std::string>,
@@ -630,10 +630,11 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveEntityProperties")
 
       CHECK_THAT(
         newEntityNode->entity().properties(),
-        Catch::UnorderedEquals(expectedTargetProperties));
+        Catch::Matchers::UnorderedEquals(expectedTargetProperties));
       CHECK_THAT(
         newEntityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(targetEntityNode->entity().protectedProperties()));
+        Catch::Matchers::UnorderedEquals(
+          targetEntityNode->entity().protectedProperties()));
     },
     [](const auto&) { FAIL(); }));
 }

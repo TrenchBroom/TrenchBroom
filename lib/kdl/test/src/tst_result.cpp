@@ -27,7 +27,7 @@
 #include <iostream>
 #include <string>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace kdl
 {
@@ -612,7 +612,7 @@ TEST_CASE("result.for_each_result", "result_test")
       return result<int, std::string>{i * 2};
     });
     CHECK(r.is_success());
-    CHECK_THAT(r.value(), Catch::UnorderedEquals(std::vector<int>{}));
+    CHECK_THAT(r.value(), Catch::Matchers::UnorderedEquals(std::vector<int>{}));
   }
 
   SECTION("success case")
@@ -622,7 +622,7 @@ TEST_CASE("result.for_each_result", "result_test")
       return result<int, std::string>{i * 2};
     });
     CHECK(r.is_success());
-    CHECK_THAT(r.value(), Catch::UnorderedEquals(std::vector<int>{2, 4, 6}));
+    CHECK_THAT(r.value(), Catch::Matchers::UnorderedEquals(std::vector<int>{2, 4, 6}));
   }
 
   SECTION("error case")
@@ -662,7 +662,8 @@ TEST_CASE("void_result.for_each_result", "result_test")
       return void_success;
     });
     CHECK(r.is_success());
-    CHECK_THAT(vec_transformed, Catch::UnorderedEquals(std::vector<int>{2, 4, 6}));
+    CHECK_THAT(
+      vec_transformed, Catch::Matchers::UnorderedEquals(std::vector<int>{2, 4, 6}));
   }
 
   SECTION("error case")
@@ -695,8 +696,8 @@ TEST_CASE("result.collect_values", "result_test")
   {
     const auto vec = std::vector<kdl::result<int, std::string>>{};
     auto r = collect_values(std::begin(vec), std::end(vec), errorHandler);
-    CHECK_THAT(r, Catch::Equals(std::vector<int>{}));
-    CHECK_THAT(errors, Catch::Equals(std::vector<std::string>{}));
+    CHECK_THAT(r, Catch::Matchers::Equals(std::vector<int>{}));
+    CHECK_THAT(errors, Catch::Matchers::Equals(std::vector<std::string>{}));
   }
 
   SECTION("nonempty range")
@@ -708,8 +709,8 @@ TEST_CASE("result.collect_values", "result_test")
       kdl::result<int, std::string>{"error 2"},
     };
     auto r = collect_values(std::begin(vec), std::end(vec), errorHandler);
-    CHECK_THAT(r, Catch::Equals(std::vector<int>{1, 2}));
-    CHECK_THAT(errors, Catch::Equals(std::vector<std::string>{"error 1", "error 2"}));
+    CHECK_THAT(r, Catch::Matchers::Equals(std::vector<int>{1, 2}));
+    CHECK_THAT(errors, Catch::Matchers::Equals(std::vector<std::string>{"error 1", "error 2"}));
   }
 }
 } // namespace kdl

@@ -25,7 +25,7 @@
 #include <string>
 #include <variant>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace some_ns
 {

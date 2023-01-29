@@ -181,7 +181,7 @@ void checkColor(
   int a,
   ColorMatch match = ColorMatch::Exact);
 
-class GlobMatcher : public Catch::MatcherBase<std::string>
+class GlobMatcher : public Catch::Matchers::MatcherBase<std::string>
 {
 private:
   std::string m_glob;
@@ -200,7 +200,8 @@ GlobMatcher MatchesGlob(const std::string& glob);
  * epsilon.
  */
 template <typename T, std::size_t S>
-class UnorderedApproxVecMatcher : public Catch::MatcherBase<std::vector<vm::vec<T, S>>>
+class UnorderedApproxVecMatcher
+  : public Catch::Matchers::MatcherBase<std::vector<vm::vec<T, S>>>
 {
 private:
   std::vector<vm::vec<T, S>> m_expected;

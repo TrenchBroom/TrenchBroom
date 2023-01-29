@@ -314,11 +314,13 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesPointEntitySelect
 
   Model::GroupNode* group = document->groupSelection("Group");
   CHECK_THAT(
-    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group}));
+    document->selectedNodes().nodes(),
+    Catch::Matchers::Equals(std::vector<Model::Node*>{group}));
 
   document->ungroupSelection();
   CHECK_THAT(
-    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{ent1}));
+    document->selectedNodes().nodes(),
+    Catch::Matchers::Equals(std::vector<Model::Node*>{ent1}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelected")
@@ -336,15 +338,17 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   document->selectNodes({ent1});
   CHECK_THAT(
     document->selectedNodes().nodes(),
-    Catch::Equals(std::vector<Model::Node*>{brushNode1}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode1}));
   CHECK_FALSE(ent1->selected());
   CHECK(brushNode1->selected());
 
   Model::GroupNode* group = document->groupSelection("Group");
-  CHECK_THAT(group->children(), Catch::Equals(std::vector<Model::Node*>{ent1}));
-  CHECK_THAT(ent1->children(), Catch::Equals(std::vector<Model::Node*>{brushNode1}));
+  CHECK_THAT(group->children(), Catch::Matchers::Equals(std::vector<Model::Node*>{ent1}));
   CHECK_THAT(
-    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group}));
+    ent1->children(), Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode1}));
+  CHECK_THAT(
+    document->selectedNodes().nodes(),
+    Catch::Matchers::Equals(std::vector<Model::Node*>{group}));
   CHECK(document->allSelectedBrushNodes() == std::vector<Model::BrushNode*>{brushNode1});
   CHECK(document->hasAnySelectedBrushNodes());
   CHECK(!document->selectedNodes().hasBrushes());
@@ -352,7 +356,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   document->ungroupSelection();
   CHECK_THAT(
     document->selectedNodes().nodes(),
-    Catch::Equals(std::vector<Model::Node*>{brushNode1}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode1}));
   CHECK_FALSE(ent1->selected());
   CHECK(brushNode1->selected());
 }
@@ -371,12 +375,12 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity")
   document->selectNodes({ent2});
   CHECK_THAT(
     document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{group, ent2}));
+    Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{group, ent2}));
 
   document->ungroupSelection();
   CHECK_THAT(
     document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{ent1, ent2}));
+    Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{ent1, ent2}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups")
@@ -398,20 +402,23 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups")
 
   CHECK_THAT(
     document->currentLayer()->children(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{group1, group2}));
+    Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{group1, group2}));
 
   document->selectNodes({group1, group2});
   document->mergeSelectedGroupsWithGroup(group2);
 
   CHECK_THAT(
-    document->selectedNodes().nodes(), Catch::Equals(std::vector<Model::Node*>{group2}));
+    document->selectedNodes().nodes(),
+    Catch::Matchers::Equals(std::vector<Model::Node*>{group2}));
   CHECK_THAT(
     document->currentLayer()->children(),
-    Catch::Equals(std::vector<Model::Node*>{group2}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{group2}));
 
-  CHECK_THAT(group1->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{}));
   CHECK_THAT(
-    group2->children(), Catch::UnorderedEquals(std::vector<Model::Node*>{ent1, ent2}));
+    group1->children(), Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{}));
+  CHECK_THAT(
+    group2->children(),
+    Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{ent1, ent2}));
 }
 
 TEST_CASE_METHOD(
@@ -438,7 +445,7 @@ TEST_CASE_METHOD(
   document->deselectAll();
   REQUIRE_THAT(
     document->world()->defaultLayer()->children(),
-    Catch::UnorderedEquals(
+    Catch::Matchers::UnorderedEquals(
       std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
 
   SECTION(
@@ -451,7 +458,7 @@ TEST_CASE_METHOD(
     document->ungroupSelection();
     CHECK_THAT(
       document->world()->defaultLayer()->children(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedBrushNode2}));
     CHECK(groupNode->group().linkedGroupId().has_value());
     CHECK(linkedGroupNode->group().linkedGroupId().has_value());
@@ -471,7 +478,7 @@ TEST_CASE_METHOD(
     document->ungroupSelection();
     CHECK_THAT(
       document->world()->defaultLayer()->children(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::Node*>{groupNode, linkedBrushNode, linkedBrushNode2}));
     CHECK_FALSE(groupNode->group().linkedGroupId().has_value());
   }
@@ -488,14 +495,14 @@ TEST_CASE_METHOD(
     document->ungroupSelection();
     CHECK_THAT(
       document->world()->defaultLayer()->children(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::Node*>{brushNode, linkedBrushNode, linkedBrushNode2}));
   }
 
   document->undoCommand();
   CHECK_THAT(
     document->world()->defaultLayer()->children(),
-    Catch::UnorderedEquals(
+    Catch::Matchers::UnorderedEquals(
       std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
   CHECK(groupNode->group().linkedGroupId().has_value());
   CHECK(linkedGroupNode->group().linkedGroupId().has_value());
@@ -616,7 +623,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups")
     document->selectLinkedGroups();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{groupNode, linkedGroupNode}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Model::Node*>{groupNode, linkedGroupNode}));
   }
 }
 

@@ -92,7 +92,8 @@ TEST_CASE("resolveInheritance.filterBaseClasses")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -287,7 +288,8 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 6u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -335,7 +337,8 @@ TEST_CASE("resolveInheritance.overrideMembersIfNotPresent")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -380,7 +383,8 @@ TEST_CASE("resolveInheritance.skipMembersIfPresent")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -432,7 +436,8 @@ TEST_CASE("resolveInheritance.mergeModelDefinitions")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -484,7 +489,8 @@ TEST_CASE("resolveInheritance.inheritPropertyDefinitions")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -545,7 +551,7 @@ TEST_CASE("resolveInheritance.mergeSpawnflagsSimpleInheritance")
   const auto& options = flagsPropertyDefinition.options();
   CHECK_THAT(
     options,
-    Catch::Equals(std::vector<Assets::FlagsPropertyOption>({
+    Catch::Matchers::Equals(std::vector<Assets::FlagsPropertyOption>({
       {1 << 1, "a1_1", "", true},
       {1 << 2, "a2_2", "", true},
       {1 << 4, "a2_4", "", false},
@@ -619,7 +625,8 @@ TEST_CASE("resolveInheritance.chainOfBaseClasses")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -691,7 +698,8 @@ TEST_CASE("resolveInheritance.multipleBaseClasses")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -783,7 +791,8 @@ TEST_CASE("resolveInheritance.diamondInheritance")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -878,7 +887,8 @@ TEST_CASE("resolveInheritance.overloadedSuperClass")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }
@@ -983,7 +993,8 @@ TEST_CASE("resolveInheritance.indirectOverloadedSuperClass")
   });
 
   TestParserStatus status;
-  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK_THAT(
+    resolveInheritance(status, input), Catch::Matchers::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
 }

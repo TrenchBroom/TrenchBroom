@@ -218,7 +218,7 @@ TEST_CASE_METHOD(
   REQUIRE(linkedGroupNode->childCount() == 1u);
   CHECK_THAT(
     linkedGroupNode->children(),
-    Catch::Equals(std::vector<Model::Node*>{linkedBrushNode}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{linkedBrushNode}));
   CHECK(linkedBrushNode->parent() == linkedGroupNode);
   CHECK(
     linkedBrushNode->physicalBounds()

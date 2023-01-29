@@ -100,12 +100,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProp
     document->setProtectedProperty("some_key", true);
     CHECK_THAT(
       entityNode->entity().protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{"some_key"}));
 
     document->undoCommand();
     CHECK_THAT(
       entityNode->entity().protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{}));
   }
 
   SECTION("Unset protected property")
@@ -113,7 +113,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProp
     document->setProtectedProperty("some_key", true);
     REQUIRE_THAT(
       entityNode->entity().protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{"some_key"}));
 
     // Ensure that the consecutive SwapNodeContentsCommands are not collated
     document->deselectAll();
@@ -122,12 +122,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProp
     document->setProtectedProperty("some_key", false);
     CHECK_THAT(
       entityNode->entity().protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{}));
 
     document->undoCommand();
     CHECK_THAT(
       entityNode->entity().protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{"some_key"}));
   }
 }
 
@@ -152,7 +152,7 @@ TEST_CASE_METHOD(
   REQUIRE(linkedEntityNode);
   REQUIRE_THAT(
     linkedEntityNode->entity().properties(),
-    Catch::UnorderedEquals(
+    Catch::Matchers::UnorderedEquals(
       std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
 
   document->deselectAll();
@@ -163,14 +163,14 @@ TEST_CASE_METHOD(
   document->setProperty("some_key", "another_value");
   REQUIRE_THAT(
     linkedEntityNode->entity().properties(),
-    Catch::UnorderedEquals(
+    Catch::Matchers::UnorderedEquals(
       std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
 
   // the value in the original entity remains unchanged
   entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
   REQUIRE_THAT(
     entityNode->entity().properties(),
-    Catch::UnorderedEquals(
+    Catch::Matchers::UnorderedEquals(
       std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
 
   SECTION("When there is an unprotected property in the corresponding entity")
@@ -181,11 +181,11 @@ TEST_CASE_METHOD(
     entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
     CHECK_THAT(
       linkedEntityNode->entity().properties(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
     CHECK_THAT(
       entityNode->entity().properties(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
   }
 
@@ -200,11 +200,11 @@ TEST_CASE_METHOD(
       dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().front());
     REQUIRE_THAT(
       entityNode->entity().properties(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
     REQUIRE_THAT(
       linkedEntityNode->entity().properties(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
 
     document->deselectAll();
@@ -214,11 +214,11 @@ TEST_CASE_METHOD(
     entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
     CHECK_THAT(
       entityNode->entity().properties(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
     CHECK_THAT(
       linkedEntityNode->entity().properties(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
 
     SECTION(
@@ -233,11 +233,11 @@ TEST_CASE_METHOD(
         dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().front());
       CHECK_THAT(
         entityNode->entity().properties(),
-        Catch::UnorderedEquals(
+        Catch::Matchers::UnorderedEquals(
           std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
       CHECK_THAT(
         linkedEntityNode->entity().properties(),
-        Catch::UnorderedEquals(
+        Catch::Matchers::UnorderedEquals(
           std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
     }
   }
@@ -250,11 +250,11 @@ TEST_CASE_METHOD(
     entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
     REQUIRE_THAT(
       entityNode->entity().properties(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
     REQUIRE_THAT(
       linkedEntityNode->entity().properties(),
-      Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
         {"some_key", "another_value"},
         {"yet_another_key", "yet_another_value"},
       }));
@@ -264,13 +264,13 @@ TEST_CASE_METHOD(
     entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
     CHECK_THAT(
       entityNode->entity().properties(),
-      Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
         {"some_key", "some_value"},
         {"yet_another_key", "yet_another_value"},
       }));
     CHECK_THAT(
       linkedEntityNode->entity().properties(),
-      Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
         {"some_key", "another_value"},
         {"yet_another_key", "yet_another_value"},
       }));
@@ -329,18 +329,19 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
 
   REQUIRE_THAT(
     entityNode->entity().protectedProperties(),
-    Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
+    Catch::Matchers::UnorderedEquals(std::vector<std::string>{"some_key"}));
   REQUIRE_THAT(
     entityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
       {"some_key", "some_other_value"}, {"another_key", "another_value"}}));
 
   REQUIRE_THAT(
     linkedEntityNode->entity().protectedProperties(),
-    Catch::UnorderedEquals(std::vector<std::string>{"another_key", "yet_another_key"}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<std::string>{"another_key", "yet_another_key"}));
   REQUIRE_THAT(
     linkedEntityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
       {"some_key", "some_value"},
       {"another_key", "yet_another_value"},
       {"yet_another_key", "and_yet_another_value"}}));
@@ -361,20 +362,20 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
 
   CHECK_THAT(
     entityNode->entity().protectedProperties(),
-    Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
+    Catch::Matchers::UnorderedEquals(std::vector<std::string>{"some_key"}));
   CHECK_THAT(
     entityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
       {"some_key", "some_other_value"},
       {"another_key", "another_value"},
       {"yet_another_key", "and_yet_another_value"}}));
 
   CHECK_THAT(
     linkedEntityNode->entity().protectedProperties(),
-    Catch::UnorderedEquals(std::vector<std::string>{}));
+    Catch::Matchers::UnorderedEquals(std::vector<std::string>{}));
   CHECK_THAT(
     linkedEntityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
       {"some_key", "some_value"},
       {"another_key", "another_value"},
       {"yet_another_key", "and_yet_another_value"}}));
@@ -386,18 +387,19 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
 
   CHECK_THAT(
     entityNode->entity().protectedProperties(),
-    Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
+    Catch::Matchers::UnorderedEquals(std::vector<std::string>{"some_key"}));
   CHECK_THAT(
     entityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
       {"some_key", "some_other_value"}, {"another_key", "another_value"}}));
 
   CHECK_THAT(
     linkedEntityNode->entity().protectedProperties(),
-    Catch::UnorderedEquals(std::vector<std::string>{"another_key", "yet_another_key"}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<std::string>{"another_key", "yet_another_key"}));
   CHECK_THAT(
     linkedEntityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
       {"some_key", "some_value"},
       {"another_key", "yet_another_value"},
       {"yet_another_key", "and_yet_another_value"}}));
@@ -422,7 +424,7 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
   Model::EntityNode* brushEntNode = document->createBrushEntity(m_brushEntityDef);
   REQUIRE_THAT(
     document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode}));
+    Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{brushNode}));
 
   REQUIRE(!brushEntNode->entity().hasProperty("spawnflags"));
   CHECK(document->updateSpawnflag("spawnflags", 1, true));

@@ -27,7 +27,7 @@
 #pragma warning(disable : 4365)
 #endif
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 #ifdef _MSC_VER
 #pragma warning(pop)

@@ -38,7 +38,7 @@ TEST_CASE("WadFileSystemTest.loadEntries")
 
   CHECK_THAT(
     fs.findItems(Path("")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("blowjob_machine.D"), Path("bongs2.D"),        Path("can-o-jam.D"),
       Path("cap4can-o-jam.D"),   Path("coffin1.D"),       Path("coffin2.D"),
       Path("cr8_czg_1.D"),       Path("cr8_czg_2.D"),     Path("cr8_czg_3.D"),

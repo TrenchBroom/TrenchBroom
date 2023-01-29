@@ -254,7 +254,8 @@ TEST_CASE("BrushTest.expand")
     std::begin(expectedVerticesArray), std::end(expectedVerticesArray));
 
   CHECK(brush1.bounds() == expandedBBox);
-  CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
+  CHECK_THAT(
+    brush1.vertexPositions(), Catch::Matchers::UnorderedEquals(expectedVertices));
 }
 
 TEST_CASE("BrushTest.contract")
@@ -274,7 +275,8 @@ TEST_CASE("BrushTest.contract")
     std::begin(expectedVerticesArray), std::end(expectedVerticesArray));
 
   CHECK(brush1.bounds() == expandedBBox);
-  CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
+  CHECK_THAT(
+    brush1.vertexPositions(), Catch::Matchers::UnorderedEquals(expectedVertices));
 }
 
 TEST_CASE("BrushTest.contractToZero")
@@ -2408,7 +2410,8 @@ TEST_CASE("BrushTest.subtractDisjoint")
 
   const Brush& subtraction = result.at(0);
   CHECK_THAT(
-    subtraction.vertexPositions(), Catch::UnorderedEquals(brush1.vertexPositions()));
+    subtraction.vertexPositions(),
+    Catch::Matchers::UnorderedEquals(brush1.vertexPositions()));
 }
 
 TEST_CASE("BrushTest.subtractEnclosed")

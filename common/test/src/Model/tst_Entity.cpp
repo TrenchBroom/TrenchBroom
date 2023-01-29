@@ -226,12 +226,12 @@ TEST_CASE("EntityTest.addOrUpdateProperty")
     entity.addOrUpdateProperty({}, "newKey", "newValue", true);
     CHECK_THAT(
       entity.protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
 
     entity.addOrUpdateProperty({}, "test", "anotherValue", true);
     CHECK_THAT(
       entity.protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
   }
 
   SECTION("Updates cached model transformation")
@@ -295,7 +295,7 @@ TEST_CASE("EntityTest.renameProperty")
     entity.renameProperty({}, "originalKey", "newKey");
     CHECK_THAT(
       entity.protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
   }
 
   SECTION("Updates cached model transformation")
@@ -349,13 +349,13 @@ TEST_CASE("EntityTest.removeProperty")
     entity.addOrUpdateProperty({}, "newKey", "value", true);
     REQUIRE_THAT(
       entity.protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
 
     entity.removeProperty({}, "newKey");
     REQUIRE(!entity.hasProperty("newKey"));
     CHECK_THAT(
       entity.protectedProperties(),
-      Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
+      Catch::Matchers::UnorderedEquals(std::vector<std::string>{"newKey"}));
   }
 
   SECTION("Updates cached model transformation")

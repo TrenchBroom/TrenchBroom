@@ -66,7 +66,7 @@ TEST_CASE("GameTest.findTextureCollections")
 
   CHECK_THAT(
     game.findTextureCollections(),
-    Catch::UnorderedEquals(std::vector<IO::Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<IO::Path>{
       IO::Path("textures"), IO::Path("textures/e1m1"), IO::Path("textures/e1m1/f1")}));
 }
 
@@ -109,7 +109,7 @@ TEST_CASE("GameTest.loadQuake3Shaders")
 
   CHECK_THAT(
     game.findTextureCollections(),
-    Catch::UnorderedEquals(std::vector<IO::Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<IO::Path>{
       IO::Path("textures"),
       IO::Path("textures/skies"),
       IO::Path("textures/skies/hub1"),
@@ -162,7 +162,7 @@ TEST_CASE("GameTest.loadQuake3Shaders")
 
   CHECK_THAT(
     testTextureNames,
-    Catch::UnorderedEquals(std::vector<std::string>{
+    Catch::Matchers::UnorderedEquals(std::vector<std::string>{
       "test/test",
       "test/not_existing",
       "test/editor_image",
@@ -176,7 +176,7 @@ TEST_CASE("GameTest.loadQuake3Shaders")
 
   CHECK_THAT(
     skiesTextureNames,
-    Catch::UnorderedEquals(std::vector<std::string>{
+    Catch::Matchers::UnorderedEquals(std::vector<std::string>{
       "skies/hub1/dusk",
     }));
 }

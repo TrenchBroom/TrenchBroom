@@ -148,7 +148,7 @@ TEST_CASE("DiskTest.getDirectoryContents")
 
   CHECK_THAT(
     Disk::getDirectoryContents(env.dir()),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("dir1"),
       Path("dir2"),
       Path("anotherDir"),
@@ -263,7 +263,7 @@ TEST_CASE("DiskFileSystemTest.getDirectoryContents")
 
   CHECK_THAT(
     fs.getDirectoryContents(Path("anotherDir")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("subDirTest"),
       Path("test3.map"),
     }));
@@ -283,7 +283,7 @@ TEST_CASE("DiskFileSystemTest.findItems")
 
   CHECK_THAT(
     fs.findItems(Path(".")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("./dir1"),
       Path("./dir2"),
       Path("./anotherDir"),
@@ -293,13 +293,13 @@ TEST_CASE("DiskFileSystemTest.findItems")
 
   CHECK_THAT(
     fs.findItems(Path(""), FileExtensionMatcher("TXT")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("test.txt"),
     }));
 
   CHECK_THAT(
     fs.findItems(Path("anotherDir")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("anotherDir/subDirTest"),
       Path("anotherDir/test3.map"),
     }));
@@ -319,7 +319,7 @@ TEST_CASE("DiskFileSystemTest.findItemsRecursively")
 
   CHECK_THAT(
     fs.findItemsRecursively(Path(".")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("./dir1"),
       Path("./dir2"),
       Path("./anotherDir"),
@@ -332,7 +332,7 @@ TEST_CASE("DiskFileSystemTest.findItemsRecursively")
 
   CHECK_THAT(
     fs.findItemsRecursively(Path(""), FileExtensionMatcher("MAP")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("anotherDir/subDirTest/test2.map"),
       Path("anotherDir/test3.map"),
       Path("test2.map"),
@@ -340,7 +340,7 @@ TEST_CASE("DiskFileSystemTest.findItemsRecursively")
 
   CHECK_THAT(
     fs.findItemsRecursively(Path("anotherDir")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("anotherDir/subDirTest"),
       Path("anotherDir/subDirTest/test2.map"),
       Path("anotherDir/test3.map"),

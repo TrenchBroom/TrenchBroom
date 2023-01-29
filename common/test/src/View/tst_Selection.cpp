@@ -165,16 +165,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
 
     WHEN("A node in a brush entity node is selected")
     {
-      const auto selectBrushNode =
-        [](auto* brushNode, auto* patchNode) -> std::tuple<Model::Node*, Model::Node*> {
-        return {brushNode, patchNode};
-      };
-      const auto selectPatchNode =
-        [](auto* brushNode, auto* patchNode) -> std::tuple<Model::Node*, Model::Node*> {
-        return {patchNode, brushNode};
-      };
-      const auto selectNodes = GENERATE_COPY(selectBrushNode, selectPatchNode);
+      using SelectNodes =
+        std::function<std::tuple<Model::Node*, Model::Node*>(Model::Node*, Model::Node*)>;
+      const SelectNodes selectBrushNode =
+        [](Model::Node* brushNode, Model::Node* patchNode) {
+          return std::tuple{brushNode, patchNode};
+        };
+      const SelectNodes selectPatchNode =
+        [](Model::Node* brushNode, Model::Node* patchNode) {
+          return std::tuple{patchNode, brushNode};
+        };
 
+      const auto selectNodes = GENERATE_COPY(selectBrushNode, selectPatchNode);
       const auto [nodeToSelect, otherNode] =
         selectNodes(brushEntityBrushNode, brushEntityPatchNode);
 
@@ -279,19 +281,21 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476")
 
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::UnorderedEquals(std::vector<Model::BrushNode*>{brushNode1, brushNode2}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<Model::BrushNode*>{brushNode1, brushNode2}));
   CHECK_THAT(
     document->currentLayer()->children(),
-    Catch::Equals(std::vector<Model::Node*>{brushNode1, brushNode2}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode1, brushNode2}));
 
   document->selectTouching(true);
 
   // only this next line was failing
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::UnorderedEquals(std::vector<Model::BrushNode*>{}));
+    Catch::Matchers::UnorderedEquals(std::vector<Model::BrushNode*>{}));
   CHECK_THAT(
-    document->currentLayer()->children(), Catch::Equals(std::vector<Model::Node*>{}));
+    document->currentLayer()->children(),
+    Catch::Matchers::Equals(std::vector<Model::Node*>{}));
 
   // brush1 and brush2 are deleted
   CHECK(brushNode1->parent() == nullptr);
@@ -458,7 +462,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse")
 
   CHECK_THAT(
     document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode2, brushNode3, patchNode}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<Model::Node*>{brushNode2, brushNode3, patchNode}));
   CHECK(!brushNode1->selected());
   CHECK(brushNode2->selected());
   CHECK(brushNode3->selected());
@@ -498,7 +503,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingInsideNestedGroup
 
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::UnorderedEquals(std::vector<Model::BrushNode*>{brushNode2}));
+    Catch::Matchers::UnorderedEquals(std::vector<Model::BrushNode*>{brushNode2}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
@@ -540,18 +545,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
     document->selectNodes({brushNode3});
     REQUIRE_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode3}));
+      Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{brushNode3}));
 
     document->selectSiblings();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(
+      Catch::Matchers::UnorderedEquals(
         std::vector<Model::Node*>{brushNode1, brushNode2, brushNode3, patchNode}));
 
     document->undoCommand();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode3}));
+      Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{brushNode3}));
   }
 
   SECTION("Brush in brush entity")
@@ -559,17 +564,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
     document->selectNodes({brushNode1});
     REQUIRE_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode1}));
+      Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{brushNode1}));
 
     document->selectSiblings();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode1, brushNode2}));
+      Catch::Matchers::UnorderedEquals(
+        std::vector<Model::Node*>{brushNode1, brushNode2}));
 
     document->undoCommand();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode1}));
+      Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{brushNode1}));
   }
 }
 
@@ -615,18 +621,20 @@ TEST_CASE_METHOD(
   document->selectBrushFaces({{brushNode, *topFaceIndex}});
   CHECK_THAT(
     document->selectedBrushFaces(),
-    Catch::Equals(std::vector<Model::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+    Catch::Matchers::Equals(
+      std::vector<Model::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 
   // deselect it
   document->deselectBrushFaces({{brushNode, *topFaceIndex}});
   CHECK_THAT(
-    document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
+    document->selectedBrushFaces(),
+    Catch::Matchers::Equals(std::vector<Model::BrushFaceHandle>{}));
 
   // select the brush
   document->selectNodes({brushNode});
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::Equals(std::vector<Model::BrushNode*>{brushNode}));
+    Catch::Matchers::Equals(std::vector<Model::BrushNode*>{brushNode}));
 
   // translate the brush
   document->translateObjects(vm::vec3(10.0, 0.0, 0.0));
@@ -638,20 +646,24 @@ TEST_CASE_METHOD(
   CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::Equals(std::vector<Model::BrushNode*>{brushNode}));
+    Catch::Matchers::Equals(std::vector<Model::BrushNode*>{brushNode}));
   CHECK_THAT(
-    document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
+    document->selectedBrushFaces(),
+    Catch::Matchers::Equals(std::vector<Model::BrushFaceHandle>{}));
 
   document->undoCommand();
   CHECK_THAT(
-    document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode*>{}));
+    document->selectedNodes().brushes(),
+    Catch::Matchers::Equals(std::vector<Model::BrushNode*>{}));
   CHECK_THAT(
-    document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
+    document->selectedBrushFaces(),
+    Catch::Matchers::Equals(std::vector<Model::BrushFaceHandle>{}));
 
   document->undoCommand();
   CHECK_THAT(
     document->selectedBrushFaces(),
-    Catch::Equals(std::vector<Model::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+    Catch::Matchers::Equals(
+      std::vector<Model::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 }
 } // namespace View
 } // namespace TrenchBroom

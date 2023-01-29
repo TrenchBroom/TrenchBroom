@@ -307,7 +307,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
-    Catch::UnorderedEquals(std::vector<vm::vec3>{
+    Catch::Matchers::UnorderedEquals(std::vector<vm::vec3>{
       // bottom face
       {100, 100, 100},
       {200, 100, 100},
@@ -325,7 +325,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
-    Catch::UnorderedEquals(std::vector<vm::vec3>{
+    Catch::Matchers::UnorderedEquals(std::vector<vm::vec3>{
       // bottom face
       {150, 100, 100},
       {250, 100, 100},
@@ -352,7 +352,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
-    Catch::UnorderedEquals(std::vector<vm::vec3>{
+    Catch::Matchers::UnorderedEquals(std::vector<vm::vec3>{
       // bottom face
       {0, 0, 0},
       {100, 0, 0},
@@ -370,7 +370,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
-    Catch::UnorderedEquals(std::vector<vm::vec3>{
+    Catch::Matchers::UnorderedEquals(std::vector<vm::vec3>{
       // bottom face
       {0, 0, 0},
       {100, 0, 0},
@@ -479,7 +479,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
   document->selectNodes({linkedGroup});
   REQUIRE_THAT(
     document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{linkedGroup}));
+    Catch::Matchers::UnorderedEquals(std::vector<Model::Node*>{linkedGroup}));
 
   auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroup->children().at(0));
   REQUIRE(linkedBrushNode != nullptr);

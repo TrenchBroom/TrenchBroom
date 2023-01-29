@@ -204,7 +204,8 @@ TEST_CASE("EntityNodeIndexTest.allKeys")
   index.addEntityNode(entity2);
 
   CHECK_THAT(
-    index.allKeys(), Catch::UnorderedEquals(std::vector<std::string>{"test", "other"}));
+    index.allKeys(),
+    Catch::Matchers::UnorderedEquals(std::vector<std::string>{"test", "other"}));
 }
 
 TEST_CASE("EntityNodeIndexTest.allValuesForKeys")
@@ -221,7 +222,8 @@ TEST_CASE("EntityNodeIndexTest.allValuesForKeys")
 
   CHECK_THAT(
     index.allValuesForKeys(EntityNodeIndexQuery::exact("test")),
-    Catch::UnorderedEquals(std::vector<std::string>{"somevalue", "somevalue2"}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<std::string>{"somevalue", "somevalue2"}));
 }
 } // namespace Model
 } // namespace TrenchBroom

@@ -26,7 +26,7 @@
 
 #include "test_utils.h"
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace kdl
 {
@@ -47,11 +47,11 @@ TEST_CASE("vector_utils_test.vec_pop_back")
 {
   auto v = std::vector<int>{1, 2, 3};
   CHECK(vec_pop_back(v) == 3);
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 2}));
   CHECK(vec_pop_back(v) == 2);
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1}));
   CHECK(vec_pop_back(v) == 1);
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{}));
 }
 
 struct base
@@ -146,10 +146,10 @@ TEST_CASE("vector_utils_test.vec_concat")
 {
   using vec = std::vector<int>;
 
-  CHECK_THAT(vec_concat(vec{}), Catch::Equals(vec{}));
-  CHECK_THAT(vec_concat(vec{}, vec{}), Catch::Equals(vec{}));
-  CHECK_THAT(vec_concat(vec{1}), Catch::Equals(vec{1}));
-  CHECK_THAT(vec_concat(vec{1}, vec{2}), Catch::Equals(vec{1, 2}));
+  CHECK_THAT(vec_concat(vec{}), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_concat(vec{}, vec{}), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_concat(vec{1}), Catch::Matchers::Equals(vec{1}));
+  CHECK_THAT(vec_concat(vec{1}, vec{2}), Catch::Matchers::Equals(vec{1, 2}));
 }
 
 TEST_CASE("vector_utils_test.vec_concat_move")
@@ -165,52 +165,52 @@ TEST_CASE("vector_utils_test.vec_slice")
 {
   using vec = std::vector<int>;
 
-  CHECK_THAT(vec_slice(vec{}, 0, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 1, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 2, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 3, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 1), Catch::Equals(vec{1}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 1, 1), Catch::Equals(vec{2}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 2, 1), Catch::Equals(vec{3}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 2), Catch::Equals(vec{1, 2}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 1, 2), Catch::Equals(vec{2, 3}));
-  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 3), Catch::Equals(vec{1, 2, 3}));
+  CHECK_THAT(vec_slice(vec{}, 0, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 1, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 2, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 3, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 1), Catch::Matchers::Equals(vec{1}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 1, 1), Catch::Matchers::Equals(vec{2}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 2, 1), Catch::Matchers::Equals(vec{3}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 2), Catch::Matchers::Equals(vec{1, 2}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 1, 2), Catch::Matchers::Equals(vec{2, 3}));
+  CHECK_THAT(vec_slice(vec{1, 2, 3}, 0, 3), Catch::Matchers::Equals(vec{1, 2, 3}));
 }
 
 TEST_CASE("vector_utils_test.vec_slice_prefix")
 {
   using vec = std::vector<int>;
 
-  CHECK_THAT(vec_slice_prefix(vec{}, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice_prefix(vec{1}, 1), Catch::Equals(vec{1}));
-  CHECK_THAT(vec_slice_prefix(vec{1}, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 3), Catch::Equals(vec{1, 2, 3}));
-  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 2), Catch::Equals(vec{1, 2}));
-  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 1), Catch::Equals(vec{1}));
-  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 0), Catch::Equals(vec{}));
+  CHECK_THAT(vec_slice_prefix(vec{}, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice_prefix(vec{1}, 1), Catch::Matchers::Equals(vec{1}));
+  CHECK_THAT(vec_slice_prefix(vec{1}, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 3), Catch::Matchers::Equals(vec{1, 2, 3}));
+  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 2), Catch::Matchers::Equals(vec{1, 2}));
+  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 1), Catch::Matchers::Equals(vec{1}));
+  CHECK_THAT(vec_slice_prefix(vec{1, 2, 3}, 0), Catch::Matchers::Equals(vec{}));
 }
 
 TEST_CASE("vector_utils_test.vec_slice_suffix")
 {
   using vec = std::vector<int>;
 
-  CHECK_THAT(vec_slice_suffix(vec{}, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice_suffix(vec{1}, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice_suffix(vec{1}, 1), Catch::Equals(vec{1}));
-  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 0), Catch::Equals(vec{}));
-  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 1), Catch::Equals(vec{3}));
-  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 2), Catch::Equals(vec{2, 3}));
-  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 3), Catch::Equals(vec{1, 2, 3}));
+  CHECK_THAT(vec_slice_suffix(vec{}, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice_suffix(vec{1}, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice_suffix(vec{1}, 1), Catch::Matchers::Equals(vec{1}));
+  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 0), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 1), Catch::Matchers::Equals(vec{3}));
+  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 2), Catch::Matchers::Equals(vec{2, 3}));
+  CHECK_THAT(vec_slice_suffix(vec{1, 2, 3}, 3), Catch::Matchers::Equals(vec{1, 2, 3}));
 }
 
 template <typename T>
 void test_erase(std::vector<T> from, const T& x, const std::vector<T>& exp)
 {
   const auto originalFrom = from;
-  CHECK_THAT(vec_erase(from, x), Catch::Equals(exp));
-  CHECK_THAT(from, Catch::Equals(originalFrom));
-  CHECK_THAT(vec_erase(std::move(from), x), Catch::Equals(exp));
+  CHECK_THAT(vec_erase(from, x), Catch::Matchers::Equals(exp));
+  CHECK_THAT(from, Catch::Matchers::Equals(originalFrom));
+  CHECK_THAT(vec_erase(std::move(from), x), Catch::Matchers::Equals(exp));
 }
 
 TEST_CASE("vector_utils_test.vec_erase")
@@ -226,9 +226,9 @@ template <typename T, typename P>
 void test_erase_if(std::vector<T> from, const P& pred, const std::vector<T>& exp)
 {
   const auto originalFrom = from;
-  CHECK_THAT(vec_erase_if(from, pred), Catch::Equals(exp));
-  CHECK_THAT(from, Catch::Equals(originalFrom));
-  CHECK_THAT(vec_erase_if(std::move(from), pred), Catch::Equals(exp));
+  CHECK_THAT(vec_erase_if(from, pred), Catch::Matchers::Equals(exp));
+  CHECK_THAT(from, Catch::Matchers::Equals(originalFrom));
+  CHECK_THAT(vec_erase_if(std::move(from), pred), Catch::Matchers::Equals(exp));
 }
 
 TEST_CASE("vector_utils_test.vec_erase_if")
@@ -245,9 +245,9 @@ template <typename T>
 void test_erase_at(std::vector<T> from, const std::size_t i, const std::vector<T>& exp)
 {
   const auto originalFrom = from;
-  CHECK_THAT(vec_erase_at(from, i), Catch::Equals(exp));
-  CHECK_THAT(from, Catch::Equals(originalFrom));
-  CHECK_THAT(vec_erase_at(std::move(from), i), Catch::Equals(exp));
+  CHECK_THAT(vec_erase_at(from, i), Catch::Matchers::Equals(exp));
+  CHECK_THAT(from, Catch::Matchers::Equals(originalFrom));
+  CHECK_THAT(vec_erase_at(std::move(from), i), Catch::Matchers::Equals(exp));
 }
 
 TEST_CASE("vector_utils_test.vec_erase_at")
@@ -262,9 +262,9 @@ void test_erase_all(
   std::vector<T> from, const std::vector<T>& which, const std::vector<T>& exp)
 {
   const auto originalFrom = from;
-  CHECK_THAT(vec_erase_all(from, which), Catch::Equals(exp));
-  CHECK_THAT(from, Catch::Equals(originalFrom));
-  CHECK_THAT(vec_erase_all(std::move(from), which), Catch::Equals(exp));
+  CHECK_THAT(vec_erase_all(from, which), Catch::Matchers::Equals(exp));
+  CHECK_THAT(from, Catch::Matchers::Equals(originalFrom));
+  CHECK_THAT(vec_erase_all(std::move(from), which), Catch::Matchers::Equals(exp));
 }
 
 TEST_CASE("vector_utils_test.vec_erase_all")
@@ -281,7 +281,8 @@ TEST_CASE("vector_utils_test.vec_sort")
 {
   // just a smoke test since we're just forwarding to std::sort
   CHECK_THAT(
-    vec_sort(std::vector<int>{2, 3, 2, 1}), Catch::Equals(std::vector<int>{1, 2, 2, 3}));
+    vec_sort(std::vector<int>{2, 3, 2, 1}),
+    Catch::Matchers::Equals(std::vector<int>{1, 2, 2, 3}));
 }
 
 TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates")
@@ -289,27 +290,27 @@ TEST_CASE("vector_utils_test.vec_sort_and_remove_duplicates")
   // just a smoke test since we're just forwarding to std::sort and std::unique
   CHECK_THAT(
     vec_sort_and_remove_duplicates(std::vector<int>{2, 3, 2, 1}),
-    Catch::Equals(std::vector<int>{1, 2, 3}));
+    Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
 }
 
 TEST_CASE("vector_utils_test.vec_filter")
 {
   CHECK_THAT(
     vec_filter(std::vector<int>{}, [](auto) { return false; }),
-    Catch::Equals(std::vector<int>{}));
+    Catch::Matchers::Equals(std::vector<int>{}));
   CHECK_THAT(
     vec_filter(std::vector<int>{1, 2, 3}, [](auto) { return false; }),
-    Catch::Equals(std::vector<int>{}));
+    Catch::Matchers::Equals(std::vector<int>{}));
   CHECK_THAT(
     vec_filter(std::vector<int>{1, 2, 3}, [](auto) { return true; }),
-    Catch::Equals(std::vector<int>{1, 2, 3}));
+    Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
   CHECK_THAT(
     vec_filter(std::vector<int>{1, 2, 3}, [](auto x) { return x % 2 == 0; }),
-    Catch::Equals(std::vector<int>{2}));
+    Catch::Matchers::Equals(std::vector<int>{2}));
 
   CHECK_THAT(
     vec_filter(std::vector<int>{1, 2, 3}, [](auto, auto i) { return i % 2 == 0; }),
-    Catch::Equals(std::vector<int>{1, 3}));
+    Catch::Matchers::Equals(std::vector<int>{1, 3}));
 }
 
 struct MoveOnly
@@ -341,18 +342,18 @@ TEST_CASE("vector_utils_test.vec_transform")
 {
   CHECK_THAT(
     vec_transform(std::vector<int>{}, [](auto x) { return x + 10; }),
-    Catch::Equals(std::vector<int>{}));
+    Catch::Matchers::Equals(std::vector<int>{}));
   CHECK_THAT(
     vec_transform(std::vector<int>{1, 2, 3}, [](auto x) { return x + 10; }),
-    Catch::Equals(std::vector<int>{11, 12, 13}));
+    Catch::Matchers::Equals(std::vector<int>{11, 12, 13}));
   CHECK_THAT(
     vec_transform(std::vector<int>{1, 2, 3}, [](auto x) { return x + 10.0; }),
-    Catch::Equals(std::vector<double>{11.0, 12.0, 13.0}));
+    Catch::Matchers::Equals(std::vector<double>{11.0, 12.0, 13.0}));
   CHECK_THAT(
     vec_transform(
       std::vector<int>{1, 2, 3},
       [](auto x, auto i) { return x + static_cast<double>(i); }),
-    Catch::Equals(std::vector<double>{1.0, 3.0, 5.0}));
+    Catch::Matchers::Equals(std::vector<double>{1.0, 3.0, 5.0}));
 }
 
 struct X
@@ -380,70 +381,82 @@ TEST_CASE("vector_utils_test.vec_transform_rvalue")
 TEST_CASE("vector_utils_test.vec_flatten")
 {
   CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{}), Catch::Equals(std::vector<int>{}));
+    vec_flatten(std::vector<std::vector<int>>{}),
+    Catch::Matchers::Equals(std::vector<int>{}));
   CHECK_THAT(
-    vec_flatten(std::vector<std::vector<int>>{{1}}), Catch::Equals(std::vector<int>{1}));
+    vec_flatten(std::vector<std::vector<int>>{{1}}),
+    Catch::Matchers::Equals(std::vector<int>{1}));
   CHECK_THAT(
     vec_flatten(std::vector<std::vector<int>>{{}, {}}),
-    Catch::Equals(std::vector<int>{}));
+    Catch::Matchers::Equals(std::vector<int>{}));
   CHECK_THAT(
     vec_flatten(std::vector<std::vector<int>>{{1}, {}}),
-    Catch::Equals(std::vector<int>{1}));
+    Catch::Matchers::Equals(std::vector<int>{1}));
   CHECK_THAT(
     vec_flatten(std::vector<std::vector<int>>{{}, {1}}),
-    Catch::Equals(std::vector<int>{1}));
+    Catch::Matchers::Equals(std::vector<int>{1}));
   CHECK_THAT(
     vec_flatten(std::vector<std::vector<int>>{{1}, {2}}),
-    Catch::Equals(std::vector<int>{1, 2}));
+    Catch::Matchers::Equals(std::vector<int>{1, 2}));
   CHECK_THAT(
     vec_flatten(std::vector<std::vector<int>>{{1, 2}, {3}}),
-    Catch::Equals(std::vector<int>{1, 2, 3}));
+    Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
   CHECK_THAT(
     vec_flatten(std::vector<std::vector<int>>{{1, 2}, {3}}),
-    Catch::Equals(std::vector<int>{1, 2, 3}));
+    Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
   CHECK_THAT(
     vec_flatten(std::vector<std::vector<int>>{{1, 2}, {2, 3}}),
-    Catch::Equals(std::vector<int>{1, 2, 2, 3}));
+    Catch::Matchers::Equals(std::vector<int>{1, 2, 2, 3}));
 }
 
 TEST_CASE("vector_utils_test.set_difference")
 {
   using vec = std::vector<int>;
   using set = std::set<int>;
-  CHECK_THAT(set_difference(set({}), set({})), Catch::Equals(vec{}));
-  CHECK_THAT(set_difference(set({}), set({1, 2})), Catch::Equals(vec{}));
-  CHECK_THAT(set_difference(set({1}), set({1, 2})), Catch::Equals(vec{}));
-  CHECK_THAT(set_difference(set({1, 2}), set({1, 2})), Catch::Equals(vec{}));
-  CHECK_THAT(set_difference(set({1, 2}), set({1, 2, 3, 4})), Catch::Equals(vec{}));
-  CHECK_THAT(set_difference(set({1, 2, 3}), set({1, 2})), Catch::Equals(vec{3}));
-  CHECK_THAT(set_difference(set({1, 2, 3}), set({1, 2})), Catch::Equals(vec{3}));
-  CHECK_THAT(set_difference(set({1, 2, 3}), set({2})), Catch::Equals(vec{1, 3}));
+  CHECK_THAT(set_difference(set({}), set({})), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(set_difference(set({}), set({1, 2})), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(set_difference(set({1}), set({1, 2})), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(set_difference(set({1, 2}), set({1, 2})), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(
+    set_difference(set({1, 2}), set({1, 2, 3, 4})), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(
+    set_difference(set({1, 2, 3}), set({1, 2})), Catch::Matchers::Equals(vec{3}));
+  CHECK_THAT(
+    set_difference(set({1, 2, 3}), set({1, 2})), Catch::Matchers::Equals(vec{3}));
+  CHECK_THAT(
+    set_difference(set({1, 2, 3}), set({2})), Catch::Matchers::Equals(vec{1, 3}));
 }
 
 TEST_CASE("vector_utils_test.set_union")
 {
   using vec = std::vector<int>;
   using set = std::set<int>;
-  CHECK_THAT(set_union(set({}), set({})), Catch::Equals(vec{}));
-  CHECK_THAT(set_union(set({}), set({1, 2})), Catch::Equals(vec{1, 2}));
-  CHECK_THAT(set_union(set({1}), set({1, 2})), Catch::Equals(vec{1, 2}));
-  CHECK_THAT(set_union(set({1, 2}), set({1, 2})), Catch::Equals(vec{1, 2}));
-  CHECK_THAT(set_union(set({1, 2}), set({1, 2, 3, 4})), Catch::Equals(vec{1, 2, 3, 4}));
-  CHECK_THAT(set_union(set({1, 2, 3}), set({2, 4})), Catch::Equals(vec{1, 2, 3, 4}));
+  CHECK_THAT(set_union(set({}), set({})), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(set_union(set({}), set({1, 2})), Catch::Matchers::Equals(vec{1, 2}));
+  CHECK_THAT(set_union(set({1}), set({1, 2})), Catch::Matchers::Equals(vec{1, 2}));
+  CHECK_THAT(set_union(set({1, 2}), set({1, 2})), Catch::Matchers::Equals(vec{1, 2}));
+  CHECK_THAT(
+    set_union(set({1, 2}), set({1, 2, 3, 4})), Catch::Matchers::Equals(vec{1, 2, 3, 4}));
+  CHECK_THAT(
+    set_union(set({1, 2, 3}), set({2, 4})), Catch::Matchers::Equals(vec{1, 2, 3, 4}));
 }
 
 TEST_CASE("vector_utils_test.set_intersection")
 {
   using vec = std::vector<int>;
   using set = std::set<int>;
-  CHECK_THAT(set_intersection(set({}), set({})), Catch::Equals(vec{}));
-  CHECK_THAT(set_intersection(set({}), set({1, 2})), Catch::Equals(vec{}));
-  CHECK_THAT(set_intersection(set({1}), set({1, 2})), Catch::Equals(vec{1}));
-  CHECK_THAT(set_intersection(set({1, 2}), set({1, 2})), Catch::Equals(vec{1, 2}));
-  CHECK_THAT(set_intersection(set({1, 2}), set({1, 2, 3, 4})), Catch::Equals(vec{1, 2}));
-  CHECK_THAT(set_intersection(set({1, 2, 3}), set({1, 2})), Catch::Equals(vec{1, 2}));
+  CHECK_THAT(set_intersection(set({}), set({})), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(set_intersection(set({}), set({1, 2})), Catch::Matchers::Equals(vec{}));
+  CHECK_THAT(set_intersection(set({1}), set({1, 2})), Catch::Matchers::Equals(vec{1}));
   CHECK_THAT(
-    set_intersection(set({1, 2, 3, 4}), set({1, 3, 5})), Catch::Equals(vec{1, 3}));
+    set_intersection(set({1, 2}), set({1, 2})), Catch::Matchers::Equals(vec{1, 2}));
+  CHECK_THAT(
+    set_intersection(set({1, 2}), set({1, 2, 3, 4})), Catch::Matchers::Equals(vec{1, 2}));
+  CHECK_THAT(
+    set_intersection(set({1, 2, 3}), set({1, 2})), Catch::Matchers::Equals(vec{1, 2}));
+  CHECK_THAT(
+    set_intersection(set({1, 2, 3, 4}), set({1, 3, 5})),
+    Catch::Matchers::Equals(vec{1, 3}));
 }
 
 TEST_CASE("vector_utils_test.set_has_shared_element")

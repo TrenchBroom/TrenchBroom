@@ -420,7 +420,7 @@ TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups")
   const auto entityNodes = document->allSelectedEntityNodes();
   REQUIRE_THAT(
     entityNodes,
-    Catch::UnorderedEquals(
+    Catch::Matchers::UnorderedEquals(
       std::vector<Model::EntityNodeBase*>{entityNode, linkedEntityNode}));
 
   CHECK(document->canUpdateLinkedGroups({entityNode}));

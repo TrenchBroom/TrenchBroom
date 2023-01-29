@@ -1,6 +1,5 @@
 add_executable(kdl-test)
 target_sources(kdl-test PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/test_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_binary_relation.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_collection_utils.cpp"
@@ -28,9 +27,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_zip_iterator.cpp"
         )
 
-set_property(SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp" PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
-
-target_link_libraries(kdl-test Catch2::Catch2 kdl)
+target_link_libraries(kdl-test Catch2::Catch2WithMain kdl)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(kdl-test PRIVATE -Wall -Wextra -Weverything -pedantic -Wno-c++98-compat -Wno-global-constructors -Wno-zero-as-null-pointer-constant -Wno-weak-vtables)

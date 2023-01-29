@@ -22,14 +22,14 @@
 
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace kdl
 {
 TEST_CASE("const_set_adapter_test.wrap_set")
 {
   const auto v = std::vector<int>{1, 2, 3, 4};
-  CHECK_THAT(wrap_set(v).get_data(), Catch::Equals(v));
+  CHECK_THAT(wrap_set(v).get_data(), Catch::Matchers::Equals(v));
 }
 
 TEST_CASE("const_set_adapter_test.iterators")
@@ -265,13 +265,14 @@ TEST_CASE("const_set_adapter_test.operator_greater_than_or_equal")
 TEST_CASE("set_adapter_test.wrap_set")
 {
   auto v = std::vector<int>{1, 2, 3};
-  CHECK_THAT(wrap_set(v).get_data(), Catch::Equals(v));
+  CHECK_THAT(wrap_set(v).get_data(), Catch::Matchers::Equals(v));
 }
 
 TEST_CASE("set_adapter_test.create_set")
 {
   auto v = std::vector<int>{1, 2, 3, 2, 5};
-  CHECK_THAT(create_set(v).get_data(), Catch::Equals(std::vector<int>{1, 2, 3, 5}));
+  CHECK_THAT(
+    create_set(v).get_data(), Catch::Matchers::Equals(std::vector<int>{1, 2, 3, 5}));
 }
 
 TEST_CASE("set_adapter_test.operator_assign_with_initializer_list")
@@ -280,7 +281,7 @@ TEST_CASE("set_adapter_test.operator_assign_with_initializer_list")
   auto s = create_set(v);
 
   s = {5, 6, 7, 6, 3};
-  CHECK_THAT(s.get_data(), Catch::Equals(std::vector<int>{3, 5, 6, 7}));
+  CHECK_THAT(s.get_data(), Catch::Matchers::Equals(std::vector<int>{3, 5, 6, 7}));
 }
 
 TEST_CASE("set_adapter_test.clear")
@@ -318,7 +319,7 @@ TEST_CASE("set_adapter_test.insert_with_value")
   CHECK(success);
   CHECK(it == std::next(std::begin(s), 2));
 
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
 }
 
 TEST_CASE("set_adapter_test.insert_with_value_and_hint")
@@ -338,7 +339,7 @@ TEST_CASE("set_adapter_test.insert_with_value_and_hint")
   it = s.insert(s.begin(), 3); // wrong hint, must still work
   CHECK(it == std::next(std::begin(s), 2));
 
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
 }
 
 TEST_CASE("set_adapter_test.insert_with_range")
@@ -349,7 +350,7 @@ TEST_CASE("set_adapter_test.insert_with_range")
   const auto r = std::vector<int>{4, 2, 2, 3, 4, 1};
   s.insert(std::begin(r), std::end(r));
 
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3, 4}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 2, 3, 4}));
 }
 
 TEST_CASE("set_adapter_test.insert_with_range_and_count")
@@ -360,7 +361,7 @@ TEST_CASE("set_adapter_test.insert_with_range_and_count")
   const auto r = std::vector<int>{4, 2, 2, 3, 4, 1};
   s.insert(r.size(), std::begin(r), std::end(r));
 
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3, 4}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 2, 3, 4}));
 }
 
 TEST_CASE("set_adapter_test.emplace")
@@ -391,7 +392,7 @@ TEST_CASE("set_adapter_test.emplace")
   CHECK(success);
   CHECK(it == std::next(std::begin(s), 2));
 
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
 }
 
 TEST_CASE("set_adapter_test.emplace_hint")
@@ -414,7 +415,7 @@ TEST_CASE("set_adapter_test.emplace_hint")
   it = s.emplace_hint(s.begin(), 3); // wrong hint, must still work
   CHECK(it == std::next(std::begin(s), 2));
 
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
 }
 
 TEST_CASE("set_adapter_test.erase_with_iterator")
@@ -423,13 +424,13 @@ TEST_CASE("set_adapter_test.erase_with_iterator")
   auto s = wrap_set(v);
 
   s.erase(std::next(std::begin(s), 1));
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 3}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 3}));
 
   s.erase(std::next(std::begin(s), 1));
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1}));
 
   s.erase(std::next(std::begin(s), 0));
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{}));
 }
 
 TEST_CASE("set_adapter_test.erase_with_range")
@@ -439,11 +440,11 @@ TEST_CASE("set_adapter_test.erase_with_range")
 
   auto it = s.erase(std::next(std::begin(s), 0), std::next(std::begin(s), 2));
   CHECK(it == std::next(std::begin(s), 0));
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{3}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{3}));
 
   it = s.erase(std::next(std::begin(s), 0), std::next(std::begin(s), 1));
   CHECK(it == std::end(s));
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{}));
 }
 
 TEST_CASE("set_adapter_test.erase_with_value")
@@ -452,19 +453,19 @@ TEST_CASE("set_adapter_test.erase_with_value")
   auto s = wrap_set(v);
 
   CHECK(s.erase(4) == 0u);
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 2, 3}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
 
   CHECK(s.erase(2) == 1u);
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1, 3}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1, 3}));
 
   CHECK(s.erase(3) == 1u);
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{1}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{1}));
 
   CHECK(s.erase(1) == 1u);
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{}));
 
   CHECK(s.erase(1) == 0u);
-  CHECK_THAT(v, Catch::Equals(std::vector<int>{}));
+  CHECK_THAT(v, Catch::Matchers::Equals(std::vector<int>{}));
 }
 
 TEST_CASE("set_adapter_test.swap")
@@ -473,14 +474,14 @@ TEST_CASE("set_adapter_test.swap")
   auto s = set_adapter<std::vector<int>, std::less<int>>(std::vector<int>({1, 2, 3}));
   auto t = set_adapter<std::vector<int>, std::less<int>>(std::vector<int>({4, 5}));
 
-  REQUIRE_THAT(s.get_data(), Catch::Equals(std::vector<int>{1, 2, 3}));
-  REQUIRE_THAT(t.get_data(), Catch::Equals(std::vector<int>{4, 5}));
+  REQUIRE_THAT(s.get_data(), Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
+  REQUIRE_THAT(t.get_data(), Catch::Matchers::Equals(std::vector<int>{4, 5}));
 
   using std::swap;
   swap(s, t);
 
-  CHECK_THAT(s.get_data(), Catch::Equals(std::vector<int>{4, 5}));
-  CHECK_THAT(t.get_data(), Catch::Equals(std::vector<int>{1, 2, 3}));
+  CHECK_THAT(s.get_data(), Catch::Matchers::Equals(std::vector<int>{4, 5}));
+  CHECK_THAT(t.get_data(), Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
 }
 
 TEST_CASE("set_adapter_test.release_data")
@@ -489,7 +490,7 @@ TEST_CASE("set_adapter_test.release_data")
   auto s = wrap_set(v);
 
   auto w = s.release_data();
-  CHECK_THAT(w, Catch::Equals(std::vector<int>{1, 2, 3}));
+  CHECK_THAT(w, Catch::Matchers::Equals(std::vector<int>{1, 2, 3}));
   CHECK(s.empty());
   CHECK(v.empty());
 }

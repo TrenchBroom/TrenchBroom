@@ -8,7 +8,7 @@
     },
     {
       "name": "catch2",
-      "version>=": "2.13.8"
+      "version>=": "3.1.0"
     },
     {
       "name": "fmt",
@@ -39,8 +39,5 @@
       "platform": "!linux"
     }
   ],
-  "builtin-baseline": "15a0ab7a3e62e62c29bc677589e8974fe401a436",
-  "overrides": [
-    { "name": "catch2", "version": "2.13.8" }
-  ]
+  "builtin-baseline": "15a0ab7a3e62e62c29bc677589e8974fe401a436"
 }

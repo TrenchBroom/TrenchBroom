@@ -53,7 +53,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
 
   CHECK_THAT(
     fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher("")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       texturePrefix + Path("test/editor_image"),
       texturePrefix + Path("test/test"),
       texturePrefix + Path("test/test2"),
@@ -84,7 +84,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
 
   CHECK_THAT(
     fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher("")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       texturePrefix + Path("test/editor_image"),
       texturePrefix + Path("test/test"),
       texturePrefix + Path("test/test2"),

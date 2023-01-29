@@ -398,11 +398,12 @@ TEST_CASE("NodeTest.replaceChildren")
   CHECK(oldChildren.size() == 2u);
   CHECK_THAT(
     kdl::vec_transform(oldChildren, [](const auto& c) { return c.get(); }),
-    Catch::UnorderedEquals(std::vector<Node*>{child1, child2}));
+    Catch::Matchers::UnorderedEquals(std::vector<Node*>{child1, child2}));
   CHECK(child1->parent() == nullptr);
   CHECK(child2->parent() == nullptr);
 
-  CHECK_THAT(root.children(), Catch::UnorderedEquals(std::vector<Node*>{child3}));
+  CHECK_THAT(
+    root.children(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{child3}));
   CHECK(child3->parent() == &root);
 }
 
@@ -702,13 +703,14 @@ TEST_CASE("NodeTest.acceptAndVisitChildren")
 
   CHECK_THAT(
     collectRecursively(world),
-    Catch::Equals(std::vector<Node*>{
+    Catch::Matchers::Equals(std::vector<Node*>{
       &world, layer, entityNode1, entityNode2, groupNode, groupEntityNode}));
   CHECK_THAT(
     collectRecursively(*groupNode),
-    Catch::Equals(std::vector<Node*>{groupNode, groupEntityNode}));
+    Catch::Matchers::Equals(std::vector<Node*>{groupNode, groupEntityNode}));
   CHECK_THAT(
-    collectRecursively(*entityNode1), Catch::Equals(std::vector<Node*>{entityNode1}));
+    collectRecursively(*entityNode1),
+    Catch::Matchers::Equals(std::vector<Node*>{entityNode1}));
 }
 
 TEST_CASE("NodeTest.visitParent")
@@ -748,7 +750,7 @@ TEST_CASE("NodeTest.visitAll")
   auto visited = std::vector<Node*>{};
   Node::visitAll(toVisit, makeCollectVisitedNodesVisitor(visited));
 
-  CHECK_THAT(visited, Catch::Equals(toVisit));
+  CHECK_THAT(visited, Catch::Matchers::Equals(toVisit));
 }
 
 TEST_CASE("NodeTest.visitChildren")
@@ -765,21 +767,22 @@ TEST_CASE("NodeTest.visitChildren")
   {
     auto visited = std::vector<Node*>{};
     world.visitChildren(makeCollectVisitedNodesVisitor(visited));
-    CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{layer}));
+    CHECK_THAT(visited, Catch::Matchers::Equals(std::vector<Node*>{layer}));
   }
 
   SECTION("Visit children of layer node")
   {
     auto visited = std::vector<Node*>{};
     layer->visitChildren(makeCollectVisitedNodesVisitor(visited));
-    CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{entityNode1, entityNode2}));
+    CHECK_THAT(
+      visited, Catch::Matchers::Equals(std::vector<Node*>{entityNode1, entityNode2}));
   }
 
   SECTION("Visit children of entity node")
   {
     auto visited = std::vector<Node*>{};
     entityNode1->visitChildren(makeCollectVisitedNodesVisitor(visited));
-    CHECK_THAT(visited, Catch::Equals(std::vector<Node*>{}));
+    CHECK_THAT(visited, Catch::Matchers::Equals(std::vector<Node*>{}));
   }
 }
 

@@ -149,7 +149,8 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
   CHECK(hits.front().distance() == vm::approx(32.0));
 
   CHECK_THAT(
-    hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Model::Node*>{group}));
+    hitsToNodesWithGroupPicking(hits),
+    Catch::Matchers::Equals(std::vector<Model::Node*>{group}));
 
   // hitting both objects in the group should return the group only once
   pickResult.clear();
@@ -159,7 +160,8 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
   CHECK(hits.size() == 2u);
 
   CHECK_THAT(
-    hitsToNodesWithGroupPicking(hits), Catch::Equals(std::vector<Model::Node*>{group}));
+    hitsToNodesWithGroupPicking(hits),
+    Catch::Matchers::Equals(std::vector<Model::Node*>{group}));
 
   // hitting the group bounds doesn't count as a hit
   pickResult.clear();
@@ -185,7 +187,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
 
   CHECK_THAT(
     hitsToNodesWithGroupPicking(hits),
-    Catch::Equals(std::vector<Model::Node*>{brushNode1}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode1}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
@@ -294,7 +296,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
 
   CHECK_THAT(
     hitsToNodesWithGroupPicking(hits),
-    Catch::Equals(std::vector<Model::Node*>{brushNode3}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode3}));
 
   // hitting the brush in the inner group should return the inner group when
   // hitsToNodesWithGroupPicking() is used
@@ -311,7 +313,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
   CHECK(hits.front().distance() == vm::approx(32.0));
   CHECK_THAT(
     hitsToNodesWithGroupPicking(hits),
-    Catch::Equals(std::vector<Model::Node*>{innerGroup}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{innerGroup}));
 
   // open the inner group, too. hitsToNodesWithGroupPicking() should no longer return
   // groups, since all groups are open.
@@ -343,7 +345,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
   CHECK(hits.front().distance() == vm::approx(32.0));
   CHECK_THAT(
     hitsToNodesWithGroupPicking(hits),
-    Catch::Equals(std::vector<Model::Node*>{brushNode3}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode3}));
 
   // pick a brush in the inner group
   pickResult.clear();
@@ -358,7 +360,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
   CHECK(hits.front().distance() == vm::approx(32.0));
   CHECK_THAT(
     hitsToNodesWithGroupPicking(hits),
-    Catch::Equals(std::vector<Model::Node*>{brushNode1}));
+    Catch::Matchers::Equals(std::vector<Model::Node*>{brushNode1}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickBrushEntity")

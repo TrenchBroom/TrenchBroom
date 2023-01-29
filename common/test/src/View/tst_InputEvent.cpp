@@ -228,7 +228,7 @@ public:
           CHECK(exp.wheelAxis == act.wheelAxis);
           CHECK(exp.posX == act.posX);
           CHECK(exp.posY == act.posY);
-          CHECK(exp.scrollDistance == Approx(act.scrollDistance));
+          CHECK(exp.scrollDistance == Catch::Approx(act.scrollDistance));
         },
         [&](const auto&) { CHECK(false); }),
       m_expectedEvents.front());

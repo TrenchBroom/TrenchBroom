@@ -77,7 +77,7 @@ TEST_CASE("BSP model intersection test")
         const float treeDist = frame->intersect(ray);
         const float expected = vm::intersect_ray_bbox(ray, box);
 
-        CHECK(expected == Approx(treeDist));
+        CHECK(expected == Catch::Approx(treeDist));
       }
     }
   }

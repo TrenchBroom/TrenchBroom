@@ -261,7 +261,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
   CHECK(document->selectedNodes().hasOnlyBrushes());
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::Equals(std::vector<Model::BrushNode*>{subtrahend1}));
+    Catch::Matchers::Equals(std::vector<Model::BrushNode*>{subtrahend1}));
 }
 
 // Test for https://github.com/TrenchBroom/TrenchBroom/issues/3755

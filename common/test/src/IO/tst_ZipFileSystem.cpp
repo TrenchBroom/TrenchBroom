@@ -71,20 +71,21 @@ TEST_CASE("ZipFileSystemTest.findItems")
 
   CHECK_THAT(
     fs.findItems(Path("")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("pics"), Path("textures"), Path("amnet.cfg"), Path("bear.cfg")}));
 
   CHECK_THAT(
     fs.findItems(Path(""), FileExtensionMatcher("cfg")),
-    Catch::UnorderedEquals(std::vector<Path>{Path("amnet.cfg"), Path("bear.cfg")}));
+    Catch::Matchers::UnorderedEquals(
+      std::vector<Path>{Path("amnet.cfg"), Path("bear.cfg")}));
 
   CHECK_THAT(
     fs.findItems(Path("pics"), FileExtensionMatcher("cfg")),
-    Catch::UnorderedEquals(std::vector<Path>{}));
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{}));
 
   CHECK_THAT(
     fs.findItems(Path("pics")),
-    Catch::UnorderedEquals(
+    Catch::Matchers::UnorderedEquals(
       std::vector<Path>{Path("pics/tag1.pcx"), Path("pics/tag2.pcx")}));
 }
 
@@ -100,7 +101,7 @@ TEST_CASE("ZipFileSystemTest.findItemsRecursively")
 
   CHECK_THAT(
     fs.findItemsRecursively(Path("")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("pics"),
       Path("pics/tag1.pcx"),
       Path("pics/tag2.pcx"),
@@ -121,7 +122,7 @@ TEST_CASE("ZipFileSystemTest.findItemsRecursively")
 
   CHECK_THAT(
     fs.findItemsRecursively(Path(""), FileExtensionMatcher("wal")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("textures/e1u1/box1_3.wal"),
       Path("textures/e1u1/brlava.wal"),
       Path("textures/e1u2/angle1_1.wal"),
@@ -133,7 +134,7 @@ TEST_CASE("ZipFileSystemTest.findItemsRecursively")
 
   CHECK_THAT(
     fs.findItemsRecursively(Path("textures"), FileExtensionMatcher("WAL")),
-    Catch::UnorderedEquals(std::vector<Path>{
+    Catch::Matchers::UnorderedEquals(std::vector<Path>{
       Path("textures/e1u1/box1_3.wal"),
       Path("textures/e1u1/brlava.wal"),
       Path("textures/e1u2/angle1_1.wal"),

@@ -32,7 +32,7 @@
 
 #include <array>
 
-#include <catch2/catch.hpp>
+#include <catch2/catch_all.hpp>
 
 namespace vm
 {
