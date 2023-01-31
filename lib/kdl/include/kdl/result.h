@@ -107,7 +107,7 @@ private:
   variant_type m_value;
 
   explicit result(variant_type&& v)
-    : m_value(std::move(v))
+    : m_value{std::move(v)}
   {
   }
 
@@ -128,8 +128,9 @@ public:
     typename std::enable_if<std::disjunction_v<
       std::is_convertible<T, Value>,
       std::is_convertible<T, Errors>...>>::type* = nullptr>
+  // NOLINTNEXTLINE
   result(T&& v)
-    : m_value(std::forward<T>(v))
+    : m_value{std::forward<T>(v)}
   {
   }
 
@@ -143,6 +144,7 @@ public:
    * @param other the result to convert
    */
   template <typename... ErrorSubset>
+  // NOLINTNEXTLINE
   result(result<Value, ErrorSubset...> other)
   {
     static_assert(
@@ -150,7 +152,7 @@ public:
       "Error types of result type to convert must be a subset of target result type");
     std::move(other).visit(overload(
       [&](Value&& v) { m_value = std::move(v); },
-      [&](auto&& e) { m_value = std::move(e); }));
+      [&](auto&& e) { m_value = std::forward<decltype(e)>(e); }));
   }
 
 public:
@@ -291,20 +293,20 @@ public:
         return visit(kdl::overload(
           [&](const value_type& v) {
             return f(v).visit(kdl::overload(
-              []() { return Cm_Result(); },
-              [](auto&& fn_e) { return Cm_Result(std::move(fn_e)); }));
+              []() { return Cm_Result{}; },
+              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
           },
-          [](const auto& e) { return Cm_Result(e); }));
+          [](const auto& e) { return Cm_Result{e}; }));
       }
       else
       {
         return visit(kdl::overload(
           [&](const value_type& v) {
             return f(v).visit(kdl::overload(
-              [](Fn_Value&& fn_v) { return Cm_Result(std::move(fn_v)); },
-              [](auto&& fn_e) { return Cm_Result(std::move(fn_e)); }));
+              [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
+              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
           },
-          [](const auto& e) { return Cm_Result(e); }));
+          [](const auto& e) { return Cm_Result{e}; }));
       }
     }
     else
@@ -350,10 +352,12 @@ public:
           [&](value_type&& v) {
             return f(std::move(v))
               .visit(kdl::overload(
-                []() { return Cm_Result(); },
-                [](auto&& fn_e) { return Cm_Result(std::move(fn_e)); }));
+                []() { return Cm_Result{}; },
+                [](auto&& fn_e) {
+                  return Cm_Result{std::forward<decltype(fn_e)>(fn_e)};
+                }));
           },
-          [](auto&& e) { return Cm_Result(e); }));
+          [](auto&& e) { return Cm_Result{e}; }));
       }
       else
       {
@@ -361,10 +365,12 @@ public:
           [&](value_type&& v) {
             return f(std::move(v))
               .visit(kdl::overload(
-                [](Fn_Value&& fn_v) { return Cm_Result(std::move(fn_v)); },
-                [](auto&& fn_e) { return Cm_Result(std::move(fn_e)); }));
+                [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
+                [](auto&& fn_e) {
+                  return Cm_Result{std::forward<decltype(fn_e)>(fn_e)};
+                }));
           },
-          [](auto&& e) { return Cm_Result(e); }));
+          [](auto&& e) { return Cm_Result{e}; }));
       }
     }
     else
@@ -378,13 +384,13 @@ public:
             f(std::move(v));
             return Cm_Result{};
           },
-          [](auto&& e) { return Cm_Result{std::move(e)}; }));
+          [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
       }
       else
       {
         return std::move(*this).visit(kdl::overload(
           [&](value_type&& v) { return Cm_Result{f(std::move(v))}; },
-          [](auto&& e) { return Cm_Result{std::move(e)}; }));
+          [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
       }
     }
   }
@@ -429,7 +435,7 @@ public:
 
     return std::move(*this).visit(kdl::overload(
       [&](value_type&& v) { return f_result_type{std::move(v)}; },
-      [&](auto&& e) { return f(std::move(e)); }));
+      [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
   }
 
   /**
@@ -492,7 +498,7 @@ public:
     return std::move(*this).visit(kdl::overload(
       [](const value_type&) { return true; },
       [&](auto&& error) {
-        f(std::move(error));
+        f(std::forward<decltype(error)>(error));
         return false;
       }));
   }
@@ -532,7 +538,7 @@ public:
   {
     return visit(kdl::overload(
       [](const value_type& v) -> value_type { return v; },
-      [](const auto&) -> value_type { throw bad_result_access(); }));
+      [](const auto&) -> value_type { throw bad_result_access{}; }));
   }
 
   /**
@@ -547,7 +553,7 @@ public:
   {
     return std::move(*this).visit(kdl::overload(
       [](value_type&& v) -> value_type { return std::move(v); },
-      [](const auto&) -> value_type { throw bad_result_access(); }));
+      [](const auto&) -> value_type { throw bad_result_access{}; }));
   }
 
   /**
@@ -561,7 +567,7 @@ public:
   auto error() const&
   {
     return visit(kdl::overload(
-      [](const value_type&) -> std::variant<Errors...> { throw bad_result_access(); },
+      [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
       [](const auto& e) -> std::variant<Errors...> { return e; }));
   }
 
@@ -576,8 +582,8 @@ public:
   auto error() &&
   {
     return visit(kdl::overload(
-      [](const value_type&) -> std::variant<Errors...> { throw bad_result_access(); },
-      [](auto&& e) -> std::variant<Errors...> { return std::move(e); }));
+      [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
+      [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }));
   }
 
   /**
@@ -604,6 +610,7 @@ public:
   /**
    * Indicates whether the given result contains a value.
    */
+  // NOLINTNEXTLINE
   operator bool() const { return is_success(); }
 
   friend bool operator==(const result& lhs, const result& rhs)
@@ -654,7 +661,7 @@ private:
   variant_type m_value;
 
   explicit result(variant_type&& v)
-    : m_value(std::move(v))
+    : m_value{std::move(v)}
   {
   }
 
@@ -683,8 +690,9 @@ public:
     typename std::enable_if<std::disjunction_v<
       std::is_convertible<T, value_type>,
       std::is_convertible<T, Errors>...>>::type* = nullptr>
+  // NOLINTNEXTLINE
   result(T&& v)
-    : m_value(std::forward<T>(v))
+    : m_value{std::forward<T>(v)}
   {
   }
 
@@ -698,6 +706,7 @@ public:
    * @param other the result to convert
    */
   template <typename... ErrorSubset>
+  // NOLINTNEXTLINE
   result(result<void, ErrorSubset...> other)
   {
     static_assert(
@@ -705,7 +714,7 @@ public:
       "Error types of result type to convert must be a subset of target result type");
     std::move(other).visit(overload(
       [&]() { m_value = detail::void_success_value_type{}; },
-      [&](auto&& e) { m_value = std::move(e); }));
+      [&](auto&& e) { m_value = std::forward<decltype(e)>(e); }));
   }
 
 public:
@@ -749,7 +758,7 @@ public:
     return std::visit(
       kdl::overload(
         [&](detail::void_success_value_type&&) { return visitor(); },
-        [&](auto&& e) { return visitor(std::move(e)); }),
+        [&](auto&& e) { return visitor(std::forward<decltype(e)>(e)); }),
       std::move(m_value));
   }
 
@@ -772,20 +781,20 @@ public:
         return visit(kdl::overload(
           [&]() {
             return f().visit(kdl::overload(
-              []() { return Cm_Result(); },
-              [](auto&& fn_e) { return Cm_Result(std::move(fn_e)); }));
+              []() { return Cm_Result{}; },
+              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
           },
-          [](const auto& e) { return Cm_Result(e); }));
+          [](const auto& e) { return Cm_Result{e}; }));
       }
       else
       {
         return visit(kdl::overload(
           [&]() {
             return f().visit(kdl::overload(
-              [](Fn_Value&& fn_v) { return Cm_Result(std::move(fn_v)); },
-              [](auto&& fn_e) { return Cm_Result(std::move(fn_e)); }));
+              [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
+              [](auto&& fn_e) { return Cm_Result(std::forward<decltype(fn_e)>(fn_e)); }));
           },
-          [](const auto& e) { return Cm_Result(e); }));
+          [](const auto& e) { return Cm_Result{e}; }));
       }
     }
     else
@@ -828,20 +837,20 @@ public:
         return std::move(*this).visit(kdl::overload(
           [&]() {
             return f().visit(kdl::overload(
-              []() { return Cm_Result(); },
-              [](auto&& fn_e) { return Cm_Result(std::move(fn_e)); }));
+              []() { return Cm_Result{}; },
+              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
           },
-          [](auto&& e) { return Cm_Result(e); }));
+          [](auto&& e) { return Cm_Result{e}; }));
       }
       else
       {
         return std::move(*this).visit(kdl::overload(
           [&]() {
             return f().visit(kdl::overload(
-              [](Fn_Value&& fn_v) { return Cm_Result(std::move(fn_v)); },
-              [](auto&& fn_e) { return Cm_Result(std::move(fn_e)); }));
+              [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
+              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
           },
-          [](auto&& e) { return Cm_Result(e); }));
+          [](auto&& e) { return Cm_Result{e}; }));
       }
     }
     else
@@ -855,13 +864,13 @@ public:
             f();
             return Cm_Result{};
           },
-          [](auto&& e) { return Cm_Result{std::move(e)}; }));
+          [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
       }
       else
       {
         return std::move(*this).visit(kdl::overload(
           [&]() { return Cm_Result{f()}; },
-          [](auto&& e) { return Cm_Result{std::move(e)}; }));
+          [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
       }
     }
   }
@@ -882,7 +891,8 @@ public:
       "Function must return a result type with matching value type");
 
     return std::move(*this).visit(kdl::overload(
-      [&]() { return f_result_type{}; }, [&](auto&& e) { return f(std::move(e)); }));
+      [&]() { return f_result_type{}; },
+      [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
   }
 
   /**
@@ -913,7 +923,7 @@ public:
     return std::move(*this).visit(kdl::overload(
       []() { return true; },
       [&](auto&& error) {
-        f(std::move(error));
+        f(std::forward<decltype(error)>(error));
         return false;
       }));
   }
@@ -943,7 +953,7 @@ public:
   auto error() const&
   {
     return visit(kdl::overload(
-      []() -> std::variant<Errors...> { throw bad_result_access(); },
+      []() -> std::variant<Errors...> { throw bad_result_access{}; },
       [](const auto& e) -> std::variant<Errors...> { return e; }));
   }
 
@@ -958,8 +968,8 @@ public:
   auto error() &&
   {
     return visit(kdl::overload(
-      []() -> std::variant<Errors...> { throw bad_result_access(); },
-      [](auto&& e) -> std::variant<Errors...> { return std::move(e); }));
+      []() -> std::variant<Errors...> { throw bad_result_access{}; },
+      [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }));
   }
 
   /**
@@ -989,6 +999,7 @@ public:
   /**
    * Indicates whether this result is empty.
    */
+  // NOLINTNEXTLINE
   operator bool() const { return is_success(); }
 
   friend bool operator==(const result& lhs, const result& rhs)
@@ -999,5 +1010,5 @@ public:
   friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
 };
 
-constexpr auto void_success = kdl::result<void>();
+constexpr auto void_success = kdl::result<void>{};
 } // namespace kdl
