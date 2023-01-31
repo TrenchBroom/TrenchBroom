@@ -19,6 +19,8 @@
 */
 
 #include "kdl/overload.h"
+#include "kdl/reflection_decl.h"
+#include "kdl/reflection_impl.h"
 #include "kdl/result.h"
 #include "kdl/result_combine.h"
 #include "kdl/result_for_each.h"
@@ -33,46 +35,17 @@ namespace kdl
 {
 struct Error1
 {
+  kdl_reflect_inline_empty(Error1);
 };
+
 struct Error2
 {
+  kdl_reflect_inline_empty(Error2);
 };
 struct Error3
 {
+  kdl_reflect_inline_empty(Error3);
 };
-
-inline bool operator==(const Error1&, const Error1&)
-{
-  return true;
-}
-
-inline bool operator==(const Error2&, const Error2&)
-{
-  return true;
-}
-
-inline bool operator==(const Error3&, const Error3&)
-{
-  return true;
-}
-
-inline std::ostream& operator<<(std::ostream& str, const Error1&)
-{
-  str << "Error1";
-  return str;
-}
-
-inline std::ostream& operator<<(std::ostream& str, const Error2&)
-{
-  str << "Error2";
-  return str;
-}
-
-inline std::ostream& operator<<(std::ostream& str, const Error3&)
-{
-  str << "Error3";
-  return str;
-}
 
 struct Counter
 {
@@ -445,6 +418,105 @@ TEST_CASE("result_test.and_then")
   test_and_then_const_lvalue_ref<const result<const int, Error1, Error2>, float>(1);
   test_and_then_const_lvalue_ref<result<const int, Error1, Error2>, float>(1);
   test_and_then_rvalue_ref<result<Counter, Error1, Error2>, Counter>(Counter{});
+}
+
+TEST_CASE("result_test.or_else")
+{
+  SECTION("non-void result")
+  {
+    const auto constLValueSuccess = result<int, Error1, Error2>{1};
+    CHECK(constLValueSuccess.or_else([](const auto&) {
+      FAIL();
+      return result<int, Error3>{2};
+    }) == result<int, Error3>{1});
+
+    const auto constLValueErrorToSuccess = result<int, Error1, Error2>{Error1{}};
+    CHECK(constLValueErrorToSuccess.or_else([](const auto&) {
+      return result<int, Error3>{2};
+    }) == result<int, Error3>{2});
+
+    const auto constLValueErrorToError = result<int, Error1, Error2>{Error1{}};
+    CHECK(constLValueErrorToError.or_else([](const auto&) {
+      return result<int, Error3>{Error3{}};
+    }) == result<int, Error3>{Error3{}});
+
+    auto nonConstLValueSuccess = result<int, Error1, Error2>{1};
+    CHECK(nonConstLValueSuccess.or_else([](const auto&) {
+      FAIL();
+      return result<int, Error3>{2};
+    }) == result<int, Error3>{1});
+
+    auto nonConstLValueErrorToSuccess = result<int, Error1, Error2>{Error1{}};
+    CHECK(nonConstLValueErrorToSuccess.or_else([](const auto&) {
+      return result<int, Error3>{2};
+    }) == result<int, Error3>{2});
+
+    auto nonConstLValueErrorToError = result<int, Error1, Error2>{Error1{}};
+    CHECK(nonConstLValueErrorToError.or_else([](const auto&) {
+      return result<int, Error3>{Error3{}};
+    }) == result<int, Error3>{Error3{}});
+
+    CHECK(result<int, Error1, Error2>{1}.or_else([](auto&&) {
+      FAIL();
+      return result<int, Error3>{2};
+    }) == result<int, Error3>{1});
+
+    CHECK(result<int, Error1, Error2>{Error1{}}.or_else([](auto&&) {
+      return result<int, Error3>{2};
+    }) == result<int, Error3>{2});
+
+    CHECK(result<int, Error1, Error2>{Error1{}}.or_else([](auto&&) {
+      return result<int, Error3>{Error3{}};
+    }) == result<int, Error3>{Error3{}});
+  }
+
+  SECTION("void result")
+  {
+    const auto constLValueSuccess = result<void, Error1, Error2>{};
+    CHECK(constLValueSuccess.or_else([](const auto&) {
+      FAIL();
+      return result<void, Error3>{};
+    }) == result<void, Error3>{});
+
+    const auto constLValueErrorToSuccess = result<void, Error1, Error2>{Error1{}};
+    CHECK(constLValueErrorToSuccess.or_else([](const auto&) {
+      return result<void, Error3>{};
+    }) == result<void, Error3>{});
+
+    const auto constLValueErrorToError = result<void, Error1, Error2>{Error1{}};
+    CHECK(constLValueErrorToError.or_else([](const auto&) {
+      return result<void, Error3>{Error3{}};
+    }) == result<void, Error3>{Error3{}});
+
+    auto nonConstLValueSuccess = result<void, Error1, Error2>{};
+    CHECK(nonConstLValueSuccess.or_else([](const auto&) {
+      FAIL();
+      return result<void, Error3>{};
+    }) == result<void, Error3>{});
+
+    auto nonConstLValueErrorToSuccess = result<void, Error1, Error2>{Error1{}};
+    CHECK(nonConstLValueErrorToSuccess.or_else([](const auto&) {
+      return result<void, Error3>{};
+    }) == result<void, Error3>{});
+
+    auto nonConstLValueErrorToError = result<void, Error1, Error2>{Error1{}};
+    CHECK(nonConstLValueErrorToError.or_else([](const auto&) {
+      return result<void, Error3>{Error3{}};
+    }) == result<void, Error3>{Error3{}});
+
+    CHECK(result<void, Error1, Error2>{}.or_else([](auto&&) {
+      FAIL();
+      return result<void, Error3>{};
+    }) == result<void, Error3>{});
+
+    CHECK(result<void, Error1, Error2>{Error1{}}.or_else([](auto&&) {
+      return result<void, Error3>{};
+    }) == result<void, Error3>{});
+
+    CHECK(result<void, Error1, Error2>{Error1{}}.or_else([](auto&&) {
+      return result<void, Error3>{Error3{}};
+    }) == result<void, Error3>{Error3{}});
+  }
 }
 
 TEST_CASE("result_test.map_errors")

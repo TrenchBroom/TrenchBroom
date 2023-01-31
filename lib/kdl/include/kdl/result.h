@@ -232,7 +232,7 @@ public:
    * reference.
    *
    * Calling this function allows to chain operations on results and handling any errors
-   * that occur in any of the chain in one final call to `visit`. Consider the following
+   * that occur in any of the chain in one final call to `or_else`. Consider the following
    * example:
    *
    * ```
@@ -254,11 +254,8 @@ public:
    *             return result<std::string, Error3>("good value");
    *         }
    *     }
-   * ).visit(
+   * ).or_else(
    *     overload {
-   *         [](const std::string& str) {
-   *             std::cout << str;
-   *         },
    *         [](const Error1& e) {
    *             std::cerr << "f1 failed: " << e;
    *         },
@@ -392,6 +389,97 @@ public:
           [&](value_type&& v) { return Cm_Result{f(std::move(v))}; },
           [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
       }
+    }
+  }
+
+  /**
+   * Applies the given function to any error contained in this result, and returns a new
+   * result with the same value type as this result, but different error types.
+   *
+   * Use this function for error handling or for transforming error types at API
+   * boundaries.
+   *
+   * The given function must handle all error types of this result type. It can return a
+   * result type of its own, or it can return another value as long as the returned value
+   * type matches this result's value type. In the following discussion, we assume that
+   * the function returns a result type. If the function does return a value of type
+   * Value, then we treat it as if it had returned `result<Value, Fn_Errors...>`.
+   *
+   * Let the function's result type be `result<Value, Fn_Errors...>` and let this
+   * result's type be `result<Value, My_Errors...>`. Then `or_else` will return a result
+   * of type `result<Value, Fn_Errors...>`. If the given function just returns a value,
+   * then `or_else` will return `result<Value>`, a result without any errors.
+   *
+   * Note that the value contained in this result is passed to `f` by const lvalue
+   * reference.
+   */
+  template <typename F>
+  auto or_else(F&& f) const&
+  {
+    static_assert(
+      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = std::invoke_result_t<F, meta_front_v<Errors...>>;
+
+    if constexpr (detail::is_result<Fn_Result>::value)
+    {
+      using Cm_Result = Fn_Result;
+
+      static_assert(
+        std::is_same_v<typename Cm_Result::value_type, Value>,
+        "Function must return result with same value type");
+
+      return visit(kdl::overload(
+        [](const value_type& v) { return Cm_Result{v}; },
+        [&](const auto& e) { return f(e); }));
+    }
+    else
+    {
+      static_assert(std::is_same_v<Fn_Result, Value>, "Function must return value type");
+
+      using Cm_Result = kdl::result<Fn_Result>;
+
+      return visit(kdl::overload(
+        [](const value_type& v) { return Cm_Result{v}; },
+        [&](const auto& e) { return Cm_Result{f(e)}; }));
+    }
+  }
+
+  /**
+   * See the previous function. The only difference is that the value contained in this
+   * result is passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto or_else(F&& f) &&
+  {
+    static_assert(
+      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = std::invoke_result_t<F, meta_front_v<Errors...>>;
+
+    if constexpr (detail::is_result<Fn_Result>::value)
+    {
+      using Cm_Result = Fn_Result;
+
+      static_assert(
+        std::is_same_v<typename Cm_Result::value_type, Value>,
+        "Function must return value type");
+
+      return std::move(*this).visit(kdl::overload(
+        [](value_type&& v) { return Cm_Result{std::move(v)}; },
+        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
+    }
+    else
+    {
+      static_assert(std::is_same_v<Fn_Result, Value>, "Function must return value type");
+
+      using Cm_Result = kdl::result<Fn_Result>;
+
+      return std::move(*this).visit(kdl::overload(
+        [](value_type&& v) { return Cm_Result{std::move(v)}; },
+        [&](auto&& e) { return Cm_Result{f(std::forward<decltype(e)>(e))}; }));
     }
   }
 
@@ -959,6 +1047,68 @@ public:
           [&]() { return Cm_Result{f()}; },
           [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
       }
+    }
+  }
+
+  /**
+   * See result<Value, Errors...>::or_else.
+   */
+  template <typename F>
+  auto or_else(F&& f) const&
+  {
+    static_assert(
+      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = std::invoke_result_t<F, meta_front_v<Errors...>>;
+
+    if constexpr (detail::is_result<Fn_Result>::value)
+    {
+      using Cm_Result = Fn_Result;
+
+      static_assert(
+        std::is_same_v<typename Cm_Result::value_type, void>,
+        "Function must return void result");
+
+      return visit(
+        kdl::overload([]() { return Cm_Result{}; }, [&](const auto& e) { return f(e); }));
+    }
+    else
+    {
+      static_assert(std::is_same_v<Fn_Result, void>, "Function must return void");
+
+      visit(kdl::overload([]() {}, [&](const auto& e) { f(e); }));
+      return result<void>{};
+    }
+  }
+
+  /**
+   * See result<Value, Errors...>::or_else.
+   */
+  template <typename F>
+  auto or_else(F&& f) &&
+  {
+    static_assert(
+      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = std::invoke_result_t<F, meta_front_v<Errors...>>;
+
+    if constexpr (detail::is_result<Fn_Result>::value)
+    {
+      using Cm_Result = Fn_Result;
+
+      return std::move(*this).visit(kdl::overload(
+        []() { return Cm_Result{}; },
+        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
+    }
+    else
+    {
+      static_assert(std::is_same_v<Fn_Result, void>, "Function must return void");
+
+      std::move(*this).visit(
+        kdl::overload([]() {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
+      return result<void>{};
     }
   }
 
