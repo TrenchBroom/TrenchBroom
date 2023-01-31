@@ -2360,13 +2360,13 @@ void MapFrame::debugShowPalette()
 
 void MapFrame::focusChange(QWidget* /* oldFocus */, QWidget* newFocus)
 {
-  auto newMapView = dynamic_cast<MapViewBase*>(newFocus);
-  if (newMapView != nullptr)
+  if (auto* newMapView = dynamic_cast<MapViewBase*>(newFocus))
   {
     m_currentMapView = newMapView;
   }
 
   updateActionState();
+  updateUndoRedoActions();
 }
 
 MapViewBase* MapFrame::currentMapViewBase()
