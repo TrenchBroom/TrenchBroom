@@ -543,6 +543,34 @@ public:
       [](const auto&) -> value_type { throw bad_result_access{}; }));
   }
 
+  auto value_or(const Value& x) const&
+  {
+    return visit(kdl::overload(
+      [](const value_type& v) -> value_type { return v; },
+      [&](const auto&) -> value_type { return x; }));
+  }
+
+  auto value_or(Value&& x) const&
+  {
+    return visit(kdl::overload(
+      [](const value_type& v) -> value_type { return v; },
+      [&](const auto&) -> value_type { return std::move(x); }));
+  }
+
+  auto value_or(const Value& x) &&
+  {
+    return std::move(*this).visit(kdl::overload(
+      [](value_type&& v) -> value_type { return std::move(v); },
+      [&](const auto&) -> value_type { return x; }));
+  }
+
+  auto value_or(Value&& x) &&
+  {
+    return std::move(*this).visit(kdl::overload(
+      [](value_type&& v) -> value_type { return std::move(v); },
+      [&](const auto&) -> value_type { return std::move(x); }));
+  }
+
   /**
    * Returns the value contained in this result if it is successful. Otherwise, throws
    * `bad_result_access`.
