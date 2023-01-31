@@ -63,9 +63,8 @@ static bool canMoveBoundary(
   const vm::vec3& delta)
 {
   return brush.moveBoundary(worldBounds, faceIndex, delta, false)
-    .visit(kdl::overload(
-      [&]() { return worldBounds.contains(brush.bounds()); },
-      [](const BrushError) { return false; }));
+    .and_then([&]() { return worldBounds.contains(brush.bounds()); })
+    .value_or(false);
 }
 
 TEST_CASE("BrushTest.constructBrushWithFaces")

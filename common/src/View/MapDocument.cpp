@@ -3665,12 +3665,12 @@ bool MapDocument::extrudeBrushes(
 
         return brush
           .moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
-          .visit(kdl::overload(
-            [&]() { return m_worldBounds.contains(brush.bounds()); },
-            [&](const Model::BrushError e) {
-              error() << "Could not resize brush: " << e;
-              return false;
-            }));
+          .and_then([&]() { return m_worldBounds.contains(brush.bounds()); })
+          .or_else([&](const Model::BrushError e) {
+            error() << "Could not resize brush: " << e;
+            return false;
+          })
+          .value();
       },
       [](Model::BezierPatch&) { return true; }));
 }

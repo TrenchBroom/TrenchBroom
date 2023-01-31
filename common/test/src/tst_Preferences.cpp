@@ -400,15 +400,9 @@ TEST_CASE("PreferencesTest.readV2")
   CHECK(parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar"})")).is_success());
   CHECK(parseV2SettingsFromJSON(QByteArray("{}")).is_success());
 
-  const ReadPreferencesResult v2 =
-    readV2SettingsFromPath("fixture/test/preferences-v2.json");
-  CHECK(v2.is_success());
-  v2.visit(kdl::overload(
-    [](const std::map<IO::Path, QJsonValue>& prefs) { testV2Prefs(prefs); },
-    [](const PreferenceErrors::NoFilePresent&) { FAIL_CHECK(); },
-    [](const PreferenceErrors::JsonParseError&) { FAIL_CHECK(); },
-    [](const PreferenceErrors::FileAccessError&) { FAIL_CHECK(); },
-    [](const PreferenceErrors::LockFileError&) { FAIL_CHECK(); }));
+  readV2SettingsFromPath("fixture/test/preferences-v2.json")
+    .and_then([](const std::map<IO::Path, QJsonValue>& prefs) { testV2Prefs(prefs); })
+    .or_else([](const auto&) { FAIL_CHECK(); });
 }
 
 TEST_CASE("PreferencesTest.testWriteReadV2")
@@ -418,15 +412,9 @@ TEST_CASE("PreferencesTest.testWriteReadV2")
   const std::map<IO::Path, QJsonValue> v2 = migrateV1ToV2(v1);
 
   const QByteArray v2Serialized = writeV2SettingsToJSON(v2);
-  const auto v2Deserialized = parseV2SettingsFromJSON(v2Serialized);
-
-  CHECK(v2Deserialized.is_success());
-  v2Deserialized.visit(kdl::overload(
-    [&](const std::map<IO::Path, QJsonValue>& prefs) { CHECK(v2 == prefs); },
-    [](const PreferenceErrors::NoFilePresent&) { FAIL_CHECK(); },
-    [](const PreferenceErrors::JsonParseError&) { FAIL_CHECK(); },
-    [](const PreferenceErrors::FileAccessError&) { FAIL_CHECK(); },
-    [](const PreferenceErrors::LockFileError&) { FAIL_CHECK(); }));
+  parseV2SettingsFromJSON(v2Serialized)
+    .and_then([&](const std::map<IO::Path, QJsonValue>& prefs) { CHECK(v2 == prefs); })
+    .or_else([](const auto&) { FAIL_CHECK(); });
 }
 
 /**

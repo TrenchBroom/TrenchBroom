@@ -648,14 +648,14 @@ static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
       assert(createNodeResult.has_value());
 
       return std::move(*createNodeResult)
-        .visit(kdl::overload(
-          [&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
-            return std::move(nodeInfo);
-          },
-          [&](const NodeError& e) -> std::optional<NodeInfo> {
-            status.error(e.line, e.msg);
-            return std::nullopt;
-          }));
+        .and_then([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
+          return std::move(nodeInfo);
+        })
+        .or_else([&](const NodeError& e) -> std::optional<NodeInfo> {
+          status.error(e.line, e.msg);
+          return std::nullopt;
+        })
+        .value();
     });
 }
 

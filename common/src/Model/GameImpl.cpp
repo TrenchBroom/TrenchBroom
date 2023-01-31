@@ -196,13 +196,12 @@ std::unique_ptr<WorldNode> GameImpl::doNewMap(
   const auto builder =
     Model::BrushBuilder{worldNode->mapFormat(), worldBounds, defaultFaceAttribs()};
   builder.createCuboid({128.0, 128.0, 32.0}, Model::BrushFaceAttributes::NoTextureName)
-    .visit(kdl::overload(
-      [&](Brush&& b) {
-        worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)});
-      },
-      [&](const Model::BrushError e) {
-        logger.error() << "Could not create default brush: " << e;
-      }));
+    .and_then([&](Brush&& b) {
+      worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)});
+    })
+    .or_else([&](const Model::BrushError e) {
+      logger.error() << "Could not create default brush: " << e;
+    });
 
   return worldNode;
 }
