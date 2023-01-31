@@ -637,6 +637,93 @@ struct void_success_value_type
 } // namespace detail
 
 /**
+ * Wrapper class that can contain only nothing.
+ *
+ * An instance of this class represents an expectation for the result of applying a
+ * function if that function returns void.
+ *
+ * This result is always considered successful.
+ */
+template <>
+class result<void>
+{
+public:
+  using value_type = void;
+
+  template <typename OtherValue>
+  using with_value_type = result<OtherValue>;
+
+public:
+  /**
+   * Applies the given visitor this result.
+   *
+   * The given visitor must accept void.
+   *
+   * @tparam Visitor the type of the visitor
+   * @param visitor the visitor to apply
+   * @return the value returned by the given visitor or void if the given visitor does not
+   * return anything
+   */
+  template <typename Visitor>
+  auto visit(Visitor&& visitor) const&
+  {
+    return visitor();
+  }
+
+  /**
+   * Applies the given visitor this result.
+   *
+   * See above.
+   */
+  template <typename Visitor>
+  auto visit(Visitor&& visitor) &&
+  {
+    return visitor();
+  }
+
+  /**
+   * See result<Value, Errors...>::and_then.
+   */
+  template <typename F>
+  auto and_then(F&& f) const&
+  {
+    return f();
+  }
+
+  /**
+   * See result<Value, Errors...>::and_then.
+   */
+  template <typename F>
+  auto and_then(F&& f) &&
+  {
+    return f();
+  }
+
+  /**
+   * Indicates whether this result is empty. Always true.
+   */
+  bool is_success() const { return true; }
+
+  /**
+   * Indicates whether this result contains an error. Always false.
+   */
+  bool is_error() const { return !is_success(); }
+
+  /**
+   * Indicates whether this result is empty.
+   */
+  // NOLINTNEXTLINE
+  operator bool() const { return is_success(); }
+
+  friend bool operator==(const result&, const result&) { return true; }
+
+  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
+};
+
+
+constexpr auto void_success = kdl::result<void>{};
+
+/**
  * Wrapper class that can contain either nothing or one of several errors.
  *
  * An instance of this class represents an expectation for the result of applying a
@@ -1009,6 +1096,4 @@ public:
 
   friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
 };
-
-constexpr auto void_success = kdl::result<void>{};
 } // namespace kdl
