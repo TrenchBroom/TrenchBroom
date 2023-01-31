@@ -484,92 +484,6 @@ public:
   }
 
   /**
-   * Maps the error types of this result type to different error types using the given
-   * function.
-   *
-   * The given function must return a result type with the same (success) value type as
-   * this result. Let f_result_type be the result type returned by the given function.
-   *
-   * - If this result is successful, then its value is moved into in an instance of
-   * f_result_type and returned.
-   * - If this result is not successful, then its error is passed by rvalue reference to
-   * the given function and the result returned by the function is returned by this
-   * function.
-   *
-   * Example:
-   *
-   * auto r = result<int, std::string>{"error"};
-   * auto x = std::move(r).map_errors([](std::string&& e) { return result<int,
-   * float>{7.0f}; });
-   *
-   * Then x is a failure result of type result<int, float> that holds 7.0f as its error
-   * value.
-   *
-   * @tparam F the type of the given function
-   * @param f the error mapping function
-   * @return a result wrapping either the success value or the mapped error value
-   */
-  template <typename F>
-  auto map_errors(F&& f) &&
-  {
-    using first_error_type = typename meta_front<Errors...>::front;
-    using f_result_type = std::invoke_result_t<F, first_error_type>;
-
-    static_assert(
-      detail::is_result<f_result_type>::value, "Function must return result type");
-    static_assert(
-      std::is_same_v<typename f_result_type::value_type, value_type>,
-      "Function must return a result type with matching value type");
-
-    return std::move(*this).visit(kdl::overload(
-      [&](value_type&& v) { return f_result_type{std::move(v)}; },
-      [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
-  }
-
-  /**
-   * Maps the error types of this result type to different error types using the given
-   * function.
-   *
-   * The given function must return a result type with the same (success) value type as
-   * this result. Let f_result_type be the result type returned by the given function.
-   *
-   * - If this result is successful, then its value is copied into in an instance of
-   * f_result_type and returned.
-   * - If this result is not successful, then its error is passed by const lvalue
-   * reference to the given function and the result returned by the function is returned
-   * by this function.
-   *
-   * Example:
-   *
-   * auto r = result<int, std::string>{"error"};
-   * auto x = std::move(r).map_errors([](std::string&& e) { return result<int,
-   * float>{7.0f}; });
-   *
-   * Then x is a failure result of type result<int, float> that holds 7.0f as its error
-   * value.
-   *
-   * @tparam F the type of the given function
-   * @param f the error mapping function
-   * @return a result wrapping either the success value or the mapped error value
-   */
-  template <typename F>
-  auto map_errors(F&& f) const&
-  {
-    using first_error_type = typename meta_front<Errors...>::front;
-    using f_result_type = std::invoke_result_t<F, first_error_type>;
-
-    static_assert(
-      detail::is_result<f_result_type>::value, "Function must return result type");
-    static_assert(
-      std::is_same_v<typename f_result_type::value_type, value_type>,
-      "Function must return a result type with matching value type");
-
-    return visit(kdl::overload(
-      [&](const value_type& v) { return f_result_type{v}; },
-      [&](const auto& e) { return f(e); }));
-  }
-
-  /**
    * Applies the given function to the error contained in this result.
    *
    * Does nothing if this result does not contain an error.
@@ -1110,45 +1024,6 @@ public:
         kdl::overload([]() {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
       return result<void>{};
     }
-  }
-
-  /**
-   * See result<Value, Errors...>::map_errors.
-   */
-  template <typename F>
-  auto map_errors(F&& f) &&
-  {
-    using first_error_type = typename meta_front<Errors...>::front;
-    using f_result_type = std::invoke_result_t<F, first_error_type>;
-
-    static_assert(
-      detail::is_result<f_result_type>::value, "Function must return result type");
-    static_assert(
-      std::is_same_v<typename f_result_type::value_type, value_type>,
-      "Function must return a result type with matching value type");
-
-    return std::move(*this).visit(kdl::overload(
-      [&]() { return f_result_type{}; },
-      [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
-  }
-
-  /**
-   * See result<Value, Errors...>::map_errors.
-   */
-  template <typename F>
-  auto map_errors(F&& f) const&
-  {
-    using first_error_type = typename meta_front<Errors...>::front;
-    using f_result_type = std::invoke_result_t<F, first_error_type>;
-
-    static_assert(
-      detail::is_result<f_result_type>::value, "Function must return result type");
-    static_assert(
-      std::is_same_v<typename f_result_type::value_type, value_type>,
-      "Function must return a result type with matching value type");
-
-    return visit(kdl::overload(
-      [&]() { return f_result_type{}; }, [&](const auto& e) { return f(e); }));
   }
 
   /**

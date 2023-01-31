@@ -584,7 +584,7 @@ static CreateNodeResult createBrushNode(
         std::move(brushNode), std::move(parentInfo), {} // issues
       };
     })
-    .map_errors([&](const Model::BrushError e) {
+    .or_else([&](const Model::BrushError e) {
       return CreateNodeResult{NodeError{brushInfo.startLine, kdl::str_to_string(e)}};
     });
 }
