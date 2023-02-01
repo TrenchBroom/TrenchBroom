@@ -141,7 +141,7 @@ void MapReader::onStandardBrushFace(
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
-    .handle_errors([&](const Model::BrushError e) {
+    .or_else([&](const Model::BrushError e) {
       status.error(line, kdl::str_to_string("Skipping face: ", e));
     });
 }
@@ -163,7 +163,7 @@ void MapReader::onValveBrushFace(
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
-    .handle_errors([&](const Model::BrushError e) {
+    .or_else([&](const Model::BrushError e) {
       status.error(line, kdl::str_to_string("Skipping face: ", e));
     });
 }

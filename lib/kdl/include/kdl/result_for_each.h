@@ -58,7 +58,7 @@ auto collect_values(I cur, I end, E errorHandler)
       .and_then([&](auto&& value) {
         result_vector.push_back(std::forward<decltype(value)>(value));
       })
-      .handle_errors(errorHandler);
+      .or_else(errorHandler);
     ++cur;
   }
 

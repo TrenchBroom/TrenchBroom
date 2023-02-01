@@ -345,7 +345,7 @@ void AppPreferenceManager::initialize()
           });
       }
     })
-    .handle_errors(kdl::overload(
+    .or_else(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
         // m_preferencesFilePath
@@ -400,7 +400,7 @@ void AppPreferenceManager::discardChanges()
 void AppPreferenceManager::saveChangesImmediately()
 {
   writeV2SettingsToPath(m_preferencesFilePath, m_cache)
-    .handle_errors(kdl::overload(
+    .or_else(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
         // m_preferencesFilePath
@@ -498,7 +498,7 @@ void AppPreferenceManager::loadCacheFromDisk()
   // Reload m_cache
   readV2SettingsFromPath(m_preferencesFilePath)
     .and_then([&](std::map<IO::Path, QJsonValue>&& prefs) { m_cache = std::move(prefs); })
-    .handle_errors(kdl::overload(
+    .or_else(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
         // m_preferencesFilePath

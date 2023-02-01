@@ -53,24 +53,20 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
     return commandResult;
   }
 
-  const auto linkedGroupUpdateResult =
-    m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document).handle_errors(
-      [&](const Model::UpdateLinkedGroupsError& e) {
-        doPerformUndo(document);
-        if (document)
-        {
-          document->error() << e;
-        }
-      });
-
-  if (!linkedGroupUpdateResult)
-  {
-    return std::make_unique<CommandResult>(false);
-  }
-
-  setModificationCount(document);
-
-  return commandResult;
+  return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document)
+    .and_then([&]() {
+      setModificationCount(document);
+      return std::move(commandResult);
+    })
+    .or_else([&](const Model::UpdateLinkedGroupsError& e) {
+      doPerformUndo(document);
+      if (document)
+      {
+        document->error() << e;
+      }
+      return std::make_unique<CommandResult>(false);
+    })
+    .value();
 }
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(

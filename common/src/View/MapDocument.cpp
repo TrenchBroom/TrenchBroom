@@ -1447,7 +1447,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
 
       transaction.commit();
     })
-    .handle_errors([&](const Model::BrushError& e) {
+    .or_else([&](const Model::BrushError& e) {
       logger().error() << "Could not create selection brush: " << e;
     });
 }
@@ -3044,9 +3044,9 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
         return CreateAndSelectBrushError{};
       }
 
-      return {};
+      return kdl::void_success;
     })
-    .handle_errors([&](const auto& e) { error() << "Could not create brush: " << e; });
+    .or_else([&](const auto& e) { error() << "Could not create brush: " << e; });
 }
 
 bool MapDocument::csgConvexMerge()
@@ -3125,7 +3125,7 @@ bool MapDocument::csgConvexMerge()
       selectNodes({brushNode});
       transaction.commit();
     })
-    .handle_errors(
+    .or_else(
       [&](const Model::BrushError e) { error() << "Could not create brush: " << e; });
 }
 
@@ -3196,7 +3196,7 @@ bool MapDocument::csgIntersect()
     auto* brushNode = *it;
     const auto& brush = brushNode->brush();
     valid = intersection.intersect(m_worldBounds, brush)
-              .handle_errors([&](const Model::BrushError e) {
+              .or_else([&](const Model::BrushError e) {
                 error() << "Could not intersect brushes: " << e;
               });
   }
@@ -3252,7 +3252,7 @@ bool MapDocument::csgHollow()
               error() << "Could not create brush: " << e;
             });
         })
-        .handle_errors([&](const Model::BrushError& e) {
+        .or_else([&](const Model::BrushError& e) {
           error() << "Could not hollow brush: " << e;
           fragments = {originalBrush};
         });
@@ -3352,7 +3352,7 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
         }
         return {};
       })
-    .handle_errors([&](const auto& e) { error() << "Could not clip brushes: " << e; });
+    .or_else([&](const auto& e) { error() << "Could not clip brushes: " << e; });
 }
 
 bool MapDocument::setProperty(
@@ -3781,7 +3781,7 @@ bool MapDocument::snapVertices(const FloatType snapTo)
         {
           originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
             .and_then([&]() { succeededBrushCount += 1; })
-            .handle_errors([&](const Model::BrushError e) {
+            .or_else([&](const Model::BrushError e) {
               error() << "Could not snap vertices: " << e;
               failedBrushCount += 1;
             });
@@ -3848,9 +3848,10 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
             newVertexPositions =
               kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
           })
-          .handle_errors([&](const Model::BrushError e) {
+          .or_else([&](const Model::BrushError e) {
             error() << "Could not move brush vertices: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -3928,9 +3929,10 @@ bool MapDocument::moveEdges(
             newEdgePositions =
               kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
           })
-          .handle_errors([&](const Model::BrushError e) {
+          .or_else([&](const Model::BrushError e) {
             error() << "Could not move brush edges: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -3995,9 +3997,10 @@ bool MapDocument::moveFaces(
             newFacePositions =
               kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
           })
-          .handle_errors([&](const Model::BrushError e) {
+          .or_else([&](const Model::BrushError e) {
             error() << "Could not move brush faces: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4046,9 +4049,10 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition)
         }
 
         return brush.addVertex(m_worldBounds, vertexPosition)
-          .handle_errors([&](const Model::BrushError e) {
+          .or_else([&](const Model::BrushError e) {
             error() << "Could not add brush vertex: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4102,9 +4106,10 @@ bool MapDocument::removeVertices(
         }
 
         return brush.removeVertices(m_worldBounds, verticesToRemove)
-          .handle_errors([&](const Model::BrushError e) {
+          .or_else([&](const Model::BrushError e) {
             error() << "Could not remove brush vertices: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 

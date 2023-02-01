@@ -62,7 +62,7 @@ void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
     builder.createBrush(*m_polyhedron, document->currentTextureName())
       .and_then(
         [&](Model::Brush&& b) { updateBrush(new Model::BrushNode(std::move(b))); })
-      .handle_errors([&](const Model::BrushError e) {
+      .or_else([&](const Model::BrushError e) {
         updateBrush(nullptr);
         document->error() << "Could not update brush: " << e;
       });

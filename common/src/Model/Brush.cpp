@@ -1096,7 +1096,7 @@ void Brush::applyUVLock(
       }
       rightFace.resetTexCoordSystemCache();
     })
-    .handle_errors([](const BrushError) {
+    .or_else([](const BrushError) {
       // do nothing
     });
 }
@@ -1125,7 +1125,7 @@ kdl::result<void, BrushError> Brush::updateFacesFromGeometry(
             applyUVLock(matcher, leftFace, rightFace);
           }
         })
-        .handle_errors([&](const BrushError e) {
+        .or_else([&](const BrushError e) {
           if (!error)
           {
             error = e;
