@@ -484,51 +484,6 @@ public:
   }
 
   /**
-   * Applies the given function to the error contained in this result.
-   *
-   * Does nothing if this result does not contain an error.
-   *
-   * Passes the error contained in this result by rvalue reference to the given function.
-   *
-   * @tparam F the type of the function
-   * @param f the function
-   * @return true if this result is successful and false otherwise
-   */
-  template <typename F>
-  bool handle_errors(F&& f) &&
-  {
-    return std::move(*this).visit(kdl::overload(
-      [](const value_type&) { return true; },
-      [&](auto&& error) {
-        f(std::forward<decltype(error)>(error));
-        return false;
-      }));
-  }
-
-  /**
-   * Applies the given function to the error contained in this result.
-   *
-   * Does nothing if this result does not contain an error.
-   *
-   * Passes the error contained in this result by const lvalue reference to the given
-   * function.
-   *
-   * @tparam F the type of the function
-   * @param f the function
-   * @return true if this result is successful and false otherwise
-   */
-  template <typename F>
-  bool handle_errors(F&& f) const&
-  {
-    return visit(kdl::overload(
-      [](const value_type&) { return true; },
-      [&](const auto& error) {
-        f(error);
-        return false;
-      }));
-  }
-
-  /**
    * Returns the value contained in this result if it is successful. Otherwise, throws
    * `bad_result_access`.
    *
@@ -1052,34 +1007,6 @@ public:
         kdl::overload([]() {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
       return result<void>{};
     }
-  }
-
-  /**
-   * See result<Value, Errors...>::handle_errors.
-   */
-  template <typename F>
-  bool handle_errors(F&& f) &&
-  {
-    return std::move(*this).visit(kdl::overload(
-      []() { return true; },
-      [&](auto&& error) {
-        f(std::forward<decltype(error)>(error));
-        return false;
-      }));
-  }
-
-  /**
-   * See result<Value, Errors...>::handle_errors.
-   */
-  template <typename F>
-  bool handle_errors(F&& f) const&
-  {
-    return visit(kdl::overload(
-      []() { return true; },
-      [&](const auto& error) {
-        f(error);
-        return false;
-      }));
   }
 
   /**
