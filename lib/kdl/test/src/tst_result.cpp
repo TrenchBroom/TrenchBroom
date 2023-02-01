@@ -96,7 +96,6 @@ void test_construct_success(V&&... v)
   auto result = ResultType(std::forward<V>(v)...);
   CHECK(result.is_success());
   CHECK_FALSE(result.is_error());
-  CHECK(result);
 }
 
 /**
@@ -108,7 +107,6 @@ void test_construct_error(E&& e)
   auto result = ResultType(std::forward<E>(e));
   CHECK_FALSE(result.is_success());
   CHECK(result.is_error());
-  CHECK_FALSE(result);
 }
 
 /**
@@ -196,7 +194,6 @@ void test_and_then_const_lvalue_ref(V&& v)
     });
     CHECK(to.is_success());
     CHECK_FALSE(to.is_error());
-    CHECK(to);
 
     CHECK(to.visit(overload(
       [](const ToValueType&) { return true; }, [](const auto&) { return false; })));
@@ -209,7 +206,6 @@ void test_and_then_const_lvalue_ref(V&& v)
     });
     CHECK(to.is_success());
     CHECK_FALSE(to.is_error());
-    CHECK(to);
 
     CHECK(to.visit(overload(
       [](const ToValueType&) { return true; }, [](const auto&) { return false; })));
@@ -232,7 +228,6 @@ void test_and_then_rvalue_ref(V&& v)
     });
     CHECK(to.is_success());
     CHECK_FALSE(to.is_error());
-    CHECK(to);
 
     CHECK(to.visit(overload(
       [](const ToValueType&) { return true; }, [](const auto&) { return false; })));
@@ -250,7 +245,6 @@ void test_and_then_rvalue_ref(V&& v)
     });
     CHECK(to.is_success());
     CHECK_FALSE(to.is_error());
-    CHECK(to);
 
     CHECK(to.visit(overload(
       [](const ToValueType&) { return true; }, [](const auto&) { return false; })));
@@ -516,6 +510,44 @@ TEST_CASE("result_test.or_else")
     CHECK(result<void, Error1, Error2>{Error1{}}.or_else([](auto&&) {
       return result<void, Error3>{Error3{}};
     }) == result<void, Error3>{Error3{}});
+  }
+}
+
+TEST_CASE("result_test.if_error")
+{
+  auto called = false;
+  SECTION("non-void result")
+  {
+    called = false;
+    const auto constLValueSuccess = result<int, Error1, Error2>{1};
+    CHECK(constLValueSuccess.if_error([&](const auto&) {
+      called = true;
+    }) == result<int, Error1, Error2>{1});
+    CHECK_FALSE(called);
+
+    called = false;
+    const auto constLValueError = result<int, Error1, Error2>{Error1{}};
+    CHECK(constLValueError.if_error([&](const auto&) {
+      called = true;
+    }) == result<int, Error1, Error2>{Error1{}});
+    CHECK(called);
+  }
+
+  SECTION("void result")
+  {
+    called = false;
+    const auto constLValueSuccess = result<void, Error1, Error2>{};
+    CHECK(constLValueSuccess.if_error([&](const auto&) {
+      called = true;
+    }) == result<void, Error1, Error2>{});
+    CHECK_FALSE(called);
+
+    called = false;
+    const auto constLValueError = result<void, Error1, Error2>{Error1{}};
+    CHECK(constLValueError.if_error([&](const auto&) {
+      called = true;
+    }) == result<void, Error1, Error2>{Error1{}});
+    CHECK(called);
   }
 }
 

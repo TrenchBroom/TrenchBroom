@@ -3046,7 +3046,8 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
 
       return kdl::void_success;
     })
-    .or_else([&](const auto& e) { error() << "Could not create brush: " << e; });
+    .if_error([&](const auto& e) { error() << "Could not create brush: " << e; })
+    .is_success();
 }
 
 bool MapDocument::csgConvexMerge()
@@ -3125,8 +3126,9 @@ bool MapDocument::csgConvexMerge()
       selectNodes({brushNode});
       transaction.commit();
     })
-    .or_else(
-      [&](const Model::BrushError e) { error() << "Could not create brush: " << e; });
+    .if_error(
+      [&](const Model::BrushError e) { error() << "Could not create brush: " << e; })
+    .is_success();
 }
 
 bool MapDocument::csgSubtract()
@@ -3196,9 +3198,10 @@ bool MapDocument::csgIntersect()
     auto* brushNode = *it;
     const auto& brush = brushNode->brush();
     valid = intersection.intersect(m_worldBounds, brush)
-              .or_else([&](const Model::BrushError e) {
+              .if_error([&](const Model::BrushError e) {
                 error() << "Could not intersect brushes: " << e;
-              });
+              })
+              .is_success();
   }
 
   const auto toRemove = std::vector<Model::Node*>{std::begin(brushes), std::end(brushes)};
@@ -3350,9 +3353,10 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
         {
           return ReplaceClippedBrushesError{};
         }
-        return {};
+        return kdl::void_success;
       })
-    .or_else([&](const auto& e) { error() << "Could not clip brushes: " << e; });
+    .if_error([&](const auto& e) { error() << "Could not clip brushes: " << e; })
+    .is_success();
 }
 
 bool MapDocument::setProperty(
@@ -3848,7 +3852,7 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
             newVertexPositions =
               kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
           })
-          .or_else([&](const Model::BrushError e) {
+          .if_error([&](const Model::BrushError e) {
             error() << "Could not move brush vertices: " << e;
           })
           .is_success();
@@ -3929,7 +3933,7 @@ bool MapDocument::moveEdges(
             newEdgePositions =
               kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
           })
-          .or_else([&](const Model::BrushError e) {
+          .if_error([&](const Model::BrushError e) {
             error() << "Could not move brush edges: " << e;
           })
           .is_success();
@@ -3997,7 +4001,7 @@ bool MapDocument::moveFaces(
             newFacePositions =
               kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
           })
-          .or_else([&](const Model::BrushError e) {
+          .if_error([&](const Model::BrushError e) {
             error() << "Could not move brush faces: " << e;
           })
           .is_success();
@@ -4049,7 +4053,7 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition)
         }
 
         return brush.addVertex(m_worldBounds, vertexPosition)
-          .or_else([&](const Model::BrushError e) {
+          .if_error([&](const Model::BrushError e) {
             error() << "Could not add brush vertex: " << e;
           })
           .is_success();
@@ -4106,7 +4110,7 @@ bool MapDocument::removeVertices(
         }
 
         return brush.removeVertices(m_worldBounds, verticesToRemove)
-          .or_else([&](const Model::BrushError e) {
+          .if_error([&](const Model::BrushError e) {
             error() << "Could not remove brush vertices: " << e;
           })
           .is_success();

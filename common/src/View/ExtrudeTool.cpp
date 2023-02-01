@@ -450,14 +450,12 @@ bool splitBrushesOutward(
       document.selectNodes(addedNodes);
       dragState.currentDragFaces = std::move(newDragFaces);
       dragState.totalDelta = delta;
-      return true;
     })
-    .or_else([&](const Model::BrushError e) {
+    .if_error([&](const Model::BrushError e) {
       document.error() << "Could not extrude brush: " << e;
       kdl::map_clear_and_delete(newNodes);
-      return false;
     })
-    .value();
+    .is_success();
 }
 
 /**

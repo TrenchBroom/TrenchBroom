@@ -400,7 +400,7 @@ kdl::result<void, BrushError> Brush::expand(
   for (auto& face : m_faces)
   {
     const vm::vec3 moveAmount = face.boundary().normal * delta;
-    if (!face.transform(vm::translation_matrix(moveAmount), lockTexture))
+    if (!face.transform(vm::translation_matrix(moveAmount), lockTexture).is_success())
     {
       return BrushError::InvalidFace;
     }
@@ -1191,8 +1191,7 @@ kdl::result<void, BrushError> Brush::transform(
 {
   for (auto& face : m_faces)
   {
-    if (const auto transformResult = face.transform(transformation, lockTextures);
-        !transformResult)
+    if (!face.transform(transformation, lockTextures).is_success())
     {
       return BrushError::InvalidFace;
     }

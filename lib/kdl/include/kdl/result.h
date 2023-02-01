@@ -484,6 +484,30 @@ public:
   }
 
   /**
+   * Applies the given function to any error contained in this result, and returns this
+   * result.
+   *
+   * Use this function for error logging and such, but not for fixing any errors.
+   */
+  template <typename F>
+  auto if_error(F&& f) const&
+  {
+    visit(kdl::overload([](const Value&) {}, [&](const auto& e) { f(e); }));
+    return *this;
+  }
+
+  /**
+   * See the previous function. The only difference is that the value contained in this
+   * result is passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto if_error(F&& f) &&
+  {
+    std::move(*this).visit(kdl::overload([](const Value&) {}, [&](auto&& e) { f(e); }));
+    return std::move(*this);
+  }
+
+  /**
    * Returns the value contained in this result if it is successful. Otherwise, throws
    * `bad_result_access`.
    *
@@ -592,12 +616,6 @@ public:
     return std::holds_alternative<E>(m_value);
   }
 
-  /**
-   * Indicates whether the given result contains a value.
-   */
-  // NOLINTNEXTLINE
-  operator bool() const { return is_success(); }
-
   friend bool operator==(const result& lhs, const result& rhs)
   {
     return lhs.m_value == rhs.m_value;
@@ -693,12 +711,6 @@ public:
    * Indicates whether this result contains an error. Always false.
    */
   bool is_error() const { return !is_success(); }
-
-  /**
-   * Indicates whether this result is empty.
-   */
-  // NOLINTNEXTLINE
-  operator bool() const { return is_success(); }
 
   friend bool operator==(const result&, const result&) { return true; }
 
@@ -1010,6 +1022,26 @@ public:
   }
 
   /**
+   * See result<Value, Errors...>::if_error.
+   */
+  template <typename F>
+  auto if_error(F&& f) const&
+  {
+    visit(kdl::overload([]() {}, [&](const auto& e) { f(e); }));
+    return *this;
+  }
+
+  /**
+   * See result<Value, Errors...>::if_error.
+   */
+  template <typename F>
+  auto if_error(F&& f) &&
+  {
+    std::move(*this).visit(kdl::overload([]() {}, [&](auto&& e) { f(e); }));
+    return std::move(*this);
+  }
+
+  /**
    * Returns a the error contained in this result if it not successful. Otherwise, throws
    * `bad_result_access`.
    *
@@ -1062,12 +1094,6 @@ public:
 
     return std::holds_alternative<E>(m_value);
   }
-
-  /**
-   * Indicates whether this result is empty.
-   */
-  // NOLINTNEXTLINE
-  operator bool() const { return is_success(); }
 
   friend bool operator==(const result& lhs, const result& rhs)
   {
