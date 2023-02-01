@@ -22,6 +22,7 @@
 
 #include "kdl/overload.h"
 #include "kdl/result.h"
+#include "kdl/std_io.h"
 
 #include <iostream>
 
@@ -30,14 +31,15 @@ namespace kdl
 template <typename Value, typename... Errors>
 std::ostream& operator<<(std::ostream& str, const result<Value, Errors...>& result)
 {
-  result.visit([&](const auto& x) { str << x; });
+  result.visit([&](const auto& x) { str << make_streamable(x); });
   return str;
 }
 
 template <typename... Errors>
 std::ostream& operator<<(std::ostream& str, const result<void, Errors...>& result)
 {
-  result.visit(kdl::overload([&]() { str << "void"; }, [&](const auto& e) { str << e; }));
+  result.visit(kdl::overload(
+    [&]() { str << "void"; }, [&](const auto& e) { str << make_streamable(e); }));
   return str;
 }
 } // namespace kdl

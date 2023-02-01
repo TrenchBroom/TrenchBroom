@@ -696,7 +696,7 @@ public:
   template <typename F>
   auto and_then(F&& f) const&
   {
-    using Fn_Result = std::invoke_result_t<F, void>;
+    using Fn_Result = std::invoke_result_t<F>;
 
     static_assert(
       detail::is_result<Fn_Result>::value, "Function must return a result type");
@@ -710,7 +710,7 @@ public:
   template <typename F>
   auto and_then(F&& f) &&
   {
-    using Fn_Result = std::invoke_result_t<F, void>;
+    using Fn_Result = std::invoke_result_t<F>;
 
     static_assert(
       detail::is_result<Fn_Result>::value, "Function must return a result type");
@@ -724,7 +724,7 @@ public:
   template <typename F>
   auto transform(F&& f) const
   {
-    using Fn_Result = std::invoke_result_t<F, void>;
+    using Fn_Result = std::invoke_result_t<F>;
     using Cm_Result = result<Fn_Result>;
 
     return Cm_Result{f()};
