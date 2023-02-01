@@ -60,7 +60,7 @@ void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
       game->defaultFaceAttribs());
 
     builder.createBrush(*m_polyhedron, document->currentTextureName())
-      .and_then(
+      .transform(
         [&](Model::Brush&& b) { updateBrush(new Model::BrushNode(std::move(b))); })
       .or_else([&](const Model::BrushError e) {
         updateBrush(nullptr);

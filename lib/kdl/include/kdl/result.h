@@ -280,51 +280,31 @@ public:
     using My_Result = result<Value, Errors...>;
     using Fn_Result = std::invoke_result_t<F, Value>;
 
-    if constexpr (detail::is_result<Fn_Result>::value)
-    {
-      using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-      using Fn_Value = typename Fn_Result::value_type;
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
 
-      if constexpr (std::is_same_v<Fn_Value, void>)
-      {
-        return visit(kdl::overload(
-          [&](const value_type& v) {
-            return f(v).visit(kdl::overload(
-              []() { return Cm_Result{}; },
-              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-          },
-          [](const auto& e) { return Cm_Result{e}; }));
-      }
-      else
-      {
-        return visit(kdl::overload(
-          [&](const value_type& v) {
-            return f(v).visit(kdl::overload(
-              [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
-              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-          },
-          [](const auto& e) { return Cm_Result{e}; }));
-      }
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+    using Fn_Value = typename Fn_Result::value_type;
+
+    if constexpr (std::is_same_v<Fn_Value, void>)
+    {
+      return visit(kdl::overload(
+        [&](const value_type& v) {
+          return f(v).visit(kdl::overload(
+            []() { return Cm_Result{}; },
+            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
+        },
+        [](const auto& e) { return Cm_Result{e}; }));
     }
     else
     {
-      using Cm_Result = kdl::result<Fn_Result, Errors...>;
-
-      if constexpr (std::is_same_v<Fn_Result, void>)
-      {
-        return visit(kdl::overload(
-          [&](const value_type& v) {
-            f(v);
-            return Cm_Result{};
-          },
-          [](const auto& e) { return Cm_Result{e}; }));
-      }
-      else
-      {
-        return visit(kdl::overload(
-          [&](const value_type& v) { return Cm_Result{f(v)}; },
-          [](const auto& e) { return Cm_Result{e}; }));
-      }
+      return visit(kdl::overload(
+        [&](const value_type& v) {
+          return f(v).visit(kdl::overload(
+            [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
+            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
+        },
+        [](const auto& e) { return Cm_Result{e}; }));
     }
   }
 
@@ -338,57 +318,83 @@ public:
     using My_Result = result<Value, Errors...>;
     using Fn_Result = std::invoke_result_t<F, Value>;
 
-    if constexpr (detail::is_result<Fn_Result>::value)
-    {
-      using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-      using Fn_Value = typename Fn_Result::value_type;
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
 
-      if constexpr (std::is_same_v<Fn_Value, void>)
-      {
-        return std::move(*this).visit(kdl::overload(
-          [&](value_type&& v) {
-            return f(std::move(v))
-              .visit(kdl::overload(
-                []() { return Cm_Result{}; },
-                [](auto&& fn_e) {
-                  return Cm_Result{std::forward<decltype(fn_e)>(fn_e)};
-                }));
-          },
-          [](auto&& e) { return Cm_Result{e}; }));
-      }
-      else
-      {
-        return std::move(*this).visit(kdl::overload(
-          [&](value_type&& v) {
-            return f(std::move(v))
-              .visit(kdl::overload(
-                [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
-                [](auto&& fn_e) {
-                  return Cm_Result{std::forward<decltype(fn_e)>(fn_e)};
-                }));
-          },
-          [](auto&& e) { return Cm_Result{e}; }));
-      }
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+    using Fn_Value = typename Fn_Result::value_type;
+
+    if constexpr (std::is_same_v<Fn_Value, void>)
+    {
+      return std::move(*this).visit(kdl::overload(
+        [&](value_type&& v) {
+          return f(std::move(v))
+            .visit(kdl::overload(
+              []() { return Cm_Result{}; },
+              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
+        },
+        [](auto&& e) { return Cm_Result{e}; }));
     }
     else
     {
-      using Cm_Result = kdl::result<Fn_Result, Errors...>;
+      return std::move(*this).visit(kdl::overload(
+        [&](value_type&& v) {
+          return f(std::move(v))
+            .visit(kdl::overload(
+              [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
+              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
+        },
+        [](auto&& e) { return Cm_Result{e}; }));
+    }
+  }
 
-      if constexpr (std::is_same_v<Fn_Result, void>)
-      {
-        return std::move(*this).visit(kdl::overload(
-          [&](value_type&& v) {
-            f(std::move(v));
-            return Cm_Result{};
-          },
-          [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
-      }
-      else
-      {
-        return std::move(*this).visit(kdl::overload(
-          [&](value_type&& v) { return Cm_Result{f(std::move(v))}; },
-          [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
-      }
+  template <typename F>
+  auto transform(F&& f) const&
+  {
+    using Fn_Result = std::invoke_result_t<F, Value>;
+    using Cm_Result = kdl::result<Fn_Result, Errors...>;
+
+    if constexpr (std::is_same_v<Fn_Result, void>)
+    {
+      return visit(kdl::overload(
+        [&](const value_type& v) {
+          f(v);
+          return Cm_Result{};
+        },
+        [](const auto& e) { return Cm_Result{e}; }));
+    }
+    else
+    {
+      return visit(kdl::overload(
+        [&](const value_type& v) { return Cm_Result{f(v)}; },
+        [](const auto& e) { return Cm_Result{e}; }));
+    }
+  }
+
+  /**
+   * See the previous function. The only difference is that the value contained in this
+   * result is passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto transform(F&& f) &&
+  {
+    using Fn_Result = std::invoke_result_t<F, Value>;
+    using Cm_Result = kdl::result<Fn_Result, Errors...>;
+
+    if constexpr (std::is_same_v<Fn_Result, void>)
+    {
+      return std::move(*this).visit(kdl::overload(
+        [&](value_type&& v) {
+          f(std::move(v));
+          return Cm_Result{};
+        },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+    }
+    else
+    {
+      return std::move(*this).visit(kdl::overload(
+        [&](value_type&& v) { return Cm_Result{f(std::move(v))}; },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
     }
   }
 
@@ -690,6 +696,11 @@ public:
   template <typename F>
   auto and_then(F&& f) const&
   {
+    using Fn_Result = std::invoke_result_t<F, void>;
+
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+
     return f();
   }
 
@@ -699,7 +710,24 @@ public:
   template <typename F>
   auto and_then(F&& f) &&
   {
+    using Fn_Result = std::invoke_result_t<F, void>;
+
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+
     return f();
+  }
+
+  /**
+   * See result<Value, Errors...>::transform.
+   */
+  template <typename F>
+  auto transform(F&& f) const
+  {
+    using Fn_Result = std::invoke_result_t<F, void>;
+    using Cm_Result = result<Fn_Result>;
+
+    return Cm_Result{f()};
   }
 
   /**
@@ -855,50 +883,31 @@ public:
     using My_Result = result<void, Errors...>;
     using Fn_Result = std::invoke_result_t<F>;
 
-    if constexpr (detail::is_result<Fn_Result>::value)
-    {
-      using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-      using Fn_Value = typename Fn_Result::value_type;
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
 
-      if constexpr (std::is_same_v<Fn_Value, void>)
-      {
-        return visit(kdl::overload(
-          [&]() {
-            return f().visit(kdl::overload(
-              []() { return Cm_Result{}; },
-              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-          },
-          [](const auto& e) { return Cm_Result{e}; }));
-      }
-      else
-      {
-        return visit(kdl::overload(
-          [&]() {
-            return f().visit(kdl::overload(
-              [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
-              [](auto&& fn_e) { return Cm_Result(std::forward<decltype(fn_e)>(fn_e)); }));
-          },
-          [](const auto& e) { return Cm_Result{e}; }));
-      }
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+    using Fn_Value = typename Fn_Result::value_type;
+
+    if constexpr (std::is_same_v<Fn_Value, void>)
+    {
+      return visit(kdl::overload(
+        [&]() {
+          return f().visit(kdl::overload(
+            []() { return Cm_Result{}; },
+            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
+        },
+        [](const auto& e) { return Cm_Result{e}; }));
     }
     else
     {
-      using Cm_Result = kdl::result<Fn_Result, Errors...>;
-
-      if constexpr (std::is_same_v<Fn_Result, void>)
-      {
-        return visit(kdl::overload(
-          [&]() {
-            f();
-            return Cm_Result{};
-          },
-          [](const auto& e) { return Cm_Result{e}; }));
-      }
-      else
-      {
-        return visit(kdl::overload(
-          [&]() { return Cm_Result{f()}; }, [](const auto& e) { return Cm_Result{e}; }));
-      }
+      return visit(kdl::overload(
+        [&]() {
+          return f().visit(kdl::overload(
+            [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
+            [](auto&& fn_e) { return Cm_Result(std::forward<decltype(fn_e)>(fn_e)); }));
+        },
+        [](const auto& e) { return Cm_Result{e}; }));
     }
   }
 
@@ -911,51 +920,82 @@ public:
     using My_Result = result<void, Errors...>;
     using Fn_Result = std::invoke_result_t<F>;
 
-    if constexpr (detail::is_result<Fn_Result>::value)
-    {
-      using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-      using Fn_Value = typename Fn_Result::value_type;
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
 
-      if constexpr (std::is_same_v<Fn_Value, void>)
-      {
-        return std::move(*this).visit(kdl::overload(
-          [&]() {
-            return f().visit(kdl::overload(
-              []() { return Cm_Result{}; },
-              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-          },
-          [](auto&& e) { return Cm_Result{e}; }));
-      }
-      else
-      {
-        return std::move(*this).visit(kdl::overload(
-          [&]() {
-            return f().visit(kdl::overload(
-              [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
-              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-          },
-          [](auto&& e) { return Cm_Result{e}; }));
-      }
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+    using Fn_Value = typename Fn_Result::value_type;
+
+    if constexpr (std::is_same_v<Fn_Value, void>)
+    {
+      return std::move(*this).visit(kdl::overload(
+        [&]() {
+          return f().visit(kdl::overload(
+            []() { return Cm_Result{}; },
+            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
+        },
+        [](auto&& e) { return Cm_Result{e}; }));
     }
     else
     {
-      using Cm_Result = kdl::result<Fn_Result, Errors...>;
+      return std::move(*this).visit(kdl::overload(
+        [&]() {
+          return f().visit(kdl::overload(
+            [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
+            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
+        },
+        [](auto&& e) { return Cm_Result{e}; }));
+    }
+  }
 
-      if constexpr (std::is_same_v<Fn_Result, void>)
-      {
-        return std::move(*this).visit(kdl::overload(
-          [&]() {
-            f();
-            return Cm_Result{};
-          },
-          [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
-      }
-      else
-      {
-        return std::move(*this).visit(kdl::overload(
-          [&]() { return Cm_Result{f()}; },
-          [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
-      }
+  /**
+   * See result<Value, Errors...>::transform.
+   */
+  template <typename F>
+  auto transform(F&& f) const&
+  {
+    using Fn_Result = std::invoke_result_t<F>;
+    using Cm_Result = kdl::result<Fn_Result, Errors...>;
+
+    if constexpr (std::is_same_v<Fn_Result, void>)
+    {
+      return visit(kdl::overload(
+        [&]() {
+          f();
+          return Cm_Result{};
+        },
+        [](const auto& e) { return Cm_Result{e}; }));
+    }
+    else
+    {
+      return visit(kdl::overload(
+        [&]() { return Cm_Result{f()}; }, [](const auto& e) { return Cm_Result{e}; }));
+    }
+  }
+
+  /**
+   * See result<Value, Errors...>::transform.
+   */
+  template <typename F>
+  auto transform(F&& f) &&
+  {
+    using Fn_Result = std::invoke_result_t<F>;
+    using Cm_Result = kdl::result<Fn_Result, Errors...>;
+
+    if constexpr (std::is_same_v<Fn_Result, void>)
+    {
+      return std::move(*this).visit(kdl::overload(
+        [&]() {
+          f();
+          return Cm_Result{};
+        },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+    }
+    else
+    {
+      return std::move(*this).visit(kdl::overload(
+        [&]() { return Cm_Result{f()}; },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
     }
   }
 

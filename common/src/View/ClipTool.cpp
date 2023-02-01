@@ -994,7 +994,7 @@ void ClipTool::updateBrushes()
           setFaceAttributes(brush.faces(), clipFace);
           return brush.clip(worldBounds, std::move(clipFace));
         })
-        .and_then([&]() {
+        .transform([&]() {
           brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
         })
         .or_else([&](const Model::BrushError e) {

@@ -116,7 +116,7 @@ kdl::result<Brush, BrushError> Brush::create(
   const vm::bbox3& worldBounds, std::vector<BrushFace> faces)
 {
   Brush brush(std::move(faces));
-  return brush.updateGeometryFromFaces(worldBounds).and_then([&]() {
+  return brush.updateGeometryFromFaces(worldBounds).transform([&]() {
     return std::move(brush);
   });
 }
@@ -1083,7 +1083,7 @@ void Brush::applyUVLock(
   // identical plane to `rightFace` within FP error) to `rightFace`.
   BrushFace leftClone = leftFace;
   leftClone.transform(M, true)
-    .and_then([&]() {
+    .transform([&]() {
       auto snapshot =
         std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
       rightFace.setAttributes(leftClone.attributes());
@@ -1119,7 +1119,7 @@ kdl::result<void, BrushError> Brush::updateFacesFromGeometry(
 
       rightFace.setGeometry(right);
       rightFace.updatePointsFromVertices()
-        .and_then([&]() {
+        .transform([&]() {
           if (uvLock)
           {
             applyUVLock(matcher, leftFace, rightFace);
@@ -1257,7 +1257,7 @@ kdl::result<Brush, BrushError> Brush::createBrush(
     .and_then([&](std::vector<BrushFace>&& faces) {
       return Brush::create(worldBounds, std::move(faces));
     })
-    .and_then([&](Brush&& brush) {
+    .transform([&](Brush&& brush) {
       brush.cloneFaceAttributesFrom(*this);
       for (const auto* subtrahend : subtrahends)
       {

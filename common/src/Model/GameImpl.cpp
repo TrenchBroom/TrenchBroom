@@ -196,7 +196,7 @@ std::unique_ptr<WorldNode> GameImpl::doNewMap(
   const auto builder =
     Model::BrushBuilder{worldNode->mapFormat(), worldBounds, defaultFaceAttribs()};
   builder.createCuboid({128.0, 128.0, 32.0}, Model::BrushFaceAttributes::NoTextureName)
-    .and_then([&](Brush&& b) {
+    .transform([&](Brush&& b) {
       worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)});
     })
     .or_else([&](const Model::BrushError e) {

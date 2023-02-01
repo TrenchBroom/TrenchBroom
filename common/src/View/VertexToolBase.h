@@ -337,7 +337,7 @@ public: // csg convex merge
       document->worldBounds(),
       game->defaultFaceAttribs()};
     builder.createBrush(polyhedron, document->currentTextureName())
-      .and_then([&](Model::Brush&& b) {
+      .transform([&](Model::Brush&& b) {
         for (const auto* selectedBrushNode : document->selectedNodes().brushes())
         {
           b.cloneFaceAttributesFrom(selectedBrushNode->brush());

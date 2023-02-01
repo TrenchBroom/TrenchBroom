@@ -401,7 +401,7 @@ TEST_CASE("PreferencesTest.readV2")
   CHECK(parseV2SettingsFromJSON(QByteArray("{}")).is_success());
 
   readV2SettingsFromPath("fixture/test/preferences-v2.json")
-    .and_then([](const std::map<IO::Path, QJsonValue>& prefs) { testV2Prefs(prefs); })
+    .transform([](const std::map<IO::Path, QJsonValue>& prefs) { testV2Prefs(prefs); })
     .or_else([](const auto&) { FAIL_CHECK(); });
 }
 
@@ -413,7 +413,7 @@ TEST_CASE("PreferencesTest.testWriteReadV2")
 
   const QByteArray v2Serialized = writeV2SettingsToJSON(v2);
   parseV2SettingsFromJSON(v2Serialized)
-    .and_then([&](const std::map<IO::Path, QJsonValue>& prefs) { CHECK(v2 == prefs); })
+    .transform([&](const std::map<IO::Path, QJsonValue>& prefs) { CHECK(v2 == prefs); })
     .or_else([](const auto&) { FAIL_CHECK(); });
 }
 

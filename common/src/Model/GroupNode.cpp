@@ -335,7 +335,7 @@ kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroup
     const auto transformation =
       targetGroupNode->group().transformation() * _invertedSourceTransformation;
     return cloneAndTransformChildren(sourceGroupNode, worldBounds, transformation)
-      .and_then([&](std::vector<std::unique_ptr<Node>>&& newChildren) {
+      .transform([&](std::vector<std::unique_ptr<Node>>&& newChildren) {
         preserveGroupNames(newChildren, targetGroupNode->children());
         preserveEntityProperties(newChildren, targetGroupNode->children());
 

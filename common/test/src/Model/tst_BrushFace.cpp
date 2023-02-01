@@ -825,7 +825,7 @@ TEST_CASE("BrushFaceTest.formatConversion")
   Assets::Texture texture("testTexture", 64, 64);
 
   const Brush startingCube = standardBuilder.createCube(128.0, "")
-                               .and_then([&](Brush&& brush) {
+                               .transform([&](Brush&& brush) {
                                  for (size_t i = 0; i < brush.faceCount(); ++i)
                                  {
                                    BrushFace& face = brush.face(i);

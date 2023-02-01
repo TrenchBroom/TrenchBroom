@@ -63,7 +63,7 @@ static bool canMoveBoundary(
   const vm::vec3& delta)
 {
   return brush.moveBoundary(worldBounds, faceIndex, delta, false)
-    .and_then([&]() { return worldBounds.contains(brush.bounds()); })
+    .transform([&]() { return worldBounds.contains(brush.bounds()); })
     .value_or(false);
 }
 

@@ -329,7 +329,7 @@ void AppPreferenceManager::initialize()
   m_preferencesFilePath = v2SettingsPath();
 
   migrateSettingsFromV1IfPathDoesNotExist(m_preferencesFilePath)
-    .and_then([&]() {
+    .transform([&]() {
       loadCacheFromDisk();
 
       m_fileSystemWatcher = new QFileSystemWatcher{this};
@@ -497,7 +497,8 @@ void AppPreferenceManager::loadCacheFromDisk()
 
   // Reload m_cache
   readV2SettingsFromPath(m_preferencesFilePath)
-    .and_then([&](std::map<IO::Path, QJsonValue>&& prefs) { m_cache = std::move(prefs); })
+    .transform(
+      [&](std::map<IO::Path, QJsonValue>&& prefs) { m_cache = std::move(prefs); })
     .or_else(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for

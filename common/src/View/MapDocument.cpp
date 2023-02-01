@@ -1429,11 +1429,11 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
 
       return brushBuilder
         .createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
-        .and_then([](Model::Brush&& brush) {
+        .transform([](Model::Brush&& brush) {
           return std::make_unique<Model::BrushNode>(std::move(brush));
         });
     })
-    .and_then([&](const std::vector<std::unique_ptr<Model::BrushNode>>& tallBrushes) {
+    .transform([&](const std::vector<std::unique_ptr<Model::BrushNode>>& tallBrushes) {
       // delete the original selection brushes before searching for the objects to select
       auto transaction = Transaction{*this, "Select Tall"};
       deleteObjects();
@@ -3089,7 +3089,7 @@ bool MapDocument::csgConvexMerge()
   const auto builder = Model::BrushBuilder{
     m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
   return builder.createBrush(polyhedron, currentTextureName())
-    .and_then([&](Model::Brush&& b) {
+    .transform([&](Model::Brush&& b) {
       b.cloneFaceAttributesFrom(kdl::vec_transform(
         selectedNodes().brushes(),
         [](const auto* brushNode) { return &brushNode->brush(); }));
@@ -3245,7 +3245,7 @@ bool MapDocument::csgHollow()
       auto fragments = std::vector<Model::Brush>{};
       shrunkenBrush
         .expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
-        .and_then([&]() {
+        .transform([&]() {
           didHollowAnything = true;
 
           auto subtractionResults = originalBrush.subtract(
@@ -3669,7 +3669,7 @@ bool MapDocument::extrudeBrushes(
 
         return brush
           .moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
-          .and_then([&]() { return m_worldBounds.contains(brush.bounds()); })
+          .transform([&]() { return m_worldBounds.contains(brush.bounds()); })
           .or_else([&](const Model::BrushError e) {
             error() << "Could not resize brush: " << e;
             return false;
@@ -3784,7 +3784,7 @@ bool MapDocument::snapVertices(const FloatType snapTo)
         if (originalBrush.canSnapVertices(m_worldBounds, snapTo))
         {
           originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
-            .and_then([&]() { succeededBrushCount += 1; })
+            .transform([&]() { succeededBrushCount += 1; })
             .or_else([&](const Model::BrushError e) {
               error() << "Could not snap vertices: " << e;
               failedBrushCount += 1;
@@ -3847,7 +3847,7 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
 
         return brush
           .moveVertices(m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
-          .and_then([&]() {
+          .transform([&]() {
             auto newPositions = brush.findClosestVertexPositions(verticesToMove + delta);
             newVertexPositions =
               kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
@@ -3927,7 +3927,7 @@ bool MapDocument::moveEdges(
 
         return brush
           .moveEdges(m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
-          .and_then([&]() {
+          .transform([&]() {
             auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(
               edgesToMove, [&](const auto& edge) { return edge.translate(delta); }));
             newEdgePositions =
@@ -3995,7 +3995,7 @@ bool MapDocument::moveFaces(
 
         return brush
           .moveFaces(m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
-          .and_then([&]() {
+          .transform([&]() {
             auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(
               facesToMove, [&](const auto& face) { return face.translate(delta); }));
             newFacePositions =

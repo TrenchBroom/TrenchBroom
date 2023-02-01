@@ -427,7 +427,7 @@ bool splitBrushesOutward(
                  clipFace.invert();
                  return newBrush.clip(worldBounds, std::move(clipFace));
                })
-               .and_then([&]() {
+               .transform([&]() {
                  auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                  newNodes[brushNode->parent()].push_back(newBrushNode);
 
@@ -441,7 +441,7 @@ bool splitBrushesOutward(
                  }
                });
            })
-    .and_then([&]() {
+    .transform([&]() {
       // Apply the changes calculated above
       document.rollbackTransaction();
 

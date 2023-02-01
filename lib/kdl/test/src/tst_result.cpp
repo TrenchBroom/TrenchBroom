@@ -201,7 +201,7 @@ void test_and_then_const_lvalue_ref(V&& v)
 
   SECTION("mapping function returns some other type")
   {
-    const auto to = from.and_then([](const typename FromResult::value_type& x) {
+    const auto to = from.transform([](const typename FromResult::value_type& x) {
       return static_cast<ToValueType>(x);
     });
     CHECK(to.is_success());
@@ -240,7 +240,7 @@ void test_and_then_rvalue_ref(V&& v)
 
   SECTION("mapping function returns some other type")
   {
-    const auto to = std::move(from).and_then([](typename FromResult::value_type&& x) {
+    const auto to = std::move(from).transform([](typename FromResult::value_type&& x) {
       return std::move(static_cast<ToValueType>(x));
     });
     CHECK(to.is_success());
@@ -624,9 +624,9 @@ TEST_CASE("void_result_test.and_then")
     const auto f_success = []() { return true; };
     const auto f_void = []() {};
 
-    CHECK(r_success.and_then(f_success) == result<bool, Error1, Error2>(true));
-    CHECK(r_error.and_then(f_success) == result<bool, Error1, Error2>(Error2{}));
-    CHECK(r_success.and_then(f_void) == result<void, Error1, Error2>());
+    CHECK(r_success.transform(f_success) == result<bool, Error1, Error2>(true));
+    CHECK(r_error.transform(f_success) == result<bool, Error1, Error2>(Error2{}));
+    CHECK(r_success.transform(f_void) == result<void, Error1, Error2>());
   }
 }
 

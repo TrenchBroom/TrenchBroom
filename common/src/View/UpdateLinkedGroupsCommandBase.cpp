@@ -54,7 +54,7 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
   }
 
   return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document)
-    .and_then([&]() {
+    .transform([&]() {
       setModificationCount(document);
       return std::move(commandResult);
     })

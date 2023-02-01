@@ -137,7 +137,7 @@ void MapReader::onStandardBrushFace(
   ParserStatus& status)
 {
   Model::BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat)
-    .and_then([&](Model::BrushFace&& face) {
+    .transform([&](Model::BrushFace&& face) {
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
@@ -159,7 +159,7 @@ void MapReader::onValveBrushFace(
 {
   Model::BrushFace::createFromValve(
     point1, point2, point3, attribs, texAxisX, texAxisY, targetMapFormat)
-    .and_then([&](Model::BrushFace&& face) {
+    .transform([&](Model::BrushFace&& face) {
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
@@ -574,7 +574,7 @@ static CreateNodeResult createBrushNode(
   MapReader::BrushInfo brushInfo, const vm::bbox3& worldBounds)
 {
   return Model::Brush::create(worldBounds, std::move(brushInfo.faces))
-    .and_then([&](Model::Brush&& brush) {
+    .transform([&](Model::Brush&& brush) {
       auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
       brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
 
@@ -648,7 +648,7 @@ static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
       assert(createNodeResult.has_value());
 
       return std::move(*createNodeResult)
-        .and_then([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
+        .transform([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
           return std::move(nodeInfo);
         })
         .or_else([&](const NodeError& e) -> std::optional<NodeInfo> {
