@@ -427,7 +427,7 @@ bool splitBrushesOutward(
                  clipFace.invert();
                  return newBrush.clip(worldBounds, std::move(clipFace));
                })
-               .and_then([&]() {
+               .transform([&]() {
                  auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
                  newNodes[brushNode->parent()].push_back(newBrushNode);
 
@@ -441,7 +441,7 @@ bool splitBrushesOutward(
                  }
                });
            })
-    .and_then([&]() {
+    .transform([&]() {
       // Apply the changes calculated above
       document.rollbackTransaction();
 
@@ -451,10 +451,11 @@ bool splitBrushesOutward(
       dragState.currentDragFaces = std::move(newDragFaces);
       dragState.totalDelta = delta;
     })
-    .handle_errors([&](const Model::BrushError e) {
+    .if_error([&](const Model::BrushError e) {
       document.error() << "Could not extrude brush: " << e;
       kdl::map_clear_and_delete(newNodes);
-    });
+    })
+    .is_success();
 }
 
 /**

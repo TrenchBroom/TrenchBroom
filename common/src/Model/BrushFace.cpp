@@ -665,7 +665,7 @@ kdl::result<void, BrushError> BrushFace::transform(
     swap(m_points[1], m_points[2]);
   }
 
-  return setPoints(m_points[0], m_points[1], m_points[2]).and_then([&]() {
+  return setPoints(m_points[0], m_points[1], m_points[2]).transform([&]() {
     m_texCoordSystem->transform(
       oldBoundary,
       m_boundary,
@@ -695,7 +695,7 @@ kdl::result<void, BrushError> BrushFace::updatePointsFromVertices()
            first->next()->origin()->position(),
            first->origin()->position(),
            first->previous()->origin()->position())
-    .and_then([&]() {
+    .transform([&]() {
       // Get a line, and a reference point, that are on both the old plane
       // (before moving the face) and after moving the face.
       const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary);

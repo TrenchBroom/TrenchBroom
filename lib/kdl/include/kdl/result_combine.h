@@ -73,9 +73,9 @@ auto combine_results(Result&& result)
   using value_type = typename std::remove_reference_t<Result>::value_type;
 
   return result.visit(kdl::overload(
-    [](value_type&& v) { return result_type(std::make_tuple(std::move(v))); },
-    [](const value_type& v) { return result_type(std::make_tuple(v)); },
-    [](auto&& e) { return result_type(std::forward<decltype(e)>(e)); }));
+    [](value_type&& v) { return result_type{std::make_tuple(std::move(v))}; },
+    [](const value_type& v) { return result_type{std::make_tuple(v)}; },
+    [](auto&& e) { return result_type{std::forward<decltype(e)>(e)}; }));
 }
 
 /**
@@ -121,34 +121,33 @@ auto combine_results(FirstResult&& firstResult, MoreResults&&... moreResults)
         return combine_results(std::forward<MoreResults>(moreResults)...)
           .visit(kdl::overload(
             [&](typename combined_more_result_type::value_type&& remainingValues) {
-              return result_type(std::tuple_cat(
-                std::make_tuple(std::move(firstValue)), std::move(remainingValues)));
+              return result_type{std::tuple_cat(
+                std::tuple{std::move(firstValue)}, std::move(remainingValues))};
             },
             [&](const typename combined_more_result_type::value_type& remainingValues) {
-              return result_type(
-                std::tuple_cat(std::make_tuple(std::move(firstValue)), remainingValues));
+              return result_type{
+                std::tuple_cat(std::tuple{std::move(firstValue)}, remainingValues)};
             },
             [](auto&& combinedError) {
-              return result_type(std::forward<decltype(combinedError)>(combinedError));
+              return result_type{std::forward<decltype(combinedError)>(combinedError)};
             }));
       },
       [&](const first_value_type& firstValue) {
         return combine_results(std::forward<MoreResults>(moreResults)...)
           .visit(kdl::overload(
             [&](typename combined_more_result_type::value_type&& remainingValues) {
-              return result_type(
-                std::tuple_cat(std::make_tuple(firstValue), std::move(remainingValues)));
+              return result_type{
+                std::tuple_cat(std::tuple{firstValue}, std::move(remainingValues))};
             },
             [&](const typename combined_more_result_type::value_type& remainingValues) {
-              return result_type(
-                std::tuple_cat(std::make_tuple(firstValue), remainingValues));
+              return result_type{std::tuple_cat(std::tuple{firstValue}, remainingValues)};
             },
             [](auto&& combinedError) {
-              return result_type(std::forward<decltype(combinedError)>(combinedError));
+              return result_type{std::forward<decltype(combinedError)>(combinedError)};
             }));
       },
       [&](auto&& firstError) {
-        return result_type(std::forward<decltype(firstError)>(firstError));
+        return result_type{std::forward<decltype(firstError)>(firstError)};
       }));
 }
 } // namespace kdl

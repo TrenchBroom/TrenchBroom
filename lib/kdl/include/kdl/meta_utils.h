@@ -99,6 +99,12 @@ struct meta_front
   using remainder = meta_type_list<Remainder...>;
 };
 
+template <typename... T>
+using meta_front_v = typename meta_front<T...>::front;
+
+template <typename... T>
+using meta_remainder_v = typename meta_front<T...>::remainder;
+
 template <typename Subset, typename Superset>
 struct meta_is_subset
 {

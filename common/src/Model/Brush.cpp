@@ -116,7 +116,7 @@ kdl::result<Brush, BrushError> Brush::create(
   const vm::bbox3& worldBounds, std::vector<BrushFace> faces)
 {
   Brush brush(std::move(faces));
-  return brush.updateGeometryFromFaces(worldBounds).and_then([&]() {
+  return brush.updateGeometryFromFaces(worldBounds).transform([&]() {
     return std::move(brush);
   });
 }
@@ -400,7 +400,7 @@ kdl::result<void, BrushError> Brush::expand(
   for (auto& face : m_faces)
   {
     const vm::vec3 moveAmount = face.boundary().normal * delta;
-    if (!face.transform(vm::translation_matrix(moveAmount), lockTexture))
+    if (!face.transform(vm::translation_matrix(moveAmount), lockTexture).is_success())
     {
       return BrushError::InvalidFace;
     }
@@ -1083,7 +1083,7 @@ void Brush::applyUVLock(
   // identical plane to `rightFace` within FP error) to `rightFace`.
   BrushFace leftClone = leftFace;
   leftClone.transform(M, true)
-    .and_then([&]() {
+    .transform([&]() {
       auto snapshot =
         std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
       rightFace.setAttributes(leftClone.attributes());
@@ -1096,7 +1096,7 @@ void Brush::applyUVLock(
       }
       rightFace.resetTexCoordSystemCache();
     })
-    .handle_errors([](const BrushError) {
+    .or_else([](const BrushError) {
       // do nothing
     });
 }
@@ -1119,13 +1119,13 @@ kdl::result<void, BrushError> Brush::updateFacesFromGeometry(
 
       rightFace.setGeometry(right);
       rightFace.updatePointsFromVertices()
-        .and_then([&]() {
+        .transform([&]() {
           if (uvLock)
           {
             applyUVLock(matcher, leftFace, rightFace);
           }
         })
-        .handle_errors([&](const BrushError e) {
+        .or_else([&](const BrushError e) {
           if (!error)
           {
             error = e;
@@ -1191,8 +1191,7 @@ kdl::result<void, BrushError> Brush::transform(
 {
   for (auto& face : m_faces)
   {
-    if (const auto transformResult = face.transform(transformation, lockTextures);
-        !transformResult)
+    if (!face.transform(transformation, lockTextures).is_success())
     {
       return BrushError::InvalidFace;
     }
@@ -1258,7 +1257,7 @@ kdl::result<Brush, BrushError> Brush::createBrush(
     .and_then([&](std::vector<BrushFace>&& faces) {
       return Brush::create(worldBounds, std::move(faces));
     })
-    .and_then([&](Brush&& brush) {
+    .transform([&](Brush&& brush) {
       brush.cloneFaceAttributesFrom(*this);
       for (const auto* subtrahend : subtrahends)
       {

@@ -67,7 +67,7 @@ UpdateLinkedGroupsHelper::~UpdateLinkedGroupsHelper() = default;
 kdl::result<void, Model::UpdateLinkedGroupsError> UpdateLinkedGroupsHelper::
   applyLinkedGroupUpdates(MapDocumentCommandFacade& document)
 {
-  return computeLinkedGroupUpdates(document).and_then(
+  return computeLinkedGroupUpdates(document).transform(
     [&]() { doApplyOrUndoLinkedGroupUpdates(document); });
 }
 
@@ -117,8 +117,9 @@ kdl::result<void, Model::UpdateLinkedGroupsError> UpdateLinkedGroupsHelper::
     kdl::overload(
       [&](const ChangedLinkedGroups& changedLinkedGroups) {
         return computeLinkedGroupUpdates(changedLinkedGroups, document)
-          .and_then(
-            [&](auto&& linkedGroupUpdates) { m_state = std::move(linkedGroupUpdates); });
+          .transform([&](auto&& linkedGroupUpdates) {
+            m_state = std::forward<decltype(linkedGroupUpdates)>(linkedGroupUpdates);
+          });
       },
       [](const LinkedGroupUpdates&) -> kdl::result<void, Model::UpdateLinkedGroupsError> {
         return kdl::void_success;

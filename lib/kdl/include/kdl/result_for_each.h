@@ -55,8 +55,11 @@ auto collect_values(I cur, I end, E errorHandler)
   while (cur != end)
   {
     std::move(*cur)
-      .and_then([&](auto&& value) { result_vector.push_back(std::move(value)); })
-      .handle_errors(errorHandler);
+      .and_then([&](auto&& value) {
+        result_vector.push_back(std::forward<decltype(value)>(value));
+        return void_success;
+      })
+      .or_else(errorHandler);
     ++cur;
   }
 
@@ -127,7 +130,7 @@ auto for_each_result(I cur, I end, F f)
       if (f_result.is_error())
       {
         return std::visit(
-          [](auto&& e) { return result_type{std::move(e)}; },
+          [](auto&& e) { return result_type{std::forward<decltype(e)>(e)}; },
           std::move(f_result).error());
       }
 

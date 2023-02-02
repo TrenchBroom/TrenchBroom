@@ -137,11 +137,11 @@ void MapReader::onStandardBrushFace(
   ParserStatus& status)
 {
   Model::BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat)
-    .and_then([&](Model::BrushFace&& face) {
+    .transform([&](Model::BrushFace&& face) {
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
-    .handle_errors([&](const Model::BrushError e) {
+    .or_else([&](const Model::BrushError e) {
       status.error(line, kdl::str_to_string("Skipping face: ", e));
     });
 }
@@ -159,11 +159,11 @@ void MapReader::onValveBrushFace(
 {
   Model::BrushFace::createFromValve(
     point1, point2, point3, attribs, texAxisX, texAxisY, targetMapFormat)
-    .and_then([&](Model::BrushFace&& face) {
+    .transform([&](Model::BrushFace&& face) {
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
-    .handle_errors([&](const Model::BrushError e) {
+    .or_else([&](const Model::BrushError e) {
       status.error(line, kdl::str_to_string("Skipping face: ", e));
     });
 }
@@ -574,7 +574,7 @@ static CreateNodeResult createBrushNode(
   MapReader::BrushInfo brushInfo, const vm::bbox3& worldBounds)
 {
   return Model::Brush::create(worldBounds, std::move(brushInfo.faces))
-    .and_then([&](Model::Brush&& brush) {
+    .transform([&](Model::Brush&& brush) {
       auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
       brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
 
@@ -584,7 +584,7 @@ static CreateNodeResult createBrushNode(
         std::move(brushNode), std::move(parentInfo), {} // issues
       };
     })
-    .map_errors([&](const Model::BrushError e) {
+    .or_else([&](const Model::BrushError e) {
       return CreateNodeResult{NodeError{brushInfo.startLine, kdl::str_to_string(e)}};
     });
 }
@@ -648,14 +648,14 @@ static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
       assert(createNodeResult.has_value());
 
       return std::move(*createNodeResult)
-        .visit(kdl::overload(
-          [&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
-            return std::move(nodeInfo);
-          },
-          [&](const NodeError& e) -> std::optional<NodeInfo> {
-            status.error(e.line, e.msg);
-            return std::nullopt;
-          }));
+        .transform([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
+          return std::move(nodeInfo);
+        })
+        .or_else([&](const NodeError& e) -> std::optional<NodeInfo> {
+          status.error(e.line, e.msg);
+          return std::nullopt;
+        })
+        .value();
     });
 }
 

@@ -218,14 +218,14 @@ static void checkTextureLockOffWithTransform(
   // reset alignment, transform the face (texture lock off)
   BrushFace face = origFace;
   resetFaceTextureAlignment(face);
-  REQUIRE(face.transform(transform, false));
+  REQUIRE(face.transform(transform, false).is_success());
   face.resetTexCoordSystemCache();
 
   // reset alignment, transform the face (texture lock off), then reset the alignment
   // again
   BrushFace resetFace = origFace;
   resetFaceTextureAlignment(resetFace);
-  REQUIRE(resetFace.transform(transform, false));
+  REQUIRE(resetFace.transform(transform, false).is_success());
   resetFaceTextureAlignment(resetFace);
 
   // UVs of the verts of `face` and `resetFace` should be the same now
@@ -296,7 +296,7 @@ static void checkTextureLockOnWithTransform(
 
   // transform the face
   BrushFace face = origFace;
-  REQUIRE(face.transform(transform, true));
+  REQUIRE(face.transform(transform, true).is_success());
   face.resetTexCoordSystemCache();
 
   // transform the verts
@@ -511,7 +511,7 @@ static void checkTextureLockOffWithVerticalFlip(const Brush& cube)
 
   // transform the face (texture lock off)
   BrushFace face = origFace;
-  REQUIRE(face.transform(transform, false));
+  REQUIRE(face.transform(transform, false).is_success());
   face.resetTexCoordSystemCache();
 
   // UVs of the verts of `face` and `origFace` should be the same now
@@ -541,7 +541,7 @@ static void checkTextureLockOffWithScale(const Brush& cube)
 
   // transform the face (texture lock off)
   BrushFace face = origFace;
-  REQUIRE(face.transform(transform, false));
+  REQUIRE(face.transform(transform, false).is_success());
   face.resetTexCoordSystemCache();
 
   // get UV at mins; should be equal
@@ -825,7 +825,7 @@ TEST_CASE("BrushFaceTest.formatConversion")
   Assets::Texture texture("testTexture", 64, 64);
 
   const Brush startingCube = standardBuilder.createCube(128.0, "")
-                               .and_then([&](Brush&& brush) {
+                               .transform([&](Brush&& brush) {
                                  for (size_t i = 0; i < brush.faceCount(); ++i)
                                  {
                                    BrushFace& face = brush.face(i);
