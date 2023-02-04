@@ -52,12 +52,6 @@ const Path& DiskFileSystem::root() const
   return m_root;
 }
 
-bool DiskFileSystem::doCanMakeAbsolute(const Path& path) const
-{
-  const auto resolvedPath = path.makeCanonical();
-  return doFileExists(resolvedPath) || doDirectoryExists(resolvedPath);
-}
-
 Path DiskFileSystem::doMakeAbsolute(const Path& path) const
 {
   return m_root + path.makeCanonical();

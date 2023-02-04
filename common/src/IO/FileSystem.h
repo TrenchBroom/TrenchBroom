@@ -234,7 +234,6 @@ private: // private API to be used for chaining, avoids multiple checks of param
   }
 
 private: // subclassing API
-  virtual bool doCanMakeAbsolute(const Path& path) const;
   virtual Path doMakeAbsolute(const Path& path) const;
 
   virtual bool doDirectoryExists(const Path& path) const = 0;

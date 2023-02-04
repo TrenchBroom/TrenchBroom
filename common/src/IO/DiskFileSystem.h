@@ -44,7 +44,6 @@ public:
   const Path& root() const;
 
 protected:
-  bool doCanMakeAbsolute(const Path& path) const override;
   Path doMakeAbsolute(const Path& path) const override;
 
   bool doDirectoryExists(const Path& path) const override;

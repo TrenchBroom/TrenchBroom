@@ -248,11 +248,6 @@ std::shared_ptr<File> FileSystem::_openFile(const Path& path) const
   }
 }
 
-bool FileSystem::doCanMakeAbsolute(const Path& /* path */) const
-{
-  return false;
-}
-
 Path FileSystem::doMakeAbsolute(const Path& path) const
 {
   throw FileSystemException("Cannot make absolute path of '" + path.asString() + "'");
