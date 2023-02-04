@@ -2629,7 +2629,7 @@ For file-based texture configurations, the following texture package formats are
 
 Format       Description
 ------       -----------
-wad2         wad file, used by Quake, Quake 2, Hexen 2
+wad2         wad file, used by Quake and Hexen 2
 wad3         wad file, used by Half Life
 
 A directory based texture configuration looks as follows. It differs only in the package configuration, all other keys are equivalent.
