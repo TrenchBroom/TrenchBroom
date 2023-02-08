@@ -41,10 +41,10 @@ Quake3ShaderFileSystem::Quake3ShaderFileSystem(
   Path shaderSearchPath,
   std::vector<Path> textureSearchPaths,
   Logger& logger)
-  : ImageFileSystemBase(std::move(fs), Path())
-  , m_shaderSearchPath(std::move(shaderSearchPath))
-  , m_textureSearchPaths(std::move(textureSearchPaths))
-  , m_logger(logger)
+  : ImageFileSystemBase{std::move(fs), Path{}}
+  , m_shaderSearchPath{std::move(shaderSearchPath)}
+  , m_textureSearchPaths{std::move(textureSearchPaths)}
+  , m_logger{logger}
 {
   initialize();
 }
@@ -60,7 +60,7 @@ void Quake3ShaderFileSystem::doReadDirectory()
 
 std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
 {
-  auto result = std::vector<Assets::Quake3Shader>();
+  auto result = std::vector<Assets::Quake3Shader>{};
 
   if (next().directoryExists(m_shaderSearchPath))
   {
@@ -73,8 +73,8 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
 
       try
       {
-        Quake3ShaderParser parser(bufferedReader.stringView());
-        SimpleParserStatus status(m_logger, file->path().asString());
+        auto parser = Quake3ShaderParser{bufferedReader.stringView()};
+        auto status = SimpleParserStatus{m_logger, file->path().asString()};
         result = kdl::vec_concat(std::move(result), parser.parse(status));
       }
       catch (const ParserException& e)
@@ -92,14 +92,14 @@ void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shad
 {
   const auto extensions = std::vector<std::string>{"tga", "png", "jpg", "jpeg"};
 
-  auto allImages = std::vector<Path>();
+  auto allImages = std::vector<Path>{};
   for (const auto& path : m_textureSearchPaths)
   {
     if (next().directoryExists(path))
     {
       allImages = kdl::vec_concat(
         std::move(allImages),
-        next().findItemsRecursively(path, FileExtensionMatcher(extensions)));
+        next().findItemsRecursively(path, FileExtensionMatcher{extensions}));
     }
   }
 
@@ -119,8 +119,8 @@ void Quake3ShaderFileSystem::linkTextures(
     // Only link a shader if it has not been linked yet.
     if (!fileExists(shaderPath))
     {
-      const auto shaderIt = std::find_if(
-        std::begin(shaders), std::end(shaders), [&shaderPath](const auto& shader) {
+      const auto shaderIt =
+        std::find_if(shaders.begin(), shaders.end(), [&shaderPath](const auto& shader) {
           return shaderPath == shader.shaderPath;
         });
 
@@ -139,9 +139,7 @@ void Quake3ShaderFileSystem::linkTextures(
       else
       {
         // No matching shader found, generate one.
-        auto shader = Assets::Quake3Shader();
-        shader.shaderPath = shaderPath;
-        shader.editorImage = texture;
+        auto shader = Assets::Quake3Shader{shaderPath, texture};
 
         auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(
           shaderPath, std::move(shader));

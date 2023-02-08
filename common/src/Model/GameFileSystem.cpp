@@ -40,11 +40,6 @@ namespace TrenchBroom
 {
 namespace Model
 {
-GameFileSystem::GameFileSystem()
-  : FileSystem()
-  , m_shaderFS(nullptr)
-{
-}
 
 void GameFileSystem::initialize(
   const GameConfig& config,
@@ -67,7 +62,7 @@ void GameFileSystem::initialize(
 
 void GameFileSystem::reloadShaders()
 {
-  if (m_shaderFS != nullptr)
+  if (m_shaderFS)
   {
     m_shaderFS->reload();
   }
@@ -79,18 +74,17 @@ void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logg
   // TrenchBroom's resources folder, and the 'assets' folder in the game configuration
   // folders. We add filesystems for both types here.
 
-  std::vector<IO::Path> defaultFolderPaths =
+  auto defaultFolderPaths =
     IO::SystemPaths::findResourceDirectories(IO::Path("defaults"));
-  const auto& configPath = config.path;
-  if (!configPath.isEmpty())
+  if (!config.path.isEmpty())
   {
-    defaultFolderPaths.push_back(configPath.deleteLastComponent());
+    defaultFolderPaths.push_back(config.path.deleteLastComponent());
   }
 
   for (const auto& defaultFolderPath : defaultFolderPaths)
   {
     const auto defaultAssetsPath = defaultFolderPath + IO::Path("assets");
-    auto exists = [](const IO::Path& path) {
+    auto exists = [](const auto& path) {
       try
       {
         return IO::Disk::directoryExists(path);
@@ -149,10 +143,10 @@ void GameFileSystem::addFileSystemPackages(
 
   if (IO::Disk::directoryExists(searchPath))
   {
-    const IO::DiskFileSystem diskFS(searchPath);
+    const auto diskFS = IO::DiskFileSystem{searchPath};
     auto packages =
-      diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
-    packages = kdl::vec_sort(std::move(packages), IO::Path::Less<kdl::ci::string_less>());
+      diskFS.findItems(IO::Path{}, IO::FileExtensionMatcher{packageExtensions});
+    packages = kdl::vec_sort(std::move(packages), IO::Path::Less<kdl::ci::string_less>{});
 
     for (const auto& packagePath : packages)
     {
@@ -217,12 +211,12 @@ bool GameFileSystem::doFileExists(const IO::Path& /* path */) const
 std::vector<IO::Path> GameFileSystem::doGetDirectoryContents(
   const IO::Path& /* path */) const
 {
-  return std::vector<IO::Path>();
+  return {};
 }
 
 std::shared_ptr<IO::File> GameFileSystem::doOpenFile(const IO::Path& path) const
 {
-  throw FileSystemException("File not found: '" + path.asString() + "'");
+  throw FileSystemException{"File not found: '" + path.asString() + "'"};
 }
 } // namespace Model
 } // namespace TrenchBroom

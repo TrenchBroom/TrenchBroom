@@ -99,13 +99,13 @@ std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(
   return result;
 }
 
-DkPakFileSystem::DkPakFileSystem(const Path& path)
-  : DkPakFileSystem(nullptr, path)
+DkPakFileSystem::DkPakFileSystem(Path path)
+  : DkPakFileSystem{nullptr, std::move(path)}
 {
 }
 
-DkPakFileSystem::DkPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path)
-  : ImageFileSystem(std::move(next), path)
+DkPakFileSystem::DkPakFileSystem(std::shared_ptr<FileSystem> next, Path path)
+  : ImageFileSystem{std::move(next), std::move(path)}
 {
   initialize();
 }

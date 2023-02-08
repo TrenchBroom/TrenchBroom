@@ -32,37 +32,32 @@ namespace IO
 {
 ImageFileSystemBase::FileEntry::~FileEntry() = default;
 
-std::shared_ptr<File> ImageFileSystemBase::FileEntry::open() const
-{
-  return doOpen();
-}
-
 ImageFileSystemBase::SimpleFileEntry::SimpleFileEntry(std::shared_ptr<File> file)
-  : m_file(std::move(file))
+  : m_file{std::move(file)}
 {
 }
 
-std::shared_ptr<File> ImageFileSystemBase::SimpleFileEntry::doOpen() const
+std::shared_ptr<File> ImageFileSystemBase::SimpleFileEntry::open() const
 {
   return m_file;
 }
 
 ImageFileSystemBase::CompressedFileEntry::CompressedFileEntry(
   std::shared_ptr<File> file, const size_t uncompressedSize)
-  : m_file(file)
-  , m_uncompressedSize(uncompressedSize)
+  : m_file{std::move(file)}
+  , m_uncompressedSize{uncompressedSize}
 {
 }
 
-std::shared_ptr<File> ImageFileSystemBase::CompressedFileEntry::doOpen() const
+std::shared_ptr<File> ImageFileSystemBase::CompressedFileEntry::open() const
 {
   auto data = decompress(m_file, m_uncompressedSize);
   return std::make_shared<OwningBufferFile>(
     m_file->path(), std::move(data), m_uncompressedSize);
 }
 
-ImageFileSystemBase::Directory::Directory(const Path& path)
-  : m_path(path)
+ImageFileSystemBase::Directory::Directory(Path path)
+  : m_path{std::move(path)}
 {
 }
 
@@ -95,15 +90,9 @@ bool ImageFileSystemBase::Directory::directoryExists(const Path& path) const
     return true;
   }
 
-  auto it = m_directories.find(path.firstComponent());
-  if (it == std::end(m_directories))
-  {
-    return false;
-  }
-  else
-  {
-    return it->second->directoryExists(path.deleteFirstComponent());
-  }
+  const auto it = m_directories.find(path.firstComponent());
+  return it != m_directories.end()
+         && it->second->directoryExists(path.deleteFirstComponent());
 }
 
 bool ImageFileSystemBase::Directory::fileExists(const Path& path) const
@@ -113,15 +102,8 @@ bool ImageFileSystemBase::Directory::fileExists(const Path& path) const
     return m_files.count(path) > 0;
   }
 
-  auto it = m_directories.find(path.firstComponent());
-  if (it == std::end(m_directories))
-  {
-    return false;
-  }
-  else
-  {
-    return it->second->fileExists(path.deleteFirstComponent());
-  }
+  const auto it = m_directories.find(path.firstComponent());
+  return it != m_directories.end() && it->second->fileExists(path.deleteFirstComponent());
 }
 
 const ImageFileSystemBase::Directory& ImageFileSystemBase::Directory::findDirectory(
@@ -133,15 +115,12 @@ const ImageFileSystemBase::Directory& ImageFileSystemBase::Directory::findDirect
   }
 
   auto it = m_directories.find(path.firstComponent());
-  if (it == std::end(m_directories))
-  {
-    throw FileSystemException(
-      "Path does not exist: '" + (m_path + path).asString() + "'");
-  }
-  else
+  if (it != m_directories.end())
   {
     return it->second->findDirectory(path.deleteFirstComponent());
   }
+
+  throw FileSystemException{"Path does not exist: '" + (m_path + path).asString() + "'"};
 }
 
 const ImageFileSystemBase::FileEntry& ImageFileSystemBase::Directory::findFile(
@@ -153,11 +132,7 @@ const ImageFileSystemBase::FileEntry& ImageFileSystemBase::Directory::findFile(
   if (path.length() == 1)
   {
     auto it = m_files.find(name);
-    if (it == std::end(m_files))
-    {
-      throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
-    }
-    else
+    if (it != m_files.end())
     {
       return *it->second;
     }
@@ -165,29 +140,26 @@ const ImageFileSystemBase::FileEntry& ImageFileSystemBase::Directory::findFile(
   else
   {
     auto it = m_directories.find(name);
-    if (it == std::end(m_directories))
-    {
-      throw FileSystemException("File not found: '" + (m_path + path).asString() + "'");
-    }
-    else
+    if (it != m_directories.end())
     {
       return it->second->findFile(path.deleteFirstComponent());
     }
   }
+  throw FileSystemException{"File not found: '" + (m_path + path).asString() + "'"};
 }
 
 std::vector<Path> ImageFileSystemBase::Directory::contents() const
 {
-  std::vector<Path> contents;
+  auto contents = std::vector<Path>{};
 
   for (const auto& [path, directory] : m_directories)
   {
-    contents.push_back(Path(path));
+    contents.push_back(path);
   }
 
   for (const auto& [path, file] : m_files)
   {
-    contents.push_back(Path(path));
+    contents.push_back(path);
   }
 
   return contents;
@@ -203,19 +175,18 @@ ImageFileSystemBase::Directory& ImageFileSystemBase::Directory::findOrCreateDire
 
   const auto name = path.firstComponent();
   auto it = m_directories.lower_bound(name);
-  if (it == std::end(m_directories) || name != it->first)
+  if (it == m_directories.end() || name != it->first)
   {
-    it =
-      m_directories.insert(it, std::make_pair(name, new Directory(m_path + Path(name))));
+    it = m_directories.emplace_hint(
+      it, name, std::make_unique<Directory>(m_path + Path{name}));
   }
   return it->second->findOrCreateDirectory(path.deleteFirstComponent());
 }
 
-ImageFileSystemBase::ImageFileSystemBase(
-  std::shared_ptr<FileSystem> next, const Path& path)
-  : FileSystem(std::move(next))
-  , m_path(path)
-  , m_root(Path())
+ImageFileSystemBase::ImageFileSystemBase(std::shared_ptr<FileSystem> next, Path path)
+  : FileSystem{std::move(next)}
+  , m_path{std::move(path)}
+  , m_root{Path{}}
 {
 }
 
@@ -229,14 +200,14 @@ void ImageFileSystemBase::initialize()
   }
   catch (const std::exception& e)
   {
-    throw FileSystemException(
-      "Could not initialize image file system '" + m_path.asString() + "': " + e.what());
+    throw FileSystemException{
+      "Could not initialize image file system '" + m_path.asString() + "': " + e.what()};
   }
 }
 
 void ImageFileSystemBase::reload()
 {
-  m_root = Directory(Path());
+  m_root = Directory{Path{}};
   initialize();
 }
 
@@ -265,9 +236,9 @@ std::shared_ptr<File> ImageFileSystemBase::doOpenFile(const Path& path) const
   return m_root.findFile(path).open();
 }
 
-ImageFileSystem::ImageFileSystem(std::shared_ptr<FileSystem> next, const Path& path)
-  : ImageFileSystemBase(std::move(next), path)
-  , m_file(std::make_shared<CFile>(path))
+ImageFileSystem::ImageFileSystem(std::shared_ptr<FileSystem> next, Path path)
+  : ImageFileSystemBase{std::move(next), std::move(path)}
+  , m_file{std::make_shared<CFile>(m_path)}
 {
   ensure(m_path.isAbsolute(), "path must be absolute");
 }

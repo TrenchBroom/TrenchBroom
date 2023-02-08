@@ -52,7 +52,7 @@ public:
   /**
    * Creates a new instance at the given base path that uses the given file system to find
    * shaders and shader image resources. The shader search path is used to find the shader
-   * scripts.The given texture search paths are recursively searched for textures, and
+   * scripts. The given texture search paths are recursively searched for textures, and
    * any texture found that does not have a corresponding shader will have a shader
    * generated for it.
    *

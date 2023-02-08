@@ -43,8 +43,8 @@ private:
   };
 
 public:
-  explicit DkPakFileSystem(const Path& path);
-  DkPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path);
+  explicit DkPakFileSystem(Path path);
+  DkPakFileSystem(std::shared_ptr<FileSystem> next, Path path);
 
 private:
   void doReadDirectory() override;

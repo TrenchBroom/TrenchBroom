@@ -41,10 +41,9 @@ struct GameConfig;
 class GameFileSystem : public IO::FileSystem
 {
 private:
-  IO::Quake3ShaderFileSystem* m_shaderFS;
+  IO::Quake3ShaderFileSystem* m_shaderFS = nullptr;
 
 public:
-  GameFileSystem();
   void initialize(
     const GameConfig& config,
     const IO::Path& gamePath,

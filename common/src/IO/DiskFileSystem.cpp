@@ -32,18 +32,18 @@ namespace TrenchBroom
 namespace IO
 {
 DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists)
-  : DiskFileSystem(nullptr, root, ensureExists)
+  : DiskFileSystem{nullptr, root, ensureExists}
 {
 }
 
 DiskFileSystem::DiskFileSystem(
   std::shared_ptr<FileSystem> next, const Path& root, const bool ensureExists)
-  : FileSystem(std::move(next))
-  , m_root(root.makeCanonical())
+  : FileSystem{std::move(next)}
+  , m_root{root.makeCanonical()}
 {
   if (ensureExists && !Disk::directoryExists(m_root))
   {
-    throw FileSystemException("Directory not found: '" + m_root.asString() + "'");
+    throw FileSystemException{"Directory not found: '" + m_root.asString() + "'"};
   }
 }
 
@@ -91,8 +91,7 @@ WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool crea
 
 WritableDiskFileSystem::WritableDiskFileSystem(
   std::shared_ptr<FileSystem> next, const Path& root, const bool create)
-  : DiskFileSystem(std::move(next), root, !create)
-  , WritableFileSystem()
+  : DiskFileSystem{std::move(next), root, !create}
 {
   if (create && !Disk::directoryExists(m_root))
   {

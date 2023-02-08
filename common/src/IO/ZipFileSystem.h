@@ -40,20 +40,20 @@ private:
   class ZipCompressedFile : public FileEntry
   {
   private:
-    ZipFileSystem* m_owner;
+    ZipFileSystem& m_owner;
     mz_uint m_fileIndex;
 
   public:
-    ZipCompressedFile(ZipFileSystem* owner, mz_uint fileIndex);
+    ZipCompressedFile(ZipFileSystem& owner, mz_uint fileIndex);
 
   private:
-    std::shared_ptr<File> doOpen() const override;
+    std::shared_ptr<File> open() const override;
   };
   friend class ZipCompressedFile;
 
 public:
-  explicit ZipFileSystem(const Path& path);
-  ZipFileSystem(std::shared_ptr<FileSystem> next, const Path& path);
+  explicit ZipFileSystem(Path path);
+  ZipFileSystem(std::shared_ptr<FileSystem> next, Path path);
   ~ZipFileSystem() override;
 
 private:

@@ -42,10 +42,7 @@ protected:
   public:
     virtual ~FileEntry();
 
-    std::shared_ptr<File> open() const;
-
-  private:
-    virtual std::shared_ptr<File> doOpen() const = 0;
+    virtual std::shared_ptr<File> open() const = 0;
   };
 
   class SimpleFileEntry : public FileEntry
@@ -56,8 +53,7 @@ protected:
   public:
     explicit SimpleFileEntry(std::shared_ptr<File> file);
 
-  private:
-    std::shared_ptr<File> doOpen() const override;
+    std::shared_ptr<File> open() const override;
   };
 
   class CompressedFileEntry : public FileEntry
@@ -70,8 +66,9 @@ protected:
     CompressedFileEntry(std::shared_ptr<File> file, size_t uncompressedSize);
     ~CompressedFileEntry() override = default;
 
+    std::shared_ptr<File> open() const override;
+
   private:
-    std::shared_ptr<File> doOpen() const override;
     virtual std::unique_ptr<char[]> decompress(
       std::shared_ptr<File> file, size_t uncompressedSize) const = 0;
   };
@@ -89,7 +86,7 @@ protected:
     FileMap m_files;
 
   public:
-    explicit Directory(const Path& path);
+    explicit Directory(Path path);
 
     void addFile(const Path& path, std::shared_ptr<File> file);
     void addFile(const Path& path, std::unique_ptr<FileEntry> file);
@@ -110,7 +107,7 @@ protected:
   Directory m_root;
 
 protected:
-  ImageFileSystemBase(std::shared_ptr<FileSystem> next, const Path& path);
+  ImageFileSystemBase(std::shared_ptr<FileSystem> next, Path path);
 
 public:
   ~ImageFileSystemBase() override;
@@ -141,7 +138,7 @@ protected:
   std::shared_ptr<CFile> m_file;
 
 protected:
-  ImageFileSystem(std::shared_ptr<FileSystem> next, const Path& path);
+  ImageFileSystem(std::shared_ptr<FileSystem> next, Path path);
 };
 } // namespace IO
 } // namespace TrenchBroom
