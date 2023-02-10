@@ -123,7 +123,7 @@ void WadFileSystem::doReadDirectory()
 
     const auto path = IO::Path{entryName}.addExtension(entryType);
     auto file = std::make_shared<FileView>(path, m_file, entryAddress, entrySize);
-    m_root.addFile(path, file);
+    addFile(path, [file = std::move(file)]() { return file; });
   }
 }
 } // namespace IO

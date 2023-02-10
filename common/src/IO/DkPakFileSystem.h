@@ -31,17 +31,6 @@ class Path;
 
 class DkPakFileSystem : public ImageFileSystem
 {
-private:
-  class DkCompressedFile : public CompressedFileEntry
-  {
-  public:
-    using CompressedFileEntry::CompressedFileEntry;
-
-  private:
-    std::unique_ptr<char[]> decompress(
-      std::shared_ptr<File> file, size_t uncompressedSize) const override;
-  };
-
 public:
   explicit DkPakFileSystem(Path path);
   DkPakFileSystem(std::shared_ptr<FileSystem> next, Path path);

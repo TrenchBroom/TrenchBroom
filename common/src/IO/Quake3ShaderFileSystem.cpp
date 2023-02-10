@@ -131,7 +131,8 @@ void Quake3ShaderFileSystem::linkTextures(
 
         auto shaderFile =
           std::make_shared<ObjectFile<Assets::Quake3Shader>>(shaderPath, shader);
-        m_root.addFile(shaderPath, shaderFile);
+        addFile(
+          shaderPath, [shaderFile = std::move(shaderFile)]() { return shaderFile; });
 
         // Remove the shader so that we don't revisit it when linking standalone shaders.
         shaders.erase(shaderIt);
@@ -143,7 +144,8 @@ void Quake3ShaderFileSystem::linkTextures(
 
         auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(
           shaderPath, std::move(shader));
-        m_root.addFile(shaderPath, std::move(shaderFile));
+        addFile(
+          shaderPath, [shaderFile = std::move(shaderFile)]() { return shaderFile; });
       }
     }
   }
@@ -158,7 +160,7 @@ void Quake3ShaderFileSystem::linkStandaloneShaders(
     const auto& shaderPath = shader.shaderPath;
     auto shaderFile =
       std::make_shared<ObjectFile<Assets::Quake3Shader>>(shaderPath, shader);
-    m_root.addFile(shaderPath, std::move(shaderFile));
+    addFile(shaderPath, [shaderFile = std::move(shaderFile)]() { return shaderFile; });
   }
 }
 } // namespace IO

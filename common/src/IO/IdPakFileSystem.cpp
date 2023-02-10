@@ -75,7 +75,7 @@ void IdPakFileSystem::doReadDirectory()
     const auto entryPath = Path{kdl::str_to_lower(entryName)};
     auto entryFile =
       std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
-    m_root.addFile(entryPath, entryFile);
+    addFile(entryPath, [entryFile = std::move(entryFile)]() { return entryFile; });
   }
 }
 } // namespace IO

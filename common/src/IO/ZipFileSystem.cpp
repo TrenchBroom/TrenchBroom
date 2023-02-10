@@ -29,40 +29,6 @@ namespace TrenchBroom
 {
 namespace IO
 {
-// ZipFileSystem::ZipCompressedFile
-
-ZipFileSystem::ZipCompressedFile::ZipCompressedFile(
-  ZipFileSystem& owner, const mz_uint fileIndex)
-  : m_owner{owner}
-  , m_fileIndex{fileIndex}
-{
-}
-
-std::shared_ptr<File> ZipFileSystem::ZipCompressedFile::open() const
-{
-  auto path = Path{m_owner.filename(m_fileIndex)};
-
-  auto stat = mz_zip_archive_file_stat{};
-  if (!mz_zip_reader_file_stat(&m_owner.m_archive, m_fileIndex, &stat))
-  {
-    throw FileSystemException{"mz_zip_reader_file_stat failed for " + path.asString()};
-  }
-
-  const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
-  auto data = std::make_unique<char[]>(uncompressedSize);
-  auto* begin = data.get();
-
-  if (!mz_zip_reader_extract_to_mem(
-        &m_owner.m_archive, m_fileIndex, begin, uncompressedSize, 0))
-  {
-    throw FileSystemException{
-      "mz_zip_reader_extract_to_mem failed for " + path.asString()};
-  }
-
-  return std::make_shared<OwningBufferFile>(
-    std::move(path), std::move(data), uncompressedSize);
-}
-
 // ZipFileSystem
 
 ZipFileSystem::ZipFileSystem(Path path)
@@ -96,7 +62,27 @@ void ZipFileSystem::doReadDirectory()
     if (!mz_zip_reader_is_file_a_directory(&m_archive, i))
     {
       const auto path = Path{filename(i)};
-      m_root.addFile(path, std::make_unique<ZipCompressedFile>(*this, i));
+      addFile(path, [=]() -> std::shared_ptr<File> {
+        auto stat = mz_zip_archive_file_stat{};
+        if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
+        {
+          throw FileSystemException{
+            "mz_zip_reader_file_stat failed for " + path.asString()};
+        }
+
+        const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
+        auto data = std::make_unique<char[]>(uncompressedSize);
+        auto* begin = data.get();
+
+        if (!mz_zip_reader_extract_to_mem(&m_archive, i, begin, uncompressedSize, 0))
+        {
+          throw FileSystemException{
+            "mz_zip_reader_extract_to_mem failed for " + path.asString()};
+        }
+
+        return std::make_shared<OwningBufferFile>(
+          path, std::move(data), uncompressedSize);
+      });
     }
   }
 
