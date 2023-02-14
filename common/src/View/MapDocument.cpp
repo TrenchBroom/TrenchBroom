@@ -5185,12 +5185,12 @@ Transaction::Transaction(MapDocument& document, std::string name)
 
 Transaction::~Transaction()
 {
-  assert(m_state != TransactionState::Running);
+  ensure(m_state != TransactionState::Running, "Transaction is not running");
 }
 
 bool Transaction::commit()
 {
-  assert(m_state == TransactionState::Running);
+  ensure(m_state == TransactionState::Running, "Transaction is running");
   if (m_document.commitTransaction())
   {
     m_state = TransactionState::Committed;
@@ -5203,13 +5203,13 @@ bool Transaction::commit()
 
 void Transaction::rollback()
 {
-  assert(m_state == TransactionState::Running);
+  ensure(m_state == TransactionState::Running, "Transaction is running");
   m_document.rollbackTransaction();
 }
 
 void Transaction::cancel()
 {
-  assert(m_state == TransactionState::Running);
+  ensure(m_state == TransactionState::Running, "Transaction is running");
   m_state = TransactionState::Cancelled;
 }
 
