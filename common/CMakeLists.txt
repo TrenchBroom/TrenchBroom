@@ -47,8 +47,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
         ${COMMON_SOURCE_DIR}/IO/File.cpp
-        ${COMMON_SOURCE_DIR}/IO/FileMatcher.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystem.cpp
+        ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/FreeImageTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.cpp
@@ -78,6 +78,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ObjSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/ParserStatus.cpp
         ${COMMON_SOURCE_DIR}/IO/Path.cpp
+        ${COMMON_SOURCE_DIR}/IO/PathInfo.cpp
+        ${COMMON_SOURCE_DIR}/IO/PathMatcher.cpp
         ${COMMON_SOURCE_DIR}/IO/PathQt.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.cpp
@@ -92,6 +94,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/TextureCollectionLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/TextureLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/TextureReader.cpp
+        ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/WadFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/WorldReader.cpp
@@ -535,8 +538,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.h
         ${COMMON_SOURCE_DIR}/IO/FgdParser.h
         ${COMMON_SOURCE_DIR}/IO/File.h
-        ${COMMON_SOURCE_DIR}/IO/FileMatcher.h
         ${COMMON_SOURCE_DIR}/IO/FileSystem.h
+        ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.h
         ${COMMON_SOURCE_DIR}/IO/FreeImageTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.h
@@ -567,6 +570,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/Parser.h
         ${COMMON_SOURCE_DIR}/IO/ParserStatus.h
         ${COMMON_SOURCE_DIR}/IO/Path.h
+        ${COMMON_SOURCE_DIR}/IO/PathInfo.h
+        ${COMMON_SOURCE_DIR}/IO/PathMatcher.h
         ${COMMON_SOURCE_DIR}/IO/PathQt.h
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.h
@@ -584,6 +589,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/TextureReader.h
         ${COMMON_SOURCE_DIR}/IO/Token.h
         ${COMMON_SOURCE_DIR}/IO/Tokenizer.h
+        ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/WadFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/WalTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/WorldReader.h

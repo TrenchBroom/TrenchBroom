@@ -32,12 +32,7 @@ namespace IO
 // ZipFileSystem
 
 ZipFileSystem::ZipFileSystem(Path path)
-  : ZipFileSystem{nullptr, std::move(path)}
-{
-}
-
-ZipFileSystem::ZipFileSystem(std::shared_ptr<FileSystem> next, Path path)
-  : ImageFileSystem{std::move(next), std::move(path)}
+  : ImageFileSystem{std::move(path)}
 {
   initialize();
 }

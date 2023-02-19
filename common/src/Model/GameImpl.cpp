@@ -36,7 +36,6 @@
 #include "IO/ExportOptions.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
-#include "IO/FileMatcher.h"
 #include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
 #include "IO/ImageSpriteParser.h"
@@ -48,6 +47,7 @@
 #include "IO/NodeWriter.h"
 #include "IO/ObjParser.h"
 #include "IO/ObjSerializer.h"
+#include "IO/PathInfo.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SprParser.h"
 #include "IO/SystemPaths.h"
@@ -129,7 +129,7 @@ Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(
   for (const auto& searchPath : searchPaths)
   {
     const auto absPath = m_gamePath + searchPath;
-    if (!absPath.isAbsolute() || !IO::Disk::directoryExists(absPath))
+    if (!absPath.isAbsolute() || IO::Disk::pathInfo(absPath) != IO::PathInfo::Directory)
     {
       result.emplace(searchPath, "Directory not found: '" + searchPath.asString() + "'");
     }
@@ -175,7 +175,9 @@ std::unique_ptr<WorldNode> GameImpl::doNewMap(
   const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const
 {
   const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
-  if (!initialMapFilePath.isEmpty() && IO::Disk::fileExists(initialMapFilePath))
+  if (
+    !initialMapFilePath.isEmpty()
+    && IO::Disk::pathInfo(initialMapFilePath) == IO::PathInfo::File)
   {
     return doLoadMap(format, worldBounds, initialMapFilePath, logger);
   }
@@ -383,12 +385,12 @@ std::vector<IO::Path> GameImpl::doFindTextureCollections() const
   try
   {
     const auto searchPath = getRootDirectory(m_config.textureConfig.package);
-    if (!searchPath.isEmpty() && m_fs.directoryExists(searchPath))
+    if (!searchPath.isEmpty() && m_fs.pathInfo(searchPath) == IO::PathInfo::Directory)
     {
       return kdl::vec_concat(
         std::vector<IO::Path>{searchPath},
-        m_fs.findItemsRecursively(
-          searchPath, IO::FileTypeMatcher{!true(files), true(directories)}));
+        m_fs.findRecursively(
+          searchPath, IO::makePathInfoPathMatcher({IO::PathInfo::Directory})));
     }
     return {};
   }
@@ -675,7 +677,7 @@ Assets::Palette GameImpl::loadTexturePalette() const
 std::vector<std::string> GameImpl::doAvailableMods() const
 {
   auto result = std::vector<std::string>{};
-  if (m_gamePath.isEmpty() || !IO::Disk::directoryExists(m_gamePath))
+  if (m_gamePath.isEmpty() || IO::Disk::pathInfo(m_gamePath) != IO::PathInfo::Directory)
   {
     return result;
   }
@@ -684,7 +686,7 @@ std::vector<std::string> GameImpl::doAvailableMods() const
     m_config.fileSystemConfig.searchPath.lastComponent().asString();
   const auto fs = IO::DiskFileSystem{m_gamePath};
   const auto subDirs =
-    fs.findItems(IO::Path{}, IO::FileTypeMatcher{!true(files), true(directories)});
+    fs.find(IO::Path{}, IO::makePathInfoPathMatcher({IO::PathInfo::Directory}));
   for (const auto& subDir : subDirs)
   {
     const auto mod = subDir.lastComponent().asString();

@@ -25,8 +25,6 @@
 
 namespace TrenchBroom
 {
-class Logger;
-
 namespace IO
 {
 class FileSystem;
@@ -34,12 +32,8 @@ class Path;
 
 class WadFileSystem : public ImageFileSystem
 {
-private:
-  Logger& m_logger;
-
 public:
-  WadFileSystem(Path path, Logger& logger);
-  WadFileSystem(std::shared_ptr<FileSystem> next, Path path, Logger& logger);
+  WadFileSystem(Path path);
 
 private:
   void doReadDirectory() override;

@@ -27,6 +27,7 @@
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
+#include "IO/PathInfo.h"
 #include "IO/Quake3ShaderTextureReader.h"
 #include "IO/ResourceUtils.h"
 #include "IO/WalTextureReader.h"
@@ -82,7 +83,7 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
     logger.debug() << "Loading shader '" << path << "'";
     try
     {
-      const auto file = fs.fileExists(path.deleteExtension())
+      const auto file = fs.pathInfo(path.deleteExtension()) == PathInfo::File
                           ? fs.openFile(path.deleteExtension())
                           : fs.openFile(path);
 

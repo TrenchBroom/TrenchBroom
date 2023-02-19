@@ -79,13 +79,15 @@ private:
   using Token = FgdTokenizer::Token;
 
   std::vector<Path> m_paths;
-  std::shared_ptr<FileSystem> m_fs;
+  std::unique_ptr<FileSystem> m_fs;
 
   FgdTokenizer m_tokenizer;
 
 public:
   FgdParser(std::string_view str, const Color& defaultEntityColor, const Path& path);
   FgdParser(std::string_view str, const Color& defaultEntityColor);
+
+  ~FgdParser() override;
 
 private:
   class PushIncludePath;

@@ -24,11 +24,11 @@
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
-#include "IO/FileMatcher.h"
 #include "IO/GameConfigParser.h"
 #include "IO/GameEngineConfigParser.h"
 #include "IO/GameEngineConfigWriter.h"
 #include "IO/IOUtils.h"
+#include "IO/PathInfo.h"
 #include "IO/SystemPaths.h"
 #include "Logger.h"
 #include "Model/Game.h"
@@ -212,47 +212,31 @@ GameFactory::GameFactory() = default;
 void GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig)
 {
   // Gather the search paths we're going to use.
-  // The rest of this function will be chaining together TB filesystem objects for these
-  // search paths.
+  // The rest of this function will be mounting TB filesystems for these search paths.
   const auto& userGameDir = gamePathConfig.userGameDir;
   const auto& gameConfigSearchDirs = gamePathConfig.gameConfigSearchDirs;
 
+  auto virtualFs = IO::VirtualFileSystem{};
+
   // All of the current search paths from highest to lowest priority
-  auto chain = std::unique_ptr<IO::DiskFileSystem>{};
   for (auto it = gameConfigSearchDirs.rbegin(); it != gameConfigSearchDirs.rend(); ++it)
   {
     const auto path = *it;
-
-    if (chain != nullptr)
-    {
-      chain = std::make_unique<IO::DiskFileSystem>(std::move(chain), path, false);
-    }
-    else
-    {
-      chain = std::make_unique<IO::DiskFileSystem>(path, false);
-    }
-  }
-
-  // This is where we write configs
-  if (chain != nullptr)
-  {
-    m_configFS =
-      std::make_unique<IO::WritableDiskFileSystem>(std::move(chain), userGameDir, true);
-  }
-  else
-  {
-    m_configFS = std::make_unique<IO::WritableDiskFileSystem>(userGameDir, true);
+    virtualFs.mount(IO::Path{}, std::make_unique<IO::DiskFileSystem>(path, false));
   }
 
   m_userGameDir = userGameDir;
+  m_configFs = std::make_unique<IO::WritableVirtualFileSystem>(
+    std::move(virtualFs),
+    std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir, true));
 }
 
 void GameFactory::loadGameConfigs()
 {
   auto errors = std::vector<std::string>{};
 
-  const auto configFiles =
-    m_configFS->findItemsRecursively(IO::Path(""), IO::FileNameMatcher("GameConfig.cfg"));
+  const auto configFiles = m_configFs->findRecursively(
+    IO::Path{}, IO::makeFilenamePathMatcher("GameConfig.cfg"));
   for (const auto& configFilePath : configFiles)
   {
     try
@@ -289,8 +273,8 @@ void GameFactory::loadGameConfig(const IO::Path& path)
 
 void GameFactory::doLoadGameConfig(const IO::Path& path)
 {
-  const auto configFile = m_configFS->openFile(path);
-  const auto absolutePath = m_configFS->makeAbsolute(path);
+  const auto configFile = m_configFs->openFile(path);
+  const auto absolutePath = m_configFs->makeAbsolute(path);
 
   auto reader = configFile->reader().buffer();
   auto parser = IO::GameConfigParser{reader.stringView(), absolutePath};
@@ -318,12 +302,12 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
   const auto path = IO::Path{gameConfig.name} + IO::Path{"CompilationProfiles.cfg"};
   try
   {
-    if (m_configFS->fileExists(path))
+    if (m_configFs->pathInfo(path) == IO::PathInfo::File)
     {
-      const auto profilesFile = m_configFS->openFile(path);
+      const auto profilesFile = m_configFs->openFile(path);
       auto reader = profilesFile->reader().buffer();
       auto parser =
-        IO::CompilationConfigParser{reader.stringView(), m_configFS->makeAbsolute(path)};
+        IO::CompilationConfigParser{reader.stringView(), m_configFs->makeAbsolute(path)};
       gameConfig.compilationConfig = parser.parse();
       gameConfig.compilationConfigParseFailed = false;
     }
@@ -341,12 +325,12 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   const auto path = IO::Path{gameConfig.name} + IO::Path{"GameEngineProfiles.cfg"};
   try
   {
-    if (m_configFS->fileExists(path))
+    if (m_configFs->pathInfo(path) == IO::PathInfo::File)
     {
-      const auto profilesFile = m_configFS->openFile(path);
+      const auto profilesFile = m_configFs->openFile(path);
       auto reader = profilesFile->reader().buffer();
       auto parser =
-        IO::GameEngineConfigParser{reader.stringView(), m_configFS->makeAbsolute(path)};
+        IO::GameEngineConfigParser{reader.stringView(), m_configFs->makeAbsolute(path)};
       gameConfig.gameEngineConfig = parser.parse();
       gameConfig.gameEngineConfigParseFailed = false;
     }
@@ -359,7 +343,7 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   }
 }
 
-static IO::Path backupFile(IO::WritableDiskFileSystem& fs, const IO::Path& path)
+static IO::Path backupFile(IO::WritableFileSystem& fs, const IO::Path& path)
 {
   const auto backupPath = path.addExtension("bak");
   fs.copyFile(path, backupPath, true);
@@ -367,11 +351,11 @@ static IO::Path backupFile(IO::WritableDiskFileSystem& fs, const IO::Path& path)
 }
 
 void GameFactory::writeCompilationConfig(
-  GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger)
+  GameConfig& gameConfig, CompilationConfig compilationConfig, Logger& logger)
 {
   if (
     !gameConfig.compilationConfigParseFailed
-    && gameConfig.compilationConfig == std::move(compilationConfig))
+    && gameConfig.compilationConfig == compilationConfig)
   {
     // NOTE: this is not just an optimization, but important for ensuring that
     // we don't clobber data saved by a newer version of TB, unless we actually make
@@ -390,27 +374,27 @@ void GameFactory::writeCompilationConfig(
     IO::Path{gameConfig.name} + IO::Path{"CompilationProfiles.cfg"};
   if (gameConfig.compilationConfigParseFailed)
   {
-    const auto backupPath = backupFile(*m_configFS, profilesPath);
+    const auto backupPath = backupFile(*m_configFs, profilesPath);
 
     logger.warn() << "Backed up malformed compilation config "
-                  << m_configFS->makeAbsolute(profilesPath) << " to "
-                  << m_configFS->makeAbsolute(backupPath);
+                  << m_configFs->makeAbsolute(profilesPath) << " to "
+                  << m_configFs->makeAbsolute(backupPath);
 
     gameConfig.compilationConfigParseFailed = false;
   }
 
-  m_configFS->createFileAtomic(profilesPath, stream.str());
+  m_configFs->createFileAtomic(profilesPath, stream.str());
   gameConfig.compilationConfig = std::move(compilationConfig);
   logger.debug() << "Wrote compilation config to "
-                 << m_configFS->makeAbsolute(profilesPath);
+                 << m_configFs->makeAbsolute(profilesPath);
 }
 
 void GameFactory::writeGameEngineConfig(
-  GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig)
+  GameConfig& gameConfig, GameEngineConfig gameEngineConfig)
 {
   if (
     !gameConfig.gameEngineConfigParseFailed
-    && gameConfig.gameEngineConfig == std::move(gameEngineConfig))
+    && gameConfig.gameEngineConfig == gameEngineConfig)
   {
     std::cout << "Skipping writing unchanged game engine config for " << gameConfig.name;
     return;
@@ -424,17 +408,17 @@ void GameFactory::writeGameEngineConfig(
     IO::Path{gameConfig.name} + IO::Path{"GameEngineProfiles.cfg"};
   if (gameConfig.gameEngineConfigParseFailed)
   {
-    const auto backupPath = backupFile(*m_configFS, profilesPath);
+    const auto backupPath = backupFile(*m_configFs, profilesPath);
 
     std::cerr << "Backed up malformed game engine config "
-              << m_configFS->makeAbsolute(profilesPath) << " to "
-              << m_configFS->makeAbsolute(backupPath) << std::endl;
+              << m_configFs->makeAbsolute(profilesPath) << " to "
+              << m_configFs->makeAbsolute(backupPath) << std::endl;
 
     gameConfig.gameEngineConfigParseFailed = false;
   }
-  m_configFS->createFileAtomic(profilesPath, stream.str());
+  m_configFs->createFileAtomic(profilesPath, stream.str());
   gameConfig.gameEngineConfig = std::move(gameEngineConfig);
-  std::cout << "Wrote game engine config to " << m_configFS->makeAbsolute(profilesPath)
+  std::cout << "Wrote game engine config to " << m_configFs->makeAbsolute(profilesPath)
             << std::endl;
 }
 } // namespace Model

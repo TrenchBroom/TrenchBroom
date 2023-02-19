@@ -38,7 +38,6 @@ private:
 
 public:
   explicit ZipFileSystem(Path path);
-  ZipFileSystem(std::shared_ptr<FileSystem> next, Path path);
   ~ZipFileSystem() override;
 
 private:

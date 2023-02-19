@@ -33,7 +33,6 @@ class IdPakFileSystem : public ImageFileSystem
 {
 public:
   explicit IdPakFileSystem(Path path);
-  IdPakFileSystem(std::shared_ptr<FileSystem> next, Path path);
 
 private:
   void doReadDirectory() override;

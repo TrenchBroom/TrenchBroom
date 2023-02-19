@@ -46,7 +46,7 @@ protected:
    *
    * @param path the path of the file
    */
-  explicit File(const Path& path);
+  explicit File(Path path);
 
 public:
   virtual ~File();
@@ -84,7 +84,7 @@ public:
    * @param buffer the memory buffer
    * @param size the size of the file
    */
-  OwningBufferFile(const Path& path, std::unique_ptr<char[]> buffer, size_t size);
+  OwningBufferFile(Path path, std::unique_ptr<char[]> buffer, size_t size);
 
   Reader reader() const override;
   size_t size() const override;
@@ -110,7 +110,7 @@ public:
    *
    * @throw FileSystemException if the given buffer pointers are invalid
    */
-  NonOwningBufferFile(const Path& path, const char* begin, const char* end);
+  NonOwningBufferFile(Path path, const char* begin, const char* end);
 
   Reader reader() const override;
   size_t size() const override;
@@ -134,7 +134,7 @@ public:
    *
    * @throw FileSystemException if the file cannot be opened
    */
-  explicit CFile(const Path& path);
+  explicit CFile(Path path);
   ~CFile() override;
 
   Reader reader() const override;
@@ -165,8 +165,7 @@ public:
    * @param offset the offset into the host file
    * @param length the length of the portion of the host file
    */
-  explicit FileView(
-    const Path& path, std::shared_ptr<File> file, size_t offset, size_t length);
+  explicit FileView(Path path, std::shared_ptr<File> file, size_t offset, size_t length);
 
   Reader reader() const override;
   size_t size() const override;
@@ -195,7 +194,7 @@ public:
    * @param object the object
    */
   template <typename S>
-  ObjectFile(const Path& path, S&& object)
+  ObjectFile(Path path, S&& object)
     : File(path)
     , m_object(std::forward<S>(object))
   {

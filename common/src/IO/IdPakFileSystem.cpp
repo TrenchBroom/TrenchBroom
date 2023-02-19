@@ -42,12 +42,7 @@ static const std::string HeaderMagic = "PACK";
 } // namespace PakLayout
 
 IdPakFileSystem::IdPakFileSystem(Path path)
-  : IdPakFileSystem{nullptr, std::move(path)}
-{
-}
-
-IdPakFileSystem::IdPakFileSystem(std::shared_ptr<FileSystem> next, Path path)
-  : ImageFileSystem{std::move(next), std::move(path)}
+  : ImageFileSystem{std::move(path)}
 {
   initialize();
 }

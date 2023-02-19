@@ -20,6 +20,7 @@
 #include "SystemPaths.h"
 
 #include "IO/DiskIO.h"
+#include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 
 #include <QCoreApplication>
@@ -62,14 +63,14 @@ Path findResourceFile(const Path& file)
   // Special case for running debug builds on Linux, we want to search
   // next to the executable for resources
   const auto relativeToExecutable = appDirectory() + file;
-  if (Disk::fileExists(relativeToExecutable))
+  if (Disk::pathInfo(relativeToExecutable) == PathInfo::File)
   {
     return relativeToExecutable;
   }
 
   // Compatibility with wxWidgets
   const auto inUserDataDir = userDataDirectory() + file;
-  if (Disk::fileExists(inUserDataDir))
+  if (Disk::pathInfo(inUserDataDir) == PathInfo::File)
   {
     return inUserDataDir;
   }

@@ -23,8 +23,8 @@
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/FileMatcher.h"
 #include "IO/Path.h"
+#include "IO/PathMatcher.h"
 #include "IO/TestParserStatus.h"
 #include "Model/EntityProperties.h"
 
@@ -39,20 +39,19 @@ namespace IO
 {
 TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
-  const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-  const std::vector<Path> cfgFiles =
-    Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("def"));
+  const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
+  const auto cfgFiles =
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({"def"}));
 
-  for (const Path& path : cfgFiles)
+  for (const auto& path : cfgFiles)
   {
     CAPTURE(path);
 
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
-    const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-    DefParser parser(reader.stringView(), defaultColor);
+    auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-    TestParserStatus status;
+    auto status = TestParserStatus{};
     CHECK_NOTHROW(parser.parseDefinitions(status));
 
     /* Disabled because our files are full of previously undetected problems
@@ -77,20 +76,17 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
 
 TEST_CASE("DefParserTest.parseExtraDefFiles")
 {
-  const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
-  const std::vector<Path> cfgFiles =
-    Disk::findItems(basePath, [](const Path& path, bool directory) {
-      return !directory && kdl::ci::str_is_equal(path.extension(), "def");
-    });
+  const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
+  const auto cfgFiles =
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({"def"}));
 
   for (const Path& path : cfgFiles)
   {
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
-    const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-    DefParser parser(reader.stringView(), defaultColor);
+    auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-    TestParserStatus status;
+    auto status = TestParserStatus{};
     CHECK_NOTHROW(parser.parseDefinitions(status));
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
@@ -99,11 +95,10 @@ TEST_CASE("DefParserTest.parseExtraDefFiles")
 
 TEST_CASE("DefParserTest.parseEmptyFile")
 {
-  const std::string file = "";
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  DefParser parser(file, defaultColor);
+  const auto file = R"()";
+  auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
   kdl::vec_clear_and_delete(definitions);
@@ -111,11 +106,13 @@ TEST_CASE("DefParserTest.parseEmptyFile")
 
 TEST_CASE("DefParserTest.parseWhitespaceFile")
 {
-  const std::string file = "     \n  \t \n  ";
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  DefParser parser(file, defaultColor);
+  const auto file = R"(     
+  	 
+  )";
 
-  TestParserStatus status;
+  auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
   kdl::vec_clear_and_delete(definitions);
@@ -123,11 +120,13 @@ TEST_CASE("DefParserTest.parseWhitespaceFile")
 
 TEST_CASE("DefParserTest.parseCommentsFile")
 {
-  const std::string file = "// asdfasdfasdf\n//kj3k4jkdjfkjdf\n";
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  DefParser parser(file, defaultColor);
+  const auto file = R"(// asdfasdfasdf
+//kj3k4jkdjfkjdf
+)";
 
-  TestParserStatus status;
+  auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
   kdl::vec_clear_and_delete(definitions);
@@ -135,39 +134,37 @@ TEST_CASE("DefParserTest.parseCommentsFile")
 
 TEST_CASE("DefParserTest.parseSolidClass")
 {
-  const std::string file =
-    "/*QUAKED worldspawn (0.0 0.0 0.0) ?\n"
-    "{\n"
-    "choice \"worldtype\"\n"
-    " (\n"
-    "  (0,\"medieval\")\n"
-    "  (1,\"metal\")\n"
-    "  (2,\"base\")\n"
-    " );\n"
-    "}\n"
-    "Only used for the world entity. "
-    "Set message to the level name. "
-    "Set sounds to the cd track to play. "
-    "\"worldtype\"	type of world\n"
-    "*/\n";
+  const auto file = R"(
+/*QUAKED worldspawn (0.0 0.0 0.0) ?
+{
+choice "worldtype"
+  (
+  (0,"medieval")
+  (1,"metal")
+  (2,"base")
+  );
+}
+Only used for the world entity. 
+Set message to the level name. 
+Set sounds to the cd track to play. 
+"worldtype"	type of world
+*/
+)";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  DefParser parser(file, defaultColor);
+  auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  Assets::EntityDefinition* definition = definitions[0];
+  const auto* definition = definitions[0];
   CHECK(definition->type() == Assets::EntityDefinitionType::BrushEntity);
-  CHECK(definition->name() == std::string("worldspawn"));
-  CHECK(definition->color() == Color(0.0f, 0.0f, 0.0f, 1.0f));
-  CHECK(
-    definition->description()
-    == std::string("Only used for the world entity. "
-                   "Set message to the level name. "
-                   "Set sounds to the cd track to play. "
-                   "\"worldtype\"	type of world"));
+  CHECK(definition->name() == "worldspawn");
+  CHECK(definition->color() == Color{0.0f, 0.0f, 0.0f, 1.0f});
+  CHECK(definition->description() == R"(Only used for the world entity. 
+Set message to the level name. 
+Set sounds to the cd track to play. 
+"worldtype"	type of world)");
 
   const auto& properties = definition->propertyDefinitions();
   CHECK(properties.size() == 1u);
@@ -177,31 +174,30 @@ TEST_CASE("DefParserTest.parseSolidClass")
 
 TEST_CASE("DefParserTest.parsePointClass")
 {
-  const std::string file =
-    "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
-    "If crucified, stick the bounding box 12 pixels back into a wall to look right.\n"
-    "*/\n";
+  const auto file = R"(
+    /*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush
+    If crucified, stick the bounding box 12 pixels back into a wall to look right.
+    */
+)";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  DefParser parser(file, defaultColor);
+  auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  Assets::EntityDefinition* definition = definitions[0];
+  const auto* definition = definitions[0];
   CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == std::string("monster_zombie"));
-  CHECK(definition->color() == Color(1.0f, 0.0f, 0.0f, 1.0f));
+  CHECK(definition->name() == "monster_zombie");
+  CHECK(definition->color() == Color{1.0f, 0.0f, 0.0f, 1.0f});
   CHECK(
     definition->description()
-    == std::string(
-      "If crucified, stick the bounding box 12 pixels back into a wall to look right."));
+    == R"(If crucified, stick the bounding box 12 pixels back into a wall to look right.)");
 
-  Assets::PointEntityDefinition* pointDefinition =
-    static_cast<Assets::PointEntityDefinition*>(definition);
-  CHECK(pointDefinition->bounds().min == vm::vec3(-16.0, -16.0, -24.0));
-  CHECK(pointDefinition->bounds().max == vm::vec3(16.0, 16.0, 32.0));
+  const auto* pointDefinition =
+    static_cast<const Assets::PointEntityDefinition*>(definition);
+  CHECK(
+    pointDefinition->bounds() == vm::bbox3{{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}});
 
   const auto& properties = definition->propertyDefinitions();
   CHECK(properties.size() == 1u); // spawnflags
@@ -209,47 +205,43 @@ TEST_CASE("DefParserTest.parsePointClass")
   const auto property = properties[0];
   CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-  const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+  const auto* spawnflags = definition->spawnflags();
   CHECK(spawnflags != nullptr);
   CHECK(spawnflags->defaultValue() == 0);
 
-  const Assets::FlagsPropertyOption::List& options = spawnflags->options();
-  CHECK(options.size() == 2u);
-  CHECK(options[0].value() == 1);
-
-  CHECK(options[0].shortDescription() == std::string("Crucified"));
-  CHECK_FALSE(options[0].isDefault());
-  CHECK(options[1].value() == 2);
-  CHECK(options[1].shortDescription() == std::string("ambush"));
-  CHECK_FALSE(options[1].isDefault());
+  CHECK(
+    spawnflags->options()
+    == std::vector<Assets::FlagsPropertyOption>{
+      {1, "Crucified", "", false},
+      {2, "ambush", "", false},
+    });
 
   kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
 {
-  const std::string file =
-    "/*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) - SUSPENDED SPIN - RESPAWN\n"
-    "some desc\n"
-    "*/\n";
+  const auto file = R"(
+    /*QUAKED item_health (.3 .3 1) (-16 -16 -16) (16 16 16) - SUSPENDED SPIN - RESPAWN
+    some desc
+    */)";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  DefParser parser(file, defaultColor);
+  auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  Assets::EntityDefinition* definition = definitions[0];
+  const auto* definition = definitions[0];
   CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == std::string("item_health"));
-  CHECK(definition->color() == Color(0.3f, 0.3f, 1.0f, 1.0f));
-  CHECK(definition->description() == std::string("some desc"));
+  CHECK(definition->name() == "item_health");
+  CHECK(definition->color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
+  CHECK(definition->description() == "some desc");
 
-  Assets::PointEntityDefinition* pointDefinition =
-    static_cast<Assets::PointEntityDefinition*>(definition);
-  CHECK(pointDefinition->bounds().min == vm::vec3(-16.0, -16.0, -16.0));
-  CHECK(pointDefinition->bounds().max == vm::vec3(16.0, 16.0, 16.0));
+  const auto* pointDefinition =
+    static_cast<const Assets::PointEntityDefinition*>(definition);
+  CHECK(
+    pointDefinition->bounds() == vm::bbox3{{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}});
 
   const auto& properties = definition->propertyDefinitions();
   CHECK(properties.size() == 1u); // spawnflags
@@ -257,51 +249,41 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
   const auto property = properties[0];
   CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-  const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+  const auto* spawnflags = definition->spawnflags();
   CHECK(spawnflags != nullptr);
   CHECK(spawnflags->defaultValue() == 0);
 
-  const Assets::FlagsPropertyOption::List& options = spawnflags->options();
-  CHECK(options.size() == 5u);
-
-  CHECK(options[0].shortDescription() == std::string(""));
-  CHECK_FALSE(options[0].isDefault());
-  CHECK(options[0].value() == 1);
-  CHECK(options[1].shortDescription() == std::string("SUSPENDED"));
-  CHECK_FALSE(options[1].isDefault());
-  CHECK(options[1].value() == 2);
-  CHECK(options[2].shortDescription() == std::string("SPIN"));
-  CHECK_FALSE(options[2].isDefault());
-  CHECK(options[2].value() == 4);
-  CHECK(options[3].shortDescription() == std::string(""));
-  CHECK_FALSE(options[3].isDefault());
-  CHECK(options[3].value() == 8);
-  CHECK(options[4].shortDescription() == std::string("RESPAWN"));
-  CHECK_FALSE(options[4].isDefault());
-  CHECK(options[4].value() == 16);
+  CHECK(
+    spawnflags->options()
+    == std::vector<Assets::FlagsPropertyOption>{
+      {1, "", "", false},
+      {2, "SUSPENDED", "", false},
+      {4, "SPIN", "", false},
+      {8, "", "", false},
+      {16, "RESPAWN", "", false},
+    });
 
   kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
 {
-  const std::string file =
-    "/*QUAKED item_health (.3 .3 1) SUSPENDED SPIN - RESPAWN\n"
-    "some desc\n"
-    "*/\n";
+  const auto file = R"(
+    /*QUAKED item_health (.3 .3 1) SUSPENDED SPIN - RESPAWN
+    some desc
+    */)";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  DefParser parser(file, defaultColor);
+  auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  Assets::EntityDefinition* definition = definitions[0];
+  const auto* definition = definitions[0];
   CHECK(definition->type() == Assets::EntityDefinitionType::BrushEntity);
-  CHECK(definition->name() == std::string("item_health"));
-  CHECK(definition->color() == Color(0.3f, 0.3f, 1.0f, 1.0f));
-  CHECK(definition->description() == std::string("some desc"));
+  CHECK(definition->name() == "item_health");
+  CHECK(definition->color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
+  CHECK(definition->description() == "some desc");
 
   const auto& properties = definition->propertyDefinitions();
   CHECK(properties.size() == 1u); // spawnflags
@@ -309,70 +291,62 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
   const auto property = properties[0];
   CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-  const Assets::FlagsPropertyDefinition* spawnflags = definition->spawnflags();
+  const auto* spawnflags = definition->spawnflags();
   CHECK(spawnflags != nullptr);
   CHECK(spawnflags->defaultValue() == 0);
 
-  const Assets::FlagsPropertyOption::List& options = spawnflags->options();
-  CHECK(options.size() == 4u);
-
-  CHECK(options[0].shortDescription() == std::string("SUSPENDED"));
-  CHECK_FALSE(options[0].isDefault());
-  CHECK(options[0].value() == 1);
-  CHECK(options[1].shortDescription() == std::string("SPIN"));
-  CHECK_FALSE(options[1].isDefault());
-  CHECK(options[1].value() == 2);
-  CHECK(options[2].shortDescription() == std::string(""));
-  CHECK_FALSE(options[2].isDefault());
-  CHECK(options[2].value() == 4);
-  CHECK(options[3].shortDescription() == std::string("RESPAWN"));
-  CHECK_FALSE(options[3].isDefault());
-  CHECK(options[3].value() == 8);
+  CHECK(
+    spawnflags->options()
+    == std::vector<Assets::FlagsPropertyOption>{
+      {1, "SUSPENDED", "", false},
+      {2, "SPIN", "", false},
+      {4, "", "", false},
+      {8, "RESPAWN", "", false},
+    });
 
   kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
 {
-  const std::string file =
-    "/*QUAKED _light_style\n"
-    "{\n"
-    "choice \"style\"\n"
-    " (\n"
-    "  (0,\"normal\")\n"
-    "  (1,\"flicker (first variety)\")\n"
-    "  (2,\"slow strong pulse\")\n"
-    "  (3,\"candle (first variety)\")\n"
-    "  (4,\"fast strobe\")\n"
-    "  (5,\"gentle pulse 1\")\n"
-    "  (6,\"flicker (second variety)\")\n"
-    "  (7,\"candle (second variety)\")\n"
-    "  (8,\"candle (third variety)\")\n"
-    "  (9,\"slow strobe (fourth variety)\")\n"
-    "  (10,\"fluorescent flicker\")\n"
-    "  (11,\"slow pulse not fade to black\")\n"
-    " );\n"
-    "}\n"
-    "*/\n"
-    "\n"
-    "/*QUAKED light (0.0 1.0 0.0) (-8 -8 -8) (8 8 8) START_OFF\n"
-    "{\n"
-    "base(\"_light_style\");\n"
-    "}\n"
-    "Non-displayed light.\n"
-    "Default light value is 300\n"
-    "If targeted, it will toggle between on or off.\n"
-    "Default \"style\" is 0.\n"
-    "*/\n";
+  const auto file = R"-(
+    /*QUAKED _light_style
+    {
+    choice "style"
+     (
+      (0,"normal")
+      (1,"flicker (first variety)")
+      (2,"slow strong pulse")
+      (3,"candle (first variety)")
+      (4,"fast strobe")
+      (5,"gentle pulse 1")
+      (6,"flicker (second variety)")
+      (7,"candle (second variety)")
+      (8,"candle (third variety)")
+      (9,"slow strobe (fourth variety)")
+      (10,"fluorescent flicker")
+      (11,"slow pulse not fade to black")
+     );
+}
+    */
+    
+    /*QUAKED light (0.0 1.0 0.0) (-8 -8 -8) (8 8 8) START_OFF
+    {
+    base("_light_style");
+    }
+    Non-displayed light.
+    Default light value is 300
+    If targeted, it will toggle between on or off.
+    Default "style" is 0.
+    */)-";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  DefParser parser(file, defaultColor);
+  auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  Assets::EntityDefinition* definition = definitions[0];
+  const auto* definition = definitions[0];
   CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
   CHECK(definition->name() == "light");
 
@@ -392,33 +366,49 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
     spawnflagsPropertyDefinition->type()
     == Assets::PropertyDefinitionType::FlagsProperty);
 
-  const Assets::ChoicePropertyDefinition* choice =
+  const auto* choice =
     static_cast<const Assets::ChoicePropertyDefinition*>(stylePropertyDefinition);
-  CHECK(choice->options().size() == 12u);
+
+  CHECK(
+    choice->options()
+    == std::vector<Assets::ChoicePropertyOption>{
+      {"0", "normal"},
+      {"1", "flicker (first variety)"},
+      {"2", "slow strong pulse"},
+      {"3", "candle (first variety)"},
+      {"4", "fast strobe"},
+      {"5", "gentle pulse 1"},
+      {"6", "flicker (second variety)"},
+      {"7", "candle (second variety)"},
+      {"8", "candle (third variety)"},
+      {"9", "slow strobe (fourth variety)"},
+      {"10", "fluorescent flicker"},
+      {"11", "slow pulse not fade to black"},
+    });
 
   kdl::vec_clear_and_delete(definitions);
 }
 
-static const std::string DefModelDefinitionTemplate =
-  "/*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush\n"
-  "{\n"
-  "model(${MODEL});\n"
-  "}\n"
-  "*/\n";
+static const auto DefModelDefinitionTemplate = R"(
+  /*QUAKED monster_zombie (1.0 0.0 0.0) (-16 -16 -24) (16 16 32) Crucified ambush
+  {
+  model(${MODEL});
+  }
+  */)";
 
 using Assets::assertModelDefinition;
 
 TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
 {
-  static const std::string ModelDefinition =
-    "\":maps/b_shell0.bsp\", \":maps/b_shell1.bsp\" spawnflags = 1";
+  static const auto ModelDefinition =
+    R"(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" spawnflags = 1)";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
+    Assets::ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate);
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
+    Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'spawnflags': 1 }");
@@ -426,16 +416,16 @@ TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
 
 TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
 {
-  static const std::string ModelDefinition =
-    "pathKey = \"model\" skinKey = \"skin\" frameKey = \"frame\"";
+  static const auto ModelDefinition =
+    R"(pathKey = "model" skinKey = "skin" frameKey = "frame")";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 0, 0),
+    Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp' }");
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell1.bsp"), 1, 2),
+    Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 1, 2},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
@@ -444,36 +434,35 @@ TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
 TEST_CASE("DefParserTest.parseELModelDefinition")
 {
   static const std::string ModelDefinition =
-    "{{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }}";
+    R"({{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }})";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification(IO::Path("maps/b_shell0.bsp"), 0, 0),
+    Assets::ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate);
 }
 
 TEST_CASE("DefParserTest.parseInvalidBounds")
 {
-  const std::string file =
-    "/*QUAKED light (0.0 1.0 0.0) (8 -8 -8) (-8 8 8) START_OFF\n"
-    "{\n"
-    "base(\"_light_style\");\n"
-    "}\n"
-    "Non-displayed light.\n"
-    "Default light value is 300\n"
-    "If targeted, it will toggle between on or off.\n"
-    "Default \"style\" is 0.\n"
-    "*/\n";
+  const std::string file = R"(
+    /*QUAKED light (0.0 1.0 0.0) (8 -8 -8) (-8 8 8) START_OFF
+    {
+    base("_light_style");
+    }
+    Non-displayed light.
+    Default light value is 300
+    If targeted, it will toggle between on or off.
+    Default "style" is 0.
+    */)";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  DefParser parser(file, defaultColor);
+  auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
   const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
-  CHECK(definition->bounds() == vm::bbox3d(8.0));
+  CHECK(definition->bounds() == vm::bbox3d{8.0});
 
   kdl::vec_clear_and_delete(definitions);
 }

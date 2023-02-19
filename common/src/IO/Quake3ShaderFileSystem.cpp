@@ -21,7 +21,7 @@
 
 #include "Assets/Quake3Shader.h"
 #include "IO/File.h"
-#include "IO/FileMatcher.h"
+#include "IO/PathInfo.h"
 #include "IO/Quake3ShaderParser.h"
 #include "IO/SimpleParserStatus.h"
 #include "Logger.h"
@@ -37,11 +37,12 @@ namespace TrenchBroom
 namespace IO
 {
 Quake3ShaderFileSystem::Quake3ShaderFileSystem(
-  std::shared_ptr<FileSystem> fs,
+  const FileSystem& fs,
   Path shaderSearchPath,
   std::vector<Path> textureSearchPaths,
   Logger& logger)
-  : ImageFileSystemBase{std::move(fs), Path{}}
+  : ImageFileSystemBase{Path{}}
+  , m_fs{fs}
   , m_shaderSearchPath{std::move(shaderSearchPath)}
   , m_textureSearchPaths{std::move(textureSearchPaths)}
   , m_logger{logger}
@@ -51,24 +52,21 @@ Quake3ShaderFileSystem::Quake3ShaderFileSystem(
 
 void Quake3ShaderFileSystem::doReadDirectory()
 {
-  if (hasNext())
-  {
-    auto shaders = loadShaders();
-    linkShaders(shaders);
-  }
+  auto shaders = loadShaders();
+  linkShaders(shaders);
 }
 
 std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
 {
   auto result = std::vector<Assets::Quake3Shader>{};
 
-  if (next().directoryExists(m_shaderSearchPath))
+  if (m_fs.pathInfo(m_shaderSearchPath) == PathInfo::Directory)
   {
     const auto paths =
-      next().findItems(m_shaderSearchPath, FileExtensionMatcher("shader"));
+      m_fs.find(m_shaderSearchPath, makeExtensionPathMatcher({"shader"}));
     for (const auto& path : paths)
     {
-      const auto file = next().openFile(path);
+      const auto file = m_fs.openFile(path);
       auto bufferedReader = file->reader().buffer();
 
       try
@@ -90,16 +88,15 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
 
 void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders)
 {
-  const auto extensions = std::vector<std::string>{"tga", "png", "jpg", "jpeg"};
-
   auto allImages = std::vector<Path>{};
-  for (const auto& path : m_textureSearchPaths)
+  for (const auto& textureSearchPath : m_textureSearchPaths)
   {
-    if (next().directoryExists(path))
+    if (m_fs.pathInfo(textureSearchPath) == PathInfo::Directory)
     {
       allImages = kdl::vec_concat(
         std::move(allImages),
-        next().findItemsRecursively(path, FileExtensionMatcher{extensions}));
+        m_fs.findRecursively(
+          textureSearchPath, makeExtensionPathMatcher({"tga", "png", "jpg", "jpeg"})));
     }
   }
 
@@ -117,7 +114,7 @@ void Quake3ShaderFileSystem::linkTextures(
     const auto shaderPath = texture.deleteExtension();
 
     // Only link a shader if it has not been linked yet.
-    if (!fileExists(shaderPath))
+    if (pathInfo(shaderPath) != PathInfo::File)
     {
       const auto shaderIt =
         std::find_if(shaders.begin(), shaders.end(), [&shaderPath](const auto& shader) {

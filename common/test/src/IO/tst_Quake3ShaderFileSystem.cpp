@@ -20,9 +20,9 @@
 #include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/Quake3ShaderFileSystem.h"
+#include "IO/VirtualFileSystem.h"
 #include "Logger.h"
 
 #include <memory>
@@ -35,61 +35,69 @@ namespace IO
 {
 TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
 {
-  NullLogger logger;
+  auto logger = NullLogger{};
 
   const auto workDir = IO::Disk::getCurrentWorkingDir();
-  const auto testDir = workDir + Path("fixture/test/IO/Shader/fs/linking");
-  const auto fallbackDir = testDir + Path("fallback");
-  const auto texturePrefix = Path("textures");
-  const auto shaderSearchPath = Path("scripts");
+  const auto testDir = workDir + Path{"fixture/test/IO/Shader/fs/linking"};
+  const auto fallbackDir = testDir + Path{"fallback"};
+  const auto texturePrefix = Path{"textures"};
+  const auto shaderSearchPath = Path{"scripts"};
   const auto textureSearchPaths = std::vector<Path>{texturePrefix};
 
-  // We need to add the fallback dir so that we can find "__TB_empty.png" which is
+  // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
   // automatically linked when no editor image is available.
-  std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(fallbackDir);
-  fs = std::make_shared<DiskFileSystem>(fs, testDir);
-  fs = std::make_shared<Quake3ShaderFileSystem>(
-    fs, shaderSearchPath, textureSearchPaths, logger);
+  auto fs = VirtualFileSystem{};
+  fs.mount(Path{}, std::make_unique<DiskFileSystem>(fallbackDir));
+  fs.mount(Path{}, std::make_unique<DiskFileSystem>(testDir));
+  fs.mount(
+    Path{},
+    std::make_unique<Quake3ShaderFileSystem>(
+      fs, shaderSearchPath, textureSearchPaths, logger));
 
   CHECK_THAT(
-    fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher("")),
+    fs.find(texturePrefix + Path{"test"}, makeExtensionPathMatcher({""})),
     Catch::UnorderedEquals(std::vector<Path>{
-      texturePrefix + Path("test/editor_image"),
-      texturePrefix + Path("test/test"),
-      texturePrefix + Path("test/test2"),
-      texturePrefix + Path("test/not_existing"),
-      texturePrefix + Path("test/not_existing2"),
+      texturePrefix + Path{"test/editor_image"},
+      texturePrefix + Path{"test/test"},
+      texturePrefix + Path{"test/test2"},
+      texturePrefix + Path{"test/not_existing"},
+      texturePrefix + Path{"test/not_existing2"},
     }));
 }
 
 TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
 {
-  NullLogger logger;
+  auto logger = NullLogger{};
 
   // There is one malformed shader script, this should be skipped.
 
   const auto workDir = IO::Disk::getCurrentWorkingDir();
-  const auto testDir = workDir + Path("fixture/test/IO/Shader/fs/failing");
-  const auto fallbackDir = testDir + Path("fallback");
-  const auto texturePrefix = Path("textures");
-  const auto shaderSearchPath = Path("scripts");
+  const auto testDir = workDir + Path{"fixture/test/IO/Shader/fs/failing"};
+  const auto fallbackDir = testDir + Path{"fallback"};
+  const auto texturePrefix = Path{"textures"};
+  const auto shaderSearchPath = Path{"scripts"};
   const auto textureSearchPaths = std::vector<Path>{texturePrefix};
 
-  // We need to add the fallback dir so that we can find "__TB_empty.png" which is
+  // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
   // automatically linked when no editor image is available.
-  std::shared_ptr<FileSystem> fs = std::make_shared<DiskFileSystem>(fallbackDir);
-  fs = std::make_shared<DiskFileSystem>(fs, testDir);
-  fs = std::make_shared<Quake3ShaderFileSystem>(
-    fs, shaderSearchPath, textureSearchPaths, logger);
+  // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
+  // automatically linked when no editor image is available.
+  auto fs = VirtualFileSystem{};
+  fs.mount(Path{}, std::make_unique<DiskFileSystem>(fallbackDir));
+  fs.mount(Path{}, std::make_unique<DiskFileSystem>(testDir));
+  fs.mount(
+    Path{},
+    std::make_unique<Quake3ShaderFileSystem>(
+      fs, shaderSearchPath, textureSearchPaths, logger));
 
   CHECK_THAT(
-    fs->findItems(texturePrefix + Path("test"), FileExtensionMatcher("")),
+    fs.find(texturePrefix + Path{"test"}, makeExtensionPathMatcher({""})),
     Catch::UnorderedEquals(std::vector<Path>{
-      texturePrefix + Path("test/editor_image"),
-      texturePrefix + Path("test/test"),
-      texturePrefix + Path("test/test2"),
-      texturePrefix + Path("test/not_existing"),
-      texturePrefix + Path("test/not_existing2"),
+      texturePrefix + Path{"test/editor_image"},
+      texturePrefix + Path{"test/test"},
+      texturePrefix + Path{"test/test2"},
+      texturePrefix + Path{"test/not_existing"},
+      texturePrefix + Path{"test/not_existing2"},
     }));
 }
 } // namespace IO

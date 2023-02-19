@@ -101,6 +101,7 @@ public:
   bool hasBasename(const std::vector<std::string>& basenames, bool caseSensitive) const;
   bool hasExtension(const std::string& extension, bool caseSensitive) const;
   bool hasExtension(const std::vector<std::string>& extensions, bool caseSensitive) const;
+  bool hasDriveSpec() const;
 
   Path deleteExtension() const;
   Path addExtension(const std::string& extension) const;

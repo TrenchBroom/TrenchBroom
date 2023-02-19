@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
+#include "IO/PathInfo.h"
 
 #include <kdl/overload.h>
 
@@ -47,11 +48,6 @@ bool isDirectory(const ImageEntry& entry)
       [](const ImageDirectoryEntry&) { return true; },
       [](const ImageFileEntry&) { return false; }),
     entry);
-}
-
-bool isFile(const ImageEntry& entry)
-{
-  return !isDirectory(entry);
 }
 
 template <typename I>
@@ -93,6 +89,36 @@ auto withEntry(
       },
       [&](const ImageFileEntry&) { return defaultResult; }),
     currentEntry);
+}
+
+template <typename F>
+void withEntry(
+  const Path& searchPath,
+  const ImageEntry& currentEntry,
+  const Path& currentPath,
+  const F& f)
+{
+  if (searchPath.isEmpty())
+  {
+    f(currentEntry, currentPath);
+  }
+  else
+  {
+    std::visit(
+      kdl::overload(
+        [&](const ImageDirectoryEntry& directoryEntry) {
+          const auto name = searchPath.firstComponent();
+          const auto entryIt =
+            findEntry(directoryEntry.entries.begin(), directoryEntry.entries.end(), name);
+
+          if (entryIt != directoryEntry.entries.end())
+          {
+            withEntry(searchPath.deleteFirstComponent(), *entryIt, currentPath + name, f);
+          }
+        },
+        [&](const ImageFileEntry&) {}),
+      currentEntry);
+  }
 }
 
 const ImageEntry* findEntry(const Path& path, const ImageEntry& parent)
@@ -138,9 +164,8 @@ ImageDirectoryEntry& findOrCreateDirectory(const Path& path, ImageDirectoryEntry
 }
 } // namespace
 
-ImageFileSystemBase::ImageFileSystemBase(std::shared_ptr<FileSystem> next, Path path)
-  : FileSystem{std::move(next)}
-  , m_path{std::move(path)}
+ImageFileSystemBase::ImageFileSystemBase(Path path)
+  : m_path{std::move(path)}
   , m_root{ImageDirectoryEntry{Path{}, {}}}
 {
 }
@@ -185,41 +210,40 @@ void ImageFileSystemBase::addFile(const Path& path, GetImageFile getFile)
   }
 }
 
-bool ImageFileSystemBase::doDirectoryExists(const Path& path) const
+Path ImageFileSystemBase::doMakeAbsolute(const Path& path) const
 {
-  const auto* entry = findEntry(path.makeCanonical(), m_root);
-  return entry && isDirectory(*entry);
+  return Path{"/"}.makeAbsolute(path);
 }
 
-bool ImageFileSystemBase::doFileExists(const Path& path) const
+PathInfo ImageFileSystemBase::doGetPathInfo(const Path& path) const
 {
-  const auto* entry = findEntry(path.makeCanonical(), m_root);
-  return entry && isFile(*entry);
+  const auto* entry = findEntry(path, m_root);
+  return entry ? isDirectory(*entry) ? PathInfo::Directory : PathInfo::File
+               : PathInfo::Unknown;
 }
 
 std::vector<Path> ImageFileSystemBase::doGetDirectoryContents(const Path& path) const
 {
-  return withEntry(
-    path.makeCanonical(),
-    m_root,
-    Path{},
-    [](const ImageEntry& entry, const Path&) {
-      return std::visit(
-        kdl::overload(
-          [&](const ImageDirectoryEntry& directoryEntry) -> std::vector<Path> {
-            return kdl::vec_transform(
-              directoryEntry.entries, [&](const auto& child) { return getName(child); });
-          },
-          [](const ImageFileEntry&) -> std::vector<Path> { return {}; }),
-        entry);
-    },
-    std::vector<Path>{});
+  auto result = std::vector<Path>{};
+  withEntry(path, m_root, Path{}, [&](const ImageEntry& entry, const Path&) {
+    return std::visit(
+      kdl::overload(
+        [&](const ImageDirectoryEntry& directoryEntry) {
+          for (const auto& childEntry : directoryEntry.entries)
+          {
+            result.push_back(getName(childEntry));
+          }
+        },
+        [](const ImageFileEntry&) {}),
+      entry);
+  });
+  return result;
 }
 
 std::shared_ptr<File> ImageFileSystemBase::doOpenFile(const Path& path) const
 {
   return withEntry(
-    path.makeCanonical(),
+    path,
     m_root,
     Path{},
     [](const ImageEntry& entry, const Path&) {
@@ -234,8 +258,8 @@ std::shared_ptr<File> ImageFileSystemBase::doOpenFile(const Path& path) const
     {});
 }
 
-ImageFileSystem::ImageFileSystem(std::shared_ptr<FileSystem> next, Path path)
-  : ImageFileSystemBase{std::move(next), std::move(path)}
+ImageFileSystem::ImageFileSystem(Path path)
+  : ImageFileSystemBase{std::move(path)}
   , m_file{std::make_shared<CFile>(m_path)}
 {
   ensure(m_path.isAbsolute(), "path must be absolute");

@@ -21,7 +21,6 @@
 
 #include "IO/File.h"
 #include "IO/Reader.h"
-#include "Logger.h"
 
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -55,14 +54,8 @@ namespace WadEntryType
 // static const char WEPalette   = '@';
 }
 
-WadFileSystem::WadFileSystem(Path path, Logger& logger)
-  : WadFileSystem{nullptr, std::move(path), logger}
-{
-}
-
-WadFileSystem::WadFileSystem(std::shared_ptr<FileSystem> next, Path path, Logger& logger)
-  : ImageFileSystem{std::move(next), std::move(path)}
-  , m_logger{logger}
+WadFileSystem::WadFileSystem(Path path)
+  : ImageFileSystem{std::move(path)}
 {
   initialize();
 }
@@ -116,8 +109,6 @@ void WadFileSystem::doReadDirectory()
     const auto entryName = reader.readString(WadLayout::DirEntryNameSize);
     if (entryName.empty())
     {
-      m_logger.warn() << "Skipping WAD file entry with empty name at address "
-                      << entryAddress;
       continue;
     }
 

@@ -59,7 +59,7 @@ protected:
   Path m_path;
   ImageEntry m_root;
 
-  ImageFileSystemBase(std::shared_ptr<FileSystem> next, Path path);
+  explicit ImageFileSystemBase(Path path);
 
 public:
   ~ImageFileSystemBase() override;
@@ -74,9 +74,8 @@ protected:
   void addFile(const Path& path, GetImageFile getFile);
 
 private:
-  bool doDirectoryExists(const Path& path) const override;
-  bool doFileExists(const Path& path) const override;
-
+  Path doMakeAbsolute(const Path& path) const override;
+  PathInfo doGetPathInfo(const Path& path) const override;
   std::vector<Path> doGetDirectoryContents(const Path& path) const override;
   std::shared_ptr<File> doOpenFile(const Path& path) const override;
 
@@ -89,7 +88,7 @@ protected:
   std::shared_ptr<CFile> m_file;
 
 protected:
-  ImageFileSystem(std::shared_ptr<FileSystem> next, Path path);
+  explicit ImageFileSystem(Path path);
 };
 } // namespace IO
 } // namespace TrenchBroom

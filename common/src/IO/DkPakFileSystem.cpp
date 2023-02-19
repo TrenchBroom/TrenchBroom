@@ -103,12 +103,7 @@ std::unique_ptr<char[]> decompress(
 } // namespace
 
 DkPakFileSystem::DkPakFileSystem(Path path)
-  : DkPakFileSystem{nullptr, std::move(path)}
-{
-}
-
-DkPakFileSystem::DkPakFileSystem(std::shared_ptr<FileSystem> next, Path path)
-  : ImageFileSystem{std::move(next), std::move(path)}
+  : ImageFileSystem{std::move(path)}
 {
   initialize();
 }

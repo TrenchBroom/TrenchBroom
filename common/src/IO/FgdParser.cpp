@@ -153,7 +153,7 @@ FgdParser::FgdParser(
 {
   if (!path.isEmpty() && path.isAbsolute())
   {
-    m_fs = std::make_shared<DiskFileSystem>(path.deleteLastComponent());
+    m_fs = std::make_unique<DiskFileSystem>(path.deleteLastComponent());
     pushIncludePath(path.lastComponent());
   }
 }
@@ -162,6 +162,8 @@ FgdParser::FgdParser(std::string_view str, const Color& defaultEntityColor)
   : FgdParser{std::move(str), defaultEntityColor, Path{}}
 {
 }
+
+FgdParser::~FgdParser() = default;
 
 FgdParser::TokenNameMap FgdParser::tokenNames() const
 {

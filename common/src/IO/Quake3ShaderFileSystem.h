@@ -44,6 +44,7 @@ namespace IO
 class Quake3ShaderFileSystem : public ImageFileSystemBase
 {
 private:
+  const FileSystem& m_fs;
   Path m_shaderSearchPath;
   std::vector<Path> m_textureSearchPaths;
   Logger& m_logger;
@@ -63,7 +64,7 @@ public:
    * @param logger the logger to use
    */
   Quake3ShaderFileSystem(
-    std::shared_ptr<FileSystem> fs,
+    const FileSystem& fs,
     Path shaderSearchPath,
     std::vector<Path> textureSearchPaths,
     Logger& logger);

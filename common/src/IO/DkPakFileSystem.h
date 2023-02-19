@@ -33,7 +33,6 @@ class DkPakFileSystem : public ImageFileSystem
 {
 public:
   explicit DkPakFileSystem(Path path);
-  DkPakFileSystem(std::shared_ptr<FileSystem> next, Path path);
 
 private:
   void doReadDirectory() override;

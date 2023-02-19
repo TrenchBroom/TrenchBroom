@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "IO/FileSystem.h"
 #include "IO/Path.h"
 
 #include <chrono>
@@ -30,27 +31,19 @@ class Logger;
 
 namespace IO
 {
+class FileSystem;
 class WritableDiskFileSystem;
-}
+} // namespace IO
 
 namespace View
 {
 class Command;
 class MapDocument;
 
+IO::PathMatcher makeBackupPathMatcher(IO::Path mapBasename);
+
 class Autosaver
 {
-public:
-  class BackupFileMatcher
-  {
-  private:
-    const IO::Path m_mapBasename;
-
-  public:
-    explicit BackupFileMatcher(const IO::Path& mapBasename);
-    bool operator()(const IO::Path& path, bool directory) const;
-  };
-
 private:
   using Clock = std::chrono::system_clock;
 
@@ -90,7 +83,7 @@ private:
   IO::WritableDiskFileSystem createBackupFileSystem(
     Logger& logger, const IO::Path& mapPath) const;
   std::vector<IO::Path> collectBackups(
-    const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const;
+    const IO::FileSystem& fs, const IO::Path& mapBasename) const;
   void thinBackups(
     Logger& logger, IO::WritableDiskFileSystem& fs, std::vector<IO::Path>& backups) const;
   void cleanBackups(
@@ -99,7 +92,5 @@ private:
     const IO::Path& mapBasename) const;
   IO::Path makeBackupName(const IO::Path& mapBasename, const size_t index) const;
 };
-
-size_t extractBackupNo(const IO::Path& path);
 } // namespace View
 } // namespace TrenchBroom

@@ -22,8 +22,8 @@
 #include "Assets/TextureCollection.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemUtils.h"
 #include "IO/TextureReader.h"
 #include "IO/WadFileSystem.h"
 #include "Logger.h"
@@ -71,10 +71,10 @@ Assets::TextureCollection FileTextureCollectionLoader::loadTextureCollection(
   const TextureReader& textureReader)
 {
   const auto wadPath = Disk::resolvePath(m_searchPaths, path);
-  WadFileSystem wadFS(wadPath, m_logger);
+  WadFileSystem wadFS(wadPath);
 
   const auto texturePaths =
-    wadFS.findItems(Path(""), FileExtensionMatcher(textureExtensions));
+    wadFS.find(Path{}, makeExtensionPathMatcher(textureExtensions));
   auto textures = std::vector<Assets::Texture>();
   textures.reserve(texturePaths.size());
 
@@ -112,7 +112,7 @@ Assets::TextureCollection DirectoryTextureCollectionLoader::loadTextureCollectio
   const TextureReader& textureReader)
 {
   const auto texturePaths =
-    m_gameFS.findItems(path, FileExtensionMatcher(textureExtensions));
+    m_gameFS.find(path, makeExtensionPathMatcher(textureExtensions));
   auto textures = std::vector<Assets::Texture>();
   textures.reserve(texturePaths.size());
 
@@ -123,23 +123,16 @@ Assets::TextureCollection DirectoryTextureCollectionLoader::loadTextureCollectio
       auto file = m_gameFS.openFile(texturePath);
 
       // Store the absolute path to the original file (may be used by .obj export)
-      IO::Path absolutePath;
-      try
-      {
-        absolutePath = m_gameFS.makeAbsolute(texturePath);
-      }
-      catch (const FileSystemException& e)
-      {
-        m_logger.debug() << e.what();
-      }
-
       const auto name = file->path().lastComponent().deleteExtension().asString();
       if (shouldExclude(name))
       {
         continue;
       }
+
       auto texture = textureReader.readTexture(file);
-      texture.setAbsolutePath(absolutePath);
+      texture.setAbsolutePath(safeMakeAbsolute(texturePath, [&](const auto& p) {
+                                return m_gameFS.makeAbsolute(p);
+                              }).value_or(Path{}));
       texture.setRelativePath(texturePath);
       textures.push_back(std::move(texture));
     }

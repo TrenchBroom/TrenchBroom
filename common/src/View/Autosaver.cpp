@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/PathInfo.h"
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
@@ -38,92 +39,51 @@ namespace TrenchBroom
 {
 namespace View
 {
-Autosaver::BackupFileMatcher::BackupFileMatcher(const IO::Path& mapBasename)
-  : m_mapBasename(mapBasename)
+IO::PathMatcher makeBackupPathMatcher(IO::Path mapBasename)
 {
-}
+  return [mapBasename = std::move(mapBasename)](
+           const IO::Path& path, const IO::GetPathInfo& getPathInfo) {
+    const auto backupName = path.lastComponent().deleteExtension();
+    const auto backupBasename = backupName.deleteExtension();
+    const auto backupExtension = backupName.extension();
 
-bool Autosaver::BackupFileMatcher::operator()(
-  const IO::Path& path, const bool directory) const
-{
-  if (directory)
-  {
-    return false;
-  }
-  if (!kdl::ci::str_is_equal(path.extension(), "map"))
-  {
-    return false;
-  }
-
-  const auto backupName = path.lastComponent().deleteExtension();
-  const auto backupBasename = backupName.deleteExtension();
-  if (backupBasename != m_mapBasename)
-  {
-    return false;
-  }
-
-  const auto backupExtension = backupName.extension();
-  if (!kdl::str_is_numeric(backupExtension))
-  {
-    return false;
-  }
-
-  const auto backupNo = kdl::str_to_size(backupName.extension()).value_or(0u);
-  return backupNo > 0u;
+    return getPathInfo(path) == IO::PathInfo::File
+           && kdl::ci::str_is_equal(path.extension(), "map")
+           && backupBasename == mapBasename && kdl::str_is_numeric(backupExtension)
+           && kdl::str_to_size(backupName.extension()).value_or(0u) > 0u;
+  };
 }
 
 Autosaver::Autosaver(
   std::weak_ptr<MapDocument> document,
   const std::chrono::milliseconds saveInterval,
   const size_t maxBackups)
-  : m_document(document)
-  , m_saveInterval(saveInterval)
-  , m_maxBackups(maxBackups)
-  , m_lastSaveTime(Clock::now())
-  , m_lastModificationCount(kdl::mem_lock(m_document)->modificationCount())
+  : m_document{std::move(document)}
+  , m_saveInterval{saveInterval}
+  , m_maxBackups{maxBackups}
+  , m_lastSaveTime{Clock::now()}
+  , m_lastModificationCount{kdl::mem_lock(m_document)->modificationCount()}
 {
 }
 
 void Autosaver::triggerAutosave(Logger& logger)
 {
-  if (kdl::mem_expired(m_document))
+  if (!kdl::mem_expired(m_document))
   {
-    return;
+    auto document = kdl::mem_lock(m_document);
+    if (
+      document->modified() && document->modificationCount() != m_lastModificationCount
+      && Clock::now() - m_lastSaveTime >= m_saveInterval && document->persistent())
+    {
+      autosave(logger, document);
+    }
   }
-
-  const auto currentTime = Clock::now();
-
-  auto document = kdl::mem_lock(m_document);
-  if (!document->modified())
-  {
-    return;
-  }
-  if (document->modificationCount() == m_lastModificationCount)
-  {
-    return;
-  }
-  if (currentTime - m_lastSaveTime < m_saveInterval)
-  {
-    return;
-  }
-
-  const auto documentPath = document->path();
-  if (!documentPath.isAbsolute())
-  {
-    return;
-  }
-  if (!IO::Disk::fileExists(IO::Disk::fixPath(document->path())))
-  {
-    return;
-  }
-
-  autosave(logger, document);
 }
 
 void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
 {
   const auto& mapPath = document->path();
-  assert(IO::Disk::fileExists(IO::Disk::fixPath(mapPath)));
+  assert(IO::Disk::pathInfo(mapPath) == IO::PathInfo::File);
 
   const auto mapFilename = mapPath.lastComponent();
   const auto mapBasename = mapFilename.deleteExtension();
@@ -162,7 +122,7 @@ IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(
   try
   {
     // ensures that the directory exists or is created if it doesn't
-    return IO::WritableDiskFileSystem(autosavePath, true);
+    return IO::WritableDiskFileSystem{autosavePath, true};
   }
   catch (const FileSystemException& e)
   {
@@ -171,16 +131,27 @@ IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(
   }
 }
 
-bool compareBackupsByNo(const IO::Path& lhs, const IO::Path& rhs);
+namespace
+{
+size_t extractBackupNo(const IO::Path& path)
+{
+  // currently this function is only used when comparing file names which have already
+  // been verified as valid backup file names, so this should not go wrong, but if it
+  // does, sort the invalid file names to the end to avoid modifying them
+  return kdl::str_to_size(path.deleteExtension().extension())
+    .value_or(std::numeric_limits<size_t>::max());
+}
+
 bool compareBackupsByNo(const IO::Path& lhs, const IO::Path& rhs)
 {
   return extractBackupNo(lhs) < extractBackupNo(rhs);
 }
+} // namespace
 
 std::vector<IO::Path> Autosaver::collectBackups(
-  const IO::WritableDiskFileSystem& fs, const IO::Path& mapBasename) const
+  const IO::FileSystem& fs, const IO::Path& mapBasename) const
 {
-  auto backups = fs.findItems(IO::Path(), BackupFileMatcher(mapBasename));
+  auto backups = fs.find(IO::Path{}, makeBackupPathMatcher(mapBasename));
   std::sort(std::begin(backups), std::end(backups), compareBackupsByNo);
   return backups;
 }
@@ -224,16 +195,8 @@ void Autosaver::cleanBackups(
 
 IO::Path Autosaver::makeBackupName(const IO::Path& mapBasename, const size_t index) const
 {
-  return IO::Path(kdl::str_to_string(mapBasename, ".", index, ".map"));
+  return IO::Path{kdl::str_to_string(mapBasename, ".", index, ".map")};
 }
 
-size_t extractBackupNo(const IO::Path& path)
-{
-  // currently this function is only used when comparing file names which have already
-  // been verified as valid backup file names, so this should not go wrong, but if it
-  // does, sort the invalid file names to the end to avoid modifying them
-  return kdl::str_to_size(path.deleteExtension().extension())
-    .value_or(std::numeric_limits<size_t>::max());
-}
 } // namespace View
 } // namespace TrenchBroom

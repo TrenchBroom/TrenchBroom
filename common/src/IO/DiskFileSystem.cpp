@@ -20,9 +20,11 @@
 #include "DiskFileSystem.h"
 
 #include "Exceptions.h"
-
 #include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/PathInfo.h"
+
+#include <kdl/vector_utils.h>
 
 #include <memory>
 #include <string>
@@ -32,16 +34,9 @@ namespace TrenchBroom
 namespace IO
 {
 DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists)
-  : DiskFileSystem{nullptr, root, ensureExists}
+  : m_root{root.makeCanonical()}
 {
-}
-
-DiskFileSystem::DiskFileSystem(
-  std::shared_ptr<FileSystem> next, const Path& root, const bool ensureExists)
-  : FileSystem{std::move(next)}
-  , m_root{root.makeCanonical()}
-{
-  if (ensureExists && !Disk::directoryExists(m_root))
+  if (ensureExists && Disk::pathInfo(m_root) != PathInfo::Directory)
   {
     throw FileSystemException{"Directory not found: '" + m_root.asString() + "'"};
   }
@@ -57,37 +52,26 @@ Path DiskFileSystem::doMakeAbsolute(const Path& path) const
   return m_root + path.makeCanonical();
 }
 
-bool DiskFileSystem::doDirectoryExists(const Path& path) const
+PathInfo DiskFileSystem::doGetPathInfo(const Path& path) const
 {
-  return Disk::directoryExists(doMakeAbsolute(path));
-}
-
-bool DiskFileSystem::doFileExists(const Path& path) const
-{
-  return Disk::fileExists(doMakeAbsolute(path));
+  return Disk::pathInfo(makeAbsolute(path));
 }
 
 std::vector<Path> DiskFileSystem::doGetDirectoryContents(const Path& path) const
 {
-  return Disk::getDirectoryContents(doMakeAbsolute(path));
+  return Disk::directoryContents(makeAbsolute(path));
 }
 
 std::shared_ptr<File> DiskFileSystem::doOpenFile(const Path& path) const
 {
-  auto file = Disk::openFile(doMakeAbsolute(path));
+  auto file = Disk::openFile(makeAbsolute(path));
   return std::make_shared<FileView>(path, file, 0u, file->size());
 }
 
 WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool create)
-  : WritableDiskFileSystem(nullptr, root, create)
+  : DiskFileSystem{root, !create}
 {
-}
-
-WritableDiskFileSystem::WritableDiskFileSystem(
-  std::shared_ptr<FileSystem> next, const Path& root, const bool create)
-  : DiskFileSystem{std::move(next), root, !create}
-{
-  if (create && !Disk::directoryExists(m_root))
+  if (create && Disk::pathInfo(m_root) != PathInfo::Directory)
   {
     Disk::createDirectory(m_root);
   }
@@ -95,29 +79,29 @@ WritableDiskFileSystem::WritableDiskFileSystem(
 
 void WritableDiskFileSystem::doCreateFile(const Path& path, const std::string& contents)
 {
-  Disk::createFile(doMakeAbsolute(path), contents);
+  Disk::createFile(makeAbsolute(path), contents);
 }
 
 void WritableDiskFileSystem::doCreateDirectory(const Path& path)
 {
-  Disk::createDirectory(doMakeAbsolute(path));
+  Disk::createDirectory(makeAbsolute(path));
 }
 
 void WritableDiskFileSystem::doDeleteFile(const Path& path)
 {
-  Disk::deleteFile(doMakeAbsolute(path));
+  Disk::deleteFile(makeAbsolute(path));
 }
 
 void WritableDiskFileSystem::doCopyFile(
   const Path& sourcePath, const Path& destPath, const bool overwrite)
 {
-  Disk::copyFile(doMakeAbsolute(sourcePath), doMakeAbsolute(destPath), overwrite);
+  Disk::copyFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
 }
 
 void WritableDiskFileSystem::doMoveFile(
   const Path& sourcePath, const Path& destPath, const bool overwrite)
 {
-  Disk::moveFile(doMakeAbsolute(sourcePath), doMakeAbsolute(destPath), overwrite);
+  Disk::moveFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
 }
 } // namespace IO
 } // namespace TrenchBroom
