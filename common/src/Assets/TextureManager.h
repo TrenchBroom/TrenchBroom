@@ -43,8 +43,6 @@ class TextureCollection;
 class TextureManager
 {
 private:
-  using TextureMap = std::map<std::string, Texture*>;
-
   Logger& m_logger;
 
   std::vector<TextureCollection> m_collections;
@@ -52,12 +50,12 @@ private:
   std::vector<size_t> m_toPrepare;
   std::vector<TextureCollection> m_toRemove;
 
-  TextureMap m_texturesByName;
+  std::map<std::string, Texture*> m_texturesByName;
   std::vector<const Texture*> m_textures;
 
   int m_minFilter;
   int m_magFilter;
-  bool m_resetTextureMode;
+  bool m_resetTextureMode{false};
 
 public:
   TextureManager(int magFilter, int minFilter, Logger& logger);

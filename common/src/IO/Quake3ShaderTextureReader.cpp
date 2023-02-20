@@ -68,13 +68,13 @@ Assets::Texture Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> f
   switch (shader.culling)
   {
   case Assets::Quake3Shader::Culling::Front:
-    texture.setCulling(Assets::TextureCulling::CullBack);
+    texture.setCulling(Assets::TextureCulling::Back);
     break;
   case Assets::Quake3Shader::Culling::Back:
-    texture.setCulling(Assets::TextureCulling::CullFront);
+    texture.setCulling(Assets::TextureCulling::Front);
     break;
   case Assets::Quake3Shader::Culling::None:
-    texture.setCulling(Assets::TextureCulling::CullNone);
+    texture.setCulling(Assets::TextureCulling::None);
     break;
   }
 

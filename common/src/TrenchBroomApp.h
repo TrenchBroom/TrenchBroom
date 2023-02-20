@@ -33,7 +33,6 @@ class QSettings;
 namespace TrenchBroom
 {
 class Logger;
-class RecoverableException;
 
 namespace IO
 {
@@ -59,7 +58,7 @@ public:
   static TrenchBroomApp& instance();
 
   TrenchBroomApp(int& argc, char** argv);
-  ~TrenchBroomApp();
+  ~TrenchBroomApp() override;
 
 public:
   void parseCommandLineAndShowFrame();
@@ -78,13 +77,10 @@ public:
   void updateRecentDocument(const IO::Path& path);
 
   bool openDocument(const IO::Path& path);
-  bool recoverFromException(
-    const RecoverableException& e, const std::function<bool()>& retry);
   void openPreferences();
   void openAbout();
   bool initializeGameFactory();
 
-public:
   bool newDocument();
   void openDocument();
   void showManual();
@@ -113,5 +109,6 @@ void setCrashReportGUIEnbled(bool guiEnabled);
 [[noreturn]] void reportCrashAndExit(
   const std::string& stacktrace, const std::string& reason);
 bool isReportingCrash();
+
 } // namespace View
 } // namespace TrenchBroom

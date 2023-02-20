@@ -23,31 +23,34 @@
 #include "IO/Path.h"
 #include "Renderer/GL.h"
 
+#include <kdl/reflection_decl.h>
+
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 class TextureCollection
 {
 private:
   using TextureIdList = std::vector<GLuint>;
 
-  bool m_loaded;
   IO::Path m_path;
   std::vector<Texture> m_textures;
 
+  bool m_loaded{false};
   TextureIdList m_textureIds;
 
   friend class Texture;
 
+  kdl_reflect_decl(TextureCollection, m_loaded, m_path, m_textures);
+
 public:
   TextureCollection();
   explicit TextureCollection(std::vector<Texture> textures);
-  explicit TextureCollection(const IO::Path& path);
-  TextureCollection(const IO::Path& path, std::vector<Texture> textures);
+  explicit TextureCollection(IO::Path path);
+  TextureCollection(IO::Path path, std::vector<Texture> textures);
 
   TextureCollection(const TextureCollection&) = delete;
   TextureCollection& operator=(const TextureCollection&) = delete;
@@ -75,5 +78,5 @@ public:
   void prepare(int minFilter, int magFilter);
   void setTextureMode(int minFilter, int magFilter);
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

@@ -61,32 +61,8 @@ namespace View
 {
 FaceAttribsEditor::FaceAttribsEditor(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
-  : QWidget(parent)
-  , m_document(std::move(document))
-  , m_uvEditor(nullptr)
-  , m_textureName(nullptr)
-  , m_textureSize(nullptr)
-  , m_xOffsetEditor(nullptr)
-  , m_yOffsetEditor(nullptr)
-  , m_xScaleEditor(nullptr)
-  , m_yScaleEditor(nullptr)
-  , m_rotationEditor(nullptr)
-  , m_surfaceValueLabel(nullptr)
-  , m_surfaceValueEditorLayout(nullptr)
-  , m_surfaceValueEditor(nullptr)
-  , m_surfaceValueUnsetButton(nullptr)
-  , m_surfaceFlagsLabel(nullptr)
-  , m_surfaceFlagsEditorLayout(nullptr)
-  , m_surfaceFlagsEditor(nullptr)
-  , m_surfaceFlagsUnsetButton(nullptr)
-  , m_contentFlagsLabel(nullptr)
-  , m_contentFlagsEditorLayout(nullptr)
-  , m_contentFlagsEditor(nullptr)
-  , m_contentFlagsUnsetButton(nullptr)
-  , m_colorLabel(nullptr)
-  , m_colorEditorLayout(nullptr)
-  , m_colorEditor(nullptr)
-  , m_colorUnsetButton(nullptr)
+  : QWidget{parent}
+  , m_document{std::move(document)}
   , m_updateControlsSignalDelayer{new SignalDelayer{this}}
 {
   createGui(contextManager);
@@ -108,8 +84,8 @@ void FaceAttribsEditor::xOffsetChanged(const double value)
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
-  request.setXOffset(static_cast<float>(value));
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  request.setXOffset(float(value));
   if (!document->setFaceAttributes(request))
   {
     updateControls();
@@ -124,8 +100,8 @@ void FaceAttribsEditor::yOffsetChanged(const double value)
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
-  request.setYOffset(static_cast<float>(value));
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  request.setYOffset(float(value));
   if (!document->setFaceAttributes(request))
   {
     updateControls();
@@ -140,8 +116,8 @@ void FaceAttribsEditor::rotationChanged(const double value)
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
-  request.setRotation(static_cast<float>(value));
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  request.setRotation(float(value));
   if (!document->setFaceAttributes(request))
   {
     updateControls();
@@ -156,8 +132,8 @@ void FaceAttribsEditor::xScaleChanged(const double value)
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
-  request.setXScale(static_cast<float>(value));
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  request.setXScale(float(value));
   if (!document->setFaceAttributes(request))
   {
     updateControls();
@@ -172,8 +148,8 @@ void FaceAttribsEditor::yScaleChanged(const double value)
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
-  request.setYScale(static_cast<float>(value));
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  request.setYScale(float(value));
   if (!document->setFaceAttributes(request))
   {
     updateControls();
@@ -189,7 +165,7 @@ void FaceAttribsEditor::surfaceFlagChanged(
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   if (setFlag & value)
   {
     request.setSurfaceFlags(value);
@@ -213,7 +189,7 @@ void FaceAttribsEditor::contentFlagChanged(
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   if (setFlag & value)
   {
     request.setContentFlags(value);
@@ -236,8 +212,8 @@ void FaceAttribsEditor::surfaceValueChanged(const double value)
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
-  request.setSurfaceValue(static_cast<float>(value));
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  request.setSurfaceValue(float(value));
   if (!document->setFaceAttributes(request))
   {
     updateControls();
@@ -257,7 +233,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   {
     if (const auto color = Color::parse(str))
     {
-      Model::ChangeBrushFaceAttributesRequest request;
+      auto request = Model::ChangeBrushFaceAttributesRequest{};
       request.setColor(*color);
       if (!document->setFaceAttributes(request))
       {
@@ -267,7 +243,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   }
   else
   {
-    Model::ChangeBrushFaceAttributesRequest request;
+    auto request = Model::ChangeBrushFaceAttributesRequest{};
     request.setColor(Color());
     if (!document->setFaceAttributes(request))
     {
@@ -284,7 +260,7 @@ void FaceAttribsEditor::surfaceFlagsUnset()
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.replaceSurfaceFlags(std::nullopt);
   if (!document->setFaceAttributes(request))
   {
@@ -300,7 +276,7 @@ void FaceAttribsEditor::contentFlagsUnset()
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.replaceContentFlags(std::nullopt);
   if (!document->setFaceAttributes(request))
   {
@@ -316,7 +292,7 @@ void FaceAttribsEditor::surfaceValueUnset()
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.setSurfaceValue(std::nullopt);
   if (!document->setFaceAttributes(request))
   {
@@ -332,7 +308,7 @@ void FaceAttribsEditor::colorValueUnset()
     return;
   }
 
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.setColor(std::nullopt);
   if (!document->setFaceAttributes(request))
   {
@@ -364,54 +340,54 @@ static QWidget* createUnsetButtonLayout(QWidget* expandWidget, QWidget* button)
 
 void FaceAttribsEditor::createGui(GLContextManager& contextManager)
 {
-  m_uvEditor = new UVEditor(m_document, contextManager);
+  m_uvEditor = new UVEditor{m_document, contextManager};
 
-  auto* textureNameLabel = new QLabel("Texture");
+  auto* textureNameLabel = new QLabel{"Texture"};
   makeEmphasized(textureNameLabel);
-  m_textureName = new QLabel("none");
+  m_textureName = new QLabel{"none"};
 
-  auto* textureSizeLabel = new QLabel("Size");
+  auto* textureSizeLabel = new QLabel{"Size"};
   makeEmphasized(textureSizeLabel);
-  m_textureSize = new QLabel("");
+  m_textureSize = new QLabel{""};
 
   const auto max = std::numeric_limits<double>::max();
   const auto min = -max;
 
-  auto* xOffsetLabel = new QLabel("X Offset");
+  auto* xOffsetLabel = new QLabel{"X Offset"};
   makeEmphasized(xOffsetLabel);
-  m_xOffsetEditor = new SpinControl();
+  m_xOffsetEditor = new SpinControl{};
   m_xOffsetEditor->setRange(min, max);
   m_xOffsetEditor->setDigits(0, 6);
 
-  auto* yOffsetLabel = new QLabel("Y Offset");
+  auto* yOffsetLabel = new QLabel{"Y Offset"};
   makeEmphasized(yOffsetLabel);
-  m_yOffsetEditor = new SpinControl();
+  m_yOffsetEditor = new SpinControl{};
   m_yOffsetEditor->setRange(min, max);
   m_yOffsetEditor->setDigits(0, 6);
 
-  auto* xScaleLabel = new QLabel("X Scale");
+  auto* xScaleLabel = new QLabel{"X Scale"};
   makeEmphasized(xScaleLabel);
-  m_xScaleEditor = new SpinControl();
+  m_xScaleEditor = new SpinControl{};
   m_xScaleEditor->setRange(min, max);
   m_xScaleEditor->setIncrements(0.1, 0.25, 0.01);
   m_xScaleEditor->setDigits(0, 6);
 
-  auto* yScaleLabel = new QLabel("Y Scale");
+  auto* yScaleLabel = new QLabel{"Y Scale"};
   makeEmphasized(yScaleLabel);
-  m_yScaleEditor = new SpinControl();
+  m_yScaleEditor = new SpinControl{};
   m_yScaleEditor->setRange(min, max);
   m_yScaleEditor->setIncrements(0.1, 0.25, 0.01);
   m_yScaleEditor->setDigits(0, 6);
 
-  auto* rotationLabel = new QLabel("Angle");
+  auto* rotationLabel = new QLabel{"Angle"};
   makeEmphasized(rotationLabel);
-  m_rotationEditor = new SpinControl();
+  m_rotationEditor = new SpinControl{};
   m_rotationEditor->setRange(min, max);
   m_rotationEditor->setDigits(0, 6);
 
-  m_surfaceValueLabel = new QLabel("Value");
+  m_surfaceValueLabel = new QLabel{"Value"};
   makeEmphasized(m_surfaceValueLabel);
-  m_surfaceValueEditor = new SpinControl();
+  m_surfaceValueEditor = new SpinControl{};
   m_surfaceValueEditor->setRange(min, max);
   m_surfaceValueEditor->setIncrements(1.0, 10.0, 100.0);
   m_surfaceValueEditor->setDigits(0, 6);
@@ -420,32 +396,32 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   m_surfaceValueEditorLayout =
     createUnsetButtonLayout(m_surfaceValueEditor, m_surfaceValueUnsetButton);
 
-  m_surfaceFlagsLabel = new QLabel("Surface");
+  m_surfaceFlagsLabel = new QLabel{"Surface"};
   makeEmphasized(m_surfaceFlagsLabel);
-  m_surfaceFlagsEditor = new FlagsPopupEditor(2, this);
+  m_surfaceFlagsEditor = new FlagsPopupEditor{2, this};
   m_surfaceFlagsUnsetButton =
     createBitmapButton("ResetTexture.svg", tr("Unset surface flags"));
   m_surfaceFlagsEditorLayout =
     createUnsetButtonLayout(m_surfaceFlagsEditor, m_surfaceFlagsUnsetButton);
 
-  m_contentFlagsLabel = new QLabel("Content");
+  m_contentFlagsLabel = new QLabel{"Content"};
   makeEmphasized(m_contentFlagsLabel);
-  m_contentFlagsEditor = new FlagsPopupEditor(2, this);
+  m_contentFlagsEditor = new FlagsPopupEditor{2, this};
   m_contentFlagsUnsetButton =
     createBitmapButton("ResetTexture.svg", tr("Unset content flags"));
   m_contentFlagsEditorLayout =
     createUnsetButtonLayout(m_contentFlagsEditor, m_contentFlagsUnsetButton);
 
-  m_colorLabel = new QLabel("Color");
+  m_colorLabel = new QLabel{"Color"};
   makeEmphasized(m_colorLabel);
-  m_colorEditor = new QLineEdit();
+  m_colorEditor = new QLineEdit{};
   m_colorUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset color"));
   m_colorEditorLayout = createUnsetButtonLayout(m_colorEditor, m_colorUnsetButton);
 
   const Qt::Alignment LabelFlags = Qt::AlignVCenter | Qt::AlignRight;
   const Qt::Alignment ValueFlags = Qt::AlignVCenter;
 
-  auto* faceAttribsLayout = new QGridLayout();
+  auto* faceAttribsLayout = new QGridLayout{};
   faceAttribsLayout->setContentsMargins(
     LayoutConstants::NarrowHMargin,
     LayoutConstants::MediumVMargin,
@@ -503,11 +479,11 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   faceAttribsLayout->setColumnStretch(1, 1);
   faceAttribsLayout->setColumnStretch(3, 1);
 
-  auto* outerLayout = new QVBoxLayout();
+  auto* outerLayout = new QVBoxLayout{};
   outerLayout->setContentsMargins(0, 0, 0, 0);
   outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
   outerLayout->addWidget(m_uvEditor, 1);
-  outerLayout->addWidget(new BorderLine());
+  outerLayout->addWidget(new BorderLine{});
   outerLayout->addLayout(faceAttribsLayout);
 
   setLayout(outerLayout);
@@ -657,23 +633,21 @@ static void setValueOrMulti(QDoubleSpinBox* box, const bool multi, const double 
 void FaceAttribsEditor::updateControls()
 {
   // block signals emitted when updating the editor values
-  const QSignalBlocker blockXOffsetEditor(m_xOffsetEditor);
-  const QSignalBlocker blockYOffsetEditor(m_yOffsetEditor);
-  const QSignalBlocker blockRotationEditor(m_rotationEditor);
-  const QSignalBlocker blockXScaleEditor(m_xScaleEditor);
-  const QSignalBlocker blockYScaleEditor(m_yScaleEditor);
-  const QSignalBlocker blockSurfaceValueEditor(m_surfaceValueEditor);
-  const QSignalBlocker blockSurfaceFlagsEditor(m_surfaceFlagsEditor);
-  const QSignalBlocker blockContentFlagsEditor(m_contentFlagsEditor);
-  const QSignalBlocker blockColorEditor(m_colorEditor);
+  const auto blockXOffsetEditor = QSignalBlocker{m_xOffsetEditor};
+  const auto blockYOffsetEditor = QSignalBlocker{m_yOffsetEditor};
+  const auto blockRotationEditor = QSignalBlocker{m_rotationEditor};
+  const auto blockXScaleEditor = QSignalBlocker{m_xScaleEditor};
+  const auto blockYScaleEditor = QSignalBlocker{m_yScaleEditor};
+  const auto blockSurfaceValueEditor = QSignalBlocker{m_surfaceValueEditor};
+  const auto blockSurfaceFlagsEditor = QSignalBlocker{m_surfaceFlagsEditor};
+  const auto blockContentFlagsEditor = QSignalBlocker{m_contentFlagsEditor};
+  const auto blockColorEditor = QSignalBlocker{m_colorEditor};
 
   if (hasSurfaceFlags())
   {
     showSurfaceFlagsEditor();
-    QList<int> values;
-    QStringList surfaceFlagLabels, surfaceFlagTooltips;
-    getSurfaceFlags(values, surfaceFlagLabels, surfaceFlagTooltips);
-    m_surfaceFlagsEditor->setFlags(values, surfaceFlagLabels, surfaceFlagTooltips);
+    const auto [values, labels, tooltips] = getSurfaceFlags();
+    m_surfaceFlagsEditor->setFlags(values, labels, tooltips);
   }
   else
   {
@@ -683,10 +657,8 @@ void FaceAttribsEditor::updateControls()
   if (hasContentFlags())
   {
     showContentFlagsEditor();
-    QList<int> values;
-    QStringList contentFlagLabels, contentFlagTooltips;
-    getContentFlags(values, contentFlagLabels, contentFlagTooltips);
-    m_contentFlagsEditor->setFlags(values, contentFlagLabels, contentFlagTooltips);
+    const auto [values, labels, tooltips] = getContentFlags();
+    m_contentFlagsEditor->setFlags(values, labels, tooltips);
   }
   else
   {
@@ -705,36 +677,36 @@ void FaceAttribsEditor::updateControls()
   const auto faceHandles = kdl::mem_lock(m_document)->allSelectedBrushFaces();
   if (!faceHandles.empty())
   {
-    bool textureMulti = false;
-    bool xOffsetMulti = false;
-    bool yOffsetMulti = false;
-    bool rotationMulti = false;
-    bool xScaleMulti = false;
-    bool yScaleMulti = false;
-    bool surfaceValueMulti = false;
-    bool colorValueMulti = false;
+    auto textureMulti = false;
+    auto xOffsetMulti = false;
+    auto yOffsetMulti = false;
+    auto rotationMulti = false;
+    auto xScaleMulti = false;
+    auto yScaleMulti = false;
+    auto surfaceValueMulti = false;
+    auto colorValueMulti = false;
 
-    const Model::BrushFace& firstFace = faceHandles[0].face();
-    const std::string& textureName = firstFace.attributes().textureName();
-    const float xOffset = firstFace.attributes().xOffset();
-    const float yOffset = firstFace.attributes().yOffset();
-    const float rotation = firstFace.attributes().rotation();
-    const float xScale = firstFace.attributes().xScale();
-    const float yScale = firstFace.attributes().yScale();
-    int setSurfaceFlags = firstFace.resolvedSurfaceFlags();
-    int setSurfaceContents = firstFace.resolvedSurfaceContents();
-    int mixedSurfaceFlags = 0;
-    int mixedSurfaceContents = 0;
-    const float surfaceValue = firstFace.resolvedSurfaceValue();
-    const std::optional<Color> colorValue = firstFace.attributes().color();
-    bool hasSurfaceValue = firstFace.attributes().surfaceValue().has_value();
-    bool hasSurfaceFlags = firstFace.attributes().surfaceFlags().has_value();
-    bool hasSurfaceContents = firstFace.attributes().surfaceContents().has_value();
-    bool hasColorValue = firstFace.attributes().hasColor();
+    const auto& firstFace = faceHandles[0].face();
+    const auto& textureName = firstFace.attributes().textureName();
+    const auto xOffset = firstFace.attributes().xOffset();
+    const auto yOffset = firstFace.attributes().yOffset();
+    const auto rotation = firstFace.attributes().rotation();
+    const auto xScale = firstFace.attributes().xScale();
+    const auto yScale = firstFace.attributes().yScale();
+    auto setSurfaceFlags = firstFace.resolvedSurfaceFlags();
+    auto setSurfaceContents = firstFace.resolvedSurfaceContents();
+    auto mixedSurfaceFlags = 0;
+    auto mixedSurfaceContents = 0;
+    const auto surfaceValue = firstFace.resolvedSurfaceValue();
+    const auto colorValue = firstFace.attributes().color();
+    auto hasSurfaceValue = firstFace.attributes().surfaceValue().has_value();
+    auto hasSurfaceFlags = firstFace.attributes().surfaceFlags().has_value();
+    auto hasSurfaceContents = firstFace.attributes().surfaceContents().has_value();
+    auto hasColorValue = firstFace.attributes().hasColor();
 
     for (size_t i = 1; i < faceHandles.size(); i++)
     {
-      const Model::BrushFace& face = faceHandles[i].face();
+      const auto& face = faceHandles[i].face();
       textureMulti |= (textureName != face.attributes().textureName());
       xOffsetMulti |= (xOffset != face.attributes().xOffset());
       yOffsetMulti |= (yOffset != face.attributes().yOffset());
@@ -785,8 +757,7 @@ void FaceAttribsEditor::updateControls()
       }
       else
       {
-        const Assets::Texture* texture = firstFace.texture();
-        if (texture != nullptr)
+        if (const auto* texture = firstFace.texture())
         {
           m_textureName->setText(QString::fromStdString(textureName));
           m_textureSize->setText(
@@ -802,13 +773,12 @@ void FaceAttribsEditor::updateControls()
         }
       }
     }
-    setValueOrMulti(m_xOffsetEditor, xOffsetMulti, static_cast<double>(xOffset));
-    setValueOrMulti(m_yOffsetEditor, yOffsetMulti, static_cast<double>(yOffset));
-    setValueOrMulti(m_rotationEditor, rotationMulti, static_cast<double>(rotation));
-    setValueOrMulti(m_xScaleEditor, xScaleMulti, static_cast<double>(xScale));
-    setValueOrMulti(m_yScaleEditor, yScaleMulti, static_cast<double>(yScale));
-    setValueOrMulti(
-      m_surfaceValueEditor, surfaceValueMulti, static_cast<double>(surfaceValue));
+    setValueOrMulti(m_xOffsetEditor, xOffsetMulti, double(xOffset));
+    setValueOrMulti(m_yOffsetEditor, yOffsetMulti, double(yOffset));
+    setValueOrMulti(m_rotationEditor, rotationMulti, double(rotation));
+    setValueOrMulti(m_xScaleEditor, xScaleMulti, double(xScale));
+    setValueOrMulti(m_yScaleEditor, yScaleMulti, double(yScale));
+    setValueOrMulti(m_surfaceValueEditor, surfaceValueMulti, double(surfaceValue));
     if (hasColorValue)
     {
       if (colorValueMulti)
@@ -923,41 +893,42 @@ void FaceAttribsEditor::hideColorAttribEditor()
   m_colorEditorLayout->hide();
 }
 
-void getFlags(
-  const std::vector<Model::FlagConfig>& flags,
-  QList<int>& values,
-  QStringList& names,
-  QStringList& descriptions);
-void getFlags(
-  const std::vector<Model::FlagConfig>& flags,
-  QList<int>& values,
-  QStringList& names,
-  QStringList& descriptions)
+namespace
 {
+std::tuple<QList<int>, QStringList, QStringList> getFlags(
+  const std::vector<Model::FlagConfig>& flags)
+{
+  auto values = QList<int>{};
+  auto names = QStringList{};
+  auto descriptions = QStringList{};
+
   for (const auto& flag : flags)
   {
     values.push_back(flag.value);
     names.push_back(QString::fromStdString(flag.name));
     descriptions.push_back(QString::fromStdString(flag.description));
   }
-}
 
-void FaceAttribsEditor::getSurfaceFlags(
-  QList<int>& values, QStringList& names, QStringList& descriptions) const
+  return {std::move(values), std::move(names), std::move(descriptions)};
+}
+} // namespace
+
+std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFlags()
+  const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  const Model::FlagsConfig& surfaceFlags = game->surfaceFlags();
-  getFlags(surfaceFlags.flags, values, names, descriptions);
+  const auto& surfaceFlags = game->surfaceFlags();
+  return getFlags(surfaceFlags.flags);
 }
 
-void FaceAttribsEditor::getContentFlags(
-  QList<int>& values, QStringList& names, QStringList& descriptions) const
+std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFlags()
+  const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  const Model::FlagsConfig& contentFlags = game->contentFlags();
-  getFlags(contentFlags.flags, values, names, descriptions);
+  const auto& contentFlags = game->contentFlags();
+  return getFlags(contentFlags.flags);
 }
 } // namespace View
 } // namespace TrenchBroom

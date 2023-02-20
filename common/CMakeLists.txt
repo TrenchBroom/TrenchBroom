@@ -186,7 +186,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/UpdateLinkedGroupsError.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldNode.cpp
-        ${COMMON_SOURCE_DIR}/RecoverableExceptions.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ActiveShader.cpp
         ${COMMON_SOURCE_DIR}/Renderer/AllocationTracker.cpp
         ${COMMON_SOURCE_DIR}/Renderer/AttrString.cpp
@@ -421,13 +420,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SignalDelayer.cpp
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.cpp
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartTypeEditorMatcher.cpp
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartDefaultPropertyEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartPropertyEditor.cpp
         ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorManager.cpp
-        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorMatcher.cpp
         ${COMMON_SOURCE_DIR}/View/SpinControl.cpp
         ${COMMON_SOURCE_DIR}/View/Splitter.cpp
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.cpp
@@ -947,13 +944,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SignalDelayer.h
         ${COMMON_SOURCE_DIR}/View/SliderWithLabel.h
         ${COMMON_SOURCE_DIR}/View/SmartChoiceEditor.h
-        ${COMMON_SOURCE_DIR}/View/SmartTypeEditorMatcher.h
         ${COMMON_SOURCE_DIR}/View/SmartColorEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartDefaultPropertyEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartFlagsEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartPropertyEditor.h
         ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorManager.h
-        ${COMMON_SOURCE_DIR}/View/SmartPropertyEditorMatcher.h
         ${COMMON_SOURCE_DIR}/View/SpinControl.h
         ${COMMON_SOURCE_DIR}/View/Splitter.h
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.h
@@ -1013,7 +1008,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Preference.h
         ${COMMON_SOURCE_DIR}/PreferenceManager.h
         ${COMMON_SOURCE_DIR}/Preferences.h
-        ${COMMON_SOURCE_DIR}/RecoverableExceptions.h
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h

@@ -39,37 +39,11 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class CompareByName
-{
-public:
-  CompareByName() {}
-  bool operator()(const Texture* left, const Texture* right) const
-  {
-    return left->name() < right->name();
-  }
-};
-
-class CompareByUsage
-{
-public:
-  bool operator()(const Texture* left, const Texture* right) const
-  {
-    if (left->usageCount() == right->usageCount())
-    {
-      return left->name() < right->name();
-    }
-    else
-    {
-      return left->usageCount() > right->usageCount();
-    }
-  }
-};
 
 TextureManager::TextureManager(int magFilter, int minFilter, Logger& logger)
-  : m_logger(logger)
-  , m_minFilter(minFilter)
-  , m_magFilter(magFilter)
-  , m_resetTextureMode(false)
+  : m_logger{logger}
+  , m_minFilter{minFilter}
+  , m_magFilter{magFilter}
 {
 }
 
@@ -84,10 +58,10 @@ void TextureManager::setTextureCollections(
   for (const auto& path : paths)
   {
     const auto it =
-      std::find_if(std::begin(collections), std::end(collections), [&](const auto& c) {
+      std::find_if(collections.begin(), collections.end(), [&](const auto& c) {
         return c.path() == path;
       });
-    if (it == std::end(collections) || !it->loaded())
+    if (it == collections.end() || !it->loaded())
     {
       try
       {
@@ -104,8 +78,8 @@ void TextureManager::setTextureCollections(
       }
       catch (const Exception& e)
       {
-        addTextureCollection(Assets::TextureCollection(path));
-        if (it == std::end(collections))
+        addTextureCollection(Assets::TextureCollection{path});
+        if (it == collections.end())
         {
           m_logger.error() << "Could not load texture collection '" << path
                            << "': " << e.what();
@@ -116,7 +90,8 @@ void TextureManager::setTextureCollections(
     {
       addTextureCollection(std::move(*it));
     }
-    if (it != std::end(collections))
+
+    if (it != collections.end())
     {
       collections.erase(it);
     }
@@ -176,14 +151,7 @@ void TextureManager::commitChanges()
 const Texture* TextureManager::texture(const std::string& name) const
 {
   auto it = m_texturesByName.find(kdl::str_to_lower(name));
-  if (it == std::end(m_texturesByName))
-  {
-    return nullptr;
-  }
-  else
-  {
-    return it->second;
-  }
+  return it != m_texturesByName.end() ? it->second : nullptr;
 }
 
 Texture* TextureManager::texture(const std::string& name)
@@ -215,7 +183,7 @@ void TextureManager::resetTextureMode()
 
 void TextureManager::prepare()
 {
-  for (const size_t index : m_toPrepare)
+  for (const auto index : m_toPrepare)
   {
     auto& collection = m_collections[index];
     collection.prepare(m_minFilter, m_magFilter);
@@ -236,7 +204,7 @@ void TextureManager::updateTextures()
       texture.setOverridden(false);
 
       auto mIt = m_texturesByName.find(key);
-      if (mIt != std::end(m_texturesByName))
+      if (mIt != m_texturesByName.end())
       {
         mIt->second->setOverridden(true);
         mIt->second = &texture;

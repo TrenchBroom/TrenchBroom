@@ -211,7 +211,7 @@ bool Palette::indexedToRgba(
     unsigned char andAlpha = 0xff;
     for (size_t i = 0; i < pixelCount; ++i)
     {
-      andAlpha &= rgbaData[(i * 4) + 3];
+      andAlpha = static_cast<unsigned char>(andAlpha & rgbaData[4 * i + 3]);
     }
     hasTransparency = (andAlpha != 0xff);
   }

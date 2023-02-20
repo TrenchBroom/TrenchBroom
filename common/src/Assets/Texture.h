@@ -29,17 +29,13 @@
 #include <kdl/reflection_decl.h>
 
 #include <atomic>
-#include <iosfwd>
 #include <set>
 #include <string>
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class TextureCollection;
 
 enum class TextureType
 {
@@ -50,14 +46,18 @@ enum class TextureType
   Masked
 };
 
+std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs);
+
 enum class TextureCulling
 {
-  CullDefault,
-  CullNone,
-  CullFront,
-  CullBack,
-  CullBoth
+  Default,
+  None,
+  Front,
+  Back,
+  Both
 };
+
+std::ostream& operator<<(std::ostream& lhs, const TextureCulling& rhs);
 
 struct TextureBlendFunc
 {
@@ -80,7 +80,11 @@ struct TextureBlendFunc
   Enable enable;
   GLenum srcFactor;
   GLenum destFactor;
+
+  kdl_reflect_decl(TextureBlendFunc, enable, srcFactor, destFactor);
 };
+
+std::ostream& operator<<(std::ostream& lhs, const TextureBlendFunc::Enable& rhs);
 
 struct Q2Data
 {
@@ -92,6 +96,8 @@ struct Q2Data
 };
 
 using GameData = std::variant<std::monostate, Q2Data>;
+
+std::ostream& operator<<(std::ostream& lhs, const GameData& rhs);
 
 class Texture
 {
@@ -129,6 +135,23 @@ private:
   mutable BufferList m_buffers;
 
   GameData m_gameData;
+
+  kdl_reflect_decl(
+    Texture,
+    m_name,
+    m_absolutePath,
+    m_relativePath,
+    m_width,
+    m_height,
+    m_averageColor,
+    m_usageCount,
+    m_overridden,
+    m_format,
+    m_type,
+    m_surfaceParms,
+    m_culling,
+    m_blendFunc,
+    m_gameData);
 
 public:
   Texture(
@@ -228,5 +251,5 @@ public: // exposed for tests only
   GLenum format() const;
   TextureType type() const;
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets
