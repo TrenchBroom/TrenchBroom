@@ -21,6 +21,7 @@
 
 #include "Assets/PropertyDefinition.h"
 #include "Macros.h"
+#include "Model/Entity.h"
 #include "Model/EntityNodeBase.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
@@ -28,7 +29,9 @@
 #include "View/SmartDefaultPropertyEditor.h"
 #include "View/SmartFlagsEditor.h"
 #include "View/SmartPropertyEditor.h"
+#include "View/SmartWadEditor.h"
 
+#include <kdl/functional.h>
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 
@@ -131,6 +134,15 @@ void SmartPropertyEditorManager::createEditors()
     makeSmartTypeWithSameDefinitionEditorMatcher(
       Assets::PropertyDefinitionType::ChoiceProperty),
     new SmartChoiceEditor{m_document});
+  m_editors.emplace_back(
+    kdl::lift_and(
+      makeSmartPropertyEditorKeyMatcher({"wad"}),
+      [](const auto&, const auto& nodes) {
+        return nodes.size() == 1
+               && nodes.front()->entity().classname()
+                    == Model::EntityPropertyValues::WorldspawnClassname;
+      }),
+    new SmartWadEditor{m_document});
   m_editors.emplace_back(
     [](const auto&, const auto&) { return true; },
     new SmartDefaultPropertyEditor{m_document});
