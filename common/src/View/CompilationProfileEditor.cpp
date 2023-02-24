@@ -257,24 +257,12 @@ void CompilationProfileEditor::removeTask(const int index)
 {
   assert(index >= 0);
 
-  if (m_profile->tasks.size() == 1)
+  m_profile->tasks = kdl::vec_erase_at(std::move(m_profile->tasks), size_t(index));
+  m_taskList->reloadTasks();
+
+  if (!m_profile->tasks.empty())
   {
-    m_taskList->setCurrentRow(-1);
-    m_profile->tasks.clear();
-    m_taskList->reloadTasks();
-  }
-  else if (index > 0)
-  {
-    m_taskList->setCurrentRow(index - 1);
-    kdl::vec_erase_at(m_profile->tasks, size_t(index));
-    m_taskList->reloadTasks();
-  }
-  else
-  {
-    m_taskList->setCurrentRow(1);
-    kdl::vec_erase_at(m_profile->tasks, size_t(index));
-    m_taskList->reloadTasks();
-    m_taskList->setCurrentRow(0);
+    m_taskList->setCurrentRow(std::min(index, int(m_profile->tasks.size()) - 1));
   }
   emit profileChanged();
 }
