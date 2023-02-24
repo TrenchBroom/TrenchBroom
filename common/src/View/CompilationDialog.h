@@ -38,15 +38,15 @@ class CompilationDialog : public QDialog
 {
   Q_OBJECT
 private:
-  MapFrame* m_mapFrame;
-  CompilationProfileManager* m_profileManager;
-  QPushButton* m_launchButton;
-  QPushButton* m_compileButton;
-  QPushButton* m_testCompileButton;
-  QPushButton* m_stopCompileButton;
-  QPushButton* m_closeButton;
-  QLabel* m_currentRunLabel;
-  QTextEdit* m_output;
+  MapFrame* m_mapFrame{nullptr};
+  CompilationProfileManager* m_profileManager{nullptr};
+  QPushButton* m_launchButton{nullptr};
+  QPushButton* m_compileButton{nullptr};
+  QPushButton* m_testCompileButton{nullptr};
+  QPushButton* m_stopCompileButton{nullptr};
+  QPushButton* m_closeButton{nullptr};
+  QLabel* m_currentRunLabel{nullptr};
+  QTextEdit* m_output{nullptr};
   CompilationRun m_run;
 
 public:
