@@ -41,16 +41,6 @@ namespace TrenchBroom::View
 namespace
 {
 
-QString buildFilter(const std::vector<std::string>& extensions)
-{
-  auto strings = QStringList{};
-  for (const auto& extension : extensions)
-  {
-    strings << QString::fromLatin1("*.%1").arg(QString::fromStdString(extension));
-  }
-  return QObject::tr("Texture collections (%1);;All files (*.*)").arg(strings.join(" "));
-}
-
 std::vector<IO::Path> getWadPaths(
   const std::vector<Model::EntityNodeBase*>& nodes, const std::string& propertyKey)
 {
@@ -134,12 +124,11 @@ SmartWadEditor::SmartWadEditor(std::weak_ptr<MapDocument> document, QWidget* par
 
 void SmartWadEditor::addWads()
 {
-  const auto filter = buildFilter(document()->game()->fileTextureCollectionExtensions());
   const auto pathQStr = QFileDialog::getOpenFileName(
     nullptr,
-    tr("Load Texture Collection"),
+    tr("Load Wad File"),
     fileDialogDefaultDirectory(FileDialogDir::TextureCollection),
-    filter);
+    tr("Wad files (*.wad);;All files (*.*)"));
 
   if (!pathQStr.isEmpty())
   {

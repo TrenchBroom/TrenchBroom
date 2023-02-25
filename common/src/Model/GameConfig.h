@@ -66,29 +66,9 @@ struct FileSystemConfig
   kdl_reflect_decl(FileSystemConfig, searchPath, packageFormat);
 };
 
-struct TextureFilePackageConfig
-{
-  PackageFormatConfig fileFormat;
-
-  kdl_reflect_decl(TextureFilePackageConfig, fileFormat);
-};
-
-struct TextureDirectoryPackageConfig
-{
-  IO::Path rootDirectory;
-
-  kdl_reflect_decl(TextureDirectoryPackageConfig, rootDirectory);
-};
-
-using TexturePackageConfig =
-  std::variant<TextureFilePackageConfig, TextureDirectoryPackageConfig>;
-std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config);
-
-IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig);
-
 struct TextureConfig
 {
-  TexturePackageConfig package;
+  IO::Path root;
   PackageFormatConfig format;
   IO::Path palette;
   std::string property;
@@ -97,7 +77,7 @@ struct TextureConfig
     excludes; // Glob patterns used to match texture names for exclusion
 
   kdl_reflect_decl(
-    TextureConfig, package, format, palette, property, shaderSearchPath, excludes);
+    TextureConfig, root, format, palette, property, shaderSearchPath, excludes);
 };
 
 struct EntityConfig

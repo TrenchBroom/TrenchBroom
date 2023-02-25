@@ -49,7 +49,7 @@ GameConfigParser::GameConfigParser(std::string_view str, const Path& path)
 
 static void checkVersion(const EL::Value& version)
 {
-  const std::vector<EL::IntegerType> validVsns({3, 4, 5, 6});
+  const std::vector<EL::IntegerType> validVsns({7});
   const bool isNumVersion = version.convertibleTo(EL::ValueType::Number);
   const bool isValidVersion =
     isNumVersion
@@ -182,47 +182,19 @@ Model::TextureConfig GameConfigParser::parseTextureConfig(const EL::Value& value
   expectStructure(
     value,
     "["
-    "{'package': 'Map', 'format': 'Map'},"
+    "{'root': 'String'},"
     "{'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String', "
     "'excludes': "
     "'Array'}"
     "]");
 
   return Model::TextureConfig{
-    parseTexturePackageConfig(value["package"]),
+    Path{value["root"].stringValue()},
     parsePackageFormatConfig(value["format"]),
     Path{value["palette"].stringValue()},
     value["attribute"].stringValue(),
     Path{value["shaderSearchPath"].stringValue()},
     value["excludes"].asStringList()};
-}
-
-Model::TexturePackageConfig GameConfigParser::parseTexturePackageConfig(
-  const EL::Value& value) const
-{
-  expectStructure(
-    value,
-    "["
-    "{'type': 'String'},"
-    "{'root': 'String', 'format': 'Map'}"
-    "]");
-
-  const std::string typeStr = value["type"].stringValue();
-  if (typeStr == "file")
-  {
-    expectMapEntry(value, "format", EL::ValueType::Map);
-    return Model::TextureFilePackageConfig{parsePackageFormatConfig(value["format"])};
-  }
-  else if (typeStr == "directory")
-  {
-    expectMapEntry(value, "root", EL::ValueType::String);
-    return Model::TextureDirectoryPackageConfig{Path{value["root"].stringValue()}};
-  }
-  else
-  {
-    throw ParserException(
-      value.line(), value.column(), "Unexpected texture package type '" + typeStr + "'");
-  }
 }
 
 Model::EntityConfig GameConfigParser::parseEntityConfig(const EL::Value& value) const

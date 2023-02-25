@@ -4407,31 +4407,11 @@ void MapDocument::setEntityDefinitions(
   m_entityDefinitionManager->setDefinitions(definitions);
 }
 
-std::vector<IO::Path> MapDocument::enabledTextureCollections() const
-{
-  return m_game->extractTextureCollections(m_world->entity());
-}
-
-std::vector<IO::Path> MapDocument::availableTextureCollections() const
-{
-  return m_game->findTextureCollections();
-}
-
-void MapDocument::setEnabledTextureCollections(const std::vector<IO::Path>& paths)
-{
-  auto entity = m_world->entity();
-  m_game->updateTextureCollections(entity, paths);
-  swapNodeContents(
-    "Set Texture Collections", {{world(), Model::NodeContents(std::move(entity))}}, {});
-}
-
 void MapDocument::reloadTextureCollections()
 {
   const auto nodes = std::vector<Model::Node*>{m_world.get()};
   NotifyBeforeAndAfter notifyNodes(
     nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-  NotifyBeforeAndAfter notifyTextureCollections(
-    textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
 
   info("Reloading texture collections");
   reloadTextures();
@@ -4523,9 +4503,12 @@ void MapDocument::loadTextures()
 {
   try
   {
-    const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-    m_game->loadTextureCollections(
-      m_world->entity(), docDir, *m_textureManager, logger());
+    if (const auto* wadStr = m_world->entity().property(Model::EntityPropertyKeys::Wad))
+    {
+      const auto wadPaths = IO::Path::asPaths(kdl::str_split(*wadStr, ";"));
+      m_game->reloadWads(path(), wadPaths, logger());
+    }
+    m_game->loadTextureCollections(*m_textureManager, logger());
   }
   catch (const Exception& e)
   {
@@ -5048,10 +5031,10 @@ void MapDocument::clearModificationCount()
 
 void MapDocument::connectObservers()
 {
-  m_notifierConnection += textureCollectionsWillChangeNotifier.connect(
-    this, &MapDocument::textureCollectionsWillChange);
-  m_notifierConnection += textureCollectionsDidChangeNotifier.connect(
-    this, &MapDocument::textureCollectionsDidChange);
+  m_notifierConnection +=
+    wadsWillChangeNotifier.connect(this, &MapDocument::wadsWillChange);
+  m_notifierConnection +=
+    wadsDidChangeNotifier.connect(this, &MapDocument::wadsDidChange);
 
   m_notifierConnection += entityDefinitionsWillChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsWillChange);
@@ -5092,15 +5075,15 @@ void MapDocument::connectObservers()
   m_notifierConnection +=
     modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
   m_notifierConnection +=
-    textureCollectionsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
+    wadsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
 }
 
-void MapDocument::textureCollectionsWillChange()
+void MapDocument::wadsWillChange()
 {
   unsetTextures();
 }
 
-void MapDocument::textureCollectionsDidChange()
+void MapDocument::wadsDidChange()
 {
   loadTextures();
   setTextures();

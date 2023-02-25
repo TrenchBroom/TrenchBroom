@@ -185,8 +185,8 @@ public: // notification
 
   Notifier<const std::vector<Model::BrushFaceHandle>&> brushFacesDidChangeNotifier;
 
-  Notifier<> textureCollectionsWillChangeNotifier;
-  Notifier<> textureCollectionsDidChangeNotifier;
+  Notifier<> wadsWillChangeNotifier;
+  Notifier<> wadsDidChangeNotifier;
 
   Notifier<> textureUsageCountsDidChangeNotifier;
 
@@ -696,11 +696,7 @@ public: // asset management
   // For testing
   void setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions);
 
-  std::vector<IO::Path> enabledTextureCollections() const;
-  std::vector<IO::Path> availableTextureCollections() const;
-  void setEnabledTextureCollections(const std::vector<IO::Path>& paths);
   void reloadTextureCollections();
-
   void reloadEntityDefinitions();
 
 private:
@@ -794,8 +790,8 @@ private:
 
 private: // observers
   void connectObservers();
-  void textureCollectionsWillChange();
-  void textureCollectionsDidChange();
+  void wadsWillChange();
+  void wadsDidChange();
   void entityDefinitionsWillChange();
   void entityDefinitionsDidChange();
   void modsWillChange();

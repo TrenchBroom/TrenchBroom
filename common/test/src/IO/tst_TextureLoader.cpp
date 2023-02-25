@@ -23,6 +23,8 @@
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "IO/TextureLoader.h"
+#include "IO/VirtualFileSystem.h"
+#include "IO/WadFileSystem.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
@@ -36,25 +38,26 @@ namespace IO
 {
 TEST_CASE("TextureLoaderTest.testLoad")
 {
-  const std::vector<IO::Path> paths({Path("fixture/test/IO/Wad/cr8_czg.wad")});
+  auto fileSystem = VirtualFileSystem{};
+  fileSystem.mount(
+    Path{}, std::make_unique<DiskFileSystem>(Disk::getCurrentWorkingDir()));
 
-  const IO::Path root = IO::Disk::getCurrentWorkingDir();
-  const std::vector<IO::Path> fileSearchPaths{root};
-  const IO::DiskFileSystem fileSystem(root, true);
+  const auto wadPath =
+    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Wad/cr8_czg.wad"};
+  fileSystem.mount(
+    Path{"textures"} + wadPath.lastComponent(), std::make_unique<WadFileSystem>(wadPath));
 
-  const Model::TextureConfig textureConfig{
-    Model::TextureFilePackageConfig{Model::PackageFormatConfig{{"wad"}, "idmip"}},
+  const auto textureConfig = Model::TextureConfig{
+    Path{"textures"},
     Model::PackageFormatConfig{{"D"}, "idmip"},
-    IO::Path{"fixture/test/palette.lmp"},
+    Path{"fixture/test/palette.lmp"},
     "wad",
-    IO::Path{},
+    Path{},
     {}};
 
-  auto logger = NullLogger();
-  auto textureManager = Assets::TextureManager(0, 0, logger);
-
-  IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
-  textureLoader.loadTextures(paths, textureManager);
+  auto logger = NullLogger{};
+  auto textureManager = Assets::TextureManager{0, 0, logger};
+  textureManager.reload(TextureLoader{fileSystem, textureConfig, logger});
 
   using TexInfo = std::tuple<std::string, size_t, size_t>;
   const auto expectedTextures = std::vector<TexInfo>{
@@ -94,25 +97,26 @@ TEST_CASE("TextureLoaderTest.testLoad")
 
 TEST_CASE("TextureLoaderTest.testLoadExclusions")
 {
-  const std::vector<IO::Path> paths({Path("fixture/test/IO/Wad/cr8_czg.wad")});
+  auto fileSystem = VirtualFileSystem{};
+  fileSystem.mount(
+    Path{}, std::make_unique<DiskFileSystem>(Disk::getCurrentWorkingDir()));
 
-  const IO::Path root = IO::Disk::getCurrentWorkingDir();
-  const std::vector<IO::Path> fileSearchPaths{root};
-  const IO::DiskFileSystem fileSystem(root, true);
+  const auto wadPath =
+    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Wad/cr8_czg.wad"};
+  fileSystem.mount(
+    Path{"textures"} + wadPath.lastComponent(), std::make_unique<WadFileSystem>(wadPath));
 
   const Model::TextureConfig textureConfig{
-    Model::TextureFilePackageConfig{Model::PackageFormatConfig{{"wad"}, "idmip"}},
+    Path{"textures"},
     Model::PackageFormatConfig{{"D"}, "idmip"},
-    IO::Path{"fixture/test/palette.lmp"},
+    Path{"fixture/test/palette.lmp"},
     "wad",
-    IO::Path{},
+    Path{},
     {"*-jam", "coffin2", "czg_*"}};
 
-  auto logger = NullLogger();
-  auto textureManager = Assets::TextureManager(0, 0, logger);
-
-  IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
-  textureLoader.loadTextures(paths, textureManager);
+  auto logger = NullLogger{};
+  auto textureManager = Assets::TextureManager{0, 0, logger};
+  textureManager.reload(TextureLoader{fileSystem, textureConfig, logger});
 
   using TexInfo = std::tuple<std::string, size_t, size_t>;
   const auto expectedTextures = std::vector<TexInfo>{

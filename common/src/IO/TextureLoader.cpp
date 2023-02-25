@@ -24,18 +24,23 @@
 #include "Assets/TextureManager.h"
 #include "Ensure.h"
 #include "IO/DdsTextureReader.h"
+#include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemUtils.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/HlMipTextureReader.h"
 #include "IO/IdMipTextureReader.h"
 #include "IO/M8TextureReader.h"
 #include "IO/Path.h"
+#include "IO/PathInfo.h"
+#include "IO/PathMatcher.h"
 #include "IO/Quake3ShaderTextureReader.h"
-#include "IO/TextureCollectionLoader.h"
 #include "IO/WalTextureReader.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
+#include "kdl/string_compare.h"
+#include "kdl/vector_utils.h"
 #include <kdl/overload.h>
 
 #include <string>
@@ -45,62 +50,73 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TextureLoader::TextureLoader(
-  const FileSystem& gameFS,
-  const std::vector<IO::Path>& fileSearchPaths,
-  const Model::TextureConfig& textureConfig,
-  Logger& logger)
-  : m_textureExtensions(getTextureExtensions(textureConfig))
-  , m_textureReader(createTextureReader(gameFS, textureConfig, logger))
-  , m_textureCollectionLoader(
-      createTextureCollectionLoader(gameFS, fileSearchPaths, textureConfig, logger))
+namespace
 {
-  ensure(m_textureReader != nullptr, "textureReader is null");
-  ensure(m_textureCollectionLoader != nullptr, "textureCollectionLoader is null");
+bool shouldExclude(
+  const std::string& textureName, const std::vector<std::string>& patterns)
+{
+  return std::any_of(patterns.begin(), patterns.end(), [&](const auto& pattern) {
+    return kdl::ci::str_matches_glob(textureName, pattern);
+  });
+}
+} // namespace
+
+TextureLoader::TextureLoader(
+  const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger)
+  : m_gameFS{gameFS}
+  , m_textureRoot{textureConfig.root}
+  , m_textureExtensions{textureConfig.format.extensions}
+  , m_textureExclusionPatterns{textureConfig.excludes}
+  , m_textureReader{createTextureReader(m_gameFS, textureConfig, logger)}
+  , m_logger{logger}
+{
 }
 
 TextureLoader::~TextureLoader() = default;
 
-std::vector<std::string> TextureLoader::getTextureExtensions(
-  const Model::TextureConfig& textureConfig)
-{
-  return textureConfig.format.extensions;
-}
-
 std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger)
 {
-  const auto prefixLength = getRootDirectory(textureConfig.package).length();
-  const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
-
   if (textureConfig.format.format == "idmip")
   {
+    const auto nameStrategy = TextureReader::TextureNameStrategy{};
     return std::make_unique<IdMipTextureReader>(
       nameStrategy, gameFS, logger, loadPalette(gameFS, textureConfig, logger));
   }
   else if (textureConfig.format.format == "hlmip")
   {
+    const auto nameStrategy = TextureReader::TextureNameStrategy{};
     return std::make_unique<HlMipTextureReader>(nameStrategy, gameFS, logger);
   }
   else if (textureConfig.format.format == "wal")
   {
+    const auto prefixLength = textureConfig.root.length();
+    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
     return std::make_unique<WalTextureReader>(
       nameStrategy, gameFS, logger, loadPalette(gameFS, textureConfig, logger));
   }
   else if (textureConfig.format.format == "image")
   {
+    const auto prefixLength = textureConfig.root.length();
+    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
     return std::make_unique<FreeImageTextureReader>(nameStrategy, gameFS, logger);
   }
   else if (textureConfig.format.format == "q3shader")
   {
+    const auto prefixLength = textureConfig.root.length();
+    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
     return std::make_unique<Quake3ShaderTextureReader>(nameStrategy, gameFS, logger);
   }
   else if (textureConfig.format.format == "m8")
   {
+    const auto prefixLength = textureConfig.root.length();
+    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
     return std::make_unique<M8TextureReader>(nameStrategy, gameFS, logger);
   }
   else if (textureConfig.format.format == "dds")
   {
+    const auto prefixLength = textureConfig.root.length();
+    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
     return std::make_unique<DdsTextureReader>(nameStrategy, gameFS, logger);
   }
   else
@@ -114,7 +130,7 @@ Assets::Palette TextureLoader::loadPalette(
 {
   if (textureConfig.palette.isEmpty())
   {
-    return Assets::Palette();
+    return Assets::Palette{};
   }
 
   try
@@ -130,38 +146,48 @@ Assets::Palette TextureLoader::loadPalette(
   }
 }
 
-std::unique_ptr<TextureCollectionLoader> TextureLoader::createTextureCollectionLoader(
-  const FileSystem& gameFS,
-  const std::vector<IO::Path>& fileSearchPaths,
-  const Model::TextureConfig& textureConfig,
-  Logger& logger)
+std::vector<Path> TextureLoader::findTextureCollections() const
 {
-  using Model::GameConfig;
-  return std::visit(
-    kdl::overload(
-      [&](const Model::TextureFilePackageConfig&)
-        -> std::unique_ptr<TextureCollectionLoader> {
-        return std::make_unique<FileTextureCollectionLoader>(
-          logger, fileSearchPaths, textureConfig.excludes);
-      },
-      [&](const Model::TextureDirectoryPackageConfig&)
-        -> std::unique_ptr<TextureCollectionLoader> {
-        return std::make_unique<DirectoryTextureCollectionLoader>(
-          logger, gameFS, textureConfig.excludes);
-      }),
-    textureConfig.package);
+  auto paths = m_gameFS.findRecursively(
+    m_textureRoot, makePathInfoPathMatcher({PathInfo::Directory}));
+  paths.insert(paths.begin(), m_textureRoot);
+  return paths;
 }
 
-Assets::TextureCollection TextureLoader::loadTextureCollection(const Path& path)
+Assets::TextureCollection TextureLoader::loadTextureCollection(const Path& path) const
 {
-  return m_textureCollectionLoader->loadTextureCollection(
-    path, m_textureExtensions, *m_textureReader);
-}
+  const auto texturePaths =
+    m_gameFS.find(path, makeExtensionPathMatcher(m_textureExtensions));
+  auto textures = std::vector<Assets::Texture>();
+  textures.reserve(texturePaths.size());
 
-void TextureLoader::loadTextures(
-  const std::vector<Path>& paths, Assets::TextureManager& textureManager)
-{
-  textureManager.setTextureCollections(paths, *this);
+  for (const auto& texturePath : texturePaths)
+  {
+    try
+    {
+      auto file = m_gameFS.openFile(texturePath);
+
+      // Store the absolute path to the original file (may be used by .obj export)
+      const auto name = file->path().lastComponent().deleteExtension().asString();
+      if (shouldExclude(name, m_textureExclusionPatterns))
+      {
+        continue;
+      }
+
+      auto texture = m_textureReader->readTexture(file);
+      texture.setAbsolutePath(safeMakeAbsolute(texturePath, [&](const auto& p) {
+                                return m_gameFS.makeAbsolute(p);
+                              }).value_or(Path{}));
+      texture.setRelativePath(texturePath);
+      textures.push_back(std::move(texture));
+    }
+    catch (const std::exception& e)
+    {
+      m_logger.warn() << e.what();
+    }
+  }
+
+  return Assets::TextureCollection{path, std::move(textures)};
 }
 } // namespace IO
 } // namespace TrenchBroom

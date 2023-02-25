@@ -2448,7 +2448,7 @@ The game configuration is an [expression language](#expression_language) map wit
             "packageformat": { "extension": "pak", "format": "idpak" } // the package file format
         },
         "textures": { // where to search for textures and how to read them, see below
-            "package": { "type": "directory", "root": "textures" },
+            "root": "textures",
             "format": { "extensions": [ "wal" ], "format": "wal" },
             "palette": "pics/colormap.pcx",
             "attribute": "_tb_textures"
@@ -2619,7 +2619,7 @@ Every texture configuration consists of a package specification, a format specif
 TrenchBroom supports two types of texture packages: File based and directory based. File based texture packages expect the textures to be stored in package files that contain multiple textures, such as `.wad` files for Quake and Hexen 2. A file based texture configuration looks like this:
 
 	"textures": {
-        "package": { "type": "file", "format": { "extension": "wad", "format": "wad2" } },
+        "root": "textures",
         "format": { "extension": "D", "format": "idmip" },
         "palette": "gfx/palette.lmp",
     	"attribute": "wad"
@@ -2635,7 +2635,7 @@ wad3         wad file, used by Half Life
 A directory based texture configuration looks as follows. It differs only in the package configuration, all other keys are equivalent.
 
 	"textures": {
-        "package": { "type": "directory", "root": "textures" },
+        "root": "textures",
         "format": { "extensions": [ "wal" ], "format": "wal" },
         "palette": "pics/colormap.pcx",
         "attribute": "_tb_textures"
@@ -2666,7 +2666,7 @@ The `attribute` key specifies the name of a worldspawn property where TrenchBroo
 The optional `excludes` key specifies a list of patterns matched against texture names which will be ignored and not displayed in the [texture browser](#texture_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 
 	"textures": {
-        "package": { "type": "directory", "root": "textures" },
+        "root": "textures",
         "format": { "extensions": [ "" ], "format": "image" },
         "attribute": "_tb_textures",
         "excludes": [ "*_norm", "*_gloss" ]

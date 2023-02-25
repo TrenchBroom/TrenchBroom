@@ -49,8 +49,22 @@ TextureManager::TextureManager(int magFilter, int minFilter, Logger& logger)
 
 TextureManager::~TextureManager() = default;
 
+void TextureManager::reload(const IO::TextureLoader& loader)
+{
+  setTextureCollections(loader.findTextureCollections(), loader);
+}
+
+void TextureManager::setTextureCollections(std::vector<TextureCollection> collections)
+{
+  for (auto& collection : collections)
+  {
+    addTextureCollection(std::move(collection));
+  }
+  updateTextures();
+}
+
 void TextureManager::setTextureCollections(
-  const std::vector<IO::Path>& paths, IO::TextureLoader& loader)
+  const std::vector<IO::Path>& paths, const IO::TextureLoader& loader)
 {
   auto collections = std::move(m_collections);
   clear();
@@ -99,15 +113,6 @@ void TextureManager::setTextureCollections(
 
   updateTextures();
   m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
-}
-
-void TextureManager::setTextureCollections(std::vector<TextureCollection> collections)
-{
-  for (auto& collection : collections)
-  {
-    addTextureCollection(std::move(collection));
-  }
-  updateTextures();
 }
 
 void TextureManager::addTextureCollection(Assets::TextureCollection collection)

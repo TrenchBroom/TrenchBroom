@@ -19,6 +19,7 @@
 
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
+#include "Assets/TextureManager.h"
 #include "Exceptions.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
@@ -29,6 +30,8 @@
 #include "IO/NodeWriter.h"
 #include "IO/TestParserStatus.h"
 #include "IO/TextureLoader.h"
+#include "IO/VirtualFileSystem.h"
+#include "IO/WadFileSystem.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/GameConfig.h"
@@ -49,9 +52,14 @@ namespace TrenchBroom
 namespace Model
 {
 TestGame::TestGame()
-  : m_defaultFaceAttributes(Model::BrushFaceAttributes::NoTextureName)
+  : m_defaultFaceAttributes{Model::BrushFaceAttributes::NoTextureName}
+  , m_fs{std::make_unique<IO::VirtualFileSystem>()}
 {
+  m_fs->mount(
+    IO::Path{}, std::make_unique<IO::DiskFileSystem>(IO::Disk::getCurrentWorkingDir()));
 }
+
+TestGame::~TestGame() = default;
 
 void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)
 {
@@ -197,68 +205,34 @@ void TestGame::doWriteBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-TestGame::TexturePackageType TestGame::doTexturePackageType() const
-{
-  return TexturePackageType::File;
-}
-
 void TestGame::doLoadTextureCollections(
-  const Entity& entity,
-  const IO::Path& /* documentPath */,
-  Assets::TextureManager& textureManager,
-  Logger& logger) const
+  Assets::TextureManager& textureManager, Logger& logger) const
 {
-  const std::vector<IO::Path> paths = extractTextureCollections(entity);
-
-  const IO::Path root = IO::Disk::getCurrentWorkingDir();
-  const std::vector<IO::Path> fileSearchPaths{root};
-  const IO::DiskFileSystem fileSystem(root, true);
-
   const Model::TextureConfig textureConfig{
-    Model::TextureFilePackageConfig{Model::PackageFormatConfig{{"wad"}, "idmip"}},
+    IO::Path{"textures"},
     Model::PackageFormatConfig{{"D"}, "idmip"},
-    IO::Path{"data/palette.lmp"},
+    IO::Path{"fixture/test/palette.lmp"},
     "wad",
     IO::Path{},
     {}};
 
-  IO::TextureLoader textureLoader(fileSystem, fileSearchPaths, textureConfig, logger);
-  textureLoader.loadTextures(paths, textureManager);
+  textureManager.reload(IO::TextureLoader{*m_fs, textureConfig, logger});
 }
 
-bool TestGame::doIsTextureCollection(const IO::Path& /* path */) const
+void TestGame::doReloadWads(
+  const IO::Path&, const std::vector<IO::Path>& wadPaths, Logger&)
 {
-  return false;
-}
+  m_fs->unmountAll();
+  m_fs->mount(
+    IO::Path{}, std::make_unique<IO::DiskFileSystem>(IO::Disk::getCurrentWorkingDir()));
 
-std::vector<std::string> TestGame::doFileTextureCollectionExtensions() const
-{
-  return {};
-}
-
-std::vector<IO::Path> TestGame::doFindTextureCollections() const
-{
-  return std::vector<IO::Path>();
-}
-
-std::vector<IO::Path> TestGame::doExtractTextureCollections(const Entity& entity) const
-{
-  if (const auto* pathsValue = entity.property("wad"))
+  for (const auto& wadPath : wadPaths)
   {
-    return IO::Path::asPaths(kdl::str_split(*pathsValue, ";"));
+    const auto absoluteWadPath = IO::Disk::getCurrentWorkingDir() + wadPath;
+    m_fs->mount(
+      IO::Path{"textures"} + wadPath.lastComponent(),
+      std::make_unique<IO::WadFileSystem>(absoluteWadPath));
   }
-  else
-  {
-    return {};
-  }
-}
-
-void TestGame::doUpdateTextureCollections(
-  Entity& entity, const std::vector<IO::Path>& paths) const
-{
-  const std::string value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
-
-  entity.addOrUpdateProperty({}, "wad", value);
 }
 
 void TestGame::doReloadShaders() {}

@@ -61,11 +61,15 @@ public:
   TextureManager(int magFilter, int minFilter, Logger& logger);
   ~TextureManager();
 
-  void setTextureCollections(
-    const std::vector<IO::Path>& paths, IO::TextureLoader& loader);
+  void reload(const IO::TextureLoader& loader);
+
+  // for testing
   void setTextureCollections(std::vector<TextureCollection> collections);
 
 private:
+  void setTextureCollections(
+    const std::vector<IO::Path>& paths, const IO::TextureLoader& loader);
+
   void addTextureCollection(Assets::TextureCollection collection);
 
 public:

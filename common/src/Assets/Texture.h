@@ -194,16 +194,12 @@ public:
 
   /**
    * Absolute path of the texture
-   *
-   * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
    */
   const IO::Path& absolutePath() const;
   void setAbsolutePath(IO::Path absolutePath);
 
   /**
    * Relative path of the texture in the game filesystem
-   *
-   * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
    */
   const IO::Path& relativePath() const;
   void setRelativePath(IO::Path relativePath);

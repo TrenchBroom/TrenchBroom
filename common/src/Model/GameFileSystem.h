@@ -42,6 +42,7 @@ class GameFileSystem : public IO::VirtualFileSystem
 {
 private:
   IO::Quake3ShaderFileSystem* m_shaderFS = nullptr;
+  std::vector<IO::VirtualMountPointId> m_wadMountPoints;
 
 public:
   void initialize(
@@ -50,6 +51,11 @@ public:
     const std::vector<IO::Path>& additionalSearchPaths,
     Logger& logger);
   void reloadShaders();
+  void reloadWads(
+    const IO::Path& rootPath,
+    const std::vector<IO::Path>& wadSearchPaths,
+    const std::vector<IO::Path>& wadPaths,
+    Logger& logger);
 
 private:
   void addDefaultAssetPaths(const GameConfig& config, Logger& logger);
@@ -62,6 +68,13 @@ private:
   void addFileSystemPath(const IO::Path& path, Logger& logger);
   void addFileSystemPackages(
     const GameConfig& config, const IO::Path& searchPath, Logger& logger);
+
+  void mountWads(
+    const IO::Path& rootPath,
+    const std::vector<IO::Path>& wadSearchPaths,
+    const std::vector<IO::Path>& wadPaths,
+    Logger& logger);
+  void unmountWads();
 };
 } // namespace Model
 } // namespace TrenchBroom

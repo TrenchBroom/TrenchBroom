@@ -58,7 +58,6 @@ private:
   Model::FileSystemConfig parseFileSystemConfig(const EL::Value& values) const;
   Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& values) const;
   Model::TextureConfig parseTextureConfig(const EL::Value& values) const;
-  Model::TexturePackageConfig parseTexturePackageConfig(const EL::Value& values) const;
   Model::EntityConfig parseEntityConfig(const EL::Value& values) const;
   Model::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& values) const;
   Model::FlagsConfig parseFlagsConfig(const EL::Value& values) const;

@@ -106,20 +106,13 @@ private:
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  TexturePackageType doTexturePackageType() const override;
   void doLoadTextureCollections(
-    const Entity& entity,
-    const IO::Path& documentPath,
-    Assets::TextureManager& textureManager,
-    Logger& logger) const override;
-  std::vector<IO::Path> textureCollectionSearchPaths(const IO::Path& documentPath) const;
+    Assets::TextureManager& textureManager, Logger& logger) const override;
 
-  bool doIsTextureCollection(const IO::Path& path) const override;
-  std::vector<IO::Path> doFindTextureCollections() const override;
-  std::vector<std::string> doFileTextureCollectionExtensions() const override;
-  std::vector<IO::Path> doExtractTextureCollections(const Entity& entity) const override;
-  void doUpdateTextureCollections(
-    Entity& entity, const std::vector<IO::Path>& paths) const override;
+  void doReloadWads(
+    const IO::Path& documentPath,
+    const std::vector<IO::Path>& wadPaths,
+    Logger& logger) override;
   void doReloadShaders() override;
 
   bool doIsEntityDefinitionFile(const IO::Path& path) const override;

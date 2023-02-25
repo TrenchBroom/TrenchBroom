@@ -49,7 +49,6 @@ private:
   QSplitter* m_splitter{nullptr};
   FaceAttribsEditor* m_faceAttribsEditor{nullptr};
   TextureBrowser* m_textureBrowser{nullptr};
-  CollapsibleTitledPanel* m_textureCollectionsEditor{nullptr};
 
 public:
   FaceInspector(
@@ -71,8 +70,6 @@ private:
     QWidget* parent,
     std::weak_ptr<MapDocument> document,
     GLContextManager& contextManager);
-  CollapsibleTitledPanel* createTextureCollectionEditor(
-    QWidget* parent, std::weak_ptr<MapDocument> document);
 
   void textureSelected(const Assets::Texture* texture);
 };

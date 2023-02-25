@@ -22,6 +22,7 @@
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
+#include "Assets/TextureManager.h"
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "IO/AseParser.h"
@@ -335,103 +336,21 @@ void GameImpl::doWriteBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-Game::TexturePackageType GameImpl::doTexturePackageType() const
-{
-  using Model::GameConfig;
-  return std::visit(
-    kdl::overload(
-      [](const TextureFilePackageConfig&) { return TexturePackageType::File; },
-      [](const TextureDirectoryPackageConfig&) { return TexturePackageType::Directory; }),
-    m_config.textureConfig.package);
-}
-
 void GameImpl::doLoadTextureCollections(
-  const Entity& entity,
-  const IO::Path& documentPath,
-  Assets::TextureManager& textureManager,
-  Logger& logger) const
+  Assets::TextureManager& textureManager, Logger& logger) const
 {
-  const auto paths = extractTextureCollections(entity);
-
-  const auto fileSearchPaths = textureCollectionSearchPaths(documentPath);
-  auto textureLoader =
-    IO::TextureLoader{m_fs, fileSearchPaths, m_config.textureConfig, logger};
-  textureLoader.loadTextures(paths, textureManager);
+  textureManager.reload(IO::TextureLoader{m_fs, m_config.textureConfig, logger});
 }
 
-std::vector<IO::Path> GameImpl::textureCollectionSearchPaths(
-  const IO::Path& documentPath) const
+void GameImpl::doReloadWads(
+  const IO::Path& documentPath, const std::vector<IO::Path>& wadPaths, Logger& logger)
 {
-  return {
-    documentPath, // Search for assets relative to the map file.
-    m_gamePath,   // Search for assets relative to the location of the game.
+  const auto searchPaths = std::vector<IO::Path>{
+    documentPath.deleteLastComponent(), // Search for assets relative to the map file.
+    m_gamePath, // Search for assets relative to the location of the game.
     IO::SystemPaths::appDirectory(), // Search for assets relative to the application.
   };
-}
-
-bool GameImpl::doIsTextureCollection(const IO::Path& path) const
-{
-  return std::visit(
-    kdl::overload(
-      [&](const TextureFilePackageConfig& filePackageConfig) {
-        return path.hasExtension(filePackageConfig.fileFormat.extensions, false);
-      },
-      [](const TextureDirectoryPackageConfig&) { return false; }),
-    m_config.textureConfig.package);
-}
-
-std::vector<IO::Path> GameImpl::doFindTextureCollections() const
-{
-  try
-  {
-    const auto searchPath = getRootDirectory(m_config.textureConfig.package);
-    if (!searchPath.isEmpty() && m_fs.pathInfo(searchPath) == IO::PathInfo::Directory)
-    {
-      return kdl::vec_concat(
-        std::vector<IO::Path>{searchPath},
-        m_fs.findRecursively(
-          searchPath, IO::makePathInfoPathMatcher({IO::PathInfo::Directory})));
-    }
-    return {};
-  }
-  catch (FileSystemException& e)
-  {
-    throw GameException{"Could not find texture collections: " + std::string{e.what()}};
-  }
-}
-
-std::vector<std::string> GameImpl::doFileTextureCollectionExtensions() const
-{
-  return std::visit(
-    kdl::overload(
-      [](const TextureFilePackageConfig& filePackageConfig) {
-        return filePackageConfig.fileFormat.extensions;
-      },
-      [](const TextureDirectoryPackageConfig&) { return std::vector<std::string>{}; }),
-    m_config.textureConfig.package);
-}
-
-std::vector<IO::Path> GameImpl::doExtractTextureCollections(const Entity& entity) const
-{
-  if (const auto& propertyKey = m_config.textureConfig.property; !propertyKey.empty())
-  {
-    if (const auto* pathsValue = entity.property(propertyKey))
-    {
-      return IO::Path::asPaths(kdl::str_split(*pathsValue, ";"));
-    }
-  }
-
-  return {};
-}
-
-void GameImpl::doUpdateTextureCollections(
-  Entity& entity, const std::vector<IO::Path>& paths) const
-{
-  if (const auto& propertyKey = m_config.textureConfig.property; !propertyKey.empty())
-  {
-    const auto value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
-    entity.addOrUpdateProperty(entityPropertyConfig(), propertyKey, value);
-  }
+  m_fs.reloadWads(m_config.textureConfig.root, searchPaths, wadPaths, logger);
 }
 
 void GameImpl::doReloadShaders()

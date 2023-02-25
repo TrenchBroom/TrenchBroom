@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "IO/Path.h"
 #include "Macros.h"
 
 #include <memory>
@@ -44,42 +45,32 @@ struct TextureConfig;
 namespace IO
 {
 class FileSystem;
-class Path;
-class TextureCollectionLoader;
 class TextureReader;
 
 class TextureLoader
 {
 private:
+  const FileSystem& m_gameFS;
+  Path m_textureRoot;
   std::vector<std::string> m_textureExtensions;
+  std::vector<std::string> m_textureExclusionPatterns;
   std::unique_ptr<TextureReader> m_textureReader;
-  std::unique_ptr<TextureCollectionLoader> m_textureCollectionLoader;
+  Logger& m_logger;
 
 public:
   TextureLoader(
-    const FileSystem& gameFS,
-    const std::vector<Path>& fileSearchPaths,
-    const Model::TextureConfig& textureConfig,
-    Logger& logger);
+    const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
   ~TextureLoader();
 
 private:
-  static std::vector<std::string> getTextureExtensions(
-    const Model::TextureConfig& textureConfig);
   static std::unique_ptr<TextureReader> createTextureReader(
     const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
   static Assets::Palette loadPalette(
     const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
-  static std::unique_ptr<TextureCollectionLoader> createTextureCollectionLoader(
-    const FileSystem& gameFS,
-    const std::vector<Path>& fileSearchPaths,
-    const Model::TextureConfig& textureConfig,
-    Logger& logger);
 
 public:
-  Assets::TextureCollection loadTextureCollection(const Path& path);
-  void loadTextures(
-    const std::vector<Path>& paths, Assets::TextureManager& textureManager);
+  std::vector<Path> findTextureCollections() const;
+  Assets::TextureCollection loadTextureCollection(const Path& path) const;
 
   deleteCopyAndMove(TextureLoader);
 };

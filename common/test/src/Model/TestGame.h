@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "IO/VirtualFileSystem.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/Game.h"
 
@@ -33,7 +34,8 @@ class Logger;
 namespace IO
 {
 class Path;
-}
+class VirtualFileSystem;
+} // namespace IO
 
 namespace Model
 {
@@ -44,9 +46,11 @@ private:
   std::vector<SmartTag> m_smartTags;
   Model::BrushFaceAttributes m_defaultFaceAttributes;
   std::vector<CompilationTool> m_compilationTools;
+  std::unique_ptr<IO::VirtualFileSystem> m_fs;
 
 public:
   TestGame();
+  ~TestGame() override;
 
 public:
   void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
@@ -99,18 +103,13 @@ private:
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  TexturePackageType doTexturePackageType() const override;
   void doLoadTextureCollections(
-    const Entity& entity,
+    Assets::TextureManager& textureManager, Logger& logger) const override;
+
+  void doReloadWads(
     const IO::Path& documentPath,
-    Assets::TextureManager& textureManager,
-    Logger& logger) const override;
-  bool doIsTextureCollection(const IO::Path& path) const override;
-  std::vector<std::string> doFileTextureCollectionExtensions() const override;
-  std::vector<IO::Path> doFindTextureCollections() const override;
-  std::vector<IO::Path> doExtractTextureCollections(const Entity& entity) const override;
-  void doUpdateTextureCollections(
-    Entity& entity, const std::vector<IO::Path>& paths) const override;
+    const std::vector<IO::Path>& wadPaths,
+    Logger& logger) override;
   void doReloadShaders() override;
 
   bool doIsEntityDefinitionFile(const IO::Path& path) const override;

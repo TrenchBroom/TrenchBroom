@@ -43,8 +43,9 @@ namespace View
 {
 TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
 {
-  document->setEnabledTextureCollections(
-    std::vector<IO::Path>{IO::Path("fixture/test/IO/Wad/cr8_czg.wad")});
+  document->deselectAll();
+  document->setProperty(
+    Model::EntityPropertyKeys::Wad, "fixture/test/IO/Wad/cr8_czg.wad");
 
   Model::BrushNode* brushNode = createBrushNode("coffin1");
   document->addNodes({{document->parentForNodes(), {brushNode}}});
