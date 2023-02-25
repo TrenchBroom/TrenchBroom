@@ -91,7 +91,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/SprParser.cpp
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.cpp
-        ${COMMON_SOURCE_DIR}/IO/TextureCollectionLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/TextureLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/TextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.cpp
@@ -309,7 +308,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
         ${COMMON_SOURCE_DIR}/View/DialogHeader.cpp
-        ${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.cpp
         ${COMMON_SOURCE_DIR}/View/DragTracker.cpp
         ${COMMON_SOURCE_DIR}/View/DropTracker.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
@@ -331,7 +329,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/FaceInspector.cpp
         ${COMMON_SOURCE_DIR}/View/FaceTool.cpp
         ${COMMON_SOURCE_DIR}/View/FaceToolController.cpp
-        ${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FlagsEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.cpp
         ${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.cpp
@@ -435,7 +432,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.cpp
         ${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
         ${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
-        ${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/TitleBar.cpp
         ${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
@@ -582,7 +578,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/SprParser.h
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.h
-        ${COMMON_SOURCE_DIR}/IO/TextureCollectionLoader.h
         ${COMMON_SOURCE_DIR}/IO/TextureLoader.h
         ${COMMON_SOURCE_DIR}/IO/TextureReader.h
         ${COMMON_SOURCE_DIR}/IO/Token.h
@@ -832,7 +827,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.h
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.h
         ${COMMON_SOURCE_DIR}/View/DialogHeader.h
-        ${COMMON_SOURCE_DIR}/View/DirectoryTextureCollectionEditor.h
         ${COMMON_SOURCE_DIR}/View/DragTracker.h
         ${COMMON_SOURCE_DIR}/View/DropTracker.h
         ${COMMON_SOURCE_DIR}/View/EdgeTool.h
@@ -854,7 +848,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/FaceInspector.h
         ${COMMON_SOURCE_DIR}/View/FaceTool.h
         ${COMMON_SOURCE_DIR}/View/FaceToolController.h
-        ${COMMON_SOURCE_DIR}/View/FileTextureCollectionEditor.h
         ${COMMON_SOURCE_DIR}/View/FlagsEditor.h
         ${COMMON_SOURCE_DIR}/View/FlagsPopupEditor.h
         ${COMMON_SOURCE_DIR}/View/FlashSelectionAnimation.h
@@ -960,7 +953,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.h
         ${COMMON_SOURCE_DIR}/View/TextureBrowser.h
         ${COMMON_SOURCE_DIR}/View/TextureBrowserView.h
-        ${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.h
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.h
         ${COMMON_SOURCE_DIR}/View/TitleBar.h
         ${COMMON_SOURCE_DIR}/View/TitledPanel.h
