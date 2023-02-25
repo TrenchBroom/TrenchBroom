@@ -424,31 +424,49 @@ CompilationRunner::~CompilationRunner() = default;
 CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(
   CompilationContext& context, const Model::CompilationProfile& profile)
 {
-  return kdl::vec_transform(profile.tasks, [&](const auto& task) {
-    return std::visit(
+  auto result = TaskRunnerList{};
+  for (const auto& task : profile.tasks)
+  {
+    std::visit(
       kdl::overload(
-        [&](const Model::CompilationExportMap& exportMap)
-          -> std::unique_ptr<CompilationTaskRunner> {
-          return std::make_unique<CompilationExportMapTaskRunner>(context, exportMap);
+        [&](const Model::CompilationExportMap& exportMap) {
+          if (exportMap.enabled)
+          {
+            result.push_back(
+              std::make_unique<CompilationExportMapTaskRunner>(context, exportMap));
+          }
         },
-        [&](const Model::CompilationCopyFiles& copyFiles)
-          -> std::unique_ptr<CompilationTaskRunner> {
-          return std::make_unique<CompilationCopyFilesTaskRunner>(context, copyFiles);
+        [&](const Model::CompilationCopyFiles& copyFiles) {
+          if (copyFiles.enabled)
+          {
+            result.push_back(
+              std::make_unique<CompilationCopyFilesTaskRunner>(context, copyFiles));
+          }
         },
-        [&](const Model::CompilationRenameFile& renameFile)
-          -> std::unique_ptr<CompilationTaskRunner> {
-          return std::make_unique<CompilationRenameFileTaskRunner>(context, renameFile);
+        [&](const Model::CompilationRenameFile& renameFile) {
+          if (renameFile.enabled)
+          {
+            result.push_back(
+              std::make_unique<CompilationRenameFileTaskRunner>(context, renameFile));
+          }
         },
-        [&](const Model::CompilationDeleteFiles& deleteFiles)
-          -> std::unique_ptr<CompilationTaskRunner> {
-          return std::make_unique<CompilationDeleteFilesTaskRunner>(context, deleteFiles);
+        [&](const Model::CompilationDeleteFiles& deleteFiles) {
+          if (deleteFiles.enabled)
+          {
+            result.push_back(
+              std::make_unique<CompilationDeleteFilesTaskRunner>(context, deleteFiles));
+          }
         },
-        [&](const Model::CompilationRunTool& runTool)
-          -> std::unique_ptr<CompilationTaskRunner> {
-          return std::make_unique<CompilationRunToolTaskRunner>(context, runTool);
+        [&](const Model::CompilationRunTool& runTool) {
+          if (runTool.enabled)
+          {
+            result.push_back(
+              std::make_unique<CompilationRunToolTaskRunner>(context, runTool));
+          }
         }),
       task);
-  });
+  }
+  return result;
 }
 
 void CompilationRunner::execute()

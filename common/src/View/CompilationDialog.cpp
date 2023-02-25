@@ -48,15 +48,8 @@ namespace TrenchBroom
 namespace View
 {
 CompilationDialog::CompilationDialog(MapFrame* mapFrame)
-  : QDialog(mapFrame)
-  , m_mapFrame(mapFrame)
-  , m_launchButton(nullptr)
-  , m_compileButton(nullptr)
-  , m_testCompileButton(nullptr)
-  , m_stopCompileButton(nullptr)
-  , m_closeButton(nullptr)
-  , m_currentRunLabel(nullptr)
-  , m_output(nullptr)
+  : QDialog{mapFrame}
+  , m_mapFrame{mapFrame}
 {
   ensure(mapFrame != nullptr, "must have a map frame");
   createGui();
@@ -74,42 +67,42 @@ void CompilationDialog::createGui()
   auto game = document->game();
   auto& compilationConfig = game->compilationConfig();
 
-  m_profileManager = new CompilationProfileManager(document, compilationConfig);
+  m_profileManager = new CompilationProfileManager{document, compilationConfig};
 
-  auto* outputPanel = new TitledPanel("Output");
-  m_output = new QTextEdit();
+  auto* outputPanel = new TitledPanel{"Output"};
+  m_output = new QTextEdit{};
   m_output->setReadOnly(true);
   m_output->setFont(Fonts::fixedWidthFont());
 
-  auto* outputLayout = new QVBoxLayout();
+  auto* outputLayout = new QVBoxLayout{};
   outputLayout->setContentsMargins(0, 0, 0, 0);
   outputLayout->setSpacing(0);
   outputLayout->addWidget(m_output);
   outputPanel->getPanel()->setLayout(outputLayout);
 
-  auto* splitter = new Splitter(Qt::Vertical);
+  auto* splitter = new Splitter{Qt::Vertical};
   splitter->addWidget(m_profileManager);
   splitter->addWidget(m_output);
   splitter->setSizes({2, 1});
 
-  auto* buttonBox = new QDialogButtonBox();
+  auto* buttonBox = new QDialogButtonBox{};
   m_launchButton = buttonBox->addButton("Launch...", QDialogButtonBox::NoRole);
   m_stopCompileButton = buttonBox->addButton("Stop", QDialogButtonBox::NoRole);
   m_testCompileButton = buttonBox->addButton("Test", QDialogButtonBox::NoRole);
   m_compileButton = buttonBox->addButton("Compile", QDialogButtonBox::NoRole);
   m_closeButton = buttonBox->addButton("Close", QDialogButtonBox::RejectRole);
 
-  m_currentRunLabel = new QLabel("");
+  m_currentRunLabel = new QLabel{""};
   m_currentRunLabel->setAlignment(Qt::AlignRight);
 
-  auto* buttonLayout = new QHBoxLayout();
+  auto* buttonLayout = new QHBoxLayout{};
   buttonLayout->setContentsMargins(0, 0, 0, 0);
   buttonLayout->setSpacing(LayoutConstants::WideHMargin);
   buttonLayout->addWidget(m_launchButton, 0, Qt::AlignVCenter);
   buttonLayout->addWidget(m_currentRunLabel, 1, Qt::AlignVCenter);
   buttonLayout->addWidget(buttonBox);
 
-  auto* dialogLayout = new QVBoxLayout();
+  auto* dialogLayout = new QVBoxLayout{};
   dialogLayout->setContentsMargins(0, 0, 0, 0);
   dialogLayout->setSpacing(0);
   dialogLayout->addWidget(splitter, 1);
@@ -168,21 +161,11 @@ void CompilationDialog::keyPressEvent(QKeyEvent* event)
 
 void CompilationDialog::updateCompileButtons()
 {
-  if (m_run.running())
-  {
-    m_compileButton->setEnabled(false);
-    m_testCompileButton->setEnabled(false);
-    m_stopCompileButton->setEnabled(true);
-  }
-  else
-  {
-    const auto* profile = m_profileManager->selectedProfile();
-    const auto enable = profile && !profile->tasks.empty();
+  const auto* profile = m_profileManager->selectedProfile();
 
-    m_compileButton->setEnabled(enable);
-    m_testCompileButton->setEnabled(enable);
-    m_stopCompileButton->setEnabled(false);
-  }
+  m_compileButton->setEnabled(!m_run.running() && profile && !profile->tasks.empty());
+  m_testCompileButton->setEnabled(!m_run.running() && profile && !profile->tasks.empty());
+  m_stopCompileButton->setEnabled(m_run.running());
 }
 
 void CompilationDialog::startCompilation(const bool test)

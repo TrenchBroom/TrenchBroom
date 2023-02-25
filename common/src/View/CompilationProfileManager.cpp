@@ -138,19 +138,12 @@ void CompilationProfileManager::removeProfile()
 
 void CompilationProfileManager::removeProfile(const size_t index)
 {
-  kdl::vec_erase_at(m_config.profiles, index);
+  m_config.profiles = kdl::vec_erase_at(m_config.profiles, index);
   m_profileList->reloadProfiles();
 
-  if (m_profileList->count() > 0)
+  if (!m_config.profiles.empty())
   {
-    if (static_cast<int>(index) >= m_profileList->count())
-    {
-      m_profileList->setCurrentRow(static_cast<int>(index - 1));
-    }
-    else
-    {
-      m_profileList->setCurrentRow(static_cast<int>(index));
-    }
+    m_profileList->setCurrentRow(int(std::min(index, m_config.profiles.size() - 1)));
   }
 }
 
