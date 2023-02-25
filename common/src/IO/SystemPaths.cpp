@@ -93,7 +93,11 @@ std::vector<Path> findResourceDirectories(const Path& directory)
 
   for (const auto& dir : dirs)
   {
-    result.push_back(IO::pathFromQString(dir));
+    const auto path = IO::pathFromQString(dir);
+    if (std::find(result.begin(), result.end(), path) == result.end())
+    {
+      result.push_back(path);
+    }
   }
   return result;
 }
