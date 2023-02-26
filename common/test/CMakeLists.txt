@@ -41,6 +41,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_FreeImageTextureReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_GameConfigParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_GameEngineConfigParser.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_GetTextureName.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_HlMipTextureReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_IdMipTextureReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ImageFileSystem.cpp"

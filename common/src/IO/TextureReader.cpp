@@ -31,6 +31,31 @@
 namespace TrenchBroom::IO
 {
 
+std::string getTextureNameFromTexture(const std::string_view textureName, const Path&)
+{
+  return std::string{textureName};
+}
+
+std::string getTextureNameFromPathSuffix(const Path& path, size_t prefixLength)
+{
+  return prefixLength < path.length()
+           ? path.suffix(path.length() - prefixLength).deleteExtension().asString("/")
+           : "";
+}
+
+GetTextureName makeGetTextureNameFromPathSuffix(const size_t prefixLength)
+{
+  return [=](const std::string_view, const Path& path) {
+    return getTextureNameFromPathSuffix(path, prefixLength);
+  };
+}
+
+GetTextureName makeGetTextureNameFromString(std::string staticName)
+{
+  return [staticName = std::move(staticName)](
+           const std::string_view, const Path&) { return staticName; };
+}
+
 TextureReader::NameStrategy::NameStrategy() = default;
 
 TextureReader::NameStrategy::~NameStrategy() = default;

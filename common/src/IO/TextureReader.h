@@ -21,8 +21,10 @@
 
 #include "Macros.h"
 
+#include <functional>
 #include <memory>
 #include <string>
+#include <string_view>
 
 namespace TrenchBroom
 {
@@ -39,6 +41,35 @@ namespace TrenchBroom::IO
 class File;
 class FileSystem;
 class Path;
+
+using GetTextureName = std::function<std::string(std::string_view, const Path&)>;
+
+/**
+ * Always returns the given texture name. The given path is ignored.
+ */
+std::string getTextureNameFromTexture(std::string_view textureName, const Path& path);
+
+std::string getTextureNameFromPathSuffix(const Path& path, size_t prefixLength);
+
+/**
+ * Returns a function that determines a texture name from a path removing a prefix of
+ * the path and returning the remaining suffix as a string, with the extension removed.
+ *
+ * Note that the length of a prefix refers to the number of path components and not to
+ * the number of characetrs.
+ *
+ * For example, given the path /this/that/over/here/texture.png and a prefix length of
+ * 3, the function will return here/texture as the texture name.
+ *
+ * Given a path with fewer than or the same number of components as the prefix length,
+ * an empty string is returned.
+ */
+GetTextureName makeGetTextureNameFromPathSuffix(size_t prefixLength);
+
+/**
+ * Returns a function that always returns the given string when called.
+ */
+GetTextureName makeGetTextureNameFromString(std::string staticName);
 
 class TextureReader
 {
@@ -76,19 +107,6 @@ public:
     deleteCopyAndMove(TextureNameStrategy);
   };
 
-  /**
-   * Determines a texture name from a path removing a prefix of the path and returning the
-   * remaining suffix as a string, with the extension removed.
-   *
-   * Note that the length of a prefix refers to the number of path components and not to
-   * the number of characetrs.
-   *
-   * For example, given the path /this/that/over/here/texture.png and a prefix length of
-   * 3, this strategy will return here/texture as the texture name.
-   *
-   * Given a path with fewer than or the same number of components as the prefix length,
-   * an empty string is returned.
-   */
   class PathSuffixNameStrategy : public NameStrategy
   {
   private:
