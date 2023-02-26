@@ -53,7 +53,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ObjParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ObjSerializer.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_Path.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/IO/tst_PathSuffixNameStrategy.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_Quake3ShaderFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_Quake3ShaderParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_Reader.cpp"
