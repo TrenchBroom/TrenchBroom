@@ -46,8 +46,7 @@ class DdsTextureReader : public TextureReader
 public:
   static Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
 
-  DdsTextureReader(
-    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  DdsTextureReader(GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
 
 private:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;

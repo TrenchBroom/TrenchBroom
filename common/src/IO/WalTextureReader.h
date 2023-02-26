@@ -42,11 +42,10 @@ private:
   std::optional<Assets::Palette> m_palette;
 
 public:
-  WalTextureReader(
-    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  WalTextureReader(GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
 
   WalTextureReader(
-    const NameStrategy& nameStrategy,
+    GetTextureName getTextureName,
     const FileSystem& fs,
     std::optional<Assets::Palette> palette,
     Logger& logger);

@@ -41,9 +41,9 @@ TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir")
   auto paletteFile = fs.openFile(Path{"fixture/test/colormap.pcx"});
   const auto palette = Assets::loadPalette(*paletteFile).value();
 
-  auto nameStrategy = TextureReader::PathSuffixNameStrategy{fixturePath.length()};
   auto logger = NullLogger{};
-  auto textureReader = WalTextureReader{nameStrategy, fs, palette, logger};
+  auto textureReader = WalTextureReader{
+    makeGetTextureNameFromPathSuffix(fixturePath.length()), fs, palette, logger};
 
   using TexInfo = std::tuple<Path, size_t, size_t, Assets::GameData>;
 

@@ -53,7 +53,7 @@ Assets::Texture loadSkin(
   const std::optional<Assets::Palette>& palette,
   Logger& logger)
 {
-  const auto nameStrategy = TextureReader::StaticNameStrategy{path.basename()};
+  auto getTextureName = makeGetTextureNameFromString(path.basename());
 
   try
   {
@@ -62,25 +62,25 @@ Assets::Texture loadSkin(
 
     if (extension == "wal")
     {
-      auto reader = WalTextureReader{nameStrategy, fs, palette, logger};
+      auto reader = WalTextureReader{std::move(getTextureName), fs, palette, logger};
       return reader.readTexture(file);
     }
     else
     {
-      auto reader = FreeImageTextureReader{nameStrategy, fs, logger};
+      auto reader = FreeImageTextureReader{std::move(getTextureName), fs, logger};
       return reader.readTexture(file);
     }
   }
   catch (Exception& e)
   {
     logger.error() << "Could not load skin '" << path << "': " << e.what();
-    return loadDefaultTexture(fs, nameStrategy.textureName("", path), logger);
+    return loadDefaultTexture(fs, path.basename(), logger);
   }
 }
 
 Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger)
 {
-  const auto nameStrategy = TextureReader::PathSuffixNameStrategy{0u};
+  const auto getTextureName = makeGetTextureNameFromPathSuffix(0);
 
   if (!path.isEmpty())
   {
@@ -91,7 +91,7 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
                           ? fs.openFile(path.deleteExtension())
                           : fs.openFile(path);
 
-      auto reader = Quake3ShaderTextureReader{nameStrategy, fs, logger};
+      auto reader = Quake3ShaderTextureReader{getTextureName, fs, logger};
       return reader.readTexture(file);
     }
     catch (const Exception& e)
@@ -105,8 +105,7 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
     logger.warn() << "Could not load shader: Path is empty";
   }
 
-  const auto name = nameStrategy.textureName("", path);
-  return loadDefaultTexture(fs, name, logger);
+  return loadDefaultTexture(fs, getTextureName("", path), logger);
 }
 } // namespace IO
 } // namespace TrenchBroom

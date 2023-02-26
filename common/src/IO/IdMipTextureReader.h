@@ -38,7 +38,7 @@ protected:
 
 public:
   IdMipTextureReader(
-    const NameStrategy& nameStrategy,
+    GetTextureName getTextureName,
     const FileSystem& fs,
     Assets::Palette palette,
     Logger& logger);

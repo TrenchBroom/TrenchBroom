@@ -124,17 +124,14 @@ std::string TextureReader::StaticNameStrategy::doGetTextureName(
 }
 
 TextureReader::TextureReader(
-  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : m_nameStrategy(nameStrategy.clone())
-  , m_fs(fs)
-  , m_logger(logger)
+  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
+  : m_getTextureName{std::move(getTextureName)}
+  , m_fs{fs}
+  , m_logger{logger}
 {
 }
 
-TextureReader::~TextureReader()
-{
-  delete m_nameStrategy;
-}
+TextureReader::~TextureReader() = default;
 
 Assets::Texture TextureReader::readTexture(std::shared_ptr<File> file) const
 {
@@ -153,12 +150,12 @@ Assets::Texture TextureReader::readTexture(std::shared_ptr<File> file) const
 std::string TextureReader::textureName(
   const std::string& textureName, const Path& path) const
 {
-  return m_nameStrategy->textureName(textureName, path);
+  return m_getTextureName(textureName, path);
 }
 
 std::string TextureReader::textureName(const Path& path) const
 {
-  return m_nameStrategy->textureName(path.lastComponent().asString(), path);
+  return m_getTextureName(path.lastComponent().asString(), path);
 }
 
 bool TextureReader::checkTextureDimensions(const size_t width, const size_t height)

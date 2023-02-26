@@ -79,47 +79,44 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
 {
   if (textureConfig.format.format == "idmip")
   {
-    const auto nameStrategy = TextureReader::TextureNameStrategy{};
-    auto palette = loadPalette(gameFS, textureConfig, logger);
     return std::make_unique<IdMipTextureReader>(
-      nameStrategy, gameFS, std::move(*palette), logger);
+      getTextureNameFromTexture,
+      gameFS,
+      *loadPalette(gameFS, textureConfig, logger),
+      logger);
   }
   else if (textureConfig.format.format == "hlmip")
   {
-    const auto nameStrategy = TextureReader::TextureNameStrategy{};
-    return std::make_unique<HlMipTextureReader>(nameStrategy, gameFS, logger);
+    return std::make_unique<HlMipTextureReader>(
+      getTextureNameFromTexture, gameFS, logger);
   }
   else if (textureConfig.format.format == "wal")
   {
-    const auto prefixLength = textureConfig.root.length();
-    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
-    auto palette = loadPalette(gameFS, textureConfig, logger);
     return std::make_unique<WalTextureReader>(
-      nameStrategy, gameFS, std::move(palette), logger);
+      makeGetTextureNameFromPathSuffix(textureConfig.root.length()),
+      gameFS,
+      loadPalette(gameFS, textureConfig, logger),
+      logger);
   }
   else if (textureConfig.format.format == "image")
   {
-    const auto prefixLength = textureConfig.root.length();
-    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
-    return std::make_unique<FreeImageTextureReader>(nameStrategy, gameFS, logger);
+    return std::make_unique<FreeImageTextureReader>(
+      makeGetTextureNameFromPathSuffix(textureConfig.root.length()), gameFS, logger);
   }
   else if (textureConfig.format.format == "q3shader")
   {
-    const auto prefixLength = textureConfig.root.length();
-    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
-    return std::make_unique<Quake3ShaderTextureReader>(nameStrategy, gameFS, logger);
+    return std::make_unique<Quake3ShaderTextureReader>(
+      makeGetTextureNameFromPathSuffix(textureConfig.root.length()), gameFS, logger);
   }
   else if (textureConfig.format.format == "m8")
   {
-    const auto prefixLength = textureConfig.root.length();
-    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
-    return std::make_unique<M8TextureReader>(nameStrategy, gameFS, logger);
+    return std::make_unique<M8TextureReader>(
+      makeGetTextureNameFromPathSuffix(textureConfig.root.length()), gameFS, logger);
   }
   else if (textureConfig.format.format == "dds")
   {
-    const auto prefixLength = textureConfig.root.length();
-    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
-    return std::make_unique<DdsTextureReader>(nameStrategy, gameFS, logger);
+    return std::make_unique<DdsTextureReader>(
+      makeGetTextureNameFromPathSuffix(textureConfig.root.length()), gameFS, logger);
   }
   else
   {

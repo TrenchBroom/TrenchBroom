@@ -195,8 +195,8 @@ void Bsp29Parser::doLoadFrame(
 
 std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& logger)
 {
-  const auto nameStrategy = TextureReader::TextureNameStrategy{};
-  auto textureReader = IdMipTextureReader{nameStrategy, m_fs, m_palette, logger};
+  auto textureReader =
+    IdMipTextureReader{getTextureNameFromTexture, m_fs, m_palette, logger};
 
   const auto textureCount = reader.readSize<int32_t>();
   auto result = std::vector<Assets::Texture>{};

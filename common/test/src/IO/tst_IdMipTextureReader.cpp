@@ -74,9 +74,8 @@ TEST_CASE("IdMipTextureReaderTest.testLoadWad")
   auto paletteFile = fs.openFile(Path{"fixture/test/palette.lmp"});
   const auto palette = Assets::loadPalette(*paletteFile).value();
 
-  auto nameStrategy = TextureReader::TextureNameStrategy{};
   auto logger = NullLogger{};
-  auto textureLoader = IdMipTextureReader{nameStrategy, fs, palette, logger};
+  auto textureLoader = IdMipTextureReader{getTextureNameFromTexture, fs, palette, logger};
 
   const auto wadPath =
     Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Wad/cr8_czg.wad"};

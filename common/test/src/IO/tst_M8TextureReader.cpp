@@ -40,9 +40,9 @@ TEST_CASE("M8TextureReaderTest.testBasicLoading")
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
   const auto filePath = Path{"fixture/test/IO/M8/test.m8"};
 
-  auto nameStrategy = TextureReader::PathSuffixNameStrategy{filePath.length() - 1u};
   auto logger = NullLogger{};
-  auto textureReader = M8TextureReader{nameStrategy, fs, logger};
+  auto textureReader =
+    M8TextureReader{makeGetTextureNameFromPathSuffix(filePath.length() - 1u), fs, logger};
 
   auto texture = textureReader.readTexture(fs.openFile(filePath));
 

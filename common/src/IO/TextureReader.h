@@ -140,15 +140,14 @@ public:
   };
 
 private:
-  NameStrategy* m_nameStrategy;
+  GetTextureName m_getTextureName;
 
 protected:
   const FileSystem& m_fs;
   Logger& m_logger;
 
 protected:
-  explicit TextureReader(
-    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  TextureReader(GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
 
 public:
   virtual ~TextureReader();

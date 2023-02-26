@@ -31,8 +31,8 @@ namespace TrenchBroom::IO
 {
 
 HlMipTextureReader::HlMipTextureReader(
-  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : MipTextureReader{nameStrategy, fs, logger}
+  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
+  : MipTextureReader{std::move(getTextureName), fs, logger}
 {
 }
 

@@ -159,8 +159,8 @@ Assets::Texture FreeImageTextureReader::readTextureFromMemory(
 }
 
 FreeImageTextureReader::FreeImageTextureReader(
-  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader(nameStrategy, fs, logger)
+  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
+  : TextureReader(std::move(getTextureName), fs, logger)
 {
 }
 

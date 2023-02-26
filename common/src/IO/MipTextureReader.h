@@ -44,8 +44,7 @@ class Reader;
 class MipTextureReader : public TextureReader
 {
 protected:
-  MipTextureReader(
-    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  MipTextureReader(GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
 
 public:
   ~MipTextureReader() override;

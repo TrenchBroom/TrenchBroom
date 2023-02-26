@@ -40,9 +40,8 @@ static Assets::Texture loadTexture(const std::string& name)
   const auto imagePath = Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Image/"};
   auto diskFS = DiskFileSystem{imagePath};
 
-  auto nameStrategy = TextureReader::TextureNameStrategy{};
   auto logger = NullLogger{};
-  auto textureLoader = FreeImageTextureReader{nameStrategy, diskFS, logger};
+  auto textureLoader = FreeImageTextureReader{getTextureNameFromTexture, diskFS, logger};
 
   return textureLoader.readTexture(diskFS.openFile(Path{name}));
 }

@@ -26,11 +26,11 @@ namespace TrenchBroom
 namespace IO
 {
 IdMipTextureReader::IdMipTextureReader(
-  const NameStrategy& nameStrategy,
+  GetTextureName getTextureName,
   const FileSystem& fs,
   Assets::Palette palette,
   Logger& logger)
-  : MipTextureReader{nameStrategy, fs, logger}
+  : MipTextureReader{std::move(getTextureName), fs, logger}
   , m_palette{std::move(palette)}
 {
 }

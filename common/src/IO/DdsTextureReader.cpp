@@ -150,8 +150,8 @@ static void readDdsMips(Reader& reader, Assets::TextureBufferList& buffers)
 
 
 DdsTextureReader::DdsTextureReader(
-  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader{nameStrategy, fs, logger}
+  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
+  : TextureReader{std::move(getTextureName), fs, logger}
 {
 }
 

@@ -51,9 +51,8 @@ TEST_CASE("HlMipTextureReaderTest.testLoadWad")
 
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
 
-  auto nameStrategy = TextureReader::TextureNameStrategy{};
   auto logger = TestLogger{};
-  auto textureLoader = HlMipTextureReader{nameStrategy, fs, logger};
+  auto textureLoader = HlMipTextureReader{getTextureNameFromTexture, fs, logger};
 
   const auto wadPath = Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/HL/hl.wad"};
   auto wadFS = WadFileSystem{wadPath};

@@ -332,8 +332,7 @@ namespace
 Assets::Texture loadTextureFromFileSystem(
   const Path& path, const FileSystem& fs, Logger& logger)
 {
-  auto imageReader =
-    FreeImageTextureReader{TextureReader::StaticNameStrategy{""}, fs, logger};
+  auto imageReader = FreeImageTextureReader{makeGetTextureNameFromString(""), fs, logger};
   return imageReader.readTexture(fs.openFile(path));
 }
 
@@ -372,8 +371,7 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs, Logger&
     Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
   };
 
-  auto imageReader =
-    FreeImageTextureReader{TextureReader::StaticNameStrategy(""), fs, logger};
+  auto imageReader = FreeImageTextureReader{makeGetTextureNameFromString(""), fs, logger};
 
   for (const auto& texturePath : texturePaths)
   {

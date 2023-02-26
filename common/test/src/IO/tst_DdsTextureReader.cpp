@@ -41,9 +41,8 @@ static Assets::Texture loadTexture(const std::string& name)
   const auto ddsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Dds/");
   auto diskFS = DiskFileSystem{ddsPath};
 
-  auto nameStrategy = TextureReader::TextureNameStrategy{};
   auto logger = NullLogger{};
-  auto textureLoader = DdsTextureReader{nameStrategy, diskFS, logger};
+  auto textureLoader = DdsTextureReader{getTextureNameFromTexture, diskFS, logger};
 
   return textureLoader.readTexture(diskFS.openFile(Path(name)));
 }

@@ -34,8 +34,7 @@ class Reader;
 class HlMipTextureReader : public MipTextureReader
 {
 public:
-  HlMipTextureReader(
-    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+  HlMipTextureReader(GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
 
 protected:
   Assets::Palette doGetPalette(

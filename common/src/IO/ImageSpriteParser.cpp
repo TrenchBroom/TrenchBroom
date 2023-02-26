@@ -54,7 +54,7 @@ bool ImageSpriteParser::canParse(const Path& path)
 std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger& logger)
 {
   auto textureReader =
-    FreeImageTextureReader{TextureReader::StaticNameStrategy{m_name}, m_fs, logger};
+    FreeImageTextureReader{makeGetTextureNameFromString(m_name), m_fs, logger};
 
   auto textures = std::vector<Assets::Texture>{};
   textures.push_back(textureReader.readTexture(m_file));

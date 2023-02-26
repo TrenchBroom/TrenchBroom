@@ -61,7 +61,7 @@ Assets::Texture loadDefaultTexture(
     {
       const auto file = fs.openFile(Path{"textures/__TB_empty.png"});
       auto imageReader =
-        FreeImageTextureReader{IO::TextureReader::StaticNameStrategy{name}, fs, logger};
+        FreeImageTextureReader{IO::makeGetTextureNameFromString(name), fs, logger};
       return imageReader.readTexture(file);
     }
     catch (const Exception& e)

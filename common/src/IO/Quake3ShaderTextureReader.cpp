@@ -37,8 +37,8 @@ namespace TrenchBroom::IO
 {
 
 Quake3ShaderTextureReader::Quake3ShaderTextureReader(
-  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader{nameStrategy, fs, logger}
+  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
+  : TextureReader{std::move(getTextureName), fs, logger}
 {
 }
 
@@ -97,13 +97,14 @@ Assets::Texture Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> f
 Assets::Texture Quake3ShaderTextureReader::loadTextureImage(
   const Path& shaderPath, const Path& imagePath) const
 {
-  const auto name = textureName(shaderPath);
   if (m_fs.pathInfo(imagePath) != PathInfo::File)
   {
     throw AssetException{"Image file '" + imagePath.asString() + "' does not exist"};
   }
 
-  auto imageReader = FreeImageTextureReader{StaticNameStrategy(name), m_fs, m_logger};
+  auto name = textureName(shaderPath);
+  auto imageReader =
+    FreeImageTextureReader{makeGetTextureNameFromString(std::move(name)), m_fs, m_logger};
   return imageReader.readTexture(m_fs.openFile(imagePath));
 }
 

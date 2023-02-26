@@ -41,17 +41,17 @@ const size_t TextureNameLength = 32;
 }
 
 WalTextureReader::WalTextureReader(
-  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : WalTextureReader{nameStrategy, fs, std::nullopt, logger}
+  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
+  : WalTextureReader{std::move(getTextureName), fs, std::nullopt, logger}
 {
 }
 
 WalTextureReader::WalTextureReader(
-  const NameStrategy& nameStrategy,
+  GetTextureName getTextureName,
   const FileSystem& fs,
   std::optional<Assets::Palette> palette,
   Logger& logger)
-  : TextureReader{nameStrategy, fs, logger}
+  : TextureReader{std::move(getTextureName), fs, logger}
   , m_palette{std::move(palette)}
 {
 }

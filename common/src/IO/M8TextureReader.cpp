@@ -45,8 +45,8 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 M8TextureReader::M8TextureReader(
-  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader{nameStrategy, fs, logger}
+  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
+  : TextureReader{std::move(getTextureName), fs, logger}
 {
 }
 

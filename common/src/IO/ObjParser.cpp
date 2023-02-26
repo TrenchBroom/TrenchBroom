@@ -330,7 +330,7 @@ std::optional<Assets::Texture> NvObjParser::loadMaterial(
   };
 
   auto imageReader =
-    IO::FreeImageTextureReader{IO::TextureReader::StaticNameStrategy{""}, m_fs, logger};
+    IO::FreeImageTextureReader{makeGetTextureNameFromString(""), m_fs, logger};
   for (const auto& texturePath : texturePaths)
   {
     try

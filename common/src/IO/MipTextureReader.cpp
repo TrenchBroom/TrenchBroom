@@ -38,8 +38,8 @@ static constexpr size_t TextureNameLength = 16;
 }
 
 MipTextureReader::MipTextureReader(
-  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader{nameStrategy, fs, logger}
+  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
+  : TextureReader{std::move(getTextureName), fs, logger}
 {
 }
 

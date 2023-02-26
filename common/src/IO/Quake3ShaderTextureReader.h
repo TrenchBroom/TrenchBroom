@@ -46,12 +46,12 @@ public:
    * Creates a texture reader using the given name strategy and file system to locate the
    * texture image.
    *
-   * @param nameStrategy the strategy to determine the texture name
+   * @param getTextureName the strategy to determine the texture name
    * @param fs the file system to use when locating the texture image
    * @param logger the logger to use
    */
   Quake3ShaderTextureReader(
-    const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
+    GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
 
 private:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
