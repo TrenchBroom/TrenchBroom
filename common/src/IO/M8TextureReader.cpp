@@ -87,7 +87,7 @@ Assets::Texture M8TextureReader::doReadTexture(std::shared_ptr<File> file) const
 
     auto paletteReader = reader.subReaderFromCurrent(M8Layout::PaletteSize);
     reader.seekForward(M8Layout::PaletteSize);
-    const auto palette = Assets::Palette::fromRaw(paletteReader);
+    const auto palette = Assets::loadPalette(paletteReader);
 
     reader.seekForward(4); // flags
     reader.seekForward(4); // contents

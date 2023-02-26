@@ -96,70 +96,6 @@ Palette::Palette(const std::vector<unsigned char>& data)
 {
 }
 
-Palette Palette::loadFile(const IO::FileSystem& fs, const IO::Path& path)
-{
-  try
-  {
-    auto file = fs.openFile(path);
-    auto reader = file->reader().buffer();
-    const auto extension = kdl::str_to_lower(path.extension());
-    if (extension == "lmp")
-    {
-      return loadLmp(reader);
-    }
-    else if (extension == "pcx")
-    {
-      return loadPcx(reader);
-    }
-    else if (extension == "bmp")
-    {
-      return loadBmp(reader);
-    }
-    else
-    {
-      throw AssetException{
-        "Could not load palette file '" + path.asString() + "': Unknown palette format"};
-    }
-  }
-  catch (const FileSystemException& e)
-  {
-    throw AssetException{
-      "Could not load palette file '" + path.asString() + "': " + e.what()};
-  }
-}
-
-Palette Palette::loadLmp(IO::Reader& reader)
-{
-  auto data = std::vector<unsigned char>(reader.size());
-  reader.read(data.data(), data.size());
-  return Palette{data};
-}
-
-Palette Palette::loadPcx(IO::Reader& reader)
-{
-  auto data = std::vector<unsigned char>(768);
-  reader.seekFromEnd(data.size());
-  reader.read(data.data(), data.size());
-  return Palette{data};
-}
-
-Palette Palette::loadBmp(IO::Reader& reader)
-{
-  auto bufferedReader = reader.buffer();
-  auto imageLoader =
-    IO::ImageLoader{IO::ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
-  auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
-                                       : imageLoader.loadPixels(IO::ImageLoader::RGB);
-  return Palette{data};
-}
-
-Palette Palette::fromRaw(IO::Reader& reader)
-{
-  auto data = std::vector<unsigned char>(reader.size());
-  reader.read(data.data(), data.size());
-  return Palette{data};
-}
-
 bool Palette::initialized() const
 {
   return m_data != nullptr;
@@ -216,6 +152,75 @@ bool Palette::indexedToRgba(
   }
 
   return hasTransparency;
+}
+
+namespace
+{
+
+Palette loadLmp(IO::Reader& reader)
+{
+  auto data = std::vector<unsigned char>(reader.size());
+  reader.read(data.data(), data.size());
+  return Palette{data};
+}
+
+Palette loadPcx(IO::Reader& reader)
+{
+  auto data = std::vector<unsigned char>(768);
+  reader.seekFromEnd(data.size());
+  reader.read(data.data(), data.size());
+  return Palette{data};
+}
+
+Palette loadBmp(IO::Reader& reader)
+{
+  auto bufferedReader = reader.buffer();
+  auto imageLoader =
+    IO::ImageLoader{IO::ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
+  auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
+                                       : imageLoader.loadPixels(IO::ImageLoader::RGB);
+  return Palette{data};
+}
+
+} // namespace
+
+Palette loadPalette(const IO::File& file)
+{
+  try
+  {
+    const auto extension = kdl::str_to_lower(file.path().extension());
+    if (extension == "lmp")
+    {
+      auto reader = file.reader().buffer();
+      return loadLmp(reader);
+    }
+    if (extension == "pcx")
+    {
+      auto reader = file.reader().buffer();
+      return loadPcx(reader);
+    }
+    if (extension == "bmp")
+    {
+      auto reader = file.reader().buffer();
+      return loadBmp(reader);
+    }
+
+    throw AssetException{
+      "Could not load palette file '" + file.path().asString()
+      + "': Unknown palette format"};
+  }
+  catch (const FileSystemException& e)
+  {
+    throw AssetException{
+      "Could not load palette file '" + file.path().asString() + "': " + e.what()};
+  }
+}
+
+Palette loadPalette(IO::Reader& reader)
+{
+  auto data = std::vector<unsigned char>(reader.size());
+  reader.read(data.data(), data.size());
+  return Palette{data};
 }
 
 } // namespace TrenchBroom::Assets

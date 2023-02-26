@@ -170,7 +170,7 @@ Assets::Texture WalTextureReader::readDkWal(
   const auto value = reader.readInt<int32_t>();
   const auto gameData = Assets::Q2Data{flags, contents, value};
 
-  const auto embeddedPalette = Assets::Palette::fromRaw(paletteReader);
+  const auto embeddedPalette = Assets::loadPalette(paletteReader);
   const auto hasTransparency = readMips(
     embeddedPalette,
     mipLevels,

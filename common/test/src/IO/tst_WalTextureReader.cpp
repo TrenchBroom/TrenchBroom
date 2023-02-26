@@ -36,7 +36,8 @@ static const auto fixturePath = Path("fixture/test/IO/Wal");
 TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir")
 {
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
-  const auto palette = Assets::Palette::loadFile(fs, Path{"fixture/test/colormap.pcx"});
+  auto paletteFile = fs.openFile(Path{"fixture/test/colormap.pcx"});
+  const auto palette = Assets::loadPalette(*paletteFile);
 
   auto nameStrategy = TextureReader::PathSuffixNameStrategy{fixturePath.length()};
   auto logger = NullLogger{};

@@ -136,7 +136,8 @@ Assets::Palette TextureLoader::loadPalette(
   {
     const auto& path = textureConfig.palette;
     logger.info() << "Loading palette file " << path;
-    return Assets::Palette::loadFile(gameFS, path);
+    auto file = gameFS.openFile(path);
+    return Assets::loadPalette(*file);
   }
   catch (const Exception& e)
   {

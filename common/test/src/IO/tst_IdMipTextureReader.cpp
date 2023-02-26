@@ -69,8 +69,8 @@ TEST_CASE("IdMipTextureReaderTest.testLoadWad")
   // clang-format on
 
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
-  const auto palette =
-    Assets::Palette::loadFile(fs, IO::Path{"fixture/test/palette.lmp"});
+  auto paletteFile = fs.openFile(Path{"fixture/test/palette.lmp"});
+  const auto palette = Assets::loadPalette(*paletteFile);
 
   auto nameStrategy = TextureReader::TextureNameStrategy{};
   auto logger = NullLogger{};

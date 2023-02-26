@@ -29,8 +29,7 @@
 namespace TrenchBroom::IO
 {
 class BufferedReader;
-class FileSystem;
-class Path;
+class File;
 } // namespace TrenchBroom::IO
 
 namespace TrenchBroom::Assets
@@ -51,19 +50,11 @@ private:
 
 public:
   Palette();
+
   /**
    * @throws AssetException if data is not 768 bytes
    */
   explicit Palette(const std::vector<unsigned char>& data);
-
-  /**
-   * @throws AssetException if the palette can't be loaded
-   */
-  static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
-  static Palette loadLmp(IO::Reader& reader);
-  static Palette loadPcx(IO::Reader& reader);
-  static Palette loadBmp(IO::Reader& reader);
-  static Palette fromRaw(IO::Reader& reader);
 
   bool initialized() const;
 
@@ -92,5 +83,12 @@ public:
     PaletteTransparency transparency,
     Color& averageColor) const;
 };
+
+Palette loadPalette(const IO::File& file);
+
+/**
+ * @throws AssetException if the palette can't be loaded
+ */
+Palette loadPalette(IO::Reader& reader);
 
 } // namespace TrenchBroom::Assets
