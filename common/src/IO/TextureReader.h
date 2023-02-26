@@ -21,6 +21,9 @@
 
 #include "Macros.h"
 
+#include <kdl/reflection_decl.h>
+#include <kdl/result_forward.h>
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -75,6 +78,20 @@ bool checkTextureDimensions(size_t width, size_t height);
 
 size_t mipSize(size_t width, size_t height, size_t mipLevel);
 
+struct ReadTextureError
+{
+  std::string textureName;
+  std::string msg;
+
+  kdl_reflect_decl(ReadTextureError, textureName, msg);
+};
+
+std::function<kdl::result<Assets::Texture>(ReadTextureError)> makeReadTextureErrorHandler(
+  const FileSystem& fs, Logger& logger);
+
+using ReadTexture =
+  std::function<kdl::result<Assets::Texture, ReadTextureError>(const File&)>;
+
 class TextureReader
 {
 private:
@@ -115,6 +132,18 @@ private:
   virtual Assets::Texture doReadTexture(std::shared_ptr<File> file) const = 0;
 
   deleteCopyAndMove(TextureReader);
+};
+
+class TextureReaderWrapper : public TextureReader
+{
+private:
+  ReadTexture m_readTexture;
+
+public:
+  TextureReaderWrapper(ReadTexture readTexture, const FileSystem& fs, Logger& logger);
+
+private:
+  Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
 };
 
 } // namespace TrenchBroom::IO

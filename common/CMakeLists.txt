@@ -53,8 +53,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.cpp
-        ${COMMON_SOURCE_DIR}/IO/HlMipTextureReader.cpp
-        ${COMMON_SOURCE_DIR}/IO/IdMipTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/IdPakFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/ImageFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/ImageLoader.cpp
@@ -70,7 +68,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/MdlParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MdxParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/MipTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeReader.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeWriter.cpp
@@ -85,6 +82,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/Reader.cpp
+        ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.cpp
         ${COMMON_SOURCE_DIR}/IO/SkinLoader.cpp
@@ -538,8 +536,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.h
-        ${COMMON_SOURCE_DIR}/IO/HlMipTextureReader.h
-        ${COMMON_SOURCE_DIR}/IO/IdMipTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/IdPakFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/ImageFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/ImageLoader.h
@@ -555,7 +551,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.h
         ${COMMON_SOURCE_DIR}/IO/MdlParser.h
         ${COMMON_SOURCE_DIR}/IO/MdxParser.h
-        ${COMMON_SOURCE_DIR}/IO/MipTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/NodeReader.h
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.h
         ${COMMON_SOURCE_DIR}/IO/NodeWriter.h
@@ -572,6 +567,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/Reader.h
         ${COMMON_SOURCE_DIR}/IO/ReaderException.h
+        ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.h
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.h
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.h
         ${COMMON_SOURCE_DIR}/IO/SkinLoader.h

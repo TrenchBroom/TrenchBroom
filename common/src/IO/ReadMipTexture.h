@@ -21,13 +21,7 @@
 
 #include "IO/TextureReader.h"
 
-#include <memory>
 #include <string>
-
-namespace TrenchBroom
-{
-class Logger;
-}
 
 namespace TrenchBroom::Assets
 {
@@ -36,30 +30,14 @@ class Palette;
 
 namespace TrenchBroom::IO
 {
-class BufferedReader;
-class File;
-class FileSystem;
 class Reader;
 
-class MipTextureReader : public TextureReader
-{
-protected:
-  MipTextureReader(GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
+std::string readMipTextureName(Reader& reader);
 
-public:
-  ~MipTextureReader() override;
+kdl::result<Assets::Texture, ReadTextureError> readIdMipTexture(
+  std::string name, Reader& reader, const Assets::Palette& palette);
 
-public:
-  static size_t mipFileSize(size_t width, size_t height, size_t mipLevels);
-  /**
-   * Reads the texture name or returns an empty string in case of error.
-   * Doesn't modify the provided reader.
-   */
-  static std::string getTextureName(const BufferedReader& reader);
-
-protected:
-  Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
-  virtual Assets::Palette doGetPalette(Reader& reader) const = 0;
-};
+kdl::result<Assets::Texture, ReadTextureError> readHlMipTexture(
+  std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO

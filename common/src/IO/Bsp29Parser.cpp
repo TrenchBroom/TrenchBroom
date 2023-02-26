@@ -24,14 +24,15 @@
 #include "Assets/Texture.h"
 #include "Exceptions.h"
 #include "IO/File.h"
-#include "IO/IdMipTextureReader.h"
-#include "IO/MipTextureReader.h"
+#include "IO/ReadMipTexture.h"
 #include "IO/Reader.h"
 #include "IO/ResourceUtils.h"
+#include "Logger.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 
 #include <fmt/format.h>
@@ -195,9 +196,6 @@ void Bsp29Parser::doLoadFrame(
 
 std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& logger)
 {
-  auto textureReader =
-    IdMipTextureReader{getTextureNameFromTexture, m_fs, m_palette, logger};
-
   const auto textureCount = reader.readSize<int32_t>();
   auto result = std::vector<Assets::Texture>{};
   result.reserve(textureCount);
@@ -212,22 +210,12 @@ std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& l
       continue;
     }
 
-    auto subReader = reader.subReaderFromBegin(size_t(textureOffset)).buffer();
+    const auto textureName = readMipTextureName(reader);
+    auto textureReader = reader.subReaderFromBegin(size_t(textureOffset)).buffer();
 
-    // MipTextureReader::doReadTexture requires a texture name to be provided in the
-    // File's Path. So we must peek into the mip data to get a name.
-    auto texturePath = Path{MipTextureReader::getTextureName(subReader)};
-    if (texturePath.isEmpty())
-    {
-      texturePath = Path{"unknown"};
-    }
-
-    // We can't easily tell where the texture ends without duplicating all of the parsing
-    // code (including HlMip) here. Just prevent the texture reader from reading past the
-    // end of the .bsp file.
-    auto fileView = std::make_shared<NonOwningBufferFile>(
-      texturePath, subReader.begin(), subReader.end());
-    result.push_back(textureReader.readTexture(fileView));
+    result.push_back(readIdMipTexture(textureName, textureReader, m_palette)
+                       .or_else(makeReadTextureErrorHandler(m_fs, logger))
+                       .value());
   }
 
   return result;

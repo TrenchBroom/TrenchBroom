@@ -26,6 +26,9 @@
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 
+#include <kdl/reflection_impl.h>
+#include <kdl/result.h>
+
 #include <algorithm>
 
 namespace TrenchBroom::IO
@@ -67,6 +70,17 @@ size_t mipSize(const size_t width, const size_t height, const size_t mipLevel)
   return size.x() * size.y();
 }
 
+std::function<kdl::result<Assets::Texture>(ReadTextureError)> makeReadTextureErrorHandler(
+  const FileSystem& fs, Logger& logger)
+{
+  return [&](ReadTextureError e) {
+    logger.error() << "Could not read texture '" << e.textureName << "': " << e;
+    return kdl::result<Assets::Texture>{loadDefaultTexture(fs, e.textureName, logger)};
+  };
+}
+
+kdl_reflect_impl(ReadTextureError);
+
 TextureReader::TextureReader(
   GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
   : m_getTextureName{std::move(getTextureName)}
@@ -100,6 +114,24 @@ std::string TextureReader::textureName(
 std::string TextureReader::textureName(const Path& path) const
 {
   return m_getTextureName(path.lastComponent().asString(), path);
+}
+
+TextureReaderWrapper::TextureReaderWrapper(
+  ReadTexture readTexture, const FileSystem& fs, Logger& logger)
+  : TextureReader{makeGetTextureNameFromString(""), fs, logger}
+  , m_readTexture{std::move(readTexture)}
+{
+}
+
+Assets::Texture TextureReaderWrapper::doReadTexture(std::shared_ptr<File> file) const
+{
+  auto result = m_readTexture(*file);
+  if (result.is_error())
+  {
+    throw AssetException{};
+  }
+
+  return result.release();
 }
 
 } // namespace TrenchBroom::IO

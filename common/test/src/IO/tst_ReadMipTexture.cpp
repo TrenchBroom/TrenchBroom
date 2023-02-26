@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "IO/File.h"
 #include "TestLogger.h"
 
 #include "Assets/Palette.h"
@@ -24,8 +25,8 @@
 #include "Assets/TextureCollection.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/IdMipTextureReader.h"
 #include "IO/Path.h"
+#include "IO/ReadMipTexture.h"
 #include "IO/TextureReader.h"
 #include "IO/WadFileSystem.h"
 #include "Logger.h"
@@ -36,11 +37,10 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-TEST_CASE("IdMipTextureReaderTest.testLoadWad")
+
+TEST_CASE("readIdMipTexture")
 {
   using TexInfo = std::tuple<std::string, size_t, size_t>;
 
@@ -75,17 +75,47 @@ TEST_CASE("IdMipTextureReaderTest.testLoadWad")
   const auto palette = Assets::loadPalette(*paletteFile).value();
 
   auto logger = NullLogger{};
-  auto textureLoader = IdMipTextureReader{getTextureNameFromTexture, fs, palette, logger};
 
   const auto wadPath =
     Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Wad/cr8_czg.wad"};
   auto wadFS = WadFileSystem{wadPath};
 
-  const auto texture =
-    textureLoader.readTexture(wadFS.openFile(Path{textureName}.addExtension("D")));
+  const auto file = wadFS.openFile(Path{textureName}.addExtension("D"));
+  auto reader = file->reader().buffer();
+  const auto texture = readIdMipTexture(textureName, reader, palette).value();
+
   CHECK(texture.name() == textureName);
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+TEST_CASE("readHlMipTexture")
+{
+  using TexInfo = std::tuple<std::string, size_t, size_t>;
+
+  // clang-format off
+  const auto [textureName, width, height] = GENERATE(values<TexInfo>({
+  { "bongs2",            128, 128 },
+  { "blowjob_machine",   128, 128 },
+  }));
+  // clang-format on
+
+  auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
+
+  auto logger = TestLogger{};
+
+  const auto wadPath = Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/HL/hl.wad"};
+  auto wadFS = WadFileSystem{wadPath};
+
+  const auto file = wadFS.openFile(Path{textureName}.addExtension("C"));
+  auto reader = file->reader().buffer();
+  const auto texture = readHlMipTexture(textureName, reader).value();
+
+  CHECK(logger.countMessages(LogLevel::Error) == 0);
+  CHECK(logger.countMessages(LogLevel::Warn) == 0);
+  CHECK(texture.name() == textureName);
+  CHECK(texture.width() == width);
+  CHECK(texture.height() == height);
+}
+
+} // namespace TrenchBroom::IO

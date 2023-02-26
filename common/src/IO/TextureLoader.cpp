@@ -28,17 +28,17 @@
 #include "IO/FileSystem.h"
 #include "IO/FileSystemUtils.h"
 #include "IO/FreeImageTextureReader.h"
-#include "IO/HlMipTextureReader.h"
-#include "IO/IdMipTextureReader.h"
 #include "IO/M8TextureReader.h"
 #include "IO/Path.h"
 #include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
 #include "IO/Quake3ShaderTextureReader.h"
+#include "IO/ReadMipTexture.h"
 #include "IO/WalTextureReader.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
+#include "kdl/result.h"
 #include "kdl/string_compare.h"
 #include "kdl/vector_utils.h"
 #include <kdl/overload.h>
@@ -79,16 +79,23 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
 {
   if (textureConfig.format.format == "idmip")
   {
-    return std::make_unique<IdMipTextureReader>(
-      getTextureNameFromTexture,
+    return std::make_unique<TextureReaderWrapper>(
+      [&, palette = *loadPalette(gameFS, textureConfig, logger)](const File& file) {
+        auto reader = file.reader().buffer();
+        return readIdMipTexture(file.path().basename(), reader, palette);
+      },
       gameFS,
-      *loadPalette(gameFS, textureConfig, logger),
       logger);
   }
   else if (textureConfig.format.format == "hlmip")
   {
-    return std::make_unique<HlMipTextureReader>(
-      getTextureNameFromTexture, gameFS, logger);
+    return std::make_unique<TextureReaderWrapper>(
+      [&](const File& file) {
+        auto reader = file.reader().buffer();
+        return readHlMipTexture(file.path().basename(), reader);
+      },
+      gameFS,
+      logger);
   }
   else if (textureConfig.format.format == "wal")
   {
