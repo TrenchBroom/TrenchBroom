@@ -27,13 +27,14 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Palette;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class BufferedReader;
 class File;
@@ -43,7 +44,7 @@ class Reader;
 class MipTextureReader : public TextureReader
 {
 protected:
-  explicit MipTextureReader(
+  MipTextureReader(
     const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
 
 public:
@@ -62,5 +63,5 @@ protected:
   virtual Assets::Palette doGetPalette(
     Reader& reader, const size_t offset[], size_t width, size_t height) const = 0;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

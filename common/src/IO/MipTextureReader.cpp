@@ -30,9 +30,7 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 namespace MipLayout
 {
@@ -41,7 +39,7 @@ static constexpr size_t TextureNameLength = 16;
 
 MipTextureReader::MipTextureReader(
   const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader(nameStrategy, fs, logger)
+  : TextureReader{nameStrategy, fs, logger}
 {
 }
 
@@ -73,17 +71,17 @@ std::string MipTextureReader::getTextureName(const BufferedReader& reader)
 
 Assets::Texture MipTextureReader::doReadTexture(std::shared_ptr<File> file) const
 {
-  static const size_t MipLevels = 4;
+  static const auto MipLevels = size_t(4);
 
-  Color averageColor;
-  Assets::TextureBufferList buffers(MipLevels);
+  auto averageColor = Color{};
+  auto buffers = Assets::TextureBufferList{MipLevels};
   size_t offset[MipLevels];
 
   ensure(!file->path().isEmpty(), "MipTextureReader::doReadTexture requires a path");
 
   const auto path = file->path();
   const auto basename = path.lastComponent().deleteExtension().asString();
-  const auto name = textureName(basename, path);
+  auto name = textureName(basename, path);
   try
   {
     auto reader = file->reader().buffer();
@@ -97,7 +95,7 @@ Assets::Texture MipTextureReader::doReadTexture(std::shared_ptr<File> file) cons
 
     if (!checkTextureDimensions(width, height))
     {
-      throw AssetException("Invalid texture dimensions");
+      throw AssetException{"Invalid texture dimensions"};
     }
 
     for (size_t i = 0; i < MipLevels; ++i)
@@ -120,9 +118,9 @@ Assets::Texture MipTextureReader::doReadTexture(std::shared_ptr<File> file) cons
     for (size_t i = 0; i < MipLevels; ++i)
     {
       reader.seekFromBegin(offset[i]);
-      const size_t size = mipSize(width, height, i);
+      const auto size = mipSize(width, height, i);
 
-      Color tempColor;
+      auto tempColor = Color{};
       palette.indexedToRgba(reader, size, buffers[i], transparent, tempColor);
       if (i == 0)
       {
@@ -133,13 +131,13 @@ Assets::Texture MipTextureReader::doReadTexture(std::shared_ptr<File> file) cons
     const auto type = (transparent == Assets::PaletteTransparency::Index255Transparent)
                         ? Assets::TextureType::Masked
                         : Assets::TextureType::Opaque;
-    return Assets::Texture(
-      name, width, height, averageColor, std::move(buffers), GL_RGBA, type);
+    return Assets::Texture{
+      std::move(name), width, height, averageColor, std::move(buffers), GL_RGBA, type};
   }
   catch (const ReaderException& e)
   {
-    throw AssetException(e.what());
+    throw AssetException{e.what()};
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

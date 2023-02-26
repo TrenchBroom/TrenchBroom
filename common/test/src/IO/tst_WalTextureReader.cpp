@@ -35,13 +35,12 @@ static const auto fixturePath = Path("fixture/test/IO/Wal");
 
 TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir")
 {
-  DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-  const Assets::Palette palette =
-    Assets::Palette::loadFile(fs, Path("fixture/test/colormap.pcx"));
+  auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
+  const auto palette = Assets::Palette::loadFile(fs, Path{"fixture/test/colormap.pcx"});
 
-  TextureReader::PathSuffixNameStrategy nameStrategy(fixturePath.length());
-  NullLogger logger;
-  WalTextureReader textureReader(nameStrategy, fs, logger, palette);
+  auto nameStrategy = TextureReader::PathSuffixNameStrategy{fixturePath.length()};
+  auto logger = NullLogger{};
+  auto textureReader = WalTextureReader{nameStrategy, fs, logger, palette};
 
   using TexInfo = std::tuple<Path, size_t, size_t, Assets::GameData>;
 

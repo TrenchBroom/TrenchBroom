@@ -32,20 +32,19 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 static Assets::Texture loadTexture(const std::string& name)
 {
-  const auto imagePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Image/");
-  DiskFileSystem diskFS(imagePath);
+  const auto imagePath = Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Image/"};
+  auto diskFS = DiskFileSystem{imagePath};
 
-  TextureReader::TextureNameStrategy nameStrategy;
-  NullLogger logger;
-  FreeImageTextureReader textureLoader(nameStrategy, diskFS, logger);
+  auto nameStrategy = TextureReader::TextureNameStrategy{};
+  auto logger = NullLogger{};
+  auto textureLoader = FreeImageTextureReader{nameStrategy, diskFS, logger};
 
-  return textureLoader.readTexture(diskFS.openFile(Path(name)));
+  return textureLoader.readTexture(diskFS.openFile(Path{name}));
 }
 
 static void assertTexture(
@@ -166,5 +165,5 @@ TEST_CASE("FreeImageTextureReaderTest.alphaMaskTest")
     }
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

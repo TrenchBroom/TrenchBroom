@@ -46,9 +46,9 @@ public:
   static Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
 
   static Assets::Texture readTextureFromMemory(
-    const std::string& name, const uint8_t* begin, size_t size);
+    std::string name, const uint8_t* begin, size_t size);
 
-  explicit FreeImageTextureReader(
+  FreeImageTextureReader(
     const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
 
 private:

@@ -48,7 +48,7 @@ class Path;
  * @return the default texture
  */
 Assets::Texture loadDefaultTexture(
-  const FileSystem& fs, Logger& logger, const std::string& name);
+  const FileSystem& fs, const std::string& name, Logger& logger);
 
 QPixmap loadPixmapResource(const std::string& name);
 QPixmap loadPixmapResource(const Path& imagePath);

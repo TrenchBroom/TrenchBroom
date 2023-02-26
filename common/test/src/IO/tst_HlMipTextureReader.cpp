@@ -49,17 +49,17 @@ TEST_CASE("HlMipTextureReaderTest.testLoadWad")
   }));
   // clang-format on
 
-  DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
+  auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
 
-  TextureReader::TextureNameStrategy nameStrategy;
-  TestLogger logger;
-  HlMipTextureReader textureLoader(nameStrategy, fs, logger);
+  auto nameStrategy = TextureReader::TextureNameStrategy{};
+  auto logger = TestLogger{};
+  auto textureLoader = HlMipTextureReader{nameStrategy, fs, logger};
 
-  const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/HL/hl.wad");
-  WadFileSystem wadFS(wadPath);
+  const auto wadPath = Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/HL/hl.wad"};
+  auto wadFS = WadFileSystem{wadPath};
 
-  const Assets::Texture texture =
-    textureLoader.readTexture(wadFS.openFile(Path(textureName + ".C")));
+  const auto texture =
+    textureLoader.readTexture(wadFS.openFile(Path{textureName}.addExtension("C")));
   CHECK(logger.countMessages(LogLevel::Error) == 0);
   CHECK(logger.countMessages(LogLevel::Warn) == 0);
   CHECK(texture.name() == textureName);

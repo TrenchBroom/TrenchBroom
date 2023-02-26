@@ -21,11 +21,14 @@
 
 #include "IO/TextureReader.h"
 
+#include <memory>
+
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class File;
 class FileSystem;
@@ -41,5 +44,5 @@ public:
 private:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

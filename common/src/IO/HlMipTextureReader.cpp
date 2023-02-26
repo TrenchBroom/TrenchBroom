@@ -24,13 +24,12 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 HlMipTextureReader::HlMipTextureReader(
   const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : MipTextureReader(nameStrategy, fs, logger)
+  : MipTextureReader{nameStrategy, fs, logger}
 {
 }
 
@@ -38,14 +37,14 @@ Assets::Palette HlMipTextureReader::doGetPalette(
   Reader& reader, const size_t offset[], const size_t width, const size_t height) const
 {
   // each texture has two bytes after the last mip and before the palette data starts
-  const size_t start = offset[0] + (width * height * 85 >> 6) + 2;
+  const auto start = offset[0] + (width * height * 85 >> 6) + 2;
   reader.seekFromBegin(start);
 
   // each texture has two bytes of padding at the end
-  std::vector<unsigned char> data(reader.size() - start - 2);
+  auto data = std::vector<unsigned char>(reader.size() - start - 2);
   reader.read(data.data(), data.size());
 
-  return Assets::Palette(std::move(data));
+  return Assets::Palette{data};
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

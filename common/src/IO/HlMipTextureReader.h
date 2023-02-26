@@ -24,8 +24,9 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class FileSystem;
 class Reader;
@@ -33,12 +34,12 @@ class Reader;
 class HlMipTextureReader : public MipTextureReader
 {
 public:
-  explicit HlMipTextureReader(
+  HlMipTextureReader(
     const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger);
 
 protected:
   Assets::Palette doGetPalette(
     Reader& reader, const size_t offset[], size_t width, size_t height) const override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

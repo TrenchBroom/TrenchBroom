@@ -28,10 +28,9 @@
 
 #include <algorithm>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TextureReader::NameStrategy::NameStrategy() = default;
 
 TextureReader::NameStrategy::~NameStrategy() = default;
@@ -122,7 +121,7 @@ Assets::Texture TextureReader::readTexture(std::shared_ptr<File> file) const
   {
     m_logger.error() << "Could not read texture '" << file->path() << "': " << e.what();
     return loadDefaultTexture(
-      m_fs, m_logger, textureName(file->path().deleteExtension()));
+      m_fs, textureName(file->path().deleteExtension()), m_logger);
   }
 }
 
@@ -148,5 +147,5 @@ size_t TextureReader::mipSize(
   const auto size = Assets::sizeAtMipLevel(width, height, mipLevel);
   return size.x() * size.y();
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

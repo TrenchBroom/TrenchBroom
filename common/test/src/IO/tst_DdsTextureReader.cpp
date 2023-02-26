@@ -39,11 +39,11 @@ namespace IO
 static Assets::Texture loadTexture(const std::string& name)
 {
   const auto ddsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Dds/");
-  DiskFileSystem diskFS(ddsPath);
+  auto diskFS = DiskFileSystem{ddsPath};
 
-  TextureReader::TextureNameStrategy nameStrategy;
-  NullLogger logger;
-  DdsTextureReader textureLoader(nameStrategy, diskFS, logger);
+  auto nameStrategy = TextureReader::TextureNameStrategy{};
+  auto logger = NullLogger{};
+  auto textureLoader = DdsTextureReader{nameStrategy, diskFS, logger};
 
   return textureLoader.readTexture(diskFS.openFile(Path(name)));
 }

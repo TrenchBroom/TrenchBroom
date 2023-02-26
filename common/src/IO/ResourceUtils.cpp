@@ -49,19 +49,19 @@ namespace TrenchBroom
 namespace IO
 {
 Assets::Texture loadDefaultTexture(
-  const FileSystem& fs, Logger& logger, const std::string& name)
+  const FileSystem& fs, const std::string& name, Logger& logger)
 {
   // recursion guard
-  static bool executing = false;
+  static auto executing = false;
   if (!executing)
   {
-    const kdl::set_temp set_executing(executing);
+    const auto set_executing = kdl::set_temp{executing};
 
     try
     {
-      const auto file = fs.openFile(Path("textures/__TB_empty.png"));
-      FreeImageTextureReader imageReader(
-        IO::TextureReader::StaticNameStrategy(name), fs, logger);
+      const auto file = fs.openFile(Path{"textures/__TB_empty.png"});
+      auto imageReader =
+        FreeImageTextureReader{IO::TextureReader::StaticNameStrategy{name}, fs, logger};
       return imageReader.readTexture(file);
     }
     catch (const Exception& e)
@@ -74,12 +74,12 @@ Assets::Texture loadDefaultTexture(
   {
     logger.error() << "Could not load default texture";
   }
-  return Assets::Texture(name, 32, 32);
+  return Assets::Texture{name, 32, 32};
 }
 
 static QString imagePathToString(const Path& imagePath)
 {
-  const Path fullPath = imagePath.isAbsolute()
+  const auto fullPath = imagePath.isAbsolute()
                           ? imagePath
                           : SystemPaths::findResourceFile(Path("images") + imagePath);
   return pathAsQString(fullPath);
@@ -87,29 +87,28 @@ static QString imagePathToString(const Path& imagePath)
 
 QPixmap loadPixmapResource(const std::string& name)
 {
-  return loadPixmapResource(Path(name));
+  return loadPixmapResource(Path{name});
 }
 
 QPixmap loadPixmapResource(const Path& imagePath)
 {
-  const QString imagePathString = imagePathToString(imagePath);
-  return QPixmap(imagePathString);
+  return QPixmap{imagePathToString(imagePath)};
 }
 
 static QImage createDisabledState(const QImage& image)
 {
   // Convert to greyscale, divide the opacity by 3
   auto disabledImage = image.convertToFormat(QImage::Format_ARGB32);
-  const int w = disabledImage.width();
-  const int h = disabledImage.height();
+  const auto w = disabledImage.width();
+  const auto h = disabledImage.height();
   for (int y = 0; y < h; ++y)
   {
-    QRgb* row = reinterpret_cast<QRgb*>(disabledImage.scanLine(y));
+    auto* row = reinterpret_cast<QRgb*>(disabledImage.scanLine(y));
     for (int x = 0; x < w; ++x)
     {
-      const QRgb oldPixel = row[x];
-      const int grey = (qRed(oldPixel) + qGreen(oldPixel) + qBlue(oldPixel)) / 3;
-      const int alpha = qAlpha(oldPixel) / 3;
+      const auto oldPixel = row[x];
+      const auto grey = (qRed(oldPixel) + qGreen(oldPixel) + qBlue(oldPixel)) / 3;
+      const auto alpha = qAlpha(oldPixel) / 3;
       row[x] = qRgba(grey, grey, grey, alpha);
     }
   }
@@ -129,13 +128,13 @@ static void renderSvgToIcon(
     return;
   }
 
-  QImage image(
-    static_cast<int>(svgSource.defaultSize().width() * devicePixelRatio),
-    static_cast<int>(svgSource.defaultSize().height() * devicePixelRatio),
-    QImage::Format_ARGB32_Premultiplied);
+  auto image = QImage{
+    int(svgSource.defaultSize().width() * devicePixelRatio),
+    int(svgSource.defaultSize().height() * devicePixelRatio),
+    QImage::Format_ARGB32_Premultiplied};
   image.fill(Qt::transparent);
   {
-    QPainter paint(&image);
+    auto paint = QPainter{&image};
     svgSource.render(&paint);
   }
   image.setDevicePixelRatio(devicePixelRatio);
@@ -160,21 +159,18 @@ QIcon loadSVGIcon(const Path& imagePath)
     qApp->thread() == QThread::currentThread(),
     "loadIconResourceQt can only be used on the main thread");
 
-  static std::map<Path, QIcon> cache;
+  static auto cache = std::map<Path, QIcon>{};
+  if (const auto it = cache.find(imagePath); it != cache.end())
   {
-    auto it = cache.find(imagePath);
-    if (it != cache.end())
-    {
-      return it->second;
-    }
+    return it->second;
   }
 
-  const auto palette = QPalette();
+  const auto palette = QPalette{};
   const auto windowColor = palette.color(QPalette::Active, QPalette::Window);
   const auto darkTheme = windowColor.lightness() <= 127;
 
   // Cache miss, load the icon
-  QIcon result;
+  auto result = QIcon{};
   if (!imagePath.isEmpty())
   {
     const auto onPath =
@@ -185,13 +181,13 @@ QIcon loadSVGIcon(const Path& imagePath)
 
     if (!onPath.isEmpty() && !offPath.isEmpty())
     {
-      QSvgRenderer onRenderer(onPath);
+      auto onRenderer = QSvgRenderer{onPath};
       if (!onRenderer.isValid())
       {
         qWarning() << "Failed to load SVG " << onPath;
       }
 
-      QSvgRenderer offRenderer(offPath);
+      auto offRenderer = QSvgRenderer{offPath};
       if (!offRenderer.isValid())
       {
         qWarning() << "Failed to load SVG " << offPath;
@@ -204,7 +200,7 @@ QIcon loadSVGIcon(const Path& imagePath)
     }
     else if (!imagePathString.isEmpty())
     {
-      QSvgRenderer renderer(imagePathString);
+      auto renderer = QSvgRenderer{imagePathString};
       if (!renderer.isValid())
       {
         qWarning() << "Failed to load SVG " << imagePathString;

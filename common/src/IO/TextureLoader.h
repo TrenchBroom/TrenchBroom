@@ -29,20 +29,21 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Palette;
 class TextureCollection;
 class TextureManager;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
 struct TextureConfig;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class FileSystem;
 class TextureReader;
@@ -74,5 +75,5 @@ public:
 
   deleteCopyAndMove(TextureLoader);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

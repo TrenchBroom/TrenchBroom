@@ -23,14 +23,12 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Quake3Shader;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class File;
 class FileSystem;
@@ -61,5 +59,5 @@ private:
   Path findTexturePath(const Assets::Quake3Shader& shader) const;
   Path findTexture(const Path& texturePath) const;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

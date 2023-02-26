@@ -28,10 +28,10 @@ namespace IO
 IdMipTextureReader::IdMipTextureReader(
   const NameStrategy& nameStrategy,
   const FileSystem& fs,
-  Logger& logger,
-  const Assets::Palette& palette)
-  : MipTextureReader(nameStrategy, fs, logger)
-  , m_palette(palette)
+  Assets::Palette palette,
+  Logger& logger)
+  : MipTextureReader{nameStrategy, fs, logger}
+  , m_palette{std::move(palette)}
 {
 }
 

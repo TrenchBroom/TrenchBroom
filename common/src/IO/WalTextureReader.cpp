@@ -43,8 +43,8 @@ WalTextureReader::WalTextureReader(
   const FileSystem& fs,
   Logger& logger,
   const Assets::Palette& palette)
-  : TextureReader(nameStrategy, fs, logger)
-  , m_palette(palette)
+  : TextureReader{nameStrategy, fs, logger}
+  , m_palette{palette}
 {
 }
 
@@ -55,7 +55,7 @@ Assets::Texture WalTextureReader::doReadTexture(std::shared_ptr<File> file) cons
 
   try
   {
-    const char version = reader.readChar<char>();
+    const auto version = reader.readChar<char>();
     reader.seekFromBegin(0);
 
     if (version == 3)
@@ -69,27 +69,27 @@ Assets::Texture WalTextureReader::doReadTexture(std::shared_ptr<File> file) cons
   }
   catch (const ReaderException&)
   {
-    return Assets::Texture(textureName(path), 16, 16);
+    return Assets::Texture{textureName(path), 16, 16};
   }
 }
 
 Assets::Texture WalTextureReader::readQ2Wal(
   BufferedReader& reader, const Path& path) const
 {
-  static const size_t MaxMipLevels = 4;
-  static Color averageColor;
-  static Assets::TextureBufferList buffers(MaxMipLevels);
+  static const auto MaxMipLevels = size_t(4);
+  static auto averageColor = Color{};
+  static auto buffers = Assets::TextureBufferList{MaxMipLevels};
   static size_t offsets[MaxMipLevels];
 
   // https://github.com/id-Software/Quake-2-Tools/blob/master/qe4/qfiles.h#L142
 
-  const std::string name = reader.readString(WalLayout::TextureNameLength);
-  const size_t width = reader.readSize<uint32_t>();
-  const size_t height = reader.readSize<uint32_t>();
+  const auto name = reader.readString(WalLayout::TextureNameLength);
+  const auto width = reader.readSize<uint32_t>();
+  const auto height = reader.readSize<uint32_t>();
 
   if (!checkTextureDimensions(width, height))
   {
-    return Assets::Texture(textureName(path), 16, 16);
+    return Assets::Texture{textureName(path), 16, 16};
   }
 
   const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
@@ -102,13 +102,13 @@ Assets::Texture WalTextureReader::readQ2Wal(
 
   if (!m_palette.initialized())
   {
-    return Assets::Texture(
+    return Assets::Texture{
       textureName(name, path),
       width,
       height,
       GL_RGB,
       Assets::TextureType::Opaque,
-      gameData);
+      gameData};
   }
 
   Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
@@ -122,6 +122,7 @@ Assets::Texture WalTextureReader::readQ2Wal(
     buffers,
     averageColor,
     Assets::PaletteTransparency::Opaque);
+
   return Assets::Texture{
     textureName(name, path),
     width,
@@ -136,14 +137,14 @@ Assets::Texture WalTextureReader::readQ2Wal(
 Assets::Texture WalTextureReader::readDkWal(
   BufferedReader& reader, const Path& path) const
 {
-  static const size_t MaxMipLevels = 9;
-  static Color averageColor;
-  static Assets::TextureBufferList buffers(MaxMipLevels);
+  static const auto MaxMipLevels = size_t(9);
+  static auto averageColor = Color{};
+  static auto buffers = Assets::TextureBufferList{MaxMipLevels};
   static size_t offsets[MaxMipLevels];
 
   // https://gist.github.com/DanielGibson/a53c74b10ddd0a1f3d6ab42909d5b7e1
 
-  const char version = reader.readChar<char>();
+  const auto version = reader.readChar<char>();
   ensure(version == 3, "Unknown WAL texture version");
 
   const auto name = reader.readString(WalLayout::TextureNameLength);
@@ -154,13 +155,13 @@ Assets::Texture WalTextureReader::readDkWal(
 
   if (!checkTextureDimensions(width, height))
   {
-    return Assets::Texture(textureName(path), 16, 16);
+    return Assets::Texture{textureName(path), 16, 16};
   }
 
   const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
   Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
-  /* const std::string animname = */ reader.readString(WalLayout::TextureNameLength);
+  /* const auto animname = */ reader.readString(WalLayout::TextureNameLength);
   const auto flags = reader.readInt<int32_t>();
   const auto contents = reader.readInt<int32_t>();
 
@@ -180,6 +181,7 @@ Assets::Texture WalTextureReader::readDkWal(
     buffers,
     averageColor,
     Assets::PaletteTransparency::Index255Transparent);
+
   return Assets::Texture{
     textureName(name, path),
     width,
@@ -203,9 +205,7 @@ size_t WalTextureReader::readMipOffsets(
   {
     offsets[i] = reader.readSize<uint32_t>();
     ++mipLevels;
-    if (
-      width / (static_cast<size_t>(1) << i) == 1
-      || height / (static_cast<size_t>(1) << i) == 1)
+    if (width / (size_t(1) << i) == 1 || height / (size_t(1) << i) == 1)
     {
       break;
     }
@@ -228,15 +228,15 @@ bool WalTextureReader::readMips(
   Color& averageColor,
   const Assets::PaletteTransparency transparency)
 {
-  static Color tempColor;
+  static auto tempColor = Color{};
 
   auto hasTransparency = false;
   for (size_t i = 0; i < mipLevels; ++i)
   {
     const auto offset = offsets[i];
     reader.seekFromBegin(offset);
-    const auto curWidth = width / (static_cast<size_t>(1) << i);
-    const auto curHeight = height / (static_cast<size_t>(1) << i);
+    const auto curWidth = width / (size_t(1) << i);
+    const auto curHeight = height / (size_t(1) << i);
     const auto size = curWidth * curHeight;
 
     // FIXME: Confirm this is actually happening because of bad data and not a bug.
@@ -248,9 +248,9 @@ bool WalTextureReader::readMips(
       return false;
     }
 
-    hasTransparency |=
-      (palette.indexedToRgba(reader, size, buffers[i], transparency, tempColor)
-       && i == 0);
+    hasTransparency =
+      hasTransparency
+      || (palette.indexedToRgba(reader, size, buffers[i], transparency, tempColor) && i == 0);
     if (i == 0)
     {
       averageColor = tempColor;

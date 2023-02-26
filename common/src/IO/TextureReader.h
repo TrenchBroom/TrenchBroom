@@ -27,13 +27,14 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class File;
 class FileSystem;
@@ -166,5 +167,5 @@ public:
 
   deleteCopyAndMove(TextureReader);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -40,8 +40,8 @@ public:
   IdMipTextureReader(
     const NameStrategy& nameStrategy,
     const FileSystem& fs,
-    Logger& logger,
-    const Assets::Palette& palette);
+    Assets::Palette palette,
+    Logger& logger);
 
 protected:
   Assets::Palette doGetPalette(

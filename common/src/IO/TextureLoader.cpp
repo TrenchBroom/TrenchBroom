@@ -46,10 +46,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 namespace
 {
 bool shouldExclude(
@@ -81,7 +80,7 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   {
     const auto nameStrategy = TextureReader::TextureNameStrategy{};
     return std::make_unique<IdMipTextureReader>(
-      nameStrategy, gameFS, logger, loadPalette(gameFS, textureConfig, logger));
+      nameStrategy, gameFS, loadPalette(gameFS, textureConfig, logger), logger);
   }
   else if (textureConfig.format.format == "hlmip")
   {
@@ -91,37 +90,37 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   else if (textureConfig.format.format == "wal")
   {
     const auto prefixLength = textureConfig.root.length();
-    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
+    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
     return std::make_unique<WalTextureReader>(
       nameStrategy, gameFS, logger, loadPalette(gameFS, textureConfig, logger));
   }
   else if (textureConfig.format.format == "image")
   {
     const auto prefixLength = textureConfig.root.length();
-    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
+    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
     return std::make_unique<FreeImageTextureReader>(nameStrategy, gameFS, logger);
   }
   else if (textureConfig.format.format == "q3shader")
   {
     const auto prefixLength = textureConfig.root.length();
-    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
+    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
     return std::make_unique<Quake3ShaderTextureReader>(nameStrategy, gameFS, logger);
   }
   else if (textureConfig.format.format == "m8")
   {
     const auto prefixLength = textureConfig.root.length();
-    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
+    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
     return std::make_unique<M8TextureReader>(nameStrategy, gameFS, logger);
   }
   else if (textureConfig.format.format == "dds")
   {
     const auto prefixLength = textureConfig.root.length();
-    const TextureReader::PathSuffixNameStrategy nameStrategy(prefixLength);
+    const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
     return std::make_unique<DdsTextureReader>(nameStrategy, gameFS, logger);
   }
   else
   {
-    throw GameException("Unknown texture format '" + textureConfig.format.format + "'");
+    throw GameException{"Unknown texture format '" + textureConfig.format.format + "'"};
   }
 }
 
@@ -142,7 +141,7 @@ Assets::Palette TextureLoader::loadPalette(
   catch (const Exception& e)
   {
     logger.error() << e.what();
-    return Assets::Palette();
+    return Assets::Palette{};
   }
 }
 
@@ -189,5 +188,5 @@ Assets::TextureCollection TextureLoader::loadTextureCollection(const Path& path)
 
   return Assets::TextureCollection{path, std::move(textures)};
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

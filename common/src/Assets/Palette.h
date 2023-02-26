@@ -26,16 +26,14 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class BufferedReader;
 class FileSystem;
 class Path;
-} // namespace IO
+} // namespace TrenchBroom::IO
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 struct PaletteData;
 class TextureBuffer;
@@ -56,7 +54,7 @@ public:
   /**
    * @throws AssetException if data is not 768 bytes
    */
-  Palette(const std::vector<unsigned char>& data);
+  explicit Palette(const std::vector<unsigned char>& data);
 
   /**
    * @throws AssetException if the palette can't be loaded
@@ -91,8 +89,8 @@ public:
     IO::Reader& reader,
     size_t pixelCount,
     TextureBuffer& rgbaImage,
-    const PaletteTransparency transparency,
+    PaletteTransparency transparency,
     Color& averageColor) const;
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

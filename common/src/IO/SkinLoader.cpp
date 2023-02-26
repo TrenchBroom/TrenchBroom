@@ -49,34 +49,34 @@ Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger)
 Assets::Texture loadSkin(
   const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette)
 {
-  const TextureReader::StaticNameStrategy nameStrategy(path.basename());
+  const auto nameStrategy = TextureReader::StaticNameStrategy{path.basename()};
 
   try
   {
     const auto file = fs.openFile(path);
-    const std::string extension = kdl::str_to_lower(path.extension());
+    const auto extension = kdl::str_to_lower(path.extension());
 
     if (extension == "wal")
     {
-      WalTextureReader reader(nameStrategy, fs, logger, palette);
+      auto reader = WalTextureReader{nameStrategy, fs, logger, palette};
       return reader.readTexture(file);
     }
     else
     {
-      FreeImageTextureReader reader(nameStrategy, fs, logger);
+      auto reader = FreeImageTextureReader{nameStrategy, fs, logger};
       return reader.readTexture(file);
     }
   }
   catch (Exception& e)
   {
     logger.error() << "Could not load skin '" << path << "': " << e.what();
-    return loadDefaultTexture(fs, logger, nameStrategy.textureName("", path));
+    return loadDefaultTexture(fs, nameStrategy.textureName("", path), logger);
   }
 }
 
 Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger)
 {
-  const TextureReader::PathSuffixNameStrategy nameStrategy(0u);
+  const auto nameStrategy = TextureReader::PathSuffixNameStrategy{0u};
 
   if (!path.isEmpty())
   {
@@ -87,7 +87,7 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
                           ? fs.openFile(path.deleteExtension())
                           : fs.openFile(path);
 
-      Quake3ShaderTextureReader reader(nameStrategy, fs, logger);
+      auto reader = Quake3ShaderTextureReader{nameStrategy, fs, logger};
       return reader.readTexture(file);
     }
     catch (const Exception& e)
@@ -100,8 +100,9 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
   {
     logger.warn() << "Could not load shader: Path is empty";
   }
+
   const auto name = nameStrategy.textureName("", path);
-  return loadDefaultTexture(fs, logger, name);
+  return loadDefaultTexture(fs, name, logger);
 }
 } // namespace IO
 } // namespace TrenchBroom

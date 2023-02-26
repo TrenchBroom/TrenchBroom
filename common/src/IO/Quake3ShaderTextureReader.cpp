@@ -33,30 +33,29 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 Quake3ShaderTextureReader::Quake3ShaderTextureReader(
   const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader(nameStrategy, fs, logger)
+  : TextureReader{nameStrategy, fs, logger}
 {
 }
 
 Assets::Texture Quake3ShaderTextureReader::doReadTexture(std::shared_ptr<File> file) const
 {
   const auto* shaderFile = dynamic_cast<ObjectFile<Assets::Quake3Shader>*>(file.get());
-  if (shaderFile == nullptr)
+  if (!shaderFile)
   {
-    throw AssetException("File is not a shader");
+    throw AssetException{"File is not a shader"};
   }
 
   const auto& shader = shaderFile->object();
   const auto texturePath = findTexturePath(shader);
   if (texturePath.isEmpty())
   {
-    throw AssetException(
-      "Could not find texture path for shader '" + shader.shaderPath.asString() + "'");
+    throw AssetException{
+      "Could not find texture path for shader '" + shader.shaderPath.asString() + "'"};
   }
 
   auto texture = loadTextureImage(shader.shaderPath, texturePath);
@@ -101,36 +100,36 @@ Assets::Texture Quake3ShaderTextureReader::loadTextureImage(
   const auto name = textureName(shaderPath);
   if (m_fs.pathInfo(imagePath) != PathInfo::File)
   {
-    throw AssetException("Image file '" + imagePath.asString() + "' does not exist");
+    throw AssetException{"Image file '" + imagePath.asString() + "' does not exist"};
   }
 
-  FreeImageTextureReader imageReader(StaticNameStrategy(name), m_fs, m_logger);
+  auto imageReader = FreeImageTextureReader{StaticNameStrategy(name), m_fs, m_logger};
   return imageReader.readTexture(m_fs.openFile(imagePath));
 }
 
 Path Quake3ShaderTextureReader::findTexturePath(const Assets::Quake3Shader& shader) const
 {
-  Path texturePath = findTexture(shader.editorImage);
-  if (texturePath.isEmpty())
+  if (const auto path = findTexture(shader.editorImage); !path.isEmpty())
   {
-    texturePath = findTexture(shader.shaderPath);
+    return path;
   }
-  if (texturePath.isEmpty())
+  if (const auto path = findTexture(shader.shaderPath); !path.isEmpty())
   {
-    texturePath = findTexture(shader.lightImage);
+    return path;
   }
-  if (texturePath.isEmpty())
+  if (const auto path = findTexture(shader.lightImage); !path.isEmpty())
   {
-    for (const auto& stage : shader.stages)
+    return path;
+  }
+  for (const auto& stage : shader.stages)
+  {
+    if (const auto path = findTexture(stage.map); !path.isEmpty())
     {
-      texturePath = findTexture(stage.map);
-      if (!texturePath.isEmpty())
-      {
-        break;
-      }
+      return path;
     }
   }
-  return texturePath;
+
+  return Path{};
 }
 
 Path Quake3ShaderTextureReader::findTexture(const Path& texturePath) const
@@ -151,5 +150,5 @@ Path Quake3ShaderTextureReader::findTexture(const Path& texturePath) const
   // texture path is empty OR (the extension is not empty AND the file exists)
   return texturePath;
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

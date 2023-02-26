@@ -41,15 +41,15 @@ Color FreeImageTextureReader::getAverageColor(
 {
   ensure(format == GL_RGBA || format == GL_BGRA, "expected RGBA or BGRA");
 
-  const unsigned char* const data = buffer.data();
-  const std::size_t bufferSize = buffer.size();
+  const auto* const data = buffer.data();
+  const auto bufferSize = buffer.size();
 
-  Color average;
+  auto average = Color{};
   for (std::size_t i = 0; i < bufferSize; i += 4)
   {
-    average = average + Color(data[i], data[i + 1], data[i + 2], data[i + 3]);
+    average = average + Color{data[i], data[i + 1], data[i + 2], data[i + 3]};
   }
-  const std::size_t numPixels = bufferSize / 4;
+  const auto numPixels = bufferSize / 4;
   average = average / static_cast<float>(numPixels);
 
   return average;
@@ -70,20 +70,19 @@ static constexpr GLenum freeImage32BPPFormatToGLFormat()
 
     return GL_RGBA;
   }
-  else if constexpr (
+
+  if constexpr (
     FI_RGBA_BLUE == 0 && FI_RGBA_GREEN == 1 && FI_RGBA_RED == 2 && FI_RGBA_ALPHA == 3)
   {
 
     return GL_BGRA;
   }
-  else
-  {
-    throw std::runtime_error("Expected FreeImage to use RGBA or BGRA");
-  }
+
+  throw std::runtime_error{"Expected FreeImage to use RGBA or BGRA"};
 }
 
 Assets::Texture FreeImageTextureReader::readTextureFromMemory(
-  const std::string& name, const uint8_t* begin, const size_t size)
+  std::string name, const uint8_t* begin, const size_t size)
 {
   InitFreeImage::initialize();
 
@@ -95,17 +94,17 @@ Assets::Texture FreeImageTextureReader::readTextureFromMemory(
   auto* image = FreeImage_LoadFromMemory(imageFormat, imageMemory);
   auto imageGuard = kdl::invoke_later{[&]() { FreeImage_Unload(image); }};
 
-  if (image == nullptr)
+  if (!image)
   {
-    throw AssetException("FreeImage could not load image data");
+    throw AssetException{"FreeImage could not load image data"};
   }
 
-  const auto imageWidth = static_cast<size_t>(FreeImage_GetWidth(image));
-  const auto imageHeight = static_cast<size_t>(FreeImage_GetHeight(image));
+  const auto imageWidth = size_t(FreeImage_GetWidth(image));
+  const auto imageHeight = size_t(FreeImage_GetHeight(image));
 
   if (!checkTextureDimensions(imageWidth, imageHeight))
   {
-    throw AssetException("Invalid texture dimensions");
+    throw AssetException{"Invalid texture dimensions"};
   }
 
   // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
@@ -124,9 +123,9 @@ Assets::Texture FreeImageTextureReader::readTextureFromMemory(
     FreeImage_Unload(std::exchange(image, FreeImage_ConvertTo32Bits(image)));
   }
 
-  if (image == nullptr)
+  if (!image)
   {
-    throw AssetException("Unsupported pixel format");
+    throw AssetException{"Unsupported pixel format"};
   }
 
   ensure(
@@ -134,7 +133,7 @@ Assets::Texture FreeImageTextureReader::readTextureFromMemory(
     "expected to have converted image to 32-bit");
 
   auto* outBytes = buffers.at(0).data();
-  const auto outBytesPerRow = static_cast<int>(imageWidth * 4);
+  const auto outBytesPerRow = int(imageWidth * 4);
 
   FreeImage_ConvertToRawBits(
     outBytes,
@@ -147,10 +146,16 @@ Assets::Texture FreeImageTextureReader::readTextureFromMemory(
     TRUE);
 
   const auto textureType = Assets::Texture::selectTextureType(masked);
-  const Color averageColor = getAverageColor(buffers.at(0), format);
+  const auto averageColor = getAverageColor(buffers.at(0), format);
 
   return Assets::Texture{
-    name, imageWidth, imageHeight, averageColor, std::move(buffers), format, textureType};
+    std::move(name),
+    imageWidth,
+    imageHeight,
+    averageColor,
+    std::move(buffers),
+    format,
+    textureType};
 }
 
 FreeImageTextureReader::FreeImageTextureReader(
@@ -168,7 +173,7 @@ Assets::Texture FreeImageTextureReader::doReadTexture(std::shared_ptr<File> file
   const auto& path = file->path();
   const auto* begin = reader.begin();
   const auto* end = reader.end();
-  const auto imageSize = static_cast<size_t>(end - begin);
+  const auto imageSize = size_t(end - begin);
   auto* imageBegin = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
 
   return readTextureFromMemory(textureName(path), imageBegin, imageSize);

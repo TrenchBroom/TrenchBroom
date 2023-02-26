@@ -68,20 +68,20 @@ TEST_CASE("IdMipTextureReaderTest.testLoadWad")
   }));
   // clang-format on
 
-  DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-  const Assets::Palette palette =
-    Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
+  auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
+  const auto palette =
+    Assets::Palette::loadFile(fs, IO::Path{"fixture/test/palette.lmp"});
 
-  TextureReader::TextureNameStrategy nameStrategy;
-  NullLogger logger;
-  IdMipTextureReader textureLoader(nameStrategy, fs, logger, palette);
+  auto nameStrategy = TextureReader::TextureNameStrategy{};
+  auto logger = NullLogger{};
+  auto textureLoader = IdMipTextureReader{nameStrategy, fs, palette, logger};
 
-  const Path wadPath =
-    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
-  WadFileSystem wadFS(wadPath);
+  const auto wadPath =
+    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Wad/cr8_czg.wad"};
+  auto wadFS = WadFileSystem{wadPath};
 
-  const Assets::Texture texture =
-    textureLoader.readTexture(wadFS.openFile(Path(textureName + ".D")));
+  const auto texture =
+    textureLoader.readTexture(wadFS.openFile(Path{textureName}.addExtension("D")));
   CHECK(texture.name() == textureName);
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);

@@ -225,7 +225,7 @@ static Assets::Palette parseEmbeddedPalette(Reader& reader, const RenderMode ren
   auto data = std::vector<unsigned char>(paletteSize * 3);
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
-  return {data};
+  return Assets::Palette{data};
 }
 
 std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* logger */)

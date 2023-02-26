@@ -32,13 +32,14 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class FileSystem;
 
@@ -52,7 +53,7 @@ public:
   /**
    * Creates a new parser for Wavefront OBJ models.
    */
-  ObjParser(const std::string& name, std::string_view text);
+  ObjParser(std::string name, std::string_view text);
 
   /**
    * Transforms the various sets of coordinates.
@@ -62,7 +63,7 @@ public:
    * @param texcoords Texture coordinates to transform in-place.
    */
   virtual bool transformObjCoordinateSet(
-    std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) = 0;
+    std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) const = 0;
 
   /**
    * Loads a material. On failure, return the empty unique_ptr (as the original exceptions
@@ -71,14 +72,14 @@ public:
    * @param logger The logger to use.
    */
   virtual std::optional<Assets::Texture> loadMaterial(
-    const std::string& name, Logger& logger) = 0;
+    const std::string& name, Logger& logger) const = 0;
 
   /**
    * Loads the "fallback material". This is used if no material is specified or if
    * loadMaterial fails. This function is not supposed to fail in any way. Should it still
    * fail regardless, it should throw a ParserException.
    */
-  virtual std::optional<Assets::Texture> loadFallbackMaterial(Logger& logger) = 0;
+  virtual std::optional<Assets::Texture> loadFallbackMaterial(Logger& logger) const = 0;
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
@@ -101,16 +102,16 @@ public:
    * @param end the end of the text
    * @param fs the filesystem2 used to lookup textures
    */
-  NvObjParser(const Path& path, std::string_view text, const FileSystem& fs);
+  NvObjParser(Path path, std::string_view text, const FileSystem& fs);
 
   static bool canParse(const Path& path);
 
 private:
   bool transformObjCoordinateSet(
-    std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) override;
+    std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) const override;
   std::optional<Assets::Texture> loadMaterial(
-    const std::string& name, Logger& logger) override;
-  std::optional<Assets::Texture> loadFallbackMaterial(Logger& logger) override;
+    const std::string& name, Logger& logger) const override;
+  std::optional<Assets::Texture> loadFallbackMaterial(Logger& logger) const override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

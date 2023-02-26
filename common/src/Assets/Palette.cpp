@@ -32,10 +32,9 @@
 #include <cstring>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 struct PaletteData
 {
   /**
@@ -53,12 +52,12 @@ static std::shared_ptr<PaletteData> makePaletteData(
 {
   if (data.size() != 768 && data.size() != 1024)
   {
-    throw AssetException(
+    throw AssetException{
       "Could not load palette, expected 768 or 1024 bytes, got "
-      + std::to_string(data.size()));
+      + std::to_string(data.size())};
   }
 
-  PaletteData result;
+  auto result = PaletteData{};
 
   if (data.size() == 1024)
   {
@@ -90,10 +89,10 @@ static std::shared_ptr<PaletteData> makePaletteData(
   return std::make_shared<PaletteData>(std::move(result));
 }
 
-Palette::Palette() {}
+Palette::Palette() = default;
 
 Palette::Palette(const std::vector<unsigned char>& data)
-  : m_data(makePaletteData(data))
+  : m_data{makePaletteData(data)}
 {
 }
 
@@ -118,14 +117,14 @@ Palette Palette::loadFile(const IO::FileSystem& fs, const IO::Path& path)
     }
     else
     {
-      throw AssetException(
-        "Could not load palette file '" + path.asString() + "': Unknown palette format");
+      throw AssetException{
+        "Could not load palette file '" + path.asString() + "': Unknown palette format"};
     }
   }
   catch (const FileSystemException& e)
   {
-    throw AssetException(
-      "Could not load palette file '" + path.asString() + "': " + e.what());
+    throw AssetException{
+      "Could not load palette file '" + path.asString() + "': " + e.what()};
   }
 }
 
@@ -133,7 +132,7 @@ Palette Palette::loadLmp(IO::Reader& reader)
 {
   auto data = std::vector<unsigned char>(reader.size());
   reader.read(data.data(), data.size());
-  return Palette(std::move(data));
+  return Palette{data};
 }
 
 Palette Palette::loadPcx(IO::Reader& reader)
@@ -141,29 +140,29 @@ Palette Palette::loadPcx(IO::Reader& reader)
   auto data = std::vector<unsigned char>(768);
   reader.seekFromEnd(data.size());
   reader.read(data.data(), data.size());
-  return Palette(std::move(data));
+  return Palette{data};
 }
 
 Palette Palette::loadBmp(IO::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
-  IO::ImageLoader imageLoader(
-    IO::ImageLoader::BMP, std::begin(bufferedReader), std::end(bufferedReader));
+  auto imageLoader =
+    IO::ImageLoader{IO::ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
   auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
                                        : imageLoader.loadPixels(IO::ImageLoader::RGB);
-  return Palette(std::move(data));
+  return Palette{data};
 }
 
 Palette Palette::fromRaw(IO::Reader& reader)
 {
   auto data = std::vector<unsigned char>(reader.size());
   reader.read(data.data(), data.size());
-  return Palette(std::move(data));
+  return Palette{data};
 }
 
 bool Palette::initialized() const
 {
-  return m_data.get() != nullptr;
+  return m_data != nullptr;
 }
 
 bool Palette::indexedToRgba(
@@ -181,7 +180,7 @@ bool Palette::indexedToRgba(
                                        : m_data->index255TransparentData.data();
 
   // Write rgba pixels
-  unsigned char* const rgbaData = rgbaImage.data();
+  auto* const rgbaData = rgbaImage.data();
   for (size_t i = 0; i < pixelCount; ++i)
   {
     const int index = reader.readInt<unsigned char>();
@@ -193,30 +192,30 @@ bool Palette::indexedToRgba(
   uint32_t colorSum[3] = {0, 0, 0};
   for (size_t i = 0; i < pixelCount; ++i)
   {
-    colorSum[0] += static_cast<uint32_t>(rgbaData[(i * 4) + 0]);
-    colorSum[1] += static_cast<uint32_t>(rgbaData[(i * 4) + 1]);
-    colorSum[2] += static_cast<uint32_t>(rgbaData[(i * 4) + 2]);
+    colorSum[0] += uint32_t(rgbaData[(i * 4) + 0]);
+    colorSum[1] += uint32_t(rgbaData[(i * 4) + 1]);
+    colorSum[2] += uint32_t(rgbaData[(i * 4) + 2]);
   }
-  averageColor = Color(
-    static_cast<float>(colorSum[0]) / (255.0f * static_cast<float>(pixelCount)),
-    static_cast<float>(colorSum[1]) / (255.0f * static_cast<float>(pixelCount)),
-    static_cast<float>(colorSum[2]) / (255.0f * static_cast<float>(pixelCount)),
-    1.0f);
+  averageColor = Color{
+    float(colorSum[0]) / (255.0f * float(pixelCount)),
+    float(colorSum[1]) / (255.0f * float(pixelCount)),
+    float(colorSum[2]) / (255.0f * float(pixelCount)),
+    1.0f};
 
   // Check for transparency
-  bool hasTransparency = false;
+  auto hasTransparency = false;
   if (transparency == PaletteTransparency::Index255Transparent)
   {
     // Take the bitwise AND of the alpha channel of all pixels
-    unsigned char andAlpha = 0xff;
+    unsigned char andAlpha = 0xFF;
     for (size_t i = 0; i < pixelCount; ++i)
     {
       andAlpha = static_cast<unsigned char>(andAlpha & rgbaData[4 * i + 3]);
     }
-    hasTransparency = (andAlpha != 0xff);
+    hasTransparency = (andAlpha != 0xFF);
   }
 
   return hasTransparency;
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

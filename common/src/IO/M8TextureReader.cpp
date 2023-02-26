@@ -31,9 +31,7 @@
 #include <iostream>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 namespace M8Layout
 {
@@ -46,27 +44,27 @@ constexpr size_t PaletteSize = 768;
 
 M8TextureReader::M8TextureReader(
   const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
-  : TextureReader(nameStrategy, fs, logger)
+  : TextureReader{nameStrategy, fs, logger}
 {
 }
 
 Assets::Texture M8TextureReader::doReadTexture(std::shared_ptr<File> file) const
 {
   const auto& path = file->path();
-  BufferedReader reader = file->reader().buffer();
+  auto reader = file->reader().buffer();
   try
   {
-    const int version = reader.readInt<int32_t>();
+    const auto version = reader.readInt<int32_t>();
     if (version != M8Layout::Version)
     {
-      return Assets::Texture(textureName(path), 16, 16);
+      return Assets::Texture{textureName(path), 16, 16};
     }
 
-    const std::string name = reader.readString(M8Layout::TextureNameLength);
+    const auto name = reader.readString(M8Layout::TextureNameLength);
 
-    std::vector<size_t> widths;
-    std::vector<size_t> heights;
-    std::vector<size_t> offsets; // offsets from the beginning of the file
+    auto widths = std::vector<size_t>{};
+    auto heights = std::vector<size_t>{};
+    auto offsets = std::vector<size_t>{}; // offsets from the beginning of the file
 
     widths.reserve(M8Layout::MipLevels);
     heights.reserve(M8Layout::MipLevels);
@@ -87,20 +85,20 @@ Assets::Texture M8TextureReader::doReadTexture(std::shared_ptr<File> file) const
 
     reader.seekForward(M8Layout::AnimNameLength);
 
-    Reader paletteReader = reader.subReaderFromCurrent(M8Layout::PaletteSize);
+    auto paletteReader = reader.subReaderFromCurrent(M8Layout::PaletteSize);
     reader.seekForward(M8Layout::PaletteSize);
-    const Assets::Palette palette = Assets::Palette::fromRaw(paletteReader);
+    const auto palette = Assets::Palette::fromRaw(paletteReader);
 
     reader.seekForward(4); // flags
     reader.seekForward(4); // contents
     reader.seekForward(4); // value
 
-    Color mip0AverageColor;
-    Assets::TextureBufferList buffers;
+    auto mip0AverageColor = Color{};
+    auto buffers = Assets::TextureBufferList{};
     for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
     {
-      const size_t w = widths[mipLevel];
-      const size_t h = heights[mipLevel];
+      const auto w = widths[mipLevel];
+      const auto h = heights[mipLevel];
 
       if (w == 0 || h == 0)
       {
@@ -109,9 +107,9 @@ Assets::Texture M8TextureReader::doReadTexture(std::shared_ptr<File> file) const
 
       reader.seekFromBegin(offsets[mipLevel]);
 
-      Assets::TextureBuffer rgbaImage(4 * w * h);
+      auto rgbaImage = Assets::TextureBuffer{4 * w * h};
 
-      Color averageColor;
+      auto averageColor = Color{};
       palette.indexedToRgba(
         reader, w * h, rgbaImage, Assets::PaletteTransparency::Opaque, averageColor);
       buffers.emplace_back(std::move(rgbaImage));
@@ -122,19 +120,19 @@ Assets::Texture M8TextureReader::doReadTexture(std::shared_ptr<File> file) const
       }
     }
 
-    return Assets::Texture(
+    return Assets::Texture{
       textureName(name, path),
       widths[0],
       heights[0],
       mip0AverageColor,
       std::move(buffers),
       GL_RGBA,
-      Assets::TextureType::Opaque);
+      Assets::TextureType::Opaque};
   }
   catch (const ReaderException&)
   {
-    return Assets::Texture(textureName(path), 16, 16);
+    return Assets::Texture{textureName(path), 16, 16};
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO
