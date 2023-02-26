@@ -23,6 +23,7 @@
 #include "Macros.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -66,7 +67,7 @@ public:
 private:
   static std::unique_ptr<TextureReader> createTextureReader(
     const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
-  static Assets::Palette loadPalette(
+  static std::optional<Assets::Palette> loadPalette(
     const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
 
 public:

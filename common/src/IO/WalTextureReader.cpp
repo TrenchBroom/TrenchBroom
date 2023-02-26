@@ -39,12 +39,18 @@ const size_t TextureNameLength = 32;
 }
 
 WalTextureReader::WalTextureReader(
+  const NameStrategy& nameStrategy, const FileSystem& fs, Logger& logger)
+  : WalTextureReader{nameStrategy, fs, std::nullopt, logger}
+{
+}
+
+WalTextureReader::WalTextureReader(
   const NameStrategy& nameStrategy,
   const FileSystem& fs,
-  Logger& logger,
-  const Assets::Palette& palette)
+  std::optional<Assets::Palette> palette,
+  Logger& logger)
   : TextureReader{nameStrategy, fs, logger}
-  , m_palette{palette}
+  , m_palette{std::move(palette)}
 {
 }
 
@@ -100,7 +106,7 @@ Assets::Texture WalTextureReader::readQ2Wal(
   const auto value = reader.readInt<int32_t>();
   const auto gameData = Assets::Q2Data{flags, contents, value};
 
-  if (!m_palette.initialized())
+  if (!m_palette)
   {
     return Assets::Texture{
       textureName(name, path),
@@ -113,7 +119,7 @@ Assets::Texture WalTextureReader::readQ2Wal(
 
   Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
   readMips(
-    m_palette,
+    *m_palette,
     mipLevels,
     offsets,
     width,

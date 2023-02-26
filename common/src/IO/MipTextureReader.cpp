@@ -110,11 +110,6 @@ Assets::Texture MipTextureReader::doReadTexture(std::shared_ptr<File> file) cons
     Assets::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
     auto palette = doGetPalette(reader, offset, width, height);
 
-    if (!palette.initialized())
-    {
-      throw AssetException("Palette is not initialized");
-    }
-
     for (size_t i = 0; i < MipLevels; ++i)
     {
       reader.seekFromBegin(offset[i]);

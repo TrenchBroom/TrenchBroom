@@ -49,14 +49,10 @@ private:
   std::shared_ptr<PaletteData> m_data;
 
 public:
-  Palette();
-
   /**
    * @throws AssetException if data is not 768 bytes
    */
   explicit Palette(const std::vector<unsigned char>& data);
-
-  bool initialized() const;
 
   /**
    * Reads `pixelCount` bytes from `reader` where each byte is a palette index,

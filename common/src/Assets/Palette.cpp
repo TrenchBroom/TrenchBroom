@@ -89,16 +89,9 @@ static std::shared_ptr<PaletteData> makePaletteData(
   return std::make_shared<PaletteData>(std::move(result));
 }
 
-Palette::Palette() = default;
-
 Palette::Palette(const std::vector<unsigned char>& data)
   : m_data{makePaletteData(data)}
 {
-}
-
-bool Palette::initialized() const
-{
-  return m_data != nullptr;
 }
 
 bool Palette::indexedToRgba(
@@ -109,7 +102,6 @@ bool Palette::indexedToRgba(
   Color& averageColor) const
 {
   ensure(rgbaImage.size() == 4 * pixelCount, "incorrect destination buffer size");
-  ensure(initialized(), "indexedToRgba called on uninitialized palette");
 
   const unsigned char* paletteData = (transparency == PaletteTransparency::Opaque)
                                        ? m_data->opaqueData.data()

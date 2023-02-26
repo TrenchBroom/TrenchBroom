@@ -404,7 +404,7 @@ void Md2Parser::loadSkins(
 
   for (const auto& skin : skins)
   {
-    textures.push_back(loadSkin(Path(skin), m_fs, logger, m_palette));
+    textures.push_back(loadSkin(Path(skin), m_fs, m_palette, logger));
   }
 
   surface.setSkins(std::move(textures));

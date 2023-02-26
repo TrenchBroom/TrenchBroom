@@ -79,8 +79,9 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   if (textureConfig.format.format == "idmip")
   {
     const auto nameStrategy = TextureReader::TextureNameStrategy{};
+    auto palette = loadPalette(gameFS, textureConfig, logger);
     return std::make_unique<IdMipTextureReader>(
-      nameStrategy, gameFS, loadPalette(gameFS, textureConfig, logger), logger);
+      nameStrategy, gameFS, std::move(*palette), logger);
   }
   else if (textureConfig.format.format == "hlmip")
   {
@@ -91,8 +92,9 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   {
     const auto prefixLength = textureConfig.root.length();
     const auto nameStrategy = TextureReader::PathSuffixNameStrategy{prefixLength};
+    auto palette = loadPalette(gameFS, textureConfig, logger);
     return std::make_unique<WalTextureReader>(
-      nameStrategy, gameFS, logger, loadPalette(gameFS, textureConfig, logger));
+      nameStrategy, gameFS, std::move(palette), logger);
   }
   else if (textureConfig.format.format == "image")
   {
@@ -124,26 +126,24 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   }
 }
 
-Assets::Palette TextureLoader::loadPalette(
+std::optional<Assets::Palette> TextureLoader::loadPalette(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger)
 {
-  if (textureConfig.palette.isEmpty())
-  {
-    return Assets::Palette{};
-  }
-
   try
   {
-    const auto& path = textureConfig.palette;
-    logger.info() << "Loading palette file " << path;
-    auto file = gameFS.openFile(path);
-    return Assets::loadPalette(*file);
+    if (!textureConfig.palette.isEmpty())
+    {
+      const auto& path = textureConfig.palette;
+      logger.info() << "Loading palette file " << path;
+      auto file = gameFS.openFile(path);
+      return Assets::loadPalette(*file);
+    }
   }
   catch (const Exception& e)
   {
-    logger.error() << e.what();
-    return Assets::Palette{};
+    logger.error() << "Could not load palette file: " << e.what();
   }
+  return std::nullopt;
 }
 
 std::vector<Path> TextureLoader::findTextureCollections() const

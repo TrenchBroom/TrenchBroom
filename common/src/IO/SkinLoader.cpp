@@ -41,13 +41,17 @@ namespace TrenchBroom
 {
 namespace IO
 {
+
 Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger)
 {
-  return loadSkin(path, fs, logger, Assets::Palette());
+  return loadSkin(path, fs, std::nullopt, logger);
 }
 
 Assets::Texture loadSkin(
-  const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette)
+  const Path& path,
+  const FileSystem& fs,
+  const std::optional<Assets::Palette>& palette,
+  Logger& logger)
 {
   const auto nameStrategy = TextureReader::StaticNameStrategy{path.basename()};
 
@@ -58,7 +62,7 @@ Assets::Texture loadSkin(
 
     if (extension == "wal")
     {
-      auto reader = WalTextureReader{nameStrategy, fs, logger, palette};
+      auto reader = WalTextureReader{nameStrategy, fs, palette, logger};
       return reader.readTexture(file);
     }
     else
