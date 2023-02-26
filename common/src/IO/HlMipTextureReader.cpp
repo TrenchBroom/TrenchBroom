@@ -30,17 +30,28 @@
 namespace TrenchBroom::IO
 {
 
+namespace HlMipLayout
+{
+static constexpr size_t TextureNameLength = 16;
+}
+
 HlMipTextureReader::HlMipTextureReader(
   GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
   : MipTextureReader{std::move(getTextureName), fs, logger}
 {
 }
 
-Assets::Palette HlMipTextureReader::doGetPalette(
-  Reader& reader, const size_t offset[], const size_t width, const size_t height) const
+Assets::Palette HlMipTextureReader::doGetPalette(Reader& reader) const
 {
+  reader.seekFromBegin(0);
+  reader.seekForward(HlMipLayout::TextureNameLength);
+
+  const auto width = reader.readSize<int32_t>();
+  const auto height = reader.readSize<int32_t>();
+  const auto mip0Offset = reader.readSize<int32_t>();
+
   // each texture has two bytes after the last mip and before the palette data starts
-  const auto start = offset[0] + (width * height * 85 >> 6) + 2;
+  const auto start = mip0Offset + (width * height * 85 >> 6) + 2;
   reader.seekFromBegin(start);
 
   // each texture has two bytes of padding at the end

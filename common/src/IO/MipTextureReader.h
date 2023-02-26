@@ -59,8 +59,7 @@ public:
 
 protected:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
-  virtual Assets::Palette doGetPalette(
-    Reader& reader, const size_t offset[], size_t width, size_t height) const = 0;
+  virtual Assets::Palette doGetPalette(Reader& reader) const = 0;
 };
 
 } // namespace TrenchBroom::IO

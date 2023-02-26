@@ -44,8 +44,7 @@ public:
     Logger& logger);
 
 protected:
-  Assets::Palette doGetPalette(
-    Reader& reader, const size_t offset[], size_t width, size_t height) const override;
+  Assets::Palette doGetPalette(Reader& reader) const override;
 };
 } // namespace IO
 } // namespace TrenchBroom

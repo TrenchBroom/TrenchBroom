@@ -35,11 +35,7 @@ IdMipTextureReader::IdMipTextureReader(
 {
 }
 
-Assets::Palette IdMipTextureReader::doGetPalette(
-  Reader& /* reader */,
-  const size_t /* offset */[],
-  const size_t /* width */,
-  const size_t /* height */) const
+Assets::Palette IdMipTextureReader::doGetPalette(Reader&) const
 {
   return m_palette;
 }

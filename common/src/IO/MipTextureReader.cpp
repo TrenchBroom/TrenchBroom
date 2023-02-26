@@ -108,7 +108,7 @@ Assets::Texture MipTextureReader::doReadTexture(std::shared_ptr<File> file) cons
                                : Assets::PaletteTransparency::Opaque;
 
     Assets::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
-    auto palette = doGetPalette(reader, offset, width, height);
+    auto palette = doGetPalette(reader);
 
     for (size_t i = 0; i < MipLevels; ++i)
     {
