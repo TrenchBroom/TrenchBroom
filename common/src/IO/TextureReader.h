@@ -71,6 +71,10 @@ GetTextureName makeGetTextureNameFromPathSuffix(size_t prefixLength);
  */
 GetTextureName makeGetTextureNameFromString(std::string staticName);
 
+bool checkTextureDimensions(size_t width, size_t height);
+
+size_t mipSize(size_t width, size_t height, size_t mipLevel);
+
 class TextureReader
 {
 private:
@@ -109,12 +113,6 @@ private:
    * @return an Assets::Texture object
    */
   virtual Assets::Texture doReadTexture(std::shared_ptr<File> file) const = 0;
-
-protected:
-  static bool checkTextureDimensions(size_t width, size_t height);
-
-public:
-  static size_t mipSize(size_t width, size_t height, size_t mipLevel);
 
   deleteCopyAndMove(TextureReader);
 };

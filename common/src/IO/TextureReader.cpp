@@ -56,6 +56,17 @@ GetTextureName makeGetTextureNameFromString(std::string staticName)
            const std::string_view, const Path&) { return staticName; };
 }
 
+bool checkTextureDimensions(size_t width, size_t height)
+{
+  return width <= 8192 && height <= 8192;
+}
+
+size_t mipSize(const size_t width, const size_t height, const size_t mipLevel)
+{
+  const auto size = Assets::sizeAtMipLevel(width, height, mipLevel);
+  return size.x() * size.y();
+}
+
 TextureReader::TextureReader(
   GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
   : m_getTextureName{std::move(getTextureName)}
@@ -89,18 +100,6 @@ std::string TextureReader::textureName(
 std::string TextureReader::textureName(const Path& path) const
 {
   return m_getTextureName(path.lastComponent().asString(), path);
-}
-
-bool TextureReader::checkTextureDimensions(const size_t width, const size_t height)
-{
-  return width <= 8192 && height <= 8192;
-}
-
-size_t TextureReader::mipSize(
-  const size_t width, const size_t height, const size_t mipLevel)
-{
-  const auto size = Assets::sizeAtMipLevel(width, height, mipLevel);
-  return size.x() * size.y();
 }
 
 } // namespace TrenchBroom::IO
