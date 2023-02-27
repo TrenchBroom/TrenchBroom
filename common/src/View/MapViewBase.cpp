@@ -902,6 +902,16 @@ void MapViewBase::hideAllEntityLinks()
   setPref(Preferences::FaceRenderMode, Preferences::entityLinkModeNone());
 }
 
+bool MapViewBase::event(QEvent* event)
+{
+  if (event->type() == QEvent::WindowDeactivate)
+  {
+    cancelMouseDrag();
+  }
+
+  return RenderView::event(event);
+}
+
 void MapViewBase::focusInEvent(QFocusEvent* event)
 {
   updateActionStates(); // enable/disable QShortcut's to reflect whether we have focus
@@ -914,7 +924,6 @@ void MapViewBase::focusInEvent(QFocusEvent* event)
 
 void MapViewBase::focusOutEvent(QFocusEvent* event)
 {
-  cancelMouseDrag();
   clearModifierKeys();
   update();
   RenderView::focusOutEvent(event);
