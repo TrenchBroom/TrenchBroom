@@ -78,10 +78,14 @@ void UVView::setSubDivisions(const vm::vec2i& subDivisions)
   update();
 }
 
-void UVView::focusOutEvent(QFocusEvent* event)
+bool UVView::event(QEvent* event)
 {
-  ToolBoxConnector::cancelDrag();
-  RenderView::focusOutEvent(event);
+  if (event->type() == QEvent::WindowDeactivate)
+  {
+    cancelDrag();
+  }
+
+  return RenderView::event(event);
 }
 
 void UVView::createTools()
