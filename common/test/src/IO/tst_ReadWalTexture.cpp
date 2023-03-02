@@ -21,13 +21,15 @@
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/Path.h"
-#include "IO/WalTextureReader.h"
+#include "IO/ReadWalTexture.h"
+
+#include <kdl/result.h>
 
 #include <kdl/result.h>
 
 #include "Catch2.h"
-#include "TestLogger.h"
 
 namespace TrenchBroom
 {
@@ -35,15 +37,11 @@ namespace IO
 {
 static const auto fixturePath = Path("fixture/test/IO/Wal");
 
-TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir")
+TEST_CASE("readWalTexture")
 {
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
   auto paletteFile = fs.openFile(Path{"fixture/test/colormap.pcx"});
   const auto palette = Assets::loadPalette(*paletteFile).value();
-
-  auto logger = NullLogger{};
-  auto textureReader = WalTextureReader{
-    makeGetTextureNameFromPathSuffix(fixturePath.length()), fs, palette, logger};
 
   using TexInfo = std::tuple<Path, size_t, size_t, Assets::GameData>;
 
@@ -69,8 +67,10 @@ TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir")
   const auto file = fs.openFile(fixturePath + path);
   REQUIRE(file != nullptr);
 
-  const auto texture = textureReader.readTexture(file);
+  auto reader = file->reader().buffer();
+
   const auto name = path.deleteExtension().asString("/");
+  const auto texture = readWalTexture(name, reader, palette).value();
   CHECK(texture.name() == name);
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);

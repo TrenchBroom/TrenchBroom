@@ -29,10 +29,11 @@
 #include "IO/Path.h"
 #include "IO/PathInfo.h"
 #include "IO/Quake3ShaderTextureReader.h"
+#include "IO/ReadWalTexture.h"
 #include "IO/ResourceUtils.h"
-#include "IO/WalTextureReader.h"
 #include "Logger.h"
 
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 
 #include <string>
@@ -62,8 +63,10 @@ Assets::Texture loadSkin(
 
     if (extension == "wal")
     {
-      auto reader = WalTextureReader{std::move(getTextureName), fs, palette, logger};
-      return reader.readTexture(file);
+      auto reader = file->reader().buffer();
+      return readWalTexture(path.basename(), reader, palette)
+        .or_else(makeReadTextureErrorHandler(fs, logger))
+        .value();
     }
     else
     {

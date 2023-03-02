@@ -34,7 +34,7 @@
 #include "IO/Quake3ShaderTextureReader.h"
 #include "IO/ReadM8Texture.h"
 #include "IO/ReadMipTexture.h"
-#include "IO/WalTextureReader.h"
+#include "IO/ReadWalTexture.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
@@ -99,10 +99,15 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   }
   else if (textureConfig.format.format == "wal")
   {
-    return std::make_unique<WalTextureReader>(
-      makeGetTextureNameFromPathSuffix(textureConfig.root.length()),
+    return std::make_unique<TextureReaderWrapper>(
+      [&](const File& file) {
+        auto name =
+          getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
+        auto reader = file.reader().buffer();
+        return readWalTexture(
+          std::move(name), reader, loadPalette(gameFS, textureConfig, logger));
+      },
       gameFS,
-      loadPalette(gameFS, textureConfig, logger),
       logger);
   }
   else if (textureConfig.format.format == "image")

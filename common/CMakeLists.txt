@@ -83,6 +83,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/Reader.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.cpp
+        ${COMMON_SOURCE_DIR}/IO/ReadWalTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.cpp
         ${COMMON_SOURCE_DIR}/IO/SkinLoader.cpp
@@ -93,7 +94,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/TextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/WadFileSystem.cpp
-        ${COMMON_SOURCE_DIR}/IO/WalTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/BezierPatch.cpp
@@ -568,6 +568,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ReaderException.h
         ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.h
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.h
+        ${COMMON_SOURCE_DIR}/IO/ReadWalTexture.h
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.h
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.h
         ${COMMON_SOURCE_DIR}/IO/SkinLoader.h
@@ -580,7 +581,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/Tokenizer.h
         ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/WadFileSystem.h
-        ${COMMON_SOURCE_DIR}/IO/WalTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/WorldReader.h
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.h
         ${COMMON_SOURCE_DIR}/Model/BezierPatch.h
