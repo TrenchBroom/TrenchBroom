@@ -21,28 +21,18 @@
 
 #include "IO/TextureReader.h"
 
-#include <memory>
+#include <kdl/result_forward.h>
 
-namespace TrenchBroom
-{
-class Logger;
-}
+#include <string>
 
 namespace TrenchBroom::IO
 {
-class File;
-class FileSystem;
+class Reader;
 
 /**
  * Heretic 2 .m8 format
  */
-class M8TextureReader : public TextureReader
-{
-public:
-  M8TextureReader(GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
-
-private:
-  Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
-};
+kdl::result<Assets::Texture, ReadTextureError> readM8Texture(
+  std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO

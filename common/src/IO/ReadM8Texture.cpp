@@ -17,14 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "M8TextureReader.h"
+#include "ReadM8Texture.h"
 
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
-#include "Ensure.h"
-#include "IO/File.h"
-#include "IO/Path.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
@@ -44,25 +41,20 @@ constexpr size_t MipLevels = 16;
 constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
-M8TextureReader::M8TextureReader(
-  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
-  : TextureReader{std::move(getTextureName), fs, logger}
-{
-}
 
-Assets::Texture M8TextureReader::doReadTexture(std::shared_ptr<File> file) const
+kdl::result<Assets::Texture, ReadTextureError> readM8Texture(
+  std::string name, Reader& reader)
 {
-  const auto& path = file->path();
-  auto reader = file->reader().buffer();
   try
   {
     const auto version = reader.readInt<int32_t>();
     if (version != M8Layout::Version)
     {
-      return Assets::Texture{textureName(path), 16, 16};
+      return ReadTextureError{
+        std::move(name), "Unknown M8 texture version: " + std::to_string(version)};
     }
 
-    const auto name = reader.readString(M8Layout::TextureNameLength);
+    reader.seekForward(M8Layout::TextureNameLength);
 
     auto widths = std::vector<size_t>{};
     auto heights = std::vector<size_t>{};
@@ -89,54 +81,57 @@ Assets::Texture M8TextureReader::doReadTexture(std::shared_ptr<File> file) const
 
     auto paletteReader = reader.subReaderFromCurrent(M8Layout::PaletteSize);
     reader.seekForward(M8Layout::PaletteSize);
-    const auto palette =
-      Assets::loadPalette(paletteReader)
-        .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
-        .value();
 
-    reader.seekForward(4); // flags
-    reader.seekForward(4); // contents
-    reader.seekForward(4); // value
+    return Assets::loadPalette(paletteReader)
+      .and_then([&](const auto& palette) {
+        reader.seekForward(4); // flags
+        reader.seekForward(4); // contents
+        reader.seekForward(4); // value
 
-    auto mip0AverageColor = Color{};
-    auto buffers = Assets::TextureBufferList{};
-    for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
-    {
-      const auto w = widths[mipLevel];
-      const auto h = heights[mipLevel];
+        auto mip0AverageColor = Color{};
+        auto buffers = Assets::TextureBufferList{};
+        for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
+        {
+          const auto w = widths[mipLevel];
+          const auto h = heights[mipLevel];
 
-      if (w == 0 || h == 0)
-      {
-        break;
-      }
+          if (w == 0 || h == 0)
+          {
+            break;
+          }
 
-      reader.seekFromBegin(offsets[mipLevel]);
+          reader.seekFromBegin(offsets[mipLevel]);
 
-      auto rgbaImage = Assets::TextureBuffer{4 * w * h};
+          auto rgbaImage = Assets::TextureBuffer{4 * w * h};
 
-      auto averageColor = Color{};
-      palette.indexedToRgba(
-        reader, w * h, rgbaImage, Assets::PaletteTransparency::Opaque, averageColor);
-      buffers.emplace_back(std::move(rgbaImage));
+          auto averageColor = Color{};
+          palette.indexedToRgba(
+            reader, w * h, rgbaImage, Assets::PaletteTransparency::Opaque, averageColor);
+          buffers.emplace_back(std::move(rgbaImage));
 
-      if (mipLevel == 0)
-      {
-        mip0AverageColor = averageColor;
-      }
-    }
+          if (mipLevel == 0)
+          {
+            mip0AverageColor = averageColor;
+          }
+        }
 
-    return Assets::Texture{
-      textureName(name, path),
-      widths[0],
-      heights[0],
-      mip0AverageColor,
-      std::move(buffers),
-      GL_RGBA,
-      Assets::TextureType::Opaque};
+        return kdl::result<Assets::Texture>{Assets::Texture{
+          std::move(name),
+          widths[0],
+          heights[0],
+          mip0AverageColor,
+          std::move(buffers),
+          GL_RGBA,
+          Assets::TextureType::Opaque}};
+      })
+      .or_else([&](const auto& error) {
+        return kdl::result<Assets::Texture, ReadTextureError>{
+          ReadTextureError{std::move(name), error.msg}};
+      });
   }
-  catch (const ReaderException&)
+  catch (const ReaderException& e)
   {
-    return Assets::Texture{textureName(path), 16, 16};
+    return ReadTextureError{std::move(name), e.what()};
   }
 }
 

@@ -60,7 +60,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.cpp
         ${COMMON_SOURCE_DIR}/IO/IOUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/M8TextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/MapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MapReader.cpp
@@ -82,6 +81,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/Reader.cpp
+        ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.cpp
@@ -543,7 +543,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/IOUtils.h
         ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.h
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.h
-        ${COMMON_SOURCE_DIR}/IO/M8TextureReader.h
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
         ${COMMON_SOURCE_DIR}/IO/MapParser.h
         ${COMMON_SOURCE_DIR}/IO/MapReader.h
@@ -567,6 +566,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/Reader.h
         ${COMMON_SOURCE_DIR}/IO/ReaderException.h
+        ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.h
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.h
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.h
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.h

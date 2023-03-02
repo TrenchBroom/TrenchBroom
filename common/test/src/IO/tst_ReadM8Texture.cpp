@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "IO/File.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 
@@ -24,8 +25,10 @@
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/M8TextureReader.h"
 #include "IO/Path.h"
+#include "IO/ReadM8Texture.h"
+
+#include <kdl/result.h>
 
 #include <memory>
 
@@ -35,16 +38,13 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("M8TextureReaderTest.testBasicLoading")
+TEST_CASE("ReadM8TextureTest.testBasicLoading")
 {
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
-  const auto filePath = Path{"fixture/test/IO/M8/test.m8"};
+  const auto file = fs.openFile(Path{"fixture/test/IO/M8/test.m8"});
 
-  auto logger = NullLogger{};
-  auto textureReader =
-    M8TextureReader{makeGetTextureNameFromPathSuffix(filePath.length() - 1u), fs, logger};
-
-  auto texture = textureReader.readTexture(fs.openFile(filePath));
+  auto reader = file->reader().buffer();
+  auto texture = readM8Texture("test", reader).value();
 
   CHECK("test" == texture.name());
   CHECK(64 == texture.width());
