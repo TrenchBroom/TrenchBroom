@@ -22,9 +22,10 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Exceptions.h"
+#include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
+#include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Model/BrushFaceAttributes.h"
@@ -32,8 +33,10 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
-#include <kdl/string_utils.h>
 #include <vecmath/forward.h>
+
+#include <kdl/result.h>
+#include <kdl/string_utils.h>
 
 #include <functional>
 #include <string>
@@ -168,7 +171,7 @@ std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger
         }
         else
         {
-          if (auto texture = loadMaterial(tokens[1], logger))
+          if (auto texture = loadMaterial(tokens[1]))
           {
             textures.push_back(std::move(*texture));
             ++last_material;
@@ -314,8 +317,7 @@ bool NvObjParser::transformObjCoordinateSet(
   return true;
 }
 
-std::optional<Assets::Texture> NvObjParser::loadMaterial(
-  const std::string& text, Logger& logger) const
+std::optional<Assets::Texture> NvObjParser::loadMaterial(const std::string& name) const
 {
   // NOTE: A reasonable solution here would be to use the same material handling as the
   // brushes unless otherwise required. Then Neverball just gets an additional texture
@@ -323,22 +325,26 @@ std::optional<Assets::Texture> NvObjParser::loadMaterial(
   // further details on how memory is managed there, that's a bad idea.
 
   auto texturePaths = std::vector<Path>{
-    Path{"textures"} + Path{text}.addExtension("png"),
-    Path{"textures"} + Path{text}.addExtension("jpg"),
-    Path{text}.addExtension("png"),
-    Path{text}.addExtension("jpg"),
+    Path{"textures"} + Path{name}.addExtension("png"),
+    Path{"textures"} + Path{name}.addExtension("jpg"),
+    Path{name}.addExtension("png"),
+    Path{name}.addExtension("jpg"),
   };
 
-  auto imageReader =
-    IO::FreeImageTextureReader{makeGetTextureNameFromString(""), m_fs, logger};
+
   for (const auto& texturePath : texturePaths)
   {
     try
     {
-      auto file = m_fs.openFile(texturePath);
-      return imageReader.readTexture(file);
+      const auto file = m_fs.openFile(texturePath);
+      auto reader = file->reader().buffer();
+      auto result = readFreeImageTexture("", reader);
+      if (result.is_success())
+      {
+        return result.release();
+      }
     }
-    catch (const Exception& /*ex1*/)
+    catch (const Exception&)
     {
       // ignore and try the next texture path
     }
@@ -354,11 +360,12 @@ std::optional<Assets::Texture> NvObjParser::loadFallbackMaterial(Logger& logger)
   // acting as a replacement for something like JSON. This is a less Neverball-specific
   // set of logic which should be useful for any game.
   const auto basic_skin_name = m_path.lastComponent().deleteExtension().asString();
-  if (auto material = loadMaterial(basic_skin_name, logger))
+  if (auto material = loadMaterial(basic_skin_name))
   {
     return material;
   }
-  return loadMaterial(Model::BrushFaceAttributes::NoTextureName, logger);
+  logger.warn() << "Loading fallback material for '" << basic_skin_name << "'";
+  return loadMaterial(Model::BrushFaceAttributes::NoTextureName);
 }
 
 } // namespace TrenchBroom::IO

@@ -25,10 +25,10 @@
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/PathInfo.h"
 #include "IO/Quake3ShaderTextureReader.h"
+#include "IO/ReadFreeImageTexture.h"
 #include "IO/ReadWalTexture.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
@@ -54,25 +54,16 @@ Assets::Texture loadSkin(
   const std::optional<Assets::Palette>& palette,
   Logger& logger)
 {
-  auto getTextureName = makeGetTextureNameFromString(path.basename());
-
   try
   {
     const auto file = fs.openFile(path);
     const auto extension = kdl::str_to_lower(path.extension());
 
-    if (extension == "wal")
-    {
-      auto reader = file->reader().buffer();
-      return readWalTexture(path.basename(), reader, palette)
-        .or_else(makeReadTextureErrorHandler(fs, logger))
-        .value();
-    }
-    else
-    {
-      auto reader = FreeImageTextureReader{std::move(getTextureName), fs, logger};
-      return reader.readTexture(file);
-    }
+    auto reader = file->reader().buffer();
+    return (extension == "wal" ? readWalTexture(path.basename(), reader, palette)
+                               : readFreeImageTexture(path.basename(), reader))
+      .or_else(makeReadTextureErrorHandler(fs, logger))
+      .value();
   }
   catch (Exception& e)
   {

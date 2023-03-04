@@ -23,36 +23,26 @@
 #include "IO/TextureReader.h"
 #include "Renderer/GL.h"
 
-#include <cstdint>
-#include <memory>
+#include <kdl/result_forward.h>
 
-namespace TrenchBroom
-{
-class Logger;
+#include <string>
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class TextureBuffer;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
-class File;
-class FileSystem;
 
-class FreeImageTextureReader : public TextureReader
-{
-public:
-  static Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
+class Reader;
 
-  static Assets::Texture readTextureFromMemory(
-    std::string name, const uint8_t* begin, size_t size);
+Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
 
-  FreeImageTextureReader(
-    GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
+kdl::result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
+  std::string name, const uint8_t* begin, size_t size);
 
-private:
-  Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
-};
-} // namespace IO
-} // namespace TrenchBroom
+kdl::result<Assets::Texture, ReadTextureError> readFreeImageTexture(
+  std::string name, Reader& reader);
+
+} // namespace TrenchBroom::IO

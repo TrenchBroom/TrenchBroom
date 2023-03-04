@@ -21,13 +21,15 @@
 
 #include "Assets/Texture.h"
 #include "Ensure.h"
+#include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
 #include "IO/PathQt.h"
+#include "IO/ReadFreeImageTexture.h"
 #include "IO/SystemPaths.h"
 #include "Logger.h"
 
+#include <kdl/result.h>
 #include <kdl/set_temp.h>
 
 #include <map>
@@ -60,9 +62,10 @@ Assets::Texture loadDefaultTexture(
     try
     {
       const auto file = fs.openFile(Path{"textures/__TB_empty.png"});
-      auto imageReader =
-        FreeImageTextureReader{IO::makeGetTextureNameFromString(name), fs, logger};
-      return imageReader.readTexture(file);
+      auto reader = file->reader().buffer();
+      return readFreeImageTexture(name, reader)
+        .if_error([&](const ReadTextureError& e) { throw AssetException{e.msg.c_str()}; })
+        .release();
     }
     catch (const Exception& e)
     {

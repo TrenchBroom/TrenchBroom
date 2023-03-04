@@ -17,14 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "IO/File.h"
 #include "TestLogger.h"
 
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
-#include "IO/TextureReader.h"
+#include "IO/ReadFreeImageTexture.h"
+
+#include <kdl/result.h>
 
 #include <string>
 
@@ -35,53 +37,45 @@
 namespace TrenchBroom::IO
 {
 
-static Assets::Texture loadTexture(const std::string& name)
+static auto loadTexture(const std::string& name)
 {
-  const auto imagePath = Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Image/"};
-  auto diskFS = DiskFileSystem{imagePath};
+  auto diskFS =
+    DiskFileSystem{Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Image/"}};
 
-  auto logger = NullLogger{};
-  auto textureLoader = FreeImageTextureReader{getTextureNameFromTexture, diskFS, logger};
-
-  return textureLoader.readTexture(diskFS.openFile(Path{name}));
+  const auto file = diskFS.openFile(Path{name});
+  auto reader = file->reader().buffer();
+  return readFreeImageTexture(name, reader);
 }
 
 static void assertTexture(
   const std::string& name, const size_t width, const size_t height)
 {
-  const auto texture = loadTexture(name);
-
-  CHECK(texture.name() == name);
-  CHECK(texture.width() == width);
-  CHECK(texture.height() == height);
-  CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-  CHECK(texture.type() == Assets::TextureType::Opaque);
+  loadTexture(name)
+    .transform([&](const auto& texture) {
+      CHECK(texture.name() == name);
+      CHECK(texture.width() == width);
+      CHECK(texture.height() == height);
+      CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
+      CHECK(texture.type() == Assets::TextureType::Opaque);
+    })
+    .or_else([](const auto&) { FAIL(); });
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testLoadPngs")
+TEST_CASE("ReadFreeImageTextureTest.testLoadPngs")
 {
   assertTexture("5x5.png", 5, 5);
   assertTexture("707x710.png", 707, 710);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testLoadCorruptPng")
+TEST_CASE("ReadFreeImageTextureTest.testLoadCorruptPng")
 {
-  const auto texture = loadTexture("corruptPngTest.png");
-
-  // TextureReader::readTexture is supposed to return a placeholder for corrupt textures
-  CHECK(texture.name() == "corruptPngTest");
-  CHECK(texture.width() != 0u);
-  CHECK(texture.height() != 0u);
+  CHECK(loadTexture("corruptPngTest.png").is_error());
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testLoad16BitPng")
+TEST_CASE("ReadFreeImageTextureTest.testLoad16BitPng")
 {
-  const auto texture = loadTexture("16bitGrayscale.png");
-
   // we don't support this format currently
-  CHECK(texture.name() == "16bitGrayscale");
-  CHECK(texture.width() != 0u);
-  CHECK(texture.height() != 0u);
+  CHECK(loadTexture("16bitGrayscale.png").is_error());
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2474
@@ -119,19 +113,20 @@ static void testImageContents(const Assets::Texture& texture, const ColorMatch m
   }
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testPNGContents")
+TEST_CASE("ReadFreeImageTextureTest.testPNGContents")
 {
-  testImageContents(loadTexture("pngContentsTest.png"), ColorMatch::Exact);
+  testImageContents(loadTexture("pngContentsTest.png").release(), ColorMatch::Exact);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.testJPGContents")
+TEST_CASE("ReadFreeImageTextureTest.testJPGContents")
 {
-  testImageContents(loadTexture("jpgContentsTest.jpg"), ColorMatch::Approximate);
+  testImageContents(
+    loadTexture("jpgContentsTest.jpg").release(), ColorMatch::Approximate);
 }
 
-TEST_CASE("FreeImageTextureReaderTest.alphaMaskTest")
+TEST_CASE("ReadFreeImageTextureTest.alphaMaskTest")
 {
-  const auto texture = loadTexture("alphaMaskTest.png");
+  const auto texture = loadTexture("alphaMaskTest.png").release();
   const std::size_t w = 25u;
   const std::size_t h = 10u;
 

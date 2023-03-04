@@ -53,7 +53,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/File.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.cpp
-        ${COMMON_SOURCE_DIR}/IO/FreeImageTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.cpp
@@ -85,6 +84,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/Reader.cpp
+        ${COMMON_SOURCE_DIR}/IO/ReadFreeImageTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadWalTexture.cpp
@@ -537,7 +537,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/File.h
         ${COMMON_SOURCE_DIR}/IO/FileSystem.h
         ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.h
-        ${COMMON_SOURCE_DIR}/IO/FreeImageTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.h
@@ -571,6 +570,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/Reader.h
         ${COMMON_SOURCE_DIR}/IO/ReaderException.h
+        ${COMMON_SOURCE_DIR}/IO/ReadFreeImageTexture.h
         ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.h
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.h
         ${COMMON_SOURCE_DIR}/IO/ReadWalTexture.h

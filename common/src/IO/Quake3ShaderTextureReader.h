@@ -55,7 +55,8 @@ public:
 
 private:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;
-  Assets::Texture loadTextureImage(const Path& shaderPath, const Path& imagePath) const;
+  kdl::result<Assets::Texture, ReadTextureError> loadTextureImage(
+    const Path& shaderPath, const Path& imagePath) const;
   Path findTexturePath(const Assets::Quake3Shader& shader) const;
   Path findTexture(const Path& texturePath) const;
 };

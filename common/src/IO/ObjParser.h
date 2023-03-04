@@ -71,8 +71,7 @@ public:
    * @param name The name of the material.
    * @param logger The logger to use.
    */
-  virtual std::optional<Assets::Texture> loadMaterial(
-    const std::string& name, Logger& logger) const = 0;
+  virtual std::optional<Assets::Texture> loadMaterial(const std::string& name) const = 0;
 
   /**
    * Loads the "fallback material". This is used if no material is specified or if
@@ -109,8 +108,7 @@ public:
 private:
   bool transformObjCoordinateSet(
     std::vector<vm::vec3f>& positions, std::vector<vm::vec2f>& texcoords) const override;
-  std::optional<Assets::Texture> loadMaterial(
-    const std::string& name, Logger& logger) const override;
+  std::optional<Assets::Texture> loadMaterial(const std::string& name) const override;
   std::optional<Assets::Texture> loadFallbackMaterial(Logger& logger) const override;
 };
 

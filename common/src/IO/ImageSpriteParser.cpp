@@ -22,7 +22,8 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "FloatType.h"
-#include "IO/FreeImageTextureReader.h"
+#include "IO/File.h"
+#include "IO/ReadFreeImageTexture.h"
 #include "IO/TextureReader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
@@ -30,6 +31,7 @@
 #include <vecmath/bbox.h>
 #include <vecmath/vec.h>
 
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 
 #include <vector>
@@ -53,11 +55,12 @@ bool ImageSpriteParser::canParse(const Path& path)
 
 std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger& logger)
 {
-  auto textureReader =
-    FreeImageTextureReader{makeGetTextureNameFromString(m_name), m_fs, logger};
-
   auto textures = std::vector<Assets::Texture>{};
-  textures.push_back(textureReader.readTexture(m_file));
+
+  auto reader = m_file->reader().buffer();
+  textures.push_back(readFreeImageTexture(m_name, reader)
+                       .or_else(makeReadTextureErrorHandler(m_fs, logger))
+                       .value());
 
   auto model = std::make_unique<Assets::EntityModel>(
     m_name, Assets::PitchType::Normal, Assets::Orientation::ViewPlaneParallel);
