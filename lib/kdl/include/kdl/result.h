@@ -509,7 +509,8 @@ public:
   template <typename F>
   auto if_error(F&& f) &&
   {
-    std::move(*this).visit(kdl::overload([](const Value&) {}, [&](auto&& e) { f(e); }));
+    std::move(*this).visit(
+      kdl::overload([](Value&&) {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
     return std::move(*this);
   }
 
