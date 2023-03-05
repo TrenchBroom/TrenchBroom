@@ -24,7 +24,6 @@
 #include "FloatType.h"
 #include "IO/File.h"
 #include "IO/ReadFreeImageTexture.h"
-#include "IO/TextureReader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 

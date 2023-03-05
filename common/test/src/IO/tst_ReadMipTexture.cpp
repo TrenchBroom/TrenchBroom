@@ -27,7 +27,7 @@
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "IO/ReadMipTexture.h"
-#include "IO/TextureReader.h"
+#include "IO/TextureUtils.h"
 #include "IO/WadFileSystem.h"
 #include "Logger.h"
 

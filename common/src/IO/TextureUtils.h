@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2016 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,30 +19,46 @@
 
 #pragma once
 
-#include "Color.h"
-#include "IO/TextureUtils.h"
-#include "Renderer/GL.h"
+#include "Macros.h"
 
+#include <kdl/reflection_decl.h>
 #include <kdl/result_forward.h>
 
+#include <functional>
+#include <iosfwd>
 #include <string>
+
+namespace TrenchBroom
+{
+class Logger;
+}
 
 namespace TrenchBroom::Assets
 {
-class TextureBuffer;
+class Texture;
 }
 
 namespace TrenchBroom::IO
 {
+class File;
+class FileSystem;
+class Path;
 
-class Reader;
+std::string getTextureNameFromPathSuffix(const Path& path, size_t prefixLength);
 
-Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
+bool checkTextureDimensions(size_t width, size_t height);
 
-kdl::result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
-  std::string name, const uint8_t* begin, size_t size);
+size_t mipSize(size_t width, size_t height, size_t mipLevel);
 
-kdl::result<Assets::Texture, ReadTextureError> readFreeImageTexture(
-  std::string name, Reader& reader);
+struct ReadTextureError
+{
+  std::string textureName;
+  std::string msg;
+
+  kdl_reflect_decl(ReadTextureError, textureName, msg);
+};
+
+std::function<kdl::result<Assets::Texture>(ReadTextureError)> makeReadTextureErrorHandler(
+  const FileSystem& fs, Logger& logger);
 
 } // namespace TrenchBroom::IO

@@ -17,23 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Assets/Texture.h"
+#include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/Path.h"
-#include "IO/TextureReader.h"
+#include "IO/ReadFreeImageTexture.h"
+#include "IO/TextureUtils.h"
+
+#include <kdl/result.h>
 
 #include "Catch2.h"
+#include "Logger.h"
 
 namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("getTextureNameFromTexture")
-{
-  CHECK(getTextureNameFromTexture("name", Path{}) == "name");
-  CHECK(getTextureNameFromTexture("name", Path{"this"}) == "name");
-  CHECK(getTextureNameFromTexture("name", Path{"this/that"}) == "name");
-}
-
-TEST_CASE("makeGetTextureNameFromPathSuffix")
+TEST_CASE("getTextureNameFromPathSuffix")
 {
   using T = std::tuple<size_t, Path, std::string>;
 
@@ -49,12 +50,25 @@ TEST_CASE("makeGetTextureNameFromPathSuffix")
 
   CAPTURE(prefixLength, path);
 
-  CHECK(makeGetTextureNameFromPathSuffix(prefixLength)("", path) == expectedResult);
+  CHECK(getTextureNameFromPathSuffix(path, prefixLength) == expectedResult);
 }
 
-TEST_CASE("makeGetTextureNameFromString")
+TEST_CASE("makeReadTextureErrorHandler")
 {
-  CHECK(makeGetTextureNameFromString("string")("name", Path{"this/that"}) == "string");
+  auto logger = NullLogger{};
+  auto diskFS = DiskFileSystem{
+    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/ReadTextureErrorHandler"}};
+
+  const auto file = diskFS.openFile(Path{"textures/corruptPngTest.png"});
+  auto reader = file->reader().buffer();
+  auto result = readFreeImageTexture("corruptPngTest", reader);
+  REQUIRE(result.is_error());
+
+  const auto defaultTexture =
+    std::move(result).or_else(makeReadTextureErrorHandler(diskFS, logger)).value();
+  CHECK(defaultTexture.name() == "corruptPngTest");
+  CHECK(defaultTexture.width() == 32);
+  CHECK(defaultTexture.height() == 32);
 }
 } // namespace IO
 } // namespace TrenchBroom

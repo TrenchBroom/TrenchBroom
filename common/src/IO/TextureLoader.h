@@ -22,6 +22,7 @@
 #include "IO/Path.h"
 #include "Macros.h"
 
+#include <functional>
 #include <memory>
 #include <optional>
 #include <string>
@@ -35,6 +36,7 @@ class Logger;
 namespace TrenchBroom::Assets
 {
 class Palette;
+class Texture;
 class TextureCollection;
 class TextureManager;
 } // namespace TrenchBroom::Assets
@@ -46,8 +48,8 @@ struct TextureConfig;
 
 namespace TrenchBroom::IO
 {
+class File;
 class FileSystem;
-class TextureReader;
 
 class TextureLoader
 {
@@ -56,19 +58,13 @@ private:
   Path m_textureRoot;
   std::vector<std::string> m_textureExtensions;
   std::vector<std::string> m_textureExclusionPatterns;
-  std::unique_ptr<TextureReader> m_textureReader;
+  std::function<Assets::Texture(const File&)> m_readTexture;
   Logger& m_logger;
 
 public:
   TextureLoader(
     const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
   ~TextureLoader();
-
-private:
-  static std::unique_ptr<TextureReader> createTextureReader(
-    const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
-  static std::optional<Assets::Palette> loadPalette(
-    const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
 
 public:
   std::vector<Path> findTextureCollections() const;

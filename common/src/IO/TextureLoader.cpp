@@ -35,6 +35,7 @@
 #include "IO/ReadMipTexture.h"
 #include "IO/ReadQuake3ShaderTexture.h"
 #include "IO/ReadWalTexture.h"
+#include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
@@ -59,111 +60,8 @@ bool shouldExclude(
     return kdl::ci::str_matches_glob(textureName, pattern);
   });
 }
-} // namespace
 
-TextureLoader::TextureLoader(
-  const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger)
-  : m_gameFS{gameFS}
-  , m_textureRoot{textureConfig.root}
-  , m_textureExtensions{textureConfig.format.extensions}
-  , m_textureExclusionPatterns{textureConfig.excludes}
-  , m_textureReader{createTextureReader(m_gameFS, textureConfig, logger)}
-  , m_logger{logger}
-{
-}
-
-TextureLoader::~TextureLoader() = default;
-
-std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
-  const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger)
-{
-  if (textureConfig.format.format == "idmip")
-  {
-    return std::make_unique<TextureReaderWrapper>(
-      [&, palette = *loadPalette(gameFS, textureConfig, logger)](const File& file) {
-        auto reader = file.reader().buffer();
-        return readIdMipTexture(file.path().basename(), reader, palette);
-      },
-      gameFS,
-      logger);
-  }
-  else if (textureConfig.format.format == "hlmip")
-  {
-    return std::make_unique<TextureReaderWrapper>(
-      [&](const File& file) {
-        auto reader = file.reader().buffer();
-        return readHlMipTexture(file.path().basename(), reader);
-      },
-      gameFS,
-      logger);
-  }
-  else if (textureConfig.format.format == "wal")
-  {
-    return std::make_unique<TextureReaderWrapper>(
-      [&](const File& file) {
-        auto name =
-          getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-        auto reader = file.reader().buffer();
-        return readWalTexture(
-          std::move(name), reader, loadPalette(gameFS, textureConfig, logger));
-      },
-      gameFS,
-      logger);
-  }
-  else if (textureConfig.format.format == "image")
-  {
-    return std::make_unique<TextureReaderWrapper>(
-      [&](const File& file) {
-        auto name =
-          getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-        auto reader = file.reader().buffer();
-        return readFreeImageTexture(std::move(name), reader);
-      },
-      gameFS,
-      logger);
-  }
-  else if (textureConfig.format.format == "q3shader")
-  {
-    return std::make_unique<TextureReaderWrapper>(
-      [&](const File& file) {
-        auto name =
-          getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-        return readQuake3ShaderTexture(std::move(name), file, gameFS);
-      },
-      gameFS,
-      logger);
-  }
-  else if (textureConfig.format.format == "m8")
-  {
-    return std::make_unique<TextureReaderWrapper>(
-      [&](const File& file) {
-        auto name =
-          getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-        auto reader = file.reader().buffer();
-        return readM8Texture(std::move(name), reader);
-      },
-      gameFS,
-      logger);
-  }
-  else if (textureConfig.format.format == "dds")
-  {
-    return std::make_unique<TextureReaderWrapper>(
-      [&](const File& file) {
-        auto name =
-          getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-        auto reader = file.reader().buffer();
-        return readDdsTexture(std::move(name), reader);
-      },
-      gameFS,
-      logger);
-  }
-  else
-  {
-    throw GameException{"Unknown texture format '" + textureConfig.format.format + "'"};
-  }
-}
-
-std::optional<Assets::Palette> TextureLoader::loadPalette(
+std::optional<Assets::Palette> loadPalette(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger)
 {
   try
@@ -188,6 +86,106 @@ std::optional<Assets::Palette> TextureLoader::loadPalette(
   }
   return std::nullopt;
 }
+
+std::function<Assets::Texture(const File&)> makeReadTextureFunc(
+  const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger)
+{
+  if (textureConfig.format.format == "idmip")
+  {
+    return [&, palette = loadPalette(gameFS, textureConfig, logger)](const File& file) {
+      auto name = file.path().basename();
+      if (palette)
+      {
+        auto reader = file.reader().buffer();
+        return readIdMipTexture(std::move(name), reader, *palette)
+          .or_else(makeReadTextureErrorHandler(gameFS, logger))
+          .value();
+      }
+      return loadDefaultTexture(gameFS, name, logger);
+    };
+  }
+  if (textureConfig.format.format == "hlmip")
+  {
+    return [&](const File& file) {
+      auto reader = file.reader().buffer();
+      return readHlMipTexture(file.path().basename(), reader)
+        .or_else(makeReadTextureErrorHandler(gameFS, logger))
+        .value();
+    };
+  }
+  if (textureConfig.format.format == "wal")
+  {
+    return [&,
+            pathPrefix = textureConfig.root.length(),
+            palette = loadPalette(gameFS, textureConfig, logger)](const File& file) {
+      auto name = getTextureNameFromPathSuffix(file.path(), pathPrefix);
+      auto reader = file.reader().buffer();
+      return readWalTexture(std::move(name), reader, palette)
+        .or_else(makeReadTextureErrorHandler(gameFS, logger))
+        .value();
+    };
+  }
+  if (textureConfig.format.format == "image")
+  {
+    return [&, pathPrefix = textureConfig.root.length()](const File& file) {
+      auto name = getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
+      auto reader = file.reader().buffer();
+      return readFreeImageTexture(std::move(name), reader)
+        .or_else(makeReadTextureErrorHandler(gameFS, logger))
+        .value();
+    };
+  }
+  if (textureConfig.format.format == "q3shader")
+  {
+    return [&, pathPrefix = textureConfig.root.length()](const File& file) {
+      auto name = getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
+      auto reader = file.reader().buffer();
+      return readQuake3ShaderTexture(std::move(name), file, gameFS)
+        .or_else(makeReadTextureErrorHandler(gameFS, logger))
+        .value();
+    };
+  }
+  if (textureConfig.format.format == "m8")
+  {
+    return [&, pathPrefix = textureConfig.root.length()](const File& file) {
+      auto name = getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
+      auto reader = file.reader().buffer();
+      return readM8Texture(std::move(name), reader)
+        .or_else(makeReadTextureErrorHandler(gameFS, logger))
+        .value();
+    };
+  }
+  if (textureConfig.format.format == "dds")
+  {
+    return [&, pathPrefix = textureConfig.root.length()](const File& file) {
+      auto name = getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
+      auto reader = file.reader().buffer();
+      return readDdsTexture(std::move(name), reader)
+        .or_else(makeReadTextureErrorHandler(gameFS, logger))
+        .value();
+    };
+  }
+
+  logger.error() << "Unknown texture format '" << textureConfig.format.format << "'";
+  return [&](const File& file) {
+    return loadDefaultTexture(gameFS, file.path().basename(), logger);
+  };
+}
+
+} // namespace
+
+TextureLoader::TextureLoader(
+  const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger)
+  : m_gameFS{gameFS}
+  , m_textureRoot{textureConfig.root}
+  , m_textureExtensions{textureConfig.format.extensions}
+  , m_textureExclusionPatterns{textureConfig.excludes}
+  , m_readTexture{makeReadTextureFunc(m_gameFS, textureConfig, logger)}
+  , m_logger{logger}
+{
+}
+
+TextureLoader::~TextureLoader() = default;
 
 std::vector<Path> TextureLoader::findTextureCollections() const
 {
@@ -217,7 +215,7 @@ Assets::TextureCollection TextureLoader::loadTextureCollection(const Path& path)
         continue;
       }
 
-      auto texture = m_textureReader->readTexture(file);
+      auto texture = m_readTexture(*file);
       texture.setAbsolutePath(safeMakeAbsolute(texturePath, [&](const auto& p) {
                                 return m_gameFS.makeAbsolute(p);
                               }).value_or(Path{}));
