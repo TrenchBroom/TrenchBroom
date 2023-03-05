@@ -29,11 +29,11 @@
 #include "IO/Path.h"
 #include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
-#include "IO/Quake3ShaderTextureReader.h"
 #include "IO/ReadDdsTexture.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ReadM8Texture.h"
 #include "IO/ReadMipTexture.h"
+#include "IO/ReadQuake3ShaderTexture.h"
 #include "IO/ReadWalTexture.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
@@ -124,8 +124,14 @@ std::unique_ptr<TextureReader> TextureLoader::createTextureReader(
   }
   else if (textureConfig.format.format == "q3shader")
   {
-    return std::make_unique<Quake3ShaderTextureReader>(
-      makeGetTextureNameFromPathSuffix(textureConfig.root.length()), gameFS, logger);
+    return std::make_unique<TextureReaderWrapper>(
+      [&](const File& file) {
+        auto name =
+          getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
+        return readQuake3ShaderTexture(std::move(name), file, gameFS);
+      },
+      gameFS,
+      logger);
   }
   else if (textureConfig.format.format == "m8")
   {

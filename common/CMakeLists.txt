@@ -81,12 +81,12 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/PathQt.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadDdsTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/Reader.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadFreeImageTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.cpp
+        ${COMMON_SOURCE_DIR}/IO/ReadQuake3ShaderTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadWalTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.cpp
@@ -566,13 +566,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/PathQt.h
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.h
-        ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/ReadDdsTexture.h
         ${COMMON_SOURCE_DIR}/IO/Reader.h
         ${COMMON_SOURCE_DIR}/IO/ReaderException.h
         ${COMMON_SOURCE_DIR}/IO/ReadFreeImageTexture.h
         ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.h
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.h
+        ${COMMON_SOURCE_DIR}/IO/ReadQuake3ShaderTexture.h
         ${COMMON_SOURCE_DIR}/IO/ReadWalTexture.h
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.h
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.h

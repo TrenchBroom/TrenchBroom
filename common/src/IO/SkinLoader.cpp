@@ -27,8 +27,8 @@
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
 #include "IO/PathInfo.h"
-#include "IO/Quake3ShaderTextureReader.h"
 #include "IO/ReadFreeImageTexture.h"
+#include "IO/ReadQuake3ShaderTexture.h"
 #include "IO/ReadWalTexture.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
@@ -74,19 +74,21 @@ Assets::Texture loadSkin(
 
 Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger)
 {
-  const auto getTextureName = makeGetTextureNameFromPathSuffix(0);
+  auto actualPath =
+    !path.isEmpty() && fs.pathInfo(path.deleteExtension()) == PathInfo::File
+      ? path.deleteExtension()
+      : path;
+  const auto name = path.asString("/");
 
   if (!path.isEmpty())
   {
     logger.debug() << "Loading shader '" << path << "'";
     try
     {
-      const auto file = fs.pathInfo(path.deleteExtension()) == PathInfo::File
-                          ? fs.openFile(path.deleteExtension())
-                          : fs.openFile(path);
-
-      auto reader = Quake3ShaderTextureReader{getTextureName, fs, logger};
-      return reader.readTexture(file);
+      const auto file = fs.openFile(actualPath);
+      return readQuake3ShaderTexture(name, *file, fs)
+        .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+        .release();
     }
     catch (const Exception& e)
     {
@@ -99,7 +101,7 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
     logger.warn() << "Could not load shader: Path is empty";
   }
 
-  return loadDefaultTexture(fs, getTextureName("", path), logger);
+  return loadDefaultTexture(fs, name, logger);
 }
 } // namespace IO
 } // namespace TrenchBroom
