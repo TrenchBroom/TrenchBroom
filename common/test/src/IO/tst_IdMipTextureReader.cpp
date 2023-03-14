@@ -30,6 +30,8 @@
 #include "IO/WadFileSystem.h"
 #include "Logger.h"
 
+#include <kdl/result.h>
+
 #include <string>
 
 #include "Catch2.h"
@@ -70,7 +72,7 @@ TEST_CASE("IdMipTextureReaderTest.testLoadWad")
 
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
   auto paletteFile = fs.openFile(Path{"fixture/test/palette.lmp"});
-  const auto palette = Assets::loadPalette(*paletteFile);
+  const auto palette = Assets::loadPalette(*paletteFile).value();
 
   auto nameStrategy = TextureReader::TextureNameStrategy{};
   auto logger = NullLogger{};

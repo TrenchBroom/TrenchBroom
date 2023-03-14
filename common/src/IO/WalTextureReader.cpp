@@ -26,6 +26,8 @@
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
+#include <kdl/result.h>
+
 #include <iostream>
 #include <string>
 
@@ -176,27 +178,31 @@ Assets::Texture WalTextureReader::readDkWal(
   const auto value = reader.readInt<int32_t>();
   const auto gameData = Assets::Q2Data{flags, contents, value};
 
-  const auto embeddedPalette = Assets::loadPalette(paletteReader);
-  const auto hasTransparency = readMips(
-    embeddedPalette,
-    mipLevels,
-    offsets,
-    width,
-    height,
-    reader,
-    buffers,
-    averageColor,
-    Assets::PaletteTransparency::Index255Transparent);
+  return Assets::loadPalette(paletteReader)
+    .transform([&](auto embeddedPalette) {
+      const auto hasTransparency = readMips(
+        embeddedPalette,
+        mipLevels,
+        offsets,
+        width,
+        height,
+        reader,
+        buffers,
+        averageColor,
+        Assets::PaletteTransparency::Index255Transparent);
 
-  return Assets::Texture{
-    textureName(name, path),
-    width,
-    height,
-    averageColor,
-    std::move(buffers),
-    GL_RGBA,
-    hasTransparency ? Assets::TextureType::Masked : Assets::TextureType::Opaque,
-    gameData};
+      return Assets::Texture{
+        textureName(name, path),
+        width,
+        height,
+        averageColor,
+        std::move(buffers),
+        GL_RGBA,
+        hasTransparency ? Assets::TextureType::Masked : Assets::TextureType::Opaque,
+        gameData};
+    })
+    .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+    .value();
 }
 
 size_t WalTextureReader::readMipOffsets(

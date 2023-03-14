@@ -24,6 +24,8 @@
 #include "IO/Path.h"
 #include "IO/WalTextureReader.h"
 
+#include <kdl/result.h>
+
 #include "Catch2.h"
 #include "TestLogger.h"
 
@@ -37,7 +39,7 @@ TEST_CASE("WalTextureReaderTest.testLoadQ2WalDir")
 {
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
   auto paletteFile = fs.openFile(Path{"fixture/test/colormap.pcx"});
-  const auto palette = Assets::loadPalette(*paletteFile);
+  const auto palette = Assets::loadPalette(*paletteFile).value();
 
   auto nameStrategy = TextureReader::PathSuffixNameStrategy{fixturePath.length()};
   auto logger = NullLogger{};

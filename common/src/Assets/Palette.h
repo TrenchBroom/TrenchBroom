@@ -20,16 +20,22 @@
 #pragma once
 
 #include "Color.h"
-#include "IO/Reader.h"
+
+#include <kdl/reflection_decl.h>
+#include <kdl/result_forward.h>
+
+#include <kdl/reflection_decl.h>
+#include <kdl/result_forward.h>
 
 #include <cassert>
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom::IO
 {
-class BufferedReader;
 class File;
+class Reader;
 } // namespace TrenchBroom::IO
 
 namespace TrenchBroom::Assets
@@ -49,10 +55,7 @@ private:
   std::shared_ptr<PaletteData> m_data;
 
 public:
-  /**
-   * @throws AssetException if data is not 768 bytes
-   */
-  explicit Palette(const std::vector<unsigned char>& data);
+  explicit Palette(std::shared_ptr<PaletteData> m_data);
 
   /**
    * Reads `pixelCount` bytes from `reader` where each byte is a palette index,
@@ -80,11 +83,17 @@ public:
     Color& averageColor) const;
 };
 
-Palette loadPalette(const IO::File& file);
+struct LoadPaletteError
+{
+  std::string msg;
 
-/**
- * @throws AssetException if the palette can't be loaded
- */
-Palette loadPalette(IO::Reader& reader);
+  kdl_reflect_decl(LoadPaletteError, msg);
+};
+
+kdl::result<Palette, LoadPaletteError> makePalette(
+  const std::vector<unsigned char>& data);
+
+kdl::result<Palette, LoadPaletteError> loadPalette(const IO::File& file);
+kdl::result<Palette, LoadPaletteError> loadPalette(IO::Reader& reader);
 
 } // namespace TrenchBroom::Assets

@@ -28,6 +28,8 @@
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
+#include <kdl/result.h>
+
 #include <iostream>
 #include <string>
 
@@ -87,7 +89,10 @@ Assets::Texture M8TextureReader::doReadTexture(std::shared_ptr<File> file) const
 
     auto paletteReader = reader.subReaderFromCurrent(M8Layout::PaletteSize);
     reader.seekForward(M8Layout::PaletteSize);
-    const auto palette = Assets::loadPalette(paletteReader);
+    const auto palette =
+      Assets::loadPalette(paletteReader)
+        .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+        .value();
 
     reader.seekForward(4); // flags
     reader.seekForward(4); // contents

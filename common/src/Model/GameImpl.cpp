@@ -591,7 +591,9 @@ void GameImpl::doLoadFrame(
 Assets::Palette GameImpl::loadTexturePalette() const
 {
   auto file = m_fs.openFile(m_config.textureConfig.palette);
-  return Assets::loadPalette(*file);
+  return Assets::loadPalette(*file)
+    .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+    .value();
 }
 
 std::vector<std::string> GameImpl::doAvailableMods() const

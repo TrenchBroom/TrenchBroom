@@ -42,6 +42,7 @@
 #include "kdl/string_compare.h"
 #include "kdl/vector_utils.h"
 #include <kdl/overload.h>
+#include <kdl/result.h>
 
 #include <string>
 #include <vector>
@@ -136,7 +137,13 @@ std::optional<Assets::Palette> TextureLoader::loadPalette(
       const auto& path = textureConfig.palette;
       logger.info() << "Loading palette file " << path;
       auto file = gameFS.openFile(path);
-      return Assets::loadPalette(*file);
+      return Assets::loadPalette(*file)
+        .transform([](auto palette) { return std::optional{std::move(palette)}; })
+        .if_error([&](const auto error) {
+          logger.error() << "Could not load palette file: " << error;
+          return std::nullopt;
+        })
+        .value();
     }
   }
   catch (const Exception& e)

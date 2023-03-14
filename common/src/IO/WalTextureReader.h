@@ -30,6 +30,7 @@ class Logger;
 
 namespace IO
 {
+class BufferedReader;
 class File;
 class FileSystem;
 class Path;

@@ -20,7 +20,10 @@
 #include "HlMipTextureReader.h"
 
 #include "Assets/Palette.h"
+#include "Exceptions.h"
 #include "IO/Reader.h"
+
+#include <kdl/result.h>
 
 #include <vector>
 
@@ -44,7 +47,9 @@ Assets::Palette HlMipTextureReader::doGetPalette(
   auto data = std::vector<unsigned char>(reader.size() - start - 2);
   reader.read(data.data(), data.size());
 
-  return Assets::Palette{data};
+  return Assets::makePalette(data)
+    .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+    .value();
 }
 
 } // namespace TrenchBroom::IO

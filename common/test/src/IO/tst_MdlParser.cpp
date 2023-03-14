@@ -27,6 +27,8 @@
 #include "Logger.h"
 #include "Model/EntityNode.h"
 
+#include <kdl/result.h>
+
 #include "Catch2.h"
 
 namespace TrenchBroom
@@ -39,7 +41,7 @@ TEST_CASE("MdlParserTest.loadValidMdl")
 
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
   auto paletteFile = fs.openFile(Path{"fixture/test/palette.lmp"});
-  const auto palette = Assets::loadPalette(*paletteFile);
+  const auto palette = Assets::loadPalette(*paletteFile).value();
 
   const auto mdlPath =
     IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/test/IO/Mdl/armor.mdl"};
@@ -67,7 +69,7 @@ TEST_CASE("MdlParserTest.loadInvalidMdl")
 
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
   auto paletteFile = fs.openFile(Path{"fixture/test/palette.lmp"});
-  const auto palette = Assets::loadPalette(*paletteFile);
+  const auto palette = Assets::loadPalette(*paletteFile).value();
 
   const auto mdlPath =
     IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/test/IO/Mdl/invalid.mdl"};

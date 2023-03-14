@@ -23,13 +23,15 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "IO/File.h"
-#include "IO/FileSystem.h"
 #include "IO/ImageLoader.h"
 #include "IO/Reader.h"
 
+#include <kdl/reflection_impl.h>
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 
 #include <cstring>
+#include <ostream>
 #include <string>
 
 namespace TrenchBroom::Assets
@@ -47,50 +49,8 @@ struct PaletteData
   std::vector<unsigned char> index255TransparentData;
 };
 
-static std::shared_ptr<PaletteData> makePaletteData(
-  const std::vector<unsigned char>& data)
-{
-  if (data.size() != 768 && data.size() != 1024)
-  {
-    throw AssetException{
-      "Could not load palette, expected 768 or 1024 bytes, got "
-      + std::to_string(data.size())};
-  }
-
-  auto result = PaletteData{};
-
-  if (data.size() == 1024)
-  {
-    // The data is already in RGBA format, don't process it
-    result.opaqueData = data;
-    result.index255TransparentData = data;
-  }
-  else
-  {
-    result.opaqueData.reserve(1024);
-
-    for (size_t i = 0; i < 256; ++i)
-    {
-      const auto r = data[3 * i + 0];
-      const auto g = data[3 * i + 1];
-      const auto b = data[3 * i + 2];
-
-      result.opaqueData.push_back(r);
-      result.opaqueData.push_back(g);
-      result.opaqueData.push_back(b);
-      result.opaqueData.push_back(0xFF);
-    }
-
-    // build index255TransparentData from opaqueData
-    result.index255TransparentData = result.opaqueData;
-    result.index255TransparentData[1023] = 0;
-  }
-
-  return std::make_shared<PaletteData>(std::move(result));
-}
-
-Palette::Palette(const std::vector<unsigned char>& data)
-  : m_data{makePaletteData(data)}
+Palette::Palette(std::shared_ptr<PaletteData> data)
+  : m_data{std::move(data)}
 {
 }
 
@@ -146,37 +106,80 @@ bool Palette::indexedToRgba(
   return hasTransparency;
 }
 
+kdl_reflect_impl(LoadPaletteError);
+
+kdl::result<Palette, LoadPaletteError> makePalette(const std::vector<unsigned char>& data)
+{
+  if (data.size() != 768 && data.size() != 1024)
+  {
+    return LoadPaletteError{
+      "Could not load palette, expected 768 or 1024 bytes, got "
+      + std::to_string(data.size())};
+  }
+
+  auto result = std::make_shared<PaletteData>();
+
+  if (data.size() == 1024)
+  {
+    // The data is already in RGBA format, don't process it
+    result->opaqueData = data;
+    result->index255TransparentData = data;
+  }
+  else
+  {
+    result->opaqueData.reserve(1024);
+
+    for (size_t i = 0; i < 256; ++i)
+    {
+      const auto r = data[3 * i + 0];
+      const auto g = data[3 * i + 1];
+      const auto b = data[3 * i + 2];
+
+      result->opaqueData.push_back(r);
+      result->opaqueData.push_back(g);
+      result->opaqueData.push_back(b);
+      result->opaqueData.push_back(0xFF);
+    }
+
+    // build index255TransparentData from opaqueData
+    result->index255TransparentData = result->opaqueData;
+    result->index255TransparentData[1023] = 0;
+  }
+
+  return Palette{std::move(result)};
+}
+
 namespace
 {
 
-Palette loadLmp(IO::Reader& reader)
+kdl::result<Palette, LoadPaletteError> loadLmp(IO::Reader& reader)
 {
   auto data = std::vector<unsigned char>(reader.size());
   reader.read(data.data(), data.size());
-  return Palette{data};
+  return makePalette(data);
 }
 
-Palette loadPcx(IO::Reader& reader)
+kdl::result<Palette, LoadPaletteError> loadPcx(IO::Reader& reader)
 {
   auto data = std::vector<unsigned char>(768);
   reader.seekFromEnd(data.size());
   reader.read(data.data(), data.size());
-  return Palette{data};
+  return makePalette(data);
 }
 
-Palette loadBmp(IO::Reader& reader)
+kdl::result<Palette, LoadPaletteError> loadBmp(IO::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   auto imageLoader =
     IO::ImageLoader{IO::ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
   auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
                                        : imageLoader.loadPixels(IO::ImageLoader::RGB);
-  return Palette{data};
+  return makePalette(data);
 }
 
 } // namespace
 
-Palette loadPalette(const IO::File& file)
+kdl::result<Palette, LoadPaletteError> loadPalette(const IO::File& file)
 {
   try
   {
@@ -197,22 +200,30 @@ Palette loadPalette(const IO::File& file)
       return loadBmp(reader);
     }
 
-    throw AssetException{
+    return LoadPaletteError{
       "Could not load palette file '" + file.path().asString()
       + "': Unknown palette format"};
   }
-  catch (const FileSystemException& e)
+  catch (const Exception& e)
   {
-    throw AssetException{
+    return LoadPaletteError{
       "Could not load palette file '" + file.path().asString() + "': " + e.what()};
   }
 }
 
-Palette loadPalette(IO::Reader& reader)
+kdl::result<Palette, LoadPaletteError> loadPalette(IO::Reader& reader)
 {
-  auto data = std::vector<unsigned char>(reader.size());
-  reader.read(data.data(), data.size());
-  return Palette{data};
+  try
+  {
+    auto data = std::vector<unsigned char>(reader.size());
+    reader.read(data.data(), data.size());
+    return makePalette(data);
+  }
+  catch (const Exception& e)
+  {
+    using namespace std::string_literals;
+    return LoadPaletteError{"Could not load palette: "s + e.what()};
+  }
 }
 
 } // namespace TrenchBroom::Assets
