@@ -18,15 +18,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestLogger.h"
+#include "IO/File.h"
 #include "TestUtils.h"
 
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
-#include "IO/DdsTextureReader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
+#include "IO/ReadDdsTexture.h"
+
+#include <kdl/result.h>
 
 #include <memory>
 
@@ -41,10 +43,9 @@ static Assets::Texture loadTexture(const std::string& name)
   const auto ddsPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Dds/");
   auto diskFS = DiskFileSystem{ddsPath};
 
-  auto logger = NullLogger{};
-  auto textureLoader = DdsTextureReader{getTextureNameFromTexture, diskFS, logger};
-
-  return textureLoader.readTexture(diskFS.openFile(Path(name)));
+  const auto file = diskFS.openFile(Path{name});
+  auto reader = file->reader().buffer();
+  return readDdsTexture(name, reader).value();
 }
 
 static void assertTexture(
@@ -59,7 +60,7 @@ static void assertTexture(
   CHECK(texture.type() == Assets::TextureType::Opaque);
 }
 
-TEST_CASE("DdsTextureReaderTest.testLoadDds")
+TEST_CASE("ReadDdsTextureTest.testLoadDds")
 {
   assertTexture("dds_rgb.dds", 128, 128, GL_BGR);
   assertTexture("dds_rgba.dds", 128, 128, GL_BGRA);

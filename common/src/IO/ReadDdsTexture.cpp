@@ -18,96 +18,72 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DdsTextureReader.h"
+#include "ReadDdsTexture.h"
 
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
-#include "Ensure.h"
-#include "Exceptions.h"
-#include "IO/File.h"
-#include "IO/ImageLoaderImpl.h"
+#include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
-namespace TrenchBroom
+#include <kdl/result.h>
+
+namespace TrenchBroom::IO
 {
-namespace IO
+namespace
 {
 namespace DdsLayout
 {
-static const std::size_t Ident = ((' ' << 24) + ('S' << 16) + ('D' << 8) + 'D');
-static const std::size_t IdentDx10 = (('0' << 24) + ('1' << 16) + ('X' << 8) + 'D');
-static const std::size_t BasicHeaderLengthWithIdent = 128;
-static const std::size_t PixelFormatOffset = 76;
-static const std::size_t Dx10HeaderLength = 20;
+const std::size_t Ident = ((' ' << 24) + ('S' << 16) + ('D' << 8) + 'D');
+const std::size_t IdentDx10 = (('0' << 24) + ('1' << 16) + ('X' << 8) + 'D');
+const std::size_t BasicHeaderLengthWithIdent = 128;
+const std::size_t PixelFormatOffset = 76;
+const std::size_t Dx10HeaderLength = 20;
 
-[[maybe_unused]] static const std::size_t DdpfAlphaPixels = 1 << 0;
-static const std::size_t DdpfFourcc = 1 << 2;
-[[maybe_unused]] static const std::size_t DdpfRgb = 1 << 6;
+[[maybe_unused]] const std::size_t DdpfAlphaPixels = 1 << 0;
+const std::size_t DdpfFourcc = 1 << 2;
+[[maybe_unused]] const std::size_t DdpfRgb = 1 << 6;
 
-static const std::size_t Ddcaps2Cubemap = 1 << 9;
-static const std::size_t Ddcaps2CubemapPX = 1 << 10;
-static const std::size_t Ddcaps2CubemapNX = 1 << 11;
-static const std::size_t Ddcaps2CubemapPY = 1 << 12;
-static const std::size_t Ddcaps2CubemapNY = 1 << 13;
-static const std::size_t Ddcaps2CubemapPZ = 1 << 14;
-static const std::size_t Ddcaps2CubemapNZ = 1 << 15;
-[[maybe_unused]] static const std::size_t Ddcaps2CubemapAllFacesMask =
+const std::size_t Ddcaps2Cubemap = 1 << 9;
+const std::size_t Ddcaps2CubemapPX = 1 << 10;
+const std::size_t Ddcaps2CubemapNX = 1 << 11;
+const std::size_t Ddcaps2CubemapPY = 1 << 12;
+const std::size_t Ddcaps2CubemapNY = 1 << 13;
+const std::size_t Ddcaps2CubemapPZ = 1 << 14;
+const std::size_t Ddcaps2CubemapNZ = 1 << 15;
+[[maybe_unused]] const std::size_t Ddcaps2CubemapAllFacesMask =
   (Ddcaps2CubemapPX | Ddcaps2CubemapNX | Ddcaps2CubemapPY | Ddcaps2CubemapNY
    | Ddcaps2CubemapPZ | Ddcaps2CubemapNZ);
-static const std::size_t Ddcaps2Volume = 1 << 21;
+const std::size_t Ddcaps2Volume = 1 << 21;
 
-static const std::size_t FourccDXT1 = (('1' << 24) + ('T' << 16) + ('X' << 8) + 'D');
-static const std::size_t FourccDXT3 = (('3' << 24) + ('T' << 16) + ('X' << 8) + 'D');
-static const std::size_t FourccDXT5 = (('5' << 24) + ('T' << 16) + ('X' << 8) + 'D');
+const std::size_t FourccDXT1 = (('1' << 24) + ('T' << 16) + ('X' << 8) + 'D');
+const std::size_t FourccDXT3 = (('3' << 24) + ('T' << 16) + ('X' << 8) + 'D');
+const std::size_t FourccDXT5 = (('5' << 24) + ('T' << 16) + ('X' << 8) + 'D');
 
-static const std::size_t D3d10ResourceMiscCubemap = 1 << 2;
-static const std::size_t D3d10ResourceDimensionTexture2D = 3;
+const std::size_t D3d10ResourceMiscCubemap = 1 << 2;
+const std::size_t D3d10ResourceDimensionTexture2D = 3;
 
-static const std::size_t DxgiFormatR8G8B8A8Typeless = 27;
-static const std::size_t DxgiFormatR8G8B8A8Unorm = 28;
-static const std::size_t DxgiFormatR8G8B8A8UnormSrgb = 29;
-static const std::size_t DxgiFormatR8G8B8A8Uint = 30;
-static const std::size_t DxgiFormatR8G8B8A8Snorm = 31;
-static const std::size_t DxgiFormatR8G8B8A8Sint = 32;
-static const std::size_t DxgiFormatBC1Typeless = 70;
-static const std::size_t DxgiFormatBC1Unorm = 71;
-static const std::size_t DxgiFormatBC1UnormSrgb = 72;
-static const std::size_t DxgiFormatBC2Typeless = 73;
-static const std::size_t DxgiFormatBC2Unorm = 74;
-static const std::size_t DxgiFormatBC2UnormSrgb = 75;
-static const std::size_t DxgiFormatBC3Typeless = 76;
-static const std::size_t DxgiFormatBC3Unorm = 77;
-static const std::size_t DxgiFormatBC3UnormSrgb = 78;
-static const std::size_t DxgiFormatB8G8R8A8Typeless = 90;
-static const std::size_t DxgiFormatB8G8R8A8UnormSrgb = 91;
-static const std::size_t DxgiFormatB8G8R8X8Typeless = 92;
-static const std::size_t DxgiFormatB8G8R8X8UnormSrgb = 93;
+const std::size_t DxgiFormatR8G8B8A8Typeless = 27;
+const std::size_t DxgiFormatR8G8B8A8Unorm = 28;
+const std::size_t DxgiFormatR8G8B8A8UnormSrgb = 29;
+const std::size_t DxgiFormatR8G8B8A8Uint = 30;
+const std::size_t DxgiFormatR8G8B8A8Snorm = 31;
+const std::size_t DxgiFormatR8G8B8A8Sint = 32;
+const std::size_t DxgiFormatBC1Typeless = 70;
+const std::size_t DxgiFormatBC1Unorm = 71;
+const std::size_t DxgiFormatBC1UnormSrgb = 72;
+const std::size_t DxgiFormatBC2Typeless = 73;
+const std::size_t DxgiFormatBC2Unorm = 74;
+const std::size_t DxgiFormatBC2UnormSrgb = 75;
+const std::size_t DxgiFormatBC3Typeless = 76;
+const std::size_t DxgiFormatBC3Unorm = 77;
+const std::size_t DxgiFormatBC3UnormSrgb = 78;
+const std::size_t DxgiFormatB8G8R8A8Typeless = 90;
+const std::size_t DxgiFormatB8G8R8A8UnormSrgb = 91;
+const std::size_t DxgiFormatB8G8R8X8Typeless = 92;
+const std::size_t DxgiFormatB8G8R8X8UnormSrgb = 93;
 } // namespace DdsLayout
 
-Color DdsTextureReader::getAverageColor(
-  const Assets::TextureBuffer& buffer, const GLenum format)
-{
-  if (format != GL_RGBA && format != GL_BGRA)
-  {
-    return Color{};
-  }
-
-  const auto* const data = buffer.data();
-  const auto bufferSize = buffer.size();
-
-  auto average = Color{};
-  for (std::size_t i = 0; i < bufferSize; i += 4)
-  {
-    average = average + Color(data[i], data[i + 1], data[i + 2], data[i + 3]);
-  }
-
-  const auto numPixels = bufferSize / 4;
-  average = average / static_cast<float>(numPixels);
-
-  return average;
-}
-
-static GLenum convertDx10FormatToGLFormat(const size_t dx10Format)
+GLenum convertDx10FormatToGLFormat(const size_t dx10Format)
 {
   switch (dx10Format)
   {
@@ -140,7 +116,7 @@ static GLenum convertDx10FormatToGLFormat(const size_t dx10Format)
   }
 }
 
-static void readDdsMips(Reader& reader, Assets::TextureBufferList& buffers)
+void readDdsMips(Reader& reader, Assets::TextureBufferList& buffers)
 {
   for (size_t i = 0, mipLevels = buffers.size(); i < mipLevels; ++i)
   {
@@ -148,24 +124,18 @@ static void readDdsMips(Reader& reader, Assets::TextureBufferList& buffers)
   }
 }
 
+} // namespace
 
-DdsTextureReader::DdsTextureReader(
-  GetTextureName getTextureName, const FileSystem& fs, Logger& logger)
-  : TextureReader{std::move(getTextureName), fs, logger}
+kdl::result<Assets::Texture, ReadTextureError> readDdsTexture(
+  std::string name, Reader& reader)
 {
-}
-
-Assets::Texture DdsTextureReader::doReadTexture(std::shared_ptr<File> file) const
-{
-  const auto& path = file->path();
-  auto reader = file->reader().buffer();
-
   try
   {
     const auto ident = reader.readSize<uint32_t>();
     if (ident != DdsLayout::Ident)
     {
-      return {textureName(path), 16, 16};
+      return ReadTextureError{
+        std::move(name), "Unknown Dds ident: " + std::to_string(ident)};
     }
 
     /*const auto size =*/reader.readSize<uint32_t>();
@@ -178,7 +148,7 @@ Assets::Texture DdsTextureReader::doReadTexture(std::shared_ptr<File> file) cons
 
     if (!checkTextureDimensions(width, height))
     {
-      return {textureName(path), 16, 16};
+      return ReadTextureError{std::move(name), "Invalid texture dimensions"};
     }
 
     reader.seekFromBegin(DdsLayout::PixelFormatOffset);
@@ -271,7 +241,8 @@ Assets::Texture DdsTextureReader::doReadTexture(std::shared_ptr<File> file) cons
 
     if (!format)
     {
-      return {textureName(path), 16, 16};
+      return ReadTextureError{
+        std::move(name), "Invalid Dds texture format: " + std::to_string(format)};
     }
 
     const auto numMips = mipMapsCount ? mipMapsCount : 1;
@@ -280,8 +251,8 @@ Assets::Texture DdsTextureReader::doReadTexture(std::shared_ptr<File> file) cons
     Assets::setMipBufferSize(buffers, numMips, width, height, format);
     readDdsMips(reader, buffers);
 
-    return {
-      textureName(path),
+    return Assets::Texture{
+      std::move(name),
       width,
       height,
       Color{},
@@ -289,11 +260,10 @@ Assets::Texture DdsTextureReader::doReadTexture(std::shared_ptr<File> file) cons
       format,
       Assets::TextureType::Opaque};
   }
-  catch (const ReaderException&)
+  catch (const ReaderException& e)
   {
-    return {textureName(path), 16, 16};
+    return ReadTextureError{std::move(name), e.what()};
   }
 }
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

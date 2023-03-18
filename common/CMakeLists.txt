@@ -35,7 +35,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigWriter.cpp
         ${COMMON_SOURCE_DIR}/IO/ConfigParserBase.cpp
-        ${COMMON_SOURCE_DIR}/IO/DdsTextureReader.cpp
         ${COMMON_SOURCE_DIR}/IO/DefParser.cpp
         ${COMMON_SOURCE_DIR}/IO/DiskFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/DiskIO.cpp
@@ -83,6 +82,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.cpp
+        ${COMMON_SOURCE_DIR}/IO/ReadDdsTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/Reader.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadFreeImageTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.cpp
@@ -519,7 +519,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigWriter.h
         ${COMMON_SOURCE_DIR}/IO/ConfigParserBase.h
-        ${COMMON_SOURCE_DIR}/IO/DdsTextureReader.h
         ${COMMON_SOURCE_DIR}/IO/DefParser.h
         ${COMMON_SOURCE_DIR}/IO/DiskFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/DiskIO.h
@@ -568,6 +567,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.h
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderTextureReader.h
+        ${COMMON_SOURCE_DIR}/IO/ReadDdsTexture.h
         ${COMMON_SOURCE_DIR}/IO/Reader.h
         ${COMMON_SOURCE_DIR}/IO/ReaderException.h
         ${COMMON_SOURCE_DIR}/IO/ReadFreeImageTexture.h
