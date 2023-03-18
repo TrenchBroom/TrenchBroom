@@ -62,6 +62,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.cpp
         ${COMMON_SOURCE_DIR}/IO/IOUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/LoadTextureCollection.cpp
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/MapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MapReader.cpp
@@ -94,7 +95,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/SprParser.cpp
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.cpp
-        ${COMMON_SOURCE_DIR}/IO/TextureLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/TextureUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/WadFileSystem.cpp
@@ -546,6 +546,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.h
         ${COMMON_SOURCE_DIR}/IO/IOUtils.h
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.h
+        ${COMMON_SOURCE_DIR}/IO/LoadTextureCollection.h
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
         ${COMMON_SOURCE_DIR}/IO/MapParser.h
         ${COMMON_SOURCE_DIR}/IO/MapReader.h
@@ -580,7 +581,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/SprParser.h
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.h
-        ${COMMON_SOURCE_DIR}/IO/TextureLoader.h
         ${COMMON_SOURCE_DIR}/IO/TextureUtils.h
         ${COMMON_SOURCE_DIR}/IO/Token.h
         ${COMMON_SOURCE_DIR}/IO/Tokenizer.h

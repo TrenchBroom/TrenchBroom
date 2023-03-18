@@ -26,10 +26,10 @@
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
 #include "IO/IOUtils.h"
+#include "IO/LoadTextureCollection.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/TestParserStatus.h"
-#include "IO/TextureLoader.h"
 #include "IO/VirtualFileSystem.h"
 #include "IO/WadFileSystem.h"
 #include "Model/BrushFace.h"
@@ -205,8 +205,7 @@ void TestGame::doWriteBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void TestGame::doLoadTextureCollections(
-  Assets::TextureManager& textureManager, Logger& logger) const
+void TestGame::doLoadTextureCollections(Assets::TextureManager& textureManager) const
 {
   const Model::TextureConfig textureConfig{
     IO::Path{"textures"},
@@ -216,7 +215,7 @@ void TestGame::doLoadTextureCollections(
     IO::Path{},
     {}};
 
-  textureManager.reload(IO::TextureLoader{*m_fs, textureConfig, logger});
+  textureManager.reload(*m_fs, textureConfig);
 }
 
 void TestGame::doReloadWads(

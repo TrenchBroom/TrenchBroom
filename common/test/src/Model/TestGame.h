@@ -103,8 +103,7 @@ private:
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  void doLoadTextureCollections(
-    Assets::TextureManager& textureManager, Logger& logger) const override;
+  void doLoadTextureCollections(Assets::TextureManager& textureManager) const override;
 
   void doReloadWads(
     const IO::Path& documentPath,

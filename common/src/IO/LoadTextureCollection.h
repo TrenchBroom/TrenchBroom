@@ -19,12 +19,10 @@
 
 #pragma once
 
-#include "IO/Path.h"
-#include "Macros.h"
+#include <kdl/reflection_decl.h>
+#include <kdl/result_forward.h>
 
-#include <functional>
-#include <memory>
-#include <optional>
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -35,11 +33,8 @@ class Logger;
 
 namespace TrenchBroom::Assets
 {
-class Palette;
-class Texture;
 class TextureCollection;
-class TextureManager;
-} // namespace TrenchBroom::Assets
+}
 
 namespace TrenchBroom::Model
 {
@@ -48,29 +43,23 @@ struct TextureConfig;
 
 namespace TrenchBroom::IO
 {
-class File;
 class FileSystem;
+class Path;
 
-class TextureLoader
+std::vector<Path> findTextureCollections(
+  const FileSystem& gameFS, const Model::TextureConfig& textureConfig);
+
+struct LoadTextureCollectionError
 {
-private:
-  const FileSystem& m_gameFS;
-  Path m_textureRoot;
-  std::vector<std::string> m_textureExtensions;
-  std::vector<std::string> m_textureExclusionPatterns;
-  std::function<Assets::Texture(const File&)> m_readTexture;
-  Logger& m_logger;
+  std::string msg;
 
-public:
-  TextureLoader(
-    const FileSystem& gameFS, const Model::TextureConfig& textureConfig, Logger& logger);
-  ~TextureLoader();
-
-public:
-  std::vector<Path> findTextureCollections() const;
-  Assets::TextureCollection loadTextureCollection(const Path& path) const;
-
-  deleteCopyAndMove(TextureLoader);
+  kdl_reflect_decl(LoadTextureCollectionError, msg);
 };
+
+kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCollection(
+  const Path& path,
+  const FileSystem& gameFS,
+  const Model::TextureConfig& textureConfig,
+  Logger& logger);
 
 } // namespace TrenchBroom::IO

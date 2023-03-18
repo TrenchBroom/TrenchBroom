@@ -130,8 +130,7 @@ public: // parsing and serializing objects
     WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const;
 
 public: // texture collection handling
-  void loadTextureCollections(
-    Assets::TextureManager& textureManager, Logger& logger) const;
+  void loadTextureCollections(Assets::TextureManager& textureManagerr) const;
 
   void reloadWads(
     const IO::Path& documentPath, const std::vector<IO::Path>& wadPaths, Logger& logger);
@@ -203,8 +202,7 @@ private: // subclassing interface
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const = 0;
 
-  virtual void doLoadTextureCollections(
-    Assets::TextureManager& textureManager, Logger& logger) const = 0;
+  virtual void doLoadTextureCollections(Assets::TextureManager& textureManager) const = 0;
   virtual void doReloadWads(
     const IO::Path& documentPath,
     const std::vector<IO::Path>& wadPaths,

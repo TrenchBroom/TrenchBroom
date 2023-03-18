@@ -31,9 +31,14 @@ class Logger;
 
 namespace IO
 {
+class FileSystem;
 class Path;
-class TextureLoader;
 } // namespace IO
+
+namespace Model
+{
+struct TextureConfig;
+}
 
 namespace Assets
 {
@@ -61,14 +66,16 @@ public:
   TextureManager(int magFilter, int minFilter, Logger& logger);
   ~TextureManager();
 
-  void reload(const IO::TextureLoader& loader);
+  void reload(const IO::FileSystem& fs, const Model::TextureConfig& textureConfig);
 
   // for testing
   void setTextureCollections(std::vector<TextureCollection> collections);
 
 private:
   void setTextureCollections(
-    const std::vector<IO::Path>& paths, const IO::TextureLoader& loader);
+    const std::vector<IO::Path>& paths,
+    const IO::FileSystem& fs,
+    const Model::TextureConfig& textureConfig);
 
   void addTextureCollection(Assets::TextureCollection collection);
 

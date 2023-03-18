@@ -4508,7 +4508,7 @@ void MapDocument::loadTextures()
       const auto wadPaths = IO::Path::asPaths(kdl::str_split(*wadStr, ";"));
       m_game->reloadWads(path(), wadPaths, logger());
     }
-    m_game->loadTextureCollections(*m_textureManager, logger());
+    m_game->loadTextureCollections(*m_textureManager);
   }
   catch (const Exception& e)
   {

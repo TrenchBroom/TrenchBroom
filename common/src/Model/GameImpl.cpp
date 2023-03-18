@@ -40,6 +40,7 @@
 #include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
 #include "IO/ImageSpriteParser.h"
+#include "IO/LoadTextureCollection.h"
 #include "IO/Md2Parser.h"
 #include "IO/Md3Parser.h"
 #include "IO/MdlParser.h"
@@ -52,7 +53,6 @@
 #include "IO/SimpleParserStatus.h"
 #include "IO/SprParser.h"
 #include "IO/SystemPaths.h"
-#include "IO/TextureLoader.h"
 #include "IO/WorldReader.h"
 #include "Logger.h"
 #include "Macros.h"
@@ -336,10 +336,9 @@ void GameImpl::doWriteBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void GameImpl::doLoadTextureCollections(
-  Assets::TextureManager& textureManager, Logger& logger) const
+void GameImpl::doLoadTextureCollections(Assets::TextureManager& textureManager) const
 {
-  textureManager.reload(IO::TextureLoader{m_fs, m_config.textureConfig, logger});
+  textureManager.reload(m_fs, m_config.textureConfig);
 }
 
 void GameImpl::doReloadWads(

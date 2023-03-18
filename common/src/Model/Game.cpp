@@ -146,10 +146,9 @@ void Game::writeBrushFacesToStream(
   doWriteBrushFacesToStream(world, faces, stream);
 }
 
-void Game::loadTextureCollections(
-  Assets::TextureManager& textureManager, Logger& logger) const
+void Game::loadTextureCollections(Assets::TextureManager& textureManager) const
 {
-  doLoadTextureCollections(textureManager, logger);
+  doLoadTextureCollections(textureManager);
 }
 
 void Game::reloadWads(
