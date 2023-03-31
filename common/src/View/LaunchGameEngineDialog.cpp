@@ -85,9 +85,7 @@ void LaunchGameEngineDialog::createGui()
   makeHeader(header);
 
   auto* message = new QLabel{
-    R"(Select a game engine from the list on the right and edit the commandline parameters
-    in the text box below. You can use variables to refer to the map name and other 
-    values.)"};
+    R"(Select a game engine from the list on the right and edit the commandline parameters in the text box below. You can use variables to refer to the map name and other values.)"};
   message->setWordWrap(true);
 
   auto* openPreferencesButton = new QPushButton{"Configure engines..."};
