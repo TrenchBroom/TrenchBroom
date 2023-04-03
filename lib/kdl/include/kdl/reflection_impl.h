@@ -75,12 +75,12 @@ void print_reflective(
 #define kdl_reflect_impl(type_name) kdl_stream_operator_impl(type_name) struct dummy
 
 #define kdl_reflect_inline(type_name, ...)                                               \
-  kdl_reflect_members_n(__VA_ARGS__) kdl_reflect_relational_operators(                   \
-    type_name) friend kdl_stream_operator_impl(type_name) struct dummy
+  kdl_reflect_members_n(__VA_ARGS__) kdl_reflect_relational_operators(type_name)         \
+    [[maybe_unused]] friend kdl_stream_operator_impl(type_name) struct dummy
 
 #define kdl_reflect_inline_empty(type_name)                                              \
-  kdl_reflect_members_0() kdl_reflect_relational_operators(                              \
-    type_name) friend kdl_stream_operator_impl(type_name) struct dummy
+  kdl_reflect_members_0() kdl_reflect_relational_operators(type_name)                    \
+    [[maybe_unused]] friend kdl_stream_operator_impl(type_name) struct dummy
 
 #ifdef __clang__
 #pragma clang diagnostic pop

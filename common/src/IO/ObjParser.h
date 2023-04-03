@@ -99,7 +99,7 @@ public:
    * @param path the path of the model (important for texture lookup)
    * @param begin the start of the text
    * @param end the end of the text
-   * @param fs the filesystem used to lookup textures
+   * @param fs the filesystem2 used to lookup textures
    */
   NvObjParser(const Path& path, std::string_view text, const FileSystem& fs);
 

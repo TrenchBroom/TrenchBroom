@@ -41,13 +41,8 @@ static const size_t EntryNameLength = 0x38;
 static const std::string HeaderMagic = "PACK";
 } // namespace PakLayout
 
-IdPakFileSystem::IdPakFileSystem(const Path& path)
-  : IdPakFileSystem(nullptr, path)
-{
-}
-
-IdPakFileSystem::IdPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path)
-  : ImageFileSystem(std::move(next), path)
+IdPakFileSystem::IdPakFileSystem(Path path)
+  : ImageFileSystem{std::move(path)}
 {
   initialize();
 }
@@ -72,10 +67,10 @@ void IdPakFileSystem::doReadDirectory()
     const auto entryAddress = reader.readSize<int32_t>();
     const auto entrySize = reader.readSize<int32_t>();
 
-    const auto entryPath = Path(kdl::str_to_lower(entryName));
+    const auto entryPath = Path{kdl::str_to_lower(entryName)};
     auto entryFile =
       std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
-    m_root.addFile(entryPath, entryFile);
+    addFile(entryPath, [entryFile = std::move(entryFile)]() { return entryFile; });
   }
 }
 } // namespace IO

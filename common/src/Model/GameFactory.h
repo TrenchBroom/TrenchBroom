@@ -37,7 +37,7 @@ class Preference;
 namespace IO
 {
 class Path;
-class WritableDiskFileSystem;
+class WritableVirtualFileSystem;
 } // namespace IO
 
 namespace Model
@@ -60,7 +60,7 @@ private:
   using GamePathMap = std::map<std::string, Preference<IO::Path>>;
 
   IO::Path m_userGameDir;
-  std::unique_ptr<IO::WritableDiskFileSystem> m_configFS;
+  std::unique_ptr<IO::WritableVirtualFileSystem> m_configFs;
 
   std::vector<std::string> m_names;
   ConfigMap m_configs;
@@ -160,9 +160,8 @@ private:
   void loadGameEngineConfig(GameConfig& gameConfig);
 
   void writeCompilationConfig(
-    GameConfig& gameConfig, const CompilationConfig& compilationConfig, Logger& logger);
-  void writeGameEngineConfig(
-    GameConfig& gameConfig, const GameEngineConfig& gameEngineConfig);
+    GameConfig& gameConfig, CompilationConfig compilationConfig, Logger& logger);
+  void writeGameEngineConfig(GameConfig& gameConfig, GameEngineConfig gameEngineConfig);
 };
 } // namespace Model
 } // namespace TrenchBroom

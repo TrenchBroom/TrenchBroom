@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "IO/FileSystem.h"
+#include "IO/VirtualFileSystem.h"
 
 #include <memory>
 #include <vector>
@@ -38,13 +38,12 @@ namespace Model
 {
 struct GameConfig;
 
-class GameFileSystem : public IO::FileSystem
+class GameFileSystem : public IO::VirtualFileSystem
 {
 private:
-  IO::Quake3ShaderFileSystem* m_shaderFS;
+  IO::Quake3ShaderFileSystem* m_shaderFS = nullptr;
 
 public:
-  GameFileSystem();
   void initialize(
     const GameConfig& config,
     const IO::Path& gamePath,
@@ -63,12 +62,6 @@ private:
   void addFileSystemPath(const IO::Path& path, Logger& logger);
   void addFileSystemPackages(
     const GameConfig& config, const IO::Path& searchPath, Logger& logger);
-
-private:
-  bool doDirectoryExists(const IO::Path& path) const override;
-  bool doFileExists(const IO::Path& path) const override;
-  std::vector<IO::Path> doGetDirectoryContents(const IO::Path& path) const override;
-  std::shared_ptr<IO::File> doOpenFile(const IO::Path& path) const override;
 };
 } // namespace Model
 } // namespace TrenchBroom

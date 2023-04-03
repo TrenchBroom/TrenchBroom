@@ -29,48 +29,10 @@ namespace TrenchBroom
 {
 namespace IO
 {
-// ZipFileSystem::ZipCompressedFile
-
-ZipFileSystem::ZipCompressedFile::ZipCompressedFile(
-  ZipFileSystem* owner, const mz_uint fileIndex)
-  : m_owner(owner)
-  , m_fileIndex(fileIndex)
-{
-}
-
-std::shared_ptr<File> ZipFileSystem::ZipCompressedFile::doOpen() const
-{
-  const auto path = Path(m_owner->filename(m_fileIndex));
-
-  mz_zip_archive_file_stat stat;
-  if (!mz_zip_reader_file_stat(&m_owner->m_archive, m_fileIndex, &stat))
-  {
-    throw FileSystemException("mz_zip_reader_file_stat failed for " + path.asString());
-  }
-
-  const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
-  auto data = std::make_unique<char[]>(uncompressedSize);
-  auto* begin = data.get();
-
-  if (!mz_zip_reader_extract_to_mem(
-        &m_owner->m_archive, m_fileIndex, begin, uncompressedSize, 0))
-  {
-    throw FileSystemException(
-      "mz_zip_reader_extract_to_mem failed for " + path.asString());
-  }
-
-  return std::make_shared<OwningBufferFile>(path, std::move(data), uncompressedSize);
-}
-
 // ZipFileSystem
 
-ZipFileSystem::ZipFileSystem(const Path& path)
-  : ZipFileSystem(nullptr, path)
-{
-}
-
-ZipFileSystem::ZipFileSystem(std::shared_ptr<FileSystem> next, const Path& path)
-  : ImageFileSystem(std::move(next), path)
+ZipFileSystem::ZipFileSystem(Path path)
+  : ImageFileSystem{std::move(path)}
 {
   initialize();
 }
@@ -86,25 +48,45 @@ void ZipFileSystem::doReadDirectory()
 
   if (mz_zip_reader_init_cfile(&m_archive, m_file->file(), m_file->size(), 0) != MZ_TRUE)
   {
-    throw FileSystemException("Error calling mz_zip_reader_init_cfile");
+    throw FileSystemException{"Error calling mz_zip_reader_init_cfile"};
   }
 
-  const mz_uint numFiles = mz_zip_reader_get_num_files(&m_archive);
+  const auto numFiles = mz_zip_reader_get_num_files(&m_archive);
   for (mz_uint i = 0; i < numFiles; ++i)
   {
     if (!mz_zip_reader_is_file_a_directory(&m_archive, i))
     {
-      const auto path = Path(filename(i));
-      m_root.addFile(path, std::make_unique<ZipCompressedFile>(this, i));
+      const auto path = Path{filename(i)};
+      addFile(path, [=]() -> std::shared_ptr<File> {
+        auto stat = mz_zip_archive_file_stat{};
+        if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
+        {
+          throw FileSystemException{
+            "mz_zip_reader_file_stat failed for " + path.asString()};
+        }
+
+        const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
+        auto data = std::make_unique<char[]>(uncompressedSize);
+        auto* begin = data.get();
+
+        if (!mz_zip_reader_extract_to_mem(&m_archive, i, begin, uncompressedSize, 0))
+        {
+          throw FileSystemException{
+            "mz_zip_reader_extract_to_mem failed for " + path.asString()};
+        }
+
+        return std::make_shared<OwningBufferFile>(
+          path, std::move(data), uncompressedSize);
+      });
     }
   }
 
   const auto err = mz_zip_get_last_error(&m_archive);
   if (err != MZ_ZIP_NO_ERROR)
   {
-    throw FileSystemException(
-      std::string("Error while reading compressed file: ")
-      + mz_zip_get_error_string(err));
+    throw FileSystemException{
+      std::string{"Error while reading compressed file: "}
+      + mz_zip_get_error_string(err)};
   }
 }
 
@@ -114,13 +96,13 @@ void ZipFileSystem::doReadDirectory()
 std::string ZipFileSystem::filename(const mz_uint fileIndex)
 {
   // nameLen includes space for the null-terminator byte
-  const mz_uint nameLen = mz_zip_reader_get_filename(&m_archive, fileIndex, nullptr, 0);
+  const auto nameLen = mz_zip_reader_get_filename(&m_archive, fileIndex, nullptr, 0);
   if (nameLen == 0)
   {
     return "";
   }
 
-  std::string result;
+  auto result = std::string{};
   result.resize(static_cast<size_t>(nameLen - 1));
 
   // NOTE: this will overwrite the std::string's null terminator, which is permitted in

@@ -23,7 +23,6 @@
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Exceptions.h"
-#include "IO/FileSystem.h"
 #include "IO/Path.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"

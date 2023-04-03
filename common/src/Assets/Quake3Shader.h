@@ -79,12 +79,12 @@ public:
   };
 
 public:
-  IO::Path shaderPath;
-  IO::Path editorImage;
-  IO::Path lightImage;
+  IO::Path shaderPath = IO::Path{};
+  IO::Path editorImage = IO::Path{};
+  IO::Path lightImage = IO::Path{};
   Culling culling = Culling::Front;
-  std::set<std::string> surfaceParms;
-  std::vector<Quake3ShaderStage> stages;
+  std::set<std::string> surfaceParms = {};
+  std::vector<Quake3ShaderStage> stages = {};
 
 public:
   Quake3ShaderStage& addStage();

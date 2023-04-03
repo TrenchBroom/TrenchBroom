@@ -23,8 +23,8 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/DkPakFileSystem.h"
-#include "IO/FileMatcher.h"
 #include "IO/IdPakFileSystem.h"
+#include "IO/PathInfo.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/SystemPaths.h"
 #include "IO/ZipFileSystem.h"
@@ -40,11 +40,6 @@ namespace TrenchBroom
 {
 namespace Model
 {
-GameFileSystem::GameFileSystem()
-  : FileSystem()
-  , m_shaderFS(nullptr)
-{
-}
 
 void GameFileSystem::initialize(
   const GameConfig& config,
@@ -52,13 +47,12 @@ void GameFileSystem::initialize(
   const std::vector<IO::Path>& additionalSearchPaths,
   Logger& logger)
 {
-  // delete the existing file system
-  releaseNext();
+  unmountAll();
   m_shaderFS = nullptr;
 
   addDefaultAssetPaths(config, logger);
 
-  if (!gamePath.isEmpty() && IO::Disk::directoryExists(gamePath))
+  if (!gamePath.isEmpty() && IO::Disk::pathInfo(gamePath) == IO::PathInfo::Directory)
   {
     addGameFileSystems(config, gamePath, additionalSearchPaths, logger);
     addShaderFileSystem(config, logger);
@@ -67,7 +61,7 @@ void GameFileSystem::initialize(
 
 void GameFileSystem::reloadShaders()
 {
-  if (m_shaderFS != nullptr)
+  if (m_shaderFS)
   {
     m_shaderFS->reload();
   }
@@ -79,21 +73,20 @@ void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logg
   // TrenchBroom's resources folder, and the 'assets' folder in the game configuration
   // folders. We add filesystems for both types here.
 
-  std::vector<IO::Path> defaultFolderPaths =
+  auto defaultFolderPaths =
     IO::SystemPaths::findResourceDirectories(IO::Path("defaults"));
-  const auto& configPath = config.path;
-  if (!configPath.isEmpty())
+  if (!config.path.isEmpty())
   {
-    defaultFolderPaths.push_back(configPath.deleteLastComponent());
+    defaultFolderPaths.push_back(config.path.deleteLastComponent());
   }
 
   for (const auto& defaultFolderPath : defaultFolderPaths)
   {
     const auto defaultAssetsPath = defaultFolderPath + IO::Path("assets");
-    auto exists = [](const IO::Path& path) {
+    auto exists = [](const auto& path) {
       try
       {
-        return IO::Disk::directoryExists(path);
+        return IO::Disk::pathInfo(path) == IO::PathInfo::Directory;
       }
       catch (const FileSystemException&)
       {
@@ -129,7 +122,7 @@ void GameFileSystem::addFileSystemPath(const IO::Path& path, Logger& logger)
   try
   {
     logger.info() << "Adding file system path " << path;
-    m_next = std::make_shared<IO::DiskFileSystem>(m_next, path);
+    mount(IO::Path{}, std::make_unique<IO::DiskFileSystem>(path));
   }
   catch (const FileSystemException& e)
   {
@@ -147,34 +140,32 @@ void GameFileSystem::addFileSystemPackages(
   const auto& packageExtensions = packageFormatConfig.extensions;
   const auto& packageFormat = packageFormatConfig.format;
 
-  if (IO::Disk::directoryExists(searchPath))
+  if (IO::Disk::pathInfo(searchPath) == IO::PathInfo::Directory)
   {
-    const IO::DiskFileSystem diskFS(searchPath);
+    const auto diskFS = IO::DiskFileSystem{searchPath};
     auto packages =
-      diskFS.findItems(IO::Path(""), IO::FileExtensionMatcher(packageExtensions));
-    packages = kdl::vec_sort(std::move(packages), IO::Path::Less<kdl::ci::string_less>());
+      diskFS.find(IO::Path{}, IO::makeExtensionPathMatcher(packageExtensions));
+    packages = kdl::vec_sort(std::move(packages), IO::Path::Less<kdl::ci::string_less>{});
 
     for (const auto& packagePath : packages)
     {
       try
       {
+        const auto absPackagePath = diskFS.makeAbsolute(packagePath);
         if (kdl::ci::str_is_equal(packageFormat, "idpak"))
         {
           logger.info() << "Adding file system package " << packagePath;
-          m_next = std::make_shared<IO::IdPakFileSystem>(
-            m_next, diskFS.makeAbsolute(packagePath));
+          mount(IO::Path{}, std::make_unique<IO::IdPakFileSystem>(absPackagePath));
         }
         else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
         {
           logger.info() << "Adding file system package " << packagePath;
-          m_next = std::make_shared<IO::DkPakFileSystem>(
-            m_next, diskFS.makeAbsolute(packagePath));
+          mount(IO::Path{}, std::make_unique<IO::DkPakFileSystem>(absPackagePath));
         }
         else if (kdl::ci::str_is_equal(packageFormat, "zip"))
         {
           logger.info() << "Adding file system package " << packagePath;
-          m_next =
-            std::make_shared<IO::ZipFileSystem>(m_next, diskFS.makeAbsolute(packagePath));
+          mount(IO::Path{}, std::make_unique<IO::ZipFileSystem>(absPackagePath));
         }
       }
       catch (const std::exception& e)
@@ -197,32 +188,12 @@ void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logge
     auto shaderSearchPath = textureConfig.shaderSearchPath;
     auto textureSearchPaths =
       std::vector<IO::Path>{getRootDirectory(textureConfig.package), IO::Path("models")};
-    auto shaderFS = std::make_shared<IO::Quake3ShaderFileSystem>(
-      m_next, std::move(shaderSearchPath), std::move(textureSearchPaths), logger);
-    m_shaderFS = shaderFS.get();
-    m_next = std::move(shaderFS);
+
+    auto shaderFs = std::make_unique<IO::Quake3ShaderFileSystem>(
+      *this, std::move(shaderSearchPath), std::move(textureSearchPaths), logger);
+    m_shaderFS = shaderFs.get();
+    mount(IO::Path{}, std::move(shaderFs));
   }
-}
-
-bool GameFileSystem::doDirectoryExists(const IO::Path& /* path */) const
-{
-  return false;
-}
-
-bool GameFileSystem::doFileExists(const IO::Path& /* path */) const
-{
-  return false;
-}
-
-std::vector<IO::Path> GameFileSystem::doGetDirectoryContents(
-  const IO::Path& /* path */) const
-{
-  return std::vector<IO::Path>();
-}
-
-std::shared_ptr<IO::File> GameFileSystem::doOpenFile(const IO::Path& path) const
-{
-  throw FileSystemException("File not found: '" + path.asString() + "'");
 }
 } // namespace Model
 } // namespace TrenchBroom

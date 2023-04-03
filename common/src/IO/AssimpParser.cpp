@@ -25,6 +25,7 @@
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
+#include "IO/PathInfo.h"
 #include "Logger.h"
 #include "Model/BrushFaceAttributes.h"
 #include "ReaderException.h"
@@ -135,7 +136,10 @@ public:
   {
   }
 
-  bool Exists(const char* path) const override { return m_fs.fileExists(Path{path}); }
+  bool Exists(const char* path) const override
+  {
+    return m_fs.pathInfo(Path{path}) == PathInfo::File;
+  }
 
   char getOsSeparator() const override { return Path::separator()[0]; }
 

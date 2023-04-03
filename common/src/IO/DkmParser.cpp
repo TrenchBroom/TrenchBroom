@@ -22,9 +22,9 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Exceptions.h"
-#include "IO/FileMatcher.h"
 #include "IO/FileSystem.h"
 #include "IO/Path.h"
+#include "IO/PathInfo.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"
 #include "Renderer/GLVertex.h"
@@ -462,7 +462,7 @@ void DkmParser::loadSkins(
 Path DkmParser::findSkin(const std::string& skin) const
 {
   const Path skinPath(skin);
-  if (m_fs.fileExists(skinPath))
+  if (m_fs.pathInfo(skinPath) == PathInfo::File)
   {
     return skinPath;
   }
@@ -471,7 +471,7 @@ Path DkmParser::findSkin(const std::string& skin) const
   if (kdl::str_to_lower(skinPath.extension()) == "bmp")
   {
     const auto walPath = skinPath.replaceExtension("wal");
-    if (m_fs.fileExists(walPath))
+    if (m_fs.pathInfo(walPath) == PathInfo::File)
     {
       return walPath;
     }
@@ -481,15 +481,8 @@ Path DkmParser::findSkin(const std::string& skin) const
   const auto folder = skinPath.deleteLastComponent();
   const auto basename = skinPath.lastComponent().deleteExtension();
   const auto items =
-    m_fs.findItems(folder, FileNameMatcher(basename.addExtension("*").asString()));
-  if (items.size() == 1)
-  {
-    return items.front();
-  }
-  else
-  {
-    return skinPath;
-  }
+    m_fs.find(folder, makeFilenamePathMatcher(basename.asString() + ".*"));
+  return items.size() == 1 ? items.front() : skinPath;
 }
 
 void DkmParser::buildFrame(

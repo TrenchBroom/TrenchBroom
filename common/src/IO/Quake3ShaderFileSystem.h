@@ -44,6 +44,7 @@ namespace IO
 class Quake3ShaderFileSystem : public ImageFileSystemBase
 {
 private:
+  const FileSystem& m_fs;
   Path m_shaderSearchPath;
   std::vector<Path> m_textureSearchPaths;
   Logger& m_logger;
@@ -52,7 +53,7 @@ public:
   /**
    * Creates a new instance at the given base path that uses the given file system to find
    * shaders and shader image resources. The shader search path is used to find the shader
-   * scripts.The given texture search paths are recursively searched for textures, and
+   * scripts. The given texture search paths are recursively searched for textures, and
    * any texture found that does not have a corresponding shader will have a shader
    * generated for it.
    *
@@ -63,7 +64,7 @@ public:
    * @param logger the logger to use
    */
   Quake3ShaderFileSystem(
-    std::shared_ptr<FileSystem> fs,
+    const FileSystem& fs,
     Path shaderSearchPath,
     std::vector<Path> textureSearchPaths,
     Logger& logger);

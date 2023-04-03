@@ -56,7 +56,7 @@ TEST_CASE("HlMipTextureReaderTest.testLoadWad")
   HlMipTextureReader textureLoader(nameStrategy, fs, logger);
 
   const Path wadPath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/HL/hl.wad");
-  WadFileSystem wadFS(wadPath, logger);
+  WadFileSystem wadFS(wadPath);
 
   const Assets::Texture texture =
     textureLoader.readTexture(wadFS.openFile(Path(textureName + ".C")));

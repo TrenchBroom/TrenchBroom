@@ -26,8 +26,8 @@ namespace TrenchBroom
 {
 namespace IO
 {
-File::File(const Path& path)
-  : m_path(path)
+File::File(Path path)
+  : m_path{std::move(path)}
 {
 }
 
@@ -39,10 +39,10 @@ const Path& File::path() const
 }
 
 OwningBufferFile::OwningBufferFile(
-  const Path& path, std::unique_ptr<char[]> buffer, const size_t size)
-  : File(path)
-  , m_buffer(std::move(buffer))
-  , m_size(size)
+  Path path, std::unique_ptr<char[]> buffer, const size_t size)
+  : File{std::move(path)}
+  , m_buffer{std::move(buffer)}
+  , m_size{size}
 {
 }
 
@@ -56,11 +56,10 @@ size_t OwningBufferFile::size() const
   return m_size;
 }
 
-NonOwningBufferFile::NonOwningBufferFile(
-  const Path& path, const char* begin, const char* end)
-  : File(path)
-  , m_begin(begin)
-  , m_end(end)
+NonOwningBufferFile::NonOwningBufferFile(Path path, const char* begin, const char* end)
+  : File{std::move(path)}
+  , m_begin{begin}
+  , m_end{end}
 {
   if (m_end < m_begin)
   {
@@ -78,20 +77,20 @@ size_t NonOwningBufferFile::size() const
   return static_cast<size_t>(m_end - m_begin);
 }
 
-CFile::CFile(const Path& path)
-  : File(path)
+CFile::CFile(Path path)
+  : File{std::move(path)}
 {
-  m_file = openPathAsFILE(path, "rb");
-  if (m_file == nullptr)
+  m_file = openPathAsFILE(this->path(), "rb");
+  if (!m_file)
   {
-    throw FileSystemException("Cannot open file " + path.asString());
+    throw FileSystemException("Cannot open file " + this->path().asString());
   }
   m_size = fileSize(m_file);
 }
 
 CFile::~CFile()
 {
-  if (m_file != nullptr)
+  if (m_file)
   {
     std::fclose(m_file);
   }
@@ -113,11 +112,11 @@ std::FILE* CFile::file() const
 }
 
 FileView::FileView(
-  const Path& path, std::shared_ptr<File> file, const size_t offset, const size_t length)
-  : File(path)
-  , m_file(std::move(file))
-  , m_offset(offset)
-  , m_length(length)
+  Path path, std::shared_ptr<File> file, const size_t offset, const size_t length)
+  : File{std::move(path)}
+  , m_file{std::move(file)}
+  , m_offset{offset}
+  , m_length{length}
 {
 }
 

@@ -21,6 +21,7 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
+#include "Exceptions.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"

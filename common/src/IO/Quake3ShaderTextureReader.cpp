@@ -24,8 +24,11 @@
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/FreeImageTextureReader.h"
+#include "IO/PathInfo.h"
 #include "IO/ResourceUtils.h"
 #include "Renderer/GL.h"
+
+#include <kdl/functional.h>
 
 #include <string>
 #include <vector>
@@ -96,7 +99,7 @@ Assets::Texture Quake3ShaderTextureReader::loadTextureImage(
   const Path& shaderPath, const Path& imagePath) const
 {
   const auto name = textureName(shaderPath);
-  if (!m_fs.fileExists(imagePath))
+  if (m_fs.pathInfo(imagePath) != PathInfo::File)
   {
     throw AssetException("Image file '" + imagePath.asString() + "' does not exist");
   }
@@ -134,18 +137,16 @@ Path Quake3ShaderTextureReader::findTexture(const Path& texturePath) const
 {
   if (
     !texturePath.isEmpty()
-    && (texturePath.extension().empty() || !m_fs.fileExists(texturePath)))
+    && (texturePath.extension().empty() || m_fs.pathInfo(texturePath) == PathInfo::File))
   {
-    const auto candidates = m_fs.findItemsWithBaseName(
-      texturePath, std::vector<std::string>{"tga", "png", "jpg", "jpeg"});
-    if (!candidates.empty())
-    {
-      return candidates.front();
-    }
-    else
-    {
-      return Path();
-    }
+    const auto directoryPath = texturePath.deleteLastComponent();
+    const auto basename = texturePath.basename();
+    const auto candidates = m_fs.find(
+      texturePath.deleteLastComponent(),
+      kdl::lift_and(
+        makeFilenamePathMatcher(basename + ".*"),
+        makeExtensionPathMatcher({"tga", "png", "jpg", "jpeg"})));
+    return !candidates.empty() ? candidates.front() : Path{};
   }
   // texture path is empty OR (the extension is not empty AND the file exists)
   return texturePath;

@@ -78,7 +78,7 @@ TEST_CASE("IdMipTextureReaderTest.testLoadWad")
 
   const Path wadPath =
     Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Wad/cr8_czg.wad");
-  WadFileSystem wadFS(wadPath, logger);
+  WadFileSystem wadFS(wadPath);
 
   const Assets::Texture texture =
     textureLoader.readTexture(wadFS.openFile(Path(textureName + ".D")));

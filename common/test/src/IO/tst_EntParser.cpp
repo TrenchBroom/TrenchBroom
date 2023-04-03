@@ -23,7 +23,6 @@
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
 #include "IO/File.h"
-#include "IO/FileMatcher.h"
 #include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 
@@ -53,21 +52,20 @@ static void assertPropertyDefinition(
 
 TEST_CASE("EntParserTest.parseIncludedEntFiles")
 {
-  const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-  const std::vector<Path> cfgFiles =
-    Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("ent"));
+  const auto basePath = Disk::getCurrentWorkingDir() + Path{"fixture/games/"};
+  const auto cfgFiles =
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({"ent"}));
 
-  for (const Path& path : cfgFiles)
+  for (const auto& path : cfgFiles)
   {
     CAPTURE(path);
 
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
 
-    const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-    EntParser parser(reader.stringView(), defaultColor);
+    auto parser = EntParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-    TestParserStatus status;
+    auto status = TestParserStatus{};
     CHECK_NOTHROW(parser.parseDefinitions(status));
 
     /* Disabled because our files are full of previously undetected problems
@@ -92,11 +90,10 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles")
 
 TEST_CASE("EntParserTest.parseEmptyFile")
 {
-  const std::string file = "";
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  EntParser parser(file, defaultColor);
+  const auto file = "";
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
   kdl::vec_clear_and_delete(definitions);
@@ -104,11 +101,13 @@ TEST_CASE("EntParserTest.parseEmptyFile")
 
 TEST_CASE("EntParserTest.parseWhitespaceFile")
 {
-  const std::string file = "     \n  \t \n  ";
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  EntParser parser(file, defaultColor);
+  const auto file = R"(     
+  	 
+  )";
 
-  TestParserStatus status;
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
   kdl::vec_clear_and_delete(definitions);
@@ -121,10 +120,10 @@ TEST_CASE("EntParserTest.parseMalformedXML")
 <classes>
     <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
 </classes>)";
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  EntParser parser(file, defaultColor);
 
-  TestParserStatus status;
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+
+  auto status = TestParserStatus{};
   CHECK_THROWS_AS(parser.parseDefinitions(status), ParserException);
 }
 
@@ -165,10 +164,9 @@ Updated: 2011-03-02
 </classes>
 )";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  EntParser parser(file, defaultColor);
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
   CHECK(definitions.size() == 1u);
@@ -188,13 +186,11 @@ Updated: 2011-03-02
   CHECK(pointDefinition->description() == expectedDescription);
 
   UNSCOPED_INFO("Expected matching color");
-  CHECK(vm::is_equal(Color(0.77f, 0.88f, 1.0f, 1.0f), pointDefinition->color(), 0.01f));
+  CHECK(vm::is_equal(Color{0.77f, 0.88f, 1.0f, 1.0f}, pointDefinition->color(), 0.01f));
 
   UNSCOPED_INFO("Expected matching bounds");
   CHECK(vm::is_equal(
-    vm::bbox3(vm::vec3(-4.0, -4.0, -4.0), vm::vec3(+4.0, +4.0, +4.0)),
-    pointDefinition->bounds(),
-    0.01));
+    vm::bbox3{{-4.0, -4.0, -4.0}, {+4.0, +4.0, +4.0}}, pointDefinition->bounds(), 0.01));
 
   UNSCOPED_INFO("Expected three property definitions");
   CHECK(pointDefinition->propertyDefinitions().size() == 3u);
@@ -283,10 +279,9 @@ Target this entity with a misc_model to have the model attached to the entity (s
 </group>
 </classes>)";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  EntParser parser(file, defaultColor);
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
   CHECK(definitions.size() == 1u);
@@ -309,7 +304,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
   CHECK(brushDefinition->description() == expectedDescription);
 
   UNSCOPED_INFO("Expected matching color");
-  CHECK(vm::is_equal(Color(0.0f, 0.4f, 1.0f), brushDefinition->color(), 0.01f));
+  CHECK(vm::is_equal(Color{0.0f, 0.4f, 1.0f}, brushDefinition->color(), 0.01f));
 
   UNSCOPED_INFO("Expected seven property definitions");
   CHECK(brushDefinition->propertyDefinitions().size() == 7u);
@@ -329,19 +324,16 @@ Target this entity with a misc_model to have the model attached to the entity (s
     "spawnflags", Assets::PropertyDefinitionType::FlagsProperty, brushDefinition);
 
   UNSCOPED_INFO("Expected matching spawnflag definitions");
-  const Assets::FlagsPropertyDefinition* spawnflags = brushDefinition->spawnflags();
+  const auto* spawnflags = brushDefinition->spawnflags();
   CHECK(spawnflags != nullptr);
   CHECK(spawnflags->defaultValue() == 0);
-  const Assets::FlagsPropertyOption::List& options = spawnflags->options();
-  CHECK(options.size() == 2u);
-  CHECK(options[0].shortDescription() == std::string("X_AXIS"));
-  CHECK(options[0].longDescription() == std::string("X Axis"));
-  CHECK_FALSE(options[0].isDefault());
-  CHECK(options[0].value() == 1);
-  CHECK(options[1].shortDescription() == std::string("Y_AXIS"));
-  CHECK(options[1].longDescription() == std::string("Y Axis"));
-  CHECK_FALSE(options[1].isDefault());
-  CHECK(options[1].value() == 2);
+
+  CHECK(
+    spawnflags->options()
+    == std::vector<Assets::FlagsPropertyOption>{
+      {1, "X_AXIS", "X Axis", false},
+      {2, "Y_AXIS", "Y Axis", false},
+    });
 
   kdl::vec_clear_and_delete(definitions);
 }
@@ -370,10 +362,9 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
 </classes>
             )";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  EntParser parser(file, defaultColor);
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
   CHECK(definitions.size() == 1u);
@@ -411,17 +402,13 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
   UNSCOPED_INFO("Expected text value as entity property defintion long description");
   CHECK(colorIndexDefinition->longDescription() == expectedDescription);
 
-  const auto& options = colorIndexDefinition->options();
-  CHECK(options.size() == 3u);
-
-  CHECK(options[0].value() == "0");
-  CHECK(options[0].description() == "white");
-
-  CHECK(options[1].value() == "1");
-  CHECK(options[1].description() == "red");
-
-  CHECK(options[2].value() == "2");
-  CHECK(options[2].description() == "green");
+  CHECK(
+    colorIndexDefinition->options()
+    == std::vector<Assets::ChoicePropertyOption>{
+      {"0", "white"},
+      {"1", "red"},
+      {"2", "green"},
+    });
 
   kdl::vec_clear_and_delete(definitions);
 }
@@ -437,10 +424,9 @@ TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
 </classes>
                         )";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  EntParser parser(file, defaultColor);
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
   CHECK(definitions.size() == 1u);
@@ -475,10 +461,9 @@ TEST_CASE("EntParserTest.parseLegacyModelDefinition")
 </classes>
             )";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  EntParser parser(file, defaultColor);
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
   CHECK(definitions.size() == 1u);
@@ -491,7 +476,7 @@ TEST_CASE("EntParserTest.parseLegacyModelDefinition")
   const auto& modelDefinition = pointDefinition->modelDefinition();
   CHECK(
     modelDefinition.defaultModelSpecification().path
-    == Path("models/powerups/ammo/bfgam.md3"));
+    == Path{"models/powerups/ammo/bfgam.md3"});
 
   kdl::vec_clear_and_delete(definitions);
 }
@@ -505,10 +490,9 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition")
             </classes>
             )";
 
-  const Color defaultColor(1.0f, 1.0f, 1.0f, 1.0f);
-  EntParser parser(file, defaultColor);
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  TestParserStatus status;
+  auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
   CHECK(definitions.size() == 1u);
@@ -521,7 +505,7 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition")
   const auto& modelDefinition = pointDefinition->modelDefinition();
   CHECK(
     modelDefinition.defaultModelSpecification().path
-    == Path("models/powerups/ammo/bfgam2.md3"));
+    == Path{"models/powerups/ammo/bfgam2.md3"});
 
   kdl::vec_clear_and_delete(definitions);
 }
@@ -537,8 +521,7 @@ TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
   </classes>
 )";
 
-  const auto defaultColor = Color{1.0f, 1.0f, 1.0f, 1.0f};
-  auto parser = EntParser{file, defaultColor};
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);

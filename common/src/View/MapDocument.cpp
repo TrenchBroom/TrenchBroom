@@ -34,6 +34,7 @@
 #include "IO/ExportOptions.h"
 #include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
+#include "IO/PathInfo.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
 #include "Model/BezierPatch.h"
@@ -4990,7 +4991,8 @@ void MapDocument::updateAllFaceTags()
 
 bool MapDocument::persistent() const
 {
-  return m_path.isAbsolute() && IO::Disk::fileExists(IO::Disk::fixPath(m_path));
+  return m_path.isAbsolute()
+         && IO::Disk::pathInfo(IO::Disk::fixPath(m_path)) == IO::PathInfo::File;
 }
 
 std::string MapDocument::filename() const

@@ -41,8 +41,10 @@ static const size_t EntryNameLength = 0x38;
 static const std::string HeaderMagic = "PACK";
 } // namespace DkPakLayout
 
-std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(
-  std::shared_ptr<File> file, const size_t uncompressedSize) const
+namespace
+{
+std::unique_ptr<char[]> decompress(
+  std::shared_ptr<File> file, const size_t uncompressedSize)
 {
   auto reader = file->reader().buffer();
 
@@ -98,14 +100,10 @@ std::unique_ptr<char[]> DkPakFileSystem::DkCompressedFile::decompress(
 
   return result;
 }
+} // namespace
 
-DkPakFileSystem::DkPakFileSystem(const Path& path)
-  : DkPakFileSystem(nullptr, path)
-{
-}
-
-DkPakFileSystem::DkPakFileSystem(std::shared_ptr<FileSystem> next, const Path& path)
-  : ImageFileSystem(std::move(next), path)
+DkPakFileSystem::DkPakFileSystem(Path path)
+  : ImageFileSystem{std::move(path)}
 {
   initialize();
 }
@@ -136,12 +134,17 @@ void DkPakFileSystem::doReadDirectory()
 
     if (compressed)
     {
-      m_root.addFile(
-        entryPath, std::make_unique<DkCompressedFile>(entryFile, uncompressedSize));
+      addFile(
+        entryPath,
+        [entryFile = std::move(entryFile), uncompressedSize]() -> std::shared_ptr<File> {
+          auto data = decompress(entryFile, uncompressedSize);
+          return std::make_shared<OwningBufferFile>(
+            entryFile->path(), std::move(data), uncompressedSize);
+        });
     }
     else
     {
-      m_root.addFile(entryPath, std::make_unique<SimpleFileEntry>(entryFile));
+      addFile(entryPath, [entryFile = std::move(entryFile)]() { return entryFile; });
     }
   }
 }

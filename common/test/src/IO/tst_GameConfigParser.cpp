@@ -21,7 +21,6 @@
 #include "EL/Expressions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/FileMatcher.h"
 #include "IO/GameConfigParser.h"
 #include "IO/Reader.h"
 #include "Model/GameConfig.h"
@@ -38,9 +37,9 @@ namespace IO
 {
 TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
 {
-  const Path basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
-  const std::vector<Path> cfgFiles =
-    Disk::findItemsRecursively(basePath, IO::FileExtensionMatcher("cfg"));
+  const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
+  const auto cfgFiles =
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({"cfg"}));
 
   for (const Path& path : cfgFiles)
   {

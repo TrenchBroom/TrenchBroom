@@ -6,6 +6,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_collection_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_compact_trie.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_deref_iterator.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_functional.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_intrusive_circular_list.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_invoke.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_map_utils.cpp"

@@ -21,7 +21,6 @@
 
 #include "IO/File.h"
 #include "IO/Reader.h"
-#include "Logger.h"
 
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -55,15 +54,8 @@ namespace WadEntryType
 // static const char WEPalette   = '@';
 }
 
-WadFileSystem::WadFileSystem(const Path& path, Logger& logger)
-  : WadFileSystem(nullptr, path, logger)
-{
-}
-
-WadFileSystem::WadFileSystem(
-  std::shared_ptr<FileSystem> next, const Path& path, Logger& logger)
-  : ImageFileSystem(std::move(next), path)
-  , m_logger(logger)
+WadFileSystem::WadFileSystem(Path path)
+  : ImageFileSystem{std::move(path)}
 {
   initialize();
 }
@@ -73,14 +65,14 @@ void WadFileSystem::doReadDirectory()
   auto reader = m_file->reader();
   if (reader.size() < WadLayout::MinFileSize)
   {
-    throw FileSystemException("File does not contain a directory.");
+    throw FileSystemException{"File does not contain a directory."};
   }
 
   reader.seekFromBegin(WadLayout::MagicOffset);
   const auto magic = reader.readString(WadLayout::MagicSize);
   if (kdl::str_to_lower(magic) != "wad2" && kdl::str_to_lower(magic) != "wad3")
   {
-    throw FileSystemException("Unknown wad file type '" + magic + "'");
+    throw FileSystemException{"Unknown wad file type '" + magic + "'"};
   }
 
   reader.seekFromBegin(WadLayout::NumEntriesAddress);
@@ -88,7 +80,7 @@ void WadFileSystem::doReadDirectory()
 
   if (reader.size() < WadLayout::MinFileSize + entryCount * WadLayout::DirEntrySize)
   {
-    throw FileSystemException("File does not contain a directory");
+    throw FileSystemException{"File does not contain a directory"};
   }
 
   reader.seekFromBegin(WadLayout::DirOffsetAddress);
@@ -96,7 +88,7 @@ void WadFileSystem::doReadDirectory()
 
   if (m_file->size() < directoryOffset + entryCount * WadLayout::DirEntrySize)
   {
-    throw FileSystemException("File directory is out of bounds.");
+    throw FileSystemException{"File directory is out of bounds."};
   }
 
   reader.seekFromBegin(directoryOffset);
@@ -107,8 +99,8 @@ void WadFileSystem::doReadDirectory()
 
     if (m_file->size() < entryAddress + entrySize)
     {
-      throw FileSystemException(
-        kdl::str_to_string("File entry at address ", entryAddress, " is out of bounds"));
+      throw FileSystemException{
+        kdl::str_to_string("File entry at address ", entryAddress, " is out of bounds")};
     }
 
     reader.seekForward(WadLayout::DirEntryTypeOffset);
@@ -117,14 +109,12 @@ void WadFileSystem::doReadDirectory()
     const auto entryName = reader.readString(WadLayout::DirEntryNameSize);
     if (entryName.empty())
     {
-      m_logger.warn() << "Skipping WAD file entry with empty name at address "
-                      << entryAddress;
       continue;
     }
 
-    const auto path = IO::Path(entryName).addExtension(entryType);
+    const auto path = IO::Path{entryName}.addExtension(entryType);
     auto file = std::make_shared<FileView>(path, m_file, entryAddress, entrySize);
-    m_root.addFile(path, file);
+    addFile(path, [file = std::move(file)]() { return file; });
   }
 }
 } // namespace IO

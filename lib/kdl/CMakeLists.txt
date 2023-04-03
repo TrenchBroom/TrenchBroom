@@ -31,6 +31,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/result_for_each.h"
     "${KDL_INCLUDE_DIR}/kdl/result_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/result_io.h"
+    "${KDL_INCLUDE_DIR}/kdl/functional.h"
     "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list.h"
     "${KDL_INCLUDE_DIR}/kdl/invoke.h"

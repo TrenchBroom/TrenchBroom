@@ -22,6 +22,7 @@
 #include "IO/DiskIO.h"
 #include "IO/IOUtils.h"
 #include "IO/Path.h"
+#include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
@@ -335,7 +336,7 @@ bool TrenchBroomApp::openDocument(const IO::Path& path)
   MapFrame* frame = nullptr;
   try
   {
-    if (!IO::Disk::fileExists(path))
+    if (IO::Disk::pathInfo(path) != IO::PathInfo::File)
     {
       throw FileNotFoundException(path.asString());
     }
@@ -549,7 +550,7 @@ static IO::Path crashReportBasePath()
   // ensure it doesn't exist
   int index = 0;
   IO::Path testCrashLogPath = crashLogPath;
-  while (IO::Disk::fileExists(testCrashLogPath))
+  while (IO::Disk::pathInfo(testCrashLogPath) == IO::PathInfo::File)
   {
     index++;
 
@@ -586,11 +587,7 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   const IO::Path basePath = crashReportBasePath();
 
   // ensure the containing directory exists
-  const IO::Path containerPath = basePath.deleteLastComponent();
-  if (!IO::Disk::directoryExists(containerPath))
-  {
-    IO::Disk::createDirectory(containerPath);
-  }
+  IO::Disk::ensureDirectoryExists(basePath.deleteLastComponent());
 
   IO::Path reportPath = basePath.addExtension("txt");
   IO::Path mapPath = basePath.addExtension("map");

@@ -31,25 +31,19 @@ namespace IO
 {
 class Path;
 
-class DiskFileSystem : public FileSystem
+class DiskFileSystem : public virtual FileSystem
 {
 protected:
   Path m_root;
 
 public:
   explicit DiskFileSystem(const Path& root, bool ensureExists = true);
-  DiskFileSystem(
-    std::shared_ptr<FileSystem> next, const Path& root, bool ensureExists = true);
 
   const Path& root() const;
 
 protected:
-  bool doCanMakeAbsolute(const Path& path) const override;
   Path doMakeAbsolute(const Path& path) const override;
-
-  bool doDirectoryExists(const Path& path) const override;
-  bool doFileExists(const Path& path) const override;
-
+  PathInfo doGetPathInfo(const Path& path) const override;
   std::vector<Path> doGetDirectoryContents(const Path& path) const override;
   std::shared_ptr<File> doOpenFile(const Path& path) const override;
 };
@@ -65,7 +59,6 @@ class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem
 {
 public:
   WritableDiskFileSystem(const Path& root, bool create);
-  WritableDiskFileSystem(std::shared_ptr<FileSystem> next, const Path& root, bool create);
 
 private:
   void doCreateFile(const Path& path, const std::string& contents) override;

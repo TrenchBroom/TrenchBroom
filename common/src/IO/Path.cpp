@@ -454,6 +454,11 @@ bool Path::hasExtension(
   return false;
 }
 
+bool Path::hasDriveSpec() const
+{
+  return hasDriveSpec(m_components);
+}
+
 Path Path::deleteExtension() const
 {
   if (isEmpty())
