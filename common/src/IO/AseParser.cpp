@@ -22,8 +22,8 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"
-#include "IO/FreeImageTextureReader.h"
 #include "IO/Path.h"
+#include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"
 #include "IO/SkinLoader.h"
 #include "Logger.h"
@@ -40,8 +40,8 @@ namespace TrenchBroom
 {
 namespace IO
 {
-AseTokenizer::AseTokenizer(std::string_view str)
-  : Tokenizer(std::move(str), "", 0)
+AseTokenizer::AseTokenizer(const std::string_view str)
+  : Tokenizer{str, "", 0}
 {
 }
 
@@ -61,23 +61,23 @@ Tokenizer<unsigned int>::Token AseTokenizer::emitToken()
       advance();
       c = curPos();
       const auto* e = readUntil(WordDelims);
-      return Token(AseToken::Directive, c, e, offset(c), startLine, startColumn);
+      return Token{AseToken::Directive, c, e, offset(c), startLine, startColumn};
     }
     case '{':
       advance();
-      return Token(AseToken::OBrace, c, c + 1, offset(c), startLine, startColumn);
+      return Token{AseToken::OBrace, c, c + 1, offset(c), startLine, startColumn};
     case '}':
       advance();
-      return Token(AseToken::CBrace, c, c + 1, offset(c), startLine, startColumn);
+      return Token{AseToken::CBrace, c, c + 1, offset(c), startLine, startColumn};
     case ':': {
       advance();
-      return Token(AseToken::Colon, c, c + 1, offset(c), startLine, startColumn);
+      return Token{AseToken::Colon, c, c + 1, offset(c), startLine, startColumn};
     }
     case '"': { // quoted string
       advance();
       c = curPos();
       const auto* e = readQuotedString();
-      return Token(AseToken::String, c, e, offset(c), startLine, startColumn);
+      return Token{AseToken::String, c, e, offset(c), startLine, startColumn};
     }
     case ' ':
     case '\t':
@@ -87,44 +87,44 @@ Tokenizer<unsigned int>::Token AseTokenizer::emitToken()
       break;
     default: {
       const auto* e = readInteger(WordDelims);
-      if (e != nullptr)
+      if (e)
       {
-        return Token(AseToken::Integer, c, e, offset(c), startLine, startColumn);
+        return Token{AseToken::Integer, c, e, offset(c), startLine, startColumn};
       }
 
       e = readDecimal(WordDelims);
-      if (e != nullptr)
+      if (e)
       {
-        return Token(AseToken::Decimal, c, e, offset(c), startLine, startColumn);
+        return Token{AseToken::Decimal, c, e, offset(c), startLine, startColumn};
       }
 
       // must be a keyword or argument name
       e = readUntil(WordDelims);
-      if (e != nullptr)
+      if (e)
       {
         if (*e == ':')
         {
           // we don't return the colon as a separate token in this case
           advance();
-          return Token(AseToken::ArgumentName, c, e, offset(c), startLine, startColumn);
+          return Token{AseToken::ArgumentName, c, e, offset(c), startLine, startColumn};
         }
         else
         {
-          return Token(AseToken::Keyword, c, e, offset(c), startLine, startColumn);
+          return Token{AseToken::Keyword, c, e, offset(c), startLine, startColumn};
         }
       }
-      throw ParserException(
-        startLine, startColumn, "Unexpected character: '" + std::string(c, 1) + "'");
+      throw ParserException{
+        startLine, startColumn, "Unexpected character: '" + std::string(c, 1) + "'"};
     }
     }
   }
-  return Token(AseToken::Eof, nullptr, nullptr, length(), line(), column());
+  return Token{AseToken::Eof, nullptr, nullptr, length(), line(), column()};
 }
 
-AseParser::AseParser(const std::string& name, std::string_view str, const FileSystem& fs)
-  : m_name(name)
-  , m_tokenizer(std::move(str))
-  , m_fs(fs)
+AseParser::AseParser(std::string name, const std::string_view str, const FileSystem& fs)
+  : m_name{std::move(name)}
+  , m_tokenizer{str}
+  , m_fs{fs}
 {
 }
 
@@ -135,7 +135,7 @@ bool AseParser::canParse(const Path& path)
 
 std::unique_ptr<Assets::EntityModel> AseParser::doInitializeModel(Logger& logger)
 {
-  Scene scene;
+  auto scene = Scene{};
   parseAseFile(logger, scene);
   return buildModel(logger, scene);
 }
@@ -152,7 +152,7 @@ void AseParser::parseAseFile(Logger& logger, Scene& scene)
 
   while (!m_tokenizer.peekToken().hasType(AseToken::Eof))
   {
-    GeomObject geomObject;
+    auto geomObject = GeomObject{};
     parseGeomObject(logger, geomObject, scene.materialPaths);
     scene.geomObjects.emplace_back(std::move(geomObject));
   }
@@ -511,8 +511,7 @@ void AseParser::parseBlock(
   auto token = m_tokenizer.peekToken();
   while (token.hasType(AseToken::Directive))
   {
-    const auto it = handlers.find(token.data());
-    if (it != std::end(handlers))
+    if (const auto it = handlers.find(token.data()); it != handlers.end())
     {
       auto& handler = it->second;
       handler();
@@ -587,10 +586,10 @@ void AseParser::expectArgumentName(const std::string& expected)
   const auto& actual = token.data();
   if (actual != expected)
   {
-    throw ParserException(
+    throw ParserException{
       token.line(),
       token.column(),
-      "Expected argument name '" + expected + "', but got '" + actual + "'");
+      "Expected argument name '" + expected + "', but got '" + actual + "'"};
   }
 }
 
@@ -600,11 +599,11 @@ void AseParser::expectSizeArgument(const size_t expected)
   const auto actual = parseSizeArgument();
   if (actual != expected)
   {
-    throw ParserException(
+    throw ParserException{
       token.line(),
       token.column(),
       "Expected value '" + std::to_string(expected) + "', but got '"
-        + std::to_string(actual) + "'");
+        + std::to_string(actual) + "'"};
   }
 }
 
@@ -614,10 +613,10 @@ size_t AseParser::parseSizeArgument()
   auto i = token.toInteger<int>();
   if (i < 0)
   {
-    throw ParserException(
+    throw ParserException{
       token.line(),
       token.column(),
-      "Expected positive integer, but got '" + token.data() + "'");
+      "Expected positive integer, but got '" + token.data() + "'"};
   }
   else
   {
@@ -660,24 +659,24 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
   auto& surface = model->addSurface(m_name);
 
   // Load the textures
-  std::vector<Assets::Texture> textures;
+  auto textures = std::vector<Assets::Texture>{};
   textures.reserve(scene.materialPaths.size());
   for (const auto& path : scene.materialPaths)
   {
     textures.push_back(loadTexture(logger, path));
   }
 
-  textures.push_back(loadDefaultTexture(m_fs, logger, ""));
+  textures.push_back(loadDefaultTexture(m_fs, "", logger));
   surface.setSkins(std::move(textures));
 
   // Count vertices and build bounds
   auto bounds = vm::bbox3f::builder();
-  size_t totalVertexCount = 0;
-  Renderer::TexturedIndexRangeMap::Size size;
+  auto totalVertexCount = size_t(0);
+  auto size = Renderer::TexturedIndexRangeMap::Size{};
   for (const auto& geomObject : scene.geomObjects)
   {
     const auto& mesh = geomObject.mesh;
-    bounds.add(std::begin(mesh.vertices), std::end(mesh.vertices));
+    bounds.add(mesh.vertices.begin(), mesh.vertices.end());
 
     auto textureIndex = geomObject.materialIndex;
     if (textureIndex >= surface.skinCount() - 1u)
@@ -696,7 +695,8 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
   auto& frame = model->loadFrame(0, m_name, bounds.bounds());
 
   // Collect vertex data
-  Renderer::TexturedIndexRangeMapBuilder<Vertex::Type> builder(totalVertexCount, size);
+  auto builder =
+    Renderer::TexturedIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
   for (const auto& geomObject : scene.geomObjects)
   {
     const auto& mesh = geomObject.mesh;
@@ -727,7 +727,7 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
       const auto uv2 =
         fv2.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f::zero() : mesh.uv[fv2.uvIndex];
 
-      builder.addTriangle(texture, Vertex(v2, uv2), Vertex(v1, uv1), Vertex(v0, uv0));
+      builder.addTriangle(texture, Vertex{v2, uv2}, Vertex{v1, uv1}, Vertex{v0, uv0});
     }
   }
   surface.addTexturedMesh(
@@ -747,7 +747,7 @@ bool AseParser::checkIndices(Logger& logger, const MeshFace& face, const Mesh& m
                     << " is out of bounds, skipping face";
       return false;
     }
-    else if (!mesh.uv.empty() && faceVertex.uvIndex >= mesh.uv.size())
+    if (!mesh.uv.empty() && faceVertex.uvIndex >= mesh.uv.size())
     {
       logger.warn() << "Line " << face.line << ": UV index " << faceVertex.uvIndex
                     << " is out of bounds, skipping face";

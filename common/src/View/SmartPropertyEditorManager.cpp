@@ -21,24 +21,76 @@
 
 #include "Assets/PropertyDefinition.h"
 #include "Macros.h"
+#include "Model/Entity.h"
+#include "Model/EntityNodeBase.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
 #include "View/SmartColorEditor.h"
 #include "View/SmartDefaultPropertyEditor.h"
 #include "View/SmartFlagsEditor.h"
 #include "View/SmartPropertyEditor.h"
-#include "View/SmartPropertyEditorMatcher.h"
-#include "View/SmartTypeEditorMatcher.h"
+#include "View/SmartWadEditor.h"
 
+#include <kdl/functional.h>
 #include <kdl/memory_utils.h>
+#include <kdl/string_compare.h>
 
 #include <QStackedLayout>
 #include <QWidget>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+
+namespace
 {
+/**
+ * Matches if all of the nodes have a property definition for the give property key that
+ * is of the type passed to the constructor.
+ */
+SmartPropertyEditorMatcher makeSmartTypeEditorMatcher(
+  const Assets::PropertyDefinitionType type)
+{
+  return
+    [=](
+      const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) {
+      return !nodes.empty()
+             && std::all_of(nodes.begin(), nodes.end(), [&](const auto* node) {
+                  const auto* propDef = Model::propertyDefinition(node, propertyKey);
+                  return propDef && propDef->type() == type;
+                });
+    };
+}
+
+/**
+ * Matches if all of the nodes have a property definition for the give property key that
+ * is of the type passed to the constructor, and these property definitions are all equal.
+ */
+SmartPropertyEditorMatcher makeSmartTypeWithSameDefinitionEditorMatcher(
+  const Assets::PropertyDefinitionType type)
+{
+  return
+    [=](
+      const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) {
+      const auto* propDef = Model::selectPropertyDefinition(propertyKey, nodes);
+      return propDef && propDef->type() == type;
+    };
+}
+
+SmartPropertyEditorMatcher makeSmartPropertyEditorKeyMatcher(
+  std::vector<std::string> patterns)
+{
+  return
+    [patterns = std::move(patterns)](
+      const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) {
+      return !nodes.empty()
+             && std::any_of(patterns.begin(), patterns.end(), [&](const auto& pattern) {
+                  return kdl::cs::str_matches_glob(propertyKey, pattern);
+                });
+    };
+}
+
+} // namespace
+
 SmartPropertyEditorManager::SmartPropertyEditorManager(
   std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget{parent}
@@ -73,19 +125,26 @@ void SmartPropertyEditorManager::createEditors()
   assert(m_editors.empty());
 
   m_editors.emplace_back(
-    std::make_unique<SmartTypeEditorMatcher>(
-      Assets::PropertyDefinitionType::FlagsProperty),
+    makeSmartTypeEditorMatcher(Assets::PropertyDefinitionType::FlagsProperty),
     new SmartFlagsEditor{m_document});
   m_editors.emplace_back(
-    std::make_unique<SmartPropertyEditorKeyMatcher>(
-      std::vector<std::string>{"color", "*_color", "*_color2", "*_colour"}),
+    makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
     new SmartColorEditor{m_document});
   m_editors.emplace_back(
-    std::make_unique<SmartTypeWithSameDefinitionEditorMatcher>(
+    makeSmartTypeWithSameDefinitionEditorMatcher(
       Assets::PropertyDefinitionType::ChoiceProperty),
     new SmartChoiceEditor{m_document});
   m_editors.emplace_back(
-    std::make_unique<SmartPropertyEditorDefaultMatcher>(),
+    kdl::lift_and(
+      makeSmartPropertyEditorKeyMatcher({"wad"}),
+      [](const auto&, const auto& nodes) {
+        return nodes.size() == 1
+               && nodes.front()->entity().classname()
+                    == Model::EntityPropertyValues::WorldspawnClassname;
+      }),
+    new SmartWadEditor{m_document});
+  m_editors.emplace_back(
+    [](const auto&, const auto&) { return true; },
     new SmartDefaultPropertyEditor{m_document});
 
   m_stackedLayout = new QStackedLayout{};
@@ -123,7 +182,7 @@ SmartPropertyEditor* SmartPropertyEditorManager::selectEditor(
 {
   for (const auto& [matcher, editor] : m_editors)
   {
-    if (matcher->matches(propertyKey, nodes))
+    if (matcher(propertyKey, nodes))
     {
       return editor;
     }
@@ -172,5 +231,5 @@ void SmartPropertyEditorManager::updateEditor()
     activeEditor()->update(document->allSelectedEntityNodes());
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -36,11 +36,6 @@ class MapDocument;
 
 void combineFlags(size_t numFlags, int newFlagValue, int& setFlags, int& mixedFlags);
 
-bool loadTextureCollection(
-  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
-size_t loadTextureCollections(
-  std::weak_ptr<MapDocument> document, QWidget* parent, const QStringList& pathStrs);
-
 bool loadEntityDefinitionFile(
   std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path);
 size_t loadEntityDefinitionFile(

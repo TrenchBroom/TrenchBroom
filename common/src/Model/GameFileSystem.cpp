@@ -27,6 +27,7 @@
 #include "IO/PathInfo.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/SystemPaths.h"
+#include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
@@ -65,6 +66,16 @@ void GameFileSystem::reloadShaders()
   {
     m_shaderFS->reload();
   }
+}
+
+void GameFileSystem::reloadWads(
+  const IO::Path& rootPath,
+  const std::vector<IO::Path>& wadSearchPaths,
+  const std::vector<IO::Path>& wadPaths,
+  Logger& logger)
+{
+  unmountWads();
+  mountWads(rootPath, wadSearchPaths, wadPaths, logger);
 }
 
 void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logger)
@@ -187,7 +198,7 @@ void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logge
     logger.info() << "Adding shader file system";
     auto shaderSearchPath = textureConfig.shaderSearchPath;
     auto textureSearchPaths =
-      std::vector<IO::Path>{getRootDirectory(textureConfig.package), IO::Path("models")};
+      std::vector<IO::Path>{textureConfig.root, IO::Path("models")};
 
     auto shaderFs = std::make_unique<IO::Quake3ShaderFileSystem>(
       *this, std::move(shaderSearchPath), std::move(textureSearchPaths), logger);
@@ -195,5 +206,37 @@ void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logge
     mount(IO::Path{}, std::move(shaderFs));
   }
 }
+
+void GameFileSystem::mountWads(
+  const IO::Path& rootPath,
+  const std::vector<IO::Path>& wadSearchPaths,
+  const std::vector<IO::Path>& wadPaths,
+  Logger& logger)
+{
+  for (const auto& wadPath : wadPaths)
+  {
+    const auto mountPath = rootPath + wadPath.lastComponent();
+    const auto resolvedWadPath = IO::Disk::resolvePath(wadSearchPaths, wadPath);
+    try
+    {
+      m_wadMountPoints.push_back(
+        mount(mountPath, std::make_unique<IO::WadFileSystem>(resolvedWadPath)));
+    }
+    catch (const Exception& e)
+    {
+      logger.error() << "Could not load wad file at '" << wadPath << "': " << e.what();
+    }
+  }
+}
+
+void GameFileSystem::unmountWads()
+{
+  for (const auto& id : m_wadMountPoints)
+  {
+    unmount(id);
+  }
+  m_wadMountPoints.clear();
+}
+
 } // namespace Model
 } // namespace TrenchBroom

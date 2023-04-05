@@ -36,7 +36,7 @@ static void setupTestEnvironment(IO::TestEnvironment& env)
   env.createDirectory(gamesPath);
   env.createDirectory(gamesPath + IO::Path{"Quake"});
   env.createFile(gamesPath + IO::Path{"Quake/GameConfig.cfg"}, R"({
-    "version": 3,
+    "version": 7,
     "name": "Quake",
     "icon": "Icon.png",
     "fileformats": [
@@ -47,7 +47,7 @@ static void setupTestEnvironment(IO::TestEnvironment& env)
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
     "textures": {
-        "package": { "type": "file", "format": { "extension": "wad", "format": "wad2" } },
+        "root": "textures",
         "format": { "extension": "D", "format": "idmip" },
         "palette": "gfx/palette.lmp",
         "attribute": "wad"

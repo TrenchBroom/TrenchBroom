@@ -619,7 +619,7 @@ void MapDocument::saveDocumentAs(const IO::Path& path)
 void MapDocument::saveDocumentTo(const IO::Path& path)
 {
   ensure(m_game.get() != nullptr, "game is null");
-  ensure(m_world != nullptr, "world is null");
+  ensure(m_world, "world is null");
   m_game->writeMap(*m_world, path);
 }
 
@@ -638,7 +638,7 @@ void MapDocument::doSaveDocument(const IO::Path& path)
 
 void MapDocument::clearDocument()
 {
-  if (m_world != nullptr)
+  if (m_world)
   {
     documentWillBeClearedNotifier(this);
 
@@ -1138,7 +1138,9 @@ const Model::NodeCollection& MapDocument::selectedNodes() const
 std::vector<Model::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const
 {
   if (hasSelectedBrushFaces())
+  {
     return selectedBrushFaces();
+  }
 
   const auto faces = Model::collectBrushFaces(m_selectedNodes.nodes());
   return Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces)
@@ -1152,9 +1154,7 @@ std::vector<Model::BrushFaceHandle> MapDocument::selectedBrushFaces() const
 
 const vm::bbox3& MapDocument::referenceBounds() const
 {
-  if (hasSelectedNodes())
-    return selectionBounds();
-  return lastSelectionBounds();
+  return hasSelectedNodes() ? selectionBounds() : lastSelectionBounds();
 }
 
 const vm::bbox3& MapDocument::lastSelectionBounds() const
@@ -1165,7 +1165,9 @@ const vm::bbox3& MapDocument::lastSelectionBounds() const
 const vm::bbox3& MapDocument::selectionBounds() const
 {
   if (!m_selectionBoundsValid)
+  {
     validateSelectionBounds();
+  }
   return m_selectionBounds;
 }
 
@@ -1176,10 +1178,11 @@ const std::string& MapDocument::currentTextureName() const
 
 void MapDocument::setCurrentTextureName(const std::string& currentTextureName)
 {
-  if (m_currentTextureName == currentTextureName)
-    return;
-  m_currentTextureName = currentTextureName;
-  currentTextureNameDidChangeNotifier(m_currentTextureName);
+  if (m_currentTextureName != currentTextureName)
+  {
+    m_currentTextureName = currentTextureName;
+    currentTextureNameDidChangeNotifier(m_currentTextureName);
+  }
 }
 
 void MapDocument::selectAllNodes()
@@ -1631,19 +1634,23 @@ std::vector<Model::Node*> MapDocument::removeImplicitelyRemovedNodes(
   std::vector<Model::Node*> nodes) const
 {
   if (nodes.empty())
+  {
     return nodes;
+  }
 
   nodes = kdl::vec_sort(std::move(nodes), CompareByAncestry());
 
-  std::vector<Model::Node*> result;
+  auto result = std::vector<Model::Node*>{};
   result.reserve(nodes.size());
   result.push_back(nodes.front());
 
   for (size_t i = 1; i < nodes.size(); ++i)
   {
-    Model::Node* node = nodes[i];
+    auto* node = nodes[i];
     if (!node->isDescendantOf(result))
+    {
       result.push_back(node);
+    }
   }
 
   return result;
@@ -1709,7 +1716,7 @@ bool MapDocument::reparentNodes(
   }
 
   const auto result =
-    executeAndStore(ReparentNodesCommand::reparent(std::move(nodesToAdd), nodesToRemove));
+    executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
   if (!result->success())
   {
     transaction.cancel();
@@ -2070,25 +2077,25 @@ void MapDocument::ungroupSelection()
 
 void MapDocument::renameGroups(const std::string& name)
 {
-  if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
-    return;
-
-  const auto commandName =
-    kdl::str_plural("Rename ", m_selectedNodes.groupCount(), "Group", "Groups");
-  applyAndSwap(
-    *this,
-    commandName,
-    m_selectedNodes.groups(),
-    {},
-    kdl::overload(
-      [](Model::Layer&) { return true; },
-      [&](Model::Group& group) {
-        group.setName(name);
-        return true;
-      },
-      [](Model::Entity&) { return true; },
-      [](Model::Brush&) { return true; },
-      [](Model::BezierPatch&) { return true; }));
+  if (hasSelectedNodes() && m_selectedNodes.hasOnlyGroups())
+  {
+    const auto commandName =
+      kdl::str_plural("Rename ", m_selectedNodes.groupCount(), "Group", "Groups");
+    applyAndSwap(
+      *this,
+      commandName,
+      m_selectedNodes.groups(),
+      {},
+      kdl::overload(
+        [](Model::Layer&) { return true; },
+        [&](Model::Group& group) {
+          group.setName(name);
+          return true;
+        },
+        [](Model::Entity&) { return true; },
+        [](Model::Brush&) { return true; },
+        [](Model::BezierPatch&) { return true; }));
+  }
 }
 
 void MapDocument::openGroup(Model::GroupNode* group)
@@ -3274,8 +3281,9 @@ bool MapDocument::csgHollow()
 
   for (auto& [sourceNode, fragments] : fragmentsAndSourceNodes)
   {
-    auto fragmentNodes = kdl::vec_transform(
-      std::move(fragments), [](auto&& b) { return new Model::BrushNode{std::move(b)}; });
+    auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
+      return new Model::BrushNode{std::forward<decltype(b)>(b)};
+    });
 
     auto& toAddForParent = toAdd[sourceNode->parent()];
     toAddForParent = kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
@@ -4310,14 +4318,16 @@ void MapDocument::commitPendingAssets()
 
 void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const
 {
-  if (m_world != nullptr)
+  if (m_world)
+  {
     m_world->pick(*m_editorContext, pickRay, pickResult);
+  }
 }
 
 std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point) const
 {
-  std::vector<Model::Node*> result;
-  if (m_world != nullptr)
+  auto result = std::vector<Model::Node*>{};
+  if (m_world)
   {
     m_world->findNodesContaining(point, result);
   }
@@ -4361,7 +4371,7 @@ void MapDocument::clearWorld()
 
 Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const
 {
-  if (m_world != nullptr)
+  if (m_world)
   {
     return m_game->extractEntityDefinitionFile(m_world->entity());
   }
@@ -4397,31 +4407,11 @@ void MapDocument::setEntityDefinitions(
   m_entityDefinitionManager->setDefinitions(definitions);
 }
 
-std::vector<IO::Path> MapDocument::enabledTextureCollections() const
-{
-  return m_game->extractTextureCollections(m_world->entity());
-}
-
-std::vector<IO::Path> MapDocument::availableTextureCollections() const
-{
-  return m_game->findTextureCollections();
-}
-
-void MapDocument::setEnabledTextureCollections(const std::vector<IO::Path>& paths)
-{
-  auto entity = m_world->entity();
-  m_game->updateTextureCollections(entity, paths);
-  swapNodeContents(
-    "Set Texture Collections", {{world(), Model::NodeContents(std::move(entity))}}, {});
-}
-
 void MapDocument::reloadTextureCollections()
 {
   const auto nodes = std::vector<Model::Node*>{m_world.get()};
   NotifyBeforeAndAfter notifyNodes(
     nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-  NotifyBeforeAndAfter notifyTextureCollections(
-    textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
 
   info("Reloading texture collections");
   reloadTextures();
@@ -4513,9 +4503,12 @@ void MapDocument::loadTextures()
 {
   try
   {
-    const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-    m_game->loadTextureCollections(
-      m_world->entity(), docDir, *m_textureManager, logger());
+    if (const auto* wadStr = m_world->entity().property(Model::EntityPropertyKeys::Wad))
+    {
+      const auto wadPaths = IO::Path::asPaths(kdl::str_split(*wadStr, ";"));
+      m_game->reloadWads(path(), wadPaths, logger());
+    }
+    m_game->loadTextureCollections(*m_textureManager);
   }
   catch (const Exception& e)
   {
@@ -4833,7 +4826,7 @@ void MapDocument::setIssueHidden(const Model::Issue& issue, const bool hidden)
 
 void MapDocument::registerValidators()
 {
-  ensure(m_world != nullptr, "world is null");
+  ensure(m_world, "world is null");
   ensure(m_game.get() != nullptr, "game is null");
 
   m_world->registerValidator(std::make_unique<Model::MissingClassnameValidator>());
@@ -5038,10 +5031,10 @@ void MapDocument::clearModificationCount()
 
 void MapDocument::connectObservers()
 {
-  m_notifierConnection += textureCollectionsWillChangeNotifier.connect(
-    this, &MapDocument::textureCollectionsWillChange);
-  m_notifierConnection += textureCollectionsDidChangeNotifier.connect(
-    this, &MapDocument::textureCollectionsDidChange);
+  m_notifierConnection +=
+    wadsWillChangeNotifier.connect(this, &MapDocument::wadsWillChange);
+  m_notifierConnection +=
+    wadsDidChangeNotifier.connect(this, &MapDocument::wadsDidChange);
 
   m_notifierConnection += entityDefinitionsWillChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsWillChange);
@@ -5082,15 +5075,15 @@ void MapDocument::connectObservers()
   m_notifierConnection +=
     modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
   m_notifierConnection +=
-    textureCollectionsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
+    wadsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
 }
 
-void MapDocument::textureCollectionsWillChange()
+void MapDocument::wadsWillChange()
 {
   unsetTextures();
 }
 
-void MapDocument::textureCollectionsDidChange()
+void MapDocument::wadsDidChange()
 {
   loadTextures();
   setTextures();

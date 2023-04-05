@@ -146,44 +146,15 @@ void Game::writeBrushFacesToStream(
   doWriteBrushFacesToStream(world, faces, stream);
 }
 
-Game::TexturePackageType Game::texturePackageType() const
+void Game::loadTextureCollections(Assets::TextureManager& textureManager) const
 {
-  return doTexturePackageType();
+  doLoadTextureCollections(textureManager);
 }
 
-void Game::loadTextureCollections(
-  const Entity& entity,
-  const IO::Path& documentPath,
-  Assets::TextureManager& textureManager,
-  Logger& logger) const
+void Game::reloadWads(
+  const IO::Path& documentPath, const std::vector<IO::Path>& wadPaths, Logger& logger)
 {
-  doLoadTextureCollections(entity, documentPath, textureManager, logger);
-}
-
-bool Game::isTextureCollection(const IO::Path& path) const
-{
-  return doIsTextureCollection(path);
-}
-
-std::vector<std::string> Game::fileTextureCollectionExtensions() const
-{
-  return doFileTextureCollectionExtensions();
-}
-
-std::vector<IO::Path> Game::findTextureCollections() const
-{
-  return doFindTextureCollections();
-}
-
-std::vector<IO::Path> Game::extractTextureCollections(const Entity& entity) const
-{
-  return doExtractTextureCollections(entity);
-}
-
-void Game::updateTextureCollections(
-  Entity& entity, const std::vector<IO::Path>& paths) const
-{
-  doUpdateTextureCollections(entity, paths);
+  doReloadWads(documentPath, wadPaths, logger);
 }
 
 void Game::reloadShaders()

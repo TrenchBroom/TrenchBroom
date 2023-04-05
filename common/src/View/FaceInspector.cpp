@@ -32,7 +32,6 @@
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 #include "View/TextureBrowser.h"
-#include "View/TextureCollectionEditor.h"
 #include "View/TitledPanel.h"
 
 #include <kdl/memory_utils.h>
@@ -41,26 +40,19 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 FaceInspector::FaceInspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
-  : TabBookPage(parent)
-  , m_document(document)
-  , m_splitter(nullptr)
-  , m_faceAttribsEditor(nullptr)
-  , m_textureBrowser(nullptr)
-  , m_textureCollectionsEditor(nullptr)
+  : TabBookPage{parent}
+  , m_document{std::move(document)}
 {
-  createGui(document, contextManager);
+  createGui(m_document, contextManager);
 }
 
 FaceInspector::~FaceInspector()
 {
   saveWindowState(m_splitter);
-  saveWindowState(m_textureCollectionsEditor);
 }
 
 bool FaceInspector::cancelMouseDrag()
@@ -77,7 +69,7 @@ void FaceInspector::revealTexture(const Assets::Texture* texture)
 void FaceInspector::createGui(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
 {
-  m_splitter = new Splitter(Qt::Vertical);
+  m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("FaceInspector_Splitter");
 
   m_splitter->addWidget(createFaceAttribsEditor(m_splitter, document, contextManager));
@@ -87,14 +79,10 @@ void FaceInspector::createGui(
   m_splitter->setStretchFactor(0, 0);
   m_splitter->setStretchFactor(1, 1);
 
-  m_textureCollectionsEditor = createTextureCollectionEditor(this, document);
-
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(m_splitter, 1);
-  layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
-  layout->addWidget(m_textureCollectionsEditor);
   setLayout(layout);
 
   connect(
@@ -110,17 +98,17 @@ QWidget* FaceInspector::createFaceAttribsEditor(
   QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
 {
   m_faceAttribsEditor =
-    new FaceAttribsEditor(std::move(document), contextManager, parent);
+    new FaceAttribsEditor{std::move(document), contextManager, parent};
   return m_faceAttribsEditor;
 }
 
 QWidget* FaceInspector::createTextureBrowser(
   QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
 {
-  TitledPanel* panel = new TitledPanel(tr("Texture Browser"), parent);
-  m_textureBrowser = new TextureBrowser(std::move(document), contextManager);
+  auto* panel = new TitledPanel{tr("Texture Browser"), parent};
+  m_textureBrowser = new TextureBrowser{std::move(document), contextManager};
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(m_textureBrowser, 1);
@@ -129,82 +117,39 @@ QWidget* FaceInspector::createTextureBrowser(
   return panel;
 }
 
-CollapsibleTitledPanel* FaceInspector::createTextureCollectionEditor(
-  QWidget* parent, std::weak_ptr<MapDocument> document)
-{
-  auto* panel = new CollapsibleTitledPanel(tr("Texture Collections"), true, parent);
-  panel->setObjectName("FaceInspector_TextureCollections");
-
-  auto* collectionEditor = new TextureCollectionEditor(std::move(document));
-
-  auto* layout = new QVBoxLayout();
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(collectionEditor, 1);
-  panel->getPanel()->setLayout(layout);
-
-  restoreWindowState(panel);
-
-  return panel;
-}
-
 static bool allFacesHaveTexture(
   const std::vector<Model::BrushFaceHandle>& faceHandles, const Assets::Texture* texture)
 {
-  for (const Model::BrushFaceHandle& faceHandle : faceHandles)
-  {
-    if (faceHandle.face().texture() != texture)
-    {
-      return false;
-    }
-  }
-  return true;
+  return std::all_of(faceHandles.begin(), faceHandles.end(), [&](const auto& faceHandle) {
+    return faceHandle.face().texture() == texture;
+  });
 }
 
 void FaceInspector::textureSelected(const Assets::Texture* texture)
 {
   auto document = kdl::mem_lock(m_document);
-  const std::vector<Model::BrushFaceHandle> faces = document->allSelectedBrushFaces();
+  const auto faces = document->allSelectedBrushFaces();
 
-  if (texture != nullptr)
+  if (texture)
   {
-    if (faces.empty())
+    if (!faces.empty())
     {
-      if (document->currentTextureName() == texture->name())
-      {
-        document->setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
-      }
-      else
-      {
-        document->setCurrentTextureName(texture->name());
-      }
+      const auto textureNameToSet = !allFacesHaveTexture(faces, texture)
+                                      ? texture->name()
+                                      : Model::BrushFaceAttributes::NoTextureName;
+
+      document->setCurrentTextureName(textureNameToSet);
+      auto request = Model::ChangeBrushFaceAttributesRequest{};
+      request.setTextureName(textureNameToSet);
+      document->setFaceAttributes(request);
     }
     else
     {
-      if (allFacesHaveTexture(faces, texture))
-      {
-        texture = nullptr;
-        document->setCurrentTextureName(Model::BrushFaceAttributes::NoTextureName);
-      }
-      else
-      {
-        document->setCurrentTextureName(texture->name());
-      }
+      document->setCurrentTextureName(
+        document->currentTextureName() != texture->name()
+          ? texture->name()
+          : Model::BrushFaceAttributes::NoTextureName);
     }
-  }
-
-  if (!faces.empty())
-  {
-    Model::ChangeBrushFaceAttributesRequest request;
-    if (texture == nullptr)
-    {
-      request.setTextureName(Model::BrushFaceAttributes::NoTextureName);
-    }
-    else
-    {
-      request.setTextureName(texture->name());
-    }
-    document->setFaceAttributes(request);
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

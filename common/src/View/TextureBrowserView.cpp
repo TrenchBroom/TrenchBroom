@@ -425,8 +425,6 @@ void TextureBrowserView::renderTextures(Layout& layout, const float y, const flo
   shader.set("Texture", 0);
   shader.set("Brightness", pref(Preferences::Brightness));
 
-  size_t num = 0;
-
   for (const auto& group : layout.groups())
   {
     if (group.intersectsY(y, height))
@@ -462,8 +460,6 @@ void TextureBrowserView::renderTextures(Layout& layout, const float y, const flo
             vertexArray.render(Renderer::PrimType::Quads);
 
             texture->deactivate();
-
-            ++num;
           }
         }
       }

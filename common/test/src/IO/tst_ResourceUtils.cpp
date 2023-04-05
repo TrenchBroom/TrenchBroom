@@ -37,7 +37,7 @@ TEST_CASE("ResourceUtilsTest.loadDefaultTexture")
     IO::Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets"));
   NullLogger logger;
 
-  auto texture = loadDefaultTexture(*fs, logger, "some_name");
+  auto texture = loadDefaultTexture(*fs, "some_name", logger);
   CHECK(texture.name() == "some_name");
 }
 } // namespace IO

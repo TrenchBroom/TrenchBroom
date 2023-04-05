@@ -26,10 +26,9 @@
 class QRadioButton;
 class QWidget;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class ChoosePathTypeDialog : public QDialog
 {
   Q_OBJECT
@@ -48,17 +47,13 @@ private:
   void createGui();
 
 public:
-  ChoosePathTypeDialog();
   ChoosePathTypeDialog(
-    QWidget* parent,
-    const IO::Path& absPath,
-    const IO::Path& docPath,
-    const IO::Path& gamePath);
+    QWidget* parent, IO::Path absPath, const IO::Path& docPath, const IO::Path& gamePath);
 
   const IO::Path& path() const;
 
 private:
   static IO::Path makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

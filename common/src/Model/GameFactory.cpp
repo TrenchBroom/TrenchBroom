@@ -35,7 +35,6 @@
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
 #include "PreferenceManager.h"
-#include "RecoverableExceptions.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/string_compare.h>
@@ -259,19 +258,6 @@ void GameFactory::loadGameConfigs()
 }
 
 void GameFactory::loadGameConfig(const IO::Path& path)
-{
-  try
-  {
-    doLoadGameConfig(path);
-  }
-  catch (const RecoverableException& e)
-  {
-    e.recover();
-    doLoadGameConfig(path);
-  }
-}
-
-void GameFactory::doLoadGameConfig(const IO::Path& path)
 {
   const auto configFile = m_configFs->openFile(path);
   const auto absolutePath = m_configFs->makeAbsolute(path);

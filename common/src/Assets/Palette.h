@@ -20,22 +20,25 @@
 #pragma once
 
 #include "Color.h"
-#include "IO/Reader.h"
+
+#include <kdl/reflection_decl.h>
+#include <kdl/result_forward.h>
+
+#include <kdl/reflection_decl.h>
+#include <kdl/result_forward.h>
 
 #include <cassert>
+#include <iosfwd>
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-class BufferedReader;
-class FileSystem;
-class Path;
-} // namespace IO
+class File;
+class Reader;
+} // namespace TrenchBroom::IO
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 struct PaletteData;
 class TextureBuffer;
@@ -52,22 +55,7 @@ private:
   std::shared_ptr<PaletteData> m_data;
 
 public:
-  Palette();
-  /**
-   * @throws AssetException if data is not 768 bytes
-   */
-  Palette(const std::vector<unsigned char>& data);
-
-  /**
-   * @throws AssetException if the palette can't be loaded
-   */
-  static Palette loadFile(const IO::FileSystem& fs, const IO::Path& path);
-  static Palette loadLmp(IO::Reader& reader);
-  static Palette loadPcx(IO::Reader& reader);
-  static Palette loadBmp(IO::Reader& reader);
-  static Palette fromRaw(IO::Reader& reader);
-
-  bool initialized() const;
+  explicit Palette(std::shared_ptr<PaletteData> m_data);
 
   /**
    * Reads `pixelCount` bytes from `reader` where each byte is a palette index,
@@ -91,8 +79,21 @@ public:
     IO::Reader& reader,
     size_t pixelCount,
     TextureBuffer& rgbaImage,
-    const PaletteTransparency transparency,
+    PaletteTransparency transparency,
     Color& averageColor) const;
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+struct LoadPaletteError
+{
+  std::string msg;
+
+  kdl_reflect_decl(LoadPaletteError, msg);
+};
+
+kdl::result<Palette, LoadPaletteError> makePalette(
+  const std::vector<unsigned char>& data);
+
+kdl::result<Palette, LoadPaletteError> loadPalette(const IO::File& file);
+kdl::result<Palette, LoadPaletteError> loadPalette(IO::Reader& reader);
+
+} // namespace TrenchBroom::Assets

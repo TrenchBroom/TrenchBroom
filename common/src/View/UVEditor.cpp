@@ -41,17 +41,8 @@ namespace View
 {
 UVEditor::UVEditor(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
-  : QWidget(parent)
-  , m_document(std::move(document))
-  , m_uvView(nullptr)
-  , m_xSubDivisionEditor(nullptr)
-  , m_ySubDivisionEditor(nullptr)
-  , m_resetTextureButton(nullptr)
-  , m_resetTextureToWorldButton(nullptr)
-  , m_flipTextureHButton(nullptr)
-  , m_flipTextureVButton(nullptr)
-  , m_rotateTextureCCWButton(nullptr)
-  , m_rotateTextureCWButton(nullptr)
+  : QWidget{parent}
+  , m_document{std::move(document)}
 {
   createGui(contextManager);
   connectObservers();
@@ -77,7 +68,7 @@ void UVEditor::updateButtons()
 
 void UVEditor::createGui(GLContextManager& contextManager)
 {
-  m_uvView = new UVView(m_document, contextManager);
+  m_uvView = new UVView{m_document, contextManager};
 
   m_resetTextureButton =
     createBitmapButton("ResetTexture.svg", tr("Reset texture alignment"), this);

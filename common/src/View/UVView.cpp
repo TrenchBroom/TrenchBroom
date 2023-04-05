@@ -62,9 +62,9 @@ namespace View
 const Model::HitType::Type UVView::FaceHitType = Model::HitType::freeType();
 
 UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
-  : RenderView(contextManager)
-  , m_document(document)
-  , m_helper(m_camera)
+  : RenderView{contextManager}
+  , m_document{std::move(document)}
+  , m_helper{m_camera}
 {
   setToolBox(m_toolBox);
   createTools();
@@ -250,9 +250,9 @@ private:
   Renderer::VertexArray m_vertexArray;
 
 public:
-  RenderTexture(const UVViewHelper& helper)
-    : m_helper(helper)
-    , m_vertexArray(Renderer::VertexArray::move(getVertices()))
+  explicit RenderTexture(const UVViewHelper& helper)
+    : m_helper{helper}
+    , m_vertexArray{Renderer::VertexArray::move(getVertices())}
   {
   }
 

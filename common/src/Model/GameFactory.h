@@ -155,7 +155,6 @@ private:
   void initializeFileSystem(const GamePathConfig& gamePathConfig);
   void loadGameConfigs();
   void loadGameConfig(const IO::Path& path);
-  void doLoadGameConfig(const IO::Path& path);
   void loadCompilationConfig(GameConfig& gameConfig);
   void loadGameEngineConfig(GameConfig& gameConfig);
 

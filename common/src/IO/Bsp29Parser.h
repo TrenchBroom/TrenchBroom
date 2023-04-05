@@ -78,9 +78,9 @@ private:
 
 public:
   Bsp29Parser(
-    const std::string& name,
+    std::string name,
     const Reader& reader,
-    const Assets::Palette& palette,
+    Assets::Palette palette,
     const FileSystem& fs);
 
   static bool canParse(const Path& path, Reader reader);

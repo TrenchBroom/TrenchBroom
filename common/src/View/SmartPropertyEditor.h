@@ -49,7 +49,7 @@ private:
 public:
   explicit SmartPropertyEditor(
     std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-  virtual ~SmartPropertyEditor();
+  ~SmartPropertyEditor() override;
 
   bool usesPropertyKey(const std::string& propertyKey) const;
 

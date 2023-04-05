@@ -509,7 +509,8 @@ public:
   template <typename F>
   auto if_error(F&& f) &&
   {
-    std::move(*this).visit(kdl::overload([](const Value&) {}, [&](auto&& e) { f(e); }));
+    std::move(*this).visit(
+      kdl::overload([](Value&&) {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
     return std::move(*this);
   }
 
@@ -528,31 +529,10 @@ public:
       [](const auto&) -> value_type { throw bad_result_access{}; }));
   }
 
-  auto value_or(const Value& x) const&
+  auto value_or(Value x) const&
   {
     return visit(kdl::overload(
       [](const value_type& v) -> value_type { return v; },
-      [&](const auto&) -> value_type { return x; }));
-  }
-
-  auto value_or(Value&& x) const&
-  {
-    return visit(kdl::overload(
-      [](const value_type& v) -> value_type { return v; },
-      [&](const auto&) -> value_type { return std::move(x); }));
-  }
-
-  auto value_or(const Value& x) &&
-  {
-    return std::move(*this).visit(kdl::overload(
-      [](value_type&& v) -> value_type { return std::move(v); },
-      [&](const auto&) -> value_type { return x; }));
-  }
-
-  auto value_or(Value&& x) &&
-  {
-    return std::move(*this).visit(kdl::overload(
-      [](value_type&& v) -> value_type { return std::move(v); },
       [&](const auto&) -> value_type { return std::move(x); }));
   }
 
@@ -570,6 +550,25 @@ public:
       [](value_type&& v) -> value_type { return std::move(v); },
       [](const auto&) -> value_type { throw bad_result_access{}; }));
   }
+
+  auto value_or(Value x) &&
+  {
+    return std::move(*this).visit(kdl::overload(
+      [](value_type&& v) -> value_type { return std::move(v); },
+      [&](const auto&) -> value_type { return std::move(x); }));
+  }
+
+  /**
+   * Returns the value contained in this result if it is successful. Otherwise, throws
+   * `bad_result_access`.
+   *
+   * @return the value in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto release() { return std::move(*this).value(); }
+
+  auto release_or(Value x) { return std::move(*this).value_or(std::move(x)); }
 
   /**
    * Returns a the error contained in this result if it not successful. Otherwise, throws

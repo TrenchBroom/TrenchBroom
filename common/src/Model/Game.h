@@ -61,13 +61,6 @@ class WorldNode;
 class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader
 {
 public:
-  enum class TexturePackageType
-  {
-    File,
-    Directory
-  };
-
-public:
   const std::string& gameName() const;
   bool isGamePathPreference(const IO::Path& prefPath) const;
 
@@ -137,18 +130,10 @@ public: // parsing and serializing objects
     WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const;
 
 public: // texture collection handling
-  TexturePackageType texturePackageType() const;
-  void loadTextureCollections(
-    const Entity& entity,
-    const IO::Path& documentPath,
-    Assets::TextureManager& textureManager,
-    Logger& logger) const;
-  bool isTextureCollection(const IO::Path& path) const;
-  std::vector<std::string> fileTextureCollectionExtensions() const;
+  void loadTextureCollections(Assets::TextureManager& textureManagerr) const;
 
-  std::vector<IO::Path> findTextureCollections() const;
-  std::vector<IO::Path> extractTextureCollections(const Entity& entity) const;
-  void updateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const;
+  void reloadWads(
+    const IO::Path& documentPath, const std::vector<IO::Path>& wadPaths, Logger& logger);
   void reloadShaders();
 
 public: // entity definition handling
@@ -217,19 +202,11 @@ private: // subclassing interface
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const = 0;
 
-  virtual TexturePackageType doTexturePackageType() const = 0;
-  virtual void doLoadTextureCollections(
-    const Entity& entity,
+  virtual void doLoadTextureCollections(Assets::TextureManager& textureManager) const = 0;
+  virtual void doReloadWads(
     const IO::Path& documentPath,
-    Assets::TextureManager& textureManager,
-    Logger& logger) const = 0;
-  virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
-  virtual std::vector<std::string> doFileTextureCollectionExtensions() const = 0;
-  virtual std::vector<IO::Path> doFindTextureCollections() const = 0;
-  virtual std::vector<IO::Path> doExtractTextureCollections(
-    const Entity& entity) const = 0;
-  virtual void doUpdateTextureCollections(
-    Entity& entity, const std::vector<IO::Path>& paths) const = 0;
+    const std::vector<IO::Path>& wadPaths,
+    Logger& logger) = 0;
   virtual void doReloadShaders() = 0;
 
   virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;

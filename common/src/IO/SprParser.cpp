@@ -28,6 +28,7 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 
 #include <vecmath/bbox.h>
@@ -225,7 +226,9 @@ static Assets::Palette parseEmbeddedPalette(Reader& reader, const RenderMode ren
   auto data = std::vector<unsigned char>(paletteSize * 3);
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
-  return {data};
+  return Assets::makePalette(data)
+    .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+    .value();
 }
 
 std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* logger */)

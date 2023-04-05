@@ -31,11 +31,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
-{
-namespace SystemPaths
+namespace TrenchBroom::IO::SystemPaths
 {
 Path appDirectory()
 {
@@ -83,24 +79,26 @@ Path findResourceFile(const Path& file)
 
 std::vector<Path> findResourceDirectories(const Path& directory)
 {
-  std::vector<Path> result;
+  auto result = std::vector<Path>{
+    // Special case for running debug builds on Linux
+    appDirectory() + directory,
+    // Compatibility with wxWidgets
+    userDataDirectory() + directory,
+  };
 
-  // Special case for running debug builds on Linux
-  result.push_back(appDirectory() + directory);
-
-  // Compatibility with wxWidgets
-  result.push_back(userDataDirectory() + directory);
-
-  const QStringList dirs = QStandardPaths::locateAll(
+  const auto dirs = QStandardPaths::locateAll(
     QStandardPaths::AppDataLocation,
     IO::pathAsQString(directory),
     QStandardPaths::LocateOption::LocateDirectory);
-  for (const QString& dir : dirs)
+
+  for (const auto& dir : dirs)
   {
-    result.push_back(IO::pathFromQString(dir));
+    const auto path = IO::pathFromQString(dir);
+    if (std::find(result.begin(), result.end(), path) == result.end())
+    {
+      result.push_back(path);
+    }
   }
   return result;
 }
-} // namespace SystemPaths
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO::SystemPaths

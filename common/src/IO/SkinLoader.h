@@ -20,6 +20,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 
 namespace TrenchBroom
 {
@@ -37,8 +38,12 @@ class FileSystem;
 class Path;
 
 Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger);
+
 Assets::Texture loadSkin(
-  const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette);
+  const Path& path,
+  const FileSystem& fs,
+  const std::optional<Assets::Palette>& palette,
+  Logger& logger);
 
 Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger);
 } // namespace IO

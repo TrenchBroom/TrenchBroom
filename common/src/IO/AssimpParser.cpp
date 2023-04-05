@@ -24,8 +24,8 @@
 #include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FreeImageTextureReader.h"
 #include "IO/PathInfo.h"
+#include "IO/ReadFreeImageTexture.h"
 #include "Logger.h"
 #include "Model/BrushFaceAttributes.h"
 #include "ReaderException.h"
@@ -33,6 +33,7 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
@@ -332,20 +333,22 @@ namespace
 Assets::Texture loadTextureFromFileSystem(
   const Path& path, const FileSystem& fs, Logger& logger)
 {
-  auto imageReader =
-    FreeImageTextureReader{TextureReader::StaticNameStrategy{""}, fs, logger};
-  return imageReader.readTexture(fs.openFile(path));
+  const auto file = fs.openFile(path);
+  auto reader = file->reader().buffer();
+  return readFreeImageTexture("", reader)
+    .or_else(makeReadTextureErrorHandler(fs, logger))
+    .value();
 }
 
 Assets::Texture loadUncompressedEmbeddedTexture(
-  const aiTexel* data, const std::string& name, const size_t width, const size_t height)
+  const aiTexel* data, std::string name, const size_t width, const size_t height)
 {
   auto buffer = Assets::TextureBuffer{width * height * sizeof(aiTexel)};
   std::memcpy(buffer.data(), data, width * height * sizeof(aiTexel));
 
-  const auto averageColor = FreeImageTextureReader::getAverageColor(buffer, GL_BGRA);
+  const auto averageColor = getAverageColor(buffer, GL_BGRA);
   return {
-    name,
+    std::move(name),
     width,
     height,
     averageColor,
@@ -355,13 +358,19 @@ Assets::Texture loadUncompressedEmbeddedTexture(
 }
 
 Assets::Texture loadCompressedEmbeddedTexture(
-  const aiTexel* data, const std::string& name, const size_t width)
+  std::string name,
+  const aiTexel* data,
+  const size_t size,
+  const FileSystem& fs,
+  Logger& logger)
 {
-  return FreeImageTextureReader::readTextureFromMemory(
-    name, reinterpret_cast<const uint8_t*>(data), width);
+  return readFreeImageTextureFromMemory(
+           name, reinterpret_cast<const uint8_t*>(data), size)
+    .or_else(makeReadTextureErrorHandler(fs, logger))
+    .value();
 }
 
-std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs, Logger& logger)
+std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 {
   static const auto texturePaths = std::vector<Path>{
     Path{"textures"}
@@ -372,14 +381,17 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs, Logger&
     Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
   };
 
-  auto imageReader =
-    FreeImageTextureReader{TextureReader::StaticNameStrategy(""), fs, logger};
-
   for (const auto& texturePath : texturePaths)
   {
     try
     {
-      return imageReader.readTexture(fs.openFile(texturePath));
+      const auto file = fs.openFile(texturePath);
+      auto reader = file->reader().buffer();
+      auto result = readFreeImageTexture("", reader);
+      if (result.is_success())
+      {
+        return result.release();
+      }
     }
     catch (const Exception& /*ex1*/)
     {
@@ -428,13 +440,13 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
       {
         // The texture is embedded, but compressed. Let FreeImage load it from memory.
         m_textures.push_back(loadCompressedEmbeddedTexture(
-          texture->pcData, texture->mFilename.C_Str(), texture->mWidth));
+          texture->mFilename.C_Str(), texture->pcData, texture->mWidth, m_fs, logger));
       }
     }
     catch (Exception& exception)
     {
       // Load fallback material in case we get any error.
-      if (auto fallbackTexture = loadFallbackTexture(m_fs, logger))
+      if (auto fallbackTexture = loadFallbackTexture(m_fs))
       {
         m_textures.push_back(std::move(*fallbackTexture));
       }

@@ -30,6 +30,7 @@ class Logger;
 
 namespace IO
 {
+class BufferedReader;
 class File;
 class FileSystem;
 class Path;
@@ -38,14 +39,16 @@ class Reader;
 class WalTextureReader : public TextureReader
 {
 private:
-  mutable Assets::Palette m_palette;
+  std::optional<Assets::Palette> m_palette;
 
 public:
+  WalTextureReader(GetTextureName getTextureName, const FileSystem& fs, Logger& logger);
+
   WalTextureReader(
-    const NameStrategy& nameStrategy,
+    GetTextureName getTextureName,
     const FileSystem& fs,
-    Logger& logger,
-    const Assets::Palette& palette = Assets::Palette());
+    std::optional<Assets::Palette> palette,
+    Logger& logger);
 
 private:
   Assets::Texture doReadTexture(std::shared_ptr<File> file) const override;

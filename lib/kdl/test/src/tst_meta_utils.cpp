@@ -64,6 +64,10 @@ TEST_CASE("meta_utils_test.front")
 
 TEST_CASE("meta_utils_test.remove_duplicates")
 {
+  static_assert(std::is_same_v<meta_remove_duplicates<>::result, meta_type_list<>>);
+  static_assert(std::is_same_v<meta_remove_duplicates<int>::result, meta_type_list<int>>);
+  static_assert(
+    std::is_same_v<meta_remove_duplicates<int, int>::result, meta_type_list<int>>);
   static_assert(std::is_same_v<
                 meta_remove_duplicates<int, float, double>::result,
                 meta_type_list<int, float, double>>);

@@ -99,7 +99,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches")
 
 TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount")
 {
-  document->setEnabledTextureCollections({IO::Path("fixture/test/IO/Wad/cr8_czg.wad")});
+  document->deselectAll();
+  document->setProperty(
+    Model::EntityPropertyKeys::Wad, "fixture/test/IO/Wad/cr8_czg.wad");
 
   constexpr auto TextureName = "bongs2";
   const auto* texture = document->textureManager().texture(TextureName);

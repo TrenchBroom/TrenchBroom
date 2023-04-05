@@ -48,7 +48,7 @@ class Path;
 
 namespace AseToken
 {
-typedef unsigned int Type;
+using Type = unsigned int;
 static const Type Directive = 1 << 0;    // Any directive, i.e. *SCENE
 static const Type OBrace = 1 << 1;       // opening brace: {
 static const Type CBrace = 1 << 2;       // closing brace: }
@@ -123,7 +123,7 @@ public:
    * @param str the text to parse
    * @param fs the file system used to load texture files
    */
-  AseParser(const std::string& name, std::string_view str, const FileSystem& fs);
+  AseParser(std::string name, std::string_view str, const FileSystem& fs);
 
   static bool canParse(const Path& path);
 

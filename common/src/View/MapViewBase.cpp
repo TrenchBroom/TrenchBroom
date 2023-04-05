@@ -164,7 +164,7 @@ void MapViewBase::connectObservers()
     document->commandUndoneNotifier.connect(this, &MapViewBase::commandUndone);
   m_notifierConnection +=
     document->selectionDidChangeNotifier.connect(this, &MapViewBase::selectionDidChange);
-  m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
+  m_notifierConnection += document->wadsDidChangeNotifier.connect(
     this, &MapViewBase::textureCollectionsDidChange);
   m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(
     this, &MapViewBase::entityDefinitionsDidChange);

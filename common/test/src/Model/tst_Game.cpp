@@ -37,42 +37,6 @@ namespace TrenchBroom
 {
 namespace Model
 {
-TEST_CASE("GameTest.findTextureCollections")
-{
-  auto config = GameConfig{
-    "Quake2",
-    IO::Path{},
-    IO::Path{},
-    false,
-    {},
-    FileSystemConfig{IO::Path{"baseq2"}, PackageFormatConfig{}},
-    TextureConfig{
-      TextureDirectoryPackageConfig{IO::Path{"textures"}},
-      PackageFormatConfig{{"wal"}, "wal"},
-      IO::Path{"pics/colormap.pcx"},
-      "_tb_textures",
-      IO::Path{},
-      std::vector<std::string>{}},
-    EntityConfig{},
-    FaceAttribsConfig{},
-    std::vector<SmartTag>{},
-    std::nullopt, // soft map bounds
-    {}            // compilation tools
-  };
-  const auto gamePath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/test/Model/Game/Quake2"};
-  auto logger = NullLogger();
-  GameImpl game(config, gamePath, logger);
-
-  CHECK_THAT(
-    game.findTextureCollections(),
-    Catch::UnorderedEquals(std::vector<IO::Path>{
-      IO::Path{"textures"},
-      IO::Path{"textures/e1m1"},
-      IO::Path{"textures/e1m1/f1"},
-    }));
-}
-
 TEST_CASE("GameTest.loadCorruptPackages")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/2496
@@ -103,7 +67,7 @@ TEST_CASE("GameTest.loadCorruptPackages")
 TEST_CASE("GameTest.loadQuake3Shaders")
 {
   const auto configPath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/games//Quake3/GameConfig.cfg"};
+    IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/games/Quake3/GameConfig.cfg"};
   const auto configStr = IO::Disk::readTextFile(configPath);
   auto configParser = IO::GameConfigParser{configStr, configPath};
   auto config = configParser.parse();
@@ -113,21 +77,10 @@ TEST_CASE("GameTest.loadQuake3Shaders")
   auto logger = NullLogger{};
   auto game = GameImpl{config, gamePath, logger};
 
-  CHECK_THAT(
-    game.findTextureCollections(),
-    Catch::UnorderedEquals(std::vector<IO::Path>{
-      IO::Path{"textures"},
-      IO::Path{"textures/skies"},
-      IO::Path{"textures/skies/hub1"},
-      IO::Path{"textures/test"},
-    }));
-
-  auto worldspawn = Entity({}, {{"_tb_textures", "textures/test;textures/skies/hub1"}});
+  auto worldspawn = Entity{};
 
   auto textureManager = Assets::TextureManager{0, 0, logger};
-  game.loadTextureCollections(worldspawn, IO::Path{}, textureManager, logger);
-
-  CHECK(textureManager.collections().size() == 2u);
+  game.loadTextureCollections(textureManager);
 
   /*
    * The shader script contains five entries:
@@ -145,8 +98,6 @@ TEST_CASE("GameTest.loadQuake3Shaders")
    * - textures/skies
    * - textures/skies/hub1
    *
-   * Of these, we only load textures/test and textures/skies/hub1.
-   *
    * The file system contains three textures:
    * - textures/test/test.tga is overridden by the shader script
    * - textures/test/test2.tga is overridden by the shader script
@@ -163,9 +114,34 @@ TEST_CASE("GameTest.loadQuake3Shaders")
    * - skies/hub1/dusk -> test/editor_image.jpg
    */
 
-  const auto& testCollection = textureManager.collections().front();
+  const auto& textureCollections = textureManager.collections();
+  CHECK(textureCollections.size() == 4);
+
+  const auto skiesCollection =
+    std::find_if(textureCollections.begin(), textureCollections.end(), [](const auto& c) {
+      return c.path() == IO::Path{"textures/skies/hub1"};
+    });
+
+  CHECK(skiesCollection != textureCollections.end());
+
+  const auto skiesTextureNames = kdl::vec_transform(
+    skiesCollection->textures(), [](const auto& texture) { return texture.name(); });
+
+  CHECK_THAT(
+    skiesTextureNames,
+    Catch::UnorderedEquals(std::vector<std::string>{
+      "skies/hub1/dusk",
+    }));
+
+  const auto testCollection =
+    std::find_if(textureCollections.begin(), textureCollections.end(), [](const auto& c) {
+      return c.path() == IO::Path{"textures/test"};
+    });
+
+  CHECK(testCollection != textureCollections.end());
+
   const auto testTextureNames = kdl::vec_transform(
-    testCollection.textures(), [](const auto& texture) { return texture.name(); });
+    testCollection->textures(), [](const auto& texture) { return texture.name(); });
 
   CHECK_THAT(
     testTextureNames,
@@ -175,16 +151,6 @@ TEST_CASE("GameTest.loadQuake3Shaders")
       "test/editor_image",
       "test/not_existing2",
       "test/test2",
-    }));
-
-  const auto& skiesCollection = textureManager.collections().back();
-  const auto skiesTextureNames = kdl::vec_transform(
-    skiesCollection.textures(), [](const auto& texture) { return texture.name(); });
-
-  CHECK_THAT(
-    skiesTextureNames,
-    Catch::UnorderedEquals(std::vector<std::string>{
-      "skies/hub1/dusk",
     }));
 }
 } // namespace Model

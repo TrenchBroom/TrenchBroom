@@ -25,7 +25,6 @@
 #include "IO/File.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"
-#include "IO/TextureReader.h"
 #include "Logger.h"
 
 #include "Catch2.h"

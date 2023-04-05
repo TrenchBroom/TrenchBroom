@@ -45,27 +45,6 @@ kdl_reflect_impl(PackageFormatConfig);
 
 kdl_reflect_impl(FileSystemConfig);
 
-kdl_reflect_impl(TextureFilePackageConfig);
-
-kdl_reflect_impl(TextureDirectoryPackageConfig);
-
-std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config)
-{
-  std::visit([&](const auto& c) { str << c; }, config);
-  return str;
-}
-
-IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig)
-{
-  return std::visit(
-    kdl::overload(
-      [](const TextureFilePackageConfig&) { return IO::Path{}; },
-      [](const TextureDirectoryPackageConfig& directoryConfig) {
-        return directoryConfig.rootDirectory;
-      }),
-    texturePackageConfig);
-}
-
 kdl_reflect_impl(TextureConfig);
 
 kdl_reflect_impl(EntityConfig);
