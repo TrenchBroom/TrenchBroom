@@ -80,8 +80,6 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
 
   // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
   // automatically linked when no editor image is available.
-  // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
-  // automatically linked when no editor image is available.
   auto fs = VirtualFileSystem{};
   fs.mount(Path{}, std::make_unique<DiskFileSystem>(fallbackDir));
   fs.mount(Path{}, std::make_unique<DiskFileSystem>(testDir));
