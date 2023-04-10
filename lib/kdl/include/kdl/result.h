@@ -52,9 +52,9 @@ struct make_result_type
 };
 
 template <typename Value, typename... Errors>
-struct make_result_type<Value, kdl::meta_type_list<Errors...>>
+struct make_result_type<Value, meta_type_list<Errors...>>
 {
-  using type = kdl::result<Value, Errors...>;
+  using type = result<Value, Errors...>;
 };
 
 template <typename Result>
@@ -63,7 +63,7 @@ struct is_result : public std::false_type
 };
 
 template <typename Value, typename... Errors>
-struct is_result<kdl::result<Value, Errors...>> : public std::true_type
+struct is_result<result<Value, Errors...>> : public std::true_type
 {
 };
 
@@ -73,7 +73,7 @@ struct chain_results
 };
 
 template <typename Value1, typename... Errors1, typename Value2, typename... Errors2>
-struct chain_results<kdl::result<Value1, Errors1...>, kdl::result<Value2, Errors2...>>
+struct chain_results<result<Value1, Errors1...>, result<Value2, Errors2...>>
 {
   using result = typename make_result_type<
     Value2,
@@ -288,9 +288,9 @@ public:
 
     if constexpr (std::is_same_v<Fn_Value, void>)
     {
-      return visit(kdl::overload(
+      return visit(overload(
         [&](const value_type& v) {
-          return f(v).visit(kdl::overload(
+          return f(v).visit(overload(
             []() { return Cm_Result{}; },
             [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
         },
@@ -298,9 +298,9 @@ public:
     }
     else
     {
-      return visit(kdl::overload(
+      return visit(overload(
         [&](const value_type& v) {
-          return f(v).visit(kdl::overload(
+          return f(v).visit(overload(
             [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
             [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
         },
@@ -326,10 +326,10 @@ public:
 
     if constexpr (std::is_same_v<Fn_Value, void>)
     {
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [&](value_type&& v) {
           return f(std::move(v))
-            .visit(kdl::overload(
+            .visit(overload(
               []() { return Cm_Result{}; },
               [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
         },
@@ -337,10 +337,10 @@ public:
     }
     else
     {
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [&](value_type&& v) {
           return f(std::move(v))
-            .visit(kdl::overload(
+            .visit(overload(
               [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
               [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
         },
@@ -352,11 +352,11 @@ public:
   auto transform(F&& f) const&
   {
     using Fn_Result = std::invoke_result_t<F, Value>;
-    using Cm_Result = kdl::result<Fn_Result, Errors...>;
+    using Cm_Result = result<Fn_Result, Errors...>;
 
     if constexpr (std::is_same_v<Fn_Result, void>)
     {
-      return visit(kdl::overload(
+      return visit(overload(
         [&](const value_type& v) {
           f(v);
           return Cm_Result{};
@@ -365,7 +365,7 @@ public:
     }
     else
     {
-      return visit(kdl::overload(
+      return visit(overload(
         [&](const value_type& v) { return Cm_Result{f(v)}; },
         [](const auto& e) { return Cm_Result{e}; }));
     }
@@ -379,11 +379,11 @@ public:
   auto transform(F&& f) &&
   {
     using Fn_Result = std::invoke_result_t<F, Value>;
-    using Cm_Result = kdl::result<Fn_Result, Errors...>;
+    using Cm_Result = result<Fn_Result, Errors...>;
 
     if constexpr (std::is_same_v<Fn_Result, void>)
     {
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [&](value_type&& v) {
           f(std::move(v));
           return Cm_Result{};
@@ -392,7 +392,7 @@ public:
     }
     else
     {
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [&](value_type&& v) { return Cm_Result{f(std::move(v))}; },
         [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
     }
@@ -436,7 +436,7 @@ public:
         std::is_same_v<typename Cm_Result::value_type, Value>,
         "Function must return result with same value type");
 
-      return visit(kdl::overload(
+      return visit(overload(
         [](const value_type& v) { return Cm_Result{v}; },
         [&](const auto& e) { return f(e); }));
     }
@@ -444,9 +444,9 @@ public:
     {
       static_assert(std::is_same_v<Fn_Result, Value>, "Function must return value type");
 
-      using Cm_Result = kdl::result<Fn_Result>;
+      using Cm_Result = result<Fn_Result>;
 
-      return visit(kdl::overload(
+      return visit(overload(
         [](const value_type& v) { return Cm_Result{v}; },
         [&](const auto& e) { return Cm_Result{f(e)}; }));
     }
@@ -473,7 +473,7 @@ public:
         std::is_same_v<typename Cm_Result::value_type, Value>,
         "Function must return value type");
 
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [](value_type&& v) { return Cm_Result{std::move(v)}; },
         [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
     }
@@ -481,9 +481,9 @@ public:
     {
       static_assert(std::is_same_v<Fn_Result, Value>, "Function must return value type");
 
-      using Cm_Result = kdl::result<Fn_Result>;
+      using Cm_Result = result<Fn_Result>;
 
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [](value_type&& v) { return Cm_Result{std::move(v)}; },
         [&](auto&& e) { return Cm_Result{f(std::forward<decltype(e)>(e))}; }));
     }
@@ -498,7 +498,7 @@ public:
   template <typename F>
   auto if_error(F&& f) const&
   {
-    visit(kdl::overload([](const Value&) {}, [&](const auto& e) { f(e); }));
+    visit(overload([](const Value&) {}, [&](const auto& e) { f(e); }));
     return *this;
   }
 
@@ -510,7 +510,7 @@ public:
   auto if_error(F&& f) &&
   {
     std::move(*this).visit(
-      kdl::overload([](Value&&) {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
+      overload([](Value&&) {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
     return std::move(*this);
   }
 
@@ -524,14 +524,14 @@ public:
    */
   auto value() const&
   {
-    return visit(kdl::overload(
+    return visit(overload(
       [](const value_type& v) -> value_type { return v; },
       [](const auto&) -> value_type { throw bad_result_access{}; }));
   }
 
   auto value_or(Value x) const&
   {
-    return visit(kdl::overload(
+    return visit(overload(
       [](const value_type& v) -> value_type { return v; },
       [&](const auto&) -> value_type { return std::move(x); }));
   }
@@ -546,14 +546,14 @@ public:
    */
   auto value() &&
   {
-    return std::move(*this).visit(kdl::overload(
+    return std::move(*this).visit(overload(
       [](value_type&& v) -> value_type { return std::move(v); },
       [](const auto&) -> value_type { throw bad_result_access{}; }));
   }
 
   auto value_or(Value x) &&
   {
-    return std::move(*this).visit(kdl::overload(
+    return std::move(*this).visit(overload(
       [](value_type&& v) -> value_type { return std::move(v); },
       [&](const auto&) -> value_type { return std::move(x); }));
   }
@@ -580,7 +580,7 @@ public:
    */
   auto error() const&
   {
-    return visit(kdl::overload(
+    return visit(overload(
       [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
       [](const auto& e) -> std::variant<Errors...> { return e; }));
   }
@@ -595,7 +595,7 @@ public:
    */
   auto error() &&
   {
-    return visit(kdl::overload(
+    return visit(overload(
       [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
       [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }));
   }
@@ -745,7 +745,7 @@ public:
 };
 
 
-constexpr auto void_success = kdl::result<void>{};
+constexpr auto void_success = result<void>{};
 
 /**
  * Wrapper class that can contain either nothing or one of several errors.
@@ -845,7 +845,7 @@ public:
   auto visit(Visitor&& visitor) const&
   {
     return std::visit(
-      kdl::overload(
+      overload(
         [&](const detail::void_success_value_type&) { return visitor(); },
         [&](const auto& e) { return visitor(e); }),
       m_value);
@@ -867,7 +867,7 @@ public:
   auto visit(Visitor&& visitor) &&
   {
     return std::visit(
-      kdl::overload(
+      overload(
         [&](detail::void_success_value_type&&) { return visitor(); },
         [&](auto&& e) { return visitor(std::forward<decltype(e)>(e)); }),
       std::move(m_value));
@@ -890,9 +890,9 @@ public:
 
     if constexpr (std::is_same_v<Fn_Value, void>)
     {
-      return visit(kdl::overload(
+      return visit(overload(
         [&]() {
-          return f().visit(kdl::overload(
+          return f().visit(overload(
             []() { return Cm_Result{}; },
             [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
         },
@@ -900,9 +900,9 @@ public:
     }
     else
     {
-      return visit(kdl::overload(
+      return visit(overload(
         [&]() {
-          return f().visit(kdl::overload(
+          return f().visit(overload(
             [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
             [](auto&& fn_e) { return Cm_Result(std::forward<decltype(fn_e)>(fn_e)); }));
         },
@@ -927,9 +927,9 @@ public:
 
     if constexpr (std::is_same_v<Fn_Value, void>)
     {
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [&]() {
-          return f().visit(kdl::overload(
+          return f().visit(overload(
             []() { return Cm_Result{}; },
             [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
         },
@@ -937,9 +937,9 @@ public:
     }
     else
     {
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [&]() {
-          return f().visit(kdl::overload(
+          return f().visit(overload(
             [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
             [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
         },
@@ -954,11 +954,11 @@ public:
   auto transform(F&& f) const&
   {
     using Fn_Result = std::invoke_result_t<F>;
-    using Cm_Result = kdl::result<Fn_Result, Errors...>;
+    using Cm_Result = result<Fn_Result, Errors...>;
 
     if constexpr (std::is_same_v<Fn_Result, void>)
     {
-      return visit(kdl::overload(
+      return visit(overload(
         [&]() {
           f();
           return Cm_Result{};
@@ -967,7 +967,7 @@ public:
     }
     else
     {
-      return visit(kdl::overload(
+      return visit(overload(
         [&]() { return Cm_Result{f()}; }, [](const auto& e) { return Cm_Result{e}; }));
     }
   }
@@ -979,11 +979,11 @@ public:
   auto transform(F&& f) &&
   {
     using Fn_Result = std::invoke_result_t<F>;
-    using Cm_Result = kdl::result<Fn_Result, Errors...>;
+    using Cm_Result = result<Fn_Result, Errors...>;
 
     if constexpr (std::is_same_v<Fn_Result, void>)
     {
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [&]() {
           f();
           return Cm_Result{};
@@ -992,7 +992,7 @@ public:
     }
     else
     {
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         [&]() { return Cm_Result{f()}; },
         [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
     }
@@ -1019,13 +1019,13 @@ public:
         "Function must return void result");
 
       return visit(
-        kdl::overload([]() { return Cm_Result{}; }, [&](const auto& e) { return f(e); }));
+        overload([]() { return Cm_Result{}; }, [&](const auto& e) { return f(e); }));
     }
     else
     {
       static_assert(std::is_same_v<Fn_Result, void>, "Function must return void");
 
-      visit(kdl::overload([]() {}, [&](const auto& e) { f(e); }));
+      visit(overload([]() {}, [&](const auto& e) { f(e); }));
       return result<void>{};
     }
   }
@@ -1046,7 +1046,7 @@ public:
     {
       using Cm_Result = Fn_Result;
 
-      return std::move(*this).visit(kdl::overload(
+      return std::move(*this).visit(overload(
         []() { return Cm_Result{}; },
         [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
     }
@@ -1055,7 +1055,7 @@ public:
       static_assert(std::is_same_v<Fn_Result, void>, "Function must return void");
 
       std::move(*this).visit(
-        kdl::overload([]() {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
+        overload([]() {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
       return result<void>{};
     }
   }
@@ -1066,7 +1066,7 @@ public:
   template <typename F>
   auto if_error(F&& f) const&
   {
-    visit(kdl::overload([]() {}, [&](const auto& e) { f(e); }));
+    visit(overload([]() {}, [&](const auto& e) { f(e); }));
     return *this;
   }
 
@@ -1076,7 +1076,7 @@ public:
   template <typename F>
   auto if_error(F&& f) &&
   {
-    std::move(*this).visit(kdl::overload([]() {}, [&](auto&& e) { f(e); }));
+    std::move(*this).visit(overload([]() {}, [&](auto&& e) { f(e); }));
     return std::move(*this);
   }
 
@@ -1090,7 +1090,7 @@ public:
    */
   auto error() const&
   {
-    return visit(kdl::overload(
+    return visit(overload(
       []() -> std::variant<Errors...> { throw bad_result_access{}; },
       [](const auto& e) -> std::variant<Errors...> { return e; }));
   }
@@ -1105,7 +1105,7 @@ public:
    */
   auto error() &&
   {
-    return visit(kdl::overload(
+    return visit(overload(
       []() -> std::variant<Errors...> { throw bad_result_access{}; },
       [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }));
   }

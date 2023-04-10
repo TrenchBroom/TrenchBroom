@@ -37,8 +37,8 @@ struct combine_tuple_results
 
 template <typename Value1, typename... Errors1, typename... Values2, typename... Errors2>
 struct combine_tuple_results<
-  kdl::result<Value1, Errors1...>,
-  kdl::result<std::tuple<Values2...>, Errors2...>>
+  result<Value1, Errors1...>,
+  result<std::tuple<Values2...>, Errors2...>>
 {
   using result = typename make_result_type<
     std::tuple<Value1, Values2...>,
@@ -51,7 +51,7 @@ struct tuple_wrap
 };
 
 template <typename Value, typename... Errors>
-struct tuple_wrap<kdl::result<Value, Errors...>>
+struct tuple_wrap<result<Value, Errors...>>
 {
   using result =
     typename make_result_type<std::tuple<Value>, meta_type_list<Errors...>>::type;
@@ -72,7 +72,7 @@ auto combine_results(Result&& result)
     typename detail::tuple_wrap<std::remove_reference_t<Result>>::result;
   using value_type = typename std::remove_reference_t<Result>::value_type;
 
-  return result.visit(kdl::overload(
+  return result.visit(overload(
     [](value_type&& v) { return result_type{std::make_tuple(std::move(v))}; },
     [](const value_type& v) { return result_type{std::make_tuple(v)}; },
     [](auto&& e) { return result_type{std::forward<decltype(e)>(e)}; }));
@@ -116,10 +116,10 @@ auto combine_results(FirstResult&& firstResult, MoreResults&&... moreResults)
     combined_more_result_type>::result;
 
   return std::forward<FirstResult>(firstResult)
-    .visit(kdl::overload(
+    .visit(overload(
       [&](first_value_type&& firstValue) {
         return combine_results(std::forward<MoreResults>(moreResults)...)
-          .visit(kdl::overload(
+          .visit(overload(
             [&](typename combined_more_result_type::value_type&& remainingValues) {
               return result_type{std::tuple_cat(
                 std::tuple{std::move(firstValue)}, std::move(remainingValues))};
@@ -134,7 +134,7 @@ auto combine_results(FirstResult&& firstResult, MoreResults&&... moreResults)
       },
       [&](const first_value_type& firstValue) {
         return combine_results(std::forward<MoreResults>(moreResults)...)
-          .visit(kdl::overload(
+          .visit(overload(
             [&](typename combined_more_result_type::value_type&& remainingValues) {
               return result_type{
                 std::tuple_cat(std::tuple{firstValue}, std::move(remainingValues))};
