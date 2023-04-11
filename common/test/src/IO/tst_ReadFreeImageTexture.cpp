@@ -58,7 +58,7 @@ static void assertTexture(
       CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
       CHECK(texture.type() == Assets::TextureType::Opaque);
     })
-    .or_else([](const auto&) { FAIL(); });
+    .transform_error([](const auto&) { FAIL(); });
 }
 
 TEST_CASE("ReadFreeImageTextureTest.testLoadPngs")

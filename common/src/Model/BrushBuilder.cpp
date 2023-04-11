@@ -27,7 +27,7 @@
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/string_utils.h>
 
 #include <cassert>
@@ -162,7 +162,7 @@ kdl::result<Brush, BrushError> BrushBuilder::createCuboid(
        BrushFaceAttributes(bottomTexture, m_defaultAttribs)}, // bottom
     });
 
-  return kdl::for_each_result(
+  return kdl::fold_results(
            specs,
            [&](const auto spec) {
              const auto& [p1, p2, p3, attrs] = spec;
@@ -183,7 +183,7 @@ kdl::result<Brush, BrushError> BrushBuilder::createBrush(
 {
   assert(polyhedron.closed());
 
-  return kdl::for_each_result(
+  return kdl::fold_results(
            polyhedron.faces(),
            [&](const auto* face) {
              const auto& boundary = face->boundary();

@@ -30,7 +30,7 @@
 #include "Polyhedron_Matcher.h"
 
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -1096,7 +1096,7 @@ void Brush::applyUVLock(
       }
       rightFace.resetTexCoordSystemCache();
     })
-    .or_else([](const BrushError) {
+    .transform_error([](const BrushError) {
       // do nothing
     });
 }
@@ -1125,7 +1125,7 @@ kdl::result<void, BrushError> Brush::updateFacesFromGeometry(
             applyUVLock(matcher, leftFace, rightFace);
           }
         })
-        .or_else([&](const BrushError e) {
+        .transform_error([&](const BrushError e) {
           if (!error)
           {
             error = e;
@@ -1240,7 +1240,7 @@ kdl::result<Brush, BrushError> Brush::createBrush(
   const BrushGeometry& geometry,
   const std::vector<const Brush*>& subtrahends) const
 {
-  return kdl::for_each_result(
+  return kdl::fold_results(
            geometry.faces(),
            [&](const auto* face) {
              const auto* h1 = face->boundary().front();

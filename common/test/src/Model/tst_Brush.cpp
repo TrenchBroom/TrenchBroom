@@ -35,7 +35,7 @@
 
 #include <kdl/intrusive_circular_list.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/approx.h>
@@ -2270,16 +2270,17 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
         subtrahendTexture)
       .value();
 
-  const auto result = kdl::collect_values(
-    minuend.subtract(MapFormat::Standard, worldBounds, defaultTexture, subtrahend),
-    [](const auto&) {});
-  CHECK(result.size() == 3u);
+  const auto fragments =
+    kdl::fold_results(
+      minuend.subtract(MapFormat::Standard, worldBounds, defaultTexture, subtrahend))
+      .value();
+  CHECK(fragments.size() == 3u);
 
   const Brush* left = nullptr;
   const Brush* top = nullptr;
   const Brush* right = nullptr;
 
-  for (const Brush& brush : result)
+  for (const Brush& brush : fragments)
   {
     if (brush.findFace(vm::plane3(32.0, vm::vec3::neg_x())))
     {
@@ -2400,12 +2401,13 @@ TEST_CASE("BrushTest.subtractDisjoint")
   const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
   const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
 
-  const auto result = kdl::collect_values(
-    brush1.subtract(MapFormat::Standard, worldBounds, "texture", brush2),
-    [](const auto&) {});
-  CHECK(result.size() == 1u);
+  const auto fragments =
+    kdl::fold_results(
+      brush1.subtract(MapFormat::Standard, worldBounds, "texture", brush2))
+      .value();
+  CHECK(fragments.size() == 1u);
 
-  const Brush& subtraction = result.at(0);
+  const Brush& subtraction = fragments.at(0);
   CHECK_THAT(
     subtraction.vertexPositions(), Catch::UnorderedEquals(brush1.vertexPositions()));
 }
@@ -2422,10 +2424,11 @@ TEST_CASE("BrushTest.subtractEnclosed")
   const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
   const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
 
-  const auto result = kdl::collect_values(
-    brush1.subtract(MapFormat::Standard, worldBounds, "texture", brush2),
-    [](const auto&) {});
-  CHECK(result.size() == 0u);
+  const auto fragments =
+    kdl::fold_results(
+      brush1.subtract(MapFormat::Standard, worldBounds, "texture", brush2))
+      .value();
+  CHECK(fragments.empty());
 }
 } // namespace Model
 } // namespace TrenchBroom

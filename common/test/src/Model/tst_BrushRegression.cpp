@@ -35,7 +35,7 @@
 
 #include <kdl/intrusive_circular_list.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/approx.h>
@@ -1560,10 +1560,9 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
-  const auto result = kdl::collect_values(
-    minuend.subtract(MapFormat::Valve, worldBounds, "some_texture", subtrahend),
-    [](const auto&) {});
-  CHECK_FALSE(result.empty());
+  const auto result = kdl::fold_results(
+    minuend.subtract(MapFormat::Valve, worldBounds, "some_texture", subtrahend));
+  CHECK_FALSE(result.is_error());
 
   kdl::col_delete_all(minuendNodes);
   kdl::col_delete_all(subtrahendNodes);
@@ -1699,10 +1698,11 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
-  const auto result = kdl::collect_values(
-    minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend),
-    [](const auto&) {});
-  CHECK(result.size() == 8u);
+  const auto fragments =
+    kdl::fold_results(
+      minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend))
+      .value();
+  CHECK(fragments.size() == 8u);
 
   kdl::col_delete_all(minuendNodes);
   kdl::col_delete_all(subtrahendNodes);

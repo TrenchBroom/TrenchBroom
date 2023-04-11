@@ -40,7 +40,7 @@
 #include <kdl/overload.h>
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -411,7 +411,7 @@ bool splitBrushesOutward(
   auto newDragFaces = std::vector<Model::BrushFaceHandle>{};
   auto newNodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
 
-  return kdl::for_each_result(
+  return kdl::fold_results(
            dragState.initialDragHandles,
            [&](const auto& dragHandle) {
              auto* brushNode = dragHandle.faceHandle.node();

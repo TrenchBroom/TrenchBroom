@@ -68,12 +68,14 @@ struct tuple_wrap<result<Value, Errors...>>
 template <typename Result>
 auto combine_results(Result&& result)
 {
-  using result_type =
-    typename detail::tuple_wrap<std::remove_reference_t<Result>>::result;
-  using value_type = typename std::remove_reference_t<Result>::value_type;
+  using result_type = typename detail::tuple_wrap<
+    std::remove_cv_t<std::remove_reference_t<Result>>>::result;
+  using value_type =
+    typename std::remove_cv_t<std::remove_reference_t<Result>>::value_type;
 
-  return result.visit(overload(
+  return std::forward<Result>(result).visit(overload(
     [](value_type&& v) { return result_type{std::make_tuple(std::move(v))}; },
+    [](value_type& v) { return result_type{std::make_tuple(v)}; },
     [](const value_type& v) { return result_type{std::make_tuple(v)}; },
     [](auto&& e) { return result_type{std::forward<decltype(e)>(e)}; }));
 }
@@ -108,11 +110,12 @@ auto combine_results(Result&& result)
 template <typename FirstResult, typename... MoreResults>
 auto combine_results(FirstResult&& firstResult, MoreResults&&... moreResults)
 {
-  using first_value_type = typename std::remove_reference_t<FirstResult>::value_type;
+  using first_value_type =
+    typename std::remove_cv_t<std::remove_reference_t<FirstResult>>::value_type;
   using combined_more_result_type =
     decltype(combine_results(std::forward<MoreResults>(moreResults)...));
   using result_type = typename detail::combine_tuple_results<
-    std::remove_reference_t<FirstResult>,
+    std::remove_cv_t<std::remove_reference_t<FirstResult>>,
     combined_more_result_type>::result;
 
   return std::forward<FirstResult>(firstResult)
