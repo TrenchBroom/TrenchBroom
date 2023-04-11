@@ -390,7 +390,7 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
       auto result = readFreeImageTexture("", reader);
       if (result.is_success())
       {
-        return result.release();
+        return std::move(result).value();
       }
     }
     catch (const Exception& /*ex1*/)

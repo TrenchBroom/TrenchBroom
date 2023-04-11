@@ -559,18 +559,6 @@ public:
   }
 
   /**
-   * Returns the value contained in this result if it is successful. Otherwise, throws
-   * `bad_result_access`.
-   *
-   * @return the value in this result
-   *
-   * @throw bad_result_access if this result is an error
-   */
-  auto release() { return std::move(*this).value(); }
-
-  auto release_or(Value x) { return std::move(*this).value_or(std::move(x)); }
-
-  /**
    * Returns a the error contained in this result if it not successful. Otherwise, throws
    * `bad_result_access`.
    *

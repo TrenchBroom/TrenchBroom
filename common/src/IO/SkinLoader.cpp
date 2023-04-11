@@ -88,7 +88,7 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
       const auto file = fs.openFile(actualPath);
       return readQuake3ShaderTexture(name, *file, fs)
         .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
-        .release();
+        .value();
     }
     catch (const Exception& e)
     {

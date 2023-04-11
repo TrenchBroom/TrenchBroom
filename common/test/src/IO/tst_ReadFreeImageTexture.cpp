@@ -115,18 +115,17 @@ static void testImageContents(const Assets::Texture& texture, const ColorMatch m
 
 TEST_CASE("ReadFreeImageTextureTest.testPNGContents")
 {
-  testImageContents(loadTexture("pngContentsTest.png").release(), ColorMatch::Exact);
+  testImageContents(loadTexture("pngContentsTest.png").value(), ColorMatch::Exact);
 }
 
 TEST_CASE("ReadFreeImageTextureTest.testJPGContents")
 {
-  testImageContents(
-    loadTexture("jpgContentsTest.jpg").release(), ColorMatch::Approximate);
+  testImageContents(loadTexture("jpgContentsTest.jpg").value(), ColorMatch::Approximate);
 }
 
 TEST_CASE("ReadFreeImageTextureTest.alphaMaskTest")
 {
-  const auto texture = loadTexture("alphaMaskTest.png").release();
+  const auto texture = loadTexture("alphaMaskTest.png").value();
   const std::size_t w = 25u;
   const std::size_t h = 10u;
 

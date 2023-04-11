@@ -79,7 +79,7 @@ std::optional<TextureCollectionInfo> makeInfo(
           };
         })};
     })
-    .release_or(std::nullopt);
+    .value_or(std::nullopt);
 }
 
 } // namespace
