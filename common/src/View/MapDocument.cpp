@@ -5183,6 +5183,11 @@ Transaction::~Transaction()
   assert(m_state != State::Running);
 }
 
+Transaction::State Transaction::state() const
+{
+  return m_state;
+}
+
 bool Transaction::commit()
 {
   assert(m_state == State::Running);

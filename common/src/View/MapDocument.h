@@ -805,7 +805,7 @@ private: // observers
 
 class Transaction
 {
-private:
+public:
   enum class State
   {
     Running,
@@ -813,6 +813,7 @@ private:
     Cancelled,
   };
 
+private:
   MapDocument& m_document;
   State m_state;
 
@@ -821,6 +822,8 @@ public:
   explicit Transaction(std::shared_ptr<MapDocument> document, std::string name = "");
   explicit Transaction(MapDocument& document, std::string name = "");
   ~Transaction();
+
+  State state() const;
 
   bool commit();
   void rollback();
