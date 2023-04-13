@@ -83,10 +83,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
     CHECK(transaction.state() == Transaction::State::Cancelled);
 
     document->selectAllNodes();
-    /* EXPECTED:
     CHECK(document->selectedNodes().empty());
-    ACTUAL: */
-    CHECK_FALSE(document->selectedNodes().empty());
   }
 }
 

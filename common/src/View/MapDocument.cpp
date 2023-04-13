@@ -5210,6 +5210,7 @@ void Transaction::rollback()
 void Transaction::cancel()
 {
   assert(m_state == State::Running);
+  m_document.cancelTransaction();
   m_state = State::Cancelled;
 }
 
