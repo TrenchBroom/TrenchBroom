@@ -806,7 +806,7 @@ private: // observers
 class Transaction
 {
 private:
-  enum class TransactionState
+  enum class State
   {
     Running,
     Committed,
@@ -814,7 +814,7 @@ private:
   };
 
   MapDocument& m_document;
-  TransactionState m_state;
+  State m_state;
 
 public:
   explicit Transaction(std::weak_ptr<MapDocument> document, std::string name = "");
