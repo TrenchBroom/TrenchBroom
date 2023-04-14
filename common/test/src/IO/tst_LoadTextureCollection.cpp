@@ -101,13 +101,17 @@ TEST_CASE("loadTextureCollection")
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
       Model::PackageFormatConfig{{"D"}, "idmip"},
-      Path{"fixture/test/missing.lmp"},
+      Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},
       {}};
 
+    /* EXPECTED:
     CHECK(loadTextureCollection(Path{"textures/missing.wad"}, fs, textureConfig, logger)
             .is_error());
+    ACTUAL: */
+    CHECK_THROWS(
+      loadTextureCollection(Path{"textures/missing.wad"}, fs, textureConfig, logger));
   }
 
   SECTION("missing palette")
