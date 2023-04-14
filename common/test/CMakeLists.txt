@@ -55,6 +55,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ReadFreeImageTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ReadM8Texture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ReadMipTexture.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_ReadQuake3ShaderTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ReadWalTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ResourceUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_TestFileSystem.cpp"

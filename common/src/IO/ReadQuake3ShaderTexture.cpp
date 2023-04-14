@@ -40,19 +40,31 @@ namespace
 
 std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
 {
-  if (
-    !texturePath.isEmpty()
-    && (texturePath.extension().empty() || fs.pathInfo(texturePath) == PathInfo::File))
+  static const auto imageExtensions =
+    std::vector<std::string>{"tga", "png", "jpg", "jpeg"};
+
+  if (!texturePath.isEmpty())
   {
+    if (
+      texturePath.hasExtension(imageExtensions, false)
+      && fs.pathInfo(texturePath) == PathInfo::File)
+    {
+      return texturePath;
+    }
+
     const auto directoryPath = texturePath.deleteLastComponent();
     const auto basename = texturePath.basename();
     const auto candidates = fs.find(
       texturePath.deleteLastComponent(),
       kdl::lift_and(
         makeFilenamePathMatcher(basename + ".*"),
-        makeExtensionPathMatcher({"tga", "png", "jpg", "jpeg"})));
-    return !candidates.empty() ? std::optional{candidates.front()} : std::nullopt;
+        makeExtensionPathMatcher(imageExtensions)));
+    if (!candidates.empty())
+    {
+      return candidates.front();
+    }
   }
+
   // texture path is empty OR (the extension is not empty AND the file does not exist)
   return std::nullopt;
 }

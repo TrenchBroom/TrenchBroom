@@ -25,6 +25,7 @@
 
 #include <vecmath/vec_io.h>
 
+#include <kdl/overload.h>
 #include <kdl/reflection_impl.h>
 
 #include <algorithm> // for std::max
@@ -95,7 +96,11 @@ std::ostream& operator<<(std::ostream& lhs, const TextureBlendFunc::Enable& rhs)
 
 std::ostream& operator<<(std::ostream& lhs, const GameData& rhs)
 {
-  std::visit([&](const auto& x) { lhs << x; }, rhs);
+  std::visit(
+    kdl::overload(
+      [&](const std::monostate&) { lhs << "std::monostate"; },
+      [&](const auto& x) { lhs << x; }),
+    rhs);
   return lhs;
 }
 
