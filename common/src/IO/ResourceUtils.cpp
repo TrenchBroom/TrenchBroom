@@ -65,7 +65,7 @@ Assets::Texture loadDefaultTexture(
       auto reader = file->reader().buffer();
       return readFreeImageTexture(name, reader)
         .if_error([&](const ReadTextureError& e) { throw AssetException{e.msg.c_str()}; })
-        .release();
+        .value();
     }
     catch (const Exception& e)
     {

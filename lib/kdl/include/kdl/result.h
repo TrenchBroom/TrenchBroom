@@ -52,9 +52,9 @@ struct make_result_type
 };
 
 template <typename Value, typename... Errors>
-struct make_result_type<Value, kdl::meta_type_list<Errors...>>
+struct make_result_type<Value, meta_type_list<Errors...>>
 {
-  using type = kdl::result<Value, Errors...>;
+  using type = result<Value, Errors...>;
 };
 
 template <typename Result>
@@ -63,7 +63,7 @@ struct is_result : public std::false_type
 };
 
 template <typename Value, typename... Errors>
-struct is_result<kdl::result<Value, Errors...>> : public std::true_type
+struct is_result<result<Value, Errors...>> : public std::true_type
 {
 };
 
@@ -73,7 +73,7 @@ struct chain_results
 };
 
 template <typename Value1, typename... Errors1, typename Value2, typename... Errors2>
-struct chain_results<kdl::result<Value1, Errors1...>, kdl::result<Value2, Errors2...>>
+struct chain_results<result<Value1, Errors1...>, result<Value2, Errors2...>>
 {
   using result = typename make_result_type<
     Value2,
@@ -146,13 +146,13 @@ public:
   template <typename... ErrorSubset>
   // NOLINTNEXTLINE
   result(result<Value, ErrorSubset...> other)
+    : m_value{std::move(other).visit(overload(
+      [](Value&& v) -> variant_type { return std::move(v); },
+      [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
   {
     static_assert(
       meta_is_subset<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>::value,
       "Error types of result type to convert must be a subset of target result type");
-    std::move(other).visit(overload(
-      [&](Value&& v) { m_value = std::move(v); },
-      [&](auto&& e) { m_value = std::forward<decltype(e)>(e); }));
   }
 
 public:
@@ -169,9 +169,27 @@ public:
    * return anything
    */
   template <typename Visitor>
-  auto visit(Visitor&& visitor) const&
+  auto visit(const Visitor& visitor) const&
   {
-    return std::visit(std::forward<Visitor>(visitor), m_value);
+    return std::visit(visitor, m_value);
+  }
+
+  /**
+   * Visits the value or error contained in this result.
+   *
+   * The given visitor must accept the value type and all error types of this result. The
+   * value or error contained in this result is passed to the visitor by non const lvalue
+   * reference.
+   *
+   * @tparam Visitor the type of the visitor
+   * @param visitor the visitor to apply
+   * @return the value returned by the given visitor or void if the given visitor does not
+   * return anything
+   */
+  template <typename Visitor>
+  auto visit(const Visitor& visitor) &
+  {
+    return std::visit(visitor, m_value);
   }
 
   /**
@@ -187,9 +205,9 @@ public:
    * return anything
    */
   template <typename Visitor>
-  auto visit(Visitor&& visitor) &&
+  auto visit(const Visitor& visitor) &&
   {
-    return std::visit(std::forward<Visitor>(visitor), std::move(m_value));
+    return std::visit(visitor, std::move(m_value));
   }
 
   /**
@@ -275,100 +293,43 @@ public:
    * @return a new combined result with the type and value as described above
    */
   template <typename F>
-  auto and_then(F&& f) const&
+  auto and_then(const F& f) const&
   {
     using My_Result = result<Value, Errors...>;
-    using Fn_Result = std::invoke_result_t<F, Value>;
+    using Fn_Result = decltype(f(std::declval<const Value&>()));
 
     static_assert(
       detail::is_result<Fn_Result>::value, "Function must return a result type");
 
     using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-    using Fn_Value = typename Fn_Result::value_type;
 
-    if constexpr (std::is_same_v<Fn_Value, void>)
-    {
-      return visit(kdl::overload(
-        [&](const value_type& v) {
-          return f(v).visit(kdl::overload(
-            []() { return Cm_Result{}; },
-            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-        },
-        [](const auto& e) { return Cm_Result{e}; }));
-    }
-    else
-    {
-      return visit(kdl::overload(
-        [&](const value_type& v) {
-          return f(v).visit(kdl::overload(
-            [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
-            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-        },
-        [](const auto& e) { return Cm_Result{e}; }));
-    }
-  }
-
-  /**
-   * See the previous function. The only difference is that the value contained in this
-   * result is passed to `f` by rvalue reference to allow moving.
-   */
-  template <typename F>
-  auto and_then(F&& f) &&
-  {
-    using My_Result = result<Value, Errors...>;
-    using Fn_Result = std::invoke_result_t<F, Value>;
-
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
-
-    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-    using Fn_Value = typename Fn_Result::value_type;
-
-    if constexpr (std::is_same_v<Fn_Value, void>)
-    {
-      return std::move(*this).visit(kdl::overload(
-        [&](value_type&& v) {
-          return f(std::move(v))
-            .visit(kdl::overload(
-              []() { return Cm_Result{}; },
-              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-        },
-        [](auto&& e) { return Cm_Result{e}; }));
-    }
-    else
-    {
-      return std::move(*this).visit(kdl::overload(
-        [&](value_type&& v) {
-          return f(std::move(v))
-            .visit(kdl::overload(
-              [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
-              [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-        },
-        [](auto&& e) { return Cm_Result{e}; }));
-    }
-  }
-
-  template <typename F>
-  auto transform(F&& f) const&
-  {
-    using Fn_Result = std::invoke_result_t<F, Value>;
-    using Cm_Result = kdl::result<Fn_Result, Errors...>;
-
-    if constexpr (std::is_same_v<Fn_Result, void>)
-    {
-      return visit(kdl::overload(
-        [&](const value_type& v) {
-          f(v);
-          return Cm_Result{};
-        },
-        [](const auto& e) { return Cm_Result{e}; }));
-    }
-    else
-    {
-      return visit(kdl::overload(
+    return std::visit(
+      overload(
         [&](const value_type& v) { return Cm_Result{f(v)}; },
-        [](const auto& e) { return Cm_Result{e}; }));
-    }
+        [](const auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  /**
+   * See the previous function. The only difference is that the value contained in this
+   * result is passed to `f` by non const lvalue reference.
+   */
+  template <typename F>
+  auto and_then(const F& f) &
+  {
+    using My_Result = result<Value, Errors...>;
+    using Fn_Result = decltype(f(std::declval<Value&>()));
+
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+
+    return std::visit(
+      overload(
+        [&](value_type& v) { return Cm_Result{f(v)}; },
+        [](auto& e) { return Cm_Result{e}; }),
+      m_value);
   }
 
   /**
@@ -376,26 +337,21 @@ public:
    * result is passed to `f` by rvalue reference to allow moving.
    */
   template <typename F>
-  auto transform(F&& f) &&
+  auto and_then(const F& f) &&
   {
-    using Fn_Result = std::invoke_result_t<F, Value>;
-    using Cm_Result = kdl::result<Fn_Result, Errors...>;
+    using My_Result = result<Value, Errors...>;
+    using Fn_Result = decltype(f(std::declval<Value&&>()));
 
-    if constexpr (std::is_same_v<Fn_Result, void>)
-    {
-      return std::move(*this).visit(kdl::overload(
-        [&](value_type&& v) {
-          f(std::move(v));
-          return Cm_Result{};
-        },
-        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
-    }
-    else
-    {
-      return std::move(*this).visit(kdl::overload(
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+
+    return std::visit(
+      overload(
         [&](value_type&& v) { return Cm_Result{f(std::move(v))}; },
-        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
-    }
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
+      std::move(m_value));
   }
 
   /**
@@ -420,36 +376,25 @@ public:
    * reference.
    */
   template <typename F>
-  auto or_else(F&& f) const&
+  auto or_else(const F& f) const&
   {
     static_assert(
       std::tuple_size_v<std::tuple<Errors...>> > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = std::invoke_result_t<F, meta_front_v<Errors...>>;
+    using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
 
-    if constexpr (detail::is_result<Fn_Result>::value)
-    {
-      using Cm_Result = Fn_Result;
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, Value>,
+      "Function must return result with same value type");
 
-      static_assert(
-        std::is_same_v<typename Cm_Result::value_type, Value>,
-        "Function must return result with same value type");
-
-      return visit(kdl::overload(
-        [](const value_type& v) { return Cm_Result{v}; },
-        [&](const auto& e) { return f(e); }));
-    }
-    else
-    {
-      static_assert(std::is_same_v<Fn_Result, Value>, "Function must return value type");
-
-      using Cm_Result = kdl::result<Fn_Result>;
-
-      return visit(kdl::overload(
-        [](const value_type& v) { return Cm_Result{v}; },
-        [&](const auto& e) { return Cm_Result{f(e)}; }));
-    }
+    return std::visit(
+      overload(
+        [](const value_type& v) { return Fn_Result{v}; },
+        [&](const auto& e) { return f(e); }),
+      m_value);
   }
 
   /**
@@ -457,36 +402,191 @@ public:
    * result is passed to `f` by rvalue reference to allow moving.
    */
   template <typename F>
-  auto or_else(F&& f) &&
+  auto or_else(const F& f) &
   {
     static_assert(
       std::tuple_size_v<std::tuple<Errors...>> > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = std::invoke_result_t<F, meta_front_v<Errors...>>;
+    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
 
-    if constexpr (detail::is_result<Fn_Result>::value)
-    {
-      using Cm_Result = Fn_Result;
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, Value>,
+      "Function must return result with same value type");
 
-      static_assert(
-        std::is_same_v<typename Cm_Result::value_type, Value>,
-        "Function must return value type");
+    return std::visit(
+      overload([](value_type& v) { return Fn_Result{v}; }, [&](auto& e) { return f(e); }),
+      m_value);
+  }
 
-      return std::move(*this).visit(kdl::overload(
+  /**
+   * See the previous function. The only difference is that the value contained in this
+   * result is passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto or_else(const F& f) &&
+  {
+    static_assert(
+      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
+
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, Value>,
+      "Function must return result with same value type");
+
+    return std::visit(
+      overload(
+        [](value_type&& v) { return Fn_Result{std::move(v)}; },
+        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }),
+      std::move(m_value));
+  }
+
+  template <typename F>
+  auto transform(const F& f) const&
+  {
+    using Fn_Result = decltype(f(std::declval<const Value&>()));
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      overload(
+        [&](const value_type& v) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(v);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(v)};
+          }
+        },
+        [](const auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  template <typename F>
+  auto transform(const F& f) &
+  {
+    using Fn_Result = decltype(f(std::declval<Value&>()));
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      overload(
+        [&](value_type& v) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(v);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(v)};
+          }
+        },
+        [](auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  /**
+   * See the previous function. The only difference is that the value contained in this
+   * result is passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto transform(const F& f) &&
+  {
+    using Fn_Result = decltype(f(std::declval<Value&&>()));
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      overload(
+        [&](value_type&& v) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(std::move(v));
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(std::move(v))};
+          }
+        },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
+      std::move(m_value));
+  }
+
+  template <typename F>
+  auto transform_error(const F& f) const&
+  {
+    using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
+    using Cm_Result = result<Fn_Result>;
+
+    return std::visit(
+      overload(
+        [](const value_type& v) { return Cm_Result{v}; },
+        [&](const auto& e) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(e);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(e)};
+          }
+        }),
+      m_value);
+  }
+
+  template <typename F>
+  auto transform_error(const F& f) &
+  {
+    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
+    using Cm_Result = result<Fn_Result>;
+
+    return std::visit(
+      overload(
+        [](value_type& v) { return Cm_Result{v}; },
+        [&](auto& e) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(e);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(e)};
+          }
+        }),
+      m_value);
+  }
+
+  template <typename F>
+  auto transform_error(const F& f) &&
+  {
+    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
+    using Cm_Result = result<Fn_Result>;
+
+    return std::visit(
+      overload(
         [](value_type&& v) { return Cm_Result{std::move(v)}; },
-        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
-    }
-    else
-    {
-      static_assert(std::is_same_v<Fn_Result, Value>, "Function must return value type");
-
-      using Cm_Result = kdl::result<Fn_Result>;
-
-      return std::move(*this).visit(kdl::overload(
-        [](value_type&& v) { return Cm_Result{std::move(v)}; },
-        [&](auto&& e) { return Cm_Result{f(std::forward<decltype(e)>(e))}; }));
-    }
+        [&](auto&& e) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(std::forward<decltype(e)>(e));
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(std::forward<decltype(e)>(e))};
+          }
+        }),
+      std::move(m_value));
   }
 
   /**
@@ -496,9 +596,9 @@ public:
    * Use this function for error logging and such, but not for fixing any errors.
    */
   template <typename F>
-  auto if_error(F&& f) const&
+  auto if_error(const F& f) const&
   {
-    visit(kdl::overload([](const Value&) {}, [&](const auto& e) { f(e); }));
+    std::visit(overload([](const Value&) {}, [&](const auto& e) { f(e); }), m_value);
     return *this;
   }
 
@@ -507,10 +607,22 @@ public:
    * result is passed to `f` by rvalue reference to allow moving.
    */
   template <typename F>
-  auto if_error(F&& f) &&
+  auto if_error(const F& f) &
   {
-    std::move(*this).visit(
-      kdl::overload([](Value&&) {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
+    std::visit(overload([](Value&) {}, [&](auto& e) { f(e); }), m_value);
+    return std::move(*this);
+  }
+
+  /**
+   * See the previous function. The only difference is that the value contained in this
+   * result is passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto if_error(const F& f) &&
+  {
+    std::visit(
+      overload([](Value&&) {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }),
+      std::move(m_value));
     return std::move(*this);
   }
 
@@ -522,18 +634,13 @@ public:
    *
    * @throw bad_result_access if this result is an error
    */
-  auto value() const&
+  const value_type& value() const&
   {
-    return visit(kdl::overload(
-      [](const value_type& v) -> value_type { return v; },
-      [](const auto&) -> value_type { throw bad_result_access{}; }));
-  }
-
-  auto value_or(Value x) const&
-  {
-    return visit(kdl::overload(
-      [](const value_type& v) -> value_type { return v; },
-      [&](const auto&) -> value_type { return std::move(x); }));
+    return std::visit(
+      overload(
+        [](const value_type& v) -> const value_type& { return v; },
+        [](const auto&) -> const value_type& { throw bad_result_access{}; }),
+      m_value);
   }
 
   /**
@@ -544,35 +651,45 @@ public:
    *
    * @throw bad_result_access if this result is an error
    */
-  auto value() &&
+  value_type&& value() &&
   {
-    return std::move(*this).visit(kdl::overload(
-      [](value_type&& v) -> value_type { return std::move(v); },
-      [](const auto&) -> value_type { throw bad_result_access{}; }));
+    return std::visit(
+      overload(
+        [](value_type&& v) -> value_type&& { return std::move(v); },
+        [](const auto&) -> value_type&& { throw bad_result_access{}; }),
+      std::move(m_value));
   }
 
-  auto value_or(Value x) &&
+  value_type value() const&&
   {
-    return std::move(*this).visit(kdl::overload(
-      [](value_type&& v) -> value_type { return std::move(v); },
-      [&](const auto&) -> value_type { return std::move(x); }));
+    return std::visit(
+      overload(
+        [](value_type& v) -> value_type&& { return std::move(v); },
+        [](const auto&) -> value_type&& { throw bad_result_access{}; }),
+      std::move(m_value));
+  }
+
+  value_type value_or(Value x) const&
+  {
+    return std::visit(
+      overload(
+        [](const value_type& v) -> value_type { return v; },
+        [&](const auto&) -> value_type { return std::move(x); }),
+      m_value);
+  }
+
+  value_type value_or(Value x) &&
+  {
+    return std::visit(
+      overload(
+        [](value_type&& v) -> value_type { return std::move(v); },
+        [&](const auto&) -> value_type { return std::move(x); }),
+      std::move(m_value));
   }
 
   /**
-   * Returns the value contained in this result if it is successful. Otherwise, throws
-   * `bad_result_access`.
-   *
-   * @return the value in this result
-   *
-   * @throw bad_result_access if this result is an error
-   */
-  auto release() { return std::move(*this).value(); }
-
-  auto release_or(Value x) { return std::move(*this).value_or(std::move(x)); }
-
-  /**
-   * Returns a the error contained in this result if it not successful. Otherwise, throws
-   * `bad_result_access`.
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
    *
    * @return a std::variant<Errors...> containing a copy of the error in this result
    *
@@ -580,14 +697,33 @@ public:
    */
   auto error() const&
   {
-    return visit(kdl::overload(
-      [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-      [](const auto& e) -> std::variant<Errors...> { return e; }));
+    return std::visit(
+      overload(
+        [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
+        [](const auto& e) -> std::variant<Errors...> { return e; }),
+      m_value);
   }
 
   /**
-   * Returns a the error contained in this result if it not successful. Otherwise, throws
-   * `bad_result_access`.
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
+   *
+   * @return a std::variant<Errors...> containing a copy of the error in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto error() &
+  {
+    return std::visit(
+      overload(
+        [](value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
+        [](auto& e) -> std::variant<Errors...> { return e; }),
+      m_value);
+  }
+
+  /**
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
    *
    * @return a std::variant<Errors...> containing the error in this result
    *
@@ -595,9 +731,11 @@ public:
    */
   auto error() &&
   {
-    return visit(kdl::overload(
-      [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-      [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }));
+    return std::visit(
+      overload(
+        [](value_type&&) -> std::variant<Errors...> { throw bad_result_access{}; },
+        [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }),
+      std::move(m_value));
   }
 
   /**
@@ -669,22 +807,11 @@ public:
    *
    * @tparam Visitor the type of the visitor
    * @param visitor the visitor to apply
-   * @return the value returned by the given visitor or void if the given visitor does not
-   * return anything
+   * @return the value returned by the given visitor or void if the given visitor does
+   * not return anything
    */
   template <typename Visitor>
-  auto visit(Visitor&& visitor) const&
-  {
-    return visitor();
-  }
-
-  /**
-   * Applies the given visitor this result.
-   *
-   * See above.
-   */
-  template <typename Visitor>
-  auto visit(Visitor&& visitor) &&
+  auto visit(const Visitor& visitor) const
   {
     return visitor();
   }
@@ -693,23 +820,9 @@ public:
    * See result<Value, Errors...>::and_then.
    */
   template <typename F>
-  auto and_then(F&& f) const&
+  auto and_then(const F& f) const
   {
-    using Fn_Result = std::invoke_result_t<F>;
-
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
-
-    return f();
-  }
-
-  /**
-   * See result<Value, Errors...>::and_then.
-   */
-  template <typename F>
-  auto and_then(F&& f) &&
-  {
-    using Fn_Result = std::invoke_result_t<F>;
+    using Fn_Result = decltype(f());
 
     static_assert(
       detail::is_result<Fn_Result>::value, "Function must return a result type");
@@ -721,12 +834,20 @@ public:
    * See result<Value, Errors...>::transform.
    */
   template <typename F>
-  auto transform(F&& f) const
+  auto transform(const F& f) const
   {
-    using Fn_Result = std::invoke_result_t<F>;
+    using Fn_Result = decltype(f());
     using Cm_Result = result<Fn_Result>;
 
-    return Cm_Result{f()};
+    if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+    {
+      f();
+      return Cm_Result{};
+    }
+    else
+    {
+      return Cm_Result{f()};
+    }
   }
 
   /**
@@ -745,7 +866,7 @@ public:
 };
 
 
-constexpr auto void_success = kdl::result<void>{};
+constexpr auto void_success = result<void>{};
 
 /**
  * Wrapper class that can contain either nothing or one of several errors.
@@ -788,12 +909,13 @@ public:
   /**
    * Creates a new result that wraps the given value.
    *
-   * v must be convertible to detail::void_success_value_type or one of the error types of
-   * this result. If the value is passed by (const) lvalue reference, it is copied into
-   * this result, if it s passed by rvalue reference, then it is moved into this result.
+   * v must be convertible to detail::void_success_value_type or one of the error types
+   * of this result. If the value is passed by (const) lvalue reference, it is copied
+   * into this result, if it s passed by rvalue reference, then it is moved into this
+   * result.
    *
-   * @tparam T the type of the value, must match detail::void_success_value_type or one of
-   * the error types of this result
+   * @tparam T the type of the value, must match detail::void_success_value_type or one
+   * of the error types of this result
    * @param v the value
    */
   template <
@@ -838,16 +960,38 @@ public:
    *
    * @tparam Visitor the type of the visitor
    * @param visitor the visitor to apply
-   * @return the value returned by the given visitor or void if the given visitor does not
-   * return anything
+   * @return the value returned by the given visitor or void if the given visitor does
+   * not return anything
    */
   template <typename Visitor>
-  auto visit(Visitor&& visitor) const&
+  auto visit(const Visitor& visitor) const&
   {
     return std::visit(
-      kdl::overload(
+      overload(
         [&](const detail::void_success_value_type&) { return visitor(); },
         [&](const auto& e) { return visitor(e); }),
+      m_value);
+  }
+
+  /**
+   * Applies the given visitor this result.
+   *
+   * The given visitor must accept void and all error types of this result.
+   * The error contained in this result is passed to the visitor by non const lvalue
+   * reference.
+   *
+   * @tparam Visitor the type of the visitor
+   * @param visitor the visitor to apply
+   * @return the value returned by the given visitor or void if the given visitor does
+   * not return anything
+   */
+  template <typename Visitor>
+  auto visit(const Visitor& visitor) &
+  {
+    return std::visit(
+      overload(
+        [&](detail::void_success_value_type&) { return visitor(); },
+        [&](auto& e) { return visitor(e); }),
       m_value);
   }
 
@@ -860,14 +1004,14 @@ public:
    *
    * @tparam Visitor the type of the visitor
    * @param visitor the visitor to apply
-   * @return the value returned by the given visitor or void if the given visitor does not
-   * return anything
+   * @return the value returned by the given visitor or void if the given visitor does
+   * not return anything
    */
   template <typename Visitor>
-  auto visit(Visitor&& visitor) &&
+  auto visit(const Visitor& visitor) &&
   {
     return std::visit(
-      kdl::overload(
+      overload(
         [&](detail::void_success_value_type&&) { return visitor(); },
         [&](auto&& e) { return visitor(std::forward<decltype(e)>(e)); }),
       std::move(m_value));
@@ -877,196 +1021,250 @@ public:
    * See result<Value, Errors...>::and_then.
    */
   template <typename F>
-  auto and_then(F&& f) const&
+  auto and_then(const F& f) const&
   {
     using My_Result = result<void, Errors...>;
-    using Fn_Result = std::invoke_result_t<F>;
+    using Fn_Result = decltype(f());
 
     static_assert(
       detail::is_result<Fn_Result>::value, "Function must return a result type");
 
     using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-    using Fn_Value = typename Fn_Result::value_type;
 
-    if constexpr (std::is_same_v<Fn_Value, void>)
-    {
-      return visit(kdl::overload(
-        [&]() {
-          return f().visit(kdl::overload(
-            []() { return Cm_Result{}; },
-            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-        },
-        [](const auto& e) { return Cm_Result{e}; }));
-    }
-    else
-    {
-      return visit(kdl::overload(
-        [&]() {
-          return f().visit(kdl::overload(
-            [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
-            [](auto&& fn_e) { return Cm_Result(std::forward<decltype(fn_e)>(fn_e)); }));
-        },
-        [](const auto& e) { return Cm_Result{e}; }));
-    }
+    return std::visit(
+      overload(
+        [&](const detail::void_success_value_type&) { return Cm_Result{f()}; },
+        [](const auto& e) { return Cm_Result{e}; }),
+      m_value);
   }
 
   /**
    * See result<Value, Errors...>::and_then.
    */
   template <typename F>
-  auto and_then(F&& f) &&
+  auto and_then(const F& f) &&
   {
     using My_Result = result<void, Errors...>;
-    using Fn_Result = std::invoke_result_t<F>;
+    using Fn_Result = decltype(f());
 
     static_assert(
       detail::is_result<Fn_Result>::value, "Function must return a result type");
 
     using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
-    using Fn_Value = typename Fn_Result::value_type;
 
-    if constexpr (std::is_same_v<Fn_Value, void>)
-    {
-      return std::move(*this).visit(kdl::overload(
-        [&]() {
-          return f().visit(kdl::overload(
-            []() { return Cm_Result{}; },
-            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-        },
-        [](auto&& e) { return Cm_Result{e}; }));
-    }
-    else
-    {
-      return std::move(*this).visit(kdl::overload(
-        [&]() {
-          return f().visit(kdl::overload(
-            [](Fn_Value&& fn_v) { return Cm_Result{std::move(fn_v)}; },
-            [](auto&& fn_e) { return Cm_Result{std::forward<decltype(fn_e)>(fn_e)}; }));
-        },
-        [](auto&& e) { return Cm_Result{e}; }));
-    }
-  }
-
-  /**
-   * See result<Value, Errors...>::transform.
-   */
-  template <typename F>
-  auto transform(F&& f) const&
-  {
-    using Fn_Result = std::invoke_result_t<F>;
-    using Cm_Result = kdl::result<Fn_Result, Errors...>;
-
-    if constexpr (std::is_same_v<Fn_Result, void>)
-    {
-      return visit(kdl::overload(
-        [&]() {
-          f();
-          return Cm_Result{};
-        },
-        [](const auto& e) { return Cm_Result{e}; }));
-    }
-    else
-    {
-      return visit(kdl::overload(
-        [&]() { return Cm_Result{f()}; }, [](const auto& e) { return Cm_Result{e}; }));
-    }
-  }
-
-  /**
-   * See result<Value, Errors...>::transform.
-   */
-  template <typename F>
-  auto transform(F&& f) &&
-  {
-    using Fn_Result = std::invoke_result_t<F>;
-    using Cm_Result = kdl::result<Fn_Result, Errors...>;
-
-    if constexpr (std::is_same_v<Fn_Result, void>)
-    {
-      return std::move(*this).visit(kdl::overload(
-        [&]() {
-          f();
-          return Cm_Result{};
-        },
-        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
-    }
-    else
-    {
-      return std::move(*this).visit(kdl::overload(
-        [&]() { return Cm_Result{f()}; },
-        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
-    }
+    return std::visit(
+      overload(
+        [&](detail::void_success_value_type&&) { return Cm_Result{f()}; },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
+      std::move(m_value));
   }
 
   /**
    * See result<Value, Errors...>::or_else.
    */
   template <typename F>
-  auto or_else(F&& f) const&
+  auto or_else(const F& f) const&
   {
     static_assert(
       std::tuple_size_v<std::tuple<Errors...>> > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = std::invoke_result_t<F, meta_front_v<Errors...>>;
+    using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
 
-    if constexpr (detail::is_result<Fn_Result>::value)
-    {
-      using Cm_Result = Fn_Result;
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, void>,
+      "Function must return void result");
 
-      static_assert(
-        std::is_same_v<typename Cm_Result::value_type, void>,
-        "Function must return void result");
-
-      return visit(
-        kdl::overload([]() { return Cm_Result{}; }, [&](const auto& e) { return f(e); }));
-    }
-    else
-    {
-      static_assert(std::is_same_v<Fn_Result, void>, "Function must return void");
-
-      visit(kdl::overload([]() {}, [&](const auto& e) { f(e); }));
-      return result<void>{};
-    }
+    return std::visit(
+      overload(
+        [](const detail::void_success_value_type&) { return Fn_Result{}; },
+        [&](const auto& e) { return f(e); }),
+      m_value);
   }
 
   /**
    * See result<Value, Errors...>::or_else.
    */
   template <typename F>
-  auto or_else(F&& f) &&
+  auto or_else(const F& f) &
   {
     static_assert(
       std::tuple_size_v<std::tuple<Errors...>> > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = std::invoke_result_t<F, meta_front_v<Errors...>>;
+    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
 
-    if constexpr (detail::is_result<Fn_Result>::value)
-    {
-      using Cm_Result = Fn_Result;
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, void>,
+      "Function must return void result");
 
-      return std::move(*this).visit(kdl::overload(
-        []() { return Cm_Result{}; },
-        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }));
-    }
-    else
-    {
-      static_assert(std::is_same_v<Fn_Result, void>, "Function must return void");
+    return std::visit(
+      overload(
+        [](detail::void_success_value_type&) { return Fn_Result{}; },
+        [&](auto& e) { return f(e); }),
+      m_value);
+  }
 
-      std::move(*this).visit(
-        kdl::overload([]() {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }));
-      return result<void>{};
-    }
+  /**
+   * See result<Value, Errors...>::or_else.
+   */
+  template <typename F>
+  auto or_else(const F& f) &&
+  {
+    static_assert(
+      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
+
+    static_assert(
+      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, void>,
+      "Function must return void result");
+
+    return std::visit(
+      overload(
+        [](detail::void_success_value_type&&) { return Fn_Result{}; },
+        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }),
+      std::move(m_value));
+  }
+
+  /**
+   * See result<Value, Errors...>::transform.
+   */
+  template <typename F>
+  auto transform(const F& f) const&
+  {
+    using Fn_Result = decltype(f());
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      overload(
+        [&](const detail::void_success_value_type&) {
+          if constexpr (std::is_same_v<Fn_Result, void>)
+          {
+            f();
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f()};
+          }
+        },
+        [](const auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::transform.
+   */
+  template <typename F>
+  auto transform(const F& f) &&
+  {
+    using Fn_Result = decltype(f());
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      overload(
+        [&](detail::void_success_value_type&&) {
+          if constexpr (std::is_same_v<Fn_Result, void>)
+          {
+            f();
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f()};
+          }
+        },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
+      std::move(m_value));
+  }
+
+  template <typename F>
+  auto transform_error(const F& f) const&
+  {
+    using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
+    using Cm_Result = result<Fn_Result>;
+
+    return std::visit(
+      overload(
+        [](const detail::void_success_value_type&) { return Cm_Result{}; },
+        [&](const auto& e) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(e);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(e)};
+          }
+        }),
+      m_value);
+  }
+
+  template <typename F>
+  auto transform_error(const F& f) &
+  {
+    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
+    using Cm_Result = result<Fn_Result>;
+
+    return std::visit(
+      overload(
+        [](detail::void_success_value_type&) { return Cm_Result{}; },
+        [&](auto& e) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(e);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(e)};
+          }
+        }),
+      m_value);
+  }
+
+  template <typename F>
+  auto transform_error(const F& f) &&
+  {
+    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
+    using Cm_Result = result<Fn_Result>;
+
+    return std::visit(
+      overload(
+        [](detail::void_success_value_type&&) { return Cm_Result{}; },
+        [&](auto&& e) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(std::forward<decltype(e)>(e));
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(std::forward<decltype(e)>(e))};
+          }
+        }),
+      std::move(m_value));
   }
 
   /**
    * See result<Value, Errors...>::if_error.
    */
   template <typename F>
-  auto if_error(F&& f) const&
+  auto if_error(const F& f) const&
   {
-    visit(kdl::overload([]() {}, [&](const auto& e) { f(e); }));
+    std::visit(
+      overload(
+        [](const detail::void_success_value_type&) {}, [&](const auto& e) { f(e); }),
+      m_value);
     return *this;
   }
 
@@ -1074,15 +1272,17 @@ public:
    * See result<Value, Errors...>::if_error.
    */
   template <typename F>
-  auto if_error(F&& f) &&
+  auto if_error(const F& f) &&
   {
-    std::move(*this).visit(kdl::overload([]() {}, [&](auto&& e) { f(e); }));
+    std::visit(
+      overload([](detail::void_success_value_type&&) {}, [&](auto&& e) { f(e); }),
+      std::move(m_value));
     return std::move(*this);
   }
 
   /**
-   * Returns a the error contained in this result if it not successful. Otherwise, throws
-   * `bad_result_access`.
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
    *
    * @return a std::variant<Errors...> containing a copy of the error in this result
    *
@@ -1090,14 +1290,37 @@ public:
    */
   auto error() const&
   {
-    return visit(kdl::overload(
-      []() -> std::variant<Errors...> { throw bad_result_access{}; },
-      [](const auto& e) -> std::variant<Errors...> { return e; }));
+    return std::visit(
+      overload(
+        [](const detail::void_success_value_type&) -> std::variant<Errors...> {
+          throw bad_result_access{};
+        },
+        [](const auto& e) -> std::variant<Errors...> { return e; }),
+      m_value);
   }
 
   /**
-   * Returns a the error contained in this result if it not successful. Otherwise, throws
-   * `bad_result_access`.
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
+   *
+   * @return a std::variant<Errors...> containing a copy of the error in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto error() &
+  {
+    return std::visit(
+      overload(
+        [](detail::void_success_value_type&) -> std::variant<Errors...> {
+          throw bad_result_access{};
+        },
+        [](auto& e) -> std::variant<Errors...> { return e; }),
+      m_value);
+  }
+
+  /**
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
    *
    * @return a std::variant<Errors...> containing the error in this result
    *
@@ -1105,9 +1328,13 @@ public:
    */
   auto error() &&
   {
-    return visit(kdl::overload(
-      []() -> std::variant<Errors...> { throw bad_result_access{}; },
-      [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }));
+    return std::visit(
+      overload(
+        [](detail::void_success_value_type&&) -> std::variant<Errors...> {
+          throw bad_result_access{};
+        },
+        [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }),
+      std::move(m_value));
   }
 
   /**

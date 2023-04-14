@@ -354,7 +354,7 @@ public: // csg convex merge
         }
         transaction.commit();
       })
-      .or_else([&](const Model::BrushError e) {
+      .transform_error([&](const Model::BrushError e) {
         document->error() << "Could not create brush: " << e;
       });
   }

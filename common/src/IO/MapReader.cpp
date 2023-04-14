@@ -39,7 +39,7 @@
 
 #include <kdl/parallel.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -141,7 +141,7 @@ void MapReader::onStandardBrushFace(
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
-    .or_else([&](const Model::BrushError e) {
+    .transform_error([&](const Model::BrushError e) {
       status.error(line, kdl::str_to_string("Skipping face: ", e));
     });
 }
@@ -163,7 +163,7 @@ void MapReader::onValveBrushFace(
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
-    .or_else([&](const Model::BrushError e) {
+    .transform_error([&](const Model::BrushError e) {
       status.error(line, kdl::str_to_string("Skipping face: ", e));
     });
 }
@@ -651,7 +651,7 @@ static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
         .transform([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
           return std::move(nodeInfo);
         })
-        .or_else([&](const NodeError& e) -> std::optional<NodeInfo> {
+        .transform_error([&](const NodeError& e) -> std::optional<NodeInfo> {
           status.error(e.line, e.msg);
           return std::nullopt;
         })

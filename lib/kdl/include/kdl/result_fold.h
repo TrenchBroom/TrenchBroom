@@ -30,49 +30,6 @@
 namespace kdl
 {
 /**
- * Collects the success values in the given range and returns them in a vector.
- *
- * The range must contain non-void results. For each successful result, its value is
- * moved into the result vector. For error results, the given errorHandle is called.
- */
-template <typename I, typename E>
-auto collect_values(I cur, I end, E errorHandler)
-{
-  using result_value = typename std::iterator_traits<I>::value_type;
-  using result_value_type = typename result_value::value_type;
-  static_assert(
-    !std::is_same_v<result_value_type, void>, "range must not contain void results");
-
-  using vector_type = std::vector<result_value_type>;
-  using i_category = typename std::iterator_traits<I>::iterator_category;
-
-  auto result_vector = vector_type{};
-  if constexpr (std::is_same_v<i_category, std::random_access_iterator_tag>)
-  {
-    result_vector.reserve(static_cast<std::size_t>(end - cur));
-  }
-
-  while (cur != end)
-  {
-    std::move(*cur)
-      .and_then([&](auto&& value) {
-        result_vector.push_back(std::forward<decltype(value)>(value));
-        return void_success;
-      })
-      .or_else(errorHandler);
-    ++cur;
-  }
-
-  return result_vector;
-}
-
-template <typename C, typename E>
-auto collect_values(C&& c, E errorHandler)
-{
-  return collect_values(std::begin(c), std::end(c), std::move(errorHandler));
-}
-
-/**
  * Applies the given lambda to each element in the given range and returns the result.
  *
  * The given lambda must return a result type.
@@ -90,7 +47,7 @@ auto collect_values(C&& c, E errorHandler)
  * is returned.
  */
 template <typename I, typename F>
-auto for_each_result(I cur, I end, F f)
+auto fold_results(I cur, I end, const F& f)
 {
   using i_value_type = typename std::iterator_traits<I>::value_type;
   using f_result_type = std::invoke_result_t<F, i_value_type>;
@@ -143,8 +100,15 @@ auto for_each_result(I cur, I end, F f)
 }
 
 template <typename C, typename F>
-auto for_each_result(C&& c, F f)
+auto fold_results(C&& c, const F& f)
 {
-  return for_each_result(std::begin(c), std::end(c), std::move(f));
+  return fold_results(std::begin(c), std::end(c), f);
+}
+
+template <typename C>
+auto fold_results(C&& c)
+{
+  return fold_results(
+    std::forward<C>(c), [](auto&& x) { return std::forward<decltype(x)>(x); });
 }
 } // namespace kdl

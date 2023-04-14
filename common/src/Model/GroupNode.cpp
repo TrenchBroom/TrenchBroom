@@ -38,7 +38,7 @@
 #include <kdl/overload.h>
 #include <kdl/parallel.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -78,6 +78,60 @@ static std::vector<const Node*> collectNodesToCloneAndTransform(const Node& node
   return result;
 }
 
+static kdl::result<std::unique_ptr<Node>, UpdateLinkedGroupsError>
+cloneAndTransformRecursive(
+  const Node* nodeToClone,
+  std::unordered_map<const Node*, NodeContents>& origNodeToTransformedContents,
+  const vm::bbox3& worldBounds)
+{
+  // First, clone `n`, and move in the new (transformed) content which was
+  // prepared for it above
+  auto clone = nodeToClone->accept(kdl::overload(
+    [](const WorldNode*) -> std::unique_ptr<Node> {
+      ensure(false, "Linked group structure is valid");
+    },
+    [](const LayerNode*) -> std::unique_ptr<Node> {
+      ensure(false, "Linked group structure is valid");
+    },
+    [&](const GroupNode* groupNode) -> std::unique_ptr<Node> {
+      auto& group = std::get<Group>(origNodeToTransformedContents.at(groupNode).get());
+      return std::make_unique<GroupNode>(std::move(group));
+    },
+    [&](const EntityNode* entityNode) -> std::unique_ptr<Node> {
+      auto& entity = std::get<Entity>(origNodeToTransformedContents.at(entityNode).get());
+      return std::make_unique<EntityNode>(std::move(entity));
+    },
+    [&](const BrushNode* brushNode) -> std::unique_ptr<Node> {
+      auto& brush = std::get<Brush>(origNodeToTransformedContents.at(brushNode).get());
+      return std::make_unique<BrushNode>(std::move(brush));
+    },
+    [&](const PatchNode* patchNode) -> std::unique_ptr<Node> {
+      auto& patch =
+        std::get<BezierPatch>(origNodeToTransformedContents.at(patchNode).get());
+      return std::make_unique<PatchNode>(std::move(patch));
+    }));
+
+  if (!worldBounds.contains(clone->logicalBounds()))
+  {
+    return UpdateLinkedGroupsError::UpdateExceedsWorldBounds;
+  }
+
+  return kdl::fold_results(
+           nodeToClone->children(),
+           [&](const auto* childNode) {
+             return cloneAndTransformRecursive(
+               childNode, origNodeToTransformedContents, worldBounds);
+           })
+    .transform([&](auto childClones) {
+      for (auto& childClone : childClones)
+      {
+        clone->addChild(childClone.release());
+      }
+
+      return std::move(clone);
+    });
+}
+
 /**
  * Given a node, clones its children recursively and applies the given transform.
  *
@@ -93,7 +147,7 @@ cloneAndTransformChildren(
 
   // In parallel, produce pairs { node pointer, transformed contents } from the nodes in
   // `nodesToClone`
-  const auto transformResults =
+  auto transformResults =
     kdl::vec_parallel_transform(nodesToClone, [&](const Node* nodeToTransform) {
       return nodeToTransform->accept(kdl::overload(
         [](const WorldNode*) -> TransformResult {
@@ -126,85 +180,28 @@ cloneAndTransformChildren(
         }));
     });
 
-  bool transformFailed = false;
-  auto origNodeAndTransformedContents = kdl::collect_values(
-    transformResults, kdl::overload([&](const auto&) { transformFailed = true; }));
+  return kdl::fold_results(std::move(transformResults))
+    .or_else(
+      [](const auto&) -> kdl::result<
+                        std::vector<std::pair<const Node*, NodeContents>>,
+                        UpdateLinkedGroupsError> {
+        return UpdateLinkedGroupsError::TransformFailed;
+      })
+    .and_then(
+      [&](auto origNodeAndTransformedContents)
+        -> kdl::result<std::vector<std::unique_ptr<Node>>, UpdateLinkedGroupsError> {
+        // Move into map for easier lookup
+        auto resultsMap = std::unordered_map<const Node*, NodeContents>{
+          origNodeAndTransformedContents.begin(), origNodeAndTransformedContents.end()};
+        origNodeAndTransformedContents.clear();
 
-  if (transformFailed)
-  {
-    return UpdateLinkedGroupsError::TransformFailed;
-  }
-
-  // Move into map for easier lookup
-  auto resultsMap = std::unordered_map<const Node*, NodeContents>{};
-  for (auto& [origNode, transformedContents] : origNodeAndTransformedContents)
-  {
-    resultsMap.emplace(origNode, std::move(transformedContents));
-  }
-  origNodeAndTransformedContents.clear();
-
-  // Do a recursive traversal of the input node tree again,
-  // creating a matching tree structure, and move in the contents
-  // we've transformed above.
-
-  bool worldBoundsExceeded = false;
-  std::function<std::unique_ptr<Node>(const Node*)> cloneAndTransformRecursive =
-    [&](const Node* n) -> std::unique_ptr<Node> {
-    // First, clone `n`, and move in the new (transformed) content which was prepared for
-    // it above
-    std::unique_ptr<Node> clone = n->accept(kdl::overload(
-      [](const WorldNode*) -> std::unique_ptr<Node> {
-        ensure(false, "Linked group structure is valid");
-      },
-      [](const LayerNode*) -> std::unique_ptr<Node> {
-        ensure(false, "Linked group structure is valid");
-      },
-      [&](const GroupNode* groupNode) -> std::unique_ptr<Node> {
-        auto& group = std::get<Group>(resultsMap.at(groupNode).get());
-        return std::make_unique<GroupNode>(std::move(group));
-      },
-      [&](const EntityNode* entityNode) -> std::unique_ptr<Node> {
-        auto& entity = std::get<Entity>(resultsMap.at(entityNode).get());
-        return std::make_unique<EntityNode>(std::move(entity));
-      },
-      [&](const BrushNode* brushNode) -> std::unique_ptr<Node> {
-        auto& brush = std::get<Brush>(resultsMap.at(brushNode).get());
-        return std::make_unique<BrushNode>(std::move(brush));
-      },
-      [&](const PatchNode* patchNode) -> std::unique_ptr<Node> {
-        auto& patch = std::get<BezierPatch>(resultsMap.at(patchNode).get());
-        return std::make_unique<PatchNode>(std::move(patch));
-      }));
-
-    if (!worldBounds.contains(clone->logicalBounds()))
-    {
-      worldBoundsExceeded = true;
-    }
-
-    // Recursively clone children of `n`
-    for (const Node* child : n->children())
-    {
-      std::unique_ptr<Node> childClone = cloneAndTransformRecursive(child);
-
-      // attach it as a child of `clone`
-      clone->addChild(childClone.release());
-    }
-
-    return clone;
-  };
-
-  // Generate the output vector by applying `cloneAndTransformRecursive` to each child of
-  // `node`.
-  auto result =
-    kdl::vec_transform(node.children(), [&](const Node* child) -> std::unique_ptr<Node> {
-      return cloneAndTransformRecursive(child);
-    });
-
-  if (worldBoundsExceeded)
-  {
-    return UpdateLinkedGroupsError::UpdateExceedsWorldBounds;
-  }
-  return {std::move(result)};
+        // Do a recursive traversal of the input node tree again,
+        // creating a matching tree structure, and move in the contents
+        // we've transformed above.
+        return kdl::fold_results(node.children(), [&](const auto* childNode) {
+          return cloneAndTransformRecursive(childNode, resultsMap, worldBounds);
+        });
+      });
 }
 
 template <typename T>
@@ -331,7 +328,7 @@ kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroup
   const auto _invertedSourceTransformation = invertedSourceTransformation;
   const auto targetGroupNodesToUpdate =
     kdl::vec_erase(targetGroupNodes, &sourceGroupNode);
-  return kdl::for_each_result(targetGroupNodesToUpdate, [&](auto* targetGroupNode) {
+  return kdl::fold_results(targetGroupNodesToUpdate, [&](auto* targetGroupNode) {
     const auto transformation =
       targetGroupNode->group().transformation() * _invertedSourceTransformation;
     return cloneAndTransformChildren(sourceGroupNode, worldBounds, transformation)

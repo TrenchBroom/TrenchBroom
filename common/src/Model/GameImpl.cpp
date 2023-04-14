@@ -202,7 +202,7 @@ std::unique_ptr<WorldNode> GameImpl::doNewMap(
     .transform([&](Brush&& b) {
       worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)});
     })
-    .or_else([&](const Model::BrushError e) {
+    .transform_error([&](const Model::BrushError e) {
       logger.error() << "Could not create default brush: " << e;
     });
 

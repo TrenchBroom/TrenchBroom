@@ -111,7 +111,7 @@
 #include <kdl/overload.h>
 #include <kdl/parallel.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
@@ -1417,7 +1417,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
 
   const Model::BrushBuilder brushBuilder(world()->mapFormat(), worldBounds());
 
-  kdl::for_each_result(
+  kdl::fold_results(
     selectionBrushNodes,
     [&](const Model::BrushNode* selectionBrushNode) {
       const Model::Brush& selectionBrush = selectionBrushNode->brush();
@@ -1453,6 +1453,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
     })
     .or_else([&](const Model::BrushError& e) {
       logger().error() << "Could not create selection brush: " << e;
+      return kdl::void_success;
     });
 }
 
@@ -2950,29 +2951,21 @@ bool MapDocument::transformObjects(
         }));
     });
 
-  bool transformFailed = false;
-  auto nodesToUpdate = kdl::collect_values(
-    std::move(transformResults), kdl::overload([&](const Model::BrushError& e) {
-      error() << "Could not transform brush: " << e;
-      transformFailed = true;
-    }));
+  return kdl::fold_results(std::move(transformResults))
+    .and_then([&](auto nodesToUpdate) -> kdl::result<bool> {
+      const auto success = swapNodeContents(
+        commandName,
+        std::move(nodesToUpdate),
+        findContainingLinkedGroups(*m_world, m_selectedNodes.nodes()));
 
-  if (transformFailed)
-  {
-    return false;
-  }
-
-  const auto success = swapNodeContents(
-    commandName,
-    std::move(nodesToUpdate),
-    findContainingLinkedGroups(*m_world, m_selectedNodes.nodes()));
-
-  if (success)
-  {
-    m_repeatStack->push([=]() { this->transformObjects(commandName, transformation); });
-    return true;
-  }
-  return false;
+      if (success)
+      {
+        m_repeatStack->push(
+          [=]() { this->transformObjects(commandName, transformation); });
+      }
+      return success;
+    })
+    .value_or(false);
 }
 
 bool MapDocument::translateObjects(const vm::vec3& delta)
@@ -3159,33 +3152,44 @@ bool MapDocument::csgSubtract()
   auto toRemove =
     std::vector<Model::Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
 
-  for (auto* minuendNode : minuendNodes)
-  {
-    const auto& minuend = minuendNode->brush();
-    auto currentSubtractionResults = minuend.subtract(
-      m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
-    auto currentBrushes = kdl::collect_values(
-      std::move(currentSubtractionResults),
-      [&](const Model::BrushError& e) { error() << "Could not create brush: " << e; });
+  return kdl::fold_results(
+           minuendNodes,
+           [&](auto* minuendNode) {
+             const auto& minuend = minuendNode->brush();
+             auto currentSubtractionResults = minuend.subtract(
+               m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
 
-    if (!currentBrushes.empty())
-    {
-      auto resultNodes = kdl::vec_transform(std::move(currentBrushes), [&](auto b) {
-        return new Model::BrushNode{std::move(b)};
-      });
-      auto& toAddForParent = toAdd[minuendNode->parent()];
-      toAddForParent = kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
-    }
+             return kdl::fold_results(kdl::vec_filter(
+                                        std::move(currentSubtractionResults),
+                                        [](const auto r) { return r.is_success(); }))
+               .transform([&](auto currentBrushes) {
+                 if (!currentBrushes.empty())
+                 {
+                   auto resultNodes = kdl::vec_transform(
+                     std::move(currentBrushes),
+                     [&](auto b) { return new Model::BrushNode{std::move(b)}; });
+                   auto& toAddForParent = toAdd[minuendNode->parent()];
+                   toAddForParent =
+                     kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
+                 }
 
-    toRemove.push_back(minuendNode);
-  }
+                 toRemove.push_back(minuendNode);
+               });
+           })
+    .transform([&]() {
+      deselectAll();
+      const auto added = addNodes(toAdd);
+      removeNodes(toRemove);
+      selectNodes(added);
 
-  deselectAll();
-  const auto added = addNodes(toAdd);
-  removeNodes(toRemove);
-  selectNodes(added);
-
-  return transaction.commit();
+      return transaction.commit();
+    })
+    .transform_error([&](const auto& e) {
+      error() << "Could not subtract brushes: " << e;
+      transaction.cancel();
+      return false;
+    })
+    .value();
 }
 
 bool MapDocument::csgIntersect()
@@ -3245,49 +3249,40 @@ bool MapDocument::csgHollow()
   }
 
   bool didHollowAnything = false;
-  auto fragmentsAndSourceNodes =
-    kdl::vec_transform(brushNodes, [&](Model::BrushNode* brushNode) {
-      const auto& originalBrush = brushNode->brush();
+  auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+  auto toRemove = std::vector<Model::Node*>{};
 
-      auto shrunkenBrush = originalBrush;
-      auto fragments = std::vector<Model::Brush>{};
-      shrunkenBrush
-        .expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
-        .transform([&]() {
-          didHollowAnything = true;
+  for (auto* brushNode : brushNodes)
+  {
+    const auto& originalBrush = brushNode->brush();
 
-          auto subtractionResults = originalBrush.subtract(
-            m_world->mapFormat(), m_worldBounds, currentTextureName(), shrunkenBrush);
-          fragments = kdl::collect_values(
-            std::move(subtractionResults), [&](const Model::BrushError& e) {
-              error() << "Could not create brush: " << e;
+    auto shrunkenBrush = originalBrush;
+    shrunkenBrush.expand(m_worldBounds, -FloatType(m_grid->actualSize()), true)
+      .and_then([&]() {
+        didHollowAnything = true;
+
+        return kdl::fold_results(originalBrush.subtract(
+                                   m_world->mapFormat(),
+                                   m_worldBounds,
+                                   currentTextureName(),
+                                   shrunkenBrush))
+          .transform([&](auto fragments) {
+            auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
+              return new Model::BrushNode{std::forward<decltype(b)>(b)};
             });
-        })
-        .or_else([&](const Model::BrushError& e) {
-          error() << "Could not hollow brush: " << e;
-          fragments = {originalBrush};
-        });
 
-      return std::make_pair(brushNode, std::move(fragments));
-    });
+            auto& toAddForParent = toAdd[brushNode->parent()];
+            toAddForParent = kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
+            toRemove.push_back(brushNode);
+          });
+      })
+      .transform_error(
+        [&](const auto& e) { error() << "Could not hollow brush: " << e; });
+  }
 
   if (!didHollowAnything)
   {
     return false;
-  }
-
-  auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-  auto toRemove = std::vector<Model::Node*>{};
-
-  for (auto& [sourceNode, fragments] : fragmentsAndSourceNodes)
-  {
-    auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
-      return new Model::BrushNode{std::forward<decltype(b)>(b)};
-    });
-
-    auto& toAddForParent = toAdd[sourceNode->parent()];
-    toAddForParent = kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
-    toRemove.push_back(sourceNode);
   }
 
   auto transaction = Transaction{*this, "CSG Hollow"};
@@ -3318,7 +3313,7 @@ struct ReplaceClippedBrushesError
 
 bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3)
 {
-  return kdl::for_each_result(
+  return kdl::fold_results(
            m_selectedNodes.brushes(),
            [&](const Model::BrushNode* originalBrush) {
              auto clippedBrush = originalBrush->brush();
@@ -3681,7 +3676,7 @@ bool MapDocument::extrudeBrushes(
           .transform([&]() { return m_worldBounds.contains(brush.bounds()); })
           .or_else([&](const Model::BrushError e) {
             error() << "Could not resize brush: " << e;
-            return false;
+            return kdl::result<bool>{false};
           })
           .value();
       },
@@ -3794,7 +3789,7 @@ bool MapDocument::snapVertices(const FloatType snapTo)
         {
           originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
             .transform([&]() { succeededBrushCount += 1; })
-            .or_else([&](const Model::BrushError e) {
+            .transform_error([&](const Model::BrushError e) {
               error() << "Could not snap vertices: " << e;
               failedBrushCount += 1;
             });
