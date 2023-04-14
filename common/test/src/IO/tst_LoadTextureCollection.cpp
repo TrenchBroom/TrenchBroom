@@ -106,12 +106,8 @@ TEST_CASE("loadTextureCollection")
       Path{},
       {}};
 
-    /* EXPECTED:
     CHECK(loadTextureCollection(Path{"textures/missing.wad"}, fs, textureConfig, logger)
             .is_error());
-    ACTUAL: */
-    CHECK_THROWS(
-      loadTextureCollection(Path{"textures/missing.wad"}, fs, textureConfig, logger));
   }
 
   SECTION("missing palette")

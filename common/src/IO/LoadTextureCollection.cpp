@@ -196,6 +196,12 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
   const Model::TextureConfig& textureConfig,
   Logger& logger)
 {
+  if (gameFS.pathInfo(path) != PathInfo::Directory)
+  {
+    return LoadTextureCollectionError{
+      "Could not load texture collection '" + path.asString() + "': not a directory"};
+  }
+
   return makeReadTextureFunc(gameFS, textureConfig)
     .and_then(
       [&](const auto& readTexture)
