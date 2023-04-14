@@ -2419,10 +2419,10 @@ Game configuration files need to specify the following information.
 * **File formats** to identify which map file formats to support for this game
 * A **Filesystem** to specify the game asset search paths and package file format (e.g. pak files)
 * **Textures**
-	* A **texture package format** (file packages such as wad files or directory packages containing loose image files)
-	* A **texture format** such as mip files
+	* A list of **file extensions** such as `jpg`
 	* A **palette file** (optional)
 	* The **worldspawn property** to store the texture packages in the map file
+  * A list of **exclusion patterns** to hide textures matching any of these patterns.
 * **Entities**
 	* The builtin **entity definition files**
 	* The **default color** to use in the UI
@@ -2449,9 +2449,9 @@ The game configuration is an [expression language](#expression_language) map wit
         },
         "textures": { // where to search for textures and how to read them, see below
             "root": "textures",
-            "format": { "extensions": [ "wal" ], "format": "wal" },
+            "extensions": [ "wal" ],
             "palette": "pics/colormap.pcx",
-            "attribute": "_tb_textures"
+            "attribute": "_tb_textures",
         },
         "entities": { // the builtin entity definition files for this game
             "definitions": [ "Quake2.fgd" ],
@@ -2535,10 +2535,14 @@ The game configuration files are versioned. Whenever a breaking change to the ga
 
 **Current Versions**
 
-TrenchBroom currently supports game config versions 3 through 6.
+TrenchBroom currently supports game config versions 7 through 8.
 
 **Version History**
 
+* Version 8
+  - Remove texture format configuration and just keep a list of extensions to search for.
+* Version 7
+  - Replace texture package configuration with a root path. Removes the distinction between file and directory based texture configurations.
 * Version 6
   - Adds the optional `setDefaultProperties` key to the entity configuration.
 * Version 5
@@ -2614,60 +2618,31 @@ zip          Zip file, often uses other extensions such as pk3
 
 #### Texture Configurations
 
-Every texture configuration consists of a package specification, a format specification, and optionally a palette and a storage specifier.
-
-TrenchBroom supports two types of texture packages: File based and directory based. File based texture packages expect the textures to be stored in package files that contain multiple textures, such as `.wad` files for Quake and Hexen 2. A file based texture configuration looks like this:
+Every texture configuration consists of a root search directory, and optionally a list of included file extensions, a palette path, an attribute for wad file lists and a list of exclusion patterns.
 
 	"textures": {
         "root": "textures",
-        "format": { "extension": "D", "format": "idmip" },
-        "palette": "gfx/palette.lmp",
-    	"attribute": "wad"
-	},
-
-For file-based texture configurations, the following texture package formats are supported:
-
-Format       Description
-------       -----------
-wad2         wad file, used by Quake and Hexen 2
-wad3         wad file, used by Half Life
-
-A directory based texture configuration looks as follows. It differs only in the package configuration, all other keys are equivalent.
-
-	"textures": {
-        "root": "textures",
-        "format": { "extensions": [ "wal" ], "format": "wal" },
+        "extensions": [ "D" ],
         "palette": "pics/colormap.pcx",
-        "attribute": "_tb_textures"
+        "attribute": "wad",
+        "excludes": [ "*_norm", "*_gloss" ],
 	},
 
-In a directory-based texture package configuration, the `root` key specifies the folder at which to search for the texture packages. This folder is relative to the game file system set up according to the `filesystem` configuration earlier in the file. TrenchBroom will create a texture collection for each folder contained in the root folder specified here.
+The `root` key specifies the folder at which to search for the texture packages. This folder is relative to the game file system set up according to the `filesystem` configuration earlier in the file. TrenchBroom will create a texture collection for each folder contained in the root folder specified here.
 
 In the case of Quake 2, the builtin game configuration specifies the search path of the file system as `"baseq2"` and the texture package root as `"textures"`, so TrenchBroom will create a texture collection for each folder found in `<Game Path>/baseq2/textures`.
 
-The remaining keys in a texture configuration are the same for file based and texture based texture package configurations.
-
-The `format` key specifies the format of the texture files found in the package.
-
-Format       Description
-------       -----------
-idmip        mip file, used by Quake and Hexen
-hlmip        mip file, used by Half Life
-dkmip        mip file, used by Daikatana
-wal          wal file, used by Quake 2
-image        image file
-
-The `image` format can be used to load a wide array of image formats such as tga, pcx, jpeg, and so on. TrenchBroom uses the [FreeImage Library] to load these images and supports any file type supported by this library.
+TrenchBroom supports a wide array of image formats such as tga, pcx, jpeg, and so on. TrenchBroom uses the [FreeImage Library] to load these images and supports any file type supported by this library.
 
 Optionally, you can specify a palette. The value of the `palette` key specifies a path, relative to the file system, where TrenchBroom will look for a palette file that comes with the game's assets.
 
-The `attribute` key specifies the name of a worldspawn property where TrenchBroom will store the list of selected texture collections in the map file.
+The `attribute` key specifies the name of a worldspawn property where TrenchBroom will store the wad files in the map file.
 
 The optional `excludes` key specifies a list of patterns matched against texture names which will be ignored and not displayed in the [texture browser](#texture_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 
 	"textures": {
         "root": "textures",
-        "format": { "extensions": [ "" ], "format": "image" },
+        "extensions": [ "" ],
         "attribute": "_tb_textures",
         "excludes": [ "*_norm", "*_gloss" ]
     },

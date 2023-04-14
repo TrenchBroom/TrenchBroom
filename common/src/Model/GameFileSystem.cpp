@@ -192,8 +192,7 @@ void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logge
   // To support Quake 3 shaders, we add a shader file system that loads the shaders
   // and makes them available as virtual files.
   const auto& textureConfig = config.textureConfig;
-  const auto& textureFormat = textureConfig.format.format;
-  if (kdl::ci::str_is_equal(textureFormat, "q3shader"))
+  if (!textureConfig.shaderSearchPath.isEmpty())
   {
     logger.info() << "Adding shader file system";
     auto shaderSearchPath = textureConfig.shaderSearchPath;

@@ -192,8 +192,10 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
     .and_then(
       [&](const auto& readTexture)
         -> kdl::result<Assets::TextureCollection, LoadTextureCollectionError> {
-        const auto texturePaths =
-          gameFS.find(path, makeExtensionPathMatcher(textureConfig.format.extensions));
+        const auto pathMatcher = !textureConfig.extensions.empty()
+                                   ? makeExtensionPathMatcher(textureConfig.extensions)
+                                   : matchAnyPath;
+        const auto texturePaths = gameFS.find(path, pathMatcher);
         auto textures = std::vector<Assets::Texture>{};
         textures.reserve(texturePaths.size());
 
@@ -203,7 +205,8 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
           {
             auto file = gameFS.openFile(texturePath);
 
-            // Store the absolute path to the original file (may be used by .obj export)
+            // Store the absolute path to the original file
+            // (may be used by .obj export)
             const auto name = file->path().lastComponent().deleteExtension().asString();
             if (shouldExclude(name, textureConfig.excludes))
             {

@@ -100,11 +100,12 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      Model::PackageFormatConfig{{"D"}, "idmip"},
+      {"D"},
       Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},
-      {}};
+      {},
+    };
 
     CHECK(loadTextureCollection(Path{"textures/missing.wad"}, fs, textureConfig, logger)
             .is_error());
@@ -114,11 +115,12 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      Model::PackageFormatConfig{{"D"}, "idmip"},
+      {"D"},
       Path{"fixture/test/missing.lmp"},
       "wad",
       Path{},
-      {}};
+      {},
+    };
 
     CHECK(
       makeInfo(
@@ -145,11 +147,12 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      Model::PackageFormatConfig{{"D"}, "idmip"},
+      {"D"},
       Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},
-      {}};
+      {},
+    };
 
     CHECK(
       makeInfo(
@@ -176,11 +179,12 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      Model::PackageFormatConfig{{"D"}, "idmip"},
+      {"D"},
       Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},
-      {"*-jam", "coffin2", "czg_*"}};
+      {"*-jam", "coffin2", "czg_*"},
+    };
 
     CHECK(
       makeInfo(

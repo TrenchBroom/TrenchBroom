@@ -49,4 +49,9 @@ PathMatcher makePathInfoPathMatcher(std::vector<PathInfo> pathInfos)
     };
 }
 
+bool matchAnyPath(const Path&, const GetPathInfo&)
+{
+  return true;
+}
+
 } // namespace TrenchBroom::IO

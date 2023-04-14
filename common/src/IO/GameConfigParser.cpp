@@ -32,6 +32,8 @@
 
 #include <vecmath/vec_io.h>
 
+#include <fmt/format.h>
+
 #include <algorithm>
 #include <sstream>
 #include <string>
@@ -43,7 +45,7 @@ namespace
 {
 void checkVersion(const EL::Value& version)
 {
-  const auto validVsns = std::vector<EL::IntegerType>{7};
+  const auto validVsns = std::vector<EL::IntegerType>{7, 8};
   const auto isValidVersion =
     version.convertibleTo(EL::ValueType::Number)
     && std::find(validVsns.begin(), validVsns.end(), version.integerValue())
@@ -509,18 +511,29 @@ Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value)
     "Expected map entry 'extension' of type 'String' or 'extensions' of type 'Array'"};
 }
 
+std::vector<std::string> parseTextureExtensions(const EL::Value& value)
+{
+  if (value["extensions"] != EL::Value::Null)
+  {
+    // version 8
+    return value["extensions"].asStringList();
+  }
+  // version 7
+  return parsePackageFormatConfig(value["format"]).extensions;
+}
+
 Model::TextureConfig parseTextureConfig(const EL::Value& value)
 {
   expectStructure(
     value,
     R"([
       {'root': 'String'},
-      {'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String', 'excludes': 'Array'}
+      {'extensions': 'String', 'format': 'Map', 'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String', 'excludes': 'Array'}
     ])");
 
   return Model::TextureConfig{
     Path{value["root"].stringValue()},
-    parsePackageFormatConfig(value["format"]),
+    parseTextureExtensions(value),
     Path{value["palette"].stringValue()},
     value["attribute"].stringValue(),
     Path{value["shaderSearchPath"].stringValue()},
