@@ -5173,39 +5173,45 @@ Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name
 
 Transaction::Transaction(MapDocument& document, std::string name)
   : m_document{document}
-  , m_state{TransactionState::Running}
+  , m_state{State::Running}
 {
   begin(std::move(name));
 }
 
 Transaction::~Transaction()
 {
-  assert(m_state != TransactionState::Running);
+  assert(m_state != State::Running);
+}
+
+Transaction::State Transaction::state() const
+{
+  return m_state;
 }
 
 bool Transaction::commit()
 {
-  assert(m_state == TransactionState::Running);
+  assert(m_state == State::Running);
   if (m_document.commitTransaction())
   {
-    m_state = TransactionState::Committed;
+    m_state = State::Committed;
     return true;
   }
 
-  m_state = TransactionState::Cancelled;
+  m_state = State::Cancelled;
   return false;
 }
 
 void Transaction::rollback()
 {
-  assert(m_state == TransactionState::Running);
+  assert(m_state == State::Running);
   m_document.rollbackTransaction();
 }
 
 void Transaction::cancel()
 {
-  assert(m_state == TransactionState::Running);
-  m_state = TransactionState::Cancelled;
+  assert(m_state == State::Running);
+  m_document.cancelTransaction();
+  m_state = State::Cancelled;
 }
 
 void Transaction::begin(std::string name)

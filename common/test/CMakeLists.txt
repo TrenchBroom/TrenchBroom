@@ -131,6 +131,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/tst_SwapNodeContents.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_TagManagement.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_TextOutputAdapter.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/tst_Transaction.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_TransformNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_Undo.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_UpdateLinkedGroupsCommand.cpp"
