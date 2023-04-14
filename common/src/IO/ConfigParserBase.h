@@ -25,10 +25,9 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 class ConfigParserBase
 {
 private:
@@ -45,11 +44,9 @@ public:
 
 protected:
   EL::Expression parseConfigFile();
-
-  void expectType(const EL::Value& value, EL::ValueType type) const;
-  void expectStructure(const EL::Value& value, const std::string& structure) const;
-  void expectMapEntry(
-    const EL::Value& value, const std::string& key, EL::ValueType type) const;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+void expectType(const EL::Value& value, EL::ValueType type);
+void expectStructure(const EL::Value& value, const std::string& structure);
+void expectMapEntry(const EL::Value& value, const std::string& key, EL::ValueType type);
+} // namespace TrenchBroom::IO
