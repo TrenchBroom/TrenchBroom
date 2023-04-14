@@ -128,23 +128,14 @@ TEST_CASE("readQuake3ShaderTexture")
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/missing_extension", 128, 128}});
 
-    /* EXPECTED:
     CHECK(
       readQuake3ShaderTexture(
         "test/different_extension",
         *fs.openFile(texturePrefix + Path{"test/different_extension"}),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
-        TextureInfo{"test/different_extension", 128, 128}});#
-    ACTUAL: */
-    CHECK(
-      readQuake3ShaderTexture(
-        "test/different_extension",
-        *fs.openFile(texturePrefix + Path{"test/different_extension"}),
-        fs)
-      == kdl::result<TextureInfo, ReadTextureError>{ReadTextureError{
-        "test/different_extension",
-        "Could not find texture path for shader 'textures/test/different_extension'"}});
+        TextureInfo{"test/different_extension", 128, 128}});
+#
   }
 }
 } // namespace TrenchBroom::IO
