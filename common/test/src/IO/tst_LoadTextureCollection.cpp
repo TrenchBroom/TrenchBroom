@@ -100,11 +100,12 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      Model::PackageFormatConfig{{"D"}, "idmip"},
-      Path{"fixture/test/missing.lmp"},
+      {"D"},
+      Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},
-      {}};
+      {},
+    };
 
     CHECK(loadTextureCollection(Path{"textures/missing.wad"}, fs, textureConfig, logger)
             .is_error());
@@ -114,25 +115,44 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      Model::PackageFormatConfig{{"D"}, "idmip"},
+      {"D"},
       Path{"fixture/test/missing.lmp"},
       "wad",
       Path{},
-      {}};
+      {},
+    };
 
-    CHECK(loadTextureCollection(Path{"textures/cr8_czg.wad"}, fs, textureConfig, logger)
-            .is_error());
+    CHECK(
+      makeInfo(
+        loadTextureCollection(Path{"textures/cr8_czg.wad"}, fs, textureConfig, logger))
+      == TextureCollectionInfo{
+        Path{"textures/cr8_czg.wad"},
+        {
+          {"blowjob_machine", 32, 32}, {"bongs2", 32, 32},
+          {"can-o-jam", 32, 32},       {"cap4can-o-jam", 32, 32},
+          {"coffin1", 32, 32},         {"coffin2", 32, 32},
+          {"cr8_czg_1", 32, 32},       {"cr8_czg_2", 32, 32},
+          {"cr8_czg_3", 32, 32},       {"cr8_czg_4", 32, 32},
+          {"cr8_czg_5", 32, 32},       {"crackpipes", 32, 32},
+          {"czg_backhole", 32, 32},    {"czg_fronthole", 32, 32},
+          {"dex_5", 32, 32},           {"eat_me", 32, 32},
+          {"for_sux-m-ass", 32, 32},   {"lasthopeofhuman", 32, 32},
+          {"polished_turd", 32, 32},   {"speedM_1", 32, 32},
+          {"u_get_this", 32, 32},
+        },
+      });
   }
 
   SECTION("loading all textures")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      Model::PackageFormatConfig{{"D"}, "idmip"},
+      {"D"},
       Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},
-      {}};
+      {},
+    };
 
     CHECK(
       makeInfo(
@@ -159,11 +179,12 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      Model::PackageFormatConfig{{"D"}, "idmip"},
+      {"D"},
       Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},
-      {"*-jam", "coffin2", "czg_*"}};
+      {"*-jam", "coffin2", "czg_*"},
+    };
 
     CHECK(
       makeInfo(

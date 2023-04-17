@@ -86,95 +86,81 @@ kdl::result<Assets::Palette, Assets::LoadPaletteError> loadPalette(
 using ReadTextureFunc =
   std::function<kdl::result<Assets::Texture, ReadTextureError>(const File&)>;
 
+kdl::result<Assets::Texture, ReadTextureError> readTexture(
+  const File& file,
+  const FileSystem& gameFS,
+  const size_t prefixLength,
+  const std::optional<Assets::Palette>& palette)
+{
+  static const auto imageFileExtensions =
+    std::vector<std::string>{"jpg", "jpeg", "png", "tga", "bmp"};
+
+  if (file.path().hasExtension("D", true))
+  {
+    auto name = file.path().basename();
+    if (!palette)
+    {
+      return ReadTextureError{std::move(name), "Could not load texture: missing palette"};
+    }
+    auto reader = file.reader().buffer();
+    return readIdMipTexture(std::move(name), reader, *palette);
+  }
+  else if (file.path().hasExtension("C", true))
+  {
+    auto name = file.path().basename();
+    auto reader = file.reader().buffer();
+    return readHlMipTexture(std::move(name), reader);
+  }
+  else if (file.path().hasExtension("wal", false))
+  {
+    auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
+    auto reader = file.reader().buffer();
+    return readWalTexture(std::move(name), reader, palette);
+  }
+  else if (file.path().hasExtension("m8", false))
+  {
+    auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
+    auto reader = file.reader().buffer();
+    return readM8Texture(std::move(name), reader);
+  }
+  else if (file.path().hasExtension("dds", false))
+  {
+    auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
+    auto reader = file.reader().buffer();
+    return readDdsTexture(std::move(name), reader);
+  }
+  else if (file.path().hasExtension("", false))
+  {
+    auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
+    auto reader = file.reader().buffer();
+    return readQuake3ShaderTexture(std::move(name), file, gameFS);
+  }
+  else if (file.path().hasExtension(imageFileExtensions, false))
+  {
+    auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
+    auto reader = file.reader().buffer();
+    return readFreeImageTexture(std::move(name), reader);
+  }
+
+  auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
+  return ReadTextureError{
+    std::move(name), "Unknown texture file extension: " + file.path().extension()};
+}
+
 kdl::result<ReadTextureFunc, LoadTextureCollectionError> makeReadTextureFunc(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
-  if (textureConfig.format.format == "idmip")
-  {
-    return loadPalette(gameFS, textureConfig)
-      .and_then(
-        [](auto palette) -> kdl::result<ReadTextureFunc, LoadTextureCollectionError> {
-          return [palette = std::move(palette)](
-                   const File& file) -> kdl::result<Assets::Texture, ReadTextureError> {
-            auto name = file.path().basename();
-            auto reader = file.reader().buffer();
-            return readIdMipTexture(std::move(name), reader, palette);
-          };
-        })
-      .or_else(
-        [](auto error) -> kdl::result<ReadTextureFunc, LoadTextureCollectionError> {
-          return LoadTextureCollectionError{
-            "Could not load texture collection: " + error.msg};
-        });
-  }
-  if (textureConfig.format.format == "hlmip")
-  {
-    return [&](const File& file) -> kdl::result<Assets::Texture, ReadTextureError> {
-      auto reader = file.reader().buffer();
-      return readHlMipTexture(file.path().basename(), reader);
-    };
-  }
-  if (textureConfig.format.format == "wal")
-  {
-    return loadPalette(gameFS, textureConfig)
-      .and_then([](auto palette) -> kdl::result<std::optional<Assets::Palette>> {
-        return std::optional{std::move(palette)};
-      })
-      .or_else(
-        [](auto) -> kdl::result<std::optional<Assets::Palette>> { return std::nullopt; })
-      .and_then(
-        [&](auto palette) -> kdl::result<ReadTextureFunc, LoadTextureCollectionError> {
-          return
-            [&, pathPrefix = textureConfig.root.length(), palette = std::move(palette)](
-              const File& file) -> kdl::result<Assets::Texture, ReadTextureError> {
-              auto name = getTextureNameFromPathSuffix(file.path(), pathPrefix);
-              auto reader = file.reader().buffer();
-              return readWalTexture(std::move(name), reader, palette);
-            };
-        });
-  }
-  if (textureConfig.format.format == "image")
-  {
-    return [&, pathPrefix = textureConfig.root.length()](
-             const File& file) -> kdl::result<Assets::Texture, ReadTextureError> {
-      auto name = getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-      auto reader = file.reader().buffer();
-      return readFreeImageTexture(std::move(name), reader);
-    };
-  }
-  if (textureConfig.format.format == "q3shader")
-  {
-    return [&, pathPrefix = textureConfig.root.length()](
-             const File& file) -> kdl::result<Assets::Texture, ReadTextureError> {
-      auto name = getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-      auto reader = file.reader().buffer();
-      return readQuake3ShaderTexture(std::move(name), file, gameFS);
-    };
-  }
-  if (textureConfig.format.format == "m8")
-  {
-    return [&, pathPrefix = textureConfig.root.length()](
-             const File& file) -> kdl::result<Assets::Texture, ReadTextureError> {
-      auto name = getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-      auto reader = file.reader().buffer();
-      return readM8Texture(std::move(name), reader);
-    };
-  }
-  if (textureConfig.format.format == "dds")
-  {
-    return [&, pathPrefix = textureConfig.root.length()](
-             const File& file) -> kdl::result<Assets::Texture, ReadTextureError> {
-      auto name = getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-      auto reader = file.reader().buffer();
-      return readDdsTexture(std::move(name), reader);
-    };
-  }
-
-  return [&](const File& file) -> kdl::result<Assets::Texture, ReadTextureError> {
-    auto name = getTextureNameFromPathSuffix(file.path(), textureConfig.root.length());
-    return ReadTextureError{
-      std::move(name), "Unknown texture format: " + textureConfig.format.format};
-  };
+  return loadPalette(gameFS, textureConfig)
+    .transform([](auto palette) { return std::optional{std::move(palette)}; })
+    .transform_error([](auto) -> std::optional<Assets::Palette> { return std::nullopt; })
+    .and_then(
+      [&](auto palette) -> kdl::result<ReadTextureFunc, LoadTextureCollectionError> {
+        return [&,
+                palette = std::move(palette),
+                prefixLength = textureConfig.root.length()](const File& file) {
+          return readTexture(file, gameFS, prefixLength, palette);
+        };
+      });
 }
 
 } // namespace
@@ -196,13 +182,21 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
   const Model::TextureConfig& textureConfig,
   Logger& logger)
 {
+  if (gameFS.pathInfo(path) != PathInfo::Directory)
+  {
+    return LoadTextureCollectionError{
+      "Could not load texture collection '" + path.asString() + "': not a directory"};
+  }
+
   return makeReadTextureFunc(gameFS, textureConfig)
     .and_then(
       [&](const auto& readTexture)
         -> kdl::result<Assets::TextureCollection, LoadTextureCollectionError> {
-        const auto texturePaths =
-          gameFS.find(path, makeExtensionPathMatcher(textureConfig.format.extensions));
-        auto textures = std::vector<Assets::Texture>();
+        const auto pathMatcher = !textureConfig.extensions.empty()
+                                   ? makeExtensionPathMatcher(textureConfig.extensions)
+                                   : matchAnyPath;
+        const auto texturePaths = gameFS.find(path, pathMatcher);
+        auto textures = std::vector<Assets::Texture>{};
         textures.reserve(texturePaths.size());
 
         for (const auto& texturePath : texturePaths)
@@ -211,7 +205,8 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
           {
             auto file = gameFS.openFile(texturePath);
 
-            // Store the absolute path to the original file (may be used by .obj export)
+            // Store the absolute path to the original file
+            // (may be used by .obj export)
             const auto name = file->path().lastComponent().deleteExtension().asString();
             if (shouldExclude(name, textureConfig.excludes))
             {

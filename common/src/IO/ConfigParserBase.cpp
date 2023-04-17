@@ -26,9 +26,7 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 ConfigParserBase::ConfigParserBase(const std::string_view str, Path path)
   : m_parser{ELParser::Mode::Strict, str}
@@ -43,7 +41,7 @@ EL::Expression ConfigParserBase::parseConfigFile()
   return m_parser.parse();
 }
 
-void ConfigParserBase::expectType(const EL::Value& value, const EL::ValueType type) const
+void expectType(const EL::Value& value, const EL::ValueType type)
 {
   if (value.type() != type)
   {
@@ -55,8 +53,7 @@ void ConfigParserBase::expectType(const EL::Value& value, const EL::ValueType ty
   }
 }
 
-void ConfigParserBase::expectStructure(
-  const EL::Value& value, const std::string& structure) const
+void expectStructure(const EL::Value& value, const std::string& structure)
 {
   auto parser = ELParser{ELParser::Mode::Strict, structure};
   const auto expected = parser.parse().evaluate(EL::EvaluationContext());
@@ -80,8 +77,8 @@ void ConfigParserBase::expectStructure(
   }
 }
 
-void ConfigParserBase::expectMapEntry(
-  const EL::Value& value, const std::string& key, const EL::ValueType type) const
+void expectMapEntry(
+  const EL::Value& value, const std::string& key, const EL::ValueType type)
 {
   const auto& map = value.mapValue();
   const auto it = map.find(key);
@@ -92,5 +89,4 @@ void ConfigParserBase::expectMapEntry(
   }
   expectType(it->second, type);
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

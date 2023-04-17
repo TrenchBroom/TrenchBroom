@@ -69,15 +69,15 @@ struct FileSystemConfig
 struct TextureConfig
 {
   IO::Path root;
-  PackageFormatConfig format;
+  std::vector<std::string> extensions;
   IO::Path palette;
   std::string property;
   IO::Path shaderSearchPath;
-  std::vector<std::string>
-    excludes; // Glob patterns used to match texture names for exclusion
+  // Glob patterns used to match texture names for exclusion
+  std::vector<std::string> excludes;
 
   kdl_reflect_decl(
-    TextureConfig, root, format, palette, property, shaderSearchPath, excludes);
+    TextureConfig, root, extensions, palette, property, shaderSearchPath, excludes);
 };
 
 struct EntityConfig

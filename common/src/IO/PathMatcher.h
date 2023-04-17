@@ -38,4 +38,6 @@ PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions);
 PathMatcher makeFilenamePathMatcher(std::string filename);
 PathMatcher makePathInfoPathMatcher(std::vector<PathInfo> pathInfos);
 
+bool matchAnyPath(const Path& path, const GetPathInfo& getPathInfo);
+
 } // namespace TrenchBroom::IO

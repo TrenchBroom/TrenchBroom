@@ -59,10 +59,7 @@ public:
    * @param pathMatcher only return paths that satisfy this path matcher
    */
   std::vector<Path> find(
-    const Path& path,
-    const PathMatcher& pathMatcher = [](const Path&, const GetPathInfo&) {
-      return true;
-    }) const;
+    const Path& path, const PathMatcher& pathMatcher = matchAnyPath) const;
 
   /** Returns a vector of paths listing the contents of the directory recursively at the
    * given path that satisfy the given path matcher. The returned paths are relative to
