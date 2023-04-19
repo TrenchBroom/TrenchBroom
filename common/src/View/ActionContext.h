@@ -38,8 +38,9 @@ static const Type RotateTool = 1u << 5u;
 static const Type ScaleTool = 1u << 6u;
 static const Type ShearTool = 1u << 7u;
 static const Type AnyVertexTool = 1u << 8u;
+static const Type CreatePrimitiveBrushTool = 1u << 9u;
 static const Type AnyTool =
-  AnyVertexTool | CreateComplexBrushTool | ClipTool | RotateTool | ScaleTool | ShearTool;
+  AnyVertexTool | CreateComplexBrushTool | ClipTool | RotateTool | ScaleTool | ShearTool | CreatePrimitiveBrushTool;
 static const Type AnyOrNoTool = AnyTool | NoTool;
 static const Type NoSelection = 1u << 9u;
 static const Type NodeSelection = 1u << 10u;

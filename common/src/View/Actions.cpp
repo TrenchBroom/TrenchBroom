@@ -438,6 +438,16 @@ void ActionManager::createViewActions()
       return context.hasDocument() && context.frame()->createComplexBrushToolActive();
     });
   createAction(
+    IO::Path("Controls/Map view/Create primitive brush"),
+    QObject::tr("Create Primitive Brush"),
+    ActionContext::View3D | ActionContext::AnyOrNoSelection
+    | ActionContext::CreateComplexBrushTool,
+    QKeySequence(Qt::Key_Return),
+    [](ActionExecutionContext &context) { context.view()->createPrimitiveBrush(); },
+    [](ActionExecutionContext &context) {
+      return context.hasDocument() && context.frame()->createPrimitiveBrushToolActive();
+    });
+  createAction(
     IO::Path("Controls/Map view/Toggle clip side"),
     QObject::tr("Toggle Clip Side"),
     ActionContext::AnyView | ActionContext::AnyOrNoSelection | ActionContext::ClipTool,
@@ -1427,6 +1437,20 @@ void ActionManager::createEditMenu()
     },
     IO::Path("BrushTool.svg")));
   toolMenu.addItem(createMenuAction(
+    IO::Path("Menu/Edit/Tools/Primitive Brush Tool"),
+    QObject::tr("Primitive Brush Tool"),
+    Qt::Key_P,
+    [](ActionExecutionContext &context) {
+      context.frame()->toggleCreatePrimitiveBrushTool();
+    },
+    [](ActionExecutionContext &context) {
+      return context.hasDocument() && context.frame()->canToggleCreatePrimitiveBrushTool();
+    },
+    [](ActionExecutionContext &context) {
+      return context.hasDocument() && context.frame()->createPrimitiveBrushToolActive();
+    },
+    IO::Path("PrimitiveBrushTool.svg")));
+  toolMenu.addItem(createMenuAction(
     IO::Path("Menu/Edit/Tools/Clip Tool"),
     QObject::tr("Clip Tool"),
     Qt::Key_C,
@@ -1510,6 +1534,12 @@ void ActionManager::createEditMenu()
       return context.hasDocument() && context.frame()->faceToolActive();
     },
     IO::Path("FaceTool.svg")));
+  toolMenu.addItem(createMenuAction(
+    IO::Path("Menu/Edit/Tools/Make Primitive"),
+    QObject::tr("Make Primitive"),
+    0,
+    [](ActionExecutionContext &context) { context.frame()->showPrimitiveDialog(); },
+    [](ActionExecutionContext &context) { return context.hasDocument(); }));
   toolMenu.addItem(createMenuAction(
     IO::Path("Controls/Map view/Deactivate current tool"),
     QObject::tr("Deactivate Current Tool"),
@@ -2001,6 +2031,7 @@ void ActionManager::createToolbar()
   m_toolBar->addItem(
     existingAction(IO::Path("Controls/Map view/Deactivate current tool")));
   m_toolBar->addItem(existingAction(IO::Path("Menu/Edit/Tools/Brush Tool")));
+  m_toolBar->addItem(existingAction(IO::Path("Menu/Edit/Tools/Primitive Brush Tool")));
   m_toolBar->addItem(existingAction(IO::Path("Menu/Edit/Tools/Clip Tool")));
   m_toolBar->addItem(existingAction(IO::Path("Menu/Edit/Tools/Vertex Tool")));
   m_toolBar->addItem(existingAction(IO::Path("Menu/Edit/Tools/Edge Tool")));

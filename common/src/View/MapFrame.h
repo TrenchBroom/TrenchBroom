@@ -82,6 +82,20 @@ class SignalDelayer;
 class SwitchableMapViewContainer;
 class Tool;
 
+struct PrimitiveData
+{
+  int primitiveType = 0;
+  int numSides = 8;
+  int radiusMode = 0;
+  int axis = 0;
+  float diameter = 64.0;
+  float height = 128.0;
+  bool snapToGrid = false;
+  bool snapToUnit = true;
+  bool useBrushBounds = true;
+  bool replaceSelectedBrush = true;
+};
+
 class MapFrame : public QMainWindow
 {
   Q_OBJECT
@@ -130,6 +144,9 @@ private:
   SignalDelayer* m_updateTitleSignalDelayer;
   SignalDelayer* m_updateActionStateSignalDelayer;
   SignalDelayer* m_updateStatusBarSignalDelayer;
+
+public: // For creating primitives (cylinders, etc)
+  PrimitiveData m_primitiveData;
 
 public:
   MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document);
@@ -287,6 +304,10 @@ public:
   bool canToggleCreateComplexBrushTool() const;
   bool createComplexBrushToolActive() const;
 
+  void toggleCreatePrimitiveBrushTool();
+  bool canToggleCreatePrimitiveBrushTool() const;
+  bool createPrimitiveBrushToolActive() const;
+
   void toggleClipTool();
   bool canToggleClipTool() const;
   bool clipToolActive() const;
@@ -392,6 +413,9 @@ public:
 
   void revealTexture(const Assets::Texture* texture);
 
+  void showPrimitiveDialog();
+  void makePrimitive();
+
   void debugPrintVertices();
   void debugCreateBrush();
   void debugCreateCube();
@@ -418,6 +442,15 @@ public: // event filter (suppress autosave for user input events)
 
 private:
   void triggerAutosave();
+};
+
+class PrimitiveWindow : public QDialog
+{
+  Q_OBJECT
+private:
+  PrimitiveData m_primitiveData;
+public:
+  PrimitiveWindow(QWidget* parent = nullptr);
 };
 
 class DebugPaletteWindow : public QDialog

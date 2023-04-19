@@ -77,6 +77,8 @@
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 
+#include <vecmath/mat.h>
+#include <vecmath/mat_ext.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
@@ -88,6 +90,7 @@
 #include <vector>
 
 #include <QApplication>
+#include <QButtonGroup>
 #include <QChildEvent>
 #include <QClipboard>
 #include <QComboBox>
@@ -97,6 +100,8 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
+#include <QRadioButton>
+#include <QSpinBox>
 #include <QStatusBar>
 #include <QString>
 #include <QStringList>
@@ -1526,7 +1531,7 @@ void MapFrame::deleteSelection()
       m_mapView->edgeTool().removeSelection();
     else if (m_mapView->faceToolActive())
       m_mapView->faceTool().removeSelection();
-    else if (!m_mapView->anyToolActive())
+    else if (!m_mapView->anyToolActive() || m_mapView->toolAllowsObjectDeletion())
       m_document->deleteObjects();
   }
 }
@@ -1548,6 +1553,10 @@ bool MapFrame::canDeleteSelection() const
   else if (m_mapView->faceToolActive())
   {
     return m_mapView->faceTool().canRemoveSelection();
+  }
+  else if (m_mapView->createPrimitiveBrushToolActive())
+  {
+    return true;
   }
   else
   {
@@ -1754,6 +1763,24 @@ bool MapFrame::canToggleCreateComplexBrushTool() const
 bool MapFrame::createComplexBrushToolActive() const
 {
   return m_mapView->createComplexBrushToolActive();
+}
+
+void MapFrame::toggleCreatePrimitiveBrushTool()
+{
+  if (canToggleCreatePrimitiveBrushTool())
+  {
+    m_mapView->toggleCreatePrimitiveBrushTool();
+  }
+}
+
+bool MapFrame::canToggleCreatePrimitiveBrushTool() const
+{
+  return m_mapView->canToggleCreatePrimitiveBrushTool();
+}
+
+bool MapFrame::createPrimitiveBrushToolActive() const
+{
+  return m_mapView->createPrimitiveBrushToolActive();
 }
 
 void MapFrame::toggleClipTool()
@@ -2233,6 +2260,80 @@ void MapFrame::revealTexture(const Assets::Texture* texture)
   m_inspector->faceInspector()->revealTexture(texture);
 }
 
+void MapFrame::showPrimitiveDialog()
+{
+  PrimitiveWindow *window = new PrimitiveWindow(this);
+  showModelessDialog(window);
+}
+
+void MapFrame::makePrimitive()
+{
+  std::vector<vm::vec3> positions;
+
+  vm::vec3 size;
+  vm::vec3 position = vm::vec3(0.0, 0.0, 0.0);
+  const auto& selectedNodes = m_document->selectedNodes();
+  bool useBrushBounds = m_primitiveData.useBrushBounds;
+  Model::BrushNode* selectedBrush = nullptr;
+  if (!selectedNodes.brushes().empty()) {
+    selectedBrush = selectedNodes.brushes().front();
+    const auto& bounds = selectedBrush->logicalBounds();
+    position = bounds.center();
+    size = bounds.max - bounds.min;
+    position[2] = bounds.min[2];
+  } else {
+    useBrushBounds = false;
+  }
+
+  if (!useBrushBounds) {
+    size[0] = m_primitiveData.diameter;
+    size[1] = m_primitiveData.diameter;
+    size[2] = m_primitiveData.height;
+  }
+
+  int numSides = m_primitiveData.numSides;
+  positions.reserve((unsigned int)numSides * 2);
+  FloatType snap = 0.0;
+  if (m_primitiveData.snapToUnit) {
+    snap = 1.0f;
+  }
+  if (m_primitiveData.snapToGrid) {
+    snap = m_document->grid().actualSize();
+  }
+  positions.reserve(((unsigned int)numSides) * 2);
+  for (int i = 0; i < 2; ++i) {
+    for (int j = 0; j < numSides; ++j) {
+      vm::vec3 v;
+
+      if (m_primitiveData.radiusMode == 0) {
+        FloatType angle = FloatType(j + 0.5) * vm::Cf::two_pi() / FloatType(numSides) - vm::Cf::half_pi();
+        FloatType a = vm::Cf::pi() / FloatType(numSides); // Half angle
+        FloatType ca = std::cos(a);
+        v[0] = std::cos(angle) * 0.5 * size[0] / ca;
+        v[1] = std::sin(angle) * 0.5 * size[1] / ca;
+      }
+      else {
+        FloatType angle = FloatType(j) * vm::Cf::two_pi() / FloatType(numSides) - vm::Cf::half_pi();
+        v[0] = std::cos(angle) * 0.5 * size[0];
+        v[1] = std::sin(angle) * 0.5 * size[1];
+      }
+
+      v[2] = i * size[2];
+      v = v + position;
+      if (snap > 0.0f) {
+        v = round(v / snap) * snap;
+      }
+      positions.push_back(v);
+    }
+  }
+  // This could stand to be done better so we don't have 2 undo's.
+  if (m_primitiveData.replaceSelectedBrush)
+  {
+    m_document->deleteObjects();
+  }
+  m_document->createBrush(positions);
+}
+
 void MapFrame::debugPrintVertices()
 {
   m_document->printVertices();
@@ -2472,6 +2573,113 @@ void MapFrame::triggerAutosave()
     m_autosaver->triggerAutosave(logger());
   }
 }
+
+
+// PrimitiveWindow
+
+PrimitiveWindow::PrimitiveWindow(QWidget* parent)
+  : QDialog(parent)
+{
+  setWindowTitle(tr("Make Primitive"));
+  QLabel* numSidesLabel = new QLabel(tr("Number of sides:"));
+  QSpinBox* numSidesBox = new QSpinBox();
+  QRadioButton* stylePlaneButton = new QRadioButton(tr("Plane Style"));
+  QRadioButton* styleVertexButton = new QRadioButton(tr("Vertex Style"));
+  QButtonGroup* styleButtonGroup = new QButtonGroup();
+  QLabel* replaceSelectedBrushLabel = new QLabel(tr("Replace selected brush:"));
+  QCheckBox* replaceSelectedBrushCheck = new QCheckBox();
+  QLabel* useBrushBoundsLabel = new QLabel(tr("Use brush bounds:"));
+  QCheckBox* useBrushBoundsCheck = new QCheckBox();
+  QLabel* radiusLabel = new QLabel(tr("Radius:"));
+  QSpinBox* radiusBox = new QSpinBox();
+  QLabel* diameterLabel = new QLabel(tr("Diameter:"));
+  QSpinBox* diameterBox = new QSpinBox();
+  QLabel* heightLabel = new QLabel(tr("Height:"));
+  QSpinBox* heightBox = new QSpinBox();
+  QGridLayout* gridLayout = new QGridLayout();
+  QPushButton* button = new QPushButton(tr("Create Brush"));
+  QVBoxLayout* outerVBoxLayout = new QVBoxLayout();
+
+  m_primitiveData = ((MapFrame*)(parent))->m_primitiveData; // Create a local copy of the primitive data in case the user cancels.
+  numSidesBox->setRange(3, 256); // set before connecting callbacks because it will override the values
+  numSidesBox->setValue(m_primitiveData.numSides);
+  radiusBox->setRange(1, 4096);
+  radiusBox->setValue(m_primitiveData.diameter / 2.0f);
+  diameterBox->setRange(2, 8192);
+  diameterBox->setSingleStep(2);
+  diameterBox->setValue(m_primitiveData.diameter);
+  heightBox->setRange(1, 4096);
+  heightBox->setValue(m_primitiveData.height);
+  replaceSelectedBrushCheck->setChecked(m_primitiveData.replaceSelectedBrush);
+  stylePlaneButton->setChecked(m_primitiveData.radiusMode == 0);
+  styleVertexButton->setChecked(m_primitiveData.radiusMode == 1);
+
+  connect(numSidesBox, QOverload<int>::of(&QSpinBox::valueChanged), this,
+    [=](int numSidesValue) {
+      this->m_primitiveData.numSides = numSidesValue;
+    });
+  connect(stylePlaneButton, &QRadioButton::toggled, this,
+    [=]() {
+      this->m_primitiveData.radiusMode = 0;
+    });
+  connect(styleVertexButton, &QRadioButton::toggled, this,
+    [=]() {
+      this->m_primitiveData.radiusMode = 1;
+    });
+  connect(radiusBox, QOverload<int>::of(&QSpinBox::valueChanged), this,
+    [=](int radiusValue) {
+      this->m_primitiveData.diameter = radiusValue * 2.0f;
+      diameterBox->setValue(radiusValue * 2.0f);
+    });
+  connect(diameterBox, QOverload<int>::of(&QSpinBox::valueChanged), this,
+    [=](int diameterValue) {
+      this->m_primitiveData.diameter = diameterValue;
+      radiusBox->setValue(diameterValue / 2.0f);
+    });
+  connect(replaceSelectedBrushCheck, &QCheckBox::stateChanged,
+    [=](int state) {
+      this->m_primitiveData.replaceSelectedBrush = state != Qt::Unchecked;
+    });
+  connect(useBrushBoundsCheck, &QCheckBox::stateChanged,
+    [=](int state) {
+      radiusBox->setEnabled(state == Qt::Unchecked);
+      radiusLabel->setEnabled(state == Qt::Unchecked);
+      diameterBox->setEnabled(state == Qt::Unchecked);
+      diameterLabel->setEnabled(state == Qt::Unchecked);
+      heightBox->setEnabled(state == Qt::Unchecked);
+      heightLabel->setEnabled(state == Qt::Unchecked);
+      this->m_primitiveData.useBrushBounds = state != Qt::Unchecked;
+    });
+  connect(button, &QPushButton::clicked, this,
+    [=]() {
+      ((MapFrame*)(parent))->m_primitiveData = m_primitiveData;
+      ((MapFrame*)(parent))->makePrimitive();
+    });
+
+  useBrushBoundsCheck->setChecked(m_primitiveData.useBrushBounds); // Set after connecting callbacks so the setEnabled logic works.
+  styleButtonGroup->addButton(stylePlaneButton);
+  styleButtonGroup->addButton(styleVertexButton);
+  int row = 0;
+  gridLayout->addWidget(numSidesLabel, row, 0);
+  gridLayout->addWidget(numSidesBox, row, 1);
+  gridLayout->addWidget(stylePlaneButton, ++row, 0);
+  gridLayout->addWidget(styleVertexButton, row, 1);
+  gridLayout->addWidget(replaceSelectedBrushLabel, ++row, 0);
+  gridLayout->addWidget(replaceSelectedBrushCheck, row, 1);
+  gridLayout->addWidget(useBrushBoundsLabel, ++row, 0);
+  gridLayout->addWidget(useBrushBoundsCheck, row, 1);
+  gridLayout->addWidget(radiusLabel, ++row, 0);
+  gridLayout->addWidget(radiusBox, row, 1);
+  gridLayout->addWidget(diameterLabel, ++row, 0);
+  gridLayout->addWidget(diameterBox, row, 1);
+  gridLayout->addWidget(heightLabel, ++row, 0);
+  gridLayout->addWidget(heightBox, row, 1);
+  outerVBoxLayout->addLayout(gridLayout, 1);
+  outerVBoxLayout->addStretch();
+  outerVBoxLayout->addWidget(button, 1);
+  setLayout(outerVBoxLayout);
+}
+
 
 // DebugPaletteWindow
 

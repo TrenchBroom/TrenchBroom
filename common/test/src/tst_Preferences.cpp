@@ -682,6 +682,7 @@ TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
     "Menu/Edit/Group",
     "Menu/Edit/Ungroup",
     "Menu/Edit/Tools/Brush Tool",
+    "Menu/Edit/Tools/Primitive Brush Tool",
     "Menu/Edit/Tools/Clip Tool",
     "Menu/Edit/Tools/Rotate Tool",
     "Menu/Edit/Tools/Scale Tool",

@@ -303,6 +303,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.cpp
         ${COMMON_SOURCE_DIR}/View/CreateEntityTool.cpp
         ${COMMON_SOURCE_DIR}/View/CreateEntityToolController.cpp
+        ${COMMON_SOURCE_DIR}/View/CreatePrimitiveBrushTool.cpp
+        ${COMMON_SOURCE_DIR}/View/CreatePrimitiveBrushToolController3D.cpp
+        ${COMMON_SOURCE_DIR}/View/CreatePrimitiveBrushToolPage.cpp
         ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushTool.cpp
         ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController2D.cpp
         ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController3D.cpp
@@ -827,6 +830,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/View/CreateEntityTool.h
         ${COMMON_SOURCE_DIR}/View/CreateEntityToolController.h
+        ${COMMON_SOURCE_DIR}/View/CreatePrimitiveBrushTool.h
+        ${COMMON_SOURCE_DIR}/View/CreatePrimitiveBrushToolPage.h
+        ${COMMON_SOURCE_DIR}/View/CreatePrimitiveBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushTool.h
         ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController2D.h
         ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController3D.h

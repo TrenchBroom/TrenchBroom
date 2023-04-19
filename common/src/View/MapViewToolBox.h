@@ -33,6 +33,7 @@ namespace View
 {
 class ClipTool;
 class CreateComplexBrushTool;
+class CreatePrimitiveBrushTool;
 class CreateEntityTool;
 class CreateSimpleBrushTool;
 class MoveObjectsTool;
@@ -52,6 +53,7 @@ private:
 
   std::unique_ptr<ClipTool> m_clipTool;
   std::unique_ptr<CreateComplexBrushTool> m_createComplexBrushTool;
+  std::unique_ptr<CreatePrimitiveBrushTool> m_createPrimitiveBrushTool;
   std::unique_ptr<CreateEntityTool> m_createEntityTool;
   std::unique_ptr<CreateSimpleBrushTool> m_createSimpleBrushTool;
   std::unique_ptr<MoveObjectsTool> m_moveObjectsTool;
@@ -72,6 +74,7 @@ public:
 public: // tools
   ClipTool& clipTool();
   CreateComplexBrushTool& createComplexBrushTool();
+  CreatePrimitiveBrushTool &createPrimitiveBrushTool();
   CreateEntityTool& createEntityTool();
   CreateSimpleBrushTool& createSimpleBrushTool();
   MoveObjectsTool& moveObjectsTool();
@@ -86,6 +89,10 @@ public: // tools
   void toggleCreateComplexBrushTool();
   bool createComplexBrushToolActive() const;
   void performCreateComplexBrush();
+
+  void toggleCreatePrimitiveBrushTool();
+  bool createPrimitiveBrushToolActive() const;
+  void performCreatePrimitiveBrush();
 
   void toggleClipTool();
   bool clipToolActive() const;

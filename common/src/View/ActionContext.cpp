@@ -108,6 +108,10 @@ std::string actionContextName(const ActionContext::Type actionContext)
     {
       actionContexts.emplace_back("brush tool");
     }
+    if (actionContext & ActionContext::CreatePrimitiveBrushTool)
+    {
+      actionContexts.emplace_back("primitive brush tool");
+    }
     if (actionContext & ActionContext::ClipTool)
     {
       actionContexts.emplace_back("clip tool");

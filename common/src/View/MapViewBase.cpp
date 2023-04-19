@@ -611,6 +611,14 @@ void MapViewBase::createComplexBrush()
   }
 }
 
+void MapViewBase::createPrimitiveBrush()
+{
+  if (m_toolBox.createPrimitiveBrushToolActive())
+  {
+    m_toolBox.performCreatePrimitiveBrush();
+  }
+}
+
 void MapViewBase::toggleClipSide()
 {
   m_toolBox.toggleClipSide();
@@ -935,13 +943,14 @@ ActionContext::Type MapViewBase::actionContext() const
 
   const auto derivedContext = doGetActionContext();
   const auto toolContext =
-    m_toolBox.createComplexBrushToolActive() ? ActionContext::CreateComplexBrushTool
-    : m_toolBox.clipToolActive()             ? ActionContext::ClipTool
-    : m_toolBox.anyVertexToolActive()        ? ActionContext::AnyVertexTool
-    : m_toolBox.rotateObjectsToolActive()    ? ActionContext::RotateTool
-    : m_toolBox.scaleObjectsToolActive()     ? ActionContext::ScaleTool
-    : m_toolBox.shearObjectsToolActive()     ? ActionContext::ShearTool
-                                             : ActionContext::NoTool;
+    m_toolBox.createComplexBrushToolActive()     ? ActionContext::CreateComplexBrushTool
+    : m_toolBox.createPrimitiveBrushToolActive() ? ActionContext::CreatePrimitiveBrushTool
+    : m_toolBox.clipToolActive()                 ? ActionContext::ClipTool
+    : m_toolBox.anyVertexToolActive()            ? ActionContext::AnyVertexTool
+    : m_toolBox.rotateObjectsToolActive()        ? ActionContext::RotateTool
+    : m_toolBox.scaleObjectsToolActive()         ? ActionContext::ScaleTool
+    : m_toolBox.shearObjectsToolActive()         ? ActionContext::ShearTool
+                                                 : ActionContext::NoTool;
   const auto selectionContext =
     document->hasSelectedNodes()        ? ActionContext::NodeSelection
     : document->hasSelectedBrushFaces() ? ActionContext::FaceSelection
