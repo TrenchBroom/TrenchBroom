@@ -439,6 +439,16 @@ void ActionManager::createViewActions()
       return context.hasDocument() && context.frame()->createComplexBrushToolActive();
     });
   createAction(
+    std::filesystem::path("Controls/Map view/Create primitive brush"),
+    QObject::tr("Create Primitive Brush"),
+    ActionContext::View3D | ActionContext::AnyOrNoSelection
+      | ActionContext::CreateComplexBrushTool,
+    QKeySequence(Qt::Key_Return),
+    [](ActionExecutionContext& context) { context.view()->createPrimitiveBrush(); },
+    [](ActionExecutionContext& context) {
+      return context.hasDocument() && context.frame()->createPrimitiveBrushToolActive();
+    });
+  createAction(
     std::filesystem::path{"Controls/Map view/Toggle clip side"},
     QObject::tr("Toggle Clip Side"),
     ActionContext::AnyView | ActionContext::AnyOrNoSelection | ActionContext::ClipTool,
@@ -1438,6 +1448,21 @@ void ActionManager::createEditMenu()
     },
     std::filesystem::path{"BrushTool.svg"}));
   toolMenu.addItem(createMenuAction(
+    std::filesystem::path("Menu/Edit/Tools/Primitive Brush Tool"),
+    QObject::tr("Primitive Brush Tool"),
+    Qt::Key_P,
+    [](ActionExecutionContext& context) {
+      context.frame()->toggleCreatePrimitiveBrushTool();
+    },
+    [](ActionExecutionContext& context) {
+      return context.hasDocument()
+             && context.frame()->canToggleCreatePrimitiveBrushTool();
+    },
+    [](ActionExecutionContext& context) {
+      return context.hasDocument() && context.frame()->createPrimitiveBrushToolActive();
+    },
+    std::filesystem::path{"PrimitiveBrushTool.svg"}));
+  toolMenu.addItem(createMenuAction(
     std::filesystem::path{"Menu/Edit/Tools/Clip Tool"},
     QObject::tr("Clip Tool"),
     Qt::Key_C,
@@ -2020,6 +2045,8 @@ void ActionManager::createToolbar()
   m_toolBar->addItem(
     existingAction(std::filesystem::path{"Controls/Map view/Deactivate current tool"}));
   m_toolBar->addItem(existingAction(std::filesystem::path{"Menu/Edit/Tools/Brush Tool"}));
+  m_toolBar->addItem(
+    existingAction(std::filesystem::path{"Menu/Edit/Tools/Primitive Brush Tool"}));
   m_toolBar->addItem(existingAction(std::filesystem::path{"Menu/Edit/Tools/Clip Tool"}));
   m_toolBar->addItem(
     existingAction(std::filesystem::path{"Menu/Edit/Tools/Vertex Tool"}));

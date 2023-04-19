@@ -210,7 +210,7 @@ public: // texture actions
 
 public: // tool mode actions
   void createComplexBrush();
-
+  void createPrimitiveBrush();
   void toggleClipSide();
   void performClip();
 

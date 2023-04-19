@@ -132,13 +132,19 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
 
 bool SwitchableMapViewContainer::anyToolActive() const
 {
-  return createComplexBrushToolActive() || clipToolActive() || rotateObjectsToolActive()
-         || scaleObjectsToolActive() || shearObjectsToolActive() || anyVertexToolActive();
+  return createComplexBrushToolActive() || createPrimitiveBrushToolActive()
+         || clipToolActive() || rotateObjectsToolActive() || scaleObjectsToolActive()
+         || shearObjectsToolActive() || anyVertexToolActive();
 }
 
 void SwitchableMapViewContainer::deactivateTool()
 {
   m_toolBox->deactivateAllTools();
+}
+
+bool SwitchableMapViewContainer::toolAllowsObjectDeletion() const
+{
+  return createPrimitiveBrushToolActive();
 }
 
 bool SwitchableMapViewContainer::createComplexBrushToolActive() const
@@ -155,6 +161,22 @@ void SwitchableMapViewContainer::toggleCreateComplexBrushTool()
 {
   assert(canToggleCreateComplexBrushTool());
   m_toolBox->toggleCreateComplexBrushTool();
+}
+
+bool SwitchableMapViewContainer::createPrimitiveBrushToolActive() const
+{
+  return m_toolBox->createPrimitiveBrushToolActive();
+}
+
+bool SwitchableMapViewContainer::canToggleCreatePrimitiveBrushTool() const
+{
+  return true;
+}
+
+void SwitchableMapViewContainer::toggleCreatePrimitiveBrushTool()
+{
+  assert(canToggleCreatePrimitiveBrushTool());
+  m_toolBox->toggleCreatePrimitiveBrushTool();
 }
 
 bool SwitchableMapViewContainer::clipToolActive() const

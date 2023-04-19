@@ -89,9 +89,15 @@ public:
   bool anyToolActive() const;
   void deactivateTool();
 
+  bool toolAllowsObjectDeletion() const;
+
   bool createComplexBrushToolActive() const;
   bool canToggleCreateComplexBrushTool() const;
   void toggleCreateComplexBrushTool();
+
+  bool createPrimitiveBrushToolActive() const;
+  bool canToggleCreatePrimitiveBrushTool() const;
+  void toggleCreatePrimitiveBrushTool();
 
   bool clipToolActive() const;
   bool canToggleClipTool() const;

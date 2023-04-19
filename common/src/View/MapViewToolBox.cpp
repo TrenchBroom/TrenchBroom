@@ -23,6 +23,7 @@
 #include "View/ClipTool.h"
 #include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
+#include "View/CreatePrimitiveBrushTool.h"
 #include "View/CreateSimpleBrushTool.h"
 #include "View/EdgeTool.h"
 #include "View/ExtrudeTool.h"
@@ -56,6 +57,11 @@ ClipTool& MapViewToolBox::clipTool()
 CreateComplexBrushTool& MapViewToolBox::createComplexBrushTool()
 {
   return *m_createComplexBrushTool;
+}
+
+CreatePrimitiveBrushTool& MapViewToolBox::createPrimitiveBrushTool()
+{
+  return *m_createPrimitiveBrushTool;
 }
 
 CreateEntityTool& MapViewToolBox::createEntityTool()
@@ -121,6 +127,21 @@ bool MapViewToolBox::createComplexBrushToolActive() const
 void MapViewToolBox::performCreateComplexBrush()
 {
   m_createComplexBrushTool->createBrush();
+}
+
+void MapViewToolBox::toggleCreatePrimitiveBrushTool()
+{
+  toggleTool(createPrimitiveBrushTool());
+}
+
+bool MapViewToolBox::createPrimitiveBrushToolActive() const
+{
+  return m_createPrimitiveBrushTool->active();
+}
+
+void MapViewToolBox::performCreatePrimitiveBrush()
+{
+  m_createPrimitiveBrushTool->createBrush();
 }
 
 void MapViewToolBox::toggleClipTool()
@@ -251,6 +272,7 @@ void MapViewToolBox::createTools(
 {
   m_clipTool = std::make_unique<ClipTool>(document);
   m_createComplexBrushTool = std::make_unique<CreateComplexBrushTool>(document);
+  m_createPrimitiveBrushTool = std::make_unique<CreatePrimitiveBrushTool>(document);
   m_createEntityTool = std::make_unique<CreateEntityTool>(document);
   m_createSimpleBrushTool = std::make_unique<CreateSimpleBrushTool>(document);
   m_moveObjectsTool = std::make_unique<MoveObjectsTool>(document);
@@ -293,6 +315,7 @@ void MapViewToolBox::createTools(
   registerTool(shearObjectsTool(), bookCtrl);
   registerTool(extrudeTool(), bookCtrl);
   registerTool(createComplexBrushTool(), bookCtrl);
+  registerTool(createPrimitiveBrushTool(), bookCtrl);
   registerTool(clipTool(), bookCtrl);
   registerTool(vertexTool(), bookCtrl);
   registerTool(edgeTool(), bookCtrl);

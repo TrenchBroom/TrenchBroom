@@ -1508,7 +1508,7 @@ void MapFrame::deleteSelection()
       m_mapView->edgeTool().removeSelection();
     else if (m_mapView->faceToolActive())
       m_mapView->faceTool().removeSelection();
-    else if (!m_mapView->anyToolActive())
+    else if (!m_mapView->anyToolActive() || m_mapView->toolAllowsObjectDeletion())
       m_document->deleteObjects();
   }
 }
@@ -1530,6 +1530,10 @@ bool MapFrame::canDeleteSelection() const
   else if (m_mapView->faceToolActive())
   {
     return m_mapView->faceTool().canRemoveSelection();
+  }
+  else if (m_mapView->createPrimitiveBrushToolActive())
+  {
+    return true;
   }
   else
   {
@@ -1736,6 +1740,24 @@ bool MapFrame::canToggleCreateComplexBrushTool() const
 bool MapFrame::createComplexBrushToolActive() const
 {
   return m_mapView->createComplexBrushToolActive();
+}
+
+void MapFrame::toggleCreatePrimitiveBrushTool()
+{
+  if (canToggleCreatePrimitiveBrushTool())
+  {
+    m_mapView->toggleCreatePrimitiveBrushTool();
+  }
+}
+
+bool MapFrame::canToggleCreatePrimitiveBrushTool() const
+{
+  return m_mapView->canToggleCreatePrimitiveBrushTool();
+}
+
+bool MapFrame::createPrimitiveBrushToolActive() const
+{
+  return m_mapView->createPrimitiveBrushToolActive();
 }
 
 void MapFrame::toggleClipTool()

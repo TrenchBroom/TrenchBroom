@@ -18,6 +18,14 @@ QToolButton#toolButton_borderless {
   border: none;
 }
 
+QToolButton#toolButton_borderOnCheck {
+  border: none;
+}
+
+QToolButton#toolButton_borderOnCheck:checked {
+  border: 1px solid black;
+}
+
 QToolButton#toolButton_borderless::menu-indicator {
  image: none;
 }

@@ -48,6 +48,7 @@
 #include "View/ClipToolController.h"
 #include "View/CreateComplexBrushToolController3D.h"
 #include "View/CreateEntityToolController.h"
+#include "View/CreatePrimitiveBrushToolController3D.h"
 #include "View/CreateSimpleBrushToolController3D.h"
 #include "View/EdgeTool.h"
 #include "View/EdgeToolController.h"
@@ -119,6 +120,8 @@ void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
   addTool(std::make_unique<ExtrudeToolController3D>(toolBox.extrudeTool()));
   addTool(std::make_unique<CreateComplexBrushToolController3D>(
     toolBox.createComplexBrushTool()));
+  addTool(std::make_unique<CreatePrimitiveBrushToolController3D>(
+    toolBox.createPrimitiveBrushTool(), m_document));
   addTool(std::make_unique<ClipToolController3D>(toolBox.clipTool()));
   addTool(std::make_unique<VertexToolController>(toolBox.vertexTool()));
   addTool(std::make_unique<EdgeToolController>(toolBox.edgeTool()));
