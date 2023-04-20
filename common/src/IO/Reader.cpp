@@ -29,9 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 Reader::Source::~Source() = default;
 
@@ -66,9 +64,9 @@ void Reader::Source::ensurePosition(const size_t position) const
 {
   if (position > size())
   {
-    throw ReaderException(
+    throw ReaderException{
       "Position " + std::to_string(position) + " is out of bounds for reader of size "
-      + std::to_string(size()));
+      + std::to_string(size())};
   }
 }
 
@@ -90,10 +88,10 @@ std::unique_ptr<Reader::BufferSource> Reader::Source::buffer() const
 }
 
 Reader::FileSource::FileSource(std::FILE* file, const size_t offset, const size_t length)
-  : m_file(file)
-  , m_offset(offset)
-  , m_length(length)
-  , m_position(0)
+  : m_file{file}
+  , m_offset{offset}
+  , m_length{length}
+  , m_position{0}
 {
   assert(m_file != nullptr);
   std::rewind(m_file);
@@ -121,9 +119,9 @@ void Reader::FileSource::doRead(char* val, const size_t size)
   {
     throwError("ftell failed");
   }
-  if (static_cast<size_t>(pos) != m_offset + m_position)
+  if (size_t(pos) != m_offset + m_position)
   {
-    if (std::fseek(m_file, static_cast<long>(m_offset + m_position), SEEK_SET) != 0)
+    if (std::fseek(m_file, long(m_offset + m_position), SEEK_SET) != 0)
     {
       throwError("fseek failed");
     }
@@ -148,7 +146,7 @@ std::unique_ptr<Reader::Source> Reader::FileSource::doGetSubSource(
 
 std::unique_ptr<Reader::BufferSource> Reader::FileSource::doBuffer() const
 {
-  std::fseek(m_file, static_cast<long>(m_offset), SEEK_SET);
+  std::fseek(m_file, long(m_offset), SEEK_SET);
 
 #if defined __APPLE__
   // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
@@ -165,7 +163,7 @@ std::unique_ptr<Reader::BufferSource> Reader::FileSource::doBuffer() const
     throwError("fread failed");
   }
 
-  if (std::fseek(m_file, static_cast<long>(m_offset + m_position), SEEK_SET) != 0)
+  if (std::fseek(m_file, long(m_offset + m_position), SEEK_SET) != 0)
   {
     throwError("fseek failed");
   }
@@ -179,22 +177,22 @@ void Reader::FileSource::throwError(const std::string& msg) const
 {
   if (std::feof(m_file))
   {
-    throw ReaderException(msg + ": unexpected end of file");
+    throw ReaderException{msg + ": unexpected end of file"};
   }
   else
   {
-    throw ReaderException(msg + ": " + std::strerror(errno));
+    throw ReaderException{msg + ": " + std::strerror(errno)};
   }
 }
 
 Reader::BufferSource::BufferSource(const char* begin, const char* end)
-  : m_begin(begin)
-  , m_end(end)
-  , m_current(begin)
+  : m_begin{begin}
+  , m_end{end}
+  , m_current{begin}
 {
   if (m_begin > m_end)
   {
-    throw ReaderException("Invalid buffer");
+    throw ReaderException{"Invalid buffer"};
   }
 }
 
@@ -210,12 +208,12 @@ const char* Reader::BufferSource::end() const
 
 size_t Reader::BufferSource::doGetSize() const
 {
-  return static_cast<size_t>(m_end - m_begin);
+  return size_t(m_end - m_begin);
 }
 
 size_t Reader::BufferSource::doGetPosition() const
 {
-  return static_cast<size_t>(m_current - m_begin);
+  return size_t(m_current - m_begin);
 }
 
 void Reader::BufferSource::doRead(char* val, const size_t size)
@@ -253,7 +251,7 @@ std::unique_ptr<Reader::BufferSource> Reader::OwningBufferSource::doBuffer() con
 }
 
 Reader::Reader(std::unique_ptr<Source> source)
-  : m_source(std::move(source))
+  : m_source{std::move(source)}
 {
 }
 
@@ -270,12 +268,12 @@ Reader::Reader(const Reader& other)
 
 Reader Reader::from(std::FILE* file)
 {
-  return Reader(std::make_unique<FileSource>(file, 0, fileSize(file)));
+  return Reader{std::make_unique<FileSource>(file, 0, fileSize(file))};
 }
 
 Reader Reader::from(const char* begin, const char* end)
 {
-  return Reader(std::make_unique<BufferSource>(begin, end));
+  return Reader{std::make_unique<BufferSource>(begin, end)};
 }
 
 size_t Reader::size() const
@@ -312,16 +310,16 @@ void Reader::seekBackward(const size_t offset)
 {
   if (offset > position())
   {
-    throw ReaderException(
+    throw ReaderException{
       "Cannot seek beyond start of reader at position " + std::to_string(position())
-      + " with offset " + std::to_string(offset));
+      + " with offset " + std::to_string(offset)};
   }
   seekFromBegin(position() - offset);
 }
 
 Reader Reader::subReaderFromBegin(const size_t position, const size_t length) const
 {
-  return Reader(m_source->subSource(position, length));
+  return Reader{m_source->subSource(position, length)};
 }
 
 Reader Reader::subReaderFromBegin(const size_t position) const
@@ -361,11 +359,9 @@ void Reader::read(char* val, const size_t size)
 
 std::string Reader::readString(const size_t size)
 {
-  std::vector<char> buffer;
-  buffer.resize(size + 1);
-  buffer[size] = 0;
+  auto buffer = std::vector<char>(size + 1, 0);
   read(buffer.data(), size);
-  return std::string(buffer.data());
+  return {buffer.data()};
 }
 
 BufferedReader::BufferedReader(std::unique_ptr<BufferSource> source)
@@ -389,7 +385,6 @@ const char* BufferedReader::end() const
 
 std::string_view BufferedReader::stringView() const
 {
-  return std::string_view(begin(), size());
+  return std::string_view{begin(), size()};
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO
