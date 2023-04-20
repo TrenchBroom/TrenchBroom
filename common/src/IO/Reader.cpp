@@ -78,10 +78,10 @@ std::unique_ptr<Reader::Source> Reader::Source::clone() const
 }
 
 std::unique_ptr<Reader::Source> Reader::Source::subSource(
-  size_t position, size_t length) const
+  size_t offset, size_t length) const
 {
-  ensurePosition(position + length);
-  return doGetSubSource(position, length);
+  ensurePosition(offset + length);
+  return doGetSubSource(offset, length);
 }
 
 std::unique_ptr<Reader::BufferSource> Reader::Source::buffer() const
@@ -141,9 +141,9 @@ void Reader::FileSource::doSeek(const size_t position)
 }
 
 std::unique_ptr<Reader::Source> Reader::FileSource::doGetSubSource(
-  const size_t position, const size_t length) const
+  const size_t offset, const size_t length) const
 {
-  return std::make_unique<FileSource>(m_file, m_offset + position, length);
+  return std::make_unique<FileSource>(m_file, m_offset + offset, length);
 }
 
 std::unique_ptr<Reader::BufferSource> Reader::FileSource::doBuffer() const
@@ -230,9 +230,9 @@ void Reader::BufferSource::doSeek(const size_t position)
 }
 
 std::unique_ptr<Reader::Source> Reader::BufferSource::doGetSubSource(
-  const size_t position, const size_t length) const
+  const size_t offset, const size_t length) const
 {
-  return std::make_unique<BufferSource>(m_begin + position, m_begin + position + length);
+  return std::make_unique<BufferSource>(m_begin + offset, m_begin + offset + length);
 }
 
 std::unique_ptr<Reader::BufferSource> Reader::BufferSource::doBuffer() const

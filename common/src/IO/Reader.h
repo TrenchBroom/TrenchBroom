@@ -93,13 +93,13 @@ protected:
     /**
      * Returns a source for a sub region of this reader source.
      *
-     * @param position the start position of the sub region
+     * @param offset theoffset of the sub region
      * @param length the length of the sub region
      * @return a reader source for the specified sub region
      *
      * @throw ReaderException if the given sub region is out of bounds or if reading fails
      */
-    std::unique_ptr<Source> subSource(size_t position, size_t length) const;
+    std::unique_ptr<Source> subSource(size_t offset, size_t length) const;
 
     /**
      * Ensures that the contents of this reader are buffered in memory and returns the
@@ -163,7 +163,7 @@ protected:
     size_t doGetPosition() const override;
     void doRead(char* val, size_t size) override;
     void doSeek(size_t position) override;
-    std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
+    std::unique_ptr<Source> doGetSubSource(size_t offset, size_t length) const override;
     std::unique_ptr<BufferSource> doBuffer() const override;
 
   private:
@@ -208,7 +208,7 @@ protected:
     size_t doGetPosition() const override;
     void doRead(char* val, size_t size) override;
     void doSeek(size_t position) override;
-    std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
+    std::unique_ptr<Source> doGetSubSource(size_t offset, size_t length) const override;
     std::unique_ptr<BufferSource> doBuffer() const override;
   };
 
