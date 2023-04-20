@@ -164,7 +164,7 @@ protected:
     void doRead(char* val, size_t size) override;
     void doSeek(size_t position) override;
     std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
-    virtual std::unique_ptr<BufferSource> doBuffer() const override;
+    std::unique_ptr<BufferSource> doBuffer() const override;
 
   private:
     [[noreturn]] void throwError(const std::string& msg) const;
@@ -209,7 +209,7 @@ protected:
     void doRead(char* val, size_t size) override;
     void doSeek(size_t position) override;
     std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
-    virtual std::unique_ptr<BufferSource> doBuffer() const override;
+    std::unique_ptr<BufferSource> doBuffer() const override;
   };
 
   class OwningBufferSource : public BufferSource
@@ -229,7 +229,7 @@ protected:
     OwningBufferSource(BufferType buffer, const char* begin, const char* end);
 
   private:
-    virtual std::unique_ptr<BufferSource> doBuffer() const override;
+    std::unique_ptr<BufferSource> doBuffer() const override;
   };
 
 protected:
