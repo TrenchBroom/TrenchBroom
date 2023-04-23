@@ -59,18 +59,20 @@ size_t readMipOffsets(
   return mipLevels;
 }
 
-bool readMips(
+std::tuple<Assets::TextureBufferList, bool> readMips(
   const Assets::Palette& palette,
   const size_t mipLevels,
   const size_t offsets[],
   const size_t width,
   const size_t height,
   Reader& reader,
-  Assets::TextureBufferList& buffers,
   Color& averageColor,
   const Assets::PaletteTransparency transparency)
 {
   static auto tempColor = Color{};
+
+  auto buffers = Assets::TextureBufferList{};
+  Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
   auto hasTransparency = false;
   for (size_t i = 0; i < mipLevels; ++i)
@@ -89,7 +91,7 @@ bool readMips(
       averageColor = tempColor;
     }
   }
-  return hasTransparency;
+  return {std::move(buffers), hasTransparency};
 }
 
 kdl::result<Assets::Texture, ReadTextureError> readQ2Wal(
@@ -97,7 +99,6 @@ kdl::result<Assets::Texture, ReadTextureError> readQ2Wal(
 {
   static const auto MaxMipLevels = size_t(4);
   auto averageColor = Color{};
-  auto buffers = Assets::TextureBufferList{MaxMipLevels};
   size_t offsets[MaxMipLevels];
 
   // https://github.com/id-Software/Quake-2-Tools/blob/master/qe4/qfiles.h#L142
@@ -126,17 +127,17 @@ kdl::result<Assets::Texture, ReadTextureError> readQ2Wal(
       throw AssetException{"Missing palette"};
     }
 
-    Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
-    readMips(
+    auto [buffers, hasTransparency] = readMips(
       *palette,
       mipLevels,
       offsets,
       width,
       height,
       reader,
-      buffers,
       averageColor,
       Assets::PaletteTransparency::Opaque);
+
+    unused(hasTransparency);
 
     return Assets::Texture{
       std::move(name),
@@ -158,7 +159,6 @@ kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reade
 {
   static const auto MaxMipLevels = size_t(9);
   auto averageColor = Color{};
-  auto buffers = Assets::TextureBufferList{MaxMipLevels};
   size_t offsets[MaxMipLevels];
 
   // https://gist.github.com/DanielGibson/a53c74b10ddd0a1f3d6ab42909d5b7e1
@@ -180,7 +180,6 @@ kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reade
     }
 
     const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
-    Assets::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
     /* const auto animname = */ reader.readString(WalLayout::TextureNameLength);
     const auto flags = reader.readInt<int32_t>();
@@ -193,14 +192,13 @@ kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reade
 
     return Assets::loadPalette(paletteReader)
       .transform([&](const auto& palette) {
-        const auto hasTransparency = readMips(
+        auto [buffers, hasTransparency] = readMips(
           palette,
           mipLevels,
           offsets,
           width,
           height,
           reader,
-          buffers,
           averageColor,
           Assets::PaletteTransparency::Index255Transparent);
 
@@ -218,6 +216,7 @@ kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reade
         return kdl::result<Assets::Texture, ReadTextureError>{
           ReadTextureError{std::move(name), error.msg}};
       });
+    ;
   }
   catch (const ReaderException& e)
   {
