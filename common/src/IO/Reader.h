@@ -40,22 +40,17 @@ class ReaderSource;
 class Reader
 {
 protected:
-  std::unique_ptr<ReaderSource> m_source;
+  std::shared_ptr<ReaderSource> m_source;
   size_t m_position;
 
 protected:
   /**
    * Creates a new reader using the given reader source.
    */
-  explicit Reader(std::unique_ptr<ReaderSource> source);
+  explicit Reader(std::shared_ptr<ReaderSource> source);
 
 public:
-  Reader(const Reader& other);
-  Reader(Reader&& other) noexcept;
   virtual ~Reader();
-
-  Reader& operator=(const Reader& other);
-  Reader& operator=(Reader&& other) noexcept;
 
   /**
    * Creates a new reader that reads from the given file.
@@ -176,7 +171,7 @@ public:
    *
    * @throw ReaderException if reading the data from the underlying reader source fails
    */
-  BufferedReader buffer() const;
+  virtual BufferedReader buffer() const;
 
   /**
    * Indicates whether the given number of bytes can be read from this reader.
@@ -414,9 +409,11 @@ protected:
    * nullptr, it will be moved into this object and it will be destroyed when this object
    * is destroyed.
    */
-  explicit BufferedReader(std::unique_ptr<BufferReaderSource> source);
+  explicit BufferedReader(std::shared_ptr<BufferReaderSource> source);
 
 public:
+  BufferedReader buffer() const override;
+
   /**
    * Returns the beginning of the underlying buffer memory region.
    */

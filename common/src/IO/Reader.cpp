@@ -66,7 +66,7 @@ public:
    *
    * @throw ReaderException if the given sub region is out of bounds or if reading fails
    */
-  virtual std::unique_ptr<ReaderSource> subSource(size_t offset, size_t length) const = 0;
+  virtual std::shared_ptr<ReaderSource> subSource(size_t offset, size_t length) const = 0;
 
   /**
    * Ensures that the contents of this reader are buffered in memory and returns the
@@ -87,9 +87,7 @@ public:
    *
    * @throw ReaderException if reading fails
    */
-  virtual std::unique_ptr<BufferReaderSource> buffer() const = 0;
-
-  std::unique_ptr<ReaderSource> clone() const { return subSource(0, size()); }
+  virtual std::shared_ptr<BufferReaderSource> buffer() const = 0;
 };
 
 /**
@@ -139,16 +137,16 @@ public:
     std::memcpy(val, m_begin + position, size);
   }
 
-  std::unique_ptr<ReaderSource> subSource(
+  std::shared_ptr<ReaderSource> subSource(
     const size_t offset, const size_t length) const override
   {
-    return std::make_unique<BufferReaderSource>(
+    return std::make_shared<BufferReaderSource>(
       m_begin + offset, m_begin + offset + length);
   }
 
-  std::unique_ptr<BufferReaderSource> buffer() const override
+  std::shared_ptr<BufferReaderSource> buffer() const override
   {
-    return std::make_unique<BufferReaderSource>(m_begin, m_end);
+    return std::make_shared<BufferReaderSource>(m_begin, m_end);
   }
 };
 
@@ -172,9 +170,9 @@ public:
   {
   }
 
-  std::unique_ptr<BufferReaderSource> buffer() const override
+  std::shared_ptr<BufferReaderSource> buffer() const override
   {
-    return std::make_unique<OwningBufferReaderSource>(m_buffer, begin(), end());
+    return std::make_shared<OwningBufferReaderSource>(m_buffer, begin(), end());
   }
 };
 
@@ -213,11 +211,6 @@ public:
 
   void read(char* val, const size_t position, const size_t size) override
   {
-    // We might consider removing this check under the assumption that the file position
-    // is set in the constructor of this reader and that no other reader will access the
-    // file while this reader is in use. This may be a reasonable assumption, since we
-    // usually read files one by one.
-
     const auto pos = std::ftell(m_file);
     if (pos < 0)
     {
@@ -236,13 +229,13 @@ public:
     }
   }
 
-  std::unique_ptr<ReaderSource> subSource(
+  std::shared_ptr<ReaderSource> subSource(
     const size_t offset, const size_t length) const override
   {
-    return std::make_unique<FileReaderSource>(m_file, m_offset + offset, length);
+    return std::make_shared<FileReaderSource>(m_file, m_offset + offset, length);
   }
 
-  std::unique_ptr<BufferReaderSource> buffer() const override
+  std::shared_ptr<BufferReaderSource> buffer() const override
   {
     std::fseek(m_file, long(m_offset), SEEK_SET);
 
@@ -263,7 +256,7 @@ public:
 
     const char* begin = buffer.get();
     const char* end = begin + m_length;
-    return std::make_unique<OwningBufferReaderSource>(std::move(buffer), begin, end);
+    return std::make_shared<OwningBufferReaderSource>(std::move(buffer), begin, end);
   }
 
 private:
@@ -280,39 +273,22 @@ private:
   }
 };
 
-Reader::Reader(std::unique_ptr<ReaderSource> source)
+Reader::Reader(std::shared_ptr<ReaderSource> source)
   : m_source{std::move(source)}
   , m_position{0}
 {
 }
 
-Reader::Reader(const Reader& other)
-  : m_source{other.m_source->clone()}
-  , m_position{other.m_position}
-{
-}
-
-Reader::Reader(Reader&&) noexcept = default;
-
 Reader::~Reader() = default;
-
-Reader& Reader::operator=(const Reader& other)
-{
-  m_source = other.m_source->clone();
-  m_position = other.m_position;
-  return *this;
-}
-
-Reader& Reader::operator=(Reader&&) noexcept = default;
 
 Reader Reader::from(std::FILE* file)
 {
-  return Reader{std::make_unique<FileReaderSource>(file, 0, fileSize(file))};
+  return Reader{std::make_shared<FileReaderSource>(file, 0, fileSize(file))};
 }
 
 Reader Reader::from(const char* begin, const char* end)
 {
-  return Reader{std::make_unique<BufferReaderSource>(begin, end)};
+  return Reader{std::make_shared<BufferReaderSource>(begin, end)};
 }
 
 size_t Reader::size() const
@@ -396,7 +372,7 @@ void Reader::read(unsigned char* val, const size_t size)
 void Reader::read(char* val, const size_t size)
 {
   ensurePosition(position() + size);
-  m_source->read(val, m_position, size);
+  m_source->read(val, position(), size);
   m_position += size;
 }
 
@@ -417,9 +393,14 @@ void Reader::ensurePosition(const size_t position) const
   }
 }
 
-BufferedReader::BufferedReader(std::unique_ptr<BufferReaderSource> source)
+BufferedReader::BufferedReader(std::shared_ptr<BufferReaderSource> source)
   : Reader{std::move(source)}
 {
+}
+
+BufferedReader BufferedReader::buffer() const
+{
+  return *this;
 }
 
 const char* BufferedReader::begin() const
