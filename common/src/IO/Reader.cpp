@@ -47,19 +47,6 @@ public:
   virtual size_t size() const = 0;
 
   /**
-   * Returns the current position of this reader source.
-   */
-  virtual size_t position() const = 0;
-
-  /**
-   * Indicates whether the given number of bytes can be read from this source.
-   *
-   * @param readSize the number of bytes to read
-   * @return true if the given number of bytes can be read and false otherwise
-   */
-  bool canRead(const size_t readSize) const { return position() + readSize <= size(); }
-
-  /**
    * Reads the given number of bytes and stores them in the memory region pointed to by
    * val.
    *
@@ -68,29 +55,7 @@ public:
    *
    * @throw ReaderException if the given number of bytes cannot be read
    */
-  void read(char* val, const size_t size)
-  {
-    ensurePosition(position() + size);
-    return doRead(val, size);
-  }
-
-  /**
-   * Seeks the given position.
-   *
-   * @param position the position to seek
-   *
-   * @throw ReaderException if the given position is out of bounds
-   */
-  void seek(const size_t position)
-  {
-    ensurePosition(position);
-    doSeek(position);
-  }
-
-  std::unique_ptr<ReaderSource> clone() const
-  {
-    return subSource(position(), size() - position());
-  }
+  virtual void read(char* val, size_t position, size_t size) = 0;
 
   /**
    * Returns a source for a sub region of this reader source.
@@ -101,11 +66,7 @@ public:
    *
    * @throw ReaderException if the given sub region is out of bounds or if reading fails
    */
-  std::unique_ptr<ReaderSource> subSource(size_t offset, size_t length) const
-  {
-    ensurePosition(offset + length);
-    return doGetSubSource(offset, length);
-  }
+  virtual std::unique_ptr<ReaderSource> subSource(size_t offset, size_t length) const = 0;
 
   /**
    * Ensures that the contents of this reader are buffered in memory and returns the
@@ -128,21 +89,7 @@ public:
    */
   virtual std::unique_ptr<BufferReaderSource> buffer() const = 0;
 
-private:
-  void ensurePosition(const size_t position) const
-  {
-    if (position > size())
-    {
-      throw ReaderException{
-        "Position " + std::to_string(position) + " is out of bounds for reader of size "
-        + std::to_string(size())};
-    }
-  }
-
-  virtual void doRead(char* val, size_t size) = 0;
-  virtual void doSeek(size_t offset) = 0;
-  virtual std::unique_ptr<ReaderSource> doGetSubSource(
-    size_t offset, size_t length) const = 0;
+  std::unique_ptr<ReaderSource> clone() const { return subSource(0, size()); }
 };
 
 /**
@@ -154,7 +101,6 @@ class BufferReaderSource : public ReaderSource
 private:
   const char* m_begin;
   const char* m_end;
-  const char* m_current;
 
 public:
   /**
@@ -169,7 +115,6 @@ public:
   BufferReaderSource(const char* begin, const char* end)
     : m_begin{begin}
     , m_end{end}
-    , m_current{begin}
   {
     if (m_begin > m_end)
     {
@@ -189,27 +134,21 @@ public:
 
   size_t size() const override { return size_t(m_end - m_begin); }
 
-  size_t position() const override { return size_t(m_current - m_begin); }
-
-  std::unique_ptr<BufferReaderSource> buffer() const override
+  void read(char* val, const size_t position, const size_t size) override
   {
-    return std::make_unique<BufferReaderSource>(m_begin, m_end);
+    std::memcpy(val, m_begin + position, size);
   }
 
-private:
-  void doRead(char* val, const size_t size) override
-  {
-    std::memcpy(val, m_current, size);
-    m_current += size;
-  }
-
-  void doSeek(const size_t position) override { m_current = m_begin + position; }
-
-  std::unique_ptr<ReaderSource> doGetSubSource(
+  std::unique_ptr<ReaderSource> subSource(
     const size_t offset, const size_t length) const override
   {
     return std::make_unique<BufferReaderSource>(
       m_begin + offset, m_begin + offset + length);
+  }
+
+  std::unique_ptr<BufferReaderSource> buffer() const override
+  {
+    return std::make_unique<BufferReaderSource>(m_begin, m_end);
   }
 };
 
@@ -250,7 +189,6 @@ private:
   std::FILE* m_file;
   size_t m_offset;
   size_t m_length;
-  size_t m_position;
 
 public:
   /**
@@ -265,7 +203,6 @@ public:
     : m_file{file}
     , m_offset{offset}
     , m_length{length}
-    , m_position{0}
   {
     assert(m_file != nullptr);
     std::rewind(m_file);
@@ -273,7 +210,38 @@ public:
 
 public:
   size_t size() const override { return m_length; }
-  size_t position() const override { return m_position; };
+
+  void read(char* val, const size_t position, const size_t size) override
+  {
+    // We might consider removing this check under the assumption that the file position
+    // is set in the constructor of this reader and that no other reader will access the
+    // file while this reader is in use. This may be a reasonable assumption, since we
+    // usually read files one by one.
+
+    const auto pos = std::ftell(m_file);
+    if (pos < 0)
+    {
+      throwError("ftell failed");
+    }
+    if (size_t(pos) != m_offset + position)
+    {
+      if (std::fseek(m_file, long(m_offset + position), SEEK_SET) != 0)
+      {
+        throwError("fseek failed");
+      }
+    }
+    if (std::fread(val, 1, size, m_file) != size)
+    {
+      throwError("fread failed");
+    }
+  }
+
+  std::unique_ptr<ReaderSource> subSource(
+    const size_t offset, const size_t length) const override
+  {
+    return std::make_unique<FileReaderSource>(m_file, m_offset + offset, length);
+  }
+
   std::unique_ptr<BufferReaderSource> buffer() const override
   {
     std::fseek(m_file, long(m_offset), SEEK_SET);
@@ -293,49 +261,9 @@ public:
       throwError("fread failed");
     }
 
-    if (std::fseek(m_file, long(m_offset + m_position), SEEK_SET) != 0)
-    {
-      throwError("fseek failed");
-    }
-
     const char* begin = buffer.get();
     const char* end = begin + m_length;
     return std::make_unique<OwningBufferReaderSource>(std::move(buffer), begin, end);
-  }
-
-private:
-  void doRead(char* val, const size_t size) override
-  {
-    // We might consider removing this check under the assumption that the file position
-    // is set in the constructor of this reader and that no other reader will access the
-    // file while this reader is in use. This may be a reasonable assumption, since we
-    // usually read files one by one.
-
-    const auto pos = std::ftell(m_file);
-    if (pos < 0)
-    {
-      throwError("ftell failed");
-    }
-    if (size_t(pos) != m_offset + m_position)
-    {
-      if (std::fseek(m_file, long(m_offset + m_position), SEEK_SET) != 0)
-      {
-        throwError("fseek failed");
-      }
-    }
-    if (std::fread(val, 1, size, m_file) != size)
-    {
-      throwError("fread failed");
-    }
-    m_position += size;
-  }
-
-  void doSeek(const size_t position) override { m_position = position; }
-
-  std::unique_ptr<ReaderSource> doGetSubSource(
-    const size_t offset, const size_t length) const override
-  {
-    return std::make_unique<FileReaderSource>(m_file, m_offset + offset, length);
   }
 
 private:
@@ -354,11 +282,13 @@ private:
 
 Reader::Reader(std::unique_ptr<ReaderSource> source)
   : m_source{std::move(source)}
+  , m_position{0}
 {
 }
 
 Reader::Reader(const Reader& other)
   : m_source{other.m_source->clone()}
+  , m_position{other.m_position}
 {
 }
 
@@ -369,6 +299,7 @@ Reader::~Reader() = default;
 Reader& Reader::operator=(const Reader& other)
 {
   m_source = other.m_source->clone();
+  m_position = other.m_position;
   return *this;
 }
 
@@ -391,7 +322,7 @@ size_t Reader::size() const
 
 size_t Reader::position() const
 {
-  return m_source->position();
+  return m_position;
 }
 
 bool Reader::eof() const
@@ -401,7 +332,8 @@ bool Reader::eof() const
 
 void Reader::seekFromBegin(const size_t position)
 {
-  m_source->seek(position);
+  ensurePosition(position);
+  m_position = position;
 }
 
 void Reader::seekFromEnd(const size_t offset)
@@ -427,6 +359,7 @@ void Reader::seekBackward(const size_t offset)
 
 Reader Reader::subReaderFromBegin(const size_t position, const size_t length) const
 {
+  ensurePosition(position);
   return Reader{m_source->subSource(position, length)};
 }
 
@@ -452,7 +385,7 @@ BufferedReader Reader::buffer() const
 
 bool Reader::canRead(const size_t readSize) const
 {
-  return m_source->canRead(readSize);
+  return position() + readSize <= size();
 }
 
 void Reader::read(unsigned char* val, const size_t size)
@@ -462,7 +395,9 @@ void Reader::read(unsigned char* val, const size_t size)
 
 void Reader::read(char* val, const size_t size)
 {
-  m_source->read(val, size);
+  ensurePosition(position() + size);
+  m_source->read(val, m_position, size);
+  m_position += size;
 }
 
 std::string Reader::readString(const size_t size)
@@ -470,6 +405,16 @@ std::string Reader::readString(const size_t size)
   auto buffer = std::vector<char>(size + 1, 0);
   read(buffer.data(), size);
   return {buffer.data()};
+}
+
+void Reader::ensurePosition(const size_t position) const
+{
+  if (position > size())
+  {
+    throw ReaderException{
+      "Position " + std::to_string(position) + " is out of bounds for reader of size "
+      + std::to_string(size())};
+  }
 }
 
 BufferedReader::BufferedReader(std::unique_ptr<BufferReaderSource> source)

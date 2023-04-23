@@ -41,6 +41,7 @@ class Reader
 {
 protected:
   std::unique_ptr<ReaderSource> m_source;
+  size_t m_position;
 
 protected:
   /**
@@ -394,6 +395,9 @@ public:
       out += read<T, R>();
     }
   }
+
+protected:
+  void ensurePosition(size_t position) const;
 };
 
 /**

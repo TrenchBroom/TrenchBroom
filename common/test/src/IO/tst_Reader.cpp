@@ -181,10 +181,6 @@ TEST_CASE("ReaderTest.copyConstructor")
 
   reader.seekFromBegin(0);
   copy.seekFromBegin(0);
-  /* EXPECTED:
-  CHECK(reader.readString(2) == copy.readString(2));
-  ACTUAL: */
-  reader.seekForward(4);
   CHECK(reader.readString(2) == copy.readString(2));
 }
 
