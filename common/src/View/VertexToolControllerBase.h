@@ -257,7 +257,7 @@ protected:
       Renderer::RenderBatch& renderBatch) override
     {
       m_tool.renderHandles(renderContext, renderBatch);
-      if (!anyToolDragging(inputState))
+      if (!inputState.anyToolDragging())
       {
         const auto hit = findDraggableHandle(inputState);
         if (hit.hasType(m_hitType))

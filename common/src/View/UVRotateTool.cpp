@@ -394,7 +394,7 @@ void UVRotateTool::render(
   using namespace Model::HitFilters;
 
   if (
-    anyToolDragging(inputState) || !m_helper.valid()
+    inputState.anyToolDragging() || !m_helper.valid()
     || !m_helper.face()->attributes().valid())
   {
     return;
