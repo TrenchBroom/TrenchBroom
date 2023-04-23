@@ -166,6 +166,24 @@ static void seekForward(Reader&& r)
   CHECK(r.position() == 2U);
 }
 
+TEST_CASE("ReaderTest.copyConstructor")
+{
+  auto reader = Reader::from(buff(), buff() + 10);
+  REQUIRE(reader.readString(4) == "abcd");
+  REQUIRE(reader.canRead(6));
+  REQUIRE_FALSE(reader.canRead(7));
+
+  auto copy = Reader{reader};
+  CHECK(reader.canRead(6) == copy.canRead(6));
+  CHECK(reader.canRead(7) == copy.canRead(7));
+
+  CHECK(reader.readString(2) == copy.readString(2));
+
+  reader.seekFromBegin(0);
+  copy.seekFromBegin(0);
+  CHECK(reader.readString(2) == copy.readString(2));
+}
+
 TEST_CASE("BufferReaderTest.seekForward")
 {
   seekForward(Reader::from(buff(), buff() + 10));

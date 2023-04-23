@@ -26,11 +26,11 @@
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class BufferedReader;
+class BufferReaderSource;
+class ReaderSource;
 
 /**
  * Accesses information from a stream of binary data. The underlying stream is represented
@@ -40,213 +40,17 @@ class BufferedReader;
 class Reader
 {
 protected:
-  class BufferSource;
-
-  /**
-   * Abstract base class for a reader source.
-   */
-  class Source
-  {
-  public:
-    virtual ~Source();
-
-    /**
-     * Returns the size of this reader source.
-     */
-    size_t size() const;
-
-    /**
-     * Returns the current position of this reader source.
-     */
-    size_t position() const;
-
-    /**
-     * Indicates whether the given number of bytes can be read from this source.
-     *
-     * @param readSize the number of bytes to read
-     * @return true if the given number of bytes can be read and false otherwise
-     */
-    bool canRead(size_t readSize) const;
-
-    /**
-     * Reads the given number of bytes and stores them in the memory region pointed to by
-     * val.
-     *
-     * @param val the memory region to read the bytes into
-     * @param size the number of bytes to read
-     *
-     * @throw ReaderException if the given number of bytes cannot be read
-     */
-    void read(char* val, size_t size);
-
-    /**
-     * Seeks the given position.
-     *
-     * @param position the position to seek
-     *
-     * @throw ReaderException if the given position is out of bounds
-     */
-    void seek(size_t position);
-
-    std::unique_ptr<Source> clone() const;
-
-    /**
-     * Returns a source for a sub region of this reader source.
-     *
-     * @param position the start position of the sub region
-     * @param length the length of the sub region
-     * @return a reader source for the specified sub region
-     *
-     * @throw ReaderException if the given sub region is out of bounds or if reading fails
-     */
-    std::unique_ptr<Source> subSource(size_t position, size_t length) const;
-
-    /**
-     * Ensures that the contents of this reader are buffered in memory and returns the
-     * buffered memory region.
-     *
-     * If this reader source is already buffered in memory, then the returned region
-     * pointers will just point to this source's memory buffer, and no additional memory
-     * will be allocated.
-     *
-     * If this reader source is not already buffered in memory, then this method will
-     * allocate a buffer to read the contents of this source into. The returned pointers
-     * will point to the begin and end of that buffer, and the buffer itself will also be
-     * returned.
-     *
-     * @return a tuple containing of two pointers, the first of which points to the
-     * beginning of a memory region and the second of which points to its end, and
-     * optionally a pointer to the newly allocated memory that holds the data
-     *
-     * @throw ReaderException if reading fails
-     */
-    std::unique_ptr<BufferSource> buffer() const;
-
-  private:
-    void ensurePosition(size_t position) const;
-
-    virtual size_t doGetSize() const = 0;
-    virtual size_t doGetPosition() const = 0;
-    virtual void doRead(char* val, size_t size) = 0;
-    virtual void doSeek(size_t offset) = 0;
-    virtual std::unique_ptr<Source> doGetSubSource(
-      size_t offset, size_t length) const = 0;
-    virtual std::unique_ptr<BufferSource> doBuffer() const = 0;
-  };
-
-  /**
-   * A reader source that reads directly from a file. Note that the seek position of the
-   * underlying C file is kept in sync with this file source's position automatically,
-   * that is, two readers can read from the same underlying file without causing problems.
-   */
-  class FileSource : public Source
-  {
-  private:
-    std::FILE* m_file;
-    size_t m_offset;
-    size_t m_length;
-    size_t m_position;
-
-  public:
-    /**
-     * Creates a new reader source for the given underlying file at the given offset and
-     * length.
-     *
-     * @param file the file
-     * @param offset the offset into the file at which this reader source should begin
-     * @param length the length of this reader source
-     */
-    FileSource(std::FILE* file, size_t offset, size_t length);
-
-  private:
-    size_t doGetSize() const override;
-    size_t doGetPosition() const override;
-    void doRead(char* val, size_t size) override;
-    void doSeek(size_t position) override;
-    std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
-    virtual std::unique_ptr<BufferSource> doBuffer() const override;
-
-  private:
-    [[noreturn]] void throwError(const std::string& msg) const;
-  };
-
-  /**
-   * A reader source that reads from a memory region. Does not take ownership of the
-   * memory region and will not deallocate it.
-   */
-  class BufferSource : public Source
-  {
-  private:
-    const char* m_begin;
-    const char* m_end;
-    const char* m_current;
-
-  public:
-    /**
-     * Creates a new reader source for the given memory region.
-     *
-     * @param begin the beginning of the memory region
-     * @param end the end of the memory region (as in, the position after the last byte),
-     * must not be before the given beginning
-     *
-     * @throw ReaderException if the given memory region is invalid
-     */
-    BufferSource(const char* begin, const char* end);
-
-    /**
-     * Returns the beginning of the underlying memory region.
-     */
-    const char* begin() const;
-
-    /**
-     * Returns the end of the underlying memory region.
-     */
-    const char* end() const;
-
-  private:
-    size_t doGetSize() const override;
-    size_t doGetPosition() const override;
-    void doRead(char* val, size_t size) override;
-    void doSeek(size_t position) override;
-    std::unique_ptr<Source> doGetSubSource(size_t position, size_t length) const override;
-    virtual std::unique_ptr<BufferSource> doBuffer() const override;
-  };
-
-  class OwningBufferSource : public BufferSource
-  {
-  public:
-#if defined __APPLE__
-    // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
-    using BufferType = std::shared_ptr<char>;
-#else
-    // G++ doesn't support using std::shared_ptr<T> to manage T[]
-    using BufferType = std::shared_ptr<char[]>;
-#endif
-  private:
-    BufferType m_buffer;
-
-  public:
-    OwningBufferSource(BufferType buffer, const char* begin, const char* end);
-
-  private:
-    virtual std::unique_ptr<BufferSource> doBuffer() const override;
-  };
-
-protected:
-  std::unique_ptr<Source> m_source;
+  std::shared_ptr<ReaderSource> m_source;
+  size_t m_position;
 
 protected:
   /**
    * Creates a new reader using the given reader source.
    */
-  explicit Reader(std::unique_ptr<Source> source);
+  explicit Reader(std::shared_ptr<ReaderSource> source);
 
 public:
-  Reader(const Reader& other);
-  Reader(Reader&& other) noexcept = default;
-
-  Reader& operator=(const Reader& other);
-  Reader& operator=(Reader&& other) = default;
+  virtual ~Reader();
 
   /**
    * Creates a new reader that reads from the given file.
@@ -367,7 +171,7 @@ public:
    *
    * @throw ReaderException if reading the data from the underlying reader source fails
    */
-  BufferedReader buffer() const;
+  virtual BufferedReader buffer() const;
 
   /**
    * Indicates whether the given number of bytes can be read from this reader.
@@ -586,6 +390,9 @@ public:
       out += read<T, R>();
     }
   }
+
+protected:
+  void ensurePosition(size_t position) const;
 };
 
 /**
@@ -602,9 +409,11 @@ protected:
    * nullptr, it will be moved into this object and it will be destroyed when this object
    * is destroyed.
    */
-  explicit BufferedReader(std::unique_ptr<BufferSource> source);
+  explicit BufferedReader(std::shared_ptr<BufferReaderSource> source);
 
 public:
+  BufferedReader buffer() const override;
+
   /**
    * Returns the beginning of the underlying buffer memory region.
    */
@@ -622,5 +431,4 @@ public:
    */
   std::string_view stringView() const;
 };
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO
