@@ -148,7 +148,7 @@ void ScaleObjectsToolController::modifierKeyChange(const InputState& inputState)
 
 void ScaleObjectsToolController::mouseMove(const InputState& inputState)
 {
-  if (m_tool.applies() && !anyToolDragging(inputState))
+  if (m_tool.applies() && !inputState.anyToolDragging())
   {
     m_tool.updatePickedHandle(inputState.pickResult());
   }

@@ -64,10 +64,6 @@ std::unique_ptr<DragTracker> ToolController::acceptMouseDrag(const InputState&)
 {
   return nullptr;
 }
-bool ToolController::anyToolDragging(const InputState&) const
-{
-  return false;
-}
 
 void ToolController::setRenderOptions(const InputState&, Renderer::RenderContext&) const
 {

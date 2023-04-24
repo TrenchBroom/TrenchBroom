@@ -117,7 +117,7 @@ static HandlePositionProposer makeHandlePositionProposer(
 
 void ShearObjectsToolController::mouseMove(const InputState& inputState)
 {
-  if (m_tool.applies() && !anyToolDragging(inputState))
+  if (m_tool.applies() && !inputState.anyToolDragging())
   {
     m_tool.updatePickedSide(inputState.pickResult());
   }

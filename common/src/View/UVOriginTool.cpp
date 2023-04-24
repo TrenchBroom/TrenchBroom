@@ -409,7 +409,7 @@ void UVOriginTool::render(
   Renderer::RenderContext&,
   Renderer::RenderBatch& renderBatch)
 {
-  if (!m_helper.valid() || anyToolDragging(inputState))
+  if (!m_helper.valid() || inputState.anyToolDragging())
   {
     return;
   }

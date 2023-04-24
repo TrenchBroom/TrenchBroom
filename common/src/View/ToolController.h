@@ -76,7 +76,6 @@ public:
   virtual void mouseScroll(const InputState& inputState);
 
   virtual std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState);
-  virtual bool anyToolDragging(const InputState& inputState) const;
 
   virtual std::unique_ptr<DropTracker> acceptDrop(
     const InputState& inputState, const std::string& payload);
