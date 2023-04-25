@@ -103,6 +103,11 @@ kdl::result<Assets::Texture, ReadTextureError> readQ2Wal(
 
   // https://github.com/id-Software/Quake-2-Tools/blob/master/qe4/qfiles.h#L142
 
+  if (!palette)
+  {
+    return ReadTextureError{std::move(name), "Missing palette"};
+  }
+
   try
   {
     reader.seekForward(WalLayout::TextureNameLength);
@@ -121,11 +126,6 @@ kdl::result<Assets::Texture, ReadTextureError> readQ2Wal(
     const auto contents = reader.readInt<int32_t>();
     const auto value = reader.readInt<int32_t>();
     const auto gameData = Assets::Q2Data{flags, contents, value};
-
-    if (!palette)
-    {
-      throw AssetException{"Missing palette"};
-    }
 
     auto [buffers, hasTransparency] = readMips(
       *palette,
