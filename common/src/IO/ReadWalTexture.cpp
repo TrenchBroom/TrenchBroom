@@ -195,7 +195,7 @@ kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reade
     const auto gameData = Assets::Q2Data{flags, contents, value};
 
     return Assets::loadPalette(paletteReader)
-      .and_then([&](const auto& palette) {
+      .transform([&](const auto& palette) {
         const auto hasTransparency = readMips(
           palette,
           mipLevels,
@@ -207,7 +207,7 @@ kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reade
           averageColor,
           Assets::PaletteTransparency::Index255Transparent);
 
-        return kdl::result<Assets::Texture>{Assets::Texture{
+        return Assets::Texture{
           std::move(name),
           width,
           height,
@@ -215,7 +215,7 @@ kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reade
           std::move(buffers),
           GL_RGBA,
           hasTransparency ? Assets::TextureType::Masked : Assets::TextureType::Opaque,
-          gameData}};
+          gameData};
       })
       .or_else([&](const auto& error) {
         return kdl::result<Assets::Texture, ReadTextureError>{
