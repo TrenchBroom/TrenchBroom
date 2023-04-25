@@ -83,6 +83,12 @@ std::tuple<Assets::TextureBufferList, bool> readMips(
     const auto curHeight = height / (size_t(1) << i);
     const auto size = curWidth * curHeight;
 
+    if (!reader.canRead(size))
+    {
+      // This can happen if the .wal file is corrupt.
+      break;
+    }
+
     hasTransparency =
       hasTransparency
       || (palette.indexedToRgba(reader, size, buffers[i], transparency, tempColor) && i == 0);
