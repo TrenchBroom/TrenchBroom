@@ -45,15 +45,12 @@ size_t readMipOffsets(
   const size_t height,
   Reader& reader)
 {
-  size_t mipLevels = 0;
-  for (size_t i = 0; i < maxMipLevels; ++i)
+  const auto mipLevels = std::min(
+    std::min(size_t(std::log2(width)), size_t(std::log2(height))) + 1, maxMipLevels);
+
+  for (size_t i = 0; i < mipLevels; ++i)
   {
     offsets[i] = reader.readSize<uint32_t>();
-    ++mipLevels;
-    if (width / (size_t(1) << i) == 1 || height / (size_t(1) << i) == 1)
-    {
-      break;
-    }
   }
 
   // make sure the reader position is correct afterwards
