@@ -24,9 +24,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class Path
 {
@@ -62,7 +60,7 @@ private:
   std::vector<std::string> m_components;
   bool m_absolute;
 
-  Path(bool absolute, const std::vector<std::string>& components);
+  Path(bool absolute, std::vector<std::string> components);
 
 public:
   explicit Path(const std::string& path = "");
@@ -136,5 +134,4 @@ private:
 };
 
 std::ostream& operator<<(std::ostream& stream, const Path& path);
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

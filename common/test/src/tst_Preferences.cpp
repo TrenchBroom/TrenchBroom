@@ -42,11 +42,14 @@
 
 namespace TrenchBroom
 {
-static QJsonValue getValue(const std::map<IO::Path, QJsonValue>& map, const IO::Path& key)
+namespace
+{
+QJsonValue getValue(const std::map<IO::Path, QJsonValue>& map, const IO::Path& key)
 {
   auto it = map.find(key);
   return it != map.end() ? it->second : QJsonValue{QJsonValue::Undefined};
 }
+} // namespace
 
 static void testPrefs(const std::map<IO::Path, QJsonValue>& prefs)
 {
