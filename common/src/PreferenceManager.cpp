@@ -46,31 +46,19 @@
 
 namespace TrenchBroom
 {
-// PreferenceSerializerV1
+// PreferenceSerializer
 
-bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, bool& out) const
+bool PreferenceSerializer::readFromJSON(const QJsonValue& in, bool& out) const
 {
-  if (!in.isString())
+  if (!in.isBool())
   {
     return false;
   }
-
-  const auto inString = in.toString();
-  if (inString == QStringLiteral("1"))
-  {
-    out = true;
-    return true;
-  }
-  if (inString == QStringLiteral("0"))
-  {
-    out = false;
-    return true;
-  }
-
-  return false;
+  out = in.toBool();
+  return true;
 }
 
-bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, Color& out) const
+bool PreferenceSerializer::readFromJSON(const QJsonValue& in, Color& out) const
 {
   if (!in.isString())
   {
@@ -86,37 +74,27 @@ bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, Color& out) cons
   return false;
 }
 
-bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, float& out) const
+bool PreferenceSerializer::readFromJSON(const QJsonValue& in, float& out) const
 {
-  if (!in.isString())
+  if (!in.isDouble())
   {
     return false;
   }
-
-  auto inCopy = in.toString();
-  auto inStream = QTextStream(&inCopy);
-
-  inStream >> out;
-
-  return inStream.status() == QTextStream::Ok;
+  out = static_cast<float>(in.toDouble());
+  return true;
 }
 
-bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, int& out) const
+bool PreferenceSerializer::readFromJSON(const QJsonValue& in, int& out) const
 {
-  if (!in.isString())
+  if (!in.isDouble())
   {
     return false;
   }
-
-  auto inCopy = in.toString();
-  auto inStream = QTextStream(&inCopy);
-
-  inStream >> out;
-
-  return inStream.status() == QTextStream::Ok;
+  out = static_cast<int>(in.toDouble());
+  return true;
 }
 
-bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, IO::Path& out) const
+bool PreferenceSerializer::readFromJSON(const QJsonValue& in, IO::Path& out) const
 {
   if (!in.isString())
   {
@@ -127,24 +105,17 @@ bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, IO::Path& out) c
   return true;
 }
 
-bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, QKeySequence& out) const
+bool PreferenceSerializer::readFromJSON(const QJsonValue& in, QKeySequence& out) const
 {
   if (!in.isString())
   {
     return false;
   }
-
-  auto result = View::keySequenceFromV1Settings(in.toString());
-  if (!result.has_value())
-  {
-    return false;
-  }
-
-  out = result.value();
+  out = QKeySequence{in.toString(), QKeySequence::PortableText};
   return true;
 }
 
-bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, QString& out) const
+bool PreferenceSerializer::readFromJSON(const QJsonValue& in, QString& out) const
 {
   if (!in.isString())
   {
@@ -155,9 +126,9 @@ bool PreferenceSerializerV1::readFromJSON(const QJsonValue& in, QString& out) co
   return true;
 }
 
-QJsonValue PreferenceSerializerV1::writeToJSON(const bool in) const
+QJsonValue PreferenceSerializer::writeToJSON(const bool in) const
 {
-  return in ? QJsonValue{"1"} : QJsonValue{"0"};
+  return {in};
 }
 
 namespace
@@ -180,99 +151,36 @@ QJsonValue toJson(const T& in)
 }
 } // namespace
 
-QJsonValue PreferenceSerializerV1::writeToJSON(const Color& in) const
+QJsonValue PreferenceSerializer::writeToJSON(const Color& in) const
 {
   return toJson(in, [](QTextStream& lhs, const Color& rhs) {
     lhs << rhs.r() << " " << rhs.g() << " " << rhs.b() << " " << rhs.a();
   });
 }
 
-QJsonValue PreferenceSerializerV1::writeToJSON(const float in) const
-{
-  return toJson(in);
-}
-
-QJsonValue PreferenceSerializerV1::writeToJSON(const int in) const
-{
-  return toJson(in);
-}
-
-QJsonValue PreferenceSerializerV1::writeToJSON(const IO::Path& in) const
-{
-  return toJson(in, [](auto& lhs, const auto& rhs) { lhs << IO::pathAsQString(rhs); });
-}
-
-QJsonValue PreferenceSerializerV1::writeToJSON(const QKeySequence& in) const
-{
-  return toJson(
-    in, [](auto& lhs, const auto& rhs) { lhs << View::keySequenceToV1Settings(rhs); });
-}
-
-QJsonValue PreferenceSerializerV1::writeToJSON(const QString& in) const
-{
-  return toJson(in);
-}
-
-// PreferenceSerializerV2
-
-bool PreferenceSerializerV2::readFromJSON(const QJsonValue& in, bool& out) const
-{
-  if (!in.isBool())
-  {
-    return false;
-  }
-  out = in.toBool();
-  return true;
-}
-
-bool PreferenceSerializerV2::readFromJSON(const QJsonValue& in, float& out) const
-{
-  if (!in.isDouble())
-  {
-    return false;
-  }
-  out = static_cast<float>(in.toDouble());
-  return true;
-}
-
-bool PreferenceSerializerV2::readFromJSON(const QJsonValue& in, int& out) const
-{
-  if (!in.isDouble())
-  {
-    return false;
-  }
-  out = static_cast<int>(in.toDouble());
-  return true;
-}
-
-bool PreferenceSerializerV2::readFromJSON(const QJsonValue& in, QKeySequence& out) const
-{
-  if (!in.isString())
-  {
-    return false;
-  }
-  out = QKeySequence{in.toString(), QKeySequence::PortableText};
-  return true;
-}
-
-QJsonValue PreferenceSerializerV2::writeToJSON(const bool in) const
-{
-  return {in};
-}
-
-QJsonValue PreferenceSerializerV2::writeToJSON(const float in) const
+QJsonValue PreferenceSerializer::writeToJSON(const float in) const
 {
   return {static_cast<double>(in)};
 }
 
-QJsonValue PreferenceSerializerV2::writeToJSON(const int in) const
+QJsonValue PreferenceSerializer::writeToJSON(const int in) const
 {
   return {in};
 }
 
-QJsonValue PreferenceSerializerV2::writeToJSON(const QKeySequence& in) const
+QJsonValue PreferenceSerializer::writeToJSON(const IO::Path& in) const
+{
+  return toJson(in, [](auto& lhs, const auto& rhs) { lhs << IO::pathAsQString(rhs); });
+}
+
+QJsonValue PreferenceSerializer::writeToJSON(const QKeySequence& in) const
 {
   return {in.toString(QKeySequence::PortableText)};
+}
+
+QJsonValue PreferenceSerializer::writeToJSON(const QString& in) const
+{
+  return toJson(in);
 }
 
 // PreferenceManager
@@ -534,7 +442,7 @@ void AppPreferenceManager::invalidatePreferences()
  */
 void AppPreferenceManager::loadPreferenceFromCache(PreferenceBase& pref)
 {
-  const auto format = PreferenceSerializerV2{};
+  const auto format = PreferenceSerializer{};
 
   auto it = m_cache.find(pref.path());
   if (it == m_cache.end())
@@ -577,7 +485,7 @@ void AppPreferenceManager::savePreferenceToCache(PreferenceBase& pref)
     return;
   }
 
-  const auto format = PreferenceSerializerV2{};
+  const auto format = PreferenceSerializer{};
   m_cache[pref.path()] = pref.writeToJSON(format);
 }
 

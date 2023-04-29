@@ -266,40 +266,38 @@ static void testSerialize(const QJsonValue& str, const PrimitiveType& value)
 
 TEST_CASE("PreferencesTest.serializeV2Bool")
 {
+  CHECK_FALSE((maybeDeserialize<PreferenceSerializer, bool>(QJsonValue("")).has_value()));
   CHECK_FALSE(
-    (maybeDeserialize<PreferenceSerializerV2, bool>(QJsonValue("")).has_value()));
-  CHECK_FALSE(
-    (maybeDeserialize<PreferenceSerializerV2, bool>(QJsonValue("0")).has_value()));
+    (maybeDeserialize<PreferenceSerializer, bool>(QJsonValue("0")).has_value()));
 
-  testSerialize<PreferenceSerializerV2, bool>(QJsonValue(false), false);
-  testSerialize<PreferenceSerializerV2, bool>(QJsonValue(true), true);
+  testSerialize<PreferenceSerializer, bool>(QJsonValue(false), false);
+  testSerialize<PreferenceSerializer, bool>(QJsonValue(true), true);
 }
 
 TEST_CASE("PreferencesTest.serializeV2float")
 {
   CHECK_FALSE(
-    (maybeDeserialize<PreferenceSerializerV2, float>(QJsonValue("1.25")).has_value()));
+    (maybeDeserialize<PreferenceSerializer, float>(QJsonValue("1.25")).has_value()));
 
-  testSerialize<PreferenceSerializerV2, float>(QJsonValue(1.25), 1.25f);
+  testSerialize<PreferenceSerializer, float>(QJsonValue(1.25), 1.25f);
 }
 
 TEST_CASE("PreferencesTest.serializeV2int")
 {
+  CHECK_FALSE((maybeDeserialize<PreferenceSerializer, int>(QJsonValue("0")).has_value()));
   CHECK_FALSE(
-    (maybeDeserialize<PreferenceSerializerV2, int>(QJsonValue("0")).has_value()));
-  CHECK_FALSE(
-    (maybeDeserialize<PreferenceSerializerV2, int>(QJsonValue("-1")).has_value()));
+    (maybeDeserialize<PreferenceSerializer, int>(QJsonValue("-1")).has_value()));
 
-  testSerialize<PreferenceSerializerV2, int>(QJsonValue(0), 0);
-  testSerialize<PreferenceSerializerV2, int>(QJsonValue(-1), -1);
-  testSerialize<PreferenceSerializerV2, int>(QJsonValue(1000), 1000);
+  testSerialize<PreferenceSerializer, int>(QJsonValue(0), 0);
+  testSerialize<PreferenceSerializer, int>(QJsonValue(-1), -1);
+  testSerialize<PreferenceSerializer, int>(QJsonValue(1000), 1000);
 }
 
 TEST_CASE("PreferencesTest.serializeV2KeyboardShortcut")
 {
-  testSerialize<PreferenceSerializerV2, QKeySequence>(
+  testSerialize<PreferenceSerializer, QKeySequence>(
     QJsonValue("Alt+Shift+W"), QKeySequence::fromString("Alt+Shift+W"));
-  testSerialize<PreferenceSerializerV2, QKeySequence>(
+  testSerialize<PreferenceSerializer, QKeySequence>(
     QJsonValue("Meta+W"),
     QKeySequence::fromString("Meta+W")); // "Meta" in Qt = Control in macOS
 }
