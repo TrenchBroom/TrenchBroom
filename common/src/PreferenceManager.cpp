@@ -173,7 +173,30 @@ void AppPreferenceManager::markAsUnsaved(PreferenceBase& preference)
   m_unsavedPreferences.insert(&preference);
 }
 
-static std::vector<IO::Path> changedKeysForMapDiff(
+void AppPreferenceManager::showErrorAndDisableFileReadWrite(
+  const QString& reason, const QString& suggestion)
+{
+  m_fileReadWriteDisabled = true;
+
+  const auto message =
+    tr(
+      "%1\n\n"
+      "%2\n\nPlease correct the problem (%3) and restart TrenchBroom.\n"
+      "Further settings changes will not be saved this session.")
+      .arg(reason)
+      .arg(m_preferencesFilePath)
+      .arg(suggestion);
+
+  QTimer::singleShot(0, [=] {
+    auto dialog = QMessageBox(
+      QMessageBox::Icon::Critical, tr("TrenchBroom"), message, QMessageBox::Ok);
+    dialog.exec();
+  });
+}
+
+namespace
+{
+std::vector<IO::Path> changedKeysForMapDiff(
   const std::map<IO::Path, QJsonValue>& before,
   const std::map<IO::Path, QJsonValue>& after)
 {
@@ -211,27 +234,7 @@ static std::vector<IO::Path> changedKeysForMapDiff(
 
   return result.release_data();
 }
-
-void AppPreferenceManager::showErrorAndDisableFileReadWrite(
-  const QString& reason, const QString& suggestion)
-{
-  m_fileReadWriteDisabled = true;
-
-  const auto message =
-    tr(
-      "%1\n\n"
-      "%2\n\nPlease correct the problem (%3) and restart TrenchBroom.\n"
-      "Further settings changes will not be saved this session.")
-      .arg(reason)
-      .arg(m_preferencesFilePath)
-      .arg(suggestion);
-
-  QTimer::singleShot(0, [=] {
-    auto dialog = QMessageBox(
-      QMessageBox::Icon::Critical, tr("TrenchBroom"), message, QMessageBox::Ok);
-    dialog.exec();
-  });
-}
+} // namespace
 
 /**
  * Reloads m_cache from the .json file,
@@ -391,11 +394,14 @@ QString preferenceFilePath()
     IO::SystemPaths::userDataDirectory() + IO::Path{"Preferences.json"});
 }
 
-static QLockFile getLockFile(const QString& preferenceFilePath)
+namespace
+{
+QLockFile getLockFile(const QString& preferenceFilePath)
 {
   const auto lockFilePath = preferenceFilePath + ".lck";
   return QLockFile{lockFilePath};
 }
+} // namespace
 
 ReadPreferencesResult readPreferencesFromFile(const QString& path)
 {
@@ -429,7 +435,7 @@ WritePreferencesResult writePreferencesToFile(
   const auto serialized = writePreferencesToJson(prefs);
 
   const auto dirPath = QFileInfo{path}.path();
-  if (!QDir().mkpath(dirPath))
+  if (!QDir{}.mkpath(dirPath))
   {
     return PreferenceErrors::FileAccessError{};
   }
@@ -446,7 +452,7 @@ WritePreferencesResult writePreferencesToFile(
     return PreferenceErrors::FileAccessError{};
   }
 
-  const qint64 written = saveFile.write(serialized);
+  const auto written = saveFile.write(serialized);
   if (written != static_cast<qint64>(serialized.size()))
   {
     return PreferenceErrors::FileAccessError{};
@@ -467,7 +473,7 @@ ReadPreferencesResult readPreferences()
 
 ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData)
 {
-  auto error = QJsonParseError();
+  auto error = QJsonParseError{};
   const auto document = QJsonDocument::fromJson(jsonData, &error);
 
   if (error.error != QJsonParseError::NoError || !document.isObject())
