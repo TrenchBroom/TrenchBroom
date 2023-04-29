@@ -28,8 +28,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace TrenchBroom
 {
-PrefSerializer::~PrefSerializer() = default;
-
 // PreferenceSerializer
 
 bool PreferenceSerializer::readFromJSON(const QJsonValue& in, bool& out) const

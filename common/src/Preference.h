@@ -35,29 +35,6 @@ namespace TrenchBroom
 {
 class Color;
 
-class PrefSerializer
-{
-public:
-  virtual ~PrefSerializer();
-
-  virtual bool readFromJSON(const QJsonValue& in, bool& out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, Color& out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, float& out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, int& out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, IO::Path& out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, QKeySequence& out) const = 0;
-  virtual bool readFromJSON(const QJsonValue& in, QString& out) const = 0;
-
-  virtual QJsonValue writeToJSON(bool in) const = 0;
-  virtual QJsonValue writeToJSON(const Color& in) const = 0;
-  virtual QJsonValue writeToJSON(float in) const = 0;
-  virtual QJsonValue writeToJSON(int in) const = 0;
-  virtual QJsonValue writeToJSON(const IO::Path& in) const = 0;
-  virtual QJsonValue writeToJSON(const QKeySequence& in) const = 0;
-  virtual QJsonValue writeToJSON(const QString& in) const = 0;
-};
-
-
 /**
  * Used by Qt version of TrenchBroom
  *
@@ -67,24 +44,24 @@ public:
  * - other types are not overridden (Color, IO::Path, QString) so serialize to JSON string
  * using the same format as wxWidgets
  */
-class PreferenceSerializer : public PrefSerializer
+class PreferenceSerializer
 {
 public:
-  bool readFromJSON(const QJsonValue& in, bool& out) const override;
-  bool readFromJSON(const QJsonValue& in, Color& out) const override;
-  bool readFromJSON(const QJsonValue& in, float& out) const override;
-  bool readFromJSON(const QJsonValue& in, int& out) const override;
-  bool readFromJSON(const QJsonValue& in, IO::Path& out) const override;
-  bool readFromJSON(const QJsonValue& in, QKeySequence& out) const override;
-  bool readFromJSON(const QJsonValue& in, QString& out) const override;
+  bool readFromJSON(const QJsonValue& in, bool& out) const;
+  bool readFromJSON(const QJsonValue& in, Color& out) const;
+  bool readFromJSON(const QJsonValue& in, float& out) const;
+  bool readFromJSON(const QJsonValue& in, int& out) const;
+  bool readFromJSON(const QJsonValue& in, IO::Path& out) const;
+  bool readFromJSON(const QJsonValue& in, QKeySequence& out) const;
+  bool readFromJSON(const QJsonValue& in, QString& out) const;
 
-  QJsonValue writeToJSON(bool in) const override;
-  QJsonValue writeToJSON(const Color& in) const override;
-  QJsonValue writeToJSON(float in) const override;
-  QJsonValue writeToJSON(int in) const override;
-  QJsonValue writeToJSON(const IO::Path& in) const override;
-  QJsonValue writeToJSON(const QKeySequence& in) const override;
-  QJsonValue writeToJSON(const QString& in) const override;
+  QJsonValue writeToJSON(bool in) const;
+  QJsonValue writeToJSON(const Color& in) const;
+  QJsonValue writeToJSON(float in) const;
+  QJsonValue writeToJSON(int in) const;
+  QJsonValue writeToJSON(const IO::Path& in) const;
+  QJsonValue writeToJSON(const QKeySequence& in) const;
+  QJsonValue writeToJSON(const QString& in) const;
 };
 
 class PreferenceBase
@@ -107,8 +84,9 @@ public: // private to PreferenceManager
   virtual void resetToDefault() = 0;
   virtual bool valid() const = 0;
   virtual void setValid(bool _valid) = 0;
-  virtual bool loadFromJSON(const PrefSerializer& format, const QJsonValue& value) = 0;
-  virtual QJsonValue writeToJSON(const PrefSerializer& format) const = 0;
+  virtual bool loadFromJSON(
+    const PreferenceSerializer& format, const QJsonValue& value) = 0;
+  virtual QJsonValue writeToJSON(const PreferenceSerializer& format) const = 0;
   virtual bool isDefault() const = 0;
 };
 
@@ -189,7 +167,7 @@ public: // PreferenceManager private
     return m_value;
   }
 
-  bool loadFromJSON(const PrefSerializer& format, const QJsonValue& value) override
+  bool loadFromJSON(const PreferenceSerializer& format, const QJsonValue& value) override
   {
     auto result = T{};
     if (format.readFromJSON(value, result))
@@ -200,7 +178,7 @@ public: // PreferenceManager private
     return false;
   }
 
-  QJsonValue writeToJSON(const PrefSerializer& format) const override
+  QJsonValue writeToJSON(const PreferenceSerializer& format) const override
   {
     return format.writeToJSON(value());
   }
