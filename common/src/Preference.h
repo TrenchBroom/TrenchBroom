@@ -47,21 +47,21 @@ class Color;
 class PreferenceSerializer
 {
 public:
-  bool readFromJSON(const QJsonValue& in, bool& out) const;
-  bool readFromJSON(const QJsonValue& in, Color& out) const;
-  bool readFromJSON(const QJsonValue& in, float& out) const;
-  bool readFromJSON(const QJsonValue& in, int& out) const;
-  bool readFromJSON(const QJsonValue& in, IO::Path& out) const;
-  bool readFromJSON(const QJsonValue& in, QKeySequence& out) const;
-  bool readFromJSON(const QJsonValue& in, QString& out) const;
+  bool readFromJson(const QJsonValue& in, bool& out) const;
+  bool readFromJson(const QJsonValue& in, Color& out) const;
+  bool readFromJson(const QJsonValue& in, float& out) const;
+  bool readFromJson(const QJsonValue& in, int& out) const;
+  bool readFromJson(const QJsonValue& in, IO::Path& out) const;
+  bool readFromJson(const QJsonValue& in, QKeySequence& out) const;
+  bool readFromJson(const QJsonValue& in, QString& out) const;
 
-  QJsonValue writeToJSON(bool in) const;
-  QJsonValue writeToJSON(const Color& in) const;
-  QJsonValue writeToJSON(float in) const;
-  QJsonValue writeToJSON(int in) const;
-  QJsonValue writeToJSON(const IO::Path& in) const;
-  QJsonValue writeToJSON(const QKeySequence& in) const;
-  QJsonValue writeToJSON(const QString& in) const;
+  QJsonValue writeToJson(bool in) const;
+  QJsonValue writeToJson(const Color& in) const;
+  QJsonValue writeToJson(float in) const;
+  QJsonValue writeToJson(int in) const;
+  QJsonValue writeToJson(const IO::Path& in) const;
+  QJsonValue writeToJson(const QKeySequence& in) const;
+  QJsonValue writeToJson(const QString& in) const;
 };
 
 class PreferenceBase
@@ -84,9 +84,9 @@ public: // private to PreferenceManager
   virtual void resetToDefault() = 0;
   virtual bool valid() const = 0;
   virtual void setValid(bool _valid) = 0;
-  virtual bool loadFromJSON(
+  virtual bool loadFromJson(
     const PreferenceSerializer& format, const QJsonValue& value) = 0;
-  virtual QJsonValue writeToJSON(const PreferenceSerializer& format) const = 0;
+  virtual QJsonValue writeToJson(const PreferenceSerializer& format) const = 0;
   virtual bool isDefault() const = 0;
 };
 
@@ -167,10 +167,10 @@ public: // PreferenceManager private
     return m_value;
   }
 
-  bool loadFromJSON(const PreferenceSerializer& format, const QJsonValue& value) override
+  bool loadFromJson(const PreferenceSerializer& format, const QJsonValue& value) override
   {
     auto result = T{};
-    if (format.readFromJSON(value, result))
+    if (format.readFromJson(value, result))
     {
       m_value = result;
       return true;
@@ -178,9 +178,9 @@ public: // PreferenceManager private
     return false;
   }
 
-  QJsonValue writeToJSON(const PreferenceSerializer& format) const override
+  QJsonValue writeToJson(const PreferenceSerializer& format) const override
   {
-    return format.writeToJSON(value());
+    return format.writeToJson(value());
   }
 
   bool isDefault() const override { return m_defaultValue == m_value; }

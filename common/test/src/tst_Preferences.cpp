@@ -216,16 +216,16 @@ static void testPrefs(const std::map<IO::Path, QJsonValue>& prefs)
 
 TEST_CASE("PreferencesTest.read")
 {
-  CHECK(parsePreferencesFromJSON(QByteArray())
+  CHECK(parsePreferencesFromJson(QByteArray())
           .is_error_type<PreferenceErrors::JsonParseError>());
-  CHECK(parsePreferencesFromJSON(QByteArray("abc"))
+  CHECK(parsePreferencesFromJson(QByteArray("abc"))
           .is_error_type<PreferenceErrors::JsonParseError>());
-  CHECK(parsePreferencesFromJSON(QByteArray(R"({"foo": "bar",})"))
+  CHECK(parsePreferencesFromJson(QByteArray(R"({"foo": "bar",})"))
           .is_error_type<PreferenceErrors::JsonParseError>());
 
   // Valid JSON
-  CHECK(parsePreferencesFromJSON(QByteArray(R"({"foo": "bar"})")).is_success());
-  CHECK(parsePreferencesFromJSON(QByteArray("{}")).is_success());
+  CHECK(parsePreferencesFromJson(QByteArray(R"({"foo": "bar"})")).is_success());
+  CHECK(parsePreferencesFromJson(QByteArray("{}")).is_success());
 
   readPreferencesFromFile("fixture/test/preferences-v2.json")
     .transform([](const std::map<IO::Path, QJsonValue>& prefs) { testPrefs(prefs); })
@@ -237,8 +237,8 @@ TEST_CASE("PreferencesTest.testWriteRead")
   const auto fromFile =
     readPreferencesFromFile("fixture/test/preferences-v2.json").value();
 
-  const QByteArray serialized = writePreferencesToJSON(fromFile);
-  parsePreferencesFromJSON(serialized)
+  const QByteArray serialized = writePreferencesToJson(fromFile);
+  parsePreferencesFromJson(serialized)
     .transform(
       [&](const std::map<IO::Path, QJsonValue>& prefs) { CHECK(fromFile == prefs); })
     .transform_error([](const auto&) { FAIL_CHECK(); });
@@ -252,7 +252,7 @@ static std::optional<PrimitiveType> maybeDeserialize(const QJsonValue& string)
 {
   const Serializer s;
   PrimitiveType result;
-  if (s.readFromJSON(string, result))
+  if (s.readFromJson(string, result))
   {
     return {result};
   }
@@ -263,7 +263,7 @@ template <class Serializer, class PrimitiveType>
 static QJsonValue serialize(const PrimitiveType& value)
 {
   const Serializer s;
-  return s.writeToJSON(value);
+  return s.writeToJson(value);
 }
 
 template <class Serializer, class PrimitiveType>

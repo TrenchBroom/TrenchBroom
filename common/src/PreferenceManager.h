@@ -290,7 +290,7 @@ ReadPreferencesResult readPreferences();
 
 WritePreferencesResult writePreferencesToFile(
   const QString& path, const std::map<IO::Path, QJsonValue>& prefs);
-ReadPreferencesResult parsePreferencesFromJSON(const QByteArray& jsonData);
-QByteArray writePreferencesToJSON(const std::map<IO::Path, QJsonValue>& prefs);
+ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData);
+QByteArray writePreferencesToJson(const std::map<IO::Path, QJsonValue>& prefs);
 
 } // namespace TrenchBroom

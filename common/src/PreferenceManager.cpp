@@ -315,7 +315,7 @@ void AppPreferenceManager::loadPreferenceFromCache(PreferenceBase& pref)
   }
 
   const auto jsonValue = it->second;
-  if (!pref.loadFromJSON(format, jsonValue))
+  if (!pref.loadFromJson(format, jsonValue))
   {
     // FIXME: Log to TB console
     const auto variantValue = jsonValue.toVariant();
@@ -347,7 +347,7 @@ void AppPreferenceManager::savePreferenceToCache(PreferenceBase& pref)
   }
 
   const auto format = PreferenceSerializer{};
-  m_cache[pref.path()] = pref.writeToJSON(format);
+  m_cache[pref.path()] = pref.writeToJson(format);
 }
 
 void AppPreferenceManager::validatePreference(PreferenceBase& preference)
@@ -420,13 +420,13 @@ ReadPreferencesResult readPreferencesFromFile(const QString& path)
   file.close();
   lockFile.unlock();
 
-  return parsePreferencesFromJSON(contents);
+  return parsePreferencesFromJson(contents);
 }
 
 WritePreferencesResult writePreferencesToFile(
   const QString& path, const std::map<IO::Path, QJsonValue>& prefs)
 {
-  const auto serialized = writePreferencesToJSON(prefs);
+  const auto serialized = writePreferencesToJson(prefs);
 
   const auto dirPath = QFileInfo{path}.path();
   if (!QDir().mkpath(dirPath))
@@ -465,7 +465,7 @@ ReadPreferencesResult readPreferences()
   return readPreferencesFromFile(preferenceFilePath());
 }
 
-ReadPreferencesResult parsePreferencesFromJSON(const QByteArray& jsonData)
+ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData)
 {
   auto error = QJsonParseError();
   const auto document = QJsonDocument::fromJson(jsonData, &error);
@@ -484,7 +484,7 @@ ReadPreferencesResult parsePreferencesFromJSON(const QByteArray& jsonData)
   return result;
 }
 
-QByteArray writePreferencesToJSON(const std::map<IO::Path, QJsonValue>& prefs)
+QByteArray writePreferencesToJson(const std::map<IO::Path, QJsonValue>& prefs)
 {
   auto rootObject = QJsonObject{};
   for (auto [key, val] : prefs)
