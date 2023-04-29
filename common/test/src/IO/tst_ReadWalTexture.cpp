@@ -69,7 +69,7 @@ TEST_CASE("readWalTexture")
 
   auto reader = file->reader().buffer();
 
-  const auto name = path.deleteExtension().asString("/");
+  const auto name = path.deleteExtension().asGenericString();
   const auto texture = readWalTexture(name, reader, palette).value();
   CHECK(texture.name() == name);
   CHECK(texture.width() == width);

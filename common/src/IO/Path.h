@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <iosfwd>
 #include <string>
 #include <string_view>
@@ -38,32 +39,11 @@ public:
 #endif
   }
 
-  template <typename StringLess>
-  class Less
-  {
-  private:
-    StringLess m_less;
-
-  public:
-    bool operator()(const Path& lhs, const Path& rhs) const
-    {
-      return std::lexicographical_compare(
-        std::begin(lhs.m_components),
-        std::end(lhs.m_components),
-        std::begin(rhs.m_components),
-        std::end(rhs.m_components),
-        m_less);
-    }
-  };
-
 private:
-  std::vector<std::string> m_components;
-  bool m_absolute;
-
-  Path(bool absolute, std::vector<std::string> components);
+  std::filesystem::path m_path;
 
 public:
-  explicit Path(const std::string& path = "");
+  explicit Path(std::filesystem::path path = {});
 
   Path operator+(const Path& rhs) const;
   int compare(const Path& rhs, bool caseSensitive = true) const;
@@ -72,9 +52,9 @@ public:
   bool operator<(const Path& rhs) const;
   bool operator>(const Path& rhs) const;
 
-  std::string asString(std::string_view sep = separator()) const;
-  static std::vector<std::string> asStrings(
-    const std::vector<Path>& paths, std::string_view sep = separator());
+  std::string asString() const;
+  std::string asGenericString() const;
+  static std::vector<std::string> asStrings(const std::vector<Path>& paths);
   static std::vector<Path> asPaths(const std::vector<std::string>& strs);
 
   size_t length() const;
@@ -86,7 +66,7 @@ public:
   Path prefix(size_t count) const;
   Path suffix(size_t count) const;
   Path subPath(size_t index, size_t count) const;
-  const std::vector<std::string>& components() const;
+  std::vector<std::string> components() const;
 
   std::string filename() const;
   std::string basename() const;
@@ -125,12 +105,6 @@ public:
 
   static std::vector<Path> makeAbsoluteAndCanonical(
     const std::vector<Path>& paths, const Path& relativePath);
-
-private:
-  static bool hasDriveSpec(const std::vector<std::string>& components);
-  static bool hasDriveSpec(const std::string& component);
-  std::vector<std::string> resolvePath(
-    bool absolute, const std::vector<std::string>& components) const;
 };
 
 std::ostream& operator<<(std::ostream& stream, const Path& path);

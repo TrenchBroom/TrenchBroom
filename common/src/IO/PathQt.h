@@ -29,7 +29,9 @@ namespace TrenchBroom
 {
 namespace IO
 {
-QString pathAsQString(const IO::Path& path, std::string_view sep = Path::separator());
+QString pathAsQString(const IO::Path& path);
+QString pathAsGenericQString(const IO::Path& path);
+
 Path pathFromQString(const QString& path);
 } // namespace IO
 } // namespace TrenchBroom

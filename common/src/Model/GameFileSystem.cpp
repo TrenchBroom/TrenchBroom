@@ -156,7 +156,7 @@ void GameFileSystem::addFileSystemPackages(
     const auto diskFS = IO::DiskFileSystem{searchPath};
     auto packages =
       diskFS.find(IO::Path{}, IO::makeExtensionPathMatcher(packageExtensions));
-    packages = kdl::vec_sort(std::move(packages), IO::Path::Less<kdl::ci::string_less>{});
+    packages = kdl::vec_sort(std::move(packages));
 
     for (const auto& packagePath : packages)
     {

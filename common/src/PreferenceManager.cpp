@@ -322,7 +322,7 @@ void AppPreferenceManager::loadPreferenceFromCache(PreferenceBase& pref)
   {
     // FIXME: Log to TB console
     const auto variantValue = jsonValue.toVariant();
-    qDebug() << "Failed to load preference " << IO::pathAsQString(pref.path(), "/")
+    qDebug() << "Failed to load preference " << IO::pathAsGenericQString(pref.path())
              << " from JSON value: " << variantValue.toString() << " ("
              << variantValue.typeName() << ")";
 
@@ -495,7 +495,7 @@ QByteArray writePreferencesToJson(const std::map<IO::Path, QJsonValue>& prefs)
   auto rootObject = QJsonObject{};
   for (auto [key, val] : prefs)
   {
-    rootObject[IO::pathAsQString(key, "/")] = val;
+    rootObject[IO::pathAsGenericQString(key)] = val;
   }
 
   auto document = QJsonDocument{rootObject};

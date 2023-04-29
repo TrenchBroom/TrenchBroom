@@ -35,7 +35,7 @@ namespace TrenchBroom::IO
 std::string getTextureNameFromPathSuffix(const Path& path, size_t prefixLength)
 {
   return prefixLength < path.length()
-           ? path.suffix(path.length() - prefixLength).deleteExtension().asString("/")
+           ? path.suffix(path.length() - prefixLength).deleteExtension().asGenericString()
            : "";
 }
 

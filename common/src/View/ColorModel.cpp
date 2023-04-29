@@ -109,7 +109,7 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
       return QString::fromStdString(colorPreference->path().firstComponent().asString());
     case 2:
       return QString::fromStdString(
-        colorPreference->path().deleteFirstComponent().asString(" > "));
+        colorPreference->path().deleteFirstComponent().asGenericString());
       switchDefault();
     }
   }

@@ -40,6 +40,13 @@
 
 #include "Catch2.h"
 
+
+inline std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs)
+{
+  lhs << rhs.toString().toStdString();
+  return lhs;
+}
+
 namespace TrenchBroom
 {
 namespace

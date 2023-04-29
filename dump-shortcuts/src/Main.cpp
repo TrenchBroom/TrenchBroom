@@ -20,6 +20,7 @@
 #include "View/Actions.h"
 
 #include "IO/Path.h"
+#include "IO/PathQt.h"
 #include "KeyStrings.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -140,9 +141,7 @@ public:
 
   void visit(const MenuActionItem& item) override
   {
-    m_out << "    '"
-          << QString::fromStdString(item.action().preferencePath().asString("/"))
-          << "': ";
+    m_out << "    '" << IO::pathAsGenericQString(item.action().preferencePath()) << "': ";
     m_out << "{ path: " << toString(m_path, item.label())
           << ", shortcut: " << toString(item.action().keySequence()) << " },\n";
   }
@@ -164,7 +163,7 @@ static void printActionShortcuts(QTextStream& out)
   out << "const actions = {\n";
 
   auto printPref = [&out](const IO::Path& prefPath, const QKeySequence& keySequence) {
-    out << "    '" << QString::fromStdString(prefPath.asString("/")) << "': ";
+    out << "    '" << IO::pathAsGenericQString(prefPath) << "': ";
     out << toString(keySequence) << ",\n";
   };
 

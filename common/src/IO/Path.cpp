@@ -28,33 +28,30 @@
 #include <kdl/vector_utils.h>
 
 #include <iterator>
+#include <numeric>
 #include <ostream>
 #include <string>
 
 namespace TrenchBroom::IO
 {
-static constexpr std::string_view separators()
-{
-  return std::string_view("/\\");
-}
 
-Path::Path(bool absolute, std::vector<std::string> components)
-  : m_components{std::move(components)}
-  , m_absolute{absolute}
+namespace
 {
-}
+std::filesystem::path trimTrailingSlashes(std::filesystem::path path)
+{
+  while (path.end() != path.begin() && path.has_parent_path()
+         && std::prev(path.end())->empty())
+  {
+    path = path.parent_path();
+  }
 
-Path::Path(const std::string& path)
+  return path;
+}
+} // namespace
+
+Path::Path(std::filesystem::path path)
+  : m_path{trimTrailingSlashes(std::move(path.make_preferred()))}
 {
-  const auto trimmed = kdl::str_trim(path);
-  m_components = kdl::str_split(trimmed, separators());
-#ifdef _WIN32
-  m_absolute =
-    (hasDriveSpec(m_components) || (!trimmed.empty() && trimmed[0] == '/')
-     || (!trimmed.empty() && trimmed[0] == '\\'));
-#else
-  m_absolute = !trimmed.empty() && kdl::cs::str_is_prefix(trimmed, separator());
-#endif
 }
 
 Path Path::operator+(const Path& rhs) const
@@ -63,10 +60,8 @@ Path Path::operator+(const Path& rhs) const
   {
     throw PathException{"Cannot concatenate absolute path"};
   }
-  auto components = m_components;
-  components.insert(
-    std::end(components), std::begin(rhs.m_components), std::end(rhs.m_components));
-  return Path{m_absolute, std::move(components)};
+
+  return Path{m_path / rhs.m_path};
 }
 
 int Path::compare(const Path& rhs, const bool caseSensitive) const
@@ -80,17 +75,23 @@ int Path::compare(const Path& rhs, const bool caseSensitive) const
     return 1;
   }
 
-  const auto& rcomps = rhs.m_components;
+  const auto firstComponent = [&](const auto& path) {
+    return path.isAbsolute() && path.m_path.begin() != path.m_path.end()
+             ? std::next(path.m_path.begin())
+             : path.m_path.begin();
+  };
 
-  size_t i = 0;
-  const auto max =
-    m_components.size() < rcomps.size() ? m_components.size() : rcomps.size();
-  while (i < max)
+  auto mcur = firstComponent(*this);
+  auto rcur = firstComponent(rhs);
+
+  while (mcur != m_path.end() && rcur != rhs.m_path.end())
   {
-    const auto& mcomp = m_components[i];
-    const auto& rcomp = rcomps[i];
-    const auto result = caseSensitive ? kdl::cs::str_compare(mcomp, rcomp)
-                                      : kdl::ci::str_compare(mcomp, rcomp);
+    const auto& mcomp = *mcur;
+    const auto& rcomp = *rcur;
+    const auto result = caseSensitive
+                          ? kdl::cs::str_compare(mcomp.u8string(), rcomp.u8string())
+                          : kdl::ci::str_compare(mcomp.u8string(), rcomp.u8string());
+
     if (result < 0)
     {
       return -1;
@@ -99,20 +100,13 @@ int Path::compare(const Path& rhs, const bool caseSensitive) const
     {
       return 1;
     }
-    ++i;
+    ++mcur;
+    ++rcur;
   }
-  if (m_components.size() < rcomps.size())
-  {
-    return -1;
-  }
-  else if (m_components.size() > rcomps.size())
-  {
-    return 1;
-  }
-  else
-  {
-    return 0;
-  }
+
+  return mcur == m_path.end() && rcur == rhs.m_path.end() ? 0
+         : mcur == m_path.end()                           ? -1
+                                                          : 1;
 }
 
 bool Path::operator==(const Path& rhs) const
@@ -135,31 +129,19 @@ bool Path::operator>(const Path& rhs) const
   return compare(rhs) > 0;
 }
 
-std::string Path::asString(const std::string_view separator) const
+std::string Path::asString() const
 {
-  if (m_absolute)
-  {
-#ifdef _WIN32
-    if (hasDriveSpec(m_components))
-    {
-      return kdl::str_join(m_components, separator);
-    }
-    else
-    {
-      return std::string(separator) + kdl::str_join(m_components, separator);
-    }
-#else
-    return std::string(separator) + kdl::str_join(m_components, separator);
-#endif
-  }
-  return kdl::str_join(m_components, separator);
+  return m_path.u8string();
 }
 
-std::vector<std::string> Path::asStrings(
-  const std::vector<Path>& paths, const std::string_view separator)
+std::string Path::asGenericString() const
 {
-  return kdl::vec_transform(
-    paths, [&](const auto& path) { return path.asString(separator); });
+  return m_path.generic_u8string();
+}
+
+std::vector<std::string> Path::asStrings(const std::vector<Path>& paths)
+{
+  return kdl::vec_transform(paths, [](const auto& path) { return path.asString(); });
 }
 
 std::vector<Path> Path::asPaths(const std::vector<std::string>& strs)
@@ -169,12 +151,13 @@ std::vector<Path> Path::asPaths(const std::vector<std::string>& strs)
 
 size_t Path::length() const
 {
-  return m_components.size();
+  const auto numComponents = size_t(std::distance(m_path.begin(), m_path.end()));
+  return isAbsolute() && numComponents > 0 ? numComponents - 1 : numComponents;
 }
 
 bool Path::isEmpty() const
 {
-  return !m_absolute && m_components.empty();
+  return !isAbsolute() && length() == 0;
 }
 
 Path Path::firstComponent() const
@@ -184,21 +167,7 @@ Path Path::firstComponent() const
     throw PathException{"Cannot return first component of empty path"};
   }
 
-  if (!m_absolute)
-  {
-    return Path{m_components.front()};
-  }
-
-#ifdef _WIN32
-  if (hasDriveSpec(m_components))
-  {
-    return Path{m_components.front()};
-  }
-
-  return Path{"\\"};
-#else
-  return Path{"/"};
-#endif
+  return Path{*m_path.begin()};
 }
 
 Path Path::deleteFirstComponent() const
@@ -207,27 +176,12 @@ Path Path::deleteFirstComponent() const
   {
     throw PathException{"Cannot delete first component of empty path"};
   }
-  if (!m_absolute)
-  {
-    auto components = std::vector<std::string>();
-    components.reserve(m_components.size() - 1);
-    components.insert(
-      std::begin(components), std::begin(m_components) + 1, std::end(m_components));
-    return Path{false, std::move(components)};
-  }
-#ifdef _WIN32
-  if (!m_components.empty() && hasDriveSpec(m_components[0]))
-  {
-    std::vector<std::string> components;
-    components.reserve(m_components.size() - 1);
-    components.insert(
-      std::begin(components), std::begin(m_components) + 1, std::end(m_components));
-    return Path{false, std::move(components)};
-  }
-  return Path{false, m_components};
-#else
-  return Path{false, m_components};
-#endif
+
+  return Path{std::accumulate(
+    std::next(m_path.begin()),
+    m_path.end(),
+    std::filesystem::path{},
+    [](const auto& lhs, const auto& rhs) { return lhs / rhs; })};
 }
 
 Path Path::lastComponent() const
@@ -237,14 +191,7 @@ Path Path::lastComponent() const
     throw PathException{"Cannot return last component of empty path"};
   }
 
-  if (!m_components.empty())
-  {
-    return Path{m_components.back()};
-  }
-  else
-  {
-    return Path{};
-  }
+  return Path{*std::prev(m_path.end())};
 }
 
 Path Path::deleteLastComponent() const
@@ -254,18 +201,7 @@ Path Path::deleteLastComponent() const
     throw PathException{"Cannot delete last component of empty path"};
   }
 
-  if (!m_components.empty())
-  {
-    auto components = std::vector<std::string>();
-    components.reserve(m_components.size() - 1);
-    components.insert(
-      std::begin(components), std::begin(m_components), std::end(m_components) - 1);
-    return Path{m_absolute, std::move(components)};
-  }
-  else
-  {
-    return Path{m_absolute, m_components};
-  }
+  return Path{m_path.parent_path()};
 }
 
 Path Path::prefix(const size_t count) const
@@ -275,12 +211,12 @@ Path Path::prefix(const size_t count) const
 
 Path Path::suffix(const size_t count) const
 {
-  return subPath(m_components.size() - count, count);
+  return subPath(length() - count, count);
 }
 
 Path Path::subPath(const size_t index, const size_t count) const
 {
-  if (index + count > m_components.size())
+  if (index + count > length())
   {
     throw PathException{"Sub path out of bounds"};
   }
@@ -290,18 +226,25 @@ Path Path::subPath(const size_t index, const size_t count) const
     return Path{};
   }
 
-  auto newComponents = std::vector<std::string>();
-  newComponents.reserve(count);
-  for (size_t i = 0u; i < count; ++i)
-  {
-    newComponents.push_back(m_components[index + i]);
-  }
-  return Path{m_absolute && index == 0, std::move(newComponents)};
+  const auto start = isAbsolute() ? index + 1 : index;
+
+  return Path{std::accumulate(
+    std::next(m_path.begin(), start),
+    std::next(m_path.begin(), start + count),
+    std::filesystem::path{},
+    [](const auto& lhs, const auto& rhs) { return lhs / rhs; })};
 }
 
-const std::vector<std::string>& Path::components() const
+std::vector<std::string> Path::components() const
 {
-  return m_components;
+  auto result = std::vector<std::string>{};
+  result.reserve(length());
+
+  std::transform(
+    m_path.begin(), m_path.end(), std::back_inserter(result), [](const auto& component) {
+      return component.u8string();
+    });
+  return result;
 }
 
 std::string Path::filename() const
@@ -311,14 +254,7 @@ std::string Path::filename() const
     throw PathException{"Cannot get filename of empty path"};
   }
 
-  if (m_components.empty())
-  {
-    return "";
-  }
-  else
-  {
-    return m_components.back();
-  }
+  return m_path.filename().u8string();
 }
 
 std::string Path::basename() const
@@ -328,16 +264,7 @@ std::string Path::basename() const
     throw PathException{"Cannot get basename of empty path"};
   }
 
-  const auto filename = this->filename();
-  const auto dotIndex = filename.rfind('.');
-  if (dotIndex == std::string::npos)
-  {
-    return filename;
-  }
-  else
-  {
-    return filename.substr(0, dotIndex);
-  }
+  return m_path.stem().u8string();
 }
 
 std::string Path::extension() const
@@ -347,16 +274,8 @@ std::string Path::extension() const
     throw PathException{"Cannot get extension of empty path"};
   }
 
-  const auto filename = this->filename();
-  const auto dotIndex = filename.rfind('.');
-  if (dotIndex == std::string::npos)
-  {
-    return "";
-  }
-  else
-  {
-    return filename.substr(dotIndex + 1);
-  }
+  const auto extension = m_path.extension().u8string();
+  return extension.empty() ? extension : extension.substr(1);
 }
 
 bool Path::hasPrefix(const Path& prefix, bool caseSensitive) const
@@ -446,7 +365,7 @@ bool Path::hasExtension(
 
 bool Path::hasDriveSpec() const
 {
-  return hasDriveSpec(m_components);
+  return m_path.has_root_name();
 }
 
 Path Path::deleteExtension() const
@@ -465,21 +384,7 @@ Path Path::addExtension(const std::string& extension) const
     throw PathException{"Cannot add extension to empty path"};
   }
 
-  auto components = m_components;
-  if (
-    components.empty()
-#ifdef _WIN32
-    || hasDriveSpec(m_components.back())
-#endif
-  )
-  {
-    components.push_back("." + extension);
-  }
-  else
-  {
-    components.back() += "." + extension;
-  }
-  return Path{m_absolute, std::move(components)};
+  return Path{m_path.parent_path() / m_path.filename() += "." + extension};
 }
 
 Path Path::replaceExtension(const std::string& extension) const
@@ -498,7 +403,7 @@ Path Path::replaceBasename(const std::string& basename) const
 
 bool Path::isAbsolute() const
 {
-  return m_absolute;
+  return m_path.is_absolute();
 }
 
 bool Path::canMakeRelative(const Path& absolutePath) const
@@ -539,17 +444,7 @@ Path Path::makeRelative() const
     throw PathException{"Cannot make relative path from relative reference path"};
   }
 
-#ifdef _WIN32
-  if (m_components.empty())
-  {
-    throw PathException{
-      "Cannot make relative path from an reference path with no drive spec"};
-  }
-
-  return Path{false, kdl::vec_slice_suffix(m_components, m_components.size() - 1u)};
-#else
-  return Path{false, m_components};
-#endif
+  return Path{m_path.relative_path()};
 }
 
 Path Path::makeRelative(const Path& absolutePath) const
@@ -574,66 +469,25 @@ Path Path::makeRelative(const Path& absolutePath) const
     throw PathException{"Cannot make relative path with relative sub path"};
   }
 
-#ifdef _WIN32
-  if (m_components.empty())
-  {
-    throw PathException{
-      "Cannot make relative path from an reference path with no drive spec"};
-  }
-  if (absolutePath.m_components.empty())
-  {
-    throw PathException{"Cannot make relative path with sub path with no drive spec"};
-  }
-  if (m_components[0] != absolutePath.m_components[0])
-  {
-    throw PathException{
-      "Cannot make relative path if reference path has different drive spec"};
-  }
-#endif
-
-  const auto myResolved = resolvePath(true, m_components);
-  const auto theirResolved = resolvePath(true, absolutePath.m_components);
-
-  // cross off all common prefixes
-  size_t p = 0;
-  const auto max =
-    myResolved.size() < theirResolved.size() ? myResolved.size() : theirResolved.size();
-  while (p < max)
-  {
-    if (myResolved[p] != theirResolved[p])
-    {
-      break;
-    }
-    ++p;
-  }
-
-  auto components = std::vector<std::string>();
-  for (size_t i = p; i < myResolved.size(); ++i)
-  {
-    components.emplace_back("..");
-  }
-  for (size_t i = p; i < theirResolved.size(); ++i)
-  {
-    components.push_back(theirResolved[i]);
-  }
-
-  return Path{false, std::move(components)};
+  return Path{
+    absolutePath.m_path.lexically_normal().lexically_relative(m_path.lexically_normal())};
 }
 
 Path Path::makeCanonical() const
 {
-  return Path{m_absolute, resolvePath(m_absolute, m_components)};
+  auto normalPath = m_path.lexically_normal();
+  if (std::any_of(normalPath.begin(), normalPath.end(), [](const auto& component) {
+        return component == "..";
+      }))
+  {
+    throw PathException{"Cannot make path canonical"};
+  }
+  return Path{std::move(normalPath)};
 }
 
 Path Path::makeLowerCase() const
 {
-  auto lcComponents = std::vector<std::string>();
-  lcComponents.reserve(m_components.size());
-  for (const auto& component : m_components)
-  {
-    lcComponents.push_back(kdl::str_to_lower(component));
-  }
-  return Path{m_absolute, std::move(lcComponents)};
+  return Path{kdl::str_to_lower(m_path.u8string())};
 }
 
 std::vector<Path> Path::makeAbsoluteAndCanonical(
@@ -646,77 +500,6 @@ std::vector<Path> Path::makeAbsoluteAndCanonical(
     result.push_back(path.makeAbsolute(relativePath).makeCanonical());
   }
   return result;
-}
-
-#ifdef _WIN32
-bool Path::hasDriveSpec(const std::vector<std::string>& components)
-{
-  if (components.empty())
-  {
-    return false;
-  }
-  else
-  {
-    return hasDriveSpec(components[0]);
-  }
-}
-#else
-bool Path::hasDriveSpec(const std::vector<std::string>& /* components */)
-{
-  return false;
-}
-#endif
-
-#ifdef _WIN32
-bool Path::hasDriveSpec(const std::string& component)
-{
-  if (component.size() <= 1)
-  {
-    return false;
-  }
-  else
-  {
-    return component[1] == ':';
-  }
-}
-#else
-bool Path::hasDriveSpec(const std::string& /* component */)
-{
-  return false;
-}
-#endif
-
-std::vector<std::string> Path::resolvePath(
-  const bool absolute, const std::vector<std::string>& components) const
-{
-  auto resolved = std::vector<std::string>();
-  for (const auto& comp : components)
-  {
-    if (comp == ".")
-    {
-      continue;
-    }
-    if (comp == "..")
-    {
-      if (resolved.empty())
-      {
-        throw PathException{"Cannot resolve path"};
-      }
-
-#ifdef _WIN32
-      if (absolute && hasDriveSpec(resolved[0]) && resolved.size() < 2)
-      {
-        throw PathException{"Cannot resolve path"};
-      }
-#else
-      unused(absolute);
-#endif
-      resolved.pop_back();
-      continue;
-    }
-    resolved.push_back(comp);
-  }
-  return resolved;
 }
 
 std::ostream& operator<<(std::ostream& stream, const Path& path)

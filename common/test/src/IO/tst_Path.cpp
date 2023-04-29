@@ -226,7 +226,7 @@ TEST_CASE("PathTest.pathFromQString")
 TEST_CASE("PathTest.constructWithString")
 {
   CHECK(Path{""}.asString() == std::string(""));
-  CHECK(Path{" "}.asString() == std::string(""));
+  CHECK(Path{" "}.asString() == std::string(" "));
   CHECK(Path{"/"}.asString() == std::string("/"));
   CHECK(Path{"/asdf"}.asString() == std::string("/asdf"));
   CHECK(Path{"/asdf/"}.asString() == std::string("/asdf"));
@@ -245,7 +245,7 @@ TEST_CASE("PathTest.concatenate")
   CHECK_THROWS_AS(Path{"/asdf"} + Path{"/asdf"}, PathException);
   CHECK(Path{""} + Path{""} == Path{""});
   CHECK(Path{"/"} + Path{""} == Path{"/"});
-  CHECK(Path{"/asdf"} + Path{""} == Path{"/asdf"});
+  CHECK(Path{"/asdf"} + Path{""} == Path{"/asdf/"});
   CHECK(Path{"/"} + Path{"asdf"} == Path{"/asdf"});
   CHECK(Path{"/asdf"} + Path{"hey"} == Path{"/asdf/hey"});
   CHECK(Path{"asdf"} + Path{"hey"} == Path{"asdf/hey"});
@@ -267,7 +267,7 @@ TEST_CASE("PathTest.getLastComponent")
   CHECK(Path{"/asdf"}.lastComponent().asString() == "asdf");
   CHECK(Path{"asdf"}.lastComponent() == Path{"asdf"});
   CHECK(Path{"/this/is/a/path.map"}.lastComponent() == Path{"path.map"});
-  CHECK(Path{"/"}.lastComponent() == Path{""});
+  CHECK(Path{"/"}.lastComponent() == Path{"/"});
 }
 
 TEST_CASE("PathTest.deleteLastComponent")
@@ -301,9 +301,10 @@ TEST_CASE("PathTest.subPath")
   CHECK_THROWS_AS(Path{"test/blah"}.subPath(1, 2), PathException);
   CHECK(Path{"test/blah"}.subPath(0, 2) == Path{"test/blah"});
   CHECK(Path{"test/blah"}.subPath(0, 1) == Path{"test"});
-  CHECK(Path{"/test/blah"}.subPath(0, 2) == Path{"/test/blah"});
-  CHECK(Path{"/test/blah"}.subPath(0, 1) == Path{"/test"});
   CHECK(Path{"test/blah"}.subPath(1, 1) == Path{"blah"});
+  CHECK(Path{"/test/blah"}.subPath(0, 1) == Path{"test"});
+  CHECK(Path{"/test/blah"}.subPath(0, 2) == Path{"test/blah"});
+  CHECK(Path{"/test/blah"}.subPath(1, 1) == Path{"blah"});
 }
 
 TEST_CASE("PathTest.getExtension")
@@ -367,9 +368,17 @@ TEST_CASE("PathTest.makeRelativeWithAbsolutePath")
 
 TEST_CASE("PathTest.makeCanonical")
 {
-  CHECK_THROWS_AS(Path{"/.."}.makeCanonical(), PathException);
-  CHECK_THROWS_AS(Path{"/asdf/../.."}.makeCanonical(), PathException);
-  CHECK(Path{"/asdf/test/.."}.makeCanonical() == Path{"/asdf"});
+  CHECK(Path{"/.."}.makeCanonical() == Path{"/"});
+  CHECK(Path{"/../.."}.makeCanonical() == Path{"/"});
+  CHECK(Path{"/asdf/../.."}.makeCanonical() == Path{"/"});
+  CHECK(Path{"/asdf/test/.."}.makeCanonical() == Path{"/asdf/"});
+  CHECK(Path{"/asdf/./test/.."}.makeCanonical() == Path{"/asdf/"});
+
+  CHECK_THROWS_AS(Path{".."}.makeCanonical(), PathException);
+  CHECK_THROWS_AS(Path{"asdf/../.."}.makeCanonical(), PathException);
+  CHECK_THROWS_AS(Path{"./.."}.makeCanonical(), PathException);
+  CHECK(Path{"./asdf/./test/.."}.makeCanonical() == Path{"asdf/"});
+  CHECK(Path{"asdf/test/.."}.makeCanonical() == Path{"asdf/"});
 }
 
 TEST_CASE("PathTest.operatorLT")

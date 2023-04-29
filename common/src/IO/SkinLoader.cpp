@@ -78,7 +78,7 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
     !path.isEmpty() && fs.pathInfo(path.deleteExtension()) == PathInfo::File
       ? path.deleteExtension()
       : path;
-  const auto name = path.asString("/");
+  const auto name = path.asGenericString();
 
   if (!path.isEmpty())
   {

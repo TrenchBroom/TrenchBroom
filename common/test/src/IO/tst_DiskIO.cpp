@@ -70,7 +70,7 @@ TEST_CASE("DiskIO")
   SECTION("fixPath")
   {
     CHECK(Disk::fixPath(Path{"asdf/blah"}) == Path{"asdf/blah"});
-    CHECK(Disk::fixPath(Path{"/../../test"}) == Path{"/../../test"});
+    CHECK(Disk::fixPath(Path{"/../../test"}) == Path{"/test"});
 
     if (Disk::isCaseSensitive())
     {
