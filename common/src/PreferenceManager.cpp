@@ -328,37 +328,20 @@ void AppPreferenceManager::initialize()
 {
   m_preferencesFilePath = v2SettingsPath();
 
-  migrateSettingsFromV1IfPathDoesNotExist(m_preferencesFilePath)
-    .transform([&]() {
-      loadCacheFromDisk();
+  loadCacheFromDisk();
 
-      m_fileSystemWatcher = new QFileSystemWatcher{this};
-      if (m_fileSystemWatcher->addPath(m_preferencesFilePath))
-      {
-        connect(
-          m_fileSystemWatcher,
-          &QFileSystemWatcher::QFileSystemWatcher::fileChanged,
-          this,
-          [this]() {
-            qDebug() << "Reloading preferences after file change";
-            loadCacheFromDisk();
-          });
-      }
-    })
-    .transform_error(kdl::overload(
-      [&](const PreferenceErrors::FileAccessError&) {
-        // This happens e.g. if you don't have read permissions for
-        // m_preferencesFilePath
-        showErrorAndDisableFileReadWrite(
-          tr("A file IO error occurred while attempting to write the preference file:"),
-          tr("ensure the file is writable"));
-      },
-      [&](const PreferenceErrors::LockFileError&) {
-        // This happens if the lock file couldn't be acquired
-        showErrorAndDisableFileReadWrite(
-          tr("Could not acquire lock file for reading the preference file:"),
-          tr("check for stale lock files"));
-      }));
+  m_fileSystemWatcher = new QFileSystemWatcher{this};
+  if (m_fileSystemWatcher->addPath(m_preferencesFilePath))
+  {
+    connect(
+      m_fileSystemWatcher,
+      &QFileSystemWatcher::QFileSystemWatcher::fileChanged,
+      this,
+      [this]() {
+        qDebug() << "Reloading preferences after file change";
+        loadCacheFromDisk();
+      });
+  }
 }
 
 bool AppPreferenceManager::saveInstantly() const
@@ -633,228 +616,6 @@ void togglePref(Preference<bool>& preference)
   prefs.saveChanges();
 }
 
-// V1 settings
-
-std::map<IO::Path, QJsonValue> parseINI(QTextStream& iniStream)
-{
-  auto section = IO::Path{};
-  auto result = std::map<IO::Path, QJsonValue>{};
-
-  while (!iniStream.atEnd())
-  {
-    auto line = iniStream.readLine();
-
-    // Trim leading/trailing whitespace
-    line = line.trimmed();
-
-    // Unescape escape sequences
-    line.replace("\\ ", " ");
-
-    // TODO: Handle comments, if we want to.
-
-    const auto sqBracketAtStart = line.startsWith('[');
-    const auto sqBracketAtEnd = line.endsWith(']');
-    if (sqBracketAtStart && sqBracketAtEnd)
-    {
-      const auto sectionString = line.mid(1, line.length() - 2);
-      // NOTE: This parses the section
-      section = IO::pathFromQString(sectionString);
-      continue;
-    }
-
-    //  Not a heading, see if it's a key=value entry
-    const auto eqIndex = line.indexOf('=');
-    if (eqIndex != -1)
-    {
-      const auto key = line.left(eqIndex);
-      const auto value = line.mid(eqIndex + 1);
-
-      result[section + IO::pathFromQString(key)] = QJsonValue{value};
-      continue;
-    }
-
-    // Line was ignored
-  }
-  return result;
-}
-
-#if defined(Q_OS_WIN)
-/**
- * Helper for reading the Windows registry QSettings into a std::map<IO::Path,
- * QJsonValue>
- */
-static void visitNode(
-  std::map<IO::Path, QJsonValue>& result,
-  QSettings& settings,
-  const IO::Path& currentPath)
-{
-  // Process key/value pairs at this node
-  for (const auto& key : settings.childKeys())
-  {
-    const auto value = settings.value(key).toString();
-    const auto keyPath = currentPath + IO::pathFromQString(key);
-    result[keyPath] = QJsonValue(value);
-  }
-
-  // Vist children
-  for (const auto& childGroup : settings.childGroups())
-  {
-    settings.beginGroup(childGroup);
-    visitNode(result, settings, currentPath + IO::pathFromQString(childGroup));
-    settings.endGroup();
-  }
-}
-
-static std::map<IO::Path, QJsonValue> getRegistrySettingsV1()
-{
-  auto result = std::map<IO::Path, QJsonValue>{};
-
-  auto settings = QSettings{
-    R"(HKEY_CURRENT_USER\Software\Kristian Duske\TrenchBroom)",
-    QSettings::Registry32Format};
-  visitNode(result, settings, IO::Path{});
-
-  return result;
-}
-#endif
-
-std::map<IO::Path, QJsonValue> getINISettingsV1(const QString& path)
-{
-  auto file = QFile{path};
-  if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-  {
-    return {};
-  }
-
-  auto in = QTextStream{&file};
-  return parseINI(in);
-}
-
-std::map<IO::Path, QJsonValue> readV1Settings()
-{
-  [[maybe_unused]] const auto linuxPath =
-    QDir::homePath() % QLatin1String("/.TrenchBroom/.preferences");
-
-  [[maybe_unused]] const auto macOSPath = QStandardPaths::locate(
-    QStandardPaths::ConfigLocation,
-    QString::fromLocal8Bit("TrenchBroom Preferences"),
-    QStandardPaths::LocateOption::LocateFile);
-
-#if defined(Q_OS_WIN)
-  return getRegistrySettingsV1();
-#elif defined __linux__ || defined __FreeBSD__
-  return getINISettingsV1(linuxPath);
-#elif defined __APPLE__
-  return getINISettingsV1(macOSPath);
-#else
-  return {};
-#endif
-}
-
-static bool matches(const IO::Path& path, const IO::Path& glob)
-{
-  const auto pathLen = path.length();
-  const auto globLen = glob.length();
-
-  if (pathLen != globLen)
-  {
-    return false;
-  }
-
-  const auto& pathComps = path.components();
-  const auto& globComps = glob.components();
-
-  for (size_t i = 0; i < globLen; ++i)
-  {
-    if (globComps[i] == "*")
-    {
-      // Wildcard, so we don't care what pathComps[i] is
-      continue;
-    }
-    if (globComps[i] != pathComps[i])
-    {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-std::map<IO::Path, QJsonValue> migrateV1ToV2(
-  const std::map<IO::Path, QJsonValue>& v1Prefs)
-{
-  auto& map = Preferences::staticPreferencesMap();
-  auto& actionsMap = View::ActionManager::instance().actionsMap();
-  auto& dynaimcPrefPatterns = Preferences::dynaimcPreferencePatterns();
-
-  const auto v1 = PreferenceSerializerV1{};
-  const auto v2 = PreferenceSerializerV2{};
-
-  auto result = std::map<IO::Path, QJsonValue>{};
-
-  for (auto [key, val] : v1Prefs)
-  {
-
-    // try Preferences::staticPreferencesMap()
-    {
-      const auto it = map.find(key);
-      if (it != map.end())
-      {
-        auto& prefBase = *it->second;
-
-        const auto strMaybe = prefBase.migratePreferenceForThisType(v1, v2, val);
-        if (strMaybe.has_value())
-        {
-          result[key] = *strMaybe;
-        }
-        continue;
-      }
-    }
-
-    // try ActionManager::actionsMap()
-    {
-      const auto it = actionsMap.find(key);
-      if (it != actionsMap.end())
-      {
-        // assume it's a QKeySequence
-
-        const auto strMaybe = migratePreference<QKeySequence>(v1, v2, val);
-        if (strMaybe.has_value())
-        {
-          result[key] = *strMaybe;
-        }
-        continue;
-      }
-    }
-
-    // try Preferences::dynaimcPreferencePatterns()
-    {
-      auto found = false;
-      for (const auto* dynPref : dynaimcPrefPatterns)
-      {
-        if (matches(key, dynPref->pathPattern()))
-        {
-          found = true;
-
-          if (const auto strMaybe = dynPref->migratePreferenceForThisType(v1, v2, val))
-          {
-            result[key] = *strMaybe;
-          }
-
-          break;
-        }
-      }
-
-      if (found)
-      {
-        continue;
-      }
-    }
-  }
-
-  return result;
-}
-
 QString v2SettingsPath()
 {
   return IO::pathAsQString(
@@ -964,19 +725,5 @@ QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs)
 
   auto document = QJsonDocument{rootObject};
   return document.toJson(QJsonDocument::Indented);
-}
-
-WritePreferencesResult migrateSettingsFromV1IfPathDoesNotExist(
-  const QString& destinationPath)
-{
-  // Check if the Preferences.json exists, migrate if not
-  auto prefsFileInfo = QFileInfo{destinationPath};
-  if (prefsFileInfo.exists())
-  {
-    return kdl::void_success;
-  }
-
-  const auto v2Prefs = migrateV1ToV2(readV1Settings());
-  return writeV2SettingsToPath(destinationPath, v2Prefs);
 }
 } // namespace TrenchBroom

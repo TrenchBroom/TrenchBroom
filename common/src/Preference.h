@@ -57,19 +57,6 @@ public:
   virtual QJsonValue writeToJSON(const QString& in) const = 0;
 };
 
-template <class T>
-std::optional<QJsonValue> migratePreference(
-  const PrefSerializer& from, const PrefSerializer& to, const QJsonValue& input)
-{
-  auto result = T{};
-  if (!from.readFromJSON(input, result))
-  {
-    return {};
-  }
-
-  return {to.writeToJSON(result)};
-}
-
 class PreferenceBase
 {
 public:
@@ -90,10 +77,6 @@ public: // private to PreferenceManager
   virtual void resetToDefault() = 0;
   virtual bool valid() const = 0;
   virtual void setValid(bool _valid) = 0;
-  virtual std::optional<QJsonValue> migratePreferenceForThisType(
-    const PrefSerializer& from,
-    const PrefSerializer& to,
-    const QJsonValue& input) const = 0;
   virtual bool loadFromJSON(const PrefSerializer& format, const QJsonValue& value) = 0;
   virtual QJsonValue writeToJSON(const PrefSerializer& format) const = 0;
   virtual bool isDefault() const = 0;
@@ -104,10 +87,6 @@ class DynamicPreferencePatternBase
 public:
   virtual ~DynamicPreferencePatternBase();
   virtual const IO::Path& pathPattern() const = 0;
-  virtual std::optional<QJsonValue> migratePreferenceForThisType(
-    const PrefSerializer& from,
-    const PrefSerializer& to,
-    const QJsonValue& input) const = 0;
 };
 
 template <typename T>
@@ -123,14 +102,6 @@ public:
   }
 
   const IO::Path& pathPattern() const override { return m_pathPattern; }
-
-  std::optional<QJsonValue> migratePreferenceForThisType(
-    const PrefSerializer& from,
-    const PrefSerializer& to,
-    const QJsonValue& input) const override
-  {
-    return migratePreference<T>(from, to, input);
-  }
 };
 
 /**
@@ -186,14 +157,6 @@ public: // PreferenceManager private
   {
     assert(m_valid);
     return m_value;
-  }
-
-  std::optional<QJsonValue> migratePreferenceForThisType(
-    const PrefSerializer& from,
-    const PrefSerializer& to,
-    const QJsonValue& input) const override
-  {
-    return migratePreference<T>(from, to, input);
   }
 
   bool loadFromJSON(const PrefSerializer& format, const QJsonValue& value) override
