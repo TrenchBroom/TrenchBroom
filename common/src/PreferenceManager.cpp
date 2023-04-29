@@ -95,7 +95,7 @@ AppPreferenceManager::~AppPreferenceManager()
 
 void AppPreferenceManager::initialize()
 {
-  m_preferencesFilePath = settingsPath();
+  m_preferencesFilePath = preferenceFilePath();
 
   loadCacheFromDisk();
 
@@ -151,7 +151,7 @@ void AppPreferenceManager::discardChanges()
 
 void AppPreferenceManager::saveChangesImmediately()
 {
-  writeSettingsToPath(m_preferencesFilePath, m_cache)
+  writePreferencesToFile(m_preferencesFilePath, m_cache)
     .transform_error(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
@@ -248,7 +248,7 @@ void AppPreferenceManager::loadCacheFromDisk()
   const auto oldPrefs = m_cache;
 
   // Reload m_cache
-  readSettingsFromPath(m_preferencesFilePath)
+  readPreferencesFromFile(m_preferencesFilePath)
     .transform(
       [&](std::map<IO::Path, QJsonValue>&& prefs) { m_cache = std::move(prefs); })
     .transform_error(kdl::overload(
@@ -385,19 +385,19 @@ void togglePref(Preference<bool>& preference)
   prefs.saveChanges();
 }
 
-QString settingsPath()
+QString preferenceFilePath()
 {
   return IO::pathAsQString(
     IO::SystemPaths::userDataDirectory() + IO::Path{"Preferences.json"});
 }
 
-static QLockFile getLockFile(const QString& settingsFilePath)
+static QLockFile getLockFile(const QString& preferenceFilePath)
 {
-  const auto lockFilePath = settingsFilePath + ".lck";
+  const auto lockFilePath = preferenceFilePath + ".lck";
   return QLockFile{lockFilePath};
 }
 
-ReadPreferencesResult readSettingsFromPath(const QString& path)
+ReadPreferencesResult readPreferencesFromFile(const QString& path)
 {
   auto lockFile = getLockFile(path);
   if (!lockFile.lock())
@@ -420,16 +420,16 @@ ReadPreferencesResult readSettingsFromPath(const QString& path)
   file.close();
   lockFile.unlock();
 
-  return parseSettingsFromJSON(contents);
+  return parsePreferencesFromJSON(contents);
 }
 
-WritePreferencesResult writeSettingsToPath(
+WritePreferencesResult writePreferencesToFile(
   const QString& path, const std::map<IO::Path, QJsonValue>& prefs)
 {
-  const auto serialized = writeSettingsToJSON(prefs);
+  const auto serialized = writePreferencesToJSON(prefs);
 
-  const auto settingsDir = QFileInfo{path}.path();
-  if (!QDir().mkpath(settingsDir))
+  const auto dirPath = QFileInfo{path}.path();
+  if (!QDir().mkpath(dirPath))
   {
     return PreferenceErrors::FileAccessError{};
   }
@@ -460,12 +460,12 @@ WritePreferencesResult writeSettingsToPath(
   return kdl::void_success;
 }
 
-ReadPreferencesResult readSettings()
+ReadPreferencesResult readPreferences()
 {
-  return readSettingsFromPath(settingsPath());
+  return readPreferencesFromFile(preferenceFilePath());
 }
 
-ReadPreferencesResult parseSettingsFromJSON(const QByteArray& jsonData)
+ReadPreferencesResult parsePreferencesFromJSON(const QByteArray& jsonData)
 {
   auto error = QJsonParseError();
   const auto document = QJsonDocument::fromJson(jsonData, &error);
@@ -484,7 +484,7 @@ ReadPreferencesResult parseSettingsFromJSON(const QByteArray& jsonData)
   return result;
 }
 
-QByteArray writeSettingsToJSON(const std::map<IO::Path, QJsonValue>& prefs)
+QByteArray writePreferencesToJSON(const std::map<IO::Path, QJsonValue>& prefs)
 {
   auto rootObject = QJsonObject{};
   for (auto [key, val] : prefs)
