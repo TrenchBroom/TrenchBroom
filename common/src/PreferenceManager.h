@@ -284,14 +284,13 @@ using ReadPreferencesResult = kdl::result<
 using WritePreferencesResult =
   kdl::result<void, PreferenceErrors::FileAccessError, PreferenceErrors::LockFileError>;
 
-// V2 settings
-QString v2SettingsPath();
-ReadPreferencesResult readV2SettingsFromPath(const QString& path);
-ReadPreferencesResult readV2Settings();
+QString settingsPath();
+ReadPreferencesResult readSettingsFromPath(const QString& path);
+ReadPreferencesResult readSettings();
 
-WritePreferencesResult writeV2SettingsToPath(
-  const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs);
-ReadPreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData);
-QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs);
+WritePreferencesResult writeSettingsToPath(
+  const QString& path, const std::map<IO::Path, QJsonValue>& prefs);
+ReadPreferencesResult parseSettingsFromJSON(const QByteArray& jsonData);
+QByteArray writeSettingsToJSON(const std::map<IO::Path, QJsonValue>& prefs);
 
 } // namespace TrenchBroom

@@ -52,181 +52,194 @@ static QJsonValue getValue(const std::map<IO::Path, QJsonValue>& map, const IO::
   return it->second;
 }
 
-static void testV2Prefs(const std::map<IO::Path, QJsonValue>& v2)
+static void testPrefs(const std::map<IO::Path, QJsonValue>& prefs)
 {
-  CHECK(getValue(v2, IO::Path("Controls/Camera/Field of vision")) == QJsonValue(108));
-  CHECK(getValue(v2, IO::Path("Controls/Camera/Move down")) == QJsonValue("R"));
-  CHECK(getValue(v2, IO::Path("Controls/Camera/Move up")) == QJsonValue("W"));
-  CHECK(getValue(v2, IO::Path("Controls/Camera/Move right")) == QJsonValue("F"));
-  CHECK(getValue(v2, IO::Path("Controls/Camera/Move left")) == QJsonValue("S"));
-  CHECK(getValue(v2, IO::Path("Controls/Camera/Move backward")) == QJsonValue("D"));
-  CHECK(getValue(v2, IO::Path("Controls/Camera/Move forward")) == QJsonValue("E"));
+  CHECK(getValue(prefs, IO::Path("Controls/Camera/Field of vision")) == QJsonValue(108));
+  CHECK(getValue(prefs, IO::Path("Controls/Camera/Move down")) == QJsonValue("R"));
+  CHECK(getValue(prefs, IO::Path("Controls/Camera/Move up")) == QJsonValue("W"));
+  CHECK(getValue(prefs, IO::Path("Controls/Camera/Move right")) == QJsonValue("F"));
+  CHECK(getValue(prefs, IO::Path("Controls/Camera/Move left")) == QJsonValue("S"));
+  CHECK(getValue(prefs, IO::Path("Controls/Camera/Move backward")) == QJsonValue("D"));
+  CHECK(getValue(prefs, IO::Path("Controls/Camera/Move forward")) == QJsonValue("E"));
   CHECK(
     static_cast<float>(
-      getValue(v2, IO::Path("Controls/Camera/Fly move speed")).toDouble())
+      getValue(prefs, IO::Path("Controls/Camera/Fly move speed")).toDouble())
     == vm::approx(0.425781f));
   CHECK(
-    getValue(v2, IO::Path("Controls/Camera/Move camera in cursor dir"))
+    getValue(prefs, IO::Path("Controls/Camera/Move camera in cursor dir"))
     == QJsonValue(true));
-  CHECK(getValue(v2, IO::Path("Controls/Camera/Use alt to move")) == QJsonValue(true));
+  CHECK(getValue(prefs, IO::Path("Controls/Camera/Use alt to move")) == QJsonValue(true));
   CHECK(
-    static_cast<float>(getValue(v2, IO::Path("Controls/Camera/Move speed")).toDouble())
+    static_cast<float>(getValue(prefs, IO::Path("Controls/Camera/Move speed")).toDouble())
     == vm::approx(0.35f));
-  CHECK(getValue(v2, IO::Path("Controls/Camera/Invert mouse wheel")) == QJsonValue(true));
   CHECK(
-    getValue(v2, IO::Path("Controls/Camera/Invert vertical pan")) == QJsonValue(true));
+    getValue(prefs, IO::Path("Controls/Camera/Invert mouse wheel")) == QJsonValue(true));
   CHECK(
-    getValue(v2, IO::Path("Controls/Camera/Invert horizontal pan")) == QJsonValue(true));
+    getValue(prefs, IO::Path("Controls/Camera/Invert vertical pan")) == QJsonValue(true));
   CHECK(
-    static_cast<float>(getValue(v2, IO::Path("Controls/Camera/Pan speed")).toDouble())
+    getValue(prefs, IO::Path("Controls/Camera/Invert horizontal pan"))
+    == QJsonValue(true));
+  CHECK(
+    static_cast<float>(getValue(prefs, IO::Path("Controls/Camera/Pan speed")).toDouble())
     == vm::approx(0.55f));
   CHECK(
-    getValue(v2, IO::Path("Controls/Camera/Invert vertical look")) == QJsonValue(true));
+    getValue(prefs, IO::Path("Controls/Camera/Invert vertical look"))
+    == QJsonValue(true));
   CHECK(
-    getValue(v2, IO::Path("Controls/Camera/Invert horizontal look")) == QJsonValue(true));
+    getValue(prefs, IO::Path("Controls/Camera/Invert horizontal look"))
+    == QJsonValue(true));
   CHECK(
-    static_cast<float>(getValue(v2, IO::Path("Controls/Camera/Look speed")).toDouble())
+    static_cast<float>(getValue(prefs, IO::Path("Controls/Camera/Look speed")).toDouble())
     == vm::approx(0.44f));
   CHECK(
-    static_cast<float>(getValue(v2, IO::Path("Texture Browser/Icon size")).toDouble())
+    static_cast<float>(getValue(prefs, IO::Path("Texture Browser/Icon size")).toDouble())
     == vm::approx(1.5f));
-  CHECK(getValue(v2, IO::Path("Renderer/Font size")) == QJsonValue(14));
-  CHECK(getValue(v2, IO::Path("Renderer/Texture mode mag filter")) == QJsonValue(9729));
-  CHECK(getValue(v2, IO::Path("Renderer/Texture mode min filter")) == QJsonValue(9987));
+  CHECK(getValue(prefs, IO::Path("Renderer/Font size")) == QJsonValue(14));
   CHECK(
-    static_cast<float>(getValue(v2, IO::Path("Renderer/Brightness")).toDouble())
+    getValue(prefs, IO::Path("Renderer/Texture mode mag filter")) == QJsonValue(9729));
+  CHECK(
+    getValue(prefs, IO::Path("Renderer/Texture mode min filter")) == QJsonValue(9987));
+  CHECK(
+    static_cast<float>(getValue(prefs, IO::Path("Renderer/Brightness")).toDouble())
     == vm::approx(0.925f));
-  CHECK(getValue(v2, IO::Path("Renderer/Show axes")) == QJsonValue(false));
+  CHECK(getValue(prefs, IO::Path("Renderer/Show axes")) == QJsonValue(false));
   CHECK(
-    static_cast<float>(getValue(v2, IO::Path("Renderer/Grid/Alpha")).toDouble())
+    static_cast<float>(getValue(prefs, IO::Path("Renderer/Grid/Alpha")).toDouble())
     == vm::approx(0.22f));
   CHECK(
-    getValue(v2, IO::Path("Renderer/Colors/Edges"))
+    getValue(prefs, IO::Path("Renderer/Colors/Edges"))
     == QJsonValue("0.921569 0.666667 0.45098 1"));
   CHECK(
-    getValue(v2, IO::Path("Renderer/Colors/Background"))
+    getValue(prefs, IO::Path("Renderer/Colors/Background"))
     == QJsonValue("0.321569 0.0470588 0.141176 1"));
   CHECK(
-    getValue(v2, IO::Path("Rendere/Grid/Color2D"))
+    getValue(prefs, IO::Path("Rendere/Grid/Color2D"))
     == QJsonValue("0.290196 0.643137 0.486275 1"));
-  CHECK(getValue(v2, IO::Path("Views/Map view layout")) == QJsonValue(2));
+  CHECK(getValue(prefs, IO::Path("Views/Map view layout")) == QJsonValue(2));
   CHECK(
-    getValue(v2, IO::Path("Games/Quake/Path")) == QJsonValue("/home/ericwa/Quake Dev"));
+    getValue(prefs, IO::Path("Games/Quake/Path"))
+    == QJsonValue("/home/ericwa/Quake Dev"));
   CHECK(
-    getValue(v2, IO::Path("Games/Generic/Path")) == QJsonValue("/home/ericwa/foo=bar"));
+    getValue(prefs, IO::Path("Games/Generic/Path"))
+    == QJsonValue("/home/ericwa/foo=bar"));
   CHECK(
-    getValue(v2, IO::Path("Games/Quake 3/Path"))
+    getValue(prefs, IO::Path("Games/Quake 3/Path"))
     == QJsonValue("/home/ericwa/Quake 3 Arena"));
   CHECK(
-    getValue(v2, IO::Path("Menu/File/Export/Wavefront OBJ..."))
+    getValue(prefs, IO::Path("Menu/File/Export/Wavefront OBJ..."))
     == QJsonValue("Ctrl+Alt+W"));
   CHECK(
-    getValue(v2, IO::Path("Menu/View/Grid/Set Grid Size 0.125"))
+    getValue(prefs, IO::Path("Menu/View/Grid/Set Grid Size 0.125"))
     == QJsonValue("Ctrl+Alt+2"));
   CHECK(
-    getValue(v2, IO::Path("Filters/Tags/Detail/Toggle Visible")) == QJsonValue("Alt+D"));
-  CHECK(getValue(v2, IO::Path("Tags/Detail/Enable")) == QJsonValue("D"));
-  CHECK(getValue(v2, IO::Path("Tags/Detail/Disable")) == QJsonValue("Alt+Shift+D"));
-  CHECK(getValue(v2, IO::Path("Entities/monster_hell_knight/Create")) == QJsonValue("H"));
+    getValue(prefs, IO::Path("Filters/Tags/Detail/Toggle Visible"))
+    == QJsonValue("Alt+D"));
+  CHECK(getValue(prefs, IO::Path("Tags/Detail/Enable")) == QJsonValue("D"));
+  CHECK(getValue(prefs, IO::Path("Tags/Detail/Disable")) == QJsonValue("Alt+Shift+D"));
+  CHECK(
+    getValue(prefs, IO::Path("Entities/monster_hell_knight/Create")) == QJsonValue("H"));
 
   // We don't bother migrating these ones
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/x"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/x"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/y"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/y"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/w"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/w"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/h"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/h"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/Maximized"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/Maximized"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/Iconized"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/Iconized"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_l"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/decor_l"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_r"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/decor_r"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_t"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/decor_t"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
-    getValue(v2, IO::Path("Persistent_Options/Window/MapFrame/decor_b"))
-    == QJsonValue(QJsonValue::Undefined));
-  CHECK(
-    getValue(
-      v2, IO::Path("Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio"))
+    getValue(prefs, IO::Path("Persistent_Options/Window/MapFrame/decor_b"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
     getValue(
-      v2, IO::Path("Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio"))
+      prefs, IO::Path("Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
     getValue(
-      v2, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio"))
+      prefs, IO::Path("Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
     getValue(
-      v2, IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio"))
+      prefs,
+      IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
     getValue(
-      v2,
+      prefs,
+      IO::Path("Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio"))
+    == QJsonValue(QJsonValue::Undefined));
+  CHECK(
+    getValue(
+      prefs,
       IO::Path("Persistent_Options/SplitterWindow2/EntityInspectorSplitter/SplitRatio"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
     getValue(
-      v2,
+      prefs,
       IO::Path(
         "Persistent_Options/SplitterWindow2/EntityAttributeEditorSplitter/SplitRatio"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
     getValue(
-      v2,
+      prefs,
       IO::Path(
         "Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio"))
     == QJsonValue(QJsonValue::Undefined));
   CHECK(
     getValue(
-      v2, IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio"))
+      prefs,
+      IO::Path("Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio"))
     == QJsonValue(QJsonValue::Undefined));
-  CHECK(getValue(v2, IO::Path("RecentDocuments/0")) == QJsonValue(QJsonValue::Undefined));
+  CHECK(
+    getValue(prefs, IO::Path("RecentDocuments/0")) == QJsonValue(QJsonValue::Undefined));
 }
 
-TEST_CASE("PreferencesTest.readV2")
+TEST_CASE("PreferencesTest.read")
 {
-  // Invalid JSON -> parse error -> parseV2SettingsFromJSON() is expected to return
-  // nullopt
-  CHECK(parseV2SettingsFromJSON(QByteArray())
+  CHECK(parseSettingsFromJSON(QByteArray())
           .is_error_type<PreferenceErrors::JsonParseError>());
-  CHECK(parseV2SettingsFromJSON(QByteArray("abc"))
+  CHECK(parseSettingsFromJSON(QByteArray("abc"))
           .is_error_type<PreferenceErrors::JsonParseError>());
-  CHECK(parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar",})"))
+  CHECK(parseSettingsFromJSON(QByteArray(R"({"foo": "bar",})"))
           .is_error_type<PreferenceErrors::JsonParseError>());
 
   // Valid JSON
-  CHECK(parseV2SettingsFromJSON(QByteArray(R"({"foo": "bar"})")).is_success());
-  CHECK(parseV2SettingsFromJSON(QByteArray("{}")).is_success());
+  CHECK(parseSettingsFromJSON(QByteArray(R"({"foo": "bar"})")).is_success());
+  CHECK(parseSettingsFromJSON(QByteArray("{}")).is_success());
 
-  readV2SettingsFromPath("fixture/test/preferences-v2.json")
-    .transform([](const std::map<IO::Path, QJsonValue>& prefs) { testV2Prefs(prefs); })
+  readSettingsFromPath("fixture/test/preferences-v2.json")
+    .transform([](const std::map<IO::Path, QJsonValue>& prefs) { testPrefs(prefs); })
     .transform_error([](const auto&) { FAIL_CHECK(); });
 }
 
-TEST_CASE("PreferencesTest.testWriteReadV2")
+TEST_CASE("PreferencesTest.testWriteRead")
 {
-  const auto v2 = readV2SettingsFromPath("fixture/test/preferences-v2.json").value();
+  const auto fromFile = readSettingsFromPath("fixture/test/preferences-v2.json").value();
 
-  const QByteArray v2Serialized = writeV2SettingsToJSON(v2);
-  parseV2SettingsFromJSON(v2Serialized)
-    .transform([&](const std::map<IO::Path, QJsonValue>& prefs) { CHECK(v2 == prefs); })
+  const QByteArray serialized = writeSettingsToJSON(fromFile);
+  parseSettingsFromJSON(serialized)
+    .transform(
+      [&](const std::map<IO::Path, QJsonValue>& prefs) { CHECK(fromFile == prefs); })
     .transform_error([](const auto&) { FAIL_CHECK(); });
 }
 
@@ -264,7 +277,7 @@ static void testSerialize(const QJsonValue& str, const PrimitiveType& value)
   CHECK(testSerialize == str);
 }
 
-TEST_CASE("PreferencesTest.serializeV2Bool")
+TEST_CASE("PreferencesTest.serializeBool")
 {
   CHECK_FALSE((maybeDeserialize<PreferenceSerializer, bool>(QJsonValue("")).has_value()));
   CHECK_FALSE(
@@ -274,7 +287,7 @@ TEST_CASE("PreferencesTest.serializeV2Bool")
   testSerialize<PreferenceSerializer, bool>(QJsonValue(true), true);
 }
 
-TEST_CASE("PreferencesTest.serializeV2float")
+TEST_CASE("PreferencesTest.serializefloat")
 {
   CHECK_FALSE(
     (maybeDeserialize<PreferenceSerializer, float>(QJsonValue("1.25")).has_value()));
@@ -282,7 +295,7 @@ TEST_CASE("PreferencesTest.serializeV2float")
   testSerialize<PreferenceSerializer, float>(QJsonValue(1.25), 1.25f);
 }
 
-TEST_CASE("PreferencesTest.serializeV2int")
+TEST_CASE("PreferencesTest.serializeint")
 {
   CHECK_FALSE((maybeDeserialize<PreferenceSerializer, int>(QJsonValue("0")).has_value()));
   CHECK_FALSE(
@@ -293,7 +306,7 @@ TEST_CASE("PreferencesTest.serializeV2int")
   testSerialize<PreferenceSerializer, int>(QJsonValue(1000), 1000);
 }
 
-TEST_CASE("PreferencesTest.serializeV2KeyboardShortcut")
+TEST_CASE("PreferencesTest.serializeKeyboardShortcut")
 {
   testSerialize<PreferenceSerializer, QKeySequence>(
     QJsonValue("Alt+Shift+W"), QKeySequence::fromString("Alt+Shift+W"));

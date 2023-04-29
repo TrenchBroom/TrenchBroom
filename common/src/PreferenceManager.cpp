@@ -95,7 +95,7 @@ AppPreferenceManager::~AppPreferenceManager()
 
 void AppPreferenceManager::initialize()
 {
-  m_preferencesFilePath = v2SettingsPath();
+  m_preferencesFilePath = settingsPath();
 
   loadCacheFromDisk();
 
@@ -151,7 +151,7 @@ void AppPreferenceManager::discardChanges()
 
 void AppPreferenceManager::saveChangesImmediately()
 {
-  writeV2SettingsToPath(m_preferencesFilePath, m_cache)
+  writeSettingsToPath(m_preferencesFilePath, m_cache)
     .transform_error(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
@@ -248,7 +248,7 @@ void AppPreferenceManager::loadCacheFromDisk()
   const auto oldPrefs = m_cache;
 
   // Reload m_cache
-  readV2SettingsFromPath(m_preferencesFilePath)
+  readSettingsFromPath(m_preferencesFilePath)
     .transform(
       [&](std::map<IO::Path, QJsonValue>&& prefs) { m_cache = std::move(prefs); })
     .transform_error(kdl::overload(
@@ -385,7 +385,7 @@ void togglePref(Preference<bool>& preference)
   prefs.saveChanges();
 }
 
-QString v2SettingsPath()
+QString settingsPath()
 {
   return IO::pathAsQString(
     IO::SystemPaths::userDataDirectory() + IO::Path{"Preferences.json"});
@@ -397,7 +397,7 @@ static QLockFile getLockFile(const QString& settingsFilePath)
   return QLockFile{lockFilePath};
 }
 
-ReadPreferencesResult readV2SettingsFromPath(const QString& path)
+ReadPreferencesResult readSettingsFromPath(const QString& path)
 {
   auto lockFile = getLockFile(path);
   if (!lockFile.lock())
@@ -420,13 +420,13 @@ ReadPreferencesResult readV2SettingsFromPath(const QString& path)
   file.close();
   lockFile.unlock();
 
-  return parseV2SettingsFromJSON(contents);
+  return parseSettingsFromJSON(contents);
 }
 
-WritePreferencesResult writeV2SettingsToPath(
-  const QString& path, const std::map<IO::Path, QJsonValue>& v2Prefs)
+WritePreferencesResult writeSettingsToPath(
+  const QString& path, const std::map<IO::Path, QJsonValue>& prefs)
 {
-  const auto serialized = writeV2SettingsToJSON(v2Prefs);
+  const auto serialized = writeSettingsToJSON(prefs);
 
   const auto settingsDir = QFileInfo{path}.path();
   if (!QDir().mkpath(settingsDir))
@@ -460,12 +460,12 @@ WritePreferencesResult writeV2SettingsToPath(
   return kdl::void_success;
 }
 
-ReadPreferencesResult readV2Settings()
+ReadPreferencesResult readSettings()
 {
-  return readV2SettingsFromPath(v2SettingsPath());
+  return readSettingsFromPath(settingsPath());
 }
 
-ReadPreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData)
+ReadPreferencesResult parseSettingsFromJSON(const QByteArray& jsonData)
 {
   auto error = QJsonParseError();
   const auto document = QJsonDocument::fromJson(jsonData, &error);
@@ -484,10 +484,10 @@ ReadPreferencesResult parseV2SettingsFromJSON(const QByteArray& jsonData)
   return result;
 }
 
-QByteArray writeV2SettingsToJSON(const std::map<IO::Path, QJsonValue>& v2Prefs)
+QByteArray writeSettingsToJSON(const std::map<IO::Path, QJsonValue>& prefs)
 {
   auto rootObject = QJsonObject{};
-  for (auto [key, val] : v2Prefs)
+  for (auto [key, val] : prefs)
   {
     rootObject[IO::pathAsQString(key, "/")] = val;
   }
