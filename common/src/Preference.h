@@ -57,6 +57,36 @@ public:
   virtual QJsonValue writeToJSON(const QString& in) const = 0;
 };
 
+
+/**
+ * Used by Qt version of TrenchBroom
+ *
+ * - bool serializes to JSON bool
+ * - float and int serializes to JSON double
+ * - QKeySequence serializes to JSON string, but with a different format than wxWidgets
+ * - other types are not overridden (Color, IO::Path, QString) so serialize to JSON string
+ * using the same format as wxWidgets
+ */
+class PreferenceSerializer : public PrefSerializer
+{
+public:
+  bool readFromJSON(const QJsonValue& in, bool& out) const override;
+  bool readFromJSON(const QJsonValue& in, Color& out) const override;
+  bool readFromJSON(const QJsonValue& in, float& out) const override;
+  bool readFromJSON(const QJsonValue& in, int& out) const override;
+  bool readFromJSON(const QJsonValue& in, IO::Path& out) const override;
+  bool readFromJSON(const QJsonValue& in, QKeySequence& out) const override;
+  bool readFromJSON(const QJsonValue& in, QString& out) const override;
+
+  QJsonValue writeToJSON(bool in) const override;
+  QJsonValue writeToJSON(const Color& in) const override;
+  QJsonValue writeToJSON(float in) const override;
+  QJsonValue writeToJSON(int in) const override;
+  QJsonValue writeToJSON(const IO::Path& in) const override;
+  QJsonValue writeToJSON(const QKeySequence& in) const override;
+  QJsonValue writeToJSON(const QString& in) const override;
+};
+
 class PreferenceBase
 {
 public:
