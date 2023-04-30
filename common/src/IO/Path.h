@@ -72,12 +72,6 @@ public:
   std::string extension() const;
 
   bool hasPrefix(const Path& prefix, bool caseSensitive) const;
-  bool hasFilename(const std::string& filename, bool caseSensitive) const;
-  bool hasFilename(const std::vector<std::string>& filenames, bool caseSensitive) const;
-  bool hasBasename(const std::string& basename, bool caseSensitive) const;
-  bool hasBasename(const std::vector<std::string>& basenames, bool caseSensitive) const;
-  bool hasExtension(const std::string& extension, bool caseSensitive) const;
-  bool hasExtension(const std::vector<std::string>& extensions, bool caseSensitive) const;
   bool hasDriveSpec() const;
 
   Path deleteExtension() const;

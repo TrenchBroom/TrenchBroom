@@ -28,6 +28,8 @@
 
 #include <kdl/functional.h>
 #include <kdl/result.h>
+#include <kdl/string_format.h>
+#include <kdl/vector_utils.h>
 
 #include <optional>
 #include <vector>
@@ -46,7 +48,7 @@ std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
   if (!texturePath.isEmpty())
   {
     if (
-      texturePath.hasExtension(imageExtensions, false)
+      kdl::vec_contains(imageExtensions, kdl::str_to_lower(texturePath.extension()))
       && fs.pathInfo(texturePath) == PathInfo::File)
     {
       return texturePath;

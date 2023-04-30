@@ -42,6 +42,7 @@
 
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
+#include "kdl/string_format.h"
 #include "kdl/vector_utils.h"
 #include <kdl/overload.h>
 #include <kdl/reflection_impl.h>
@@ -95,7 +96,8 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
   static const auto imageFileExtensions =
     std::vector<std::string>{".jpg", ".jpeg", ".png", ".tga", ".bmp"};
 
-  if (file.path().hasExtension(".D", true))
+  const auto extension = kdl::str_to_lower(file.path().extension());
+  if (extension == ".d")
   {
     auto name = file.path().basename();
     if (!palette)
@@ -105,37 +107,37 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
     auto reader = file.reader().buffer();
     return readIdMipTexture(std::move(name), reader, *palette);
   }
-  else if (file.path().hasExtension(".C", true))
+  else if (extension == ".c")
   {
     auto name = file.path().basename();
     auto reader = file.reader().buffer();
     return readHlMipTexture(std::move(name), reader);
   }
-  else if (file.path().hasExtension(".wal", false))
+  else if (extension == ".wal")
   {
     auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
     auto reader = file.reader().buffer();
     return readWalTexture(std::move(name), reader, palette);
   }
-  else if (file.path().hasExtension(".m8", false))
+  else if (extension == ".m8")
   {
     auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
     auto reader = file.reader().buffer();
     return readM8Texture(std::move(name), reader);
   }
-  else if (file.path().hasExtension(".dds", false))
+  else if (extension == ".dds")
   {
     auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
     auto reader = file.reader().buffer();
     return readDdsTexture(std::move(name), reader);
   }
-  else if (file.path().hasExtension("", false))
+  else if (extension.empty())
   {
     auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
     auto reader = file.reader().buffer();
     return readQuake3ShaderTexture(std::move(name), file, gameFS);
   }
-  else if (file.path().hasExtension(imageFileExtensions, false))
+  else if (kdl::vec_contains(imageFileExtensions, extension))
   {
     auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
     auto reader = file.reader().buffer();
