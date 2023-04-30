@@ -229,10 +229,10 @@ TEST_CASE("PathTest.constructWithString")
   CHECK(Path{" "}.asString() == std::string(" "));
   CHECK(Path{"/"}.asString() == std::string("/"));
   CHECK(Path{"/asdf"}.asString() == std::string("/asdf"));
-  CHECK(Path{"/asdf/"}.asString() == std::string("/asdf"));
+  CHECK(Path{"/asdf/"}.asString() == std::string("/asdf/"));
   CHECK(Path{"/asdf/df"}.asString() == std::string("/asdf/df"));
   CHECK(Path{"hey"}.asString() == std::string("hey"));
-  CHECK(Path{"hey/"}.asString() == std::string("hey"));
+  CHECK(Path{"hey/"}.asString() == std::string("hey/"));
   CHECK(Path{"hey/asdf"}.asString() == std::string("hey/asdf"));
   CHECK(Path{"./asdf"}.asString() == std::string("./asdf"));
 }

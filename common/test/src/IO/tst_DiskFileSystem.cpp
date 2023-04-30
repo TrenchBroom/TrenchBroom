@@ -199,7 +199,7 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK_NOTHROW(WritableDiskFileSystem{env.dir() + Path{"ANOTHERDIR"}, false});
 
     const auto fs = WritableDiskFileSystem{env.dir() + Path{"anotherDir/.."}, false};
-    CHECK(fs.makeAbsolute(Path{}) == env.dir());
+    CHECK(fs.makeAbsolute(Path{}) == (env.dir() + Path{"anotherDir/.."}).makeCanonical());
   }
 
   SECTION("createDirectory")
@@ -219,15 +219,15 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK_THROWS_AS(fs.createDirectory(Path{".."}), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory(Path{"dir1"}), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory(Path{"test.txt"}), FileSystemException);
+    CHECK_THROWS_AS(
+      fs.createDirectory(Path{"someDir/someOtherDir/.././yetAnotherDir/."}),
+      FileSystemException);
 
     fs.createDirectory(Path{"newDir"});
     CHECK(fs.pathInfo(Path{"newDir"}) == PathInfo::Directory);
 
     fs.createDirectory(Path{"newDir/someOtherDir"});
     CHECK(fs.pathInfo(Path{"newDir/someOtherDir"}) == PathInfo::Directory);
-
-    fs.createDirectory(Path{"newDir/someOtherDir/.././yetAnotherDir/."});
-    CHECK(fs.pathInfo(Path{"newDir/yetAnotherDir"}) == PathInfo::Directory);
   }
 
   SECTION("deleteFile")

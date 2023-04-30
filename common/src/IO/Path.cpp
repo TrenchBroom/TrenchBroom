@@ -35,22 +35,8 @@
 namespace TrenchBroom::IO
 {
 
-namespace
-{
-std::filesystem::path trimTrailingSlashes(std::filesystem::path path)
-{
-  while (path.end() != path.begin() && path.has_parent_path()
-         && std::prev(path.end())->empty())
-  {
-    path = path.parent_path();
-  }
-
-  return path;
-}
-} // namespace
-
 Path::Path(std::filesystem::path path)
-  : m_path{trimTrailingSlashes(std::move(path.make_preferred()))}
+  : m_path{std::move(path.make_preferred())}
 {
 }
 
@@ -429,7 +415,7 @@ Path Path::makeAbsolute(const Path& relativePath) const
     throw PathException{"Cannot make absolute path with absolute sub path"};
   }
 
-  return *this + relativePath;
+  return relativePath.isEmpty() ? *this : *this + relativePath;
 }
 
 Path Path::makeRelative() const

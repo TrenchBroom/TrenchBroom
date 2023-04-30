@@ -212,7 +212,8 @@ void ImageFileSystemBase::addFile(const Path& path, GetImageFile getFile)
 
 Path ImageFileSystemBase::doMakeAbsolute(const Path& path) const
 {
-  return Path{"/"}.makeAbsolute(path);
+  const auto canonicalPath = path.makeCanonical();
+  return canonicalPath.isEmpty() ? Path{"/"} : Path{"/"} + canonicalPath;
 }
 
 PathInfo ImageFileSystemBase::doGetPathInfo(const Path& path) const
