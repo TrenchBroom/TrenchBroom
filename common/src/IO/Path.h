@@ -66,7 +66,6 @@ public:
   Path prefix(size_t count) const;
   Path suffix(size_t count) const;
   Path subPath(size_t index, size_t count) const;
-  std::vector<std::string> components() const;
 
   std::string filename() const;
   std::string basename() const;

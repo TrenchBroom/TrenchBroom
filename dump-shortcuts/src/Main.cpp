@@ -66,13 +66,13 @@ static void printKeys(QTextStream& out)
   out << "};\n";
 }
 
-static QString toString(const IO::Path& path, const QString& suffix)
+static QString toString(const QStringList& path, const QString& suffix)
 {
   QString result;
   result += "[";
-  for (const auto& component : path.components())
+  for (const auto& component : path)
   {
-    result += "'" + QString::fromStdString(component) + "', ";
+    result += "'" + component + "', ";
   }
   result += "'" + suffix + "'";
   result += "]";
@@ -122,7 +122,7 @@ class PrintMenuVisitor : public TrenchBroom::View::MenuVisitor
 {
 private:
   QTextStream& m_out;
-  IO::Path m_path;
+  QStringList m_path;
 
 public:
   PrintMenuVisitor(QTextStream& out)
@@ -132,9 +132,9 @@ public:
 
   void visit(const Menu& menu) override
   {
-    m_path = m_path / IO::Path(menu.name());
+    m_path.push_back(QString::fromStdString(menu.name()));
     menu.visitEntries(*this);
-    m_path = m_path.deleteLastComponent();
+    m_path.pop_back();
   }
 
   void visit(const MenuSeparatorItem&) override {}

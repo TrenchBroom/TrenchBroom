@@ -146,18 +146,6 @@ Path Path::subPath(const size_t index, size_t count) const
     [](const auto& lhs, const auto& rhs) { return lhs / rhs; })};
 }
 
-std::vector<std::string> Path::components() const
-{
-  auto result = std::vector<std::string>{};
-  result.reserve(length());
-
-  std::transform(
-    m_path.begin(), m_path.end(), std::back_inserter(result), [](const auto& component) {
-      return component.u8string();
-    });
-  return result;
-}
-
 std::string Path::filename() const
 {
   if (isEmpty())
