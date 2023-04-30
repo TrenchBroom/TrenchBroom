@@ -80,16 +80,6 @@ std::string Path::asGenericString() const
   return m_path.generic_u8string();
 }
 
-std::vector<std::string> Path::asStrings(const std::vector<Path>& paths)
-{
-  return kdl::vec_transform(paths, [](const auto& path) { return path.asString(); });
-}
-
-std::vector<Path> Path::asPaths(const std::vector<std::string>& strs)
-{
-  return kdl::vec_transform(strs, [](const auto& str) { return Path{str}; });
-}
-
 size_t Path::length() const
 {
   return size_t(std::distance(m_path.begin(), m_path.end()));

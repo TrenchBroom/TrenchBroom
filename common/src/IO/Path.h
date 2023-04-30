@@ -54,8 +54,6 @@ public:
 
   std::string asString() const;
   std::string asGenericString() const;
-  static std::vector<std::string> asStrings(const std::vector<Path>& paths);
-  static std::vector<Path> asPaths(const std::vector<std::string>& strs);
 
   size_t length() const;
   bool isEmpty() const;

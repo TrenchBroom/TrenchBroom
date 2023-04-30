@@ -487,7 +487,8 @@ Model::EntityConfig parseEntityConfig(const EL::Value& value)
     ])");
 
   return Model::EntityConfig{
-    Path::asPaths(value["definitions"].asStringList()),
+    kdl::vec_transform(
+      value["definitions"].asStringList(), [](const auto& str) { return Path{str}; }),
     Color::parse(value["defaultcolor"].stringValue()).value_or(Color{}),
     value["scale"].expression(),
     value["setDefaultProperties"].booleanValue(),

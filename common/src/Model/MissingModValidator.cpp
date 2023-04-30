@@ -118,7 +118,8 @@ void MissingModValidator::doValidate(
     return;
   }
 
-  const auto additionalSearchPaths = IO::Path::asPaths(mods);
+  const auto additionalSearchPaths =
+    kdl::vec_transform(mods, [](const auto& mod) { return IO::Path{mod}; });
   const auto errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
 
   for (const auto& [searchPath, message] : errors)

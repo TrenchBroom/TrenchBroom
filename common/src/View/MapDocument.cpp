@@ -4500,7 +4500,8 @@ void MapDocument::loadTextures()
   {
     if (const auto* wadStr = m_world->entity().property(Model::EntityPropertyKeys::Wad))
     {
-      const auto wadPaths = IO::Path::asPaths(kdl::str_split(*wadStr, ";"));
+      const auto wadPaths = kdl::vec_transform(
+        kdl::str_split(*wadStr, ";"), [](const auto& str) { return IO::Path{str}; });
       m_game->reloadWads(path(), wadPaths, logger());
     }
     m_game->loadTextureCollections(*m_textureManager);
@@ -4736,8 +4737,8 @@ std::vector<IO::Path> MapDocument::externalSearchPaths() const
 
 void MapDocument::updateGameSearchPaths()
 {
-  const std::vector<IO::Path> additionalSearchPaths = IO::Path::asPaths(mods());
-  m_game->setAdditionalSearchPaths(additionalSearchPaths, logger());
+  m_game->setAdditionalSearchPaths(
+    kdl::vec_transform(mods(), [](const auto& mod) { return IO::Path{mod}; }), logger());
 }
 
 std::vector<std::string> MapDocument::mods() const
