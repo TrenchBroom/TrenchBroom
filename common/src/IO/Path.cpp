@@ -255,12 +255,8 @@ Path Path::deleteExtension() const
 
 Path Path::addExtension(const std::string& extension) const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot add extension to empty path"};
-  }
-
-  return Path{m_path.parent_path() / m_path.filename() += extension};
+  return isEmpty() ? Path{extension}
+                   : Path{m_path.parent_path() / m_path.filename() += extension};
 }
 
 Path Path::replaceExtension(const std::string& extension) const

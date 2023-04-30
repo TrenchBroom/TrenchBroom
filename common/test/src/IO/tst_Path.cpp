@@ -332,7 +332,7 @@ TEST_CASE("PathTest.deleteExtension")
 
 TEST_CASE("PathTest.addExtension")
 {
-  CHECK_THROWS_AS(Path{}.addExtension(".map"), PathException);
+  CHECK(Path{}.addExtension(".map") == Path{".map"});
   CHECK(Path{"/asdf"}.addExtension(".") == Path{"/asdf."});
   CHECK(Path{"/asdf"}.addExtension(".map") == Path{"/asdf.map"});
   CHECK(Path{"/asdf.map"}.addExtension(".test") == Path{"/asdf.map.test"});
