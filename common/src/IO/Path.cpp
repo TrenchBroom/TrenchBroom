@@ -238,14 +238,9 @@ bool Path::hasExtension(const std::string& extension, const bool caseSensitive) 
 bool Path::hasExtension(
   const std::vector<std::string>& extensions, const bool caseSensitive) const
 {
-  for (const auto& extension : extensions)
-  {
-    if (hasExtension(extension, caseSensitive))
-    {
-      return true;
-    }
-  }
-  return false;
+  return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
+    return hasExtension(extension, caseSensitive);
+  });
 }
 
 bool Path::hasDriveSpec() const
@@ -255,11 +250,7 @@ bool Path::hasDriveSpec() const
 
 Path Path::deleteExtension() const
 {
-  if (isEmpty())
-  {
-    return *this;
-  }
-  return deleteLastComponent() / Path{basename()};
+  return isEmpty() ? *this : deleteLastComponent() / Path{basename()};
 }
 
 Path Path::addExtension(const std::string& extension) const
