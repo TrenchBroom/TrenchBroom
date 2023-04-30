@@ -51,9 +51,6 @@ public:
     QWidget* parent, IO::Path absPath, const IO::Path& docPath, const IO::Path& gamePath);
 
   const IO::Path& path() const;
-
-private:
-  static IO::Path makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath);
 };
 
 } // namespace TrenchBroom::View

@@ -37,9 +37,9 @@ ChoosePathTypeDialog::ChoosePathTypeDialog(
   QWidget* parent, IO::Path absPath, const IO::Path& docPath, const IO::Path& gamePath)
   : QDialog{parent}
   , m_absPath{std::move(absPath)}
-  , m_docRelativePath{makeRelativePath(m_absPath, docPath.deleteLastComponent())}
-  , m_gameRelativePath{makeRelativePath(m_absPath, gamePath)}
-  , m_appRelativePath{makeRelativePath(m_absPath, IO::SystemPaths::appDirectory())}
+  , m_docRelativePath{docPath.deleteLastComponent().makeRelative(m_absPath)}
+  , m_gameRelativePath{gamePath.makeRelative(m_absPath)}
+  , m_appRelativePath{IO::SystemPaths::appDirectory().makeRelative(m_absPath)}
 {
   createGui();
 }
@@ -146,13 +146,6 @@ const IO::Path& ChoosePathTypeDialog::path() const
     return m_gameRelativePath;
   }
   return m_absPath;
-}
-
-IO::Path ChoosePathTypeDialog::makeRelativePath(
-  const IO::Path& absPath, const IO::Path& newRootPath)
-{
-  return newRootPath.canMakeRelative(absPath) ? newRootPath.makeRelative(absPath)
-                                              : IO::Path{};
 }
 } // namespace View
 } // namespace TrenchBroom

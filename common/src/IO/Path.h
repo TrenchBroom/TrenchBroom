@@ -84,7 +84,6 @@ public:
   Path addExtension(const std::string& extension) const;
 
   bool isAbsolute() const;
-  bool canMakeRelative(const Path& absolutePath) const;
   Path makeAbsolute(const Path& relativePath) const;
 
   /**

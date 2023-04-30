@@ -264,17 +264,6 @@ bool Path::isAbsolute() const
   return m_path.is_absolute();
 }
 
-bool Path::canMakeRelative(const Path& absolutePath) const
-{
-  return (
-    !isEmpty() && !absolutePath.isEmpty() && isAbsolute() && absolutePath.isAbsolute()
-#ifdef _WIN32
-    && !m_components.empty() && !absolutePath.m_components.empty()
-    && m_components[0] == absolutePath.m_components[0]
-#endif
-  );
-}
-
 Path Path::makeAbsolute(const Path& relativePath) const
 {
   if (!isAbsolute())
