@@ -46,7 +46,7 @@ public:
   explicit Path(std::filesystem::path path = {});
 
   Path operator/(const Path& rhs) const;
-  int compare(const Path& rhs, bool caseSensitive = true) const;
+  int compare(const Path& rhs) const;
   bool operator==(const Path& rhs) const;
   bool operator!=(const Path& rhs) const;
   bool operator<(const Path& rhs) const;

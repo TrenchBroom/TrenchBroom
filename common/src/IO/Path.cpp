@@ -45,10 +45,9 @@ Path Path::operator/(const Path& rhs) const
   return Path{m_path / rhs.m_path};
 }
 
-int Path::compare(const Path& rhs, const bool caseSensitive) const
+int Path::compare(const Path& rhs) const
 {
-  return !caseSensitive ? makeLowerCase().compare(rhs.makeLowerCase(), true)
-                        : m_path.compare(rhs.m_path);
+  return m_path.compare(rhs.m_path);
 }
 
 bool Path::operator==(const Path& rhs) const
@@ -227,7 +226,9 @@ bool Path::hasPrefix(const Path& prefix, bool caseSensitive) const
     return false;
   }
 
-  return this->prefix(prefix.length()).compare(prefix, caseSensitive) == 0;
+  const auto mPrefix = this->prefix(prefix.length());
+  return !caseSensitive ? mPrefix.makeLowerCase() == prefix.makeLowerCase()
+                        : mPrefix == prefix;
 }
 
 bool Path::hasFilename(const std::string& filename, const bool caseSensitive) const

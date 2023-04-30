@@ -53,8 +53,9 @@ bool isDirectory(const ImageEntry& entry)
 template <typename I>
 auto findEntry(I begin, I end, const Path& name)
 {
+  const auto nameLc = name.makeLowerCase();
   return std::find_if(begin, end, [&](const auto& entry) {
-    return getName(entry).compare(name, false) == 0;
+    return getName(entry).makeLowerCase() == nameLc;
   });
 }
 
