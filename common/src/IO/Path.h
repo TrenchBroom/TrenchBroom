@@ -72,7 +72,6 @@ public:
   std::string extension() const;
 
   bool hasPrefix(const Path& prefix, bool caseSensitive) const;
-  bool hasDriveSpec() const;
 
   Path deleteExtension() const;
   Path addExtension(const std::string& extension) const;

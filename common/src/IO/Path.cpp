@@ -173,11 +173,6 @@ bool Path::hasPrefix(const Path& prefix, bool caseSensitive) const
                         : mPrefix == prefix;
 }
 
-bool Path::hasDriveSpec() const
-{
-  return m_path.has_root_name();
-}
-
 Path Path::deleteExtension() const
 {
   return isEmpty() ? *this : deleteLastComponent() / Path{basename()};
@@ -201,26 +196,6 @@ Path Path::makeRelative() const
 
 Path Path::makeRelative(const Path& absolutePath) const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot make relative path from an empty reference path"};
-  }
-
-  if (absolutePath.isEmpty())
-  {
-    throw PathException{"Cannot make relative path with empty sub path"};
-  }
-
-  if (!isAbsolute())
-  {
-    throw PathException{"Cannot make relative path from relative reference path"};
-  }
-
-  if (!absolutePath.isAbsolute())
-  {
-    throw PathException{"Cannot make relative path with relative sub path"};
-  }
-
   return Path{
     absolutePath.m_path.lexically_normal().lexically_relative(m_path.lexically_normal())};
 }

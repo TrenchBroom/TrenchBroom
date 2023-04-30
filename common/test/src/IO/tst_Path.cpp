@@ -350,9 +350,9 @@ TEST_CASE("PathTest.makeRelative")
 
 TEST_CASE("PathTest.makeRelativeWithAbsolutePath")
 {
-  CHECK_THROWS_AS(Path{"/asdf"}.makeRelative(Path{"asdf/hello"}), PathException);
-  CHECK_THROWS_AS(Path{"asdf"}.makeRelative(Path{"/asdf/hello"}), PathException);
-  CHECK_THROWS_AS(Path{"asdf"}.makeRelative(Path{"/"}), PathException);
+  CHECK(Path{"/asdf"}.makeRelative(Path{"asdf/hello"}) == Path{});
+  CHECK(Path{"asdf"}.makeRelative(Path{"/asdf/hello"}) == Path{});
+  CHECK(Path{"asdf"}.makeRelative(Path{"/"}) == Path{});
   CHECK(
     Path{"/asdf/test/blah"}.makeRelative(Path{"/asdf/test/hello"}) == Path{"../hello"});
   CHECK(Path{"/asdf"}.makeRelative(Path{"/hurr/hello"}) == Path{"../hurr/hello"});

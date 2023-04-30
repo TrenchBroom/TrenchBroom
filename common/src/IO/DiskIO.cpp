@@ -81,9 +81,8 @@ Path fixCase(const Path& path)
     return path;
   }
 
-  auto result = path.hasDriveSpec() ? path.firstComponent() : Path{"/"};
-  auto remainder =
-    path.hasDriveSpec() ? path.deleteFirstComponent() : path.makeRelative();
+  auto result = path.firstComponent();
+  auto remainder = path.deleteFirstComponent();
 
   auto dir = QDir{};
   dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
