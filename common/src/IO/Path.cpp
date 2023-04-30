@@ -259,20 +259,6 @@ Path Path::addExtension(const std::string& extension) const
                    : Path{m_path.parent_path() / m_path.filename() += extension};
 }
 
-Path Path::replaceExtension(const std::string& extension) const
-{
-  return deleteExtension().addExtension(extension);
-}
-
-Path Path::replaceBasename(const std::string& basename) const
-{
-  if (isEmpty())
-  {
-    throw PathException{"Cannot replace the base name of an empty path."};
-  }
-  return deleteLastComponent() / Path{basename}.addExtension(extension());
-}
-
 bool Path::isAbsolute() const
 {
   return m_path.is_absolute();

@@ -470,7 +470,7 @@ Path DkmParser::findSkin(const std::string& skin) const
   // try "wal" extension instead
   if (kdl::str_to_lower(skinPath.extension()) == ".bmp")
   {
-    const auto walPath = skinPath.replaceExtension(".wal");
+    const auto walPath = skinPath.deleteExtension().addExtension(".wal");
     if (m_fs.pathInfo(walPath) == PathInfo::File)
     {
       return walPath;

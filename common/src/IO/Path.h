@@ -82,9 +82,6 @@ public:
 
   Path deleteExtension() const;
   Path addExtension(const std::string& extension) const;
-  Path replaceExtension(const std::string& extension) const;
-
-  Path replaceBasename(const std::string& basename) const;
 
   bool isAbsolute() const;
   bool canMakeRelative(const Path& absolutePath) const;
