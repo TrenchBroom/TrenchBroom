@@ -102,42 +102,22 @@ bool Path::isEmpty() const
 
 Path Path::firstComponent() const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot return first component of empty path"};
-  }
-
-  return Path{*m_path.begin()};
+  return isEmpty() ? Path{} : Path{*m_path.begin()};
 }
 
 Path Path::deleteFirstComponent() const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot delete first component of empty path"};
-  }
-
-  return subPath(1, length() - 1);
+  return isEmpty() ? *this : subPath(1, length() - 1);
 }
 
 Path Path::lastComponent() const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot return last component of empty path"};
-  }
-
-  return Path{*std::prev(m_path.end())};
+  return isEmpty() ? Path{} : Path{*std::prev(m_path.end())};
 }
 
 Path Path::deleteLastComponent() const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot delete last component of empty path"};
-  }
-
-  return Path{m_path.parent_path()};
+  return isEmpty() ? Path{} : Path{m_path.parent_path()};
 }
 
 Path Path::prefix(const size_t count) const
@@ -150,12 +130,9 @@ Path Path::suffix(const size_t count) const
   return subPath(length() - count, count);
 }
 
-Path Path::subPath(const size_t index, const size_t count) const
+Path Path::subPath(const size_t index, size_t count) const
 {
-  if (index + count > length())
-  {
-    throw PathException{"Sub path out of bounds"};
-  }
+  count = std::min(count, length() >= count ? length() - index : 0);
 
   if (count == 0)
   {

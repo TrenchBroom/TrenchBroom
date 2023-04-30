@@ -263,8 +263,8 @@ TEST_CASE("PathTest.isEmpty")
 
 TEST_CASE("PathTest.getLastComponent")
 {
-  CHECK_THROWS_AS(Path{}.lastComponent().asString(), PathException);
-  CHECK(Path{"/asdf"}.lastComponent().asString() == "asdf");
+  CHECK(Path{}.lastComponent() == Path{});
+  CHECK(Path{"/asdf"}.lastComponent() == Path{"asdf"});
   CHECK(Path{"asdf"}.lastComponent() == Path{"asdf"});
   CHECK(Path{"/this/is/a/path.map"}.lastComponent() == Path{"path.map"});
   CHECK(Path{"/"}.lastComponent() == Path{"/"});
@@ -272,7 +272,7 @@ TEST_CASE("PathTest.getLastComponent")
 
 TEST_CASE("PathTest.deleteLastComponent")
 {
-  CHECK_THROWS_AS(Path{}.deleteLastComponent(), PathException);
+  CHECK(Path{}.deleteLastComponent() == Path{});
   CHECK(Path{"/asdf"}.deleteLastComponent() == Path{"/"});
   CHECK(Path{"asdf"}.deleteLastComponent() == Path{});
   CHECK(Path{"/this/is/a/path.map"}.deleteLastComponent() == Path{"/this/is/a"});
@@ -281,15 +281,15 @@ TEST_CASE("PathTest.deleteLastComponent")
 
 TEST_CASE("PathTest.getFirstComponet")
 {
-  CHECK_THROWS_AS(Path{}.firstComponent(), PathException);
-  CHECK(Path{"/"}.firstComponent().asString() == "/");
-  CHECK(Path{"/asdf"}.firstComponent().asString() == "/");
-  CHECK(Path{"asdf"}.firstComponent().asString() == "asdf");
+  CHECK(Path{}.firstComponent() == Path{});
+  CHECK(Path{"/"}.firstComponent() == Path{"/"});
+  CHECK(Path{"/asdf"}.firstComponent() == Path{"/"});
+  CHECK(Path{"asdf"}.firstComponent() == Path{"asdf"});
 }
 
 TEST_CASE("PathTest.deleteFirstComponent")
 {
-  CHECK_THROWS_AS(Path{}.deleteFirstComponent(), PathException);
+  CHECK(Path{}.deleteFirstComponent() == Path{});
   CHECK(Path{"/"}.deleteFirstComponent() == Path{});
   CHECK(Path{"/asdf"}.deleteFirstComponent() == Path{"asdf"});
   CHECK(Path{"asdf/blah"}.deleteFirstComponent() == Path{"blah"});
@@ -298,7 +298,8 @@ TEST_CASE("PathTest.deleteFirstComponent")
 TEST_CASE("PathTest.subPath")
 {
   CHECK(Path{}.subPath(0, 0) == Path{});
-  CHECK_THROWS_AS(Path{"test/blah"}.subPath(1, 2), PathException);
+  CHECK(Path{"test/blah"}.subPath(1, 2) == Path{"blah"});
+  CHECK(Path{"test/blah"}.subPath(3, 2) == Path{});
   CHECK(Path{"test/blah"}.subPath(0, 2) == Path{"test/blah"});
   CHECK(Path{"test/blah"}.subPath(0, 1) == Path{"test"});
   CHECK(Path{"test/blah"}.subPath(1, 1) == Path{"blah"});
