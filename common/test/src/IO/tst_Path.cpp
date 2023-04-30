@@ -372,9 +372,9 @@ TEST_CASE("PathTest.makeCanonical")
   CHECK(Path{"/asdf/test/.."}.makeCanonical() == Path{"/asdf/"});
   CHECK(Path{"/asdf/./test/.."}.makeCanonical() == Path{"/asdf/"});
 
-  CHECK_THROWS_AS(Path{".."}.makeCanonical(), PathException);
-  CHECK_THROWS_AS(Path{"asdf/../.."}.makeCanonical(), PathException);
-  CHECK_THROWS_AS(Path{"./.."}.makeCanonical(), PathException);
+  CHECK(Path{".."}.makeCanonical() == Path{".."});
+  CHECK(Path{"asdf/../.."}.makeCanonical() == Path{".."});
+  CHECK(Path{"./.."}.makeCanonical() == Path{".."});
   CHECK(Path{"./asdf/./test/.."}.makeCanonical() == Path{"asdf/"});
   CHECK(Path{"asdf/test/.."}.makeCanonical() == Path{"asdf/"});
 }

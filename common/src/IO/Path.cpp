@@ -201,14 +201,7 @@ Path Path::makeRelative(const Path& absolutePath) const
 
 Path Path::makeCanonical() const
 {
-  auto normalPath = m_path.lexically_normal();
-  if (std::any_of(normalPath.begin(), normalPath.end(), [](const auto& component) {
-        return component == "..";
-      }))
-  {
-    throw PathException{"Cannot make path canonical"};
-  }
-  return Path{std::move(normalPath)};
+  return Path{m_path.lexically_normal()};
 }
 
 Path Path::makeLowerCase() const

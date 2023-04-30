@@ -50,6 +50,10 @@ const Path& DiskFileSystem::root() const
 Path DiskFileSystem::doMakeAbsolute(const Path& path) const
 {
   const auto canonicalPath = path.makeCanonical();
+  if (!canonicalPath.isEmpty() && canonicalPath.firstComponent() == Path{".."})
+  {
+    throw FileSystemException{"Cannot make absolute path of '" + path.asString() + "'"};
+  }
   return canonicalPath.isEmpty() ? m_root : m_root / canonicalPath;
 }
 
