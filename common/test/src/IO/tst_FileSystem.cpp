@@ -77,7 +77,7 @@ TEST_CASE("FileSystem")
     CHECK_THROWS_AS(fs.find(Path{"root_file_1.map"}), FileSystemException);
 
     CHECK_THAT(
-      fs.find(Path{""}),
+      fs.find(Path{}),
       Catch::Matchers::UnorderedEquals(std::vector<Path>{
         Path{"some_dir"},
         Path{"root_file_1.map"},
@@ -85,7 +85,7 @@ TEST_CASE("FileSystem")
       }));
 
     CHECK_THAT(
-      fs.findRecursively(Path{""}),
+      fs.findRecursively(Path{}),
       Catch::Matchers::UnorderedEquals(std::vector<Path>{
         Path{"some_dir"},
         Path{"some_dir/nested_dir"},
@@ -116,7 +116,7 @@ TEST_CASE("FileSystem")
       }));
 
     CHECK_THAT(
-      fs.findRecursively(Path{""}, makeExtensionPathMatcher({"txt", "map"})),
+      fs.findRecursively(Path{}, makeExtensionPathMatcher({"txt", "map"})),
       Catch::Matchers::UnorderedEquals(std::vector<Path>{
         Path{"some_dir/nested_dir/nested_dir_file_1.txt"},
         Path{"some_dir/nested_dir/nested_dir_file_2.map"},

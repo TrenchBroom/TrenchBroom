@@ -843,7 +843,7 @@ TEST_CASE("Hierarchical ImageFileSystems")
   SECTION("directoryContents")
   {
     CHECK_THAT(
-      fs->directoryContents(Path{""}),
+      fs->directoryContents(Path{}),
       Catch::UnorderedEquals(std::vector<Path>{
         Path{"pics"},
         Path{"textures"},
@@ -921,7 +921,7 @@ TEST_CASE("Flat ImageFileSystems")
   SECTION("directoryContents")
   {
     CHECK_THAT(
-      fs->directoryContents(Path{""}),
+      fs->directoryContents(Path{}),
       Catch::UnorderedEquals(std::vector<Path>{
         Path{"blowjob_machine.D"}, Path{"bongs2.D"},        Path{"can-o-jam.D"},
         Path{"cap4can-o-jam.D"},   Path{"coffin1.D"},       Path{"coffin2.D"},

@@ -30,7 +30,7 @@ namespace TrenchBroom::IO
 #ifdef _WIN32
 TEST_CASE("PathTest.constructWithString")
 {
-  CHECK(Path{""}.asString() == std::string(""));
+  CHECK(Path{}.asString() == std::string(""));
   CHECK(Path{" "}.asString() == std::string(""));
   CHECK(Path{"c:\\"}.asString() == std::string("c:"));
   CHECK(Path{"c:\\asdf"}.asString() == std::string("c:\\asdf"));
@@ -44,13 +44,13 @@ TEST_CASE("PathTest.constructWithString")
 
 TEST_CASE("PathTest.concatenate")
 {
-  CHECK_THROWS_AS(Path{""} + Path{"c:\\"}, PathException);
-  CHECK_THROWS_AS(Path{""} + Path{"c:\\asdf"}, PathException);
+  CHECK_THROWS_AS(Path{} + Path{"c:\\"}, PathException);
+  CHECK_THROWS_AS(Path{} + Path{"c:\\asdf"}, PathException);
   CHECK_THROWS_AS(Path{"asdf"} + Path{"c:\\asdf"}, PathException);
   CHECK_THROWS_AS(Path{"c:\\asdf"} + Path{"c:\\asdf"}, PathException);
-  CHECK(Path{""} + Path{""} == Path{""});
-  CHECK(Path{"c:\\"} + Path{""} == Path{"c:\\"});
-  CHECK(Path{"c:\\asdf"} + Path{""} == Path{"c:\\asdf"});
+  CHECK(Path{} + Path{} == Path{});
+  CHECK(Path{"c:\\"} + Path{} == Path{"c:\\"});
+  CHECK(Path{"c:\\asdf"} + Path{} == Path{"c:\\asdf"});
   CHECK(Path{"c:\\"} + Path{"asdf"} == Path{"c:\\asdf"});
   CHECK(Path{"c:\\asdf"} + Path{"hey"} == Path{"c:\\asdf\\hey"});
   CHECK(Path{"asdf"} + Path{"hey"} == Path{"asdf\\hey"});
@@ -58,7 +58,7 @@ TEST_CASE("PathTest.concatenate")
 
 TEST_CASE("PathTest.isEmpty")
 {
-  CHECK(Path{""}.isEmpty());
+  CHECK(Path{}.isEmpty());
   CHECK_FALSE(Path{"asdf"}.isEmpty());
   CHECK_FALSE(Path{"c:"}.isEmpty());
   CHECK_FALSE(Path{"c:\\asdf"}.isEmpty());
@@ -68,25 +68,25 @@ TEST_CASE("PathTest.isEmpty")
 
 TEST_CASE("PathTest.getLastComponent")
 {
-  CHECK_THROWS_AS(Path{""}.lastComponent().asString(), PathException);
+  CHECK_THROWS_AS(Path{}.lastComponent().asString(), PathException);
   CHECK(Path{"c:\\asdf"}.lastComponent().asString() == "asdf");
   CHECK(Path{"asdf"}.lastComponent() == Path{"asdf"});
   CHECK(Path{"c:\\this\\is\\a\\path.map"}.lastComponent() == Path{"path.map"});
-  CHECK(Path{"/"}.lastComponent() == Path{""});
+  CHECK(Path{"/"}.lastComponent() == Path{});
 }
 
 TEST_CASE("PathTest.deleteLastComponent")
 {
-  CHECK_THROWS_AS(Path{""}.deleteLastComponent(), PathException);
+  CHECK_THROWS_AS(Path{}.deleteLastComponent(), PathException);
   CHECK(Path{"c:\\asdf"}.deleteLastComponent() == Path{"c:\\"});
-  CHECK(Path{"asdf"}.deleteLastComponent() == Path{""});
+  CHECK(Path{"asdf"}.deleteLastComponent() == Path{});
   CHECK(
     Path{"c:\\this\\is\\a\\path.map"}.deleteLastComponent() == Path{"c:\\this\\is\\a"});
 }
 
 TEST_CASE("PathTest.getFirstComponent")
 {
-  CHECK_THROWS_AS(Path{""}.firstComponent(), PathException);
+  CHECK_THROWS_AS(Path{}.firstComponent(), PathException);
   CHECK(Path{"/asdf"}.firstComponent().asString() == "\\");
   CHECK(Path{"c:\\asdf\\blah"}.firstComponent().asString() == "c:");
   CHECK(Path{"asdf\\bbab"}.firstComponent().asString() == "asdf");
@@ -94,10 +94,10 @@ TEST_CASE("PathTest.getFirstComponent")
 
 TEST_CASE("PathTest.deleteFirstComponent")
 {
-  CHECK_THROWS_AS(Path{""}.deleteFirstComponent(), PathException);
-  CHECK(Path{"\\"}.deleteFirstComponent() == Path{""});
+  CHECK_THROWS_AS(Path{}.deleteFirstComponent(), PathException);
+  CHECK(Path{"\\"}.deleteFirstComponent() == Path{});
   CHECK(Path{"\\asdf"}.deleteFirstComponent() == Path{"asdf"});
-  CHECK(Path{"c:\\"}.deleteFirstComponent() == Path{""});
+  CHECK(Path{"c:\\"}.deleteFirstComponent() == Path{});
   CHECK(Path{"c:\\asdf"}.deleteFirstComponent() == Path{"asdf"});
   CHECK(Path{"/asdf"}.deleteFirstComponent() == Path{"asdf"});
   CHECK(Path{"asdf/blah"}.deleteFirstComponent() == Path{"blah"});
@@ -105,7 +105,7 @@ TEST_CASE("PathTest.deleteFirstComponent")
 
 TEST_CASE("PathTest.subPath")
 {
-  CHECK(Path{""}.subPath(0, 0) == Path{""});
+  CHECK(Path{}.subPath(0, 0) == Path{});
   CHECK_THROWS_AS(Path{"test\\blah"}.subPath(1, 2), PathException);
   CHECK(Path{"test\\blah"}.subPath(0, 2) == Path{"test\\blah"});
   CHECK(Path{"test\\blah"}.subPath(0, 1) == Path{"test"});
@@ -116,7 +116,7 @@ TEST_CASE("PathTest.subPath")
 
 TEST_CASE("PathTest.getExtension")
 {
-  CHECK_THROWS_AS(Path{""}.extension(), PathException);
+  CHECK_THROWS_AS(Path{}.extension(), PathException);
   CHECK(Path{"asdf"}.extension() == std::string(""));
   CHECK(Path{"asdf.map"}.extension() == std::string("map"));
   CHECK(Path{"c:\\this\\is\\a\\path.map"}.extension() == std::string("map"));
@@ -140,7 +140,7 @@ TEST_CASE("PathTest.addExtension")
   const auto test2 = test;
   const auto test3 = test + test2;
 
-  CHECK_THROWS_AS(Path{""}.addExtension("map"), PathException);
+  CHECK_THROWS_AS(Path{}.addExtension("map"), PathException);
   CHECK(Path{"c:\\asdf"}.addExtension("") == Path{"c:\\asdf."});
   CHECK(Path{"c:\\asdf"}.addExtension("map") == Path{"c:\\asdf.map"});
   CHECK(Path{"c:\\asdf.map"}.addExtension("test") == Path{"c:\\asdf.map.test"});
@@ -156,10 +156,10 @@ TEST_CASE("PathTest.makeAbsolute")
 
 TEST_CASE("PathTest.makeRelative")
 {
-  CHECK_THROWS_AS(Path{""}.makeRelative(), PathException);
+  CHECK_THROWS_AS(Path{}.makeRelative(), PathException);
   CHECK_THROWS_AS(Path{"models\\barrel\\skin.tga"}.makeRelative(), PathException);
-  CHECK(Path{"C:"}.makeRelative() == Path{""});
-  CHECK(Path{"C:\\"}.makeRelative() == Path{""});
+  CHECK(Path{"C:"}.makeRelative() == Path{});
+  CHECK(Path{"C:\\"}.makeRelative() == Path{});
   CHECK(
     Path{"C:\\models\\barrel\\skin.tga"}.makeRelative()
     == Path{"models\\barrel\\skin.tga"});
@@ -225,7 +225,7 @@ TEST_CASE("PathTest.pathFromQString")
 #else
 TEST_CASE("PathTest.constructWithString")
 {
-  CHECK(Path{""}.asString() == std::string(""));
+  CHECK(Path{}.asString() == std::string(""));
   CHECK(Path{" "}.asString() == std::string(" "));
   CHECK(Path{"/"}.asString() == std::string("/"));
   CHECK(Path{"/asdf"}.asString() == std::string("/asdf"));
@@ -239,13 +239,13 @@ TEST_CASE("PathTest.constructWithString")
 
 TEST_CASE("PathTest.concatenate")
 {
-  CHECK_THROWS_AS(Path{""} + Path{"/"}, PathException);
-  CHECK_THROWS_AS(Path{""} + Path{"/asdf"}, PathException);
+  CHECK_THROWS_AS(Path{} + Path{"/"}, PathException);
+  CHECK_THROWS_AS(Path{} + Path{"/asdf"}, PathException);
   CHECK_THROWS_AS(Path{"asdf"} + Path{"/asdf"}, PathException);
   CHECK_THROWS_AS(Path{"/asdf"} + Path{"/asdf"}, PathException);
-  CHECK(Path{""} + Path{""} == Path{""});
-  CHECK(Path{"/"} + Path{""} == Path{"/"});
-  CHECK(Path{"/asdf"} + Path{""} == Path{"/asdf/"});
+  CHECK(Path{} + Path{} == Path{});
+  CHECK(Path{"/"} + Path{} == Path{"/"});
+  CHECK(Path{"/asdf"} + Path{} == Path{"/asdf/"});
   CHECK(Path{"/"} + Path{"asdf"} == Path{"/asdf"});
   CHECK(Path{"/asdf"} + Path{"hey"} == Path{"/asdf/hey"});
   CHECK(Path{"asdf"} + Path{"hey"} == Path{"asdf/hey"});
@@ -253,7 +253,7 @@ TEST_CASE("PathTest.concatenate")
 
 TEST_CASE("PathTest.isEmpty")
 {
-  CHECK(Path{""}.isEmpty());
+  CHECK(Path{}.isEmpty());
   CHECK_FALSE(Path{"asdf"}.isEmpty());
   CHECK_FALSE(Path{"/"}.isEmpty());
   CHECK_FALSE(Path{"/asdf"}.isEmpty());
@@ -263,7 +263,7 @@ TEST_CASE("PathTest.isEmpty")
 
 TEST_CASE("PathTest.getLastComponent")
 {
-  CHECK_THROWS_AS(Path{""}.lastComponent().asString(), PathException);
+  CHECK_THROWS_AS(Path{}.lastComponent().asString(), PathException);
   CHECK(Path{"/asdf"}.lastComponent().asString() == "asdf");
   CHECK(Path{"asdf"}.lastComponent() == Path{"asdf"});
   CHECK(Path{"/this/is/a/path.map"}.lastComponent() == Path{"path.map"});
@@ -272,16 +272,16 @@ TEST_CASE("PathTest.getLastComponent")
 
 TEST_CASE("PathTest.deleteLastComponent")
 {
-  CHECK_THROWS_AS(Path{""}.deleteLastComponent(), PathException);
+  CHECK_THROWS_AS(Path{}.deleteLastComponent(), PathException);
   CHECK(Path{"/asdf"}.deleteLastComponent() == Path{"/"});
-  CHECK(Path{"asdf"}.deleteLastComponent() == Path{""});
+  CHECK(Path{"asdf"}.deleteLastComponent() == Path{});
   CHECK(Path{"/this/is/a/path.map"}.deleteLastComponent() == Path{"/this/is/a"});
   CHECK(Path{"/"}.deleteLastComponent() == Path{"/"});
 }
 
 TEST_CASE("PathTest.getFirstComponet")
 {
-  CHECK_THROWS_AS(Path{""}.firstComponent(), PathException);
+  CHECK_THROWS_AS(Path{}.firstComponent(), PathException);
   CHECK(Path{"/"}.firstComponent().asString() == "/");
   CHECK(Path{"/asdf"}.firstComponent().asString() == "/");
   CHECK(Path{"asdf"}.firstComponent().asString() == "asdf");
@@ -289,15 +289,15 @@ TEST_CASE("PathTest.getFirstComponet")
 
 TEST_CASE("PathTest.deleteFirstComponent")
 {
-  CHECK_THROWS_AS(Path{""}.deleteFirstComponent(), PathException);
-  CHECK(Path{"/"}.deleteFirstComponent() == Path{""});
+  CHECK_THROWS_AS(Path{}.deleteFirstComponent(), PathException);
+  CHECK(Path{"/"}.deleteFirstComponent() == Path{});
   CHECK(Path{"/asdf"}.deleteFirstComponent() == Path{"asdf"});
   CHECK(Path{"asdf/blah"}.deleteFirstComponent() == Path{"blah"});
 }
 
 TEST_CASE("PathTest.subPath")
 {
-  CHECK(Path{""}.subPath(0, 0) == Path{""});
+  CHECK(Path{}.subPath(0, 0) == Path{});
   CHECK_THROWS_AS(Path{"test/blah"}.subPath(1, 2), PathException);
   CHECK(Path{"test/blah"}.subPath(0, 2) == Path{"test/blah"});
   CHECK(Path{"test/blah"}.subPath(0, 1) == Path{"test"});
@@ -309,7 +309,7 @@ TEST_CASE("PathTest.subPath")
 
 TEST_CASE("PathTest.getExtension")
 {
-  CHECK_THROWS_AS(Path{""}.extension(), PathException);
+  CHECK_THROWS_AS(Path{}.extension(), PathException);
   CHECK(Path{"asdf"}.extension() == std::string(""));
   CHECK(Path{"asdf.map"}.extension() == std::string("map"));
   CHECK(Path{"/this/is/a/path.map"}.extension() == std::string("map"));
@@ -328,7 +328,7 @@ TEST_CASE("PathTest.deleteExtension")
 
 TEST_CASE("PathTest.addExtension")
 {
-  CHECK_THROWS_AS(Path{""}.addExtension("map"), PathException);
+  CHECK_THROWS_AS(Path{}.addExtension("map"), PathException);
   CHECK(Path{"/asdf"}.addExtension("") == Path{"/asdf."});
   CHECK(Path{"/asdf"}.addExtension("map") == Path{"/asdf.map"});
   CHECK(Path{"/asdf.map"}.addExtension("test") == Path{"/asdf.map.test"});
@@ -344,9 +344,9 @@ TEST_CASE("PathTest.makeAbsolute")
 
 TEST_CASE("PathTest.makeRelative")
 {
-  CHECK_THROWS_AS(Path{""}.makeRelative(), PathException);
+  CHECK_THROWS_AS(Path{}.makeRelative(), PathException);
   CHECK_THROWS_AS(Path{"models/barrel/skin.tga"}.makeRelative(), PathException);
-  CHECK(Path{"/"}.makeRelative() == Path{""});
+  CHECK(Path{"/"}.makeRelative() == Path{});
   CHECK(Path{"/models/barrel/skin.tga"}.makeRelative() == Path{"models/barrel/skin.tga"});
 }
 
@@ -383,10 +383,10 @@ TEST_CASE("PathTest.makeCanonical")
 
 TEST_CASE("PathTest.operatorLT")
 {
-  CHECK_FALSE(Path{""} < Path{""});
-  CHECK_FALSE(Path{"/"} < Path{""});
+  CHECK_FALSE(Path{} < Path{});
+  CHECK_FALSE(Path{"/"} < Path{});
   CHECK_FALSE(Path{"/"} < Path{"/"});
-  CHECK_FALSE(Path{"dir"} < Path{""});
+  CHECK_FALSE(Path{"dir"} < Path{});
   CHECK_FALSE(Path{"dir"} < Path{"dir"});
   CHECK_FALSE(Path{"/dir"} < Path{"dir"});
   CHECK_FALSE(Path{"/dir"} < Path{"/dir"});

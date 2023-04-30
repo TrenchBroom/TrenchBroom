@@ -77,7 +77,7 @@ TEST_CASE("DiskFileSystemTest")
     CHECK_NOTHROW(DiskFileSystem(env.dir() + Path{"ANOTHERDIR"}, true));
 
     const DiskFileSystem fs(env.dir() + Path{"anotherDir/.."}, true);
-    CHECK(fs.makeAbsolute(Path{""}) == fs.root());
+    CHECK(fs.makeAbsolute(Path{}) == fs.root());
   }
 
   const auto fs = DiskFileSystem{env.dir()};
@@ -199,7 +199,7 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK_NOTHROW(WritableDiskFileSystem{env.dir() + Path{"ANOTHERDIR"}, false});
 
     const auto fs = WritableDiskFileSystem{env.dir() + Path{"anotherDir/.."}, false};
-    CHECK(fs.makeAbsolute(Path{""}) == env.dir());
+    CHECK(fs.makeAbsolute(Path{}) == env.dir());
   }
 
   SECTION("createDirectory")
@@ -214,7 +214,7 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK_THROWS_AS(
       fs.createDirectory(Path{"/hopefully_nothing_here"}), FileSystemException);
 #endif
-    CHECK_THROWS_AS(fs.createDirectory(Path{""}), FileSystemException);
+    CHECK_THROWS_AS(fs.createDirectory(Path{}), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory(Path{"."}), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory(Path{".."}), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory(Path{"dir1"}), FileSystemException);
@@ -242,7 +242,7 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK_THROWS_AS(
       fs.deleteFile(Path{"/hopefully_nothing_here.txt"}), FileSystemException);
 #endif
-    CHECK_THROWS_AS(fs.deleteFile(Path{""}), FileSystemException);
+    CHECK_THROWS_AS(fs.deleteFile(Path{}), FileSystemException);
     CHECK_THROWS_AS(fs.deleteFile(Path{"."}), FileSystemException);
     CHECK_THROWS_AS(fs.deleteFile(Path{".."}), FileSystemException);
     CHECK_THROWS_AS(fs.deleteFile(Path{"dir1"}), FileSystemException);

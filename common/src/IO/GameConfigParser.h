@@ -46,7 +46,7 @@ private:
   EL::IntegerType m_version;
 
 public:
-  explicit GameConfigParser(std::string_view str, const Path& path = Path(""));
+  explicit GameConfigParser(std::string_view str, const Path& path = Path{});
 
   Model::GameConfig parse();
 

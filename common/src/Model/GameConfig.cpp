@@ -111,7 +111,7 @@ IO::Path GameConfig::findInitialMap(const std::string& formatName) const
       }
     }
   }
-  return IO::Path("");
+  return IO::Path{};
 }
 
 IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const

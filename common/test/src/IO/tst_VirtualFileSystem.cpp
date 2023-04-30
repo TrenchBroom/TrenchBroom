@@ -39,25 +39,25 @@ TEST_CASE("VirtualFileSystem")
   {
     SECTION("makeAbsolute")
     {
-      CHECK_THROWS_AS(vfs.makeAbsolute(Path{""}), FileSystemException);
+      CHECK_THROWS_AS(vfs.makeAbsolute(Path{}), FileSystemException);
       CHECK_THROWS_AS(vfs.makeAbsolute(Path{"foo/bar"}), FileSystemException);
     }
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{""}) == PathInfo::Unknown);
+      CHECK(vfs.pathInfo(Path{}) == PathInfo::Unknown);
       CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Unknown);
     }
 
     SECTION("directoryContents")
     {
-      CHECK_THROWS_AS(vfs.directoryContents(Path{""}), FileSystemException);
+      CHECK_THROWS_AS(vfs.directoryContents(Path{}), FileSystemException);
       CHECK_THROWS_AS(vfs.directoryContents(Path{"foo/bar"}), FileSystemException);
     }
 
     SECTION("openFile")
     {
-      CHECK_THROWS_AS(vfs.openFile(Path{""}), FileSystemException);
+      CHECK_THROWS_AS(vfs.openFile(Path{}), FileSystemException);
       CHECK_THROWS_AS(vfs.openFile(Path{"foo"}), FileSystemException);
       CHECK_THROWS_AS(vfs.openFile(Path{"foo/bar"}), FileSystemException);
     }
@@ -70,7 +70,7 @@ TEST_CASE("VirtualFileSystem")
     auto bar_foo = std::make_shared<ObjectFile<Object>>(Path{"bar/foo"}, Object{2});
 
     vfs.mount(
-      Path{""},
+      Path{},
       std::make_unique<TestFileSystem>(Entry{DirectoryEntry{
         "",
         {
@@ -92,14 +92,14 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("makeAbsolute")
     {
-      CHECK(vfs.makeAbsolute(Path{""}) == Path{"/"});
+      CHECK(vfs.makeAbsolute(Path{}) == Path{"/"});
       CHECK(vfs.makeAbsolute(Path{"foo"}) == Path{"/foo"});
       CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/foo/bar"});
     }
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{""}) == PathInfo::Directory);
+      CHECK(vfs.pathInfo(Path{}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo"}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo/bar/baz"}) == PathInfo::File);
@@ -109,7 +109,7 @@ TEST_CASE("VirtualFileSystem")
     SECTION("directoryContents")
     {
       CHECK_THAT(
-        vfs.directoryContents(Path{""}),
+        vfs.directoryContents(Path{}),
         Catch::Matchers::UnorderedEquals(std::vector<Path>{
           Path{"foo"},
           Path{"bar"},
@@ -143,7 +143,7 @@ TEST_CASE("VirtualFileSystem")
     auto bar_cat = std::make_shared<ObjectFile<Object>>(Path{"bar/cat"}, Object{5});
 
     vfs.mount(
-      Path{""},
+      Path{},
       std::make_unique<TestFileSystem>(
         Entry{DirectoryEntry{
           "",
@@ -167,7 +167,7 @@ TEST_CASE("VirtualFileSystem")
           }}},
         Path{"/fs1"}));
     vfs.mount(
-      Path{""},
+      Path{},
       std::make_unique<TestFileSystem>(
         Entry{DirectoryEntry{
           "",
@@ -189,7 +189,7 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("makeAbsolute")
     {
-      CHECK(vfs.makeAbsolute(Path{""}) == Path{"/fs2"});
+      CHECK(vfs.makeAbsolute(Path{}) == Path{"/fs2"});
       CHECK(vfs.makeAbsolute(Path{"foo"}) == Path{"/fs1/foo"});
       CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/fs1/foo/bar"});
       CHECK(vfs.makeAbsolute(Path{"bar"}) == Path{"/fs2/bar"});
@@ -203,7 +203,7 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{""}) == PathInfo::Directory);
+      CHECK(vfs.pathInfo(Path{}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo"}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo/bar/baz"}) == PathInfo::File);
@@ -223,7 +223,7 @@ TEST_CASE("VirtualFileSystem")
     SECTION("directoryContents")
     {
       CHECK_THAT(
-        vfs.directoryContents(Path{""}),
+        vfs.directoryContents(Path{}),
         Catch::Matchers::UnorderedEquals(std::vector<Path>{
           Path{"foo"},
           Path{"bar"},
@@ -287,14 +287,14 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("makeAbsolute")
     {
-      CHECK_THROWS_AS(vfs.makeAbsolute(Path{""}), FileSystemException);
+      CHECK_THROWS_AS(vfs.makeAbsolute(Path{}), FileSystemException);
       CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/fs1/bar"});
       CHECK(vfs.makeAbsolute(Path{"bar/foo"}) == Path{"/fs2/foo"});
     }
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{""}) == PathInfo::Directory);
+      CHECK(vfs.pathInfo(Path{}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo"}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo/bar/baz"}) == PathInfo::File);
@@ -307,7 +307,7 @@ TEST_CASE("VirtualFileSystem")
     {
       /*
       CHECK_THAT(
-        vfs.directoryContents(Path{""}),
+        vfs.directoryContents(Path{}),
         Catch::Matchers::UnorderedEquals(std::vector<Path>{
           Path{"foo"},
           Path{"bar"},
@@ -369,7 +369,7 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("makeAbsolute")
     {
-      CHECK_THROWS_AS(vfs.makeAbsolute(Path{""}), FileSystemException);
+      CHECK_THROWS_AS(vfs.makeAbsolute(Path{}), FileSystemException);
       CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/fs2"});
       CHECK(vfs.makeAbsolute(Path{"foo/bar/foo"}) == Path{"/fs2/foo"});
       CHECK(vfs.makeAbsolute(Path{"foo/bar/baz"}) == Path{"/fs1/bar/baz"});
@@ -377,7 +377,7 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{""}) == PathInfo::Directory);
+      CHECK(vfs.pathInfo(Path{}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo"}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Directory);
       CHECK(vfs.pathInfo(Path{"foo/bar/foo"}) == PathInfo::File);
@@ -387,7 +387,7 @@ TEST_CASE("VirtualFileSystem")
     SECTION("directoryContents")
     {
       CHECK_THAT(
-        vfs.directoryContents(Path{""}),
+        vfs.directoryContents(Path{}),
         Catch::Matchers::UnorderedEquals(std::vector<Path>{
           Path{"foo"},
         }));

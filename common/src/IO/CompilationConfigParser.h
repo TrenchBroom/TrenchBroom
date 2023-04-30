@@ -38,7 +38,7 @@ class Path;
 class CompilationConfigParser : public ConfigParserBase
 {
 public:
-  explicit CompilationConfigParser(std::string_view str, Path path = Path{""});
+  explicit CompilationConfigParser(std::string_view str, Path path = Path{});
 
   Model::CompilationConfig parse();
 
