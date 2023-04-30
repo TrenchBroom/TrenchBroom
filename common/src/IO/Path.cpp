@@ -148,31 +148,16 @@ Path Path::subPath(const size_t index, size_t count) const
 
 std::string Path::filename() const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot get filename of empty path"};
-  }
-
   return m_path.filename().u8string();
 }
 
 std::string Path::basename() const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot get basename of empty path"};
-  }
-
   return m_path.stem().u8string();
 }
 
 std::string Path::extension() const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot get extension of empty path"};
-  }
-
   return m_path.extension().u8string();
 }
 

@@ -313,7 +313,7 @@ TEST_CASE("PathTest.subPath")
 
 TEST_CASE("PathTest.getExtension")
 {
-  CHECK_THROWS_AS(Path{}.extension(), PathException);
+  CHECK(Path{}.extension().empty());
   CHECK(Path{"asdf"}.extension() == std::string(""));
   CHECK(Path{"asdf.map"}.extension() == std::string(".map"));
   CHECK(Path{"/this/is/a/path.map"}.extension() == std::string(".map"));
