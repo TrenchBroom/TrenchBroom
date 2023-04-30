@@ -47,47 +47,8 @@ Path Path::operator/(const Path& rhs) const
 
 int Path::compare(const Path& rhs, const bool caseSensitive) const
 {
-  if (!isAbsolute() && rhs.isAbsolute())
-  {
-    return -1;
-  }
-  else if (isAbsolute() && !rhs.isAbsolute())
-  {
-    return 1;
-  }
-
-  const auto firstComponent = [&](const auto& path) {
-    return path.isAbsolute() && path.m_path.begin() != path.m_path.end()
-             ? std::next(path.m_path.begin())
-             : path.m_path.begin();
-  };
-
-  auto mcur = firstComponent(*this);
-  auto rcur = firstComponent(rhs);
-
-  while (mcur != m_path.end() && rcur != rhs.m_path.end())
-  {
-    const auto& mcomp = *mcur;
-    const auto& rcomp = *rcur;
-    const auto result = caseSensitive
-                          ? kdl::cs::str_compare(mcomp.u8string(), rcomp.u8string())
-                          : kdl::ci::str_compare(mcomp.u8string(), rcomp.u8string());
-
-    if (result < 0)
-    {
-      return -1;
-    }
-    else if (result > 0)
-    {
-      return 1;
-    }
-    ++mcur;
-    ++rcur;
-  }
-
-  return mcur == m_path.end() && rcur == rhs.m_path.end() ? 0
-         : mcur == m_path.end()                           ? -1
-                                                          : 1;
+  return !caseSensitive ? makeLowerCase().compare(rhs.makeLowerCase(), true)
+                        : m_path.compare(rhs.m_path);
 }
 
 bool Path::operator==(const Path& rhs) const
