@@ -357,11 +357,11 @@ TEST_CASE("PathTest.makeRelativeWithAbsolutePath")
     Path{"/asdf/test/blah"}.makeRelative(Path{"/asdf/test/hello"}) == Path{"../hello"});
   CHECK(Path{"/asdf"}.makeRelative(Path{"/hurr/hello"}) == Path{"../hurr/hello"});
   CHECK(Path{"/asdf"}.makeRelative(Path{"/asdf/hello"}) == Path{"hello"});
-  CHECK(Path{"/./asdf"}.makeRelative(Path{"/asdf/hello"}) == Path{"hello"});
-  CHECK(Path{"/./asdf"}.makeRelative(Path{"/asdf/hello"}) == Path{"hello"});
-  CHECK(Path{"/asdf/test/.."}.makeRelative(Path{"/asdf/./hello"}) == Path{"hello"});
+  CHECK(Path{"/./asdf"}.makeRelative(Path{"/asdf/hello"}) == Path{"../asdf/hello"});
+  CHECK(Path{"/asdf/test/.."}.makeRelative(Path{"/asdf/./hello"}) == Path{"./hello"});
   CHECK(
-    Path{"/asdf/test/../"}.makeRelative(Path{"/asdf/hurr/../hello"}) == Path{"hello"});
+    Path{"/asdf/test/../"}.makeRelative(Path{"/asdf/hurr/../hello"})
+    == Path{"hurr/../hello"});
 }
 
 TEST_CASE("PathTest.makeCanonical")

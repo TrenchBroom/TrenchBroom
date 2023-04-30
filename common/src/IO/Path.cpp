@@ -196,8 +196,7 @@ Path Path::makeRelative() const
 
 Path Path::makeRelative(const Path& absolutePath) const
 {
-  return Path{
-    absolutePath.m_path.lexically_normal().lexically_relative(m_path.lexically_normal())};
+  return Path{absolutePath.m_path.lexically_relative(m_path)};
 }
 
 Path Path::makeCanonical() const
