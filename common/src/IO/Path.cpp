@@ -97,7 +97,7 @@ size_t Path::length() const
 
 bool Path::isEmpty() const
 {
-  return !isAbsolute() && length() == 0;
+  return m_path.empty();
 }
 
 Path Path::firstComponent() const
