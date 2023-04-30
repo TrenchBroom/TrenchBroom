@@ -292,16 +292,6 @@ Path Path::makeAbsolute(const Path& relativePath) const
 
 Path Path::makeRelative() const
 {
-  if (isEmpty())
-  {
-    throw PathException{"Cannot make relative path from an empty reference path"};
-  }
-
-  if (!isAbsolute())
-  {
-    throw PathException{"Cannot make relative path from relative reference path"};
-  }
-
   return Path{m_path.relative_path()};
 }
 

@@ -407,11 +407,7 @@ void MdxParser::loadSkins(
 
   for (const auto& skin : skins)
   {
-    auto path = Path(skin);
-    if (path.isAbsolute())
-    {
-      path = path.makeRelative();
-    }
+    const auto path = Path{skin}.makeRelative();
     textures.push_back(loadSkin(path, m_fs, logger));
   }
 

@@ -348,9 +348,10 @@ TEST_CASE("PathTest.makeAbsolute")
 
 TEST_CASE("PathTest.makeRelative")
 {
-  CHECK_THROWS_AS(Path{}.makeRelative(), PathException);
-  CHECK_THROWS_AS(Path{"models/barrel/skin.tga"}.makeRelative(), PathException);
+  CHECK(Path{}.makeRelative() == Path{});
+  CHECK(Path{"models/barrel/skin.tga"}.makeRelative() == Path{"models/barrel/skin.tga"});
   CHECK(Path{"/"}.makeRelative() == Path{});
+  CHECK(Path{"/models/barrel/skin.tga"}.makeRelative() == Path{"models/barrel/skin.tga"});
   CHECK(Path{"/models/barrel/skin.tga"}.makeRelative() == Path{"models/barrel/skin.tga"});
 }
 
