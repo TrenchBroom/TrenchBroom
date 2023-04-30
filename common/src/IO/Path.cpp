@@ -92,8 +92,7 @@ std::vector<Path> Path::asPaths(const std::vector<std::string>& strs)
 
 size_t Path::length() const
 {
-  const auto numComponents = size_t(std::distance(m_path.begin(), m_path.end()));
-  return isAbsolute() && numComponents > 0 ? numComponents - 1 : numComponents;
+  return size_t(std::distance(m_path.begin(), m_path.end()));
 }
 
 bool Path::isEmpty() const
