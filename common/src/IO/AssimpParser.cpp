@@ -374,9 +374,9 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 {
   static const auto texturePaths = std::vector<Path>{
     Path{"textures"}
-      + Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("png"),
+      / Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("png"),
     Path{"textures"}
-      + Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
+      / Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
     Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("png"),
     Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
   };
@@ -424,7 +424,7 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
       if (!texture)
       {
         // The texture is not embedded. Load it using the file system.
-        const auto filePath = m_path.deleteLastComponent() + texturePath;
+        const auto filePath = m_path.deleteLastComponent() / texturePath;
         m_textures.push_back(loadTextureFromFileSystem(filePath, m_fs, logger));
       }
       else if (texture->mHeight != 0)

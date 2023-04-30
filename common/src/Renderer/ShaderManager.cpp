@@ -92,7 +92,7 @@ Shader& ShaderManager::loadShader(const std::string& name, const GLenum type)
   }
 
   const auto shaderPath =
-    IO::SystemPaths::findResourceFile(IO::Path("shader") + IO::Path(name));
+    IO::SystemPaths::findResourceFile(IO::Path("shader") / IO::Path(name));
   auto result = m_shaders.emplace(name, std::make_unique<Shader>(shaderPath, type));
   assert(result.second);
 

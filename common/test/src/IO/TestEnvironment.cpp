@@ -37,8 +37,8 @@ namespace TrenchBroom
 namespace IO
 {
 TestEnvironment::TestEnvironment(const std::string& dir, const SetupFunction& setup)
-  : m_sandboxPath{pathFromQString(QDir::current().path()) + Path{generateUuid()}}
-  , m_dir{m_sandboxPath + Path{dir}}
+  : m_sandboxPath{pathFromQString(QDir::current().path()) / Path{generateUuid()}}
+  , m_dir{m_sandboxPath / Path{dir}}
 {
   createTestEnvironment(setup);
 }
@@ -67,13 +67,13 @@ void TestEnvironment::createTestEnvironment(const SetupFunction& setup)
 
 void TestEnvironment::createDirectory(const Path& path)
 {
-  const auto dir = QDir{IO::pathAsQString(m_dir + path)};
+  const auto dir = QDir{IO::pathAsQString(m_dir / path)};
   assertResult(dir.mkpath("."));
 }
 
 void TestEnvironment::createFile(const Path& path, const std::string& contents)
 {
-  auto file = QFile{IO::pathAsQString(m_dir + path)};
+  auto file = QFile{IO::pathAsQString(m_dir / path)};
   assertResult(file.open(QIODevice::ReadWrite));
 
   auto stream = QTextStream{&file};
@@ -100,21 +100,21 @@ bool TestEnvironment::deleteTestEnvironment()
 
 bool TestEnvironment::directoryExists(const Path& path) const
 {
-  const auto file = QFileInfo{IO::pathAsQString(m_dir + path)};
+  const auto file = QFileInfo{IO::pathAsQString(m_dir / path)};
 
   return file.exists() && file.isDir();
 }
 
 bool TestEnvironment::fileExists(const Path& path) const
 {
-  const auto file = QFileInfo{IO::pathAsQString(m_dir + path)};
+  const auto file = QFileInfo{IO::pathAsQString(m_dir / path)};
 
   return file.exists() && file.isFile();
 }
 
 std::string TestEnvironment::loadFile(const Path& path) const
 {
-  auto file = QFile{IO::pathAsQString(m_dir + path)};
+  auto file = QFile{IO::pathAsQString(m_dir / path)};
   if (file.open(QIODevice::ReadOnly | QIODevice::Text))
   {
     return QTextStream{&file}.readAll().toStdString();

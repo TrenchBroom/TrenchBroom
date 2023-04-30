@@ -42,7 +42,7 @@ Path userDataDirectory()
 {
 #if defined __linux__ || defined __FreeBSD__
   // Compatibility with wxWidgets
-  return IO::pathFromQString(QDir::homePath()) + IO::Path(".TrenchBroom");
+  return IO::pathFromQString(QDir::homePath()) / IO::Path(".TrenchBroom");
 #else
   return IO::pathFromQString(
     QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
@@ -51,21 +51,21 @@ Path userDataDirectory()
 
 Path logFilePath()
 {
-  return userDataDirectory() + IO::Path("TrenchBroom.log");
+  return userDataDirectory() / IO::Path("TrenchBroom.log");
 }
 
 Path findResourceFile(const Path& file)
 {
   // Special case for running debug builds on Linux, we want to search
   // next to the executable for resources
-  const auto relativeToExecutable = appDirectory() + file;
+  const auto relativeToExecutable = appDirectory() / file;
   if (Disk::pathInfo(relativeToExecutable) == PathInfo::File)
   {
     return relativeToExecutable;
   }
 
   // Compatibility with wxWidgets
-  const auto inUserDataDir = userDataDirectory() + file;
+  const auto inUserDataDir = userDataDirectory() / file;
   if (Disk::pathInfo(inUserDataDir) == PathInfo::File)
   {
     return inUserDataDir;
@@ -81,9 +81,9 @@ std::vector<Path> findResourceDirectories(const Path& directory)
 {
   auto result = std::vector<Path>{
     // Special case for running debug builds on Linux
-    appDirectory() + directory,
+    appDirectory() / directory,
     // Compatibility with wxWidgets
-    userDataDirectory() + directory,
+    userDataDirectory() / directory,
   };
 
   const auto dirs = QStandardPaths::locateAll(

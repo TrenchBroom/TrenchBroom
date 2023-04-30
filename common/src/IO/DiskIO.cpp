@@ -105,7 +105,7 @@ Path fixCase(const Path& path)
       return path;
     }
 
-    result = result + pathFromQString(*entryIt);
+    result = result / pathFromQString(*entryIt);
     remainder = remainder.deleteFirstComponent();
   }
   return result;
@@ -306,7 +306,7 @@ void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
   {
-    fixedDestPath = fixedDestPath + sourcePath.lastComponent();
+    fixedDestPath = fixedDestPath / sourcePath.lastComponent();
   }
 
   const auto exists = pathInfo(fixedDestPath) == PathInfo::File;
@@ -379,7 +379,7 @@ void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
   {
-    fixedDestPath = fixedDestPath + sourcePath.lastComponent();
+    fixedDestPath = fixedDestPath / sourcePath.lastComponent();
   }
 
   if (!QFile::rename(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
@@ -431,7 +431,7 @@ Path resolvePath(const std::vector<Path>& searchPaths, const Path& path)
       {
         try
         {
-          const auto fullPath = searchPath + path;
+          const auto fullPath = searchPath / path;
           if (pathInfo(fullPath) != PathInfo::Unknown)
           {
             return fullPath;

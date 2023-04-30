@@ -69,14 +69,14 @@ TEST_CASE("DiskFileSystemTest")
 
   SECTION("constructor")
   {
-    CHECK_THROWS_AS(DiskFileSystem(env.dir() + Path{"asdf"}, true), FileSystemException);
-    CHECK_NOTHROW(DiskFileSystem(env.dir() + Path{"asdf"}, false));
+    CHECK_THROWS_AS(DiskFileSystem(env.dir() / Path{"asdf"}, true), FileSystemException);
+    CHECK_NOTHROW(DiskFileSystem(env.dir() / Path{"asdf"}, false));
     CHECK_NOTHROW(DiskFileSystem(env.dir(), true));
 
     // for case sensitive file systems
-    CHECK_NOTHROW(DiskFileSystem(env.dir() + Path{"ANOTHERDIR"}, true));
+    CHECK_NOTHROW(DiskFileSystem(env.dir() / Path{"ANOTHERDIR"}, true));
 
-    const DiskFileSystem fs(env.dir() + Path{"anotherDir/.."}, true);
+    const DiskFileSystem fs(env.dir() / Path{"anotherDir/.."}, true);
     CHECK(fs.makeAbsolute(Path{}) == fs.root());
   }
 
@@ -97,9 +97,9 @@ TEST_CASE("DiskFileSystemTest")
 
     CHECK(
       fs.makeAbsolute(Path{"dir1/does_not_exist.txt"})
-      == env.dir() + Path("dir1/does_not_exist.txt"));
-    CHECK(fs.makeAbsolute(Path{"test.txt"}) == env.dir() + Path{"test.txt"});
-    CHECK(fs.makeAbsolute(Path{"anotherDir"}) == env.dir() + Path{"anotherDir"});
+      == env.dir() / Path("dir1/does_not_exist.txt"));
+    CHECK(fs.makeAbsolute(Path{"test.txt"}) == env.dir() / Path{"test.txt"});
+    CHECK(fs.makeAbsolute(Path{"anotherDir"}) == env.dir() / Path{"anotherDir"});
   }
 
   SECTION("pathInfo")
@@ -191,15 +191,15 @@ TEST_CASE("WritableDiskFileSystemTest")
     const auto env = makeTestEnvironment();
 
     CHECK_THROWS_AS(
-      WritableDiskFileSystem(env.dir() + Path{"asdf"}, false), FileSystemException);
-    CHECK_NOTHROW(WritableDiskFileSystem{env.dir() + Path{"asdf"}, true});
+      WritableDiskFileSystem(env.dir() / Path{"asdf"}, false), FileSystemException);
+    CHECK_NOTHROW(WritableDiskFileSystem{env.dir() / Path{"asdf"}, true});
     CHECK_NOTHROW(WritableDiskFileSystem{env.dir(), true});
 
     // for case sensitive file systems
-    CHECK_NOTHROW(WritableDiskFileSystem{env.dir() + Path{"ANOTHERDIR"}, false});
+    CHECK_NOTHROW(WritableDiskFileSystem{env.dir() / Path{"ANOTHERDIR"}, false});
 
-    const auto fs = WritableDiskFileSystem{env.dir() + Path{"anotherDir/.."}, false};
-    CHECK(fs.makeAbsolute(Path{}) == (env.dir() + Path{"anotherDir/.."}).makeCanonical());
+    const auto fs = WritableDiskFileSystem{env.dir() / Path{"anotherDir/.."}, false};
+    CHECK(fs.makeAbsolute(Path{}) == (env.dir() / Path{"anotherDir/.."}).makeCanonical());
   }
 
   SECTION("createDirectory")

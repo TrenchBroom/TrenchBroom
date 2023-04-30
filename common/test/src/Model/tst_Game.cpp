@@ -49,14 +49,14 @@ TEST_CASE("GameTest.loadCorruptPackages")
 
   for (const auto& game : games)
   {
-    const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/games/"}
-                            + game + IO::Path{"GameConfig.cfg"};
+    const auto configPath = IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/games/"}
+                            / game / IO::Path{"GameConfig.cfg"};
     const auto configStr = IO::Disk::readTextFile(configPath);
     auto configParser = IO::GameConfigParser(configStr, configPath);
     auto config = configParser.parse();
 
     const auto gamePath =
-      IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/test/Model/Game/CorruptPak"};
+      IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/test/Model/Game/CorruptPak"};
     auto logger = NullLogger();
     UNSCOPED_INFO(
       "Should not throw when loading corrupted package file for game " << game);
@@ -67,13 +67,13 @@ TEST_CASE("GameTest.loadCorruptPackages")
 TEST_CASE("GameTest.loadQuake3Shaders")
 {
   const auto configPath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/games/Quake3/GameConfig.cfg"};
+    IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/games/Quake3/GameConfig.cfg"};
   const auto configStr = IO::Disk::readTextFile(configPath);
   auto configParser = IO::GameConfigParser{configStr, configPath};
   auto config = configParser.parse();
 
   const auto gamePath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/test/Model/Game/Quake3"};
+    IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/test/Model/Game/Quake3"};
   auto logger = NullLogger{};
   auto game = GameImpl{config, gamePath, logger};
 

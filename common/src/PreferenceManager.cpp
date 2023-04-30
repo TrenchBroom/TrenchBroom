@@ -391,7 +391,7 @@ void togglePref(Preference<bool>& preference)
 QString preferenceFilePath()
 {
   return IO::pathAsQString(
-    IO::SystemPaths::userDataDirectory() + IO::Path{"Preferences.json"});
+    IO::SystemPaths::userDataDirectory() / IO::Path{"Preferences.json"});
 }
 
 namespace

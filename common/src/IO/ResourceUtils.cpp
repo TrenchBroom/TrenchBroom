@@ -84,7 +84,7 @@ static QString imagePathToString(const Path& imagePath)
 {
   const auto fullPath = imagePath.isAbsolute()
                           ? imagePath
-                          : SystemPaths::findResourceFile(Path("images") + imagePath);
+                          : SystemPaths::findResourceFile(Path("images") / imagePath);
   return pathAsQString(fullPath);
 }
 

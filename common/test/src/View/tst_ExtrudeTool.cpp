@@ -231,7 +231,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
   }));
   // clang-format on
 
-  const auto mapPath = IO::Path{"fixture/test/View/ExtrudeToolTest"} + mapName;
+  const auto mapPath = IO::Path{"fixture/test/View/ExtrudeToolTest"} / mapName;
   auto [document, game, gameConfig] =
     View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
 

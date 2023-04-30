@@ -121,14 +121,14 @@ TEST_CASE_METHOD(
 
   auto task = Model::CompilationCopyFiles{
     true,
-    (testEnvironment.dir() + sourcePath).asString(),
-    (testEnvironment.dir() + targetPath).asString()};
+    (testEnvironment.dir() / sourcePath).asString(),
+    (testEnvironment.dir() / targetPath).asString()};
   auto runner = CompilationCopyFilesTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
 
   CHECK(testEnvironment.directoryExists(targetPath));
-  CHECK(testEnvironment.loadFile(targetPath + sourcePath) == "{}");
+  CHECK(testEnvironment.loadFile(targetPath / sourcePath) == "{}");
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
@@ -156,8 +156,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
 
   auto task = Model::CompilationRenameFile{
     true,
-    (testEnvironment.dir() + sourcePath).asString(),
-    (testEnvironment.dir() + targetPath).asString()};
+    (testEnvironment.dir() / sourcePath).asString(),
+    (testEnvironment.dir() / targetPath).asString()};
   auto runner = CompilationRenameFileTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
@@ -186,7 +186,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
   testEnvironment.createDirectory(dir);
 
   auto task = Model::CompilationDeleteFiles{
-    true, (testEnvironment.dir() + IO::Path("*.lit")).asString()};
+    true, (testEnvironment.dir() / IO::Path("*.lit")).asString()};
   auto runner = CompilationDeleteFilesTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());

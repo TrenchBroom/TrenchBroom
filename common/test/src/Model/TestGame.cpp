@@ -228,9 +228,9 @@ void TestGame::doReloadWads(
 
   for (const auto& wadPath : wadPaths)
   {
-    const auto absoluteWadPath = IO::Disk::getCurrentWorkingDir() + wadPath;
+    const auto absoluteWadPath = IO::Disk::getCurrentWorkingDir() / wadPath;
     m_fs->mount(
-      IO::Path{"textures"} + wadPath.lastComponent(),
+      IO::Path{"textures"} / wadPath.lastComponent(),
       std::make_unique<IO::WadFileSystem>(absoluteWadPath));
   }
 }

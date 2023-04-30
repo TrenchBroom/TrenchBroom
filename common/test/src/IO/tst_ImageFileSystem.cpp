@@ -816,17 +816,17 @@ const auto cr8_czg_03_contents = std::vector<unsigned char>{
 
 TEST_CASE("Hierarchical ImageFileSystems")
 {
-  const auto fsTestPath = Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/"};
+  const auto fsTestPath = Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/"};
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"IdPakFileSystem",
        std::shared_ptr<FileSystem>{
-         new IdPakFileSystem{fsTestPath + Path{"Pak/idpak.pak"}}}},
+         new IdPakFileSystem{fsTestPath / Path{"Pak/idpak.pak"}}}},
       {"DkPakFileSystem",
        std::shared_ptr<FileSystem>{
-         new DkPakFileSystem{fsTestPath + Path{"Pak/dkpak.pak"}}}},
+         new DkPakFileSystem{fsTestPath / Path{"Pak/dkpak.pak"}}}},
       {"ZipFileSystem",
-       std::shared_ptr<FileSystem>{new ZipFileSystem{fsTestPath + Path{"Zip/zip.zip"}}}},
+       std::shared_ptr<FileSystem>{new ZipFileSystem{fsTestPath / Path{"Zip/zip.zip"}}}},
     }));
 
   CAPTURE(name);
@@ -900,12 +900,12 @@ alias v90 "fov 90; sensitivity 13; bind mouse1 v30"
 
 TEST_CASE("Flat ImageFileSystems")
 {
-  const auto fsTestPath = Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/"};
+  const auto fsTestPath = Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/"};
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"WadFileSystem",
        std::shared_ptr<FileSystem>{
-         new WadFileSystem{fsTestPath + Path{"Wad/cr8_czg.wad"}}}},
+         new WadFileSystem{fsTestPath / Path{"Wad/cr8_czg.wad"}}}},
     }));
 
   CAPTURE(name);

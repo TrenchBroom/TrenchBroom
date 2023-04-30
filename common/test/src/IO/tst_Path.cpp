@@ -44,16 +44,16 @@ TEST_CASE("PathTest.constructWithString")
 
 TEST_CASE("PathTest.concatenate")
 {
-  CHECK_THROWS_AS(Path{} + Path{"c:\\"}, PathException);
-  CHECK_THROWS_AS(Path{} + Path{"c:\\asdf"}, PathException);
-  CHECK_THROWS_AS(Path{"asdf"} + Path{"c:\\asdf"}, PathException);
-  CHECK_THROWS_AS(Path{"c:\\asdf"} + Path{"c:\\asdf"}, PathException);
-  CHECK(Path{} + Path{} == Path{});
-  CHECK(Path{"c:\\"} + Path{} == Path{"c:\\"});
-  CHECK(Path{"c:\\asdf"} + Path{} == Path{"c:\\asdf"});
-  CHECK(Path{"c:\\"} + Path{"asdf"} == Path{"c:\\asdf"});
-  CHECK(Path{"c:\\asdf"} + Path{"hey"} == Path{"c:\\asdf\\hey"});
-  CHECK(Path{"asdf"} + Path{"hey"} == Path{"asdf\\hey"});
+  CHECK_THROWS_AS(Path{} / Path{"c:\\"}, PathException);
+  CHECK_THROWS_AS(Path{} / Path{"c:\\asdf"}, PathException);
+  CHECK_THROWS_AS(Path{"asdf"} / Path{"c:\\asdf"}, PathException);
+  CHECK_THROWS_AS(Path{"c:\\asdf"} / Path{"c:\\asdf"}, PathException);
+  CHECK(Path{} / Path{} == Path{});
+  CHECK(Path{"c:\\"} / Path{} == Path{"c:\\"});
+  CHECK(Path{"c:\\asdf"} / Path{} == Path{"c:\\asdf"});
+  CHECK(Path{"c:\\"} / Path{"asdf"} == Path{"c:\\asdf"});
+  CHECK(Path{"c:\\asdf"} / Path{"hey"} == Path{"c:\\asdf\\hey"});
+  CHECK(Path{"asdf"} / Path{"hey"} == Path{"asdf\\hey"});
 }
 
 TEST_CASE("PathTest.isEmpty")
@@ -239,16 +239,16 @@ TEST_CASE("PathTest.constructWithString")
 
 TEST_CASE("PathTest.concatenate")
 {
-  CHECK_THROWS_AS(Path{} + Path{"/"}, PathException);
-  CHECK_THROWS_AS(Path{} + Path{"/asdf"}, PathException);
-  CHECK_THROWS_AS(Path{"asdf"} + Path{"/asdf"}, PathException);
-  CHECK_THROWS_AS(Path{"/asdf"} + Path{"/asdf"}, PathException);
-  CHECK(Path{} + Path{} == Path{});
-  CHECK(Path{"/"} + Path{} == Path{"/"});
-  CHECK(Path{"/asdf"} + Path{} == Path{"/asdf/"});
-  CHECK(Path{"/"} + Path{"asdf"} == Path{"/asdf"});
-  CHECK(Path{"/asdf"} + Path{"hey"} == Path{"/asdf/hey"});
-  CHECK(Path{"asdf"} + Path{"hey"} == Path{"asdf/hey"});
+  CHECK_THROWS_AS(Path{} / Path{"/"}, PathException);
+  CHECK_THROWS_AS(Path{} / Path{"/asdf"}, PathException);
+  CHECK_THROWS_AS(Path{"asdf"} / Path{"/asdf"}, PathException);
+  CHECK_THROWS_AS(Path{"/asdf"} / Path{"/asdf"}, PathException);
+  CHECK(Path{} / Path{} == Path{});
+  CHECK(Path{"/"} / Path{} == Path{"/"});
+  CHECK(Path{"/asdf"} / Path{} == Path{"/asdf/"});
+  CHECK(Path{"/"} / Path{"asdf"} == Path{"/asdf"});
+  CHECK(Path{"/asdf"} / Path{"hey"} == Path{"/asdf/hey"});
+  CHECK(Path{"asdf"} / Path{"hey"} == Path{"asdf/hey"});
 }
 
 TEST_CASE("PathTest.isEmpty")

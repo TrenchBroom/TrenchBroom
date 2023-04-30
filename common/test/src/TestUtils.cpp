@@ -311,10 +311,10 @@ void transformNode(
 GameAndConfig loadGame(const std::string& gameName)
 {
   TestLogger logger;
-  const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games")
-                          + IO::Path(gameName) + IO::Path("GameConfig.cfg");
+  const auto configPath = IO::Disk::getCurrentWorkingDir() / IO::Path("fixture/games")
+                          / IO::Path(gameName) / IO::Path("GameConfig.cfg");
   const auto gamePath = IO::Disk::getCurrentWorkingDir()
-                        + IO::Path("fixture/test/Model/Game") + IO::Path(gameName);
+                        / IO::Path("fixture/test/Model/Game") / IO::Path(gameName);
   const auto configStr = IO::Disk::readTextFile(configPath);
   auto configParser = IO::GameConfigParser(configStr, configPath);
   auto config = std::make_unique<Model::GameConfig>(configParser.parse());
@@ -381,7 +381,7 @@ DocumentGameConfig loadMapDocument(
     mapFormat,
     document->worldBounds(),
     document->game(),
-    IO::Disk::getCurrentWorkingDir() + mapPath);
+    IO::Disk::getCurrentWorkingDir() / mapPath);
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }

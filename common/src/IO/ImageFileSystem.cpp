@@ -82,7 +82,7 @@ auto withEntry(
         return entryIt != directoryEntry.entries.end() ? withEntry(
                  searchPath.deleteFirstComponent(),
                  *entryIt,
-                 currentPath + name,
+                 currentPath / name,
                  f,
                  defaultResult)
                                                        : defaultResult;
@@ -113,7 +113,7 @@ void withEntry(
 
           if (entryIt != directoryEntry.entries.end())
           {
-            withEntry(searchPath.deleteFirstComponent(), *entryIt, currentPath + name, f);
+            withEntry(searchPath.deleteFirstComponent(), *entryIt, currentPath / name, f);
           }
         },
         [&](const ImageFileEntry&) {}),
@@ -213,7 +213,7 @@ void ImageFileSystemBase::addFile(const Path& path, GetImageFile getFile)
 Path ImageFileSystemBase::doMakeAbsolute(const Path& path) const
 {
   const auto canonicalPath = path.makeCanonical();
-  return canonicalPath.isEmpty() ? Path{"/"} : Path{"/"} + canonicalPath;
+  return canonicalPath.isEmpty() ? Path{"/"} : Path{"/"} / canonicalPath;
 }
 
 PathInfo ImageFileSystemBase::doGetPathInfo(const Path& path) const

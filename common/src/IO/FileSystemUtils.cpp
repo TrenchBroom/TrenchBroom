@@ -56,7 +56,7 @@ std::vector<Path> doFind(
     }
 
     auto result = kdl::vec_transform(
-      getDirectoryContents(path), [&](const auto& p) { return path + p; });
+      getDirectoryContents(path), [&](const auto& p) { return path / p; });
 
     if (recursive)
     {
@@ -69,7 +69,7 @@ std::vector<Path> doFind(
           result = kdl::vec_concat(
             std::move(result),
             kdl::vec_transform(getDirectoryContents(currentPath), [&](const auto& p) {
-              return currentPath + p;
+              return currentPath / p;
             }));
         }
         ++i;

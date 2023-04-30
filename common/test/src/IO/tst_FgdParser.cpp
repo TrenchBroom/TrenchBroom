@@ -40,7 +40,7 @@ namespace IO
 {
 TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() + Path{"fixture/games/"};
+  const auto basePath = Disk::getCurrentWorkingDir() / Path{"fixture/games/"};
   const auto cfgFiles =
     Disk::findRecursively(basePath, makeExtensionPathMatcher({"fgd"}));
 
@@ -941,7 +941,7 @@ model({"path"
 TEST_CASE("FgdParserTest.parseInclude")
 {
   const Path path =
-    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Fgd/parseInclude/host.fgd"};
+    Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Fgd/parseInclude/host.fgd"};
   auto file = Disk::openFile(path);
   auto reader = file->reader().buffer();
 
@@ -964,7 +964,7 @@ TEST_CASE("FgdParserTest.parseInclude")
 TEST_CASE("FgdParserTest.parseNestedInclude")
 {
   const Path path = Disk::getCurrentWorkingDir()
-                    + Path{"fixture/test/IO/Fgd/parseNestedInclude/host.fgd"};
+                    / Path{"fixture/test/IO/Fgd/parseNestedInclude/host.fgd"};
   auto file = Disk::openFile(path);
   auto reader = file->reader().buffer();
 
@@ -990,7 +990,7 @@ TEST_CASE("FgdParserTest.parseNestedInclude")
 TEST_CASE("FgdParserTest.parseRecursiveInclude")
 {
   const Path path = Disk::getCurrentWorkingDir()
-                    + Path{"fixture/test/IO/Fgd/parseRecursiveInclude/host.fgd"};
+                    / Path{"fixture/test/IO/Fgd/parseRecursiveInclude/host.fgd"};
   auto file = Disk::openFile(path);
   auto reader = file->reader().buffer();
 

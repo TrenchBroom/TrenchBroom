@@ -71,9 +71,9 @@ TEST_CASE("readQuake3ShaderTexture")
   auto logger = NullLogger{};
 
   const auto testDir =
-    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Shader/reader"};
+    Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Shader/reader"};
   const auto fallbackDir =
-    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Shader/reader/fallback"};
+    Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Shader/reader/fallback"};
   const auto texturePrefix = Path{"textures"};
   const auto shaderSearchPath = Path{"scripts"};
   const auto textureSearchPaths = std::vector<Path>{texturePrefix};
@@ -91,7 +91,7 @@ TEST_CASE("readQuake3ShaderTexture")
     CHECK(
       readQuake3ShaderTexture(
         "test/with_editor_image",
-        *fs.openFile(texturePrefix + Path{"test/with_editor_image"}),
+        *fs.openFile(texturePrefix / Path{"test/with_editor_image"}),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/with_editor_image", 128, 128}});
@@ -99,7 +99,7 @@ TEST_CASE("readQuake3ShaderTexture")
     CHECK(
       readQuake3ShaderTexture(
         "test/with_shader_path",
-        *fs.openFile(texturePrefix + Path{"test/with_shader_path"}),
+        *fs.openFile(texturePrefix / Path{"test/with_shader_path"}),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/with_shader_path", 64, 64}});
@@ -107,7 +107,7 @@ TEST_CASE("readQuake3ShaderTexture")
     CHECK(
       readQuake3ShaderTexture(
         "test/with_light_image",
-        *fs.openFile(texturePrefix + Path{"test/with_light_image"}),
+        *fs.openFile(texturePrefix / Path{"test/with_light_image"}),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/with_light_image", 128, 64}});
@@ -115,7 +115,7 @@ TEST_CASE("readQuake3ShaderTexture")
     CHECK(
       readQuake3ShaderTexture(
         "test/with_stage_map",
-        *fs.openFile(texturePrefix + Path{"test/with_stage_map"}),
+        *fs.openFile(texturePrefix / Path{"test/with_stage_map"}),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/with_stage_map", 64, 128}});
@@ -123,7 +123,7 @@ TEST_CASE("readQuake3ShaderTexture")
     CHECK(
       readQuake3ShaderTexture(
         "test/missing_extension",
-        *fs.openFile(texturePrefix + Path{"test/missing_extension"}),
+        *fs.openFile(texturePrefix / Path{"test/missing_extension"}),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/missing_extension", 128, 128}});
@@ -131,7 +131,7 @@ TEST_CASE("readQuake3ShaderTexture")
     CHECK(
       readQuake3ShaderTexture(
         "test/different_extension",
-        *fs.openFile(texturePrefix + Path{"test/different_extension"}),
+        *fs.openFile(texturePrefix / Path{"test/different_extension"}),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/different_extension", 128, 128}});

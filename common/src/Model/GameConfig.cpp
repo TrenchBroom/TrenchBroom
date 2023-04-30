@@ -116,7 +116,7 @@ IO::Path GameConfig::findInitialMap(const std::string& formatName) const
 
 IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const
 {
-  return path.deleteLastComponent() + filePath;
+  return path.deleteLastComponent() / filePath;
 }
 } // namespace Model
 } // namespace TrenchBroom

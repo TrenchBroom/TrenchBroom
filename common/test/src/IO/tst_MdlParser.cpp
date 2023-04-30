@@ -44,7 +44,7 @@ TEST_CASE("MdlParserTest.loadValidMdl")
   const auto palette = Assets::loadPalette(*paletteFile).value();
 
   const auto mdlPath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/test/IO/Mdl/armor.mdl"};
+    IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/test/IO/Mdl/armor.mdl"};
   const auto mdlFile = Disk::openFile(mdlPath);
   REQUIRE(mdlFile != nullptr);
 
@@ -72,7 +72,7 @@ TEST_CASE("MdlParserTest.loadInvalidMdl")
   const auto palette = Assets::loadPalette(*paletteFile).value();
 
   const auto mdlPath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path{"fixture/test/IO/Mdl/invalid.mdl"};
+    IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/test/IO/Mdl/invalid.mdl"};
   const auto mdlFile = Disk::openFile(mdlPath);
   REQUIRE(mdlFile != nullptr);
 

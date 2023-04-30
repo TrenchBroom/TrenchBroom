@@ -50,7 +50,7 @@ const Path& DiskFileSystem::root() const
 Path DiskFileSystem::doMakeAbsolute(const Path& path) const
 {
   const auto canonicalPath = path.makeCanonical();
-  return canonicalPath.isEmpty() ? m_root : m_root + canonicalPath;
+  return canonicalPath.isEmpty() ? m_root : m_root / canonicalPath;
 }
 
 PathInfo DiskFileSystem::doGetPathInfo(const Path& path) const

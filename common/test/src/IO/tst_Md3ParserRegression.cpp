@@ -52,7 +52,7 @@ TEST_CASE("Md3ParserTest.loadFailure_2659")
   fs.mount(
     Path{},
     std::make_unique<DiskFileSystem>(
-      IO::Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Md3/armor"}));
+      IO::Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Md3/armor"}));
   fs.mount(
     Path{},
     std::make_unique<Quake3ShaderFileSystem>(

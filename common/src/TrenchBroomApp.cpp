@@ -412,7 +412,7 @@ bool TrenchBroomApp::initializeGameFactory()
   {
     const auto gamePathConfig = Model::GamePathConfig{
       IO::SystemPaths::findResourceDirectories(IO::Path{"games"}),
-      IO::SystemPaths::userDataDirectory() + IO::Path{"games"},
+      IO::SystemPaths::userDataDirectory() / IO::Path{"games"},
     };
     auto& gameFactory = Model::GameFactory::instance();
     gameFactory.initialize(gamePathConfig);
@@ -508,11 +508,11 @@ void TrenchBroomApp::showAboutDialog()
 void TrenchBroomApp::debugShowCrashReportDialog()
 {
   const auto reportPath =
-    IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.txt");
+    IO::SystemPaths::userDataDirectory() / IO::Path("crashreport.txt");
   const IO::Path mapPath =
-    IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.map");
+    IO::SystemPaths::userDataDirectory() / IO::Path("crashreport.map");
   const IO::Path logPath =
-    IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.log");
+    IO::SystemPaths::userDataDirectory() / IO::Path("crashreport.log");
 
   auto dialog = CrashDialog{"Debug crash", reportPath, mapPath, logPath};
   dialog.exec();
@@ -662,10 +662,10 @@ IO::Path crashReportBasePath()
   const auto crashLogPath =
     !mapPath.isEmpty()
       ? mapPath.deleteLastComponent()
-          + IO::Path{mapPath.lastComponent().deleteExtension().asString() + "-crash.txt"}
+          / IO::Path{mapPath.lastComponent().deleteExtension().asString() + "-crash.txt"}
       : IO::pathFromQString(
           QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
-          + IO::Path{"trenchbroom-crash.txt"};
+          / IO::Path{"trenchbroom-crash.txt"};
 
   // ensure it doesn't exist
   auto index = 0;
@@ -676,7 +676,7 @@ IO::Path crashReportBasePath()
 
     const auto testCrashLogName = fmt::format(
       "{}-{}.txt", crashLogPath.lastComponent().deleteExtension().asString(), index);
-    testCrashLogPath = crashLogPath.deleteLastComponent() + IO::Path{testCrashLogName};
+    testCrashLogPath = crashLogPath.deleteLastComponent() / IO::Path{testCrashLogName};
   }
 
   return testCrashLogPath.deleteExtension();

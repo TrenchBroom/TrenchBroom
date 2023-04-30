@@ -40,7 +40,7 @@ namespace TrenchBroom::IO
 static auto loadTexture(const std::string& name)
 {
   auto diskFS =
-    DiskFileSystem{Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Image/"}};
+    DiskFileSystem{Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Image/"}};
 
   const auto file = diskFS.openFile(Path{name});
   auto reader = file->reader().buffer();

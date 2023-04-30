@@ -84,7 +84,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInter
   IO::TestEnvironment env;
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() + IO::Path{"test.map"});
+  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
   assert(env.fileExists(IO::Path{"test.map"}));
 
   Autosaver autosaver(document, 10s);
@@ -105,7 +105,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveOfUnchangedMap
   IO::TestEnvironment env;
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() + IO::Path{"test.map"});
+  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
   assert(env.fileExists(IO::Path{"test.map"}));
 
   Autosaver autosaver(document, 0s);
@@ -122,7 +122,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterv
   IO::TestEnvironment env;
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() + IO::Path{"test.map"});
+  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
   assert(env.fileExists(IO::Path{"test.map"}));
 
   Autosaver autosaver(document, 100ms);
@@ -147,7 +147,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
   IO::TestEnvironment env;
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() + IO::Path{"test.map"});
+  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
   assert(env.fileExists(IO::Path{"test.map"}));
 
   Autosaver autosaver(document, 100ms);
@@ -191,7 +191,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesP
 
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() + IO::Path{"test.map"});
+  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
   assert(env.fileExists(IO::Path{"test.map"}));
 
   Autosaver autosaver(document, 0s);

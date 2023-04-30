@@ -50,7 +50,7 @@ TEST_CASE("Md3ParserTest.loadValidMd3")
   fs.mount(
     Path{},
     std::make_unique<DiskFileSystem>(
-      IO::Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Md3/bfg"}));
+      IO::Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Md3/bfg"}));
   fs.mount(
     Path{},
     std::make_unique<Quake3ShaderFileSystem>(

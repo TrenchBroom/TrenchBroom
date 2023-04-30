@@ -74,29 +74,29 @@ TEST_CASE("DiskIO")
 
     if (Disk::isCaseSensitive())
     {
-      CHECK(Disk::fixPath(env.dir() + Path{"TEST.txt"}) == env.dir() + Path{"test.txt"});
+      CHECK(Disk::fixPath(env.dir() / Path{"TEST.txt"}) == env.dir() / Path{"test.txt"});
       CHECK(
-        Disk::fixPath(env.dir() + Path{"anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP"})
-        == env.dir() + Path{"anotherDir/subDirTest/test2.map"});
+        Disk::fixPath(env.dir() / Path{"anotHERDIR/./SUBdirTEST/../SubdirTesT/TesT2.MAP"})
+        == env.dir() / Path{"anotherDir/subDirTest/test2.map"});
     }
   }
 
   SECTION("pathInfo")
   {
     CHECK(Disk::pathInfo(Path{"asdf/bleh"}) == PathInfo::Unknown);
-    CHECK(Disk::pathInfo(env.dir() + Path{"anotherDir/asdf.map"}) == PathInfo::Unknown);
+    CHECK(Disk::pathInfo(env.dir() / Path{"anotherDir/asdf.map"}) == PathInfo::Unknown);
     CHECK(
-      Disk::pathInfo(env.dir() + Path{"anotherDir/test3.map/asdf"}) == PathInfo::Unknown);
+      Disk::pathInfo(env.dir() / Path{"anotherDir/test3.map/asdf"}) == PathInfo::Unknown);
 
-    CHECK(Disk::pathInfo(env.dir() + Path{"anotherDir"}) == PathInfo::Directory);
-    CHECK(Disk::pathInfo(env.dir() + Path{"ANOTHERDIR"}) == PathInfo::Directory);
+    CHECK(Disk::pathInfo(env.dir() / Path{"anotherDir"}) == PathInfo::Directory);
+    CHECK(Disk::pathInfo(env.dir() / Path{"ANOTHERDIR"}) == PathInfo::Directory);
     CHECK(
-      Disk::pathInfo(env.dir() + Path{"anotherDir/subDirTest"}) == PathInfo::Directory);
+      Disk::pathInfo(env.dir() / Path{"anotherDir/subDirTest"}) == PathInfo::Directory);
 
-    CHECK(Disk::pathInfo(env.dir() + Path{"anotherDir/test3.map"}) == PathInfo::File);
-    CHECK(Disk::pathInfo(env.dir() + Path{"anotherDir/TEST3.map"}) == PathInfo::File);
+    CHECK(Disk::pathInfo(env.dir() / Path{"anotherDir/test3.map"}) == PathInfo::File);
+    CHECK(Disk::pathInfo(env.dir() / Path{"anotherDir/TEST3.map"}) == PathInfo::File);
     CHECK(
-      Disk::pathInfo(env.dir() + Path{"anotherDir/subDirTest/test2.map"})
+      Disk::pathInfo(env.dir() / Path{"anotherDir/subDirTest/test2.map"})
       == PathInfo::File);
   }
 
@@ -104,7 +104,7 @@ TEST_CASE("DiskIO")
   {
     CHECK_THROWS_AS(Disk::directoryContents(Path{"asdf/bleh"}), FileSystemException);
     CHECK_THROWS_AS(
-      Disk::directoryContents(env.dir() + Path{"does/not/exist"}), FileSystemException);
+      Disk::directoryContents(env.dir() / Path{"does/not/exist"}), FileSystemException);
 
     CHECK_THAT(
       Disk::directoryContents(env.dir()),
@@ -122,25 +122,25 @@ TEST_CASE("DiskIO")
 
     CHECK_THROWS_AS(Disk::openFile(Path{"asdf/bleh"}), FileNotFoundException);
     CHECK_THROWS_AS(
-      Disk::openFile(env.dir() + Path{"does/not/exist"}), FileNotFoundException);
+      Disk::openFile(env.dir() / Path{"does/not/exist"}), FileNotFoundException);
 
     CHECK_THROWS_AS(
-      Disk::openFile(env.dir() + Path{"does_not_exist.txt"}), FileNotFoundException);
-    CHECK(Disk::openFile(env.dir() + Path{"test.txt"}) != nullptr);
-    CHECK(Disk::openFile(env.dir() + Path{"anotherDir/subDirTest/test2.map"}) != nullptr);
+      Disk::openFile(env.dir() / Path{"does_not_exist.txt"}), FileNotFoundException);
+    CHECK(Disk::openFile(env.dir() / Path{"test.txt"}) != nullptr);
+    CHECK(Disk::openFile(env.dir() / Path{"anotherDir/subDirTest/test2.map"}) != nullptr);
   }
 
   SECTION("resolvePath")
   {
-    const auto rootPaths = std::vector<Path>{env.dir(), env.dir() + Path{"anotherDir"}};
+    const auto rootPaths = std::vector<Path>{env.dir(), env.dir() / Path{"anotherDir"}};
 
-    CHECK(Disk::resolvePath(rootPaths, Path{"test.txt"}) == env.dir() + Path{"test.txt"});
+    CHECK(Disk::resolvePath(rootPaths, Path{"test.txt"}) == env.dir() / Path{"test.txt"});
     CHECK(
       Disk::resolvePath(rootPaths, Path{"test3.map"})
-      == env.dir() + Path{"anotherDir/test3.map"});
+      == env.dir() / Path{"anotherDir/test3.map"});
     CHECK(
       Disk::resolvePath(rootPaths, Path{"subDirTest/test2.map"})
-      == env.dir() + Path{"anotherDir/subDirTest/test2.map"});
+      == env.dir() / Path{"anotherDir/subDirTest/test2.map"});
     CHECK(Disk::resolvePath(rootPaths, Path{"/asfd/blah"}) == Path{});
     CHECK(Disk::resolvePath(rootPaths, Path{"adk3kdk/bhb"}) == Path{});
   }

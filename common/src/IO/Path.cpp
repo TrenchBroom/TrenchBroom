@@ -40,7 +40,7 @@ Path::Path(std::filesystem::path path)
 {
 }
 
-Path Path::operator+(const Path& rhs) const
+Path Path::operator/(const Path& rhs) const
 {
   if (rhs.isAbsolute())
   {
@@ -360,7 +360,7 @@ Path Path::deleteExtension() const
   {
     return *this;
   }
-  return deleteLastComponent() + Path{basename()};
+  return deleteLastComponent() / Path{basename()};
 }
 
 Path Path::addExtension(const std::string& extension) const
@@ -384,7 +384,7 @@ Path Path::replaceBasename(const std::string& basename) const
   {
     throw PathException{"Cannot replace the base name of an empty path."};
   }
-  return deleteLastComponent() + Path{basename}.addExtension(extension());
+  return deleteLastComponent() / Path{basename}.addExtension(extension());
 }
 
 bool Path::isAbsolute() const
@@ -415,7 +415,7 @@ Path Path::makeAbsolute(const Path& relativePath) const
     throw PathException{"Cannot make absolute path with absolute sub path"};
   }
 
-  return relativePath.isEmpty() ? *this : *this + relativePath;
+  return relativePath.isEmpty() ? *this : *this / relativePath;
 }
 
 Path Path::makeRelative() const

@@ -90,9 +90,9 @@ TEST_CASE("loadTextureCollection")
   fs.mount(Path{}, std::make_unique<DiskFileSystem>(Disk::getCurrentWorkingDir()));
 
   const auto wadPath =
-    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Wad/cr8_czg.wad"};
+    Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Wad/cr8_czg.wad"};
   fs.mount(
-    Path{"textures"} + wadPath.lastComponent(), std::make_unique<WadFileSystem>(wadPath));
+    Path{"textures"} / wadPath.lastComponent(), std::make_unique<WadFileSystem>(wadPath));
 
   auto logger = NullLogger{};
 

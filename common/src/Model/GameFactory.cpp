@@ -143,7 +143,7 @@ static Preference<IO::Path>& compilationToolPathPref(
 {
   auto& prefs = PreferenceManager::instance();
   auto& pref = prefs.dynamicPreference(
-    IO::Path{"Games"} + IO::Path{gameName} + IO::Path{"Tool Path"} + IO::Path{toolName},
+    IO::Path{"Games"} / IO::Path{gameName} / IO::Path{"Tool Path"} / IO::Path{toolName},
     IO::Path{});
   return pref;
 }
@@ -274,18 +274,18 @@ void GameFactory::loadGameConfig(const IO::Path& path)
   m_names.push_back(configName);
 
   const auto gamePathPrefPath =
-    IO::Path{"Games"} + IO::Path{configName} + IO::Path{"Path"};
+    IO::Path{"Games"} / IO::Path{configName} / IO::Path{"Path"};
   m_gamePaths.emplace(configName, Preference<IO::Path>{gamePathPrefPath, IO::Path{}});
 
   const auto defaultEnginePrefPath =
-    IO::Path{"Games"} + IO::Path{configName} + IO::Path{"Default Engine"};
+    IO::Path{"Games"} / IO::Path{configName} / IO::Path{"Default Engine"};
   m_defaultEngines.emplace(
     configName, Preference<IO::Path>{defaultEnginePrefPath, IO::Path{}});
 }
 
 void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
 {
-  const auto path = IO::Path{gameConfig.name} + IO::Path{"CompilationProfiles.cfg"};
+  const auto path = IO::Path{gameConfig.name} / IO::Path{"CompilationProfiles.cfg"};
   try
   {
     if (m_configFs->pathInfo(path) == IO::PathInfo::File)
@@ -308,7 +308,7 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
 
 void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
 {
-  const auto path = IO::Path{gameConfig.name} + IO::Path{"GameEngineProfiles.cfg"};
+  const auto path = IO::Path{gameConfig.name} / IO::Path{"GameEngineProfiles.cfg"};
   try
   {
     if (m_configFs->pathInfo(path) == IO::PathInfo::File)
@@ -357,7 +357,7 @@ void GameFactory::writeCompilationConfig(
   writer.writeConfig();
 
   const auto profilesPath =
-    IO::Path{gameConfig.name} + IO::Path{"CompilationProfiles.cfg"};
+    IO::Path{gameConfig.name} / IO::Path{"CompilationProfiles.cfg"};
   if (gameConfig.compilationConfigParseFailed)
   {
     const auto backupPath = backupFile(*m_configFs, profilesPath);
@@ -391,7 +391,7 @@ void GameFactory::writeGameEngineConfig(
   writer.writeConfig();
 
   const auto profilesPath =
-    IO::Path{gameConfig.name} + IO::Path{"GameEngineProfiles.cfg"};
+    IO::Path{gameConfig.name} / IO::Path{"GameEngineProfiles.cfg"};
   if (gameConfig.gameEngineConfigParseFailed)
   {
     const auto backupPath = backupFile(*m_configFs, profilesPath);

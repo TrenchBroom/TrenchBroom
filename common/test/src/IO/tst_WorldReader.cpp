@@ -1435,7 +1435,7 @@ doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
 TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap")
 {
   const Path mapPath =
-    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Map/Heretic2Quark.map");
+    Disk::getCurrentWorkingDir() / Path("fixture/test/IO/Map/Heretic2Quark.map");
   const std::shared_ptr<File> file = Disk::openFile(mapPath);
   auto fileReader = file->reader().buffer();
 

@@ -62,7 +62,7 @@ TEST_CASE("Quake3ShaderParserTest.parseShadersWithInvalidWhitespace")
   // the parser.
 
   const auto workDir = Disk::getCurrentWorkingDir();
-  auto fs = DiskFileSystem(workDir + Path("fixture/test/IO/Shader/parser"));
+  auto fs = DiskFileSystem(workDir / Path("fixture/test/IO/Shader/parser"));
   auto testFile = fs.openFile(Path("am_cf_models.shader"));
   auto reader = testFile->reader().buffer();
 

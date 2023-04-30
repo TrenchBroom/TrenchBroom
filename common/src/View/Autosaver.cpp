@@ -117,7 +117,7 @@ IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(
   Logger& logger, const IO::Path& mapPath) const
 {
   const auto basePath = mapPath.deleteLastComponent();
-  const auto autosavePath = basePath + IO::Path("autosave");
+  const auto autosavePath = basePath / IO::Path("autosave");
 
   try
   {

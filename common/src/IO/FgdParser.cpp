@@ -988,7 +988,7 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
   try
   {
     status.debug(m_tokenizer.line(), "Parsing included file '" + path.asString() + "'");
-    const auto file = m_fs->openFile(currentRoot() + path);
+    const auto file = m_fs->openFile(currentRoot() / path);
     const auto filePath = file->path();
     status.debug(
       m_tokenizer.line(),

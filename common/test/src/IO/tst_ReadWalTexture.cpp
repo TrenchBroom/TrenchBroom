@@ -64,7 +64,7 @@ TEST_CASE("readWalTexture")
   INFO(width);
   INFO(height);
 
-  const auto file = fs.openFile(fixturePath + path);
+  const auto file = fs.openFile(fixturePath / path);
   REQUIRE(file != nullptr);
 
   auto reader = file->reader().buffer();

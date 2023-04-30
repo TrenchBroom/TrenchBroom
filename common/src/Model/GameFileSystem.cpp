@@ -93,7 +93,7 @@ void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logg
 
   for (const auto& defaultFolderPath : defaultFolderPaths)
   {
-    const auto defaultAssetsPath = defaultFolderPath + IO::Path("assets");
+    const auto defaultAssetsPath = defaultFolderPath / IO::Path("assets");
     auto exists = [](const auto& path) {
       try
       {
@@ -118,13 +118,13 @@ void GameFileSystem::addGameFileSystems(
   Logger& logger)
 {
   const auto& fileSystemConfig = config.fileSystemConfig;
-  addFileSystemPath(gamePath + fileSystemConfig.searchPath, logger);
-  addFileSystemPackages(config, gamePath + fileSystemConfig.searchPath, logger);
+  addFileSystemPath(gamePath / fileSystemConfig.searchPath, logger);
+  addFileSystemPackages(config, gamePath / fileSystemConfig.searchPath, logger);
 
   for (const auto& searchPath : additionalSearchPaths)
   {
-    addFileSystemPath(gamePath + searchPath, logger);
-    addFileSystemPackages(config, gamePath + searchPath, logger);
+    addFileSystemPath(gamePath / searchPath, logger);
+    addFileSystemPackages(config, gamePath / searchPath, logger);
   }
 }
 
@@ -214,7 +214,7 @@ void GameFileSystem::mountWads(
 {
   for (const auto& wadPath : wadPaths)
   {
-    const auto mountPath = rootPath + wadPath.lastComponent();
+    const auto mountPath = rootPath / wadPath.lastComponent();
     const auto resolvedWadPath = IO::Disk::resolvePath(wadSearchPaths, wadPath);
     try
     {

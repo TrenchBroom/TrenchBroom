@@ -129,7 +129,7 @@ Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(
   auto result = PathErrors{};
   for (const auto& searchPath : searchPaths)
   {
-    const auto absPath = m_gamePath + searchPath;
+    const auto absPath = m_gamePath / searchPath;
     if (!absPath.isAbsolute() || IO::Disk::pathInfo(absPath) != IO::PathInfo::Directory)
     {
       result.emplace(searchPath, "Directory not found: '" + searchPath.asString() + "'");

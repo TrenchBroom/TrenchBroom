@@ -39,7 +39,7 @@ namespace IO
 {
 TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
+  const auto basePath = Disk::getCurrentWorkingDir() / Path("fixture/games/");
   const auto cfgFiles =
     Disk::findRecursively(basePath, makeExtensionPathMatcher({"def"}));
 
@@ -76,7 +76,7 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
 
 TEST_CASE("DefParserTest.parseExtraDefFiles")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Def");
+  const auto basePath = Disk::getCurrentWorkingDir() / Path("fixture/test/IO/Def");
   const auto cfgFiles =
     Disk::findRecursively(basePath, makeExtensionPathMatcher({"def"}));
 

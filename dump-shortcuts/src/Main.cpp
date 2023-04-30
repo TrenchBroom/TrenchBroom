@@ -132,7 +132,7 @@ public:
 
   void visit(const Menu& menu) override
   {
-    m_path = m_path + IO::Path(menu.name());
+    m_path = m_path / IO::Path(menu.name());
     menu.visitEntries(*this);
     m_path = m_path.deleteLastComponent();
   }

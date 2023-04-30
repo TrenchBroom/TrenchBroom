@@ -208,7 +208,7 @@ public:
 
   void visit(const Menu& menu) override
   {
-    m_currentPath = m_currentPath + IO::Path(menu.name());
+    m_currentPath = m_currentPath / IO::Path(menu.name());
     menu.visitEntries(*this);
     m_currentPath = m_currentPath.deleteLastComponent();
   }
@@ -218,7 +218,7 @@ public:
   void visit(const MenuActionItem& item) override
   {
     m_actions.emplace_back(
-      m_currentPath + IO::pathFromQString(item.label()), item.action());
+      m_currentPath / IO::pathFromQString(item.label()), item.action());
   }
 };
 
@@ -234,7 +234,7 @@ void KeyboardShortcutModel::initializeViewActions()
   const auto& actionManager = ActionManager::instance();
   actionManager.visitMapViewActions([this](const Action& action) {
     m_actions.emplace_back(
-      IO::Path("Map View") + IO::pathFromQString(action.label()), action);
+      IO::Path("Map View") / IO::pathFromQString(action.label()), action);
   });
 }
 
@@ -243,7 +243,7 @@ void KeyboardShortcutModel::initializeTagActions()
   assert(m_document != nullptr);
   m_document->visitTagActions([this](const Action& action) {
     m_actions.emplace_back(
-      IO::Path("Tags") + IO::pathFromQString(action.label()), action);
+      IO::Path("Tags") / IO::pathFromQString(action.label()), action);
   });
 }
 
@@ -252,7 +252,7 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
   assert(m_document != nullptr);
   m_document->visitEntityDefinitionActions([this](const Action& action) {
     m_actions.emplace_back(
-      IO::Path("Entity Definitions") + IO::pathFromQString(action.label()), action);
+      IO::Path("Entity Definitions") / IO::pathFromQString(action.label()), action);
   });
 }
 
