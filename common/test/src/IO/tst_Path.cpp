@@ -302,9 +302,12 @@ TEST_CASE("PathTest.subPath")
   CHECK(Path{"test/blah"}.subPath(0, 2) == Path{"test/blah"});
   CHECK(Path{"test/blah"}.subPath(0, 1) == Path{"test"});
   CHECK(Path{"test/blah"}.subPath(1, 1) == Path{"blah"});
-  CHECK(Path{"/test/blah"}.subPath(0, 1) == Path{"test"});
-  CHECK(Path{"/test/blah"}.subPath(0, 2) == Path{"test/blah"});
-  CHECK(Path{"/test/blah"}.subPath(1, 1) == Path{"blah"});
+  CHECK(Path{"/test/blah"}.subPath(0, 3) == Path{"/test/blah"});
+  CHECK(Path{"/test/blah"}.subPath(1, 2) == Path{"test/blah"});
+  CHECK(Path{"/test/blah"}.subPath(2, 1) == Path{"blah"});
+  CHECK(Path{"/test/blah"}.subPath(0, 2) == Path{"/test"});
+  CHECK(Path{"/test/blah"}.subPath(0, 1) == Path{"/"});
+  CHECK(Path{"/test/blah"}.subPath(0, 0) == Path{""});
 }
 
 TEST_CASE("PathTest.getExtension")

@@ -40,12 +40,13 @@ TEST_CASE("getTextureNameFromPathSuffix")
 
   const auto [prefixLength, path, expectedResult] = GENERATE(values<T>({
     {1, Path{}, ""},
-    {1, Path{"/textures"}, ""},
-    {1, Path{"/textures/e1m1"}, "e1m1"},
-    {1, Path{"/textures/e1m1/haha"}, "e1m1/haha"},
-    {1, Path{"/textures/e1m1/haha.jpg"}, "e1m1/haha"},
-    {1, Path{"/textures/nesting/e1m1/haha.jpg"}, "nesting/e1m1/haha"},
-    {2, Path{"/textures/nesting/e1m1/haha.jpg"}, "e1m1/haha"},
+    {1, Path{"textures"}, ""},
+    {1, Path{"textures/e1m1"}, "e1m1"},
+    {1, Path{"textures/e1m1/haha"}, "e1m1/haha"},
+    {1, Path{"textures/e1m1/haha.jpg"}, "e1m1/haha"},
+    {1, Path{"textures/nesting/e1m1/haha.jpg"}, "nesting/e1m1/haha"},
+    {2, Path{"textures/nesting/e1m1/haha.jpg"}, "e1m1/haha"},
+    {3, Path{"/textures/nesting/e1m1/haha.jpg"}, "e1m1/haha"},
   }));
 
   CAPTURE(prefixLength, path);

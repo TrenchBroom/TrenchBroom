@@ -166,11 +166,9 @@ Path Path::subPath(const size_t index, const size_t count) const
     return Path{};
   }
 
-  const auto start = isAbsolute() ? index + 1 : index;
-
   return Path{std::accumulate(
-    std::next(m_path.begin(), start),
-    std::next(m_path.begin(), start + count),
+    std::next(m_path.begin(), index),
+    std::next(m_path.begin(), index + count),
     std::filesystem::path{},
     [](const auto& lhs, const auto& rhs) { return lhs / rhs; })};
 }
