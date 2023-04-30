@@ -84,7 +84,6 @@ public:
   Path addExtension(const std::string& extension) const;
 
   bool isAbsolute() const;
-  Path makeAbsolute(const Path& relativePath) const;
 
   /**
    * Return a relative path if this path is absolute. On Windows, this means that the
@@ -97,9 +96,6 @@ public:
   Path makeRelative(const Path& absolutePath) const;
   Path makeCanonical() const;
   Path makeLowerCase() const;
-
-  static std::vector<Path> makeAbsoluteAndCanonical(
-    const std::vector<Path>& paths, const Path& relativePath);
 };
 
 std::ostream& operator<<(std::ostream& stream, const Path& path);

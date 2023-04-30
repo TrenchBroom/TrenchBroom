@@ -339,13 +339,6 @@ TEST_CASE("PathTest.addExtension")
   CHECK(Path{"/"}.addExtension(".map") == Path{"/.map"});
 }
 
-TEST_CASE("PathTest.makeAbsolute")
-{
-  CHECK_THROWS_AS(Path{"/asdf"}.makeAbsolute(Path{"/hello"}), PathException);
-  CHECK_THROWS_AS(Path{"asdf"}.makeAbsolute(Path{"hello"}), PathException);
-  CHECK(Path{"/asdf"}.makeAbsolute(Path{"hello"}) == Path{"/asdf/hello"});
-}
-
 TEST_CASE("PathTest.makeRelative")
 {
   CHECK(Path{}.makeRelative() == Path{});

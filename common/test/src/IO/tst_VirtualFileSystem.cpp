@@ -189,7 +189,7 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("makeAbsolute")
     {
-      CHECK(vfs.makeAbsolute(Path{}) == Path{"/fs2"});
+      CHECK(vfs.makeAbsolute(Path{}) == Path{"/fs2/"});
       CHECK(vfs.makeAbsolute(Path{"foo"}) == Path{"/fs1/foo"});
       CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/fs1/foo/bar"});
       CHECK(vfs.makeAbsolute(Path{"bar"}) == Path{"/fs2/bar"});
@@ -370,7 +370,7 @@ TEST_CASE("VirtualFileSystem")
     SECTION("makeAbsolute")
     {
       CHECK_THROWS_AS(vfs.makeAbsolute(Path{}), FileSystemException);
-      CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/fs2"});
+      CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/fs2/"});
       CHECK(vfs.makeAbsolute(Path{"foo/bar/foo"}) == Path{"/fs2/foo"});
       CHECK(vfs.makeAbsolute(Path{"foo/bar/baz"}) == Path{"/fs1/bar/baz"});
     }

@@ -264,21 +264,6 @@ bool Path::isAbsolute() const
   return m_path.is_absolute();
 }
 
-Path Path::makeAbsolute(const Path& relativePath) const
-{
-  if (!isAbsolute())
-  {
-    throw PathException{"Cannot make absolute path from relative path"};
-  }
-
-  if (relativePath.isAbsolute())
-  {
-    throw PathException{"Cannot make absolute path with absolute sub path"};
-  }
-
-  return relativePath.isEmpty() ? *this : *this / relativePath;
-}
-
 Path Path::makeRelative() const
 {
   return Path{m_path.relative_path()};
@@ -325,18 +310,6 @@ Path Path::makeCanonical() const
 Path Path::makeLowerCase() const
 {
   return Path{kdl::str_to_lower(m_path.u8string())};
-}
-
-std::vector<Path> Path::makeAbsoluteAndCanonical(
-  const std::vector<Path>& paths, const Path& relativePath)
-{
-  auto result = std::vector<Path>();
-  result.reserve(paths.size());
-  for (const auto& path : paths)
-  {
-    result.push_back(path.makeAbsolute(relativePath).makeCanonical());
-  }
-  return result;
 }
 
 std::ostream& operator<<(std::ostream& stream, const Path& path)

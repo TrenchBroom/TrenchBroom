@@ -83,7 +83,7 @@ Path TestFileSystem::doMakeAbsolute(const Path& path) const
 {
   if (findEntry(path))
   {
-    return m_absolutePathPrefix.makeAbsolute(path);
+    return m_absolutePathPrefix / path;
   }
   throw FileSystemException{};
 }
