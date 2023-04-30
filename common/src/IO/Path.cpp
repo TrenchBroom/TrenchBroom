@@ -117,11 +117,7 @@ Path Path::deleteFirstComponent() const
     throw PathException{"Cannot delete first component of empty path"};
   }
 
-  return Path{std::accumulate(
-    std::next(m_path.begin()),
-    m_path.end(),
-    std::filesystem::path{},
-    [](const auto& lhs, const auto& rhs) { return lhs / rhs; })};
+  return subPath(1, length() - 1);
 }
 
 Path Path::lastComponent() const
