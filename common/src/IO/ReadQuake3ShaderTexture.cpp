@@ -48,14 +48,15 @@ std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
   if (!texturePath.isEmpty())
   {
     if (
-      kdl::vec_contains(imageExtensions, kdl::str_to_lower(texturePath.extension()))
+      kdl::vec_contains(
+        imageExtensions, kdl::str_to_lower(texturePath.extension().asString()))
       && fs.pathInfo(texturePath) == PathInfo::File)
     {
       return texturePath;
     }
 
     const auto directoryPath = texturePath.deleteLastComponent();
-    const auto basename = texturePath.basename();
+    const auto basename = texturePath.basename().asString();
     const auto candidates = fs.find(
       texturePath.deleteLastComponent(),
       kdl::lift_and(

@@ -29,7 +29,7 @@ PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions)
 {
   return [extensions = std::move(extensions)](const Path& path, const GetPathInfo&) {
     return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
-      return kdl::ci::str_is_equal(path.extension(), extension);
+      return kdl::ci::str_is_equal(path.extension().asString(), extension);
     });
   };
 }
@@ -37,7 +37,7 @@ PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions)
 PathMatcher makeFilenamePathMatcher(std::string pattern)
 {
   return [pattern = std::move(pattern)](const Path& path, const GetPathInfo&) {
-    return kdl::ci::str_matches_glob(path.filename(), pattern);
+    return kdl::ci::str_matches_glob(path.filename().asString(), pattern);
   };
 }
 

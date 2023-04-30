@@ -67,9 +67,9 @@ public:
   Path suffix(size_t count) const;
   Path subPath(size_t index, size_t count) const;
 
-  std::string filename() const;
-  std::string basename() const;
-  std::string extension() const;
+  Path filename() const;
+  Path basename() const;
+  Path extension() const;
 
   bool hasPrefix(const Path& prefix, bool caseSensitive) const;
 

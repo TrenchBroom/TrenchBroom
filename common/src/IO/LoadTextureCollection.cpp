@@ -96,10 +96,10 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
   static const auto imageFileExtensions =
     std::vector<std::string>{".jpg", ".jpeg", ".png", ".tga", ".bmp"};
 
-  const auto extension = kdl::str_to_lower(file.path().extension());
+  const auto extension = kdl::str_to_lower(file.path().extension().asString());
   if (extension == ".d")
   {
-    auto name = file.path().basename();
+    auto name = file.path().basename().asString();
     if (!palette)
     {
       return ReadTextureError{std::move(name), "Could not load texture: missing palette"};
@@ -109,7 +109,7 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
   }
   else if (extension == ".c")
   {
-    auto name = file.path().basename();
+    auto name = file.path().basename().asString();
     auto reader = file.reader().buffer();
     return readHlMipTexture(std::move(name), reader);
   }
@@ -146,7 +146,8 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
 
   auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
   return ReadTextureError{
-    std::move(name), "Unknown texture file extension: " + file.path().extension()};
+    std::move(name),
+    "Unknown texture file extension: " + file.path().extension().asString()};
 }
 
 kdl::result<ReadTextureFunc, LoadTextureCollectionError> makeReadTextureFunc(

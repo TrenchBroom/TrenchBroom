@@ -64,7 +64,7 @@ Md3Parser::Md3Parser(const std::string& name, const Reader& reader, const FileSy
 
 bool Md3Parser::canParse(const Path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != ".md3")
+  if (kdl::str_to_lower(path.extension().asString()) != ".md3")
   {
     return false;
   }

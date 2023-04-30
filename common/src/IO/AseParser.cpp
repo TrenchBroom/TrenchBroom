@@ -130,7 +130,7 @@ AseParser::AseParser(std::string name, const std::string_view str, const FileSys
 
 bool AseParser::canParse(const Path& path)
 {
-  return kdl::str_to_lower(path.extension()) == ".ase";
+  return kdl::str_to_lower(path.extension().asString()) == ".ase";
 }
 
 std::unique_ptr<Assets::EntityModel> AseParser::doInitializeModel(Logger& logger)

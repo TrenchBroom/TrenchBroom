@@ -246,7 +246,7 @@ Md2Parser::Md2Parser(
 
 bool Md2Parser::canParse(const Path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != ".md2")
+  if (kdl::str_to_lower(path.extension().asString()) != ".md2")
   {
     return false;
   }

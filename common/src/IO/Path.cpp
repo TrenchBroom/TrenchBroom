@@ -146,19 +146,19 @@ Path Path::subPath(const size_t index, size_t count) const
     [](const auto& lhs, const auto& rhs) { return lhs / rhs; })};
 }
 
-std::string Path::filename() const
+Path Path::filename() const
 {
-  return m_path.filename().u8string();
+  return Path{m_path.filename()};
 }
 
-std::string Path::basename() const
+Path Path::basename() const
 {
-  return m_path.stem().u8string();
+  return Path{m_path.stem()};
 }
 
-std::string Path::extension() const
+Path Path::extension() const
 {
-  return m_path.extension().u8string();
+  return Path{m_path.extension()};
 }
 
 bool Path::hasPrefix(const Path& prefix, bool caseSensitive) const

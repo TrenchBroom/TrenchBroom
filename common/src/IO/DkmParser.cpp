@@ -246,7 +246,7 @@ DkmParser::DkmParser(const std::string& name, const Reader& reader, const FileSy
 
 bool DkmParser::canParse(const Path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != ".dkm")
+  if (kdl::str_to_lower(path.extension().asString()) != ".dkm")
   {
     return false;
   }
@@ -468,7 +468,7 @@ Path DkmParser::findSkin(const std::string& skin) const
   }
 
   // try "wal" extension instead
-  if (kdl::str_to_lower(skinPath.extension()) == ".bmp")
+  if (kdl::str_to_lower(skinPath.extension().asString()) == ".bmp")
   {
     const auto walPath = skinPath.deleteExtension().addExtension(".wal");
     if (m_fs.pathInfo(walPath) == PathInfo::File)

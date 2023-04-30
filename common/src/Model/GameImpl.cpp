@@ -284,7 +284,7 @@ void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) c
         auto writer = IO::NodeWriter{
           world,
           std::make_unique<IO::ObjSerializer>(
-            objFile, mtlFile, mtlPath.filename(), objOptions)};
+            objFile, mtlFile, mtlPath.filename().asString(), objOptions)};
         writer.setExporting(true);
         writer.writeMap();
       },
@@ -362,14 +362,14 @@ bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const
   static const auto extensions = {".fgd", ".def", ".ent"};
 
   return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
-    return kdl::ci::str_is_equal(extension, path.extension());
+    return kdl::ci::str_is_equal(extension, path.extension().asString());
   });
 }
 
 std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
   IO::ParserStatus& status, const IO::Path& path) const
 {
-  const auto extension = path.extension();
+  const auto extension = path.extension().asString();
   const auto& defaultColor = m_config.entityConfig.defaultColor;
 
   if (kdl::ci::str_is_equal(".fgd", extension))

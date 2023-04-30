@@ -265,7 +265,8 @@ bool AssimpParser::canParse(const Path& path)
     ".csm",  ".ply",      ".cob",          ".scn",      ".xgl"};
   // clang-format on
 
-  return kdl::vec_contains(supportedExtensions, kdl::str_to_lower(path.extension()));
+  return kdl::vec_contains(
+    supportedExtensions, kdl::str_to_lower(path.extension().asString()));
 }
 
 void AssimpParser::processNode(

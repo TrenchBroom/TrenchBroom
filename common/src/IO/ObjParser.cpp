@@ -290,7 +290,7 @@ NvObjParser::NvObjParser(Path path, const std::string_view text, const FileSyste
 
 bool NvObjParser::canParse(const Path& path)
 {
-  return kdl::str_to_lower(path.extension()) == ".obj";
+  return kdl::str_to_lower(path.extension().asString()) == ".obj";
 }
 
 bool NvObjParser::transformObjCoordinateSet(

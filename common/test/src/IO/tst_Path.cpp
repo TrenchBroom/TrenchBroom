@@ -313,12 +313,12 @@ TEST_CASE("PathTest.subPath")
 
 TEST_CASE("PathTest.getExtension")
 {
-  CHECK(Path{}.extension().empty());
-  CHECK(Path{"asdf"}.extension() == std::string(""));
-  CHECK(Path{"asdf.map"}.extension() == std::string(".map"));
-  CHECK(Path{"/this/is/a/path.map"}.extension() == std::string(".map"));
-  CHECK(Path{"/this/is/a/path.map.textfile"}.extension() == std::string(".textfile"));
-  CHECK(Path{"/"}.extension() == std::string(""));
+  CHECK(Path{}.extension().isEmpty());
+  CHECK(Path{"asdf"}.extension() == Path{""});
+  CHECK(Path{"asdf.map"}.extension() == Path{".map"});
+  CHECK(Path{"/this/is/a/path.map"}.extension() == Path{".map"});
+  CHECK(Path{"/this/is/a/path.map.textfile"}.extension() == Path{".textfile"});
+  CHECK(Path{"/"}.extension() == Path{""});
 }
 
 TEST_CASE("PathTest.deleteExtension")

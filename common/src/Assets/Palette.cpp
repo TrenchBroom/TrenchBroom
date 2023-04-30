@@ -183,7 +183,7 @@ kdl::result<Palette, LoadPaletteError> loadPalette(const IO::File& file)
 {
   try
   {
-    const auto extension = kdl::str_to_lower(file.path().extension());
+    const auto extension = kdl::str_to_lower(file.path().extension().asString());
     if (extension == ".lmp")
     {
       auto reader = file.reader().buffer();

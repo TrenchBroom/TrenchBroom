@@ -45,11 +45,11 @@ IO::PathMatcher makeBackupPathMatcher(IO::Path mapBasename)
            const IO::Path& path, const IO::GetPathInfo& getPathInfo) {
     const auto backupName = path.lastComponent().deleteExtension();
     const auto backupBasename = backupName.deleteExtension();
-    const auto backupExtension = backupName.extension();
+    const auto backupExtension = backupName.extension().asString();
     const auto backupNum = backupExtension.empty() ? "" : backupExtension.substr(1);
 
     return getPathInfo(path) == IO::PathInfo::File
-           && kdl::ci::str_is_equal(path.extension(), ".map")
+           && kdl::ci::str_is_equal(path.extension().asString(), ".map")
            && backupBasename == mapBasename && kdl::str_is_numeric(backupNum)
            && kdl::str_to_size(backupNum).value_or(0u) > 0u;
   };
@@ -139,7 +139,7 @@ size_t extractBackupNo(const IO::Path& path)
   // currently this function is only used when comparing file names which have already
   // been verified as valid backup file names, so this should not go wrong, but if it
   // does, sort the invalid file names to the end to avoid modifying them
-  return kdl::str_to_size(path.deleteExtension().extension())
+  return kdl::str_to_size(path.deleteExtension().extension().asString())
     .value_or(std::numeric_limits<size_t>::max());
 }
 
