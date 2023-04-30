@@ -239,10 +239,10 @@ TEST_CASE("PathTest.constructWithString")
 
 TEST_CASE("PathTest.concatenate")
 {
-  CHECK_THROWS_AS(Path{} / Path{"/"}, PathException);
-  CHECK_THROWS_AS(Path{} / Path{"/asdf"}, PathException);
-  CHECK_THROWS_AS(Path{"asdf"} / Path{"/asdf"}, PathException);
-  CHECK_THROWS_AS(Path{"/asdf"} / Path{"/asdf"}, PathException);
+  CHECK(Path{} / Path{"/"} == Path{"/"});
+  CHECK(Path{} / Path{"/asdf"} == Path{"/asdf"});
+  CHECK(Path{"blah"} / Path{"/asdf"} == Path{"/asdf"});
+  CHECK(Path{"/blah"} / Path{"/asdf"} == Path{"/asdf"});
   CHECK(Path{} / Path{} == Path{});
   CHECK(Path{"/"} / Path{} == Path{"/"});
   CHECK(Path{"/asdf"} / Path{} == Path{"/asdf/"});

@@ -42,11 +42,6 @@ Path::Path(std::filesystem::path path)
 
 Path Path::operator/(const Path& rhs) const
 {
-  if (rhs.isAbsolute())
-  {
-    throw PathException{"Cannot concatenate absolute path"};
-  }
-
   return Path{m_path / rhs.m_path};
 }
 
