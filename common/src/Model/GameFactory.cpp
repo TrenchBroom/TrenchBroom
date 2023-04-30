@@ -331,7 +331,7 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
 
 static IO::Path backupFile(IO::WritableFileSystem& fs, const IO::Path& path)
 {
-  const auto backupPath = path.addExtension("bak");
+  const auto backupPath = path.addExtension(".bak");
   fs.copyFile(path, backupPath, true);
   return backupPath;
 }

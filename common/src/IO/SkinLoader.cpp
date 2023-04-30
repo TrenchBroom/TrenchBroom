@@ -60,8 +60,8 @@ Assets::Texture loadSkin(
     const auto extension = kdl::str_to_lower(path.extension());
 
     auto reader = file->reader().buffer();
-    return (extension == "wal" ? readWalTexture(path.basename(), reader, palette)
-                               : readFreeImageTexture(path.basename(), reader))
+    return (extension == ".wal" ? readWalTexture(path.basename(), reader, palette)
+                                : readFreeImageTexture(path.basename(), reader))
       .or_else(makeReadTextureErrorHandler(fs, logger))
       .value();
   }

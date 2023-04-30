@@ -42,7 +42,7 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
 {
   const auto basePath = Disk::getCurrentWorkingDir() / Path{"fixture/games/"};
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({"fgd"}));
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({".fgd"}));
 
   for (const auto& path : cfgFiles)
   {

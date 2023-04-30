@@ -184,17 +184,17 @@ kdl::result<Palette, LoadPaletteError> loadPalette(const IO::File& file)
   try
   {
     const auto extension = kdl::str_to_lower(file.path().extension());
-    if (extension == "lmp")
+    if (extension == ".lmp")
     {
       auto reader = file.reader().buffer();
       return loadLmp(reader);
     }
-    if (extension == "pcx")
+    if (extension == ".pcx")
     {
       auto reader = file.reader().buffer();
       return loadPcx(reader);
     }
-    if (extension == "bmp")
+    if (extension == ".bmp")
     {
       auto reader = file.reader().buffer();
       return loadBmp(reader);

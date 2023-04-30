@@ -41,7 +41,7 @@ namespace
 std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
 {
   static const auto imageExtensions =
-    std::vector<std::string>{"tga", "png", "jpg", "jpeg"};
+    std::vector<std::string>{".tga", ".png", ".jpg", ".jpeg"};
 
   if (!texturePath.isEmpty())
   {

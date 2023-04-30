@@ -157,7 +157,7 @@ void ObjExportDialog::updateExportPath()
 {
   const auto document = m_mapFrame->document();
   const auto& originalPath = document->path();
-  const auto objPath = originalPath.replaceExtension("obj");
+  const auto objPath = originalPath.replaceExtension(".obj");
   m_exportPathEdit->setText(IO::pathAsQString(objPath));
 }
 } // namespace View

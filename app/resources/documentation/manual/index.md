@@ -2419,7 +2419,7 @@ Game configuration files need to specify the following information.
 * **File formats** to identify which map file formats to support for this game
 * A **Filesystem** to specify the game asset search paths and package file format (e.g. pak files)
 * **Textures**
-	* A list of **file extensions** such as `jpg`
+	* A list of **file extensions** such as `.jpg`
 	* A **palette file** (optional)
 	* The **worldspawn property** to store the texture packages in the map file
   * A list of **exclusion patterns** to hide textures matching any of these patterns.
@@ -2445,11 +2445,11 @@ The game configuration is an [expression language](#expression_language) map wit
         ],
         "filesystem": { // defines the file system used to search for game assets
             "searchpath": "baseq2", // the path in the game folder at which to search for assets
-            "packageformat": { "extension": "pak", "format": "idpak" } // the package file format
+            "packageformat": { "extension": ".pak", "format": "idpak" } // the package file format
         },
         "textures": { // where to search for textures and how to read them, see below
             "root": "textures",
-            "extensions": [ "wal" ],
+            "extensions": [ ".wal" ],
             "palette": "pics/colormap.pcx",
             "attribute": "_tb_textures",
         },
@@ -2622,7 +2622,7 @@ Every texture configuration consists of a root search directory, and optionally 
 
 	"textures": {
         "root": "textures",
-        "extensions": [ "D" ],
+        "extensions": [ ".D" ],
         "palette": "pics/colormap.pcx",
         "attribute": "wad",
         "excludes": [ "*_norm", "*_gloss" ],

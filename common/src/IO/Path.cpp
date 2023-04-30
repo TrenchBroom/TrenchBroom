@@ -173,8 +173,7 @@ std::string Path::extension() const
     throw PathException{"Cannot get extension of empty path"};
   }
 
-  const auto extension = m_path.extension().u8string();
-  return extension.empty() ? extension : extension.substr(1);
+  return m_path.extension().u8string();
 }
 
 bool Path::hasPrefix(const Path& prefix, bool caseSensitive) const
@@ -285,7 +284,7 @@ Path Path::addExtension(const std::string& extension) const
     throw PathException{"Cannot add extension to empty path"};
   }
 
-  return Path{m_path.parent_path() / m_path.filename() += "." + extension};
+  return Path{m_path.parent_path() / m_path.filename() += extension};
 }
 
 Path Path::replaceExtension(const std::string& extension) const

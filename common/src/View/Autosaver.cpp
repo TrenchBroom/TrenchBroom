@@ -46,11 +46,12 @@ IO::PathMatcher makeBackupPathMatcher(IO::Path mapBasename)
     const auto backupName = path.lastComponent().deleteExtension();
     const auto backupBasename = backupName.deleteExtension();
     const auto backupExtension = backupName.extension();
+    const auto backupNum = backupExtension.empty() ? "" : backupExtension.substr(1);
 
     return getPathInfo(path) == IO::PathInfo::File
-           && kdl::ci::str_is_equal(path.extension(), "map")
-           && backupBasename == mapBasename && kdl::str_is_numeric(backupExtension)
-           && kdl::str_to_size(backupName.extension()).value_or(0u) > 0u;
+           && kdl::ci::str_is_equal(path.extension(), ".map")
+           && backupBasename == mapBasename && kdl::str_is_numeric(backupNum)
+           && kdl::str_to_size(backupNum).value_or(0u) > 0u;
   };
 }
 

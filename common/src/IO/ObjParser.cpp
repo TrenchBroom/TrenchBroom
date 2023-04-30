@@ -290,7 +290,7 @@ NvObjParser::NvObjParser(Path path, const std::string_view text, const FileSyste
 
 bool NvObjParser::canParse(const Path& path)
 {
-  return kdl::str_to_lower(path.extension()) == "obj";
+  return kdl::str_to_lower(path.extension()) == ".obj";
 }
 
 bool NvObjParser::transformObjCoordinateSet(
@@ -325,10 +325,10 @@ std::optional<Assets::Texture> NvObjParser::loadMaterial(const std::string& name
   // further details on how memory is managed there, that's a bad idea.
 
   auto texturePaths = std::vector<Path>{
-    Path{"textures"} / Path{name}.addExtension("png"),
-    Path{"textures"} / Path{name}.addExtension("jpg"),
-    Path{name}.addExtension("png"),
-    Path{name}.addExtension("jpg"),
+    Path{"textures"} / Path{name}.addExtension(".png"),
+    Path{"textures"} / Path{name}.addExtension(".jpg"),
+    Path{name}.addExtension(".png"),
+    Path{name}.addExtension(".jpg"),
   };
 
 

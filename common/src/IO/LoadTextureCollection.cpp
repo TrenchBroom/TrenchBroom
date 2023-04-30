@@ -93,9 +93,9 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
   const std::optional<Assets::Palette>& palette)
 {
   static const auto imageFileExtensions =
-    std::vector<std::string>{"jpg", "jpeg", "png", "tga", "bmp"};
+    std::vector<std::string>{".jpg", ".jpeg", ".png", ".tga", ".bmp"};
 
-  if (file.path().hasExtension("D", true))
+  if (file.path().hasExtension(".D", true))
   {
     auto name = file.path().basename();
     if (!palette)
@@ -105,25 +105,25 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
     auto reader = file.reader().buffer();
     return readIdMipTexture(std::move(name), reader, *palette);
   }
-  else if (file.path().hasExtension("C", true))
+  else if (file.path().hasExtension(".C", true))
   {
     auto name = file.path().basename();
     auto reader = file.reader().buffer();
     return readHlMipTexture(std::move(name), reader);
   }
-  else if (file.path().hasExtension("wal", false))
+  else if (file.path().hasExtension(".wal", false))
   {
     auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
     auto reader = file.reader().buffer();
     return readWalTexture(std::move(name), reader, palette);
   }
-  else if (file.path().hasExtension("m8", false))
+  else if (file.path().hasExtension(".m8", false))
   {
     auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
     auto reader = file.reader().buffer();
     return readM8Texture(std::move(name), reader);
   }
-  else if (file.path().hasExtension("dds", false))
+  else if (file.path().hasExtension(".dds", false))
   {
     auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
     auto reader = file.reader().buffer();

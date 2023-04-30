@@ -274,7 +274,7 @@ void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) c
             "Cannot open file: " + objOptions.exportPath.asString()};
         }
 
-        auto mtlPath = objOptions.exportPath.replaceExtension("mtl");
+        auto mtlPath = objOptions.exportPath.replaceExtension(".mtl");
         auto mtlFile = openPathAsOutputStream(mtlPath);
         if (!mtlFile)
         {
@@ -359,7 +359,7 @@ void GameImpl::doReloadShaders()
 
 bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const
 {
-  static const auto extensions = {"fgd", "def", "ent"};
+  static const auto extensions = {".fgd", ".def", ".ent"};
 
   return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
     return kdl::ci::str_is_equal(extension, path.extension());
@@ -372,21 +372,21 @@ std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
   const auto extension = path.extension();
   const auto& defaultColor = m_config.entityConfig.defaultColor;
 
-  if (kdl::ci::str_is_equal("fgd", extension))
+  if (kdl::ci::str_is_equal(".fgd", extension))
   {
     auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
     auto reader = file->reader().buffer();
     auto parser = IO::FgdParser{reader.stringView(), defaultColor, file->path()};
     return parser.parseDefinitions(status);
   }
-  if (kdl::ci::str_is_equal("def", extension))
+  if (kdl::ci::str_is_equal(".def", extension))
   {
     auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
     auto reader = file->reader().buffer();
     auto parser = IO::DefParser{reader.stringView(), defaultColor};
     return parser.parseDefinitions(status);
   }
-  if (kdl::ci::str_is_equal("ent", extension))
+  if (kdl::ci::str_is_equal(".ent", extension))
   {
     auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
     auto reader = file->reader().buffer();
@@ -565,9 +565,6 @@ void GameImpl::doLoadFrame(
 
     const auto file = m_fs.openFile(path);
     ensure(file != nullptr, "file is null");
-
-    const auto modelName = path.lastComponent().asString();
-    const auto extension = kdl::str_to_lower(path.extension());
 
     return withEntityParser(
       m_fs,

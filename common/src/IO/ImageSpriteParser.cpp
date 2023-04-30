@@ -49,7 +49,7 @@ ImageSpriteParser::ImageSpriteParser(
 
 bool ImageSpriteParser::canParse(const Path& path)
 {
-  return kdl::str_to_lower(path.extension()) == "png";
+  return kdl::str_to_lower(path.extension()) == ".png";
 }
 
 std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger& logger)

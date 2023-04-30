@@ -209,7 +209,7 @@ void TestGame::doLoadTextureCollections(Assets::TextureManager& textureManager) 
 {
   const Model::TextureConfig textureConfig{
     IO::Path{"textures"},
-    {"D"},
+    {".D"},
     IO::Path{"fixture/test/palette.lmp"},
     "wad",
     IO::Path{},

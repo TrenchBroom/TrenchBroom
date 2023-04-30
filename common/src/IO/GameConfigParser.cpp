@@ -32,6 +32,8 @@
 
 #include <vecmath/vec_io.h>
 
+#include <kdl/vector_utils.h>
+
 #include <fmt/format.h>
 
 #include <algorithm>
@@ -43,6 +45,17 @@ namespace TrenchBroom::IO
 {
 namespace
 {
+std::string prependDot(const std::string& extension)
+{
+  return !extension.empty() && extension.front() != '.' ? "." + extension : extension;
+}
+
+std::vector<std::string> prependDot(const std::vector<std::string>& extensions)
+{
+  return kdl::vec_transform(
+    extensions, [](const auto& extension) { return prependDot(extension); });
+}
+
 void checkVersion(const EL::Value& version)
 {
   const auto validVsns = std::vector<EL::IntegerType>{7, 8};
@@ -492,7 +505,7 @@ Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value)
     expectType(value["extension"], EL::typeForName("String"));
 
     return Model::PackageFormatConfig{
-      {value["extension"].stringValue()},
+      {prependDot(value["extension"].stringValue())},
       formatValue.stringValue(),
     };
   }
@@ -501,7 +514,7 @@ Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value)
     expectType(value["extensions"], EL::typeForName("Array"));
 
     return Model::PackageFormatConfig{
-      value["extensions"].asStringList(),
+      prependDot(value["extensions"].asStringList()),
       formatValue.stringValue(),
     };
   }
@@ -516,7 +529,7 @@ std::vector<std::string> parseTextureExtensions(const EL::Value& value)
   if (value["extensions"] != EL::Value::Null)
   {
     // version 8
-    return value["extensions"].asStringList();
+    return prependDot(value["extensions"].asStringList());
   }
   // version 7
   return parsePackageFormatConfig(value["format"]).extensions;

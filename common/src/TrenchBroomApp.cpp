@@ -711,9 +711,9 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   // ensure the containing directory exists
   IO::Disk::ensureDirectoryExists(basePath.deleteLastComponent());
 
-  const auto reportPath = basePath.addExtension("txt");
-  auto logPath = basePath.addExtension("log");
-  auto mapPath = basePath.addExtension("map");
+  const auto reportPath = basePath.addExtension(".txt");
+  auto logPath = basePath.addExtension(".log");
+  auto mapPath = basePath.addExtension(".map");
 
   std::ofstream reportStream = openPathAsOutputStream(reportPath);
   reportStream << report;

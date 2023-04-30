@@ -54,7 +54,7 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles")
 {
   const auto basePath = Disk::getCurrentWorkingDir() / Path{"fixture/games/"};
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({"ent"}));
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({".ent"}));
 
   for (const auto& path : cfgFiles)
   {

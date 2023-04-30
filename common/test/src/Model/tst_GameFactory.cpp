@@ -48,7 +48,7 @@ static void setupTestEnvironment(IO::TestEnvironment& env)
     },
     "textures": {
         "root": "textures",
-        "extensions": ["D"],
+        "extensions": [".D"],
         "palette": "gfx/palette.lmp",
         "attribute": "wad"
     },

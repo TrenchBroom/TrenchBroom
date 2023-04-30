@@ -315,9 +315,9 @@ TEST_CASE("PathTest.getExtension")
 {
   CHECK_THROWS_AS(Path{}.extension(), PathException);
   CHECK(Path{"asdf"}.extension() == std::string(""));
-  CHECK(Path{"asdf.map"}.extension() == std::string("map"));
-  CHECK(Path{"/this/is/a/path.map"}.extension() == std::string("map"));
-  CHECK(Path{"/this/is/a/path.map.textfile"}.extension() == std::string("textfile"));
+  CHECK(Path{"asdf.map"}.extension() == std::string(".map"));
+  CHECK(Path{"/this/is/a/path.map"}.extension() == std::string(".map"));
+  CHECK(Path{"/this/is/a/path.map.textfile"}.extension() == std::string(".textfile"));
   CHECK(Path{"/"}.extension() == std::string(""));
 }
 
@@ -332,11 +332,11 @@ TEST_CASE("PathTest.deleteExtension")
 
 TEST_CASE("PathTest.addExtension")
 {
-  CHECK_THROWS_AS(Path{}.addExtension("map"), PathException);
-  CHECK(Path{"/asdf"}.addExtension("") == Path{"/asdf."});
-  CHECK(Path{"/asdf"}.addExtension("map") == Path{"/asdf.map"});
-  CHECK(Path{"/asdf.map"}.addExtension("test") == Path{"/asdf.map.test"});
-  CHECK(Path{"/"}.addExtension("map") == Path{"/.map"});
+  CHECK_THROWS_AS(Path{}.addExtension(".map"), PathException);
+  CHECK(Path{"/asdf"}.addExtension(".") == Path{"/asdf."});
+  CHECK(Path{"/asdf"}.addExtension(".map") == Path{"/asdf.map"});
+  CHECK(Path{"/asdf.map"}.addExtension(".test") == Path{"/asdf.map.test"});
+  CHECK(Path{"/"}.addExtension(".map") == Path{"/.map"});
 }
 
 TEST_CASE("PathTest.makeAbsolute")

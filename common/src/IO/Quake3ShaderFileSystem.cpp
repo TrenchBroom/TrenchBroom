@@ -63,7 +63,7 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
   if (m_fs.pathInfo(m_shaderSearchPath) == PathInfo::Directory)
   {
     const auto paths =
-      m_fs.find(m_shaderSearchPath, makeExtensionPathMatcher({"shader"}));
+      m_fs.find(m_shaderSearchPath, makeExtensionPathMatcher({".shader"}));
     for (const auto& path : paths)
     {
       const auto file = m_fs.openFile(path);
@@ -96,7 +96,7 @@ void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shad
       allImages = kdl::vec_concat(
         std::move(allImages),
         m_fs.findRecursively(
-          textureSearchPath, makeExtensionPathMatcher({"tga", "png", "jpg", "jpeg"})));
+          textureSearchPath, makeExtensionPathMatcher({".tga", ".png", ".jpg", ".jpeg"})));
     }
   }
 

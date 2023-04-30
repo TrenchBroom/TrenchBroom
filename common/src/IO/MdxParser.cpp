@@ -240,7 +240,7 @@ MdxParser::MdxParser(const std::string& name, const Reader& reader, const FileSy
 
 bool MdxParser::canParse(const Path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != "mdx")
+  if (kdl::str_to_lower(path.extension()) != ".mdx")
   {
     return false;
   }

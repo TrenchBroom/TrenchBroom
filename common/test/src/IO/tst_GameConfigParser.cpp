@@ -39,7 +39,7 @@ TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
 {
   const auto basePath = Disk::getCurrentWorkingDir() / Path("fixture/games/");
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({"cfg"}));
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({".cfg"}));
 
   for (const Path& path : cfgFiles)
   {
@@ -142,10 +142,10 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
       {// map formats
        Model::MapFormatConfig{"Standard", Path{}},
        Model::MapFormatConfig{"Valve", Path{}}},
-      Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+      Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
       Model::TextureConfig{
         Path{"textures"},
-        {"D"},
+        {".D"},
         Path{"gfx/palette.lmp"},
         "wad",
         Path{},
@@ -406,10 +406,10 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
       false,
       {Model::MapFormatConfig{"Quake2", Path{}}},
       Model::FileSystemConfig{
-        Path{"baseq2"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+        Path{"baseq2"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
       Model::TextureConfig{
         Path{"textures"},
-        {"wal"},
+        {".wal"},
         Path{"pics/colormap.pcx"},
         "_tb_textures",
         Path{},
@@ -736,7 +736,8 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
       Path{},
       false,
       {Model::MapFormatConfig{"Quake3", Path{}}},
-      Model::FileSystemConfig{Path{"baseq3"}, Model::PackageFormatConfig{{"pk3"}, "zip"}},
+      Model::FileSystemConfig{
+        Path{"baseq3"}, Model::PackageFormatConfig{{".pk3"}, "zip"}},
       Model::TextureConfig{
         Path{"textures"},
         {""},
@@ -923,10 +924,10 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
       Path{"Icon.png"},
       false,
       {Model::MapFormatConfig{"Standard", Path{}}},
-      Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+      Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
       Model::TextureConfig{
         Path{"textures"},
-        {"D"},
+        {".D"},
         Path{"gfx/palette.lmp"},
         "wad",
         Path{},

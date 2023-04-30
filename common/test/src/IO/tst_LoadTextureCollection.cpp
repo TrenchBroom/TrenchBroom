@@ -100,7 +100,7 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      {"D"},
+      {".D"},
       Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},
@@ -115,7 +115,7 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      {"D"},
+      {".D"},
       Path{"fixture/test/missing.lmp"},
       "wad",
       Path{},
@@ -147,7 +147,7 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      {"D"},
+      {".D"},
       Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},
@@ -179,7 +179,7 @@ TEST_CASE("loadTextureCollection")
   {
     const auto textureConfig = Model::TextureConfig{
       Path{"textures"},
-      {"D"},
+      {".D"},
       Path{"fixture/test/palette.lmp"},
       "wad",
       Path{},

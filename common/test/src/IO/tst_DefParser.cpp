@@ -41,7 +41,7 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
   const auto basePath = Disk::getCurrentWorkingDir() / Path("fixture/games/");
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({"def"}));
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({".def"}));
 
   for (const auto& path : cfgFiles)
   {
@@ -78,7 +78,7 @@ TEST_CASE("DefParserTest.parseExtraDefFiles")
 {
   const auto basePath = Disk::getCurrentWorkingDir() / Path("fixture/test/IO/Def");
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({"def"}));
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({".def"}));
 
   for (const Path& path : cfgFiles)
   {

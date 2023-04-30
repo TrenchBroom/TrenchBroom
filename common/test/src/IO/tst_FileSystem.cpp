@@ -116,7 +116,7 @@ TEST_CASE("FileSystem")
       }));
 
     CHECK_THAT(
-      fs.findRecursively(Path{}, makeExtensionPathMatcher({"txt", "map"})),
+      fs.findRecursively(Path{}, makeExtensionPathMatcher({".txt", ".map"})),
       Catch::Matchers::UnorderedEquals(std::vector<Path>{
         Path{"some_dir/nested_dir/nested_dir_file_1.txt"},
         Path{"some_dir/nested_dir/nested_dir_file_2.map"},
