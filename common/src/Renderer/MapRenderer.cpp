@@ -813,7 +813,7 @@ void MapRenderer::preferenceDidChange(const IO::Path& path)
     invalidateGroupLinkRenderer();
   }
 
-  if (path.hasPrefix(IO::Path("Map view"), true))
+  if (kdl::path_has_prefix(path, IO::Path{"Map view"}))
   {
     invalidateRenderers(Renderer::All);
     invalidateEntityLinkRenderer();

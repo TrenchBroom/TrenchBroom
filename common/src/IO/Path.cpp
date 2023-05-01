@@ -136,16 +136,9 @@ Path Path::extension() const
   return Path{m_path.extension()};
 }
 
-bool Path::hasPrefix(const Path& prefix, bool caseSensitive) const
+bool Path::hidden_hasPrefix(const Path& prefix) const
 {
-  if (prefix.hidden_length() > hidden_length())
-  {
-    return false;
-  }
-
-  const auto mPrefix = this->prefix(prefix.hidden_length());
-  return !caseSensitive ? mPrefix.hidden_makeLowerCase() == prefix.hidden_makeLowerCase()
-                        : mPrefix == prefix;
+  return kdl::path_has_prefix(m_path, prefix.m_path);
 }
 
 Path Path::deleteExtension() const
@@ -196,6 +189,11 @@ namespace kdl
 size_t path_length(const Path& path)
 {
   return path.hidden_length();
+}
+
+bool path_has_prefix(const Path& path, const Path& prefix)
+{
+  return path.hidden_hasPrefix(prefix);
 }
 
 Path path_to_lower(const Path& path)

@@ -68,7 +68,7 @@ public:
   Path basename() const;
   Path extension() const;
 
-  bool hasPrefix(const Path& prefix, bool caseSensitive) const;
+  bool hidden_hasPrefix(const Path& prefix) const;
 
   Path deleteExtension() const;
   Path addExtension(const std::string& extension) const;
@@ -96,6 +96,7 @@ namespace kdl
 using TrenchBroom::IO::Path;
 
 size_t path_length(const Path& path);
+bool path_has_prefix(const Path& path, const Path& prefix);
 Path path_to_lower(const Path& path);
 Path path_clip(const Path& path, size_t index, size_t length);
 Path path_clip(const Path& path, size_t index);

@@ -47,7 +47,8 @@ auto forEachMountPoint(
 {
   for (const auto& mountPoint : mountPoints)
   {
-    if (path.hasPrefix(mountPoint.path, false))
+    if (kdl::path_has_prefix(
+          kdl::path_to_lower(path), kdl::path_to_lower(mountPoint.path)))
     {
       const auto pathSuffix = kdl::path_clip(path, kdl::path_length(mountPoint.path));
       if (auto result = f(*mountPoint.mountedFileSystem, pathSuffix))
@@ -139,7 +140,10 @@ PathInfo VirtualFileSystem::doGetPathInfo(const Path& path) const
   return std::any_of(
            m_mountPoints.begin(),
            m_mountPoints.end(),
-           [&](const auto& mountPoint) { return mountPoint.path.hasPrefix(path, false); })
+           [&](const auto& mountPoint) {
+             return kdl::path_has_prefix(
+               kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path));
+           })
            ? PathInfo::Directory
            : PathInfo::Unknown;
 }
@@ -149,7 +153,8 @@ std::vector<Path> VirtualFileSystem::doGetDirectoryContents(const Path& path) co
   auto result = std::vector<Path>{};
   for (const auto& mountPoint : m_mountPoints)
   {
-    if (path.hasPrefix(mountPoint.path, false))
+    if (kdl::path_has_prefix(
+          kdl::path_to_lower(path), kdl::path_to_lower(mountPoint.path)))
     {
       const auto pathSuffix = kdl::path_clip(path, kdl::path_length(mountPoint.path));
       if (mountPoint.mountedFileSystem->pathInfo(pathSuffix) == PathInfo::Directory)
@@ -160,7 +165,8 @@ std::vector<Path> VirtualFileSystem::doGetDirectoryContents(const Path& path) co
     }
     else if (
       kdl::path_length(path) < kdl::path_length(mountPoint.path)
-      && mountPoint.path.hasPrefix(path, false))
+      && kdl::path_has_prefix(
+        kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path)))
     {
       result.push_back(kdl::path_clip(mountPoint.path, kdl::path_length(path), 1));
     }
