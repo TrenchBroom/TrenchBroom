@@ -160,7 +160,7 @@ kdl::result<ReadTextureFunc, LoadTextureCollectionError> makeReadTextureFunc(
       [&](auto palette) -> kdl::result<ReadTextureFunc, LoadTextureCollectionError> {
         return [&,
                 palette = std::move(palette),
-                prefixLength = textureConfig.root.length()](const File& file) {
+                prefixLength = kdl::path_length(textureConfig.root)](const File& file) {
           return readTexture(file, gameFS, prefixLength, palette);
         };
       });

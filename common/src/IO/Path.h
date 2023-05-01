@@ -55,7 +55,7 @@ public:
   std::string asString() const;
   std::string asGenericString() const;
 
-  size_t length() const;
+  size_t hidden_length() const;
   bool empty() const;
   Path firstComponent() const;
   Path deleteFirstComponent() const;
@@ -63,7 +63,7 @@ public:
   Path deleteLastComponent() const;
   Path prefix(size_t count) const;
   Path suffix(size_t count) const;
-  Path subPath(size_t index, size_t count) const;
+  Path hidden_clip(size_t index, size_t count) const;
 
   Path filename() const;
   Path basename() const;
@@ -96,5 +96,7 @@ namespace kdl
 {
 using TrenchBroom::IO::Path;
 
+size_t path_length(const Path& path);
 Path path_to_lower(const Path& path);
+Path path_clip(const Path& path, size_t index, size_t length);
 } // namespace kdl

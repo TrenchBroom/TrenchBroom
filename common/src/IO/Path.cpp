@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -80,7 +81,7 @@ std::string Path::asGenericString() const
   return m_path.generic_u8string();
 }
 
-size_t Path::length() const
+size_t Path::hidden_length() const
 {
   return size_t(std::distance(m_path.begin(), m_path.end()));
 }
@@ -97,7 +98,7 @@ Path Path::firstComponent() const
 
 Path Path::deleteFirstComponent() const
 {
-  return empty() ? *this : subPath(1, length() - 1);
+  return empty() ? *this : hidden_clip(1, hidden_length() - 1);
 }
 
 Path Path::lastComponent() const
@@ -112,28 +113,17 @@ Path Path::deleteLastComponent() const
 
 Path Path::prefix(const size_t count) const
 {
-  return subPath(0, count);
+  return hidden_clip(0, count);
 }
 
 Path Path::suffix(const size_t count) const
 {
-  return subPath(length() - count, count);
+  return hidden_clip(hidden_length() - count, count);
 }
 
-Path Path::subPath(const size_t index, size_t count) const
+Path Path::hidden_clip(const size_t index, const size_t count) const
 {
-  count = std::min(count, length() >= count ? length() - index : 0);
-
-  if (count == 0)
-  {
-    return Path{};
-  }
-
-  return Path{std::accumulate(
-    std::next(m_path.begin(), index),
-    std::next(m_path.begin(), index + count),
-    std::filesystem::path{},
-    [](const auto& lhs, const auto& rhs) { return lhs / rhs; })};
+  return Path{kdl::path_clip(m_path, index, count)};
 }
 
 Path Path::filename() const
@@ -153,12 +143,12 @@ Path Path::extension() const
 
 bool Path::hasPrefix(const Path& prefix, bool caseSensitive) const
 {
-  if (prefix.length() > length())
+  if (prefix.hidden_length() > hidden_length())
   {
     return false;
   }
 
-  const auto mPrefix = this->prefix(prefix.length());
+  const auto mPrefix = this->prefix(prefix.hidden_length());
   return !caseSensitive ? mPrefix.hidden_makeLowerCase() == prefix.hidden_makeLowerCase()
                         : mPrefix == prefix;
 }
@@ -208,8 +198,18 @@ std::ostream& operator<<(std::ostream& stream, const Path& path)
 
 namespace kdl
 {
+size_t path_length(const Path& path)
+{
+  return path.hidden_length();
+}
+
 Path path_to_lower(const Path& path)
 {
   return path.hidden_makeLowerCase();
+}
+
+Path path_clip(const Path& path, size_t index, size_t length)
+{
+  return path.hidden_clip(index, length);
 }
 } // namespace kdl
