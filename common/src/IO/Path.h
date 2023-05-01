@@ -82,7 +82,7 @@ public:
    * @return the relative path
    */
   Path relative_path() const;
-  Path makeRelativeTo(const Path& basePath) const;
+  Path lexically_relative(const Path& basePath) const;
   Path makeCanonical() const;
   Path hidden_makeLowerCase() const;
 };

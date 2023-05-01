@@ -156,7 +156,7 @@ Path Path::relative_path() const
   return Path{m_path.relative_path()};
 }
 
-Path Path::makeRelativeTo(const Path& basePath) const
+Path Path::lexically_relative(const Path& basePath) const
 {
   return Path{m_path.lexically_relative(basePath.m_path)};
 }
