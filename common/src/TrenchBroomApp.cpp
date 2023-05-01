@@ -678,7 +678,7 @@ IO::Path crashReportBasePath()
     testCrashLogPath = crashLogPath.parent_path() / IO::Path{testCrashLogName};
   }
 
-  return testCrashLogPath.deleteExtension();
+  return kdl::path_remove_extension(testCrashLogPath);
 }
 
 bool inReportCrashAndExit = false;
@@ -710,9 +710,9 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   // ensure the containing directory exists
   IO::Disk::ensureDirectoryExists(basePath.parent_path());
 
-  const auto reportPath = basePath.addExtension(".txt");
-  auto logPath = basePath.addExtension(".log");
-  auto mapPath = basePath.addExtension(".map");
+  const auto reportPath = kdl::path_add_extension(basePath, ".txt");
+  auto logPath = kdl::path_add_extension(basePath, ".log");
+  auto mapPath = kdl::path_add_extension(basePath, ".map");
 
   std::ofstream reportStream = openPathAsOutputStream(reportPath);
   reportStream << report;

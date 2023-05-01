@@ -131,15 +131,19 @@ bool Path::hidden_hasPrefix(const Path& prefix) const
   return kdl::path_has_prefix(m_path, prefix.m_path);
 }
 
-Path Path::deleteExtension() const
+Path Path::hidden_addExtension(const std::string& extension) const
 {
-  return empty() ? *this : parent_path() / Path{stem()};
+  return Path{kdl::path_add_extension(m_path, extension)};
 }
 
-Path Path::addExtension(const std::string& extension) const
+Path Path::hidden_removeExtension() const
 {
-  return empty() ? Path{extension}
-                 : Path{m_path.parent_path() / m_path.filename() += extension};
+  return Path{kdl::path_remove_extension(m_path)};
+}
+
+Path Path::hidden_replaceExtension(const std::string& extension) const
+{
+  return Path{kdl::path_replace_extension(m_path, extension)};
 }
 
 bool Path::isAbsolute() const
@@ -210,5 +214,20 @@ Path path_clip(const Path& path, size_t index, size_t length)
 Path path_clip(const Path& path, size_t index)
 {
   return path_clip(path, index, path_length(path));
+}
+
+Path path_add_extension(const Path& path, const std::string& extension)
+{
+  return path.hidden_addExtension(extension);
+}
+
+Path path_remove_extension(Path path)
+{
+  return path.hidden_removeExtension();
+}
+
+Path path_replace_extension(Path path, const std::string& extension)
+{
+  return path.hidden_replaceExtension(extension);
 }
 } // namespace kdl

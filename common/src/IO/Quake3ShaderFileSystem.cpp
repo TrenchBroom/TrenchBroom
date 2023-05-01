@@ -112,7 +112,7 @@ void Quake3ShaderFileSystem::linkTextures(
   m_logger.debug() << "Linking textures...";
   for (const auto& texture : textures)
   {
-    const auto shaderPath = texture.deleteExtension();
+    const auto shaderPath = kdl::path_remove_extension(texture);
 
     // Only link a shader if it has not been linked yet.
     if (pathInfo(shaderPath) != PathInfo::File)

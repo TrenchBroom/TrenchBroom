@@ -375,11 +375,11 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 {
   static const auto texturePaths = std::vector<Path>{
     Path{"textures"}
-      / Path{Model::BrushFaceAttributes::NoTextureName}.addExtension(".png"),
+      / kdl::path_add_extension(Path{Model::BrushFaceAttributes::NoTextureName}, ".png"),
     Path{"textures"}
-      / Path{Model::BrushFaceAttributes::NoTextureName}.addExtension(".jpg"),
-    Path{Model::BrushFaceAttributes::NoTextureName}.addExtension(".png"),
-    Path{Model::BrushFaceAttributes::NoTextureName}.addExtension(".jpg"),
+      / kdl::path_add_extension(Path{Model::BrushFaceAttributes::NoTextureName}, ".jpg"),
+    kdl::path_add_extension(Path{Model::BrushFaceAttributes::NoTextureName}, ".png"),
+    kdl::path_add_extension(Path{Model::BrushFaceAttributes::NoTextureName}, ".jpg"),
   };
 
   for (const auto& texturePath : texturePaths)

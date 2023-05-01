@@ -139,7 +139,7 @@ size_t extractBackupNo(const IO::Path& path)
   // currently this function is only used when comparing file names which have already
   // been verified as valid backup file names, so this should not go wrong, but if it
   // does, sort the invalid file names to the end to avoid modifying them
-  return kdl::str_to_size(path.deleteExtension().extension().string())
+  return kdl::str_to_size(kdl::path_remove_extension(path).extension().string())
     .value_or(std::numeric_limits<size_t>::max());
 }
 

@@ -346,7 +346,7 @@ void Md3Parser::loadSurfaceSkins(
 
 Assets::Texture Md3Parser::loadShader(Logger& logger, const Path& path) const
 {
-  const auto shaderPath = path.deleteExtension();
+  const auto shaderPath = kdl::path_remove_extension(path);
   return IO::loadShader(shaderPath, m_fs, logger);
 }
 

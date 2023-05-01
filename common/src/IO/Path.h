@@ -68,8 +68,9 @@ public:
 
   bool hidden_hasPrefix(const Path& prefix) const;
 
-  Path deleteExtension() const;
-  Path addExtension(const std::string& extension) const;
+  Path hidden_addExtension(const std::string& extension) const;
+  Path hidden_removeExtension() const;
+  Path hidden_replaceExtension(const std::string& extension) const;
 
   bool isAbsolute() const;
 
@@ -101,4 +102,7 @@ bool path_has_prefix(const Path& path, const Path& prefix);
 Path path_to_lower(const Path& path);
 Path path_clip(const Path& path, size_t index, size_t length);
 Path path_clip(const Path& path, size_t index);
+Path path_add_extension(const Path& path, const std::string& extension);
+Path path_remove_extension(Path path);
+Path path_replace_extension(Path path, const std::string& extension);
 } // namespace kdl

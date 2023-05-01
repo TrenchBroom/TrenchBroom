@@ -320,24 +320,6 @@ TEST_CASE("PathTest.getExtension")
   CHECK(Path{"/"}.extension() == Path{""});
 }
 
-TEST_CASE("PathTest.deleteExtension")
-{
-  CHECK(Path{}.deleteExtension() == Path{});
-  CHECK(Path{"asdf"}.deleteExtension() == Path{"asdf"});
-  CHECK(Path{"asdf.jpeg"}.deleteExtension() == Path{"asdf"});
-  CHECK(Path{"/asdf.jpeg"}.deleteExtension() == Path{"/asdf"});
-  CHECK(Path{"x/asdf.jpeg"}.deleteExtension() == Path{"x/asdf"});
-}
-
-TEST_CASE("PathTest.addExtension")
-{
-  CHECK(Path{}.addExtension(".map") == Path{".map"});
-  CHECK(Path{"/asdf"}.addExtension(".") == Path{"/asdf."});
-  CHECK(Path{"/asdf"}.addExtension(".map") == Path{"/asdf.map"});
-  CHECK(Path{"/asdf.map"}.addExtension(".test") == Path{"/asdf.map.test"});
-  CHECK(Path{"/"}.addExtension(".map") == Path{"/.map"});
-}
-
 TEST_CASE("PathTest.makeRelative")
 {
   CHECK(Path{}.makeRelative() == Path{});

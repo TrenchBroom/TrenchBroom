@@ -80,7 +80,7 @@ TEST_CASE("readIdMipTexture")
     Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Wad/cr8_czg.wad"};
   auto wadFS = WadFileSystem{wadPath};
 
-  const auto file = wadFS.openFile(Path{textureName}.addExtension(".D"));
+  const auto file = wadFS.openFile(Path{textureName + ".D"});
   auto reader = file->reader().buffer();
   const auto texture = readIdMipTexture(textureName, reader, palette).value();
 
@@ -107,7 +107,7 @@ TEST_CASE("readHlMipTexture")
   const auto wadPath = Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/HL/hl.wad"};
   auto wadFS = WadFileSystem{wadPath};
 
-  const auto file = wadFS.openFile(Path{textureName}.addExtension(".C"));
+  const auto file = wadFS.openFile(Path{textureName + ".C"});
   auto reader = file->reader().buffer();
   const auto texture = readHlMipTexture(textureName, reader).value();
 

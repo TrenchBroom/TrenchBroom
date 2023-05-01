@@ -74,8 +74,9 @@ Assets::Texture loadSkin(
 
 Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger)
 {
-  auto actualPath = !path.empty() && fs.pathInfo(path.deleteExtension()) == PathInfo::File
-                      ? path.deleteExtension()
+  const auto pathWithoutExtension = kdl::path_remove_extension(path);
+  auto actualPath = !path.empty() && fs.pathInfo(pathWithoutExtension) == PathInfo::File
+                      ? pathWithoutExtension
                       : path;
   const auto name = path.generic_string();
 

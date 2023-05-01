@@ -56,7 +56,7 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
   mods = kdl::vec_concat(std::move(mods), document->mods());
 
   using namespace CompilationVariableNames;
-  declare(MAP_BASE_NAME, EL::Value{filename.deleteExtension().string()});
+  declare(MAP_BASE_NAME, EL::Value{kdl::path_remove_extension(filename).string()});
   declare(GAME_DIR_PATH, EL::Value{gamePath.string()});
   declare(
     MODS,

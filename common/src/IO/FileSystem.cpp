@@ -154,7 +154,7 @@ void WritableFileSystem::createFileAtomic(const Path& path, const std::string& c
       throw FileSystemException("Path is absolute: '" + path.string() + "'");
     }
 
-    const auto tmpPath = path.addExtension("tmp");
+    const auto tmpPath = kdl::path_add_extension(path, "tmp");
     doCreateFile(tmpPath, contents);
     doMoveFile(tmpPath, path, true);
   }

@@ -325,10 +325,10 @@ std::optional<Assets::Texture> NvObjParser::loadMaterial(const std::string& name
   // further details on how memory is managed there, that's a bad idea.
 
   auto texturePaths = std::vector<Path>{
-    Path{"textures"} / Path{name}.addExtension(".png"),
-    Path{"textures"} / Path{name}.addExtension(".jpg"),
-    Path{name}.addExtension(".png"),
-    Path{name}.addExtension(".jpg"),
+    Path{"textures"} / kdl::path_add_extension(Path{name}, ".png"),
+    Path{"textures"} / kdl::path_add_extension(Path{name}, ".jpg"),
+    kdl::path_add_extension(Path{name}, ".png"),
+    kdl::path_add_extension(Path{name}, ".jpg"),
   };
 
 

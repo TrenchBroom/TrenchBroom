@@ -274,7 +274,7 @@ void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) c
             "Cannot open file: " + objOptions.exportPath.string()};
         }
 
-        auto mtlPath = objOptions.exportPath.deleteExtension().addExtension(".mtl");
+        auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
         auto mtlFile = openPathAsOutputStream(mtlPath);
         if (!mtlFile)
         {
