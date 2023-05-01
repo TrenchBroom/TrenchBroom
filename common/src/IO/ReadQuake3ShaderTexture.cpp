@@ -49,14 +49,14 @@ std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
   {
     if (
       kdl::vec_contains(
-        imageExtensions, kdl::str_to_lower(texturePath.extension().asString()))
+        imageExtensions, kdl::str_to_lower(texturePath.extension().string()))
       && fs.pathInfo(texturePath) == PathInfo::File)
     {
       return texturePath;
     }
 
     const auto directoryPath = texturePath.deleteLastComponent();
-    const auto basename = texturePath.stem().asString();
+    const auto basename = texturePath.stem().string();
     const auto candidates = fs.find(
       texturePath.deleteLastComponent(),
       kdl::lift_and(
@@ -105,7 +105,7 @@ kdl::result<Assets::Texture, ReadTextureError> loadTextureImage(
   if (fs.pathInfo(imagePath) != PathInfo::File)
   {
     return ReadTextureError{
-      std::move(shaderName), "Image file '" + imagePath.asString() + "' does not exist"};
+      std::move(shaderName), "Image file '" + imagePath.string() + "' does not exist"};
   }
 
   const auto file = fs.openFile(imagePath);
@@ -130,7 +130,7 @@ kdl::result<Assets::Texture, ReadTextureError> readQuake3ShaderTexture(
   {
     return ReadTextureError{
       std::move(shaderName),
-      "Could not find texture path for shader '" + shader.shaderPath.asString() + "'"};
+      "Could not find texture path for shader '" + shader.shaderPath.string() + "'"};
   }
 
   return loadTextureImage(std::move(shaderName), *imagePath, fs)

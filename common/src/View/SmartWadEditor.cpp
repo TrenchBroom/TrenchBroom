@@ -58,7 +58,7 @@ std::vector<IO::Path> getWadPaths(
 std::string getWadPathStr(const std::vector<IO::Path>& wadPaths)
 {
   return kdl::str_join(
-    kdl::vec_transform(wadPaths, [](const auto& path) { return path.asString(); }), ";");
+    kdl::vec_transform(wadPaths, [](const auto& path) { return path.string(); }), ";");
 }
 
 } // namespace

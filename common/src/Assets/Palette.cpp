@@ -183,7 +183,7 @@ kdl::result<Palette, LoadPaletteError> loadPalette(const IO::File& file)
 {
   try
   {
-    const auto extension = kdl::str_to_lower(file.path().extension().asString());
+    const auto extension = kdl::str_to_lower(file.path().extension().string());
     if (extension == ".lmp")
     {
       auto reader = file.reader().buffer();
@@ -201,13 +201,13 @@ kdl::result<Palette, LoadPaletteError> loadPalette(const IO::File& file)
     }
 
     return LoadPaletteError{
-      "Could not load palette file '" + file.path().asString()
+      "Could not load palette file '" + file.path().string()
       + "': Unknown palette format"};
   }
   catch (const Exception& e)
   {
     return LoadPaletteError{
-      "Could not load palette file '" + file.path().asString() + "': " + e.what()};
+      "Could not load palette file '" + file.path().string() + "': " + e.what()};
   }
 }
 

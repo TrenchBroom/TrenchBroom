@@ -52,7 +52,7 @@ std::vector<Path> doFind(
   {
     if (getPathInfo(path) != PathInfo::Directory)
     {
-      throw FileSystemException{"Directory not found: '" + path.asString() + "'"};
+      throw FileSystemException{"Directory not found: '" + path.string() + "'"};
     }
 
     auto result = kdl::vec_transform(
@@ -81,7 +81,7 @@ std::vector<Path> doFind(
   }
   catch (const PathException& e)
   {
-    throw FileSystemException{"Invalid path: '" + path.asString() + "'", e};
+    throw FileSystemException{"Invalid path: '" + path.string() + "'", e};
   }
 }
 } // namespace

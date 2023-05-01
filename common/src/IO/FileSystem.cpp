@@ -42,14 +42,14 @@ Path FileSystem::makeAbsolute(const Path& path) const
   {
     if (path.isAbsolute())
     {
-      throw FileSystemException{"Path is absolute: '" + path.asString() + "'"};
+      throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
     }
 
     return doMakeAbsolute(path);
   }
   catch (const PathException& e)
   {
-    throw FileSystemException{"Invalid path: '" + path.asString() + "'", e};
+    throw FileSystemException{"Invalid path: '" + path.string() + "'", e};
   }
 }
 
@@ -59,14 +59,14 @@ PathInfo FileSystem::pathInfo(const Path& path) const
   {
     if (path.isAbsolute())
     {
-      throw FileSystemException{"Path is absolute: '" + path.asString() + "'"};
+      throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
     }
 
     return doGetPathInfo(path);
   }
   catch (const PathException& e)
   {
-    throw FileSystemException{"Invalid path: '" + path.asString() + "'", e};
+    throw FileSystemException{"Invalid path: '" + path.string() + "'", e};
   }
 }
 
@@ -74,7 +74,7 @@ std::vector<Path> FileSystem::find(const Path& path, const PathMatcher& pathMatc
 {
   if (path.isAbsolute())
   {
-    throw FileSystemException{"Path is absolute: '" + path.asString() + "'"};
+    throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
   }
 
   return IO::find(
@@ -89,7 +89,7 @@ std::vector<Path> FileSystem::findRecursively(
 {
   if (path.isAbsolute())
   {
-    throw FileSystemException{"Path is absolute: '" + path.asString() + "'"};
+    throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
   }
 
   return IO::findRecursively(
@@ -105,19 +105,19 @@ std::vector<Path> FileSystem::directoryContents(const Path& path) const
   {
     if (path.isAbsolute())
     {
-      throw FileSystemException{"Path is absolute: '" + path.asString() + "'"};
+      throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
     }
 
     if (doGetPathInfo(path) != PathInfo::Directory)
     {
-      throw FileSystemException{"Directory not found: '" + path.asString() + "'"};
+      throw FileSystemException{"Directory not found: '" + path.string() + "'"};
     }
 
     return doGetDirectoryContents(path);
   }
   catch (const PathException& e)
   {
-    throw FileSystemException{"Invalid path: '" + path.asString() + "'", e};
+    throw FileSystemException{"Invalid path: '" + path.string() + "'", e};
   }
 }
 
@@ -127,19 +127,19 @@ std::shared_ptr<File> FileSystem::openFile(const Path& path) const
   {
     if (path.isAbsolute())
     {
-      throw FileSystemException{"Path is absolute: '" + path.asString() + "'"};
+      throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
     }
 
     if (doGetPathInfo(path) != PathInfo::File)
     {
-      throw FileSystemException{"File not found: '" + path.asString() + "'"};
+      throw FileSystemException{"File not found: '" + path.string() + "'"};
     }
 
     return doOpenFile(path);
   }
   catch (const PathException& e)
   {
-    throw FileSystemException{"Invalid path: '" + path.asString() + "'", e};
+    throw FileSystemException{"Invalid path: '" + path.string() + "'", e};
   }
 }
 
@@ -151,7 +151,7 @@ void WritableFileSystem::createFileAtomic(const Path& path, const std::string& c
   {
     if (path.isAbsolute())
     {
-      throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+      throw FileSystemException("Path is absolute: '" + path.string() + "'");
     }
 
     const auto tmpPath = path.addExtension("tmp");
@@ -160,7 +160,7 @@ void WritableFileSystem::createFileAtomic(const Path& path, const std::string& c
   }
   catch (const PathException& e)
   {
-    throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+    throw FileSystemException("Invalid path: '" + path.string() + "'", e);
   }
 }
 
@@ -170,13 +170,13 @@ void WritableFileSystem::createFile(const Path& path, const std::string& content
   {
     if (path.isAbsolute())
     {
-      throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+      throw FileSystemException("Path is absolute: '" + path.string() + "'");
     }
     doCreateFile(path, contents);
   }
   catch (const PathException& e)
   {
-    throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+    throw FileSystemException("Invalid path: '" + path.string() + "'", e);
   }
 }
 
@@ -186,13 +186,13 @@ void WritableFileSystem::createDirectory(const Path& path)
   {
     if (path.isAbsolute())
     {
-      throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+      throw FileSystemException("Path is absolute: '" + path.string() + "'");
     }
     doCreateDirectory(path);
   }
   catch (const PathException& e)
   {
-    throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+    throw FileSystemException("Invalid path: '" + path.string() + "'", e);
   }
 }
 
@@ -202,13 +202,13 @@ void WritableFileSystem::deleteFile(const Path& path)
   {
     if (path.isAbsolute())
     {
-      throw FileSystemException("Path is absolute: '" + path.asString() + "'");
+      throw FileSystemException("Path is absolute: '" + path.string() + "'");
     }
     doDeleteFile(path);
   }
   catch (const PathException& e)
   {
-    throw FileSystemException("Invalid path: '" + path.asString() + "'", e);
+    throw FileSystemException("Invalid path: '" + path.string() + "'", e);
   }
 }
 
@@ -219,21 +219,20 @@ void WritableFileSystem::copyFile(
   {
     if (sourcePath.isAbsolute())
     {
-      throw FileSystemException(
-        "Source path is absolute: '" + sourcePath.asString() + "'");
+      throw FileSystemException("Source path is absolute: '" + sourcePath.string() + "'");
     }
     if (destPath.isAbsolute())
     {
       throw FileSystemException(
-        "Destination path is absolute: '" + destPath.asString() + "'");
+        "Destination path is absolute: '" + destPath.string() + "'");
     }
     doCopyFile(sourcePath, destPath, overwrite);
   }
   catch (const PathException& e)
   {
     throw FileSystemException(
-      "Invalid source or destination path: '" + sourcePath.asString() + "', '"
-        + destPath.asString() + "'",
+      "Invalid source or destination path: '" + sourcePath.string() + "', '"
+        + destPath.string() + "'",
       e);
   }
 }
@@ -245,21 +244,20 @@ void WritableFileSystem::moveFile(
   {
     if (sourcePath.isAbsolute())
     {
-      throw FileSystemException(
-        "Source path is absolute: '" + sourcePath.asString() + "'");
+      throw FileSystemException("Source path is absolute: '" + sourcePath.string() + "'");
     }
     if (destPath.isAbsolute())
     {
       throw FileSystemException(
-        "Destination path is absolute: '" + destPath.asString() + "'");
+        "Destination path is absolute: '" + destPath.string() + "'");
     }
     doMoveFile(sourcePath, destPath, overwrite);
   }
   catch (const PathException& e)
   {
     throw FileSystemException(
-      "Invalid source or destination path: '" + sourcePath.asString() + "', '"
-        + destPath.asString() + "'",
+      "Invalid source or destination path: '" + sourcePath.string() + "', '"
+        + destPath.string() + "'",
       e);
   }
 }

@@ -96,10 +96,10 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
   static const auto imageFileExtensions =
     std::vector<std::string>{".jpg", ".jpeg", ".png", ".tga", ".bmp"};
 
-  const auto extension = kdl::str_to_lower(file.path().extension().asString());
+  const auto extension = kdl::str_to_lower(file.path().extension().string());
   if (extension == ".d")
   {
-    auto name = file.path().stem().asString();
+    auto name = file.path().stem().string();
     if (!palette)
     {
       return ReadTextureError{std::move(name), "Could not load texture: missing palette"};
@@ -109,7 +109,7 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
   }
   else if (extension == ".c")
   {
-    auto name = file.path().stem().asString();
+    auto name = file.path().stem().string();
     auto reader = file.reader().buffer();
     return readHlMipTexture(std::move(name), reader);
   }
@@ -147,7 +147,7 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
   auto name = getTextureNameFromPathSuffix(file.path(), prefixLength);
   return ReadTextureError{
     std::move(name),
-    "Unknown texture file extension: " + file.path().extension().asString()};
+    "Unknown texture file extension: " + file.path().extension().string()};
 }
 
 kdl::result<ReadTextureFunc, LoadTextureCollectionError> makeReadTextureFunc(
@@ -188,7 +188,7 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
   if (gameFS.pathInfo(path) != PathInfo::Directory)
   {
     return LoadTextureCollectionError{
-      "Could not load texture collection '" + path.asString() + "': not a directory"};
+      "Could not load texture collection '" + path.string() + "': not a directory"};
   }
 
   return makeReadTextureFunc(gameFS, textureConfig)
@@ -210,7 +210,7 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
 
             // Store the absolute path to the original file
             // (may be used by .obj export)
-            const auto name = file->path().lastComponent().deleteExtension().asString();
+            const auto name = file->path().lastComponent().deleteExtension().string();
             if (shouldExclude(name, textureConfig.excludes))
             {
               continue;
@@ -229,7 +229,7 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
           catch (const std::exception& e)
           {
             return LoadTextureCollectionError{
-              "Could not load texture collection '" + path.asString() + "': " + e.what()};
+              "Could not load texture collection '" + path.string() + "': " + e.what()};
           }
         }
 

@@ -25,12 +25,12 @@ namespace IO
 {
 QString pathAsQString(const IO::Path& path)
 {
-  return QString::fromStdString(path.asString());
+  return QString::fromStdString(path.string());
 }
 
 QString pathAsGenericQString(const IO::Path& path)
 {
-  return QString::fromStdString(path.asGenericString());
+  return QString::fromStdString(path.generic_string());
 }
 
 Path pathFromQString(const QString& path)

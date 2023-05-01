@@ -186,7 +186,7 @@ std::pair<std::string, MapFormat> GameFactory::detectGame(const IO::Path& path) 
   auto stream = openPathAsInputStream(path);
   if (!stream.is_open())
   {
-    throw FileSystemException{"Cannot open file: " + path.asString()};
+    throw FileSystemException{"Cannot open file: " + path.string()};
   }
 
   auto gameName = IO::readGameComment(stream);

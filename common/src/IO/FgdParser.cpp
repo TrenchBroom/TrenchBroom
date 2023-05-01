@@ -987,12 +987,12 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
   auto result = std::vector<EntityDefinitionClassInfo>{};
   try
   {
-    status.debug(m_tokenizer.line(), "Parsing included file '" + path.asString() + "'");
+    status.debug(m_tokenizer.line(), "Parsing included file '" + path.string() + "'");
     const auto file = m_fs->openFile(currentRoot() / path);
     const auto filePath = file->path();
     status.debug(
       m_tokenizer.line(),
-      "Resolved '" + path.asString() + "' to '" + filePath.asString() + "'");
+      "Resolved '" + path.string() + "' to '" + filePath.string() + "'");
 
     if (!isRecursiveInclude(filePath))
     {
@@ -1006,7 +1006,7 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
       status.error(
         m_tokenizer.line(),
         kdl::str_to_string(
-          "Skipping recursively included file: ", path.asString(), " (", filePath, ")"));
+          "Skipping recursively included file: ", path.string(), " (", filePath, ")"));
     }
   }
   catch (const Exception& e)

@@ -1041,8 +1041,7 @@ bool MapFrame::saveDocument()
     QMessageBox::critical(
       this,
       "",
-      QString::fromStdString(
-        "Unknown error while saving " + m_document->path().asString()),
+      QString::fromStdString("Unknown error while saving " + m_document->path().string()),
       QMessageBox::Ok);
     return false;
   }
@@ -1166,7 +1165,7 @@ bool MapFrame::exportDocument(const IO::ExportOptions& options)
     QMessageBox::critical(
       this,
       "",
-      QString::fromStdString("Unknown error while exporting " + exportPath.asString()),
+      QString::fromStdString("Unknown error while exporting " + exportPath.string()),
       QMessageBox::Ok);
     return false;
   }

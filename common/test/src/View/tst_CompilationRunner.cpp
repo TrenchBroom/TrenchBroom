@@ -121,8 +121,8 @@ TEST_CASE_METHOD(
 
   auto task = Model::CompilationCopyFiles{
     true,
-    (testEnvironment.dir() / sourcePath).asString(),
-    (testEnvironment.dir() / targetPath).asString()};
+    (testEnvironment.dir() / sourcePath).string(),
+    (testEnvironment.dir() / targetPath).string()};
   auto runner = CompilationCopyFilesTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
@@ -156,8 +156,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
 
   auto task = Model::CompilationRenameFile{
     true,
-    (testEnvironment.dir() / sourcePath).asString(),
-    (testEnvironment.dir() / targetPath).asString()};
+    (testEnvironment.dir() / sourcePath).string(),
+    (testEnvironment.dir() / targetPath).string()};
   auto runner = CompilationRenameFileTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
@@ -186,7 +186,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
   testEnvironment.createDirectory(dir);
 
   auto task = Model::CompilationDeleteFiles{
-    true, (testEnvironment.dir() / IO::Path("*.lit")).asString()};
+    true, (testEnvironment.dir() / IO::Path("*.lit")).string()};
   auto runner = CompilationDeleteFilesTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
@@ -214,7 +214,7 @@ TEST_CASE("CompilationRunner.interpolateToolsVariables")
   const auto midSubstr = std::string{" bar "};
   const auto toInterpolate = startSubstr + std::string{"${MAP_DIR_PATH}"} + midSubstr
                              + std::string{"${WORK_DIR_PATH}"};
-  const auto expected = startSubstr + document->path().deleteLastComponent().asString()
+  const auto expected = startSubstr + document->path().deleteLastComponent().string()
                         + midSubstr + testWorkDir;
 
   const auto interpolated = context.interpolate(toInterpolate);

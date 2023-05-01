@@ -86,7 +86,7 @@ public:
     auto* pref = dynamic_cast<Preference<T>*>(prefBase);
     ensure(
       pref != nullptr,
-      ("Preference " + path.asString() + " must be of the expected type").c_str());
+      ("Preference " + path.string() + " must be of the expected type").c_str());
     return *pref;
   }
 

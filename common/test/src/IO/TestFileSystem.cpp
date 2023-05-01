@@ -73,7 +73,7 @@ const Entry* TestFileSystem::findEntry(Path path) const
   const Entry* entry = &m_root;
   while (!path.empty() && entry != nullptr)
   {
-    entry = getChild(*entry, path.firstComponent().asString());
+    entry = getChild(*entry, path.firstComponent().string());
     path = path.deleteFirstComponent();
   }
   return entry;

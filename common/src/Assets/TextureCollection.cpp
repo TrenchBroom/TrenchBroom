@@ -74,7 +74,7 @@ const IO::Path& TextureCollection::path() const
 
 std::string TextureCollection::name() const
 {
-  return !m_path.empty() ? m_path.lastComponent().asString() : "";
+  return !m_path.empty() ? m_path.lastComponent().string() : "";
 }
 
 size_t TextureCollection::textureCount() const

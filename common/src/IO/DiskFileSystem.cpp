@@ -38,7 +38,7 @@ DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists)
 {
   if (ensureExists && Disk::pathInfo(m_root) != PathInfo::Directory)
   {
-    throw FileSystemException{"Directory not found: '" + m_root.asString() + "'"};
+    throw FileSystemException{"Directory not found: '" + m_root.string() + "'"};
   }
 }
 
@@ -52,7 +52,7 @@ Path DiskFileSystem::doMakeAbsolute(const Path& path) const
   const auto canonicalPath = path.makeCanonical();
   if (!canonicalPath.empty() && canonicalPath.firstComponent() == Path{".."})
   {
-    throw FileSystemException{"Cannot make absolute path of '" + path.asString() + "'"};
+    throw FileSystemException{"Cannot make absolute path of '" + path.string() + "'"};
   }
   return canonicalPath.empty() ? m_root : m_root / canonicalPath;
 }

@@ -47,7 +47,7 @@ std::vector<Path> doGetDirectoryContents(const Path& fixedPath)
   auto dir = QDir{pathAsQString(fixedPath)};
   if (!dir.exists())
   {
-    throw FileSystemException("Cannot open directory: '" + fixedPath.asString() + "'");
+    throw FileSystemException("Cannot open directory: '" + fixedPath.string() + "'");
   }
 
   dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
@@ -159,7 +159,7 @@ std::shared_ptr<File> openFile(const Path& path)
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) != PathInfo::File)
   {
-    throw FileNotFoundException(fixedPath.asString());
+    throw FileNotFoundException(fixedPath.string());
   }
 
   return std::make_shared<CFile>(fixedPath);
@@ -172,7 +172,7 @@ std::string readTextFile(const Path& path)
   auto stream = openPathAsInputStream(fixedPath);
   if (!stream.is_open())
   {
-    throw FileSystemException("Cannot open file: " + fixedPath.asString());
+    throw FileSystemException("Cannot open file: " + fixedPath.string());
   }
 
   return std::string{
@@ -230,17 +230,17 @@ void createDirectory(const Path& path)
   {
   case PathInfo::Directory:
     throw FileSystemException(
-      "Could not create directory '" + fixedPath.asString()
+      "Could not create directory '" + fixedPath.string()
       + "': A directory already exists at that path.");
   case PathInfo::File:
     throw FileSystemException(
-      "Could not create directory '" + fixedPath.asString()
+      "Could not create directory '" + fixedPath.string()
       + "': A file already exists at that path.");
   case PathInfo::Unknown:
     if (!createDirectoryHelper(fixedPath))
     {
       throw FileSystemException(
-        "Could not create directory '" + fixedPath.asString() + "'");
+        "Could not create directory '" + fixedPath.string() + "'");
     }
     break;
   }
@@ -255,13 +255,13 @@ void ensureDirectoryExists(const Path& path)
     break;
   case PathInfo::File:
     throw FileSystemException(
-      "Could not create directory '" + fixedPath.asString()
+      "Could not create directory '" + fixedPath.string()
       + "': A file already exists at that path.");
   case PathInfo::Unknown:
     if (!createDirectoryHelper(fixedPath))
     {
       throw FileSystemException(
-        "Could not create directory '" + fixedPath.asString() + "'");
+        "Could not create directory '" + fixedPath.string() + "'");
     }
     break;
   }
@@ -273,12 +273,12 @@ void deleteFile(const Path& path)
   if (pathInfo(fixedPath) != PathInfo::File)
   {
     throw FileSystemException(
-      "Could not delete file '" + fixedPath.asString() + "': File does not exist.");
+      "Could not delete file '" + fixedPath.string() + "': File does not exist.");
   }
 
   if (!QFile::remove(pathAsQString(fixedPath)))
   {
-    throw FileSystemException("Could not delete file '" + path.asString() + "'");
+    throw FileSystemException("Could not delete file '" + path.string() + "'");
   }
 }
 
@@ -312,23 +312,23 @@ void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite
   if (!overwrite && exists)
   {
     throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "': file already exists");
+      "Could not copy file '" + fixedSourcePath.string() + "' to '"
+      + fixedDestPath.string() + "': file already exists");
   }
 
   if (overwrite && exists && !QFile::remove(pathAsQString(fixedDestPath)))
   {
     throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "': couldn't remove destination");
+      "Could not copy file '" + fixedSourcePath.string() + "' to '"
+      + fixedDestPath.string() + "': couldn't remove destination");
   }
 
   // NOTE: QFile::copy will not overwrite the dest
   if (!QFile::copy(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
   {
     throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "'");
+      "Could not copy file '" + fixedSourcePath.string() + "' to '"
+      + fixedDestPath.string() + "'");
   }
 }
 
@@ -365,15 +365,15 @@ void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite
   if (!overwrite && exists)
   {
     throw FileSystemException(
-      "Could not move file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "': file already exists");
+      "Could not move file '" + fixedSourcePath.string() + "' to '"
+      + fixedDestPath.string() + "': file already exists");
   }
 
   if (overwrite && exists && !QFile::remove(pathAsQString(fixedDestPath)))
   {
     throw FileSystemException(
-      "Could not move file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "': couldn't remove destination");
+      "Could not move file '" + fixedSourcePath.string() + "' to '"
+      + fixedDestPath.string() + "': couldn't remove destination");
   }
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
@@ -384,8 +384,8 @@ void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite
   if (!QFile::rename(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
   {
     throw FileSystemException(
-      "Could not move file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "'");
+      "Could not move file '" + fixedSourcePath.string() + "' to '"
+      + fixedDestPath.string() + "'");
   }
 }
 

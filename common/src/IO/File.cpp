@@ -83,7 +83,7 @@ CFile::CFile(Path path)
   m_file = openPathAsFILE(this->path(), "rb");
   if (!m_file)
   {
-    throw FileSystemException("Cannot open file " + this->path().asString());
+    throw FileSystemException("Cannot open file " + this->path().string());
   }
   m_size = fileSize(m_file);
 }

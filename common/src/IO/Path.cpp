@@ -71,14 +71,14 @@ bool Path::operator>(const Path& rhs) const
   return compare(rhs) > 0;
 }
 
-std::string Path::asString() const
+std::string Path::string() const
 {
-  return m_path.u8string();
+  return m_path.string();
 }
 
-std::string Path::asGenericString() const
+std::string Path::generic_string() const
 {
-  return m_path.generic_u8string();
+  return m_path.generic_string();
 }
 
 size_t Path::hidden_length() const
@@ -179,7 +179,7 @@ Path Path::hidden_makeLowerCase() const
 
 std::ostream& operator<<(std::ostream& stream, const Path& path)
 {
-  stream << path.asString();
+  stream << path.string();
   return stream;
 }
 } // namespace TrenchBroom::IO

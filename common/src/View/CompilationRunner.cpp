@@ -142,13 +142,13 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
     const auto sourceDirPath = sourcePath.deleteLastComponent();
     const auto sourcePathMatcher =
-      IO::makeFilenamePathMatcher(sourcePath.lastComponent().asString());
+      IO::makeFilenamePathMatcher(sourcePath.lastComponent().string());
 
     try
     {
       const auto sourcePaths = IO::Disk::find(sourceDirPath, sourcePathMatcher);
       const auto sourceStrs = kdl::vec_transform(
-        sourcePaths, [](const auto& path) { return "'" + path.asString() + "'"; });
+        sourcePaths, [](const auto& path) { return "'" + path.string() + "'"; });
       const auto sourceListQStr = QString::fromStdString(kdl::str_join(sourceStrs, ", "));
       m_context << "#### Copying to '" << IO::pathAsQString(targetPath)
                 << "/': " << sourceListQStr << "\n";
@@ -238,13 +238,13 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
     const auto targetDirPath = targetPath.deleteLastComponent();
     const auto targetPathMatcher =
-      IO::makeFilenamePathMatcher(targetPath.lastComponent().asString());
+      IO::makeFilenamePathMatcher(targetPath.lastComponent().string());
 
     try
     {
       const auto targetPaths = IO::Disk::find(targetDirPath, targetPathMatcher);
       const auto targetStrs = kdl::vec_transform(
-        targetPaths, [](const auto& path) { return "'" + path.asString() + "'"; });
+        targetPaths, [](const auto& path) { return "'" + path.string() + "'"; });
       const auto targetListQStr = QString::fromStdString(kdl::str_join(targetStrs, ", "));
       m_context << "#### Deleting: " << targetListQStr << "\n";
       if (!m_context.test())
@@ -361,7 +361,7 @@ std::string CompilationRunToolTaskRunner::cmd()
   const auto parameters = interpolate(m_task.parameterSpec);
   if (parameters.empty())
   {
-    return "\"" + toolPath.asString() + "\"";
+    return "\"" + toolPath.string() + "\"";
   }
   else if (toolPath.empty())
   {
@@ -369,7 +369,7 @@ std::string CompilationRunToolTaskRunner::cmd()
   }
   else
   {
-    return "\"" + toolPath.asString() + "\" " + parameters;
+    return "\"" + toolPath.string() + "\" " + parameters;
   }
 }
 

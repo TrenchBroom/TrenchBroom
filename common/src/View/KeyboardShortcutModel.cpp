@@ -117,7 +117,7 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     }
     else
     {
-      return QString::fromStdString(actionInfo.displayPath.asGenericString());
+      return QString::fromStdString(actionInfo.displayPath.generic_string());
     }
   }
   else if (role == Qt::ForegroundRole)

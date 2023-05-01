@@ -56,8 +56,8 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
   mods = kdl::vec_concat(std::move(mods), document->mods());
 
   using namespace CompilationVariableNames;
-  declare(MAP_BASE_NAME, EL::Value{filename.deleteExtension().asString()});
-  declare(GAME_DIR_PATH, EL::Value{gamePath.asString()});
+  declare(MAP_BASE_NAME, EL::Value{filename.deleteExtension().string()});
+  declare(GAME_DIR_PATH, EL::Value{gamePath.string()});
   declare(
     MODS,
     EL::Value{kdl::vec_transform(mods, [](const auto& mod) { return EL::Value{mod}; })});
@@ -69,7 +69,7 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
       factory.compilationToolPath(document->game()->gameName(), tool.name);
     // e.g. variable name might be "qbsp", and the value is the path to the user's local
     // qbsp executable
-    declare(tool.name, EL::Value{toolPath.asString()});
+    declare(tool.name, EL::Value{toolPath.string()});
   }
 }
 
@@ -82,9 +82,9 @@ CommonCompilationVariables::CommonCompilationVariables(
   const auto appPath = IO::SystemPaths::appDirectory();
 
   using namespace CompilationVariableNames;
-  declare(MAP_FULL_NAME, EL::Value{filename.asString()});
-  declare(MAP_DIR_PATH, EL::Value{filePath.asString()});
-  declare(APP_DIR_PATH, EL::Value{appPath.asString()});
+  declare(MAP_FULL_NAME, EL::Value{filename.string()});
+  declare(MAP_DIR_PATH, EL::Value{filePath.string()});
+  declare(APP_DIR_PATH, EL::Value{appPath.string()});
 }
 
 CompilationWorkDirVariables::CompilationWorkDirVariables(

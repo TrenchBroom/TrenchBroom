@@ -57,18 +57,18 @@ Assets::Texture loadSkin(
   try
   {
     const auto file = fs.openFile(path);
-    const auto extension = kdl::str_to_lower(path.extension().asString());
+    const auto extension = kdl::str_to_lower(path.extension().string());
 
     auto reader = file->reader().buffer();
-    return (extension == ".wal" ? readWalTexture(path.stem().asString(), reader, palette)
-                                : readFreeImageTexture(path.stem().asString(), reader))
+    return (extension == ".wal" ? readWalTexture(path.stem().string(), reader, palette)
+                                : readFreeImageTexture(path.stem().string(), reader))
       .or_else(makeReadTextureErrorHandler(fs, logger))
       .value();
   }
   catch (Exception& e)
   {
     logger.error() << "Could not load skin '" << path << "': " << e.what();
-    return loadDefaultTexture(fs, path.stem().asString(), logger);
+    return loadDefaultTexture(fs, path.stem().string(), logger);
   }
 }
 
@@ -77,7 +77,7 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
   auto actualPath = !path.empty() && fs.pathInfo(path.deleteExtension()) == PathInfo::File
                       ? path.deleteExtension()
                       : path;
-  const auto name = path.asGenericString();
+  const auto name = path.generic_string();
 
   if (!path.empty())
   {

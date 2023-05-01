@@ -58,7 +58,7 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
 
     /* Disabled because our files are full of previously undetected problems
     if (status.countStatus(LogLevel::Warn) > 0u) {
-        UNSCOPED_INFO("Parsing FGD file " << path.asString() << " produced warnings");
+        UNSCOPED_INFO("Parsing FGD file " << path.string() << " produced warnings");
         for (const auto& message : status.messages(LogLevel::Warn)) {
             UNSCOPED_INFO(message);
         }
@@ -66,7 +66,7 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
     }
 
     if (status.countStatus(LogLevel::Error) > 0u) {
-        UNSCOPED_INFO("Parsing FGD file " << path.asString() << " produced errors");
+        UNSCOPED_INFO("Parsing FGD file " << path.string() << " produced errors");
         for (const auto& message : status.messages(LogLevel::Error)) {
             UNSCOPED_INFO(message);
         }

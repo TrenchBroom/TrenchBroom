@@ -48,7 +48,7 @@ SprParser::SprParser(
 
 bool SprParser::canParse(const Path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension().asString()) != ".spr")
+  if (kdl::str_to_lower(path.extension().string()) != ".spr")
   {
     return false;
   }

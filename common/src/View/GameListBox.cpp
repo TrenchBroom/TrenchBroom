@@ -109,7 +109,7 @@ GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const
     IO::loadPixmapResource(iconPath),
     QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
     QString::fromStdString(
-      gamePath.empty() ? std::string("Game not found") : gamePath.asString())};
+      gamePath.empty() ? std::string("Game not found") : gamePath.string())};
 }
 
 size_t GameListBox::itemCount() const

@@ -52,8 +52,8 @@ public:
   bool operator<(const Path& rhs) const;
   bool operator>(const Path& rhs) const;
 
-  std::string asString() const;
-  std::string asGenericString() const;
+  std::string string() const;
+  std::string generic_string() const;
 
   size_t hidden_length() const;
   bool empty() const;

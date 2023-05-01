@@ -155,7 +155,7 @@ void TestGame::doWriteMap(WorldNode& world, const IO::Path& path) const
   std::ofstream file = openPathAsOutputStream(path);
   if (!file)
   {
-    throw FileSystemException("Cannot open file: " + path.asString());
+    throw FileSystemException("Cannot open file: " + path.string());
   }
   IO::writeGameComment(file, gameName(), mapFormatName);
 

@@ -121,8 +121,8 @@ std::string EntityDefinitionFileSpec::asString() const
   if (!valid())
     return "";
   if (builtin())
-    return "builtin:" + m_path.asString();
-  return "external:" + m_path.asString();
+    return "builtin:" + m_path.string();
+  return "external:" + m_path.string();
 }
 
 EntityDefinitionFileSpec::EntityDefinitionFileSpec(const Type type, const IO::Path& path)

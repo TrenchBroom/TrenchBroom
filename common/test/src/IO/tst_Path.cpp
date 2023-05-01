@@ -30,16 +30,16 @@ namespace TrenchBroom::IO
 #ifdef _WIN32
 TEST_CASE("PathTest.constructWithString")
 {
-  CHECK(Path{}.asString() == std::string(""));
-  CHECK(Path{" "}.asString() == std::string(""));
-  CHECK(Path{"c:\\"}.asString() == std::string("c:"));
-  CHECK(Path{"c:\\asdf"}.asString() == std::string("c:\\asdf"));
-  CHECK(Path{"c:\\asdf\\"}.asString() == std::string("c:\\asdf"));
-  CHECK(Path{"c:\\asdf\\df"}.asString() == std::string("c:\\asdf\\df"));
-  CHECK(Path{"hey"}.asString() == std::string("hey"));
-  CHECK(Path{"hey\\"}.asString() == std::string("hey"));
-  CHECK(Path{"hey\\asdf"}.asString() == std::string("hey\\asdf"));
-  CHECK(Path{".\\asdf"}.asString() == std::string(".\\asdf"));
+  CHECK(Path{}.string() == std::string(""));
+  CHECK(Path{" "}.string() == std::string(""));
+  CHECK(Path{"c:\\"}.string() == std::string("c:"));
+  CHECK(Path{"c:\\asdf"}.string() == std::string("c:\\asdf"));
+  CHECK(Path{"c:\\asdf\\"}.string() == std::string("c:\\asdf"));
+  CHECK(Path{"c:\\asdf\\df"}.string() == std::string("c:\\asdf\\df"));
+  CHECK(Path{"hey"}.string() == std::string("hey"));
+  CHECK(Path{"hey\\"}.string() == std::string("hey"));
+  CHECK(Path{"hey\\asdf"}.string() == std::string("hey\\asdf"));
+  CHECK(Path{".\\asdf"}.string() == std::string(".\\asdf"));
 }
 
 TEST_CASE("PathTest.concatenate")
@@ -68,8 +68,8 @@ TEST_CASE("PathTest.isEmpty")
 
 TEST_CASE("PathTest.getLastComponent")
 {
-  CHECK_THROWS_AS(Path{}.lastComponent().asString(), PathException);
-  CHECK(Path{"c:\\asdf"}.lastComponent().asString() == "asdf");
+  CHECK_THROWS_AS(Path{}.lastComponent().string(), PathException);
+  CHECK(Path{"c:\\asdf"}.lastComponent().string() == "asdf");
   CHECK(Path{"asdf"}.lastComponent() == Path{"asdf"});
   CHECK(Path{"c:\\this\\is\\a\\path.map"}.lastComponent() == Path{"path.map"});
   CHECK(Path{"/"}.lastComponent() == Path{});
@@ -87,9 +87,9 @@ TEST_CASE("PathTest.deleteLastComponent")
 TEST_CASE("PathTest.getFirstComponent")
 {
   CHECK_THROWS_AS(Path{}.firstComponent(), PathException);
-  CHECK(Path{"/asdf"}.firstComponent().asString() == "\\");
-  CHECK(Path{"c:\\asdf\\blah"}.firstComponent().asString() == "c:");
-  CHECK(Path{"asdf\\bbab"}.firstComponent().asString() == "asdf");
+  CHECK(Path{"/asdf"}.firstComponent().string() == "\\");
+  CHECK(Path{"c:\\asdf\\blah"}.firstComponent().string() == "c:");
+  CHECK(Path{"asdf\\bbab"}.firstComponent().string() == "asdf");
 }
 
 TEST_CASE("PathTest.deleteFirstComponent")
@@ -136,7 +136,7 @@ TEST_CASE("PathTest.deleteExtension")
 
 TEST_CASE("PathTest.addExtension")
 {
-  const auto test = Path{"c:\\"}.addExtension("map").asString();
+  const auto test = Path{"c:\\"}.addExtension("map").string();
   const auto test2 = test;
   const auto test3 = test + test2;
 
@@ -225,16 +225,16 @@ TEST_CASE("PathTest.pathFromQString")
 #else
 TEST_CASE("PathTest.constructWithString")
 {
-  CHECK(Path{}.asString() == std::string(""));
-  CHECK(Path{" "}.asString() == std::string(" "));
-  CHECK(Path{"/"}.asString() == std::string("/"));
-  CHECK(Path{"/asdf"}.asString() == std::string("/asdf"));
-  CHECK(Path{"/asdf/"}.asString() == std::string("/asdf/"));
-  CHECK(Path{"/asdf/df"}.asString() == std::string("/asdf/df"));
-  CHECK(Path{"hey"}.asString() == std::string("hey"));
-  CHECK(Path{"hey/"}.asString() == std::string("hey/"));
-  CHECK(Path{"hey/asdf"}.asString() == std::string("hey/asdf"));
-  CHECK(Path{"./asdf"}.asString() == std::string("./asdf"));
+  CHECK(Path{}.string() == std::string(""));
+  CHECK(Path{" "}.string() == std::string(" "));
+  CHECK(Path{"/"}.string() == std::string("/"));
+  CHECK(Path{"/asdf"}.string() == std::string("/asdf"));
+  CHECK(Path{"/asdf/"}.string() == std::string("/asdf/"));
+  CHECK(Path{"/asdf/df"}.string() == std::string("/asdf/df"));
+  CHECK(Path{"hey"}.string() == std::string("hey"));
+  CHECK(Path{"hey/"}.string() == std::string("hey/"));
+  CHECK(Path{"hey/asdf"}.string() == std::string("hey/asdf"));
+  CHECK(Path{"./asdf"}.string() == std::string("./asdf"));
 }
 
 TEST_CASE("PathTest.concatenate")

@@ -120,7 +120,7 @@ Path VirtualFileSystem::doMakeAbsolute(const Path& path) const
   {
     return *absolutePath;
   }
-  throw FileSystemException("Cannot make absolute path of '" + path.asString() + "'");
+  throw FileSystemException("Cannot make absolute path of '" + path.string() + "'");
 }
 
 PathInfo VirtualFileSystem::doGetPathInfo(const Path& path) const

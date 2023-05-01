@@ -282,7 +282,7 @@ std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger
 // -- Neverball --
 
 NvObjParser::NvObjParser(Path path, const std::string_view text, const FileSystem& fs)
-  : ObjParser{path.lastComponent().asString(), text}
+  : ObjParser{path.lastComponent().string(), text}
   , m_path{std::move(path)}
   , m_fs{fs}
 {
@@ -290,7 +290,7 @@ NvObjParser::NvObjParser(Path path, const std::string_view text, const FileSyste
 
 bool NvObjParser::canParse(const Path& path)
 {
-  return kdl::str_to_lower(path.extension().asString()) == ".obj";
+  return kdl::str_to_lower(path.extension().string()) == ".obj";
 }
 
 bool NvObjParser::transformObjCoordinateSet(
@@ -359,7 +359,7 @@ std::optional<Assets::Texture> NvObjParser::loadFallbackMaterial(Logger& logger)
   // This isn't really how it works, but the Neverball-side truth involves MAP files
   // acting as a replacement for something like JSON. This is a less Neverball-specific
   // set of logic which should be useful for any game.
-  const auto basic_skin_name = m_path.lastComponent().deleteExtension().asString();
+  const auto basic_skin_name = m_path.lastComponent().deleteExtension().string();
   if (auto material = loadMaterial(basic_skin_name))
   {
     return material;

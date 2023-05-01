@@ -163,9 +163,9 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 {
   // Create model.
   auto model = std::make_unique<Assets::EntityModel>(
-    m_path.asString(), Assets::PitchType::Normal, Assets::Orientation::Oriented);
+    m_path.string(), Assets::PitchType::Normal, Assets::Orientation::Oriented);
   model->addFrame();
-  auto& surface = model->addSurface(m_path.asString());
+  auto& surface = model->addSurface(m_path.string());
 
   m_positions.clear();
   m_vertices.clear();
@@ -177,7 +177,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   importer.SetIOHandler(new AssimpIOSystem{m_fs});
 
   const auto* scene = importer.ReadFile(
-    m_path.asString(),
+    m_path.string(),
     aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_FlipWindingOrder
       | aiProcess_SortByPType | aiProcess_FlipUVs);
 
@@ -224,7 +224,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   }
 
   // Part 2: Building
-  auto& frame = model->loadFrame(0, m_path.asString(), bounds.bounds());
+  auto& frame = model->loadFrame(0, m_path.string(), bounds.bounds());
   auto builder = Renderer::TexturedIndexRangeMapBuilder<Assets::EntityModelVertex::Type>{
     totalVertexCount, size};
 
@@ -266,7 +266,7 @@ bool AssimpParser::canParse(const Path& path)
   // clang-format on
 
   return kdl::vec_contains(
-    supportedExtensions, kdl::str_to_lower(path.extension().asString()));
+    supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
 void AssimpParser::processNode(
@@ -457,7 +457,7 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
                                   ? scene.mMaterials[i]->GetName().C_Str()
                                   : "nr. " + std::to_string(i + 1);
       logger.error(
-        "Model " + m_path.asString() + ": Loading fallback material for material "
+        "Model " + m_path.string() + ": Loading fallback material for material "
         + materialName + ": " + exception.what());
     }
   }

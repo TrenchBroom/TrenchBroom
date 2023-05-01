@@ -62,7 +62,7 @@ void ZipFileSystem::doReadDirectory()
         if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
         {
           throw FileSystemException{
-            "mz_zip_reader_file_stat failed for " + path.asString()};
+            "mz_zip_reader_file_stat failed for " + path.string()};
         }
 
         const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
@@ -72,7 +72,7 @@ void ZipFileSystem::doReadDirectory()
         if (!mz_zip_reader_extract_to_mem(&m_archive, i, begin, uncompressedSize, 0))
         {
           throw FileSystemException{
-            "mz_zip_reader_extract_to_mem failed for " + path.asString()};
+            "mz_zip_reader_extract_to_mem failed for " + path.string()};
         }
 
         return std::make_shared<OwningBufferFile>(

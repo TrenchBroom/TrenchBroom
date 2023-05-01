@@ -440,7 +440,7 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
 map_Kd {}
 
 )",
-                             expectedPath->asString())
+                             expectedPath->string())
                                         : R"(newmtl some_texture
 
 )";

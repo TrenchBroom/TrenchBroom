@@ -72,7 +72,7 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
       try
       {
         auto parser = Quake3ShaderParser{bufferedReader.stringView()};
-        auto status = SimpleParserStatus{m_logger, file->path().asString()};
+        auto status = SimpleParserStatus{m_logger, file->path().string()};
         result = kdl::vec_concat(std::move(result), parser.parse(status));
       }
       catch (const ParserException& e)
@@ -96,7 +96,8 @@ void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shad
       allImages = kdl::vec_concat(
         std::move(allImages),
         m_fs.findRecursively(
-          textureSearchPath, makeExtensionPathMatcher({".tga", ".png", ".jpg", ".jpeg"})));
+          textureSearchPath,
+          makeExtensionPathMatcher({".tga", ".png", ".jpg", ".jpeg"})));
     }
   }
 

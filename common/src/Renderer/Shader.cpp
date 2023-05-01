@@ -34,7 +34,7 @@ namespace TrenchBroom
 namespace Renderer
 {
 Shader::Shader(const IO::Path& path, const GLenum type)
-  : m_name(path.lastComponent().asString())
+  : m_name(path.lastComponent().string())
   , m_type(type)
   , m_shaderId(0)
 {
@@ -106,7 +106,7 @@ std::vector<std::string> Shader::loadSource(const IO::Path& path)
   std::ifstream stream = openPathAsInputStream(path);
   if (!stream.is_open())
   {
-    throw RenderException("Could not load shader source from " + path.asString());
+    throw RenderException("Could not load shader source from " + path.string());
   }
 
   std::string line;

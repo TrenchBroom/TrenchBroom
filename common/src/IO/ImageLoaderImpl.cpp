@@ -54,7 +54,7 @@ ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const Path& p
     throw FileFormatException("Unknown image format");
   }
 
-  m_bitmap = FreeImage_Load(fifFormat, path.asString().c_str());
+  m_bitmap = FreeImage_Load(fifFormat, path.string().c_str());
 }
 
 ImageLoaderImpl::ImageLoaderImpl(

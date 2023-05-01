@@ -591,7 +591,7 @@ void MapDocument::loadDocument(
   std::shared_ptr<Model::Game> game,
   const IO::Path& path)
 {
-  info("Loading document from " + path.asString());
+  info("Loading document from " + path.string());
 
   clearRepeatableCommands();
   doClearCommandProcessor();
@@ -978,13 +978,12 @@ void MapDocument::loadPortalFile(const IO::Path path)
   catch (const std::exception& exception)
   {
     info(
-      "Couldn't load portal file " + m_portalFilePath.asString() + ": "
-      + exception.what());
+      "Couldn't load portal file " + m_portalFilePath.string() + ": " + exception.what());
   }
 
   if (isPortalFileLoaded())
   {
-    info("Loaded portal file " + m_portalFilePath.asString());
+    info("Loaded portal file " + m_portalFilePath.string());
     portalFileWasLoadedNotifier();
   }
 }
@@ -4449,7 +4448,7 @@ void MapDocument::loadEntityDefinitions()
     const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
     IO::SimpleParserStatus status(logger());
     m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
-    info("Loaded entity definition file " + path.lastComponent().asString());
+    info("Loaded entity definition file " + path.lastComponent().string());
 
     createEntityDefinitionActions();
   }
@@ -4990,7 +4989,7 @@ std::string MapDocument::filename() const
   {
     return "";
   }
-  return m_path.lastComponent().asString();
+  return m_path.lastComponent().string();
 }
 
 const IO::Path& MapDocument::path() const

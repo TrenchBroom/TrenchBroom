@@ -67,7 +67,7 @@ const IO::Path& FontDescriptor::path() const
 
 std::string FontDescriptor::name() const
 {
-  return m_path.lastComponent().deleteExtension().asString();
+  return m_path.lastComponent().deleteExtension().string();
 }
 
 size_t FontDescriptor::size() const

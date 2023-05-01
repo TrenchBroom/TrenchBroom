@@ -343,7 +343,7 @@ bool TrenchBroomApp::openDocument(const IO::Path& path)
   {
     if (IO::Disk::pathInfo(path) != IO::PathInfo::File)
     {
-      throw FileNotFoundException{path.asString()};
+      throw FileNotFoundException{path.string()};
     }
 
     auto& gameFactory = Model::GameFactory::instance();
@@ -489,7 +489,7 @@ void TrenchBroomApp::showManual()
 {
   const auto manualPath =
     IO::SystemPaths::findResourceFile(IO::Path{"manual/index.html"});
-  const auto manualPathString = manualPath.asString();
+  const auto manualPathString = manualPath.string();
   const auto manualPathUrl =
     QUrl::fromLocalFile(QString::fromStdString(manualPathString));
   QDesktopServices::openUrl(manualPathUrl);
@@ -662,7 +662,7 @@ IO::Path crashReportBasePath()
   const auto crashLogPath =
     !mapPath.empty()
       ? mapPath.deleteLastComponent()
-          / IO::Path{mapPath.lastComponent().deleteExtension().asString() + "-crash.txt"}
+          / IO::Path{mapPath.lastComponent().deleteExtension().string() + "-crash.txt"}
       : IO::pathFromQString(
           QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
           / IO::Path{"trenchbroom-crash.txt"};
@@ -675,7 +675,7 @@ IO::Path crashReportBasePath()
     ++index;
 
     const auto testCrashLogName = fmt::format(
-      "{}-{}.txt", crashLogPath.lastComponent().deleteExtension().asString(), index);
+      "{}-{}.txt", crashLogPath.lastComponent().deleteExtension().string(), index);
     testCrashLogPath = crashLogPath.deleteLastComponent() / IO::Path{testCrashLogName};
   }
 
@@ -718,14 +718,14 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   std::ofstream reportStream = openPathAsOutputStream(reportPath);
   reportStream << report;
   reportStream.close();
-  std::cerr << "wrote crash log to " << reportPath.asString() << std::endl;
+  std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
 
   // save the map
   auto doc = topDocument();
   if (doc.get())
   {
     doc->saveDocumentTo(mapPath);
-    std::cerr << "wrote map to " << mapPath.asString() << std::endl;
+    std::cerr << "wrote map to " << mapPath.string() << std::endl;
   }
   else
   {

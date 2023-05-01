@@ -188,7 +188,7 @@ void ImageFileSystemBase::initialize()
   catch (const std::exception& e)
   {
     throw FileSystemException{
-      "Could not initialize image file system '" + m_path.asString() + "': " + e.what()};
+      "Could not initialize image file system '" + m_path.string() + "': " + e.what()};
   }
 }
 
