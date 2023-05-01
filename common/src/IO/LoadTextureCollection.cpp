@@ -99,7 +99,7 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
   const auto extension = kdl::str_to_lower(file.path().extension().asString());
   if (extension == ".d")
   {
-    auto name = file.path().basename().asString();
+    auto name = file.path().stem().asString();
     if (!palette)
     {
       return ReadTextureError{std::move(name), "Could not load texture: missing palette"};
@@ -109,7 +109,7 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
   }
   else if (extension == ".c")
   {
-    auto name = file.path().basename().asString();
+    auto name = file.path().stem().asString();
     auto reader = file.reader().buffer();
     return readHlMipTexture(std::move(name), reader);
   }

@@ -60,16 +60,15 @@ Assets::Texture loadSkin(
     const auto extension = kdl::str_to_lower(path.extension().asString());
 
     auto reader = file->reader().buffer();
-    return (extension == ".wal"
-              ? readWalTexture(path.basename().asString(), reader, palette)
-              : readFreeImageTexture(path.basename().asString(), reader))
+    return (extension == ".wal" ? readWalTexture(path.stem().asString(), reader, palette)
+                                : readFreeImageTexture(path.stem().asString(), reader))
       .or_else(makeReadTextureErrorHandler(fs, logger))
       .value();
   }
   catch (Exception& e)
   {
     logger.error() << "Could not load skin '" << path << "': " << e.what();
-    return loadDefaultTexture(fs, path.basename().asString(), logger);
+    return loadDefaultTexture(fs, path.stem().asString(), logger);
   }
 }
 

@@ -56,7 +56,7 @@ std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
     }
 
     const auto directoryPath = texturePath.deleteLastComponent();
-    const auto basename = texturePath.basename().asString();
+    const auto basename = texturePath.stem().asString();
     const auto candidates = fs.find(
       texturePath.deleteLastComponent(),
       kdl::lift_and(

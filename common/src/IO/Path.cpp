@@ -126,7 +126,7 @@ Path Path::filename() const
   return Path{m_path.filename()};
 }
 
-Path Path::basename() const
+Path Path::stem() const
 {
   return Path{m_path.stem()};
 }
@@ -143,7 +143,7 @@ bool Path::hidden_hasPrefix(const Path& prefix) const
 
 Path Path::deleteExtension() const
 {
-  return empty() ? *this : deleteLastComponent() / Path{basename()};
+  return empty() ? *this : deleteLastComponent() / Path{stem()};
 }
 
 Path Path::addExtension(const std::string& extension) const

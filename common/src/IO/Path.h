@@ -65,7 +65,7 @@ public:
   Path hidden_clip(size_t index, size_t count) const;
 
   Path filename() const;
-  Path basename() const;
+  Path stem() const;
   Path extension() const;
 
   bool hidden_hasPrefix(const Path& prefix) const;
