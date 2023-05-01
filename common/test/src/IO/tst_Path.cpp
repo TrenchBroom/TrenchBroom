@@ -322,11 +322,13 @@ TEST_CASE("PathTest.getExtension")
 
 TEST_CASE("PathTest.makeRelative")
 {
-  CHECK(Path{}.makeRelative() == Path{});
-  CHECK(Path{"models/barrel/skin.tga"}.makeRelative() == Path{"models/barrel/skin.tga"});
-  CHECK(Path{"/"}.makeRelative() == Path{});
-  CHECK(Path{"/models/barrel/skin.tga"}.makeRelative() == Path{"models/barrel/skin.tga"});
-  CHECK(Path{"/models/barrel/skin.tga"}.makeRelative() == Path{"models/barrel/skin.tga"});
+  CHECK(Path{}.relative_path() == Path{});
+  CHECK(Path{"models/barrel/skin.tga"}.relative_path() == Path{"models/barrel/skin.tga"});
+  CHECK(Path{"/"}.relative_path() == Path{});
+  CHECK(
+    Path{"/models/barrel/skin.tga"}.relative_path() == Path{"models/barrel/skin.tga"});
+  CHECK(
+    Path{"/models/barrel/skin.tga"}.relative_path() == Path{"models/barrel/skin.tga"});
 }
 
 TEST_CASE("PathTest.makeRelativeWithAbsolutePath")

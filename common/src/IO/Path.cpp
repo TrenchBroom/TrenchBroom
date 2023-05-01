@@ -151,7 +151,7 @@ bool Path::is_absolute() const
   return m_path.is_absolute();
 }
 
-Path Path::makeRelative() const
+Path Path::relative_path() const
 {
   return Path{m_path.relative_path()};
 }

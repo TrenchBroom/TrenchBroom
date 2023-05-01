@@ -81,7 +81,7 @@ public:
    *
    * @return the relative path
    */
-  Path makeRelative() const;
+  Path relative_path() const;
   Path makeRelative(const Path& absolutePath) const;
   Path makeCanonical() const;
   Path hidden_makeLowerCase() const;
