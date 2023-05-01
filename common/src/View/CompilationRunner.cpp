@@ -99,7 +99,7 @@ void CompilationExportMapTaskRunner::doExecute()
 
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath.deleteLastComponent());
+        IO::Disk::ensureDirectoryExists(targetPath.pop_back());
 
         const auto options = IO::MapExportOptions{targetPath};
         const auto document = m_context.document();
@@ -140,9 +140,9 @@ void CompilationCopyFilesTaskRunner::doExecute()
     const auto sourcePath = IO::Path{interpolate(m_task.sourceSpec)};
     const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
 
-    const auto sourceDirPath = sourcePath.deleteLastComponent();
+    const auto sourceDirPath = sourcePath.pop_back();
     const auto sourcePathMatcher =
-      IO::makeFilenamePathMatcher(sourcePath.lastComponent().string());
+      IO::makeFilenamePathMatcher(sourcePath.back().string());
 
     try
     {
@@ -199,7 +199,7 @@ void CompilationRenameFileTaskRunner::doExecute()
                 << IO::pathAsQString(targetPath) << "'\n";
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath.deleteLastComponent());
+        IO::Disk::ensureDirectoryExists(targetPath.pop_back());
         IO::Disk::moveFile(sourcePath, targetPath, true);
       }
       emit end();
@@ -236,9 +236,9 @@ void CompilationDeleteFilesTaskRunner::doExecute()
   {
     const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
 
-    const auto targetDirPath = targetPath.deleteLastComponent();
+    const auto targetDirPath = targetPath.pop_back();
     const auto targetPathMatcher =
-      IO::makeFilenamePathMatcher(targetPath.lastComponent().string());
+      IO::makeFilenamePathMatcher(targetPath.back().string());
 
     try
     {

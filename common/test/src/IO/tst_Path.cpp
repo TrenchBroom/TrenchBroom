@@ -68,20 +68,19 @@ TEST_CASE("PathTest.isEmpty")
 
 TEST_CASE("PathTest.getLastComponent")
 {
-  CHECK_THROWS_AS(Path{}.lastComponent().string(), PathException);
-  CHECK(Path{"c:\\asdf"}.lastComponent().string() == "asdf");
-  CHECK(Path{"asdf"}.lastComponent() == Path{"asdf"});
-  CHECK(Path{"c:\\this\\is\\a\\path.map"}.lastComponent() == Path{"path.map"});
-  CHECK(Path{"/"}.lastComponent() == Path{});
+  CHECK_THROWS_AS(Path{}.back().string(), PathException);
+  CHECK(Path{"c:\\asdf"}.back().string() == "asdf");
+  CHECK(Path{"asdf"}.back() == Path{"asdf"});
+  CHECK(Path{"c:\\this\\is\\a\\path.map"}.back() == Path{"path.map"});
+  CHECK(Path{"/"}.back() == Path{});
 }
 
 TEST_CASE("PathTest.deleteLastComponent")
 {
-  CHECK_THROWS_AS(Path{}.deleteLastComponent(), PathException);
-  CHECK(Path{"c:\\asdf"}.deleteLastComponent() == Path{"c:\\"});
-  CHECK(Path{"asdf"}.deleteLastComponent() == Path{});
-  CHECK(
-    Path{"c:\\this\\is\\a\\path.map"}.deleteLastComponent() == Path{"c:\\this\\is\\a"});
+  CHECK_THROWS_AS(Path{}.deleteback(), PathException);
+  CHECK(Path{"c:\\asdf"}.deleteback() == Path{"c:\\"});
+  CHECK(Path{"asdf"}.deleteback() == Path{});
+  CHECK(Path{"c:\\this\\is\\a\\path.map"}.deleteback() == Path{"c:\\this\\is\\a"});
 }
 
 TEST_CASE("PathTest.getFirstComponent")
@@ -263,36 +262,36 @@ TEST_CASE("PathTest.isEmpty")
 
 TEST_CASE("PathTest.getLastComponent")
 {
-  CHECK(Path{}.lastComponent() == Path{});
-  CHECK(Path{"/asdf"}.lastComponent() == Path{"asdf"});
-  CHECK(Path{"asdf"}.lastComponent() == Path{"asdf"});
-  CHECK(Path{"/this/is/a/path.map"}.lastComponent() == Path{"path.map"});
-  CHECK(Path{"/"}.lastComponent() == Path{"/"});
+  CHECK(Path{}.back() == Path{});
+  CHECK(Path{"/asdf"}.back() == Path{"asdf"});
+  CHECK(Path{"asdf"}.back() == Path{"asdf"});
+  CHECK(Path{"/this/is/a/path.map"}.back() == Path{"path.map"});
+  CHECK(Path{"/"}.back() == Path{"/"});
 }
 
 TEST_CASE("PathTest.deleteLastComponent")
 {
-  CHECK(Path{}.deleteLastComponent() == Path{});
-  CHECK(Path{"/asdf"}.deleteLastComponent() == Path{"/"});
-  CHECK(Path{"asdf"}.deleteLastComponent() == Path{});
-  CHECK(Path{"/this/is/a/path.map"}.deleteLastComponent() == Path{"/this/is/a"});
-  CHECK(Path{"/"}.deleteLastComponent() == Path{});
+  CHECK(Path{}.pop_back() == Path{});
+  CHECK(Path{"/asdf"}.pop_back() == Path{"/"});
+  CHECK(Path{"asdf"}.pop_back() == Path{});
+  CHECK(Path{"/this/is/a/path.map"}.pop_back() == Path{"/this/is/a"});
+  CHECK(Path{"/"}.pop_back() == Path{});
 }
 
 TEST_CASE("PathTest.getFirstComponet")
 {
-  CHECK(Path{}.firstComponent() == Path{});
-  CHECK(Path{"/"}.firstComponent() == Path{"/"});
-  CHECK(Path{"/asdf"}.firstComponent() == Path{"/"});
-  CHECK(Path{"asdf"}.firstComponent() == Path{"asdf"});
+  CHECK(Path{}.front() == Path{});
+  CHECK(Path{"/"}.front() == Path{"/"});
+  CHECK(Path{"/asdf"}.front() == Path{"/"});
+  CHECK(Path{"asdf"}.front() == Path{"asdf"});
 }
 
 TEST_CASE("PathTest.deleteFirstComponent")
 {
-  CHECK(Path{}.deleteFirstComponent() == Path{});
-  CHECK(Path{"/"}.deleteFirstComponent() == Path{});
-  CHECK(Path{"/asdf"}.deleteFirstComponent() == Path{"asdf"});
-  CHECK(Path{"asdf/blah"}.deleteFirstComponent() == Path{"blah"});
+  CHECK(Path{}.pop_front() == Path{});
+  CHECK(Path{"/"}.pop_front() == Path{});
+  CHECK(Path{"/asdf"}.pop_front() == Path{"asdf"});
+  CHECK(Path{"asdf/blah"}.pop_front() == Path{"blah"});
 }
 
 TEST_CASE("PathTest.hidden_clip")

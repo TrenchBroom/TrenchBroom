@@ -43,7 +43,7 @@ IO::PathMatcher makeBackupPathMatcher(IO::Path mapBasename)
 {
   return [mapBasename = std::move(mapBasename)](
            const IO::Path& path, const IO::GetPathInfo& getPathInfo) {
-    const auto backupName = path.lastComponent().deleteExtension();
+    const auto backupName = path.back().deleteExtension();
     const auto backupBasename = backupName.deleteExtension();
     const auto backupExtension = backupName.extension().string();
     const auto backupNum = backupExtension.empty() ? "" : backupExtension.substr(1);
@@ -86,7 +86,7 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
   const auto& mapPath = document->path();
   assert(IO::Disk::pathInfo(mapPath) == IO::PathInfo::File);
 
-  const auto mapFilename = mapPath.lastComponent();
+  const auto mapFilename = mapPath.back();
   const auto mapBasename = mapFilename.deleteExtension();
 
   try
@@ -117,7 +117,7 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
 IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(
   Logger& logger, const IO::Path& mapPath) const
 {
-  const auto basePath = mapPath.deleteLastComponent();
+  const auto basePath = mapPath.pop_back();
   const auto autosavePath = basePath / IO::Path("autosave");
 
   try
@@ -184,7 +184,7 @@ void Autosaver::cleanBackups(
 {
   for (size_t i = 0; i < backups.size(); ++i)
   {
-    const auto& oldName = backups[i].lastComponent();
+    const auto& oldName = backups[i].back();
     const auto newName = makeBackupName(mapBasename, i + 1);
 
     if (oldName != newName)

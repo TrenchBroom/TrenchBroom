@@ -153,7 +153,7 @@ void RecentDocuments::createMenuItems(QMenu* menu)
   for (const auto& path : m_recentDocuments)
   {
     menu->addAction(
-      IO::pathAsQString(path.lastComponent()), [this, path]() { loadDocument(path); });
+      IO::pathAsQString(path.back()), [this, path]() { loadDocument(path); });
   }
 }
 } // namespace View

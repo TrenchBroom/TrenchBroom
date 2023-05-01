@@ -36,7 +36,7 @@ FileLogger::FileLogger(const IO::Path& filePath)
   : m_file(nullptr)
 {
   const auto fixedPath = IO::Disk::fixPath(filePath);
-  IO::Disk::ensureDirectoryExists(fixedPath.deleteLastComponent());
+  IO::Disk::ensureDirectoryExists(fixedPath.pop_back());
   m_file = openPathAsFILE(fixedPath, "w");
   ensure(m_file != nullptr, "log file could not be opened");
 }

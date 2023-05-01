@@ -478,8 +478,8 @@ Path DkmParser::findSkin(const std::string& skin) const
   }
 
   // Search for any file with the correct base name.
-  const auto folder = skinPath.deleteLastComponent();
-  const auto basename = skinPath.lastComponent().deleteExtension();
+  const auto folder = skinPath.pop_back();
+  const auto basename = skinPath.back().deleteExtension();
   const auto items = m_fs.find(folder, makeFilenamePathMatcher(basename.string() + ".*"));
   return items.size() == 1 ? items.front() : skinPath;
 }

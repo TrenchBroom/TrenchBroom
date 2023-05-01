@@ -345,8 +345,8 @@ void GameImpl::doReloadWads(
   const IO::Path& documentPath, const std::vector<IO::Path>& wadPaths, Logger& logger)
 {
   const auto searchPaths = std::vector<IO::Path>{
-    documentPath.deleteLastComponent(), // Search for assets relative to the map file.
-    m_gamePath, // Search for assets relative to the location of the game.
+    documentPath.pop_back(), // Search for assets relative to the map file.
+    m_gamePath,              // Search for assets relative to the location of the game.
     IO::SystemPaths::appDirectory(), // Search for assets relative to the application.
   };
   m_fs.reloadWads(m_config.textureConfig.root, searchPaths, wadPaths, logger);
@@ -458,7 +458,7 @@ static auto withEntityParser(
   auto file = fs.openFile(path);
   ensure(file != nullptr, "file is null");
 
-  const auto modelName = path.lastComponent().string();
+  const auto modelName = path.back().string();
   auto reader = file->reader().buffer();
 
   if (IO::MdlParser::canParse(path, reader))
@@ -600,13 +600,13 @@ std::vector<std::string> GameImpl::doAvailableMods() const
     return result;
   }
 
-  const auto& defaultMod = m_config.fileSystemConfig.searchPath.lastComponent().string();
+  const auto& defaultMod = m_config.fileSystemConfig.searchPath.back().string();
   const auto fs = IO::DiskFileSystem{m_gamePath};
   const auto subDirs =
     fs.find(IO::Path{}, IO::makePathInfoPathMatcher({IO::PathInfo::Directory}));
   for (const auto& subDir : subDirs)
   {
-    const auto mod = subDir.lastComponent().string();
+    const auto mod = subDir.back().string();
     if (!kdl::ci::str_is_equal(mod, defaultMod))
     {
       result.push_back(mod);

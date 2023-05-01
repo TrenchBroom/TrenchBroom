@@ -81,8 +81,8 @@ Path fixCase(const Path& path)
     return path;
   }
 
-  auto result = path.firstComponent();
-  auto remainder = path.deleteFirstComponent();
+  auto result = path.front();
+  auto remainder = path.pop_front();
 
   auto dir = QDir{};
   dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
@@ -91,7 +91,7 @@ Path fixCase(const Path& path)
   {
     dir.setPath(pathAsQString(result));
 
-    const auto curDirStr = pathAsQString(remainder.firstComponent());
+    const auto curDirStr = pathAsQString(remainder.front());
     const auto entries = dir.entryList();
     const auto entryIt = std::find_if(entries.begin(), entries.end(), [&](const auto& s) {
       const auto ss = pathFromQString(s);
@@ -105,7 +105,7 @@ Path fixCase(const Path& path)
     }
 
     result = result / pathFromQString(*entryIt);
-    remainder = remainder.deleteFirstComponent();
+    remainder = remainder.pop_front();
   }
   return result;
 }
@@ -193,7 +193,7 @@ void createFile(const Path& path, const std::string& contents)
   }
   else
   {
-    const auto directory = fixedPath.deleteLastComponent();
+    const auto directory = fixedPath.pop_back();
     if (pathInfo(directory) == PathInfo::Unknown)
     {
       createDirectory(directory);
@@ -213,7 +213,7 @@ bool createDirectoryHelper(const Path& path)
     return false;
   }
 
-  const auto parent = path.deleteLastComponent();
+  const auto parent = path.pop_back();
   if (!QDir{pathAsQString(parent)}.exists() && !createDirectoryHelper(parent))
   {
     return false;
@@ -305,7 +305,7 @@ void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
   {
-    fixedDestPath = fixedDestPath / sourcePath.lastComponent();
+    fixedDestPath = fixedDestPath / sourcePath.back();
   }
 
   const auto exists = pathInfo(fixedDestPath) == PathInfo::File;
@@ -378,7 +378,7 @@ void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
   {
-    fixedDestPath = fixedDestPath / sourcePath.lastComponent();
+    fixedDestPath = fixedDestPath / sourcePath.back();
   }
 
   if (!QFile::rename(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))

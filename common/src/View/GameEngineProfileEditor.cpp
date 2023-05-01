@@ -101,7 +101,7 @@ void GameEngineProfileEditor::updatePath(const QString& str)
     m_profile->path = IO::pathFromQString(str);
     if (m_profile->name.empty())
     {
-      m_profile->name = m_profile->path.lastComponent().deleteExtension().string();
+      m_profile->name = m_profile->path.back().deleteExtension().string();
     }
     emit profileChanged();
     refresh();

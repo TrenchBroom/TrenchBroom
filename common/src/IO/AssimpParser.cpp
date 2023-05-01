@@ -425,7 +425,7 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
       if (!texture)
       {
         // The texture is not embedded. Load it using the file system.
-        const auto filePath = m_path.deleteLastComponent() / texturePath;
+        const auto filePath = m_path.pop_back() / texturePath;
         m_textures.push_back(loadTextureFromFileSystem(filePath, m_fs, logger));
       }
       else if (texture->mHeight != 0)

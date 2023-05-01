@@ -76,16 +76,12 @@ auto withEntry(
   return std::visit(
     kdl::overload(
       [&](const ImageDirectoryEntry& directoryEntry) {
-        const auto name = searchPath.firstComponent();
+        const auto name = searchPath.front();
         const auto entryIt =
           findEntry(directoryEntry.entries.begin(), directoryEntry.entries.end(), name);
 
         return entryIt != directoryEntry.entries.end() ? withEntry(
-                 searchPath.deleteFirstComponent(),
-                 *entryIt,
-                 currentPath / name,
-                 f,
-                 defaultResult)
+                 searchPath.pop_front(), *entryIt, currentPath / name, f, defaultResult)
                                                        : defaultResult;
       },
       [&](const ImageFileEntry&) { return defaultResult; }),
@@ -108,13 +104,13 @@ void withEntry(
     std::visit(
       kdl::overload(
         [&](const ImageDirectoryEntry& directoryEntry) {
-          const auto name = searchPath.firstComponent();
+          const auto name = searchPath.front();
           const auto entryIt =
             findEntry(directoryEntry.entries.begin(), directoryEntry.entries.end(), name);
 
           if (entryIt != directoryEntry.entries.end())
           {
-            withEntry(searchPath.deleteFirstComponent(), *entryIt, currentPath / name, f);
+            withEntry(searchPath.pop_front(), *entryIt, currentPath / name, f);
           }
         },
         [&](const ImageFileEntry&) {}),
@@ -139,26 +135,26 @@ ImageDirectoryEntry& findOrCreateDirectory(const Path& path, ImageDirectoryEntry
     return parent;
   }
 
-  auto name = path.firstComponent();
+  auto name = path.front();
   auto entryIt = findEntry(parent.entries.begin(), parent.entries.end(), name);
   if (entryIt != parent.entries.end())
   {
     return std::visit(
       kdl::overload(
         [&](ImageDirectoryEntry& directoryEntry) -> ImageDirectoryEntry& {
-          return findOrCreateDirectory(path.deleteFirstComponent(), directoryEntry);
+          return findOrCreateDirectory(path.pop_front(), directoryEntry);
         },
         [&](ImageFileEntry&) -> ImageDirectoryEntry& {
           *entryIt = ImageDirectoryEntry{std::move(name), {}};
           return findOrCreateDirectory(
-            path.deleteFirstComponent(), std::get<ImageDirectoryEntry>(*entryIt));
+            path.pop_front(), std::get<ImageDirectoryEntry>(*entryIt));
         }),
       *entryIt);
   }
   else
   {
     return findOrCreateDirectory(
-      path.deleteFirstComponent(),
+      path.pop_front(),
       std::get<ImageDirectoryEntry>(
         parent.entries.emplace_back(ImageDirectoryEntry{std::move(name), {}})));
   }
@@ -194,10 +190,10 @@ void ImageFileSystemBase::initialize()
 
 void ImageFileSystemBase::addFile(const Path& path, GetImageFile getFile)
 {
-  auto& directoryEntry = findOrCreateDirectory(
-    path.deleteLastComponent(), std::get<ImageDirectoryEntry>(m_root));
+  auto& directoryEntry =
+    findOrCreateDirectory(path.pop_back(), std::get<ImageDirectoryEntry>(m_root));
 
-  auto name = path.lastComponent();
+  auto name = path.back();
   if (const auto entryIt =
         findEntry(directoryEntry.entries.begin(), directoryEntry.entries.end(), name);
       entryIt != directoryEntry.entries.end())

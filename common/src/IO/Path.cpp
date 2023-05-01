@@ -91,22 +91,22 @@ bool Path::empty() const
   return m_path.empty();
 }
 
-Path Path::firstComponent() const
+Path Path::front() const
 {
   return Path{kdl::path_front(m_path)};
 }
 
-Path Path::deleteFirstComponent() const
+Path Path::pop_front() const
 {
   return Path{kdl::path_pop_front(m_path)};
 }
 
-Path Path::lastComponent() const
+Path Path::back() const
 {
   return Path{kdl::path_back(m_path)};
 }
 
-Path Path::deleteLastComponent() const
+Path Path::pop_back() const
 {
   return Path{kdl::path_pop_back(m_path)};
 }
@@ -138,7 +138,7 @@ bool Path::hidden_hasPrefix(const Path& prefix) const
 
 Path Path::deleteExtension() const
 {
-  return empty() ? *this : deleteLastComponent() / Path{stem()};
+  return empty() ? *this : pop_back() / Path{stem()};
 }
 
 Path Path::addExtension(const std::string& extension) const

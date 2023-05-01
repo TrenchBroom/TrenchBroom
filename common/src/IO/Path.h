@@ -57,10 +57,10 @@ public:
 
   size_t hidden_length() const;
   bool empty() const;
-  Path firstComponent() const;
-  Path deleteFirstComponent() const;
-  Path lastComponent() const;
-  Path deleteLastComponent() const;
+  Path front() const;
+  Path pop_front() const;
+  Path back() const;
+  Path pop_back() const;
   Path hidden_clip(size_t index, size_t count) const;
 
   Path filename() const;

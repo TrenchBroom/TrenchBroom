@@ -55,10 +55,10 @@ std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
       return texturePath;
     }
 
-    const auto directoryPath = texturePath.deleteLastComponent();
+    const auto directoryPath = texturePath.pop_back();
     const auto basename = texturePath.stem().string();
     const auto candidates = fs.find(
-      texturePath.deleteLastComponent(),
+      texturePath.pop_back(),
       kdl::lift_and(
         makeFilenamePathMatcher(basename + ".*"),
         makeExtensionPathMatcher(imageExtensions)));

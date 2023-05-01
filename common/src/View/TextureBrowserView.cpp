@@ -193,7 +193,7 @@ void TextureBrowserView::addTextureToLayout(
 {
   const float maxCellWidth = layout.maxCellWidth();
 
-  const auto textureName = IO::Path(texture->name()).lastComponent().string();
+  const auto textureName = IO::Path(texture->name()).back().string();
 
   const auto textureFont =
     fontManager().selectFontSize(font, textureName, maxCellWidth, 6);

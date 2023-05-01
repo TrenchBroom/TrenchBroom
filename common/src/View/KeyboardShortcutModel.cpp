@@ -210,7 +210,7 @@ public:
   {
     m_currentPath = m_currentPath / IO::Path(menu.name());
     menu.visitEntries(*this);
-    m_currentPath = m_currentPath.deleteLastComponent();
+    m_currentPath = m_currentPath.pop_back();
   }
 
   void visit(const MenuSeparatorItem&) override {}
