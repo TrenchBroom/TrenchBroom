@@ -111,11 +111,6 @@ Path Path::deleteLastComponent() const
   return empty() ? Path{} : Path{m_path.parent_path()};
 }
 
-Path Path::prefix(const size_t count) const
-{
-  return hidden_clip(0, count);
-}
-
 Path Path::hidden_clip(const size_t index, const size_t count) const
 {
   return Path{kdl::path_clip(m_path, index, count)};

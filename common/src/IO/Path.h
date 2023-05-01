@@ -61,7 +61,6 @@ public:
   Path deleteFirstComponent() const;
   Path lastComponent() const;
   Path deleteLastComponent() const;
-  Path prefix(size_t count) const;
   Path hidden_clip(size_t index, size_t count) const;
 
   Path filename() const;
