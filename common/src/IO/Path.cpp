@@ -116,11 +116,6 @@ Path Path::prefix(const size_t count) const
   return hidden_clip(0, count);
 }
 
-Path Path::suffix(const size_t count) const
-{
-  return hidden_clip(hidden_length() - count, count);
-}
-
 Path Path::hidden_clip(const size_t index, const size_t count) const
 {
   return Path{kdl::path_clip(m_path, index, count)};
@@ -211,5 +206,10 @@ Path path_to_lower(const Path& path)
 Path path_clip(const Path& path, size_t index, size_t length)
 {
   return path.hidden_clip(index, length);
+}
+
+Path path_clip(const Path& path, size_t index)
+{
+  return path_clip(path, index, path_length(path));
 }
 } // namespace kdl

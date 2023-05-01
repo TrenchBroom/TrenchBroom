@@ -49,8 +49,7 @@ auto forEachMountPoint(
   {
     if (path.hasPrefix(mountPoint.path, false))
     {
-      const auto pathSuffix =
-        path.suffix(kdl::path_length(path) - kdl::path_length(mountPoint.path));
+      const auto pathSuffix = kdl::path_clip(path, kdl::path_length(mountPoint.path));
       if (auto result = f(*mountPoint.mountedFileSystem, pathSuffix))
       {
         return result;
@@ -152,8 +151,7 @@ std::vector<Path> VirtualFileSystem::doGetDirectoryContents(const Path& path) co
   {
     if (path.hasPrefix(mountPoint.path, false))
     {
-      const auto pathSuffix =
-        path.suffix(kdl::path_length(path) - kdl::path_length(mountPoint.path));
+      const auto pathSuffix = kdl::path_clip(path, kdl::path_length(mountPoint.path));
       if (mountPoint.mountedFileSystem->pathInfo(pathSuffix) == PathInfo::Directory)
       {
         result = kdl::vec_concat(
