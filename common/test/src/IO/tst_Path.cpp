@@ -276,7 +276,7 @@ TEST_CASE("PathTest.deleteLastComponent")
   CHECK(Path{"/asdf"}.deleteLastComponent() == Path{"/"});
   CHECK(Path{"asdf"}.deleteLastComponent() == Path{});
   CHECK(Path{"/this/is/a/path.map"}.deleteLastComponent() == Path{"/this/is/a"});
-  CHECK(Path{"/"}.deleteLastComponent() == Path{"/"});
+  CHECK(Path{"/"}.deleteLastComponent() == Path{});
 }
 
 TEST_CASE("PathTest.getFirstComponet")

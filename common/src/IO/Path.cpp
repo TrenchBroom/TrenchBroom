@@ -93,22 +93,22 @@ bool Path::empty() const
 
 Path Path::firstComponent() const
 {
-  return empty() ? Path{} : Path{*m_path.begin()};
+  return Path{kdl::path_front(m_path)};
 }
 
 Path Path::deleteFirstComponent() const
 {
-  return empty() ? *this : hidden_clip(1, hidden_length() - 1);
+  return Path{kdl::path_pop_front(m_path)};
 }
 
 Path Path::lastComponent() const
 {
-  return empty() ? Path{} : Path{*std::prev(m_path.end())};
+  return Path{kdl::path_back(m_path)};
 }
 
 Path Path::deleteLastComponent() const
 {
-  return empty() ? Path{} : Path{m_path.parent_path()};
+  return Path{kdl::path_pop_back(m_path)};
 }
 
 Path Path::hidden_clip(const size_t index, const size_t count) const
