@@ -106,9 +106,10 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
     case 0:
       return QVariant(); // Leave first cell empty
     case 1:
-      return QString::fromStdString(colorPreference->path().front().string());
+      return QString::fromStdString(kdl::path_front(colorPreference->path()).string());
     case 2:
-      return QString::fromStdString(colorPreference->path().pop_front().generic_string());
+      return QString::fromStdString(
+        kdl::path_pop_front(colorPreference->path()).generic_string());
       switchDefault();
     }
   }

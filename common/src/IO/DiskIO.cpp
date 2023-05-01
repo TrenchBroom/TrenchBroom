@@ -81,8 +81,8 @@ Path fixCase(const Path& path)
     return path;
   }
 
-  auto result = path.front();
-  auto remainder = path.pop_front();
+  auto result = kdl::path_front(path);
+  auto remainder = kdl::path_pop_front(path);
 
   auto dir = QDir{};
   dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
@@ -91,7 +91,7 @@ Path fixCase(const Path& path)
   {
     dir.setPath(pathAsQString(result));
 
-    const auto curDirStr = pathAsQString(remainder.front());
+    const auto curDirStr = pathAsQString(kdl::path_front(remainder));
     const auto entries = dir.entryList();
     const auto entryIt = std::find_if(entries.begin(), entries.end(), [&](const auto& s) {
       const auto ss = pathFromQString(s);
@@ -105,7 +105,7 @@ Path fixCase(const Path& path)
     }
 
     result = result / pathFromQString(*entryIt);
-    remainder = remainder.pop_front();
+    remainder = kdl::path_pop_front(remainder);
   }
   return result;
 }
@@ -193,7 +193,7 @@ void createFile(const Path& path, const std::string& contents)
   }
   else
   {
-    const auto directory = fixedPath.pop_back();
+    const auto directory = fixedPath.parent_path();
     if (pathInfo(directory) == PathInfo::Unknown)
     {
       createDirectory(directory);
@@ -213,7 +213,7 @@ bool createDirectoryHelper(const Path& path)
     return false;
   }
 
-  const auto parent = path.pop_back();
+  const auto parent = path.parent_path();
   if (!QDir{pathAsQString(parent)}.exists() && !createDirectoryHelper(parent))
   {
     return false;
@@ -305,7 +305,7 @@ void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
   {
-    fixedDestPath = fixedDestPath / sourcePath.back();
+    fixedDestPath = fixedDestPath / sourcePath.filename();
   }
 
   const auto exists = pathInfo(fixedDestPath) == PathInfo::File;
@@ -378,7 +378,7 @@ void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
   {
-    fixedDestPath = fixedDestPath / sourcePath.back();
+    fixedDestPath = fixedDestPath / sourcePath.filename();
   }
 
   if (!QFile::rename(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))

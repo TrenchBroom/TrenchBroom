@@ -57,10 +57,9 @@ public:
 
   size_t hidden_length() const;
   bool empty() const;
-  Path front() const;
-  Path pop_front() const;
-  Path back() const;
-  Path pop_back() const;
+  Path parent_path() const;
+  Path hidden_front() const;
+  Path hidden_pop_front() const;
   Path hidden_clip(size_t index, size_t count) const;
 
   Path filename() const;
@@ -93,6 +92,9 @@ std::ostream& operator<<(std::ostream& stream, const Path& path);
 namespace kdl
 {
 using TrenchBroom::IO::Path;
+
+Path path_front(const Path& path);
+Path path_pop_front(const Path& path);
 
 size_t path_length(const Path& path);
 bool path_has_prefix(const Path& path, const Path& prefix);

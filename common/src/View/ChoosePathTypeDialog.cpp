@@ -37,7 +37,7 @@ ChoosePathTypeDialog::ChoosePathTypeDialog(
   QWidget* parent, IO::Path absPath, const IO::Path& docPath, const IO::Path& gamePath)
   : QDialog{parent}
   , m_absPath{std::move(absPath)}
-  , m_docRelativePath{docPath.pop_back().makeRelative(m_absPath)}
+  , m_docRelativePath{docPath.parent_path().makeRelative(m_absPath)}
   , m_gameRelativePath{gamePath.makeRelative(m_absPath)}
   , m_appRelativePath{IO::SystemPaths::appDirectory().makeRelative(m_absPath)}
 {

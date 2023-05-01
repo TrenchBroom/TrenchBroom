@@ -4448,7 +4448,7 @@ void MapDocument::loadEntityDefinitions()
     const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
     IO::SimpleParserStatus status(logger());
     m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
-    info("Loaded entity definition file " + path.back().string());
+    info("Loaded entity definition file " + path.filename().string());
 
     createEntityDefinitionActions();
   }
@@ -4721,7 +4721,7 @@ std::vector<IO::Path> MapDocument::externalSearchPaths() const
   std::vector<IO::Path> searchPaths;
   if (!m_path.empty() && m_path.isAbsolute())
   {
-    searchPaths.push_back(m_path.pop_back());
+    searchPaths.push_back(m_path.parent_path());
   }
 
   const IO::Path gamePath = m_game->gamePath();
@@ -4989,7 +4989,7 @@ std::string MapDocument::filename() const
   {
     return "";
   }
-  return m_path.back().string();
+  return m_path.filename().string();
 }
 
 const IO::Path& MapDocument::path() const

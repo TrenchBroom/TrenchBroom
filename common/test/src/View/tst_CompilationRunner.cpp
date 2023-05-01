@@ -149,7 +149,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
   const auto targetPath = IO::Path("some/other/path/your_map.map");
   if (overwrite)
   {
-    testEnvironment.createDirectory(targetPath.pop_back());
+    testEnvironment.createDirectory(targetPath.parent_path());
     testEnvironment.createFile(targetPath, "{...}");
     REQUIRE(testEnvironment.loadFile(targetPath) == "{...}");
   }
@@ -215,7 +215,7 @@ TEST_CASE("CompilationRunner.interpolateToolsVariables")
   const auto toInterpolate = startSubstr + std::string{"${MAP_DIR_PATH}"} + midSubstr
                              + std::string{"${WORK_DIR_PATH}"};
   const auto expected =
-    startSubstr + document->path().pop_back().string() + midSubstr + testWorkDir;
+    startSubstr + document->path().parent_path().string() + midSubstr + testWorkDir;
 
   const auto interpolated = context.interpolate(toInterpolate);
 

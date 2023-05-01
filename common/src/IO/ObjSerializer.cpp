@@ -127,7 +127,7 @@ static void writeMtlFile(
       object);
   }
 
-  const auto basePath = options.exportPath.pop_back();
+  const auto basePath = options.exportPath.parent_path();
   for (const auto& [textureName, texture] : usedTextures)
   {
     str << "newmtl " << textureName << "\n";

@@ -661,8 +661,7 @@ IO::Path crashReportBasePath()
   const auto mapPath = savedMapPath();
   const auto crashLogPath =
     !mapPath.empty()
-      ? mapPath.pop_back()
-          / IO::Path{mapPath.back().deleteExtension().string() + "-crash.txt"}
+      ? mapPath.parent_path() / IO::Path{mapPath.stem().string() + "-crash.txt"}
       : IO::pathFromQString(
           QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
           / IO::Path{"trenchbroom-crash.txt"};
@@ -675,8 +674,8 @@ IO::Path crashReportBasePath()
     ++index;
 
     const auto testCrashLogName =
-      fmt::format("{}-{}.txt", crashLogPath.back().deleteExtension().string(), index);
-    testCrashLogPath = crashLogPath.pop_back() / IO::Path{testCrashLogName};
+      fmt::format("{}-{}.txt", crashLogPath.stem().string(), index);
+    testCrashLogPath = crashLogPath.parent_path() / IO::Path{testCrashLogName};
   }
 
   return testCrashLogPath.deleteExtension();
@@ -709,7 +708,7 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   const auto basePath = crashReportBasePath();
 
   // ensure the containing directory exists
-  IO::Disk::ensureDirectoryExists(basePath.pop_back());
+  IO::Disk::ensureDirectoryExists(basePath.parent_path());
 
   const auto reportPath = basePath.addExtension(".txt");
   auto logPath = basePath.addExtension(".log");

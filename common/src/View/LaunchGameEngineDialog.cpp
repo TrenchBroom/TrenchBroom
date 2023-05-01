@@ -241,7 +241,7 @@ void LaunchGameEngineDialog::launchEngine()
     const auto parameters =
       EL::interpolate(profile->parameterSpec, EL::EvaluationContext{variables()});
 
-    const auto workDir = IO::pathAsQString(profile->path.pop_back());
+    const auto workDir = IO::pathAsQString(profile->path.parent_path());
 
 #ifdef __APPLE__
     // We have to launch apps via the 'open' command so that we can properly pass

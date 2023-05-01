@@ -769,9 +769,9 @@ Path AseParser::fixTexturePath(Logger& /* logger */, Path path) const
   {
     // usually the paths appear to be relative to the map file, but this will just yield a
     // valid path if we kick off the ".." parts
-    while (!path.empty() && path.front() == Path(".."))
+    while (!path.empty() && kdl::path_front(path) == Path(".."))
     {
-      path = path.pop_front();
+      path = kdl::path_pop_front(path);
     }
   }
   return path;

@@ -48,7 +48,7 @@ const std::string APP_DIR_PATH = "APP_DIR_PATH";
 
 CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
 {
-  const auto filename = document->path().back();
+  const auto filename = document->path().filename();
   const auto gamePath = document->game()->gamePath();
 
   auto mods = std::vector<std::string>{};
@@ -77,8 +77,8 @@ CommonCompilationVariables::CommonCompilationVariables(
   std::shared_ptr<MapDocument> document)
   : CommonVariables{document}
 {
-  const auto filename = document->path().back();
-  const auto filePath = document->path().pop_back();
+  const auto filename = document->path().filename();
+  const auto filePath = document->path().parent_path();
   const auto appPath = IO::SystemPaths::appDirectory();
 
   using namespace CompilationVariableNames;

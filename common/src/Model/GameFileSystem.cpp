@@ -88,7 +88,7 @@ void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logg
     IO::SystemPaths::findResourceDirectories(IO::Path("defaults"));
   if (!config.path.empty())
   {
-    defaultFolderPaths.push_back(config.path.pop_back());
+    defaultFolderPaths.push_back(config.path.parent_path());
   }
 
   for (const auto& defaultFolderPath : defaultFolderPaths)
@@ -214,7 +214,7 @@ void GameFileSystem::mountWads(
 {
   for (const auto& wadPath : wadPaths)
   {
-    const auto mountPath = rootPath / wadPath.back();
+    const auto mountPath = rootPath / wadPath.filename();
     const auto resolvedWadPath = IO::Disk::resolvePath(wadSearchPaths, wadPath);
     try
     {

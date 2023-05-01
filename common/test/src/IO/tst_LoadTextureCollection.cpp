@@ -91,7 +91,8 @@ TEST_CASE("loadTextureCollection")
 
   const auto wadPath =
     Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Wad/cr8_czg.wad"};
-  fs.mount(Path{"textures"} / wadPath.back(), std::make_unique<WadFileSystem>(wadPath));
+  fs.mount(
+    Path{"textures"} / wadPath.filename(), std::make_unique<WadFileSystem>(wadPath));
 
   auto logger = NullLogger{};
 

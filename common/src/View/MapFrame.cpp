@@ -1052,8 +1052,8 @@ bool MapFrame::saveDocumentAs()
   try
   {
     const IO::Path& originalPath = m_document->path();
-    const IO::Path directory = originalPath.pop_back();
-    const IO::Path fileName = originalPath.back();
+    const IO::Path directory = originalPath.parent_path();
+    const IO::Path fileName = originalPath.filename();
 
     const QString newFileName = QFileDialog::getSaveFileName(
       this, tr("Save map file"), IO::pathAsQString(originalPath), "Map files (*.map)");
@@ -1236,7 +1236,7 @@ void MapFrame::loadPointFile()
   QString defaultDir;
   if (!m_document->path().empty())
   {
-    defaultDir = IO::pathAsQString(m_document->path().pop_back());
+    defaultDir = IO::pathAsQString(m_document->path().parent_path());
   }
 
   const QString fileName = QFileDialog::getOpenFileName(
@@ -1280,7 +1280,7 @@ void MapFrame::loadPortalFile()
   QString defaultDir;
   if (!m_document->path().empty())
   {
-    defaultDir = IO::pathAsQString(m_document->path().pop_back());
+    defaultDir = IO::pathAsQString(m_document->path().parent_path());
   }
 
   const QString fileName = QFileDialog::getOpenFileName(

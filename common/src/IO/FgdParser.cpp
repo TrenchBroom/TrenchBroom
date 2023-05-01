@@ -153,8 +153,8 @@ FgdParser::FgdParser(
 {
   if (!path.empty() && path.isAbsolute())
   {
-    m_fs = std::make_unique<DiskFileSystem>(path.pop_back());
-    pushIncludePath(path.back());
+    m_fs = std::make_unique<DiskFileSystem>(path.parent_path());
+    pushIncludePath(path.filename());
   }
 }
 
@@ -218,7 +218,7 @@ Path FgdParser::currentRoot() const
   if (!m_paths.empty())
   {
     assert(!m_paths.back().empty());
-    return m_paths.back().pop_back();
+    return m_paths.back().parent_path();
   }
   else
   {

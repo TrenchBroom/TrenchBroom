@@ -34,7 +34,7 @@ namespace TrenchBroom
 namespace Renderer
 {
 Shader::Shader(const IO::Path& path, const GLenum type)
-  : m_name(path.back().string())
+  : m_name(path.filename().string())
   , m_type(type)
   , m_shaderId(0)
 {

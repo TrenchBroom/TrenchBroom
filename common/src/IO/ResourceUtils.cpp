@@ -176,10 +176,10 @@ QIcon loadSVGIcon(const Path& imagePath)
   auto result = QIcon{};
   if (!imagePath.empty())
   {
-    const auto onPath =
-      imagePathToString(imagePath.pop_back() / Path{imagePath.stem().string() + "_on"});
-    const auto offPath =
-      imagePathToString(imagePath.pop_back() / Path{imagePath.stem().string() + "_off"});
+    const auto onPath = imagePathToString(
+      imagePath.parent_path() / Path{imagePath.stem().string() + "_on"});
+    const auto offPath = imagePathToString(
+      imagePath.parent_path() / Path{imagePath.stem().string() + "_off"});
     const auto imagePathString = imagePathToString(imagePath);
 
     if (!onPath.isEmpty() && !offPath.isEmpty())

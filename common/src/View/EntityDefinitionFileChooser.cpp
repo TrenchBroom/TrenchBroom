@@ -191,7 +191,7 @@ void EntityDefinitionFileChooser::updateControls()
     const auto& path = spec.path();
 
     auto* item = new QListWidgetItem();
-    item->setData(Qt::DisplayRole, IO::pathAsQString(path.back()));
+    item->setData(Qt::DisplayRole, IO::pathAsQString(path.filename()));
     item->setData(Qt::UserRole, QVariant::fromValue(spec));
 
     m_builtin->addItem(item);

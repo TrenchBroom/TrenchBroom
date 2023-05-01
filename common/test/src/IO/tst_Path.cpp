@@ -260,38 +260,38 @@ TEST_CASE("PathTest.isEmpty")
   CHECK_FALSE(Path{"/."}.empty());
 }
 
-TEST_CASE("PathTest.getLastComponent")
+TEST_CASE("PathTest.filename")
 {
-  CHECK(Path{}.back() == Path{});
-  CHECK(Path{"/asdf"}.back() == Path{"asdf"});
-  CHECK(Path{"asdf"}.back() == Path{"asdf"});
-  CHECK(Path{"/this/is/a/path.map"}.back() == Path{"path.map"});
-  CHECK(Path{"/"}.back() == Path{"/"});
+  CHECK(Path{}.filename() == Path{});
+  CHECK(Path{"/asdf"}.filename() == Path{"asdf"});
+  CHECK(Path{"asdf"}.filename() == Path{"asdf"});
+  CHECK(Path{"/this/is/a/path.map"}.filename() == Path{"path.map"});
+  CHECK(Path{"/"}.filename() == Path{});
 }
 
-TEST_CASE("PathTest.deleteLastComponent")
+TEST_CASE("PathTest.parent_path")
 {
-  CHECK(Path{}.pop_back() == Path{});
-  CHECK(Path{"/asdf"}.pop_back() == Path{"/"});
-  CHECK(Path{"asdf"}.pop_back() == Path{});
-  CHECK(Path{"/this/is/a/path.map"}.pop_back() == Path{"/this/is/a"});
-  CHECK(Path{"/"}.pop_back() == Path{});
+  CHECK(Path{}.parent_path() == Path{});
+  CHECK(Path{"/asdf"}.parent_path() == Path{"/"});
+  CHECK(Path{"asdf"}.parent_path() == Path{});
+  CHECK(Path{"/this/is/a/path.map"}.parent_path() == Path{"/this/is/a"});
+  CHECK(Path{"/"}.parent_path() == Path{"/"});
 }
 
-TEST_CASE("PathTest.getFirstComponet")
+TEST_CASE("PathTest.front")
 {
-  CHECK(Path{}.front() == Path{});
-  CHECK(Path{"/"}.front() == Path{"/"});
-  CHECK(Path{"/asdf"}.front() == Path{"/"});
-  CHECK(Path{"asdf"}.front() == Path{"asdf"});
+  CHECK(kdl::path_front(Path{}) == Path{});
+  CHECK(kdl::path_front(Path{"/"}) == Path{"/"});
+  CHECK(kdl::path_front(Path{"/asdf"}) == Path{"/"});
+  CHECK(kdl::path_front(Path{"asdf"}) == Path{"asdf"});
 }
 
-TEST_CASE("PathTest.deleteFirstComponent")
+TEST_CASE("PathTest.pop_front")
 {
-  CHECK(Path{}.pop_front() == Path{});
-  CHECK(Path{"/"}.pop_front() == Path{});
-  CHECK(Path{"/asdf"}.pop_front() == Path{"asdf"});
-  CHECK(Path{"asdf/blah"}.pop_front() == Path{"blah"});
+  CHECK(kdl::path_pop_front(Path{}) == Path{});
+  CHECK(kdl::path_pop_front(Path{"/"}) == Path{});
+  CHECK(kdl::path_pop_front(Path{"/asdf"}) == Path{"asdf"});
+  CHECK(kdl::path_pop_front(Path{"asdf/blah"}) == Path{"blah"});
 }
 
 TEST_CASE("PathTest.hidden_clip")

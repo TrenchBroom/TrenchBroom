@@ -230,7 +230,7 @@ void TestGame::doReloadWads(
   {
     const auto absoluteWadPath = IO::Disk::getCurrentWorkingDir() / wadPath;
     m_fs->mount(
-      IO::Path{"textures"} / wadPath.back(),
+      IO::Path{"textures"} / wadPath.filename(),
       std::make_unique<IO::WadFileSystem>(absoluteWadPath));
   }
 }

@@ -210,7 +210,7 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
 
             // Store the absolute path to the original file
             // (may be used by .obj export)
-            const auto name = file->path().back().deleteExtension().string();
+            const auto name = file->path().stem().string();
             if (shouldExclude(name, textureConfig.excludes))
             {
               continue;

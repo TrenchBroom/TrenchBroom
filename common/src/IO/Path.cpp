@@ -91,24 +91,19 @@ bool Path::empty() const
   return m_path.empty();
 }
 
-Path Path::front() const
+Path Path::parent_path() const
+{
+  return Path{m_path.parent_path()};
+}
+
+Path Path::hidden_front() const
 {
   return Path{kdl::path_front(m_path)};
 }
 
-Path Path::pop_front() const
+Path Path::hidden_pop_front() const
 {
   return Path{kdl::path_pop_front(m_path)};
-}
-
-Path Path::back() const
-{
-  return Path{kdl::path_back(m_path)};
-}
-
-Path Path::pop_back() const
-{
-  return Path{kdl::path_pop_back(m_path)};
 }
 
 Path Path::hidden_clip(const size_t index, const size_t count) const
@@ -138,7 +133,7 @@ bool Path::hidden_hasPrefix(const Path& prefix) const
 
 Path Path::deleteExtension() const
 {
-  return empty() ? *this : pop_back() / Path{stem()};
+  return empty() ? *this : parent_path() / Path{stem()};
 }
 
 Path Path::addExtension(const std::string& extension) const
@@ -181,6 +176,17 @@ std::ostream& operator<<(std::ostream& stream, const Path& path)
 
 namespace kdl
 {
+Path path_front(const Path& path)
+{
+  return path.hidden_front();
+}
+
+Path path_pop_front(const Path& path)
+{
+  return path.hidden_pop_front();
+}
+
+
 size_t path_length(const Path& path)
 {
   return path.hidden_length();

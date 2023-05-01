@@ -73,8 +73,8 @@ const Entry* TestFileSystem::findEntry(Path path) const
   const Entry* entry = &m_root;
   while (!path.empty() && entry != nullptr)
   {
-    entry = getChild(*entry, path.front().string());
-    path = path.pop_front();
+    entry = getChild(*entry, kdl::path_front(path).string());
+    path = kdl::path_pop_front(path);
   }
   return entry;
 }
