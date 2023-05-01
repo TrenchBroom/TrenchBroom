@@ -53,9 +53,9 @@ bool isDirectory(const ImageEntry& entry)
 template <typename I>
 auto findEntry(I begin, I end, const Path& name)
 {
-  const auto nameLc = name.makeLowerCase();
+  const auto nameLc = kdl::path_to_lower(name);
   return std::find_if(begin, end, [&](const auto& entry) {
-    return getName(entry).makeLowerCase() == nameLc;
+    return kdl::path_to_lower(getName(entry)) == nameLc;
   });
 }
 

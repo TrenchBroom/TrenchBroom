@@ -86,8 +86,15 @@ public:
   Path makeRelative() const;
   Path makeRelative(const Path& absolutePath) const;
   Path makeCanonical() const;
-  Path makeLowerCase() const;
+  Path hidden_makeLowerCase() const;
 };
 
 std::ostream& operator<<(std::ostream& stream, const Path& path);
 } // namespace TrenchBroom::IO
+
+namespace kdl
+{
+using TrenchBroom::IO::Path;
+
+Path path_to_lower(const Path& path);
+} // namespace kdl

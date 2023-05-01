@@ -159,7 +159,7 @@ bool Path::hasPrefix(const Path& prefix, bool caseSensitive) const
   }
 
   const auto mPrefix = this->prefix(prefix.length());
-  return !caseSensitive ? mPrefix.makeLowerCase() == prefix.makeLowerCase()
+  return !caseSensitive ? mPrefix.hidden_makeLowerCase() == prefix.hidden_makeLowerCase()
                         : mPrefix == prefix;
 }
 
@@ -194,7 +194,7 @@ Path Path::makeCanonical() const
   return Path{m_path.lexically_normal()};
 }
 
-Path Path::makeLowerCase() const
+Path Path::hidden_makeLowerCase() const
 {
   return Path{kdl::str_to_lower(m_path.u8string())};
 }
@@ -205,3 +205,11 @@ std::ostream& operator<<(std::ostream& stream, const Path& path)
   return stream;
 }
 } // namespace TrenchBroom::IO
+
+namespace kdl
+{
+Path path_to_lower(const Path& path)
+{
+  return path.hidden_makeLowerCase();
+}
+} // namespace kdl
