@@ -161,7 +161,7 @@ Path Path::lexically_relative(const Path& basePath) const
   return Path{m_path.lexically_relative(basePath.m_path)};
 }
 
-Path Path::makeCanonical() const
+Path Path::lexically_normal() const
 {
   return Path{m_path.lexically_normal()};
 }

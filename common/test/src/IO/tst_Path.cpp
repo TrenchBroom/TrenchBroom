@@ -333,17 +333,17 @@ TEST_CASE("PathTest.makeRelative")
 
 TEST_CASE("PathTest.makeCanonical")
 {
-  CHECK(Path{"/.."}.makeCanonical() == Path{"/"});
-  CHECK(Path{"/../.."}.makeCanonical() == Path{"/"});
-  CHECK(Path{"/asdf/../.."}.makeCanonical() == Path{"/"});
-  CHECK(Path{"/asdf/test/.."}.makeCanonical() == Path{"/asdf/"});
-  CHECK(Path{"/asdf/./test/.."}.makeCanonical() == Path{"/asdf/"});
+  CHECK(Path{"/.."}.lexically_normal() == Path{"/"});
+  CHECK(Path{"/../.."}.lexically_normal() == Path{"/"});
+  CHECK(Path{"/asdf/../.."}.lexically_normal() == Path{"/"});
+  CHECK(Path{"/asdf/test/.."}.lexically_normal() == Path{"/asdf/"});
+  CHECK(Path{"/asdf/./test/.."}.lexically_normal() == Path{"/asdf/"});
 
-  CHECK(Path{".."}.makeCanonical() == Path{".."});
-  CHECK(Path{"asdf/../.."}.makeCanonical() == Path{".."});
-  CHECK(Path{"./.."}.makeCanonical() == Path{".."});
-  CHECK(Path{"./asdf/./test/.."}.makeCanonical() == Path{"asdf/"});
-  CHECK(Path{"asdf/test/.."}.makeCanonical() == Path{"asdf/"});
+  CHECK(Path{".."}.lexically_normal() == Path{".."});
+  CHECK(Path{"asdf/../.."}.lexically_normal() == Path{".."});
+  CHECK(Path{"./.."}.lexically_normal() == Path{".."});
+  CHECK(Path{"./asdf/./test/.."}.lexically_normal() == Path{"asdf/"});
+  CHECK(Path{"asdf/test/.."}.lexically_normal() == Path{"asdf/"});
 }
 
 TEST_CASE("PathTest.operatorLT")

@@ -34,7 +34,7 @@ namespace TrenchBroom
 namespace IO
 {
 DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists)
-  : m_root{root.makeCanonical()}
+  : m_root{root.lexically_normal()}
 {
   if (ensureExists && Disk::pathInfo(m_root) != PathInfo::Directory)
   {
@@ -49,7 +49,7 @@ const Path& DiskFileSystem::root() const
 
 Path DiskFileSystem::doMakeAbsolute(const Path& path) const
 {
-  const auto canonicalPath = path.makeCanonical();
+  const auto canonicalPath = path.lexically_normal();
   if (!canonicalPath.empty() && kdl::path_front(canonicalPath) == Path{".."})
   {
     throw FileSystemException{"Cannot make absolute path of '" + path.string() + "'"};

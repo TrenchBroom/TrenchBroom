@@ -74,7 +74,7 @@ void RecentDocuments::removePath(const IO::Path& path)
 {
   const size_t oldSize = m_recentDocuments.size();
 
-  const IO::Path canonPath = path.makeCanonical();
+  const IO::Path canonPath = path.lexically_normal();
   m_recentDocuments = kdl::vec_erase(std::move(m_recentDocuments), canonPath);
 
   if (oldSize > m_recentDocuments.size())
@@ -120,7 +120,7 @@ void RecentDocuments::saveToConfig()
 
 void RecentDocuments::insertPath(const IO::Path& path)
 {
-  const auto canonPath = path.makeCanonical();
+  const auto canonPath = path.lexically_normal();
   auto it =
     std::find(std::begin(m_recentDocuments), std::end(m_recentDocuments), canonPath);
   if (it != std::end(m_recentDocuments))

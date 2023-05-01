@@ -199,7 +199,8 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK_NOTHROW(WritableDiskFileSystem{env.dir() / Path{"ANOTHERDIR"}, false});
 
     const auto fs = WritableDiskFileSystem{env.dir() / Path{"anotherDir/.."}, false};
-    CHECK(fs.makeAbsolute(Path{}) == (env.dir() / Path{"anotherDir/.."}).makeCanonical());
+    CHECK(
+      fs.makeAbsolute(Path{}) == (env.dir() / Path{"anotherDir/.."}).lexically_normal());
   }
 
   SECTION("createDirectory")

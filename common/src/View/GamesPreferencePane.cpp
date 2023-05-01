@@ -113,7 +113,7 @@ void GamesPreferencePane::createGui()
 void GamesPreferencePane::showUserConfigDirClicked()
 {
   auto& gameFactory = Model::GameFactory::instance();
-  auto path = gameFactory.userGameConfigsPath().makeCanonical();
+  auto path = gameFactory.userGameConfigsPath().lexically_normal();
 
   try
   {

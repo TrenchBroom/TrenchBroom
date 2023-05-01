@@ -122,7 +122,7 @@ Path fixPath(const Path& path)
 {
   try
   {
-    return fixCase(path.makeCanonical());
+    return fixCase(path.lexically_normal());
   }
   catch (const PathException&)
   {

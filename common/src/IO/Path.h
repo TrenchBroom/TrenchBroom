@@ -83,7 +83,7 @@ public:
    */
   Path relative_path() const;
   Path lexically_relative(const Path& basePath) const;
-  Path makeCanonical() const;
+  Path lexically_normal() const;
   Path hidden_makeLowerCase() const;
 };
 
