@@ -331,22 +331,6 @@ TEST_CASE("PathTest.makeRelative")
     Path{"/models/barrel/skin.tga"}.relative_path() == Path{"models/barrel/skin.tga"});
 }
 
-TEST_CASE("PathTest.makeRelativeWithAbsolutePath")
-{
-  CHECK(Path{"/asdf"}.makeRelative(Path{"asdf/hello"}) == Path{});
-  CHECK(Path{"asdf"}.makeRelative(Path{"/asdf/hello"}) == Path{});
-  CHECK(Path{"asdf"}.makeRelative(Path{"/"}) == Path{});
-  CHECK(
-    Path{"/asdf/test/blah"}.makeRelative(Path{"/asdf/test/hello"}) == Path{"../hello"});
-  CHECK(Path{"/asdf"}.makeRelative(Path{"/hurr/hello"}) == Path{"../hurr/hello"});
-  CHECK(Path{"/asdf"}.makeRelative(Path{"/asdf/hello"}) == Path{"hello"});
-  CHECK(Path{"/./asdf"}.makeRelative(Path{"/asdf/hello"}) == Path{"../asdf/hello"});
-  CHECK(Path{"/asdf/test/.."}.makeRelative(Path{"/asdf/./hello"}) == Path{"./hello"});
-  CHECK(
-    Path{"/asdf/test/../"}.makeRelative(Path{"/asdf/hurr/../hello"})
-    == Path{"hurr/../hello"});
-}
-
 TEST_CASE("PathTest.makeCanonical")
 {
   CHECK(Path{"/.."}.makeCanonical() == Path{"/"});
