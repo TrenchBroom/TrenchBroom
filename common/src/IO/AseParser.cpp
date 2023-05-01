@@ -765,7 +765,7 @@ Assets::Texture AseParser::loadTexture(Logger& logger, const Path& path) const
 
 Path AseParser::fixTexturePath(Logger& /* logger */, Path path) const
 {
-  if (!path.isAbsolute())
+  if (!path.is_absolute())
   {
     // usually the paths appear to be relative to the map file, but this will just yield a
     // valid path if we kick off the ".." parts

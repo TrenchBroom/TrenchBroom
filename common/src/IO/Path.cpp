@@ -146,7 +146,7 @@ Path Path::hidden_replaceExtension(const std::string& extension) const
   return Path{kdl::path_replace_extension(m_path, extension)};
 }
 
-bool Path::isAbsolute() const
+bool Path::is_absolute() const
 {
   return m_path.is_absolute();
 }

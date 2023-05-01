@@ -4719,7 +4719,7 @@ void MapDocument::unsetEntityModels(const std::vector<Model::Node*>& nodes)
 std::vector<IO::Path> MapDocument::externalSearchPaths() const
 {
   std::vector<IO::Path> searchPaths;
-  if (!m_path.empty() && m_path.isAbsolute())
+  if (!m_path.empty() && m_path.is_absolute())
   {
     searchPaths.push_back(m_path.parent_path());
   }
@@ -4979,7 +4979,7 @@ void MapDocument::updateAllFaceTags()
 
 bool MapDocument::persistent() const
 {
-  return m_path.isAbsolute()
+  return m_path.is_absolute()
          && IO::Disk::pathInfo(IO::Disk::fixPath(m_path)) == IO::PathInfo::File;
 }
 

@@ -82,7 +82,7 @@ Assets::Texture loadDefaultTexture(
 
 static QString imagePathToString(const Path& imagePath)
 {
-  const auto fullPath = imagePath.isAbsolute()
+  const auto fullPath = imagePath.is_absolute()
                           ? imagePath
                           : SystemPaths::findResourceFile(Path("images") / imagePath);
   return pathAsQString(fullPath);

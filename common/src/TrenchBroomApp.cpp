@@ -653,7 +653,7 @@ std::string makeCrashReport(const std::string& stacktrace, const std::string& re
 IO::Path savedMapPath()
 {
   const auto document = topDocument();
-  return document && document->path().isAbsolute() ? document->path() : IO::Path{};
+  return document && document->path().is_absolute() ? document->path() : IO::Path{};
 }
 
 IO::Path crashReportBasePath()

@@ -351,7 +351,7 @@ void MapFrame::removeRecentDocumentsMenu()
 
 void MapFrame::updateRecentDocumentsMenu()
 {
-  if (m_document->path().isAbsolute())
+  if (m_document->path().is_absolute())
   {
     auto& app = TrenchBroomApp::instance();
     app.updateRecentDocument(m_document->path());

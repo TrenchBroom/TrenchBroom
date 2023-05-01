@@ -130,7 +130,7 @@ Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(
   for (const auto& searchPath : searchPaths)
   {
     const auto absPath = m_gamePath / searchPath;
-    if (!absPath.isAbsolute() || IO::Disk::pathInfo(absPath) != IO::PathInfo::Directory)
+    if (!absPath.is_absolute() || IO::Disk::pathInfo(absPath) != IO::PathInfo::Directory)
     {
       result.emplace(searchPath, "Directory not found: '" + searchPath.string() + "'");
     }
@@ -440,7 +440,7 @@ IO::Path GameImpl::doFindEntityDefinitionFile(
     return m_config.findConfigFile(path);
   }
 
-  if (path.isAbsolute())
+  if (path.is_absolute())
   {
     return path;
   }

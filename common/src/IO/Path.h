@@ -72,7 +72,7 @@ public:
   Path hidden_removeExtension() const;
   Path hidden_replaceExtension(const std::string& extension) const;
 
-  bool isAbsolute() const;
+  bool is_absolute() const;
 
   /**
    * Return a relative path if this path is absolute. On Windows, this means that the

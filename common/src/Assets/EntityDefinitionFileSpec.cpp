@@ -51,7 +51,7 @@ EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str)
   // If the location spec is missing, we assume that an absolute path indicates an
   // external file spec, and a relative path indicates a builtin file spec.
   const IO::Path path(str);
-  if (path.isAbsolute())
+  if (path.is_absolute())
     return EntityDefinitionFileSpec::external(path);
   return EntityDefinitionFileSpec::builtin(path);
 }

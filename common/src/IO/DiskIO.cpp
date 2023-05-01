@@ -75,7 +75,7 @@ bool doCheckCaseSensitive()
 Path fixCase(const Path& path)
 {
   if (
-    path.empty() || !path.isAbsolute() || !isCaseSensitive()
+    path.empty() || !path.is_absolute() || !isCaseSensitive()
     || QFileInfo::exists(pathAsQString(path)))
   {
     return path;
@@ -415,7 +415,7 @@ void moveFilesRecursively(
 
 Path resolvePath(const std::vector<Path>& searchPaths, const Path& path)
 {
-  if (path.isAbsolute())
+  if (path.is_absolute())
   {
     if (pathInfo(path) != PathInfo::Unknown)
     {
@@ -426,7 +426,7 @@ Path resolvePath(const std::vector<Path>& searchPaths, const Path& path)
   {
     for (const auto& searchPath : searchPaths)
     {
-      if (searchPath.isAbsolute())
+      if (searchPath.is_absolute())
       {
         try
         {

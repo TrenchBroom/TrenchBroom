@@ -263,7 +263,7 @@ ImageFileSystem::ImageFileSystem(Path path)
   : ImageFileSystemBase{std::move(path)}
   , m_file{std::make_shared<CFile>(m_path)}
 {
-  ensure(m_path.isAbsolute(), "path must be absolute");
+  ensure(m_path.is_absolute(), "path must be absolute");
 }
 } // namespace IO
 } // namespace TrenchBroom
