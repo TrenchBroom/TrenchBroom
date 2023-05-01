@@ -75,13 +75,12 @@ Assets::Texture loadSkin(
 
 Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger)
 {
-  auto actualPath =
-    !path.isEmpty() && fs.pathInfo(path.deleteExtension()) == PathInfo::File
-      ? path.deleteExtension()
-      : path;
+  auto actualPath = !path.empty() && fs.pathInfo(path.deleteExtension()) == PathInfo::File
+                      ? path.deleteExtension()
+                      : path;
   const auto name = path.asGenericString();
 
-  if (!path.isEmpty())
+  if (!path.empty())
   {
     logger.debug() << "Loading shader '" << path << "'";
     try

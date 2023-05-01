@@ -174,7 +174,7 @@ QIcon loadSVGIcon(const Path& imagePath)
 
   // Cache miss, load the icon
   auto result = QIcon{};
-  if (!imagePath.isEmpty())
+  if (!imagePath.empty())
   {
     const auto onPath = imagePathToString(
       imagePath.deleteLastComponent() / Path{imagePath.basename().asString() + "_on"});

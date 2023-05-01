@@ -4720,13 +4720,13 @@ void MapDocument::unsetEntityModels(const std::vector<Model::Node*>& nodes)
 std::vector<IO::Path> MapDocument::externalSearchPaths() const
 {
   std::vector<IO::Path> searchPaths;
-  if (!m_path.isEmpty() && m_path.isAbsolute())
+  if (!m_path.empty() && m_path.isAbsolute())
   {
     searchPaths.push_back(m_path.deleteLastComponent());
   }
 
   const IO::Path gamePath = m_game->gamePath();
-  if (!gamePath.isEmpty())
+  if (!gamePath.empty())
   {
     searchPaths.push_back(gamePath);
   }
@@ -4986,7 +4986,7 @@ bool MapDocument::persistent() const
 
 std::string MapDocument::filename() const
 {
-  if (m_path.isEmpty())
+  if (m_path.empty())
   {
     return "";
   }

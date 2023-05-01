@@ -66,27 +66,27 @@ void ChoosePathTypeDialog::createGui()
 
   m_docRelativeRadio = new QRadioButton{tr("Relative to map file")};
   m_docRelativeRadio->setFont(boldFont);
-  m_docRelativeRadio->setEnabled(!m_docRelativePath.isEmpty());
+  m_docRelativeRadio->setEnabled(!m_docRelativePath.empty());
 
   auto* mapRelativePathText = new QLabel{
-    m_docRelativePath.isEmpty() ? tr("Could not build a path.")
-                                : IO::pathAsQString(m_docRelativePath)};
+    m_docRelativePath.empty() ? tr("Could not build a path.")
+                              : IO::pathAsQString(m_docRelativePath)};
 
   m_appRelativeRadio = new QRadioButton{tr("Relative to application executable")};
   m_appRelativeRadio->setFont(boldFont);
-  m_appRelativeRadio->setEnabled(!m_appRelativePath.isEmpty());
+  m_appRelativeRadio->setEnabled(!m_appRelativePath.empty());
 
   auto* appRelativePathText = new QLabel{
-    m_appRelativePath.isEmpty() ? tr("Could not build a path.")
-                                : IO::pathAsQString(m_appRelativePath)};
+    m_appRelativePath.empty() ? tr("Could not build a path.")
+                              : IO::pathAsQString(m_appRelativePath)};
 
   m_gameRelativeRadio = new QRadioButton{tr("Relative to game directory")};
   m_gameRelativeRadio->setFont(boldFont);
-  m_gameRelativeRadio->setEnabled(!m_gameRelativePath.isEmpty());
+  m_gameRelativeRadio->setEnabled(!m_gameRelativePath.empty());
 
   auto* gameRelativePathText = new QLabel{
-    m_gameRelativePath.isEmpty() ? tr("Could not build a path.")
-                                 : IO::pathAsQString(m_gameRelativePath)};
+    m_gameRelativePath.empty() ? tr("Could not build a path.")
+                               : IO::pathAsQString(m_gameRelativePath)};
 
   auto* innerLayout = new QVBoxLayout{};
   innerLayout->setContentsMargins(

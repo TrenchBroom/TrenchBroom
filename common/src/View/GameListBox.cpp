@@ -98,7 +98,7 @@ GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const
   const auto& gameFactory = Model::GameFactory::instance();
   const auto gamePath = gameFactory.gamePath(gameName);
   auto iconPath = gameFactory.iconPath(gameName);
-  if (iconPath.isEmpty())
+  if (iconPath.empty())
   {
     iconPath = IO::Path("DefaultGameIcon.svg");
   }
@@ -109,7 +109,7 @@ GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const
     IO::loadPixmapResource(iconPath),
     QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
     QString::fromStdString(
-      gamePath.isEmpty() ? std::string("Game not found") : gamePath.asString())};
+      gamePath.empty() ? std::string("Game not found") : gamePath.asString())};
 }
 
 size_t GameListBox::itemCount() const

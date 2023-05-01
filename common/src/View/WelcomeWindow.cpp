@@ -143,7 +143,7 @@ void WelcomeWindow::openOtherDocument()
     "Map files (*.map);;Any files (*.*)");
   const auto path = IO::pathFromQString(pathStr);
 
-  if (!path.isEmpty())
+  if (!path.empty())
   {
     updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Map, pathStr);
     openDocument(path);

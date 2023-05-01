@@ -1235,7 +1235,7 @@ bool MapFrame::confirmRevertDocument()
 void MapFrame::loadPointFile()
 {
   QString defaultDir;
-  if (!m_document->path().isEmpty())
+  if (!m_document->path().empty())
   {
     defaultDir = IO::pathAsQString(m_document->path().deleteLastComponent());
   }
@@ -1279,7 +1279,7 @@ bool MapFrame::canReloadPointFile() const
 void MapFrame::loadPortalFile()
 {
   QString defaultDir;
-  if (!m_document->path().isEmpty())
+  if (!m_document->path().empty())
   {
     defaultDir = IO::pathAsQString(m_document->path().deleteLastComponent());
   }

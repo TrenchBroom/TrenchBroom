@@ -56,7 +56,7 @@ public:
   std::string asGenericString() const;
 
   size_t length() const;
-  bool isEmpty() const;
+  bool empty() const;
   Path firstComponent() const;
   Path deleteFirstComponent() const;
   Path lastComponent() const;

@@ -151,7 +151,7 @@ FgdParser::FgdParser(
   : EntityDefinitionParser{defaultEntityColor}
   , m_tokenizer{FgdTokenizer{std::move(str)}}
 {
-  if (!path.isEmpty() && path.isAbsolute())
+  if (!path.empty() && path.isAbsolute())
   {
     m_fs = std::make_unique<DiskFileSystem>(path.deleteLastComponent());
     pushIncludePath(path.lastComponent());
@@ -217,7 +217,7 @@ Path FgdParser::currentRoot() const
 {
   if (!m_paths.empty())
   {
-    assert(!m_paths.back().isEmpty());
+    assert(!m_paths.back().empty());
     return m_paths.back().deleteLastComponent();
   }
   else

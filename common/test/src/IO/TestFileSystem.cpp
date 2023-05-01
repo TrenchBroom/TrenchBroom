@@ -71,7 +71,7 @@ TestFileSystem::TestFileSystem(Entry root, Path absolutePathPrefix)
 const Entry* TestFileSystem::findEntry(Path path) const
 {
   const Entry* entry = &m_root;
-  while (!path.isEmpty() && entry != nullptr)
+  while (!path.empty() && entry != nullptr)
   {
     entry = getChild(*entry, path.firstComponent().asString());
     path = path.deleteFirstComponent();

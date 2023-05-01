@@ -153,7 +153,7 @@ void Action::resetKeySequence() const
 
 bool Action::hasIcon() const
 {
-  return !m_iconPath.isEmpty();
+  return !m_iconPath.empty();
 }
 
 const IO::Path& Action::iconPath() const

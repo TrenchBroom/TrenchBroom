@@ -45,7 +45,7 @@ std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
   static const auto imageExtensions =
     std::vector<std::string>{".tga", ".png", ".jpg", ".jpeg"};
 
-  if (!texturePath.isEmpty())
+  if (!texturePath.empty())
   {
     if (
       kdl::vec_contains(

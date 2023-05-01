@@ -75,7 +75,7 @@ bool doCheckCaseSensitive()
 Path fixCase(const Path& path)
 {
   if (
-    path.isEmpty() || !path.isAbsolute() || !isCaseSensitive()
+    path.empty() || !path.isAbsolute() || !isCaseSensitive()
     || QFileInfo::exists(pathAsQString(path)))
   {
     return path;
@@ -87,7 +87,7 @@ Path fixCase(const Path& path)
   auto dir = QDir{};
   dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
 
-  while (!remainder.isEmpty())
+  while (!remainder.empty())
   {
     dir.setPath(pathAsQString(result));
 
@@ -208,7 +208,7 @@ namespace
 {
 bool createDirectoryHelper(const Path& path)
 {
-  if (path.isEmpty())
+  if (path.empty())
   {
     return false;
   }

@@ -140,7 +140,7 @@ static void writeMtlFile(
         break;
       case ObjMtlPathMode::RelativeToExportPath:
         // textures loaded from image files (pak files) don't have absolute paths
-        if (!texture->absolutePath().isEmpty())
+        if (!texture->absolutePath().empty())
         {
           const auto mtlPath = basePath.makeRelative(texture->absolutePath());
           str << "map_Kd " << mtlPath << "\n";

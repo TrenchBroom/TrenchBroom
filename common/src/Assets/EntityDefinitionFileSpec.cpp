@@ -130,7 +130,7 @@ EntityDefinitionFileSpec::EntityDefinitionFileSpec(const Type type, const IO::Pa
   , m_path(path)
 {
   assert(valid());
-  assert(!path.isEmpty());
+  assert(!path.empty());
 }
 } // namespace Assets
 } // namespace TrenchBroom

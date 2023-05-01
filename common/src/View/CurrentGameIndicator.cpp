@@ -37,7 +37,7 @@ CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget*
 
   const auto gamePath = gameFactory.gamePath(gameName);
   auto iconPath = gameFactory.iconPath(gameName);
-  if (iconPath.isEmpty())
+  if (iconPath.empty())
   {
     iconPath = IO::Path("DefaultGameIcon.svg");
   }

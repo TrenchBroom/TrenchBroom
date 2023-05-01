@@ -253,12 +253,12 @@ TEST_CASE("PathTest.concatenate")
 
 TEST_CASE("PathTest.isEmpty")
 {
-  CHECK(Path{}.isEmpty());
-  CHECK_FALSE(Path{"asdf"}.isEmpty());
-  CHECK_FALSE(Path{"/"}.isEmpty());
-  CHECK_FALSE(Path{"/asdf"}.isEmpty());
-  CHECK_FALSE(Path{"."}.isEmpty());
-  CHECK_FALSE(Path{"/."}.isEmpty());
+  CHECK(Path{}.empty());
+  CHECK_FALSE(Path{"asdf"}.empty());
+  CHECK_FALSE(Path{"/"}.empty());
+  CHECK_FALSE(Path{"/asdf"}.empty());
+  CHECK_FALSE(Path{"."}.empty());
+  CHECK_FALSE(Path{"/."}.empty());
 }
 
 TEST_CASE("PathTest.getLastComponent")
@@ -313,7 +313,7 @@ TEST_CASE("PathTest.subPath")
 
 TEST_CASE("PathTest.getExtension")
 {
-  CHECK(Path{}.extension().isEmpty());
+  CHECK(Path{}.extension().empty());
   CHECK(Path{"asdf"}.extension() == Path{""});
   CHECK(Path{"asdf.map"}.extension() == Path{".map"});
   CHECK(Path{"/this/is/a/path.map"}.extension() == Path{".map"});

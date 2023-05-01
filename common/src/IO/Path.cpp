@@ -85,29 +85,29 @@ size_t Path::length() const
   return size_t(std::distance(m_path.begin(), m_path.end()));
 }
 
-bool Path::isEmpty() const
+bool Path::empty() const
 {
   return m_path.empty();
 }
 
 Path Path::firstComponent() const
 {
-  return isEmpty() ? Path{} : Path{*m_path.begin()};
+  return empty() ? Path{} : Path{*m_path.begin()};
 }
 
 Path Path::deleteFirstComponent() const
 {
-  return isEmpty() ? *this : subPath(1, length() - 1);
+  return empty() ? *this : subPath(1, length() - 1);
 }
 
 Path Path::lastComponent() const
 {
-  return isEmpty() ? Path{} : Path{*std::prev(m_path.end())};
+  return empty() ? Path{} : Path{*std::prev(m_path.end())};
 }
 
 Path Path::deleteLastComponent() const
 {
-  return isEmpty() ? Path{} : Path{m_path.parent_path()};
+  return empty() ? Path{} : Path{m_path.parent_path()};
 }
 
 Path Path::prefix(const size_t count) const
@@ -165,13 +165,13 @@ bool Path::hasPrefix(const Path& prefix, bool caseSensitive) const
 
 Path Path::deleteExtension() const
 {
-  return isEmpty() ? *this : deleteLastComponent() / Path{basename()};
+  return empty() ? *this : deleteLastComponent() / Path{basename()};
 }
 
 Path Path::addExtension(const std::string& extension) const
 {
-  return isEmpty() ? Path{extension}
-                   : Path{m_path.parent_path() / m_path.filename() += extension};
+  return empty() ? Path{extension}
+                 : Path{m_path.parent_path() / m_path.filename() += extension};
 }
 
 bool Path::isAbsolute() const

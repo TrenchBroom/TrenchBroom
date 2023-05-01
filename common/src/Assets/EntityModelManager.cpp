@@ -139,7 +139,7 @@ const EntityModelFrame* EntityModelManager::frame(
 
 EntityModel* EntityModelManager::model(const IO::Path& path) const
 {
-  if (path.isEmpty())
+  if (path.empty())
   {
     return nullptr;
   }

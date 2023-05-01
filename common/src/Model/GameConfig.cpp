@@ -101,7 +101,7 @@ IO::Path GameConfig::findInitialMap(const std::string& formatName) const
   {
     if (format.format == formatName)
     {
-      if (!format.initialMap.isEmpty())
+      if (!format.initialMap.empty())
       {
         return findConfigFile(format.initialMap);
       }

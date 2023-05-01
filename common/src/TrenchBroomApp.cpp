@@ -478,7 +478,7 @@ void TrenchBroomApp::openDocument()
     fileDialogDefaultDirectory(FileDialogDir::Map),
     "Map files (*.map);;Any files (*.*)");
 
-  if (const auto path = IO::pathFromQString(pathStr); !path.isEmpty())
+  if (const auto path = IO::pathFromQString(pathStr); !path.empty())
   {
     updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Map, pathStr);
     openDocument(path);
@@ -582,7 +582,7 @@ bool TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
     if (useSDI())
     {
       const auto path = IO::pathFromQString(fileNames.at(0));
-      if (!path.isEmpty())
+      if (!path.empty())
       {
         openDocument(path);
       }
@@ -660,7 +660,7 @@ IO::Path crashReportBasePath()
 {
   const auto mapPath = savedMapPath();
   const auto crashLogPath =
-    !mapPath.isEmpty()
+    !mapPath.empty()
       ? mapPath.deleteLastComponent()
           / IO::Path{mapPath.lastComponent().deleteExtension().asString() + "-crash.txt"}
       : IO::pathFromQString(

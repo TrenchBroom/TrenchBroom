@@ -177,7 +177,7 @@ std::unique_ptr<WorldNode> GameImpl::doNewMap(
 {
   const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
   if (
-    !initialMapFilePath.isEmpty()
+    !initialMapFilePath.empty()
     && IO::Disk::pathInfo(initialMapFilePath) == IO::PathInfo::File)
   {
     return doLoadMap(format, worldBounds, initialMapFilePath, logger);
@@ -595,7 +595,7 @@ Assets::Palette GameImpl::loadTexturePalette() const
 std::vector<std::string> GameImpl::doAvailableMods() const
 {
   auto result = std::vector<std::string>{};
-  if (m_gamePath.isEmpty() || IO::Disk::pathInfo(m_gamePath) != IO::PathInfo::Directory)
+  if (m_gamePath.empty() || IO::Disk::pathInfo(m_gamePath) != IO::PathInfo::Directory)
   {
     return result;
   }

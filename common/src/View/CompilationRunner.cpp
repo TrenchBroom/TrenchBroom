@@ -363,7 +363,7 @@ std::string CompilationRunToolTaskRunner::cmd()
   {
     return "\"" + toolPath.asString() + "\"";
   }
-  else if (toolPath.isEmpty())
+  else if (toolPath.empty())
   {
     return "";
   }

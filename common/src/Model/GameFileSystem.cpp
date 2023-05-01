@@ -53,7 +53,7 @@ void GameFileSystem::initialize(
 
   addDefaultAssetPaths(config, logger);
 
-  if (!gamePath.isEmpty() && IO::Disk::pathInfo(gamePath) == IO::PathInfo::Directory)
+  if (!gamePath.empty() && IO::Disk::pathInfo(gamePath) == IO::PathInfo::Directory)
   {
     addGameFileSystems(config, gamePath, additionalSearchPaths, logger);
     addShaderFileSystem(config, logger);
@@ -86,7 +86,7 @@ void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logg
 
   auto defaultFolderPaths =
     IO::SystemPaths::findResourceDirectories(IO::Path("defaults"));
-  if (!config.path.isEmpty())
+  if (!config.path.empty())
   {
     defaultFolderPaths.push_back(config.path.deleteLastComponent());
   }
@@ -192,7 +192,7 @@ void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logge
   // To support Quake 3 shaders, we add a shader file system that loads the shaders
   // and makes them available as virtual files.
   const auto& textureConfig = config.textureConfig;
-  if (!textureConfig.shaderSearchPath.isEmpty())
+  if (!textureConfig.shaderSearchPath.empty())
   {
     logger.info() << "Adding shader file system";
     auto shaderSearchPath = textureConfig.shaderSearchPath;

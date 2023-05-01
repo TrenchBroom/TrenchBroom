@@ -70,7 +70,7 @@ kdl::result<Assets::Palette, Assets::LoadPaletteError> loadPalette(
 {
   try
   {
-    if (!textureConfig.palette.isEmpty())
+    if (!textureConfig.palette.empty())
     {
       const auto& path = textureConfig.palette;
       auto file = gameFS.openFile(path);

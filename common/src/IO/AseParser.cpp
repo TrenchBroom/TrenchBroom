@@ -212,7 +212,7 @@ void AseParser::parseMaterialListMaterial(Logger& logger, std::vector<Path>& pat
           std::ref(logger),
           std::ref(name))}});
 
-    if (path.isEmpty())
+    if (path.empty())
     {
       logger.warn() << "Material " << index
                     << " is missing a 'BITMAP' directive, falling back to material name '"
@@ -769,7 +769,7 @@ Path AseParser::fixTexturePath(Logger& /* logger */, Path path) const
   {
     // usually the paths appear to be relative to the map file, but this will just yield a
     // valid path if we kick off the ".." parts
-    while (!path.isEmpty() && path.firstComponent() == Path(".."))
+    while (!path.empty() && path.firstComponent() == Path(".."))
     {
       path = path.deleteFirstComponent();
     }

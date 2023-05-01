@@ -68,7 +68,7 @@ auto withEntry(
   decltype(f(
     std::declval<const ImageEntry&>(), std::declval<const Path&>())) defaultResult)
 {
-  if (searchPath.isEmpty())
+  if (searchPath.empty())
   {
     return f(currentEntry, currentPath);
   }
@@ -99,7 +99,7 @@ void withEntry(
   const Path& currentPath,
   const F& f)
 {
-  if (searchPath.isEmpty())
+  if (searchPath.empty())
   {
     f(currentEntry, currentPath);
   }
@@ -134,7 +134,7 @@ const ImageEntry* findEntry(const Path& path, const ImageEntry& parent)
 
 ImageDirectoryEntry& findOrCreateDirectory(const Path& path, ImageDirectoryEntry& parent)
 {
-  if (path.isEmpty())
+  if (path.empty())
   {
     return parent;
   }
