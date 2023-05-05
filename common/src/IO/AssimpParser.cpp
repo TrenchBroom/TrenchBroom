@@ -33,6 +33,7 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
@@ -65,7 +66,7 @@ private:
   Reader m_reader;
 
 protected:
-  AssimpIOStream(const Path& path, const FileSystem& fs)
+  AssimpIOStream(const std::filesystem::path& path, const FileSystem& fs)
     : m_fs{fs}
     , m_file{m_fs.openFile(path)}
     , m_reader{m_file->reader()}
@@ -139,10 +140,13 @@ public:
 
   bool Exists(const char* path) const override
   {
-    return m_fs.pathInfo(Path{path}) == PathInfo::File;
+    return m_fs.pathInfo(std::filesystem::path{path}) == PathInfo::File;
   }
 
-  char getOsSeparator() const override { return Path::separator()[0]; }
+  char getOsSeparator() const override
+  {
+    return std::filesystem::path::preferred_separator;
+  }
 
   void Close(Assimp::IOStream* file) override { delete file; }
 
@@ -152,7 +156,7 @@ public:
     {
       throw ParserException{"Assimp attempted to open a file not for reading."};
     }
-    return new AssimpIOStream{Path{path}, m_fs};
+    return new AssimpIOStream{path, m_fs};
   }
 };
 
@@ -241,13 +245,13 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   return model;
 }
 
-AssimpParser::AssimpParser(Path path, const FileSystem& fs)
+AssimpParser::AssimpParser(std::filesystem::path path, const FileSystem& fs)
   : m_path{std::move(path)}
   , m_fs{fs}
 {
 }
 
-bool AssimpParser::canParse(const Path& path)
+bool AssimpParser::canParse(const std::filesystem::path& path)
 {
   // clang-format off
   static const auto supportedExtensions = std::vector<std::string>{
@@ -332,7 +336,7 @@ namespace
 {
 
 Assets::Texture loadTextureFromFileSystem(
-  const Path& path, const FileSystem& fs, Logger& logger)
+  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   const auto file = fs.openFile(path);
   auto reader = file->reader().buffer();
@@ -373,13 +377,13 @@ Assets::Texture loadCompressedEmbeddedTexture(
 
 std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 {
-  static const auto texturePaths = std::vector<Path>{
-    Path{"textures"}
-      / kdl::path_add_extension(Path{Model::BrushFaceAttributes::NoTextureName}, ".png"),
-    Path{"textures"}
-      / kdl::path_add_extension(Path{Model::BrushFaceAttributes::NoTextureName}, ".jpg"),
-    kdl::path_add_extension(Path{Model::BrushFaceAttributes::NoTextureName}, ".png"),
-    kdl::path_add_extension(Path{Model::BrushFaceAttributes::NoTextureName}, ".jpg"),
+  static const auto texturePaths = std::vector<std::filesystem::path>{
+    "textures"
+      / kdl::path_add_extension(Model::BrushFaceAttributes::NoTextureName, ".png"),
+    "textures"
+      / kdl::path_add_extension(Model::BrushFaceAttributes::NoTextureName, ".jpg"),
+    kdl::path_add_extension(Model::BrushFaceAttributes::NoTextureName, ".png"),
+    kdl::path_add_extension(Model::BrushFaceAttributes::NoTextureName, ".jpg"),
   };
 
   for (const auto& texturePath : texturePaths)
@@ -420,7 +424,7 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
       auto path = aiString{};
       scene.mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
 
-      const auto texturePath = Path{path.C_Str()};
+      const auto texturePath = std::filesystem::path{path.C_Str()};
       const auto* texture = scene.GetEmbeddedTexture(path.C_Str());
       if (!texture)
       {

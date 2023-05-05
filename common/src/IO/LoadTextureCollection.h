@@ -22,6 +22,7 @@
 #include <kdl/reflection_decl.h>
 #include <kdl/result_forward.h>
 
+#include <filesystem>
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -44,9 +45,8 @@ struct TextureConfig;
 namespace TrenchBroom::IO
 {
 class FileSystem;
-class Path;
 
-std::vector<Path> findTextureCollections(
+std::vector<std::filesystem::path> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig);
 
 struct LoadTextureCollectionError
@@ -57,7 +57,7 @@ struct LoadTextureCollectionError
 };
 
 kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCollection(
-  const Path& path,
+  const std::filesystem::path& path,
   const FileSystem& gameFS,
   const Model::TextureConfig& textureConfig,
   Logger& logger);

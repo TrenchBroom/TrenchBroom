@@ -26,6 +26,7 @@
 #include "IO/SimpleParserStatus.h"
 #include "Logger.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -38,10 +39,10 @@ namespace IO
 {
 Quake3ShaderFileSystem::Quake3ShaderFileSystem(
   const FileSystem& fs,
-  Path shaderSearchPath,
-  std::vector<Path> textureSearchPaths,
+  std::filesystem::path shaderSearchPath,
+  std::vector<std::filesystem::path> textureSearchPaths,
   Logger& logger)
-  : ImageFileSystemBase{Path{}}
+  : ImageFileSystemBase{std::filesystem::path{}}
   , m_fs{fs}
   , m_shaderSearchPath{std::move(shaderSearchPath)}
   , m_textureSearchPaths{std::move(textureSearchPaths)}
@@ -88,7 +89,7 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
 
 void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders)
 {
-  auto allImages = std::vector<Path>{};
+  auto allImages = std::vector<std::filesystem::path>{};
   for (const auto& textureSearchPath : m_textureSearchPaths)
   {
     if (m_fs.pathInfo(textureSearchPath) == PathInfo::Directory)
@@ -107,7 +108,8 @@ void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shad
 }
 
 void Quake3ShaderFileSystem::linkTextures(
-  const std::vector<Path>& textures, std::vector<Assets::Quake3Shader>& shaders)
+  const std::vector<std::filesystem::path>& textures,
+  std::vector<Assets::Quake3Shader>& shaders)
 {
   m_logger.debug() << "Linking textures...";
   for (const auto& texture : textures)

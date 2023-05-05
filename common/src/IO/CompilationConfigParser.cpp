@@ -34,7 +34,8 @@ namespace TrenchBroom
 {
 namespace IO
 {
-CompilationConfigParser::CompilationConfigParser(const std::string_view str, Path path)
+CompilationConfigParser::CompilationConfigParser(
+  const std::string_view str, std::filesystem::path path)
   : ConfigParserBase{str, std::move(path)}
 {
 }

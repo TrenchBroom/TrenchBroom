@@ -188,7 +188,7 @@ void ModEditor::modsDidChange()
   updateMods();
 }
 
-void ModEditor::preferenceDidChange(const IO::Path& path)
+void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->isGamePathPreference(path))

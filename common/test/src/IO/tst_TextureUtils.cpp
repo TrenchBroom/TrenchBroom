@@ -21,11 +21,12 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/Path.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/TextureUtils.h"
 
 #include <kdl/result.h>
+
+#include <filesystem>
 
 #include "Catch2.h"
 #include "Logger.h"
@@ -36,17 +37,17 @@ namespace IO
 {
 TEST_CASE("getTextureNameFromPathSuffix")
 {
-  using T = std::tuple<size_t, Path, std::string>;
+  using T = std::tuple<size_t, std::filesystem::path, std::string>;
 
   const auto [prefixLength, path, expectedResult] = GENERATE(values<T>({
-    {1, Path{}, ""},
-    {1, Path{"textures"}, ""},
-    {1, Path{"textures/e1m1"}, "e1m1"},
-    {1, Path{"textures/e1m1/haha"}, "e1m1/haha"},
-    {1, Path{"textures/e1m1/haha.jpg"}, "e1m1/haha"},
-    {1, Path{"textures/nesting/e1m1/haha.jpg"}, "nesting/e1m1/haha"},
-    {2, Path{"textures/nesting/e1m1/haha.jpg"}, "e1m1/haha"},
-    {3, Path{"/textures/nesting/e1m1/haha.jpg"}, "e1m1/haha"},
+    {1, "", ""},
+    {1, "textures", ""},
+    {1, "textures/e1m1", "e1m1"},
+    {1, "textures/e1m1/haha", "e1m1/haha"},
+    {1, "textures/e1m1/haha.jpg", "e1m1/haha"},
+    {1, "textures/nesting/e1m1/haha.jpg", "nesting/e1m1/haha"},
+    {2, "textures/nesting/e1m1/haha.jpg", "e1m1/haha"},
+    {3, "/textures/nesting/e1m1/haha.jpg", "e1m1/haha"},
   }));
 
   CAPTURE(prefixLength, path);
@@ -58,9 +59,9 @@ TEST_CASE("makeReadTextureErrorHandler")
 {
   auto logger = NullLogger{};
   auto diskFS = DiskFileSystem{
-    Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/ReadTextureErrorHandler"}};
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/ReadTextureErrorHandler"};
 
-  const auto file = diskFS.openFile(Path{"textures/corruptPngTest.png"});
+  const auto file = diskFS.openFile("textures/corruptPngTest.png");
   auto reader = file->reader().buffer();
   auto result = readFreeImageTexture("corruptPngTest", reader);
   REQUIRE(result.is_error());

@@ -33,28 +33,28 @@
 
 namespace TrenchBroom::IO::SystemPaths
 {
-Path appDirectory()
+std::filesystem::path appDirectory()
 {
   return IO::pathFromQString(QCoreApplication::applicationDirPath());
 }
 
-Path userDataDirectory()
+std::filesystem::path userDataDirectory()
 {
 #if defined __linux__ || defined __FreeBSD__
   // Compatibility with wxWidgets
-  return IO::pathFromQString(QDir::homePath()) / IO::Path(".TrenchBroom");
+  return IO::pathFromQString(QDir::homePath()) / ".TrenchBroom";
 #else
   return IO::pathFromQString(
     QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 #endif
 }
 
-Path logFilePath()
+std::filesystem::path logFilePath()
 {
-  return userDataDirectory() / IO::Path("TrenchBroom.log");
+  return userDataDirectory() / "TrenchBroom.log";
 }
 
-Path findResourceFile(const Path& file)
+std::filesystem::path findResourceFile(const std::filesystem::path& file)
 {
   // Special case for running debug builds on Linux, we want to search
   // next to the executable for resources
@@ -77,9 +77,10 @@ Path findResourceFile(const Path& file)
     QStandardPaths::LocateOption::LocateFile));
 }
 
-std::vector<Path> findResourceDirectories(const Path& directory)
+std::vector<std::filesystem::path> findResourceDirectories(
+  const std::filesystem::path& directory)
 {
-  auto result = std::vector<Path>{
+  auto result = std::vector<std::filesystem::path>{
     // Special case for running debug builds on Linux
     appDirectory() / directory,
     // Compatibility with wxWidgets

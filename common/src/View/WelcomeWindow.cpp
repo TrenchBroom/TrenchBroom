@@ -150,7 +150,7 @@ void WelcomeWindow::openOtherDocument()
   }
 }
 
-void WelcomeWindow::openDocument(const IO::Path& path)
+void WelcomeWindow::openDocument(const std::filesystem::path& path)
 {
   auto& app = TrenchBroomApp::instance();
   if (!app.openDocument(path))

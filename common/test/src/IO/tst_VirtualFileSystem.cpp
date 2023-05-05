@@ -39,38 +39,37 @@ TEST_CASE("VirtualFileSystem")
   {
     SECTION("makeAbsolute")
     {
-      CHECK_THROWS_AS(vfs.makeAbsolute(Path{}), FileSystemException);
-      CHECK_THROWS_AS(vfs.makeAbsolute(Path{"foo/bar"}), FileSystemException);
+      CHECK_THROWS_AS(vfs.makeAbsolute(""), FileSystemException);
+      CHECK_THROWS_AS(vfs.makeAbsolute("foo/bar"), FileSystemException);
     }
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{}) == PathInfo::Unknown);
-      CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("") == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Unknown);
     }
 
     SECTION("directoryContents")
     {
-      CHECK_THROWS_AS(vfs.directoryContents(Path{}), FileSystemException);
-      CHECK_THROWS_AS(vfs.directoryContents(Path{"foo/bar"}), FileSystemException);
+      CHECK_THROWS_AS(vfs.directoryContents(""), FileSystemException);
+      CHECK_THROWS_AS(vfs.directoryContents("foo/bar"), FileSystemException);
     }
 
     SECTION("openFile")
     {
-      CHECK_THROWS_AS(vfs.openFile(Path{}), FileSystemException);
-      CHECK_THROWS_AS(vfs.openFile(Path{"foo"}), FileSystemException);
-      CHECK_THROWS_AS(vfs.openFile(Path{"foo/bar"}), FileSystemException);
+      CHECK_THROWS_AS(vfs.openFile(""), FileSystemException);
+      CHECK_THROWS_AS(vfs.openFile("foo"), FileSystemException);
+      CHECK_THROWS_AS(vfs.openFile("foo/bar"), FileSystemException);
     }
   }
 
   SECTION("with a file system mounted at the root")
   {
-    auto foo_bar_baz =
-      std::make_shared<ObjectFile<Object>>(Path{"foo/bar/baz"}, Object{1});
-    auto bar_foo = std::make_shared<ObjectFile<Object>>(Path{"bar/foo"}, Object{2});
+    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>("foo/bar/baz", Object{1});
+    auto bar_foo = std::make_shared<ObjectFile<Object>>("bar/foo", Object{2});
 
     vfs.mount(
-      Path{},
+      "",
       std::make_unique<TestFileSystem>(Entry{DirectoryEntry{
         "",
         {
@@ -92,58 +91,57 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("makeAbsolute")
     {
-      CHECK(vfs.makeAbsolute(Path{}) == Path{"/"});
-      CHECK(vfs.makeAbsolute(Path{"foo"}) == Path{"/foo"});
-      CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/foo/bar"});
+      CHECK(vfs.makeAbsolute("") == "/");
+      CHECK(vfs.makeAbsolute("foo") == "/foo");
+      CHECK(vfs.makeAbsolute("foo/bar") == "/foo/bar");
     }
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo/bar/baz"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"foo/baz"}) == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
+      CHECK(vfs.pathInfo("foo/baz") == PathInfo::Unknown);
     }
 
     SECTION("directoryContents")
     {
       CHECK_THAT(
-        vfs.directoryContents(Path{}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"foo"},
-          Path{"bar"},
+        vfs.directoryContents(""),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "foo",
+          "bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents(Path{"foo"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"bar"},
+        vfs.directoryContents("foo"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents(Path{"foo/bar"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"baz"},
+        vfs.directoryContents("foo/bar"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "baz",
         }));
     }
 
     SECTION("openFile")
     {
-      CHECK(vfs.openFile(Path{"foo/bar/baz"}) == foo_bar_baz);
-      CHECK(vfs.openFile(Path{"bar/foo"}) == bar_foo);
+      CHECK(vfs.openFile("foo/bar/baz") == foo_bar_baz);
+      CHECK(vfs.openFile("bar/foo") == bar_foo);
     }
   }
 
   SECTION("with two file systems mounted at the root")
   {
-    auto foo_bar_baz =
-      std::make_shared<ObjectFile<Object>>(Path{"foo/bar/baz"}, Object{1});
-    auto bar_foo = std::make_shared<ObjectFile<Object>>(Path{"bar/foo"}, Object{2});
-    auto bar_bat_fs1 = std::make_shared<ObjectFile<Object>>(Path{"bar/bat"}, Object{3});
-    auto bar_bat_fs2 = std::make_shared<ObjectFile<Object>>(Path{"bar/bat"}, Object{4});
-    auto bar_cat = std::make_shared<ObjectFile<Object>>(Path{"bar/cat"}, Object{5});
+    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>("foo/bar/baz", Object{1});
+    auto bar_foo = std::make_shared<ObjectFile<Object>>("bar/foo", Object{2});
+    auto bar_bat_fs1 = std::make_shared<ObjectFile<Object>>("bar/bat", Object{3});
+    auto bar_bat_fs2 = std::make_shared<ObjectFile<Object>>("bar/bat", Object{4});
+    auto bar_cat = std::make_shared<ObjectFile<Object>>("bar/cat", Object{5});
 
     vfs.mount(
-      Path{},
+      "",
       std::make_unique<TestFileSystem>(
         Entry{DirectoryEntry{
           "",
@@ -165,9 +163,9 @@ TEST_CASE("VirtualFileSystem")
                 FileEntry{"cat", nullptr},
               }},
           }}},
-        Path{"/fs1"}));
+        "/fs1"));
     vfs.mount(
-      Path{},
+      "",
       std::make_unique<TestFileSystem>(
         Entry{DirectoryEntry{
           "",
@@ -185,85 +183,84 @@ TEST_CASE("VirtualFileSystem")
                 FileEntry{"foo", nullptr},
               }},
           }}},
-        Path{"/fs2"}));
+        "/fs2"));
 
     SECTION("makeAbsolute")
     {
-      CHECK(vfs.makeAbsolute(Path{}) == Path{"/fs2/"});
-      CHECK(vfs.makeAbsolute(Path{"foo"}) == Path{"/fs1/foo"});
-      CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/fs1/foo/bar"});
-      CHECK(vfs.makeAbsolute(Path{"bar"}) == Path{"/fs2/bar"});
-      CHECK(vfs.makeAbsolute(Path{"bar/foo"}) == Path{"/fs1/bar/foo"});
-      CHECK(vfs.makeAbsolute(Path{"bar/bat"}) == Path{"/fs2/bar/bat"});
-      CHECK(vfs.makeAbsolute(Path{"bar/baz"}) == Path{"/fs2/bar/baz"});
-      CHECK(vfs.makeAbsolute(Path{"bar/cat"}) == Path{"/fs2/bar/cat"});
-      CHECK(vfs.makeAbsolute(Path{"baz"}) == Path{"/fs2/baz"});
-      CHECK(vfs.makeAbsolute(Path{"baz/foo"}) == Path{"/fs2/baz/foo"});
+      CHECK(vfs.makeAbsolute("") == "/fs2/");
+      CHECK(vfs.makeAbsolute("foo") == "/fs1/foo");
+      CHECK(vfs.makeAbsolute("foo/bar") == "/fs1/foo/bar");
+      CHECK(vfs.makeAbsolute("bar") == "/fs2/bar");
+      CHECK(vfs.makeAbsolute("bar/foo") == "/fs1/bar/foo");
+      CHECK(vfs.makeAbsolute("bar/bat") == "/fs2/bar/bat");
+      CHECK(vfs.makeAbsolute("bar/baz") == "/fs2/bar/baz");
+      CHECK(vfs.makeAbsolute("bar/cat") == "/fs2/bar/cat");
+      CHECK(vfs.makeAbsolute("baz") == "/fs2/baz");
+      CHECK(vfs.makeAbsolute("baz/foo") == "/fs2/baz/foo");
     }
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo/bar/baz"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"bar"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"bar/foo"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"bar/bat"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"bar/baz"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"baz"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"bar/foo"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"bar/baz"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"bar/cat"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"bat"}) == PathInfo::Unknown);
-      CHECK(vfs.pathInfo(Path{"bar/dat"}) == PathInfo::Unknown);
-      CHECK(vfs.pathInfo(Path{"bat/foo"}) == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
+      CHECK(vfs.pathInfo("bar") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("bar/foo") == PathInfo::File);
+      CHECK(vfs.pathInfo("bar/bat") == PathInfo::File);
+      CHECK(vfs.pathInfo("bar/baz") == PathInfo::File);
+      CHECK(vfs.pathInfo("baz") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("bar/foo") == PathInfo::File);
+      CHECK(vfs.pathInfo("bar/baz") == PathInfo::File);
+      CHECK(vfs.pathInfo("bar/cat") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("bat") == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("bar/dat") == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("bat/foo") == PathInfo::Unknown);
     }
 
     SECTION("directoryContents")
     {
       CHECK_THAT(
-        vfs.directoryContents(Path{}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"foo"},
-          Path{"bar"},
-          Path{"baz"},
+        vfs.directoryContents(""),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "foo",
+          "bar",
+          "baz",
         }));
       CHECK_THAT(
-        vfs.directoryContents(Path{"foo"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"bar"},
+        vfs.directoryContents("foo"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents(Path{"foo/bar"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{Path{"baz"}}));
+        vfs.directoryContents("foo/bar"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{"baz"}));
       CHECK_THAT(
-        vfs.directoryContents(Path{"bar"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"foo"},
-          Path{"baz"},
-          Path{"bat"},
-          Path{"cat"},
+        vfs.directoryContents("bar"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "foo",
+          "baz",
+          "bat",
+          "cat",
         }));
     }
 
     SECTION("openFile")
     {
-      CHECK(vfs.openFile(Path{"foo/bar/baz"}) == foo_bar_baz);
-      CHECK(vfs.openFile(Path{"bar/foo"}) == bar_foo);
-      CHECK(vfs.openFile(Path{"bar/bat"}) == bar_bat_fs2);
-      CHECK_THROWS_AS(vfs.openFile(Path{"bar/cat"}), FileSystemException);
+      CHECK(vfs.openFile("foo/bar/baz") == foo_bar_baz);
+      CHECK(vfs.openFile("bar/foo") == bar_foo);
+      CHECK(vfs.openFile("bar/bat") == bar_bat_fs2);
+      CHECK_THROWS_AS(vfs.openFile("bar/cat"), FileSystemException);
     }
   }
 
   SECTION("with two file systems mounted at different mount points")
   {
-    auto foo_bar_baz =
-      std::make_shared<ObjectFile<Object>>(Path{"foo/bar/baz"}, Object{1});
-    auto bar_foo = std::make_shared<ObjectFile<Object>>(Path{"bar/foo"}, Object{2});
+    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>("foo/bar/baz", Object{1});
+    auto bar_foo = std::make_shared<ObjectFile<Object>>("bar/foo", Object{2});
 
     vfs.mount(
-      Path{"foo"},
+      "foo",
       std::make_unique<TestFileSystem>(
         Entry{DirectoryEntry{
           "",
@@ -274,78 +271,76 @@ TEST_CASE("VirtualFileSystem")
                 FileEntry{"baz", foo_bar_baz},
               }},
           }}},
-        Path{"/fs1"}));
+        "/fs1"));
     vfs.mount(
-      Path{"bar"},
+      "bar",
       std::make_unique<TestFileSystem>(
         Entry{DirectoryEntry{
           "",
           {
             FileEntry{"foo", bar_foo},
           }}},
-        Path{"/fs2"}));
+        "/fs2"));
 
     SECTION("makeAbsolute")
     {
-      CHECK_THROWS_AS(vfs.makeAbsolute(Path{}), FileSystemException);
-      CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/fs1/bar"});
-      CHECK(vfs.makeAbsolute(Path{"bar/foo"}) == Path{"/fs2/foo"});
+      CHECK_THROWS_AS(vfs.makeAbsolute(""), FileSystemException);
+      CHECK(vfs.makeAbsolute("foo/bar") == "/fs1/bar");
+      CHECK(vfs.makeAbsolute("bar/foo") == "/fs2/foo");
     }
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo/bar/baz"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"bar"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"bar/foo"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"baz"}) == PathInfo::Unknown);
+      CHECK(vfs.pathInfo("") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
+      CHECK(vfs.pathInfo("bar") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("bar/foo") == PathInfo::File);
+      CHECK(vfs.pathInfo("baz") == PathInfo::Unknown);
     }
 
     SECTION("directoryContents")
     {
       /*
       CHECK_THAT(
-        vfs.directoryContents(Path{}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"foo"},
-          Path{"bar"},
+        vfs.directoryContents(""),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "foo",
+          "bar",
         }));
         */
       CHECK_THAT(
-        vfs.directoryContents(Path{"foo"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"bar"},
+        vfs.directoryContents("foo"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents(Path{"foo/bar"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"baz"},
+        vfs.directoryContents("foo/bar"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "baz",
         }));
       CHECK_THAT(
-        vfs.directoryContents(Path{"bar"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"foo"},
+        vfs.directoryContents("bar"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "foo",
         }));
     }
 
     SECTION("openFile")
     {
-      CHECK(vfs.openFile(Path{"foo/bar/baz"}) == foo_bar_baz);
-      CHECK(vfs.openFile(Path{"bar/foo"}) == bar_foo);
+      CHECK(vfs.openFile("foo/bar/baz") == foo_bar_baz);
+      CHECK(vfs.openFile("bar/foo") == bar_foo);
     }
   }
 
   SECTION("with two file systems mounted at nested mount points")
   {
-    auto foo_bar_baz =
-      std::make_shared<ObjectFile<Object>>(Path{"foo/bar/baz"}, Object{1});
-    auto foo_bar_foo =
-      std::make_shared<ObjectFile<Object>>(Path{"foo/bar/foo"}, Object{2});
+    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>("foo/bar/baz", Object{1});
+    auto foo_bar_foo = std::make_shared<ObjectFile<Object>>("foo/bar/foo", Object{2});
 
     vfs.mount(
-      Path{"foo"},
+      "foo",
       std::make_unique<TestFileSystem>(
         Entry{DirectoryEntry{
           "",
@@ -356,58 +351,58 @@ TEST_CASE("VirtualFileSystem")
                 FileEntry{"baz", foo_bar_baz},
               }},
           }}},
-        Path{"/fs1"}));
+        "/fs1"));
     vfs.mount(
-      Path{"foo/bar"},
+      "foo/bar",
       std::make_unique<TestFileSystem>(
         Entry{DirectoryEntry{
           "",
           {
             FileEntry{"foo", foo_bar_foo},
           }}},
-        Path{"/fs2"}));
+        "/fs2"));
 
     SECTION("makeAbsolute")
     {
-      CHECK_THROWS_AS(vfs.makeAbsolute(Path{}), FileSystemException);
-      CHECK(vfs.makeAbsolute(Path{"foo/bar"}) == Path{"/fs2/"});
-      CHECK(vfs.makeAbsolute(Path{"foo/bar/foo"}) == Path{"/fs2/foo"});
-      CHECK(vfs.makeAbsolute(Path{"foo/bar/baz"}) == Path{"/fs1/bar/baz"});
+      CHECK_THROWS_AS(vfs.makeAbsolute(""), FileSystemException);
+      CHECK(vfs.makeAbsolute("foo/bar") == "/fs2/");
+      CHECK(vfs.makeAbsolute("foo/bar/foo") == "/fs2/foo");
+      CHECK(vfs.makeAbsolute("foo/bar/baz") == "/fs1/bar/baz");
     }
 
     SECTION("pathInfo")
     {
-      CHECK(vfs.pathInfo(Path{}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo/bar"}) == PathInfo::Directory);
-      CHECK(vfs.pathInfo(Path{"foo/bar/foo"}) == PathInfo::File);
-      CHECK(vfs.pathInfo(Path{"foo/bar/baz"}) == PathInfo::File);
+      CHECK(vfs.pathInfo("") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/foo") == PathInfo::File);
+      CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
     }
 
     SECTION("directoryContents")
     {
       CHECK_THAT(
-        vfs.directoryContents(Path{}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"foo"},
+        vfs.directoryContents(""),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "foo",
         }));
       CHECK_THAT(
-        vfs.directoryContents(Path{"foo"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"bar"},
+        vfs.directoryContents("foo"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents(Path{"foo/bar"}),
-        Catch::Matchers::UnorderedEquals(std::vector<Path>{
-          Path{"baz"},
-          Path{"foo"},
+        vfs.directoryContents("foo/bar"),
+        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+          "baz",
+          "foo",
         }));
     }
 
     SECTION("openFile")
     {
-      CHECK(vfs.openFile(Path{"foo/bar/baz"}) == foo_bar_baz);
-      CHECK(vfs.openFile(Path{"foo/bar/foo"}) == foo_bar_foo);
+      CHECK(vfs.openFile("foo/bar/baz") == foo_bar_baz);
+      CHECK(vfs.openFile("foo/bar/foo") == foo_bar_foo);
     }
   }
 }

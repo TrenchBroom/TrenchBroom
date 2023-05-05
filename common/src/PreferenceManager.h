@@ -27,6 +27,7 @@
 #include <kdl/result.h>
 #include <kdl/vector_set.h>
 
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <vector>
@@ -53,10 +54,10 @@ private:
   static bool m_initialized;
 
 protected:
-  std::map<IO::Path, std::unique_ptr<PreferenceBase>> m_dynamicPreferences;
+  std::map<std::filesystem::path, std::unique_ptr<PreferenceBase>> m_dynamicPreferences;
 
 public:
-  Notifier<const IO::Path&> preferenceDidChangeNotifier;
+  Notifier<const std::filesystem::path&> preferenceDidChangeNotifier;
 
 public:
   static PreferenceManager& instance();
@@ -69,7 +70,7 @@ public:
   }
 
   template <typename T>
-  Preference<T>& dynamicPreference(const IO::Path& path, T&& defaultValue)
+  Preference<T>& dynamicPreference(const std::filesystem::path& path, T&& defaultValue)
   {
     auto it = m_dynamicPreferences.find(path);
     if (it == std::end(m_dynamicPreferences))
@@ -146,7 +147,8 @@ class AppPreferenceManager : public PreferenceManager
   Q_OBJECT
 private:
   using UnsavedPreferences = kdl::vector_set<PreferenceBase*>;
-  using DynamicPreferences = std::map<IO::Path, std::unique_ptr<PreferenceBase>>;
+  using DynamicPreferences =
+    std::map<std::filesystem::path, std::unique_ptr<PreferenceBase>>;
 
   QString m_preferencesFilePath;
   bool m_saveInstantly;
@@ -159,7 +161,7 @@ private:
    * There may also be values in here we don't know how to deserialize; we write them back
    * to disk.
    */
-  std::map<IO::Path, QJsonValue> m_cache;
+  std::map<std::filesystem::path, QJsonValue> m_cache;
   QFileSystemWatcher* m_fileSystemWatcher;
   /**
    * If true, don't try to read/write preferences anymore.
@@ -275,7 +277,7 @@ struct LockFileError
 } // namespace PreferenceErrors
 
 using ReadPreferencesResult = kdl::result<
-  std::map<IO::Path, QJsonValue>, // Success case
+  std::map<std::filesystem::path, QJsonValue>, // Success case
   PreferenceErrors::NoFilePresent,
   PreferenceErrors::JsonParseError,
   PreferenceErrors::FileAccessError,
@@ -289,8 +291,9 @@ ReadPreferencesResult readPreferencesFromFile(const QString& path);
 ReadPreferencesResult readPreferences();
 
 WritePreferencesResult writePreferencesToFile(
-  const QString& path, const std::map<IO::Path, QJsonValue>& prefs);
+  const QString& path, const std::map<std::filesystem::path, QJsonValue>& prefs);
 ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData);
-QByteArray writePreferencesToJson(const std::map<IO::Path, QJsonValue>& prefs);
+QByteArray writePreferencesToJson(
+  const std::map<std::filesystem::path, QJsonValue>& prefs);
 
 } // namespace TrenchBroom

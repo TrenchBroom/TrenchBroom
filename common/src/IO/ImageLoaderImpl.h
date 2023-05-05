@@ -21,6 +21,7 @@
 
 #include "IO/ImageLoader.h"
 
+#include <filesystem>
 #include <vector>
 
 #include <FreeImage.h>
@@ -29,7 +30,6 @@ namespace TrenchBroom
 {
 namespace IO
 {
-class Path;
 
 class InitFreeImage
 {
@@ -48,7 +48,7 @@ private:
   FIBITMAP* m_bitmap;
 
 public:
-  ImageLoaderImpl(const ImageLoader::Format format, const Path& path);
+  ImageLoaderImpl(const ImageLoader::Format format, const std::filesystem::path& path);
   ImageLoaderImpl(const ImageLoader::Format format, const char* begin, const char* end);
   ~ImageLoaderImpl();
 

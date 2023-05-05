@@ -25,6 +25,7 @@
 #include "Macros.h"
 
 #include "kdl/string_compare.h"
+#include <kdl/path_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <ostream>
@@ -36,7 +37,7 @@ namespace TrenchBroom::IO
 
 FileSystem::~FileSystem() = default;
 
-Path FileSystem::makeAbsolute(const Path& path) const
+std::filesystem::path FileSystem::makeAbsolute(const std::filesystem::path& path) const
 {
   try
   {
@@ -53,7 +54,7 @@ Path FileSystem::makeAbsolute(const Path& path) const
   }
 }
 
-PathInfo FileSystem::pathInfo(const Path& path) const
+PathInfo FileSystem::pathInfo(const std::filesystem::path& path) const
 {
   try
   {
@@ -70,7 +71,8 @@ PathInfo FileSystem::pathInfo(const Path& path) const
   }
 }
 
-std::vector<Path> FileSystem::find(const Path& path, const PathMatcher& pathMatcher) const
+std::vector<std::filesystem::path> FileSystem::find(
+  const std::filesystem::path& path, const PathMatcher& pathMatcher) const
 {
   if (path.is_absolute())
   {
@@ -79,13 +81,13 @@ std::vector<Path> FileSystem::find(const Path& path, const PathMatcher& pathMatc
 
   return IO::find(
     path,
-    [&](const Path& p) { return doGetDirectoryContents(p); },
-    [&](const Path& p) { return doGetPathInfo(p); },
+    [&](const std::filesystem::path& p) { return doGetDirectoryContents(p); },
+    [&](const std::filesystem::path& p) { return doGetPathInfo(p); },
     pathMatcher);
 }
 
-std::vector<Path> FileSystem::findRecursively(
-  const Path& path, const PathMatcher& pathMatcher) const
+std::vector<std::filesystem::path> FileSystem::findRecursively(
+  const std::filesystem::path& path, const PathMatcher& pathMatcher) const
 {
   if (path.is_absolute())
   {
@@ -94,12 +96,13 @@ std::vector<Path> FileSystem::findRecursively(
 
   return IO::findRecursively(
     path,
-    [&](const Path& p) { return doGetDirectoryContents(p); },
-    [&](const Path& p) { return doGetPathInfo(p); },
+    [&](const std::filesystem::path& p) { return doGetDirectoryContents(p); },
+    [&](const std::filesystem::path& p) { return doGetPathInfo(p); },
     pathMatcher);
 }
 
-std::vector<Path> FileSystem::directoryContents(const Path& path) const
+std::vector<std::filesystem::path> FileSystem::directoryContents(
+  const std::filesystem::path& path) const
 {
   try
   {
@@ -121,7 +124,7 @@ std::vector<Path> FileSystem::directoryContents(const Path& path) const
   }
 }
 
-std::shared_ptr<File> FileSystem::openFile(const Path& path) const
+std::shared_ptr<File> FileSystem::openFile(const std::filesystem::path& path) const
 {
   try
   {
@@ -145,7 +148,8 @@ std::shared_ptr<File> FileSystem::openFile(const Path& path) const
 
 WritableFileSystem::~WritableFileSystem() = default;
 
-void WritableFileSystem::createFileAtomic(const Path& path, const std::string& contents)
+void WritableFileSystem::createFileAtomic(
+  const std::filesystem::path& path, const std::string& contents)
 {
   try
   {
@@ -164,7 +168,8 @@ void WritableFileSystem::createFileAtomic(const Path& path, const std::string& c
   }
 }
 
-void WritableFileSystem::createFile(const Path& path, const std::string& contents)
+void WritableFileSystem::createFile(
+  const std::filesystem::path& path, const std::string& contents)
 {
   try
   {
@@ -180,7 +185,7 @@ void WritableFileSystem::createFile(const Path& path, const std::string& content
   }
 }
 
-void WritableFileSystem::createDirectory(const Path& path)
+void WritableFileSystem::createDirectory(const std::filesystem::path& path)
 {
   try
   {
@@ -196,7 +201,7 @@ void WritableFileSystem::createDirectory(const Path& path)
   }
 }
 
-void WritableFileSystem::deleteFile(const Path& path)
+void WritableFileSystem::deleteFile(const std::filesystem::path& path)
 {
   try
   {
@@ -213,7 +218,9 @@ void WritableFileSystem::deleteFile(const Path& path)
 }
 
 void WritableFileSystem::copyFile(
-  const Path& sourcePath, const Path& destPath, const bool overwrite)
+  const std::filesystem::path& sourcePath,
+  const std::filesystem::path& destPath,
+  const bool overwrite)
 {
   try
   {
@@ -238,7 +245,9 @@ void WritableFileSystem::copyFile(
 }
 
 void WritableFileSystem::moveFile(
-  const Path& sourcePath, const Path& destPath, const bool overwrite)
+  const std::filesystem::path& sourcePath,
+  const std::filesystem::path& destPath,
+  const bool overwrite)
 {
   try
   {

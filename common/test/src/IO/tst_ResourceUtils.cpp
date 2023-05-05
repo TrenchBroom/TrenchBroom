@@ -22,6 +22,7 @@
 #include "IO/DiskIO.h"
 #include "IO/ResourceUtils.h"
 
+#include <filesystem>
 #include <memory>
 
 #include "Catch2.h"
@@ -34,7 +35,7 @@ namespace IO
 TEST_CASE("ResourceUtilsTest.loadDefaultTexture")
 {
   auto fs = std::make_shared<DiskFileSystem>(
-    IO::Disk::getCurrentWorkingDir() / Path("fixture/test/IO/ResourceUtils/assets"));
+    IO::Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets");
   NullLogger logger;
 
   auto texture = loadDefaultTexture(*fs, "some_name", logger);

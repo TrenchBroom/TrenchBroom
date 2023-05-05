@@ -311,10 +311,10 @@ void transformNode(
 GameAndConfig loadGame(const std::string& gameName)
 {
   TestLogger logger;
-  const auto configPath = IO::Disk::getCurrentWorkingDir() / IO::Path("fixture/games")
-                          / IO::Path(gameName) / IO::Path("GameConfig.cfg");
-  const auto gamePath = IO::Disk::getCurrentWorkingDir()
-                        / IO::Path("fixture/test/Model/Game") / IO::Path(gameName);
+  const auto configPath =
+    IO::Disk::getCurrentWorkingDir() / "fixture/games" / gameName / "GameConfig.cfg";
+  const auto gamePath =
+    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Game" / gameName;
   const auto configStr = IO::Disk::readTextFile(configPath);
   auto configParser = IO::GameConfigParser(configStr, configPath);
   auto config = std::make_unique<Model::GameConfig>(configParser.parse());
@@ -373,7 +373,9 @@ void setLinkedGroupId(GroupNode& groupNode, std::string linkedGroupId)
 namespace View
 {
 DocumentGameConfig loadMapDocument(
-  const IO::Path& mapPath, const std::string& gameName, const Model::MapFormat mapFormat)
+  const std::filesystem::path& mapPath,
+  const std::string& gameName,
+  const Model::MapFormat mapFormat)
 {
   auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
 

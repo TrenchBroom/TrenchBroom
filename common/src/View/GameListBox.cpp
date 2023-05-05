@@ -20,11 +20,11 @@
 #include "GameListBox.h"
 
 #include "Ensure.h"
-#include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -100,7 +100,7 @@ GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const
   auto iconPath = gameFactory.iconPath(gameName);
   if (iconPath.empty())
   {
-    iconPath = IO::Path("DefaultGameIcon.svg");
+    iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
   }
   const auto experimental = gameFactory.gameConfig(gameName).experimental;
 

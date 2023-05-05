@@ -22,6 +22,8 @@
 
 #include "TestFileSystem.h"
 
+#include <filesystem>
+
 #include "Catch2.h"
 
 namespace TrenchBroom
@@ -30,14 +32,12 @@ namespace IO
 {
 TEST_CASE("TestFileSystem")
 {
-  auto root_file_1 = makeObjectFile(Path{"root_file_1"}, 1);
-  auto root_file_2 = makeObjectFile(Path{"root_file_2"}, 2);
-  auto some_dir_file_1 = makeObjectFile(Path{"some_dir/some_dir_file_1"}, 3);
-  auto some_dir_file_2 = makeObjectFile(Path{"some_dir/some_dir_file_2"}, 4);
-  auto nested_dir_file_1 =
-    makeObjectFile(Path{"some_dir/nested_dir/nested_dir_file_1"}, 5);
-  auto nested_dir_file_2 =
-    makeObjectFile(Path{"some_dir/nested_dir/nested_dir_file_2"}, 6);
+  auto root_file_1 = makeObjectFile("root_file_1", 1);
+  auto root_file_2 = makeObjectFile("root_file_2", 2);
+  auto some_dir_file_1 = makeObjectFile("some_dir/some_dir_file_1", 3);
+  auto some_dir_file_2 = makeObjectFile("some_dir/some_dir_file_2", 4);
+  auto nested_dir_file_1 = makeObjectFile("some_dir/nested_dir/nested_dir_file_1", 5);
+  auto nested_dir_file_2 = makeObjectFile("some_dir/nested_dir/nested_dir_file_2", 6);
 
   auto fs = TestFileSystem{DirectoryEntry{
     "",
@@ -60,57 +60,54 @@ TEST_CASE("TestFileSystem")
 
   SECTION("makeAbsolute")
   {
-    CHECK(fs.makeAbsolute(Path{"root_file_1"}) == Path{"/root_file_1"});
-    CHECK(fs.makeAbsolute(Path{"some_dir"}) == Path{"/some_dir"});
-    CHECK(
-      fs.makeAbsolute(Path{"some_dir/some_dir_file_1"})
-      == Path{"/some_dir/some_dir_file_1"});
+    CHECK(fs.makeAbsolute("root_file_1") == "/root_file_1");
+    CHECK(fs.makeAbsolute("some_dir") == "/some_dir");
+    CHECK(fs.makeAbsolute("some_dir/some_dir_file_1") == "/some_dir/some_dir_file_1");
   }
 
   SECTION("pathInfo")
   {
-    CHECK(fs.pathInfo(Path{"root_file_1"}) == PathInfo::File);
-    CHECK(fs.pathInfo(Path{"some_dir"}) == PathInfo::Directory);
-    CHECK(fs.pathInfo(Path{"does_not_exist"}) == PathInfo::Unknown);
-    CHECK(fs.pathInfo(Path{"some_dir/some_dir_file_1"}) == PathInfo::File);
-    CHECK(fs.pathInfo(Path{"some_dir/nested_dir"}) == PathInfo::Directory);
-    CHECK(fs.pathInfo(Path{"some_dir/does_not_exist"}) == PathInfo::Unknown);
-    CHECK(fs.pathInfo(Path{"some_dir/nested_dir/nested_dir_file_1"}) == PathInfo::File);
-    CHECK(fs.pathInfo(Path{"some_dir/nested_dir/does_not_exist"}) == PathInfo::Unknown);
+    CHECK(fs.pathInfo("root_file_1") == PathInfo::File);
+    CHECK(fs.pathInfo("some_dir") == PathInfo::Directory);
+    CHECK(fs.pathInfo("does_not_exist") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("some_dir/some_dir_file_1") == PathInfo::File);
+    CHECK(fs.pathInfo("some_dir/nested_dir") == PathInfo::Directory);
+    CHECK(fs.pathInfo("some_dir/does_not_exist") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("some_dir/nested_dir/nested_dir_file_1") == PathInfo::File);
+    CHECK(fs.pathInfo("some_dir/nested_dir/does_not_exist") == PathInfo::Unknown);
   }
 
   SECTION("directoryContents")
   {
     CHECK_THAT(
-      fs.directoryContents(Path{}),
-      Catch::Matchers::UnorderedEquals(std::vector<Path>{
-        Path{"some_dir"},
-        Path{"root_file_1"},
-        Path{"root_file_2"},
+      fs.directoryContents(""),
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+        "some_dir",
+        "root_file_1",
+        "root_file_2",
       }));
 
     CHECK_THAT(
-      fs.directoryContents(Path{"some_dir"}),
-      Catch::Matchers::UnorderedEquals(std::vector<Path>{
-        Path{"nested_dir"},
-        Path{"some_dir_file_1"},
-        Path{"some_dir_file_2"},
+      fs.directoryContents("some_dir"),
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+        "nested_dir",
+        "some_dir_file_1",
+        "some_dir_file_2",
       }));
 
     CHECK_THAT(
-      fs.directoryContents(Path{"some_dir/nested_dir"}),
-      Catch::Matchers::UnorderedEquals(std::vector<Path>{
-        Path{"nested_dir_file_1"},
-        Path{"nested_dir_file_2"},
+      fs.directoryContents("some_dir/nested_dir"),
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+        "nested_dir_file_1",
+        "nested_dir_file_2",
       }));
   }
 
   SECTION("openFile")
   {
-    CHECK(fs.openFile(Path{"root_file_1"}) == root_file_1);
-    CHECK(fs.openFile(Path{"some_dir/some_dir_file_1"}) == some_dir_file_1);
-    CHECK(
-      fs.openFile(Path{"some_dir/nested_dir/nested_dir_file_1"}) == nested_dir_file_1);
+    CHECK(fs.openFile("root_file_1") == root_file_1);
+    CHECK(fs.openFile("some_dir/some_dir_file_1") == some_dir_file_1);
+    CHECK(fs.openFile("some_dir/nested_dir/nested_dir_file_1") == nested_dir_file_1);
   }
 }
 

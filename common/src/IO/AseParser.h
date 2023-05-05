@@ -26,6 +26,7 @@
 #include <vecmath/forward.h>
 
 #include <array>
+#include <filesystem>
 #include <functional>
 #include <string>
 #include <string_view>
@@ -44,7 +45,6 @@ class Texture;
 namespace IO
 {
 class FileSystem;
-class Path;
 
 namespace AseToken
 {
@@ -107,7 +107,7 @@ private:
 
   struct Scene
   {
-    std::vector<Path> materialPaths;
+    std::vector<std::filesystem::path> materialPaths;
     std::vector<GeomObject> geomObjects;
   };
 
@@ -125,7 +125,7 @@ public:
    */
   AseParser(std::string name, std::string_view str, const FileSystem& fs);
 
-  static bool canParse(const Path& path);
+  static bool canParse(const std::filesystem::path& path);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
@@ -137,15 +137,20 @@ private: // parsing
   void parseScene(Logger& logger);
 
   // MATERIALS
-  void parseMaterialList(Logger& logger, std::vector<Path>& paths);
-  void parseMaterialListMaterialCount(Logger& logger, std::vector<Path>& paths);
-  void parseMaterialListMaterial(Logger& logger, std::vector<Path>& paths);
+  void parseMaterialList(Logger& logger, std::vector<std::filesystem::path>& paths);
+  void parseMaterialListMaterialCount(
+    Logger& logger, std::vector<std::filesystem::path>& paths);
+  void parseMaterialListMaterial(
+    Logger& logger, std::vector<std::filesystem::path>& paths);
   void parseMaterialListMaterialName(Logger& logger, std::string& name);
-  void parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path);
-  void parseMaterialListMaterialMapDiffuseBitmap(Logger& logger, Path& path);
+  void parseMaterialListMaterialMapDiffuse(Logger& logger, std::filesystem::path& path);
+  void parseMaterialListMaterialMapDiffuseBitmap(
+    Logger& logger, std::filesystem::path& path);
 
   void parseGeomObject(
-    Logger& logger, GeomObject& geomObject, const std::vector<Path>& materialPaths);
+    Logger& logger,
+    GeomObject& geomObject,
+    const std::vector<std::filesystem::path>& materialPaths);
   void parseGeomObjectNodeName(Logger& logger, GeomObject& geomObject);
   void parseGeomObjectMaterialRef(
     Logger& logger, GeomObject& geomObject, size_t materialCount);
@@ -181,8 +186,8 @@ private: // model construction
     Logger& logger, const Scene& scene) const;
   bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
 
-  Assets::Texture loadTexture(Logger& logger, const Path& path) const;
-  Path fixTexturePath(Logger& logger, Path path) const;
+  Assets::Texture loadTexture(Logger& logger, const std::filesystem::path& path) const;
+  std::filesystem::path fixTexturePath(Logger& logger, std::filesystem::path path) const;
 };
 } // namespace IO
 } // namespace TrenchBroom

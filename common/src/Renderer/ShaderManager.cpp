@@ -20,13 +20,13 @@
 #include "ShaderManager.h"
 
 #include "Ensure.h"
-#include "IO/Path.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderConfig.h"
 #include "Renderer/ShaderProgram.h"
 
 #include <cassert>
+#include <filesystem>
 #include <string>
 
 namespace TrenchBroom
@@ -92,7 +92,7 @@ Shader& ShaderManager::loadShader(const std::string& name, const GLenum type)
   }
 
   const auto shaderPath =
-    IO::SystemPaths::findResourceFile(IO::Path("shader") / IO::Path(name));
+    IO::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
   auto result = m_shaders.emplace(name, std::make_unique<Shader>(shaderPath, type));
   assert(result.second);
 

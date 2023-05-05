@@ -21,6 +21,7 @@
 
 #include "IO/ImageFileSystem.h"
 
+#include <filesystem>
 #include <vector>
 
 namespace TrenchBroom
@@ -45,8 +46,8 @@ class Quake3ShaderFileSystem : public ImageFileSystemBase
 {
 private:
   const FileSystem& m_fs;
-  Path m_shaderSearchPath;
-  std::vector<Path> m_textureSearchPaths;
+  std::filesystem::path m_shaderSearchPath;
+  std::vector<std::filesystem::path> m_textureSearchPaths;
   Logger& m_logger;
 
 public:
@@ -65,8 +66,8 @@ public:
    */
   Quake3ShaderFileSystem(
     const FileSystem& fs,
-    Path shaderSearchPath,
-    std::vector<Path> textureSearchPaths,
+    std::filesystem::path shaderSearchPath,
+    std::vector<std::filesystem::path> textureSearchPaths,
     Logger& logger);
 
 private:
@@ -75,7 +76,8 @@ private:
   std::vector<Assets::Quake3Shader> loadShaders() const;
   void linkShaders(std::vector<Assets::Quake3Shader>& shaders);
   void linkTextures(
-    const std::vector<Path>& textures, std::vector<Assets::Quake3Shader>& shaders);
+    const std::vector<std::filesystem::path>& textures,
+    std::vector<Assets::Quake3Shader>& shaders);
   void linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders);
 };
 } // namespace IO

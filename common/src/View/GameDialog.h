@@ -22,6 +22,7 @@
 #include "Model/MapFormat.h"
 #include "NotifierConnection.h"
 
+#include <filesystem>
 #include <string>
 
 #include <QDialog>
@@ -32,11 +33,6 @@ class QWidget;
 
 namespace TrenchBroom
 {
-namespace IO
-{
-class Path;
-}
-
 namespace View
 {
 class GameListBox;
@@ -90,7 +86,7 @@ private:
   void updateMapFormats(const std::string& gameName);
 
   void connectObservers();
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
 };
 } // namespace View
 } // namespace TrenchBroom

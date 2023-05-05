@@ -25,7 +25,6 @@
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ReadQuake3ShaderTexture.h"
@@ -33,8 +32,8 @@
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/result.h>
-#include <kdl/string_format.h>
 
 #include <string>
 
@@ -43,13 +42,14 @@ namespace TrenchBroom
 namespace IO
 {
 
-Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger)
+Assets::Texture loadSkin(
+  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   return loadSkin(path, fs, std::nullopt, logger);
 }
 
 Assets::Texture loadSkin(
-  const Path& path,
+  const std::filesystem::path& path,
   const FileSystem& fs,
   const std::optional<Assets::Palette>& palette,
   Logger& logger)
@@ -72,7 +72,8 @@ Assets::Texture loadSkin(
   }
 }
 
-Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger)
+Assets::Texture loadShader(
+  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   const auto pathWithoutExtension = kdl::path_remove_extension(path);
   auto actualPath = !path.empty() && fs.pathInfo(pathWithoutExtension) == PathInfo::File

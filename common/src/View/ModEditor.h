@@ -21,6 +21,7 @@
 
 #include "NotifierConnection.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -34,11 +35,6 @@ class QAbstractButton;
 
 namespace TrenchBroom
 {
-namespace IO
-{
-class Path;
-}
-
 namespace View
 {
 class MapDocument;
@@ -75,7 +71,7 @@ private:
   void documentWasNewed(MapDocument* document);
   void documentWasLoaded(MapDocument* document);
   void modsDidChange();
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
 
   void updateAvailableMods();
   void updateMods();

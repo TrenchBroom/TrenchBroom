@@ -20,7 +20,6 @@
 
 #include "View/ExtrudeTool.h"
 
-#include "IO/Path.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -45,6 +44,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <filesystem>
 #include <memory>
 
 #include "MapDocumentTest.h"
@@ -221,17 +221,17 @@ static Model::PickResult performPick(
  */
 TEST_CASE("ExtrudeToolTest.findDragFaces")
 {
-  using T = std::tuple<IO::Path, std::vector<std::string>>;
+  using T = std::tuple<std::filesystem::path, std::vector<std::string>>;
 
   // clang-format off
   const auto 
   [mapName,                                        expectedDragFaceTextureNames] = GENERATE(values<T>({
-  {IO::Path{"findDragFaces_noCoplanarFaces.map"},  {"larger_top_face"}},
-  {IO::Path{"findDragFaces_twoCoplanarFaces.map"}, {"larger_top_face", "smaller_top_face"}}
+  {"findDragFaces_noCoplanarFaces.map",  {"larger_top_face"}},
+  {"findDragFaces_twoCoplanarFaces.map", {"larger_top_face", "smaller_top_face"}}
   }));
   // clang-format on
 
-  const auto mapPath = IO::Path{"fixture/test/View/ExtrudeToolTest"} / mapName;
+  const auto mapPath = "fixture/test/View/ExtrudeToolTest" / mapName;
   auto [document, game, gameConfig] =
     View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
 
@@ -279,7 +279,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
   using namespace Model::HitFilters;
 
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path{"fixture/test/View/ExtrudeToolTest/splitBrushes.map"},
+    "fixture/test/View/ExtrudeToolTest/splitBrushes.map",
     "Quake",
     Model::MapFormat::Valve);
 

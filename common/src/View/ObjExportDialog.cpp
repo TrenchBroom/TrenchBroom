@@ -22,7 +22,6 @@
 
 #include "Ensure.h"
 #include "IO/ExportOptions.h"
-#include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "QtUtils.h"
 #include "View/BorderLine.h"
@@ -30,6 +29,10 @@
 #include "View/FormWithSectionsLayout.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
+
+#include <kdl/path_utils.h>
+
+#include <filesystem>
 
 #include <QDialogButtonBox>
 #include <QFileDialog>

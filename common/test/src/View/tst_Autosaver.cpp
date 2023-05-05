@@ -18,7 +18,6 @@
  */
 
 #include "IO/DiskFileSystem.h"
-#include "IO/Path.h"
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/BrushNode.h"
@@ -27,6 +26,7 @@
 #include "View/MapDocumentTest.h"
 
 #include <chrono>
+#include <filesystem>
 #include <thread>
 
 #include <QString>
@@ -51,11 +51,11 @@ IO::TestEnvironment makeTestEnvironment()
                      .toStdString();
 
   return IO::TestEnvironment{dir, [](auto& env) {
-                               env.createDirectory(IO::Path{"dir"});
+                               env.createDirectory("dir");
 
-                               env.createFile(IO::Path{"test.1.map"}, "some content");
-                               env.createFile(IO::Path{"test.2.map"}, "some content");
-                               env.createFile(IO::Path{"test.20.map"}, "some content");
+                               env.createFile("test.1.map", "some content");
+                               env.createFile("test.2.map", "some content");
+                               env.createFile("test.20.map", "some content");
                              }};
 }
 } // namespace
@@ -65,16 +65,16 @@ TEST_CASE("AutosaverTest.makeBackupPathMatcher")
   const auto env = makeTestEnvironment();
   auto fs = IO::DiskFileSystem{env.dir()};
 
-  const auto matcher = makeBackupPathMatcher(IO::Path{"test"});
+  const auto matcher = makeBackupPathMatcher("test");
   const auto getPathInfo = [&](const auto& p) { return fs.pathInfo(p); };
 
-  CHECK(matcher(IO::Path{"test.1.map"}, getPathInfo));
-  CHECK(matcher(IO::Path{"test.2.map"}, getPathInfo));
-  CHECK(matcher(IO::Path{"test.20.map"}, getPathInfo));
-  CHECK_FALSE(matcher(IO::Path{"dir"}, getPathInfo));
-  CHECK_FALSE(matcher(IO::Path{"test.map"}, getPathInfo));
-  CHECK_FALSE(matcher(IO::Path{"test.1-crash.map"}, getPathInfo));
-  CHECK_FALSE(matcher(IO::Path{"test.2-crash.map"}, getPathInfo));
+  CHECK(matcher("test.1.map", getPathInfo));
+  CHECK(matcher("test.2.map", getPathInfo));
+  CHECK(matcher("test.20.map", getPathInfo));
+  CHECK_FALSE(matcher("dir", getPathInfo));
+  CHECK_FALSE(matcher("test.map", getPathInfo));
+  CHECK_FALSE(matcher("test.1-crash.map", getPathInfo));
+  CHECK_FALSE(matcher("test.2-crash.map", getPathInfo));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInterval")
@@ -84,8 +84,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInter
   IO::TestEnvironment env;
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
-  assert(env.fileExists(IO::Path{"test.map"}));
+  document->saveDocumentAs(env.dir() / "test.map");
+  assert(env.fileExists("test.map"));
 
   Autosaver autosaver(document, 10s);
 
@@ -94,8 +94,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInter
 
   autosaver.triggerAutosave(logger);
 
-  CHECK_FALSE(env.fileExists(IO::Path{"autosave/test.1.map"}));
-  CHECK_FALSE(env.directoryExists(IO::Path{"autosave"}));
+  CHECK_FALSE(env.fileExists("autosave/test.1.map"));
+  CHECK_FALSE(env.directoryExists("autosave"));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveOfUnchangedMap")
@@ -105,14 +105,14 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveOfUnchangedMap
   IO::TestEnvironment env;
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
-  assert(env.fileExists(IO::Path{"test.map"}));
+  document->saveDocumentAs(env.dir() / "test.map");
+  assert(env.fileExists("test.map"));
 
   Autosaver autosaver(document, 0s);
   autosaver.triggerAutosave(logger);
 
-  CHECK_FALSE(env.fileExists(IO::Path{"autosave/test.1.map"}));
-  CHECK_FALSE(env.directoryExists(IO::Path{"autosave"}));
+  CHECK_FALSE(env.fileExists("autosave/test.1.map"));
+  CHECK_FALSE(env.directoryExists("autosave"));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterval")
@@ -122,8 +122,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterv
   IO::TestEnvironment env;
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
-  assert(env.fileExists(IO::Path{"test.map"}));
+  document->saveDocumentAs(env.dir() / "test.map");
+  assert(env.fileExists("test.map"));
 
   Autosaver autosaver(document, 100ms);
 
@@ -136,8 +136,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterv
 
   autosaver.triggerAutosave(logger);
 
-  CHECK(env.fileExists(IO::Path{"autosave/test.1.map"}));
-  CHECK(env.directoryExists(IO::Path{"autosave"}));
+  CHECK(env.fileExists("autosave/test.1.map"));
+  CHECK(env.directoryExists("autosave"));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveInterval")
@@ -147,8 +147,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
   IO::TestEnvironment env;
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
-  assert(env.fileExists(IO::Path{"test.map"}));
+  document->saveDocumentAs(env.dir() / "test.map");
+  assert(env.fileExists("test.map"));
 
   Autosaver autosaver(document, 100ms);
 
@@ -161,21 +161,21 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
 
   autosaver.triggerAutosave(logger);
 
-  CHECK(env.fileExists(IO::Path{"autosave/test.1.map"}));
-  CHECK(env.directoryExists(IO::Path{"autosave"}));
+  CHECK(env.fileExists("autosave/test.1.map"));
+  CHECK(env.directoryExists("autosave"));
 
   // Wait for 2 seconds.
   using namespace std::chrono_literals;
   std::this_thread::sleep_for(100ms);
 
   autosaver.triggerAutosave(logger);
-  CHECK_FALSE(env.fileExists(IO::Path{"autosave/test.2.map"}));
+  CHECK_FALSE(env.fileExists("autosave/test.2.map"));
 
   // modify the map
   document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
 
   autosaver.triggerAutosave(logger);
-  CHECK(env.fileExists(IO::Path{"autosave/test.2.map"}));
+  CHECK(env.fileExists("autosave/test.2.map"));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesPresent")
@@ -185,14 +185,14 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesP
   using namespace std::literals::chrono_literals;
 
   IO::TestEnvironment env;
-  env.createDirectory(IO::Path{"autosave"});
-  env.createFile(IO::Path{"autosave/test.1.map"}, "some content");
-  env.createFile(IO::Path{"autosave/test.1-crash.map"}, "some content again");
+  env.createDirectory("autosave");
+  env.createFile("autosave/test.1.map", "some content");
+  env.createFile("autosave/test.1-crash.map", "some content again");
 
   NullLogger logger;
 
-  document->saveDocumentAs(env.dir() / IO::Path{"test.map"});
-  assert(env.fileExists(IO::Path{"test.map"}));
+  document->saveDocumentAs(env.dir() / "test.map");
+  assert(env.fileExists("test.map"));
 
   Autosaver autosaver(document, 0s);
 
@@ -201,7 +201,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesP
 
   autosaver.triggerAutosave(logger);
 
-  CHECK(env.fileExists(IO::Path{"autosave/test.2.map"}));
+  CHECK(env.fileExists("autosave/test.2.map"));
 }
 } // namespace View
 } // namespace TrenchBroom

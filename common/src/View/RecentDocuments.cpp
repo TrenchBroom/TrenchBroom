@@ -19,7 +19,6 @@
 
 #include "RecentDocuments.h"
 
-#include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "Notifier.h"
 #include "View/QtUtils.h"
@@ -42,7 +41,7 @@ RecentDocuments::RecentDocuments(const size_t maxSize, QObject* parent)
   loadFromConfig();
 }
 
-const std::vector<IO::Path>& RecentDocuments::recentDocuments() const
+const std::vector<std::filesystem::path>& RecentDocuments::recentDocuments() const
 {
   return m_recentDocuments;
 }
@@ -62,7 +61,7 @@ void RecentDocuments::removeMenu(QMenu* menu)
   m_menus = kdl::vec_erase(std::move(m_menus), menu);
 }
 
-void RecentDocuments::updatePath(const IO::Path& path)
+void RecentDocuments::updatePath(const std::filesystem::path& path)
 {
   insertPath(path);
   updateMenus();
@@ -70,11 +69,11 @@ void RecentDocuments::updatePath(const IO::Path& path)
   emit didChange();
 }
 
-void RecentDocuments::removePath(const IO::Path& path)
+void RecentDocuments::removePath(const std::filesystem::path& path)
 {
   const size_t oldSize = m_recentDocuments.size();
 
-  const IO::Path canonPath = path.lexically_normal();
+  const std::filesystem::path canonPath = path.lexically_normal();
   m_recentDocuments = kdl::vec_erase(std::move(m_recentDocuments), canonPath);
 
   if (oldSize > m_recentDocuments.size())
@@ -118,7 +117,7 @@ void RecentDocuments::saveToConfig()
   }
 }
 
-void RecentDocuments::insertPath(const IO::Path& path)
+void RecentDocuments::insertPath(const std::filesystem::path& path)
 {
   const auto canonPath = path.lexically_normal();
   auto it =

@@ -76,7 +76,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ObjParser.cpp
         ${COMMON_SOURCE_DIR}/IO/ObjSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/ParserStatus.cpp
-        ${COMMON_SOURCE_DIR}/IO/Path.cpp
         ${COMMON_SOURCE_DIR}/IO/PathInfo.cpp
         ${COMMON_SOURCE_DIR}/IO/PathMatcher.cpp
         ${COMMON_SOURCE_DIR}/IO/PathQt.cpp
@@ -561,7 +560,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ObjSerializer.h
         ${COMMON_SOURCE_DIR}/IO/Parser.h
         ${COMMON_SOURCE_DIR}/IO/ParserStatus.h
-        ${COMMON_SOURCE_DIR}/IO/Path.h
         ${COMMON_SOURCE_DIR}/IO/PathInfo.h
         ${COMMON_SOURCE_DIR}/IO/PathMatcher.h
         ${COMMON_SOURCE_DIR}/IO/PathQt.h
@@ -1021,6 +1019,7 @@ if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <cstdio>
             <cstdlib>
             <ctime>
+            <filesystem>
             <functional>
             <initializer_list>
             <iterator>

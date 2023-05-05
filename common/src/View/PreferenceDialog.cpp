@@ -19,7 +19,6 @@
 
 #include "PreferenceDialog.h"
 
-#include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -31,6 +30,8 @@
 #include "View/PreferencePane.h"
 #include "View/QtUtils.h"
 #include "View/ViewPreferencePane.h"
+
+#include <filesystem>
 
 #include <QBoxLayout>
 #include <QCloseEvent>
@@ -77,11 +78,11 @@ void PreferenceDialog::closeEvent(QCloseEvent* event)
 
 void PreferenceDialog::createGui()
 {
-  const auto gamesImage = IO::loadSVGIcon(IO::Path("GeneralPreferences.svg"));
-  const auto viewImage = IO::loadSVGIcon(IO::Path("ViewPreferences.svg"));
-  const auto colorsImage = IO::loadSVGIcon(IO::Path("ColorPreferences.svg"));
-  const auto mouseImage = IO::loadSVGIcon(IO::Path("MousePreferences.svg"));
-  const auto keyboardImage = IO::loadSVGIcon(IO::Path("KeyboardPreferences.svg"));
+  const auto gamesImage = IO::loadSVGIcon("GeneralPreferences.svg");
+  const auto viewImage = IO::loadSVGIcon("ViewPreferences.svg");
+  const auto colorsImage = IO::loadSVGIcon("ColorPreferences.svg");
+  const auto mouseImage = IO::loadSVGIcon("MousePreferences.svg");
+  const auto keyboardImage = IO::loadSVGIcon("KeyboardPreferences.svg");
 
   m_toolBar = new QToolBar();
   m_toolBar->setFloatable(false);

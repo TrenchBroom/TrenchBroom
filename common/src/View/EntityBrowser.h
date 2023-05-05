@@ -21,6 +21,7 @@
 
 #include "NotifierConnection.h"
 
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -33,10 +34,6 @@ class QScrollBar;
 
 namespace TrenchBroom
 {
-namespace IO
-{
-class Path;
-}
 namespace Model
 {
 class Node;
@@ -81,7 +78,7 @@ private:
   void modsDidChange();
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
   void entityDefinitionsDidChange();
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
 };
 } // namespace View
 } // namespace TrenchBroom

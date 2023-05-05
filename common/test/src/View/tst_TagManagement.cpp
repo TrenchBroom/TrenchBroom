@@ -20,7 +20,6 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
-#include "IO/Path.h"
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/BrushFace.h"
@@ -33,6 +32,7 @@
 #include "Model/TestGame.h"
 #include "View/MapDocumentTest.h"
 
+#include <filesystem>
 #include <vector>
 
 #include "TestUtils.h"

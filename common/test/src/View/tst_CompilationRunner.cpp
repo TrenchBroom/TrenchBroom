@@ -33,6 +33,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <chrono>
 #include <condition_variable>
+#include <filesystem>
 #include <mutex>
 #include <thread>
 
@@ -114,10 +115,10 @@ TEST_CASE_METHOD(
 
   auto testEnvironment = IO::TestEnvironment{};
 
-  const auto sourcePath = IO::Path("my_map.map");
+  const auto sourcePath = "my_map.map";
   testEnvironment.createFile(sourcePath, "{}");
 
-  const auto targetPath = IO::Path("some/other/path");
+  const auto targetPath = std::filesystem::path{"some/other/path"};
 
   auto task = Model::CompilationCopyFiles{
     true,
@@ -143,10 +144,10 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
 
   auto testEnvironment = IO::TestEnvironment{};
 
-  const auto sourcePath = IO::Path("my_map.map");
+  const auto sourcePath = "my_map.map";
   testEnvironment.createFile(sourcePath, "{}");
 
-  const auto targetPath = IO::Path("some/other/path/your_map.map");
+  const auto targetPath = std::filesystem::path{"some/other/path/your_map.map"};
   if (overwrite)
   {
     testEnvironment.createDirectory(targetPath.parent_path());
@@ -175,18 +176,18 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
 
   auto testEnvironment = IO::TestEnvironment{};
 
-  const auto file1 = IO::Path("file1.lit");
-  const auto file2 = IO::Path("file2.lit");
-  const auto file3 = IO::Path("file3.map");
-  const auto dir = IO::Path("somedir.lit");
+  const auto file1 = "file1.lit";
+  const auto file2 = "file2.lit";
+  const auto file3 = "file3.map";
+  const auto dir = "somedir.lit";
 
   testEnvironment.createFile(file1, "");
   testEnvironment.createFile(file2, "");
   testEnvironment.createFile(file3, "");
   testEnvironment.createDirectory(dir);
 
-  auto task = Model::CompilationDeleteFiles{
-    true, (testEnvironment.dir() / IO::Path("*.lit")).string()};
+  auto task =
+    Model::CompilationDeleteFiles{true, (testEnvironment.dir() / "*.lit").string()};
   auto runner = CompilationDeleteFilesTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
@@ -200,7 +201,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
 TEST_CASE("CompilationRunner.interpolateToolsVariables")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path{"fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"},
+    "fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
     "Quake",
     Model::MapFormat::Unknown);
   const auto testWorkDir = std::string{"/some/path"};

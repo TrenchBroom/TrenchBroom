@@ -45,6 +45,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
@@ -1370,8 +1371,8 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2789
   const vm::bbox3 worldBounds(4096.0);
 
-  const auto path = IO::Disk::getCurrentWorkingDir()
-                    / IO::Path("fixture/test/Model/Brush/curvetut-crash.map");
+  const auto path =
+    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/curvetut-crash.map";
   const std::string data = IO::Disk::readTextFile(path);
   REQUIRE(!data.empty());
 
@@ -1437,8 +1438,8 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
   // weirdcurvemerge.map from https://github.com/TrenchBroom/TrenchBroom/issues/2789
   const vm::bbox3 worldBounds(8192.0);
 
-  const auto path = IO::Disk::getCurrentWorkingDir()
-                    / IO::Path("fixture/test/Model/Brush/weirdcurvemerge.map");
+  const auto path =
+    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/weirdcurvemerge.map";
   const std::string data = IO::Disk::readTextFile(path);
   REQUIRE(!data.empty());
 
@@ -1581,9 +1582,9 @@ TEST_CASE("BrushTest.subtractDome")
                 ( -1178 54.02274375211438695 -20 ) ( -1178 -277.57717407067275417 -20 ) ( -1178 54.02274375211438695 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
             })");
 
-  const auto subtrahendPath = IO::Disk::getCurrentWorkingDir()
-                              / IO::Path("fixture/test/Model/Brush/subtrahend.map");
-  std::ifstream stream = openPathAsInputStream(subtrahendPath);
+  const auto subtrahendPath =
+    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/subtrahend.map";
+  auto stream = IO::openPathAsInputStream(subtrahendPath);
   std::stringstream subtrahendStr;
   subtrahendStr << stream.rdbuf();
 

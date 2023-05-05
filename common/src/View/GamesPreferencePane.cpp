@@ -21,8 +21,9 @@
 
 #include "Exceptions.h"
 #include "FileLogger.h"
-#include "IO/Path.h"
+#include "IO/DiskIO.h"
 #include "IO/PathQt.h"
+#include "IO/ResourceUtils.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
@@ -46,9 +47,6 @@
 #include <QStackedWidget>
 #include <QToolButton>
 #include <QWidget>
-
-#include "IO/DiskIO.h"
-#include "IO/ResourceUtils.h"
 
 namespace TrenchBroom
 {
@@ -211,7 +209,7 @@ void GamePreferencePane::createGui()
       else
       {
         validDirectoryIcon->setToolTip(tr("Directory not found"));
-        validDirectoryIcon->setIcon(IO::loadSVGIcon(IO::Path("IssueBrowser.svg")));
+        validDirectoryIcon->setIcon(IO::loadSVGIcon("IssueBrowser.svg"));
       }
     });
 

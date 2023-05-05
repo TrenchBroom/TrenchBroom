@@ -251,7 +251,7 @@ void TextureBrowser::currentTextureNameDidChange(const std::string& /* textureNa
   updateSelectedTexture();
 }
 
-void TextureBrowser::preferenceDidChange(const IO::Path& path)
+void TextureBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
   auto document = kdl::mem_lock(m_document);
   if (

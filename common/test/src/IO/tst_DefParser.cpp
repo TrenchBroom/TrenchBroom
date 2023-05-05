@@ -23,7 +23,6 @@
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/Path.h"
 #include "IO/PathMatcher.h"
 #include "IO/TestParserStatus.h"
 #include "Model/EntityProperties.h"
@@ -39,7 +38,7 @@ namespace IO
 {
 TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() / Path("fixture/games/");
+  const auto basePath = Disk::getCurrentWorkingDir() / "fixture/games/";
   const auto cfgFiles =
     Disk::findRecursively(basePath, makeExtensionPathMatcher({".def"}));
 
@@ -76,11 +75,11 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
 
 TEST_CASE("DefParserTest.parseExtraDefFiles")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() / Path("fixture/test/IO/Def");
+  const auto basePath = Disk::getCurrentWorkingDir() / "fixture/test/IO/Def";
   const auto cfgFiles =
     Disk::findRecursively(basePath, makeExtensionPathMatcher({".def"}));
 
-  for (const Path& path : cfgFiles)
+  for (const auto& path : cfgFiles)
   {
     auto file = Disk::openFile(path);
     auto reader = file->reader().buffer();
@@ -404,11 +403,11 @@ TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
     R"(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" spawnflags = 1)";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0},
+    Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate);
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 0, 0},
+    Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'spawnflags': 1 }");
@@ -420,12 +419,12 @@ TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
     R"(pathKey = "model" skinKey = "skin" frameKey = "frame")";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 0, 0},
+    Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp' }");
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 1, 2},
+    Assets::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
@@ -437,7 +436,7 @@ TEST_CASE("DefParserTest.parseELModelDefinition")
     R"({{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }})";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0},
+    Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate);
 }

@@ -281,7 +281,7 @@ void MapViewBase::portalFileDidChange()
   update();
 }
 
-void MapViewBase::preferenceDidChange(const IO::Path& path)
+void MapViewBase::preferenceDidChange(const std::filesystem::path& path)
 {
   if (path == Preferences::RendererFontSize.path())
   {
@@ -1212,8 +1212,8 @@ void MapViewBase::showPopupMenuLater()
     return groupAction;
   };
 
-  addMainMenuAction(IO::Path{"Menu/Edit/Group"});
-  addMainMenuAction(IO::Path{"Menu/Edit/Ungroup"});
+  addMainMenuAction("Menu/Edit/Group");
+  addMainMenuAction("Menu/Edit/Ungroup");
 
   auto* mergeGroupAction = menu.addAction(
     mergeGroup
@@ -1246,9 +1246,9 @@ void MapViewBase::showPopupMenuLater()
 
   // Linked group operations
 
-  addMainMenuAction(IO::Path("Menu/Edit/Create Linked Duplicate"));
-  addMainMenuAction(IO::Path("Menu/Edit/Select Linked Groups"));
-  addMainMenuAction(IO::Path("Menu/Edit/Separate Linked Groups"));
+  addMainMenuAction("Menu/Edit/Create Linked Duplicate");
+  addMainMenuAction("Menu/Edit/Select Linked Groups");
+  addMainMenuAction("Menu/Edit/Separate Linked Groups");
   menu.addSeparator();
 
   // Layer operations

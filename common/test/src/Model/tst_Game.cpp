@@ -23,13 +23,14 @@
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
-#include "IO/Path.h"
 #include "Logger.h"
 #include "Model/EntityNode.h"
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
 
 #include <kdl/vector_utils.h>
+
+#include <filesystem>
 
 #include "Catch2.h"
 
@@ -41,22 +42,22 @@ TEST_CASE("GameTest.loadCorruptPackages")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/2496
 
-  const auto games = std::vector<IO::Path>{
-    IO::Path{"Quake"},
-    IO::Path{"Daikatana"},
-    IO::Path{"Quake3"},
+  const auto games = std::vector<std::filesystem::path>{
+    "Quake",
+    "Daikatana",
+    "Quake3",
   };
 
   for (const auto& game : games)
   {
-    const auto configPath = IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/games/"}
-                            / game / IO::Path{"GameConfig.cfg"};
+    const auto configPath =
+      IO::Disk::getCurrentWorkingDir() / "fixture/games/" / game / "GameConfig.cfg";
     const auto configStr = IO::Disk::readTextFile(configPath);
     auto configParser = IO::GameConfigParser(configStr, configPath);
     auto config = configParser.parse();
 
     const auto gamePath =
-      IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/test/Model/Game/CorruptPak"};
+      IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Game/CorruptPak";
     auto logger = NullLogger();
     UNSCOPED_INFO(
       "Should not throw when loading corrupted package file for game " << game);
@@ -67,13 +68,13 @@ TEST_CASE("GameTest.loadCorruptPackages")
 TEST_CASE("GameTest.loadQuake3Shaders")
 {
   const auto configPath =
-    IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/games/Quake3/GameConfig.cfg"};
+    IO::Disk::getCurrentWorkingDir() / "fixture/games/Quake3/GameConfig.cfg";
   const auto configStr = IO::Disk::readTextFile(configPath);
   auto configParser = IO::GameConfigParser{configStr, configPath};
   auto config = configParser.parse();
 
   const auto gamePath =
-    IO::Disk::getCurrentWorkingDir() / IO::Path{"fixture/test/Model/Game/Quake3"};
+    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Game/Quake3";
   auto logger = NullLogger{};
   auto game = GameImpl{config, gamePath, logger};
 
@@ -119,7 +120,7 @@ TEST_CASE("GameTest.loadQuake3Shaders")
 
   const auto skiesCollection =
     std::find_if(textureCollections.begin(), textureCollections.end(), [](const auto& c) {
-      return c.path() == IO::Path{"textures/skies/hub1"};
+      return c.path() == "textures/skies/hub1";
     });
 
   CHECK(skiesCollection != textureCollections.end());
@@ -135,7 +136,7 @@ TEST_CASE("GameTest.loadQuake3Shaders")
 
   const auto testCollection =
     std::find_if(textureCollections.begin(), textureCollections.end(), [](const auto& c) {
-      return c.path() == IO::Path{"textures/test"};
+      return c.path() == "textures/test";
     });
 
   CHECK(testCollection != textureCollections.end());

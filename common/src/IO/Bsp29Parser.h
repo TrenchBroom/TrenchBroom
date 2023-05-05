@@ -22,6 +22,7 @@
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -83,7 +84,7 @@ public:
     Assets::Palette palette,
     const FileSystem& fs);
 
-  static bool canParse(const Path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

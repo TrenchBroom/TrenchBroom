@@ -22,7 +22,6 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"
 #include "IO/SkinLoader.h"
@@ -32,6 +31,9 @@
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 #include <vecmath/forward.h>
+
+#include <kdl/path_utils.h>
+#include <kdl/string_format.h>
 
 #include <functional>
 #include <string>
@@ -128,7 +130,7 @@ AseParser::AseParser(std::string name, const std::string_view str, const FileSys
 {
 }
 
-bool AseParser::canParse(const Path& path)
+bool AseParser::canParse(const std::filesystem::path& path)
 {
   return kdl::str_to_lower(path.extension().string()) == ".ase";
 }
@@ -163,7 +165,8 @@ void AseParser::parseScene(Logger& /* logger */)
   skipDirective("SCENE");
 }
 
-void AseParser::parseMaterialList(Logger& logger, std::vector<Path>& paths)
+void AseParser::parseMaterialList(
+  Logger& logger, std::vector<std::filesystem::path>& paths)
 {
   expectDirective("MATERIAL_LIST");
 
@@ -183,13 +186,14 @@ void AseParser::parseMaterialList(Logger& logger, std::vector<Path>& paths)
 }
 
 void AseParser::parseMaterialListMaterialCount(
-  Logger& /* logger */, std::vector<Path>& paths)
+  Logger& /* logger */, std::vector<std::filesystem::path>& paths)
 {
   expectDirective("MATERIAL_COUNT");
   paths.resize(parseSizeArgument());
 }
 
-void AseParser::parseMaterialListMaterial(Logger& logger, std::vector<Path>& paths)
+void AseParser::parseMaterialListMaterial(
+  Logger& logger, std::vector<std::filesystem::path>& paths)
 {
   expectDirective("MATERIAL");
   const auto index = parseSizeArgument();
@@ -217,7 +221,7 @@ void AseParser::parseMaterialListMaterial(Logger& logger, std::vector<Path>& pat
       logger.warn() << "Material " << index
                     << " is missing a 'BITMAP' directive, falling back to material name '"
                     << name << "'";
-      path = Path(name);
+      path = std::filesystem::path(name);
     }
   }
   else
@@ -234,7 +238,8 @@ void AseParser::parseMaterialListMaterialName(Logger&, std::string& name)
   name = token.data();
 }
 
-void AseParser::parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path)
+void AseParser::parseMaterialListMaterialMapDiffuse(
+  Logger& logger, std::filesystem::path& path)
 {
   expectDirective("MAP_DIFFUSE");
 
@@ -248,15 +253,17 @@ void AseParser::parseMaterialListMaterialMapDiffuse(Logger& logger, Path& path)
 }
 
 void AseParser::parseMaterialListMaterialMapDiffuseBitmap(
-  Logger& /* logger */, Path& path)
+  Logger& /* logger */, std::filesystem::path& path)
 {
   expectDirective("BITMAP");
   const auto token = expect(AseToken::String, m_tokenizer.nextToken());
-  path = Path(token.data());
+  path = std::filesystem::path(token.data());
 }
 
 void AseParser::parseGeomObject(
-  Logger& logger, GeomObject& geomObject, const std::vector<Path>& materialPaths)
+  Logger& logger,
+  GeomObject& geomObject,
+  const std::vector<std::filesystem::path>& materialPaths)
 {
   expectDirective("GEOMOBJECT");
 
@@ -757,19 +764,21 @@ bool AseParser::checkIndices(Logger& logger, const MeshFace& face, const Mesh& m
   return true;
 }
 
-Assets::Texture AseParser::loadTexture(Logger& logger, const Path& path) const
+Assets::Texture AseParser::loadTexture(
+  Logger& logger, const std::filesystem::path& path) const
 {
   const auto actualPath = fixTexturePath(logger, path);
   return loadShader(actualPath, m_fs, logger);
 }
 
-Path AseParser::fixTexturePath(Logger& /* logger */, Path path) const
+std::filesystem::path AseParser::fixTexturePath(
+  Logger& /* logger */, std::filesystem::path path) const
 {
   if (!path.is_absolute())
   {
     // usually the paths appear to be relative to the map file, but this will just yield a
     // valid path if we kick off the ".." parts
-    while (!path.empty() && kdl::path_front(path) == Path(".."))
+    while (!path.empty() && kdl::path_front(path) == "..")
     {
       path = kdl::path_pop_front(path);
     }

@@ -34,7 +34,10 @@ namespace View
 {
 
 ChoosePathTypeDialog::ChoosePathTypeDialog(
-  QWidget* parent, IO::Path absPath, const IO::Path& docPath, const IO::Path& gamePath)
+  QWidget* parent,
+  std::filesystem::path absPath,
+  const std::filesystem::path& docPath,
+  const std::filesystem::path& gamePath)
   : QDialog{parent}
   , m_absPath{std::move(absPath)}
   , m_docRelativePath{m_absPath.lexically_relative(docPath.parent_path())}
@@ -131,7 +134,7 @@ void ChoosePathTypeDialog::createGui()
   connect(okCancelButtons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-const IO::Path& ChoosePathTypeDialog::path() const
+const std::filesystem::path& ChoosePathTypeDialog::path() const
 {
   if (m_docRelativeRadio->isChecked())
   {

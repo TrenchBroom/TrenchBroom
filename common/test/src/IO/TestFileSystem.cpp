@@ -20,6 +20,7 @@
 #include "TestFileSystem.h"
 
 #include <kdl/overload.h>
+#include <kdl/path_utils.h>
 #include <kdl/reflection_impl.h>
 
 namespace TrenchBroom
@@ -29,7 +30,7 @@ namespace IO
 
 kdl_reflect_impl(Object);
 
-std::shared_ptr<File> makeObjectFile(Path path, const int id)
+std::shared_ptr<File> makeObjectFile(std::filesystem::path path, const int id)
 {
   return std::make_shared<ObjectFile<Object>>(std::move(path), Object{id});
 }
@@ -62,13 +63,13 @@ const Entry* getChild(const Entry& entry, const std::string& name)
 }
 } // namespace
 
-TestFileSystem::TestFileSystem(Entry root, Path absolutePathPrefix)
+TestFileSystem::TestFileSystem(Entry root, std::filesystem::path absolutePathPrefix)
   : m_root{std::move(root)}
   , m_absolutePathPrefix{std::move(absolutePathPrefix)}
 {
 }
 
-const Entry* TestFileSystem::findEntry(Path path) const
+const Entry* TestFileSystem::findEntry(std::filesystem::path path) const
 {
   const Entry* entry = &m_root;
   while (!path.empty() && entry != nullptr)
@@ -79,7 +80,8 @@ const Entry* TestFileSystem::findEntry(Path path) const
   return entry;
 }
 
-Path TestFileSystem::doMakeAbsolute(const Path& path) const
+std::filesystem::path TestFileSystem::doMakeAbsolute(
+  const std::filesystem::path& path) const
 {
   if (findEntry(path))
   {
@@ -88,15 +90,16 @@ Path TestFileSystem::doMakeAbsolute(const Path& path) const
   throw FileSystemException{};
 }
 
-PathInfo TestFileSystem::doGetPathInfo(const Path& path) const
+PathInfo TestFileSystem::doGetPathInfo(const std::filesystem::path& path) const
 {
   const auto* entry = findEntry(path);
   return entry ? getEntryType(*entry) : PathInfo::Unknown;
 }
 
-std::vector<Path> TestFileSystem::doGetDirectoryContents(const Path& path) const
+std::vector<std::filesystem::path> TestFileSystem::doGetDirectoryContents(
+  const std::filesystem::path& path) const
 {
-  auto result = std::vector<Path>{};
+  auto result = std::vector<std::filesystem::path>{};
   if (const auto* entry = findEntry(path))
   {
     std::visit(
@@ -104,7 +107,7 @@ std::vector<Path> TestFileSystem::doGetDirectoryContents(const Path& path) const
         [&](const DirectoryEntry& d) {
           for (const auto& child : d.entries)
           {
-            const auto childPath = Path{getEntryName(child)};
+            const auto childPath = std::filesystem::path{getEntryName(child)};
             result.push_back(childPath);
           }
         },
@@ -114,7 +117,7 @@ std::vector<Path> TestFileSystem::doGetDirectoryContents(const Path& path) const
   return result;
 }
 
-std::shared_ptr<File> TestFileSystem::doOpenFile(const Path& path) const
+std::shared_ptr<File> TestFileSystem::doOpenFile(const std::filesystem::path& path) const
 {
   const auto* entry = findEntry(path);
   return entry ? std::visit(

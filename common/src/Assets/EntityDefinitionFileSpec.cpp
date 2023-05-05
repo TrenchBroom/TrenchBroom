@@ -38,30 +38,29 @@ EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str)
 {
   if (kdl::cs::str_is_prefix(str, "external:"))
   {
-    const IO::Path path(str.substr(9));
-    return EntityDefinitionFileSpec::external(path);
+    return EntityDefinitionFileSpec::external(str.substr(9));
   }
 
   if (kdl::cs::str_is_prefix(str, "builtin:"))
   {
-    const IO::Path path(str.substr(8));
-    return EntityDefinitionFileSpec::builtin(path);
+    return EntityDefinitionFileSpec::builtin(str.substr(8));
   }
 
   // If the location spec is missing, we assume that an absolute path indicates an
   // external file spec, and a relative path indicates a builtin file spec.
-  const IO::Path path(str);
-  if (path.is_absolute())
-    return EntityDefinitionFileSpec::external(path);
-  return EntityDefinitionFileSpec::builtin(path);
+  const auto path = std::filesystem::path{str};
+  return path.is_absolute() ? EntityDefinitionFileSpec::external(path)
+                            : EntityDefinitionFileSpec::builtin(path);
 }
 
-EntityDefinitionFileSpec EntityDefinitionFileSpec::builtin(const IO::Path& path)
+EntityDefinitionFileSpec EntityDefinitionFileSpec::builtin(
+  const std::filesystem::path& path)
 {
   return EntityDefinitionFileSpec(Type::Builtin, path);
 }
 
-EntityDefinitionFileSpec EntityDefinitionFileSpec::external(const IO::Path& path)
+EntityDefinitionFileSpec EntityDefinitionFileSpec::external(
+  const std::filesystem::path& path)
 {
   return EntityDefinitionFileSpec(Type::External, path);
 }
@@ -111,7 +110,7 @@ bool EntityDefinitionFileSpec::external() const
   return m_type == Type::External;
 }
 
-const IO::Path& EntityDefinitionFileSpec::path() const
+const std::filesystem::path& EntityDefinitionFileSpec::path() const
 {
   return m_path;
 }
@@ -125,7 +124,8 @@ std::string EntityDefinitionFileSpec::asString() const
   return "external:" + m_path.string();
 }
 
-EntityDefinitionFileSpec::EntityDefinitionFileSpec(const Type type, const IO::Path& path)
+EntityDefinitionFileSpec::EntityDefinitionFileSpec(
+  const Type type, const std::filesystem::path& path)
   : m_type(type)
   , m_path(path)
 {

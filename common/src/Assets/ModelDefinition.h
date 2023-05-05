@@ -21,11 +21,11 @@
 
 #include "EL/Expression.h"
 #include "FloatType.h"
-#include "IO/Path.h"
 
 #include <kdl/reflection_decl.h>
 #include <vecmath/vec.h>
 
+#include <filesystem>
 #include <iosfwd>
 #include <optional>
 
@@ -44,12 +44,13 @@ constexpr auto Scale = "scale";
 
 struct ModelSpecification
 {
-  IO::Path path;
+  std::filesystem::path path;
   size_t skinIndex;
   size_t frameIndex;
 
   ModelSpecification();
-  ModelSpecification(const IO::Path& path, size_t skinIndex, size_t frameIndex);
+  ModelSpecification(
+    const std::filesystem::path& path, size_t skinIndex, size_t frameIndex);
 
   kdl_reflect_decl(ModelSpecification, path, skinIndex, frameIndex);
 };

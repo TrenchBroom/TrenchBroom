@@ -21,6 +21,7 @@
 
 #include "IO/EntityModelParser.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -30,7 +31,6 @@ namespace IO
 {
 class File;
 class FileSystem;
-class Path;
 
 class ImageSpriteParser : public EntityModelParser
 {
@@ -42,7 +42,7 @@ private:
 public:
   ImageSpriteParser(std::string name, std::shared_ptr<File> file, const FileSystem& fs);
 
-  static bool canParse(const Path& path);
+  static bool canParse(const std::filesystem::path& path);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

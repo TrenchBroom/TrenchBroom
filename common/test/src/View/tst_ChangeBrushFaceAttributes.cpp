@@ -32,6 +32,8 @@
 
 #include "TestUtils.h"
 
+#include <filesystem>
+
 #include "Catch2.h"
 
 namespace TrenchBroom
@@ -265,7 +267,7 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
   const int LavaFlag = 8;
 
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path{"fixture/test/View/ChangeBrushFaceAttributesTest/lavaAndWater.map"},
+    "fixture/test/View/ChangeBrushFaceAttributesTest/lavaAndWater.map",
     "Quake2",
     Model::MapFormat::Unknown);
   REQUIRE(document->currentLayer() != nullptr);

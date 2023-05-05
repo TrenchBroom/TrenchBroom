@@ -163,7 +163,7 @@ void TextureBrowserView::doInitLayout(Layout& layout)
 
 void TextureBrowserView::doReloadLayout(Layout& layout)
 {
-  const IO::Path& fontPath = pref(Preferences::RendererFontPath());
+  const auto& fontPath = pref(Preferences::RendererFontPath());
   int fontSize = pref(Preferences::BrowserFontSize);
   assert(fontSize > 0);
 
@@ -193,7 +193,7 @@ void TextureBrowserView::addTextureToLayout(
 {
   const float maxCellWidth = layout.maxCellWidth();
 
-  const auto textureName = IO::Path(texture->name()).filename().string();
+  const auto textureName = std::filesystem::path{texture->name()}.filename().string();
 
   const auto textureFont =
     fontManager().selectFontSize(font, textureName, maxCellWidth, 6);

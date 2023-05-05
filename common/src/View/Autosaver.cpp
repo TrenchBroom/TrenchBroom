@@ -26,6 +26,7 @@
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
+#include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -39,10 +40,10 @@ namespace TrenchBroom
 {
 namespace View
 {
-IO::PathMatcher makeBackupPathMatcher(IO::Path mapBasename)
+IO::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename)
 {
   return [mapBasename = std::move(mapBasename)](
-           const IO::Path& path, const IO::GetPathInfo& getPathInfo) {
+           const std::filesystem::path& path, const IO::GetPathInfo& getPathInfo) {
     const auto backupName = path.stem();
     const auto backupBasename = backupName.stem();
     const auto backupExtension = backupName.extension().string();
@@ -115,10 +116,10 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
 }
 
 IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(
-  Logger& logger, const IO::Path& mapPath) const
+  Logger& logger, const std::filesystem::path& mapPath) const
 {
   const auto basePath = mapPath.parent_path();
-  const auto autosavePath = basePath / IO::Path("autosave");
+  const auto autosavePath = basePath / "autosave";
 
   try
   {
@@ -134,7 +135,7 @@ IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(
 
 namespace
 {
-size_t extractBackupNo(const IO::Path& path)
+size_t extractBackupNo(const std::filesystem::path& path)
 {
   // currently this function is only used when comparing file names which have already
   // been verified as valid backup file names, so this should not go wrong, but if it
@@ -143,22 +144,25 @@ size_t extractBackupNo(const IO::Path& path)
     .value_or(std::numeric_limits<size_t>::max());
 }
 
-bool compareBackupsByNo(const IO::Path& lhs, const IO::Path& rhs)
+bool compareBackupsByNo(
+  const std::filesystem::path& lhs, const std::filesystem::path& rhs)
 {
   return extractBackupNo(lhs) < extractBackupNo(rhs);
 }
 } // namespace
 
-std::vector<IO::Path> Autosaver::collectBackups(
-  const IO::FileSystem& fs, const IO::Path& mapBasename) const
+std::vector<std::filesystem::path> Autosaver::collectBackups(
+  const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const
 {
-  auto backups = fs.find(IO::Path{}, makeBackupPathMatcher(mapBasename));
+  auto backups = fs.find({}, makeBackupPathMatcher(mapBasename));
   std::sort(std::begin(backups), std::end(backups), compareBackupsByNo);
   return backups;
 }
 
 void Autosaver::thinBackups(
-  Logger& logger, IO::WritableDiskFileSystem& fs, std::vector<IO::Path>& backups) const
+  Logger& logger,
+  IO::WritableDiskFileSystem& fs,
+  std::vector<std::filesystem::path>& backups) const
 {
   while (backups.size() > m_maxBackups - 1)
   {
@@ -179,8 +183,8 @@ void Autosaver::thinBackups(
 
 void Autosaver::cleanBackups(
   IO::WritableDiskFileSystem& fs,
-  std::vector<IO::Path>& backups,
-  const IO::Path& mapBasename) const
+  std::vector<std::filesystem::path>& backups,
+  const std::filesystem::path& mapBasename) const
 {
   for (size_t i = 0; i < backups.size(); ++i)
   {
@@ -194,9 +198,10 @@ void Autosaver::cleanBackups(
   }
 }
 
-IO::Path Autosaver::makeBackupName(const IO::Path& mapBasename, const size_t index) const
+std::filesystem::path Autosaver::makeBackupName(
+  const std::filesystem::path& mapBasename, const size_t index) const
 {
-  return IO::Path{kdl::str_to_string(mapBasename, ".", index, ".map")};
+  return kdl::path_add_extension(mapBasename, "." + kdl::str_to_string(index) + ".map");
 }
 
 } // namespace View

@@ -19,7 +19,6 @@
 
 #include "GameEngineProfileManager.h"
 
-#include "IO/Path.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 #include "View/BorderLine.h"
@@ -29,6 +28,8 @@
 #include "View/TitledPanel.h"
 
 #include "kdl/vector_utils.h"
+
+#include <filesystem>
 
 #include <QBoxLayout>
 #include <QToolButton>
@@ -107,7 +108,7 @@ const Model::GameEngineConfig& GameEngineProfileManager::config() const
 
 void GameEngineProfileManager::addProfile()
 {
-  m_config.profiles.push_back(Model::GameEngineProfile{"", IO::Path{}, ""});
+  m_config.profiles.push_back(Model::GameEngineProfile{"", {}, ""});
   m_profileList->reloadProfiles();
   m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }

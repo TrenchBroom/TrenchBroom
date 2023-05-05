@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
+#include <filesystem>
 #include <string_view>
 
 #include <QString>
@@ -29,9 +28,9 @@ namespace TrenchBroom
 {
 namespace IO
 {
-QString pathAsQString(const IO::Path& path);
-QString pathAsGenericQString(const IO::Path& path);
+QString pathAsQString(const std::filesystem::path& path);
+QString pathAsGenericQString(const std::filesystem::path& path);
 
-Path pathFromQString(const QString& path);
+std::filesystem::path pathFromQString(const QString& path);
 } // namespace IO
 } // namespace TrenchBroom

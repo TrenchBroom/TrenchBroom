@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "IO/Path.h"
 #include "Macros.h"
 #include "View/KeyboardShortcut.h"
 
+#include <filesystem>
 #include <optional>
 
 #include <QJsonValue>
@@ -41,8 +41,8 @@ class Color;
  * - bool serializes to JSON bool
  * - float and int serializes to JSON double
  * - QKeySequence serializes to JSON string, but with a different format than wxWidgets
- * - other types are not overridden (Color, IO::Path, QString) so serialize to JSON string
- * using the same format as wxWidgets
+ * - other types are not overridden (Color, std::filesystem::path, QString) so serialize
+ * to JSON string using the same format as wxWidgets
  */
 class PreferenceSerializer
 {
@@ -51,7 +51,7 @@ public:
   bool readFromJson(const QJsonValue& in, Color& out) const;
   bool readFromJson(const QJsonValue& in, float& out) const;
   bool readFromJson(const QJsonValue& in, int& out) const;
-  bool readFromJson(const QJsonValue& in, IO::Path& out) const;
+  bool readFromJson(const QJsonValue& in, std::filesystem::path& out) const;
   bool readFromJson(const QJsonValue& in, QKeySequence& out) const;
   bool readFromJson(const QJsonValue& in, QString& out) const;
 
@@ -59,7 +59,7 @@ public:
   QJsonValue writeToJson(const Color& in) const;
   QJsonValue writeToJson(float in) const;
   QJsonValue writeToJson(int in) const;
-  QJsonValue writeToJson(const IO::Path& in) const;
+  QJsonValue writeToJson(const std::filesystem::path& in) const;
   QJsonValue writeToJson(const QKeySequence& in) const;
   QJsonValue writeToJson(const QString& in) const;
 };
@@ -78,7 +78,7 @@ public:
   friend bool operator==(const PreferenceBase& lhs, const PreferenceBase& rhs);
   friend bool operator!=(const PreferenceBase& lhs, const PreferenceBase& rhs);
 
-  virtual const IO::Path& path() const = 0;
+  virtual const std::filesystem::path& path() const = 0;
 
 public: // private to PreferenceManager
   virtual void resetToDefault() = 0;
@@ -94,22 +94,22 @@ class DynamicPreferencePatternBase
 {
 public:
   virtual ~DynamicPreferencePatternBase();
-  virtual const IO::Path& pathPattern() const = 0;
+  virtual const std::filesystem::path& pathPattern() const = 0;
 };
 
 template <typename T>
 class DynamicPreferencePattern : public DynamicPreferencePatternBase
 {
 private:
-  IO::Path m_pathPattern;
+  std::filesystem::path m_pathPattern;
 
 public:
-  explicit DynamicPreferencePattern(IO::Path pathPattern)
+  explicit DynamicPreferencePattern(std::filesystem::path pathPattern)
     : m_pathPattern{std::move(pathPattern)}
   {
   }
 
-  const IO::Path& pathPattern() const override { return m_pathPattern; }
+  const std::filesystem::path& pathPattern() const override { return m_pathPattern; }
 };
 
 /**
@@ -120,14 +120,15 @@ template <typename T>
 class Preference : public PreferenceBase
 {
 private:
-  IO::Path m_path;
+  std::filesystem::path m_path;
   T m_defaultValue;
   T m_value;
   bool m_valid;
   bool m_readOnly;
 
 public:
-  Preference(IO::Path path, const T& defaultValue, const bool readOnly = false)
+  Preference(
+    std::filesystem::path path, const T& defaultValue, const bool readOnly = false)
     : m_path{std::move(path)}
     , m_defaultValue{defaultValue}
     , m_value{m_defaultValue}
@@ -144,7 +145,7 @@ public:
   Preference& operator=(const Preference& other) = default;
   Preference& operator=(Preference&& other) = default;
 
-  const IO::Path& path() const override { return m_path; }
+  const std::filesystem::path& path() const override { return m_path; }
 
   const T& defaultValue() const { return m_defaultValue; }
 

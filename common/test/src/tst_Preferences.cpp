@@ -31,6 +31,7 @@
 #include <vecmath/approx.h>
 #include <vecmath/bbox.h>
 
+#include <filesystem>
 #include <iostream>
 #include <optional>
 #include <string>
@@ -51,173 +52,138 @@ namespace TrenchBroom
 {
 namespace
 {
-QJsonValue getValue(const std::map<IO::Path, QJsonValue>& map, const IO::Path& key)
+QJsonValue getValue(
+  const std::map<std::filesystem::path, QJsonValue>& map,
+  const std::filesystem::path& key)
 {
   auto it = map.find(key);
   return it != map.end() ? it->second : QJsonValue{QJsonValue::Undefined};
 }
 } // namespace
 
-static void testPrefs(const std::map<IO::Path, QJsonValue>& prefs)
+static void testPrefs(const std::map<std::filesystem::path, QJsonValue>& prefs)
 {
-  CHECK(getValue(prefs, IO::Path{"Controls/Camera/Field of vision"}) == QJsonValue{108});
-  CHECK(getValue(prefs, IO::Path{"Controls/Camera/Move down"}) == QJsonValue{"R"});
-  CHECK(getValue(prefs, IO::Path{"Controls/Camera/Move up"}) == QJsonValue{"W"});
-  CHECK(getValue(prefs, IO::Path{"Controls/Camera/Move right"}) == QJsonValue{"F"});
-  CHECK(getValue(prefs, IO::Path{"Controls/Camera/Move left"}) == QJsonValue{"S"});
-  CHECK(getValue(prefs, IO::Path{"Controls/Camera/Move backward"}) == QJsonValue{"D"});
-  CHECK(getValue(prefs, IO::Path{"Controls/Camera/Move forward"}) == QJsonValue{"E"});
+  CHECK(getValue(prefs, "Controls/Camera/Field of vision") == QJsonValue{108});
+  CHECK(getValue(prefs, "Controls/Camera/Move down") == QJsonValue{"R"});
+  CHECK(getValue(prefs, "Controls/Camera/Move up") == QJsonValue{"W"});
+  CHECK(getValue(prefs, "Controls/Camera/Move right") == QJsonValue{"F"});
+  CHECK(getValue(prefs, "Controls/Camera/Move left") == QJsonValue{"S"});
+  CHECK(getValue(prefs, "Controls/Camera/Move backward") == QJsonValue{"D"});
+  CHECK(getValue(prefs, "Controls/Camera/Move forward") == QJsonValue{"E"});
   CHECK(
-    static_cast<float>(
-      getValue(prefs, IO::Path{"Controls/Camera/Fly move speed"}).toDouble())
+    static_cast<float>(getValue(prefs, "Controls/Camera/Fly move speed").toDouble())
     == vm::approx{0.425781f});
+  CHECK(getValue(prefs, "Controls/Camera/Move camera in cursor dir") == QJsonValue{true});
+  CHECK(getValue(prefs, "Controls/Camera/Use alt to move") == QJsonValue{true});
   CHECK(
-    getValue(prefs, IO::Path{"Controls/Camera/Move camera in cursor dir"})
-    == QJsonValue{true});
-  CHECK(getValue(prefs, IO::Path{"Controls/Camera/Use alt to move"}) == QJsonValue{true});
-  CHECK(
-    static_cast<float>(getValue(prefs, IO::Path{"Controls/Camera/Move speed"}).toDouble())
+    static_cast<float>(getValue(prefs, "Controls/Camera/Move speed").toDouble())
     == vm::approx{0.35f});
+  CHECK(getValue(prefs, "Controls/Camera/Invert mouse wheel") == QJsonValue{true});
+  CHECK(getValue(prefs, "Controls/Camera/Invert vertical pan") == QJsonValue{true});
+  CHECK(getValue(prefs, "Controls/Camera/Invert horizontal pan") == QJsonValue{true});
   CHECK(
-    getValue(prefs, IO::Path{"Controls/Camera/Invert mouse wheel"}) == QJsonValue{true});
-  CHECK(
-    getValue(prefs, IO::Path{"Controls/Camera/Invert vertical pan"}) == QJsonValue{true});
-  CHECK(
-    getValue(prefs, IO::Path{"Controls/Camera/Invert horizontal pan"})
-    == QJsonValue{true});
-  CHECK(
-    static_cast<float>(getValue(prefs, IO::Path{"Controls/Camera/Pan speed"}).toDouble())
+    static_cast<float>(getValue(prefs, "Controls/Camera/Pan speed").toDouble())
     == vm::approx{0.55f});
+  CHECK(getValue(prefs, "Controls/Camera/Invert vertical look") == QJsonValue{true});
+  CHECK(getValue(prefs, "Controls/Camera/Invert horizontal look") == QJsonValue{true});
   CHECK(
-    getValue(prefs, IO::Path{"Controls/Camera/Invert vertical look"})
-    == QJsonValue{true});
-  CHECK(
-    getValue(prefs, IO::Path{"Controls/Camera/Invert horizontal look"})
-    == QJsonValue{true});
-  CHECK(
-    static_cast<float>(getValue(prefs, IO::Path{"Controls/Camera/Look speed"}).toDouble())
+    static_cast<float>(getValue(prefs, "Controls/Camera/Look speed").toDouble())
     == vm::approx{0.44f});
   CHECK(
-    static_cast<float>(getValue(prefs, IO::Path{"Texture Browser/Icon size"}).toDouble())
+    static_cast<float>(getValue(prefs, "Texture Browser/Icon size").toDouble())
     == vm::approx{1.5f});
-  CHECK(getValue(prefs, IO::Path{"Renderer/Font size"}) == QJsonValue{14});
+  CHECK(getValue(prefs, "Renderer/Font size") == QJsonValue{14});
+  CHECK(getValue(prefs, "Renderer/Texture mode mag filter") == QJsonValue{9729});
+  CHECK(getValue(prefs, "Renderer/Texture mode min filter") == QJsonValue{9987});
   CHECK(
-    getValue(prefs, IO::Path{"Renderer/Texture mode mag filter"}) == QJsonValue{9729});
-  CHECK(
-    getValue(prefs, IO::Path{"Renderer/Texture mode min filter"}) == QJsonValue{9987});
-  CHECK(
-    static_cast<float>(getValue(prefs, IO::Path{"Renderer/Brightness"}).toDouble())
+    static_cast<float>(getValue(prefs, "Renderer/Brightness").toDouble())
     == vm::approx{0.925f});
-  CHECK(getValue(prefs, IO::Path{"Renderer/Show axes"}) == QJsonValue{false});
+  CHECK(getValue(prefs, "Renderer/Show axes") == QJsonValue{false});
   CHECK(
-    static_cast<float>(getValue(prefs, IO::Path{"Renderer/Grid/Alpha"}).toDouble())
+    static_cast<float>(getValue(prefs, "Renderer/Grid/Alpha").toDouble())
     == vm::approx{0.22f});
   CHECK(
-    getValue(prefs, IO::Path{"Renderer/Colors/Edges"})
+    getValue(prefs, "Renderer/Colors/Edges")
     == QJsonValue{"0.921569 0.666667 0.45098 1"});
   CHECK(
-    getValue(prefs, IO::Path{"Renderer/Colors/Background"})
+    getValue(prefs, "Renderer/Colors/Background")
     == QJsonValue{"0.321569 0.0470588 0.141176 1"});
   CHECK(
-    getValue(prefs, IO::Path{"Rendere/Grid/Color2D"})
+    getValue(prefs, "Rendere/Grid/Color2D")
     == QJsonValue{"0.290196 0.643137 0.486275 1"});
-  CHECK(getValue(prefs, IO::Path{"Views/Map view layout"}) == QJsonValue{2});
+  CHECK(getValue(prefs, "Views/Map view layout") == QJsonValue{2});
+  CHECK(getValue(prefs, "Games/Quake/Path") == QJsonValue{"/home/ericwa/Quake Dev"});
+  CHECK(getValue(prefs, "Games/Generic/Path") == QJsonValue{"/home/ericwa/foo=bar"});
   CHECK(
-    getValue(prefs, IO::Path{"Games/Quake/Path"})
-    == QJsonValue{"/home/ericwa/Quake Dev"});
+    getValue(prefs, "Games/Quake 3/Path") == QJsonValue{"/home/ericwa/Quake 3 Arena"});
+  CHECK(getValue(prefs, "Menu/File/Export/Wavefront OBJ...") == QJsonValue{"Ctrl+Alt+W"});
   CHECK(
-    getValue(prefs, IO::Path{"Games/Generic/Path"})
-    == QJsonValue{"/home/ericwa/foo=bar"});
-  CHECK(
-    getValue(prefs, IO::Path{"Games/Quake 3/Path"})
-    == QJsonValue{"/home/ericwa/Quake 3 Arena"});
-  CHECK(
-    getValue(prefs, IO::Path{"Menu/File/Export/Wavefront OBJ..."})
-    == QJsonValue{"Ctrl+Alt+W"});
-  CHECK(
-    getValue(prefs, IO::Path{"Menu/View/Grid/Set Grid Size 0.125"})
-    == QJsonValue{"Ctrl+Alt+2"});
-  CHECK(
-    getValue(prefs, IO::Path{"Filters/Tags/Detail/Toggle Visible"})
-    == QJsonValue{"Alt+D"});
-  CHECK(getValue(prefs, IO::Path{"Tags/Detail/Enable"}) == QJsonValue{"D"});
-  CHECK(getValue(prefs, IO::Path{"Tags/Detail/Disable"}) == QJsonValue{"Alt+Shift+D"});
-  CHECK(
-    getValue(prefs, IO::Path{"Entities/monster_hell_knight/Create"}) == QJsonValue{"H"});
+    getValue(prefs, "Menu/View/Grid/Set Grid Size 0.125") == QJsonValue{"Ctrl+Alt+2"});
+  CHECK(getValue(prefs, "Filters/Tags/Detail/Toggle Visible") == QJsonValue{"Alt+D"});
+  CHECK(getValue(prefs, "Tags/Detail/Enable") == QJsonValue{"D"});
+  CHECK(getValue(prefs, "Tags/Detail/Disable") == QJsonValue{"Alt+Shift+D"});
+  CHECK(getValue(prefs, "Entities/monster_hell_knight/Create") == QJsonValue{"H"});
 
   // We don't bother migrating these ones
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/x"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/x")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/y"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/y")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/w"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/w")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/h"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/h")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/Maximized"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/Maximized")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/Iconized"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/Iconized")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/decor_l"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/decor_l")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/decor_r"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/decor_r")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/decor_t"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/decor_t")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(prefs, IO::Path{"Persistent_Options/Window/MapFrame/decor_b"})
+    getValue(prefs, "Persistent_Options/Window/MapFrame/decor_b")
+    == QJsonValue{QJsonValue::Undefined});
+  CHECK(
+    getValue(prefs, "Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio")
+    == QJsonValue{QJsonValue::Undefined});
+  CHECK(
+    getValue(prefs, "Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio")
+    == QJsonValue{QJsonValue::Undefined});
+  CHECK(
+    getValue(prefs, "Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio")
+    == QJsonValue{QJsonValue::Undefined});
+  CHECK(
+    getValue(prefs, "Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
     getValue(
-      prefs, IO::Path{"Persistent_Options/SplitterWindow2/MapFrameHSplitter/SplitRatio"})
-    == QJsonValue{QJsonValue::Undefined});
-  CHECK(
-    getValue(
-      prefs, IO::Path{"Persistent_Options/SplitterWindow2/MapFrameVSplitter/SplitRatio"})
-    == QJsonValue{QJsonValue::Undefined});
-  CHECK(
-    getValue(
-      prefs,
-      IO::Path{"Persistent_Options/SplitterWindow2/3PaneMapViewHSplitter/SplitRatio"})
-    == QJsonValue{QJsonValue::Undefined});
-  CHECK(
-    getValue(
-      prefs,
-      IO::Path{"Persistent_Options/SplitterWindow2/3PaneMapViewVSplitter/SplitRatio"})
+      prefs, "Persistent_Options/SplitterWindow2/EntityInspectorSplitter/SplitRatio")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
     getValue(
       prefs,
-      IO::Path{"Persistent_Options/SplitterWindow2/EntityInspectorSplitter/SplitRatio"})
+      "Persistent_Options/SplitterWindow2/EntityAttributeEditorSplitter/SplitRatio")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
     getValue(
-      prefs,
-      IO::Path{
-        "Persistent_Options/SplitterWindow2/EntityAttributeEditorSplitter/SplitRatio"})
+      prefs, "Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio")
     == QJsonValue{QJsonValue::Undefined});
   CHECK(
-    getValue(
-      prefs,
-      IO::Path{
-        "Persistent_Options/SplitterWindow2/EntityDocumentationSplitter/SplitRatio"})
+    getValue(prefs, "Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio")
     == QJsonValue{QJsonValue::Undefined});
-  CHECK(
-    getValue(
-      prefs,
-      IO::Path{"Persistent_Options/SplitterWindow2/FaceInspectorSplitter/SplitRatio"})
-    == QJsonValue{QJsonValue::Undefined});
-  CHECK(
-    getValue(prefs, IO::Path{"RecentDocuments/0"}) == QJsonValue{QJsonValue::Undefined});
+  CHECK(getValue(prefs, "RecentDocuments/0") == QJsonValue{QJsonValue::Undefined});
 }
 
 TEST_CASE("PreferencesTest.read")
@@ -234,7 +200,8 @@ TEST_CASE("PreferencesTest.read")
   CHECK(parsePreferencesFromJson(QByteArray("{}")).is_success());
 
   readPreferencesFromFile("fixture/test/preferences-v2.json")
-    .transform([](const std::map<IO::Path, QJsonValue>& prefs) { testPrefs(prefs); })
+    .transform(
+      [](const std::map<std::filesystem::path, QJsonValue>& prefs) { testPrefs(prefs); })
     .transform_error([](const auto&) { FAIL_CHECK(); });
 }
 
@@ -245,8 +212,9 @@ TEST_CASE("PreferencesTest.testWriteRead")
 
   const QByteArray serialized = writePreferencesToJson(fromFile);
   parsePreferencesFromJson(serialized)
-    .transform(
-      [&](const std::map<IO::Path, QJsonValue>& prefs) { CHECK(fromFile == prefs); })
+    .transform([&](const std::map<std::filesystem::path, QJsonValue>& prefs) {
+      CHECK(fromFile == prefs);
+    })
     .transform_error([](const auto&) { FAIL_CHECK(); });
 }
 
@@ -480,7 +448,7 @@ TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
   {
     CAPTURE(preferenceKey);
 
-    const auto preferencePath = IO::Path{preferenceKey};
+    const auto preferencePath = preferenceKey;
     CHECK(actionsMap.find(preferencePath) != actionsMap.end());
   }
 }
@@ -494,7 +462,7 @@ TEST_CASE("PreferencesTest.testWxEntityShortcuts")
   const auto actions =
     View::ActionManager::instance().createEntityDefinitionActions(defs);
   const auto actualPrefPaths = kdl::vec_transform(
-    actions, [](const auto& action) { return IO::Path{action->preferencePath()}; });
+    actions, [](const auto& action) { return action->preferencePath(); });
 
   // example keys from 2019.6 for "monster_hell_knight" entity
   const auto preferenceKeys = std::vector<std::string>{
@@ -505,7 +473,7 @@ TEST_CASE("PreferencesTest.testWxEntityShortcuts")
   for (const auto& preferenceKey : preferenceKeys)
   {
     CAPTURE(preferenceKey);
-    CHECK(kdl::vec_contains(actualPrefPaths, IO::Path{preferenceKey}));
+    CHECK(kdl::vec_contains(actualPrefPaths, preferenceKey));
   }
 }
 
@@ -515,7 +483,7 @@ TEST_CASE("PreferencesTest.testWxTagShortcuts")
     "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)}};
   const auto actions = View::ActionManager::instance().createTagActions(tags);
   const auto actualPrefPaths = kdl::vec_transform(
-    actions, [](const auto& action) { return IO::Path{action->preferencePath()}; });
+    actions, [](const auto& action) { return action->preferencePath(); });
 
   // example keys from 2019.6 for "Detail" tag
   const auto preferenceKeys = std::vector<std::string>{
@@ -527,7 +495,7 @@ TEST_CASE("PreferencesTest.testWxTagShortcuts")
   for (const auto& preferenceKey : preferenceKeys)
   {
     CAPTURE(preferenceKey);
-    CHECK(kdl::vec_contains(actualPrefPaths, IO::Path{preferenceKey}));
+    CHECK(kdl::vec_contains(actualPrefPaths, preferenceKey));
   }
 }
 } // namespace TrenchBroom

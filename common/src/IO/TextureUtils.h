@@ -24,6 +24,7 @@
 #include <kdl/reflection_decl.h>
 #include <kdl/result_forward.h>
 
+#include <filesystem>
 #include <functional>
 #include <iosfwd>
 #include <string>
@@ -42,9 +43,9 @@ namespace TrenchBroom::IO
 {
 class File;
 class FileSystem;
-class Path;
 
-std::string getTextureNameFromPathSuffix(const Path& path, size_t prefixLength);
+std::string getTextureNameFromPathSuffix(
+  const std::filesystem::path& path, size_t prefixLength);
 
 bool checkTextureDimensions(size_t width, size_t height);
 

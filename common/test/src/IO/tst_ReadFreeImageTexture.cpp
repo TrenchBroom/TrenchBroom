@@ -23,11 +23,11 @@
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/Path.h"
 #include "IO/ReadFreeImageTexture.h"
 
 #include <kdl/result.h>
 
+#include <filesystem>
 #include <string>
 
 #include "TestUtils.h"
@@ -39,10 +39,9 @@ namespace TrenchBroom::IO
 
 static auto loadTexture(const std::string& name)
 {
-  auto diskFS =
-    DiskFileSystem{Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/Image/"}};
+  auto diskFS = DiskFileSystem{Disk::getCurrentWorkingDir() / "fixture/test/IO/Image/"};
 
-  const auto file = diskFS.openFile(Path{name});
+  const auto file = diskFS.openFile(name);
   auto reader = file->reader().buffer();
   return readFreeImageTexture(name, reader);
 }

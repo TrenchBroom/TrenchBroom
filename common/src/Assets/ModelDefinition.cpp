@@ -47,7 +47,9 @@ ModelSpecification::ModelSpecification()
 }
 
 ModelSpecification::ModelSpecification(
-  const IO::Path& i_path, const size_t i_skinIndex, const size_t i_frameIndex)
+  const std::filesystem::path& i_path,
+  const size_t i_skinIndex,
+  const size_t i_frameIndex)
   : path{i_path}
   , skinIndex{i_skinIndex}
   , frameIndex{i_frameIndex}
@@ -81,14 +83,14 @@ void ModelDefinition::append(const ModelDefinition& other)
   m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, line, column};
 }
 
-static IO::Path path(const EL::Value& value)
+static std::filesystem::path path(const EL::Value& value)
 {
   if (value.type() != EL::ValueType::String)
   {
-    return IO::Path();
+    return std::filesystem::path();
   }
   const std::string& path = value.stringValue();
-  return IO::Path{kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path};
+  return std::filesystem::path{kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path};
 }
 
 static size_t index(const EL::Value& value)

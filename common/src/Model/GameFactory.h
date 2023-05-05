@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "IO/Path.h"
 #include "Model/MapFormat.h"
 
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <string>
@@ -49,17 +49,17 @@ struct GameEngineConfig;
 
 struct GamePathConfig
 {
-  std::vector<IO::Path> gameConfigSearchDirs;
-  IO::Path userGameDir;
+  std::vector<std::filesystem::path> gameConfigSearchDirs;
+  std::filesystem::path userGameDir;
 };
 
 class GameFactory
 {
 private:
   using ConfigMap = std::map<std::string, GameConfig>;
-  using GamePathMap = std::map<std::string, Preference<IO::Path>>;
+  using GamePathMap = std::map<std::string, Preference<std::filesystem::path>>;
 
-  IO::Path m_userGameDir;
+  std::filesystem::path m_userGameDir;
   std::unique_ptr<IO::WritableVirtualFileSystem> m_configFs;
 
   std::vector<std::string> m_names;
@@ -119,15 +119,18 @@ public:
   std::shared_ptr<Game> createGame(const std::string& gameName, Logger& logger);
 
   std::vector<std::string> fileFormats(const std::string& gameName) const;
-  IO::Path iconPath(const std::string& gameName) const;
-  IO::Path gamePath(const std::string& gameName) const;
-  bool setGamePath(const std::string& gameName, const IO::Path& gamePath);
-  bool isGamePathPreference(const std::string& gameName, const IO::Path& prefPath) const;
+  std::filesystem::path iconPath(const std::string& gameName) const;
+  std::filesystem::path gamePath(const std::string& gameName) const;
+  bool setGamePath(const std::string& gameName, const std::filesystem::path& gamePath);
+  bool isGamePathPreference(
+    const std::string& gameName, const std::filesystem::path& prefPath) const;
 
-  IO::Path compilationToolPath(
+  std::filesystem::path compilationToolPath(
     const std::string& gameName, const std::string& toolName) const;
   bool setCompilationToolPath(
-    const std::string& gameName, const std::string& toolName, const IO::Path& gamePath);
+    const std::string& gameName,
+    const std::string& toolName,
+    const std::filesystem::path& gamePath);
 
   GameConfig& gameConfig(const std::string& gameName);
   const GameConfig& gameConfig(const std::string& gameName) const;
@@ -140,7 +143,7 @@ public:
    * the game name. If no map format comment is found or the format is unknown,
    * MapFormat::Unknown is returned as the map format.
    */
-  std::pair<std::string, MapFormat> detectGame(const IO::Path& path) const;
+  std::pair<std::string, MapFormat> detectGame(const std::filesystem::path& path) const;
 
   /**
    * Returns the directory for user game configurations.
@@ -148,13 +151,13 @@ public:
    *
    * Must not be called before initialize() was called.
    */
-  const IO::Path& userGameConfigsPath() const;
+  const std::filesystem::path& userGameConfigsPath() const;
 
 private:
   GameFactory();
   void initializeFileSystem(const GamePathConfig& gamePathConfig);
   void loadGameConfigs();
-  void loadGameConfig(const IO::Path& path);
+  void loadGameConfig(const std::filesystem::path& path);
   void loadCompilationConfig(GameConfig& gameConfig);
   void loadGameEngineConfig(GameConfig& gameConfig);
 

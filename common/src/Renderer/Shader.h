@@ -21,16 +21,12 @@
 
 #include "Renderer/GL.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom
 {
-namespace IO
-{
-class Path;
-}
-
 namespace Renderer
 {
 class Shader
@@ -41,14 +37,14 @@ private:
   GLuint m_shaderId;
 
 public:
-  Shader(const IO::Path& path, const GLenum type);
+  Shader(const std::filesystem::path& path, const GLenum type);
   ~Shader();
 
   void attach(const GLuint programId);
   void detach(const GLuint programId);
 
 private:
-  static std::vector<std::string> loadSource(const IO::Path& path);
+  static std::vector<std::string> loadSource(const std::filesystem::path& path);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

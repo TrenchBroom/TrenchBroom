@@ -39,12 +39,13 @@ TextureCollection::TextureCollection(std::vector<Texture> textures)
 {
 }
 
-TextureCollection::TextureCollection(IO::Path path)
+TextureCollection::TextureCollection(std::filesystem::path path)
   : m_path{std::move(path)}
 {
 }
 
-TextureCollection::TextureCollection(IO::Path path, std::vector<Texture> textures)
+TextureCollection::TextureCollection(
+  std::filesystem::path path, std::vector<Texture> textures)
   : m_path{std::move(path)}
   , m_textures{std::move(textures)}
   , m_loaded{true}
@@ -67,7 +68,7 @@ bool TextureCollection::loaded() const
   return m_loaded;
 }
 
-const IO::Path& TextureCollection::path() const
+const std::filesystem::path& TextureCollection::path() const
 {
   return m_path;
 }

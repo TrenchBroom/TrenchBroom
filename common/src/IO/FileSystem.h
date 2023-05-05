@@ -22,6 +22,7 @@
 #include "Exceptions.h"
 #include "IO/PathMatcher.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -31,7 +32,6 @@ namespace TrenchBroom::IO
 
 class File;
 class FileSystem;
-class Path;
 enum class PathInfo;
 
 class FileSystem
@@ -45,11 +45,11 @@ public:
    * @throws FileSystemException if the given path is already an absolute path or if the
    * given path is invalid
    */
-  Path makeAbsolute(const Path& path) const;
+  std::filesystem::path makeAbsolute(const std::filesystem::path& path) const;
 
   /** Indicates whether the given path denotes a file, a directory, or is unknown.
    */
-  PathInfo pathInfo(const Path& path) const;
+  PathInfo pathInfo(const std::filesystem::path& path) const;
 
   /** Returns a vector of paths listing the contents of the directory  at the given path
    * that satisfy the given path matcher. The returned paths are relative to the root of
@@ -58,8 +58,9 @@ public:
    * @param path the path to the directory to search
    * @param pathMatcher only return paths that satisfy this path matcher
    */
-  std::vector<Path> find(
-    const Path& path, const PathMatcher& pathMatcher = matchAnyPath) const;
+  std::vector<std::filesystem::path> find(
+    const std::filesystem::path& path,
+    const PathMatcher& pathMatcher = matchAnyPath) const;
 
   /** Returns a vector of paths listing the contents of the directory recursively at the
    * given path that satisfy the given path matcher. The returned paths are relative to
@@ -68,11 +69,10 @@ public:
    * @param path the path to the directory to search
    * @param pathMatcher only return paths that satisfy this path matcher
    */
-  std::vector<Path> findRecursively(
-    const Path& path,
-    const PathMatcher& pathMatcher = [](const Path&, const GetPathInfo&) {
-      return true;
-    }) const;
+  std::vector<std::filesystem::path> findRecursively(
+    const std::filesystem::path& path,
+    const PathMatcher& pathMatcher =
+      [](const std::filesystem::path&, const GetPathInfo&) { return true; }) const;
 
   /** Returns the contents of the directory at the given paths.
    *
@@ -83,20 +83,23 @@ public:
    * @throws FileSystemException if the given path is an absolute path or if the given
    * path is invalid
    */
-  std::vector<Path> directoryContents(const Path& path) const;
+  std::vector<std::filesystem::path> directoryContents(
+    const std::filesystem::path& path) const;
 
   /** Open a file at the given path and return it.
    *
    * @throws FileSystemException if the given path is absolute, if it is invalid invalid
    * or if it does not denote a file
    */
-  std::shared_ptr<File> openFile(const Path& path) const;
+  std::shared_ptr<File> openFile(const std::filesystem::path& path) const;
 
 protected:
-  virtual Path doMakeAbsolute(const Path& path) const = 0;
-  virtual PathInfo doGetPathInfo(const Path& path) const = 0;
-  virtual std::vector<Path> doGetDirectoryContents(const Path& path) const = 0;
-  virtual std::shared_ptr<File> doOpenFile(const Path& path) const = 0;
+  virtual std::filesystem::path doMakeAbsolute(
+    const std::filesystem::path& path) const = 0;
+  virtual PathInfo doGetPathInfo(const std::filesystem::path& path) const = 0;
+  virtual std::vector<std::filesystem::path> doGetDirectoryContents(
+    const std::filesystem::path& path) const = 0;
+  virtual std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const = 0;
 };
 
 class WritableFileSystem : public virtual FileSystem
@@ -104,21 +107,32 @@ class WritableFileSystem : public virtual FileSystem
 public:
   ~WritableFileSystem() override;
 
-  void createFileAtomic(const Path& path, const std::string& contents);
-  void createFile(const Path& path, const std::string& contents);
-  void createDirectory(const Path& path);
-  void deleteFile(const Path& path);
-  void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
-  void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+  void createFileAtomic(const std::filesystem::path& path, const std::string& contents);
+  void createFile(const std::filesystem::path& path, const std::string& contents);
+  void createDirectory(const std::filesystem::path& path);
+  void deleteFile(const std::filesystem::path& path);
+  void copyFile(
+    const std::filesystem::path& sourcePath,
+    const std::filesystem::path& destPath,
+    bool overwrite);
+  void moveFile(
+    const std::filesystem::path& sourcePath,
+    const std::filesystem::path& destPath,
+    bool overwrite);
 
 private:
-  virtual void doCreateFile(const Path& path, const std::string& contents) = 0;
-  virtual void doCreateDirectory(const Path& path) = 0;
-  virtual void doDeleteFile(const Path& path) = 0;
+  virtual void doCreateFile(
+    const std::filesystem::path& path, const std::string& contents) = 0;
+  virtual void doCreateDirectory(const std::filesystem::path& path) = 0;
+  virtual void doDeleteFile(const std::filesystem::path& path) = 0;
   virtual void doCopyFile(
-    const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
+    const std::filesystem::path& sourcePath,
+    const std::filesystem::path& destPath,
+    bool overwrite) = 0;
   virtual void doMoveFile(
-    const Path& sourcePath, const Path& destPath, bool overwrite) = 0;
+    const std::filesystem::path& sourcePath,
+    const std::filesystem::path& destPath,
+    bool overwrite) = 0;
 };
 
 } // namespace TrenchBroom::IO

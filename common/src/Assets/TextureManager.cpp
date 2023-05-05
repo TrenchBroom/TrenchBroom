@@ -66,7 +66,7 @@ void TextureManager::setTextureCollections(std::vector<TextureCollection> collec
 }
 
 void TextureManager::setTextureCollections(
-  const std::vector<IO::Path>& paths,
+  const std::vector<std::filesystem::path>& paths,
   const IO::FileSystem& fs,
   const Model::TextureConfig& textureConfig)
 {

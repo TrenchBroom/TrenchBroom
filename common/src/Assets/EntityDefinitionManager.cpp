@@ -42,7 +42,7 @@ EntityDefinitionManager::~EntityDefinitionManager()
 }
 
 void EntityDefinitionManager::loadDefinitions(
-  const IO::Path& path,
+  const std::filesystem::path& path,
   const IO::EntityDefinitionLoader& loader,
   IO::ParserStatus& status)
 {

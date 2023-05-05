@@ -26,7 +26,6 @@
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/FileSystemUtils.h"
-#include "IO/Path.h"
 #include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
 #include "IO/ReadDdsTexture.h"
@@ -45,6 +44,7 @@
 #include "kdl/string_format.h"
 #include "kdl/vector_utils.h"
 #include <kdl/overload.h>
+#include <kdl/path_utils.h>
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
 
@@ -170,7 +170,7 @@ kdl::result<ReadTextureFunc, LoadTextureCollectionError> makeReadTextureFunc(
 
 kdl_reflect_impl(LoadTextureCollectionError);
 
-std::vector<Path> findTextureCollections(
+std::vector<std::filesystem::path> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
   auto paths = gameFS.findRecursively(
@@ -180,7 +180,7 @@ std::vector<Path> findTextureCollections(
 }
 
 kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCollection(
-  const Path& path,
+  const std::filesystem::path& path,
   const FileSystem& gameFS,
   const Model::TextureConfig& textureConfig,
   Logger& logger)
@@ -221,7 +221,7 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
               .transform([&](auto texture) {
                 texture.setAbsolutePath(safeMakeAbsolute(texturePath, [&](const auto& p) {
                                           return gameFS.makeAbsolute(p);
-                                        }).value_or(Path{}));
+                                        }).value_or(std::filesystem::path{}));
                 texture.setRelativePath(texturePath);
                 textures.push_back(std::move(texture));
               });

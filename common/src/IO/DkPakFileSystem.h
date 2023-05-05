@@ -21,18 +21,18 @@
 
 #include "IO/ImageFileSystem.h"
 
+#include <filesystem>
 #include <memory>
 
 namespace TrenchBroom
 {
 namespace IO
 {
-class Path;
 
 class DkPakFileSystem : public ImageFileSystem
 {
 public:
-  explicit DkPakFileSystem(Path path);
+  explicit DkPakFileSystem(std::filesystem::path path);
 
 private:
   void doReadDirectory() override;

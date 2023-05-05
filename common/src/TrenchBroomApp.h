@@ -21,6 +21,7 @@
 
 #include "Notifier.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -33,11 +34,6 @@ class QSettings;
 namespace TrenchBroom
 {
 class Logger;
-
-namespace IO
-{
-class Path;
-}
 
 namespace View
 {
@@ -71,12 +67,12 @@ private:
   void loadStyle();
 
 public:
-  const std::vector<IO::Path>& recentDocuments() const;
+  const std::vector<std::filesystem::path>& recentDocuments() const;
   void addRecentDocumentMenu(QMenu* menu);
   void removeRecentDocumentMenu(QMenu* menu);
-  void updateRecentDocument(const IO::Path& path);
+  void updateRecentDocument(const std::filesystem::path& path);
 
-  bool openDocument(const IO::Path& path);
+  bool openDocument(const std::filesystem::path& path);
   void openPreferences();
   void openAbout();
   bool initializeGameFactory();

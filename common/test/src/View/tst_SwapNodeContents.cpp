@@ -21,7 +21,6 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "FloatType.h"
-#include "IO/Path.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
@@ -46,6 +45,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <filesystem>
 #include <memory>
 
 #include "TestUtils.h"

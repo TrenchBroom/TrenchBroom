@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
+#include <filesystem>
 #include <functional>
 #include <string>
 
@@ -32,8 +31,8 @@ class TestEnvironment
 {
 private:
   using SetupFunction = std::function<void(TestEnvironment&)>;
-  Path m_sandboxPath;
-  Path m_dir;
+  std::filesystem::path m_sandboxPath;
+  std::filesystem::path m_dir;
 
 public:
   explicit TestEnvironment(
@@ -41,19 +40,19 @@ public:
   explicit TestEnvironment(const SetupFunction& setup = [](TestEnvironment&) {});
   ~TestEnvironment();
 
-  const Path& dir() const;
+  const std::filesystem::path& dir() const;
 
 public:
   void createTestEnvironment(const SetupFunction& setup);
-  void createDirectory(const Path& path);
-  void createFile(const Path& path, const std::string& contents);
+  void createDirectory(const std::filesystem::path& path);
+  void createFile(const std::filesystem::path& path, const std::string& contents);
 
   bool deleteTestEnvironment();
 
-  bool directoryExists(const Path& path) const;
-  bool fileExists(const Path& path) const;
+  bool directoryExists(const std::filesystem::path& path) const;
+  bool fileExists(const std::filesystem::path& path) const;
 
-  std::string loadFile(const Path& path) const;
+  std::string loadFile(const std::filesystem::path& path) const;
 };
 } // namespace IO
 } // namespace TrenchBroom

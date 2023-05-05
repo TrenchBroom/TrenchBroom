@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <memory>
 
 namespace TrenchBroom
@@ -32,25 +33,24 @@ class EntityModel;
 
 namespace IO
 {
-class Path;
 
 class EntityModelLoader
 {
 public:
   virtual ~EntityModelLoader();
   std::unique_ptr<Assets::EntityModel> initializeModel(
-    const Path& path, Logger& logger) const;
+    const std::filesystem::path& path, Logger& logger) const;
   void loadFrame(
-    const Path& path,
+    const std::filesystem::path& path,
     size_t frameIndex,
     Assets::EntityModel& model,
     Logger& logger) const;
 
 private:
   virtual std::unique_ptr<Assets::EntityModel> doInitializeModel(
-    const Path& path, Logger& logger) const = 0;
+    const std::filesystem::path& path, Logger& logger) const = 0;
   virtual void doLoadFrame(
-    const Path& path,
+    const std::filesystem::path& path,
     size_t frameIndex,
     Assets::EntityModel& model,
     Logger& logger) const = 0;

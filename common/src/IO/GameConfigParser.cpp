@@ -488,7 +488,8 @@ Model::EntityConfig parseEntityConfig(const EL::Value& value)
 
   return Model::EntityConfig{
     kdl::vec_transform(
-      value["definitions"].asStringList(), [](const auto& str) { return Path{str}; }),
+      value["definitions"].asStringList(),
+      [](const auto& str) { return std::filesystem::path{str}; }),
     Color::parse(value["defaultcolor"].stringValue()).value_or(Color{}),
     value["scale"].expression(),
     value["setDefaultProperties"].booleanValue(),
@@ -546,11 +547,11 @@ Model::TextureConfig parseTextureConfig(const EL::Value& value)
     ])");
 
   return Model::TextureConfig{
-    Path{value["root"].stringValue()},
+    std::filesystem::path{value["root"].stringValue()},
     parseTextureExtensions(value),
-    Path{value["palette"].stringValue()},
+    std::filesystem::path{value["palette"].stringValue()},
     value["attribute"].stringValue(),
-    Path{value["shaderSearchPath"].stringValue()},
+    std::filesystem::path{value["shaderSearchPath"].stringValue()},
     value["excludes"].asStringList(),
   };
 }
@@ -565,7 +566,7 @@ Model::FileSystemConfig parseFileSystemConfig(const EL::Value& value)
     ])");
 
   return Model::FileSystemConfig{
-    Path{value["searchpath"].stringValue()},
+    std::filesystem::path{value["searchpath"].stringValue()},
     parsePackageFormatConfig(value["packageformat"]),
   };
 }
@@ -588,7 +589,7 @@ std::vector<Model::MapFormatConfig> parseMapFormatConfigs(const EL::Value& value
 
     result.push_back(Model::MapFormatConfig{
       value[i]["format"].stringValue(),
-      Path{value[i]["initialmap"].stringValue()},
+      std::filesystem::path{value[i]["initialmap"].stringValue()},
     });
   }
 
@@ -597,7 +598,8 @@ std::vector<Model::MapFormatConfig> parseMapFormatConfigs(const EL::Value& value
 
 } // namespace
 
-GameConfigParser::GameConfigParser(std::string_view str, const Path& path)
+GameConfigParser::GameConfigParser(
+  std::string_view str, const std::filesystem::path& path)
   : ConfigParserBase{std::move(str), path}
   , m_version{0}
 {
@@ -633,7 +635,7 @@ Model::GameConfig GameConfigParser::parse()
   return {
     root["name"].stringValue(),
     m_path,
-    Path{root["icon"].stringValue()},
+    std::filesystem::path{root["icon"].stringValue()},
     root["experimental"].booleanValue(),
     std::move(mapFormatConfigs),
     std::move(fileSystemConfig),

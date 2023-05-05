@@ -19,7 +19,6 @@
 
 #include "View/Actions.h"
 
-#include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "KeyStrings.h"
 #include "PreferenceManager.h"
@@ -31,6 +30,7 @@
 #include <QTextStream>
 
 #include <array>
+#include <filesystem>
 #include <iostream>
 #include <tuple>
 
@@ -162,10 +162,11 @@ static void printActionShortcuts(QTextStream& out)
 {
   out << "const actions = {\n";
 
-  auto printPref = [&out](const IO::Path& prefPath, const QKeySequence& keySequence) {
-    out << "    '" << IO::pathAsGenericQString(prefPath) << "': ";
-    out << toString(keySequence) << ",\n";
-  };
+  auto printPref =
+    [&out](const std::filesystem::path& prefPath, const QKeySequence& keySequence) {
+      out << "    '" << IO::pathAsGenericQString(prefPath) << "': ";
+      out << toString(keySequence) << ",\n";
+    };
 
   class ToolbarVisitor : public MenuVisitor
   {

@@ -25,6 +25,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -38,7 +39,6 @@ class Palette;
 namespace IO
 {
 class FileSystem;
-class Path;
 class Reader;
 
 namespace Md2Layout
@@ -111,7 +111,7 @@ public:
     const Assets::Palette& palette,
     const FileSystem& fs);
 
-  static bool canParse(const Path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

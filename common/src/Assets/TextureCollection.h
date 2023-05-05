@@ -20,11 +20,11 @@
 #pragma once
 
 #include "Assets/Texture.h"
-#include "IO/Path.h"
 #include "Renderer/GL.h"
 
 #include <kdl/reflection_decl.h>
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -36,7 +36,7 @@ class TextureCollection
 private:
   using TextureIdList = std::vector<GLuint>;
 
-  IO::Path m_path;
+  std::filesystem::path m_path;
   std::vector<Texture> m_textures;
 
   bool m_loaded{false};
@@ -49,8 +49,8 @@ private:
 public:
   TextureCollection();
   explicit TextureCollection(std::vector<Texture> textures);
-  explicit TextureCollection(IO::Path path);
-  TextureCollection(IO::Path path, std::vector<Texture> textures);
+  explicit TextureCollection(std::filesystem::path path);
+  TextureCollection(std::filesystem::path path, std::vector<Texture> textures);
 
   TextureCollection(const TextureCollection&) = delete;
   TextureCollection& operator=(const TextureCollection&) = delete;
@@ -61,7 +61,7 @@ public:
   ~TextureCollection();
 
   bool loaded() const;
-  const IO::Path& path() const;
+  const std::filesystem::path& path() const;
   std::string name() const;
   size_t textureCount() const;
 

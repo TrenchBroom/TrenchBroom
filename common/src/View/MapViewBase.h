@@ -26,6 +26,7 @@
 #include "View/RenderView.h"
 #include "View/ToolBoxConnector.h"
 
+#include <filesystem>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -46,11 +47,6 @@ class EntityDefinition;
 enum class EntityDefinitionType;
 class PointEntityDefinition;
 } // namespace Assets
-
-namespace IO
-{
-class Path;
-}
 
 namespace Model
 {
@@ -164,7 +160,7 @@ private:
   void gridDidChange();
   void pointFileDidChange();
   void portalFileDidChange();
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
   void documentDidChange(MapDocument* document);
 
 private: // shortcut setup

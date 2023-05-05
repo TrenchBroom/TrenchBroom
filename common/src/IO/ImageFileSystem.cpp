@@ -25,6 +25,7 @@
 #include "IO/PathInfo.h"
 
 #include <kdl/overload.h>
+#include <kdl/path_utils.h>
 
 #include <cassert>
 #include <memory>
@@ -36,9 +37,10 @@ namespace IO
 
 namespace
 {
-const Path& getName(const ImageEntry& entry)
+const std::filesystem::path& getName(const ImageEntry& entry)
 {
-  return std::visit([](const auto& x) -> const Path& { return x.name; }, entry);
+  return std::visit(
+    [](const auto& x) -> const std::filesystem::path& { return x.name; }, entry);
 }
 
 bool isDirectory(const ImageEntry& entry)
@@ -51,7 +53,7 @@ bool isDirectory(const ImageEntry& entry)
 }
 
 template <typename I>
-auto findEntry(I begin, I end, const Path& name)
+auto findEntry(I begin, I end, const std::filesystem::path& name)
 {
   const auto nameLc = kdl::path_to_lower(name);
   return std::find_if(begin, end, [&](const auto& entry) {
@@ -61,12 +63,13 @@ auto findEntry(I begin, I end, const Path& name)
 
 template <typename F>
 auto withEntry(
-  const Path& searchPath,
+  const std::filesystem::path& searchPath,
   const ImageEntry& currentEntry,
-  const Path& currentPath,
+  const std::filesystem::path& currentPath,
   const F& f,
   decltype(f(
-    std::declval<const ImageEntry&>(), std::declval<const Path&>())) defaultResult)
+    std::declval<const ImageEntry&>(),
+    std::declval<const std::filesystem::path&>())) defaultResult)
 {
   if (searchPath.empty())
   {
@@ -94,9 +97,9 @@ auto withEntry(
 
 template <typename F>
 void withEntry(
-  const Path& searchPath,
+  const std::filesystem::path& searchPath,
   const ImageEntry& currentEntry,
-  const Path& currentPath,
+  const std::filesystem::path& currentPath,
   const F& f)
 {
   if (searchPath.empty())
@@ -122,17 +125,18 @@ void withEntry(
   }
 }
 
-const ImageEntry* findEntry(const Path& path, const ImageEntry& parent)
+const ImageEntry* findEntry(const std::filesystem::path& path, const ImageEntry& parent)
 {
   return withEntry(
     path,
     parent,
-    Path{},
-    [](const ImageEntry& entry, const Path&) { return &entry; },
+    std::filesystem::path{},
+    [](const ImageEntry& entry, const std::filesystem::path&) { return &entry; },
     nullptr);
 }
 
-ImageDirectoryEntry& findOrCreateDirectory(const Path& path, ImageDirectoryEntry& parent)
+ImageDirectoryEntry& findOrCreateDirectory(
+  const std::filesystem::path& path, ImageDirectoryEntry& parent)
 {
   if (path.empty())
   {
@@ -165,9 +169,9 @@ ImageDirectoryEntry& findOrCreateDirectory(const Path& path, ImageDirectoryEntry
 }
 } // namespace
 
-ImageFileSystemBase::ImageFileSystemBase(Path path)
+ImageFileSystemBase::ImageFileSystemBase(std::filesystem::path path)
   : m_path{std::move(path)}
-  , m_root{ImageDirectoryEntry{Path{}, {}}}
+  , m_root{ImageDirectoryEntry{{}, {}}}
 {
 }
 
@@ -175,7 +179,7 @@ ImageFileSystemBase::~ImageFileSystemBase() = default;
 
 void ImageFileSystemBase::reload()
 {
-  m_root = ImageDirectoryEntry{Path{}, {}};
+  m_root = ImageDirectoryEntry{{}, {}};
   initialize();
 }
 
@@ -192,7 +196,7 @@ void ImageFileSystemBase::initialize()
   }
 }
 
-void ImageFileSystemBase::addFile(const Path& path, GetImageFile getFile)
+void ImageFileSystemBase::addFile(const std::filesystem::path& path, GetImageFile getFile)
 {
   auto& directoryEntry =
     findOrCreateDirectory(path.parent_path(), std::get<ImageDirectoryEntry>(m_root));
@@ -211,43 +215,50 @@ void ImageFileSystemBase::addFile(const Path& path, GetImageFile getFile)
   }
 }
 
-Path ImageFileSystemBase::doMakeAbsolute(const Path& path) const
+std::filesystem::path ImageFileSystemBase::doMakeAbsolute(
+  const std::filesystem::path& path) const
 {
-  return Path{"/"} / path;
+  return "/" / path;
 }
 
-PathInfo ImageFileSystemBase::doGetPathInfo(const Path& path) const
+PathInfo ImageFileSystemBase::doGetPathInfo(const std::filesystem::path& path) const
 {
   const auto* entry = findEntry(path, m_root);
   return entry ? isDirectory(*entry) ? PathInfo::Directory : PathInfo::File
                : PathInfo::Unknown;
 }
 
-std::vector<Path> ImageFileSystemBase::doGetDirectoryContents(const Path& path) const
+std::vector<std::filesystem::path> ImageFileSystemBase::doGetDirectoryContents(
+  const std::filesystem::path& path) const
 {
-  auto result = std::vector<Path>{};
-  withEntry(path, m_root, Path{}, [&](const ImageEntry& entry, const Path&) {
-    return std::visit(
-      kdl::overload(
-        [&](const ImageDirectoryEntry& directoryEntry) {
-          for (const auto& childEntry : directoryEntry.entries)
-          {
-            result.push_back(getName(childEntry));
-          }
-        },
-        [](const ImageFileEntry&) {}),
-      entry);
-  });
+  auto result = std::vector<std::filesystem::path>{};
+  withEntry(
+    path,
+    m_root,
+    std::filesystem::path{},
+    [&](const ImageEntry& entry, const std::filesystem::path&) {
+      return std::visit(
+        kdl::overload(
+          [&](const ImageDirectoryEntry& directoryEntry) {
+            for (const auto& childEntry : directoryEntry.entries)
+            {
+              result.push_back(getName(childEntry));
+            }
+          },
+          [](const ImageFileEntry&) {}),
+        entry);
+    });
   return result;
 }
 
-std::shared_ptr<File> ImageFileSystemBase::doOpenFile(const Path& path) const
+std::shared_ptr<File> ImageFileSystemBase::doOpenFile(
+  const std::filesystem::path& path) const
 {
   return withEntry(
     path,
     m_root,
-    Path{},
-    [](const ImageEntry& entry, const Path&) {
+    std::filesystem::path{},
+    [](const ImageEntry& entry, const std::filesystem::path&) {
       return std::visit(
         kdl::overload(
           [&](const ImageDirectoryEntry&) -> std::shared_ptr<File> { return {}; },
@@ -259,7 +270,7 @@ std::shared_ptr<File> ImageFileSystemBase::doOpenFile(const Path& path) const
     {});
 }
 
-ImageFileSystem::ImageFileSystem(Path path)
+ImageFileSystem::ImageFileSystem(std::filesystem::path path)
   : ImageFileSystemBase{std::move(path)}
   , m_file{std::make_shared<CFile>(m_path)}
 {

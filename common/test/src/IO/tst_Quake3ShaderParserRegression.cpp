@@ -25,6 +25,7 @@
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 
+#include <filesystem>
 #include <string>
 
 #include "Catch2.h"
@@ -62,8 +63,8 @@ TEST_CASE("Quake3ShaderParserTest.parseShadersWithInvalidWhitespace")
   // the parser.
 
   const auto workDir = Disk::getCurrentWorkingDir();
-  auto fs = DiskFileSystem(workDir / Path("fixture/test/IO/Shader/parser"));
-  auto testFile = fs.openFile(Path("am_cf_models.shader"));
+  auto fs = DiskFileSystem(workDir / "fixture/test/IO/Shader/parser");
+  auto testFile = fs.openFile("am_cf_models.shader");
   auto reader = testFile->reader().buffer();
 
   Quake3ShaderParser parser(reader.stringView());
@@ -91,12 +92,12 @@ TEST_CASE("Quake3ShaderParserTest.parseShaderAbsolutePath")
   CHECK_THAT(
     parser.parse(status),
     Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
-      IO::Path("textures/eerie/ironcrosslt2_10000"),      // shaderPath
-      IO::Path("textures/gothic_light/ironcrosslt2.tga"), // editorImage
-      IO::Path(),                                         // lightImage
-      Assets::Quake3Shader::Culling::Front,               // culling
-      {},                                                 // surfaceParms
-      {}                                                  // stages
+      "textures/eerie/ironcrosslt2_10000",      // shaderPath
+      "textures/gothic_light/ironcrosslt2.tga", // editorImage
+      "",                                       // lightImage
+      Assets::Quake3Shader::Culling::Front,     // culling
+      {},                                       // surfaceParms
+      {}                                        // stages
     }}));
 }
 

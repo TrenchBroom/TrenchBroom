@@ -293,7 +293,7 @@ void ViewEditor::entityDefinitionsDidChange()
   refreshGui();
 }
 
-void ViewEditor::preferenceDidChange(const IO::Path&)
+void ViewEditor::preferenceDidChange(const std::filesystem::path&)
 {
   refreshGui();
 }

@@ -28,6 +28,7 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/result.h>
 #include <kdl/string_format.h>
 
@@ -46,9 +47,9 @@ SprParser::SprParser(
 {
 }
 
-bool SprParser::canParse(const Path& path, Reader reader)
+bool SprParser::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension().string()) != ".spr")
+  if (kdl::path_to_lower(path.extension()) != ".spr")
   {
     return false;
   }

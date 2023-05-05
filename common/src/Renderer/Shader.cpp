@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "IO/IOUtils.h"
-#include "IO/Path.h"
 
 #include <cassert>
 #include <fstream>
@@ -33,7 +32,7 @@ namespace TrenchBroom
 {
 namespace Renderer
 {
-Shader::Shader(const IO::Path& path, const GLenum type)
+Shader::Shader(const std::filesystem::path& path, const GLenum type)
   : m_name(path.filename().string())
   , m_type(type)
   , m_shaderId(0)
@@ -101,9 +100,9 @@ void Shader::detach(const GLuint programId)
   glAssert(glDetachShader(programId, m_shaderId));
 }
 
-std::vector<std::string> Shader::loadSource(const IO::Path& path)
+std::vector<std::string> Shader::loadSource(const std::filesystem::path& path)
 {
-  std::ifstream stream = openPathAsInputStream(path);
+  std::ifstream stream = IO::openPathAsInputStream(path);
   if (!stream.is_open())
   {
     throw RenderException("Could not load shader source from " + path.string());

@@ -23,7 +23,6 @@
 #include "Ensure.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/SystemPaths.h"
@@ -61,7 +60,7 @@ Assets::Texture loadDefaultTexture(
 
     try
     {
-      const auto file = fs.openFile(Path{"textures/__TB_empty.png"});
+      const auto file = fs.openFile("textures/__TB_empty.png");
       auto reader = file->reader().buffer();
       return readFreeImageTexture(name, reader)
         .if_error([&](const ReadTextureError& e) { throw AssetException{e.msg.c_str()}; })
@@ -80,20 +79,15 @@ Assets::Texture loadDefaultTexture(
   return Assets::Texture{name, 32, 32};
 }
 
-static QString imagePathToString(const Path& imagePath)
+static QString imagePathToString(const std::filesystem::path& imagePath)
 {
   const auto fullPath = imagePath.is_absolute()
                           ? imagePath
-                          : SystemPaths::findResourceFile(Path("images") / imagePath);
+                          : SystemPaths::findResourceFile("images" / imagePath);
   return pathAsQString(fullPath);
 }
 
-QPixmap loadPixmapResource(const std::string& name)
-{
-  return loadPixmapResource(Path{name});
-}
-
-QPixmap loadPixmapResource(const Path& imagePath)
+QPixmap loadPixmapResource(const std::filesystem::path& imagePath)
 {
   return QPixmap{imagePathToString(imagePath)};
 }
@@ -151,7 +145,7 @@ static void renderSvgToIcon(
   icon.addPixmap(QPixmap::fromImage(createDisabledState(image)), QIcon::Disabled, state);
 }
 
-QIcon loadSVGIcon(const Path& imagePath)
+QIcon loadSVGIcon(const std::filesystem::path& imagePath)
 {
   // Simple caching layer.
   // Without it, the .svg files would be read from disk and decoded each time this is
@@ -162,7 +156,7 @@ QIcon loadSVGIcon(const Path& imagePath)
     qApp->thread() == QThread::currentThread(),
     "loadIconResourceQt can only be used on the main thread");
 
-  static auto cache = std::map<Path, QIcon>{};
+  static auto cache = std::map<std::filesystem::path, QIcon>{};
   if (const auto it = cache.find(imagePath); it != cache.end())
   {
     return it->second;
@@ -176,10 +170,10 @@ QIcon loadSVGIcon(const Path& imagePath)
   auto result = QIcon{};
   if (!imagePath.empty())
   {
-    const auto onPath = imagePathToString(
-      imagePath.parent_path() / Path{imagePath.stem().string() + "_on"});
-    const auto offPath = imagePathToString(
-      imagePath.parent_path() / Path{imagePath.stem().string() + "_off"});
+    const auto onPath =
+      imagePathToString(imagePath.parent_path() / imagePath.stem() += "_on.svg");
+    const auto offPath =
+      imagePathToString(imagePath.parent_path() / imagePath.stem() += "_off.svg");
     const auto imagePathString = imagePathToString(imagePath);
 
     if (!onPath.isEmpty() && !offPath.isEmpty())

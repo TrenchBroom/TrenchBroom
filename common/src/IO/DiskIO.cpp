@@ -26,6 +26,7 @@
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
 
 #include <fstream>
@@ -42,7 +43,8 @@ namespace Disk
 namespace
 {
 
-std::vector<Path> doGetDirectoryContents(const Path& fixedPath)
+std::vector<std::filesystem::path> doGetDirectoryContents(
+  const std::filesystem::path& fixedPath)
 {
   auto dir = QDir{pathAsQString(fixedPath)};
   if (!dir.exists())
@@ -53,7 +55,7 @@ std::vector<Path> doGetDirectoryContents(const Path& fixedPath)
   dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
 
   const auto entries = dir.entryList();
-  auto result = std::vector<Path>{};
+  auto result = std::vector<std::filesystem::path>{};
   result.reserve(size_t(entries.size()));
 
   std::transform(
@@ -72,7 +74,7 @@ bool doCheckCaseSensitive()
   return !upper.exists() || !lower.exists();
 }
 
-Path fixCase(const Path& path)
+std::filesystem::path fixCase(const std::filesystem::path& path)
 {
   if (
     path.empty() || !path.is_absolute() || !isCaseSensitive()
@@ -118,7 +120,7 @@ bool isCaseSensitive()
   return caseSensitive;
 }
 
-Path fixPath(const Path& path)
+std::filesystem::path fixPath(const std::filesystem::path& path)
 {
   try
   {
@@ -130,7 +132,7 @@ Path fixPath(const Path& path)
   }
 }
 
-PathInfo pathInfo(const Path& path)
+PathInfo pathInfo(const std::filesystem::path& path)
 {
   const auto fixedPath = pathAsQString(fixPath(path));
   const auto fileInfo = QFileInfo{fixedPath};
@@ -139,22 +141,24 @@ PathInfo pathInfo(const Path& path)
                                                 : PathInfo::Unknown;
 }
 
-std::vector<Path> find(const Path& path, const PathMatcher& pathMatcher)
+std::vector<std::filesystem::path> find(
+  const std::filesystem::path& path, const PathMatcher& pathMatcher)
 {
   return IO::find(path, directoryContents, pathInfo, pathMatcher);
 }
 
-std::vector<Path> findRecursively(const Path& path, const PathMatcher& pathMatcher)
+std::vector<std::filesystem::path> findRecursively(
+  const std::filesystem::path& path, const PathMatcher& pathMatcher)
 {
   return IO::findRecursively(path, directoryContents, pathInfo, pathMatcher);
 }
 
-std::vector<Path> directoryContents(const Path& path)
+std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path)
 {
   return doGetDirectoryContents(fixPath(path));
 }
 
-std::shared_ptr<File> openFile(const Path& path)
+std::shared_ptr<File> openFile(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) != PathInfo::File)
@@ -165,7 +169,7 @@ std::shared_ptr<File> openFile(const Path& path)
   return std::make_shared<CFile>(fixedPath);
 }
 
-std::string readTextFile(const Path& path)
+std::string readTextFile(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
 
@@ -179,12 +183,12 @@ std::string readTextFile(const Path& path)
     (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
 }
 
-Path getCurrentWorkingDir()
+std::filesystem::path getCurrentWorkingDir()
 {
   return pathFromQString(QDir::currentPath());
 }
 
-void createFile(const Path& path, const std::string& contents)
+void createFile(const std::filesystem::path& path, const std::string& contents)
 {
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) == PathInfo::File)
@@ -206,7 +210,7 @@ void createFile(const Path& path, const std::string& contents)
 
 namespace
 {
-bool createDirectoryHelper(const Path& path)
+bool createDirectoryHelper(const std::filesystem::path& path)
 {
   if (path.empty())
   {
@@ -223,7 +227,7 @@ bool createDirectoryHelper(const Path& path)
 }
 } // namespace
 
-void createDirectory(const Path& path)
+void createDirectory(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   switch (pathInfo(fixedPath))
@@ -246,7 +250,7 @@ void createDirectory(const Path& path)
   }
 }
 
-void ensureDirectoryExists(const Path& path)
+void ensureDirectoryExists(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   switch (pathInfo(fixedPath))
@@ -267,7 +271,7 @@ void ensureDirectoryExists(const Path& path)
   }
 }
 
-void deleteFile(const Path& path)
+void deleteFile(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) != PathInfo::File)
@@ -282,7 +286,8 @@ void deleteFile(const Path& path)
   }
 }
 
-void deleteFiles(const Path& sourceDirPath, const PathMatcher& pathMatcher)
+void deleteFiles(
+  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher)
 {
   for (const auto& filePath : find(sourceDirPath, pathMatcher))
   {
@@ -290,7 +295,8 @@ void deleteFiles(const Path& sourceDirPath, const PathMatcher& pathMatcher)
   }
 }
 
-void deleteFilesRecursively(const Path& sourceDirPath, const PathMatcher& pathMatcher)
+void deleteFilesRecursively(
+  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher)
 {
   for (const auto& filePath : findRecursively(sourceDirPath, pathMatcher))
   {
@@ -298,7 +304,10 @@ void deleteFilesRecursively(const Path& sourceDirPath, const PathMatcher& pathMa
   }
 }
 
-void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite)
+void copyFile(
+  const std::filesystem::path& sourcePath,
+  const std::filesystem::path& destPath,
+  const bool overwrite)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
   auto fixedDestPath = fixPath(destPath);
@@ -333,9 +342,9 @@ void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite
 }
 
 void copyFiles(
-  const Path& sourceDirPath,
+  const std::filesystem::path& sourceDirPath,
   const PathMatcher& pathMatcher,
-  const Path& destDirPath,
+  const std::filesystem::path& destDirPath,
   const bool overwrite)
 {
   for (const auto& sourceFilePath : find(sourceDirPath, pathMatcher))
@@ -345,9 +354,9 @@ void copyFiles(
 }
 
 void copyFilesRecursively(
-  const Path& sourceDirPath,
+  const std::filesystem::path& sourceDirPath,
   const PathMatcher& pathMatcher,
-  const Path& destDirPath,
+  const std::filesystem::path& destDirPath,
   const bool overwrite)
 {
   for (const auto& sourceFilePath : findRecursively(sourceDirPath, pathMatcher))
@@ -356,7 +365,10 @@ void copyFilesRecursively(
   }
 }
 
-void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite)
+void moveFile(
+  const std::filesystem::path& sourcePath,
+  const std::filesystem::path& destPath,
+  const bool overwrite)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
   auto fixedDestPath = fixPath(destPath);
@@ -390,9 +402,9 @@ void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite
 }
 
 void moveFiles(
-  const Path& sourceDirPath,
+  const std::filesystem::path& sourceDirPath,
   const PathMatcher& pathMatcher,
-  const Path& destDirPath,
+  const std::filesystem::path& destDirPath,
   const bool overwrite)
 {
   for (const auto& sourceFilePath : find(sourceDirPath, pathMatcher))
@@ -402,9 +414,9 @@ void moveFiles(
 }
 
 void moveFilesRecursively(
-  const Path& sourceDirPath,
+  const std::filesystem::path& sourceDirPath,
   const PathMatcher& pathMatcher,
-  const Path& destDirPath,
+  const std::filesystem::path& destDirPath,
   const bool overwrite)
 {
   for (const auto& sourceFilePath : findRecursively(sourceDirPath, pathMatcher))
@@ -413,7 +425,9 @@ void moveFilesRecursively(
   }
 }
 
-Path resolvePath(const std::vector<Path>& searchPaths, const Path& path)
+std::filesystem::path resolvePath(
+  const std::vector<std::filesystem::path>& searchPaths,
+  const std::filesystem::path& path)
 {
   if (path.is_absolute())
   {
@@ -442,7 +456,7 @@ Path resolvePath(const std::vector<Path>& searchPaths, const Path& path)
       }
     }
   }
-  return Path{};
+  return {};
 }
 
 } // namespace Disk

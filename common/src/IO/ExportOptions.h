@@ -20,10 +20,9 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
 #include <kdl/reflection_decl.h>
 
+#include <filesystem>
 #include <variant>
 
 namespace TrenchBroom
@@ -32,7 +31,7 @@ namespace IO
 {
 struct MapExportOptions
 {
-  Path exportPath;
+  std::filesystem::path exportPath;
 
   kdl_reflect_decl(MapExportOptions, exportPath);
 };
@@ -47,7 +46,7 @@ std::ostream& operator<<(std::ostream& lhs, ObjMtlPathMode rhs);
 
 struct ObjExportOptions
 {
-  Path exportPath;
+  std::filesystem::path exportPath;
   ObjMtlPathMode mtlPathMode;
 
   kdl_reflect_decl(ObjExportOptions, exportPath, mtlPathMode);

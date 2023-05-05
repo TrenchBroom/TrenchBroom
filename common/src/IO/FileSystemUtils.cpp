@@ -27,7 +27,8 @@
 namespace TrenchBroom::IO
 {
 
-std::optional<Path> safeMakeAbsolute(const Path& path, const MakeAbsolute& makeAbsolute)
+std::optional<std::filesystem::path> safeMakeAbsolute(
+  const std::filesystem::path& path, const MakeAbsolute& makeAbsolute)
 {
   try
   {
@@ -41,8 +42,8 @@ std::optional<Path> safeMakeAbsolute(const Path& path, const MakeAbsolute& makeA
 
 namespace
 {
-std::vector<Path> doFind(
-  const Path& path,
+std::vector<std::filesystem::path> doFind(
+  const std::filesystem::path& path,
   const GetDirectoryContents& getDirectoryContents,
   const GetPathInfo& getPathInfo,
   const PathMatcher& pathMatcher,
@@ -86,8 +87,8 @@ std::vector<Path> doFind(
 }
 } // namespace
 
-std::vector<Path> find(
-  const Path& path,
+std::vector<std::filesystem::path> find(
+  const std::filesystem::path& path,
   const GetDirectoryContents& getDirectoryContents,
   const GetPathInfo& getPathInfo,
   const PathMatcher& pathMatcher)
@@ -95,8 +96,8 @@ std::vector<Path> find(
   return doFind(path, getDirectoryContents, getPathInfo, pathMatcher, false);
 }
 
-std::vector<Path> findRecursively(
-  const Path& path,
+std::vector<std::filesystem::path> findRecursively(
+  const std::filesystem::path& path,
   const GetDirectoryContents& getDirectoryContents,
   const GetPathInfo& getPathInfo,
   const PathMatcher& pathMatcher)

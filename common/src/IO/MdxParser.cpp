@@ -22,7 +22,6 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
 #include "Exceptions.h"
-#include "IO/Path.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"
 #include "Renderer/GLVertex.h"
@@ -30,6 +29,7 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
 #include <string>
@@ -238,9 +238,9 @@ MdxParser::MdxParser(const std::string& name, const Reader& reader, const FileSy
 {
 }
 
-bool MdxParser::canParse(const Path& path, Reader reader)
+bool MdxParser::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension().string()) != ".mdx")
+  if (kdl::path_to_lower(path.extension()) != ".mdx")
   {
     return false;
   }
@@ -407,7 +407,7 @@ void MdxParser::loadSkins(
 
   for (const auto& skin : skins)
   {
-    const auto path = Path{skin}.relative_path();
+    const auto path = std::filesystem::path{skin}.relative_path();
     textures.push_back(loadSkin(path, m_fs, logger));
   }
 

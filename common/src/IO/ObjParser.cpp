@@ -24,7 +24,6 @@
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
@@ -35,6 +34,7 @@
 
 #include <vecmath/forward.h>
 
+#include <kdl/path_utils.h>
 #include <kdl/result.h>
 #include <kdl/string_utils.h>
 
@@ -281,14 +281,15 @@ std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger
 
 // -- Neverball --
 
-NvObjParser::NvObjParser(Path path, const std::string_view text, const FileSystem& fs)
+NvObjParser::NvObjParser(
+  std::filesystem::path path, const std::string_view text, const FileSystem& fs)
   : ObjParser{path.filename().string(), text}
   , m_path{std::move(path)}
   , m_fs{fs}
 {
 }
 
-bool NvObjParser::canParse(const Path& path)
+bool NvObjParser::canParse(const std::filesystem::path& path)
 {
   return kdl::str_to_lower(path.extension().string()) == ".obj";
 }
@@ -324,11 +325,11 @@ std::optional<Assets::Texture> NvObjParser::loadMaterial(const std::string& name
   // search directory. But there's raw pointers all over the Texture system, so without
   // further details on how memory is managed there, that's a bad idea.
 
-  auto texturePaths = std::vector<Path>{
-    Path{"textures"} / kdl::path_add_extension(Path{name}, ".png"),
-    Path{"textures"} / kdl::path_add_extension(Path{name}, ".jpg"),
-    kdl::path_add_extension(Path{name}, ".png"),
-    kdl::path_add_extension(Path{name}, ".jpg"),
+  const auto texturePaths = std::vector<std::filesystem::path>{
+    "textures" / kdl::path_add_extension(name, ".png"),
+    "textures" / kdl::path_add_extension(name, ".jpg"),
+    kdl::path_add_extension(name, ".png"),
+    kdl::path_add_extension(name, ".jpg"),
   };
 
 

@@ -26,7 +26,7 @@ namespace TrenchBroom
 namespace Renderer
 {
 FontDescriptor::FontDescriptor(
-  const IO::Path& path,
+  const std::filesystem::path& path,
   const size_t size,
   const unsigned char minChar,
   const unsigned char maxChar)
@@ -60,7 +60,7 @@ bool FontDescriptor::operator<(const FontDescriptor& other) const
   return compare(other) < 0;
 }
 
-const IO::Path& FontDescriptor::path() const
+const std::filesystem::path& FontDescriptor::path() const
 {
   return m_path;
 }

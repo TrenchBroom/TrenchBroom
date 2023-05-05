@@ -54,7 +54,7 @@ namespace WadEntryType
 // static const char WEPalette   = '@';
 }
 
-WadFileSystem::WadFileSystem(Path path)
+WadFileSystem::WadFileSystem(std::filesystem::path path)
   : ImageFileSystem{std::move(path)}
 {
   initialize();
@@ -112,7 +112,7 @@ void WadFileSystem::doReadDirectory()
       continue;
     }
 
-    const auto path = IO::Path{entryName + "." + entryType};
+    const auto path = std::filesystem::path{entryName + "." + entryType};
     auto file = std::make_shared<FileView>(path, m_file, entryAddress, entrySize);
     addFile(path, [file = std::move(file)]() { return file; });
   }

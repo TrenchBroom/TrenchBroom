@@ -24,6 +24,7 @@
 
 #include <vecmath/forward.h>
 
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -68,7 +69,7 @@ private:
 private: // notification
   void connectObservers();
   void cameraDidChange(const Renderer::Camera* camera);
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
 
 protected: // QWidget overrides
   void keyPressEvent(QKeyEvent* event) override;

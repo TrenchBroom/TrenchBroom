@@ -22,7 +22,6 @@
 #include "Ensure.h"
 #include "IO/DiskIO.h"
 #include "IO/IOUtils.h"
-#include "IO/Path.h"
 #include "IO/SystemPaths.h"
 
 #include <cassert>
@@ -32,12 +31,12 @@
 
 namespace TrenchBroom
 {
-FileLogger::FileLogger(const IO::Path& filePath)
+FileLogger::FileLogger(const std::filesystem::path& filePath)
   : m_file(nullptr)
 {
   const auto fixedPath = IO::Disk::fixPath(filePath);
   IO::Disk::ensureDirectoryExists(fixedPath.parent_path());
-  m_file = openPathAsFILE(fixedPath, "w");
+  m_file = IO::openPathAsFILE(fixedPath, "w");
   ensure(m_file != nullptr, "log file could not be opened");
 }
 

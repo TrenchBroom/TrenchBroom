@@ -29,6 +29,7 @@
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
 
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <optional>
@@ -62,14 +63,16 @@ class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader
 {
 public:
   const std::string& gameName() const;
-  bool isGamePathPreference(const IO::Path& prefPath) const;
+  bool isGamePathPreference(const std::filesystem::path& prefPath) const;
 
-  IO::Path gamePath() const;
-  void setGamePath(const IO::Path& gamePath, Logger& logger);
-  void setAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger);
+  std::filesystem::path gamePath() const;
+  void setGamePath(const std::filesystem::path& gamePath, Logger& logger);
+  void setAdditionalSearchPaths(
+    const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
 
-  using PathErrors = std::map<IO::Path, std::string>;
-  PathErrors checkAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const;
+  using PathErrors = std::map<std::filesystem::path, std::string>;
+  PathErrors checkAdditionalSearchPaths(
+    const std::vector<std::filesystem::path>& searchPaths) const;
 
   const CompilationConfig& compilationConfig();
 
@@ -106,9 +109,9 @@ public: // loading and writing map files
   std::unique_ptr<WorldNode> loadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
-    const IO::Path& path,
+    const std::filesystem::path& path,
     Logger& logger) const;
-  void writeMap(WorldNode& world, const IO::Path& path) const;
+  void writeMap(WorldNode& world, const std::filesystem::path& path) const;
   void exportMap(WorldNode& world, const IO::ExportOptions& options) const;
 
 public: // parsing and serializing objects
@@ -133,17 +136,19 @@ public: // texture collection handling
   void loadTextureCollections(Assets::TextureManager& textureManagerr) const;
 
   void reloadWads(
-    const IO::Path& documentPath, const std::vector<IO::Path>& wadPaths, Logger& logger);
+    const std::filesystem::path& documentPath,
+    const std::vector<std::filesystem::path>& wadPaths,
+    Logger& logger);
   void reloadShaders();
 
 public: // entity definition handling
-  bool isEntityDefinitionFile(const IO::Path& path) const;
+  bool isEntityDefinitionFile(const std::filesystem::path& path) const;
   std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
   Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(
     const Entity& entity) const;
-  IO::Path findEntityDefinitionFile(
+  std::filesystem::path findEntityDefinitionFile(
     const Assets::EntityDefinitionFileSpec& spec,
-    const std::vector<IO::Path>& searchPaths) const;
+    const std::vector<std::filesystem::path>& searchPaths) const;
 
 public: // mods
   std::vector<std::string> availableMods() const;
@@ -160,12 +165,12 @@ public: // compilation tools
 
 private: // subclassing interface
   virtual const std::string& doGameName() const = 0;
-  virtual IO::Path doGamePath() const = 0;
-  virtual void doSetGamePath(const IO::Path& gamePath, Logger& logger) = 0;
+  virtual std::filesystem::path doGamePath() const = 0;
+  virtual void doSetGamePath(const std::filesystem::path& gamePath, Logger& logger) = 0;
   virtual void doSetAdditionalSearchPaths(
-    const std::vector<IO::Path>& searchPaths, Logger& logger) = 0;
+    const std::vector<std::filesystem::path>& searchPaths, Logger& logger) = 0;
   virtual PathErrors doCheckAdditionalSearchPaths(
-    const std::vector<IO::Path>& searchPaths) const = 0;
+    const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
   virtual const CompilationConfig& doCompilationConfig() = 0;
   virtual size_t doMaxPropertyLength() const = 0;
@@ -179,9 +184,9 @@ private: // subclassing interface
   virtual std::unique_ptr<WorldNode> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
-    const IO::Path& path,
+    const std::filesystem::path& path,
     Logger& logger) const = 0;
-  virtual void doWriteMap(WorldNode& world, const IO::Path& path) const = 0;
+  virtual void doWriteMap(WorldNode& world, const std::filesystem::path& path) const = 0;
   virtual void doExportMap(WorldNode& world, const IO::ExportOptions& options) const = 0;
 
   virtual std::vector<Node*> doParseNodes(
@@ -204,19 +209,19 @@ private: // subclassing interface
 
   virtual void doLoadTextureCollections(Assets::TextureManager& textureManager) const = 0;
   virtual void doReloadWads(
-    const IO::Path& documentPath,
-    const std::vector<IO::Path>& wadPaths,
+    const std::filesystem::path& documentPath,
+    const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) = 0;
   virtual void doReloadShaders() = 0;
 
-  virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
+  virtual bool doIsEntityDefinitionFile(const std::filesystem::path& path) const = 0;
   virtual std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
     const = 0;
   virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(
     const Entity& entity) const = 0;
-  virtual IO::Path doFindEntityDefinitionFile(
+  virtual std::filesystem::path doFindEntityDefinitionFile(
     const Assets::EntityDefinitionFileSpec& spec,
-    const std::vector<IO::Path>& searchPaths) const = 0;
+    const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
   virtual std::vector<std::string> doAvailableMods() const = 0;
   virtual std::vector<std::string> doExtractEnabledMods(const Entity& entity) const = 0;

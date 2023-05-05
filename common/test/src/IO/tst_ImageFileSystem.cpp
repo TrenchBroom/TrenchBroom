@@ -26,6 +26,8 @@
 #include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
 
+#include <filesystem>
+
 #include "Catch2.h"
 
 namespace TrenchBroom
@@ -816,54 +818,52 @@ const auto cr8_czg_03_contents = std::vector<unsigned char>{
 
 TEST_CASE("Hierarchical ImageFileSystems")
 {
-  const auto fsTestPath = Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/"};
+  const auto fsTestPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"IdPakFileSystem",
-       std::shared_ptr<FileSystem>{
-         new IdPakFileSystem{fsTestPath / Path{"Pak/idpak.pak"}}}},
+       std::shared_ptr<FileSystem>{new IdPakFileSystem{fsTestPath / "Pak/idpak.pak"}}},
       {"DkPakFileSystem",
-       std::shared_ptr<FileSystem>{
-         new DkPakFileSystem{fsTestPath / Path{"Pak/dkpak.pak"}}}},
+       std::shared_ptr<FileSystem>{new DkPakFileSystem{fsTestPath / "Pak/dkpak.pak"}}},
       {"ZipFileSystem",
-       std::shared_ptr<FileSystem>{new ZipFileSystem{fsTestPath / Path{"Zip/zip.zip"}}}},
+       std::shared_ptr<FileSystem>{new ZipFileSystem{fsTestPath / "Zip/zip.zip"}}},
     }));
 
   CAPTURE(name);
 
   SECTION("pathInfo")
   {
-    CHECK(fs->pathInfo(Path{"pics"}) == PathInfo::Directory);
-    CHECK(fs->pathInfo(Path{"PICS"}) == PathInfo::Directory);
-    CHECK(fs->pathInfo(Path{"pics/tag1.pcx"}) == PathInfo::File);
-    CHECK(fs->pathInfo(Path{"PICS/TAG1.pcX"}) == PathInfo::File);
-    CHECK(fs->pathInfo(Path{"does_not_exist"}) == PathInfo::Unknown);
+    CHECK(fs->pathInfo("pics") == PathInfo::Directory);
+    CHECK(fs->pathInfo("PICS") == PathInfo::Directory);
+    CHECK(fs->pathInfo("pics/tag1.pcx") == PathInfo::File);
+    CHECK(fs->pathInfo("PICS/TAG1.pcX") == PathInfo::File);
+    CHECK(fs->pathInfo("does_not_exist") == PathInfo::Unknown);
   }
 
   SECTION("directoryContents")
   {
     CHECK_THAT(
-      fs->directoryContents(Path{}),
-      Catch::UnorderedEquals(std::vector<Path>{
-        Path{"pics"},
-        Path{"textures"},
-        Path{"amnet.cfg"},
-        Path{"bear.cfg"},
+      fs->directoryContents(""),
+      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+        "pics",
+        "textures",
+        "amnet.cfg",
+        "bear.cfg",
       }));
 
     CHECK_THAT(
-      fs->directoryContents(Path{"pics"}),
-      Catch::UnorderedEquals(std::vector<Path>{
-        Path{"tag1.pcx"},
-        Path{"tag2.pcx"},
+      fs->directoryContents("pics"),
+      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+        "tag1.pcx",
+        "tag2.pcx",
       }));
   }
 
   SECTION("openFile")
   {
-    const auto amnet_cfg = fs->openFile(Path{"amnet.cfg"});
+    const auto amnet_cfg = fs->openFile("amnet.cfg");
     CHECK(amnet_cfg != nullptr);
-    CHECK(amnet_cfg->path() == Path{"amnet.cfg"});
+    CHECK(amnet_cfg->path() == "amnet.cfg");
 
     auto reader = amnet_cfg->reader();
     CHECK(reader.readString(reader.size()) == R"(//
@@ -900,44 +900,42 @@ alias v90 "fov 90; sensitivity 13; bind mouse1 v30"
 
 TEST_CASE("Flat ImageFileSystems")
 {
-  const auto fsTestPath = Disk::getCurrentWorkingDir() / Path{"fixture/test/IO/"};
+  const auto fsTestPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"WadFileSystem",
-       std::shared_ptr<FileSystem>{
-         new WadFileSystem{fsTestPath / Path{"Wad/cr8_czg.wad"}}}},
+       std::shared_ptr<FileSystem>{new WadFileSystem{fsTestPath / "Wad/cr8_czg.wad"}}},
     }));
 
   CAPTURE(name);
 
   SECTION("pathInfo")
   {
-    CHECK(fs->pathInfo(Path{"cr8_czg_1.D"}) == PathInfo::File);
-    CHECK(fs->pathInfo(Path{"speedM_1.D"}) == PathInfo::File);
-    CHECK(fs->pathInfo(Path{"SpEeDm_1.D"}) == PathInfo::File);
-    CHECK(fs->pathInfo(Path{"does_not_exist"}) == PathInfo::Unknown);
+    CHECK(fs->pathInfo("cr8_czg_1.D") == PathInfo::File);
+    CHECK(fs->pathInfo("speedM_1.D") == PathInfo::File);
+    CHECK(fs->pathInfo("SpEeDm_1.D") == PathInfo::File);
+    CHECK(fs->pathInfo("does_not_exist") == PathInfo::Unknown);
   }
 
   SECTION("directoryContents")
   {
     CHECK_THAT(
-      fs->directoryContents(Path{}),
-      Catch::UnorderedEquals(std::vector<Path>{
-        Path{"blowjob_machine.D"}, Path{"bongs2.D"},        Path{"can-o-jam.D"},
-        Path{"cap4can-o-jam.D"},   Path{"coffin1.D"},       Path{"coffin2.D"},
-        Path{"cr8_czg_1.D"},       Path{"cr8_czg_2.D"},     Path{"cr8_czg_3.D"},
-        Path{"cr8_czg_4.D"},       Path{"cr8_czg_5.D"},     Path{"crackpipes.D"},
-        Path{"czg_backhole.D"},    Path{"czg_fronthole.D"}, Path{"dex_5.D"},
-        Path{"eat_me.D"},          Path{"for_sux-m-ass.D"}, Path{"lasthopeofhuman.D"},
-        Path{"polished_turd.D"},   Path{"speedM_1.D"},      Path{"u_get_this.D"},
+      fs->directoryContents(""),
+      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+        "blowjob_machine.D", "bongs2.D",          "can-o-jam.D",     "cap4can-o-jam.D",
+        "coffin1.D",         "coffin2.D",         "cr8_czg_1.D",     "cr8_czg_2.D",
+        "cr8_czg_3.D",       "cr8_czg_4.D",       "cr8_czg_5.D",     "crackpipes.D",
+        "czg_backhole.D",    "czg_fronthole.D",   "dex_5.D",         "eat_me.D",
+        "for_sux-m-ass.D",   "lasthopeofhuman.D", "polished_turd.D", "speedM_1.D",
+        "u_get_this.D",
       }));
   }
 
   SECTION("openFile")
   {
-    const auto cr8_czg_3_d = fs->openFile(Path{"cr8_czg_3.D"});
+    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D");
     CHECK(cr8_czg_3_d != nullptr);
-    CHECK(cr8_czg_3_d->path() == Path{"cr8_czg_3.D"});
+    CHECK(cr8_czg_3_d->path() == "cr8_czg_3.D");
 
     auto reader = cr8_czg_3_d->reader();
     auto contents = std::vector<unsigned char>(reader.size());

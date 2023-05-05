@@ -29,6 +29,7 @@
 #include "View/ToolBoxConnector.h"
 #include "View/UVViewHelper.h"
 
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -36,11 +37,6 @@ class QWidget;
 
 namespace TrenchBroom
 {
-namespace IO
-{
-class Path;
-}
-
 namespace Model
 {
 class BrushFaceHandle;
@@ -104,7 +100,7 @@ private:
   void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
   void gridDidChange();
   void cameraDidChange(const Renderer::Camera* camera);
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
 
   void doUpdateViewport(int x, int y, int width, int height) override;
   void doRender() override;

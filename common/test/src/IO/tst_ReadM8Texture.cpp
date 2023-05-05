@@ -25,11 +25,11 @@
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/Path.h"
 #include "IO/ReadM8Texture.h"
 
 #include <kdl/result.h>
 
+#include <filesystem>
 #include <memory>
 
 #include "Catch2.h"
@@ -41,7 +41,7 @@ namespace IO
 TEST_CASE("ReadM8TextureTest.testBasicLoading")
 {
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
-  const auto file = fs.openFile(Path{"fixture/test/IO/M8/test.m8"});
+  const auto file = fs.openFile("fixture/test/IO/M8/test.m8");
 
   auto reader = file->reader().buffer();
   auto texture = readM8Texture("test", reader).value();

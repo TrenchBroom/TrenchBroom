@@ -35,9 +35,9 @@ namespace TrenchBroom::View
 {
 CrashDialog::CrashDialog(
   const std::string& reason,
-  const IO::Path& reportPath,
-  const IO::Path& mapPath,
-  const IO::Path& logPath)
+  const std::filesystem::path& reportPath,
+  const std::filesystem::path& mapPath,
+  const std::filesystem::path& logPath)
   : QDialog{}
 {
   createGui(reason, reportPath, mapPath, logPath);
@@ -45,9 +45,9 @@ CrashDialog::CrashDialog(
 
 void CrashDialog::createGui(
   const std::string& reason,
-  const IO::Path& reportPath,
-  const IO::Path& mapPath,
-  const IO::Path& logPath)
+  const std::filesystem::path& reportPath,
+  const std::filesystem::path& mapPath,
+  const std::filesystem::path& logPath)
 {
   setWindowTitle(tr("Crash"));
 

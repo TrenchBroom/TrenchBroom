@@ -25,11 +25,11 @@
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/Path.h"
 #include "IO/ReadDdsTexture.h"
 
 #include <kdl/result.h>
 
+#include <filesystem>
 #include <memory>
 
 #include "Catch2.h"
@@ -40,10 +40,10 @@ namespace IO
 {
 static Assets::Texture loadTexture(const std::string& name)
 {
-  const auto ddsPath = Disk::getCurrentWorkingDir() / Path("fixture/test/IO/Dds/");
+  const auto ddsPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/Dds/";
   auto diskFS = DiskFileSystem{ddsPath};
 
-  const auto file = diskFS.openFile(Path{name});
+  const auto file = diskFS.openFile(name);
   auto reader = file->reader().buffer();
   return readDdsTexture(name, reader).value();
 }

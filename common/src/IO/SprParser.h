@@ -21,6 +21,7 @@
 
 #include "IO/EntityModelParser.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -35,7 +36,6 @@ namespace IO
 {
 class File;
 class FileSystem;
-class Path;
 class Reader;
 
 class SprParser : public EntityModelParser
@@ -48,7 +48,7 @@ private:
 public:
   SprParser(std::string name, const Reader& reader, const Assets::Palette& palette);
 
-  static bool canParse(const Path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

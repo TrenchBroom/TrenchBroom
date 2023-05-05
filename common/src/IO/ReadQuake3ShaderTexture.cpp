@@ -31,6 +31,7 @@
 #include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
+#include <filesystem>
 #include <optional>
 #include <vector>
 
@@ -40,7 +41,8 @@ namespace TrenchBroom::IO
 namespace
 {
 
-std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
+std::optional<std::filesystem::path> findImage(
+  const std::filesystem::path& texturePath, const FileSystem& fs)
 {
   static const auto imageExtensions =
     std::vector<std::string>{".tga", ".png", ".jpg", ".jpeg"};
@@ -72,7 +74,7 @@ std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
   return std::nullopt;
 }
 
-std::optional<Path> findImagePath(
+std::optional<std::filesystem::path> findImagePath(
   const Assets::Quake3Shader& shader, const FileSystem& fs)
 {
   if (const auto path = findImage(shader.editorImage, fs))
@@ -99,7 +101,7 @@ std::optional<Path> findImagePath(
 }
 
 kdl::result<Assets::Texture, ReadTextureError> loadTextureImage(
-  std::string shaderName, const Path& imagePath, const FileSystem& fs)
+  std::string shaderName, const std::filesystem::path& imagePath, const FileSystem& fs)
 {
   auto imageName = imagePath.filename();
   if (fs.pathInfo(imagePath) != PathInfo::File)

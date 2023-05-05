@@ -300,7 +300,7 @@ void GameDialog::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &GameDialog::preferenceDidChange);
 }
 
-void GameDialog::preferenceDidChange(const IO::Path& /* path */)
+void GameDialog::preferenceDidChange(const std::filesystem::path& /* path */)
 {
   m_gameListBox->reloadGameInfos();
   m_okButton->setEnabled(!currentGameName().empty());

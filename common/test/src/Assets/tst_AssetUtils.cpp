@@ -21,8 +21,8 @@
 
 #include "Assets/AssetUtils.h"
 #include "Exceptions.h"
-#include "IO/Path.h"
 
+#include <filesystem>
 #include <optional>
 
 #include "Catch2.h"
@@ -35,7 +35,7 @@ TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
 {
   TestLogger logger;
 
-  const auto expected = ModelSpecification(IO::Path("test/test"), 1, 2);
+  const auto expected = ModelSpecification("test/test", 1, 2);
   std::optional<ModelSpecification> actual;
 
   // regular execution is fine

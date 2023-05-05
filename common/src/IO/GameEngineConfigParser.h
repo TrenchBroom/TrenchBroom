@@ -25,6 +25,7 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -33,12 +34,10 @@ namespace TrenchBroom
 {
 namespace IO
 {
-class Path;
-
 class GameEngineConfigParser : public ConfigParserBase
 {
 public:
-  GameEngineConfigParser(std::string_view str, Path path);
+  GameEngineConfigParser(std::string_view str, std::filesystem::path path);
 
   Model::GameEngineConfig parse();
 

@@ -24,6 +24,7 @@
 #include <kdl/overload.h>
 #include <kdl/reflection_decl.h>
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <variant>
@@ -40,7 +41,7 @@ struct Object
   kdl_reflect_decl(Object, id);
 };
 
-std::shared_ptr<File> makeObjectFile(Path path, int id);
+std::shared_ptr<File> makeObjectFile(std::filesystem::path path, int id);
 
 struct FileEntry
 {
@@ -64,17 +65,18 @@ class TestFileSystem : public FileSystem
 {
 private:
   Entry m_root;
-  Path m_absolutePathPrefix;
+  std::filesystem::path m_absolutePathPrefix;
 
 public:
-  explicit TestFileSystem(Entry root, Path absolutePathPrefix = Path{"/"});
+  explicit TestFileSystem(Entry root, std::filesystem::path absolutePathPrefix = {"/"});
 
 private:
-  const Entry* findEntry(Path path) const;
-  Path doMakeAbsolute(const Path& path) const override;
-  PathInfo doGetPathInfo(const Path& path) const override;
-  std::vector<Path> doGetDirectoryContents(const Path& path) const override;
-  std::shared_ptr<File> doOpenFile(const Path& path) const override;
+  const Entry* findEntry(std::filesystem::path path) const;
+  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
+  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
+  std::vector<std::filesystem::path> doGetDirectoryContents(
+    const std::filesystem::path& path) const override;
+  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 };
 
 } // namespace IO

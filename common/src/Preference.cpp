@@ -76,7 +76,8 @@ bool PreferenceSerializer::readFromJson(const QJsonValue& in, int& out) const
   return true;
 }
 
-bool PreferenceSerializer::readFromJson(const QJsonValue& in, IO::Path& out) const
+bool PreferenceSerializer::readFromJson(
+  const QJsonValue& in, std::filesystem::path& out) const
 {
   if (!in.isString())
   {
@@ -150,7 +151,7 @@ QJsonValue PreferenceSerializer::writeToJson(const int in) const
   return {in};
 }
 
-QJsonValue PreferenceSerializer::writeToJson(const IO::Path& in) const
+QJsonValue PreferenceSerializer::writeToJson(const std::filesystem::path& in) const
 {
   return toJson(in, [](auto& lhs, const auto& rhs) { lhs << IO::pathAsQString(rhs); });
 }

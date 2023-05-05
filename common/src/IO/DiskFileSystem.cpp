@@ -24,6 +24,7 @@
 #include "IO/File.h"
 #include "IO/PathInfo.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -33,7 +34,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists)
+DiskFileSystem::DiskFileSystem(const std::filesystem::path& root, const bool ensureExists)
   : m_root{root.lexically_normal()}
 {
   if (ensureExists && Disk::pathInfo(m_root) != PathInfo::Directory)
@@ -42,38 +43,41 @@ DiskFileSystem::DiskFileSystem(const Path& root, const bool ensureExists)
   }
 }
 
-const Path& DiskFileSystem::root() const
+const std::filesystem::path& DiskFileSystem::root() const
 {
   return m_root;
 }
 
-Path DiskFileSystem::doMakeAbsolute(const Path& path) const
+std::filesystem::path DiskFileSystem::doMakeAbsolute(
+  const std::filesystem::path& path) const
 {
   const auto canonicalPath = path.lexically_normal();
-  if (!canonicalPath.empty() && kdl::path_front(canonicalPath) == Path{".."})
+  if (!canonicalPath.empty() && kdl::path_front(canonicalPath).string() == "..")
   {
     throw FileSystemException{"Cannot make absolute path of '" + path.string() + "'"};
   }
   return canonicalPath.empty() ? m_root : m_root / canonicalPath;
 }
 
-PathInfo DiskFileSystem::doGetPathInfo(const Path& path) const
+PathInfo DiskFileSystem::doGetPathInfo(const std::filesystem::path& path) const
 {
   return Disk::pathInfo(makeAbsolute(path));
 }
 
-std::vector<Path> DiskFileSystem::doGetDirectoryContents(const Path& path) const
+std::vector<std::filesystem::path> DiskFileSystem::doGetDirectoryContents(
+  const std::filesystem::path& path) const
 {
   return Disk::directoryContents(makeAbsolute(path));
 }
 
-std::shared_ptr<File> DiskFileSystem::doOpenFile(const Path& path) const
+std::shared_ptr<File> DiskFileSystem::doOpenFile(const std::filesystem::path& path) const
 {
   auto file = Disk::openFile(makeAbsolute(path));
   return std::make_shared<FileView>(path, file, 0u, file->size());
 }
 
-WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool create)
+WritableDiskFileSystem::WritableDiskFileSystem(
+  const std::filesystem::path& root, const bool create)
   : DiskFileSystem{root, !create}
 {
   if (create && Disk::pathInfo(m_root) != PathInfo::Directory)
@@ -82,29 +86,34 @@ WritableDiskFileSystem::WritableDiskFileSystem(const Path& root, const bool crea
   }
 }
 
-void WritableDiskFileSystem::doCreateFile(const Path& path, const std::string& contents)
+void WritableDiskFileSystem::doCreateFile(
+  const std::filesystem::path& path, const std::string& contents)
 {
   Disk::createFile(makeAbsolute(path), contents);
 }
 
-void WritableDiskFileSystem::doCreateDirectory(const Path& path)
+void WritableDiskFileSystem::doCreateDirectory(const std::filesystem::path& path)
 {
   Disk::createDirectory(makeAbsolute(path));
 }
 
-void WritableDiskFileSystem::doDeleteFile(const Path& path)
+void WritableDiskFileSystem::doDeleteFile(const std::filesystem::path& path)
 {
   Disk::deleteFile(makeAbsolute(path));
 }
 
 void WritableDiskFileSystem::doCopyFile(
-  const Path& sourcePath, const Path& destPath, const bool overwrite)
+  const std::filesystem::path& sourcePath,
+  const std::filesystem::path& destPath,
+  const bool overwrite)
 {
   Disk::copyFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
 }
 
 void WritableDiskFileSystem::doMoveFile(
-  const Path& sourcePath, const Path& destPath, const bool overwrite)
+  const std::filesystem::path& sourcePath,
+  const std::filesystem::path& destPath,
+  const bool overwrite)
 {
   Disk::moveFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
 }

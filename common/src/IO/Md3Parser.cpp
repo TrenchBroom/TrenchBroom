@@ -29,6 +29,7 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
 #include <string>
@@ -62,7 +63,7 @@ Md3Parser::Md3Parser(const std::string& name, const Reader& reader, const FileSy
 {
 }
 
-bool Md3Parser::canParse(const Path& path, Reader reader)
+bool Md3Parser::canParse(const std::filesystem::path& path, Reader reader)
 {
   if (kdl::str_to_lower(path.extension().string()) != ".md3")
   {
@@ -270,9 +271,10 @@ std::vector<Md3Parser::Md3Triangle> Md3Parser::parseTriangles(
   return result;
 }
 
-std::vector<Path> Md3Parser::parseShaders(Reader reader, const size_t shaderCount)
+std::vector<std::filesystem::path> Md3Parser::parseShaders(
+  Reader reader, const size_t shaderCount)
 {
-  std::vector<Path> result;
+  std::vector<std::filesystem::path> result;
   result.reserve(shaderCount);
   for (size_t i = 0; i < shaderCount; ++i)
   {
@@ -331,7 +333,9 @@ std::vector<Assets::EntityModelVertex> Md3Parser::buildVertices(
 }
 
 void Md3Parser::loadSurfaceSkins(
-  Assets::EntityModelSurface& surface, const std::vector<Path>& shaders, Logger& logger)
+  Assets::EntityModelSurface& surface,
+  const std::vector<std::filesystem::path>& shaders,
+  Logger& logger)
 {
   std::vector<Assets::Texture> textures;
   textures.reserve(shaders.size());
@@ -344,7 +348,8 @@ void Md3Parser::loadSurfaceSkins(
   surface.setSkins(std::move(textures));
 }
 
-Assets::Texture Md3Parser::loadShader(Logger& logger, const Path& path) const
+Assets::Texture Md3Parser::loadShader(
+  Logger& logger, const std::filesystem::path& path) const
 {
   const auto shaderPath = kdl::path_remove_extension(path);
   return IO::loadShader(shaderPath, m_fs, logger);

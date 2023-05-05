@@ -137,7 +137,7 @@ const EntityModelFrame* EntityModelManager::frame(
   }
 }
 
-EntityModel* EntityModelManager::model(const IO::Path& path) const
+EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
 {
   if (path.empty())
   {
@@ -176,7 +176,7 @@ EntityModel* EntityModelManager::model(const IO::Path& path) const
   }
 }
 
-EntityModel* EntityModelManager::safeGetModel(const IO::Path& path) const
+EntityModel* EntityModelManager::safeGetModel(const std::filesystem::path& path) const
 {
   try
   {
@@ -188,7 +188,8 @@ EntityModel* EntityModelManager::safeGetModel(const IO::Path& path) const
   }
 }
 
-std::unique_ptr<EntityModel> EntityModelManager::loadModel(const IO::Path& path) const
+std::unique_ptr<EntityModel> EntityModelManager::loadModel(
+  const std::filesystem::path& path) const
 {
   ensure(m_loader != nullptr, "loader is null");
   return m_loader->initializeModel(path, m_logger);

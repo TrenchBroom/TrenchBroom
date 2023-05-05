@@ -194,7 +194,7 @@ void EntityBrowser::entityDefinitionsDidChange()
   reload();
 }
 
-void EntityBrowser::preferenceDidChange(const IO::Path& path)
+void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->isGamePathPreference(path))

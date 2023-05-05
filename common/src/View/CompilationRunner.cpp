@@ -22,7 +22,6 @@
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
-#include "IO/Path.h"
 #include "IO/PathMatcher.h"
 #include "IO/PathQt.h"
 #include "Model/CompilationProfile.h"
@@ -35,6 +34,7 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <filesystem>
 #include <string>
 
 #include <QDir>
@@ -92,7 +92,7 @@ void CompilationExportMapTaskRunner::doExecute()
 
   try
   {
-    const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
+    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
     try
     {
       m_context << "#### Exporting map file '" << IO::pathAsQString(targetPath) << "'\n";
@@ -137,8 +137,8 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
   try
   {
-    const auto sourcePath = IO::Path{interpolate(m_task.sourceSpec)};
-    const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
+    const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
+    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
     const auto sourceDirPath = sourcePath.parent_path();
     const auto sourcePathMatcher =
@@ -150,6 +150,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
       const auto sourceStrs = kdl::vec_transform(
         sourcePaths, [](const auto& path) { return "'" + path.string() + "'"; });
       const auto sourceListQStr = QString::fromStdString(kdl::str_join(sourceStrs, ", "));
+
       m_context << "#### Copying to '" << IO::pathAsQString(targetPath)
                 << "/': " << sourceListQStr << "\n";
       if (!m_context.test())
@@ -190,8 +191,8 @@ void CompilationRenameFileTaskRunner::doExecute()
 
   try
   {
-    const auto sourcePath = IO::Path{interpolate(m_task.sourceSpec)};
-    const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
+    const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
+    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
     try
     {
@@ -234,7 +235,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
   try
   {
-    const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
+    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
     const auto targetDirPath = targetPath.parent_path();
     const auto targetPathMatcher =
@@ -357,7 +358,7 @@ void CompilationRunToolTaskRunner::startProcess()
 
 std::string CompilationRunToolTaskRunner::cmd()
 {
-  const auto toolPath = IO::Path{interpolate(m_task.toolSpec)};
+  const auto toolPath = std::filesystem::path{interpolate(m_task.toolSpec)};
   const auto parameters = interpolate(m_task.parameterSpec);
   if (parameters.empty())
   {

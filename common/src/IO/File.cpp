@@ -26,20 +26,20 @@ namespace TrenchBroom
 {
 namespace IO
 {
-File::File(Path path)
+File::File(std::filesystem::path path)
   : m_path{std::move(path)}
 {
 }
 
 File::~File() = default;
 
-const Path& File::path() const
+const std::filesystem::path& File::path() const
 {
   return m_path;
 }
 
 OwningBufferFile::OwningBufferFile(
-  Path path, std::unique_ptr<char[]> buffer, const size_t size)
+  std::filesystem::path path, std::unique_ptr<char[]> buffer, const size_t size)
   : File{std::move(path)}
   , m_buffer{std::move(buffer)}
   , m_size{size}
@@ -56,7 +56,8 @@ size_t OwningBufferFile::size() const
   return m_size;
 }
 
-NonOwningBufferFile::NonOwningBufferFile(Path path, const char* begin, const char* end)
+NonOwningBufferFile::NonOwningBufferFile(
+  std::filesystem::path path, const char* begin, const char* end)
   : File{std::move(path)}
   , m_begin{begin}
   , m_end{end}
@@ -77,7 +78,7 @@ size_t NonOwningBufferFile::size() const
   return static_cast<size_t>(m_end - m_begin);
 }
 
-CFile::CFile(Path path)
+CFile::CFile(std::filesystem::path path)
   : File{std::move(path)}
 {
   m_file = openPathAsFILE(this->path(), "rb");
@@ -112,7 +113,10 @@ std::FILE* CFile::file() const
 }
 
 FileView::FileView(
-  Path path, std::shared_ptr<File> file, const size_t offset, const size_t length)
+  std::filesystem::path path,
+  std::shared_ptr<File> file,
+  const size_t offset,
+  const size_t length)
   : File{std::move(path)}
   , m_file{std::move(file)}
   , m_offset{offset}

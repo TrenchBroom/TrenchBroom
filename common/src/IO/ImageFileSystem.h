@@ -20,10 +20,10 @@
 #pragma once
 
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 
 #include <kdl/string_compare.h>
 
+#include <filesystem>
 #include <functional>
 #include <map>
 #include <memory>
@@ -40,7 +40,7 @@ using GetImageFile = std::function<std::shared_ptr<File>()>;
 
 struct ImageFileEntry
 {
-  Path name;
+  std::filesystem::path name;
   GetImageFile getFile;
 };
 
@@ -49,17 +49,17 @@ using ImageEntry = std::variant<ImageDirectoryEntry, ImageFileEntry>;
 
 struct ImageDirectoryEntry
 {
-  Path name;
+  std::filesystem::path name;
   std::vector<ImageEntry> entries;
 };
 
 class ImageFileSystemBase : public FileSystem
 {
 protected:
-  Path m_path;
+  std::filesystem::path m_path;
   ImageEntry m_root;
 
-  explicit ImageFileSystemBase(Path path);
+  explicit ImageFileSystemBase(std::filesystem::path path);
 
 public:
   ~ImageFileSystemBase() override;
@@ -71,13 +71,14 @@ public:
 
 protected:
   void initialize();
-  void addFile(const Path& path, GetImageFile getFile);
+  void addFile(const std::filesystem::path& path, GetImageFile getFile);
 
 private:
-  Path doMakeAbsolute(const Path& path) const override;
-  PathInfo doGetPathInfo(const Path& path) const override;
-  std::vector<Path> doGetDirectoryContents(const Path& path) const override;
-  std::shared_ptr<File> doOpenFile(const Path& path) const override;
+  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
+  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
+  std::vector<std::filesystem::path> doGetDirectoryContents(
+    const std::filesystem::path& path) const override;
+  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 
   virtual void doReadDirectory() = 0;
 };
@@ -88,7 +89,7 @@ protected:
   std::shared_ptr<CFile> m_file;
 
 protected:
-  explicit ImageFileSystem(Path path);
+  explicit ImageFileSystem(std::filesystem::path path);
 };
 } // namespace IO
 } // namespace TrenchBroom

@@ -19,10 +19,9 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
 #include <QAbstractTableModel>
 
+#include <filesystem>
 #include <vector>
 
 class QObject;
@@ -43,10 +42,10 @@ private:
     /**
      * Path displayed to the user, unrelated to the preference path.
      */
-    const IO::Path displayPath;
+    const std::filesystem::path displayPath;
     const Action& action;
 
-    ActionInfo(const IO::Path& i_displayPath, const Action& i_action);
+    ActionInfo(const std::filesystem::path& i_displayPath, const Action& i_action);
   };
 
   MapDocument* m_document;
