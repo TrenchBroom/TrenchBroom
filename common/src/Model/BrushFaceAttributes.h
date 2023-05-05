@@ -21,9 +21,9 @@
 
 #include "Color.h"
 
-#include <vecmath/forward.h>
-
 #include <kdl/reflection_decl.h>
+
+#include <vecmath/forward.h>
 
 #include <optional>
 #include <string>

@@ -25,16 +25,15 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
-#include <vecmath/bbox.h>
-
 #include <kdl/result.h>
 
-#include <vector>
+#include <vecmath/bbox.h>
 
-#include "TestUtils.h"
+#include <vector>
 
 #include "Catch2.h"
 

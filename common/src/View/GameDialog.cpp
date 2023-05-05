@@ -19,6 +19,12 @@
 
 #include "GameDialog.h"
 
+#include <QBoxLayout>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QPushButton>
+
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 #include "PreferenceManager.h"
@@ -27,12 +33,6 @@
 #include "View/GameListBox.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
-
-#include <QBoxLayout>
-#include <QComboBox>
-#include <QDialogButtonBox>
-#include <QLabel>
-#include <QPushButton>
 
 #include <cassert>
 #include <string>

@@ -23,6 +23,7 @@
 #include "FloatType.h"
 
 #include <kdl/reflection_decl.h>
+
 #include <vecmath/vec.h>
 
 #include <filesystem>

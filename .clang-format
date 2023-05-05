@@ -71,3 +71,43 @@ SpacesInParentheses: false
 SpacesInSquareBrackets: false
 Standard: Cpp11
 UseTab: Never
+
+# We must include Qt headers first because of this issue:
+# https://bugreports.qt.io/browse/QTBUG-73263
+# The following configuration groups includes like so:
+# - main include file
+# - Qt includes
+# - TB includes
+# - kdl lib
+# - vecmath lib
+# - std lib
+# - anything else
+# - catch2
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex:           '^<GL/glew\.h>$'
+    Priority:        1
+    CaseSensitive:   true
+  - Regex:           '^<Q.*'
+    Priority:        2
+    CaseSensitive:   true
+  - Regex:           '^<kdl/.*'
+    Priority:        4
+  - Regex:           '^"kdl/.*'
+    Priority:        4
+  - Regex:           '^<vecmath/.*'
+    Priority:        5
+  - Regex:           '^"vecmath/.*'
+    Priority:        5
+  - Regex:           '^<catch2/.*'
+    Priority:        10
+  - Regex:           '^"Catch2.h"'
+    Priority:        10
+  - Regex:           '^".*'
+    Priority:        3
+  - Regex:           '^<.+/.*'
+    Priority:        7
+  - Regex:           '^<.*'
+    Priority:        8
+  - Regex:           '^.*'
+    Priority:        9

@@ -24,8 +24,8 @@
 #include "IO/PathInfo.h"
 #include "Macros.h"
 
-#include "kdl/string_compare.h"
 #include <kdl/path_utils.h>
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 #include <ostream>

@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "View/TitleBar.h"
-
 #include <QWidget>
+
+#include "View/TitleBar.h"
 
 class QLabel;
 

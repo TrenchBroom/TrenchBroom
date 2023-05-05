@@ -18,6 +18,7 @@
  */
 
 #include "SetCurrentLayerCommand.h"
+
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom

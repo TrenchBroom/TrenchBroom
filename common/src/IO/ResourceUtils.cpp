@@ -19,6 +19,17 @@
 
 #include "ResourceUtils.h"
 
+#include <QApplication>
+#include <QColor>
+#include <QDebug>
+#include <QIcon>
+#include <QImage>
+#include <QPainter>
+#include <QPalette>
+#include <QPixmap>
+#include <QSvgRenderer>
+#include <QThread>
+
 #include "Assets/Texture.h"
 #include "Ensure.h"
 #include "IO/File.h"
@@ -33,17 +44,6 @@
 
 #include <map>
 #include <string>
-
-#include <QApplication>
-#include <QColor>
-#include <QDebug>
-#include <QIcon>
-#include <QImage>
-#include <QPainter>
-#include <QPalette>
-#include <QPixmap>
-#include <QSvgRenderer>
-#include <QThread>
 
 namespace TrenchBroom
 {

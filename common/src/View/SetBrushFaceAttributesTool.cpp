@@ -19,6 +19,7 @@
 
 #include "SetBrushFaceAttributesTool.h"
 
+#include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -36,8 +37,6 @@
 #include <kdl/memory_utils.h>
 
 #include <vector>
-
-#include "Ensure.h"
 
 namespace TrenchBroom
 {

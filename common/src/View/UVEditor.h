@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "NotifierConnection.h"
 
 #include <memory>
-
-#include <QWidget>
 
 class QSpinBox;
 class QWidget;

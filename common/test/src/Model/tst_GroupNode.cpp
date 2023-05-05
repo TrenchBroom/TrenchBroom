@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestUtils.h"
-
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -32,14 +30,15 @@
 #include "Model/PatchNode.h"
 #include "Model/UpdateLinkedGroupsError.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
+
+#include <kdl/result.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/mat_io.h>
-
-#include <kdl/result.h>
 
 #include <memory>
 #include <vector>

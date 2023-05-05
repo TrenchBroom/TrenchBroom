@@ -17,13 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
 #include "Exceptions.h"
 #include "IO/WorldReader.h"
+#include "MapDocumentTest.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
@@ -34,9 +32,10 @@
 #include "Model/PatchNode.h"
 #include "Model/TestGame.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include "kdl/map_utils.h"
+#include <kdl/map_utils.h>
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 

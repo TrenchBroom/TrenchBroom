@@ -19,11 +19,11 @@
 
 #include "InfoPanel.h"
 
+#include <QVBoxLayout>
+
 #include "View/Console.h"
 #include "View/IssueBrowser.h"
 #include "View/TabBook.h"
-
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {

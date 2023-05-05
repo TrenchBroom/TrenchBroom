@@ -19,12 +19,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Preference.h"
 
-#include "Color.h"
-#include "IO/PathQt.h"
-
 #include <QJsonObject>
 #include <QJsonValue>
 #include <QKeySequence>
+
+#include "Color.h"
+#include "IO/PathQt.h"
 
 namespace TrenchBroom
 {

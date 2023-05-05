@@ -19,6 +19,8 @@
 
 #include "EntityInspector.h"
 
+#include <QVBoxLayout>
+
 #include "View/BorderLine.h"
 #include "View/CollapsibleTitledPanel.h"
 #include "View/EntityBrowser.h"
@@ -28,8 +30,6 @@
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 #include "View/TitledPanel.h"
-
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {

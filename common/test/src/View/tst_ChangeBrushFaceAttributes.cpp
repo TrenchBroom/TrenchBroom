@@ -27,10 +27,9 @@
 #include "Model/LayerNode.h"
 #include "Model/TestGame.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
-
-#include "TestUtils.h"
 
 #include <filesystem>
 

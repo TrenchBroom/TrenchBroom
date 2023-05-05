@@ -19,11 +19,11 @@
 
 #include "AboutDialog.h"
 
-#include "View/AppInfoPanel.h"
-#include "View/QtUtils.h"
-
 #include <QHBoxLayout>
 #include <QLabel>
+
+#include "View/AppInfoPanel.h"
+#include "View/QtUtils.h"
 
 namespace TrenchBroom
 {

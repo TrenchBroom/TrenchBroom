@@ -29,6 +29,7 @@
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "octree.h"
 
 #include <kdl/result.h>
@@ -40,7 +41,6 @@
 #include <vecmath/mat_io.h>
 
 #include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {

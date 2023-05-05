@@ -19,10 +19,10 @@
 
 #include "FlashSelectionAnimation.h"
 
+#include <QWidget>
+
 #include "Color.h"
 #include "Renderer/MapRenderer.h"
-
-#include <QWidget>
 
 namespace TrenchBroom
 {

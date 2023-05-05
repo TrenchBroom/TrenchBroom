@@ -17,10 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestLogger.h"
-
 #include "Assets/AssetUtils.h"
 #include "Exceptions.h"
+#include "TestLogger.h"
 
 #include <filesystem>
 #include <optional>

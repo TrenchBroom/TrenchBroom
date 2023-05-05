@@ -19,12 +19,12 @@
 
 #include "FlagsEditor.h"
 
+#include <QCheckBox>
+#include <QGridLayout>
+
 #include "Ensure.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
-
-#include <QCheckBox>
-#include <QGridLayout>
 
 #include <cassert>
 

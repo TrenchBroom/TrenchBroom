@@ -18,6 +18,7 @@
  */
 
 #include "SetLockStateCommand.h"
+
 #include "Macros.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"

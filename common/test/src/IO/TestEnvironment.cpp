@@ -19,16 +19,16 @@
 
 #include "TestEnvironment.h"
 
+#include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
+
 #include "IO/PathQt.h"
 #include "Macros.h"
 #include "Uuid.h"
 
 #include <string>
-
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QTextStream>
 
 #include "Catch2.h"
 

@@ -18,14 +18,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/File.h"
-#include "TestUtils.h"
-
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/ReadDdsTexture.h"
+#include "TestUtils.h"
 
 #include <kdl/result.h>
 

@@ -19,6 +19,13 @@
 
 #include "CompilationProfileEditor.h"
 
+#include <QCompleter>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QMenu>
+#include <QStackedWidget>
+#include <QToolButton>
+
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 #include "View/BorderLine.h"
@@ -29,15 +36,8 @@
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 
-#include "kdl/vector_utils.h"
 #include <kdl/memory_utils.h>
-
-#include <QCompleter>
-#include <QFormLayout>
-#include <QLineEdit>
-#include <QMenu>
-#include <QStackedWidget>
-#include <QToolButton>
+#include <kdl/vector_utils.h>
 
 namespace TrenchBroom
 {

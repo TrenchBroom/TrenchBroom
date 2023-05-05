@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestGame.h"
+
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/TextureManager.h"
@@ -44,8 +46,6 @@
 #include <vector>
 
 #include "Catch2.h"
-
-#include "TestGame.h"
 
 namespace TrenchBroom
 {

@@ -19,8 +19,6 @@
  */
 
 #include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -33,6 +31,11 @@
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "TestUtils.h"
+
+#include <kdl/result.h>
+#include <kdl/vector_utils.h>
+#include <kdl/zip_iterator.h>
 
 #include <vecmath/approx.h>
 #include <vecmath/mat.h>
@@ -40,10 +43,6 @@
 #include <vecmath/mat_io.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
-#include <kdl/zip_iterator.h>
 
 #include <vector>
 

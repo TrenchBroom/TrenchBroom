@@ -23,13 +23,13 @@
 #include "IO/File.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/TextureUtils.h"
+#include "Logger.h"
 
 #include <kdl/result.h>
 
 #include <filesystem>
 
 #include "Catch2.h"
-#include "Logger.h"
 
 namespace TrenchBroom
 {

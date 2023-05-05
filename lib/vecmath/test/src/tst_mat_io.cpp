@@ -18,12 +18,12 @@
  DEALINGS IN THE SOFTWARE.
 */
 
+#include "test_utils.h"
+
 #include <vecmath/forward.h>
 #include <vecmath/mat_io.h>
 
 #include <sstream>
-
-#include "test_utils.h"
 
 #include <catch2/catch.hpp>
 

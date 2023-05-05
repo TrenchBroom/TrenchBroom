@@ -18,10 +18,9 @@
  */
 
 #include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "TestUtils.h"
 
 #include <vecmath/mat_ext.h>
 

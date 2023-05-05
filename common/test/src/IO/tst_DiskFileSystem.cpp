@@ -17,6 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QFileInfo>
+#include <QString>
+
 #include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
@@ -28,9 +31,6 @@
 
 #include <algorithm>
 #include <filesystem>
-
-#include <QFileInfo>
-#include <QString>
 
 #include "Catch2.h"
 

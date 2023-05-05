@@ -19,15 +19,15 @@
 
 #include "ControlListBox.h"
 
-#include "View/BorderLine.h"
-#include "View/QtUtils.h"
-#include "View/ViewConstants.h"
-
 #include <QLabel>
 #include <QListWidget>
 #include <QMouseEvent>
 #include <QSizePolicy>
 #include <QVBoxLayout>
+
+#include "View/BorderLine.h"
+#include "View/QtUtils.h"
+#include "View/ViewConstants.h"
 
 #include <iostream>
 

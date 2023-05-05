@@ -18,11 +18,12 @@
  */
 
 #include "Preferences.h"
+
+#include <QKeySequence>
+
 #include "View/MapViewLayout.h"
 
 #include <vecmath/util.h>
-
-#include <QKeySequence>
 
 namespace TrenchBroom
 {

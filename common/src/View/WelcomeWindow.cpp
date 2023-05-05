@@ -19,6 +19,11 @@
 
 #include "WelcomeWindow.h"
 
+#include <QCloseEvent>
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QPushButton>
+
 #include "IO/PathQt.h"
 #include "TrenchBroomApp.h"
 #include "View/AppInfoPanel.h"
@@ -26,11 +31,6 @@
 #include "View/QtUtils.h"
 #include "View/RecentDocumentListBox.h"
 #include "View/ViewConstants.h"
-
-#include <QCloseEvent>
-#include <QFileDialog>
-#include <QHBoxLayout>
-#include <QPushButton>
 
 namespace TrenchBroom::View
 {

@@ -19,6 +19,13 @@
 
 #include "MapViewBase.h"
 
+#include <QDebug>
+#include <QMenu>
+#include <QMimeData>
+#include <QShortcut>
+#include <QString>
+#include <QtGlobal>
+
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -65,24 +72,17 @@
 #include "View/QtUtils.h"
 #include "View/SelectionTool.h"
 #include "View/SignalDelayer.h"
-#include "kdl/vector_utils.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
 #include <sstream>
 #include <vector>
-
-#include <QDebug>
-#include <QMenu>
-#include <QMimeData>
-#include <QShortcut>
-#include <QString>
-#include <QtGlobal>
 
 namespace TrenchBroom
 {

@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include <memory>
-
 #include <QDialog>
+
+#include <memory>
 
 class QDialogButtonBox;
 class QStackedWidget;

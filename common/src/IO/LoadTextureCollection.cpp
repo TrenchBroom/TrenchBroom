@@ -39,14 +39,13 @@
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
-#include "kdl/result.h"
-#include "kdl/string_compare.h"
-#include "kdl/string_format.h"
-#include "kdl/vector_utils.h"
 #include <kdl/overload.h>
 #include <kdl/path_utils.h>
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
+#include <kdl/string_compare.h>
+#include <kdl/string_format.h>
+#include <kdl/vector_utils.h>
 
 #include <ostream>
 #include <string>

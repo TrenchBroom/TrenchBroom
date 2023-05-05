@@ -19,6 +19,8 @@
 
 #include "Inspector.h"
 
+#include <QVBoxLayout>
+
 #include "View/EntityInspector.h"
 #include "View/FaceInspector.h"
 #include "View/MapInspector.h"
@@ -26,8 +28,6 @@
 #include "View/QtUtils.h"
 #include "View/TabBar.h"
 #include "View/TabBook.h"
-
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {

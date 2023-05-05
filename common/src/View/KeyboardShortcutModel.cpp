@@ -19,6 +19,8 @@
 
 #include "KeyboardShortcutModel.h"
 
+#include <QBrush>
+
 #include "IO/PathQt.h"
 #include "Preference.h"
 #include "PreferenceManager.h"
@@ -30,8 +32,6 @@
 
 #include <functional>
 #include <set>
-
-#include <QBrush>
 
 namespace TrenchBroom
 {

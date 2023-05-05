@@ -19,14 +19,14 @@
 
 #include "SystemPaths.h"
 
-#include "IO/DiskIO.h"
-#include "IO/PathInfo.h"
-#include "IO/PathQt.h"
-
 #include <QCoreApplication>
 #include <QDir>
 #include <QStandardPaths>
 #include <QString>
+
+#include "IO/DiskIO.h"
+#include "IO/PathInfo.h"
+#include "IO/PathQt.h"
 
 #include <string>
 #include <vector>

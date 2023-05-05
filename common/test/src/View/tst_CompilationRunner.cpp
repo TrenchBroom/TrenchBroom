@@ -17,19 +17,18 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "TestUtils.h"
+#include <QObject>
+#include <QTextEdit>
 
 #include "EL/VariableStore.h"
 #include "IO/TestEnvironment.h"
 #include "MapDocumentTest.h"
 #include "Model/CompilationTask.h"
+#include "TestUtils.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationRunner.h"
 #include "View/CompilationVariables.h"
 #include "View/TextOutputAdapter.h"
-
-#include <QObject>
-#include <QTextEdit>
 
 #include <chrono>
 #include <condition_variable>

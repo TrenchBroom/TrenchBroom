@@ -32,6 +32,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
@@ -43,7 +44,6 @@
 #include <string>
 
 #include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {

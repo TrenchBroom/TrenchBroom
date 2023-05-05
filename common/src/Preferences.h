@@ -22,10 +22,10 @@
 #include "Color.h"
 #include "Preference.h"
 
+#include <vecmath/util.h>
+
 #include <filesystem>
 #include <vector>
-
-#include <vecmath/util.h>
 
 namespace TrenchBroom
 {

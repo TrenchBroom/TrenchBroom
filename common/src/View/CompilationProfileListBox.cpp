@@ -19,12 +19,12 @@
 
 #include "CompilationProfileListBox.h"
 
+#include <QBoxLayout>
+
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 #include "View/ElidedLabel.h"
 #include "View/QtUtils.h"
-
-#include <QBoxLayout>
 
 namespace TrenchBroom
 {

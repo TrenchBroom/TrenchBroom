@@ -18,12 +18,13 @@
  */
 
 #include "BrushFaceAttributes.h"
+
 #include "Assets/Texture.h"
+
+#include <kdl/reflection_impl.h>
 
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include <kdl/reflection_impl.h>
 
 #include <string>
 

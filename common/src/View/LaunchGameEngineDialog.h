@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include <QDialog>
+
 #include "Model/GameEngineConfig.h"
 #include "View/CompilationVariables.h"
 
 #include <memory>
-
-#include <QDialog>
 
 class QPushButton;
 

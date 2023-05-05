@@ -19,6 +19,10 @@
 
 #include "GameEngineDialog.h"
 
+#include <QBoxLayout>
+#include <QCloseEvent>
+#include <QDialogButtonBox>
+
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
@@ -27,10 +31,6 @@
 #include "View/QtUtils.h"
 
 #include <string>
-
-#include <QBoxLayout>
-#include <QCloseEvent>
-#include <QDialogButtonBox>
 
 namespace TrenchBroom
 {

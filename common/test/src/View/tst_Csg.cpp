@@ -19,8 +19,6 @@
  */
 
 #include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -28,6 +26,7 @@
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <kdl/result.h>
 

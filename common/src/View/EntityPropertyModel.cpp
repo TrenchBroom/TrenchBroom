@@ -19,6 +19,14 @@
 
 #include "EntityPropertyModel.h"
 
+#include <QBrush>
+#include <QByteArray>
+#include <QDebug>
+#include <QIcon>
+#include <QMessageBox>
+#include <QString>
+#include <QTimer>
+
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/PropertyDefinition.h"
@@ -49,14 +57,6 @@
 #include <optional>
 #include <string>
 #include <vector>
-
-#include <QBrush>
-#include <QByteArray>
-#include <QDebug>
-#include <QIcon>
-#include <QMessageBox>
-#include <QString>
-#include <QTimer>
 
 #define MODEL_LOG(x)
 

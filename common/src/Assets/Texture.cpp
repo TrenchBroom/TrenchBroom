@@ -18,15 +18,16 @@
  */
 
 #include "Texture.h"
+
 #include "Assets/TextureBuffer.h"
 #include "Assets/TextureCollection.h"
 #include "Macros.h"
 #include "Renderer/GL.h"
 
-#include <vecmath/vec_io.h>
-
 #include <kdl/overload.h>
 #include <kdl/reflection_impl.h>
+
+#include <vecmath/vec_io.h>
 
 #include <algorithm> // for std::max
 #include <cassert>

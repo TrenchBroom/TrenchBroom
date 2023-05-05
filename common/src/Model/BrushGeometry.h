@@ -20,7 +20,6 @@
 #pragma once
 
 #include "FloatType.h"
-
 #include "Model/Polyhedron_BrushGeometryPayload.h"
 #include "Model/Polyhedron_DefaultPayload.h"
 #include "Model/Polyhedron_Forward.h"

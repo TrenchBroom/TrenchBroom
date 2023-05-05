@@ -19,6 +19,14 @@
 
 #include "ViewEditor.h"
 
+#include <QButtonGroup>
+#include <QCheckBox>
+#include <QGridLayout>
+#include <QLabel>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QScrollArea>
+
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -38,14 +46,6 @@
 #include <kdl/memory_utils.h>
 
 #include <vector>
-
-#include <QButtonGroup>
-#include <QCheckBox>
-#include <QGridLayout>
-#include <QLabel>
-#include <QPushButton>
-#include <QRadioButton>
-#include <QScrollArea>
 
 namespace TrenchBroom
 {

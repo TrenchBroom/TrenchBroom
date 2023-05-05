@@ -19,14 +19,14 @@
 
 #include "TextOutputAdapter.h"
 
-#include "Ensure.h"
-
-#include <string>
-
 #include <QByteArray>
 #include <QScrollBar>
 #include <QString>
 #include <QTextEdit>
+
+#include "Ensure.h"
+
+#include <string>
 
 namespace TrenchBroom
 {

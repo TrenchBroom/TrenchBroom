@@ -18,14 +18,15 @@
  */
 
 #include "FlagsPopupEditor.h"
-#include "View/ElidedLabel.h"
-#include "View/FlagsEditor.h"
-#include "View/PopupButton.h"
-#include "View/ViewConstants.h"
 
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QLabel>
+
+#include "View/ElidedLabel.h"
+#include "View/FlagsEditor.h"
+#include "View/PopupButton.h"
+#include "View/ViewConstants.h"
 
 namespace TrenchBroom
 {

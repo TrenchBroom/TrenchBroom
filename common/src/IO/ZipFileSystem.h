@@ -21,10 +21,10 @@
 
 #include "IO/ImageFileSystem.h"
 
+#include <miniz/miniz.h>
+
 #include <filesystem>
 #include <memory>
-
-#include <miniz/miniz.h>
 
 namespace TrenchBroom
 {

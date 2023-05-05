@@ -19,6 +19,13 @@
 
 #pragma once
 
+#include <QApplication>
+#include <QByteArray>
+#include <QJsonParseError>
+#include <QString>
+#include <QThread>
+#include <QTimer>
+
 #include "Ensure.h"
 #include "Macros.h"
 #include "Notifier.h"
@@ -31,13 +38,6 @@
 #include <map>
 #include <memory>
 #include <vector>
-
-#include <QApplication>
-#include <QByteArray>
-#include <QJsonParseError>
-#include <QString>
-#include <QThread>
-#include <QTimer>
 
 class QTextStream;
 class QFileSystemWatcher;

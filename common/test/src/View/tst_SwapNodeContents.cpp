@@ -30,6 +30,7 @@
 #include "Model/GroupNode.h"
 #include "Model/NodeContents.h"
 #include "Model/PatchNode.h"
+#include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 #include "View/SwapNodeContentsCommand.h"
@@ -47,8 +48,6 @@
 
 #include <filesystem>
 #include <memory>
-
-#include "TestUtils.h"
 
 #include "Catch2.h"
 

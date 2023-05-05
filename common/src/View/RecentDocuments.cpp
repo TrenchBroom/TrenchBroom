@@ -19,15 +19,15 @@
 
 #include "RecentDocuments.h"
 
+#include <QMenu>
+#include <QSettings>
+#include <QVariant>
+
 #include "IO/PathQt.h"
 #include "Notifier.h"
 #include "View/QtUtils.h"
 
 #include <kdl/vector_utils.h>
-
-#include <QMenu>
-#include <QSettings>
-#include <QVariant>
 
 namespace TrenchBroom
 {

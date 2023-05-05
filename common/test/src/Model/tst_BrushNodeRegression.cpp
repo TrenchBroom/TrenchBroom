@@ -33,6 +33,7 @@
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
+#include "TestUtils.h"
 
 #include <kdl/collection_utils.h>
 #include <kdl/result.h>
@@ -51,7 +52,6 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {

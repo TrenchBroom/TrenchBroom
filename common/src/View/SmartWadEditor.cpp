@@ -19,6 +19,10 @@
 
 #include "SmartWadEditor.h"
 
+#include <QFileDialog>
+#include <QListWidget>
+#include <QToolButton>
+
 #include "IO/PathQt.h"
 #include "Model/EntityNodeBase.h"
 #include "View/BorderLine.h"
@@ -31,10 +35,6 @@
 #include <kdl/vector_utils.h>
 
 #include <filesystem>
-
-#include <QFileDialog>
-#include <QListWidget>
-#include <QToolButton>
 
 namespace TrenchBroom::View
 {

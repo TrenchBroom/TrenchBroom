@@ -19,8 +19,6 @@
  */
 
 #include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -31,13 +29,14 @@
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "View/SelectionTool.h"
+
+#include <kdl/result.h>
 
 #include <vecmath/approx.h>
 #include <vecmath/ray.h>
 #include <vecmath/ray_io.h>
-
-#include <kdl/result.h>
 
 #include <vector>
 

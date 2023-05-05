@@ -19,6 +19,18 @@
 
 #include "GamesPreferencePane.h"
 
+#include <QAction>
+#include <QBoxLayout>
+#include <QDesktopServices>
+#include <QDir>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QStackedWidget>
+#include <QToolButton>
+#include <QWidget>
+
 #include "Exceptions.h"
 #include "FileLogger.h"
 #include "IO/DiskIO.h"
@@ -35,18 +47,6 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
-
-#include <QAction>
-#include <QBoxLayout>
-#include <QDesktopServices>
-#include <QDir>
-#include <QFileDialog>
-#include <QFormLayout>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QStackedWidget>
-#include <QToolButton>
-#include <QWidget>
 
 namespace TrenchBroom
 {

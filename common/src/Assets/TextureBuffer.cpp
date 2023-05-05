@@ -24,7 +24,6 @@
 #include <vecmath/vec.h>
 
 #include <FreeImage.h>
-
 #include <algorithm> // for std::max
 
 namespace TrenchBroom

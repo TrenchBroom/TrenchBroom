@@ -24,12 +24,11 @@
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
 #include <cstdio>
-
-#include "TestUtils.h"
 
 #include "Catch2.h"
 

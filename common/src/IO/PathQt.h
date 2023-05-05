@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include <QString>
+
 #include <filesystem>
 #include <string_view>
-
-#include <QString>
 
 namespace TrenchBroom
 {

@@ -19,7 +19,7 @@
 
 #include "FileSystemUtils.h"
 
-#include "kdl/string_compare.h"
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom::IO

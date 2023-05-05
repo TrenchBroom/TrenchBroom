@@ -30,12 +30,11 @@
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 #include "Model/TestGame.h"
+#include "TestUtils.h"
 #include "View/MapDocumentTest.h"
 
 #include <filesystem>
 #include <vector>
-
-#include "TestUtils.h"
 
 #include "Catch2.h"
 

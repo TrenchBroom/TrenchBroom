@@ -19,6 +19,12 @@
 
 #include "FaceAttribsEditor.h"
 
+#include <QLabel>
+#include <QLineEdit>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QtGlobal>
+
 #include "Assets/Texture.h"
 #include "Color.h"
 #include "Model/BrushFace.h"
@@ -48,12 +54,6 @@
 
 #include <memory>
 #include <string>
-
-#include <QLabel>
-#include <QLineEdit>
-#include <QToolButton>
-#include <QVBoxLayout>
-#include <QtGlobal>
 
 namespace TrenchBroom
 {

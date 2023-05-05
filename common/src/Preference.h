@@ -19,15 +19,15 @@
 
 #pragma once
 
+#include <QJsonValue>
+#include <QString>
+#include <QTextStream>
+
 #include "Macros.h"
 #include "View/KeyboardShortcut.h"
 
 #include <filesystem>
 #include <optional>
-
-#include <QJsonValue>
-#include <QString>
-#include <QTextStream>
 
 class QKeySequence;
 

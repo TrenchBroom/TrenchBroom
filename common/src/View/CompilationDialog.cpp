@@ -19,6 +19,15 @@
 
 #include "CompilationDialog.h"
 
+#include <QApplication>
+#include <QCloseEvent>
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QTextEdit>
+
+#include "Ensure.h"
 #include "Model/CompilationProfile.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
@@ -32,16 +41,6 @@
 #include "View/Splitter.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
-
-#include <QApplication>
-#include <QCloseEvent>
-#include <QDialogButtonBox>
-#include <QLabel>
-#include <QMessageBox>
-#include <QPushButton>
-#include <QTextEdit>
-
-#include "Ensure.h"
 
 namespace TrenchBroom
 {

@@ -19,14 +19,14 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "NotifierConnection.h"
 
 #include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <QWidget>
 
 class QPushButton;
 class QComboBox;

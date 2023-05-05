@@ -19,14 +19,14 @@
 
 #pragma once
 
+#include <QApplication>
+
 #include "Notifier.h"
 
 #include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <QApplication>
 
 class QMenu;
 class QSettings;

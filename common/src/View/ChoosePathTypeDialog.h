@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include <filesystem>
-
 #include <QDialog>
+
+#include <filesystem>
 
 class QRadioButton;
 class QWidget;

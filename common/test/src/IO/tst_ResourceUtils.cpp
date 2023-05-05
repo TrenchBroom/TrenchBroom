@@ -21,12 +21,12 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ResourceUtils.h"
+#include "TestLogger.h"
 
 #include <filesystem>
 #include <memory>
 
 #include "Catch2.h"
-#include "TestLogger.h"
 
 namespace TrenchBroom
 {

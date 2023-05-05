@@ -19,6 +19,8 @@
 
 #include "FileLogger.h"
 
+#include <QString>
+
 #include "Ensure.h"
 #include "IO/DiskIO.h"
 #include "IO/IOUtils.h"
@@ -26,8 +28,6 @@
 
 #include <cassert>
 #include <string>
-
-#include <QString>
 
 namespace TrenchBroom
 {

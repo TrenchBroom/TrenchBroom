@@ -19,6 +19,9 @@
 
 #include "DiskIO.h"
 
+#include <QDir>
+#include <QFileInfo>
+
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystemUtils.h"
@@ -31,9 +34,6 @@
 
 #include <fstream>
 #include <string>
-
-#include <QDir>
-#include <QFileInfo>
 
 namespace TrenchBroom::IO
 {

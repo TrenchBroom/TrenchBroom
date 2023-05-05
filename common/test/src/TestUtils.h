@@ -20,7 +20,6 @@
 #pragma once
 
 #include "FloatType.h"
-
 #include "Model/MapFormat.h"
 
 #include <kdl/vector_set.h>

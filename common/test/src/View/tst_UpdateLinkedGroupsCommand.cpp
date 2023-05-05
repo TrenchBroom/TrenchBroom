@@ -17,17 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "View/UpdateLinkedGroupsCommand.h"
-
 #include "Model/BrushNode.h"
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
+#include "TestUtils.h"
 #include "View/CurrentGroupCommand.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapDocumentTest.h"
-
-#include "TestUtils.h"
+#include "View/UpdateLinkedGroupsCommand.h"
 
 #include "Catch2.h"
 

@@ -18,8 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "View/ExtrudeTool.h"
-
+#include "MapDocumentTest.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -33,6 +32,9 @@
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
 #include "Renderer/PerspectiveCamera.h"
+#include "TestLogger.h"
+#include "TestUtils.h"
+#include "View/ExtrudeTool.h"
 
 #include <kdl/result.h>
 #include <kdl/string_utils.h>
@@ -46,10 +48,6 @@
 
 #include <filesystem>
 #include <memory>
-
-#include "MapDocumentTest.h"
-#include "TestLogger.h"
-#include "TestUtils.h"
 
 #include "Catch2.h"
 

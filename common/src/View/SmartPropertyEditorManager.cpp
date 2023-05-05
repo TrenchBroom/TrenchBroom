@@ -19,6 +19,9 @@
 
 #include "SmartPropertyEditorManager.h"
 
+#include <QStackedLayout>
+#include <QWidget>
+
 #include "Assets/PropertyDefinition.h"
 #include "Macros.h"
 #include "Model/Entity.h"
@@ -34,9 +37,6 @@
 #include <kdl/functional.h>
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
-
-#include <QStackedLayout>
-#include <QWidget>
 
 namespace TrenchBroom::View
 {

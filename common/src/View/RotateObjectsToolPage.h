@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "FloatType.h"
 #include "NotifierConnection.h"
 
@@ -26,8 +28,6 @@
 #include <vecmath/util.h>
 
 #include <memory>
-
-#include <QWidget>
 
 class QCheckBox;
 class QComboBox;

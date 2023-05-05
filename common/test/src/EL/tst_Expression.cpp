@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cmath>
-
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
@@ -29,6 +27,7 @@
 
 #include <kdl/overload.h>
 
+#include <cmath>
 #include <map>
 #include <string>
 #include <variant>

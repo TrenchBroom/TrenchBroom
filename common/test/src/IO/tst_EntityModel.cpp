@@ -17,9 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestLogger.h"
-#include "TestUtils.h"
-
 #include "Assets/EntityModel.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
@@ -27,6 +24,8 @@
 #include "IO/GameConfigParser.h"
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
+#include "TestLogger.h"
+#include "TestUtils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>

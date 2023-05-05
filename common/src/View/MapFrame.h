@@ -19,14 +19,14 @@
 
 #pragma once
 
+#include <QDialog>
+#include <QMainWindow>
+#include <QPointer>
+
 #include "IO/ExportOptions.h"
 #include "Model/MapFormat.h"
 #include "NotifierConnection.h"
 #include "View/Selection.h"
-
-#include <QDialog>
-#include <QMainWindow>
-#include <QPointer>
 
 #include <chrono>
 #include <filesystem>

@@ -19,14 +19,14 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "FloatType.h"
 #include "Macros.h"
 #include "NotifierConnection.h"
 #include "View/MapView.h"
 
 #include <memory>
-
-#include <QWidget>
 
 namespace TrenchBroom
 {

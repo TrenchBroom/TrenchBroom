@@ -19,6 +19,13 @@
 
 #include "GameEngineProfileEditor.h"
 
+#include <QBoxLayout>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QStackedWidget>
+
 #include "IO/DiskIO.h"
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
@@ -28,13 +35,6 @@
 
 #include <kdl/set_temp.h>
 #include <kdl/string_compare.h>
-
-#include <QBoxLayout>
-#include <QFileDialog>
-#include <QFormLayout>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QStackedWidget>
 
 namespace TrenchBroom
 {
