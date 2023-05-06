@@ -11,6 +11,7 @@ jobs:
           - 'common'
           - 'dump-shortcuts'
           - 'lib/kdl'
+          - 'lib/vecmath'
     steps:
     - uses: actions/checkout@v2
     - name: Run clang-format style check for C/C++ programs.
