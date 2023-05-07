@@ -49,41 +49,34 @@ std::vector<std::filesystem::path> doFind(
   const PathMatcher& pathMatcher,
   const bool recursive)
 {
-  try
+  if (getPathInfo(path) != PathInfo::Directory)
   {
-    if (getPathInfo(path) != PathInfo::Directory)
-    {
-      throw FileSystemException{"Directory not found: '" + path.string() + "'"};
-    }
+    throw FileSystemException{"Directory not found: '" + path.string() + "'"};
+  }
 
-    auto result = kdl::vec_transform(
-      getDirectoryContents(path), [&](const auto& p) { return path / p; });
+  auto result = kdl::vec_transform(
+    getDirectoryContents(path), [&](const auto& p) { return path / p; });
 
-    if (recursive)
+  if (recursive)
+  {
+    size_t i = 0;
+    while (i < result.size())
     {
-      size_t i = 0;
-      while (i < result.size())
+      const auto& currentPath = result[i];
+      if (getPathInfo(currentPath) == PathInfo::Directory)
       {
-        const auto& currentPath = result[i];
-        if (getPathInfo(currentPath) == PathInfo::Directory)
-        {
-          result = kdl::vec_concat(
-            std::move(result),
-            kdl::vec_transform(getDirectoryContents(currentPath), [&](const auto& p) {
-              return currentPath / p;
-            }));
-        }
-        ++i;
+        result = kdl::vec_concat(
+          std::move(result),
+          kdl::vec_transform(getDirectoryContents(currentPath), [&](const auto& p) {
+            return currentPath / p;
+          }));
       }
+      ++i;
     }
+  }
 
-    return kdl::vec_filter(
-      std::move(result), [&](const auto& p) { return pathMatcher(p, getPathInfo); });
-  }
-  catch (const PathException& e)
-  {
-    throw FileSystemException{"Invalid path: '" + path.string() + "'", e};
-  }
+  return kdl::vec_filter(
+    std::move(result), [&](const auto& p) { return pathMatcher(p, getPathInfo); });
 }
 } // namespace
 

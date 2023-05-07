@@ -122,14 +122,7 @@ bool isCaseSensitive()
 
 std::filesystem::path fixPath(const std::filesystem::path& path)
 {
-  try
-  {
-    return fixCase(path.lexically_normal());
-  }
-  catch (const PathException&)
-  {
-    return path;
-  }
+  return fixCase(path.lexically_normal());
 }
 
 PathInfo pathInfo(const std::filesystem::path& path)
