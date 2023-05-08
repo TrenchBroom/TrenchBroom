@@ -19,6 +19,12 @@
 
 #include "MapInspector.h"
 
+#include <QGridLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QRadioButton>
+
 #include "Model/EntityProperties.h"
 #include "Model/WorldNode.h"
 #include "View/BorderLine.h"
@@ -37,12 +43,6 @@
 
 #include <optional>
 #include <utility>
-
-#include <QGridLayout>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QRadioButton>
 
 namespace TrenchBroom
 {

@@ -19,13 +19,13 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "NotifierConnection.h"
 
 #include <functional>
 #include <string>
 #include <vector>
-
-#include <QWidget>
 
 class QStackedLayout;
 

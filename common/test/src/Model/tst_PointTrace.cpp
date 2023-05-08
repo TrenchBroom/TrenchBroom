@@ -17,14 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Model/PointTrace.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
 #include <sstream>
-
-#include "Catch2.h"
 
 namespace TrenchBroom::Model
 {

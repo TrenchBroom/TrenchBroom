@@ -17,14 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
-#include <string>
-
 #include <vecmath/approx.h>
 
-#include "Catch2.h"
+#include <string>
 
 namespace TrenchBroom
 {

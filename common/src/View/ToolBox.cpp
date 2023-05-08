@@ -19,6 +19,9 @@
 
 #include "ToolBox.h"
 
+#include <QDateTime>
+#include <QDebug>
+
 #include "Ensure.h"
 #include "View/DragTracker.h"
 #include "View/DropTracker.h"
@@ -30,9 +33,6 @@
 #include <cassert>
 #include <string>
 #include <utility>
-
-#include <QDateTime>
-#include <QDebug>
 
 namespace TrenchBroom
 {

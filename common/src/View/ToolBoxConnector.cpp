@@ -19,6 +19,8 @@
 
 #include "ToolBoxConnector.h"
 
+#include <QGuiApplication>
+
 #include "Ensure.h"
 #include "Macros.h"
 #include "View/PickRequest.h"
@@ -27,8 +29,6 @@
 #include "View/ToolController.h"
 
 #include <string>
-
-#include <QGuiApplication>
 
 namespace TrenchBroom
 {

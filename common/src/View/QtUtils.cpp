@@ -19,17 +19,6 @@
 
 #include "QtUtils.h"
 
-#include "Color.h"
-
-#include "Ensure.h"
-#include "IO/Path.h"
-#include "IO/ResourceUtils.h"
-#include "Macros.h"
-#include "View/BorderLine.h"
-#include "View/MapFrame.h"
-#include "View/MapTextEncoding.h"
-#include "View/ViewConstants.h"
-
 #include <QApplication>
 #include <QBoxLayout>
 #include <QButtonGroup>
@@ -55,6 +44,16 @@
 #include <QVBoxLayout>
 #include <QWindow>
 #include <QtGlobal>
+
+#include "Color.h"
+#include "Ensure.h"
+#include "IO/Path.h"
+#include "IO/ResourceUtils.h"
+#include "Macros.h"
+#include "View/BorderLine.h"
+#include "View/MapFrame.h"
+#include "View/MapTextEncoding.h"
+#include "View/ViewConstants.h"
 
 // QDesktopWidget was deprecated in Qt 5.10 and we should use QGuiApplication::screenAt
 // in 5.10 and above Used in centerOnScreen

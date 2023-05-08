@@ -19,10 +19,10 @@
 
 #include "Tool.h"
 
-#include "IO/ResourceUtils.h"
-
 #include <QStackedLayout>
 #include <QWidget>
+
+#include "IO/ResourceUtils.h"
 
 #include <cassert>
 

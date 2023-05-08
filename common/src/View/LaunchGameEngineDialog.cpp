@@ -19,6 +19,14 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include <QCompleter>
+#include <QDialogButtonBox>
+#include <QDir>
+#include <QLabel>
+#include <QMessageBox>
+#include <QProcess>
+#include <QPushButton>
+
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "IO/PathQt.h"
@@ -41,14 +49,6 @@
 #include <kdl/string_utils.h>
 
 #include <string>
-
-#include <QCompleter>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QLabel>
-#include <QMessageBox>
-#include <QProcess>
-#include <QPushButton>
 
 namespace TrenchBroom
 {

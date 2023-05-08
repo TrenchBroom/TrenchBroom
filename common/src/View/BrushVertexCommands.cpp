@@ -18,8 +18,8 @@
  */
 
 #include "BrushVertexCommands.h"
-#include "View/SwapNodeContentsCommand.h"
 
+#include "View/SwapNodeContentsCommand.h"
 #include "View/VertexTool.h"
 
 #include <kdl/vector_utils.h>

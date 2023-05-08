@@ -17,14 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "IO/File.h"
 #include "IO/TestFileSystem.h"
 #include "IO/VirtualFileSystem.h"
 
 #include <kdl/overload.h>
 #include <kdl/reflection_impl.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

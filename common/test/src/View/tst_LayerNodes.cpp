@@ -18,9 +18,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -30,8 +29,7 @@
 #include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
-
-#include "Catch2.h"
+#include "TestUtils.h"
 
 namespace TrenchBroom
 {

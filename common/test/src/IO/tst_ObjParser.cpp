@@ -18,14 +18,13 @@
  */
 
 #include "Assets/EntityModel.h"
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/ObjParser.h"
 #include "IO/Reader.h"
 #include "Logger.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "View/ImageListBox.h"
-
 #include <QPixmap>
+
+#include "View/ImageListBox.h"
 
 namespace TrenchBroom
 {

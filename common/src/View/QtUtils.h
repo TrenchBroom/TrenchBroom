@@ -21,11 +21,6 @@
 
 #undef CursorShape
 
-#include "Ensure.h"
-#include "View/ViewConstants.h"
-
-#include <string>
-
 #include <QBoxLayout>
 #include <QObject>
 #include <QPointer>
@@ -33,6 +28,11 @@
 #include <QString>
 #include <QStringList>
 #include <QWidget>
+
+#include "Ensure.h"
+#include "View/ViewConstants.h"
+
+#include <string>
 
 class QButtonGroup;
 class QColor;

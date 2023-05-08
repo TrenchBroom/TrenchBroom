@@ -18,8 +18,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "MapDocumentTest.h"
-
 #include "Model/BrushNode.h"
 #include "Model/EmptyPropertyKeyValidator.h"
 #include "Model/EmptyPropertyValueValidator.h"
@@ -33,8 +33,6 @@
 
 #include <kdl/overload.h>
 #include <kdl/vector_utils.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

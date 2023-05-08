@@ -17,17 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QApplication>
+#include <QSettings>
+#include <QSurfaceFormat>
+#include <QtGlobal>
+
 #include "Model/GameFactory.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"
-
-#include <QApplication>
-#include <QSettings>
-#include <QSurfaceFormat>
-#include <QtGlobal>
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 

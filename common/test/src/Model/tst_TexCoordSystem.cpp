@@ -18,14 +18,13 @@
  */
 
 #include "Assets/Texture.h"
+#include "Catch2.h"
 #include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
 #include <vecmath/vec.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

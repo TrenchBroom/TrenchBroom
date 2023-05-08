@@ -20,6 +20,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionTestUtils.h"
 #include "Assets/PropertyDefinition.h"
+#include "Catch2.h"
 #include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
@@ -31,8 +32,6 @@
 
 #include <algorithm>
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

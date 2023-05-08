@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Macros.h"
 #include "NotifierConnection.h"
 #include "View/CommandProcessor.h"
@@ -30,8 +31,6 @@
 #include <optional>
 #include <thread>
 #include <variant>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

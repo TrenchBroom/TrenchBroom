@@ -20,6 +20,7 @@
 #include "EntityDefinitionTestUtils.h"
 
 #include "Assets/EntityDefinition.h"
+#include "Catch2.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
@@ -32,8 +33,6 @@
 
 #include <string>
 #include <vector>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

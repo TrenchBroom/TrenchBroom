@@ -17,10 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestUtils.h"
-#include "View/MapDocumentTest.h"
-
 #include "Assets/EntityDefinition.h"
+#include "Catch2.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -33,6 +31,8 @@
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
+#include "View/MapDocumentTest.h"
 #include "View/PasteType.h"
 
 #include <kdl/result.h>
@@ -41,8 +41,6 @@
 
 #include <functional>
 #include <set>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

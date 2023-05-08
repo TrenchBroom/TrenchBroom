@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include <kdl/reflection_decl.h>
-
 #include <QAbstractTableModel>
+
+#include <kdl/reflection_decl.h>
 
 #include <iosfwd>
 #include <map>

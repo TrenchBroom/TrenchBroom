@@ -33,10 +33,10 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
-#include <vecmath/forward.h>
-
 #include <kdl/result.h>
 #include <kdl/string_utils.h>
+
+#include <vecmath/forward.h>
 
 #include <functional>
 #include <string>

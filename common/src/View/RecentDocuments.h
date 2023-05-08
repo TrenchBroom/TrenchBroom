@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QObject>
+
 #include "Notifier.h"
 
 #include <vector>
-
-#include <QObject>
 
 class QMenu;
 

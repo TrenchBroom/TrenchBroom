@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include <QDialog>
+
 #include <memory>
 #include <vector>
-
-#include <QDialog>
 
 class QPushButton;
 

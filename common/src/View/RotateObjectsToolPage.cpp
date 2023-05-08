@@ -19,6 +19,14 @@
 
 #include "RotateObjectsToolPage.h"
 
+#include <QCheckBox>
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QtGlobal>
+
 #include "FloatType.h"
 #include "Model/EntityProperties.h"
 #include "Model/WorldNode.h"
@@ -35,14 +43,6 @@
 #include <vecmath/util.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include <QCheckBox>
-#include <QComboBox>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QtGlobal>
 
 namespace TrenchBroom
 {

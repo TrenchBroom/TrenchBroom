@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/DkPakFileSystem.h"
@@ -25,8 +26,6 @@
 #include "IO/PathInfo.h"
 #include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

@@ -19,10 +19,9 @@
 
 #pragma once
 
-#include "Token.h"
-
 #include "Exceptions.h"
 #include "Macros.h"
+#include "Token.h"
 
 #include <kdl/string_format.h>
 

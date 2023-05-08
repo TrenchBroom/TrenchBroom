@@ -19,8 +19,8 @@
 
 #pragma once
 
+#include "Catch2.h"
 #include "FloatType.h"
-
 #include "Model/MapFormat.h"
 
 #include <kdl/vector_set.h>
@@ -34,8 +34,6 @@
 #include <memory>
 #include <sstream>
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

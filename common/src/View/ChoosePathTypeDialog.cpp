@@ -19,14 +19,14 @@
 
 #include "ChoosePathTypeDialog.h"
 
+#include <QDialogButtonBox>
+#include <QLabel>
+#include <QRadioButton>
+
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
-
-#include <QDialogButtonBox>
-#include <QLabel>
-#include <QRadioButton>
 
 namespace TrenchBroom
 {

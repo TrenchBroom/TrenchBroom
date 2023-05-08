@@ -17,6 +17,10 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QKeyEvent>
+#include <QtGlobal>
+
+#include "Catch2.h"
 #include "View/InputEvent.h"
 
 #include <kdl/overload.h>
@@ -26,11 +30,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <list>
 #include <thread>
 #include <variant>
-
-#include <QKeyEvent>
-#include <QtGlobal>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

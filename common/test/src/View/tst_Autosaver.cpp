@@ -17,23 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QString>
+
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/Path.h"
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/BrushNode.h"
 #include "Model/LayerNode.h"
+#include "TestUtils.h"
 #include "View/Autosaver.h"
 #include "View/MapDocumentTest.h"
 
 #include <chrono>
 #include <thread>
-
-#include <QString>
-
-#include "TestUtils.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

@@ -17,9 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestUtils.h"
-
 #include "Assets/Texture.h"
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -27,14 +26,13 @@
 #include "IO/ReadQuake3ShaderTexture.h"
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
+#include "TestUtils.h"
 
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
 #include <kdl/result_io.h>
 
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom::IO
 {

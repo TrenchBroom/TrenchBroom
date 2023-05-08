@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/TestParserStatus.h"
@@ -32,6 +33,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
@@ -40,9 +42,6 @@
 #include <fmt/format.h>
 
 #include <string>
-
-#include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {

@@ -19,13 +19,12 @@
 
 #define CATCH_CONFIG_RUNNER
 
+#include "Catch2.h"
 #include "Ensure.h"
 #include "TestPreferenceManager.h"
 #include "TrenchBroomApp.h"
 
 #include <clocale>
-
-#include "Catch2.h"
 
 int main(int argc, char** argv)
 {

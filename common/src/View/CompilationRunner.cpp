@@ -19,6 +19,11 @@
 
 #include "CompilationRunner.h"
 
+#include <QDir>
+#include <QMetaEnum>
+#include <QProcess>
+#include <QtGlobal>
+
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
@@ -36,11 +41,6 @@
 #include <kdl/vector_utils.h>
 
 #include <string>
-
-#include <QDir>
-#include <QMetaEnum>
-#include <QProcess>
-#include <QtGlobal>
 
 namespace TrenchBroom
 {

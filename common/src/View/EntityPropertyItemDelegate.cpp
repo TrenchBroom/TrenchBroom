@@ -19,18 +19,18 @@
 
 #include "EntityPropertyItemDelegate.h"
 
-#include "View/EntityPropertyModel.h"
-#include "View/EntityPropertyTable.h"
-
-#include <string>
-#include <vector>
-
 #include <QCompleter>
 #include <QDebug>
 #include <QEvent>
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
 #include <QTimer>
+
+#include "View/EntityPropertyModel.h"
+#include "View/EntityPropertyTable.h"
+
+#include <string>
+#include <vector>
 
 namespace TrenchBroom
 {

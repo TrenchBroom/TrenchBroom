@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/MoveHandleDragTracker.h"
@@ -27,8 +28,6 @@
 #include <vecmath/ray_io.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include "Catch2.h"
 
 namespace vm
 {

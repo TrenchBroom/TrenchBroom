@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FloatType.h"
-#include "Macros.h"
-
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Assets/PropertyDefinition.h"
+#include "Catch2.h"
+#include "FloatType.h"
+#include "Macros.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/EntityRotation.h"
@@ -34,8 +34,6 @@
 #include <vecmath/scalar.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

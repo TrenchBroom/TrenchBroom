@@ -17,10 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Ensure.h"
 #include "Macros.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

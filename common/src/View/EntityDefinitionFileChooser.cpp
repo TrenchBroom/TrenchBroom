@@ -19,6 +19,13 @@
 
 #include "EntityDefinitionFileChooser.h"
 
+#include <QDebug>
+#include <QFileDialog>
+#include <QLabel>
+#include <QListWidget>
+#include <QPushButton>
+#include <QVBoxLayout>
+
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
@@ -31,13 +38,6 @@
 
 #include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
-
-#include <QDebug>
-#include <QFileDialog>
-#include <QLabel>
-#include <QListWidget>
-#include <QPushButton>
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {

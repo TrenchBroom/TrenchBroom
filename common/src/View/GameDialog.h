@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include <QDialog>
+
 #include "Model/MapFormat.h"
 #include "NotifierConnection.h"
 
 #include <string>
-
-#include <QDialog>
 
 class QComboBox;
 class QPushButton;

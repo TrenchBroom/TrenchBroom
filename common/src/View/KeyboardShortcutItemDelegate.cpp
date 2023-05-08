@@ -19,10 +19,10 @@
 
 #include "KeyboardShortcutItemDelegate.h"
 
+#include <QItemEditorFactory>
+
 #include "View/KeySequenceEdit.h"
 #include "View/KeyboardShortcutModel.h"
-
-#include <QItemEditorFactory>
 
 namespace TrenchBroom
 {

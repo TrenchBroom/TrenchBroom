@@ -19,12 +19,12 @@
 
 #include "ImageListBox.h"
 
+#include <QBoxLayout>
+#include <QLabel>
+
 #include "View/ElidedLabel.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
-
-#include <QBoxLayout>
-#include <QLabel>
 
 #include <cassert>
 

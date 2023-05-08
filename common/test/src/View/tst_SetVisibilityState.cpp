@@ -18,14 +18,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "MapDocumentTest.h"
-
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/PatchNode.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

@@ -17,9 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "View/ActionContext.h"
-
 #include "Catch2.h"
+#include "View/ActionContext.h"
 
 namespace TrenchBroom
 {

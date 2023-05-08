@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
 #include <QAbstractTableModel>
+
+#include "IO/Path.h"
 
 #include <vector>
 

@@ -19,6 +19,7 @@
 
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -26,10 +27,6 @@
 #include "IO/ReadWalTexture.h"
 
 #include <kdl/result.h>
-
-#include <kdl/result.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

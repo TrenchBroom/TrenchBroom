@@ -18,6 +18,7 @@
  */
 
 #include "Assets/EntityDefinition.h"
+#include "Catch2.h"
 #include "Color.h"
 #include "EL/ELExceptions.h"
 #include "EL/Expression.h"
@@ -31,8 +32,6 @@
 #include <vecmath/bbox_io.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

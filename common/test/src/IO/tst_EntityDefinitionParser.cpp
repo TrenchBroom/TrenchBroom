@@ -18,6 +18,7 @@
  */
 
 #include "Assets/PropertyDefinition.h"
+#include "Catch2.h"
 #include "EL/Expressions.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
@@ -25,8 +26,6 @@
 #include "Model/EntityProperties.h"
 
 #include <vector>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

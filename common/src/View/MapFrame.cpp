@@ -46,6 +46,25 @@
 #if !defined __APPLE__
 #include "View/BorderLine.h"
 #endif
+#include <QApplication>
+#include <QChildEvent>
+#include <QClipboard>
+#include <QComboBox>
+#include <QFileDialog>
+#include <QInputDialog>
+#include <QLabel>
+#include <QMessageBox>
+#include <QMimeData>
+#include <QPushButton>
+#include <QStatusBar>
+#include <QString>
+#include <QStringList>
+#include <QTableWidget>
+#include <QTimer>
+#include <QToolBar>
+#include <QVBoxLayout>
+#include <QtGlobal>
+
 #include "View/ClipTool.h"
 #include "View/ColorButton.h"
 #include "View/CompilationDialog.h"
@@ -86,25 +105,6 @@
 #include <string>
 #include <variant>
 #include <vector>
-
-#include <QApplication>
-#include <QChildEvent>
-#include <QClipboard>
-#include <QComboBox>
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QLabel>
-#include <QMessageBox>
-#include <QMimeData>
-#include <QPushButton>
-#include <QStatusBar>
-#include <QString>
-#include <QStringList>
-#include <QTableWidget>
-#include <QTimer>
-#include <QToolBar>
-#include <QVBoxLayout>
-#include <QtGlobal>
 
 namespace TrenchBroom
 {

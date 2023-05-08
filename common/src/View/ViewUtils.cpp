@@ -19,6 +19,11 @@
 
 #include "ViewUtils.h"
 
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QString>
+#include <QWidget>
+
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
@@ -31,11 +36,6 @@
 #include <kdl/string_format.h>
 
 #include <memory>
-
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QString>
-#include <QWidget>
 
 namespace TrenchBroom
 {

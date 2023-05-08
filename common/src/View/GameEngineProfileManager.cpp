@@ -19,6 +19,9 @@
 
 #include "GameEngineProfileManager.h"
 
+#include <QBoxLayout>
+#include <QToolButton>
+
 #include "IO/Path.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
@@ -29,9 +32,6 @@
 #include "View/TitledPanel.h"
 
 #include "kdl/vector_utils.h"
-
-#include <QBoxLayout>
-#include <QToolButton>
 
 namespace TrenchBroom
 {

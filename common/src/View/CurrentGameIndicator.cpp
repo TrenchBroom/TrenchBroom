@@ -19,12 +19,12 @@
 
 #include "CurrentGameIndicator.h"
 
+#include <QPixmap>
+#include <QString>
+
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/GameFactory.h"
-
-#include <QPixmap>
-#include <QString>
 
 namespace TrenchBroom
 {

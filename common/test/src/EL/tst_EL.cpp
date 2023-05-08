@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "EL/ELExceptions.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
+
 #include <vecmath/scalar.h>
 
 #include <limits>
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

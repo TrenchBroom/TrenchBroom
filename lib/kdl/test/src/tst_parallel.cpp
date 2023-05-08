@@ -18,6 +18,8 @@
  DEALINGS IN THE SOFTWARE.
 */
 
+#include "test_utils.h"
+
 #include "kdl/parallel.h"
 
 #include <array>
@@ -26,8 +28,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
-#include "test_utils.h"
 
 #include <catch2/catch.hpp>
 

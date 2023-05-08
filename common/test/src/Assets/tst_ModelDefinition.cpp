@@ -18,6 +18,7 @@
  */
 
 #include "Assets/ModelDefinition.h"
+#include "Catch2.h"
 #include "EL/Expression.h"
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
@@ -25,8 +26,6 @@
 
 #include <map>
 #include <tuple>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

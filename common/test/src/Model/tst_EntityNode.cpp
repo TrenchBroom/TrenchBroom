@@ -18,6 +18,7 @@
  */
 
 #include "Assets/EntityDefinition.h"
+#include "Catch2.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -46,8 +47,6 @@
 
 #include <memory>
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

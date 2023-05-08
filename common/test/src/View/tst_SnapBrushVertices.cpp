@@ -17,13 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Model/BrushNode.h"
 #include "Model/NodeCollection.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

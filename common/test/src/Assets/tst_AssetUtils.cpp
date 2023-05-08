@@ -17,15 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestLogger.h"
-
 #include "Assets/AssetUtils.h"
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "IO/Path.h"
+#include "TestLogger.h"
 
 #include <optional>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

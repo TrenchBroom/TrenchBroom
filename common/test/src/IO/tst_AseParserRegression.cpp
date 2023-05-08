@@ -19,6 +19,7 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
+#include "Catch2.h"
 #include "IO/AseParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
@@ -27,8 +28,6 @@
 #include "IO/Reader.h"
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

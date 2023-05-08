@@ -20,6 +20,13 @@
 
 #include "ObjExportDialog.h"
 
+#include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QRadioButton>
+
 #include "Ensure.h"
 #include "IO/ExportOptions.h"
 #include "IO/Path.h"
@@ -30,13 +37,6 @@
 #include "View/FormWithSectionsLayout.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
-
-#include <QDialogButtonBox>
-#include <QFileDialog>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QRadioButton>
 
 namespace TrenchBroom
 {

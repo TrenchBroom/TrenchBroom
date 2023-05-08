@@ -19,6 +19,9 @@
 
 #include "MousePreferencePane.h"
 
+#include <QCheckBox>
+#include <QLabel>
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/FormWithSectionsLayout.h"
@@ -26,9 +29,6 @@
 #include "View/QtUtils.h"
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
-
-#include <QCheckBox>
-#include <QLabel>
 
 #include <algorithm>
 

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 
@@ -24,8 +25,6 @@
 #include <vecmath/vec.h>
 
 #include <cstring>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

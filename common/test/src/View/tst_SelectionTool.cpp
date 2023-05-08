@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushBuilder.h"
-
+#include "Catch2.h"
 #include "FloatType.h"
 #include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
@@ -36,12 +36,10 @@
 #include "View/PickRequest.h"
 #include "View/SelectionTool.h"
 
-#include <vecmath/ray.h>
-
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
-#include "Catch2.h"
+#include <vecmath/ray.h>
 
 namespace TrenchBroom
 {

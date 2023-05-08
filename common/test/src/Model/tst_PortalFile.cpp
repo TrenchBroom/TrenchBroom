@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
 #include "Model/PortalFile.h"
@@ -24,8 +25,6 @@
 #include <vecmath/polygon.h>
 
 #include <memory>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

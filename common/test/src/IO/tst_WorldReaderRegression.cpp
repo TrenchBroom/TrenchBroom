@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
 #include "Model/BezierPatch.h"
@@ -29,15 +30,13 @@
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/vec.h>
 
 #include <string>
-
-#include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {

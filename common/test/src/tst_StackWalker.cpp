@@ -17,9 +17,8 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "TrenchBroomStackWalker.h"
-
 #include "Catch2.h"
+#include "TrenchBroomStackWalker.h"
 
 namespace TrenchBroom
 {

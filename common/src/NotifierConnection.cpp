@@ -18,6 +18,7 @@
  */
 
 #include "NotifierConnection.h"
+
 #include "Notifier.h"
 
 #include <kdl/memory_utils.h>

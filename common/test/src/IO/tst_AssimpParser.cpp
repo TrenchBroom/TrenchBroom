@@ -19,6 +19,7 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
+#include "Catch2.h"
 #include "IO/AssimpParser.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
@@ -26,8 +27,6 @@
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"
 #include "Logger.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

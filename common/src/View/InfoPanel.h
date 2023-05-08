@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include <memory>
-
 #include <QWidget>
+
+#include <memory>
 
 namespace TrenchBroom
 {

@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <QKeySequence>
+
 #include "Ensure.h"
 #include "IO/Path.h"
 #include "Macros.h"
@@ -29,8 +31,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <QKeySequence>
 
 namespace TrenchBroom
 {

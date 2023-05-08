@@ -19,6 +19,9 @@
 
 #include "CompilationProfileManager.h"
 
+#include <QMenu>
+#include <QToolButton>
+
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 #include "View/BorderLine.h"
@@ -28,9 +31,6 @@
 #include "View/TitledPanel.h"
 
 #include "kdl/vector_utils.h"
-
-#include <QMenu>
-#include <QToolButton>
 
 namespace TrenchBroom
 {

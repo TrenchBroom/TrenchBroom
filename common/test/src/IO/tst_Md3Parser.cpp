@@ -18,6 +18,7 @@
  */
 
 #include "Assets/EntityModel.h"
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -34,8 +35,6 @@
 
 #include <cstdio>
 #include <memory>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

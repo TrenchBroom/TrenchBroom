@@ -19,6 +19,12 @@
 
 #include "UVEditor.h"
 
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QSpinBox>
+#include <QToolButton>
+#include <QtGlobal>
+
 #include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Game.h"
@@ -28,12 +34,6 @@
 #include "View/ViewConstants.h"
 
 #include <kdl/memory_utils.h>
-
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QSpinBox>
-#include <QToolButton>
-#include <QtGlobal>
 
 namespace TrenchBroom
 {

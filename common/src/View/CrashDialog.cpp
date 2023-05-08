@@ -19,17 +19,17 @@
 
 #include "CrashDialog.h"
 
-#include "IO/PathQt.h"
-#include "View/DialogHeader.h"
-#include "View/FormWithSectionsLayout.h"
-#include "View/GetVersion.h"
-#include "View/QtUtils.h"
-
 #include <QDesktopServices>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QPushButton>
 #include <QUrl>
+
+#include "IO/PathQt.h"
+#include "View/DialogHeader.h"
+#include "View/FormWithSectionsLayout.h"
+#include "View/GetVersion.h"
+#include "View/QtUtils.h"
 
 namespace TrenchBroom::View
 {

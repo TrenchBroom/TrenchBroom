@@ -19,14 +19,14 @@
 
 #include "MapViewActivationTracker.h"
 
+#include <QApplication>
+#include <QDateTime>
+#include <QMouseEvent>
+
 #include "Ensure.h"
 #include "View/MapViewBase.h"
 
 #include <kdl/vector_utils.h>
-
-#include <QApplication>
-#include <QDateTime>
-#include <QMouseEvent>
 
 namespace TrenchBroom
 {

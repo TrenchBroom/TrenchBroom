@@ -19,6 +19,9 @@
 
 #include "TextureBrowserView.h"
 
+#include <QMenu>
+#include <QTextStream>
+
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
@@ -46,9 +49,6 @@
 
 #include <string>
 #include <vector>
-
-#include <QMenu>
-#include <QTextStream>
 
 namespace TrenchBroom
 {

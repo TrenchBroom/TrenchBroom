@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QString>
+
 #include "IO/Path.h"
 
 #include <string_view>
-
-#include <QString>
 
 namespace TrenchBroom
 {

@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
-
 #include <QWidget>
+
+#include "NotifierConnection.h"
 
 #include <memory>
 #include <vector>

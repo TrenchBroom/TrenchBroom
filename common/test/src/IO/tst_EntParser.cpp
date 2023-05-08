@@ -19,6 +19,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
@@ -30,8 +31,6 @@
 
 #include <algorithm>
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

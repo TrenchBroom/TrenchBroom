@@ -18,9 +18,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "View/ScaleObjectsTool.h"
-
 #include "Catch2.h"
+#include "View/ScaleObjectsTool.h"
 
 namespace TrenchBroom
 {

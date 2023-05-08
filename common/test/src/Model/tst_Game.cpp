@@ -20,6 +20,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
+#include "Catch2.h"
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
 #include "IO/IOUtils.h"
@@ -30,8 +31,6 @@
 #include "Model/GameImpl.h"
 
 #include <kdl/vector_utils.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

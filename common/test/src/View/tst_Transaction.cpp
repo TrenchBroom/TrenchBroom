@@ -17,15 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "TestUtils.h"
 
 #include <vecmath/mat_ext.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom::View
 {

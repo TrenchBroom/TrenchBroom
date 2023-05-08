@@ -19,6 +19,7 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -28,8 +29,6 @@
 #include "Model/EntityNode.h"
 
 #include <kdl/result.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

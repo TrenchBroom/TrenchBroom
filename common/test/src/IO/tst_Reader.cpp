@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
@@ -24,8 +25,6 @@
 
 #include <memory>
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

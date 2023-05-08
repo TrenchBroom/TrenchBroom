@@ -19,12 +19,12 @@
 
 #include "TabBook.h"
 
+#include <QStackedLayout>
+#include <QVBoxLayout>
+
 #include "Ensure.h"
 #include "Macros.h"
 #include "View/TabBar.h"
-
-#include <QStackedLayout>
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {

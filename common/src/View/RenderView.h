@@ -19,14 +19,16 @@
 
 #pragma once
 
-#include "Color.h"
-#include "Renderer/GL.h" // must be included here, before QOpenGLWidget, because it includes glew
-#include "View/InputEvent.h"
-
-#include <string>
+#include <GL/glew.h>
 
 #include <QElapsedTimer>
 #include <QOpenGLWidget>
+
+#include "Color.h"
+#include "Renderer/GL.h"
+#include "View/InputEvent.h"
+
+#include <string>
 
 #undef Bool
 #undef Status

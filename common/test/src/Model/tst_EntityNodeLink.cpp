@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityNodeBase.h"
@@ -27,8 +28,6 @@
 #include <kdl/vector_utils.h>
 
 #include <vector>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

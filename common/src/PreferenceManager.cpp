@@ -19,11 +19,6 @@
 
 #include "PreferenceManager.h"
 
-#include "IO/PathQt.h"
-#include "IO/SystemPaths.h"
-#include "Preferences.h"
-#include "View/Actions.h"
-
 #include <QDebug>
 #include <QDir>
 #include <QFileSystemWatcher>
@@ -32,6 +27,11 @@
 #include <QLockFile>
 #include <QMessageBox>
 #include <QSaveFile>
+
+#include "IO/PathQt.h"
+#include "IO/SystemPaths.h"
+#include "Preferences.h"
+#include "View/Actions.h"
 #if defined(Q_OS_WIN)
 #include <QSettings>
 #endif

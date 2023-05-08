@@ -23,9 +23,9 @@
 #include "IO/Path.h"
 #include "Preference.h"
 
-#include <vector>
-
 #include <vecmath/util.h>
+
+#include <vector>
 
 namespace TrenchBroom
 {

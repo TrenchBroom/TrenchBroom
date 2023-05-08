@@ -18,6 +18,7 @@
  */
 
 #include "SetVisibilityCommand.h"
+
 #include "Macros.h"
 #include "Model/VisibilityState.h"
 #include "View/MapDocumentCommandFacade.h"

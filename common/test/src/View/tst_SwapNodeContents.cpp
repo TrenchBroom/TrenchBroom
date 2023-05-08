@@ -20,6 +20,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
+#include "Catch2.h"
 #include "FloatType.h"
 #include "IO/Path.h"
 #include "Model/BezierPatch.h"
@@ -31,6 +32,7 @@
 #include "Model/GroupNode.h"
 #include "Model/NodeContents.h"
 #include "Model/PatchNode.h"
+#include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 #include "View/SwapNodeContentsCommand.h"
@@ -47,10 +49,6 @@
 #include <vecmath/vec_io.h>
 
 #include <memory>
-
-#include "TestUtils.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

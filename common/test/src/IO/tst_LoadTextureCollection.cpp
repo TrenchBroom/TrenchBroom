@@ -20,6 +20,7 @@
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -36,8 +37,6 @@
 #include <kdl/result.h>
 
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "IO/GameEngineConfigParser.h"
 #include "Model/GameEngineConfig.h"
@@ -25,8 +26,6 @@
 #include "kdl/vector_utils.h"
 
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

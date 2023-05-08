@@ -17,17 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "View/Actions.h"
+#include <QApplication>
+#include <QFileInfo>
+#include <QSettings>
+#include <QTextStream>
 
 #include "IO/Path.h"
 #include "KeyStrings.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-
-#include <QApplication>
-#include <QFileInfo>
-#include <QSettings>
-#include <QTextStream>
+#include "View/Actions.h"
 
 #include <array>
 #include <iostream>

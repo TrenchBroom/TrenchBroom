@@ -19,11 +19,11 @@
 
 #include "ColorModel.h"
 
+#include <QColorDialog>
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "QtUtils.h"
-
-#include <QColorDialog>
 
 namespace TrenchBroom::View
 {

@@ -19,13 +19,13 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "Model/TagType.h"
 #include "NotifierConnection.h"
 
 #include <memory>
 #include <vector>
-
-#include <QWidget>
 
 class QCheckBox;
 class QWidget;

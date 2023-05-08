@@ -24,6 +24,7 @@
 #include "IO/Path.h"
 
 #include <kdl/reflection_decl.h>
+
 #include <vecmath/vec.h>
 
 #include <iosfwd>

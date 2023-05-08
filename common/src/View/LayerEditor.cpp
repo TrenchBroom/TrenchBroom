@@ -19,6 +19,12 @@
 
 #include "LayerEditor.h"
 
+#include <QInputDialog>
+#include <QMenu>
+#include <QMessageBox>
+#include <QToolButton>
+#include <QVBoxLayout>
+
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -29,6 +35,7 @@
 #include "View/LayerListBox.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
+#include "ViewUtils.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
@@ -39,14 +46,6 @@
 #include <set>
 #include <string>
 #include <vector>
-
-#include <QInputDialog>
-#include <QMenu>
-#include <QMessageBox>
-#include <QToolButton>
-#include <QVBoxLayout>
-
-#include "ViewUtils.h"
 
 namespace TrenchBroom
 {

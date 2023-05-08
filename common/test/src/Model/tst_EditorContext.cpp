@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
@@ -42,8 +43,6 @@
 
 #include <functional>
 #include <tuple>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

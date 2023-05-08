@@ -19,6 +19,10 @@
 
 #include "ReplaceTextureDialog.h"
 
+#include <QDialogButtonBox>
+#include <QMessageBox>
+#include <QPushButton>
+
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -33,10 +37,6 @@
 
 #include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
-
-#include <QDialogButtonBox>
-#include <QMessageBox>
-#include <QPushButton>
 
 #include <sstream>
 #include <vector>

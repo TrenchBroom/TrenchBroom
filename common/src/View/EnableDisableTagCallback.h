@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include <QObject>
+
 #include "Model/Tag.h"
 
 #include <string>
 #include <vector>
-
-#include <QObject>
 
 namespace TrenchBroom
 {

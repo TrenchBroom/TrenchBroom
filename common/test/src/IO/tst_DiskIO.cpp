@@ -17,6 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QFileInfo>
+#include <QString>
+
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
@@ -28,11 +32,6 @@
 #include "Macros.h"
 
 #include <algorithm>
-
-#include <QFileInfo>
-#include <QString>
-
-#include "Catch2.h"
 
 namespace TrenchBroom::IO
 {

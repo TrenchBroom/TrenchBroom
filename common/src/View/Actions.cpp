@@ -19,6 +19,9 @@
 
 #include "Actions.h"
 
+#include <QKeySequence>
+#include <QString>
+
 #include "Assets/EntityDefinition.h"
 #include "Model/EntityProperties.h"
 #include "Model/Tag.h"
@@ -32,9 +35,6 @@
 #include "View/MapViewBase.h"
 
 #include "vecmath/util.h"
-
-#include <QKeySequence>
-#include <QString>
 
 #include <cassert>
 #include <set>

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "FloatType.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron_BrushGeometryPayload.h"
@@ -31,8 +32,6 @@
 #include <iterator>
 #include <set>
 #include <tuple>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

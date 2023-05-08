@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "IO/NodeWriter.h"
 #include "Model/BezierPatch.h"
@@ -33,6 +34,7 @@
 #include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
@@ -48,9 +50,6 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-
-#include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {

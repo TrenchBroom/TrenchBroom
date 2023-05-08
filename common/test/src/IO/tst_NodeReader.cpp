@@ -18,7 +18,6 @@
  */
 
 #include "Catch2.h"
-
 #include "FloatType.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"

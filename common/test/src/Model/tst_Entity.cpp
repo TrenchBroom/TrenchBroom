@@ -19,6 +19,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
+#include "Catch2.h"
 #include "EL/Expressions.h"
 #include "FloatType.h"
 #include "IO/ELParser.h"
@@ -33,8 +34,6 @@
 #include <vecmath/mat_io.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

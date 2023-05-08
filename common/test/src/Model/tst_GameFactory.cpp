@@ -17,11 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "IO/TestEnvironment.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

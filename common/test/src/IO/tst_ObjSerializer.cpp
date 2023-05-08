@@ -18,6 +18,7 @@
  */
 
 #include "Assets/Texture.h"
+#include "Catch2.h"
 #include "IO/ExportOptions.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
@@ -39,8 +40,6 @@
 #include <memory>
 #include <optional>
 #include <sstream>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

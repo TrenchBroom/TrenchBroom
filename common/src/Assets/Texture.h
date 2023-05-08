@@ -24,9 +24,9 @@
 #include "IO/Path.h"
 #include "Renderer/GL.h"
 
-#include <vecmath/forward.h>
-
 #include <kdl/reflection_decl.h>
+
+#include <vecmath/forward.h>
 
 #include <atomic>
 #include <set>

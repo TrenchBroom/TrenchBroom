@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
@@ -37,8 +38,6 @@
 
 #include <tuple>
 #include <vector>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

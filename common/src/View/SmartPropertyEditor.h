@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <QWidget>
 
 namespace TrenchBroom
 {

@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include <string>
-
 #include <QDialog>
+
+#include <string>
 
 namespace TrenchBroom
 {

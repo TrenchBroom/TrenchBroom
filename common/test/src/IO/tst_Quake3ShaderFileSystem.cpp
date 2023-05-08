@@ -18,6 +18,7 @@
  */
 
 #include "Assets/Quake3Shader.h"
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/Path.h"
@@ -26,8 +27,6 @@
 #include "Logger.h"
 
 #include <memory>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

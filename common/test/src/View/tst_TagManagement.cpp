@@ -20,6 +20,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
+#include "Catch2.h"
 #include "IO/Path.h"
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
@@ -31,13 +32,10 @@
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 #include "Model/TestGame.h"
+#include "TestUtils.h"
 #include "View/MapDocumentTest.h"
 
 #include <vector>
-
-#include "TestUtils.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

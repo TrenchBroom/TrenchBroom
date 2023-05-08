@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "EL/Expression.h"
 #include "EL/Expressions.h"
 #include "IO/DiskIO.h"
@@ -28,8 +29,6 @@
 #include "Model/TagMatcher.h"
 
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

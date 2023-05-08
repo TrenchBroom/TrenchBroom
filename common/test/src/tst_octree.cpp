@@ -17,16 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "octree.h"
+
+#include <kdl/string_utils.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
 #include <vecmath/ray.h>
 #include <vecmath/vec.h>
-
-#include <kdl/string_utils.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

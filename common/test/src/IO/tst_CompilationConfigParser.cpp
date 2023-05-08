@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "IO/CompilationConfigParser.h"
 #include "Model/CompilationConfig.h"
@@ -24,8 +25,6 @@
 #include "Model/CompilationTask.h"
 
 #include <string>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

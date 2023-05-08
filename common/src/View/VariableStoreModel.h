@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QAbstractListModel>
+
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <QAbstractListModel>
 
 class QModelIndex;
 class QVariant;

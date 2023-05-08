@@ -18,6 +18,7 @@
  */
 
 #include "Assets/Texture.h"
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -34,8 +35,6 @@
 #include <vecmath/segment.h>
 
 #include <cmath>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

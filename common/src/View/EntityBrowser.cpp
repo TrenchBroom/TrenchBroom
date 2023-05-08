@@ -19,6 +19,13 @@
 
 #include "EntityBrowser.h"
 
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QtGlobal>
+
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/WorldNode.h"
@@ -30,13 +37,6 @@
 #include "View/ViewConstants.h"
 
 #include <kdl/memory_utils.h>
-
-#include <QComboBox>
-#include <QHBoxLayout>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QScrollBar>
-#include <QtGlobal>
 
 // for use in QVariant
 Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionSortOrder)

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -29,6 +30,7 @@
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "octree.h"
 
 #include <kdl/result.h>
@@ -38,9 +40,6 @@
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/mat_io.h>
-
-#include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {

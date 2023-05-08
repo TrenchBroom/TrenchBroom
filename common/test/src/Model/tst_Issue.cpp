@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/Issue.h"
-
+#include "Catch2.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -27,6 +26,7 @@
 #include "Model/EntityNode.h"
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
+#include "Model/Issue.h"
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
 
@@ -37,8 +37,6 @@
 #include <vecmath/bbox_io.h>
 
 #include <vector>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

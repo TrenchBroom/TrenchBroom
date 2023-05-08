@@ -17,7 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <QString>
+#include <QTextStream>
+
 #include "Assets/EntityDefinition.h"
+#include "Catch2.h"
 #include "Color.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
@@ -34,11 +38,6 @@
 #include <iostream>
 #include <optional>
 #include <string>
-
-#include <QString>
-#include <QTextStream>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

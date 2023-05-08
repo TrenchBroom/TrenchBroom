@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
 #include <QDialog>
+
+#include "IO/Path.h"
 
 class QRadioButton;
 class QWidget;

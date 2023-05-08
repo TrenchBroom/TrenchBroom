@@ -24,9 +24,6 @@
 #include <kdl/reflection_decl.h>
 #include <kdl/result_forward.h>
 
-#include <kdl/reflection_decl.h>
-#include <kdl/result_forward.h>
-
 #include <cassert>
 #include <iosfwd>
 #include <memory>

@@ -18,6 +18,7 @@
  */
 
 #include "Assets/EntityDefinition.h"
+#include "Catch2.h"
 #include "Color.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -25,18 +26,15 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
-#include <vecmath/bbox.h>
-
 #include <kdl/result.h>
 
+#include <vecmath/bbox.h>
+
 #include <vector>
-
-#include "TestUtils.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

@@ -49,6 +49,20 @@
 #include "View/MainMenuBuilder.h"
 #endif
 
+#include <QColor>
+#include <QCommandLineParser>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QFile>
+#include <QFileDialog>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QPalette>
+#include <QProxyStyle>
+#include <QStandardPaths>
+#include <QSysInfo>
+#include <QUrl>
+
 #include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 
@@ -63,20 +77,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include <QColor>
-#include <QCommandLineParser>
-#include <QDebug>
-#include <QDesktopServices>
-#include <QFile>
-#include <QFileDialog>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPalette>
-#include <QProxyStyle>
-#include <QStandardPaths>
-#include <QSysInfo>
-#include <QUrl>
 
 namespace TrenchBroom
 {

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "Exceptions.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -27,8 +28,6 @@
 #include "Model/WorldNode.h"
 
 #include <kdl/result.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {

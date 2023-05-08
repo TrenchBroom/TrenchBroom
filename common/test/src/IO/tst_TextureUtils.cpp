@@ -18,17 +18,16 @@
  */
 
 #include "Assets/Texture.h"
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/Path.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/TextureUtils.h"
+#include "Logger.h"
 
 #include <kdl/result.h>
-
-#include "Catch2.h"
-#include "Logger.h"
 
 namespace TrenchBroom
 {

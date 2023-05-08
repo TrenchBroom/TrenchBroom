@@ -18,6 +18,7 @@
  */
 
 #include "RenderContext.h"
+
 #include "Renderer/Camera.h"
 
 namespace TrenchBroom

@@ -17,22 +17,19 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/File.h"
-#include "TestLogger.h"
-
 #include "Assets/Texture.h"
+#include "Catch2.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/File.h"
 #include "IO/Path.h"
 #include "IO/ReadFreeImageTexture.h"
+#include "TestLogger.h"
+#include "TestUtils.h"
 
 #include <kdl/result.h>
 
 #include <string>
-
-#include "TestUtils.h"
-
-#include "Catch2.h"
 
 namespace TrenchBroom::IO
 {

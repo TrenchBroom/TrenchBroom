@@ -19,6 +19,14 @@
 
 #include "PreferenceDialog.h"
 
+#include <QBoxLayout>
+#include <QCloseEvent>
+#include <QDialogButtonBox>
+#include <QPushButton>
+#include <QStackedWidget>
+#include <QToolBar>
+#include <QToolButton>
+
 #include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "PreferenceManager.h"
@@ -31,14 +39,6 @@
 #include "View/PreferencePane.h"
 #include "View/QtUtils.h"
 #include "View/ViewPreferencePane.h"
-
-#include <QBoxLayout>
-#include <QCloseEvent>
-#include <QDialogButtonBox>
-#include <QPushButton>
-#include <QStackedWidget>
-#include <QToolBar>
-#include <QToolButton>
 
 namespace TrenchBroom
 {

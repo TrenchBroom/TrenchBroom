@@ -18,7 +18,6 @@
  */
 
 #include "TestUtils.h"
-#include "TestLogger.h"
 
 #include "Assets/Texture.h"
 #include "Ensure.h"
@@ -33,6 +32,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/PatchNode.h"
+#include "TestLogger.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 

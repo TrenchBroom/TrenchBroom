@@ -22,12 +22,12 @@
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
 
 namespace TrenchBroom
 {

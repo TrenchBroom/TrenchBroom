@@ -18,9 +18,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Catch2.h"
 #include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -28,10 +27,9 @@
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <kdl/result.h>
-
-#include "Catch2.h"
 
 namespace TrenchBroom
 {
