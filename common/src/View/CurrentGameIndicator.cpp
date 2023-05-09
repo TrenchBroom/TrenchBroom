@@ -19,12 +19,13 @@
 
 #include "CurrentGameIndicator.h"
 
-#include "IO/Path.h"
+#include <QPixmap>
+#include <QString>
+
 #include "IO/ResourceUtils.h"
 #include "Model/GameFactory.h"
 
-#include <QPixmap>
-#include <QString>
+#include <filesystem>
 
 namespace TrenchBroom
 {
@@ -37,9 +38,9 @@ CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget*
 
   const auto gamePath = gameFactory.gamePath(gameName);
   auto iconPath = gameFactory.iconPath(gameName);
-  if (iconPath.isEmpty())
+  if (iconPath.empty())
   {
-    iconPath = IO::Path("DefaultGameIcon.svg");
+    iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
   }
 
   const auto gameIcon = IO::loadPixmapResource(iconPath);

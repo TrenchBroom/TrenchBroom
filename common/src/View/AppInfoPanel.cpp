@@ -19,18 +19,18 @@
 
 #include "AppInfoPanel.h"
 
-#include "IO/ResourceUtils.h"
-#include "View/BorderLine.h"
-#include "View/ClickableLabel.h"
-#include "View/GetVersion.h"
-#include "View/QtUtils.h"
-
 #include <QApplication>
 #include <QClipboard>
 #include <QLabel>
 #include <QString>
 #include <QStringBuilder>
 #include <QVBoxLayout>
+
+#include "IO/ResourceUtils.h"
+#include "View/BorderLine.h"
+#include "View/ClickableLabel.h"
+#include "View/GetVersion.h"
+#include "View/QtUtils.h"
 
 namespace TrenchBroom::View
 {

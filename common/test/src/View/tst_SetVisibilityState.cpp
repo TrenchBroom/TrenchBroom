@@ -19,7 +19,6 @@
  */
 
 #include "MapDocumentTest.h"
-
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"

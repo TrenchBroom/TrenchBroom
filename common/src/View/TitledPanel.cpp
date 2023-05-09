@@ -19,11 +19,11 @@
 
 #include "TitledPanel.h"
 
+#include <QVBoxLayout>
+
 #include "View/BorderLine.h"
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
-
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {

@@ -20,8 +20,8 @@
 #pragma once
 
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -45,7 +45,7 @@ public:
 struct VirtualMountPoint
 {
   VirtualMountPointId id;
-  Path path;
+  std::filesystem::path path;
   std::unique_ptr<FileSystem> mountedFileSystem;
 };
 
@@ -55,15 +55,17 @@ private:
   std::vector<VirtualMountPoint> m_mountPoints;
 
 public:
-  VirtualMountPointId mount(const Path& path, std::unique_ptr<FileSystem> fs);
+  VirtualMountPointId mount(
+    const std::filesystem::path& path, std::unique_ptr<FileSystem> fs);
   bool unmount(const VirtualMountPointId& id);
   void unmountAll();
 
 protected:
-  Path doMakeAbsolute(const Path& path) const override;
-  PathInfo doGetPathInfo(const Path& path) const override;
-  std::vector<Path> doGetDirectoryContents(const Path& path) const override;
-  std::shared_ptr<File> doOpenFile(const Path& path) const override;
+  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
+  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
+  std::vector<std::filesystem::path> doGetDirectoryContents(
+    const std::filesystem::path& path) const override;
+  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 };
 
 class WritableVirtualFileSystem : public WritableFileSystem
@@ -78,16 +80,24 @@ public:
 
   using FileSystem::directoryContents;
 
-  Path doMakeAbsolute(const Path& path) const override;
-  PathInfo doGetPathInfo(const Path& path) const override;
-  std::vector<Path> doGetDirectoryContents(const Path& path) const override;
-  std::shared_ptr<File> doOpenFile(const Path& path) const override;
+  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
+  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
+  std::vector<std::filesystem::path> doGetDirectoryContents(
+    const std::filesystem::path& path) const override;
+  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 
-  void doCreateFile(const Path& path, const std::string& contents) override;
-  void doCreateDirectory(const Path& path) override;
-  void doDeleteFile(const Path& path) override;
-  void doCopyFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
-  void doMoveFile(const Path& sourcePath, const Path& destPath, bool overwrite) override;
+  void doCreateFile(
+    const std::filesystem::path& path, const std::string& contents) override;
+  void doCreateDirectory(const std::filesystem::path& path) override;
+  void doDeleteFile(const std::filesystem::path& path) override;
+  void doCopyFile(
+    const std::filesystem::path& sourcePath,
+    const std::filesystem::path& destPath,
+    bool overwrite) override;
+  void doMoveFile(
+    const std::filesystem::path& sourcePath,
+    const std::filesystem::path& destPath,
+    bool overwrite) override;
 };
 
 } // namespace TrenchBroom::IO

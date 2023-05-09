@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "IO/Path.h"
 #include "IO/PathMatcher.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -34,54 +34,68 @@ namespace Disk
 {
 bool isCaseSensitive();
 
-Path fixPath(const Path& path);
+std::filesystem::path fixPath(const std::filesystem::path& path);
 
-PathInfo pathInfo(const Path& path);
-std::vector<Path> find(
-  const Path& path,
-  const PathMatcher& pathMatcher = [](const Path&, const GetPathInfo&) { return true; });
-std::vector<Path> findRecursively(
-  const Path& path,
-  const PathMatcher& pathMatcher = [](const Path&, const GetPathInfo&) { return true; });
-std::vector<Path> directoryContents(const Path& path);
-std::shared_ptr<File> openFile(const Path& path);
+PathInfo pathInfo(const std::filesystem::path& path);
+std::vector<std::filesystem::path> find(
+  const std::filesystem::path& path,
+  const PathMatcher& pathMatcher = [](const std::filesystem::path&, const GetPathInfo&) {
+    return true;
+  });
+std::vector<std::filesystem::path> findRecursively(
+  const std::filesystem::path& path,
+  const PathMatcher& pathMatcher = [](const std::filesystem::path&, const GetPathInfo&) {
+    return true;
+  });
+std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path);
+std::shared_ptr<File> openFile(const std::filesystem::path& path);
 
-std::string readTextFile(const Path& path);
-Path getCurrentWorkingDir();
+std::string readTextFile(const std::filesystem::path& path);
+std::filesystem::path getCurrentWorkingDir();
 
-void createFile(const Path& path, const std::string& contents);
-void createDirectory(const Path& path);
-void ensureDirectoryExists(const Path& path);
+void createFile(const std::filesystem::path& path, const std::string& contents);
+void createDirectory(const std::filesystem::path& path);
+void ensureDirectoryExists(const std::filesystem::path& path);
 
-void deleteFile(const Path& path);
-void deleteFiles(const Path& sourceDirPath, const PathMatcher& pathMatcher);
-void deleteFilesRecursively(const Path& sourceDirPath, const PathMatcher& pathMatcher);
+void deleteFile(const std::filesystem::path& path);
+void deleteFiles(
+  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher);
+void deleteFilesRecursively(
+  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher);
 
-void copyFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+void copyFile(
+  const std::filesystem::path& sourcePath,
+  const std::filesystem::path& destPath,
+  bool overwrite);
 void copyFiles(
-  const Path& sourceDirPath,
+  const std::filesystem::path& sourceDirPath,
   const PathMatcher& pathMatcher,
-  const Path& destDirPath,
+  const std::filesystem::path& destDirPath,
   bool overwrite);
 void copyFilesRecursively(
-  const Path& sourceDirPath,
+  const std::filesystem::path& sourceDirPath,
   const PathMatcher& pathMatcher,
-  const Path& destDirPath,
+  const std::filesystem::path& destDirPath,
   bool overwrite);
 
-void moveFile(const Path& sourcePath, const Path& destPath, bool overwrite);
+void moveFile(
+  const std::filesystem::path& sourcePath,
+  const std::filesystem::path& destPath,
+  bool overwrite);
 void moveFiles(
-  const Path& sourceDirPath,
+  const std::filesystem::path& sourceDirPath,
   const PathMatcher& pathMatcher,
-  const Path& destDirPath,
+  const std::filesystem::path& destDirPath,
   bool overwrite);
 void moveFilesRecursively(
-  const Path& sourceDirPath,
+  const std::filesystem::path& sourceDirPath,
   const PathMatcher& pathMatcher,
-  const Path& destDirPath,
+  const std::filesystem::path& destDirPath,
   bool overwrite);
 
-Path resolvePath(const std::vector<Path>& searchPaths, const Path& path);
+std::filesystem::path resolvePath(
+  const std::vector<std::filesystem::path>& searchPaths,
+  const std::filesystem::path& path);
 
 } // namespace Disk
 } // namespace TrenchBroom::IO

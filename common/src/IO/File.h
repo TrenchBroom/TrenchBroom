@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "IO/Path.h"
 #include "IO/Reader.h"
 
 #include <cstdio>
+#include <filesystem>
 #include <memory>
 
 namespace TrenchBroom
@@ -38,7 +38,7 @@ namespace IO
 class File
 {
 private:
-  Path m_path;
+  std::filesystem::path m_path;
 
 protected:
   /**
@@ -46,7 +46,7 @@ protected:
    *
    * @param path the path of the file
    */
-  explicit File(Path path);
+  explicit File(std::filesystem::path path);
 
 public:
   virtual ~File();
@@ -54,7 +54,7 @@ public:
   /**
    * Returns the path of this file.
    */
-  const Path& path() const;
+  const std::filesystem::path& path() const;
 
   /**
    * Returns a reader to access the contents of this file.
@@ -84,7 +84,8 @@ public:
    * @param buffer the memory buffer
    * @param size the size of the file
    */
-  OwningBufferFile(Path path, std::unique_ptr<char[]> buffer, size_t size);
+  OwningBufferFile(
+    std::filesystem::path path, std::unique_ptr<char[]> buffer, size_t size);
 
   Reader reader() const override;
   size_t size() const override;
@@ -110,7 +111,7 @@ public:
    *
    * @throw FileSystemException if the given buffer pointers are invalid
    */
-  NonOwningBufferFile(Path path, const char* begin, const char* end);
+  NonOwningBufferFile(std::filesystem::path path, const char* begin, const char* end);
 
   Reader reader() const override;
   size_t size() const override;
@@ -134,7 +135,7 @@ public:
    *
    * @throw FileSystemException if the file cannot be opened
    */
-  explicit CFile(Path path);
+  explicit CFile(std::filesystem::path path);
   ~CFile() override;
 
   Reader reader() const override;
@@ -165,7 +166,8 @@ public:
    * @param offset the offset into the host file
    * @param length the length of the portion of the host file
    */
-  explicit FileView(Path path, std::shared_ptr<File> file, size_t offset, size_t length);
+  explicit FileView(
+    std::filesystem::path path, std::shared_ptr<File> file, size_t offset, size_t length);
 
   Reader reader() const override;
   size_t size() const override;
@@ -194,7 +196,7 @@ public:
    * @param object the object
    */
   template <typename S>
-  ObjectFile(Path path, S&& object)
+  ObjectFile(std::filesystem::path path, S&& object)
     : File(path)
     , m_object(std::forward<S>(object))
   {

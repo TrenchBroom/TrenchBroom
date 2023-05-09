@@ -21,7 +21,6 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-
 #include "Model/BrushFaceAttributes.h"
 
 #include <vecmath/vec.h>

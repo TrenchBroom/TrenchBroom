@@ -19,14 +19,14 @@
 
 #include "ColorsPreferencePane.h"
 
-#include "View/ColorModel.h"
-#include "View/QtUtils.h"
-
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QSortFilterProxyModel>
 #include <QTableView>
+
+#include "View/ColorModel.h"
+#include "View/QtUtils.h"
 
 namespace TrenchBroom::View
 {

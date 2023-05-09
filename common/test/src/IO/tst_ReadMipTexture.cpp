@@ -17,22 +17,21 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/File.h"
-#include "TestLogger.h"
-
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/Path.h"
+#include "IO/File.h"
 #include "IO/ReadMipTexture.h"
 #include "IO/TextureUtils.h"
 #include "IO/WadFileSystem.h"
 #include "Logger.h"
+#include "TestLogger.h"
 
 #include <kdl/result.h>
 
+#include <filesystem>
 #include <string>
 
 #include "Catch2.h"
@@ -71,16 +70,15 @@ TEST_CASE("readIdMipTexture")
   // clang-format on
 
   auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
-  auto paletteFile = fs.openFile(Path{"fixture/test/palette.lmp"});
+  auto paletteFile = fs.openFile("fixture/test/palette.lmp");
   const auto palette = Assets::loadPalette(*paletteFile).value();
 
   auto logger = NullLogger{};
 
-  const auto wadPath =
-    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Wad/cr8_czg.wad"};
+  const auto wadPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/Wad/cr8_czg.wad";
   auto wadFS = WadFileSystem{wadPath};
 
-  const auto file = wadFS.openFile(Path{textureName}.addExtension("D"));
+  const auto file = wadFS.openFile(textureName + ".D");
   auto reader = file->reader().buffer();
   const auto texture = readIdMipTexture(textureName, reader, palette).value();
 
@@ -104,10 +102,10 @@ TEST_CASE("readHlMipTexture")
 
   auto logger = TestLogger{};
 
-  const auto wadPath = Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/HL/hl.wad"};
+  const auto wadPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/HL/hl.wad";
   auto wadFS = WadFileSystem{wadPath};
 
-  const auto file = wadFS.openFile(Path{textureName}.addExtension("C"));
+  const auto file = wadFS.openFile(textureName + ".C");
   auto reader = file->reader().buffer();
   const auto texture = readHlMipTexture(textureName, reader).value();
 

@@ -19,17 +19,18 @@
 
 #include "MoveObjectsToolPage.h"
 
-#include "View/MapDocument.h"
-#include "View/ViewConstants.h"
-
-#include <kdl/memory_utils.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
-
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
+
+#include "View/MapDocument.h"
+#include "View/ViewConstants.h"
+
+#include <kdl/memory_utils.h>
+
+#include <vecmath/vec.h>
+#include <vecmath/vec_io.h>
 
 namespace TrenchBroom
 {

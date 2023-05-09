@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
+#include <filesystem>
 #include <set>
 #include <string>
 #include <vector>
@@ -56,7 +55,7 @@ public:
   };
 
 public:
-  IO::Path map;
+  std::filesystem::path map;
   BlendFunc blendFunc;
 };
 
@@ -79,9 +78,9 @@ public:
   };
 
 public:
-  IO::Path shaderPath = IO::Path{};
-  IO::Path editorImage = IO::Path{};
-  IO::Path lightImage = IO::Path{};
+  std::filesystem::path shaderPath = {};
+  std::filesystem::path editorImage = {};
+  std::filesystem::path lightImage = {};
   Culling culling = Culling::Front;
   std::set<std::string> surfaceParms = {};
   std::vector<Quake3ShaderStage> stages = {};

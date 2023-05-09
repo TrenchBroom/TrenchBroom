@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QListWidget>
+
 #include "NotifierConnection.h"
 
 #include <memory>
-
-#include <QListWidget>
 
 class QPushButton;
 class QListWidget;

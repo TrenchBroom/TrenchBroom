@@ -19,6 +19,7 @@
 
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
+#include "TestUtils.h"
 #include "View/Command.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
@@ -34,8 +35,6 @@
 #include <vecmath/scalar.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include "TestUtils.h"
 
 #include "Catch2.h"
 

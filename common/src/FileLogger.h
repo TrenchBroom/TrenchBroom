@@ -22,16 +22,13 @@
 #include "Logger.h"
 #include "Macros.h"
 
+#include <filesystem>
 #include <string>
 
 class QString;
 
 namespace TrenchBroom
 {
-namespace IO
-{
-class Path;
-}
 
 class FileLogger : public Logger
 {
@@ -39,7 +36,7 @@ private:
   FILE* m_file;
 
 public:
-  explicit FileLogger(const IO::Path& filePath);
+  explicit FileLogger(const std::filesystem::path& filePath);
   ~FileLogger() override;
 
   static FileLogger& instance();

@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include <QPoint>
+
 #include "View/CellLayout.h"
 #include "View/RenderView.h"
-
-#include <QPoint>
 
 class QScrollBar;
 class QDrag;

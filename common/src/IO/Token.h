@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include <kdl/string_utils.h>
+
 #include <cassert>
 #include <string>
-
-#include <kdl/string_utils.h>
 
 namespace TrenchBroom
 {

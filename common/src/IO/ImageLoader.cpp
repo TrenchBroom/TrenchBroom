@@ -20,13 +20,12 @@
 #include "ImageLoader.h"
 
 #include "IO/ImageLoaderImpl.h"
-#include "IO/Path.h"
 
 namespace TrenchBroom
 {
 namespace IO
 {
-ImageLoader::ImageLoader(const Format format, const Path& path)
+ImageLoader::ImageLoader(const Format format, const std::filesystem::path& path)
   : m_impl(new ImageLoaderImpl(format, path))
 {
 }

@@ -19,7 +19,6 @@
 
 #include "Tag.h"
 
-#include "IO/Path.h"
 #include "Model/TagManager.h"
 
 #include <kdl/string_utils.h>

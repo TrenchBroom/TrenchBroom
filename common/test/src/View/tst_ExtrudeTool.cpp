@@ -18,9 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "View/ExtrudeTool.h"
-
-#include "IO/Path.h"
+#include "MapDocumentTest.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -34,6 +32,9 @@
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
 #include "Renderer/PerspectiveCamera.h"
+#include "TestLogger.h"
+#include "TestUtils.h"
+#include "View/ExtrudeTool.h"
 
 #include <kdl/result.h>
 #include <kdl/string_utils.h>
@@ -45,11 +46,8 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <filesystem>
 #include <memory>
-
-#include "MapDocumentTest.h"
-#include "TestLogger.h"
-#include "TestUtils.h"
 
 #include "Catch2.h"
 
@@ -221,17 +219,17 @@ static Model::PickResult performPick(
  */
 TEST_CASE("ExtrudeToolTest.findDragFaces")
 {
-  using T = std::tuple<IO::Path, std::vector<std::string>>;
+  using T = std::tuple<std::filesystem::path, std::vector<std::string>>;
 
   // clang-format off
   const auto 
   [mapName,                                        expectedDragFaceTextureNames] = GENERATE(values<T>({
-  {IO::Path{"findDragFaces_noCoplanarFaces.map"},  {"larger_top_face"}},
-  {IO::Path{"findDragFaces_twoCoplanarFaces.map"}, {"larger_top_face", "smaller_top_face"}}
+  {"findDragFaces_noCoplanarFaces.map",  {"larger_top_face"}},
+  {"findDragFaces_twoCoplanarFaces.map", {"larger_top_face", "smaller_top_face"}}
   }));
   // clang-format on
 
-  const auto mapPath = IO::Path{"fixture/test/View/ExtrudeToolTest"} + mapName;
+  const auto mapPath = "fixture/test/View/ExtrudeToolTest" / mapName;
   auto [document, game, gameConfig] =
     View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
 
@@ -279,7 +277,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
   using namespace Model::HitFilters;
 
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path{"fixture/test/View/ExtrudeToolTest/splitBrushes.map"},
+    "fixture/test/View/ExtrudeToolTest/splitBrushes.map",
     "Quake",
     Model::MapFormat::Valve);
 

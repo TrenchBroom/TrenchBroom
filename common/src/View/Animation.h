@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include <QElapsedTimer>
+#include <QObject>
+
 #include <map>
 #include <memory>
 #include <vector>
-
-#include <QElapsedTimer>
-#include <QObject>
 
 class QTimer;
 

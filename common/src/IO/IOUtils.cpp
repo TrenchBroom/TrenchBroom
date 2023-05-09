@@ -21,7 +21,6 @@
 
 #include "Ensure.h"
 #include "Exceptions.h"
-#include "IO/Path.h"
 #include "IO/PathQt.h"
 
 #include <vecmath/forward.h>
@@ -35,7 +34,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-FILE* openPathAsFILE(const Path& path, const std::string& mode)
+FILE* openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
 {
   // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
   // to open a Unicode path. We will use Qt to help convert the Path to a UTF-16 encoded
@@ -51,25 +50,27 @@ FILE* openPathAsFILE(const Path& path, const std::string& mode)
     pathAsQString(path).toStdWString().c_str(),
     QString::fromStdString(mode).toStdWString().c_str());
 #else
-  return fopen(path.asString().c_str(), mode.c_str());
+  return fopen(path.string().c_str(), mode.c_str());
 #endif
 }
 
-std::ofstream openPathAsOutputStream(const Path& path, const std::ios::openmode mode)
+std::ofstream openPathAsOutputStream(
+  const std::filesystem::path& path, const std::ios::openmode mode)
 {
 #ifdef _WIN32
   return std::ofstream(pathAsQString(path).toStdWString().c_str(), mode);
 #else
-  return std::ofstream(path.asString().c_str(), mode);
+  return std::ofstream(path.string().c_str(), mode);
 #endif
 }
 
-std::ifstream openPathAsInputStream(const Path& path, const std::ios::openmode mode)
+std::ifstream openPathAsInputStream(
+  const std::filesystem::path& path, const std::ios::openmode mode)
 {
 #ifdef _WIN32
   return std::ifstream(pathAsQString(path).toStdWString().c_str(), mode);
 #else
-  return std::ifstream(path.asString().c_str(), mode);
+  return std::ifstream(path.string().c_str(), mode);
 #endif
 }
 

@@ -19,6 +19,11 @@
 
 #include "WelcomeWindow.h"
 
+#include <QCloseEvent>
+#include <QFileDialog>
+#include <QHBoxLayout>
+#include <QPushButton>
+
 #include "IO/PathQt.h"
 #include "TrenchBroomApp.h"
 #include "View/AppInfoPanel.h"
@@ -26,11 +31,6 @@
 #include "View/QtUtils.h"
 #include "View/RecentDocumentListBox.h"
 #include "View/ViewConstants.h"
-
-#include <QCloseEvent>
-#include <QFileDialog>
-#include <QHBoxLayout>
-#include <QPushButton>
 
 namespace TrenchBroom::View
 {
@@ -143,14 +143,14 @@ void WelcomeWindow::openOtherDocument()
     "Map files (*.map);;Any files (*.*)");
   const auto path = IO::pathFromQString(pathStr);
 
-  if (!path.isEmpty())
+  if (!path.empty())
   {
     updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Map, pathStr);
     openDocument(path);
   }
 }
 
-void WelcomeWindow::openDocument(const IO::Path& path)
+void WelcomeWindow::openDocument(const std::filesystem::path& path)
 {
   auto& app = TrenchBroomApp::instance();
   if (!app.openDocument(path))

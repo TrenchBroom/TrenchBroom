@@ -22,7 +22,6 @@
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/Md3Parser.h"
-#include "IO/Path.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"
 #include "IO/VirtualFileSystem.h"
@@ -33,6 +32,7 @@
 #include <vecmath/vec.h>
 
 #include <cstdio>
+#include <filesystem>
 #include <memory>
 
 #include "Catch2.h"
@@ -44,19 +44,19 @@ namespace IO
 TEST_CASE("Md3ParserTest.loadValidMd3")
 {
   auto logger = NullLogger{};
-  const auto shaderSearchPath = Path{"scripts"};
-  const auto textureSearchPaths = std::vector<Path>{Path{"models"}};
+  const auto shaderSearchPath = "scripts";
+  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
   auto fs = VirtualFileSystem{};
   fs.mount(
-    Path{},
+    "",
     std::make_unique<DiskFileSystem>(
-      IO::Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Md3/bfg"}));
+      IO::Disk::getCurrentWorkingDir() / "fixture/test/IO/Md3/bfg"));
   fs.mount(
-    Path{},
+    "",
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto md3Path = IO::Path("models/weapons2/bfg/bfg.md3");
+  const auto md3Path = "models/weapons2/bfg/bfg.md3";
   const auto md3File = fs.openFile(md3Path);
   REQUIRE(md3File != nullptr);
 

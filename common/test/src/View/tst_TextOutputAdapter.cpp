@@ -17,9 +17,9 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "View/TextOutputAdapter.h"
-
 #include <QTextEdit>
+
+#include "View/TextOutputAdapter.h"
 
 #include "Catch2.h"
 

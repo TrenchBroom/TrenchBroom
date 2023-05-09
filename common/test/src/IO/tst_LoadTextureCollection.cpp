@@ -24,17 +24,17 @@
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/LoadTextureCollection.h"
-#include "IO/Path.h"
 #include "IO/ReadMipTexture.h"
 #include "IO/VirtualFileSystem.h"
 #include "IO/WadFileSystem.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
-#include "kdl/vector_utils.h"
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
+#include <kdl/vector_utils.h>
 
+#include <filesystem>
 #include <string>
 
 #include "Catch2.h"
@@ -58,7 +58,7 @@ struct TextureInfo
 
 struct TextureCollectionInfo
 {
-  Path path;
+  std::filesystem::path path;
   std::vector<TextureInfo> textures;
 
   kdl_reflect_inline(TextureCollectionInfo, path, textures);
@@ -87,46 +87,43 @@ std::optional<TextureCollectionInfo> makeInfo(
 TEST_CASE("loadTextureCollection")
 {
   auto fs = VirtualFileSystem{};
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(Disk::getCurrentWorkingDir()));
+  fs.mount("", std::make_unique<DiskFileSystem>(Disk::getCurrentWorkingDir()));
 
-  const auto wadPath =
-    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Wad/cr8_czg.wad"};
-  fs.mount(
-    Path{"textures"} + wadPath.lastComponent(), std::make_unique<WadFileSystem>(wadPath));
+  const auto wadPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/Wad/cr8_czg.wad";
+  fs.mount("textures" / wadPath.filename(), std::make_unique<WadFileSystem>(wadPath));
 
   auto logger = NullLogger{};
 
   SECTION("invalid path")
   {
     const auto textureConfig = Model::TextureConfig{
-      Path{"textures"},
-      {"D"},
-      Path{"fixture/test/palette.lmp"},
+      "textures",
+      {".D"},
+      "fixture/test/palette.lmp",
       "wad",
-      Path{},
+      "",
       {},
     };
 
-    CHECK(loadTextureCollection(Path{"textures/missing.wad"}, fs, textureConfig, logger)
+    CHECK(loadTextureCollection("textures/missing.wad", fs, textureConfig, logger)
             .is_error());
   }
 
   SECTION("missing palette")
   {
     const auto textureConfig = Model::TextureConfig{
-      Path{"textures"},
-      {"D"},
-      Path{"fixture/test/missing.lmp"},
+      "textures",
+      {".D"},
+      "fixture/test/missing.lmp",
       "wad",
-      Path{},
+      "",
       {},
     };
 
     CHECK(
-      makeInfo(
-        loadTextureCollection(Path{"textures/cr8_czg.wad"}, fs, textureConfig, logger))
+      makeInfo(loadTextureCollection("textures/cr8_czg.wad", fs, textureConfig, logger))
       == TextureCollectionInfo{
-        Path{"textures/cr8_czg.wad"},
+        "textures/cr8_czg.wad",
         {
           {"blowjob_machine", 32, 32}, {"bongs2", 32, 32},
           {"can-o-jam", 32, 32},       {"cap4can-o-jam", 32, 32},
@@ -146,19 +143,18 @@ TEST_CASE("loadTextureCollection")
   SECTION("loading all textures")
   {
     const auto textureConfig = Model::TextureConfig{
-      Path{"textures"},
-      {"D"},
-      Path{"fixture/test/palette.lmp"},
+      "textures",
+      {".D"},
+      "fixture/test/palette.lmp",
       "wad",
-      Path{},
+      "",
       {},
     };
 
     CHECK(
-      makeInfo(
-        loadTextureCollection(Path{"textures/cr8_czg.wad"}, fs, textureConfig, logger))
+      makeInfo(loadTextureCollection("textures/cr8_czg.wad", fs, textureConfig, logger))
       == TextureCollectionInfo{
-        Path{"textures/cr8_czg.wad"},
+        "textures/cr8_czg.wad",
         {
           {"blowjob_machine", 128, 128}, {"bongs2", 128, 128},
           {"can-o-jam", 64, 64},         {"cap4can-o-jam", 64, 64},
@@ -178,19 +174,18 @@ TEST_CASE("loadTextureCollection")
   SECTION("loading with texture exclusions")
   {
     const auto textureConfig = Model::TextureConfig{
-      Path{"textures"},
-      {"D"},
-      Path{"fixture/test/palette.lmp"},
+      "textures",
+      {".D"},
+      "fixture/test/palette.lmp",
       "wad",
-      Path{},
+      "",
       {"*-jam", "coffin2", "czg_*"},
     };
 
     CHECK(
-      makeInfo(
-        loadTextureCollection(Path{"textures/cr8_czg.wad"}, fs, textureConfig, logger))
+      makeInfo(loadTextureCollection("textures/cr8_czg.wad", fs, textureConfig, logger))
       == TextureCollectionInfo{
-        Path{"textures/cr8_czg.wad"},
+        "textures/cr8_czg.wad",
         {
           {"blowjob_machine", 128, 128},
           {"bongs2", 128, 128},

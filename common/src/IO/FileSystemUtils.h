@@ -21,6 +21,7 @@
 
 #include "IO/PathMatcher.h"
 
+#include <filesystem>
 #include <functional>
 #include <optional>
 #include <vector>
@@ -28,13 +29,14 @@
 namespace TrenchBroom::IO
 {
 
-class Path;
 enum class PathInfo;
 
-using GetDirectoryContents = std::function<std::vector<Path>(const Path&)>;
-using MakeAbsolute = std::function<Path(const Path&)>;
+using GetDirectoryContents =
+  std::function<std::vector<std::filesystem::path>(const std::filesystem::path&)>;
+using MakeAbsolute = std::function<std::filesystem::path(const std::filesystem::path&)>;
 
-std::optional<Path> safeMakeAbsolute(const Path& path, const MakeAbsolute& makeAbsolute);
+std::optional<std::filesystem::path> safeMakeAbsolute(
+  const std::filesystem::path& path, const MakeAbsolute& makeAbsolute);
 
 /** Returns a vector of paths listing the contents of the directory  at the given path
  * that satisfy the given path matcher. The returned paths are relative to the root of
@@ -43,11 +45,11 @@ std::optional<Path> safeMakeAbsolute(const Path& path, const MakeAbsolute& makeA
  * @param path the path to the directory to search
  * @param pathMatcher only return paths that satisfy this path matcher
  */
-std::vector<Path> find(
-  const Path& path,
+std::vector<std::filesystem::path> find(
+  const std::filesystem::path& path,
   const GetDirectoryContents& getDirectoryContents,
   const GetPathInfo& getPathInfo,
-  const PathMatcher& pathMatcher = [](const Path&, const GetPathInfo&) { return true; });
+  const PathMatcher& pathMatcher = matchAnyPath);
 
 /** Returns a vector of paths listing the contents of the directory recursively at the
  * given path that satisfy the given path matcher. The returned paths are relative to
@@ -56,10 +58,10 @@ std::vector<Path> find(
  * @param path the path to the directory to search
  * @param pathMatcher only return paths that satisfy this path matcher
  */
-std::vector<Path> findRecursively(
-  const Path& path,
+std::vector<std::filesystem::path> findRecursively(
+  const std::filesystem::path& path,
   const GetDirectoryContents& getDirectoryContents,
   const GetPathInfo& getPathInfo,
-  const PathMatcher& pathMatcher = [](const Path&, const GetPathInfo&) { return true; });
+  const PathMatcher& pathMatcher = matchAnyPath);
 
 } // namespace TrenchBroom::IO

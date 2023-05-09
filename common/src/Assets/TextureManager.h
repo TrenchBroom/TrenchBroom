@@ -21,6 +21,7 @@
 
 #include "Assets/TextureCollection.h"
 
+#include <filesystem>
 #include <map>
 #include <string>
 #include <vector>
@@ -32,7 +33,6 @@ class Logger;
 namespace IO
 {
 class FileSystem;
-class Path;
 } // namespace IO
 
 namespace Model
@@ -73,7 +73,7 @@ public:
 
 private:
   void setTextureCollections(
-    const std::vector<IO::Path>& paths,
+    const std::vector<std::filesystem::path>& paths,
     const IO::FileSystem& fs,
     const Model::TextureConfig& textureConfig);
 

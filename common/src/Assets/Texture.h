@@ -21,14 +21,14 @@
 
 #include "Assets/TextureBuffer.h"
 #include "Color.h"
-#include "IO/Path.h"
 #include "Renderer/GL.h"
-
-#include <vecmath/forward.h>
 
 #include <kdl/reflection_decl.h>
 
+#include <vecmath/forward.h>
+
 #include <atomic>
+#include <filesystem>
 #include <set>
 #include <string>
 #include <variant>
@@ -107,8 +107,8 @@ private:
 
 private:
   std::string m_name;
-  IO::Path m_absolutePath;
-  IO::Path m_relativePath;
+  std::filesystem::path m_absolutePath;
+  std::filesystem::path m_relativePath;
 
   size_t m_width;
   size_t m_height;
@@ -195,14 +195,14 @@ public:
   /**
    * Absolute path of the texture
    */
-  const IO::Path& absolutePath() const;
-  void setAbsolutePath(IO::Path absolutePath);
+  const std::filesystem::path& absolutePath() const;
+  void setAbsolutePath(std::filesystem::path absolutePath);
 
   /**
    * Relative path of the texture in the game filesystem
    */
-  const IO::Path& relativePath() const;
-  void setRelativePath(IO::Path relativePath);
+  const std::filesystem::path& relativePath() const;
+  void setRelativePath(std::filesystem::path relativePath);
 
   size_t width() const;
   size_t height() const;

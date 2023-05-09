@@ -25,6 +25,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -35,7 +36,6 @@ class Logger;
 namespace IO
 {
 class FileSystem;
-class Path;
 class Reader;
 
 namespace MdxLayout
@@ -104,7 +104,7 @@ private:
 public:
   MdxParser(const std::string& name, const Reader& reader, const FileSystem& fs);
 
-  static bool canParse(const Path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

@@ -19,6 +19,8 @@
 
 #include "SwitchableMapViewContainer.h"
 
+#include <QGridLayout>
+
 #include "FloatType.h"
 #include "Model/PointTrace.h"
 #include "PreferenceManager.h"
@@ -39,8 +41,6 @@
 #include "View/TwoPaneMapView.h"
 
 #include <kdl/memory_utils.h>
-
-#include <QGridLayout>
 
 namespace TrenchBroom
 {

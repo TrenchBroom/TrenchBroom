@@ -26,7 +26,7 @@ namespace IO
 EntityDefinitionLoader::~EntityDefinitionLoader() {}
 
 std::vector<Assets::EntityDefinition*> EntityDefinitionLoader::loadEntityDefinitions(
-  ParserStatus& status, const IO::Path& path) const
+  ParserStatus& status, const std::filesystem::path& path) const
 {
   return doLoadEntityDefinitions(status, path);
 }

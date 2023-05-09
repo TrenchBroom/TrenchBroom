@@ -37,30 +37,30 @@ const std::string& Game::gameName() const
   return doGameName();
 }
 
-bool Game::isGamePathPreference(const IO::Path& prefPath) const
+bool Game::isGamePathPreference(const std::filesystem::path& prefPath) const
 {
   const GameFactory& gameFactory = GameFactory::instance();
   return gameFactory.isGamePathPreference(gameName(), prefPath);
 }
 
-IO::Path Game::gamePath() const
+std::filesystem::path Game::gamePath() const
 {
   return doGamePath();
 }
 
-void Game::setGamePath(const IO::Path& gamePath, Logger& logger)
+void Game::setGamePath(const std::filesystem::path& gamePath, Logger& logger)
 {
   doSetGamePath(gamePath, logger);
 }
 
 void Game::setAdditionalSearchPaths(
-  const std::vector<IO::Path>& searchPaths, Logger& logger)
+  const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {
   doSetAdditionalSearchPaths(searchPaths, logger);
 }
 
 Game::PathErrors Game::checkAdditionalSearchPaths(
-  const std::vector<IO::Path>& searchPaths) const
+  const std::vector<std::filesystem::path>& searchPaths) const
 {
   return doCheckAdditionalSearchPaths(searchPaths);
 }
@@ -99,13 +99,13 @@ std::unique_ptr<WorldNode> Game::newMap(
 std::unique_ptr<WorldNode> Game::loadMap(
   const MapFormat format,
   const vm::bbox3& worldBounds,
-  const IO::Path& path,
+  const std::filesystem::path& path,
   Logger& logger) const
 {
   return doLoadMap(format, worldBounds, path, logger);
 }
 
-void Game::writeMap(WorldNode& world, const IO::Path& path) const
+void Game::writeMap(WorldNode& world, const std::filesystem::path& path) const
 {
   doWriteMap(world, path);
 }
@@ -152,7 +152,9 @@ void Game::loadTextureCollections(Assets::TextureManager& textureManager) const
 }
 
 void Game::reloadWads(
-  const IO::Path& documentPath, const std::vector<IO::Path>& wadPaths, Logger& logger)
+  const std::filesystem::path& documentPath,
+  const std::vector<std::filesystem::path>& wadPaths,
+  Logger& logger)
 {
   doReloadWads(documentPath, wadPaths, logger);
 }
@@ -162,7 +164,7 @@ void Game::reloadShaders()
   doReloadShaders();
 }
 
-bool Game::isEntityDefinitionFile(const IO::Path& path) const
+bool Game::isEntityDefinitionFile(const std::filesystem::path& path) const
 {
   return doIsEntityDefinitionFile(path);
 }
@@ -178,9 +180,9 @@ Assets::EntityDefinitionFileSpec Game::extractEntityDefinitionFile(
   return doExtractEntityDefinitionFile(entity);
 }
 
-IO::Path Game::findEntityDefinitionFile(
+std::filesystem::path Game::findEntityDefinitionFile(
   const Assets::EntityDefinitionFileSpec& spec,
-  const std::vector<IO::Path>& searchPaths) const
+  const std::vector<std::filesystem::path>& searchPaths) const
 {
   return doFindEntityDefinitionFile(spec, searchPaths);
 }

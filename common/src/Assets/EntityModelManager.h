@@ -19,10 +19,9 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
 #include <kdl/vector_set.h>
 
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <vector>
@@ -57,8 +56,8 @@ enum class Orientation;
 class EntityModelManager
 {
 private:
-  using ModelCache = std::map<IO::Path, std::unique_ptr<EntityModel>>;
-  using ModelMismatches = kdl::vector_set<IO::Path>;
+  using ModelCache = std::map<std::filesystem::path, std::unique_ptr<EntityModel>>;
+  using ModelMismatches = kdl::vector_set<std::filesystem::path>;
   using ModelList = std::vector<EntityModel*>;
 
   using RendererCache =
@@ -94,9 +93,9 @@ public:
   const EntityModelFrame* frame(const ModelSpecification& spec) const;
 
 private:
-  EntityModel* model(const IO::Path& path) const;
-  EntityModel* safeGetModel(const IO::Path& path) const;
-  std::unique_ptr<EntityModel> loadModel(const IO::Path& path) const;
+  EntityModel* model(const std::filesystem::path& path) const;
+  EntityModel* safeGetModel(const std::filesystem::path& path) const;
+  std::unique_ptr<EntityModel> loadModel(const std::filesystem::path& path) const;
   void loadFrame(const ModelSpecification& spec, EntityModel& model) const;
 
 public:

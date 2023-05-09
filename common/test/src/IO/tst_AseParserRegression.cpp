@@ -40,21 +40,21 @@ TEST_CASE("AseParserTest.parseFailure_2657")
   auto fs = VirtualFileSystem{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/ResourceUtils/assets"};
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+  fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Ase/steelstorm_player"};
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(basePath));
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/steelstorm_player";
+  fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
-  const auto shaderSearchPath = Path{"scripts"};
-  const auto textureSearchPaths = std::vector<Path>{Path{"models"}};
+  const auto shaderSearchPath = std::filesystem::path{"scripts"};
+  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
   fs.mount(
-    Path{},
+    std::filesystem::path{},
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile(Path{"player.ase"});
+  const auto aseFile = fs.openFile("player.ase");
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"player", reader.stringView(), fs};
 
@@ -71,21 +71,21 @@ TEST_CASE("AseParserTest.parseFailure_2679")
   auto fs = VirtualFileSystem{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+  fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/no_scene_directive");
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(basePath));
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/no_scene_directive";
+  fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
-  const auto shaderSearchPath = Path{"scripts"};
-  const auto textureSearchPaths = std::vector<Path>{Path{"models"}};
+  const auto shaderSearchPath = std::filesystem::path{"scripts"};
+  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
   fs.mount(
-    Path{},
+    std::filesystem::path{},
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile(Path("wedge_45.ase"));
+  const auto aseFile = fs.openFile("wedge_45.ase");
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -102,21 +102,21 @@ TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
   auto fs = VirtualFileSystem{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+  fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/index_out_of_bounds");
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(basePath));
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/index_out_of_bounds";
+  fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
-  const auto shaderSearchPath = Path{"scripts"};
-  const auto textureSearchPaths = std::vector<Path>{Path{"models"}};
+  const auto shaderSearchPath = std::filesystem::path{"scripts"};
+  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
   fs.mount(
-    Path{},
+    std::filesystem::path{},
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile(Path("wedge_45.ase"));
+  const auto aseFile = fs.openFile("wedge_45.ase");
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -133,21 +133,21 @@ TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
   auto fs = VirtualFileSystem{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/ResourceUtils/assets");
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+  fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Ase/index_out_of_bounds");
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(basePath));
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/index_out_of_bounds";
+  fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
-  const auto shaderSearchPath = Path{"scripts"};
-  const auto textureSearchPaths = std::vector<Path>{Path{"models"}};
+  const auto shaderSearchPath = std::filesystem::path{"scripts"};
+  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
   fs.mount(
-    Path{},
+    std::filesystem::path{},
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile(Path("wedge_45_no_uv.ase"));
+  const auto aseFile = fs.openFile("wedge_45_no_uv.ase");
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 

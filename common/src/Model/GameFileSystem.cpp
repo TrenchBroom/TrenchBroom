@@ -44,8 +44,8 @@ namespace Model
 
 void GameFileSystem::initialize(
   const GameConfig& config,
-  const IO::Path& gamePath,
-  const std::vector<IO::Path>& additionalSearchPaths,
+  const std::filesystem::path& gamePath,
+  const std::vector<std::filesystem::path>& additionalSearchPaths,
   Logger& logger)
 {
   unmountAll();
@@ -53,7 +53,7 @@ void GameFileSystem::initialize(
 
   addDefaultAssetPaths(config, logger);
 
-  if (!gamePath.isEmpty() && IO::Disk::pathInfo(gamePath) == IO::PathInfo::Directory)
+  if (!gamePath.empty() && IO::Disk::pathInfo(gamePath) == IO::PathInfo::Directory)
   {
     addGameFileSystems(config, gamePath, additionalSearchPaths, logger);
     addShaderFileSystem(config, logger);
@@ -69,9 +69,9 @@ void GameFileSystem::reloadShaders()
 }
 
 void GameFileSystem::reloadWads(
-  const IO::Path& rootPath,
-  const std::vector<IO::Path>& wadSearchPaths,
-  const std::vector<IO::Path>& wadPaths,
+  const std::filesystem::path& rootPath,
+  const std::vector<std::filesystem::path>& wadSearchPaths,
+  const std::vector<std::filesystem::path>& wadPaths,
   Logger& logger)
 {
   unmountWads();
@@ -85,15 +85,15 @@ void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logg
   // folders. We add filesystems for both types here.
 
   auto defaultFolderPaths =
-    IO::SystemPaths::findResourceDirectories(IO::Path("defaults"));
-  if (!config.path.isEmpty())
+    IO::SystemPaths::findResourceDirectories(std::filesystem::path("defaults"));
+  if (!config.path.empty())
   {
-    defaultFolderPaths.push_back(config.path.deleteLastComponent());
+    defaultFolderPaths.push_back(config.path.parent_path());
   }
 
   for (const auto& defaultFolderPath : defaultFolderPaths)
   {
-    const auto defaultAssetsPath = defaultFolderPath + IO::Path("assets");
+    const auto defaultAssetsPath = defaultFolderPath / std::filesystem::path("assets");
     auto exists = [](const auto& path) {
       try
       {
@@ -113,27 +113,27 @@ void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logg
 
 void GameFileSystem::addGameFileSystems(
   const GameConfig& config,
-  const IO::Path& gamePath,
-  const std::vector<IO::Path>& additionalSearchPaths,
+  const std::filesystem::path& gamePath,
+  const std::vector<std::filesystem::path>& additionalSearchPaths,
   Logger& logger)
 {
   const auto& fileSystemConfig = config.fileSystemConfig;
-  addFileSystemPath(gamePath + fileSystemConfig.searchPath, logger);
-  addFileSystemPackages(config, gamePath + fileSystemConfig.searchPath, logger);
+  addFileSystemPath(gamePath / fileSystemConfig.searchPath, logger);
+  addFileSystemPackages(config, gamePath / fileSystemConfig.searchPath, logger);
 
   for (const auto& searchPath : additionalSearchPaths)
   {
-    addFileSystemPath(gamePath + searchPath, logger);
-    addFileSystemPackages(config, gamePath + searchPath, logger);
+    addFileSystemPath(gamePath / searchPath, logger);
+    addFileSystemPackages(config, gamePath / searchPath, logger);
   }
 }
 
-void GameFileSystem::addFileSystemPath(const IO::Path& path, Logger& logger)
+void GameFileSystem::addFileSystemPath(const std::filesystem::path& path, Logger& logger)
 {
   try
   {
     logger.info() << "Adding file system path " << path;
-    mount(IO::Path{}, std::make_unique<IO::DiskFileSystem>(path));
+    mount(std::filesystem::path{}, std::make_unique<IO::DiskFileSystem>(path));
   }
   catch (const FileSystemException& e)
   {
@@ -143,7 +143,7 @@ void GameFileSystem::addFileSystemPath(const IO::Path& path, Logger& logger)
 }
 
 void GameFileSystem::addFileSystemPackages(
-  const GameConfig& config, const IO::Path& searchPath, Logger& logger)
+  const GameConfig& config, const std::filesystem::path& searchPath, Logger& logger)
 {
   const auto& fileSystemConfig = config.fileSystemConfig;
   const auto& packageFormatConfig = fileSystemConfig.packageFormat;
@@ -154,9 +154,9 @@ void GameFileSystem::addFileSystemPackages(
   if (IO::Disk::pathInfo(searchPath) == IO::PathInfo::Directory)
   {
     const auto diskFS = IO::DiskFileSystem{searchPath};
-    auto packages =
-      diskFS.find(IO::Path{}, IO::makeExtensionPathMatcher(packageExtensions));
-    packages = kdl::vec_sort(std::move(packages), IO::Path::Less<kdl::ci::string_less>{});
+    auto packages = diskFS.find(
+      std::filesystem::path{}, IO::makeExtensionPathMatcher(packageExtensions));
+    packages = kdl::vec_sort(std::move(packages));
 
     for (const auto& packagePath : packages)
     {
@@ -166,17 +166,22 @@ void GameFileSystem::addFileSystemPackages(
         if (kdl::ci::str_is_equal(packageFormat, "idpak"))
         {
           logger.info() << "Adding file system package " << packagePath;
-          mount(IO::Path{}, std::make_unique<IO::IdPakFileSystem>(absPackagePath));
+          mount(
+            std::filesystem::path{},
+            std::make_unique<IO::IdPakFileSystem>(absPackagePath));
         }
         else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
         {
           logger.info() << "Adding file system package " << packagePath;
-          mount(IO::Path{}, std::make_unique<IO::DkPakFileSystem>(absPackagePath));
+          mount(
+            std::filesystem::path{},
+            std::make_unique<IO::DkPakFileSystem>(absPackagePath));
         }
         else if (kdl::ci::str_is_equal(packageFormat, "zip"))
         {
           logger.info() << "Adding file system package " << packagePath;
-          mount(IO::Path{}, std::make_unique<IO::ZipFileSystem>(absPackagePath));
+          mount(
+            std::filesystem::path{}, std::make_unique<IO::ZipFileSystem>(absPackagePath));
         }
       }
       catch (const std::exception& e)
@@ -192,29 +197,29 @@ void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logge
   // To support Quake 3 shaders, we add a shader file system that loads the shaders
   // and makes them available as virtual files.
   const auto& textureConfig = config.textureConfig;
-  if (!textureConfig.shaderSearchPath.isEmpty())
+  if (!textureConfig.shaderSearchPath.empty())
   {
     logger.info() << "Adding shader file system";
     auto shaderSearchPath = textureConfig.shaderSearchPath;
     auto textureSearchPaths =
-      std::vector<IO::Path>{textureConfig.root, IO::Path("models")};
+      std::vector<std::filesystem::path>{textureConfig.root, "models"};
 
     auto shaderFs = std::make_unique<IO::Quake3ShaderFileSystem>(
       *this, std::move(shaderSearchPath), std::move(textureSearchPaths), logger);
     m_shaderFS = shaderFs.get();
-    mount(IO::Path{}, std::move(shaderFs));
+    mount(std::filesystem::path{}, std::move(shaderFs));
   }
 }
 
 void GameFileSystem::mountWads(
-  const IO::Path& rootPath,
-  const std::vector<IO::Path>& wadSearchPaths,
-  const std::vector<IO::Path>& wadPaths,
+  const std::filesystem::path& rootPath,
+  const std::vector<std::filesystem::path>& wadSearchPaths,
+  const std::vector<std::filesystem::path>& wadPaths,
   Logger& logger)
 {
   for (const auto& wadPath : wadPaths)
   {
-    const auto mountPath = rootPath + wadPath.lastComponent();
+    const auto mountPath = rootPath / wadPath.filename();
     const auto resolvedWadPath = IO::Disk::resolvePath(wadSearchPaths, wadPath);
     try
     {

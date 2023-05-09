@@ -23,12 +23,12 @@
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
 #include "IO/File.h"
-#include "IO/Path.h"
 #include "IO/TestParserStatus.h"
 
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
+#include <filesystem>
 #include <string>
 
 #include "Catch2.h"
@@ -52,9 +52,9 @@ static void assertPropertyDefinition(
 
 TEST_CASE("EntParserTest.parseIncludedEntFiles")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() + Path{"fixture/games/"};
+  const auto basePath = Disk::getCurrentWorkingDir() / "fixture/games/";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({"ent"}));
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({".ent"}));
 
   for (const auto& path : cfgFiles)
   {
@@ -70,7 +70,7 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles")
 
     /* Disabled because our files are full of previously undetected problems
     if (status.countStatus(LogLevel::Warn) > 0u) {
-        UNSCOPED_INFO("Parsing ENT file " << path.asString() << " produced warnings");
+        UNSCOPED_INFO("Parsing ENT file " << path.string() << " produced warnings");
         for (const auto& message : status.messages(LogLevel::Warn)) {
             UNSCOPED_INFO(message);
         }
@@ -78,7 +78,7 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles")
     }
 
     if (status.countStatus(LogLevel::Error) > 0u) {
-        UNSCOPED_INFO("Parsing ENT file " << path.asString() << " produced errors");
+        UNSCOPED_INFO("Parsing ENT file " << path.string() << " produced errors");
         for (const auto& message : status.messages(LogLevel::Error)) {
             UNSCOPED_INFO(message);
         }
@@ -475,8 +475,7 @@ TEST_CASE("EntParserTest.parseLegacyModelDefinition")
 
   const auto& modelDefinition = pointDefinition->modelDefinition();
   CHECK(
-    modelDefinition.defaultModelSpecification().path
-    == Path{"models/powerups/ammo/bfgam.md3"});
+    modelDefinition.defaultModelSpecification().path == "models/powerups/ammo/bfgam.md3");
 
   kdl::vec_clear_and_delete(definitions);
 }
@@ -505,7 +504,7 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition")
   const auto& modelDefinition = pointDefinition->modelDefinition();
   CHECK(
     modelDefinition.defaultModelSpecification().path
-    == Path{"models/powerups/ammo/bfgam2.md3"});
+    == "models/powerups/ammo/bfgam2.md3");
 
   kdl::vec_clear_and_delete(definitions);
 }

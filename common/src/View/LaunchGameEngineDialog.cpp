@@ -19,6 +19,14 @@
 
 #include "LaunchGameEngineDialog.h"
 
+#include <QCompleter>
+#include <QDialogButtonBox>
+#include <QDir>
+#include <QLabel>
+#include <QMessageBox>
+#include <QProcess>
+#include <QPushButton>
+
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "IO/PathQt.h"
@@ -41,14 +49,6 @@
 #include <kdl/string_utils.h>
 
 #include <string>
-
-#include <QCompleter>
-#include <QDialogButtonBox>
-#include <QDir>
-#include <QLabel>
-#include <QMessageBox>
-#include <QProcess>
-#include <QPushButton>
 
 namespace TrenchBroom
 {
@@ -241,7 +241,7 @@ void LaunchGameEngineDialog::launchEngine()
     const auto parameters =
       EL::interpolate(profile->parameterSpec, EL::EvaluationContext{variables()});
 
-    const auto workDir = IO::pathAsQString(profile->path.deleteLastComponent());
+    const auto workDir = IO::pathAsQString(profile->path.parent_path());
 
 #ifdef __APPLE__
     // We have to launch apps via the 'open' command so that we can properly pass

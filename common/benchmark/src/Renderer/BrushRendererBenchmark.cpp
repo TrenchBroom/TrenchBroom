@@ -17,7 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "../../test/src/Catch2.h"
 #include "Assets/Texture.h"
+#include "BenchmarkUtils.h"
 #include "Exceptions.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -34,9 +36,6 @@
 #include <string>
 #include <tuple>
 #include <vector>
-
-#include "../../test/src/Catch2.h"
-#include "BenchmarkUtils.h"
 
 namespace TrenchBroom
 {

@@ -28,7 +28,10 @@
 
 #include <kdl/functional.h>
 #include <kdl/result.h>
+#include <kdl/string_format.h>
+#include <kdl/vector_utils.h>
 
+#include <filesystem>
 #include <optional>
 #include <vector>
 
@@ -38,24 +41,26 @@ namespace TrenchBroom::IO
 namespace
 {
 
-std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
+std::optional<std::filesystem::path> findImage(
+  const std::filesystem::path& texturePath, const FileSystem& fs)
 {
   static const auto imageExtensions =
-    std::vector<std::string>{"tga", "png", "jpg", "jpeg"};
+    std::vector<std::string>{".tga", ".png", ".jpg", ".jpeg"};
 
-  if (!texturePath.isEmpty())
+  if (!texturePath.empty())
   {
     if (
-      texturePath.hasExtension(imageExtensions, false)
+      kdl::vec_contains(
+        imageExtensions, kdl::str_to_lower(texturePath.extension().string()))
       && fs.pathInfo(texturePath) == PathInfo::File)
     {
       return texturePath;
     }
 
-    const auto directoryPath = texturePath.deleteLastComponent();
-    const auto basename = texturePath.basename();
+    const auto directoryPath = texturePath.parent_path();
+    const auto basename = texturePath.stem().string();
     const auto candidates = fs.find(
-      texturePath.deleteLastComponent(),
+      texturePath.parent_path(),
       kdl::lift_and(
         makeFilenamePathMatcher(basename + ".*"),
         makeExtensionPathMatcher(imageExtensions)));
@@ -69,7 +74,7 @@ std::optional<Path> findImage(const Path& texturePath, const FileSystem& fs)
   return std::nullopt;
 }
 
-std::optional<Path> findImagePath(
+std::optional<std::filesystem::path> findImagePath(
   const Assets::Quake3Shader& shader, const FileSystem& fs)
 {
   if (const auto path = findImage(shader.editorImage, fs))
@@ -96,13 +101,13 @@ std::optional<Path> findImagePath(
 }
 
 kdl::result<Assets::Texture, ReadTextureError> loadTextureImage(
-  std::string shaderName, const Path& imagePath, const FileSystem& fs)
+  std::string shaderName, const std::filesystem::path& imagePath, const FileSystem& fs)
 {
   auto imageName = imagePath.filename();
   if (fs.pathInfo(imagePath) != PathInfo::File)
   {
     return ReadTextureError{
-      std::move(shaderName), "Image file '" + imagePath.asString() + "' does not exist"};
+      std::move(shaderName), "Image file '" + imagePath.string() + "' does not exist"};
   }
 
   const auto file = fs.openFile(imagePath);
@@ -127,7 +132,7 @@ kdl::result<Assets::Texture, ReadTextureError> readQuake3ShaderTexture(
   {
     return ReadTextureError{
       std::move(shaderName),
-      "Could not find texture path for shader '" + shader.shaderPath.asString() + "'"};
+      "Could not find texture path for shader '" + shader.shaderPath.string() + "'"};
   }
 
   return loadTextureImage(std::move(shaderName), *imagePath, fs)

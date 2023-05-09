@@ -19,15 +19,15 @@
 
 #include "Console.h"
 
-#include "FileLogger.h"
-#include "View/ViewConstants.h"
-
-#include <string>
-
 #include <QDebug>
 #include <QScrollBar>
 #include <QTextEdit>
 #include <QVBoxLayout>
+
+#include "FileLogger.h"
+#include "View/ViewConstants.h"
+
+#include <string>
 
 namespace TrenchBroom
 {

@@ -167,7 +167,7 @@ void UVView::gridDidChange()
   update();
 }
 
-void UVView::preferenceDidChange(const IO::Path&)
+void UVView::preferenceDidChange(const std::filesystem::path&)
 {
   update();
 }

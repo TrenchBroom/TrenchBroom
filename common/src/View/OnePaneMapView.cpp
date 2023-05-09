@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <QGridLayout>
-
 #include "OnePaneMapView.h"
+
+#include <QGridLayout>
 
 #include "View/CyclingMapView.h"
 #include "View/Grid.h"

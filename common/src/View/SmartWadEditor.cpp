@@ -19,7 +19,10 @@
 
 #include "SmartWadEditor.h"
 
-#include "IO/Path.h"
+#include <QFileDialog>
+#include <QListWidget>
+#include <QToolButton>
+
 #include "IO/PathQt.h"
 #include "Model/EntityNodeBase.h"
 #include "View/BorderLine.h"
@@ -31,9 +34,7 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
-#include <QFileDialog>
-#include <QListWidget>
-#include <QToolButton>
+#include <filesystem>
 
 namespace TrenchBroom::View
 {
@@ -41,23 +42,25 @@ namespace TrenchBroom::View
 namespace
 {
 
-std::vector<IO::Path> getWadPaths(
+std::vector<std::filesystem::path> getWadPaths(
   const std::vector<Model::EntityNodeBase*>& nodes, const std::string& propertyKey)
 {
   if (nodes.size() == 1)
   {
     if (const auto* wadPathsStr = nodes.front()->entity().property(propertyKey))
     {
-      return kdl::vec_transform(
-        kdl::str_split(*wadPathsStr, ";"), [](const auto& s) { return IO::Path{s}; });
+      return kdl::vec_transform(kdl::str_split(*wadPathsStr, ";"), [](const auto& s) {
+        return std::filesystem::path{s};
+      });
     }
   }
   return {};
 }
 
-std::string getWadPathStr(const std::vector<IO::Path>& wadPaths)
+std::string getWadPathStr(const std::vector<std::filesystem::path>& wadPaths)
 {
-  return kdl::str_join(IO::Path::asStrings(wadPaths), ";");
+  return kdl::str_join(
+    kdl::vec_transform(wadPaths, [](const auto& path) { return path.string(); }), ";");
 }
 
 } // namespace
@@ -159,7 +162,7 @@ void SmartWadEditor::removeSelectedWads()
   }
 
   auto wadPaths = getWadPaths(nodes(), propertyKey());
-  auto toRemove = std::vector<IO::Path>{};
+  auto toRemove = std::vector<std::filesystem::path>{};
 
   for (const auto* selectedItem : m_wadPaths->selectedItems())
   {
@@ -251,7 +254,7 @@ void SmartWadEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& n
 
   for (const auto& path : getWadPaths(nodes, propertyKey()))
   {
-    m_wadPaths->addItem(pathAsQString(path));
+    m_wadPaths->addItem(IO::pathAsQString(path));
   }
 }
 

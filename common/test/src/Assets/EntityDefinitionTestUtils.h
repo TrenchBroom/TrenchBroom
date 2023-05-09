@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Color.h"
-#include "IO/Path.h"
 
 #include <kdl/string_utils.h>
 

@@ -26,16 +26,19 @@
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
 
 namespace TrenchBroom::IO
 {
 
-std::string getTextureNameFromPathSuffix(const Path& path, size_t prefixLength)
+std::string getTextureNameFromPathSuffix(
+  const std::filesystem::path& path, size_t prefixLength)
 {
-  return prefixLength < path.length()
-           ? path.suffix(path.length() - prefixLength).deleteExtension().asString("/")
+  return prefixLength < kdl::path_length(path)
+           ? kdl::path_remove_extension(kdl::path_clip(path, prefixLength))
+               .generic_string()
            : "";
 }
 

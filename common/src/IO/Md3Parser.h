@@ -24,6 +24,7 @@
 
 #include <vecmath/forward.h>
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -38,7 +39,6 @@ class Texture;
 namespace IO
 {
 class FileSystem;
-class Path;
 class Reader;
 
 class Md3Parser : public EntityModelParser
@@ -57,7 +57,7 @@ private:
 public:
   Md3Parser(const std::string& name, const Reader& reader, const FileSystem& fs);
 
-  static bool canParse(const Path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
@@ -77,7 +77,7 @@ private:
     Assets::EntityModel& model);
 
   std::vector<Md3Triangle> parseTriangles(Reader reader, size_t triangleCount);
-  std::vector<Path> parseShaders(Reader reader, size_t shaderCount);
+  std::vector<std::filesystem::path> parseShaders(Reader reader, size_t shaderCount);
   std::vector<vm::vec3f> parseVertexPositions(Reader reader, size_t vertexCount);
   std::vector<vm::vec2f> parseTexCoords(Reader reader, size_t vertexCount);
   std::vector<Assets::EntityModelVertex> buildVertices(
@@ -85,9 +85,9 @@ private:
 
   void loadSurfaceSkins(
     Assets::EntityModelSurface& surface,
-    const std::vector<Path>& shaders,
+    const std::vector<std::filesystem::path>& shaders,
     Logger& logger);
-  Assets::Texture loadShader(Logger& logger, const Path& path) const;
+  Assets::Texture loadShader(Logger& logger, const std::filesystem::path& path) const;
 
   void buildFrameSurface(
     Assets::EntityModelLoadedFrame& frame,

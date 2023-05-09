@@ -22,6 +22,7 @@
 #include "Macros.h"
 #include "NotifierConnection.h"
 
+#include <filesystem>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -29,11 +30,6 @@
 namespace TrenchBroom
 {
 class Color;
-
-namespace IO
-{
-class Path;
-}
 
 namespace View
 {
@@ -159,7 +155,7 @@ private: // notification
 
   void editorContextDidChange();
 
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

@@ -19,6 +19,12 @@
 
 #include "IssueBrowserView.h"
 
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QItemSelectionModel>
+#include <QMenu>
+#include <QTableView>
+
 #include "Ensure.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
@@ -37,12 +43,6 @@
 #include <kdl/vector_utils.h>
 
 #include <vector>
-
-#include <QHBoxLayout>
-#include <QHeaderView>
-#include <QItemSelectionModel>
-#include <QMenu>
-#include <QTableView>
 
 namespace TrenchBroom
 {

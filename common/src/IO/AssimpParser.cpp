@@ -33,6 +33,7 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
@@ -65,7 +66,7 @@ private:
   Reader m_reader;
 
 protected:
-  AssimpIOStream(const Path& path, const FileSystem& fs)
+  AssimpIOStream(const std::filesystem::path& path, const FileSystem& fs)
     : m_fs{fs}
     , m_file{m_fs.openFile(path)}
     , m_reader{m_file->reader()}
@@ -139,10 +140,13 @@ public:
 
   bool Exists(const char* path) const override
   {
-    return m_fs.pathInfo(Path{path}) == PathInfo::File;
+    return m_fs.pathInfo(std::filesystem::path{path}) == PathInfo::File;
   }
 
-  char getOsSeparator() const override { return Path::separator()[0]; }
+  char getOsSeparator() const override
+  {
+    return std::filesystem::path::preferred_separator;
+  }
 
   void Close(Assimp::IOStream* file) override { delete file; }
 
@@ -152,7 +156,7 @@ public:
     {
       throw ParserException{"Assimp attempted to open a file not for reading."};
     }
-    return new AssimpIOStream{Path{path}, m_fs};
+    return new AssimpIOStream{path, m_fs};
   }
 };
 
@@ -163,9 +167,9 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 {
   // Create model.
   auto model = std::make_unique<Assets::EntityModel>(
-    m_path.asString(), Assets::PitchType::Normal, Assets::Orientation::Oriented);
+    m_path.string(), Assets::PitchType::Normal, Assets::Orientation::Oriented);
   model->addFrame();
-  auto& surface = model->addSurface(m_path.asString());
+  auto& surface = model->addSurface(m_path.string());
 
   m_positions.clear();
   m_vertices.clear();
@@ -177,7 +181,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   importer.SetIOHandler(new AssimpIOSystem{m_fs});
 
   const auto* scene = importer.ReadFile(
-    m_path.asString(),
+    m_path.string(),
     aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_FlipWindingOrder
       | aiProcess_SortByPType | aiProcess_FlipUVs);
 
@@ -224,7 +228,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   }
 
   // Part 2: Building
-  auto& frame = model->loadFrame(0, m_path.asString(), bounds.bounds());
+  auto& frame = model->loadFrame(0, m_path.string(), bounds.bounds());
   auto builder = Renderer::TexturedIndexRangeMapBuilder<Assets::EntityModelVertex::Type>{
     totalVertexCount, size};
 
@@ -241,31 +245,32 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   return model;
 }
 
-AssimpParser::AssimpParser(Path path, const FileSystem& fs)
+AssimpParser::AssimpParser(std::filesystem::path path, const FileSystem& fs)
   : m_path{std::move(path)}
   , m_fs{fs}
 {
 }
 
-bool AssimpParser::canParse(const Path& path)
+bool AssimpParser::canParse(const std::filesystem::path& path)
 {
   // clang-format off
   static const auto supportedExtensions = std::vector<std::string>{
     // Quake model formats have been omitted since Trenchbroom's got its own parsers
     // already.
-    "3mf",  "dae",      "xml",          "blend",    "bvh",       "3ds",  "ase",
-    "lwo",  "lws",      "md5mesh",      "md5anim",  "md5camera", // Lightwave and Doom 3 formats
-    "gltf", "fbx",      "glb",          "ply",      "dxf",       "ifc",  "iqm",
-    "nff",  "smd",      "vta", // .smd and .vta are uncompiled Source engine models.
-    "mdc",  "x",        "q30",          "qrs",      "ter",       "raw",  "ac",
-    "ac3d", "stl",      "dxf",          "irrmesh",  "irr",       "off",
-    "obj", // .obj files will only be parsed by Assimp if the neverball importer isn't enabled
-    "mdl", // 3D GameStudio Model. It requires a palette file to load.
-    "hmp",  "mesh.xml", "skeleton.xml", "material", "ogex",      "ms3d", "lxo",
-    "csm",  "ply",      "cob",          "scn",      "xgl"};
+    ".3mf",  ".dae",      ".xml",          ".blend",    ".bvh",       ".3ds",  ".ase",
+    ".lwo",  ".lws",      ".md5mesh",      ".md5anim",  ".md5camera", // Lightwave and Doom 3 formats
+    ".gltf", ".fbx",      ".glb",          ".ply",      ".dxf",       ".ifc",  ".iqm",
+    ".nff",  ".smd",      ".vta", // .smd and .vta are uncompiled Source engine models.
+    ".mdc",  ".x",        ".q30",          ".qrs",      ".ter",       ".raw",  ".ac",
+    ".ac3d", ".stl",      ".dxf",          ".irrmesh",  ".irr",       ".off",
+    ".obj", // .obj files will only be parsed by Assimp if the neverball importer isn't enabled
+    ".mdl", // 3D GameStudio Model. It requires a palette file to load.
+    ".hmp",  ".mesh.xml", ".skeleton.xml", ".material", ".ogex",      ".ms3d", ".lxo",
+    ".csm",  ".ply",      ".cob",          ".scn",      ".xgl"};
   // clang-format on
 
-  return kdl::vec_contains(supportedExtensions, kdl::str_to_lower(path.extension()));
+  return kdl::vec_contains(
+    supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
 void AssimpParser::processNode(
@@ -331,7 +336,7 @@ namespace
 {
 
 Assets::Texture loadTextureFromFileSystem(
-  const Path& path, const FileSystem& fs, Logger& logger)
+  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   const auto file = fs.openFile(path);
   auto reader = file->reader().buffer();
@@ -372,13 +377,13 @@ Assets::Texture loadCompressedEmbeddedTexture(
 
 std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 {
-  static const auto texturePaths = std::vector<Path>{
-    Path{"textures"}
-      + Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("png"),
-    Path{"textures"}
-      + Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
-    Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("png"),
-    Path{Model::BrushFaceAttributes::NoTextureName}.addExtension("jpg"),
+  static const auto texturePaths = std::vector<std::filesystem::path>{
+    "textures"
+      / kdl::path_add_extension(Model::BrushFaceAttributes::NoTextureName, ".png"),
+    "textures"
+      / kdl::path_add_extension(Model::BrushFaceAttributes::NoTextureName, ".jpg"),
+    kdl::path_add_extension(Model::BrushFaceAttributes::NoTextureName, ".png"),
+    kdl::path_add_extension(Model::BrushFaceAttributes::NoTextureName, ".jpg"),
   };
 
   for (const auto& texturePath : texturePaths)
@@ -419,12 +424,12 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
       auto path = aiString{};
       scene.mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
 
-      const auto texturePath = Path{path.C_Str()};
+      const auto texturePath = std::filesystem::path{path.C_Str()};
       const auto* texture = scene.GetEmbeddedTexture(path.C_Str());
       if (!texture)
       {
         // The texture is not embedded. Load it using the file system.
-        const auto filePath = m_path.deleteLastComponent() + texturePath;
+        const auto filePath = m_path.parent_path() / texturePath;
         m_textures.push_back(loadTextureFromFileSystem(filePath, m_fs, logger));
       }
       else if (texture->mHeight != 0)
@@ -456,7 +461,7 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
                                   ? scene.mMaterials[i]->GetName().C_Str()
                                   : "nr. " + std::to_string(i + 1);
       logger.error(
-        "Model " + m_path.asString() + ": Loading fallback material for material "
+        "Model " + m_path.string() + ": Loading fallback material for material "
         + materialName + ": " + exception.what());
     }
   }

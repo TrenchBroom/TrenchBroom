@@ -17,25 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestLogger.h"
-#include "TestUtils.h"
-
 #include "Assets/EntityModel.h"
 #include "Exceptions.h"
-#include "IO/EntityModelLoader.h"
-#include "IO/Path.h"
-#include "Model/Game.h"
-
-#include <optional>
-
 #include "IO/DiskIO.h"
+#include "IO/EntityModelLoader.h"
 #include "IO/GameConfigParser.h"
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
+#include "TestLogger.h"
+#include "TestUtils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>
 #include <vecmath/ray.h>
+
+#include <filesystem>
+#include <optional>
 
 #include "Catch2.h"
 
@@ -48,7 +45,7 @@ TEST_CASE("BSP model intersection test")
   auto logger = TestLogger();
   auto [game, gameConfig] = Model::loadGame("Quake");
 
-  const auto path = IO::Path("cube.bsp");
+  const auto path = std::filesystem::path{"cube.bsp"};
 
   std::unique_ptr<Assets::EntityModel> model = game->initializeModel(path, logger);
   game->loadFrame(path, 0, *model, logger);

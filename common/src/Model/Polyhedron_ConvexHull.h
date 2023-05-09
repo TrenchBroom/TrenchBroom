@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Macros.h"
-
 #include "Polyhedron.h"
 
 #include <kdl/vector_utils.h>

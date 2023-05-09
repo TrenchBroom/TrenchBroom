@@ -19,10 +19,14 @@
 
 #include "CompilationRunner.h"
 
+#include <QDir>
+#include <QMetaEnum>
+#include <QProcess>
+#include <QtGlobal>
+
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
-#include "IO/Path.h"
 #include "IO/PathMatcher.h"
 #include "IO/PathQt.h"
 #include "Model/CompilationProfile.h"
@@ -35,12 +39,8 @@
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
+#include <filesystem>
 #include <string>
-
-#include <QDir>
-#include <QMetaEnum>
-#include <QProcess>
-#include <QtGlobal>
 
 namespace TrenchBroom
 {
@@ -92,14 +92,14 @@ void CompilationExportMapTaskRunner::doExecute()
 
   try
   {
-    const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
+    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
     try
     {
       m_context << "#### Exporting map file '" << IO::pathAsQString(targetPath) << "'\n";
 
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath.deleteLastComponent());
+        IO::Disk::ensureDirectoryExists(targetPath.parent_path());
 
         const auto options = IO::MapExportOptions{targetPath};
         const auto document = m_context.document();
@@ -137,19 +137,20 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
   try
   {
-    const auto sourcePath = IO::Path{interpolate(m_task.sourceSpec)};
-    const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
+    const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
+    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
-    const auto sourceDirPath = sourcePath.deleteLastComponent();
+    const auto sourceDirPath = sourcePath.parent_path();
     const auto sourcePathMatcher =
-      IO::makeFilenamePathMatcher(sourcePath.lastComponent().asString());
+      IO::makeFilenamePathMatcher(sourcePath.filename().string());
 
     try
     {
       const auto sourcePaths = IO::Disk::find(sourceDirPath, sourcePathMatcher);
       const auto sourceStrs = kdl::vec_transform(
-        sourcePaths, [](const auto& path) { return "'" + path.asString() + "'"; });
+        sourcePaths, [](const auto& path) { return "'" + path.string() + "'"; });
       const auto sourceListQStr = QString::fromStdString(kdl::str_join(sourceStrs, ", "));
+
       m_context << "#### Copying to '" << IO::pathAsQString(targetPath)
                 << "/': " << sourceListQStr << "\n";
       if (!m_context.test())
@@ -190,8 +191,8 @@ void CompilationRenameFileTaskRunner::doExecute()
 
   try
   {
-    const auto sourcePath = IO::Path{interpolate(m_task.sourceSpec)};
-    const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
+    const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
+    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
     try
     {
@@ -199,7 +200,7 @@ void CompilationRenameFileTaskRunner::doExecute()
                 << IO::pathAsQString(targetPath) << "'\n";
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath.deleteLastComponent());
+        IO::Disk::ensureDirectoryExists(targetPath.parent_path());
         IO::Disk::moveFile(sourcePath, targetPath, true);
       }
       emit end();
@@ -234,17 +235,17 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
   try
   {
-    const auto targetPath = IO::Path{interpolate(m_task.targetSpec)};
+    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
-    const auto targetDirPath = targetPath.deleteLastComponent();
+    const auto targetDirPath = targetPath.parent_path();
     const auto targetPathMatcher =
-      IO::makeFilenamePathMatcher(targetPath.lastComponent().asString());
+      IO::makeFilenamePathMatcher(targetPath.filename().string());
 
     try
     {
       const auto targetPaths = IO::Disk::find(targetDirPath, targetPathMatcher);
       const auto targetStrs = kdl::vec_transform(
-        targetPaths, [](const auto& path) { return "'" + path.asString() + "'"; });
+        targetPaths, [](const auto& path) { return "'" + path.string() + "'"; });
       const auto targetListQStr = QString::fromStdString(kdl::str_join(targetStrs, ", "));
       m_context << "#### Deleting: " << targetListQStr << "\n";
       if (!m_context.test())
@@ -357,19 +358,19 @@ void CompilationRunToolTaskRunner::startProcess()
 
 std::string CompilationRunToolTaskRunner::cmd()
 {
-  const auto toolPath = IO::Path{interpolate(m_task.toolSpec)};
+  const auto toolPath = std::filesystem::path{interpolate(m_task.toolSpec)};
   const auto parameters = interpolate(m_task.parameterSpec);
   if (parameters.empty())
   {
-    return "\"" + toolPath.asString() + "\"";
+    return "\"" + toolPath.string() + "\"";
   }
-  else if (toolPath.isEmpty())
+  else if (toolPath.empty())
   {
     return "";
   }
   else
   {
-    return "\"" + toolPath.asString() + "\" " + parameters;
+    return "\"" + toolPath.string() + "\" " + parameters;
   }
 }
 

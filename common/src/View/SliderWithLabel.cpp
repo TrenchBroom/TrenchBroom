@@ -19,12 +19,12 @@
 
 #include "SliderWithLabel.h"
 
-#include "View/QtUtils.h"
-#include "View/ViewConstants.h"
-
 #include <QBoxLayout>
 #include <QLabel>
 #include <QSlider>
+
+#include "View/QtUtils.h"
+#include "View/ViewConstants.h"
 
 #include <cmath> // for std::log10
 

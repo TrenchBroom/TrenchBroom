@@ -22,7 +22,6 @@
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/IOUtils.h"
-#include "IO/Path.h"
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
@@ -49,6 +48,21 @@
 #include "View/MainMenuBuilder.h"
 #endif
 
+#include <QColor>
+#include <QCommandLineParser>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QFile>
+#include <QFileDialog>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QPalette>
+#include <QProxyStyle>
+#include <QStandardPaths>
+#include <QSysInfo>
+#include <QUrl>
+
+#include <kdl/path_utils.h>
 #include <kdl/set_temp.h>
 #include <kdl/string_utils.h>
 
@@ -63,20 +77,6 @@
 #include <sstream>
 #include <string>
 #include <vector>
-
-#include <QColor>
-#include <QCommandLineParser>
-#include <QDebug>
-#include <QDesktopServices>
-#include <QFile>
-#include <QFileDialog>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QPalette>
-#include <QProxyStyle>
-#include <QStandardPaths>
-#include <QSysInfo>
-#include <QUrl>
 
 namespace TrenchBroom
 {
@@ -156,7 +156,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
     m_recentDocuments.get(),
     &RecentDocuments::loadDocument,
     this,
-    [this](const IO::Path& path) { openDocument(path); });
+    [this](const std::filesystem::path& path) { openDocument(path); });
   connect(
     m_recentDocuments.get(),
     &RecentDocuments::didChange,
@@ -254,7 +254,7 @@ QPalette TrenchBroomApp::darkPalette()
 
 bool TrenchBroomApp::loadStyleSheets()
 {
-  const auto path = IO::SystemPaths::findResourceFile(IO::Path{"stylesheets/base.qss"});
+  const auto path = IO::SystemPaths::findResourceFile("stylesheets/base.qss");
   if (auto file = QFile{IO::pathAsQString(path)}; file.exists())
   {
     // closed automatically by destructor
@@ -316,7 +316,7 @@ void TrenchBroomApp::loadStyle()
   }
 }
 
-const std::vector<IO::Path>& TrenchBroomApp::recentDocuments() const
+const std::vector<std::filesystem::path>& TrenchBroomApp::recentDocuments() const
 {
   return m_recentDocuments->recentDocuments();
 }
@@ -331,19 +331,19 @@ void TrenchBroomApp::removeRecentDocumentMenu(QMenu* menu)
   m_recentDocuments->removeMenu(menu);
 }
 
-void TrenchBroomApp::updateRecentDocument(const IO::Path& path)
+void TrenchBroomApp::updateRecentDocument(const std::filesystem::path& path)
 {
   m_recentDocuments->updatePath(path);
 }
 
-bool TrenchBroomApp::openDocument(const IO::Path& path)
+bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 {
   auto* frame = static_cast<MapFrame*>(nullptr);
   try
   {
     if (IO::Disk::pathInfo(path) != IO::PathInfo::File)
     {
-      throw FileNotFoundException{path.asString()};
+      throw FileNotFoundException{path.string()};
     }
 
     auto& gameFactory = Model::GameFactory::instance();
@@ -368,7 +368,7 @@ bool TrenchBroomApp::openDocument(const IO::Path& path)
   }
   catch (const FileNotFoundException& e)
   {
-    m_recentDocuments->removePath(IO::Path{path});
+    m_recentDocuments->removePath(path);
     if (frame)
     {
       frame->close();
@@ -411,8 +411,8 @@ bool TrenchBroomApp::initializeGameFactory()
   try
   {
     const auto gamePathConfig = Model::GamePathConfig{
-      IO::SystemPaths::findResourceDirectories(IO::Path{"games"}),
-      IO::SystemPaths::userDataDirectory() + IO::Path{"games"},
+      IO::SystemPaths::findResourceDirectories("games"),
+      IO::SystemPaths::userDataDirectory() / "games",
     };
     auto& gameFactory = Model::GameFactory::instance();
     gameFactory.initialize(gamePathConfig);
@@ -478,7 +478,7 @@ void TrenchBroomApp::openDocument()
     fileDialogDefaultDirectory(FileDialogDir::Map),
     "Map files (*.map);;Any files (*.*)");
 
-  if (const auto path = IO::pathFromQString(pathStr); !path.isEmpty())
+  if (const auto path = IO::pathFromQString(pathStr); !path.empty())
   {
     updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Map, pathStr);
     openDocument(path);
@@ -487,9 +487,8 @@ void TrenchBroomApp::openDocument()
 
 void TrenchBroomApp::showManual()
 {
-  const auto manualPath =
-    IO::SystemPaths::findResourceFile(IO::Path{"manual/index.html"});
-  const auto manualPathString = manualPath.asString();
+  const auto manualPath = IO::SystemPaths::findResourceFile("manual/index.html");
+  const auto manualPathString = manualPath.string();
   const auto manualPathUrl =
     QUrl::fromLocalFile(QString::fromStdString(manualPathString));
   QDesktopServices::openUrl(manualPathUrl);
@@ -507,12 +506,9 @@ void TrenchBroomApp::showAboutDialog()
 
 void TrenchBroomApp::debugShowCrashReportDialog()
 {
-  const auto reportPath =
-    IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.txt");
-  const IO::Path mapPath =
-    IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.map");
-  const IO::Path logPath =
-    IO::SystemPaths::userDataDirectory() + IO::Path("crashreport.log");
+  const auto reportPath = IO::SystemPaths::userDataDirectory() / "crashreport.txt";
+  const auto mapPath = IO::SystemPaths::userDataDirectory() / "crashreport.map";
+  const auto logPath = IO::SystemPaths::userDataDirectory() / "crashreport.log";
 
   auto dialog = CrashDialog{"Debug crash", reportPath, mapPath, logPath};
   dialog.exec();
@@ -556,7 +552,7 @@ bool TrenchBroomApp::event(QEvent* event)
   if (event->type() == QEvent::FileOpen)
   {
     const auto* openEvent = static_cast<QFileOpenEvent*>(event);
-    const auto path = IO::Path{openEvent->file().toStdString()};
+    const auto path = std::filesystem::path{openEvent->file().toStdString()};
     if (openDocument(path))
     {
       closeWelcomeWindow();
@@ -582,7 +578,7 @@ bool TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
     if (useSDI())
     {
       const auto path = IO::pathFromQString(fileNames.at(0));
-      if (!path.isEmpty())
+      if (!path.empty())
       {
         openDocument(path);
       }
@@ -650,22 +646,21 @@ std::string makeCrashReport(const std::string& stacktrace, const std::string& re
 }
 
 // returns the empty path for unsaved maps, or if we can't determine the current map
-IO::Path savedMapPath()
+std::filesystem::path savedMapPath()
 {
   const auto document = topDocument();
-  return document && document->path().isAbsolute() ? document->path() : IO::Path{};
+  return document && document->path().is_absolute() ? document->path()
+                                                    : std::filesystem::path{};
 }
 
-IO::Path crashReportBasePath()
+std::filesystem::path crashReportBasePath()
 {
   const auto mapPath = savedMapPath();
-  const auto crashLogPath =
-    !mapPath.isEmpty()
-      ? mapPath.deleteLastComponent()
-          + IO::Path{mapPath.lastComponent().deleteExtension().asString() + "-crash.txt"}
-      : IO::pathFromQString(
-          QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation))
-          + IO::Path{"trenchbroom-crash.txt"};
+  const auto crashLogPath = !mapPath.empty()
+                              ? mapPath.parent_path() / mapPath.stem() += "-crash.txt"
+                              : IO::pathFromQString(QStandardPaths::writableLocation(
+                                  QStandardPaths::DocumentsLocation))
+                                  / "trenchbroom-crash.txt";
 
   // ensure it doesn't exist
   auto index = 0;
@@ -674,12 +669,12 @@ IO::Path crashReportBasePath()
   {
     ++index;
 
-    const auto testCrashLogName = fmt::format(
-      "{}-{}.txt", crashLogPath.lastComponent().deleteExtension().asString(), index);
-    testCrashLogPath = crashLogPath.deleteLastComponent() + IO::Path{testCrashLogName};
+    const auto testCrashLogName =
+      fmt::format("{}-{}.txt", crashLogPath.stem().string(), index);
+    testCrashLogPath = crashLogPath.parent_path() / testCrashLogName;
   }
 
-  return testCrashLogPath.deleteExtension();
+  return kdl::path_remove_extension(testCrashLogPath);
 }
 
 bool inReportCrashAndExit = false;
@@ -709,34 +704,34 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   const auto basePath = crashReportBasePath();
 
   // ensure the containing directory exists
-  IO::Disk::ensureDirectoryExists(basePath.deleteLastComponent());
+  IO::Disk::ensureDirectoryExists(basePath.parent_path());
 
-  const auto reportPath = basePath.addExtension("txt");
-  auto logPath = basePath.addExtension("log");
-  auto mapPath = basePath.addExtension("map");
+  const auto reportPath = kdl::path_add_extension(basePath, ".txt");
+  auto logPath = kdl::path_add_extension(basePath, ".log");
+  auto mapPath = kdl::path_add_extension(basePath, ".map");
 
-  std::ofstream reportStream = openPathAsOutputStream(reportPath);
+  std::ofstream reportStream = IO::openPathAsOutputStream(reportPath);
   reportStream << report;
   reportStream.close();
-  std::cerr << "wrote crash log to " << reportPath.asString() << std::endl;
+  std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
 
   // save the map
   auto doc = topDocument();
   if (doc.get())
   {
     doc->saveDocumentTo(mapPath);
-    std::cerr << "wrote map to " << mapPath.asString() << std::endl;
+    std::cerr << "wrote map to " << mapPath.string() << std::endl;
   }
   else
   {
-    mapPath = IO::Path{};
+    mapPath = std::filesystem::path{};
   }
 
   // Copy the log file
   if (!QFile::copy(
         IO::pathAsQString(IO::SystemPaths::logFilePath()), IO::pathAsQString(logPath)))
   {
-    logPath = IO::Path{};
+    logPath = std::filesystem::path{};
   }
 
   // write the crash log to stderr

@@ -27,6 +27,8 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
+#include <kdl/overload.h>
+
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
 #include <vecmath/mat.h>
@@ -34,8 +36,6 @@
 #include <vecmath/mat_io.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include <kdl/overload.h>
 
 #include "Catch2.h"
 

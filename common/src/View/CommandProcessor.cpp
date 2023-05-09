@@ -19,6 +19,8 @@
 
 #include "CommandProcessor.h"
 
+#include <QDateTime>
+
 #include "Exceptions.h"
 #include "Notifier.h"
 #include "View/Command.h"
@@ -30,8 +32,6 @@
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
-
-#include <QDateTime>
 
 namespace TrenchBroom
 {

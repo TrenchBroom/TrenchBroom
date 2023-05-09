@@ -20,12 +20,12 @@
 #pragma once
 
 #include "Color.h"
-#include "IO/Path.h"
 #include "Preference.h"
 
-#include <vector>
-
 #include <vecmath/util.h>
+
+#include <filesystem>
+#include <vector>
 
 namespace TrenchBroom
 {
@@ -132,7 +132,7 @@ extern Preference<bool> EnableMSAA;
 extern Preference<bool> TextureLock;
 extern Preference<bool> UVLock;
 
-Preference<IO::Path>& RendererFontPath();
+Preference<std::filesystem::path>& RendererFontPath();
 extern Preference<int> RendererFontSize;
 
 extern Preference<int> BrowserFontSize;
@@ -205,7 +205,7 @@ extern Preference<QString> EntityLinkMode;
  * or if we wanted to do a Path to Preference lookup.
  */
 const std::vector<PreferenceBase*>& staticPreferences();
-const std::map<IO::Path, PreferenceBase*>& staticPreferencesMap();
+const std::map<std::filesystem::path, PreferenceBase*>& staticPreferencesMap();
 /**
  * Returns the subset of staticPreferences() that are key sequences, used by
  * dump-shortcuts.

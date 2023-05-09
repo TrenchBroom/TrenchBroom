@@ -75,7 +75,7 @@ std::unique_ptr<TextureFont> FreeTypeFontFactory::doCreateFont(
 std::pair<FT_Face, IO::BufferedReader> FreeTypeFontFactory::loadFont(
   const FontDescriptor& fontDescriptor)
 {
-  const auto fontPath = fontDescriptor.path().isAbsolute()
+  const auto fontPath = fontDescriptor.path().is_absolute()
                           ? fontDescriptor.path()
                           : IO::SystemPaths::findResourceFile(fontDescriptor.path());
 

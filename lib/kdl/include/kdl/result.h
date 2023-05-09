@@ -379,7 +379,7 @@ public:
   auto or_else(const F& f) const&
   {
     static_assert(
-      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
     using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
@@ -405,7 +405,7 @@ public:
   auto or_else(const F& f) &
   {
     static_assert(
-      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
     using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
@@ -429,7 +429,7 @@ public:
   auto or_else(const F& f) &&
   {
     static_assert(
-      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
     using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
@@ -1066,7 +1066,7 @@ public:
   auto or_else(const F& f) const&
   {
     static_assert(
-      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
     using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
@@ -1091,7 +1091,7 @@ public:
   auto or_else(const F& f) &
   {
     static_assert(
-      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
     using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
@@ -1116,7 +1116,7 @@ public:
   auto or_else(const F& f) &&
   {
     static_assert(
-      std::tuple_size_v<std::tuple<Errors...>> > 0,
+      sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
     using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));

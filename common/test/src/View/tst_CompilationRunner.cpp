@@ -17,22 +17,22 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "TestUtils.h"
+#include <QObject>
+#include <QTextEdit>
 
 #include "EL/VariableStore.h"
 #include "IO/TestEnvironment.h"
 #include "MapDocumentTest.h"
 #include "Model/CompilationTask.h"
+#include "TestUtils.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationRunner.h"
 #include "View/CompilationVariables.h"
 #include "View/TextOutputAdapter.h"
 
-#include <QObject>
-#include <QTextEdit>
-
 #include <chrono>
 #include <condition_variable>
+#include <filesystem>
 #include <mutex>
 #include <thread>
 
@@ -114,21 +114,21 @@ TEST_CASE_METHOD(
 
   auto testEnvironment = IO::TestEnvironment{};
 
-  const auto sourcePath = IO::Path("my_map.map");
+  const auto sourcePath = "my_map.map";
   testEnvironment.createFile(sourcePath, "{}");
 
-  const auto targetPath = IO::Path("some/other/path");
+  const auto targetPath = std::filesystem::path{"some/other/path"};
 
   auto task = Model::CompilationCopyFiles{
     true,
-    (testEnvironment.dir() + sourcePath).asString(),
-    (testEnvironment.dir() + targetPath).asString()};
+    (testEnvironment.dir() / sourcePath).string(),
+    (testEnvironment.dir() / targetPath).string()};
   auto runner = CompilationCopyFilesTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
 
   CHECK(testEnvironment.directoryExists(targetPath));
-  CHECK(testEnvironment.loadFile(targetPath + sourcePath) == "{}");
+  CHECK(testEnvironment.loadFile(targetPath / sourcePath) == "{}");
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
@@ -143,21 +143,21 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
 
   auto testEnvironment = IO::TestEnvironment{};
 
-  const auto sourcePath = IO::Path("my_map.map");
+  const auto sourcePath = "my_map.map";
   testEnvironment.createFile(sourcePath, "{}");
 
-  const auto targetPath = IO::Path("some/other/path/your_map.map");
+  const auto targetPath = std::filesystem::path{"some/other/path/your_map.map"};
   if (overwrite)
   {
-    testEnvironment.createDirectory(targetPath.deleteLastComponent());
+    testEnvironment.createDirectory(targetPath.parent_path());
     testEnvironment.createFile(targetPath, "{...}");
     REQUIRE(testEnvironment.loadFile(targetPath) == "{...}");
   }
 
   auto task = Model::CompilationRenameFile{
     true,
-    (testEnvironment.dir() + sourcePath).asString(),
-    (testEnvironment.dir() + targetPath).asString()};
+    (testEnvironment.dir() / sourcePath).string(),
+    (testEnvironment.dir() / targetPath).string()};
   auto runner = CompilationRenameFileTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
@@ -175,18 +175,18 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
 
   auto testEnvironment = IO::TestEnvironment{};
 
-  const auto file1 = IO::Path("file1.lit");
-  const auto file2 = IO::Path("file2.lit");
-  const auto file3 = IO::Path("file3.map");
-  const auto dir = IO::Path("somedir.lit");
+  const auto file1 = "file1.lit";
+  const auto file2 = "file2.lit";
+  const auto file3 = "file3.map";
+  const auto dir = "somedir.lit";
 
   testEnvironment.createFile(file1, "");
   testEnvironment.createFile(file2, "");
   testEnvironment.createFile(file3, "");
   testEnvironment.createDirectory(dir);
 
-  auto task = Model::CompilationDeleteFiles{
-    true, (testEnvironment.dir() + IO::Path("*.lit")).asString()};
+  auto task =
+    Model::CompilationDeleteFiles{true, (testEnvironment.dir() / "*.lit").string()};
   auto runner = CompilationDeleteFilesTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
@@ -200,7 +200,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
 TEST_CASE("CompilationRunner.interpolateToolsVariables")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path{"fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"},
+    "fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
     "Quake",
     Model::MapFormat::Unknown);
   const auto testWorkDir = std::string{"/some/path"};
@@ -214,8 +214,8 @@ TEST_CASE("CompilationRunner.interpolateToolsVariables")
   const auto midSubstr = std::string{" bar "};
   const auto toInterpolate = startSubstr + std::string{"${MAP_DIR_PATH}"} + midSubstr
                              + std::string{"${WORK_DIR_PATH}"};
-  const auto expected = startSubstr + document->path().deleteLastComponent().asString()
-                        + midSubstr + testWorkDir;
+  const auto expected =
+    startSubstr + document->path().parent_path().string() + midSubstr + testWorkDir;
 
   const auto interpolated = context.interpolate(toInterpolate);
 

@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Model/GameEngineConfig.h"
-
 #include <QWidget>
+
+#include "Model/GameEngineConfig.h"
 
 class QAbstractButton;
 

@@ -26,6 +26,7 @@
 #include "Macros.h"
 #include "Model/GameConfig.h"
 
+#include <filesystem>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -38,7 +39,6 @@ class BrushFaceAttributes;
 
 namespace TrenchBroom::IO
 {
-class Path;
 
 class GameConfigParser : public ConfigParserBase
 {
@@ -46,7 +46,7 @@ private:
   EL::IntegerType m_version;
 
 public:
-  explicit GameConfigParser(std::string_view str, const Path& path = Path(""));
+  explicit GameConfigParser(std::string_view str, const std::filesystem::path& path = {});
 
   Model::GameConfig parse();
 

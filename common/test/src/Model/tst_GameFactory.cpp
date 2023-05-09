@@ -21,6 +21,8 @@
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 
+#include <filesystem>
+
 #include "Catch2.h"
 
 namespace TrenchBroom
@@ -28,14 +30,14 @@ namespace TrenchBroom
 namespace Model
 {
 
-static const auto gamesPath = IO::Path{"games"};
-static const auto userPath = IO::Path{"user"};
+static const auto gamesPath = std::filesystem::path{"games"};
+static const auto userPath = std::filesystem::path{"user"};
 
 static void setupTestEnvironment(IO::TestEnvironment& env)
 {
   env.createDirectory(gamesPath);
-  env.createDirectory(gamesPath + IO::Path{"Quake"});
-  env.createFile(gamesPath + IO::Path{"Quake/GameConfig.cfg"}, R"({
+  env.createDirectory(gamesPath / "Quake");
+  env.createFile(gamesPath / "Quake/GameConfig.cfg", R"({
     "version": 8,
     "name": "Quake",
     "icon": "Icon.png",
@@ -48,7 +50,7 @@ static void setupTestEnvironment(IO::TestEnvironment& env)
     },
     "textures": {
         "root": "textures",
-        "extensions": ["D"],
+        "extensions": [".D"],
         "palette": "gfx/palette.lmp",
         "attribute": "wad"
     },
@@ -64,8 +66,8 @@ static void setupTestEnvironment(IO::TestEnvironment& env)
 })");
 
   env.createDirectory(userPath);
-  env.createDirectory(userPath + IO::Path{"Quake"});
-  env.createFile(userPath + IO::Path{"Quake/CompilationProfiles.cfg"}, R"({
+  env.createDirectory(userPath / "Quake");
+  env.createFile(userPath / "Quake/CompilationProfiles.cfg", R"({
     "profiles": [
         {
             "name": "Full Compile",
@@ -81,7 +83,7 @@ static void setupTestEnvironment(IO::TestEnvironment& env)
     "version": 1
 })");
 
-  env.createFile(userPath + IO::Path{"Quake/GameEngineProfiles.cfg"}, R"({
+  env.createFile(userPath / "Quake/GameEngineProfiles.cfg", R"({
     "profiles": [
         {
             "name": "QuakeSpasm",
@@ -98,9 +100,9 @@ TEST_CASE("GameFactory.initialize")
   const auto env = IO::TestEnvironment{setupTestEnvironment};
 
   auto& gameFactory = GameFactory::instance();
-  CHECK_NOTHROW(gameFactory.initialize({{env.dir() + gamesPath}, env.dir() + userPath}));
+  CHECK_NOTHROW(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}));
 
-  CHECK(gameFactory.userGameConfigsPath() == env.dir() + userPath);
+  CHECK(gameFactory.userGameConfigsPath() == env.dir() / userPath);
   CHECK(gameFactory.gameList() == std::vector<std::string>{"Quake"});
 
   const auto& gameConfig = gameFactory.gameConfig("Quake");

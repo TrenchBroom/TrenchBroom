@@ -19,6 +19,12 @@
 
 #include "SmartColorEditor.h"
 
+#include <QColor>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QRadioButton>
+#include <QScrollArea>
+
 #include "Assets/ColorRange.h"
 #include "Color.h"
 #include "Model/Entity.h"
@@ -37,12 +43,6 @@
 
 #include <kdl/overload.h>
 #include <kdl/vector_set.h>
-
-#include <QColor>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QRadioButton>
-#include <QScrollArea>
 
 namespace TrenchBroom
 {

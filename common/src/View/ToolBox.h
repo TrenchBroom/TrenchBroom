@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <QObject>
+
 #include "Notifier.h"
 #include "NotifierConnection.h"
 
@@ -26,8 +28,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <QObject>
 
 class QWindow;
 class QFocusEvent;

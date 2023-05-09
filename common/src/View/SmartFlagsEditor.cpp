@@ -19,6 +19,9 @@
 
 #include "SmartFlagsEditor.h"
 
+#include <QScrollArea>
+#include <QVBoxLayout>
+
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
 #include "Model/Entity.h"
@@ -33,9 +36,6 @@
 #include <cassert>
 #include <memory>
 #include <vector>
-
-#include <QScrollArea>
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {

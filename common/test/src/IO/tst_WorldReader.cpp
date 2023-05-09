@@ -32,6 +32,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
@@ -39,10 +40,10 @@
 
 #include <fmt/format.h>
 
+#include <filesystem>
 #include <string>
 
 #include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {
@@ -1434,8 +1435,8 @@ doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
 
 TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap")
 {
-  const Path mapPath =
-    Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Map/Heretic2Quark.map");
+  const auto mapPath =
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/Map/Heretic2Quark.map";
   const std::shared_ptr<File> file = Disk::openFile(mapPath);
   auto fileReader = file->reader().buffer();
 

@@ -19,11 +19,6 @@
 
 #include "PreferenceManager.h"
 
-#include "IO/PathQt.h"
-#include "IO/SystemPaths.h"
-#include "Preferences.h"
-#include "View/Actions.h"
-
 #include <QDebug>
 #include <QDir>
 #include <QFileSystemWatcher>
@@ -38,6 +33,11 @@
 #include <QStandardPaths>
 #include <QStringBuilder>
 #include <QTimer>
+
+#include "IO/PathQt.h"
+#include "IO/SystemPaths.h"
+#include "Preferences.h"
+#include "View/Actions.h"
 
 #include <string>
 #include <vector>
@@ -196,11 +196,11 @@ void AppPreferenceManager::showErrorAndDisableFileReadWrite(
 
 namespace
 {
-std::vector<IO::Path> changedKeysForMapDiff(
-  const std::map<IO::Path, QJsonValue>& before,
-  const std::map<IO::Path, QJsonValue>& after)
+std::vector<std::filesystem::path> changedKeysForMapDiff(
+  const std::map<std::filesystem::path, QJsonValue>& before,
+  const std::map<std::filesystem::path, QJsonValue>& after)
 {
-  auto result = kdl::vector_set<IO::Path>{};
+  auto result = kdl::vector_set<std::filesystem::path>{};
 
   // removes
   for (auto& [k, v] : before)
@@ -252,8 +252,9 @@ void AppPreferenceManager::loadCacheFromDisk()
 
   // Reload m_cache
   readPreferencesFromFile(m_preferencesFilePath)
-    .transform(
-      [&](std::map<IO::Path, QJsonValue>&& prefs) { m_cache = std::move(prefs); })
+    .transform([&](std::map<std::filesystem::path, QJsonValue>&& prefs) {
+      m_cache = std::move(prefs);
+    })
     .transform_error(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
@@ -322,7 +323,7 @@ void AppPreferenceManager::loadPreferenceFromCache(PreferenceBase& pref)
   {
     // FIXME: Log to TB console
     const auto variantValue = jsonValue.toVariant();
-    qDebug() << "Failed to load preference " << IO::pathAsQString(pref.path(), "/")
+    qDebug() << "Failed to load preference " << IO::pathAsGenericQString(pref.path())
              << " from JSON value: " << variantValue.toString() << " ("
              << variantValue.typeName() << ")";
 
@@ -390,8 +391,7 @@ void togglePref(Preference<bool>& preference)
 
 QString preferenceFilePath()
 {
-  return IO::pathAsQString(
-    IO::SystemPaths::userDataDirectory() + IO::Path{"Preferences.json"});
+  return IO::pathAsQString(IO::SystemPaths::userDataDirectory() / "Preferences.json");
 }
 
 namespace
@@ -430,7 +430,7 @@ ReadPreferencesResult readPreferencesFromFile(const QString& path)
 }
 
 WritePreferencesResult writePreferencesToFile(
-  const QString& path, const std::map<IO::Path, QJsonValue>& prefs)
+  const QString& path, const std::map<std::filesystem::path, QJsonValue>& prefs)
 {
   const auto serialized = writePreferencesToJson(prefs);
 
@@ -482,7 +482,7 @@ ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData)
   }
 
   const auto object = document.object();
-  auto result = std::map<IO::Path, QJsonValue>{};
+  auto result = std::map<std::filesystem::path, QJsonValue>{};
   for (auto it = object.constBegin(); it != object.constEnd(); ++it)
   {
     result[IO::pathFromQString(it.key())] = it.value();
@@ -490,12 +490,13 @@ ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData)
   return result;
 }
 
-QByteArray writePreferencesToJson(const std::map<IO::Path, QJsonValue>& prefs)
+QByteArray writePreferencesToJson(
+  const std::map<std::filesystem::path, QJsonValue>& prefs)
 {
   auto rootObject = QJsonObject{};
   for (auto [key, val] : prefs)
   {
-    rootObject[IO::pathAsQString(key, "/")] = val;
+    rootObject[IO::pathAsGenericQString(key)] = val;
   }
 
   auto document = QJsonDocument{rootObject};

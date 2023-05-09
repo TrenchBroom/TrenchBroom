@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "View/ContainerBar.h"
 
 #include <vector>
-
-#include <QWidget>
 
 class QHBoxLayout;
 class QLabel;

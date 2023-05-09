@@ -21,6 +21,7 @@
 
 #include "IO/ImageFileSystem.h"
 
+#include <filesystem>
 #include <memory>
 
 namespace TrenchBroom
@@ -28,12 +29,11 @@ namespace TrenchBroom
 namespace IO
 {
 class FileSystem;
-class Path;
 
 class WadFileSystem : public ImageFileSystem
 {
 public:
-  WadFileSystem(Path path);
+  explicit WadFileSystem(std::filesystem::path path);
 
 private:
   void doReadDirectory() override;

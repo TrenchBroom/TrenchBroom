@@ -21,8 +21,8 @@
 
 #include "EL/EL_Forward.h"
 #include "IO/ELParser.h"
-#include "IO/Path.h"
 
+#include <filesystem>
 #include <string>
 
 namespace TrenchBroom::IO
@@ -34,10 +34,10 @@ private:
   ELParser m_parser;
 
 protected:
-  Path m_path;
+  std::filesystem::path m_path;
 
 protected:
-  explicit ConfigParserBase(std::string_view str, Path path = Path{""});
+  explicit ConfigParserBase(std::string_view str, std::filesystem::path path = {});
 
 public:
   virtual ~ConfigParserBase();

@@ -19,21 +19,17 @@
 
 #pragma once
 
+#include <QObject>
+
 #include "Notifier.h"
 
+#include <filesystem>
 #include <vector>
-
-#include <QObject>
 
 class QMenu;
 
 namespace TrenchBroom
 {
-namespace IO
-{
-class Path;
-}
-
 namespace View
 {
 class RecentDocuments : public QObject
@@ -44,30 +40,30 @@ private:
   MenuList m_menus;
 
   size_t m_maxSize;
-  std::vector<IO::Path> m_recentDocuments;
+  std::vector<std::filesystem::path> m_recentDocuments;
 
 public:
   explicit RecentDocuments(size_t maxSize, QObject* parent = nullptr);
 
-  const std::vector<IO::Path>& recentDocuments() const;
+  const std::vector<std::filesystem::path>& recentDocuments() const;
 
   void addMenu(QMenu* menu);
   void removeMenu(QMenu* menu);
 
-  void updatePath(const IO::Path& path);
-  void removePath(const IO::Path& path);
+  void updatePath(const std::filesystem::path& path);
+  void removePath(const std::filesystem::path& path);
 
 private:
   void loadFromConfig();
   void saveToConfig();
 
-  void insertPath(const IO::Path& path);
+  void insertPath(const std::filesystem::path& path);
 
   void updateMenus();
   void clearMenu(QMenu* menu);
   void createMenuItems(QMenu* menu);
 signals:
-  void loadDocument(const IO::Path& path) const;
+  void loadDocument(const std::filesystem::path& path) const;
   void didChange();
 };
 } // namespace View

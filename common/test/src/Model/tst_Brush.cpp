@@ -32,6 +32,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Polyhedron.h"
+#include "TestUtils.h"
 
 #include <kdl/intrusive_circular_list.h>
 #include <kdl/result.h>
@@ -50,7 +51,6 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {

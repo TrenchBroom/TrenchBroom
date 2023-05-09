@@ -35,10 +35,10 @@ TEST_CASE("ObjParserTest.loadValidObj")
 {
   NullLogger logger;
 
-  const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Obj");
+  const auto basePath = Disk::getCurrentWorkingDir() / "fixture/test/IO/Obj";
   DiskFileSystem fs(basePath);
 
-  const auto mdlPath = Path("pointyship.obj");
+  const auto mdlPath = "pointyship.obj";
   const auto mdlFile = fs.openFile(mdlPath);
   REQUIRE(mdlFile != nullptr);
 

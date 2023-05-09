@@ -19,12 +19,12 @@
 
 #include "Animation.h"
 
+#include <QTimer>
+
 #include "Ensure.h"
 
 #include <algorithm>
 #include <cassert>
-
-#include <QTimer>
 
 namespace TrenchBroom
 {

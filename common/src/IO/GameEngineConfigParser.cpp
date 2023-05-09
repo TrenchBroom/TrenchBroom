@@ -36,7 +36,8 @@ namespace TrenchBroom
 {
 namespace IO
 {
-GameEngineConfigParser::GameEngineConfigParser(std::string_view str, Path path)
+GameEngineConfigParser::GameEngineConfigParser(
+  std::string_view str, std::filesystem::path path)
   : ConfigParserBase{std::move(str), std::move(path)}
 {
 }
@@ -76,7 +77,7 @@ Model::GameEngineProfile GameEngineConfigParser::parseProfile(
 
   return {
     value["name"].stringValue(),
-    Path{value["path"].stringValue()},
+    std::filesystem::path{value["path"].stringValue()},
     value["parameters"].stringValue()};
 }
 } // namespace IO

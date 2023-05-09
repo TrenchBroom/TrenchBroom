@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include <QString>
+
 #include "Logger.h"
 
 #include <string>
 #include <vector>
-
-#include <QString>
 
 namespace TrenchBroom
 {

@@ -18,6 +18,7 @@
  */
 
 #include "MapViewToolBox.h"
+
 #include "Model/EditorContext.h"
 #include "View/ClipTool.h"
 #include "View/CreateComplexBrushTool.h"

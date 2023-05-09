@@ -21,7 +21,6 @@
 
 #include "Ensure.h"
 #include "Exceptions.h"
-#include "IO/Path.h"
 #include "Macros.h"
 
 namespace TrenchBroom
@@ -43,7 +42,8 @@ void InitFreeImage::initialize()
   static InitFreeImage initFreeImage;
 }
 
-ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const Path& path)
+ImageLoaderImpl::ImageLoaderImpl(
+  const ImageLoader::Format format, const std::filesystem::path& path)
   : m_stream(nullptr)
   , m_bitmap(nullptr)
 {
@@ -54,7 +54,7 @@ ImageLoaderImpl::ImageLoaderImpl(const ImageLoader::Format format, const Path& p
     throw FileFormatException("Unknown image format");
   }
 
-  m_bitmap = FreeImage_Load(fifFormat, path.asString().c_str());
+  m_bitmap = FreeImage_Load(fifFormat, path.string().c_str());
 }
 
 ImageLoaderImpl::ImageLoaderImpl(

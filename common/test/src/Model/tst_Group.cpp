@@ -17,17 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Model/Group.h"
 #include "TestUtils.h"
 
-#include "Model/Group.h"
+#include <kdl/result.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/mat_io.h>
-
-#include <kdl/result.h>
 
 #include <memory>
 #include <vector>

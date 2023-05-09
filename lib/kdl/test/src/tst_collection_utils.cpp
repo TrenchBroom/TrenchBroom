@@ -18,11 +18,11 @@
  DEALINGS IN THE SOFTWARE.
 */
 
+#include "test_utils.h"
+
 #include "kdl/collection_utils.h"
 
 #include <vector>
-
-#include "test_utils.h"
 
 #include <catch2/catch.hpp>
 

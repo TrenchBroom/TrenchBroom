@@ -416,7 +416,7 @@ Model::WorldNode* MapDocument::world() const
   return m_world.get();
 }
 
-bool MapDocument::isGamePathPreference(const IO::Path& path) const
+bool MapDocument::isGamePathPreference(const std::filesystem::path& path) const
 {
   return m_game.get() != nullptr && m_game->isGamePathPreference(path);
 }
@@ -589,9 +589,9 @@ void MapDocument::loadDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
-  const IO::Path& path)
+  const std::filesystem::path& path)
 {
-  info("Loading document from " + path.asString());
+  info("Loading document from " + path.string());
 
   clearRepeatableCommands();
   doClearCommandProcessor();
@@ -611,12 +611,12 @@ void MapDocument::saveDocument()
   doSaveDocument(m_path);
 }
 
-void MapDocument::saveDocumentAs(const IO::Path& path)
+void MapDocument::saveDocumentAs(const std::filesystem::path& path)
 {
   doSaveDocument(path);
 }
 
-void MapDocument::saveDocumentTo(const IO::Path& path)
+void MapDocument::saveDocumentTo(const std::filesystem::path& path)
 {
   ensure(m_game.get() != nullptr, "game is null");
   ensure(m_world, "world is null");
@@ -628,7 +628,7 @@ void MapDocument::exportDocumentAs(const IO::ExportOptions& options)
   m_game->exportMap(*m_world, options);
 }
 
-void MapDocument::doSaveDocument(const IO::Path& path)
+void MapDocument::doSaveDocument(const std::filesystem::path& path)
 {
   saveDocumentTo(path);
   setLastSaveModificationCount();
@@ -905,7 +905,7 @@ bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces)
   return setFaceAttributesExceptContentFlags(faces.back().attributes());
 }
 
-void MapDocument::loadPointFile(const IO::Path path)
+void MapDocument::loadPointFile(const std::filesystem::path path)
 {
   static_assert(
     !std::is_reference<decltype(path)>::value,
@@ -954,7 +954,7 @@ void MapDocument::unloadPointFile()
   pointFileWasUnloadedNotifier();
 }
 
-void MapDocument::loadPortalFile(const IO::Path path)
+void MapDocument::loadPortalFile(const std::filesystem::path path)
 {
   static_assert(
     !std::is_reference<decltype(path)>::value,
@@ -978,13 +978,12 @@ void MapDocument::loadPortalFile(const IO::Path path)
   catch (const std::exception& exception)
   {
     info(
-      "Couldn't load portal file " + m_portalFilePath.asString() + ": "
-      + exception.what());
+      "Couldn't load portal file " + m_portalFilePath.string() + ": " + exception.what());
   }
 
   if (isPortalFileLoaded())
   {
-    info("Loaded portal file " + m_portalFilePath.asString());
+    info("Loaded portal file " + m_portalFilePath.string());
     portalFileWasLoadedNotifier();
   }
 }
@@ -1009,7 +1008,7 @@ void MapDocument::unloadPortalFile()
 {
   assert(isPortalFileLoaded());
   m_portalFile = nullptr;
-  m_portalFilePath = IO::Path();
+  m_portalFilePath = std::filesystem::path();
 
   info("Unloaded portal file");
   portalFileWasUnloadedNotifier();
@@ -4340,14 +4339,14 @@ void MapDocument::createWorld(
   performSetCurrentLayer(m_world->defaultLayer());
 
   updateGameSearchPaths();
-  setPath(IO::Path(DefaultDocumentName));
+  setPath(std::filesystem::path(DefaultDocumentName));
 }
 
 void MapDocument::loadWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
-  const IO::Path& path)
+  const std::filesystem::path& path)
 {
   m_worldBounds = worldBounds;
   m_game = game;
@@ -4446,10 +4445,10 @@ void MapDocument::loadEntityDefinitions()
   const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
   try
   {
-    const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
+    const auto path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
     IO::SimpleParserStatus status(logger());
     m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
-    info("Loaded entity definition file " + path.lastComponent().asString());
+    info("Loaded entity definition file " + path.filename().string());
 
     createEntityDefinitionActions();
   }
@@ -4500,7 +4499,9 @@ void MapDocument::loadTextures()
   {
     if (const auto* wadStr = m_world->entity().property(Model::EntityPropertyKeys::Wad))
     {
-      const auto wadPaths = IO::Path::asPaths(kdl::str_split(*wadStr, ";"));
+      const auto wadPaths = kdl::vec_transform(
+        kdl::str_split(*wadStr, ";"),
+        [](const auto& str) { return std::filesystem::path{str}; });
       m_game->reloadWads(path(), wadPaths, logger());
     }
     m_game->loadTextureCollections(*m_textureManager);
@@ -4716,16 +4717,16 @@ void MapDocument::unsetEntityModels(const std::vector<Model::Node*>& nodes)
   Model::Node::visitAll(nodes, makeUnsetEntityModelsVisitor());
 }
 
-std::vector<IO::Path> MapDocument::externalSearchPaths() const
+std::vector<std::filesystem::path> MapDocument::externalSearchPaths() const
 {
-  std::vector<IO::Path> searchPaths;
-  if (!m_path.isEmpty() && m_path.isAbsolute())
+  std::vector<std::filesystem::path> searchPaths;
+  if (!m_path.empty() && m_path.is_absolute())
   {
-    searchPaths.push_back(m_path.deleteLastComponent());
+    searchPaths.push_back(m_path.parent_path());
   }
 
-  const IO::Path gamePath = m_game->gamePath();
-  if (!gamePath.isEmpty())
+  const std::filesystem::path gamePath = m_game->gamePath();
+  if (!gamePath.empty())
   {
     searchPaths.push_back(gamePath);
   }
@@ -4736,8 +4737,10 @@ std::vector<IO::Path> MapDocument::externalSearchPaths() const
 
 void MapDocument::updateGameSearchPaths()
 {
-  const std::vector<IO::Path> additionalSearchPaths = IO::Path::asPaths(mods());
-  m_game->setAdditionalSearchPaths(additionalSearchPaths, logger());
+  m_game->setAdditionalSearchPaths(
+    kdl::vec_transform(
+      mods(), [](const auto& mod) { return std::filesystem::path{mod}; }),
+    logger());
 }
 
 std::vector<std::string> MapDocument::mods() const
@@ -4979,25 +4982,25 @@ void MapDocument::updateAllFaceTags()
 
 bool MapDocument::persistent() const
 {
-  return m_path.isAbsolute()
+  return m_path.is_absolute()
          && IO::Disk::pathInfo(IO::Disk::fixPath(m_path)) == IO::PathInfo::File;
 }
 
 std::string MapDocument::filename() const
 {
-  if (m_path.isEmpty())
+  if (m_path.empty())
   {
     return "";
   }
-  return m_path.lastComponent().asString();
+  return m_path.filename().string();
 }
 
-const IO::Path& MapDocument::path() const
+const std::filesystem::path& MapDocument::path() const
 {
   return m_path;
 }
 
-void MapDocument::setPath(const IO::Path& path)
+void MapDocument::setPath(const std::filesystem::path& path)
 {
   m_path = path;
 }
@@ -5111,12 +5114,12 @@ void MapDocument::modsDidChange()
   setEntityModels();
 }
 
-void MapDocument::preferenceDidChange(const IO::Path& path)
+void MapDocument::preferenceDidChange(const std::filesystem::path& path)
 {
   if (isGamePathPreference(path))
   {
     const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-    const IO::Path newGamePath = gameFactory.gamePath(m_game->gameName());
+    const std::filesystem::path newGamePath = gameFactory.gamePath(m_game->gameName());
     m_game->setGamePath(newGamePath, logger());
 
     clearEntityModels();

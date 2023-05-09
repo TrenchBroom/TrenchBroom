@@ -20,11 +20,10 @@
 #include "ViewConstants.h"
 
 #include <QColor>
+#include <QDebug>
 #include <QFont>
 #include <QFontDatabase>
 #include <QWidget>
-
-#include <QDebug>
 
 namespace TrenchBroom
 {

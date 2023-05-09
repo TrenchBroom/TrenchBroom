@@ -19,13 +19,14 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "NotifierConnection.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <QWidget>
 
 class QPushButton;
 class QComboBox;
@@ -37,11 +38,6 @@ namespace TrenchBroom
 namespace Assets
 {
 class Texture;
-}
-
-namespace IO
-{
-class Path;
 }
 
 namespace Model
@@ -102,7 +98,7 @@ private:
   void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
   void textureCollectionsDidChange();
   void currentTextureNameDidChange(const std::string& textureName);
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
 
   void reload();
   void updateSelectedTexture();

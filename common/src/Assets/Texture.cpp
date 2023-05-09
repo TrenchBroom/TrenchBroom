@@ -18,15 +18,16 @@
  */
 
 #include "Texture.h"
+
 #include "Assets/TextureBuffer.h"
 #include "Assets/TextureCollection.h"
 #include "Macros.h"
 #include "Renderer/GL.h"
 
-#include <vecmath/vec_io.h>
-
 #include <kdl/overload.h>
 #include <kdl/reflection_impl.h>
+
+#include <vecmath/vec_io.h>
 
 #include <algorithm> // for std::max
 #include <cassert>
@@ -254,22 +255,22 @@ const std::string& Texture::name() const
   return m_name;
 }
 
-const IO::Path& Texture::absolutePath() const
+const std::filesystem::path& Texture::absolutePath() const
 {
   return m_absolutePath;
 }
 
-void Texture::setAbsolutePath(IO::Path absolutePath)
+void Texture::setAbsolutePath(std::filesystem::path absolutePath)
 {
   m_absolutePath = std::move(absolutePath);
 }
 
-const IO::Path& Texture::relativePath() const
+const std::filesystem::path& Texture::relativePath() const
 {
   return m_relativePath;
 }
 
-void Texture::setRelativePath(IO::Path relativePath)
+void Texture::setRelativePath(std::filesystem::path relativePath)
 {
   m_relativePath = std::move(relativePath);
 }

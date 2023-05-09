@@ -19,6 +19,8 @@
 
 #include "FrameManager.h"
 
+#include <QApplication>
+
 #include "Exceptions.h"
 #include "TrenchBroomApp.h"
 #include "View/AboutDialog.h"
@@ -28,8 +30,6 @@
 
 #include <cassert>
 #include <memory>
-
-#include <QApplication>
 
 namespace TrenchBroom
 {

@@ -26,12 +26,12 @@
 #include "NotifierConnection.h"
 #include "View/Tool.h"
 
+#include <kdl/reflection_decl.h>
+
 #include <vecmath/forward.h>
 #include <vecmath/line.h>
 #include <vecmath/plane.h>
 #include <vecmath/vec.h>
-
-#include <kdl/reflection_decl.h>
 
 #include <memory>
 #include <variant>

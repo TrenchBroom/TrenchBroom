@@ -21,12 +21,14 @@
 #pragma once
 
 #include "IO/EntityModelParser.h"
-#include "IO/Path.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 #include <assimp/matrix4x4.h>
+
+#include <filesystem>
+#include <vector>
 
 struct aiNode;
 struct aiScene;
@@ -42,7 +44,6 @@ class Texture;
 namespace IO
 {
 class FileSystem;
-class Path;
 
 struct AssimpFace
 {
@@ -69,7 +70,7 @@ struct AssimpVertex
 class AssimpParser : public EntityModelParser
 {
 private:
-  Path m_path;
+  std::filesystem::path m_path;
   const FileSystem& m_fs;
 
   std::vector<vm::vec3f> m_positions;
@@ -78,9 +79,9 @@ private:
   std::vector<Assets::Texture> m_textures;
 
 public:
-  AssimpParser(Path path, const FileSystem& fs);
+  AssimpParser(std::filesystem::path path, const FileSystem& fs);
 
-  static bool canParse(const Path& path);
+  static bool canParse(const std::filesystem::path& path);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

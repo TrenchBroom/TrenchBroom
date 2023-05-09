@@ -21,6 +21,7 @@
 
 #include "IO/VirtualFileSystem.h"
 
+#include <filesystem>
 #include <memory>
 #include <vector>
 
@@ -30,7 +31,6 @@ class Logger;
 
 namespace IO
 {
-class Path;
 class Quake3ShaderFileSystem;
 } // namespace IO
 
@@ -47,32 +47,32 @@ private:
 public:
   void initialize(
     const GameConfig& config,
-    const IO::Path& gamePath,
-    const std::vector<IO::Path>& additionalSearchPaths,
+    const std::filesystem::path& gamePath,
+    const std::vector<std::filesystem::path>& additionalSearchPaths,
     Logger& logger);
   void reloadShaders();
   void reloadWads(
-    const IO::Path& rootPath,
-    const std::vector<IO::Path>& wadSearchPaths,
-    const std::vector<IO::Path>& wadPaths,
+    const std::filesystem::path& rootPath,
+    const std::vector<std::filesystem::path>& wadSearchPaths,
+    const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger);
 
 private:
   void addDefaultAssetPaths(const GameConfig& config, Logger& logger);
   void addGameFileSystems(
     const GameConfig& config,
-    const IO::Path& gamePath,
-    const std::vector<IO::Path>& additionalSearchPaths,
+    const std::filesystem::path& gamePath,
+    const std::vector<std::filesystem::path>& additionalSearchPaths,
     Logger& logger);
   void addShaderFileSystem(const GameConfig& config, Logger& logger);
-  void addFileSystemPath(const IO::Path& path, Logger& logger);
+  void addFileSystemPath(const std::filesystem::path& path, Logger& logger);
   void addFileSystemPackages(
-    const GameConfig& config, const IO::Path& searchPath, Logger& logger);
+    const GameConfig& config, const std::filesystem::path& searchPath, Logger& logger);
 
   void mountWads(
-    const IO::Path& rootPath,
-    const std::vector<IO::Path>& wadSearchPaths,
-    const std::vector<IO::Path>& wadPaths,
+    const std::filesystem::path& rootPath,
+    const std::vector<std::filesystem::path>& wadSearchPaths,
+    const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger);
   void unmountWads();
 };

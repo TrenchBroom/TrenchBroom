@@ -19,16 +19,16 @@
 
 #include "MapViewBar.h"
 
+#include <QHBoxLayout>
+#include <QResizeEvent>
+#include <QStackedLayout>
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 #include "View/ViewEditor.h"
-
-#include <QHBoxLayout>
-#include <QResizeEvent>
-#include <QStackedLayout>
 
 namespace TrenchBroom
 {

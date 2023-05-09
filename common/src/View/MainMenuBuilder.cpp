@@ -19,10 +19,10 @@
 
 #include "MainMenuBuilder.h"
 
+#include <QMenuBar>
+
 #include "IO/ResourceUtils.h"
 #include "View/MapFrame.h"
-
-#include <QMenuBar>
 
 namespace TrenchBroom
 {

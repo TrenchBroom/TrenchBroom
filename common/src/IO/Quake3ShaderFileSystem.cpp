@@ -26,6 +26,7 @@
 #include "IO/SimpleParserStatus.h"
 #include "Logger.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -38,10 +39,10 @@ namespace IO
 {
 Quake3ShaderFileSystem::Quake3ShaderFileSystem(
   const FileSystem& fs,
-  Path shaderSearchPath,
-  std::vector<Path> textureSearchPaths,
+  std::filesystem::path shaderSearchPath,
+  std::vector<std::filesystem::path> textureSearchPaths,
   Logger& logger)
-  : ImageFileSystemBase{Path{}}
+  : ImageFileSystemBase{std::filesystem::path{}}
   , m_fs{fs}
   , m_shaderSearchPath{std::move(shaderSearchPath)}
   , m_textureSearchPaths{std::move(textureSearchPaths)}
@@ -63,7 +64,7 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
   if (m_fs.pathInfo(m_shaderSearchPath) == PathInfo::Directory)
   {
     const auto paths =
-      m_fs.find(m_shaderSearchPath, makeExtensionPathMatcher({"shader"}));
+      m_fs.find(m_shaderSearchPath, makeExtensionPathMatcher({".shader"}));
     for (const auto& path : paths)
     {
       const auto file = m_fs.openFile(path);
@@ -72,7 +73,7 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
       try
       {
         auto parser = Quake3ShaderParser{bufferedReader.stringView()};
-        auto status = SimpleParserStatus{m_logger, file->path().asString()};
+        auto status = SimpleParserStatus{m_logger, file->path().string()};
         result = kdl::vec_concat(std::move(result), parser.parse(status));
       }
       catch (const ParserException& e)
@@ -88,7 +89,7 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
 
 void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders)
 {
-  auto allImages = std::vector<Path>{};
+  auto allImages = std::vector<std::filesystem::path>{};
   for (const auto& textureSearchPath : m_textureSearchPaths)
   {
     if (m_fs.pathInfo(textureSearchPath) == PathInfo::Directory)
@@ -96,7 +97,8 @@ void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shad
       allImages = kdl::vec_concat(
         std::move(allImages),
         m_fs.findRecursively(
-          textureSearchPath, makeExtensionPathMatcher({"tga", "png", "jpg", "jpeg"})));
+          textureSearchPath,
+          makeExtensionPathMatcher({".tga", ".png", ".jpg", ".jpeg"})));
     }
   }
 
@@ -106,12 +108,13 @@ void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shad
 }
 
 void Quake3ShaderFileSystem::linkTextures(
-  const std::vector<Path>& textures, std::vector<Assets::Quake3Shader>& shaders)
+  const std::vector<std::filesystem::path>& textures,
+  std::vector<Assets::Quake3Shader>& shaders)
 {
   m_logger.debug() << "Linking textures...";
   for (const auto& texture : textures)
   {
-    const auto shaderPath = texture.deleteExtension();
+    const auto shaderPath = kdl::path_remove_extension(texture);
 
     // Only link a shader if it has not been linked yet.
     if (pathInfo(shaderPath) != PathInfo::File)

@@ -38,6 +38,7 @@
 #include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
+
 #include <vecmath/bbox.h>
 
 #include <string>

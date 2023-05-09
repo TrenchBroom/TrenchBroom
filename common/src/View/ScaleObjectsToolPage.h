@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "FloatType.h"
 #include "NotifierConnection.h"
 
@@ -26,8 +28,6 @@
 
 #include <memory>
 #include <optional>
-
-#include <QWidget>
 
 class QComboBox;
 class QStackedLayout;

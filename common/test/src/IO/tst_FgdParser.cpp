@@ -23,13 +23,13 @@
 #include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
-#include "IO/Path.h"
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
+#include <filesystem>
 #include <string>
 
 #include "Catch2.h"
@@ -40,9 +40,9 @@ namespace IO
 {
 TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() + Path{"fixture/games/"};
+  const auto basePath = Disk::getCurrentWorkingDir() / "fixture/games/";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({"fgd"}));
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({".fgd"}));
 
   for (const auto& path : cfgFiles)
   {
@@ -58,7 +58,7 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
 
     /* Disabled because our files are full of previously undetected problems
     if (status.countStatus(LogLevel::Warn) > 0u) {
-        UNSCOPED_INFO("Parsing FGD file " << path.asString() << " produced warnings");
+        UNSCOPED_INFO("Parsing FGD file " << path.string() << " produced warnings");
         for (const auto& message : status.messages(LogLevel::Warn)) {
             UNSCOPED_INFO(message);
         }
@@ -66,7 +66,7 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
     }
 
     if (status.countStatus(LogLevel::Error) > 0u) {
-        UNSCOPED_INFO("Parsing FGD file " << path.asString() << " produced errors");
+        UNSCOPED_INFO("Parsing FGD file " << path.string() << " produced errors");
         for (const auto& message : status.messages(LogLevel::Error)) {
             UNSCOPED_INFO(message);
         }
@@ -806,11 +806,11 @@ TEST_CASE("FgdParserTest.parseLegacyStaticModelDefinition")
     R"(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" spawnflags = 1)";
 
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0},
+    Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     FgdModelDefinitionTemplate);
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 0, 0},
+    Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     FgdModelDefinitionTemplate,
     "{ 'spawnflags': 1 }");
@@ -822,12 +822,12 @@ TEST_CASE("FgdParserTest.parseLegacyDynamicModelDefinition")
     R"(pathKey = "model" skinKey = "skin" frameKey = "frame")";
 
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 0, 0},
+    Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     FgdModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp' }");
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 1, 2},
+    Assets::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
     ModelDefinition,
     FgdModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
@@ -839,7 +839,7 @@ TEST_CASE("FgdParserTest.parseELModelDefinition")
     R"({{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }})";
 
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0},
+    Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     FgdModelDefinitionTemplate);
 }
@@ -940,8 +940,8 @@ model({"path"
 
 TEST_CASE("FgdParserTest.parseInclude")
 {
-  const Path path =
-    Disk::getCurrentWorkingDir() + Path{"fixture/test/IO/Fgd/parseInclude/host.fgd"};
+  const auto path =
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/Fgd/parseInclude/host.fgd";
   auto file = Disk::openFile(path);
   auto reader = file->reader().buffer();
 
@@ -963,8 +963,8 @@ TEST_CASE("FgdParserTest.parseInclude")
 
 TEST_CASE("FgdParserTest.parseNestedInclude")
 {
-  const Path path = Disk::getCurrentWorkingDir()
-                    + Path{"fixture/test/IO/Fgd/parseNestedInclude/host.fgd"};
+  const auto path =
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/Fgd/parseNestedInclude/host.fgd";
   auto file = Disk::openFile(path);
   auto reader = file->reader().buffer();
 
@@ -989,8 +989,8 @@ TEST_CASE("FgdParserTest.parseNestedInclude")
 
 TEST_CASE("FgdParserTest.parseRecursiveInclude")
 {
-  const Path path = Disk::getCurrentWorkingDir()
-                    + Path{"fixture/test/IO/Fgd/parseRecursiveInclude/host.fgd"};
+  const auto path =
+    Disk::getCurrentWorkingDir() / "fixture/test/IO/Fgd/parseRecursiveInclude/host.fgd";
   auto file = Disk::openFile(path);
   auto reader = file->reader().buffer();
 

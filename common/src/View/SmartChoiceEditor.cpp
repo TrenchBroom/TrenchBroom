@@ -18,6 +18,13 @@
  */
 
 #include "SmartChoiceEditor.h"
+
+#include <QComboBox>
+#include <QDebug>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QtGlobal>
+
 #include "Assets/PropertyDefinition.h"
 #include "Model/EntityNodeBase.h"
 #include "View/MapDocument.h"
@@ -25,12 +32,6 @@
 #include "View/ViewConstants.h"
 
 #include <kdl/set_temp.h>
-
-#include <QComboBox>
-#include <QDebug>
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QtGlobal>
 
 #include <cassert>
 

@@ -24,7 +24,6 @@
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
@@ -33,10 +32,11 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
-#include <vecmath/forward.h>
-
+#include <kdl/path_utils.h>
 #include <kdl/result.h>
 #include <kdl/string_utils.h>
+
+#include <vecmath/forward.h>
 
 #include <functional>
 #include <string>
@@ -281,16 +281,17 @@ std::unique_ptr<Assets::EntityModel> ObjParser::doInitializeModel(Logger& logger
 
 // -- Neverball --
 
-NvObjParser::NvObjParser(Path path, const std::string_view text, const FileSystem& fs)
-  : ObjParser{path.lastComponent().asString(), text}
+NvObjParser::NvObjParser(
+  std::filesystem::path path, const std::string_view text, const FileSystem& fs)
+  : ObjParser{path.filename().string(), text}
   , m_path{std::move(path)}
   , m_fs{fs}
 {
 }
 
-bool NvObjParser::canParse(const Path& path)
+bool NvObjParser::canParse(const std::filesystem::path& path)
 {
-  return kdl::str_to_lower(path.extension()) == "obj";
+  return kdl::str_to_lower(path.extension().string()) == ".obj";
 }
 
 bool NvObjParser::transformObjCoordinateSet(
@@ -324,11 +325,11 @@ std::optional<Assets::Texture> NvObjParser::loadMaterial(const std::string& name
   // search directory. But there's raw pointers all over the Texture system, so without
   // further details on how memory is managed there, that's a bad idea.
 
-  auto texturePaths = std::vector<Path>{
-    Path{"textures"} + Path{name}.addExtension("png"),
-    Path{"textures"} + Path{name}.addExtension("jpg"),
-    Path{name}.addExtension("png"),
-    Path{name}.addExtension("jpg"),
+  const auto texturePaths = std::vector<std::filesystem::path>{
+    "textures" / kdl::path_add_extension(name, ".png"),
+    "textures" / kdl::path_add_extension(name, ".jpg"),
+    kdl::path_add_extension(name, ".png"),
+    kdl::path_add_extension(name, ".jpg"),
   };
 
 
@@ -359,7 +360,7 @@ std::optional<Assets::Texture> NvObjParser::loadFallbackMaterial(Logger& logger)
   // This isn't really how it works, but the Neverball-side truth involves MAP files
   // acting as a replacement for something like JSON. This is a less Neverball-specific
   // set of logic which should be useful for any game.
-  const auto basic_skin_name = m_path.lastComponent().deleteExtension().asString();
+  const auto basic_skin_name = m_path.stem().string();
   if (auto material = loadMaterial(basic_skin_name))
   {
     return material;

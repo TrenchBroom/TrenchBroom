@@ -17,13 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
 #include "Exceptions.h"
 #include "IO/WorldReader.h"
+#include "MapDocumentTest.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
@@ -34,11 +32,14 @@
 #include "Model/PatchNode.h"
 #include "Model/TestGame.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include "kdl/map_utils.h"
+#include <kdl/map_utils.h>
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
+
+#include <filesystem>
 
 #include "Catch2.h"
 
@@ -121,7 +122,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.throwExceptionDuringCommand")
 TEST_CASE("MapDocumentTest.detectValveFormatMap")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map"),
+    "fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
     "Quake",
     Model::MapFormat::Unknown);
   CHECK(document->world()->mapFormat() == Model::MapFormat::Valve);
@@ -131,7 +132,7 @@ TEST_CASE("MapDocumentTest.detectValveFormatMap")
 TEST_CASE("MapDocumentTest.detectStandardFormatMap")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/MapDocumentTest/standardFormatMapWithoutFormatTag.map"),
+    "fixture/test/View/MapDocumentTest/standardFormatMapWithoutFormatTag.map",
     "Quake",
     Model::MapFormat::Unknown);
   CHECK(document->world()->mapFormat() == Model::MapFormat::Standard);
@@ -141,7 +142,7 @@ TEST_CASE("MapDocumentTest.detectStandardFormatMap")
 TEST_CASE("MapDocumentTest.detectEmptyMap")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/MapDocumentTest/emptyMapWithoutFormatTag.map"),
+    "fixture/test/View/MapDocumentTest/emptyMapWithoutFormatTag.map",
     "Quake",
     Model::MapFormat::Unknown);
   // an empty map detects as Valve because Valve is listed first in the Quake game config
@@ -154,7 +155,7 @@ TEST_CASE("MapDocumentTest.mixedFormats")
   // map has both Standard and Valve brushes
   CHECK_THROWS_AS(
     View::loadMapDocument(
-      IO::Path("fixture/test/View/MapDocumentTest/mixedFormats.map"),
+      "fixture/test/View/MapDocumentTest/mixedFormats.map",
       "Quake",
       Model::MapFormat::Unknown),
     IO::WorldReaderException);
@@ -462,8 +463,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
       Model::EntityPropertyConfig{{}, true(setDefaultProperties)},
       Model::Entity{},
       Model::MapFormat::Standard));
-    document->loadDocument(
-      Model::MapFormat::Standard, document->worldBounds(), game, IO::Path{});
+    document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "");
 
     auto* definitionWithDefaults = new Assets::PointEntityDefinition{
       "some_name",
@@ -534,8 +534,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
       Model::EntityPropertyConfig{{}, true(setDefaultProperties)},
       Model::Entity{},
       Model::MapFormat::Standard));
-    document->loadDocument(
-      Model::MapFormat::Standard, document->worldBounds(), game, IO::Path{});
+    document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "");
 
     auto* definitionWithDefaults = new Assets::BrushEntityDefinition{
       "some_name",

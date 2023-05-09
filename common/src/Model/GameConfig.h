@@ -22,16 +22,16 @@
 #include "Color.h"
 #include "EL/Expression.h"
 #include "FloatType.h"
-#include "IO/Path.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/Tag.h"
 
-#include <vecmath/bbox.h>
-
 #include <kdl/reflection_decl.h>
 
+#include <vecmath/bbox.h>
+
+#include <filesystem>
 #include <optional>
 #include <set>
 #include <string>
@@ -45,7 +45,7 @@ namespace Model
 struct MapFormatConfig
 {
   std::string format;
-  IO::Path initialMap;
+  std::filesystem::path initialMap;
 
   kdl_reflect_decl(MapFormatConfig, format, initialMap);
 };
@@ -60,7 +60,7 @@ struct PackageFormatConfig
 
 struct FileSystemConfig
 {
-  IO::Path searchPath;
+  std::filesystem::path searchPath;
   PackageFormatConfig packageFormat;
 
   kdl_reflect_decl(FileSystemConfig, searchPath, packageFormat);
@@ -68,11 +68,11 @@ struct FileSystemConfig
 
 struct TextureConfig
 {
-  IO::Path root;
+  std::filesystem::path root;
   std::vector<std::string> extensions;
-  IO::Path palette;
+  std::filesystem::path palette;
   std::string property;
-  IO::Path shaderSearchPath;
+  std::filesystem::path shaderSearchPath;
   // Glob patterns used to match texture names for exclusion
   std::vector<std::string> excludes;
 
@@ -82,7 +82,7 @@ struct TextureConfig
 
 struct EntityConfig
 {
-  std::vector<IO::Path> defFilePaths;
+  std::vector<std::filesystem::path> defFilePaths;
   Color defaultColor;
   std::optional<EL::Expression> scaleExpression;
   bool setDefaultProperties;
@@ -131,8 +131,8 @@ struct CompilationTool
 struct GameConfig
 {
   std::string name;
-  IO::Path path;
-  IO::Path icon;
+  std::filesystem::path path;
+  std::filesystem::path icon;
   bool experimental;
   std::vector<MapFormatConfig> fileFormats;
   FileSystemConfig fileSystemConfig;
@@ -170,8 +170,8 @@ struct GameConfig
     gameEngineConfigParseFailed,
     maxPropertyLength);
 
-  IO::Path findInitialMap(const std::string& formatName) const;
-  IO::Path findConfigFile(const IO::Path& filePath) const;
+  std::filesystem::path findInitialMap(const std::string& formatName) const;
+  std::filesystem::path findConfigFile(const std::filesystem::path& filePath) const;
 };
 } // namespace Model
 } // namespace TrenchBroom

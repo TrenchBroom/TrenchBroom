@@ -28,7 +28,7 @@
 
 namespace TrenchBroom::IO
 {
-ConfigParserBase::ConfigParserBase(const std::string_view str, Path path)
+ConfigParserBase::ConfigParserBase(const std::string_view str, std::filesystem::path path)
   : m_parser{ELParser::Mode::Strict, str}
   , m_path{std::move(path)}
 {

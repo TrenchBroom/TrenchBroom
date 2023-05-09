@@ -20,10 +20,10 @@
 #pragma once
 
 #include "IO/EntityModelParser.h"
-#include "IO/Path.h"
 
 #include <vecmath/forward.h>
 
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
@@ -90,7 +90,7 @@ private:
 class NvObjParser : public ObjParser
 {
 private:
-  Path m_path;
+  std::filesystem::path m_path;
   const FileSystem& m_fs;
 
 public:
@@ -101,9 +101,9 @@ public:
    * @param end the end of the text
    * @param fs the filesystem2 used to lookup textures
    */
-  NvObjParser(Path path, std::string_view text, const FileSystem& fs);
+  NvObjParser(std::filesystem::path path, std::string_view text, const FileSystem& fs);
 
-  static bool canParse(const Path& path);
+  static bool canParse(const std::filesystem::path& path);
 
 private:
   bool transformObjCoordinateSet(

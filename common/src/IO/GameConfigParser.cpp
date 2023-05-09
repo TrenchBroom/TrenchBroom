@@ -30,6 +30,8 @@
 #include "Model/TagAttribute.h"
 #include "Model/TagMatcher.h"
 
+#include <kdl/vector_utils.h>
+
 #include <vecmath/vec_io.h>
 
 #include <fmt/format.h>
@@ -43,6 +45,17 @@ namespace TrenchBroom::IO
 {
 namespace
 {
+std::string prependDot(const std::string& extension)
+{
+  return !extension.empty() && extension.front() != '.' ? "." + extension : extension;
+}
+
+std::vector<std::string> prependDot(const std::vector<std::string>& extensions)
+{
+  return kdl::vec_transform(
+    extensions, [](const auto& extension) { return prependDot(extension); });
+}
+
 void checkVersion(const EL::Value& version)
 {
   const auto validVsns = std::vector<EL::IntegerType>{7, 8};
@@ -474,7 +487,9 @@ Model::EntityConfig parseEntityConfig(const EL::Value& value)
     ])");
 
   return Model::EntityConfig{
-    Path::asPaths(value["definitions"].asStringList()),
+    kdl::vec_transform(
+      value["definitions"].asStringList(),
+      [](const auto& str) { return std::filesystem::path{str}; }),
     Color::parse(value["defaultcolor"].stringValue()).value_or(Color{}),
     value["scale"].expression(),
     value["setDefaultProperties"].booleanValue(),
@@ -492,7 +507,7 @@ Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value)
     expectType(value["extension"], EL::typeForName("String"));
 
     return Model::PackageFormatConfig{
-      {value["extension"].stringValue()},
+      {prependDot(value["extension"].stringValue())},
       formatValue.stringValue(),
     };
   }
@@ -501,7 +516,7 @@ Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value)
     expectType(value["extensions"], EL::typeForName("Array"));
 
     return Model::PackageFormatConfig{
-      value["extensions"].asStringList(),
+      prependDot(value["extensions"].asStringList()),
       formatValue.stringValue(),
     };
   }
@@ -516,7 +531,7 @@ std::vector<std::string> parseTextureExtensions(const EL::Value& value)
   if (value["extensions"] != EL::Value::Null)
   {
     // version 8
-    return value["extensions"].asStringList();
+    return prependDot(value["extensions"].asStringList());
   }
   // version 7
   return parsePackageFormatConfig(value["format"]).extensions;
@@ -532,11 +547,11 @@ Model::TextureConfig parseTextureConfig(const EL::Value& value)
     ])");
 
   return Model::TextureConfig{
-    Path{value["root"].stringValue()},
+    std::filesystem::path{value["root"].stringValue()},
     parseTextureExtensions(value),
-    Path{value["palette"].stringValue()},
+    std::filesystem::path{value["palette"].stringValue()},
     value["attribute"].stringValue(),
-    Path{value["shaderSearchPath"].stringValue()},
+    std::filesystem::path{value["shaderSearchPath"].stringValue()},
     value["excludes"].asStringList(),
   };
 }
@@ -551,7 +566,7 @@ Model::FileSystemConfig parseFileSystemConfig(const EL::Value& value)
     ])");
 
   return Model::FileSystemConfig{
-    Path{value["searchpath"].stringValue()},
+    std::filesystem::path{value["searchpath"].stringValue()},
     parsePackageFormatConfig(value["packageformat"]),
   };
 }
@@ -574,7 +589,7 @@ std::vector<Model::MapFormatConfig> parseMapFormatConfigs(const EL::Value& value
 
     result.push_back(Model::MapFormatConfig{
       value[i]["format"].stringValue(),
-      Path{value[i]["initialmap"].stringValue()},
+      std::filesystem::path{value[i]["initialmap"].stringValue()},
     });
   }
 
@@ -583,7 +598,8 @@ std::vector<Model::MapFormatConfig> parseMapFormatConfigs(const EL::Value& value
 
 } // namespace
 
-GameConfigParser::GameConfigParser(std::string_view str, const Path& path)
+GameConfigParser::GameConfigParser(
+  std::string_view str, const std::filesystem::path& path)
   : ConfigParserBase{std::move(str), path}
   , m_version{0}
 {
@@ -619,7 +635,7 @@ Model::GameConfig GameConfigParser::parse()
   return {
     root["name"].stringValue(),
     m_path,
-    Path{root["icon"].stringValue()},
+    std::filesystem::path{root["icon"].stringValue()},
     root["experimental"].booleanValue(),
     std::move(mapFormatConfigs),
     std::move(fileSystemConfig),

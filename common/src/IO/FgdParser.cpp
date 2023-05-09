@@ -147,19 +147,21 @@ FgdTokenizer::Token FgdTokenizer::emitToken()
 }
 
 FgdParser::FgdParser(
-  std::string_view str, const Color& defaultEntityColor, const Path& path)
+  std::string_view str,
+  const Color& defaultEntityColor,
+  const std::filesystem::path& path)
   : EntityDefinitionParser{defaultEntityColor}
   , m_tokenizer{FgdTokenizer{std::move(str)}}
 {
-  if (!path.isEmpty() && path.isAbsolute())
+  if (!path.empty() && path.is_absolute())
   {
-    m_fs = std::make_unique<DiskFileSystem>(path.deleteLastComponent());
-    pushIncludePath(path.lastComponent());
+    m_fs = std::make_unique<DiskFileSystem>(path.parent_path());
+    pushIncludePath(path.filename());
   }
 }
 
 FgdParser::FgdParser(std::string_view str, const Color& defaultEntityColor)
-  : FgdParser{std::move(str), defaultEntityColor, Path{}}
+  : FgdParser{std::move(str), defaultEntityColor, {}}
 {
 }
 
@@ -192,7 +194,7 @@ private:
   FgdParser* m_parser;
 
 public:
-  PushIncludePath(FgdParser* parser, const Path& path)
+  PushIncludePath(FgdParser* parser, const std::filesystem::path& path)
     : m_parser{parser}
   {
     m_parser->pushIncludePath(path);
@@ -201,7 +203,7 @@ public:
   ~PushIncludePath() { m_parser->popIncludePath(); }
 };
 
-void FgdParser::pushIncludePath(const Path& path)
+void FgdParser::pushIncludePath(const std::filesystem::path& path)
 {
   assert(!isRecursiveInclude(path));
   m_paths.push_back(path);
@@ -213,20 +215,20 @@ void FgdParser::popIncludePath()
   m_paths.pop_back();
 }
 
-Path FgdParser::currentRoot() const
+std::filesystem::path FgdParser::currentRoot() const
 {
   if (!m_paths.empty())
   {
-    assert(!m_paths.back().isEmpty());
-    return m_paths.back().deleteLastComponent();
+    assert(!m_paths.back().empty());
+    return m_paths.back().parent_path();
   }
   else
   {
-    return Path{};
+    return {};
   }
 }
 
-bool FgdParser::isRecursiveInclude(const Path& path) const
+bool FgdParser::isRecursiveInclude(const std::filesystem::path& path) const
 {
   return std::any_of(m_paths.begin(), m_paths.end(), [&](const auto& includedPath) {
     return includedPath == path;
@@ -968,12 +970,12 @@ std::vector<EntityDefinitionClassInfo> FgdParser::parseInclude(ParserStatus& sta
   assert(kdl::ci::str_is_equal(token.data(), "@include"));
 
   expect(status, FgdToken::String, token = m_tokenizer.nextToken());
-  const auto path = Path(token.data());
+  const auto path = std::filesystem::path(token.data());
   return handleInclude(status, path);
 }
 
 std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
-  ParserStatus& status, const Path& path)
+  ParserStatus& status, const std::filesystem::path& path)
 {
   if (!m_fs)
   {
@@ -987,12 +989,12 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
   auto result = std::vector<EntityDefinitionClassInfo>{};
   try
   {
-    status.debug(m_tokenizer.line(), "Parsing included file '" + path.asString() + "'");
-    const auto file = m_fs->openFile(currentRoot() + path);
+    status.debug(m_tokenizer.line(), "Parsing included file '" + path.string() + "'");
+    const auto file = m_fs->openFile(currentRoot() / path);
     const auto filePath = file->path();
     status.debug(
       m_tokenizer.line(),
-      "Resolved '" + path.asString() + "' to '" + filePath.asString() + "'");
+      "Resolved '" + path.string() + "' to '" + filePath.string() + "'");
 
     if (!isRecursiveInclude(filePath))
     {
@@ -1006,7 +1008,7 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
       status.error(
         m_tokenizer.line(),
         kdl::str_to_string(
-          "Skipping recursively included file: ", path.asString(), " (", filePath, ")"));
+          "Skipping recursively included file: ", path.string(), " (", filePath, ")"));
     }
   }
   catch (const Exception& e)

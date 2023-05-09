@@ -127,7 +127,7 @@ static void writeMtlFile(
       object);
   }
 
-  const auto basePath = options.exportPath.deleteLastComponent();
+  const auto basePath = options.exportPath.parent_path();
   for (const auto& [textureName, texture] : usedTextures)
   {
     str << "newmtl " << textureName << "\n";
@@ -136,14 +136,14 @@ static void writeMtlFile(
       switch (options.mtlPathMode)
       {
       case ObjMtlPathMode::RelativeToGamePath:
-        str << "map_Kd " << texture->relativePath() << "\n";
+        str << "map_Kd " << texture->relativePath().generic_string() << "\n";
         break;
       case ObjMtlPathMode::RelativeToExportPath:
         // textures loaded from image files (pak files) don't have absolute paths
-        if (!texture->absolutePath().isEmpty())
+        if (!texture->absolutePath().empty())
         {
-          const auto mtlPath = basePath.makeRelative(texture->absolutePath());
-          str << "map_Kd " << mtlPath << "\n";
+          const auto mtlPath = texture->absolutePath().lexically_relative(basePath);
+          str << "map_Kd " << mtlPath.generic_string() << "\n";
         }
         break;
       }

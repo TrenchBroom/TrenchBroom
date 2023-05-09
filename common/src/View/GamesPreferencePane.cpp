@@ -19,22 +19,6 @@
 
 #include "GamesPreferencePane.h"
 
-#include "Exceptions.h"
-#include "FileLogger.h"
-#include "IO/Path.h"
-#include "IO/PathQt.h"
-#include "Model/Game.h"
-#include "Model/GameConfig.h"
-#include "Model/GameFactory.h"
-#include "PreferenceManager.h"
-#include "View/BorderLine.h"
-#include "View/FormWithSectionsLayout.h"
-#include "View/GameEngineDialog.h"
-#include "View/GameListBox.h"
-#include "View/MapDocument.h"
-#include "View/QtUtils.h"
-#include "View/ViewConstants.h"
-
 #include <QAction>
 #include <QBoxLayout>
 #include <QDesktopServices>
@@ -47,8 +31,22 @@
 #include <QToolButton>
 #include <QWidget>
 
+#include "Exceptions.h"
+#include "FileLogger.h"
 #include "IO/DiskIO.h"
+#include "IO/PathQt.h"
 #include "IO/ResourceUtils.h"
+#include "Model/Game.h"
+#include "Model/GameConfig.h"
+#include "Model/GameFactory.h"
+#include "PreferenceManager.h"
+#include "View/BorderLine.h"
+#include "View/FormWithSectionsLayout.h"
+#include "View/GameEngineDialog.h"
+#include "View/GameListBox.h"
+#include "View/MapDocument.h"
+#include "View/QtUtils.h"
+#include "View/ViewConstants.h"
 
 namespace TrenchBroom
 {
@@ -113,7 +111,7 @@ void GamesPreferencePane::createGui()
 void GamesPreferencePane::showUserConfigDirClicked()
 {
   auto& gameFactory = Model::GameFactory::instance();
-  auto path = gameFactory.userGameConfigsPath().makeCanonical();
+  auto path = gameFactory.userGameConfigsPath().lexically_normal();
 
   try
   {
@@ -211,7 +209,7 @@ void GamePreferencePane::createGui()
       else
       {
         validDirectoryIcon->setToolTip(tr("Directory not found"));
-        validDirectoryIcon->setIcon(IO::loadSVGIcon(IO::Path("IssueBrowser.svg")));
+        validDirectoryIcon->setIcon(IO::loadSVGIcon("IssueBrowser.svg"));
       }
     });
 

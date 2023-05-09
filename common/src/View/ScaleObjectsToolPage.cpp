@@ -19,6 +19,14 @@
 
 #include "ScaleObjectsToolPage.h"
 
+#include <QComboBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QList>
+#include <QPushButton>
+#include <QStackedLayout>
+
 #include "FloatType.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -30,14 +38,6 @@
 
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include <QComboBox>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QLineEdit>
-#include <QList>
-#include <QPushButton>
-#include <QStackedLayout>
 
 namespace TrenchBroom
 {

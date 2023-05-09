@@ -20,11 +20,11 @@
 #include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/Path.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
 
+#include <filesystem>
 #include <memory>
 
 #include "Catch2.h"
@@ -38,30 +38,30 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
   auto logger = NullLogger{};
 
   const auto workDir = IO::Disk::getCurrentWorkingDir();
-  const auto testDir = workDir + Path{"fixture/test/IO/Shader/fs/linking"};
-  const auto fallbackDir = testDir + Path{"fallback"};
-  const auto texturePrefix = Path{"textures"};
-  const auto shaderSearchPath = Path{"scripts"};
-  const auto textureSearchPaths = std::vector<Path>{texturePrefix};
+  const auto testDir = workDir / "fixture/test/IO/Shader/fs/linking";
+  const auto fallbackDir = testDir / "fallback";
+  const auto texturePrefix = std::filesystem::path{"textures"};
+  const auto shaderSearchPath = std::filesystem::path{"scripts"};
+  const auto textureSearchPaths = std::vector<std::filesystem::path>{texturePrefix};
 
   // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
   // automatically linked when no editor image is available.
   auto fs = VirtualFileSystem{};
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(fallbackDir));
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(testDir));
+  fs.mount("", std::make_unique<DiskFileSystem>(fallbackDir));
+  fs.mount("", std::make_unique<DiskFileSystem>(testDir));
   fs.mount(
-    Path{},
+    "",
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
   CHECK_THAT(
-    fs.find(texturePrefix + Path{"test"}, makeExtensionPathMatcher({""})),
-    Catch::UnorderedEquals(std::vector<Path>{
-      texturePrefix + Path{"test/editor_image"},
-      texturePrefix + Path{"test/test"},
-      texturePrefix + Path{"test/test2"},
-      texturePrefix + Path{"test/not_existing"},
-      texturePrefix + Path{"test/not_existing2"},
+    fs.find(texturePrefix / "test", makeExtensionPathMatcher({""})),
+    Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+      texturePrefix / "test/editor_image",
+      texturePrefix / "test/test",
+      texturePrefix / "test/test2",
+      texturePrefix / "test/not_existing",
+      texturePrefix / "test/not_existing2",
     }));
 }
 
@@ -72,30 +72,30 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
   // There is one malformed shader script, this should be skipped.
 
   const auto workDir = IO::Disk::getCurrentWorkingDir();
-  const auto testDir = workDir + Path{"fixture/test/IO/Shader/fs/failing"};
-  const auto fallbackDir = testDir + Path{"fallback"};
-  const auto texturePrefix = Path{"textures"};
-  const auto shaderSearchPath = Path{"scripts"};
-  const auto textureSearchPaths = std::vector<Path>{texturePrefix};
+  const auto testDir = workDir / "fixture/test/IO/Shader/fs/failing";
+  const auto fallbackDir = testDir / "fallback";
+  const auto texturePrefix = std::filesystem::path{"textures"};
+  const auto shaderSearchPath = std::filesystem::path{"scripts"};
+  const auto textureSearchPaths = std::vector<std::filesystem::path>{texturePrefix};
 
   // We need to mount the fallback dir so that we can find "__TB_empty.png" which is
   // automatically linked when no editor image is available.
   auto fs = VirtualFileSystem{};
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(fallbackDir));
-  fs.mount(Path{}, std::make_unique<DiskFileSystem>(testDir));
+  fs.mount("", std::make_unique<DiskFileSystem>(fallbackDir));
+  fs.mount("", std::make_unique<DiskFileSystem>(testDir));
   fs.mount(
-    Path{},
+    "",
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
   CHECK_THAT(
-    fs.find(texturePrefix + Path{"test"}, makeExtensionPathMatcher({""})),
-    Catch::UnorderedEquals(std::vector<Path>{
-      texturePrefix + Path{"test/editor_image"},
-      texturePrefix + Path{"test/test"},
-      texturePrefix + Path{"test/test2"},
-      texturePrefix + Path{"test/not_existing"},
-      texturePrefix + Path{"test/not_existing2"},
+    fs.find(texturePrefix / "test", makeExtensionPathMatcher({""})),
+    Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+      texturePrefix / "test/editor_image",
+      texturePrefix / "test/test",
+      texturePrefix / "test/test2",
+      texturePrefix / "test/not_existing",
+      texturePrefix / "test/not_existing2",
     }));
 }
 } // namespace IO

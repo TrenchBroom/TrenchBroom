@@ -21,15 +21,15 @@
 
 #include "IO/ImageFileSystem.h"
 
-#include <memory>
-
 #include <miniz/miniz.h>
+
+#include <filesystem>
+#include <memory>
 
 namespace TrenchBroom
 {
 namespace IO
 {
-class Path;
 
 class ZipFileSystem : public ImageFileSystem
 {
@@ -37,7 +37,7 @@ private:
   mz_zip_archive m_archive;
 
 public:
-  explicit ZipFileSystem(Path path);
+  explicit ZipFileSystem(std::filesystem::path path);
   ~ZipFileSystem() override;
 
 private:

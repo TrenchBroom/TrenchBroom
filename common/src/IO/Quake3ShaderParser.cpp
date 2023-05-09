@@ -26,6 +26,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
+#include <filesystem>
 #include <string>
 
 namespace TrenchBroom
@@ -188,11 +189,11 @@ void Quake3ShaderParser::parseTexture(
   if (!pathStr.empty() && pathStr[0] == '/')
   {
     // 2633: Q3 accepts absolute shader paths, so we just strip the leading slash
-    shader.shaderPath = Path(pathStr.substr(1));
+    shader.shaderPath = std::filesystem::path{pathStr.substr(1)};
   }
   else
   {
-    shader.shaderPath = Path(token.data());
+    shader.shaderPath = std::filesystem::path{token.data()};
   }
 }
 
@@ -205,12 +206,12 @@ void Quake3ShaderParser::parseBodyEntry(
   if (key == "qer_editorimage")
   {
     token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
-    shader.editorImage = Path(token.data());
+    shader.editorImage = std::filesystem::path{token.data()};
   }
   else if (key == "q3map_lightimage")
   {
     token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
-    shader.lightImage = Path(token.data());
+    shader.lightImage = std::filesystem::path{token.data()};
   }
   else if (key == "surfaceparm")
   {
@@ -250,7 +251,7 @@ void Quake3ShaderParser::parseStageEntry(
   {
     token = expect(
       Quake3ShaderToken::String | Quake3ShaderToken::Variable, m_tokenizer.nextToken());
-    stage.map = Path(token.data());
+    stage.map = std::filesystem::path{token.data()};
   }
   else if (key == "blendFunc")
   {

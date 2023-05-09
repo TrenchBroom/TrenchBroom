@@ -86,9 +86,9 @@ Bsp29Parser::Bsp29Parser(
 {
 }
 
-bool Bsp29Parser::canParse(const Path& path, Reader reader)
+bool Bsp29Parser::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != "bsp")
+  if (kdl::str_to_lower(path.extension().string()) != ".bsp")
   {
     return false;
   }

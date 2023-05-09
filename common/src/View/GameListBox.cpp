@@ -20,11 +20,11 @@
 #include "GameListBox.h"
 
 #include "Ensure.h"
-#include "IO/Path.h"
 #include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -98,9 +98,9 @@ GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const
   const auto& gameFactory = Model::GameFactory::instance();
   const auto gamePath = gameFactory.gamePath(gameName);
   auto iconPath = gameFactory.iconPath(gameName);
-  if (iconPath.isEmpty())
+  if (iconPath.empty())
   {
-    iconPath = IO::Path("DefaultGameIcon.svg");
+    iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
   }
   const auto experimental = gameFactory.gameConfig(gameName).experimental;
 
@@ -109,7 +109,7 @@ GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const
     IO::loadPixmapResource(iconPath),
     QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
     QString::fromStdString(
-      gamePath.isEmpty() ? std::string("Game not found") : gamePath.asString())};
+      gamePath.empty() ? std::string("Game not found") : gamePath.string())};
 }
 
 size_t GameListBox::itemCount() const

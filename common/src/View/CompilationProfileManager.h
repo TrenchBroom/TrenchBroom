@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "Model/CompilationConfig.h"
 
 #include <memory>
-
-#include <QWidget>
 
 class QAbstractButton;
 class QPoint;

@@ -40,6 +40,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/meta_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/overload.h"
     "${KDL_INCLUDE_DIR}/kdl/parallel.h"
+    "${KDL_INCLUDE_DIR}/kdl/path_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/reflection_decl.h"
     "${KDL_INCLUDE_DIR}/kdl/reflection_impl.h"
     "${KDL_INCLUDE_DIR}/kdl/std_io.h"

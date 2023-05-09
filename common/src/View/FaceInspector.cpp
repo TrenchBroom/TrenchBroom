@@ -19,6 +19,8 @@
 
 #include "FaceInspector.h"
 
+#include <QVBoxLayout>
+
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
@@ -35,8 +37,6 @@
 #include "View/TitledPanel.h"
 
 #include <kdl/memory_utils.h>
-
-#include <QVBoxLayout>
 
 #include <vector>
 

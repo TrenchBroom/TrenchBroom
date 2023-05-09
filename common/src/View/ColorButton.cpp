@@ -19,11 +19,11 @@
 
 #include "ColorButton.h"
 
-#include "View/ViewConstants.h"
-
 #include <QBoxLayout>
 #include <QColorDialog>
 #include <QPushButton>
+
+#include "View/ViewConstants.h"
 
 namespace TrenchBroom
 {

@@ -19,13 +19,13 @@
  DEALINGS IN THE SOFTWARE.
 */
 
+#include "test_utils.h"
+
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
 #include <vecmath/forward.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/vec.h>
-
-#include "test_utils.h"
 
 #include <sstream>
 #include <vector>

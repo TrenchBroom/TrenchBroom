@@ -25,7 +25,6 @@
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ReadQuake3ShaderTexture.h"
@@ -33,8 +32,8 @@
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/result.h>
-#include <kdl/string_format.h>
 
 #include <string>
 
@@ -43,13 +42,14 @@ namespace TrenchBroom
 namespace IO
 {
 
-Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger)
+Assets::Texture loadSkin(
+  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   return loadSkin(path, fs, std::nullopt, logger);
 }
 
 Assets::Texture loadSkin(
-  const Path& path,
+  const std::filesystem::path& path,
   const FileSystem& fs,
   const std::optional<Assets::Palette>& palette,
   Logger& logger)
@@ -57,30 +57,31 @@ Assets::Texture loadSkin(
   try
   {
     const auto file = fs.openFile(path);
-    const auto extension = kdl::str_to_lower(path.extension());
+    const auto extension = kdl::str_to_lower(path.extension().string());
 
     auto reader = file->reader().buffer();
-    return (extension == "wal" ? readWalTexture(path.basename(), reader, palette)
-                               : readFreeImageTexture(path.basename(), reader))
+    return (extension == ".wal" ? readWalTexture(path.stem().string(), reader, palette)
+                                : readFreeImageTexture(path.stem().string(), reader))
       .or_else(makeReadTextureErrorHandler(fs, logger))
       .value();
   }
   catch (Exception& e)
   {
     logger.error() << "Could not load skin '" << path << "': " << e.what();
-    return loadDefaultTexture(fs, path.basename(), logger);
+    return loadDefaultTexture(fs, path.stem().string(), logger);
   }
 }
 
-Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger)
+Assets::Texture loadShader(
+  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
-  auto actualPath =
-    !path.isEmpty() && fs.pathInfo(path.deleteExtension()) == PathInfo::File
-      ? path.deleteExtension()
-      : path;
-  const auto name = path.asString("/");
+  const auto pathWithoutExtension = kdl::path_remove_extension(path);
+  auto actualPath = !path.empty() && fs.pathInfo(pathWithoutExtension) == PathInfo::File
+                      ? pathWithoutExtension
+                      : path;
+  const auto name = path.generic_string();
 
-  if (!path.isEmpty())
+  if (!path.empty())
   {
     logger.debug() << "Loading shader '" << path << "'";
     try

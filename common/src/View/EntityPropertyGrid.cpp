@@ -19,6 +19,19 @@
 
 #include "EntityPropertyGrid.h"
 
+#include <QCheckBox>
+#include <QDebug>
+#include <QHBoxLayout>
+#include <QHeaderView>
+#include <QKeyEvent>
+#include <QKeySequence>
+#include <QMenu>
+#include <QShortcut>
+#include <QSortFilterProxyModel>
+#include <QTableView>
+#include <QTimer>
+#include <QToolButton>
+
 #include "Macros.h"
 #include "Model/EntityProperties.h"
 #include "View/BorderLine.h"
@@ -35,19 +48,6 @@
 #include <kdl/vector_utils.h>
 
 #include <vector>
-
-#include <QCheckBox>
-#include <QDebug>
-#include <QHBoxLayout>
-#include <QHeaderView>
-#include <QKeyEvent>
-#include <QKeySequence>
-#include <QMenu>
-#include <QShortcut>
-#include <QSortFilterProxyModel>
-#include <QTableView>
-#include <QTimer>
-#include <QToolButton>
 
 #define GRID_LOG(x)
 

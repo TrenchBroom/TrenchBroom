@@ -19,7 +19,6 @@
  */
 
 #include "MapDocumentTest.h"
-
 #include "Model/BrushNode.h"
 #include "Model/EmptyPropertyKeyValidator.h"
 #include "Model/EmptyPropertyValueValidator.h"

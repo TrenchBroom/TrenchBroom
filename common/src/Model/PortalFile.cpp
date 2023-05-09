@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "IO/IOUtils.h"
-#include "IO/Path.h"
 
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -40,14 +39,14 @@ namespace Model
 PortalFile::PortalFile() = default;
 PortalFile::~PortalFile() = default;
 
-PortalFile::PortalFile(const IO::Path& path)
+PortalFile::PortalFile(const std::filesystem::path& path)
 {
   load(path);
 }
 
-bool PortalFile::canLoad(const IO::Path& path)
+bool PortalFile::canLoad(const std::filesystem::path& path)
 {
-  std::ifstream stream = openPathAsInputStream(path);
+  std::ifstream stream = IO::openPathAsInputStream(path);
   return stream.is_open() && stream.good();
 }
 
@@ -56,11 +55,11 @@ const std::vector<vm::polygon3f>& PortalFile::portals() const
   return m_portals;
 }
 
-void PortalFile::load(const IO::Path& path)
+void PortalFile::load(const std::filesystem::path& path)
 {
   static const auto lineSplitter = "() \n\t\r";
 
-  std::ifstream stream = openPathAsInputStream(path);
+  std::ifstream stream = IO::openPathAsInputStream(path);
   if (!stream.good())
   {
     throw FileFormatException("Couldn't open file");
