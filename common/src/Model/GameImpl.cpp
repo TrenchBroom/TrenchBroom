@@ -46,7 +46,6 @@
 #include "IO/MdxParser.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
-#include "IO/ObjParser.h"
 #include "IO/ObjSerializer.h"
 #include "IO/PathInfo.h"
 #include "IO/SimpleParserStatus.h"
@@ -487,12 +486,6 @@ static auto withEntityParser(
   if (IO::AseParser::canParse(path))
   {
     auto parser = IO::AseParser{modelName, reader.stringView(), fs};
-    return fun(parser);
-  }
-  if (IO::NvObjParser::canParse(path))
-  {
-    // has to be the whole path for implicit textures!
-    auto parser = IO::NvObjParser{path, reader.stringView(), fs};
     return fun(parser);
   }
   if (IO::ImageSpriteParser::canParse(path))
