@@ -50,28 +50,20 @@ FILE* openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
     pathAsQString(path).toStdWString().c_str(),
     QString::fromStdString(mode).toStdWString().c_str());
 #else
-  return fopen(path.string().c_str(), mode.c_str());
+  return fopen(path.u8string().c_str(), mode.c_str());
 #endif
 }
 
 std::ofstream openPathAsOutputStream(
   const std::filesystem::path& path, const std::ios::openmode mode)
 {
-#ifdef _WIN32
-  return std::ofstream(pathAsQString(path).toStdWString().c_str(), mode);
-#else
-  return std::ofstream(path.string().c_str(), mode);
-#endif
+  return std::ofstream(path.u8string().c_str(), mode);
 }
 
 std::ifstream openPathAsInputStream(
   const std::filesystem::path& path, const std::ios::openmode mode)
 {
-#ifdef _WIN32
-  return std::ifstream(pathAsQString(path).toStdWString().c_str(), mode);
-#else
-  return std::ifstream(path.string().c_str(), mode);
-#endif
+  return std::ifstream(path.u8string().c_str(), mode);
 }
 
 size_t fileSize(std::FILE* file)
