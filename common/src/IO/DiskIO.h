@@ -53,8 +53,6 @@ void ensureDirectoryExists(const std::filesystem::path& path);
 void deleteFile(const std::filesystem::path& path);
 void deleteFiles(
   const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher);
-void deleteFilesRecursively(
-  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher);
 
 void copyFile(
   const std::filesystem::path& sourcePath,
@@ -65,25 +63,10 @@ void copyFiles(
   const PathMatcher& pathMatcher,
   const std::filesystem::path& destDirPath,
   bool overwrite);
-void copyFilesRecursively(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  bool overwrite);
 
 void moveFile(
   const std::filesystem::path& sourcePath,
   const std::filesystem::path& destPath,
-  bool overwrite);
-void moveFiles(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  bool overwrite);
-void moveFilesRecursively(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
   bool overwrite);
 
 std::filesystem::path resolvePath(

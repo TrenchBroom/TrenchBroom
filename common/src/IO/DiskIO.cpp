@@ -269,15 +269,6 @@ void deleteFiles(
   }
 }
 
-void deleteFilesRecursively(
-  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher)
-{
-  for (const auto& filePath : findRecursively(sourceDirPath, pathMatcher))
-  {
-    deleteFile(filePath);
-  }
-}
-
 void copyFile(
   const std::filesystem::path& sourcePath,
   const std::filesystem::path& destPath,
@@ -327,18 +318,6 @@ void copyFiles(
   }
 }
 
-void copyFilesRecursively(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  const bool overwrite)
-{
-  for (const auto& sourceFilePath : findRecursively(sourceDirPath, pathMatcher))
-  {
-    copyFile(sourceFilePath, destDirPath, overwrite);
-  }
-}
-
 void moveFile(
   const std::filesystem::path& sourcePath,
   const std::filesystem::path& destPath,
@@ -372,30 +351,6 @@ void moveFile(
     throw FileSystemException(
       "Could not move file '" + fixedSourcePath.string() + "' to '"
       + fixedDestPath.string() + "'");
-  }
-}
-
-void moveFiles(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  const bool overwrite)
-{
-  for (const auto& sourceFilePath : find(sourceDirPath, pathMatcher))
-  {
-    moveFile(sourceFilePath, destDirPath, overwrite);
-  }
-}
-
-void moveFilesRecursively(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  const bool overwrite)
-{
-  for (const auto& sourceFilePath : findRecursively(sourceDirPath, pathMatcher))
-  {
-    moveFile(sourceFilePath, destDirPath, overwrite);
   }
 }
 
