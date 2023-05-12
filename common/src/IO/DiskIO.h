@@ -37,17 +37,13 @@ bool isCaseSensitive();
 std::filesystem::path fixPath(const std::filesystem::path& path);
 
 PathInfo pathInfo(const std::filesystem::path& path);
+
 std::vector<std::filesystem::path> find(
-  const std::filesystem::path& path,
-  const PathMatcher& pathMatcher = [](const std::filesystem::path&, const GetPathInfo&) {
-    return true;
-  });
+  const std::filesystem::path& path, const PathMatcher& pathMatcher = matchAnyPath);
 std::vector<std::filesystem::path> findRecursively(
-  const std::filesystem::path& path,
-  const PathMatcher& pathMatcher = [](const std::filesystem::path&, const GetPathInfo&) {
-    return true;
-  });
+  const std::filesystem::path& path, const PathMatcher& pathMatcher = matchAnyPath);
 std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path);
+
 std::shared_ptr<File> openFile(const std::filesystem::path& path);
 
 std::string readTextFile(const std::filesystem::path& path);

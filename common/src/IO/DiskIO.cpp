@@ -137,13 +137,13 @@ PathInfo pathInfo(const std::filesystem::path& path)
 std::vector<std::filesystem::path> find(
   const std::filesystem::path& path, const PathMatcher& pathMatcher)
 {
-  return IO::find(path, directoryContents, pathInfo, pathMatcher);
+  return find(path, directoryContents, pathInfo, pathMatcher);
 }
 
 std::vector<std::filesystem::path> findRecursively(
   const std::filesystem::path& path, const PathMatcher& pathMatcher)
 {
-  return IO::findRecursively(path, directoryContents, pathInfo, pathMatcher);
+  return findRecursively(path, directoryContents, pathInfo, pathMatcher);
 }
 
 std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path)
