@@ -27,6 +27,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
+#include "TestUtils.h"
 
 #include <kdl/vector_utils.h>
 
@@ -52,7 +53,7 @@ TEST_CASE("GameTest.loadCorruptPackages")
   {
     const auto configPath =
       IO::Disk::getCurrentWorkingDir() / "fixture/games/" / game / "GameConfig.cfg";
-    const auto configStr = IO::Disk::readTextFile(configPath);
+    const auto configStr = IO::readTextFile(configPath);
     auto configParser = IO::GameConfigParser(configStr, configPath);
     auto config = configParser.parse();
 
@@ -69,7 +70,7 @@ TEST_CASE("GameTest.loadQuake3Shaders")
 {
   const auto configPath =
     IO::Disk::getCurrentWorkingDir() / "fixture/games/Quake3/GameConfig.cfg";
-  const auto configStr = IO::Disk::readTextFile(configPath);
+  const auto configStr = IO::readTextFile(configPath);
   auto configParser = IO::GameConfigParser{configStr, configPath};
   auto config = configParser.parse();
 

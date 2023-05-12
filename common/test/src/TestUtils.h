@@ -49,6 +49,11 @@ bool pointExactlyIntegral(const vm::vec3d& point);
 bool UVListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
 
+namespace IO
+{
+std::string readTextFile(const std::filesystem::path& path);
+}
+
 namespace Model
 {
 class Brush;

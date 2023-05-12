@@ -162,20 +162,6 @@ std::shared_ptr<File> openFile(const std::filesystem::path& path)
   return std::make_shared<CFile>(fixedPath);
 }
 
-std::string readTextFile(const std::filesystem::path& path)
-{
-  const auto fixedPath = fixPath(path);
-
-  auto stream = openPathAsInputStream(fixedPath);
-  if (!stream.is_open())
-  {
-    throw FileSystemException("Cannot open file: " + fixedPath.string());
-  }
-
-  return std::string{
-    (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
-}
-
 std::filesystem::path getCurrentWorkingDir()
 {
   return pathFromQString(QDir::currentPath());

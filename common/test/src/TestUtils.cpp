@@ -23,6 +23,7 @@
 #include "Ensure.h"
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
+#include "IO/IOUtils.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -153,6 +154,23 @@ TEST_CASE("TestUtilsTest.pointExactlyIntegral")
   CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.0, near1024, 1024.0)));
   CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
 }
+
+namespace IO
+{
+std::string readTextFile(const std::filesystem::path& path)
+{
+  const auto fixedPath = Disk::fixPath(path);
+
+  auto stream = openPathAsInputStream(fixedPath);
+  if (!stream.is_open())
+  {
+    throw FileSystemException("Cannot open file: " + fixedPath.string());
+  }
+
+  return std::string{
+    (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
+}
+} // namespace IO
 
 namespace Model
 {
@@ -315,7 +333,7 @@ GameAndConfig loadGame(const std::string& gameName)
     IO::Disk::getCurrentWorkingDir() / "fixture/games" / gameName / "GameConfig.cfg";
   const auto gamePath =
     IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Game" / gameName;
-  const auto configStr = IO::Disk::readTextFile(configPath);
+  const auto configStr = IO::readTextFile(configPath);
   auto configParser = IO::GameConfigParser(configStr, configPath);
   auto config = std::make_unique<Model::GameConfig>(configParser.parse());
   auto game = std::make_shared<Model::GameImpl>(*config, gamePath, logger);

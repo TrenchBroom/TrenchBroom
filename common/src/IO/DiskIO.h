@@ -46,7 +46,6 @@ std::vector<std::filesystem::path> directoryContents(const std::filesystem::path
 
 std::shared_ptr<File> openFile(const std::filesystem::path& path);
 
-std::string readTextFile(const std::filesystem::path& path);
 std::filesystem::path getCurrentWorkingDir();
 
 void createFile(const std::filesystem::path& path, const std::string& contents);

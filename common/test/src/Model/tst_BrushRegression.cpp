@@ -1373,7 +1373,7 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
 
   const auto path =
     IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/curvetut-crash.map";
-  const std::string data = IO::Disk::readTextFile(path);
+  const std::string data = IO::readTextFile(path);
   REQUIRE(!data.empty());
 
   IO::TestParserStatus status;
@@ -1440,7 +1440,7 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
 
   const auto path =
     IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/weirdcurvemerge.map";
-  const std::string data = IO::Disk::readTextFile(path);
+  const std::string data = IO::readTextFile(path);
   REQUIRE(!data.empty());
 
   IO::TestParserStatus status;
