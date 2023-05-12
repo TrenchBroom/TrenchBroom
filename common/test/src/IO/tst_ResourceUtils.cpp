@@ -35,7 +35,7 @@ namespace IO
 TEST_CASE("ResourceUtilsTest.loadDefaultTexture")
 {
   auto fs = std::make_shared<DiskFileSystem>(
-    IO::Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets");
+    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets");
   NullLogger logger;
 
   auto texture = loadDefaultTexture(*fs, "some_name", logger);

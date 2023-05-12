@@ -162,11 +162,6 @@ std::shared_ptr<File> openFile(const std::filesystem::path& path)
   return std::make_shared<CFile>(fixedPath);
 }
 
-std::filesystem::path getCurrentWorkingDir()
-{
-  return pathFromQString(QDir::currentPath());
-}
-
 void createFile(const std::filesystem::path& path, const std::string& contents)
 {
   const auto fixedPath = fixPath(path);

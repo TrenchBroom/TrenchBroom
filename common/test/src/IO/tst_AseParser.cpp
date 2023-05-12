@@ -41,12 +41,12 @@ TEST_CASE("AseParserTest.loadWithoutException")
   auto logger = NullLogger{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
   auto fs = VirtualFileSystem{};
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/wedge_with_shader";
+    std::filesystem::current_path() / "fixture/test/IO/Ase/wedge_with_shader";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
   const auto shaderSearchPath = "scripts";
@@ -72,12 +72,12 @@ TEST_CASE("AseParserTest.fallbackToMaterialName")
   auto logger = NullLogger{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
   auto fs = VirtualFileSystem{};
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/fallback_to_materialname";
+    std::filesystem::current_path() / "fixture/test/IO/Ase/fallback_to_materialname";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
   const auto shaderSearchPath = std::filesystem::path{"scripts"};
@@ -107,12 +107,12 @@ TEST_CASE("AseParserTest.loadDefaultMaterial")
   auto logger = NullLogger{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
   auto fs = VirtualFileSystem{};
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/load_default_material";
+    std::filesystem::current_path() / "fixture/test/IO/Ase/load_default_material";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
   const auto shaderSearchPath = std::filesystem::path{"scripts"};

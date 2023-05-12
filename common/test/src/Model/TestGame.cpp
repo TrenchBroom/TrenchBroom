@@ -55,7 +55,7 @@ TestGame::TestGame()
   : m_defaultFaceAttributes{Model::BrushFaceAttributes::NoTextureName}
   , m_fs{std::make_unique<IO::VirtualFileSystem>()}
 {
-  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(IO::Disk::getCurrentWorkingDir()));
+  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));
 }
 
 TestGame::~TestGame() = default;
@@ -227,11 +227,11 @@ void TestGame::doReloadWads(
   Logger&)
 {
   m_fs->unmountAll();
-  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(IO::Disk::getCurrentWorkingDir()));
+  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));
 
   for (const auto& wadPath : wadPaths)
   {
-    const auto absoluteWadPath = IO::Disk::getCurrentWorkingDir() / wadPath;
+    const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
     m_fs->mount(
       "textures" / wadPath.filename(),
       std::make_unique<IO::WadFileSystem>(absoluteWadPath));

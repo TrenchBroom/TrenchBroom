@@ -38,7 +38,7 @@ static const auto fixturePath = "fixture/test/IO/Wal";
 
 TEST_CASE("readWalTexture")
 {
-  auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
+  auto fs = DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/colormap.pcx");
   const auto palette = Assets::loadPalette(*paletteFile).value();
 

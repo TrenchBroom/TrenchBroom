@@ -39,7 +39,7 @@ namespace IO
 {
 static Assets::Texture loadTexture(const std::string& name)
 {
-  const auto ddsPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/Dds/";
+  const auto ddsPath = std::filesystem::current_path() / "fixture/test/IO/Dds/";
   auto diskFS = DiskFileSystem{ddsPath};
 
   const auto file = diskFS.openFile(name);

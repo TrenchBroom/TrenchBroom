@@ -40,11 +40,11 @@ TEST_CASE("AseParserTest.parseFailure_2657")
   auto fs = VirtualFileSystem{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/steelstorm_player";
+    std::filesystem::current_path() / "fixture/test/IO/Ase/steelstorm_player";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
   const auto shaderSearchPath = std::filesystem::path{"scripts"};
@@ -71,11 +71,11 @@ TEST_CASE("AseParserTest.parseFailure_2679")
   auto fs = VirtualFileSystem{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/no_scene_directive";
+    std::filesystem::current_path() / "fixture/test/IO/Ase/no_scene_directive";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
   const auto shaderSearchPath = std::filesystem::path{"scripts"};
@@ -102,11 +102,11 @@ TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
   auto fs = VirtualFileSystem{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/index_out_of_bounds";
+    std::filesystem::current_path() / "fixture/test/IO/Ase/index_out_of_bounds";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
   const auto shaderSearchPath = std::filesystem::path{"scripts"};
@@ -133,11 +133,11 @@ TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
   auto fs = VirtualFileSystem{};
 
   const auto defaultAssetsPath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/ResourceUtils/assets";
+    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
   const auto basePath =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/Ase/index_out_of_bounds";
+    std::filesystem::current_path() / "fixture/test/IO/Ase/index_out_of_bounds";
   fs.mount(std::filesystem::path{}, std::make_unique<DiskFileSystem>(basePath));
 
   const auto shaderSearchPath = std::filesystem::path{"scripts"};

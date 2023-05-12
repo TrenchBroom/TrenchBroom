@@ -87,9 +87,10 @@ std::optional<TextureCollectionInfo> makeInfo(
 TEST_CASE("loadTextureCollection")
 {
   auto fs = VirtualFileSystem{};
-  fs.mount("", std::make_unique<DiskFileSystem>(Disk::getCurrentWorkingDir()));
+  fs.mount("", std::make_unique<DiskFileSystem>(std::filesystem::current_path()));
 
-  const auto wadPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/Wad/cr8_czg.wad";
+  const auto wadPath =
+    std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg.wad";
   fs.mount("textures" / wadPath.filename(), std::make_unique<WadFileSystem>(wadPath));
 
   auto logger = NullLogger{};

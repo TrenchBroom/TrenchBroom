@@ -330,9 +330,9 @@ GameAndConfig loadGame(const std::string& gameName)
 {
   TestLogger logger;
   const auto configPath =
-    IO::Disk::getCurrentWorkingDir() / "fixture/games" / gameName / "GameConfig.cfg";
+    std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
   const auto gamePath =
-    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Game" / gameName;
+    std::filesystem::current_path() / "fixture/test/Model/Game" / gameName;
   const auto configStr = IO::readTextFile(configPath);
   auto configParser = IO::GameConfigParser(configStr, configPath);
   auto config = std::make_unique<Model::GameConfig>(configParser.parse());
@@ -401,7 +401,7 @@ DocumentGameConfig loadMapDocument(
     mapFormat,
     document->worldBounds(),
     document->game(),
-    IO::Disk::getCurrentWorkingDir() / mapPath);
+    std::filesystem::current_path() / mapPath);
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }

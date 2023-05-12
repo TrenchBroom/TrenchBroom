@@ -38,7 +38,7 @@ namespace IO
 {
 TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() / "fixture/games/";
+  const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
     Disk::findRecursively(basePath, makeExtensionPathMatcher({".cfg"}));
 

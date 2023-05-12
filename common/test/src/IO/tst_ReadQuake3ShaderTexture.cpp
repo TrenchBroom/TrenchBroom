@@ -70,9 +70,9 @@ TEST_CASE("readQuake3ShaderTexture")
 {
   auto logger = NullLogger{};
 
-  const auto testDir = Disk::getCurrentWorkingDir() / "fixture/test/IO/Shader/reader";
+  const auto testDir = std::filesystem::current_path() / "fixture/test/IO/Shader/reader";
   const auto fallbackDir =
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/Shader/reader/fallback";
+    std::filesystem::current_path() / "fixture/test/IO/Shader/reader/fallback";
   const auto texturePrefix = std::filesystem::path{"textures"};
   const auto shaderSearchPath = std::filesystem::path{"scripts"};
   const auto textureSearchPaths = std::vector<std::filesystem::path>{texturePrefix};

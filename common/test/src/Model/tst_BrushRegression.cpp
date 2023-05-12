@@ -1372,7 +1372,7 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
   const vm::bbox3 worldBounds(4096.0);
 
   const auto path =
-    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/curvetut-crash.map";
+    std::filesystem::current_path() / "fixture/test/Model/Brush/curvetut-crash.map";
   const std::string data = IO::readTextFile(path);
   REQUIRE(!data.empty());
 
@@ -1439,7 +1439,7 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
   const vm::bbox3 worldBounds(8192.0);
 
   const auto path =
-    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/weirdcurvemerge.map";
+    std::filesystem::current_path() / "fixture/test/Model/Brush/weirdcurvemerge.map";
   const std::string data = IO::readTextFile(path);
   REQUIRE(!data.empty());
 
@@ -1583,7 +1583,7 @@ TEST_CASE("BrushTest.subtractDome")
             })");
 
   const auto subtrahendPath =
-    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/subtrahend.map";
+    std::filesystem::current_path() / "fixture/test/Model/Brush/subtrahend.map";
   auto stream = IO::openPathAsInputStream(subtrahendPath);
   std::stringstream subtrahendStr;
   subtrahendStr << stream.rdbuf();

@@ -62,7 +62,7 @@ TEST_CASE("Quake3ShaderParserTest.parseShadersWithInvalidWhitespace")
   // The file contains a carriage return without a consecutive line feed, which tripped
   // the parser.
 
-  const auto workDir = Disk::getCurrentWorkingDir();
+  const auto workDir = std::filesystem::current_path();
   auto fs = DiskFileSystem(workDir / "fixture/test/IO/Shader/parser");
   auto testFile = fs.openFile("am_cf_models.shader");
   auto reader = testFile->reader().buffer();
