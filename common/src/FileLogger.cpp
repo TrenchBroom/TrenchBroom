@@ -34,9 +34,8 @@ namespace TrenchBroom
 FileLogger::FileLogger(const std::filesystem::path& filePath)
   : m_file(nullptr)
 {
-  const auto fixedPath = IO::Disk::fixPath(filePath);
-  IO::Disk::ensureDirectoryExists(fixedPath.parent_path());
-  m_file = IO::openPathAsFILE(fixedPath, "w");
+  IO::Disk::ensureDirectoryExists(filePath.parent_path());
+  m_file = IO::openPathAsFILE(filePath, "w");
   ensure(m_file != nullptr, "log file could not be opened");
 }
 

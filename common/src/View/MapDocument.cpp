@@ -4982,8 +4982,7 @@ void MapDocument::updateAllFaceTags()
 
 bool MapDocument::persistent() const
 {
-  return m_path.is_absolute()
-         && IO::Disk::pathInfo(IO::Disk::fixPath(m_path)) == IO::PathInfo::File;
+  return m_path.is_absolute() && IO::Disk::pathInfo(m_path) == IO::PathInfo::File;
 }
 
 std::string MapDocument::filename() const

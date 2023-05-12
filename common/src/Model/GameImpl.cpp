@@ -217,7 +217,7 @@ std::unique_ptr<WorldNode> GameImpl::doLoadMap(
   Logger& logger) const
 {
   auto parserStatus = IO::SimpleParserStatus{logger};
-  auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+  auto file = IO::Disk::openFile(path);
   auto fileReader = file->reader().buffer();
   if (format == MapFormat::Unknown)
   {
@@ -377,21 +377,21 @@ std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
 
   if (kdl::ci::str_is_equal(".fgd", extension))
   {
-    auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+    auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
     auto parser = IO::FgdParser{reader.stringView(), defaultColor, file->path()};
     return parser.parseDefinitions(status);
   }
   if (kdl::ci::str_is_equal(".def", extension))
   {
-    auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+    auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
     auto parser = IO::DefParser{reader.stringView(), defaultColor};
     return parser.parseDefinitions(status);
   }
   if (kdl::ci::str_is_equal(".ent", extension))
   {
-    auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+    auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
     auto parser = IO::EntParser{reader.stringView(), defaultColor};
     return parser.parseDefinitions(status);
