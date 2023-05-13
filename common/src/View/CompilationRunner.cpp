@@ -243,14 +243,18 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
     try
     {
-      const auto targetPaths = IO::Disk::find(targetDirPath, targetPathMatcher);
-      const auto targetStrs = kdl::vec_transform(
-        targetPaths, [](const auto& path) { return "'" + path.string() + "'"; });
-      const auto targetListQStr = QString::fromStdString(kdl::str_join(targetStrs, ", "));
+      const auto pathsToDelete = IO::Disk::find(targetDirPath, targetPathMatcher);
+      const auto pathStrsToDelete = kdl::vec_transform(
+        pathsToDelete, [](const auto& path) { return "'" + path.string() + "'"; });
+      const auto targetListQStr =
+        QString::fromStdString(kdl::str_join(pathStrsToDelete, ", "));
       m_context << "#### Deleting: " << targetListQStr << "\n";
       if (!m_context.test())
       {
-        IO::Disk::deleteFiles(targetDirPath, targetPathMatcher);
+        for (const auto& pathToDelete : pathsToDelete)
+        {
+          IO::Disk::deleteFile(pathToDelete);
+        }
       }
       emit end();
     }

@@ -51,8 +51,6 @@ void createDirectory(const std::filesystem::path& path);
 void ensureDirectoryExists(const std::filesystem::path& path);
 
 void deleteFile(const std::filesystem::path& path);
-void deleteFiles(
-  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher);
 
 void copyFile(
   const std::filesystem::path& sourcePath,

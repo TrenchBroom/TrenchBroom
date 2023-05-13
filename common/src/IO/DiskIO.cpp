@@ -260,15 +260,6 @@ void deleteFile(const std::filesystem::path& path)
   }
 }
 
-void deleteFiles(
-  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher)
-{
-  for (const auto& filePath : find(sourceDirPath, pathMatcher))
-  {
-    deleteFile(filePath);
-  }
-}
-
 void copyFile(
   const std::filesystem::path& sourcePath,
   const std::filesystem::path& destPath,
