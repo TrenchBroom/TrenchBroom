@@ -618,11 +618,7 @@ void TrenchBroomApp::closeWelcomeWindow()
 
 bool TrenchBroomApp::useSDI()
 {
-#ifdef _WIN32
-  return true;
-#else
   return false;
-#endif
 }
 
 
