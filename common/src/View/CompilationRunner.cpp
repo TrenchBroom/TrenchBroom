@@ -146,18 +146,20 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
     try
     {
-      const auto sourcePaths = IO::Disk::find(sourceDirPath, sourcePathMatcher);
-      const auto sourceStrs = kdl::vec_transform(
-        sourcePaths, [](const auto& path) { return "'" + path.string() + "'"; });
-      const auto sourceListQStr = QString::fromStdString(kdl::str_join(sourceStrs, ", "));
+      const auto pathsToCopy = IO::Disk::find(sourceDirPath, sourcePathMatcher);
+      const auto pathStrsToCopy = kdl::vec_transform(
+        pathsToCopy, [](const auto& path) { return "'" + path.string() + "'"; });
 
       m_context << "#### Copying to '" << IO::pathAsQString(targetPath)
-                << "/': " << sourceListQStr << "\n";
+                << "/': " << QString::fromStdString(kdl::str_join(pathStrsToCopy, ", "))
+                << "\n";
       if (!m_context.test())
       {
         IO::Disk::ensureDirectoryExists(targetPath);
-        IO::Disk::copyFiles(
-          sourceDirPath, sourcePathMatcher, targetPath, true(overwrite));
+        for (const auto& pathToCopy : pathsToCopy)
+        {
+          IO::Disk::copyFile(pathToCopy, targetPath, true(overwrite));
+        }
       }
       emit end();
     }

@@ -56,11 +56,6 @@ void copyFile(
   const std::filesystem::path& sourcePath,
   const std::filesystem::path& destPath,
   bool overwrite);
-void copyFiles(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  bool overwrite);
 
 void moveFile(
   const std::filesystem::path& sourcePath,
