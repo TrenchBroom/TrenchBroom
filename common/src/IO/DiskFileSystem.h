@@ -62,7 +62,7 @@ public:
 private:
   void doCreateFile(
     const std::filesystem::path& path, const std::string& contents) override;
-  void doCreateDirectory(const std::filesystem::path& path) override;
+  bool doCreateDirectory(const std::filesystem::path& path) override;
   void doDeleteFile(const std::filesystem::path& path) override;
   void doCopyFile(
     const std::filesystem::path& sourcePath,

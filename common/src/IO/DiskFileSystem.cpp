@@ -92,9 +92,9 @@ void WritableDiskFileSystem::doCreateFile(
   Disk::withOutputStream(makeAbsolute(path), [&](auto& stream) { stream << contents; });
 }
 
-void WritableDiskFileSystem::doCreateDirectory(const std::filesystem::path& path)
+bool WritableDiskFileSystem::doCreateDirectory(const std::filesystem::path& path)
 {
-  Disk::createDirectory(makeAbsolute(path));
+  return Disk::createDirectory(makeAbsolute(path));
 }
 
 void WritableDiskFileSystem::doDeleteFile(const std::filesystem::path& path)

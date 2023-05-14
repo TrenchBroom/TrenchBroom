@@ -180,30 +180,7 @@ bool createDirectoryHelper(const std::filesystem::path& path)
 }
 } // namespace
 
-void createDirectory(const std::filesystem::path& path)
-{
-  const auto fixedPath = fixPath(path);
-  switch (pathInfo(fixedPath))
-  {
-  case PathInfo::Directory:
-    throw FileSystemException(
-      "Could not create directory '" + fixedPath.string()
-      + "': A directory already exists at that path.");
-  case PathInfo::File:
-    throw FileSystemException(
-      "Could not create directory '" + fixedPath.string()
-      + "': A file already exists at that path.");
-  case PathInfo::Unknown:
-    if (!createDirectoryHelper(fixedPath))
-    {
-      throw FileSystemException(
-        "Could not create directory '" + fixedPath.string() + "'");
-    }
-    break;
-  }
-}
-
-void ensureDirectoryExists(const std::filesystem::path& path)
+bool createDirectory(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   switch (pathInfo(fixedPath))
@@ -215,13 +192,13 @@ void ensureDirectoryExists(const std::filesystem::path& path)
       "Could not create directory '" + fixedPath.string()
       + "': A file already exists at that path.");
   case PathInfo::Unknown:
-    if (!createDirectoryHelper(fixedPath))
+    if (createDirectoryHelper(fixedPath))
     {
-      throw FileSystemException(
-        "Could not create directory '" + fixedPath.string() + "'");
+      return true;
     }
-    break;
+    throw FileSystemException("Could not create directory '" + fixedPath.string() + "'");
   }
+  return false;
 }
 
 void deleteFile(const std::filesystem::path& path)

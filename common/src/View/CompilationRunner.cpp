@@ -99,7 +99,7 @@ void CompilationExportMapTaskRunner::doExecute()
 
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath.parent_path());
+        IO::Disk::createDirectory(targetPath.parent_path());
 
         const auto options = IO::MapExportOptions{targetPath};
         const auto document = m_context.document();
@@ -155,7 +155,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
                 << "\n";
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath);
+        IO::Disk::createDirectory(targetPath);
         for (const auto& pathToCopy : pathsToCopy)
         {
           IO::Disk::copyFile(pathToCopy, targetPath, true(overwrite));
@@ -202,7 +202,7 @@ void CompilationRenameFileTaskRunner::doExecute()
                 << IO::pathAsQString(targetPath) << "'\n";
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath.parent_path());
+        IO::Disk::createDirectory(targetPath.parent_path());
         IO::Disk::moveFile(sourcePath, targetPath, true);
       }
       emit end();

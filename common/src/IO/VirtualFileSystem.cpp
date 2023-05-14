@@ -229,9 +229,9 @@ void WritableVirtualFileSystem::doCreateFile(
   m_writableFs.createFile(path, contents);
 }
 
-void WritableVirtualFileSystem::doCreateDirectory(const std::filesystem::path& path)
+bool WritableVirtualFileSystem::doCreateDirectory(const std::filesystem::path& path)
 {
-  m_writableFs.createDirectory(path);
+  return m_writableFs.createDirectory(path);
 }
 
 void WritableVirtualFileSystem::doDeleteFile(const std::filesystem::path& path)

@@ -143,13 +143,13 @@ void WritableFileSystem::createFile(
   doCreateFile(path, contents);
 }
 
-void WritableFileSystem::createDirectory(const std::filesystem::path& path)
+bool WritableFileSystem::createDirectory(const std::filesystem::path& path)
 {
   if (path.is_absolute())
   {
     throw FileSystemException("Path is absolute: '" + path.string() + "'");
   }
-  doCreateDirectory(path);
+  return doCreateDirectory(path);
 }
 
 void WritableFileSystem::deleteFile(const std::filesystem::path& path)

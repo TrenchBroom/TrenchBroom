@@ -194,39 +194,20 @@ TEST_CASE("DiskIO")
 
   SECTION("createDirectory")
   {
-    Disk::createDirectory(env.dir() / "yetAnotherDir");
+    CHECK_FALSE(Disk::createDirectory(env.dir() / "anotherDir"));
+
+    CHECK(Disk::createDirectory(env.dir() / "yetAnotherDir"));
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir"));
 
-    Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory");
+    CHECK(Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory"));
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir/and/a/nested/directory"));
 
-    CHECK_THROWS_AS(Disk::createDirectory(env.dir() / "anotherDir"), FileSystemException);
     CHECK_THROWS_AS(Disk::createDirectory(env.dir() / "test.txt"), FileSystemException);
 
     const auto setPermissions =
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
     CHECK_THROWS_AS(
       Disk::createDirectory(env.dir() / "anotherDir/nestedDir"), FileSystemException);
-  }
-
-  SECTION("ensureDirectoryExists")
-  {
-    CHECK_NOTHROW(Disk::ensureDirectoryExists(env.dir() / "anotherDir"));
-
-    Disk::ensureDirectoryExists(env.dir() / "yetAnotherDir");
-    CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir"));
-
-    Disk::ensureDirectoryExists(env.dir() / "yetAnotherDir/and/a/nested/directory");
-    CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir/and/a/nested/directory"));
-
-    CHECK_THROWS_AS(
-      Disk::ensureDirectoryExists(env.dir() / "test.txt"), FileSystemException);
-
-    const auto setPermissions =
-      SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
-    CHECK_THROWS_AS(
-      Disk::ensureDirectoryExists(env.dir() / "anotherDir/nestedDir"),
-      FileSystemException);
   }
 
   SECTION("deleteFile")

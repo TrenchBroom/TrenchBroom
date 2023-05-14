@@ -704,7 +704,7 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   const auto basePath = crashReportBasePath();
 
   // ensure the containing directory exists
-  IO::Disk::ensureDirectoryExists(basePath.parent_path());
+  IO::Disk::createDirectory(basePath.parent_path());
 
   const auto reportPath = kdl::path_add_extension(basePath, ".txt");
   auto logPath = kdl::path_add_extension(basePath, ".log");

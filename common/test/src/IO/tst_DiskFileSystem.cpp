@@ -210,19 +210,20 @@ TEST_CASE("WritableDiskFileSystemTest")
 #else
     CHECK_THROWS_AS(fs.createDirectory("/hopefully_nothing_here"), FileSystemException);
 #endif
-    CHECK_THROWS_AS(fs.createDirectory(""), FileSystemException);
-    CHECK_THROWS_AS(fs.createDirectory("."), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.createDirectory("dir1"), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory("test.txt"), FileSystemException);
     CHECK_THROWS_AS(
       fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir/."),
       FileSystemException);
 
-    fs.createDirectory("newDir");
+    CHECK_FALSE(fs.createDirectory(""));
+    CHECK_FALSE(fs.createDirectory("."));
+    CHECK_FALSE(fs.createDirectory("dir1"));
+
+    CHECK(fs.createDirectory("newDir"));
     CHECK(fs.pathInfo("newDir") == PathInfo::Directory);
 
-    fs.createDirectory("newDir/someOtherDir");
+    CHECK(fs.createDirectory("newDir/someOtherDir"));
     CHECK(fs.pathInfo("newDir/someOtherDir") == PathInfo::Directory);
   }
 
