@@ -22,7 +22,6 @@
 #include <QDir>
 #include <QFileInfo>
 
-#include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystemUtils.h"
 #include "IO/IOUtils.h"

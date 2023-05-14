@@ -126,6 +126,41 @@ TEST_CASE("DiskIO")
     CHECK(Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map") != nullptr);
   }
 
+  SECTION("withStream")
+  {
+    const auto readAll = [](auto& stream) {
+      return std::string{
+        std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>()};
+    };
+
+    SECTION("withInputStream")
+    {
+      CHECK_THROWS_AS(
+        Disk::withInputStream(env.dir() / "does not exist.txt", readAll),
+        FileSystemException);
+
+      CHECK(Disk::withInputStream(env.dir() / "test.txt", readAll) == "some content");
+    }
+
+    SECTION("withOutputStream")
+    {
+      Disk::withOutputStream(
+        env.dir() / "test.txt", std::ios::out | std::ios::app, [](auto& stream) {
+          stream << "\nmore content";
+        });
+      CHECK(
+        Disk::withInputStream(env.dir() / "test.txt", readAll)
+        == "some content\nmore content");
+
+      Disk::withOutputStream(env.dir() / "some_other_name.txt", [](auto& stream) {
+        stream << "some text...";
+      });
+      CHECK(
+        Disk::withInputStream(env.dir() / "some_other_name.txt", readAll)
+        == "some text...");
+    }
+  }
+
   SECTION("resolvePath")
   {
     const auto rootPaths =

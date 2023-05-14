@@ -19,9 +19,11 @@
 
 #pragma once
 
+#include "Exceptions.h"
 #include "IO/PathMatcher.h"
 
 #include <filesystem>
+#include <fstream>
 #include <memory>
 #include <string>
 
@@ -45,6 +47,51 @@ std::vector<std::filesystem::path> findRecursively(
 std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path);
 
 std::shared_ptr<File> openFile(const std::filesystem::path& path);
+
+template <typename Stream, typename F>
+auto withStream(
+  const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
+{
+  try
+  {
+    auto stream = Stream{path, mode};
+    if (!stream)
+    {
+      throw FileSystemException{"Could not open stream for file '" + path.string() + "'"};
+    }
+    return function(stream);
+  }
+  catch (const std::filesystem::filesystem_error&)
+  {
+    throw FileSystemException{"Could not open stream for file '" + path.string() + "'"};
+  }
+}
+
+template <typename F>
+auto withInputStream(
+  const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
+{
+  return withStream<std::ifstream>(path, mode, function);
+}
+
+template <typename F>
+auto withInputStream(const std::filesystem::path& path, const F& function)
+{
+  return withStream<std::ifstream>(path, std::ios_base::in, function);
+}
+
+template <typename F>
+auto withOutputStream(
+  const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
+{
+  return withStream<std::ofstream>(path, mode, function);
+}
+
+template <typename F>
+auto withOutputStream(const std::filesystem::path& path, const F& function)
+{
+  return withStream<std::ofstream>(path, std::ios_base::out, function);
+}
 
 void createFile(const std::filesystem::path& path, const std::string& contents);
 void createDirectory(const std::filesystem::path& path);
