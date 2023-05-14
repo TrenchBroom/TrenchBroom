@@ -93,7 +93,6 @@ auto withOutputStream(const std::filesystem::path& path, const F& function)
   return withStream<std::ofstream>(path, std::ios_base::out, function);
 }
 
-void createFile(const std::filesystem::path& path, const std::string& contents);
 void createDirectory(const std::filesystem::path& path);
 void ensureDirectoryExists(const std::filesystem::path& path);
 

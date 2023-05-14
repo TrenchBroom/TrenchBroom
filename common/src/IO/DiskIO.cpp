@@ -161,26 +161,6 @@ std::shared_ptr<File> openFile(const std::filesystem::path& path)
   return std::make_shared<CFile>(fixedPath);
 }
 
-void createFile(const std::filesystem::path& path, const std::string& contents)
-{
-  const auto fixedPath = fixPath(path);
-  if (pathInfo(fixedPath) == PathInfo::File)
-  {
-    deleteFile(fixedPath);
-  }
-  else
-  {
-    const auto directory = fixedPath.parent_path();
-    if (pathInfo(directory) == PathInfo::Unknown)
-    {
-      createDirectory(directory);
-    }
-  }
-
-  auto stream = openPathAsOutputStream(fixedPath);
-  stream << contents;
-}
-
 namespace
 {
 bool createDirectoryHelper(const std::filesystem::path& path)
