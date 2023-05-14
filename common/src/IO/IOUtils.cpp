@@ -54,18 +54,6 @@ FILE* openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
 #endif
 }
 
-std::ofstream openPathAsOutputStream(
-  const std::filesystem::path& path, const std::ios::openmode mode)
-{
-  return std::ofstream(path.u8string().c_str(), mode);
-}
-
-std::ifstream openPathAsInputStream(
-  const std::filesystem::path& path, const std::ios::openmode mode)
-{
-  return std::ifstream(path.u8string().c_str(), mode);
-}
-
 size_t fileSize(std::FILE* file)
 {
   ensure(file != nullptr, "file is null");

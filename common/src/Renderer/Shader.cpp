@@ -20,6 +20,7 @@
 #include "Shader.h"
 
 #include "Exceptions.h"
+#include "IO/DiskIO.h"
 #include "IO/IOUtils.h"
 
 #include <cassert>
@@ -102,22 +103,18 @@ void Shader::detach(const GLuint programId)
 
 std::vector<std::string> Shader::loadSource(const std::filesystem::path& path)
 {
-  std::ifstream stream = IO::openPathAsInputStream(path);
-  if (!stream.is_open())
-  {
-    throw RenderException("Could not load shader source from " + path.string());
-  }
+  return IO::Disk::withInputStream(path, [](auto& stream) {
+    std::string line;
+    std::vector<std::string> lines;
 
-  std::string line;
-  std::vector<std::string> lines;
+    while (!stream.eof())
+    {
+      std::getline(stream, line);
+      lines.push_back(line + '\n');
+    }
 
-  while (!stream.eof())
-  {
-    std::getline(stream, line);
-    lines.push_back(line + '\n');
-  }
-
-  return lines;
+    return lines;
+  });
 }
 } // namespace Renderer
 } // namespace TrenchBroom

@@ -152,17 +152,14 @@ std::unique_ptr<WorldNode> TestGame::doLoadMap(
 
 void TestGame::doWriteMap(WorldNode& world, const std::filesystem::path& path) const
 {
-  const auto mapFormatName = formatName(world.mapFormat());
 
-  auto file = IO::openPathAsOutputStream(path);
-  if (!file)
-  {
-    throw FileSystemException("Cannot open file: " + path.string());
-  }
-  IO::writeGameComment(file, gameName(), mapFormatName);
+  IO::Disk::withOutputStream(path, [&](auto& stream) {
+    const auto mapFormatName = formatName(world.mapFormat());
+    IO::writeGameComment(stream, gameName(), mapFormatName);
 
-  IO::NodeWriter writer(world, file);
-  writer.writeMap();
+    IO::NodeWriter writer(world, stream);
+    writer.writeMap();
+  });
 }
 
 void TestGame::doExportMap(

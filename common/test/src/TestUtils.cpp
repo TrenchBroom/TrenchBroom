@@ -160,15 +160,10 @@ namespace IO
 std::string readTextFile(const std::filesystem::path& path)
 {
   const auto fixedPath = Disk::fixPath(path);
-
-  auto stream = openPathAsInputStream(fixedPath);
-  if (!stream.is_open())
-  {
-    throw FileSystemException("Cannot open file: " + fixedPath.string());
-  }
-
-  return std::string{
-    (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
+  return Disk::withInputStream(fixedPath, [](auto& stream) {
+    return std::string{
+      (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
+  });
 }
 } // namespace IO
 

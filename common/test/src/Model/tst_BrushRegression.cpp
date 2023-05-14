@@ -1584,17 +1584,15 @@ TEST_CASE("BrushTest.subtractDome")
 
   const auto subtrahendPath =
     std::filesystem::current_path() / "fixture/test/Model/Brush/subtrahend.map";
-  auto stream = IO::openPathAsInputStream(subtrahendPath);
-  std::stringstream subtrahendStr;
-  subtrahendStr << stream.rdbuf();
+  const auto subtrahendStr = IO::readTextFile(subtrahendPath);
 
   const vm::bbox3 worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
     IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, {}, status);
-  const std::vector<Node*> subtrahendNodes = IO::NodeReader::read(
-    subtrahendStr.str(), MapFormat::Standard, worldBounds, {}, {}, status);
+  const std::vector<Node*> subtrahendNodes =
+    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();

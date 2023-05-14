@@ -710,10 +710,10 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   auto logPath = kdl::path_add_extension(basePath, ".log");
   auto mapPath = kdl::path_add_extension(basePath, ".map");
 
-  std::ofstream reportStream = IO::openPathAsOutputStream(reportPath);
-  reportStream << report;
-  reportStream.close();
-  std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
+  IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
+    stream << report;
+    std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
+  });
 
   // save the map
   auto doc = topDocument();

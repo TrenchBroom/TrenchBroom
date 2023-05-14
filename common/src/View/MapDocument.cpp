@@ -916,17 +916,18 @@ void MapDocument::loadPointFile(const std::filesystem::path path)
     unloadPointFile();
   }
 
-  auto file = IO::openPathAsInputStream(path);
-  if (auto trace = Model::loadPointFile(file))
-  {
-    m_pointFile = PointFile{*trace, path};
-    info() << "Loaded point file " << path;
-    pointFileWasLoadedNotifier();
-  }
-  else
-  {
-    warn() << "Failed to load point file " << path;
-  }
+  IO::Disk::withInputStream(path, [&](auto& file) {
+    if (auto trace = Model::loadPointFile(file))
+    {
+      m_pointFile = PointFile{*trace, path};
+      info() << "Loaded point file " << path;
+      pointFileWasLoadedNotifier();
+    }
+    else
+    {
+      warn() << "Failed to load point file " << path;
+    }
+  });
 }
 
 bool MapDocument::isPointFileLoaded() const

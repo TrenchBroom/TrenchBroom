@@ -33,10 +33,6 @@ namespace IO
 {
 
 FILE* openPathAsFILE(const std::filesystem::path& path, const std::string& mode);
-std::ofstream openPathAsOutputStream(
-  const std::filesystem::path& path, std::ios::openmode mode = std::ios::out);
-std::ifstream openPathAsInputStream(
-  const std::filesystem::path& path, std::ios::openmode mode = std::ios::in);
 
 size_t fileSize(std::FILE* file);
 
