@@ -22,6 +22,8 @@
 #include "Exceptions.h"
 #include "IO/IOUtils.h"
 
+#include <cstdio> // for FILE
+
 namespace TrenchBroom
 {
 namespace IO
@@ -77,6 +79,29 @@ size_t NonOwningBufferFile::size() const
 {
   return static_cast<size_t>(m_end - m_begin);
 }
+
+namespace
+{
+FILE* openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
+{
+  // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
+  // to open a Unicode path. We will use Qt to help convert the Path to a UTF-16 encoded
+  // wchar array.
+  //
+  // - Path contains UTF-8 (stored in std::string)
+  // - pathAsQString() converts UTF-8 to UTF-16 (stored in QString)
+  // - QString::toStdWString() returns a UTF-16 std::wstring on Windows
+  //
+  // All other platforms, just assume fopen() can handle UTF-8
+#ifdef _WIN32
+  return _wfopen(
+    pathAsQString(path).toStdWString().c_str(),
+    QString::fromStdString(mode).toStdWString().c_str());
+#else
+  return fopen(path.u8string().c_str(), mode.c_str());
+#endif
+}
+} // namespace
 
 CFile::CFile(std::filesystem::path path)
   : File{std::move(path)}

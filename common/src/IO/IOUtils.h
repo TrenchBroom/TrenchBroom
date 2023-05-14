@@ -32,8 +32,6 @@ namespace TrenchBroom
 namespace IO
 {
 
-FILE* openPathAsFILE(const std::filesystem::path& path, const std::string& mode);
-
 size_t fileSize(std::FILE* file);
 
 std::string readGameComment(std::istream& stream);

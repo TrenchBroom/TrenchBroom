@@ -31,21 +31,18 @@
 
 namespace TrenchBroom
 {
-FileLogger::FileLogger(const std::filesystem::path& filePath)
-  : m_file(nullptr)
+namespace
 {
-  IO::Disk::createDirectory(filePath.parent_path());
-  m_file = IO::openPathAsFILE(filePath, "w");
-  ensure(m_file != nullptr, "log file could not be opened");
+std::ofstream openLogFile(const std::filesystem::path& path)
+{
+  IO::Disk::createDirectory(path.parent_path());
+  return std::ofstream{path, std::ios::out};
 }
-
-FileLogger::~FileLogger()
+} // namespace
+FileLogger::FileLogger(const std::filesystem::path& filePath)
+  : m_stream{openLogFile(filePath)}
 {
-  if (m_file != nullptr)
-  {
-    fclose(m_file);
-    m_file = nullptr;
-  }
+  ensure(m_stream, "log file could not be opened");
 }
 
 FileLogger& FileLogger::instance()
@@ -56,11 +53,10 @@ FileLogger& FileLogger::instance()
 
 void FileLogger::doLog(const LogLevel /* level */, const std::string& message)
 {
-  assert(m_file != nullptr);
-  if (m_file != nullptr)
+  assert(m_stream);
+  if (m_stream)
   {
-    std::fprintf(m_file, "%s\n", message.c_str());
-    std::fflush(m_file);
+    m_stream << message << std::endl;
   }
 }
 

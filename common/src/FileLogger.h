@@ -23,6 +23,7 @@
 #include "Macros.h"
 
 #include <filesystem>
+#include <fstream>
 #include <string>
 
 class QString;
@@ -33,11 +34,10 @@ namespace TrenchBroom
 class FileLogger : public Logger
 {
 private:
-  FILE* m_file;
+  std::ofstream m_stream;
 
 public:
   explicit FileLogger(const std::filesystem::path& filePath);
-  ~FileLogger() override;
 
   static FileLogger& instance();
 
