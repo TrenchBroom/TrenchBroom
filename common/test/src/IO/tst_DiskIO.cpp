@@ -31,6 +31,7 @@
 
 #include <algorithm>
 #include <filesystem>
+#include <fstream>
 
 #include "Catch2.h"
 
@@ -39,6 +40,35 @@ namespace TrenchBroom::IO
 
 namespace
 {
+class SetPermissions
+{
+private:
+  std::filesystem::path m_path;
+  std::filesystem::perms m_permissions;
+
+public:
+  explicit SetPermissions(
+    std::filesystem::path path, const std::filesystem::perms permissions)
+    : m_path{std::move(path)}
+    , m_permissions{std::filesystem::status(m_path).permissions()}
+  {
+    std::filesystem::permissions(m_path, permissions);
+  }
+
+  ~SetPermissions()
+  {
+    try
+    {
+      std::filesystem::permissions(m_path, m_permissions);
+    }
+    catch (const std::filesystem::filesystem_error& e)
+    {
+      std::cout << "Could not reset file permissions for " << m_path << ": " << e.what()
+                << "\n";
+    }
+  }
+};
+
 TestEnvironment makeTestEnvironment()
 {
   // have a non-ASCII character in the directory name to help catch
@@ -61,6 +91,12 @@ TestEnvironment makeTestEnvironment()
       env.createFile("anotherDir/test3.map", "//yet another test file\n{}");
     }};
 }
+
+const auto readAll = [](auto& stream) {
+  return std::string{
+    std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>()};
+};
+
 } // namespace
 
 TEST_CASE("DiskIO")
@@ -128,11 +164,6 @@ TEST_CASE("DiskIO")
 
   SECTION("withStream")
   {
-    const auto readAll = [](auto& stream) {
-      return std::string{
-        std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>()};
-    };
-
     SECTION("withInputStream")
     {
       CHECK_THROWS_AS(
@@ -158,6 +189,283 @@ TEST_CASE("DiskIO")
       CHECK(
         Disk::withInputStream(env.dir() / "some_other_name.txt", readAll)
         == "some text...");
+    }
+  }
+
+  SECTION("createDirectory")
+  {
+    Disk::createDirectory(env.dir() / "yetAnotherDir");
+    CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir"));
+
+    Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory");
+    CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir/and/a/nested/directory"));
+
+    CHECK_THROWS_AS(Disk::createDirectory(env.dir() / "anotherDir"), FileSystemException);
+    CHECK_THROWS_AS(Disk::createDirectory(env.dir() / "test.txt"), FileSystemException);
+
+    const auto setPermissions =
+      SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
+    CHECK_THROWS_AS(
+      Disk::createDirectory(env.dir() / "anotherDir/nestedDir"), FileSystemException);
+  }
+
+  SECTION("ensureDirectoryExists")
+  {
+    CHECK_NOTHROW(Disk::ensureDirectoryExists(env.dir() / "anotherDir"));
+
+    Disk::ensureDirectoryExists(env.dir() / "yetAnotherDir");
+    CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir"));
+
+    Disk::ensureDirectoryExists(env.dir() / "yetAnotherDir/and/a/nested/directory");
+    CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir/and/a/nested/directory"));
+
+    CHECK_THROWS_AS(
+      Disk::ensureDirectoryExists(env.dir() / "test.txt"), FileSystemException);
+
+    const auto setPermissions =
+      SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
+    CHECK_THROWS_AS(
+      Disk::ensureDirectoryExists(env.dir() / "anotherDir/nestedDir"),
+      FileSystemException);
+  }
+
+  SECTION("deleteFile")
+  {
+    REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+    CHECK_NOTHROW(Disk::deleteFile(env.dir() / "test.txt"));
+    CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
+
+    CHECK_THROWS_AS(Disk::deleteFile(env.dir() / "anotherDir"), FileSystemException);
+    CHECK_THROWS_AS(Disk::deleteFile(env.dir() / "does_not_exist"), FileSystemException);
+
+    const auto setPermissions =
+      SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
+
+    REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
+    CHECK_THROWS_AS(
+      Disk::deleteFile(env.dir() / "anotherDir/test3.map"), FileSystemException);
+  }
+
+  SECTION("copyFile")
+  {
+    SECTION("copy non existing file")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "does_not_exist.txt") == PathInfo::Unknown);
+
+      const auto overwrite = GENERATE(true, false);
+      CHECK_THROWS_AS(
+        Disk::copyFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1", overwrite),
+        FileSystemException);
+    }
+
+    SECTION("copy directory")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+
+      const auto overwrite = GENERATE(true, false);
+      CHECK_THROWS_AS(
+        Disk::copyFile(env.dir() / "anotherDir", env.dir() / "dir1", overwrite),
+        FileSystemException);
+    }
+
+    SECTION("copy file into directory")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::Unknown);
+
+      const auto overwrite = GENERATE(true, false);
+      CHECK_NOTHROW(
+        Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir", overwrite));
+
+      CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      CHECK(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::File);
+    }
+
+    SECTION("copy file to non existing file")
+    {
+      SECTION("when the file can be created")
+      {
+        REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
+
+        const auto overwrite = GENERATE(true, false);
+        CHECK_NOTHROW(Disk::copyFile(
+          env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt", overwrite));
+
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        CHECK(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::File);
+      }
+
+      SECTION("when the file cannot be created")
+      {
+        REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
+
+        const auto overwrite = GENERATE(true, false);
+
+        const auto setPermissions =
+          SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
+
+        CHECK_THROWS_AS(
+          Disk::copyFile(
+            env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt", overwrite),
+          FileSystemException);
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      }
+    }
+
+    SECTION("copy file over existing file")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
+      REQUIRE(
+        Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+        != "some content");
+
+      SECTION("when overwrite is true")
+      {
+        CHECK_NOTHROW(Disk::copyFile(
+          env.dir() / "test.txt", env.dir() / "anotherDir/test3.map", true));
+
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
+        CHECK(
+          Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+          == "some content");
+      }
+
+      SECTION("when overwrite is true, but the file cannot be deleted")
+      {
+        const auto setPermissions =
+          SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
+
+        CHECK_THROWS_AS(
+          Disk::copyFile(
+            env.dir() / "test.txt", env.dir() / "anotherDir/test3.map", false),
+          FileSystemException);
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      }
+
+      SECTION("when overwrite is false")
+      {
+        CHECK_THROWS_AS(
+          Disk::copyFile(
+            env.dir() / "test.txt", env.dir() / "anotherDir/test3.map", false),
+          FileSystemException);
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      }
+    }
+  }
+
+  SECTION("moveFile")
+  {
+    SECTION("move non existing file")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "does_not_exist.txt") == PathInfo::Unknown);
+
+      const auto overwrite = GENERATE(true, false);
+      CHECK_THROWS_AS(
+        Disk::moveFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1", overwrite),
+        FileSystemException);
+    }
+
+    SECTION("move directory")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+
+      const auto overwrite = GENERATE(true, false);
+      CHECK_THROWS_AS(
+        Disk::moveFile(env.dir() / "anotherDir", env.dir() / "dir1", overwrite),
+        FileSystemException);
+      CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+    }
+
+    SECTION("move file into directory")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::Unknown);
+
+      const auto overwrite = GENERATE(true, false);
+      CHECK_NOTHROW(
+        Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir", overwrite));
+
+      CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
+      CHECK(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::File);
+    }
+
+    SECTION("move file to non existing file")
+    {
+      SECTION("when the file can be created")
+      {
+        REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
+
+        const auto overwrite = GENERATE(true, false);
+        CHECK_NOTHROW(Disk::moveFile(
+          env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt", overwrite));
+
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
+        CHECK(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::File);
+      }
+
+      SECTION("when the file cannot be created")
+      {
+        REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
+
+        const auto overwrite = GENERATE(true, false);
+
+        const auto setPermissions =
+          SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
+
+        CHECK_THROWS_AS(
+          Disk::moveFile(
+            env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt", overwrite),
+          FileSystemException);
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      }
+    }
+
+    SECTION("move file over existing file")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
+      REQUIRE(
+        Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+        != "some content");
+
+      SECTION("when overwrite is true")
+      {
+        CHECK_NOTHROW(Disk::moveFile(
+          env.dir() / "test.txt", env.dir() / "anotherDir/test3.map", true));
+
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
+        CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
+        CHECK(
+          Disk::withInputStream(env.dir() / "anotherDir/test3.map", readAll)
+          == "some content");
+      }
+
+      SECTION("when overwrite is true, but the file cannot be deleted")
+      {
+        const auto setPermissions =
+          SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
+
+        CHECK_THROWS_AS(
+          Disk::moveFile(
+            env.dir() / "test.txt", env.dir() / "anotherDir/test3.map", false),
+          FileSystemException);
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      }
+
+      SECTION("when overwrite is false")
+      {
+        CHECK_THROWS_AS(
+          Disk::moveFile(
+            env.dir() / "test.txt", env.dir() / "anotherDir/test3.map", false),
+          FileSystemException);
+        CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+      }
     }
   }
 
