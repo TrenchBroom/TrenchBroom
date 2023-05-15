@@ -32,7 +32,5 @@ namespace TrenchBroom
 namespace IO
 {
 
-size_t fileSize(std::FILE* file);
-
 } // namespace IO
 } // namespace TrenchBroom

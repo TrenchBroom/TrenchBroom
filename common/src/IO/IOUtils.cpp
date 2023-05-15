@@ -34,33 +34,6 @@ namespace TrenchBroom
 {
 namespace IO
 {
-size_t fileSize(std::FILE* file)
-{
-  ensure(file != nullptr, "file is null");
-  const auto pos = std::ftell(file);
-  if (pos < 0)
-  {
-    throw FileSystemException("ftell failed");
-  }
-
-  if (std::fseek(file, 0, SEEK_END) != 0)
-  {
-    throw FileSystemException("fseek failed");
-  }
-
-  const auto size = std::ftell(file);
-  if (size < 0)
-  {
-    throw FileSystemException("ftell failed");
-  }
-
-  if (std::fseek(file, pos, SEEK_SET) != 0)
-  {
-    throw FileSystemException("fseek failed");
-  }
-
-  return static_cast<size_t>(size);
-}
 
 } // namespace IO
 } // namespace TrenchBroom

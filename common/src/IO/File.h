@@ -124,7 +124,8 @@ public:
 class CFile : public File
 {
 private:
-  std::FILE* m_file;
+  using FilePtr = std::unique_ptr<std::FILE, int (*)(std::FILE*)>;
+  FilePtr m_file;
   size_t m_size;
 
 public:
@@ -136,7 +137,6 @@ public:
    * @throw FileSystemException if the file cannot be opened
    */
   explicit CFile(std::filesystem::path path);
-  ~CFile() override;
 
   Reader reader() const override;
   size_t size() const override;
