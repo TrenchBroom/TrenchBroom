@@ -21,7 +21,6 @@
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "IO/DiskIO.h"
-#include "IO/IOUtils.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"

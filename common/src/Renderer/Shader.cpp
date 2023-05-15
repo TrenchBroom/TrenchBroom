@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
-#include "IO/IOUtils.h"
 
 #include <cassert>
 #include <fstream>

@@ -22,7 +22,6 @@
 #include "Assets/TextureManager.h"
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
-#include "IO/IOUtils.h"
 #include "Logger.h"
 #include "Model/EntityNode.h"
 #include "Model/GameConfig.h"

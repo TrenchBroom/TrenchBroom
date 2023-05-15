@@ -27,7 +27,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
-#include "IO/IOUtils.h"
 #include "IO/LoadTextureCollection.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"

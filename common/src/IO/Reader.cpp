@@ -19,7 +19,6 @@
 
 #include "Reader.h"
 
-#include "IO/IOUtils.h"
 #include "IO/ReaderException.h"
 
 #include <cassert>

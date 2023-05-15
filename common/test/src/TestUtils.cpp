@@ -23,7 +23,6 @@
 #include "Ensure.h"
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
-#include "IO/IOUtils.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"

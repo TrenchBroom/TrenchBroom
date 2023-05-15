@@ -23,7 +23,6 @@
 
 #include "Ensure.h"
 #include "IO/DiskIO.h"
-#include "IO/IOUtils.h"
 #include "IO/SystemPaths.h"
 
 #include <cassert>

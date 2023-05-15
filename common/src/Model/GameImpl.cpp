@@ -38,7 +38,6 @@
 #include "IO/FgdParser.h"
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"
-#include "IO/IOUtils.h"
 #include "IO/ImageSpriteParser.h"
 #include "IO/LoadTextureCollection.h"
 #include "IO/Md2Parser.h"

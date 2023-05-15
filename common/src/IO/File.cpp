@@ -20,7 +20,6 @@
 #include "File.h"
 
 #include "Exceptions.h"
-#include "IO/IOUtils.h"
 #include "IO/PathQt.h"
 
 #include <cstdio> // for FILE
