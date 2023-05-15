@@ -34,11 +34,5 @@ namespace IO
 
 size_t fileSize(std::FILE* file);
 
-std::string readGameComment(std::istream& stream);
-std::string readFormatComment(std::istream& stream);
-std::string readInfoComment(std::istream& stream, const std::string& name);
-
-void writeGameComment(
-  std::ostream& stream, const std::string& gameName, const std::string& mapFormat);
 } // namespace IO
 } // namespace TrenchBroom

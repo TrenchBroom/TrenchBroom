@@ -186,17 +186,46 @@ const GameConfig& GameFactory::gameConfig(const std::string& name) const
   return cIt->second;
 }
 
+namespace
+{
+std::string readInfoComment(std::istream& stream, const std::string& name)
+{
+  constexpr auto MaxChars = 64u;
+  auto line = std::string{MaxChars};
+
+  const auto expectedHeader = "// " + name + ": ";
+
+  stream.getline(line.data(), MaxChars);
+  if (stream.fail())
+  {
+    return "";
+  }
+
+  if (line.substr(0, expectedHeader.size()) != expectedHeader)
+  {
+    return "";
+  }
+
+  auto result = line.substr(expectedHeader.size());
+  if (!result.empty() && result.back() == '\r')
+  {
+    result.pop_back();
+  }
+  return result;
+}
+} // namespace
+
 std::pair<std::string, MapFormat> GameFactory::detectGame(
   const std::filesystem::path& path) const
 {
   return IO::Disk::withInputStream(path, [&](auto& stream) {
-    auto gameName = IO::readGameComment(stream);
+    auto gameName = readInfoComment(stream, "Game");
     if (m_configs.find(gameName) == std::end(m_configs))
     {
       gameName = "";
     }
 
-    const auto formatName = IO::readFormatComment(stream);
+    const auto formatName = readInfoComment(stream, "Format");
     const auto format = formatFromName(formatName);
 
     return std::pair{gameName, format};

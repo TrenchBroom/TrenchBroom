@@ -62,46 +62,5 @@ size_t fileSize(std::FILE* file)
   return static_cast<size_t>(size);
 }
 
-std::string readGameComment(std::istream& stream)
-{
-  return readInfoComment(stream, "Game");
-}
-
-std::string readFormatComment(std::istream& stream)
-{
-  return readInfoComment(stream, "Format");
-}
-
-std::string readInfoComment(std::istream& stream, const std::string& name)
-{
-  static const size_t MaxChars = 64;
-  const std::string expectedHeader = "// " + name + ": ";
-  char buf[MaxChars];
-
-  stream.getline(buf, MaxChars);
-  if (stream.fail())
-    return "";
-
-  std::string line(buf);
-  if (line.size() < expectedHeader.size())
-    return "";
-
-  if (line.substr(0, expectedHeader.size()) != expectedHeader)
-    return "";
-
-  auto result = line.substr(expectedHeader.size());
-  if (result.size() > 0u && result.back() == '\r')
-  {
-    result = result.substr(0u, result.size() - 1u);
-  }
-  return result;
-}
-
-void writeGameComment(
-  std::ostream& stream, const std::string& gameName, const std::string& mapFormat)
-{
-  stream << "// Game: " << gameName << "\n"
-         << "// Format: " << mapFormat << "\n";
-}
 } // namespace IO
 } // namespace TrenchBroom

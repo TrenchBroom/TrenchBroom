@@ -246,7 +246,8 @@ void GameImpl::doWriteMap(
 {
   IO::Disk::withOutputStream(path, [&](auto& stream) {
     const auto mapFormatName = formatName(world.mapFormat());
-    IO::writeGameComment(stream, gameName(), mapFormatName);
+    stream << "// Game: " << gameName() << "\n"
+           << "// Format: " << mapFormatName << "\n";
 
     auto writer = IO::NodeWriter{world, stream};
     writer.setExporting(exporting);
