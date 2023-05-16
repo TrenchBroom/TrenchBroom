@@ -73,40 +73,42 @@ bool doCheckCaseSensitive()
 
 std::filesystem::path fixCase(const std::filesystem::path& path)
 {
-  if (
-    path.empty() || !path.is_absolute() || !isCaseSensitive()
-    || QFileInfo::exists(pathAsQString(path)))
+  try
   {
-    return path;
-  }
-
-  auto result = kdl::path_front(path);
-  auto remainder = kdl::path_pop_front(path);
-
-  auto dir = QDir{};
-  dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
-
-  while (!remainder.empty())
-  {
-    dir.setPath(pathAsQString(result));
-
-    const auto curDirStr = pathAsQString(kdl::path_front(remainder));
-    const auto entries = dir.entryList();
-    const auto entryIt = std::find_if(entries.begin(), entries.end(), [&](const auto& s) {
-      const auto ss = pathFromQString(s);
-      const auto c = s.compare(curDirStr, Qt::CaseInsensitive);
-      return c == 0;
-    });
-
-    if (entryIt == entries.end())
+    if (
+      path.empty() || !path.is_absolute() || !isCaseSensitive()
+      || std::filesystem::exists(path))
     {
       return path;
     }
 
-    result = result / pathFromQString(*entryIt);
-    remainder = kdl::path_pop_front(remainder);
+    auto result = kdl::path_front(kdl::path_to_lower(path));
+    auto remainder = kdl::path_pop_front(kdl::path_to_lower(path));
+
+    while (!remainder.empty())
+    {
+      const auto nameToFind = kdl::path_front(remainder);
+      const auto entryIt = std::find_if(
+        std::filesystem::directory_iterator{result},
+        std::filesystem::directory_iterator{},
+        [&](const auto& entry) {
+          return nameToFind == kdl::path_to_lower(entry.path().filename());
+        });
+
+      if (entryIt == std::filesystem::directory_iterator{})
+      {
+        return path;
+      }
+
+      result = result / entryIt->path().filename();
+      remainder = kdl::path_pop_front(remainder);
+    }
+    return result;
   }
-  return result;
+  catch (const std::filesystem::filesystem_error&)
+  {
+    return path;
+  }
 }
 
 } // namespace
