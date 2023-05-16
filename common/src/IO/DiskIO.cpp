@@ -126,11 +126,11 @@ std::filesystem::path fixPath(const std::filesystem::path& path)
 
 PathInfo pathInfo(const std::filesystem::path& path)
 {
-  const auto fixedPath = pathAsQString(fixPath(path));
-  const auto fileInfo = QFileInfo{fixedPath};
-  return fileInfo.exists() && fileInfo.isFile() ? PathInfo::File
-         : QDir{fixedPath}.exists()             ? PathInfo::Directory
-                                                : PathInfo::Unknown;
+  auto error = std::error_code{};
+  const auto f = fixPath(path);
+  return std::filesystem::is_directory(f, error) && !error      ? PathInfo::Directory
+         : std::filesystem::is_regular_file(f, error) && !error ? PathInfo::File
+                                                                : PathInfo::Unknown;
 }
 
 std::vector<std::filesystem::path> find(
