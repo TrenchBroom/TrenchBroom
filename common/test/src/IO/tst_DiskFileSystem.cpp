@@ -212,9 +212,6 @@ TEST_CASE("WritableDiskFileSystemTest")
 #endif
     CHECK_THROWS_AS(fs.createDirectory(".."), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory("test.txt"), FileSystemException);
-    CHECK_THROWS_AS(
-      fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir/."),
-      FileSystemException);
 
     CHECK_FALSE(fs.createDirectory(""));
     CHECK_FALSE(fs.createDirectory("."));
@@ -225,6 +222,9 @@ TEST_CASE("WritableDiskFileSystemTest")
 
     CHECK(fs.createDirectory("newDir/someOtherDir"));
     CHECK(fs.pathInfo("newDir/someOtherDir") == PathInfo::Directory);
+
+    CHECK(fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir"));
+    CHECK(fs.pathInfo("someDir/someOtherDir/.././yetAnotherDir") == PathInfo::Directory);
   }
 
   SECTION("deleteFile")

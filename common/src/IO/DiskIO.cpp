@@ -161,25 +161,6 @@ std::shared_ptr<File> openFile(const std::filesystem::path& path)
   return std::make_shared<CFile>(fixedPath);
 }
 
-namespace
-{
-bool createDirectoryHelper(const std::filesystem::path& path)
-{
-  if (path.empty())
-  {
-    return false;
-  }
-
-  const auto parent = path.parent_path();
-  if (!QDir{pathAsQString(parent)}.exists() && !createDirectoryHelper(parent))
-  {
-    return false;
-  }
-
-  return QDir{}.mkdir(pathAsQString(path));
-}
-} // namespace
-
 bool createDirectory(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
@@ -191,12 +172,14 @@ bool createDirectory(const std::filesystem::path& path)
     throw FileSystemException(
       "Could not create directory '" + fixedPath.string()
       + "': A file already exists at that path.");
-  case PathInfo::Unknown:
-    if (createDirectoryHelper(fixedPath))
+  case PathInfo::Unknown: {
+    auto error = std::error_code{};
+    if (std::filesystem::create_directories(fixedPath, error) && !error)
     {
       return true;
     }
     throw FileSystemException("Could not create directory '" + fixedPath.string() + "'");
+  }
   }
   return false;
 }
