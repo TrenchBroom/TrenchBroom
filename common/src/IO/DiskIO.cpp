@@ -44,22 +44,21 @@ namespace
 std::vector<std::filesystem::path> doGetDirectoryContents(
   const std::filesystem::path& fixedPath)
 {
-  auto dir = QDir{pathAsQString(fixedPath)};
-  if (!dir.exists())
+  try
   {
-    throw FileSystemException("Cannot open directory: '" + fixedPath.string() + "'");
+    auto result = std::vector<std::filesystem::path>{};
+    std::transform(
+      std::filesystem::directory_iterator{fixedPath},
+      std::filesystem::directory_iterator{},
+      std::back_inserter(result),
+      [&](const auto& entry) { return entry.path().lexically_relative(fixedPath); });
+    return result;
   }
-
-  dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
-
-  const auto entries = dir.entryList();
-  auto result = std::vector<std::filesystem::path>{};
-  result.reserve(size_t(entries.size()));
-
-  std::transform(
-    entries.begin(), entries.end(), std::back_inserter(result), pathFromQString);
-
-  return result;
+  catch (const std::filesystem::filesystem_error& e)
+  {
+    throw FileSystemException{
+      "Cannot open directory " + fixedPath.string() + ": " + e.what()};
+  }
 }
 
 bool doCheckCaseSensitive()
