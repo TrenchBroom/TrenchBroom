@@ -29,6 +29,7 @@
 
 #include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
+#include <kdl/string_format.h>
 
 #include <fstream>
 #include <string>
@@ -63,12 +64,11 @@ std::vector<std::filesystem::path> doGetDirectoryContents(
 
 bool doCheckCaseSensitive()
 {
-  const auto cwd = QDir::current();
-  assert(cwd.exists());
+  const auto cwd = std::filesystem::current_path();
+  assert(std::filesystem::is_directory(cwd));
 
-  const auto upper = QDir{cwd.path().toUpper()};
-  const auto lower = QDir{cwd.path().toLower()};
-  return !upper.exists() || !lower.exists();
+  return !std::filesystem::exists(kdl::path_to_lower(cwd))
+         || !std::filesystem::exists(kdl::str_to_upper(cwd.string()));
 }
 
 std::filesystem::path fixCase(const std::filesystem::path& path)
