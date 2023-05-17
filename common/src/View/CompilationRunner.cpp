@@ -27,6 +27,7 @@
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
+#include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
 #include "IO/PathQt.h"
 #include "Model/CompilationProfile.h"
@@ -35,6 +36,7 @@
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
+#include "kdl/functional.h"
 #include <kdl/overload.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -141,8 +143,9 @@ void CompilationCopyFilesTaskRunner::doExecute()
     const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
     const auto sourceDirPath = sourcePath.parent_path();
-    const auto sourcePathMatcher =
-      IO::makeFilenamePathMatcher(sourcePath.filename().string());
+    const auto sourcePathMatcher = kdl::lift_and(
+      IO::makePathInfoPathMatcher({IO::PathInfo::File}),
+      IO::makeFilenamePathMatcher(sourcePath.filename().string()));
 
     try
     {
@@ -240,8 +243,9 @@ void CompilationDeleteFilesTaskRunner::doExecute()
     const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
     const auto targetDirPath = targetPath.parent_path();
-    const auto targetPathMatcher =
-      IO::makeFilenamePathMatcher(targetPath.filename().string());
+    const auto targetPathMatcher = kdl::lift_and(
+      IO::makePathInfoPathMatcher({IO::PathInfo::File}),
+      IO::makeFilenamePathMatcher(targetPath.filename().string()));
 
     try
     {

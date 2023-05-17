@@ -193,7 +193,8 @@ void deleteFile(const std::filesystem::path& path)
       "Could not delete file '" + fixedPath.string() + "': File does not exist.");
   }
 
-  if (!QFile::remove(pathAsQString(fixedPath)))
+  auto error = std::error_code{};
+  if (!std::filesystem::remove(fixedPath, error) || error)
   {
     throw FileSystemException("Could not delete file '" + path.string() + "'");
   }
