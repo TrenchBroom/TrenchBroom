@@ -219,23 +219,12 @@ void copyFile(
     fixedDestPath = fixedDestPath / sourcePath.filename();
   }
 
-  const auto exists = pathInfo(fixedDestPath) == PathInfo::File;
-  if (!overwrite && exists)
-  {
-    throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "': file already exists");
-  }
+  const auto options = overwrite ? std::filesystem::copy_options::overwrite_existing
+                                 : std::filesystem::copy_options::none;
 
-  if (overwrite && exists && !QFile::remove(pathAsQString(fixedDestPath)))
-  {
-    throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "': couldn't remove destination");
-  }
-
-  // NOTE: QFile::copy will not overwrite the dest
-  if (!QFile::copy(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
+  auto error = std::error_code{};
+  if (
+    !std::filesystem::copy_file(fixedSourcePath, fixedDestPath, options, error) || error)
   {
     throw FileSystemException(
       "Could not copy file '" + fixedSourcePath.string() + "' to '"
