@@ -19,20 +19,13 @@
 
 #include "DiskIO.h"
 
-#include <QDir>
-#include <QFileInfo>
-
 #include "IO/File.h"
 #include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
-#include "IO/PathQt.h"
 
 #include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
-
-#include <fstream>
-#include <string>
 
 namespace TrenchBroom::IO
 {
