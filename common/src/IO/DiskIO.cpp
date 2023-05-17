@@ -230,10 +230,10 @@ void moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
-  if (pathInfo(fixedSourcePath) != PathInfo::File)
+  if (pathInfo(fixedSourcePath) == PathInfo::Directory)
   {
-    throw FileSystemException{
-      "Could not move '" + fixedSourcePath.string() + "': not a file"};
+    throw FileSystemException(
+      "Could not move directory '" + fixedSourcePath.string() + "'");
   }
 
   auto fixedDestPath = fixPath(destPath);
@@ -241,21 +241,13 @@ void moveFile(
   {
     fixedDestPath = fixedDestPath / sourcePath.filename();
   }
-  else if (pathInfo(fixedDestPath) == PathInfo::File)
-  {
-    auto error = std::error_code{};
-    if (!std::filesystem::remove(fixedDestPath, error) || error)
-    {
-      throw FileSystemException(
-        "Could not move file '" + fixedSourcePath.string() + "' to '"
-        + fixedDestPath.string() + "'");
-    }
-  }
 
-  if (!QFile::rename(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
+  auto error = std::error_code{};
+  std::filesystem::rename(fixedSourcePath, fixedDestPath, error);
+  if (error)
   {
     throw FileSystemException(
-      "Could not move file '" + fixedSourcePath.string() + "' to '"
+      "Could not copy file '" + fixedSourcePath.string() + "' to '"
       + fixedDestPath.string() + "'");
   }
 }
