@@ -201,17 +201,9 @@ void deleteFile(const std::filesystem::path& path)
 }
 
 void copyFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  const bool overwrite)
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
-  if (pathInfo(fixedSourcePath) != PathInfo::File)
-  {
-    throw FileSystemException{
-      "Could not copy '" + fixedSourcePath.string() + "': not a file"};
-  }
-
   auto fixedDestPath = fixPath(destPath);
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
@@ -219,12 +211,14 @@ void copyFile(
     fixedDestPath = fixedDestPath / sourcePath.filename();
   }
 
-  const auto options = overwrite ? std::filesystem::copy_options::overwrite_existing
-                                 : std::filesystem::copy_options::none;
-
   auto error = std::error_code{};
   if (
-    !std::filesystem::copy_file(fixedSourcePath, fixedDestPath, options, error) || error)
+    !std::filesystem::copy_file(
+      fixedSourcePath,
+      fixedDestPath,
+      std::filesystem::copy_options::overwrite_existing,
+      error)
+    || error)
   {
     throw FileSystemException(
       "Could not copy file '" + fixedSourcePath.string() + "' to '"
@@ -233,9 +227,7 @@ void copyFile(
 }
 
 void moveFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  const bool overwrite)
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
   if (pathInfo(fixedSourcePath) != PathInfo::File)
@@ -245,25 +237,19 @@ void moveFile(
   }
 
   auto fixedDestPath = fixPath(destPath);
-
-  const auto exists = pathInfo(fixedDestPath) == PathInfo::File;
-  if (!overwrite && exists)
-  {
-    throw FileSystemException(
-      "Could not move file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "': file already exists");
-  }
-
-  if (overwrite && exists && !QFile::remove(pathAsQString(fixedDestPath)))
-  {
-    throw FileSystemException(
-      "Could not move file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "': couldn't remove destination");
-  }
-
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
   {
     fixedDestPath = fixedDestPath / sourcePath.filename();
+  }
+  else if (pathInfo(fixedDestPath) == PathInfo::File)
+  {
+    auto error = std::error_code{};
+    if (!std::filesystem::remove(fixedDestPath, error) || error)
+    {
+      throw FileSystemException(
+        "Could not move file '" + fixedSourcePath.string() + "' to '"
+        + fixedDestPath.string() + "'");
+    }
   }
 
   if (!QFile::rename(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))

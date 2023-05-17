@@ -363,7 +363,7 @@ static std::filesystem::path backupFile(
   IO::WritableFileSystem& fs, const std::filesystem::path& path)
 {
   const auto backupPath = kdl::path_add_extension(path, ".bak");
-  fs.copyFile(path, backupPath, true);
+  fs.copyFile(path, backupPath);
   return backupPath;
 }
 

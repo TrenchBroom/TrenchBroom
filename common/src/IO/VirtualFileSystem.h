@@ -92,12 +92,10 @@ public:
   void doDeleteFile(const std::filesystem::path& path) override;
   void doCopyFile(
     const std::filesystem::path& sourcePath,
-    const std::filesystem::path& destPath,
-    bool overwrite) override;
+    const std::filesystem::path& destPath) override;
   void doMoveFile(
     const std::filesystem::path& sourcePath,
-    const std::filesystem::path& destPath,
-    bool overwrite) override;
+    const std::filesystem::path& destPath) override;
 };
 
 } // namespace TrenchBroom::IO

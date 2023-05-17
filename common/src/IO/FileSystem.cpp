@@ -130,7 +130,7 @@ void WritableFileSystem::createFileAtomic(
 
   const auto tmpPath = kdl::path_add_extension(path, "tmp");
   doCreateFile(tmpPath, contents);
-  doMoveFile(tmpPath, path, true);
+  doMoveFile(tmpPath, path);
 }
 
 void WritableFileSystem::createFile(
@@ -162,9 +162,7 @@ void WritableFileSystem::deleteFile(const std::filesystem::path& path)
 }
 
 void WritableFileSystem::copyFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  const bool overwrite)
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   if (sourcePath.is_absolute())
   {
@@ -175,13 +173,11 @@ void WritableFileSystem::copyFile(
     throw FileSystemException(
       "Destination path is absolute: '" + destPath.string() + "'");
   }
-  doCopyFile(sourcePath, destPath, overwrite);
+  doCopyFile(sourcePath, destPath);
 }
 
 void WritableFileSystem::moveFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  const bool overwrite)
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   if (sourcePath.is_absolute())
   {
@@ -192,6 +188,6 @@ void WritableFileSystem::moveFile(
     throw FileSystemException(
       "Destination path is absolute: '" + destPath.string() + "'");
   }
-  doMoveFile(sourcePath, destPath, overwrite);
+  doMoveFile(sourcePath, destPath);
 }
 } // namespace TrenchBroom::IO

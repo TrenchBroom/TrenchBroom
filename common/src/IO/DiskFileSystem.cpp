@@ -103,19 +103,15 @@ void WritableDiskFileSystem::doDeleteFile(const std::filesystem::path& path)
 }
 
 void WritableDiskFileSystem::doCopyFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  const bool overwrite)
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  Disk::copyFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
+  Disk::copyFile(makeAbsolute(sourcePath), makeAbsolute(destPath));
 }
 
 void WritableDiskFileSystem::doMoveFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  const bool overwrite)
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  Disk::moveFile(makeAbsolute(sourcePath), makeAbsolute(destPath), overwrite);
+  Disk::moveFile(makeAbsolute(sourcePath), makeAbsolute(destPath));
 }
 } // namespace IO
 } // namespace TrenchBroom

@@ -161,7 +161,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
         IO::Disk::createDirectory(targetPath);
         for (const auto& pathToCopy : pathsToCopy)
         {
-          IO::Disk::copyFile(pathToCopy, targetPath, true(overwrite));
+          IO::Disk::copyFile(pathToCopy, targetPath);
         }
       }
       emit end();
@@ -206,7 +206,7 @@ void CompilationRenameFileTaskRunner::doExecute()
       if (!m_context.test())
       {
         IO::Disk::createDirectory(targetPath.parent_path());
-        IO::Disk::moveFile(sourcePath, targetPath, true);
+        IO::Disk::moveFile(sourcePath, targetPath);
       }
       emit end();
     }

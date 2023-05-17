@@ -98,14 +98,10 @@ bool createDirectory(const std::filesystem::path& path);
 void deleteFile(const std::filesystem::path& path);
 
 void copyFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  bool overwrite);
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 void moveFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  bool overwrite);
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 std::filesystem::path resolvePath(
   const std::vector<std::filesystem::path>& searchPaths,
