@@ -265,6 +265,12 @@ void copyFile(
   const bool overwrite)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
+  if (pathInfo(fixedSourcePath) != PathInfo::File)
+  {
+    throw FileSystemException{
+      "Could not copy '" + fixedSourcePath.string() + "': not a file"};
+  }
+
   auto fixedDestPath = fixPath(destPath);
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
@@ -302,6 +308,12 @@ void moveFile(
   const bool overwrite)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
+  if (pathInfo(fixedSourcePath) != PathInfo::File)
+  {
+    throw FileSystemException{
+      "Could not move '" + fixedSourcePath.string() + "': not a file"};
+  }
+
   auto fixedDestPath = fixPath(destPath);
 
   const auto exists = pathInfo(fixedDestPath) == PathInfo::File;
