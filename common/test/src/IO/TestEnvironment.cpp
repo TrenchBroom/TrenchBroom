@@ -19,15 +19,11 @@
 
 #include "TestEnvironment.h"
 
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QTextStream>
-
 #include "IO/PathQt.h"
 #include "Macros.h"
 #include "Uuid.h"
 
+#include <fstream>
 #include <string>
 
 #include "Catch2.h"
@@ -67,31 +63,19 @@ void TestEnvironment::createTestEnvironment(const SetupFunction& setup)
 
 void TestEnvironment::createDirectory(const std::filesystem::path& path)
 {
-  const auto dir = QDir{IO::pathAsQString(m_dir / path)};
-  assertResult(dir.mkpath("."));
+  std::filesystem::create_directories(m_dir / path);
 }
 
 void TestEnvironment::createFile(
   const std::filesystem::path& path, const std::string& contents)
 {
-  auto file = QFile{IO::pathAsQString(m_dir / path)};
-  assertResult(file.open(QIODevice::ReadWrite));
-
-  auto stream = QTextStream{&file};
-  stream << QString::fromStdString(contents);
-  stream.flush();
-  assert(stream.status() == QTextStream::Ok);
+  auto stream = std::ofstream{m_dir / path, std::ios::out};
+  stream << contents;
 }
 
 static bool deleteDirectoryAbsolute(const std::filesystem::path& absolutePath)
 {
-  auto dir = QDir{IO::pathAsQString(absolutePath)};
-  if (!dir.exists())
-  {
-    return true;
-  }
-
-  return dir.removeRecursively();
+  return std::filesystem::remove_all(absolutePath);
 }
 
 bool TestEnvironment::deleteTestEnvironment()
@@ -101,26 +85,18 @@ bool TestEnvironment::deleteTestEnvironment()
 
 bool TestEnvironment::directoryExists(const std::filesystem::path& path) const
 {
-  const auto file = QFileInfo{IO::pathAsQString(m_dir / path)};
-
-  return file.exists() && file.isDir();
+  return std::filesystem::is_directory(m_dir / path);
 }
 
 bool TestEnvironment::fileExists(const std::filesystem::path& path) const
 {
-  const auto file = QFileInfo{IO::pathAsQString(m_dir / path)};
-
-  return file.exists() && file.isFile();
+  return std::filesystem::is_regular_file(m_dir / path);
 }
 
 std::string TestEnvironment::loadFile(const std::filesystem::path& path) const
 {
-  auto file = QFile{IO::pathAsQString(m_dir / path)};
-  if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-  {
-    return QTextStream{&file}.readAll().toStdString();
-  }
-  return "";
+  auto stream = std::ifstream{m_dir / path, std::ios::in};
+  return std::string{std::istreambuf_iterator<char>{stream}, {}};
 }
 } // namespace IO
 } // namespace TrenchBroom
