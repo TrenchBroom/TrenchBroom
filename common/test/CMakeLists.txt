@@ -121,6 +121,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/tst_RemoveNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_ReparentNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_RepeatableActions.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/tst_RunGuard.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_ScaleObjectsTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_Selection.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_SelectionTool.cpp"

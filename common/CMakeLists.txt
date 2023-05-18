@@ -413,6 +413,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.cpp
+        ${COMMON_SOURCE_DIR}/View/RunGuard.cpp
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.cpp
@@ -933,6 +934,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolPage.h
+        ${COMMON_SOURCE_DIR}/View/RunGuard.h
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolController.h
         ${COMMON_SOURCE_DIR}/View/ScaleObjectsToolPage.h
@@ -1003,7 +1005,7 @@ set(COMMON_HEADER
 add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
-target_link_libraries(common PUBLIC tinyxml2::tinyxml2 kdl vecmath GLEW::GLEW miniz::miniz freeimage::FreeImage freetype OpenGL::GL Qt5::Widgets Qt5::Svg fmt::fmt assimp::assimp)
+target_link_libraries(common PUBLIC tinyxml2::tinyxml2 kdl vecmath GLEW::GLEW miniz::miniz freeimage::FreeImage freetype OpenGL::GL Qt5::Widgets Qt5::Svg Qt5::Network fmt::fmt assimp::assimp)
 
 # use precompiled headers on CMake 3.16 or later
 if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")

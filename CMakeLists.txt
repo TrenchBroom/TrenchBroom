@@ -139,7 +139,7 @@ find_package(tinyxml2 CONFIG REQUIRED)
 
 # Find Qt and OpenGL
 find_package(OpenGL REQUIRED)
-find_package(Qt5 COMPONENTS Core Widgets Svg REQUIRED)
+find_package(Qt5 COMPONENTS Core Widgets Svg Network REQUIRED)
 
 # Qt will warn about API's that were deprecated after 5.9.5.
 # Since we're not raising our minimum Qt version, and can't use the replacement
