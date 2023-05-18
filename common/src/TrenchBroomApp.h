@@ -40,6 +40,7 @@ namespace View
 class ExecutableEvent;
 class FrameManager;
 class RecentDocuments;
+class RunGuard;
 class WelcomeWindow;
 
 class TrenchBroomApp : public QApplication
@@ -56,8 +57,7 @@ public:
   TrenchBroomApp(int& argc, char** argv);
   ~TrenchBroomApp() override;
 
-public:
-  void parseCommandLineAndShowFrame();
+  void setRunGuard(RunGuard& runGuard);
 
   FrameManager* frameManager();
 

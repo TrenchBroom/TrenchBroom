@@ -42,13 +42,13 @@
 #include "View/PreferenceDialog.h"
 #include "View/QtUtils.h"
 #include "View/RecentDocuments.h"
+#include "View/RunGuard.h"
 #include "View/WelcomeWindow.h"
 #ifdef __APPLE__
 #include "View/MainMenuBuilder.h"
 #endif
 
 #include <QColor>
-#include <QCommandLineParser>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QFile>
@@ -194,11 +194,11 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
 
 TrenchBroomApp::~TrenchBroomApp() = default;
 
-void TrenchBroomApp::parseCommandLineAndShowFrame()
+void TrenchBroomApp::setRunGuard(RunGuard& runGuard)
 {
-  auto parser = QCommandLineParser{};
-  parser.process(*this);
-  openFilesOrWelcomeFrame(parser.positionalArguments());
+  connect(&runGuard, &RunGuard::commandReceived, [&](const auto& cmd) {
+    openFilesOrWelcomeFrame(cmd.split(";"));
+  });
 }
 
 FrameManager* TrenchBroomApp::frameManager()

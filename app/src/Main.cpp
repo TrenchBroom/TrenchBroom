@@ -18,6 +18,7 @@
  */
 
 #include <QApplication>
+#include <QCommandLineParser>
 #include <QSettings>
 #include <QSurfaceFormat>
 #include <QtGlobal>
@@ -28,6 +29,7 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"
+#include "View/RunGuard.h"
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
@@ -70,6 +72,17 @@ int main(int argc, char* argv[])
   TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();
   TrenchBroom::View::TrenchBroomApp app(argc, argv);
 
-  app.parseCommandLineAndShowFrame();
+  auto parser = QCommandLineParser{};
+  parser.process(app);
+
+  auto runGuard = TrenchBroom::View::RunGuard{"0ab0c732-c30f-468a-99d5-60e80069197c"};
+  if (!runGuard.tryToRun())
+  {
+    runGuard.sendCommandToMainInstance(parser.positionalArguments().join(";"));
+    return 0;
+  }
+
+  app.setRunGuard(runGuard);
+  app.openFilesOrWelcomeFrame(parser.positionalArguments());
   return app.exec();
 }
