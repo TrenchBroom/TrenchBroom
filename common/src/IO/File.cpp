@@ -85,19 +85,12 @@ namespace
 auto openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
 {
   // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
-  // to open a Unicode path. We will use Qt to help convert the Path to a UTF-16 encoded
-  // wchar array.
-  //
-  // - Path contains UTF-8 (stored in std::string)
-  // - pathAsQString() converts UTF-8 to UTF-16 (stored in QString)
-  // - QString::toStdWString() returns a UTF-16 std::wstring on Windows
+  // to open a Unicode path.
   //
   // All other platforms, just assume fopen() can handle UTF-8
   auto* file =
 #ifdef _WIN32
-    _wfopen(
-      pathAsQString(path).toStdWString().c_str(),
-      QString::fromStdString(mode).toStdWString().c_str());
+    _wfopen(path.wstring().c_str(), QString::fromStdString(mode).toStdWString().c_str());
 #else
     fopen(path.u8string().c_str(), mode.c_str());
 #endif
