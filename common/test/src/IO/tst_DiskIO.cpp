@@ -204,10 +204,13 @@ TEST_CASE("DiskIO")
 
     CHECK_THROWS_AS(Disk::createDirectory(env.dir() / "test.txt"), FileSystemException);
 
+#ifndef _WIN32
+    // These tests don't work on Windows due to differences in permissions
     const auto setPermissions =
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
     CHECK_THROWS_AS(
       Disk::createDirectory(env.dir() / "anotherDir/nestedDir"), FileSystemException);
+#endif
   }
 
   SECTION("deleteFile")
@@ -219,12 +222,15 @@ TEST_CASE("DiskIO")
     CHECK_THROWS_AS(Disk::deleteFile(env.dir() / "anotherDir"), FileSystemException);
     CHECK_THROWS_AS(Disk::deleteFile(env.dir() / "does_not_exist"), FileSystemException);
 
+#ifndef _WIN32
+    // These tests don't work on Windows due to differences in permissions
     const auto setPermissions =
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
     REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
     CHECK_THROWS_AS(
       Disk::deleteFile(env.dir() / "anotherDir/test3.map"), FileSystemException);
+#endif
   }
 
   SECTION("copyFile")
@@ -274,6 +280,8 @@ TEST_CASE("DiskIO")
 
       SECTION("when the file cannot be created")
       {
+#ifndef _WIN32
+        // These tests don't work on Windows due to differences in permissions
         REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
         REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
 
@@ -284,6 +292,7 @@ TEST_CASE("DiskIO")
           Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt"),
           FileSystemException);
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+#endif
       }
     }
 
@@ -309,6 +318,8 @@ TEST_CASE("DiskIO")
 
       SECTION("when file cannot be overwritte")
       {
+#ifndef _WIN32
+        // These tests don't work on Windows due to differences in permissions
         const auto setPermissions = SetPermissions{
           env.dir() / "anotherDir/test3.map", std::filesystem::perms::none};
 
@@ -316,6 +327,7 @@ TEST_CASE("DiskIO")
           Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map"),
           FileSystemException);
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+#endif
       }
     }
   }
@@ -368,6 +380,8 @@ TEST_CASE("DiskIO")
 
       SECTION("when the file cannot be created")
       {
+#ifndef _WIN32
+        // These tests don't work on Windows due to differences in permissions
         REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
         REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
 
@@ -378,6 +392,7 @@ TEST_CASE("DiskIO")
           Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt"),
           FileSystemException);
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+#endif
       }
     }
 
@@ -403,6 +418,8 @@ TEST_CASE("DiskIO")
 
       SECTION("when the file cannot be overwritten")
       {
+#ifndef _WIN32
+        // These tests don't work on Windows due to differences in permissions
         const auto setPermissions =
           SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
@@ -410,6 +427,7 @@ TEST_CASE("DiskIO")
           Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map"),
           FileSystemException);
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+#endif
       }
     }
   }
