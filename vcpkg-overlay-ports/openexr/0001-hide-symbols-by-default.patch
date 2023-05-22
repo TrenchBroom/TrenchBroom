@@ -1,0 +1,22 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 1dcf0f42..1aa72b68 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -14,6 +14,16 @@ if(POLICY CMP0077)
+   cmake_policy(SET CMP0077 NEW)
+ endif()
+ 
++if(POLICY CMP0063)
++  # ensure that CMAKE_CXX_VISIBILITY_PRESET and CMAKE_VISIBILITY_INLINES_HIDDEN also apply
++  # for static libraries
++  # https://cmake.org/cmake/help/latest/policy/CMP0063.html
++  cmake_policy(SET CMP0063 NEW)
++endif()
++
++set(CMAKE_CXX_VISIBILITY_PRESET hidden)
++set(CMAKE_VISIBILITY_INLINES_HIDDEN TRUE)
++
+ #######################################
+ # Create project and include cmake
+ # configuration files
+
