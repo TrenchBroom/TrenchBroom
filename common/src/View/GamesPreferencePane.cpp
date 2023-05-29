@@ -115,7 +115,7 @@ void GamesPreferencePane::showUserConfigDirClicked()
 
   try
   {
-    IO::Disk::ensureDirectoryExists(path);
+    IO::Disk::createDirectory(path);
     const auto url = QUrl::fromLocalFile(IO::pathAsQString(path));
     QDesktopServices::openUrl(url);
   }

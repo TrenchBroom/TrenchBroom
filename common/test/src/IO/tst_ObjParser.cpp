@@ -35,7 +35,7 @@ TEST_CASE("ObjParserTest.loadValidObj")
 {
   NullLogger logger;
 
-  const auto basePath = Disk::getCurrentWorkingDir() / "fixture/test/IO/Obj";
+  const auto basePath = std::filesystem::current_path() / "fixture/test/IO/Obj";
   DiskFileSystem fs(basePath);
 
   const auto mdlPath = "pointyship.obj";

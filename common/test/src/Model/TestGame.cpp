@@ -27,7 +27,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
-#include "IO/IOUtils.h"
 #include "IO/LoadTextureCollection.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
@@ -55,7 +54,7 @@ TestGame::TestGame()
   : m_defaultFaceAttributes{Model::BrushFaceAttributes::NoTextureName}
   , m_fs{std::make_unique<IO::VirtualFileSystem>()}
 {
-  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(IO::Disk::getCurrentWorkingDir()));
+  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));
 }
 
 TestGame::~TestGame() = default;
@@ -152,17 +151,10 @@ std::unique_ptr<WorldNode> TestGame::doLoadMap(
 
 void TestGame::doWriteMap(WorldNode& world, const std::filesystem::path& path) const
 {
-  const auto mapFormatName = formatName(world.mapFormat());
-
-  auto file = IO::openPathAsOutputStream(path);
-  if (!file)
-  {
-    throw FileSystemException("Cannot open file: " + path.string());
-  }
-  IO::writeGameComment(file, gameName(), mapFormatName);
-
-  IO::NodeWriter writer(world, file);
-  writer.writeMap();
+  IO::Disk::withOutputStream(path, [&](auto& stream) {
+    IO::NodeWriter writer(world, stream);
+    writer.writeMap();
+  });
 }
 
 void TestGame::doExportMap(
@@ -227,11 +219,11 @@ void TestGame::doReloadWads(
   Logger&)
 {
   m_fs->unmountAll();
-  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(IO::Disk::getCurrentWorkingDir()));
+  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));
 
   for (const auto& wadPath : wadPaths)
   {
-    const auto absoluteWadPath = IO::Disk::getCurrentWorkingDir() / wadPath;
+    const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
     m_fs->mount(
       "textures" / wadPath.filename(),
       std::make_unique<IO::WadFileSystem>(absoluteWadPath));

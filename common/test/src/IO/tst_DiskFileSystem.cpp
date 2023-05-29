@@ -210,20 +210,21 @@ TEST_CASE("WritableDiskFileSystemTest")
 #else
     CHECK_THROWS_AS(fs.createDirectory("/hopefully_nothing_here"), FileSystemException);
 #endif
-    CHECK_THROWS_AS(fs.createDirectory(""), FileSystemException);
-    CHECK_THROWS_AS(fs.createDirectory("."), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.createDirectory("dir1"), FileSystemException);
     CHECK_THROWS_AS(fs.createDirectory("test.txt"), FileSystemException);
-    CHECK_THROWS_AS(
-      fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir/."),
-      FileSystemException);
 
-    fs.createDirectory("newDir");
+    CHECK_FALSE(fs.createDirectory(""));
+    CHECK_FALSE(fs.createDirectory("."));
+    CHECK_FALSE(fs.createDirectory("dir1"));
+
+    CHECK(fs.createDirectory("newDir"));
     CHECK(fs.pathInfo("newDir") == PathInfo::Directory);
 
-    fs.createDirectory("newDir/someOtherDir");
+    CHECK(fs.createDirectory("newDir/someOtherDir"));
     CHECK(fs.pathInfo("newDir/someOtherDir") == PathInfo::Directory);
+
+    CHECK(fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir"));
+    CHECK(fs.pathInfo("someDir/someOtherDir/.././yetAnotherDir") == PathInfo::Directory);
   }
 
   SECTION("deleteFile")
@@ -260,33 +261,25 @@ TEST_CASE("WritableDiskFileSystemTest")
 
 #if defined _WIN32
     CHECK_THROWS_AS(
-      fs.moveFile("c:\\hopefully_nothing_here.txt", "dest.txt", false),
-      FileSystemException);
-    CHECK_THROWS_AS(fs.moveFile("test.txt", "C:\\dest.txt", false), FileSystemException);
+      fs.moveFile("c:\\hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
+    CHECK_THROWS_AS(fs.moveFile("test.txt", "C:\\dest.txt"), FileSystemException);
 #else
     CHECK_THROWS_AS(
-      fs.moveFile("/hopefully_nothing_here.txt", "dest.txt", false), FileSystemException);
-    CHECK_THROWS_AS(fs.moveFile("test.txt", "/dest.txt", false), FileSystemException);
+      fs.moveFile("/hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
+    CHECK_THROWS_AS(fs.moveFile("test.txt", "/dest.txt"), FileSystemException);
 #endif
 
-    CHECK_THROWS_AS(fs.moveFile("test.txt", "test2.map", false), FileSystemException);
-    CHECK_THROWS_AS(
-      fs.moveFile("test.txt", "anotherDir/test3.map", false), FileSystemException);
-    CHECK_THROWS_AS(
-      fs.moveFile("test.txt", "anotherDir/../anotherDir/./test3.map", false),
-      FileSystemException);
-
-    fs.moveFile("test.txt", "test2.txt", true);
+    fs.moveFile("test.txt", "test2.txt");
     CHECK(fs.pathInfo("test.txt") == PathInfo::Unknown);
     CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
 
-    fs.moveFile("test2.txt", "test2.map", true);
+    fs.moveFile("test2.txt", "test2.map");
     CHECK(fs.pathInfo("test2.txt") == PathInfo::Unknown);
     CHECK(fs.pathInfo("test2.map") == PathInfo::File);
     // we're trusting that the file is actually overwritten (should really test the
     // contents here...)
 
-    fs.moveFile("test2.map", "dir1/test2.map", true);
+    fs.moveFile("test2.map", "dir1/test2.map");
     CHECK(fs.pathInfo("test2.map") == PathInfo::Unknown);
     CHECK(fs.pathInfo("dir1/test2.map") == PathInfo::File);
   }
@@ -298,33 +291,25 @@ TEST_CASE("WritableDiskFileSystemTest")
 
 #if defined _WIN32
     CHECK_THROWS_AS(
-      fs.copyFile("c:\\hopefully_nothing_here.txt", "dest.txt", false),
-      FileSystemException);
-    CHECK_THROWS_AS(fs.copyFile("test.txt", "C:\\dest.txt", false), FileSystemException);
+      fs.copyFile("c:\\hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
+    CHECK_THROWS_AS(fs.copyFile("test.txt", "C:\\dest.txt"), FileSystemException);
 #else
     CHECK_THROWS_AS(
-      fs.copyFile("/hopefully_nothing_here.txt", "dest.txt", false), FileSystemException);
-    CHECK_THROWS_AS(fs.copyFile("test.txt", "/dest.txt", false), FileSystemException);
+      fs.copyFile("/hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
+    CHECK_THROWS_AS(fs.copyFile("test.txt", "/dest.txt"), FileSystemException);
 #endif
 
-    CHECK_THROWS_AS(fs.copyFile("test.txt", "test2.map", false), FileSystemException);
-    CHECK_THROWS_AS(
-      fs.copyFile("test.txt", "anotherDir/test3.map", false), FileSystemException);
-    CHECK_THROWS_AS(
-      fs.copyFile("test.txt", "anotherDir/../anotherDir/./test3.map", false),
-      FileSystemException);
-
-    fs.copyFile("test.txt", "test2.txt", true);
+    fs.copyFile("test.txt", "test2.txt");
     CHECK(fs.pathInfo("test.txt") == PathInfo::File);
     CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
 
-    fs.copyFile("test2.txt", "test2.map", true);
+    fs.copyFile("test2.txt", "test2.map");
     CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
     CHECK(fs.pathInfo("test2.map") == PathInfo::File);
     // we're trusting that the file is actually overwritten (should really test the
     // contents here...)
 
-    fs.copyFile("test2.map", "dir1/test2.map", true);
+    fs.copyFile("test2.map", "dir1/test2.map");
     CHECK(fs.pathInfo("test2.map") == PathInfo::File);
     CHECK(fs.pathInfo("dir1/test2.map") == PathInfo::File);
   }

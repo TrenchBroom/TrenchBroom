@@ -229,9 +229,9 @@ void WritableVirtualFileSystem::doCreateFile(
   m_writableFs.createFile(path, contents);
 }
 
-void WritableVirtualFileSystem::doCreateDirectory(const std::filesystem::path& path)
+bool WritableVirtualFileSystem::doCreateDirectory(const std::filesystem::path& path)
 {
-  m_writableFs.createDirectory(path);
+  return m_writableFs.createDirectory(path);
 }
 
 void WritableVirtualFileSystem::doDeleteFile(const std::filesystem::path& path)
@@ -240,19 +240,15 @@ void WritableVirtualFileSystem::doDeleteFile(const std::filesystem::path& path)
 }
 
 void WritableVirtualFileSystem::doCopyFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  const bool overwrite)
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  m_writableFs.copyFile(sourcePath, destPath, overwrite);
+  m_writableFs.copyFile(sourcePath, destPath);
 }
 
 void WritableVirtualFileSystem::doMoveFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  const bool overwrite)
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  m_writableFs.moveFile(sourcePath, destPath, overwrite);
+  m_writableFs.moveFile(sourcePath, destPath);
 }
 
 } // namespace TrenchBroom::IO

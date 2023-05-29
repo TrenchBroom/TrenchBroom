@@ -69,13 +69,14 @@ TEST_CASE("readIdMipTexture")
   }));
   // clang-format on
 
-  auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
+  auto fs = DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/palette.lmp");
   const auto palette = Assets::loadPalette(*paletteFile).value();
 
   auto logger = NullLogger{};
 
-  const auto wadPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/Wad/cr8_czg.wad";
+  const auto wadPath =
+    std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg.wad";
   auto wadFS = WadFileSystem{wadPath};
 
   const auto file = wadFS.openFile(textureName + ".D");
@@ -98,11 +99,11 @@ TEST_CASE("readHlMipTexture")
   }));
   // clang-format on
 
-  auto fs = DiskFileSystem{IO::Disk::getCurrentWorkingDir()};
+  auto fs = DiskFileSystem{std::filesystem::current_path()};
 
   auto logger = TestLogger{};
 
-  const auto wadPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/HL/hl.wad";
+  const auto wadPath = std::filesystem::current_path() / "fixture/test/IO/HL/hl.wad";
   auto wadFS = WadFileSystem{wadPath};
 
   const auto file = wadFS.openFile(textureName + ".C");

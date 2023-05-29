@@ -38,7 +38,6 @@
 #include "IO/FgdParser.h"
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"
-#include "IO/IOUtils.h"
 #include "IO/ImageSpriteParser.h"
 #include "IO/LoadTextureCollection.h"
 #include "IO/Md2Parser.h"
@@ -217,7 +216,7 @@ std::unique_ptr<WorldNode> GameImpl::doLoadMap(
   Logger& logger) const
 {
   auto parserStatus = IO::SimpleParserStatus{logger};
-  auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+  auto file = IO::Disk::openFile(path);
   auto fileReader = file->reader().buffer();
   if (format == MapFormat::Unknown)
   {
@@ -244,18 +243,15 @@ std::unique_ptr<WorldNode> GameImpl::doLoadMap(
 void GameImpl::doWriteMap(
   WorldNode& world, const std::filesystem::path& path, const bool exporting) const
 {
-  const auto mapFormatName = formatName(world.mapFormat());
+  IO::Disk::withOutputStream(path, [&](auto& stream) {
+    const auto mapFormatName = formatName(world.mapFormat());
+    stream << "// Game: " << gameName() << "\n"
+           << "// Format: " << mapFormatName << "\n";
 
-  auto file = IO::openPathAsOutputStream(path);
-  if (!file)
-  {
-    throw FileSystemException{"Cannot open file: " + path.string()};
-  }
-  IO::writeGameComment(file, gameName(), mapFormatName);
-
-  auto writer = IO::NodeWriter{world, file};
-  writer.setExporting(exporting);
-  writer.writeMap();
+    auto writer = IO::NodeWriter{world, stream};
+    writer.setExporting(exporting);
+    writer.writeMap();
+  });
 }
 
 void GameImpl::doWriteMap(WorldNode& world, const std::filesystem::path& path) const
@@ -268,26 +264,17 @@ void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) c
   std::visit(
     kdl::overload(
       [&](const IO::ObjExportOptions& objOptions) {
-        auto objFile = IO::openPathAsOutputStream(objOptions.exportPath);
-        if (!objFile)
-        {
-          throw FileSystemException{
-            "Cannot open file: " + objOptions.exportPath.string()};
-        }
-
-        auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
-        auto mtlFile = IO::openPathAsOutputStream(mtlPath);
-        if (!mtlFile)
-        {
-          throw FileSystemException{"Cannot open file: " + mtlPath.string()};
-        }
-
-        auto writer = IO::NodeWriter{
-          world,
-          std::make_unique<IO::ObjSerializer>(
-            objFile, mtlFile, mtlPath.filename().string(), objOptions)};
-        writer.setExporting(true);
-        writer.writeMap();
+        IO::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
+          const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
+          IO::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
+            auto writer = IO::NodeWriter{
+              world,
+              std::make_unique<IO::ObjSerializer>(
+                objStream, mtlStream, mtlPath.filename().string(), objOptions)};
+            writer.setExporting(true);
+            writer.writeMap();
+          });
+        });
       },
       [&](const IO::MapExportOptions& mapOptions) {
         doWriteMap(world, mapOptions.exportPath, true);
@@ -377,21 +364,21 @@ std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
 
   if (kdl::ci::str_is_equal(".fgd", extension))
   {
-    auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+    auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
     auto parser = IO::FgdParser{reader.stringView(), defaultColor, file->path()};
     return parser.parseDefinitions(status);
   }
   if (kdl::ci::str_is_equal(".def", extension))
   {
-    auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+    auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
     auto parser = IO::DefParser{reader.stringView(), defaultColor};
     return parser.parseDefinitions(status);
   }
   if (kdl::ci::str_is_equal(".ent", extension))
   {
-    auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+    auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
     auto parser = IO::EntParser{reader.stringView(), defaultColor};
     return parser.parseDefinitions(status);

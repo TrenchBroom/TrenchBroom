@@ -37,7 +37,7 @@ TEST_CASE("AssimpParserTest.loadBlenderModel")
 {
   auto logger = NullLogger{};
 
-  const auto basePath = Disk::getCurrentWorkingDir() / "fixture/test/IO/assimp";
+  const auto basePath = std::filesystem::current_path() / "fixture/test/IO/assimp";
   auto fs = std::make_shared<DiskFileSystem>(basePath);
 
   auto assimpParser = AssimpParser{"cube.dae", *fs};

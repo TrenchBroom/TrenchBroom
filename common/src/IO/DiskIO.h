@@ -19,9 +19,11 @@
 
 #pragma once
 
+#include "Exceptions.h"
 #include "IO/PathMatcher.h"
 
 #include <filesystem>
+#include <fstream>
 #include <memory>
 #include <string>
 
@@ -37,61 +39,69 @@ bool isCaseSensitive();
 std::filesystem::path fixPath(const std::filesystem::path& path);
 
 PathInfo pathInfo(const std::filesystem::path& path);
+
 std::vector<std::filesystem::path> find(
-  const std::filesystem::path& path,
-  const PathMatcher& pathMatcher = [](const std::filesystem::path&, const GetPathInfo&) {
-    return true;
-  });
+  const std::filesystem::path& path, const PathMatcher& pathMatcher = matchAnyPath);
 std::vector<std::filesystem::path> findRecursively(
-  const std::filesystem::path& path,
-  const PathMatcher& pathMatcher = [](const std::filesystem::path&, const GetPathInfo&) {
-    return true;
-  });
+  const std::filesystem::path& path, const PathMatcher& pathMatcher = matchAnyPath);
 std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path);
+
 std::shared_ptr<File> openFile(const std::filesystem::path& path);
 
-std::string readTextFile(const std::filesystem::path& path);
-std::filesystem::path getCurrentWorkingDir();
+template <typename Stream, typename F>
+auto withStream(
+  const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
+{
+  try
+  {
+    auto stream = Stream{path, mode};
+    if (!stream)
+    {
+      throw FileSystemException{"Could not open stream for file '" + path.string() + "'"};
+    }
+    return function(stream);
+  }
+  catch (const std::filesystem::filesystem_error&)
+  {
+    throw FileSystemException{"Could not open stream for file '" + path.string() + "'"};
+  }
+}
 
-void createFile(const std::filesystem::path& path, const std::string& contents);
-void createDirectory(const std::filesystem::path& path);
-void ensureDirectoryExists(const std::filesystem::path& path);
+template <typename F>
+auto withInputStream(
+  const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
+{
+  return withStream<std::ifstream>(path, mode, function);
+}
+
+template <typename F>
+auto withInputStream(const std::filesystem::path& path, const F& function)
+{
+  return withStream<std::ifstream>(path, std::ios_base::in, function);
+}
+
+template <typename F>
+auto withOutputStream(
+  const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
+{
+  return withStream<std::ofstream>(path, mode, function);
+}
+
+template <typename F>
+auto withOutputStream(const std::filesystem::path& path, const F& function)
+{
+  return withStream<std::ofstream>(path, std::ios_base::out, function);
+}
+
+bool createDirectory(const std::filesystem::path& path);
 
 void deleteFile(const std::filesystem::path& path);
-void deleteFiles(
-  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher);
-void deleteFilesRecursively(
-  const std::filesystem::path& sourceDirPath, const PathMatcher& pathMatcher);
 
 void copyFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  bool overwrite);
-void copyFiles(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  bool overwrite);
-void copyFilesRecursively(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  bool overwrite);
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 void moveFile(
-  const std::filesystem::path& sourcePath,
-  const std::filesystem::path& destPath,
-  bool overwrite);
-void moveFiles(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  bool overwrite);
-void moveFilesRecursively(
-  const std::filesystem::path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const std::filesystem::path& destDirPath,
-  bool overwrite);
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 std::filesystem::path resolvePath(
   const std::vector<std::filesystem::path>& searchPaths,

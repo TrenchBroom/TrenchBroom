@@ -56,11 +56,13 @@ public:
    * Creates a new reader that reads from the given file.
    *
    * @param file the file to read from
+   * @param size the file size
    * @return the reader
    *
    * @throw ReaderException if the reader cannot be created
    */
-  static Reader from(std::FILE* file);
+  static Reader from(std::FILE* file, size_t size);
+
   /**
    * Creates a new reader that reads from the given memory region.
    *

@@ -37,7 +37,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
 {
   auto logger = NullLogger{};
 
-  const auto workDir = IO::Disk::getCurrentWorkingDir();
+  const auto workDir = std::filesystem::current_path();
   const auto testDir = workDir / "fixture/test/IO/Shader/fs/linking";
   const auto fallbackDir = testDir / "fallback";
   const auto texturePrefix = std::filesystem::path{"textures"};
@@ -71,7 +71,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
 
   // There is one malformed shader script, this should be skipped.
 
-  const auto workDir = IO::Disk::getCurrentWorkingDir();
+  const auto workDir = std::filesystem::current_path();
   const auto testDir = workDir / "fixture/test/IO/Shader/fs/failing";
   const auto fallbackDir = testDir / "fallback";
   const auto texturePrefix = std::filesystem::path{"textures"};

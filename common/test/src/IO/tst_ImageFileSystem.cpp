@@ -818,7 +818,7 @@ const auto cr8_czg_03_contents = std::vector<unsigned char>{
 
 TEST_CASE("Hierarchical ImageFileSystems")
 {
-  const auto fsTestPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/";
+  const auto fsTestPath = std::filesystem::current_path() / "fixture/test/IO/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"IdPakFileSystem",
@@ -900,7 +900,7 @@ alias v90 "fov 90; sensitivity 13; bind mouse1 v30"
 
 TEST_CASE("Flat ImageFileSystems")
 {
-  const auto fsTestPath = Disk::getCurrentWorkingDir() / "fixture/test/IO/";
+  const auto fsTestPath = std::filesystem::current_path() / "fixture/test/IO/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"WadFileSystem",

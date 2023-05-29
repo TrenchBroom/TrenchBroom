@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
-#include "IO/IOUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
@@ -704,16 +703,16 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   const auto basePath = crashReportBasePath();
 
   // ensure the containing directory exists
-  IO::Disk::ensureDirectoryExists(basePath.parent_path());
+  IO::Disk::createDirectory(basePath.parent_path());
 
   const auto reportPath = kdl::path_add_extension(basePath, ".txt");
   auto logPath = kdl::path_add_extension(basePath, ".log");
   auto mapPath = kdl::path_add_extension(basePath, ".map");
 
-  std::ofstream reportStream = IO::openPathAsOutputStream(reportPath);
-  reportStream << report;
-  reportStream.close();
-  std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
+  IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
+    stream << report;
+    std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
+  });
 
   // save the map
   auto doc = topDocument();

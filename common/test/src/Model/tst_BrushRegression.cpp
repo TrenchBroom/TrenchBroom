@@ -21,7 +21,6 @@
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "IO/DiskIO.h"
-#include "IO/IOUtils.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
@@ -1372,8 +1371,8 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
   const vm::bbox3 worldBounds(4096.0);
 
   const auto path =
-    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/curvetut-crash.map";
-  const std::string data = IO::Disk::readTextFile(path);
+    std::filesystem::current_path() / "fixture/test/Model/Brush/curvetut-crash.map";
+  const std::string data = IO::readTextFile(path);
   REQUIRE(!data.empty());
 
   IO::TestParserStatus status;
@@ -1439,8 +1438,8 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
   const vm::bbox3 worldBounds(8192.0);
 
   const auto path =
-    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/weirdcurvemerge.map";
-  const std::string data = IO::Disk::readTextFile(path);
+    std::filesystem::current_path() / "fixture/test/Model/Brush/weirdcurvemerge.map";
+  const std::string data = IO::readTextFile(path);
   REQUIRE(!data.empty());
 
   IO::TestParserStatus status;
@@ -1583,18 +1582,16 @@ TEST_CASE("BrushTest.subtractDome")
             })");
 
   const auto subtrahendPath =
-    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Brush/subtrahend.map";
-  auto stream = IO::openPathAsInputStream(subtrahendPath);
-  std::stringstream subtrahendStr;
-  subtrahendStr << stream.rdbuf();
+    std::filesystem::current_path() / "fixture/test/Model/Brush/subtrahend.map";
+  const auto subtrahendStr = IO::readTextFile(subtrahendPath);
 
   const vm::bbox3 worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
     IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, {}, status);
-  const std::vector<Node*> subtrahendNodes = IO::NodeReader::read(
-    subtrahendStr.str(), MapFormat::Standard, worldBounds, {}, {}, status);
+  const std::vector<Node*> subtrahendNodes =
+    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();

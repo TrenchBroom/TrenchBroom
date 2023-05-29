@@ -41,7 +41,7 @@ static const char* buff()
 static std::shared_ptr<File> file()
 {
   static auto result =
-    Disk::openFile(Disk::getCurrentWorkingDir() / "fixture/test/IO/Reader/10byte");
+    Disk::openFile(std::filesystem::current_path() / "fixture/test/IO/Reader/10byte");
   return result;
 }
 
@@ -66,7 +66,7 @@ TEST_CASE("BufferReaderTest.createEmpty")
 TEST_CASE("FileReaderTest.createEmpty")
 {
   const auto emptyFile =
-    Disk::openFile(Disk::getCurrentWorkingDir() / "fixture/test/IO/Reader/empty");
+    Disk::openFile(std::filesystem::current_path() / "fixture/test/IO/Reader/empty");
   createEmpty(emptyFile->reader());
 }
 

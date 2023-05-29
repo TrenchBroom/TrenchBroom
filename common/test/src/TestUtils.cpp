@@ -154,6 +154,18 @@ TEST_CASE("TestUtilsTest.pointExactlyIntegral")
   CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
 }
 
+namespace IO
+{
+std::string readTextFile(const std::filesystem::path& path)
+{
+  const auto fixedPath = Disk::fixPath(path);
+  return Disk::withInputStream(fixedPath, [](auto& stream) {
+    return std::string{
+      (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
+  });
+}
+} // namespace IO
+
 namespace Model
 {
 BrushFace createParaxial(
@@ -312,10 +324,10 @@ GameAndConfig loadGame(const std::string& gameName)
 {
   TestLogger logger;
   const auto configPath =
-    IO::Disk::getCurrentWorkingDir() / "fixture/games" / gameName / "GameConfig.cfg";
+    std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
   const auto gamePath =
-    IO::Disk::getCurrentWorkingDir() / "fixture/test/Model/Game" / gameName;
-  const auto configStr = IO::Disk::readTextFile(configPath);
+    std::filesystem::current_path() / "fixture/test/Model/Game" / gameName;
+  const auto configStr = IO::readTextFile(configPath);
   auto configParser = IO::GameConfigParser(configStr, configPath);
   auto config = std::make_unique<Model::GameConfig>(configParser.parse());
   auto game = std::make_shared<Model::GameImpl>(*config, gamePath, logger);
@@ -383,7 +395,7 @@ DocumentGameConfig loadMapDocument(
     mapFormat,
     document->worldBounds(),
     document->game(),
-    IO::Disk::getCurrentWorkingDir() / mapPath);
+    std::filesystem::current_path() / mapPath);
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }

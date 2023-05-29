@@ -59,7 +59,7 @@ TEST_CASE("makeReadTextureErrorHandler")
 {
   auto logger = NullLogger{};
   auto diskFS = DiskFileSystem{
-    Disk::getCurrentWorkingDir() / "fixture/test/IO/ReadTextureErrorHandler"};
+    std::filesystem::current_path() / "fixture/test/IO/ReadTextureErrorHandler"};
 
   const auto file = diskFS.openFile("textures/corruptPngTest.png");
   auto reader = file->reader().buffer();

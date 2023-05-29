@@ -193,7 +193,7 @@ void Autosaver::cleanBackups(
 
     if (oldName != newName)
     {
-      fs.moveFile(oldName, newName, false);
+      fs.moveFile(oldName, newName);
     }
   }
 }

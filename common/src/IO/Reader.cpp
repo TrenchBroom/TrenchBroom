@@ -19,7 +19,6 @@
 
 #include "Reader.h"
 
-#include "IO/IOUtils.h"
 #include "IO/ReaderException.h"
 
 #include <cassert>
@@ -281,9 +280,9 @@ Reader::Reader(std::shared_ptr<ReaderSource> source)
 
 Reader::~Reader() = default;
 
-Reader Reader::from(std::FILE* file)
+Reader Reader::from(std::FILE* file, const size_t size)
 {
-  return Reader{std::make_shared<FileReaderSource>(file, 0, fileSize(file))};
+  return Reader{std::make_shared<FileReaderSource>(file, 0, size)};
 }
 
 Reader Reader::from(const char* begin, const char* end)

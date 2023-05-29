@@ -109,30 +109,22 @@ public:
 
   void createFileAtomic(const std::filesystem::path& path, const std::string& contents);
   void createFile(const std::filesystem::path& path, const std::string& contents);
-  void createDirectory(const std::filesystem::path& path);
+  bool createDirectory(const std::filesystem::path& path);
   void deleteFile(const std::filesystem::path& path);
   void copyFile(
-    const std::filesystem::path& sourcePath,
-    const std::filesystem::path& destPath,
-    bool overwrite);
+    const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
   void moveFile(
-    const std::filesystem::path& sourcePath,
-    const std::filesystem::path& destPath,
-    bool overwrite);
+    const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 private:
   virtual void doCreateFile(
     const std::filesystem::path& path, const std::string& contents) = 0;
-  virtual void doCreateDirectory(const std::filesystem::path& path) = 0;
+  virtual bool doCreateDirectory(const std::filesystem::path& path) = 0;
   virtual void doDeleteFile(const std::filesystem::path& path) = 0;
   virtual void doCopyFile(
-    const std::filesystem::path& sourcePath,
-    const std::filesystem::path& destPath,
-    bool overwrite) = 0;
+    const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
   virtual void doMoveFile(
-    const std::filesystem::path& sourcePath,
-    const std::filesystem::path& destPath,
-    bool overwrite) = 0;
+    const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
 };
 
 } // namespace TrenchBroom::IO

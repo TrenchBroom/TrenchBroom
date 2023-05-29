@@ -23,11 +23,11 @@
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"
 #include "IO/GameEngineConfigParser.h"
 #include "IO/GameEngineConfigWriter.h"
-#include "IO/IOUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/SystemPaths.h"
 #include "Logger.h"
@@ -185,25 +185,50 @@ const GameConfig& GameFactory::gameConfig(const std::string& name) const
   return cIt->second;
 }
 
+namespace
+{
+std::string readInfoComment(std::istream& stream, const std::string& name)
+{
+  constexpr auto MaxChars = 64u;
+  auto line = std::string{MaxChars};
+
+  const auto expectedHeader = "// " + name + ": ";
+
+  stream.getline(line.data(), MaxChars);
+  if (stream.fail())
+  {
+    return "";
+  }
+
+  if (line.substr(0, expectedHeader.size()) != expectedHeader)
+  {
+    return "";
+  }
+
+  auto result = line.substr(expectedHeader.size());
+  if (!result.empty() && result.back() == '\r')
+  {
+    result.pop_back();
+  }
+  return result;
+}
+} // namespace
+
 std::pair<std::string, MapFormat> GameFactory::detectGame(
   const std::filesystem::path& path) const
 {
-  auto stream = IO::openPathAsInputStream(path);
-  if (!stream.is_open())
-  {
-    throw FileSystemException{"Cannot open file: " + path.string()};
-  }
+  return IO::Disk::withInputStream(path, [&](auto& stream) {
+    auto gameName = readInfoComment(stream, "Game");
+    if (m_configs.find(gameName) == std::end(m_configs))
+    {
+      gameName = "";
+    }
 
-  auto gameName = IO::readGameComment(stream);
-  if (m_configs.find(gameName) == std::end(m_configs))
-  {
-    gameName = "";
-  }
+    const auto formatName = readInfoComment(stream, "Format");
+    const auto format = formatFromName(formatName);
 
-  const auto formatName = IO::readFormatComment(stream);
-  const auto format = formatFromName(formatName);
-
-  return {gameName, format};
+    return std::pair{gameName, format};
+  });
 }
 
 const std::filesystem::path& GameFactory::userGameConfigsPath() const
@@ -338,7 +363,7 @@ static std::filesystem::path backupFile(
   IO::WritableFileSystem& fs, const std::filesystem::path& path)
 {
   const auto backupPath = kdl::path_add_extension(path, ".bak");
-  fs.copyFile(path, backupPath, true);
+  fs.copyFile(path, backupPath);
   return backupPath;
 }
 

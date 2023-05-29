@@ -52,7 +52,7 @@ static void assertPropertyDefinition(
 
 TEST_CASE("EntParserTest.parseIncludedEntFiles")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() / "fixture/games/";
+  const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
     Disk::findRecursively(basePath, makeExtensionPathMatcher({".ent"}));
 

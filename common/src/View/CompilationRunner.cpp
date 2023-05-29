@@ -27,6 +27,7 @@
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
+#include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
 #include "IO/PathQt.h"
 #include "Model/CompilationProfile.h"
@@ -35,6 +36,7 @@
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
+#include "kdl/functional.h"
 #include <kdl/overload.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -99,7 +101,7 @@ void CompilationExportMapTaskRunner::doExecute()
 
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath.parent_path());
+        IO::Disk::createDirectory(targetPath.parent_path());
 
         const auto options = IO::MapExportOptions{targetPath};
         const auto document = m_context.document();
@@ -141,23 +143,26 @@ void CompilationCopyFilesTaskRunner::doExecute()
     const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
     const auto sourceDirPath = sourcePath.parent_path();
-    const auto sourcePathMatcher =
-      IO::makeFilenamePathMatcher(sourcePath.filename().string());
+    const auto sourcePathMatcher = kdl::lift_and(
+      IO::makePathInfoPathMatcher({IO::PathInfo::File}),
+      IO::makeFilenamePathMatcher(sourcePath.filename().string()));
 
     try
     {
-      const auto sourcePaths = IO::Disk::find(sourceDirPath, sourcePathMatcher);
-      const auto sourceStrs = kdl::vec_transform(
-        sourcePaths, [](const auto& path) { return "'" + path.string() + "'"; });
-      const auto sourceListQStr = QString::fromStdString(kdl::str_join(sourceStrs, ", "));
+      const auto pathsToCopy = IO::Disk::find(sourceDirPath, sourcePathMatcher);
+      const auto pathStrsToCopy = kdl::vec_transform(
+        pathsToCopy, [](const auto& path) { return "'" + path.string() + "'"; });
 
       m_context << "#### Copying to '" << IO::pathAsQString(targetPath)
-                << "/': " << sourceListQStr << "\n";
+                << "/': " << QString::fromStdString(kdl::str_join(pathStrsToCopy, ", "))
+                << "\n";
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath);
-        IO::Disk::copyFiles(
-          sourceDirPath, sourcePathMatcher, targetPath, true(overwrite));
+        IO::Disk::createDirectory(targetPath);
+        for (const auto& pathToCopy : pathsToCopy)
+        {
+          IO::Disk::copyFile(pathToCopy, targetPath);
+        }
       }
       emit end();
     }
@@ -200,8 +205,8 @@ void CompilationRenameFileTaskRunner::doExecute()
                 << IO::pathAsQString(targetPath) << "'\n";
       if (!m_context.test())
       {
-        IO::Disk::ensureDirectoryExists(targetPath.parent_path());
-        IO::Disk::moveFile(sourcePath, targetPath, true);
+        IO::Disk::createDirectory(targetPath.parent_path());
+        IO::Disk::moveFile(sourcePath, targetPath);
       }
       emit end();
     }
@@ -238,19 +243,24 @@ void CompilationDeleteFilesTaskRunner::doExecute()
     const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
     const auto targetDirPath = targetPath.parent_path();
-    const auto targetPathMatcher =
-      IO::makeFilenamePathMatcher(targetPath.filename().string());
+    const auto targetPathMatcher = kdl::lift_and(
+      IO::makePathInfoPathMatcher({IO::PathInfo::File}),
+      IO::makeFilenamePathMatcher(targetPath.filename().string()));
 
     try
     {
-      const auto targetPaths = IO::Disk::find(targetDirPath, targetPathMatcher);
-      const auto targetStrs = kdl::vec_transform(
-        targetPaths, [](const auto& path) { return "'" + path.string() + "'"; });
-      const auto targetListQStr = QString::fromStdString(kdl::str_join(targetStrs, ", "));
+      const auto pathsToDelete = IO::Disk::find(targetDirPath, targetPathMatcher);
+      const auto pathStrsToDelete = kdl::vec_transform(
+        pathsToDelete, [](const auto& path) { return "'" + path.string() + "'"; });
+      const auto targetListQStr =
+        QString::fromStdString(kdl::str_join(pathStrsToDelete, ", "));
       m_context << "#### Deleting: " << targetListQStr << "\n";
       if (!m_context.test())
       {
-        IO::Disk::deleteFiles(targetDirPath, targetPathMatcher);
+        for (const auto& pathToDelete : pathsToDelete)
+        {
+          IO::Disk::deleteFile(pathToDelete);
+        }
       }
       emit end();
     }
