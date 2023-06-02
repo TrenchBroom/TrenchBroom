@@ -67,6 +67,7 @@ int main(int argc, char* argv[])
   // actually work with TB.)
   qputenv("QT_OPENGL_BUGLIST", ":/opengl_buglist.json");
 
+  // PreferenceManager is destroyed by TrenchBroomApp::~TrenchBroomApp()
   TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();
   TrenchBroom::View::TrenchBroomApp app(argc, argv);
 
