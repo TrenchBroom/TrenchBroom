@@ -19,9 +19,12 @@
 
 #include "TestEnvironment.h"
 
+#include "IO/DiskIO.h"
 #include "IO/PathQt.h"
 #include "Macros.h"
 #include "Uuid.h"
+
+#include "kdl/invoke.h"
 
 #include <fstream>
 #include <string>
@@ -97,6 +100,20 @@ std::string TestEnvironment::loadFile(const std::filesystem::path& path) const
 {
   auto stream = std::ifstream{m_dir / path, std::ios::in};
   return std::string{std::istreambuf_iterator<char>{stream}, {}};
+}
+
+void TestEnvironment::withTempFile(
+  const std::string& contents, const std::function<void(const std::filesystem::path&)>& f)
+{
+  const auto path = m_dir / generateUuid();
+  auto removeFile = kdl::invoke_later{[&]() {
+    // ignore errors
+    auto error = std::error_code{};
+    std::filesystem::remove(path, error);
+  }};
+
+  Disk::withOutputStream(path, [&](auto& stream) { stream << contents; });
+  f(path);
 }
 } // namespace IO
 } // namespace TrenchBroom

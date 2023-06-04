@@ -53,6 +53,10 @@ public:
   bool fileExists(const std::filesystem::path& path) const;
 
   std::string loadFile(const std::filesystem::path& path) const;
+
+  void withTempFile(
+    const std::string& contents,
+    const std::function<void(const std::filesystem::path&)>& f);
 };
 } // namespace IO
 } // namespace TrenchBroom
