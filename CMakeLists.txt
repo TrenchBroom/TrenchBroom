@@ -111,10 +111,10 @@ if(NOT GIT_FOUND)
 endif()
 
 # Find Pandoc
-if(NOT PANDOC_PATH AND NOT PANDOC_PATH-NOTFOUND)
+if(NOT PANDOC_PATH)
   find_program(PANDOC_PATH NAMES "pandoc" DOC "Pandoc program location")
 
-  if(PANDOC_PATH-NOTFOUND)
+  if(PANDOC_PATH STREQUAL "PANDOC_PATH-NOTFOUND")
     message(FATAL_ERROR "Could not find pandoc")
   else()
     message(STATUS "Found Pandoc: ${PANDOC_PATH}")
