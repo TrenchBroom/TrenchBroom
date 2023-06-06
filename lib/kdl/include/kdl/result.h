@@ -95,6 +95,9 @@ struct wrap_result<result<Value, Errors1...>, Errors2...>
 };
 } // namespace detail
 
+template <typename MaybeResult>
+inline constexpr auto is_result_v = detail::is_result<MaybeResult>::value;
+
 template <typename ResultOrValue, typename... Errors>
 using wrap_result_t = typename detail::wrap_result<ResultOrValue, Errors...>::result;
 
@@ -315,8 +318,7 @@ public:
     using My_Result = result<Value, Errors...>;
     using Fn_Result = decltype(f(std::declval<const Value&>()));
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
     using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
 
@@ -337,8 +339,7 @@ public:
     using My_Result = result<Value, Errors...>;
     using Fn_Result = decltype(f(std::declval<Value&>()));
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
     using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
 
@@ -359,8 +360,7 @@ public:
     using My_Result = result<Value, Errors...>;
     using Fn_Result = decltype(f(std::declval<Value&&>()));
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
     using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
 
@@ -401,8 +401,7 @@ public:
 
     using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
       std::is_same_v<typename Fn_Result::value_type, Value>,
       "Function must return result with same value type");
@@ -427,8 +426,7 @@ public:
 
     using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
       std::is_same_v<typename Fn_Result::value_type, Value>,
       "Function must return result with same value type");
@@ -451,8 +449,7 @@ public:
 
     using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
       std::is_same_v<typename Fn_Result::value_type, Value>,
       "Function must return result with same value type");
@@ -841,8 +838,7 @@ public:
   {
     using Fn_Result = decltype(f());
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
     return f();
   }
@@ -1043,8 +1039,7 @@ public:
     using My_Result = result<void, Errors...>;
     using Fn_Result = decltype(f());
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
     using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
 
@@ -1064,8 +1059,7 @@ public:
     using My_Result = result<void, Errors...>;
     using Fn_Result = decltype(f());
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
     using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
 
@@ -1088,8 +1082,7 @@ public:
 
     using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
       std::is_same_v<typename Fn_Result::value_type, void>,
       "Function must return void result");
@@ -1113,8 +1106,7 @@ public:
 
     using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
       std::is_same_v<typename Fn_Result::value_type, void>,
       "Function must return void result");
@@ -1138,8 +1130,7 @@ public:
 
     using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
 
-    static_assert(
-      detail::is_result<Fn_Result>::value, "Function must return a result type");
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
       std::is_same_v<typename Fn_Result::value_type, void>,
       "Function must return void result");
