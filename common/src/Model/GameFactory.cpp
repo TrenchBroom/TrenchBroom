@@ -217,18 +217,22 @@ std::string readInfoComment(std::istream& stream, const std::string& name)
 std::pair<std::string, MapFormat> GameFactory::detectGame(
   const std::filesystem::path& path) const
 {
-  return IO::Disk::withInputStream(path, [&](auto& stream) {
-    auto gameName = readInfoComment(stream, "Game");
-    if (m_configs.find(gameName) == std::end(m_configs))
-    {
-      gameName = "";
-    }
+  return IO::Disk::withInputStream(
+           path,
+           [&](auto& stream) {
+             auto gameName = readInfoComment(stream, "Game");
+             if (m_configs.find(gameName) == std::end(m_configs))
+             {
+               gameName = "";
+             }
 
-    const auto formatName = readInfoComment(stream, "Format");
-    const auto format = formatFromName(formatName);
+             const auto formatName = readInfoComment(stream, "Format");
+             const auto format = formatFromName(formatName);
 
-    return std::pair{gameName, format};
-  });
+             return std::pair{gameName, format};
+           })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; })
+    .value();
 }
 
 const std::filesystem::path& GameFactory::userGameConfigsPath() const

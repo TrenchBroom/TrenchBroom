@@ -159,10 +159,15 @@ namespace IO
 std::string readTextFile(const std::filesystem::path& path)
 {
   const auto fixedPath = Disk::fixPath(path);
-  return Disk::withInputStream(fixedPath, [](auto& stream) {
-    return std::string{
-      (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
-  });
+  return Disk::withInputStream(
+           fixedPath,
+           [](auto& stream) {
+             return std::string{
+               (std::istreambuf_iterator<char>(stream)),
+               std::istreambuf_iterator<char>()};
+           })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; })
+    .value();
 }
 } // namespace IO
 

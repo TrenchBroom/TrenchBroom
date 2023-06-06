@@ -69,7 +69,9 @@ public:
       std::filesystem::remove(path, error);
     }};
 
-    Disk::withOutputStream(path, [&](auto& stream) { stream << contents; });
+    Disk::withOutputStream(path, [&](auto& stream) {
+      stream << contents;
+    }).if_error([](auto e) { throw std::runtime_error{e.msg}; });
     return f(path);
   }
 };

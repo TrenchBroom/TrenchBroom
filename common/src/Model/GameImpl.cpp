@@ -250,7 +250,7 @@ void GameImpl::doWriteMap(
     auto writer = IO::NodeWriter{world, stream};
     writer.setExporting(exporting);
     writer.writeMap();
-  });
+  }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
 }
 
 void GameImpl::doWriteMap(WorldNode& world, const std::filesystem::path& path) const
@@ -265,7 +265,7 @@ void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) c
       [&](const IO::ObjExportOptions& objOptions) {
         IO::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
           const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
-          IO::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
+          return IO::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
             auto writer = IO::NodeWriter{
               world,
               std::make_unique<IO::ObjSerializer>(
@@ -273,7 +273,7 @@ void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) c
             writer.setExporting(true);
             writer.writeMap();
           });
-        });
+        }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
       },
       [&](const IO::MapExportOptions& mapOptions) {
         doWriteMap(world, mapOptions.exportPath, true);

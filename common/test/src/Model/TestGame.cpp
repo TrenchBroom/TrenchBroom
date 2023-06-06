@@ -154,7 +154,7 @@ void TestGame::doWriteMap(WorldNode& world, const std::filesystem::path& path) c
   IO::Disk::withOutputStream(path, [&](auto& stream) {
     IO::NodeWriter writer(world, stream);
     writer.writeMap();
-  });
+  }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
 }
 
 void TestGame::doExportMap(

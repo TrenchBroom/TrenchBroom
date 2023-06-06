@@ -109,18 +109,22 @@ void Shader::detach(const GLuint programId) const
 
 std::vector<std::string> Shader::loadSource(const std::filesystem::path& path)
 {
-  return IO::Disk::withInputStream(path, [](auto& stream) {
-    std::string line;
-    std::vector<std::string> lines;
+  return IO::Disk::withInputStream(
+           path,
+           [](auto& stream) {
+             std::string line;
+             std::vector<std::string> lines;
 
-    while (!stream.eof())
-    {
-      std::getline(stream, line);
-      lines.push_back(line + '\n');
-    }
+             while (!stream.eof())
+             {
+               std::getline(stream, line);
+               lines.push_back(line + '\n');
+             }
 
-    return lines;
-  });
+             return lines;
+           })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; })
+    .value();
 }
 
 } // namespace TrenchBroom::Renderer

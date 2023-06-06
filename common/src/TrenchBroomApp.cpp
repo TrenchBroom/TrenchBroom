@@ -713,7 +713,7 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
     stream << report;
     std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
-  });
+  }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
 
   // save the map
   auto doc = topDocument();

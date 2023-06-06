@@ -20,7 +20,10 @@
 #pragma once
 
 #include "Exceptions.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathMatcher.h"
+
+#include <kdl/result.h>
 
 #include <filesystem>
 #include <fstream>
@@ -51,19 +54,36 @@ std::shared_ptr<File> openFile(const std::filesystem::path& path);
 template <typename Stream, typename F>
 auto withStream(
   const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
+  -> kdl::wrap_result_t<decltype(function(std::declval<Stream&>())), FileSystemError>
 {
+  using FnResultType = decltype(function(std::declval<Stream&>()));
+  using ResultType = kdl::wrap_result_t<FnResultType, FileSystemError>;
   try
   {
     auto stream = Stream{path, mode};
     if (!stream)
     {
-      throw FileSystemException{"Could not open stream for file '" + path.string() + "'"};
+      return ResultType{
+        FileSystemError{"Could not open stream for file '" + path.string() + "'"}};
     }
-    return function(stream);
+    if constexpr (kdl::is_result_v<FnResultType>)
+    {
+      return function(stream).and_then([]() { return ResultType{}; });
+    }
+    else if constexpr (std::is_same_v<typename ResultType::value_type, void>)
+    {
+      function(stream);
+      return ResultType{};
+    }
+    else
+    {
+      return ResultType{function(stream)};
+    }
   }
-  catch (const std::filesystem::filesystem_error&)
+  catch (const std::filesystem::filesystem_error& e)
   {
-    throw FileSystemException{"Could not open stream for file '" + path.string() + "'"};
+    return ResultType{FileSystemError{
+      "Could not open stream for file '" + path.string() + "': " + e.what()}};
   }
 }
 

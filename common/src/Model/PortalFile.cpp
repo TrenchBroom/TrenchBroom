@@ -47,7 +47,9 @@ PortalFile::PortalFile(const std::filesystem::path& path)
 bool PortalFile::canLoad(const std::filesystem::path& path)
 {
   return IO::Disk::withInputStream(
-    path, [](auto& stream) { return stream.is_open() && stream.good(); });
+           path, [](auto& stream) { return stream.is_open() && stream.good(); })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; })
+    .value();
 }
 
 const std::vector<vm::polygon3f>& PortalFile::portals() const
@@ -143,7 +145,7 @@ void PortalFile::load(const std::filesystem::path& path)
 
       m_portals.push_back(vm::polygon3f(verts));
     }
-  });
+  }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
 }
 } // namespace Model
 } // namespace TrenchBroom

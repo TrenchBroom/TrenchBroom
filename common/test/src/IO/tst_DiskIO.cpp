@@ -166,26 +166,27 @@ TEST_CASE("DiskIO")
   {
     SECTION("withInputStream")
     {
-      CHECK_THROWS_AS(
-        Disk::withInputStream(env.dir() / "does not exist.txt", readAll),
-        FileSystemException);
+      CHECK(
+        Disk::withInputStream(env.dir() / "does not exist.txt", readAll)
+        == FileSystemError{});
 
       CHECK(Disk::withInputStream(env.dir() / "test.txt", readAll) == "some content");
     }
 
     SECTION("withOutputStream")
     {
-      Disk::withOutputStream(
-        env.dir() / "test.txt", std::ios::out | std::ios::app, [](auto& stream) {
-          stream << "\nmore content";
-        });
+      REQUIRE(Disk::withOutputStream(
+                env.dir() / "test.txt",
+                std::ios::out | std::ios::app,
+                [](auto& stream) { stream << "\nmore content"; })
+                .is_success());
       CHECK(
         Disk::withInputStream(env.dir() / "test.txt", readAll)
         == "some content\nmore content");
 
-      Disk::withOutputStream(env.dir() / "some_other_name.txt", [](auto& stream) {
-        stream << "some text...";
-      });
+      REQUIRE(Disk::withOutputStream(env.dir() / "some_other_name.txt", [](auto& stream) {
+                stream << "some text...";
+              }).is_success());
       CHECK(
         Disk::withInputStream(env.dir() / "some_other_name.txt", readAll)
         == "some text...");
