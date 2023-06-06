@@ -1276,25 +1276,32 @@ public:
    * See result<Value, Errors...>::if_error.
    */
   template <typename F>
-  auto if_error(const F& f) const&
+  bool if_error(const F& f) const&
   {
-    std::visit(
+    return std::visit(
       overload(
-        [](const detail::void_success_value_type&) {}, [&](const auto& e) { f(e); }),
+        [](const detail::void_success_value_type&) { return true; },
+        [&](const auto& e) {
+          f(e);
+          return false;
+        }),
       m_value);
-    return *this;
   }
 
   /**
    * See result<Value, Errors...>::if_error.
    */
   template <typename F>
-  auto if_error(const F& f) &&
+  bool if_error(const F& f) &&
   {
-    std::visit(
-      overload([](detail::void_success_value_type&&) {}, [&](auto&& e) { f(e); }),
+    return std::visit(
+      overload(
+        [](detail::void_success_value_type&&) { return true; },
+        [&](auto&& e) {
+          f(e);
+          return false;
+        }),
       std::move(m_value));
-    return std::move(*this);
   }
 
   /**

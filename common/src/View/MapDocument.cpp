@@ -3053,8 +3053,7 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
 
       return kdl::void_success;
     })
-    .if_error([&](const auto& e) { error() << "Could not create brush: " << e; })
-    .is_success();
+    .if_error([&](const auto& e) { error() << "Could not create brush: " << e; });
 }
 
 bool MapDocument::csgConvexMerge()
@@ -3134,8 +3133,7 @@ bool MapDocument::csgConvexMerge()
       transaction.commit();
     })
     .if_error(
-      [&](const Model::BrushError e) { error() << "Could not create brush: " << e; })
-    .is_success();
+      [&](const Model::BrushError e) { error() << "Could not create brush: " << e; });
 }
 
 bool MapDocument::csgSubtract()
@@ -3218,8 +3216,7 @@ bool MapDocument::csgIntersect()
     valid = intersection.intersect(m_worldBounds, brush)
               .if_error([&](const Model::BrushError e) {
                 error() << "Could not intersect brushes: " << e;
-              })
-              .is_success();
+              });
   }
 
   const auto toRemove = std::vector<Model::Node*>{std::begin(brushes), std::end(brushes)};
@@ -3365,8 +3362,7 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
         }
         return kdl::void_success;
       })
-    .if_error([&](const auto& e) { error() << "Could not clip brushes: " << e; })
-    .is_success();
+    .if_error([&](const auto& e) { error() << "Could not clip brushes: " << e; });
 }
 
 bool MapDocument::setProperty(
@@ -3864,8 +3860,7 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
           })
           .if_error([&](const Model::BrushError e) {
             error() << "Could not move brush vertices: " << e;
-          })
-          .is_success();
+          });
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -3945,8 +3940,7 @@ bool MapDocument::moveEdges(
           })
           .if_error([&](const Model::BrushError e) {
             error() << "Could not move brush edges: " << e;
-          })
-          .is_success();
+          });
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4013,8 +4007,7 @@ bool MapDocument::moveFaces(
           })
           .if_error([&](const Model::BrushError e) {
             error() << "Could not move brush faces: " << e;
-          })
-          .is_success();
+          });
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4065,8 +4058,7 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition)
         return brush.addVertex(m_worldBounds, vertexPosition)
           .if_error([&](const Model::BrushError e) {
             error() << "Could not add brush vertex: " << e;
-          })
-          .is_success();
+          });
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4122,8 +4114,7 @@ bool MapDocument::removeVertices(
         return brush.removeVertices(m_worldBounds, verticesToRemove)
           .if_error([&](const Model::BrushError e) {
             error() << "Could not remove brush vertices: " << e;
-          })
-          .is_success();
+          });
       },
       [](Model::BezierPatch&) { return true; }));
 
