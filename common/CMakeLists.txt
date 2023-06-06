@@ -51,6 +51,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
         ${COMMON_SOURCE_DIR}/IO/File.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystem.cpp
+        ${COMMON_SOURCE_DIR}/IO/FileSystemError.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.cpp
@@ -532,6 +533,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/FgdParser.h
         ${COMMON_SOURCE_DIR}/IO/File.h
         ${COMMON_SOURCE_DIR}/IO/FileSystem.h
+        ${COMMON_SOURCE_DIR}/IO/FileSystemError.h
         ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.h
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.h
