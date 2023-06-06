@@ -349,7 +349,10 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
     }
 
     auto& gameFactory = Model::GameFactory::instance();
-    auto [gameName, mapFormat] = gameFactory.detectGame(path);
+    auto [gameName, mapFormat] =
+      gameFactory.detectGame(path)
+        .if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; })
+        .value();
 
     if (gameName.empty() || mapFormat == Model::MapFormat::Unknown)
     {
@@ -713,7 +716,9 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
     stream << report;
     std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
-  }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
+  }).if_error([](const auto& e) {
+    std::cerr << "could not write crash log: " << e.msg << std::endl;
+  });
 
   // save the map
   auto doc = topDocument();

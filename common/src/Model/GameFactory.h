@@ -21,6 +21,8 @@
 
 #include "Model/MapFormat.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -36,6 +38,7 @@ class Preference;
 
 namespace IO
 {
+struct FileSystemError;
 class Path;
 class WritableVirtualFileSystem;
 } // namespace IO
@@ -143,7 +146,8 @@ public:
    * the game name. If no map format comment is found or the format is unknown,
    * MapFormat::Unknown is returned as the map format.
    */
-  std::pair<std::string, MapFormat> detectGame(const std::filesystem::path& path) const;
+  kdl::result<std::pair<std::string, MapFormat>, IO::FileSystemError> detectGame(
+    const std::filesystem::path& path) const;
 
   /**
    * Returns the directory for user game configurations.
