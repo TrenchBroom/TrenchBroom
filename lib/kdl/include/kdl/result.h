@@ -79,7 +79,24 @@ struct chain_results<result<Value1, Errors1...>, result<Value2, Errors2...>>
     Value2,
     typename meta_remove_duplicates<Errors1..., Errors2...>::result>::type;
 };
+
+template <typename Value, typename... Errors>
+struct wrap_result
+{
+  using result = result<Value, Errors...>;
+};
+
+template <typename Value, typename... Errors1, typename... Errors2>
+struct wrap_result<result<Value, Errors1...>, Errors2...>
+{
+  using result = typename make_result_type<
+    Value,
+    typename meta_remove_duplicates<Errors1..., Errors2...>::result>::type;
+};
 } // namespace detail
+
+template <typename ResultOrValue, typename... Errors>
+using wrap_result_t = typename detail::wrap_result<ResultOrValue, Errors...>::result;
 
 /**
  * Wrapper class that can contain either a value or one of several errors.
