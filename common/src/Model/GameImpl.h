@@ -81,10 +81,12 @@ private:
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const override;
-  void doWriteMap(
+  kdl::result<void, IO::FileSystemError> doWriteMap(
     WorldNode& world, const std::filesystem::path& path, bool exporting) const;
-  void doWriteMap(WorldNode& world, const std::filesystem::path& path) const override;
-  void doExportMap(WorldNode& world, const IO::ExportOptions& options) const override;
+  kdl::result<void, IO::FileSystemError> doWriteMap(
+    WorldNode& world, const std::filesystem::path& path) const override;
+  kdl::result<void, IO::FileSystemError> doExportMap(
+    WorldNode& world, const IO::ExportOptions& options) const override;
 
   std::vector<Node*> doParseNodes(
     const std::string& str,

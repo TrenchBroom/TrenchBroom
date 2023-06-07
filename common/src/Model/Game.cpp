@@ -21,9 +21,12 @@
 
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/ExportOptions.h"
+#include "IO/FileSystemError.h"
 #include "Model/BrushFace.h"
 #include "Model/GameFactory.h"
 #include "Model/WorldNode.h"
+
+#include <kdl/result.h>
 
 #include <string>
 #include <vector>
@@ -105,14 +108,16 @@ std::unique_ptr<WorldNode> Game::loadMap(
   return doLoadMap(format, worldBounds, path, logger);
 }
 
-void Game::writeMap(WorldNode& world, const std::filesystem::path& path) const
+kdl::result<void, IO::FileSystemError> Game::writeMap(
+  WorldNode& world, const std::filesystem::path& path) const
 {
-  doWriteMap(world, path);
+  return doWriteMap(world, path);
 }
 
-void Game::exportMap(WorldNode& world, const IO::ExportOptions& options) const
+kdl::result<void, IO::FileSystemError> Game::exportMap(
+  WorldNode& world, const IO::ExportOptions& options) const
 {
-  doExportMap(world, options);
+  return doExportMap(world, options);
 }
 
 std::vector<Node*> Game::parseNodes(

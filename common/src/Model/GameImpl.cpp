@@ -37,6 +37,7 @@
 #include "IO/ExportOptions.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/GameConfigParser.h"
 #include "IO/ImageSpriteParser.h"
 #include "IO/LoadTextureCollection.h"
@@ -239,10 +240,10 @@ std::unique_ptr<WorldNode> GameImpl::doLoadMap(
   }
 }
 
-void GameImpl::doWriteMap(
+kdl::result<void, IO::FileSystemError> GameImpl::doWriteMap(
   WorldNode& world, const std::filesystem::path& path, const bool exporting) const
 {
-  IO::Disk::withOutputStream(path, [&](auto& stream) {
+  return IO::Disk::withOutputStream(path, [&](auto& stream) {
     const auto mapFormatName = formatName(world.mapFormat());
     stream << "// Game: " << gameName() << "\n"
            << "// Format: " << mapFormatName << "\n";
@@ -250,20 +251,22 @@ void GameImpl::doWriteMap(
     auto writer = IO::NodeWriter{world, stream};
     writer.setExporting(exporting);
     writer.writeMap();
-  }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
+  });
 }
 
-void GameImpl::doWriteMap(WorldNode& world, const std::filesystem::path& path) const
+kdl::result<void, IO::FileSystemError> GameImpl::doWriteMap(
+  WorldNode& world, const std::filesystem::path& path) const
 {
-  doWriteMap(world, path, false);
+  return doWriteMap(world, path, false);
 }
 
-void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) const
+kdl::result<void, IO::FileSystemError> GameImpl::doExportMap(
+  WorldNode& world, const IO::ExportOptions& options) const
 {
-  std::visit(
+  return std::visit(
     kdl::overload(
       [&](const IO::ObjExportOptions& objOptions) {
-        IO::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
+        return IO::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
           const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
           return IO::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
             auto writer = IO::NodeWriter{
@@ -273,10 +276,10 @@ void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) c
             writer.setExporting(true);
             writer.writeMap();
           });
-        }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
+        });
       },
       [&](const IO::MapExportOptions& mapOptions) {
-        doWriteMap(world, mapOptions.exportPath, true);
+        return doWriteMap(world, mapOptions.exportPath, true);
       }),
     options);
 }

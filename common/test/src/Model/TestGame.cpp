@@ -27,6 +27,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
+#include "IO/FileSystemError.h"
 #include "IO/LoadTextureCollection.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
@@ -38,6 +39,7 @@
 #include "Model/GameConfig.h"
 #include "Model/WorldNode.h"
 
+#include <kdl/result.h>
 #include <kdl/string_utils.h>
 
 #include <fstream>
@@ -149,17 +151,19 @@ std::unique_ptr<WorldNode> TestGame::doLoadMap(
   }
 }
 
-void TestGame::doWriteMap(WorldNode& world, const std::filesystem::path& path) const
+kdl::result<void, IO::FileSystemError> TestGame::doWriteMap(
+  WorldNode& world, const std::filesystem::path& path) const
 {
-  IO::Disk::withOutputStream(path, [&](auto& stream) {
+  return IO::Disk::withOutputStream(path, [&](auto& stream) {
     IO::NodeWriter writer(world, stream);
     writer.writeMap();
-  }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
+  });
 }
 
-void TestGame::doExportMap(
+kdl::result<void, IO::FileSystemError> TestGame::doExportMap(
   WorldNode& /* world */, const IO::ExportOptions& /* options */) const
 {
+  return kdl::void_success;
 }
 
 std::vector<Node*> TestGame::doParseNodes(

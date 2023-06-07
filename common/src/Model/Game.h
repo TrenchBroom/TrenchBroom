@@ -26,6 +26,8 @@
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 
+#include <kdl/result_forward.h>
+
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
 
@@ -46,6 +48,11 @@ namespace Assets
 class EntityDefinitionFileSpec;
 class TextureManager;
 } // namespace Assets
+
+namespace IO
+{
+struct FileSystemError;
+}
 
 namespace Model
 {
@@ -111,8 +118,10 @@ public: // loading and writing map files
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const;
-  void writeMap(WorldNode& world, const std::filesystem::path& path) const;
-  void exportMap(WorldNode& world, const IO::ExportOptions& options) const;
+  kdl::result<void, IO::FileSystemError> writeMap(
+    WorldNode& world, const std::filesystem::path& path) const;
+  kdl::result<void, IO::FileSystemError> exportMap(
+    WorldNode& world, const IO::ExportOptions& options) const;
 
 public: // parsing and serializing objects
   std::vector<Node*> parseNodes(
@@ -186,8 +195,10 @@ private: // subclassing interface
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const = 0;
-  virtual void doWriteMap(WorldNode& world, const std::filesystem::path& path) const = 0;
-  virtual void doExportMap(WorldNode& world, const IO::ExportOptions& options) const = 0;
+  virtual kdl::result<void, IO::FileSystemError> doWriteMap(
+    WorldNode& world, const std::filesystem::path& path) const = 0;
+  virtual kdl::result<void, IO::FileSystemError> doExportMap(
+    WorldNode& world, const IO::ExportOptions& options) const = 0;
 
   virtual std::vector<Node*> doParseNodes(
     const std::string& str,

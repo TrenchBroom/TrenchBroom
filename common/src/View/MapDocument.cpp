@@ -619,12 +619,16 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
 {
   ensure(m_game.get() != nullptr, "game is null");
   ensure(m_world, "world is null");
-  m_game->writeMap(*m_world, path);
+  m_game->writeMap(*m_world, path).if_error([&](const auto& e) {
+    error() << "Could not save document: " << e.msg;
+  });
 }
 
 void MapDocument::exportDocumentAs(const IO::ExportOptions& options)
 {
-  m_game->exportMap(*m_world, options);
+  m_game->exportMap(*m_world, options).if_error([&](const auto& e) {
+    error() << "Could not export document: " << e.msg;
+  });
 }
 
 void MapDocument::doSaveDocument(const std::filesystem::path& path)
