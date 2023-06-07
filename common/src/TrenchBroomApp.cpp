@@ -340,46 +340,52 @@ void TrenchBroomApp::updateRecentDocument(const std::filesystem::path& path)
 
 bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 {
+  const auto checkFileExists = [&]() {
+    return IO::Disk::pathInfo(path) == IO::PathInfo::File
+             ? kdl::result<void, IO::FileSystemError>{}
+             : kdl::result<void, IO::FileSystemError>{
+               IO::FileSystemError{"File not found: " + path.string()}};
+  };
+
   auto* frame = static_cast<MapFrame*>(nullptr);
   try
   {
-    if (IO::Disk::pathInfo(path) != IO::PathInfo::File)
-    {
-      throw FileNotFoundException{path.string()};
-    }
-
     auto& gameFactory = Model::GameFactory::instance();
-    auto [gameName, mapFormat] =
-      gameFactory.detectGame(path)
-        .if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; })
-        .value();
+    return checkFileExists()
+      .or_else([&](const auto& e) {
+        m_recentDocuments->removePath(path);
+        return kdl::result<void, IO::FileSystemError>{e};
+      })
+      .and_then([&]() { return gameFactory.detectGame(path); })
+      .transform([&](const auto& gameNameAndMapFormat) {
+        auto [gameName, mapFormat] = gameNameAndMapFormat;
 
-    if (gameName.empty() || mapFormat == Model::MapFormat::Unknown)
-    {
-      if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
-      {
+        if (gameName.empty() || mapFormat == Model::MapFormat::Unknown)
+        {
+          if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
+          {
+            return false;
+          }
+        }
+
+        frame = m_frameManager->newFrame();
+
+        auto game = gameFactory.createGame(gameName, frame->logger());
+        ensure(game.get() != nullptr, "game is null");
+
+        closeWelcomeWindow();
+        frame->openDocument(game, mapFormat, path);
+        return true;
+      })
+      .transform_error([&](const auto& e) {
+        if (frame)
+        {
+          frame->close();
+        }
+        QMessageBox::critical(nullptr, "TrenchBroom", e.msg.c_str(), QMessageBox::Ok);
         return false;
-      }
-    }
-
-    frame = m_frameManager->newFrame();
-
-    auto game = gameFactory.createGame(gameName, frame->logger());
-    ensure(game.get() != nullptr, "game is null");
-
-    closeWelcomeWindow();
-    frame->openDocument(game, mapFormat, path);
-    return true;
-  }
-  catch (const FileNotFoundException& e)
-  {
-    m_recentDocuments->removePath(path);
-    if (frame)
-    {
-      frame->close();
-    }
-    QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);
-    return false;
+      })
+      .value();
   }
   catch (const Exception& e)
   {
