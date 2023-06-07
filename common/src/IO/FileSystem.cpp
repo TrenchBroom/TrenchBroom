@@ -20,11 +20,13 @@
 #include "FileSystem.h"
 
 #include "Exceptions.h"
+#include "IO/FileSystemError.h"
 #include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
 #include "Macros.h"
 
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
@@ -120,27 +122,29 @@ std::shared_ptr<File> FileSystem::openFile(const std::filesystem::path& path) co
 
 WritableFileSystem::~WritableFileSystem() = default;
 
-void WritableFileSystem::createFileAtomic(
+kdl::result<void, FileSystemError> WritableFileSystem::createFileAtomic(
   const std::filesystem::path& path, const std::string& contents)
 {
   if (path.is_absolute())
   {
-    throw FileSystemException("Path is absolute: '" + path.string() + "'");
+    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
   }
 
   const auto tmpPath = kdl::path_add_extension(path, "tmp");
-  doCreateFile(tmpPath, contents);
-  doMoveFile(tmpPath, path);
+  return doCreateFile(tmpPath, contents).and_then([&]() {
+    doMoveFile(tmpPath, path);
+    return kdl::void_success;
+  });
 }
 
-void WritableFileSystem::createFile(
+kdl::result<void, FileSystemError> WritableFileSystem::createFile(
   const std::filesystem::path& path, const std::string& contents)
 {
   if (path.is_absolute())
   {
-    throw FileSystemException("Path is absolute: '" + path.string() + "'");
+    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
   }
-  doCreateFile(path, contents);
+  return doCreateFile(path, contents);
 }
 
 bool WritableFileSystem::createDirectory(const std::filesystem::path& path)

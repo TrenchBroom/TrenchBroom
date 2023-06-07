@@ -86,7 +86,7 @@ public:
     const std::filesystem::path& path) const override;
   std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 
-  void doCreateFile(
+  kdl::result<void, FileSystemError> doCreateFile(
     const std::filesystem::path& path, const std::string& contents) override;
   bool doCreateDirectory(const std::filesystem::path& path) override;
   void doDeleteFile(const std::filesystem::path& path) override;

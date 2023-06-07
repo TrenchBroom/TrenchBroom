@@ -22,6 +22,8 @@
 #include "Exceptions.h"
 #include "IO/PathMatcher.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -32,6 +34,7 @@ namespace TrenchBroom::IO
 
 class File;
 class FileSystem;
+struct FileSystemError;
 enum class PathInfo;
 
 class FileSystem
@@ -107,8 +110,10 @@ class WritableFileSystem : public virtual FileSystem
 public:
   ~WritableFileSystem() override;
 
-  void createFileAtomic(const std::filesystem::path& path, const std::string& contents);
-  void createFile(const std::filesystem::path& path, const std::string& contents);
+  kdl::result<void, FileSystemError> createFileAtomic(
+    const std::filesystem::path& path, const std::string& contents);
+  kdl::result<void, FileSystemError> createFile(
+    const std::filesystem::path& path, const std::string& contents);
   bool createDirectory(const std::filesystem::path& path);
   void deleteFile(const std::filesystem::path& path);
   void copyFile(
@@ -117,7 +122,7 @@ public:
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 private:
-  virtual void doCreateFile(
+  virtual kdl::result<void, FileSystemError> doCreateFile(
     const std::filesystem::path& path, const std::string& contents) = 0;
   virtual bool doCreateDirectory(const std::filesystem::path& path) = 0;
   virtual void doDeleteFile(const std::filesystem::path& path) = 0;

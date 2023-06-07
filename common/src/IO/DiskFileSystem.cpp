@@ -22,9 +22,11 @@
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -86,12 +88,11 @@ WritableDiskFileSystem::WritableDiskFileSystem(
   }
 }
 
-void WritableDiskFileSystem::doCreateFile(
+kdl::result<void, FileSystemError> WritableDiskFileSystem::doCreateFile(
   const std::filesystem::path& path, const std::string& contents)
 {
-  Disk::withOutputStream(makeAbsolute(path), [&](auto& stream) {
-    stream << contents;
-  }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
+  return Disk::withOutputStream(
+    makeAbsolute(path), [&](auto& stream) { stream << contents; });
 }
 
 bool WritableDiskFileSystem::doCreateDirectory(const std::filesystem::path& path)

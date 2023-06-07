@@ -23,6 +23,7 @@
 #include <QCloseEvent>
 #include <QDialogButtonBox>
 
+#include "FileLogger.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
@@ -81,8 +82,9 @@ void GameEngineDialog::done(const int r)
 
 void GameEngineDialog::saveConfig()
 {
+  auto& logger = FileLogger::instance();
   auto& gameFactory = Model::GameFactory::instance();
-  gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config());
+  gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config(), logger);
 }
 } // namespace View
 } // namespace TrenchBroom

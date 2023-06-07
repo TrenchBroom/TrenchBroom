@@ -19,10 +19,12 @@
 
 #include "VirtualFileSystem.h"
 
+#include "IO/FileSystemError.h"
 #include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
 
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <optional>
@@ -223,10 +225,10 @@ std::shared_ptr<File> WritableVirtualFileSystem::doOpenFile(
   return m_virtualFs.openFile(path);
 }
 
-void WritableVirtualFileSystem::doCreateFile(
+kdl::result<void, FileSystemError> WritableVirtualFileSystem::doCreateFile(
   const std::filesystem::path& path, const std::string& contents)
 {
-  m_writableFs.createFile(path, contents);
+  return m_writableFs.createFile(path, contents);
 }
 
 bool WritableVirtualFileSystem::doCreateDirectory(const std::filesystem::path& path)

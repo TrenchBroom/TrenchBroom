@@ -67,10 +67,10 @@ void GameFactory::initialize(const GamePathConfig& gamePathConfig)
 }
 
 void GameFactory::saveGameEngineConfig(
-  const std::string& gameName, const GameEngineConfig& gameEngineConfig)
+  const std::string& gameName, const GameEngineConfig& gameEngineConfig, Logger& logger)
 {
   auto& config = gameConfig(gameName);
-  writeGameEngineConfig(config, gameEngineConfig);
+  writeGameEngineConfig(config, gameEngineConfig, logger);
 }
 
 void GameFactory::saveCompilationConfig(
@@ -401,20 +401,26 @@ void GameFactory::writeCompilationConfig(
     gameConfig.compilationConfigParseFailed = false;
   }
 
-  m_configFs->createFileAtomic(profilesPath, stream.str());
-  gameConfig.compilationConfig = std::move(compilationConfig);
-  logger.debug() << "Wrote compilation config to "
-                 << m_configFs->makeAbsolute(profilesPath);
+  m_configFs->createFileAtomic(profilesPath, stream.str())
+    .transform([&]() {
+      gameConfig.compilationConfig = std::move(compilationConfig);
+      logger.debug() << "Wrote compilation config to "
+                     << m_configFs->makeAbsolute(profilesPath);
+    })
+    .transform_error([&](const auto& e) {
+      logger.error() << "Could not write compilation config: " << e.msg;
+    });
 }
 
 void GameFactory::writeGameEngineConfig(
-  GameConfig& gameConfig, GameEngineConfig gameEngineConfig)
+  GameConfig& gameConfig, GameEngineConfig gameEngineConfig, Logger& logger)
 {
   if (
     !gameConfig.gameEngineConfigParseFailed
     && gameConfig.gameEngineConfig == gameEngineConfig)
   {
-    std::cout << "Skipping writing unchanged game engine config for " << gameConfig.name;
+    logger.debug() << "Skipping writing unchanged game engine config for "
+                   << gameConfig.name;
     return;
   }
 
@@ -428,16 +434,22 @@ void GameFactory::writeGameEngineConfig(
   {
     const auto backupPath = backupFile(*m_configFs, profilesPath);
 
-    std::cerr << "Backed up malformed game engine config "
-              << m_configFs->makeAbsolute(profilesPath) << " to "
-              << m_configFs->makeAbsolute(backupPath) << std::endl;
+    logger.error() << "Backed up malformed game engine config "
+                   << m_configFs->makeAbsolute(profilesPath) << " to "
+                   << m_configFs->makeAbsolute(backupPath);
 
     gameConfig.gameEngineConfigParseFailed = false;
   }
-  m_configFs->createFileAtomic(profilesPath, stream.str());
-  gameConfig.gameEngineConfig = std::move(gameEngineConfig);
-  std::cout << "Wrote game engine config to " << m_configFs->makeAbsolute(profilesPath)
-            << std::endl;
+
+  m_configFs->createFileAtomic(profilesPath, stream.str())
+    .transform([&]() {
+      gameConfig.gameEngineConfig = std::move(gameEngineConfig);
+      logger.debug() << "Wrote game engine config to "
+                     << m_configFs->makeAbsolute(profilesPath);
+    })
+    .transform_error([&](const auto& e) {
+      logger.error() << "Could not write game engine config: " << e.msg;
+    });
 }
 } // namespace Model
 } // namespace TrenchBroom

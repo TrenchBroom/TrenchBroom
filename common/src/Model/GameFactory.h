@@ -102,7 +102,9 @@ public:
    * @throw GameException if no game with the given name exists
    */
   void saveGameEngineConfig(
-    const std::string& gameName, const GameEngineConfig& gameEngineConfig);
+    const std::string& gameName,
+    const GameEngineConfig& gameEngineConfig,
+    Logger& logger);
   /**
    * Saves the compilation configurations for the game with the given name.
    *
@@ -167,7 +169,8 @@ private:
 
   void writeCompilationConfig(
     GameConfig& gameConfig, CompilationConfig compilationConfig, Logger& logger);
-  void writeGameEngineConfig(GameConfig& gameConfig, GameEngineConfig gameEngineConfig);
+  void writeGameEngineConfig(
+    GameConfig& gameConfig, GameEngineConfig gameEngineConfig, Logger& logger);
 };
 } // namespace Model
 } // namespace TrenchBroom
