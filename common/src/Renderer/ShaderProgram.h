@@ -23,30 +23,32 @@
 
 #include <vecmath/forward.h>
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 class ShaderManager;
 class Shader;
 
 class ShaderProgram
 {
 private:
-  using UniformVariableCache = std::map<std::string, GLint>;
-  using AttributeLocationCache = std::map<std::string, GLint>;
+  using UniformVariableCache = std::unordered_map<std::string, GLint>;
+  using AttributeLocationCache = std::unordered_map<std::string, GLint>;
+
+  ShaderManager* m_shaderManager;
   std::string m_name;
+
   GLuint m_programId;
   bool m_needsLinking;
+
   mutable UniformVariableCache m_variableCache;
   mutable AttributeLocationCache m_attributeCache;
-  ShaderManager* m_shaderManager;
 
 public:
-  explicit ShaderProgram(ShaderManager* shaderManager, const std::string& name);
+  explicit ShaderProgram(ShaderManager* shaderManager, std::string name);
   ~ShaderProgram();
 
   void attach(Shader& shader);
@@ -74,5 +76,5 @@ private:
   GLint findUniformLocation(const std::string& name) const;
   bool checkActive() const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

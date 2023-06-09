@@ -240,7 +240,7 @@ void moveFile(
   if (error)
   {
     throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.string() + "' to '"
+      "Could not move file '" + fixedSourcePath.string() + "' to '"
       + fixedDestPath.string() + "'");
   }
 }

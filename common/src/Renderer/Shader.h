@@ -25,26 +25,23 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Shader
 {
 private:
   std::string m_name;
   GLenum m_type;
-  GLuint m_shaderId;
+  GLuint m_shaderId{0};
 
 public:
-  Shader(const std::filesystem::path& path, const GLenum type);
+  Shader(const std::filesystem::path& path, GLenum type);
   ~Shader();
 
-  void attach(const GLuint programId);
-  void detach(const GLuint programId);
+  void attach(GLuint programId) const;
+  void detach(GLuint programId) const;
 
 private:
   static std::vector<std::string> loadSource(const std::filesystem::path& path);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

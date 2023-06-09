@@ -31,7 +31,7 @@ protected:
 
 public:
   Exception() noexcept;
-  explicit Exception(std::string&& str) noexcept;
+  explicit Exception(std::string str) noexcept;
 
   const char* what() const noexcept override;
 };

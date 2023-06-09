@@ -29,29 +29,20 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-ShaderManager::ShaderManager()
-  : m_currentProgram(nullptr)
-{
-}
-
-ShaderManager::~ShaderManager() = default;
 
 ShaderProgram& ShaderManager::program(const ShaderConfig& config)
 {
-  auto it = m_programs.find(&config);
-  if (it != std::end(m_programs))
+  auto it = m_programs.find(config.name());
+  if (it == std::end(m_programs))
   {
-    return *it->second;
+    auto inserted = false;
+    std::tie(it, inserted) = m_programs.emplace(config.name(), createProgram(config));
+    assert(inserted);
   }
 
-  auto result = m_programs.emplace(&config, createProgram(config));
-  assert(result.second);
-
-  return *(result.first->second);
+  return *it->second;
 }
 
 ShaderProgram* ShaderManager::currentProgram()
@@ -70,13 +61,13 @@ std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& 
 
   for (const auto& path : config.vertexShaders())
   {
-    Shader& shader = loadShader(path, GL_VERTEX_SHADER);
+    auto& shader = loadShader(path, GL_VERTEX_SHADER);
     program->attach(shader);
   }
 
   for (const auto& path : config.fragmentShaders())
   {
-    Shader& shader = loadShader(path, GL_FRAGMENT_SHADER);
+    auto& shader = loadShader(path, GL_FRAGMENT_SHADER);
     program->attach(shader);
   }
 
@@ -86,17 +77,18 @@ std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& 
 Shader& ShaderManager::loadShader(const std::string& name, const GLenum type)
 {
   auto it = m_shaders.find(name);
-  if (it != std::end(m_shaders))
+  if (it == std::end(m_shaders))
   {
-    return *it->second;
+    const auto shaderPath =
+      IO::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
+
+    auto inserted = false;
+    std::tie(it, inserted) =
+      m_shaders.emplace(name, std::make_unique<Shader>(shaderPath, type));
+    assert(inserted);
   }
 
-  const auto shaderPath =
-    IO::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
-  auto result = m_shaders.emplace(name, std::make_unique<Shader>(shaderPath, type));
-  assert(result.second);
-
-  return *(result.first->second);
+  return *it->second;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

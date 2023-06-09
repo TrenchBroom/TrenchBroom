@@ -25,7 +25,7 @@ namespace TrenchBroom
 {
 Exception::Exception() noexcept {}
 
-Exception::Exception(std::string&& str) noexcept
+Exception::Exception(std::string str) noexcept
   : m_msg(std::move(str))
 {
 }

@@ -21,13 +21,11 @@
 
 #include "Renderer/GL.h"
 
-#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Shader;
 class ShaderConfig;
@@ -37,17 +35,13 @@ class ShaderManager
 {
 private:
   friend class ShaderProgram;
-  using ShaderCache = std::map<std::string, std::unique_ptr<Shader>>;
+  using ShaderCache = std::unordered_map<std::string, std::unique_ptr<Shader>>;
   using ShaderProgramCache =
-    std::map<const ShaderConfig*, std::unique_ptr<ShaderProgram>>;
+    std::unordered_map<std::string, std::unique_ptr<ShaderProgram>>;
 
   ShaderCache m_shaders;
   ShaderProgramCache m_programs;
-  ShaderProgram* m_currentProgram;
-
-public:
-  ShaderManager();
-  ~ShaderManager();
+  ShaderProgram* m_currentProgram{nullptr};
 
 public:
   ShaderProgram& program(const ShaderConfig& config);
@@ -56,7 +50,6 @@ public:
 private:
   void setCurrentProgram(ShaderProgram* program);
   std::unique_ptr<ShaderProgram> createProgram(const ShaderConfig& config);
-  Shader& loadShader(const std::string& name, const GLenum type);
+  Shader& loadShader(const std::string& name, GLenum type);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

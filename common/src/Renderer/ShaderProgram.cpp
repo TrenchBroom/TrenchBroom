@@ -31,19 +31,18 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-ShaderProgram::ShaderProgram(ShaderManager* shaderManager, const std::string& name)
-  : m_name(name)
-  , m_programId(glCreateProgram())
-  , m_needsLinking(true)
-  , m_shaderManager(shaderManager)
+
+ShaderProgram::ShaderProgram(ShaderManager* shaderManager, std::string name)
+  : m_shaderManager{shaderManager}
+  , m_name{std::move(name)}
+  , m_programId{glCreateProgram()}
+  , m_needsLinking{true}
 {
   if (m_programId == 0)
   {
-    throw RenderException("Cannot create shader program " + m_name);
+    throw RenderException{"Cannot create shader program " + m_name};
   }
 }
 
@@ -75,7 +74,9 @@ void ShaderProgram::activate()
   assert(m_programId != 0);
 
   if (m_needsLinking)
+  {
     link();
+  }
 
   glAssert(glUseProgram(m_programId));
   assert(checkActive());
@@ -92,7 +93,7 @@ void ShaderProgram::deactivate()
 
 void ShaderProgram::set(const std::string& name, const bool value)
 {
-  return set(name, static_cast<int>(value));
+  return set(name, int(value));
 }
 
 void ShaderProgram::set(const std::string& name, const int value)
@@ -104,7 +105,7 @@ void ShaderProgram::set(const std::string& name, const int value)
 void ShaderProgram::set(const std::string& name, const size_t value)
 {
   assert(checkActive());
-  glAssert(glUniform1i(findUniformLocation(name), static_cast<int>(value)));
+  glAssert(glUniform1i(findUniformLocation(name), int(value)));
 }
 
 void ShaderProgram::set(const std::string& name, const float value)
@@ -163,31 +164,31 @@ void ShaderProgram::link()
 {
   glAssert(glLinkProgram(m_programId));
 
-  GLint linkStatus = 0;
+  auto linkStatus = GLint(0);
   glAssert(glGetProgramiv(m_programId, GL_LINK_STATUS, &linkStatus));
 
   if (linkStatus == 0)
   {
-    auto str = std::stringstream();
+    auto str = std::stringstream{};
     str << "Could not link shader program " << m_name << ": ";
 
-    GLint infoLogLength = 0;
+    auto infoLogLength = GLint(0);
     glAssert(glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength));
     if (infoLogLength > 0)
     {
-      auto infoLog = std::make_unique<char[]>(static_cast<size_t>(infoLogLength));
-      glAssert(
-        glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog.get()));
-      infoLog[static_cast<size_t>(infoLogLength - 1)] = 0;
+      auto infoLog = std::string{};
+      infoLog.resize(size_t(infoLogLength));
 
-      str << infoLog.get();
+      glAssert(
+        glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog.data()));
+      str << infoLog;
     }
     else
     {
       str << "Unknown error";
     }
 
-    throw RenderException(str.str());
+    throw RenderException{str.str()};
   }
 
   m_variableCache.clear();
@@ -199,18 +200,20 @@ GLint ShaderProgram::findAttributeLocation(const std::string& name) const
   auto it = m_attributeCache.find(name);
   if (it == std::end(m_attributeCache))
   {
-    GLint index;
+    auto index = GLint(0);
     glAssert(index = glGetAttribLocation(m_programId, name.c_str()));
     if (index == -1)
     {
-      throw RenderException(
+      throw RenderException{
         "Location of attribute '" + name + "' could not be found in shader program "
-        + m_name);
+        + m_name};
     }
 
-    m_attributeCache[name] = index;
-    return index;
+    auto inserted = false;
+    std::tie(it, inserted) = m_attributeCache.emplace(name, index);
+    assert(inserted);
   }
+
   return it->second;
 }
 
@@ -219,26 +222,28 @@ GLint ShaderProgram::findUniformLocation(const std::string& name) const
   auto it = m_variableCache.find(name);
   if (it == std::end(m_variableCache))
   {
-    GLint index;
+    auto index = GLint(0);
     glAssert(index = glGetUniformLocation(m_programId, name.c_str()));
     if (index == -1)
     {
-      throw RenderException(
+      throw RenderException{
         "Location of uniform variable '" + name
-        + "' could not be found in shader program " + m_name);
+        + "' could not be found in shader program " + m_name};
     }
 
-    m_variableCache[name] = index;
-    return index;
+    auto inserted = false;
+    std::tie(it, inserted) = m_variableCache.emplace(name, index);
+    assert(inserted);
   }
+
   return it->second;
 }
 
 bool ShaderProgram::checkActive() const
 {
-  GLint currentProgramId = -1;
+  auto currentProgramId = GLint(-1);
   glAssert(glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramId));
-  return static_cast<GLuint>(currentProgramId) == m_programId;
+  return GLuint(currentProgramId) == m_programId;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer
