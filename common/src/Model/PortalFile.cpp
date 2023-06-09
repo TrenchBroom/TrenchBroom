@@ -48,7 +48,7 @@ bool PortalFile::canLoad(const std::filesystem::path& path)
 {
   return IO::Disk::withInputStream(
            path, [](auto& stream) { return stream.is_open() && stream.good(); })
-    .if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; })
+    .transform_error([](const auto&) { return false; })
     .value();
 }
 

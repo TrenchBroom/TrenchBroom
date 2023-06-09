@@ -722,7 +722,7 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
     stream << report;
     std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
-  }).if_error([](const auto& e) {
+  }).transform_error([](const auto& e) {
     std::cerr << "could not write crash log: " << e.msg << std::endl;
   });
 
