@@ -46,6 +46,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace TrenchBroom
@@ -189,28 +190,27 @@ namespace
 {
 std::string readInfoComment(std::istream& stream, const std::string& name)
 {
-  constexpr auto MaxChars = 64u;
-  auto line = std::string{MaxChars};
-
   const auto expectedHeader = "// " + name + ": ";
 
-  stream.getline(line.data(), MaxChars);
+  auto lineBuffer = std::string{};
+  std::getline(stream, lineBuffer);
   if (stream.fail())
   {
     return "";
   }
 
-  if (line.substr(0, expectedHeader.size()) != expectedHeader)
+  const auto lineView = std::string_view{lineBuffer};
+  if (!kdl::cs::str_is_prefix(lineView, expectedHeader))
   {
     return "";
   }
 
-  auto result = line.substr(expectedHeader.size());
+  auto result = lineView.substr(expectedHeader.size());
   if (!result.empty() && result.back() == '\r')
   {
-    result.pop_back();
+    result = result.substr(0, result.length() - 1);
   }
-  return result;
+  return std::string{result};
 }
 } // namespace
 

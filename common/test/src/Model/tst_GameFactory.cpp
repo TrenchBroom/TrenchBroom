@@ -110,5 +110,40 @@ TEST_CASE("GameFactory.initialize")
   CHECK(gameConfig.compilationConfig.profiles.size() == 1);
   CHECK(gameConfig.gameEngineConfig.profiles.size() == 1);
 }
+
+TEST_CASE("GameFactory.detectGame")
+{
+  using namespace std::string_literals;
+
+  auto env = IO::TestEnvironment{setupTestEnvironment};
+
+  auto& gameFactory = GameFactory::instance();
+  REQUIRE_NOTHROW(
+    gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}));
+
+  const auto detectGame = [&](const auto& mapFile) {
+    return env.withTempFile(
+      mapFile, [&](const auto& path) { return gameFactory.detectGame(path); });
+  };
+
+  CHECK(detectGame(R"(// Game: Quake
+// Format: Quake2
+)") == std::pair{"Quake"s, MapFormat::Quake2});
+
+
+  CHECK(detectGame(R"(// Game: Quake
+// Format: Quake2
+{
+"classname" "worldspawn"
+{
+( -712 1280 -448 ) ( -904 1280 -448 ) ( -904 992 -448 ) attribsExplicit 56 -32 0 1 1 8 9 700
+( -904 992 -416 ) ( -904 1280 -416 ) ( -712 1280 -416 ) attribsOmitted 32 32 0 1 1
+( -832 968 -416 ) ( -832 1256 -416 ) ( -832 1256 -448 ) attribsExplicitlyZero 16 96 0 1 1 0 0 0
+( -920 1088 -448 ) ( -920 1088 -416 ) ( -680 1088 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0
+( -968 1152 -448 ) ( -920 1152 -448 ) ( -944 1152 -416 ) rtz/c_mf_v3c 56 96 0 1 1 0 0 0
+( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
+}
+})") == std::pair{"Quake"s, MapFormat::Quake2});
+}
 } // namespace Model
 } // namespace TrenchBroom

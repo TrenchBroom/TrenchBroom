@@ -21,7 +21,6 @@
 
 #include "IO/PathQt.h"
 #include "Macros.h"
-#include "Uuid.h"
 
 #include <fstream>
 #include <string>
@@ -98,5 +97,6 @@ std::string TestEnvironment::loadFile(const std::filesystem::path& path) const
   auto stream = std::ifstream{m_dir / path, std::ios::in};
   return std::string{std::istreambuf_iterator<char>{stream}, {}};
 }
+
 } // namespace IO
 } // namespace TrenchBroom

@@ -19,6 +19,11 @@
 
 #pragma once
 
+#include "IO/DiskIO.h"
+#include "Uuid.h"
+
+#include "kdl/invoke.h"
+
 #include <filesystem>
 #include <functional>
 #include <string>
@@ -53,6 +58,20 @@ public:
   bool fileExists(const std::filesystem::path& path) const;
 
   std::string loadFile(const std::filesystem::path& path) const;
+
+  template <typename F>
+  auto withTempFile(const std::string& contents, const F& f)
+  {
+    const auto path = m_dir / generateUuid();
+    auto removeFile = kdl::invoke_later{[&]() {
+      // ignore errors
+      auto error = std::error_code{};
+      std::filesystem::remove(path, error);
+    }};
+
+    Disk::withOutputStream(path, [&](auto& stream) { stream << contents; });
+    return f(path);
+  }
 };
 } // namespace IO
 } // namespace TrenchBroom
