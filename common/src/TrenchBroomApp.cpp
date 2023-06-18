@@ -192,7 +192,10 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
 #endif
 }
 
-TrenchBroomApp::~TrenchBroomApp() = default;
+TrenchBroomApp::~TrenchBroomApp()
+{
+  PreferenceManager::destroyInstance();
+}
 
 void TrenchBroomApp::parseCommandLineAndShowFrame()
 {

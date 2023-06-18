@@ -69,6 +69,12 @@ public:
     m_initialized = false;
   }
 
+  static void destroyInstance()
+  {
+    m_instance.reset();
+    m_initialized = false;
+  }
+
   template <typename T>
   Preference<T>& dynamicPreference(const std::filesystem::path& path, T&& defaultValue)
   {

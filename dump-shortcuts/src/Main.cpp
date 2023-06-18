@@ -251,6 +251,8 @@ int main(int argc, char* argv[])
   TrenchBroom::View::printMenuShortcuts(out);
   TrenchBroom::View::printActionShortcuts(out);
 
+  TrenchBroom::PreferenceManager::destroyInstance();
+
   out.flush();
   if (out.status() == QTextStream::Ok)
   {
