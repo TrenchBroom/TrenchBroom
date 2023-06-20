@@ -20,10 +20,14 @@
 #include "ShaderManager.h"
 
 #include "Ensure.h"
+#include "Exceptions.h"
 #include "IO/SystemPaths.h"
+#include "Renderer/RenderError.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderConfig.h"
 #include "Renderer/ShaderProgram.h"
+
+#include <kdl/result.h>
 
 #include <cassert>
 #include <filesystem>
@@ -32,14 +36,28 @@
 namespace TrenchBroom::Renderer
 {
 
+kdl::result<void, RenderError> ShaderManager::loadProgram(const ShaderConfig& config)
+{
+  try
+  {
+    if (!m_programs.emplace(config.name(), createProgram(config)).second)
+    {
+      return RenderError{"Shader program '" + config.name() + "' already loaded"};
+    }
+    return kdl::void_success;
+  }
+  catch (const Exception& e)
+  {
+    return RenderError{e.what()};
+  }
+}
+
 ShaderProgram& ShaderManager::program(const ShaderConfig& config)
 {
   auto it = m_programs.find(config.name());
   if (it == std::end(m_programs))
   {
-    auto inserted = false;
-    std::tie(it, inserted) = m_programs.emplace(config.name(), createProgram(config));
-    assert(inserted);
+    throw RenderException{"Unknown shader program '" + config.name() + "'"};
   }
 
   return *it->second;

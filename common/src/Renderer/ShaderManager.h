@@ -21,12 +21,15 @@
 
 #include "Renderer/GL.h"
 
+#include <kdl/result_forward.h>
+
 #include <memory>
 #include <string>
 #include <unordered_map>
 
 namespace TrenchBroom::Renderer
 {
+struct RenderError;
 class Shader;
 class ShaderConfig;
 class ShaderProgram;
@@ -44,6 +47,7 @@ private:
   ShaderProgram* m_currentProgram{nullptr};
 
 public:
+  kdl::result<void, RenderError> loadProgram(const ShaderConfig& config);
   ShaderProgram& program(const ShaderConfig& config);
   ShaderProgram* currentProgram();
 
