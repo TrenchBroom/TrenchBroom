@@ -20,27 +20,25 @@
 #pragma once
 
 #include "Renderer/GL.h"
+#include "Renderer/Shader.h"
+#include "Renderer/ShaderProgram.h"
 
 #include <kdl/result_forward.h>
 
-#include <memory>
 #include <string>
 #include <unordered_map>
 
 namespace TrenchBroom::Renderer
 {
 struct RenderError;
-class Shader;
 class ShaderConfig;
-class ShaderProgram;
 
 class ShaderManager
 {
 private:
   friend class ShaderProgram;
-  using ShaderCache = std::unordered_map<std::string, std::unique_ptr<Shader>>;
-  using ShaderProgramCache =
-    std::unordered_map<std::string, std::unique_ptr<ShaderProgram>>;
+  using ShaderCache = std::unordered_map<std::string, Shader>;
+  using ShaderProgramCache = std::unordered_map<std::string, ShaderProgram>;
 
   ShaderCache m_shaders;
   ShaderProgramCache m_programs;
@@ -53,7 +51,7 @@ public:
 
 private:
   void setCurrentProgram(ShaderProgram* program);
-  std::unique_ptr<ShaderProgram> createProgram(const ShaderConfig& config);
+  ShaderProgram createProgram(const ShaderConfig& config);
   Shader& loadShader(const std::string& name, GLenum type);
 };
 } // namespace TrenchBroom::Renderer

@@ -24,7 +24,6 @@
 
 #include <vecmath/forward.h>
 
-#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -43,17 +42,22 @@ private:
   std::string m_name;
 
   GLuint m_programId;
-  bool m_needsLinking;
 
   mutable UniformVariableCache m_variableCache;
   mutable AttributeLocationCache m_attributeCache;
 
 public:
   ShaderProgram(std::string name, GLuint programId);
+
+  deleteCopy(ShaderProgram);
+
+  ShaderProgram(ShaderProgram&& other) noexcept;
+  ShaderProgram& operator=(ShaderProgram&& other) noexcept;
+
   ~ShaderProgram();
 
-  void attach(Shader& shader);
-  void detach(Shader& shader);
+  void attach(Shader& shader) const;
+  void link();
 
   void activate(ShaderManager& shaderManager);
   void deactivate(ShaderManager& shaderManager);
@@ -73,13 +77,10 @@ public:
   GLint findAttributeLocation(const std::string& name) const;
 
 private:
-  void link();
   GLint findUniformLocation(const std::string& name) const;
   bool checkActive() const;
-
-  moveOnly(ShaderProgram);
 };
 
-std::unique_ptr<ShaderProgram> createShaderProgram(std::string name);
+ShaderProgram createShaderProgram(std::string name);
 
 } // namespace TrenchBroom::Renderer

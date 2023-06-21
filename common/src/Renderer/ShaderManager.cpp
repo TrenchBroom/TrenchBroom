@@ -23,9 +23,7 @@
 #include "Exceptions.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/RenderError.h"
-#include "Renderer/Shader.h"
 #include "Renderer/ShaderConfig.h"
-#include "Renderer/ShaderProgram.h"
 
 #include <kdl/result.h>
 
@@ -60,7 +58,7 @@ ShaderProgram& ShaderManager::program(const ShaderConfig& config)
     throw RenderException{"Unknown shader program '" + config.name() + "'"};
   }
 
-  return *it->second;
+  return it->second;
 }
 
 ShaderProgram* ShaderManager::currentProgram()
@@ -73,20 +71,20 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
   m_currentProgram = program;
 }
 
-std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
+ShaderProgram ShaderManager::createProgram(const ShaderConfig& config)
 {
   auto program = createShaderProgram(config.name());
 
   for (const auto& path : config.vertexShaders())
   {
     auto& shader = loadShader(path, GL_VERTEX_SHADER);
-    program->attach(shader);
+    program.attach(shader);
   }
 
   for (const auto& path : config.fragmentShaders())
   {
     auto& shader = loadShader(path, GL_FRAGMENT_SHADER);
-    program->attach(shader);
+    program.attach(shader);
   }
 
   return program;
@@ -106,7 +104,7 @@ Shader& ShaderManager::loadShader(const std::string& name, const GLenum type)
     assert(inserted);
   }
 
-  return *it->second;
+  return it->second;
 }
 
 } // namespace TrenchBroom::Renderer

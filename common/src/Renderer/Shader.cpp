@@ -42,6 +42,21 @@ Shader::Shader(std::string name, const GLenum type, const GLuint shaderId)
   assert(m_shaderId != 0);
 }
 
+Shader::Shader(Shader&& other) noexcept
+  : m_name{std::move(other.m_name)}
+  , m_type{other.m_type}
+  , m_shaderId{std::exchange(other.m_shaderId, 0)}
+{
+}
+
+Shader& Shader::operator=(Shader&& other) noexcept
+{
+  m_name = std::move(other.m_name);
+  m_type = other.m_type;
+  m_shaderId = std::exchange(other.m_shaderId, 0);
+  return *this;
+}
+
 Shader::~Shader()
 {
   if (m_shaderId != 0)
@@ -53,17 +68,12 @@ Shader::~Shader()
 
 void Shader::attach(const GLuint programId) const
 {
+  assert(m_shaderId != 0);
   glAssert(glAttachShader(programId, m_shaderId));
-}
-
-void Shader::detach(const GLuint programId) const
-{
-  glAssert(glDetachShader(programId, m_shaderId));
 }
 
 namespace
 {
-
 
 std::vector<std::string> loadSource(const std::filesystem::path& path)
 {
@@ -103,7 +113,7 @@ std::string getInfoLog(const GLuint shaderId)
 
 } // namespace
 
-std::unique_ptr<Shader> loadShader(const std::filesystem::path& path, const GLenum type)
+Shader loadShader(const std::filesystem::path& path, const GLenum type)
 {
   auto name = path.filename().string();
   auto shaderId = GLuint{0};
@@ -130,7 +140,7 @@ std::unique_ptr<Shader> loadShader(const std::filesystem::path& path, const GLen
       "Could not compile shader '" + name + "': " + getInfoLog(shaderId)};
   }
 
-  return std::make_unique<Shader>(std::move(name), type, shaderId);
+  return {std::move(name), type, shaderId};
 }
 
 } // namespace TrenchBroom::Renderer

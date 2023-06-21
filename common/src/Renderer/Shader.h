@@ -39,14 +39,17 @@ private:
 
 public:
   Shader(std::string name, GLenum type, GLuint shaderId);
+
+  deleteCopy(Shader);
+
+  Shader(Shader&& other) noexcept;
+  Shader& operator=(Shader&& other) noexcept;
+
   ~Shader();
 
   void attach(GLuint programId) const;
-  void detach(GLuint programId) const;
-
-  moveOnly(Shader);
 };
 
-std::unique_ptr<Shader> loadShader(const std::filesystem::path& path, GLenum type);
+Shader loadShader(const std::filesystem::path& path, GLenum type);
 
 } // namespace TrenchBroom::Renderer
