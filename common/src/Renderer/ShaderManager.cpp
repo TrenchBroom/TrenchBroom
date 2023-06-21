@@ -75,7 +75,7 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
 
 std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
 {
-  auto program = std::make_unique<ShaderProgram>(this, config.name());
+  auto program = createShaderProgram(config.name());
 
   for (const auto& path : config.vertexShaders())
   {

@@ -19,10 +19,12 @@
 
 #pragma once
 
+#include "Macros.h"
 #include "Renderer/GL.h"
 
 #include <vecmath/forward.h>
 
+#include <memory>
 #include <string>
 #include <unordered_map>
 
@@ -38,7 +40,6 @@ private:
   using UniformVariableCache = std::unordered_map<std::string, GLint>;
   using AttributeLocationCache = std::unordered_map<std::string, GLint>;
 
-  ShaderManager* m_shaderManager;
   std::string m_name;
 
   GLuint m_programId;
@@ -48,14 +49,14 @@ private:
   mutable AttributeLocationCache m_attributeCache;
 
 public:
-  explicit ShaderProgram(ShaderManager* shaderManager, std::string name);
+  ShaderProgram(std::string name, GLuint programId);
   ~ShaderProgram();
 
   void attach(Shader& shader);
   void detach(Shader& shader);
 
-  void activate();
-  void deactivate();
+  void activate(ShaderManager& shaderManager);
+  void deactivate(ShaderManager& shaderManager);
 
   void set(const std::string& name, bool value);
   void set(const std::string& name, int value);
@@ -75,6 +76,10 @@ private:
   void link();
   GLint findUniformLocation(const std::string& name) const;
   bool checkActive() const;
+
+  moveOnly(ShaderProgram);
 };
+
+std::unique_ptr<ShaderProgram> createShaderProgram(std::string name);
 
 } // namespace TrenchBroom::Renderer

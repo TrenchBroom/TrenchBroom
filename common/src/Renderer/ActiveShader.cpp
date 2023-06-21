@@ -27,14 +27,15 @@ namespace Renderer
 {
 
 ActiveShader::ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig)
-  : m_program(shaderManager.program(shaderConfig))
+  : m_shaderManager{shaderManager}
+  , m_program{shaderManager.program(shaderConfig)}
 {
-  m_program.activate();
+  m_program.activate(m_shaderManager);
 }
 
 ActiveShader::~ActiveShader()
 {
-  m_program.deactivate();
+  m_program.deactivate(m_shaderManager);
 }
 } // namespace Renderer
 } // namespace TrenchBroom
