@@ -19,29 +19,34 @@
 
 #pragma once
 
+#include "Macros.h"
 #include "Renderer/GL.h"
 
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom::Renderer
 {
+
 class Shader
 {
 private:
   std::string m_name;
   GLenum m_type;
-  GLuint m_shaderId{0};
+  GLuint m_shaderId;
 
 public:
-  Shader(const std::filesystem::path& path, GLenum type);
+  Shader(std::string name, GLenum type, GLuint shaderId);
   ~Shader();
 
   void attach(GLuint programId) const;
   void detach(GLuint programId) const;
 
-private:
-  static std::vector<std::string> loadSource(const std::filesystem::path& path);
+  moveOnly(Shader);
 };
+
+std::unique_ptr<Shader> loadShader(const std::filesystem::path& path, GLenum type);
+
 } // namespace TrenchBroom::Renderer

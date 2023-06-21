@@ -102,7 +102,7 @@ Shader& ShaderManager::loadShader(const std::string& name, const GLenum type)
 
     auto inserted = false;
     std::tie(it, inserted) =
-      m_shaders.emplace(name, std::make_unique<Shader>(shaderPath, type));
+      m_shaders.emplace(name, Renderer::loadShader(shaderPath, type));
     assert(inserted);
   }
 
