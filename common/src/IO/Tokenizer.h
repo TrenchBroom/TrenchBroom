@@ -419,7 +419,7 @@ protected:
       readDigits();
     }
 
-    if (curChar() == 'e')
+    if (curChar() == 'e' || curChar() == 'E')
     {
       advance();
       if (curChar() == '+' || curChar() == '-' || isDigit(curChar()))
