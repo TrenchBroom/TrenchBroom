@@ -20,6 +20,7 @@
 #include "TextureBrowserView.h"
 
 #include <QClipboard>
+#include <QImage>
 #include <QMenu>
 #include <QTextStream>
 
@@ -664,11 +665,15 @@ void TextureBrowserView::doContextMenu(
         doc->selectFacesWithTexture(texture);
       });
 
+      menu.addSeparator();
+
+      const auto textureName = QString::fromStdString(texture->name());
+
+      auto* copyMenu = menu.addMenu(tr("Copy %1").arg(textureName));
+
       const auto clipboard = QApplication::clipboard();
 
-      menu.addAction(tr("Copy name to clipboard"), this, [=] {
-        const auto textureName = QString::fromStdString(texture->name());
-
+      copyMenu->addAction(tr("Name to clipboard"), this, [=] {
         clipboard->setText(textureName, QClipboard::Clipboard);
 
         if (clipboard->supportsSelection())
@@ -676,6 +681,57 @@ void TextureBrowserView::doContextMenu(
           clipboard->setText(textureName, QClipboard::Selection);
         }
       });
+
+      const auto textureFormat = texture->format();
+
+      auto clipboardImgFormat = QImage::Format_Invalid;
+      auto clipboardImgInvertChannels = false;
+
+      switch (textureFormat)
+      {
+      case GL_RGB:
+        clipboardImgInvertChannels = true;
+        [[fallthrough]];
+
+      case GL_BGR:
+        clipboardImgFormat = QImage::Format_RGB32;
+        break;
+
+      case GL_RGBA:
+        clipboardImgInvertChannels = true;
+        [[fallthrough]];
+
+      case GL_BGRA:
+        clipboardImgFormat = QImage::Format_ARGB32;
+        break;
+      }
+
+      const auto copyTextureAction =
+        copyMenu->addAction(tr("Texture to clipboard"), this, [=] {
+          const auto& buffers = texture->buffers();
+
+          auto originalImg = QImage(
+            buffers.front().data(),
+            static_cast<int>(texture->width()),
+            static_cast<int>(texture->height()),
+            clipboardImgFormat);
+
+          const auto maybeSwappedImg = clipboardImgInvertChannels
+                                         ? originalImg.rgbSwapped()
+                                         : std::move(originalImg);
+
+          clipboard->setImage(maybeSwappedImg, QClipboard::Clipboard);
+
+          if (clipboard->supportsSelection())
+          {
+            clipboard->setImage(maybeSwappedImg, QClipboard::Selection);
+          }
+        });
+
+      if (clipboardImgFormat == QImage::Format_Invalid or texture->buffers().empty())
+      {
+        copyTextureAction->setDisabled(true);
+      }
 
       menu.exec(event->globalPos());
     }

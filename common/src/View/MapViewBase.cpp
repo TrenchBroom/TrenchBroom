@@ -21,6 +21,7 @@
 
 #include <QClipboard>
 #include <QDebug>
+#include <QImage>
 #include <QMenu>
 #include <QMimeData>
 #include <QShortcut>
@@ -30,6 +31,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
+#include "Assets/Texture.h"
 #include "FloatType.h"
 #include "Logger.h"
 #include "Model/BezierPatch.h"
@@ -1344,31 +1346,78 @@ void MapViewBase::showPopupMenuLater()
   if (faceHandle)
   {
     const auto* texture = faceHandle->face().texture();
-    menu.addAction(
-      tr("Reveal %1 in Texture Browser")
-        .arg(QString::fromStdString(faceHandle->face().attributes().textureName())),
-      mapFrame,
-      [=] { mapFrame->revealTexture(texture); });
+    const auto textureName =
+      QString::fromStdString(faceHandle->face().attributes().textureName());
+
+    menu.addAction(tr("Reveal %1 in Texture Browser").arg(textureName), mapFrame, [=] {
+      mapFrame->revealTexture(texture);
+      mapFrame->revealTexture(texture);
+    });
 
     menu.addSeparator();
 
+    auto* copyMenu = menu.addMenu(tr("Copy %1").arg(textureName));
+
     const auto clipboard = QApplication::clipboard();
 
-    menu.addAction(
-      tr("Copy texture name %1 to clipboard")
-        .arg(QString::fromStdString(faceHandle->face().attributes().textureName())),
-      mapFrame,
-      [=] {
-        const auto text =
-          QString::fromStdString(faceHandle->face().attributes().textureName());
+    copyMenu->addAction(tr("Name to clipboard"), mapFrame, [=] {
+      clipboard->setText(textureName, QClipboard::Clipboard);
 
-        clipboard->setText(text, QClipboard::Clipboard);
+      if (clipboard->supportsSelection())
+      {
+        clipboard->setText(textureName, QClipboard::Selection);
+      }
+    });
+
+    const auto textureFormat = texture->format();
+
+    auto clipboardImgFormat = QImage::Format_Invalid;
+    auto clipboardImgInvertChannels = false;
+
+    switch (textureFormat)
+    {
+    case GL_RGB:
+      clipboardImgInvertChannels = true;
+      [[fallthrough]];
+
+    case GL_BGR:
+      clipboardImgFormat = QImage::Format_RGB32;
+      break;
+
+    case GL_RGBA:
+      clipboardImgInvertChannels = true;
+      [[fallthrough]];
+
+    case GL_BGRA:
+      clipboardImgFormat = QImage::Format_ARGB32;
+      break;
+    }
+
+    const auto copyTextureAction =
+      copyMenu->addAction(tr("Texture to clipboard"), mapFrame, [=] {
+        const auto& buffers = texture->buffers();
+
+        auto originalImg = QImage(
+          buffers.front().data(),
+          static_cast<int>(texture->width()),
+          static_cast<int>(texture->height()),
+          clipboardImgFormat);
+
+        const auto maybeSwappedImg =
+          clipboardImgInvertChannels ? originalImg.rgbSwapped() : std::move(originalImg);
+
+        clipboard->setImage(maybeSwappedImg, QClipboard::Clipboard);
 
         if (clipboard->supportsSelection())
         {
-          clipboard->setText(text, QClipboard::Selection);
+          clipboard->setImage(maybeSwappedImg, QClipboard::Selection);
         }
       });
+
+    if (clipboardImgFormat == QImage::Format_Invalid or texture->buffers().empty())
+    {
+      copyTextureAction->setDisabled(true);
+    }
 
     menu.addSeparator();
   }
