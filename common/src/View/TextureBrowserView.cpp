@@ -19,6 +19,7 @@
 
 #include "TextureBrowserView.h"
 
+#include <QClipboard>
 #include <QMenu>
 #include <QTextStream>
 
@@ -662,6 +663,20 @@ void TextureBrowserView::doContextMenu(
         auto doc = kdl::mem_lock(m_document);
         doc->selectFacesWithTexture(texture);
       });
+
+      const auto clipboard = QApplication::clipboard();
+
+      menu.addAction(tr("Copy name to clipboard"), this, [=] {
+        const auto textureName = QString::fromStdString(texture->name());
+
+        clipboard->setText(textureName, QClipboard::Clipboard);
+
+        if (clipboard->supportsSelection())
+        {
+          clipboard->setText(textureName, QClipboard::Selection);
+        }
+      });
+
       menu.exec(event->globalPos());
     }
   }

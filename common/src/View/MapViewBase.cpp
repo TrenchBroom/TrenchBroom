@@ -19,6 +19,7 @@
 
 #include "MapViewBase.h"
 
+#include <QClipboard>
 #include <QDebug>
 #include <QMenu>
 #include <QMimeData>
@@ -1348,6 +1349,26 @@ void MapViewBase::showPopupMenuLater()
         .arg(QString::fromStdString(faceHandle->face().attributes().textureName())),
       mapFrame,
       [=] { mapFrame->revealTexture(texture); });
+
+    menu.addSeparator();
+
+    const auto clipboard = QApplication::clipboard();
+
+    menu.addAction(
+      tr("Copy texture name %1 to clipboard")
+        .arg(QString::fromStdString(faceHandle->face().attributes().textureName())),
+      mapFrame,
+      [=] {
+        const auto text =
+          QString::fromStdString(faceHandle->face().attributes().textureName());
+
+        clipboard->setText(text, QClipboard::Clipboard);
+
+        if (clipboard->supportsSelection())
+        {
+          clipboard->setText(text, QClipboard::Selection);
+        }
+      });
 
     menu.addSeparator();
   }
