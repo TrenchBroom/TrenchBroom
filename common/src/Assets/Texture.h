@@ -238,9 +238,8 @@ public:
 public: // exposed for tests only
   /**
    * Returns the texture data in the format returned by format().
-   * Once prepare() is called, this will be an empty vector.
    */
-  const BufferList& buffersIfUnprepared() const;
+  const BufferList& buffers() const;
   /**
    * Will be one of GL_RGB, GL_BGR, GL_RGBA, GL_BGRA.
    */

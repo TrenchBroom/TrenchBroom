@@ -460,7 +460,7 @@ int getComponentOfPixel(
     }
   }
 
-  const auto& mip0DataBuffer = texture.buffersIfUnprepared().at(0);
+  const auto& mip0DataBuffer = texture.buffers().at(0);
   assert(texture.width() * texture.height() * 4 == mip0DataBuffer.size());
   assert(x < texture.width());
   assert(y < texture.height());

@@ -84,7 +84,7 @@ static void testImageContents(const Assets::Texture& texture, const ColorMatch m
 
   CHECK(texture.width() == w);
   CHECK(texture.height() == h);
-  CHECK(texture.buffersIfUnprepared().size() == 1u);
+  CHECK(texture.buffers().size() == 1u);
   CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
   CHECK(texture.type() == Assets::TextureType::Opaque);
 
@@ -129,11 +129,11 @@ TEST_CASE("ReadFreeImageTextureTest.alphaMaskTest")
 
   CHECK(texture.width() == w);
   CHECK(texture.height() == h);
-  CHECK(texture.buffersIfUnprepared().size() == 1u);
+  CHECK(texture.buffers().size() == 1u);
   CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
   CHECK(texture.type() == Assets::TextureType::Masked);
 
-  auto& mip0Data = texture.buffersIfUnprepared().at(0);
+  auto& mip0Data = texture.buffers().at(0);
   CHECK(mip0Data.size() == w * h * 4);
 
   for (std::size_t y = 0; y < h; ++y)

@@ -372,9 +372,8 @@ bool Texture::isPrepared() const
 void Texture::prepare(const GLuint textureId, const int minFilter, const int magFilter)
 {
   assert(textureId > 0);
-  assert(m_textureId == 0);
 
-  if (!m_buffers.empty())
+  if (not isPrepared())
   {
     const auto compressed = isCompressedFormat(m_format);
 
@@ -447,7 +446,6 @@ void Texture::prepare(const GLuint textureId, const int minFilter, const int mag
       }
     }
 
-    m_buffers.clear();
     m_textureId = textureId;
   }
 }
@@ -539,7 +537,7 @@ void Texture::deactivate() const
   }
 }
 
-const Texture::BufferList& Texture::buffersIfUnprepared() const
+const Texture::BufferList& Texture::buffers() const
 {
   return m_buffers;
 }
