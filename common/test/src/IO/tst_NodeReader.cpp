@@ -120,5 +120,32 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups")
     dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem())
     != nullptr);
 }
+
+TEST_CASE("NodeReaderTest.readScientificNotation")
+{
+  // https://github.com/TrenchBroom/TrenchBroom/issues/4270
+
+  const auto data = R"(
+{
+"classname" "worldspawn"
+"sounds" "1"
+"MaxRange" "4096"
+"mapversion" "220"
+{
+( 112 16 16 ) ( 112 16 17 ) ( 112 15 16 ) __TB_empty [ -1.8369701E-16 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1 
+( 128 0 32 ) ( 128 0 33 ) ( 129 0 32 ) __TB_empty [ 1 -1.8369701e-16 0 0 ] [ 0 0 -1 0 ] 0 1 1 
+( 112 16 16 ) ( 112 15 16 ) ( 113 16 16 ) __TB_empty [ 1.8369701e-16 1 0 0 ] [ -1 1.8369701E-16 0 0 ] 270 1 1 
+( 128 0 80 ) ( 129 0 80 ) ( 128 -1 80 ) __TB_empty [ -1.8369701e-16 -1 0 0 ] [ -1 1.8369701E-16 0 0 ] 90 1 1 
+( 112 16 16 ) ( 113 16 16 ) ( 112 16 17 ) __TB_empty [ -1 1.8369701E-16 0 0 ] [ 0 0 -1 0 ] 0 1 1 
+( 128 0 32 ) ( 128 -1 32 ) ( 128 0 33 ) __TB_empty [ 1.8369701e-16 1 0 0 ] [ 0 0 -1 0 ] 0 1 1 
+}
+)";
+
+  const auto worldBounds = vm::bbox3{4096.0};
+  auto status = IO::TestParserStatus{};
+
+  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
+  CHECK(nodes.size() == 1);
+}
 } // namespace Model
 } // namespace TrenchBroom

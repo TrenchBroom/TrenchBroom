@@ -573,32 +573,27 @@ bool TrenchBroomApp::event(QEvent* event)
 }
 #endif
 
-bool TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
+void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
 {
-  if (!fileNames.isEmpty())
+  auto anyDocumentOpened = false;
+  if (useSDI())
   {
-    if (useSDI())
-    {
-      const auto path = IO::pathFromQString(fileNames.at(0));
-      if (!path.empty())
-      {
-        openDocument(path);
-      }
-    }
-    else
-    {
-      for (const auto& fileName : fileNames)
-      {
-        const auto path = IO::pathFromQString(fileName);
-        openDocument(path);
-      }
-    }
+    const auto path = IO::pathFromQString(fileNames.at(0));
+    anyDocumentOpened = !path.empty() && openDocument(path);
   }
   else
   {
+    for (const auto& fileName : fileNames)
+    {
+      const auto path = IO::pathFromQString(fileName);
+      anyDocumentOpened = anyDocumentOpened | (!path.empty() && openDocument(path));
+    }
+  }
+
+  if (!anyDocumentOpened)
+  {
     showWelcomeWindow();
   }
-  return true;
 }
 
 void TrenchBroomApp::showWelcomeWindow()

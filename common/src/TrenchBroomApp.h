@@ -89,7 +89,7 @@ public:
 #ifdef __APPLE__
   bool event(QEvent* event) override;
 #endif
-  bool openFilesOrWelcomeFrame(const QStringList& fileNames);
+  void openFilesOrWelcomeFrame(const QStringList& fileNames);
 
 public:
   void showWelcomeWindow();
