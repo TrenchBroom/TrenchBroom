@@ -573,7 +573,7 @@ void FaceAttribsEditor::connectObservers()
     this, &FaceAttribsEditor::brushFacesDidChange);
   m_notifierConnection += document->selectionDidChangeNotifier.connect(
     this, &FaceAttribsEditor::selectionDidChange);
-  m_notifierConnection += document->wadsDidChangeNotifier.connect(
+  m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
     this, &FaceAttribsEditor::textureCollectionsDidChange);
   m_notifierConnection += document->grid().gridDidChangeNotifier.connect(
     this, &FaceAttribsEditor::updateIncrements);
