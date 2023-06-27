@@ -128,8 +128,12 @@ macro(configure_app_target APP_TARGET_NAME SHOULD_BUILD_MANUAL)
         # Set CFBundleVersion to the git describe output. Apple docs say it should be "three non-negative, period-separated integers with the first integer being greater than zero"
         set_target_properties(${APP_TARGET_NAME} PROPERTIES MACOSX_BUNDLE_BUNDLE_VERSION "${GIT_DESCRIBE}")
 
+        # Set NSHumanReadableCopyright.
         string(TIMESTAMP TB_MACOSX_BUNDLE_COPYRIGHT "Copyright © %Y Kristian Duske. All rights reserved.")
         set_target_properties(${APP_TARGET_NAME} PROPERTIES MACOSX_BUNDLE_COPYRIGHT "${TB_MACOSX_BUNDLE_COPYRIGHT}")
+
+        # Set the path to the plist template
+        set_target_properties(${APP_TARGET_NAME} PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${APP_RESOURCE_DIR}/mac/TrenchBroom-Info.plist")
 
         # If requested, run macdeployqt which copies the Qt frameworks into the TrenchBroom.app bundle
         # and modifies the TrenchBroom executable to refer to these private copies of the framework instead
