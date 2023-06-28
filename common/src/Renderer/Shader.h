@@ -22,6 +22,8 @@
 #include "Macros.h"
 #include "Renderer/GL.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -29,6 +31,8 @@
 
 namespace TrenchBroom::Renderer
 {
+
+struct RenderError;
 
 class Shader
 {
@@ -50,6 +54,7 @@ public:
   void attach(GLuint programId) const;
 };
 
-Shader loadShader(const std::filesystem::path& path, GLenum type);
+kdl::result<Shader, RenderError> loadShader(
+  const std::filesystem::path& path, GLenum type);
 
 } // namespace TrenchBroom::Renderer

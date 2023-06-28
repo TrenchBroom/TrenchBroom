@@ -51,7 +51,8 @@ public:
 
 private:
   void setCurrentProgram(ShaderProgram* program);
-  ShaderProgram createProgram(const ShaderConfig& config);
-  Shader& loadShader(const std::string& name, GLenum type);
+  kdl::result<ShaderProgram, RenderError> createProgram(const ShaderConfig& config);
+  kdl::result<std::reference_wrapper<Shader>, RenderError> loadShader(
+    const std::string& name, GLenum type);
 };
 } // namespace TrenchBroom::Renderer

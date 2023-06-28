@@ -20,12 +20,12 @@
 #include "ShaderManager.h"
 
 #include "Ensure.h"
-#include "Exceptions.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/RenderError.h"
 #include "Renderer/ShaderConfig.h"
 
 #include <kdl/result.h>
+#include <kdl/result_fold.h>
 
 #include <cassert>
 #include <filesystem>
@@ -36,28 +36,20 @@ namespace TrenchBroom::Renderer
 
 kdl::result<void, RenderError> ShaderManager::loadProgram(const ShaderConfig& config)
 {
-  try
-  {
-    if (!m_programs.emplace(config.name(), createProgram(config)).second)
-    {
-      return RenderError{"Shader program '" + config.name() + "' already loaded"};
-    }
-    return kdl::void_success;
-  }
-  catch (const Exception& e)
-  {
-    return RenderError{e.what()};
-  }
+  return createProgram(config).and_then(
+    [&](auto program) -> kdl::result<void, RenderError> {
+      if (!m_programs.emplace(config.name(), std::move(program)).second)
+      {
+        return RenderError{"Shader program '" + config.name() + "' already loaded"};
+      }
+      return kdl::void_success;
+    });
 }
 
 ShaderProgram& ShaderManager::program(const ShaderConfig& config)
 {
   auto it = m_programs.find(config.name());
-  if (it == std::end(m_programs))
-  {
-    throw RenderException{"Unknown shader program '" + config.name() + "'"};
-  }
-
+  ensure(it != std::end(m_programs), "Shader program was previously loaded");
   return it->second;
 }
 
@@ -71,40 +63,55 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
   m_currentProgram = program;
 }
 
-ShaderProgram ShaderManager::createProgram(const ShaderConfig& config)
+kdl::result<ShaderProgram, RenderError> ShaderManager::createProgram(
+  const ShaderConfig& config)
 {
-  auto program = createShaderProgram(config.name());
-
-  for (const auto& path : config.vertexShaders())
-  {
-    auto& shader = loadShader(path, GL_VERTEX_SHADER);
-    program.attach(shader);
-  }
-
-  for (const auto& path : config.fragmentShaders())
-  {
-    auto& shader = loadShader(path, GL_FRAGMENT_SHADER);
-    program.attach(shader);
-  }
-
-  return program;
+  return createShaderProgram(config.name())
+    .and_then([&](auto program) {
+      return kdl::fold_results(
+               config.vertexShaders(),
+               [&](const auto& path) {
+                 return loadShader(path, GL_VERTEX_SHADER).transform([&](auto shader) {
+                   program.attach(shader.get());
+                 });
+               })
+        .transform([&]() { return std::move(program); });
+    })
+    .and_then([&](auto program) {
+      return kdl::fold_results(
+               config.fragmentShaders(),
+               [&](const auto& path) {
+                 return loadShader(path, GL_FRAGMENT_SHADER).transform([&](auto shader) {
+                   program.attach(shader.get());
+                 });
+               })
+        .transform([&]() { return std::move(program); });
+    })
+    .and_then([&](auto program) {
+      return program.link().transform([&]() { return std::move(program); });
+    });
 }
 
-Shader& ShaderManager::loadShader(const std::string& name, const GLenum type)
+kdl::result<std::reference_wrapper<Shader>, RenderError> ShaderManager::loadShader(
+  const std::string& name, const GLenum type)
 {
   auto it = m_shaders.find(name);
-  if (it == std::end(m_shaders))
+  if (it != std::end(m_shaders))
   {
-    const auto shaderPath =
-      IO::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
-
-    auto inserted = false;
-    std::tie(it, inserted) =
-      m_shaders.emplace(name, Renderer::loadShader(shaderPath, type));
-    assert(inserted);
+    return std::ref(it->second);
   }
 
-  return it->second;
+  const auto shaderPath =
+    IO::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
+
+  return Renderer::loadShader(shaderPath, type).transform([&](auto shader) {
+    const auto [insertIt, inserted] = m_shaders.emplace(name, std::move(shader));
+
+    assert(inserted);
+    unused(inserted);
+
+    return std::ref(insertIt->second);
+  });
 }
 
 } // namespace TrenchBroom::Renderer

@@ -19,9 +19,12 @@
 
 #include "ShaderProgram.h"
 
-#include "Exceptions.h"
+#include "Ensure.h"
+#include "Renderer/RenderError.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderManager.h"
+
+#include <kdl/result.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
@@ -90,7 +93,7 @@ std::string getInfoLog(const GLuint programId)
 }
 } // namespace
 
-void ShaderProgram::link()
+kdl::result<void, RenderError> ShaderProgram::link()
 {
   glAssert(glLinkProgram(m_programId));
 
@@ -99,11 +102,11 @@ void ShaderProgram::link()
 
   if (linkStatus == 0)
   {
-    throw RenderException{
+    return RenderError{
       "Could not link shader program '" + m_name + "': " + getInfoLog(m_programId)};
   }
 
-  m_variableCache.clear();
+  return kdl::void_success;
 }
 
 void ShaderProgram::activate(ShaderManager& shaderManager)
@@ -199,12 +202,7 @@ GLint ShaderProgram::findAttributeLocation(const std::string& name) const
   {
     auto index = GLint(0);
     glAssert(index = glGetAttribLocation(m_programId, name.c_str()));
-    if (index == -1)
-    {
-      throw RenderException{
-        "Location of attribute '" + name + "' could not be found in shader program "
-        + m_name};
-    }
+    ensure(index != -1, "Attribute location found in shader program");
 
     auto inserted = false;
     std::tie(it, inserted) = m_attributeCache.emplace(name, index);
@@ -221,12 +219,7 @@ GLint ShaderProgram::findUniformLocation(const std::string& name) const
   {
     auto index = GLint(0);
     glAssert(index = glGetUniformLocation(m_programId, name.c_str()));
-    if (index == -1)
-    {
-      throw RenderException{
-        "Location of uniform variable '" + name
-        + "' could not be found in shader program " + m_name};
-    }
+    ensure(index != -1, "Attribute location found in shader program");
 
     auto inserted = false;
     std::tie(it, inserted) = m_variableCache.emplace(name, index);
@@ -243,17 +236,17 @@ bool ShaderProgram::checkActive() const
   return GLuint(currentProgramId) == m_programId;
 }
 
-ShaderProgram createShaderProgram(std::string name)
+kdl::result<ShaderProgram, RenderError> createShaderProgram(std::string name)
 {
   auto programId = GLuint(0);
   glAssert(programId = glCreateProgram());
 
   if (programId == 0)
   {
-    throw RenderException{"Could not create shader '" + name + "'"};
+    return RenderError{"Could not create shader '" + name + "'"};
   }
 
-  return {std::move(name), programId};
+  return ShaderProgram{std::move(name), programId};
 }
 
 } // namespace TrenchBroom::Renderer

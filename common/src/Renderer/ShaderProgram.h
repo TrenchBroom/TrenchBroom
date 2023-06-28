@@ -22,6 +22,8 @@
 #include "Macros.h"
 #include "Renderer/GL.h"
 
+#include <kdl/result_forward.h>
+
 #include <vecmath/forward.h>
 
 #include <string>
@@ -30,6 +32,7 @@
 namespace TrenchBroom::Renderer
 {
 
+struct RenderError;
 class ShaderManager;
 class Shader;
 
@@ -57,7 +60,7 @@ public:
   ~ShaderProgram();
 
   void attach(Shader& shader) const;
-  void link();
+  kdl::result<void, RenderError> link();
 
   void activate(ShaderManager& shaderManager);
   void deactivate(ShaderManager& shaderManager);
@@ -81,6 +84,6 @@ private:
   bool checkActive() const;
 };
 
-ShaderProgram createShaderProgram(std::string name);
+kdl::result<ShaderProgram, RenderError> createShaderProgram(std::string name);
 
 } // namespace TrenchBroom::Renderer
