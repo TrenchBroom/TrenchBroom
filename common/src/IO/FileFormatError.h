@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2023 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,34 +19,18 @@
 
 #pragma once
 
-#include <kdl/result_forward.h>
+#include <kdl/reflection_decl.h>
 
-#include <vecmath/forward.h>
-
-#include <filesystem>
-#include <iosfwd>
-#include <vector>
+#include <string>
 
 namespace TrenchBroom::IO
 {
-struct FileFormatError;
-} // namespace TrenchBroom::IO
 
-namespace TrenchBroom::Model
+struct FileFormatError
 {
+  std::string msg;
 
-class PortalFile
-{
-private:
-  std::vector<vm::polygon3f> m_portals;
-
-public:
-  explicit PortalFile(std::vector<vm::polygon3f> portals);
-
-  const std::vector<vm::polygon3f>& portals() const;
+  kdl_reflect_decl_empty(FileFormatError);
 };
 
-bool canLoadPortalFile(const std::filesystem::path& path);
-kdl::result<PortalFile, IO::FileFormatError> loadPortalFile(std::istream& stream);
-
-} // namespace TrenchBroom::Model
+} // namespace TrenchBroom::IO

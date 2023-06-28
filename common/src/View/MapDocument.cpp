@@ -32,6 +32,8 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
+#include "IO/FileFormatError.h"
+#include "IO/FileSystemError.h"
 #include "IO/GameConfigParser.h"
 #include "IO/PathInfo.h"
 #include "IO/SimpleParserStatus.h"
@@ -74,7 +76,6 @@
 #include "Model/PointEntityWithBrushesValidator.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
-#include "Model/PortalFile.h"
 #include "Model/PropertyKeyWithDoubleQuotationMarksValidator.h"
 #include "Model/PropertyValueWithDoubleQuotationMarksValidator.h"
 #include "Model/SoftMapBoundsValidator.h"
@@ -360,7 +361,6 @@ const std::string MapDocument::DefaultDocumentName("unnamed.map");
 MapDocument::MapDocument()
   : m_worldBounds(DefaultWorldBounds)
   , m_world(nullptr)
-  , m_portalFile(nullptr)
   , m_entityDefinitionManager(std::make_unique<Assets::EntityDefinitionManager>())
   , m_entityModelManager(std::make_unique<Assets::EntityModelManager>(
       pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
@@ -529,14 +529,14 @@ Grid& MapDocument::grid() const
   return *m_grid;
 }
 
-std::optional<PointFile>& MapDocument::pointFile()
+Model::PointTrace* MapDocument::pointFile()
 {
-  return m_pointFile;
+  return m_pointFile ? &m_pointFile->trace : nullptr;
 }
 
-Model::PortalFile* MapDocument::portalFile() const
+const Model::PortalFile* MapDocument::portalFile() const
 {
-  return m_portalFile.get();
+  return m_portalFile ? &m_portalFile->portalFile : nullptr;
 }
 
 void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService)
@@ -908,7 +908,7 @@ bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces)
   return setFaceAttributesExceptContentFlags(faces.back().attributes());
 }
 
-void MapDocument::loadPointFile(const std::filesystem::path path)
+void MapDocument::loadPointFile(std::filesystem::path path)
 {
   static_assert(
     !std::is_reference<decltype(path)>::value,
@@ -919,18 +919,16 @@ void MapDocument::loadPointFile(const std::filesystem::path path)
     unloadPointFile();
   }
 
-  IO::Disk::withInputStream(path, [&](auto& file) {
-    if (auto trace = Model::loadPointFile(file))
-    {
-      m_pointFile = PointFile{*trace, path};
+  IO::Disk::withInputStream(path, [&](auto& stream) {
+    return Model::loadPointFile(stream).transform([&](auto trace) {
       info() << "Loaded point file " << path;
+      m_pointFile = PointFile{std::move(trace), std::move(path)};
       pointFileWasLoadedNotifier();
-    }
-    else
-    {
-      warn() << "Failed to load point file " << path;
-    }
-  }).if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; });
+    });
+  }).if_error([&](auto e) {
+    error() << "Couldn't load portal file " << path << ": " << e.msg;
+    m_pointFile = {};
+  });
 }
 
 bool MapDocument::isPointFileLoaded() const
@@ -958,13 +956,13 @@ void MapDocument::unloadPointFile()
   pointFileWasUnloadedNotifier();
 }
 
-void MapDocument::loadPortalFile(const std::filesystem::path path)
+void MapDocument::loadPortalFile(std::filesystem::path path)
 {
   static_assert(
     !std::is_reference<decltype(path)>::value,
     "path must be passed by value because reloadPortalFile() passes m_portalFilePath");
 
-  if (!Model::PortalFile::canLoad(path))
+  if (!Model::canLoadPortalFile(path))
   {
     return;
   }
@@ -974,47 +972,41 @@ void MapDocument::loadPortalFile(const std::filesystem::path path)
     unloadPortalFile();
   }
 
-  try
-  {
-    m_portalFilePath = path;
-    m_portalFile = std::make_unique<Model::PortalFile>(path);
-  }
-  catch (const std::exception& exception)
-  {
-    info(
-      "Couldn't load portal file " + m_portalFilePath.string() + ": " + exception.what());
-  }
 
-  if (isPortalFileLoaded())
-  {
-    info("Loaded portal file " + m_portalFilePath.string());
-    portalFileWasLoadedNotifier();
-  }
+  IO::Disk::withInputStream(path, [&](auto& stream) {
+    return Model::loadPortalFile(stream).transform([&](auto portalFile) {
+      info() << "Loaded portal file " << path;
+      m_portalFile = {std::move(portalFile), std::move(path)};
+      portalFileWasLoadedNotifier();
+    });
+  }).if_error([&](auto e) {
+    error() << "Couldn't load portal file " << path << ": " << e.msg;
+    m_portalFile = std::nullopt;
+  });
 }
 
 bool MapDocument::isPortalFileLoaded() const
 {
-  return m_portalFile != nullptr;
+  return m_portalFile != std::nullopt;
 }
 
 bool MapDocument::canReloadPortalFile() const
 {
-  return m_portalFile != nullptr && Model::PortalFile::canLoad(m_portalFilePath);
+  return m_portalFile && Model::canLoadPortalFile(m_portalFile->path);
 }
 
 void MapDocument::reloadPortalFile()
 {
   assert(isPortalFileLoaded());
-  loadPortalFile(m_portalFilePath);
+  loadPortalFile(m_portalFile->path);
 }
 
 void MapDocument::unloadPortalFile()
 {
   assert(isPortalFileLoaded());
-  m_portalFile = nullptr;
-  m_portalFilePath = std::filesystem::path();
+  m_portalFile = std::nullopt;
 
-  info("Unloaded portal file");
+  info() << "Unloaded portal file";
   portalFileWasUnloadedNotifier();
 }
 

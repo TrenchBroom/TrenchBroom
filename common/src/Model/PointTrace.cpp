@@ -20,8 +20,11 @@
 #include "PointTrace.h"
 
 #include "Ensure.h"
+#include "IO/DiskIO.h"
+#include "IO/FileFormatError.h"
 
 #include <kdl/reflection_impl.h>
+#include <kdl/result.h>
 #include <kdl/string_utils.h>
 
 #include <vecmath/distance.h>
@@ -93,7 +96,10 @@ void PointTrace::retreat()
   }
 }
 
-static std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
+namespace
+{
+
+std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
 {
   assert(points.size() > 1);
 
@@ -133,7 +139,7 @@ static std::vector<vm::vec3f> smoothPoints(const std::vector<vm::vec3f>& points)
   return result;
 }
 
-static std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& points)
+std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& points)
 {
   auto segmentizedPoints = std::vector<vm::vec3f>{};
   if (points.size() > 1)
@@ -157,9 +163,11 @@ static std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& poi
   return segmentizedPoints;
 }
 
+} // namespace
+
 kdl_reflect_impl(PointTrace);
 
-std::optional<PointTrace> loadPointFile(std::istream& stream)
+kdl::result<PointTrace, IO::FileFormatError> loadPointFile(std::istream& stream)
 {
   const auto str = std::string{std::istreambuf_iterator<char>{stream}, {}};
 
@@ -168,13 +176,13 @@ std::optional<PointTrace> loadPointFile(std::istream& stream)
 
   if (points.size() < 2)
   {
-    return std::nullopt;
+    return IO::FileFormatError{"PointFile must contain at least two points"};
   }
 
   points = smoothPoints(points);
   if (points.size() < 2)
   {
-    return std::nullopt;
+    return IO::FileFormatError{"PointFile must contain at least two points"};
   }
 
   points = segmentizePoints(points);

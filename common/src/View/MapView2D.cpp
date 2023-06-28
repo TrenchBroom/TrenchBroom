@@ -270,9 +270,9 @@ void MapView2D::doMoveCameraToCurrentTracePoint()
   auto document = kdl::mem_lock(m_document);
   assert(document->isPointFileLoaded());
 
-  if (const auto& pointFile = document->pointFile())
+  if (const auto* pointFile = document->pointFile())
   {
-    moveCameraToPosition(vm::vec3{pointFile->trace.currentPoint()}, true);
+    moveCameraToPosition(vm::vec3{pointFile->currentPoint()}, true);
   }
 }
 

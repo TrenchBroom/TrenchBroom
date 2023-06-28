@@ -25,6 +25,7 @@
 #include "Model/NodeCollection.h"
 #include "Model/NodeContents.h"
 #include "Model/PointTrace.h"
+#include "Model/PortalFile.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "View/CachingLogger.h"
@@ -96,6 +97,12 @@ struct PointFile
   std::filesystem::path path;
 };
 
+struct PortalFile
+{
+  Model::PortalFile portalFile;
+  std::filesystem::path path;
+};
+
 class MapDocument : public Model::MapFacade, public CachingLogger
 {
 public:
@@ -108,8 +115,7 @@ protected:
   std::unique_ptr<Model::WorldNode> m_world;
 
   std::optional<PointFile> m_pointFile;
-  std::unique_ptr<Model::PortalFile> m_portalFile;
-  std::filesystem::path m_portalFilePath;
+  std::optional<PortalFile> m_portalFile;
 
   std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
   std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
@@ -254,8 +260,8 @@ public:
 
   Grid& grid() const;
 
-  std::optional<PointFile>& pointFile();
-  Model::PortalFile* portalFile() const;
+  Model::PointTrace* pointFile();
+  const Model::PortalFile* portalFile() const;
 
   void setViewEffectsService(ViewEffectsService* viewEffectsService);
 

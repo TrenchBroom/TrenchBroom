@@ -1097,11 +1097,11 @@ void MapViewBase::renderPointFile(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
 {
   auto document = kdl::mem_lock(m_document);
-  if (const auto& pointFile = document->pointFile())
+  if (const auto* pointFile = document->pointFile())
   {
     auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::PointFileColor));
-    renderService.renderLineStrip(pointFile->trace.points());
+    renderService.renderLineStrip(pointFile->points());
   }
 }
 

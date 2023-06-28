@@ -50,6 +50,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
         ${COMMON_SOURCE_DIR}/IO/File.cpp
+        ${COMMON_SOURCE_DIR}/IO/FileFormatError.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystemError.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.cpp
@@ -533,6 +534,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.h
         ${COMMON_SOURCE_DIR}/IO/FgdParser.h
         ${COMMON_SOURCE_DIR}/IO/File.h
+        ${COMMON_SOURCE_DIR}/IO/FileFormatError.h
         ${COMMON_SOURCE_DIR}/IO/FileSystem.h
         ${COMMON_SOURCE_DIR}/IO/FileSystemError.h
         ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.h

@@ -20,12 +20,18 @@
 #pragma once
 
 #include <kdl/reflection_decl.h>
+#include <kdl/result_forward.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <optional>
+#include <iosfwd>
 #include <vector>
+
+namespace TrenchBroom::IO
+{
+struct FileFormatError;
+} // namespace TrenchBroom::IO
 
 namespace TrenchBroom::Model
 {
@@ -51,5 +57,5 @@ public:
   kdl_reflect_decl(PointTrace, m_points, m_current);
 };
 
-std::optional<PointTrace> loadPointFile(std::istream& stream);
+kdl::result<PointTrace, IO::FileFormatError> loadPointFile(std::istream& stream);
 } // namespace TrenchBroom::Model

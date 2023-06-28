@@ -18,6 +18,8 @@
  */
 
 #include "IO/DiskIO.h"
+#include "IO/FileFormatError.h"
+#include "IO/FileSystemError.h"
 #include "Model/PortalFile.h"
 
 #include <vecmath/polygon.h>
@@ -34,8 +36,9 @@ namespace Model
 TEST_CASE("PortalFileTest.parseInvalidPRT1")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt";
-
-  CHECK_THROWS([&]() { const Model::PortalFile p = Model::PortalFile(path); }());
+  CHECK(IO::Disk::withInputStream(path, [](auto& stream) {
+          return Model::loadPortalFile(stream);
+        }).is_error());
 }
 
 static const std::vector<vm::polygon3f> ExpectedPortals{
@@ -62,29 +65,45 @@ static const std::vector<vm::polygon3f> ExpectedPortals{
 TEST_CASE("PortalFileTest.parsePRT1")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt1.prt";
-  const auto portalFile = Model::PortalFile{path};
-  CHECK(portalFile.portals() == ExpectedPortals);
+  CHECK(
+    IO::Disk::withInputStream(
+      path, [](auto& stream) { return Model::loadPortalFile(stream); })
+      .value()
+      .portals()
+    == ExpectedPortals);
 }
 
 TEST_CASE("PortalFileTest.parsePRT1Q3")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt1q3.prt";
-  const auto portalFile = Model::PortalFile{path};
-  CHECK(portalFile.portals() == ExpectedPortals);
+  CHECK(
+    IO::Disk::withInputStream(
+      path, [](auto& stream) { return Model::loadPortalFile(stream); })
+      .value()
+      .portals()
+    == ExpectedPortals);
 }
 
 TEST_CASE("PortalFileTest.parsePRT1AM")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt1am.prt";
-  const auto portalFile = Model::PortalFile{path};
-  CHECK(portalFile.portals() == ExpectedPortals);
+  CHECK(
+    IO::Disk::withInputStream(
+      path, [](auto& stream) { return Model::loadPortalFile(stream); })
+      .value()
+      .portals()
+    == ExpectedPortals);
 }
 
 TEST_CASE("PortalFileTest.parsePRT2")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt2.prt";
-  const auto portalFile = Model::PortalFile{path};
-  CHECK(portalFile.portals() == ExpectedPortals);
+  CHECK(
+    IO::Disk::withInputStream(
+      path, [](auto& stream) { return Model::loadPortalFile(stream); })
+      .value()
+      .portals()
+    == ExpectedPortals);
 }
 } // namespace Model
 } // namespace TrenchBroom
