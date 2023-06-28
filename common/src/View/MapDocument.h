@@ -185,8 +185,8 @@ public: // notification
 
   Notifier<const std::vector<Model::BrushFaceHandle>&> brushFacesDidChangeNotifier;
 
-  Notifier<> wadsWillChangeNotifier;
-  Notifier<> wadsDidChangeNotifier;
+  Notifier<> textureCollectionsWillChangeNotifier;
+  Notifier<> textureCollectionsDidChangeNotifier;
 
   Notifier<> textureUsageCountsDidChangeNotifier;
 
@@ -790,8 +790,8 @@ private:
 
 private: // observers
   void connectObservers();
-  void wadsWillChange();
-  void wadsDidChange();
+  void textureCollectionsWillChange();
+  void textureCollectionsDidChange();
   void entityDefinitionsWillChange();
   void entityDefinitionsDidChange();
   void modsWillChange();

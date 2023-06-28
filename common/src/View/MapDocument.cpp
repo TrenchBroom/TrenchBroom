@@ -4413,6 +4413,8 @@ void MapDocument::reloadTextureCollections()
   const auto nodes = std::vector<Model::Node*>{m_world.get()};
   NotifyBeforeAndAfter notifyNodes(
     nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
+  NotifyBeforeAndAfter notifyTextureCollections(
+    textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
 
   info("Reloading texture collections");
   reloadTextures();
@@ -5035,10 +5037,10 @@ void MapDocument::clearModificationCount()
 
 void MapDocument::connectObservers()
 {
-  m_notifierConnection +=
-    wadsWillChangeNotifier.connect(this, &MapDocument::wadsWillChange);
-  m_notifierConnection +=
-    wadsDidChangeNotifier.connect(this, &MapDocument::wadsDidChange);
+  m_notifierConnection += textureCollectionsWillChangeNotifier.connect(
+    this, &MapDocument::textureCollectionsWillChange);
+  m_notifierConnection += textureCollectionsDidChangeNotifier.connect(
+    this, &MapDocument::textureCollectionsDidChange);
 
   m_notifierConnection += entityDefinitionsWillChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsWillChange);
@@ -5079,15 +5081,15 @@ void MapDocument::connectObservers()
   m_notifierConnection +=
     modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
   m_notifierConnection +=
-    wadsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
+    textureCollectionsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
 }
 
-void MapDocument::wadsWillChange()
+void MapDocument::textureCollectionsWillChange()
 {
   unsetTextures();
 }
 
-void MapDocument::wadsDidChange()
+void MapDocument::textureCollectionsDidChange()
 {
   loadTextures();
   setTextures();

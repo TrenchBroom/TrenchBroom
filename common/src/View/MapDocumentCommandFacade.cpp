@@ -418,7 +418,9 @@ void MapDocumentCommandFacade::performSwapNodeContents(
   const auto [notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange] =
     notifySpecialWorldProperties(*game(), nodesToSwap);
   NotifyBeforeAndAfter notifyWads(
-    notifyWadsChange, wadsWillChangeNotifier, wadsDidChangeNotifier);
+    notifyWadsChange,
+    textureCollectionsWillChangeNotifier,
+    textureCollectionsDidChangeNotifier);
   NotifyBeforeAndAfter notifyEntityDefinitions(
     notifyEntityDefinitionsChange,
     entityDefinitionsWillChangeNotifier,

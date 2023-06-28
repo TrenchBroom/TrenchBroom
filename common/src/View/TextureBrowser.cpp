@@ -201,7 +201,7 @@ void TextureBrowser::connectObservers()
     document->nodesDidChangeNotifier.connect(this, &TextureBrowser::nodesDidChange);
   m_notifierConnection += document->brushFacesDidChangeNotifier.connect(
     this, &TextureBrowser::brushFacesDidChange);
-  m_notifierConnection += document->wadsDidChangeNotifier.connect(
+  m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
     this, &TextureBrowser::textureCollectionsDidChange);
   m_notifierConnection += document->currentTextureNameDidChangeNotifier.connect(
     this, &TextureBrowser::currentTextureNameDidChange);

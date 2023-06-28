@@ -161,6 +161,37 @@ TEST_CASE("MapDocumentTest.mixedFormats")
     IO::WorldReaderException);
 }
 
+TEST_CASE("MapDocument.reloadTextureCollections")
+{
+  auto [document, game, gameConfig] = View::loadMapDocument(
+    "fixture/test/View/MapDocumentTest/reloadTextureCollectionsQ2.map",
+    "Quake2",
+    Model::MapFormat::Quake2);
+
+
+  const auto faces = kdl::vec_transform(
+    document->world()->defaultLayer()->children(), [&](const auto* node) {
+      const auto* brushNode = dynamic_cast<const Model::BrushNode*>(node);
+      REQUIRE(brushNode);
+      return &brushNode->brush().faces().front();
+    });
+
+  REQUIRE(faces.size() == 4);
+  REQUIRE(
+    kdl::vec_transform(
+      faces, [](const auto* face) { return face->attributes().textureName(); })
+    == std::vector<std::string>{
+      "b_pv_v1a1", "e1m1/b_pv_v1a2", "e1m1/f1/b_rc_v4", "lavatest"});
+
+  REQUIRE(
+    kdl::none_of(faces, [](const auto* face) { return face->texture() == nullptr; }));
+
+  CHECK_NOTHROW(document->reloadTextureCollections());
+
+  REQUIRE(
+    kdl::none_of(faces, [](const auto* face) { return face->texture() == nullptr; }));
+}
+
 TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
 {
   auto* brushNodeInDefaultLayer = createBrushNode("brushNodeInDefaultLayer");
