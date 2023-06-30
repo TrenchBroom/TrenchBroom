@@ -578,8 +578,11 @@ void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
   auto anyDocumentOpened = false;
   if (useSDI())
   {
-    const auto path = IO::pathFromQString(fileNames.at(0));
-    anyDocumentOpened = !path.empty() && openDocument(path);
+    if (fileNames.length() > 0)
+    {
+      const auto path = IO::pathFromQString(fileNames.at(0));
+      anyDocumentOpened = !path.empty() && openDocument(path);
+    }
   }
   else
   {
