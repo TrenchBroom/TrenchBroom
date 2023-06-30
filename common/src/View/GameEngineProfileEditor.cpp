@@ -19,6 +19,13 @@
 
 #include "GameEngineProfileEditor.h"
 
+#include <QBoxLayout>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QStackedWidget>
+
 #include "IO/DiskIO.h"
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
@@ -28,13 +35,6 @@
 
 #include <kdl/set_temp.h>
 #include <kdl/string_compare.h>
-
-#include <QBoxLayout>
-#include <QFileDialog>
-#include <QFormLayout>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QStackedWidget>
 
 namespace TrenchBroom
 {
@@ -101,7 +101,7 @@ void GameEngineProfileEditor::updatePath(const QString& str)
     m_profile->path = IO::pathFromQString(str);
     if (m_profile->name.empty())
     {
-      m_profile->name = m_profile->path.lastComponent().deleteExtension().asString();
+      m_profile->name = m_profile->path.stem().string();
     }
     emit profileChanged();
     refresh();
@@ -138,7 +138,7 @@ bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const
     return IO::Disk::pathInfo(path) == IO::PathInfo::File
 #ifdef __APPLE__
            || (IO::Disk::pathInfo(path) == IO::PathInfo::Directory 
-           && kdl::ci::str_is_equal(path.extension(), "app"))
+           && kdl::ci::str_is_equal(path.extension().string(), ".app"))
 #endif
       ;
   }

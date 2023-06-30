@@ -23,7 +23,6 @@
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Exceptions.h"
-#include "IO/Path.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"
 #include "Renderer/GLVertex.h"
@@ -31,7 +30,8 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
-#include "kdl/string_format.h"
+#include <kdl/path_utils.h>
+#include <kdl/string_format.h>
 
 #include <string>
 
@@ -244,9 +244,9 @@ Md2Parser::Md2Parser(
 {
 }
 
-bool Md2Parser::canParse(const Path& path, Reader reader)
+bool Md2Parser::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != "md2")
+  if (kdl::path_to_lower(path.extension()) != ".md2")
   {
     return false;
   }
@@ -404,7 +404,7 @@ void Md2Parser::loadSkins(
 
   for (const auto& skin : skins)
   {
-    textures.push_back(loadSkin(Path(skin), m_fs, logger, m_palette));
+    textures.push_back(loadSkin(skin, m_fs, m_palette, logger));
   }
 
   surface.setSkins(std::move(textures));

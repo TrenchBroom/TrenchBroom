@@ -19,14 +19,14 @@
 
 #include "FlyModeHelper.h"
 
+#include <QElapsedTimer>
+#include <QMouseEvent>
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 
 #include <vecmath/vec.h>
-
-#include <QElapsedTimer>
-#include <QMouseEvent>
 
 namespace TrenchBroom
 {

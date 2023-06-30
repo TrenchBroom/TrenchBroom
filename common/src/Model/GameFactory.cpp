@@ -23,11 +23,11 @@
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
+#include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"
 #include "IO/GameEngineConfigParser.h"
 #include "IO/GameEngineConfigWriter.h"
-#include "IO/IOUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/SystemPaths.h"
 #include "Logger.h"
@@ -35,9 +35,9 @@
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
 #include "PreferenceManager.h"
-#include "RecoverableExceptions.h"
 
 #include <kdl/collection_utils.h>
+#include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -46,6 +46,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace TrenchBroom
@@ -99,13 +100,13 @@ std::vector<std::string> GameFactory::fileFormats(const std::string& gameName) c
     gameConfig(gameName).fileFormats, [](const auto& format) { return format.format; });
 }
 
-IO::Path GameFactory::iconPath(const std::string& gameName) const
+std::filesystem::path GameFactory::iconPath(const std::string& gameName) const
 {
   const auto& config = gameConfig(gameName);
   return config.findConfigFile(config.icon);
 }
 
-IO::Path GameFactory::gamePath(const std::string& gameName) const
+std::filesystem::path GameFactory::gamePath(const std::string& gameName) const
 {
   const auto it = m_gamePaths.find(gameName);
   if (it == std::end(m_gamePaths))
@@ -116,7 +117,8 @@ IO::Path GameFactory::gamePath(const std::string& gameName) const
   return PreferenceManager::instance().get(pref);
 }
 
-bool GameFactory::setGamePath(const std::string& gameName, const IO::Path& gamePath)
+bool GameFactory::setGamePath(
+  const std::string& gameName, const std::filesystem::path& gamePath)
 {
   const auto it = m_gamePaths.find(gameName);
   if (it == std::end(m_gamePaths))
@@ -128,7 +130,7 @@ bool GameFactory::setGamePath(const std::string& gameName, const IO::Path& gameP
 }
 
 bool GameFactory::isGamePathPreference(
-  const std::string& gameName, const IO::Path& prefPath) const
+  const std::string& gameName, const std::filesystem::path& prefPath) const
 {
   const auto it = m_gamePaths.find(gameName);
   if (it == std::end(m_gamePaths))
@@ -139,24 +141,26 @@ bool GameFactory::isGamePathPreference(
   return pref.path() == prefPath;
 }
 
-static Preference<IO::Path>& compilationToolPathPref(
+static Preference<std::filesystem::path>& compilationToolPathPref(
   const std::string& gameName, const std::string& toolName)
 {
   auto& prefs = PreferenceManager::instance();
   auto& pref = prefs.dynamicPreference(
-    IO::Path{"Games"} + IO::Path{gameName} + IO::Path{"Tool Path"} + IO::Path{toolName},
-    IO::Path{});
+    std::filesystem::path{"Games"} / gameName / "Tool Path" / toolName,
+    std::filesystem::path{});
   return pref;
 }
 
-IO::Path GameFactory::compilationToolPath(
+std::filesystem::path GameFactory::compilationToolPath(
   const std::string& gameName, const std::string& toolName) const
 {
   return PreferenceManager::instance().get(compilationToolPathPref(gameName, toolName));
 }
 
 bool GameFactory::setCompilationToolPath(
-  const std::string& gameName, const std::string& toolName, const IO::Path& gamePath)
+  const std::string& gameName,
+  const std::string& toolName,
+  const std::filesystem::path& gamePath)
 {
   return PreferenceManager::instance().set(
     compilationToolPathPref(gameName, toolName), gamePath);
@@ -182,27 +186,52 @@ const GameConfig& GameFactory::gameConfig(const std::string& name) const
   return cIt->second;
 }
 
-std::pair<std::string, MapFormat> GameFactory::detectGame(const IO::Path& path) const
+namespace
 {
-  auto stream = openPathAsInputStream(path);
-  if (!stream.is_open())
+std::string readInfoComment(std::istream& stream, const std::string& name)
+{
+  const auto expectedHeader = "// " + name + ": ";
+
+  auto lineBuffer = std::string{};
+  std::getline(stream, lineBuffer);
+  if (stream.fail())
   {
-    throw FileSystemException{"Cannot open file: " + path.asString()};
+    return "";
   }
 
-  auto gameName = IO::readGameComment(stream);
-  if (m_configs.find(gameName) == std::end(m_configs))
+  const auto lineView = std::string_view{lineBuffer};
+  if (!kdl::cs::str_is_prefix(lineView, expectedHeader))
   {
-    gameName = "";
+    return "";
   }
 
-  const auto formatName = IO::readFormatComment(stream);
-  const auto format = formatFromName(formatName);
+  auto result = lineView.substr(expectedHeader.size());
+  if (!result.empty() && result.back() == '\r')
+  {
+    result = result.substr(0, result.length() - 1);
+  }
+  return std::string{result};
+}
+} // namespace
 
-  return {gameName, format};
+std::pair<std::string, MapFormat> GameFactory::detectGame(
+  const std::filesystem::path& path) const
+{
+  return IO::Disk::withInputStream(path, [&](auto& stream) {
+    auto gameName = readInfoComment(stream, "Game");
+    if (m_configs.find(gameName) == std::end(m_configs))
+    {
+      gameName = "";
+    }
+
+    const auto formatName = readInfoComment(stream, "Format");
+    const auto format = formatFromName(formatName);
+
+    return std::pair{gameName, format};
+  });
 }
 
-const IO::Path& GameFactory::userGameConfigsPath() const
+const std::filesystem::path& GameFactory::userGameConfigsPath() const
 {
   return m_userGameDir;
 }
@@ -222,7 +251,7 @@ void GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig)
   for (auto it = gameConfigSearchDirs.rbegin(); it != gameConfigSearchDirs.rend(); ++it)
   {
     const auto path = *it;
-    virtualFs.mount(IO::Path{}, std::make_unique<IO::DiskFileSystem>(path, false));
+    virtualFs.mount({}, std::make_unique<IO::DiskFileSystem>(path, false));
   }
 
   m_userGameDir = userGameDir;
@@ -235,8 +264,8 @@ void GameFactory::loadGameConfigs()
 {
   auto errors = std::vector<std::string>{};
 
-  const auto configFiles = m_configFs->findRecursively(
-    IO::Path{}, IO::makeFilenamePathMatcher("GameConfig.cfg"));
+  const auto configFiles =
+    m_configFs->findRecursively({}, IO::makeFilenamePathMatcher("GameConfig.cfg"));
   for (const auto& configFilePath : configFiles)
   {
     try
@@ -258,20 +287,7 @@ void GameFactory::loadGameConfigs()
   }
 }
 
-void GameFactory::loadGameConfig(const IO::Path& path)
-{
-  try
-  {
-    doLoadGameConfig(path);
-  }
-  catch (const RecoverableException& e)
-  {
-    e.recover();
-    doLoadGameConfig(path);
-  }
-}
-
-void GameFactory::doLoadGameConfig(const IO::Path& path)
+void GameFactory::loadGameConfig(const std::filesystem::path& path)
 {
   const auto configFile = m_configFs->openFile(path);
   const auto absolutePath = m_configFs->makeAbsolute(path);
@@ -287,19 +303,19 @@ void GameFactory::doLoadGameConfig(const IO::Path& path)
   m_configs.emplace(configName, std::move(config));
   m_names.push_back(configName);
 
-  const auto gamePathPrefPath =
-    IO::Path{"Games"} + IO::Path{configName} + IO::Path{"Path"};
-  m_gamePaths.emplace(configName, Preference<IO::Path>{gamePathPrefPath, IO::Path{}});
+  const auto gamePathPrefPath = std::filesystem::path{"Games"} / configName / "Path";
+  m_gamePaths.emplace(
+    configName, Preference<std::filesystem::path>{gamePathPrefPath, {}});
 
   const auto defaultEnginePrefPath =
-    IO::Path{"Games"} + IO::Path{configName} + IO::Path{"Default Engine"};
+    std::filesystem::path{"Games"} / configName / "Default Engine";
   m_defaultEngines.emplace(
-    configName, Preference<IO::Path>{defaultEnginePrefPath, IO::Path{}});
+    configName, Preference<std::filesystem::path>{defaultEnginePrefPath, {}});
 }
 
 void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
 {
-  const auto path = IO::Path{gameConfig.name} + IO::Path{"CompilationProfiles.cfg"};
+  const auto path = std::filesystem::path{gameConfig.name} / "CompilationProfiles.cfg";
   try
   {
     if (m_configFs->pathInfo(path) == IO::PathInfo::File)
@@ -322,7 +338,7 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
 
 void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
 {
-  const auto path = IO::Path{gameConfig.name} + IO::Path{"GameEngineProfiles.cfg"};
+  const auto path = std::filesystem::path{gameConfig.name} / "GameEngineProfiles.cfg";
   try
   {
     if (m_configFs->pathInfo(path) == IO::PathInfo::File)
@@ -343,10 +359,11 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   }
 }
 
-static IO::Path backupFile(IO::WritableFileSystem& fs, const IO::Path& path)
+static std::filesystem::path backupFile(
+  IO::WritableFileSystem& fs, const std::filesystem::path& path)
 {
-  const auto backupPath = path.addExtension("bak");
-  fs.copyFile(path, backupPath, true);
+  const auto backupPath = kdl::path_add_extension(path, ".bak");
+  fs.copyFile(path, backupPath);
   return backupPath;
 }
 
@@ -371,7 +388,7 @@ void GameFactory::writeCompilationConfig(
   writer.writeConfig();
 
   const auto profilesPath =
-    IO::Path{gameConfig.name} + IO::Path{"CompilationProfiles.cfg"};
+    std::filesystem::path{gameConfig.name} / "CompilationProfiles.cfg";
   if (gameConfig.compilationConfigParseFailed)
   {
     const auto backupPath = backupFile(*m_configFs, profilesPath);
@@ -405,7 +422,7 @@ void GameFactory::writeGameEngineConfig(
   writer.writeConfig();
 
   const auto profilesPath =
-    IO::Path{gameConfig.name} + IO::Path{"GameEngineProfiles.cfg"};
+    std::filesystem::path{gameConfig.name} / "GameEngineProfiles.cfg";
   if (gameConfig.gameEngineConfigParseFailed)
   {
     const auto backupPath = backupFile(*m_configFs, profilesPath);

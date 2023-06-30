@@ -19,14 +19,6 @@
 
 #include "KeyboardPreferencePane.h"
 
-#include "Macros.h"
-#include "View/Actions.h"
-#include "View/KeyboardShortcutItemDelegate.h"
-#include "View/KeyboardShortcutModel.h"
-#include "View/MapDocument.h"
-#include "View/QtUtils.h"
-#include "View/ViewConstants.h"
-
 #include <QBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
@@ -35,6 +27,14 @@
 #include <QSortFilterProxyModel>
 #include <QTableView>
 #include <QTimer>
+
+#include "Macros.h"
+#include "View/Actions.h"
+#include "View/KeyboardShortcutItemDelegate.h"
+#include "View/KeyboardShortcutModel.h"
+#include "View/MapDocument.h"
+#include "View/QtUtils.h"
+#include "View/ViewConstants.h"
 
 namespace TrenchBroom
 {

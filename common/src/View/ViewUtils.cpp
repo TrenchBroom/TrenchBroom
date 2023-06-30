@@ -19,6 +19,11 @@
 
 #include "ViewUtils.h"
 
+#include <QInputDialog>
+#include <QMessageBox>
+#include <QString>
+#include <QWidget>
+
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
@@ -30,12 +35,8 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
+#include <filesystem>
 #include <memory>
-
-#include <QInputDialog>
-#include <QMessageBox>
-#include <QString>
-#include <QWidget>
 
 namespace TrenchBroom
 {
@@ -56,55 +57,6 @@ void combineFlags(
   }
 }
 
-bool loadTextureCollection(
-  std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path)
-{
-  return loadTextureCollections(document, parent, QStringList{path}) == 1;
-}
-
-size_t loadTextureCollections(
-  std::weak_ptr<MapDocument> i_document, QWidget* parent, const QStringList& pathStrs)
-{
-  if (pathStrs.empty())
-  {
-    return 0;
-  }
-
-  size_t count = 0;
-
-  auto document = kdl::mem_lock(i_document);
-  std::vector<IO::Path> collections = document->enabledTextureCollections();
-
-  auto game = document->game();
-  const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-  const IO::Path gamePath = gameFactory.gamePath(game->gameName());
-  const IO::Path docPath = document->path();
-
-  for (int i = 0; i < pathStrs.size(); ++i)
-  {
-    const QString& pathStr = pathStrs[i];
-    const IO::Path absPath = IO::pathFromQString(pathStr);
-    if (game->isTextureCollection(absPath))
-    {
-      ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
-      const int result = pathDialog.exec();
-      if (result == QDialog::Rejected)
-      {
-        return 0;
-      }
-      else if (result == QDialog::Accepted)
-      {
-        collections.push_back(pathDialog.path());
-        ++count;
-      }
-    }
-  }
-
-  document->setEnabledTextureCollections(collections);
-
-  return count;
-}
-
 bool loadEntityDefinitionFile(
   std::weak_ptr<MapDocument> document, QWidget* parent, const QString& path)
 {
@@ -121,16 +73,16 @@ size_t loadEntityDefinitionFile(
 
   auto document = kdl::mem_lock(i_document);
   auto game = document->game();
-  const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-  const IO::Path gamePath = gameFactory.gamePath(game->gameName());
-  const IO::Path docPath = document->path();
+  const auto& gameFactory = Model::GameFactory::instance();
+  const auto gamePath = gameFactory.gamePath(game->gameName());
+  const auto docPath = document->path();
 
   try
   {
     for (int i = 0; i < pathStrs.size(); ++i)
     {
-      const QString& pathStr = pathStrs[i];
-      const IO::Path absPath = IO::pathFromQString(pathStr);
+      const auto& pathStr = pathStrs[i];
+      const auto absPath = IO::pathFromQString(pathStr);
       if (game->isEntityDefinitionFile(absPath))
       {
         ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);

@@ -25,6 +25,7 @@
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
+#include <filesystem>
 #include <memory>
 #include <optional>
 #include <string>
@@ -43,7 +44,6 @@ struct EntityDefinitionClassInfo;
 enum class EntityDefinitionClassType;
 class FileSystem;
 class ParserStatus;
-class Path;
 
 namespace FgdToken
 {
@@ -78,24 +78,27 @@ class FgdParser : public EntityDefinitionParser, public Parser<FgdToken::Type>
 private:
   using Token = FgdTokenizer::Token;
 
-  std::vector<Path> m_paths;
+  std::vector<std::filesystem::path> m_paths;
   std::unique_ptr<FileSystem> m_fs;
 
   FgdTokenizer m_tokenizer;
 
 public:
-  FgdParser(std::string_view str, const Color& defaultEntityColor, const Path& path);
+  FgdParser(
+    std::string_view str,
+    const Color& defaultEntityColor,
+    const std::filesystem::path& path);
   FgdParser(std::string_view str, const Color& defaultEntityColor);
 
   ~FgdParser() override;
 
 private:
   class PushIncludePath;
-  void pushIncludePath(const Path& path);
+  void pushIncludePath(const std::filesystem::path& path);
   void popIncludePath();
 
-  Path currentRoot() const;
-  bool isRecursiveInclude(const Path& path) const;
+  std::filesystem::path currentRoot() const;
+  bool isRecursiveInclude(const std::filesystem::path& path) const;
 
 private:
   TokenNameMap tokenNames() const override;
@@ -156,7 +159,7 @@ private:
 
   std::vector<EntityDefinitionClassInfo> parseInclude(ParserStatus& status);
   std::vector<EntityDefinitionClassInfo> handleInclude(
-    ParserStatus& status, const Path& path);
+    ParserStatus& status, const std::filesystem::path& path);
 };
 } // namespace IO
 } // namespace TrenchBroom

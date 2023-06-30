@@ -19,8 +19,6 @@
  */
 
 #include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
@@ -28,6 +26,7 @@
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "View/PasteType.h"
 
 #include <kdl/result.h>

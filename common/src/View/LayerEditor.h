@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include <memory>
 #include <string>
-
-#include <QWidget>
 
 class QAbstractButton;
 

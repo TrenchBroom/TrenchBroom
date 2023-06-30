@@ -19,17 +19,14 @@
 
 #pragma once
 
+#include <QPixmap>
+
 #include "View/ImageListBox.h"
 
-#include <QPixmap>
+#include <filesystem>
 
 namespace TrenchBroom
 {
-namespace IO
-{
-class Path;
-}
-
 namespace View
 {
 class RecentDocumentListBox : public ImageListBox
@@ -51,7 +48,7 @@ private:
 
   void doubleClicked(size_t index) override;
 signals:
-  void loadRecentDocument(const IO::Path& path);
+  void loadRecentDocument(const std::filesystem::path& path);
 };
 } // namespace View
 } // namespace TrenchBroom

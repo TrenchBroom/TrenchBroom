@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "View/BorderPanel.h"
-
 #include <QObject>
+
+#include "View/BorderPanel.h"
 
 namespace TrenchBroom
 {

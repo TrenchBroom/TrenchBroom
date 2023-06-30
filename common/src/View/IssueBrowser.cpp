@@ -19,6 +19,11 @@
 
 #include "IssueBrowser.h"
 
+#include <QCheckBox>
+#include <QList>
+#include <QStringList>
+#include <QVBoxLayout>
+
 #include "Model/Issue.h"
 #include "Model/Validator.h"
 #include "Model/WorldNode.h"
@@ -27,11 +32,6 @@
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
-
-#include <QCheckBox>
-#include <QList>
-#include <QStringList>
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {

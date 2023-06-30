@@ -19,14 +19,6 @@
 
 #include "LayerListBox.h"
 
-#include "Model/LayerNode.h"
-#include "Model/WorldNode.h"
-#include "View/MapDocument.h"
-#include "View/QtUtils.h"
-#include "View/ViewConstants.h"
-
-#include <kdl/memory_utils.h>
-
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QListWidgetItem>
@@ -34,6 +26,14 @@
 #include <QRadioButton>
 #include <QToolButton>
 #include <QtGlobal>
+
+#include "Model/LayerNode.h"
+#include "Model/WorldNode.h"
+#include "View/MapDocument.h"
+#include "View/QtUtils.h"
+#include "View/ViewConstants.h"
+
+#include <kdl/memory_utils.h>
 
 namespace TrenchBroom
 {

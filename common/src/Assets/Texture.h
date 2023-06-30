@@ -21,25 +21,21 @@
 
 #include "Assets/TextureBuffer.h"
 #include "Color.h"
-#include "IO/Path.h"
 #include "Renderer/GL.h"
-
-#include <vecmath/forward.h>
 
 #include <kdl/reflection_decl.h>
 
+#include <vecmath/forward.h>
+
 #include <atomic>
-#include <iosfwd>
+#include <filesystem>
 #include <set>
 #include <string>
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class TextureCollection;
 
 enum class TextureType
 {
@@ -50,14 +46,18 @@ enum class TextureType
   Masked
 };
 
+std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs);
+
 enum class TextureCulling
 {
-  CullDefault,
-  CullNone,
-  CullFront,
-  CullBack,
-  CullBoth
+  Default,
+  None,
+  Front,
+  Back,
+  Both
 };
+
+std::ostream& operator<<(std::ostream& lhs, const TextureCulling& rhs);
 
 struct TextureBlendFunc
 {
@@ -80,7 +80,11 @@ struct TextureBlendFunc
   Enable enable;
   GLenum srcFactor;
   GLenum destFactor;
+
+  kdl_reflect_decl(TextureBlendFunc, enable, srcFactor, destFactor);
 };
+
+std::ostream& operator<<(std::ostream& lhs, const TextureBlendFunc::Enable& rhs);
 
 struct Q2Data
 {
@@ -93,6 +97,8 @@ struct Q2Data
 
 using GameData = std::variant<std::monostate, Q2Data>;
 
+std::ostream& operator<<(std::ostream& lhs, const GameData& rhs);
+
 class Texture
 {
 private:
@@ -101,8 +107,8 @@ private:
 
 private:
   std::string m_name;
-  IO::Path m_absolutePath;
-  IO::Path m_relativePath;
+  std::filesystem::path m_absolutePath;
+  std::filesystem::path m_relativePath;
 
   size_t m_width;
   size_t m_height;
@@ -129,6 +135,23 @@ private:
   mutable BufferList m_buffers;
 
   GameData m_gameData;
+
+  kdl_reflect_decl(
+    Texture,
+    m_name,
+    m_absolutePath,
+    m_relativePath,
+    m_width,
+    m_height,
+    m_averageColor,
+    m_usageCount,
+    m_overridden,
+    m_format,
+    m_type,
+    m_surfaceParms,
+    m_culling,
+    m_blendFunc,
+    m_gameData);
 
 public:
   Texture(
@@ -171,19 +194,15 @@ public:
 
   /**
    * Absolute path of the texture
-   *
-   * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
    */
-  const IO::Path& absolutePath() const;
-  void setAbsolutePath(IO::Path absolutePath);
+  const std::filesystem::path& absolutePath() const;
+  void setAbsolutePath(std::filesystem::path absolutePath);
 
   /**
    * Relative path of the texture in the game filesystem
-   *
-   * Currently, only set for textures loaded by DirectoryTextureCollectionLoader
    */
-  const IO::Path& relativePath() const;
-  void setRelativePath(IO::Path relativePath);
+  const std::filesystem::path& relativePath() const;
+  void setRelativePath(std::filesystem::path relativePath);
 
   size_t width() const;
   size_t height() const;
@@ -228,5 +247,5 @@ public: // exposed for tests only
   GLenum format() const;
   TextureType type() const;
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

@@ -177,7 +177,7 @@ private:
   {
     MovePartBase::render(inputState, renderContext, renderBatch);
 
-    if (!anyToolDragging(inputState))
+    if (!inputState.anyToolDragging())
     {
       const Model::Hit hit = findDraggableHandle(inputState);
       if (hit.hasType(

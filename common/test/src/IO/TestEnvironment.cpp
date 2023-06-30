@@ -21,14 +21,9 @@
 
 #include "IO/PathQt.h"
 #include "Macros.h"
-#include "Uuid.h"
 
+#include <fstream>
 #include <string>
-
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QTextStream>
 
 #include "Catch2.h"
 
@@ -37,8 +32,8 @@ namespace TrenchBroom
 namespace IO
 {
 TestEnvironment::TestEnvironment(const std::string& dir, const SetupFunction& setup)
-  : m_sandboxPath{pathFromQString(QDir::current().path()) + Path{generateUuid()}}
-  , m_dir{m_sandboxPath + Path{dir}}
+  : m_sandboxPath{std::filesystem::current_path() / generateUuid()}
+  , m_dir{m_sandboxPath / dir}
 {
   createTestEnvironment(setup);
 }
@@ -53,7 +48,7 @@ TestEnvironment::~TestEnvironment()
   assertResult(deleteTestEnvironment());
 }
 
-const Path& TestEnvironment::dir() const
+const std::filesystem::path& TestEnvironment::dir() const
 {
   return m_dir;
 }
@@ -61,36 +56,25 @@ const Path& TestEnvironment::dir() const
 void TestEnvironment::createTestEnvironment(const SetupFunction& setup)
 {
   deleteTestEnvironment();
-  createDirectory(Path{});
+  createDirectory({});
   setup(*this);
 }
 
-void TestEnvironment::createDirectory(const Path& path)
+void TestEnvironment::createDirectory(const std::filesystem::path& path)
 {
-  const auto dir = QDir{IO::pathAsQString(m_dir + path)};
-  assertResult(dir.mkpath("."));
+  std::filesystem::create_directories(m_dir / path);
 }
 
-void TestEnvironment::createFile(const Path& path, const std::string& contents)
+void TestEnvironment::createFile(
+  const std::filesystem::path& path, const std::string& contents)
 {
-  auto file = QFile{IO::pathAsQString(m_dir + path)};
-  assertResult(file.open(QIODevice::ReadWrite));
-
-  auto stream = QTextStream{&file};
-  stream << QString::fromStdString(contents);
-  stream.flush();
-  assert(stream.status() == QTextStream::Ok);
+  auto stream = std::ofstream{m_dir / path, std::ios::out};
+  stream << contents;
 }
 
-static bool deleteDirectoryAbsolute(const Path& absolutePath)
+static bool deleteDirectoryAbsolute(const std::filesystem::path& absolutePath)
 {
-  auto dir = QDir{IO::pathAsQString(absolutePath)};
-  if (!dir.exists())
-  {
-    return true;
-  }
-
-  return dir.removeRecursively();
+  return std::filesystem::remove_all(absolutePath);
 }
 
 bool TestEnvironment::deleteTestEnvironment()
@@ -98,28 +82,21 @@ bool TestEnvironment::deleteTestEnvironment()
   return deleteDirectoryAbsolute(m_sandboxPath);
 }
 
-bool TestEnvironment::directoryExists(const Path& path) const
+bool TestEnvironment::directoryExists(const std::filesystem::path& path) const
 {
-  const auto file = QFileInfo{IO::pathAsQString(m_dir + path)};
-
-  return file.exists() && file.isDir();
+  return std::filesystem::is_directory(m_dir / path);
 }
 
-bool TestEnvironment::fileExists(const Path& path) const
+bool TestEnvironment::fileExists(const std::filesystem::path& path) const
 {
-  const auto file = QFileInfo{IO::pathAsQString(m_dir + path)};
-
-  return file.exists() && file.isFile();
+  return std::filesystem::is_regular_file(m_dir / path);
 }
 
-std::string TestEnvironment::loadFile(const Path& path) const
+std::string TestEnvironment::loadFile(const std::filesystem::path& path) const
 {
-  auto file = QFile{IO::pathAsQString(m_dir + path)};
-  if (file.open(QIODevice::ReadOnly | QIODevice::Text))
-  {
-    return QTextStream{&file}.readAll().toStdString();
-  }
-  return "";
+  auto stream = std::ifstream{m_dir / path, std::ios::in};
+  return std::string{std::istreambuf_iterator<char>{stream}, {}};
 }
+
 } // namespace IO
 } // namespace TrenchBroom

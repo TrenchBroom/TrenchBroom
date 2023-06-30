@@ -157,4 +157,11 @@ struct meta_remove_duplicates
     typename meta_front<List...>::front,
     typename meta_front<List...>::remainder>::result;
 };
+
+template <>
+struct meta_remove_duplicates<>
+{
+  using result = meta_type_list<>;
+};
+
 } // namespace kdl

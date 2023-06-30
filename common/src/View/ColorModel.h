@@ -19,11 +19,10 @@
 
 #pragma once
 
-#include "Color.h"
-#include "IO/Path.h"
-#include "Preference.h"
-
 #include <QAbstractTableModel>
+
+#include "Color.h"
+#include "Preference.h"
 
 namespace TrenchBroom::View
 {

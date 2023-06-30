@@ -18,23 +18,96 @@
  */
 
 #include "Texture.h"
+
 #include "Assets/TextureBuffer.h"
 #include "Assets/TextureCollection.h"
 #include "Macros.h"
 #include "Renderer/GL.h"
 
+#include <kdl/overload.h>
 #include <kdl/reflection_impl.h>
+
+#include <vecmath/vec_io.h>
 
 #include <algorithm> // for std::max
 #include <cassert>
 #include <ostream>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 
+std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs)
+{
+  switch (rhs)
+  {
+  case TextureType::Opaque:
+    lhs << "Opaque";
+    break;
+  case TextureType::Masked:
+    lhs << "Masked";
+    break;
+    switchDefault();
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const TextureCulling& rhs)
+{
+  switch (rhs)
+  {
+  case TextureCulling::Default:
+    lhs << "Default";
+    break;
+  case TextureCulling::None:
+    lhs << "None";
+    break;
+  case TextureCulling::Front:
+    lhs << "Front";
+    break;
+  case TextureCulling::Back:
+    lhs << "Back";
+    break;
+  case TextureCulling::Both:
+    lhs << "Both";
+    break;
+    switchDefault();
+  }
+  return lhs;
+}
+
+kdl_reflect_impl(TextureBlendFunc);
+
+std::ostream& operator<<(std::ostream& lhs, const TextureBlendFunc::Enable& rhs)
+{
+  switch (rhs)
+  {
+  case TextureBlendFunc::Enable::UseDefault:
+    lhs << "UseDefault";
+    break;
+  case TextureBlendFunc::Enable::UseFactors:
+    lhs << "UseFactors";
+    break;
+  case TextureBlendFunc::Enable::DisableBlend:
+    lhs << "DisableBlend";
+    break;
+    switchDefault();
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const GameData& rhs)
+{
+  std::visit(
+    kdl::overload(
+      [&](const std::monostate&) { lhs << "std::monostate"; },
+      [&](const auto& x) { lhs << x; }),
+    rhs);
+  return lhs;
+}
+
 kdl_reflect_impl(Q2Data);
+
+kdl_reflect_impl(Texture);
 
 Texture::Texture(
   std::string name,
@@ -53,7 +126,7 @@ Texture::Texture(
   , m_overridden{false}
   , m_format{format}
   , m_type{type}
-  , m_culling{TextureCulling::CullDefault}
+  , m_culling{TextureCulling::Default}
   , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
@@ -81,7 +154,7 @@ Texture::Texture(
   , m_overridden{false}
   , m_format{format}
   , m_type{type}
-  , m_culling{TextureCulling::CullDefault}
+  , m_culling{TextureCulling::Default}
   , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId(0)
   , m_buffers{std::move(buffers)}
@@ -122,7 +195,7 @@ Texture::Texture(
   , m_overridden{false}
   , m_format{format}
   , m_type{type}
-  , m_culling{TextureCulling::CullDefault}
+  , m_culling{TextureCulling::Default}
   , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
@@ -182,22 +255,22 @@ const std::string& Texture::name() const
   return m_name;
 }
 
-const IO::Path& Texture::absolutePath() const
+const std::filesystem::path& Texture::absolutePath() const
 {
   return m_absolutePath;
 }
 
-void Texture::setAbsolutePath(IO::Path absolutePath)
+void Texture::setAbsolutePath(std::filesystem::path absolutePath)
 {
   m_absolutePath = std::move(absolutePath);
 }
 
-const IO::Path& Texture::relativePath() const
+const std::filesystem::path& Texture::relativePath() const
 {
   return m_relativePath;
 }
 
-void Texture::setRelativePath(IO::Path relativePath)
+void Texture::setRelativePath(std::filesystem::path relativePath)
 {
   m_relativePath = std::move(relativePath);
 }
@@ -320,8 +393,8 @@ void Texture::prepare(const GLuint textureId, const int minFilter, const int mag
 
     if (m_type == TextureType::Masked)
     {
-      // masked textures don't work well with automatic mipmaps, so we force GL_NEAREST
-      // filtering and don't generate any
+      // masked textures don't work well with automatic mipmaps, so we force
+      // GL_NEAREST filtering and don't generate any
       glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE));
       glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
       glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
@@ -407,17 +480,17 @@ void Texture::activate() const
 
     switch (m_culling)
     {
-    case Assets::TextureCulling::CullNone:
+    case Assets::TextureCulling::None:
       glAssert(glDisable(GL_CULL_FACE));
       break;
-    case Assets::TextureCulling::CullFront:
+    case Assets::TextureCulling::Front:
       glAssert(glCullFace(GL_FRONT));
       break;
-    case Assets::TextureCulling::CullBoth:
+    case Assets::TextureCulling::Both:
       glAssert(glCullFace(GL_FRONT_AND_BACK));
       break;
-    case Assets::TextureCulling::CullDefault:
-    case Assets::TextureCulling::CullBack:
+    case Assets::TextureCulling::Default:
+    case Assets::TextureCulling::Back:
       break;
     }
 
@@ -448,17 +521,17 @@ void Texture::deactivate() const
 
     switch (m_culling)
     {
-    case Assets::TextureCulling::CullNone:
+    case Assets::TextureCulling::None:
       glAssert(glEnable(GL_CULL_FACE));
       break;
-    case Assets::TextureCulling::CullFront:
+    case Assets::TextureCulling::Front:
       glAssert(glCullFace(GL_BACK));
       break;
-    case Assets::TextureCulling::CullBoth:
+    case Assets::TextureCulling::Both:
       glAssert(glCullFace(GL_BACK));
       break;
-    case Assets::TextureCulling::CullDefault:
-    case Assets::TextureCulling::CullBack:
+    case Assets::TextureCulling::Default:
+    case Assets::TextureCulling::Back:
       break;
     }
 
@@ -480,5 +553,5 @@ TextureType Texture::type() const
 {
   return m_type;
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

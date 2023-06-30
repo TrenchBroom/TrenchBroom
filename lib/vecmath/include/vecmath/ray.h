@@ -21,12 +21,11 @@
 
 #pragma once
 
-#include "mat.h"
-#include "vec.h"
-
 #include "abstract_line.h"
+#include "mat.h"
 #include "scalar.h"
 #include "util.h"
+#include "vec.h"
 
 namespace vm
 {

@@ -21,7 +21,6 @@
 
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
-#include "IO/Path.h"
 
 #include <kdl/string_format.h>
 
@@ -102,7 +101,7 @@ std::unique_ptr<char[]> decompress(
 }
 } // namespace
 
-DkPakFileSystem::DkPakFileSystem(Path path)
+DkPakFileSystem::DkPakFileSystem(std::filesystem::path path)
   : ImageFileSystem{std::move(path)}
 {
   initialize();
@@ -128,7 +127,7 @@ void DkPakFileSystem::doReadDirectory()
     const auto compressed = reader.readBool<int32_t>();
     const auto entrySize = compressed ? compressedSize : uncompressedSize;
 
-    const auto entryPath = Path(kdl::str_to_lower(entryName));
+    const auto entryPath = std::filesystem::path(kdl::str_to_lower(entryName));
     auto entryFile =
       std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
 

@@ -19,11 +19,15 @@
 
 #include "ColorModel.h"
 
+#include <QColorDialog>
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "QtUtils.h"
 
-#include <QColorDialog>
+#include <kdl/path_utils.h>
+
+#include <filesystem>
 
 namespace TrenchBroom::View
 {
@@ -106,10 +110,10 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
     case 0:
       return QVariant(); // Leave first cell empty
     case 1:
-      return QString::fromStdString(colorPreference->path().firstComponent().asString());
+      return QString::fromStdString(kdl::path_front(colorPreference->path()).string());
     case 2:
       return QString::fromStdString(
-        colorPreference->path().deleteFirstComponent().asString(" > "));
+        kdl::path_pop_front(colorPreference->path()).generic_string());
       switchDefault();
     }
   }

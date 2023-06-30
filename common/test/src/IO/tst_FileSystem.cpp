@@ -19,7 +19,6 @@
 
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-
 #include "TestFileSystem.h"
 
 #include "Catch2.h"
@@ -41,103 +40,109 @@ TEST_CASE("FileSystem")
             {
               FileEntry{
                 "nested_dir_file_1.txt",
-                makeObjectFile(Path{"some_dir/nested_dir/nested_dir_file_1.txt"}, 1)},
+                makeObjectFile("some_dir/nested_dir/nested_dir_file_1.txt", 1)},
               FileEntry{
                 "nested_dir_file_2.map",
-                makeObjectFile(Path{"some_dir/nested_dir/nested_dir_file_2.map"}, 2)},
+                makeObjectFile("some_dir/nested_dir/nested_dir_file_2.map", 2)},
             }},
           FileEntry{
-            "some_dir_file_1.TXT",
-            makeObjectFile(Path{"some_dir/some_dir_file_1.TXT"}, 3)},
+            "some_dir_file_1.TXT", makeObjectFile("some_dir/some_dir_file_1.TXT", 3)},
           FileEntry{
-            "some_dir_file_2.doc",
-            makeObjectFile(Path{"some_dir/some_dir_file_2.doc"}, 4)},
+            "some_dir_file_2.doc", makeObjectFile("some_dir/some_dir_file_2.doc", 4)},
         }},
-      FileEntry{"root_file_1.map", makeObjectFile(Path{"root_file_1.map"}, 5)},
-      FileEntry{"root_file_2.jpg", makeObjectFile(Path{"root_file_2.jpg"}, 6)},
+      FileEntry{"root_file_1.map", makeObjectFile("root_file_1.map", 5)},
+      FileEntry{"root_file_2.jpg", makeObjectFile("root_file_2.jpg", 6)},
     }}};
 
   SECTION("makeAbsolute")
   {
-    CHECK_THROWS_AS(fs.makeAbsolute(Path{"/"}), FileSystemException);
-    CHECK_THROWS_AS(fs.makeAbsolute(Path{"/foo"}), FileSystemException);
+    CHECK_THROWS_AS(fs.makeAbsolute("/"), FileSystemException);
+    CHECK_THROWS_AS(fs.makeAbsolute("/foo"), FileSystemException);
   }
 
   SECTION("pathInfo")
   {
-    CHECK_THROWS_AS(fs.pathInfo(Path{"/"}), FileSystemException);
-    CHECK_THROWS_AS(fs.pathInfo(Path{"/foo"}), FileSystemException);
+#if defined(_WIN32)
+    CHECK_THROWS_AS(fs.pathInfo("c:\\"), FileSystemException);
+    CHECK_THROWS_AS(fs.pathInfo("c:\\foo"), FileSystemException);
+    CHECK(fs.pathInfo("c:") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("/") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("/foo") == PathInfo::Unknown);
+#else
+    CHECK_THROWS_AS(fs.pathInfo("/"), FileSystemException);
+    CHECK_THROWS_AS(fs.pathInfo("/foo"), FileSystemException);
+#endif
   }
 
   SECTION("find")
   {
-    CHECK_THROWS_AS(fs.find(Path{"/"}), FileSystemException);
-    CHECK_THROWS_AS(fs.find(Path{"/foo"}), FileSystemException);
-    CHECK_THROWS_AS(fs.find(Path{"does_not_exist"}), FileSystemException);
-    CHECK_THROWS_AS(fs.find(Path{"root_file_1.map"}), FileSystemException);
+    CHECK_THROWS_AS(fs.find("/"), FileSystemException);
+    CHECK_THROWS_AS(fs.find("/foo"), FileSystemException);
+    CHECK_THROWS_AS(fs.find("does_not_exist"), FileSystemException);
+    CHECK_THROWS_AS(fs.find("root_file_1.map"), FileSystemException);
 
     CHECK_THAT(
-      fs.find(Path{""}),
-      Catch::Matchers::UnorderedEquals(std::vector<Path>{
-        Path{"some_dir"},
-        Path{"root_file_1.map"},
-        Path{"root_file_2.jpg"},
+      fs.find(""),
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+        "some_dir",
+        "root_file_1.map",
+        "root_file_2.jpg",
       }));
 
     CHECK_THAT(
-      fs.findRecursively(Path{""}),
-      Catch::Matchers::UnorderedEquals(std::vector<Path>{
-        Path{"some_dir"},
-        Path{"some_dir/nested_dir"},
-        Path{"some_dir/nested_dir/nested_dir_file_1.txt"},
-        Path{"some_dir/nested_dir/nested_dir_file_2.map"},
-        Path{"some_dir/some_dir_file_1.TXT"},
-        Path{"some_dir/some_dir_file_2.doc"},
-        Path{"root_file_1.map"},
-        Path{"root_file_2.jpg"},
+      fs.findRecursively(""),
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+        "some_dir",
+        "some_dir/nested_dir",
+        "some_dir/nested_dir/nested_dir_file_1.txt",
+        "some_dir/nested_dir/nested_dir_file_2.map",
+        "some_dir/some_dir_file_1.TXT",
+        "some_dir/some_dir_file_2.doc",
+        "root_file_1.map",
+        "root_file_2.jpg",
       }));
 
     CHECK_THAT(
-      fs.find(Path{"some_dir"}),
-      Catch::Matchers::UnorderedEquals(std::vector<Path>{
-        Path{"some_dir/nested_dir"},
-        Path{"some_dir/some_dir_file_1.TXT"},
-        Path{"some_dir/some_dir_file_2.doc"},
+      fs.find("some_dir"),
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+        "some_dir/nested_dir",
+        "some_dir/some_dir_file_1.TXT",
+        "some_dir/some_dir_file_2.doc",
       }));
 
     CHECK_THAT(
-      fs.findRecursively(Path{"some_dir"}),
-      Catch::Matchers::UnorderedEquals(std::vector<Path>{
-        Path{"some_dir/nested_dir"},
-        Path{"some_dir/nested_dir/nested_dir_file_1.txt"},
-        Path{"some_dir/nested_dir/nested_dir_file_2.map"},
-        Path{"some_dir/some_dir_file_1.TXT"},
-        Path{"some_dir/some_dir_file_2.doc"},
+      fs.findRecursively("some_dir"),
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+        "some_dir/nested_dir",
+        "some_dir/nested_dir/nested_dir_file_1.txt",
+        "some_dir/nested_dir/nested_dir_file_2.map",
+        "some_dir/some_dir_file_1.TXT",
+        "some_dir/some_dir_file_2.doc",
       }));
 
     CHECK_THAT(
-      fs.findRecursively(Path{""}, makeExtensionPathMatcher({"txt", "map"})),
-      Catch::Matchers::UnorderedEquals(std::vector<Path>{
-        Path{"some_dir/nested_dir/nested_dir_file_1.txt"},
-        Path{"some_dir/nested_dir/nested_dir_file_2.map"},
-        Path{"some_dir/some_dir_file_1.TXT"},
-        Path{"root_file_1.map"},
+      fs.findRecursively("", makeExtensionPathMatcher({".txt", ".map"})),
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+        "some_dir/nested_dir/nested_dir_file_1.txt",
+        "some_dir/nested_dir/nested_dir_file_2.map",
+        "some_dir/some_dir_file_1.TXT",
+        "root_file_1.map",
       }));
   }
 
   SECTION("directoryContents")
   {
-    CHECK_THROWS_AS(fs.directoryContents(Path{"/"}), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents(Path{"/foo"}), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents(Path{"does_not_exist"}), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents(Path{"root_file_1.map"}), FileSystemException);
+    CHECK_THROWS_AS(fs.directoryContents("/"), FileSystemException);
+    CHECK_THROWS_AS(fs.directoryContents("/foo"), FileSystemException);
+    CHECK_THROWS_AS(fs.directoryContents("does_not_exist"), FileSystemException);
+    CHECK_THROWS_AS(fs.directoryContents("root_file_1.map"), FileSystemException);
   }
 
   SECTION("openFile")
   {
-    CHECK_THROWS_AS(fs.openFile(Path{"/"}), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile(Path{"/foo"}), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile(Path{"does_not_exist"}), FileSystemException);
+    CHECK_THROWS_AS(fs.openFile("/"), FileSystemException);
+    CHECK_THROWS_AS(fs.openFile("/foo"), FileSystemException);
+    CHECK_THROWS_AS(fs.openFile("does_not_exist"), FileSystemException);
   }
 }
 

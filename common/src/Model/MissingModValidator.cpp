@@ -19,7 +19,6 @@
 
 #include "MissingModValidator.h"
 
-#include "IO/Path.h"
 #include "Model/Entity.h"
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityProperties.h"
@@ -33,6 +32,7 @@
 #include <kdl/vector_utils.h>
 
 #include <cassert>
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -118,12 +118,13 @@ void MissingModValidator::doValidate(
     return;
   }
 
-  const auto additionalSearchPaths = IO::Path::asPaths(mods);
+  const auto additionalSearchPaths =
+    kdl::vec_transform(mods, [](const auto& mod) { return std::filesystem::path{mod}; });
   const auto errors = game->checkAdditionalSearchPaths(additionalSearchPaths);
 
   for (const auto& [searchPath, message] : errors)
   {
-    const auto mod = searchPath.asString();
+    const auto mod = searchPath.string();
     issues.push_back(std::make_unique<MissingModIssue>(
       entityNode, mod, "Mod '" + mod + "' could not be used: " + message));
   }

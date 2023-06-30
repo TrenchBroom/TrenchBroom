@@ -28,7 +28,7 @@
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/vector_utils.h>
 
 #include <algorithm>
@@ -137,7 +137,7 @@ UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
   }
 
   const auto& worldBounds = document.worldBounds();
-  return kdl::for_each_result(
+  return kdl::fold_results(
            changedLinkedGroups,
            [&](const auto* groupNode) {
              const auto groupNodesToUpdate = kdl::vec_erase(

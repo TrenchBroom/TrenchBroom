@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <map>
 #include <string>
 #include <vector>
@@ -29,7 +30,6 @@ namespace IO
 {
 class EntityDefinitionLoader;
 class ParserStatus;
-class Path;
 } // namespace IO
 
 namespace Model
@@ -56,7 +56,7 @@ public:
   ~EntityDefinitionManager();
 
   void loadDefinitions(
-    const IO::Path& path,
+    const std::filesystem::path& path,
     const IO::EntityDefinitionLoader& loader,
     IO::ParserStatus& status);
   void setDefinitions(const std::vector<EntityDefinition*>& newDefinitions);

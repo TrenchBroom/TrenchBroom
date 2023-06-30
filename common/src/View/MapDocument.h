@@ -20,7 +20,6 @@
 #pragma once
 
 #include "FloatType.h"
-#include "IO/Path.h"
 #include "Model/Game.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
@@ -34,6 +33,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
 
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <optional>
@@ -93,7 +93,7 @@ enum class TransactionScope;
 struct PointFile
 {
   Model::PointTrace trace;
-  IO::Path path;
+  std::filesystem::path path;
 };
 
 class MapDocument : public Model::MapFacade, public CachingLogger
@@ -109,7 +109,7 @@ protected:
 
   std::optional<PointFile> m_pointFile;
   std::unique_ptr<Model::PortalFile> m_portalFile;
-  IO::Path m_portalFilePath;
+  std::filesystem::path m_portalFilePath;
 
   std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
   std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
@@ -123,7 +123,7 @@ protected:
   ActionList m_tagActions;
   ActionList m_entityDefinitionActions;
 
-  IO::Path m_path;
+  std::filesystem::path m_path;
   size_t m_lastSaveModificationCount;
   size_t m_modificationCount;
 
@@ -218,7 +218,7 @@ public: // accessors and such
   const vm::bbox3& worldBounds() const;
   Model::WorldNode* world() const;
 
-  bool isGamePathPreference(const IO::Path& path) const;
+  bool isGamePathPreference(const std::filesystem::path& path) const;
 
   Model::LayerNode* currentLayer() const override;
 
@@ -295,14 +295,14 @@ public: // new, load, save document
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,
-    const IO::Path& path);
+    const std::filesystem::path& path);
   void saveDocument();
-  void saveDocumentAs(const IO::Path& path);
-  void saveDocumentTo(const IO::Path& path);
+  void saveDocumentAs(const std::filesystem::path& path);
+  void saveDocumentTo(const std::filesystem::path& path);
   void exportDocumentAs(const IO::ExportOptions& options);
 
 private:
-  void doSaveDocument(const IO::Path& path);
+  void doSaveDocument(const std::filesystem::path& path);
   void clearDocument();
 
 public: // text encoding
@@ -319,14 +319,14 @@ private:
   bool pasteBrushFaces(const std::vector<Model::BrushFace>& faces);
 
 public: // point file management
-  void loadPointFile(IO::Path path);
+  void loadPointFile(std::filesystem::path path);
   bool isPointFileLoaded() const;
   bool canReloadPointFile() const;
   void reloadPointFile();
   void unloadPointFile();
 
 public: // portal file management
-  void loadPortalFile(IO::Path path);
+  void loadPortalFile(std::filesystem::path path);
   bool isPortalFileLoaded() const;
   bool canReloadPortalFile() const;
   void reloadPortalFile();
@@ -685,7 +685,7 @@ private: // world management
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,
-    const IO::Path& path);
+    const std::filesystem::path& path);
   void clearWorld();
 
 public: // asset management
@@ -696,11 +696,7 @@ public: // asset management
   // For testing
   void setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions);
 
-  std::vector<IO::Path> enabledTextureCollections() const;
-  std::vector<IO::Path> availableTextureCollections() const;
-  void setEnabledTextureCollections(const std::vector<IO::Path>& paths);
   void reloadTextureCollections();
-
   void reloadEntityDefinitions();
 
 private:
@@ -738,7 +734,7 @@ protected:
   void unsetEntityModels(const std::vector<Model::Node*>& nodes);
 
 protected: // search paths and mods
-  std::vector<IO::Path> externalSearchPaths() const;
+  std::vector<std::filesystem::path> externalSearchPaths() const;
   void updateGameSearchPaths();
 
 public:
@@ -779,10 +775,10 @@ private:
 public: // document path
   bool persistent() const;
   std::string filename() const;
-  const IO::Path& path() const;
+  const std::filesystem::path& path() const;
 
 private:
-  void setPath(const IO::Path& path);
+  void setPath(const std::filesystem::path& path);
 
 public: // modification count
   bool modified() const;
@@ -800,7 +796,7 @@ private: // observers
   void entityDefinitionsDidChange();
   void modsWillChange();
   void modsDidChange();
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
   void commandDone(Command& command);
   void commandUndone(UndoableCommand& command);
   void transactionDone(const std::string& name);
@@ -809,22 +805,25 @@ private: // observers
 
 class Transaction
 {
-private:
-  enum class TransactionState
+public:
+  enum class State
   {
     Running,
     Committed,
     Cancelled,
   };
 
+private:
   MapDocument& m_document;
-  TransactionState m_state;
+  State m_state;
 
 public:
   explicit Transaction(std::weak_ptr<MapDocument> document, std::string name = "");
   explicit Transaction(std::shared_ptr<MapDocument> document, std::string name = "");
   explicit Transaction(MapDocument& document, std::string name = "");
   ~Transaction();
+
+  State state() const;
 
   bool commit();
   void rollback();

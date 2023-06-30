@@ -24,6 +24,7 @@
 #include "Model/GameFactory.h"
 #include "View/MapDocument.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -48,7 +49,7 @@ const std::string APP_DIR_PATH = "APP_DIR_PATH";
 
 CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
 {
-  const auto filename = document->path().lastComponent();
+  const auto filename = document->path().filename();
   const auto gamePath = document->game()->gamePath();
 
   auto mods = std::vector<std::string>{};
@@ -56,8 +57,8 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
   mods = kdl::vec_concat(std::move(mods), document->mods());
 
   using namespace CompilationVariableNames;
-  declare(MAP_BASE_NAME, EL::Value{filename.deleteExtension().asString()});
-  declare(GAME_DIR_PATH, EL::Value{gamePath.asString()});
+  declare(MAP_BASE_NAME, EL::Value{kdl::path_remove_extension(filename).string()});
+  declare(GAME_DIR_PATH, EL::Value{gamePath.string()});
   declare(
     MODS,
     EL::Value{kdl::vec_transform(mods, [](const auto& mod) { return EL::Value{mod}; })});
@@ -69,7 +70,7 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
       factory.compilationToolPath(document->game()->gameName(), tool.name);
     // e.g. variable name might be "qbsp", and the value is the path to the user's local
     // qbsp executable
-    declare(tool.name, EL::Value{toolPath.asString()});
+    declare(tool.name, EL::Value{toolPath.string()});
   }
 }
 
@@ -77,14 +78,14 @@ CommonCompilationVariables::CommonCompilationVariables(
   std::shared_ptr<MapDocument> document)
   : CommonVariables{document}
 {
-  const auto filename = document->path().lastComponent();
-  const auto filePath = document->path().deleteLastComponent();
+  const auto filename = document->path().filename();
+  const auto filePath = document->path().parent_path();
   const auto appPath = IO::SystemPaths::appDirectory();
 
   using namespace CompilationVariableNames;
-  declare(MAP_FULL_NAME, EL::Value{filename.asString()});
-  declare(MAP_DIR_PATH, EL::Value{filePath.asString()});
-  declare(APP_DIR_PATH, EL::Value{appPath.asString()});
+  declare(MAP_FULL_NAME, EL::Value{filename.string()});
+  declare(MAP_DIR_PATH, EL::Value{filePath.string()});
+  declare(APP_DIR_PATH, EL::Value{appPath.string()});
 }
 
 CompilationWorkDirVariables::CompilationWorkDirVariables(

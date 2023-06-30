@@ -27,6 +27,8 @@
 #include "Logger.h"
 #include "Model/EntityNode.h"
 
+#include <kdl/result.h>
+
 #include "Catch2.h"
 
 namespace TrenchBroom
@@ -35,14 +37,13 @@ namespace IO
 {
 TEST_CASE("MdlParserTest.loadValidMdl")
 {
-  NullLogger logger;
+  auto logger = NullLogger{};
 
-  DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-  const Assets::Palette palette =
-    Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
+  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto paletteFile = fs.openFile("fixture/test/palette.lmp");
+  const auto palette = Assets::loadPalette(*paletteFile).value();
 
-  const auto mdlPath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/armor.mdl");
+  const auto mdlPath = std::filesystem::current_path() / "fixture/test/IO/Mdl/armor.mdl";
   const auto mdlFile = Disk::openFile(mdlPath);
   REQUIRE(mdlFile != nullptr);
 
@@ -63,14 +64,14 @@ TEST_CASE("MdlParserTest.loadValidMdl")
 
 TEST_CASE("MdlParserTest.loadInvalidMdl")
 {
-  NullLogger logger;
+  auto logger = NullLogger{};
 
-  DiskFileSystem fs(IO::Disk::getCurrentWorkingDir());
-  const Assets::Palette palette =
-    Assets::Palette::loadFile(fs, Path("fixture/test/palette.lmp"));
+  auto fs = DiskFileSystem{std::filesystem::current_path()};
+  auto paletteFile = fs.openFile("fixture/test/palette.lmp");
+  const auto palette = Assets::loadPalette(*paletteFile).value();
 
   const auto mdlPath =
-    IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/test/IO/Mdl/invalid.mdl");
+    std::filesystem::current_path() / "fixture/test/IO/Mdl/invalid.mdl";
   const auto mdlFile = Disk::openFile(mdlPath);
   REQUIRE(mdlFile != nullptr);
 

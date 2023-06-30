@@ -19,10 +19,10 @@
 
 #include "Thread.h"
 
-#include "Ensure.h"
-
 #include <QApplication>
 #include <QThread>
+
+#include "Ensure.h"
 
 namespace TrenchBroom
 {

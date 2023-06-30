@@ -19,16 +19,15 @@
 
 #include "RecentDocuments.h"
 
-#include "IO/Path.h"
+#include <QMenu>
+#include <QSettings>
+#include <QVariant>
+
 #include "IO/PathQt.h"
 #include "Notifier.h"
 #include "View/QtUtils.h"
 
 #include <kdl/vector_utils.h>
-
-#include <QMenu>
-#include <QSettings>
-#include <QVariant>
 
 namespace TrenchBroom
 {
@@ -42,7 +41,7 @@ RecentDocuments::RecentDocuments(const size_t maxSize, QObject* parent)
   loadFromConfig();
 }
 
-const std::vector<IO::Path>& RecentDocuments::recentDocuments() const
+const std::vector<std::filesystem::path>& RecentDocuments::recentDocuments() const
 {
   return m_recentDocuments;
 }
@@ -62,7 +61,7 @@ void RecentDocuments::removeMenu(QMenu* menu)
   m_menus = kdl::vec_erase(std::move(m_menus), menu);
 }
 
-void RecentDocuments::updatePath(const IO::Path& path)
+void RecentDocuments::updatePath(const std::filesystem::path& path)
 {
   insertPath(path);
   updateMenus();
@@ -70,11 +69,11 @@ void RecentDocuments::updatePath(const IO::Path& path)
   emit didChange();
 }
 
-void RecentDocuments::removePath(const IO::Path& path)
+void RecentDocuments::removePath(const std::filesystem::path& path)
 {
   const size_t oldSize = m_recentDocuments.size();
 
-  const IO::Path canonPath = path.makeCanonical();
+  const std::filesystem::path canonPath = path.lexically_normal();
   m_recentDocuments = kdl::vec_erase(std::move(m_recentDocuments), canonPath);
 
   if (oldSize > m_recentDocuments.size())
@@ -118,9 +117,9 @@ void RecentDocuments::saveToConfig()
   }
 }
 
-void RecentDocuments::insertPath(const IO::Path& path)
+void RecentDocuments::insertPath(const std::filesystem::path& path)
 {
-  const auto canonPath = path.makeCanonical();
+  const auto canonPath = path.lexically_normal();
   auto it =
     std::find(std::begin(m_recentDocuments), std::end(m_recentDocuments), canonPath);
   if (it != std::end(m_recentDocuments))
@@ -153,7 +152,7 @@ void RecentDocuments::createMenuItems(QMenu* menu)
   for (const auto& path : m_recentDocuments)
   {
     menu->addAction(
-      IO::pathAsQString(path.lastComponent()), [this, path]() { loadDocument(path); });
+      IO::pathAsQString(path.filename()), [this, path]() { loadDocument(path); });
   }
 }
 } // namespace View

@@ -19,16 +19,17 @@
 
 #pragma once
 
+#include <QDialog>
+#include <QMainWindow>
+#include <QPointer>
+
 #include "IO/ExportOptions.h"
 #include "Model/MapFormat.h"
 #include "NotifierConnection.h"
 #include "View/Selection.h"
 
-#include <QDialog>
-#include <QMainWindow>
-#include <QPointer>
-
 #include <chrono>
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <string>
@@ -50,11 +51,6 @@ class Logger;
 namespace Assets
 {
 class Texture;
-}
-
-namespace IO
-{
-class Path;
 }
 
 namespace Model
@@ -157,7 +153,7 @@ public:
 
 public: // getters and such
   Logger& logger() const;
-  QAction* findAction(const IO::Path& path);
+  QAction* findAction(const std::filesystem::path& path);
 
 private: // title bar contents
   void updateTitle();
@@ -197,7 +193,7 @@ private: // notification handlers
   void transactionDone(const std::string&);
   void transactionUndone(const std::string&);
 
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
   void gridDidChange();
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);
@@ -217,7 +213,9 @@ private: // menu event handlers
 public:
   bool newDocument(std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat);
   bool openDocument(
-    std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat, const IO::Path& path);
+    std::shared_ptr<Model::Game> game,
+    Model::MapFormat mapFormat,
+    const std::filesystem::path& path);
   bool saveDocument();
   bool saveDocumentAs();
   bool revertDocument();

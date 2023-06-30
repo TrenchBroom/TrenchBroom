@@ -18,11 +18,12 @@
  */
 
 #include "SpinControl.h"
+
+#include <QGuiApplication>
+
 #include "View/QtUtils.h"
 
 #include <kdl/string_utils.h>
-
-#include <QGuiApplication>
 
 #include <cassert>
 

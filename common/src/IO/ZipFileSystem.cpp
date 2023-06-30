@@ -31,7 +31,7 @@ namespace IO
 {
 // ZipFileSystem
 
-ZipFileSystem::ZipFileSystem(Path path)
+ZipFileSystem::ZipFileSystem(std::filesystem::path path)
   : ImageFileSystem{std::move(path)}
 {
   initialize();
@@ -56,13 +56,13 @@ void ZipFileSystem::doReadDirectory()
   {
     if (!mz_zip_reader_is_file_a_directory(&m_archive, i))
     {
-      const auto path = Path{filename(i)};
+      const auto path = std::filesystem::path{filename(i)};
       addFile(path, [=]() -> std::shared_ptr<File> {
         auto stat = mz_zip_archive_file_stat{};
         if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
         {
           throw FileSystemException{
-            "mz_zip_reader_file_stat failed for " + path.asString()};
+            "mz_zip_reader_file_stat failed for " + path.string()};
         }
 
         const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
@@ -72,7 +72,7 @@ void ZipFileSystem::doReadDirectory()
         if (!mz_zip_reader_extract_to_mem(&m_archive, i, begin, uncompressedSize, 0))
         {
           throw FileSystemException{
-            "mz_zip_reader_extract_to_mem failed for " + path.asString()};
+            "mz_zip_reader_extract_to_mem failed for " + path.string()};
         }
 
         return std::make_shared<OwningBufferFile>(

@@ -19,13 +19,14 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "Model/TagType.h"
 #include "NotifierConnection.h"
 
+#include <filesystem>
 #include <memory>
 #include <vector>
-
-#include <QWidget>
 
 class QCheckBox;
 class QWidget;
@@ -38,11 +39,6 @@ namespace Assets
 class EntityDefinition;
 class EntityDefinitionManager;
 } // namespace Assets
-
-namespace IO
-{
-class Path;
-}
 
 namespace Model
 {
@@ -127,7 +123,7 @@ private:
   void documentWasNewedOrLoaded(MapDocument* document);
   void editorContextDidChange();
   void entityDefinitionsDidChange();
-  void preferenceDidChange(const IO::Path& path);
+  void preferenceDidChange(const std::filesystem::path& path);
 
   void createGui();
 

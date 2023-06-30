@@ -19,9 +19,9 @@
 
 #include "Logger.h"
 
-#include <string>
-
 #include <QString>
+
+#include <string>
 
 namespace TrenchBroom
 {

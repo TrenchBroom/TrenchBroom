@@ -19,10 +19,9 @@
 
 #pragma once
 
-#include "Token.h"
-
 #include "Exceptions.h"
 #include "Macros.h"
+#include "Token.h"
 
 #include <kdl/string_format.h>
 
@@ -420,7 +419,7 @@ protected:
       readDigits();
     }
 
-    if (curChar() == 'e')
+    if (curChar() == 'e' || curChar() == 'E')
     {
       advance();
       if (curChar() == '+' || curChar() == '-' || isDigit(curChar()))

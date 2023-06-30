@@ -18,7 +18,6 @@
  */
 
 #include "TestUtils.h"
-#include "TestLogger.h"
 
 #include "Assets/Texture.h"
 #include "Ensure.h"
@@ -33,6 +32,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/PatchNode.h"
+#include "TestLogger.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
@@ -153,6 +153,18 @@ TEST_CASE("TestUtilsTest.pointExactlyIntegral")
   CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.0, near1024, 1024.0)));
   CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
 }
+
+namespace IO
+{
+std::string readTextFile(const std::filesystem::path& path)
+{
+  const auto fixedPath = Disk::fixPath(path);
+  return Disk::withInputStream(fixedPath, [](auto& stream) {
+    return std::string{
+      (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
+  });
+}
+} // namespace IO
 
 namespace Model
 {
@@ -311,11 +323,11 @@ void transformNode(
 GameAndConfig loadGame(const std::string& gameName)
 {
   TestLogger logger;
-  const auto configPath = IO::Disk::getCurrentWorkingDir() + IO::Path("fixture/games")
-                          + IO::Path(gameName) + IO::Path("GameConfig.cfg");
-  const auto gamePath = IO::Disk::getCurrentWorkingDir()
-                        + IO::Path("fixture/test/Model/Game") + IO::Path(gameName);
-  const auto configStr = IO::Disk::readTextFile(configPath);
+  const auto configPath =
+    std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
+  const auto gamePath =
+    std::filesystem::current_path() / "fixture/test/Model/Game" / gameName;
+  const auto configStr = IO::readTextFile(configPath);
   auto configParser = IO::GameConfigParser(configStr, configPath);
   auto config = std::make_unique<Model::GameConfig>(configParser.parse());
   auto game = std::make_shared<Model::GameImpl>(*config, gamePath, logger);
@@ -373,7 +385,9 @@ void setLinkedGroupId(GroupNode& groupNode, std::string linkedGroupId)
 namespace View
 {
 DocumentGameConfig loadMapDocument(
-  const IO::Path& mapPath, const std::string& gameName, const Model::MapFormat mapFormat)
+  const std::filesystem::path& mapPath,
+  const std::string& gameName,
+  const Model::MapFormat mapFormat)
 {
   auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
 
@@ -381,7 +395,7 @@ DocumentGameConfig loadMapDocument(
     mapFormat,
     document->worldBounds(),
     document->game(),
-    IO::Disk::getCurrentWorkingDir() + mapPath);
+    std::filesystem::current_path() / mapPath);
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }

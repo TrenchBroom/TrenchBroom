@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "View/CompilationRun.h"
-
 #include <QDialog>
+
+#include "View/CompilationRun.h"
 
 class QLabel;
 class QPushButton;

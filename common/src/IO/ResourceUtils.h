@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -37,7 +38,6 @@ class Texture;
 namespace IO
 {
 class FileSystem;
-class Path;
 
 /**
  * Loads a default texture file from the given file system. If the default texture cannot
@@ -48,14 +48,13 @@ class Path;
  * @return the default texture
  */
 Assets::Texture loadDefaultTexture(
-  const FileSystem& fs, Logger& logger, const std::string& name);
+  const FileSystem& fs, const std::string& name, Logger& logger);
 
-QPixmap loadPixmapResource(const std::string& name);
-QPixmap loadPixmapResource(const Path& imagePath);
+QPixmap loadPixmapResource(const std::filesystem::path& imagePath);
 
 /**
  * Loads an SVG image into a QIcon
  */
-QIcon loadSVGIcon(const Path& imagePath);
+QIcon loadSVGIcon(const std::filesystem::path& imagePath);
 } // namespace IO
 } // namespace TrenchBroom

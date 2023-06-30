@@ -19,15 +19,15 @@
 
 #pragma once
 
+#include <QObject>
+#include <QProcess> // for QProcess::ProcessError
+
 #include "Macros.h"
 #include "Model/CompilationTask.h"
 
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <QObject>
-#include <QProcess> // for QProcess::ProcessError
 
 namespace TrenchBroom
 {

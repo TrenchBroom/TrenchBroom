@@ -18,6 +18,7 @@
  */
 
 #include "UVOriginTool.h"
+
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -409,7 +410,7 @@ void UVOriginTool::render(
   Renderer::RenderContext&,
   Renderer::RenderBatch& renderBatch)
 {
-  if (!m_helper.valid() || anyToolDragging(inputState))
+  if (!m_helper.valid() || inputState.anyToolDragging())
   {
     return;
   }

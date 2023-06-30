@@ -19,9 +19,11 @@
 
 #pragma once
 
+#include "IO/VirtualFileSystem.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/Game.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
@@ -33,7 +35,8 @@ class Logger;
 namespace IO
 {
 class Path;
-}
+class VirtualFileSystem;
+} // namespace IO
 
 namespace Model
 {
@@ -44,9 +47,11 @@ private:
   std::vector<SmartTag> m_smartTags;
   Model::BrushFaceAttributes m_defaultFaceAttributes;
   std::vector<CompilationTool> m_compilationTools;
+  std::unique_ptr<IO::VirtualFileSystem> m_fs;
 
 public:
   TestGame();
+  ~TestGame() override;
 
 public:
   void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
@@ -55,14 +60,14 @@ public:
 
 private:
   const std::string& doGameName() const override;
-  IO::Path doGamePath() const override;
-  void doSetGamePath(const IO::Path& gamePath, Logger& logger) override;
+  std::filesystem::path doGamePath() const override;
+  void doSetGamePath(const std::filesystem::path& gamePath, Logger& logger) override;
   std::optional<vm::bbox3> doSoftMapBounds() const override;
   Game::SoftMapBounds doExtractSoftMapBounds(const Entity& entity) const override;
   void doSetAdditionalSearchPaths(
-    const std::vector<IO::Path>& searchPaths, Logger& logger) override;
+    const std::vector<std::filesystem::path>& searchPaths, Logger& logger) override;
   PathErrors doCheckAdditionalSearchPaths(
-    const std::vector<IO::Path>& searchPaths) const override;
+    const std::vector<std::filesystem::path>& searchPaths) const override;
 
   const CompilationConfig& doCompilationConfig() override;
   size_t doMaxPropertyLength() const override;
@@ -74,9 +79,9 @@ private:
   std::unique_ptr<WorldNode> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
-    const IO::Path& path,
+    const std::filesystem::path& path,
     Logger& logger) const override;
-  void doWriteMap(WorldNode& world, const IO::Path& path) const override;
+  void doWriteMap(WorldNode& world, const std::filesystem::path& path) const override;
   void doExportMap(WorldNode& world, const IO::ExportOptions& options) const override;
 
   std::vector<Node*> doParseNodes(
@@ -99,28 +104,22 @@ private:
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  TexturePackageType doTexturePackageType() const override;
-  void doLoadTextureCollections(
-    const Entity& entity,
-    const IO::Path& documentPath,
-    Assets::TextureManager& textureManager,
-    Logger& logger) const override;
-  bool doIsTextureCollection(const IO::Path& path) const override;
-  std::vector<std::string> doFileTextureCollectionExtensions() const override;
-  std::vector<IO::Path> doFindTextureCollections() const override;
-  std::vector<IO::Path> doExtractTextureCollections(const Entity& entity) const override;
-  void doUpdateTextureCollections(
-    Entity& entity, const std::vector<IO::Path>& paths) const override;
+  void doLoadTextureCollections(Assets::TextureManager& textureManager) const override;
+
+  void doReloadWads(
+    const std::filesystem::path& documentPath,
+    const std::vector<std::filesystem::path>& wadPaths,
+    Logger& logger) override;
   void doReloadShaders() override;
 
-  bool doIsEntityDefinitionFile(const IO::Path& path) const override;
+  bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
     const override;
   Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(
     const Entity& entity) const override;
-  IO::Path doFindEntityDefinitionFile(
+  std::filesystem::path doFindEntityDefinitionFile(
     const Assets::EntityDefinitionFileSpec& spec,
-    const std::vector<IO::Path>& searchPaths) const override;
+    const std::vector<std::filesystem::path>& searchPaths) const override;
 
   std::vector<std::string> doAvailableMods() const override;
   std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
@@ -132,11 +131,11 @@ private:
   const std::vector<CompilationTool>& doCompilationTools() const override;
 
   std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(
-    IO::ParserStatus& status, const IO::Path& path) const override;
+    IO::ParserStatus& status, const std::filesystem::path& path) const override;
   std::unique_ptr<Assets::EntityModel> doInitializeModel(
-    const IO::Path& path, Logger& logger) const override;
+    const std::filesystem::path& path, Logger& logger) const override;
   void doLoadFrame(
-    const IO::Path& path,
+    const std::filesystem::path& path,
     size_t frameIndex,
     Assets::EntityModel& model,
     Logger& logger) const override;

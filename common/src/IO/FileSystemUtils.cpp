@@ -27,7 +27,8 @@
 namespace TrenchBroom::IO
 {
 
-std::optional<Path> safeMakeAbsolute(const Path& path, const MakeAbsolute& makeAbsolute)
+std::optional<std::filesystem::path> safeMakeAbsolute(
+  const std::filesystem::path& path, const MakeAbsolute& makeAbsolute)
 {
   try
   {
@@ -41,53 +42,46 @@ std::optional<Path> safeMakeAbsolute(const Path& path, const MakeAbsolute& makeA
 
 namespace
 {
-std::vector<Path> doFind(
-  const Path& path,
+std::vector<std::filesystem::path> doFind(
+  const std::filesystem::path& path,
   const GetDirectoryContents& getDirectoryContents,
   const GetPathInfo& getPathInfo,
   const PathMatcher& pathMatcher,
   const bool recursive)
 {
-  try
+  if (getPathInfo(path) != PathInfo::Directory)
   {
-    if (getPathInfo(path) != PathInfo::Directory)
-    {
-      throw FileSystemException{"Directory not found: '" + path.asString() + "'"};
-    }
+    throw FileSystemException{"Directory not found: '" + path.string() + "'"};
+  }
 
-    auto result = kdl::vec_transform(
-      getDirectoryContents(path), [&](const auto& p) { return path + p; });
+  auto result = kdl::vec_transform(
+    getDirectoryContents(path), [&](const auto& p) { return path / p; });
 
-    if (recursive)
+  if (recursive)
+  {
+    size_t i = 0;
+    while (i < result.size())
     {
-      size_t i = 0;
-      while (i < result.size())
+      const auto& currentPath = result[i];
+      if (getPathInfo(currentPath) == PathInfo::Directory)
       {
-        const auto& currentPath = result[i];
-        if (getPathInfo(currentPath) == PathInfo::Directory)
-        {
-          result = kdl::vec_concat(
-            std::move(result),
-            kdl::vec_transform(getDirectoryContents(currentPath), [&](const auto& p) {
-              return currentPath + p;
-            }));
-        }
-        ++i;
+        result = kdl::vec_concat(
+          std::move(result),
+          kdl::vec_transform(getDirectoryContents(currentPath), [&](const auto& p) {
+            return currentPath / p;
+          }));
       }
+      ++i;
     }
+  }
 
-    return kdl::vec_filter(
-      std::move(result), [&](const auto& p) { return pathMatcher(p, getPathInfo); });
-  }
-  catch (const PathException& e)
-  {
-    throw FileSystemException{"Invalid path: '" + path.asString() + "'", e};
-  }
+  return kdl::vec_filter(
+    std::move(result), [&](const auto& p) { return pathMatcher(p, getPathInfo); });
 }
 } // namespace
 
-std::vector<Path> find(
-  const Path& path,
+std::vector<std::filesystem::path> find(
+  const std::filesystem::path& path,
   const GetDirectoryContents& getDirectoryContents,
   const GetPathInfo& getPathInfo,
   const PathMatcher& pathMatcher)
@@ -95,8 +89,8 @@ std::vector<Path> find(
   return doFind(path, getDirectoryContents, getPathInfo, pathMatcher, false);
 }
 
-std::vector<Path> findRecursively(
-  const Path& path,
+std::vector<std::filesystem::path> findRecursively(
+  const std::filesystem::path& path,
   const GetDirectoryContents& getDirectoryContents,
   const GetPathInfo& getPathInfo,
   const PathMatcher& pathMatcher)

@@ -19,6 +19,9 @@
 
 #include "CyclingMapView.h"
 
+#include <QShortcut>
+#include <QStackedLayout>
+
 #include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Renderer/Camera.h"
@@ -29,9 +32,6 @@
 #include "View/MapViewActivationTracker.h"
 
 #include <vecmath/scalar.h>
-
-#include <QShortcut>
-#include <QStackedLayout>
 
 namespace TrenchBroom
 {

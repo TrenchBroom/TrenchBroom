@@ -20,6 +20,7 @@
 #include "EL/ELExceptions.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
+
 #include <vecmath/scalar.h>
 
 #include <limits>

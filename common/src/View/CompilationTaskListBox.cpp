@@ -19,6 +19,15 @@
 
 #include "CompilationTaskListBox.h"
 
+#include <QBoxLayout>
+#include <QCheckBox>
+#include <QCompleter>
+#include <QFileDialog>
+#include <QFormLayout>
+#include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
+
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
@@ -34,15 +43,6 @@
 
 #include <kdl/memory_utils.h>
 #include <kdl/overload.h>
-
-#include <QBoxLayout>
-#include <QCheckBox>
-#include <QCompleter>
-#include <QFileDialog>
-#include <QFormLayout>
-#include <QHBoxLayout>
-#include <QLineEdit>
-#include <QPushButton>
 
 namespace TrenchBroom
 {

@@ -31,6 +31,9 @@
 #include "View/MapDocumentTest.h"
 #include "View/UpdateLinkedGroupsHelper.h"
 
+#include <kdl/overload.h>
+#include <kdl/result.h>
+
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
 #include <vecmath/mat.h>
@@ -38,9 +41,6 @@
 #include <vecmath/mat_io.h>
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
-
-#include <kdl/overload.h>
-#include <kdl/result.h>
 
 #include "Catch2.h"
 

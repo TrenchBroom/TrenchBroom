@@ -21,35 +21,32 @@
 
 #include "EL/EL_Forward.h"
 #include "IO/ELParser.h"
-#include "IO/Path.h"
 
+#include <filesystem>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 class ConfigParserBase
 {
 private:
   ELParser m_parser;
 
 protected:
-  Path m_path;
+  std::filesystem::path m_path;
 
 protected:
-  explicit ConfigParserBase(std::string_view str, Path path = Path{""});
+  explicit ConfigParserBase(std::string_view str, std::filesystem::path path = {});
 
 public:
   virtual ~ConfigParserBase();
 
 protected:
   EL::Expression parseConfigFile();
-
-  void expectType(const EL::Value& value, EL::ValueType type) const;
-  void expectStructure(const EL::Value& value, const std::string& structure) const;
-  void expectMapEntry(
-    const EL::Value& value, const std::string& key, EL::ValueType type) const;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+void expectType(const EL::Value& value, EL::ValueType type);
+void expectStructure(const EL::Value& value, const std::string& structure);
+void expectMapEntry(const EL::Value& value, const std::string& key, EL::ValueType type);
+} // namespace TrenchBroom::IO

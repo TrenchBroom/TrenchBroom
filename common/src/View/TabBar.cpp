@@ -19,14 +19,14 @@
 
 #include "TabBar.h"
 
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QStackedLayout>
+
 #include "Ensure.h"
 #include "View/QtUtils.h"
 #include "View/TabBook.h"
 #include "View/ViewConstants.h"
-
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QStackedLayout>
 
 namespace TrenchBroom
 {

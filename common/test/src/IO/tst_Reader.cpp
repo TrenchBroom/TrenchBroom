@@ -22,6 +22,7 @@
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
+#include <filesystem>
 #include <memory>
 #include <string>
 
@@ -40,7 +41,7 @@ static const char* buff()
 static std::shared_ptr<File> file()
 {
   static auto result =
-    Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/10byte"));
+    Disk::openFile(std::filesystem::current_path() / "fixture/test/IO/Reader/10byte");
   return result;
 }
 
@@ -65,7 +66,7 @@ TEST_CASE("BufferReaderTest.createEmpty")
 TEST_CASE("FileReaderTest.createEmpty")
 {
   const auto emptyFile =
-    Disk::openFile(Disk::getCurrentWorkingDir() + Path("fixture/test/IO/Reader/empty"));
+    Disk::openFile(std::filesystem::current_path() / "fixture/test/IO/Reader/empty");
   createEmpty(emptyFile->reader());
 }
 
@@ -164,6 +165,24 @@ static void seekForward(Reader&& r)
 
   CHECK_THROWS_AS(r.seekForward(9U), ReaderException);
   CHECK(r.position() == 2U);
+}
+
+TEST_CASE("ReaderTest.copyConstructor")
+{
+  auto reader = Reader::from(buff(), buff() + 10);
+  REQUIRE(reader.readString(4) == "abcd");
+  REQUIRE(reader.canRead(6));
+  REQUIRE_FALSE(reader.canRead(7));
+
+  auto copy = Reader{reader};
+  CHECK(reader.canRead(6) == copy.canRead(6));
+  CHECK(reader.canRead(7) == copy.canRead(7));
+
+  CHECK(reader.readString(2) == copy.readString(2));
+
+  reader.seekFromBegin(0);
+  copy.seekFromBegin(0);
+  CHECK(reader.readString(2) == copy.readString(2));
 }
 
 TEST_CASE("BufferReaderTest.seekForward")

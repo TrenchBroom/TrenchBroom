@@ -33,8 +33,8 @@
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
 
-#include "kdl/vector_utils.h"
 #include <kdl/memory_utils.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/polygon.h>
 #include <vecmath/segment.h>
@@ -148,7 +148,7 @@ void ScaleObjectsToolController::modifierKeyChange(const InputState& inputState)
 
 void ScaleObjectsToolController::mouseMove(const InputState& inputState)
 {
-  if (m_tool.applies() && !anyToolDragging(inputState))
+  if (m_tool.applies() && !inputState.anyToolDragging())
   {
     m_tool.updatePickedHandle(inputState.pickResult());
   }

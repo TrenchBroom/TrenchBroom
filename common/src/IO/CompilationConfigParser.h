@@ -26,6 +26,7 @@
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -33,12 +34,11 @@ namespace TrenchBroom
 {
 namespace IO
 {
-class Path;
 
 class CompilationConfigParser : public ConfigParserBase
 {
 public:
-  explicit CompilationConfigParser(std::string_view str, Path path = Path{""});
+  explicit CompilationConfigParser(std::string_view str, std::filesystem::path path = {});
 
   Model::CompilationConfig parse();
 

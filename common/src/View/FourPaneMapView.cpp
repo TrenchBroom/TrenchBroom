@@ -19,15 +19,15 @@
 
 #include "FourPaneMapView.h"
 
+#include <QHBoxLayout>
+#include <QSettings>
+
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
-
-#include <QHBoxLayout>
-#include <QSettings>
 
 namespace TrenchBroom
 {

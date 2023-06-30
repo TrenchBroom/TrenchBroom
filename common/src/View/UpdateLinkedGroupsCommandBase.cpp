@@ -58,7 +58,7 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
       setModificationCount(document);
       return std::move(commandResult);
     })
-    .or_else([&](const Model::UpdateLinkedGroupsError& e) {
+    .transform_error([&](const Model::UpdateLinkedGroupsError& e) {
       doPerformUndo(document);
       if (document)
       {

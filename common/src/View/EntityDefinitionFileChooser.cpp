@@ -19,6 +19,13 @@
 
 #include "EntityDefinitionFileChooser.h"
 
+#include <QDebug>
+#include <QFileDialog>
+#include <QLabel>
+#include <QListWidget>
+#include <QPushButton>
+#include <QVBoxLayout>
+
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
@@ -31,13 +38,6 @@
 
 #include <kdl/memory_utils.h>
 #include <kdl/vector_utils.h>
-
-#include <QDebug>
-#include <QFileDialog>
-#include <QLabel>
-#include <QListWidget>
-#include <QPushButton>
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {
@@ -191,7 +191,7 @@ void EntityDefinitionFileChooser::updateControls()
     const auto& path = spec.path();
 
     auto* item = new QListWidgetItem();
-    item->setData(Qt::DisplayRole, IO::pathAsQString(path.lastComponent()));
+    item->setData(Qt::DisplayRole, IO::pathAsQString(path.filename()));
     item->setData(Qt::UserRole, QVariant::fromValue(spec));
 
     m_builtin->addItem(item);

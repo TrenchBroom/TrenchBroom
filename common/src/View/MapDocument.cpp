@@ -33,7 +33,6 @@
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
 #include "IO/GameConfigParser.h"
-#include "IO/IOUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SystemPaths.h"
@@ -111,7 +110,7 @@
 #include <kdl/overload.h>
 #include <kdl/parallel.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_set.h>
 #include <kdl/vector_utils.h>
@@ -416,7 +415,7 @@ Model::WorldNode* MapDocument::world() const
   return m_world.get();
 }
 
-bool MapDocument::isGamePathPreference(const IO::Path& path) const
+bool MapDocument::isGamePathPreference(const std::filesystem::path& path) const
 {
   return m_game.get() != nullptr && m_game->isGamePathPreference(path);
 }
@@ -589,9 +588,9 @@ void MapDocument::loadDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
-  const IO::Path& path)
+  const std::filesystem::path& path)
 {
-  info("Loading document from " + path.asString());
+  info("Loading document from " + path.string());
 
   clearRepeatableCommands();
   doClearCommandProcessor();
@@ -611,15 +610,15 @@ void MapDocument::saveDocument()
   doSaveDocument(m_path);
 }
 
-void MapDocument::saveDocumentAs(const IO::Path& path)
+void MapDocument::saveDocumentAs(const std::filesystem::path& path)
 {
   doSaveDocument(path);
 }
 
-void MapDocument::saveDocumentTo(const IO::Path& path)
+void MapDocument::saveDocumentTo(const std::filesystem::path& path)
 {
   ensure(m_game.get() != nullptr, "game is null");
-  ensure(m_world != nullptr, "world is null");
+  ensure(m_world, "world is null");
   m_game->writeMap(*m_world, path);
 }
 
@@ -628,7 +627,7 @@ void MapDocument::exportDocumentAs(const IO::ExportOptions& options)
   m_game->exportMap(*m_world, options);
 }
 
-void MapDocument::doSaveDocument(const IO::Path& path)
+void MapDocument::doSaveDocument(const std::filesystem::path& path)
 {
   saveDocumentTo(path);
   setLastSaveModificationCount();
@@ -638,7 +637,7 @@ void MapDocument::doSaveDocument(const IO::Path& path)
 
 void MapDocument::clearDocument()
 {
-  if (m_world != nullptr)
+  if (m_world)
   {
     documentWillBeClearedNotifier(this);
 
@@ -905,7 +904,7 @@ bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces)
   return setFaceAttributesExceptContentFlags(faces.back().attributes());
 }
 
-void MapDocument::loadPointFile(const IO::Path path)
+void MapDocument::loadPointFile(const std::filesystem::path path)
 {
   static_assert(
     !std::is_reference<decltype(path)>::value,
@@ -916,16 +915,24 @@ void MapDocument::loadPointFile(const IO::Path path)
     unloadPointFile();
   }
 
-  auto file = IO::openPathAsInputStream(path);
-  if (auto trace = Model::loadPointFile(file))
+  try
   {
-    m_pointFile = PointFile{*trace, path};
-    info() << "Loaded point file " << path;
-    pointFileWasLoadedNotifier();
+    IO::Disk::withInputStream(path, [&](auto& file) {
+      if (auto trace = Model::loadPointFile(file))
+      {
+        m_pointFile = PointFile{*trace, path};
+        info() << "Loaded point file " << path;
+        pointFileWasLoadedNotifier();
+      }
+      else
+      {
+        warn() << "Failed to load point file " << path;
+      }
+    });
   }
-  else
+  catch (const FileSystemException& e)
   {
-    warn() << "Failed to load point file " << path;
+    error() << "Could not load point file '" << path << "': " << e.what();
   }
 }
 
@@ -954,7 +961,7 @@ void MapDocument::unloadPointFile()
   pointFileWasUnloadedNotifier();
 }
 
-void MapDocument::loadPortalFile(const IO::Path path)
+void MapDocument::loadPortalFile(const std::filesystem::path path)
 {
   static_assert(
     !std::is_reference<decltype(path)>::value,
@@ -978,13 +985,12 @@ void MapDocument::loadPortalFile(const IO::Path path)
   catch (const std::exception& exception)
   {
     info(
-      "Couldn't load portal file " + m_portalFilePath.asString() + ": "
-      + exception.what());
+      "Couldn't load portal file " + m_portalFilePath.string() + ": " + exception.what());
   }
 
   if (isPortalFileLoaded())
   {
-    info("Loaded portal file " + m_portalFilePath.asString());
+    info("Loaded portal file " + m_portalFilePath.string());
     portalFileWasLoadedNotifier();
   }
 }
@@ -1009,7 +1015,7 @@ void MapDocument::unloadPortalFile()
 {
   assert(isPortalFileLoaded());
   m_portalFile = nullptr;
-  m_portalFilePath = IO::Path();
+  m_portalFilePath = std::filesystem::path();
 
   info("Unloaded portal file");
   portalFileWasUnloadedNotifier();
@@ -1138,7 +1144,9 @@ const Model::NodeCollection& MapDocument::selectedNodes() const
 std::vector<Model::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const
 {
   if (hasSelectedBrushFaces())
+  {
     return selectedBrushFaces();
+  }
 
   const auto faces = Model::collectBrushFaces(m_selectedNodes.nodes());
   return Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces)
@@ -1152,9 +1160,7 @@ std::vector<Model::BrushFaceHandle> MapDocument::selectedBrushFaces() const
 
 const vm::bbox3& MapDocument::referenceBounds() const
 {
-  if (hasSelectedNodes())
-    return selectionBounds();
-  return lastSelectionBounds();
+  return hasSelectedNodes() ? selectionBounds() : lastSelectionBounds();
 }
 
 const vm::bbox3& MapDocument::lastSelectionBounds() const
@@ -1165,7 +1171,9 @@ const vm::bbox3& MapDocument::lastSelectionBounds() const
 const vm::bbox3& MapDocument::selectionBounds() const
 {
   if (!m_selectionBoundsValid)
+  {
     validateSelectionBounds();
+  }
   return m_selectionBounds;
 }
 
@@ -1176,10 +1184,11 @@ const std::string& MapDocument::currentTextureName() const
 
 void MapDocument::setCurrentTextureName(const std::string& currentTextureName)
 {
-  if (m_currentTextureName == currentTextureName)
-    return;
-  m_currentTextureName = currentTextureName;
-  currentTextureNameDidChangeNotifier(m_currentTextureName);
+  if (m_currentTextureName != currentTextureName)
+  {
+    m_currentTextureName = currentTextureName;
+    currentTextureNameDidChangeNotifier(m_currentTextureName);
+  }
 }
 
 void MapDocument::selectAllNodes()
@@ -1414,7 +1423,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
 
   const Model::BrushBuilder brushBuilder(world()->mapFormat(), worldBounds());
 
-  kdl::for_each_result(
+  kdl::fold_results(
     selectionBrushNodes,
     [&](const Model::BrushNode* selectionBrushNode) {
       const Model::Brush& selectionBrush = selectionBrushNode->brush();
@@ -1450,6 +1459,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
     })
     .or_else([&](const Model::BrushError& e) {
       logger().error() << "Could not create selection brush: " << e;
+      return kdl::void_success;
     });
 }
 
@@ -1631,19 +1641,23 @@ std::vector<Model::Node*> MapDocument::removeImplicitelyRemovedNodes(
   std::vector<Model::Node*> nodes) const
 {
   if (nodes.empty())
+  {
     return nodes;
+  }
 
   nodes = kdl::vec_sort(std::move(nodes), CompareByAncestry());
 
-  std::vector<Model::Node*> result;
+  auto result = std::vector<Model::Node*>{};
   result.reserve(nodes.size());
   result.push_back(nodes.front());
 
   for (size_t i = 1; i < nodes.size(); ++i)
   {
-    Model::Node* node = nodes[i];
+    auto* node = nodes[i];
     if (!node->isDescendantOf(result))
+    {
       result.push_back(node);
+    }
   }
 
   return result;
@@ -1709,7 +1723,7 @@ bool MapDocument::reparentNodes(
   }
 
   const auto result =
-    executeAndStore(ReparentNodesCommand::reparent(std::move(nodesToAdd), nodesToRemove));
+    executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
   if (!result->success())
   {
     transaction.cancel();
@@ -2070,25 +2084,25 @@ void MapDocument::ungroupSelection()
 
 void MapDocument::renameGroups(const std::string& name)
 {
-  if (!hasSelectedNodes() || !m_selectedNodes.hasOnlyGroups())
-    return;
-
-  const auto commandName =
-    kdl::str_plural("Rename ", m_selectedNodes.groupCount(), "Group", "Groups");
-  applyAndSwap(
-    *this,
-    commandName,
-    m_selectedNodes.groups(),
-    {},
-    kdl::overload(
-      [](Model::Layer&) { return true; },
-      [&](Model::Group& group) {
-        group.setName(name);
-        return true;
-      },
-      [](Model::Entity&) { return true; },
-      [](Model::Brush&) { return true; },
-      [](Model::BezierPatch&) { return true; }));
+  if (hasSelectedNodes() && m_selectedNodes.hasOnlyGroups())
+  {
+    const auto commandName =
+      kdl::str_plural("Rename ", m_selectedNodes.groupCount(), "Group", "Groups");
+    applyAndSwap(
+      *this,
+      commandName,
+      m_selectedNodes.groups(),
+      {},
+      kdl::overload(
+        [](Model::Layer&) { return true; },
+        [&](Model::Group& group) {
+          group.setName(name);
+          return true;
+        },
+        [](Model::Entity&) { return true; },
+        [](Model::Brush&) { return true; },
+        [](Model::BezierPatch&) { return true; }));
+  }
 }
 
 void MapDocument::openGroup(Model::GroupNode* group)
@@ -2943,29 +2957,21 @@ bool MapDocument::transformObjects(
         }));
     });
 
-  bool transformFailed = false;
-  auto nodesToUpdate = kdl::collect_values(
-    std::move(transformResults), kdl::overload([&](const Model::BrushError& e) {
-      error() << "Could not transform brush: " << e;
-      transformFailed = true;
-    }));
+  return kdl::fold_results(std::move(transformResults))
+    .and_then([&](auto nodesToUpdate) -> kdl::result<bool> {
+      const auto success = swapNodeContents(
+        commandName,
+        std::move(nodesToUpdate),
+        findContainingLinkedGroups(*m_world, m_selectedNodes.nodes()));
 
-  if (transformFailed)
-  {
-    return false;
-  }
-
-  const auto success = swapNodeContents(
-    commandName,
-    std::move(nodesToUpdate),
-    findContainingLinkedGroups(*m_world, m_selectedNodes.nodes()));
-
-  if (success)
-  {
-    m_repeatStack->push([=]() { this->transformObjects(commandName, transformation); });
-    return true;
-  }
-  return false;
+      if (success)
+      {
+        m_repeatStack->push(
+          [=]() { this->transformObjects(commandName, transformation); });
+      }
+      return success;
+    })
+    .value_or(false);
 }
 
 bool MapDocument::translateObjects(const vm::vec3& delta)
@@ -3152,33 +3158,44 @@ bool MapDocument::csgSubtract()
   auto toRemove =
     std::vector<Model::Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
 
-  for (auto* minuendNode : minuendNodes)
-  {
-    const auto& minuend = minuendNode->brush();
-    auto currentSubtractionResults = minuend.subtract(
-      m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
-    auto currentBrushes = kdl::collect_values(
-      std::move(currentSubtractionResults),
-      [&](const Model::BrushError& e) { error() << "Could not create brush: " << e; });
+  return kdl::fold_results(
+           minuendNodes,
+           [&](auto* minuendNode) {
+             const auto& minuend = minuendNode->brush();
+             auto currentSubtractionResults = minuend.subtract(
+               m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
 
-    if (!currentBrushes.empty())
-    {
-      auto resultNodes = kdl::vec_transform(std::move(currentBrushes), [&](auto b) {
-        return new Model::BrushNode{std::move(b)};
-      });
-      auto& toAddForParent = toAdd[minuendNode->parent()];
-      toAddForParent = kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
-    }
+             return kdl::fold_results(kdl::vec_filter(
+                                        std::move(currentSubtractionResults),
+                                        [](const auto r) { return r.is_success(); }))
+               .transform([&](auto currentBrushes) {
+                 if (!currentBrushes.empty())
+                 {
+                   auto resultNodes = kdl::vec_transform(
+                     std::move(currentBrushes),
+                     [&](auto b) { return new Model::BrushNode{std::move(b)}; });
+                   auto& toAddForParent = toAdd[minuendNode->parent()];
+                   toAddForParent =
+                     kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
+                 }
 
-    toRemove.push_back(minuendNode);
-  }
+                 toRemove.push_back(minuendNode);
+               });
+           })
+    .transform([&]() {
+      deselectAll();
+      const auto added = addNodes(toAdd);
+      removeNodes(toRemove);
+      selectNodes(added);
 
-  deselectAll();
-  const auto added = addNodes(toAdd);
-  removeNodes(toRemove);
-  selectNodes(added);
-
-  return transaction.commit();
+      return transaction.commit();
+    })
+    .transform_error([&](const auto& e) {
+      error() << "Could not subtract brushes: " << e;
+      transaction.cancel();
+      return false;
+    })
+    .value();
 }
 
 bool MapDocument::csgIntersect()
@@ -3238,48 +3255,40 @@ bool MapDocument::csgHollow()
   }
 
   bool didHollowAnything = false;
-  auto fragmentsAndSourceNodes =
-    kdl::vec_transform(brushNodes, [&](Model::BrushNode* brushNode) {
-      const auto& originalBrush = brushNode->brush();
+  auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+  auto toRemove = std::vector<Model::Node*>{};
 
-      auto shrunkenBrush = originalBrush;
-      auto fragments = std::vector<Model::Brush>{};
-      shrunkenBrush
-        .expand(m_worldBounds, -1.0 * static_cast<FloatType>(m_grid->actualSize()), true)
-        .transform([&]() {
-          didHollowAnything = true;
+  for (auto* brushNode : brushNodes)
+  {
+    const auto& originalBrush = brushNode->brush();
 
-          auto subtractionResults = originalBrush.subtract(
-            m_world->mapFormat(), m_worldBounds, currentTextureName(), shrunkenBrush);
-          fragments = kdl::collect_values(
-            std::move(subtractionResults), [&](const Model::BrushError& e) {
-              error() << "Could not create brush: " << e;
+    auto shrunkenBrush = originalBrush;
+    shrunkenBrush.expand(m_worldBounds, -FloatType(m_grid->actualSize()), true)
+      .and_then([&]() {
+        didHollowAnything = true;
+
+        return kdl::fold_results(originalBrush.subtract(
+                                   m_world->mapFormat(),
+                                   m_worldBounds,
+                                   currentTextureName(),
+                                   shrunkenBrush))
+          .transform([&](auto fragments) {
+            auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
+              return new Model::BrushNode{std::forward<decltype(b)>(b)};
             });
-        })
-        .or_else([&](const Model::BrushError& e) {
-          error() << "Could not hollow brush: " << e;
-          fragments = {originalBrush};
-        });
 
-      return std::make_pair(brushNode, std::move(fragments));
-    });
+            auto& toAddForParent = toAdd[brushNode->parent()];
+            toAddForParent = kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
+            toRemove.push_back(brushNode);
+          });
+      })
+      .transform_error(
+        [&](const auto& e) { error() << "Could not hollow brush: " << e; });
+  }
 
   if (!didHollowAnything)
   {
     return false;
-  }
-
-  auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-  auto toRemove = std::vector<Model::Node*>{};
-
-  for (auto& [sourceNode, fragments] : fragmentsAndSourceNodes)
-  {
-    auto fragmentNodes = kdl::vec_transform(
-      std::move(fragments), [](auto&& b) { return new Model::BrushNode{std::move(b)}; });
-
-    auto& toAddForParent = toAdd[sourceNode->parent()];
-    toAddForParent = kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
-    toRemove.push_back(sourceNode);
   }
 
   auto transaction = Transaction{*this, "CSG Hollow"};
@@ -3310,7 +3319,7 @@ struct ReplaceClippedBrushesError
 
 bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3)
 {
-  return kdl::for_each_result(
+  return kdl::fold_results(
            m_selectedNodes.brushes(),
            [&](const Model::BrushNode* originalBrush) {
              auto clippedBrush = originalBrush->brush();
@@ -3673,7 +3682,7 @@ bool MapDocument::extrudeBrushes(
           .transform([&]() { return m_worldBounds.contains(brush.bounds()); })
           .or_else([&](const Model::BrushError e) {
             error() << "Could not resize brush: " << e;
-            return false;
+            return kdl::result<bool>{false};
           })
           .value();
       },
@@ -3786,7 +3795,7 @@ bool MapDocument::snapVertices(const FloatType snapTo)
         {
           originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
             .transform([&]() { succeededBrushCount += 1; })
-            .or_else([&](const Model::BrushError e) {
+            .transform_error([&](const Model::BrushError e) {
               error() << "Could not snap vertices: " << e;
               failedBrushCount += 1;
             });
@@ -4310,14 +4319,16 @@ void MapDocument::commitPendingAssets()
 
 void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const
 {
-  if (m_world != nullptr)
+  if (m_world)
+  {
     m_world->pick(*m_editorContext, pickRay, pickResult);
+  }
 }
 
 std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point) const
 {
-  std::vector<Model::Node*> result;
-  if (m_world != nullptr)
+  auto result = std::vector<Model::Node*>{};
+  if (m_world)
   {
     m_world->findNodesContaining(point, result);
   }
@@ -4335,14 +4346,14 @@ void MapDocument::createWorld(
   performSetCurrentLayer(m_world->defaultLayer());
 
   updateGameSearchPaths();
-  setPath(IO::Path(DefaultDocumentName));
+  setPath(std::filesystem::path(DefaultDocumentName));
 }
 
 void MapDocument::loadWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
-  const IO::Path& path)
+  const std::filesystem::path& path)
 {
   m_worldBounds = worldBounds;
   m_game = game;
@@ -4361,7 +4372,7 @@ void MapDocument::clearWorld()
 
 Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const
 {
-  if (m_world != nullptr)
+  if (m_world)
   {
     return m_game->extractEntityDefinitionFile(m_world->entity());
   }
@@ -4395,24 +4406,6 @@ void MapDocument::setEntityDefinitions(
   const std::vector<Assets::EntityDefinition*>& definitions)
 {
   m_entityDefinitionManager->setDefinitions(definitions);
-}
-
-std::vector<IO::Path> MapDocument::enabledTextureCollections() const
-{
-  return m_game->extractTextureCollections(m_world->entity());
-}
-
-std::vector<IO::Path> MapDocument::availableTextureCollections() const
-{
-  return m_game->findTextureCollections();
-}
-
-void MapDocument::setEnabledTextureCollections(const std::vector<IO::Path>& paths)
-{
-  auto entity = m_world->entity();
-  m_game->updateTextureCollections(entity, paths);
-  swapNodeContents(
-    "Set Texture Collections", {{world(), Model::NodeContents(std::move(entity))}}, {});
 }
 
 void MapDocument::reloadTextureCollections()
@@ -4461,10 +4454,10 @@ void MapDocument::loadEntityDefinitions()
   const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
   try
   {
-    const IO::Path path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
+    const auto path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
     IO::SimpleParserStatus status(logger());
     m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
-    info("Loaded entity definition file " + path.lastComponent().asString());
+    info("Loaded entity definition file " + path.filename().string());
 
     createEntityDefinitionActions();
   }
@@ -4513,9 +4506,14 @@ void MapDocument::loadTextures()
 {
   try
   {
-    const IO::Path docDir = m_path.isEmpty() ? IO::Path() : m_path.deleteLastComponent();
-    m_game->loadTextureCollections(
-      m_world->entity(), docDir, *m_textureManager, logger());
+    if (const auto* wadStr = m_world->entity().property(Model::EntityPropertyKeys::Wad))
+    {
+      const auto wadPaths = kdl::vec_transform(
+        kdl::str_split(*wadStr, ";"),
+        [](const auto& str) { return std::filesystem::path{str}; });
+      m_game->reloadWads(path(), wadPaths, logger());
+    }
+    m_game->loadTextureCollections(*m_textureManager);
   }
   catch (const Exception& e)
   {
@@ -4728,16 +4726,16 @@ void MapDocument::unsetEntityModels(const std::vector<Model::Node*>& nodes)
   Model::Node::visitAll(nodes, makeUnsetEntityModelsVisitor());
 }
 
-std::vector<IO::Path> MapDocument::externalSearchPaths() const
+std::vector<std::filesystem::path> MapDocument::externalSearchPaths() const
 {
-  std::vector<IO::Path> searchPaths;
-  if (!m_path.isEmpty() && m_path.isAbsolute())
+  std::vector<std::filesystem::path> searchPaths;
+  if (!m_path.empty() && m_path.is_absolute())
   {
-    searchPaths.push_back(m_path.deleteLastComponent());
+    searchPaths.push_back(m_path.parent_path());
   }
 
-  const IO::Path gamePath = m_game->gamePath();
-  if (!gamePath.isEmpty())
+  const std::filesystem::path gamePath = m_game->gamePath();
+  if (!gamePath.empty())
   {
     searchPaths.push_back(gamePath);
   }
@@ -4748,8 +4746,10 @@ std::vector<IO::Path> MapDocument::externalSearchPaths() const
 
 void MapDocument::updateGameSearchPaths()
 {
-  const std::vector<IO::Path> additionalSearchPaths = IO::Path::asPaths(mods());
-  m_game->setAdditionalSearchPaths(additionalSearchPaths, logger());
+  m_game->setAdditionalSearchPaths(
+    kdl::vec_transform(
+      mods(), [](const auto& mod) { return std::filesystem::path{mod}; }),
+    logger());
 }
 
 std::vector<std::string> MapDocument::mods() const
@@ -4833,7 +4833,7 @@ void MapDocument::setIssueHidden(const Model::Issue& issue, const bool hidden)
 
 void MapDocument::registerValidators()
 {
-  ensure(m_world != nullptr, "world is null");
+  ensure(m_world, "world is null");
   ensure(m_game.get() != nullptr, "game is null");
 
   m_world->registerValidator(std::make_unique<Model::MissingClassnameValidator>());
@@ -4991,25 +4991,24 @@ void MapDocument::updateAllFaceTags()
 
 bool MapDocument::persistent() const
 {
-  return m_path.isAbsolute()
-         && IO::Disk::pathInfo(IO::Disk::fixPath(m_path)) == IO::PathInfo::File;
+  return m_path.is_absolute() && IO::Disk::pathInfo(m_path) == IO::PathInfo::File;
 }
 
 std::string MapDocument::filename() const
 {
-  if (m_path.isEmpty())
+  if (m_path.empty())
   {
     return "";
   }
-  return m_path.lastComponent().asString();
+  return m_path.filename().string();
 }
 
-const IO::Path& MapDocument::path() const
+const std::filesystem::path& MapDocument::path() const
 {
   return m_path;
 }
 
-void MapDocument::setPath(const IO::Path& path)
+void MapDocument::setPath(const std::filesystem::path& path)
 {
   m_path = path;
 }
@@ -5123,12 +5122,12 @@ void MapDocument::modsDidChange()
   setEntityModels();
 }
 
-void MapDocument::preferenceDidChange(const IO::Path& path)
+void MapDocument::preferenceDidChange(const std::filesystem::path& path)
 {
   if (isGamePathPreference(path))
   {
     const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-    const IO::Path newGamePath = gameFactory.gamePath(m_game->gameName());
+    const std::filesystem::path newGamePath = gameFactory.gamePath(m_game->gameName());
     m_game->setGamePath(newGamePath, logger());
 
     clearEntityModels();
@@ -5180,39 +5179,45 @@ Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name
 
 Transaction::Transaction(MapDocument& document, std::string name)
   : m_document{document}
-  , m_state{TransactionState::Running}
+  , m_state{State::Running}
 {
   begin(std::move(name));
 }
 
 Transaction::~Transaction()
 {
-  assert(m_state != TransactionState::Running);
+  assert(m_state != State::Running);
+}
+
+Transaction::State Transaction::state() const
+{
+  return m_state;
 }
 
 bool Transaction::commit()
 {
-  assert(m_state == TransactionState::Running);
+  assert(m_state == State::Running);
   if (m_document.commitTransaction())
   {
-    m_state = TransactionState::Committed;
+    m_state = State::Committed;
     return true;
   }
 
-  m_state = TransactionState::Cancelled;
+  m_state = State::Cancelled;
   return false;
 }
 
 void Transaction::rollback()
 {
-  assert(m_state == TransactionState::Running);
+  assert(m_state == State::Running);
   m_document.rollbackTransaction();
 }
 
 void Transaction::cancel()
 {
-  assert(m_state == TransactionState::Running);
-  m_state = TransactionState::Cancelled;
+  assert(m_state == State::Running);
+  m_document.cancelTransaction();
+  m_state = State::Cancelled;
 }
 
 void Transaction::begin(std::string name)

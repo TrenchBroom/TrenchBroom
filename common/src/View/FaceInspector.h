@@ -46,10 +46,9 @@ class FaceInspector : public TabBookPage
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  QSplitter* m_splitter;
-  FaceAttribsEditor* m_faceAttribsEditor;
-  TextureBrowser* m_textureBrowser;
-  CollapsibleTitledPanel* m_textureCollectionsEditor;
+  QSplitter* m_splitter{nullptr};
+  FaceAttribsEditor* m_faceAttribsEditor{nullptr};
+  TextureBrowser* m_textureBrowser{nullptr};
 
 public:
   FaceInspector(
@@ -71,8 +70,6 @@ private:
     QWidget* parent,
     std::weak_ptr<MapDocument> document,
     GLContextManager& contextManager);
-  CollapsibleTitledPanel* createTextureCollectionEditor(
-    QWidget* parent, std::weak_ptr<MapDocument> document);
 
   void textureSelected(const Assets::Texture* texture);
 };

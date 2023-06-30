@@ -28,13 +28,13 @@ namespace IO
 EntityModelLoader::~EntityModelLoader() = default;
 
 std::unique_ptr<Assets::EntityModel> EntityModelLoader::initializeModel(
-  const IO::Path& path, Logger& logger) const
+  const std::filesystem::path& path, Logger& logger) const
 {
   return doInitializeModel(path, logger);
 }
 
 void EntityModelLoader::loadFrame(
-  const IO::Path& path,
+  const std::filesystem::path& path,
   const size_t frameIndex,
   Assets::EntityModel& model,
   Logger& logger) const

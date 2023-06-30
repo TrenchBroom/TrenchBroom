@@ -21,7 +21,6 @@
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "IO/DiskIO.h"
-#include "IO/IOUtils.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
@@ -32,10 +31,11 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/Polyhedron.h"
+#include "TestUtils.h"
 
 #include <kdl/intrusive_circular_list.h>
 #include <kdl/result.h>
-#include <kdl/result_for_each.h>
+#include <kdl/result_fold.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/approx.h>
@@ -45,12 +45,12 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_ext.h>
 
+#include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
 
 #include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {
@@ -1370,9 +1370,9 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2789
   const vm::bbox3 worldBounds(4096.0);
 
-  const auto path = IO::Disk::getCurrentWorkingDir()
-                    + IO::Path("fixture/test/Model/Brush/curvetut-crash.map");
-  const std::string data = IO::Disk::readTextFile(path);
+  const auto path =
+    std::filesystem::current_path() / "fixture/test/Model/Brush/curvetut-crash.map";
+  const std::string data = IO::readTextFile(path);
   REQUIRE(!data.empty());
 
   IO::TestParserStatus status;
@@ -1437,9 +1437,9 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
   // weirdcurvemerge.map from https://github.com/TrenchBroom/TrenchBroom/issues/2789
   const vm::bbox3 worldBounds(8192.0);
 
-  const auto path = IO::Disk::getCurrentWorkingDir()
-                    + IO::Path("fixture/test/Model/Brush/weirdcurvemerge.map");
-  const std::string data = IO::Disk::readTextFile(path);
+  const auto path =
+    std::filesystem::current_path() / "fixture/test/Model/Brush/weirdcurvemerge.map";
+  const std::string data = IO::readTextFile(path);
   REQUIRE(!data.empty());
 
   IO::TestParserStatus status;
@@ -1560,10 +1560,9 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
-  const auto result = kdl::collect_values(
-    minuend.subtract(MapFormat::Valve, worldBounds, "some_texture", subtrahend),
-    [](const auto&) {});
-  CHECK_FALSE(result.empty());
+  const auto result = kdl::fold_results(
+    minuend.subtract(MapFormat::Valve, worldBounds, "some_texture", subtrahend));
+  CHECK_FALSE(result.is_error());
 
   kdl::col_delete_all(minuendNodes);
   kdl::col_delete_all(subtrahendNodes);
@@ -1582,19 +1581,17 @@ TEST_CASE("BrushTest.subtractDome")
                 ( -1178 54.02274375211438695 -20 ) ( -1178 -277.57717407067275417 -20 ) ( -1178 54.02274375211438695 -12 ) 128_gold_2 -14.94120025634765625 -108 -0 0.72087001800537109 1
             })");
 
-  const auto subtrahendPath = IO::Disk::getCurrentWorkingDir()
-                              + IO::Path("fixture/test/Model/Brush/subtrahend.map");
-  std::ifstream stream = openPathAsInputStream(subtrahendPath);
-  std::stringstream subtrahendStr;
-  subtrahendStr << stream.rdbuf();
+  const auto subtrahendPath =
+    std::filesystem::current_path() / "fixture/test/Model/Brush/subtrahend.map";
+  const auto subtrahendStr = IO::readTextFile(subtrahendPath);
 
   const vm::bbox3 worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
     IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, {}, status);
-  const std::vector<Node*> subtrahendNodes = IO::NodeReader::read(
-    subtrahendStr.str(), MapFormat::Standard, worldBounds, {}, {}, status);
+  const std::vector<Node*> subtrahendNodes =
+    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1699,10 +1696,11 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
-  const auto result = kdl::collect_values(
-    minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend),
-    [](const auto&) {});
-  CHECK(result.size() == 8u);
+  const auto fragments =
+    kdl::fold_results(
+      minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend))
+      .value();
+  CHECK(fragments.size() == 8u);
 
   kdl::col_delete_all(minuendNodes);
   kdl::col_delete_all(subtrahendNodes);

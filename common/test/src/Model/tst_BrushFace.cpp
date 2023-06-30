@@ -35,6 +35,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/Polyhedron.h"
+#include "TestUtils.h"
 
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
@@ -49,7 +50,6 @@
 #include <vector>
 
 #include "Catch2.h"
-#include "TestUtils.h"
 
 namespace TrenchBroom
 {

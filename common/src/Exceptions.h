@@ -66,17 +66,10 @@ public:
   using Exception::Exception;
 };
 
-class PathException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 class FileSystemException : public Exception
 {
 public:
   using Exception::Exception;
-  FileSystemException(const std::string& str, const PathException& e);
 };
 
 class FileNotFoundException : public Exception
@@ -84,7 +77,6 @@ class FileNotFoundException : public Exception
 public:
   using Exception::Exception;
   explicit FileNotFoundException(const std::string& path);
-  FileNotFoundException(const std::string& path, const PathException& e);
 };
 
 class AssetException : public Exception

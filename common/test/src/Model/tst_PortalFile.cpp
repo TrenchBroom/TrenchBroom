@@ -18,11 +18,11 @@
  */
 
 #include "IO/DiskIO.h"
-#include "IO/Path.h"
 #include "Model/PortalFile.h"
 
 #include <vecmath/polygon.h>
 
+#include <filesystem>
 #include <memory>
 
 #include "Catch2.h"
@@ -33,7 +33,7 @@ namespace Model
 {
 TEST_CASE("PortalFileTest.parseInvalidPRT1")
 {
-  const auto path = IO::Path("fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt");
+  const auto path = "fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt";
 
   CHECK_THROWS([&]() { const Model::PortalFile p = Model::PortalFile(path); }());
 }
@@ -61,28 +61,28 @@ static const std::vector<vm::polygon3f> ExpectedPortals{
 
 TEST_CASE("PortalFileTest.parsePRT1")
 {
-  const auto path = IO::Path{"fixture/test/Model/PortalFile/portaltest_prt1.prt"};
+  const auto path = "fixture/test/Model/PortalFile/portaltest_prt1.prt";
   const auto portalFile = Model::PortalFile{path};
   CHECK(portalFile.portals() == ExpectedPortals);
 }
 
 TEST_CASE("PortalFileTest.parsePRT1Q3")
 {
-  const auto path = IO::Path{"fixture/test/Model/PortalFile/portaltest_prt1q3.prt"};
+  const auto path = "fixture/test/Model/PortalFile/portaltest_prt1q3.prt";
   const auto portalFile = Model::PortalFile{path};
   CHECK(portalFile.portals() == ExpectedPortals);
 }
 
 TEST_CASE("PortalFileTest.parsePRT1AM")
 {
-  const auto path = IO::Path{"fixture/test/Model/PortalFile/portaltest_prt1am.prt"};
+  const auto path = "fixture/test/Model/PortalFile/portaltest_prt1am.prt";
   const auto portalFile = Model::PortalFile{path};
   CHECK(portalFile.portals() == ExpectedPortals);
 }
 
 TEST_CASE("PortalFileTest.parsePRT2")
 {
-  const auto path = IO::Path{"fixture/test/Model/PortalFile/portaltest_prt2.prt"};
+  const auto path = "fixture/test/Model/PortalFile/portaltest_prt2.prt";
   const auto portalFile = Model::PortalFile{path};
   CHECK(portalFile.portals() == ExpectedPortals);
 }

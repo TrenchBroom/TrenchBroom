@@ -24,11 +24,11 @@
 #include "Model/NodeVisitor.h"
 #include "Model/Tag.h"
 
+#include <kdl/reflection_decl.h>
+
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
-
-#include <kdl/reflection_decl.h>
 
 #include <memory>
 #include <string>

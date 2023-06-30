@@ -20,26 +20,28 @@
 #include "File.h"
 
 #include "Exceptions.h"
-#include "IO/IOUtils.h"
+#include "IO/PathQt.h"
+
+#include <cstdio> // for FILE
 
 namespace TrenchBroom
 {
 namespace IO
 {
-File::File(Path path)
+File::File(std::filesystem::path path)
   : m_path{std::move(path)}
 {
 }
 
 File::~File() = default;
 
-const Path& File::path() const
+const std::filesystem::path& File::path() const
 {
   return m_path;
 }
 
 OwningBufferFile::OwningBufferFile(
-  Path path, std::unique_ptr<char[]> buffer, const size_t size)
+  std::filesystem::path path, std::unique_ptr<char[]> buffer, const size_t size)
   : File{std::move(path)}
   , m_buffer{std::move(buffer)}
   , m_size{size}
@@ -56,7 +58,8 @@ size_t OwningBufferFile::size() const
   return m_size;
 }
 
-NonOwningBufferFile::NonOwningBufferFile(Path path, const char* begin, const char* end)
+NonOwningBufferFile::NonOwningBufferFile(
+  std::filesystem::path path, const char* begin, const char* end)
   : File{std::move(path)}
   , m_begin{begin}
   , m_end{end}
@@ -77,28 +80,67 @@ size_t NonOwningBufferFile::size() const
   return static_cast<size_t>(m_end - m_begin);
 }
 
-CFile::CFile(Path path)
-  : File{std::move(path)}
+namespace
 {
-  m_file = openPathAsFILE(this->path(), "rb");
-  if (!m_file)
+auto openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
+{
+  // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
+  // to open a Unicode path.
+  //
+  // All other platforms, just assume fopen() can handle UTF-8
+  auto* file =
+#ifdef _WIN32
+    _wfopen(path.wstring().c_str(), QString::fromStdString(mode).toStdWString().c_str());
+#else
+    fopen(path.u8string().c_str(), mode.c_str());
+#endif
+
+  if (!file)
   {
-    throw FileSystemException("Cannot open file " + this->path().asString());
+    throw FileSystemException{"Cannot open file " + path.string()};
   }
-  m_size = fileSize(m_file);
+
+  return std::unique_ptr<std::FILE, int (*)(std::FILE*)>{file, std::fclose};
 }
 
-CFile::~CFile()
+size_t fileSize(std::FILE* file)
 {
-  if (m_file)
+  const auto pos = std::ftell(file);
+  if (pos < 0)
   {
-    std::fclose(m_file);
+    throw FileSystemException("ftell failed");
   }
+
+  if (std::fseek(file, 0, SEEK_END) != 0)
+  {
+    throw FileSystemException("fseek failed");
+  }
+
+  const auto size = std::ftell(file);
+  if (size < 0)
+  {
+    throw FileSystemException("ftell failed");
+  }
+
+  if (std::fseek(file, pos, SEEK_SET) != 0)
+  {
+    throw FileSystemException("fseek failed");
+  }
+
+  return static_cast<size_t>(size);
+}
+} // namespace
+
+CFile::CFile(std::filesystem::path path)
+  : File{std::move(path)}
+  , m_file{openPathAsFILE(this->path(), "rb")}
+  , m_size{fileSize(m_file.get())}
+{
 }
 
 Reader CFile::reader() const
 {
-  return Reader::from(m_file);
+  return Reader::from(m_file.get(), m_size);
 }
 
 size_t CFile::size() const
@@ -108,11 +150,14 @@ size_t CFile::size() const
 
 std::FILE* CFile::file() const
 {
-  return m_file;
+  return m_file.get();
 }
 
 FileView::FileView(
-  Path path, std::shared_ptr<File> file, const size_t offset, const size_t length)
+  std::filesystem::path path,
+  std::shared_ptr<File> file,
+  const size_t offset,
+  const size_t length)
   : File{std::move(path)}
   , m_file{std::move(file)}
   , m_offset{offset}

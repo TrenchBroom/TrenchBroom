@@ -23,7 +23,7 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 
-#include "kdl/vector_utils.h"
+#include <kdl/vector_utils.h>
 
 #include <ostream>
 
@@ -59,7 +59,7 @@ EL::Value GameEngineConfigWriter::writeProfile(
 {
   return EL::Value{EL::MapType{
     {"name", EL::Value{profile.name}},
-    {"path", EL::Value{profile.path.asString()}},
+    {"path", EL::Value{profile.path.string()}},
     {"parameters", EL::Value{profile.parameterSpec}},
   }};
 }

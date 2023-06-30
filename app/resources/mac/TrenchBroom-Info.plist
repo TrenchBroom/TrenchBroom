@@ -41,10 +41,8 @@
     <string>????</string>
     <key>CFBundleVersion</key>
     <string>${MACOSX_BUNDLE_BUNDLE_VERSION}</string>
-    <key>LSMinimumSystemVersion</key>
-    <string>10.9.0</string>
     <key>NSHumanReadableCopyright</key>
-    <string>Copyright © 2010-2013 Kristian Duske. All rights reserved.</string>
+    <string>${MACOSX_BUNDLE_COPYRIGHT}</string>
     <key>NSPrincipalClass</key>
     <string>NSApplication</string>
     <key>NSHighResolutionCapable</key>

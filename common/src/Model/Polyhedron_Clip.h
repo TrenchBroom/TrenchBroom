@@ -22,7 +22,6 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
-
 #include "Polyhedron.h"
 
 #include <vecmath/plane.h>

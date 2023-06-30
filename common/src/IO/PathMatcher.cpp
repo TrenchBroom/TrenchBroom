@@ -19,7 +19,7 @@
 
 #include "FileSystemUtils.h"
 
-#include "kdl/string_compare.h"
+#include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
 namespace TrenchBroom::IO
@@ -27,26 +27,33 @@ namespace TrenchBroom::IO
 
 PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions)
 {
-  return [extensions = std::move(extensions)](const Path& path, const GetPathInfo&) {
+  return [extensions = std::move(extensions)](
+           const std::filesystem::path& path, const GetPathInfo&) {
     return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
-      return kdl::ci::str_is_equal(path.extension(), extension);
+      return kdl::ci::str_is_equal(path.extension().string(), extension);
     });
   };
 }
 
 PathMatcher makeFilenamePathMatcher(std::string pattern)
 {
-  return [pattern = std::move(pattern)](const Path& path, const GetPathInfo&) {
-    return kdl::ci::str_matches_glob(path.filename(), pattern);
+  return [pattern = std::move(pattern)](
+           const std::filesystem::path& path, const GetPathInfo&) {
+    return kdl::ci::str_matches_glob(path.filename().string(), pattern);
   };
 }
 
 PathMatcher makePathInfoPathMatcher(std::vector<PathInfo> pathInfos)
 {
-  return
-    [pathInfos = std::move(pathInfos)](const Path& path, const GetPathInfo& getPathInfo) {
-      return kdl::vec_contains(pathInfos, getPathInfo(path));
-    };
+  return [pathInfos = std::move(pathInfos)](
+           const std::filesystem::path& path, const GetPathInfo& getPathInfo) {
+    return kdl::vec_contains(pathInfos, getPathInfo(path));
+  };
+}
+
+bool matchAnyPath(const std::filesystem::path&, const GetPathInfo&)
+{
+  return true;
 }
 
 } // namespace TrenchBroom::IO

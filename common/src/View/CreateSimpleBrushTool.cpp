@@ -50,7 +50,7 @@ void CreateSimpleBrushTool::update(const vm::bbox3& bounds)
 
   builder.createCuboid(bounds, document->currentTextureName())
     .transform([&](Model::Brush&& b) { updateBrush(new Model::BrushNode(std::move(b))); })
-    .or_else([&](const Model::BrushError e) {
+    .transform_error([&](const Model::BrushError e) {
       updateBrush(nullptr);
       document->error() << "Could not update brush: " << e;
     });

@@ -19,13 +19,13 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "NotifierConnection.h"
 
-#include <memory>
+#include <functional>
 #include <string>
 #include <vector>
-
-#include <QWidget>
 
 class QStackedLayout;
 
@@ -42,18 +42,18 @@ namespace View
 class MapDocument;
 class Selection;
 class SmartPropertyEditor;
-class SmartPropertyEditorMatcher;
+
+using SmartPropertyEditorMatcher =
+  std::function<bool(const std::string&, const std::vector<Model::EntityNodeBase*>&)>;
 
 class SmartPropertyEditorManager : public QWidget
 {
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  std::vector<
-    std::tuple<std::unique_ptr<SmartPropertyEditorMatcher>, SmartPropertyEditor*>>
-    m_editors;
+  std::vector<std::tuple<SmartPropertyEditorMatcher, SmartPropertyEditor*>> m_editors;
   std::string m_propertyKey;
-  QStackedLayout* m_stackedLayout;
+  QStackedLayout* m_stackedLayout{nullptr};
 
   NotifierConnection m_notifierConnection;
 

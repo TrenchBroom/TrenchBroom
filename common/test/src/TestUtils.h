@@ -20,7 +20,6 @@
 #pragma once
 
 #include "FloatType.h"
-
 #include "Model/MapFormat.h"
 
 #include <kdl/vector_set.h>
@@ -31,6 +30,7 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h> // enable Catch2 to print vm::vec on test failures
 
+#include <filesystem>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -51,7 +51,7 @@ bool UVListsEqual(
 
 namespace IO
 {
-class Path;
+std::string readTextFile(const std::filesystem::path& path);
 }
 
 namespace Model
@@ -150,7 +150,9 @@ struct DocumentGameConfig
   std::unique_ptr<Model::GameConfig> gameConfig;
 };
 DocumentGameConfig loadMapDocument(
-  const IO::Path& mapPath, const std::string& gameName, Model::MapFormat mapFormat);
+  const std::filesystem::path& mapPath,
+  const std::string& gameName,
+  Model::MapFormat mapFormat);
 DocumentGameConfig newMapDocument(
   const std::string& gameName, Model::MapFormat mapFormat);
 } // namespace View

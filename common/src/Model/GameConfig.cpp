@@ -45,27 +45,6 @@ kdl_reflect_impl(PackageFormatConfig);
 
 kdl_reflect_impl(FileSystemConfig);
 
-kdl_reflect_impl(TextureFilePackageConfig);
-
-kdl_reflect_impl(TextureDirectoryPackageConfig);
-
-std::ostream& operator<<(std::ostream& str, const TexturePackageConfig& config)
-{
-  std::visit([&](const auto& c) { str << c; }, config);
-  return str;
-}
-
-IO::Path getRootDirectory(const TexturePackageConfig& texturePackageConfig)
-{
-  return std::visit(
-    kdl::overload(
-      [](const TextureFilePackageConfig&) { return IO::Path{}; },
-      [](const TextureDirectoryPackageConfig& directoryConfig) {
-        return directoryConfig.rootDirectory;
-      }),
-    texturePackageConfig);
-}
-
 kdl_reflect_impl(TextureConfig);
 
 kdl_reflect_impl(EntityConfig);
@@ -116,13 +95,13 @@ kdl_reflect_impl(CompilationTool);
 
 kdl_reflect_impl(GameConfig);
 
-IO::Path GameConfig::findInitialMap(const std::string& formatName) const
+std::filesystem::path GameConfig::findInitialMap(const std::string& formatName) const
 {
   for (const auto& format : fileFormats)
   {
     if (format.format == formatName)
     {
-      if (!format.initialMap.isEmpty())
+      if (!format.initialMap.empty())
       {
         return findConfigFile(format.initialMap);
       }
@@ -132,12 +111,13 @@ IO::Path GameConfig::findInitialMap(const std::string& formatName) const
       }
     }
   }
-  return IO::Path("");
+  return std::filesystem::path{};
 }
 
-IO::Path GameConfig::findConfigFile(const IO::Path& filePath) const
+std::filesystem::path GameConfig::findConfigFile(
+  const std::filesystem::path& filePath) const
 {
-  return path.deleteLastComponent() + filePath;
+  return path.parent_path() / filePath;
 }
 } // namespace Model
 } // namespace TrenchBroom

@@ -17,7 +17,7 @@ if(POLICY CMP0063)
 endif()
 
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
-set(VCPKG_OVERLAY_PORTS "${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/poly2tri;${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/freeimage;${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/openexr")
+set(VCPKG_OVERLAY_PORTS "${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/freeimage;${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/openexr")
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -111,10 +111,10 @@ if(NOT GIT_FOUND)
 endif()
 
 # Find Pandoc
-if(NOT PANDOC_PATH AND NOT PANDOC_PATH-NOTFOUND)
+if(NOT PANDOC_PATH)
   find_program(PANDOC_PATH NAMES "pandoc" DOC "Pandoc program location")
 
-  if(PANDOC_PATH-NOTFOUND)
+  if(PANDOC_PATH STREQUAL "PANDOC_PATH-NOTFOUND")
     message(FATAL_ERROR "Could not find pandoc")
   else()
     message(STATUS "Found Pandoc: ${PANDOC_PATH}")

@@ -19,6 +19,14 @@
 
 #include "EntityPropertyModel.h"
 
+#include <QBrush>
+#include <QByteArray>
+#include <QDebug>
+#include <QIcon>
+#include <QMessageBox>
+#include <QString>
+#include <QTimer>
+
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/PropertyDefinition.h"
@@ -49,14 +57,6 @@
 #include <optional>
 #include <string>
 #include <vector>
-
-#include <QBrush>
-#include <QByteArray>
-#include <QDebug>
-#include <QIcon>
-#include <QMessageBox>
-#include <QString>
-#include <QTimer>
 
 #define MODEL_LOG(x)
 
@@ -830,14 +830,14 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     {
       if (!row.keyMutable())
       {
-        return QVariant{IO::loadSVGIcon(IO::Path("Locked_small.svg"))};
+        return QVariant{IO::loadSVGIcon("Locked_small.svg")};
       }
     }
     else if (index.column() == ColumnValue)
     {
       if (!row.valueMutable())
       {
-        return QVariant{IO::loadSVGIcon(IO::Path("Locked_small.svg"))};
+        return QVariant{IO::loadSVGIcon("Locked_small.svg")};
       }
     }
     return QVariant{};
@@ -1019,7 +1019,7 @@ QVariant EntityPropertyModel::headerData(
   {
     if (section == ColumnProtected)
     {
-      return QVariant{IO::loadSVGIcon(IO::Path("Protected_small.svg"))};
+      return QVariant{IO::loadSVGIcon("Protected_small.svg")};
     }
   }
   else if (role == Qt::ToolTipRole)

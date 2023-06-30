@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <vector>
 
 namespace TrenchBroom
@@ -31,18 +32,17 @@ class EntityDefinition;
 namespace IO
 {
 class ParserStatus;
-class Path;
 
 class EntityDefinitionLoader
 {
 public:
   virtual ~EntityDefinitionLoader();
   std::vector<Assets::EntityDefinition*> loadEntityDefinitions(
-    ParserStatus& status, const Path& path) const;
+    ParserStatus& status, const std::filesystem::path& path) const;
 
 private:
   virtual std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(
-    ParserStatus& status, const Path& path) const = 0;
+    ParserStatus& status, const std::filesystem::path& path) const = 0;
 };
 } // namespace IO
 } // namespace TrenchBroom

@@ -225,9 +225,9 @@ MdlParser::MdlParser(
 {
 }
 
-bool MdlParser::canParse(const Path& path, Reader reader)
+bool MdlParser::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != "mdl")
+  if (kdl::str_to_lower(path.extension().string()) != ".mdl")
   {
     return false;
   }

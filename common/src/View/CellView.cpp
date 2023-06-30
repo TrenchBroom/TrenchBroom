@@ -19,16 +19,16 @@
 
 #include "CellView.h"
 
-#include "PreferenceManager.h"
-#include "Preferences.h"
-#include "View/CellLayout.h"
-#include "View/RenderView.h"
-
 #include <QDrag>
 #include <QMimeData>
 #include <QPropertyAnimation>
 #include <QScrollBar>
 #include <QToolTip>
+
+#include "PreferenceManager.h"
+#include "Preferences.h"
+#include "View/CellLayout.h"
+#include "View/RenderView.h"
 
 #include <algorithm>
 

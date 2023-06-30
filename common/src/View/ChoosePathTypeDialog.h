@@ -19,25 +19,24 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
 #include <QDialog>
+
+#include <filesystem>
 
 class QRadioButton;
 class QWidget;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class ChoosePathTypeDialog : public QDialog
 {
   Q_OBJECT
 private:
-  IO::Path m_absPath;
-  IO::Path m_docRelativePath;
-  IO::Path m_gameRelativePath;
-  IO::Path m_appRelativePath;
+  std::filesystem::path m_absPath;
+  std::filesystem::path m_docRelativePath;
+  std::filesystem::path m_gameRelativePath;
+  std::filesystem::path m_appRelativePath;
 
   QRadioButton* m_absRadio;
   QRadioButton* m_docRelativeRadio;
@@ -48,17 +47,13 @@ private:
   void createGui();
 
 public:
-  ChoosePathTypeDialog();
   ChoosePathTypeDialog(
     QWidget* parent,
-    const IO::Path& absPath,
-    const IO::Path& docPath,
-    const IO::Path& gamePath);
+    std::filesystem::path absPath,
+    const std::filesystem::path& docPath,
+    const std::filesystem::path& gamePath);
 
-  const IO::Path& path() const;
-
-private:
-  static IO::Path makeRelativePath(const IO::Path& absPath, const IO::Path& newRootPath);
+  const std::filesystem::path& path() const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -61,7 +61,7 @@ TEST_CASE("ObjSerializer.writeBrush")
   auto mtlStream = std::ostringstream{};
   const auto mtlFilename = "some_file_name.mtl";
   const auto objOptions =
-    ObjExportOptions{Path{"/some/export/path.obj"}, ObjMtlPathMode::RelativeToGamePath};
+    ObjExportOptions{"/some/export/path.obj", ObjMtlPathMode::RelativeToGamePath};
 
   auto writer = NodeWriter{
     map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
@@ -139,7 +139,7 @@ TEST_CASE("ObjSerializer.writePatch")
   auto mtlStream = std::ostringstream{};
   const auto mtlFilename = "some_file_name.mtl";
   const auto objOptions =
-    ObjExportOptions{Path{"/some/export/path.obj"}, ObjMtlPathMode::RelativeToGamePath};
+    ObjExportOptions{"/some/export/path.obj", ObjMtlPathMode::RelativeToGamePath};
 
   auto writer = NodeWriter{
     map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
@@ -395,7 +395,7 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
 
   // must outlive map
   auto texture = Assets::Texture{"some_texture", 16, 16};
-  texture.setRelativePath(Path{"textures/some_texture.png"});
+  texture.setRelativePath("textures/some_texture.png");
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
@@ -413,18 +413,18 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   auto mtlStream = std::ostringstream{};
   const auto mtlName = "some_mtl_file.mtl";
 
-  using T = std::tuple<ObjExportOptions, Path, std::optional<Path>>;
+  using T = std::tuple<ObjExportOptions, std::string, std::optional<std::string>>;
 
   const auto [options, textureAbsolutePath, expectedPath] = GENERATE(values<T>({
-    {{Path{"/home/that_guy/quake/export/file.obj"}, ObjMtlPathMode::RelativeToExportPath},
-     Path{"/home/that_guy/quake/textures/some_texture.png"},
-     Path{"../textures/some_texture.png"}},
-    {{Path{"/home/that_guy/quake/export/file.obj"}, ObjMtlPathMode::RelativeToExportPath},
-     Path{},
+    {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToExportPath},
+     "/home/that_guy/quake/textures/some_texture.png",
+     "../textures/some_texture.png"},
+    {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToExportPath},
+     "",
      std::nullopt},
-    {{Path{"/home/that_guy/quake/export/file.obj"}, ObjMtlPathMode::RelativeToGamePath},
-     Path{"/home/that_guy/quake/textures/some_texture.png"},
-     Path{"textures/some_texture.png"}},
+    {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToGamePath},
+     "/home/that_guy/quake/textures/some_texture.png",
+     "textures/some_texture.png"},
   }));
 
   CAPTURE(options, textureAbsolutePath);
@@ -440,7 +440,7 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
 map_Kd {}
 
 )",
-                             expectedPath->asString())
+                             *expectedPath)
                                         : R"(newmtl some_texture
 
 )";

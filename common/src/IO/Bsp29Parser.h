@@ -22,12 +22,13 @@
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
 
+#include <vecmath/forward.h>
+#include <vecmath/vec.h>
+
+#include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
 
 namespace TrenchBroom
 {
@@ -78,12 +79,12 @@ private:
 
 public:
   Bsp29Parser(
-    const std::string& name,
+    std::string name,
     const Reader& reader,
-    const Assets::Palette& palette,
+    Assets::Palette palette,
     const FileSystem& fs);
 
-  static bool canParse(const Path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;

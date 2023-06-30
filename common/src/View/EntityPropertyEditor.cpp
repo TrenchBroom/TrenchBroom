@@ -19,6 +19,12 @@
 
 #include "EntityPropertyEditor.h"
 
+#include <QChar>
+#include <QStringBuilder>
+#include <QTextEdit>
+#include <QTextStream>
+#include <QVBoxLayout>
+
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
 #include "Model/EntityNodeBase.h"
@@ -31,12 +37,6 @@
 #include <kdl/memory_utils.h>
 
 #include <algorithm>
-
-#include <QChar>
-#include <QStringBuilder>
-#include <QTextEdit>
-#include <QTextStream>
-#include <QVBoxLayout>
 
 namespace TrenchBroom
 {

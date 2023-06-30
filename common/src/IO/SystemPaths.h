@@ -19,35 +19,29 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
+#include <filesystem>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
-{
-namespace SystemPaths
+namespace TrenchBroom::IO::SystemPaths
 {
 /**
  * Returns the directory containing the TrenchBroom executable (this will be inside the
  * .app bundle on macOS).
  */
-Path appDirectory();
+std::filesystem::path appDirectory();
 /**
  * Returns the directory where configs should be written
  * e.g. `C:\\Users\\<user>\\AppData\\Roaming\\TrenchBroom`
  */
-Path userDataDirectory();
+std::filesystem::path userDataDirectory();
 
-Path logFilePath();
+std::filesystem::path logFilePath();
 
-Path findResourceFile(const Path& file);
+std::filesystem::path findResourceFile(const std::filesystem::path& file);
 /**
  * Returns the possible search paths for the requested directory name.
  * They may or may not exist.
  */
-std::vector<Path> findResourceDirectories(const Path& directory);
-} // namespace SystemPaths
-} // namespace IO
-} // namespace TrenchBroom
+std::vector<std::filesystem::path> findResourceDirectories(
+  const std::filesystem::path& directory);
+} // namespace TrenchBroom::IO::SystemPaths

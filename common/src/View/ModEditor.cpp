@@ -19,6 +19,12 @@
 
 #include "ModEditor.h"
 
+#include <QLineEdit>
+#include <QListWidget>
+#include <QToolButton>
+#include <QVBoxLayout>
+#include <QWidget>
+
 #include "Model/EntityNode.h"
 #include "Model/Game.h"
 #include "Notifier.h"
@@ -33,12 +39,6 @@
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
-
-#include <QLineEdit>
-#include <QListWidget>
-#include <QToolButton>
-#include <QVBoxLayout>
-#include <QWidget>
 
 #include <cassert>
 #include <string>
@@ -188,7 +188,7 @@ void ModEditor::modsDidChange()
   updateMods();
 }
 
-void ModEditor::preferenceDidChange(const IO::Path& path)
+void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->isGamePathPreference(path))

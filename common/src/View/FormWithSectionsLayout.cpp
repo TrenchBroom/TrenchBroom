@@ -19,12 +19,12 @@
 
 #include "FormWithSectionsLayout.h"
 
+#include <QBoxLayout>
+#include <QLabel>
+
 #include "View/BorderLine.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
-
-#include <QBoxLayout>
-#include <QLabel>
 
 namespace TrenchBroom
 {

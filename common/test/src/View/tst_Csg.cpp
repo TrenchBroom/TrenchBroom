@@ -19,8 +19,6 @@
  */
 
 #include "MapDocumentTest.h"
-#include "TestUtils.h"
-
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -28,8 +26,11 @@
 #include "Model/LayerNode.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <kdl/result.h>
+
+#include <filesystem>
 
 #include "Catch2.h"
 
@@ -268,7 +269,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
 TEST_CASE("CsgTest.csgSubtractFailure")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/MapDocumentTest/csgSubtractFailure.map"),
+    "fixture/test/View/MapDocumentTest/csgSubtractFailure.map",
     "Quake",
     Model::MapFormat::Valve);
 
@@ -304,9 +305,7 @@ TEST_CASE("CsgTest.csgSubtractFailure")
 TEST_CASE("CsgTest.csgHollow")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    IO::Path("fixture/test/View/MapDocumentTest/csgHollow.map"),
-    "Quake",
-    Model::MapFormat::Valve);
+    "fixture/test/View/MapDocumentTest/csgHollow.map", "Quake", Model::MapFormat::Valve);
 
   REQUIRE(document->currentLayer()->childCount() == 2);
   REQUIRE(!document->modified());

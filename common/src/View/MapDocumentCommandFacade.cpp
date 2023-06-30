@@ -376,10 +376,12 @@ static auto notifySpecialWorldProperties(
       const auto& oldEntity = worldNode->entity();
       const auto& newEntity = std::get<Model::Entity>(contents.get());
 
-      const auto oldTextureCollections = game.extractTextureCollections(oldEntity);
-      const auto newTextureCollections = game.extractTextureCollections(newEntity);
-      const bool notifyTextureCollectionChange =
-        oldTextureCollections != newTextureCollections;
+      const auto* oldWads = oldEntity.property(Model::EntityPropertyKeys::Wad);
+      const auto* newWads = newEntity.property(Model::EntityPropertyKeys::Wad);
+
+      const bool notifyWadsChange =
+        (oldWads == nullptr) != (newWads == nullptr)
+        || (oldWads != nullptr && newWads != nullptr && *oldWads != *newWads);
 
       const auto oldEntityDefinitionSpec = game.extractEntityDefinitionFile(oldEntity);
       const auto newEntityDefinitionSpec = game.extractEntityDefinitionFile(newEntity);
@@ -390,12 +392,12 @@ static auto notifySpecialWorldProperties(
       const auto newMods = game.extractEnabledMods(newEntity);
       const bool notifyModsChange = oldMods != newMods;
 
-      return std::make_tuple(
-        notifyTextureCollectionChange, notifyEntityDefinitionsChange, notifyModsChange);
+      return std::tuple{
+        notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange};
     }
   }
 
-  return std::make_tuple(false, false, false);
+  return std::tuple{false, false, false};
 }
 
 void MapDocumentCommandFacade::performSwapNodeContents(
@@ -413,11 +415,10 @@ void MapDocumentCommandFacade::performSwapNodeContents(
   NotifyBeforeAndAfter notifyDescendants(
     nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
 
-  const auto
-    [notifyTextureCollectionChange, notifyEntityDefinitionsChange, notifyModsChange] =
-      notifySpecialWorldProperties(*game(), nodesToSwap);
-  NotifyBeforeAndAfter notifyTextureCollections(
-    notifyTextureCollectionChange,
+  const auto [notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange] =
+    notifySpecialWorldProperties(*game(), nodesToSwap);
+  NotifyBeforeAndAfter notifyWads(
+    notifyWadsChange,
     textureCollectionsWillChangeNotifier,
     textureCollectionsDidChangeNotifier);
   NotifyBeforeAndAfter notifyEntityDefinitions(
@@ -464,7 +465,7 @@ void MapDocumentCommandFacade::performSwapNodeContents(
     setEntityDefinitions(nodes);
     setEntityModels(nodes);
   }
-  if (!notifyTextureCollectionChange)
+  if (!notifyWadsChange)
   {
     setTextures(nodes);
   }

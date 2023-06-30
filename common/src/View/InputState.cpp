@@ -19,14 +19,14 @@
 
 #include "InputState.h"
 
+#include <QCursor>
+
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/CompareHits.h"
 #include "Renderer/Camera.h"
 
 #include <vecmath/vec.h>
-
-#include <QCursor>
 
 namespace TrenchBroom
 {

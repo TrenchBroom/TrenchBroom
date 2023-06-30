@@ -316,7 +316,7 @@ private:
   {
     using namespace Model::HitFilters;
 
-    if (!anyToolDragging(inputState))
+    if (!inputState.anyToolDragging())
     {
       const Model::Hit& hit =
         inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
@@ -454,7 +454,7 @@ protected:
   {
     using namespace Model::HitFilters;
 
-    if (!anyToolDragging(inputState))
+    if (!inputState.anyToolDragging())
     {
       const Model::Hit& hit =
         inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));

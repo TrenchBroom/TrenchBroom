@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestUtils.h"
-
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -32,14 +30,15 @@
 #include "Model/PatchNode.h"
 #include "Model/UpdateLinkedGroupsError.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
+
+#include <kdl/result.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
 #include <vecmath/mat_io.h>
-
-#include <kdl/result.h>
 
 #include <memory>
 #include <vector>
@@ -190,14 +189,14 @@ TEST_CASE("GroupNodeTest.updateLinkedGroups")
   {
     updateLinkedGroups(groupNode, {}, worldBounds)
       .transform([&](const UpdateLinkedGroupsResult& r) { CHECK(r.empty()); })
-      .or_else([](const auto&) { FAIL(); });
+      .transform_error([](const auto&) { FAIL(); });
   }
 
   SECTION("Target group list contains only source group")
   {
     updateLinkedGroups(groupNode, {&groupNode}, worldBounds)
       .transform([&](const UpdateLinkedGroupsResult& r) { CHECK(r.empty()); })
-      .or_else([](const auto&) { FAIL(); });
+      .transform_error([](const auto&) { FAIL(); });
   }
 
   SECTION("Update a single target group")
@@ -236,7 +235,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroups")
 
         CHECK(newEntityNode->entity().origin() == vm::vec3(1.0, 2.0, 3.0));
       })
-      .or_else([](const auto&) { FAIL(); });
+      .transform_error([](const auto&) { FAIL(); });
   }
 }
 
@@ -289,7 +288,7 @@ TEST_CASE("GroupNodeTest.updateNestedLinkedGroups")
 
         CHECK(newEntityNode->entity().origin() == vm::vec3(0.0, 2.0, 0.0));
       })
-      .or_else([](const auto&) { FAIL(); });
+      .transform_error([](const auto&) { FAIL(); });
   }
 
   SECTION("Transforming the inner group node's entity and updating the linked group")
@@ -320,7 +319,7 @@ TEST_CASE("GroupNodeTest.updateNestedLinkedGroups")
 
         CHECK(newEntityNode->entity().origin() == vm::vec3(1.0, 2.0, 0.0));
       })
-      .or_else([](const auto&) { FAIL(); });
+      .transform_error([](const auto&) { FAIL(); });
   }
 }
 
@@ -392,7 +391,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsRecursively")
       CHECK(newInnerGroupEntityNodeClone != nullptr);
       CHECK(newInnerGroupEntityNodeClone->entity() == innerGroupEntityNode->entity());
     })
-    .or_else([](const auto&) { FAIL(); });
+    .transform_error([](const auto&) { FAIL(); });
 }
 
 TEST_CASE("GroupNodeTest.updateLinkedGroupsExceedsWorldBounds")
@@ -420,7 +419,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsExceedsWorldBounds")
 
   updateLinkedGroups(groupNode, {groupNodeClone.get()}, worldBounds)
     .transform([&](const UpdateLinkedGroupsResult&) { FAIL(); })
-    .or_else(kdl::overload(
+    .transform_error(kdl::overload(
       [](const BrushError&) { FAIL(); },
       [](const UpdateLinkedGroupsError& e) {
         CHECK(e == UpdateLinkedGroupsError::UpdateExceedsWorldBounds);
@@ -476,7 +475,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveNestedGroupNames")
         const auto* innerReplacement = static_cast<GroupNode*>(newChildren.front().get());
         CHECK(innerReplacement->name() == innerGroupNodeNestedClone->name());
       })
-      .or_else([](const auto&) { FAIL(); });
+      .transform_error([](const auto&) { FAIL(); });
   }
 }
 
@@ -620,7 +619,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveEntityProperties")
         newEntityNode->entity().protectedProperties(),
         Catch::UnorderedEquals(targetEntityNode->entity().protectedProperties()));
     })
-    .or_else([](const auto&) { FAIL(); });
+    .transform_error([](const auto&) { FAIL(); });
 }
 } // namespace Model
 } // namespace TrenchBroom

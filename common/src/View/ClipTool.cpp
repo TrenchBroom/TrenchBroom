@@ -997,7 +997,7 @@ void ClipTool::updateBrushes()
         .transform([&]() {
           brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
         })
-        .or_else([&](const Model::BrushError e) {
+        .transform_error([&](const Model::BrushError e) {
           document->error() << "Could not clip brush: " << e;
         });
     };

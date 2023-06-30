@@ -20,8 +20,7 @@
 #include "Shader.h"
 
 #include "Exceptions.h"
-#include "IO/IOUtils.h"
-#include "IO/Path.h"
+#include "IO/DiskIO.h"
 
 #include <cassert>
 #include <fstream>
@@ -33,8 +32,8 @@ namespace TrenchBroom
 {
 namespace Renderer
 {
-Shader::Shader(const IO::Path& path, const GLenum type)
-  : m_name(path.lastComponent().asString())
+Shader::Shader(const std::filesystem::path& path, const GLenum type)
+  : m_name(path.filename().string())
   , m_type(type)
   , m_shaderId(0)
 {
@@ -101,24 +100,20 @@ void Shader::detach(const GLuint programId)
   glAssert(glDetachShader(programId, m_shaderId));
 }
 
-std::vector<std::string> Shader::loadSource(const IO::Path& path)
+std::vector<std::string> Shader::loadSource(const std::filesystem::path& path)
 {
-  std::ifstream stream = openPathAsInputStream(path);
-  if (!stream.is_open())
-  {
-    throw RenderException("Could not load shader source from " + path.asString());
-  }
+  return IO::Disk::withInputStream(path, [](auto& stream) {
+    std::string line;
+    std::vector<std::string> lines;
 
-  std::string line;
-  std::vector<std::string> lines;
+    while (!stream.eof())
+    {
+      std::getline(stream, line);
+      lines.push_back(line + '\n');
+    }
 
-  while (!stream.eof())
-  {
-    std::getline(stream, line);
-    lines.push_back(line + '\n');
-  }
-
-  return lines;
+    return lines;
+  });
 }
 } // namespace Renderer
 } // namespace TrenchBroom

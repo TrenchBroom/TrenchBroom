@@ -44,6 +44,7 @@
 
 #include <kdl/memory_utils.h>
 #include <kdl/overload.h>
+#include <kdl/path_utils.h>
 #include <kdl/vector_set.h>
 
 #include <set>
@@ -800,7 +801,7 @@ void MapRenderer::editorContextDidChange()
   invalidateGroupLinkRenderer();
 }
 
-void MapRenderer::preferenceDidChange(const IO::Path& path)
+void MapRenderer::preferenceDidChange(const std::filesystem::path& path)
 {
   setupRenderers();
 
@@ -813,7 +814,7 @@ void MapRenderer::preferenceDidChange(const IO::Path& path)
     invalidateGroupLinkRenderer();
   }
 
-  if (path.hasPrefix(IO::Path("Map view"), true))
+  if (kdl::path_has_prefix(path, "Map view"))
   {
     invalidateRenderers(Renderer::All);
     invalidateEntityLinkRenderer();

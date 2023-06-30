@@ -20,9 +20,15 @@
 
 #include "ObjExportDialog.h"
 
+#include <QDialogButtonBox>
+#include <QFileDialog>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QRadioButton>
+
 #include "Ensure.h"
 #include "IO/ExportOptions.h"
-#include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "QtUtils.h"
 #include "View/BorderLine.h"
@@ -31,12 +37,9 @@
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 
-#include <QDialogButtonBox>
-#include <QFileDialog>
-#include <QLabel>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QRadioButton>
+#include <kdl/path_utils.h>
+
+#include <filesystem>
 
 namespace TrenchBroom
 {
@@ -157,7 +160,7 @@ void ObjExportDialog::updateExportPath()
 {
   const auto document = m_mapFrame->document();
   const auto& originalPath = document->path();
-  const auto objPath = originalPath.replaceExtension("obj");
+  const auto objPath = kdl::path_replace_extension(originalPath, ".obj");
   m_exportPathEdit->setText(IO::pathAsQString(objPath));
 }
 } // namespace View

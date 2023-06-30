@@ -19,13 +19,13 @@
 
 #pragma once
 
+#include <QAbstractItemModel>
+#include <QWidget>
+
 #include "Model/IssueType.h"
 
 #include <memory>
 #include <vector>
-
-#include <QAbstractItemModel>
-#include <QWidget>
 
 class QWidget;
 class QTableView;

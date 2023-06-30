@@ -22,6 +22,7 @@
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
+#include "Assets/TextureManager.h"
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "IO/AseParser.h"
@@ -37,21 +38,19 @@
 #include "IO/FgdParser.h"
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"
-#include "IO/IOUtils.h"
 #include "IO/ImageSpriteParser.h"
+#include "IO/LoadTextureCollection.h"
 #include "IO/Md2Parser.h"
 #include "IO/Md3Parser.h"
 #include "IO/MdlParser.h"
 #include "IO/MdxParser.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
-#include "IO/ObjParser.h"
 #include "IO/ObjSerializer.h"
 #include "IO/PathInfo.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/SprParser.h"
 #include "IO/SystemPaths.h"
-#include "IO/TextureLoader.h"
 #include "IO/WorldReader.h"
 #include "Logger.h"
 #include "Macros.h"
@@ -65,6 +64,7 @@
 #include "Model/WorldNode.h"
 
 #include <kdl/overload.h>
+#include <kdl/path_utils.h>
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
@@ -81,7 +81,7 @@ namespace TrenchBroom
 {
 namespace Model
 {
-GameImpl::GameImpl(GameConfig& config, IO::Path gamePath, Logger& logger)
+GameImpl::GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& logger)
   : m_config{config}
   , m_gamePath{std::move(gamePath)}
 {
@@ -98,12 +98,12 @@ const std::string& GameImpl::doGameName() const
   return m_config.name;
 }
 
-IO::Path GameImpl::doGamePath() const
+std::filesystem::path GameImpl::doGamePath() const
 {
   return m_gamePath;
 }
 
-void GameImpl::doSetGamePath(const IO::Path& gamePath, Logger& logger)
+void GameImpl::doSetGamePath(const std::filesystem::path& gamePath, Logger& logger)
 {
   if (gamePath != m_gamePath)
   {
@@ -113,7 +113,7 @@ void GameImpl::doSetGamePath(const IO::Path& gamePath, Logger& logger)
 }
 
 void GameImpl::doSetAdditionalSearchPaths(
-  const std::vector<IO::Path>& searchPaths, Logger& logger)
+  const std::vector<std::filesystem::path>& searchPaths, Logger& logger)
 {
   if (searchPaths != m_additionalSearchPaths)
   {
@@ -123,15 +123,15 @@ void GameImpl::doSetAdditionalSearchPaths(
 }
 
 Game::PathErrors GameImpl::doCheckAdditionalSearchPaths(
-  const std::vector<IO::Path>& searchPaths) const
+  const std::vector<std::filesystem::path>& searchPaths) const
 {
   auto result = PathErrors{};
   for (const auto& searchPath : searchPaths)
   {
-    const auto absPath = m_gamePath + searchPath;
-    if (!absPath.isAbsolute() || IO::Disk::pathInfo(absPath) != IO::PathInfo::Directory)
+    const auto absPath = m_gamePath / searchPath;
+    if (!absPath.is_absolute() || IO::Disk::pathInfo(absPath) != IO::PathInfo::Directory)
     {
-      result.emplace(searchPath, "Directory not found: '" + searchPath.asString() + "'");
+      result.emplace(searchPath, "Directory not found: '" + searchPath.string() + "'");
     }
   }
   return result;
@@ -176,7 +176,7 @@ std::unique_ptr<WorldNode> GameImpl::doNewMap(
 {
   const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
   if (
-    !initialMapFilePath.isEmpty()
+    !initialMapFilePath.empty()
     && IO::Disk::pathInfo(initialMapFilePath) == IO::PathInfo::File)
   {
     return doLoadMap(format, worldBounds, initialMapFilePath, logger);
@@ -201,7 +201,7 @@ std::unique_ptr<WorldNode> GameImpl::doNewMap(
     .transform([&](Brush&& b) {
       worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)});
     })
-    .or_else([&](const Model::BrushError e) {
+    .transform_error([&](const Model::BrushError e) {
       logger.error() << "Could not create default brush: " << e;
     });
 
@@ -211,11 +211,11 @@ std::unique_ptr<WorldNode> GameImpl::doNewMap(
 std::unique_ptr<WorldNode> GameImpl::doLoadMap(
   const MapFormat format,
   const vm::bbox3& worldBounds,
-  const IO::Path& path,
+  const std::filesystem::path& path,
   Logger& logger) const
 {
   auto parserStatus = IO::SimpleParserStatus{logger};
-  auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+  auto file = IO::Disk::openFile(path);
   auto fileReader = file->reader().buffer();
   if (format == MapFormat::Unknown)
   {
@@ -240,23 +240,20 @@ std::unique_ptr<WorldNode> GameImpl::doLoadMap(
 }
 
 void GameImpl::doWriteMap(
-  WorldNode& world, const IO::Path& path, const bool exporting) const
+  WorldNode& world, const std::filesystem::path& path, const bool exporting) const
 {
-  const auto mapFormatName = formatName(world.mapFormat());
+  IO::Disk::withOutputStream(path, [&](auto& stream) {
+    const auto mapFormatName = formatName(world.mapFormat());
+    stream << "// Game: " << gameName() << "\n"
+           << "// Format: " << mapFormatName << "\n";
 
-  auto file = openPathAsOutputStream(path);
-  if (!file)
-  {
-    throw FileSystemException{"Cannot open file: " + path.asString()};
-  }
-  IO::writeGameComment(file, gameName(), mapFormatName);
-
-  auto writer = IO::NodeWriter{world, file};
-  writer.setExporting(exporting);
-  writer.writeMap();
+    auto writer = IO::NodeWriter{world, stream};
+    writer.setExporting(exporting);
+    writer.writeMap();
+  });
 }
 
-void GameImpl::doWriteMap(WorldNode& world, const IO::Path& path) const
+void GameImpl::doWriteMap(WorldNode& world, const std::filesystem::path& path) const
 {
   doWriteMap(world, path, false);
 }
@@ -266,26 +263,17 @@ void GameImpl::doExportMap(WorldNode& world, const IO::ExportOptions& options) c
   std::visit(
     kdl::overload(
       [&](const IO::ObjExportOptions& objOptions) {
-        auto objFile = openPathAsOutputStream(objOptions.exportPath);
-        if (!objFile)
-        {
-          throw FileSystemException{
-            "Cannot open file: " + objOptions.exportPath.asString()};
-        }
-
-        auto mtlPath = objOptions.exportPath.replaceExtension("mtl");
-        auto mtlFile = openPathAsOutputStream(mtlPath);
-        if (!mtlFile)
-        {
-          throw FileSystemException{"Cannot open file: " + mtlPath.asString()};
-        }
-
-        auto writer = IO::NodeWriter{
-          world,
-          std::make_unique<IO::ObjSerializer>(
-            objFile, mtlFile, mtlPath.filename(), objOptions)};
-        writer.setExporting(true);
-        writer.writeMap();
+        IO::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
+          const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
+          IO::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
+            auto writer = IO::NodeWriter{
+              world,
+              std::make_unique<IO::ObjSerializer>(
+                objStream, mtlStream, mtlPath.filename().string(), objOptions)};
+            writer.setExporting(true);
+            writer.writeMap();
+          });
+        });
       },
       [&](const IO::MapExportOptions& mapOptions) {
         doWriteMap(world, mapOptions.exportPath, true);
@@ -335,103 +323,22 @@ void GameImpl::doWriteBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-Game::TexturePackageType GameImpl::doTexturePackageType() const
+void GameImpl::doLoadTextureCollections(Assets::TextureManager& textureManager) const
 {
-  using Model::GameConfig;
-  return std::visit(
-    kdl::overload(
-      [](const TextureFilePackageConfig&) { return TexturePackageType::File; },
-      [](const TextureDirectoryPackageConfig&) { return TexturePackageType::Directory; }),
-    m_config.textureConfig.package);
+  textureManager.reload(m_fs, m_config.textureConfig);
 }
 
-void GameImpl::doLoadTextureCollections(
-  const Entity& entity,
-  const IO::Path& documentPath,
-  Assets::TextureManager& textureManager,
-  Logger& logger) const
+void GameImpl::doReloadWads(
+  const std::filesystem::path& documentPath,
+  const std::vector<std::filesystem::path>& wadPaths,
+  Logger& logger)
 {
-  const auto paths = extractTextureCollections(entity);
-
-  const auto fileSearchPaths = textureCollectionSearchPaths(documentPath);
-  auto textureLoader =
-    IO::TextureLoader{m_fs, fileSearchPaths, m_config.textureConfig, logger};
-  textureLoader.loadTextures(paths, textureManager);
-}
-
-std::vector<IO::Path> GameImpl::textureCollectionSearchPaths(
-  const IO::Path& documentPath) const
-{
-  return {
-    documentPath, // Search for assets relative to the map file.
-    m_gamePath,   // Search for assets relative to the location of the game.
+  const auto searchPaths = std::vector<std::filesystem::path>{
+    documentPath.parent_path(), // Search for assets relative to the map file.
+    m_gamePath,                 // Search for assets relative to the location of the game.
     IO::SystemPaths::appDirectory(), // Search for assets relative to the application.
   };
-}
-
-bool GameImpl::doIsTextureCollection(const IO::Path& path) const
-{
-  return std::visit(
-    kdl::overload(
-      [&](const TextureFilePackageConfig& filePackageConfig) {
-        return path.hasExtension(filePackageConfig.fileFormat.extensions, false);
-      },
-      [](const TextureDirectoryPackageConfig&) { return false; }),
-    m_config.textureConfig.package);
-}
-
-std::vector<IO::Path> GameImpl::doFindTextureCollections() const
-{
-  try
-  {
-    const auto searchPath = getRootDirectory(m_config.textureConfig.package);
-    if (!searchPath.isEmpty() && m_fs.pathInfo(searchPath) == IO::PathInfo::Directory)
-    {
-      return kdl::vec_concat(
-        std::vector<IO::Path>{searchPath},
-        m_fs.findRecursively(
-          searchPath, IO::makePathInfoPathMatcher({IO::PathInfo::Directory})));
-    }
-    return {};
-  }
-  catch (FileSystemException& e)
-  {
-    throw GameException{"Could not find texture collections: " + std::string{e.what()}};
-  }
-}
-
-std::vector<std::string> GameImpl::doFileTextureCollectionExtensions() const
-{
-  return std::visit(
-    kdl::overload(
-      [](const TextureFilePackageConfig& filePackageConfig) {
-        return filePackageConfig.fileFormat.extensions;
-      },
-      [](const TextureDirectoryPackageConfig&) { return std::vector<std::string>{}; }),
-    m_config.textureConfig.package);
-}
-
-std::vector<IO::Path> GameImpl::doExtractTextureCollections(const Entity& entity) const
-{
-  if (const auto& propertyKey = m_config.textureConfig.property; !propertyKey.empty())
-  {
-    if (const auto* pathsValue = entity.property(propertyKey))
-    {
-      return IO::Path::asPaths(kdl::str_split(*pathsValue, ";"));
-    }
-  }
-
-  return {};
-}
-
-void GameImpl::doUpdateTextureCollections(
-  Entity& entity, const std::vector<IO::Path>& paths) const
-{
-  if (const auto& propertyKey = m_config.textureConfig.property; !propertyKey.empty())
-  {
-    const auto value = kdl::str_join(IO::Path::asStrings(paths, "/"), ";");
-    entity.addOrUpdateProperty(entityPropertyConfig(), propertyKey, value);
-  }
+  m_fs.reloadWads(m_config.textureConfig.root, searchPaths, wadPaths, logger);
 }
 
 void GameImpl::doReloadShaders()
@@ -439,44 +346,44 @@ void GameImpl::doReloadShaders()
   m_fs.reloadShaders();
 }
 
-bool GameImpl::doIsEntityDefinitionFile(const IO::Path& path) const
+bool GameImpl::doIsEntityDefinitionFile(const std::filesystem::path& path) const
 {
-  static const auto extensions = {"fgd", "def", "ent"};
+  static const auto extensions = {".fgd", ".def", ".ent"};
 
   return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
-    return kdl::ci::str_is_equal(extension, path.extension());
+    return kdl::ci::str_is_equal(extension, path.extension().string());
   });
 }
 
 std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
-  IO::ParserStatus& status, const IO::Path& path) const
+  IO::ParserStatus& status, const std::filesystem::path& path) const
 {
-  const auto extension = path.extension();
+  const auto extension = path.extension().string();
   const auto& defaultColor = m_config.entityConfig.defaultColor;
 
-  if (kdl::ci::str_is_equal("fgd", extension))
+  if (kdl::ci::str_is_equal(".fgd", extension))
   {
-    auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+    auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
     auto parser = IO::FgdParser{reader.stringView(), defaultColor, file->path()};
     return parser.parseDefinitions(status);
   }
-  if (kdl::ci::str_is_equal("def", extension))
+  if (kdl::ci::str_is_equal(".def", extension))
   {
-    auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+    auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
     auto parser = IO::DefParser{reader.stringView(), defaultColor};
     return parser.parseDefinitions(status);
   }
-  if (kdl::ci::str_is_equal("ent", extension))
+  if (kdl::ci::str_is_equal(".ent", extension))
   {
-    auto file = IO::Disk::openFile(IO::Disk::fixPath(path));
+    auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
     auto parser = IO::EntParser{reader.stringView(), defaultColor};
     return parser.parseDefinitions(status);
   }
 
-  throw GameException{"Unknown entity definition format: '" + path.asString() + "'"};
+  throw GameException{"Unknown entity definition format: '" + path.string() + "'"};
 }
 
 std::vector<Assets::EntityDefinitionFileSpec> GameImpl::doAllEntityDefinitionFiles() const
@@ -507,9 +414,9 @@ Assets::EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const
   throw GameException{"No entity definition files found for game '" + gameName() + "'"};
 }
 
-IO::Path GameImpl::doFindEntityDefinitionFile(
+std::filesystem::path GameImpl::doFindEntityDefinitionFile(
   const Assets::EntityDefinitionFileSpec& spec,
-  const std::vector<IO::Path>& searchPaths) const
+  const std::vector<std::filesystem::path>& searchPaths) const
 {
   if (!spec.valid())
   {
@@ -522,7 +429,7 @@ IO::Path GameImpl::doFindEntityDefinitionFile(
     return m_config.findConfigFile(path);
   }
 
-  if (path.isAbsolute())
+  if (path.is_absolute())
   {
     return path;
   }
@@ -533,14 +440,14 @@ IO::Path GameImpl::doFindEntityDefinitionFile(
 template <typename GetPalette, typename Function>
 static auto withEntityParser(
   const GameFileSystem& fs,
-  const IO::Path& path,
+  const std::filesystem::path& path,
   const GetPalette& getPalette,
   const Function& fun)
 {
   auto file = fs.openFile(path);
   ensure(file != nullptr, "file is null");
 
-  const auto modelName = path.lastComponent().asString();
+  const auto modelName = path.filename().string();
   auto reader = file->reader().buffer();
 
   if (IO::MdlParser::canParse(path, reader))
@@ -581,12 +488,6 @@ static auto withEntityParser(
     auto parser = IO::AseParser{modelName, reader.stringView(), fs};
     return fun(parser);
   }
-  if (IO::NvObjParser::canParse(path))
-  {
-    // has to be the whole path for implicit textures!
-    auto parser = IO::NvObjParser{path, reader.stringView(), fs};
-    return fun(parser);
-  }
   if (IO::ImageSpriteParser::canParse(path))
   {
     auto parser = IO::ImageSpriteParser{modelName, file, fs};
@@ -603,11 +504,11 @@ static auto withEntityParser(
     auto parser = IO::AssimpParser{path, fs};
     return fun(parser);
   }
-  throw GameException{"Unsupported model format '" + path.asString() + "'"};
+  throw GameException{"Unsupported model format '" + path.string() + "'"};
 }
 
 std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(
-  const IO::Path& path, Logger& logger) const
+  const std::filesystem::path& path, Logger& logger) const
 {
   try
   {
@@ -620,22 +521,22 @@ std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(
   catch (const FileSystemException& e)
   {
     throw GameException{
-      "Could not load model " + path.asString() + ": " + std::string{e.what()}};
+      "Could not load model " + path.string() + ": " + std::string{e.what()}};
   }
   catch (const AssetException& e)
   {
     throw GameException{
-      "Could not load model " + path.asString() + ": " + std::string{e.what()}};
+      "Could not load model " + path.string() + ": " + std::string{e.what()}};
   }
   catch (const ParserException& e)
   {
     throw GameException{
-      "Could not load model " + path.asString() + ": " + std::string{e.what()}};
+      "Could not load model " + path.string() + ": " + std::string{e.what()}};
   }
 }
 
 void GameImpl::doLoadFrame(
-  const IO::Path& path,
+  const std::filesystem::path& path,
   size_t frameIndex,
   Assets::EntityModel& model,
   Logger& logger) const
@@ -648,9 +549,6 @@ void GameImpl::doLoadFrame(
     const auto file = m_fs.openFile(path);
     ensure(file != nullptr, "file is null");
 
-    const auto modelName = path.lastComponent().asString();
-    const auto extension = kdl::str_to_lower(path.extension());
-
     return withEntityParser(
       m_fs,
       path,
@@ -660,36 +558,38 @@ void GameImpl::doLoadFrame(
   catch (FileSystemException& e)
   {
     throw GameException{
-      "Could not load model " + path.asString() + ": " + std::string{e.what()}};
+      "Could not load model " + path.string() + ": " + std::string{e.what()}};
   }
   catch (AssetException& e)
   {
     throw GameException{
-      "Could not load model " + path.asString() + ": " + std::string{e.what()}};
+      "Could not load model " + path.string() + ": " + std::string{e.what()}};
   }
 }
 
 Assets::Palette GameImpl::loadTexturePalette() const
 {
-  return Assets::Palette::loadFile(m_fs, m_config.textureConfig.palette);
+  auto file = m_fs.openFile(m_config.textureConfig.palette);
+  return Assets::loadPalette(*file)
+    .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+    .value();
 }
 
 std::vector<std::string> GameImpl::doAvailableMods() const
 {
   auto result = std::vector<std::string>{};
-  if (m_gamePath.isEmpty() || IO::Disk::pathInfo(m_gamePath) != IO::PathInfo::Directory)
+  if (m_gamePath.empty() || IO::Disk::pathInfo(m_gamePath) != IO::PathInfo::Directory)
   {
     return result;
   }
 
-  const auto& defaultMod =
-    m_config.fileSystemConfig.searchPath.lastComponent().asString();
+  const auto& defaultMod = m_config.fileSystemConfig.searchPath.filename().string();
   const auto fs = IO::DiskFileSystem{m_gamePath};
-  const auto subDirs =
-    fs.find(IO::Path{}, IO::makePathInfoPathMatcher({IO::PathInfo::Directory}));
+  const auto subDirs = fs.find(
+    std::filesystem::path{}, IO::makePathInfoPathMatcher({IO::PathInfo::Directory}));
   for (const auto& subDir : subDirs)
   {
-    const auto mod = subDir.lastComponent().asString();
+    const auto mod = subDir.filename().string();
     if (!kdl::ci::str_is_equal(mod, defaultMod))
     {
       result.push_back(mod);
@@ -709,7 +609,7 @@ std::vector<std::string> GameImpl::doExtractEnabledMods(const Entity& entity) co
 
 std::string GameImpl::doDefaultMod() const
 {
-  return m_config.fileSystemConfig.searchPath.asString();
+  return m_config.fileSystemConfig.searchPath.string();
 }
 
 const FlagsConfig& GameImpl::doSurfaceFlags() const

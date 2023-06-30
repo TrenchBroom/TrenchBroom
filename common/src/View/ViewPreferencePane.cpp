@@ -19,23 +19,22 @@
 
 #include "ViewPreferencePane.h"
 
+#include <QBoxLayout>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QLabel>
+#include <QtGlobal>
+
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Renderer/GL.h"
 #include "View/ColorButton.h"
 #include "View/FormWithSectionsLayout.h"
 #include "View/QtUtils.h"
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
 
-#include "Renderer/GL.h"
-
 #include <vecmath/scalar.h>
-
-#include <QBoxLayout>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QLabel>
-#include <QtGlobal>
 
 #include <array>
 #include <string>

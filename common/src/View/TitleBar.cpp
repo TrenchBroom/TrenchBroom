@@ -19,12 +19,12 @@
 
 #include "TitleBar.h"
 
+#include <QHBoxLayout>
+#include <QLabel>
+
 #include "View/ControlListBox.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
-
-#include <QHBoxLayout>
-#include <QLabel>
 
 namespace TrenchBroom
 {

@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include <memory>
 #include <string>
 #include <vector>
-
-#include <QWidget>
 
 namespace TrenchBroom
 {
@@ -49,7 +49,7 @@ private:
 public:
   explicit SmartPropertyEditor(
     std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-  virtual ~SmartPropertyEditor();
+  ~SmartPropertyEditor() override;
 
   bool usesPropertyKey(const std::string& propertyKey) const;
 

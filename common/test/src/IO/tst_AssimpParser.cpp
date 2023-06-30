@@ -25,7 +25,6 @@
 #include "IO/File.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"
-#include "IO/TextureReader.h"
 #include "Logger.h"
 
 #include "Catch2.h"
@@ -38,10 +37,10 @@ TEST_CASE("AssimpParserTest.loadBlenderModel")
 {
   auto logger = NullLogger{};
 
-  const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/test/IO/assimp");
+  const auto basePath = std::filesystem::current_path() / "fixture/test/IO/assimp";
   auto fs = std::make_shared<DiskFileSystem>(basePath);
 
-  auto assimpParser = AssimpParser{Path{"cube.dae"}, *fs};
+  auto assimpParser = AssimpParser{"cube.dae", *fs};
 
   auto model = assimpParser.initializeModel(logger);
   CHECK(model != nullptr);

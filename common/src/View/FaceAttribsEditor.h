@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "NotifierConnection.h"
-
 #include <QWidget>
+
+#include "NotifierConnection.h"
 
 #include <memory>
 #include <vector>
@@ -55,34 +55,34 @@ class FaceAttribsEditor : public QWidget
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  UVEditor* m_uvEditor;
-  QLabel* m_textureName;
-  QLabel* m_textureSize;
-  SpinControl* m_xOffsetEditor;
-  SpinControl* m_yOffsetEditor;
-  SpinControl* m_xScaleEditor;
-  SpinControl* m_yScaleEditor;
-  SpinControl* m_rotationEditor;
-  QLabel* m_surfaceValueLabel;
-  QWidget* m_surfaceValueEditorLayout;
-  SpinControl* m_surfaceValueEditor;
-  QAbstractButton* m_surfaceValueUnsetButton;
+  UVEditor* m_uvEditor{nullptr};
+  QLabel* m_textureName{nullptr};
+  QLabel* m_textureSize{nullptr};
+  SpinControl* m_xOffsetEditor{nullptr};
+  SpinControl* m_yOffsetEditor{nullptr};
+  SpinControl* m_xScaleEditor{nullptr};
+  SpinControl* m_yScaleEditor{nullptr};
+  SpinControl* m_rotationEditor{nullptr};
+  QLabel* m_surfaceValueLabel{nullptr};
+  QWidget* m_surfaceValueEditorLayout{nullptr};
+  SpinControl* m_surfaceValueEditor{nullptr};
+  QAbstractButton* m_surfaceValueUnsetButton{nullptr};
 
-  QLabel* m_surfaceFlagsLabel;
-  QWidget* m_surfaceFlagsEditorLayout;
-  FlagsPopupEditor* m_surfaceFlagsEditor;
-  QAbstractButton* m_surfaceFlagsUnsetButton;
-  QLabel* m_contentFlagsLabel;
-  QWidget* m_contentFlagsEditorLayout;
-  FlagsPopupEditor* m_contentFlagsEditor;
-  QAbstractButton* m_contentFlagsUnsetButton;
+  QLabel* m_surfaceFlagsLabel{nullptr};
+  QWidget* m_surfaceFlagsEditorLayout{nullptr};
+  FlagsPopupEditor* m_surfaceFlagsEditor{nullptr};
+  QAbstractButton* m_surfaceFlagsUnsetButton{nullptr};
+  QLabel* m_contentFlagsLabel{nullptr};
+  QWidget* m_contentFlagsEditorLayout{nullptr};
+  FlagsPopupEditor* m_contentFlagsEditor{nullptr};
+  QAbstractButton* m_contentFlagsUnsetButton{nullptr};
 
-  QLabel* m_colorLabel;
-  QWidget* m_colorEditorLayout;
-  QLineEdit* m_colorEditor;
-  QAbstractButton* m_colorUnsetButton;
+  QLabel* m_colorLabel{nullptr};
+  QWidget* m_colorEditorLayout{nullptr};
+  QLineEdit* m_colorEditor{nullptr};
+  QAbstractButton* m_colorUnsetButton{nullptr};
 
-  SignalDelayer* m_updateControlsSignalDelayer;
+  SignalDelayer* m_updateControlsSignalDelayer{nullptr};
 
   NotifierConnection m_notifierConnection;
 
@@ -137,10 +137,8 @@ private:
   void showColorAttribEditor();
   void hideColorAttribEditor();
 
-  void getSurfaceFlags(
-    QList<int>& values, QStringList& names, QStringList& descriptions) const;
-  void getContentFlags(
-    QList<int>& values, QStringList& names, QStringList& descriptions) const;
+  std::tuple<QList<int>, QStringList, QStringList> getSurfaceFlags() const;
+  std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
 };
 } // namespace View
 } // namespace TrenchBroom

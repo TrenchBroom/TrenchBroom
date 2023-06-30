@@ -21,6 +21,7 @@
 
 #include "Assets/TextureCollection.h"
 
+#include <filesystem>
 #include <map>
 #include <string>
 #include <vector>
@@ -31,9 +32,13 @@ class Logger;
 
 namespace IO
 {
-class Path;
-class TextureLoader;
+class FileSystem;
 } // namespace IO
+
+namespace Model
+{
+struct TextureConfig;
+}
 
 namespace Assets
 {
@@ -43,8 +48,6 @@ class TextureCollection;
 class TextureManager
 {
 private:
-  using TextureMap = std::map<std::string, Texture*>;
-
   Logger& m_logger;
 
   std::vector<TextureCollection> m_collections;
@@ -52,22 +55,28 @@ private:
   std::vector<size_t> m_toPrepare;
   std::vector<TextureCollection> m_toRemove;
 
-  TextureMap m_texturesByName;
+  std::map<std::string, Texture*> m_texturesByName;
   std::vector<const Texture*> m_textures;
 
   int m_minFilter;
   int m_magFilter;
-  bool m_resetTextureMode;
+  bool m_resetTextureMode{false};
 
 public:
   TextureManager(int magFilter, int minFilter, Logger& logger);
   ~TextureManager();
 
-  void setTextureCollections(
-    const std::vector<IO::Path>& paths, IO::TextureLoader& loader);
+  void reload(const IO::FileSystem& fs, const Model::TextureConfig& textureConfig);
+
+  // for testing
   void setTextureCollections(std::vector<TextureCollection> collections);
 
 private:
+  void setTextureCollections(
+    const std::vector<std::filesystem::path>& paths,
+    const IO::FileSystem& fs,
+    const Model::TextureConfig& textureConfig);
+
   void addTextureCollection(Assets::TextureCollection collection);
 
 public:

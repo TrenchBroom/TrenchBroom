@@ -19,6 +19,13 @@
 
 #include "TextureBrowser.h"
 
+#include <QComboBox>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QScrollBar>
+#include <QVBoxLayout>
+#include <QtGlobal>
+
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "PreferenceManager.h"
@@ -29,13 +36,6 @@
 #include "View/ViewConstants.h"
 
 #include <kdl/memory_utils.h>
-
-#include <QComboBox>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QScrollBar>
-#include <QVBoxLayout>
-#include <QtGlobal>
 
 // for use in QVariant
 Q_DECLARE_METATYPE(TrenchBroom::View::TextureSortOrder)
@@ -251,7 +251,7 @@ void TextureBrowser::currentTextureNameDidChange(const std::string& /* textureNa
   updateSelectedTexture();
 }
 
-void TextureBrowser::preferenceDidChange(const IO::Path& path)
+void TextureBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
   auto document = kdl::mem_lock(m_document);
   if (

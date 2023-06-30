@@ -21,8 +21,8 @@
 #include "EL/Expression.h"
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
-#include "IO/Path.h"
 
+#include <filesystem>
 #include <map>
 #include <tuple>
 
@@ -43,12 +43,12 @@ TEST_CASE("ModelDefinitionTest.append")
   auto d1 = makeModelDefinition(R"("maps/b_shell0.bsp")");
   REQUIRE(
     d1.modelSpecification(EL::NullVariableStore{})
-    == ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0});
+    == ModelSpecification{"maps/b_shell0.bsp", 0, 0});
 
   d1.append(makeModelDefinition(R"("maps/b_shell1.bsp")"));
   CHECK(
     d1.modelSpecification(EL::NullVariableStore{})
-    == ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0});
+    == ModelSpecification{"maps/b_shell0.bsp", 0, 0});
 }
 
 TEST_CASE("ModelDefinitionTest.modelSpecification")
@@ -58,25 +58,25 @@ TEST_CASE("ModelDefinitionTest.modelSpecification")
   // clang-format off
   const auto 
   [expression,                                            variables, expectedModelSpecification] = GENERATE(values<T>({
-  {R"("maps/b_shell0.bsp")",                              {},        {IO::Path{"maps/b_shell0.bsp"}, 0, 0}},
-  {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2 })", {},        {IO::Path{"maps/b_shell0.bsp"}, 1, 2}},
+  {R"("maps/b_shell0.bsp")",                              {},        {"maps/b_shell0.bsp", 0, 0}},
+  {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2 })", {},        {"maps/b_shell0.bsp", 1, 2}},
   
   {R"({{
       spawnflags == 1 -> "maps/b_shell0.bsp",
                           "maps/b_shell1.bsp"
   }})",                                                   {},
-                                                                      {IO::Path{"maps/b_shell1.bsp"}, 0, 0}},
+                                                                      {"maps/b_shell1.bsp", 0, 0}},
   
   {R"({{
       spawnflags == 1 -> "maps/b_shell0.bsp",
                           "maps/b_shell1.bsp"
   }})",                                                   {{"spawnflags", EL::Value{1}}},
-                                                                      {IO::Path{"maps/b_shell0.bsp"}, 0, 0}},
+                                                                      {"maps/b_shell0.bsp", 0, 0}},
 
   {R"({path: model, skin: skin, frame: frame})",          {{"model", EL::Value{"maps/b_shell0.bsp"}},
                                                             {"skin",  EL::Value{1}},
                                                             {"frame", EL::Value{2}}},
-                                                                      {IO::Path{"maps/b_shell0.bsp"}, 1, 2}},
+                                                                      {"maps/b_shell0.bsp", 1, 2}},
   
   }));
   // clang-format on
@@ -96,13 +96,13 @@ TEST_CASE("ModelDefinitionTest.defaultModelSpecification")
   // clang-format off
   const auto 
   [expression,                                            expectedModelSpecification] = GENERATE(values<T>({
-  {R"("maps/b_shell0.bsp")",                              {IO::Path{"maps/b_shell0.bsp"}, 0, 0}},
-  {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2 })", {IO::Path{"maps/b_shell0.bsp"}, 1, 2}},
+  {R"("maps/b_shell0.bsp")",                              {"maps/b_shell0.bsp", 0, 0}},
+  {R"({ path: "maps/b_shell0.bsp", skin: 1, frame: 2 })", {"maps/b_shell0.bsp", 1, 2}},
   
   {R"({{
       spawnflags == 1 -> "maps/b_shell0.bsp",
                           "maps/b_shell1.bsp"
-  }})",                                                   {IO::Path{"maps/b_shell1.bsp"}, 0, 0}},
+  }})",                                                   {"maps/b_shell1.bsp", 0, 0}},
 
   {R"({path: model, skin: skin, frame: frame})",          {}},
   

@@ -99,9 +99,8 @@ void CreatePrimitiveBrushTool::update(const vm::bbox3& bounds)
   }
 
   builder.createBrush(positions, document->currentTextureName())
-    .transform(
-      [&](Model::Brush&& b) { updateBrush(new Model::BrushNode(std::move(b))); })
-    .or_else([&](const Model::BrushError e) {
+    .transform([&](Model::Brush&& b) { updateBrush(new Model::BrushNode(std::move(b))); })
+    .transform_error([&](const Model::BrushError e) {
       updateBrush(nullptr);
       document->error() << "Could not update brush: " << e;
     });

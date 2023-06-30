@@ -34,6 +34,8 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
+#include <filesystem>
+
 #include "Catch2.h"
 
 namespace TrenchBroom
@@ -177,13 +179,11 @@ TEST_CASE("EntityTest.modelSpecification")
   auto entity = Entity{};
   entity.setDefinition({}, &definition);
   CHECK(
-    entity.modelSpecification()
-    == Assets::ModelSpecification{IO::Path{"maps/b_shell0.bsp"}, 0, 0});
+    entity.modelSpecification() == Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0});
 
   entity.addOrUpdateProperty({}, EntityPropertyKeys::Spawnflags, "1");
   CHECK(
-    entity.modelSpecification()
-    == Assets::ModelSpecification{IO::Path{"maps/b_shell1.bsp"}, 0, 0});
+    entity.modelSpecification() == Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0});
 }
 
 TEST_CASE("EntityTest.unsetEntityDefinitionAndModel")

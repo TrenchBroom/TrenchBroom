@@ -25,15 +25,15 @@
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FreeImageTextureReader.h"
-#include "IO/Path.h"
 #include "IO/PathInfo.h"
-#include "IO/Quake3ShaderTextureReader.h"
+#include "IO/ReadFreeImageTexture.h"
+#include "IO/ReadQuake3ShaderTexture.h"
+#include "IO/ReadWalTexture.h"
 #include "IO/ResourceUtils.h"
-#include "IO/WalTextureReader.h"
 #include "Logger.h"
 
-#include <kdl/string_format.h>
+#include <kdl/path_utils.h>
+#include <kdl/result.h>
 
 #include <string>
 
@@ -41,54 +41,55 @@ namespace TrenchBroom
 {
 namespace IO
 {
-Assets::Texture loadSkin(const Path& path, const FileSystem& fs, Logger& logger)
+
+Assets::Texture loadSkin(
+  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
-  return loadSkin(path, fs, logger, Assets::Palette());
+  return loadSkin(path, fs, std::nullopt, logger);
 }
 
 Assets::Texture loadSkin(
-  const Path& path, const FileSystem& fs, Logger& logger, const Assets::Palette& palette)
+  const std::filesystem::path& path,
+  const FileSystem& fs,
+  const std::optional<Assets::Palette>& palette,
+  Logger& logger)
 {
-  const TextureReader::StaticNameStrategy nameStrategy(path.basename());
-
   try
   {
     const auto file = fs.openFile(path);
-    const std::string extension = kdl::str_to_lower(path.extension());
+    const auto extension = kdl::str_to_lower(path.extension().string());
 
-    if (extension == "wal")
-    {
-      WalTextureReader reader(nameStrategy, fs, logger, palette);
-      return reader.readTexture(file);
-    }
-    else
-    {
-      FreeImageTextureReader reader(nameStrategy, fs, logger);
-      return reader.readTexture(file);
-    }
+    auto reader = file->reader().buffer();
+    return (extension == ".wal" ? readWalTexture(path.stem().string(), reader, palette)
+                                : readFreeImageTexture(path.stem().string(), reader))
+      .or_else(makeReadTextureErrorHandler(fs, logger))
+      .value();
   }
   catch (Exception& e)
   {
     logger.error() << "Could not load skin '" << path << "': " << e.what();
-    return loadDefaultTexture(fs, logger, nameStrategy.textureName("", path));
+    return loadDefaultTexture(fs, path.stem().string(), logger);
   }
 }
 
-Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logger)
+Assets::Texture loadShader(
+  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
-  const TextureReader::PathSuffixNameStrategy nameStrategy(0u);
+  const auto pathWithoutExtension = kdl::path_remove_extension(path);
+  auto actualPath = !path.empty() && fs.pathInfo(pathWithoutExtension) == PathInfo::File
+                      ? pathWithoutExtension
+                      : path;
+  const auto name = path.generic_string();
 
-  if (!path.isEmpty())
+  if (!path.empty())
   {
     logger.debug() << "Loading shader '" << path << "'";
     try
     {
-      const auto file = fs.pathInfo(path.deleteExtension()) == PathInfo::File
-                          ? fs.openFile(path.deleteExtension())
-                          : fs.openFile(path);
-
-      Quake3ShaderTextureReader reader(nameStrategy, fs, logger);
-      return reader.readTexture(file);
+      const auto file = fs.openFile(actualPath);
+      return readQuake3ShaderTexture(name, *file, fs)
+        .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+        .value();
     }
     catch (const Exception& e)
     {
@@ -100,8 +101,8 @@ Assets::Texture loadShader(const Path& path, const FileSystem& fs, Logger& logge
   {
     logger.warn() << "Could not load shader: Path is empty";
   }
-  const auto name = nameStrategy.textureName("", path);
-  return loadDefaultTexture(fs, logger, name);
+
+  return loadDefaultTexture(fs, name, logger);
 }
 } // namespace IO
 } // namespace TrenchBroom

@@ -19,6 +19,13 @@
 
 #include "MapViewBase.h"
 
+#include <QDebug>
+#include <QMenu>
+#include <QMimeData>
+#include <QShortcut>
+#include <QString>
+#include <QtGlobal>
+
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
@@ -65,24 +72,17 @@
 #include "View/QtUtils.h"
 #include "View/SelectionTool.h"
 #include "View/SignalDelayer.h"
-#include "kdl/vector_utils.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
+#include <kdl/vector_utils.h>
 
 #include <vecmath/polygon.h>
 #include <vecmath/util.h>
 
 #include <sstream>
 #include <vector>
-
-#include <QDebug>
-#include <QMenu>
-#include <QMimeData>
-#include <QShortcut>
-#include <QString>
-#include <QtGlobal>
 
 namespace TrenchBroom
 {
@@ -281,7 +281,7 @@ void MapViewBase::portalFileDidChange()
   update();
 }
 
-void MapViewBase::preferenceDidChange(const IO::Path& path)
+void MapViewBase::preferenceDidChange(const std::filesystem::path& path)
 {
   if (path == Preferences::RendererFontSize.path())
   {
@@ -1221,8 +1221,8 @@ void MapViewBase::showPopupMenuLater()
     return groupAction;
   };
 
-  addMainMenuAction(IO::Path{"Menu/Edit/Group"});
-  addMainMenuAction(IO::Path{"Menu/Edit/Ungroup"});
+  addMainMenuAction("Menu/Edit/Group");
+  addMainMenuAction("Menu/Edit/Ungroup");
 
   auto* mergeGroupAction = menu.addAction(
     mergeGroup
@@ -1255,9 +1255,9 @@ void MapViewBase::showPopupMenuLater()
 
   // Linked group operations
 
-  addMainMenuAction(IO::Path("Menu/Edit/Create Linked Duplicate"));
-  addMainMenuAction(IO::Path("Menu/Edit/Select Linked Groups"));
-  addMainMenuAction(IO::Path("Menu/Edit/Separate Linked Groups"));
+  addMainMenuAction("Menu/Edit/Create Linked Duplicate");
+  addMainMenuAction("Menu/Edit/Select Linked Groups");
+  addMainMenuAction("Menu/Edit/Separate Linked Groups");
   menu.addSeparator();
 
   // Layer operations

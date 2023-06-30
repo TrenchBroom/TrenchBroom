@@ -20,9 +20,9 @@
 #pragma once
 
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 
 #include <chrono>
+#include <filesystem>
 #include <memory>
 
 namespace TrenchBroom
@@ -40,7 +40,7 @@ namespace View
 class Command;
 class MapDocument;
 
-IO::PathMatcher makeBackupPathMatcher(IO::Path mapBasename);
+IO::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename);
 
 class Autosaver
 {
@@ -81,16 +81,19 @@ public:
 private:
   void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
   IO::WritableDiskFileSystem createBackupFileSystem(
-    Logger& logger, const IO::Path& mapPath) const;
-  std::vector<IO::Path> collectBackups(
-    const IO::FileSystem& fs, const IO::Path& mapBasename) const;
+    Logger& logger, const std::filesystem::path& mapPath) const;
+  std::vector<std::filesystem::path> collectBackups(
+    const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const;
   void thinBackups(
-    Logger& logger, IO::WritableDiskFileSystem& fs, std::vector<IO::Path>& backups) const;
+    Logger& logger,
+    IO::WritableDiskFileSystem& fs,
+    std::vector<std::filesystem::path>& backups) const;
   void cleanBackups(
     IO::WritableDiskFileSystem& fs,
-    std::vector<IO::Path>& backups,
-    const IO::Path& mapBasename) const;
-  IO::Path makeBackupName(const IO::Path& mapBasename, const size_t index) const;
+    std::vector<std::filesystem::path>& backups,
+    const std::filesystem::path& mapBasename) const;
+  std::filesystem::path makeBackupName(
+    const std::filesystem::path& mapBasename, const size_t index) const;
 };
 } // namespace View
 } // namespace TrenchBroom

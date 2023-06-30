@@ -34,12 +34,11 @@
 
 #include <vecmath/vec_io.h>
 
-#include <tinyxml2.h>
-
 #include <cstdlib>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <tinyxml2.h>
 
 namespace TrenchBroom
 {

@@ -18,6 +18,7 @@
  */
 
 #include "View/GetVersion.h"
+
 #include "Version.h"
 
 namespace TrenchBroom

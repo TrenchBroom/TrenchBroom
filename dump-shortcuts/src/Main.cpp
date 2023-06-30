@@ -17,19 +17,19 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "View/Actions.h"
-
-#include "IO/Path.h"
-#include "KeyStrings.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
-
 #include <QApplication>
 #include <QFileInfo>
 #include <QSettings>
 #include <QTextStream>
 
+#include "IO/PathQt.h"
+#include "KeyStrings.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
+#include "View/Actions.h"
+
 #include <array>
+#include <filesystem>
 #include <iostream>
 #include <tuple>
 
@@ -65,13 +65,13 @@ static void printKeys(QTextStream& out)
   out << "};\n";
 }
 
-static QString toString(const IO::Path& path, const QString& suffix)
+static QString toString(const QStringList& path, const QString& suffix)
 {
   QString result;
   result += "[";
-  for (const auto& component : path.components())
+  for (const auto& component : path)
   {
-    result += "'" + QString::fromStdString(component) + "', ";
+    result += "'" + component + "', ";
   }
   result += "'" + suffix + "'";
   result += "]";
@@ -121,7 +121,7 @@ class PrintMenuVisitor : public TrenchBroom::View::MenuVisitor
 {
 private:
   QTextStream& m_out;
-  IO::Path m_path;
+  QStringList m_path;
 
 public:
   PrintMenuVisitor(QTextStream& out)
@@ -131,18 +131,16 @@ public:
 
   void visit(const Menu& menu) override
   {
-    m_path = m_path + IO::Path(menu.name());
+    m_path.push_back(QString::fromStdString(menu.name()));
     menu.visitEntries(*this);
-    m_path = m_path.deleteLastComponent();
+    m_path.pop_back();
   }
 
   void visit(const MenuSeparatorItem&) override {}
 
   void visit(const MenuActionItem& item) override
   {
-    m_out << "    '"
-          << QString::fromStdString(item.action().preferencePath().asString("/"))
-          << "': ";
+    m_out << "    '" << IO::pathAsGenericQString(item.action().preferencePath()) << "': ";
     m_out << "{ path: " << toString(m_path, item.label())
           << ", shortcut: " << toString(item.action().keySequence()) << " },\n";
   }
@@ -163,10 +161,11 @@ static void printActionShortcuts(QTextStream& out)
 {
   out << "const actions = {\n";
 
-  auto printPref = [&out](const IO::Path& prefPath, const QKeySequence& keySequence) {
-    out << "    '" << QString::fromStdString(prefPath.asString("/")) << "': ";
-    out << toString(keySequence) << ",\n";
-  };
+  auto printPref =
+    [&out](const std::filesystem::path& prefPath, const QKeySequence& keySequence) {
+      out << "    '" << IO::pathAsGenericQString(prefPath) << "': ";
+      out << toString(keySequence) << ",\n";
+    };
 
   class ToolbarVisitor : public MenuVisitor
   {
@@ -251,6 +250,8 @@ int main(int argc, char* argv[])
   TrenchBroom::View::printKeys(out);
   TrenchBroom::View::printMenuShortcuts(out);
   TrenchBroom::View::printActionShortcuts(out);
+
+  TrenchBroom::PreferenceManager::destroyInstance();
 
   out.flush();
   if (out.status() == QTextStream::Ok)

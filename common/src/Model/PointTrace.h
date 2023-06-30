@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include <kdl/reflection_decl.h>
+
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
-
-#include <kdl/reflection_decl.h>
 
 #include <optional>
 #include <vector>

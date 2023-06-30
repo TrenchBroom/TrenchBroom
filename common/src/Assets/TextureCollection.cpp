@@ -21,36 +21,34 @@
 
 #include "Ensure.h"
 
+#include <kdl/reflection_impl.h>
 #include <kdl/vector_utils.h>
 
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-TextureCollection::TextureCollection()
-  : m_loaded(false)
-{
-}
+
+kdl_reflect_impl(TextureCollection);
+
+TextureCollection::TextureCollection() = default;
 
 TextureCollection::TextureCollection(std::vector<Texture> textures)
-  : m_loaded(false)
-  , m_textures(std::move(textures))
+  : m_textures{std::move(textures)}
 {
 }
 
-TextureCollection::TextureCollection(const IO::Path& path)
-  : m_loaded(false)
-  , m_path(path)
+TextureCollection::TextureCollection(std::filesystem::path path)
+  : m_path{std::move(path)}
 {
 }
 
-TextureCollection::TextureCollection(const IO::Path& path, std::vector<Texture> textures)
-  : m_loaded(true)
-  , m_path(path)
-  , m_textures(std::move(textures))
+TextureCollection::TextureCollection(
+  std::filesystem::path path, std::vector<Texture> textures)
+  : m_path{std::move(path)}
+  , m_textures{std::move(textures)}
+  , m_loaded{true}
 {
 }
 
@@ -70,16 +68,14 @@ bool TextureCollection::loaded() const
   return m_loaded;
 }
 
-const IO::Path& TextureCollection::path() const
+const std::filesystem::path& TextureCollection::path() const
 {
   return m_path;
 }
 
 std::string TextureCollection::name() const
 {
-  if (m_path.isEmpty())
-    return "";
-  return m_path.lastComponent().asString();
+  return !m_path.empty() ? m_path.filename().string() : "";
 }
 
 size_t TextureCollection::textureCount() const
@@ -99,14 +95,7 @@ std::vector<Texture>& TextureCollection::textures()
 
 const Texture* TextureCollection::textureByIndex(const size_t index) const
 {
-  if (index >= m_textures.size())
-  {
-    return nullptr;
-  }
-  else
-  {
-    return &(m_textures[index]);
-  }
+  return index < m_textures.size() ? &m_textures[index] : nullptr;
 }
 
 Texture* TextureCollection::textureByIndex(const size_t index)
@@ -117,14 +106,11 @@ Texture* TextureCollection::textureByIndex(const size_t index)
 
 const Texture* TextureCollection::textureByName(const std::string& name) const
 {
-  for (const auto& texture : m_textures)
-  {
-    if (texture.name() == name)
-    {
-      return &texture;
-    }
-  }
-  return nullptr;
+  const auto it =
+    std::find_if(m_textures.begin(), m_textures.end(), [&](const auto& texture) {
+      return texture.name() == name;
+    });
+  return it != m_textures.end() ? &*it : nullptr;
 }
 
 Texture* TextureCollection::textureByName(const std::string& name)
@@ -150,7 +136,7 @@ void TextureCollection::prepare(const int minFilter, const int magFilter)
 
     for (size_t i = 0; i < textureCount(); ++i)
     {
-      Texture& texture = m_textures[i];
+      auto& texture = m_textures[i];
       texture.prepare(m_textureIds[i], minFilter, magFilter);
     }
   }
@@ -163,5 +149,5 @@ void TextureCollection::setTextureMode(const int minFilter, const int magFilter)
     texture.setMode(minFilter, magFilter);
   }
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

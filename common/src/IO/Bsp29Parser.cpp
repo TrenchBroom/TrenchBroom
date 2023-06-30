@@ -24,17 +24,19 @@
 #include "Assets/Texture.h"
 #include "Exceptions.h"
 #include "IO/File.h"
-#include "IO/IdMipTextureReader.h"
-#include "IO/MipTextureReader.h"
+#include "IO/ReadMipTexture.h"
 #include "IO/Reader.h"
 #include "IO/ResourceUtils.h"
+#include "Logger.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 
-#include <sstream>
+#include <fmt/format.h>
+
 #include <string>
 #include <vector>
 
@@ -76,20 +78,17 @@ static const size_t ModelFaceIndex = 0x38;
 } // namespace BspLayout
 
 Bsp29Parser::Bsp29Parser(
-  const std::string& name,
-  const Reader& reader,
-  const Assets::Palette& palette,
-  const FileSystem& fs)
-  : m_name(name)
-  , m_reader(reader)
-  , m_palette(palette)
-  , m_fs(fs)
+  std::string name, const Reader& reader, Assets::Palette palette, const FileSystem& fs)
+  : m_name{std::move(name)}
+  , m_reader{reader}
+  , m_palette{std::move(palette)}
+  , m_fs{fs}
 {
 }
 
-bool Bsp29Parser::canParse(const Path& path, Reader reader)
+bool Bsp29Parser::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != "bsp")
+  if (kdl::str_to_lower(path.extension().string()) != ".bsp")
   {
     return false;
   }
@@ -197,11 +196,8 @@ void Bsp29Parser::doLoadFrame(
 
 std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& logger)
 {
-  const TextureReader::TextureNameStrategy nameStrategy;
-  IdMipTextureReader textureReader(nameStrategy, m_fs, logger, m_palette);
-
   const auto textureCount = reader.readSize<int32_t>();
-  std::vector<Assets::Texture> result;
+  auto result = std::vector<Assets::Texture>{};
   result.reserve(textureCount);
 
   for (size_t i = 0; i < textureCount; ++i)
@@ -210,27 +206,16 @@ std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& l
     // 2153: Some BSPs contain negative texture offsets.
     if (textureOffset < 0)
     {
-      result.push_back(loadDefaultTexture(m_fs, logger, "unknown"));
+      result.push_back(loadDefaultTexture(m_fs, "unknown", logger));
       continue;
     }
 
-    auto subReader =
-      reader.subReaderFromBegin(static_cast<size_t>(textureOffset)).buffer();
+    const auto textureName = readMipTextureName(reader);
+    auto textureReader = reader.subReaderFromBegin(size_t(textureOffset)).buffer();
 
-    // MipTextureReader::doReadTexture requires a texture name to be provided in the
-    // File's Path. So we must peek into the mip data to get a name.
-    auto texturePath = Path(MipTextureReader::getTextureName(subReader));
-    if (texturePath.isEmpty())
-    {
-      texturePath = Path("unknown");
-    }
-
-    // We can't easily tell where the texture ends without duplicating all of the parsing
-    // code (including HlMip) here. Just prevent the texture reader from reading past the
-    // end of the .bsp file.
-    auto fileView = std::make_shared<NonOwningBufferFile>(
-      texturePath, subReader.begin(), subReader.end());
-    result.push_back(textureReader.readTexture(fileView));
+    result.push_back(readIdMipTexture(textureName, textureReader, m_palette)
+                       .or_else(makeReadTextureErrorHandler(m_fs, logger))
+                       .value());
   }
 
   return result;
@@ -239,7 +224,7 @@ std::vector<Assets::Texture> Bsp29Parser::parseTextures(Reader reader, Logger& l
 Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos(
   Reader reader, const size_t textureInfoCount)
 {
-  TextureInfoList result(textureInfoCount);
+  auto result = TextureInfoList(textureInfoCount);
   for (size_t i = 0; i < textureInfoCount; ++i)
   {
     result[i].sAxis = reader.readVec<float, 3>();
@@ -254,7 +239,7 @@ Bsp29Parser::TextureInfoList Bsp29Parser::parseTextureInfos(
 
 std::vector<vm::vec3f> Bsp29Parser::parseVertices(Reader reader, const size_t vertexCount)
 {
-  std::vector<vm::vec3f> result(vertexCount);
+  auto result = std::vector<vm::vec3f>(vertexCount);
   for (size_t i = 0; i < vertexCount; ++i)
   {
     result[i] = reader.readVec<float, 3>();
@@ -265,7 +250,7 @@ std::vector<vm::vec3f> Bsp29Parser::parseVertices(Reader reader, const size_t ve
 Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos(
   Reader reader, const size_t edgeInfoCount)
 {
-  EdgeInfoList result(edgeInfoCount);
+  auto result = EdgeInfoList(edgeInfoCount);
   for (size_t i = 0; i < edgeInfoCount; ++i)
   {
     result[i].vertexIndex1 = reader.readSize<uint16_t>();
@@ -277,7 +262,7 @@ Bsp29Parser::EdgeInfoList Bsp29Parser::parseEdgeInfos(
 Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos(
   Reader reader, const size_t faceInfoCount)
 {
-  FaceInfoList result(faceInfoCount);
+  auto result = FaceInfoList(faceInfoCount);
   for (size_t i = 0; i < faceInfoCount; ++i)
   {
     reader.seekForward(BspLayout::FaceEdgeIndex);
@@ -292,7 +277,7 @@ Bsp29Parser::FaceInfoList Bsp29Parser::parseFaceInfos(
 Bsp29Parser::FaceEdgeIndexList Bsp29Parser::parseFaceEdges(
   Reader reader, const size_t faceEdgeCount)
 {
-  FaceEdgeIndexList result(faceEdgeCount);
+  auto result = FaceEdgeIndexList(faceEdgeCount);
   for (size_t i = 0; i < faceEdgeCount; ++i)
   {
     result[i] = reader.readInt<int32_t>();
@@ -318,15 +303,14 @@ void Bsp29Parser::parseFrame(
   reader.seekForward(BspLayout::ModelFaceIndex);
   const auto modelFaceIndex = reader.readSize<int32_t>();
   const auto modelFaceCount = reader.readSize<int32_t>();
-  size_t totalVertexCount = 0;
-  Renderer::TexturedIndexRangeMap::Size size;
+  auto totalVertexCount = size_t(0);
+  auto size = Renderer::TexturedIndexRangeMap::Size{};
 
   for (size_t i = 0; i < modelFaceCount; ++i)
   {
     const auto& faceInfo = faceInfos[modelFaceIndex + i];
     const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
-    auto* skin = surface.skin(textureInfo.textureIndex);
-    if (skin != nullptr)
+    if (const auto* skin = surface.skin(textureInfo.textureIndex))
     {
       const auto faceVertexCount = faceInfo.edgeCount;
       size.inc(skin, Renderer::PrimType::Polygon, faceVertexCount);
@@ -334,49 +318,42 @@ void Bsp29Parser::parseFrame(
     }
   }
 
-  vm::bbox3f::builder bounds;
+  auto bounds = vm::bbox3f::builder{};
 
-  Renderer::TexturedIndexRangeMapBuilder<Vertex::Type> builder(totalVertexCount, size);
+  auto builder =
+    Renderer::TexturedIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
   for (size_t i = 0; i < modelFaceCount; ++i)
   {
     const auto& faceInfo = faceInfos[modelFaceIndex + i];
     const auto& textureInfo = textureInfos[faceInfo.textureInfoIndex];
-    auto* skin = surface.skin(textureInfo.textureIndex);
-    if (skin != nullptr)
+    if (const auto* skin = surface.skin(textureInfo.textureIndex))
     {
       const auto faceVertexCount = faceInfo.edgeCount;
 
-      VertexList faceVertices;
+      auto faceVertices = VertexList{};
       faceVertices.reserve(faceVertexCount);
+
       for (size_t k = 0; k < faceVertexCount; ++k)
       {
-        const int faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
-        size_t vertexIndex;
-        if (faceEdgeIndex < 0)
-        {
-          vertexIndex = edgeInfos[static_cast<size_t>(-faceEdgeIndex)].vertexIndex2;
-        }
-        else
-        {
-          vertexIndex = edgeInfos[static_cast<size_t>(faceEdgeIndex)].vertexIndex1;
-        }
+        const auto faceEdgeIndex = faceEdges[faceInfo.edgeIndex + k];
+        const auto vertexIndex = faceEdgeIndex < 0
+                                   ? edgeInfos[size_t(-faceEdgeIndex)].vertexIndex2
+                                   : edgeInfos[size_t(faceEdgeIndex)].vertexIndex1;
 
         const auto& position = vertices[vertexIndex];
         const auto texCoords = textureCoords(position, textureInfo, skin);
 
         bounds.add(position);
 
-        faceVertices.push_back(Vertex(position, texCoords));
+        faceVertices.emplace_back(position, texCoords);
       }
 
       builder.addPolygon(skin, faceVertices);
     }
   }
 
-  std::stringstream frameName;
-  frameName << m_name << "_" << frameIndex;
-
-  auto& frame = model.loadFrame(frameIndex, frameName.str(), bounds.bounds());
+  const auto frameName = fmt::format("{}_{}", m_name, frameIndex);
+  auto& frame = model.loadFrame(frameIndex, frameName, bounds.bounds());
   surface.addTexturedMesh(
     frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
@@ -386,18 +363,12 @@ vm::vec2f Bsp29Parser::textureCoords(
   const TextureInfo& textureInfo,
   const Assets::Texture* texture) const
 {
-  if (texture == nullptr)
-  {
-    return vm::vec2f::zero();
-  }
-  else
-  {
-    return vm::vec2f(
-      (vm::dot(vertex, textureInfo.sAxis) + textureInfo.sOffset)
-        / static_cast<float>(texture->width()),
-      (vm::dot(vertex, textureInfo.tAxis) + textureInfo.tOffset)
-        / static_cast<float>(texture->height()));
-  }
+  return texture ? vm::vec2f{
+           (vm::dot(vertex, textureInfo.sAxis) + textureInfo.sOffset)
+             / float(texture->width()),
+           (vm::dot(vertex, textureInfo.tAxis) + textureInfo.tOffset)
+             / float(texture->height())}
+                 : vm::vec2f::zero();
 }
 } // namespace IO
 } // namespace TrenchBroom

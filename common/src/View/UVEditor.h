@@ -19,11 +19,11 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "NotifierConnection.h"
 
 #include <memory>
-
-#include <QWidget>
 
 class QSpinBox;
 class QWidget;
@@ -44,16 +44,16 @@ class UVEditor : public QWidget
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  UVView* m_uvView;
-  QSpinBox* m_xSubDivisionEditor;
-  QSpinBox* m_ySubDivisionEditor;
+  UVView* m_uvView{nullptr};
+  QSpinBox* m_xSubDivisionEditor{nullptr};
+  QSpinBox* m_ySubDivisionEditor{nullptr};
 
-  QAbstractButton* m_resetTextureButton;
-  QAbstractButton* m_resetTextureToWorldButton;
-  QAbstractButton* m_flipTextureHButton;
-  QAbstractButton* m_flipTextureVButton;
-  QAbstractButton* m_rotateTextureCCWButton;
-  QAbstractButton* m_rotateTextureCWButton;
+  QAbstractButton* m_resetTextureButton{nullptr};
+  QAbstractButton* m_resetTextureToWorldButton{nullptr};
+  QAbstractButton* m_flipTextureHButton{nullptr};
+  QAbstractButton* m_flipTextureVButton{nullptr};
+  QAbstractButton* m_rotateTextureCCWButton{nullptr};
+  QAbstractButton* m_rotateTextureCWButton{nullptr};
 
   NotifierConnection m_notifierConnection;
 

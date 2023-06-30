@@ -80,7 +80,7 @@ void ExtrudeToolController::pick(
 
 void ExtrudeToolController::modifierKeyChange(const InputState& inputState)
 {
-  if (!anyToolDragging(inputState))
+  if (!inputState.anyToolDragging())
   {
     m_tool.updateProposedDragHandles(inputState.pickResult());
   }
@@ -88,7 +88,7 @@ void ExtrudeToolController::modifierKeyChange(const InputState& inputState)
 
 void ExtrudeToolController::mouseMove(const InputState& inputState)
 {
-  if (handleInput(inputState) && !anyToolDragging(inputState))
+  if (handleInput(inputState) && !inputState.anyToolDragging())
   {
     m_tool.updateProposedDragHandles(inputState.pickResult());
   }

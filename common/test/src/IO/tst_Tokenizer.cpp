@@ -20,9 +20,9 @@
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
-#include <string>
-
 #include <vecmath/approx.h>
+
+#include <string>
 
 #include "Catch2.h"
 

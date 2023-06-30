@@ -18,12 +18,13 @@
  */
 
 #include "PopupButton.h"
-#include "View/PopupWindow.h"
-#include "View/QtUtils.h"
 
 #include <QHBoxLayout>
 #include <QToolButton>
 #include <QWindow>
+
+#include "View/PopupWindow.h"
+#include "View/QtUtils.h"
 
 namespace TrenchBroom
 {

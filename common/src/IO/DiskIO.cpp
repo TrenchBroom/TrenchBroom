@@ -19,20 +19,13 @@
 
 #include "DiskIO.h"
 
-#include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystemUtils.h"
-#include "IO/IOUtils.h"
 #include "IO/PathInfo.h"
-#include "IO/PathQt.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
-
-#include <fstream>
-#include <string>
-
-#include <QDir>
-#include <QFileInfo>
+#include <kdl/string_format.h>
 
 namespace TrenchBroom::IO
 {
@@ -42,73 +35,73 @@ namespace Disk
 namespace
 {
 
-std::vector<Path> doGetDirectoryContents(const Path& fixedPath)
+std::vector<std::filesystem::path> doGetDirectoryContents(
+  const std::filesystem::path& fixedPath)
 {
-  auto dir = QDir{pathAsQString(fixedPath)};
-  if (!dir.exists())
+  try
   {
-    throw FileSystemException("Cannot open directory: '" + fixedPath.asString() + "'");
+    auto result = std::vector<std::filesystem::path>{};
+    std::transform(
+      std::filesystem::directory_iterator{fixedPath},
+      std::filesystem::directory_iterator{},
+      std::back_inserter(result),
+      [&](const auto& entry) { return entry.path().lexically_relative(fixedPath); });
+    return result;
   }
-
-  dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
-
-  const auto entries = dir.entryList();
-  auto result = std::vector<Path>{};
-  result.reserve(size_t(entries.size()));
-
-  std::transform(
-    entries.begin(), entries.end(), std::back_inserter(result), pathFromQString);
-
-  return result;
+  catch (const std::filesystem::filesystem_error& e)
+  {
+    throw FileSystemException{
+      "Cannot open directory " + fixedPath.string() + ": " + e.what()};
+  }
 }
 
 bool doCheckCaseSensitive()
 {
-  const auto cwd = QDir::current();
-  assert(cwd.exists());
+  const auto cwd = std::filesystem::current_path();
+  assert(std::filesystem::is_directory(cwd));
 
-  const auto upper = QDir{cwd.path().toUpper()};
-  const auto lower = QDir{cwd.path().toLower()};
-  return !upper.exists() || !lower.exists();
+  return !std::filesystem::exists(kdl::path_to_lower(cwd))
+         || !std::filesystem::exists(kdl::str_to_upper(cwd.string()));
 }
 
-Path fixCase(const Path& path)
+std::filesystem::path fixCase(const std::filesystem::path& path)
 {
-  if (
-    path.isEmpty() || !path.isAbsolute() || !isCaseSensitive()
-    || QFileInfo::exists(pathAsQString(path)))
+  try
   {
-    return path;
-  }
-
-  auto result = path.hasDriveSpec() ? path.firstComponent() : Path{"/"};
-  auto remainder =
-    path.hasDriveSpec() ? path.deleteFirstComponent() : path.makeRelative();
-
-  auto dir = QDir{};
-  dir.setFilter(QDir::NoDotAndDotDot | QDir::AllEntries);
-
-  while (!remainder.isEmpty())
-  {
-    dir.setPath(pathAsQString(result));
-
-    const auto curDirStr = pathAsQString(remainder.firstComponent());
-    const auto entries = dir.entryList();
-    const auto entryIt = std::find_if(entries.begin(), entries.end(), [&](const auto& s) {
-      const auto ss = pathFromQString(s);
-      const auto c = s.compare(curDirStr, Qt::CaseInsensitive);
-      return c == 0;
-    });
-
-    if (entryIt == entries.end())
+    if (
+      path.empty() || !path.is_absolute() || !isCaseSensitive()
+      || std::filesystem::exists(path))
     {
       return path;
     }
 
-    result = result + pathFromQString(*entryIt);
-    remainder = remainder.deleteFirstComponent();
+    auto result = kdl::path_front(kdl::path_to_lower(path));
+    auto remainder = kdl::path_pop_front(kdl::path_to_lower(path));
+
+    while (!remainder.empty())
+    {
+      const auto nameToFind = kdl::path_front(remainder);
+      const auto entryIt = std::find_if(
+        std::filesystem::directory_iterator{result},
+        std::filesystem::directory_iterator{},
+        [&](const auto& entry) {
+          return nameToFind == kdl::path_to_lower(entry.path().filename());
+        });
+
+      if (entryIt == std::filesystem::directory_iterator{})
+      {
+        return path;
+      }
+
+      result = result / entryIt->path().filename();
+      remainder = kdl::path_pop_front(remainder);
+    }
+    return result;
   }
-  return result;
+  catch (const std::filesystem::filesystem_error&)
+  {
+    return path;
+  }
 }
 
 } // namespace
@@ -119,135 +112,49 @@ bool isCaseSensitive()
   return caseSensitive;
 }
 
-Path fixPath(const Path& path)
+std::filesystem::path fixPath(const std::filesystem::path& path)
 {
-  try
-  {
-    return fixCase(path.makeCanonical());
-  }
-  catch (const PathException&)
-  {
-    return path;
-  }
+  return fixCase(path.lexically_normal());
 }
 
-PathInfo pathInfo(const Path& path)
+PathInfo pathInfo(const std::filesystem::path& path)
 {
-  const auto fixedPath = pathAsQString(fixPath(path));
-  const auto fileInfo = QFileInfo{fixedPath};
-  return fileInfo.exists() && fileInfo.isFile() ? PathInfo::File
-         : QDir{fixedPath}.exists()             ? PathInfo::Directory
-                                                : PathInfo::Unknown;
+  auto error = std::error_code{};
+  const auto f = fixPath(path);
+  return std::filesystem::is_directory(f, error) && !error      ? PathInfo::Directory
+         : std::filesystem::is_regular_file(f, error) && !error ? PathInfo::File
+                                                                : PathInfo::Unknown;
 }
 
-std::vector<Path> find(const Path& path, const PathMatcher& pathMatcher)
+std::vector<std::filesystem::path> find(
+  const std::filesystem::path& path, const PathMatcher& pathMatcher)
 {
-  return IO::find(path, directoryContents, pathInfo, pathMatcher);
+  return find(path, directoryContents, pathInfo, pathMatcher);
 }
 
-std::vector<Path> findRecursively(const Path& path, const PathMatcher& pathMatcher)
+std::vector<std::filesystem::path> findRecursively(
+  const std::filesystem::path& path, const PathMatcher& pathMatcher)
 {
-  return IO::findRecursively(path, directoryContents, pathInfo, pathMatcher);
+  return findRecursively(path, directoryContents, pathInfo, pathMatcher);
 }
 
-std::vector<Path> directoryContents(const Path& path)
+std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path)
 {
   return doGetDirectoryContents(fixPath(path));
 }
 
-std::shared_ptr<File> openFile(const Path& path)
+std::shared_ptr<File> openFile(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) != PathInfo::File)
   {
-    throw FileNotFoundException(fixedPath.asString());
+    throw FileNotFoundException(fixedPath.string());
   }
 
   return std::make_shared<CFile>(fixedPath);
 }
 
-std::string readTextFile(const Path& path)
-{
-  const auto fixedPath = fixPath(path);
-
-  auto stream = openPathAsInputStream(fixedPath);
-  if (!stream.is_open())
-  {
-    throw FileSystemException("Cannot open file: " + fixedPath.asString());
-  }
-
-  return std::string{
-    (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
-}
-
-Path getCurrentWorkingDir()
-{
-  return pathFromQString(QDir::currentPath());
-}
-
-void createFile(const Path& path, const std::string& contents)
-{
-  const auto fixedPath = fixPath(path);
-  if (pathInfo(fixedPath) == PathInfo::File)
-  {
-    deleteFile(fixedPath);
-  }
-  else
-  {
-    const auto directory = fixedPath.deleteLastComponent();
-    if (pathInfo(directory) == PathInfo::Unknown)
-    {
-      createDirectory(directory);
-    }
-  }
-
-  auto stream = openPathAsOutputStream(fixedPath);
-  stream << contents;
-}
-
-namespace
-{
-bool createDirectoryHelper(const Path& path)
-{
-  if (path.isEmpty())
-  {
-    return false;
-  }
-
-  const auto parent = path.deleteLastComponent();
-  if (!QDir{pathAsQString(parent)}.exists() && !createDirectoryHelper(parent))
-  {
-    return false;
-  }
-
-  return QDir{}.mkdir(pathAsQString(path));
-}
-} // namespace
-
-void createDirectory(const Path& path)
-{
-  const auto fixedPath = fixPath(path);
-  switch (pathInfo(fixedPath))
-  {
-  case PathInfo::Directory:
-    throw FileSystemException(
-      "Could not create directory '" + fixedPath.asString()
-      + "': A directory already exists at that path.");
-  case PathInfo::File:
-    throw FileSystemException(
-      "Could not create directory '" + fixedPath.asString()
-      + "': A file already exists at that path.");
-  case PathInfo::Unknown:
-    if (!createDirectoryHelper(fixedPath))
-    {
-      throw FileSystemException(
-        "Could not create directory '" + fixedPath.asString() + "'");
-    }
-    break;
-  }
-}
-
-void ensureDirectoryExists(const Path& path)
+bool createDirectory(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   switch (pathInfo(fixedPath))
@@ -256,167 +163,93 @@ void ensureDirectoryExists(const Path& path)
     break;
   case PathInfo::File:
     throw FileSystemException(
-      "Could not create directory '" + fixedPath.asString()
+      "Could not create directory '" + fixedPath.string()
       + "': A file already exists at that path.");
-  case PathInfo::Unknown:
-    if (!createDirectoryHelper(fixedPath))
+  case PathInfo::Unknown: {
+    auto error = std::error_code{};
+    if (std::filesystem::create_directories(fixedPath, error) && !error)
     {
-      throw FileSystemException(
-        "Could not create directory '" + fixedPath.asString() + "'");
+      return true;
     }
-    break;
+    throw FileSystemException("Could not create directory '" + fixedPath.string() + "'");
   }
+  }
+  return false;
 }
 
-void deleteFile(const Path& path)
+void deleteFile(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) != PathInfo::File)
   {
     throw FileSystemException(
-      "Could not delete file '" + fixedPath.asString() + "': File does not exist.");
+      "Could not delete file '" + fixedPath.string() + "': File does not exist.");
   }
 
-  if (!QFile::remove(pathAsQString(fixedPath)))
+  auto error = std::error_code{};
+  if (!std::filesystem::remove(fixedPath, error) || error)
   {
-    throw FileSystemException("Could not delete file '" + path.asString() + "'");
+    throw FileSystemException("Could not delete file '" + path.string() + "'");
   }
 }
 
-void deleteFiles(const Path& sourceDirPath, const PathMatcher& pathMatcher)
-{
-  for (const auto& filePath : find(sourceDirPath, pathMatcher))
-  {
-    deleteFile(filePath);
-  }
-}
-
-void deleteFilesRecursively(const Path& sourceDirPath, const PathMatcher& pathMatcher)
-{
-  for (const auto& filePath : findRecursively(sourceDirPath, pathMatcher))
-  {
-    deleteFile(filePath);
-  }
-}
-
-void copyFile(const Path& sourcePath, const Path& destPath, const bool overwrite)
+void copyFile(
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
   auto fixedDestPath = fixPath(destPath);
 
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
   {
-    fixedDestPath = fixedDestPath + sourcePath.lastComponent();
+    fixedDestPath = fixedDestPath / sourcePath.filename();
   }
 
-  const auto exists = pathInfo(fixedDestPath) == PathInfo::File;
-  if (!overwrite && exists)
+  auto error = std::error_code{};
+  if (
+    !std::filesystem::copy_file(
+      fixedSourcePath,
+      fixedDestPath,
+      std::filesystem::copy_options::overwrite_existing,
+      error)
+    || error)
   {
     throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "': file already exists");
-  }
-
-  if (overwrite && exists && !QFile::remove(pathAsQString(fixedDestPath)))
-  {
-    throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "': couldn't remove destination");
-  }
-
-  // NOTE: QFile::copy will not overwrite the dest
-  if (!QFile::copy(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
-  {
-    throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "'");
+      "Could not copy file '" + fixedSourcePath.string() + "' to '"
+      + fixedDestPath.string() + "'");
   }
 }
 
-void copyFiles(
-  const Path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const Path& destDirPath,
-  const bool overwrite)
-{
-  for (const auto& sourceFilePath : find(sourceDirPath, pathMatcher))
-  {
-    copyFile(sourceFilePath, destDirPath, overwrite);
-  }
-}
-
-void copyFilesRecursively(
-  const Path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const Path& destDirPath,
-  const bool overwrite)
-{
-  for (const auto& sourceFilePath : findRecursively(sourceDirPath, pathMatcher))
-  {
-    copyFile(sourceFilePath, destDirPath, overwrite);
-  }
-}
-
-void moveFile(const Path& sourcePath, const Path& destPath, const bool overwrite)
+void moveFile(
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
+  if (pathInfo(fixedSourcePath) == PathInfo::Directory)
+  {
+    throw FileSystemException(
+      "Could not move directory '" + fixedSourcePath.string() + "'");
+  }
+
   auto fixedDestPath = fixPath(destPath);
-
-  const auto exists = pathInfo(fixedDestPath) == PathInfo::File;
-  if (!overwrite && exists)
-  {
-    throw FileSystemException(
-      "Could not move file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "': file already exists");
-  }
-
-  if (overwrite && exists && !QFile::remove(pathAsQString(fixedDestPath)))
-  {
-    throw FileSystemException(
-      "Could not move file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "': couldn't remove destination");
-  }
-
   if (pathInfo(fixedDestPath) == PathInfo::Directory)
   {
-    fixedDestPath = fixedDestPath + sourcePath.lastComponent();
+    fixedDestPath = fixedDestPath / sourcePath.filename();
   }
 
-  if (!QFile::rename(pathAsQString(fixedSourcePath), pathAsQString(fixedDestPath)))
+  auto error = std::error_code{};
+  std::filesystem::rename(fixedSourcePath, fixedDestPath, error);
+  if (error)
   {
     throw FileSystemException(
-      "Could not move file '" + fixedSourcePath.asString() + "' to '"
-      + fixedDestPath.asString() + "'");
+      "Could not copy file '" + fixedSourcePath.string() + "' to '"
+      + fixedDestPath.string() + "'");
   }
 }
 
-void moveFiles(
-  const Path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const Path& destDirPath,
-  const bool overwrite)
+std::filesystem::path resolvePath(
+  const std::vector<std::filesystem::path>& searchPaths,
+  const std::filesystem::path& path)
 {
-  for (const auto& sourceFilePath : find(sourceDirPath, pathMatcher))
-  {
-    moveFile(sourceFilePath, destDirPath, overwrite);
-  }
-}
-
-void moveFilesRecursively(
-  const Path& sourceDirPath,
-  const PathMatcher& pathMatcher,
-  const Path& destDirPath,
-  const bool overwrite)
-{
-  for (const auto& sourceFilePath : findRecursively(sourceDirPath, pathMatcher))
-  {
-    moveFile(sourceFilePath, destDirPath, overwrite);
-  }
-}
-
-Path resolvePath(const std::vector<Path>& searchPaths, const Path& path)
-{
-  if (path.isAbsolute())
+  if (path.is_absolute())
   {
     if (pathInfo(path) != PathInfo::Unknown)
     {
@@ -427,11 +260,11 @@ Path resolvePath(const std::vector<Path>& searchPaths, const Path& path)
   {
     for (const auto& searchPath : searchPaths)
     {
-      if (searchPath.isAbsolute())
+      if (searchPath.is_absolute())
       {
         try
         {
-          const auto fullPath = searchPath + path;
+          const auto fullPath = searchPath / path;
           if (pathInfo(fullPath) != PathInfo::Unknown)
           {
             return fullPath;
@@ -443,7 +276,7 @@ Path resolvePath(const std::vector<Path>& searchPaths, const Path& path)
       }
     }
   }
-  return Path{};
+  return {};
 }
 
 } // namespace Disk

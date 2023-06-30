@@ -28,12 +28,11 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
 #include <cassert>
-
-#include "TestUtils.h"
 
 #include "Catch2.h"
 
@@ -43,8 +42,9 @@ namespace View
 {
 TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
 {
-  document->setEnabledTextureCollections(
-    std::vector<IO::Path>{IO::Path("fixture/test/IO/Wad/cr8_czg.wad")});
+  document->deselectAll();
+  document->setProperty(
+    Model::EntityPropertyKeys::Wad, "fixture/test/IO/Wad/cr8_czg.wad");
 
   Model::BrushNode* brushNode = createBrushNode("coffin1");
   document->addNodes({{document->parentForNodes(), {brushNode}}});

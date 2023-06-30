@@ -19,6 +19,8 @@
 
 #include "ThreePaneMapView.h"
 
+#include <QHBoxLayout>
+
 #include "View/CyclingMapView.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -26,8 +28,6 @@
 #include "View/MapView3D.h"
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
-
-#include <QHBoxLayout>
 
 namespace TrenchBroom
 {

@@ -19,10 +19,9 @@
 
 #pragma once
 
-#include "IO/Path.h"
-
 #include <kdl/reflection_decl.h>
 
+#include <filesystem>
 #include <string>
 
 namespace TrenchBroom
@@ -32,7 +31,7 @@ namespace Model
 struct GameEngineProfile
 {
   std::string name;
-  IO::Path path;
+  std::filesystem::path path;
   std::string parameterSpec;
 
   kdl_reflect_decl(GameEngineProfile, name, path, parameterSpec);

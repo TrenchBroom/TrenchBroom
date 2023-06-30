@@ -27,6 +27,7 @@
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 
+#include <filesystem>
 #include <string>
 
 #include "Catch2.h"
@@ -37,11 +38,11 @@ namespace IO
 {
 TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
 {
-  const auto basePath = Disk::getCurrentWorkingDir() + Path("fixture/games/");
+  const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({"cfg"}));
+    Disk::findRecursively(basePath, makeExtensionPathMatcher({".cfg"}));
 
-  for (const Path& path : cfgFiles)
+  for (const auto& path : cfgFiles)
   {
     CAPTURE(path);
 
@@ -71,7 +72,7 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
 {
   const std::string config(R"(
 {
-    "version": 3,
+    "version": 7,
     "unexpectedKey": [],
     "name": "Quake",
     "icon": "Icon.png",
@@ -84,7 +85,7 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
     "textures": {
-        "package": { "type": "file", "format": { "extension": "wad", "format": "wad2" } },
+        "root": "textures",
         "format": { "extension": "D", "format": "idmip" },
         "palette": "gfx/palette.lmp",
         "attribute": "wad"
@@ -136,25 +137,23 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
     GameConfigParser(config).parse()
     == Model::GameConfig{
       "Quake",
-      Path{},
-      Path{"Icon.png"},
+      {},
+      {"Icon.png"},
       false,
       {// map formats
-       Model::MapFormatConfig{"Standard", Path{}},
-       Model::MapFormatConfig{"Valve", Path{}}},
-      Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+       Model::MapFormatConfig{"Standard", {}},
+       Model::MapFormatConfig{"Valve", {}}},
+      Model::FileSystemConfig{{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
       Model::TextureConfig{
-        Model::TextureFilePackageConfig{Model::PackageFormatConfig{{"wad"}, "wad2"}},
-        Model::PackageFormatConfig{{"D"}, "idmip"},
-        Path{"gfx/palette.lmp"},
+        {"textures"},
+        {".D"},
+        {"gfx/palette.lmp"},
         "wad",
-        Path{},
-        {}},
+        {},
+        {},
+      },
       Model::EntityConfig{
-        {Path{"Quake.fgd"},
-         Path{"Quoth2.fgd"},
-         Path{"Rubicon2.def"},
-         Path{"Teamfortress.fgd"}},
+        {{"Quake.fgd"}, {"Quoth2.fgd"}, {"Rubicon2.def"}, {"Teamfortress.fgd"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
         {},
         false},
@@ -188,7 +187,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
 {
   const std::string config(R"%(
 {
-    "version": 4,
+    "version": 8,
     "name": "Quake 2",
     "icon": "Icon.png",
     "fileformats": [ { "format": "Quake2" } ],
@@ -197,8 +196,8 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
     "textures": {
-        "package": { "type": "directory", "root": "textures" },
-        "format": { "extension": "wal", "format": "wal" },
+        "root": "textures",
+        "extensions": ["wal"],
         "palette": "pics/colormap.pcx",
         "attribute": "_tb_textures"
     },
@@ -400,20 +399,20 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
     GameConfigParser(config).parse()
     == Model::GameConfig{
       "Quake 2",
-      Path{},
-      Path{"Icon.png"},
+      {},
+      {"Icon.png"},
       false,
-      {Model::MapFormatConfig{"Quake2", Path{}}},
-      Model::FileSystemConfig{
-        Path{"baseq2"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+      {Model::MapFormatConfig{"Quake2", {}}},
+      Model::FileSystemConfig{{"baseq2"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
       Model::TextureConfig{
-        Model::TextureDirectoryPackageConfig{Path{"textures"}},
-        Model::PackageFormatConfig{{"wal"}, "wal"},
-        Path{"pics/colormap.pcx"},
+        {"textures"},
+        {".wal"},
+        {"pics/colormap.pcx"},
         "_tb_textures",
-        Path{},
-        {}},
-      Model::EntityConfig{{Path{"Quake2.fgd"}}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}, false},
+        {},
+        {},
+      },
+      Model::EntityConfig{{{"Quake2.fgd"}}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}, false},
       Model::FaceAttribsConfig{
         {{{"light",
            "Emit light from the surface, brightness is specified in the 'value' field",
@@ -501,7 +500,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
 {
   const std::string config(R"%(
 {
-    "version": 5,
+    "version": 8,
     "name": "Extras",
     "fileformats": [ { "format": "Quake3" } ],
     "filesystem": {
@@ -509,8 +508,8 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
         "packageformat": { "extension": "pk3", "format": "zip" }
     },
     "textures": {
-        "package": { "type": "directory", "root": "textures" },
-        "format": { "extensions": [ "" ], "format": "q3shader" },
+        "root": "textures",
+        "extensions": [ "" ],
         "shaderSearchPath": "scripts", // this will likely change when we get a material system
         "attribute": "_tb_textures",
         "excludes": [
@@ -730,20 +729,21 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
     GameConfigParser(config).parse()
     == Model::GameConfig{
       "Extras",
-      Path{},
-      Path{},
+      {},
+      {},
       false,
-      {Model::MapFormatConfig{"Quake3", Path{}}},
-      Model::FileSystemConfig{Path{"baseq3"}, Model::PackageFormatConfig{{"pk3"}, "zip"}},
+      {Model::MapFormatConfig{"Quake3", {}}},
+      Model::FileSystemConfig{{"baseq3"}, Model::PackageFormatConfig{{".pk3"}, "zip"}},
       Model::TextureConfig{
-        Model::TextureDirectoryPackageConfig{Path{"textures"}},
-        Model::PackageFormatConfig{{""}, "q3shader"},
-        Path{},
+        {"textures"},
+        {""},
+        {},
         "_tb_textures",
-        Path{"scripts"},
-        {"*_norm", "*_gloss"}},
+        {"scripts"},
+        {"*_norm", "*_gloss"},
+      },
       Model::EntityConfig{
-        {Path{"Extras.ent"}},
+        {{"Extras.ent"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
         EL::Expression{
           EL::ArrayExpression{{
@@ -837,7 +837,7 @@ TEST_CASE("GameConfigParserTest.parseDuplicateTags")
 {
   const std::string config(R"(
 {
-    "version": 3,
+    "version": 8,
     "name": "Quake",
     "icon": "Icon.png",
     "fileformats": [
@@ -848,8 +848,8 @@ TEST_CASE("GameConfigParserTest.parseDuplicateTags")
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
     "textures": {
-        "package": { "type": "file", "format": { "extension": "wad", "format": "wad2" } },
-        "format": { "extension": "D", "format": "idmip" },
+        "root": "textures",
+        "extensions": ["D"],
         "palette": "gfx/palette.lmp",
         "attribute": "wad"
     },
@@ -887,7 +887,7 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
 {
   const std::string config(R"(
 {
-    "version": 6,
+    "version": 8,
     "name": "Quake",
     "icon": "Icon.png",
     "fileformats": [
@@ -898,8 +898,8 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
     "textures": {
-        "package": { "type": "file", "format": { "extension": "wad", "format": "wad2" } },
-        "format": { "extension": "D", "format": "idmip" },
+        "root": "textures",
+        "extensions": ["D"],
         "palette": "gfx/palette.lmp",
         "attribute": "wad"
     },
@@ -916,23 +916,21 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
     GameConfigParser(config).parse()
     == Model::GameConfig{
       "Quake",
-      Path{},
-      Path{"Icon.png"},
+      {},
+      {"Icon.png"},
       false,
-      {Model::MapFormatConfig{"Standard", Path{}}},
-      Model::FileSystemConfig{Path{"id1"}, Model::PackageFormatConfig{{"pak"}, "idpak"}},
+      {Model::MapFormatConfig{"Standard", {}}},
+      Model::FileSystemConfig{{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
       Model::TextureConfig{
-        Model::TextureFilePackageConfig{Model::PackageFormatConfig{{"wad"}, "wad2"}},
-        Model::PackageFormatConfig{{"D"}, "idmip"},
-        Path{"gfx/palette.lmp"},
+        {"textures"},
+        {".D"},
+        {"gfx/palette.lmp"},
         "wad",
-        Path{},
-        {}},
+        {},
+        {},
+      },
       Model::EntityConfig{
-        {Path{"Quake.fgd"},
-         Path{"Quoth2.fgd"},
-         Path{"Rubicon2.def"},
-         Path{"Teamfortress.fgd"}},
+        {{"Quake.fgd"}, {"Quoth2.fgd"}, {"Rubicon2.def"}, {"Teamfortress.fgd"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
         {},
         true}, // setDefaultProperties

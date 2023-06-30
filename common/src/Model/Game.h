@@ -29,6 +29,7 @@
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
 
+#include <filesystem>
 #include <map>
 #include <memory>
 #include <optional>
@@ -61,22 +62,17 @@ class WorldNode;
 class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader
 {
 public:
-  enum class TexturePackageType
-  {
-    File,
-    Directory
-  };
-
-public:
   const std::string& gameName() const;
-  bool isGamePathPreference(const IO::Path& prefPath) const;
+  bool isGamePathPreference(const std::filesystem::path& prefPath) const;
 
-  IO::Path gamePath() const;
-  void setGamePath(const IO::Path& gamePath, Logger& logger);
-  void setAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths, Logger& logger);
+  std::filesystem::path gamePath() const;
+  void setGamePath(const std::filesystem::path& gamePath, Logger& logger);
+  void setAdditionalSearchPaths(
+    const std::vector<std::filesystem::path>& searchPaths, Logger& logger);
 
-  using PathErrors = std::map<IO::Path, std::string>;
-  PathErrors checkAdditionalSearchPaths(const std::vector<IO::Path>& searchPaths) const;
+  using PathErrors = std::map<std::filesystem::path, std::string>;
+  PathErrors checkAdditionalSearchPaths(
+    const std::vector<std::filesystem::path>& searchPaths) const;
 
   const CompilationConfig& compilationConfig();
 
@@ -113,9 +109,9 @@ public: // loading and writing map files
   std::unique_ptr<WorldNode> loadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
-    const IO::Path& path,
+    const std::filesystem::path& path,
     Logger& logger) const;
-  void writeMap(WorldNode& world, const IO::Path& path) const;
+  void writeMap(WorldNode& world, const std::filesystem::path& path) const;
   void exportMap(WorldNode& world, const IO::ExportOptions& options) const;
 
 public: // parsing and serializing objects
@@ -137,28 +133,22 @@ public: // parsing and serializing objects
     WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const;
 
 public: // texture collection handling
-  TexturePackageType texturePackageType() const;
-  void loadTextureCollections(
-    const Entity& entity,
-    const IO::Path& documentPath,
-    Assets::TextureManager& textureManager,
-    Logger& logger) const;
-  bool isTextureCollection(const IO::Path& path) const;
-  std::vector<std::string> fileTextureCollectionExtensions() const;
+  void loadTextureCollections(Assets::TextureManager& textureManagerr) const;
 
-  std::vector<IO::Path> findTextureCollections() const;
-  std::vector<IO::Path> extractTextureCollections(const Entity& entity) const;
-  void updateTextureCollections(Entity& entity, const std::vector<IO::Path>& paths) const;
+  void reloadWads(
+    const std::filesystem::path& documentPath,
+    const std::vector<std::filesystem::path>& wadPaths,
+    Logger& logger);
   void reloadShaders();
 
 public: // entity definition handling
-  bool isEntityDefinitionFile(const IO::Path& path) const;
+  bool isEntityDefinitionFile(const std::filesystem::path& path) const;
   std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
   Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(
     const Entity& entity) const;
-  IO::Path findEntityDefinitionFile(
+  std::filesystem::path findEntityDefinitionFile(
     const Assets::EntityDefinitionFileSpec& spec,
-    const std::vector<IO::Path>& searchPaths) const;
+    const std::vector<std::filesystem::path>& searchPaths) const;
 
 public: // mods
   std::vector<std::string> availableMods() const;
@@ -175,12 +165,12 @@ public: // compilation tools
 
 private: // subclassing interface
   virtual const std::string& doGameName() const = 0;
-  virtual IO::Path doGamePath() const = 0;
-  virtual void doSetGamePath(const IO::Path& gamePath, Logger& logger) = 0;
+  virtual std::filesystem::path doGamePath() const = 0;
+  virtual void doSetGamePath(const std::filesystem::path& gamePath, Logger& logger) = 0;
   virtual void doSetAdditionalSearchPaths(
-    const std::vector<IO::Path>& searchPaths, Logger& logger) = 0;
+    const std::vector<std::filesystem::path>& searchPaths, Logger& logger) = 0;
   virtual PathErrors doCheckAdditionalSearchPaths(
-    const std::vector<IO::Path>& searchPaths) const = 0;
+    const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
   virtual const CompilationConfig& doCompilationConfig() = 0;
   virtual size_t doMaxPropertyLength() const = 0;
@@ -194,9 +184,9 @@ private: // subclassing interface
   virtual std::unique_ptr<WorldNode> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
-    const IO::Path& path,
+    const std::filesystem::path& path,
     Logger& logger) const = 0;
-  virtual void doWriteMap(WorldNode& world, const IO::Path& path) const = 0;
+  virtual void doWriteMap(WorldNode& world, const std::filesystem::path& path) const = 0;
   virtual void doExportMap(WorldNode& world, const IO::ExportOptions& options) const = 0;
 
   virtual std::vector<Node*> doParseNodes(
@@ -217,29 +207,21 @@ private: // subclassing interface
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const = 0;
 
-  virtual TexturePackageType doTexturePackageType() const = 0;
-  virtual void doLoadTextureCollections(
-    const Entity& entity,
-    const IO::Path& documentPath,
-    Assets::TextureManager& textureManager,
-    Logger& logger) const = 0;
-  virtual bool doIsTextureCollection(const IO::Path& path) const = 0;
-  virtual std::vector<std::string> doFileTextureCollectionExtensions() const = 0;
-  virtual std::vector<IO::Path> doFindTextureCollections() const = 0;
-  virtual std::vector<IO::Path> doExtractTextureCollections(
-    const Entity& entity) const = 0;
-  virtual void doUpdateTextureCollections(
-    Entity& entity, const std::vector<IO::Path>& paths) const = 0;
+  virtual void doLoadTextureCollections(Assets::TextureManager& textureManager) const = 0;
+  virtual void doReloadWads(
+    const std::filesystem::path& documentPath,
+    const std::vector<std::filesystem::path>& wadPaths,
+    Logger& logger) = 0;
   virtual void doReloadShaders() = 0;
 
-  virtual bool doIsEntityDefinitionFile(const IO::Path& path) const = 0;
+  virtual bool doIsEntityDefinitionFile(const std::filesystem::path& path) const = 0;
   virtual std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
     const = 0;
   virtual Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(
     const Entity& entity) const = 0;
-  virtual IO::Path doFindEntityDefinitionFile(
+  virtual std::filesystem::path doFindEntityDefinitionFile(
     const Assets::EntityDefinitionFileSpec& spec,
-    const std::vector<IO::Path>& searchPaths) const = 0;
+    const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
   virtual std::vector<std::string> doAvailableMods() const = 0;
   virtual std::vector<std::string> doExtractEnabledMods(const Entity& entity) const = 0;

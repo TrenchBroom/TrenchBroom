@@ -37,7 +37,7 @@ class MissingModValidator : public Validator
   mutable std::vector<std::string> m_lastMods;
 
 public:
-  MissingModValidator(std::weak_ptr<Game> game);
+  explicit MissingModValidator(std::weak_ptr<Game> game);
 
 private:
   void doValidate(EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues)

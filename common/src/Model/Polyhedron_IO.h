@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Polyhedron.h"
+
 #include <kdl/intrusive_circular_list.h>
 
 #include <ostream>

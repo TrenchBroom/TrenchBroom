@@ -19,6 +19,9 @@
 
 #include "TextureBrowserView.h"
 
+#include <QMenu>
+#include <QTextStream>
+
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
@@ -46,9 +49,6 @@
 
 #include <string>
 #include <vector>
-
-#include <QMenu>
-#include <QTextStream>
 
 namespace TrenchBroom
 {
@@ -163,7 +163,7 @@ void TextureBrowserView::doInitLayout(Layout& layout)
 
 void TextureBrowserView::doReloadLayout(Layout& layout)
 {
-  const IO::Path& fontPath = pref(Preferences::RendererFontPath());
+  const auto& fontPath = pref(Preferences::RendererFontPath());
   int fontSize = pref(Preferences::BrowserFontSize);
   assert(fontSize > 0);
 
@@ -193,7 +193,7 @@ void TextureBrowserView::addTextureToLayout(
 {
   const float maxCellWidth = layout.maxCellWidth();
 
-  const auto textureName = IO::Path(texture->name()).lastComponent().asString();
+  const auto textureName = std::filesystem::path{texture->name()}.filename().string();
 
   const auto textureFont =
     fontManager().selectFontSize(font, textureName, maxCellWidth, 6);
@@ -425,8 +425,6 @@ void TextureBrowserView::renderTextures(Layout& layout, const float y, const flo
   shader.set("Texture", 0);
   shader.set("Brightness", pref(Preferences::Brightness));
 
-  size_t num = 0;
-
   for (const auto& group : layout.groups())
   {
     if (group.intersectsY(y, height))
@@ -462,8 +460,6 @@ void TextureBrowserView::renderTextures(Layout& layout, const float y, const flo
             vertexArray.render(Renderer::PrimType::Quads);
 
             texture->deactivate();
-
-            ++num;
           }
         }
       }

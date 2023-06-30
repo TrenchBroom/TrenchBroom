@@ -28,6 +28,8 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include <kdl/path_utils.h>
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 
 #include <vecmath/bbox.h>
@@ -45,9 +47,9 @@ SprParser::SprParser(
 {
 }
 
-bool SprParser::canParse(const Path& path, Reader reader)
+bool SprParser::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != "spr")
+  if (kdl::path_to_lower(path.extension()) != ".spr")
   {
     return false;
   }
@@ -225,7 +227,9 @@ static Assets::Palette parseEmbeddedPalette(Reader& reader, const RenderMode ren
   auto data = std::vector<unsigned char>(paletteSize * 3);
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
-  return {data};
+  return Assets::makePalette(data)
+    .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+    .value();
 }
 
 std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* logger */)

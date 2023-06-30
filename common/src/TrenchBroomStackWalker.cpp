@@ -19,8 +19,9 @@
 
 #ifdef _WIN32
 #ifdef _MSC_VER
-#include "StackWalker.h"
 #include <QMutexLocker>
+
+#include "StackWalker.h"
 #endif
 #else
 #include <execinfo.h>

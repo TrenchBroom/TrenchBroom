@@ -46,6 +46,25 @@
 #if !defined __APPLE__
 #include "View/BorderLine.h"
 #endif
+#include <QApplication>
+#include <QChildEvent>
+#include <QClipboard>
+#include <QComboBox>
+#include <QFileDialog>
+#include <QInputDialog>
+#include <QLabel>
+#include <QMessageBox>
+#include <QMimeData>
+#include <QPushButton>
+#include <QStatusBar>
+#include <QString>
+#include <QStringList>
+#include <QTableWidget>
+#include <QTimer>
+#include <QToolBar>
+#include <QVBoxLayout>
+#include <QtGlobal>
+
 #include "View/ClipTool.h"
 #include "View/ColorButton.h"
 #include "View/CompilationDialog.h"
@@ -89,28 +108,9 @@
 #include <variant>
 #include <vector>
 
-#include <QApplication>
 #include <QButtonGroup>
-#include <QChildEvent>
-#include <QClipboard>
-#include <QComboBox>
-#include <QFileDialog>
-#include <QInputDialog>
-#include <QLabel>
-#include <QMessageBox>
-#include <QMimeData>
-#include <QPushButton>
 #include <QRadioButton>
 #include <QSpinBox>
-#include <QStatusBar>
-#include <QString>
-#include <QStringList>
-#include <QTableWidget>
-#include <QTimer>
-#include <QToolBar>
-#include <QVBoxLayout>
-#include <QtGlobal>
-
 namespace TrenchBroom
 {
 namespace View
@@ -232,7 +232,7 @@ Logger& MapFrame::logger() const
   return *m_console;
 }
 
-QAction* MapFrame::findAction(const IO::Path& path)
+QAction* MapFrame::findAction(const std::filesystem::path& path)
 {
   const auto& actionManager = ActionManager::instance();
   auto& actionsMap = actionManager.actionsMap();
@@ -356,7 +356,7 @@ void MapFrame::removeRecentDocumentsMenu()
 
 void MapFrame::updateRecentDocumentsMenu()
 {
-  if (m_document->path().isAbsolute())
+  if (m_document->path().is_absolute())
   {
     auto& app = TrenchBroomApp::instance();
     app.updateRecentDocument(m_document->path());
@@ -871,7 +871,7 @@ void MapFrame::transactionUndone(const std::string& /* name */)
   });
 }
 
-void MapFrame::preferenceDidChange(const IO::Path& path)
+void MapFrame::preferenceDidChange(const std::filesystem::path& path)
 {
   if (path == Preferences::MapViewLayout.path())
   {
@@ -996,7 +996,7 @@ bool MapFrame::newDocument(
 bool MapFrame::openDocument(
   std::shared_ptr<Model::Game> game,
   const Model::MapFormat mapFormat,
-  const IO::Path& path)
+  const std::filesystem::path& path)
 {
   if (!confirmOrDiscardChanges() || !closeCompileDialog())
   {
@@ -1046,8 +1046,7 @@ bool MapFrame::saveDocument()
     QMessageBox::critical(
       this,
       "",
-      QString::fromStdString(
-        "Unknown error while saving " + m_document->path().asString()),
+      QString::fromStdString("Unknown error while saving " + m_document->path().string()),
       QMessageBox::Ok);
     return false;
   }
@@ -1057,9 +1056,9 @@ bool MapFrame::saveDocumentAs()
 {
   try
   {
-    const IO::Path& originalPath = m_document->path();
-    const IO::Path directory = originalPath.deleteLastComponent();
-    const IO::Path fileName = originalPath.lastComponent();
+    const auto& originalPath = m_document->path();
+    const auto directory = originalPath.parent_path();
+    const auto fileName = originalPath.filename();
 
     const QString newFileName = QFileDialog::getSaveFileName(
       this, tr("Save map file"), IO::pathAsQString(originalPath), "Map files (*.map)");
@@ -1068,7 +1067,7 @@ bool MapFrame::saveDocumentAs()
       return false;
     }
 
-    const IO::Path path = IO::pathFromQString(newFileName);
+    const auto path = IO::pathFromQString(newFileName);
 
     const auto startTime = std::chrono::high_resolution_clock::now();
     m_document->saveDocumentAs(path);
@@ -1127,7 +1126,7 @@ bool MapFrame::exportDocumentAsObj()
 
 bool MapFrame::exportDocumentAsMap()
 {
-  const IO::Path& originalPath = m_document->path();
+  const auto& originalPath = m_document->path();
 
   const QString newFileName = QFileDialog::getSaveFileName(
     this, tr("Export Map file"), IO::pathAsQString(originalPath), "Map files (*.map)");
@@ -1171,7 +1170,7 @@ bool MapFrame::exportDocument(const IO::ExportOptions& options)
     QMessageBox::critical(
       this,
       "",
-      QString::fromStdString("Unknown error while exporting " + exportPath.asString()),
+      QString::fromStdString("Unknown error while exporting " + exportPath.string()),
       QMessageBox::Ok);
     return false;
   }
@@ -1240,9 +1239,9 @@ bool MapFrame::confirmRevertDocument()
 void MapFrame::loadPointFile()
 {
   QString defaultDir;
-  if (!m_document->path().isEmpty())
+  if (!m_document->path().empty())
   {
-    defaultDir = IO::pathAsQString(m_document->path().deleteLastComponent());
+    defaultDir = IO::pathAsQString(m_document->path().parent_path());
   }
 
   const QString fileName = QFileDialog::getOpenFileName(
@@ -1284,9 +1283,9 @@ bool MapFrame::canReloadPointFile() const
 void MapFrame::loadPortalFile()
 {
   QString defaultDir;
-  if (!m_document->path().isEmpty())
+  if (!m_document->path().empty())
   {
-    defaultDir = IO::pathAsQString(m_document->path().deleteLastComponent());
+    defaultDir = IO::pathAsQString(m_document->path().parent_path());
   }
 
   const QString fileName = QFileDialog::getOpenFileName(

@@ -23,7 +23,6 @@
 #include "Assets/Texture.h"
 #include "Exceptions.h"
 #include "IO/FileSystem.h"
-#include "IO/Path.h"
 #include "IO/PathInfo.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"
@@ -32,6 +31,7 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include <kdl/path_utils.h>
 #include <kdl/string_format.h>
 
 #include <string>
@@ -244,9 +244,9 @@ DkmParser::DkmParser(const std::string& name, const Reader& reader, const FileSy
 {
 }
 
-bool DkmParser::canParse(const Path& path, Reader reader)
+bool DkmParser::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension()) != "dkm")
+  if (kdl::path_to_lower(path.extension()) != ".dkm")
   {
     return false;
   }
@@ -459,18 +459,18 @@ void DkmParser::loadSkins(
  * which does not exist, and the correct skin file name will be "x/y.wal" instead. That's
  * why we try to find a matching file name by disregarding the extension.
  */
-Path DkmParser::findSkin(const std::string& skin) const
+std::filesystem::path DkmParser::findSkin(const std::string& skin) const
 {
-  const Path skinPath(skin);
+  const auto skinPath = std::filesystem::path{skin};
   if (m_fs.pathInfo(skinPath) == PathInfo::File)
   {
     return skinPath;
   }
 
   // try "wal" extension instead
-  if (kdl::str_to_lower(skinPath.extension()) == "bmp")
+  if (kdl::str_to_lower(skinPath.extension().string()) == ".bmp")
   {
-    const auto walPath = skinPath.replaceExtension("wal");
+    const auto walPath = kdl::path_replace_extension(skinPath, ".wal");
     if (m_fs.pathInfo(walPath) == PathInfo::File)
     {
       return walPath;
@@ -478,10 +478,9 @@ Path DkmParser::findSkin(const std::string& skin) const
   }
 
   // Search for any file with the correct base name.
-  const auto folder = skinPath.deleteLastComponent();
-  const auto basename = skinPath.lastComponent().deleteExtension();
-  const auto items =
-    m_fs.find(folder, makeFilenamePathMatcher(basename.asString() + ".*"));
+  const auto folder = skinPath.parent_path();
+  const auto basename = skinPath.stem();
+  const auto items = m_fs.find(folder, makeFilenamePathMatcher(basename.string() + ".*"));
   return items.size() == 1 ? items.front() : skinPath;
 }
 

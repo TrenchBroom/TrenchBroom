@@ -25,6 +25,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -33,7 +34,6 @@ namespace TrenchBroom
 namespace IO
 {
 class FileSystem;
-class Path;
 class Reader;
 
 namespace DkmLayout
@@ -103,7 +103,7 @@ private:
 public:
   DkmParser(const std::string& name, const Reader& reader, const FileSystem& fs);
 
-  static bool canParse(const Path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path, Reader reader);
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
@@ -116,7 +116,7 @@ private:
 
   void loadSkins(
     Assets::EntityModelSurface& surface, const DkmSkinList& skins, Logger& logger);
-  Path findSkin(const std::string& skin) const;
+  std::filesystem::path findSkin(const std::string& skin) const;
 
   void buildFrame(
     Assets::EntityModel& model,

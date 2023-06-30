@@ -19,13 +19,13 @@
 
 #include "KeySequenceEdit.h"
 
-#include "View/LimitedKeySequenceEdit.h"
-#include "View/QtUtils.h"
-#include "View/ViewConstants.h"
-
 #include <QBoxLayout>
 #include <QStyle>
 #include <QToolButton>
+
+#include "View/LimitedKeySequenceEdit.h"
+#include "View/QtUtils.h"
+#include "View/ViewConstants.h"
 
 namespace TrenchBroom
 {

@@ -22,10 +22,11 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Exceptions.h"
-#include "IO/TextureLoader.h"
+#include "IO/LoadTextureCollection.h"
 #include "Logger.h"
 
 #include <kdl/map_utils.h>
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
@@ -39,91 +40,20 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class CompareByName
-{
-public:
-  CompareByName() {}
-  bool operator()(const Texture* left, const Texture* right) const
-  {
-    return left->name() < right->name();
-  }
-};
-
-class CompareByUsage
-{
-public:
-  bool operator()(const Texture* left, const Texture* right) const
-  {
-    if (left->usageCount() == right->usageCount())
-    {
-      return left->name() < right->name();
-    }
-    else
-    {
-      return left->usageCount() > right->usageCount();
-    }
-  }
-};
 
 TextureManager::TextureManager(int magFilter, int minFilter, Logger& logger)
-  : m_logger(logger)
-  , m_minFilter(minFilter)
-  , m_magFilter(magFilter)
-  , m_resetTextureMode(false)
+  : m_logger{logger}
+  , m_minFilter{minFilter}
+  , m_magFilter{magFilter}
 {
 }
 
 TextureManager::~TextureManager() = default;
 
-void TextureManager::setTextureCollections(
-  const std::vector<IO::Path>& paths, IO::TextureLoader& loader)
+void TextureManager::reload(
+  const IO::FileSystem& fs, const Model::TextureConfig& textureConfig)
 {
-  auto collections = std::move(m_collections);
-  clear();
-
-  for (const auto& path : paths)
-  {
-    const auto it =
-      std::find_if(std::begin(collections), std::end(collections), [&](const auto& c) {
-        return c.path() == path;
-      });
-    if (it == std::end(collections) || !it->loaded())
-    {
-      try
-      {
-        const auto startTime = std::chrono::high_resolution_clock::now();
-        auto collection = loader.loadTextureCollection(path);
-        const auto endTime = std::chrono::high_resolution_clock::now();
-
-        m_logger.info() << "Loaded texture collection '" << path << "' in "
-                        << std::chrono::duration_cast<std::chrono::milliseconds>(
-                             endTime - startTime)
-                             .count()
-                        << "ms";
-        addTextureCollection(std::move(collection));
-      }
-      catch (const Exception& e)
-      {
-        addTextureCollection(Assets::TextureCollection(path));
-        if (it == std::end(collections))
-        {
-          m_logger.error() << "Could not load texture collection '" << path
-                           << "': " << e.what();
-        }
-      }
-    }
-    else
-    {
-      addTextureCollection(std::move(*it));
-    }
-    if (it != std::end(collections))
-    {
-      collections.erase(it);
-    }
-  }
-
-  updateTextures();
-  m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
+  setTextureCollections(findTextureCollections(fs, textureConfig), fs, textureConfig);
 }
 
 void TextureManager::setTextureCollections(std::vector<TextureCollection> collections)
@@ -133,6 +63,55 @@ void TextureManager::setTextureCollections(std::vector<TextureCollection> collec
     addTextureCollection(std::move(collection));
   }
   updateTextures();
+}
+
+void TextureManager::setTextureCollections(
+  const std::vector<std::filesystem::path>& paths,
+  const IO::FileSystem& fs,
+  const Model::TextureConfig& textureConfig)
+{
+  auto collections = std::move(m_collections);
+  clear();
+
+  for (const auto& path : paths)
+  {
+    const auto it =
+      std::find_if(collections.begin(), collections.end(), [&](const auto& c) {
+        return c.path() == path;
+      });
+
+    if (it == collections.end() || !it->loaded())
+    {
+      IO::loadTextureCollection(path, fs, textureConfig, m_logger)
+        .or_else([&](const auto& error) {
+          if (it == collections.end())
+          {
+            m_logger.error() << "Could not load texture collection '" << path
+                             << "': " << error.msg;
+          }
+          return kdl::result<Assets::TextureCollection>{Assets::TextureCollection{path}};
+        })
+        .transform([&](auto collection) {
+          if (!collection.textures().empty())
+          {
+            m_logger.info() << "Loaded texture collection '" << path << "'";
+          }
+          addTextureCollection(std::move(collection));
+        });
+    }
+    else
+    {
+      addTextureCollection(std::move(*it));
+    }
+
+    if (it != collections.end())
+    {
+      collections.erase(it);
+    }
+  }
+
+  updateTextures();
+  m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
 }
 
 void TextureManager::addTextureCollection(Assets::TextureCollection collection)
@@ -176,14 +155,7 @@ void TextureManager::commitChanges()
 const Texture* TextureManager::texture(const std::string& name) const
 {
   auto it = m_texturesByName.find(kdl::str_to_lower(name));
-  if (it == std::end(m_texturesByName))
-  {
-    return nullptr;
-  }
-  else
-  {
-    return it->second;
-  }
+  return it != m_texturesByName.end() ? it->second : nullptr;
 }
 
 Texture* TextureManager::texture(const std::string& name)
@@ -215,7 +187,7 @@ void TextureManager::resetTextureMode()
 
 void TextureManager::prepare()
 {
-  for (const size_t index : m_toPrepare)
+  for (const auto index : m_toPrepare)
   {
     auto& collection = m_collections[index];
     collection.prepare(m_minFilter, m_magFilter);
@@ -236,7 +208,7 @@ void TextureManager::updateTextures()
       texture.setOverridden(false);
 
       auto mIt = m_texturesByName.find(key);
-      if (mIt != std::end(m_texturesByName))
+      if (mIt != m_texturesByName.end())
       {
         mIt->second->setOverridden(true);
         mIt->second = &texture;

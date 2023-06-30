@@ -152,7 +152,7 @@ void MapView3D::cameraDidChange(const Renderer::Camera* /* camera */)
   }
 }
 
-void MapView3D::preferenceDidChange(const IO::Path& path)
+void MapView3D::preferenceDidChange(const std::filesystem::path& path)
 {
   if (path == Preferences::CameraFov.path())
   {

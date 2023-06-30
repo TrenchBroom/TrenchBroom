@@ -19,6 +19,8 @@
 
 #include "KeyboardShortcutModel.h"
 
+#include <QBrush>
+
 #include "IO/PathQt.h"
 #include "Preference.h"
 #include "PreferenceManager.h"
@@ -31,14 +33,12 @@
 #include <functional>
 #include <set>
 
-#include <QBrush>
-
 namespace TrenchBroom
 {
 namespace View
 {
 KeyboardShortcutModel::ActionInfo::ActionInfo(
-  const IO::Path& i_displayPath, const Action& i_action)
+  const std::filesystem::path& i_displayPath, const Action& i_action)
   : displayPath(i_displayPath)
   , action(i_action)
 {
@@ -117,7 +117,7 @@ QVariant KeyboardShortcutModel::data(const QModelIndex& index, const int role) c
     }
     else
     {
-      return QString::fromStdString(actionInfo.displayPath.asString(" > "));
+      return QString::fromStdString(actionInfo.displayPath.generic_string());
     }
   }
   else if (role == Qt::ForegroundRole)
@@ -198,7 +198,7 @@ class KeyboardShortcutModel::MenuActionVisitor : public MenuVisitor
 {
 private:
   std::vector<ActionInfo>& m_actions;
-  IO::Path m_currentPath;
+  std::filesystem::path m_currentPath;
 
 public:
   explicit MenuActionVisitor(std::vector<ActionInfo>& actions)
@@ -208,9 +208,9 @@ public:
 
   void visit(const Menu& menu) override
   {
-    m_currentPath = m_currentPath + IO::Path(menu.name());
+    m_currentPath = m_currentPath / menu.name();
     menu.visitEntries(*this);
-    m_currentPath = m_currentPath.deleteLastComponent();
+    m_currentPath = m_currentPath.parent_path();
   }
 
   void visit(const MenuSeparatorItem&) override {}
@@ -218,7 +218,7 @@ public:
   void visit(const MenuActionItem& item) override
   {
     m_actions.emplace_back(
-      m_currentPath + IO::pathFromQString(item.label()), item.action());
+      m_currentPath / IO::pathFromQString(item.label()), item.action());
   }
 };
 
@@ -233,8 +233,7 @@ void KeyboardShortcutModel::initializeViewActions()
 {
   const auto& actionManager = ActionManager::instance();
   actionManager.visitMapViewActions([this](const Action& action) {
-    m_actions.emplace_back(
-      IO::Path("Map View") + IO::pathFromQString(action.label()), action);
+    m_actions.emplace_back("Map View" / IO::pathFromQString(action.label()), action);
   });
 }
 
@@ -242,8 +241,7 @@ void KeyboardShortcutModel::initializeTagActions()
 {
   assert(m_document != nullptr);
   m_document->visitTagActions([this](const Action& action) {
-    m_actions.emplace_back(
-      IO::Path("Tags") + IO::pathFromQString(action.label()), action);
+    m_actions.emplace_back("Tags" / IO::pathFromQString(action.label()), action);
   });
 }
 
@@ -252,7 +250,7 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
   assert(m_document != nullptr);
   m_document->visitEntityDefinitionActions([this](const Action& action) {
     m_actions.emplace_back(
-      IO::Path("Entity Definitions") + IO::pathFromQString(action.label()), action);
+      "Entity Definitions" / IO::pathFromQString(action.label()), action);
   });
 }
 

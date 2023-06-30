@@ -20,7 +20,6 @@
 #include "RecentDocumentListBox.h"
 
 #include "Ensure.h"
-#include "IO/Path.h"
 #include "IO/PathQt.h"
 #include "IO/ResourceUtils.h"
 #include "TrenchBroomApp.h"
@@ -52,7 +51,7 @@ void RecentDocumentListBox::recentDocumentsDidChange()
 size_t RecentDocumentListBox::itemCount() const
 {
   const TrenchBroomApp& app = View::TrenchBroomApp::instance();
-  const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+  const auto& recentDocuments = app.recentDocuments();
   return recentDocuments.size();
 }
 
@@ -64,15 +63,15 @@ QPixmap RecentDocumentListBox::image(const size_t /* index */) const
 QString RecentDocumentListBox::title(const size_t index) const
 {
   const auto& app = View::TrenchBroomApp::instance();
-  const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+  const auto& recentDocuments = app.recentDocuments();
   ensure(index < recentDocuments.size(), "index out of range");
-  return IO::pathAsQString(recentDocuments[index].lastComponent());
+  return IO::pathAsQString(recentDocuments[index].filename());
 }
 
 QString RecentDocumentListBox::subtitle(const size_t index) const
 {
   const auto& app = View::TrenchBroomApp::instance();
-  const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+  const auto& recentDocuments = app.recentDocuments();
   ensure(index < recentDocuments.size(), "index out of range");
   return IO::pathAsQString(recentDocuments[index]);
 }
@@ -80,11 +79,11 @@ QString RecentDocumentListBox::subtitle(const size_t index) const
 void RecentDocumentListBox::doubleClicked(const size_t index)
 {
   auto& app = View::TrenchBroomApp::instance();
-  const std::vector<IO::Path>& recentDocuments = app.recentDocuments();
+  const auto& recentDocuments = app.recentDocuments();
 
   if (index < recentDocuments.size())
   {
-    const IO::Path& documentPath = recentDocuments[index];
+    const auto& documentPath = recentDocuments[index];
     emit loadRecentDocument(documentPath);
   }
 }
