@@ -34,6 +34,7 @@ class RecentDocumentListBox : public ImageListBox
   Q_OBJECT
 private:
   QPixmap m_documentIcon;
+  std::vector<std::filesystem::path> m_existingRecentDocuments;
 
 public:
   explicit RecentDocumentListBox(QWidget* parent = nullptr);

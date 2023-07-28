@@ -375,7 +375,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
     {
       frame->close();
     }
-    QMessageBox::critical(nullptr, "TrenchBroom", e.what(), QMessageBox::Ok);
+    QMessageBox::critical(nullptr, "TrenchBroom", tr("Could not find file %1").arg(e.what()), QMessageBox::Ok);
     return false;
   }
   catch (const Exception& e)

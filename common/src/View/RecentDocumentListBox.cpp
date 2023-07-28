@@ -40,19 +40,26 @@ RecentDocumentListBox::RecentDocumentListBox(QWidget* parent)
     &TrenchBroomApp::recentDocumentsDidChange,
     this,
     &RecentDocumentListBox::recentDocumentsDidChange);
-  reload();
+
+  recentDocumentsDidChange();
 }
 
 void RecentDocumentListBox::recentDocumentsDidChange()
 {
+  const TrenchBroomApp& app = View::TrenchBroomApp::instance();
+  const auto& recentDocuments = app.recentDocuments();
+  m_existingRecentDocuments.clear();
+  std::copy_if(
+    std::begin(recentDocuments),
+    std::end(recentDocuments),
+    std::back_inserter(m_existingRecentDocuments),
+    [](const auto& path) { return std::filesystem::exists(path); });
   reload();
 }
 
 size_t RecentDocumentListBox::itemCount() const
 {
-  const TrenchBroomApp& app = View::TrenchBroomApp::instance();
-  const auto& recentDocuments = app.recentDocuments();
-  return recentDocuments.size();
+  return m_existingRecentDocuments.size();
 }
 
 QPixmap RecentDocumentListBox::image(const size_t /* index */) const
@@ -62,28 +69,21 @@ QPixmap RecentDocumentListBox::image(const size_t /* index */) const
 
 QString RecentDocumentListBox::title(const size_t index) const
 {
-  const auto& app = View::TrenchBroomApp::instance();
-  const auto& recentDocuments = app.recentDocuments();
-  ensure(index < recentDocuments.size(), "index out of range");
-  return IO::pathAsQString(recentDocuments[index].filename());
+  ensure(index < m_existingRecentDocuments.size(), "index out of range");
+  return IO::pathAsQString(m_existingRecentDocuments[index].filename());
 }
 
 QString RecentDocumentListBox::subtitle(const size_t index) const
 {
-  const auto& app = View::TrenchBroomApp::instance();
-  const auto& recentDocuments = app.recentDocuments();
-  ensure(index < recentDocuments.size(), "index out of range");
-  return IO::pathAsQString(recentDocuments[index]);
+  ensure(index < m_existingRecentDocuments.size(), "index out of range");
+  return IO::pathAsQString(m_existingRecentDocuments[index]);
 }
 
 void RecentDocumentListBox::doubleClicked(const size_t index)
 {
-  auto& app = View::TrenchBroomApp::instance();
-  const auto& recentDocuments = app.recentDocuments();
-
-  if (index < recentDocuments.size())
+  if (index < m_existingRecentDocuments.size())
   {
-    const auto& documentPath = recentDocuments[index];
+    const auto& documentPath = m_existingRecentDocuments[index];
     emit loadRecentDocument(documentPath);
   }
 }
