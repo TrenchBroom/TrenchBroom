@@ -559,30 +559,30 @@ std::vector<T, A> vec_sort_and_remove_duplicates(
 }
 
 /**
- * Returns a vector containing every element of the given vector that passes the given
- * filter. The elements are moved into the returned vector in the same order as they are
- * in the given vector.
+ * Returns a vector containing every element of the given range that satisfies the given
+ * predicate. The elements are moved into the returned vector in the same order as they
+ * are in the given range.
  *
+ * @tparam Range the type of the range
+ * @tparam Predicate the type of the predicate to apply, must be of type `bool(const T&)`
  * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam F the type of the filter to apply, must be of type `bool(const T&)`
- * @param v the vector
- * @param filter the filter to apply
- * @return a vector containing the elements that passed the filter
+ * @param range the range
+ * @param predicate the predicate to apply
+ * @return a vector containing the elements that passed the predicate
  */
 template <
-  typename T,
-  typename A,
-  typename F,
-  typename std::enable_if_t<std::is_invocable_v<F, const T&>>* = nullptr>
-std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter)
+  typename Range,
+  typename Predicate,
+  typename T = typename Range::value_type,
+  typename std::enable_if_t<std::is_invocable_v<Predicate, const T&>>* = nullptr>
+auto vec_filter(Range range, Predicate&& predicate)
 {
-  std::vector<T, A> result;
-  result.reserve(v.size());
+  auto result = std::vector<T>{};
+  result.reserve(std::size(range));
 
-  for (auto& x : v)
+  for (auto& x : range)
   {
-    if (filter(x))
+    if (predicate(x))
     {
       result.push_back(std::move(x));
     }
@@ -592,35 +592,36 @@ std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter)
 }
 
 /**
- * Returns a vector containing every element of the given vector that passes the given
- * filter. The elements are moved into the returned vector in the same order as they are
- * in the given vector.
+ * Returns a vector containing every element of the given range that passes the given
+ * predicate. The elements are moved into the returned vector in the same order as they
+ * are in the given range.
  *
- * This version passes the vector element indices to the filter function.
+ * This version passes the element indices to the predicate function.
  *
+ * @tparam Range the type of the range
+ * @tparam Predicate the type of the predicate to apply, must be of type `bool(const T&,
+ * size_t)`
  * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam F the type of the filter to apply, must be of type `bool(const T&,
- * std::size_t)`
- * @param v the vector
- * @param filter the filter to apply
- * @return a vector containing the elements that passed the filter
+ * @param range the range
+ * @param predicate the predicate to apply
+ * @return a vector containing the elements that passed the predicate
  */
 template <
-  typename T,
-  typename A,
-  typename F,
-  typename std::enable_if_t<std::is_invocable_v<F, const T&, std::size_t>>* = nullptr>
-std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter)
+  typename Range,
+  typename Predicate,
+  typename T = typename Range::value_type,
+  typename std::enable_if_t<std::is_invocable_v<Predicate, const T&, std::size_t>>* =
+    nullptr>
+auto vec_filter(Range range, Predicate&& predicate)
 {
-  std::vector<T, A> result;
-  result.reserve(v.size());
+  auto result = std::vector<T>{};
+  result.reserve(std::size(range));
 
-  for (std::size_t i = 0u; i < v.size(); ++i)
+  for (std::size_t i = 0u; i < std::size(range); ++i)
   {
-    if (filter(v[i], i))
+    if (predicate(range[i], i))
     {
-      result.push_back(std::move(v[i]));
+      result.push_back(std::move(range[i]));
     }
   }
 
@@ -628,31 +629,33 @@ std::vector<T, A> vec_filter(std::vector<T, A> v, F&& filter)
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector
- * containing the resulting values, in order in which their original elements appeared in
- * v.
+ * Applies the given transformation to each element of the given range and returns a
+ * vector containing the resulting values, in order in which their original elements
+ * appeared in r.
  *
- * The elements are passed to the given lambda as const lvalue references.
+ * The elements are passed to the given transformation as const lvalue references.
  *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam L the type of the lambda to apply
- * @param v the vector
- * @param transform the lambda to apply, must be of type `auto(const T&)`
+ * @tparam Range the type of the range
+ * @tparam Transform the type of the transformation to apply, must be of type `auto(const
+ * T&)`
+ * @tparam T the type of the elements
+ * @param range the range
+ * @param transform the transformation to apply
  * @return a vector containing the transformed values
  */
 template <
-  typename T,
-  typename A,
-  typename L,
-  typename std::enable_if_t<std::is_invocable_v<L, const T&>>* = nullptr>
-auto vec_transform(const std::vector<T, A>& v, L&& transform)
+  typename Range,
+  typename Transform,
+  typename T = typename Range::value_type,
+  typename std::enable_if_t<std::is_invocable_v<Transform, const T&>>* = nullptr>
+auto vec_transform(const Range& range, Transform&& transform)
 {
   using ResultType = decltype(transform(std::declval<const T&>()));
 
-  std::vector<ResultType> result;
-  result.reserve(v.size());
-  for (const auto& x : v)
+  auto result = std::vector<ResultType>{};
+  result.reserve(std::size(range));
+
+  for (const auto& x : range)
   {
     result.push_back(transform(x));
   }
@@ -661,68 +664,70 @@ auto vec_transform(const std::vector<T, A>& v, L&& transform)
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector
- * containing the resulting values, in order in which their original elements appeared in
- * v.
+ * Applies the given transformation to each element of the given range and returns a
+ * vector containing the resulting values, in order in which their original elements
+ * appeared in the range.
  *
- * The elements are passed to the given lambda as const lvalue references.
+ * The elements are passed to the given transformation as const lvalue references.
  *
- * This version passes the vector element indices to the filter function.
+ * This version passes the element indices to the transformation.
  *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam L the type of the lambda to apply
- * @param v the vector
- * @param transform the lambda to apply, must be of type `auto(const T&, std::size_t)`
+ * @tparam Range the type of the range
+ * @tparam Transform the type of the transformation to apply, must be of type `auto(const
+ * T&, std::size_t)`
+ * @tparam T the type of the elements
+ * @param range the range
+ * @param transform the transformation to apply
  * @return a vector containing the transformed values
  */
 template <
-  typename T,
-  typename A,
-  typename L,
-  typename std::enable_if_t<std::is_invocable_v<L, const T&, std::size_t>>* = nullptr>
-auto vec_transform(const std::vector<T, A>& v, L&& transform)
+  typename Range,
+  typename Transform,
+  typename T = typename Range::value_type,
+  typename std::enable_if_t<std::is_invocable_v<Transform, const T&, std::size_t>>* =
+    nullptr>
+auto vec_transform(const Range& range, Transform&& transform)
 {
   using ResultType =
     decltype(transform(std::declval<const T&>(), std::declval<std::size_t>()));
 
-  std::vector<ResultType> result;
-  result.reserve(v.size());
+  auto result = std::vector<ResultType>{};
+  result.reserve(std::size(range));
 
-  for (std::size_t i = 0u; i < v.size(); ++i)
+  for (std::size_t i = 0u; i < std::size(range); ++i)
   {
-    result.push_back(transform(v[i], i));
+    result.push_back(transform(range[i], i));
   }
 
   return result;
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector
- * containing the resulting values, in order in which their original elements appeared in
- * v.
+ * Applies the given transformation to each element of the given range and returns a
+ * vector containing the resulting values, in order in which their original elements
+ * appeared in r.
  *
- * The elements are passed to the given lambda as lvalue references.
+ * The elements are passed to the given transformation as lvalue references.
  *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam L the type of the lambda to apply
- * @param v the vector
- * @param transform the lambda to apply, must be of type `auto(const T&)`
+ * @tparam Range the type of the range
+ * @tparam Transform the type of the transformation to apply, must be of type `auto(T&)`
+ * @tparam T the type of the elements
+ * @param range the range
+ * @param transform the transformation to apply
  * @return a vector containing the transformed values
  */
 template <
-  typename T,
-  typename A,
-  typename L,
-  typename std::enable_if_t<std::is_invocable_v<L, T&>>* = nullptr>
-auto vec_transform(std::vector<T, A>& v, L&& transform)
+  typename Range,
+  typename Transform,
+  typename T = typename Range::value_type,
+  typename std::enable_if_t<std::is_invocable_v<Transform, T&>>* = nullptr>
+auto vec_transform(Range& range, Transform&& transform)
 {
   using ResultType = decltype(transform(std::declval<T&>()));
 
-  std::vector<ResultType> result;
-  result.reserve(v.size());
-  for (auto& x : v)
+  auto result = std::vector<ResultType>{};
+  result.reserve(std::size(range));
+  for (auto& x : range)
   {
     result.push_back(transform(x));
   }
@@ -731,67 +736,68 @@ auto vec_transform(std::vector<T, A>& v, L&& transform)
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector
- * containing the resulting values, in order in which their original elements appeared in
- * v.
+ * Applies the given transformation to each element of the given range and returns a
+ * vector containing the resulting values, in order in which their original elements
+ * appeared in the range.
  *
- * The elements are passed to the given lambda as lvalue references.
+ * The elements are passed to the given transformation as lvalue references.
  *
- * This version passes the vector element indices to the filter function.
+ * This version passes the element indices to the transformation.
  *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam L the type of the lambda to apply
- * @param v the vector
- * @param transform the lambda to apply, must be of type `auto(const T&, std::size_t)`
+ * @tparam Range the type of the range
+ * @tparam Transform the type of the transformation to apply, must be of type `auto(T&,
+ * std::size_t)`
+ * @tparam T the type of the elements
+ * @param range the range
+ * @param transform the transformation to apply
  * @return a vector containing the transformed values
  */
 template <
-  typename T,
-  typename A,
-  typename L,
-  typename std::enable_if_t<std::is_invocable_v<L, T&, std::size_t>>* = nullptr>
-auto vec_transform(std::vector<T, A>& v, L&& transform)
+  typename Range,
+  typename Transform,
+  typename T = typename Range::value_type,
+  typename std::enable_if_t<std::is_invocable_v<Transform, T&, std::size_t>>* = nullptr>
+auto vec_transform(Range& range, Transform&& transform)
 {
   using ResultType = decltype(transform(std::declval<T&>(), std::declval<std::size_t>()));
 
-  std::vector<ResultType> result;
-  result.reserve(v.size());
+  auto result = std::vector<ResultType>{};
+  result.reserve(std::size(range));
 
-  for (std::size_t i = 0u; i < v.size(); ++i)
+  for (std::size_t i = 0u; i < std::size(range); ++i)
   {
-    result.push_back(transform(v[i], i));
+    result.push_back(transform(range[i], i));
   }
 
   return result;
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector
- * containing the resulting values, in order in which their original elements appeared in
- * v.
+ * Applies the given transformation to each element of the given range and returns a
+ * vector containing the resulting values, in order in which their original elements
+ * appeared in r.
  *
- * The elements are passed to the given lambda as rvalue references.
+ * The elements are passed to the given transformation as rvalue references.
  *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam L the type of the lambda to apply, must be of type auto(T&&)
- * @param v the vector
- * @param transform the lambda to apply
+ * @tparam Range the type of the range
+ * @tparam Transform the type of the transformation to apply, must be of type `auto(T&&)`
+ * @tparam T the type of the elements
+ * @param range the range
+ * @param transform the transformation to apply
  * @return a vector containing the transformed values
  */
 template <
-  typename T,
-  typename A,
-  typename L,
-  typename std::enable_if_t<std::is_invocable_v<L, T&&>>* = nullptr>
-auto vec_transform(std::vector<T, A>&& v, L&& transform)
+  typename Range,
+  typename Transform,
+  typename T = typename Range::value_type,
+  typename std::enable_if_t<std::is_invocable_v<Transform, T&&>>* = nullptr>
+auto vec_transform(Range&& range, Transform&& transform)
 {
   using ResultType = decltype(transform(std::declval<T&&>()));
 
-  std::vector<ResultType> result;
-  result.reserve(v.size());
-  for (auto&& x : v)
+  auto result = std::vector<ResultType>{};
+  result.reserve(std::size(range));
+  for (auto&& x : range)
   {
     result.push_back(transform(std::move(x)));
   }
@@ -800,37 +806,38 @@ auto vec_transform(std::vector<T, A>&& v, L&& transform)
 }
 
 /**
- * Applies the given lambda to each element of the given vector and returns a vector
- * containing the resulting values, in order in which their original elements appeared in
- * v.
+ * Applies the given transformation to each element of the given range and returns a
+ * vector containing the resulting values, in order in which their original elements
+ * appeared in the range.
  *
- * The elements are passed to the given lambda as rvalue references.
+ * The elements are passed to the given transformation as rvalue references.
  *
- * This version passes the vector element indices to the filter function.
+ * This version passes the element indices to the transformation.
  *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam L the type of the lambda to apply
- * @param v the vector
- * @param transform the lambda to apply, must be of type auto(T&&, std::size_t)
+ * @tparam Range the type of the range
+ * @tparam Transform the type of the transformation to apply, must be of type `auto(T&&,
+ * std::size_t)`
+ * @tparam T the type of the elements
+ * @param range the range
+ * @param transform the transformation to apply
  * @return a vector containing the transformed values
  */
 template <
-  typename T,
-  typename A,
-  typename L,
-  typename std::enable_if_t<std::is_invocable_v<L, T&&, std::size_t>>* = nullptr>
-auto vec_transform(std::vector<T, A>&& v, L&& transform)
+  typename Range,
+  typename Transform,
+  typename T = typename Range::value_type,
+  typename std::enable_if_t<std::is_invocable_v<Transform, T&&, std::size_t>>* = nullptr>
+auto vec_transform(Range&& range, Transform&& transform)
 {
   using ResultType =
     decltype(transform(std::declval<T&&>(), std::declval<std::size_t>()));
 
-  std::vector<ResultType> result;
-  result.reserve(v.size());
+  auto result = std::vector<ResultType>{};
+  result.reserve(std::size(range));
 
-  for (std::size_t i = 0u; i < v.size(); ++i)
+  for (std::size_t i = 0u; i < std::size(range); ++i)
   {
-    result.push_back(transform(std::move(v[i]), i));
+    result.push_back(transform(std::move(range[i]), i));
   }
 
   return result;
