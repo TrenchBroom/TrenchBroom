@@ -217,49 +217,49 @@ TEST_CASE("result_test.visit")
   SECTION("non-void result")
   {
     const auto constLValueSuccess = result<int, Error1, Error2>{1};
-    CHECK(constLValueSuccess.visit(kdl::overload(
-      [](const int& x) { return x == 1; }, [](const auto&) { return false; })));
+    CHECK(constLValueSuccess.visit(
+      overload([](const int& x) { return x == 1; }, [](const auto&) { return false; })));
 
     const auto constLValueError1 = result<int, Error1, Error2>{Error1{}};
-    CHECK(constLValueError1.visit(kdl::overload(
+    CHECK(constLValueError1.visit(overload(
       [](const int&) { return false; },
       [](const Error1&) { return true; },
       [](const Error2&) { return false; })));
 
     const auto constLValueError2 = result<int, Error1, Error2>{Error2{}};
-    CHECK(constLValueError2.visit(kdl::overload(
+    CHECK(constLValueError2.visit(overload(
       [](const int&) { return false; },
       [](const Error1&) { return false; },
       [](const Error2&) { return true; })));
 
     auto nonConstLValueSuccess = result<int, Error1, Error2>{1};
     CHECK(nonConstLValueSuccess.visit(
-      kdl::overload([](int& x) { return x == 1; }, [](auto&) { return false; })));
+      overload([](int& x) { return x == 1; }, [](auto&) { return false; })));
 
     auto nonConstLValueError1 = result<int, Error1, Error2>{Error1{}};
-    CHECK(nonConstLValueError1.visit(kdl::overload(
+    CHECK(nonConstLValueError1.visit(overload(
       [](int&) { return false; },
       [](Error1&) { return true; },
       [](Error2&) { return false; })));
 
     auto nonConstLValueError2 = result<int, Error1, Error2>{Error2{}};
-    CHECK(nonConstLValueError2.visit(kdl::overload(
+    CHECK(nonConstLValueError2.visit(overload(
       [](int&) { return false; },
       [](Error1&) { return false; },
       [](Error2&) { return true; })));
 
     CHECK(result<MoveOnly, Error1, Error2>{MoveOnly{}}.visit(
-      kdl::overload([](MoveOnly&&) { return true; }, [](auto&&) { return false; })));
+      overload([](MoveOnly&&) { return true; }, [](auto&&) { return false; })));
 
     CHECK(result<int, Error1, Error2>{1}.visit(
-      kdl::overload([](int&& x) { return x == 1; }, [](auto&&) { return false; })));
+      overload([](int&& x) { return x == 1; }, [](auto&&) { return false; })));
 
-    CHECK(result<int, Error1, Error2>{Error1{}}.visit(kdl::overload(
+    CHECK(result<int, Error1, Error2>{Error1{}}.visit(overload(
       [](int&&) { return false; },
       [](Error1&&) { return true; },
       [](Error2&&) { return false; })));
 
-    CHECK(result<int, Error1, Error2>{Error2{}}.visit(kdl::overload(
+    CHECK(result<int, Error1, Error2>{Error2{}}.visit(overload(
       [](int&&) { return false; },
       [](Error1&&) { return false; },
       [](Error2&&) { return true; })));
@@ -269,45 +269,45 @@ TEST_CASE("result_test.visit")
   {
     const auto constLValueSuccess = result<void, Error1, Error2>{};
     CHECK(constLValueSuccess.visit(
-      kdl::overload([]() { return true; }, [](const auto&) { return false; })));
+      overload([]() { return true; }, [](const auto&) { return false; })));
 
     const auto constLValueError1 = result<void, Error1, Error2>{Error1{}};
-    CHECK(constLValueError1.visit(kdl::overload(
+    CHECK(constLValueError1.visit(overload(
       []() { return false; },
       [](const Error1&) { return true; },
       [](const Error2&) { return false; })));
 
     const auto constLValueError2 = result<void, Error1, Error2>{Error2{}};
-    CHECK(constLValueError2.visit(kdl::overload(
+    CHECK(constLValueError2.visit(overload(
       []() { return false; },
       [](const Error1&) { return false; },
       [](const Error2&) { return true; })));
 
     auto nonConstLValueSuccess = result<void, Error1, Error2>{};
     CHECK(nonConstLValueSuccess.visit(
-      kdl::overload([]() { return true; }, [](auto&) { return false; })));
+      overload([]() { return true; }, [](auto&) { return false; })));
 
     auto nonConstLValueError1 = result<void, Error1, Error2>{Error1{}};
-    CHECK(nonConstLValueError1.visit(kdl::overload(
+    CHECK(nonConstLValueError1.visit(overload(
       []() { return false; },
       [](Error1&) { return true; },
       [](Error2&) { return false; })));
 
     auto nonConstLValueError2 = result<void, Error1, Error2>{Error2{}};
-    CHECK(nonConstLValueError2.visit(kdl::overload(
+    CHECK(nonConstLValueError2.visit(overload(
       []() { return false; },
       [](Error1&) { return false; },
       [](Error2&) { return true; })));
 
     CHECK(result<void, Error1, Error2>{}.visit(
-      kdl::overload([]() { return true; }, [](auto&&) { return false; })));
+      overload([]() { return true; }, [](auto&&) { return false; })));
 
-    CHECK(result<void, Error1, Error2>{Error1{}}.visit(kdl::overload(
+    CHECK(result<void, Error1, Error2>{Error1{}}.visit(overload(
       []() { return false; },
       [](Error1&&) { return true; },
       [](Error2&&) { return false; })));
 
-    CHECK(result<void, Error1, Error2>{Error2{}}.visit(kdl::overload(
+    CHECK(result<void, Error1, Error2>{Error2{}}.visit(overload(
       []() { return false; },
       [](Error1&&) { return false; },
       [](Error2&&) { return true; })));
@@ -332,136 +332,136 @@ TEST_CASE("result_test.and_then")
     const auto constLValueSuccessToSuccess = result<int, Error1, Error2>{1};
     CHECK(constLValueSuccessToSuccess.and_then([](const int& x) {
       CHECK(x == 1);
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{2.0f});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{2.0f});
 
     const auto constLValueSuccessToError = result<int, Error1, Error2>{1};
     CHECK(constLValueSuccessToError.and_then([](const int& x) {
       CHECK(x == 1);
-      return kdl::result<float, Error3>{Error3{}};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error3{}});
+      return result<float, Error3>{Error3{}};
+    }) == result<float, Error1, Error2, Error3>{Error3{}});
 
     const auto constLValueError = result<int, Error1, Error2>{Error1{}};
     CHECK(constLValueError.and_then([](const int&) {
       FAIL();
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error1{}});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{Error1{}});
 
     auto nonConstLValueSuccessToSuccess = result<int, Error1, Error2>{1};
     CHECK(nonConstLValueSuccessToSuccess.and_then([](int& x) {
       CHECK(x == 1);
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{2.0f});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{2.0f});
 
     auto nonConstLValueSuccessToError = result<int, Error1, Error2>{1};
     CHECK(nonConstLValueSuccessToError.and_then([](int& x) {
       CHECK(x == 1);
-      return kdl::result<float, Error3>{Error3{}};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error3{}});
+      return result<float, Error3>{Error3{}};
+    }) == result<float, Error1, Error2, Error3>{Error3{}});
 
     auto nonConstLValueError = result<int, Error1, Error2>{Error1{}};
     CHECK(nonConstLValueError.and_then([](int&) {
       FAIL();
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error1{}});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{Error1{}});
 
     CHECK(result<MoveOnly, Error1, Error2>{MoveOnly{}}.and_then([](MoveOnly&& x) {
-      return kdl::result<MoveOnly, Error3>{std::move(x)};
-    }) == kdl::result<MoveOnly, Error1, Error2, Error3>{MoveOnly{}});
+      return result<MoveOnly, Error3>{std::move(x)};
+    }) == result<MoveOnly, Error1, Error2, Error3>{MoveOnly{}});
 
     CHECK(result<int, Error1, Error2>{1}.and_then([](int&& x) {
       CHECK(x == 1);
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{2.0f});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{2.0f});
 
     CHECK(result<int, Error1, Error2>{1}.and_then([](int&& x) {
       CHECK(x == 1);
-      return kdl::result<float, Error3>{Error3{}};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error3{}});
+      return result<float, Error3>{Error3{}};
+    }) == result<float, Error1, Error2, Error3>{Error3{}});
 
     CHECK(result<int, Error1, Error2>{Error1{}}.and_then([](int&&) {
       FAIL();
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error1{}});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{Error1{}});
   }
 
   SECTION("void result with errors")
   {
     const auto constLValueSuccessToSuccess = result<void, Error1, Error2>{};
     CHECK(constLValueSuccessToSuccess.and_then([]() {
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{2.0f});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{2.0f});
 
     const auto constLValueSuccessToError = result<void, Error1, Error2>{};
     CHECK(constLValueSuccessToError.and_then([]() {
-      return kdl::result<float, Error3>{Error3{}};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error3{}});
+      return result<float, Error3>{Error3{}};
+    }) == result<float, Error1, Error2, Error3>{Error3{}});
 
     const auto constLValueError = result<void, Error1, Error2>{Error1{}};
     CHECK(constLValueError.and_then([]() {
       FAIL();
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error1{}});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{Error1{}});
 
     auto nonConstLValueSuccessToSuccess = result<void, Error1, Error2>{};
     CHECK(nonConstLValueSuccessToSuccess.and_then([]() {
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{2.0f});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{2.0f});
 
     auto nonConstLValueSuccessToError = result<void, Error1, Error2>{};
     CHECK(nonConstLValueSuccessToError.and_then([]() {
-      return kdl::result<float, Error3>{Error3{}};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error3{}});
+      return result<float, Error3>{Error3{}};
+    }) == result<float, Error1, Error2, Error3>{Error3{}});
 
     auto nonConstLValueError = result<void, Error1, Error2>{Error1{}};
     CHECK(nonConstLValueError.and_then([]() {
       FAIL();
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error1{}});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{Error1{}});
 
     CHECK(result<void, Error1, Error2>{}.and_then([]() {
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{2.0f});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{2.0f});
 
     CHECK(result<void, Error1, Error2>{}.and_then([]() {
-      return kdl::result<float, Error3>{Error3{}};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error3{}});
+      return result<float, Error3>{Error3{}};
+    }) == result<float, Error1, Error2, Error3>{Error3{}});
 
     CHECK(result<void, Error1, Error2>{Error1{}}.and_then([]() {
       FAIL();
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error1, Error2, Error3>{Error1{}});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error1, Error2, Error3>{Error1{}});
   }
 
   SECTION("void result without errors")
   {
     const auto constLValueSuccessToSuccess = result<void>{};
     CHECK(constLValueSuccessToSuccess.and_then([]() {
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error3>{2.0f});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error3>{2.0f});
 
     const auto constLValueSuccessToError = result<void>{};
     CHECK(constLValueSuccessToError.and_then([]() {
-      return kdl::result<float, Error3>{Error3{}};
-    }) == kdl::result<float, Error3>{Error3{}});
+      return result<float, Error3>{Error3{}};
+    }) == result<float, Error3>{Error3{}});
 
     auto nonConstLValueSuccessToSuccess = result<void>{};
     CHECK(nonConstLValueSuccessToSuccess.and_then([]() {
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error3>{2.0f});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error3>{2.0f});
 
     auto nonConstLValueSuccessToError = result<void>{};
     CHECK(nonConstLValueSuccessToError.and_then([]() {
-      return kdl::result<float, Error3>{Error3{}};
-    }) == kdl::result<float, Error3>{Error3{}});
+      return result<float, Error3>{Error3{}};
+    }) == result<float, Error3>{Error3{}});
 
     CHECK(result<void>{}.and_then([]() {
-      return kdl::result<float, Error3>{2.0f};
-    }) == kdl::result<float, Error3>{2.0f});
+      return result<float, Error3>{2.0f};
+    }) == result<float, Error3>{2.0f});
 
     CHECK(result<void>{}.and_then([]() {
-      return kdl::result<float, Error3>{Error3{}};
-    }) == kdl::result<float, Error3>{Error3{}});
+      return result<float, Error3>{Error3{}};
+    }) == result<float, Error3>{Error3{}});
   }
 }
 
@@ -634,35 +634,35 @@ TEST_CASE("result_test.transform")
       CHECK(constLValueSuccessToSuccess.transform([](const int& x) {
         CHECK(x == 1);
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{2.0f});
+      }) == result<float, Error1, Error2>{2.0f});
 
       const auto constLValueError = result<int, Error1, Error2>{Error1{}};
       CHECK(constLValueError.transform([](const int&) {
         FAIL();
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{Error1{}});
+      }) == result<float, Error1, Error2>{Error1{}});
 
       auto nonConstLValueSuccessToSuccess = result<int, Error1, Error2>{1};
       CHECK(nonConstLValueSuccessToSuccess.transform([](int& x) {
         CHECK(x == 1);
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{2.0f});
+      }) == result<float, Error1, Error2>{2.0f});
 
       auto nonConstLValueError = result<int, Error1, Error2>{Error1{}};
       CHECK(nonConstLValueError.transform([](int&) {
         FAIL();
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{Error1{}});
+      }) == result<float, Error1, Error2>{Error1{}});
 
       CHECK(result<int, Error1, Error2>{1}.transform([](int&& x) {
         CHECK(x == 1);
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{2.0f});
+      }) == result<float, Error1, Error2>{2.0f});
 
       CHECK(result<int, Error1, Error2>{Error1{}}.transform([](int&&) {
         FAIL();
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{Error1{}});
+      }) == result<float, Error1, Error2>{Error1{}});
     }
 
     SECTION("transform to void")
@@ -670,30 +670,30 @@ TEST_CASE("result_test.transform")
       const auto constLValueSuccessToSuccess = result<int, Error1, Error2>{1};
       CHECK(constLValueSuccessToSuccess.transform([](const int& x) {
         CHECK(x == 1);
-      }) == kdl::result<void, Error1, Error2>{});
+      }) == result<void, Error1, Error2>{});
 
       const auto constLValueError = result<int, Error1, Error2>{Error1{}};
       CHECK(constLValueError.transform([](const int&) {
         FAIL();
-      }) == kdl::result<void, Error1, Error2>{Error1{}});
+      }) == result<void, Error1, Error2>{Error1{}});
 
       auto nonConstLValueSuccessToSuccess = result<int, Error1, Error2>{1};
       CHECK(nonConstLValueSuccessToSuccess.transform([](int& x) {
         CHECK(x == 1);
-      }) == kdl::result<void, Error1, Error2>{});
+      }) == result<void, Error1, Error2>{});
 
       auto nonConstLValueError = result<int, Error1, Error2>{Error1{}};
       CHECK(nonConstLValueError.transform([](int&) {
         FAIL();
-      }) == kdl::result<void, Error1, Error2>{Error1{}});
+      }) == result<void, Error1, Error2>{Error1{}});
 
       CHECK(result<int, Error1, Error2>{1}.transform([](int&& x) {
         CHECK(x == 1);
-      }) == kdl::result<void, Error1, Error2>{});
+      }) == result<void, Error1, Error2>{});
 
       CHECK(result<int, Error1, Error2>{Error1{}}.transform([](int&&) {
         FAIL();
-      }) == kdl::result<void, Error1, Error2>{Error1{}});
+      }) == result<void, Error1, Error2>{Error1{}});
     }
   }
 
@@ -704,61 +704,61 @@ TEST_CASE("result_test.transform")
       const auto constLValueSuccessToSuccess = result<void, Error1, Error2>{};
       CHECK(constLValueSuccessToSuccess.transform([]() {
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{2.0f});
+      }) == result<float, Error1, Error2>{2.0f});
 
       const auto constLValueError = result<void, Error1, Error2>{Error1{}};
       CHECK(constLValueError.transform([]() {
         FAIL();
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{Error1{}});
+      }) == result<float, Error1, Error2>{Error1{}});
 
       auto nonConstLValueSuccessToSuccess = result<void, Error1, Error2>{};
       CHECK(nonConstLValueSuccessToSuccess.transform([]() {
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{2.0f});
+      }) == result<float, Error1, Error2>{2.0f});
 
       auto nonConstLValueError = result<void, Error1, Error2>{Error1{}};
       CHECK(nonConstLValueError.transform([]() {
         FAIL();
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{Error1{}});
+      }) == result<float, Error1, Error2>{Error1{}});
 
       CHECK(result<void, Error1, Error2>{}.transform([]() {
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{2.0f});
+      }) == result<float, Error1, Error2>{2.0f});
 
       CHECK(result<void, Error1, Error2>{Error1{}}.transform([]() {
         FAIL();
         return 2.0f;
-      }) == kdl::result<float, Error1, Error2>{Error1{}});
+      }) == result<float, Error1, Error2>{Error1{}});
     }
 
     SECTION("transform to void")
     {
       const auto constLValueSuccessToSuccess = result<void, Error1, Error2>{};
-      CHECK(constLValueSuccessToSuccess.transform([]() {
-      }) == kdl::result<void, Error1, Error2>{});
+      CHECK(
+        constLValueSuccessToSuccess.transform([]() {}) == result<void, Error1, Error2>{});
 
       const auto constLValueError = result<void, Error1, Error2>{Error1{}};
       CHECK(constLValueError.transform([]() {
         FAIL();
-      }) == kdl::result<void, Error1, Error2>{Error1{}});
+      }) == result<void, Error1, Error2>{Error1{}});
 
       auto nonConstLValueSuccessToSuccess = result<void, Error1, Error2>{};
       CHECK(nonConstLValueSuccessToSuccess.transform([]() {
-      }) == kdl::result<void, Error1, Error2>{});
+      }) == result<void, Error1, Error2>{});
 
       auto nonConstLValueError = result<void, Error1, Error2>{Error1{}};
       CHECK(nonConstLValueError.transform([]() {
         FAIL();
-      }) == kdl::result<void, Error1, Error2>{Error1{}});
+      }) == result<void, Error1, Error2>{Error1{}});
 
       CHECK(result<void, Error1, Error2>{}.transform([]() {
-      }) == kdl::result<void, Error1, Error2>{});
+      }) == result<void, Error1, Error2>{});
 
       CHECK(result<void, Error1, Error2>{Error1{}}.transform([]() {
         FAIL();
-      }) == kdl::result<void, Error1, Error2>{Error1{}});
+      }) == result<void, Error1, Error2>{Error1{}});
     }
   }
 
@@ -769,25 +769,25 @@ TEST_CASE("result_test.transform")
       const auto constLValueSuccessToSuccess = result<void>{};
       CHECK(constLValueSuccessToSuccess.transform([]() {
         return 2.0f;
-      }) == kdl::result<float>{2.0f});
+      }) == result<float>{2.0f});
 
       auto nonConstLValueSuccessToSuccess = result<void>{};
       CHECK(nonConstLValueSuccessToSuccess.transform([]() {
         return 2.0f;
-      }) == kdl::result<float>{2.0f});
+      }) == result<float>{2.0f});
 
-      CHECK(result<void>{}.transform([]() { return 2.0f; }) == kdl::result<float>{2.0f});
+      CHECK(result<void>{}.transform([]() { return 2.0f; }) == result<float>{2.0f});
     }
 
     SECTION("transform to void")
     {
       const auto constLValueSuccessToSuccess = result<void>{};
-      CHECK(constLValueSuccessToSuccess.transform([]() {}) == kdl::result<void>{});
+      CHECK(constLValueSuccessToSuccess.transform([]() {}) == result<void>{});
 
       auto nonConstLValueSuccessToSuccess = result<void>{};
-      CHECK(nonConstLValueSuccessToSuccess.transform([]() {}) == kdl::result<void>{});
+      CHECK(nonConstLValueSuccessToSuccess.transform([]() {}) == result<void>{});
 
-      CHECK(result<void>{}.transform([]() {}) == kdl::result<void>{});
+      CHECK(result<void>{}.transform([]() {}) == result<void>{});
     }
   }
 }
@@ -935,21 +935,21 @@ TEST_CASE("result.fold_results")
   {
     CHECK(
       fold_results(std::vector<result<int>>{})
-      == kdl::result<std::vector<int>>{std::vector<int>{}});
+      == result<std::vector<int>>{std::vector<int>{}});
   }
 
   SECTION("success case")
   {
     CHECK(
-      fold_results(std::vector<kdl::result<int>>{{1}, {2}, {3}})
-      == kdl::result<std::vector<int>>{std::vector<int>{1, 2, 3}});
+      fold_results(std::vector<result<int>>{{1}, {2}, {3}})
+      == result<std::vector<int>>{std::vector<int>{1, 2, 3}});
   }
 
   SECTION("error case")
   {
     CHECK(
-      fold_results(std::vector<kdl::result<int, std::string>>{{1}, {"error"}, {3}})
-      == kdl::result<std::vector<int>, std::string>{"error"});
+      fold_results(std::vector<result<int, std::string>>{{1}, {"error"}, {3}})
+      == result<std::vector<int>, std::string>{"error"});
   }
 }
 
@@ -957,22 +957,22 @@ TEST_CASE("void_result.fold_results")
 {
   SECTION("with empty range")
   {
-    CHECK(kdl::fold_results(std::vector<kdl::result<void>>{}) == void_success);
+    CHECK(fold_results(std::vector<result<void>>{}) == void_success);
   }
 
   SECTION("success case")
   {
     CHECK(
-      kdl::fold_results(std::vector{void_success, void_success, void_success})
+      fold_results(std::vector{void_success, void_success, void_success})
       == void_success);
   }
 
   SECTION("error case")
   {
     CHECK(
-      kdl::fold_results(
-        std::vector<kdl::result<void, std::string>>{void_success, "error", void_success})
-      == kdl::result<void, std::string>{"error"});
+      fold_results(
+        std::vector<result<void, std::string>>{void_success, "error", void_success})
+      == result<void, std::string>{"error"});
   }
 }
 } // namespace kdl
