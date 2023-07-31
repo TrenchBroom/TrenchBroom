@@ -118,6 +118,7 @@ class [[nodiscard]] result
 {
 public:
   using value_type = Value;
+  static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
 
   template <typename OtherValue>
   using with_value_type = result<OtherValue, Errors...>;
@@ -809,6 +810,7 @@ class result<void>
 {
 public:
   using value_type = void;
+  static constexpr auto error_count = size_t{0};
 
   template <typename OtherValue>
   using with_value_type = result<OtherValue>;
@@ -897,6 +899,7 @@ class [[nodiscard]] result<void, Errors...>
 {
 public:
   using value_type = void;
+  static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
 
   template <typename OtherValue>
   using with_value_type = result<OtherValue, Errors...>;
