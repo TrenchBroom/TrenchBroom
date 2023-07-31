@@ -24,6 +24,7 @@
 #include "Renderer/RenderError.h"
 #include "Renderer/ShaderConfig.h"
 
+#include "kdl/vector_utils.h"
 #include <kdl/result.h>
 #include <kdl/result_fold.h>
 
@@ -69,22 +70,23 @@ kdl::result<ShaderProgram, RenderError> ShaderManager::createProgram(
   return createShaderProgram(config.name())
     .and_then([&](auto program) {
       return kdl::fold_results(
-               config.vertexShaders(),
-               [&](const auto& path) {
-                 return loadShader(path, GL_VERTEX_SHADER).transform([&](auto shader) {
-                   program.attach(shader.get());
-                 });
-               })
+               kdl::vec_transform(
+                 config.vertexShaders(),
+                 [&](const auto& path) {
+                   return loadShader(path, GL_VERTEX_SHADER).transform([&](auto shader) {
+                     program.attach(shader.get());
+                   });
+                 }))
         .transform([&]() { return std::move(program); });
     })
     .and_then([&](auto program) {
       return kdl::fold_results(
-               config.fragmentShaders(),
-               [&](const auto& path) {
-                 return loadShader(path, GL_FRAGMENT_SHADER).transform([&](auto shader) {
-                   program.attach(shader.get());
-                 });
-               })
+               kdl::vec_transform(
+                 config.fragmentShaders(),
+                 [&](const auto& path) {
+                   return loadShader(path, GL_FRAGMENT_SHADER)
+                     .transform([&](auto shader) { program.attach(shader.get()); });
+                 }))
         .transform([&]() { return std::move(program); });
     })
     .and_then([&](auto program) {

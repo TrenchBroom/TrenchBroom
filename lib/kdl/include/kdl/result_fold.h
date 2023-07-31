@@ -30,49 +30,38 @@
 namespace kdl
 {
 /**
- * Applies the given lambda to each element in the given range and returns the result.
+ * Folds the given range of results into a single result with a vector of success values
+ * or an error. If given void results, the result is a void result again. The returned
+ * result has the same error types as the results in the given range.
  *
- * The given lambda must return a result type.
- *
- * - If the lambda returns a void result type, this function returns result<void,
- * error_type>. The void (success) case is returned if *all* invocations of the given
- * lambda return void (success).
- *
- * - If the given lambda returns a non void result type, returns
- * result<std::vector<value_type>, error_type>. The vector is returned if *all*
- * invocations of the given lambda return success values, and contains those success
- * values.
- *
- * If any invocation of the given lambda fails, processing stops and that failure result
- * is returned.
+ * If any of the given results contains an error, that error is returned.
  */
-template <typename I, typename F>
-auto fold_results(I cur, I end, const F& f)
+template <typename I>
+auto fold_results(I cur, I end)
 {
-  using i_value_type = typename std::iterator_traits<I>::value_type;
-  using f_result_type = std::invoke_result_t<F, i_value_type>;
-  using f_result_value_type = typename f_result_type::value_type;
+  using in_result_type = typename std::iterator_traits<I>::value_type;
+  using in_value_type = typename in_result_type::value_type;
 
-  if constexpr (std::is_same_v<f_result_value_type, void>)
+  if constexpr (std::is_same_v<in_value_type, void>)
   {
-    using result_type = typename f_result_type::template with_value_type<void>;
+    using out_result_type = typename in_result_type::template with_value_type<void>;
 
     while (cur != end)
     {
-      auto f_result = f(*cur);
-      if (f_result.is_error())
+      if (cur->is_error())
       {
-        return f_result;
+        return *cur;
       }
       ++cur;
     }
 
-    return result_type{};
+    return out_result_type{};
   }
   else
   {
-    using vector_type = std::vector<f_result_value_type>;
-    using result_type = typename f_result_type::template with_value_type<vector_type>;
+    using vector_type = std::vector<in_value_type>;
+    using out_result_type =
+      typename in_result_type::template with_value_type<vector_type>;
     using i_category = typename std::iterator_traits<I>::iterator_category;
 
     auto result_vector = vector_type{};
@@ -83,32 +72,28 @@ auto fold_results(I cur, I end, const F& f)
 
     while (cur != end)
     {
-      auto f_result = f(*cur);
-      if (f_result.is_error())
+      if constexpr (in_result_type::error_count > 0)
       {
-        return std::visit(
-          [](auto&& e) { return result_type{std::forward<decltype(e)>(e)}; },
-          std::move(f_result).error());
+        if (cur->is_error())
+        {
+          return std::visit(
+            [](auto&& e) { return out_result_type{std::forward<decltype(e)>(e)}; },
+            std::move(*cur).error());
+        }
       }
 
-      result_vector.push_back(std::move(f_result).value());
+      result_vector.push_back(std::move(*cur).value());
       ++cur;
     }
 
-    return result_type{std::move(result_vector)};
+    return out_result_type{std::move(result_vector)};
   }
-}
-
-template <typename C, typename F>
-auto fold_results(C&& c, const F& f)
-{
-  return fold_results(std::begin(c), std::end(c), f);
 }
 
 template <typename C>
 auto fold_results(C&& c)
 {
-  return fold_results(
-    std::forward<C>(c), [](auto&& x) { return std::forward<decltype(x)>(x); });
+  return fold_results(std::begin(c), std::end(c));
 }
+
 } // namespace kdl

@@ -138,16 +138,17 @@ UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
 
   const auto& worldBounds = document.worldBounds();
   return kdl::fold_results(
-           changedLinkedGroups,
-           [&](const auto* groupNode) {
-             const auto groupNodesToUpdate = kdl::vec_erase(
-               Model::findLinkedGroups(
-                 *document.world(), *groupNode->group().linkedGroupId()),
-               groupNode);
+           kdl::vec_transform(
+             changedLinkedGroups,
+             [&](const auto* groupNode) {
+               const auto groupNodesToUpdate = kdl::vec_erase(
+                 Model::findLinkedGroups(
+                   *document.world(), *groupNode->group().linkedGroupId()),
+                 groupNode);
 
-             return Model::updateLinkedGroups(
-               *groupNode, groupNodesToUpdate, worldBounds);
-           })
+               return Model::updateLinkedGroups(
+                 *groupNode, groupNodesToUpdate, worldBounds);
+             }))
     .and_then(
       [&](auto&& nestedUpdateLists)
         -> kdl::result<LinkedGroupUpdates, Model::UpdateLinkedGroupsError> {

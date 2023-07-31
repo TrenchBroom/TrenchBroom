@@ -933,39 +933,23 @@ TEST_CASE("result.fold_results")
 {
   SECTION("with empty range")
   {
-    const auto vec = std::vector<int>{};
-    auto r = fold_results(std::begin(vec), std::end(vec), [](const auto i) {
-      return result<int, std::string>{i * 2};
-    });
-    CHECK(r.is_success());
-    CHECK_THAT(r.value(), Catch::UnorderedEquals(std::vector<int>{}));
+    CHECK(
+      fold_results(std::vector<result<int>>{})
+      == kdl::result<std::vector<int>>{std::vector<int>{}});
   }
 
   SECTION("success case")
   {
-    const auto vec = std::vector<int>{1, 2, 3};
-    auto r = fold_results(std::begin(vec), std::end(vec), [](const auto i) {
-      return result<int, std::string>{i * 2};
-    });
-    CHECK(r.is_success());
-    CHECK_THAT(r.value(), Catch::UnorderedEquals(std::vector<int>{2, 4, 6}));
+    CHECK(
+      fold_results(std::vector<kdl::result<int>>{{1}, {2}, {3}})
+      == kdl::result<std::vector<int>>{std::vector<int>{1, 2, 3}});
   }
 
   SECTION("error case")
   {
-    const auto vec = std::vector<int>{1, 2, 3};
-    auto r = fold_results(std::begin(vec), std::end(vec), [](const auto i) {
-      if (i % 2 != 0)
-      {
-        return result<int, std::string>{i * 2};
-      }
-      else
-      {
-        return result<int, std::string>{"error"};
-      }
-    });
-    CHECK(r.is_error());
-    CHECK(std::visit([](const auto& e) { return e; }, r.error()) == "error");
+    CHECK(
+      fold_results(std::vector<kdl::result<int, std::string>>{{1}, {"error"}, {3}})
+      == kdl::result<std::vector<int>, std::string>{"error"});
   }
 }
 
@@ -973,40 +957,22 @@ TEST_CASE("void_result.fold_results")
 {
   SECTION("with empty range")
   {
-    const auto vec = std::vector<int>{};
-    auto r = fold_results(
-      std::begin(vec), std::end(vec), [](const auto) { return void_success; });
-    CHECK(r.is_success());
+    CHECK(kdl::fold_results(std::vector<kdl::result<void>>{}) == void_success);
   }
 
   SECTION("success case")
   {
-    const auto vec = std::vector<int>{1, 2, 3};
-    auto vec_transformed = std::vector<int>{};
-    auto r = fold_results(std::begin(vec), std::end(vec), [&](const auto i) {
-      vec_transformed.push_back(i * 2);
-      return void_success;
-    });
-    CHECK(r.is_success());
-    CHECK_THAT(vec_transformed, Catch::UnorderedEquals(std::vector<int>{2, 4, 6}));
+    CHECK(
+      kdl::fold_results(std::vector{void_success, void_success, void_success})
+      == void_success);
   }
 
   SECTION("error case")
   {
-    const auto vec = std::vector<int>{1, 2, 3};
-    auto r = fold_results(
-      std::begin(vec), std::end(vec), [](const auto i) -> result<void, std::string> {
-        if (i % 2 != 0)
-        {
-          return void_success;
-        }
-        else
-        {
-          return "error";
-        }
-      });
-    CHECK(r.is_error());
-    CHECK(std::visit([](const auto& e) { return e; }, r.error()) == "error");
+    CHECK(
+      kdl::fold_results(
+        std::vector<kdl::result<void, std::string>>{void_success, "error", void_success})
+      == kdl::result<void, std::string>{"error"});
   }
 }
 } // namespace kdl

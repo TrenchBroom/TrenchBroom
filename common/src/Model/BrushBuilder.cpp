@@ -25,6 +25,7 @@
 #include "Model/BrushFace.h"
 #include "Polyhedron.h"
 
+#include "kdl/vector_utils.h"
 #include <kdl/overload.h>
 #include <kdl/result.h>
 #include <kdl/result_fold.h>
@@ -162,14 +163,13 @@ kdl::result<Brush, BrushError> BrushBuilder::createCuboid(
        BrushFaceAttributes(bottomTexture, m_defaultAttribs)}, // bottom
     });
 
-  return kdl::fold_results(
-           specs,
-           [&](const auto spec) {
-             const auto& [p1, p2, p3, attrs] = spec;
-             return BrushFace::create(p1, p2, p3, attrs, m_mapFormat);
-           })
-    .and_then(
-      [&](auto&& faces) { return Brush::create(m_worldBounds, std::move(faces)); });
+  return kdl::fold_results(kdl::vec_transform(
+                             specs,
+                             [&](const auto spec) {
+                               const auto& [p1, p2, p3, attrs] = spec;
+                               return BrushFace::create(p1, p2, p3, attrs, m_mapFormat);
+                             }))
+    .and_then([&](auto faces) { return Brush::create(m_worldBounds, std::move(faces)); });
 }
 
 kdl::result<Brush, BrushError> BrushBuilder::createBrush(
@@ -184,22 +184,23 @@ kdl::result<Brush, BrushError> BrushBuilder::createBrush(
   assert(polyhedron.closed());
 
   return kdl::fold_results(
-           polyhedron.faces(),
-           [&](const auto* face) {
-             const auto& boundary = face->boundary();
+           kdl::vec_transform(
+             polyhedron.faces(),
+             [&](const auto* face) {
+               const auto& boundary = face->boundary();
 
-             auto bIt = std::begin(boundary);
-             const auto* edge1 = *bIt++;
-             const auto* edge2 = *bIt++;
-             const auto* edge3 = *bIt++;
+               auto bIt = std::begin(boundary);
+               const auto* edge1 = *bIt++;
+               const auto* edge2 = *bIt++;
+               const auto* edge3 = *bIt++;
 
-             const auto& p1 = edge1->origin()->position();
-             const auto& p2 = edge2->origin()->position();
-             const auto& p3 = edge3->origin()->position();
+               const auto& p1 = edge1->origin()->position();
+               const auto& p2 = edge2->origin()->position();
+               const auto& p3 = edge3->origin()->position();
 
-             return BrushFace::create(
-               p1, p3, p2, Model::BrushFaceAttributes(textureName), m_mapFormat);
-           })
+               return BrushFace::create(
+                 p1, p3, p2, Model::BrushFaceAttributes(textureName), m_mapFormat);
+             }))
     .and_then(
       [&](auto&& faces) { return Brush::create(m_worldBounds, std::move(faces)); });
 }

@@ -1413,25 +1413,26 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
   const Model::BrushBuilder brushBuilder(world()->mapFormat(), worldBounds());
 
   kdl::fold_results(
-    selectionBrushNodes,
-    [&](const Model::BrushNode* selectionBrushNode) {
-      const Model::Brush& selectionBrush = selectionBrushNode->brush();
+    kdl::vec_transform(
+      selectionBrushNodes,
+      [&](const Model::BrushNode* selectionBrushNode) {
+        const Model::Brush& selectionBrush = selectionBrushNode->brush();
 
-      std::vector<vm::vec3> tallVertices;
-      tallVertices.reserve(2 * selectionBrush.vertexCount());
+        std::vector<vm::vec3> tallVertices;
+        tallVertices.reserve(2 * selectionBrush.vertexCount());
 
-      for (const Model::BrushVertex* vertex : selectionBrush.vertices())
-      {
-        tallVertices.push_back(minPlane.project_point(vertex->position()));
-        tallVertices.push_back(maxPlane.project_point(vertex->position()));
-      }
+        for (const Model::BrushVertex* vertex : selectionBrush.vertices())
+        {
+          tallVertices.push_back(minPlane.project_point(vertex->position()));
+          tallVertices.push_back(maxPlane.project_point(vertex->position()));
+        }
 
-      return brushBuilder
-        .createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
-        .transform([](Model::Brush&& brush) {
-          return std::make_unique<Model::BrushNode>(std::move(brush));
-        });
-    })
+        return brushBuilder
+          .createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
+          .transform([](Model::Brush&& brush) {
+            return std::make_unique<Model::BrushNode>(std::move(brush));
+          });
+      }))
     .transform([&](const std::vector<std::unique_ptr<Model::BrushNode>>& tallBrushes) {
       // delete the original selection brushes before searching for the objects to select
       auto transaction = Transaction{*this, "Select Tall"};
@@ -3146,29 +3147,30 @@ bool MapDocument::csgSubtract()
     std::vector<Model::Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
 
   return kdl::fold_results(
-           minuendNodes,
-           [&](auto* minuendNode) {
-             const auto& minuend = minuendNode->brush();
-             auto currentSubtractionResults = minuend.subtract(
-               m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
+           kdl::vec_transform(
+             minuendNodes,
+             [&](auto* minuendNode) {
+               const auto& minuend = minuendNode->brush();
+               auto currentSubtractionResults = minuend.subtract(
+                 m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
 
-             return kdl::fold_results(kdl::vec_filter(
-                                        std::move(currentSubtractionResults),
-                                        [](const auto r) { return r.is_success(); }))
-               .transform([&](auto currentBrushes) {
-                 if (!currentBrushes.empty())
-                 {
-                   auto resultNodes = kdl::vec_transform(
-                     std::move(currentBrushes),
-                     [&](auto b) { return new Model::BrushNode{std::move(b)}; });
-                   auto& toAddForParent = toAdd[minuendNode->parent()];
-                   toAddForParent =
-                     kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
-                 }
+               return kdl::fold_results(kdl::vec_filter(
+                                          std::move(currentSubtractionResults),
+                                          [](const auto r) { return r.is_success(); }))
+                 .transform([&](auto currentBrushes) {
+                   if (!currentBrushes.empty())
+                   {
+                     auto resultNodes = kdl::vec_transform(
+                       std::move(currentBrushes),
+                       [&](auto b) { return new Model::BrushNode{std::move(b)}; });
+                     auto& toAddForParent = toAdd[minuendNode->parent()];
+                     toAddForParent =
+                       kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
+                   }
 
-                 toRemove.push_back(minuendNode);
-               });
-           })
+                   toRemove.push_back(minuendNode);
+                 });
+             }))
     .transform([&]() {
       deselectAll();
       const auto added = addNodes(toAdd);
@@ -3306,22 +3308,24 @@ struct ReplaceClippedBrushesError
 bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3)
 {
   return kdl::fold_results(
-           m_selectedNodes.brushes(),
-           [&](const Model::BrushNode* originalBrush) {
-             auto clippedBrush = originalBrush->brush();
-             return Model::BrushFace::create(
-                      p1,
-                      p2,
-                      p3,
-                      Model::BrushFaceAttributes{currentTextureName()},
-                      m_world->mapFormat())
-               .and_then([&](Model::BrushFace&& clipFace) {
-                 return clippedBrush.clip(m_worldBounds, std::move(clipFace));
-               })
-               .and_then([&]() -> kdl::result<std::pair<Model::Node*, Model::Brush>> {
-                 return std::make_pair(originalBrush->parent(), std::move(clippedBrush));
-               });
-           })
+           kdl::vec_transform(
+             m_selectedNodes.brushes(),
+             [&](const Model::BrushNode* originalBrush) {
+               auto clippedBrush = originalBrush->brush();
+               return Model::BrushFace::create(
+                        p1,
+                        p2,
+                        p3,
+                        Model::BrushFaceAttributes{currentTextureName()},
+                        m_world->mapFormat())
+                 .and_then([&](Model::BrushFace&& clipFace) {
+                   return clippedBrush.clip(m_worldBounds, std::move(clipFace));
+                 })
+                 .and_then([&]() -> kdl::result<std::pair<Model::Node*, Model::Brush>> {
+                   return std::make_pair(
+                     originalBrush->parent(), std::move(clippedBrush));
+                 });
+             }))
     .and_then(
       [&](
         auto&& clippedBrushAndParents) -> kdl::result<void, ReplaceClippedBrushesError> {
