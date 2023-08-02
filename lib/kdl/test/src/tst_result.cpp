@@ -22,7 +22,6 @@
 #include "kdl/reflection_decl.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
-#include "kdl/result_combine.h"
 #include "kdl/result_fold.h"
 #include "kdl/result_io.h"
 
@@ -901,32 +900,6 @@ TEST_CASE("result_test.if_error")
     constLValueError.if_error([&](const auto&) { called = true; });
     CHECK(called);
   }
-}
-
-TEST_CASE("combine_results")
-{
-  using R1 = result<int, Error1, Error2>;
-  using R2 = result<double, Error2, Error3>;
-
-  const auto r1 = R1{1};
-  const auto r2 = R2{2.0};
-  const auto r3 = R2{Error2{}};
-
-  CHECK(
-    combine_results(r1, r2)
-    == result<std::tuple<int, double>, Error1, Error2, Error3>{std::tuple{1, 2.0}});
-
-  CHECK(
-    combine_results(r1, r3)
-    == result<std::tuple<int, double>, Error1, Error2, Error3>{Error2{}});
-
-  CHECK(
-    combine_results(r1, R2{2.0})
-    == result<std::tuple<int, double>, Error1, Error2, Error3>{std::tuple{1, 2.0}});
-
-  CHECK(
-    combine_results(r1, R2{Error2{}})
-    == result<std::tuple<int, double>, Error1, Error2, Error3>{Error2{}});
 }
 
 TEST_CASE("result.fold_results")
