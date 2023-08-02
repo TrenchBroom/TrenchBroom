@@ -75,7 +75,7 @@ struct chain_results
 template <typename Value1, typename... Errors1, typename Value2, typename... Errors2>
 struct chain_results<result<Value1, Errors1...>, result<Value2, Errors2...>>
 {
-  using result =
+  using type =
     typename make_result_type<Value2, meta_remove_duplicates_t<Errors1..., Errors2...>>::
       type;
 };
@@ -83,13 +83,13 @@ struct chain_results<result<Value1, Errors1...>, result<Value2, Errors2...>>
 template <typename Value, typename... Errors>
 struct wrap_result
 {
-  using result = result<Value, Errors...>;
+  using type = result<Value, Errors...>;
 };
 
 template <typename Value, typename... Errors1, typename... Errors2>
 struct wrap_result<result<Value, Errors1...>, Errors2...>
 {
-  using result =
+  using type =
     typename make_result_type<Value, meta_remove_duplicates_t<Errors1..., Errors2...>>::
       type;
 };
@@ -99,7 +99,7 @@ template <typename MaybeResult>
 inline constexpr auto is_result_v = detail::is_result<MaybeResult>::value;
 
 template <typename ResultOrValue, typename... Errors>
-using wrap_result_t = typename detail::wrap_result<ResultOrValue, Errors...>::result;
+using wrap_result_t = typename detail::wrap_result<ResultOrValue, Errors...>::type;
 
 /**
  * Wrapper class that can contain either a value or one of several errors.
@@ -321,7 +321,7 @@ public:
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
-    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
 
     return std::visit(
       overload(
@@ -342,7 +342,7 @@ public:
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
-    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
 
     return std::visit(
       overload(
@@ -363,7 +363,7 @@ public:
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
-    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
 
     return std::visit(
       overload(
@@ -1044,7 +1044,7 @@ public:
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
-    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
 
     return std::visit(
       overload(
@@ -1064,7 +1064,7 @@ public:
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
 
-    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::result;
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
 
     return std::visit(
       overload(

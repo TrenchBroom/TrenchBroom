@@ -40,7 +40,7 @@ struct combine_tuple_results<
   result<Value1, Errors1...>,
   result<std::tuple<Values2...>, Errors2...>>
 {
-  using result = typename make_result_type<
+  using type = typename make_result_type<
     std::tuple<Value1, Values2...>,
     meta_remove_duplicates_t<Errors1..., Errors2...>>::type;
 };
@@ -53,7 +53,7 @@ struct tuple_wrap
 template <typename Value, typename... Errors>
 struct tuple_wrap<result<Value, Errors...>>
 {
-  using result =
+  using type =
     typename make_result_type<std::tuple<Value>, meta_type_list<Errors...>>::type;
 };
 } // namespace detail
@@ -68,8 +68,8 @@ struct tuple_wrap<result<Value, Errors...>>
 template <typename Result>
 auto combine_results(Result&& result)
 {
-  using result_type = typename detail::tuple_wrap<
-    std::remove_cv_t<std::remove_reference_t<Result>>>::result;
+  using result_type =
+    typename detail::tuple_wrap<std::remove_cv_t<std::remove_reference_t<Result>>>::type;
   using value_type =
     typename std::remove_cv_t<std::remove_reference_t<Result>>::value_type;
 
@@ -116,7 +116,7 @@ auto combine_results(FirstResult&& firstResult, MoreResults&&... moreResults)
     decltype(combine_results(std::forward<MoreResults>(moreResults)...));
   using result_type = typename detail::combine_tuple_results<
     std::remove_cv_t<std::remove_reference_t<FirstResult>>,
-    combined_more_result_type>::result;
+    combined_more_result_type>::type;
 
   return std::forward<FirstResult>(firstResult)
     .visit(overload(
