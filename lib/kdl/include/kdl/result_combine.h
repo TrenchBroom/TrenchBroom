@@ -42,7 +42,7 @@ struct combine_tuple_results<
 {
   using result = typename make_result_type<
     std::tuple<Value1, Values2...>,
-    typename meta_remove_duplicates<Errors1..., Errors2...>::result>::type;
+    meta_remove_duplicates_t<Errors1..., Errors2...>>::type;
 };
 
 template <typename Result>

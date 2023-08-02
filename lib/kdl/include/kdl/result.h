@@ -75,9 +75,9 @@ struct chain_results
 template <typename Value1, typename... Errors1, typename Value2, typename... Errors2>
 struct chain_results<result<Value1, Errors1...>, result<Value2, Errors2...>>
 {
-  using result = typename make_result_type<
-    Value2,
-    typename meta_remove_duplicates<Errors1..., Errors2...>::result>::type;
+  using result =
+    typename make_result_type<Value2, meta_remove_duplicates_t<Errors1..., Errors2...>>::
+      type;
 };
 
 template <typename Value, typename... Errors>
@@ -89,9 +89,9 @@ struct wrap_result
 template <typename Value, typename... Errors1, typename... Errors2>
 struct wrap_result<result<Value, Errors1...>, Errors2...>
 {
-  using result = typename make_result_type<
-    Value,
-    typename meta_remove_duplicates<Errors1..., Errors2...>::result>::type;
+  using result =
+    typename make_result_type<Value, meta_remove_duplicates_t<Errors1..., Errors2...>>::
+      type;
 };
 } // namespace detail
 
@@ -172,7 +172,7 @@ public:
       [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
   {
     static_assert(
-      meta_is_subset<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>::value,
+      meta_is_subset_v<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>,
       "Error types of result type to convert must be a subset of target result type");
   }
 
@@ -400,7 +400,7 @@ public:
       sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
+    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
@@ -425,7 +425,7 @@ public:
       sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
@@ -448,7 +448,7 @@ public:
       sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
@@ -538,7 +538,7 @@ public:
   template <typename F>
   auto transform_error(const F& f) const&
   {
-    using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
+    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
     using Cm_Result = result<Fn_Result>;
 
     return std::visit(
@@ -561,7 +561,7 @@ public:
   template <typename F>
   auto transform_error(const F& f) &
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
     using Cm_Result = result<Fn_Result>;
 
     return std::visit(
@@ -584,7 +584,7 @@ public:
   template <typename F>
   auto transform_error(const F& f) &&
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
     using Cm_Result = result<Fn_Result>;
 
     return std::visit(
@@ -959,7 +959,7 @@ public:
   result(result<void, ErrorSubset...> other)
   {
     static_assert(
-      meta_is_subset<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>::value,
+      meta_is_subset_v<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>,
       "Error types of result type to convert must be a subset of target result type");
     std::move(other).visit(overload(
       [&]() { m_value = detail::void_success_value_type{}; },
@@ -1083,7 +1083,7 @@ public:
       sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
+    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
@@ -1107,7 +1107,7 @@ public:
       sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
@@ -1131,7 +1131,7 @@ public:
       sizeof...(Errors) > 0,
       "Cannot apply or_else to a result type with empty error type list");
 
-    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
 
     static_assert(is_result_v<Fn_Result>, "Function must return a result type");
     static_assert(
@@ -1200,7 +1200,7 @@ public:
   template <typename F>
   auto transform_error(const F& f) const&
   {
-    using Fn_Result = decltype(f(std::declval<const meta_front_v<Errors...>&>()));
+    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
     using Cm_Result = result<Fn_Result>;
 
     return std::visit(
@@ -1223,7 +1223,7 @@ public:
   template <typename F>
   auto transform_error(const F& f) &
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&>()));
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
     using Cm_Result = result<Fn_Result>;
 
     return std::visit(
@@ -1246,7 +1246,7 @@ public:
   template <typename F>
   auto transform_error(const F& f) &&
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_v<Errors...>&&>()));
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
     using Cm_Result = result<Fn_Result>;
 
     return std::visit(

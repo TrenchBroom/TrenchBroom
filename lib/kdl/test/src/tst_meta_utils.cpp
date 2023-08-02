@@ -34,45 +34,43 @@ TEST_CASE("meta_utils_test.contains")
 
 TEST_CASE("meta_utils_test.append")
 {
+  static_assert(
+    std::
+      is_same_v<meta_append_t<int, float, double>, meta_type_list<float, double, int>>);
   static_assert(std::is_same_v<
-                meta_append<int, float, double>::result,
-                meta_type_list<float, double, int>>);
-  static_assert(std::is_same_v<
-                meta_append<int, int, float, double>::result,
+                meta_append_t<int, int, float, double>,
                 meta_type_list<int, float, double, int>>);
 }
 
 TEST_CASE("meta_utils_test.append_if")
 {
   static_assert(std::is_same_v<
-                meta_append_if<true, int, float, double>::result,
+                meta_append_if_t<true, int, float, double>,
                 meta_type_list<float, double, int>>);
   static_assert(std::is_same_v<
-                meta_append_if<false, int, float, double>::result,
+                meta_append_if_t<false, int, float, double>,
                 meta_type_list<float, double>>);
 }
 
 TEST_CASE("meta_utils_test.front")
 {
-  static_assert(std::is_same_v<meta_front<int>::front, int>);
-  static_assert(std::is_same_v<meta_front<int>::remainder, meta_type_list<>>);
-  static_assert(std::is_same_v<meta_front<int, float, double>::front, int>);
-  static_assert(std::is_same_v<
-                meta_front<int, float, double>::remainder,
-                meta_type_list<float, double>>);
+  static_assert(std::is_same_v<meta_front_t<int>, int>);
+  static_assert(std::is_same_v<meta_remainder_t<int>, meta_type_list<>>);
+  static_assert(std::is_same_v<meta_front_t<int, float, double>, int>);
+  static_assert(
+    std::is_same_v<meta_remainder_t<int, float, double>, meta_type_list<float, double>>);
 }
 
 TEST_CASE("meta_utils_test.remove_duplicates")
 {
-  static_assert(std::is_same_v<meta_remove_duplicates<>::result, meta_type_list<>>);
-  static_assert(std::is_same_v<meta_remove_duplicates<int>::result, meta_type_list<int>>);
-  static_assert(
-    std::is_same_v<meta_remove_duplicates<int, int>::result, meta_type_list<int>>);
+  static_assert(std::is_same_v<meta_remove_duplicates_t<>, meta_type_list<>>);
+  static_assert(std::is_same_v<meta_remove_duplicates_t<int>, meta_type_list<int>>);
+  static_assert(std::is_same_v<meta_remove_duplicates_t<int, int>, meta_type_list<int>>);
   static_assert(std::is_same_v<
-                meta_remove_duplicates<int, float, double>::result,
+                meta_remove_duplicates_t<int, float, double>,
                 meta_type_list<int, float, double>>);
   static_assert(std::is_same_v<
-                meta_remove_duplicates<int, float, int, double, bool, float>::result,
+                meta_remove_duplicates_t<int, float, int, double, bool, float>,
                 meta_type_list<int, float, double, bool>>);
 }
 } // namespace kdl
