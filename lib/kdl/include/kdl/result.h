@@ -25,6 +25,7 @@
 #include "kdl/result_forward.h"
 
 #include <exception>
+#include <tuple>
 #include <type_traits>
 #include <variant>
 
@@ -43,6 +44,84 @@ public:
     return "access success value on a failed result";
   }
 };
+
+template <typename... Values>
+struct multi_value
+{
+  static_assert(sizeof...(Values) > 1, "multi_value has at least two values");
+
+  std::tuple<Values...> values;
+
+  /**
+   * Converting constructor. Must be non-explicit to allow initializing a result type with
+   * a multi_value of a different type, i.e. `result<multi_value<std::string, int>,
+   * Error>{multi_value{"asdf", 1}}`;
+   */
+  template <typename... OtherValues>
+  // NOLINTNEXTLINE
+  multi_value(multi_value<OtherValues...> v)
+    : values{std::move(v.values)}
+  {
+  }
+
+  /**
+   * Initialize a multi_value from values.
+   */
+  explicit multi_value(Values&&... v)
+    : values{std::forward<Values>(v)...}
+  {
+  }
+
+  explicit multi_value(std::tuple<Values...> v)
+    : values{std::move(v)}
+  {
+  }
+
+  template <typename... OtherValues>
+  static multi_value make(multi_value<OtherValues...> v)
+  {
+    return multi_value{std::tuple<Values...>(v.values)};
+  }
+
+  template <typename Value1, typename Value2>
+  static multi_value make(Value1 v1, Value2 v2)
+  {
+    return multi_value{std::tuple<Values...>{std::move(v1), std::move(v2)}};
+  }
+
+  template <typename Value1, typename... Values2>
+  static multi_value make(Value1 v1, multi_value<Values2...> v2)
+  {
+    return multi_value{std::tuple<Values...>{
+      std::tuple_cat(std::tuple{std::move(v1)}, std::move(v2.values))}};
+  }
+
+  template <typename... Values1, typename Value2>
+  static multi_value make(multi_value<Values1...> v1, Value2 v2)
+  {
+    return multi_value{std::tuple<Values...>{
+      std::tuple_cat(std::move(v1.values), std::tuple{std::move(v2)})}};
+  }
+
+  template <typename... Values1, typename... Values2>
+  static multi_value make(multi_value<Values1...> v1, multi_value<Values2...> v2)
+  {
+    return multi_value{
+      std::tuple<Values...>{std::tuple_cat(std::move(v1.values), std::move(v2.values))}};
+  }
+
+  friend bool operator==(const multi_value& lhs, const multi_value& rhs)
+  {
+    return lhs.values == rhs.values;
+  }
+  friend bool operator!=(const multi_value& lhs, const multi_value& rhs)
+  {
+    return !(lhs == rhs);
+  }
+};
+
+template <typename... Values>
+multi_value(Values&&...) -> multi_value<Values...>;
 
 namespace detail
 {
@@ -92,6 +171,53 @@ struct wrap_result<result<Value, Errors1...>, Errors2...>
   using type =
     typename make_result_type<Value, meta_remove_duplicates_t<Errors1..., Errors2...>>::
       type;
+};
+
+template <typename Result1, typename Result2>
+struct join_results
+{
+};
+
+template <typename Value1, typename... Errors1, typename Value2, typename... Errors2>
+struct join_results<result<Value1, Errors1...>, result<Value2, Errors2...>>
+{
+  using type = typename make_result_type<
+    multi_value<Value1, Value2>,
+    meta_remove_duplicates_t<Errors1..., Errors2...>>::type;
+};
+
+template <typename Value1, typename... Errors1, typename... Values2, typename... Errors2>
+struct join_results<
+  result<Value1, Errors1...>,
+  result<multi_value<Values2...>, Errors2...>>
+{
+  using type = typename make_result_type<
+    multi_value<Value1, Values2...>,
+    meta_remove_duplicates_t<Errors1..., Errors2...>>::type;
+};
+
+template <
+  typename... Values1,
+  typename... Errors1,
+  typename... Values2,
+  typename... Errors2>
+struct join_results<
+  result<multi_value<Values1...>, Errors1...>,
+  result<multi_value<Values2...>, Errors2...>>
+{
+  using type = typename make_result_type<
+    multi_value<Values1..., Values2...>,
+    meta_remove_duplicates_t<Errors1..., Errors2...>>::type;
+};
+
+template <typename... Values1, typename... Errors1, typename Value2, typename... Errors2>
+struct join_results<
+  result<multi_value<Values1...>, Errors1...>,
+  result<Value2, Errors2...>>
+{
+  using type = typename make_result_type<
+    multi_value<Values1..., Value2>,
+    meta_remove_duplicates_t<Errors1..., Errors2...>>::type;
 };
 } // namespace detail
 
@@ -229,6 +355,78 @@ public:
   auto visit(const Visitor& visitor) &&
   {
     return std::visit(visitor, std::move(m_value));
+  }
+
+  template <typename R>
+  auto join(R other) const&
+  {
+    static_assert(is_result_v<R>, "Can only join a result type");
+    static_assert(
+      !std::is_same_v<typename R::value_type, void>, "Cannot join a void result");
+
+    using My_Result = result<Value, Errors...>;
+    using Cm_Result = typename detail::join_results<My_Result, R>::type;
+    using Cm_Value = typename Cm_Result::value_type;
+
+    return std::visit(
+      overload(
+        [&](const value_type& v) {
+          return std::move(other).visit(overload(
+            [&](typename R::value_type&& w) {
+              return Cm_Result{Cm_Value::make(value_type{v}, std::move(w))};
+            },
+            [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+        },
+        [](const auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  template <typename R>
+  auto join(R other) &
+  {
+    static_assert(is_result_v<R>, "Can only join a result type");
+    static_assert(
+      !std::is_same_v<typename R::value_type, void>, "Cannot join a void result");
+
+    using My_Result = result<Value, Errors...>;
+    using Cm_Result = typename detail::join_results<My_Result, R>::type;
+    using Cm_Value = typename Cm_Result::value_type;
+
+    return std::visit(
+      overload(
+        [&](value_type& v) {
+          return std::move(other).visit(overload(
+            [&](typename R::value_type&& w) {
+              return Cm_Result{Cm_Value::make(value_type{v}, std::move(w))};
+            },
+            [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+        },
+        [](auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  template <typename R>
+  auto join(R other) &&
+  {
+    static_assert(is_result_v<R>, "Can only join a result type");
+    static_assert(
+      !std::is_same_v<typename R::value_type, void>, "Cannot join a void result");
+
+    using My_Result = result<Value, Errors...>;
+    using Cm_Result = typename detail::join_results<My_Result, R>::type;
+    using Cm_Value = typename Cm_Result::value_type;
+
+    return std::visit(
+      overload(
+        [&](value_type&& v) {
+          return std::move(other).visit(overload(
+            [&](typename R::value_type&& w) {
+              return Cm_Result{Cm_Value::make(std::move(v), std::move(w))};
+            },
+            [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+        },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
+      std::move(m_value));
   }
 
   /**
@@ -699,6 +897,636 @@ public:
       overload(
         [](value_type&& v) -> value_type { return std::move(v); },
         [&](const auto&) -> value_type { return std::move(x); }),
+      std::move(m_value));
+  }
+
+  /**
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
+   *
+   * @return a std::variant<Errors...> containing a copy of the error in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto error() const&
+  {
+    return std::visit(
+      overload(
+        [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
+        [](const auto& e) -> std::variant<Errors...> { return e; }),
+      m_value);
+  }
+
+  /**
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
+   *
+   * @return a std::variant<Errors...> containing a copy of the error in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto error() &
+  {
+    return std::visit(
+      overload(
+        [](value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
+        [](auto& e) -> std::variant<Errors...> { return e; }),
+      m_value);
+  }
+
+  /**
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
+   *
+   * @return a std::variant<Errors...> containing the error in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto error() &&
+  {
+    return std::visit(
+      overload(
+        [](value_type&&) -> std::variant<Errors...> { throw bad_result_access{}; },
+        [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }),
+      std::move(m_value));
+  }
+
+  /**
+   * Indicates whether the given result contains a value.
+   */
+  bool is_success() const { return m_value.index() == 0u; }
+
+  /**
+   * Indicates whether the given result contains an error.
+   */
+  bool is_error() const { return !is_success(); }
+
+  /**
+   * Indicates whether the given result contains the given type of error.
+   */
+  template <typename E>
+  bool is_error_type() const
+  {
+    static_assert((... || std::is_convertible_v<E, Errors>), "E must be an error type");
+
+    return std::holds_alternative<E>(m_value);
+  }
+
+  friend bool operator==(const result& lhs, const result& rhs)
+  {
+    return lhs.m_value == rhs.m_value;
+  }
+
+  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
+};
+
+template <typename... Values, typename... Errors>
+class [[nodiscard]] result<multi_value<Values...>, Errors...>
+{
+public:
+  using value_type = multi_value<Values...>;
+  static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
+
+  template <typename OtherValue>
+  using with_value_type = result<OtherValue, Errors...>;
+
+private:
+  using variant_type = std::variant<value_type, Errors...>;
+  variant_type m_value;
+
+  explicit result(variant_type&& v)
+    : m_value{std::move(v)}
+  {
+  }
+
+public:
+  /**
+   * Creates a new result that wraps the given multi value.
+   *
+   * v must be convertible to the multi value type or one of the error types of this
+   * result. If the value is passed by (const) lvalue reference, it is copied into this
+   * result, if it s passed by rvalue reference, then it is moved into this result.
+   *
+   * @tparam T the type of the value, must match the value type or one of the error types
+   * of this result
+   * @param v the value
+   */
+  template <
+    typename T,
+    typename std::enable_if<std::disjunction_v<
+      std::is_convertible<T, multi_value<Values...>>,
+      std::is_convertible<T, Errors>...>>::type* = nullptr>
+  // NOLINTNEXTLINE
+  result(T&& v)
+    : m_value{std::forward<T>(v)}
+  {
+  }
+
+  /**
+   * Converting constructor.
+   *
+   * The given result type must have the same multi value type and a subset of the error
+   * types of this result type. The value or error wrapped by the given result is moved
+   * into this result.
+   *
+   * @param other the result to convert
+   */
+  template <typename... ErrorSubset>
+  // NOLINTNEXTLINE
+  result(result<multi_value<Values...>, ErrorSubset...> other)
+    : m_value{std::move(other).visit(overload(
+      [](Values&&... v) -> variant_type {
+        return multi_value<Values...>{std::move(v)...};
+      },
+      [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
+  {
+    static_assert(
+      meta_is_subset_v<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>,
+      "Error types of result type to convert must be a subset of target result type");
+  }
+
+public:
+  /**
+   * See result<Value, Errors...>::visit. Note that the visitor must accept
+   * multi_value<Values...> instead of the values directly.
+   */
+  template <typename Visitor>
+  auto visit(const Visitor& visitor) const&
+  {
+    return std::visit(visitor, m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::visit. Note that the visitor must accept
+   * multi_value<Values...> instead of the values directly.
+   */
+  template <typename Visitor>
+  auto visit(const Visitor& visitor) &
+  {
+    return std::visit(visitor, m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::visit. Note that the visitor must accept
+   * multi_value<Values...> instead of the values directly.
+   */
+  template <typename Visitor>
+  auto visit(const Visitor& visitor) &&
+  {
+    return std::visit(visitor, std::move(m_value));
+  }
+
+  /**
+   * See result<Value, Errors...>::join.
+   */
+  template <typename R>
+  auto join(R other) const&
+  {
+    static_assert(is_result_v<R>, "Can only join a result type");
+    static_assert(
+      !std::is_same_v<typename R::value_type, void>, "Cannot join a void result");
+
+    using My_Result = result<multi_value<Values...>, Errors...>;
+    using Cm_Result = typename detail::join_results<My_Result, R>::type;
+    using Cm_Value = typename Cm_Result::value_type;
+
+    return std::visit(
+      overload(
+        [&](const value_type& v) {
+          return std::move(other).visit(overload(
+            [&](typename R::value_type&& w) {
+              return Cm_Result{Cm_Value::make(value_type{v}, std::move(w))};
+            },
+            [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+        },
+        [](const auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::join.
+   */
+  template <typename R>
+  auto join(R other) &
+  {
+    static_assert(is_result_v<R>, "Can only join a result type");
+    static_assert(
+      !std::is_same_v<typename R::value_type, void>, "Cannot join a void result");
+
+    using My_Result = result<multi_value<Values...>, Errors...>;
+    using Cm_Result = typename detail::join_results<My_Result, R>::type;
+    using Cm_Value = typename Cm_Result::value_type;
+
+    return std::visit(
+      overload(
+        [&](value_type& v) {
+          return std::move(other).visit(overload(
+            [&](typename R::value_type&& w) {
+              return Cm_Result{Cm_Value::make(value_type{v}, std::move(w))};
+            },
+            [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+        },
+        [](auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::join.
+   */
+  template <typename R>
+  auto join(R other) &&
+  {
+    static_assert(is_result_v<R>, "Can only join a result type");
+    static_assert(
+      !std::is_same_v<typename R::value_type, void>, "Cannot join a void result");
+
+    using My_Result = result<multi_value<Values...>, Errors...>;
+    using Cm_Result = typename detail::join_results<My_Result, R>::type;
+    using Cm_Value = typename Cm_Result::value_type;
+
+    return std::visit(
+      overload(
+        [&](value_type&& v) {
+          return std::move(other).visit(overload(
+            [&](typename R::value_type&& w) {
+              return Cm_Result{Cm_Value::make(std::move(v), std::move(w))};
+            },
+            [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }));
+        },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
+      std::move(m_value));
+  }
+
+  /**
+   * See result<Value, Errors...>::and_then. The only difference is that the given
+   * function receives the values stored in this result not as a multi_value, but as
+   * individual arguments.
+   */
+  template <typename F>
+  auto and_then(const F& f) const&
+  {
+    using My_Result = result<multi_value<Values...>, Errors...>;
+    using Fn_Result = decltype(f(std::declval<const Values&>()...));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
+
+    return std::visit(
+      overload(
+        [&](const value_type& v) { return Cm_Result{std::apply(f, v.values)}; },
+        [](const auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  /**
+   * See the previous function. The only difference is that the values contained in this
+   * result are passed to `f` by non const lvalue reference.
+   */
+  template <typename F>
+  auto and_then(const F& f) &
+  {
+    using My_Result = result<multi_value<Values...>, Errors...>;
+    using Fn_Result = decltype(f(std::declval<Values&>()...));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
+
+    return std::visit(
+      overload(
+        [&](value_type& v) { return Cm_Result{std::apply(f, v.values)}; },
+        [](auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  /**
+   * See the previous function. The only difference is that the values contained in this
+   * result are passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto and_then(const F& f) &&
+  {
+    using My_Result = result<multi_value<Values...>, Errors...>;
+    using Fn_Result = decltype(f(std::declval<Values&&>()...));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
+
+    return std::visit(
+      overload(
+        [&](value_type&& v) { return Cm_Result{std::apply(f, std::move(v.values))}; },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
+      std::move(m_value));
+  }
+
+  /**
+   * See result<Value, Errors...>::or_else. The only difference is that the given
+   * function receives the values stored in this result not as a multi_value, but as
+   * individual arguments.
+   */
+  template <typename F>
+  auto or_else(const F& f) const&
+  {
+    static_assert(
+      sizeof...(Errors) > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, multi_value<Values...>>,
+      "Function must return result with same value type");
+
+    return std::visit(
+      overload(
+        [](const value_type& v) { return Fn_Result{v}; },
+        [&](const auto& e) { return f(e); }),
+      m_value);
+  }
+
+  /**
+   * See the previous function. The only difference is that the error contained in this
+   * result is passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto or_else(const F& f) &
+  {
+    static_assert(
+      sizeof...(Errors) > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, multi_value<Values...>>,
+      "Function must return result with same value type");
+
+    return std::visit(
+      overload([](value_type& v) { return Fn_Result{v}; }, [&](auto& e) { return f(e); }),
+      m_value);
+  }
+
+  /**
+   * See the previous function. The only difference is that the error contained in this
+   * result is passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto or_else(const F& f) &&
+  {
+    static_assert(
+      sizeof...(Errors) > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, multi_value<Values...>>,
+      "Function must return result with same value type");
+
+    return std::visit(
+      overload(
+        [](value_type&& v) { return Fn_Result{std::move(v)}; },
+        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); }),
+      std::move(m_value));
+  }
+
+  template <typename F>
+  auto transform(const F& f) const&
+  {
+    using Fn_Result = decltype(f(std::declval<const Values&>()...));
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      overload(
+        [&](const value_type& v) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            std::apply(f, v.values);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{std::apply(f, v.values)};
+          }
+        },
+        [](const auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  template <typename F>
+  auto transform(const F& f) &
+  {
+    using Fn_Result = decltype(f(std::declval<Values&>()...));
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      overload(
+        [&](value_type& v) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            std::apply(f, v.values);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{std::apply(f, v.values)};
+          }
+        },
+        [](auto& e) { return Cm_Result{e}; }),
+      m_value);
+  }
+
+  /**
+   * See the previous function. The only difference is that the value contained in this
+   * result is passed to `f` by rvalue reference to allow moving.
+   */
+  template <typename F>
+  auto transform(const F& f) &&
+  {
+    using Fn_Result = decltype(f(std::declval<Values&&>()...));
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      overload(
+        [&](value_type&& v) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            std::apply(f, std::move(v.values));
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{std::apply(f, std::move(v.values))};
+          }
+        },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; }),
+      std::move(m_value));
+  }
+
+  template <typename F>
+  auto transform_error(const F& f) const&
+  {
+    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
+    using Cm_Result = result<Fn_Result>;
+
+    return std::visit(
+      overload(
+        [](const value_type& v) { return Cm_Result{v}; },
+        [&](const auto& e) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(e);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(e)};
+          }
+        }),
+      m_value);
+  }
+
+  template <typename F>
+  auto transform_error(const F& f) &
+  {
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
+    using Cm_Result = result<Fn_Result>;
+
+    return std::visit(
+      overload(
+        [](value_type& v) { return Cm_Result{v}; },
+        [&](auto& e) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(e);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(e)};
+          }
+        }),
+      m_value);
+  }
+
+  template <typename F>
+  auto transform_error(const F& f) &&
+  {
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
+    using Cm_Result = result<Fn_Result>;
+
+    return std::visit(
+      overload(
+        [](value_type&& v) { return Cm_Result{std::move(v)}; },
+        [&](auto&& e) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(std::forward<decltype(e)>(e));
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(std::forward<decltype(e)>(e))};
+          }
+        }),
+      std::move(m_value));
+  }
+
+  /**
+   * See result<Value, Errors...>::if_error.
+   */
+  template <typename F>
+  auto if_error(const F& f) const&
+  {
+    std::visit(overload([](const value_type&) {}, [&](const auto& e) { f(e); }), m_value);
+    return *this;
+  }
+
+  /**
+   * See result<Value, Errors...>::if_error.
+   */
+  template <typename F>
+  auto if_error(const F& f) &
+  {
+    std::visit(overload([](value_type&) {}, [&](auto& e) { f(e); }), m_value);
+    return std::move(*this);
+  }
+
+  /**
+   * See result<Value, Errors...>::if_error.
+   */
+  template <typename F>
+  auto if_error(const F& f) &&
+  {
+    std::visit(
+      overload([](value_type&&) {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); }),
+      std::move(m_value));
+    return std::move(*this);
+  }
+
+  /**
+   * Returns the values contained in this result as a tuple if it is successful.
+   * Otherwise, throws `bad_result_access`.
+   *
+   * @return a tuple of copies of the values in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  const value_type& value() const&
+  {
+    return std::visit(
+      overload(
+        [](const value_type& v) -> const value_type& { return v; },
+        [](const auto&) -> const value_type& { throw bad_result_access{}; }),
+      m_value);
+  }
+
+  /**
+   * Returns the value contained in this result if it is successful. Otherwise, throws
+   * `bad_result_access`.
+   *
+   * @return the value in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  value_type&& value() &&
+  {
+    return std::visit(
+      overload(
+        [](value_type&& v) -> value_type&& { return std::move(v); },
+        [](const auto&) -> value_type&& { throw bad_result_access{}; }),
+      std::move(m_value));
+  }
+
+  value_type value() const&&
+  {
+    return std::visit(
+      overload(
+        [](value_type& v) -> value_type&& { return std::move(v); },
+        [](const auto&) -> value_type&& { throw bad_result_access{}; }),
+      std::move(m_value));
+  }
+
+  value_type value_or(Values... x) const&
+  {
+    return std::visit(
+      overload(
+        [](const value_type& v) -> value_type { return v; },
+        [&](const auto&) -> value_type { return multi_value{std::move(x)...}; }),
+      m_value);
+  }
+
+  value_type value_or(Values... x) &&
+  {
+    return std::visit(
+      overload(
+        [](value_type&& v) -> value_type { return std::move(v); },
+        [&](const auto&) -> value_type { return multi_value{std::move(x)...}; }),
       std::move(m_value));
   }
 
