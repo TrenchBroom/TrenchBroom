@@ -18,11 +18,14 @@
  */
 
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/TestFileSystem.h"
 #include "IO/VirtualFileSystem.h"
 
 #include <kdl/overload.h>
 #include <kdl/reflection_impl.h>
+#include <kdl/result.h>
+#include <kdl/result_io.h>
 
 #include "Catch2.h"
 
@@ -39,8 +42,12 @@ TEST_CASE("VirtualFileSystem")
   {
     SECTION("makeAbsolute")
     {
-      CHECK_THROWS_AS(vfs.makeAbsolute(""), FileSystemException);
-      CHECK_THROWS_AS(vfs.makeAbsolute("foo/bar"), FileSystemException);
+      CHECK(
+        vfs.makeAbsolute("")
+        == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+      CHECK(
+        vfs.makeAbsolute("foo/bar")
+        == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
     }
 
     SECTION("pathInfo")
@@ -284,9 +291,15 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("makeAbsolute")
     {
-      CHECK_THROWS_AS(vfs.makeAbsolute(""), FileSystemException);
-      CHECK(vfs.makeAbsolute("foo/bar") == "/fs1/bar");
-      CHECK(vfs.makeAbsolute("bar/foo") == "/fs2/foo");
+      CHECK(
+        vfs.makeAbsolute("")
+        == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+      CHECK(
+        vfs.makeAbsolute("foo/bar")
+        == kdl::result<std::filesystem::path, FileSystemError>{"/fs1/bar"});
+      CHECK(
+        vfs.makeAbsolute("bar/foo")
+        == kdl::result<std::filesystem::path, FileSystemError>{"/fs2/foo"});
     }
 
     SECTION("pathInfo")
@@ -364,10 +377,18 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("makeAbsolute")
     {
-      CHECK_THROWS_AS(vfs.makeAbsolute(""), FileSystemException);
-      CHECK(vfs.makeAbsolute("foo/bar") == "/fs2/");
-      CHECK(vfs.makeAbsolute("foo/bar/foo") == "/fs2/foo");
-      CHECK(vfs.makeAbsolute("foo/bar/baz") == "/fs1/bar/baz");
+      CHECK(
+        vfs.makeAbsolute("")
+        == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+      CHECK(
+        vfs.makeAbsolute("foo/bar")
+        == kdl::result<std::filesystem::path, FileSystemError>{"/fs2/"});
+      CHECK(
+        vfs.makeAbsolute("foo/bar/foo")
+        == kdl::result<std::filesystem::path, FileSystemError>{"/fs2/foo"});
+      CHECK(
+        vfs.makeAbsolute("foo/bar/baz")
+        == kdl::result<std::filesystem::path, FileSystemError>{"/fs1/bar/baz"});
     }
 
     SECTION("pathInfo")

@@ -64,6 +64,9 @@ protected:
 public:
   ~ImageFileSystemBase() override;
 
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+    const std::filesystem::path& path) const override;
+
   /**
    * Reload this file system.
    */
@@ -74,7 +77,6 @@ protected:
   void addFile(const std::filesystem::path& path, GetImageFile getFile);
 
 private:
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
   PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
   std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const override;

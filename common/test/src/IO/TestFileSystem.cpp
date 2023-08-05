@@ -19,9 +19,12 @@
 
 #include "TestFileSystem.h"
 
+#include "IO/FileSystemError.h"
+
 #include <kdl/overload.h>
 #include <kdl/path_utils.h>
 #include <kdl/reflection_impl.h>
+#include <kdl/result.h>
 
 namespace TrenchBroom
 {
@@ -80,14 +83,14 @@ const Entry* TestFileSystem::findEntry(std::filesystem::path path) const
   return entry;
 }
 
-std::filesystem::path TestFileSystem::doMakeAbsolute(
+kdl::result<std::filesystem::path, FileSystemError> TestFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   if (findEntry(path))
   {
     return m_absolutePathPrefix / path;
   }
-  throw FileSystemException{};
+  return FileSystemError{};
 }
 
 PathInfo TestFileSystem::doGetPathInfo(const std::filesystem::path& path) const

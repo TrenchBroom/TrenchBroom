@@ -27,6 +27,7 @@
 
 #include <kdl/path_utils.h>
 #include <kdl/result.h>
+#include <kdl/result_fold.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -50,32 +51,43 @@ const std::filesystem::path& DiskFileSystem::root() const
   return m_root;
 }
 
-std::filesystem::path DiskFileSystem::doMakeAbsolute(
+kdl::result<std::filesystem::path, FileSystemError> DiskFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   const auto canonicalPath = path.lexically_normal();
   if (!canonicalPath.empty() && kdl::path_front(canonicalPath).string() == "..")
   {
-    throw FileSystemException{"Cannot make absolute path of '" + path.string() + "'"};
+    return FileSystemError{"Cannot make absolute path of '" + path.string() + "'"};
   }
   return canonicalPath.empty() ? m_root : m_root / canonicalPath;
 }
 
 PathInfo DiskFileSystem::doGetPathInfo(const std::filesystem::path& path) const
 {
-  return Disk::pathInfo(makeAbsolute(path));
+  return makeAbsolute(path)
+    .transform([](const auto& absPath) { return Disk::pathInfo(absPath); })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
+    .value();
 }
 
 std::vector<std::filesystem::path> DiskFileSystem::doGetDirectoryContents(
   const std::filesystem::path& path) const
 {
-  return Disk::directoryContents(makeAbsolute(path));
+  return makeAbsolute(path)
+    .transform([](const auto& absPath) { return Disk::directoryContents(absPath); })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
+    .value();
 }
 
 std::shared_ptr<File> DiskFileSystem::doOpenFile(const std::filesystem::path& path) const
 {
-  auto file = Disk::openFile(makeAbsolute(path));
-  return std::make_shared<FileView>(path, file, 0u, file->size());
+  return makeAbsolute(path)
+    .transform([&](const auto& absPath) {
+      auto file = Disk::openFile(absPath);
+      return std::make_shared<FileView>(path, file, 0u, file->size());
+    })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
+    .value();
 }
 
 WritableDiskFileSystem::WritableDiskFileSystem(
@@ -91,30 +103,46 @@ WritableDiskFileSystem::WritableDiskFileSystem(
 kdl::result<void, FileSystemError> WritableDiskFileSystem::doCreateFile(
   const std::filesystem::path& path, const std::string& contents)
 {
-  return Disk::withOutputStream(
-    makeAbsolute(path), [&](auto& stream) { stream << contents; });
+  return makeAbsolute(path).and_then([&](const auto& absPath) {
+    return Disk::withOutputStream(absPath, [&](auto& stream) { stream << contents; });
+  });
 }
 
 bool WritableDiskFileSystem::doCreateDirectory(const std::filesystem::path& path)
 {
-  return Disk::createDirectory(makeAbsolute(path));
+  return makeAbsolute(path)
+    .transform([](const auto& absPath) { return Disk::createDirectory(absPath); })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
+    .value();
 }
 
 void WritableDiskFileSystem::doDeleteFile(const std::filesystem::path& path)
 {
-  Disk::deleteFile(makeAbsolute(path));
+  makeAbsolute(path)
+    .transform([](const auto& absPath) { return Disk::deleteFile(absPath); })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg}; });
 }
 
 void WritableDiskFileSystem::doCopyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  Disk::copyFile(makeAbsolute(sourcePath), makeAbsolute(destPath));
+  makeAbsolute(sourcePath)
+    .join(makeAbsolute(destPath))
+    .transform([](const auto& absSourcePath, const auto& absDestPath) {
+      Disk::copyFile(absSourcePath, absDestPath);
+    })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg}; });
 }
 
 void WritableDiskFileSystem::doMoveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  Disk::moveFile(makeAbsolute(sourcePath), makeAbsolute(destPath));
+  makeAbsolute(sourcePath)
+    .join(makeAbsolute(destPath))
+    .transform([](const auto& absSourcePath, const auto& absDestPath) {
+      Disk::moveFile(absSourcePath, absDestPath);
+    })
+    .if_error([](const auto& e) { throw FileSystemException{e.msg}; });
 }
 } // namespace IO
 } // namespace TrenchBroom

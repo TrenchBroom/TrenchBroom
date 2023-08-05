@@ -19,7 +19,11 @@
 
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 #include "TestFileSystem.h"
+
+#include <kdl/result.h>
+#include <kdl/result_io.h>
 
 #include <filesystem>
 
@@ -59,9 +63,16 @@ TEST_CASE("TestFileSystem")
 
   SECTION("makeAbsolute")
   {
-    CHECK(fs.makeAbsolute("root_file_1") == "/root_file_1");
-    CHECK(fs.makeAbsolute("some_dir") == "/some_dir");
-    CHECK(fs.makeAbsolute("some_dir/some_dir_file_1") == "/some_dir/some_dir_file_1");
+    CHECK(
+      fs.makeAbsolute("root_file_1")
+      == kdl::result<std::filesystem::path, FileSystemError>{"/root_file_1"});
+    CHECK(
+      fs.makeAbsolute("some_dir")
+      == kdl::result<std::filesystem::path, FileSystemError>{"/some_dir"});
+    CHECK(
+      fs.makeAbsolute("some_dir/some_dir_file_1")
+      == kdl::result<std::filesystem::path, FileSystemError>{
+        "/some_dir/some_dir_file_1"});
   }
 
   SECTION("pathInfo")

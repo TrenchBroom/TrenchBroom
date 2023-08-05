@@ -24,6 +24,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/TestEnvironment.h"
@@ -86,12 +87,13 @@ TEST_CASE("DiskFileSystemTest")
   {
 
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.makeAbsolute("c:\\"), FileSystemException);
-    CHECK_THROWS_AS(
-      fs.makeAbsolute("C:\\does_not_exist_i_hope.txt"), FileSystemException);
+    CHECK(fs.makeAbsolute("c:\\") == "c:\\");
+    CHECK(
+      fs.makeAbsolute("C:\\does_not_exist_i_hope.txt")
+      == "C:\\does_not_exist_i_hope.txt");
 #else
-    CHECK_THROWS_AS(fs.makeAbsolute("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.makeAbsolute("/does_not_exist_i_hope.txt"), FileSystemException);
+    CHECK(fs.makeAbsolute("/") == "/");
+    CHECK(fs.makeAbsolute("/does_not_exist_i_hope.txt") == "/does_not_exist_i_hope.txt");
 #endif
 
     CHECK(

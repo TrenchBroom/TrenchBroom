@@ -162,27 +162,31 @@ void GameFileSystem::addFileSystemPackages(
     {
       try
       {
-        const auto absPackagePath = diskFS.makeAbsolute(packagePath);
-        if (kdl::ci::str_is_equal(packageFormat, "idpak"))
-        {
-          logger.info() << "Adding file system package " << packagePath;
-          mount(
-            std::filesystem::path{},
-            std::make_unique<IO::IdPakFileSystem>(absPackagePath));
-        }
-        else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
-        {
-          logger.info() << "Adding file system package " << packagePath;
-          mount(
-            std::filesystem::path{},
-            std::make_unique<IO::DkPakFileSystem>(absPackagePath));
-        }
-        else if (kdl::ci::str_is_equal(packageFormat, "zip"))
-        {
-          logger.info() << "Adding file system package " << packagePath;
-          mount(
-            std::filesystem::path{}, std::make_unique<IO::ZipFileSystem>(absPackagePath));
-        }
+        diskFS.makeAbsolute(packagePath)
+          .transform([&](const auto& absPackagePath) {
+            if (kdl::ci::str_is_equal(packageFormat, "idpak"))
+            {
+              logger.info() << "Adding file system package " << packagePath;
+              mount(
+                std::filesystem::path{},
+                std::make_unique<IO::IdPakFileSystem>(absPackagePath));
+            }
+            else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
+            {
+              logger.info() << "Adding file system package " << packagePath;
+              mount(
+                std::filesystem::path{},
+                std::make_unique<IO::DkPakFileSystem>(absPackagePath));
+            }
+            else if (kdl::ci::str_is_equal(packageFormat, "zip"))
+            {
+              logger.info() << "Adding file system package " << packagePath;
+              mount(
+                std::filesystem::path{},
+                std::make_unique<IO::ZipFileSystem>(absPackagePath));
+            }
+          })
+          .if_error([&](const auto& e) { logger.error() << e.msg; });
       }
       catch (const std::exception& e)
       {

@@ -19,7 +19,11 @@
 
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 #include "TestFileSystem.h"
+
+#include <kdl/result.h>
+#include <kdl/result_io.h>
 
 #include "Catch2.h"
 
@@ -56,8 +60,12 @@ TEST_CASE("FileSystem")
 
   SECTION("makeAbsolute")
   {
-    CHECK_THROWS_AS(fs.makeAbsolute("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.makeAbsolute("/foo"), FileSystemException);
+    CHECK(
+      fs.makeAbsolute("/")
+      == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.makeAbsolute("/foo")
+      == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
   }
 
   SECTION("pathInfo")

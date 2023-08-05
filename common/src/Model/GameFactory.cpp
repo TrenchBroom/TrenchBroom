@@ -291,27 +291,29 @@ void GameFactory::loadGameConfigs()
 void GameFactory::loadGameConfig(const std::filesystem::path& path)
 {
   const auto configFile = m_configFs->openFile(path);
-  const auto absolutePath = m_configFs->makeAbsolute(path);
+  m_configFs->makeAbsolute(path)
+    .transform([&](auto absolutePath) {
+      auto reader = configFile->reader().buffer();
+      auto parser = IO::GameConfigParser{reader.stringView(), absolutePath};
+      auto config = parser.parse();
 
-  auto reader = configFile->reader().buffer();
-  auto parser = IO::GameConfigParser{reader.stringView(), absolutePath};
-  auto config = parser.parse();
+      loadCompilationConfig(config);
+      loadGameEngineConfig(config);
 
-  loadCompilationConfig(config);
-  loadGameEngineConfig(config);
+      const auto configName = config.name;
+      m_configs.emplace(configName, std::move(config));
+      m_names.push_back(configName);
 
-  const auto configName = config.name;
-  m_configs.emplace(configName, std::move(config));
-  m_names.push_back(configName);
+      const auto gamePathPrefPath = std::filesystem::path{"Games"} / configName / "Path";
+      m_gamePaths.emplace(
+        configName, Preference<std::filesystem::path>{gamePathPrefPath, {}});
 
-  const auto gamePathPrefPath = std::filesystem::path{"Games"} / configName / "Path";
-  m_gamePaths.emplace(
-    configName, Preference<std::filesystem::path>{gamePathPrefPath, {}});
-
-  const auto defaultEnginePrefPath =
-    std::filesystem::path{"Games"} / configName / "Default Engine";
-  m_defaultEngines.emplace(
-    configName, Preference<std::filesystem::path>{defaultEnginePrefPath, {}});
+      const auto defaultEnginePrefPath =
+        std::filesystem::path{"Games"} / configName / "Default Engine";
+      m_defaultEngines.emplace(
+        configName, Preference<std::filesystem::path>{defaultEnginePrefPath, {}});
+    })
+    .if_error([](auto e) { throw FileSystemException{std::move(e.msg)}; });
 }
 
 void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
@@ -321,12 +323,15 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
   {
     if (m_configFs->pathInfo(path) == IO::PathInfo::File)
     {
-      const auto profilesFile = m_configFs->openFile(path);
-      auto reader = profilesFile->reader().buffer();
-      auto parser =
-        IO::CompilationConfigParser{reader.stringView(), m_configFs->makeAbsolute(path)};
-      gameConfig.compilationConfig = parser.parse();
-      gameConfig.compilationConfigParseFailed = false;
+      m_configFs->makeAbsolute(path)
+        .transform([&](auto absolutePath) {
+          const auto profilesFile = m_configFs->openFile(path);
+          auto reader = profilesFile->reader().buffer();
+          auto parser = IO::CompilationConfigParser{reader.stringView(), absolutePath};
+          gameConfig.compilationConfig = parser.parse();
+          gameConfig.compilationConfigParseFailed = false;
+        })
+        .if_error([](auto e) { throw FileSystemException{std::move(e.msg)}; });
     }
   }
   catch (const Exception& e)
@@ -344,12 +349,15 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   {
     if (m_configFs->pathInfo(path) == IO::PathInfo::File)
     {
-      const auto profilesFile = m_configFs->openFile(path);
-      auto reader = profilesFile->reader().buffer();
-      auto parser =
-        IO::GameEngineConfigParser{reader.stringView(), m_configFs->makeAbsolute(path)};
-      gameConfig.gameEngineConfig = parser.parse();
-      gameConfig.gameEngineConfigParseFailed = false;
+      m_configFs->makeAbsolute(path)
+        .transform([&](auto absolutePath) {
+          const auto profilesFile = m_configFs->openFile(path);
+          auto reader = profilesFile->reader().buffer();
+          auto parser = IO::GameEngineConfigParser{reader.stringView(), absolutePath};
+          gameConfig.gameEngineConfig = parser.parse();
+          gameConfig.gameEngineConfigParseFailed = false;
+        })
+        .if_error([](auto e) { throw FileSystemException{std::move(e.msg)}; });
     }
   }
   catch (const Exception& e)
@@ -394,9 +402,15 @@ void GameFactory::writeCompilationConfig(
   {
     const auto backupPath = backupFile(*m_configFs, profilesPath);
 
-    logger.warn() << "Backed up malformed compilation config "
-                  << m_configFs->makeAbsolute(profilesPath) << " to "
-                  << m_configFs->makeAbsolute(backupPath);
+    m_configFs->makeAbsolute(profilesPath)
+      .join(m_configFs->makeAbsolute(backupPath))
+      .transform([&](auto absProfilesPath, auto absBackupPath) {
+        logger.warn() << "Backed up malformed compilation config " << absProfilesPath
+                      << " to " << absBackupPath;
+      })
+      .transform_error([&](auto) {
+        // Can't really do anything
+      });
 
     gameConfig.compilationConfigParseFailed = false;
   }
@@ -404,8 +418,14 @@ void GameFactory::writeCompilationConfig(
   m_configFs->createFileAtomic(profilesPath, stream.str())
     .transform([&]() {
       gameConfig.compilationConfig = std::move(compilationConfig);
-      logger.debug() << "Wrote compilation config to "
-                     << m_configFs->makeAbsolute(profilesPath);
+
+      m_configFs->makeAbsolute(profilesPath)
+        .transform([&](auto absProfilesPath) {
+          logger.debug() << "Wrote compilation config to " << absProfilesPath;
+        })
+        .transform_error([](auto) {
+          // Can't really do anything
+        });
     })
     .transform_error([&](const auto& e) {
       logger.error() << "Could not write compilation config: " << e.msg;
@@ -434,9 +454,15 @@ void GameFactory::writeGameEngineConfig(
   {
     const auto backupPath = backupFile(*m_configFs, profilesPath);
 
-    logger.error() << "Backed up malformed game engine config "
-                   << m_configFs->makeAbsolute(profilesPath) << " to "
-                   << m_configFs->makeAbsolute(backupPath);
+    m_configFs->makeAbsolute(profilesPath)
+      .join(m_configFs->makeAbsolute(backupPath))
+      .transform([&](auto absProfilesPath, auto absBackupPath) {
+        logger.warn() << "Backed up malformed game engine config " << absProfilesPath
+                      << " to " << absBackupPath;
+      })
+      .transform_error([&](auto) {
+        // Can't really do anything
+      });
 
     gameConfig.gameEngineConfigParseFailed = false;
   }
@@ -444,8 +470,13 @@ void GameFactory::writeGameEngineConfig(
   m_configFs->createFileAtomic(profilesPath, stream.str())
     .transform([&]() {
       gameConfig.gameEngineConfig = std::move(gameEngineConfig);
-      logger.debug() << "Wrote game engine config to "
-                     << m_configFs->makeAbsolute(profilesPath);
+      m_configFs->makeAbsolute(profilesPath)
+        .transform([&](auto absProfilesPath) {
+          logger.debug() << "Wrote game engine config to " << absProfilesPath;
+        })
+        .transform_error([](auto) {
+          // Can't really do anything
+        });
     })
     .transform_error([&](const auto& e) {
       logger.error() << "Could not write game engine config: " << e.msg;

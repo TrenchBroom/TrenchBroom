@@ -41,6 +41,19 @@ size_t getMountPointId()
   return ++mountPointId;
 }
 
+bool matches(const VirtualMountPoint& mountPoint, const std::filesystem::path& path)
+{
+  return kdl::path_has_prefix(
+    kdl::path_to_lower(path), kdl::path_to_lower(mountPoint.path));
+}
+
+std::filesystem::path suffix(
+  const VirtualMountPoint& mountPoint, const std::filesystem::path& path)
+{
+  assert(matches(mountPoint, path));
+  return kdl::path_clip(path, kdl::path_length(mountPoint.path));
+}
+
 template <typename F>
 auto forEachMountPoint(
   const std::vector<VirtualMountPoint>& mountPoints,
@@ -51,10 +64,9 @@ auto forEachMountPoint(
 {
   for (const auto& mountPoint : mountPoints)
   {
-    if (kdl::path_has_prefix(
-          kdl::path_to_lower(path), kdl::path_to_lower(mountPoint.path)))
+    if (matches(mountPoint, path))
     {
-      const auto pathSuffix = kdl::path_clip(path, kdl::path_length(mountPoint.path));
+      const auto pathSuffix = suffix(mountPoint, path);
       if (auto result = f(*mountPoint.mountedFileSystem, pathSuffix))
       {
         return result;
@@ -82,6 +94,25 @@ bool operator!=(const VirtualMountPointId& lhs, const VirtualMountPointId& rhs)
   return !(lhs == rhs);
 }
 
+kdl::result<std::filesystem::path, FileSystemError> VirtualFileSystem::makeAbsolute(
+  const std::filesystem::path& path) const
+{
+  for (const auto& mountPoint : m_mountPoints)
+  {
+    if (matches(mountPoint, path))
+    {
+      const auto pathSuffix = suffix(mountPoint, path);
+      if (const auto absPath = mountPoint.mountedFileSystem->makeAbsolute(pathSuffix);
+          absPath.is_success())
+      {
+        return absPath;
+      }
+    }
+  }
+
+  return FileSystemError{"Cannot make absolute path of '" + path.string() + "'"};
+}
+
 VirtualMountPointId VirtualFileSystem::mount(
   const std::filesystem::path& path, std::unique_ptr<FileSystem> fs)
 {
@@ -107,26 +138,6 @@ bool VirtualFileSystem::unmount(const VirtualMountPointId& id)
 void VirtualFileSystem::unmountAll()
 {
   m_mountPoints.clear();
-}
-
-std::filesystem::path VirtualFileSystem::doMakeAbsolute(
-  const std::filesystem::path& path) const
-{
-  auto absolutePath = forEachMountPoint(
-    m_mountPoints,
-    path,
-    [](const FileSystem& fs, const std::filesystem::path& p)
-      -> std::optional<std::filesystem::path> {
-      return fs.pathInfo(p) != PathInfo::Unknown
-               ? safeMakeAbsolute(p, [&](const auto& pp) { return fs.makeAbsolute(pp); })
-               : std::nullopt;
-    });
-
-  if (absolutePath)
-  {
-    return *absolutePath;
-  }
-  throw FileSystemException("Cannot make absolute path of '" + path.string() + "'");
 }
 
 PathInfo VirtualFileSystem::doGetPathInfo(const std::filesystem::path& path) const
@@ -202,8 +213,8 @@ WritableVirtualFileSystem::WritableVirtualFileSystem(
   m_virtualFs.mount(std::filesystem::path{}, std::move(writableFs));
 }
 
-std::filesystem::path WritableVirtualFileSystem::doMakeAbsolute(
-  const std::filesystem::path& path) const
+kdl::result<std::filesystem::path, FileSystemError> WritableVirtualFileSystem::
+  makeAbsolute(const std::filesystem::path& path) const
 {
   return m_virtualFs.makeAbsolute(path);
 }

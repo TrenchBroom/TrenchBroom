@@ -44,11 +44,11 @@ public:
 
   /** Return an absolute path for the given relative path.
    *
-   * @return an absolute path
-   * @throws FileSystemException if the given path is already an absolute path or if the
-   * given path is invalid
+   * @return an absolute path or an error if the given path is already an absolute path or
+   * if the given path is invalid
    */
-  std::filesystem::path makeAbsolute(const std::filesystem::path& path) const;
+  virtual kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+    const std::filesystem::path& path) const = 0;
 
   /** Indicates whether the given path denotes a file, a directory, or is unknown.
    */
@@ -97,8 +97,6 @@ public:
   std::shared_ptr<File> openFile(const std::filesystem::path& path) const;
 
 protected:
-  virtual std::filesystem::path doMakeAbsolute(
-    const std::filesystem::path& path) const = 0;
   virtual PathInfo doGetPathInfo(const std::filesystem::path& path) const = 0;
   virtual std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const = 0;

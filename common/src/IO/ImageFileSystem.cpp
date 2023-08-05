@@ -22,10 +22,12 @@
 #include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 
 #include <kdl/overload.h>
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
 
 #include <cassert>
 #include <memory>
@@ -177,6 +179,12 @@ ImageFileSystemBase::ImageFileSystemBase(std::filesystem::path path)
 
 ImageFileSystemBase::~ImageFileSystemBase() = default;
 
+kdl::result<std::filesystem::path, FileSystemError> ImageFileSystemBase::makeAbsolute(
+  const std::filesystem::path& path) const
+{
+  return kdl::result<std::filesystem::path, FileSystemError>{"/" / path};
+}
+
 void ImageFileSystemBase::reload()
 {
   m_root = ImageDirectoryEntry{{}, {}};
@@ -213,12 +221,6 @@ void ImageFileSystemBase::addFile(const std::filesystem::path& path, GetImageFil
     directoryEntry.entries.emplace_back(
       ImageFileEntry{std::move(name), std::move(getFile)});
   }
-}
-
-std::filesystem::path ImageFileSystemBase::doMakeAbsolute(
-  const std::filesystem::path& path) const
-{
-  return "/" / path;
 }
 
 PathInfo ImageFileSystemBase::doGetPathInfo(const std::filesystem::path& path) const

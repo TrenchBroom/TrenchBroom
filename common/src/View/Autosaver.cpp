@@ -101,13 +101,15 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
     assert(backups.size() < m_maxBackups);
     const auto backupNo = backups.size() + 1;
 
-    const auto backupFilePath = fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
+    fs.makeAbsolute(makeBackupName(mapBasename, backupNo))
+      .transform([&](const auto& backupFilePath) {
+        m_lastSaveTime = Clock::now();
+        m_lastModificationCount = document->modificationCount();
+        document->saveDocumentTo(backupFilePath);
 
-    m_lastSaveTime = Clock::now();
-    m_lastModificationCount = document->modificationCount();
-    document->saveDocumentTo(backupFilePath);
-
-    logger.info() << "Created autosave backup at " << backupFilePath;
+        logger.info() << "Created autosave backup at " << backupFilePath;
+      })
+      .transform_error([](auto e) { throw FileSystemException{std::move(e.msg)}; });
   }
   catch (const FileSystemException& e)
   {

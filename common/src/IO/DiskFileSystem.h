@@ -39,8 +39,10 @@ public:
 
   const std::filesystem::path& root() const;
 
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+    const std::filesystem::path& path) const override;
+
 protected:
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
   PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
   std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const override;

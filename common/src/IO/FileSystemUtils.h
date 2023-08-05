@@ -33,10 +33,6 @@ enum class PathInfo;
 
 using GetDirectoryContents =
   std::function<std::vector<std::filesystem::path>(const std::filesystem::path&)>;
-using MakeAbsolute = std::function<std::filesystem::path(const std::filesystem::path&)>;
-
-std::optional<std::filesystem::path> safeMakeAbsolute(
-  const std::filesystem::path& path, const MakeAbsolute& makeAbsolute);
 
 /** Returns a vector of paths listing the contents of the directory  at the given path
  * that satisfy the given path matcher. The returned paths are relative to the root of

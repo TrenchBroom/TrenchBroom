@@ -27,19 +27,6 @@
 namespace TrenchBroom::IO
 {
 
-std::optional<std::filesystem::path> safeMakeAbsolute(
-  const std::filesystem::path& path, const MakeAbsolute& makeAbsolute)
-{
-  try
-  {
-    return makeAbsolute(path);
-  }
-  catch (FileSystemException&)
-  {
-    return std::nullopt;
-  }
-}
-
 namespace
 {
 std::vector<std::filesystem::path> doFind(

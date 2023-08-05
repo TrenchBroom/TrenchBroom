@@ -21,12 +21,16 @@
 
 #include "IO/FileSystem.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom::IO
 {
+
+struct FileSystemError;
 
 class VirtualMountPointId
 {
@@ -55,13 +59,15 @@ private:
   std::vector<VirtualMountPoint> m_mountPoints;
 
 public:
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+    const std::filesystem::path& path) const override;
+
   VirtualMountPointId mount(
     const std::filesystem::path& path, std::unique_ptr<FileSystem> fs);
   bool unmount(const VirtualMountPointId& id);
   void unmountAll();
 
 protected:
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
   PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
   std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const override;
@@ -80,7 +86,10 @@ public:
 
   using FileSystem::directoryContents;
 
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+    const std::filesystem::path& path) const override;
+
+private:
   PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
   std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const override;

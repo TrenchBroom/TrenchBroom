@@ -25,6 +25,7 @@
 #include "Ensure.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 #include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
@@ -218,9 +219,10 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
             readTexture(*file)
               .or_else(makeReadTextureErrorHandler(gameFS, logger))
               .transform([&](auto texture) {
-                texture.setAbsolutePath(safeMakeAbsolute(texturePath, [&](const auto& p) {
-                                          return gameFS.makeAbsolute(p);
-                                        }).value_or(std::filesystem::path{}));
+                gameFS.makeAbsolute(texturePath)
+                  .transform(
+                    [&](auto absPath) { texture.setAbsolutePath(std::move(absPath)); })
+                  .or_else([](auto) { return kdl::void_success; });
                 texture.setRelativePath(texturePath);
                 textures.push_back(std::move(texture));
               });

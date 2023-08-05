@@ -39,16 +39,6 @@ namespace TrenchBroom::IO
 
 FileSystem::~FileSystem() = default;
 
-std::filesystem::path FileSystem::makeAbsolute(const std::filesystem::path& path) const
-{
-  if (path.is_absolute())
-  {
-    throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
-  }
-
-  return doMakeAbsolute(path);
-}
-
 PathInfo FileSystem::pathInfo(const std::filesystem::path& path) const
 {
   if (path.is_absolute())

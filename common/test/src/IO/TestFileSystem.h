@@ -23,6 +23,7 @@
 
 #include <kdl/overload.h>
 #include <kdl/reflection_decl.h>
+#include <kdl/result_forward.h>
 
 #include <filesystem>
 #include <memory>
@@ -33,6 +34,8 @@ namespace TrenchBroom
 {
 namespace IO
 {
+
+struct FileSystemError;
 
 struct Object
 {
@@ -70,9 +73,11 @@ private:
 public:
   explicit TestFileSystem(Entry root, std::filesystem::path absolutePathPrefix = {"/"});
 
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+    const std::filesystem::path& path) const override;
+
 private:
   const Entry* findEntry(std::filesystem::path path) const;
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
   PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
   std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const override;
