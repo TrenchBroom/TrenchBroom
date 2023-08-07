@@ -106,13 +106,13 @@ TEST_CASE("DiskFileSystemTest")
   SECTION("pathInfo")
   {
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.pathInfo("c:\\"), FileSystemException);
-    CHECK_THROWS_AS(fs.pathInfo("C:\\does_not_exist_i_hope.txt"), FileSystemException);
+    CHECK(fs.pathInfo("c:\\") == PathInfo::Directory);
+    CHECK(fs.pathInfo("C:\\does_not_exist_i_hope.txt") == PathInfo::Unknown);
 #else
-    CHECK_THROWS_AS(fs.pathInfo("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.pathInfo("/does_not_exist_i_hope.txt"), FileSystemException);
+    CHECK(fs.pathInfo("/") == PathInfo::Directory);
+    CHECK(fs.pathInfo("/does_not_exist_i_hope.txt") == PathInfo::Unknown);
 #endif
-    CHECK_THROWS_AS(fs.pathInfo(".."), FileSystemException);
+    CHECK(fs.pathInfo("..") == PathInfo::Unknown);
 
     CHECK(fs.pathInfo(".") == PathInfo::Directory);
     CHECK(fs.pathInfo("anotherDir") == PathInfo::Directory);

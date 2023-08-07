@@ -71,14 +71,14 @@ TEST_CASE("FileSystem")
   SECTION("pathInfo")
   {
 #if defined(_WIN32)
-    CHECK_THROWS_AS(fs.pathInfo("c:\\"), FileSystemException);
-    CHECK_THROWS_AS(fs.pathInfo("c:\\foo"), FileSystemException);
+    CHECK(fs.pathInfo("c:\\") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("c:\\foo") == PathInfo::Unknown);
     CHECK(fs.pathInfo("c:") == PathInfo::Unknown);
     CHECK(fs.pathInfo("/") == PathInfo::Unknown);
     CHECK(fs.pathInfo("/foo") == PathInfo::Unknown);
 #else
-    CHECK_THROWS_AS(fs.pathInfo("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.pathInfo("/foo"), FileSystemException);
+    CHECK(fs.pathInfo("/") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("/foo") == PathInfo::Unknown);
 #endif
   }
 

@@ -52,7 +52,7 @@ public:
 
   /** Indicates whether the given path denotes a file, a directory, or is unknown.
    */
-  PathInfo pathInfo(const std::filesystem::path& path) const;
+  virtual PathInfo pathInfo(const std::filesystem::path& path) const = 0;
 
   /** Returns a vector of paths listing the contents of the directory  at the given path
    * that satisfy the given path matcher. The returned paths are relative to the root of
@@ -97,7 +97,6 @@ public:
   std::shared_ptr<File> openFile(const std::filesystem::path& path) const;
 
 protected:
-  virtual PathInfo doGetPathInfo(const std::filesystem::path& path) const = 0;
   virtual std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const = 0;
   virtual std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const = 0;

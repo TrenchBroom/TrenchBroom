@@ -76,8 +76,9 @@ protected:
   void initialize();
   void addFile(const std::filesystem::path& path, GetImageFile getFile);
 
+  PathInfo pathInfo(const std::filesystem::path& path) const override;
+
 private:
-  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
   std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const override;
   std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;

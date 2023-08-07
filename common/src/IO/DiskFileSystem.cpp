@@ -62,11 +62,11 @@ kdl::result<std::filesystem::path, FileSystemError> DiskFileSystem::makeAbsolute
   return canonicalPath.empty() ? m_root : m_root / canonicalPath;
 }
 
-PathInfo DiskFileSystem::doGetPathInfo(const std::filesystem::path& path) const
+PathInfo DiskFileSystem::pathInfo(const std::filesystem::path& path) const
 {
   return makeAbsolute(path)
     .transform([](const auto& absPath) { return Disk::pathInfo(absPath); })
-    .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
+    .transform_error([](const auto&) { return PathInfo::Unknown; })
     .value();
 }
 

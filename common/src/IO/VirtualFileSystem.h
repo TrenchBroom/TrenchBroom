@@ -61,6 +61,7 @@ private:
 public:
   kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
     const std::filesystem::path& path) const override;
+  PathInfo pathInfo(const std::filesystem::path& path) const override;
 
   VirtualMountPointId mount(
     const std::filesystem::path& path, std::unique_ptr<FileSystem> fs);
@@ -68,7 +69,6 @@ public:
   void unmountAll();
 
 protected:
-  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
   std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const override;
   std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
@@ -88,9 +88,9 @@ public:
 
   kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
     const std::filesystem::path& path) const override;
+  PathInfo pathInfo(const std::filesystem::path& path) const override;
 
 private:
-  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
   std::vector<std::filesystem::path> doGetDirectoryContents(
     const std::filesystem::path& path) const override;
   std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;

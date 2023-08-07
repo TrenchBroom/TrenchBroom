@@ -39,16 +39,6 @@ namespace TrenchBroom::IO
 
 FileSystem::~FileSystem() = default;
 
-PathInfo FileSystem::pathInfo(const std::filesystem::path& path) const
-{
-  if (path.is_absolute())
-  {
-    throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
-  }
-
-  return doGetPathInfo(path);
-}
-
 std::vector<std::filesystem::path> FileSystem::find(
   const std::filesystem::path& path, const PathMatcher& pathMatcher) const
 {
@@ -60,7 +50,7 @@ std::vector<std::filesystem::path> FileSystem::find(
   return IO::find(
     path,
     [&](const std::filesystem::path& p) { return doGetDirectoryContents(p); },
-    [&](const std::filesystem::path& p) { return doGetPathInfo(p); },
+    [&](const std::filesystem::path& p) { return pathInfo(p); },
     pathMatcher);
 }
 
@@ -75,7 +65,7 @@ std::vector<std::filesystem::path> FileSystem::findRecursively(
   return IO::findRecursively(
     path,
     [&](const std::filesystem::path& p) { return doGetDirectoryContents(p); },
-    [&](const std::filesystem::path& p) { return doGetPathInfo(p); },
+    [&](const std::filesystem::path& p) { return pathInfo(p); },
     pathMatcher);
 }
 
@@ -87,7 +77,7 @@ std::vector<std::filesystem::path> FileSystem::directoryContents(
     throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
   }
 
-  if (doGetPathInfo(path) != PathInfo::Directory)
+  if (pathInfo(path) != PathInfo::Directory)
   {
     throw FileSystemException{"Directory not found: '" + path.string() + "'"};
   }
@@ -102,7 +92,7 @@ std::shared_ptr<File> FileSystem::openFile(const std::filesystem::path& path) co
     throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
   }
 
-  if (doGetPathInfo(path) != PathInfo::File)
+  if (pathInfo(path) != PathInfo::File)
   {
     throw FileSystemException{"File not found: '" + path.string() + "'"};
   }

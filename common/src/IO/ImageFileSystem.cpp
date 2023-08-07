@@ -223,7 +223,7 @@ void ImageFileSystemBase::addFile(const std::filesystem::path& path, GetImageFil
   }
 }
 
-PathInfo ImageFileSystemBase::doGetPathInfo(const std::filesystem::path& path) const
+PathInfo ImageFileSystemBase::pathInfo(const std::filesystem::path& path) const
 {
   const auto* entry = findEntry(path, m_root);
   return entry ? isDirectory(*entry) ? PathInfo::Directory : PathInfo::File

@@ -83,6 +83,12 @@ const Entry* TestFileSystem::findEntry(std::filesystem::path path) const
   return entry;
 }
 
+PathInfo TestFileSystem::pathInfo(const std::filesystem::path& path) const
+{
+  const auto* entry = findEntry(path);
+  return entry ? getEntryType(*entry) : PathInfo::Unknown;
+}
+
 kdl::result<std::filesystem::path, FileSystemError> TestFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
@@ -91,12 +97,6 @@ kdl::result<std::filesystem::path, FileSystemError> TestFileSystem::makeAbsolute
     return m_absolutePathPrefix / path;
   }
   return FileSystemError{};
-}
-
-PathInfo TestFileSystem::doGetPathInfo(const std::filesystem::path& path) const
-{
-  const auto* entry = findEntry(path);
-  return entry ? getEntryType(*entry) : PathInfo::Unknown;
 }
 
 std::vector<std::filesystem::path> TestFileSystem::doGetDirectoryContents(

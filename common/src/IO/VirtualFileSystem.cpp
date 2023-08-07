@@ -113,6 +113,33 @@ kdl::result<std::filesystem::path, FileSystemError> VirtualFileSystem::makeAbsol
   return FileSystemError{"Cannot make absolute path of '" + path.string() + "'"};
 }
 
+PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
+{
+  if (
+    auto result = forEachMountPoint(
+      m_mountPoints,
+      path,
+      [](
+        const FileSystem& fs, const std::filesystem::path& p) -> std::optional<PathInfo> {
+        const auto pathInfo = fs.pathInfo(p);
+        return pathInfo != PathInfo::Unknown ? std::optional{pathInfo} : std::nullopt;
+      }))
+  {
+    return *result;
+  }
+
+  return std::any_of(
+           m_mountPoints.begin(),
+           m_mountPoints.end(),
+           [&](const auto& mountPoint) {
+             return kdl::path_has_prefix(
+               kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path));
+           })
+           ? PathInfo::Directory
+           : PathInfo::Unknown;
+}
+
+
 VirtualMountPointId VirtualFileSystem::mount(
   const std::filesystem::path& path, std::unique_ptr<FileSystem> fs)
 {
@@ -138,32 +165,6 @@ bool VirtualFileSystem::unmount(const VirtualMountPointId& id)
 void VirtualFileSystem::unmountAll()
 {
   m_mountPoints.clear();
-}
-
-PathInfo VirtualFileSystem::doGetPathInfo(const std::filesystem::path& path) const
-{
-  if (
-    auto result = forEachMountPoint(
-      m_mountPoints,
-      path,
-      [](
-        const FileSystem& fs, const std::filesystem::path& p) -> std::optional<PathInfo> {
-        const auto pathInfo = fs.pathInfo(p);
-        return pathInfo != PathInfo::Unknown ? std::optional{pathInfo} : std::nullopt;
-      }))
-  {
-    return *result;
-  }
-
-  return std::any_of(
-           m_mountPoints.begin(),
-           m_mountPoints.end(),
-           [&](const auto& mountPoint) {
-             return kdl::path_has_prefix(
-               kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path));
-           })
-           ? PathInfo::Directory
-           : PathInfo::Unknown;
 }
 
 std::vector<std::filesystem::path> VirtualFileSystem::doGetDirectoryContents(
@@ -219,7 +220,7 @@ kdl::result<std::filesystem::path, FileSystemError> WritableVirtualFileSystem::
   return m_virtualFs.makeAbsolute(path);
 }
 
-PathInfo WritableVirtualFileSystem::doGetPathInfo(const std::filesystem::path& path) const
+PathInfo WritableVirtualFileSystem::pathInfo(const std::filesystem::path& path) const
 {
   return m_virtualFs.pathInfo(path);
 }
