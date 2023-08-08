@@ -35,7 +35,7 @@ protected:
   std::filesystem::path m_root;
 
 public:
-  explicit DiskFileSystem(const std::filesystem::path& root, bool ensureExists = true);
+  explicit DiskFileSystem(const std::filesystem::path& root);
 
   const std::filesystem::path& root() const;
 
@@ -60,7 +60,7 @@ protected:
 class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem
 {
 public:
-  WritableDiskFileSystem(const std::filesystem::path& root, bool create);
+  explicit WritableDiskFileSystem(const std::filesystem::path& root);
 
 private:
   kdl::result<void, FileSystemError> doCreateFile(

@@ -252,13 +252,13 @@ void GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig)
   for (auto it = gameConfigSearchDirs.rbegin(); it != gameConfigSearchDirs.rend(); ++it)
   {
     const auto path = *it;
-    virtualFs.mount({}, std::make_unique<IO::DiskFileSystem>(path, false));
+    virtualFs.mount({}, std::make_unique<IO::DiskFileSystem>(path));
   }
 
   m_userGameDir = userGameDir;
+  IO::Disk::createDirectory(m_userGameDir);
   m_configFs = std::make_unique<IO::WritableVirtualFileSystem>(
-    std::move(virtualFs),
-    std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir, true));
+    std::move(virtualFs), std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
 }
 
 void GameFactory::loadGameConfigs()

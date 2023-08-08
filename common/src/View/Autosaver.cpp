@@ -126,7 +126,8 @@ IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(
   try
   {
     // ensures that the directory exists or is created if it doesn't
-    return IO::WritableDiskFileSystem{autosavePath, true};
+    IO::Disk::createDirectory(autosavePath);
+    return IO::WritableDiskFileSystem{autosavePath};
   }
   catch (const FileSystemException& e)
   {

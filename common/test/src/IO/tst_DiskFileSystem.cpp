@@ -68,19 +68,6 @@ TEST_CASE("DiskFileSystemTest")
 {
   const auto env = makeTestEnvironment();
 
-  SECTION("constructor")
-  {
-    CHECK_THROWS_AS(DiskFileSystem(env.dir() / "asdf", true), FileSystemException);
-    CHECK_NOTHROW(DiskFileSystem(env.dir() / "asdf", false));
-    CHECK_NOTHROW(DiskFileSystem(env.dir(), true));
-
-    // for case sensitive file systems
-    CHECK_NOTHROW(DiskFileSystem(env.dir() / "ANOTHERDIR", true));
-
-    const DiskFileSystem fs(env.dir() / "anotherDir/..", true);
-    CHECK(fs.makeAbsolute("") == fs.root());
-  }
-
   const auto fs = DiskFileSystem{env.dir()};
 
   SECTION("makeAbsolute")
@@ -189,22 +176,14 @@ TEST_CASE("WritableDiskFileSystemTest")
   {
     const auto env = makeTestEnvironment();
 
-    CHECK_THROWS_AS(
-      WritableDiskFileSystem(env.dir() / "asdf", false), FileSystemException);
-    CHECK_NOTHROW(WritableDiskFileSystem{env.dir() / "asdf", true});
-    CHECK_NOTHROW(WritableDiskFileSystem{env.dir(), true});
-
-    // for case sensitive file systems
-    CHECK_NOTHROW(WritableDiskFileSystem{env.dir() / "ANOTHERDIR", false});
-
-    const auto fs = WritableDiskFileSystem{env.dir() / "anotherDir/..", false};
+    const auto fs = WritableDiskFileSystem{env.dir() / "anotherDir/.."};
     CHECK(fs.makeAbsolute("") == (env.dir() / "anotherDir/..").lexically_normal());
   }
 
   SECTION("createDirectory")
   {
     const auto env = makeTestEnvironment();
-    auto fs = WritableDiskFileSystem{env.dir(), false};
+    auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
     CHECK_THROWS_AS(
@@ -232,7 +211,7 @@ TEST_CASE("WritableDiskFileSystemTest")
   SECTION("deleteFile")
   {
     const auto env = makeTestEnvironment();
-    auto fs = WritableDiskFileSystem{env.dir(), false};
+    auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
     CHECK_THROWS_AS(fs.deleteFile("c:\\hopefully_nothing_here.txt"), FileSystemException);
@@ -259,7 +238,7 @@ TEST_CASE("WritableDiskFileSystemTest")
   SECTION("moveFile")
   {
     const auto env = makeTestEnvironment();
-    auto fs = WritableDiskFileSystem{env.dir(), false};
+    auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
     CHECK_THROWS_AS(
@@ -289,7 +268,7 @@ TEST_CASE("WritableDiskFileSystemTest")
   SECTION("copyFile")
   {
     const auto env = makeTestEnvironment();
-    auto fs = WritableDiskFileSystem{env.dir(), false};
+    auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
     CHECK_THROWS_AS(
