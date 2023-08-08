@@ -255,10 +255,10 @@ kdl::result<bool, FileSystemError> WritableVirtualFileSystem::doDeleteFile(
   return m_writableFs.deleteFile(path);
 }
 
-void WritableVirtualFileSystem::doCopyFile(
+kdl::result<void, FileSystemError> WritableVirtualFileSystem::doCopyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  m_writableFs.copyFile(sourcePath, destPath);
+  return m_writableFs.copyFile(sourcePath, destPath);
 }
 
 void WritableVirtualFileSystem::doMoveFile(

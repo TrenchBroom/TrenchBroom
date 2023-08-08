@@ -293,26 +293,33 @@ TEST_CASE("WritableDiskFileSystemTest")
     auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
-    CHECK_THROWS_AS(
-      fs.copyFile("c:\\hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
-    CHECK_THROWS_AS(fs.copyFile("test.txt", "C:\\dest.txt"), FileSystemException);
+    CHECK(
+      fs.copyFile("c:\\hopefully_nothing_here.txt", "dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.copyFile("test.txt", "C:\\dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
 #else
-    CHECK_THROWS_AS(
-      fs.copyFile("/hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
-    CHECK_THROWS_AS(fs.copyFile("test.txt", "/dest.txt"), FileSystemException);
+    CHECK(
+      fs.copyFile("/hopefully_nothing_here.txt", "dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.copyFile("test.txt", "/dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
 #endif
 
-    fs.copyFile("test.txt", "test2.txt");
+    CHECK(fs.copyFile("test.txt", "test2.txt") == kdl::result<void, FileSystemError>{});
     CHECK(fs.pathInfo("test.txt") == PathInfo::File);
     CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
 
-    fs.copyFile("test2.txt", "test2.map");
+    CHECK(fs.copyFile("test2.txt", "test2.map") == kdl::result<void, FileSystemError>{});
     CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
     CHECK(fs.pathInfo("test2.map") == PathInfo::File);
     // we're trusting that the file is actually overwritten (should really test the
     // contents here...)
 
-    fs.copyFile("test2.map", "dir1/test2.map");
+    CHECK(
+      fs.copyFile("test2.map", "dir1/test2.map") == kdl::result<void, FileSystemError>{});
     CHECK(fs.pathInfo("test2.map") == PathInfo::File);
     CHECK(fs.pathInfo("dir1/test2.map") == PathInfo::File);
   }

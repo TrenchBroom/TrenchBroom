@@ -154,11 +154,11 @@ void CompilationCopyFilesTaskRunner::doExecute()
       if (!m_context.test())
       {
         IO::Disk::createDirectory(targetPath)
-          .transform([&](auto) {
-            for (const auto& pathToCopy : pathsToCopy)
-            {
-              IO::Disk::copyFile(pathToCopy, targetPath);
-            }
+          .and_then([&](auto) {
+            return kdl::fold_results(
+              kdl::vec_transform(pathsToCopy, [&](const auto& pathToCopy) {
+                return IO::Disk::copyFile(pathToCopy, targetPath);
+              }));
           })
           .if_error([](auto e) { throw FileSystemException{e.msg}; });
       }

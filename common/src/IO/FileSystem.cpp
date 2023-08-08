@@ -147,19 +147,18 @@ kdl::result<bool, FileSystemError> WritableFileSystem::deleteFile(
   return doDeleteFile(path);
 }
 
-void WritableFileSystem::copyFile(
+kdl::result<void, FileSystemError> WritableFileSystem::copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   if (sourcePath.is_absolute())
   {
-    throw FileSystemException("Source path is absolute: '" + sourcePath.string() + "'");
+    return FileSystemError{"Source path is absolute: '" + sourcePath.string() + "'"};
   }
   if (destPath.is_absolute())
   {
-    throw FileSystemException(
-      "Destination path is absolute: '" + destPath.string() + "'");
+    return FileSystemError{"Destination path is absolute: '" + destPath.string() + "'"};
   }
-  doCopyFile(sourcePath, destPath);
+  return doCopyFile(sourcePath, destPath);
 }
 
 void WritableFileSystem::moveFile(

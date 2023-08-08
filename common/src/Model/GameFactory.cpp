@@ -373,12 +373,11 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   }
 }
 
-static std::filesystem::path backupFile(
+static kdl::result<std::filesystem::path, IO::FileSystemError> backupFile(
   IO::WritableFileSystem& fs, const std::filesystem::path& path)
 {
   const auto backupPath = kdl::path_add_extension(path, ".bak");
-  fs.copyFile(path, backupPath);
-  return backupPath;
+  return fs.copyFile(path, backupPath).transform([&]() { return backupPath; });
 }
 
 void GameFactory::writeCompilationConfig(
@@ -405,16 +404,17 @@ void GameFactory::writeCompilationConfig(
     std::filesystem::path{gameConfig.name} / "CompilationProfiles.cfg";
   if (gameConfig.compilationConfigParseFailed)
   {
-    const auto backupPath = backupFile(*m_configFs, profilesPath);
-
-    m_configFs->makeAbsolute(profilesPath)
-      .join(m_configFs->makeAbsolute(backupPath))
-      .transform([&](auto absProfilesPath, auto absBackupPath) {
-        logger.warn() << "Backed up malformed compilation config " << absProfilesPath
-                      << " to " << absBackupPath;
+    backupFile(*m_configFs, profilesPath)
+      .and_then([&](auto backupPath) {
+        return m_configFs->makeAbsolute(profilesPath)
+          .join(m_configFs->makeAbsolute(backupPath))
+          .transform([&](auto absProfilesPath, auto absBackupPath) {
+            logger.warn() << "Backed up malformed compilation config " << absProfilesPath
+                          << " to " << absBackupPath;
+          });
       })
       .transform_error([&](auto) {
-        // Can't really do anything
+        logger.error() << "Could not back up malformed compilation config";
       });
 
     gameConfig.compilationConfigParseFailed = false;
@@ -457,16 +457,17 @@ void GameFactory::writeGameEngineConfig(
     std::filesystem::path{gameConfig.name} / "GameEngineProfiles.cfg";
   if (gameConfig.gameEngineConfigParseFailed)
   {
-    const auto backupPath = backupFile(*m_configFs, profilesPath);
-
-    m_configFs->makeAbsolute(profilesPath)
-      .join(m_configFs->makeAbsolute(backupPath))
-      .transform([&](auto absProfilesPath, auto absBackupPath) {
-        logger.warn() << "Backed up malformed game engine config " << absProfilesPath
-                      << " to " << absBackupPath;
+    backupFile(*m_configFs, profilesPath)
+      .and_then([&](auto backupPath) {
+        return m_configFs->makeAbsolute(profilesPath)
+          .join(m_configFs->makeAbsolute(backupPath))
+          .transform([&](auto absProfilesPath, auto absBackupPath) {
+            logger.warn() << "Backed up malformed game engine config " << absProfilesPath
+                          << " to " << absBackupPath;
+          });
       })
       .transform_error([&](auto) {
-        // Can't really do anything
+        logger.error() << "Could not back up malformed game engine config";
       });
 
     gameConfig.gameEngineConfigParseFailed = false;

@@ -124,7 +124,7 @@ kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& 
 
 kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path);
 
-void copyFile(
+kdl::result<void, FileSystemError> copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 void moveFile(

@@ -113,7 +113,7 @@ public:
     const std::filesystem::path& path, const std::string& contents);
   kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& path);
   kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path);
-  void copyFile(
+  kdl::result<void, FileSystemError> copyFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
   void moveFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
@@ -125,7 +125,7 @@ private:
     const std::filesystem::path& path) = 0;
   virtual kdl::result<bool, FileSystemError> doDeleteFile(
     const std::filesystem::path& path) = 0;
-  virtual void doCopyFile(
+  virtual kdl::result<void, FileSystemError> doCopyFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
   virtual void doMoveFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;

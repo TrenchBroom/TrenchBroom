@@ -194,7 +194,7 @@ kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path)
   }
 }
 
-void copyFile(
+kdl::result<void, FileSystemError> copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
@@ -214,10 +214,12 @@ void copyFile(
       error)
     || error)
   {
-    throw FileSystemException(
+    return FileSystemError{
       "Could not copy file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "'");
+      + fixedDestPath.string() + "': " + error.message()};
   }
+
+  return kdl::void_success;
 }
 
 void moveFile(
