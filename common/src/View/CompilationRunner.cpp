@@ -37,6 +37,7 @@
 #include "View/MapDocument.h"
 
 #include "kdl/functional.h"
+#include "kdl/result_fold.h"
 #include <kdl/overload.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -255,10 +256,9 @@ void CompilationDeleteFilesTaskRunner::doExecute()
       m_context << "#### Deleting: " << targetListQStr << "\n";
       if (!m_context.test())
       {
-        for (const auto& pathToDelete : pathsToDelete)
-        {
-          IO::Disk::deleteFile(pathToDelete);
-        }
+        kdl::fold_results(kdl::vec_transform(pathsToDelete, IO::Disk::deleteFile))
+          .transform([](auto) {})
+          .if_error([](auto e) { throw FileSystemException{e.msg}; });
       }
       emit end();
     }

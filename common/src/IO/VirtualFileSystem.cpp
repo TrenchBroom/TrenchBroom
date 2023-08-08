@@ -249,9 +249,10 @@ kdl::result<bool, FileSystemError> WritableVirtualFileSystem::doCreateDirectory(
   return m_writableFs.createDirectory(path);
 }
 
-void WritableVirtualFileSystem::doDeleteFile(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> WritableVirtualFileSystem::doDeleteFile(
+  const std::filesystem::path& path)
 {
-  m_writableFs.deleteFile(path);
+  return m_writableFs.deleteFile(path);
 }
 
 void WritableVirtualFileSystem::doCopyFile(

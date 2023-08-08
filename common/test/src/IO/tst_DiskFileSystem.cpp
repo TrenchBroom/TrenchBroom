@@ -224,24 +224,36 @@ TEST_CASE("WritableDiskFileSystemTest")
     auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.deleteFile("c:\\hopefully_nothing_here.txt"), FileSystemException);
+    CHECK(
+      fs.deleteFile("c:\\hopefully_nothing_here.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.deleteFile("c:\\dir1\\asdf.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #else
-    CHECK_THROWS_AS(fs.deleteFile("/hopefully_nothing_here.txt"), FileSystemException);
+    CHECK(
+      fs.deleteFile("/hopefully_nothing_here.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.deleteFile("/dir1/asdf.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #endif
-    CHECK_THROWS_AS(fs.deleteFile(""), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile("."), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile("dir1"), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile("asdf.txt"), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile("/dir1/asdf.txt"), FileSystemException);
+    CHECK(fs.deleteFile("") == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(fs.deleteFile(".") == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(fs.deleteFile("..") == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(fs.deleteFile("dir1") == kdl::result<bool, FileSystemError>{FileSystemError{}});
 
-    fs.deleteFile("test.txt");
+    CHECK(fs.deleteFile("asdf.txt") == kdl::result<bool, FileSystemError>{false});
+    CHECK(fs.deleteFile("test.txt") == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("test.txt") == PathInfo::Unknown);
 
-    fs.deleteFile("anotherDir/test3.map");
+    CHECK(
+      fs.deleteFile("anotherDir/test3.map") == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("anotherDir/test3.map") == PathInfo::Unknown);
 
-    fs.deleteFile("anotherDir/subDirTest/.././subDirTest/./test2.map");
+    CHECK(
+      fs.deleteFile("anotherDir/subDirTest/.././subDirTest/./test2.map")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("anotherDir/subDirTest/test2.map") == PathInfo::Unknown);
   }
 

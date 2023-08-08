@@ -26,6 +26,8 @@
 #include "IO/PathInfo.h"
 #include "View/MapDocument.h"
 
+#include "kdl/result_fold.h"
+#include "kdl/vector_utils.h"
 #include <kdl/memory_utils.h>
 #include <kdl/path_utils.h>
 #include <kdl/result.h>
@@ -96,14 +98,14 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
   {
     createBackupFileSystem(mapPath)
       .and_then([&](auto fs) {
-        auto backups = collectBackups(fs, mapBasename);
+        const auto backups = collectBackups(fs, mapBasename);
+        return thinBackups(logger, fs, backups).and_then([&](auto remainingBackups) {
+          cleanBackups(fs, remainingBackups, mapBasename);
 
-        thinBackups(logger, fs, backups);
-        cleanBackups(fs, backups, mapBasename);
-
-        assert(backups.size() < m_maxBackups);
-        const auto backupNo = backups.size() + 1;
-        return fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
+          assert(remainingBackups.size() < m_maxBackups);
+          const auto backupNo = remainingBackups.size() + 1;
+          return fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
+        });
       })
       .transform([&](const auto& backupFilePath) {
         m_lastSaveTime = Clock::now();
@@ -157,26 +159,30 @@ std::vector<std::filesystem::path> Autosaver::collectBackups(
   return backups;
 }
 
-void Autosaver::thinBackups(
-  Logger& logger,
-  IO::WritableDiskFileSystem& fs,
-  std::vector<std::filesystem::path>& backups) const
+kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> Autosaver::
+  thinBackups(
+    Logger& logger,
+    IO::WritableDiskFileSystem& fs,
+    const std::vector<std::filesystem::path>& backups) const
 {
-  while (backups.size() > m_maxBackups - 1)
+  if (backups.size() < m_maxBackups)
   {
-    const auto filename = backups.front();
-    try
-    {
-      fs.deleteFile(filename);
-      logger.debug() << "Deleted autosave backup " << filename;
-      backups.erase(std::begin(backups));
-    }
-    catch (const FileSystemException& e)
-    {
-      logger.error() << "Cannot delete autosave backup " << filename;
-      throw e;
-    }
+    return backups;
   }
+
+  const auto toDelete = kdl::vec_slice_suffix(backups, backups.size() - m_maxBackups + 1);
+  return kdl::fold_results(
+           kdl::vec_transform(
+             toDelete,
+             [&](auto filename) {
+               return fs.deleteFile(filename).transform([&](const auto deleted) {
+                 if (deleted)
+                 {
+                   logger.debug() << "Deleted autosave backup " << filename;
+                 }
+               });
+             }))
+    .transform([&]() { return kdl::vec_slice_prefix(backups, m_maxBackups - 1); });
 }
 
 void Autosaver::cleanBackups(

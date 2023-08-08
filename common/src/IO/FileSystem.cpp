@@ -137,13 +137,14 @@ kdl::result<bool, FileSystemError> WritableFileSystem::createDirectory(
   return doCreateDirectory(path);
 }
 
-void WritableFileSystem::deleteFile(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> WritableFileSystem::deleteFile(
+  const std::filesystem::path& path)
 {
   if (path.is_absolute())
   {
-    throw FileSystemException("Path is absolute: '" + path.string() + "'");
+    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
   }
-  doDeleteFile(path);
+  return doDeleteFile(path);
 }
 
 void WritableFileSystem::copyFile(

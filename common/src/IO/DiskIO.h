@@ -122,7 +122,7 @@ auto withOutputStream(const std::filesystem::path& path, const F& function)
 
 kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& path);
 
-void deleteFile(const std::filesystem::path& path);
+kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path);
 
 void copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);

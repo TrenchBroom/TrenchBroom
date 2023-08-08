@@ -87,10 +87,10 @@ private:
     const std::filesystem::path& mapPath) const;
   std::vector<std::filesystem::path> collectBackups(
     const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const;
-  void thinBackups(
+  kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> thinBackups(
     Logger& logger,
     IO::WritableDiskFileSystem& fs,
-    std::vector<std::filesystem::path>& backups) const;
+    const std::vector<std::filesystem::path>& backups) const;
   void cleanBackups(
     IO::WritableDiskFileSystem& fs,
     std::vector<std::filesystem::path>& backups,

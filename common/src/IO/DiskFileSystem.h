@@ -67,7 +67,8 @@ private:
     const std::filesystem::path& path, const std::string& contents) override;
   kdl::result<bool, FileSystemError> doCreateDirectory(
     const std::filesystem::path& path) override;
-  void doDeleteFile(const std::filesystem::path& path) override;
+  kdl::result<bool, FileSystemError> doDeleteFile(
+    const std::filesystem::path& path) override;
   void doCopyFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;

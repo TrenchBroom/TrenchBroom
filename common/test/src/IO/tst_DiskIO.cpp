@@ -226,11 +226,17 @@ TEST_CASE("DiskIO")
   SECTION("deleteFile")
   {
     REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-    CHECK_NOTHROW(Disk::deleteFile(env.dir() / "test.txt"));
+    CHECK(
+      Disk::deleteFile(env.dir() / "test.txt")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
 
-    CHECK_THROWS_AS(Disk::deleteFile(env.dir() / "anotherDir"), FileSystemException);
-    CHECK_THROWS_AS(Disk::deleteFile(env.dir() / "does_not_exist"), FileSystemException);
+    CHECK(
+      Disk::deleteFile(env.dir() / "anotherDir")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(
+      Disk::deleteFile(env.dir() / "does_not_exist")
+      == kdl::result<bool, FileSystemError>{false});
 
 #ifndef _WIN32
     // These tests don't work on Windows due to differences in permissions
@@ -238,8 +244,9 @@ TEST_CASE("DiskIO")
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
     REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
-    CHECK_THROWS_AS(
-      Disk::deleteFile(env.dir() / "anotherDir/test3.map"), FileSystemException);
+    CHECK(
+      Disk::deleteFile(env.dir() / "anotherDir/test3.map")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #endif
   }
 

@@ -22,6 +22,7 @@
 #include "IO/File.h"
 #include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
+#include "Macros.h"
 
 #include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
@@ -166,19 +167,30 @@ kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& 
   return FileSystemError{"Could not create directory: " + error.message()};
 }
 
-void deleteFile(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
-  if (pathInfo(fixedPath) != PathInfo::File)
+  switch (pathInfo(fixedPath))
   {
-    throw FileSystemException(
-      "Could not delete file '" + fixedPath.string() + "': File does not exist.");
+  case PathInfo::Directory:
+    return FileSystemError{
+      "Could not delete file '" + fixedPath.string() + "': path is a directory"};
+  case PathInfo::File: {
+    auto error = std::error_code{};
+    if (std::filesystem::remove(fixedPath, error) && !error)
+    {
+      return true;
+    }
+    if (error)
+    {
+      return FileSystemError{
+        "Could not delete file '" + fixedPath.string() + "': " + error.message()};
+    }
+    return false;
   }
-
-  auto error = std::error_code{};
-  if (!std::filesystem::remove(fixedPath, error) || error)
-  {
-    throw FileSystemException("Could not delete file '" + path.string() + "'");
+  case PathInfo::Unknown:
+    return false;
+    switchDefault();
   }
 }
 
