@@ -186,25 +186,35 @@ TEST_CASE("WritableDiskFileSystemTest")
     auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
-    CHECK_THROWS_AS(
-      fs.createDirectory("c:\\hopefully_nothing_here"), FileSystemException);
+    CHECK(
+      fs.createDirectory("c:\\hopefully_nothing_here")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #else
-    CHECK_THROWS_AS(fs.createDirectory("/hopefully_nothing_here"), FileSystemException);
+    CHECK(
+      fs.createDirectory("/hopefully_nothing_here")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #endif
-    CHECK_THROWS_AS(fs.createDirectory(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.createDirectory("test.txt"), FileSystemException);
+    CHECK(
+      fs.createDirectory("..") == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.createDirectory("test.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 
-    CHECK_FALSE(fs.createDirectory(""));
-    CHECK_FALSE(fs.createDirectory("."));
-    CHECK_FALSE(fs.createDirectory("dir1"));
+    CHECK(fs.createDirectory("") == kdl::result<bool, FileSystemError>{false});
+    CHECK(fs.createDirectory(".") == kdl::result<bool, FileSystemError>{false});
+    CHECK(fs.createDirectory("dir1") == kdl::result<bool, FileSystemError>{false});
 
-    CHECK(fs.createDirectory("newDir"));
+    CHECK(fs.createDirectory("newDir") == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("newDir") == PathInfo::Directory);
 
-    CHECK(fs.createDirectory("newDir/someOtherDir"));
+    CHECK(
+      fs.createDirectory("newDir/someOtherDir")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("newDir/someOtherDir") == PathInfo::Directory);
 
-    CHECK(fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir"));
+    CHECK(
+      fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("someDir/someOtherDir/.././yetAnotherDir") == PathInfo::Directory);
   }
 

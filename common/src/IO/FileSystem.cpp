@@ -127,11 +127,12 @@ kdl::result<void, FileSystemError> WritableFileSystem::createFile(
   return doCreateFile(path, contents);
 }
 
-bool WritableFileSystem::createDirectory(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> WritableFileSystem::createDirectory(
+  const std::filesystem::path& path)
 {
   if (path.is_absolute())
   {
-    throw FileSystemException("Path is absolute: '" + path.string() + "'");
+    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
   }
   return doCreateDirectory(path);
 }

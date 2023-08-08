@@ -30,6 +30,8 @@
 #include "NotifierConnection.h"
 #include "View/CachingLogger.h"
 
+#include <kdl/result_forward.h>
+
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
 #include <vecmath/util.h>
@@ -76,6 +78,11 @@ class TexCoordSystemSnapshot;
 class WorldNode;
 enum class WrapStyle;
 } // namespace Model
+
+namespace IO
+{
+struct FileSystemError;
+}
 
 namespace View
 {
@@ -305,7 +312,8 @@ public: // new, load, save document
   void saveDocument();
   void saveDocumentAs(const std::filesystem::path& path);
   void saveDocumentTo(const std::filesystem::path& path);
-  void exportDocumentAs(const IO::ExportOptions& options);
+  kdl::result<void, IO::FileSystemError> exportDocumentAs(
+    const IO::ExportOptions& options);
 
 private:
   void doSaveDocument(const std::filesystem::path& path);

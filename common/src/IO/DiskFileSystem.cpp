@@ -99,12 +99,11 @@ kdl::result<void, FileSystemError> WritableDiskFileSystem::doCreateFile(
   });
 }
 
-bool WritableDiskFileSystem::doCreateDirectory(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> WritableDiskFileSystem::doCreateDirectory(
+  const std::filesystem::path& path)
 {
-  return makeAbsolute(path)
-    .transform([](const auto& absPath) { return Disk::createDirectory(absPath); })
-    .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
-    .value();
+  return makeAbsolute(path).and_then(
+    [](const auto& absPath) { return Disk::createDirectory(absPath); });
 }
 
 void WritableDiskFileSystem::doDeleteFile(const std::filesystem::path& path)

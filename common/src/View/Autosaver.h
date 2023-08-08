@@ -21,6 +21,8 @@
 
 #include "IO/FileSystem.h"
 
+#include <kdl/result_forward.h>
+
 #include <chrono>
 #include <filesystem>
 #include <memory>
@@ -32,6 +34,7 @@ class Logger;
 namespace IO
 {
 class FileSystem;
+struct FileSystemError;
 class WritableDiskFileSystem;
 } // namespace IO
 
@@ -80,8 +83,8 @@ public:
 
 private:
   void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
-  IO::WritableDiskFileSystem createBackupFileSystem(
-    Logger& logger, const std::filesystem::path& mapPath) const;
+  kdl::result<IO::WritableDiskFileSystem, IO::FileSystemError> createBackupFileSystem(
+    const std::filesystem::path& mapPath) const;
   std::vector<std::filesystem::path> collectBackups(
     const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const;
   void thinBackups(
@@ -93,7 +96,7 @@ private:
     std::vector<std::filesystem::path>& backups,
     const std::filesystem::path& mapBasename) const;
   std::filesystem::path makeBackupName(
-    const std::filesystem::path& mapBasename, const size_t index) const;
+    const std::filesystem::path& mapBasename, size_t index) const;
 };
 } // namespace View
 } // namespace TrenchBroom

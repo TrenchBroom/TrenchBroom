@@ -713,47 +713,52 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   const auto basePath = crashReportBasePath();
 
   // ensure the containing directory exists
-  IO::Disk::createDirectory(basePath.parent_path());
+  IO::Disk::createDirectory(basePath.parent_path())
+    .transform([&](auto) {
+      const auto reportPath = kdl::path_add_extension(basePath, ".txt");
+      auto logPath = kdl::path_add_extension(basePath, ".log");
+      auto mapPath = kdl::path_add_extension(basePath, ".map");
 
-  const auto reportPath = kdl::path_add_extension(basePath, ".txt");
-  auto logPath = kdl::path_add_extension(basePath, ".log");
-  auto mapPath = kdl::path_add_extension(basePath, ".map");
+      IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
+        stream << report;
+        std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
+      }).transform_error([](const auto& e) {
+        std::cerr << "could not write crash log: " << e.msg << std::endl;
+      });
 
-  IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
-    stream << report;
-    std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
-  }).transform_error([](const auto& e) {
-    std::cerr << "could not write crash log: " << e.msg << std::endl;
-  });
+      // save the map
+      auto doc = topDocument();
+      if (doc.get())
+      {
+        doc->saveDocumentTo(mapPath);
+        std::cerr << "wrote map to " << mapPath.string() << std::endl;
+      }
+      else
+      {
+        mapPath = std::filesystem::path{};
+      }
 
-  // save the map
-  auto doc = topDocument();
-  if (doc.get())
-  {
-    doc->saveDocumentTo(mapPath);
-    std::cerr << "wrote map to " << mapPath.string() << std::endl;
-  }
-  else
-  {
-    mapPath = std::filesystem::path{};
-  }
+      // Copy the log file
+      if (!QFile::copy(
+            IO::pathAsQString(IO::SystemPaths::logFilePath()),
+            IO::pathAsQString(logPath)))
+      {
+        logPath = std::filesystem::path{};
+      }
 
-  // Copy the log file
-  if (!QFile::copy(
-        IO::pathAsQString(IO::SystemPaths::logFilePath()), IO::pathAsQString(logPath)))
-  {
-    logPath = std::filesystem::path{};
-  }
+      if (crashReportGuiEnabled)
+      {
+        auto dialog = CrashDialog{reason, reportPath, mapPath, logPath};
+        dialog.exec();
+      }
+    })
+    .transform_error([](const auto& e) {
+      std::cerr << "could not create crash folder: " << e.msg << std::endl;
+    });
 
   // write the crash log to stderr
   std::cerr << "crash log:" << std::endl;
   std::cerr << report << std::endl;
-
-  if (crashReportGuiEnabled)
-  {
-    auto dialog = CrashDialog{reason, reportPath, mapPath, logPath};
-    dialog.exec();
-  }
 
   std::abort();
 }

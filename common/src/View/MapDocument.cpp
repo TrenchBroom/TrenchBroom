@@ -624,11 +624,10 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
   });
 }
 
-void MapDocument::exportDocumentAs(const IO::ExportOptions& options)
+kdl::result<void, IO::FileSystemError> MapDocument::exportDocumentAs(
+  const IO::ExportOptions& options)
 {
-  m_game->exportMap(*m_world, options).if_error([&](const auto& e) {
-    error() << "Could not export document: " << e.msg;
-  });
+  return m_game->exportMap(*m_world, options);
 }
 
 void MapDocument::doSaveDocument(const std::filesystem::path& path)

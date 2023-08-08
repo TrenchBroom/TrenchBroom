@@ -243,7 +243,8 @@ kdl::result<void, FileSystemError> WritableVirtualFileSystem::doCreateFile(
   return m_writableFs.createFile(path, contents);
 }
 
-bool WritableVirtualFileSystem::doCreateDirectory(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> WritableVirtualFileSystem::doCreateDirectory(
+  const std::filesystem::path& path)
 {
   return m_writableFs.createDirectory(path);
 }

@@ -256,9 +256,14 @@ void GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig)
   }
 
   m_userGameDir = userGameDir;
-  IO::Disk::createDirectory(m_userGameDir);
-  m_configFs = std::make_unique<IO::WritableVirtualFileSystem>(
-    std::move(virtualFs), std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
+  m_configFs = IO::Disk::createDirectory(m_userGameDir)
+                 .transform([&](auto) {
+                   return std::make_unique<IO::WritableVirtualFileSystem>(
+                     std::move(virtualFs),
+                     std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
+                 })
+                 .if_error([](auto e) { throw FileSystemException{e.msg}; })
+                 .value();
 }
 
 void GameFactory::loadGameConfigs()

@@ -92,33 +92,27 @@ void CompilationExportMapTaskRunner::doExecute()
 {
   emit start();
 
-  try
+  const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
+  m_context << "#### Exporting map file '" << IO::pathAsQString(targetPath) << "'\n";
+
+  if (!m_context.test())
   {
-    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
-    try
-    {
-      m_context << "#### Exporting map file '" << IO::pathAsQString(targetPath) << "'\n";
-
-      if (!m_context.test())
-      {
-        IO::Disk::createDirectory(targetPath.parent_path());
-
+    IO::Disk::createDirectory(targetPath.parent_path())
+      .and_then([&](auto) {
         const auto options = IO::MapExportOptions{targetPath};
         const auto document = m_context.document();
-        document->exportDocumentAs(options);
-      }
-      emit end();
-    }
-    catch (const Exception& e)
-    {
-      m_context << "#### Could not export map file '" << IO::pathAsQString(targetPath)
-                << "': " << e.what() << "\n";
-      throw;
-    }
+        return document->exportDocumentAs(options);
+      })
+      .transform([&]() { emit end(); })
+      .transform_error([&](auto e) {
+        m_context << "#### Could not export map file '" << IO::pathAsQString(targetPath)
+                  << "': " << QString::fromStdString(e.msg) << "\n";
+        emit error();
+      });
   }
-  catch (const Exception&)
+  else
   {
-    emit error();
+    emit end();
   }
 }
 
@@ -158,11 +152,14 @@ void CompilationCopyFilesTaskRunner::doExecute()
                 << "\n";
       if (!m_context.test())
       {
-        IO::Disk::createDirectory(targetPath);
-        for (const auto& pathToCopy : pathsToCopy)
-        {
-          IO::Disk::copyFile(pathToCopy, targetPath);
-        }
+        IO::Disk::createDirectory(targetPath)
+          .transform([&](auto) {
+            for (const auto& pathToCopy : pathsToCopy)
+            {
+              IO::Disk::copyFile(pathToCopy, targetPath);
+            }
+          })
+          .if_error([](auto e) { throw FileSystemException{e.msg}; });
       }
       emit end();
     }
@@ -205,8 +202,9 @@ void CompilationRenameFileTaskRunner::doExecute()
                 << IO::pathAsQString(targetPath) << "'\n";
       if (!m_context.test())
       {
-        IO::Disk::createDirectory(targetPath.parent_path());
-        IO::Disk::moveFile(sourcePath, targetPath);
+        IO::Disk::createDirectory(targetPath.parent_path())
+          .transform([&](auto) { IO::Disk::moveFile(sourcePath, targetPath); })
+          .if_error([](auto e) { throw FileSystemException{e.msg}; });
       }
       emit end();
     }

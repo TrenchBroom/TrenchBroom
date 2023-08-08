@@ -154,27 +154,16 @@ std::shared_ptr<File> openFile(const std::filesystem::path& path)
   return std::make_shared<CFile>(fixedPath);
 }
 
-bool createDirectory(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
-  switch (pathInfo(fixedPath))
+  auto error = std::error_code{};
+  const auto created = std::filesystem::create_directories(fixedPath, error);
+  if (!error)
   {
-  case PathInfo::Directory:
-    break;
-  case PathInfo::File:
-    throw FileSystemException(
-      "Could not create directory '" + fixedPath.string()
-      + "': A file already exists at that path.");
-  case PathInfo::Unknown: {
-    auto error = std::error_code{};
-    if (std::filesystem::create_directories(fixedPath, error) && !error)
-    {
-      return true;
-    }
-    throw FileSystemException("Could not create directory '" + fixedPath.string() + "'");
+    return created;
   }
-  }
-  return false;
+  return FileSystemError{"Could not create directory: " + error.message()};
 }
 
 void deleteFile(const std::filesystem::path& path)

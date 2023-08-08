@@ -23,6 +23,7 @@
 #include "Exceptions.h"
 #include "FileLogger.h"
 #include "IO/ExportOptions.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathQt.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
@@ -1149,26 +1150,17 @@ bool MapFrame::exportDocument(const IO::ExportOptions& options)
     return false;
   }
 
-  try
-  {
-    m_document->exportDocumentAs(options);
-    logger().info() << "Exported " << exportPath;
-    return true;
-  }
-  catch (const FileSystemException& e)
-  {
-    QMessageBox::critical(this, "", e.what());
-    return false;
-  }
-  catch (...)
-  {
-    QMessageBox::critical(
-      this,
-      "",
-      QString::fromStdString("Unknown error while exporting " + exportPath.string()),
-      QMessageBox::Ok);
-    return false;
-  }
+  return m_document->exportDocumentAs(options)
+    .transform([&]() {
+      logger().info() << "Exported " << exportPath;
+      return true;
+    })
+    .transform_error([&](auto e) {
+      logger().error() << "Could not export '" << exportPath << "': " + e.msg;
+      QMessageBox::critical(this, "", QString::fromStdString(e.msg));
+      return false;
+    })
+    .value();
 }
 
 /**

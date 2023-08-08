@@ -195,22 +195,31 @@ TEST_CASE("DiskIO")
 
   SECTION("createDirectory")
   {
-    CHECK_FALSE(Disk::createDirectory(env.dir() / "anotherDir"));
+    CHECK(
+      Disk::createDirectory(env.dir() / "anotherDir")
+      == kdl::result<bool, FileSystemError>{false});
 
-    CHECK(Disk::createDirectory(env.dir() / "yetAnotherDir"));
+    CHECK(
+      Disk::createDirectory(env.dir() / "yetAnotherDir")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir"));
 
-    CHECK(Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory"));
+    CHECK(
+      Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir/and/a/nested/directory"));
 
-    CHECK_THROWS_AS(Disk::createDirectory(env.dir() / "test.txt"), FileSystemException);
+    CHECK(
+      Disk::createDirectory(env.dir() / "test.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 
 #ifndef _WIN32
     // These tests don't work on Windows due to differences in permissions
     const auto setPermissions =
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
-    CHECK_THROWS_AS(
-      Disk::createDirectory(env.dir() / "anotherDir/nestedDir"), FileSystemException);
+    CHECK(
+      Disk::createDirectory(env.dir() / "anotherDir/nestedDir")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #endif
   }
 

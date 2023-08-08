@@ -120,7 +120,7 @@ auto withOutputStream(const std::filesystem::path& path, const F& function)
   return withStream<std::ofstream>(path, std::ios_base::out, function);
 }
 
-bool createDirectory(const std::filesystem::path& path);
+kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& path);
 
 void deleteFile(const std::filesystem::path& path);
 

@@ -22,11 +22,13 @@
 #include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "View/MapDocument.h"
 
 #include <kdl/memory_utils.h>
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -92,16 +94,17 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
 
   try
   {
-    auto fs = createBackupFileSystem(logger, mapPath);
-    auto backups = collectBackups(fs, mapBasename);
+    createBackupFileSystem(mapPath)
+      .and_then([&](auto fs) {
+        auto backups = collectBackups(fs, mapBasename);
 
-    thinBackups(logger, fs, backups);
-    cleanBackups(fs, backups, mapBasename);
+        thinBackups(logger, fs, backups);
+        cleanBackups(fs, backups, mapBasename);
 
-    assert(backups.size() < m_maxBackups);
-    const auto backupNo = backups.size() + 1;
-
-    fs.makeAbsolute(makeBackupName(mapBasename, backupNo))
+        assert(backups.size() < m_maxBackups);
+        const auto backupNo = backups.size() + 1;
+        return fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
+      })
       .transform([&](const auto& backupFilePath) {
         m_lastSaveTime = Clock::now();
         m_lastModificationCount = document->modificationCount();
@@ -117,23 +120,15 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
   }
 }
 
-IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(
-  Logger& logger, const std::filesystem::path& mapPath) const
+kdl::result<IO::WritableDiskFileSystem, IO::FileSystemError> Autosaver::
+  createBackupFileSystem(const std::filesystem::path& mapPath) const
 {
   const auto basePath = mapPath.parent_path();
   const auto autosavePath = basePath / "autosave";
 
-  try
-  {
-    // ensures that the directory exists or is created if it doesn't
-    IO::Disk::createDirectory(autosavePath);
+  return IO::Disk::createDirectory(autosavePath).transform([&](auto) {
     return IO::WritableDiskFileSystem{autosavePath};
-  }
-  catch (const FileSystemException& e)
-  {
-    logger.error() << "Cannot create autosave directory at " << autosavePath;
-    throw e;
-  }
+  });
 }
 
 namespace
