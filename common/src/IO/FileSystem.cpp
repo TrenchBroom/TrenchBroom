@@ -112,8 +112,7 @@ kdl::result<void, FileSystemError> WritableFileSystem::createFileAtomic(
 
   const auto tmpPath = kdl::path_add_extension(path, "tmp");
   return doCreateFile(tmpPath, contents).and_then([&]() {
-    doMoveFile(tmpPath, path);
-    return kdl::void_success;
+    return doMoveFile(tmpPath, path);
   });
 }
 
@@ -161,18 +160,17 @@ kdl::result<void, FileSystemError> WritableFileSystem::copyFile(
   return doCopyFile(sourcePath, destPath);
 }
 
-void WritableFileSystem::moveFile(
+kdl::result<void, FileSystemError> WritableFileSystem::moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   if (sourcePath.is_absolute())
   {
-    throw FileSystemException("Source path is absolute: '" + sourcePath.string() + "'");
+    return FileSystemError{"Source path is absolute: '" + sourcePath.string() + "'"};
   }
   if (destPath.is_absolute())
   {
-    throw FileSystemException(
-      "Destination path is absolute: '" + destPath.string() + "'");
+    return FileSystemError{"Destination path is absolute: '" + destPath.string() + "'"};
   }
-  doMoveFile(sourcePath, destPath);
+  return doMoveFile(sourcePath, destPath);
 }
 } // namespace TrenchBroom::IO

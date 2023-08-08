@@ -261,10 +261,10 @@ kdl::result<void, FileSystemError> WritableVirtualFileSystem::doCopyFile(
   return m_writableFs.copyFile(sourcePath, destPath);
 }
 
-void WritableVirtualFileSystem::doMoveFile(
+kdl::result<void, FileSystemError> WritableVirtualFileSystem::doMoveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  m_writableFs.moveFile(sourcePath, destPath);
+  return m_writableFs.moveFile(sourcePath, destPath);
 }
 
 } // namespace TrenchBroom::IO

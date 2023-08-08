@@ -222,14 +222,13 @@ kdl::result<void, FileSystemError> copyFile(
   return kdl::void_success;
 }
 
-void moveFile(
+kdl::result<void, FileSystemError> moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
   if (pathInfo(fixedSourcePath) == PathInfo::Directory)
   {
-    throw FileSystemException(
-      "Could not move directory '" + fixedSourcePath.string() + "'");
+    return FileSystemError{"Could not move directory '" + fixedSourcePath.string() + "'"};
   }
 
   auto fixedDestPath = fixPath(destPath);
@@ -242,10 +241,12 @@ void moveFile(
   std::filesystem::rename(fixedSourcePath, fixedDestPath, error);
   if (error)
   {
-    throw FileSystemException(
+    return FileSystemError{
       "Could not move file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "'");
+      + fixedDestPath.string() + "': " + error.message()};
   }
+
+  return kdl::void_success;
 }
 
 std::filesystem::path resolvePath(

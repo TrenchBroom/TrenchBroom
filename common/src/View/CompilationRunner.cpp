@@ -192,33 +192,26 @@ void CompilationRenameFileTaskRunner::doExecute()
 {
   emit start();
 
-  try
-  {
-    const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
-    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
+  const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
+  const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
-    try
-    {
-      m_context << "#### Renaming '" << IO::pathAsQString(sourcePath) << "' to '"
-                << IO::pathAsQString(targetPath) << "'\n";
-      if (!m_context.test())
-      {
-        IO::Disk::createDirectory(targetPath.parent_path())
-          .transform([&](auto) { IO::Disk::moveFile(sourcePath, targetPath); })
-          .if_error([](auto e) { throw FileSystemException{e.msg}; });
-      }
-      emit end();
-    }
-    catch (const Exception& e)
-    {
-      m_context << "#### Could not rename '" << IO::pathAsQString(sourcePath) << "' to '"
-                << IO::pathAsQString(targetPath) << "': " << e.what() << "\n";
-      throw;
-    }
-  }
-  catch (const Exception&)
+  m_context << "#### Renaming '" << IO::pathAsQString(sourcePath) << "' to '"
+            << IO::pathAsQString(targetPath) << "'\n";
+  if (!m_context.test())
   {
-    emit error();
+    IO::Disk::createDirectory(targetPath.parent_path())
+      .and_then([&](auto) { return IO::Disk::moveFile(sourcePath, targetPath); })
+      .transform([&]() { emit end(); })
+      .transform_error([&](auto e) {
+        m_context << "#### Could not rename '" << IO::pathAsQString(sourcePath)
+                  << "' to '" << IO::pathAsQString(targetPath)
+                  << "': " << QString::fromStdString(e.msg) << "\n";
+        emit error();
+      });
+  }
+  else
+  {
+    emit end();
   }
 }
 

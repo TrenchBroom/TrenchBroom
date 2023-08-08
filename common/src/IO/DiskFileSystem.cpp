@@ -117,15 +117,10 @@ kdl::result<void, FileSystemError> WritableDiskFileSystem::doCopyFile(
   return makeAbsolute(sourcePath).join(makeAbsolute(destPath)).and_then(Disk::copyFile);
 }
 
-void WritableDiskFileSystem::doMoveFile(
+kdl::result<void, FileSystemError> WritableDiskFileSystem::doMoveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  makeAbsolute(sourcePath)
-    .join(makeAbsolute(destPath))
-    .transform([](const auto& absSourcePath, const auto& absDestPath) {
-      Disk::moveFile(absSourcePath, absDestPath);
-    })
-    .if_error([](const auto& e) { throw FileSystemException{e.msg}; });
+  return makeAbsolute(sourcePath).join(makeAbsolute(destPath)).and_then(Disk::moveFile);
 }
 } // namespace IO
 } // namespace TrenchBroom

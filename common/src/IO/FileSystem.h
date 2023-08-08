@@ -115,7 +115,7 @@ public:
   kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path);
   kdl::result<void, FileSystemError> copyFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
-  void moveFile(
+  kdl::result<void, FileSystemError> moveFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 private:
@@ -127,7 +127,7 @@ private:
     const std::filesystem::path& path) = 0;
   virtual kdl::result<void, FileSystemError> doCopyFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
-  virtual void doMoveFile(
+  virtual kdl::result<void, FileSystemError> doMoveFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
 };
 

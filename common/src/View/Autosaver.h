@@ -91,7 +91,7 @@ private:
     Logger& logger,
     IO::WritableDiskFileSystem& fs,
     const std::vector<std::filesystem::path>& backups) const;
-  void cleanBackups(
+  kdl::result<void, IO::FileSystemError> cleanBackups(
     IO::WritableDiskFileSystem& fs,
     std::vector<std::filesystem::path>& backups,
     const std::filesystem::path& mapBasename) const;

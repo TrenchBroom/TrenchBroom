@@ -104,7 +104,7 @@ private:
   kdl::result<void, FileSystemError> doCopyFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
-  void doMoveFile(
+  kdl::result<void, FileSystemError> doMoveFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
 };

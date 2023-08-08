@@ -100,11 +100,11 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
       .and_then([&](auto fs) {
         const auto backups = collectBackups(fs, mapBasename);
         return thinBackups(logger, fs, backups).and_then([&](auto remainingBackups) {
-          cleanBackups(fs, remainingBackups, mapBasename);
-
-          assert(remainingBackups.size() < m_maxBackups);
-          const auto backupNo = remainingBackups.size() + 1;
-          return fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
+          return cleanBackups(fs, remainingBackups, mapBasename).and_then([&]() {
+            assert(remainingBackups.size() < m_maxBackups);
+            const auto backupNo = remainingBackups.size() + 1;
+            return fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
+          });
         });
       })
       .transform([&](const auto& backupFilePath) {
@@ -185,21 +185,19 @@ kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> Autosaver::
     .transform([&]() { return kdl::vec_slice_prefix(backups, m_maxBackups - 1); });
 }
 
-void Autosaver::cleanBackups(
+kdl::result<void, IO::FileSystemError> Autosaver::cleanBackups(
   IO::WritableDiskFileSystem& fs,
   std::vector<std::filesystem::path>& backups,
   const std::filesystem::path& mapBasename) const
 {
-  for (size_t i = 0; i < backups.size(); ++i)
-  {
-    const auto& oldName = backups[i].filename();
-    const auto newName = makeBackupName(mapBasename, i + 1);
+  return kdl::fold_results(
+    kdl::vec_transform(backups, [&](const std::filesystem::path& backup, const size_t i) {
+      const auto& oldName = backup.filename();
+      const auto newName = makeBackupName(mapBasename, i + 1);
 
-    if (oldName != newName)
-    {
-      fs.moveFile(oldName, newName);
-    }
-  }
+      return oldName != newName ? fs.moveFile(oldName, newName)
+                                : kdl::result<void, IO::FileSystemError>{};
+    }));
 }
 
 std::filesystem::path Autosaver::makeBackupName(
