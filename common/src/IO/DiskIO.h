@@ -32,6 +32,7 @@
 
 namespace TrenchBroom::IO
 {
+enum class TraversalMode;
 class File;
 enum class PathInfo;
 
@@ -44,10 +45,9 @@ std::filesystem::path fixPath(const std::filesystem::path& path);
 PathInfo pathInfo(const std::filesystem::path& path);
 
 std::vector<std::filesystem::path> find(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher = matchAnyPath);
-std::vector<std::filesystem::path> findRecursively(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher = matchAnyPath);
-std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path);
+  const std::filesystem::path& path,
+  TraversalMode traversalMode,
+  const PathMatcher& pathMatcher = matchAnyPath);
 
 std::shared_ptr<File> openFile(const std::filesystem::path& path);
 

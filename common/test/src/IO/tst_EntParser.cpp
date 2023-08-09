@@ -24,6 +24,7 @@
 #include "IO/EntParser.h"
 #include "IO/File.h"
 #include "IO/TestParserStatus.h"
+#include "IO/TraversalMode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -54,7 +55,7 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({".ent"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".ent"}));
 
   for (const auto& path : cfgFiles)
   {

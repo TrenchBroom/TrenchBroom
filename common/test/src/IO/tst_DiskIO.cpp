@@ -27,6 +27,7 @@
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/TestEnvironment.h"
+#include "IO/TraversalMode.h"
 #include "Macros.h"
 
 #include <algorithm>
@@ -133,20 +134,33 @@ TEST_CASE("DiskIO")
       Disk::pathInfo(env.dir() / "anotherDir/subDirTest/test2.map") == PathInfo::File);
   }
 
-  SECTION("directoryContents")
+  SECTION("find")
   {
-    CHECK_THROWS_AS(Disk::directoryContents("asdf/bleh"), FileSystemException);
+    CHECK_THROWS_AS(Disk::find("asdf/bleh", TraversalMode::Flat), FileSystemException);
     CHECK_THROWS_AS(
-      Disk::directoryContents(env.dir() / "does/not/exist"), FileSystemException);
+      Disk::find(env.dir() / "does/not/exist", TraversalMode::Flat), FileSystemException);
 
     CHECK_THAT(
-      Disk::directoryContents(env.dir()),
+      Disk::find(env.dir(), TraversalMode::Flat),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "dir1",
-        "dir2",
-        "anotherDir",
-        "test.txt",
-        "test2.map",
+        env.dir() / "dir1",
+        env.dir() / "dir2",
+        env.dir() / "anotherDir",
+        env.dir() / "test.txt",
+        env.dir() / "test2.map",
+      }));
+
+    CHECK_THAT(
+      Disk::find(env.dir(), TraversalMode::Recursive),
+      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+        env.dir() / "dir1",
+        env.dir() / "dir2",
+        env.dir() / "anotherDir",
+        env.dir() / "anotherDir/subDirTest",
+        env.dir() / "anotherDir/subDirTest/test2.map",
+        env.dir() / "anotherDir/test3.map",
+        env.dir() / "test.txt",
+        env.dir() / "test2.map",
       }));
   }
 

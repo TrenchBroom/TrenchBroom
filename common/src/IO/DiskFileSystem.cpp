@@ -24,6 +24,7 @@
 #include "IO/File.h"
 #include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
 
 #include <kdl/path_utils.h>
 #include <kdl/result.h>
@@ -70,7 +71,11 @@ std::vector<std::filesystem::path> DiskFileSystem::doGetDirectoryContents(
   const std::filesystem::path& path) const
 {
   return makeAbsolute(path)
-    .transform([](const auto& absPath) { return Disk::directoryContents(absPath); })
+    .transform([&](const auto& absPath) {
+      return kdl::vec_transform(Disk::find(absPath, TraversalMode::Flat), [&](auto p) {
+        return p.lexically_relative(m_root / path);
+      });
+    })
     .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
     .value();
 }

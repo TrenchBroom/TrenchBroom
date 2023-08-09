@@ -22,8 +22,10 @@
 #include "IO/File.h"
 #include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
 #include "Macros.h"
 
+#include "kdl/vector_utils.h"
 #include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
@@ -35,26 +37,6 @@ namespace Disk
 
 namespace
 {
-
-std::vector<std::filesystem::path> doGetDirectoryContents(
-  const std::filesystem::path& fixedPath)
-{
-  try
-  {
-    auto result = std::vector<std::filesystem::path>{};
-    std::transform(
-      std::filesystem::directory_iterator{fixedPath},
-      std::filesystem::directory_iterator{},
-      std::back_inserter(result),
-      [&](const auto& entry) { return entry.path().lexically_relative(fixedPath); });
-    return result;
-  }
-  catch (const std::filesystem::filesystem_error& e)
-  {
-    throw FileSystemException{
-      "Cannot open directory " + fixedPath.string() + ": " + e.what()};
-  }
-}
 
 bool doCheckCaseSensitive()
 {
@@ -128,20 +110,39 @@ PathInfo pathInfo(const std::filesystem::path& path)
 }
 
 std::vector<std::filesystem::path> find(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher)
+  const std::filesystem::path& path,
+  const TraversalMode traversalMode,
+  const PathMatcher& pathMatcher)
 {
-  return find(path, directoryContents, pathInfo, pathMatcher);
-}
-
-std::vector<std::filesystem::path> findRecursively(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher)
-{
-  return findRecursively(path, directoryContents, pathInfo, pathMatcher);
-}
-
-std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path)
-{
-  return doGetDirectoryContents(fixPath(path));
+  const auto fixedPath = fixPath(path);
+  try
+  {
+    auto result = std::vector<std::filesystem::path>{};
+    switch (traversalMode)
+    {
+    case TraversalMode::Flat:
+      std::transform(
+        std::filesystem::directory_iterator{fixedPath},
+        std::filesystem::directory_iterator{},
+        std::back_inserter(result),
+        [&](const auto& entry) { return entry.path(); });
+      break;
+    case TraversalMode::Recursive:
+      std::transform(
+        std::filesystem::recursive_directory_iterator{fixedPath},
+        std::filesystem::recursive_directory_iterator{},
+        std::back_inserter(result),
+        [&](const auto& entry) { return entry.path(); });
+      break;
+    }
+    return kdl::vec_filter(
+      result, [&](const auto& p) { return pathMatcher(p, pathInfo); });
+  }
+  catch (const std::filesystem::filesystem_error& e)
+  {
+    throw FileSystemException{
+      "Cannot open directory " + fixedPath.string() + ": " + e.what()};
+  }
 }
 
 std::shared_ptr<File> openFile(const std::filesystem::path& path)

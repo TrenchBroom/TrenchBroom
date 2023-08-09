@@ -25,6 +25,7 @@
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
+#include "IO/TraversalMode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -42,7 +43,7 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({".fgd"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".fgd"}));
 
   for (const auto& path : cfgFiles)
   {

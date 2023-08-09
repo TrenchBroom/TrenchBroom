@@ -30,6 +30,7 @@
 #include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
 #include "IO/PathQt.h"
+#include "IO/TraversalMode.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
@@ -144,7 +145,8 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
     try
     {
-      const auto pathsToCopy = IO::Disk::find(sourceDirPath, sourcePathMatcher);
+      const auto pathsToCopy =
+        IO::Disk::find(sourceDirPath, IO::TraversalMode::Flat, sourcePathMatcher);
       const auto pathStrsToCopy = kdl::vec_transform(
         pathsToCopy, [](const auto& path) { return "'" + path.string() + "'"; });
 
@@ -241,7 +243,8 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
     try
     {
-      const auto pathsToDelete = IO::Disk::find(targetDirPath, targetPathMatcher);
+      const auto pathsToDelete =
+        IO::Disk::find(targetDirPath, IO::TraversalMode::Recursive, targetPathMatcher);
       const auto pathStrsToDelete = kdl::vec_transform(
         pathsToDelete, [](const auto& path) { return "'" + path.string() + "'"; });
       const auto targetListQStr =

@@ -25,6 +25,7 @@
 #include "IO/File.h"
 #include "IO/PathMatcher.h"
 #include "IO/TestParserStatus.h"
+#include "IO/TraversalMode.h"
 #include "Model/EntityProperties.h"
 
 #include <kdl/string_compare.h>
@@ -40,7 +41,7 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({".def"}));
+    Disk::find(basePath, TraversalMode::Flat, makeExtensionPathMatcher({".def"}));
 
   for (const auto& path : cfgFiles)
   {
@@ -77,7 +78,7 @@ TEST_CASE("DefParserTest.parseExtraDefFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/test/IO/Def";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({".def"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".def"}));
 
   for (const auto& path : cfgFiles)
   {
