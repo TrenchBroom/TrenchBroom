@@ -136,12 +136,17 @@ TEST_CASE("DiskIO")
 
   SECTION("find")
   {
-    CHECK_THROWS_AS(Disk::find("asdf/bleh", TraversalMode::Flat), FileSystemException);
-    CHECK_THROWS_AS(
-      Disk::find(env.dir() / "does/not/exist", TraversalMode::Flat), FileSystemException);
+    CHECK(
+      Disk::find("asdf/bleh", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
+    CHECK(
+      Disk::find(env.dir() / "does/not/exist", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode::Flat),
+      Disk::find(env.dir(), TraversalMode::Flat).value(),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
@@ -151,7 +156,7 @@ TEST_CASE("DiskIO")
       }));
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode::Recursive),
+      Disk::find(env.dir(), TraversalMode::Recursive).value(),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",

@@ -41,7 +41,7 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::find(basePath, TraversalMode::Flat, makeExtensionPathMatcher({".def"}));
+    Disk::find(basePath, TraversalMode::Flat, makeExtensionPathMatcher({".def"})).value();
 
   for (const auto& path : cfgFiles)
   {
@@ -78,7 +78,8 @@ TEST_CASE("DefParserTest.parseExtraDefFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/test/IO/Def";
   const auto cfgFiles =
-    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".def"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".def"}))
+      .value();
 
   for (const auto& path : cfgFiles)
   {

@@ -55,7 +55,8 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".ent"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".ent"}))
+      .value();
 
   for (const auto& path : cfgFiles)
   {

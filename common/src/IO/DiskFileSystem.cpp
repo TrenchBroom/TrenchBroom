@@ -71,10 +71,10 @@ std::vector<std::filesystem::path> DiskFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   return makeAbsolute(path)
-    .transform([&](const auto& absPath) {
-      return kdl::vec_transform(Disk::find(absPath, traversalMode), [&](auto p) {
-        return p.lexically_relative(m_root);
-      });
+    .and_then([&](const auto& absPath) { return Disk::find(absPath, traversalMode); })
+    .transform([&](const auto& paths) {
+      return kdl::vec_transform(
+        paths, [&](auto p) { return p.lexically_relative(m_root); });
     })
     .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
     .value();

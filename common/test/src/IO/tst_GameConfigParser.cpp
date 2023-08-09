@@ -41,7 +41,8 @@ TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".cfg"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".cfg"}))
+      .value();
 
   for (const auto& path : cfgFiles)
   {

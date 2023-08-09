@@ -108,40 +108,38 @@ PathInfo pathInfo(const std::filesystem::path& path)
                                                                 : PathInfo::Unknown;
 }
 
-std::vector<std::filesystem::path> find(
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
   const std::filesystem::path& path,
   const TraversalMode traversalMode,
   const PathMatcher& pathMatcher)
 {
   const auto fixedPath = fixPath(path);
-  try
+  auto error = std::error_code{};
+  auto result = std::vector<std::filesystem::path>{};
+  switch (traversalMode)
   {
-    auto result = std::vector<std::filesystem::path>{};
-    switch (traversalMode)
-    {
-    case TraversalMode::Flat:
-      std::transform(
-        std::filesystem::directory_iterator{fixedPath},
-        std::filesystem::directory_iterator{},
-        std::back_inserter(result),
-        [&](const auto& entry) { return entry.path(); });
-      break;
-    case TraversalMode::Recursive:
-      std::transform(
-        std::filesystem::recursive_directory_iterator{fixedPath},
-        std::filesystem::recursive_directory_iterator{},
-        std::back_inserter(result),
-        [&](const auto& entry) { return entry.path(); });
-      break;
-    }
-    return kdl::vec_filter(
-      result, [&](const auto& p) { return pathMatcher(p, pathInfo); });
+  case TraversalMode::Flat:
+    std::transform(
+      std::filesystem::directory_iterator{fixedPath, error},
+      std::filesystem::directory_iterator{},
+      std::back_inserter(result),
+      [&](const auto& entry) { return entry.path(); });
+    break;
+  case TraversalMode::Recursive:
+    std::transform(
+      std::filesystem::recursive_directory_iterator{fixedPath, error},
+      std::filesystem::recursive_directory_iterator{},
+      std::back_inserter(result),
+      [&](const auto& entry) { return entry.path(); });
+    break;
   }
-  catch (const std::filesystem::filesystem_error& e)
+
+  if (error)
   {
-    throw FileSystemException{
-      "Cannot open directory " + fixedPath.string() + ": " + e.what()};
+    return FileSystemError{
+      "Cannot open directory " + fixedPath.string() + ": " + error.message()};
   }
+  return kdl::vec_filter(result, [&](const auto& p) { return pathMatcher(p, pathInfo); });
 }
 
 std::shared_ptr<File> openFile(const std::filesystem::path& path)

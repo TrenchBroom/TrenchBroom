@@ -44,7 +44,7 @@ std::filesystem::path fixPath(const std::filesystem::path& path);
 
 PathInfo pathInfo(const std::filesystem::path& path);
 
-std::vector<std::filesystem::path> find(
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
   const std::filesystem::path& path,
   TraversalMode traversalMode,
   const PathMatcher& pathMatcher = matchAnyPath);

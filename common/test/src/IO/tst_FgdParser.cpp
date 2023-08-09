@@ -43,7 +43,8 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".fgd"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".fgd"}))
+      .value();
 
   for (const auto& path : cfgFiles)
   {
