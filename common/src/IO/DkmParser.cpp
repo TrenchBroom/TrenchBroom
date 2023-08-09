@@ -26,6 +26,7 @@
 #include "IO/PathInfo.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"
+#include "IO/TraversalMode.h"
 #include "Renderer/GLVertex.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -480,7 +481,8 @@ std::filesystem::path DkmParser::findSkin(const std::string& skin) const
   // Search for any file with the correct base name.
   const auto folder = skinPath.parent_path();
   const auto basename = skinPath.stem();
-  const auto items = m_fs.find(folder, makeFilenamePathMatcher(basename.string() + ".*"));
+  const auto items = m_fs.find(
+    folder, TraversalMode::Flat, makeFilenamePathMatcher(basename.string() + ".*"));
   return items.size() == 1 ? items.front() : skinPath;
 }
 

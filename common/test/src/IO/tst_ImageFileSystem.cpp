@@ -23,6 +23,7 @@
 #include "IO/File.h"
 #include "IO/IdPakFileSystem.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
 #include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
 
@@ -840,10 +841,10 @@ TEST_CASE("Hierarchical ImageFileSystems")
     CHECK(fs->pathInfo("does_not_exist") == PathInfo::Unknown);
   }
 
-  SECTION("directoryContents")
+  SECTION("find")
   {
     CHECK_THAT(
-      fs->directoryContents(""),
+      fs->find("", TraversalMode::Flat),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
         "pics",
         "textures",
@@ -852,10 +853,31 @@ TEST_CASE("Hierarchical ImageFileSystems")
       }));
 
     CHECK_THAT(
-      fs->directoryContents("pics"),
+      fs->find("pics", TraversalMode::Flat),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "tag1.pcx",
-        "tag2.pcx",
+        "pics/tag1.pcx",
+        "pics/tag2.pcx",
+      }));
+
+    CHECK_THAT(
+      fs->find("", TraversalMode::Recursive),
+      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+        "amnet.cfg",
+        "bear.cfg",
+        "pics",
+        "pics/tag1.pcx",
+        "pics/tag2.pcx",
+        "textures",
+        "textures/e1u1",
+        "textures/e1u1/box1_3.wal",
+        "textures/e1u1/brlava.wal",
+        "textures/e1u2",
+        "textures/e1u2/angle1_1.wal",
+        "textures/e1u2/angle1_2.wal",
+        "textures/e1u2/basic1_7.wal",
+        "textures/e1u3",
+        "textures/e1u3/strs1_3.wal",
+        "textures/e1u3/stflr1_5.wal",
       }));
   }
 
@@ -919,8 +941,11 @@ TEST_CASE("Flat ImageFileSystems")
 
   SECTION("directoryContents")
   {
+    const auto traversalMode = GENERATE(TraversalMode::Flat, TraversalMode::Recursive);
+    CAPTURE(traversalMode);
+
     CHECK_THAT(
-      fs->directoryContents(""),
+      fs->find("", traversalMode),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
         "blowjob_machine.D", "bongs2.D",          "can-o-jam.D",     "cap4can-o-jam.D",
         "coffin1.D",         "coffin2.D",         "cr8_czg_1.D",     "cr8_czg_2.D",

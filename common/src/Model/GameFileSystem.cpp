@@ -27,6 +27,7 @@
 #include "IO/PathInfo.h"
 #include "IO/Quake3ShaderFileSystem.h"
 #include "IO/SystemPaths.h"
+#include "IO/TraversalMode.h"
 #include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
 #include "Logger.h"
@@ -155,7 +156,9 @@ void GameFileSystem::addFileSystemPackages(
   {
     const auto diskFS = IO::DiskFileSystem{searchPath};
     auto packages = diskFS.find(
-      std::filesystem::path{}, IO::makeExtensionPathMatcher(packageExtensions));
+      std::filesystem::path{},
+      IO::TraversalMode::Flat,
+      IO::makeExtensionPathMatcher(packageExtensions));
     packages = kdl::vec_sort(std::move(packages));
 
     for (const auto& packagePath : packages)

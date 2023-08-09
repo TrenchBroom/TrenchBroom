@@ -26,7 +26,6 @@
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/FileSystemError.h"
-#include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
 #include "IO/ReadDdsTexture.h"
@@ -37,6 +36,7 @@
 #include "IO/ReadWalTexture.h"
 #include "IO/ResourceUtils.h"
 #include "IO/TextureUtils.h"
+#include "IO/TraversalMode.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
@@ -173,8 +173,10 @@ kdl_reflect_impl(LoadTextureCollectionError);
 std::vector<std::filesystem::path> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
-  auto paths = gameFS.findRecursively(
-    textureConfig.root, makePathInfoPathMatcher({PathInfo::Directory}));
+  auto paths = gameFS.find(
+    textureConfig.root,
+    TraversalMode::Recursive,
+    makePathInfoPathMatcher({PathInfo::Directory}));
   paths.insert(paths.begin(), textureConfig.root);
   return paths;
 }
@@ -198,7 +200,7 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
         const auto pathMatcher = !textureConfig.extensions.empty()
                                    ? makeExtensionPathMatcher(textureConfig.extensions)
                                    : matchAnyPath;
-        const auto texturePaths = gameFS.find(path, pathMatcher);
+        const auto texturePaths = gameFS.find(path, TraversalMode::Flat, pathMatcher);
         auto textures = std::vector<Assets::Texture>{};
         textures.reserve(texturePaths.size());
 

@@ -24,6 +24,7 @@
 #include "IO/PathInfo.h"
 #include "IO/Quake3ShaderParser.h"
 #include "IO/SimpleParserStatus.h"
+#include "IO/TraversalMode.h"
 #include "Logger.h"
 
 #include <kdl/path_utils.h>
@@ -63,8 +64,8 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
 
   if (m_fs.pathInfo(m_shaderSearchPath) == PathInfo::Directory)
   {
-    const auto paths =
-      m_fs.find(m_shaderSearchPath, makeExtensionPathMatcher({".shader"}));
+    const auto paths = m_fs.find(
+      m_shaderSearchPath, TraversalMode::Flat, makeExtensionPathMatcher({".shader"}));
     for (const auto& path : paths)
     {
       const auto file = m_fs.openFile(path);
@@ -96,8 +97,9 @@ void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shad
     {
       allImages = kdl::vec_concat(
         std::move(allImages),
-        m_fs.findRecursively(
+        m_fs.find(
           textureSearchPath,
+          TraversalMode::Recursive,
           makeExtensionPathMatcher({".tga", ".png", ".jpg", ".jpeg"})));
     }
   }

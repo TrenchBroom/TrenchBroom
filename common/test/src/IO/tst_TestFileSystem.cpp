@@ -20,6 +20,7 @@
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/FileSystemError.h"
+#include "IO/TraversalMode.h"
 #include "TestFileSystem.h"
 
 #include <kdl/result.h>
@@ -87,10 +88,12 @@ TEST_CASE("TestFileSystem")
     CHECK(fs.pathInfo("some_dir/nested_dir/does_not_exist") == PathInfo::Unknown);
   }
 
-  SECTION("directoryContents")
+  SECTION("find")
   {
+    CHECK_THROWS_AS(fs.find("does_not_exist", TraversalMode::Flat), FileSystemException);
+
     CHECK_THAT(
-      fs.directoryContents(""),
+      fs.find("", TraversalMode::Flat),
       Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         "some_dir",
         "root_file_1",
@@ -98,18 +101,31 @@ TEST_CASE("TestFileSystem")
       }));
 
     CHECK_THAT(
-      fs.directoryContents("some_dir"),
+      fs.find("some_dir", TraversalMode::Flat),
       Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "nested_dir",
-        "some_dir_file_1",
-        "some_dir_file_2",
+        "some_dir/nested_dir",
+        "some_dir/some_dir_file_1",
+        "some_dir/some_dir_file_2",
       }));
 
     CHECK_THAT(
-      fs.directoryContents("some_dir/nested_dir"),
+      fs.find("some_dir/nested_dir", TraversalMode::Flat),
       Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "nested_dir_file_1",
-        "nested_dir_file_2",
+        "some_dir/nested_dir/nested_dir_file_1",
+        "some_dir/nested_dir/nested_dir_file_2",
+      }));
+
+    CHECK_THAT(
+      fs.find("", TraversalMode::Recursive),
+      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
+        "some_dir",
+        "some_dir/nested_dir",
+        "some_dir/nested_dir/nested_dir_file_1",
+        "some_dir/nested_dir/nested_dir_file_2",
+        "some_dir/some_dir_file_1",
+        "some_dir/some_dir_file_2",
+        "root_file_1",
+        "root_file_2",
       }));
   }
 

@@ -52,6 +52,7 @@
 #include "IO/SimpleParserStatus.h"
 #include "IO/SprParser.h"
 #include "IO/SystemPaths.h"
+#include "IO/TraversalMode.h"
 #include "IO/WorldReader.h"
 #include "Logger.h"
 #include "Macros.h"
@@ -589,7 +590,9 @@ std::vector<std::string> GameImpl::doAvailableMods() const
   const auto& defaultMod = m_config.fileSystemConfig.searchPath.filename().string();
   const auto fs = IO::DiskFileSystem{m_gamePath};
   const auto subDirs = fs.find(
-    std::filesystem::path{}, IO::makePathInfoPathMatcher({IO::PathInfo::Directory}));
+    std::filesystem::path{},
+    IO::TraversalMode::Flat,
+    IO::makePathInfoPathMatcher({IO::PathInfo::Directory}));
   for (const auto& subDir : subDirs)
   {
     const auto mod = subDir.filename().string();

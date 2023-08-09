@@ -21,6 +21,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/Quake3ShaderFileSystem.h"
+#include "IO/TraversalMode.h"
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
 
@@ -55,8 +56,20 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
       fs, shaderSearchPath, textureSearchPaths, logger));
 
   CHECK_THAT(
-    fs.find(texturePrefix / "test", makeExtensionPathMatcher({""})),
+    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""})),
     Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+      texturePrefix / "test/editor_image",
+      texturePrefix / "test/test",
+      texturePrefix / "test/test2",
+      texturePrefix / "test/not_existing",
+      texturePrefix / "test/not_existing2",
+    }));
+
+  CHECK_THAT(
+    fs.find(texturePrefix, TraversalMode::Recursive, makeExtensionPathMatcher({""})),
+    Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+      texturePrefix / "test",
+      texturePrefix / "__TB_empty",
       texturePrefix / "test/editor_image",
       texturePrefix / "test/test",
       texturePrefix / "test/test2",
@@ -89,7 +102,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
       fs, shaderSearchPath, textureSearchPaths, logger));
 
   CHECK_THAT(
-    fs.find(texturePrefix / "test", makeExtensionPathMatcher({""})),
+    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""})),
     Catch::UnorderedEquals(std::vector<std::filesystem::path>{
       texturePrefix / "test/editor_image",
       texturePrefix / "test/test",

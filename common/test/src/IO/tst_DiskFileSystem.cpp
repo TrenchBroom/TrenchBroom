@@ -28,6 +28,7 @@
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/TestEnvironment.h"
+#include "IO/TraversalMode.h"
 #include "Macros.h"
 
 #include <algorithm>
@@ -119,18 +120,18 @@ TEST_CASE("DiskFileSystemTest")
     CHECK(fs.pathInfo("fdfdf.blah") == PathInfo::Unknown);
   }
 
-  SECTION("directoryContents")
+  SECTION("find")
   {
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.directoryContents("c:\\"), FileSystemException);
+    CHECK_THROWS_AS(fs.find("c:\\", TraversalMode::Flat), FileSystemException);
 #else
-    CHECK_THROWS_AS(fs.directoryContents("/"), FileSystemException);
+    CHECK_THROWS_AS(fs.find("/", TraversalMode::Flat), FileSystemException);
 #endif
-    CHECK_THROWS_AS(fs.directoryContents(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents("asdf/bleh"), FileSystemException);
+    CHECK_THROWS_AS(fs.find("..", TraversalMode::Flat), FileSystemException);
+    CHECK_THROWS_AS(fs.find("asdf/bleh", TraversalMode::Flat), FileSystemException);
 
     CHECK_THAT(
-      fs.directoryContents("."),
+      fs.find(".", TraversalMode::Flat),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
         "dir1",
         "dir2",
@@ -140,10 +141,23 @@ TEST_CASE("DiskFileSystemTest")
       }));
 
     CHECK_THAT(
-      fs.directoryContents("anotherDir"),
+      fs.find("anotherDir", TraversalMode::Flat),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "subDirTest",
-        "test3.map",
+        "anotherDir/subDirTest",
+        "anotherDir/test3.map",
+      }));
+
+    CHECK_THAT(
+      fs.find(".", TraversalMode::Recursive),
+      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+        "dir1",
+        "dir2",
+        "anotherDir",
+        "anotherDir/subDirTest",
+        "anotherDir/subDirTest/test2.map",
+        "anotherDir/test3.map",
+        "test.txt",
+        "test2.map",
       }));
   }
 

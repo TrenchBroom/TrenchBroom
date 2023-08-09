@@ -24,6 +24,7 @@
 #include "IO/File.h"
 #include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
 
 #include <kdl/overload.h>
 #include <kdl/path_utils.h>
@@ -230,25 +231,42 @@ PathInfo ImageFileSystemBase::pathInfo(const std::filesystem::path& path) const
                : PathInfo::Unknown;
 }
 
-std::vector<std::filesystem::path> ImageFileSystemBase::doGetDirectoryContents(
-  const std::filesystem::path& path) const
+namespace
+{
+void doFindImpl(
+  const ImageEntry& entry,
+  const std::filesystem::path& entryPath,
+  const TraversalMode traversalMode,
+  std::vector<std::filesystem::path>& result)
+{
+  std::visit(
+    kdl::overload(
+      [&](const ImageDirectoryEntry& directoryEntry) {
+        for (const auto& childEntry : directoryEntry.entries)
+        {
+          const auto childPath = entryPath / getName(childEntry);
+          result.push_back(childPath);
+          if (traversalMode == TraversalMode::Recursive)
+          {
+            doFindImpl(childEntry, childPath, traversalMode, result);
+          }
+        }
+      },
+      [](const ImageFileEntry&) {}),
+    entry);
+}
+} // namespace
+
+std::vector<std::filesystem::path> ImageFileSystemBase::doFind(
+  const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   withEntry(
     path,
     m_root,
-    std::filesystem::path{},
-    [&](const ImageEntry& entry, const std::filesystem::path&) {
-      return std::visit(
-        kdl::overload(
-          [&](const ImageDirectoryEntry& directoryEntry) {
-            for (const auto& childEntry : directoryEntry.entries)
-            {
-              result.push_back(getName(childEntry));
-            }
-          },
-          [](const ImageFileEntry&) {}),
-        entry);
+    {},
+    [&](const ImageEntry& entry, const std::filesystem::path& entryPath) {
+      doFindImpl(entry, entryPath, traversalMode, result);
     });
   return result;
 }

@@ -67,13 +67,13 @@ PathInfo DiskFileSystem::pathInfo(const std::filesystem::path& path) const
     .value();
 }
 
-std::vector<std::filesystem::path> DiskFileSystem::doGetDirectoryContents(
-  const std::filesystem::path& path) const
+std::vector<std::filesystem::path> DiskFileSystem::doFind(
+  const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   return makeAbsolute(path)
     .transform([&](const auto& absPath) {
-      return kdl::vec_transform(Disk::find(absPath, TraversalMode::Flat), [&](auto p) {
-        return p.lexically_relative(m_root / path);
+      return kdl::vec_transform(Disk::find(absPath, traversalMode), [&](auto p) {
+        return p.lexically_relative(m_root);
       });
     })
     .if_error([](const auto& e) { throw FileSystemException{e.msg}; })

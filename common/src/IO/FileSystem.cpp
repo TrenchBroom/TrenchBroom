@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "IO/FileSystemError.h"
-#include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
 #include "Macros.h"
 
@@ -40,37 +39,9 @@ namespace TrenchBroom::IO
 FileSystem::~FileSystem() = default;
 
 std::vector<std::filesystem::path> FileSystem::find(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher) const
-{
-  if (path.is_absolute())
-  {
-    throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
-  }
-
-  return IO::find(
-    path,
-    [&](const std::filesystem::path& p) { return doGetDirectoryContents(p); },
-    [&](const std::filesystem::path& p) { return pathInfo(p); },
-    pathMatcher);
-}
-
-std::vector<std::filesystem::path> FileSystem::findRecursively(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher) const
-{
-  if (path.is_absolute())
-  {
-    throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
-  }
-
-  return IO::findRecursively(
-    path,
-    [&](const std::filesystem::path& p) { return doGetDirectoryContents(p); },
-    [&](const std::filesystem::path& p) { return pathInfo(p); },
-    pathMatcher);
-}
-
-std::vector<std::filesystem::path> FileSystem::directoryContents(
-  const std::filesystem::path& path) const
+  const std::filesystem::path& path,
+  const TraversalMode traversalMode,
+  const PathMatcher& pathMatcher) const
 {
   if (path.is_absolute())
   {
@@ -79,10 +50,13 @@ std::vector<std::filesystem::path> FileSystem::directoryContents(
 
   if (pathInfo(path) != PathInfo::Directory)
   {
-    throw FileSystemException{"Directory not found: '" + path.string() + "'"};
+    throw FileSystemException{
+      "Path does not denoty a directory: '" + path.string() + "'"};
   }
 
-  return doGetDirectoryContents(path);
+  return kdl::vec_filter(doFind(path, traversalMode), [&](const auto& p) {
+    return pathMatcher(p, [&](const auto& x) { return pathInfo(x); });
+  });
 }
 
 std::shared_ptr<File> FileSystem::openFile(const std::filesystem::path& path) const

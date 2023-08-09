@@ -20,7 +20,6 @@
 #include "VirtualFileSystem.h"
 
 #include "IO/FileSystemError.h"
-#include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
 
 #include <kdl/path_utils.h>
@@ -167,8 +166,8 @@ void VirtualFileSystem::unmountAll()
   m_mountPoints.clear();
 }
 
-std::vector<std::filesystem::path> VirtualFileSystem::doGetDirectoryContents(
-  const std::filesystem::path& path) const
+std::vector<std::filesystem::path> VirtualFileSystem::doFind(
+  const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   for (const auto& mountPoint : m_mountPoints)
@@ -180,7 +179,10 @@ std::vector<std::filesystem::path> VirtualFileSystem::doGetDirectoryContents(
       if (mountPoint.mountedFileSystem->pathInfo(pathSuffix) == PathInfo::Directory)
       {
         result = kdl::vec_concat(
-          std::move(result), mountPoint.mountedFileSystem->directoryContents(pathSuffix));
+          std::move(result),
+          kdl::vec_transform(
+            mountPoint.mountedFileSystem->find(pathSuffix, traversalMode),
+            [&](auto p) { return mountPoint.path / p; }));
       }
     }
     else if (
@@ -188,7 +190,7 @@ std::vector<std::filesystem::path> VirtualFileSystem::doGetDirectoryContents(
       && kdl::path_has_prefix(
         kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path)))
     {
-      result.push_back(kdl::path_clip(mountPoint.path, kdl::path_length(path), 1));
+      result.push_back(kdl::path_clip(mountPoint.path, 0, kdl::path_length(path) + 1));
     }
   }
 
@@ -225,10 +227,10 @@ PathInfo WritableVirtualFileSystem::pathInfo(const std::filesystem::path& path) 
   return m_virtualFs.pathInfo(path);
 }
 
-std::vector<std::filesystem::path> WritableVirtualFileSystem::doGetDirectoryContents(
-  const std::filesystem::path& path) const
+std::vector<std::filesystem::path> WritableVirtualFileSystem::doFind(
+  const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
-  return m_virtualFs.directoryContents(path);
+  return m_virtualFs.find(path, traversalMode);
 }
 
 std::shared_ptr<File> WritableVirtualFileSystem::doOpenFile(

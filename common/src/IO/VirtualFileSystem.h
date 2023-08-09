@@ -69,8 +69,8 @@ public:
   void unmountAll();
 
 protected:
-  std::vector<std::filesystem::path> doGetDirectoryContents(
-    const std::filesystem::path& path) const override;
+  std::vector<std::filesystem::path> doFind(
+    const std::filesystem::path& path, TraversalMode traversalMode) const override;
   std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 };
 
@@ -84,15 +84,15 @@ public:
   WritableVirtualFileSystem(
     VirtualFileSystem virtualFs, std::unique_ptr<WritableFileSystem> writableFs);
 
-  using FileSystem::directoryContents;
+  using FileSystem::find;
 
   kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
 private:
-  std::vector<std::filesystem::path> doGetDirectoryContents(
-    const std::filesystem::path& path) const override;
+  std::vector<std::filesystem::path> doFind(
+    const std::filesystem::path& path, TraversalMode traversalMode) const override;
   std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 
   kdl::result<void, FileSystemError> doCreateFile(

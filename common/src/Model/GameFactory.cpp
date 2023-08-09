@@ -30,6 +30,7 @@
 #include "IO/GameEngineConfigWriter.h"
 #include "IO/PathInfo.h"
 #include "IO/SystemPaths.h"
+#include "IO/TraversalMode.h"
 #include "Logger.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
@@ -270,8 +271,8 @@ void GameFactory::loadGameConfigs()
 {
   auto errors = std::vector<std::string>{};
 
-  const auto configFiles =
-    m_configFs->findRecursively({}, IO::makeFilenamePathMatcher("GameConfig.cfg"));
+  const auto configFiles = m_configFs->find(
+    {}, IO::TraversalMode::Recursive, IO::makeFilenamePathMatcher("GameConfig.cfg"));
   for (const auto& configFilePath : configFiles)
   {
     try

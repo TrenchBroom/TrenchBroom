@@ -20,6 +20,7 @@
 #include "IO/File.h"
 #include "IO/FileSystemError.h"
 #include "IO/TestFileSystem.h"
+#include "IO/TraversalMode.h"
 #include "IO/VirtualFileSystem.h"
 
 #include <kdl/overload.h>
@@ -56,10 +57,10 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.pathInfo("foo/bar") == PathInfo::Unknown);
     }
 
-    SECTION("directoryContents")
+    SECTION("find")
     {
-      CHECK_THROWS_AS(vfs.directoryContents(""), FileSystemException);
-      CHECK_THROWS_AS(vfs.directoryContents("foo/bar"), FileSystemException);
+      CHECK_THROWS_AS(vfs.find("", TraversalMode::Flat), FileSystemException);
+      CHECK_THROWS_AS(vfs.find("foo/bar", TraversalMode::Flat), FileSystemException);
     }
 
     SECTION("openFile")
@@ -112,23 +113,23 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.pathInfo("foo/baz") == PathInfo::Unknown);
     }
 
-    SECTION("directoryContents")
+    SECTION("find")
     {
       CHECK_THAT(
-        vfs.directoryContents(""),
+        vfs.find("", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
           "foo",
           "bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents("foo"),
+        vfs.find("foo", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "bar",
+          "foo/bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents("foo/bar"),
+        vfs.find("foo/bar", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "baz",
+          "foo/bar/baz",
         }));
     }
 
@@ -225,30 +226,31 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.pathInfo("bat/foo") == PathInfo::Unknown);
     }
 
-    SECTION("directoryContents")
+    SECTION("find")
     {
       CHECK_THAT(
-        vfs.directoryContents(""),
+        vfs.find("", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
           "foo",
           "bar",
           "baz",
         }));
       CHECK_THAT(
-        vfs.directoryContents("foo"),
+        vfs.find("foo", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "bar",
+          "foo/bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents("foo/bar"),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{"baz"}));
+        vfs.find("foo/bar", TraversalMode::Flat),
+        Catch::Matchers::UnorderedEquals(
+          std::vector<std::filesystem::path>{"foo/bar/baz"}));
       CHECK_THAT(
-        vfs.directoryContents("bar"),
+        vfs.find("bar", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo",
-          "baz",
-          "bat",
-          "cat",
+          "bar/foo",
+          "bar/baz",
+          "bar/bat",
+          "bar/cat",
         }));
     }
 
@@ -313,30 +315,28 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.pathInfo("baz") == PathInfo::Unknown);
     }
 
-    SECTION("directoryContents")
+    SECTION("find")
     {
-      /*
       CHECK_THAT(
-        vfs.directoryContents(""),
+        vfs.find("", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
           "foo",
           "bar",
         }));
-        */
       CHECK_THAT(
-        vfs.directoryContents("foo"),
+        vfs.find("foo", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "bar",
+          "foo/bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents("foo/bar"),
+        vfs.find("foo/bar", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "baz",
+          "foo/bar/baz",
         }));
       CHECK_THAT(
-        vfs.directoryContents("bar"),
+        vfs.find("bar", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo",
+          "bar/foo",
         }));
     }
 
@@ -400,23 +400,23 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
     }
 
-    SECTION("directoryContents")
+    SECTION("find")
     {
       CHECK_THAT(
-        vfs.directoryContents(""),
+        vfs.find("", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
           "foo",
         }));
       CHECK_THAT(
-        vfs.directoryContents("foo"),
+        vfs.find("foo", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "bar",
+          "foo/bar",
         }));
       CHECK_THAT(
-        vfs.directoryContents("foo/bar"),
+        vfs.find("foo/bar", TraversalMode::Flat),
         Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "baz",
-          "foo",
+          "foo/bar/baz",
+          "foo/bar/foo",
         }));
     }
 

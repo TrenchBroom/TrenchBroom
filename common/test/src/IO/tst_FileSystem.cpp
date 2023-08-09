@@ -20,6 +20,7 @@
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/FileSystemError.h"
+#include "IO/TraversalMode.h"
 #include "TestFileSystem.h"
 
 #include <kdl/result.h>
@@ -84,13 +85,13 @@ TEST_CASE("FileSystem")
 
   SECTION("find")
   {
-    CHECK_THROWS_AS(fs.find("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.find("/foo"), FileSystemException);
-    CHECK_THROWS_AS(fs.find("does_not_exist"), FileSystemException);
-    CHECK_THROWS_AS(fs.find("root_file_1.map"), FileSystemException);
+    CHECK_THROWS_AS(fs.find("/", TraversalMode::Flat), FileSystemException);
+    CHECK_THROWS_AS(fs.find("/foo", TraversalMode::Flat), FileSystemException);
+    CHECK_THROWS_AS(fs.find("does_not_exist", TraversalMode::Flat), FileSystemException);
+    CHECK_THROWS_AS(fs.find("root_file_1.map", TraversalMode::Flat), FileSystemException);
 
     CHECK_THAT(
-      fs.find(""),
+      fs.find("", TraversalMode::Flat),
       Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         "some_dir",
         "root_file_1.map",
@@ -98,7 +99,7 @@ TEST_CASE("FileSystem")
       }));
 
     CHECK_THAT(
-      fs.findRecursively(""),
+      fs.find("", TraversalMode::Recursive),
       Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         "some_dir",
         "some_dir/nested_dir",
@@ -111,7 +112,7 @@ TEST_CASE("FileSystem")
       }));
 
     CHECK_THAT(
-      fs.find("some_dir"),
+      fs.find("some_dir", TraversalMode::Flat),
       Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         "some_dir/nested_dir",
         "some_dir/some_dir_file_1.TXT",
@@ -119,7 +120,7 @@ TEST_CASE("FileSystem")
       }));
 
     CHECK_THAT(
-      fs.findRecursively("some_dir"),
+      fs.find("some_dir", TraversalMode::Recursive),
       Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         "some_dir/nested_dir",
         "some_dir/nested_dir/nested_dir_file_1.txt",
@@ -129,21 +130,13 @@ TEST_CASE("FileSystem")
       }));
 
     CHECK_THAT(
-      fs.findRecursively("", makeExtensionPathMatcher({".txt", ".map"})),
+      fs.find("", TraversalMode::Recursive, makeExtensionPathMatcher({".txt", ".map"})),
       Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
         "some_dir/nested_dir/nested_dir_file_1.txt",
         "some_dir/nested_dir/nested_dir_file_2.map",
         "some_dir/some_dir_file_1.TXT",
         "root_file_1.map",
       }));
-  }
-
-  SECTION("directoryContents")
-  {
-    CHECK_THROWS_AS(fs.directoryContents("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents("/foo"), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents("does_not_exist"), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents("root_file_1.map"), FileSystemException);
   }
 
   SECTION("openFile")

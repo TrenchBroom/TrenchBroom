@@ -20,6 +20,7 @@
 #include "TestFileSystem.h"
 
 #include "IO/FileSystemError.h"
+#include "IO/TraversalMode.h"
 
 #include <kdl/overload.h>
 #include <kdl/path_utils.h>
@@ -99,23 +100,39 @@ kdl::result<std::filesystem::path, FileSystemError> TestFileSystem::makeAbsolute
   return FileSystemError{};
 }
 
-std::vector<std::filesystem::path> TestFileSystem::doGetDirectoryContents(
-  const std::filesystem::path& path) const
+namespace
+{
+void doFindImpl(
+  const Entry& entry,
+  const std::filesystem::path& entryPath,
+  const TraversalMode traversalMode,
+  std::vector<std::filesystem::path>& result)
+{
+  std::visit(
+    kdl::overload(
+      [&](const DirectoryEntry& d) {
+        for (const auto& child : d.entries)
+        {
+          const auto childPath = entryPath / getEntryName(child);
+          result.push_back(childPath);
+          if (traversalMode == TraversalMode::Recursive)
+          {
+            doFindImpl(child, childPath, traversalMode, result);
+          }
+        }
+      },
+      [](const auto&) {}),
+    entry);
+}
+} // namespace
+
+std::vector<std::filesystem::path> TestFileSystem::doFind(
+  const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   if (const auto* entry = findEntry(path))
   {
-    std::visit(
-      kdl::overload(
-        [&](const DirectoryEntry& d) {
-          for (const auto& child : d.entries)
-          {
-            const auto childPath = std::filesystem::path{getEntryName(child)};
-            result.push_back(childPath);
-          }
-        },
-        [](const auto&) {}),
-      *entry);
+    doFindImpl(*entry, path, traversalMode, result);
   }
   return result;
 }

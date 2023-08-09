@@ -24,6 +24,7 @@
 #include "IO/DiskIO.h"
 #include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
 #include "View/MapDocument.h"
 
 #include "kdl/result_fold.h"
@@ -154,7 +155,7 @@ bool compareBackupsByNo(
 std::vector<std::filesystem::path> Autosaver::collectBackups(
   const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const
 {
-  auto backups = fs.find({}, makeBackupPathMatcher(mapBasename));
+  auto backups = fs.find({}, IO::TraversalMode::Flat, makeBackupPathMatcher(mapBasename));
   std::sort(std::begin(backups), std::end(backups), compareBackupsByNo);
   return backups;
 }

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FileSystemUtils.h"
+#include "PathMatcher.h"
 
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>

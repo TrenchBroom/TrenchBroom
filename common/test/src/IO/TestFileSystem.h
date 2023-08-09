@@ -79,8 +79,8 @@ public:
 
 private:
   const Entry* findEntry(std::filesystem::path path) const;
-  std::vector<std::filesystem::path> doGetDirectoryContents(
-    const std::filesystem::path& path) const override;
+  std::vector<std::filesystem::path> doFind(
+    const std::filesystem::path& path, TraversalMode traversalMode) const override;
   std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 };
 

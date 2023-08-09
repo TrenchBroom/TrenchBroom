@@ -36,6 +36,7 @@ class File;
 class FileSystem;
 struct FileSystemError;
 enum class PathInfo;
+enum class TraversalMode;
 
 class FileSystem
 {
@@ -59,35 +60,13 @@ public:
    * this file system.
    *
    * @param path the path to the directory to search
+   * @param traversalMode the traversal mode
    * @param pathMatcher only return paths that satisfy this path matcher
    */
   std::vector<std::filesystem::path> find(
     const std::filesystem::path& path,
+    TraversalMode traversalMode,
     const PathMatcher& pathMatcher = matchAnyPath) const;
-
-  /** Returns a vector of paths listing the contents of the directory recursively at the
-   * given path that satisfy the given path matcher. The returned paths are relative to
-   * the root of this file system.
-   *
-   * @param path the path to the directory to search
-   * @param pathMatcher only return paths that satisfy this path matcher
-   */
-  std::vector<std::filesystem::path> findRecursively(
-    const std::filesystem::path& path,
-    const PathMatcher& pathMatcher =
-      [](const std::filesystem::path&, const GetPathInfo&) { return true; }) const;
-
-  /** Returns the contents of the directory at the given paths.
-   *
-   * Returns an empty list if there is no directory at the given path. The returned paths
-   * are relative to the given path.
-   *
-   * @param path the path to the directory to list
-   * @throws FileSystemException if the given path is an absolute path or if the given
-   * path is invalid
-   */
-  std::vector<std::filesystem::path> directoryContents(
-    const std::filesystem::path& path) const;
 
   /** Open a file at the given path and return it.
    *
@@ -97,8 +76,8 @@ public:
   std::shared_ptr<File> openFile(const std::filesystem::path& path) const;
 
 protected:
-  virtual std::vector<std::filesystem::path> doGetDirectoryContents(
-    const std::filesystem::path& path) const = 0;
+  virtual std::vector<std::filesystem::path> doFind(
+    const std::filesystem::path& path, TraversalMode traversalMode) const = 0;
   virtual std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const = 0;
 };
 

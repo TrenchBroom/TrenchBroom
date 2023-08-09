@@ -20,7 +20,6 @@
 #include "DiskIO.h"
 
 #include "IO/File.h"
-#include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/TraversalMode.h"
 #include "Macros.h"

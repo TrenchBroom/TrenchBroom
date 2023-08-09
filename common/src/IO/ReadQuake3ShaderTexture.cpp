@@ -25,6 +25,7 @@
 #include "IO/FileSystem.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
+#include "IO/TraversalMode.h"
 
 #include <kdl/functional.h>
 #include <kdl/result.h>
@@ -61,6 +62,7 @@ std::optional<std::filesystem::path> findImage(
     const auto basename = texturePath.stem().string();
     const auto candidates = fs.find(
       texturePath.parent_path(),
+      TraversalMode::Flat,
       kdl::lift_and(
         makeFilenamePathMatcher(basename + ".*"),
         makeExtensionPathMatcher(imageExtensions)));
