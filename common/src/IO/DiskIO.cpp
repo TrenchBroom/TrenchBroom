@@ -142,12 +142,13 @@ kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
   return kdl::vec_filter(result, [&](const auto& p) { return pathMatcher(p, pathInfo); });
 }
 
-std::shared_ptr<File> openFile(const std::filesystem::path& path)
+kdl::result<std::shared_ptr<File>, FileSystemError> openFile(
+  const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) != PathInfo::File)
   {
-    throw FileNotFoundException(fixedPath.string());
+    return FileSystemError{"File not found: '" + fixedPath.string() + "'"};
   }
 
   return std::make_shared<CFile>(fixedPath);

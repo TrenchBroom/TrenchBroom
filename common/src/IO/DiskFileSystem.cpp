@@ -83,7 +83,7 @@ std::vector<std::filesystem::path> DiskFileSystem::doFind(
 std::shared_ptr<File> DiskFileSystem::doOpenFile(const std::filesystem::path& path) const
 {
   return makeAbsolute(path)
-    .transform(Disk::openFile)
+    .and_then(Disk::openFile)
     .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
     .value();
 }

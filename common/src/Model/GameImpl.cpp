@@ -217,28 +217,30 @@ std::unique_ptr<WorldNode> GameImpl::doLoadMap(
   Logger& logger) const
 {
   auto parserStatus = IO::SimpleParserStatus{logger};
-  auto file = IO::Disk::openFile(path);
-  auto fileReader = file->reader().buffer();
-  if (format == MapFormat::Unknown)
-  {
-    // Try all formats listed in the game config
-    const auto possibleFormats = kdl::vec_transform(
-      m_config.fileFormats,
-      [](const auto& config) { return Model::formatFromName(config.format); });
+  return IO::Disk::openFile(path)
+    .transform([&](auto file) {
+      auto fileReader = file->reader().buffer();
+      if (format == MapFormat::Unknown)
+      {
+        // Try all formats listed in the game config
+        const auto possibleFormats = kdl::vec_transform(
+          m_config.fileFormats,
+          [](const auto& config) { return Model::formatFromName(config.format); });
 
-    return IO::WorldReader::tryRead(
-      fileReader.stringView(),
-      possibleFormats,
-      worldBounds,
-      entityPropertyConfig(),
-      parserStatus);
-  }
-  else
-  {
-    auto worldReader =
-      IO::WorldReader{fileReader.stringView(), format, entityPropertyConfig()};
-    return worldReader.read(worldBounds, parserStatus);
-  }
+        return IO::WorldReader::tryRead(
+          fileReader.stringView(),
+          possibleFormats,
+          worldBounds,
+          entityPropertyConfig(),
+          parserStatus);
+      }
+
+      auto worldReader =
+        IO::WorldReader{fileReader.stringView(), format, entityPropertyConfig()};
+      return worldReader.read(worldBounds, parserStatus);
+    })
+    .if_error([](auto e) { throw FileSystemException{e.msg}; })
+    .value();
 }
 
 kdl::result<void, IO::FileSystemError> GameImpl::doWriteMap(
@@ -367,24 +369,36 @@ std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
 
   if (kdl::ci::str_is_equal(".fgd", extension))
   {
-    auto file = IO::Disk::openFile(path);
-    auto reader = file->reader().buffer();
-    auto parser = IO::FgdParser{reader.stringView(), defaultColor, path};
-    return parser.parseDefinitions(status);
+    return IO::Disk::openFile(path)
+      .transform([&](auto file) {
+        auto reader = file->reader().buffer();
+        auto parser = IO::FgdParser{reader.stringView(), defaultColor, path};
+        return parser.parseDefinitions(status);
+      })
+      .if_error([](auto e) { throw FileSystemException{e.msg}; })
+      .value();
   }
   if (kdl::ci::str_is_equal(".def", extension))
   {
-    auto file = IO::Disk::openFile(path);
-    auto reader = file->reader().buffer();
-    auto parser = IO::DefParser{reader.stringView(), defaultColor};
-    return parser.parseDefinitions(status);
+    return IO::Disk::openFile(path)
+      .transform([&](auto file) {
+        auto reader = file->reader().buffer();
+        auto parser = IO::DefParser{reader.stringView(), defaultColor};
+        return parser.parseDefinitions(status);
+      })
+      .if_error([](auto e) { throw FileSystemException{e.msg}; })
+      .value();
   }
   if (kdl::ci::str_is_equal(".ent", extension))
   {
-    auto file = IO::Disk::openFile(path);
-    auto reader = file->reader().buffer();
-    auto parser = IO::EntParser{reader.stringView(), defaultColor};
-    return parser.parseDefinitions(status);
+    return IO::Disk::openFile(path)
+      .transform([&](auto file) {
+        auto reader = file->reader().buffer();
+        auto parser = IO::EntParser{reader.stringView(), defaultColor};
+        return parser.parseDefinitions(status);
+      })
+      .if_error([](auto e) { throw FileSystemException{e.msg}; })
+      .value();
   }
 
   throw GameException{"Unknown entity definition format: '" + path.string() + "'"};

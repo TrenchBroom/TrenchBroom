@@ -29,6 +29,7 @@
 #include "Renderer/FontGlyph.h"
 #include "Renderer/FontGlyphBuilder.h"
 #include "Renderer/FontTexture.h"
+#include "Renderer/RenderError.h"
 #include "Renderer/TextureFont.h"
 
 #include <algorithm>
@@ -79,26 +80,31 @@ std::pair<FT_Face, IO::BufferedReader> FreeTypeFontFactory::loadFont(
                           ? fontDescriptor.path()
                           : IO::SystemPaths::findResourceFile(fontDescriptor.path());
 
-  auto file = IO::Disk::openFile(fontPath);
-  auto reader = file->reader().buffer();
+  return IO::Disk::openFile(fontPath)
+    .and_then(
+      [&](auto file) -> kdl::result<std::pair<FT_Face, IO::BufferedReader>, RenderError> {
+        auto reader = file->reader().buffer();
 
-  FT_Face face;
-  const FT_Error error = FT_New_Memory_Face(
-    m_library,
-    reinterpret_cast<const FT_Byte*>(reader.begin()),
-    static_cast<FT_Long>(reader.size()),
-    0,
-    &face);
-  if (error != 0)
-  {
-    throw RenderException(
-      "Error loading font '" + fontDescriptor.name() + "': " + std::to_string(error));
-  }
+        auto face = FT_Face{};
+        const auto error = FT_New_Memory_Face(
+          m_library,
+          reinterpret_cast<const FT_Byte*>(reader.begin()),
+          FT_Long(reader.size()),
+          0,
+          &face);
+        if (error)
+        {
+          return RenderError{"FT_New_Memory_Face returned " + std::to_string(error)};
+        }
 
-  const auto fontSize = static_cast<FT_UInt>(fontDescriptor.size());
-  FT_Set_Pixel_Sizes(face, 0, fontSize);
-
-  return {face, std::move(reader)};
+        FT_Set_Pixel_Sizes(face, 0, FT_UInt(fontDescriptor.size()));
+        return std::pair{face, std::move(reader)};
+      })
+    .if_error([&](auto e) {
+      throw RenderException{
+        "Error loading font '" + fontDescriptor.name() + "': " + e.msg};
+    })
+    .value();
 }
 
 std::unique_ptr<TextureFont> FreeTypeFontFactory::buildFont(

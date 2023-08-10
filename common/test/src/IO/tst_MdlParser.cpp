@@ -45,8 +45,7 @@ TEST_CASE("MdlParserTest.loadValidMdl")
   const auto palette = Assets::loadPalette(*paletteFile, palettePath).value();
 
   const auto mdlPath = std::filesystem::current_path() / "fixture/test/IO/Mdl/armor.mdl";
-  const auto mdlFile = Disk::openFile(mdlPath);
-  REQUIRE(mdlFile != nullptr);
+  const auto mdlFile = Disk::openFile(mdlPath).value();
 
   auto reader = mdlFile->reader().buffer();
   auto parser = MdlParser("armor", reader, palette);
@@ -74,8 +73,7 @@ TEST_CASE("MdlParserTest.loadInvalidMdl")
 
   const auto mdlPath =
     std::filesystem::current_path() / "fixture/test/IO/Mdl/invalid.mdl";
-  const auto mdlFile = Disk::openFile(mdlPath);
-  REQUIRE(mdlFile != nullptr);
+  const auto mdlFile = Disk::openFile(mdlPath).value();
 
   auto reader = mdlFile->reader().buffer();
   auto parser = MdlParser("armor", reader, palette);

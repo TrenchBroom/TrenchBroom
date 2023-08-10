@@ -48,7 +48,7 @@ TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
   {
     CAPTURE(path);
 
-    auto file = Disk::openFile(path);
+    auto file = Disk::openFile(path).value();
     auto reader = file->reader().buffer();
 
     GameConfigParser parser(reader.stringView(), path);

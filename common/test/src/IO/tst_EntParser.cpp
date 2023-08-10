@@ -62,7 +62,7 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles")
   {
     CAPTURE(path);
 
-    auto file = Disk::openFile(path);
+    auto file = Disk::openFile(path).value();
     auto reader = file->reader().buffer();
 
     auto parser = EntParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};

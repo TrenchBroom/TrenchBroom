@@ -49,7 +49,8 @@ kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
   TraversalMode traversalMode,
   const PathMatcher& pathMatcher = matchAnyPath);
 
-std::shared_ptr<File> openFile(const std::filesystem::path& path);
+kdl::result<std::shared_ptr<File>, FileSystemError> openFile(
+  const std::filesystem::path& path);
 
 template <typename Stream, typename F>
 auto withStream(

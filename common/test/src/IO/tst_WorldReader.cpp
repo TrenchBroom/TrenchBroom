@@ -1437,7 +1437,7 @@ TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap")
 {
   const auto mapPath =
     std::filesystem::current_path() / "fixture/test/IO/Map/Heretic2Quark.map";
-  const std::shared_ptr<File> file = Disk::openFile(mapPath);
+  const auto file = Disk::openFile(mapPath).value();
   auto fileReader = file->reader().buffer();
 
   auto status = TestParserStatus{};

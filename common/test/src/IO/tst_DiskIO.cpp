@@ -172,13 +172,21 @@ TEST_CASE("DiskIO")
   SECTION("openFile")
   {
 
-    CHECK_THROWS_AS(Disk::openFile("asdf/bleh"), FileNotFoundException);
-    CHECK_THROWS_AS(Disk::openFile(env.dir() / "does/not/exist"), FileNotFoundException);
+    CHECK(
+      Disk::openFile("asdf/bleh")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      Disk::openFile(env.dir() / "does/not/exist")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      Disk::openFile(env.dir() / "does_not_exist.txt")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
 
-    CHECK_THROWS_AS(
-      Disk::openFile(env.dir() / "does_not_exist.txt"), FileNotFoundException);
-    CHECK(Disk::openFile(env.dir() / "test.txt") != nullptr);
-    CHECK(Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map") != nullptr);
+    auto file = Disk::openFile(env.dir() / "test.txt");
+    CHECK(file.is_success());
+
+    file = Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map");
+    CHECK(file.is_success());
   }
 
   SECTION("withStream")

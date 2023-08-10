@@ -47,7 +47,7 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
   {
     CAPTURE(path);
 
-    auto file = Disk::openFile(path);
+    auto file = Disk::openFile(path).value();
     auto reader = file->reader().buffer();
     auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
@@ -83,7 +83,7 @@ TEST_CASE("DefParserTest.parseExtraDefFiles")
 
   for (const auto& path : cfgFiles)
   {
-    auto file = Disk::openFile(path);
+    auto file = Disk::openFile(path).value();
     auto reader = file->reader().buffer();
     auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
