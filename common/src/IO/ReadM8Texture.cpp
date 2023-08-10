@@ -19,6 +19,7 @@
 
 #include "ReadM8Texture.h"
 
+#include "Assets/AssetError.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"

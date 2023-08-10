@@ -19,6 +19,7 @@
 
 #include "ReadWalTexture.h"
 
+#include "Assets/AssetError.h"
 #include "Assets/Texture.h"
 #include "Ensure.h"
 #include "IO/Reader.h"

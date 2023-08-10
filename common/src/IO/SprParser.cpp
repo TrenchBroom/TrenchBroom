@@ -19,6 +19,7 @@
 
 #include "IO/SprParser.h"
 
+#include "Assets/AssetError.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"

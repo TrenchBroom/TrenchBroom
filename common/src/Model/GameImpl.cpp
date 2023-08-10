@@ -19,6 +19,7 @@
 
 #include "GameImpl.h"
 
+#include "Assets/AssetError.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"

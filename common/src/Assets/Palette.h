@@ -38,6 +38,7 @@ class Reader;
 
 namespace TrenchBroom::Assets
 {
+struct AssetError;
 struct PaletteData;
 class TextureBuffer;
 
@@ -81,18 +82,10 @@ public:
     Color& averageColor) const;
 };
 
-struct LoadPaletteError
-{
-  std::string msg;
+kdl::result<Palette, AssetError> makePalette(const std::vector<unsigned char>& data);
 
-  kdl_reflect_decl(LoadPaletteError, msg);
-};
-
-kdl::result<Palette, LoadPaletteError> makePalette(
-  const std::vector<unsigned char>& data);
-
-kdl::result<Palette, LoadPaletteError> loadPalette(
+kdl::result<Palette, AssetError> loadPalette(
   const IO::File& file, const std::filesystem::path& path);
-kdl::result<Palette, LoadPaletteError> loadPalette(IO::Reader& reader);
+kdl::result<Palette, AssetError> loadPalette(IO::Reader& reader);
 
 } // namespace TrenchBroom::Assets

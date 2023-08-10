@@ -19,6 +19,7 @@
 
 #include "LoadTextureCollection.h"
 
+#include "Assets/AssetError.h"
 #include "Assets/Palette.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
@@ -65,7 +66,7 @@ bool shouldExclude(
   });
 }
 
-kdl::result<Assets::Palette, Assets::LoadPaletteError> loadPalette(
+kdl::result<Assets::Palette, Assets::AssetError> loadPalette(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
   try
@@ -76,11 +77,11 @@ kdl::result<Assets::Palette, Assets::LoadPaletteError> loadPalette(
       auto file = gameFS.openFile(path);
       return Assets::loadPalette(*file, path);
     }
-    return Assets::LoadPaletteError{"Texture config is missing palette definition"};
+    return Assets::AssetError{"Texture config is missing palette definition"};
   }
   catch (const Exception& e)
   {
-    return Assets::LoadPaletteError{std::string{"Could not load Palette: "} + e.what()};
+    return Assets::AssetError{std::string{"Could not load Palette: "} + e.what()};
   }
 }
 

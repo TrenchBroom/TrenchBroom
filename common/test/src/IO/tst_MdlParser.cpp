@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Assets/AssetError.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"

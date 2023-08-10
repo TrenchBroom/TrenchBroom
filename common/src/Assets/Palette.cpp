@@ -19,6 +19,7 @@
 
 #include "Palette.h"
 
+#include "Assets/AssetError.h"
 #include "Assets/TextureBuffer.h"
 #include "Ensure.h"
 #include "Exceptions.h"
@@ -106,13 +107,11 @@ bool Palette::indexedToRgba(
   return hasTransparency;
 }
 
-kdl_reflect_impl(LoadPaletteError);
-
-kdl::result<Palette, LoadPaletteError> makePalette(const std::vector<unsigned char>& data)
+kdl::result<Palette, AssetError> makePalette(const std::vector<unsigned char>& data)
 {
   if (data.size() != 768 && data.size() != 1024)
   {
-    return LoadPaletteError{
+    return AssetError{
       "Could not load palette, expected 768 or 1024 bytes, got "
       + std::to_string(data.size())};
   }
@@ -152,14 +151,14 @@ kdl::result<Palette, LoadPaletteError> makePalette(const std::vector<unsigned ch
 namespace
 {
 
-kdl::result<Palette, LoadPaletteError> loadLmp(IO::Reader& reader)
+kdl::result<Palette, AssetError> loadLmp(IO::Reader& reader)
 {
   auto data = std::vector<unsigned char>(reader.size());
   reader.read(data.data(), data.size());
   return makePalette(data);
 }
 
-kdl::result<Palette, LoadPaletteError> loadPcx(IO::Reader& reader)
+kdl::result<Palette, AssetError> loadPcx(IO::Reader& reader)
 {
   auto data = std::vector<unsigned char>(768);
   reader.seekFromEnd(data.size());
@@ -167,7 +166,7 @@ kdl::result<Palette, LoadPaletteError> loadPcx(IO::Reader& reader)
   return makePalette(data);
 }
 
-kdl::result<Palette, LoadPaletteError> loadBmp(IO::Reader& reader)
+kdl::result<Palette, AssetError> loadBmp(IO::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   auto imageLoader =
@@ -179,7 +178,7 @@ kdl::result<Palette, LoadPaletteError> loadBmp(IO::Reader& reader)
 
 } // namespace
 
-kdl::result<Palette, LoadPaletteError> loadPalette(
+kdl::result<Palette, AssetError> loadPalette(
   const IO::File& file, const std::filesystem::path& path)
 {
   try
@@ -201,17 +200,16 @@ kdl::result<Palette, LoadPaletteError> loadPalette(
       return loadBmp(reader);
     }
 
-    return LoadPaletteError{
+    return AssetError{
       "Could not load palette file '" + path.string() + "': Unknown palette format"};
   }
   catch (const Exception& e)
   {
-    return LoadPaletteError{
-      "Could not load palette file '" + path.string() + "': " + e.what()};
+    return AssetError{"Could not load palette file '" + path.string() + "': " + e.what()};
   }
 }
 
-kdl::result<Palette, LoadPaletteError> loadPalette(IO::Reader& reader)
+kdl::result<Palette, AssetError> loadPalette(IO::Reader& reader)
 {
   try
   {
@@ -222,7 +220,7 @@ kdl::result<Palette, LoadPaletteError> loadPalette(IO::Reader& reader)
   catch (const Exception& e)
   {
     using namespace std::string_literals;
-    return LoadPaletteError{"Could not load palette: "s + e.what()};
+    return AssetError{"Could not load palette: "s + e.what()};
   }
 }
 
