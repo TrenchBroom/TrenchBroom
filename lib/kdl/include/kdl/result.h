@@ -736,69 +736,36 @@ public:
   template <typename F>
   auto transform_error(const F& f) const&
   {
-    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
-    using Cm_Result = result<Fn_Result>;
+    using Cm_Result = result<Value>;
 
     return std::visit(
       overload(
         [](const value_type& v) { return Cm_Result{v}; },
-        [&](const auto& e) {
-          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
-          {
-            f(e);
-            return Cm_Result{};
-          }
-          else
-          {
-            return Cm_Result{f(e)};
-          }
-        }),
+        [&](const auto& e) { return Cm_Result{f(e)}; }),
       m_value);
   }
 
   template <typename F>
   auto transform_error(const F& f) &
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
-    using Cm_Result = result<Fn_Result>;
+    using Cm_Result = result<Value>;
 
     return std::visit(
       overload(
         [](value_type& v) { return Cm_Result{v}; },
-        [&](auto& e) {
-          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
-          {
-            f(e);
-            return Cm_Result{};
-          }
-          else
-          {
-            return Cm_Result{f(e)};
-          }
-        }),
+        [&](auto& e) { return Cm_Result{f(e)}; }),
       m_value);
   }
 
   template <typename F>
   auto transform_error(const F& f) &&
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
-    using Cm_Result = result<Fn_Result>;
+    using Cm_Result = result<Value>;
 
     return std::visit(
       overload(
         [](value_type&& v) { return Cm_Result{std::move(v)}; },
-        [&](auto&& e) {
-          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
-          {
-            f(std::forward<decltype(e)>(e));
-            return Cm_Result{};
-          }
-          else
-          {
-            return Cm_Result{f(std::forward<decltype(e)>(e))};
-          }
-        }),
+        [&](auto&& e) { return Cm_Result{f(std::forward<decltype(e)>(e))}; }),
       std::move(m_value));
   }
 
@@ -1371,69 +1338,36 @@ public:
   template <typename F>
   auto transform_error(const F& f) const&
   {
-    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
-    using Cm_Result = result<Fn_Result>;
+    using Cm_Result = result<multi_value<Values...>>;
 
     return std::visit(
       overload(
         [](const value_type& v) { return Cm_Result{v}; },
-        [&](const auto& e) {
-          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
-          {
-            f(e);
-            return Cm_Result{};
-          }
-          else
-          {
-            return Cm_Result{f(e)};
-          }
-        }),
+        [&](const auto& e) { return Cm_Result{f(e)}; }),
       m_value);
   }
 
   template <typename F>
   auto transform_error(const F& f) &
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
-    using Cm_Result = result<Fn_Result>;
+    using Cm_Result = result<multi_value<Values...>>;
 
     return std::visit(
       overload(
         [](value_type& v) { return Cm_Result{v}; },
-        [&](auto& e) {
-          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
-          {
-            f(e);
-            return Cm_Result{};
-          }
-          else
-          {
-            return Cm_Result{f(e)};
-          }
-        }),
+        [&](auto& e) { return Cm_Result{f(e)}; }),
       m_value);
   }
 
   template <typename F>
   auto transform_error(const F& f) &&
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
-    using Cm_Result = result<Fn_Result>;
+    using Cm_Result = result<multi_value<Values...>>;
 
     return std::visit(
       overload(
         [](value_type&& v) { return Cm_Result{std::move(v)}; },
-        [&](auto&& e) {
-          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
-          {
-            f(std::forward<decltype(e)>(e));
-            return Cm_Result{};
-          }
-          else
-          {
-            return Cm_Result{f(std::forward<decltype(e)>(e))};
-          }
-        }),
+        [&](auto&& e) { return Cm_Result{f(std::forward<decltype(e)>(e))}; }),
       std::move(m_value));
   }
 
@@ -2028,22 +1962,14 @@ public:
   template <typename F>
   auto transform_error(const F& f) const&
   {
-    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
-    using Cm_Result = result<Fn_Result>;
+    using Cm_Result = result<void>;
 
     return std::visit(
       overload(
         [](const detail::void_success_value_type&) { return Cm_Result{}; },
         [&](const auto& e) {
-          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
-          {
-            f(e);
-            return Cm_Result{};
-          }
-          else
-          {
-            return Cm_Result{f(e)};
-          }
+          f(e);
+          return Cm_Result{};
         }),
       m_value);
   }
@@ -2051,22 +1977,14 @@ public:
   template <typename F>
   auto transform_error(const F& f) &
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
-    using Cm_Result = result<Fn_Result>;
+    using Cm_Result = result<void>;
 
     return std::visit(
       overload(
         [](detail::void_success_value_type&) { return Cm_Result{}; },
         [&](auto& e) {
-          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
-          {
-            f(e);
-            return Cm_Result{};
-          }
-          else
-          {
-            return Cm_Result{f(e)};
-          }
+          f(e);
+          return Cm_Result{};
         }),
       m_value);
   }
@@ -2074,22 +1992,14 @@ public:
   template <typename F>
   auto transform_error(const F& f) &&
   {
-    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
-    using Cm_Result = result<Fn_Result>;
+    using Cm_Result = result<void>;
 
     return std::visit(
       overload(
         [](detail::void_success_value_type&&) { return Cm_Result{}; },
         [&](auto&& e) {
-          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
-          {
-            f(std::forward<decltype(e)>(e));
-            return Cm_Result{};
-          }
-          else
-          {
-            return Cm_Result{f(std::forward<decltype(e)>(e))};
-          }
+          f(std::forward<decltype(e)>(e));
+          return Cm_Result{};
         }),
       std::move(m_value));
   }
