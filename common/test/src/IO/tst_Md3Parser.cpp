@@ -57,8 +57,7 @@ TEST_CASE("Md3ParserTest.loadValidMd3")
       fs, shaderSearchPath, textureSearchPaths, logger));
 
   const auto md3Path = "models/weapons2/bfg/bfg.md3";
-  const auto md3File = fs.openFile(md3Path);
-  REQUIRE(md3File != nullptr);
+  const auto md3File = fs.openFile(md3Path).value();
 
   auto reader = md3File->reader().buffer();
   auto parser = Md3Parser("bfg", reader, fs);

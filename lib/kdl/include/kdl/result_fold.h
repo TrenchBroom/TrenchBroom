@@ -25,6 +25,7 @@
 #include "kdl/result.h"
 
 #include <iterator>
+#include <optional>
 #include <vector>
 
 namespace kdl
@@ -96,4 +97,24 @@ auto fold_results(C&& c)
   return fold_results(std::begin(c), std::end(c));
 }
 
+template <typename I, typename F>
+auto select_first(I cur, I end, const F& f)
+  -> std::optional<typename decltype(f(*cur))::value_type>
+{
+  while (cur != end)
+  {
+    auto result = f(*cur++);
+    if (result.is_success())
+    {
+      return std::move(result).value();
+    }
+  }
+  return std::nullopt;
+}
+
+template <typename C, typename F>
+auto select_first(C&& c, const F& f)
+{
+  return select_first(std::begin(c), std::end(c), f);
+}
 } // namespace kdl

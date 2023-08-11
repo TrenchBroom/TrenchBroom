@@ -164,17 +164,30 @@ TEST_CASE("DiskFileSystemTest")
   SECTION("openFile")
   {
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.openFile("c:\\hopefully_nothing.here"), FileSystemException);
+    CHECK(
+      fs.openFile("c:\\hopefully_nothing.here")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
 #else
-    CHECK_THROWS_AS(fs.openFile("/hopefully_nothing.here"), FileSystemException);
+    CHECK(
+      fs.openFile("/hopefully_nothing.here")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
 #endif
-    CHECK_THROWS_AS(fs.openFile(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile("."), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile("anotherDir"), FileSystemException);
+    CHECK(
+      fs.openFile("..")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.openFile(".")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.openFile("anotherDir")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
 
     const auto checkOpenFile = [&](const auto& path) {
-      const auto file = fs.openFile(path);
-      CHECK(file != nullptr);
+      const auto file = fs.openFile(path).value();
+      const auto expected = Disk::openFile(env.dir() / path).value();
+      CHECK(
+        file->reader().readString(file->size())
+        == expected->reader().readString(expected->size()));
     };
 
     checkOpenFile("test.txt");

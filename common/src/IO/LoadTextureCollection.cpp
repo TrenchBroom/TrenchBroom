@@ -41,6 +41,7 @@
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
+#include "kdl/result_fold.h"
 #include <kdl/overload.h>
 #include <kdl/path_utils.h>
 #include <kdl/reflection_impl.h>
@@ -69,20 +70,17 @@ bool shouldExclude(
 kdl::result<Assets::Palette, Assets::AssetError> loadPalette(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
-  try
+  if (textureConfig.palette.empty())
   {
-    if (!textureConfig.palette.empty())
-    {
-      const auto& path = textureConfig.palette;
-      auto file = gameFS.openFile(path);
-      return Assets::loadPalette(*file, path);
-    }
     return Assets::AssetError{"Texture config is missing palette definition"};
   }
-  catch (const Exception& e)
-  {
-    return Assets::AssetError{std::string{"Could not load Palette: "} + e.what()};
-  }
+
+  return gameFS.openFile(textureConfig.palette)
+    .or_else([](auto e) -> kdl::result<std::shared_ptr<File>, Assets::AssetError> {
+      return Assets::AssetError{"Could not load palette: " + e.msg};
+    })
+    .and_then(
+      [&](auto file) { return Assets::loadPalette(*file, textureConfig.palette); });
 }
 
 using ReadTextureFunc = std::function<kdl::result<Assets::Texture, ReadTextureError>(
@@ -202,43 +200,33 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
         const auto pathMatcher = !textureConfig.extensions.empty()
                                    ? makeExtensionPathMatcher(textureConfig.extensions)
                                    : matchAnyPath;
-        const auto texturePaths = gameFS.find(path, TraversalMode::Flat, pathMatcher);
-        auto textures = std::vector<Assets::Texture>{};
-        textures.reserve(texturePaths.size());
+        const auto texturePaths = kdl::vec_filter(
+          gameFS.find(path, TraversalMode::Flat, pathMatcher),
+          [&](const auto& texturePath) {
+            return !shouldExclude(texturePath.stem().string(), textureConfig.excludes);
+          });
 
-        for (const auto& texturePath : texturePaths)
-        {
-          try
-          {
-            auto file = gameFS.openFile(texturePath);
-
-            // Store the absolute path to the original file
-            // (may be used by .obj export)
-            const auto name = texturePath.stem().string();
-            if (shouldExclude(name, textureConfig.excludes))
-            {
-              continue;
-            }
-
-            readTexture(*file, texturePath)
-              .or_else(makeReadTextureErrorHandler(gameFS, logger))
-              .transform([&](auto texture) {
-                gameFS.makeAbsolute(texturePath)
-                  .transform(
-                    [&](auto absPath) { texture.setAbsolutePath(std::move(absPath)); })
-                  .or_else([](auto) { return kdl::void_success; });
-                texture.setRelativePath(texturePath);
-                textures.push_back(std::move(texture));
-              });
-          }
-          catch (const std::exception& e)
-          {
-            return LoadTextureCollectionError{
-              "Could not load texture collection '" + path.string() + "': " + e.what()};
-          }
-        }
-
-        return Assets::TextureCollection{path, std::move(textures)};
+        return kdl::fold_results(
+                 kdl::vec_transform(
+                   texturePaths,
+                   [&](const auto& texturePath) {
+                     return gameFS.openFile(texturePath)
+                       .and_then(
+                         [&](auto file) { return readTexture(*file, texturePath); })
+                       .or_else(makeReadTextureErrorHandler(gameFS, logger))
+                       .transform([&](auto texture) {
+                         gameFS.makeAbsolute(texturePath)
+                           .transform([&](auto absPath) {
+                             texture.setAbsolutePath(std::move(absPath));
+                           })
+                           .or_else([](auto) { return kdl::void_success; });
+                         texture.setRelativePath(texturePath);
+                         return texture;
+                       });
+                   }))
+          .transform([&](auto textures) {
+            return Assets::TextureCollection{path, std::move(textures)};
+          });
       });
 }
 

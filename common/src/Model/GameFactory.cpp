@@ -296,9 +296,9 @@ void GameFactory::loadGameConfigs()
 
 void GameFactory::loadGameConfig(const std::filesystem::path& path)
 {
-  const auto configFile = m_configFs->openFile(path);
-  m_configFs->makeAbsolute(path)
-    .transform([&](auto absolutePath) {
+  m_configFs->openFile(path)
+    .join(m_configFs->makeAbsolute(path))
+    .transform([&](auto configFile, auto absolutePath) {
       auto reader = configFile->reader().buffer();
       auto parser = IO::GameConfigParser{reader.stringView(), absolutePath};
       auto config = parser.parse();
@@ -329,9 +329,9 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
   {
     if (m_configFs->pathInfo(path) == IO::PathInfo::File)
     {
-      m_configFs->makeAbsolute(path)
-        .transform([&](auto absolutePath) {
-          const auto profilesFile = m_configFs->openFile(path);
+      m_configFs->openFile(path)
+        .join(m_configFs->makeAbsolute(path))
+        .transform([&](auto profilesFile, auto absolutePath) {
           auto reader = profilesFile->reader().buffer();
           auto parser = IO::CompilationConfigParser{reader.stringView(), absolutePath};
           gameConfig.compilationConfig = parser.parse();
@@ -355,9 +355,9 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   {
     if (m_configFs->pathInfo(path) == IO::PathInfo::File)
     {
-      m_configFs->makeAbsolute(path)
-        .transform([&](auto absolutePath) {
-          const auto profilesFile = m_configFs->openFile(path);
+      m_configFs->openFile(path)
+        .join(m_configFs->makeAbsolute(path))
+        .transform([&](auto profilesFile, auto absolutePath) {
           auto reader = profilesFile->reader().buffer();
           auto parser = IO::GameEngineConfigParser{reader.stringView(), absolutePath};
           gameConfig.gameEngineConfig = parser.parse();

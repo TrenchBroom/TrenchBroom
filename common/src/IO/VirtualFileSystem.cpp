@@ -19,6 +19,7 @@
 
 #include "VirtualFileSystem.h"
 
+#include "IO/File.h"
 #include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 
@@ -51,29 +52,6 @@ std::filesystem::path suffix(
 {
   assert(matches(mountPoint, path));
   return kdl::path_clip(path, kdl::path_length(mountPoint.path));
-}
-
-template <typename F>
-auto forEachMountPoint(
-  const std::vector<VirtualMountPoint>& mountPoints,
-  const std::filesystem::path& path,
-  const F& f,
-  decltype(f(std::declval<FileSystem>(), std::declval<std::filesystem::path>()))
-    defaultResult = {})
-{
-  for (const auto& mountPoint : mountPoints)
-  {
-    if (matches(mountPoint, path))
-    {
-      const auto pathSuffix = suffix(mountPoint, path);
-      if (auto result = f(*mountPoint.mountedFileSystem, pathSuffix))
-      {
-        return result;
-      }
-    }
-  }
-
-  return defaultResult;
 }
 
 } // namespace
@@ -114,17 +92,17 @@ kdl::result<std::filesystem::path, FileSystemError> VirtualFileSystem::makeAbsol
 
 PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
 {
-  if (
-    auto result = forEachMountPoint(
-      m_mountPoints,
-      path,
-      [](
-        const FileSystem& fs, const std::filesystem::path& p) -> std::optional<PathInfo> {
-        const auto pathInfo = fs.pathInfo(p);
-        return pathInfo != PathInfo::Unknown ? std::optional{pathInfo} : std::nullopt;
-      }))
+  for (const auto& mountPoint : m_mountPoints)
   {
-    return *result;
+    if (matches(mountPoint, path))
+    {
+      const auto pathSuffix = suffix(mountPoint, path);
+      if (const auto pathInfo = mountPoint.mountedFileSystem->pathInfo(pathSuffix);
+          pathInfo != PathInfo::Unknown)
+      {
+        return pathInfo;
+      }
+    }
   }
 
   return std::any_of(
@@ -197,15 +175,22 @@ std::vector<std::filesystem::path> VirtualFileSystem::doFind(
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
-std::shared_ptr<File> VirtualFileSystem::doOpenFile(
+kdl::result<std::shared_ptr<File>, FileSystemError> VirtualFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
-  return forEachMountPoint(
-    m_mountPoints,
-    path,
-    [](const FileSystem& fs, const std::filesystem::path& p) -> std::shared_ptr<File> {
-      return fs.pathInfo(p) != PathInfo::Unknown ? fs.openFile(p) : nullptr;
-    });
+  for (const auto& mountPoint : m_mountPoints)
+  {
+    if (matches(mountPoint, path))
+    {
+      const auto pathSuffix = suffix(mountPoint, path);
+      if (mountPoint.mountedFileSystem->pathInfo(pathSuffix) != PathInfo::Unknown)
+      {
+        return mountPoint.mountedFileSystem->openFile(pathSuffix);
+      }
+    }
+  }
+
+  return FileSystemError{"File not found: '" + path.string() + "'"};
 }
 
 WritableVirtualFileSystem::WritableVirtualFileSystem(
@@ -233,7 +218,7 @@ std::vector<std::filesystem::path> WritableVirtualFileSystem::doFind(
   return m_virtualFs.find(path, traversalMode);
 }
 
-std::shared_ptr<File> WritableVirtualFileSystem::doOpenFile(
+kdl::result<std::shared_ptr<File>, FileSystemError> WritableVirtualFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
   return m_virtualFs.openFile(path);

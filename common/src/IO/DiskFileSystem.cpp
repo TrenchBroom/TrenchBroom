@@ -80,12 +80,10 @@ std::vector<std::filesystem::path> DiskFileSystem::doFind(
     .value();
 }
 
-std::shared_ptr<File> DiskFileSystem::doOpenFile(const std::filesystem::path& path) const
+kdl::result<std::shared_ptr<File>, FileSystemError> DiskFileSystem::doOpenFile(
+  const std::filesystem::path& path) const
 {
-  return makeAbsolute(path)
-    .and_then(Disk::openFile)
-    .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
-    .value();
+  return makeAbsolute(path).and_then(Disk::openFile);
 }
 
 WritableDiskFileSystem::WritableDiskFileSystem(const std::filesystem::path& root)

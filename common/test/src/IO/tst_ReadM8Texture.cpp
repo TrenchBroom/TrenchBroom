@@ -40,7 +40,7 @@ namespace IO
 TEST_CASE("ReadM8TextureTest.testBasicLoading")
 {
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  const auto file = fs.openFile("fixture/test/IO/M8/test.m8");
+  const auto file = fs.openFile("fixture/test/IO/M8/test.m8").value();
 
   auto reader = file->reader().buffer();
   auto texture = readM8Texture("test", reader).value();

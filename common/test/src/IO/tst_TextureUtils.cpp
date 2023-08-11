@@ -61,7 +61,7 @@ TEST_CASE("makeReadTextureErrorHandler")
   auto diskFS = DiskFileSystem{
     std::filesystem::current_path() / "fixture/test/IO/ReadTextureErrorHandler"};
 
-  const auto file = diskFS.openFile("textures/corruptPngTest.png");
+  const auto file = diskFS.openFile("textures/corruptPngTest.png").value();
   auto reader = file->reader().buffer();
   auto result = readFreeImageTexture("corruptPngTest", reader);
   REQUIRE(result.is_error());

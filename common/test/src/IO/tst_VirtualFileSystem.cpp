@@ -65,9 +65,15 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("openFile")
     {
-      CHECK_THROWS_AS(vfs.openFile(""), FileSystemException);
-      CHECK_THROWS_AS(vfs.openFile("foo"), FileSystemException);
-      CHECK_THROWS_AS(vfs.openFile("foo/bar"), FileSystemException);
+      CHECK(
+        vfs.openFile("")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+      CHECK(
+        vfs.openFile("foo")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+      CHECK(
+        vfs.openFile("foo/bar")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
     }
   }
 
@@ -135,8 +141,12 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("openFile")
     {
-      CHECK(vfs.openFile("foo/bar/baz") == foo_bar_baz);
-      CHECK(vfs.openFile("bar/foo") == bar_foo);
+      CHECK(
+        vfs.openFile("foo/bar/baz")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_baz});
+      CHECK(
+        vfs.openFile("bar/foo")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{bar_foo});
     }
   }
 
@@ -256,10 +266,18 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("openFile")
     {
-      CHECK(vfs.openFile("foo/bar/baz") == foo_bar_baz);
-      CHECK(vfs.openFile("bar/foo") == bar_foo);
-      CHECK(vfs.openFile("bar/bat") == bar_bat_fs2);
-      CHECK_THROWS_AS(vfs.openFile("bar/cat"), FileSystemException);
+      CHECK(
+        vfs.openFile("foo/bar/baz")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_baz});
+      CHECK(
+        vfs.openFile("bar/foo")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{bar_foo});
+      CHECK(
+        vfs.openFile("bar/bat")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{bar_bat_fs2});
+      CHECK(
+        vfs.openFile("bar/cat")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
     }
   }
 
@@ -342,8 +360,12 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("openFile")
     {
-      CHECK(vfs.openFile("foo/bar/baz") == foo_bar_baz);
-      CHECK(vfs.openFile("bar/foo") == bar_foo);
+      CHECK(
+        vfs.openFile("foo/bar/baz")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_baz});
+      CHECK(
+        vfs.openFile("bar/foo")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{bar_foo});
     }
   }
 
@@ -422,8 +444,12 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("openFile")
     {
-      CHECK(vfs.openFile("foo/bar/baz") == foo_bar_baz);
-      CHECK(vfs.openFile("foo/bar/foo") == foo_bar_foo);
+      CHECK(
+        vfs.openFile("foo/bar/baz")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_baz});
+      CHECK(
+        vfs.openFile("foo/bar/foo")
+        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_foo});
     }
   }
 }

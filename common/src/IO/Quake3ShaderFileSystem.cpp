@@ -21,13 +21,16 @@
 
 #include "Assets/Quake3Shader.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/Quake3ShaderParser.h"
 #include "IO/SimpleParserStatus.h"
 #include "IO/TraversalMode.h"
 #include "Logger.h"
 
+#include "kdl/result_fold.h"
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -60,32 +63,39 @@ void Quake3ShaderFileSystem::doReadDirectory()
 
 std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
 {
-  auto result = std::vector<Assets::Quake3Shader>{};
-
   if (m_fs.pathInfo(m_shaderSearchPath) == PathInfo::Directory)
   {
     const auto paths = m_fs.find(
       m_shaderSearchPath, TraversalMode::Flat, makeExtensionPathMatcher({".shader"}));
-    for (const auto& path : paths)
-    {
-      const auto file = m_fs.openFile(path);
-      auto bufferedReader = file->reader().buffer();
 
-      try
-      {
-        auto parser = Quake3ShaderParser{bufferedReader.stringView()};
-        auto status = SimpleParserStatus{m_logger, path.string()};
-        result = kdl::vec_concat(std::move(result), parser.parse(status));
-      }
-      catch (const ParserException& e)
-      {
-        m_logger.warn() << "Skipping malformed shader file " << path << ": " << e.what();
-      }
-    }
+    return kdl::fold_results(
+             kdl::vec_transform(
+               paths,
+               [&](const auto& path) {
+                 return m_fs.openFile(path).transform([&](auto file) {
+                   auto bufferedReader = file->reader().buffer();
+                   try
+                   {
+                     auto parser = Quake3ShaderParser{bufferedReader.stringView()};
+                     auto status = SimpleParserStatus{m_logger, path.string()};
+                     return parser.parse(status);
+                   }
+                   catch (const ParserException& e)
+                   {
+                     m_logger.warn()
+                       << "Skipping malformed shader file " << path << ": " << e.what();
+                     return std::vector<Assets::Quake3Shader>{};
+                   }
+                 });
+               }))
+      .transform([&](auto nestedShaders) {
+        auto allShaders = kdl::vec_flatten(std::move(nestedShaders));
+        m_logger.info() << "Loaded " << allShaders.size() << " shaders";
+        return allShaders;
+      })
+      .value();
   }
-
-  m_logger.info() << "Loaded " << result.size() << " shaders";
-  return result;
+  return {};
 }
 
 void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders)
@@ -135,7 +145,8 @@ void Quake3ShaderFileSystem::linkTextures(
         addFile(
           shaderPath, [shaderFile = std::move(shaderFile)]() { return shaderFile; });
 
-        // Remove the shader so that we don't revisit it when linking standalone shaders.
+        // Remove the shader so that we don't revisit it when linking standalone
+        // shaders.
         shaders.erase(shaderIt);
       }
       else

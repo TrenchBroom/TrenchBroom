@@ -34,6 +34,7 @@
 #include "Ensure.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathQt.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/SystemPaths.h"
@@ -58,19 +59,16 @@ Assets::Texture loadDefaultTexture(
   {
     const auto set_executing = kdl::set_temp{executing};
 
-    try
-    {
-      const auto file = fs.openFile("textures/__TB_empty.png");
-      auto reader = file->reader().buffer();
-      return readFreeImageTexture(name, reader)
-        .if_error([&](const ReadTextureError& e) { throw AssetException{e.msg.c_str()}; })
-        .value();
-    }
-    catch (const Exception& e)
-    {
-      logger.error() << "Could not load default texture: " << e.what();
-      // fall through to return an empty texture
-    }
+    return fs.openFile("textures/__TB_empty.png")
+      .and_then([&](auto file) {
+        auto reader = file->reader().buffer();
+        return readFreeImageTexture(name, reader);
+      })
+      .transform_error([&](auto e) {
+        logger.error() << "Could not load default texture: " << e.msg;
+        return Assets::Texture{name, 32, 32};
+      })
+      .value();
   }
   else
   {

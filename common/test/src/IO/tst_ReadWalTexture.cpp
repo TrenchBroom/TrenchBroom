@@ -41,7 +41,7 @@ TEST_CASE("readWalTexture")
 {
   const auto palettePath = "fixture/test/colormap.pcx";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  auto paletteFile = fs.openFile(palettePath);
+  auto paletteFile = fs.openFile("fixture/test/colormap.pcx").value();
   const auto palette = Assets::loadPalette(*paletteFile, palettePath).value();
 
   using TexInfo = std::tuple<std::filesystem::path, size_t, size_t, Assets::GameData>;
@@ -65,9 +65,7 @@ TEST_CASE("readWalTexture")
   INFO(width);
   INFO(height);
 
-  const auto file = fs.openFile(fixturePath / path);
-  REQUIRE(file != nullptr);
-
+  const auto file = fs.openFile(fixturePath / path).value();
   auto reader = file->reader().buffer();
 
   const auto name = path.stem().generic_string();

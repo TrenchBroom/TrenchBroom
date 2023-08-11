@@ -23,6 +23,8 @@
 #include "Model/Game.h"
 #include "Model/GameFileSystem.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <memory>
 #include <optional>
@@ -35,7 +37,13 @@ class Logger;
 
 namespace Assets
 {
+struct AssetError;
 class Palette;
+} // namespace Assets
+
+namespace IO
+{
+struct FileSystemError;
 }
 
 namespace Model
@@ -137,7 +145,8 @@ private:
     Assets::EntityModel& model,
     Logger& logger) const override;
 
-  Assets::Palette loadTexturePalette() const;
+  kdl::result<Assets::Palette, IO::FileSystemError, Assets::AssetError>
+  loadTexturePalette() const;
 
   std::vector<std::string> doAvailableMods() const override;
   std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;

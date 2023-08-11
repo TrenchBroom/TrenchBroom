@@ -47,7 +47,8 @@ public:
 protected:
   std::vector<std::filesystem::path> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const override;
-  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
+  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+    const std::filesystem::path& path) const override;
 };
 
 #ifdef _MSC_VER

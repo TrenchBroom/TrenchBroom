@@ -135,9 +135,15 @@ TEST_CASE("FileSystem")
 
   SECTION("openFile")
   {
-    CHECK_THROWS_AS(fs.openFile("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile("/foo"), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile("does_not_exist"), FileSystemException);
+    CHECK(
+      fs.openFile("/")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.openFile("/foo")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.openFile("does_not_exist")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
   }
 }
 

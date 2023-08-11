@@ -54,7 +54,7 @@ TEST_CASE("AseParserTest.parseFailure_2657")
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile("player.ase");
+  const auto aseFile = fs.openFile("player.ase").value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"player", reader.stringView(), fs};
 
@@ -85,7 +85,7 @@ TEST_CASE("AseParserTest.parseFailure_2679")
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile("wedge_45.ase");
+  const auto aseFile = fs.openFile("wedge_45.ase").value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -116,7 +116,7 @@ TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile("wedge_45.ase");
+  const auto aseFile = fs.openFile("wedge_45.ase").value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -147,7 +147,7 @@ TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile("wedge_45_no_uv.ase");
+  const auto aseFile = fs.openFile("wedge_45_no_uv.ase").value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 

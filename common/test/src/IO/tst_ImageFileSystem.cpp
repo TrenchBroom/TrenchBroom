@@ -883,8 +883,7 @@ TEST_CASE("Hierarchical ImageFileSystems")
 
   SECTION("openFile")
   {
-    const auto amnet_cfg = fs->openFile("amnet.cfg");
-    CHECK(amnet_cfg != nullptr);
+    const auto amnet_cfg = fs->openFile("amnet.cfg").value();
 
     auto reader = amnet_cfg->reader();
     CHECK(reader.readString(reader.size()) == R"(//
@@ -957,8 +956,7 @@ TEST_CASE("Flat ImageFileSystems")
 
   SECTION("openFile")
   {
-    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D");
-    CHECK(cr8_czg_3_d != nullptr);
+    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D").value();
 
     auto reader = cr8_czg_3_d->reader();
     auto contents = std::vector<unsigned char>(reader.size());

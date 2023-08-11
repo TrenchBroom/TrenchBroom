@@ -137,15 +137,14 @@ std::vector<std::filesystem::path> TestFileSystem::doFind(
   return result;
 }
 
-std::shared_ptr<File> TestFileSystem::doOpenFile(const std::filesystem::path& path) const
+kdl::result<std::shared_ptr<File>, FileSystemError> TestFileSystem::doOpenFile(
+  const std::filesystem::path& path) const
 {
-  const auto* entry = findEntry(path);
-  return entry ? std::visit(
-           kdl::overload(
-             [](const FileEntry& f) { return f.file; },
-             [](const auto&) -> std::shared_ptr<File> { return nullptr; }),
-           *entry)
-               : nullptr;
+  if (const auto* fileEntry = std::get_if<FileEntry>(findEntry(path)))
+  {
+    return fileEntry->file;
+  }
+  return FileSystemError{};
 }
 
 } // namespace IO

@@ -24,8 +24,10 @@
 #include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
+#include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Model/BrushFaceAttributes.h"
 #include "ReaderException.h"
@@ -33,6 +35,7 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
+#include "kdl/result_fold.h"
 #include <kdl/path_utils.h>
 #include <kdl/result.h>
 #include <kdl/string_format.h>
@@ -61,19 +64,16 @@ class AssimpIOStream : public Assimp::IOStream
   friend class AssimpIOSystem;
 
 private:
-  const FileSystem& m_fs;
   std::shared_ptr<File> m_file;
   Reader m_reader;
 
-protected:
-  AssimpIOStream(const std::filesystem::path& path, const FileSystem& fs)
-    : m_fs{fs}
-    , m_file{m_fs.openFile(path)}
+public:
+  explicit AssimpIOStream(std::shared_ptr<File> file)
+    : m_file{std::move(file)}
     , m_reader{m_file->reader()}
   {
   }
 
-public:
   size_t Read(void* buffer, const size_t size, const size_t count) override
   {
     if (m_reader.canRead(size * count))
@@ -156,7 +156,13 @@ public:
     {
       throw ParserException{"Assimp attempted to open a file not for reading."};
     }
-    return new AssimpIOStream{path, m_fs};
+
+    return m_fs.openFile(path)
+      .transform(
+        [](auto file) { return std::make_unique<AssimpIOStream>(std::move(file)); })
+      .if_error([](auto e) { throw ParserException{e.msg}; })
+      .value()
+      .release();
   }
 };
 
@@ -338,9 +344,11 @@ namespace
 Assets::Texture loadTextureFromFileSystem(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
-  const auto file = fs.openFile(path);
-  auto reader = file->reader().buffer();
-  return readFreeImageTexture("", reader)
+  return fs.openFile(path)
+    .and_then([](auto file) {
+      auto reader = file->reader().buffer();
+      return readFreeImageTexture("", reader);
+    })
     .or_else(makeReadTextureErrorHandler(fs, logger))
     .value();
 }
@@ -386,25 +394,12 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
     kdl::path_add_extension(Model::BrushFaceAttributes::NoTextureName, ".jpg"),
   };
 
-  for (const auto& texturePath : texturePaths)
-  {
-    try
-    {
-      const auto file = fs.openFile(texturePath);
+  return kdl::select_first(texturePaths, [&](const auto& texturePath) {
+    return fs.openFile(texturePath).and_then([](auto file) {
       auto reader = file->reader().buffer();
-      auto result = readFreeImageTexture("", reader);
-      if (result.is_success())
-      {
-        return std::move(result).value();
-      }
-    }
-    catch (const Exception& /*ex1*/)
-    {
-      // ignore and try the next texture path
-    }
-  }
-
-  return std::nullopt;
+      return readFreeImageTexture("", reader);
+    });
+  });
 }
 
 } // namespace

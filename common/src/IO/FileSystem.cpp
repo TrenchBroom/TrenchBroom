@@ -59,16 +59,17 @@ std::vector<std::filesystem::path> FileSystem::find(
   });
 }
 
-std::shared_ptr<File> FileSystem::openFile(const std::filesystem::path& path) const
+kdl::result<std::shared_ptr<File>, FileSystemError> FileSystem::openFile(
+  const std::filesystem::path& path) const
 {
   if (path.is_absolute())
   {
-    throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
+    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
   }
 
   if (pathInfo(path) != PathInfo::File)
   {
-    throw FileSystemException{"File not found: '" + path.string() + "'"};
+    return FileSystemError{"File not found: '" + path.string() + "'"};
   }
 
   return doOpenFile(path);

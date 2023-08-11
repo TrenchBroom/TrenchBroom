@@ -25,6 +25,7 @@
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ReadQuake3ShaderTexture.h"
@@ -54,22 +55,18 @@ Assets::Texture loadSkin(
   const std::optional<Assets::Palette>& palette,
   Logger& logger)
 {
-  try
-  {
-    const auto file = fs.openFile(path);
-    const auto extension = kdl::str_to_lower(path.extension().string());
-
-    auto reader = file->reader().buffer();
-    return (extension == ".wal" ? readWalTexture(path.stem().string(), reader, palette)
-                                : readFreeImageTexture(path.stem().string(), reader))
-      .or_else(makeReadTextureErrorHandler(fs, logger))
-      .value();
-  }
-  catch (Exception& e)
-  {
-    logger.error() << "Could not load skin '" << path << "': " << e.what();
-    return loadDefaultTexture(fs, path.stem().string(), logger);
-  }
+  return fs.openFile(path)
+    .and_then([&](auto file) -> kdl::result<Assets::Texture, ReadTextureError> {
+      const auto extension = kdl::str_to_lower(path.extension().string());
+      auto reader = file->reader().buffer();
+      return extension == ".wal" ? readWalTexture(path.stem().string(), reader, palette)
+                                 : readFreeImageTexture(path.stem().string(), reader);
+    })
+    .transform_error([&](auto e) -> Assets::Texture {
+      logger.error() << "Could not load skin '" << path << "': " << e.msg;
+      return loadDefaultTexture(fs, path.stem().string(), logger);
+    })
+    .value();
 }
 
 Assets::Texture loadShader(
@@ -81,28 +78,14 @@ Assets::Texture loadShader(
                       : path;
   const auto name = path.generic_string();
 
-  if (!path.empty())
-  {
-    logger.debug() << "Loading shader '" << path << "'";
-    try
-    {
-      const auto file = fs.openFile(actualPath);
-      return readQuake3ShaderTexture(name, *file, fs)
-        .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
-        .value();
-    }
-    catch (const Exception& e)
-    {
-      logger.error() << "Could not load shader '" << path << "': " << e.what();
-      // fall through to return the default texture
-    }
-  }
-  else
-  {
-    logger.warn() << "Could not load shader: Path is empty";
-  }
-
-  return loadDefaultTexture(fs, name, logger);
+  logger.debug() << "Loading shader '" << path << "'";
+  return fs.openFile(actualPath)
+    .and_then([&](auto file) { return readQuake3ShaderTexture(name, *file, fs); })
+    .transform_error([&](auto e) {
+      logger.error() << "Could not load shader '" << path << "': " << e.msg;
+      return loadDefaultTexture(fs, name, logger);
+    })
+    .value();
 }
 } // namespace IO
 } // namespace TrenchBroom

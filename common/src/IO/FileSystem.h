@@ -69,16 +69,15 @@ public:
     const PathMatcher& pathMatcher = matchAnyPath) const;
 
   /** Open a file at the given path and return it.
-   *
-   * @throws FileSystemException if the given path is absolute, if it is invalid invalid
-   * or if it does not denote a file
    */
-  std::shared_ptr<File> openFile(const std::filesystem::path& path) const;
+  kdl::result<std::shared_ptr<File>, FileSystemError> openFile(
+    const std::filesystem::path& path) const;
 
 protected:
   virtual std::vector<std::filesystem::path> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const = 0;
-  virtual std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const = 0;
+  virtual kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+    const std::filesystem::path& path) const = 0;
 };
 
 class WritableFileSystem : public virtual FileSystem

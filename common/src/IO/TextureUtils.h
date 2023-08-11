@@ -19,10 +19,14 @@
 
 #pragma once
 
+#include "Assets/Texture.h"
+#include "IO/FileSystemError.h"
+#include "IO/ResourceUtils.h"
+#include "Logger.h"
 #include "Macros.h"
 
 #include <kdl/reflection_decl.h>
-#include <kdl/result_forward.h>
+#include <kdl/result.h>
 
 #include <filesystem>
 #include <functional>
@@ -59,7 +63,17 @@ struct ReadTextureError
   kdl_reflect_decl(ReadTextureError, textureName, msg);
 };
 
-std::function<kdl::result<Assets::Texture>(ReadTextureError)> makeReadTextureErrorHandler(
-  const FileSystem& fs, Logger& logger);
+inline auto makeReadTextureErrorHandler(const FileSystem& fs, Logger& logger)
+{
+  return kdl::overload(
+    [&](FileSystemError e) {
+      logger.error() << "Could not open texture file: " << e.msg;
+      return kdl::result<Assets::Texture>{loadDefaultTexture(fs, "", logger)};
+    },
+    [&](ReadTextureError e) {
+      logger.error() << "Could not read texture '" << e.textureName << "': " << e.msg;
+      return kdl::result<Assets::Texture>{loadDefaultTexture(fs, e.textureName, logger)};
+    });
+}
 
 } // namespace TrenchBroom::IO

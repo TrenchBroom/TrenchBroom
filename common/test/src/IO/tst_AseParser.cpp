@@ -56,7 +56,7 @@ TEST_CASE("AseParserTest.loadWithoutException")
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile("models/mapobjects/wedges/wedge_45.ase");
+  const auto aseFile = fs.openFile("models/mapobjects/wedges/wedge_45.ase").value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -87,7 +87,7 @@ TEST_CASE("AseParserTest.fallbackToMaterialName")
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile("models/wedge_45.ase");
+  const auto aseFile = fs.openFile("models/wedge_45.ase").value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -122,7 +122,7 @@ TEST_CASE("AseParserTest.loadDefaultMaterial")
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  const auto aseFile = fs.openFile("models/wedge_45.ase");
+  const auto aseFile = fs.openFile("models/wedge_45.ase").value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 

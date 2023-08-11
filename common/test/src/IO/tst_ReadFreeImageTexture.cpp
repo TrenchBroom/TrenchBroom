@@ -40,7 +40,7 @@ static auto loadTexture(const std::string& name)
   auto diskFS =
     DiskFileSystem{std::filesystem::current_path() / "fixture/test/IO/Image/"};
 
-  const auto file = diskFS.openFile(name);
+  const auto file = diskFS.openFile(name).value();
   auto reader = file->reader().buffer();
   return readFreeImageTexture(name, reader);
 }

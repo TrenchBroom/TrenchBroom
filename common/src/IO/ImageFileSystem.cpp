@@ -271,7 +271,7 @@ std::vector<std::filesystem::path> ImageFileSystemBase::doFind(
   return result;
 }
 
-std::shared_ptr<File> ImageFileSystemBase::doOpenFile(
+kdl::result<std::shared_ptr<File>, FileSystemError> ImageFileSystemBase::doOpenFile(
   const std::filesystem::path& path) const
 {
   return withEntry(

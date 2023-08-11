@@ -23,6 +23,7 @@
 #include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/TraversalMode.h"
@@ -112,9 +113,15 @@ kdl::result<Assets::Texture, ReadTextureError> loadTextureImage(
       std::move(shaderName), "Image file '" + imagePath.string() + "' does not exist"};
   }
 
-  const auto file = fs.openFile(imagePath);
-  auto reader = file->reader().buffer();
-  return readFreeImageTexture(std::move(shaderName), reader);
+  return fs.openFile(imagePath)
+    .and_then([&](auto file) {
+      auto reader = file->reader().buffer();
+      return readFreeImageTexture(shaderName, reader);
+    })
+    .or_else([&](auto e) {
+      return kdl::result<Assets::Texture, ReadTextureError>{
+        ReadTextureError{shaderName, e.msg}};
+    });
 }
 
 } // namespace
