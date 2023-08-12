@@ -947,8 +947,7 @@ TEST_CASE("FgdParserTest.parseInclude")
   auto file = Disk::openFile(path);
   auto reader = file->reader().buffer();
 
-  auto parser =
-    FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, file->path()};
+  auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
 
   auto status = TestParserStatus{};
   auto defs = parser.parseDefinitions(status);
@@ -970,8 +969,7 @@ TEST_CASE("FgdParserTest.parseNestedInclude")
   auto file = Disk::openFile(path);
   auto reader = file->reader().buffer();
 
-  auto parser =
-    FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, file->path()};
+  auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
 
   auto status = TestParserStatus{};
   auto defs = parser.parseDefinitions(status);
@@ -996,8 +994,7 @@ TEST_CASE("FgdParserTest.parseRecursiveInclude")
   auto file = Disk::openFile(path);
   auto reader = file->reader().buffer();
 
-  auto parser =
-    FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, file->path()};
+  auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
 
   auto status = TestParserStatus{};
   auto defs = parser.parseDefinitions(status);

@@ -175,7 +175,6 @@ TEST_CASE("DiskFileSystemTest")
     const auto checkOpenFile = [&](const auto& path) {
       const auto file = fs.openFile(path);
       CHECK(file != nullptr);
-      CHECK(file->path() == path);
     };
 
     checkOpenFile("test.txt");

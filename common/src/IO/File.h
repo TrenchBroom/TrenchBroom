@@ -25,9 +25,7 @@
 #include <filesystem>
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 /**
  * Represents an opened (logical) file. A logical file can be backed by a physical file on
@@ -37,24 +35,11 @@ namespace IO
  */
 class File
 {
-private:
-  std::filesystem::path m_path;
-
 protected:
-  /**
-   * Creates a new file with the given path.
-   *
-   * @param path the path of the file
-   */
-  explicit File(std::filesystem::path path);
+  File();
 
 public:
   virtual ~File();
-
-  /**
-   * Returns the path of this file.
-   */
-  const std::filesystem::path& path() const;
 
   /**
    * Returns a reader to access the contents of this file.
@@ -78,14 +63,12 @@ private:
 
 public:
   /**
-   * Creates a new file with the given path, buffer and size.
+   * Creates a new file with the given buffer and size.
    *
-   * @param path the path of the file
    * @param buffer the memory buffer
    * @param size the size of the file
    */
-  OwningBufferFile(
-    std::filesystem::path path, std::unique_ptr<char[]> buffer, size_t size);
+  OwningBufferFile(std::unique_ptr<char[]> buffer, size_t size);
 
   Reader reader() const override;
   size_t size() const override;
@@ -103,15 +86,14 @@ private:
 
 public:
   /**
-   * Creates a new file with the given path and buffer.
+   * Creates a new file with the given buffer.
    *
-   * @param path the path of the file
    * @param begin the start of the memory buffer
    * @param end the end of the memory buffer (position after the last byte)
    *
    * @throw FileSystemException if the given buffer pointers are invalid
    */
-  NonOwningBufferFile(std::filesystem::path path, const char* begin, const char* end);
+  NonOwningBufferFile(const char* begin, const char* end);
 
   Reader reader() const override;
   size_t size() const override;
@@ -136,7 +118,7 @@ public:
    *
    * @throw FileSystemException if the file cannot be opened
    */
-  explicit CFile(std::filesystem::path path);
+  explicit CFile(const std::filesystem::path& path);
 
   Reader reader() const override;
   size_t size() const override;
@@ -159,21 +141,19 @@ private:
 
 public:
   /**
-   * Creates a new file with the given path, host file, offset and length.
+   * Creates a new file with the given host file, offset and length.
    *
-   * @param path the file path
    * @param file the host file that contains the data of this file
    * @param offset the offset into the host file
    * @param length the length of the portion of the host file
    */
-  explicit FileView(
-    std::filesystem::path path, std::shared_ptr<File> file, size_t offset, size_t length);
+  explicit FileView(std::shared_ptr<File> file, size_t offset, size_t length);
 
   Reader reader() const override;
   size_t size() const override;
 };
 
-// TODO: get rid of this, it's evil
+// TODO: get rid of this, it's evil
 /**
  * A file that is backed by a C++ object. These kinds of files are used to insert custom
  * objects into the virtual filesystem. An example would be shader objects which are
@@ -189,16 +169,14 @@ private:
 
 public:
   /**
-   * Creates a new file with the given path and object.
+   * Creates a new file with the given object.
    *
    * @tparam S the type of the given object, must be convertible to T
-   * @param path the file path
    * @param object the object
    */
   template <typename S>
-  ObjectFile(std::filesystem::path path, S&& object)
-    : File(path)
-    , m_object(std::forward<S>(object))
+  explicit ObjectFile(S&& object)
+    : m_object(std::forward<S>(object))
   {
   }
 
@@ -215,5 +193,4 @@ public:
    */
   const T& object() const { return m_object; }
 };
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

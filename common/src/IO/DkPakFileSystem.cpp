@@ -128,8 +128,7 @@ void DkPakFileSystem::doReadDirectory()
     const auto entrySize = compressed ? compressedSize : uncompressedSize;
 
     const auto entryPath = std::filesystem::path(kdl::str_to_lower(entryName));
-    auto entryFile =
-      std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
+    auto entryFile = std::make_shared<FileView>(m_file, entryAddress, entrySize);
 
     if (compressed)
     {
@@ -137,8 +136,7 @@ void DkPakFileSystem::doReadDirectory()
         entryPath,
         [entryFile = std::move(entryFile), uncompressedSize]() -> std::shared_ptr<File> {
           auto data = decompress(entryFile, uncompressedSize);
-          return std::make_shared<OwningBufferFile>(
-            entryFile->path(), std::move(data), uncompressedSize);
+          return std::make_shared<OwningBufferFile>(std::move(data), uncompressedSize);
         });
     }
     else

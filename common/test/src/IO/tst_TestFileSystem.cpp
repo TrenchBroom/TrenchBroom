@@ -36,12 +36,12 @@ namespace IO
 {
 TEST_CASE("TestFileSystem")
 {
-  auto root_file_1 = makeObjectFile("root_file_1", 1);
-  auto root_file_2 = makeObjectFile("root_file_2", 2);
-  auto some_dir_file_1 = makeObjectFile("some_dir/some_dir_file_1", 3);
-  auto some_dir_file_2 = makeObjectFile("some_dir/some_dir_file_2", 4);
-  auto nested_dir_file_1 = makeObjectFile("some_dir/nested_dir/nested_dir_file_1", 5);
-  auto nested_dir_file_2 = makeObjectFile("some_dir/nested_dir/nested_dir_file_2", 6);
+  auto root_file_1 = makeObjectFile(1);
+  auto root_file_2 = makeObjectFile(2);
+  auto some_dir_file_1 = makeObjectFile(3);
+  auto some_dir_file_2 = makeObjectFile(4);
+  auto nested_dir_file_1 = makeObjectFile(5);
+  auto nested_dir_file_2 = makeObjectFile(6);
 
   auto fs = TestFileSystem{DirectoryEntry{
     "",

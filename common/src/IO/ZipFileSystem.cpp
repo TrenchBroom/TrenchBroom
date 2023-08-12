@@ -75,8 +75,7 @@ void ZipFileSystem::doReadDirectory()
             "mz_zip_reader_extract_to_mem failed for " + path.string()};
         }
 
-        return std::make_shared<OwningBufferFile>(
-          path, std::move(data), uncompressedSize);
+        return std::make_shared<OwningBufferFile>(std::move(data), uncompressedSize);
       });
     }
   }

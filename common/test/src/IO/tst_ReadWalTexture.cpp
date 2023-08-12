@@ -38,9 +38,10 @@ static const auto fixturePath = "fixture/test/IO/Wal";
 
 TEST_CASE("readWalTexture")
 {
+  const auto palettePath = "fixture/test/colormap.pcx";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  auto paletteFile = fs.openFile("fixture/test/colormap.pcx");
-  const auto palette = Assets::loadPalette(*paletteFile).value();
+  auto paletteFile = fs.openFile(palettePath);
+  const auto palette = Assets::loadPalette(*paletteFile, palettePath).value();
 
   using TexInfo = std::tuple<std::filesystem::path, size_t, size_t, Assets::GameData>;
 

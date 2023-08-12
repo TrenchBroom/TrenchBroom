@@ -68,8 +68,7 @@ void IdPakFileSystem::doReadDirectory()
     const auto entrySize = reader.readSize<int32_t>();
 
     const auto entryPath = std::filesystem::path{kdl::str_to_lower(entryName)};
-    auto entryFile =
-      std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
+    auto entryFile = std::make_shared<FileView>(m_file, entryAddress, entrySize);
     addFile(entryPath, [entryFile = std::move(entryFile)]() { return entryFile; });
   }
 }

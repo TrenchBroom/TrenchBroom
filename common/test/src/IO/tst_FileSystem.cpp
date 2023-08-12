@@ -43,20 +43,14 @@ TEST_CASE("FileSystem")
           DirectoryEntry{
             "nested_dir",
             {
-              FileEntry{
-                "nested_dir_file_1.txt",
-                makeObjectFile("some_dir/nested_dir/nested_dir_file_1.txt", 1)},
-              FileEntry{
-                "nested_dir_file_2.map",
-                makeObjectFile("some_dir/nested_dir/nested_dir_file_2.map", 2)},
+              FileEntry{"nested_dir_file_1.txt", makeObjectFile(1)},
+              FileEntry{"nested_dir_file_2.map", makeObjectFile(2)},
             }},
-          FileEntry{
-            "some_dir_file_1.TXT", makeObjectFile("some_dir/some_dir_file_1.TXT", 3)},
-          FileEntry{
-            "some_dir_file_2.doc", makeObjectFile("some_dir/some_dir_file_2.doc", 4)},
+          FileEntry{"some_dir_file_1.TXT", makeObjectFile(3)},
+          FileEntry{"some_dir_file_2.doc", makeObjectFile(4)},
         }},
-      FileEntry{"root_file_1.map", makeObjectFile("root_file_1.map", 5)},
-      FileEntry{"root_file_2.jpg", makeObjectFile("root_file_2.jpg", 6)},
+      FileEntry{"root_file_1.map", makeObjectFile(5)},
+      FileEntry{"root_file_2.jpg", makeObjectFile(6)},
     }}};
 
   SECTION("makeAbsolute")

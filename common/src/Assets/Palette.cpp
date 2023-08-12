@@ -179,11 +179,12 @@ kdl::result<Palette, LoadPaletteError> loadBmp(IO::Reader& reader)
 
 } // namespace
 
-kdl::result<Palette, LoadPaletteError> loadPalette(const IO::File& file)
+kdl::result<Palette, LoadPaletteError> loadPalette(
+  const IO::File& file, const std::filesystem::path& path)
 {
   try
   {
-    const auto extension = kdl::str_to_lower(file.path().extension().string());
+    const auto extension = kdl::str_to_lower(path.extension().string());
     if (extension == ".lmp")
     {
       auto reader = file.reader().buffer();
@@ -201,13 +202,12 @@ kdl::result<Palette, LoadPaletteError> loadPalette(const IO::File& file)
     }
 
     return LoadPaletteError{
-      "Could not load palette file '" + file.path().string()
-      + "': Unknown palette format"};
+      "Could not load palette file '" + path.string() + "': Unknown palette format"};
   }
   catch (const Exception& e)
   {
     return LoadPaletteError{
-      "Could not load palette file '" + file.path().string() + "': " + e.what()};
+      "Could not load palette file '" + path.string() + "': " + e.what()};
   }
 }
 

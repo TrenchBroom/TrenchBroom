@@ -369,7 +369,7 @@ std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
   {
     auto file = IO::Disk::openFile(path);
     auto reader = file->reader().buffer();
-    auto parser = IO::FgdParser{reader.stringView(), defaultColor, file->path()};
+    auto parser = IO::FgdParser{reader.stringView(), defaultColor, path};
     return parser.parseDefinitions(status);
   }
   if (kdl::ci::str_is_equal(".def", extension))
@@ -573,9 +573,10 @@ void GameImpl::doLoadFrame(
 
 Assets::Palette GameImpl::loadTexturePalette() const
 {
-  auto file = m_fs.openFile(m_config.textureConfig.palette);
-  return Assets::loadPalette(*file)
-    .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+  const auto& path = m_config.textureConfig.palette;
+  auto file = m_fs.openFile(path);
+  return Assets::loadPalette(*file, path)
+    .if_error([](const auto& e) { throw AssetException{e.msg}; })
     .value();
 }
 

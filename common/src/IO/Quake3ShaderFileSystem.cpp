@@ -74,7 +74,7 @@ std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
       try
       {
         auto parser = Quake3ShaderParser{bufferedReader.stringView()};
-        auto status = SimpleParserStatus{m_logger, file->path().string()};
+        auto status = SimpleParserStatus{m_logger, path.string()};
         result = kdl::vec_concat(std::move(result), parser.parse(status));
       }
       catch (const ParserException& e)
@@ -131,8 +131,7 @@ void Quake3ShaderFileSystem::linkTextures(
         // Found a matching shader.
         auto& shader = *shaderIt;
 
-        auto shaderFile =
-          std::make_shared<ObjectFile<Assets::Quake3Shader>>(shaderPath, shader);
+        auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader);
         addFile(
           shaderPath, [shaderFile = std::move(shaderFile)]() { return shaderFile; });
 
@@ -144,8 +143,8 @@ void Quake3ShaderFileSystem::linkTextures(
         // No matching shader found, generate one.
         auto shader = Assets::Quake3Shader{shaderPath, texture};
 
-        auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(
-          shaderPath, std::move(shader));
+        auto shaderFile =
+          std::make_shared<ObjectFile<Assets::Quake3Shader>>(std::move(shader));
         addFile(
           shaderPath, [shaderFile = std::move(shaderFile)]() { return shaderFile; });
       }
@@ -160,8 +159,7 @@ void Quake3ShaderFileSystem::linkStandaloneShaders(
   for (auto& shader : shaders)
   {
     const auto& shaderPath = shader.shaderPath;
-    auto shaderFile =
-      std::make_shared<ObjectFile<Assets::Quake3Shader>>(shaderPath, shader);
+    auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader);
     addFile(shaderPath, [shaderFile = std::move(shaderFile)]() { return shaderFile; });
   }
 }

@@ -73,8 +73,8 @@ TEST_CASE("VirtualFileSystem")
 
   SECTION("with a file system mounted at the root")
   {
-    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>("foo/bar/baz", Object{1});
-    auto bar_foo = std::make_shared<ObjectFile<Object>>("bar/foo", Object{2});
+    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>(Object{1});
+    auto bar_foo = std::make_shared<ObjectFile<Object>>(Object{2});
 
     vfs.mount(
       "",
@@ -142,11 +142,11 @@ TEST_CASE("VirtualFileSystem")
 
   SECTION("with two file systems mounted at the root")
   {
-    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>("foo/bar/baz", Object{1});
-    auto bar_foo = std::make_shared<ObjectFile<Object>>("bar/foo", Object{2});
-    auto bar_bat_fs1 = std::make_shared<ObjectFile<Object>>("bar/bat", Object{3});
-    auto bar_bat_fs2 = std::make_shared<ObjectFile<Object>>("bar/bat", Object{4});
-    auto bar_cat = std::make_shared<ObjectFile<Object>>("bar/cat", Object{5});
+    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>(Object{1});
+    auto bar_foo = std::make_shared<ObjectFile<Object>>(Object{2});
+    auto bar_bat_fs1 = std::make_shared<ObjectFile<Object>>(Object{3});
+    auto bar_bat_fs2 = std::make_shared<ObjectFile<Object>>(Object{4});
+    auto bar_cat = std::make_shared<ObjectFile<Object>>(Object{5});
 
     vfs.mount(
       "",
@@ -265,8 +265,8 @@ TEST_CASE("VirtualFileSystem")
 
   SECTION("with two file systems mounted at different mount points")
   {
-    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>("foo/bar/baz", Object{1});
-    auto bar_foo = std::make_shared<ObjectFile<Object>>("bar/foo", Object{2});
+    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>(Object{1});
+    auto bar_foo = std::make_shared<ObjectFile<Object>>(Object{2});
 
     vfs.mount(
       "foo",
@@ -349,8 +349,8 @@ TEST_CASE("VirtualFileSystem")
 
   SECTION("with two file systems mounted at nested mount points")
   {
-    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>("foo/bar/baz", Object{1});
-    auto foo_bar_foo = std::make_shared<ObjectFile<Object>>("foo/bar/foo", Object{2});
+    auto foo_bar_baz = std::make_shared<ObjectFile<Object>>(Object{1});
+    auto foo_bar_foo = std::make_shared<ObjectFile<Object>>(Object{2});
 
     vfs.mount(
       "foo",

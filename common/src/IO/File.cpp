@@ -20,30 +20,18 @@
 #include "File.h"
 
 #include "Exceptions.h"
-#include "IO/PathQt.h"
 
 #include <cstdio> // for FILE
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-File::File(std::filesystem::path path)
-  : m_path{std::move(path)}
-{
-}
+
+File::File() = default;
 
 File::~File() = default;
 
-const std::filesystem::path& File::path() const
-{
-  return m_path;
-}
-
-OwningBufferFile::OwningBufferFile(
-  std::filesystem::path path, std::unique_ptr<char[]> buffer, const size_t size)
-  : File{std::move(path)}
-  , m_buffer{std::move(buffer)}
+OwningBufferFile::OwningBufferFile(std::unique_ptr<char[]> buffer, const size_t size)
+  : m_buffer{std::move(buffer)}
   , m_size{size}
 {
 }
@@ -58,10 +46,8 @@ size_t OwningBufferFile::size() const
   return m_size;
 }
 
-NonOwningBufferFile::NonOwningBufferFile(
-  std::filesystem::path path, const char* begin, const char* end)
-  : File{std::move(path)}
-  , m_begin{begin}
+NonOwningBufferFile::NonOwningBufferFile(const char* begin, const char* end)
+  : m_begin{begin}
   , m_end{end}
 {
   if (m_end < m_begin)
@@ -88,9 +74,11 @@ auto openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
   // to open a Unicode path.
   //
   // All other platforms, just assume fopen() can handle UTF-8
+  //
+  // mode is assumed to be ASCII (one byte per char)
   auto* file =
 #ifdef _WIN32
-    _wfopen(path.wstring().c_str(), QString::fromStdString(mode).toStdWString().c_str());
+    _wfopen(path.wstring().c_str(), std::wstring{mode.begin(), mode.end()}.c_str());
 #else
     fopen(path.u8string().c_str(), mode.c_str());
 #endif
@@ -131,9 +119,8 @@ size_t fileSize(std::FILE* file)
 }
 } // namespace
 
-CFile::CFile(std::filesystem::path path)
-  : File{std::move(path)}
-  , m_file{openPathAsFILE(this->path(), "rb")}
+CFile::CFile(const std::filesystem::path& path)
+  : m_file{openPathAsFILE(path, "rb")}
   , m_size{fileSize(m_file.get())}
 {
 }
@@ -153,13 +140,8 @@ std::FILE* CFile::file() const
   return m_file.get();
 }
 
-FileView::FileView(
-  std::filesystem::path path,
-  std::shared_ptr<File> file,
-  const size_t offset,
-  const size_t length)
-  : File{std::move(path)}
-  , m_file{std::move(file)}
+FileView::FileView(std::shared_ptr<File> file, const size_t offset, const size_t length)
+  : m_file{std::move(file)}
   , m_offset{offset}
   , m_length{length}
 {
@@ -174,5 +156,4 @@ size_t FileView::size() const
 {
   return m_length;
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

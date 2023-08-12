@@ -34,9 +34,9 @@ namespace IO
 
 kdl_reflect_impl(Object);
 
-std::shared_ptr<File> makeObjectFile(std::filesystem::path path, const int id)
+std::shared_ptr<File> makeObjectFile(const int id)
 {
-  return std::make_shared<ObjectFile<Object>>(std::move(path), Object{id});
+  return std::make_shared<ObjectFile<Object>>(Object{id});
 }
 
 namespace

@@ -44,7 +44,7 @@ struct Object
   kdl_reflect_decl(Object, id);
 };
 
-std::shared_ptr<File> makeObjectFile(std::filesystem::path path, int id);
+std::shared_ptr<File> makeObjectFile(int id);
 
 struct FileEntry
 {

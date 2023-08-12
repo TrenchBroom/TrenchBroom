@@ -113,7 +113,7 @@ void WadFileSystem::doReadDirectory()
     }
 
     const auto path = std::filesystem::path{entryName + "." + entryType};
-    auto file = std::make_shared<FileView>(path, m_file, entryAddress, entrySize);
+    auto file = std::make_shared<FileView>(m_file, entryAddress, entrySize);
     addFile(path, [file = std::move(file)]() { return file; });
   }
 }

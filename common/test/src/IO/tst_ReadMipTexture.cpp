@@ -69,9 +69,10 @@ TEST_CASE("readIdMipTexture")
   }));
   // clang-format on
 
+  const auto palettePath = "fixture/test/palette.lmp";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  auto paletteFile = fs.openFile("fixture/test/palette.lmp");
-  const auto palette = Assets::loadPalette(*paletteFile).value();
+  auto paletteFile = fs.openFile(palettePath);
+  const auto palette = Assets::loadPalette(*paletteFile, palettePath).value();
 
   auto logger = NullLogger{};
 
