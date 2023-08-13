@@ -63,7 +63,7 @@ public:
    * @param traversalMode the traversal mode
    * @param pathMatcher only return paths that satisfy this path matcher
    */
-  std::vector<std::filesystem::path> find(
+  kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
     const std::filesystem::path& path,
     TraversalMode traversalMode,
     const PathMatcher& pathMatcher = matchAnyPath) const;
@@ -74,7 +74,7 @@ public:
     const std::filesystem::path& path) const;
 
 protected:
-  virtual std::vector<std::filesystem::path> doFind(
+  virtual kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const = 0;
   virtual kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
     const std::filesystem::path& path) const = 0;

@@ -59,8 +59,14 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("find")
     {
-      CHECK_THROWS_AS(vfs.find("", TraversalMode::Flat), FileSystemException);
-      CHECK_THROWS_AS(vfs.find("foo/bar", TraversalMode::Flat), FileSystemException);
+      CHECK(
+        vfs.find("", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError>{
+          FileSystemError{}});
+      CHECK(
+        vfs.find("foo/bar", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError>{
+          FileSystemError{}});
     }
 
     SECTION("openFile")
@@ -121,22 +127,25 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("find")
     {
-      CHECK_THAT(
-        vfs.find("", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo",
-          "bar",
-        }));
-      CHECK_THAT(
-        vfs.find("foo", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo/bar",
-        }));
-      CHECK_THAT(
-        vfs.find("foo/bar", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo/bar/baz",
-        }));
+      CHECK(
+        vfs.find("", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "bar",
+            "foo",
+          }});
+      CHECK(
+        vfs.find("foo", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "foo/bar",
+          }});
+      CHECK(
+        vfs.find("foo/bar", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "foo/bar/baz",
+          }});
     }
 
     SECTION("openFile")
@@ -238,30 +247,33 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("find")
     {
-      CHECK_THAT(
-        vfs.find("", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo",
-          "bar",
-          "baz",
-        }));
-      CHECK_THAT(
-        vfs.find("foo", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo/bar",
-        }));
-      CHECK_THAT(
-        vfs.find("foo/bar", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(
-          std::vector<std::filesystem::path>{"foo/bar/baz"}));
-      CHECK_THAT(
-        vfs.find("bar", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "bar/foo",
-          "bar/baz",
-          "bar/bat",
-          "bar/cat",
-        }));
+      CHECK(
+        vfs.find("", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "bar",
+            "baz",
+            "foo",
+          }});
+      CHECK(
+        vfs.find("foo", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "foo/bar",
+          }});
+      CHECK(
+        vfs.find("foo/bar", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{"foo/bar/baz"}});
+      CHECK(
+        vfs.find("bar", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "bar/bat",
+            "bar/baz",
+            "bar/cat",
+            "bar/foo",
+          }});
     }
 
     SECTION("openFile")
@@ -335,27 +347,31 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("find")
     {
-      CHECK_THAT(
-        vfs.find("", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo",
-          "bar",
-        }));
-      CHECK_THAT(
-        vfs.find("foo", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo/bar",
-        }));
-      CHECK_THAT(
-        vfs.find("foo/bar", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo/bar/baz",
-        }));
-      CHECK_THAT(
-        vfs.find("bar", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "bar/foo",
-        }));
+      CHECK(
+        vfs.find("", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "bar",
+            "foo",
+          }});
+      CHECK(
+        vfs.find("foo", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "foo/bar",
+          }});
+      CHECK(
+        vfs.find("foo/bar", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "foo/bar/baz",
+          }});
+      CHECK(
+        vfs.find("bar", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "bar/foo",
+          }});
     }
 
     SECTION("openFile")
@@ -424,22 +440,25 @@ TEST_CASE("VirtualFileSystem")
 
     SECTION("find")
     {
-      CHECK_THAT(
-        vfs.find("", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo",
-        }));
-      CHECK_THAT(
-        vfs.find("foo", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo/bar",
-        }));
-      CHECK_THAT(
-        vfs.find("foo/bar", TraversalMode::Flat),
-        Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-          "foo/bar/baz",
-          "foo/bar/foo",
-        }));
+      CHECK(
+        vfs.find("", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "foo",
+          }});
+      CHECK(
+        vfs.find("foo", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "foo/bar",
+          }});
+      CHECK(
+        vfs.find("foo/bar", TraversalMode::Flat)
+        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+          std::vector<std::filesystem::path>{
+            "foo/bar/baz",
+            "foo/bar/foo",
+          }});
     }
 
     SECTION("openFile")

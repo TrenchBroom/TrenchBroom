@@ -269,29 +269,32 @@ void GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig)
 
 void GameFactory::loadGameConfigs()
 {
-  auto errors = std::vector<std::string>{};
+  m_configFs
+    ->find(
+      {}, IO::TraversalMode::Recursive, IO::makeFilenamePathMatcher("GameConfig.cfg"))
+    .and_then([&](auto configFiles) {
+      auto errors = std::vector<std::string>{};
 
-  const auto configFiles = m_configFs->find(
-    {}, IO::TraversalMode::Recursive, IO::makeFilenamePathMatcher("GameConfig.cfg"));
-  for (const auto& configFilePath : configFiles)
-  {
-    try
-    {
-      loadGameConfig(configFilePath);
-    }
-    catch (const std::exception& e)
-    {
-      errors.push_back(kdl::str_to_string(
-        "Could not load game configuration file ", configFilePath, ": ", e.what()));
-    }
-  }
+      for (const auto& configFilePath : configFiles)
+      {
+        try
+        {
+          loadGameConfig(configFilePath);
+        }
+        catch (const std::exception& e)
+        {
+          errors.push_back(kdl::str_to_string(
+            "Could not load game configuration file ", configFilePath, ": ", e.what()));
+        }
+      }
 
-  m_names = kdl::col_sort(std::move(m_names), kdl::cs::string_less());
+      m_names = kdl::col_sort(std::move(m_names), kdl::cs::string_less());
 
-  if (!errors.empty())
-  {
-    throw errors;
-  }
+      return errors.empty()
+               ? kdl::result<void, std::vector<std::string>>{}
+               : kdl::result<void, std::vector<std::string>>{std::move(errors)};
+    })
+    .if_error([](auto errors) { throw errors; });
 }
 
 void GameFactory::loadGameConfig(const std::filesystem::path& path)

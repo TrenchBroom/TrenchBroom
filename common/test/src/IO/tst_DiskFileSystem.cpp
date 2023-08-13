@@ -123,42 +123,57 @@ TEST_CASE("DiskFileSystemTest")
   SECTION("find")
   {
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.find("c:\\", TraversalMode::Flat), FileSystemException);
+    CHECK(
+      fs.find("c:\\", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 #else
-    CHECK_THROWS_AS(fs.find("/", TraversalMode::Flat), FileSystemException);
+    CHECK(
+      fs.find("/", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 #endif
-    CHECK_THROWS_AS(fs.find("..", TraversalMode::Flat), FileSystemException);
-    CHECK_THROWS_AS(fs.find("asdf/bleh", TraversalMode::Flat), FileSystemException);
+    CHECK(
+      fs.find("..", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
+    CHECK(
+      fs.find("asdf/bleh", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 
-    CHECK_THAT(
-      fs.find(".", TraversalMode::Flat),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "dir1",
-        "dir2",
-        "anotherDir",
-        "test.txt",
-        "test2.map",
-      }));
+    CHECK(
+      fs.find(".", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "anotherDir",
+          "dir1",
+          "dir2",
+          "test.txt",
+          "test2.map",
+        }});
 
-    CHECK_THAT(
-      fs.find("anotherDir", TraversalMode::Flat),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "anotherDir/subDirTest",
-        "anotherDir/test3.map",
-      }));
+    CHECK(
+      fs.find("anotherDir", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "anotherDir/subDirTest",
+          "anotherDir/test3.map",
+        }});
 
-    CHECK_THAT(
-      fs.find(".", TraversalMode::Recursive),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "dir1",
-        "dir2",
-        "anotherDir",
-        "anotherDir/subDirTest",
-        "anotherDir/subDirTest/test2.map",
-        "anotherDir/test3.map",
-        "test.txt",
-        "test2.map",
-      }));
+    CHECK(
+      fs.find(".", TraversalMode::Recursive)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "anotherDir",
+          "anotherDir/subDirTest",
+          "anotherDir/subDirTest/test2.map",
+          "anotherDir/test3.map",
+          "dir1",
+          "dir2",
+          "test.txt",
+          "test2.map",
+        }});
   }
 
   SECTION("openFile")

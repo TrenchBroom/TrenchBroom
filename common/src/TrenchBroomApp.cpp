@@ -24,6 +24,7 @@
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
+#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
 #include "PreferenceManager.h"
@@ -357,14 +358,14 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
         return kdl::result<void, IO::FileSystemError>{e};
       })
       .and_then([&]() { return gameFactory.detectGame(path); })
-      .transform([&](const auto& gameNameAndMapFormat) {
+      .and_then([&](const auto& gameNameAndMapFormat) {
         auto [gameName, mapFormat] = gameNameAndMapFormat;
 
         if (gameName.empty() || mapFormat == Model::MapFormat::Unknown)
         {
           if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
           {
-            return false;
+            return kdl::result<bool, Model::GameError>{false};
           }
         }
 
@@ -374,8 +375,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
         ensure(game.get() != nullptr, "game is null");
 
         closeWelcomeWindow();
-        frame->openDocument(game, mapFormat, path);
-        return true;
+        return frame->openDocument(game, mapFormat, path);
       })
       .transform_error([&](const auto& e) {
         if (frame)
@@ -466,8 +466,14 @@ bool TrenchBroomApp::newDocument()
     ensure(game.get() != nullptr, "game is null");
 
     closeWelcomeWindow();
-    frame->newDocument(game, mapFormat);
-    return true;
+    return frame->newDocument(game, mapFormat)
+      .transform_error([&](auto e) {
+        frame->close();
+
+        QMessageBox::critical(nullptr, "", QString::fromStdString(e.msg));
+        return false;
+      })
+      .value();
   }
   catch (const Exception& e)
   {

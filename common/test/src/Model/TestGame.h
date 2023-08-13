@@ -74,16 +74,16 @@ private:
 
   const std::vector<SmartTag>& doSmartTags() const override;
 
-  std::unique_ptr<WorldNode> doNewMap(
+  kdl::result<std::unique_ptr<WorldNode>, GameError> doNewMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
-  std::unique_ptr<WorldNode> doLoadMap(
+  kdl::result<std::unique_ptr<WorldNode>, GameError> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const override;
-  kdl::result<void, IO::FileSystemError> doWriteMap(
+  kdl::result<void, GameError> doWriteMap(
     WorldNode& world, const std::filesystem::path& path) const override;
-  kdl::result<void, IO::FileSystemError> doExportMap(
+  kdl::result<void, GameError> doExportMap(
     WorldNode& world, const IO::ExportOptions& options) const override;
 
   std::vector<Node*> doParseNodes(
@@ -123,7 +123,7 @@ private:
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
-  std::vector<std::string> doAvailableMods() const override;
+  kdl::result<std::vector<std::string>, GameError> doAvailableMods() const override;
   std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
   std::string doDefaultMod() const override;
 

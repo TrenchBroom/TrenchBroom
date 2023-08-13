@@ -90,43 +90,50 @@ TEST_CASE("TestFileSystem")
 
   SECTION("find")
   {
-    CHECK_THROWS_AS(fs.find("does_not_exist", TraversalMode::Flat), FileSystemException);
+    CHECK(
+      fs.find("does_not_exist", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 
-    CHECK_THAT(
-      fs.find("", TraversalMode::Flat),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir",
-        "root_file_1",
-        "root_file_2",
-      }));
+    CHECK(
+      fs.find("", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "root_file_1",
+          "root_file_2",
+          "some_dir",
+        }});
 
-    CHECK_THAT(
-      fs.find("some_dir", TraversalMode::Flat),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir/nested_dir",
-        "some_dir/some_dir_file_1",
-        "some_dir/some_dir_file_2",
-      }));
+    CHECK(
+      fs.find("some_dir", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "some_dir/nested_dir",
+          "some_dir/some_dir_file_1",
+          "some_dir/some_dir_file_2",
+        }});
 
-    CHECK_THAT(
-      fs.find("some_dir/nested_dir", TraversalMode::Flat),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir/nested_dir/nested_dir_file_1",
-        "some_dir/nested_dir/nested_dir_file_2",
-      }));
+    CHECK(
+      fs.find("some_dir/nested_dir", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "some_dir/nested_dir/nested_dir_file_1",
+          "some_dir/nested_dir/nested_dir_file_2",
+        }});
 
-    CHECK_THAT(
-      fs.find("", TraversalMode::Recursive),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir",
-        "some_dir/nested_dir",
-        "some_dir/nested_dir/nested_dir_file_1",
-        "some_dir/nested_dir/nested_dir_file_2",
-        "some_dir/some_dir_file_1",
-        "some_dir/some_dir_file_2",
-        "root_file_1",
-        "root_file_2",
-      }));
+    CHECK(
+      fs.find("", TraversalMode::Recursive)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "root_file_1",
+          "root_file_2",
+          "some_dir",
+          "some_dir/nested_dir",
+          "some_dir/nested_dir/nested_dir_file_1",
+          "some_dir/nested_dir/nested_dir_file_2",
+          "some_dir/some_dir_file_1",
+          "some_dir/some_dir_file_2",
+        }});
   }
 
   SECTION("openFile")

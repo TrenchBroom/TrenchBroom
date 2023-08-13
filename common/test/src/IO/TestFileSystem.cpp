@@ -126,8 +126,8 @@ void doFindImpl(
 }
 } // namespace
 
-std::vector<std::filesystem::path> TestFileSystem::doFind(
-  const std::filesystem::path& path, const TraversalMode traversalMode) const
+kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> TestFileSystem::
+  doFind(const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   if (const auto* entry = findEntry(path))

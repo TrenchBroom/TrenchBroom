@@ -37,6 +37,7 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/GameConfig.h"
+#include "Model/GameError.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/result.h>
@@ -129,13 +130,13 @@ const std::vector<SmartTag>& TestGame::doSmartTags() const
   return m_smartTags;
 }
 
-std::unique_ptr<WorldNode> TestGame::doNewMap(
+kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doNewMap(
   const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const
 {
   return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
 }
 
-std::unique_ptr<WorldNode> TestGame::doLoadMap(
+kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doLoadMap(
   const MapFormat format,
   const vm::bbox3& /* worldBounds */,
   const std::filesystem::path& /* path */,
@@ -151,16 +152,20 @@ std::unique_ptr<WorldNode> TestGame::doLoadMap(
   }
 }
 
-kdl::result<void, IO::FileSystemError> TestGame::doWriteMap(
+kdl::result<void, GameError> TestGame::doWriteMap(
   WorldNode& world, const std::filesystem::path& path) const
 {
-  return IO::Disk::withOutputStream(path, [&](auto& stream) {
-    IO::NodeWriter writer(world, stream);
-    writer.writeMap();
-  });
+  return IO::Disk::withOutputStream(
+           path,
+           [&](auto& stream) {
+             IO::NodeWriter writer(world, stream);
+             writer.writeMap();
+           })
+    .or_else(
+      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
 }
 
-kdl::result<void, IO::FileSystemError> TestGame::doExportMap(
+kdl::result<void, GameError> TestGame::doExportMap(
   WorldNode& /* world */, const IO::ExportOptions& /* options */) const
 {
   return kdl::void_success;
@@ -259,9 +264,9 @@ std::filesystem::path TestGame::doFindEntityDefinitionFile(
   return {};
 }
 
-std::vector<std::string> TestGame::doAvailableMods() const
+kdl::result<std::vector<std::string>, GameError> TestGame::doAvailableMods() const
 {
-  return {};
+  return std::vector<std::string>{};
 }
 
 std::vector<std::string> TestGame::doExtractEnabledMods(const Entity& /* entity */) const

@@ -133,6 +133,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/GameConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineProfile.cpp
+        ${COMMON_SOURCE_DIR}/Model/GameError.cpp
         ${COMMON_SOURCE_DIR}/Model/GameFactory.cpp
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/GameImpl.cpp
@@ -624,6 +625,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/GameConfig.h
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.h
         ${COMMON_SOURCE_DIR}/Model/GameEngineProfile.h
+        ${COMMON_SOURCE_DIR}/Model/GameError.h
         ${COMMON_SOURCE_DIR}/Model/GameFactory.h
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.h
         ${COMMON_SOURCE_DIR}/Model/GameImpl.h

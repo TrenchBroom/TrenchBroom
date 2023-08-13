@@ -67,6 +67,7 @@ class BrushFaceAttributes;
 class EditorContext;
 class Entity;
 class Game;
+struct GameError;
 class Issue;
 enum class MapFormat;
 class PickResult;
@@ -300,11 +301,11 @@ private: // tag and entity definition actions
   void createEntityDefinitionActions();
 
 public: // new, load, save document
-  void newDocument(
+  kdl::result<void, Model::GameError> newDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  void loadDocument(
+  kdl::result<void, Model::GameError> loadDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,
@@ -312,8 +313,7 @@ public: // new, load, save document
   void saveDocument();
   void saveDocumentAs(const std::filesystem::path& path);
   void saveDocumentTo(const std::filesystem::path& path);
-  kdl::result<void, IO::FileSystemError> exportDocumentAs(
-    const IO::ExportOptions& options);
+  kdl::result<void, Model::GameError> exportDocumentAs(const IO::ExportOptions& options);
 
 private:
   void doSaveDocument(const std::filesystem::path& path);
@@ -691,11 +691,11 @@ public: // picking
   std::vector<Model::Node*> findNodesContaining(const vm::vec3& point) const;
 
 private: // world management
-  void createWorld(
+  kdl::result<void, Model::GameError> createWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  void loadWorld(
+  kdl::result<void, Model::GameError> loadWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,

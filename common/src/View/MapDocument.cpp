@@ -55,6 +55,7 @@
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/Game.h"
+#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
 #include "Model/InvalidTextureScaleValidator.h"
@@ -562,7 +563,7 @@ void MapDocument::createEntityDefinitionActions()
     actionManager.createEntityDefinitionActions(m_entityDefinitionManager->definitions());
 }
 
-void MapDocument::newDocument(
+kdl::result<void, Model::GameError> MapDocument::newDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game)
@@ -572,19 +573,20 @@ void MapDocument::newDocument(
   clearRepeatableCommands();
   doClearCommandProcessor();
   clearDocument();
-  createWorld(mapFormat, worldBounds, game);
 
-  loadAssets();
-  registerValidators();
-  registerSmartTags();
-  createTagActions();
+  return createWorld(mapFormat, worldBounds, game).transform([&]() {
+    loadAssets();
+    registerValidators();
+    registerSmartTags();
+    createTagActions();
 
-  clearModificationCount();
+    clearModificationCount();
 
-  documentWasNewedNotifier(this);
+    documentWasNewedNotifier(this);
+  });
 }
 
-void MapDocument::loadDocument(
+kdl::result<void, Model::GameError> MapDocument::loadDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
@@ -595,14 +597,15 @@ void MapDocument::loadDocument(
   clearRepeatableCommands();
   doClearCommandProcessor();
   clearDocument();
-  loadWorld(mapFormat, worldBounds, game, path);
 
-  loadAssets();
-  registerValidators();
-  registerSmartTags();
-  createTagActions();
+  return loadWorld(mapFormat, worldBounds, game, path).transform([&]() {
+    loadAssets();
+    registerValidators();
+    registerSmartTags();
+    createTagActions();
 
-  documentWasLoadedNotifier(this);
+    documentWasLoadedNotifier(this);
+  });
 }
 
 void MapDocument::saveDocument()
@@ -624,7 +627,7 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
   });
 }
 
-kdl::result<void, IO::FileSystemError> MapDocument::exportDocumentAs(
+kdl::result<void, Model::GameError> MapDocument::exportDocumentAs(
   const IO::ExportOptions& options)
 {
   return m_game->exportMap(*m_world, options);
@@ -4318,33 +4321,38 @@ std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point
   return result;
 }
 
-void MapDocument::createWorld(
+kdl::result<void, Model::GameError> MapDocument::createWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game)
 {
-  m_worldBounds = worldBounds;
-  m_game = game;
-  m_world = m_game->newMap(mapFormat, m_worldBounds, logger());
-  performSetCurrentLayer(m_world->defaultLayer());
+  return game->newMap(mapFormat, m_worldBounds, logger()).transform([&](auto world) {
+    m_worldBounds = worldBounds;
+    m_game = game;
+    m_world = std::move(world);
+    performSetCurrentLayer(m_world->defaultLayer());
 
-  updateGameSearchPaths();
-  setPath(std::filesystem::path(DefaultDocumentName));
+    updateGameSearchPaths();
+    setPath(std::filesystem::path(DefaultDocumentName));
+  });
 }
 
-void MapDocument::loadWorld(
+kdl::result<void, Model::GameError> MapDocument::loadWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
   const std::filesystem::path& path)
 {
-  m_worldBounds = worldBounds;
-  m_game = game;
-  m_world = m_game->loadMap(mapFormat, m_worldBounds, path, logger());
-  performSetCurrentLayer(m_world->defaultLayer());
+  return game->loadMap(mapFormat, m_worldBounds, path, logger())
+    .transform([&](auto world) {
+      m_worldBounds = worldBounds;
+      m_game = game;
+      m_world = std::move(world);
+      performSetCurrentLayer(m_world->defaultLayer());
 
-  updateGameSearchPaths();
-  setPath(path);
+      updateGameSearchPaths();
+      setPath(path);
+    });
 }
 
 void MapDocument::clearWorld()

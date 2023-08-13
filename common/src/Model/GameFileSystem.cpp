@@ -155,47 +155,45 @@ void GameFileSystem::addFileSystemPackages(
   if (IO::Disk::pathInfo(searchPath) == IO::PathInfo::Directory)
   {
     const auto diskFS = IO::DiskFileSystem{searchPath};
-    auto packages = diskFS.find(
-      std::filesystem::path{},
-      IO::TraversalMode::Flat,
-      IO::makeExtensionPathMatcher(packageExtensions));
-    packages = kdl::vec_sort(std::move(packages));
-
-    for (const auto& packagePath : packages)
-    {
-      try
-      {
-        diskFS.makeAbsolute(packagePath)
-          .transform([&](const auto& absPackagePath) {
-            if (kdl::ci::str_is_equal(packageFormat, "idpak"))
-            {
-              logger.info() << "Adding file system package " << packagePath;
-              mount(
-                std::filesystem::path{},
-                std::make_unique<IO::IdPakFileSystem>(absPackagePath));
-            }
-            else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
-            {
-              logger.info() << "Adding file system package " << packagePath;
-              mount(
-                std::filesystem::path{},
-                std::make_unique<IO::DkPakFileSystem>(absPackagePath));
-            }
-            else if (kdl::ci::str_is_equal(packageFormat, "zip"))
-            {
-              logger.info() << "Adding file system package " << packagePath;
-              mount(
-                std::filesystem::path{},
-                std::make_unique<IO::ZipFileSystem>(absPackagePath));
-            }
-          })
-          .if_error([&](const auto& e) { logger.error() << e.msg; });
-      }
-      catch (const std::exception& e)
-      {
-        logger.error() << e.what();
-      }
-    }
+    diskFS
+      .find(
+        std::filesystem::path{},
+        IO::TraversalMode::Flat,
+        IO::makeExtensionPathMatcher(packageExtensions))
+      .transform([&](auto packagePaths) {
+        for (const auto& packagePath : kdl::vec_sort(std::move(packagePaths)))
+        {
+          diskFS.makeAbsolute(packagePath)
+            .transform([&](const auto& absPackagePath) {
+              try
+              {
+                if (kdl::ci::str_is_equal(packageFormat, "idpak"))
+                {
+                  logger.info() << "Adding file system package " << packagePath;
+                  mount("", std::make_unique<IO::IdPakFileSystem>(absPackagePath));
+                }
+                else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
+                {
+                  logger.info() << "Adding file system package " << packagePath;
+                  mount("", std::make_unique<IO::DkPakFileSystem>(absPackagePath));
+                }
+                else if (kdl::ci::str_is_equal(packageFormat, "zip"))
+                {
+                  logger.info() << "Adding file system package " << packagePath;
+                  mount("", std::make_unique<IO::ZipFileSystem>(absPackagePath));
+                }
+              }
+              catch (const std::exception& e)
+              {
+                logger.error() << e.what();
+              }
+            })
+            .if_error([&](const auto& e) { logger.error() << e.msg; });
+        }
+      })
+      .transform_error([&](auto e) {
+        logger.error() << "Could not add file system packages: " << e.msg;
+      });
   }
 }
 

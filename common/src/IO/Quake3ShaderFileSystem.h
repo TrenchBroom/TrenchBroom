@@ -21,6 +21,8 @@
 
 #include "IO/ImageFileSystem.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <vector>
 
@@ -35,6 +37,8 @@ class Quake3Shader;
 
 namespace IO
 {
+struct FileSystemError;
+
 /**
  * Parses Quake 3 shader scripts found in a file system and makes the shader objects
  * available as virtual files in the file system.
@@ -73,8 +77,9 @@ public:
 private:
   void doReadDirectory() override;
 
-  std::vector<Assets::Quake3Shader> loadShaders() const;
-  void linkShaders(std::vector<Assets::Quake3Shader>& shaders);
+  kdl::result<std::vector<Assets::Quake3Shader>, FileSystemError> loadShaders() const;
+  kdl::result<void, FileSystemError> linkShaders(
+    std::vector<Assets::Quake3Shader>& shaders);
   void linkTextures(
     const std::vector<std::filesystem::path>& textures,
     std::vector<Assets::Quake3Shader>& shaders);

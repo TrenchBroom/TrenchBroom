@@ -23,6 +23,7 @@
 #include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 
+#include "kdl/result_fold.h"
 #include <kdl/path_utils.h>
 #include <kdl/result.h>
 #include <kdl/vector_utils.h>
@@ -144,35 +145,46 @@ void VirtualFileSystem::unmountAll()
   m_mountPoints.clear();
 }
 
-std::vector<std::filesystem::path> VirtualFileSystem::doFind(
-  const std::filesystem::path& path, const TraversalMode traversalMode) const
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> VirtualFileSystem::
+  doFind(const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
-  auto result = std::vector<std::filesystem::path>{};
-  for (const auto& mountPoint : m_mountPoints)
-  {
-    if (kdl::path_has_prefix(
-          kdl::path_to_lower(path), kdl::path_to_lower(mountPoint.path)))
-    {
-      const auto pathSuffix = kdl::path_clip(path, kdl::path_length(mountPoint.path));
-      if (mountPoint.mountedFileSystem->pathInfo(pathSuffix) == PathInfo::Directory)
-      {
-        result = kdl::vec_concat(
-          std::move(result),
-          kdl::vec_transform(
-            mountPoint.mountedFileSystem->find(pathSuffix, traversalMode),
-            [&](auto p) { return mountPoint.path / p; }));
-      }
-    }
-    else if (
-      kdl::path_length(path) < kdl::path_length(mountPoint.path)
-      && kdl::path_has_prefix(
-        kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path)))
-    {
-      result.push_back(kdl::path_clip(mountPoint.path, 0, kdl::path_length(path) + 1));
-    }
-  }
-
-  return kdl::vec_sort_and_remove_duplicates(std::move(result));
+  return kdl::fold_results(
+           kdl::vec_transform(
+             m_mountPoints,
+             [&](const auto& mountPoint)
+               -> kdl::result<std::vector<std::filesystem::path>, FileSystemError> {
+               if (kdl::path_has_prefix(
+                     kdl::path_to_lower(path), kdl::path_to_lower(mountPoint.path)))
+               {
+                 // path points into the mounted filesystem, search there
+                 const auto pathSuffix =
+                   kdl::path_clip(path, kdl::path_length(mountPoint.path));
+                 if (
+                   mountPoint.mountedFileSystem->pathInfo(pathSuffix)
+                   == PathInfo::Directory)
+                 {
+                   return mountPoint.mountedFileSystem->find(pathSuffix, traversalMode)
+                     .transform([&](auto paths) {
+                       return kdl::vec_transform(
+                         std::move(paths), [&](auto p) { return mountPoint.path / p; });
+                     });
+                 }
+               }
+               else if (
+                 kdl::path_length(path) < kdl::path_length(mountPoint.path)
+                 && kdl::path_has_prefix(
+                   kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path)))
+               {
+                 // path is a prefix of the mount point path, treat as a match
+                 return std::vector<std::filesystem::path>{
+                   kdl::path_clip(mountPoint.path, 0, kdl::path_length(path) + 1)};
+               }
+               // path is unrelated to the mount point
+               return std::vector<std::filesystem::path>{};
+             }))
+    .transform([](auto nestedPaths) { return kdl::vec_flatten(std::move(nestedPaths)); })
+    .transform(
+      [](auto paths) { return kdl::vec_sort_and_remove_duplicates(std::move(paths)); });
 }
 
 kdl::result<std::shared_ptr<File>, FileSystemError> VirtualFileSystem::doOpenFile(
@@ -212,7 +224,8 @@ PathInfo WritableVirtualFileSystem::pathInfo(const std::filesystem::path& path) 
   return m_virtualFs.pathInfo(path);
 }
 
-std::vector<std::filesystem::path> WritableVirtualFileSystem::doFind(
+kdl::result<std::vector<std::filesystem::path>, FileSystemError>
+WritableVirtualFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   return m_virtualFs.find(path, traversalMode);

@@ -25,6 +25,7 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/GameError.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
@@ -721,8 +722,10 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.newWithGroupOpen")
 
   CHECK(document->currentGroup() == group);
 
-  document->newDocument(
-    Model::MapFormat::Valve, MapDocument::DefaultWorldBounds, document->game());
+  REQUIRE(document
+            ->newDocument(
+              Model::MapFormat::Valve, MapDocument::DefaultWorldBounds, document->game())
+            .is_success());
 
   CHECK(document->currentGroup() == nullptr);
 }

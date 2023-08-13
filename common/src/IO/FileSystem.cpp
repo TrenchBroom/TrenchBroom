@@ -38,24 +38,25 @@ namespace TrenchBroom::IO
 
 FileSystem::~FileSystem() = default;
 
-std::vector<std::filesystem::path> FileSystem::find(
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> FileSystem::find(
   const std::filesystem::path& path,
   const TraversalMode traversalMode,
   const PathMatcher& pathMatcher) const
 {
   if (path.is_absolute())
   {
-    throw FileSystemException{"Path is absolute: '" + path.string() + "'"};
+    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
   }
 
   if (pathInfo(path) != PathInfo::Directory)
   {
-    throw FileSystemException{
-      "Path does not denoty a directory: '" + path.string() + "'"};
+    return FileSystemError{"Path does not denoty a directory: '" + path.string() + "'"};
   }
 
-  return kdl::vec_filter(doFind(path, traversalMode), [&](const auto& p) {
-    return pathMatcher(p, [&](const auto& x) { return pathInfo(x); });
+  return doFind(path, traversalMode).transform([&](auto paths) {
+    return kdl::vec_sort(kdl::vec_filter(std::move(paths), [&](const auto& p) {
+      return pathMatcher(p, [&](const auto& x) { return pathInfo(x); });
+    }));
   });
 }
 

@@ -55,27 +55,29 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  CHECK_THAT(
-    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""})),
-    Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-      texturePrefix / "test/editor_image",
-      texturePrefix / "test/test",
-      texturePrefix / "test/test2",
-      texturePrefix / "test/not_existing",
-      texturePrefix / "test/not_existing2",
-    }));
+  CHECK(
+    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))
+    == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      std::vector<std::filesystem::path>{
+        texturePrefix / "test/editor_image",
+        texturePrefix / "test/not_existing",
+        texturePrefix / "test/not_existing2",
+        texturePrefix / "test/test",
+        texturePrefix / "test/test2",
+      }});
 
-  CHECK_THAT(
-    fs.find(texturePrefix, TraversalMode::Recursive, makeExtensionPathMatcher({""})),
-    Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-      texturePrefix / "test",
-      texturePrefix / "__TB_empty",
-      texturePrefix / "test/editor_image",
-      texturePrefix / "test/test",
-      texturePrefix / "test/test2",
-      texturePrefix / "test/not_existing",
-      texturePrefix / "test/not_existing2",
-    }));
+  CHECK(
+    fs.find(texturePrefix, TraversalMode::Recursive, makeExtensionPathMatcher({""}))
+    == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      std::vector<std::filesystem::path>{
+        texturePrefix / "__TB_empty",
+        texturePrefix / "test",
+        texturePrefix / "test/editor_image",
+        texturePrefix / "test/not_existing",
+        texturePrefix / "test/not_existing2",
+        texturePrefix / "test/test",
+        texturePrefix / "test/test2",
+      }});
 }
 
 TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
@@ -101,15 +103,16 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
     std::make_unique<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger));
 
-  CHECK_THAT(
-    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""})),
-    Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-      texturePrefix / "test/editor_image",
-      texturePrefix / "test/test",
-      texturePrefix / "test/test2",
-      texturePrefix / "test/not_existing",
-      texturePrefix / "test/not_existing2",
-    }));
+  CHECK(
+    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))
+    == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      std::vector<std::filesystem::path>{
+        texturePrefix / "test/editor_image",
+        texturePrefix / "test/not_existing",
+        texturePrefix / "test/not_existing2",
+        texturePrefix / "test/test",
+        texturePrefix / "test/test2",
+      }});
 }
 } // namespace IO
 } // namespace TrenchBroom

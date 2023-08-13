@@ -23,6 +23,7 @@
 #include "IO/ExportOptions.h"
 #include "IO/FileSystemError.h"
 #include "Model/BrushFace.h"
+#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/WorldNode.h"
 
@@ -93,13 +94,13 @@ Game::SoftMapBounds Game::extractSoftMapBounds(const Entity& entity) const
   return doExtractSoftMapBounds(entity);
 }
 
-std::unique_ptr<WorldNode> Game::newMap(
+kdl::result<std::unique_ptr<WorldNode>, GameError> Game::newMap(
   const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const
 {
   return doNewMap(format, worldBounds, logger);
 }
 
-std::unique_ptr<WorldNode> Game::loadMap(
+kdl::result<std::unique_ptr<WorldNode>, GameError> Game::loadMap(
   const MapFormat format,
   const vm::bbox3& worldBounds,
   const std::filesystem::path& path,
@@ -108,13 +109,13 @@ std::unique_ptr<WorldNode> Game::loadMap(
   return doLoadMap(format, worldBounds, path, logger);
 }
 
-kdl::result<void, IO::FileSystemError> Game::writeMap(
+kdl::result<void, GameError> Game::writeMap(
   WorldNode& world, const std::filesystem::path& path) const
 {
   return doWriteMap(world, path);
 }
 
-kdl::result<void, IO::FileSystemError> Game::exportMap(
+kdl::result<void, GameError> Game::exportMap(
   WorldNode& world, const IO::ExportOptions& options) const
 {
   return doExportMap(world, options);
@@ -192,7 +193,7 @@ std::filesystem::path Game::findEntityDefinitionFile(
   return doFindEntityDefinitionFile(spec, searchPaths);
 }
 
-std::vector<std::string> Game::availableMods() const
+kdl::result<std::vector<std::string>, GameError> Game::availableMods() const
 {
   return doAvailableMods();
 }

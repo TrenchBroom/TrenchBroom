@@ -62,6 +62,7 @@ class BrushFaceAttributes;
 struct CompilationConfig;
 class Entity;
 struct FlagsConfig;
+struct GameError;
 class Node;
 class SmartTag;
 class WorldNode;
@@ -111,16 +112,16 @@ public:
   SoftMapBounds extractSoftMapBounds(const Entity& entity) const;
 
 public: // loading and writing map files
-  std::unique_ptr<WorldNode> newMap(
+  kdl::result<std::unique_ptr<WorldNode>, GameError> newMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
-  std::unique_ptr<WorldNode> loadMap(
+  kdl::result<std::unique_ptr<WorldNode>, GameError> loadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const;
-  kdl::result<void, IO::FileSystemError> writeMap(
+  kdl::result<void, GameError> writeMap(
     WorldNode& world, const std::filesystem::path& path) const;
-  kdl::result<void, IO::FileSystemError> exportMap(
+  kdl::result<void, GameError> exportMap(
     WorldNode& world, const IO::ExportOptions& options) const;
 
 public: // parsing and serializing objects
@@ -160,7 +161,7 @@ public: // entity definition handling
     const std::vector<std::filesystem::path>& searchPaths) const;
 
 public: // mods
-  std::vector<std::string> availableMods() const;
+  kdl::result<std::vector<std::string>, GameError> availableMods() const;
   std::vector<std::string> extractEnabledMods(const Entity& entity) const;
   std::string defaultMod() const;
 
@@ -188,16 +189,16 @@ private: // subclassing interface
 
   virtual const std::vector<SmartTag>& doSmartTags() const = 0;
 
-  virtual std::unique_ptr<WorldNode> doNewMap(
+  virtual kdl::result<std::unique_ptr<WorldNode>, GameError> doNewMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const = 0;
-  virtual std::unique_ptr<WorldNode> doLoadMap(
+  virtual kdl::result<std::unique_ptr<WorldNode>, GameError> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const = 0;
-  virtual kdl::result<void, IO::FileSystemError> doWriteMap(
+  virtual kdl::result<void, GameError> doWriteMap(
     WorldNode& world, const std::filesystem::path& path) const = 0;
-  virtual kdl::result<void, IO::FileSystemError> doExportMap(
+  virtual kdl::result<void, GameError> doExportMap(
     WorldNode& world, const IO::ExportOptions& options) const = 0;
 
   virtual std::vector<Node*> doParseNodes(
@@ -234,7 +235,7 @@ private: // subclassing interface
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
-  virtual std::vector<std::string> doAvailableMods() const = 0;
+  virtual kdl::result<std::vector<std::string>, GameError> doAvailableMods() const = 0;
   virtual std::vector<std::string> doExtractEnabledMods(const Entity& entity) const = 0;
   virtual std::string doDefaultMod() const = 0;
 

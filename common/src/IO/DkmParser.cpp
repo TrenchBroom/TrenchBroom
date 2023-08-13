@@ -23,6 +23,7 @@
 #include "Assets/Texture.h"
 #include "Exceptions.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"
@@ -33,6 +34,7 @@
 #include "Renderer/PrimType.h"
 
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 
 #include <string>
@@ -481,9 +483,11 @@ std::filesystem::path DkmParser::findSkin(const std::string& skin) const
   // Search for any file with the correct base name.
   const auto folder = skinPath.parent_path();
   const auto basename = skinPath.stem();
-  const auto items = m_fs.find(
-    folder, TraversalMode::Flat, makeFilenamePathMatcher(basename.string() + ".*"));
-  return items.size() == 1 ? items.front() : skinPath;
+  return m_fs
+    .find(folder, TraversalMode::Flat, makeFilenamePathMatcher(basename.string() + ".*"))
+    .transform([&](auto items) { return items.size() == 1 ? items.front() : skinPath; })
+    .if_error([](auto e) { throw AssetException{e.msg}; })
+    .value();
 }
 
 void DkmParser::buildFrame(

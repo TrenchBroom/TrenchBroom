@@ -67,7 +67,7 @@ PathInfo DiskFileSystem::pathInfo(const std::filesystem::path& path) const
     .value();
 }
 
-std::vector<std::filesystem::path> DiskFileSystem::doFind(
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> DiskFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   return makeAbsolute(path)
@@ -75,9 +75,7 @@ std::vector<std::filesystem::path> DiskFileSystem::doFind(
     .transform([&](const auto& paths) {
       return kdl::vec_transform(
         paths, [&](auto p) { return p.lexically_relative(m_root); });
-    })
-    .if_error([](const auto& e) { throw FileSystemException{e.msg}; })
-    .value();
+    });
 }
 
 kdl::result<std::shared_ptr<File>, FileSystemError> DiskFileSystem::doOpenFile(

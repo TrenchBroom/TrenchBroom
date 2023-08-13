@@ -85,7 +85,7 @@ private:
   void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
   kdl::result<IO::WritableDiskFileSystem, IO::FileSystemError> createBackupFileSystem(
     const std::filesystem::path& mapPath) const;
-  std::vector<std::filesystem::path> collectBackups(
+  kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> collectBackups(
     const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const;
   kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> thinBackups(
     Logger& logger,

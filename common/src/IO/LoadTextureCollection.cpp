@@ -170,15 +170,18 @@ kdl::result<ReadTextureFunc, LoadTextureCollectionError> makeReadTextureFunc(
 
 kdl_reflect_impl(LoadTextureCollectionError);
 
-std::vector<std::filesystem::path> findTextureCollections(
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
-  auto paths = gameFS.find(
-    textureConfig.root,
-    TraversalMode::Recursive,
-    makePathInfoPathMatcher({PathInfo::Directory}));
-  paths.insert(paths.begin(), textureConfig.root);
-  return paths;
+  return gameFS
+    .find(
+      textureConfig.root,
+      TraversalMode::Recursive,
+      makePathInfoPathMatcher({PathInfo::Directory}))
+    .transform([&](auto paths) {
+      paths.insert(paths.begin(), textureConfig.root);
+      return paths;
+    });
 }
 
 kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCollection(
@@ -193,41 +196,45 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
       "Could not load texture collection '" + path.string() + "': not a directory"};
   }
 
+  const auto pathMatcher = !textureConfig.extensions.empty()
+                             ? makeExtensionPathMatcher(textureConfig.extensions)
+                             : matchAnyPath;
+
   return makeReadTextureFunc(gameFS, textureConfig)
-    .and_then(
-      [&](const auto& readTexture)
-        -> kdl::result<Assets::TextureCollection, LoadTextureCollectionError> {
-        const auto pathMatcher = !textureConfig.extensions.empty()
-                                   ? makeExtensionPathMatcher(textureConfig.extensions)
-                                   : matchAnyPath;
-        const auto texturePaths = kdl::vec_filter(
-          gameFS.find(path, TraversalMode::Flat, pathMatcher),
-          [&](const auto& texturePath) {
+    .join(
+      gameFS.find(path, TraversalMode::Flat, pathMatcher)
+        .transform([&](auto texturePaths) {
+          return kdl::vec_filter(std::move(texturePaths), [&](const auto& texturePath) {
             return !shouldExclude(texturePath.stem().string(), textureConfig.excludes);
           });
-
-        return kdl::fold_results(
-                 kdl::vec_transform(
-                   texturePaths,
-                   [&](const auto& texturePath) {
-                     return gameFS.openFile(texturePath)
-                       .and_then(
-                         [&](auto file) { return readTexture(*file, texturePath); })
-                       .or_else(makeReadTextureErrorHandler(gameFS, logger))
-                       .transform([&](auto texture) {
-                         gameFS.makeAbsolute(texturePath)
-                           .transform([&](auto absPath) {
-                             texture.setAbsolutePath(std::move(absPath));
-                           })
-                           .or_else([](auto) { return kdl::void_success; });
-                         texture.setRelativePath(texturePath);
-                         return texture;
-                       });
-                   }))
-          .transform([&](auto textures) {
-            return Assets::TextureCollection{path, std::move(textures)};
-          });
-      });
+        }))
+    .and_then([&](const auto& readTexture, auto texturePaths) {
+      return kdl::fold_results(
+               kdl::vec_transform(
+                 texturePaths,
+                 [&](const auto& texturePath) {
+                   return gameFS.openFile(texturePath)
+                     .and_then([&](auto file) { return readTexture(*file, texturePath); })
+                     .or_else(makeReadTextureErrorHandler(gameFS, logger))
+                     .transform([&](auto texture) {
+                       gameFS.makeAbsolute(texturePath)
+                         .transform([&](auto absPath) {
+                           texture.setAbsolutePath(std::move(absPath));
+                         })
+                         .or_else([](auto) { return kdl::void_success; });
+                       texture.setRelativePath(texturePath);
+                       return texture;
+                     });
+                 }))
+        .transform([&](auto textures) {
+          return Assets::TextureCollection{path, std::move(textures)};
+        });
+    })
+    .or_else([](auto e) {
+      return kdl::result<Assets::TextureCollection, LoadTextureCollectionError>{
+        LoadTextureCollectionError{e.msg}};
+    });
+  ;
 }
 
 } // namespace TrenchBroom::IO

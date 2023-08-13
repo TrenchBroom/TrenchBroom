@@ -257,8 +257,8 @@ void doFindImpl(
 }
 } // namespace
 
-std::vector<std::filesystem::path> ImageFileSystemBase::doFind(
-  const std::filesystem::path& path, const TraversalMode traversalMode) const
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> ImageFileSystemBase::
+  doFind(const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   withEntry(

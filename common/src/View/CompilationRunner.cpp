@@ -33,6 +33,7 @@
 #include "IO/TraversalMode.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
+#include "Model/GameError.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"

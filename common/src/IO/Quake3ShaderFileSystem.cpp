@@ -57,66 +57,72 @@ Quake3ShaderFileSystem::Quake3ShaderFileSystem(
 
 void Quake3ShaderFileSystem::doReadDirectory()
 {
-  auto shaders = loadShaders();
-  linkShaders(shaders);
+  loadShaders()
+    .and_then([&](auto shaders) { return linkShaders(shaders); })
+    .transform_error(
+      [&](auto e) { m_logger.error() << "Could not load shaders: " << e.msg; });
 }
 
-std::vector<Assets::Quake3Shader> Quake3ShaderFileSystem::loadShaders() const
+kdl::result<std::vector<Assets::Quake3Shader>, FileSystemError> Quake3ShaderFileSystem::
+  loadShaders() const
 {
-  if (m_fs.pathInfo(m_shaderSearchPath) == PathInfo::Directory)
+  if (m_fs.pathInfo(m_shaderSearchPath) != PathInfo::Directory)
   {
-    const auto paths = m_fs.find(
-      m_shaderSearchPath, TraversalMode::Flat, makeExtensionPathMatcher({".shader"}));
-
-    return kdl::fold_results(
-             kdl::vec_transform(
-               paths,
-               [&](const auto& path) {
-                 return m_fs.openFile(path).transform([&](auto file) {
-                   auto bufferedReader = file->reader().buffer();
-                   try
-                   {
-                     auto parser = Quake3ShaderParser{bufferedReader.stringView()};
-                     auto status = SimpleParserStatus{m_logger, path.string()};
-                     return parser.parse(status);
-                   }
-                   catch (const ParserException& e)
-                   {
-                     m_logger.warn()
-                       << "Skipping malformed shader file " << path << ": " << e.what();
-                     return std::vector<Assets::Quake3Shader>{};
-                   }
-                 });
-               }))
-      .transform([&](auto nestedShaders) {
-        auto allShaders = kdl::vec_flatten(std::move(nestedShaders));
-        m_logger.info() << "Loaded " << allShaders.size() << " shaders";
-        return allShaders;
-      })
-      .value();
+    return std::vector<Assets::Quake3Shader>{};
   }
-  return {};
+
+  const auto loadShaderFile = [&](const auto& path) {
+    return m_fs.openFile(path).transform([&](auto file) {
+      auto bufferedReader = file->reader().buffer();
+      try
+      {
+        auto parser = Quake3ShaderParser{bufferedReader.stringView()};
+        auto status = SimpleParserStatus{m_logger, path.string()};
+        return parser.parse(status);
+      }
+      catch (const ParserException& e)
+      {
+        m_logger.warn() << "Skipping malformed shader file " << path << ": " << e.what();
+        return std::vector<Assets::Quake3Shader>{};
+      }
+    });
+  };
+
+  return m_fs
+    .find(m_shaderSearchPath, TraversalMode::Flat, makeExtensionPathMatcher({".shader"}))
+    .and_then([&](auto paths) {
+      return kdl::fold_results(kdl::vec_transform(paths, loadShaderFile));
+    })
+    .transform([&](auto nestedShaders) {
+      auto allShaders = kdl::vec_flatten(std::move(nestedShaders));
+      m_logger.info() << "Loaded " << allShaders.size() << " shaders";
+      return allShaders;
+    });
 }
 
-void Quake3ShaderFileSystem::linkShaders(std::vector<Assets::Quake3Shader>& shaders)
+kdl::result<void, FileSystemError> Quake3ShaderFileSystem::linkShaders(
+  std::vector<Assets::Quake3Shader>& shaders)
 {
-  auto allImages = std::vector<std::filesystem::path>{};
-  for (const auto& textureSearchPath : m_textureSearchPaths)
-  {
-    if (m_fs.pathInfo(textureSearchPath) == PathInfo::Directory)
-    {
-      allImages = kdl::vec_concat(
-        std::move(allImages),
-        m_fs.find(
-          textureSearchPath,
-          TraversalMode::Recursive,
-          makeExtensionPathMatcher({".tga", ".png", ".jpg", ".jpeg"})));
-    }
-  }
-
-  m_logger.info() << "Linking shaders...";
-  linkTextures(allImages, shaders);
-  linkStandaloneShaders(shaders);
+  return kdl::fold_results(
+           kdl::vec_transform(
+             kdl::vec_filter(
+               m_textureSearchPaths,
+               [&](const auto& textureSearchPath) {
+                 return m_fs.pathInfo(textureSearchPath) == PathInfo::Directory;
+               }),
+             [&](const auto& textureSearchPath) {
+               return m_fs.find(
+                 textureSearchPath,
+                 TraversalMode::Recursive,
+                 makeExtensionPathMatcher({".tga", ".png", ".jpg", ".jpeg"}));
+             }))
+    .transform(
+      [](auto nestedImagePaths) { return kdl::vec_flatten(std::move(nestedImagePaths)); })
+    .transform([&](auto allImagePaths) {
+      m_logger.info() << "Linking shaders...";
+      linkTextures(allImagePaths, shaders);
+      linkStandaloneShaders(shaders);
+    });
 }
 
 void Quake3ShaderFileSystem::linkTextures(
