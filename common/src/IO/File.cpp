@@ -20,6 +20,9 @@
 #include "File.h"
 
 #include "Exceptions.h"
+#include "IO/FileSystemError.h"
+
+#include <kdl/result.h>
 
 #include <cstdio> // for FILE
 
@@ -44,26 +47,6 @@ Reader OwningBufferFile::reader() const
 size_t OwningBufferFile::size() const
 {
   return m_size;
-}
-
-NonOwningBufferFile::NonOwningBufferFile(const char* begin, const char* end)
-  : m_begin{begin}
-  , m_end{end}
-{
-  if (m_end < m_begin)
-  {
-    throw FileSystemException("Invalid buffer");
-  }
-}
-
-Reader NonOwningBufferFile::reader() const
-{
-  return Reader::from(m_begin, m_end);
-}
-
-size_t NonOwningBufferFile::size() const
-{
-  return static_cast<size_t>(m_end - m_begin);
 }
 
 namespace

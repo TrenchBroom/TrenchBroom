@@ -21,12 +21,16 @@
 
 #include "IO/Reader.h"
 
+#include <kdl/result_forward.h>
+
 #include <cstdio>
 #include <filesystem>
 #include <memory>
 
 namespace TrenchBroom::IO
 {
+struct FileSystemError;
+
 /**
  * Represents an opened (logical) file. A logical file can be backed by a physical file on
  * the disk, a memory buffer, or a portion thereof. A special case is a file that is
@@ -69,31 +73,6 @@ public:
    * @param size the size of the file
    */
   OwningBufferFile(std::unique_ptr<char[]> buffer, size_t size);
-
-  Reader reader() const override;
-  size_t size() const override;
-};
-
-/**
- * A file that is backed by a memory buffer. The file does not take ownership of the
- * buffer.
- */
-class NonOwningBufferFile : public File
-{
-private:
-  const char* m_begin;
-  const char* m_end;
-
-public:
-  /**
-   * Creates a new file with the given buffer.
-   *
-   * @param begin the start of the memory buffer
-   * @param end the end of the memory buffer (position after the last byte)
-   *
-   * @throw FileSystemException if the given buffer pointers are invalid
-   */
-  NonOwningBufferFile(const char* begin, const char* end);
 
   Reader reader() const override;
   size_t size() const override;
