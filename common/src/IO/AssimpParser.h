@@ -25,7 +25,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-#include <assimp/matrix4x4.h>
+#include <assimp/types.h>
 
 #include <filesystem>
 #include <vector>
@@ -67,6 +67,31 @@ struct AssimpVertex
   }
 };
 
+struct AssimpBoneInformation
+{
+  size_t m_boneIndex{0};
+  int32_t m_parentIndex{-1};
+  aiString m_name;
+  aiMatrix4x4 m_localTransform;
+  aiMatrix4x4 m_globalTransform;
+
+  AssimpBoneInformation() = default;
+
+  AssimpBoneInformation(
+    size_t m_bone_index,
+    int32_t m_parent_index,
+    const aiString& m_name,
+    const aiMatrix4x4& m_local_transform,
+    const aiMatrix4x4& m_global_transform)
+    : m_boneIndex(m_bone_index)
+    , m_parentIndex(m_parent_index)
+    , m_name(m_name)
+    , m_localTransform(m_local_transform)
+    , m_globalTransform(m_global_transform)
+  {
+  }
+};
+
 class AssimpParser : public EntityModelParser
 {
 private:
@@ -85,13 +110,27 @@ public:
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
+  void doLoadFrame(
+    size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
+  void loadSceneFrame(
+    const aiScene* scene, const size_t frameIndex, Assets::EntityModel& model);
+  void processRootNode(
+    const aiNode& node,
+    const aiScene& scene,
+    const aiMatrix4x4& transform,
+    const aiMatrix4x4& axisTransform,
+    const std::vector<AssimpBoneInformation>& boneTransforms);
   void processNode(
     const aiNode& node,
     const aiScene& scene,
     const aiMatrix4x4& transform,
-    const aiMatrix4x4& axisTransform);
+    const aiMatrix4x4& axisTransform,
+    const std::vector<AssimpBoneInformation>& boneTransforms);
   void processMesh(
-    const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform);
+    const aiMesh& mesh,
+    const aiMatrix4x4& transform,
+    const aiMatrix4x4& axisTransform,
+    const std::vector<AssimpBoneInformation>& boneTransforms);
   void processMaterials(const aiScene& scene, Logger& logger);
   static aiMatrix4x4 get_axis_transform(const aiScene& scene);
 };

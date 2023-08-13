@@ -162,28 +162,139 @@ public:
 
 } // namespace
 
+/**
+ * Gets the channel index for a particular assimp node, matched by name.
+ * Returns -1 if this node doesn't have a channel for this animation.
+ */
+int16_t getChannelIndex(const aiAnimation& animation, const aiNode& node)
+{
+  for (uint16_t b = 0; b < animation.mNumChannels; b++)
+  {
+    const aiNodeAnim* ch = animation.mChannels[b];
+    if (!std::strcmp(node.mName.data, ch->mNodeName.data))
+    {
+      return static_cast<int16_t>(b);
+    }
+  }
+  return -1;
+}
+
+/**
+ * Computes the animation information for each channel in an
+ * animation sequence. Always uses the first frame of the animation.
+ */
+std::vector<AssimpBoneInformation> getAnimationInformation(
+  const aiNode& root, const aiAnimation& animation)
+{
+  auto indivTransforms = std::vector<aiMatrix4x4>{animation.mNumChannels};
+
+  // calculate the transformations for each animation channel
+  for (unsigned int a = 0; a < animation.mNumChannels; ++a)
+  {
+    const aiNodeAnim* channel = animation.mChannels[a];
+
+    aiVector3D position(0, 0, 0);
+    if (channel->mNumPositionKeys > 0)
+    {
+      position = channel->mPositionKeys[0].mValue;
+    }
+
+    aiQuaternion rotation(1, 0, 0, 0);
+    if (channel->mNumRotationKeys > 0)
+    {
+      rotation = channel->mRotationKeys[0].mValue;
+    }
+
+    aiVector3D scale(1, 1, 1);
+    if (channel->mNumScalingKeys > 0)
+    {
+      scale = channel->mScalingKeys[0].mValue;
+    }
+
+    // build a transformation matrix from it
+    aiMatrix4x4& mat = indivTransforms[a];
+    mat = aiMatrix4x4(rotation.GetMatrix());
+    mat.a1 *= scale.x;
+    mat.b1 *= scale.x;
+    mat.c1 *= scale.x;
+    mat.a2 *= scale.y;
+    mat.b2 *= scale.y;
+    mat.c2 *= scale.y;
+    mat.a3 *= scale.z;
+    mat.b3 *= scale.z;
+    mat.c3 *= scale.z;
+    mat.a4 = position.x;
+    mat.b4 = position.y;
+    mat.c4 = position.z;
+  }
+
+  // assemble the transform information from the bone hierarchy (child
+  // bones must be multiplied by their parent transformations, recursively)
+  auto transforms = std::vector<AssimpBoneInformation>{animation.mNumChannels};
+  for (unsigned int a = 0; a < animation.mNumChannels; ++a)
+  {
+    const aiNodeAnim* channel = animation.mChannels[a];
+
+    // start with the individual transformation of this channel
+    auto globalTransform = indivTransforms[a];
+    int32_t parentId = -1;
+
+    // traverse the bone hierarchy to compute the global transformation
+    auto boneNode = root.FindNode(channel->mNodeName);
+    if (!boneNode)
+    {
+      continue; // couldn't find the bone node, something is weird
+    }
+
+    // start at the first parent and walk up the tree
+    aiNode* parentNode = boneNode->mParent;
+    while (parentNode)
+    {
+      // use the node's default transformation, in case node isn't a bone
+      // and won't be transformed by this animation
+      aiMatrix4x4 nodeTransformation = parentNode->mTransformation;
+
+      // find the index of this bone in the channel list
+      const auto b = getChannelIndex(animation, *parentNode);
+      if (b >= 0)
+      {
+        nodeTransformation = indivTransforms[b];
+
+        // if this is the first parent of the bone, set the parent id
+        if (parentNode == boneNode->mParent)
+        {
+          parentId = b;
+        }
+      }
+      else
+      {
+        break;
+      }
+
+      globalTransform = nodeTransformation * globalTransform;
+      parentNode = parentNode->mParent;
+    }
+
+    // set the info and carry on
+    transforms[a] = AssimpBoneInformation{
+      a, parentId, channel->mNodeName, indivTransforms[a], globalTransform};
+  }
+
+  return transforms;
+}
+
 std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   TrenchBroom::Logger& logger)
 {
-  // Create model.
-  auto model = std::make_unique<Assets::EntityModel>(
-    m_path.string(), Assets::PitchType::Normal, Assets::Orientation::Oriented);
-  model->addFrame();
-  auto& surface = model->addSurface(m_path.string());
-
-  m_positions.clear();
-  m_vertices.clear();
-  m_faces.clear();
   m_textures.clear();
 
   // Import the file as an Assimp scene and populate our vectors.
   auto importer = Assimp::Importer{};
   importer.SetIOHandler(new AssimpIOSystem{m_fs});
 
-  const auto* scene = importer.ReadFile(
-    m_path.string(),
-    aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_FlipWindingOrder
-      | aiProcess_SortByPType | aiProcess_FlipUVs);
+  // no post processing needed at this stage, since we only need to know how many frames
+  // (animations) the model has
+  const auto* scene = importer.ReadFile(m_path.string(), 0);
 
   if (!scene)
   {
@@ -191,18 +302,79 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
       std::string{"Assimp couldn't import the file: "} + importer.GetErrorString()};
   }
 
-  // Load materials as textures.
-  processMaterials(*scene, logger);
+  // Create model
+  auto model = std::make_unique<Assets::EntityModel>(
+    m_path.string(), Assets::PitchType::Normal, Assets::Orientation::Oriented);
 
+  // Create a frame for each animation in the scene
+  // If we have no animations, always load 1 frame as the reference model
+  const auto numSequences = std::max(scene->mNumAnimations, 1u);
+  for (size_t i = 0; i < numSequences; ++i)
+  {
+    model->addFrame();
+  }
+
+  auto& surface = model->addSurface(m_path.string());
+
+  // Load materials as textures
+  processMaterials(*scene, logger);
   surface.setSkins(std::move(m_textures));
+
+  // the entity browser will want to see frame 0 most of the time, pre-emptively load it
+  loadSceneFrame(scene, 0, *model);
+
+  return model;
+}
+
+void AssimpParser::doLoadFrame(
+  const size_t frameIndex, Assets::EntityModel& model, Logger& logger)
+{
+  // Import the file as an Assimp scene and populate our vectors
+  auto importer = Assimp::Importer{};
+  importer.SetIOHandler(new AssimpIOSystem{m_fs});
+
+  // we'll be using the actual vertex data for this scene, specify some post-processing
+  const auto* scene = importer.ReadFile(
+    m_path.string(),
+    aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType
+      | aiProcess_FlipUVs | aiProcess_FlipWindingOrder);
+
+  if (!scene)
+  {
+    throw ParserException{
+      std::string{"Assimp couldn't import the file: "} + importer.GetErrorString()};
+  }
+
+  // load the requested frame
+  loadSceneFrame(scene, frameIndex, model);
+}
+
+void AssimpParser::loadSceneFrame(
+  const aiScene* scene, const size_t frameIndex, Assets::EntityModel& model)
+{
+  auto& surface = model.surface(0);
+
+  m_positions.clear();
+  m_vertices.clear();
+  m_faces.clear();
+
+  // load the animation information for the current "frame" (animation)
+  std::vector<AssimpBoneInformation> boneTransforms;
+  if (frameIndex < scene->mNumAnimations)
+  {
+    const auto animation = scene->mAnimations[frameIndex];
+    boneTransforms = getAnimationInformation(*scene->mRootNode, *animation);
+  }
 
   // Assimp files import as y-up. We must multiply the root transform with an axis
   // transform matrix.
-  processNode(
+  processRootNode(
     *scene->mRootNode,
     *scene,
     scene->mRootNode->mTransformation,
-    get_axis_transform(*scene));
+    get_axis_transform(*scene),
+    boneTransforms);
+
 
   // Build bounds.
   auto bounds = vm::bbox3f::builder{};
@@ -228,7 +400,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   }
 
   // Part 2: Building
-  auto& frame = model->loadFrame(0, m_path.string(), bounds.bounds());
+  auto& frame = model.loadFrame(frameIndex, m_path.string(), bounds.bounds());
   auto builder = Renderer::TexturedIndexRangeMapBuilder<Assets::EntityModelVertex::Type>{
     totalVertexCount, size};
 
@@ -242,7 +414,6 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   }
 
   surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
-  return model;
 }
 
 AssimpParser::AssimpParser(std::filesystem::path path, const FileSystem& fs)
@@ -273,16 +444,88 @@ bool AssimpParser::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
+#define AI_MDL_HL1_NODE_BODYPARTS "<MDL_bodyparts>"
+
+void AssimpParser::processRootNode(
+  const aiNode& node,
+  const aiScene& scene,
+  const aiMatrix4x4& transform,
+  const aiMatrix4x4& axisTransform,
+  const std::vector<AssimpBoneInformation>& boneTransforms)
+{
+  // HL1 models have a slightly different structure than normal, the format consists
+  // of multiple body parts, and each body part has one or more submodels. Only one
+  // submodel per body part should be rendered at a time.
+
+  // See if we have loaded a HL1 model
+  const auto hl1bodyParts = node.FindNode(AI_MDL_HL1_NODE_BODYPARTS);
+  if (!hl1bodyParts)
+  {
+    // not a HL1 model, just process like normal
+    processNode(node, scene, transform, axisTransform, boneTransforms);
+    return;
+  }
+
+  /* HL models are loaded by assimp in a particular way, each bodypart and all
+   * its submodels are loaded into different nodes in the scene. To properly
+   * display the model, we must choose EXACTLY ONE submodel from each body
+   * part and render the meshes for those chosen submodels. */
+
+  // Assimp HL models face sideways by default so spin by -90 on the z axis
+  // this MIGHT be needed for non-HL models as well. To be safe for now, we
+  // only do this for HL models.
+  const aiQuaternion rotation(aiVector3t(0, 1, 0), -vm::Cf::half_pi());
+  const auto rotMatrix = aiMatrix4x4(rotation.GetMatrix());
+  const auto newAxisTransform = axisTransform * rotMatrix;
+
+  // loop through each body part
+  for (unsigned int bpi = 0; bpi < hl1bodyParts->mNumChildren; bpi++)
+  {
+    const auto* bodypart = hl1bodyParts->mChildren[bpi];
+    if (bodypart->mNumChildren == 0)
+    {
+      // the body has no submodels (shouldn't happen for a normal HL model)
+      continue;
+    }
+
+    // for now, just pick the first submodel for each body part
+    const auto* submodel = bodypart->mChildren[0];
+
+    // for future implementation:
+    /*
+    // HL has a concept of a "body" keyvalue which allows the mapper
+    // to set which submodels to use (e.g. change npc heads, carried weapons).
+    // This would need to be added to the model spec and the doLoadFrame
+    // parameters so it could be passed along to the parser.
+
+    // The "body" keyvalue is treated similar to a bitflag field, with a
+    // number of bytes for each submodel in the model held in the "base" value.
+
+    int32_t bodyValue ; // passed in as an argument from the modelspec
+
+    int32_t base;
+    if (bodypart->mMetaData->Get("Base", base))
+    {
+      submodel = bodypart->mChildren[bodyValue % base];
+      // we should also do some sanity checks for array bounds, etc
+    }
+    */
+
+    processNode(*submodel, scene, transform, newAxisTransform, boneTransforms);
+  }
+}
+
 void AssimpParser::processNode(
   const aiNode& node,
   const aiScene& scene,
   const aiMatrix4x4& transform,
-  const aiMatrix4x4& axisTransform)
+  const aiMatrix4x4& axisTransform,
+  const std::vector<AssimpBoneInformation>& boneTransforms)
 {
   for (unsigned int i = 0; i < node.mNumMeshes; i++)
   {
     const auto* mesh = scene.mMeshes[node.mMeshes[i]];
-    processMesh(*mesh, transform, axisTransform);
+    processMesh(*mesh, transform, axisTransform, boneTransforms);
   }
   for (unsigned int i = 0; i < node.mNumChildren; i++)
   {
@@ -290,19 +533,69 @@ void AssimpParser::processNode(
       *node.mChildren[i],
       scene,
       transform * node.mChildren[i]->mTransformation,
-      axisTransform);
+      axisTransform,
+      boneTransforms);
   }
 }
 
-void AssimpParser::processMesh(
-  const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
+struct vertexBoneWeight
 {
+  const size_t m_boneIndex;
+  const float m_weight;
+  const aiBone* m_bone;
+
+  vertexBoneWeight(size_t m_bone_index, float m_weight, const aiBone* m_bone)
+    : m_boneIndex(m_bone_index)
+    , m_weight(m_weight)
+    , m_bone(m_bone)
+  {
+  }
+};
+
+void AssimpParser::processMesh(
+  const aiMesh& mesh,
+  const aiMatrix4x4& transform,
+  const aiMatrix4x4& axisTransform,
+  const std::vector<AssimpBoneInformation>& boneTransforms)
+{
+  // the weights for each vertex are stored in the bones, not in
+  // the vertices. this loop lets us collect the bone weightings
+  // per vertex so we can process them.
+  std::vector<std::vector<vertexBoneWeight>> weightsPerVertex(mesh.mNumVertices);
+  for (unsigned int a = 0; a < mesh.mNumBones; a++)
+  {
+    const aiBone* bone = mesh.mBones[a];
+
+    // find the bone with the matching name
+    size_t idx;
+    for (idx = 0; idx < boneTransforms.size(); idx++)
+    {
+      const auto info = boneTransforms[idx];
+      if (!std::strcmp(info.m_name.data, bone->mName.data))
+      {
+        break;
+      }
+    }
+    if (idx >= boneTransforms.size())
+    {
+      // couldn't find a bone with this name, skip it
+      continue;
+    }
+
+    for (unsigned int b = 0; b < bone->mNumWeights; b++)
+    {
+      weightsPerVertex[bone->mWeights[b].mVertexId].emplace_back(
+        idx, bone->mWeights[b].mWeight, bone);
+    }
+  }
+
   // Meshes have been sorted by primitive type, so we know for sure we'll ONLY get
   // triangles in a single mesh.
   if (mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
   {
     const auto offset = m_vertices.size();
-    // Add all the vertices of the mesh.
+
+    // Add all the vertices of the mesh
     for (unsigned int i = 0; i < mesh.mNumVertices; i++)
     {
       const auto texcoords =
@@ -313,8 +606,35 @@ void AssimpParser::processMesh(
       m_vertices.emplace_back(m_positions.size(), texcoords);
 
       auto meshVertices = mesh.mVertices[i];
+
+      // Bone indices and weights
+      if (mesh.HasBones() && !boneTransforms.empty() && !weightsPerVertex[i].empty())
+      {
+        const auto vertWeights = weightsPerVertex[i];
+        auto vertPos = aiVector3D();
+
+        for (const auto& vertWeight : vertWeights)
+        {
+          auto boneIndex = vertWeight.m_boneIndex;
+          auto weight = vertWeight.m_weight;
+          auto bone = vertWeight.m_bone;
+          if (boneIndex < boneTransforms.size())
+          {
+            const auto& boneTransform = boneTransforms[boneIndex];
+            auto weightedPosition = meshVertices;
+            weightedPosition *= bone->mOffsetMatrix;
+            weightedPosition *= boneTransform.m_globalTransform;
+            weightedPosition *= weight;
+            vertPos += weightedPosition;
+          }
+        }
+
+        meshVertices = vertPos;
+      }
+
       meshVertices *= transform;
       meshVertices *= axisTransform;
+
       m_positions.emplace_back(meshVertices.x, meshVertices.y, meshVertices.z);
     }
 
@@ -478,13 +798,13 @@ aiMatrix4x4 AssimpParser::get_axis_transform(const aiScene& scene)
             coordAxisSign = 0;
     float unitScale = 1.0f;
 
-    bool metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
-                           && scene.mMetaData->Get("UpAxisSign", upAxisSign)
-                           && scene.mMetaData->Get("FrontAxis", frontAxis)
-                           && scene.mMetaData->Get("FrontAxisSign", frontAxisSign)
-                           && scene.mMetaData->Get("CoordAxis", coordAxis)
-                           && scene.mMetaData->Get("CoordAxisSign", coordAxisSign)
-                           && scene.mMetaData->Get("UnitScaleFactor", unitScale);
+    const auto metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
+                                 && scene.mMetaData->Get("UpAxisSign", upAxisSign)
+                                 && scene.mMetaData->Get("FrontAxis", frontAxis)
+                                 && scene.mMetaData->Get("FrontAxisSign", frontAxisSign)
+                                 && scene.mMetaData->Get("CoordAxis", coordAxis)
+                                 && scene.mMetaData->Get("CoordAxisSign", coordAxisSign)
+                                 && scene.mMetaData->Get("UnitScaleFactor", unitScale);
 
     if (!metadataPresent)
     {
