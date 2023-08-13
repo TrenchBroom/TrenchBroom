@@ -376,8 +376,9 @@ bool GameImpl::doIsEntityDefinitionFile(const std::filesystem::path& path) const
   });
 }
 
-std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
-  IO::ParserStatus& status, const std::filesystem::path& path) const
+kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError> GameImpl::
+  doLoadEntityDefinitions(
+    IO::ParserStatus& status, const std::filesystem::path& path) const
 {
   const auto extension = path.extension().string();
   const auto& defaultColor = m_config.entityConfig.defaultColor;
@@ -390,8 +391,10 @@ std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
         auto parser = IO::FgdParser{reader.stringView(), defaultColor, path};
         return parser.parseDefinitions(status);
       })
-      .if_error([](auto e) { throw FileSystemException{e.msg}; })
-      .value();
+      .or_else([](auto e) {
+        return kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>{
+          Assets::AssetError{e.msg}};
+      });
   }
   if (kdl::ci::str_is_equal(".def", extension))
   {
@@ -401,8 +404,10 @@ std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
         auto parser = IO::DefParser{reader.stringView(), defaultColor};
         return parser.parseDefinitions(status);
       })
-      .if_error([](auto e) { throw FileSystemException{e.msg}; })
-      .value();
+      .or_else([](auto e) {
+        return kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>{
+          Assets::AssetError{e.msg}};
+      });
   }
   if (kdl::ci::str_is_equal(".ent", extension))
   {
@@ -412,11 +417,13 @@ std::vector<Assets::EntityDefinition*> GameImpl::doLoadEntityDefinitions(
         auto parser = IO::EntParser{reader.stringView(), defaultColor};
         return parser.parseDefinitions(status);
       })
-      .if_error([](auto e) { throw FileSystemException{e.msg}; })
-      .value();
+      .or_else([](auto e) {
+        return kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>{
+          Assets::AssetError{e.msg}};
+      });
   }
 
-  throw GameException{"Unknown entity definition format: '" + path.string() + "'"};
+  return Assets::AssetError{"Unknown entity definition format: '" + path.string() + "'"};
 }
 
 std::vector<Assets::EntityDefinitionFileSpec> GameImpl::doAllEntityDefinitionFiles() const

@@ -19,6 +19,7 @@
 
 #include "EntityDefinitionManager.h"
 
+#include "Assets/AssetError.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Ensure.h"
@@ -27,6 +28,7 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityProperties.h"
 
+#include <kdl/result.h>
 #include <kdl/vector_utils.h>
 
 #include <string>
@@ -41,12 +43,14 @@ EntityDefinitionManager::~EntityDefinitionManager()
   clear();
 }
 
-void EntityDefinitionManager::loadDefinitions(
+kdl::result<void, AssetError> EntityDefinitionManager::loadDefinitions(
   const std::filesystem::path& path,
   const IO::EntityDefinitionLoader& loader,
   IO::ParserStatus& status)
 {
-  setDefinitions(loader.loadEntityDefinitions(status, path));
+  return loader.loadEntityDefinitions(status, path)
+    .transform(
+      [&](auto entityDefinitions) { setDefinitions(std::move(entityDefinitions)); });
 }
 
 void EntityDefinitionManager::setDefinitions(

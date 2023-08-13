@@ -167,7 +167,6 @@ std::string readTextFile(const std::filesystem::path& path)
                (std::istreambuf_iterator<char>(stream)),
                std::istreambuf_iterator<char>()};
            })
-    .if_error([](const auto& e) { throw FileSystemException{e.msg.c_str()}; })
     .value();
 }
 } // namespace IO

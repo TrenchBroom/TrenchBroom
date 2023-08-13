@@ -19,6 +19,7 @@
 
 #include "View/MapDocument.h"
 
+#include "Assets/AssetError.h"
 #include "Assets/AssetUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionFileSpec.h"
@@ -4442,29 +4443,27 @@ void MapDocument::unloadAssets()
 
 void MapDocument::loadEntityDefinitions()
 {
-  const Assets::EntityDefinitionFileSpec spec = entityDefinitionFile();
-  try
-  {
-    const auto path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
-    IO::SimpleParserStatus status(logger());
-    m_entityDefinitionManager->loadDefinitions(path, *m_game, status);
-    info("Loaded entity definition file " + path.filename().string());
+  const auto spec = entityDefinitionFile();
+  const auto path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
+  auto status = IO::SimpleParserStatus{logger()};
 
-    createEntityDefinitionActions();
-  }
-  catch (const Exception& e)
-  {
-    if (spec.builtin())
-    {
-      error() << "Could not load builtin entity definition file '" << spec.path()
-              << "': " << e.what();
-    }
-    else
-    {
-      error() << "Could not load external entity definition file '" << spec.path()
-              << "': " << e.what();
-    }
-  }
+  m_entityDefinitionManager->loadDefinitions(path, *m_game, status)
+    .transform([&]() {
+      info("Loaded entity definition file " + path.filename().string());
+      createEntityDefinitionActions();
+    })
+    .transform_error([&](auto e) {
+      if (spec.builtin())
+      {
+        error() << "Could not load builtin entity definition file '" << spec.path()
+                << "': " << e.msg;
+      }
+      else
+      {
+        error() << "Could not load external entity definition file '" << spec.path()
+                << "': " << e.msg;
+      }
+    });
 }
 
 void MapDocument::unloadEntityDefinitions()

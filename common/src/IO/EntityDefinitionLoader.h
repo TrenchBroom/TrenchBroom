@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <vector>
 
@@ -26,8 +28,9 @@ namespace TrenchBroom
 {
 namespace Assets
 {
+struct AssetError;
 class EntityDefinition;
-}
+} // namespace Assets
 
 namespace IO
 {
@@ -37,11 +40,12 @@ class EntityDefinitionLoader
 {
 public:
   virtual ~EntityDefinitionLoader();
-  std::vector<Assets::EntityDefinition*> loadEntityDefinitions(
-    ParserStatus& status, const std::filesystem::path& path) const;
+  kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
+  loadEntityDefinitions(ParserStatus& status, const std::filesystem::path& path) const;
 
 private:
-  virtual std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(
+  virtual kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
+  doLoadEntityDefinitions(
     ParserStatus& status, const std::filesystem::path& path) const = 0;
 };
 } // namespace IO
