@@ -52,8 +52,9 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
   fs.mount("", std::make_unique<DiskFileSystem>(testDir));
   fs.mount(
     "",
-    std::make_unique<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger));
+    createImageFileSystem<Quake3ShaderFileSystem>(
+      fs, shaderSearchPath, textureSearchPaths, logger)
+      .value());
 
   CHECK(
     fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))
@@ -100,8 +101,9 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
   fs.mount("", std::make_unique<DiskFileSystem>(testDir));
   fs.mount(
     "",
-    std::make_unique<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger));
+    createImageFileSystem<Quake3ShaderFileSystem>(
+      fs, shaderSearchPath, textureSearchPaths, logger)
+      .value());
 
   CHECK(
     fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))

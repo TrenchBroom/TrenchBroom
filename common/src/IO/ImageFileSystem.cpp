@@ -186,23 +186,10 @@ kdl::result<std::filesystem::path, FileSystemError> ImageFileSystemBase::makeAbs
   return kdl::result<std::filesystem::path, FileSystemError>{"/" / path};
 }
 
-void ImageFileSystemBase::reload()
+kdl::result<void, FileSystemError> ImageFileSystemBase::reload()
 {
   m_root = ImageDirectoryEntry{{}, {}};
-  initialize();
-}
-
-void ImageFileSystemBase::initialize()
-{
-  try
-  {
-    doReadDirectory();
-  }
-  catch (const std::exception& e)
-  {
-    throw FileSystemException{
-      "Could not initialize image file system '" + m_path.string() + "': " + e.what()};
-  }
+  return doReadDirectory();
 }
 
 void ImageFileSystemBase::addFile(const std::filesystem::path& path, GetImageFile getFile)
@@ -278,16 +265,18 @@ kdl::result<std::shared_ptr<File>, FileSystemError> ImageFileSystemBase::doOpenF
     path,
     m_root,
     std::filesystem::path{},
-    [](const ImageEntry& entry, const std::filesystem::path&) {
+    [&](const ImageEntry& entry, const std::filesystem::path&) {
       return std::visit(
         kdl::overload(
-          [&](const ImageDirectoryEntry&) -> std::shared_ptr<File> { return {}; },
-          [](const ImageFileEntry& fileEntry) -> std::shared_ptr<File> {
-            return fileEntry.getFile();
-          }),
+          [&](const ImageDirectoryEntry&) {
+            return kdl::result<std::shared_ptr<File>, FileSystemError>{
+              FileSystemError{"Cannot open directory entry at '" + path.string() + "'"}};
+          },
+          [](const ImageFileEntry& fileEntry) { return fileEntry.getFile(); }),
         entry);
     },
-    {});
+    kdl::result<std::shared_ptr<File>, FileSystemError>{
+      FileSystemError{"File not found: '" + path.string() + "'"}});
 }
 
 ImageFileSystem::ImageFileSystem(std::filesystem::path path)

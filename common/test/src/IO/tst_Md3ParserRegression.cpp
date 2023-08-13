@@ -55,8 +55,9 @@ TEST_CASE("Md3ParserTest.loadFailure_2659")
       std::filesystem::current_path() / "fixture/test/IO/Md3/armor"));
   fs.mount(
     "",
-    std::make_unique<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger));
+    createImageFileSystem<Quake3ShaderFileSystem>(
+      fs, shaderSearchPath, textureSearchPaths, logger)
+      .value());
 
   const auto md3Path = "models/armor_red.md3";
   const auto md3File = fs.openFile(md3Path).value();

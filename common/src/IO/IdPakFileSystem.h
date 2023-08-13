@@ -32,10 +32,10 @@ namespace IO
 class IdPakFileSystem : public ImageFileSystem
 {
 public:
-  explicit IdPakFileSystem(std::filesystem::path path);
+  using ImageFileSystem::ImageFileSystem;
 
 private:
-  void doReadDirectory() override;
+  kdl::result<void, FileSystemError> doReadDirectory() override;
 };
 } // namespace IO
 } // namespace TrenchBroom

@@ -20,8 +20,11 @@
 #include "WadFileSystem.h"
 
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/Reader.h"
+#include "IO/ReaderException.h"
 
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 
@@ -54,67 +57,74 @@ namespace WadEntryType
 // static const char WEPalette   = '@';
 }
 
-WadFileSystem::WadFileSystem(std::filesystem::path path)
-  : ImageFileSystem{std::move(path)}
+kdl::result<void, FileSystemError> WadFileSystem::doReadDirectory()
 {
-  initialize();
-}
-
-void WadFileSystem::doReadDirectory()
-{
-  auto reader = m_file->reader();
-  if (reader.size() < WadLayout::MinFileSize)
+  try
   {
-    throw FileSystemException{"File does not contain a directory."};
-  }
-
-  reader.seekFromBegin(WadLayout::MagicOffset);
-  const auto magic = reader.readString(WadLayout::MagicSize);
-  if (kdl::str_to_lower(magic) != "wad2" && kdl::str_to_lower(magic) != "wad3")
-  {
-    throw FileSystemException{"Unknown wad file type '" + magic + "'"};
-  }
-
-  reader.seekFromBegin(WadLayout::NumEntriesAddress);
-  const auto entryCount = reader.readSize<int32_t>();
-
-  if (reader.size() < WadLayout::MinFileSize + entryCount * WadLayout::DirEntrySize)
-  {
-    throw FileSystemException{"File does not contain a directory"};
-  }
-
-  reader.seekFromBegin(WadLayout::DirOffsetAddress);
-  const auto directoryOffset = reader.readSize<int32_t>();
-
-  if (m_file->size() < directoryOffset + entryCount * WadLayout::DirEntrySize)
-  {
-    throw FileSystemException{"File directory is out of bounds."};
-  }
-
-  reader.seekFromBegin(directoryOffset);
-  for (size_t i = 0; i < entryCount; ++i)
-  {
-    const auto entryAddress = reader.readSize<int32_t>();
-    const auto entrySize = reader.readSize<int32_t>();
-
-    if (m_file->size() < entryAddress + entrySize)
+    auto reader = m_file->reader();
+    if (reader.size() < WadLayout::MinFileSize)
     {
-      throw FileSystemException{
-        kdl::str_to_string("File entry at address ", entryAddress, " is out of bounds")};
+      return FileSystemError{"File does not contain a directory."};
     }
 
-    reader.seekForward(WadLayout::DirEntryTypeOffset);
-    const auto entryType = reader.readString(1);
-    reader.seekForward(WadLayout::DirEntryNameOffset);
-    const auto entryName = reader.readString(WadLayout::DirEntryNameSize);
-    if (entryName.empty())
+    reader.seekFromBegin(WadLayout::MagicOffset);
+    const auto magic = reader.readString(WadLayout::MagicSize);
+    if (kdl::str_to_lower(magic) != "wad2" && kdl::str_to_lower(magic) != "wad3")
     {
-      continue;
+      return FileSystemError{"Unknown wad file type '" + magic + "'"};
     }
 
-    const auto path = std::filesystem::path{entryName + "." + entryType};
-    auto file = std::make_shared<FileView>(m_file, entryAddress, entrySize);
-    addFile(path, [file = std::move(file)]() { return file; });
+    reader.seekFromBegin(WadLayout::NumEntriesAddress);
+    const auto entryCount = reader.readSize<int32_t>();
+
+    if (reader.size() < WadLayout::MinFileSize + entryCount * WadLayout::DirEntrySize)
+    {
+      return FileSystemError{"File does not contain a directory"};
+    }
+
+    reader.seekFromBegin(WadLayout::DirOffsetAddress);
+    const auto directoryOffset = reader.readSize<int32_t>();
+
+    if (m_file->size() < directoryOffset + entryCount * WadLayout::DirEntrySize)
+    {
+      return FileSystemError{"File directory is out of bounds."};
+    }
+
+    reader.seekFromBegin(directoryOffset);
+    for (size_t i = 0; i < entryCount; ++i)
+    {
+      const auto entryAddress = reader.readSize<int32_t>();
+      const auto entrySize = reader.readSize<int32_t>();
+
+      if (m_file->size() < entryAddress + entrySize)
+      {
+        return FileSystemError{kdl::str_to_string(
+          "File entry at address ", entryAddress, " is out of bounds")};
+      }
+
+      reader.seekForward(WadLayout::DirEntryTypeOffset);
+      const auto entryType = reader.readString(1);
+      reader.seekForward(WadLayout::DirEntryNameOffset);
+      const auto entryName = reader.readString(WadLayout::DirEntryNameSize);
+      if (entryName.empty())
+      {
+        continue;
+      }
+
+      const auto path = std::filesystem::path{entryName + "." + entryType};
+      auto file = std::static_pointer_cast<File>(
+        std::make_shared<FileView>(m_file, entryAddress, entrySize));
+      addFile(
+        path,
+        [file = std::move(file)]()
+          -> kdl::result<std::shared_ptr<File>, FileSystemError> { return file; });
+    }
+
+    return kdl::void_success;
+  }
+  catch (const ReaderException& e)
+  {
+    return FileSystemError{e.what()};
   }
 }
 } // namespace IO

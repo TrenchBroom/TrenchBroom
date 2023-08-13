@@ -165,9 +165,9 @@ void Game::reloadWads(
   doReloadWads(documentPath, wadPaths, logger);
 }
 
-void Game::reloadShaders()
+kdl::result<void, GameError> Game::reloadShaders()
 {
-  doReloadShaders();
+  return doReloadShaders();
 }
 
 bool Game::isEntityDefinitionFile(const std::filesystem::path& path) const

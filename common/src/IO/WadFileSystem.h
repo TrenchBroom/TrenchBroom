@@ -21,22 +21,26 @@
 
 #include "IO/ImageFileSystem.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
-#include <memory>
 
 namespace TrenchBroom
 {
 namespace IO
 {
 class FileSystem;
+struct FileSystemError;
 
 class WadFileSystem : public ImageFileSystem
 {
 public:
-  explicit WadFileSystem(std::filesystem::path path);
+  using ImageFileSystem::ImageFileSystem;
 
 private:
-  void doReadDirectory() override;
+  kdl::result<void, FileSystemError> doReadDirectory() override;
 };
+
+
 } // namespace IO
 } // namespace TrenchBroom

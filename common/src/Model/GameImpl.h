@@ -122,7 +122,7 @@ private:
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) override;
-  void doReloadShaders() override;
+  kdl::result<void, GameError> doReloadShaders() override;
 
   bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(

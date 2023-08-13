@@ -149,7 +149,7 @@ public: // texture collection handling
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger);
-  void reloadShaders();
+  kdl::result<void, GameError> reloadShaders();
 
 public: // entity definition handling
   bool isEntityDefinitionFile(const std::filesystem::path& path) const;
@@ -224,7 +224,7 @@ private: // subclassing interface
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) = 0;
-  virtual void doReloadShaders() = 0;
+  virtual kdl::result<void, GameError> doReloadShaders() = 0;
 
   virtual bool doIsEntityDefinitionFile(const std::filesystem::path& path) const = 0;
   virtual std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()

@@ -4489,7 +4489,8 @@ void MapDocument::unloadEntityModels()
 void MapDocument::reloadTextures()
 {
   unloadTextures();
-  m_game->reloadShaders();
+  m_game->reloadShaders().transform_error(
+    [&](auto e) { error() << "Failed to reload shaders: " << e.msg; });
   loadTextures();
 }
 

@@ -823,11 +823,11 @@ TEST_CASE("Hierarchical ImageFileSystems")
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"IdPakFileSystem",
-       std::shared_ptr<FileSystem>{new IdPakFileSystem{fsTestPath / "Pak/idpak.pak"}}},
+       createImageFileSystem<IdPakFileSystem>(fsTestPath / "Pak/idpak.pak").value()},
       {"DkPakFileSystem",
-       std::shared_ptr<FileSystem>{new DkPakFileSystem{fsTestPath / "Pak/dkpak.pak"}}},
+       createImageFileSystem<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak").value()},
       {"ZipFileSystem",
-       std::shared_ptr<FileSystem>{new ZipFileSystem{fsTestPath / "Zip/zip.zip"}}},
+       createImageFileSystem<ZipFileSystem>(fsTestPath / "Zip/zip.zip").value()},
     }));
 
   CAPTURE(name);
@@ -927,7 +927,7 @@ TEST_CASE("Flat ImageFileSystems")
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
       {"WadFileSystem",
-       std::shared_ptr<FileSystem>{new WadFileSystem{fsTestPath / "Wad/cr8_czg.wad"}}},
+       createImageFileSystem<WadFileSystem>(fsTestPath / "Wad/cr8_czg.wad").value()},
     }));
 
   CAPTURE(name);

@@ -52,15 +52,11 @@ Quake3ShaderFileSystem::Quake3ShaderFileSystem(
   , m_textureSearchPaths{std::move(textureSearchPaths)}
   , m_logger{logger}
 {
-  initialize();
 }
 
-void Quake3ShaderFileSystem::doReadDirectory()
+kdl::result<void, FileSystemError> Quake3ShaderFileSystem::doReadDirectory()
 {
-  loadShaders()
-    .and_then([&](auto shaders) { return linkShaders(shaders); })
-    .transform_error(
-      [&](auto e) { m_logger.error() << "Could not load shaders: " << e.msg; });
+  return loadShaders().and_then([&](auto shaders) { return linkShaders(shaders); });
 }
 
 kdl::result<std::vector<Assets::Quake3Shader>, FileSystemError> Quake3ShaderFileSystem::
@@ -147,9 +143,14 @@ void Quake3ShaderFileSystem::linkTextures(
         // Found a matching shader.
         auto& shader = *shaderIt;
 
-        auto shaderFile = std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader);
+        auto shaderFile = std::static_pointer_cast<File>(
+          std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader));
         addFile(
-          shaderPath, [shaderFile = std::move(shaderFile)]() { return shaderFile; });
+          shaderPath,
+          [shaderFile = std::move(
+             shaderFile)]() -> kdl::result<std::shared_ptr<File>, FileSystemError> {
+            return shaderFile;
+          });
 
         // Remove the shader so that we don't revisit it when linking standalone
         // shaders.

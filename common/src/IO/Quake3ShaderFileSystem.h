@@ -75,7 +75,7 @@ public:
     Logger& logger);
 
 private:
-  void doReadDirectory() override;
+  kdl::result<void, FileSystemError> doReadDirectory() override;
 
   kdl::result<std::vector<Assets::Quake3Shader>, FileSystemError> loadShaders() const;
   kdl::result<void, FileSystemError> linkShaders(

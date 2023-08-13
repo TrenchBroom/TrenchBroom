@@ -82,8 +82,9 @@ TEST_CASE("readQuake3ShaderTexture")
   fs.mount("", std::make_unique<DiskFileSystem>(fallbackDir));
   fs.mount(
     "",
-    std::make_unique<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger));
+    createImageFileSystem<Quake3ShaderFileSystem>(
+      fs, shaderSearchPath, textureSearchPaths, logger)
+      .value());
 
   SECTION("find texture path")
   {

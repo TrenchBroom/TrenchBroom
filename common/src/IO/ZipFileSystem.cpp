@@ -21,34 +21,29 @@
 
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
+
+#include <kdl/result.h>
 
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 // ZipFileSystem
-
-ZipFileSystem::ZipFileSystem(std::filesystem::path path)
-  : ImageFileSystem{std::move(path)}
-{
-  initialize();
-}
 
 ZipFileSystem::~ZipFileSystem()
 {
   mz_zip_reader_end(&m_archive);
 }
 
-void ZipFileSystem::doReadDirectory()
+kdl::result<void, FileSystemError> ZipFileSystem::doReadDirectory()
 {
   mz_zip_zero_struct(&m_archive);
 
   if (mz_zip_reader_init_cfile(&m_archive, m_file->file(), m_file->size(), 0) != MZ_TRUE)
   {
-    throw FileSystemException{"Error calling mz_zip_reader_init_cfile"};
+    return FileSystemError{"Error calling mz_zip_reader_init_cfile"};
   }
 
   const auto numFiles = mz_zip_reader_get_num_files(&m_archive);
@@ -57,12 +52,11 @@ void ZipFileSystem::doReadDirectory()
     if (!mz_zip_reader_is_file_a_directory(&m_archive, i))
     {
       const auto path = std::filesystem::path{filename(i)};
-      addFile(path, [=]() -> std::shared_ptr<File> {
+      addFile(path, [=]() -> kdl::result<std::shared_ptr<File>, FileSystemError> {
         auto stat = mz_zip_archive_file_stat{};
         if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
         {
-          throw FileSystemException{
-            "mz_zip_reader_file_stat failed for " + path.string()};
+          return FileSystemError{"mz_zip_reader_file_stat failed for " + path.string()};
         }
 
         const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
@@ -71,11 +65,12 @@ void ZipFileSystem::doReadDirectory()
 
         if (!mz_zip_reader_extract_to_mem(&m_archive, i, begin, uncompressedSize, 0))
         {
-          throw FileSystemException{
+          return FileSystemError{
             "mz_zip_reader_extract_to_mem failed for " + path.string()};
         }
 
-        return std::make_shared<OwningBufferFile>(std::move(data), uncompressedSize);
+        return std::static_pointer_cast<File>(
+          std::make_shared<OwningBufferFile>(std::move(data), uncompressedSize));
       });
     }
   }
@@ -83,10 +78,12 @@ void ZipFileSystem::doReadDirectory()
   const auto err = mz_zip_get_last_error(&m_archive);
   if (err != MZ_ZIP_NO_ERROR)
   {
-    throw FileSystemException{
+    return FileSystemError{
       std::string{"Error while reading compressed file: "}
       + mz_zip_get_error_string(err)};
   }
+
+  return kdl::void_success;
 }
 
 /**
@@ -110,5 +107,4 @@ std::string ZipFileSystem::filename(const mz_uint fileIndex)
 
   return result;
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

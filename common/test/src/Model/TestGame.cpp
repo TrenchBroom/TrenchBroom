@@ -235,11 +235,15 @@ void TestGame::doReloadWads(
     const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
     m_fs->mount(
       "textures" / wadPath.filename(),
-      std::make_unique<IO::WadFileSystem>(absoluteWadPath));
+      IO::createImageFileSystem<IO::WadFileSystem>(absoluteWadPath).value());
   }
 }
 
-void TestGame::doReloadShaders() {}
+kdl::result<void, GameError> TestGame::doReloadShaders()
+{
+  return kdl::void_success;
+  ;
+}
 
 bool TestGame::doIsEntityDefinitionFile(const std::filesystem::path& /* path */) const
 {

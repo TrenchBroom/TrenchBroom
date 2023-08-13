@@ -361,9 +361,10 @@ void GameImpl::doReloadWads(
   m_fs.reloadWads(m_config.textureConfig.root, searchPaths, wadPaths, logger);
 }
 
-void GameImpl::doReloadShaders()
+kdl::result<void, GameError> GameImpl::doReloadShaders()
 {
-  m_fs.reloadShaders();
+  return m_fs.reloadShaders().or_else(
+    [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
 }
 
 bool GameImpl::doIsEntityDefinitionFile(const std::filesystem::path& path) const

@@ -21,15 +21,16 @@
 
 #include "IO/ImageFileSystem.h"
 
+#include <kdl/result_forward.h>
+
 #include <miniz/miniz.h>
 
 #include <filesystem>
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+struct FileSystemError;
 
 class ZipFileSystem : public ImageFileSystem
 {
@@ -37,14 +38,12 @@ private:
   mz_zip_archive m_archive;
 
 public:
-  explicit ZipFileSystem(std::filesystem::path path);
+  using ImageFileSystem::ImageFileSystem;
   ~ZipFileSystem() override;
 
 private:
-  void doReadDirectory() override;
+  kdl::result<void, FileSystemError> doReadDirectory() override;
 
-private:
   std::string filename(mz_uint fileIndex);
 };
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO
