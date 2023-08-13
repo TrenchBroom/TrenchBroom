@@ -19,6 +19,7 @@
 
 #include "IO/TestEnvironment.h"
 #include "Model/GameConfig.h"
+#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 
 #include <filesystem>
@@ -100,7 +101,8 @@ TEST_CASE("GameFactory.initialize")
   const auto env = IO::TestEnvironment{setupTestEnvironment};
 
   auto& gameFactory = GameFactory::instance();
-  CHECK_NOTHROW(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}));
+  CHECK(
+    gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}).is_success());
 
   CHECK(gameFactory.userGameConfigsPath() == env.dir() / userPath);
   CHECK(gameFactory.gameList() == std::vector<std::string>{"Quake"});

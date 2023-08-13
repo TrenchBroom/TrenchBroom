@@ -49,6 +49,7 @@ struct CompilationConfig;
 class Game;
 struct GameConfig;
 struct GameEngineConfig;
+struct GameError;
 
 struct GamePathConfig
 {
@@ -89,10 +90,11 @@ public:
    *
    * The given path config is used to build the file systems.
    *
-   * @throw FileSystemException if the file system cannot be built.
-   * @throw std::vector<std::string> if loading game configurations fails
+   * @return a result containing error messages for game configurations that could not be
+   * loaded or a GameError if a fatal error occurs
    */
-  void initialize(const GamePathConfig& gamePathConfig);
+  kdl::result<std::vector<std::string>, GameError> initialize(
+    const GamePathConfig& gamePathConfig);
   /**
    * Saves the game engine configurations for the game with the given name.
    *
@@ -161,9 +163,9 @@ public:
 
 private:
   GameFactory();
-  void initializeFileSystem(const GamePathConfig& gamePathConfig);
-  void loadGameConfigs();
-  void loadGameConfig(const std::filesystem::path& path);
+  kdl::result<void, GameError> initializeFileSystem(const GamePathConfig& gamePathConfig);
+  kdl::result<std::vector<std::string>, GameError> loadGameConfigs();
+  kdl::result<void, GameError> loadGameConfig(const std::filesystem::path& path);
   void loadCompilationConfig(GameConfig& gameConfig);
   void loadGameEngineConfig(GameConfig& gameConfig);
 

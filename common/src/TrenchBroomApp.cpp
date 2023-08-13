@@ -419,32 +419,27 @@ void TrenchBroomApp::openAbout()
 
 bool TrenchBroomApp::initializeGameFactory()
 {
-  try
-  {
-    const auto gamePathConfig = Model::GamePathConfig{
-      IO::SystemPaths::findResourceDirectories("games"),
-      IO::SystemPaths::userDataDirectory() / "games",
-    };
-    auto& gameFactory = Model::GameFactory::instance();
-    gameFactory.initialize(gamePathConfig);
-  }
-  catch (const std::exception& e)
-  {
-    qCritical() << e.what();
-    return false;
-  }
-  catch (const std::vector<std::string>& errors)
-  {
-    const auto msg = fmt::format(
-      R"(Some game configurations could not be loaded. The following errors occurred:
+  const auto gamePathConfig = Model::GamePathConfig{
+    IO::SystemPaths::findResourceDirectories("games"),
+    IO::SystemPaths::userDataDirectory() / "games",
+  };
+  auto& gameFactory = Model::GameFactory::instance();
+  return gameFactory.initialize(gamePathConfig)
+    .transform([](auto errors) {
+      if (!errors.empty())
+      {
+        const auto msg = fmt::format(
+          R"(Some game configurations could not be loaded. The following errors occurred:
 
 {})",
-      kdl::str_join(errors, "\n\n"));
+          kdl::str_join(errors, "\n\n"));
 
-    QMessageBox::critical(
-      nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
-  }
-  return true;
+        QMessageBox::critical(
+          nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
+      }
+    })
+    .transform_error([](auto e) { qCritical() << QString::fromStdString(e.msg); })
+    .is_success();
 }
 
 bool TrenchBroomApp::newDocument()

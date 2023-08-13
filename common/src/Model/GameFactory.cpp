@@ -34,6 +34,7 @@
 #include "Logger.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
+#include "Model/GameError.h"
 #include "Model/GameImpl.h"
 #include "PreferenceManager.h"
 
@@ -61,10 +62,12 @@ GameFactory& GameFactory::instance()
   return instance;
 }
 
-void GameFactory::initialize(const GamePathConfig& gamePathConfig)
+kdl::result<std::vector<std::string>, GameError> GameFactory::initialize(
+  const GamePathConfig& gamePathConfig)
 {
-  initializeFileSystem(gamePathConfig);
-  loadGameConfigs();
+  return initializeFileSystem(gamePathConfig).and_then([&]() {
+    return loadGameConfigs();
+  });
 }
 
 void GameFactory::saveGameEngineConfig(
@@ -240,7 +243,8 @@ const std::filesystem::path& GameFactory::userGameConfigsPath() const
 
 GameFactory::GameFactory() = default;
 
-void GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig)
+kdl::result<void, GameError> GameFactory::initializeFileSystem(
+  const GamePathConfig& gamePathConfig)
 {
   // Gather the search paths we're going to use.
   // The rest of this function will be mounting TB filesystems for these search paths.
@@ -257,49 +261,42 @@ void GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig)
   }
 
   m_userGameDir = userGameDir;
-  m_configFs = IO::Disk::createDirectory(m_userGameDir)
-                 .transform([&](auto) {
-                   return std::make_unique<IO::WritableVirtualFileSystem>(
-                     std::move(virtualFs),
-                     std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
-                 })
-                 .if_error([](auto e) { throw FileSystemException{e.msg}; })
-                 .value();
+  return IO::Disk::createDirectory(m_userGameDir)
+    .transform([&](auto) {
+      m_configFs = std::make_unique<IO::WritableVirtualFileSystem>(
+        std::move(virtualFs),
+        std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
+    })
+    .or_else(
+      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
 }
 
-void GameFactory::loadGameConfigs()
+kdl::result<std::vector<std::string>, GameError> GameFactory::loadGameConfigs()
 {
-  m_configFs
+  return m_configFs
     ->find(
       {}, IO::TraversalMode::Recursive, IO::makeFilenamePathMatcher("GameConfig.cfg"))
-    .and_then([&](auto configFiles) {
+    .transform([&](auto configFiles) {
       auto errors = std::vector<std::string>{};
-
-      for (const auto& configFilePath : configFiles)
-      {
-        try
-        {
-          loadGameConfig(configFilePath);
-        }
-        catch (const std::exception& e)
-        {
-          errors.push_back(kdl::str_to_string(
-            "Could not load game configuration file ", configFilePath, ": ", e.what()));
-        }
-      }
-
-      m_names = kdl::col_sort(std::move(m_names), kdl::cs::string_less());
-
-      return errors.empty()
-               ? kdl::result<void, std::vector<std::string>>{}
-               : kdl::result<void, std::vector<std::string>>{std::move(errors)};
+      kdl::vec_transform(configFiles, [&](const auto& configFilePath) {
+        return loadGameConfig(configFilePath).transform_error([&](auto e) {
+          errors.push_back(
+            "Failed to load game configuration file '" + configFilePath.string()
+            + "': " + e.msg);
+        });
+      });
+      return errors;
     })
-    .if_error([](auto errors) { throw errors; });
+    .or_else([](auto e) {
+      return kdl::result<std::vector<std::string>, GameError>{
+        GameError{std::move(e.msg)}};
+    });
 }
 
-void GameFactory::loadGameConfig(const std::filesystem::path& path)
+kdl::result<void, GameError> GameFactory::loadGameConfig(
+  const std::filesystem::path& path)
 {
-  m_configFs->openFile(path)
+  return m_configFs->openFile(path)
     .join(m_configFs->makeAbsolute(path))
     .transform([&](auto configFile, auto absolutePath) {
       auto reader = configFile->reader().buffer();
@@ -322,7 +319,8 @@ void GameFactory::loadGameConfig(const std::filesystem::path& path)
       m_defaultEngines.emplace(
         configName, Preference<std::filesystem::path>{defaultEnginePrefPath, {}});
     })
-    .if_error([](auto e) { throw FileSystemException{std::move(e.msg)}; });
+    .or_else(
+      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
 }
 
 void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
@@ -340,10 +338,14 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
           gameConfig.compilationConfig = parser.parse();
           gameConfig.compilationConfigParseFailed = false;
         })
-        .if_error([](auto e) { throw FileSystemException{std::move(e.msg)}; });
+        .transform_error([&](auto e) {
+          std::cerr << "Could not load compilation configuration '" << path
+                    << "': " << e.msg << "\n";
+          gameConfig.compilationConfigParseFailed = true;
+        });
     }
   }
-  catch (const Exception& e)
+  catch (const ParserException& e)
   {
     std::cerr << "Could not load compilation configuration '" << path << "': " << e.what()
               << "\n";
@@ -366,10 +368,14 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
           gameConfig.gameEngineConfig = parser.parse();
           gameConfig.gameEngineConfigParseFailed = false;
         })
-        .if_error([](auto e) { throw FileSystemException{std::move(e.msg)}; });
+        .transform_error([&](auto e) {
+          std::cerr << "Could not load game engine configuration '" << path
+                    << "': " << e.msg << "\n";
+          gameConfig.gameEngineConfigParseFailed = true;
+        });
     }
   }
-  catch (const Exception& e)
+  catch (const ParserException& e)
   {
     std::cerr << "Could not load game engine configuration '" << path << "': " << e.what()
               << "\n";
