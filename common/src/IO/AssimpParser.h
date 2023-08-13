@@ -78,16 +78,16 @@ struct AssimpBoneInformation
   AssimpBoneInformation() = default;
 
   AssimpBoneInformation(
-    size_t m_bone_index,
-    int32_t m_parent_index,
-    const aiString& m_name,
-    const aiMatrix4x4& m_local_transform,
-    const aiMatrix4x4& m_global_transform)
-    : m_boneIndex(m_bone_index)
-    , m_parentIndex(m_parent_index)
-    , m_name(m_name)
-    , m_localTransform(m_local_transform)
-    , m_globalTransform(m_global_transform)
+    size_t boneIndex,
+    int32_t parentIndex,
+    const aiString& name,
+    const aiMatrix4x4& localTransform,
+    const aiMatrix4x4& globalTransform)
+    : m_boneIndex(boneIndex)
+    , m_parentIndex(parentIndex)
+    , m_name(name)
+    , m_localTransform(localTransform)
+    , m_globalTransform(globalTransform)
   {
   }
 };

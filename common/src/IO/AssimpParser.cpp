@@ -160,8 +160,6 @@ public:
   }
 };
 
-} // namespace
-
 /**
  * Gets the channel index for a particular assimp node, matched by name.
  * Returns -1 if this node doesn't have a channel for this animation.
@@ -258,7 +256,7 @@ std::vector<AssimpBoneInformation> getAnimationInformation(
       const auto b = getChannelIndex(animation, *parentNode);
       if (b >= 0)
       {
-        nodeTransformation = indivTransforms[b];
+        nodeTransformation = indivTransforms[static_cast<size_t>(b)];
 
         // if this is the first parent of the bone, set the parent id
         if (parentNode == boneNode->mParent)
@@ -282,6 +280,8 @@ std::vector<AssimpBoneInformation> getAnimationInformation(
 
   return transforms;
 }
+
+} // namespace
 
 std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   TrenchBroom::Logger& logger)
@@ -327,7 +327,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 }
 
 void AssimpParser::doLoadFrame(
-  const size_t frameIndex, Assets::EntityModel& model, Logger& logger)
+  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
 {
   // Import the file as an Assimp scene and populate our vectors
   auto importer = Assimp::Importer{};
@@ -544,10 +544,10 @@ struct vertexBoneWeight
   const float m_weight;
   const aiBone* m_bone;
 
-  vertexBoneWeight(size_t m_bone_index, float m_weight, const aiBone* m_bone)
-    : m_boneIndex(m_bone_index)
-    , m_weight(m_weight)
-    , m_bone(m_bone)
+  vertexBoneWeight(size_t boneIndex, float weight, const aiBone* bone)
+    : m_boneIndex(boneIndex)
+    , m_weight(weight)
+    , m_bone(bone)
   {
   }
 };
