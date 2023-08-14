@@ -259,13 +259,10 @@ kdl::result<void, Error> GameFactory::initializeFileSystem(
   }
 
   m_userGameDir = userGameDir;
-  return IO::Disk::createDirectory(m_userGameDir)
-    .transform([&](auto) {
-      m_configFs = std::make_unique<IO::WritableVirtualFileSystem>(
-        std::move(virtualFs),
-        std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
-    })
-    .or_else([](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
+  return IO::Disk::createDirectory(m_userGameDir).transform([&](auto) {
+    m_configFs = std::make_unique<IO::WritableVirtualFileSystem>(
+      std::move(virtualFs), std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
+  });
 }
 
 kdl::result<std::vector<std::string>, Error> GameFactory::loadGameConfigs()
@@ -283,9 +280,6 @@ kdl::result<std::vector<std::string>, Error> GameFactory::loadGameConfigs()
         });
       });
       return errors;
-    })
-    .or_else([](auto e) {
-      return kdl::result<std::vector<std::string>, Error>{Error{std::move(e.msg)}};
     });
 }
 
@@ -313,8 +307,7 @@ kdl::result<void, Error> GameFactory::loadGameConfig(const std::filesystem::path
         std::filesystem::path{"Games"} / configName / "Default Engine";
       m_defaultEngines.emplace(
         configName, Preference<std::filesystem::path>{defaultEnginePrefPath, {}});
-    })
-    .or_else([](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
+    });
 }
 
 void GameFactory::loadCompilationConfig(GameConfig& gameConfig)

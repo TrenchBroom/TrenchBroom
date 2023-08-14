@@ -91,13 +91,13 @@ void TextureManager::setTextureCollections(
     if (it == collections.end() || !it->loaded())
     {
       IO::loadTextureCollection(path, fs, textureConfig, m_logger)
-        .or_else([&](const auto& error) {
+        .transform_error([&](const auto& error) {
           if (it == collections.end())
           {
             m_logger.error() << "Could not load texture collection '" << path
                              << "': " << error.msg;
           }
-          return kdl::result<Assets::TextureCollection>{Assets::TextureCollection{path}};
+          return Assets::TextureCollection{path};
         })
         .transform([&](auto collection) {
           if (!collection.textures().empty())

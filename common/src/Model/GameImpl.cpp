@@ -215,48 +215,41 @@ kdl::result<std::unique_ptr<WorldNode>, Error> GameImpl::doLoadMap(
   Logger& logger) const
 {
   auto parserStatus = IO::SimpleParserStatus{logger};
-  return IO::Disk::openFile(path)
-    .transform([&](auto file) {
-      auto fileReader = file->reader().buffer();
-      if (format == MapFormat::Unknown)
-      {
-        // Try all formats listed in the game config
-        const auto possibleFormats = kdl::vec_transform(
-          m_config.fileFormats,
-          [](const auto& config) { return Model::formatFromName(config.format); });
+  return IO::Disk::openFile(path).transform([&](auto file) {
+    auto fileReader = file->reader().buffer();
+    if (format == MapFormat::Unknown)
+    {
+      // Try all formats listed in the game config
+      const auto possibleFormats = kdl::vec_transform(
+        m_config.fileFormats,
+        [](const auto& config) { return Model::formatFromName(config.format); });
 
-        return IO::WorldReader::tryRead(
-          fileReader.stringView(),
-          possibleFormats,
-          worldBounds,
-          entityPropertyConfig(),
-          parserStatus);
-      }
+      return IO::WorldReader::tryRead(
+        fileReader.stringView(),
+        possibleFormats,
+        worldBounds,
+        entityPropertyConfig(),
+        parserStatus);
+    }
 
-      auto worldReader =
-        IO::WorldReader{fileReader.stringView(), format, entityPropertyConfig()};
-      return worldReader.read(worldBounds, parserStatus);
-    })
-    .or_else([](auto e) {
-      return kdl::result<std::unique_ptr<WorldNode>, Error>{Error{std::move(e.msg)}};
-    });
+    auto worldReader =
+      IO::WorldReader{fileReader.stringView(), format, entityPropertyConfig()};
+    return worldReader.read(worldBounds, parserStatus);
+  });
 }
 
 kdl::result<void, Error> GameImpl::doWriteMap(
   WorldNode& world, const std::filesystem::path& path, const bool exporting) const
 {
-  return IO::Disk::withOutputStream(
-           path,
-           [&](auto& stream) {
-             const auto mapFormatName = formatName(world.mapFormat());
-             stream << "// Game: " << gameName() << "\n"
-                    << "// Format: " << mapFormatName << "\n";
+  return IO::Disk::withOutputStream(path, [&](auto& stream) {
+    const auto mapFormatName = formatName(world.mapFormat());
+    stream << "// Game: " << gameName() << "\n"
+           << "// Format: " << mapFormatName << "\n";
 
-             auto writer = IO::NodeWriter{world, stream};
-             writer.setExporting(exporting);
-             writer.writeMap();
-           })
-    .or_else([](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
+    auto writer = IO::NodeWriter{world, stream};
+    writer.setExporting(exporting);
+    writer.writeMap();
+  });
 }
 
 kdl::result<void, Error> GameImpl::doWriteMap(
@@ -271,22 +264,17 @@ kdl::result<void, Error> GameImpl::doExportMap(
   return std::visit(
     kdl::overload(
       [&](const IO::ObjExportOptions& objOptions) {
-        return IO::Disk::withOutputStream(
-                 objOptions.exportPath,
-                 [&](auto& objStream) {
-                   const auto mtlPath =
-                     kdl::path_replace_extension(objOptions.exportPath, ".mtl");
-                   return IO::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
-                     auto writer = IO::NodeWriter{
-                       world,
-                       std::make_unique<IO::ObjSerializer>(
-                         objStream, mtlStream, mtlPath.filename().string(), objOptions)};
-                     writer.setExporting(true);
-                     writer.writeMap();
-                   });
-                 })
-          .or_else(
-            [](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
+        return IO::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
+          const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
+          return IO::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
+            auto writer = IO::NodeWriter{
+              world,
+              std::make_unique<IO::ObjSerializer>(
+                objStream, mtlStream, mtlPath.filename().string(), objOptions)};
+            writer.setExporting(true);
+            writer.writeMap();
+          });
+        });
       },
       [&](const IO::MapExportOptions& mapOptions) {
         return doWriteMap(world, mapOptions.exportPath, true);
@@ -356,8 +344,7 @@ void GameImpl::doReloadWads(
 
 kdl::result<void, Error> GameImpl::doReloadShaders()
 {
-  return m_fs.reloadShaders().or_else(
-    [](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
+  return m_fs.reloadShaders();
 }
 
 bool GameImpl::doIsEntityDefinitionFile(const std::filesystem::path& path) const
@@ -378,39 +365,27 @@ kdl::result<std::vector<Assets::EntityDefinition*>, Error> GameImpl::
 
   if (kdl::ci::str_is_equal(".fgd", extension))
   {
-    return IO::Disk::openFile(path)
-      .transform([&](auto file) {
-        auto reader = file->reader().buffer();
-        auto parser = IO::FgdParser{reader.stringView(), defaultColor, path};
-        return parser.parseDefinitions(status);
-      })
-      .or_else([](auto e) {
-        return kdl::result<std::vector<Assets::EntityDefinition*>, Error>{Error{e.msg}};
-      });
+    return IO::Disk::openFile(path).transform([&](auto file) {
+      auto reader = file->reader().buffer();
+      auto parser = IO::FgdParser{reader.stringView(), defaultColor, path};
+      return parser.parseDefinitions(status);
+    });
   }
   if (kdl::ci::str_is_equal(".def", extension))
   {
-    return IO::Disk::openFile(path)
-      .transform([&](auto file) {
-        auto reader = file->reader().buffer();
-        auto parser = IO::DefParser{reader.stringView(), defaultColor};
-        return parser.parseDefinitions(status);
-      })
-      .or_else([](auto e) {
-        return kdl::result<std::vector<Assets::EntityDefinition*>, Error>{Error{e.msg}};
-      });
+    return IO::Disk::openFile(path).transform([&](auto file) {
+      auto reader = file->reader().buffer();
+      auto parser = IO::DefParser{reader.stringView(), defaultColor};
+      return parser.parseDefinitions(status);
+    });
   }
   if (kdl::ci::str_is_equal(".ent", extension))
   {
-    return IO::Disk::openFile(path)
-      .transform([&](auto file) {
-        auto reader = file->reader().buffer();
-        auto parser = IO::EntParser{reader.stringView(), defaultColor};
-        return parser.parseDefinitions(status);
-      })
-      .or_else([](auto e) {
-        return kdl::result<std::vector<Assets::EntityDefinition*>, Error>{Error{e.msg}};
-      });
+    return IO::Disk::openFile(path).transform([&](auto file) {
+      auto reader = file->reader().buffer();
+      auto parser = IO::EntParser{reader.stringView(), defaultColor};
+      return parser.parseDefinitions(status);
+    });
   }
 
   return Error{"Unknown entity definition format: '" + path.string() + "'"};
@@ -649,11 +624,8 @@ void GameImpl::doLoadFrame(
 kdl::result<Assets::Palette, Error> GameImpl::loadTexturePalette() const
 {
   const auto& path = m_config.textureConfig.palette;
-  return m_fs.openFile(path)
-    .and_then([&](auto file) { return Assets::loadPalette(*file, path); })
-    .or_else([](auto e) {
-      return kdl::result<Assets::Palette, Error>{Error{std::move(e.msg)}};
-    });
+  return m_fs.openFile(path).and_then(
+    [&](auto file) { return Assets::loadPalette(*file, path); });
   ;
 }
 
@@ -677,9 +649,6 @@ kdl::result<std::vector<std::string>, Error> GameImpl::doAvailableMods() const
       return kdl::vec_filter(std::move(mods), [&](const auto& mod) {
         return !kdl::ci::str_is_equal(mod, defaultMod);
       });
-    })
-    .or_else([](auto e) {
-      return kdl::result<std::vector<std::string>, Error>{Error{std::move(e.msg)}};
     });
 }
 

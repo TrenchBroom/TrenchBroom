@@ -79,23 +79,18 @@ namespace
 
 kdl::result<std::vector<std::string>, Error> loadSource(const std::filesystem::path& path)
 {
-  return IO::Disk::withInputStream(
-           path,
-           [](auto& stream) {
-             std::string line;
-             std::vector<std::string> lines;
+  return IO::Disk::withInputStream(path, [](auto& stream) {
+    std::string line;
+    std::vector<std::string> lines;
 
-             while (!stream.eof())
-             {
-               std::getline(stream, line);
-               lines.push_back(line + '\n');
-             }
+    while (!stream.eof())
+    {
+      std::getline(stream, line);
+      lines.push_back(line + '\n');
+    }
 
-             return lines;
-           })
-    .or_else([&](const auto& e) -> kdl::result<std::vector<std::string>, Error> {
-      return Error{"Could not load shader from '" + path.string() + "': " + e.msg};
-    });
+    return lines;
+  });
 }
 
 std::string getInfoLog(const GLuint shaderId)

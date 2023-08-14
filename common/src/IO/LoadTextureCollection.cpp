@@ -73,12 +73,9 @@ kdl::result<Assets::Palette, Error> loadPalette(
     return Error{"Texture config is missing palette definition"};
   }
 
-  return gameFS.openFile(textureConfig.palette)
-    .or_else([](auto e) -> kdl::result<std::shared_ptr<File>, Error> {
-      return Error{"Could not load palette: " + e.msg};
-    })
-    .and_then(
-      [&](auto file) { return Assets::loadPalette(*file, textureConfig.palette); });
+  return gameFS.openFile(textureConfig.palette).and_then([&](auto file) {
+    return Assets::loadPalette(*file, textureConfig.palette);
+  });
 }
 
 using ReadTextureFunc = std::function<kdl::result<Assets::Texture, ReadTextureError>(

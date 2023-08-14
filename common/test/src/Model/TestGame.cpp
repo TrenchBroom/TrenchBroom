@@ -155,13 +155,10 @@ kdl::result<std::unique_ptr<WorldNode>, Error> TestGame::doLoadMap(
 kdl::result<void, Error> TestGame::doWriteMap(
   WorldNode& world, const std::filesystem::path& path) const
 {
-  return IO::Disk::withOutputStream(
-           path,
-           [&](auto& stream) {
-             IO::NodeWriter writer(world, stream);
-             writer.writeMap();
-           })
-    .or_else([](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
+  return IO::Disk::withOutputStream(path, [&](auto& stream) {
+    IO::NodeWriter writer(world, stream);
+    writer.writeMap();
+  });
 }
 
 kdl::result<void, Error> TestGame::doExportMap(
