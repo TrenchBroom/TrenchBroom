@@ -33,7 +33,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
-#include "IO/FileFormatError.h"
 #include "IO/GameConfigParser.h"
 #include "IO/PathInfo.h"
 #include "IO/SimpleParserStatus.h"

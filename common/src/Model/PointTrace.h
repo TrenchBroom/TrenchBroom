@@ -28,10 +28,10 @@
 #include <iosfwd>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace TrenchBroom
 {
-struct FileFormatError;
-} // namespace TrenchBroom::IO
+struct Error;
+} // namespace TrenchBroom
 
 namespace TrenchBroom::Model
 {
@@ -57,5 +57,5 @@ public:
   kdl_reflect_decl(PointTrace, m_points, m_current);
 };
 
-kdl::result<PointTrace, IO::FileFormatError> loadPointFile(std::istream& stream);
+kdl::result<PointTrace, Error> loadPointFile(std::istream& stream);
 } // namespace TrenchBroom::Model

@@ -20,8 +20,8 @@
 #include "PointTrace.h"
 
 #include "Ensure.h"
+#include "Error.h"
 #include "IO/DiskIO.h"
-#include "IO/FileFormatError.h"
 
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
@@ -167,7 +167,7 @@ std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& points)
 
 kdl_reflect_impl(PointTrace);
 
-kdl::result<PointTrace, IO::FileFormatError> loadPointFile(std::istream& stream)
+kdl::result<PointTrace, Error> loadPointFile(std::istream& stream)
 {
   const auto str = std::string{std::istreambuf_iterator<char>{stream}, {}};
 
@@ -176,13 +176,13 @@ kdl::result<PointTrace, IO::FileFormatError> loadPointFile(std::istream& stream)
 
   if (points.size() < 2)
   {
-    return IO::FileFormatError{"PointFile must contain at least two points"};
+    return Error{"PointFile must contain at least two points"};
   }
 
   points = smoothPoints(points);
   if (points.size() < 2)
   {
-    return IO::FileFormatError{"PointFile must contain at least two points"};
+    return Error{"PointFile must contain at least two points"};
   }
 
   points = segmentizePoints(points);

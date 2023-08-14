@@ -27,10 +27,10 @@
 #include <iosfwd>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace TrenchBroom
 {
-struct FileFormatError;
-} // namespace TrenchBroom::IO
+struct Error;
+} // namespace TrenchBroom
 
 namespace TrenchBroom::Model
 {
@@ -47,6 +47,6 @@ public:
 };
 
 bool canLoadPortalFile(const std::filesystem::path& path);
-kdl::result<PortalFile, IO::FileFormatError> loadPortalFile(std::istream& stream);
+kdl::result<PortalFile, Error> loadPortalFile(std::istream& stream);
 
 } // namespace TrenchBroom::Model

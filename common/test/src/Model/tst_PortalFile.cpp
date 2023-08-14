@@ -19,7 +19,6 @@
 
 #include "Error.h"
 #include "IO/DiskIO.h"
-#include "IO/FileFormatError.h"
 #include "Model/PortalFile.h"
 
 #include <vecmath/polygon.h>

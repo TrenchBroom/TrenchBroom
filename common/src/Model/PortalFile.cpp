@@ -19,8 +19,8 @@
 
 #include "PortalFile.h"
 
+#include "Error.h"
 #include "IO/DiskIO.h"
-#include "IO/FileFormatError.h"
 
 #include <kdl/result.h>
 #include <kdl/string_format.h>
@@ -53,7 +53,7 @@ bool canLoadPortalFile(const std::filesystem::path& path)
     .value();
 }
 
-kdl::result<PortalFile, IO::FileFormatError> loadPortalFile(std::istream& stream)
+kdl::result<PortalFile, Error> loadPortalFile(std::istream& stream)
 {
   static const auto lineSplitter = "() \n\t\r";
 
@@ -101,12 +101,12 @@ kdl::result<PortalFile, IO::FileFormatError> loadPortalFile(std::istream& stream
   }
   else
   {
-    return IO::FileFormatError{"Unknown portal format: " + formatCode};
+    return Error{"Unknown portal format: " + formatCode};
   }
 
   if (!stream.good())
   {
-    return IO::FileFormatError{"Error reading header"};
+    return Error{"Error reading header"};
   }
 
   // read portals
@@ -120,7 +120,7 @@ kdl::result<PortalFile, IO::FileFormatError> loadPortalFile(std::istream& stream
 
     if (!stream.good() || components.size() < 3)
     {
-      return IO::FileFormatError{"Error reading portal"};
+      return Error{"Error reading portal"};
     }
 
     auto verts = std::vector<vm::vec3f>{};
@@ -130,7 +130,7 @@ kdl::result<PortalFile, IO::FileFormatError> loadPortalFile(std::istream& stream
     {
       if (ptr + 2 >= components.size())
       {
-        return IO::FileFormatError{"Error reading portal"};
+        return Error{"Error reading portal"};
       }
 
       verts.emplace_back(

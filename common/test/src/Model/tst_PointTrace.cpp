@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/FileFormatError.h"
+#include "Error.h"
 #include "Model/PointTrace.h"
 
 #include <vecmath/vec.h>
@@ -74,15 +74,15 @@ TEST_CASE("PointTrace")
 
 TEST_CASE("loadPointFile")
 {
-  using T = std::tuple<std::string, kdl::result<PointTrace, IO::FileFormatError>>;
+  using T = std::tuple<std::string, kdl::result<PointTrace, Error>>;
   // clang-format off
   const auto
   [file,       expectedTrace] = GENERATE(values<T>({
-  {R"()",      IO::FileFormatError{"PointFile must contain at least two points"}},
-  {R"(asdf)",  IO::FileFormatError{"PointFile must contain at least two points"}},
-  {R"(1)",     IO::FileFormatError{"PointFile must contain at least two points"}},
-  {R"(1 2)",   IO::FileFormatError{"PointFile must contain at least two points"}},
-  {R"(1 2 3)", IO::FileFormatError{"PointFile must contain at least two points"}},
+  {R"()",      Error{"PointFile must contain at least two points"}},
+  {R"(asdf)",  Error{"PointFile must contain at least two points"}},
+  {R"(1)",     Error{"PointFile must contain at least two points"}},
+  {R"(1 2)",   Error{"PointFile must contain at least two points"}},
+  {R"(1 2 3)", Error{"PointFile must contain at least two points"}},
   {R"(
     1 2 3
     4 5 6
