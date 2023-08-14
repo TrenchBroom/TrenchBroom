@@ -29,6 +29,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "EL/ELExceptions.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
@@ -56,7 +57,6 @@
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/Game.h"
-#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
 #include "Model/InvalidTextureScaleValidator.h"
@@ -564,7 +564,7 @@ void MapDocument::createEntityDefinitionActions()
     actionManager.createEntityDefinitionActions(m_entityDefinitionManager->definitions());
 }
 
-kdl::result<void, Model::GameError> MapDocument::newDocument(
+kdl::result<void, Error> MapDocument::newDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game)
@@ -587,7 +587,7 @@ kdl::result<void, Model::GameError> MapDocument::newDocument(
   });
 }
 
-kdl::result<void, Model::GameError> MapDocument::loadDocument(
+kdl::result<void, Error> MapDocument::loadDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
@@ -628,8 +628,7 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
   });
 }
 
-kdl::result<void, Model::GameError> MapDocument::exportDocumentAs(
-  const IO::ExportOptions& options)
+kdl::result<void, Error> MapDocument::exportDocumentAs(const IO::ExportOptions& options)
 {
   return m_game->exportMap(*m_world, options);
 }
@@ -4331,7 +4330,7 @@ std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point
   return result;
 }
 
-kdl::result<void, Model::GameError> MapDocument::createWorld(
+kdl::result<void, Error> MapDocument::createWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game)
@@ -4347,7 +4346,7 @@ kdl::result<void, Model::GameError> MapDocument::createWorld(
   });
 }
 
-kdl::result<void, Model::GameError> MapDocument::loadWorld(
+kdl::result<void, Error> MapDocument::loadWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,

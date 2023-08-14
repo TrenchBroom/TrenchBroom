@@ -81,18 +81,18 @@ private:
 
   const std::vector<SmartTag>& doSmartTags() const override;
 
-  kdl::result<std::unique_ptr<WorldNode>, GameError> doNewMap(
+  kdl::result<std::unique_ptr<WorldNode>, Error> doNewMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
-  kdl::result<std::unique_ptr<WorldNode>, GameError> doLoadMap(
+  kdl::result<std::unique_ptr<WorldNode>, Error> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const override;
-  kdl::result<void, GameError> doWriteMap(
+  kdl::result<void, Error> doWriteMap(
     WorldNode& world, const std::filesystem::path& path, bool exporting) const;
-  kdl::result<void, GameError> doWriteMap(
+  kdl::result<void, Error> doWriteMap(
     WorldNode& world, const std::filesystem::path& path) const override;
-  kdl::result<void, GameError> doExportMap(
+  kdl::result<void, Error> doExportMap(
     WorldNode& world, const IO::ExportOptions& options) const override;
 
   std::vector<Node*> doParseNodes(
@@ -122,7 +122,7 @@ private:
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) override;
-  kdl::result<void, GameError> doReloadShaders() override;
+  kdl::result<void, Error> doReloadShaders() override;
 
   bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
   kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
@@ -145,9 +145,9 @@ private:
     Assets::EntityModel& model,
     Logger& logger) const override;
 
-  kdl::result<Assets::Palette, GameError> loadTexturePalette() const;
+  kdl::result<Assets::Palette, Error> loadTexturePalette() const;
 
-  kdl::result<std::vector<std::string>, GameError> doAvailableMods() const override;
+  kdl::result<std::vector<std::string>, Error> doAvailableMods() const override;
   std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
   std::string doDefaultMod() const override;
 

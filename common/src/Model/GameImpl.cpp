@@ -25,6 +25,7 @@
 #include "Assets/Palette.h"
 #include "Assets/TextureManager.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/AseParser.h"
 #include "IO/AssimpParser.h"
@@ -63,7 +64,6 @@
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/GameConfig.h"
-#include "Model/GameError.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
@@ -175,7 +175,7 @@ const std::vector<SmartTag>& GameImpl::doSmartTags() const
   return m_config.smartTags;
 }
 
-kdl::result<std::unique_ptr<WorldNode>, GameError> GameImpl::doNewMap(
+kdl::result<std::unique_ptr<WorldNode>, Error> GameImpl::doNewMap(
   const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const
 {
   const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
@@ -212,7 +212,7 @@ kdl::result<std::unique_ptr<WorldNode>, GameError> GameImpl::doNewMap(
   return worldNode;
 }
 
-kdl::result<std::unique_ptr<WorldNode>, GameError> GameImpl::doLoadMap(
+kdl::result<std::unique_ptr<WorldNode>, Error> GameImpl::doLoadMap(
   const MapFormat format,
   const vm::bbox3& worldBounds,
   const std::filesystem::path& path,
@@ -242,12 +242,11 @@ kdl::result<std::unique_ptr<WorldNode>, GameError> GameImpl::doLoadMap(
       return worldReader.read(worldBounds, parserStatus);
     })
     .or_else([](auto e) {
-      return kdl::result<std::unique_ptr<WorldNode>, GameError>{
-        GameError{std::move(e.msg)}};
+      return kdl::result<std::unique_ptr<WorldNode>, Error>{Error{std::move(e.msg)}};
     });
 }
 
-kdl::result<void, GameError> GameImpl::doWriteMap(
+kdl::result<void, Error> GameImpl::doWriteMap(
   WorldNode& world, const std::filesystem::path& path, const bool exporting) const
 {
   return IO::Disk::withOutputStream(
@@ -261,17 +260,16 @@ kdl::result<void, GameError> GameImpl::doWriteMap(
              writer.setExporting(exporting);
              writer.writeMap();
            })
-    .or_else(
-      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
+    .or_else([](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
 }
 
-kdl::result<void, GameError> GameImpl::doWriteMap(
+kdl::result<void, Error> GameImpl::doWriteMap(
   WorldNode& world, const std::filesystem::path& path) const
 {
   return doWriteMap(world, path, false);
 }
 
-kdl::result<void, GameError> GameImpl::doExportMap(
+kdl::result<void, Error> GameImpl::doExportMap(
   WorldNode& world, const IO::ExportOptions& options) const
 {
   return std::visit(
@@ -291,9 +289,8 @@ kdl::result<void, GameError> GameImpl::doExportMap(
                      writer.writeMap();
                    });
                  })
-          .or_else([](auto e) {
-            return kdl::result<void, GameError>{GameError{std::move(e.msg)}};
-          });
+          .or_else(
+            [](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
       },
       [&](const IO::MapExportOptions& mapOptions) {
         return doWriteMap(world, mapOptions.exportPath, true);
@@ -361,10 +358,10 @@ void GameImpl::doReloadWads(
   m_fs.reloadWads(m_config.textureConfig.root, searchPaths, wadPaths, logger);
 }
 
-kdl::result<void, GameError> GameImpl::doReloadShaders()
+kdl::result<void, Error> GameImpl::doReloadShaders()
 {
   return m_fs.reloadShaders().or_else(
-    [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
+    [](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
 }
 
 bool GameImpl::doIsEntityDefinitionFile(const std::filesystem::path& path) const
@@ -480,7 +477,7 @@ std::filesystem::path GameImpl::doFindEntityDefinitionFile(
 std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(
   const std::filesystem::path& path, Logger& logger) const
 {
-  using result_type = kdl::result<std::unique_ptr<Assets::EntityModel>, GameError>;
+  using result_type = kdl::result<std::unique_ptr<Assets::EntityModel>, Error>;
 
   try
   {
@@ -547,7 +544,7 @@ std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(
           auto parser = IO::AssimpParser{path, m_fs};
           return parser.initializeModel(logger);
         }
-        return GameError{"Unknown model format: '" + path.string() + "'"};
+        return Error{"Unknown model format: '" + path.string() + "'"};
       })
       .if_error([&](auto e) {
         throw GameException{"Could not load model " + path.string() + ": " + e.msg};
@@ -567,7 +564,7 @@ void GameImpl::doLoadFrame(
   Assets::EntityModel& model,
   Logger& logger) const
 {
-  using result_type = kdl::result<void, GameError>;
+  using result_type = kdl::result<void, Error>;
 
   try
   {
@@ -643,7 +640,7 @@ void GameImpl::doLoadFrame(
           parser.loadFrame(frameIndex, model, logger);
           return kdl::void_success;
         }
-        return GameError{"Unknown model format: '" + path.string() + "'"};
+        return Error{"Unknown model format: '" + path.string() + "'"};
       })
       .transform_error([&](auto e) {
         throw GameException{"Could not load model " + path.string() + ": " + e.msg};
@@ -656,22 +653,22 @@ void GameImpl::doLoadFrame(
   }
 }
 
-kdl::result<Assets::Palette, GameError> GameImpl::loadTexturePalette() const
+kdl::result<Assets::Palette, Error> GameImpl::loadTexturePalette() const
 {
   const auto& path = m_config.textureConfig.palette;
   return m_fs.openFile(path)
     .and_then([&](auto file) { return Assets::loadPalette(*file, path); })
     .or_else([](auto e) {
-      return kdl::result<Assets::Palette, GameError>{GameError{std::move(e.msg)}};
+      return kdl::result<Assets::Palette, Error>{Error{std::move(e.msg)}};
     });
   ;
 }
 
-kdl::result<std::vector<std::string>, GameError> GameImpl::doAvailableMods() const
+kdl::result<std::vector<std::string>, Error> GameImpl::doAvailableMods() const
 {
   if (m_gamePath.empty() || IO::Disk::pathInfo(m_gamePath) != IO::PathInfo::Directory)
   {
-    return kdl::result<std::vector<std::string>, GameError>{std::vector<std::string>{}};
+    return kdl::result<std::vector<std::string>, Error>{std::vector<std::string>{}};
   }
 
   const auto& defaultMod = m_config.fileSystemConfig.searchPath.filename().string();
@@ -689,8 +686,7 @@ kdl::result<std::vector<std::string>, GameError> GameImpl::doAvailableMods() con
       });
     })
     .or_else([](auto e) {
-      return kdl::result<std::vector<std::string>, GameError>{
-        GameError{std::move(e.msg)}};
+      return kdl::result<std::vector<std::string>, Error>{Error{std::move(e.msg)}};
     });
 }
 

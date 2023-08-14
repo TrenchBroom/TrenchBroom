@@ -47,6 +47,7 @@
 namespace TrenchBroom
 {
 class Color;
+struct Error;
 
 namespace Assets
 {
@@ -67,7 +68,6 @@ class BrushFaceAttributes;
 class EditorContext;
 class Entity;
 class Game;
-struct GameError;
 class Issue;
 enum class MapFormat;
 class PickResult;
@@ -301,11 +301,11 @@ private: // tag and entity definition actions
   void createEntityDefinitionActions();
 
 public: // new, load, save document
-  kdl::result<void, Model::GameError> newDocument(
+  kdl::result<void, Error> newDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  kdl::result<void, Model::GameError> loadDocument(
+  kdl::result<void, Error> loadDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,
@@ -313,7 +313,7 @@ public: // new, load, save document
   void saveDocument();
   void saveDocumentAs(const std::filesystem::path& path);
   void saveDocumentTo(const std::filesystem::path& path);
-  kdl::result<void, Model::GameError> exportDocumentAs(const IO::ExportOptions& options);
+  kdl::result<void, Error> exportDocumentAs(const IO::ExportOptions& options);
 
 private:
   void doSaveDocument(const std::filesystem::path& path);
@@ -691,11 +691,11 @@ public: // picking
   std::vector<Model::Node*> findNodesContaining(const vm::vec3& point) const;
 
 private: // world management
-  kdl::result<void, Model::GameError> createWorld(
+  kdl::result<void, Error> createWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  kdl::result<void, Model::GameError> loadWorld(
+  kdl::result<void, Error> loadWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,

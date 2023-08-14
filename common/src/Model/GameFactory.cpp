@@ -19,6 +19,7 @@
 
 #include "GameFactory.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
@@ -34,7 +35,6 @@
 #include "Logger.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
-#include "Model/GameError.h"
 #include "Model/GameImpl.h"
 #include "PreferenceManager.h"
 
@@ -62,7 +62,7 @@ GameFactory& GameFactory::instance()
   return instance;
 }
 
-kdl::result<std::vector<std::string>, GameError> GameFactory::initialize(
+kdl::result<std::vector<std::string>, Error> GameFactory::initialize(
   const GamePathConfig& gamePathConfig)
 {
   return initializeFileSystem(gamePathConfig).and_then([&]() {
@@ -243,7 +243,7 @@ const std::filesystem::path& GameFactory::userGameConfigsPath() const
 
 GameFactory::GameFactory() = default;
 
-kdl::result<void, GameError> GameFactory::initializeFileSystem(
+kdl::result<void, Error> GameFactory::initializeFileSystem(
   const GamePathConfig& gamePathConfig)
 {
   // Gather the search paths we're going to use.
@@ -267,11 +267,10 @@ kdl::result<void, GameError> GameFactory::initializeFileSystem(
         std::move(virtualFs),
         std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
     })
-    .or_else(
-      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
+    .or_else([](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
 }
 
-kdl::result<std::vector<std::string>, GameError> GameFactory::loadGameConfigs()
+kdl::result<std::vector<std::string>, Error> GameFactory::loadGameConfigs()
 {
   return m_configFs
     ->find(
@@ -288,13 +287,11 @@ kdl::result<std::vector<std::string>, GameError> GameFactory::loadGameConfigs()
       return errors;
     })
     .or_else([](auto e) {
-      return kdl::result<std::vector<std::string>, GameError>{
-        GameError{std::move(e.msg)}};
+      return kdl::result<std::vector<std::string>, Error>{Error{std::move(e.msg)}};
     });
 }
 
-kdl::result<void, GameError> GameFactory::loadGameConfig(
-  const std::filesystem::path& path)
+kdl::result<void, Error> GameFactory::loadGameConfig(const std::filesystem::path& path)
 {
   return m_configFs->openFile(path)
     .join(m_configFs->makeAbsolute(path))
@@ -319,8 +316,7 @@ kdl::result<void, GameError> GameFactory::loadGameConfig(
       m_defaultEngines.emplace(
         configName, Preference<std::filesystem::path>{defaultEnginePrefPath, {}});
     })
-    .or_else(
-      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
+    .or_else([](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
 }
 
 void GameFactory::loadCompilationConfig(GameConfig& gameConfig)

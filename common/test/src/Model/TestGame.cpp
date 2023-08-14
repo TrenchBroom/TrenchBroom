@@ -23,6 +23,7 @@
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/TextureManager.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
@@ -38,7 +39,6 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/GameConfig.h"
-#include "Model/GameError.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
@@ -132,13 +132,13 @@ const std::vector<SmartTag>& TestGame::doSmartTags() const
   return m_smartTags;
 }
 
-kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doNewMap(
+kdl::result<std::unique_ptr<WorldNode>, Error> TestGame::doNewMap(
   const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const
 {
   return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
 }
 
-kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doLoadMap(
+kdl::result<std::unique_ptr<WorldNode>, Error> TestGame::doLoadMap(
   const MapFormat format,
   const vm::bbox3& /* worldBounds */,
   const std::filesystem::path& /* path */,
@@ -154,7 +154,7 @@ kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doLoadMap(
   }
 }
 
-kdl::result<void, GameError> TestGame::doWriteMap(
+kdl::result<void, Error> TestGame::doWriteMap(
   WorldNode& world, const std::filesystem::path& path) const
 {
   return IO::Disk::withOutputStream(
@@ -163,11 +163,10 @@ kdl::result<void, GameError> TestGame::doWriteMap(
              IO::NodeWriter writer(world, stream);
              writer.writeMap();
            })
-    .or_else(
-      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
+    .or_else([](auto e) { return kdl::result<void, Error>{Error{std::move(e.msg)}}; });
 }
 
-kdl::result<void, GameError> TestGame::doExportMap(
+kdl::result<void, Error> TestGame::doExportMap(
   WorldNode& /* world */, const IO::ExportOptions& /* options */) const
 {
   return kdl::void_success;
@@ -240,7 +239,7 @@ void TestGame::doReloadWads(
   }
 }
 
-kdl::result<void, GameError> TestGame::doReloadShaders()
+kdl::result<void, Error> TestGame::doReloadShaders()
 {
   return kdl::void_success;
   ;
@@ -269,7 +268,7 @@ std::filesystem::path TestGame::doFindEntityDefinitionFile(
   return {};
 }
 
-kdl::result<std::vector<std::string>, GameError> TestGame::doAvailableMods() const
+kdl::result<std::vector<std::string>, Error> TestGame::doAvailableMods() const
 {
   return std::vector<std::string>{};
 }

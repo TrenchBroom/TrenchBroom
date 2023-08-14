@@ -39,6 +39,7 @@
 #include <QtGlobal>
 
 #include "Console.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "FileLogger.h"
 #include "IO/ExportOptions.h"
@@ -50,7 +51,6 @@
 #include "Model/EntityNode.h"
 #include "Model/EntityNodeBase.h"
 #include "Model/Game.h"
-#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -977,7 +977,7 @@ void MapFrame::bindEvents()
     &MapFrame::updateStatusBar);
 }
 
-kdl::result<bool, Model::GameError> MapFrame::newDocument(
+kdl::result<bool, Error> MapFrame::newDocument(
   std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat)
 {
   if (!confirmOrDiscardChanges() || !closeCompileDialog())
@@ -988,7 +988,7 @@ kdl::result<bool, Model::GameError> MapFrame::newDocument(
     .transform([]() { return true; });
 }
 
-kdl::result<bool, Model::GameError> MapFrame::openDocument(
+kdl::result<bool, Error> MapFrame::openDocument(
   std::shared_ptr<Model::Game> game,
   const Model::MapFormat mapFormat,
   const std::filesystem::path& path)

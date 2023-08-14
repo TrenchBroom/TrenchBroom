@@ -19,12 +19,12 @@
 
 #include "TrenchBroomApp.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
-#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
 #include "PreferenceManager.h"
@@ -365,7 +365,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
         {
           if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
           {
-            return kdl::result<bool, Model::GameError>{false};
+            return kdl::result<bool, Error>{false};
           }
         }
 

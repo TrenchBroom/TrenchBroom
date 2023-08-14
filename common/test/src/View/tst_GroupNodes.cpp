@@ -18,6 +18,7 @@
  */
 
 #include "Assets/EntityDefinition.h"
+#include "Error.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -25,7 +26,6 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/GameError.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"

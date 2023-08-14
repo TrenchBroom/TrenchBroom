@@ -25,10 +25,10 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "Error.h"
 #include "IO/FileSystemError.h"
 #include "Model/EntityNode.h"
 #include "Model/Game.h"
-#include "Model/GameError.h"
 #include "Notifier.h"
 #include "PreferenceManager.h"
 #include "View/BorderLine.h"

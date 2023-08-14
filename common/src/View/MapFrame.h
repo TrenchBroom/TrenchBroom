@@ -48,6 +48,7 @@ class QToolBar;
 
 namespace TrenchBroom
 {
+struct Error;
 class Logger;
 
 namespace Assets
@@ -58,7 +59,6 @@ class Texture;
 namespace Model
 {
 class Game;
-struct GameError;
 class GroupNode;
 class LayerNode;
 } // namespace Model
@@ -197,9 +197,9 @@ private: // menu event handlers
   void bindEvents();
 
 public:
-  kdl::result<bool, Model::GameError> newDocument(
+  kdl::result<bool, Error> newDocument(
     std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat);
-  kdl::result<bool, Model::GameError> openDocument(
+  kdl::result<bool, Error> openDocument(
     std::shared_ptr<Model::Game> game,
     Model::MapFormat mapFormat,
     const std::filesystem::path& path);
