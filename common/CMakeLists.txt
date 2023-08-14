@@ -237,7 +237,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/RenderError.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.cpp
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.cpp
@@ -755,7 +754,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.h
-        ${COMMON_SOURCE_DIR}/Renderer/RenderError.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.h
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.h

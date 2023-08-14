@@ -19,6 +19,7 @@
 
 #include "FreeTypeFontFactory.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -29,7 +30,6 @@
 #include "Renderer/FontGlyph.h"
 #include "Renderer/FontGlyphBuilder.h"
 #include "Renderer/FontTexture.h"
-#include "Renderer/RenderError.h"
 #include "Renderer/TextureFont.h"
 
 #include <algorithm>
@@ -82,7 +82,7 @@ std::pair<FT_Face, IO::BufferedReader> FreeTypeFontFactory::loadFont(
 
   return IO::Disk::openFile(fontPath)
     .and_then(
-      [&](auto file) -> kdl::result<std::pair<FT_Face, IO::BufferedReader>, RenderError> {
+      [&](auto file) -> kdl::result<std::pair<FT_Face, IO::BufferedReader>, Error> {
         auto reader = file->reader().buffer();
 
         auto face = FT_Face{};
@@ -94,7 +94,7 @@ std::pair<FT_Face, IO::BufferedReader> FreeTypeFontFactory::loadFont(
           &face);
         if (error)
         {
-          return RenderError{"FT_New_Memory_Face returned " + std::to_string(error)};
+          return Error{"FT_New_Memory_Face returned " + std::to_string(error)};
         }
 
         FT_Set_Pixel_Sizes(face, 0, FT_UInt(fontDescriptor.size()));

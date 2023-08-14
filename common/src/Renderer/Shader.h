@@ -29,10 +29,13 @@
 #include <string>
 #include <vector>
 
+namespace TrenchBroom
+{
+struct Error;
+}
+
 namespace TrenchBroom::Renderer
 {
-
-struct RenderError;
 
 class Shader
 {
@@ -54,7 +57,6 @@ public:
   void attach(GLuint programId) const;
 };
 
-kdl::result<Shader, RenderError> loadShader(
-  const std::filesystem::path& path, GLenum type);
+kdl::result<Shader, Error> loadShader(const std::filesystem::path& path, GLenum type);
 
 } // namespace TrenchBroom::Renderer

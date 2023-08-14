@@ -29,10 +29,14 @@
 #include <string>
 #include <unordered_map>
 
+namespace TrenchBroom
+{
+struct Error;
+}
+
 namespace TrenchBroom::Renderer
 {
 
-struct RenderError;
 class ShaderManager;
 class Shader;
 
@@ -60,7 +64,7 @@ public:
   ~ShaderProgram();
 
   void attach(Shader& shader) const;
-  kdl::result<void, RenderError> link();
+  kdl::result<void, Error> link();
 
   void activate(ShaderManager& shaderManager);
   void deactivate(ShaderManager& shaderManager);
@@ -84,6 +88,6 @@ private:
   bool checkActive() const;
 };
 
-kdl::result<ShaderProgram, RenderError> createShaderProgram(std::string name);
+kdl::result<ShaderProgram, Error> createShaderProgram(std::string name);
 
 } // namespace TrenchBroom::Renderer

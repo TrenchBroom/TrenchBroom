@@ -20,7 +20,7 @@
 #include "ShaderProgram.h"
 
 #include "Ensure.h"
-#include "Renderer/RenderError.h"
+#include "Error.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderManager.h"
 
@@ -93,7 +93,7 @@ std::string getInfoLog(const GLuint programId)
 }
 } // namespace
 
-kdl::result<void, RenderError> ShaderProgram::link()
+kdl::result<void, Error> ShaderProgram::link()
 {
   glAssert(glLinkProgram(m_programId));
 
@@ -102,7 +102,7 @@ kdl::result<void, RenderError> ShaderProgram::link()
 
   if (linkStatus == 0)
   {
-    return RenderError{
+    return Error{
       "Could not link shader program '" + m_name + "': " + getInfoLog(m_programId)};
   }
 
@@ -236,14 +236,14 @@ bool ShaderProgram::checkActive() const
   return GLuint(currentProgramId) == m_programId;
 }
 
-kdl::result<ShaderProgram, RenderError> createShaderProgram(std::string name)
+kdl::result<ShaderProgram, Error> createShaderProgram(std::string name)
 {
   auto programId = GLuint(0);
   glAssert(programId = glCreateProgram());
 
   if (programId == 0)
   {
-    return RenderError{"Could not create shader '" + name + "'"};
+    return Error{"Could not create shader '" + name + "'"};
   }
 
   return ShaderProgram{std::move(name), programId};
