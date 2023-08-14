@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include <kdl/reflection_decl.h>
 #include <kdl/result_forward.h>
 
 #include <filesystem>
@@ -50,14 +49,7 @@ class FileSystem;
 kdl::result<std::vector<std::filesystem::path>, Error> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig);
 
-struct LoadTextureCollectionError
-{
-  std::string msg;
-
-  kdl_reflect_decl(LoadTextureCollectionError, msg);
-};
-
-kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCollection(
+kdl::result<Assets::TextureCollection, Error> loadTextureCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const Model::TextureConfig& textureConfig,

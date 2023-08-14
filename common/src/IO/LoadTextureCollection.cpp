@@ -43,7 +43,6 @@
 #include "kdl/result_fold.h"
 #include <kdl/overload.h>
 #include <kdl/path_utils.h>
-#include <kdl/reflection_impl.h>
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
@@ -148,26 +147,23 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
     std::move(name), "Unknown texture file extension: " + path.extension().string()};
 }
 
-kdl::result<ReadTextureFunc, LoadTextureCollectionError> makeReadTextureFunc(
+kdl::result<ReadTextureFunc, Error> makeReadTextureFunc(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
   return loadPalette(gameFS, textureConfig)
     .transform([](auto palette) { return std::optional{std::move(palette)}; })
     .transform_error([](auto) -> std::optional<Assets::Palette> { return std::nullopt; })
-    .and_then(
-      [&](auto palette) -> kdl::result<ReadTextureFunc, LoadTextureCollectionError> {
-        return [&,
-                palette = std::move(palette),
-                prefixLength = kdl::path_length(textureConfig.root)](
-                 const File& file, const std::filesystem::path& path) {
-          return readTexture(file, path, gameFS, prefixLength, palette);
-        };
-      });
+    .and_then([&](auto palette) -> kdl::result<ReadTextureFunc, Error> {
+      return [&,
+              palette = std::move(palette),
+              prefixLength = kdl::path_length(textureConfig.root)](
+               const File& file, const std::filesystem::path& path) {
+        return readTexture(file, path, gameFS, prefixLength, palette);
+      };
+    });
 }
 
 } // namespace
-
-kdl_reflect_impl(LoadTextureCollectionError);
 
 kdl::result<std::vector<std::filesystem::path>, Error> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
@@ -183,7 +179,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> findTextureCollections(
     });
 }
 
-kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCollection(
+kdl::result<Assets::TextureCollection, Error> loadTextureCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const Model::TextureConfig& textureConfig,
@@ -191,7 +187,7 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
 {
   if (gameFS.pathInfo(path) != PathInfo::Directory)
   {
-    return LoadTextureCollectionError{
+    return Error{
       "Could not load texture collection '" + path.string() + "': not a directory"};
   }
 
@@ -228,12 +224,7 @@ kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCo
         .transform([&](auto textures) {
           return Assets::TextureCollection{path, std::move(textures)};
         });
-    })
-    .or_else([](auto e) {
-      return kdl::result<Assets::TextureCollection, LoadTextureCollectionError>{
-        LoadTextureCollectionError{e.msg}};
     });
-  ;
 }
 
 } // namespace TrenchBroom::IO
