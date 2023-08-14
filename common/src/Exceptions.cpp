@@ -69,8 +69,4 @@ std::string ParserException::buildMessage(const size_t line, const std::string& 
   return msg.str();
 }
 
-FileNotFoundException::FileNotFoundException(const std::string& path)
-  : Exception("File not found: '" + path + "'")
-{
-}
 } // namespace TrenchBroom

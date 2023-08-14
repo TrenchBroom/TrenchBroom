@@ -1034,11 +1034,6 @@ bool MapFrame::saveDocument()
       return saveDocumentAs();
     }
   }
-  catch (const FileSystemException& e)
-  {
-    QMessageBox::critical(this, "", e.what());
-    return false;
-  }
   catch (...)
   {
     QMessageBox::critical(
@@ -1077,11 +1072,6 @@ bool MapFrame::saveDocumentAs()
                          .count()
                     << "ms";
     return true;
-  }
-  catch (const FileSystemException& e)
-  {
-    QMessageBox::critical(this, "", e.what());
-    return false;
   }
   catch (...)
   {

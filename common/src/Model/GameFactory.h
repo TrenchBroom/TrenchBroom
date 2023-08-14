@@ -79,9 +79,8 @@ public:
    * Initialization comprises building a file system to find the builtin and user-provided
    * game configurations and loading them.
    *
-   * If the file system cannot be built, a FileSystemException is thrown. Since this is a
-   * fatal error, the caller should inform the user of the error and terminate the
-   * application.
+   * If the file system cannot be built, a GameError is returned. Since this is a fatal
+   * error, the caller should inform the user of the error and terminate the application.
    *
    * If a game configuration cannot be loaded due to parsing errors, the errors are
    * collected in a string list, but loading game configurations continues. The string

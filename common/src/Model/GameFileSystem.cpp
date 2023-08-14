@@ -94,17 +94,7 @@ void GameFileSystem::addDefaultAssetPaths(const GameConfig& config, Logger& logg
   for (const auto& defaultFolderPath : defaultFolderPaths)
   {
     const auto defaultAssetsPath = defaultFolderPath / std::filesystem::path("assets");
-    auto exists = [](const auto& path) {
-      try
-      {
-        return IO::Disk::pathInfo(path) == IO::PathInfo::Directory;
-      }
-      catch (const FileSystemException&)
-      {
-        return false;
-      }
-    };
-    if (exists(defaultAssetsPath))
+    if (IO::Disk::pathInfo(defaultAssetsPath) == IO::PathInfo::Directory)
     {
       addFileSystemPath(defaultAssetsPath, logger);
     }
@@ -130,16 +120,8 @@ void GameFileSystem::addGameFileSystems(
 
 void GameFileSystem::addFileSystemPath(const std::filesystem::path& path, Logger& logger)
 {
-  try
-  {
-    logger.info() << "Adding file system path " << path;
-    mount(std::filesystem::path{}, std::make_unique<IO::DiskFileSystem>(path));
-  }
-  catch (const FileSystemException& e)
-  {
-    logger.error() << "Could not add file system search path '" << path
-                   << "': " << e.what();
-  }
+  logger.info() << "Adding file system path " << path;
+  mount("", std::make_unique<IO::DiskFileSystem>(path));
 }
 
 namespace
