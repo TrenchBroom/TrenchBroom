@@ -132,8 +132,7 @@ private:
   const BrushFaceAttributes& doDefaultFaceAttribs() const override;
   const std::vector<CompilationTool>& doCompilationTools() const override;
 
-  kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
-  doLoadEntityDefinitions(
+  kdl::result<std::vector<Assets::EntityDefinition*>, Error> doLoadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
   std::unique_ptr<Assets::EntityModel> doInitializeModel(
     const std::filesystem::path& path, Logger& logger) const override;

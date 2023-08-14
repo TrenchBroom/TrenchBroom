@@ -19,11 +19,11 @@
 
 #include "LoadTextureCollection.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/Palette.h"
 #include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/FileSystemError.h"
@@ -67,17 +67,17 @@ bool shouldExclude(
   });
 }
 
-kdl::result<Assets::Palette, Assets::AssetError> loadPalette(
+kdl::result<Assets::Palette, Error> loadPalette(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
   if (textureConfig.palette.empty())
   {
-    return Assets::AssetError{"Texture config is missing palette definition"};
+    return Error{"Texture config is missing palette definition"};
   }
 
   return gameFS.openFile(textureConfig.palette)
-    .or_else([](auto e) -> kdl::result<std::shared_ptr<File>, Assets::AssetError> {
-      return Assets::AssetError{"Could not load palette: " + e.msg};
+    .or_else([](auto e) -> kdl::result<std::shared_ptr<File>, Error> {
+      return Error{"Could not load palette: " + e.msg};
     })
     .and_then(
       [&](auto file) { return Assets::loadPalette(*file, textureConfig.palette); });

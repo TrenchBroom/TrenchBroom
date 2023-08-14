@@ -19,12 +19,12 @@
 
 #include "ReadMipTexture.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Color.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
@@ -40,10 +40,9 @@ static constexpr size_t TextureNameLength = 16;
 namespace
 {
 
-using GetMipPalette =
-  std::function<kdl::result<Assets::Palette, Assets::AssetError>(Reader& reader)>;
+using GetMipPalette = std::function<kdl::result<Assets::Palette, Error>(Reader& reader)>;
 
-kdl::result<Assets::Palette, Assets::AssetError> readHlMipPalette(Reader& reader)
+kdl::result<Assets::Palette, Error> readHlMipPalette(Reader& reader)
 {
   reader.seekFromBegin(0);
   reader.seekFromBegin(MipLayout::TextureNameLength);

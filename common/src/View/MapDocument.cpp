@@ -19,7 +19,6 @@
 
 #include "View/MapDocument.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/AssetUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionFileSpec.h"

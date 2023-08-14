@@ -30,6 +30,11 @@
 #include <memory>
 #include <vector>
 
+namespace TrenchBroom
+{
+struct Error;
+}
+
 namespace TrenchBroom::IO
 {
 class File;
@@ -38,7 +43,6 @@ class Reader;
 
 namespace TrenchBroom::Assets
 {
-struct AssetError;
 struct PaletteData;
 class TextureBuffer;
 
@@ -82,10 +86,10 @@ public:
     Color& averageColor) const;
 };
 
-kdl::result<Palette, AssetError> makePalette(const std::vector<unsigned char>& data);
+kdl::result<Palette, Error> makePalette(const std::vector<unsigned char>& data);
 
-kdl::result<Palette, AssetError> loadPalette(
+kdl::result<Palette, Error> loadPalette(
   const IO::File& file, const std::filesystem::path& path);
-kdl::result<Palette, AssetError> loadPalette(IO::Reader& reader);
+kdl::result<Palette, Error> loadPalette(IO::Reader& reader);
 
 } // namespace TrenchBroom::Assets

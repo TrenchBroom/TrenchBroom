@@ -19,7 +19,6 @@
 
 #include "TestGame.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/TextureManager.h"
@@ -305,11 +304,11 @@ const std::vector<CompilationTool>& TestGame::doCompilationTools() const
   return m_compilationTools;
 }
 
-kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError> TestGame::
+kdl::result<std::vector<Assets::EntityDefinition*>, Error> TestGame::
   doLoadEntityDefinitions(
     IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
-  return kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>{
+  return kdl::result<std::vector<Assets::EntityDefinition*>, Error>{
     std::vector<Assets::EntityDefinition*>{}};
 }
 

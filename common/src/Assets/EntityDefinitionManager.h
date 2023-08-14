@@ -26,8 +26,11 @@
 #include <string>
 #include <vector>
 
+
 namespace TrenchBroom
 {
+struct Error;
+
 namespace IO
 {
 class EntityDefinitionLoader;
@@ -41,7 +44,6 @@ class EntityNodeBase;
 
 namespace Assets
 {
-struct AssetError;
 class EntityDefinition;
 class EntityDefinitionGroup;
 enum class EntityDefinitionSortOrder;
@@ -58,7 +60,7 @@ private:
 public:
   ~EntityDefinitionManager();
 
-  kdl::result<void, AssetError> loadDefinitions(
+  kdl::result<void, Error> loadDefinitions(
     const std::filesystem::path& path,
     const IO::EntityDefinitionLoader& loader,
     IO::ParserStatus& status);

@@ -19,7 +19,6 @@
 
 #include "GameImpl.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
@@ -373,7 +372,7 @@ bool GameImpl::doIsEntityDefinitionFile(const std::filesystem::path& path) const
   });
 }
 
-kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError> GameImpl::
+kdl::result<std::vector<Assets::EntityDefinition*>, Error> GameImpl::
   doLoadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const
 {
@@ -389,8 +388,7 @@ kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError> GameImpl
         return parser.parseDefinitions(status);
       })
       .or_else([](auto e) {
-        return kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>{
-          Assets::AssetError{e.msg}};
+        return kdl::result<std::vector<Assets::EntityDefinition*>, Error>{Error{e.msg}};
       });
   }
   if (kdl::ci::str_is_equal(".def", extension))
@@ -402,8 +400,7 @@ kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError> GameImpl
         return parser.parseDefinitions(status);
       })
       .or_else([](auto e) {
-        return kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>{
-          Assets::AssetError{e.msg}};
+        return kdl::result<std::vector<Assets::EntityDefinition*>, Error>{Error{e.msg}};
       });
   }
   if (kdl::ci::str_is_equal(".ent", extension))
@@ -415,12 +412,11 @@ kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError> GameImpl
         return parser.parseDefinitions(status);
       })
       .or_else([](auto e) {
-        return kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>{
-          Assets::AssetError{e.msg}};
+        return kdl::result<std::vector<Assets::EntityDefinition*>, Error>{Error{e.msg}};
       });
   }
 
-  return Assets::AssetError{"Unknown entity definition format: '" + path.string() + "'"};
+  return Error{"Unknown entity definition format: '" + path.string() + "'"};
 }
 
 std::vector<Assets::EntityDefinitionFileSpec> GameImpl::doAllEntityDefinitionFiles() const

@@ -125,8 +125,7 @@ private:
   kdl::result<void, Error> doReloadShaders() override;
 
   bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
-  kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
-  doLoadEntityDefinitions(
+  kdl::result<std::vector<Assets::EntityDefinition*>, Error> doLoadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
     const override;

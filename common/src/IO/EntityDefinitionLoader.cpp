@@ -19,7 +19,7 @@
 
 #include "EntityDefinitionLoader.h"
 
-#include "Assets/AssetError.h"
+#include "Error.h"
 
 #include <kdl/result.h>
 
@@ -29,9 +29,8 @@ namespace IO
 {
 EntityDefinitionLoader::~EntityDefinitionLoader() {}
 
-kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
-EntityDefinitionLoader::loadEntityDefinitions(
-  ParserStatus& status, const std::filesystem::path& path) const
+kdl::result<std::vector<Assets::EntityDefinition*>, Error> EntityDefinitionLoader::
+  loadEntityDefinitions(ParserStatus& status, const std::filesystem::path& path) const
 {
   return doLoadEntityDefinitions(status, path);
 }

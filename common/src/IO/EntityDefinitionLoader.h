@@ -26,9 +26,10 @@
 
 namespace TrenchBroom
 {
+struct Error;
+
 namespace Assets
 {
-struct AssetError;
 class EntityDefinition;
 } // namespace Assets
 
@@ -40,11 +41,11 @@ class EntityDefinitionLoader
 {
 public:
   virtual ~EntityDefinitionLoader();
-  kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
-  loadEntityDefinitions(ParserStatus& status, const std::filesystem::path& path) const;
+  kdl::result<std::vector<Assets::EntityDefinition*>, Error> loadEntityDefinitions(
+    ParserStatus& status, const std::filesystem::path& path) const;
 
 private:
-  virtual kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
+  virtual kdl::result<std::vector<Assets::EntityDefinition*>, Error>
   doLoadEntityDefinitions(
     ParserStatus& status, const std::filesystem::path& path) const = 0;
 };
