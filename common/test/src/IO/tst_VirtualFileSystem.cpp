@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Error.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/TestFileSystem.h"
 #include "IO/TraversalMode.h"
 #include "IO/VirtualFileSystem.h"
@@ -45,10 +45,12 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.makeAbsolute("")
-        == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+        == kdl::result<std::filesystem::path, Error>{
+          Error{"Cannot make absolute path of ''"}});
       CHECK(
         vfs.makeAbsolute("foo/bar")
-        == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+        == kdl::result<std::filesystem::path, Error>{
+          Error{"Cannot make absolute path of 'foo/bar'"}});
     }
 
     SECTION("pathInfo")
@@ -61,25 +63,25 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.find("", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError>{
-          FileSystemError{}});
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
+          Error{"Path does not denote a directory: ''"}});
       CHECK(
         vfs.find("foo/bar", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError>{
-          FileSystemError{}});
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
+          Error{"Path does not denote a directory: 'foo/bar'"}});
     }
 
     SECTION("openFile")
     {
       CHECK(
         vfs.openFile("")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+        == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: ''"}});
       CHECK(
         vfs.openFile("foo")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+        == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: 'foo'"}});
       CHECK(
         vfs.openFile("foo/bar")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+        == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: 'foo/bar'"}});
     }
   }
 
@@ -129,20 +131,20 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.find("", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "bar",
             "foo",
           }});
       CHECK(
         vfs.find("foo", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "foo/bar",
           }});
       CHECK(
         vfs.find("foo/bar", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "foo/bar/baz",
           }});
@@ -152,10 +154,9 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.openFile("foo/bar/baz")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_baz});
+        == kdl::result<std::shared_ptr<File>, Error>{foo_bar_baz});
       CHECK(
-        vfs.openFile("bar/foo")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{bar_foo});
+        vfs.openFile("bar/foo") == kdl::result<std::shared_ptr<File>, Error>{bar_foo});
     }
   }
 
@@ -249,7 +250,7 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.find("", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "bar",
             "baz",
@@ -257,17 +258,17 @@ TEST_CASE("VirtualFileSystem")
           }});
       CHECK(
         vfs.find("foo", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "foo/bar",
           }});
       CHECK(
         vfs.find("foo/bar", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{"foo/bar/baz"}});
       CHECK(
         vfs.find("bar", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "bar/bat",
             "bar/baz",
@@ -280,16 +281,15 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.openFile("foo/bar/baz")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_baz});
+        == kdl::result<std::shared_ptr<File>, Error>{foo_bar_baz});
       CHECK(
-        vfs.openFile("bar/foo")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{bar_foo});
+        vfs.openFile("bar/foo") == kdl::result<std::shared_ptr<File>, Error>{bar_foo});
       CHECK(
         vfs.openFile("bar/bat")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{bar_bat_fs2});
+        == kdl::result<std::shared_ptr<File>, Error>{bar_bat_fs2});
       CHECK(
         vfs.openFile("bar/cat")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+        == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: 'bar/cat'"}});
     }
   }
 
@@ -325,13 +325,14 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.makeAbsolute("")
-        == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+        == kdl::result<std::filesystem::path, Error>{
+          Error{"Cannot make absolute path of ''"}});
       CHECK(
         vfs.makeAbsolute("foo/bar")
-        == kdl::result<std::filesystem::path, FileSystemError>{"/fs1/bar"});
+        == kdl::result<std::filesystem::path, Error>{"/fs1/bar"});
       CHECK(
         vfs.makeAbsolute("bar/foo")
-        == kdl::result<std::filesystem::path, FileSystemError>{"/fs2/foo"});
+        == kdl::result<std::filesystem::path, Error>{"/fs2/foo"});
     }
 
     SECTION("pathInfo")
@@ -349,26 +350,26 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.find("", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "bar",
             "foo",
           }});
       CHECK(
         vfs.find("foo", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "foo/bar",
           }});
       CHECK(
         vfs.find("foo/bar", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "foo/bar/baz",
           }});
       CHECK(
         vfs.find("bar", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "bar/foo",
           }});
@@ -378,10 +379,9 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.openFile("foo/bar/baz")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_baz});
+        == kdl::result<std::shared_ptr<File>, Error>{foo_bar_baz});
       CHECK(
-        vfs.openFile("bar/foo")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{bar_foo});
+        vfs.openFile("bar/foo") == kdl::result<std::shared_ptr<File>, Error>{bar_foo});
     }
   }
 
@@ -417,16 +417,17 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.makeAbsolute("")
-        == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+        == kdl::result<std::filesystem::path, Error>{
+          Error{"Cannot make absolute path of ''"}});
       CHECK(
         vfs.makeAbsolute("foo/bar")
-        == kdl::result<std::filesystem::path, FileSystemError>{"/fs2/"});
+        == kdl::result<std::filesystem::path, Error>{"/fs2/"});
       CHECK(
         vfs.makeAbsolute("foo/bar/foo")
-        == kdl::result<std::filesystem::path, FileSystemError>{"/fs2/foo"});
+        == kdl::result<std::filesystem::path, Error>{"/fs2/foo"});
       CHECK(
         vfs.makeAbsolute("foo/bar/baz")
-        == kdl::result<std::filesystem::path, FileSystemError>{"/fs1/bar/baz"});
+        == kdl::result<std::filesystem::path, Error>{"/fs1/bar/baz"});
     }
 
     SECTION("pathInfo")
@@ -442,19 +443,19 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.find("", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "foo",
           }});
       CHECK(
         vfs.find("foo", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "foo/bar",
           }});
       CHECK(
         vfs.find("foo/bar", TraversalMode::Flat)
-        == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        == kdl::result<std::vector<std::filesystem::path>, Error>{
           std::vector<std::filesystem::path>{
             "foo/bar/baz",
             "foo/bar/foo",
@@ -465,10 +466,10 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.openFile("foo/bar/baz")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_baz});
+        == kdl::result<std::shared_ptr<File>, Error>{foo_bar_baz});
       CHECK(
         vfs.openFile("foo/bar/foo")
-        == kdl::result<std::shared_ptr<File>, FileSystemError>{foo_bar_foo});
+        == kdl::result<std::shared_ptr<File>, Error>{foo_bar_foo});
     }
   }
 }

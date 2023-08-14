@@ -36,15 +36,15 @@ class Logger;
 
 template <typename T>
 class Preference;
+} // namespace TrenchBroom
 
-namespace IO
+namespace TrenchBroom::IO
 {
-struct FileSystemError;
 class Path;
 class WritableVirtualFileSystem;
-} // namespace IO
+} // namespace TrenchBroom::IO
 
-namespace Model
+namespace TrenchBroom::Model
 {
 struct CompilationConfig;
 class Game;
@@ -149,7 +149,7 @@ public:
    * the game name. If no map format comment is found or the format is unknown,
    * MapFormat::Unknown is returned as the map format.
    */
-  kdl::result<std::pair<std::string, MapFormat>, IO::FileSystemError> detectGame(
+  kdl::result<std::pair<std::string, MapFormat>, Error> detectGame(
     const std::filesystem::path& path) const;
 
   /**
@@ -173,5 +173,4 @@ private:
   void writeGameEngineConfig(
     GameConfig& gameConfig, GameEngineConfig gameEngineConfig, Logger& logger);
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

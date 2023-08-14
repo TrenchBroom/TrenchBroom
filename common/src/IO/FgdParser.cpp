@@ -21,11 +21,11 @@
 
 #include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
+#include "Error.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
 

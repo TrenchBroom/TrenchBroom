@@ -32,10 +32,11 @@
 
 namespace TrenchBroom
 {
-namespace IO
-{
+struct Error;
+}
 
-struct FileSystemError;
+namespace TrenchBroom::IO
+{
 
 struct Object
 {
@@ -73,17 +74,16 @@ private:
 public:
   explicit TestFileSystem(Entry root, std::filesystem::path absolutePathPrefix = {"/"});
 
-  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+  kdl::result<std::filesystem::path, Error> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
 private:
   const Entry* findEntry(std::filesystem::path path) const;
-  kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> doFind(
+  kdl::result<std::vector<std::filesystem::path>, Error> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const override;
-  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+  kdl::result<std::shared_ptr<File>, Error> doOpenFile(
     const std::filesystem::path& path) const override;
 };
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

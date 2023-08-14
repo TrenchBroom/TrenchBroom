@@ -19,10 +19,10 @@
 
 #include "DiskFileSystem.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/TraversalMode.h"
 
@@ -48,13 +48,13 @@ const std::filesystem::path& DiskFileSystem::root() const
   return m_root;
 }
 
-kdl::result<std::filesystem::path, FileSystemError> DiskFileSystem::makeAbsolute(
+kdl::result<std::filesystem::path, Error> DiskFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   const auto canonicalPath = path.lexically_normal();
   if (!canonicalPath.empty() && kdl::path_front(canonicalPath).string() == "..")
   {
-    return FileSystemError{"Cannot make absolute path of '" + path.string() + "'"};
+    return Error{"Cannot make absolute path of '" + path.string() + "'"};
   }
   return canonicalPath.empty() ? m_root : m_root / canonicalPath;
 }
@@ -67,7 +67,7 @@ PathInfo DiskFileSystem::pathInfo(const std::filesystem::path& path) const
     .value();
 }
 
-kdl::result<std::vector<std::filesystem::path>, FileSystemError> DiskFileSystem::doFind(
+kdl::result<std::vector<std::filesystem::path>, Error> DiskFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   return makeAbsolute(path)
@@ -78,7 +78,7 @@ kdl::result<std::vector<std::filesystem::path>, FileSystemError> DiskFileSystem:
     });
 }
 
-kdl::result<std::shared_ptr<File>, FileSystemError> DiskFileSystem::doOpenFile(
+kdl::result<std::shared_ptr<File>, Error> DiskFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
   return makeAbsolute(path).and_then(Disk::openFile).transform([](auto cFile) {
@@ -91,7 +91,7 @@ WritableDiskFileSystem::WritableDiskFileSystem(const std::filesystem::path& root
 {
 }
 
-kdl::result<void, FileSystemError> WritableDiskFileSystem::doCreateFile(
+kdl::result<void, Error> WritableDiskFileSystem::doCreateFile(
   const std::filesystem::path& path, const std::string& contents)
 {
   return makeAbsolute(path).and_then([&](const auto& absPath) {
@@ -99,25 +99,25 @@ kdl::result<void, FileSystemError> WritableDiskFileSystem::doCreateFile(
   });
 }
 
-kdl::result<bool, FileSystemError> WritableDiskFileSystem::doCreateDirectory(
+kdl::result<bool, Error> WritableDiskFileSystem::doCreateDirectory(
   const std::filesystem::path& path)
 {
   return makeAbsolute(path).and_then(Disk::createDirectory);
 }
 
-kdl::result<bool, FileSystemError> WritableDiskFileSystem::doDeleteFile(
+kdl::result<bool, Error> WritableDiskFileSystem::doDeleteFile(
   const std::filesystem::path& path)
 {
   return makeAbsolute(path).and_then(Disk::deleteFile);
 }
 
-kdl::result<void, FileSystemError> WritableDiskFileSystem::doCopyFile(
+kdl::result<void, Error> WritableDiskFileSystem::doCopyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   return makeAbsolute(sourcePath).join(makeAbsolute(destPath)).and_then(Disk::copyFile);
 }
 
-kdl::result<void, FileSystemError> WritableDiskFileSystem::doMoveFile(
+kdl::result<void, Error> WritableDiskFileSystem::doMoveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   return makeAbsolute(sourcePath).join(makeAbsolute(destPath)).and_then(Disk::moveFile);

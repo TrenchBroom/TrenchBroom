@@ -52,9 +52,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 GameFactory& GameFactory::instance()
 {
@@ -219,8 +217,8 @@ std::string readInfoComment(std::istream& stream, const std::string& name)
 }
 } // namespace
 
-kdl::result<std::pair<std::string, MapFormat>, IO::FileSystemError> GameFactory::
-  detectGame(const std::filesystem::path& path) const
+kdl::result<std::pair<std::string, MapFormat>, Error> GameFactory::detectGame(
+  const std::filesystem::path& path) const
 {
   return IO::Disk::withInputStream(path, [&](auto& stream) {
     auto gameName = readInfoComment(stream, "Game");
@@ -379,7 +377,7 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   }
 }
 
-static kdl::result<std::filesystem::path, IO::FileSystemError> backupFile(
+static kdl::result<std::filesystem::path, Error> backupFile(
   IO::WritableFileSystem& fs, const std::filesystem::path& path)
 {
   const auto backupPath = kdl::path_add_extension(path, ".bak");
@@ -494,5 +492,4 @@ void GameFactory::writeGameEngineConfig(
       logger.error() << "Could not write game engine config: " << e.msg;
     });
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

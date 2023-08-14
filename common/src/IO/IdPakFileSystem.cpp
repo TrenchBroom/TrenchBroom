@@ -19,9 +19,9 @@
 
 #include "IdPakFileSystem.h"
 
+#include "Error.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
@@ -43,7 +43,7 @@ static const size_t EntryNameLength = 0x38;
 static const std::string HeaderMagic = "PACK";
 } // namespace PakLayout
 
-kdl::result<void, FileSystemError> IdPakFileSystem::doReadDirectory()
+kdl::result<void, Error> IdPakFileSystem::doReadDirectory()
 {
   try
   {
@@ -71,14 +71,14 @@ kdl::result<void, FileSystemError> IdPakFileSystem::doReadDirectory()
       addFile(
         entryPath,
         [entryFile = std::move(entryFile)]()
-          -> kdl::result<std::shared_ptr<File>, FileSystemError> { return entryFile; });
+          -> kdl::result<std::shared_ptr<File>, Error> { return entryFile; });
     }
 
     return kdl::void_success;
   }
   catch (const ReaderException& e)
   {
-    return FileSystemError{e.what()};
+    return Error{e.what()};
   }
 }
 } // namespace IO

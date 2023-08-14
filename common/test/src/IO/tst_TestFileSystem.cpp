@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FileSystemError.h"
 #include "IO/TraversalMode.h"
 #include "TestFileSystem.h"
 
@@ -66,14 +66,13 @@ TEST_CASE("TestFileSystem")
   {
     CHECK(
       fs.makeAbsolute("root_file_1")
-      == kdl::result<std::filesystem::path, FileSystemError>{"/root_file_1"});
+      == kdl::result<std::filesystem::path, Error>{"/root_file_1"});
     CHECK(
       fs.makeAbsolute("some_dir")
-      == kdl::result<std::filesystem::path, FileSystemError>{"/some_dir"});
+      == kdl::result<std::filesystem::path, Error>{"/some_dir"});
     CHECK(
       fs.makeAbsolute("some_dir/some_dir_file_1")
-      == kdl::result<std::filesystem::path, FileSystemError>{
-        "/some_dir/some_dir_file_1"});
+      == kdl::result<std::filesystem::path, Error>{"/some_dir/some_dir_file_1"});
   }
 
   SECTION("pathInfo")
@@ -92,12 +91,12 @@ TEST_CASE("TestFileSystem")
   {
     CHECK(
       fs.find("does_not_exist", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
-        FileSystemError{}});
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
+        Error{"Path does not denote a directory: 'does_not_exist'"}});
 
     CHECK(
       fs.find("", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "root_file_1",
           "root_file_2",
@@ -106,7 +105,7 @@ TEST_CASE("TestFileSystem")
 
     CHECK(
       fs.find("some_dir", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "some_dir/nested_dir",
           "some_dir/some_dir_file_1",
@@ -115,7 +114,7 @@ TEST_CASE("TestFileSystem")
 
     CHECK(
       fs.find("some_dir/nested_dir", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "some_dir/nested_dir/nested_dir_file_1",
           "some_dir/nested_dir/nested_dir_file_2",
@@ -123,7 +122,7 @@ TEST_CASE("TestFileSystem")
 
     CHECK(
       fs.find("", TraversalMode::Recursive)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "root_file_1",
           "root_file_2",

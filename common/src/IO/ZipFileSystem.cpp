@@ -19,9 +19,9 @@
 
 #include "ZipFileSystem.h"
 
+#include "Error.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 
 #include <kdl/result.h>
 
@@ -37,13 +37,13 @@ ZipFileSystem::~ZipFileSystem()
   mz_zip_reader_end(&m_archive);
 }
 
-kdl::result<void, FileSystemError> ZipFileSystem::doReadDirectory()
+kdl::result<void, Error> ZipFileSystem::doReadDirectory()
 {
   mz_zip_zero_struct(&m_archive);
 
   if (mz_zip_reader_init_cfile(&m_archive, m_file->file(), m_file->size(), 0) != MZ_TRUE)
   {
-    return FileSystemError{"Error calling mz_zip_reader_init_cfile"};
+    return Error{"Error calling mz_zip_reader_init_cfile"};
   }
 
   const auto numFiles = mz_zip_reader_get_num_files(&m_archive);
@@ -52,11 +52,11 @@ kdl::result<void, FileSystemError> ZipFileSystem::doReadDirectory()
     if (!mz_zip_reader_is_file_a_directory(&m_archive, i))
     {
       const auto path = std::filesystem::path{filename(i)};
-      addFile(path, [=]() -> kdl::result<std::shared_ptr<File>, FileSystemError> {
+      addFile(path, [=]() -> kdl::result<std::shared_ptr<File>, Error> {
         auto stat = mz_zip_archive_file_stat{};
         if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
         {
-          return FileSystemError{"mz_zip_reader_file_stat failed for " + path.string()};
+          return Error{"mz_zip_reader_file_stat failed for " + path.string()};
         }
 
         const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
@@ -65,8 +65,7 @@ kdl::result<void, FileSystemError> ZipFileSystem::doReadDirectory()
 
         if (!mz_zip_reader_extract_to_mem(&m_archive, i, begin, uncompressedSize, 0))
         {
-          return FileSystemError{
-            "mz_zip_reader_extract_to_mem failed for " + path.string()};
+          return Error{"mz_zip_reader_extract_to_mem failed for " + path.string()};
         }
 
         return std::static_pointer_cast<File>(
@@ -78,7 +77,7 @@ kdl::result<void, FileSystemError> ZipFileSystem::doReadDirectory()
   const auto err = mz_zip_get_last_error(&m_archive);
   if (err != MZ_ZIP_NO_ERROR)
   {
-    return FileSystemError{
+    return Error{
       std::string{"Error while reading compressed file: "}
       + mz_zip_get_error_string(err)};
   }

@@ -58,7 +58,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
 
   CHECK(
     fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))
-    == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+    == kdl::result<std::vector<std::filesystem::path>, Error>{
       std::vector<std::filesystem::path>{
         texturePrefix / "test/editor_image",
         texturePrefix / "test/not_existing",
@@ -69,7 +69,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
 
   CHECK(
     fs.find(texturePrefix, TraversalMode::Recursive, makeExtensionPathMatcher({""}))
-    == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+    == kdl::result<std::vector<std::filesystem::path>, Error>{
       std::vector<std::filesystem::path>{
         texturePrefix / "__TB_empty",
         texturePrefix / "test",
@@ -107,7 +107,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
 
   CHECK(
     fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))
-    == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+    == kdl::result<std::vector<std::filesystem::path>, Error>{
       std::vector<std::filesystem::path>{
         texturePrefix / "test/editor_image",
         texturePrefix / "test/not_existing",

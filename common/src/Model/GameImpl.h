@@ -33,19 +33,16 @@
 
 namespace TrenchBroom
 {
+struct Error;
 class Logger;
+} // namespace TrenchBroom
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Palette;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace IO
-{
-struct FileSystemError;
-}
-
-namespace Model
+namespace TrenchBroom::Model
 {
 struct EntityPropertyConfig;
 
@@ -166,5 +163,4 @@ private:
   std::string readLongAttribute(
     const EntityNodeBase& node, const std::string& baseName) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

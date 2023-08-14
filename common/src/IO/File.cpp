@@ -19,8 +19,8 @@
 
 #include "File.h"
 
+#include "Error.h"
 #include "Exceptions.h"
-#include "IO/FileSystemError.h"
 
 #include <kdl/result.h>
 
@@ -51,7 +51,7 @@ size_t OwningBufferFile::size() const
 
 namespace
 {
-kdl::result<CFile::FilePtr, FileSystemError> openPathAsFILE(
+kdl::result<CFile::FilePtr, Error> openPathAsFILE(
   const std::filesystem::path& path, const std::string& mode)
 {
   // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
@@ -69,34 +69,34 @@ kdl::result<CFile::FilePtr, FileSystemError> openPathAsFILE(
 
   if (!file)
   {
-    return FileSystemError{"Cannot open file " + path.string()};
+    return Error{"Cannot open file " + path.string()};
   }
 
   return std::unique_ptr<std::FILE, int (*)(std::FILE*)>{file, std::fclose};
 }
 
-kdl::result<size_t, FileSystemError> fileSize(std::FILE* file)
+kdl::result<size_t, Error> fileSize(std::FILE* file)
 {
   const auto pos = std::ftell(file);
   if (pos < 0)
   {
-    return FileSystemError{"ftell failed"};
+    return Error{"ftell failed"};
   }
 
   if (std::fseek(file, 0, SEEK_END) != 0)
   {
-    return FileSystemError{"fseek failed"};
+    return Error{"fseek failed"};
   }
 
   const auto size = std::ftell(file);
   if (size < 0)
   {
-    return FileSystemError{"ftell failed"};
+    return Error{"ftell failed"};
   }
 
   if (std::fseek(file, pos, SEEK_SET) != 0)
   {
-    return FileSystemError{"fseek failed"};
+    return Error{"fseek failed"};
   }
 
   return static_cast<size_t>(size);
@@ -124,8 +124,7 @@ std::FILE* CFile::file() const
   return m_file.get();
 }
 
-kdl::result<std::shared_ptr<CFile>, FileSystemError> createCFile(
-  const std::filesystem::path& path)
+kdl::result<std::shared_ptr<CFile>, Error> createCFile(const std::filesystem::path& path)
 {
   return openPathAsFILE(path, "rb").and_then([](auto filePtr) {
     return fileSize(filePtr.get()).transform([&](auto size) {

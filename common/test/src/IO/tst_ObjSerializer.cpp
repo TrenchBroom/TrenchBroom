@@ -18,6 +18,7 @@
  */
 
 #include "Assets/Texture.h"
+#include "Error.h"
 #include "IO/ExportOptions.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"

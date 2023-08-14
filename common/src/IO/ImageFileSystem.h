@@ -19,8 +19,8 @@
 
 #pragma once
 
+#include "Error.h"
 #include "IO/FileSystem.h"
-#include "IO/FileSystemError.h"
 
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
@@ -35,7 +35,7 @@ namespace TrenchBroom::IO
 class CFile;
 class File;
 
-using GetImageFile = std::function<kdl::result<std::shared_ptr<File>, FileSystemError>()>;
+using GetImageFile = std::function<kdl::result<std::shared_ptr<File>, Error>()>;
 
 struct ImageFileEntry
 {
@@ -62,13 +62,13 @@ protected:
 public:
   ~ImageFileSystemBase() override;
 
-  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+  kdl::result<std::filesystem::path, Error> makeAbsolute(
     const std::filesystem::path& path) const override;
 
   /**
    * Reload this file system.
    */
-  kdl::result<void, FileSystemError> reload();
+  kdl::result<void, Error> reload();
 
 protected:
   void addFile(const std::filesystem::path& path, GetImageFile getFile);
@@ -76,12 +76,12 @@ protected:
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
 private:
-  kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
+  kdl::result<std::vector<std::filesystem::path>, Error> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const override;
-  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+  kdl::result<std::shared_ptr<File>, Error> doOpenFile(
     const std::filesystem::path& path) const override;
 
-  virtual kdl::result<void, FileSystemError> doReadDirectory() = 0;
+  virtual kdl::result<void, Error> doReadDirectory() = 0;
 };
 
 class ImageFileSystem : public ImageFileSystemBase
@@ -94,7 +94,7 @@ public:
 };
 
 template <typename T, typename... Args>
-kdl::result<std::unique_ptr<T>, FileSystemError> createImageFileSystem(Args&&... args)
+kdl::result<std::unique_ptr<T>, Error> createImageFileSystem(Args&&... args)
 {
   auto fs = std::make_unique<T>(std::forward<Args>(args)...);
   return fs->reload().transform([&]() { return std::move(fs); });

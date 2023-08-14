@@ -28,9 +28,13 @@
 #include <filesystem>
 #include <memory>
 
+namespace TrenchBroom
+{
+struct Error;
+}
+
 namespace TrenchBroom::IO
 {
-struct FileSystemError;
 
 class ZipFileSystem : public ImageFileSystem
 {
@@ -42,7 +46,7 @@ public:
   ~ZipFileSystem() override;
 
 private:
-  kdl::result<void, FileSystemError> doReadDirectory() override;
+  kdl::result<void, Error> doReadDirectory() override;
 
   std::string filename(mz_uint fileIndex);
 };

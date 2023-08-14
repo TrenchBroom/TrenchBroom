@@ -27,10 +27,12 @@
 
 namespace TrenchBroom
 {
-namespace IO
+struct Error;
+}
+
+namespace TrenchBroom::IO
 {
 class FileSystem;
-struct FileSystemError;
 
 class WadFileSystem : public ImageFileSystem
 {
@@ -38,9 +40,7 @@ public:
   using ImageFileSystem::ImageFileSystem;
 
 private:
-  kdl::result<void, FileSystemError> doReadDirectory() override;
+  kdl::result<void, Error> doReadDirectory() override;
 };
 
-
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

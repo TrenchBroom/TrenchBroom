@@ -19,7 +19,7 @@
 
 #include "TestFileSystem.h"
 
-#include "IO/FileSystemError.h"
+#include "Error.h"
 #include "IO/TraversalMode.h"
 
 #include <kdl/overload.h>
@@ -27,9 +27,7 @@
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 kdl_reflect_impl(Object);
@@ -90,14 +88,14 @@ PathInfo TestFileSystem::pathInfo(const std::filesystem::path& path) const
   return entry ? getEntryType(*entry) : PathInfo::Unknown;
 }
 
-kdl::result<std::filesystem::path, FileSystemError> TestFileSystem::makeAbsolute(
+kdl::result<std::filesystem::path, Error> TestFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   if (findEntry(path))
   {
     return m_absolutePathPrefix / path;
   }
-  return FileSystemError{};
+  return Error{};
 }
 
 namespace
@@ -126,8 +124,8 @@ void doFindImpl(
 }
 } // namespace
 
-kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> TestFileSystem::
-  doFind(const std::filesystem::path& path, const TraversalMode traversalMode) const
+kdl::result<std::vector<std::filesystem::path>, Error> TestFileSystem::doFind(
+  const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   if (const auto* entry = findEntry(path))
@@ -137,15 +135,14 @@ kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> TestFileSys
   return result;
 }
 
-kdl::result<std::shared_ptr<File>, FileSystemError> TestFileSystem::doOpenFile(
+kdl::result<std::shared_ptr<File>, Error> TestFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
   if (const auto* fileEntry = std::get_if<FileEntry>(findEntry(path)))
   {
     return fileEntry->file;
   }
-  return FileSystemError{};
+  return Error{};
 }
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

@@ -20,9 +20,9 @@
 #include "ImageFileSystem.h"
 
 #include "Ensure.h"
+#include "Error.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/TraversalMode.h"
 
@@ -177,13 +177,13 @@ ImageFileSystemBase::ImageFileSystemBase()
 
 ImageFileSystemBase::~ImageFileSystemBase() = default;
 
-kdl::result<std::filesystem::path, FileSystemError> ImageFileSystemBase::makeAbsolute(
+kdl::result<std::filesystem::path, Error> ImageFileSystemBase::makeAbsolute(
   const std::filesystem::path& path) const
 {
-  return kdl::result<std::filesystem::path, FileSystemError>{"/" / path};
+  return kdl::result<std::filesystem::path, Error>{"/" / path};
 }
 
-kdl::result<void, FileSystemError> ImageFileSystemBase::reload()
+kdl::result<void, Error> ImageFileSystemBase::reload()
 {
   m_root = ImageDirectoryEntry{{}, {}};
   return doReadDirectory();
@@ -241,8 +241,8 @@ void doFindImpl(
 }
 } // namespace
 
-kdl::result<std::vector<std::filesystem::path>, FileSystemError> ImageFileSystemBase::
-  doFind(const std::filesystem::path& path, const TraversalMode traversalMode) const
+kdl::result<std::vector<std::filesystem::path>, Error> ImageFileSystemBase::doFind(
+  const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   withEntry(
@@ -255,7 +255,7 @@ kdl::result<std::vector<std::filesystem::path>, FileSystemError> ImageFileSystem
   return result;
 }
 
-kdl::result<std::shared_ptr<File>, FileSystemError> ImageFileSystemBase::doOpenFile(
+kdl::result<std::shared_ptr<File>, Error> ImageFileSystemBase::doOpenFile(
   const std::filesystem::path& path) const
 {
   return withEntry(
@@ -266,14 +266,14 @@ kdl::result<std::shared_ptr<File>, FileSystemError> ImageFileSystemBase::doOpenF
       return std::visit(
         kdl::overload(
           [&](const ImageDirectoryEntry&) {
-            return kdl::result<std::shared_ptr<File>, FileSystemError>{
-              FileSystemError{"Cannot open directory entry at '" + path.string() + "'"}};
+            return kdl::result<std::shared_ptr<File>, Error>{
+              Error{"Cannot open directory entry at '" + path.string() + "'"}};
           },
           [](const ImageFileEntry& fileEntry) { return fileEntry.getFile(); }),
         entry);
     },
-    kdl::result<std::shared_ptr<File>, FileSystemError>{
-      FileSystemError{"File not found: '" + path.string() + "'"}});
+    kdl::result<std::shared_ptr<File>, Error>{
+      Error{"File not found: '" + path.string() + "'"}});
 }
 
 ImageFileSystem::ImageFileSystem(std::shared_ptr<CFile> file)

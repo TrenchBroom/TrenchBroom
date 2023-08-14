@@ -19,9 +19,9 @@
 
 #include "DkPakFileSystem.h"
 
+#include "Error.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/ReaderException.h"
 
 #include <kdl/result.h>
@@ -43,7 +43,7 @@ static const std::string HeaderMagic = "PACK";
 
 namespace
 {
-kdl::result<std::unique_ptr<char[]>, FileSystemError> decompress(
+kdl::result<std::unique_ptr<char[]>, Error> decompress(
   std::shared_ptr<File> file, const size_t uncompressedSize)
 {
   try
@@ -104,12 +104,12 @@ kdl::result<std::unique_ptr<char[]>, FileSystemError> decompress(
   }
   catch (const ReaderException& e)
   {
-    return FileSystemError{e.what()};
+    return Error{e.what()};
   }
 }
 } // namespace
 
-kdl::result<void, FileSystemError> DkPakFileSystem::doReadDirectory()
+kdl::result<void, Error> DkPakFileSystem::doReadDirectory()
 {
   try
   {
@@ -139,7 +139,7 @@ kdl::result<void, FileSystemError> DkPakFileSystem::doReadDirectory()
         addFile(
           entryPath,
           [entryFile = std::move(entryFile),
-           uncompressedSize]() -> kdl::result<std::shared_ptr<File>, FileSystemError> {
+           uncompressedSize]() -> kdl::result<std::shared_ptr<File>, Error> {
             return decompress(entryFile, uncompressedSize).transform([&](auto data) {
               return std::static_pointer_cast<File>(
                 std::make_shared<OwningBufferFile>(std::move(data), uncompressedSize));
@@ -155,7 +155,7 @@ kdl::result<void, FileSystemError> DkPakFileSystem::doReadDirectory()
   }
   catch (const ReaderException& e)
   {
-    return FileSystemError{e.what()};
+    return Error{e.what()};
   }
 }
 } // namespace TrenchBroom::IO

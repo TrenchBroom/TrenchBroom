@@ -27,10 +27,13 @@
 #include <filesystem>
 #include <memory>
 
+namespace TrenchBroom
+{
+struct Error;
+}
+
 namespace TrenchBroom::IO
 {
-struct FileSystemError;
-
 /**
  * Represents an opened (logical) file. A logical file can be backed by a physical file on
  * the disk, a memory buffer, or a portion thereof. A special case is a file that is
@@ -97,7 +100,7 @@ private:
   CFile(FilePtr filePtr, size_t size);
 
 public:
-  friend kdl::result<std::shared_ptr<CFile>, FileSystemError> createCFile(
+  friend kdl::result<std::shared_ptr<CFile>, Error> createCFile(
     const std::filesystem::path& path);
 
   Reader reader() const override;
@@ -109,8 +112,7 @@ public:
   std::FILE* file() const;
 };
 
-kdl::result<std::shared_ptr<CFile>, FileSystemError> createCFile(
-  const std::filesystem::path& path);
+kdl::result<std::shared_ptr<CFile>, Error> createCFile(const std::filesystem::path& path);
 
 /**
  * A file that is backed by a portion of a physical file.

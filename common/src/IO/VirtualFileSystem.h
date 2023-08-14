@@ -27,10 +27,13 @@
 #include <memory>
 #include <vector>
 
+namespace TrenchBroom
+{
+struct Error;
+}
+
 namespace TrenchBroom::IO
 {
-
-struct FileSystemError;
 
 class VirtualMountPointId
 {
@@ -59,7 +62,7 @@ private:
   std::vector<VirtualMountPoint> m_mountPoints;
 
 public:
-  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+  kdl::result<std::filesystem::path, Error> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
@@ -69,9 +72,9 @@ public:
   void unmountAll();
 
 protected:
-  kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
+  kdl::result<std::vector<std::filesystem::path>, Error> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const override;
-  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+  kdl::result<std::shared_ptr<File>, Error> doOpenFile(
     const std::filesystem::path& path) const override;
 };
 
@@ -87,26 +90,24 @@ public:
 
   using FileSystem::find;
 
-  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+  kdl::result<std::filesystem::path, Error> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
 private:
-  kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
+  kdl::result<std::vector<std::filesystem::path>, Error> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const override;
-  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+  kdl::result<std::shared_ptr<File>, Error> doOpenFile(
     const std::filesystem::path& path) const override;
 
-  kdl::result<void, FileSystemError> doCreateFile(
+  kdl::result<void, Error> doCreateFile(
     const std::filesystem::path& path, const std::string& contents) override;
-  kdl::result<bool, FileSystemError> doCreateDirectory(
-    const std::filesystem::path& path) override;
-  kdl::result<bool, FileSystemError> doDeleteFile(
-    const std::filesystem::path& path) override;
-  kdl::result<void, FileSystemError> doCopyFile(
+  kdl::result<bool, Error> doCreateDirectory(const std::filesystem::path& path) override;
+  kdl::result<bool, Error> doDeleteFile(const std::filesystem::path& path) override;
+  kdl::result<void, Error> doCopyFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
-  kdl::result<void, FileSystemError> doMoveFile(
+  kdl::result<void, Error> doMoveFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
 };

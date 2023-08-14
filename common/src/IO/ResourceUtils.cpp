@@ -32,9 +32,9 @@
 
 #include "Assets/Texture.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathQt.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/SystemPaths.h"

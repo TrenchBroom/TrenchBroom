@@ -28,16 +28,17 @@
 
 namespace TrenchBroom
 {
+struct Error;
 class Logger;
+} // namespace TrenchBroom
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Quake3Shader;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
-struct FileSystemError;
 
 /**
  * Parses Quake 3 shader scripts found in a file system and makes the shader objects
@@ -75,15 +76,14 @@ public:
     Logger& logger);
 
 private:
-  kdl::result<void, FileSystemError> doReadDirectory() override;
+  kdl::result<void, Error> doReadDirectory() override;
 
-  kdl::result<std::vector<Assets::Quake3Shader>, FileSystemError> loadShaders() const;
-  kdl::result<void, FileSystemError> linkShaders(
-    std::vector<Assets::Quake3Shader>& shaders);
+  kdl::result<std::vector<Assets::Quake3Shader>, Error> loadShaders() const;
+  kdl::result<void, Error> linkShaders(std::vector<Assets::Quake3Shader>& shaders);
   void linkTextures(
     const std::vector<std::filesystem::path>& textures,
     std::vector<Assets::Quake3Shader>& shaders);
   void linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

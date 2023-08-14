@@ -29,16 +29,17 @@
 
 namespace TrenchBroom
 {
+struct Error;
 class Logger;
+} // namespace TrenchBroom
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class FileSystem;
-struct FileSystemError;
 class WritableDiskFileSystem;
-} // namespace IO
+} // namespace TrenchBroom::IO
 
-namespace View
+namespace TrenchBroom::View
 {
 class Command;
 class MapDocument;
@@ -83,20 +84,19 @@ public:
 
 private:
   void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
-  kdl::result<IO::WritableDiskFileSystem, IO::FileSystemError> createBackupFileSystem(
+  kdl::result<IO::WritableDiskFileSystem, Error> createBackupFileSystem(
     const std::filesystem::path& mapPath) const;
-  kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> collectBackups(
+  kdl::result<std::vector<std::filesystem::path>, Error> collectBackups(
     const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const;
-  kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> thinBackups(
+  kdl::result<std::vector<std::filesystem::path>, Error> thinBackups(
     Logger& logger,
     IO::WritableDiskFileSystem& fs,
     const std::vector<std::filesystem::path>& backups) const;
-  kdl::result<void, IO::FileSystemError> cleanBackups(
+  kdl::result<void, Error> cleanBackups(
     IO::WritableDiskFileSystem& fs,
     std::vector<std::filesystem::path>& backups,
     const std::filesystem::path& mapBasename) const;
   std::filesystem::path makeBackupName(
     const std::filesystem::path& mapBasename, size_t index) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

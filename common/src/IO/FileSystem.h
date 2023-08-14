@@ -29,12 +29,15 @@
 #include <string>
 #include <vector>
 
+namespace TrenchBroom
+{
+struct Error;
+}
+
 namespace TrenchBroom::IO
 {
-
 class File;
 class FileSystem;
-struct FileSystemError;
 enum class PathInfo;
 enum class TraversalMode;
 
@@ -48,7 +51,7 @@ public:
    * @return an absolute path or an error if the given path is already an absolute path or
    * if the given path is invalid
    */
-  virtual kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+  virtual kdl::result<std::filesystem::path, Error> makeAbsolute(
     const std::filesystem::path& path) const = 0;
 
   /** Indicates whether the given path denotes a file, a directory, or is unknown.
@@ -63,20 +66,20 @@ public:
    * @param traversalMode the traversal mode
    * @param pathMatcher only return paths that satisfy this path matcher
    */
-  kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
+  kdl::result<std::vector<std::filesystem::path>, Error> find(
     const std::filesystem::path& path,
     TraversalMode traversalMode,
     const PathMatcher& pathMatcher = matchAnyPath) const;
 
   /** Open a file at the given path and return it.
    */
-  kdl::result<std::shared_ptr<File>, FileSystemError> openFile(
+  kdl::result<std::shared_ptr<File>, Error> openFile(
     const std::filesystem::path& path) const;
 
 protected:
-  virtual kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
+  virtual kdl::result<std::vector<std::filesystem::path>, Error> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const = 0;
-  virtual kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+  virtual kdl::result<std::shared_ptr<File>, Error> doOpenFile(
     const std::filesystem::path& path) const = 0;
 };
 
@@ -85,27 +88,26 @@ class WritableFileSystem : public virtual FileSystem
 public:
   ~WritableFileSystem() override;
 
-  kdl::result<void, FileSystemError> createFileAtomic(
+  kdl::result<void, Error> createFileAtomic(
     const std::filesystem::path& path, const std::string& contents);
-  kdl::result<void, FileSystemError> createFile(
+  kdl::result<void, Error> createFile(
     const std::filesystem::path& path, const std::string& contents);
-  kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& path);
-  kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path);
-  kdl::result<void, FileSystemError> copyFile(
+  kdl::result<bool, Error> createDirectory(const std::filesystem::path& path);
+  kdl::result<bool, Error> deleteFile(const std::filesystem::path& path);
+  kdl::result<void, Error> copyFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
-  kdl::result<void, FileSystemError> moveFile(
+  kdl::result<void, Error> moveFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 private:
-  virtual kdl::result<void, FileSystemError> doCreateFile(
+  virtual kdl::result<void, Error> doCreateFile(
     const std::filesystem::path& path, const std::string& contents) = 0;
-  virtual kdl::result<bool, FileSystemError> doCreateDirectory(
+  virtual kdl::result<bool, Error> doCreateDirectory(
     const std::filesystem::path& path) = 0;
-  virtual kdl::result<bool, FileSystemError> doDeleteFile(
-    const std::filesystem::path& path) = 0;
-  virtual kdl::result<void, FileSystemError> doCopyFile(
+  virtual kdl::result<bool, Error> doDeleteFile(const std::filesystem::path& path) = 0;
+  virtual kdl::result<void, Error> doCopyFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
-  virtual kdl::result<void, FileSystemError> doMoveFile(
+  virtual kdl::result<void, Error> doMoveFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
 };
 

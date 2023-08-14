@@ -843,7 +843,7 @@ TEST_CASE("Hierarchical ImageFileSystems")
   {
     CHECK(
       fs->find("", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "amnet.cfg",
           "bear.cfg",
@@ -853,7 +853,7 @@ TEST_CASE("Hierarchical ImageFileSystems")
 
     CHECK(
       fs->find("pics", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "pics/tag1.pcx",
           "pics/tag2.pcx",
@@ -861,7 +861,7 @@ TEST_CASE("Hierarchical ImageFileSystems")
 
     CHECK(
       fs->find("", TraversalMode::Recursive)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "amnet.cfg",
           "bear.cfg",
@@ -944,7 +944,7 @@ TEST_CASE("Flat ImageFileSystems")
 
     CHECK(
       fs->find("", traversalMode)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "blowjob_machine.D", "bongs2.D",          "can-o-jam.D",     "cap4can-o-jam.D",
           "coffin1.D",         "coffin2.D",         "cr8_czg_1.D",     "cr8_czg_2.D",

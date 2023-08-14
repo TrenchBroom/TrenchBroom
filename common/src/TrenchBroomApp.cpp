@@ -343,9 +343,8 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 {
   const auto checkFileExists = [&]() {
     return IO::Disk::pathInfo(path) == IO::PathInfo::File
-             ? kdl::result<void, IO::FileSystemError>{}
-             : kdl::result<void, IO::FileSystemError>{
-               IO::FileSystemError{"File not found: " + path.string()}};
+             ? kdl::result<void, Error>{}
+             : kdl::result<void, Error>{Error{"File not found: " + path.string()}};
   };
 
   auto* frame = static_cast<MapFrame*>(nullptr);
@@ -355,7 +354,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
     return checkFileExists()
       .or_else([&](const auto& e) {
         m_recentDocuments->removePath(path);
-        return kdl::result<void, IO::FileSystemError>{e};
+        return kdl::result<void, Error>{e};
       })
       .and_then([&]() { return gameFactory.detectGame(path); })
       .and_then([&](const auto& gameNameAndMapFormat) {

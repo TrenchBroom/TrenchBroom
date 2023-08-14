@@ -43,19 +43,15 @@ namespace TrenchBroom
 {
 struct Error;
 class Logger;
+} // namespace TrenchBroom
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityDefinitionFileSpec;
 class TextureManager;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace IO
-{
-struct FileSystemError;
-}
-
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 class BrushFace;
@@ -245,5 +241,4 @@ private: // subclassing interface
 
   virtual const std::vector<CompilationTool>& doCompilationTools() const = 0;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

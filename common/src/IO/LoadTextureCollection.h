@@ -29,8 +29,9 @@
 
 namespace TrenchBroom
 {
+struct Error;
 class Logger;
-}
+} // namespace TrenchBroom
 
 namespace TrenchBroom::Assets
 {
@@ -45,9 +46,8 @@ struct TextureConfig;
 namespace TrenchBroom::IO
 {
 class FileSystem;
-struct FileSystemError;
 
-kdl::result<std::vector<std::filesystem::path>, FileSystemError> findTextureCollections(
+kdl::result<std::vector<std::filesystem::path>, Error> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig);
 
 struct LoadTextureCollectionError

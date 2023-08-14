@@ -34,7 +34,6 @@
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
 #include "IO/FileFormatError.h"
-#include "IO/FileSystemError.h"
 #include "IO/GameConfigParser.h"
 #include "IO/PathInfo.h"
 #include "IO/SimpleParserStatus.h"
@@ -133,9 +132,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 template <typename T>
 static auto findLinkedGroupsRecursively(
@@ -5222,5 +5219,4 @@ void Transaction::begin(std::string name)
 {
   m_document.startTransaction(std::move(name), TransactionScope::Oneshot);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

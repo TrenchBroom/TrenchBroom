@@ -38,7 +38,6 @@
 #include "IO/ExportOptions.h"
 #include "IO/FgdParser.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/GameConfigParser.h"
 #include "IO/ImageSpriteParser.h"
 #include "IO/LoadTextureCollection.h"
@@ -80,9 +79,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 GameImpl::GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& logger)
   : m_config{config}
@@ -768,5 +765,4 @@ std::string GameImpl::readLongAttribute(
 
   return valueStr.str();
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

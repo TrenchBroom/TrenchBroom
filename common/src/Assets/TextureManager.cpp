@@ -21,8 +21,8 @@
 
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
+#include "Error.h"
 #include "Exceptions.h"
-#include "IO/FileSystemError.h"
 #include "IO/LoadTextureCollection.h"
 #include "Logger.h"
 

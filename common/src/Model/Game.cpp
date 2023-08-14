@@ -22,7 +22,6 @@
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Error.h"
 #include "IO/ExportOptions.h"
-#include "IO/FileSystemError.h"
 #include "Model/BrushFace.h"
 #include "Model/GameFactory.h"
 #include "Model/WorldNode.h"
@@ -32,9 +31,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 const std::string& Game::gameName() const
 {
@@ -227,5 +224,4 @@ const std::vector<CompilationTool>& Game::compilationTools() const
 {
   return doCompilationTools();
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

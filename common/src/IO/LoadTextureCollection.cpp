@@ -26,7 +26,6 @@
 #include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
 #include "IO/ReadDdsTexture.h"
@@ -170,7 +169,7 @@ kdl::result<ReadTextureFunc, LoadTextureCollectionError> makeReadTextureFunc(
 
 kdl_reflect_impl(LoadTextureCollectionError);
 
-kdl::result<std::vector<std::filesystem::path>, FileSystemError> findTextureCollections(
+kdl::result<std::vector<std::filesystem::path>, Error> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
   return gameFS

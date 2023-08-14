@@ -63,9 +63,9 @@ void GameFileSystem::initialize(
   }
 }
 
-kdl::result<void, IO::FileSystemError> GameFileSystem::reloadShaders()
+kdl::result<void, Error> GameFileSystem::reloadShaders()
 {
-  return m_shaderFS ? m_shaderFS->reload() : kdl::result<void, IO::FileSystemError>{};
+  return m_shaderFS ? m_shaderFS->reload() : kdl::result<void, Error>{};
 }
 
 void GameFileSystem::reloadWads(
@@ -126,7 +126,7 @@ void GameFileSystem::addFileSystemPath(const std::filesystem::path& path, Logger
 
 namespace
 {
-kdl::result<std::unique_ptr<IO::FileSystem>, IO::FileSystemError> createImageFileSystem(
+kdl::result<std::unique_ptr<IO::FileSystem>, Error> createImageFileSystem(
   const std::string& packageFormat, std::filesystem::path path)
 {
   if (kdl::ci::str_is_equal(packageFormat, "idpak"))
@@ -153,7 +153,7 @@ kdl::result<std::unique_ptr<IO::FileSystem>, IO::FileSystemError> createImageFil
       })
       .transform([](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
   }
-  return IO::FileSystemError{"Unknown package format: " + packageFormat};
+  return Error{"Unknown package format: " + packageFormat};
 }
 } // namespace
 

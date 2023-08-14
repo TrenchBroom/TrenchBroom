@@ -48,8 +48,9 @@ namespace TrenchBroom
 {
 class Color;
 struct Error;
+} // namespace TrenchBroom
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityDefinition;
 class EntityDefinitionFileSpec;
@@ -57,9 +58,9 @@ class EntityDefinitionManager;
 class EntityModelManager;
 class Texture;
 class TextureManager;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class Brush;
 class BrushFace;
@@ -78,14 +79,9 @@ class TagManager;
 class TexCoordSystemSnapshot;
 class WorldNode;
 enum class WrapStyle;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
-{
-struct FileSystemError;
-}
-
-namespace View
+namespace TrenchBroom::View
 {
 class Action;
 class Command;
@@ -846,5 +842,4 @@ public:
 private:
   void begin(std::string name);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

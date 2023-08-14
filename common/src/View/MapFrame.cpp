@@ -43,7 +43,6 @@
 #include "Exceptions.h"
 #include "FileLogger.h"
 #include "IO/ExportOptions.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathQt.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"

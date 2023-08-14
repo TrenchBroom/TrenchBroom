@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FileSystemError.h"
 #include "IO/TraversalMode.h"
 #include "TestFileSystem.h"
 
@@ -55,12 +55,8 @@ TEST_CASE("FileSystem")
 
   SECTION("makeAbsolute")
   {
-    CHECK(
-      fs.makeAbsolute("/")
-      == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
-    CHECK(
-      fs.makeAbsolute("/foo")
-      == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+    CHECK(fs.makeAbsolute("/") == kdl::result<std::filesystem::path, Error>{Error{}});
+    CHECK(fs.makeAbsolute("/foo") == kdl::result<std::filesystem::path, Error>{Error{}});
   }
 
   SECTION("pathInfo")
@@ -79,26 +75,37 @@ TEST_CASE("FileSystem")
 
   SECTION("find")
   {
+#if defined(_WIN32)
+    CHECK(
+      fs.find("c:\\", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
+        Error{"Path is absolute: 'c:\\'"}});
+    CHECK(
+      fs.find("c:\\foo", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
+        Error{"Path is absolute: 'c:\\foo'"}});
+#else
     CHECK(
       fs.find("/", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
-        FileSystemError{}});
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
+        Error{"Path is absolute: '/'"}});
     CHECK(
       fs.find("/foo", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
-        FileSystemError{}});
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
+        Error{"Path is absolute: '/foo'"}});
+#endif
     CHECK(
       fs.find("does_not_exist", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
-        FileSystemError{}});
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
+        Error{"Path does not denote a directory: 'does_not_exist'"}});
     CHECK(
       fs.find("root_file_1.map", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
-        FileSystemError{}});
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
+        Error{"Path does not denote a directory: 'root_file_1.map'"}});
 
     CHECK(
       fs.find("", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "root_file_1.map",
           "root_file_2.jpg",
@@ -107,7 +114,7 @@ TEST_CASE("FileSystem")
 
     CHECK(
       fs.find("", TraversalMode::Recursive)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "root_file_1.map",
           "root_file_2.jpg",
@@ -121,7 +128,7 @@ TEST_CASE("FileSystem")
 
     CHECK(
       fs.find("some_dir", TraversalMode::Flat)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "some_dir/nested_dir",
           "some_dir/some_dir_file_1.TXT",
@@ -130,7 +137,7 @@ TEST_CASE("FileSystem")
 
     CHECK(
       fs.find("some_dir", TraversalMode::Recursive)
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "some_dir/nested_dir",
           "some_dir/nested_dir/nested_dir_file_1.txt",
@@ -141,7 +148,7 @@ TEST_CASE("FileSystem")
 
     CHECK(
       fs.find("", TraversalMode::Recursive, makeExtensionPathMatcher({".txt", ".map"}))
-      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+      == kdl::result<std::vector<std::filesystem::path>, Error>{
         std::vector<std::filesystem::path>{
           "root_file_1.map",
           "some_dir/nested_dir/nested_dir_file_1.txt",
@@ -152,15 +159,25 @@ TEST_CASE("FileSystem")
 
   SECTION("openFile")
   {
+#if defined(_WIN32)
+    CHECK(
+      fs.openFile("c:\\")
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path is absolute: 'c:\\'"}});
+    CHECK(
+      fs.openFile("c:\\foo")
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path is absolute: 'c:\\foo'"}});
+#else
     CHECK(
       fs.openFile("/")
-      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path is absolute: '/'"}});
     CHECK(
       fs.openFile("/foo")
-      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path is absolute: '/foo'"}});
+#endif
     CHECK(
       fs.openFile("does_not_exist")
-      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+      == kdl::result<std::shared_ptr<File>, Error>{
+        Error{"File not found: 'does_not_exist'"}});
   }
 }
 

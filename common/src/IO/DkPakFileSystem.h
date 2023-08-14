@@ -26,16 +26,19 @@
 #include <filesystem>
 #include <memory>
 
+namespace TrenchBroom
+{
+struct Error;
+}
+
 namespace TrenchBroom::IO
 {
-struct FileSystemError;
-
 class DkPakFileSystem : public ImageFileSystem
 {
 public:
   using ImageFileSystem::ImageFileSystem;
 
 private:
-  kdl::result<void, FileSystemError> doReadDirectory() override;
+  kdl::result<void, Error> doReadDirectory() override;
 };
 } // namespace TrenchBroom::IO

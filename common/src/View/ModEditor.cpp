@@ -26,7 +26,6 @@
 #include <QWidget>
 
 #include "Error.h"
-#include "IO/FileSystemError.h"
 #include "Model/EntityNode.h"
 #include "Model/Game.h"
 #include "Notifier.h"
