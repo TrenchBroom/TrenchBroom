@@ -51,7 +51,8 @@ size_t OwningBufferFile::size() const
 
 namespace
 {
-auto openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
+kdl::result<CFile::FilePtr, FileSystemError> openPathAsFILE(
+  const std::filesystem::path& path, const std::string& mode)
 {
   // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
   // to open a Unicode path.
@@ -68,43 +69,43 @@ auto openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
 
   if (!file)
   {
-    throw FileSystemException{"Cannot open file " + path.string()};
+    return FileSystemError{"Cannot open file " + path.string()};
   }
 
   return std::unique_ptr<std::FILE, int (*)(std::FILE*)>{file, std::fclose};
 }
 
-size_t fileSize(std::FILE* file)
+kdl::result<size_t, FileSystemError> fileSize(std::FILE* file)
 {
   const auto pos = std::ftell(file);
   if (pos < 0)
   {
-    throw FileSystemException("ftell failed");
+    return FileSystemError{"ftell failed"};
   }
 
   if (std::fseek(file, 0, SEEK_END) != 0)
   {
-    throw FileSystemException("fseek failed");
+    return FileSystemError{"fseek failed"};
   }
 
   const auto size = std::ftell(file);
   if (size < 0)
   {
-    throw FileSystemException("ftell failed");
+    return FileSystemError{"ftell failed"};
   }
 
   if (std::fseek(file, pos, SEEK_SET) != 0)
   {
-    throw FileSystemException("fseek failed");
+    return FileSystemError{"fseek failed"};
   }
 
   return static_cast<size_t>(size);
 }
 } // namespace
 
-CFile::CFile(const std::filesystem::path& path)
-  : m_file{openPathAsFILE(path, "rb")}
-  , m_size{fileSize(m_file.get())}
+CFile::CFile(FilePtr filePtr, const size_t size)
+  : m_file{std::move(filePtr)}
+  , m_size{size}
 {
 }
 
@@ -121,6 +122,17 @@ size_t CFile::size() const
 std::FILE* CFile::file() const
 {
   return m_file.get();
+}
+
+kdl::result<std::shared_ptr<CFile>, FileSystemError> createCFile(
+  const std::filesystem::path& path)
+{
+  return openPathAsFILE(path, "rb").and_then([](auto filePtr) {
+    return fileSize(filePtr.get()).transform([&](auto size) {
+      // NOLINTNEXTLINE
+      return std::shared_ptr<CFile>{new CFile{std::move(filePtr), size}};
+    });
+  });
 }
 
 FileView::FileView(std::shared_ptr<File> file, const size_t offset, const size_t length)

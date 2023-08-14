@@ -174,13 +174,13 @@ TEST_CASE("DiskIO")
 
     CHECK(
       Disk::openFile("asdf/bleh")
-      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+      == kdl::result<std::shared_ptr<CFile>, FileSystemError>{FileSystemError{}});
     CHECK(
       Disk::openFile(env.dir() / "does/not/exist")
-      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+      == kdl::result<std::shared_ptr<CFile>, FileSystemError>{FileSystemError{}});
     CHECK(
       Disk::openFile(env.dir() / "does_not_exist.txt")
-      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+      == kdl::result<std::shared_ptr<CFile>, FileSystemError>{FileSystemError{}});
 
     auto file = Disk::openFile(env.dir() / "test.txt");
     CHECK(file.is_success());

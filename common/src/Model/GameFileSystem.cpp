@@ -23,6 +23,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/DkPakFileSystem.h"
+#include "IO/File.h"
 #include "IO/IdPakFileSystem.h"
 #include "IO/PathInfo.h"
 #include "IO/Quake3ShaderFileSystem.h"
@@ -148,17 +149,26 @@ kdl::result<std::unique_ptr<IO::FileSystem>, IO::FileSystemError> createImageFil
 {
   if (kdl::ci::str_is_equal(packageFormat, "idpak"))
   {
-    return IO::createImageFileSystem<IO::IdPakFileSystem>(std::move(path))
+    return IO::Disk::openFile(path)
+      .and_then([](auto file) {
+        return IO::createImageFileSystem<IO::IdPakFileSystem>(std::move(file));
+      })
       .transform([](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
   }
   else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
   {
-    return IO::createImageFileSystem<IO::DkPakFileSystem>(std::move(path))
+    return IO::Disk::openFile(path)
+      .and_then([](auto file) {
+        return IO::createImageFileSystem<IO::DkPakFileSystem>(std::move(file));
+      })
       .transform([](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
   }
   else if (kdl::ci::str_is_equal(packageFormat, "zip"))
   {
-    return IO::createImageFileSystem<IO::ZipFileSystem>(std::move(path))
+    return IO::Disk::openFile(path)
+      .and_then([](auto file) {
+        return IO::createImageFileSystem<IO::ZipFileSystem>(std::move(file));
+      })
       .transform([](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
   }
   return IO::FileSystemError{"Unknown package format: " + packageFormat};
@@ -232,7 +242,10 @@ void GameFileSystem::mountWads(
   {
     const auto mountPath = rootPath / wadPath.filename();
     const auto resolvedWadPath = IO::Disk::resolvePath(wadSearchPaths, wadPath);
-    IO::createImageFileSystem<IO::WadFileSystem>(resolvedWadPath)
+    IO::Disk::openFile(resolvedWadPath)
+      .and_then([](auto file) {
+        return IO::createImageFileSystem<IO::WadFileSystem>(std::move(file));
+      })
       .transform(
         [&](auto fs) { m_wadMountPoints.push_back(mount(mountPath, std::move(fs))); })
       .transform_error([&](auto e) {

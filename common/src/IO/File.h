@@ -84,20 +84,21 @@ public:
  */
 class CFile : public File
 {
-private:
+public:
   using FilePtr = std::unique_ptr<std::FILE, int (*)(std::FILE*)>;
+
+private:
   FilePtr m_file;
   size_t m_size;
 
-public:
   /**
-   * Creates a new file with the given path and opens the file for reading.
-   *
-   * @param path the path of the file
-   *
-   * @throw FileSystemException if the file cannot be opened
+   * Creates a new file with the given file ptr and size in bytes.
    */
-  explicit CFile(const std::filesystem::path& path);
+  CFile(FilePtr filePtr, size_t size);
+
+public:
+  friend kdl::result<std::shared_ptr<CFile>, FileSystemError> createCFile(
+    const std::filesystem::path& path);
 
   Reader reader() const override;
   size_t size() const override;
@@ -107,6 +108,9 @@ public:
    */
   std::FILE* file() const;
 };
+
+kdl::result<std::shared_ptr<CFile>, FileSystemError> createCFile(
+  const std::filesystem::path& path);
 
 /**
  * A file that is backed by a portion of a physical file.

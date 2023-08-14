@@ -55,10 +55,9 @@ struct ImageDirectoryEntry
 class ImageFileSystemBase : public FileSystem
 {
 protected:
-  std::filesystem::path m_path;
   ImageEntry m_root;
 
-  explicit ImageFileSystemBase(std::filesystem::path path);
+  ImageFileSystemBase();
 
 public:
   ~ImageFileSystemBase() override;
@@ -91,7 +90,7 @@ protected:
   std::shared_ptr<CFile> m_file;
 
 public:
-  explicit ImageFileSystem(std::filesystem::path path);
+  explicit ImageFileSystem(std::shared_ptr<CFile> file);
 };
 
 template <typename T, typename... Args>

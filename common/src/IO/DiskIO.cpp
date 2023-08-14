@@ -29,9 +29,7 @@
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
-namespace TrenchBroom::IO
-{
-namespace Disk
+namespace TrenchBroom::IO::Disk
 {
 
 namespace
@@ -142,7 +140,7 @@ kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
   return kdl::vec_filter(result, [&](const auto& p) { return pathMatcher(p, pathInfo); });
 }
 
-kdl::result<std::shared_ptr<File>, FileSystemError> openFile(
+kdl::result<std::shared_ptr<CFile>, FileSystemError> openFile(
   const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
@@ -151,7 +149,7 @@ kdl::result<std::shared_ptr<File>, FileSystemError> openFile(
     return FileSystemError{"File not found: '" + fixedPath.string() + "'"};
   }
 
-  return std::make_shared<CFile>(fixedPath);
+  return createCFile(fixedPath);
 }
 
 kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& path)
@@ -282,5 +280,4 @@ std::filesystem::path resolvePath(
   return {};
 }
 
-} // namespace Disk
-} // namespace TrenchBroom::IO
+} // namespace TrenchBroom::IO::Disk

@@ -46,8 +46,7 @@ Quake3ShaderFileSystem::Quake3ShaderFileSystem(
   std::filesystem::path shaderSearchPath,
   std::vector<std::filesystem::path> textureSearchPaths,
   Logger& logger)
-  : ImageFileSystemBase{std::filesystem::path{}}
-  , m_fs{fs}
+  : m_fs{fs}
   , m_shaderSearchPath{std::move(shaderSearchPath)}
   , m_textureSearchPaths{std::move(textureSearchPaths)}
   , m_logger{logger}

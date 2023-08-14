@@ -79,7 +79,7 @@ TEST_CASE("readIdMipTexture")
 
   const auto wadPath =
     std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg.wad";
-  auto wadFS = WadFileSystem{wadPath};
+  auto wadFS = WadFileSystem{Disk::openFile(wadPath).value()};
   REQUIRE(wadFS.reload().is_success());
 
   const auto file = wadFS.openFile(textureName + ".D").value();
@@ -107,7 +107,7 @@ TEST_CASE("readHlMipTexture")
   auto logger = TestLogger{};
 
   const auto wadPath = std::filesystem::current_path() / "fixture/test/IO/HL/hl.wad";
-  auto wadFS = WadFileSystem{wadPath};
+  auto wadFS = WadFileSystem{Disk::openFile(wadPath).value()};
   REQUIRE(wadFS.reload().is_success());
 
   const auto file = wadFS.openFile(textureName + ".C").value();

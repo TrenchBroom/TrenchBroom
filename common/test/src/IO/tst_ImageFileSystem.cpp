@@ -26,6 +26,7 @@
 #include "IO/TraversalMode.h"
 #include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
+#include "TestUtils.h"
 
 #include <filesystem>
 
@@ -822,12 +823,9 @@ TEST_CASE("Hierarchical ImageFileSystems")
   const auto fsTestPath = std::filesystem::current_path() / "fixture/test/IO/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
-      {"IdPakFileSystem",
-       createImageFileSystem<IdPakFileSystem>(fsTestPath / "Pak/idpak.pak").value()},
-      {"DkPakFileSystem",
-       createImageFileSystem<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak").value()},
-      {"ZipFileSystem",
-       createImageFileSystem<ZipFileSystem>(fsTestPath / "Zip/zip.zip").value()},
+      {"IdPakFileSystem", openFS<IdPakFileSystem>(fsTestPath / "Pak/idpak.pak")},
+      {"DkPakFileSystem", openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak")},
+      {"ZipFileSystem", openFS<ZipFileSystem>(fsTestPath / "Zip/zip.zip")},
     }));
 
   CAPTURE(name);
@@ -926,8 +924,7 @@ TEST_CASE("Flat ImageFileSystems")
   const auto fsTestPath = std::filesystem::current_path() / "fixture/test/IO/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
-      {"WadFileSystem",
-       createImageFileSystem<WadFileSystem>(fsTestPath / "Wad/cr8_czg.wad").value()},
+      {"WadFileSystem", openFS<WadFileSystem>(fsTestPath / "Wad/cr8_czg.wad")},
     }));
 
   CAPTURE(name);

@@ -81,7 +81,9 @@ kdl::result<std::vector<std::filesystem::path>, FileSystemError> DiskFileSystem:
 kdl::result<std::shared_ptr<File>, FileSystemError> DiskFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
-  return makeAbsolute(path).and_then(Disk::openFile);
+  return makeAbsolute(path).and_then(Disk::openFile).transform([](auto cFile) {
+    return std::static_pointer_cast<File>(cFile);
+  });
 }
 
 WritableDiskFileSystem::WritableDiskFileSystem(const std::filesystem::path& root)

@@ -20,6 +20,8 @@
 #pragma once
 
 #include "FloatType.h"
+#include "IO/DiskIO.h"
+#include "IO/ImageFileSystem.h"
 #include "Model/MapFormat.h"
 
 #include <kdl/vector_set.h>
@@ -51,8 +53,18 @@ bool UVListsEqual(
 
 namespace IO
 {
-std::string readTextFile(const std::filesystem::path& path);
+
+template <typename FS>
+auto openFS(const std::filesystem::path& path)
+{
+  return Disk::openFile(path)
+    .and_then([](auto file) { return createImageFileSystem<FS>(std::move(file)); })
+    .value();
 }
+
+std::string readTextFile(const std::filesystem::path& path);
+
+} // namespace IO
 
 namespace Model
 {

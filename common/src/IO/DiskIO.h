@@ -33,6 +33,7 @@
 namespace TrenchBroom::IO
 {
 enum class TraversalMode;
+class CFile;
 class File;
 enum class PathInfo;
 
@@ -49,7 +50,7 @@ kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
   TraversalMode traversalMode,
   const PathMatcher& pathMatcher = matchAnyPath);
 
-kdl::result<std::shared_ptr<File>, FileSystemError> openFile(
+kdl::result<std::shared_ptr<CFile>, FileSystemError> openFile(
   const std::filesystem::path& path);
 
 template <typename Stream, typename F>

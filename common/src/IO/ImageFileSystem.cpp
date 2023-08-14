@@ -33,9 +33,7 @@
 #include <cassert>
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 namespace
@@ -172,9 +170,8 @@ ImageDirectoryEntry& findOrCreateDirectory(
 }
 } // namespace
 
-ImageFileSystemBase::ImageFileSystemBase(std::filesystem::path path)
-  : m_path{std::move(path)}
-  , m_root{ImageDirectoryEntry{{}, {}}}
+ImageFileSystemBase::ImageFileSystemBase()
+  : m_root{ImageDirectoryEntry{{}, {}}}
 {
 }
 
@@ -279,11 +276,9 @@ kdl::result<std::shared_ptr<File>, FileSystemError> ImageFileSystemBase::doOpenF
       FileSystemError{"File not found: '" + path.string() + "'"}});
 }
 
-ImageFileSystem::ImageFileSystem(std::filesystem::path path)
-  : ImageFileSystemBase{std::move(path)}
-  , m_file{std::make_shared<CFile>(m_path)}
+ImageFileSystem::ImageFileSystem(std::shared_ptr<CFile> file)
+  : m_file{std::move(file)}
 {
-  ensure(m_path.is_absolute(), "path must be absolute");
+  ensure(m_file, "file must not be null");
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

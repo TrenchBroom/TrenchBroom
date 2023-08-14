@@ -40,6 +40,7 @@
 #include "Model/GameConfig.h"
 #include "Model/GameError.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <kdl/result.h>
 #include <kdl/string_utils.h>
@@ -235,8 +236,7 @@ void TestGame::doReloadWads(
   {
     const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
     m_fs->mount(
-      "textures" / wadPath.filename(),
-      IO::createImageFileSystem<IO::WadFileSystem>(absoluteWadPath).value());
+      "textures" / wadPath.filename(), IO::openFS<IO::WadFileSystem>(absoluteWadPath));
   }
 }
 
