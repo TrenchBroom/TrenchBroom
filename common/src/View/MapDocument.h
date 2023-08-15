@@ -28,9 +28,8 @@
 #include "Model/PortalFile.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
+#include "Result.h"
 #include "View/CachingLogger.h"
-
-#include <kdl/result_forward.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
@@ -47,7 +46,6 @@
 namespace TrenchBroom
 {
 class Color;
-struct Error;
 } // namespace TrenchBroom
 
 namespace TrenchBroom::Assets
@@ -297,11 +295,11 @@ private: // tag and entity definition actions
   void createEntityDefinitionActions();
 
 public: // new, load, save document
-  kdl::result<void, Error> newDocument(
+  Result<void> newDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  kdl::result<void, Error> loadDocument(
+  Result<void> loadDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,
@@ -309,7 +307,7 @@ public: // new, load, save document
   void saveDocument();
   void saveDocumentAs(const std::filesystem::path& path);
   void saveDocumentTo(const std::filesystem::path& path);
-  kdl::result<void, Error> exportDocumentAs(const IO::ExportOptions& options);
+  Result<void> exportDocumentAs(const IO::ExportOptions& options);
 
 private:
   void doSaveDocument(const std::filesystem::path& path);
@@ -687,11 +685,11 @@ public: // picking
   std::vector<Model::Node*> findNodesContaining(const vm::vec3& point) const;
 
 private: // world management
-  kdl::result<void, Error> createWorld(
+  Result<void> createWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  kdl::result<void, Error> loadWorld(
+  Result<void> loadWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,

@@ -76,7 +76,7 @@ static std::vector<const Node*> collectNodesToCloneAndTransform(const Node& node
   return result;
 }
 
-static kdl::result<std::unique_ptr<Node>, Error> cloneAndTransformRecursive(
+static Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
   const Node* nodeToClone,
   std::unordered_map<const Node*, NodeContents>& origNodeToTransformedContents,
   const vm::bbox3& worldBounds)
@@ -134,12 +134,12 @@ static kdl::result<std::unique_ptr<Node>, Error> cloneAndTransformRecursive(
  *
  * Returns a vector of the cloned direct children of `node`.
  */
-static kdl::result<std::vector<std::unique_ptr<Node>>, Error> cloneAndTransformChildren(
+static Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
   const Node& node, const vm::bbox3& worldBounds, const vm::mat4x4& transformation)
 {
   auto nodesToClone = collectNodesToCloneAndTransform(node);
 
-  using TransformResult = kdl::result<std::pair<const Node*, NodeContents>, Error>;
+  using TransformResult = Result<std::pair<const Node*, NodeContents>>;
 
   // In parallel, produce pairs { node pointer, transformed contents } from the nodes in
   // `nodesToClone`
@@ -178,13 +178,12 @@ static kdl::result<std::vector<std::unique_ptr<Node>>, Error> cloneAndTransformC
 
   return kdl::fold_results(std::move(transformResults))
     .or_else(
-      [](const auto&)
-        -> kdl::result<std::vector<std::pair<const Node*, NodeContents>>, Error> {
+      [](const auto&) -> Result<std::vector<std::pair<const Node*, NodeContents>>> {
         return Error{"Failed to transform a linked node"};
       })
     .and_then(
       [&](auto origNodeAndTransformedContents)
-        -> kdl::result<std::vector<std::unique_ptr<Node>>, Error> {
+        -> Result<std::vector<std::unique_ptr<Node>>> {
         // Move into map for easier lookup
         auto resultsMap = std::unordered_map<const Node*, NodeContents>{
           origNodeAndTransformedContents.begin(), origNodeAndTransformedContents.end()};
@@ -308,7 +307,7 @@ static void preserveEntityProperties(
   }
 }
 
-kdl::result<UpdateLinkedGroupsResult, Error> updateLinkedGroups(
+Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
   const std::vector<Model::GroupNode*>& targetGroupNodes,
   const vm::bbox3& worldBounds)

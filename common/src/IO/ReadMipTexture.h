@@ -20,6 +20,7 @@
 #pragma once
 
 #include "IO/TextureUtils.h"
+#include "Result.h"
 
 #include <string>
 
@@ -34,10 +35,10 @@ class Reader;
 
 std::string readMipTextureName(Reader& reader);
 
-kdl::result<Assets::Texture, ReadTextureError> readIdMipTexture(
+Result<Assets::Texture, ReadTextureError> readIdMipTexture(
   std::string name, Reader& reader, const Assets::Palette& palette);
 
-kdl::result<Assets::Texture, ReadTextureError> readHlMipTexture(
+Result<Assets::Texture, ReadTextureError> readHlMipTexture(
   std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO

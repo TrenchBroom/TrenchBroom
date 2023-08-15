@@ -20,8 +20,7 @@
 #pragma once
 
 #include "IO/TextureUtils.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <string>
 
@@ -32,7 +31,6 @@ class Reader;
 /**
  * Heretic 2 .m8 format
  */
-kdl::result<Assets::Texture, ReadTextureError> readM8Texture(
-  std::string name, Reader& reader);
+Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO

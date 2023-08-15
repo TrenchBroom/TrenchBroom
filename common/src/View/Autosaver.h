@@ -20,8 +20,7 @@
 #pragma once
 
 #include "IO/FileSystem.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <chrono>
 #include <filesystem>
@@ -29,7 +28,6 @@
 
 namespace TrenchBroom
 {
-struct Error;
 class Logger;
 } // namespace TrenchBroom
 
@@ -84,15 +82,15 @@ public:
 
 private:
   void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
-  kdl::result<IO::WritableDiskFileSystem, Error> createBackupFileSystem(
+  Result<IO::WritableDiskFileSystem> createBackupFileSystem(
     const std::filesystem::path& mapPath) const;
-  kdl::result<std::vector<std::filesystem::path>, Error> collectBackups(
+  Result<std::vector<std::filesystem::path>> collectBackups(
     const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const;
-  kdl::result<std::vector<std::filesystem::path>, Error> thinBackups(
+  Result<std::vector<std::filesystem::path>> thinBackups(
     Logger& logger,
     IO::WritableDiskFileSystem& fs,
     const std::vector<std::filesystem::path>& backups) const;
-  kdl::result<void, Error> cleanBackups(
+  Result<void> cleanBackups(
     IO::WritableDiskFileSystem& fs,
     std::vector<std::filesystem::path>& backups,
     const std::filesystem::path& mapBasename) const;

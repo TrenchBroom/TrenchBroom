@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <map>
@@ -27,22 +27,18 @@
 #include <vector>
 
 
-namespace TrenchBroom
-{
-struct Error;
-
-namespace IO
+namespace TrenchBroom::IO
 {
 class EntityDefinitionLoader;
 class ParserStatus;
-} // namespace IO
+} // namespace TrenchBroom::IO
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 }
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityDefinition;
 class EntityDefinitionGroup;
@@ -60,7 +56,7 @@ private:
 public:
   ~EntityDefinitionManager();
 
-  kdl::result<void, Error> loadDefinitions(
+  Result<void> loadDefinitions(
     const std::filesystem::path& path,
     const IO::EntityDefinitionLoader& loader,
     IO::ParserStatus& status);
@@ -82,5 +78,4 @@ private:
   void clearCache();
   void clearGroups();
 };
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

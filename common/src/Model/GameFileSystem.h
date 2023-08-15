@@ -20,6 +20,7 @@
 #pragma once
 
 #include "IO/VirtualFileSystem.h"
+#include "Result.h"
 
 #include <filesystem>
 #include <memory>
@@ -28,13 +29,14 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class Quake3ShaderFileSystem;
-} // namespace IO
+} // namespace TrenchBroom::IO
 
-namespace Model
+namespace TrenchBroom::Model
 {
 struct GameConfig;
 
@@ -50,7 +52,7 @@ public:
     const std::filesystem::path& gamePath,
     const std::vector<std::filesystem::path>& additionalSearchPaths,
     Logger& logger);
-  kdl::result<void, Error> reloadShaders();
+  Result<void> reloadShaders();
   void reloadWads(
     const std::filesystem::path& rootPath,
     const std::vector<std::filesystem::path>& wadSearchPaths,
@@ -76,5 +78,4 @@ private:
     Logger& logger);
   void unmountWads();
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

@@ -61,7 +61,7 @@ UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(
 
 UpdateLinkedGroupsHelper::~UpdateLinkedGroupsHelper() = default;
 
-kdl::result<void, Error> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(
+Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(
   MapDocumentCommandFacade& document)
 {
   return computeLinkedGroupUpdates(document).transform(
@@ -107,7 +107,7 @@ void UpdateLinkedGroupsHelper::collateWith(UpdateLinkedGroupsHelper& other)
   }
 }
 
-kdl::result<void, Error> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
+Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
   MapDocumentCommandFacade& document)
 {
   return std::visit(
@@ -118,15 +118,13 @@ kdl::result<void, Error> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
             m_state = std::forward<decltype(linkedGroupUpdates)>(linkedGroupUpdates);
           });
       },
-      [](const LinkedGroupUpdates&) -> kdl::result<void, Error> {
-        return kdl::void_success;
-      }),
+      [](const LinkedGroupUpdates&) -> Result<void> { return kdl::void_success; }),
     m_state);
 }
 
-kdl::result<UpdateLinkedGroupsHelper::LinkedGroupUpdates, Error>
-UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
-  const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document)
+Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
+  computeLinkedGroupUpdates(
+    const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document)
 {
   if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
@@ -146,7 +144,7 @@ UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
                return Model::updateLinkedGroups(
                  *groupNode, groupNodesToUpdate, worldBounds);
              }))
-    .and_then([&](auto&& nestedUpdateLists) -> kdl::result<LinkedGroupUpdates, Error> {
+    .and_then([&](auto&& nestedUpdateLists) -> Result<LinkedGroupUpdates> {
       return kdl::vec_flatten(std::move(nestedUpdateLists));
     });
 }

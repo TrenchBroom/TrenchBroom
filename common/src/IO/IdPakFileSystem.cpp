@@ -30,9 +30,7 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 namespace PakLayout
 {
@@ -43,7 +41,7 @@ static const size_t EntryNameLength = 0x38;
 static const std::string HeaderMagic = "PACK";
 } // namespace PakLayout
 
-kdl::result<void, Error> IdPakFileSystem::doReadDirectory()
+Result<void> IdPakFileSystem::doReadDirectory()
 {
   try
   {
@@ -69,9 +67,9 @@ kdl::result<void, Error> IdPakFileSystem::doReadDirectory()
       auto entryFile = std::static_pointer_cast<File>(
         std::make_shared<FileView>(m_file, entryAddress, entrySize));
       addFile(
-        entryPath,
-        [entryFile = std::move(entryFile)]()
-          -> kdl::result<std::shared_ptr<File>, Error> { return entryFile; });
+        entryPath, [entryFile = std::move(entryFile)]() -> Result<std::shared_ptr<File>> {
+          return entryFile;
+        });
     }
 
     return kdl::void_success;
@@ -81,5 +79,4 @@ kdl::result<void, Error> IdPakFileSystem::doReadDirectory()
     return Error{e.what()};
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

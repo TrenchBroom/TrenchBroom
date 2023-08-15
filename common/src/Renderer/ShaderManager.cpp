@@ -35,9 +35,9 @@
 namespace TrenchBroom::Renderer
 {
 
-kdl::result<void, Error> ShaderManager::loadProgram(const ShaderConfig& config)
+Result<void> ShaderManager::loadProgram(const ShaderConfig& config)
 {
-  return createProgram(config).and_then([&](auto program) -> kdl::result<void, Error> {
+  return createProgram(config).and_then([&](auto program) -> Result<void> {
     if (!m_programs.emplace(config.name(), std::move(program)).second)
     {
       return Error{"Shader program '" + config.name() + "' already loaded"};
@@ -63,7 +63,7 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
   m_currentProgram = program;
 }
 
-kdl::result<ShaderProgram, Error> ShaderManager::createProgram(const ShaderConfig& config)
+Result<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
 {
   return createShaderProgram(config.name())
     .and_then([&](auto program) {
@@ -92,7 +92,7 @@ kdl::result<ShaderProgram, Error> ShaderManager::createProgram(const ShaderConfi
     });
 }
 
-kdl::result<std::reference_wrapper<Shader>, Error> ShaderManager::loadShader(
+Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
   const std::string& name, const GLenum type)
 {
   auto it = m_shaders.find(name);

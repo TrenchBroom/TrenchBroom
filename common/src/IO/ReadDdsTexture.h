@@ -22,8 +22,7 @@
 
 #include "IO/TextureUtils.h"
 #include "Renderer/GL.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <string>
 
@@ -31,7 +30,7 @@ namespace TrenchBroom::IO
 {
 class Reader;
 
-kdl::result<Assets::Texture, ReadTextureError> readDdsTexture(
+Result<Assets::Texture, ReadTextureError> readDdsTexture(
   std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO

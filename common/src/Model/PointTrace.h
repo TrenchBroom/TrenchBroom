@@ -19,19 +19,15 @@
 
 #pragma once
 
+#include "Result.h"
+
 #include <kdl/reflection_decl.h>
-#include <kdl/result_forward.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
 #include <iosfwd>
 #include <vector>
-
-namespace TrenchBroom
-{
-struct Error;
-} // namespace TrenchBroom
 
 namespace TrenchBroom::Model
 {
@@ -57,5 +53,5 @@ public:
   kdl_reflect_decl(PointTrace, m_points, m_current);
 };
 
-kdl::result<PointTrace, Error> loadPointFile(std::istream& stream);
+Result<PointTrace> loadPointFile(std::istream& stream);
 } // namespace TrenchBroom::Model

@@ -259,7 +259,7 @@ struct NodeError
 } // namespace
 
 /** This is the result returned from functions that create nodes. */
-using CreateNodeResult = kdl::result<NodeInfo, NodeError>;
+using CreateNodeResult = Result<NodeInfo, NodeError>;
 
 /**
  * Extracts container info (either a layer or a group ID) from the given entity properties

@@ -159,7 +159,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
             }));
         });
       }
-      return kdl::result<void, Error>{};
+      return Result<void>{};
     })
     .transform([&]() { emit end(); })
     .transform_error([&](auto e) {
@@ -240,7 +240,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
       {
         return kdl::fold_results(kdl::vec_transform(pathsToDelete, IO::Disk::deleteFile));
       }
-      return kdl::result<std::vector<bool>, Error>{std::vector<bool>{}};
+      return Result<std::vector<bool>>{std::vector<bool>{}};
     })
     .transform([&](auto) { emit end(); })
     .transform_error([&](auto e) {

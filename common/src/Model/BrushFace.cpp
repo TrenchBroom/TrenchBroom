@@ -122,7 +122,7 @@ BrushFace::~BrushFace() = default;
 
 kdl_reflect_impl(BrushFace);
 
-kdl::result<BrushFace, Error> BrushFace::create(
+Result<BrushFace> BrushFace::create(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -145,7 +145,7 @@ kdl::result<BrushFace, Error> BrushFace::create(
                point0, point1, point2, attributes));
 }
 
-kdl::result<BrushFace, Error> BrushFace::createFromStandard(
+Result<BrushFace> BrushFace::createFromStandard(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -174,7 +174,7 @@ kdl::result<BrushFace, Error> BrushFace::createFromStandard(
   return BrushFace::create(point0, point1, point2, attribs, std::move(texCoordSystem));
 }
 
-kdl::result<BrushFace, Error> BrushFace::createFromValve(
+Result<BrushFace> BrushFace::createFromValve(
   const vm::vec3& point1,
   const vm::vec3& point2,
   const vm::vec3& point3,
@@ -204,7 +204,7 @@ kdl::result<BrushFace, Error> BrushFace::createFromValve(
   return BrushFace::create(point1, point2, point3, attribs, std::move(texCoordSystem));
 }
 
-kdl::result<BrushFace, Error> BrushFace::create(
+Result<BrushFace> BrushFace::create(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -642,8 +642,7 @@ void BrushFace::flipTexture(
   }
 }
 
-kdl::result<void, Error> BrushFace::transform(
-  const vm::mat4x4& transform, const bool lockTexture)
+Result<void> BrushFace::transform(const vm::mat4x4& transform, const bool lockTexture)
 {
   using std::swap;
 
@@ -683,7 +682,7 @@ void BrushFace::invert()
   swap(m_points[1], m_points[2]);
 }
 
-kdl::result<void, Error> BrushFace::updatePointsFromVertices()
+Result<void> BrushFace::updatePointsFromVertices()
 {
   ensure(m_geometry != nullptr, "geometry is null");
 
@@ -863,7 +862,7 @@ FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const
   }
 }
 
-kdl::result<void, Error> BrushFace::setPoints(
+Result<void> BrushFace::setPoints(
   const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2)
 {
   m_points[0] = point0;

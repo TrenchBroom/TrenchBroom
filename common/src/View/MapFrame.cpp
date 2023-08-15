@@ -976,7 +976,7 @@ void MapFrame::bindEvents()
     &MapFrame::updateStatusBar);
 }
 
-kdl::result<bool, Error> MapFrame::newDocument(
+Result<bool> MapFrame::newDocument(
   std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat)
 {
   if (!confirmOrDiscardChanges() || !closeCompileDialog())
@@ -987,7 +987,7 @@ kdl::result<bool, Error> MapFrame::newDocument(
     .transform([]() { return true; });
 }
 
-kdl::result<bool, Error> MapFrame::openDocument(
+Result<bool> MapFrame::openDocument(
   std::shared_ptr<Model::Game> game,
   const Model::MapFormat mapFormat,
   const std::filesystem::path& path)

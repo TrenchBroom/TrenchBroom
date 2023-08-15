@@ -77,7 +77,7 @@ void Shader::attach(const GLuint programId) const
 namespace
 {
 
-kdl::result<std::vector<std::string>, Error> loadSource(const std::filesystem::path& path)
+Result<std::vector<std::string>> loadSource(const std::filesystem::path& path)
 {
   return IO::Disk::withInputStream(path, [](auto& stream) {
     std::string line;
@@ -111,8 +111,7 @@ std::string getInfoLog(const GLuint shaderId)
 
 } // namespace
 
-kdl::result<Shader, Error> loadShader(
-  const std::filesystem::path& path, const GLenum type)
+Result<Shader> loadShader(const std::filesystem::path& path, const GLenum type)
 {
   auto name = path.filename().string();
   auto shaderId = GLuint{0};
@@ -123,7 +122,7 @@ kdl::result<Shader, Error> loadShader(
     return Error{"Could not create shader " + name};
   }
 
-  return loadSource(path).and_then([&](const auto& source) -> kdl::result<Shader, Error> {
+  return loadSource(path).and_then([&](const auto& source) -> Result<Shader> {
     const auto linePtrs =
       kdl::vec_transform(source, [](const auto& line) { return line.c_str(); });
 

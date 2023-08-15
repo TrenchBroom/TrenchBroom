@@ -65,7 +65,7 @@ bool shouldExclude(
   });
 }
 
-kdl::result<Assets::Palette, Error> loadPalette(
+Result<Assets::Palette> loadPalette(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
   if (textureConfig.palette.empty())
@@ -78,10 +78,10 @@ kdl::result<Assets::Palette, Error> loadPalette(
   });
 }
 
-using ReadTextureFunc = std::function<kdl::result<Assets::Texture, ReadTextureError>(
+using ReadTextureFunc = std::function<Result<Assets::Texture, ReadTextureError>(
   const File&, const std::filesystem::path&)>;
 
-kdl::result<Assets::Texture, ReadTextureError> readTexture(
+Result<Assets::Texture, ReadTextureError> readTexture(
   const File& file,
   const std::filesystem::path& path,
   const FileSystem& gameFS,
@@ -144,13 +144,13 @@ kdl::result<Assets::Texture, ReadTextureError> readTexture(
     std::move(name), "Unknown texture file extension: " + path.extension().string()};
 }
 
-kdl::result<ReadTextureFunc, Error> makeReadTextureFunc(
+Result<ReadTextureFunc> makeReadTextureFunc(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
   return loadPalette(gameFS, textureConfig)
     .transform([](auto palette) { return std::optional{std::move(palette)}; })
     .transform_error([](auto) -> std::optional<Assets::Palette> { return std::nullopt; })
-    .and_then([&](auto palette) -> kdl::result<ReadTextureFunc, Error> {
+    .and_then([&](auto palette) -> Result<ReadTextureFunc> {
       return [&,
               palette = std::move(palette),
               prefixLength = kdl::path_length(textureConfig.root)](
@@ -162,7 +162,7 @@ kdl::result<ReadTextureFunc, Error> makeReadTextureFunc(
 
 } // namespace
 
-kdl::result<std::vector<std::filesystem::path>, Error> findTextureCollections(
+Result<std::vector<std::filesystem::path>> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
 {
   return gameFS
@@ -176,7 +176,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> findTextureCollections(
     });
 }
 
-kdl::result<Assets::TextureCollection, Error> loadTextureCollection(
+Result<Assets::TextureCollection> loadTextureCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const Model::TextureConfig& textureConfig,

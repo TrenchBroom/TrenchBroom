@@ -40,9 +40,7 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 
 void GameFileSystem::initialize(
@@ -63,9 +61,9 @@ void GameFileSystem::initialize(
   }
 }
 
-kdl::result<void, Error> GameFileSystem::reloadShaders()
+Result<void> GameFileSystem::reloadShaders()
 {
-  return m_shaderFS ? m_shaderFS->reload() : kdl::result<void, Error>{};
+  return m_shaderFS ? m_shaderFS->reload() : Result<void>{};
 }
 
 void GameFileSystem::reloadWads(
@@ -126,7 +124,7 @@ void GameFileSystem::addFileSystemPath(const std::filesystem::path& path, Logger
 
 namespace
 {
-kdl::result<std::unique_ptr<IO::FileSystem>, Error> createImageFileSystem(
+Result<std::unique_ptr<IO::FileSystem>> createImageFileSystem(
   const std::string& packageFormat, std::filesystem::path path)
 {
   if (kdl::ci::str_is_equal(packageFormat, "idpak"))
@@ -245,5 +243,4 @@ void GameFileSystem::unmountWads()
   m_wadMountPoints.clear();
 }
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

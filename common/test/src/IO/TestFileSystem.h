@@ -20,20 +20,15 @@
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/PathInfo.h"
+#include "Result.h"
 
 #include <kdl/overload.h>
 #include <kdl/reflection_decl.h>
-#include <kdl/result_forward.h>
 
 #include <filesystem>
 #include <memory>
 #include <string>
 #include <variant>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::IO
 {
@@ -74,15 +69,15 @@ private:
 public:
   explicit TestFileSystem(Entry root, std::filesystem::path absolutePathPrefix = {"/"});
 
-  kdl::result<std::filesystem::path, Error> makeAbsolute(
+  Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
 private:
   const Entry* findEntry(std::filesystem::path path) const;
-  kdl::result<std::vector<std::filesystem::path>, Error> doFind(
+  Result<std::vector<std::filesystem::path>> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const override;
-  kdl::result<std::shared_ptr<File>, Error> doOpenFile(
+  Result<std::shared_ptr<File>> doOpenFile(
     const std::filesystem::path& path) const override;
 };
 

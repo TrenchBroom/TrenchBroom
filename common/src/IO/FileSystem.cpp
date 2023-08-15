@@ -38,7 +38,7 @@ namespace TrenchBroom::IO
 
 FileSystem::~FileSystem() = default;
 
-kdl::result<std::vector<std::filesystem::path>, Error> FileSystem::find(
+Result<std::vector<std::filesystem::path>> FileSystem::find(
   const std::filesystem::path& path,
   const TraversalMode traversalMode,
   const PathMatcher& pathMatcher) const
@@ -60,7 +60,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> FileSystem::find(
   });
 }
 
-kdl::result<std::shared_ptr<File>, Error> FileSystem::openFile(
+Result<std::shared_ptr<File>> FileSystem::openFile(
   const std::filesystem::path& path) const
 {
   if (path.is_absolute())
@@ -78,7 +78,7 @@ kdl::result<std::shared_ptr<File>, Error> FileSystem::openFile(
 
 WritableFileSystem::~WritableFileSystem() = default;
 
-kdl::result<void, Error> WritableFileSystem::createFileAtomic(
+Result<void> WritableFileSystem::createFileAtomic(
   const std::filesystem::path& path, const std::string& contents)
 {
   if (path.is_absolute())
@@ -92,7 +92,7 @@ kdl::result<void, Error> WritableFileSystem::createFileAtomic(
   });
 }
 
-kdl::result<void, Error> WritableFileSystem::createFile(
+Result<void> WritableFileSystem::createFile(
   const std::filesystem::path& path, const std::string& contents)
 {
   if (path.is_absolute())
@@ -102,8 +102,7 @@ kdl::result<void, Error> WritableFileSystem::createFile(
   return doCreateFile(path, contents);
 }
 
-kdl::result<bool, Error> WritableFileSystem::createDirectory(
-  const std::filesystem::path& path)
+Result<bool> WritableFileSystem::createDirectory(const std::filesystem::path& path)
 {
   if (path.is_absolute())
   {
@@ -112,7 +111,7 @@ kdl::result<bool, Error> WritableFileSystem::createDirectory(
   return doCreateDirectory(path);
 }
 
-kdl::result<bool, Error> WritableFileSystem::deleteFile(const std::filesystem::path& path)
+Result<bool> WritableFileSystem::deleteFile(const std::filesystem::path& path)
 {
   if (path.is_absolute())
   {
@@ -121,7 +120,7 @@ kdl::result<bool, Error> WritableFileSystem::deleteFile(const std::filesystem::p
   return doDeleteFile(path);
 }
 
-kdl::result<void, Error> WritableFileSystem::copyFile(
+Result<void> WritableFileSystem::copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   if (sourcePath.is_absolute())
@@ -135,7 +134,7 @@ kdl::result<void, Error> WritableFileSystem::copyFile(
   return doCopyFile(sourcePath, destPath);
 }
 
-kdl::result<void, Error> WritableFileSystem::moveFile(
+Result<void> WritableFileSystem::moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   if (sourcePath.is_absolute())

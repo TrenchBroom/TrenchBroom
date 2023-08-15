@@ -20,16 +20,10 @@
 #pragma once
 
 #include "IO/ImageFileSystem.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <memory>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::IO
 {
@@ -39,6 +33,6 @@ public:
   using ImageFileSystem::ImageFileSystem;
 
 private:
-  kdl::result<void, Error> doReadDirectory() override;
+  Result<void> doReadDirectory() override;
 };
 } // namespace TrenchBroom::IO

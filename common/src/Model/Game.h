@@ -25,8 +25,7 @@
 #include "IO/ExportOptions.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
@@ -41,7 +40,6 @@
 
 namespace TrenchBroom
 {
-struct Error;
 class Logger;
 } // namespace TrenchBroom
 
@@ -108,17 +106,15 @@ public:
   SoftMapBounds extractSoftMapBounds(const Entity& entity) const;
 
 public: // loading and writing map files
-  kdl::result<std::unique_ptr<WorldNode>, Error> newMap(
+  Result<std::unique_ptr<WorldNode>> newMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
-  kdl::result<std::unique_ptr<WorldNode>, Error> loadMap(
+  Result<std::unique_ptr<WorldNode>> loadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const;
-  kdl::result<void, Error> writeMap(
-    WorldNode& world, const std::filesystem::path& path) const;
-  kdl::result<void, Error> exportMap(
-    WorldNode& world, const IO::ExportOptions& options) const;
+  Result<void> writeMap(WorldNode& world, const std::filesystem::path& path) const;
+  Result<void> exportMap(WorldNode& world, const IO::ExportOptions& options) const;
 
 public: // parsing and serializing objects
   std::vector<Node*> parseNodes(
@@ -145,7 +141,7 @@ public: // texture collection handling
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger);
-  kdl::result<void, Error> reloadShaders();
+  Result<void> reloadShaders();
 
 public: // entity definition handling
   bool isEntityDefinitionFile(const std::filesystem::path& path) const;
@@ -157,7 +153,7 @@ public: // entity definition handling
     const std::vector<std::filesystem::path>& searchPaths) const;
 
 public: // mods
-  kdl::result<std::vector<std::string>, Error> availableMods() const;
+  Result<std::vector<std::string>> availableMods() const;
   std::vector<std::string> extractEnabledMods(const Entity& entity) const;
   std::string defaultMod() const;
 
@@ -185,16 +181,16 @@ private: // subclassing interface
 
   virtual const std::vector<SmartTag>& doSmartTags() const = 0;
 
-  virtual kdl::result<std::unique_ptr<WorldNode>, Error> doNewMap(
+  virtual Result<std::unique_ptr<WorldNode>> doNewMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const = 0;
-  virtual kdl::result<std::unique_ptr<WorldNode>, Error> doLoadMap(
+  virtual Result<std::unique_ptr<WorldNode>> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const = 0;
-  virtual kdl::result<void, Error> doWriteMap(
+  virtual Result<void> doWriteMap(
     WorldNode& world, const std::filesystem::path& path) const = 0;
-  virtual kdl::result<void, Error> doExportMap(
+  virtual Result<void> doExportMap(
     WorldNode& world, const IO::ExportOptions& options) const = 0;
 
   virtual std::vector<Node*> doParseNodes(
@@ -220,7 +216,7 @@ private: // subclassing interface
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) = 0;
-  virtual kdl::result<void, Error> doReloadShaders() = 0;
+  virtual Result<void> doReloadShaders() = 0;
 
   virtual bool doIsEntityDefinitionFile(const std::filesystem::path& path) const = 0;
   virtual std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
@@ -231,7 +227,7 @@ private: // subclassing interface
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
-  virtual kdl::result<std::vector<std::string>, Error> doAvailableMods() const = 0;
+  virtual Result<std::vector<std::string>> doAvailableMods() const = 0;
   virtual std::vector<std::string> doExtractEnabledMods(const Entity& entity) const = 0;
   virtual std::string doDefaultMod() const = 0;
 

@@ -22,8 +22,7 @@
 #include "FloatType.h"
 #include "Model/Game.h"
 #include "Model/GameFileSystem.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <memory>
@@ -33,7 +32,6 @@
 
 namespace TrenchBroom
 {
-struct Error;
 class Logger;
 } // namespace TrenchBroom
 
@@ -78,18 +76,18 @@ private:
 
   const std::vector<SmartTag>& doSmartTags() const override;
 
-  kdl::result<std::unique_ptr<WorldNode>, Error> doNewMap(
+  Result<std::unique_ptr<WorldNode>> doNewMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
-  kdl::result<std::unique_ptr<WorldNode>, Error> doLoadMap(
+  Result<std::unique_ptr<WorldNode>> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const override;
-  kdl::result<void, Error> doWriteMap(
+  Result<void> doWriteMap(
     WorldNode& world, const std::filesystem::path& path, bool exporting) const;
-  kdl::result<void, Error> doWriteMap(
+  Result<void> doWriteMap(
     WorldNode& world, const std::filesystem::path& path) const override;
-  kdl::result<void, Error> doExportMap(
+  Result<void> doExportMap(
     WorldNode& world, const IO::ExportOptions& options) const override;
 
   std::vector<Node*> doParseNodes(
@@ -119,10 +117,10 @@ private:
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) override;
-  kdl::result<void, Error> doReloadShaders() override;
+  Result<void> doReloadShaders() override;
 
   bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
-  kdl::result<std::vector<Assets::EntityDefinition*>, Error> doLoadEntityDefinitions(
+  Result<std::vector<Assets::EntityDefinition*>> doLoadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
     const override;
@@ -141,9 +139,9 @@ private:
     Assets::EntityModel& model,
     Logger& logger) const override;
 
-  kdl::result<Assets::Palette, Error> loadTexturePalette() const;
+  Result<Assets::Palette> loadTexturePalette() const;
 
-  kdl::result<std::vector<std::string>, Error> doAvailableMods() const override;
+  Result<std::vector<std::string>> doAvailableMods() const override;
   std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
   std::string doDefaultMod() const override;
 

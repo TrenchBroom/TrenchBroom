@@ -74,7 +74,7 @@ TEST_CASE("PointTrace")
 
 TEST_CASE("loadPointFile")
 {
-  using T = std::tuple<std::string, kdl::result<PointTrace, Error>>;
+  using T = std::tuple<std::string, Result<PointTrace>>;
   // clang-format off
   const auto
   [file,       expectedTrace] = GENERATE(values<T>({

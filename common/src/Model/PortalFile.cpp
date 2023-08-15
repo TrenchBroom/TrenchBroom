@@ -53,7 +53,7 @@ bool canLoadPortalFile(const std::filesystem::path& path)
     .value();
 }
 
-kdl::result<PortalFile, Error> loadPortalFile(std::istream& stream)
+Result<PortalFile> loadPortalFile(std::istream& stream)
 {
   static const auto lineSplitter = "() \n\t\r";
 

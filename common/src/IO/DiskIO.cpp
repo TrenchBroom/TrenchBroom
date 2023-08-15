@@ -106,7 +106,7 @@ PathInfo pathInfo(const std::filesystem::path& path)
                                                                 : PathInfo::Unknown;
 }
 
-kdl::result<std::vector<std::filesystem::path>, Error> find(
+Result<std::vector<std::filesystem::path>> find(
   const std::filesystem::path& path,
   const TraversalMode traversalMode,
   const PathMatcher& pathMatcher)
@@ -139,7 +139,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> find(
   return kdl::vec_filter(result, [&](const auto& p) { return pathMatcher(p, pathInfo); });
 }
 
-kdl::result<std::shared_ptr<CFile>, Error> openFile(const std::filesystem::path& path)
+Result<std::shared_ptr<CFile>> openFile(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) != PathInfo::File)
@@ -151,7 +151,7 @@ kdl::result<std::shared_ptr<CFile>, Error> openFile(const std::filesystem::path&
   return createCFile(fixedPath);
 }
 
-kdl::result<bool, Error> createDirectory(const std::filesystem::path& path)
+Result<bool> createDirectory(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   auto error = std::error_code{};
@@ -163,7 +163,7 @@ kdl::result<bool, Error> createDirectory(const std::filesystem::path& path)
   return Error{"Failed to create '" + fixedPath.string() + "': " + error.message()};
 }
 
-kdl::result<bool, Error> deleteFile(const std::filesystem::path& path)
+Result<bool> deleteFile(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   switch (pathInfo(fixedPath))
@@ -189,7 +189,7 @@ kdl::result<bool, Error> deleteFile(const std::filesystem::path& path)
   }
 }
 
-kdl::result<void, Error> copyFile(
+Result<void> copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
@@ -217,7 +217,7 @@ kdl::result<void, Error> copyFile(
   return kdl::void_success;
 }
 
-kdl::result<void, Error> moveFile(
+Result<void> moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);

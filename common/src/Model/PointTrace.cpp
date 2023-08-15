@@ -167,7 +167,7 @@ std::vector<vm::vec3f> segmentizePoints(const std::vector<vm::vec3f>& points)
 
 kdl_reflect_impl(PointTrace);
 
-kdl::result<PointTrace, Error> loadPointFile(std::istream& stream)
+Result<PointTrace> loadPointFile(std::istream& stream)
 {
   const auto str = std::string{std::istreambuf_iterator<char>{stream}, {}};
 

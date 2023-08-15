@@ -51,7 +51,7 @@ size_t OwningBufferFile::size() const
 
 namespace
 {
-kdl::result<CFile::FilePtr, Error> openPathAsFILE(
+Result<CFile::FilePtr> openPathAsFILE(
   const std::filesystem::path& path, const std::string& mode)
 {
   // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
@@ -75,7 +75,7 @@ kdl::result<CFile::FilePtr, Error> openPathAsFILE(
   return std::unique_ptr<std::FILE, int (*)(std::FILE*)>{file, std::fclose};
 }
 
-kdl::result<size_t, Error> fileSize(std::FILE* file)
+Result<size_t> fileSize(std::FILE* file)
 {
   const auto pos = std::ftell(file);
   if (pos < 0)
@@ -124,7 +124,7 @@ std::FILE* CFile::file() const
   return m_file.get();
 }
 
-kdl::result<std::shared_ptr<CFile>, Error> createCFile(const std::filesystem::path& path)
+Result<std::shared_ptr<CFile>> createCFile(const std::filesystem::path& path)
 {
   return openPathAsFILE(path, "rb").and_then([](auto filePtr) {
     return fileSize(filePtr.get()).transform([&](auto size) {

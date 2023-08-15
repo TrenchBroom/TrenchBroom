@@ -20,20 +20,15 @@
 #pragma once
 
 #include "Color.h"
+#include "Result.h"
 
 #include <kdl/reflection_decl.h>
-#include <kdl/result_forward.h>
 
 #include <cassert>
 #include <filesystem>
 #include <iosfwd>
 #include <memory>
 #include <vector>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::IO
 {
@@ -86,10 +81,9 @@ public:
     Color& averageColor) const;
 };
 
-kdl::result<Palette, Error> makePalette(const std::vector<unsigned char>& data);
+Result<Palette> makePalette(const std::vector<unsigned char>& data);
 
-kdl::result<Palette, Error> loadPalette(
-  const IO::File& file, const std::filesystem::path& path);
-kdl::result<Palette, Error> loadPalette(IO::Reader& reader);
+Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& path);
+Result<Palette> loadPalette(IO::Reader& reader);
 
 } // namespace TrenchBroom::Assets

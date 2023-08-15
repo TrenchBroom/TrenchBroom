@@ -30,6 +30,7 @@
 #include "Macros.h"
 #include "Notifier.h"
 #include "Preference.h"
+#include "Result.h"
 
 #include <kdl/result.h>
 #include <kdl/vector_set.h>
@@ -282,7 +283,7 @@ struct LockFileError
 };
 } // namespace PreferenceErrors
 
-using ReadPreferencesResult = kdl::result<
+using ReadPreferencesResult = Result<
   std::map<std::filesystem::path, QJsonValue>, // Success case
   PreferenceErrors::NoFilePresent,
   PreferenceErrors::JsonParseError,
@@ -290,7 +291,7 @@ using ReadPreferencesResult = kdl::result<
   PreferenceErrors::LockFileError>;
 
 using WritePreferencesResult =
-  kdl::result<void, PreferenceErrors::FileAccessError, PreferenceErrors::LockFileError>;
+  Result<void, PreferenceErrors::FileAccessError, PreferenceErrors::LockFileError>;
 
 QString preferenceFilePath();
 ReadPreferencesResult readPreferencesFromFile(const QString& path);

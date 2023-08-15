@@ -170,7 +170,7 @@ const std::vector<SmartTag>& GameImpl::doSmartTags() const
   return m_config.smartTags;
 }
 
-kdl::result<std::unique_ptr<WorldNode>, Error> GameImpl::doNewMap(
+Result<std::unique_ptr<WorldNode>> GameImpl::doNewMap(
   const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const
 {
   const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
@@ -205,7 +205,7 @@ kdl::result<std::unique_ptr<WorldNode>, Error> GameImpl::doNewMap(
   return worldNode;
 }
 
-kdl::result<std::unique_ptr<WorldNode>, Error> GameImpl::doLoadMap(
+Result<std::unique_ptr<WorldNode>> GameImpl::doLoadMap(
   const MapFormat format,
   const vm::bbox3& worldBounds,
   const std::filesystem::path& path,
@@ -235,7 +235,7 @@ kdl::result<std::unique_ptr<WorldNode>, Error> GameImpl::doLoadMap(
   });
 }
 
-kdl::result<void, Error> GameImpl::doWriteMap(
+Result<void> GameImpl::doWriteMap(
   WorldNode& world, const std::filesystem::path& path, const bool exporting) const
 {
   return IO::Disk::withOutputStream(path, [&](auto& stream) {
@@ -249,13 +249,13 @@ kdl::result<void, Error> GameImpl::doWriteMap(
   });
 }
 
-kdl::result<void, Error> GameImpl::doWriteMap(
+Result<void> GameImpl::doWriteMap(
   WorldNode& world, const std::filesystem::path& path) const
 {
   return doWriteMap(world, path, false);
 }
 
-kdl::result<void, Error> GameImpl::doExportMap(
+Result<void> GameImpl::doExportMap(
   WorldNode& world, const IO::ExportOptions& options) const
 {
   return std::visit(
@@ -339,7 +339,7 @@ void GameImpl::doReloadWads(
   m_fs.reloadWads(m_config.textureConfig.root, searchPaths, wadPaths, logger);
 }
 
-kdl::result<void, Error> GameImpl::doReloadShaders()
+Result<void> GameImpl::doReloadShaders()
 {
   return m_fs.reloadShaders();
 }
@@ -353,9 +353,8 @@ bool GameImpl::doIsEntityDefinitionFile(const std::filesystem::path& path) const
   });
 }
 
-kdl::result<std::vector<Assets::EntityDefinition*>, Error> GameImpl::
-  doLoadEntityDefinitions(
-    IO::ParserStatus& status, const std::filesystem::path& path) const
+Result<std::vector<Assets::EntityDefinition*>> GameImpl::doLoadEntityDefinitions(
+  IO::ParserStatus& status, const std::filesystem::path& path) const
 {
   const auto extension = path.extension().string();
   const auto& defaultColor = m_config.entityConfig.defaultColor;
@@ -442,7 +441,7 @@ std::filesystem::path GameImpl::doFindEntityDefinitionFile(
 std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(
   const std::filesystem::path& path, Logger& logger) const
 {
-  using result_type = kdl::result<std::unique_ptr<Assets::EntityModel>, Error>;
+  using result_type = Result<std::unique_ptr<Assets::EntityModel>>;
 
   try
   {
@@ -529,7 +528,7 @@ void GameImpl::doLoadFrame(
   Assets::EntityModel& model,
   Logger& logger) const
 {
-  using result_type = kdl::result<void, Error>;
+  using result_type = Result<void>;
 
   try
   {
@@ -618,7 +617,7 @@ void GameImpl::doLoadFrame(
   }
 }
 
-kdl::result<Assets::Palette, Error> GameImpl::loadTexturePalette() const
+Result<Assets::Palette> GameImpl::loadTexturePalette() const
 {
   const auto& path = m_config.textureConfig.palette;
   return m_fs.openFile(path).and_then(
@@ -626,11 +625,11 @@ kdl::result<Assets::Palette, Error> GameImpl::loadTexturePalette() const
   ;
 }
 
-kdl::result<std::vector<std::string>, Error> GameImpl::doAvailableMods() const
+Result<std::vector<std::string>> GameImpl::doAvailableMods() const
 {
   if (m_gamePath.empty() || IO::Disk::pathInfo(m_gamePath) != IO::PathInfo::Directory)
   {
-    return kdl::result<std::vector<std::string>, Error>{std::vector<std::string>{}};
+    return Result<std::vector<std::string>>{std::vector<std::string>{}};
   }
 
   const auto& defaultMod = m_config.fileSystemConfig.searchPath.filename().string();

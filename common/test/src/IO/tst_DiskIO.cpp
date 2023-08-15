@@ -143,21 +143,21 @@ TEST_CASE("DiskIO")
       Disk::find("asdf/bleh", TraversalMode::Flat),
       MatchesAnyOf({
         // macOS
-        kdl::result<std::vector<std::filesystem::path>, Error>{
+        Result<std::vector<std::filesystem::path>>{
           Error{"Failed to open 'asdf/bleh': No such file or directory"}},
         // Windows
-        kdl::result<std::vector<std::filesystem::path>, Error>{Error{
+        Result<std::vector<std::filesystem::path>>{Error{
           "Failed to open 'asdf\\bleh': The system cannot find the path specified."}},
       }));
     CHECK_THAT(
       Disk::find(env.dir() / "does/not/exist", TraversalMode::Flat),
       MatchesAnyOf({
         // macOS
-        kdl::result<std::vector<std::filesystem::path>, Error>{Error{
+        Result<std::vector<std::filesystem::path>>{Error{
           "Failed to open '" + (env.dir() / "does/not/exist").string()
           + "': No such file or directory"}},
         // Windows
-        kdl::result<std::vector<std::filesystem::path>, Error>{Error{
+        Result<std::vector<std::filesystem::path>>{Error{
           "Failed to open '" + (env.dir() / "does\\not\\exist").string()
           + "': The system cannot find the path specified."}},
       }));
@@ -193,27 +193,27 @@ TEST_CASE("DiskIO")
       Disk::openFile("asdf/bleh"),
       MatchesAnyOf({
         // macOS / Linux
-        kdl::result<std::shared_ptr<CFile>, Error>{
+        Result<std::shared_ptr<CFile>>{
           Error{"Failed to open 'asdf/bleh': path does not denote a file"}},
         // Windows
-        kdl::result<std::shared_ptr<CFile>, Error>{
+        Result<std::shared_ptr<CFile>>{
           Error{"Failed to open 'asdf\\bleh': path does not denote a file"}},
       }));
     CHECK_THAT(
       Disk::openFile(env.dir() / "does/not/exist"),
       MatchesAnyOf({
         // macOS / Linux
-        kdl::result<std::shared_ptr<CFile>, Error>{Error{
+        Result<std::shared_ptr<CFile>>{Error{
           "Failed to open '" + (env.dir() / "does/not/exist").string()
           + "': path does not denote a file"}},
         // Windows
-        kdl::result<std::shared_ptr<CFile>, Error>{Error{
+        Result<std::shared_ptr<CFile>>{Error{
           "Failed to open '" + (env.dir() / "does\\not\\exist").string()
           + "': path does not denote a file"}},
       }));
     CHECK(
       Disk::openFile(env.dir() / "does_not_exist.txt")
-      == kdl::result<std::shared_ptr<CFile>, Error>{Error{
+      == Result<std::shared_ptr<CFile>>{Error{
         "Failed to open '" + (env.dir() / "does_not_exist.txt").string()
         + "': path does not denote a file"}});
 
@@ -259,31 +259,28 @@ TEST_CASE("DiskIO")
 
   SECTION("createDirectory")
   {
-    CHECK(
-      Disk::createDirectory(env.dir() / "anotherDir") == kdl::result<bool, Error>{false});
+    CHECK(Disk::createDirectory(env.dir() / "anotherDir") == Result<bool>{false});
 
-    CHECK(
-      Disk::createDirectory(env.dir() / "yetAnotherDir")
-      == kdl::result<bool, Error>{true});
+    CHECK(Disk::createDirectory(env.dir() / "yetAnotherDir") == Result<bool>{true});
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir"));
 
     CHECK(
       Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory")
-      == kdl::result<bool, Error>{true});
+      == Result<bool>{true});
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir/and/a/nested/directory"));
 
     CHECK_THAT(
       Disk::createDirectory(env.dir() / "test.txt"),
       MatchesAnyOf({
         // macOS
-        kdl::result<bool, Error>{Error{
+        Result<bool>{Error{
           "Failed to create '" + (env.dir() / "test.txt").string() + "': File exists"}},
         // Linux
-        kdl::result<bool, Error>{Error{
+        Result<bool>{Error{
           "Failed to create '" + (env.dir() / "test.txt").string()
           + "': Not a directory"}},
         // Windows
-        kdl::result<bool, Error>{Error{
+        Result<bool>{Error{
           "Failed to create '" + (env.dir() / "test.txt").string()
           + "': Cannot create a file when that file already exists."}},
       }));
@@ -294,7 +291,7 @@ TEST_CASE("DiskIO")
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
     CHECK(
       Disk::createDirectory(env.dir() / "anotherDir/nestedDir")
-      == kdl::result<bool, Error>{Error{
+      == Result<bool>{Error{
         "Failed to create '" + (env.dir() / "anotherDir/nestedDir").string()
         + "': Permission denied"}});
 #endif
@@ -303,16 +300,15 @@ TEST_CASE("DiskIO")
   SECTION("deleteFile")
   {
     REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-    CHECK(Disk::deleteFile(env.dir() / "test.txt") == kdl::result<bool, Error>{true});
+    CHECK(Disk::deleteFile(env.dir() / "test.txt") == Result<bool>{true});
     CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
 
     CHECK(
       Disk::deleteFile(env.dir() / "anotherDir")
-      == kdl::result<bool, Error>{Error{
+      == Result<bool>{Error{
         "Failed to delete '" + (env.dir() / "anotherDir").string()
         + "': path denotes a directory"}});
-    CHECK(
-      Disk::deleteFile(env.dir() / "does_not_exist") == kdl::result<bool, Error>{false});
+    CHECK(Disk::deleteFile(env.dir() / "does_not_exist") == Result<bool>{false});
 
 #ifndef _WIN32
     // These tests don't work on Windows due to differences in permissions
@@ -322,7 +318,7 @@ TEST_CASE("DiskIO")
     REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
     CHECK(
       Disk::deleteFile(env.dir() / "anotherDir/test3.map")
-      == kdl::result<bool, Error>{Error{
+      == Result<bool>{Error{
         "Failed to delete '" + (env.dir() / "anotherDir/test3.map").string()
         + "': Permission denied"}});
 #endif
@@ -338,12 +334,12 @@ TEST_CASE("DiskIO")
         Disk::copyFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1"),
         MatchesAnyOf({
           // macOS / Linux
-          kdl::result<void, Error>{Error{
+          Result<void>{Error{
             "Failed to copy '" + (env.dir() / "does_not_exist.txt").string() + "' to '"
             + (env.dir() / "dir1/does_not_exist.txt").string()
             + "': No such file or directory"}},
           // Windows
-          kdl::result<void, Error>{Error{
+          Result<void>{Error{
             "Failed to copy '" + (env.dir() / "does_not_exist.txt").string() + "' to '"
             + (env.dir() / "dir1\\does_not_exist.txt").string()
             + "': The system cannot find the file specified."}},
@@ -363,10 +359,10 @@ TEST_CASE("DiskIO")
             + (env.dir() / "dir1/anotherDir").string() + "': Operation not supported"}},
           // Linux
           kdl::result<void, Error>{Error{
-            "Could not copy file '" + (env.dir() / "anotherDir").string() + "' to '"
+            "Failed to copy '" + (env.dir() / "anotherDir").string() + "' to '"
             + (env.dir() / "dir1/anotherDir").string() + "': Invalid argument"}},
           // Windows
-          kdl::result<void, Error>{Error{
+          Result<void>{Error{
             "Failed to copy '" + (env.dir() / "anotherDir").string() + "' to '"
             + (env.dir() / "dir1\\anotherDir").string() + "': Access is denied."}},
         }));
@@ -379,7 +375,7 @@ TEST_CASE("DiskIO")
 
       CHECK(
         Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir")
-        == kdl::result<void, Error>{});
+        == Result<void>{});
 
       CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
       CHECK(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::File);
@@ -394,7 +390,7 @@ TEST_CASE("DiskIO")
 
         CHECK(
           Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
-          == kdl::result<void, Error>{});
+          == Result<void>{});
 
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
         CHECK(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::File);
@@ -412,7 +408,7 @@ TEST_CASE("DiskIO")
 
         CHECK(
           Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
-          == kdl::result<void, Error>{Error{
+          == Result<void>{Error{
             "Failed to copy '" + (env.dir() / "test.txt").string() + "' to '"
             + (env.dir() / "anotherDir/asdf.txt").string() + "': Permission denied"}});
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
@@ -432,7 +428,7 @@ TEST_CASE("DiskIO")
       {
         CHECK(
           Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
-          == kdl::result<void, Error>{});
+          == Result<void>{});
 
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
         CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
@@ -450,7 +446,7 @@ TEST_CASE("DiskIO")
 
         CHECK(
           Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
-          == kdl::result<void, Error>{Error{
+          == Result<void>{Error{
             "Failed to copy '" + (env.dir() / "test.txt").string() + "' to '"
             + (env.dir() / "anotherDir/test3.map").string() + "': Permission denied"}});
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
@@ -469,12 +465,12 @@ TEST_CASE("DiskIO")
         Disk::moveFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1"),
         MatchesAnyOf({
           // macOS / Linux
-          kdl::result<void, Error>{Error{
+          Result<void>{Error{
             "Failed to move '" + (env.dir() / "does_not_exist.txt").string() + "' to '"
             + (env.dir() / "dir1/does_not_exist.txt").string()
             + "': No such file or directory"}},
           // Windows
-          kdl::result<void, Error>{Error{
+          Result<void>{Error{
             "Failed to move '" + (env.dir() / "does_not_exist.txt").string() + "' to '"
             + (env.dir() / "dir1\\does_not_exist.txt").string()
             + "': The system cannot find the file specified."}},
@@ -487,7 +483,7 @@ TEST_CASE("DiskIO")
 
       CHECK(
         Disk::moveFile(env.dir() / "anotherDir", env.dir() / "dir1")
-        == kdl::result<void, Error>{Error{
+        == Result<void>{Error{
           "Failed to move '" + (env.dir() / "anotherDir").string()
           + "': path denotes a directory"}});
       CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
@@ -500,7 +496,7 @@ TEST_CASE("DiskIO")
 
       CHECK(
         Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir")
-        == kdl::result<void, Error>{});
+        == Result<void>{});
 
       CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
       CHECK(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::File);
@@ -515,7 +511,7 @@ TEST_CASE("DiskIO")
 
         CHECK(
           Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
-          == kdl::result<void, Error>{});
+          == Result<void>{});
 
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
         CHECK(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::File);
@@ -533,7 +529,7 @@ TEST_CASE("DiskIO")
 
         CHECK(
           Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
-          == kdl::result<void, Error>{Error{
+          == Result<void>{Error{
             "Failed to move '" + (env.dir() / "test.txt").string() + "' to '"
             + (env.dir() / "anotherDir/asdf.txt").string() + "': Permission denied"}});
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
@@ -553,7 +549,7 @@ TEST_CASE("DiskIO")
       {
         CHECK(
           Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
-          == kdl::result<void, Error>{});
+          == Result<void>{});
 
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
         CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
@@ -571,7 +567,7 @@ TEST_CASE("DiskIO")
 
         CHECK(
           Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
-          == kdl::result<void, Error>{Error{
+          == Result<void>{Error{
             "Failed to move '" + (env.dir() / "test.txt").string() + "' to '"
             + (env.dir() / "anotherDir/test3.map").string() + "': Permission denied"}});
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);

@@ -115,7 +115,7 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
     .transform_error([&](auto e) { logger.error() << "Aborting autosave: " << e.msg; });
 }
 
-kdl::result<IO::WritableDiskFileSystem, Error> Autosaver::createBackupFileSystem(
+Result<IO::WritableDiskFileSystem> Autosaver::createBackupFileSystem(
   const std::filesystem::path& mapPath) const
 {
   const auto basePath = mapPath.parent_path();
@@ -126,14 +126,14 @@ kdl::result<IO::WritableDiskFileSystem, Error> Autosaver::createBackupFileSystem
   });
 }
 
-kdl::result<std::vector<std::filesystem::path>, Error> Autosaver::collectBackups(
+Result<std::vector<std::filesystem::path>> Autosaver::collectBackups(
   const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const
 {
   return fs.find({}, IO::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
     .transform([](auto backupPaths) { return kdl::vec_sort(std::move(backupPaths)); });
 }
 
-kdl::result<std::vector<std::filesystem::path>, Error> Autosaver::thinBackups(
+Result<std::vector<std::filesystem::path>> Autosaver::thinBackups(
   Logger& logger,
   IO::WritableDiskFileSystem& fs,
   const std::vector<std::filesystem::path>& backups) const
@@ -158,7 +158,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> Autosaver::thinBackups(
     .transform([&]() { return kdl::vec_slice_prefix(backups, m_maxBackups - 1); });
 }
 
-kdl::result<void, Error> Autosaver::cleanBackups(
+Result<void> Autosaver::cleanBackups(
   IO::WritableDiskFileSystem& fs,
   std::vector<std::filesystem::path>& backups,
   const std::filesystem::path& mapBasename) const
@@ -168,8 +168,7 @@ kdl::result<void, Error> Autosaver::cleanBackups(
       const auto& oldName = backup.filename();
       const auto newName = makeBackupName(mapBasename, i + 1);
 
-      return oldName != newName ? fs.moveFile(oldName, newName)
-                                : kdl::result<void, Error>{};
+      return oldName != newName ? fs.moveFile(oldName, newName) : Result<void>{};
     }));
 }
 

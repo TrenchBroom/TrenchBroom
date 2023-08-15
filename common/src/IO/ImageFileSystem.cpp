@@ -177,13 +177,13 @@ ImageFileSystemBase::ImageFileSystemBase()
 
 ImageFileSystemBase::~ImageFileSystemBase() = default;
 
-kdl::result<std::filesystem::path, Error> ImageFileSystemBase::makeAbsolute(
+Result<std::filesystem::path> ImageFileSystemBase::makeAbsolute(
   const std::filesystem::path& path) const
 {
-  return kdl::result<std::filesystem::path, Error>{"/" / path};
+  return Result<std::filesystem::path>{"/" / path};
 }
 
-kdl::result<void, Error> ImageFileSystemBase::reload()
+Result<void> ImageFileSystemBase::reload()
 {
   m_root = ImageDirectoryEntry{{}, {}};
   return doReadDirectory();
@@ -241,7 +241,7 @@ void doFindImpl(
 }
 } // namespace
 
-kdl::result<std::vector<std::filesystem::path>, Error> ImageFileSystemBase::doFind(
+Result<std::vector<std::filesystem::path>> ImageFileSystemBase::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
@@ -255,7 +255,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> ImageFileSystemBase::doFi
   return result;
 }
 
-kdl::result<std::shared_ptr<File>, Error> ImageFileSystemBase::doOpenFile(
+Result<std::shared_ptr<File>> ImageFileSystemBase::doOpenFile(
   const std::filesystem::path& path) const
 {
   return withEntry(
@@ -266,14 +266,13 @@ kdl::result<std::shared_ptr<File>, Error> ImageFileSystemBase::doOpenFile(
       return std::visit(
         kdl::overload(
           [&](const ImageDirectoryEntry&) {
-            return kdl::result<std::shared_ptr<File>, Error>{
+            return Result<std::shared_ptr<File>>{
               Error{"Cannot open directory entry at '" + path.string() + "'"}};
           },
           [](const ImageFileEntry& fileEntry) { return fileEntry.getFile(); }),
         entry);
     },
-    kdl::result<std::shared_ptr<File>, Error>{
-      Error{"'" + path.string() + "' not found"}});
+    Result<std::shared_ptr<File>>{Error{"'" + path.string() + "' not found"}});
 }
 
 ImageFileSystem::ImageFileSystem(std::shared_ptr<CFile> file)

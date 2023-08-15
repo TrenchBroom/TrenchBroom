@@ -83,7 +83,7 @@ Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format)
   return average;
 }
 
-kdl::result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
+Result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
   std::string name, const uint8_t* begin, const size_t size)
 {
   try
@@ -165,7 +165,7 @@ kdl::result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
   }
 }
 
-kdl::result<Assets::Texture, ReadTextureError> readFreeImageTexture(
+Result<Assets::Texture, ReadTextureError> readFreeImageTexture(
   std::string name, Reader& reader)
 {
   auto bufferedReader = reader.buffer();

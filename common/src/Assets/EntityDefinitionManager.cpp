@@ -34,16 +34,14 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 EntityDefinitionManager::~EntityDefinitionManager()
 {
   clear();
 }
 
-kdl::result<void, Error> EntityDefinitionManager::loadDefinitions(
+Result<void> EntityDefinitionManager::loadDefinitions(
   const std::filesystem::path& path,
   const IO::EntityDefinitionLoader& loader,
   IO::ParserStatus& status)
@@ -152,5 +150,4 @@ void EntityDefinitionManager::clearGroups()
 {
   m_groups.clear();
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

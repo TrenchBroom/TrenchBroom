@@ -53,7 +53,7 @@ BrushBuilder::BrushBuilder(
 {
 }
 
-kdl::result<Brush, Error> BrushBuilder::createCube(
+Result<Brush> BrushBuilder::createCube(
   const FloatType size, const std::string& textureName) const
 {
   return createCuboid(
@@ -66,7 +66,7 @@ kdl::result<Brush, Error> BrushBuilder::createCube(
     textureName);
 }
 
-kdl::result<Brush, Error> BrushBuilder::createCube(
+Result<Brush> BrushBuilder::createCube(
   FloatType size,
   const std::string& leftTexture,
   const std::string& rightTexture,
@@ -85,7 +85,7 @@ kdl::result<Brush, Error> BrushBuilder::createCube(
     bottomTexture);
 }
 
-kdl::result<Brush, Error> BrushBuilder::createCuboid(
+Result<Brush> BrushBuilder::createCuboid(
   const vm::vec3& size, const std::string& textureName) const
 {
   return createCuboid(
@@ -98,7 +98,7 @@ kdl::result<Brush, Error> BrushBuilder::createCuboid(
     textureName);
 }
 
-kdl::result<Brush, Error> BrushBuilder::createCuboid(
+Result<Brush> BrushBuilder::createCuboid(
   const vm::vec3& size,
   const std::string& leftTexture,
   const std::string& rightTexture,
@@ -117,14 +117,14 @@ kdl::result<Brush, Error> BrushBuilder::createCuboid(
     bottomTexture);
 }
 
-kdl::result<Brush, Error> BrushBuilder::createCuboid(
+Result<Brush> BrushBuilder::createCuboid(
   const vm::bbox3& bounds, const std::string& textureName) const
 {
   return createCuboid(
     bounds, textureName, textureName, textureName, textureName, textureName, textureName);
 }
 
-kdl::result<Brush, Error> BrushBuilder::createCuboid(
+Result<Brush> BrushBuilder::createCuboid(
   const vm::bbox3& bounds,
   const std::string& leftTexture,
   const std::string& rightTexture,
@@ -170,13 +170,13 @@ kdl::result<Brush, Error> BrushBuilder::createCuboid(
     .and_then([&](auto faces) { return Brush::create(m_worldBounds, std::move(faces)); });
 }
 
-kdl::result<Brush, Error> BrushBuilder::createBrush(
+Result<Brush> BrushBuilder::createBrush(
   const std::vector<vm::vec3>& points, const std::string& textureName) const
 {
   return createBrush(Polyhedron3(points), textureName);
 }
 
-kdl::result<Brush, Error> BrushBuilder::createBrush(
+Result<Brush> BrushBuilder::createBrush(
   const Polyhedron3& polyhedron, const std::string& textureName) const
 {
   assert(polyhedron.closed());

@@ -109,7 +109,7 @@ std::optional<std::filesystem::path> findImagePath(
   return std::nullopt;
 }
 
-kdl::result<Assets::Texture, ReadTextureError> loadTextureImage(
+Result<Assets::Texture, ReadTextureError> loadTextureImage(
   std::string shaderName, const std::filesystem::path& imagePath, const FileSystem& fs)
 {
   auto imageName = imagePath.filename();
@@ -125,14 +125,14 @@ kdl::result<Assets::Texture, ReadTextureError> loadTextureImage(
       return readFreeImageTexture(shaderName, reader);
     })
     .or_else([&](auto e) {
-      return kdl::result<Assets::Texture, ReadTextureError>{
+      return Result<Assets::Texture, ReadTextureError>{
         ReadTextureError{shaderName, e.msg}};
     });
 }
 
 } // namespace
 
-kdl::result<Assets::Texture, ReadTextureError> readQuake3ShaderTexture(
+Result<Assets::Texture, ReadTextureError> readQuake3ShaderTexture(
   std::string shaderName, const File& file, const FileSystem& fs)
 {
   const auto* shaderFile = dynamic_cast<const ObjectFile<Assets::Quake3Shader>*>(&file);
@@ -151,7 +151,7 @@ kdl::result<Assets::Texture, ReadTextureError> readQuake3ShaderTexture(
   }
 
   return loadTextureImage(std::move(shaderName), *imagePath, fs)
-    .and_then([&](Assets::Texture&& texture) {
+    .transform([&](auto texture) {
       texture.setSurfaceParms(shader.surfaceParms);
       texture.setOpaque();
 
@@ -184,7 +184,7 @@ kdl::result<Assets::Texture, ReadTextureError> readQuake3ShaderTexture(
         }
       }
 
-      return kdl::result<Assets::Texture>{std::move(texture)};
+      return texture;
     });
 }
 

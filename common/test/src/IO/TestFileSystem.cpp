@@ -88,7 +88,7 @@ PathInfo TestFileSystem::pathInfo(const std::filesystem::path& path) const
   return entry ? getEntryType(*entry) : PathInfo::Unknown;
 }
 
-kdl::result<std::filesystem::path, Error> TestFileSystem::makeAbsolute(
+Result<std::filesystem::path> TestFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   if (findEntry(path))
@@ -124,7 +124,7 @@ void doFindImpl(
 }
 } // namespace
 
-kdl::result<std::vector<std::filesystem::path>, Error> TestFileSystem::doFind(
+Result<std::vector<std::filesystem::path>> TestFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
@@ -135,7 +135,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> TestFileSystem::doFind(
   return result;
 }
 
-kdl::result<std::shared_ptr<File>, Error> TestFileSystem::doOpenFile(
+Result<std::shared_ptr<File>> TestFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
   if (const auto* fileEntry = std::get_if<FileEntry>(findEntry(path)))

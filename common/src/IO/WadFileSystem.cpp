@@ -55,7 +55,7 @@ namespace WadEntryType
 // static const char WEPalette   = '@';
 }
 
-kdl::result<void, Error> WadFileSystem::doReadDirectory()
+Result<void> WadFileSystem::doReadDirectory()
 {
   try
   {
@@ -112,10 +112,9 @@ kdl::result<void, Error> WadFileSystem::doReadDirectory()
       const auto path = std::filesystem::path{entryName + "." + entryType};
       auto file = std::static_pointer_cast<File>(
         std::make_shared<FileView>(m_file, entryAddress, entrySize));
-      addFile(
-        path, [file = std::move(file)]() -> kdl::result<std::shared_ptr<File>, Error> {
-          return file;
-        });
+      addFile(path, [file = std::move(file)]() -> Result<std::shared_ptr<File>> {
+        return file;
+      });
     }
 
     return kdl::void_success;

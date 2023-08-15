@@ -37,7 +37,7 @@ ZipFileSystem::~ZipFileSystem()
   mz_zip_reader_end(&m_archive);
 }
 
-kdl::result<void, Error> ZipFileSystem::doReadDirectory()
+Result<void> ZipFileSystem::doReadDirectory()
 {
   mz_zip_zero_struct(&m_archive);
 
@@ -52,7 +52,7 @@ kdl::result<void, Error> ZipFileSystem::doReadDirectory()
     if (!mz_zip_reader_is_file_a_directory(&m_archive, i))
     {
       const auto path = std::filesystem::path{filename(i)};
-      addFile(path, [=]() -> kdl::result<std::shared_ptr<File>, Error> {
+      addFile(path, [=]() -> Result<std::shared_ptr<File>> {
         auto stat = mz_zip_archive_file_stat{};
         if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
         {

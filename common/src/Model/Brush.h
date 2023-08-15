@@ -22,8 +22,7 @@
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/BrushGeometry.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <vecmath/forward.h>
 
@@ -31,11 +30,6 @@
 #include <optional>
 #include <string>
 #include <vector>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::Model
 {
@@ -73,13 +67,12 @@ public:
 
   ~Brush();
 
-  static kdl::result<Brush, Error> create(
-    const vm::bbox3& worldBounds, std::vector<BrushFace> faces);
+  static Result<Brush> create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces);
 
 private:
   Brush(std::vector<BrushFace> faces);
 
-  kdl::result<void, Error> updateGeometryFromFaces(const vm::bbox3& worldBounds);
+  Result<void> updateGeometryFromFaces(const vm::bbox3& worldBounds);
 
 public:
   const vm::bbox3& bounds() const;
@@ -109,7 +102,7 @@ public: // clone face attributes from matching faces of other brushes
   void cloneInvertedFaceAttributesFrom(const Brush& brush);
 
 public: // clipping
-  kdl::result<void, Error> clip(const vm::bbox3& worldBounds, BrushFace face);
+  Result<void> clip(const vm::bbox3& worldBounds, BrushFace face);
 
 public: // move face along normal
   /**
@@ -124,7 +117,7 @@ public: // move face along normal
    *
    * @return a void result or an error
    */
-  kdl::result<void, Error> moveBoundary(
+  Result<void> moveBoundary(
     const vm::bbox3& worldBounds,
     size_t faceIndex,
     const vm::vec3& delta,
@@ -140,8 +133,7 @@ public: // move face along normal
    *
    * @return a void result or an error
    */
-  kdl::result<void, Error> expand(
-    const vm::bbox3& worldBounds, FloatType delta, bool lockTexture);
+  Result<void> expand(const vm::bbox3& worldBounds, FloatType delta, bool lockTexture);
 
 public:
   // geometry access
@@ -175,23 +167,22 @@ public:
     const vm::bbox3& worldBounds,
     const std::vector<vm::vec3>& vertices,
     const vm::vec3& delta) const;
-  kdl::result<void, Error> moveVertices(
+  Result<void> moveVertices(
     const vm::bbox3& worldBounds,
     const std::vector<vm::vec3>& vertexPositions,
     const vm::vec3& delta,
     bool uvLock = false);
 
   bool canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const;
-  kdl::result<void, Error> addVertex(
-    const vm::bbox3& worldBounds, const vm::vec3& position);
+  Result<void> addVertex(const vm::bbox3& worldBounds, const vm::vec3& position);
 
   bool canRemoveVertices(
     const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const;
-  kdl::result<void, Error> removeVertices(
+  Result<void> removeVertices(
     const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions);
 
   bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo) const;
-  kdl::result<void, Error> snapVertices(
+  Result<void> snapVertices(
     const vm::bbox3& worldBounds, FloatType snapTo, bool uvLock = false);
 
   // edge operations
@@ -199,7 +190,7 @@ public:
     const vm::bbox3& worldBounds,
     const std::vector<vm::segment3>& edgePositions,
     const vm::vec3& delta) const;
-  kdl::result<void, Error> moveEdges(
+  Result<void> moveEdges(
     const vm::bbox3& worldBounds,
     const std::vector<vm::segment3>& edgePositions,
     const vm::vec3& delta,
@@ -210,7 +201,7 @@ public:
     const vm::bbox3& worldBounds,
     const std::vector<vm::polygon3>& facePositions,
     const vm::vec3& delta) const;
-  kdl::result<void, Error> moveFaces(
+  Result<void> moveFaces(
     const vm::bbox3& worldBounds,
     const std::vector<vm::polygon3>& facePositions,
     const vm::vec3& delta,
@@ -236,7 +227,7 @@ private:
     const std::vector<vm::vec3>& vertexPositions,
     vm::vec3 delta,
     bool allowVertexRemoval) const;
-  kdl::result<void, Error> doMoveVertices(
+  Result<void> doMoveVertices(
     const vm::bbox3& worldBounds,
     const std::vector<vm::vec3>& vertexPositions,
     const vm::vec3& delta,
@@ -280,7 +271,7 @@ private:
     const PolyhedronMatcher<BrushGeometry>& matcher,
     const BrushFace& leftFace,
     BrushFace& rightFace);
-  kdl::result<void, Error> updateFacesFromGeometry(
+  Result<void> updateFacesFromGeometry(
     const vm::bbox3& worldBounds,
     const PolyhedronMatcher<BrushGeometry>& matcher,
     const BrushGeometry& newGeometry,
@@ -299,12 +290,12 @@ public:
    * Errors are returned. It's a hint to the user to double check the result, and
    * potentially report a bug.
    */
-  std::vector<kdl::result<Brush, Error>> subtract(
+  std::vector<Result<Brush>> subtract(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     const std::string& defaultTextureName,
     const std::vector<const Brush*>& subtrahends) const;
-  std::vector<kdl::result<Brush, Error>> subtract(
+  std::vector<Result<Brush>> subtract(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     const std::string& defaultTextureName,
@@ -319,7 +310,7 @@ public:
    * @param brush the brush to intersect this brush with
    * @return a void result or an error if the operation fails
    */
-  kdl::result<void, Error> intersect(const vm::bbox3& worldBounds, const Brush& brush);
+  Result<void> intersect(const vm::bbox3& worldBounds, const Brush& brush);
 
   /**
    * Applies the given transformation to this brush.
@@ -331,7 +322,7 @@ public:
    * @param lockTextures whether textures should be locked
    * @return a void result or an error if the operation fails
    */
-  kdl::result<void, Error> transform(
+  Result<void> transform(
     const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures);
 
 public:
@@ -353,7 +344,7 @@ private:
    * @param subtrahends used as a source of texture alignment only
    * @return the newly created brush
    */
-  kdl::result<Brush, Error> createBrush(
+  Result<Brush> createBrush(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     const std::string& defaultTextureName,

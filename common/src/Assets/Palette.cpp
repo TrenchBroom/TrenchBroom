@@ -107,7 +107,7 @@ bool Palette::indexedToRgba(
   return hasTransparency;
 }
 
-kdl::result<Palette, Error> makePalette(const std::vector<unsigned char>& data)
+Result<Palette> makePalette(const std::vector<unsigned char>& data)
 {
   if (data.size() != 768 && data.size() != 1024)
   {
@@ -151,14 +151,14 @@ kdl::result<Palette, Error> makePalette(const std::vector<unsigned char>& data)
 namespace
 {
 
-kdl::result<Palette, Error> loadLmp(IO::Reader& reader)
+Result<Palette> loadLmp(IO::Reader& reader)
 {
   auto data = std::vector<unsigned char>(reader.size());
   reader.read(data.data(), data.size());
   return makePalette(data);
 }
 
-kdl::result<Palette, Error> loadPcx(IO::Reader& reader)
+Result<Palette> loadPcx(IO::Reader& reader)
 {
   auto data = std::vector<unsigned char>(768);
   reader.seekFromEnd(data.size());
@@ -166,7 +166,7 @@ kdl::result<Palette, Error> loadPcx(IO::Reader& reader)
   return makePalette(data);
 }
 
-kdl::result<Palette, Error> loadBmp(IO::Reader& reader)
+Result<Palette> loadBmp(IO::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   auto imageLoader =
@@ -178,8 +178,7 @@ kdl::result<Palette, Error> loadBmp(IO::Reader& reader)
 
 } // namespace
 
-kdl::result<Palette, Error> loadPalette(
-  const IO::File& file, const std::filesystem::path& path)
+Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& path)
 {
   try
   {
@@ -209,7 +208,7 @@ kdl::result<Palette, Error> loadPalette(
   }
 }
 
-kdl::result<Palette, Error> loadPalette(IO::Reader& reader)
+Result<Palette> loadPalette(IO::Reader& reader)
 {
   try
   {

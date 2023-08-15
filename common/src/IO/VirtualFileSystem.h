@@ -20,17 +20,11 @@
 #pragma once
 
 #include "IO/FileSystem.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <memory>
 #include <vector>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::IO
 {
@@ -62,7 +56,7 @@ private:
   std::vector<VirtualMountPoint> m_mountPoints;
 
 public:
-  kdl::result<std::filesystem::path, Error> makeAbsolute(
+  Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
@@ -72,9 +66,9 @@ public:
   void unmountAll();
 
 protected:
-  kdl::result<std::vector<std::filesystem::path>, Error> doFind(
+  Result<std::vector<std::filesystem::path>> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const override;
-  kdl::result<std::shared_ptr<File>, Error> doOpenFile(
+  Result<std::shared_ptr<File>> doOpenFile(
     const std::filesystem::path& path) const override;
 };
 
@@ -90,24 +84,24 @@ public:
 
   using FileSystem::find;
 
-  kdl::result<std::filesystem::path, Error> makeAbsolute(
+  Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
 private:
-  kdl::result<std::vector<std::filesystem::path>, Error> doFind(
+  Result<std::vector<std::filesystem::path>> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const override;
-  kdl::result<std::shared_ptr<File>, Error> doOpenFile(
+  Result<std::shared_ptr<File>> doOpenFile(
     const std::filesystem::path& path) const override;
 
-  kdl::result<void, Error> doCreateFile(
+  Result<void> doCreateFile(
     const std::filesystem::path& path, const std::string& contents) override;
-  kdl::result<bool, Error> doCreateDirectory(const std::filesystem::path& path) override;
-  kdl::result<bool, Error> doDeleteFile(const std::filesystem::path& path) override;
-  kdl::result<void, Error> doCopyFile(
+  Result<bool> doCreateDirectory(const std::filesystem::path& path) override;
+  Result<bool> doDeleteFile(const std::filesystem::path& path) override;
+  Result<void> doCopyFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
-  kdl::result<void, Error> doMoveFile(
+  Result<void> doMoveFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
 };

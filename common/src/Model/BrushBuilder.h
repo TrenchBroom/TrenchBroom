@@ -22,18 +22,12 @@
 #include "BrushFaceAttributes.h"
 #include "FloatType.h"
 #include "Model/Polyhedron3.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <vecmath/bbox.h>
 
 #include <string>
 #include <vector>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::Model
 {
@@ -55,9 +49,8 @@ public:
     const vm::bbox3& worldBounds,
     const BrushFaceAttributes& defaultAttribs);
 
-  kdl::result<Brush, Error> createCube(
-    FloatType size, const std::string& textureName) const;
-  kdl::result<Brush, Error> createCube(
+  Result<Brush> createCube(FloatType size, const std::string& textureName) const;
+  Result<Brush> createCube(
     FloatType size,
     const std::string& leftTexture,
     const std::string& rightTexture,
@@ -66,9 +59,8 @@ public:
     const std::string& topTexture,
     const std::string& bottomTexture) const;
 
-  kdl::result<Brush, Error> createCuboid(
-    const vm::vec3& size, const std::string& textureName) const;
-  kdl::result<Brush, Error> createCuboid(
+  Result<Brush> createCuboid(const vm::vec3& size, const std::string& textureName) const;
+  Result<Brush> createCuboid(
     const vm::vec3& size,
     const std::string& leftTexture,
     const std::string& rightTexture,
@@ -77,9 +69,9 @@ public:
     const std::string& topTexture,
     const std::string& bottomTexture) const;
 
-  kdl::result<Brush, Error> createCuboid(
+  Result<Brush> createCuboid(
     const vm::bbox3& bounds, const std::string& textureName) const;
-  kdl::result<Brush, Error> createCuboid(
+  Result<Brush> createCuboid(
     const vm::bbox3& bounds,
     const std::string& leftTexture,
     const std::string& rightTexture,
@@ -88,9 +80,9 @@ public:
     const std::string& topTexture,
     const std::string& bottomTexture) const;
 
-  kdl::result<Brush, Error> createBrush(
+  Result<Brush> createBrush(
     const std::vector<vm::vec3>& points, const std::string& textureName) const;
-  kdl::result<Brush, Error> createBrush(
+  Result<Brush> createBrush(
     const Polyhedron3& polyhedron, const std::string& textureName) const;
 };
 } // namespace TrenchBroom::Model

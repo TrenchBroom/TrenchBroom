@@ -20,13 +20,12 @@
 #pragma once
 
 #include "IO/ImageFileSystem.h"
+#include "Result.h"
 
 #include <filesystem>
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 class IdPakFileSystem : public ImageFileSystem
@@ -35,7 +34,7 @@ public:
   using ImageFileSystem::ImageFileSystem;
 
 private:
-  kdl::result<void, Error> doReadDirectory() override;
+  Result<void> doReadDirectory() override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

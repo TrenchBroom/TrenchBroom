@@ -20,17 +20,11 @@
 #pragma once
 
 #include "IO/Reader.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <cstdio>
 #include <filesystem>
 #include <memory>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::IO
 {
@@ -100,8 +94,7 @@ private:
   CFile(FilePtr filePtr, size_t size);
 
 public:
-  friend kdl::result<std::shared_ptr<CFile>, Error> createCFile(
-    const std::filesystem::path& path);
+  friend Result<std::shared_ptr<CFile>> createCFile(const std::filesystem::path& path);
 
   Reader reader() const override;
   size_t size() const override;
@@ -112,7 +105,7 @@ public:
   std::FILE* file() const;
 };
 
-kdl::result<std::shared_ptr<CFile>, Error> createCFile(const std::filesystem::path& path);
+Result<std::shared_ptr<CFile>> createCFile(const std::filesystem::path& path);
 
 /**
  * A file that is backed by a portion of a physical file.

@@ -126,8 +126,7 @@ void readDdsMips(Reader& reader, Assets::TextureBufferList& buffers)
 
 } // namespace
 
-kdl::result<Assets::Texture, ReadTextureError> readDdsTexture(
-  std::string name, Reader& reader)
+Result<Assets::Texture, ReadTextureError> readDdsTexture(std::string name, Reader& reader)
 {
   try
   {

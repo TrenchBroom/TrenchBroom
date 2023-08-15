@@ -20,18 +20,12 @@
 #pragma once
 
 #include "FloatType.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <memory>
 #include <utility>
 #include <variant>
 #include <vector>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::Model
 {
@@ -73,13 +67,13 @@ public:
   explicit UpdateLinkedGroupsHelper(ChangedLinkedGroups changedLinkedGroups);
   ~UpdateLinkedGroupsHelper();
 
-  kdl::result<void, Error> applyLinkedGroupUpdates(MapDocumentCommandFacade& document);
+  Result<void> applyLinkedGroupUpdates(MapDocumentCommandFacade& document);
   void undoLinkedGroupUpdates(MapDocumentCommandFacade& document);
   void collateWith(UpdateLinkedGroupsHelper& other);
 
 private:
-  kdl::result<void, Error> computeLinkedGroupUpdates(MapDocumentCommandFacade& document);
-  static kdl::result<LinkedGroupUpdates, Error> computeLinkedGroupUpdates(
+  Result<void> computeLinkedGroupUpdates(MapDocumentCommandFacade& document);
+  static Result<LinkedGroupUpdates> computeLinkedGroupUpdates(
     const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document);
 
   void doApplyOrUndoLinkedGroupUpdates(MapDocumentCommandFacade& document);

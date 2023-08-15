@@ -43,7 +43,7 @@ static const std::string HeaderMagic = "PACK";
 
 namespace
 {
-kdl::result<std::unique_ptr<char[]>, Error> decompress(
+Result<std::unique_ptr<char[]>> decompress(
   std::shared_ptr<File> file, const size_t uncompressedSize)
 {
   try
@@ -109,7 +109,7 @@ kdl::result<std::unique_ptr<char[]>, Error> decompress(
 }
 } // namespace
 
-kdl::result<void, Error> DkPakFileSystem::doReadDirectory()
+Result<void> DkPakFileSystem::doReadDirectory()
 {
   try
   {
@@ -139,7 +139,7 @@ kdl::result<void, Error> DkPakFileSystem::doReadDirectory()
         addFile(
           entryPath,
           [entryFile = std::move(entryFile),
-           uncompressedSize]() -> kdl::result<std::shared_ptr<File>, Error> {
+           uncompressedSize]() -> Result<std::shared_ptr<File>> {
             return decompress(entryFile, uncompressedSize).transform([&](auto data) {
               return std::static_pointer_cast<File>(
                 std::make_shared<OwningBufferFile>(std::move(data), uncompressedSize));

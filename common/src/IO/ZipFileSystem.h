@@ -20,18 +20,12 @@
 #pragma once
 
 #include "IO/ImageFileSystem.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <miniz/miniz.h>
 
 #include <filesystem>
 #include <memory>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::IO
 {
@@ -46,7 +40,7 @@ public:
   ~ZipFileSystem() override;
 
 private:
-  kdl::result<void, Error> doReadDirectory() override;
+  Result<void> doReadDirectory() override;
 
   std::string filename(mz_uint fileIndex);
 };

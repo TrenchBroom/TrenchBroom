@@ -60,7 +60,7 @@ GameFactory& GameFactory::instance()
   return instance;
 }
 
-kdl::result<std::vector<std::string>, Error> GameFactory::initialize(
+Result<std::vector<std::string>> GameFactory::initialize(
   const GamePathConfig& gamePathConfig)
 {
   return initializeFileSystem(gamePathConfig).and_then([&]() {
@@ -217,7 +217,7 @@ std::string readInfoComment(std::istream& stream, const std::string& name)
 }
 } // namespace
 
-kdl::result<std::pair<std::string, MapFormat>, Error> GameFactory::detectGame(
+Result<std::pair<std::string, MapFormat>> GameFactory::detectGame(
   const std::filesystem::path& path) const
 {
   return IO::Disk::withInputStream(path, [&](auto& stream) {
@@ -241,8 +241,7 @@ const std::filesystem::path& GameFactory::userGameConfigsPath() const
 
 GameFactory::GameFactory() = default;
 
-kdl::result<void, Error> GameFactory::initializeFileSystem(
-  const GamePathConfig& gamePathConfig)
+Result<void> GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig)
 {
   // Gather the search paths we're going to use.
   // The rest of this function will be mounting TB filesystems for these search paths.
@@ -265,7 +264,7 @@ kdl::result<void, Error> GameFactory::initializeFileSystem(
   });
 }
 
-kdl::result<std::vector<std::string>, Error> GameFactory::loadGameConfigs()
+Result<std::vector<std::string>> GameFactory::loadGameConfigs()
 {
   return m_configFs
     ->find(
@@ -283,7 +282,7 @@ kdl::result<std::vector<std::string>, Error> GameFactory::loadGameConfigs()
     });
 }
 
-kdl::result<void, Error> GameFactory::loadGameConfig(const std::filesystem::path& path)
+Result<void> GameFactory::loadGameConfig(const std::filesystem::path& path)
 {
   return m_configFs->openFile(path)
     .join(m_configFs->makeAbsolute(path))
@@ -370,7 +369,7 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   }
 }
 
-static kdl::result<std::filesystem::path, Error> backupFile(
+static Result<std::filesystem::path> backupFile(
   IO::WritableFileSystem& fs, const std::filesystem::path& path)
 {
   const auto backupPath = kdl::path_add_extension(path, ".bak");

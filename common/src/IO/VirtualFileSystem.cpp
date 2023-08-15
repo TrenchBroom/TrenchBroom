@@ -72,7 +72,7 @@ bool operator!=(const VirtualMountPointId& lhs, const VirtualMountPointId& rhs)
   return !(lhs == rhs);
 }
 
-kdl::result<std::filesystem::path, Error> VirtualFileSystem::makeAbsolute(
+Result<std::filesystem::path> VirtualFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   for (const auto& mountPoint : m_mountPoints)
@@ -145,14 +145,13 @@ void VirtualFileSystem::unmountAll()
   m_mountPoints.clear();
 }
 
-kdl::result<std::vector<std::filesystem::path>, Error> VirtualFileSystem::doFind(
+Result<std::vector<std::filesystem::path>> VirtualFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   return kdl::fold_results(
            kdl::vec_transform(
              m_mountPoints,
-             [&](const auto& mountPoint)
-               -> kdl::result<std::vector<std::filesystem::path>, Error> {
+             [&](const auto& mountPoint) -> Result<std::vector<std::filesystem::path>> {
                if (kdl::path_has_prefix(
                      kdl::path_to_lower(path), kdl::path_to_lower(mountPoint.path)))
                {
@@ -187,7 +186,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> VirtualFileSystem::doFind
       [](auto paths) { return kdl::vec_sort_and_remove_duplicates(std::move(paths)); });
 }
 
-kdl::result<std::shared_ptr<File>, Error> VirtualFileSystem::doOpenFile(
+Result<std::shared_ptr<File>> VirtualFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
   for (const auto& mountPoint : m_mountPoints)
@@ -213,7 +212,7 @@ WritableVirtualFileSystem::WritableVirtualFileSystem(
   m_virtualFs.mount(std::filesystem::path{}, std::move(writableFs));
 }
 
-kdl::result<std::filesystem::path, Error> WritableVirtualFileSystem::makeAbsolute(
+Result<std::filesystem::path> WritableVirtualFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   return m_virtualFs.makeAbsolute(path);
@@ -224,43 +223,42 @@ PathInfo WritableVirtualFileSystem::pathInfo(const std::filesystem::path& path) 
   return m_virtualFs.pathInfo(path);
 }
 
-kdl::result<std::vector<std::filesystem::path>, Error> WritableVirtualFileSystem::doFind(
+Result<std::vector<std::filesystem::path>> WritableVirtualFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   return m_virtualFs.find(path, traversalMode);
 }
 
-kdl::result<std::shared_ptr<File>, Error> WritableVirtualFileSystem::doOpenFile(
+Result<std::shared_ptr<File>> WritableVirtualFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
   return m_virtualFs.openFile(path);
 }
 
-kdl::result<void, Error> WritableVirtualFileSystem::doCreateFile(
+Result<void> WritableVirtualFileSystem::doCreateFile(
   const std::filesystem::path& path, const std::string& contents)
 {
   return m_writableFs.createFile(path, contents);
 }
 
-kdl::result<bool, Error> WritableVirtualFileSystem::doCreateDirectory(
+Result<bool> WritableVirtualFileSystem::doCreateDirectory(
   const std::filesystem::path& path)
 {
   return m_writableFs.createDirectory(path);
 }
 
-kdl::result<bool, Error> WritableVirtualFileSystem::doDeleteFile(
-  const std::filesystem::path& path)
+Result<bool> WritableVirtualFileSystem::doDeleteFile(const std::filesystem::path& path)
 {
   return m_writableFs.deleteFile(path);
 }
 
-kdl::result<void, Error> WritableVirtualFileSystem::doCopyFile(
+Result<void> WritableVirtualFileSystem::doCopyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   return m_writableFs.copyFile(sourcePath, destPath);
 }
 
-kdl::result<void, Error> WritableVirtualFileSystem::doMoveFile(
+Result<void> WritableVirtualFileSystem::doMoveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   return m_writableFs.moveFile(sourcePath, destPath);

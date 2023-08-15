@@ -20,8 +20,7 @@
 #pragma once
 
 #include "Model/MapFormat.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <map>
@@ -31,7 +30,6 @@
 
 namespace TrenchBroom
 {
-struct Error;
 class Logger;
 
 template <typename T>
@@ -92,8 +90,7 @@ public:
    * @return a result containing error messages for game configurations that could not be
    * loaded or a Error if a fatal error occurs
    */
-  kdl::result<std::vector<std::string>, Error> initialize(
-    const GamePathConfig& gamePathConfig);
+  Result<std::vector<std::string>> initialize(const GamePathConfig& gamePathConfig);
   /**
    * Saves the game engine configurations for the game with the given name.
    *
@@ -149,7 +146,7 @@ public:
    * the game name. If no map format comment is found or the format is unknown,
    * MapFormat::Unknown is returned as the map format.
    */
-  kdl::result<std::pair<std::string, MapFormat>, Error> detectGame(
+  Result<std::pair<std::string, MapFormat>> detectGame(
     const std::filesystem::path& path) const;
 
   /**
@@ -162,9 +159,9 @@ public:
 
 private:
   GameFactory();
-  kdl::result<void, Error> initializeFileSystem(const GamePathConfig& gamePathConfig);
-  kdl::result<std::vector<std::string>, Error> loadGameConfigs();
-  kdl::result<void, Error> loadGameConfig(const std::filesystem::path& path);
+  Result<void> initializeFileSystem(const GamePathConfig& gamePathConfig);
+  Result<std::vector<std::string>> loadGameConfigs();
+  Result<void> loadGameConfig(const std::filesystem::path& path);
   void loadCompilationConfig(GameConfig& gameConfig);
   void loadGameEngineConfig(GameConfig& gameConfig);
 

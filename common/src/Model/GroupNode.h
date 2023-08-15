@@ -25,8 +25,7 @@
 #include "Model/IdType.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <vecmath/bbox.h>
 
@@ -35,11 +34,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-namespace TrenchBroom
-{
-struct Error;
-}
 
 namespace TrenchBroom::Model
 {
@@ -73,7 +67,7 @@ using UpdateLinkedGroupsResult =
  * the target node that should be updated, and the new children that should replace the
  * target node's children.
  */
-kdl::result<UpdateLinkedGroupsResult, Error> updateLinkedGroups(
+Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
   const std::vector<Model::GroupNode*>& targetGroupNodes,
   const vm::bbox3& worldBounds);

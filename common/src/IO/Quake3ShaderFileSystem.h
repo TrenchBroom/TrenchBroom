@@ -20,15 +20,13 @@
 #pragma once
 
 #include "IO/ImageFileSystem.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <vector>
 
 namespace TrenchBroom
 {
-struct Error;
 class Logger;
 } // namespace TrenchBroom
 
@@ -76,10 +74,10 @@ public:
     Logger& logger);
 
 private:
-  kdl::result<void, Error> doReadDirectory() override;
+  Result<void> doReadDirectory() override;
 
-  kdl::result<std::vector<Assets::Quake3Shader>, Error> loadShaders() const;
-  kdl::result<void, Error> linkShaders(std::vector<Assets::Quake3Shader>& shaders);
+  Result<std::vector<Assets::Quake3Shader>> loadShaders() const;
+  Result<void> linkShaders(std::vector<Assets::Quake3Shader>& shaders);
   void linkTextures(
     const std::vector<std::filesystem::path>& textures,
     std::vector<Assets::Quake3Shader>& shaders);

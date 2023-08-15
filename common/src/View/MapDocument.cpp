@@ -558,7 +558,7 @@ void MapDocument::createEntityDefinitionActions()
     actionManager.createEntityDefinitionActions(m_entityDefinitionManager->definitions());
 }
 
-kdl::result<void, Error> MapDocument::newDocument(
+Result<void> MapDocument::newDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game)
@@ -581,7 +581,7 @@ kdl::result<void, Error> MapDocument::newDocument(
   });
 }
 
-kdl::result<void, Error> MapDocument::loadDocument(
+Result<void> MapDocument::loadDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
@@ -622,7 +622,7 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
   });
 }
 
-kdl::result<void, Error> MapDocument::exportDocumentAs(const IO::ExportOptions& options)
+Result<void> MapDocument::exportDocumentAs(const IO::ExportOptions& options)
 {
   return m_game->exportMap(*m_world, options);
 }
@@ -2901,8 +2901,7 @@ bool MapDocument::transformObjects(
     }
   }
 
-  using TransformResult =
-    kdl::result<std::pair<Model::Node*, Model::NodeContents>, Error>;
+  using TransformResult = Result<std::pair<Model::Node*, Model::NodeContents>>;
 
   const bool lockTexturesPref = pref(Preferences::TextureLock);
   auto transformResults = kdl::vec_parallel_transform(
@@ -2942,7 +2941,7 @@ bool MapDocument::transformObjects(
     });
 
   return kdl::fold_results(std::move(transformResults))
-    .and_then([&](auto nodesToUpdate) -> kdl::result<bool> {
+    .and_then([&](auto nodesToUpdate) -> Result<bool> {
       const auto success = swapNodeContents(
         commandName,
         std::move(nodesToUpdate),
@@ -3007,7 +3006,7 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
     m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
 
   return builder.createBrush(points, currentTextureName())
-    .and_then([&](auto b) -> kdl::result<void, Error> {
+    .and_then([&](auto b) -> Result<void> {
       auto* brushNode = new Model::BrushNode{std::move(b)};
 
       auto transaction = Transaction{*this, "Create Brush"};
@@ -3292,12 +3291,12 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
                  .and_then([&](Model::BrushFace&& clipFace) {
                    return clippedBrush.clip(m_worldBounds, std::move(clipFace));
                  })
-                 .and_then([&]() -> kdl::result<std::pair<Model::Node*, Model::Brush>> {
+                 .and_then([&]() -> Result<std::pair<Model::Node*, Model::Brush>> {
                    return std::make_pair(
                      originalBrush->parent(), std::move(clippedBrush));
                  });
              }))
-    .and_then([&](auto&& clippedBrushAndParents) -> kdl::result<void, Error> {
+    .and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
       auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
       const auto toRemove =
         kdl::vec_element_cast<Model::Node*>(m_selectedNodes.brushes());
@@ -4286,7 +4285,7 @@ std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point
   return result;
 }
 
-kdl::result<void, Error> MapDocument::createWorld(
+Result<void> MapDocument::createWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game)
@@ -4302,7 +4301,7 @@ kdl::result<void, Error> MapDocument::createWorld(
   });
 }
 
-kdl::result<void, Error> MapDocument::loadWorld(
+Result<void> MapDocument::loadWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,

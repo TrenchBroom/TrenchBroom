@@ -22,6 +22,7 @@
 #include "Error.h"
 #include "Exceptions.h"
 #include "IO/PathMatcher.h"
+#include "Result.h"
 
 #include <kdl/result.h>
 
@@ -45,12 +46,12 @@ std::filesystem::path fixPath(const std::filesystem::path& path);
 
 PathInfo pathInfo(const std::filesystem::path& path);
 
-kdl::result<std::vector<std::filesystem::path>, Error> find(
+Result<std::vector<std::filesystem::path>> find(
   const std::filesystem::path& path,
   TraversalMode traversalMode,
   const PathMatcher& pathMatcher = matchAnyPath);
 
-kdl::result<std::shared_ptr<CFile>, Error> openFile(const std::filesystem::path& path);
+Result<std::shared_ptr<CFile>> openFile(const std::filesystem::path& path);
 
 template <typename Stream, typename F>
 auto withStream(
@@ -120,14 +121,14 @@ auto withOutputStream(const std::filesystem::path& path, const F& function)
   return withStream<std::ofstream>(path, std::ios_base::out, function);
 }
 
-kdl::result<bool, Error> createDirectory(const std::filesystem::path& path);
+Result<bool> createDirectory(const std::filesystem::path& path);
 
-kdl::result<bool, Error> deleteFile(const std::filesystem::path& path);
+Result<bool> deleteFile(const std::filesystem::path& path);
 
-kdl::result<void, Error> copyFile(
+Result<void> copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
-kdl::result<void, Error> moveFile(
+Result<void> moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 std::filesystem::path resolvePath(
