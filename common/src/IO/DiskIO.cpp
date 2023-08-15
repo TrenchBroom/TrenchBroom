@@ -134,7 +134,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> find(
 
   if (error)
   {
-    return Error{"Cannot open directory " + fixedPath.string() + ": " + error.message()};
+    return Error{"Failed to open '" + fixedPath.string() + "': " + error.message()};
   }
   return kdl::vec_filter(result, [&](const auto& p) { return pathMatcher(p, pathInfo); });
 }
@@ -144,7 +144,8 @@ kdl::result<std::shared_ptr<CFile>, Error> openFile(const std::filesystem::path&
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) != PathInfo::File)
   {
-    return Error{"File not found: '" + fixedPath.string() + "'"};
+    return Error{
+      "Failed to open '" + fixedPath.string() + "': path does not denote a file"};
   }
 
   return createCFile(fixedPath);
@@ -159,7 +160,7 @@ kdl::result<bool, Error> createDirectory(const std::filesystem::path& path)
   {
     return created;
   }
-  return Error{"Could not create directory: " + error.message()};
+  return Error{"Failed to create '" + fixedPath.string() + "': " + error.message()};
 }
 
 kdl::result<bool, Error> deleteFile(const std::filesystem::path& path)
@@ -169,7 +170,7 @@ kdl::result<bool, Error> deleteFile(const std::filesystem::path& path)
   {
   case PathInfo::Directory:
     return Error{
-      "Could not delete file '" + fixedPath.string() + "': path is a directory"};
+      "Failed to delete '" + fixedPath.string() + "': path denotes a directory"};
   case PathInfo::File: {
     auto error = std::error_code{};
     if (std::filesystem::remove(fixedPath, error) && !error)
@@ -178,8 +179,7 @@ kdl::result<bool, Error> deleteFile(const std::filesystem::path& path)
     }
     if (error)
     {
-      return Error{
-        "Could not delete file '" + fixedPath.string() + "': " + error.message()};
+      return Error{"Failed to delete '" + fixedPath.string() + "': " + error.message()};
     }
     return false;
   }
@@ -210,8 +210,8 @@ kdl::result<void, Error> copyFile(
     || error)
   {
     return Error{
-      "Could not copy file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "': " + error.message()};
+      "Failed to copy '" + fixedSourcePath.string() + "' to '" + fixedDestPath.string()
+      + "': " + error.message()};
   }
 
   return kdl::void_success;
@@ -223,7 +223,8 @@ kdl::result<void, Error> moveFile(
   const auto fixedSourcePath = fixPath(sourcePath);
   if (pathInfo(fixedSourcePath) == PathInfo::Directory)
   {
-    return Error{"Could not move directory '" + fixedSourcePath.string() + "'"};
+    return Error{
+      "Failed to move '" + fixedSourcePath.string() + "': path denotes a directory"};
   }
 
   auto fixedDestPath = fixPath(destPath);
@@ -237,8 +238,8 @@ kdl::result<void, Error> moveFile(
   if (error)
   {
     return Error{
-      "Could not move file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "': " + error.message()};
+      "Failed to move '" + fixedSourcePath.string() + "' to '" + fixedDestPath.string()
+      + "': " + error.message()};
   }
 
   return kdl::void_success;

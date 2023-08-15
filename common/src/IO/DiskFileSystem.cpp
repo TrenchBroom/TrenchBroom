@@ -54,7 +54,7 @@ kdl::result<std::filesystem::path, Error> DiskFileSystem::makeAbsolute(
   const auto canonicalPath = path.lexically_normal();
   if (!canonicalPath.empty() && kdl::path_front(canonicalPath).string() == "..")
   {
-    return Error{"Cannot make absolute path of '" + path.string() + "'"};
+    return Error{"Failed to make absolute path of '" + path.string() + "'"};
   }
   return canonicalPath.empty() ? m_root : m_root / canonicalPath;
 }

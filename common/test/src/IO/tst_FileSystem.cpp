@@ -79,20 +79,20 @@ TEST_CASE("FileSystem")
     CHECK(
       fs.find("c:\\", TraversalMode::Flat)
       == kdl::result<std::vector<std::filesystem::path>, Error>{
-        Error{"Path is absolute: 'c:\\'"}});
+        Error{"Path 'c:\\' is absolute"}});
     CHECK(
       fs.find("c:\\foo", TraversalMode::Flat)
       == kdl::result<std::vector<std::filesystem::path>, Error>{
-        Error{"Path is absolute: 'c:\\foo'"}});
+        Error{"Path 'c:\\foo' is absolute"}});
 #else
     CHECK(
       fs.find("/", TraversalMode::Flat)
       == kdl::result<std::vector<std::filesystem::path>, Error>{
-        Error{"Path is absolute: '/'"}});
+        Error{"Path '/' is absolute"}});
     CHECK(
       fs.find("/foo", TraversalMode::Flat)
       == kdl::result<std::vector<std::filesystem::path>, Error>{
-        Error{"Path is absolute: '/foo'"}});
+        Error{"Path '/foo' is absolute"}});
 #endif
     CHECK(
       fs.find("does_not_exist", TraversalMode::Flat)
@@ -162,22 +162,21 @@ TEST_CASE("FileSystem")
 #if defined(_WIN32)
     CHECK(
       fs.openFile("c:\\")
-      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path is absolute: 'c:\\'"}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path 'c:\\' is absolute"}});
     CHECK(
       fs.openFile("c:\\foo")
-      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path is absolute: 'c:\\foo'"}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path 'c:\\foo' is absolute"}});
 #else
     CHECK(
       fs.openFile("/")
-      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path is absolute: '/'"}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path '/' is absolute"}});
     CHECK(
       fs.openFile("/foo")
-      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path is absolute: '/foo'"}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"Path '/foo' is absolute"}});
 #endif
     CHECK(
       fs.openFile("does_not_exist")
-      == kdl::result<std::shared_ptr<File>, Error>{
-        Error{"File not found: 'does_not_exist'"}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"'does_not_exist' not found"}});
   }
 }
 

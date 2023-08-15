@@ -88,7 +88,7 @@ kdl::result<std::filesystem::path, Error> VirtualFileSystem::makeAbsolute(
     }
   }
 
-  return Error{"Cannot make absolute path of '" + path.string() + "'"};
+  return Error{"Failed to make absolute path of '" + path.string() + "'"};
 }
 
 PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
@@ -202,7 +202,7 @@ kdl::result<std::shared_ptr<File>, Error> VirtualFileSystem::doOpenFile(
     }
   }
 
-  return Error{"File not found: '" + path.string() + "'"};
+  return Error{"'" + path.string() + "' not found"};
 }
 
 WritableVirtualFileSystem::WritableVirtualFileSystem(

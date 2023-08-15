@@ -273,7 +273,7 @@ kdl::result<std::shared_ptr<File>, Error> ImageFileSystemBase::doOpenFile(
         entry);
     },
     kdl::result<std::shared_ptr<File>, Error>{
-      Error{"File not found: '" + path.string() + "'"}});
+      Error{"'" + path.string() + "' not found"}});
 }
 
 ImageFileSystem::ImageFileSystem(std::shared_ptr<CFile> file)

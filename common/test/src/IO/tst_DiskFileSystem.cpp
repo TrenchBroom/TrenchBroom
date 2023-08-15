@@ -128,12 +128,12 @@ TEST_CASE("DiskFileSystemTest")
     CHECK(
       fs.find("c:\\", TraversalMode::Flat)
       == kdl::result<std::vector<std::filesystem::path>, Error>{
-        Error{"Path is absolute: 'c:\\'"}});
+        Error{"Path 'c:\\' is absolute"}});
 #else
     CHECK(
       fs.find("/", TraversalMode::Flat)
       == kdl::result<std::vector<std::filesystem::path>, Error>{
-        Error{"Path is absolute: '/'"}});
+        Error{"Path '/' is absolute"}});
 #endif
     CHECK(
       fs.find("..", TraversalMode::Flat)
@@ -184,23 +184,22 @@ TEST_CASE("DiskFileSystemTest")
     CHECK(
       fs.openFile("c:\\hopefully_nothing.here")
       == kdl::result<std::shared_ptr<File>, Error>{
-        Error{"Path is absolute: 'c:\\hopefully_nothing.here'"}});
+        Error{"Path 'c:\\hopefully_nothing.here' is absolute"}});
 #else
     CHECK(
       fs.openFile("/hopefully_nothing.here")
       == kdl::result<std::shared_ptr<File>, Error>{
-        Error{"Path is absolute: '/hopefully_nothing.here'"}});
+        Error{"Path '/hopefully_nothing.here' is absolute"}});
 #endif
     CHECK(
       fs.openFile("..")
-      == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: '..'"}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"'..' not found"}});
     CHECK(
       fs.openFile(".")
-      == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: '.'"}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"'.' not found"}});
     CHECK(
       fs.openFile("anotherDir")
-      == kdl::result<std::shared_ptr<File>, Error>{
-        Error{"File not found: 'anotherDir'"}});
+      == kdl::result<std::shared_ptr<File>, Error>{Error{"'anotherDir' not found"}});
 
     const auto checkOpenFile = [&](const auto& path) {
       const auto file = fs.openFile(path).value();
@@ -224,7 +223,7 @@ TEST_CASE("WritableDiskFileSystemTest")
 
     const auto fs = WritableDiskFileSystem{env.dir() / "anotherDir/.."};
     CHECK(fs.makeAbsolute("") == (env.dir() / "anotherDir/..").lexically_normal());
-  }
+  } // namespace TrenchBroom::IO
 
   SECTION("createDirectory")
   {
@@ -235,25 +234,29 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK(
       fs.createDirectory("c:\\hopefully_nothing_here")
       == kdl::result<bool, Error>{
-        Error{"Path is absolute: 'c:\\hopefully_nothing_here'"}});
+        Error{"Path 'c:\\hopefully_nothing_here' is absolute"}});
 #else
     CHECK(
       fs.createDirectory("/hopefully_nothing_here")
-      == kdl::result<bool, Error>{Error{"Path is absolute: '/hopefully_nothing_here'"}});
+      == kdl::result<bool, Error>{Error{"Path '/hopefully_nothing_here' is absolute"}});
 #endif
     CHECK(
       fs.createDirectory("..")
-      == kdl::result<bool, Error>{Error{"Cannot make absolute path of '..'"}});
+      == kdl::result<bool, Error>{Error{"Failed to make absolute path of '..'"}});
     CHECK_THAT(
       fs.createDirectory("test.txt"),
       MatchesAnyOf({
         // macOS
-        kdl::result<bool, Error>{Error{"Could not create directory: File exists"}},
+        kdl::result<bool, Error>{Error{
+          "Failed to create '" + (env.dir() / "test.txt").string() + "': File exists"}},
         // Linux
-        kdl::result<bool, Error>{Error{"Could not create directory: Not a directory"}},
+        kdl::result<bool, Error>{Error{
+          "Failed to create '" + (env.dir() / "test.txt").string()
+          + "': Not a directory"}},
         // Windows
-        kdl::result<bool, Error>{Error{"Could not create directory: Cannot create a file "
-                                       "when that file already exists."}},
+        kdl::result<bool, Error>{Error{
+          "Failed to create '" + (env.dir() / "test.txt").string()
+          + "': Cannot create a file when that file already exists."}},
       }));
 
     CHECK(fs.createDirectory("") == kdl::result<bool, Error>{false});
@@ -281,33 +284,33 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK(
       fs.deleteFile("c:\\hopefully_nothing_here.txt")
       == kdl::result<bool, Error>{
-        Error{"Path is absolute: 'c:\\hopefully_nothing_here.txt'"}});
+        Error{"Path 'c:\\hopefully_nothing_here.txt' is absolute"}});
     CHECK(
       fs.deleteFile("c:\\dir1\\asdf.txt")
-      == kdl::result<bool, Error>{Error{"Path is absolute: 'c:\\dir1\\asdf.txt'"}});
+      == kdl::result<bool, Error>{Error{"Path 'c:\\dir1\\asdf.txt' is absolute"}});
 #else
     CHECK(
       fs.deleteFile("/hopefully_nothing_here.txt")
       == kdl::result<bool, Error>{
-        Error{"Path is absolute: '/hopefully_nothing_here.txt'"}});
+        Error{"Path '/hopefully_nothing_here.txt' is absolute"}});
 #endif
     CHECK(
       fs.deleteFile("")
       == kdl::result<bool, Error>{Error{
-        "Could not delete file '" + (env.dir()).string() + "': path is a directory"}});
+        "Failed to delete '" + (env.dir()).string() + "': path denotes a directory"}});
     CHECK(
       fs.deleteFile(".")
       == kdl::result<bool, Error>{Error{
-        "Could not delete file '" + (env.dir() / "").string()
-        + "': path is a directory"}});
+        "Failed to delete '" + (env.dir() / "").string()
+        + "': path denotes a directory"}});
     CHECK(
       fs.deleteFile("..")
-      == kdl::result<bool, Error>{Error{"Cannot make absolute path of '..'"}});
+      == kdl::result<bool, Error>{Error{"Failed to make absolute path of '..'"}});
     CHECK(
       fs.deleteFile("dir1")
       == kdl::result<bool, Error>{Error{
-        "Could not delete file '" + (env.dir() / "dir1").string()
-        + "': path is a directory"}});
+        "Failed to delete '" + (env.dir() / "dir1").string()
+        + "': path denotes a directory"}});
 
     CHECK(fs.deleteFile("asdf.txt") == kdl::result<bool, Error>{false});
     CHECK(fs.deleteFile("test.txt") == kdl::result<bool, Error>{true});
@@ -330,19 +333,17 @@ TEST_CASE("WritableDiskFileSystemTest")
 #if defined _WIN32
     CHECK(
       fs.moveFile("c:\\hopefully_nothing_here.txt", "dest.txt")
-      == kdl::result<void, Error>{
-        Error{"Source path is absolute: 'c:\\hopefully_nothing_here.txt'"}});
+      == kdl::result<void, Error>{Error{"'c:\\hopefully_nothing_here.txt' is absolute"}});
     CHECK(
       fs.moveFile("test.txt", "C:\\dest.txt")
-      == kdl::result<void, Error>{Error{"Destination path is absolute: 'C:\\dest.txt'"}});
+      == kdl::result<void, Error>{Error{"'C:\\dest.txt' is absolute"}});
 #else
     CHECK(
       fs.moveFile("/hopefully_nothing_here.txt", "dest.txt")
-      == kdl::result<void, Error>{
-        Error{"Source path is absolute: '/hopefully_nothing_here.txt'"}});
+      == kdl::result<void, Error>{Error{"'/hopefully_nothing_here.txt' is absolute"}});
     CHECK(
       fs.moveFile("test.txt", "/dest.txt")
-      == kdl::result<void, Error>{Error{"Destination path is absolute: '/dest.txt'"}});
+      == kdl::result<void, Error>{Error{"'/dest.txt' is absolute"}});
 #endif
 
     CHECK(fs.moveFile("test.txt", "test2.txt") == kdl::result<void, Error>{});
@@ -368,19 +369,17 @@ TEST_CASE("WritableDiskFileSystemTest")
 #if defined _WIN32
     CHECK(
       fs.copyFile("c:\\hopefully_nothing_here.txt", "dest.txt")
-      == kdl::result<void, Error>{
-        Error{"Source path is absolute: 'c:\\hopefully_nothing_here.txt'"}});
+      == kdl::result<void, Error>{Error{"'c:\\hopefully_nothing_here.txt' is absolute"}});
     CHECK(
       fs.copyFile("test.txt", "C:\\dest.txt")
-      == kdl::result<void, Error>{Error{"Destination path is absolute: 'C:\\dest.txt'"}});
+      == kdl::result<void, Error>{Error{"'C:\\dest.txt' is absolute"}});
 #else
     CHECK(
       fs.copyFile("/hopefully_nothing_here.txt", "dest.txt")
-      == kdl::result<void, Error>{
-        Error{"Source path is absolute: '/hopefully_nothing_here.txt'"}});
+      == kdl::result<void, Error>{Error{"'/hopefully_nothing_here.txt' is absolute"}});
     CHECK(
       fs.copyFile("test.txt", "/dest.txt")
-      == kdl::result<void, Error>{Error{"Destination path is absolute: '/dest.txt'"}});
+      == kdl::result<void, Error>{Error{"'/dest.txt' is absolute"}});
 #endif
 
     CHECK(fs.copyFile("test.txt", "test2.txt") == kdl::result<void, Error>{});

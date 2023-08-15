@@ -344,7 +344,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
   const auto checkFileExists = [&]() {
     return IO::Disk::pathInfo(path) == IO::PathInfo::File
              ? kdl::result<void, Error>{}
-             : kdl::result<void, Error>{Error{"File not found: " + path.string()}};
+             : kdl::result<void, Error>{Error{"'" + path.string() + "' not found"}};
   };
 
   auto* frame = static_cast<MapFrame*>(nullptr);

@@ -45,7 +45,7 @@ kdl::result<std::vector<std::filesystem::path>, Error> FileSystem::find(
 {
   if (path.is_absolute())
   {
-    return Error{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
 
   if (pathInfo(path) != PathInfo::Directory)
@@ -65,12 +65,12 @@ kdl::result<std::shared_ptr<File>, Error> FileSystem::openFile(
 {
   if (path.is_absolute())
   {
-    return Error{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
 
   if (pathInfo(path) != PathInfo::File)
   {
-    return Error{"File not found: '" + path.string() + "'"};
+    return Error{"'" + path.string() + "' not found"};
   }
 
   return doOpenFile(path);
@@ -83,7 +83,7 @@ kdl::result<void, Error> WritableFileSystem::createFileAtomic(
 {
   if (path.is_absolute())
   {
-    return Error{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
 
   const auto tmpPath = kdl::path_add_extension(path, "tmp");
@@ -97,7 +97,7 @@ kdl::result<void, Error> WritableFileSystem::createFile(
 {
   if (path.is_absolute())
   {
-    return Error{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
   return doCreateFile(path, contents);
 }
@@ -107,7 +107,7 @@ kdl::result<bool, Error> WritableFileSystem::createDirectory(
 {
   if (path.is_absolute())
   {
-    return Error{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
   return doCreateDirectory(path);
 }
@@ -116,7 +116,7 @@ kdl::result<bool, Error> WritableFileSystem::deleteFile(const std::filesystem::p
 {
   if (path.is_absolute())
   {
-    return Error{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
   return doDeleteFile(path);
 }
@@ -126,11 +126,11 @@ kdl::result<void, Error> WritableFileSystem::copyFile(
 {
   if (sourcePath.is_absolute())
   {
-    return Error{"Source path is absolute: '" + sourcePath.string() + "'"};
+    return Error{"'" + sourcePath.string() + "' is absolute"};
   }
   if (destPath.is_absolute())
   {
-    return Error{"Destination path is absolute: '" + destPath.string() + "'"};
+    return Error{"'" + destPath.string() + "' is absolute"};
   }
   return doCopyFile(sourcePath, destPath);
 }
@@ -140,11 +140,11 @@ kdl::result<void, Error> WritableFileSystem::moveFile(
 {
   if (sourcePath.is_absolute())
   {
-    return Error{"Source path is absolute: '" + sourcePath.string() + "'"};
+    return Error{"'" + sourcePath.string() + "' is absolute"};
   }
   if (destPath.is_absolute())
   {
-    return Error{"Destination path is absolute: '" + destPath.string() + "'"};
+    return Error{"'" + destPath.string() + "' is absolute"};
   }
   return doMoveFile(sourcePath, destPath);
 }

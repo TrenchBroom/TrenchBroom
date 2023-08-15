@@ -46,11 +46,11 @@ TEST_CASE("VirtualFileSystem")
       CHECK(
         vfs.makeAbsolute("")
         == kdl::result<std::filesystem::path, Error>{
-          Error{"Cannot make absolute path of ''"}});
+          Error{"Failed to make absolute path of ''"}});
       CHECK(
         vfs.makeAbsolute("foo/bar")
         == kdl::result<std::filesystem::path, Error>{
-          Error{"Cannot make absolute path of 'foo/bar'"}});
+          Error{"Failed to make absolute path of 'foo/bar'"}});
     }
 
     SECTION("pathInfo")
@@ -75,13 +75,13 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.openFile("")
-        == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: ''"}});
+        == kdl::result<std::shared_ptr<File>, Error>{Error{"'' not found"}});
       CHECK(
         vfs.openFile("foo")
-        == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: 'foo'"}});
+        == kdl::result<std::shared_ptr<File>, Error>{Error{"'foo' not found"}});
       CHECK(
         vfs.openFile("foo/bar")
-        == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: 'foo/bar'"}});
+        == kdl::result<std::shared_ptr<File>, Error>{Error{"'foo/bar' not found"}});
     }
   }
 
@@ -289,7 +289,7 @@ TEST_CASE("VirtualFileSystem")
         == kdl::result<std::shared_ptr<File>, Error>{bar_bat_fs2});
       CHECK(
         vfs.openFile("bar/cat")
-        == kdl::result<std::shared_ptr<File>, Error>{Error{"File not found: 'bar/cat'"}});
+        == kdl::result<std::shared_ptr<File>, Error>{Error{"'bar/cat' not found"}});
     }
   }
 
@@ -326,7 +326,7 @@ TEST_CASE("VirtualFileSystem")
       CHECK(
         vfs.makeAbsolute("")
         == kdl::result<std::filesystem::path, Error>{
-          Error{"Cannot make absolute path of ''"}});
+          Error{"Failed to make absolute path of ''"}});
       CHECK(
         vfs.makeAbsolute("foo/bar")
         == kdl::result<std::filesystem::path, Error>{"/fs1/bar"});
@@ -418,7 +418,7 @@ TEST_CASE("VirtualFileSystem")
       CHECK(
         vfs.makeAbsolute("")
         == kdl::result<std::filesystem::path, Error>{
-          Error{"Cannot make absolute path of ''"}});
+          Error{"Failed to make absolute path of ''"}});
       CHECK(
         vfs.makeAbsolute("foo/bar")
         == kdl::result<std::filesystem::path, Error>{"/fs2/"});
