@@ -30,14 +30,16 @@
 
 namespace TrenchBroom
 {
-namespace Model
+struct Error;
+}
+
+namespace TrenchBroom::Model
 {
 class GroupNode;
 class Node;
-enum class UpdateLinkedGroupsError;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocumentCommandFacade;
 
@@ -71,19 +73,15 @@ public:
   explicit UpdateLinkedGroupsHelper(ChangedLinkedGroups changedLinkedGroups);
   ~UpdateLinkedGroupsHelper();
 
-  kdl::result<void, Model::UpdateLinkedGroupsError> applyLinkedGroupUpdates(
-    MapDocumentCommandFacade& document);
+  kdl::result<void, Error> applyLinkedGroupUpdates(MapDocumentCommandFacade& document);
   void undoLinkedGroupUpdates(MapDocumentCommandFacade& document);
   void collateWith(UpdateLinkedGroupsHelper& other);
 
 private:
-  kdl::result<void, Model::UpdateLinkedGroupsError> computeLinkedGroupUpdates(
-    MapDocumentCommandFacade& document);
-  static kdl::result<LinkedGroupUpdates, Model::UpdateLinkedGroupsError>
-  computeLinkedGroupUpdates(
+  kdl::result<void, Error> computeLinkedGroupUpdates(MapDocumentCommandFacade& document);
+  static kdl::result<LinkedGroupUpdates, Error> computeLinkedGroupUpdates(
     const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document);
 
   void doApplyOrUndoLinkedGroupUpdates(MapDocumentCommandFacade& document);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

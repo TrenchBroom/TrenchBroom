@@ -19,7 +19,7 @@
 
 #include "ReparentNodesCommand.h"
 
-#include "Model/UpdateLinkedGroupsError.h"
+#include "Error.h"
 #include "View/MapDocumentCommandFacade.h"
 
 namespace TrenchBroom

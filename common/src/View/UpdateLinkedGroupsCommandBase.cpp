@@ -19,8 +19,8 @@
 
 #include "UpdateLinkedGroupsCommandBase.h"
 
+#include "Error.h"
 #include "Exceptions.h"
-#include "Model/UpdateLinkedGroupsError.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/UpdateLinkedGroupsCommand.h"
 
@@ -58,11 +58,11 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
       setModificationCount(document);
       return std::move(commandResult);
     })
-    .transform_error([&](const Model::UpdateLinkedGroupsError& e) {
+    .transform_error([&](auto e) {
       doPerformUndo(document);
       if (document)
       {
-        document->error() << e;
+        document->error() << e.msg;
       }
       return std::make_unique<CommandResult>(false);
     })

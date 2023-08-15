@@ -20,9 +20,9 @@
 #include "AddRemoveNodesCommand.h"
 
 #include "Ensure.h"
+#include "Error.h"
 #include "Macros.h"
 #include "Model/Node.h"
-#include "Model/UpdateLinkedGroupsError.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/map_utils.h>

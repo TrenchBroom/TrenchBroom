@@ -38,9 +38,11 @@
 
 namespace TrenchBroom
 {
-namespace Model
+struct Error;
+}
+
+namespace TrenchBroom::Model
 {
-enum class UpdateLinkedGroupsError;
 using UpdateLinkedGroupsResult =
   std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>;
 
@@ -71,7 +73,7 @@ using UpdateLinkedGroupsResult =
  * the target node that should be updated, and the new children that should replace the
  * target node's children.
  */
-kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroups(
+kdl::result<UpdateLinkedGroupsResult, Error> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
   const std::vector<Model::GroupNode*>& targetGroupNodes,
   const vm::bbox3& worldBounds);
@@ -182,5 +184,4 @@ private: // implement Taggable interface
 private:
   deleteCopyAndMove(GroupNode);
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model
