@@ -3276,18 +3276,6 @@ bool MapDocument::csgHollow()
   return transaction.commit();
 }
 
-namespace
-{
-struct ReplaceClippedBrushesError
-{
-  [[maybe_unused]] friend std::ostream& operator<<(
-    std::ostream& lhs, const ReplaceClippedBrushesError&)
-  {
-    return lhs << "Could not replace brushes in document";
-  }
-};
-} // namespace
-
 bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3)
 {
   return kdl::fold_results(
@@ -3309,35 +3297,33 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
                      originalBrush->parent(), std::move(clippedBrush));
                  });
              }))
-    .and_then(
-      [&](
-        auto&& clippedBrushAndParents) -> kdl::result<void, ReplaceClippedBrushesError> {
-        auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-        const auto toRemove =
-          kdl::vec_element_cast<Model::Node*>(m_selectedNodes.brushes());
+    .and_then([&](auto&& clippedBrushAndParents) -> kdl::result<void, Error> {
+      auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+      const auto toRemove =
+        kdl::vec_element_cast<Model::Node*>(m_selectedNodes.brushes());
 
-        for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
-        {
-          toAdd[parentNode].push_back(new Model::BrushNode{std::move(clippedBrush)});
-        }
+      for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
+      {
+        toAdd[parentNode].push_back(new Model::BrushNode{std::move(clippedBrush)});
+      }
 
-        auto transaction = Transaction{*this, "Clip Brushes"};
-        deselectAll();
-        removeNodes(toRemove);
+      auto transaction = Transaction{*this, "Clip Brushes"};
+      deselectAll();
+      removeNodes(toRemove);
 
-        const auto addedNodes = addNodes(toAdd);
-        if (addedNodes.empty())
-        {
-          transaction.cancel();
-          return ReplaceClippedBrushesError{};
-        }
-        selectNodes(addedNodes);
-        if (!transaction.commit())
-        {
-          return ReplaceClippedBrushesError{};
-        }
-        return kdl::void_success;
-      })
+      const auto addedNodes = addNodes(toAdd);
+      if (addedNodes.empty())
+      {
+        transaction.cancel();
+        return Error{"Could not replace brushes in document"};
+      }
+      selectNodes(addedNodes);
+      if (!transaction.commit())
+      {
+        return Error{"Could not replace brushes in document"};
+      }
+      return kdl::void_success;
+    })
     .if_error([&](const auto& e) { error() << "Could not clip brushes: " << e; })
     .is_success();
 }
