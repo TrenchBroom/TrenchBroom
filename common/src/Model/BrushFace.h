@@ -41,17 +41,19 @@
 
 namespace TrenchBroom
 {
-namespace Assets
+struct Error;
+}
+
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class TexCoordSystem;
 class TexCoordSystemSnapshot;
 enum class WrapStyle;
-enum class BrushError;
 enum class MapFormat;
 
 class BrushFace : public Taggable
@@ -128,7 +130,7 @@ public:
    *
    * The returned face has a TexCoordSystem matching the given format.
    */
-  static kdl::result<BrushFace, BrushError> create(
+  static kdl::result<BrushFace, Error> create(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -143,7 +145,7 @@ public:
    *
    * The returned face has a TexCoordSystem matching the given format.
    */
-  static kdl::result<BrushFace, BrushError> createFromStandard(
+  static kdl::result<BrushFace, Error> createFromStandard(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -158,7 +160,7 @@ public:
    *
    * The returned face has a TexCoordSystem matching the given format.
    */
-  static kdl::result<BrushFace, BrushError> createFromValve(
+  static kdl::result<BrushFace, Error> createFromValve(
     const vm::vec3& point1,
     const vm::vec3& point2,
     const vm::vec3& point3,
@@ -167,7 +169,7 @@ public:
     const vm::vec3& texAxisY,
     MapFormat mapFormat);
 
-  static kdl::result<BrushFace, BrushError> create(
+  static kdl::result<BrushFace, Error> create(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -233,10 +235,10 @@ public:
     const vm::vec3& cameraRight,
     vm::direction cameraRelativeFlipDirection);
 
-  kdl::result<void, BrushError> transform(const vm::mat4x4& transform, bool lockTexture);
+  kdl::result<void, Error> transform(const vm::mat4x4& transform, bool lockTexture);
   void invert();
 
-  kdl::result<void, BrushError> updatePointsFromVertices();
+  kdl::result<void, Error> updatePointsFromVertices();
 
   vm::mat4x4 projectToBoundaryMatrix() const;
   vm::mat4x4 toTexCoordSystemMatrix(
@@ -270,7 +272,7 @@ public:
   FloatType intersectWithRay(const vm::ray3& ray) const;
 
 private:
-  kdl::result<void, BrushError> setPoints(
+  kdl::result<void, Error> setPoints(
     const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
   void correctPoints();
 
@@ -289,5 +291,4 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 };
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

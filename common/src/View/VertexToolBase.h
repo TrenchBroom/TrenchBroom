@@ -19,10 +19,10 @@
 
 #pragma once
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/Game.h"
 #include "Model/Hit.h"
@@ -337,7 +337,7 @@ public: // csg convex merge
       document->worldBounds(),
       game->defaultFaceAttribs()};
     builder.createBrush(polyhedron, document->currentTextureName())
-      .transform([&](Model::Brush&& b) {
+      .transform([&](auto b) {
         for (const auto* selectedBrushNode : document->selectedNodes().brushes())
         {
           b.cloneFaceAttributesFrom(selectedBrushNode->brush());
@@ -354,9 +354,8 @@ public: // csg convex merge
         }
         transaction.commit();
       })
-      .transform_error([&](const Model::BrushError e) {
-        document->error() << "Could not create brush: " << e;
-      });
+      .transform_error(
+        [&](auto e) { document->error() << "Could not create brush: " << e.msg; });
   }
 
   virtual H getHandlePosition(const Model::Hit& hit) const

@@ -21,9 +21,9 @@
 
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/TextureManager.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "Model/Brush.h"
-#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"

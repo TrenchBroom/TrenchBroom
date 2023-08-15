@@ -18,6 +18,7 @@
  */
 
 #include "Assets/Texture.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "IO/DiskIO.h"
@@ -25,7 +26,6 @@
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"

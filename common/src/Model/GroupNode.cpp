@@ -20,6 +20,7 @@
 #include "GroupNode.h"
 
 #include "Ensure.h"
+#include "Error.h"
 #include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
@@ -143,7 +144,7 @@ cloneAndTransformChildren(
 {
   auto nodesToClone = collectNodesToCloneAndTransform(node);
 
-  using TransformResult = kdl::result<std::pair<const Node*, NodeContents>, BrushError>;
+  using TransformResult = kdl::result<std::pair<const Node*, NodeContents>, Error>;
 
   // In parallel, produce pairs { node pointer, transformed contents } from the nodes in
   // `nodesToClone`

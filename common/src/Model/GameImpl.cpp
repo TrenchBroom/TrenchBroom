@@ -57,7 +57,6 @@
 #include "Logger.h"
 #include "Macros.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
@@ -198,12 +197,10 @@ kdl::result<std::unique_ptr<WorldNode>, Error> GameImpl::doNewMap(
   const auto builder =
     Model::BrushBuilder{worldNode->mapFormat(), worldBounds, defaultFaceAttribs()};
   builder.createCuboid({128.0, 128.0, 32.0}, Model::BrushFaceAttributes::NoTextureName)
-    .transform([&](Brush&& b) {
-      worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)});
-    })
-    .transform_error([&](const Model::BrushError e) {
-      logger.error() << "Could not create default brush: " << e;
-    });
+    .transform(
+      [&](auto b) { worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)}); })
+    .transform_error(
+      [&](auto e) { logger.error() << "Could not create default brush: " << e.msg; });
 
   return worldNode;
 }

@@ -21,9 +21,9 @@
 
 #include "Assets/Texture.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
-#include "Model/BrushError.h"
 #include "Model/MapFormat.h"
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
@@ -51,9 +51,7 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 const BrushVertex* BrushFace::TransformHalfEdgeToVertex::operator()(
   const BrushHalfEdge* halfEdge) const
@@ -124,7 +122,7 @@ BrushFace::~BrushFace() = default;
 
 kdl_reflect_impl(BrushFace);
 
-kdl::result<BrushFace, BrushError> BrushFace::create(
+kdl::result<BrushFace, Error> BrushFace::create(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -147,7 +145,7 @@ kdl::result<BrushFace, BrushError> BrushFace::create(
                point0, point1, point2, attributes));
 }
 
-kdl::result<BrushFace, BrushError> BrushFace::createFromStandard(
+kdl::result<BrushFace, Error> BrushFace::createFromStandard(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -176,7 +174,7 @@ kdl::result<BrushFace, BrushError> BrushFace::createFromStandard(
   return BrushFace::create(point0, point1, point2, attribs, std::move(texCoordSystem));
 }
 
-kdl::result<BrushFace, BrushError> BrushFace::createFromValve(
+kdl::result<BrushFace, Error> BrushFace::createFromValve(
   const vm::vec3& point1,
   const vm::vec3& point2,
   const vm::vec3& point3,
@@ -206,7 +204,7 @@ kdl::result<BrushFace, BrushError> BrushFace::createFromValve(
   return BrushFace::create(point1, point2, point3, attribs, std::move(texCoordSystem));
 }
 
-kdl::result<BrushFace, BrushError> BrushFace::create(
+kdl::result<BrushFace, Error> BrushFace::create(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -221,7 +219,7 @@ kdl::result<BrushFace, BrushError> BrushFace::create(
   }
   else
   {
-    return BrushError::InvalidFace;
+    return Error{"Brush has invalid face"};
   }
 }
 
@@ -644,7 +642,7 @@ void BrushFace::flipTexture(
   }
 }
 
-kdl::result<void, BrushError> BrushFace::transform(
+kdl::result<void, Error> BrushFace::transform(
   const vm::mat4x4& transform, const bool lockTexture)
 {
   using std::swap;
@@ -685,7 +683,7 @@ void BrushFace::invert()
   swap(m_points[1], m_points[2]);
 }
 
-kdl::result<void, BrushError> BrushFace::updatePointsFromVertices()
+kdl::result<void, Error> BrushFace::updatePointsFromVertices()
 {
   ensure(m_geometry != nullptr, "geometry is null");
 
@@ -865,7 +863,7 @@ FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const
   }
 }
 
-kdl::result<void, BrushError> BrushFace::setPoints(
+kdl::result<void, Error> BrushFace::setPoints(
   const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2)
 {
   m_points[0] = point0;
@@ -881,7 +879,7 @@ kdl::result<void, BrushError> BrushFace::setPoints(
   }
   else
   {
-    return BrushError::InvalidFace;
+    return Error{"Brush has invalid face"};
   }
 }
 
@@ -912,5 +910,4 @@ void BrushFace::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

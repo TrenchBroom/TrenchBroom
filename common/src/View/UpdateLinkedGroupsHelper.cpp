@@ -19,7 +19,7 @@
 
 #include "UpdateLinkedGroupsHelper.h"
 
-#include "Model/BrushError.h"
+#include "Error.h"
 #include "Model/GroupNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"

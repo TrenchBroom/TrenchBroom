@@ -19,11 +19,11 @@
 
 #include "BrushNode.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
-#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushGeometry.h"

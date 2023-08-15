@@ -19,8 +19,8 @@
 
 #include "MapReader.h"
 
+#include "Error.h"
 #include "IO/ParserStatus.h"
-#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
@@ -137,13 +137,11 @@ void MapReader::onStandardBrushFace(
   ParserStatus& status)
 {
   Model::BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat)
-    .transform([&](Model::BrushFace&& face) {
+    .transform([&](auto face) {
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
-    .transform_error([&](const Model::BrushError e) {
-      status.error(line, kdl::str_to_string("Skipping face: ", e));
-    });
+    .transform_error([&](auto e) { status.error(line, "Skipping face: " + e.msg); });
 }
 
 void MapReader::onValveBrushFace(
@@ -163,9 +161,7 @@ void MapReader::onValveBrushFace(
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
     })
-    .transform_error([&](const Model::BrushError e) {
-      status.error(line, kdl::str_to_string("Skipping face: ", e));
-    });
+    .transform_error([&](auto e) { status.error(line, "Skipping face: " + e.msg); });
 }
 
 void MapReader::onPatch(
@@ -574,7 +570,7 @@ static CreateNodeResult createBrushNode(
   MapReader::BrushInfo brushInfo, const vm::bbox3& worldBounds)
 {
   return Model::Brush::create(worldBounds, std::move(brushInfo.faces))
-    .transform([&](Model::Brush&& brush) {
+    .transform([&](auto brush) {
       auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
       brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
 
@@ -584,7 +580,7 @@ static CreateNodeResult createBrushNode(
         std::move(brushNode), std::move(parentInfo), {} // issues
       };
     })
-    .or_else([&](const Model::BrushError e) {
+    .or_else([&](auto e) {
       return CreateNodeResult{NodeError{brushInfo.startLine, kdl::str_to_string(e)}};
     });
 }

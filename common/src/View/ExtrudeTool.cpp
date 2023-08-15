@@ -19,9 +19,9 @@
 
 #include "ExtrudeTool.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
-#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
@@ -453,7 +453,7 @@ bool splitBrushesOutward(
       dragState.currentDragFaces = std::move(newDragFaces);
       dragState.totalDelta = delta;
     })
-    .if_error([&](const Model::BrushError e) {
+    .transform_error([&](auto e) {
       document.error() << "Could not extrude brush: " << e;
       kdl::map_clear_and_delete(newNodes);
     })

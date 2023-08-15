@@ -420,7 +420,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsExceedsWorldBounds")
   updateLinkedGroups(groupNode, {groupNodeClone.get()}, worldBounds)
     .transform([&](const UpdateLinkedGroupsResult&) { FAIL(); })
     .transform_error(kdl::overload(
-      [](const BrushError&) { FAIL(); },
+      [](const Error&) { FAIL(); },
       [](const UpdateLinkedGroupsError& e) {
         CHECK(e == UpdateLinkedGroupsError::UpdateExceedsWorldBounds);
       }));

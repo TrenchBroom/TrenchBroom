@@ -20,6 +20,7 @@
 #include "../../test/src/Catch2.h"
 #include "Assets/Texture.h"
 #include "BenchmarkUtils.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"

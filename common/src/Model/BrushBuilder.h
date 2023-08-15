@@ -32,12 +32,13 @@
 
 namespace TrenchBroom
 {
-namespace Model
+struct Error;
+}
+
+namespace TrenchBroom::Model
 {
 class Brush;
 class ModelFactory;
-
-enum class BrushError;
 enum class MapFormat;
 
 class BrushBuilder
@@ -54,9 +55,9 @@ public:
     const vm::bbox3& worldBounds,
     const BrushFaceAttributes& defaultAttribs);
 
-  kdl::result<Brush, BrushError> createCube(
+  kdl::result<Brush, Error> createCube(
     FloatType size, const std::string& textureName) const;
-  kdl::result<Brush, BrushError> createCube(
+  kdl::result<Brush, Error> createCube(
     FloatType size,
     const std::string& leftTexture,
     const std::string& rightTexture,
@@ -65,9 +66,9 @@ public:
     const std::string& topTexture,
     const std::string& bottomTexture) const;
 
-  kdl::result<Brush, BrushError> createCuboid(
+  kdl::result<Brush, Error> createCuboid(
     const vm::vec3& size, const std::string& textureName) const;
-  kdl::result<Brush, BrushError> createCuboid(
+  kdl::result<Brush, Error> createCuboid(
     const vm::vec3& size,
     const std::string& leftTexture,
     const std::string& rightTexture,
@@ -76,9 +77,9 @@ public:
     const std::string& topTexture,
     const std::string& bottomTexture) const;
 
-  kdl::result<Brush, BrushError> createCuboid(
+  kdl::result<Brush, Error> createCuboid(
     const vm::bbox3& bounds, const std::string& textureName) const;
-  kdl::result<Brush, BrushError> createCuboid(
+  kdl::result<Brush, Error> createCuboid(
     const vm::bbox3& bounds,
     const std::string& leftTexture,
     const std::string& rightTexture,
@@ -87,10 +88,9 @@ public:
     const std::string& topTexture,
     const std::string& bottomTexture) const;
 
-  kdl::result<Brush, BrushError> createBrush(
+  kdl::result<Brush, Error> createBrush(
     const std::vector<vm::vec3>& points, const std::string& textureName) const;
-  kdl::result<Brush, BrushError> createBrush(
+  kdl::result<Brush, Error> createBrush(
     const Polyhedron3& polyhedron, const std::string& textureName) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model
