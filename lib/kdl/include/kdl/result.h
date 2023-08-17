@@ -733,6 +733,11 @@ public:
       std::move(m_value));
   }
 
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
   template <typename F>
   auto transform_error(const F& f) const&
   {
@@ -768,6 +773,9 @@ public:
         [&](auto&& e) { return Cm_Result{f(std::forward<decltype(e)>(e))}; }),
       std::move(m_value));
   }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
   /**
    * Applies the given function to any error contained in this result, and returns this
@@ -1335,6 +1343,11 @@ public:
       std::move(m_value));
   }
 
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
   template <typename F>
   auto transform_error(const F& f) const&
   {
@@ -1370,6 +1383,9 @@ public:
         [&](auto&& e) { return Cm_Result{f(std::forward<decltype(e)>(e))}; }),
       std::move(m_value));
   }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
   /**
    * See result<Value, Errors...>::if_error.
@@ -1959,6 +1975,11 @@ public:
       std::move(m_value));
   }
 
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
   template <typename F>
   auto transform_error(const F& f) const&
   {
@@ -2003,6 +2024,9 @@ public:
         }),
       std::move(m_value));
   }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
   /**
    * See result<Value, Errors...>::if_error.
