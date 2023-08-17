@@ -645,7 +645,7 @@ void GameImpl::doLoadFrame(
         }
         return GameError{"Unknown model format: '" + path.string() + "'"};
       })
-      .if_error([&](auto e) {
+      .transform_error([&](auto e) {
         throw GameException{"Could not load model " + path.string() + ": " + e.msg};
       });
   }

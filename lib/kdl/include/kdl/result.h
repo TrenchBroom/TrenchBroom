@@ -2032,9 +2032,9 @@ public:
    * See result<Value, Errors...>::if_error.
    */
   template <typename F>
-  bool if_error(const F& f) const&
+  auto if_error(const F& f) const&
   {
-    return std::visit(
+    std::visit(
       overload(
         [](const detail::void_success_value_type&) { return true; },
         [&](const auto& e) {
@@ -2042,22 +2042,21 @@ public:
           return false;
         }),
       m_value);
+    return *this;
   }
 
   /**
    * See result<Value, Errors...>::if_error.
    */
   template <typename F>
-  bool if_error(const F& f) &&
+  auto if_error(const F& f) &&
   {
-    return std::visit(
+    std::visit(
       overload(
-        [](detail::void_success_value_type&&) { return true; },
-        [&](auto&& e) {
-          f(e);
-          return false;
-        }),
+        [](detail::void_success_value_type&&) {},
+        [&](auto&& e) { f(std::forward<decltype(e)>(e)); }),
       std::move(m_value));
+    return *this;
   }
 
   /**

@@ -623,7 +623,7 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
 {
   ensure(m_game.get() != nullptr, "game is null");
   ensure(m_world, "world is null");
-  m_game->writeMap(*m_world, path).if_error([&](const auto& e) {
+  m_game->writeMap(*m_world, path).transform_error([&](const auto& e) {
     error() << "Could not save document: " << e.msg;
   });
 }
@@ -928,7 +928,7 @@ void MapDocument::loadPointFile(std::filesystem::path path)
       m_pointFile = PointFile{std::move(trace), std::move(path)};
       pointFileWasLoadedNotifier();
     });
-  }).if_error([&](auto e) {
+  }).transform_error([&](auto e) {
     error() << "Couldn't load portal file " << path << ": " << e.msg;
     m_pointFile = {};
   });
@@ -982,7 +982,7 @@ void MapDocument::loadPortalFile(std::filesystem::path path)
       m_portalFile = {std::move(portalFile), std::move(path)};
       portalFileWasLoadedNotifier();
     });
-  }).if_error([&](auto e) {
+  }).transform_error([&](auto e) {
     error() << "Couldn't load portal file " << path << ": " << e.msg;
     m_portalFile = std::nullopt;
   });
@@ -3046,7 +3046,8 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
 
       return kdl::void_success;
     })
-    .if_error([&](const auto& e) { error() << "Could not create brush: " << e; });
+    .if_error([&](const auto& e) { error() << "Could not create brush: " << e; })
+    .is_success();
 }
 
 bool MapDocument::csgConvexMerge()
@@ -3126,7 +3127,8 @@ bool MapDocument::csgConvexMerge()
       transaction.commit();
     })
     .if_error(
-      [&](const Model::BrushError e) { error() << "Could not create brush: " << e; });
+      [&](const Model::BrushError e) { error() << "Could not create brush: " << e; })
+    .is_success();
 }
 
 bool MapDocument::csgSubtract()
@@ -3210,7 +3212,8 @@ bool MapDocument::csgIntersect()
     valid = intersection.intersect(m_worldBounds, brush)
               .if_error([&](const Model::BrushError e) {
                 error() << "Could not intersect brushes: " << e;
-              });
+              })
+              .is_success();
   }
 
   const auto toRemove = std::vector<Model::Node*>{std::begin(brushes), std::end(brushes)};
@@ -3358,7 +3361,8 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
         }
         return kdl::void_success;
       })
-    .if_error([&](const auto& e) { error() << "Could not clip brushes: " << e; });
+    .if_error([&](const auto& e) { error() << "Could not clip brushes: " << e; })
+    .is_success();
 }
 
 bool MapDocument::setProperty(
@@ -3856,7 +3860,8 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
           })
           .if_error([&](const Model::BrushError e) {
             error() << "Could not move brush vertices: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -3936,7 +3941,8 @@ bool MapDocument::moveEdges(
           })
           .if_error([&](const Model::BrushError e) {
             error() << "Could not move brush edges: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4003,7 +4009,8 @@ bool MapDocument::moveFaces(
           })
           .if_error([&](const Model::BrushError e) {
             error() << "Could not move brush faces: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4054,7 +4061,8 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition)
         return brush.addVertex(m_worldBounds, vertexPosition)
           .if_error([&](const Model::BrushError e) {
             error() << "Could not add brush vertex: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4110,7 +4118,8 @@ bool MapDocument::removeVertices(
         return brush.removeVertices(m_worldBounds, verticesToRemove)
           .if_error([&](const Model::BrushError e) {
             error() << "Could not remove brush vertices: " << e;
-          });
+          })
+          .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 

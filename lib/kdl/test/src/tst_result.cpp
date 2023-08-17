@@ -30,14 +30,6 @@
 
 #include <catch2/catch.hpp>
 
-/*
-missing tests:
-if_error
-value all value categories?
-value_or all value categories?
-error()
- */
-
 namespace kdl
 {
 struct Error1
@@ -1568,12 +1560,16 @@ TEST_CASE("result_test.if_error")
   {
     called = false;
     const auto constLValueSuccess = result<void, Error1, Error2>{};
-    constLValueSuccess.if_error([&](const auto&) { called = true; });
+    CHECK(constLValueSuccess.if_error([&](const auto&) {
+      called = true;
+    }) == kdl::result<void, Error1, Error2>{});
     CHECK_FALSE(called);
 
     called = false;
     const auto constLValueError = result<void, Error1, Error2>{Error1{}};
-    constLValueError.if_error([&](const auto&) { called = true; });
+    CHECK(constLValueError.if_error([&](const auto&) {
+      called = true;
+    }) == kdl::result<void, Error1, Error2>{Error1{}});
     CHECK(called);
   }
 }

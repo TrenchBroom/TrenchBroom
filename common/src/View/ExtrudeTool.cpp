@@ -456,7 +456,8 @@ bool splitBrushesOutward(
     .if_error([&](const Model::BrushError e) {
       document.error() << "Could not extrude brush: " << e;
       kdl::map_clear_and_delete(newNodes);
-    });
+    })
+    .is_success();
 }
 
 /**
