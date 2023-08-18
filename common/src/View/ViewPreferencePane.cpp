@@ -126,6 +126,15 @@ QWidget* ViewPreferencePane::createViewPreferences()
   m_layoutCombo->addItem("Three Panes");
   m_layoutCombo->addItem("Four Panes");
 
+  m_link2dCameras = new QCheckBox{"Sync 2D views"};
+  m_link2dCameras->setToolTip("All 2D views pan and zoom together.");
+
+  auto* viewLayoutLayout = new QHBoxLayout{};
+  viewLayoutLayout->addWidget(m_layoutCombo);
+  viewLayoutLayout->addSpacing(LayoutConstants::NarrowHMargin);
+  viewLayoutLayout->addWidget(m_link2dCameras);
+  viewLayoutLayout->setContentsMargins(0, 0, 0, 0);
+
   m_brightnessSlider = new SliderWithLabel{brightnessToUI(0.0f), brightnessToUI(2.0f)};
   m_brightnessSlider->setMaximumWidth(400);
   m_brightnessSlider->setToolTip(
@@ -181,7 +190,7 @@ QWidget* ViewPreferencePane::createViewPreferences()
   layout->addRow("Theme", themeLayout);
 
   layout->addSection("Map Views");
-  layout->addRow("Layout", m_layoutCombo);
+  layout->addRow("Layout", viewLayoutLayout);
   layout->addRow("Brightness", m_brightnessSlider);
   layout->addRow("Grid", m_gridAlphaSlider);
   layout->addRow("FOV", m_fovSlider);
@@ -208,6 +217,11 @@ void ViewPreferencePane::bindEvents()
     QOverload<int>::of(&QComboBox::currentIndexChanged),
     this,
     &ViewPreferencePane::layoutChanged);
+  connect(
+    m_link2dCameras,
+    &QCheckBox::stateChanged,
+    this,
+    &ViewPreferencePane::link2dCamerasChanged);
   connect(
     m_brightnessSlider,
     &SliderWithLabel::valueChanged,
@@ -255,6 +269,7 @@ void ViewPreferencePane::doResetToDefaults()
 {
   auto& prefs = PreferenceManager::instance();
   prefs.resetToDefault(Preferences::MapViewLayout);
+  prefs.resetToDefault(Preferences::Link2DCameras);
   prefs.resetToDefault(Preferences::Brightness);
   prefs.resetToDefault(Preferences::GridAlpha);
   prefs.resetToDefault(Preferences::CameraFov);
@@ -270,6 +285,7 @@ void ViewPreferencePane::doResetToDefaults()
 void ViewPreferencePane::doUpdateControls()
 {
   m_layoutCombo->setCurrentIndex(pref(Preferences::MapViewLayout));
+  m_link2dCameras->setChecked(pref(Preferences::Link2DCameras));
   m_brightnessSlider->setValue(brightnessToUI(pref(Preferences::Brightness)));
   m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
   m_fovSlider->setValue(int(pref(Preferences::CameraFov)));
@@ -351,6 +367,13 @@ void ViewPreferencePane::layoutChanged(const int index)
 
   auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::MapViewLayout, index);
+}
+
+void ViewPreferencePane::link2dCamerasChanged(const int state)
+{
+  const auto value = state == Qt::Checked;
+  auto& prefs = PreferenceManager::instance();
+  prefs.set(Preferences::Link2DCameras, value);
 }
 
 void ViewPreferencePane::brightnessChanged(const int value)

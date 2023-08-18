@@ -33,6 +33,7 @@ class ViewPreferencePane : public PreferencePane
   Q_OBJECT
 private:
   QComboBox* m_layoutCombo = nullptr;
+  QCheckBox* m_link2dCameras = nullptr;
   SliderWithLabel* m_brightnessSlider = nullptr;
   SliderWithLabel* m_gridAlphaSlider = nullptr;
   SliderWithLabel* m_fovSlider = nullptr;
@@ -61,6 +62,7 @@ private:
   int findThemeIndex(const QString& theme);
 private slots:
   void layoutChanged(int index);
+  void link2dCamerasChanged(int state);
   void brightnessChanged(int value);
   void gridAlphaChanged(int value);
   void fovChanged(int value);
