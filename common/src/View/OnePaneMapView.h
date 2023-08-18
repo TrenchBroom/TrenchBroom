@@ -50,11 +50,11 @@ private:
 
 public:
   explicit OnePaneMapView(
-    Logger* logger,
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
+    Logger* logger,
     QWidget* parent = nullptr);
 
 private:
@@ -62,5 +62,9 @@ private:
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager);
+
+private: // implement MultiPaneMapView subclassing interface
+  void doMaximizeView(MapView* view) override;
+  void doRestoreViews() override;
 };
 } // namespace TrenchBroom::View

@@ -26,7 +26,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/MapRenderer.h"
-#include "View/CyclingMapView.h"
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
 #include "View/Inspector.h"
@@ -36,6 +35,7 @@
 #include "View/MapViewContainer.h"
 #include "View/MapViewLayout.h"
 #include "View/MapViewToolBox.h"
+#include "View/OnePaneMapView.h"
 #include "View/QtUtils.h"
 #include "View/ThreePaneMapView.h"
 #include "View/TwoPaneMapView.h"
@@ -99,13 +99,8 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
   switch (viewId)
   {
   case MapViewLayout::OnePane:
-    m_mapView = new CyclingMapView{
-      m_document,
-      *m_toolBox,
-      *m_mapRenderer,
-      m_contextManager,
-      CyclingMapView::View_ALL,
-      m_logger};
+    m_mapView = new OnePaneMapView{
+      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
   case MapViewLayout::TwoPanes:
     m_mapView = new TwoPaneMapView{

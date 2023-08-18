@@ -28,11 +28,11 @@
 namespace TrenchBroom::View
 {
 OnePaneMapView::OnePaneMapView(
-  Logger* logger,
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
+  Logger* logger,
   QWidget* parent)
   : MultiPaneMapView{parent}
   , m_logger{logger}
@@ -60,5 +60,15 @@ void OnePaneMapView::createGui(
   auto* layout = new QGridLayout{};
   layout->addWidget(m_mapView, 0, 0, 1, 1);
   setLayout(layout);
+}
+
+void OnePaneMapView::doMaximizeView(MapView*)
+{
+  // nothing to do
+}
+
+void OnePaneMapView::doRestoreViews()
+{
+  // nothing to do
 }
 } // namespace TrenchBroom::View

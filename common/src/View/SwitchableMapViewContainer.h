@@ -49,6 +49,7 @@ class MapDocument;
 class MapViewBar;
 enum class MapViewLayout;
 class MapViewToolBox;
+class MultiPaneMapView;
 class Tool;
 class VertexTool;
 
@@ -65,7 +66,7 @@ private:
 
   std::unique_ptr<Renderer::MapRenderer> m_mapRenderer;
 
-  MapViewContainer* m_mapView = nullptr;
+  MultiPaneMapView* m_mapView = nullptr;
   std::unique_ptr<MapViewActivationTracker> m_activationTracker;
 
   NotifierConnection m_notifierConnection;
