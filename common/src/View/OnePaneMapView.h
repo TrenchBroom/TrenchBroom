@@ -20,7 +20,7 @@
 #pragma once
 
 #include "View/CameraLinkHelper.h"
-#include "View/MultiMapView.h"
+#include "View/MultiPaneMapView.h"
 
 #include <memory>
 
@@ -40,7 +40,7 @@ class GLContextManager;
 class MapDocument;
 class MapViewToolBox;
 
-class OnePaneMapView : public MultiMapView
+class OnePaneMapView : public MultiPaneMapView
 {
 private:
   Logger* m_logger;

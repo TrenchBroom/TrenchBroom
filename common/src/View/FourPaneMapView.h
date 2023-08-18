@@ -20,7 +20,7 @@
 #pragma once
 
 #include "View/CameraLinkHelper.h"
-#include "View/MultiMapView.h"
+#include "View/MultiPaneMapView.h"
 
 #include <memory>
 
@@ -43,7 +43,7 @@ class MapView2D;
 class MapView3D;
 class MapViewToolBox;
 
-class FourPaneMapView : public MultiMapView
+class FourPaneMapView : public MultiPaneMapView
 {
   Q_OBJECT
 private:
@@ -79,7 +79,7 @@ private:
 private: // event handlers
   void onSplitterMoved(int pos, int index);
 
-private: // implement MultiMapView subclassing interface
+private: // implement MultiPaneMapView subclassing interface
   void doMaximizeView(MapView* view) override;
   void doRestoreViews() override;
 };

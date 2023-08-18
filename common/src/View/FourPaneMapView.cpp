@@ -40,7 +40,7 @@ FourPaneMapView::FourPaneMapView(
   GLContextManager& contextManager,
   Logger* logger,
   QWidget* parent)
-  : MultiMapView(parent)
+  : MultiPaneMapView(parent)
   , m_logger(logger)
   , m_document(std::move(document))
   , m_hSplitter(nullptr)

@@ -36,7 +36,7 @@ OnePaneMapView::OnePaneMapView(
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   QWidget* parent)
-  : MultiMapView(parent)
+  : MultiPaneMapView(parent)
   , m_logger(logger)
   , m_document(document)
   , m_mapView(nullptr)

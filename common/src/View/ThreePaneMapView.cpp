@@ -40,7 +40,7 @@ ThreePaneMapView::ThreePaneMapView(
   GLContextManager& contextManager,
   Logger* logger,
   QWidget* parent)
-  : MultiMapView(parent)
+  : MultiPaneMapView(parent)
   , m_logger(logger)
   , m_document(document)
   , m_hSplitter(nullptr)

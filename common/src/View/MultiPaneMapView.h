@@ -30,7 +30,7 @@ namespace TrenchBroom
 {
 namespace View
 {
-class MultiMapView : public MapViewContainer
+class MultiPaneMapView : public MapViewContainer
 {
 private:
   using MapViewList = std::vector<MapView*>;
@@ -38,10 +38,10 @@ private:
   MapView* m_maximizedView;
 
 protected:
-  explicit MultiMapView(QWidget* parent = nullptr);
+  explicit MultiPaneMapView(QWidget* parent = nullptr);
 
 public:
-  ~MultiMapView() override;
+  ~MultiPaneMapView() override;
 
 protected:
   void addMapView(MapView* mapView);

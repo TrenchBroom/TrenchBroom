@@ -17,37 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MultiMapView.h"
-
 #include "Ensure.h"
+#include "MultiPaneMapView.h"
 #include "View/MapView.h"
 
 namespace TrenchBroom
 {
 namespace View
 {
-MultiMapView::MultiMapView(QWidget* parent)
+MultiPaneMapView::MultiPaneMapView(QWidget* parent)
   : MapViewContainer(parent)
   , m_maximizedView(nullptr)
 {
 }
 
-MultiMapView::~MultiMapView() = default;
+MultiPaneMapView::~MultiPaneMapView() = default;
 
-void MultiMapView::addMapView(MapView* mapView)
+void MultiPaneMapView::addMapView(MapView* mapView)
 {
   ensure(mapView != nullptr, "mapView is nullptr");
   m_mapViews.push_back(mapView);
   mapView->setContainer(this);
 }
 
-void MultiMapView::doFlashSelection()
+void MultiPaneMapView::doFlashSelection()
 {
   for (MapView* mapView : m_mapViews)
     mapView->flashSelection();
 }
 
-void MultiMapView::doInstallActivationTracker(MapViewActivationTracker& activationTracker)
+void MultiPaneMapView::doInstallActivationTracker(
+  MapViewActivationTracker& activationTracker)
 {
   for (auto* mapView : m_mapViews)
   {
@@ -55,7 +55,7 @@ void MultiMapView::doInstallActivationTracker(MapViewActivationTracker& activati
   }
 }
 
-bool MultiMapView::doGetIsCurrent() const
+bool MultiPaneMapView::doGetIsCurrent() const
 {
   for (MapView* mapView : m_mapViews)
   {
@@ -65,54 +65,55 @@ bool MultiMapView::doGetIsCurrent() const
   return false;
 }
 
-MapViewBase* MultiMapView::doGetFirstMapViewBase()
+MapViewBase* MultiPaneMapView::doGetFirstMapViewBase()
 {
-  ensure(!m_mapViews.empty(), "MultiMapView empty in doGetFirstMapViewBase()");
+  ensure(!m_mapViews.empty(), "MultiPaneMapView empty in doGetFirstMapViewBase()");
   return m_mapViews.at(0)->firstMapViewBase();
 }
 
-bool MultiMapView::doCanSelectTall()
+bool MultiPaneMapView::doCanSelectTall()
 {
   if (currentMapView() == nullptr)
     return false;
   return currentMapView()->canSelectTall();
 }
 
-void MultiMapView::doSelectTall()
+void MultiPaneMapView::doSelectTall()
 {
   if (currentMapView() != nullptr)
     currentMapView()->selectTall();
 }
 
-void MultiMapView::doFocusCameraOnSelection(const bool animate)
+void MultiPaneMapView::doFocusCameraOnSelection(const bool animate)
 {
   for (MapView* mapView : m_mapViews)
     mapView->focusCameraOnSelection(animate);
 }
 
-void MultiMapView::doMoveCameraToPosition(const vm::vec3& position, const bool animate)
+void MultiPaneMapView::doMoveCameraToPosition(
+  const vm::vec3& position, const bool animate)
 {
   for (MapView* mapView : m_mapViews)
     mapView->moveCameraToPosition(position, animate);
 }
 
-void MultiMapView::doMoveCameraToCurrentTracePoint()
+void MultiPaneMapView::doMoveCameraToCurrentTracePoint()
 {
   for (MapView* mapView : m_mapViews)
     mapView->moveCameraToCurrentTracePoint();
 }
 
-bool MultiMapView::doCanMaximizeCurrentView() const
+bool MultiPaneMapView::doCanMaximizeCurrentView() const
 {
   return m_maximizedView != nullptr || currentMapView() != nullptr;
 }
 
-bool MultiMapView::doCurrentViewMaximized() const
+bool MultiPaneMapView::doCurrentViewMaximized() const
 {
   return m_maximizedView != nullptr;
 }
 
-void MultiMapView::doToggleMaximizeCurrentView()
+void MultiPaneMapView::doToggleMaximizeCurrentView()
 {
   if (m_maximizedView != nullptr)
   {
@@ -129,7 +130,7 @@ void MultiMapView::doToggleMaximizeCurrentView()
   }
 }
 
-MapView* MultiMapView::doGetCurrentMapView() const
+MapView* MultiPaneMapView::doGetCurrentMapView() const
 {
   for (MapView* mapView : m_mapViews)
   {
@@ -141,12 +142,12 @@ MapView* MultiMapView::doGetCurrentMapView() const
   return nullptr;
 }
 
-void MultiMapView::cycleChildMapView(MapView*)
+void MultiPaneMapView::cycleChildMapView(MapView*)
 {
   // only CyclingMapView support cycling
 }
 
-bool MultiMapView::doCancelMouseDrag()
+bool MultiPaneMapView::doCancelMouseDrag()
 {
   bool result = false;
   for (MapView* mapView : m_mapViews)
@@ -156,7 +157,7 @@ bool MultiMapView::doCancelMouseDrag()
   return result;
 }
 
-void MultiMapView::doRefreshViews()
+void MultiPaneMapView::doRefreshViews()
 {
   for (MapView* mapView : m_mapViews)
   {
