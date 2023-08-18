@@ -124,6 +124,11 @@ float EntityModelLoadedFrame::intersect(const vm::ray3f& ray) const
   return closestDistance;
 }
 
+void EntityModelLoadedFrame::setBounds(const vm::bbox3f& bounds)
+{
+  m_bounds = bounds;
+}
+
 void EntityModelLoadedFrame::addToSpacialTree(
   const std::vector<EntityModelVertex>& vertices,
   const Renderer::PrimType primType,

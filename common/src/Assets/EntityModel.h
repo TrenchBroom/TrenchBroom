@@ -195,6 +195,11 @@ public:
   float intersect(const vm::ray3f& ray) const override;
 
   /**
+   * Sets this frame's bounding box.
+   */
+  void setBounds(const vm::bbox3f& bounds);
+
+  /**
    * Adds the given primitives to the spacial tree for this frame.
    *
    * @param vertices the vertices
