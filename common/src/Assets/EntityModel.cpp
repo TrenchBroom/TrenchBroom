@@ -463,7 +463,13 @@ std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModelSurface::buildR
   const size_t skinIndex, const size_t frameIndex)
 {
   assert(frameIndex < frameCount());
-  assert(skinIndex < skinCount());
+
+  // If an out of range skin is requested, use the first skin as a fallback
+  auto actualSkinIndex = skinIndex;
+  if (actualSkinIndex >= skinCount())
+  {
+    actualSkinIndex = 0;
+  }
 
   if (m_meshes[frameIndex] == nullptr)
   {
@@ -471,7 +477,7 @@ std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModelSurface::buildR
   }
   else
   {
-    const auto* skin = this->skin(skinIndex);
+    const auto* skin = this->skin(actualSkinIndex);
     return m_meshes[frameIndex]->buildRenderer(skin);
   }
 }
@@ -500,12 +506,9 @@ std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(
   const auto actualSkinIndex = skinIndex + frame->skinOffset();
   for (const auto& surface : m_surfaces)
   {
-    if (actualSkinIndex < surface->skinCount())
+    if (auto renderer = surface->buildRenderer(actualSkinIndex, frameIndex))
     {
-      if (auto renderer = surface->buildRenderer(actualSkinIndex, frameIndex))
-      {
-        renderers.push_back(std::move(renderer));
-      }
+      renderers.push_back(std::move(renderer));
     }
   }
   if (renderers.empty())
