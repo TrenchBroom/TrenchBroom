@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"
 
 #include <vector>
@@ -36,6 +37,8 @@ private:
   MapView* m_maximizedView = nullptr;
 
 protected:
+  CameraLinkHelper m_linkHelper;
+
   explicit MultiPaneMapView(QWidget* parent = nullptr);
 
 public:

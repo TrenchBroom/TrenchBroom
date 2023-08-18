@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "View/CameraLinkHelper.h"
 #include "View/MultiPaneMapView.h"
 
 #include <memory>
@@ -51,7 +50,6 @@ private:
   Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
 
-  CameraLinkHelper m_linkHelper;
   QSplitter* m_hSplitter = nullptr;
   QSplitter* m_leftVSplitter = nullptr;
   QSplitter* m_rightVSplitter = nullptr;

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "View/CameraLinkHelper.h"
 #include "View/MultiPaneMapView.h"
 
 #include <memory>
@@ -47,7 +46,6 @@ private:
   Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
 
-  CameraLinkHelper m_linkHelper;
   CyclingMapView* m_mapView = nullptr;
 
 public:
