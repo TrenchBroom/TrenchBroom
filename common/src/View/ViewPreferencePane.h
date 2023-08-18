@@ -24,9 +24,7 @@
 class QCheckBox;
 class QComboBox;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class SliderWithLabel;
 
@@ -34,16 +32,16 @@ class ViewPreferencePane : public PreferencePane
 {
   Q_OBJECT
 private:
-  QComboBox* m_layoutCombo;
-  SliderWithLabel* m_brightnessSlider;
-  SliderWithLabel* m_gridAlphaSlider;
-  SliderWithLabel* m_fovSlider;
-  QCheckBox* m_showAxes;
-  QComboBox* m_textureModeCombo;
-  QCheckBox* m_enableMsaa;
-  QComboBox* m_themeCombo;
-  QComboBox* m_textureBrowserIconSizeCombo;
-  QComboBox* m_rendererFontSizeCombo;
+  QComboBox* m_layoutCombo = nullptr;
+  SliderWithLabel* m_brightnessSlider = nullptr;
+  SliderWithLabel* m_gridAlphaSlider = nullptr;
+  SliderWithLabel* m_fovSlider = nullptr;
+  QCheckBox* m_showAxes = nullptr;
+  QComboBox* m_textureModeCombo = nullptr;
+  QCheckBox* m_enableMsaa = nullptr;
+  QComboBox* m_themeCombo = nullptr;
+  QComboBox* m_textureBrowserIconSizeCombo = nullptr;
+  QComboBox* m_rendererFontSizeCombo = nullptr;
 
 public:
   explicit ViewPreferencePane(QWidget* parent = nullptr);
@@ -73,5 +71,4 @@ private slots:
   void textureBrowserIconSizeChanged(int index);
   void rendererFontSizeChanged(const QString& text);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

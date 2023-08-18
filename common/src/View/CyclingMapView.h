@@ -31,13 +31,14 @@ class QStackedLayout;
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class MapRenderer;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class GLContextManager;
 class MapDocument;
@@ -47,16 +48,13 @@ class CyclingMapView : public MapViewContainer, public CameraLinkableView
 {
   Q_OBJECT
 public:
-  typedef enum
-  {
-    View_3D = 1,
-    View_XY = 2,
-    View_XZ = 4,
-    View_YZ = 8,
-    View_ZZ = View_XZ | View_YZ,
-    View_2D = View_XY | View_ZZ,
-    View_ALL = View_3D | View_2D
-  } View;
+  static constexpr auto View_3D = 1;
+  static constexpr auto View_XY = 2;
+  static constexpr auto View_XZ = 4;
+  static constexpr auto View_YZ = 8;
+  static constexpr auto View_ZZ = View_XZ | View_YZ;
+  static constexpr auto View_2D = View_XY | View_ZZ;
+  static constexpr auto View_ALL = View_3D | View_2D;
 
 private:
   Logger* m_logger;
@@ -74,7 +72,7 @@ public:
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
-    View views,
+    int views,
     Logger* logger,
     QWidget* parent = nullptr);
 
@@ -83,7 +81,7 @@ private:
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
-    View views);
+    int views);
   void addMapView(MapViewBase* mapView);
 
 private:
@@ -117,5 +115,4 @@ public:
 private: // implement CameraLinkableView interface
   void doLinkCamera(CameraLinkHelper& linkHelper) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

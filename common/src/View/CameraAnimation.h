@@ -24,14 +24,12 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class CameraAnimation : public Animation
 {
@@ -58,5 +56,4 @@ public:
 private:
   void doUpdate(double progress) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

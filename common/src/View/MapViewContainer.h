@@ -23,9 +23,7 @@
 
 #include "View/MapView.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapViewActivationTracker;
 class MapViewBase;
@@ -63,5 +61,4 @@ private: // subclassing interface
 public:
   virtual void cycleChildMapView(MapView* after) = 0;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

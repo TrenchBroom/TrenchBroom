@@ -33,16 +33,14 @@
 
 #include <vecmath/scalar.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 CyclingMapView::CyclingMapView(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
-  const View views,
+  const int views,
   Logger* logger,
   QWidget* parent)
   : MapViewContainer(parent)
@@ -59,7 +57,7 @@ void CyclingMapView::createGui(
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
-  const View views)
+  const int views)
 {
   if (views & View_3D)
   {
@@ -232,5 +230,4 @@ bool CyclingMapView::doCancelMouseDrag()
   }
   return result;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

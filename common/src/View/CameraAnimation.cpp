@@ -24,9 +24,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
 
@@ -36,14 +34,14 @@ CameraAnimation::CameraAnimation(
   const vm::vec3f& targetDirection,
   const vm::vec3f& targetUp,
   const double duration)
-  : Animation(AnimationType, Curve::EaseInEaseOut, duration)
-  , m_camera(camera)
-  , m_startPosition(m_camera.position())
-  , m_startDirection(m_camera.direction())
-  , m_startUp(m_camera.up())
-  , m_targetPosition(targetPosition)
-  , m_targetDirection(targetDirection)
-  , m_targetUp(targetUp)
+  : Animation{AnimationType, Curve::EaseInEaseOut, duration}
+  , m_camera{camera}
+  , m_startPosition{m_camera.position()}
+  , m_startDirection{m_camera.direction()}
+  , m_startUp{m_camera.up()}
+  , m_targetPosition{targetPosition}
+  , m_targetDirection{targetDirection}
+  , m_targetUp{targetUp}
 {
 }
 
@@ -59,5 +57,4 @@ void CameraAnimation::doUpdate(const double progress)
   m_camera.moveTo(position);
   m_camera.setDirection(direction, up);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

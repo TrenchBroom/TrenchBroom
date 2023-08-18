@@ -24,9 +24,7 @@
 
 #include <vecmath/forward.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapViewActivationTracker;
 class MapViewBase;
@@ -35,10 +33,9 @@ class MapViewContainer;
 class MapView : public ViewEffectsService
 {
 private:
-  MapViewContainer* m_container;
+  MapViewContainer* m_container = nullptr;
 
 public:
-  MapView();
   ~MapView() override;
 
   void setContainer(MapViewContainer* container);
@@ -94,5 +91,4 @@ private:
 
   virtual void doRefreshViews() = 0;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

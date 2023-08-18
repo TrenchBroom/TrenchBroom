@@ -24,15 +24,8 @@
 
 #include <vecmath/vec.h>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-MapView::MapView()
-  : m_container(nullptr)
-{
-}
-
 MapView::~MapView() = default;
 
 void MapView::setContainer(MapViewContainer* container)
@@ -103,5 +96,4 @@ void MapView::refreshViews()
 {
   doRefreshViews();
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View
