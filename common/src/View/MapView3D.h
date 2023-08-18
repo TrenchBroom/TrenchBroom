@@ -141,8 +141,8 @@ private: // implement MapViewBase interface
 
   bool doBeforePopupMenu() override;
 
-private: // implement CameraLinkableView interface
-  void doLinkCamera(CameraLinkHelper& linkHelper) override;
+public: // implement CameraLinkableView interface
+  void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 } // namespace View
 } // namespace TrenchBroom

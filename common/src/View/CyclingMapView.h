@@ -112,7 +112,7 @@ private: // implement MapViewContainer interface
 public:
   void cycleChildMapView(MapView* after) override;
 
-private: // implement CameraLinkableView interface
-  void doLinkCamera(CameraLinkHelper& linkHelper) override;
+public: // implement CameraLinkableView interface
+  void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 } // namespace TrenchBroom::View

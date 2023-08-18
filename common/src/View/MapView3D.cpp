@@ -594,6 +594,6 @@ bool MapView3D::doBeforePopupMenu()
   return true;
 }
 
-void MapView3D::doLinkCamera(CameraLinkHelper& /* helper */) {}
+void MapView3D::linkCamera(CameraLinkHelper& /* helper */) {}
 } // namespace View
 } // namespace TrenchBroom

@@ -428,7 +428,7 @@ void MapView2D::doRenderSoftWorldBounds(
   }
 }
 
-void MapView2D::doLinkCamera(CameraLinkHelper& helper)
+void MapView2D::linkCamera(CameraLinkHelper& helper)
 {
   helper.addCamera(m_camera.get());
 }

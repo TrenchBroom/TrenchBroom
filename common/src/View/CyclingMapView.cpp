@@ -200,7 +200,7 @@ void CyclingMapView::doRefreshViews()
   }
 }
 
-void CyclingMapView::doLinkCamera(CameraLinkHelper& helper)
+void CyclingMapView::linkCamera(CameraLinkHelper& helper)
 {
   for (auto* mapView : m_mapViews)
   {
