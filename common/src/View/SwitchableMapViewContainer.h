@@ -31,13 +31,14 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class MapRenderer;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class ClipTool;
 class EdgeTool;
@@ -59,12 +60,12 @@ private:
   std::weak_ptr<MapDocument> m_document;
   GLContextManager& m_contextManager;
 
-  MapViewBar* m_mapViewBar;
+  MapViewBar* m_mapViewBar = nullptr;
   std::unique_ptr<MapViewToolBox> m_toolBox;
 
   std::unique_ptr<Renderer::MapRenderer> m_mapRenderer;
 
-  MapViewContainer* m_mapView;
+  MapViewContainer* m_mapView = nullptr;
   std::unique_ptr<MapViewActivationTracker> m_activationTracker;
 
   NotifierConnection m_notifierConnection;
@@ -153,5 +154,4 @@ private: // implement ViewEffectsService interface
 
   deleteCopyAndMove(SwitchableMapViewContainer);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

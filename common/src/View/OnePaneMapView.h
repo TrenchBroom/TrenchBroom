@@ -27,13 +27,14 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class MapRenderer;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class CyclingMapView;
 class GLContextManager;
@@ -47,7 +48,7 @@ private:
   std::weak_ptr<MapDocument> m_document;
 
   CameraLinkHelper m_linkHelper;
-  CyclingMapView* m_mapView;
+  CyclingMapView* m_mapView = nullptr;
 
 public:
   explicit OnePaneMapView(
@@ -64,5 +65,4 @@ private:
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

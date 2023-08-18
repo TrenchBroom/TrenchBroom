@@ -17,17 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Ensure.h"
 #include "MultiPaneMapView.h"
+
+#include "Ensure.h"
 #include "View/MapView.h"
 
-namespace TrenchBroom
-{
-namespace View
+#include <algorithm>
+
+namespace TrenchBroom::View
 {
 MultiPaneMapView::MultiPaneMapView(QWidget* parent)
-  : MapViewContainer(parent)
-  , m_maximizedView(nullptr)
+  : MapViewContainer{parent}
 {
 }
 
@@ -42,8 +42,10 @@ void MultiPaneMapView::addMapView(MapView* mapView)
 
 void MultiPaneMapView::doFlashSelection()
 {
-  for (MapView* mapView : m_mapViews)
+  for (auto* mapView : m_mapViews)
+  {
     mapView->flashSelection();
+  }
 }
 
 void MultiPaneMapView::doInstallActivationTracker(
@@ -57,65 +59,68 @@ void MultiPaneMapView::doInstallActivationTracker(
 
 bool MultiPaneMapView::doGetIsCurrent() const
 {
-  for (MapView* mapView : m_mapViews)
-  {
-    if (mapView->isCurrent())
-      return true;
-  }
-  return false;
+  return std::any_of(m_mapViews.begin(), m_mapViews.end(), [](auto* mapView) {
+    return mapView->isCurrent();
+  });
 }
 
 MapViewBase* MultiPaneMapView::doGetFirstMapViewBase()
 {
   ensure(!m_mapViews.empty(), "MultiPaneMapView empty in doGetFirstMapViewBase()");
-  return m_mapViews.at(0)->firstMapViewBase();
+  return m_mapViews.front()->firstMapViewBase();
 }
 
 bool MultiPaneMapView::doCanSelectTall()
 {
-  if (currentMapView() == nullptr)
-    return false;
-  return currentMapView()->canSelectTall();
+  return currentMapView() && currentMapView()->canSelectTall();
 }
 
 void MultiPaneMapView::doSelectTall()
 {
-  if (currentMapView() != nullptr)
+  if (currentMapView())
+  {
     currentMapView()->selectTall();
+  }
 }
 
 void MultiPaneMapView::doFocusCameraOnSelection(const bool animate)
 {
-  for (MapView* mapView : m_mapViews)
+  for (auto* mapView : m_mapViews)
+  {
     mapView->focusCameraOnSelection(animate);
+  }
 }
 
 void MultiPaneMapView::doMoveCameraToPosition(
   const vm::vec3& position, const bool animate)
 {
-  for (MapView* mapView : m_mapViews)
+  for (auto* mapView : m_mapViews)
+  {
     mapView->moveCameraToPosition(position, animate);
+  }
 }
 
 void MultiPaneMapView::doMoveCameraToCurrentTracePoint()
 {
-  for (MapView* mapView : m_mapViews)
+  for (auto* mapView : m_mapViews)
+  {
     mapView->moveCameraToCurrentTracePoint();
+  }
 }
 
 bool MultiPaneMapView::doCanMaximizeCurrentView() const
 {
-  return m_maximizedView != nullptr || currentMapView() != nullptr;
+  return m_maximizedView || currentMapView();
 }
 
 bool MultiPaneMapView::doCurrentViewMaximized() const
 {
-  return m_maximizedView != nullptr;
+  return m_maximizedView;
 }
 
 void MultiPaneMapView::doToggleMaximizeCurrentView()
 {
-  if (m_maximizedView != nullptr)
+  if (m_maximizedView)
   {
     doRestoreViews();
     m_maximizedView = nullptr;
@@ -123,7 +128,7 @@ void MultiPaneMapView::doToggleMaximizeCurrentView()
   else
   {
     m_maximizedView = currentMapView();
-    if (m_maximizedView != nullptr)
+    if (m_maximizedView)
     {
       doMaximizeView(m_maximizedView);
     }
@@ -132,7 +137,7 @@ void MultiPaneMapView::doToggleMaximizeCurrentView()
 
 MapView* MultiPaneMapView::doGetCurrentMapView() const
 {
-  for (MapView* mapView : m_mapViews)
+  for (auto* mapView : m_mapViews)
   {
     if (mapView->isCurrent())
     {
@@ -149,8 +154,8 @@ void MultiPaneMapView::cycleChildMapView(MapView*)
 
 bool MultiPaneMapView::doCancelMouseDrag()
 {
-  bool result = false;
-  for (MapView* mapView : m_mapViews)
+  auto result = false;
+  for (auto* mapView : m_mapViews)
   {
     result |= mapView->cancelMouseDrag();
   }
@@ -159,10 +164,9 @@ bool MultiPaneMapView::doCancelMouseDrag()
 
 void MultiPaneMapView::doRefreshViews()
 {
-  for (MapView* mapView : m_mapViews)
+  for (auto* mapView : m_mapViews)
   {
     mapView->refreshViews();
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

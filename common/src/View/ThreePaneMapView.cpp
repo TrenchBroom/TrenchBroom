@@ -29,9 +29,7 @@
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 ThreePaneMapView::ThreePaneMapView(
   std::weak_ptr<MapDocument> document,
@@ -41,13 +39,8 @@ ThreePaneMapView::ThreePaneMapView(
   Logger* logger,
   QWidget* parent)
   : MultiPaneMapView(parent)
-  , m_logger(logger)
-  , m_document(document)
-  , m_hSplitter(nullptr)
-  , m_vSplitter(nullptr)
-  , m_mapView3D(nullptr)
-  , m_mapViewXY(nullptr)
-  , m_mapViewZZ(nullptr)
+  , m_logger{logger}
+  , m_document{std::move(document)}
 {
   createGui(toolBox, mapRenderer, contextManager);
 }
@@ -63,17 +56,17 @@ void ThreePaneMapView::createGui(
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
-  m_hSplitter = new Splitter();
+  m_hSplitter = new Splitter{};
   m_hSplitter->setObjectName("ThreePaneMapView_HorizontalSplitter");
 
-  m_vSplitter = new Splitter(Qt::Vertical);
+  m_vSplitter = new Splitter{Qt::Vertical};
   m_vSplitter->setObjectName("ThreePaneMapView_VerticalSplitter");
 
-  m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger);
-  m_mapViewXY = new MapView2D(
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY, m_logger);
-  m_mapViewZZ = new CyclingMapView(
-    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ, m_logger);
+  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager, m_logger};
+  m_mapViewXY = new MapView2D{
+    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY, m_logger};
+  m_mapViewZZ = new CyclingMapView{
+    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ, m_logger};
 
   m_mapView3D->linkCamera(m_linkHelper);
   m_mapViewXY->linkCamera(m_linkHelper);
@@ -84,7 +77,7 @@ void ThreePaneMapView::createGui(
   addMapView(m_mapViewZZ);
 
   // See comment in CyclingMapView::createGui
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   setLayout(layout);
@@ -136,5 +129,4 @@ void ThreePaneMapView::doRestoreViews()
     m_vSplitter->widget(i)->show();
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

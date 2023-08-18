@@ -26,16 +26,14 @@
 class QWidget;
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MultiPaneMapView : public MapViewContainer
 {
 private:
   using MapViewList = std::vector<MapView*>;
   MapViewList m_mapViews;
-  MapView* m_maximizedView;
+  MapView* m_maximizedView = nullptr;
 
 protected:
   explicit MultiPaneMapView(QWidget* parent = nullptr);
@@ -74,5 +72,4 @@ private: // subclassing interface
   virtual void doMaximizeView(MapView* view) = 0;
   virtual void doRestoreViews() = 0;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View
