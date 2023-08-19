@@ -232,22 +232,21 @@ void MapView2D::doSelectTall()
 void MapView2D::doFocusCameraOnSelection(const bool animate)
 {
   const auto document = kdl::mem_lock(m_document);
-  const auto& bounds = document->referenceBounds();
-  const auto diff = bounds.center() - vm::vec3(m_camera->position());
-  const auto delta = diff * vm::vec3(m_camera->up() + m_camera->right());
-  moveCameraToPosition(vm::vec3(m_camera->position()) + delta, animate);
+  const auto bounds = vm::bbox3f{document->referenceBounds()};
+  const auto diff = bounds.center() - m_camera->position();
+  const auto delta = diff * m_camera->up() + m_camera->right();
+  moveCameraToPosition(m_camera->position() + delta, animate);
 }
 
-void MapView2D::doMoveCameraToPosition(const vm::vec3& position, const bool animate)
+void MapView2D::doMoveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
   if (animate)
   {
-    animateCamera(
-      vm::vec3f(position), m_camera->direction(), m_camera->up(), m_camera->zoom());
+    animateCamera(position, m_camera->direction(), m_camera->up(), m_camera->zoom());
   }
   else
   {
-    m_camera->moveTo(vm::vec3f(position));
+    m_camera->moveTo(position);
   }
 }
 
@@ -274,7 +273,7 @@ void MapView2D::doMoveCameraToCurrentTracePoint()
 
   if (const auto* pointFile = document->pointFile())
   {
-    moveCameraToPosition(vm::vec3{pointFile->currentPoint()}, true);
+    moveCameraToPosition(pointFile->currentPoint(), true);
   }
 }
 

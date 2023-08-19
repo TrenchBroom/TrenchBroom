@@ -51,7 +51,7 @@ public:
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
 
   void focusCameraOnSelection(bool animate);
-  void moveCameraToPosition(const vm::vec3& position, bool animate);
+  void moveCameraToPosition(const vm::vec3f& position, bool animate);
 
   void moveCameraToCurrentTracePoint();
 
@@ -83,7 +83,7 @@ private:
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 
   virtual void doFocusCameraOnSelection(bool animate) = 0;
-  virtual void doMoveCameraToPosition(const vm::vec3& position, bool animate) = 0;
+  virtual void doMoveCameraToPosition(const vm::vec3f& position, bool animate) = 0;
 
   virtual void doMoveCameraToCurrentTracePoint() = 0;
 

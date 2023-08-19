@@ -292,13 +292,13 @@ void MapView3D::doFocusCameraOnSelection(const bool animate)
   }
 }
 
-static vm::vec3 computeCameraTargetPosition(const std::vector<Model::Node*>& nodes)
+static vm::vec3f computeCameraTargetPosition(const std::vector<Model::Node*>& nodes)
 {
-  auto center = vm::vec3();
+  auto center = vm::vec3f();
   size_t count = 0u;
 
-  const auto handlePoint = [&](const vm::vec3& point) {
-    center = center + point;
+  const auto handlePoint = [&](const auto& point) {
+    center = center + vm::vec3f{point};
     ++count;
   };
 
@@ -334,10 +334,10 @@ static vm::vec3 computeCameraTargetPosition(const std::vector<Model::Node*>& nod
         }
       }));
 
-  return center / static_cast<FloatType>(count);
+  return center / static_cast<float>(count);
 }
 
-static FloatType computeCameraOffset(
+static float computeCameraOffset(
   const Renderer::Camera& camera, const std::vector<Model::Node*>& nodes)
 {
   vm::plane3f frustumPlanes[4];
@@ -398,10 +398,10 @@ static FloatType computeCameraOffset(
         }
       }));
 
-  return static_cast<FloatType>(offset);
+  return offset;
 }
 
-vm::vec3 MapView3D::focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes)
+vm::vec3f MapView3D::focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes)
 {
   const auto newPosition = computeCameraTargetPosition(nodes);
 
@@ -413,19 +413,18 @@ vm::vec3 MapView3D::focusCameraOnObjectsPosition(const std::vector<Model::Node*>
 
   // jump back
   m_camera->moveTo(oldPosition);
-  return newPosition - vm::vec3(m_camera->direction()) * offset;
+  return newPosition - m_camera->direction() * offset;
 }
 
-void MapView3D::doMoveCameraToPosition(const vm::vec3& position, const bool animate)
+void MapView3D::doMoveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
   if (animate)
   {
-    animateCamera(
-      vm::vec3f(position), m_camera->direction(), m_camera->up(), m_camera->zoom());
+    animateCamera(position, m_camera->direction(), m_camera->up(), m_camera->zoom());
   }
   else
   {
-    m_camera->moveTo(vm::vec3f(position));
+    m_camera->moveTo(position);
   }
 }
 

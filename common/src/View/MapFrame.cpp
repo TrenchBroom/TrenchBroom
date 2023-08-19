@@ -2063,7 +2063,7 @@ void MapFrame::moveCameraToPosition()
     &ok);
   if (ok)
   {
-    if (const auto position = vm::parse<FloatType, 3>(str.toStdString()))
+    if (const auto position = vm::parse<float, 3>(str.toStdString()))
     {
       m_mapView->moveCameraToPosition(*position, true);
     }

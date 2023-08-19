@@ -57,7 +57,7 @@ private: // implement MapView interface
   bool doCanSelectTall() override;
   void doSelectTall() override;
   void doFocusCameraOnSelection(bool animate) override;
-  void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
+  void doMoveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void doMoveCameraToCurrentTracePoint() override;
   bool doCancelMouseDrag() override;
   void doRefreshViews() override;

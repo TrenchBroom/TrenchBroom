@@ -69,7 +69,7 @@ void MapView::focusCameraOnSelection(const bool animate)
   doFocusCameraOnSelection(animate);
 }
 
-void MapView::moveCameraToPosition(const vm::vec3& position, const bool animate)
+void MapView::moveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
   doMoveCameraToPosition(position, animate);
 }

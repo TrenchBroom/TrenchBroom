@@ -153,7 +153,7 @@ void CyclingMapView::doFocusCameraOnSelection(const bool animate)
   m_currentMapView->focusCameraOnSelection(animate);
 }
 
-void CyclingMapView::doMoveCameraToPosition(const vm::vec3& position, const bool animate)
+void CyclingMapView::doMoveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
   m_currentMapView->moveCameraToPosition(position, animate);
 }

@@ -401,7 +401,7 @@ void SwitchableMapViewContainer::doFocusCameraOnSelection(const bool animate)
 }
 
 void SwitchableMapViewContainer::doMoveCameraToPosition(
-  const vm::vec3& position, const bool animate)
+  const vm::vec3f& position, const bool animate)
 {
   m_mapView->moveCameraToPosition(position, animate);
 }

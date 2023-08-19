@@ -92,7 +92,7 @@ void MultiPaneMapView::doFocusCameraOnSelection(const bool animate)
 }
 
 void MultiPaneMapView::doMoveCameraToPosition(
-  const vm::vec3& position, const bool animate)
+  const vm::vec3f& position, const bool animate)
 {
   for (auto* mapView : m_mapViews)
   {
