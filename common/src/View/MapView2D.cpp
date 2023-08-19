@@ -229,6 +229,27 @@ void MapView2D::doSelectTall()
   document->selectTall(cameraAxis);
 }
 
+void MapView2D::doReset2dCameras(const Renderer::Camera& masterCamera, const bool animate)
+{
+  const auto oldPosition = m_camera->position();
+  const auto factors =
+    vm::vec3f::one() - vm::abs(masterCamera.direction()) - vm::abs(m_camera->direction());
+  const auto newPosition =
+    (vm::vec3f::one() - factors) * oldPosition + factors * masterCamera.position();
+  m_camera->moveTo(newPosition);
+
+  if (animate)
+  {
+    animateCamera(
+      newPosition, m_camera->direction(), m_camera->up(), masterCamera.zoom());
+  }
+  else
+  {
+    m_camera->moveTo(newPosition);
+    m_camera->setZoom(masterCamera.zoom());
+  }
+}
+
 void MapView2D::doFocusCameraOnSelection(const bool animate)
 {
   const auto document = kdl::mem_lock(m_document);

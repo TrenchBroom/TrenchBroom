@@ -281,6 +281,11 @@ bool MapView3D::doCanSelectTall()
 
 void MapView3D::doSelectTall() {}
 
+void MapView3D::doReset2dCameras(const Renderer::Camera&, const bool)
+{
+  // nothing to do
+}
+
 void MapView3D::doFocusCameraOnSelection(const bool animate)
 {
   auto document = kdl::mem_lock(m_document);

@@ -94,6 +94,7 @@ private: // implement MapView interface
   bool doGetIsCurrent() const override;
   bool doCanSelectTall() override;
   void doSelectTall() override;
+  void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
   void doFocusCameraOnSelection(bool animate) override;
   void doMoveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void doMoveCameraToCurrentTracePoint() override;

@@ -64,6 +64,11 @@ vm::vec3 MapView::pasteObjectsDelta(
   return doGetPasteObjectsDelta(bounds, referenceBounds);
 }
 
+void MapView::reset2dCameras(const Renderer::Camera& masterCamera, const bool animate)
+{
+  doReset2dCameras(masterCamera, animate);
+}
+
 void MapView::focusCameraOnSelection(const bool animate)
 {
   doFocusCameraOnSelection(animate);

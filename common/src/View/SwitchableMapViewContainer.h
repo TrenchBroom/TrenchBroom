@@ -144,6 +144,7 @@ private: // implement MapView interface
   void doSelectTall() override;
   vm::vec3 doGetPasteObjectsDelta(
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
+  void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
   void doFocusCameraOnSelection(bool animate) override;
   void doMoveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void doMoveCameraToCurrentTracePoint() override;

@@ -395,6 +395,12 @@ vm::vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(
   return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
 }
 
+void SwitchableMapViewContainer::doReset2dCameras(
+  const Renderer::Camera& masterCamera, const bool animate)
+{
+  m_mapView->reset2dCameras(masterCamera, animate);
+}
+
 void SwitchableMapViewContainer::doFocusCameraOnSelection(const bool animate)
 {
   m_mapView->focusCameraOnSelection(animate);

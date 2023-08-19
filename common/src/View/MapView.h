@@ -24,6 +24,11 @@
 
 #include <vecmath/forward.h>
 
+namespace TrenchBroom::Renderer
+{
+class Camera;
+}
+
 namespace TrenchBroom::View
 {
 class MapViewActivationTracker;
@@ -50,6 +55,7 @@ public:
   vm::vec3 pasteObjectsDelta(
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
 
+  void reset2dCameras(const Renderer::Camera& masterCamera, bool animate);
   void focusCameraOnSelection(bool animate);
   void moveCameraToPosition(const vm::vec3f& position, bool animate);
 
@@ -82,6 +88,7 @@ private:
   virtual vm::vec3 doGetPasteObjectsDelta(
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 
+  virtual void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) = 0;
   virtual void doFocusCameraOnSelection(bool animate) = 0;
   virtual void doMoveCameraToPosition(const vm::vec3f& position, bool animate) = 0;
 

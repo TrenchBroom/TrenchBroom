@@ -101,6 +101,7 @@ private: // implement MapView interface
   bool doCanSelectTall() override;
   void doSelectTall() override;
 
+  void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
   void doFocusCameraOnSelection(bool animate) override;
 
   vm::vec3f focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes);

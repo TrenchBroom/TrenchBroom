@@ -148,6 +148,14 @@ void CyclingMapView::doSelectTall()
   m_currentMapView->selectTall();
 }
 
+void CyclingMapView::doReset2dCameras(const Renderer::Camera& masterCamera, bool animate)
+{
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->reset2dCameras(masterCamera, animate);
+  }
+}
+
 void CyclingMapView::doFocusCameraOnSelection(const bool animate)
 {
   for (auto* mapView : m_mapViews)
