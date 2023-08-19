@@ -255,7 +255,8 @@ void MapView2D::doFocusCameraOnSelection(const bool animate)
   const auto document = kdl::mem_lock(m_document);
   const auto bounds = vm::bbox3f{document->referenceBounds()};
   const auto diff = bounds.center() - m_camera->position();
-  const auto delta = diff * m_camera->up() + m_camera->right();
+  const auto delta = vm::dot(diff, m_camera->up()) * m_camera->up()
+                     + vm::dot(diff, m_camera->right()) * m_camera->right();
   moveCameraToPosition(m_camera->position() + delta, animate);
 }
 
