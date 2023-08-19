@@ -150,12 +150,18 @@ void CyclingMapView::doSelectTall()
 
 void CyclingMapView::doFocusCameraOnSelection(const bool animate)
 {
-  m_currentMapView->focusCameraOnSelection(animate);
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->focusCameraOnSelection(animate);
+  }
 }
 
 void CyclingMapView::doMoveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
-  m_currentMapView->moveCameraToPosition(position, animate);
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->moveCameraToPosition(position, animate);
+  }
 }
 
 void CyclingMapView::doMoveCameraToCurrentTracePoint()
