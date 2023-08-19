@@ -354,6 +354,8 @@ public:
   void moveCameraToPreviousPoint();
   bool canMoveCameraToPreviousPoint() const;
 
+  void reset2dCameras();
+
   void focusCameraOnSelection();
   bool canFocusCamera() const;
 

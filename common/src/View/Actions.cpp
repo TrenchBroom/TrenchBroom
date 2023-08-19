@@ -1775,6 +1775,14 @@ void ActionManager::createViewMenu()
       return context.hasDocument() && context.frame()->canMoveCameraToPreviousPoint();
     }));
   cameraMenu.addItem(createMenuAction(
+    std::filesystem::path{"Menu/View/Camera/Reset 2D Cameras"},
+    QObject::tr("Reset 2D Cameras"),
+    Qt::CTRL + Qt::SHIFT + Qt::Key_U,
+    [](ActionExecutionContext& context) { context.frame()->reset2dCameras(); },
+    [](ActionExecutionContext& context) {
+      return context.hasDocument() && !pref(Preferences::Link2DCameras);
+    }));
+  cameraMenu.addItem(createMenuAction(
     std::filesystem::path{"Menu/View/Camera/Focus on Selection"},
     QObject::tr("Focus Camera on Selection"),
     Qt::CTRL + Qt::Key_U,

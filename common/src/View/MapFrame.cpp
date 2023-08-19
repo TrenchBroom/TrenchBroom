@@ -78,6 +78,7 @@
 #include "View/LaunchGameEngineDialog.h"
 #include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
+#include "View/MapView2D.h"
 #include "View/MapViewBase.h"
 #include "View/MapViewToolBox.h"
 #include "View/ObjExportDialog.h"
@@ -2036,6 +2037,14 @@ void MapFrame::moveCameraToPreviousPoint()
 bool MapFrame::canMoveCameraToPreviousPoint() const
 {
   return m_mapView->canMoveCameraToPreviousTracePoint();
+}
+
+void MapFrame::reset2dCameras()
+{
+  if (auto* mapView2d = dynamic_cast<View::MapView2D*>(currentMapViewBase()))
+  {
+    m_mapView->reset2dCameras(mapView2d->camera(), true);
+  }
 }
 
 void MapFrame::focusCameraOnSelection()

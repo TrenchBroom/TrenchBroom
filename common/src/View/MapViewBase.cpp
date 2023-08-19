@@ -136,6 +136,11 @@ void MapViewBase::setIsCurrent(const bool isCurrent)
   m_isCurrent = isCurrent;
 }
 
+Renderer::Camera& MapViewBase::camera()
+{
+  return doGetCamera();
+}
+
 void MapViewBase::bindEvents()
 {
   connect(
@@ -503,7 +508,7 @@ void MapViewBase::moveTextures(
   if (document->hasSelectedBrushFaces())
   {
     const auto offset = moveTextureOffset(direction, mode);
-    document->moveTextures(doGetCamera().up(), doGetCamera().right(), offset);
+    document->moveTextures(camera().up(), camera().right(), offset);
   }
 }
 
@@ -581,7 +586,7 @@ void MapViewBase::flipTextures(const vm::direction direction)
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedBrushFaces())
   {
-    document->flipTextures(doGetCamera().up(), doGetCamera().right(), direction);
+    document->flipTextures(camera().up(), camera().right(), direction);
   }
 }
 
@@ -623,7 +628,7 @@ void MapViewBase::performClip()
 
 void MapViewBase::resetCameraZoom()
 {
-  doGetCamera().setZoom(1.0f);
+  camera().setZoom(1.0f);
 }
 
 void MapViewBase::cancel()
@@ -1009,8 +1014,8 @@ void MapViewBase::doRender()
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
 
-  auto renderContext = Renderer::RenderContext{
-    doGetRenderMode(), doGetCamera(), fontManager(), shaderManager()};
+  auto renderContext =
+    Renderer::RenderContext{doGetRenderMode(), camera(), fontManager(), shaderManager()};
   renderContext.setShowTextures(
     pref(Preferences::FaceRenderMode) == Preferences::faceRenderModeTextured());
   renderContext.setShowFaces(
