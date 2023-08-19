@@ -110,7 +110,8 @@ private: // implement MapView interface
     const vm::vec3f& position,
     const vm::vec3f& direction,
     const vm::vec3f& up,
-    const int duration = DefaultCameraAnimationDuration);
+    float zoom,
+    int duration = DefaultCameraAnimationDuration);
 
   void doMoveCameraToCurrentTracePoint() override;
 

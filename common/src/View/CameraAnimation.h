@@ -41,9 +41,11 @@ private:
   const vm::vec3f m_startPosition;
   const vm::vec3f m_startDirection;
   const vm::vec3f m_startUp;
+  const float m_startZoom;
   const vm::vec3f m_targetPosition;
   const vm::vec3f m_targetDirection;
   const vm::vec3f m_targetUp;
+  const float m_targetZoom;
 
 public:
   CameraAnimation(
@@ -51,6 +53,7 @@ public:
     const vm::vec3f& targetPosition,
     const vm::vec3f& targetDirection,
     const vm::vec3f& targetUp,
+    float targetZoom,
     double duration);
 
 private:

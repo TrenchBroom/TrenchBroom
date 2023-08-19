@@ -420,7 +420,8 @@ void MapView3D::doMoveCameraToPosition(const vm::vec3& position, const bool anim
 {
   if (animate)
   {
-    animateCamera(vm::vec3f(position), m_camera->direction(), m_camera->up());
+    animateCamera(
+      vm::vec3f(position), m_camera->direction(), m_camera->up(), m_camera->zoom());
   }
   else
   {
@@ -432,10 +433,11 @@ void MapView3D::animateCamera(
   const vm::vec3f& position,
   const vm::vec3f& direction,
   const vm::vec3f& up,
+  const float zoom,
   const int duration)
 {
   auto animation =
-    std::make_unique<CameraAnimation>(*m_camera, position, direction, up, duration);
+    std::make_unique<CameraAnimation>(*m_camera, position, direction, up, zoom, duration);
   m_animationManager->runAnimation(std::move(animation), true);
 }
 
@@ -448,7 +450,7 @@ void MapView3D::doMoveCameraToCurrentTracePoint()
   {
     const auto position = pointFile->currentPoint() + vm::vec3f{0.0f, 0.0f, 16.0f};
     const auto direction = pointFile->currentDirection();
-    animateCamera(position, direction, vm::vec3f::pos_z());
+    animateCamera(position, direction, vm::vec3f::pos_z(), m_camera->zoom());
   }
 }
 

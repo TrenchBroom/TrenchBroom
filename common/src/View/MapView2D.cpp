@@ -242,7 +242,8 @@ void MapView2D::doMoveCameraToPosition(const vm::vec3& position, const bool anim
 {
   if (animate)
   {
-    animateCamera(vm::vec3f(position), m_camera->direction(), m_camera->up());
+    animateCamera(
+      vm::vec3f(position), m_camera->direction(), m_camera->up(), m_camera->zoom());
   }
   else
   {
@@ -254,6 +255,7 @@ void MapView2D::animateCamera(
   const vm::vec3f& position,
   const vm::vec3f& /* direction */,
   const vm::vec3f& /* up */,
+  const float zoom,
   const int duration)
 {
   const auto actualPosition =
@@ -261,7 +263,7 @@ void MapView2D::animateCamera(
     + dot(position, m_camera->right()) * m_camera->right()
     + dot(m_camera->position(), m_camera->direction()) * m_camera->direction();
   auto animation = std::make_unique<CameraAnimation>(
-    *m_camera, actualPosition, m_camera->direction(), m_camera->up(), duration);
+    *m_camera, actualPosition, m_camera->direction(), m_camera->up(), zoom, duration);
   m_animationManager->runAnimation(std::move(animation), true);
 }
 
