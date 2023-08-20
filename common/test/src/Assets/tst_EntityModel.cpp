@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010-2023 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -18,12 +18,14 @@
  */
 
 #include "Assets/EntityModel.h"
-#include "Exceptions.h"
+#include "Assets/Texture.h"
 #include "IO/DiskIO.h"
 #include "IO/EntityModelLoader.h"
 #include "IO/GameConfigParser.h"
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
+#include "Renderer/IndexRangeMapBuilder.h"
+#include "Renderer/TexturedIndexRangeRenderer.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 
@@ -32,13 +34,12 @@
 #include <vecmath/ray.h>
 
 #include <filesystem>
-#include <optional>
 
 #include "Catch2.h"
 
 namespace TrenchBroom
 {
-namespace IO
+namespace Assets
 {
 TEST_CASE("BSP model intersection test")
 {
@@ -84,5 +85,65 @@ TEST_CASE("BSP model intersection test")
   CHECK(vm::is_nan(frame->intersect(missRay)));
   CHECK(vm::is_nan(vm::intersect_ray_bbox(missRay, box)));
 }
-} // namespace IO
+
+static Texture makeDummyTexture(const std::string& name)
+{
+  return Texture{
+    name, 1, 1, Color::zero(), TextureBuffer{4}, GL_RGBA, TextureType::Opaque};
+}
+
+static Renderer::IndexRangeMapBuilder<EntityModelVertex::Type> makeDummyBuilder()
+{
+  auto size = Renderer::IndexRangeMap::Size{};
+  size.inc(Renderer::PrimType::Triangles, 1);
+
+  auto builder = Renderer::IndexRangeMapBuilder<EntityModelVertex::Type>{3, size};
+  builder.addTriangle(EntityModelVertex{}, EntityModelVertex{}, EntityModelVertex{});
+
+  return builder;
+}
+
+TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
+{
+  // Ensure that when rendering a model with multiple surfaces
+  // and when each surface has a variable number of skins, we
+  // default to a skin index of 0 if the provided index is not
+  // present for the surface.
+
+  auto model = EntityModel("test", PitchType::Normal, Orientation::Oriented);
+  model.addFrame();
+  auto& frame = model.loadFrame(0, "test", vm::bbox3f{0, 8});
+
+  // Prepare the first surface - it will only have one skin
+  auto& surface1 = model.addSurface("surface 1");
+
+  auto textures1 = std::vector<Texture>{};
+  textures1.push_back(makeDummyTexture("skin1"));
+  surface1.setSkins(std::move(textures1));
+
+  auto builder1 = makeDummyBuilder();
+  surface1.addIndexedMesh(frame, builder1.vertices(), builder1.indices());
+
+  // The second surface will have two skins
+  auto& surface2 = model.addSurface("surface 2");
+
+  auto textures2 = std::vector<Texture>{};
+  textures2.push_back(makeDummyTexture("skin2a"));
+  textures2.push_back(makeDummyTexture("skin2b"));
+  surface2.setSkins(std::move(textures2));
+
+  auto builder2 = makeDummyBuilder();
+  surface2.addIndexedMesh(frame, builder2.vertices(), builder2.indices());
+
+  // even though the model has 2 skins, we should get a valid renderer even if we request
+  // to use skin 3
+  const auto renderer0 = model.buildRenderer(0, 0);
+  const auto renderer1 = model.buildRenderer(1, 0);
+  const auto renderer2 = model.buildRenderer(2, 0);
+
+  REQUIRE(renderer0 != nullptr);
+  REQUIRE(renderer1 != nullptr);
+  REQUIRE(renderer2 != nullptr);
+}
+} // namespace Assets
 } // namespace TrenchBroom

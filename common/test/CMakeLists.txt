@@ -21,6 +21,7 @@ set(COMMON_TEST_UTILS_SOURCE
 
 set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_AssetUtils.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Assets/tst_EntityModel.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_ModelDefinition.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_EL.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_Expression.cpp"
@@ -33,7 +34,6 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_DiskIO.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ELParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_EntityDefinitionParser.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/IO/tst_EntityModel.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_EntParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_FgdParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_FileSystem.cpp"
