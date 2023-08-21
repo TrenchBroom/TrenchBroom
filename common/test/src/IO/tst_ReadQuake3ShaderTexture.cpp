@@ -82,15 +82,16 @@ TEST_CASE("readQuake3ShaderTexture")
   fs.mount("", std::make_unique<DiskFileSystem>(fallbackDir));
   fs.mount(
     "",
-    std::make_unique<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger));
+    createImageFileSystem<Quake3ShaderFileSystem>(
+      fs, shaderSearchPath, textureSearchPaths, logger)
+      .value());
 
   SECTION("find texture path")
   {
     CHECK(
       readQuake3ShaderTexture(
         "test/with_editor_image",
-        *fs.openFile(texturePrefix / "test/with_editor_image"),
+        *fs.openFile(texturePrefix / "test/with_editor_image").value(),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/with_editor_image", 128, 128}});
@@ -98,7 +99,7 @@ TEST_CASE("readQuake3ShaderTexture")
     CHECK(
       readQuake3ShaderTexture(
         "test/with_shader_path",
-        *fs.openFile(texturePrefix / "test/with_shader_path"),
+        *fs.openFile(texturePrefix / "test/with_shader_path").value(),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/with_shader_path", 64, 64}});
@@ -106,21 +107,23 @@ TEST_CASE("readQuake3ShaderTexture")
     CHECK(
       readQuake3ShaderTexture(
         "test/with_light_image",
-        *fs.openFile(texturePrefix / "test/with_light_image"),
+        *fs.openFile(texturePrefix / "test/with_light_image").value(),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/with_light_image", 128, 64}});
 
     CHECK(
       readQuake3ShaderTexture(
-        "test/with_stage_map", *fs.openFile(texturePrefix / "test/with_stage_map"), fs)
+        "test/with_stage_map",
+        *fs.openFile(texturePrefix / "test/with_stage_map").value(),
+        fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/with_stage_map", 64, 128}});
 
     CHECK(
       readQuake3ShaderTexture(
         "test/missing_extension",
-        *fs.openFile(texturePrefix / "test/missing_extension"),
+        *fs.openFile(texturePrefix / "test/missing_extension").value(),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/missing_extension", 128, 128}});
@@ -128,7 +131,7 @@ TEST_CASE("readQuake3ShaderTexture")
     CHECK(
       readQuake3ShaderTexture(
         "test/different_extension",
-        *fs.openFile(texturePrefix / "test/different_extension"),
+        *fs.openFile(texturePrefix / "test/different_extension").value(),
         fs)
       == kdl::result<TextureInfo, ReadTextureError>{
         TextureInfo{"test/different_extension", 128, 128}});

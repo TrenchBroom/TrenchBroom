@@ -1241,19 +1241,20 @@ kdl::result<Brush, BrushError> Brush::createBrush(
   const std::vector<const Brush*>& subtrahends) const
 {
   return kdl::fold_results(
-           geometry.faces(),
-           [&](const auto* face) {
-             const auto* h1 = face->boundary().front();
-             const auto* h0 = h1->next();
-             const auto* h2 = h0->next();
+           kdl::vec_transform(
+             geometry.faces(),
+             [&](const auto* face) {
+               const auto* h1 = face->boundary().front();
+               const auto* h0 = h1->next();
+               const auto* h2 = h0->next();
 
-             const auto& p0 = h0->origin()->position();
-             const auto& p1 = h1->origin()->position();
-             const auto& p2 = h2->origin()->position();
+               const auto& p0 = h0->origin()->position();
+               const auto& p1 = h1->origin()->position();
+               const auto& p2 = h2->origin()->position();
 
-             return BrushFace::create(
-               p0, p1, p2, BrushFaceAttributes(defaultTextureName), mapFormat);
-           })
+               return BrushFace::create(
+                 p0, p1, p2, BrushFaceAttributes(defaultTextureName), mapFormat);
+             }))
     .and_then([&](std::vector<BrushFace>&& faces) {
       return Brush::create(worldBounds, std::move(faces));
     })

@@ -21,6 +21,8 @@
 
 #include "Model/MapFormat.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <map>
 #include <memory>
@@ -36,6 +38,7 @@ class Preference;
 
 namespace IO
 {
+struct FileSystemError;
 class Path;
 class WritableVirtualFileSystem;
 } // namespace IO
@@ -46,6 +49,7 @@ struct CompilationConfig;
 class Game;
 struct GameConfig;
 struct GameEngineConfig;
+struct GameError;
 
 struct GamePathConfig
 {
@@ -75,9 +79,8 @@ public:
    * Initialization comprises building a file system to find the builtin and user-provided
    * game configurations and loading them.
    *
-   * If the file system cannot be built, a FileSystemException is thrown. Since this is a
-   * fatal error, the caller should inform the user of the error and terminate the
-   * application.
+   * If the file system cannot be built, a GameError is returned. Since this is a fatal
+   * error, the caller should inform the user of the error and terminate the application.
    *
    * If a game configuration cannot be loaded due to parsing errors, the errors are
    * collected in a string list, but loading game configurations continues. The string
@@ -86,10 +89,11 @@ public:
    *
    * The given path config is used to build the file systems.
    *
-   * @throw FileSystemException if the file system cannot be built.
-   * @throw std::vector<std::string> if loading game configurations fails
+   * @return a result containing error messages for game configurations that could not be
+   * loaded or a GameError if a fatal error occurs
    */
-  void initialize(const GamePathConfig& gamePathConfig);
+  kdl::result<std::vector<std::string>, GameError> initialize(
+    const GamePathConfig& gamePathConfig);
   /**
    * Saves the game engine configurations for the game with the given name.
    *
@@ -99,7 +103,9 @@ public:
    * @throw GameException if no game with the given name exists
    */
   void saveGameEngineConfig(
-    const std::string& gameName, const GameEngineConfig& gameEngineConfig);
+    const std::string& gameName,
+    const GameEngineConfig& gameEngineConfig,
+    Logger& logger);
   /**
    * Saves the compilation configurations for the game with the given name.
    *
@@ -143,7 +149,8 @@ public:
    * the game name. If no map format comment is found or the format is unknown,
    * MapFormat::Unknown is returned as the map format.
    */
-  std::pair<std::string, MapFormat> detectGame(const std::filesystem::path& path) const;
+  kdl::result<std::pair<std::string, MapFormat>, IO::FileSystemError> detectGame(
+    const std::filesystem::path& path) const;
 
   /**
    * Returns the directory for user game configurations.
@@ -155,15 +162,16 @@ public:
 
 private:
   GameFactory();
-  void initializeFileSystem(const GamePathConfig& gamePathConfig);
-  void loadGameConfigs();
-  void loadGameConfig(const std::filesystem::path& path);
+  kdl::result<void, GameError> initializeFileSystem(const GamePathConfig& gamePathConfig);
+  kdl::result<std::vector<std::string>, GameError> loadGameConfigs();
+  kdl::result<void, GameError> loadGameConfig(const std::filesystem::path& path);
   void loadCompilationConfig(GameConfig& gameConfig);
   void loadGameEngineConfig(GameConfig& gameConfig);
 
   void writeCompilationConfig(
     GameConfig& gameConfig, CompilationConfig compilationConfig, Logger& logger);
-  void writeGameEngineConfig(GameConfig& gameConfig, GameEngineConfig gameEngineConfig);
+  void writeGameEngineConfig(
+    GameConfig& gameConfig, GameEngineConfig gameEngineConfig, Logger& logger);
 };
 } // namespace Model
 } // namespace TrenchBroom

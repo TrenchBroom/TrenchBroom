@@ -20,43 +20,39 @@
 #pragma once
 
 #include "Renderer/GL.h"
+#include "Renderer/Shader.h"
+#include "Renderer/ShaderProgram.h"
 
-#include <map>
-#include <memory>
+#include <kdl/result_forward.h>
+
 #include <string>
+#include <unordered_map>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-class Shader;
+struct RenderError;
 class ShaderConfig;
-class ShaderProgram;
 
 class ShaderManager
 {
 private:
   friend class ShaderProgram;
-  using ShaderCache = std::map<std::string, std::unique_ptr<Shader>>;
-  using ShaderProgramCache =
-    std::map<const ShaderConfig*, std::unique_ptr<ShaderProgram>>;
+  using ShaderCache = std::unordered_map<std::string, Shader>;
+  using ShaderProgramCache = std::unordered_map<std::string, ShaderProgram>;
 
   ShaderCache m_shaders;
   ShaderProgramCache m_programs;
-  ShaderProgram* m_currentProgram;
+  ShaderProgram* m_currentProgram{nullptr};
 
 public:
-  ShaderManager();
-  ~ShaderManager();
-
-public:
+  kdl::result<void, RenderError> loadProgram(const ShaderConfig& config);
   ShaderProgram& program(const ShaderConfig& config);
   ShaderProgram* currentProgram();
 
 private:
   void setCurrentProgram(ShaderProgram* program);
-  std::unique_ptr<ShaderProgram> createProgram(const ShaderConfig& config);
-  Shader& loadShader(const std::string& name, const GLenum type);
+  kdl::result<ShaderProgram, RenderError> createProgram(const ShaderConfig& config);
+  kdl::result<std::reference_wrapper<Shader>, RenderError> loadShader(
+    const std::string& name, GLenum type);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

@@ -26,6 +26,8 @@
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 
+#include <kdl/result_forward.h>
+
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
 
@@ -47,6 +49,11 @@ class EntityDefinitionFileSpec;
 class TextureManager;
 } // namespace Assets
 
+namespace IO
+{
+struct FileSystemError;
+}
+
 namespace Model
 {
 class EntityNodeBase;
@@ -55,6 +62,7 @@ class BrushFaceAttributes;
 struct CompilationConfig;
 class Entity;
 struct FlagsConfig;
+struct GameError;
 class Node;
 class SmartTag;
 class WorldNode;
@@ -104,15 +112,17 @@ public:
   SoftMapBounds extractSoftMapBounds(const Entity& entity) const;
 
 public: // loading and writing map files
-  std::unique_ptr<WorldNode> newMap(
+  kdl::result<std::unique_ptr<WorldNode>, GameError> newMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const;
-  std::unique_ptr<WorldNode> loadMap(
+  kdl::result<std::unique_ptr<WorldNode>, GameError> loadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const;
-  void writeMap(WorldNode& world, const std::filesystem::path& path) const;
-  void exportMap(WorldNode& world, const IO::ExportOptions& options) const;
+  kdl::result<void, GameError> writeMap(
+    WorldNode& world, const std::filesystem::path& path) const;
+  kdl::result<void, GameError> exportMap(
+    WorldNode& world, const IO::ExportOptions& options) const;
 
 public: // parsing and serializing objects
   std::vector<Node*> parseNodes(
@@ -139,7 +149,7 @@ public: // texture collection handling
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger);
-  void reloadShaders();
+  kdl::result<void, GameError> reloadShaders();
 
 public: // entity definition handling
   bool isEntityDefinitionFile(const std::filesystem::path& path) const;
@@ -151,7 +161,7 @@ public: // entity definition handling
     const std::vector<std::filesystem::path>& searchPaths) const;
 
 public: // mods
-  std::vector<std::string> availableMods() const;
+  kdl::result<std::vector<std::string>, GameError> availableMods() const;
   std::vector<std::string> extractEnabledMods(const Entity& entity) const;
   std::string defaultMod() const;
 
@@ -179,15 +189,17 @@ private: // subclassing interface
 
   virtual const std::vector<SmartTag>& doSmartTags() const = 0;
 
-  virtual std::unique_ptr<WorldNode> doNewMap(
+  virtual kdl::result<std::unique_ptr<WorldNode>, GameError> doNewMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const = 0;
-  virtual std::unique_ptr<WorldNode> doLoadMap(
+  virtual kdl::result<std::unique_ptr<WorldNode>, GameError> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const = 0;
-  virtual void doWriteMap(WorldNode& world, const std::filesystem::path& path) const = 0;
-  virtual void doExportMap(WorldNode& world, const IO::ExportOptions& options) const = 0;
+  virtual kdl::result<void, GameError> doWriteMap(
+    WorldNode& world, const std::filesystem::path& path) const = 0;
+  virtual kdl::result<void, GameError> doExportMap(
+    WorldNode& world, const IO::ExportOptions& options) const = 0;
 
   virtual std::vector<Node*> doParseNodes(
     const std::string& str,
@@ -212,7 +224,7 @@ private: // subclassing interface
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) = 0;
-  virtual void doReloadShaders() = 0;
+  virtual kdl::result<void, GameError> doReloadShaders() = 0;
 
   virtual bool doIsEntityDefinitionFile(const std::filesystem::path& path) const = 0;
   virtual std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
@@ -223,7 +235,7 @@ private: // subclassing interface
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
-  virtual std::vector<std::string> doAvailableMods() const = 0;
+  virtual kdl::result<std::vector<std::string>, GameError> doAvailableMods() const = 0;
   virtual std::vector<std::string> doExtractEnabledMods(const Entity& entity) const = 0;
   virtual std::string doDefaultMod() const = 0;
 

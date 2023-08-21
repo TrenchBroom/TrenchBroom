@@ -24,6 +24,7 @@
 #include "IO/EntParser.h"
 #include "IO/File.h"
 #include "IO/TestParserStatus.h"
+#include "IO/TraversalMode.h"
 
 #include <kdl/vector_utils.h>
 
@@ -54,13 +55,14 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({".ent"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".ent"}))
+      .value();
 
   for (const auto& path : cfgFiles)
   {
     CAPTURE(path);
 
-    auto file = Disk::openFile(path);
+    auto file = Disk::openFile(path).value();
     auto reader = file->reader().buffer();
 
     auto parser = EntParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};

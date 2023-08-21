@@ -21,11 +21,13 @@
 
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/Reader.h"
+#include "IO/ReaderException.h"
 
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 
-#include <memory>
 #include <string>
 
 namespace TrenchBroom
@@ -41,36 +43,42 @@ static const size_t EntryNameLength = 0x38;
 static const std::string HeaderMagic = "PACK";
 } // namespace PakLayout
 
-IdPakFileSystem::IdPakFileSystem(std::filesystem::path path)
-  : ImageFileSystem{std::move(path)}
+kdl::result<void, FileSystemError> IdPakFileSystem::doReadDirectory()
 {
-  initialize();
-}
-
-void IdPakFileSystem::doReadDirectory()
-{
-  char magic[PakLayout::HeaderMagicLength];
-
-  auto reader = m_file->reader();
-  reader.seekForward(PakLayout::HeaderAddress);
-  reader.read(magic, PakLayout::HeaderMagicLength);
-
-  const auto directoryAddress = reader.readSize<int32_t>();
-  const auto directorySize = reader.readSize<int32_t>();
-  const auto entryCount = directorySize / PakLayout::EntryLength;
-
-  reader.seekFromBegin(directoryAddress);
-
-  for (size_t i = 0; i < entryCount; ++i)
+  try
   {
-    const auto entryName = reader.readString(PakLayout::EntryNameLength);
-    const auto entryAddress = reader.readSize<int32_t>();
-    const auto entrySize = reader.readSize<int32_t>();
+    char magic[PakLayout::HeaderMagicLength];
 
-    const auto entryPath = std::filesystem::path{kdl::str_to_lower(entryName)};
-    auto entryFile =
-      std::make_shared<FileView>(entryPath, m_file, entryAddress, entrySize);
-    addFile(entryPath, [entryFile = std::move(entryFile)]() { return entryFile; });
+    auto reader = m_file->reader();
+    reader.seekForward(PakLayout::HeaderAddress);
+    reader.read(magic, PakLayout::HeaderMagicLength);
+
+    const auto directoryAddress = reader.readSize<int32_t>();
+    const auto directorySize = reader.readSize<int32_t>();
+    const auto entryCount = directorySize / PakLayout::EntryLength;
+
+    reader.seekFromBegin(directoryAddress);
+
+    for (size_t i = 0; i < entryCount; ++i)
+    {
+      const auto entryName = reader.readString(PakLayout::EntryNameLength);
+      const auto entryAddress = reader.readSize<int32_t>();
+      const auto entrySize = reader.readSize<int32_t>();
+
+      const auto entryPath = std::filesystem::path{kdl::str_to_lower(entryName)};
+      auto entryFile = std::static_pointer_cast<File>(
+        std::make_shared<FileView>(m_file, entryAddress, entrySize));
+      addFile(
+        entryPath,
+        [entryFile = std::move(entryFile)]()
+          -> kdl::result<std::shared_ptr<File>, FileSystemError> { return entryFile; });
+    }
+
+    return kdl::void_success;
+  }
+  catch (const ReaderException& e)
+  {
+    return FileSystemError{e.what()};
   }
 }
 } // namespace IO

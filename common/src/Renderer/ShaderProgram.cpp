@@ -19,9 +19,12 @@
 
 #include "ShaderProgram.h"
 
-#include "Exceptions.h"
+#include "Ensure.h"
+#include "Renderer/RenderError.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderManager.h"
+
+#include <kdl/result.h>
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
@@ -31,20 +34,27 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
+
+ShaderProgram::ShaderProgram(std::string name, const GLuint programId)
+  : m_name{std::move(name)}
+  , m_programId{programId}
 {
-ShaderProgram::ShaderProgram(ShaderManager* shaderManager, const std::string& name)
-  : m_name(name)
-  , m_programId(glCreateProgram())
-  , m_needsLinking(true)
-  , m_shaderManager(shaderManager)
+  assert(m_programId != 0);
+}
+
+ShaderProgram::ShaderProgram(ShaderProgram&& other) noexcept
+  : m_name{std::move(other.m_name)}
+  , m_programId{std::exchange(other.m_programId, 0)}
 {
-  if (m_programId == 0)
-  {
-    throw RenderException("Cannot create shader program " + m_name);
-  }
+}
+
+ShaderProgram& ShaderProgram::operator=(ShaderProgram&& other) noexcept
+{
+  m_name = std::move(other.m_name);
+  m_programId = std::exchange(other.m_programId, 0);
+  return *this;
 }
 
 ShaderProgram::~ShaderProgram()
@@ -56,43 +66,69 @@ ShaderProgram::~ShaderProgram()
   }
 }
 
-void ShaderProgram::attach(Shader& shader)
+void ShaderProgram::attach(Shader& shader) const
 {
   assert(m_programId != 0);
   shader.attach(m_programId);
-  m_needsLinking = true;
 }
 
-void ShaderProgram::detach(Shader& shader)
+namespace
 {
-  assert(m_programId != 0);
-  shader.detach(m_programId);
-  m_needsLinking = true;
+
+std::string getInfoLog(const GLuint programId)
+{
+  auto infoLogLength = GLint{};
+  glAssert(glGetProgramiv(programId, GL_INFO_LOG_LENGTH, &infoLogLength));
+  if (infoLogLength > 0)
+  {
+    auto infoLog = std::string{};
+    infoLog.resize(size_t(infoLogLength));
+
+    glAssert(
+      glGetProgramInfoLog(programId, infoLogLength, &infoLogLength, infoLog.data()));
+    return infoLog;
+  }
+
+  return "Unknown error";
+}
+} // namespace
+
+kdl::result<void, RenderError> ShaderProgram::link()
+{
+  glAssert(glLinkProgram(m_programId));
+
+  auto linkStatus = GLint(0);
+  glAssert(glGetProgramiv(m_programId, GL_LINK_STATUS, &linkStatus));
+
+  if (linkStatus == 0)
+  {
+    return RenderError{
+      "Could not link shader program '" + m_name + "': " + getInfoLog(m_programId)};
+  }
+
+  return kdl::void_success;
 }
 
-void ShaderProgram::activate()
+void ShaderProgram::activate(ShaderManager& shaderManager)
 {
   assert(m_programId != 0);
-
-  if (m_needsLinking)
-    link();
 
   glAssert(glUseProgram(m_programId));
   assert(checkActive());
 
-  m_shaderManager->setCurrentProgram(this);
+  shaderManager.setCurrentProgram(this);
 }
 
-void ShaderProgram::deactivate()
+void ShaderProgram::deactivate(ShaderManager& shaderManager)
 {
   glAssert(glUseProgram(0));
 
-  m_shaderManager->setCurrentProgram(nullptr);
+  shaderManager.setCurrentProgram(nullptr);
 }
 
 void ShaderProgram::set(const std::string& name, const bool value)
 {
-  return set(name, static_cast<int>(value));
+  return set(name, int(value));
 }
 
 void ShaderProgram::set(const std::string& name, const int value)
@@ -104,7 +140,7 @@ void ShaderProgram::set(const std::string& name, const int value)
 void ShaderProgram::set(const std::string& name, const size_t value)
 {
   assert(checkActive());
-  glAssert(glUniform1i(findUniformLocation(name), static_cast<int>(value)));
+  glAssert(glUniform1i(findUniformLocation(name), int(value)));
 }
 
 void ShaderProgram::set(const std::string& name, const float value)
@@ -159,58 +195,20 @@ void ShaderProgram::set(const std::string& name, const vm::mat4x4f& value)
     findUniformLocation(name), 1, false, reinterpret_cast<const float*>(value.v)));
 }
 
-void ShaderProgram::link()
-{
-  glAssert(glLinkProgram(m_programId));
-
-  GLint linkStatus = 0;
-  glAssert(glGetProgramiv(m_programId, GL_LINK_STATUS, &linkStatus));
-
-  if (linkStatus == 0)
-  {
-    auto str = std::stringstream();
-    str << "Could not link shader program " << m_name << ": ";
-
-    GLint infoLogLength = 0;
-    glAssert(glGetProgramiv(m_programId, GL_INFO_LOG_LENGTH, &infoLogLength));
-    if (infoLogLength > 0)
-    {
-      auto infoLog = std::make_unique<char[]>(static_cast<size_t>(infoLogLength));
-      glAssert(
-        glGetProgramInfoLog(m_programId, infoLogLength, &infoLogLength, infoLog.get()));
-      infoLog[static_cast<size_t>(infoLogLength - 1)] = 0;
-
-      str << infoLog.get();
-    }
-    else
-    {
-      str << "Unknown error";
-    }
-
-    throw RenderException(str.str());
-  }
-
-  m_variableCache.clear();
-  m_needsLinking = false;
-}
-
 GLint ShaderProgram::findAttributeLocation(const std::string& name) const
 {
   auto it = m_attributeCache.find(name);
   if (it == std::end(m_attributeCache))
   {
-    GLint index;
+    auto index = GLint(0);
     glAssert(index = glGetAttribLocation(m_programId, name.c_str()));
-    if (index == -1)
-    {
-      throw RenderException(
-        "Location of attribute '" + name + "' could not be found in shader program "
-        + m_name);
-    }
+    ensure(index != -1, "Attribute location found in shader program");
 
-    m_attributeCache[name] = index;
-    return index;
+    auto inserted = false;
+    std::tie(it, inserted) = m_attributeCache.emplace(name, index);
+    assert(inserted);
   }
+
   return it->second;
 }
 
@@ -219,26 +217,36 @@ GLint ShaderProgram::findUniformLocation(const std::string& name) const
   auto it = m_variableCache.find(name);
   if (it == std::end(m_variableCache))
   {
-    GLint index;
+    auto index = GLint(0);
     glAssert(index = glGetUniformLocation(m_programId, name.c_str()));
-    if (index == -1)
-    {
-      throw RenderException(
-        "Location of uniform variable '" + name
-        + "' could not be found in shader program " + m_name);
-    }
+    ensure(index != -1, "Attribute location found in shader program");
 
-    m_variableCache[name] = index;
-    return index;
+    auto inserted = false;
+    std::tie(it, inserted) = m_variableCache.emplace(name, index);
+    assert(inserted);
   }
+
   return it->second;
 }
 
 bool ShaderProgram::checkActive() const
 {
-  GLint currentProgramId = -1;
+  auto currentProgramId = GLint(-1);
   glAssert(glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgramId));
-  return static_cast<GLuint>(currentProgramId) == m_programId;
+  return GLuint(currentProgramId) == m_programId;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+kdl::result<ShaderProgram, RenderError> createShaderProgram(std::string name)
+{
+  auto programId = GLuint(0);
+  glAssert(programId = glCreateProgram());
+
+  if (programId == 0)
+  {
+    return RenderError{"Could not create shader '" + name + "'"};
+  }
+
+  return ShaderProgram{std::move(name), programId};
+}
+
+} // namespace TrenchBroom::Renderer

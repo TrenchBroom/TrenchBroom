@@ -21,37 +21,37 @@
 
 #include "Ensure.h"
 #include "IO/SystemPaths.h"
-#include "Renderer/Shader.h"
+#include "Renderer/RenderError.h"
 #include "Renderer/ShaderConfig.h"
-#include "Renderer/ShaderProgram.h"
+
+#include "kdl/vector_utils.h"
+#include <kdl/result.h>
+#include <kdl/result_fold.h>
 
 #include <cassert>
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-ShaderManager::ShaderManager()
-  : m_currentProgram(nullptr)
-{
-}
 
-ShaderManager::~ShaderManager() = default;
+kdl::result<void, RenderError> ShaderManager::loadProgram(const ShaderConfig& config)
+{
+  return createProgram(config).and_then(
+    [&](auto program) -> kdl::result<void, RenderError> {
+      if (!m_programs.emplace(config.name(), std::move(program)).second)
+      {
+        return RenderError{"Shader program '" + config.name() + "' already loaded"};
+      }
+      return kdl::void_success;
+    });
+}
 
 ShaderProgram& ShaderManager::program(const ShaderConfig& config)
 {
-  auto it = m_programs.find(&config);
-  if (it != std::end(m_programs))
-  {
-    return *it->second;
-  }
-
-  auto result = m_programs.emplace(&config, createProgram(config));
-  assert(result.second);
-
-  return *(result.first->second);
+  auto it = m_programs.find(config.name());
+  ensure(it != std::end(m_programs), "Shader program was previously loaded");
+  return it->second;
 }
 
 ShaderProgram* ShaderManager::currentProgram()
@@ -64,39 +64,56 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
   m_currentProgram = program;
 }
 
-std::unique_ptr<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
+kdl::result<ShaderProgram, RenderError> ShaderManager::createProgram(
+  const ShaderConfig& config)
 {
-  auto program = std::make_unique<ShaderProgram>(this, config.name());
-
-  for (const auto& path : config.vertexShaders())
-  {
-    Shader& shader = loadShader(path, GL_VERTEX_SHADER);
-    program->attach(shader);
-  }
-
-  for (const auto& path : config.fragmentShaders())
-  {
-    Shader& shader = loadShader(path, GL_FRAGMENT_SHADER);
-    program->attach(shader);
-  }
-
-  return program;
+  return createShaderProgram(config.name())
+    .and_then([&](auto program) {
+      return kdl::fold_results(
+               kdl::vec_transform(
+                 config.vertexShaders(),
+                 [&](const auto& path) {
+                   return loadShader(path, GL_VERTEX_SHADER).transform([&](auto shader) {
+                     program.attach(shader.get());
+                   });
+                 }))
+        .transform([&]() { return std::move(program); });
+    })
+    .and_then([&](auto program) {
+      return kdl::fold_results(
+               kdl::vec_transform(
+                 config.fragmentShaders(),
+                 [&](const auto& path) {
+                   return loadShader(path, GL_FRAGMENT_SHADER)
+                     .transform([&](auto shader) { program.attach(shader.get()); });
+                 }))
+        .transform([&]() { return std::move(program); });
+    })
+    .and_then([&](auto program) {
+      return program.link().transform([&]() { return std::move(program); });
+    });
 }
 
-Shader& ShaderManager::loadShader(const std::string& name, const GLenum type)
+kdl::result<std::reference_wrapper<Shader>, RenderError> ShaderManager::loadShader(
+  const std::string& name, const GLenum type)
 {
   auto it = m_shaders.find(name);
   if (it != std::end(m_shaders))
   {
-    return *it->second;
+    return std::ref(it->second);
   }
 
   const auto shaderPath =
     IO::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
-  auto result = m_shaders.emplace(name, std::make_unique<Shader>(shaderPath, type));
-  assert(result.second);
 
-  return *(result.first->second);
+  return Renderer::loadShader(shaderPath, type).transform([&](auto shader) {
+    const auto [insertIt, inserted] = m_shaders.emplace(name, std::move(shader));
+
+    assert(inserted);
+    unused(inserted);
+
+    return std::ref(insertIt->second);
+  });
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

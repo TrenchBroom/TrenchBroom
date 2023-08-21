@@ -23,8 +23,10 @@
 #include "IO/File.h"
 #include "IO/IdPakFileSystem.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
 #include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
+#include "TestUtils.h"
 
 #include <filesystem>
 
@@ -821,12 +823,9 @@ TEST_CASE("Hierarchical ImageFileSystems")
   const auto fsTestPath = std::filesystem::current_path() / "fixture/test/IO/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
-      {"IdPakFileSystem",
-       std::shared_ptr<FileSystem>{new IdPakFileSystem{fsTestPath / "Pak/idpak.pak"}}},
-      {"DkPakFileSystem",
-       std::shared_ptr<FileSystem>{new DkPakFileSystem{fsTestPath / "Pak/dkpak.pak"}}},
-      {"ZipFileSystem",
-       std::shared_ptr<FileSystem>{new ZipFileSystem{fsTestPath / "Zip/zip.zip"}}},
+      {"IdPakFileSystem", openFS<IdPakFileSystem>(fsTestPath / "Pak/idpak.pak")},
+      {"DkPakFileSystem", openFS<DkPakFileSystem>(fsTestPath / "Pak/dkpak.pak")},
+      {"ZipFileSystem", openFS<ZipFileSystem>(fsTestPath / "Zip/zip.zip")},
     }));
 
   CAPTURE(name);
@@ -840,30 +839,52 @@ TEST_CASE("Hierarchical ImageFileSystems")
     CHECK(fs->pathInfo("does_not_exist") == PathInfo::Unknown);
   }
 
-  SECTION("directoryContents")
+  SECTION("find")
   {
-    CHECK_THAT(
-      fs->directoryContents(""),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "pics",
-        "textures",
-        "amnet.cfg",
-        "bear.cfg",
-      }));
+    CHECK(
+      fs->find("", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "amnet.cfg",
+          "bear.cfg",
+          "pics",
+          "textures",
+        }});
 
-    CHECK_THAT(
-      fs->directoryContents("pics"),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "tag1.pcx",
-        "tag2.pcx",
-      }));
+    CHECK(
+      fs->find("pics", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "pics/tag1.pcx",
+          "pics/tag2.pcx",
+        }});
+
+    CHECK(
+      fs->find("", TraversalMode::Recursive)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "amnet.cfg",
+          "bear.cfg",
+          "pics",
+          "pics/tag1.pcx",
+          "pics/tag2.pcx",
+          "textures",
+          "textures/e1u1",
+          "textures/e1u1/box1_3.wal",
+          "textures/e1u1/brlava.wal",
+          "textures/e1u2",
+          "textures/e1u2/angle1_1.wal",
+          "textures/e1u2/angle1_2.wal",
+          "textures/e1u2/basic1_7.wal",
+          "textures/e1u3",
+          "textures/e1u3/stflr1_5.wal",
+          "textures/e1u3/strs1_3.wal",
+        }});
   }
 
   SECTION("openFile")
   {
-    const auto amnet_cfg = fs->openFile("amnet.cfg");
-    CHECK(amnet_cfg != nullptr);
-    CHECK(amnet_cfg->path() == "amnet.cfg");
+    const auto amnet_cfg = fs->openFile("amnet.cfg").value();
 
     auto reader = amnet_cfg->reader();
     CHECK(reader.readString(reader.size()) == R"(//
@@ -903,8 +924,7 @@ TEST_CASE("Flat ImageFileSystems")
   const auto fsTestPath = std::filesystem::current_path() / "fixture/test/IO/";
   const auto [name, fs] =
     GENERATE_REF(values<std::tuple<std::string, std::shared_ptr<FileSystem>>>({
-      {"WadFileSystem",
-       std::shared_ptr<FileSystem>{new WadFileSystem{fsTestPath / "Wad/cr8_czg.wad"}}},
+      {"WadFileSystem", openFS<WadFileSystem>(fsTestPath / "Wad/cr8_czg.wad")},
     }));
 
   CAPTURE(name);
@@ -919,23 +939,25 @@ TEST_CASE("Flat ImageFileSystems")
 
   SECTION("directoryContents")
   {
-    CHECK_THAT(
-      fs->directoryContents(""),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "blowjob_machine.D", "bongs2.D",          "can-o-jam.D",     "cap4can-o-jam.D",
-        "coffin1.D",         "coffin2.D",         "cr8_czg_1.D",     "cr8_czg_2.D",
-        "cr8_czg_3.D",       "cr8_czg_4.D",       "cr8_czg_5.D",     "crackpipes.D",
-        "czg_backhole.D",    "czg_fronthole.D",   "dex_5.D",         "eat_me.D",
-        "for_sux-m-ass.D",   "lasthopeofhuman.D", "polished_turd.D", "speedM_1.D",
-        "u_get_this.D",
-      }));
+    const auto traversalMode = GENERATE(TraversalMode::Flat, TraversalMode::Recursive);
+    CAPTURE(traversalMode);
+
+    CHECK(
+      fs->find("", traversalMode)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "blowjob_machine.D", "bongs2.D",          "can-o-jam.D",     "cap4can-o-jam.D",
+          "coffin1.D",         "coffin2.D",         "cr8_czg_1.D",     "cr8_czg_2.D",
+          "cr8_czg_3.D",       "cr8_czg_4.D",       "cr8_czg_5.D",     "crackpipes.D",
+          "czg_backhole.D",    "czg_fronthole.D",   "dex_5.D",         "eat_me.D",
+          "for_sux-m-ass.D",   "lasthopeofhuman.D", "polished_turd.D", "speedM_1.D",
+          "u_get_this.D",
+        }});
   }
 
   SECTION("openFile")
   {
-    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D");
-    CHECK(cr8_czg_3_d != nullptr);
-    CHECK(cr8_czg_3_d->path() == "cr8_czg_3.D");
+    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D").value();
 
     auto reader = cr8_czg_3_d->reader();
     auto contents = std::vector<unsigned char>(reader.size());

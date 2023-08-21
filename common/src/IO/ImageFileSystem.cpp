@@ -22,17 +22,18 @@
 #include "Ensure.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
 
 #include <kdl/overload.h>
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
 
 #include <cassert>
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 namespace
@@ -169,31 +170,23 @@ ImageDirectoryEntry& findOrCreateDirectory(
 }
 } // namespace
 
-ImageFileSystemBase::ImageFileSystemBase(std::filesystem::path path)
-  : m_path{std::move(path)}
-  , m_root{ImageDirectoryEntry{{}, {}}}
+ImageFileSystemBase::ImageFileSystemBase()
+  : m_root{ImageDirectoryEntry{{}, {}}}
 {
 }
 
 ImageFileSystemBase::~ImageFileSystemBase() = default;
 
-void ImageFileSystemBase::reload()
+kdl::result<std::filesystem::path, FileSystemError> ImageFileSystemBase::makeAbsolute(
+  const std::filesystem::path& path) const
 {
-  m_root = ImageDirectoryEntry{{}, {}};
-  initialize();
+  return kdl::result<std::filesystem::path, FileSystemError>{"/" / path};
 }
 
-void ImageFileSystemBase::initialize()
+kdl::result<void, FileSystemError> ImageFileSystemBase::reload()
 {
-  try
-  {
-    doReadDirectory();
-  }
-  catch (const std::exception& e)
-  {
-    throw FileSystemException{
-      "Could not initialize image file system '" + m_path.string() + "': " + e.what()};
-  }
+  m_root = ImageDirectoryEntry{{}, {}};
+  return doReadDirectory();
 }
 
 void ImageFileSystemBase::addFile(const std::filesystem::path& path, GetImageFile getFile)
@@ -215,66 +208,77 @@ void ImageFileSystemBase::addFile(const std::filesystem::path& path, GetImageFil
   }
 }
 
-std::filesystem::path ImageFileSystemBase::doMakeAbsolute(
-  const std::filesystem::path& path) const
-{
-  return "/" / path;
-}
-
-PathInfo ImageFileSystemBase::doGetPathInfo(const std::filesystem::path& path) const
+PathInfo ImageFileSystemBase::pathInfo(const std::filesystem::path& path) const
 {
   const auto* entry = findEntry(path, m_root);
   return entry ? isDirectory(*entry) ? PathInfo::Directory : PathInfo::File
                : PathInfo::Unknown;
 }
 
-std::vector<std::filesystem::path> ImageFileSystemBase::doGetDirectoryContents(
-  const std::filesystem::path& path) const
+namespace
+{
+void doFindImpl(
+  const ImageEntry& entry,
+  const std::filesystem::path& entryPath,
+  const TraversalMode traversalMode,
+  std::vector<std::filesystem::path>& result)
+{
+  std::visit(
+    kdl::overload(
+      [&](const ImageDirectoryEntry& directoryEntry) {
+        for (const auto& childEntry : directoryEntry.entries)
+        {
+          const auto childPath = entryPath / getName(childEntry);
+          result.push_back(childPath);
+          if (traversalMode == TraversalMode::Recursive)
+          {
+            doFindImpl(childEntry, childPath, traversalMode, result);
+          }
+        }
+      },
+      [](const ImageFileEntry&) {}),
+    entry);
+}
+} // namespace
+
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> ImageFileSystemBase::
+  doFind(const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   withEntry(
     path,
     m_root,
-    std::filesystem::path{},
-    [&](const ImageEntry& entry, const std::filesystem::path&) {
-      return std::visit(
-        kdl::overload(
-          [&](const ImageDirectoryEntry& directoryEntry) {
-            for (const auto& childEntry : directoryEntry.entries)
-            {
-              result.push_back(getName(childEntry));
-            }
-          },
-          [](const ImageFileEntry&) {}),
-        entry);
+    {},
+    [&](const ImageEntry& entry, const std::filesystem::path& entryPath) {
+      doFindImpl(entry, entryPath, traversalMode, result);
     });
   return result;
 }
 
-std::shared_ptr<File> ImageFileSystemBase::doOpenFile(
+kdl::result<std::shared_ptr<File>, FileSystemError> ImageFileSystemBase::doOpenFile(
   const std::filesystem::path& path) const
 {
   return withEntry(
     path,
     m_root,
     std::filesystem::path{},
-    [](const ImageEntry& entry, const std::filesystem::path&) {
+    [&](const ImageEntry& entry, const std::filesystem::path&) {
       return std::visit(
         kdl::overload(
-          [&](const ImageDirectoryEntry&) -> std::shared_ptr<File> { return {}; },
-          [](const ImageFileEntry& fileEntry) -> std::shared_ptr<File> {
-            return fileEntry.getFile();
-          }),
+          [&](const ImageDirectoryEntry&) {
+            return kdl::result<std::shared_ptr<File>, FileSystemError>{
+              FileSystemError{"Cannot open directory entry at '" + path.string() + "'"}};
+          },
+          [](const ImageFileEntry& fileEntry) { return fileEntry.getFile(); }),
         entry);
     },
-    {});
+    kdl::result<std::shared_ptr<File>, FileSystemError>{
+      FileSystemError{"File not found: '" + path.string() + "'"}});
 }
 
-ImageFileSystem::ImageFileSystem(std::filesystem::path path)
-  : ImageFileSystemBase{std::move(path)}
-  , m_file{std::make_shared<CFile>(m_path)}
+ImageFileSystem::ImageFileSystem(std::shared_ptr<CFile> file)
+  : m_file{std::move(file)}
 {
-  ensure(m_path.is_absolute(), "path must be absolute");
+  ensure(m_file, "file must not be null");
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

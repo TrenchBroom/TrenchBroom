@@ -25,6 +25,7 @@
 #include "IO/File.h"
 #include "IO/PathMatcher.h"
 #include "IO/TestParserStatus.h"
+#include "IO/TraversalMode.h"
 #include "Model/EntityProperties.h"
 
 #include <kdl/string_compare.h>
@@ -40,13 +41,13 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({".def"}));
+    Disk::find(basePath, TraversalMode::Flat, makeExtensionPathMatcher({".def"})).value();
 
   for (const auto& path : cfgFiles)
   {
     CAPTURE(path);
 
-    auto file = Disk::openFile(path);
+    auto file = Disk::openFile(path).value();
     auto reader = file->reader().buffer();
     auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
@@ -77,11 +78,12 @@ TEST_CASE("DefParserTest.parseExtraDefFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/test/IO/Def";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({".def"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".def"}))
+      .value();
 
   for (const auto& path : cfgFiles)
   {
-    auto file = Disk::openFile(path);
+    auto file = Disk::openFile(path).value();
     auto reader = file->reader().buffer();
     auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 

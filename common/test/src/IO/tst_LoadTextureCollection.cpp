@@ -29,6 +29,7 @@
 #include "IO/WadFileSystem.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
+#include "TestUtils.h"
 
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
@@ -91,7 +92,7 @@ TEST_CASE("loadTextureCollection")
 
   const auto wadPath =
     std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg.wad";
-  fs.mount("textures" / wadPath.filename(), std::make_unique<WadFileSystem>(wadPath));
+  fs.mount("textures" / wadPath.filename(), openFS<WadFileSystem>(wadPath));
 
   auto logger = NullLogger{};
 

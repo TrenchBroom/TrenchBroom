@@ -26,6 +26,7 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
+#include "Model/GameError.h"
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
@@ -64,7 +65,9 @@ void MapDocumentTest::SetUp()
 {
   game = std::make_shared<Model::TestGame>();
   document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(m_mapFormat, vm::bbox3(8192.0), game);
+  document->newDocument(m_mapFormat, vm::bbox3(8192.0), game).transform_error([](auto e) {
+    throw std::runtime_error{e.msg};
+  });
 
   // create two entity definitions
   m_pointEntityDef = new Assets::PointEntityDefinition(
@@ -494,7 +497,8 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
       Model::EntityPropertyConfig{{}, true(setDefaultProperties)},
       Model::Entity{},
       Model::MapFormat::Standard));
-    document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "");
+    document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "")
+      .transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
     auto* definitionWithDefaults = new Assets::PointEntityDefinition{
       "some_name",
@@ -565,7 +569,8 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
       Model::EntityPropertyConfig{{}, true(setDefaultProperties)},
       Model::Entity{},
       Model::MapFormat::Standard));
-    document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "");
+    document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "")
+      .transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
     auto* definitionWithDefaults = new Assets::BrushEntityDefinition{
       "some_name",

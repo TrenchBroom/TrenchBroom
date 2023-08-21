@@ -25,9 +25,12 @@
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
 
+#include "kdl/invoke.h"
+#include <kdl/result.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -985,41 +988,39 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
     return {};
   }
 
-  const auto snapshot = m_tokenizer.snapshotStateAndSource();
-  auto result = std::vector<EntityDefinitionClassInfo>{};
-  try
-  {
-    status.debug(m_tokenizer.line(), "Parsing included file '" + path.string() + "'");
-    const auto file = m_fs->openFile(currentRoot() / path);
-    const auto filePath = file->path();
-    status.debug(
-      m_tokenizer.line(),
-      "Resolved '" + path.string() + "' to '" + filePath.string() + "'");
+  const auto restoreSnapshot =
+    kdl::invoke_later{[&, snapshot = m_tokenizer.snapshotStateAndSource()]() {
+      m_tokenizer.restoreStateAndSource(snapshot);
+    }};
 
-    if (!isRecursiveInclude(filePath))
-    {
+  status.debug(m_tokenizer.line(), "Parsing included file '" + path.string() + "'");
+
+  const auto filePath = currentRoot() / path;
+  return m_fs->openFile(filePath)
+    .transform([&](auto file) {
+      status.debug(
+        m_tokenizer.line(),
+        "Resolved '" + path.string() + "' to '" + filePath.string() + "'");
+
+      if (isRecursiveInclude(filePath))
+      {
+        status.error(
+          m_tokenizer.line(),
+          "Skipping recursively included file: " + path.string() + " ("
+            + filePath.string() + ")");
+        return std::vector<EntityDefinitionClassInfo>{};
+      }
+
       const auto pushIncludePath = PushIncludePath{this, filePath};
       auto reader = file->reader().buffer();
       m_tokenizer.replaceState(reader.stringView());
-      result = parseClassInfos(status);
-    }
-    else
-    {
-      status.error(
-        m_tokenizer.line(),
-        kdl::str_to_string(
-          "Skipping recursively included file: ", path.string(), " (", filePath, ")"));
-    }
-  }
-  catch (const Exception& e)
-  {
-    status.error(
-      m_tokenizer.line(),
-      kdl::str_to_string("Failed to parse included file: ", e.what()));
-  }
-
-  m_tokenizer.restoreStateAndSource(snapshot);
-  return result;
+      return parseClassInfos(status);
+    })
+    .transform_error([&](auto e) {
+      status.error(m_tokenizer.line(), "Failed to parse included file: " + e.msg);
+      return std::vector<EntityDefinitionClassInfo>{};
+    })
+    .value();
 }
 } // namespace IO
 } // namespace TrenchBroom

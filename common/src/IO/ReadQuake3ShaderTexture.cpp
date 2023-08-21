@@ -23,9 +23,12 @@
 #include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
+#include "IO/TraversalMode.h"
 
+#include "kdl/result_fold.h"
 #include <kdl/functional.h>
 #include <kdl/result.h>
 #include <kdl/string_format.h>
@@ -59,15 +62,21 @@ std::optional<std::filesystem::path> findImage(
 
     const auto directoryPath = texturePath.parent_path();
     const auto basename = texturePath.stem().string();
-    const auto candidates = fs.find(
-      texturePath.parent_path(),
-      kdl::lift_and(
-        makeFilenamePathMatcher(basename + ".*"),
-        makeExtensionPathMatcher(imageExtensions)));
-    if (!candidates.empty())
-    {
-      return candidates.front();
-    }
+    return fs
+      .find(
+        texturePath.parent_path(),
+        TraversalMode::Flat,
+        kdl::lift_and(
+          makeFilenamePathMatcher(basename + ".*"),
+          makeExtensionPathMatcher(imageExtensions)))
+      .transform([](auto candidates) -> std::optional<std::filesystem::path> {
+        if (!candidates.empty())
+        {
+          return candidates.front();
+        }
+        return std::nullopt;
+      })
+      .value_or(std::nullopt);
   }
 
   // texture path is empty OR (the extension is not empty AND the file does not exist)
@@ -110,9 +119,15 @@ kdl::result<Assets::Texture, ReadTextureError> loadTextureImage(
       std::move(shaderName), "Image file '" + imagePath.string() + "' does not exist"};
   }
 
-  const auto file = fs.openFile(imagePath);
-  auto reader = file->reader().buffer();
-  return readFreeImageTexture(std::move(shaderName), reader);
+  return fs.openFile(imagePath)
+    .and_then([&](auto file) {
+      auto reader = file->reader().buffer();
+      return readFreeImageTexture(shaderName, reader);
+    })
+    .or_else([&](auto e) {
+      return kdl::result<Assets::Texture, ReadTextureError>{
+        ReadTextureError{shaderName, e.msg}};
+    });
 }
 
 } // namespace

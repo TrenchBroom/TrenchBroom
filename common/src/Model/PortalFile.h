@@ -19,35 +19,34 @@
 
 #pragma once
 
+#include <kdl/result_forward.h>
+
 #include <vecmath/forward.h>
 
 #include <filesystem>
+#include <iosfwd>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace Model
+struct FileFormatError;
+} // namespace TrenchBroom::IO
+
+namespace TrenchBroom::Model
 {
+
 class PortalFile
 {
 private:
   std::vector<vm::polygon3f> m_portals;
 
 public:
-  PortalFile();
-  ~PortalFile();
-
-  /**
-   * Constructor throws an exception if portalFilePath couldn't be read.
-   */
-  explicit PortalFile(const std::filesystem::path& path);
-
-  static bool canLoad(const std::filesystem::path& path);
+  explicit PortalFile(std::vector<vm::polygon3f> portals);
 
   const std::vector<vm::polygon3f>& portals() const;
-
-private:
-  void load(const std::filesystem::path& path);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+bool canLoadPortalFile(const std::filesystem::path& path);
+kdl::result<PortalFile, IO::FileFormatError> loadPortalFile(std::istream& stream);
+
+} // namespace TrenchBroom::Model

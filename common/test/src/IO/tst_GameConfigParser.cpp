@@ -23,6 +23,7 @@
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"
 #include "IO/Reader.h"
+#include "IO/TraversalMode.h"
 #include "Model/GameConfig.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
@@ -40,13 +41,14 @@ TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::findRecursively(basePath, makeExtensionPathMatcher({".cfg"}));
+    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".cfg"}))
+      .value();
 
   for (const auto& path : cfgFiles)
   {
     CAPTURE(path);
 
-    auto file = Disk::openFile(path);
+    auto file = Disk::openFile(path).value();
     auto reader = file->reader().buffer();
 
     GameConfigParser parser(reader.stringView(), path);

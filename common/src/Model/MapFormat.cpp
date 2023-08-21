@@ -21,6 +21,7 @@
 
 #include "Macros.h"
 
+#include <ostream>
 #include <string>
 
 namespace TrenchBroom
@@ -69,6 +70,44 @@ MapFormat formatFromName(const std::string& formatName)
   {
     return MapFormat::Unknown;
   }
+}
+
+std::ostream& operator<<(std::ostream& lhs, const MapFormat rhs)
+{
+  switch (rhs)
+  {
+  case MapFormat::Unknown:
+    lhs << "Unknown";
+    break;
+  case MapFormat::Standard:
+    lhs << "Standard";
+    break;
+  case MapFormat::Quake2:
+    lhs << "Quake2";
+    break;
+  case MapFormat::Quake2_Valve:
+    lhs << "Quake2_Valve";
+    break;
+  case MapFormat::Valve:
+    lhs << "Valve";
+    break;
+  case MapFormat::Hexen2:
+    lhs << "Hexen2";
+    break;
+  case MapFormat::Daikatana:
+    lhs << "Daikatana";
+    break;
+  case MapFormat::Quake3_Legacy:
+    lhs << "Quake3_Legacy";
+    break;
+  case MapFormat::Quake3_Valve:
+    lhs << "Quake3_Valve";
+    break;
+  case MapFormat::Quake3:
+    lhs << "Quake3";
+    break;
+  }
+  return lhs;
 }
 
 std::string formatName(const MapFormat format)

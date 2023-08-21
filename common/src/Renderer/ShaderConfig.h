@@ -22,10 +22,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 class ShaderConfig
 {
 private:
@@ -35,14 +34,14 @@ private:
 
 public:
   ShaderConfig(
-    const std::string& name,
-    const std::vector<std::string>& vertexShaders,
-    const std::vector<std::string>& fragmentShaders);
+    std::string name,
+    std::vector<std::string> vertexShaders,
+    std::vector<std::string> fragmentShaders);
 
 public:
   const std::string& name() const;
   const std::vector<std::string>& vertexShaders() const;
   const std::vector<std::string>& fragmentShaders() const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

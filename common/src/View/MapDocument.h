@@ -25,9 +25,12 @@
 #include "Model/NodeCollection.h"
 #include "Model/NodeContents.h"
 #include "Model/PointTrace.h"
+#include "Model/PortalFile.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "View/CachingLogger.h"
+
+#include <kdl/result_forward.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
@@ -64,6 +67,7 @@ class BrushFaceAttributes;
 class EditorContext;
 class Entity;
 class Game;
+struct GameError;
 class Issue;
 enum class MapFormat;
 class PickResult;
@@ -75,6 +79,11 @@ class TexCoordSystemSnapshot;
 class WorldNode;
 enum class WrapStyle;
 } // namespace Model
+
+namespace IO
+{
+struct FileSystemError;
+}
 
 namespace View
 {
@@ -96,6 +105,12 @@ struct PointFile
   std::filesystem::path path;
 };
 
+struct PortalFile
+{
+  Model::PortalFile portalFile;
+  std::filesystem::path path;
+};
+
 class MapDocument : public Model::MapFacade, public CachingLogger
 {
 public:
@@ -108,8 +123,7 @@ protected:
   std::unique_ptr<Model::WorldNode> m_world;
 
   std::optional<PointFile> m_pointFile;
-  std::unique_ptr<Model::PortalFile> m_portalFile;
-  std::filesystem::path m_portalFilePath;
+  std::optional<PortalFile> m_portalFile;
 
   std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
   std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
@@ -254,8 +268,8 @@ public:
 
   Grid& grid() const;
 
-  std::optional<PointFile>& pointFile();
-  Model::PortalFile* portalFile() const;
+  Model::PointTrace* pointFile();
+  const Model::PortalFile* portalFile() const;
 
   void setViewEffectsService(ViewEffectsService* viewEffectsService);
 
@@ -287,11 +301,11 @@ private: // tag and entity definition actions
   void createEntityDefinitionActions();
 
 public: // new, load, save document
-  void newDocument(
+  kdl::result<void, Model::GameError> newDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  void loadDocument(
+  kdl::result<void, Model::GameError> loadDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,
@@ -299,7 +313,7 @@ public: // new, load, save document
   void saveDocument();
   void saveDocumentAs(const std::filesystem::path& path);
   void saveDocumentTo(const std::filesystem::path& path);
-  void exportDocumentAs(const IO::ExportOptions& options);
+  kdl::result<void, Model::GameError> exportDocumentAs(const IO::ExportOptions& options);
 
 private:
   void doSaveDocument(const std::filesystem::path& path);
@@ -677,11 +691,11 @@ public: // picking
   std::vector<Model::Node*> findNodesContaining(const vm::vec3& point) const;
 
 private: // world management
-  void createWorld(
+  kdl::result<void, Model::GameError> createWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  void loadWorld(
+  kdl::result<void, Model::GameError> loadWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,

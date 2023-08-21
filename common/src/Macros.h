@@ -81,3 +81,7 @@ public:                                                                         
   classname(classname&& other) noexcept = delete;                                        \
   classname& operator=(const classname& other) = delete;                                 \
   classname& operator=(classname&& other) = delete
+
+#define moveOnly(classname)                                                              \
+  defineMove(classname);                                                                 \
+  deleteCopy(classname)

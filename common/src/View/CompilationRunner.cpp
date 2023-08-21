@@ -30,13 +30,16 @@
 #include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
 #include "IO/PathQt.h"
+#include "IO/TraversalMode.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
+#include "Model/GameError.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 
 #include "kdl/functional.h"
+#include "kdl/result_fold.h"
 #include <kdl/overload.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
@@ -92,33 +95,27 @@ void CompilationExportMapTaskRunner::doExecute()
 {
   emit start();
 
-  try
+  const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
+  m_context << "#### Exporting map file '" << IO::pathAsQString(targetPath) << "'\n";
+
+  if (!m_context.test())
   {
-    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
-    try
-    {
-      m_context << "#### Exporting map file '" << IO::pathAsQString(targetPath) << "'\n";
-
-      if (!m_context.test())
-      {
-        IO::Disk::createDirectory(targetPath.parent_path());
-
+    IO::Disk::createDirectory(targetPath.parent_path())
+      .and_then([&](auto) {
         const auto options = IO::MapExportOptions{targetPath};
         const auto document = m_context.document();
-        document->exportDocumentAs(options);
-      }
-      emit end();
-    }
-    catch (const Exception& e)
-    {
-      m_context << "#### Could not export map file '" << IO::pathAsQString(targetPath)
-                << "': " << e.what() << "\n";
-      throw;
-    }
+        return document->exportDocumentAs(options);
+      })
+      .transform([&]() { emit end(); })
+      .transform_error([&](auto e) {
+        m_context << "#### Could not export map file '" << IO::pathAsQString(targetPath)
+                  << "': " << QString::fromStdString(e.msg) << "\n";
+        emit error();
+      });
   }
-  catch (const Exception&)
+  else
   {
-    emit error();
+    emit end();
   }
 }
 
@@ -137,19 +134,16 @@ void CompilationCopyFilesTaskRunner::doExecute()
 {
   emit start();
 
-  try
-  {
-    const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
-    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
+  const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
+  const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
-    const auto sourceDirPath = sourcePath.parent_path();
-    const auto sourcePathMatcher = kdl::lift_and(
-      IO::makePathInfoPathMatcher({IO::PathInfo::File}),
-      IO::makeFilenamePathMatcher(sourcePath.filename().string()));
+  const auto sourceDirPath = sourcePath.parent_path();
+  const auto sourcePathMatcher = kdl::lift_and(
+    IO::makePathInfoPathMatcher({IO::PathInfo::File}),
+    IO::makeFilenamePathMatcher(sourcePath.filename().string()));
 
-    try
-    {
-      const auto pathsToCopy = IO::Disk::find(sourceDirPath, sourcePathMatcher);
+  IO::Disk::find(sourceDirPath, IO::TraversalMode::Flat, sourcePathMatcher)
+    .and_then([&](const auto& pathsToCopy) {
       const auto pathStrsToCopy = kdl::vec_transform(
         pathsToCopy, [](const auto& path) { return "'" + path.string() + "'"; });
 
@@ -158,25 +152,22 @@ void CompilationCopyFilesTaskRunner::doExecute()
                 << "\n";
       if (!m_context.test())
       {
-        IO::Disk::createDirectory(targetPath);
-        for (const auto& pathToCopy : pathsToCopy)
-        {
-          IO::Disk::copyFile(pathToCopy, targetPath);
-        }
+        return IO::Disk::createDirectory(targetPath).and_then([&](auto) {
+          return kdl::fold_results(
+            kdl::vec_transform(pathsToCopy, [&](const auto& pathToCopy) {
+              return IO::Disk::copyFile(pathToCopy, targetPath);
+            }));
+        });
       }
-      emit end();
-    }
-    catch (const Exception& e)
-    {
+      return kdl::result<void, IO::FileSystemError>{};
+    })
+    .transform([&]() { emit end(); })
+    .transform_error([&](auto e) {
       m_context << "#### Could not copy '" << IO::pathAsQString(sourcePath) << "' to '"
-                << IO::pathAsQString(targetPath) << "': " << e.what() << "\n";
-      throw;
-    }
-  }
-  catch (const Exception&)
-  {
-    emit error();
-  }
+                << IO::pathAsQString(targetPath) << "': " << QString::fromStdString(e.msg)
+                << "\n";
+      emit error();
+    });
 }
 
 void CompilationCopyFilesTaskRunner::doTerminate() {}
@@ -194,32 +185,26 @@ void CompilationRenameFileTaskRunner::doExecute()
 {
   emit start();
 
-  try
-  {
-    const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
-    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
+  const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
+  const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
-    try
-    {
-      m_context << "#### Renaming '" << IO::pathAsQString(sourcePath) << "' to '"
-                << IO::pathAsQString(targetPath) << "'\n";
-      if (!m_context.test())
-      {
-        IO::Disk::createDirectory(targetPath.parent_path());
-        IO::Disk::moveFile(sourcePath, targetPath);
-      }
-      emit end();
-    }
-    catch (const Exception& e)
-    {
-      m_context << "#### Could not rename '" << IO::pathAsQString(sourcePath) << "' to '"
-                << IO::pathAsQString(targetPath) << "': " << e.what() << "\n";
-      throw;
-    }
-  }
-  catch (const Exception&)
+  m_context << "#### Renaming '" << IO::pathAsQString(sourcePath) << "' to '"
+            << IO::pathAsQString(targetPath) << "'\n";
+  if (!m_context.test())
   {
-    emit error();
+    IO::Disk::createDirectory(targetPath.parent_path())
+      .and_then([&](auto) { return IO::Disk::moveFile(sourcePath, targetPath); })
+      .transform([&]() { emit end(); })
+      .transform_error([&](auto e) {
+        m_context << "#### Could not rename '" << IO::pathAsQString(sourcePath)
+                  << "' to '" << IO::pathAsQString(targetPath)
+                  << "': " << QString::fromStdString(e.msg) << "\n";
+        emit error();
+      });
+  }
+  else
+  {
+    emit end();
   }
 }
 
@@ -238,43 +223,31 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 {
   emit start();
 
-  try
-  {
-    const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
+  const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
+  const auto targetDirPath = targetPath.parent_path();
+  const auto targetPathMatcher = kdl::lift_and(
+    IO::makePathInfoPathMatcher({IO::PathInfo::File}),
+    IO::makeFilenamePathMatcher(targetPath.filename().string()));
 
-    const auto targetDirPath = targetPath.parent_path();
-    const auto targetPathMatcher = kdl::lift_and(
-      IO::makePathInfoPathMatcher({IO::PathInfo::File}),
-      IO::makeFilenamePathMatcher(targetPath.filename().string()));
-
-    try
-    {
-      const auto pathsToDelete = IO::Disk::find(targetDirPath, targetPathMatcher);
+  IO::Disk::find(targetDirPath, IO::TraversalMode::Recursive, targetPathMatcher)
+    .transform([&](const auto& pathsToDelete) {
       const auto pathStrsToDelete = kdl::vec_transform(
         pathsToDelete, [](const auto& path) { return "'" + path.string() + "'"; });
-      const auto targetListQStr =
-        QString::fromStdString(kdl::str_join(pathStrsToDelete, ", "));
-      m_context << "#### Deleting: " << targetListQStr << "\n";
+      m_context << "#### Deleting: "
+                << QString::fromStdString(kdl::str_join(pathStrsToDelete, ", ")) << "\n";
+
       if (!m_context.test())
       {
-        for (const auto& pathToDelete : pathsToDelete)
-        {
-          IO::Disk::deleteFile(pathToDelete);
-        }
+        return kdl::fold_results(kdl::vec_transform(pathsToDelete, IO::Disk::deleteFile));
       }
-      emit end();
-    }
-    catch (const Exception& e)
-    {
+      return kdl::result<std::vector<bool>, IO::FileSystemError>{std::vector<bool>{}};
+    })
+    .transform([&](auto) { emit end(); })
+    .transform_error([&](auto e) {
       m_context << "#### Could not delete '" << IO::pathAsQString(targetPath)
-                << "': " << e.what() << "\n";
-      throw;
-    }
-  }
-  catch (const Exception&)
-  {
-    emit error();
-  }
+                << "': " << QString::fromStdString(e.msg) << "\n";
+      emit error();
+    });
 }
 
 void CompilationDeleteFilesTaskRunner::doTerminate() {}

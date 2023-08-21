@@ -1,6 +1,7 @@
 set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
+        ${COMMON_SOURCE_DIR}/Assets/AssetError.cpp
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.cpp
@@ -50,8 +51,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
         ${COMMON_SOURCE_DIR}/IO/File.cpp
+        ${COMMON_SOURCE_DIR}/IO/FileFormatError.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystem.cpp
-        ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.cpp
+        ${COMMON_SOURCE_DIR}/IO/FileSystemError.cpp
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.cpp
@@ -93,6 +95,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.cpp
         ${COMMON_SOURCE_DIR}/IO/TextureUtils.cpp
+        ${COMMON_SOURCE_DIR}/IO/TraversalMode.cpp
         ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/WadFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/WorldReader.cpp
@@ -130,6 +133,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/GameConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineProfile.cpp
+        ${COMMON_SOURCE_DIR}/Model/GameError.cpp
         ${COMMON_SOURCE_DIR}/Model/GameFactory.cpp
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/GameImpl.cpp
@@ -236,6 +240,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/RenderError.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.cpp
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.cpp
@@ -477,6 +482,7 @@ set(COMMON_SOURCE
 )
 
 set(COMMON_HEADER
+        ${COMMON_SOURCE_DIR}/Assets/AssetError.h
         ${COMMON_SOURCE_DIR}/Assets/AssetReference.h
         ${COMMON_SOURCE_DIR}/Assets/AssetUtils.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
@@ -531,8 +537,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.h
         ${COMMON_SOURCE_DIR}/IO/FgdParser.h
         ${COMMON_SOURCE_DIR}/IO/File.h
+        ${COMMON_SOURCE_DIR}/IO/FileFormatError.h
         ${COMMON_SOURCE_DIR}/IO/FileSystem.h
-        ${COMMON_SOURCE_DIR}/IO/FileSystemUtils.h
+        ${COMMON_SOURCE_DIR}/IO/FileSystemError.h
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.h
@@ -578,6 +585,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/TextureUtils.h
         ${COMMON_SOURCE_DIR}/IO/Token.h
         ${COMMON_SOURCE_DIR}/IO/Tokenizer.h
+        ${COMMON_SOURCE_DIR}/IO/TraversalMode.h
         ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/WadFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/WorldReader.h
@@ -617,6 +625,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/GameConfig.h
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.h
         ${COMMON_SOURCE_DIR}/Model/GameEngineProfile.h
+        ${COMMON_SOURCE_DIR}/Model/GameError.h
         ${COMMON_SOURCE_DIR}/Model/GameFactory.h
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.h
         ${COMMON_SOURCE_DIR}/Model/GameImpl.h
@@ -752,6 +761,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.h
+        ${COMMON_SOURCE_DIR}/Renderer/RenderError.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.h
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.h

@@ -25,7 +25,7 @@ namespace TrenchBroom
 {
 Exception::Exception() noexcept {}
 
-Exception::Exception(std::string&& str) noexcept
+Exception::Exception(std::string str) noexcept
   : m_msg(std::move(str))
 {
 }
@@ -69,8 +69,4 @@ std::string ParserException::buildMessage(const size_t line, const std::string& 
   return msg.str();
 }
 
-FileNotFoundException::FileNotFoundException(const std::string& path)
-  : Exception("File not found: '" + path + "'")
-{
-}
 } // namespace TrenchBroom

@@ -45,8 +45,9 @@ struct TextureConfig;
 namespace TrenchBroom::IO
 {
 class FileSystem;
+struct FileSystemError;
 
-std::vector<std::filesystem::path> findTextureCollections(
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig);
 
 struct LoadTextureCollectionError

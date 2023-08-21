@@ -23,6 +23,7 @@
 
 #include <kdl/overload.h>
 #include <kdl/reflection_decl.h>
+#include <kdl/result_forward.h>
 
 #include <filesystem>
 #include <memory>
@@ -34,6 +35,8 @@ namespace TrenchBroom
 namespace IO
 {
 
+struct FileSystemError;
+
 struct Object
 {
   int id;
@@ -41,7 +44,7 @@ struct Object
   kdl_reflect_decl(Object, id);
 };
 
-std::shared_ptr<File> makeObjectFile(std::filesystem::path path, int id);
+std::shared_ptr<File> makeObjectFile(int id);
 
 struct FileEntry
 {
@@ -70,13 +73,16 @@ private:
 public:
   explicit TestFileSystem(Entry root, std::filesystem::path absolutePathPrefix = {"/"});
 
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+    const std::filesystem::path& path) const override;
+  PathInfo pathInfo(const std::filesystem::path& path) const override;
+
 private:
   const Entry* findEntry(std::filesystem::path path) const;
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
-  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
-  std::vector<std::filesystem::path> doGetDirectoryContents(
+  kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> doFind(
+    const std::filesystem::path& path, TraversalMode traversalMode) const override;
+  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
     const std::filesystem::path& path) const override;
-  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 };
 
 } // namespace IO

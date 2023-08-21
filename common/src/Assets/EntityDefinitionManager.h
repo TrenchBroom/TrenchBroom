@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <map>
 #include <string>
@@ -39,6 +41,7 @@ class EntityNodeBase;
 
 namespace Assets
 {
+struct AssetError;
 class EntityDefinition;
 class EntityDefinitionGroup;
 enum class EntityDefinitionSortOrder;
@@ -55,7 +58,7 @@ private:
 public:
   ~EntityDefinitionManager();
 
-  void loadDefinitions(
+  kdl::result<void, AssetError> loadDefinitions(
     const std::filesystem::path& path,
     const IO::EntityDefinitionLoader& loader,
     IO::ParserStatus& status);

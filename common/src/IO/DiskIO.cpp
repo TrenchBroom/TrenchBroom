@@ -20,40 +20,20 @@
 #include "DiskIO.h"
 
 #include "IO/File.h"
-#include "IO/FileSystemUtils.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
+#include "Macros.h"
 
+#include "kdl/vector_utils.h"
 #include <kdl/path_utils.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 
-namespace TrenchBroom::IO
-{
-namespace Disk
+namespace TrenchBroom::IO::Disk
 {
 
 namespace
 {
-
-std::vector<std::filesystem::path> doGetDirectoryContents(
-  const std::filesystem::path& fixedPath)
-{
-  try
-  {
-    auto result = std::vector<std::filesystem::path>{};
-    std::transform(
-      std::filesystem::directory_iterator{fixedPath},
-      std::filesystem::directory_iterator{},
-      std::back_inserter(result),
-      [&](const auto& entry) { return entry.path().lexically_relative(fixedPath); });
-    return result;
-  }
-  catch (const std::filesystem::filesystem_error& e)
-  {
-    throw FileSystemException{
-      "Cannot open directory " + fixedPath.string() + ": " + e.what()};
-  }
-}
 
 bool doCheckCaseSensitive()
 {
@@ -126,74 +106,92 @@ PathInfo pathInfo(const std::filesystem::path& path)
                                                                 : PathInfo::Unknown;
 }
 
-std::vector<std::filesystem::path> find(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher)
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
+  const std::filesystem::path& path,
+  const TraversalMode traversalMode,
+  const PathMatcher& pathMatcher)
 {
-  return find(path, directoryContents, pathInfo, pathMatcher);
+  const auto fixedPath = fixPath(path);
+  auto error = std::error_code{};
+  auto result = std::vector<std::filesystem::path>{};
+  switch (traversalMode)
+  {
+  case TraversalMode::Flat:
+    std::transform(
+      std::filesystem::directory_iterator{fixedPath, error},
+      std::filesystem::directory_iterator{},
+      std::back_inserter(result),
+      [&](const auto& entry) { return entry.path(); });
+    break;
+  case TraversalMode::Recursive:
+    std::transform(
+      std::filesystem::recursive_directory_iterator{fixedPath, error},
+      std::filesystem::recursive_directory_iterator{},
+      std::back_inserter(result),
+      [&](const auto& entry) { return entry.path(); });
+    break;
+  }
+
+  if (error)
+  {
+    return FileSystemError{
+      "Cannot open directory " + fixedPath.string() + ": " + error.message()};
+  }
+  return kdl::vec_filter(result, [&](const auto& p) { return pathMatcher(p, pathInfo); });
 }
 
-std::vector<std::filesystem::path> findRecursively(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher)
-{
-  return findRecursively(path, directoryContents, pathInfo, pathMatcher);
-}
-
-std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path)
-{
-  return doGetDirectoryContents(fixPath(path));
-}
-
-std::shared_ptr<File> openFile(const std::filesystem::path& path)
+kdl::result<std::shared_ptr<CFile>, FileSystemError> openFile(
+  const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   if (pathInfo(fixedPath) != PathInfo::File)
   {
-    throw FileNotFoundException(fixedPath.string());
+    return FileSystemError{"File not found: '" + fixedPath.string() + "'"};
   }
 
-  return std::make_shared<CFile>(fixedPath);
+  return createCFile(fixedPath);
 }
 
-bool createDirectory(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& path)
+{
+  const auto fixedPath = fixPath(path);
+  auto error = std::error_code{};
+  const auto created = std::filesystem::create_directories(fixedPath, error);
+  if (!error)
+  {
+    return created;
+  }
+  return FileSystemError{"Could not create directory: " + error.message()};
+}
+
+kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path)
 {
   const auto fixedPath = fixPath(path);
   switch (pathInfo(fixedPath))
   {
   case PathInfo::Directory:
-    break;
-  case PathInfo::File:
-    throw FileSystemException(
-      "Could not create directory '" + fixedPath.string()
-      + "': A file already exists at that path.");
-  case PathInfo::Unknown: {
+    return FileSystemError{
+      "Could not delete file '" + fixedPath.string() + "': path is a directory"};
+  case PathInfo::File: {
     auto error = std::error_code{};
-    if (std::filesystem::create_directories(fixedPath, error) && !error)
+    if (std::filesystem::remove(fixedPath, error) && !error)
     {
       return true;
     }
-    throw FileSystemException("Could not create directory '" + fixedPath.string() + "'");
+    if (error)
+    {
+      return FileSystemError{
+        "Could not delete file '" + fixedPath.string() + "': " + error.message()};
+    }
+    return false;
   }
-  }
-  return false;
-}
-
-void deleteFile(const std::filesystem::path& path)
-{
-  const auto fixedPath = fixPath(path);
-  if (pathInfo(fixedPath) != PathInfo::File)
-  {
-    throw FileSystemException(
-      "Could not delete file '" + fixedPath.string() + "': File does not exist.");
-  }
-
-  auto error = std::error_code{};
-  if (!std::filesystem::remove(fixedPath, error) || error)
-  {
-    throw FileSystemException("Could not delete file '" + path.string() + "'");
+  case PathInfo::Unknown:
+    return false;
+    switchDefault();
   }
 }
 
-void copyFile(
+kdl::result<void, FileSystemError> copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
@@ -213,20 +211,21 @@ void copyFile(
       error)
     || error)
   {
-    throw FileSystemException(
+    return FileSystemError{
       "Could not copy file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "'");
+      + fixedDestPath.string() + "': " + error.message()};
   }
+
+  return kdl::void_success;
 }
 
-void moveFile(
+kdl::result<void, FileSystemError> moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   const auto fixedSourcePath = fixPath(sourcePath);
   if (pathInfo(fixedSourcePath) == PathInfo::Directory)
   {
-    throw FileSystemException(
-      "Could not move directory '" + fixedSourcePath.string() + "'");
+    return FileSystemError{"Could not move directory '" + fixedSourcePath.string() + "'"};
   }
 
   auto fixedDestPath = fixPath(destPath);
@@ -239,10 +238,12 @@ void moveFile(
   std::filesystem::rename(fixedSourcePath, fixedDestPath, error);
   if (error)
   {
-    throw FileSystemException(
-      "Could not copy file '" + fixedSourcePath.string() + "' to '"
-      + fixedDestPath.string() + "'");
+    return FileSystemError{
+      "Could not move file '" + fixedSourcePath.string() + "' to '"
+      + fixedDestPath.string() + "': " + error.message()};
   }
+
+  return kdl::void_success;
 }
 
 std::filesystem::path resolvePath(
@@ -279,5 +280,4 @@ std::filesystem::path resolvePath(
   return {};
 }
 
-} // namespace Disk
-} // namespace TrenchBroom::IO
+} // namespace TrenchBroom::IO::Disk

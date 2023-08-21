@@ -22,11 +22,16 @@
 #include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
 #include "View/MapDocument.h"
 
+#include "kdl/result_fold.h"
+#include "kdl/vector_utils.h"
 #include <kdl/memory_utils.h>
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
 #include <kdl/string_compare.h>
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
@@ -90,112 +95,85 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
   const auto mapFilename = mapPath.filename();
   const auto mapBasename = mapPath.stem();
 
-  try
-  {
-    auto fs = createBackupFileSystem(logger, mapPath);
-    auto backups = collectBackups(fs, mapBasename);
+  createBackupFileSystem(mapPath)
+    .and_then([&](auto fs) {
+      return collectBackups(fs, mapBasename)
+        .and_then([&](auto backups) { return thinBackups(logger, fs, backups); })
+        .and_then([&](auto remainingBackups) {
+          return cleanBackups(fs, remainingBackups, mapBasename).and_then([&]() {
+            assert(remainingBackups.size() < m_maxBackups);
+            const auto backupNo = remainingBackups.size() + 1;
+            return fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
+          });
+        });
+    })
+    .transform([&](const auto& backupFilePath) {
+      m_lastSaveTime = Clock::now();
+      m_lastModificationCount = document->modificationCount();
+      document->saveDocumentTo(backupFilePath);
 
-    thinBackups(logger, fs, backups);
-    cleanBackups(fs, backups, mapBasename);
-
-    assert(backups.size() < m_maxBackups);
-    const auto backupNo = backups.size() + 1;
-
-    const auto backupFilePath = fs.makeAbsolute(makeBackupName(mapBasename, backupNo));
-
-    m_lastSaveTime = Clock::now();
-    m_lastModificationCount = document->modificationCount();
-    document->saveDocumentTo(backupFilePath);
-
-    logger.info() << "Created autosave backup at " << backupFilePath;
-  }
-  catch (const FileSystemException& e)
-  {
-    logger.error() << "Aborting autosave: " << e.what();
-  }
+      logger.info() << "Created autosave backup at " << backupFilePath;
+    })
+    .transform_error([&](auto e) { logger.error() << "Aborting autosave: " << e.msg; });
 }
 
-IO::WritableDiskFileSystem Autosaver::createBackupFileSystem(
-  Logger& logger, const std::filesystem::path& mapPath) const
+kdl::result<IO::WritableDiskFileSystem, IO::FileSystemError> Autosaver::
+  createBackupFileSystem(const std::filesystem::path& mapPath) const
 {
   const auto basePath = mapPath.parent_path();
   const auto autosavePath = basePath / "autosave";
 
-  try
+  return IO::Disk::createDirectory(autosavePath).transform([&](auto) {
+    return IO::WritableDiskFileSystem{autosavePath};
+  });
+}
+
+kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> Autosaver::
+  collectBackups(const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const
+{
+  return fs.find({}, IO::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
+    .transform([](auto backupPaths) { return kdl::vec_sort(std::move(backupPaths)); });
+}
+
+kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> Autosaver::
+  thinBackups(
+    Logger& logger,
+    IO::WritableDiskFileSystem& fs,
+    const std::vector<std::filesystem::path>& backups) const
+{
+  if (backups.size() < m_maxBackups)
   {
-    // ensures that the directory exists or is created if it doesn't
-    return IO::WritableDiskFileSystem{autosavePath, true};
+    return backups;
   }
-  catch (const FileSystemException& e)
-  {
-    logger.error() << "Cannot create autosave directory at " << autosavePath;
-    throw e;
-  }
+
+  const auto toDelete = kdl::vec_slice_suffix(backups, backups.size() - m_maxBackups + 1);
+  return kdl::fold_results(
+           kdl::vec_transform(
+             toDelete,
+             [&](auto filename) {
+               return fs.deleteFile(filename).transform([&](const auto deleted) {
+                 if (deleted)
+                 {
+                   logger.debug() << "Deleted autosave backup " << filename;
+                 }
+               });
+             }))
+    .transform([&]() { return kdl::vec_slice_prefix(backups, m_maxBackups - 1); });
 }
 
-namespace
-{
-size_t extractBackupNo(const std::filesystem::path& path)
-{
-  // currently this function is only used when comparing file names which have already
-  // been verified as valid backup file names, so this should not go wrong, but if it
-  // does, sort the invalid file names to the end to avoid modifying them
-  return kdl::str_to_size(kdl::path_remove_extension(path).extension().string())
-    .value_or(std::numeric_limits<size_t>::max());
-}
-
-bool compareBackupsByNo(
-  const std::filesystem::path& lhs, const std::filesystem::path& rhs)
-{
-  return extractBackupNo(lhs) < extractBackupNo(rhs);
-}
-} // namespace
-
-std::vector<std::filesystem::path> Autosaver::collectBackups(
-  const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const
-{
-  auto backups = fs.find({}, makeBackupPathMatcher(mapBasename));
-  std::sort(std::begin(backups), std::end(backups), compareBackupsByNo);
-  return backups;
-}
-
-void Autosaver::thinBackups(
-  Logger& logger,
-  IO::WritableDiskFileSystem& fs,
-  std::vector<std::filesystem::path>& backups) const
-{
-  while (backups.size() > m_maxBackups - 1)
-  {
-    const auto filename = backups.front();
-    try
-    {
-      fs.deleteFile(filename);
-      logger.debug() << "Deleted autosave backup " << filename;
-      backups.erase(std::begin(backups));
-    }
-    catch (const FileSystemException& e)
-    {
-      logger.error() << "Cannot delete autosave backup " << filename;
-      throw e;
-    }
-  }
-}
-
-void Autosaver::cleanBackups(
+kdl::result<void, IO::FileSystemError> Autosaver::cleanBackups(
   IO::WritableDiskFileSystem& fs,
   std::vector<std::filesystem::path>& backups,
   const std::filesystem::path& mapBasename) const
 {
-  for (size_t i = 0; i < backups.size(); ++i)
-  {
-    const auto& oldName = backups[i].filename();
-    const auto newName = makeBackupName(mapBasename, i + 1);
+  return kdl::fold_results(
+    kdl::vec_transform(backups, [&](const std::filesystem::path& backup, const size_t i) {
+      const auto& oldName = backup.filename();
+      const auto newName = makeBackupName(mapBasename, i + 1);
 
-    if (oldName != newName)
-    {
-      fs.moveFile(oldName, newName);
-    }
-  }
+      return oldName != newName ? fs.moveFile(oldName, newName)
+                                : kdl::result<void, IO::FileSystemError>{};
+    }));
 }
 
 std::filesystem::path Autosaver::makeBackupName(

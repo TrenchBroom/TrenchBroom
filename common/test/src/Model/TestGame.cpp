@@ -19,6 +19,7 @@
 
 #include "TestGame.h"
 
+#include "Assets/AssetError.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/TextureManager.h"
@@ -27,6 +28,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
+#include "IO/FileSystemError.h"
 #include "IO/LoadTextureCollection.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
@@ -36,8 +38,11 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/GameConfig.h"
+#include "Model/GameError.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
+#include <kdl/result.h>
 #include <kdl/string_utils.h>
 
 #include <fstream>
@@ -127,13 +132,13 @@ const std::vector<SmartTag>& TestGame::doSmartTags() const
   return m_smartTags;
 }
 
-std::unique_ptr<WorldNode> TestGame::doNewMap(
+kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doNewMap(
   const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const
 {
   return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
 }
 
-std::unique_ptr<WorldNode> TestGame::doLoadMap(
+kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doLoadMap(
   const MapFormat format,
   const vm::bbox3& /* worldBounds */,
   const std::filesystem::path& /* path */,
@@ -149,17 +154,23 @@ std::unique_ptr<WorldNode> TestGame::doLoadMap(
   }
 }
 
-void TestGame::doWriteMap(WorldNode& world, const std::filesystem::path& path) const
+kdl::result<void, GameError> TestGame::doWriteMap(
+  WorldNode& world, const std::filesystem::path& path) const
 {
-  IO::Disk::withOutputStream(path, [&](auto& stream) {
-    IO::NodeWriter writer(world, stream);
-    writer.writeMap();
-  });
+  return IO::Disk::withOutputStream(
+           path,
+           [&](auto& stream) {
+             IO::NodeWriter writer(world, stream);
+             writer.writeMap();
+           })
+    .or_else(
+      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
 }
 
-void TestGame::doExportMap(
+kdl::result<void, GameError> TestGame::doExportMap(
   WorldNode& /* world */, const IO::ExportOptions& /* options */) const
 {
+  return kdl::void_success;
 }
 
 std::vector<Node*> TestGame::doParseNodes(
@@ -225,12 +236,15 @@ void TestGame::doReloadWads(
   {
     const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
     m_fs->mount(
-      "textures" / wadPath.filename(),
-      std::make_unique<IO::WadFileSystem>(absoluteWadPath));
+      "textures" / wadPath.filename(), IO::openFS<IO::WadFileSystem>(absoluteWadPath));
   }
 }
 
-void TestGame::doReloadShaders() {}
+kdl::result<void, GameError> TestGame::doReloadShaders()
+{
+  return kdl::void_success;
+  ;
+}
 
 bool TestGame::doIsEntityDefinitionFile(const std::filesystem::path& /* path */) const
 {
@@ -255,9 +269,9 @@ std::filesystem::path TestGame::doFindEntityDefinitionFile(
   return {};
 }
 
-std::vector<std::string> TestGame::doAvailableMods() const
+kdl::result<std::vector<std::string>, GameError> TestGame::doAvailableMods() const
 {
-  return {};
+  return std::vector<std::string>{};
 }
 
 std::vector<std::string> TestGame::doExtractEnabledMods(const Entity& /* entity */) const
@@ -292,10 +306,12 @@ const std::vector<CompilationTool>& TestGame::doCompilationTools() const
   return m_compilationTools;
 }
 
-std::vector<Assets::EntityDefinition*> TestGame::doLoadEntityDefinitions(
-  IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
+kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError> TestGame::
+  doLoadEntityDefinitions(
+    IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
-  return {};
+  return kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>{
+    std::vector<Assets::EntityDefinition*>{}};
 }
 
 std::unique_ptr<Assets::EntityModel> TestGame::doInitializeModel(

@@ -22,9 +22,13 @@
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
+#include "IO/TraversalMode.h"
 
 #include <kdl/path_utils.h>
+#include <kdl/result.h>
+#include <kdl/result_fold.h>
 #include <kdl/vector_utils.h>
 
 #include <memory>
@@ -34,13 +38,9 @@ namespace TrenchBroom
 {
 namespace IO
 {
-DiskFileSystem::DiskFileSystem(const std::filesystem::path& root, const bool ensureExists)
+DiskFileSystem::DiskFileSystem(const std::filesystem::path& root)
   : m_root{root.lexically_normal()}
 {
-  if (ensureExists && Disk::pathInfo(m_root) != PathInfo::Directory)
-  {
-    throw FileSystemException{"Directory not found: '" + m_root.string() + "'"};
-  }
 }
 
 const std::filesystem::path& DiskFileSystem::root() const
@@ -48,70 +48,79 @@ const std::filesystem::path& DiskFileSystem::root() const
   return m_root;
 }
 
-std::filesystem::path DiskFileSystem::doMakeAbsolute(
+kdl::result<std::filesystem::path, FileSystemError> DiskFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   const auto canonicalPath = path.lexically_normal();
   if (!canonicalPath.empty() && kdl::path_front(canonicalPath).string() == "..")
   {
-    throw FileSystemException{"Cannot make absolute path of '" + path.string() + "'"};
+    return FileSystemError{"Cannot make absolute path of '" + path.string() + "'"};
   }
   return canonicalPath.empty() ? m_root : m_root / canonicalPath;
 }
 
-PathInfo DiskFileSystem::doGetPathInfo(const std::filesystem::path& path) const
+PathInfo DiskFileSystem::pathInfo(const std::filesystem::path& path) const
 {
-  return Disk::pathInfo(makeAbsolute(path));
+  return makeAbsolute(path)
+    .transform([](const auto& absPath) { return Disk::pathInfo(absPath); })
+    .transform_error([](const auto&) { return PathInfo::Unknown; })
+    .value();
 }
 
-std::vector<std::filesystem::path> DiskFileSystem::doGetDirectoryContents(
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> DiskFileSystem::doFind(
+  const std::filesystem::path& path, const TraversalMode traversalMode) const
+{
+  return makeAbsolute(path)
+    .and_then([&](const auto& absPath) { return Disk::find(absPath, traversalMode); })
+    .transform([&](const auto& paths) {
+      return kdl::vec_transform(
+        paths, [&](auto p) { return p.lexically_relative(m_root); });
+    });
+}
+
+kdl::result<std::shared_ptr<File>, FileSystemError> DiskFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
-  return Disk::directoryContents(makeAbsolute(path));
+  return makeAbsolute(path).and_then(Disk::openFile).transform([](auto cFile) {
+    return std::static_pointer_cast<File>(cFile);
+  });
 }
 
-std::shared_ptr<File> DiskFileSystem::doOpenFile(const std::filesystem::path& path) const
+WritableDiskFileSystem::WritableDiskFileSystem(const std::filesystem::path& root)
+  : DiskFileSystem{root}
 {
-  auto file = Disk::openFile(makeAbsolute(path));
-  return std::make_shared<FileView>(path, file, 0u, file->size());
 }
 
-WritableDiskFileSystem::WritableDiskFileSystem(
-  const std::filesystem::path& root, const bool create)
-  : DiskFileSystem{root, !create}
-{
-  if (create && Disk::pathInfo(m_root) != PathInfo::Directory)
-  {
-    Disk::createDirectory(m_root);
-  }
-}
-
-void WritableDiskFileSystem::doCreateFile(
+kdl::result<void, FileSystemError> WritableDiskFileSystem::doCreateFile(
   const std::filesystem::path& path, const std::string& contents)
 {
-  Disk::withOutputStream(makeAbsolute(path), [&](auto& stream) { stream << contents; });
+  return makeAbsolute(path).and_then([&](const auto& absPath) {
+    return Disk::withOutputStream(absPath, [&](auto& stream) { stream << contents; });
+  });
 }
 
-bool WritableDiskFileSystem::doCreateDirectory(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> WritableDiskFileSystem::doCreateDirectory(
+  const std::filesystem::path& path)
 {
-  return Disk::createDirectory(makeAbsolute(path));
+  return makeAbsolute(path).and_then(Disk::createDirectory);
 }
 
-void WritableDiskFileSystem::doDeleteFile(const std::filesystem::path& path)
+kdl::result<bool, FileSystemError> WritableDiskFileSystem::doDeleteFile(
+  const std::filesystem::path& path)
 {
-  Disk::deleteFile(makeAbsolute(path));
+  return makeAbsolute(path).and_then(Disk::deleteFile);
 }
 
-void WritableDiskFileSystem::doCopyFile(
+kdl::result<void, FileSystemError> WritableDiskFileSystem::doCopyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  Disk::copyFile(makeAbsolute(sourcePath), makeAbsolute(destPath));
+  return makeAbsolute(sourcePath).join(makeAbsolute(destPath)).and_then(Disk::copyFile);
 }
 
-void WritableDiskFileSystem::doMoveFile(
+kdl::result<void, FileSystemError> WritableDiskFileSystem::doMoveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  Disk::moveFile(makeAbsolute(sourcePath), makeAbsolute(destPath));
+  return makeAbsolute(sourcePath).join(makeAbsolute(destPath)).and_then(Disk::moveFile);
 }
 } // namespace IO
 } // namespace TrenchBroom

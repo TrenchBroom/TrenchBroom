@@ -27,6 +27,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
+#include "Model/GameError.h"
 #include "Model/GameImpl.h"
 #include "Model/GroupNode.h"
 #include "Model/ParallelTexCoordSystem.h"
@@ -159,10 +160,14 @@ namespace IO
 std::string readTextFile(const std::filesystem::path& path)
 {
   const auto fixedPath = Disk::fixPath(path);
-  return Disk::withInputStream(fixedPath, [](auto& stream) {
-    return std::string{
-      (std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>()};
-  });
+  return Disk::withInputStream(
+           fixedPath,
+           [](auto& stream) {
+             return std::string{
+               (std::istreambuf_iterator<char>(stream)),
+               std::istreambuf_iterator<char>()};
+           })
+    .value();
 }
 } // namespace IO
 
@@ -391,11 +396,13 @@ DocumentGameConfig loadMapDocument(
 {
   auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
 
-  document->loadDocument(
-    mapFormat,
-    document->worldBounds(),
-    document->game(),
-    std::filesystem::current_path() / mapPath);
+  document
+    ->loadDocument(
+      mapFormat,
+      document->worldBounds(),
+      document->game(),
+      std::filesystem::current_path() / mapPath)
+    .transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }
@@ -406,7 +413,9 @@ DocumentGameConfig newMapDocument(
   auto [game, gameConfig] = Model::loadGame(gameName);
 
   auto document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(mapFormat, vm::bbox3(8192.0), game);
+  document->newDocument(mapFormat, vm::bbox3(8192.0), game).transform_error([](auto e) {
+    throw std::runtime_error{e.msg};
+  });
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }

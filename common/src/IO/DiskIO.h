@@ -20,7 +20,10 @@
 #pragma once
 
 #include "Exceptions.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathMatcher.h"
+
+#include <kdl/result.h>
 
 #include <filesystem>
 #include <fstream>
@@ -29,6 +32,8 @@
 
 namespace TrenchBroom::IO
 {
+enum class TraversalMode;
+class CFile;
 class File;
 enum class PathInfo;
 
@@ -40,30 +45,54 @@ std::filesystem::path fixPath(const std::filesystem::path& path);
 
 PathInfo pathInfo(const std::filesystem::path& path);
 
-std::vector<std::filesystem::path> find(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher = matchAnyPath);
-std::vector<std::filesystem::path> findRecursively(
-  const std::filesystem::path& path, const PathMatcher& pathMatcher = matchAnyPath);
-std::vector<std::filesystem::path> directoryContents(const std::filesystem::path& path);
+kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
+  const std::filesystem::path& path,
+  TraversalMode traversalMode,
+  const PathMatcher& pathMatcher = matchAnyPath);
 
-std::shared_ptr<File> openFile(const std::filesystem::path& path);
+kdl::result<std::shared_ptr<CFile>, FileSystemError> openFile(
+  const std::filesystem::path& path);
 
 template <typename Stream, typename F>
 auto withStream(
   const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
+  -> kdl::wrap_result_t<decltype(function(std::declval<Stream&>())), FileSystemError>
 {
+  using FnResultType = decltype(function(std::declval<Stream&>()));
+  using ResultType = kdl::wrap_result_t<FnResultType, FileSystemError>;
   try
   {
     auto stream = Stream{path, mode};
     if (!stream)
     {
-      throw FileSystemException{"Could not open stream for file '" + path.string() + "'"};
+      return ResultType{
+        FileSystemError{"Could not open stream for file '" + path.string() + "'"}};
     }
-    return function(stream);
+    if constexpr (kdl::is_result_v<FnResultType>)
+    {
+      if constexpr (std::is_same_v<typename FnResultType::value_type, void>)
+      {
+        return function(stream).and_then([]() { return ResultType{}; });
+      }
+      else
+      {
+        return function(stream).and_then([](auto x) { return ResultType{std::move(x)}; });
+      }
+    }
+    else if constexpr (std::is_same_v<typename ResultType::value_type, void>)
+    {
+      function(stream);
+      return ResultType{};
+    }
+    else
+    {
+      return ResultType{function(stream)};
+    }
   }
-  catch (const std::filesystem::filesystem_error&)
+  catch (const std::filesystem::filesystem_error& e)
   {
-    throw FileSystemException{"Could not open stream for file '" + path.string() + "'"};
+    return ResultType{FileSystemError{
+      "Could not open stream for file '" + path.string() + "': " + e.what()}};
   }
 }
 
@@ -93,14 +122,14 @@ auto withOutputStream(const std::filesystem::path& path, const F& function)
   return withStream<std::ofstream>(path, std::ios_base::out, function);
 }
 
-bool createDirectory(const std::filesystem::path& path);
+kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& path);
 
-void deleteFile(const std::filesystem::path& path);
+kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path);
 
-void copyFile(
+kdl::result<void, FileSystemError> copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
-void moveFile(
+kdl::result<void, FileSystemError> moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 std::filesystem::path resolvePath(

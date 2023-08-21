@@ -116,12 +116,12 @@ cloneAndTransformRecursive(
     return UpdateLinkedGroupsError::UpdateExceedsWorldBounds;
   }
 
-  return kdl::fold_results(
-           nodeToClone->children(),
-           [&](const auto* childNode) {
-             return cloneAndTransformRecursive(
-               childNode, origNodeToTransformedContents, worldBounds);
-           })
+  return kdl::fold_results(kdl::vec_transform(
+                             nodeToClone->children(),
+                             [&](const auto* childNode) {
+                               return cloneAndTransformRecursive(
+                                 childNode, origNodeToTransformedContents, worldBounds);
+                             }))
     .transform([&](auto childClones) {
       for (auto& childClone : childClones)
       {
@@ -198,9 +198,10 @@ cloneAndTransformChildren(
         // Do a recursive traversal of the input node tree again,
         // creating a matching tree structure, and move in the contents
         // we've transformed above.
-        return kdl::fold_results(node.children(), [&](const auto* childNode) {
-          return cloneAndTransformRecursive(childNode, resultsMap, worldBounds);
-        });
+        return kdl::fold_results(
+          kdl::vec_transform(node.children(), [&](const auto* childNode) {
+            return cloneAndTransformRecursive(childNode, resultsMap, worldBounds);
+          }));
       });
 }
 
@@ -328,18 +329,19 @@ kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroup
   const auto _invertedSourceTransformation = invertedSourceTransformation;
   const auto targetGroupNodesToUpdate =
     kdl::vec_erase(targetGroupNodes, &sourceGroupNode);
-  return kdl::fold_results(targetGroupNodesToUpdate, [&](auto* targetGroupNode) {
-    const auto transformation =
-      targetGroupNode->group().transformation() * _invertedSourceTransformation;
-    return cloneAndTransformChildren(sourceGroupNode, worldBounds, transformation)
-      .transform([&](std::vector<std::unique_ptr<Node>>&& newChildren) {
-        preserveGroupNames(newChildren, targetGroupNode->children());
-        preserveEntityProperties(newChildren, targetGroupNode->children());
+  return kdl::fold_results(
+    kdl::vec_transform(targetGroupNodesToUpdate, [&](auto* targetGroupNode) {
+      const auto transformation =
+        targetGroupNode->group().transformation() * _invertedSourceTransformation;
+      return cloneAndTransformChildren(sourceGroupNode, worldBounds, transformation)
+        .transform([&](std::vector<std::unique_ptr<Node>>&& newChildren) {
+          preserveGroupNames(newChildren, targetGroupNode->children());
+          preserveEntityProperties(newChildren, targetGroupNode->children());
 
-        return std::make_pair(
-          static_cast<Node*>(targetGroupNode), std::move(newChildren));
-      });
-  });
+          return std::make_pair(
+            static_cast<Node*>(targetGroupNode), std::move(newChildren));
+        });
+    }));
 }
 
 GroupNode::GroupNode(Group group)

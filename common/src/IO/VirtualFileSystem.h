@@ -21,12 +21,16 @@
 
 #include "IO/FileSystem.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
 #include <memory>
 #include <vector>
 
 namespace TrenchBroom::IO
 {
+
+struct FileSystemError;
 
 class VirtualMountPointId
 {
@@ -55,17 +59,20 @@ private:
   std::vector<VirtualMountPoint> m_mountPoints;
 
 public:
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+    const std::filesystem::path& path) const override;
+  PathInfo pathInfo(const std::filesystem::path& path) const override;
+
   VirtualMountPointId mount(
     const std::filesystem::path& path, std::unique_ptr<FileSystem> fs);
   bool unmount(const VirtualMountPointId& id);
   void unmountAll();
 
 protected:
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
-  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
-  std::vector<std::filesystem::path> doGetDirectoryContents(
+  kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
+    const std::filesystem::path& path, TraversalMode traversalMode) const override;
+  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
     const std::filesystem::path& path) const override;
-  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
 };
 
 class WritableVirtualFileSystem : public WritableFileSystem
@@ -78,22 +85,28 @@ public:
   WritableVirtualFileSystem(
     VirtualFileSystem virtualFs, std::unique_ptr<WritableFileSystem> writableFs);
 
-  using FileSystem::directoryContents;
+  using FileSystem::find;
 
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
-  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
-  std::vector<std::filesystem::path> doGetDirectoryContents(
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
     const std::filesystem::path& path) const override;
-  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
+  PathInfo pathInfo(const std::filesystem::path& path) const override;
 
-  void doCreateFile(
+private:
+  kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
+    const std::filesystem::path& path, TraversalMode traversalMode) const override;
+  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+    const std::filesystem::path& path) const override;
+
+  kdl::result<void, FileSystemError> doCreateFile(
     const std::filesystem::path& path, const std::string& contents) override;
-  bool doCreateDirectory(const std::filesystem::path& path) override;
-  void doDeleteFile(const std::filesystem::path& path) override;
-  void doCopyFile(
+  kdl::result<bool, FileSystemError> doCreateDirectory(
+    const std::filesystem::path& path) override;
+  kdl::result<bool, FileSystemError> doDeleteFile(
+    const std::filesystem::path& path) override;
+  kdl::result<void, FileSystemError> doCopyFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
-  void doMoveFile(
+  kdl::result<void, FileSystemError> doMoveFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
 };

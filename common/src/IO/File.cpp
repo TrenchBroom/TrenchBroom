@@ -20,30 +20,21 @@
 #include "File.h"
 
 #include "Exceptions.h"
-#include "IO/PathQt.h"
+#include "IO/FileSystemError.h"
+
+#include <kdl/result.h>
 
 #include <cstdio> // for FILE
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-File::File(std::filesystem::path path)
-  : m_path{std::move(path)}
-{
-}
+
+File::File() = default;
 
 File::~File() = default;
 
-const std::filesystem::path& File::path() const
-{
-  return m_path;
-}
-
-OwningBufferFile::OwningBufferFile(
-  std::filesystem::path path, std::unique_ptr<char[]> buffer, const size_t size)
-  : File{std::move(path)}
-  , m_buffer{std::move(buffer)}
+OwningBufferFile::OwningBufferFile(std::unique_ptr<char[]> buffer, const size_t size)
+  : m_buffer{std::move(buffer)}
   , m_size{size}
 {
 }
@@ -58,83 +49,63 @@ size_t OwningBufferFile::size() const
   return m_size;
 }
 
-NonOwningBufferFile::NonOwningBufferFile(
-  std::filesystem::path path, const char* begin, const char* end)
-  : File{std::move(path)}
-  , m_begin{begin}
-  , m_end{end}
-{
-  if (m_end < m_begin)
-  {
-    throw FileSystemException("Invalid buffer");
-  }
-}
-
-Reader NonOwningBufferFile::reader() const
-{
-  return Reader::from(m_begin, m_end);
-}
-
-size_t NonOwningBufferFile::size() const
-{
-  return static_cast<size_t>(m_end - m_begin);
-}
-
 namespace
 {
-auto openPathAsFILE(const std::filesystem::path& path, const std::string& mode)
+kdl::result<CFile::FilePtr, FileSystemError> openPathAsFILE(
+  const std::filesystem::path& path, const std::string& mode)
 {
   // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
   // to open a Unicode path.
   //
   // All other platforms, just assume fopen() can handle UTF-8
+  //
+  // mode is assumed to be ASCII (one byte per char)
   auto* file =
 #ifdef _WIN32
-    _wfopen(path.wstring().c_str(), QString::fromStdString(mode).toStdWString().c_str());
+    _wfopen(path.wstring().c_str(), std::wstring{mode.begin(), mode.end()}.c_str());
 #else
     fopen(path.u8string().c_str(), mode.c_str());
 #endif
 
   if (!file)
   {
-    throw FileSystemException{"Cannot open file " + path.string()};
+    return FileSystemError{"Cannot open file " + path.string()};
   }
 
   return std::unique_ptr<std::FILE, int (*)(std::FILE*)>{file, std::fclose};
 }
 
-size_t fileSize(std::FILE* file)
+kdl::result<size_t, FileSystemError> fileSize(std::FILE* file)
 {
   const auto pos = std::ftell(file);
   if (pos < 0)
   {
-    throw FileSystemException("ftell failed");
+    return FileSystemError{"ftell failed"};
   }
 
   if (std::fseek(file, 0, SEEK_END) != 0)
   {
-    throw FileSystemException("fseek failed");
+    return FileSystemError{"fseek failed"};
   }
 
   const auto size = std::ftell(file);
   if (size < 0)
   {
-    throw FileSystemException("ftell failed");
+    return FileSystemError{"ftell failed"};
   }
 
   if (std::fseek(file, pos, SEEK_SET) != 0)
   {
-    throw FileSystemException("fseek failed");
+    return FileSystemError{"fseek failed"};
   }
 
   return static_cast<size_t>(size);
 }
 } // namespace
 
-CFile::CFile(std::filesystem::path path)
-  : File{std::move(path)}
-  , m_file{openPathAsFILE(this->path(), "rb")}
-  , m_size{fileSize(m_file.get())}
+CFile::CFile(FilePtr filePtr, const size_t size)
+  : m_file{std::move(filePtr)}
+  , m_size{size}
 {
 }
 
@@ -153,13 +124,19 @@ std::FILE* CFile::file() const
   return m_file.get();
 }
 
-FileView::FileView(
-  std::filesystem::path path,
-  std::shared_ptr<File> file,
-  const size_t offset,
-  const size_t length)
-  : File{std::move(path)}
-  , m_file{std::move(file)}
+kdl::result<std::shared_ptr<CFile>, FileSystemError> createCFile(
+  const std::filesystem::path& path)
+{
+  return openPathAsFILE(path, "rb").and_then([](auto filePtr) {
+    return fileSize(filePtr.get()).transform([&](auto size) {
+      // NOLINTNEXTLINE
+      return std::shared_ptr<CFile>{new CFile{std::move(filePtr), size}};
+    });
+  });
+}
+
+FileView::FileView(std::shared_ptr<File> file, const size_t offset, const size_t length)
+  : m_file{std::move(file)}
   , m_offset{offset}
   , m_length{length}
 {
@@ -174,5 +151,4 @@ size_t FileView::size() const
 {
   return m_length;
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

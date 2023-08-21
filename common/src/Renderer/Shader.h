@@ -19,16 +19,21 @@
 
 #pragma once
 
+#include "Macros.h"
 #include "Renderer/GL.h"
 
+#include <kdl/result_forward.h>
+
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
+struct RenderError;
+
 class Shader
 {
 private:
@@ -37,14 +42,19 @@ private:
   GLuint m_shaderId;
 
 public:
-  Shader(const std::filesystem::path& path, const GLenum type);
+  Shader(std::string name, GLenum type, GLuint shaderId);
+
+  deleteCopy(Shader);
+
+  Shader(Shader&& other) noexcept;
+  Shader& operator=(Shader&& other) noexcept;
+
   ~Shader();
 
-  void attach(const GLuint programId);
-  void detach(const GLuint programId);
-
-private:
-  static std::vector<std::string> loadSource(const std::filesystem::path& path);
+  void attach(GLuint programId) const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+kdl::result<Shader, RenderError> loadShader(
+  const std::filesystem::path& path, GLenum type);
+
+} // namespace TrenchBroom::Renderer

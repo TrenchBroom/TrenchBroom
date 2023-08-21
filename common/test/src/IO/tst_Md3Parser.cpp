@@ -53,12 +53,12 @@ TEST_CASE("Md3ParserTest.loadValidMd3")
       std::filesystem::current_path() / "fixture/test/IO/Md3/bfg"));
   fs.mount(
     "",
-    std::make_unique<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger));
+    createImageFileSystem<Quake3ShaderFileSystem>(
+      fs, shaderSearchPath, textureSearchPaths, logger)
+      .value());
 
   const auto md3Path = "models/weapons2/bfg/bfg.md3";
-  const auto md3File = fs.openFile(md3Path);
-  REQUIRE(md3File != nullptr);
+  const auto md3File = fs.openFile(md3Path).value();
 
   auto reader = md3File->reader().buffer();
   auto parser = Md3Parser("bfg", reader, fs);

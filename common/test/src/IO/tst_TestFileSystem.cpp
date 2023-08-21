@@ -19,7 +19,12 @@
 
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
+#include "IO/TraversalMode.h"
 #include "TestFileSystem.h"
+
+#include <kdl/result.h>
+#include <kdl/result_io.h>
 
 #include <filesystem>
 
@@ -31,12 +36,12 @@ namespace IO
 {
 TEST_CASE("TestFileSystem")
 {
-  auto root_file_1 = makeObjectFile("root_file_1", 1);
-  auto root_file_2 = makeObjectFile("root_file_2", 2);
-  auto some_dir_file_1 = makeObjectFile("some_dir/some_dir_file_1", 3);
-  auto some_dir_file_2 = makeObjectFile("some_dir/some_dir_file_2", 4);
-  auto nested_dir_file_1 = makeObjectFile("some_dir/nested_dir/nested_dir_file_1", 5);
-  auto nested_dir_file_2 = makeObjectFile("some_dir/nested_dir/nested_dir_file_2", 6);
+  auto root_file_1 = makeObjectFile(1);
+  auto root_file_2 = makeObjectFile(2);
+  auto some_dir_file_1 = makeObjectFile(3);
+  auto some_dir_file_2 = makeObjectFile(4);
+  auto nested_dir_file_1 = makeObjectFile(5);
+  auto nested_dir_file_2 = makeObjectFile(6);
 
   auto fs = TestFileSystem{DirectoryEntry{
     "",
@@ -59,9 +64,16 @@ TEST_CASE("TestFileSystem")
 
   SECTION("makeAbsolute")
   {
-    CHECK(fs.makeAbsolute("root_file_1") == "/root_file_1");
-    CHECK(fs.makeAbsolute("some_dir") == "/some_dir");
-    CHECK(fs.makeAbsolute("some_dir/some_dir_file_1") == "/some_dir/some_dir_file_1");
+    CHECK(
+      fs.makeAbsolute("root_file_1")
+      == kdl::result<std::filesystem::path, FileSystemError>{"/root_file_1"});
+    CHECK(
+      fs.makeAbsolute("some_dir")
+      == kdl::result<std::filesystem::path, FileSystemError>{"/some_dir"});
+    CHECK(
+      fs.makeAbsolute("some_dir/some_dir_file_1")
+      == kdl::result<std::filesystem::path, FileSystemError>{
+        "/some_dir/some_dir_file_1"});
   }
 
   SECTION("pathInfo")
@@ -76,30 +88,52 @@ TEST_CASE("TestFileSystem")
     CHECK(fs.pathInfo("some_dir/nested_dir/does_not_exist") == PathInfo::Unknown);
   }
 
-  SECTION("directoryContents")
+  SECTION("find")
   {
-    CHECK_THAT(
-      fs.directoryContents(""),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir",
-        "root_file_1",
-        "root_file_2",
-      }));
+    CHECK(
+      fs.find("does_not_exist", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 
-    CHECK_THAT(
-      fs.directoryContents("some_dir"),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "nested_dir",
-        "some_dir_file_1",
-        "some_dir_file_2",
-      }));
+    CHECK(
+      fs.find("", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "root_file_1",
+          "root_file_2",
+          "some_dir",
+        }});
 
-    CHECK_THAT(
-      fs.directoryContents("some_dir/nested_dir"),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "nested_dir_file_1",
-        "nested_dir_file_2",
-      }));
+    CHECK(
+      fs.find("some_dir", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "some_dir/nested_dir",
+          "some_dir/some_dir_file_1",
+          "some_dir/some_dir_file_2",
+        }});
+
+    CHECK(
+      fs.find("some_dir/nested_dir", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "some_dir/nested_dir/nested_dir_file_1",
+          "some_dir/nested_dir/nested_dir_file_2",
+        }});
+
+    CHECK(
+      fs.find("", TraversalMode::Recursive)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "root_file_1",
+          "root_file_2",
+          "some_dir",
+          "some_dir/nested_dir",
+          "some_dir/nested_dir/nested_dir_file_1",
+          "some_dir/nested_dir/nested_dir_file_2",
+          "some_dir/some_dir_file_1",
+          "some_dir/some_dir_file_2",
+        }});
   }
 
   SECTION("openFile")

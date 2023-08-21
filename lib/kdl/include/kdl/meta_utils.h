@@ -33,11 +33,11 @@ namespace kdl
 template <typename T, typename... List>
 struct meta_contains
 {
-  static constexpr bool value = (std::is_same_v<T, List> || ...);
+  static constexpr auto value = (std::is_same_v<T, List> || ...);
 };
 
 template <typename T, typename... List>
-inline constexpr bool meta_contains_v = meta_contains<T, List...>::value;
+inline constexpr auto meta_contains_v = meta_contains<T, List...>::value;
 
 /**
  * Helper struct to hold a list as the result of a metaprogram.
@@ -61,8 +61,11 @@ struct meta_append
   /**
    * The resulting type list.
    */
-  using result = meta_type_list<List..., T>;
+  using type = meta_type_list<List..., T>;
 };
+
+template <typename T, typename... List>
+using meta_append_t = typename meta_append<T, List...>::type;
 
 /**
  * Append T to the given list if B is true.
@@ -77,11 +80,12 @@ struct meta_append_if
   /**
    * The resulting type list.
    */
-  using result = typename std::conditional<
-    B,
-    typename meta_append<T, List...>::result,
-    meta_type_list<List...>>::type;
+  using type = typename std::
+    conditional<B, meta_append_t<T, List...>, meta_type_list<List...>>::type;
 };
+
+template <bool B, typename T, typename... List>
+using meta_append_if_t = typename meta_append_if<B, T, List...>::type;
 
 /**
  * Take the front of a list and return it and the remainder.
@@ -100,10 +104,10 @@ struct meta_front
 };
 
 template <typename... T>
-using meta_front_v = typename meta_front<T...>::front;
+using meta_front_t = typename meta_front<T...>::front;
 
 template <typename... T>
-using meta_remainder_v = typename meta_front<T...>::remainder;
+using meta_remainder_t = typename meta_front<T...>::remainder;
 
 template <typename Subset, typename Superset>
 struct meta_is_subset
@@ -113,8 +117,11 @@ struct meta_is_subset
 template <typename... Subset, typename... Superset>
 struct meta_is_subset<meta_type_list<Subset...>, meta_type_list<Superset...>>
 {
-  static constexpr bool value = (meta_contains<Subset, Superset...>::value && ...);
+  static constexpr auto value = (meta_contains<Subset, Superset...>::value && ...);
 };
+
+template <typename Subset, typename Superset>
+inline constexpr auto meta_is_subset_v = meta_is_subset<Subset, Superset>::value;
 
 namespace detail
 {
@@ -126,8 +133,7 @@ struct meta_remove_duplicates_impl
 template <typename... Result, typename Cur>
 struct meta_remove_duplicates_impl<meta_type_list<Result...>, Cur, meta_type_list<>>
 {
-  using result =
-    typename meta_append_if<!meta_contains_v<Cur, Result...>, Cur, Result...>::result;
+  using type = meta_append_if_t<!meta_contains_v<Cur, Result...>, Cur, Result...>;
 };
 
 template <typename... Result, typename Cur, typename... Remainder>
@@ -136,10 +142,10 @@ struct meta_remove_duplicates_impl<
   Cur,
   meta_type_list<Remainder...>>
 {
-  using result = typename meta_remove_duplicates_impl<
-    typename meta_append_if<!meta_contains_v<Cur, Result...>, Cur, Result...>::result,
-    typename meta_front<Remainder...>::front,
-    typename meta_front<Remainder...>::remainder>::result;
+  using type = typename meta_remove_duplicates_impl<
+    meta_append_if_t<!meta_contains_v<Cur, Result...>, Cur, Result...>,
+    meta_front_t<Remainder...>,
+    meta_remainder_t<Remainder...>>::type;
 };
 } // namespace detail
 
@@ -152,16 +158,19 @@ struct meta_remove_duplicates_impl<
 template <typename... List>
 struct meta_remove_duplicates
 {
-  using result = typename detail::meta_remove_duplicates_impl<
+  using type = typename detail::meta_remove_duplicates_impl<
     meta_type_list<>,
-    typename meta_front<List...>::front,
-    typename meta_front<List...>::remainder>::result;
+    meta_front_t<List...>,
+    meta_remainder_t<List...>>::type;
 };
 
 template <>
 struct meta_remove_duplicates<>
 {
-  using result = meta_type_list<>;
+  using type = meta_type_list<>;
 };
+
+template <typename... List>
+using meta_remove_duplicates_t = typename meta_remove_duplicates<List...>::type;
 
 } // namespace kdl

@@ -21,9 +21,13 @@
 
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/ExportOptions.h"
+#include "IO/FileSystemError.h"
 #include "Model/BrushFace.h"
+#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/WorldNode.h"
+
+#include <kdl/result.h>
 
 #include <string>
 #include <vector>
@@ -90,13 +94,13 @@ Game::SoftMapBounds Game::extractSoftMapBounds(const Entity& entity) const
   return doExtractSoftMapBounds(entity);
 }
 
-std::unique_ptr<WorldNode> Game::newMap(
+kdl::result<std::unique_ptr<WorldNode>, GameError> Game::newMap(
   const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const
 {
   return doNewMap(format, worldBounds, logger);
 }
 
-std::unique_ptr<WorldNode> Game::loadMap(
+kdl::result<std::unique_ptr<WorldNode>, GameError> Game::loadMap(
   const MapFormat format,
   const vm::bbox3& worldBounds,
   const std::filesystem::path& path,
@@ -105,14 +109,16 @@ std::unique_ptr<WorldNode> Game::loadMap(
   return doLoadMap(format, worldBounds, path, logger);
 }
 
-void Game::writeMap(WorldNode& world, const std::filesystem::path& path) const
+kdl::result<void, GameError> Game::writeMap(
+  WorldNode& world, const std::filesystem::path& path) const
 {
-  doWriteMap(world, path);
+  return doWriteMap(world, path);
 }
 
-void Game::exportMap(WorldNode& world, const IO::ExportOptions& options) const
+kdl::result<void, GameError> Game::exportMap(
+  WorldNode& world, const IO::ExportOptions& options) const
 {
-  doExportMap(world, options);
+  return doExportMap(world, options);
 }
 
 std::vector<Node*> Game::parseNodes(
@@ -159,9 +165,9 @@ void Game::reloadWads(
   doReloadWads(documentPath, wadPaths, logger);
 }
 
-void Game::reloadShaders()
+kdl::result<void, GameError> Game::reloadShaders()
 {
-  doReloadShaders();
+  return doReloadShaders();
 }
 
 bool Game::isEntityDefinitionFile(const std::filesystem::path& path) const
@@ -187,7 +193,7 @@ std::filesystem::path Game::findEntityDefinitionFile(
   return doFindEntityDefinitionFile(spec, searchPaths);
 }
 
-std::vector<std::string> Game::availableMods() const
+kdl::result<std::vector<std::string>, GameError> Game::availableMods() const
 {
   return doAvailableMods();
 }

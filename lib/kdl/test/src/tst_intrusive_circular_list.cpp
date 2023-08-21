@@ -108,7 +108,7 @@ void assertLinks(Item* head, const std::vector<Item*>& items)
 
 template <typename List>
 void assertList(
-  const std::vector<typename List::value_type*>& expected, const List& actual)
+  const std::vector<typename List::value_type>& expected, const List& actual)
 {
   CHECK(expected.empty() == actual.empty());
   CHECK(expected.size() == actual.size());

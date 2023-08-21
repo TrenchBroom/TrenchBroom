@@ -50,7 +50,7 @@ public:
     const std::filesystem::path& gamePath,
     const std::vector<std::filesystem::path>& additionalSearchPaths,
     Logger& logger);
-  void reloadShaders();
+  kdl::result<void, IO::FileSystemError> reloadShaders();
   void reloadWads(
     const std::filesystem::path& rootPath,
     const std::vector<std::filesystem::path>& wadSearchPaths,

@@ -444,10 +444,10 @@ void MapView3D::doMoveCameraToCurrentTracePoint()
   auto document = kdl::mem_lock(m_document);
   assert(document->isPointFileLoaded());
 
-  if (const auto& pointFile = document->pointFile())
+  if (const auto* pointFile = document->pointFile())
   {
-    const auto position = pointFile->trace.currentPoint() + vm::vec3f{0.0f, 0.0f, 16.0f};
-    const auto direction = pointFile->trace.currentDirection();
+    const auto position = pointFile->currentPoint() + vm::vec3f{0.0f, 0.0f, 16.0f};
+    const auto direction = pointFile->currentDirection();
     animateCamera(position, direction, vm::vec3f::pos_z());
   }
 }

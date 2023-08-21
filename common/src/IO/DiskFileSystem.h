@@ -35,16 +35,20 @@ protected:
   std::filesystem::path m_root;
 
 public:
-  explicit DiskFileSystem(const std::filesystem::path& root, bool ensureExists = true);
+  explicit DiskFileSystem(const std::filesystem::path& root);
 
   const std::filesystem::path& root() const;
 
-protected:
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
-  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
-  std::vector<std::filesystem::path> doGetDirectoryContents(
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
     const std::filesystem::path& path) const override;
-  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
+
+  PathInfo pathInfo(const std::filesystem::path& path) const override;
+
+protected:
+  kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
+    const std::filesystem::path& path, TraversalMode traversalMode) const override;
+  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+    const std::filesystem::path& path) const override;
 };
 
 #ifdef _MSC_VER
@@ -57,17 +61,19 @@ protected:
 class WritableDiskFileSystem : public DiskFileSystem, public WritableFileSystem
 {
 public:
-  WritableDiskFileSystem(const std::filesystem::path& root, bool create);
+  explicit WritableDiskFileSystem(const std::filesystem::path& root);
 
 private:
-  void doCreateFile(
+  kdl::result<void, FileSystemError> doCreateFile(
     const std::filesystem::path& path, const std::string& contents) override;
-  bool doCreateDirectory(const std::filesystem::path& path) override;
-  void doDeleteFile(const std::filesystem::path& path) override;
-  void doCopyFile(
+  kdl::result<bool, FileSystemError> doCreateDirectory(
+    const std::filesystem::path& path) override;
+  kdl::result<bool, FileSystemError> doDeleteFile(
+    const std::filesystem::path& path) override;
+  kdl::result<void, FileSystemError> doCopyFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
-  void doMoveFile(
+  kdl::result<void, FileSystemError> doMoveFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
 };

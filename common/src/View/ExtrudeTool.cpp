@@ -412,35 +412,37 @@ bool splitBrushesOutward(
   auto newNodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
 
   return kdl::fold_results(
-           dragState.initialDragHandles,
-           [&](const auto& dragHandle) {
-             auto* brushNode = dragHandle.faceHandle.node();
+           kdl::vec_transform(
+             dragState.initialDragHandles,
+             [&](const auto& dragHandle) {
+               auto* brushNode = dragHandle.faceHandle.node();
 
-             const auto& oldBrush = dragHandle.brushAtDragStart;
-             const auto dragFaceIndex = dragHandle.faceHandle.faceIndex();
-             const auto newDragFaceNormal = dragHandle.faceNormal();
+               const auto& oldBrush = dragHandle.brushAtDragStart;
+               const auto dragFaceIndex = dragHandle.faceHandle.faceIndex();
+               const auto newDragFaceNormal = dragHandle.faceNormal();
 
-             auto newBrush = oldBrush;
-             return newBrush.moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
-               .and_then([&]() {
-                 auto clipFace = oldBrush.face(dragFaceIndex);
-                 clipFace.invert();
-                 return newBrush.clip(worldBounds, std::move(clipFace));
-               })
-               .transform([&]() {
-                 auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
-                 newNodes[brushNode->parent()].push_back(newBrushNode);
+               auto newBrush = oldBrush;
+               return newBrush
+                 .moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
+                 .and_then([&]() {
+                   auto clipFace = oldBrush.face(dragFaceIndex);
+                   clipFace.invert();
+                   return newBrush.clip(worldBounds, std::move(clipFace));
+                 })
+                 .transform([&]() {
+                   auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                   newNodes[brushNode->parent()].push_back(newBrushNode);
 
-                 // Look up the new face index of the new drag handle
-                 if (
-                   const auto newDragFaceIndex =
-                     newBrushNode->brush().findFace(newDragFaceNormal))
-                 {
-                   newDragFaces.push_back(
-                     Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
-                 }
-               });
-           })
+                   // Look up the new face index of the new drag handle
+                   if (
+                     const auto newDragFaceIndex =
+                       newBrushNode->brush().findFace(newDragFaceNormal))
+                   {
+                     newDragFaces.push_back(
+                       Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
+                   }
+                 });
+             }))
     .transform([&]() {
       // Apply the changes calculated above
       document.rollbackTransaction();

@@ -22,10 +22,16 @@
 #include "Exceptions.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
+#include "Renderer/RenderError.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/ShaderProgram.h"
+#include "Renderer/Shaders.h"
 #include "Renderer/Vbo.h"
+
+#include "kdl/result_fold.h"
+#include "kdl/vector_utils.h"
+#include <kdl/result.h>
 
 #include <sstream>
 #include <string>
@@ -67,15 +73,47 @@ static void initializeGlew()
 
 bool GLContextManager::initialize()
 {
+  using namespace Renderer::Shaders;
+
   if (!m_initialized)
   {
+    m_initialized = true;
+
     initializeGlew();
 
     GLVendor = reinterpret_cast<const char*>(glGetString(GL_VENDOR));
     GLRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
     GLVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 
-    m_initialized = true;
+    kdl::fold_results(kdl::vec_transform(
+                        std::vector<Renderer::ShaderConfig>{
+                          Grid2DShader,
+                          VaryingPCShader,
+                          VaryingPUniformCShader,
+                          MiniMapEdgeShader,
+                          EntityModelShader,
+                          FaceShader,
+                          PatchShader,
+                          EdgeShader,
+                          ColoredTextShader,
+                          TextBackgroundShader,
+                          TextureBrowserShader,
+                          TextureBrowserBorderShader,
+                          HandleShader,
+                          ColoredHandleShader,
+                          CompassShader,
+                          CompassOutlineShader,
+                          CompassBackgroundShader,
+                          LinkLineShader,
+                          LinkArrowShader,
+                          TriangleShader,
+                          UVViewShader,
+                        },
+                        [&](const auto& shaderConfig) {
+                          return m_shaderManager->loadProgram(shaderConfig);
+                        }))
+      .transform_error([&](const auto& e) { throw RenderException{e.msg}; });
+
     return true;
   }
   return false;

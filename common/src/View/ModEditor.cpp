@@ -25,8 +25,10 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include "IO/FileSystemError.h"
 #include "Model/EntityNode.h"
 #include "Model/Game.h"
+#include "Model/GameError.h"
 #include "Notifier.h"
 #include "PreferenceManager.h"
 #include "View/BorderLine.h"
@@ -37,6 +39,7 @@
 
 #include <kdl/collection_utils.h>
 #include <kdl/memory_utils.h>
+#include <kdl/result.h>
 #include <kdl/string_compare.h>
 #include <kdl/vector_utils.h>
 
@@ -201,8 +204,15 @@ void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 void ModEditor::updateAvailableMods()
 {
   auto document = kdl::mem_lock(m_document);
-  m_availableMods =
-    kdl::col_sort(document->game()->availableMods(), kdl::ci::string_less());
+  document->game()
+    ->availableMods()
+    .transform([&](auto availableMods) {
+      m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
+    })
+    .transform_error([&](auto e) {
+      m_availableMods.clear();
+      document->error() << "Could not update available mods: " << e.msg;
+    });
 }
 
 void ModEditor::updateMods()

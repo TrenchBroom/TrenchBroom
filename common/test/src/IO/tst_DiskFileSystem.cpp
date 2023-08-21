@@ -24,9 +24,11 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/TestEnvironment.h"
+#include "IO/TraversalMode.h"
 #include "Macros.h"
 
 #include <algorithm>
@@ -67,31 +69,19 @@ TEST_CASE("DiskFileSystemTest")
 {
   const auto env = makeTestEnvironment();
 
-  SECTION("constructor")
-  {
-    CHECK_THROWS_AS(DiskFileSystem(env.dir() / "asdf", true), FileSystemException);
-    CHECK_NOTHROW(DiskFileSystem(env.dir() / "asdf", false));
-    CHECK_NOTHROW(DiskFileSystem(env.dir(), true));
-
-    // for case sensitive file systems
-    CHECK_NOTHROW(DiskFileSystem(env.dir() / "ANOTHERDIR", true));
-
-    const DiskFileSystem fs(env.dir() / "anotherDir/..", true);
-    CHECK(fs.makeAbsolute("") == fs.root());
-  }
-
   const auto fs = DiskFileSystem{env.dir()};
 
   SECTION("makeAbsolute")
   {
 
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.makeAbsolute("c:\\"), FileSystemException);
-    CHECK_THROWS_AS(
-      fs.makeAbsolute("C:\\does_not_exist_i_hope.txt"), FileSystemException);
+    CHECK(fs.makeAbsolute("c:\\") == "c:\\");
+    CHECK(
+      fs.makeAbsolute("C:\\does_not_exist_i_hope.txt")
+      == "C:\\does_not_exist_i_hope.txt");
 #else
-    CHECK_THROWS_AS(fs.makeAbsolute("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.makeAbsolute("/does_not_exist_i_hope.txt"), FileSystemException);
+    CHECK(fs.makeAbsolute("/") == "/");
+    CHECK(fs.makeAbsolute("/does_not_exist_i_hope.txt") == "/does_not_exist_i_hope.txt");
 #endif
 
     CHECK(
@@ -104,13 +94,13 @@ TEST_CASE("DiskFileSystemTest")
   SECTION("pathInfo")
   {
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.pathInfo("c:\\"), FileSystemException);
-    CHECK_THROWS_AS(fs.pathInfo("C:\\does_not_exist_i_hope.txt"), FileSystemException);
+    CHECK(fs.pathInfo("c:\\") == PathInfo::Directory);
+    CHECK(fs.pathInfo("C:\\does_not_exist_i_hope.txt") == PathInfo::Unknown);
 #else
-    CHECK_THROWS_AS(fs.pathInfo("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.pathInfo("/does_not_exist_i_hope.txt"), FileSystemException);
+    CHECK(fs.pathInfo("/") == PathInfo::Directory);
+    CHECK(fs.pathInfo("/does_not_exist_i_hope.txt") == PathInfo::Unknown);
 #endif
-    CHECK_THROWS_AS(fs.pathInfo(".."), FileSystemException);
+    CHECK(fs.pathInfo("..") == PathInfo::Unknown);
 
     CHECK(fs.pathInfo(".") == PathInfo::Directory);
     CHECK(fs.pathInfo("anotherDir") == PathInfo::Directory);
@@ -130,49 +120,89 @@ TEST_CASE("DiskFileSystemTest")
     CHECK(fs.pathInfo("fdfdf.blah") == PathInfo::Unknown);
   }
 
-  SECTION("directoryContents")
+  SECTION("find")
   {
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.directoryContents("c:\\"), FileSystemException);
+    CHECK(
+      fs.find("c:\\", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 #else
-    CHECK_THROWS_AS(fs.directoryContents("/"), FileSystemException);
+    CHECK(
+      fs.find("/", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 #endif
-    CHECK_THROWS_AS(fs.directoryContents(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents("asdf/bleh"), FileSystemException);
+    CHECK(
+      fs.find("..", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
+    CHECK(
+      fs.find("asdf/bleh", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 
-    CHECK_THAT(
-      fs.directoryContents("."),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "dir1",
-        "dir2",
-        "anotherDir",
-        "test.txt",
-        "test2.map",
-      }));
+    CHECK(
+      fs.find(".", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "anotherDir",
+          "dir1",
+          "dir2",
+          "test.txt",
+          "test2.map",
+        }});
 
-    CHECK_THAT(
-      fs.directoryContents("anotherDir"),
-      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "subDirTest",
-        "test3.map",
-      }));
+    CHECK(
+      fs.find("anotherDir", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "anotherDir/subDirTest",
+          "anotherDir/test3.map",
+        }});
+
+    CHECK(
+      fs.find(".", TraversalMode::Recursive)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "anotherDir",
+          "anotherDir/subDirTest",
+          "anotherDir/subDirTest/test2.map",
+          "anotherDir/test3.map",
+          "dir1",
+          "dir2",
+          "test.txt",
+          "test2.map",
+        }});
   }
 
   SECTION("openFile")
   {
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.openFile("c:\\hopefully_nothing.here"), FileSystemException);
+    CHECK(
+      fs.openFile("c:\\hopefully_nothing.here")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
 #else
-    CHECK_THROWS_AS(fs.openFile("/hopefully_nothing.here"), FileSystemException);
+    CHECK(
+      fs.openFile("/hopefully_nothing.here")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
 #endif
-    CHECK_THROWS_AS(fs.openFile(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile("."), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile("anotherDir"), FileSystemException);
+    CHECK(
+      fs.openFile("..")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.openFile(".")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.openFile("anotherDir")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
 
     const auto checkOpenFile = [&](const auto& path) {
-      const auto file = fs.openFile(path);
-      CHECK(file != nullptr);
-      CHECK(file->path() == path);
+      const auto file = fs.openFile(path).value();
+      const auto expected = Disk::openFile(env.dir() / path).value();
+      CHECK(
+        file->reader().readString(file->size())
+        == expected->reader().readString(expected->size()));
     };
 
     checkOpenFile("test.txt");
@@ -187,99 +217,120 @@ TEST_CASE("WritableDiskFileSystemTest")
   {
     const auto env = makeTestEnvironment();
 
-    CHECK_THROWS_AS(
-      WritableDiskFileSystem(env.dir() / "asdf", false), FileSystemException);
-    CHECK_NOTHROW(WritableDiskFileSystem{env.dir() / "asdf", true});
-    CHECK_NOTHROW(WritableDiskFileSystem{env.dir(), true});
-
-    // for case sensitive file systems
-    CHECK_NOTHROW(WritableDiskFileSystem{env.dir() / "ANOTHERDIR", false});
-
-    const auto fs = WritableDiskFileSystem{env.dir() / "anotherDir/..", false};
+    const auto fs = WritableDiskFileSystem{env.dir() / "anotherDir/.."};
     CHECK(fs.makeAbsolute("") == (env.dir() / "anotherDir/..").lexically_normal());
   }
 
   SECTION("createDirectory")
   {
     const auto env = makeTestEnvironment();
-    auto fs = WritableDiskFileSystem{env.dir(), false};
+    auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
-    CHECK_THROWS_AS(
-      fs.createDirectory("c:\\hopefully_nothing_here"), FileSystemException);
+    CHECK(
+      fs.createDirectory("c:\\hopefully_nothing_here")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #else
-    CHECK_THROWS_AS(fs.createDirectory("/hopefully_nothing_here"), FileSystemException);
+    CHECK(
+      fs.createDirectory("/hopefully_nothing_here")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #endif
-    CHECK_THROWS_AS(fs.createDirectory(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.createDirectory("test.txt"), FileSystemException);
+    CHECK(
+      fs.createDirectory("..") == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.createDirectory("test.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 
-    CHECK_FALSE(fs.createDirectory(""));
-    CHECK_FALSE(fs.createDirectory("."));
-    CHECK_FALSE(fs.createDirectory("dir1"));
+    CHECK(fs.createDirectory("") == kdl::result<bool, FileSystemError>{false});
+    CHECK(fs.createDirectory(".") == kdl::result<bool, FileSystemError>{false});
+    CHECK(fs.createDirectory("dir1") == kdl::result<bool, FileSystemError>{false});
 
-    CHECK(fs.createDirectory("newDir"));
+    CHECK(fs.createDirectory("newDir") == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("newDir") == PathInfo::Directory);
 
-    CHECK(fs.createDirectory("newDir/someOtherDir"));
+    CHECK(
+      fs.createDirectory("newDir/someOtherDir")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("newDir/someOtherDir") == PathInfo::Directory);
 
-    CHECK(fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir"));
+    CHECK(
+      fs.createDirectory("someDir/someOtherDir/.././yetAnotherDir")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("someDir/someOtherDir/.././yetAnotherDir") == PathInfo::Directory);
   }
 
   SECTION("deleteFile")
   {
     const auto env = makeTestEnvironment();
-    auto fs = WritableDiskFileSystem{env.dir(), false};
+    auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
-    CHECK_THROWS_AS(fs.deleteFile("c:\\hopefully_nothing_here.txt"), FileSystemException);
+    CHECK(
+      fs.deleteFile("c:\\hopefully_nothing_here.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.deleteFile("c:\\dir1\\asdf.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #else
-    CHECK_THROWS_AS(fs.deleteFile("/hopefully_nothing_here.txt"), FileSystemException);
+    CHECK(
+      fs.deleteFile("/hopefully_nothing_here.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.deleteFile("/dir1/asdf.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #endif
-    CHECK_THROWS_AS(fs.deleteFile(""), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile("."), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile(".."), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile("dir1"), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile("asdf.txt"), FileSystemException);
-    CHECK_THROWS_AS(fs.deleteFile("/dir1/asdf.txt"), FileSystemException);
+    CHECK(fs.deleteFile("") == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(fs.deleteFile(".") == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(fs.deleteFile("..") == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(fs.deleteFile("dir1") == kdl::result<bool, FileSystemError>{FileSystemError{}});
 
-    fs.deleteFile("test.txt");
+    CHECK(fs.deleteFile("asdf.txt") == kdl::result<bool, FileSystemError>{false});
+    CHECK(fs.deleteFile("test.txt") == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("test.txt") == PathInfo::Unknown);
 
-    fs.deleteFile("anotherDir/test3.map");
+    CHECK(
+      fs.deleteFile("anotherDir/test3.map") == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("anotherDir/test3.map") == PathInfo::Unknown);
 
-    fs.deleteFile("anotherDir/subDirTest/.././subDirTest/./test2.map");
+    CHECK(
+      fs.deleteFile("anotherDir/subDirTest/.././subDirTest/./test2.map")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(fs.pathInfo("anotherDir/subDirTest/test2.map") == PathInfo::Unknown);
   }
 
   SECTION("moveFile")
   {
     const auto env = makeTestEnvironment();
-    auto fs = WritableDiskFileSystem{env.dir(), false};
+    auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
-    CHECK_THROWS_AS(
-      fs.moveFile("c:\\hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
-    CHECK_THROWS_AS(fs.moveFile("test.txt", "C:\\dest.txt"), FileSystemException);
+    CHECK(
+      fs.moveFile("c:\\hopefully_nothing_here.txt", "dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.moveFile("test.txt", "C:\\dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
 #else
-    CHECK_THROWS_AS(
-      fs.moveFile("/hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
-    CHECK_THROWS_AS(fs.moveFile("test.txt", "/dest.txt"), FileSystemException);
+    CHECK(
+      fs.moveFile("/hopefully_nothing_here.txt", "dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.moveFile("test.txt", "/dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
 #endif
 
-    fs.moveFile("test.txt", "test2.txt");
+    CHECK(fs.moveFile("test.txt", "test2.txt") == kdl::result<void, FileSystemError>{});
     CHECK(fs.pathInfo("test.txt") == PathInfo::Unknown);
     CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
 
-    fs.moveFile("test2.txt", "test2.map");
+    CHECK(fs.moveFile("test2.txt", "test2.map") == kdl::result<void, FileSystemError>{});
     CHECK(fs.pathInfo("test2.txt") == PathInfo::Unknown);
     CHECK(fs.pathInfo("test2.map") == PathInfo::File);
     // we're trusting that the file is actually overwritten (should really test the
     // contents here...)
 
-    fs.moveFile("test2.map", "dir1/test2.map");
+    CHECK(
+      fs.moveFile("test2.map", "dir1/test2.map") == kdl::result<void, FileSystemError>{});
     CHECK(fs.pathInfo("test2.map") == PathInfo::Unknown);
     CHECK(fs.pathInfo("dir1/test2.map") == PathInfo::File);
   }
@@ -287,29 +338,36 @@ TEST_CASE("WritableDiskFileSystemTest")
   SECTION("copyFile")
   {
     const auto env = makeTestEnvironment();
-    auto fs = WritableDiskFileSystem{env.dir(), false};
+    auto fs = WritableDiskFileSystem{env.dir()};
 
 #if defined _WIN32
-    CHECK_THROWS_AS(
-      fs.copyFile("c:\\hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
-    CHECK_THROWS_AS(fs.copyFile("test.txt", "C:\\dest.txt"), FileSystemException);
+    CHECK(
+      fs.copyFile("c:\\hopefully_nothing_here.txt", "dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.copyFile("test.txt", "C:\\dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
 #else
-    CHECK_THROWS_AS(
-      fs.copyFile("/hopefully_nothing_here.txt", "dest.txt"), FileSystemException);
-    CHECK_THROWS_AS(fs.copyFile("test.txt", "/dest.txt"), FileSystemException);
+    CHECK(
+      fs.copyFile("/hopefully_nothing_here.txt", "dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.copyFile("test.txt", "/dest.txt")
+      == kdl::result<void, FileSystemError>{FileSystemError{}});
 #endif
 
-    fs.copyFile("test.txt", "test2.txt");
+    CHECK(fs.copyFile("test.txt", "test2.txt") == kdl::result<void, FileSystemError>{});
     CHECK(fs.pathInfo("test.txt") == PathInfo::File);
     CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
 
-    fs.copyFile("test2.txt", "test2.map");
+    CHECK(fs.copyFile("test2.txt", "test2.map") == kdl::result<void, FileSystemError>{});
     CHECK(fs.pathInfo("test2.txt") == PathInfo::File);
     CHECK(fs.pathInfo("test2.map") == PathInfo::File);
     // we're trusting that the file is actually overwritten (should really test the
     // contents here...)
 
-    fs.copyFile("test2.map", "dir1/test2.map");
+    CHECK(
+      fs.copyFile("test2.map", "dir1/test2.map") == kdl::result<void, FileSystemError>{});
     CHECK(fs.pathInfo("test2.map") == PathInfo::File);
     CHECK(fs.pathInfo("dir1/test2.map") == PathInfo::File);
   }

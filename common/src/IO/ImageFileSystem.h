@@ -20,23 +20,22 @@
 #pragma once
 
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
 
+#include <kdl/result.h>
 #include <kdl/string_compare.h>
 
 #include <filesystem>
 #include <functional>
-#include <map>
 #include <memory>
 #include <variant>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class CFile;
 class File;
 
-using GetImageFile = std::function<std::shared_ptr<File>()>;
+using GetImageFile = std::function<kdl::result<std::shared_ptr<File>, FileSystemError>()>;
 
 struct ImageFileEntry
 {
@@ -56,31 +55,33 @@ struct ImageDirectoryEntry
 class ImageFileSystemBase : public FileSystem
 {
 protected:
-  std::filesystem::path m_path;
   ImageEntry m_root;
 
-  explicit ImageFileSystemBase(std::filesystem::path path);
+  ImageFileSystemBase();
 
 public:
   ~ImageFileSystemBase() override;
 
+  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+    const std::filesystem::path& path) const override;
+
   /**
    * Reload this file system.
    */
-  void reload();
+  kdl::result<void, FileSystemError> reload();
 
 protected:
-  void initialize();
   void addFile(const std::filesystem::path& path, GetImageFile getFile);
 
-private:
-  std::filesystem::path doMakeAbsolute(const std::filesystem::path& path) const override;
-  PathInfo doGetPathInfo(const std::filesystem::path& path) const override;
-  std::vector<std::filesystem::path> doGetDirectoryContents(
-    const std::filesystem::path& path) const override;
-  std::shared_ptr<File> doOpenFile(const std::filesystem::path& path) const override;
+  PathInfo pathInfo(const std::filesystem::path& path) const override;
 
-  virtual void doReadDirectory() = 0;
+private:
+  kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
+    const std::filesystem::path& path, TraversalMode traversalMode) const override;
+  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+    const std::filesystem::path& path) const override;
+
+  virtual kdl::result<void, FileSystemError> doReadDirectory() = 0;
 };
 
 class ImageFileSystem : public ImageFileSystemBase
@@ -88,8 +89,15 @@ class ImageFileSystem : public ImageFileSystemBase
 protected:
   std::shared_ptr<CFile> m_file;
 
-protected:
-  explicit ImageFileSystem(std::filesystem::path path);
+public:
+  explicit ImageFileSystem(std::shared_ptr<CFile> file);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+template <typename T, typename... Args>
+kdl::result<std::unique_ptr<T>, FileSystemError> createImageFileSystem(Args&&... args)
+{
+  auto fs = std::make_unique<T>(std::forward<Args>(args)...);
+  return fs->reload().transform([&]() { return std::move(fs); });
+}
+
+} // namespace TrenchBroom::IO

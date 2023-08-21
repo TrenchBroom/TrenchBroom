@@ -33,6 +33,7 @@ class ShaderManager;
 class ActiveShader
 {
 private:
+  ShaderManager& m_shaderManager;
   ShaderProgram& m_program;
 
 public:

@@ -74,15 +74,17 @@ private:
 
   const std::vector<SmartTag>& doSmartTags() const override;
 
-  std::unique_ptr<WorldNode> doNewMap(
+  kdl::result<std::unique_ptr<WorldNode>, GameError> doNewMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
-  std::unique_ptr<WorldNode> doLoadMap(
+  kdl::result<std::unique_ptr<WorldNode>, GameError> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const override;
-  void doWriteMap(WorldNode& world, const std::filesystem::path& path) const override;
-  void doExportMap(WorldNode& world, const IO::ExportOptions& options) const override;
+  kdl::result<void, GameError> doWriteMap(
+    WorldNode& world, const std::filesystem::path& path) const override;
+  kdl::result<void, GameError> doExportMap(
+    WorldNode& world, const IO::ExportOptions& options) const override;
 
   std::vector<Node*> doParseNodes(
     const std::string& str,
@@ -110,7 +112,7 @@ private:
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) override;
-  void doReloadShaders() override;
+  kdl::result<void, GameError> doReloadShaders() override;
 
   bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
@@ -121,7 +123,7 @@ private:
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
-  std::vector<std::string> doAvailableMods() const override;
+  kdl::result<std::vector<std::string>, GameError> doAvailableMods() const override;
   std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
   std::string doDefaultMod() const override;
 
@@ -130,7 +132,8 @@ private:
   const BrushFaceAttributes& doDefaultFaceAttribs() const override;
   const std::vector<CompilationTool>& doCompilationTools() const override;
 
-  std::vector<Assets::EntityDefinition*> doLoadEntityDefinitions(
+  kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
+  doLoadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
   std::unique_ptr<Assets::EntityModel> doInitializeModel(
     const std::filesystem::path& path, Logger& logger) const override;

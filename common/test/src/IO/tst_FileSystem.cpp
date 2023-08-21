@@ -19,7 +19,12 @@
 
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/FileSystemError.h"
+#include "IO/TraversalMode.h"
 #include "TestFileSystem.h"
+
+#include <kdl/result.h>
+#include <kdl/result_io.h>
 
 #include "Catch2.h"
 
@@ -38,111 +43,124 @@ TEST_CASE("FileSystem")
           DirectoryEntry{
             "nested_dir",
             {
-              FileEntry{
-                "nested_dir_file_1.txt",
-                makeObjectFile("some_dir/nested_dir/nested_dir_file_1.txt", 1)},
-              FileEntry{
-                "nested_dir_file_2.map",
-                makeObjectFile("some_dir/nested_dir/nested_dir_file_2.map", 2)},
+              FileEntry{"nested_dir_file_1.txt", makeObjectFile(1)},
+              FileEntry{"nested_dir_file_2.map", makeObjectFile(2)},
             }},
-          FileEntry{
-            "some_dir_file_1.TXT", makeObjectFile("some_dir/some_dir_file_1.TXT", 3)},
-          FileEntry{
-            "some_dir_file_2.doc", makeObjectFile("some_dir/some_dir_file_2.doc", 4)},
+          FileEntry{"some_dir_file_1.TXT", makeObjectFile(3)},
+          FileEntry{"some_dir_file_2.doc", makeObjectFile(4)},
         }},
-      FileEntry{"root_file_1.map", makeObjectFile("root_file_1.map", 5)},
-      FileEntry{"root_file_2.jpg", makeObjectFile("root_file_2.jpg", 6)},
+      FileEntry{"root_file_1.map", makeObjectFile(5)},
+      FileEntry{"root_file_2.jpg", makeObjectFile(6)},
     }}};
 
   SECTION("makeAbsolute")
   {
-    CHECK_THROWS_AS(fs.makeAbsolute("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.makeAbsolute("/foo"), FileSystemException);
+    CHECK(
+      fs.makeAbsolute("/")
+      == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.makeAbsolute("/foo")
+      == kdl::result<std::filesystem::path, FileSystemError>{FileSystemError{}});
   }
 
   SECTION("pathInfo")
   {
 #if defined(_WIN32)
-    CHECK_THROWS_AS(fs.pathInfo("c:\\"), FileSystemException);
-    CHECK_THROWS_AS(fs.pathInfo("c:\\foo"), FileSystemException);
+    CHECK(fs.pathInfo("c:\\") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("c:\\foo") == PathInfo::Unknown);
     CHECK(fs.pathInfo("c:") == PathInfo::Unknown);
     CHECK(fs.pathInfo("/") == PathInfo::Unknown);
     CHECK(fs.pathInfo("/foo") == PathInfo::Unknown);
 #else
-    CHECK_THROWS_AS(fs.pathInfo("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.pathInfo("/foo"), FileSystemException);
+    CHECK(fs.pathInfo("/") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("/foo") == PathInfo::Unknown);
 #endif
   }
 
   SECTION("find")
   {
-    CHECK_THROWS_AS(fs.find("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.find("/foo"), FileSystemException);
-    CHECK_THROWS_AS(fs.find("does_not_exist"), FileSystemException);
-    CHECK_THROWS_AS(fs.find("root_file_1.map"), FileSystemException);
+    CHECK(
+      fs.find("/", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
+    CHECK(
+      fs.find("/foo", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
+    CHECK(
+      fs.find("does_not_exist", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
+    CHECK(
+      fs.find("root_file_1.map", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 
-    CHECK_THAT(
-      fs.find(""),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir",
-        "root_file_1.map",
-        "root_file_2.jpg",
-      }));
+    CHECK(
+      fs.find("", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "root_file_1.map",
+          "root_file_2.jpg",
+          "some_dir",
+        }});
 
-    CHECK_THAT(
-      fs.findRecursively(""),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir",
-        "some_dir/nested_dir",
-        "some_dir/nested_dir/nested_dir_file_1.txt",
-        "some_dir/nested_dir/nested_dir_file_2.map",
-        "some_dir/some_dir_file_1.TXT",
-        "some_dir/some_dir_file_2.doc",
-        "root_file_1.map",
-        "root_file_2.jpg",
-      }));
+    CHECK(
+      fs.find("", TraversalMode::Recursive)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "root_file_1.map",
+          "root_file_2.jpg",
+          "some_dir",
+          "some_dir/nested_dir",
+          "some_dir/nested_dir/nested_dir_file_1.txt",
+          "some_dir/nested_dir/nested_dir_file_2.map",
+          "some_dir/some_dir_file_1.TXT",
+          "some_dir/some_dir_file_2.doc",
+        }});
 
-    CHECK_THAT(
-      fs.find("some_dir"),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir/nested_dir",
-        "some_dir/some_dir_file_1.TXT",
-        "some_dir/some_dir_file_2.doc",
-      }));
+    CHECK(
+      fs.find("some_dir", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "some_dir/nested_dir",
+          "some_dir/some_dir_file_1.TXT",
+          "some_dir/some_dir_file_2.doc",
+        }});
 
-    CHECK_THAT(
-      fs.findRecursively("some_dir"),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir/nested_dir",
-        "some_dir/nested_dir/nested_dir_file_1.txt",
-        "some_dir/nested_dir/nested_dir_file_2.map",
-        "some_dir/some_dir_file_1.TXT",
-        "some_dir/some_dir_file_2.doc",
-      }));
+    CHECK(
+      fs.find("some_dir", TraversalMode::Recursive)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "some_dir/nested_dir",
+          "some_dir/nested_dir/nested_dir_file_1.txt",
+          "some_dir/nested_dir/nested_dir_file_2.map",
+          "some_dir/some_dir_file_1.TXT",
+          "some_dir/some_dir_file_2.doc",
+        }});
 
-    CHECK_THAT(
-      fs.findRecursively("", makeExtensionPathMatcher({".txt", ".map"})),
-      Catch::Matchers::UnorderedEquals(std::vector<std::filesystem::path>{
-        "some_dir/nested_dir/nested_dir_file_1.txt",
-        "some_dir/nested_dir/nested_dir_file_2.map",
-        "some_dir/some_dir_file_1.TXT",
-        "root_file_1.map",
-      }));
-  }
-
-  SECTION("directoryContents")
-  {
-    CHECK_THROWS_AS(fs.directoryContents("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents("/foo"), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents("does_not_exist"), FileSystemException);
-    CHECK_THROWS_AS(fs.directoryContents("root_file_1.map"), FileSystemException);
+    CHECK(
+      fs.find("", TraversalMode::Recursive, makeExtensionPathMatcher({".txt", ".map"}))
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        std::vector<std::filesystem::path>{
+          "root_file_1.map",
+          "some_dir/nested_dir/nested_dir_file_1.txt",
+          "some_dir/nested_dir/nested_dir_file_2.map",
+          "some_dir/some_dir_file_1.TXT",
+        }});
   }
 
   SECTION("openFile")
   {
-    CHECK_THROWS_AS(fs.openFile("/"), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile("/foo"), FileSystemException);
-    CHECK_THROWS_AS(fs.openFile("does_not_exist"), FileSystemException);
+    CHECK(
+      fs.openFile("/")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.openFile("/foo")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      fs.openFile("does_not_exist")
+      == kdl::result<std::shared_ptr<File>, FileSystemError>{FileSystemError{}});
   }
 }
 

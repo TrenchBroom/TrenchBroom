@@ -27,6 +27,7 @@
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/TestEnvironment.h"
+#include "IO/TraversalMode.h"
 #include "Macros.h"
 
 #include <algorithm>
@@ -133,59 +134,86 @@ TEST_CASE("DiskIO")
       Disk::pathInfo(env.dir() / "anotherDir/subDirTest/test2.map") == PathInfo::File);
   }
 
-  SECTION("directoryContents")
+  SECTION("find")
   {
-    CHECK_THROWS_AS(Disk::directoryContents("asdf/bleh"), FileSystemException);
-    CHECK_THROWS_AS(
-      Disk::directoryContents(env.dir() / "does/not/exist"), FileSystemException);
+    CHECK(
+      Disk::find("asdf/bleh", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
+    CHECK(
+      Disk::find(env.dir() / "does/not/exist", TraversalMode::Flat)
+      == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
+        FileSystemError{}});
 
     CHECK_THAT(
-      Disk::directoryContents(env.dir()),
+      Disk::find(env.dir(), TraversalMode::Flat).value(),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
-        "dir1",
-        "dir2",
-        "anotherDir",
-        "test.txt",
-        "test2.map",
+        env.dir() / "dir1",
+        env.dir() / "dir2",
+        env.dir() / "anotherDir",
+        env.dir() / "test.txt",
+        env.dir() / "test2.map",
+      }));
+
+    CHECK_THAT(
+      Disk::find(env.dir(), TraversalMode::Recursive).value(),
+      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+        env.dir() / "dir1",
+        env.dir() / "dir2",
+        env.dir() / "anotherDir",
+        env.dir() / "anotherDir/subDirTest",
+        env.dir() / "anotherDir/subDirTest/test2.map",
+        env.dir() / "anotherDir/test3.map",
+        env.dir() / "test.txt",
+        env.dir() / "test2.map",
       }));
   }
 
   SECTION("openFile")
   {
 
-    CHECK_THROWS_AS(Disk::openFile("asdf/bleh"), FileNotFoundException);
-    CHECK_THROWS_AS(Disk::openFile(env.dir() / "does/not/exist"), FileNotFoundException);
+    CHECK(
+      Disk::openFile("asdf/bleh")
+      == kdl::result<std::shared_ptr<CFile>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      Disk::openFile(env.dir() / "does/not/exist")
+      == kdl::result<std::shared_ptr<CFile>, FileSystemError>{FileSystemError{}});
+    CHECK(
+      Disk::openFile(env.dir() / "does_not_exist.txt")
+      == kdl::result<std::shared_ptr<CFile>, FileSystemError>{FileSystemError{}});
 
-    CHECK_THROWS_AS(
-      Disk::openFile(env.dir() / "does_not_exist.txt"), FileNotFoundException);
-    CHECK(Disk::openFile(env.dir() / "test.txt") != nullptr);
-    CHECK(Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map") != nullptr);
+    auto file = Disk::openFile(env.dir() / "test.txt");
+    CHECK(file.is_success());
+
+    file = Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map");
+    CHECK(file.is_success());
   }
 
   SECTION("withStream")
   {
     SECTION("withInputStream")
     {
-      CHECK_THROWS_AS(
-        Disk::withInputStream(env.dir() / "does not exist.txt", readAll),
-        FileSystemException);
+      CHECK(
+        Disk::withInputStream(env.dir() / "does not exist.txt", readAll)
+        == FileSystemError{});
 
       CHECK(Disk::withInputStream(env.dir() / "test.txt", readAll) == "some content");
     }
 
     SECTION("withOutputStream")
     {
-      Disk::withOutputStream(
-        env.dir() / "test.txt", std::ios::out | std::ios::app, [](auto& stream) {
-          stream << "\nmore content";
-        });
+      REQUIRE(Disk::withOutputStream(
+                env.dir() / "test.txt",
+                std::ios::out | std::ios::app,
+                [](auto& stream) { stream << "\nmore content"; })
+                .is_success());
       CHECK(
         Disk::withInputStream(env.dir() / "test.txt", readAll)
         == "some content\nmore content");
 
-      Disk::withOutputStream(env.dir() / "some_other_name.txt", [](auto& stream) {
-        stream << "some text...";
-      });
+      REQUIRE(Disk::withOutputStream(env.dir() / "some_other_name.txt", [](auto& stream) {
+                stream << "some text...";
+              }).is_success());
       CHECK(
         Disk::withInputStream(env.dir() / "some_other_name.txt", readAll)
         == "some text...");
@@ -194,33 +222,48 @@ TEST_CASE("DiskIO")
 
   SECTION("createDirectory")
   {
-    CHECK_FALSE(Disk::createDirectory(env.dir() / "anotherDir"));
+    CHECK(
+      Disk::createDirectory(env.dir() / "anotherDir")
+      == kdl::result<bool, FileSystemError>{false});
 
-    CHECK(Disk::createDirectory(env.dir() / "yetAnotherDir"));
+    CHECK(
+      Disk::createDirectory(env.dir() / "yetAnotherDir")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir"));
 
-    CHECK(Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory"));
+    CHECK(
+      Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir/and/a/nested/directory"));
 
-    CHECK_THROWS_AS(Disk::createDirectory(env.dir() / "test.txt"), FileSystemException);
+    CHECK(
+      Disk::createDirectory(env.dir() / "test.txt")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 
 #ifndef _WIN32
     // These tests don't work on Windows due to differences in permissions
     const auto setPermissions =
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_read};
-    CHECK_THROWS_AS(
-      Disk::createDirectory(env.dir() / "anotherDir/nestedDir"), FileSystemException);
+    CHECK(
+      Disk::createDirectory(env.dir() / "anotherDir/nestedDir")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #endif
   }
 
   SECTION("deleteFile")
   {
     REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
-    CHECK_NOTHROW(Disk::deleteFile(env.dir() / "test.txt"));
+    CHECK(
+      Disk::deleteFile(env.dir() / "test.txt")
+      == kdl::result<bool, FileSystemError>{true});
     CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
 
-    CHECK_THROWS_AS(Disk::deleteFile(env.dir() / "anotherDir"), FileSystemException);
-    CHECK_THROWS_AS(Disk::deleteFile(env.dir() / "does_not_exist"), FileSystemException);
+    CHECK(
+      Disk::deleteFile(env.dir() / "anotherDir")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
+    CHECK(
+      Disk::deleteFile(env.dir() / "does_not_exist")
+      == kdl::result<bool, FileSystemError>{false});
 
 #ifndef _WIN32
     // These tests don't work on Windows due to differences in permissions
@@ -228,8 +271,9 @@ TEST_CASE("DiskIO")
       SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
     REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
-    CHECK_THROWS_AS(
-      Disk::deleteFile(env.dir() / "anotherDir/test3.map"), FileSystemException);
+    CHECK(
+      Disk::deleteFile(env.dir() / "anotherDir/test3.map")
+      == kdl::result<bool, FileSystemError>{FileSystemError{}});
 #endif
   }
 
@@ -239,18 +283,18 @@ TEST_CASE("DiskIO")
     {
       REQUIRE(Disk::pathInfo(env.dir() / "does_not_exist.txt") == PathInfo::Unknown);
 
-      CHECK_THROWS_AS(
-        Disk::copyFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1"),
-        FileSystemException);
+      CHECK(
+        Disk::copyFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1")
+        == kdl::result<void, FileSystemError>{FileSystemError{}});
     }
 
     SECTION("copy directory")
     {
       REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
 
-      CHECK_THROWS_AS(
-        Disk::copyFile(env.dir() / "anotherDir", env.dir() / "dir1"),
-        FileSystemException);
+      CHECK(
+        Disk::copyFile(env.dir() / "anotherDir", env.dir() / "dir1")
+        == kdl::result<void, FileSystemError>{FileSystemError{}});
     }
 
     SECTION("copy file into directory")
@@ -258,7 +302,9 @@ TEST_CASE("DiskIO")
       REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
       REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::Unknown);
 
-      CHECK_NOTHROW(Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir"));
+      CHECK(
+        Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir")
+        == kdl::result<void, FileSystemError>{});
 
       CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
       CHECK(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::File);
@@ -271,8 +317,9 @@ TEST_CASE("DiskIO")
         REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
         REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
 
-        CHECK_NOTHROW(
-          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt"));
+        CHECK(
+          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
+          == kdl::result<void, FileSystemError>{});
 
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
         CHECK(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::File);
@@ -288,9 +335,9 @@ TEST_CASE("DiskIO")
         const auto setPermissions =
           SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
-        CHECK_THROWS_AS(
-          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt"),
-          FileSystemException);
+        CHECK(
+          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
+          == kdl::result<void, FileSystemError>{FileSystemError{}});
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
 #endif
       }
@@ -306,8 +353,9 @@ TEST_CASE("DiskIO")
 
       SECTION("when the file can be overwritten")
       {
-        CHECK_NOTHROW(
-          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map"));
+        CHECK(
+          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
+          == kdl::result<void, FileSystemError>{});
 
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
         CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
@@ -323,9 +371,9 @@ TEST_CASE("DiskIO")
         const auto setPermissions = SetPermissions{
           env.dir() / "anotherDir/test3.map", std::filesystem::perms::none};
 
-        CHECK_THROWS_AS(
-          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map"),
-          FileSystemException);
+        CHECK(
+          Disk::copyFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
+          == kdl::result<void, FileSystemError>{FileSystemError{}});
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
 #endif
       }
@@ -338,18 +386,18 @@ TEST_CASE("DiskIO")
     {
       REQUIRE(Disk::pathInfo(env.dir() / "does_not_exist.txt") == PathInfo::Unknown);
 
-      CHECK_THROWS_AS(
-        Disk::moveFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1"),
-        FileSystemException);
+      CHECK(
+        Disk::moveFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1")
+        == kdl::result<void, FileSystemError>{FileSystemError{}});
     }
 
     SECTION("move directory")
     {
       REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
 
-      CHECK_THROWS_AS(
-        Disk::moveFile(env.dir() / "anotherDir", env.dir() / "dir1"),
-        FileSystemException);
+      CHECK(
+        Disk::moveFile(env.dir() / "anotherDir", env.dir() / "dir1")
+        == kdl::result<void, FileSystemError>{FileSystemError{}});
       CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
     }
 
@@ -358,7 +406,9 @@ TEST_CASE("DiskIO")
       REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
       REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::Unknown);
 
-      CHECK_NOTHROW(Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir"));
+      CHECK(
+        Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir")
+        == kdl::result<void, FileSystemError>{});
 
       CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
       CHECK(Disk::pathInfo(env.dir() / "anotherDir/test.txt") == PathInfo::File);
@@ -371,8 +421,9 @@ TEST_CASE("DiskIO")
         REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
         REQUIRE(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::Unknown);
 
-        CHECK_NOTHROW(
-          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt"));
+        CHECK(
+          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
+          == kdl::result<void, FileSystemError>{});
 
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
         CHECK(Disk::pathInfo(env.dir() / "anotherDir/asdf.txt") == PathInfo::File);
@@ -388,9 +439,9 @@ TEST_CASE("DiskIO")
         const auto setPermissions =
           SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
-        CHECK_THROWS_AS(
-          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt"),
-          FileSystemException);
+        CHECK(
+          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/asdf.txt")
+          == kdl::result<void, FileSystemError>{FileSystemError{}});
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
 #endif
       }
@@ -406,8 +457,9 @@ TEST_CASE("DiskIO")
 
       SECTION("when the file can be overwritten")
       {
-        CHECK_NOTHROW(
-          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map"));
+        CHECK(
+          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
+          == kdl::result<void, FileSystemError>{});
 
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::Unknown);
         CHECK(Disk::pathInfo(env.dir() / "anotherDir/test3.map") == PathInfo::File);
@@ -423,9 +475,9 @@ TEST_CASE("DiskIO")
         const auto setPermissions =
           SetPermissions{env.dir() / "anotherDir", std::filesystem::perms::owner_exec};
 
-        CHECK_THROWS_AS(
-          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map"),
-          FileSystemException);
+        CHECK(
+          Disk::moveFile(env.dir() / "test.txt", env.dir() / "anotherDir/test3.map")
+          == kdl::result<void, FileSystemError>{FileSystemError{}});
         CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
 #endif
       }

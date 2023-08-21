@@ -19,16 +19,12 @@
 
 #include "TextureUtils.h"
 
-#include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/ResourceUtils.h"
-#include "Logger.h"
 
 #include <kdl/path_utils.h>
 #include <kdl/reflection_impl.h>
-#include <kdl/result.h>
 
 namespace TrenchBroom::IO
 {
@@ -54,14 +50,5 @@ size_t mipSize(const size_t width, const size_t height, const size_t mipLevel)
 }
 
 kdl_reflect_impl(ReadTextureError);
-
-std::function<kdl::result<Assets::Texture>(ReadTextureError)> makeReadTextureErrorHandler(
-  const FileSystem& fs, Logger& logger)
-{
-  return [&](ReadTextureError e) {
-    logger.error() << "Could not read texture '" << e.textureName << "': " << e.msg;
-    return kdl::result<Assets::Texture>{loadDefaultTexture(fs, e.textureName, logger)};
-  };
-}
 
 } // namespace TrenchBroom::IO

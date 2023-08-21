@@ -19,33 +19,6 @@
 
 #include "MapFrame.h"
 
-#include "Console.h"
-#include "Exceptions.h"
-#include "FileLogger.h"
-#include "IO/ExportOptions.h"
-#include "IO/PathQt.h"
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/EntityNodeBase.h"
-#include "Model/Game.h"
-#include "Model/GameFactory.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/MapFormat.h"
-#include "Model/ModelUtils.h"
-#include "Model/Node.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
-#include "TrenchBroomApp.h"
-#include "View/Actions.h"
-#include "View/Autosaver.h"
-#if !defined __APPLE__
-#include "View/BorderLine.h"
-#endif
 #include <QApplication>
 #include <QChildEvent>
 #include <QClipboard>
@@ -65,6 +38,33 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
+#include "Console.h"
+#include "Exceptions.h"
+#include "FileLogger.h"
+#include "IO/ExportOptions.h"
+#include "IO/FileSystemError.h"
+#include "IO/PathQt.h"
+#include "Model/BrushNode.h"
+#include "Model/EditorContext.h"
+#include "Model/Entity.h"
+#include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
+#include "Model/Game.h"
+#include "Model/GameError.h"
+#include "Model/GameFactory.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/MapFormat.h"
+#include "Model/ModelUtils.h"
+#include "Model/Node.h"
+#include "Model/PatchNode.h"
+#include "Model/WorldNode.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
+#include "TrenchBroomApp.h"
+#include "View/Actions.h"
+#include "View/Autosaver.h"
+#include "View/BorderLine.h"
 #include "View/ClipTool.h"
 #include "View/ColorButton.h"
 #include "View/CompilationDialog.h"
@@ -977,18 +977,18 @@ void MapFrame::bindEvents()
     &MapFrame::updateStatusBar);
 }
 
-bool MapFrame::newDocument(
+kdl::result<bool, Model::GameError> MapFrame::newDocument(
   std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat)
 {
   if (!confirmOrDiscardChanges() || !closeCompileDialog())
   {
     return false;
   }
-  m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game);
-  return true;
+  return m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game)
+    .transform([]() { return true; });
 }
 
-bool MapFrame::openDocument(
+kdl::result<bool, Model::GameError> MapFrame::openDocument(
   std::shared_ptr<Model::Game> game,
   const Model::MapFormat mapFormat,
   const std::filesystem::path& path)
@@ -998,15 +998,18 @@ bool MapFrame::openDocument(
     return false;
   }
   const auto startTime = std::chrono::high_resolution_clock::now();
-  m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);
-  const auto endTime = std::chrono::high_resolution_clock::now();
+  return m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path)
+    .transform([&]() {
+      const auto endTime = std::chrono::high_resolution_clock::now();
 
-  logger().info()
-    << "Loaded " << m_document->path() << " in "
-    << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count()
-    << "ms";
+      logger().info() << "Loaded " << m_document->path() << " in "
+                      << std::chrono::duration_cast<std::chrono::milliseconds>(
+                           endTime - startTime)
+                           .count()
+                      << "ms";
 
-  return true;
+      return true;
+    });
 }
 
 bool MapFrame::saveDocument()
@@ -1030,11 +1033,6 @@ bool MapFrame::saveDocument()
     {
       return saveDocumentAs();
     }
-  }
-  catch (const FileSystemException& e)
-  {
-    QMessageBox::critical(this, "", e.what());
-    return false;
   }
   catch (...)
   {
@@ -1075,11 +1073,6 @@ bool MapFrame::saveDocumentAs()
                     << "ms";
     return true;
   }
-  catch (const FileSystemException& e)
-  {
-    QMessageBox::critical(this, "", e.what());
-    return false;
-  }
   catch (...)
   {
     QMessageBox::critical(
@@ -1091,21 +1084,17 @@ bool MapFrame::saveDocumentAs()
   }
 }
 
-bool MapFrame::revertDocument()
+void MapFrame::revertDocument()
 {
-  if (!m_document->persistent())
+  if (m_document->persistent() && confirmRevertDocument())
   {
-    return false;
+    const auto mapFormat = m_document->world()->mapFormat();
+    const auto game = m_document->game();
+    const auto path = m_document->path();
+    m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path)
+      .transform_error(
+        [&](auto e) { m_document->error() << "Failed to rever document: " << e.msg; });
   }
-  if (!confirmRevertDocument())
-  {
-    return false;
-  }
-  const auto mapFormat = m_document->world()->mapFormat();
-  const auto game = m_document->game();
-  const auto path = m_document->path();
-  m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path);
-  return true;
 }
 
 bool MapFrame::exportDocumentAsObj()
@@ -1149,26 +1138,17 @@ bool MapFrame::exportDocument(const IO::ExportOptions& options)
     return false;
   }
 
-  try
-  {
-    m_document->exportDocumentAs(options);
-    logger().info() << "Exported " << exportPath;
-    return true;
-  }
-  catch (const FileSystemException& e)
-  {
-    QMessageBox::critical(this, "", e.what());
-    return false;
-  }
-  catch (...)
-  {
-    QMessageBox::critical(
-      this,
-      "",
-      QString::fromStdString("Unknown error while exporting " + exportPath.string()),
-      QMessageBox::Ok);
-    return false;
-  }
+  return m_document->exportDocumentAs(options)
+    .transform([&]() {
+      logger().info() << "Exported " << exportPath;
+      return true;
+    })
+    .transform_error([&](auto e) {
+      logger().error() << "Could not export '" << exportPath << "': " + e.msg;
+      QMessageBox::critical(this, "", QString::fromStdString(e.msg));
+      return false;
+    })
+    .value();
 }
 
 /**

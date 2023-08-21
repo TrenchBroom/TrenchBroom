@@ -19,41 +19,51 @@
 
 #pragma once
 
+#include "Macros.h"
 #include "Renderer/GL.h"
+
+#include <kdl/result_forward.h>
 
 #include <vecmath/forward.h>
 
-#include <map>
 #include <string>
+#include <unordered_map>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
+struct RenderError;
 class ShaderManager;
 class Shader;
 
 class ShaderProgram
 {
 private:
-  using UniformVariableCache = std::map<std::string, GLint>;
-  using AttributeLocationCache = std::map<std::string, GLint>;
+  using UniformVariableCache = std::unordered_map<std::string, GLint>;
+  using AttributeLocationCache = std::unordered_map<std::string, GLint>;
+
   std::string m_name;
+
   GLuint m_programId;
-  bool m_needsLinking;
+
   mutable UniformVariableCache m_variableCache;
   mutable AttributeLocationCache m_attributeCache;
-  ShaderManager* m_shaderManager;
 
 public:
-  explicit ShaderProgram(ShaderManager* shaderManager, const std::string& name);
+  ShaderProgram(std::string name, GLuint programId);
+
+  deleteCopy(ShaderProgram);
+
+  ShaderProgram(ShaderProgram&& other) noexcept;
+  ShaderProgram& operator=(ShaderProgram&& other) noexcept;
+
   ~ShaderProgram();
 
-  void attach(Shader& shader);
-  void detach(Shader& shader);
+  void attach(Shader& shader) const;
+  kdl::result<void, RenderError> link();
 
-  void activate();
-  void deactivate();
+  void activate(ShaderManager& shaderManager);
+  void deactivate(ShaderManager& shaderManager);
 
   void set(const std::string& name, bool value);
   void set(const std::string& name, int value);
@@ -70,9 +80,10 @@ public:
   GLint findAttributeLocation(const std::string& name) const;
 
 private:
-  void link();
   GLint findUniformLocation(const std::string& name) const;
   bool checkActive() const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+kdl::result<ShaderProgram, RenderError> createShaderProgram(std::string name);
+
+} // namespace TrenchBroom::Renderer

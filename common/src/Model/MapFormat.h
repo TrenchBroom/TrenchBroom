@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <iosfwd>
 #include <string>
 #include <vector>
 
@@ -69,8 +70,10 @@ enum class MapFormat
   /**
    * Quake 3 with brush primitives, also allows Quake 2 brushes
    */
-  Quake3
+  Quake3,
 };
+
+std::ostream& operator<<(std::ostream& lhs, MapFormat rhs);
 
 /**
  * Returns the map format enum value with the given name. If the given name is not

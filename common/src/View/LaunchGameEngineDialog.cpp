@@ -294,7 +294,7 @@ void LaunchGameEngineDialog::saveConfig()
   auto document = kdl::mem_lock(m_document);
   const auto& gameName = document->game()->gameName();
   auto& gameFactory = Model::GameFactory::instance();
-  gameFactory.saveGameEngineConfig(gameName, m_config);
+  gameFactory.saveGameEngineConfig(gameName, m_config, document->logger());
 }
 } // namespace View
 } // namespace TrenchBroom

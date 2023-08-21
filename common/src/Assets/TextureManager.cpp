@@ -22,6 +22,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Exceptions.h"
+#include "IO/FileSystemError.h"
 #include "IO/LoadTextureCollection.h"
 #include "Logger.h"
 
@@ -53,7 +54,14 @@ TextureManager::~TextureManager() = default;
 void TextureManager::reload(
   const IO::FileSystem& fs, const Model::TextureConfig& textureConfig)
 {
-  setTextureCollections(findTextureCollections(fs, textureConfig), fs, textureConfig);
+  findTextureCollections(fs, textureConfig)
+    .transform([&](auto textureCollections) {
+      setTextureCollections(std::move(textureCollections), fs, textureConfig);
+    })
+    .transform_error([&](auto e) {
+      m_logger.error() << "Could not reload texture collections: " + e.msg;
+      setTextureCollections({}, fs, textureConfig);
+    });
 }
 
 void TextureManager::setTextureCollections(std::vector<TextureCollection> collections)
