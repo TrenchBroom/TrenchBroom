@@ -43,7 +43,7 @@ namespace Assets
 {
 TEST_CASE("BSP model intersection test")
 {
-  auto logger = TestLogger();
+  auto logger = TestLogger{};
   auto [game, gameConfig] = Model::loadGame("Quake");
 
   const auto path = std::filesystem::path{"cube.bsp"};
@@ -110,7 +110,7 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   // default to a skin index of 0 if the provided index is not
   // present for the surface.
 
-  auto model = EntityModel("test", PitchType::Normal, Orientation::Oriented);
+  auto model = EntityModel{"test", PitchType::Normal, Orientation::Oriented};
   model.addFrame();
   auto& frame = model.loadFrame(0, "test", vm::bbox3f{0, 8});
 
@@ -141,9 +141,9 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   const auto renderer1 = model.buildRenderer(1, 0);
   const auto renderer2 = model.buildRenderer(2, 0);
 
-  REQUIRE(renderer0 != nullptr);
-  REQUIRE(renderer1 != nullptr);
-  REQUIRE(renderer2 != nullptr);
+  CHECK(renderer0 != nullptr);
+  CHECK(renderer1 != nullptr);
+  CHECK(renderer2 != nullptr);
 }
 } // namespace Assets
 } // namespace TrenchBroom
