@@ -55,8 +55,8 @@ TEST_CASE("FileSystem")
 
   SECTION("makeAbsolute")
   {
-    CHECK(fs.makeAbsolute("/") == Result<std::filesystem::path>{Error{}});
-    CHECK(fs.makeAbsolute("/foo") == Result<std::filesystem::path>{Error{}});
+    CHECK(fs.makeAbsolute("/") == Result<std::filesystem::path>{"/"});
+    CHECK(fs.makeAbsolute("/foo") == Result<std::filesystem::path>{"/foo"});
   }
 
   SECTION("pathInfo")

@@ -91,11 +91,7 @@ PathInfo TestFileSystem::pathInfo(const std::filesystem::path& path) const
 Result<std::filesystem::path> TestFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
-  if (findEntry(path))
-  {
-    return m_absolutePathPrefix / path;
-  }
-  return Error{};
+  return m_absolutePathPrefix / path;
 }
 
 namespace
