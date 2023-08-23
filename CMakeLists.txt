@@ -43,24 +43,8 @@ if(TB_ENABLE_CCACHE)
   if(CCACHE_PATH)
     message(STATUS "Found ccache: ${CCACHE_PATH}")
 
-    # Set up wrapper scripts, see https://crascit.com/2016/04/09/using-ccache-with-cmake/
-    set(C_LAUNCHER "${CCACHE_PATH}")
-    set(CXX_LAUNCHER "${CCACHE_PATH}")
-    configure_file(cmake/launch-c.in launch-c)
-    configure_file(cmake/launch-cxx.in launch-cxx)
-
-    if(CMAKE_GENERATOR STREQUAL "Xcode")
-      # Set Xcode project attributes to route compilation and linking
-      # through our scripts
-      set(CMAKE_XCODE_ATTRIBUTE_CC "${CMAKE_BINARY_DIR}/launch-c")
-      set(CMAKE_XCODE_ATTRIBUTE_CXX "${CMAKE_BINARY_DIR}/launch-cxx")
-      set(CMAKE_XCODE_ATTRIBUTE_LD "${CMAKE_BINARY_DIR}/launch-c")
-      set(CMAKE_XCODE_ATTRIBUTE_LDPLUSPLUS "${CMAKE_BINARY_DIR}/launch-cxx")
-    else()
-      # Support Unix Makefiles and Ninja
-      set(CMAKE_C_COMPILER_LAUNCHER "${CMAKE_BINARY_DIR}/launch-c")
-      set(CMAKE_CXX_COMPILER_LAUNCHER "${CMAKE_BINARY_DIR}/launch-cxx")
-    endif()
+    set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PATH}")
+    set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PATH}")
   endif(CCACHE_PATH)
 endif(TB_ENABLE_CCACHE)
 
