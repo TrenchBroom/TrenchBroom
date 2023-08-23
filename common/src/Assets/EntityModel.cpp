@@ -500,12 +500,12 @@ std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(
   const auto actualSkinIndex = skinIndex + frame->skinOffset();
   for (const auto& surface : m_surfaces)
   {
-    if (actualSkinIndex < surface->skinCount())
+    // If an out of range skin is requested, use the first skin as a fallback
+    const auto correctedSkinIndex =
+      actualSkinIndex < surface->skinCount() ? actualSkinIndex : 0;
+    if (auto renderer = surface->buildRenderer(correctedSkinIndex, frameIndex))
     {
-      if (auto renderer = surface->buildRenderer(actualSkinIndex, frameIndex))
-      {
-        renderers.push_back(std::move(renderer));
-      }
+      renderers.push_back(std::move(renderer));
     }
   }
   if (renderers.empty())
