@@ -179,7 +179,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   const auto& actionManager = ActionManager::instance();
   actionManager.visitMainMenu(menuBuilder);
 
-  addRecentDocumentMenu(menuBuilder.recentDocumentsMenu);
+  addRecentDocumentMenu(*menuBuilder.recentDocumentsMenu);
 
   auto context = ActionExecutionContext{nullptr, nullptr};
   for (auto [tbAction, qtAction] : actionMap)
@@ -325,12 +325,12 @@ const std::vector<std::filesystem::path>& TrenchBroomApp::recentDocuments() cons
   return m_recentDocuments->recentDocuments();
 }
 
-void TrenchBroomApp::addRecentDocumentMenu(QMenu* menu)
+void TrenchBroomApp::addRecentDocumentMenu(QMenu& menu)
 {
   m_recentDocuments->addMenu(menu);
 }
 
-void TrenchBroomApp::removeRecentDocumentMenu(QMenu* menu)
+void TrenchBroomApp::removeRecentDocumentMenu(QMenu& menu)
 {
   m_recentDocuments->removeMenu(menu);
 }

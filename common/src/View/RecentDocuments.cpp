@@ -29,13 +29,11 @@
 
 #include <kdl/vector_utils.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 RecentDocuments::RecentDocuments(const size_t maxSize, QObject* parent)
-  : QObject(parent)
-  , m_maxSize(maxSize)
+  : QObject{parent}
+  , m_maxSize{maxSize}
 {
   assert(m_maxSize > 0);
   loadFromConfig();
@@ -46,19 +44,17 @@ const std::vector<std::filesystem::path>& RecentDocuments::recentDocuments() con
   return m_recentDocuments;
 }
 
-void RecentDocuments::addMenu(QMenu* menu)
+void RecentDocuments::addMenu(QMenu& menu)
 {
-  ensure(menu != nullptr, "menu is null");
   clearMenu(menu);
   createMenuItems(menu);
-  m_menus.push_back(menu);
+  m_menus.push_back(&menu);
 }
 
-void RecentDocuments::removeMenu(QMenu* menu)
+void RecentDocuments::removeMenu(QMenu& menu)
 {
-  ensure(menu != nullptr, "menu is null");
   clearMenu(menu);
-  m_menus = kdl::vec_erase(std::move(m_menus), menu);
+  m_menus = kdl::vec_erase(std::move(m_menus), &menu);
 }
 
 void RecentDocuments::updatePath(const std::filesystem::path& path)
@@ -71,9 +67,9 @@ void RecentDocuments::updatePath(const std::filesystem::path& path)
 
 void RecentDocuments::removePath(const std::filesystem::path& path)
 {
-  const size_t oldSize = m_recentDocuments.size();
+  const auto oldSize = m_recentDocuments.size();
 
-  const std::filesystem::path canonPath = path.lexically_normal();
+  const auto canonPath = path.lexically_normal();
   m_recentDocuments = kdl::vec_erase(std::move(m_recentDocuments), canonPath);
 
   if (oldSize > m_recentDocuments.size())
@@ -87,12 +83,11 @@ void RecentDocuments::removePath(const std::filesystem::path& path)
 void RecentDocuments::loadFromConfig()
 {
   m_recentDocuments.clear();
-  const QSettings settings;
+  const auto settings = QSettings{};
   for (size_t i = 0; i < m_maxSize; ++i)
   {
-    const auto key =
-      QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));
-    const QVariant value = settings.value(key);
+    const auto key = QString::fromStdString("RecentDocuments/" + std::to_string(i));
+    const auto value = settings.value(key);
     if (value.isValid())
     {
       m_recentDocuments.push_back(IO::pathFromQString(value.toString()));
@@ -106,13 +101,12 @@ void RecentDocuments::loadFromConfig()
 
 void RecentDocuments::saveToConfig()
 {
-  QSettings settings;
+  auto settings = QSettings{};
   settings.remove("RecentDocuments");
   for (size_t i = 0; i < m_recentDocuments.size(); ++i)
   {
-    const QString key =
-      QString::fromStdString(std::string("RecentDocuments/") + std::to_string(i));
-    const QVariant value = QVariant(IO::pathAsQString(m_recentDocuments[i]));
+    const auto key = QString::fromStdString("RecentDocuments/" + std::to_string(i));
+    const auto value = QVariant{IO::pathAsQString(m_recentDocuments[i])};
     settings.setValue(key, value);
   }
 }
@@ -137,23 +131,22 @@ void RecentDocuments::updateMenus()
 {
   for (auto* menu : m_menus)
   {
-    clearMenu(menu);
-    createMenuItems(menu);
+    clearMenu(*menu);
+    createMenuItems(*menu);
   }
 }
 
-void RecentDocuments::clearMenu(QMenu* menu)
+void RecentDocuments::clearMenu(QMenu& menu)
 {
-  menu->clear();
+  menu.clear();
 }
 
-void RecentDocuments::createMenuItems(QMenu* menu)
+void RecentDocuments::createMenuItems(QMenu& menu)
 {
   for (const auto& path : m_recentDocuments)
   {
-    menu->addAction(
+    menu.addAction(
       IO::pathAsQString(path.filename()), [this, path]() { loadDocument(path); });
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

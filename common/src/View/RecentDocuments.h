@@ -28,9 +28,7 @@
 
 class QMenu;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class RecentDocuments : public QObject
 {
@@ -47,8 +45,8 @@ public:
 
   const std::vector<std::filesystem::path>& recentDocuments() const;
 
-  void addMenu(QMenu* menu);
-  void removeMenu(QMenu* menu);
+  void addMenu(QMenu& menu);
+  void removeMenu(QMenu& menu);
 
   void updatePath(const std::filesystem::path& path);
   void removePath(const std::filesystem::path& path);
@@ -60,11 +58,10 @@ private:
   void insertPath(const std::filesystem::path& path);
 
   void updateMenus();
-  void clearMenu(QMenu* menu);
-  void createMenuItems(QMenu* menu);
+  void clearMenu(QMenu& menu);
+  void createMenuItems(QMenu& menu);
 signals:
   void loadDocument(const std::filesystem::path& path) const;
   void didChange();
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

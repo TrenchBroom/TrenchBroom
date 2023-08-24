@@ -68,8 +68,8 @@ private:
 
 public:
   const std::vector<std::filesystem::path>& recentDocuments() const;
-  void addRecentDocumentMenu(QMenu* menu);
-  void removeRecentDocumentMenu(QMenu* menu);
+  void addRecentDocumentMenu(QMenu& menu);
+  void removeRecentDocumentMenu(QMenu& menu);
   void updateRecentDocument(const std::filesystem::path& path);
 
   bool openDocument(const std::filesystem::path& path);

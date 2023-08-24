@@ -339,14 +339,14 @@ void MapFrame::updateUndoRedoActions()
 
 void MapFrame::addRecentDocumentsMenu()
 {
-  TrenchBroomApp& app = TrenchBroomApp::instance();
-  app.addRecentDocumentMenu(m_recentDocumentsMenu);
+  auto& app = TrenchBroomApp::instance();
+  app.addRecentDocumentMenu(*m_recentDocumentsMenu);
 }
 
 void MapFrame::removeRecentDocumentsMenu()
 {
   auto& app = TrenchBroomApp::instance();
-  app.removeRecentDocumentMenu(m_recentDocumentsMenu);
+  app.removeRecentDocumentMenu(*m_recentDocumentsMenu);
 }
 
 void MapFrame::updateRecentDocumentsMenu()
