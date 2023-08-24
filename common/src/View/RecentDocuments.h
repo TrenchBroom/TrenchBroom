@@ -30,6 +30,9 @@ class QMenu;
 
 namespace TrenchBroom::View
 {
+std::vector<std::filesystem::path> loadRecentDocuments(size_t max);
+void saveRecentDocuments(const std::vector<std::filesystem::path>& paths);
+
 class RecentDocuments : public QObject
 {
   Q_OBJECT

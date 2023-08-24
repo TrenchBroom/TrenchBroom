@@ -31,6 +31,42 @@
 
 namespace TrenchBroom::View
 {
+std::vector<std::filesystem::path> loadRecentDocuments(const size_t max)
+{
+  auto result = std::vector<std::filesystem::path>{};
+  result.reserve(max);
+
+  const auto settings = QSettings{};
+  for (size_t i = 0; i < max; ++i)
+  {
+    const auto key = QString::fromStdString("RecentDocuments/" + std::to_string(i));
+    const auto value = settings.value(key);
+    if (value.isValid())
+    {
+      result.push_back(IO::pathFromQString(value.toString()));
+    }
+    else
+    {
+      break;
+    }
+  }
+
+  return result;
+}
+
+void saveRecentDocuments(const std::vector<std::filesystem::path>& paths)
+{
+  auto settings = QSettings{};
+  settings.remove("RecentDocuments");
+
+  for (size_t i = 0; i < paths.size(); ++i)
+  {
+    const auto key = QString::fromStdString("RecentDocuments/" + std::to_string(i));
+    const auto value = QVariant{IO::pathAsQString(paths[i])};
+    settings.setValue(key, value);
+  }
+}
+
 RecentDocuments::RecentDocuments(const size_t maxSize, QObject* parent)
   : QObject{parent}
   , m_maxSize{maxSize}
@@ -82,33 +118,12 @@ void RecentDocuments::removePath(const std::filesystem::path& path)
 
 void RecentDocuments::loadFromConfig()
 {
-  m_recentDocuments.clear();
-  const auto settings = QSettings{};
-  for (size_t i = 0; i < m_maxSize; ++i)
-  {
-    const auto key = QString::fromStdString("RecentDocuments/" + std::to_string(i));
-    const auto value = settings.value(key);
-    if (value.isValid())
-    {
-      m_recentDocuments.push_back(IO::pathFromQString(value.toString()));
-    }
-    else
-    {
-      break;
-    }
-  }
+  m_recentDocuments = loadRecentDocuments(m_maxSize);
 }
 
 void RecentDocuments::saveToConfig()
 {
-  auto settings = QSettings{};
-  settings.remove("RecentDocuments");
-  for (size_t i = 0; i < m_recentDocuments.size(); ++i)
-  {
-    const auto key = QString::fromStdString("RecentDocuments/" + std::to_string(i));
-    const auto value = QVariant{IO::pathAsQString(m_recentDocuments[i])};
-    settings.setValue(key, value);
-  }
+  saveRecentDocuments(m_recentDocuments);
 }
 
 void RecentDocuments::insertPath(const std::filesystem::path& path)
@@ -149,4 +164,5 @@ void RecentDocuments::createMenuItems(QMenu& menu)
       IO::pathAsQString(path.filename()), [this, path]() { loadDocument(path); });
   }
 }
+
 } // namespace TrenchBroom::View
