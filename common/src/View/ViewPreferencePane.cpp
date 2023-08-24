@@ -39,9 +39,9 @@
 #include <array>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
 struct TextureMode
 {
@@ -49,24 +49,39 @@ struct TextureMode
   int magFilter;
   std::string name;
 
-  TextureMode(const int i_minFilter, const int i_magFilter, const std::string& i_name)
-    : minFilter(i_minFilter)
-    , magFilter(i_magFilter)
-    , name(i_name)
+  TextureMode(const int i_minFilter, const int i_magFilter, std::string i_name)
+    : minFilter{i_minFilter}
+    , magFilter{i_magFilter}
+    , name{std::move(i_name)}
   {
   }
 };
 
-static const std::array<TextureMode, 6> TextureModes = {
-  TextureMode(GL_NEAREST, GL_NEAREST, "Nearest"),
-  TextureMode(GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST, "Nearest (mipmapped)"),
-  TextureMode(GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, "Nearest (mipmapped, interpolated)"),
-  TextureMode(GL_LINEAR, GL_LINEAR, "Linear"),
-  TextureMode(GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, "Linear (mipmapped)"),
-  TextureMode(GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, "Linear (mipmapped, interpolated)")};
+const auto TextureModes = std::array<TextureMode, 6>{
+  TextureMode{GL_NEAREST, GL_NEAREST, "Nearest"},
+  TextureMode{GL_NEAREST_MIPMAP_NEAREST, GL_NEAREST, "Nearest (mipmapped)"},
+  TextureMode{GL_NEAREST_MIPMAP_LINEAR, GL_NEAREST, "Nearest (mipmapped, interpolated)"},
+  TextureMode{GL_LINEAR, GL_LINEAR, "Linear"},
+  TextureMode{GL_LINEAR_MIPMAP_NEAREST, GL_LINEAR, "Linear (mipmapped)"},
+  TextureMode{GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR, "Linear (mipmapped, interpolated)"},
+};
+
+constexpr int brightnessToUI(const float value)
+{
+  return int(vm::round(100.0f * (value - 1.0f)));
+}
+
+constexpr float brightnessFromUI(const int value)
+{
+  return (float(value) / 100.0f) + 1.0f;
+}
+
+static_assert(0 == brightnessToUI(brightnessFromUI(0)));
+
+} // namespace
 
 ViewPreferencePane::ViewPreferencePane(QWidget* parent)
-  : PreferencePane(parent)
+  : PreferencePane{parent}
 {
   createGui();
   bindEvents();
@@ -76,8 +91,8 @@ void ViewPreferencePane::createGui()
 {
   auto* viewPreferences = createViewPreferences();
 
-  auto* layout = new QVBoxLayout();
-  layout->setContentsMargins(QMargins());
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(QMargins{});
   layout->setSpacing(0);
 
   layout->addSpacing(LayoutConstants::NarrowVMargin);
@@ -86,70 +101,67 @@ void ViewPreferencePane::createGui()
   setLayout(layout);
 }
 
-static constexpr int brightnessToUI(const float value)
-{
-  return static_cast<int>(vm::round(100.0f * (value - 1.0f)));
-}
-
-static constexpr float brightnessFromUI(const int value)
-{
-  return (static_cast<float>(value) / 100.0f) + 1.0f;
-}
-
-static_assert(0 == brightnessToUI(brightnessFromUI(0)));
-
 QWidget* ViewPreferencePane::createViewPreferences()
 {
-  auto* viewBox = new QWidget(this);
+  auto* viewBox = new QWidget{this};
 
-  auto* viewPrefsHeader = new QLabel("Map Views");
+  auto* viewPrefsHeader = new QLabel{"Map Views"};
   makeEmphasized(viewPrefsHeader);
 
-  m_themeCombo = new QComboBox();
+  m_themeCombo = new QComboBox{};
   m_themeCombo->addItems({Preferences::systemTheme(), Preferences::darkTheme()});
-  auto* themeInfo = new QLabel();
+  auto* themeInfo = new QLabel{};
   themeInfo->setText(tr("Requires restart after changing"));
   makeInfo(themeInfo);
-  auto* themeLayout = new QHBoxLayout();
+  auto* themeLayout = new QHBoxLayout{};
   themeLayout->addWidget(m_themeCombo);
   themeLayout->addSpacing(LayoutConstants::NarrowHMargin);
   themeLayout->addWidget(themeInfo);
   themeLayout->setContentsMargins(0, 0, 0, 0);
 
-  m_layoutCombo = new QComboBox();
+  m_layoutCombo = new QComboBox{};
   m_layoutCombo->setToolTip("Sets the layout of the editing views.");
   m_layoutCombo->addItem("One Pane");
   m_layoutCombo->addItem("Two Panes");
   m_layoutCombo->addItem("Three Panes");
   m_layoutCombo->addItem("Four Panes");
 
-  m_brightnessSlider = new SliderWithLabel(brightnessToUI(0.0f), brightnessToUI(2.0f));
+  m_link2dCameras = new QCheckBox{"Sync 2D views"};
+  m_link2dCameras->setToolTip("All 2D views pan and zoom together.");
+
+  auto* viewLayoutLayout = new QHBoxLayout{};
+  viewLayoutLayout->addWidget(m_layoutCombo);
+  viewLayoutLayout->addSpacing(LayoutConstants::NarrowHMargin);
+  viewLayoutLayout->addWidget(m_link2dCameras);
+  viewLayoutLayout->setContentsMargins(0, 0, 0, 0);
+
+  m_brightnessSlider = new SliderWithLabel{brightnessToUI(0.0f), brightnessToUI(2.0f)};
   m_brightnessSlider->setMaximumWidth(400);
   m_brightnessSlider->setToolTip(
     "Sets the brightness for textures and model skins in the 3D editing view.");
-  m_gridAlphaSlider = new SliderWithLabel(0, 100);
+  m_gridAlphaSlider = new SliderWithLabel{0, 100};
   m_gridAlphaSlider->setMaximumWidth(400);
   m_gridAlphaSlider->setToolTip(
     "Sets the visibility of the grid lines in the 3D editing view.");
-  m_fovSlider = new SliderWithLabel(50, 150);
+  m_fovSlider = new SliderWithLabel{50, 150};
   m_fovSlider->setMaximumWidth(400);
   m_fovSlider->setToolTip("Sets the field of vision in the 3D editing view.");
 
-  m_showAxes = new QCheckBox();
+  m_showAxes = new QCheckBox{};
   m_showAxes->setToolTip(
     "Toggle showing the coordinate system axes in the 3D editing view.");
 
-  m_textureModeCombo = new QComboBox();
+  m_textureModeCombo = new QComboBox{};
   m_textureModeCombo->setToolTip("Sets the texture filtering mode in the editing views.");
   for (const auto& textureMode : TextureModes)
   {
     m_textureModeCombo->addItem(QString::fromStdString(textureMode.name));
   }
 
-  m_enableMsaa = new QCheckBox();
+  m_enableMsaa = new QCheckBox{};
   m_enableMsaa->setToolTip("Enable multisampling");
 
-  m_textureBrowserIconSizeCombo = new QComboBox();
+  m_textureBrowserIconSizeCombo = new QComboBox{};
   m_textureBrowserIconSizeCombo->addItem("25%");
   m_textureBrowserIconSizeCombo->addItem("50%");
   m_textureBrowserIconSizeCombo->addItem("100%");
@@ -159,16 +171,16 @@ QWidget* ViewPreferencePane::createViewPreferences()
   m_textureBrowserIconSizeCombo->addItem("300%");
   m_textureBrowserIconSizeCombo->setToolTip("Sets the icon size in the texture browser.");
 
-  m_rendererFontSizeCombo = new QComboBox();
+  m_rendererFontSizeCombo = new QComboBox{};
   m_rendererFontSizeCombo->setEditable(true);
   m_rendererFontSizeCombo->setToolTip(
     "Sets the font size for various labels in the editing views.");
   m_rendererFontSizeCombo->addItems({"8",  "9",  "10", "11", "12", "13", "14", "15",
                                      "16", "17", "18", "19", "20", "22", "24", "26",
                                      "28", "32", "36", "40", "48", "56", "64", "72"});
-  m_rendererFontSizeCombo->setValidator(new QIntValidator(1, 96));
+  m_rendererFontSizeCombo->setValidator(new QIntValidator{1, 96});
 
-  auto* layout = new FormWithSectionsLayout();
+  auto* layout = new FormWithSectionsLayout{};
   layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
   layout->setVerticalSpacing(2);
   // override the default to make the sliders take up maximum width
@@ -178,7 +190,7 @@ QWidget* ViewPreferencePane::createViewPreferences()
   layout->addRow("Theme", themeLayout);
 
   layout->addSection("Map Views");
-  layout->addRow("Layout", m_layoutCombo);
+  layout->addRow("Layout", viewLayoutLayout);
   layout->addRow("Brightness", m_brightnessSlider);
   layout->addRow("Grid", m_gridAlphaSlider);
   layout->addRow("FOV", m_fovSlider);
@@ -205,6 +217,11 @@ void ViewPreferencePane::bindEvents()
     QOverload<int>::of(&QComboBox::currentIndexChanged),
     this,
     &ViewPreferencePane::layoutChanged);
+  connect(
+    m_link2dCameras,
+    &QCheckBox::stateChanged,
+    this,
+    &ViewPreferencePane::link2dCamerasChanged);
   connect(
     m_brightnessSlider,
     &SliderWithLabel::valueChanged,
@@ -252,6 +269,7 @@ void ViewPreferencePane::doResetToDefaults()
 {
   auto& prefs = PreferenceManager::instance();
   prefs.resetToDefault(Preferences::MapViewLayout);
+  prefs.resetToDefault(Preferences::Link2DCameras);
   prefs.resetToDefault(Preferences::Brightness);
   prefs.resetToDefault(Preferences::GridAlpha);
   prefs.resetToDefault(Preferences::CameraFov);
@@ -267,6 +285,7 @@ void ViewPreferencePane::doResetToDefaults()
 void ViewPreferencePane::doUpdateControls()
 {
   m_layoutCombo->setCurrentIndex(pref(Preferences::MapViewLayout));
+  m_link2dCameras->setChecked(pref(Preferences::Link2DCameras));
   m_brightnessSlider->setValue(brightnessToUI(pref(Preferences::Brightness)));
   m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
   m_fovSlider->setValue(int(pref(Preferences::CameraFov)));
@@ -348,6 +367,13 @@ void ViewPreferencePane::layoutChanged(const int index)
 
   auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::MapViewLayout, index);
+}
+
+void ViewPreferencePane::link2dCamerasChanged(const int state)
+{
+  const auto value = state == Qt::Checked;
+  auto& prefs = PreferenceManager::instance();
+  prefs.set(Preferences::Link2DCameras, value);
 }
 
 void ViewPreferencePane::brightnessChanged(const int value)
@@ -441,5 +467,4 @@ void ViewPreferencePane::rendererFontSizeChanged(const QString& str)
     prefs.set(Preferences::RendererFontSize, value);
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

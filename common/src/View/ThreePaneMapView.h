@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include "View/CameraLinkHelper.h"
-#include "View/MultiMapView.h"
+#include "View/MultiPaneMapView.h"
 
 #include <memory>
 
@@ -29,14 +28,15 @@ class QSplitter;
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class MapRenderer;
 class VboManager;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class CyclingMapView;
 class GLContextManager;
@@ -46,19 +46,18 @@ class MapView2D;
 class MapView3D;
 class MapViewToolBox;
 
-class ThreePaneMapView : public MultiMapView
+class ThreePaneMapView : public MultiPaneMapView
 {
   Q_OBJECT
 private:
   Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
 
-  CameraLinkHelper m_linkHelper;
-  QSplitter* m_hSplitter;
-  QSplitter* m_vSplitter;
-  MapView3D* m_mapView3D;
-  MapView2D* m_mapViewXY;
-  CyclingMapView* m_mapViewZZ;
+  QSplitter* m_hSplitter = nullptr;
+  QSplitter* m_vSplitter = nullptr;
+  MapView3D* m_mapView3D = nullptr;
+  MapView2D* m_mapViewXY = nullptr;
+  CyclingMapView* m_mapViewZZ = nullptr;
 
 public:
   ThreePaneMapView(
@@ -76,9 +75,8 @@ private:
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager);
 
-private: // implement MultiMapView subclassing interface
+private: // implement MultiPaneMapView subclassing interface
   void doMaximizeView(MapView* view) override;
   void doRestoreViews() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

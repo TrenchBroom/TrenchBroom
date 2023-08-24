@@ -24,9 +24,7 @@
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
 
@@ -35,15 +33,18 @@ CameraAnimation::CameraAnimation(
   const vm::vec3f& targetPosition,
   const vm::vec3f& targetDirection,
   const vm::vec3f& targetUp,
+  const float targetZoom,
   const double duration)
-  : Animation(AnimationType, Curve::EaseInEaseOut, duration)
-  , m_camera(camera)
-  , m_startPosition(m_camera.position())
-  , m_startDirection(m_camera.direction())
-  , m_startUp(m_camera.up())
-  , m_targetPosition(targetPosition)
-  , m_targetDirection(targetDirection)
-  , m_targetUp(targetUp)
+  : Animation{AnimationType, Curve::EaseInEaseOut, duration}
+  , m_camera{camera}
+  , m_startPosition{m_camera.position()}
+  , m_startDirection{m_camera.direction()}
+  , m_startUp{m_camera.up()}
+  , m_startZoom{m_camera.zoom()}
+  , m_targetPosition{targetPosition}
+  , m_targetDirection{targetDirection}
+  , m_targetUp{targetUp}
+  , m_targetZoom{targetZoom}
 {
 }
 
@@ -55,9 +56,10 @@ void CameraAnimation::doUpdate(const double progress)
   const auto direction =
     m_startDirection + (m_targetDirection - m_startDirection) * fltProgress;
   const auto up = m_startUp + (m_targetUp - m_startUp) * fltProgress;
+  const auto zoom = m_startZoom + (m_targetZoom - m_startZoom) * fltProgress;
 
   m_camera.moveTo(position);
   m_camera.setDirection(direction, up);
+  m_camera.setZoom(zoom);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

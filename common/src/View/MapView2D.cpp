@@ -229,24 +229,46 @@ void MapView2D::doSelectTall()
   document->selectTall(cameraAxis);
 }
 
-void MapView2D::doFocusCameraOnSelection(const bool animate)
+void MapView2D::doReset2dCameras(const Renderer::Camera& masterCamera, const bool animate)
 {
-  const auto document = kdl::mem_lock(m_document);
-  const auto& bounds = document->referenceBounds();
-  const auto diff = bounds.center() - vm::vec3(m_camera->position());
-  const auto delta = diff * vm::vec3(m_camera->up() + m_camera->right());
-  moveCameraToPosition(vm::vec3(m_camera->position()) + delta, animate);
-}
+  const auto oldPosition = m_camera->position();
+  const auto factors =
+    vm::vec3f::one() - vm::abs(masterCamera.direction()) - vm::abs(m_camera->direction());
+  const auto newPosition =
+    (vm::vec3f::one() - factors) * oldPosition + factors * masterCamera.position();
+  m_camera->moveTo(newPosition);
 
-void MapView2D::doMoveCameraToPosition(const vm::vec3& position, const bool animate)
-{
   if (animate)
   {
-    animateCamera(vm::vec3f(position), m_camera->direction(), m_camera->up());
+    animateCamera(
+      newPosition, m_camera->direction(), m_camera->up(), masterCamera.zoom());
   }
   else
   {
-    m_camera->moveTo(vm::vec3f(position));
+    m_camera->moveTo(newPosition);
+    m_camera->setZoom(masterCamera.zoom());
+  }
+}
+
+void MapView2D::doFocusCameraOnSelection(const bool animate)
+{
+  const auto document = kdl::mem_lock(m_document);
+  const auto bounds = vm::bbox3f{document->referenceBounds()};
+  const auto diff = bounds.center() - m_camera->position();
+  const auto delta = vm::dot(diff, m_camera->up()) * m_camera->up()
+                     + vm::dot(diff, m_camera->right()) * m_camera->right();
+  moveCameraToPosition(m_camera->position() + delta, animate);
+}
+
+void MapView2D::doMoveCameraToPosition(const vm::vec3f& position, const bool animate)
+{
+  if (animate)
+  {
+    animateCamera(position, m_camera->direction(), m_camera->up(), m_camera->zoom());
+  }
+  else
+  {
+    m_camera->moveTo(position);
   }
 }
 
@@ -254,6 +276,7 @@ void MapView2D::animateCamera(
   const vm::vec3f& position,
   const vm::vec3f& /* direction */,
   const vm::vec3f& /* up */,
+  const float zoom,
   const int duration)
 {
   const auto actualPosition =
@@ -261,7 +284,7 @@ void MapView2D::animateCamera(
     + dot(position, m_camera->right()) * m_camera->right()
     + dot(m_camera->position(), m_camera->direction()) * m_camera->direction();
   auto animation = std::make_unique<CameraAnimation>(
-    *m_camera, actualPosition, m_camera->direction(), m_camera->up(), duration);
+    *m_camera, actualPosition, m_camera->direction(), m_camera->up(), zoom, duration);
   m_animationManager->runAnimation(std::move(animation), true);
 }
 
@@ -272,7 +295,7 @@ void MapView2D::doMoveCameraToCurrentTracePoint()
 
   if (const auto* pointFile = document->pointFile())
   {
-    moveCameraToPosition(vm::vec3{pointFile->currentPoint()}, true);
+    moveCameraToPosition(pointFile->currentPoint(), true);
   }
 }
 
@@ -428,7 +451,7 @@ void MapView2D::doRenderSoftWorldBounds(
   }
 }
 
-void MapView2D::doLinkCamera(CameraLinkHelper& helper)
+void MapView2D::linkCamera(CameraLinkHelper& helper)
 {
   helper.addCamera(m_camera.get());
 }

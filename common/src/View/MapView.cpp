@@ -24,15 +24,8 @@
 
 #include <vecmath/vec.h>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-MapView::MapView()
-  : m_container(nullptr)
-{
-}
-
 MapView::~MapView() = default;
 
 void MapView::setContainer(MapViewContainer* container)
@@ -71,12 +64,17 @@ vm::vec3 MapView::pasteObjectsDelta(
   return doGetPasteObjectsDelta(bounds, referenceBounds);
 }
 
+void MapView::reset2dCameras(const Renderer::Camera& masterCamera, const bool animate)
+{
+  doReset2dCameras(masterCamera, animate);
+}
+
 void MapView::focusCameraOnSelection(const bool animate)
 {
   doFocusCameraOnSelection(animate);
 }
 
-void MapView::moveCameraToPosition(const vm::vec3& position, const bool animate)
+void MapView::moveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
   doMoveCameraToPosition(position, animate);
 }
@@ -103,5 +101,4 @@ void MapView::refreshViews()
 {
   doRefreshViews();
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

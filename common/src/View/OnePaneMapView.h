@@ -19,43 +19,42 @@
 
 #pragma once
 
-#include "View/CameraLinkHelper.h"
-#include "View/MultiMapView.h"
+#include "View/MultiPaneMapView.h"
 
 #include <memory>
 
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class MapRenderer;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class CyclingMapView;
 class GLContextManager;
 class MapDocument;
 class MapViewToolBox;
 
-class OnePaneMapView : public MultiMapView
+class OnePaneMapView : public MultiPaneMapView
 {
 private:
   Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
 
-  CameraLinkHelper m_linkHelper;
-  CyclingMapView* m_mapView;
+  CyclingMapView* m_mapView = nullptr;
 
 public:
   explicit OnePaneMapView(
-    Logger* logger,
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
+    Logger* logger,
     QWidget* parent = nullptr);
 
 private:
@@ -63,6 +62,9 @@ private:
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager);
+
+private: // implement MultiPaneMapView subclassing interface
+  void doMaximizeView(MapView* view) override;
+  void doRestoreViews() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

@@ -22,17 +22,14 @@
 #include "Ensure.h"
 #include "View/MapViewBase.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 MapViewContainer::MapViewContainer(QWidget* parent)
-  : QWidget(parent)
-  , MapView()
+  : QWidget{parent}
 {
 }
 
-MapViewContainer::~MapViewContainer() {}
+MapViewContainer::~MapViewContainer() = default;
 
 bool MapViewContainer::canMaximizeCurrentView() const
 {
@@ -57,9 +54,8 @@ MapView* MapViewContainer::currentMapView() const
 vm::vec3 MapViewContainer::doGetPasteObjectsDelta(
   const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const
 {
-  MapView* current = currentMapView();
+  auto* current = currentMapView();
   ensure(current != nullptr, "current is nullptr");
   return current->pasteObjectsDelta(bounds, referenceBounds);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

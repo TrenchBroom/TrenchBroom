@@ -281,6 +281,11 @@ bool MapView3D::doCanSelectTall()
 
 void MapView3D::doSelectTall() {}
 
+void MapView3D::doReset2dCameras(const Renderer::Camera&, const bool)
+{
+  // nothing to do
+}
+
 void MapView3D::doFocusCameraOnSelection(const bool animate)
 {
   auto document = kdl::mem_lock(m_document);
@@ -292,13 +297,13 @@ void MapView3D::doFocusCameraOnSelection(const bool animate)
   }
 }
 
-static vm::vec3 computeCameraTargetPosition(const std::vector<Model::Node*>& nodes)
+static vm::vec3f computeCameraTargetPosition(const std::vector<Model::Node*>& nodes)
 {
-  auto center = vm::vec3();
+  auto center = vm::vec3f();
   size_t count = 0u;
 
-  const auto handlePoint = [&](const vm::vec3& point) {
-    center = center + point;
+  const auto handlePoint = [&](const auto& point) {
+    center = center + vm::vec3f{point};
     ++count;
   };
 
@@ -334,10 +339,10 @@ static vm::vec3 computeCameraTargetPosition(const std::vector<Model::Node*>& nod
         }
       }));
 
-  return center / static_cast<FloatType>(count);
+  return center / static_cast<float>(count);
 }
 
-static FloatType computeCameraOffset(
+static float computeCameraOffset(
   const Renderer::Camera& camera, const std::vector<Model::Node*>& nodes)
 {
   vm::plane3f frustumPlanes[4];
@@ -398,10 +403,10 @@ static FloatType computeCameraOffset(
         }
       }));
 
-  return static_cast<FloatType>(offset);
+  return offset;
 }
 
-vm::vec3 MapView3D::focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes)
+vm::vec3f MapView3D::focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes)
 {
   const auto newPosition = computeCameraTargetPosition(nodes);
 
@@ -413,18 +418,18 @@ vm::vec3 MapView3D::focusCameraOnObjectsPosition(const std::vector<Model::Node*>
 
   // jump back
   m_camera->moveTo(oldPosition);
-  return newPosition - vm::vec3(m_camera->direction()) * offset;
+  return newPosition - m_camera->direction() * offset;
 }
 
-void MapView3D::doMoveCameraToPosition(const vm::vec3& position, const bool animate)
+void MapView3D::doMoveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
   if (animate)
   {
-    animateCamera(vm::vec3f(position), m_camera->direction(), m_camera->up());
+    animateCamera(position, m_camera->direction(), m_camera->up(), m_camera->zoom());
   }
   else
   {
-    m_camera->moveTo(vm::vec3f(position));
+    m_camera->moveTo(position);
   }
 }
 
@@ -432,10 +437,11 @@ void MapView3D::animateCamera(
   const vm::vec3f& position,
   const vm::vec3f& direction,
   const vm::vec3f& up,
+  const float zoom,
   const int duration)
 {
   auto animation =
-    std::make_unique<CameraAnimation>(*m_camera, position, direction, up, duration);
+    std::make_unique<CameraAnimation>(*m_camera, position, direction, up, zoom, duration);
   m_animationManager->runAnimation(std::move(animation), true);
 }
 
@@ -448,7 +454,7 @@ void MapView3D::doMoveCameraToCurrentTracePoint()
   {
     const auto position = pointFile->currentPoint() + vm::vec3f{0.0f, 0.0f, 16.0f};
     const auto direction = pointFile->currentDirection();
-    animateCamera(position, direction, vm::vec3f::pos_z());
+    animateCamera(position, direction, vm::vec3f::pos_z(), m_camera->zoom());
   }
 }
 
@@ -594,6 +600,6 @@ bool MapView3D::doBeforePopupMenu()
   return true;
 }
 
-void MapView3D::doLinkCamera(CameraLinkHelper& /* helper */) {}
+void MapView3D::linkCamera(CameraLinkHelper& /* helper */) {}
 } // namespace View
 } // namespace TrenchBroom

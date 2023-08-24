@@ -24,9 +24,12 @@
 
 #include <vecmath/forward.h>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace View
+class Camera;
+}
+
+namespace TrenchBroom::View
 {
 class MapViewActivationTracker;
 class MapViewBase;
@@ -35,10 +38,9 @@ class MapViewContainer;
 class MapView : public ViewEffectsService
 {
 private:
-  MapViewContainer* m_container;
+  MapViewContainer* m_container = nullptr;
 
 public:
-  MapView();
   ~MapView() override;
 
   void setContainer(MapViewContainer* container);
@@ -53,8 +55,9 @@ public:
   vm::vec3 pasteObjectsDelta(
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
 
+  void reset2dCameras(const Renderer::Camera& masterCamera, bool animate);
   void focusCameraOnSelection(bool animate);
-  void moveCameraToPosition(const vm::vec3& position, bool animate);
+  void moveCameraToPosition(const vm::vec3f& position, bool animate);
 
   void moveCameraToCurrentTracePoint();
 
@@ -85,8 +88,9 @@ private:
   virtual vm::vec3 doGetPasteObjectsDelta(
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 
+  virtual void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) = 0;
   virtual void doFocusCameraOnSelection(bool animate) = 0;
-  virtual void doMoveCameraToPosition(const vm::vec3& position, bool animate) = 0;
+  virtual void doMoveCameraToPosition(const vm::vec3f& position, bool animate) = 0;
 
   virtual void doMoveCameraToCurrentTracePoint() = 0;
 
@@ -94,5 +98,4 @@ private:
 
   virtual void doRefreshViews() = 0;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

@@ -29,9 +29,7 @@
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 FourPaneMapView::FourPaneMapView(
   std::weak_ptr<MapDocument> document,
@@ -40,16 +38,9 @@ FourPaneMapView::FourPaneMapView(
   GLContextManager& contextManager,
   Logger* logger,
   QWidget* parent)
-  : MultiMapView(parent)
-  , m_logger(logger)
-  , m_document(std::move(document))
-  , m_hSplitter(nullptr)
-  , m_leftVSplitter(nullptr)
-  , m_rightVSplitter(nullptr)
-  , m_mapView3D(nullptr)
-  , m_mapViewXY(nullptr)
-  , m_mapViewXZ(nullptr)
-  , m_mapViewYZ(nullptr)
+  : MultiPaneMapView{parent}
+  , m_logger{logger}
+  , m_document{std::move(document)}
 {
   createGui(toolBox, mapRenderer, contextManager);
 }
@@ -66,22 +57,22 @@ void FourPaneMapView::createGui(
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
-  m_hSplitter = new Splitter();
+  m_hSplitter = new Splitter{};
   m_hSplitter->setObjectName("FourPaneMapView_HorizontalSplitter");
 
-  m_leftVSplitter = new Splitter(Qt::Vertical);
+  m_leftVSplitter = new Splitter{Qt::Vertical};
   m_leftVSplitter->setObjectName("FourPaneMapView_LeftVerticalSplitter");
 
-  m_rightVSplitter = new Splitter(Qt::Vertical);
+  m_rightVSplitter = new Splitter{Qt::Vertical};
   m_rightVSplitter->setObjectName("FourPaneMapView_RightVerticalSplitter");
 
-  m_mapView3D = new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger);
-  m_mapViewXY = new MapView2D(
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY, m_logger);
-  m_mapViewXZ = new MapView2D(
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ, m_logger);
-  m_mapViewYZ = new MapView2D(
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ, m_logger);
+  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager, m_logger};
+  m_mapViewXY = new MapView2D{
+    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY, m_logger};
+  m_mapViewXZ = new MapView2D{
+    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ, m_logger};
+  m_mapViewYZ = new MapView2D{
+    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ, m_logger};
 
   m_mapView3D->linkCamera(m_linkHelper);
   m_mapViewXY->linkCamera(m_linkHelper);
@@ -94,7 +85,7 @@ void FourPaneMapView::createGui(
   addMapView(m_mapViewYZ);
 
   // See comment in CyclingMapView::createGui
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   setLayout(layout);
@@ -190,5 +181,4 @@ void FourPaneMapView::doRestoreViews()
     m_rightVSplitter->widget(i)->show();
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

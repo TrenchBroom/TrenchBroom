@@ -101,16 +101,18 @@ private: // implement MapView interface
   bool doCanSelectTall() override;
   void doSelectTall() override;
 
+  void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
   void doFocusCameraOnSelection(bool animate) override;
 
-  vm::vec3 focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes);
+  vm::vec3f focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes);
 
-  void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
+  void doMoveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void animateCamera(
     const vm::vec3f& position,
     const vm::vec3f& direction,
     const vm::vec3f& up,
-    const int duration = DefaultCameraAnimationDuration);
+    float zoom,
+    int duration = DefaultCameraAnimationDuration);
 
   void doMoveCameraToCurrentTracePoint() override;
 
@@ -141,8 +143,8 @@ private: // implement MapViewBase interface
 
   bool doBeforePopupMenu() override;
 
-private: // implement CameraLinkableView interface
-  void doLinkCamera(CameraLinkHelper& linkHelper) override;
+public: // implement CameraLinkableView interface
+  void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 } // namespace View
 } // namespace TrenchBroom

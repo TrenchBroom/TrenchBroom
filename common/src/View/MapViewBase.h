@@ -142,6 +142,8 @@ public:
 public:
   void setIsCurrent(bool isCurrent);
 
+  Renderer::Camera& camera();
+
 private:
   void bindEvents();
   void connectObservers();

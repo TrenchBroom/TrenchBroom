@@ -33,16 +33,14 @@
 
 #include <vecmath/scalar.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 CyclingMapView::CyclingMapView(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
-  const View views,
+  const int views,
   Logger* logger,
   QWidget* parent)
   : MapViewContainer(parent)
@@ -59,7 +57,7 @@ void CyclingMapView::createGui(
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
-  const View views)
+  const int views)
 {
   if (views & View_3D)
   {
@@ -150,14 +148,28 @@ void CyclingMapView::doSelectTall()
   m_currentMapView->selectTall();
 }
 
-void CyclingMapView::doFocusCameraOnSelection(const bool animate)
+void CyclingMapView::doReset2dCameras(const Renderer::Camera& masterCamera, bool animate)
 {
-  m_currentMapView->focusCameraOnSelection(animate);
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->reset2dCameras(masterCamera, animate);
+  }
 }
 
-void CyclingMapView::doMoveCameraToPosition(const vm::vec3& position, const bool animate)
+void CyclingMapView::doFocusCameraOnSelection(const bool animate)
 {
-  m_currentMapView->moveCameraToPosition(position, animate);
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->focusCameraOnSelection(animate);
+  }
+}
+
+void CyclingMapView::doMoveCameraToPosition(const vm::vec3f& position, const bool animate)
+{
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->moveCameraToPosition(position, animate);
+  }
 }
 
 void CyclingMapView::doMoveCameraToCurrentTracePoint()
@@ -202,7 +214,7 @@ void CyclingMapView::doRefreshViews()
   }
 }
 
-void CyclingMapView::doLinkCamera(CameraLinkHelper& helper)
+void CyclingMapView::linkCamera(CameraLinkHelper& helper)
 {
   for (auto* mapView : m_mapViews)
   {
@@ -232,5 +244,4 @@ bool CyclingMapView::doCancelMouseDrag()
   }
   return result;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

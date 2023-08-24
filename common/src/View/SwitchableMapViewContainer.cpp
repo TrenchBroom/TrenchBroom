@@ -26,7 +26,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/MapRenderer.h"
-#include "View/CyclingMapView.h"
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
 #include "View/Inspector.h"
@@ -36,30 +35,28 @@
 #include "View/MapViewContainer.h"
 #include "View/MapViewLayout.h"
 #include "View/MapViewToolBox.h"
+#include "View/OnePaneMapView.h"
 #include "View/QtUtils.h"
 #include "View/ThreePaneMapView.h"
 #include "View/TwoPaneMapView.h"
 
 #include <kdl/memory_utils.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 SwitchableMapViewContainer::SwitchableMapViewContainer(
   Logger* logger,
   std::weak_ptr<MapDocument> document,
   GLContextManager& contextManager,
   QWidget* parent)
-  : QWidget(parent)
-  , m_logger(logger)
-  , m_document(std::move(document))
-  , m_contextManager(contextManager)
-  , m_mapViewBar(new MapViewBar(m_document))
-  , m_toolBox(std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook()))
-  , m_mapRenderer(std::make_unique<Renderer::MapRenderer>(m_document))
-  , m_mapView(nullptr)
-  , m_activationTracker(std::make_unique<MapViewActivationTracker>())
+  : QWidget{parent}
+  , m_logger{logger}
+  , m_document{std::move(document)}
+  , m_contextManager{contextManager}
+  , m_mapViewBar{new MapViewBar(m_document)}
+  , m_toolBox{std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook())}
+  , m_mapRenderer{std::make_unique<Renderer::MapRenderer>(m_document)}
+  , m_activationTracker{std::make_unique<MapViewActivationTracker>()}
 {
   setObjectName("SwitchableMapViewContainer");
   switchToMapView(static_cast<MapViewLayout>(pref(Preferences::MapViewLayout)));
@@ -102,32 +99,27 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
   switch (viewId)
   {
   case MapViewLayout::OnePane:
-    m_mapView = new CyclingMapView(
-      m_document,
-      *m_toolBox,
-      *m_mapRenderer,
-      m_contextManager,
-      CyclingMapView::View_ALL,
-      m_logger);
+    m_mapView = new OnePaneMapView{
+      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
   case MapViewLayout::TwoPanes:
-    m_mapView = new TwoPaneMapView(
-      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
+    m_mapView = new TwoPaneMapView{
+      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
   case MapViewLayout::ThreePanes:
-    m_mapView = new ThreePaneMapView(
-      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
+    m_mapView = new ThreePaneMapView{
+      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
   case MapViewLayout::FourPanes:
-    m_mapView = new FourPaneMapView(
-      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger);
+    m_mapView = new FourPaneMapView{
+      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
     switchDefault();
   }
 
   installActivationTracker(*m_activationTracker);
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
 
@@ -403,13 +395,19 @@ vm::vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(
   return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
 }
 
+void SwitchableMapViewContainer::doReset2dCameras(
+  const Renderer::Camera& masterCamera, const bool animate)
+{
+  m_mapView->reset2dCameras(masterCamera, animate);
+}
+
 void SwitchableMapViewContainer::doFocusCameraOnSelection(const bool animate)
 {
   m_mapView->focusCameraOnSelection(animate);
 }
 
 void SwitchableMapViewContainer::doMoveCameraToPosition(
-  const vm::vec3& position, const bool animate)
+  const vm::vec3f& position, const bool animate)
 {
   m_mapView->moveCameraToPosition(position, animate);
 }
@@ -433,5 +431,4 @@ void SwitchableMapViewContainer::doRefreshViews()
 {
   m_mapView->refreshViews();
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

@@ -94,13 +94,15 @@ private: // implement MapView interface
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
   bool doCanSelectTall() override;
   void doSelectTall() override;
+  void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
   void doFocusCameraOnSelection(bool animate) override;
 
-  void doMoveCameraToPosition(const vm::vec3& position, bool animate) override;
+  void doMoveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void animateCamera(
     const vm::vec3f& position,
     const vm::vec3f& direction,
     const vm::vec3f& up,
+    float zoom,
     const int duration = DefaultCameraAnimationDuration);
 
   void doMoveCameraToCurrentTracePoint() override;
@@ -131,8 +133,8 @@ private: // implement MapViewBase interface
   void doRenderSoftWorldBounds(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 
-private: // implement CameraLinkableView interface
-  void doLinkCamera(CameraLinkHelper& linkHelper) override;
+public: // implement CameraLinkableView interface
+  void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 } // namespace View
 } // namespace TrenchBroom
