@@ -80,8 +80,10 @@ Result<std::filesystem::path> VirtualFileSystem::makeAbsolute(
     if (matches(mountPoint, path))
     {
       const auto pathSuffix = suffix(mountPoint, path);
-      if (const auto absPath = mountPoint.mountedFileSystem->makeAbsolute(pathSuffix);
-          absPath.is_success())
+      const auto absPath = mountPoint.mountedFileSystem->makeAbsolute(pathSuffix);
+      if (
+        absPath.is_success()
+        && mountPoint.mountedFileSystem->pathInfo(pathSuffix) != PathInfo::Unknown)
       {
         return absPath;
       }
