@@ -118,6 +118,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/tst_MapDocument.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_MoveHandleDragTracker.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_Picking.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/tst_RecentDocuments.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_RemoveNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_ReparentNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_RepeatableActions.cpp"
@@ -166,7 +167,7 @@ set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 add_library(common-test-utils OBJECT ${COMMON_TEST_UTILS_SOURCE})
 set_compiler_config(common-test-utils)
 target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
-target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2)
+target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt5::Test)
 
 macro(configure_test_target TARGET)
     target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2)
