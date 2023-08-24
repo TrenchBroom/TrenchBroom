@@ -19,8 +19,8 @@
 
 #include "FileSystem.h"
 
+#include "Error.h"
 #include "Exceptions.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "Macros.h"
 
@@ -38,19 +38,19 @@ namespace TrenchBroom::IO
 
 FileSystem::~FileSystem() = default;
 
-kdl::result<std::vector<std::filesystem::path>, FileSystemError> FileSystem::find(
+Result<std::vector<std::filesystem::path>> FileSystem::find(
   const std::filesystem::path& path,
   const TraversalMode traversalMode,
   const PathMatcher& pathMatcher) const
 {
   if (path.is_absolute())
   {
-    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
 
   if (pathInfo(path) != PathInfo::Directory)
   {
-    return FileSystemError{"Path does not denoty a directory: '" + path.string() + "'"};
+    return Error{"Path does not denote a directory: '" + path.string() + "'"};
   }
 
   return doFind(path, traversalMode).transform([&](auto paths) {
@@ -60,17 +60,17 @@ kdl::result<std::vector<std::filesystem::path>, FileSystemError> FileSystem::fin
   });
 }
 
-kdl::result<std::shared_ptr<File>, FileSystemError> FileSystem::openFile(
+Result<std::shared_ptr<File>> FileSystem::openFile(
   const std::filesystem::path& path) const
 {
   if (path.is_absolute())
   {
-    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
 
   if (pathInfo(path) != PathInfo::File)
   {
-    return FileSystemError{"File not found: '" + path.string() + "'"};
+    return Error{"'" + path.string() + "' not found"};
   }
 
   return doOpenFile(path);
@@ -78,12 +78,12 @@ kdl::result<std::shared_ptr<File>, FileSystemError> FileSystem::openFile(
 
 WritableFileSystem::~WritableFileSystem() = default;
 
-kdl::result<void, FileSystemError> WritableFileSystem::createFileAtomic(
+Result<void> WritableFileSystem::createFileAtomic(
   const std::filesystem::path& path, const std::string& contents)
 {
   if (path.is_absolute())
   {
-    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
 
   const auto tmpPath = kdl::path_add_extension(path, "tmp");
@@ -92,60 +92,58 @@ kdl::result<void, FileSystemError> WritableFileSystem::createFileAtomic(
   });
 }
 
-kdl::result<void, FileSystemError> WritableFileSystem::createFile(
+Result<void> WritableFileSystem::createFile(
   const std::filesystem::path& path, const std::string& contents)
 {
   if (path.is_absolute())
   {
-    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
   return doCreateFile(path, contents);
 }
 
-kdl::result<bool, FileSystemError> WritableFileSystem::createDirectory(
-  const std::filesystem::path& path)
+Result<bool> WritableFileSystem::createDirectory(const std::filesystem::path& path)
 {
   if (path.is_absolute())
   {
-    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
   return doCreateDirectory(path);
 }
 
-kdl::result<bool, FileSystemError> WritableFileSystem::deleteFile(
-  const std::filesystem::path& path)
+Result<bool> WritableFileSystem::deleteFile(const std::filesystem::path& path)
 {
   if (path.is_absolute())
   {
-    return FileSystemError{"Path is absolute: '" + path.string() + "'"};
+    return Error{"Path '" + path.string() + "' is absolute"};
   }
   return doDeleteFile(path);
 }
 
-kdl::result<void, FileSystemError> WritableFileSystem::copyFile(
+Result<void> WritableFileSystem::copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   if (sourcePath.is_absolute())
   {
-    return FileSystemError{"Source path is absolute: '" + sourcePath.string() + "'"};
+    return Error{"'" + sourcePath.string() + "' is absolute"};
   }
   if (destPath.is_absolute())
   {
-    return FileSystemError{"Destination path is absolute: '" + destPath.string() + "'"};
+    return Error{"'" + destPath.string() + "' is absolute"};
   }
   return doCopyFile(sourcePath, destPath);
 }
 
-kdl::result<void, FileSystemError> WritableFileSystem::moveFile(
+Result<void> WritableFileSystem::moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
   if (sourcePath.is_absolute())
   {
-    return FileSystemError{"Source path is absolute: '" + sourcePath.string() + "'"};
+    return Error{"'" + sourcePath.string() + "' is absolute"};
   }
   if (destPath.is_absolute())
   {
-    return FileSystemError{"Destination path is absolute: '" + destPath.string() + "'"};
+    return Error{"'" + destPath.string() + "' is absolute"};
   }
   return doMoveFile(sourcePath, destPath);
 }

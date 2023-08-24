@@ -19,11 +19,11 @@
 
 #include "CreateSimpleBrushTool.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/Game.h"
 #include "Model/WorldNode.h"
@@ -49,8 +49,8 @@ void CreateSimpleBrushTool::update(const vm::bbox3& bounds)
     document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
 
   builder.createCuboid(bounds, document->currentTextureName())
-    .transform([&](Model::Brush&& b) { updateBrush(new Model::BrushNode(std::move(b))); })
-    .transform_error([&](const Model::BrushError e) {
+    .transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
+    .transform_error([&](auto e) {
       updateBrush(nullptr);
       document->error() << "Could not update brush: " << e;
     });

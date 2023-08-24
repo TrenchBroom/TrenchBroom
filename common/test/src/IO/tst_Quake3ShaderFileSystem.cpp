@@ -58,27 +58,25 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
 
   CHECK(
     fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))
-    == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
-      std::vector<std::filesystem::path>{
-        texturePrefix / "test/editor_image",
-        texturePrefix / "test/not_existing",
-        texturePrefix / "test/not_existing2",
-        texturePrefix / "test/test",
-        texturePrefix / "test/test2",
-      }});
+    == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+      texturePrefix / "test/editor_image",
+      texturePrefix / "test/not_existing",
+      texturePrefix / "test/not_existing2",
+      texturePrefix / "test/test",
+      texturePrefix / "test/test2",
+    }});
 
   CHECK(
     fs.find(texturePrefix, TraversalMode::Recursive, makeExtensionPathMatcher({""}))
-    == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
-      std::vector<std::filesystem::path>{
-        texturePrefix / "__TB_empty",
-        texturePrefix / "test",
-        texturePrefix / "test/editor_image",
-        texturePrefix / "test/not_existing",
-        texturePrefix / "test/not_existing2",
-        texturePrefix / "test/test",
-        texturePrefix / "test/test2",
-      }});
+    == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+      texturePrefix / "__TB_empty",
+      texturePrefix / "test",
+      texturePrefix / "test/editor_image",
+      texturePrefix / "test/not_existing",
+      texturePrefix / "test/not_existing2",
+      texturePrefix / "test/test",
+      texturePrefix / "test/test2",
+    }});
 }
 
 TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
@@ -107,14 +105,13 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
 
   CHECK(
     fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))
-    == kdl::result<std::vector<std::filesystem::path>, FileSystemError>{
-      std::vector<std::filesystem::path>{
-        texturePrefix / "test/editor_image",
-        texturePrefix / "test/not_existing",
-        texturePrefix / "test/not_existing2",
-        texturePrefix / "test/test",
-        texturePrefix / "test/test2",
-      }});
+    == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+      texturePrefix / "test/editor_image",
+      texturePrefix / "test/not_existing",
+      texturePrefix / "test/not_existing2",
+      texturePrefix / "test/test",
+      texturePrefix / "test/test2",
+    }});
 }
 } // namespace IO
 } // namespace TrenchBroom

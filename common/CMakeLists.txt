@@ -1,7 +1,6 @@
 set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
-        ${COMMON_SOURCE_DIR}/Assets/AssetError.cpp
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.cpp
@@ -27,6 +26,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/EL/Value.cpp
         ${COMMON_SOURCE_DIR}/EL/VariableStore.cpp
         ${COMMON_SOURCE_DIR}/Ensure.cpp
+        ${COMMON_SOURCE_DIR}/Error.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/IO/AseParser.cpp
@@ -51,9 +51,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
         ${COMMON_SOURCE_DIR}/IO/File.cpp
-        ${COMMON_SOURCE_DIR}/IO/FileFormatError.cpp
         ${COMMON_SOURCE_DIR}/IO/FileSystem.cpp
-        ${COMMON_SOURCE_DIR}/IO/FileSystemError.cpp
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.cpp
@@ -104,7 +102,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/BezierPatch.cpp
         ${COMMON_SOURCE_DIR}/Model/Brush.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.cpp
-        ${COMMON_SOURCE_DIR}/Model/BrushError.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFace.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFaceAttributes.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushFaceHandle.cpp
@@ -133,7 +130,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/GameConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.cpp
         ${COMMON_SOURCE_DIR}/Model/GameEngineProfile.cpp
-        ${COMMON_SOURCE_DIR}/Model/GameError.cpp
         ${COMMON_SOURCE_DIR}/Model/GameFactory.cpp
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/GameImpl.cpp
@@ -184,7 +180,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/UpdateLinkedGroupsError.cpp
         ${COMMON_SOURCE_DIR}/Model/Validator.cpp
         ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsValidator.cpp
@@ -240,7 +235,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/RenderError.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.cpp
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.cpp
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.cpp
@@ -482,7 +476,6 @@ set(COMMON_SOURCE
 )
 
 set(COMMON_HEADER
-        ${COMMON_SOURCE_DIR}/Assets/AssetError.h
         ${COMMON_SOURCE_DIR}/Assets/AssetReference.h
         ${COMMON_SOURCE_DIR}/Assets/AssetUtils.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
@@ -512,6 +505,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/EL/Value.h
         ${COMMON_SOURCE_DIR}/EL/VariableStore.h
         ${COMMON_SOURCE_DIR}/Ensure.h
+        ${COMMON_SOURCE_DIR}/Error.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/FloatType.h
@@ -537,9 +531,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.h
         ${COMMON_SOURCE_DIR}/IO/FgdParser.h
         ${COMMON_SOURCE_DIR}/IO/File.h
-        ${COMMON_SOURCE_DIR}/IO/FileFormatError.h
         ${COMMON_SOURCE_DIR}/IO/FileSystem.h
-        ${COMMON_SOURCE_DIR}/IO/FileSystemError.h
         ${COMMON_SOURCE_DIR}/IO/GameConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/GameEngineConfigWriter.h
@@ -595,7 +587,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/BezierPatch.h
         ${COMMON_SOURCE_DIR}/Model/Brush.h
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.h
-        ${COMMON_SOURCE_DIR}/Model/BrushError.h
         ${COMMON_SOURCE_DIR}/Model/BrushFace.h
         ${COMMON_SOURCE_DIR}/Model/BrushFaceAttributes.h
         ${COMMON_SOURCE_DIR}/Model/BrushFaceHandle.h
@@ -625,7 +616,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/GameConfig.h
         ${COMMON_SOURCE_DIR}/Model/GameEngineConfig.h
         ${COMMON_SOURCE_DIR}/Model/GameEngineProfile.h
-        ${COMMON_SOURCE_DIR}/Model/GameError.h
         ${COMMON_SOURCE_DIR}/Model/GameFactory.h
         ${COMMON_SOURCE_DIR}/Model/GameFileSystem.h
         ${COMMON_SOURCE_DIR}/Model/GameImpl.h
@@ -697,7 +687,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
         ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
-        ${COMMON_SOURCE_DIR}/Model/UpdateLinkedGroupsError.h
         ${COMMON_SOURCE_DIR}/Model/Validator.h
         ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.h
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.cpp
@@ -761,7 +750,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/Renderable.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderBatch.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderContext.h
-        ${COMMON_SOURCE_DIR}/Renderer/RenderError.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderService.h
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.h
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.h
@@ -787,6 +775,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/VboManager.h
         ${COMMON_SOURCE_DIR}/Renderer/VertexArray.h
         ${COMMON_SOURCE_DIR}/Renderer/VertexListBuilder.h
+        ${COMMON_SOURCE_DIR}/Result.h
         ${COMMON_SOURCE_DIR}/Thread.h
         ${COMMON_SOURCE_DIR}/TrenchBroomApp.h
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h

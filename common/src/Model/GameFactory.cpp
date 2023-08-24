@@ -19,6 +19,7 @@
 
 #include "GameFactory.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
@@ -34,7 +35,6 @@
 #include "Logger.h"
 #include "Model/Game.h"
 #include "Model/GameConfig.h"
-#include "Model/GameError.h"
 #include "Model/GameImpl.h"
 #include "PreferenceManager.h"
 
@@ -52,9 +52,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 GameFactory& GameFactory::instance()
 {
@@ -62,7 +60,7 @@ GameFactory& GameFactory::instance()
   return instance;
 }
 
-kdl::result<std::vector<std::string>, GameError> GameFactory::initialize(
+Result<std::vector<std::string>> GameFactory::initialize(
   const GamePathConfig& gamePathConfig)
 {
   return initializeFileSystem(gamePathConfig).and_then([&]() {
@@ -219,8 +217,8 @@ std::string readInfoComment(std::istream& stream, const std::string& name)
 }
 } // namespace
 
-kdl::result<std::pair<std::string, MapFormat>, IO::FileSystemError> GameFactory::
-  detectGame(const std::filesystem::path& path) const
+Result<std::pair<std::string, MapFormat>> GameFactory::detectGame(
+  const std::filesystem::path& path) const
 {
   return IO::Disk::withInputStream(path, [&](auto& stream) {
     auto gameName = readInfoComment(stream, "Game");
@@ -243,8 +241,7 @@ const std::filesystem::path& GameFactory::userGameConfigsPath() const
 
 GameFactory::GameFactory() = default;
 
-kdl::result<void, GameError> GameFactory::initializeFileSystem(
-  const GamePathConfig& gamePathConfig)
+Result<void> GameFactory::initializeFileSystem(const GamePathConfig& gamePathConfig)
 {
   // Gather the search paths we're going to use.
   // The rest of this function will be mounting TB filesystems for these search paths.
@@ -261,17 +258,13 @@ kdl::result<void, GameError> GameFactory::initializeFileSystem(
   }
 
   m_userGameDir = userGameDir;
-  return IO::Disk::createDirectory(m_userGameDir)
-    .transform([&](auto) {
-      m_configFs = std::make_unique<IO::WritableVirtualFileSystem>(
-        std::move(virtualFs),
-        std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
-    })
-    .or_else(
-      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
+  return IO::Disk::createDirectory(m_userGameDir).transform([&](auto) {
+    m_configFs = std::make_unique<IO::WritableVirtualFileSystem>(
+      std::move(virtualFs), std::make_unique<IO::WritableDiskFileSystem>(m_userGameDir));
+  });
 }
 
-kdl::result<std::vector<std::string>, GameError> GameFactory::loadGameConfigs()
+Result<std::vector<std::string>> GameFactory::loadGameConfigs()
 {
   return m_configFs
     ->find(
@@ -286,15 +279,10 @@ kdl::result<std::vector<std::string>, GameError> GameFactory::loadGameConfigs()
         });
       });
       return errors;
-    })
-    .or_else([](auto e) {
-      return kdl::result<std::vector<std::string>, GameError>{
-        GameError{std::move(e.msg)}};
     });
 }
 
-kdl::result<void, GameError> GameFactory::loadGameConfig(
-  const std::filesystem::path& path)
+Result<void> GameFactory::loadGameConfig(const std::filesystem::path& path)
 {
   return m_configFs->openFile(path)
     .join(m_configFs->makeAbsolute(path))
@@ -318,9 +306,7 @@ kdl::result<void, GameError> GameFactory::loadGameConfig(
         std::filesystem::path{"Games"} / configName / "Default Engine";
       m_defaultEngines.emplace(
         configName, Preference<std::filesystem::path>{defaultEnginePrefPath, {}});
-    })
-    .or_else(
-      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
+    });
 }
 
 void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
@@ -383,7 +369,7 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
   }
 }
 
-static kdl::result<std::filesystem::path, IO::FileSystemError> backupFile(
+static Result<std::filesystem::path> backupFile(
   IO::WritableFileSystem& fs, const std::filesystem::path& path)
 {
   const auto backupPath = kdl::path_add_extension(path, ".bak");
@@ -498,5 +484,4 @@ void GameFactory::writeGameEngineConfig(
       logger.error() << "Could not write game engine config: " << e.msg;
     });
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

@@ -23,14 +23,14 @@
 
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace TrenchBroom
 {
 
-struct RenderError
+struct Error
 {
   std::string msg;
 
-  kdl_reflect_decl(RenderError, msg);
+  kdl_reflect_decl(Error, msg);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace TrenchBroom

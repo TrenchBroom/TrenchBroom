@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Error.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -28,7 +29,6 @@
 #include "Model/Layer.h"
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
-#include "Model/UpdateLinkedGroupsError.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
@@ -418,12 +418,10 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsExceedsWorldBounds")
   REQUIRE(entityNode->entity().origin() == vm::vec3(1.0, 0.0, 0.0));
 
   updateLinkedGroups(groupNode, {groupNodeClone.get()}, worldBounds)
-    .transform([&](const UpdateLinkedGroupsResult&) { FAIL(); })
-    .transform_error(kdl::overload(
-      [](const BrushError&) { FAIL(); },
-      [](const UpdateLinkedGroupsError& e) {
-        CHECK(e == UpdateLinkedGroupsError::UpdateExceedsWorldBounds);
-      }));
+    .transform([](auto) { FAIL(); })
+    .transform_error([](auto e) {
+      CHECK(e == Error{"Updating a linked node would exceed world bounds"});
+    });
 }
 
 static void setGroupName(GroupNode& groupNode, const std::string& name)

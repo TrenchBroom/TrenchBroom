@@ -26,9 +26,8 @@
 #include "IO/ExportOptions.h"
 #include "Model/MapFormat.h"
 #include "NotifierConnection.h"
+#include "Result.h"
 #include "View/Selection.h"
-
-#include <kdl/result_forward.h>
 
 #include <chrono>
 #include <filesystem>
@@ -58,7 +57,6 @@ class Texture;
 namespace Model
 {
 class Game;
-struct GameError;
 class GroupNode;
 class LayerNode;
 } // namespace Model
@@ -197,9 +195,8 @@ private: // menu event handlers
   void bindEvents();
 
 public:
-  kdl::result<bool, Model::GameError> newDocument(
-    std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat);
-  kdl::result<bool, Model::GameError> openDocument(
+  Result<bool> newDocument(std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat);
+  Result<bool> openDocument(
     std::shared_ptr<Model::Game> game,
     Model::MapFormat mapFormat,
     const std::filesystem::path& path);

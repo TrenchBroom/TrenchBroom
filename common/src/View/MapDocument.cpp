@@ -19,7 +19,6 @@
 
 #include "View/MapDocument.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/AssetUtils.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionFileSpec.h"
@@ -29,12 +28,11 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureManager.h"
 #include "EL/ELExceptions.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
-#include "IO/FileFormatError.h"
-#include "IO/FileSystemError.h"
 #include "IO/GameConfigParser.h"
 #include "IO/PathInfo.h"
 #include "IO/SimpleParserStatus.h"
@@ -42,7 +40,6 @@
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
@@ -56,7 +53,6 @@
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/Game.h"
-#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
 #include "Model/InvalidTextureScaleValidator.h"
@@ -134,9 +130,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 template <typename T>
 static auto findLinkedGroupsRecursively(
@@ -564,7 +558,7 @@ void MapDocument::createEntityDefinitionActions()
     actionManager.createEntityDefinitionActions(m_entityDefinitionManager->definitions());
 }
 
-kdl::result<void, Model::GameError> MapDocument::newDocument(
+Result<void> MapDocument::newDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game)
@@ -587,7 +581,7 @@ kdl::result<void, Model::GameError> MapDocument::newDocument(
   });
 }
 
-kdl::result<void, Model::GameError> MapDocument::loadDocument(
+Result<void> MapDocument::loadDocument(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
@@ -628,8 +622,7 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
   });
 }
 
-kdl::result<void, Model::GameError> MapDocument::exportDocumentAs(
-  const IO::ExportOptions& options)
+Result<void> MapDocument::exportDocumentAs(const IO::ExportOptions& options)
 {
   return m_game->exportMap(*m_world, options);
 }
@@ -1400,31 +1393,31 @@ void MapDocument::selectFacesWithTexture(const Assets::Texture* texture)
 
 void MapDocument::selectTall(const vm::axis::type cameraAxis)
 {
-  const vm::vec3 cameraAbsDirection = vm::vec3::axis(cameraAxis);
-  const vm::bbox3 tallBounds = worldBounds().expand(
-    -1.0); // we can't make a brush that is exactly as large as worldBounds
+  const auto cameraAbsDirection = vm::vec3::axis(cameraAxis);
+  // we can't make a brush that is exactly as large as worldBounds
+  const auto tallBounds = worldBounds().expand(-1.0);
 
-  const FloatType min = vm::dot(tallBounds.min, cameraAbsDirection);
-  const FloatType max = vm::dot(tallBounds.max, cameraAbsDirection);
+  const auto min = vm::dot(tallBounds.min, cameraAbsDirection);
+  const auto max = vm::dot(tallBounds.max, cameraAbsDirection);
 
-  const vm::plane3 minPlane(min, cameraAbsDirection);
-  const vm::plane3 maxPlane(max, cameraAbsDirection);
+  const auto minPlane = vm::plane3{min, cameraAbsDirection};
+  const auto maxPlane = vm::plane3{max, cameraAbsDirection};
 
-  const std::vector<Model::BrushNode*>& selectionBrushNodes = selectedNodes().brushes();
+  const auto& selectionBrushNodes = selectedNodes().brushes();
   assert(!selectionBrushNodes.empty());
 
-  const Model::BrushBuilder brushBuilder(world()->mapFormat(), worldBounds());
+  const auto brushBuilder = Model::BrushBuilder{world()->mapFormat(), worldBounds()};
 
   kdl::fold_results(
     kdl::vec_transform(
       selectionBrushNodes,
-      [&](const Model::BrushNode* selectionBrushNode) {
-        const Model::Brush& selectionBrush = selectionBrushNode->brush();
+      [&](const auto* selectionBrushNode) {
+        const auto& selectionBrush = selectionBrushNode->brush();
 
-        std::vector<vm::vec3> tallVertices;
+        auto tallVertices = std::vector<vm::vec3>{};
         tallVertices.reserve(2 * selectionBrush.vertexCount());
 
-        for (const Model::BrushVertex* vertex : selectionBrush.vertices())
+        for (const auto* vertex : selectionBrush.vertices())
         {
           tallVertices.push_back(minPlane.project_point(vertex->position()));
           tallVertices.push_back(maxPlane.project_point(vertex->position()));
@@ -1432,28 +1425,26 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
 
         return brushBuilder
           .createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
-          .transform([](Model::Brush&& brush) {
+          .transform([](auto brush) {
             return std::make_unique<Model::BrushNode>(std::move(brush));
           });
       }))
-    .transform([&](const std::vector<std::unique_ptr<Model::BrushNode>>& tallBrushes) {
+    .transform([&](const auto& tallBrushes) {
       // delete the original selection brushes before searching for the objects to select
       auto transaction = Transaction{*this, "Select Tall"};
       deleteObjects();
 
       const auto nodesToSelect = kdl::vec_filter(
         Model::collectContainedNodes(
-          std::vector<Model::Node*>{world()},
+          {world()},
           kdl::vec_transform(tallBrushes, [](const auto& b) { return b.get(); })),
         [&](const auto* node) { return editorContext().selectable(node); });
       selectNodes(nodesToSelect);
 
       transaction.commit();
     })
-    .or_else([&](const Model::BrushError& e) {
-      logger().error() << "Could not create selection brush: " << e;
-      return kdl::void_success;
-    });
+    .transform_error(
+      [&](auto e) { logger().error() << "Could not create selection brush: " << e.msg; });
 }
 
 void MapDocument::deselectAll()
@@ -2910,8 +2901,7 @@ bool MapDocument::transformObjects(
     }
   }
 
-  using TransformResult =
-    kdl::result<std::pair<Model::Node*, Model::NodeContents>, Model::BrushError>;
+  using TransformResult = Result<std::pair<Model::Node*, Model::NodeContents>>;
 
   const bool lockTexturesPref = pref(Preferences::TextureLock);
   auto transformResults = kdl::vec_parallel_transform(
@@ -2951,7 +2941,7 @@ bool MapDocument::transformObjects(
     });
 
   return kdl::fold_results(std::move(transformResults))
-    .and_then([&](auto nodesToUpdate) -> kdl::result<bool> {
+    .and_then([&](auto nodesToUpdate) -> Result<bool> {
       const auto success = swapNodeContents(
         commandName,
         std::move(nodesToUpdate),
@@ -3010,25 +3000,13 @@ bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis)
   return transformObjects("Flip Objects", transformation);
 }
 
-namespace
-{
-struct CreateAndSelectBrushError
-{
-  [[maybe_unused]] friend std::ostream& operator<<(
-    std::ostream& lhs, const CreateAndSelectBrushError&)
-  {
-    return lhs << "Could not add brush to document";
-  }
-};
-} // namespace
-
 bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
 {
   const auto builder = Model::BrushBuilder{
     m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
 
   return builder.createBrush(points, currentTextureName())
-    .and_then([&](Model::Brush&& b) -> kdl::result<void, CreateAndSelectBrushError> {
+    .and_then([&](auto b) -> Result<void> {
       auto* brushNode = new Model::BrushNode{std::move(b)};
 
       auto transaction = Transaction{*this, "Create Brush"};
@@ -3036,17 +3014,17 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
       if (addNodes({{parentForNodes(), {brushNode}}}).empty())
       {
         transaction.cancel();
-        return CreateAndSelectBrushError{};
+        return Error{"Could not add brush to document"};
       }
       selectNodes({brushNode});
       if (!transaction.commit())
       {
-        return CreateAndSelectBrushError{};
+        return Error{"Could not add brush to document"};
       }
 
       return kdl::void_success;
     })
-    .if_error([&](const auto& e) { error() << "Could not create brush: " << e; })
+    .if_error([&](auto e) { error() << "Could not create brush: " << e.msg; })
     .is_success();
 }
 
@@ -3089,7 +3067,7 @@ bool MapDocument::csgConvexMerge()
   const auto builder = Model::BrushBuilder{
     m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
   return builder.createBrush(polyhedron, currentTextureName())
-    .transform([&](Model::Brush&& b) {
+    .transform([&](auto b) {
       b.cloneFaceAttributesFrom(kdl::vec_transform(
         selectedNodes().brushes(),
         [](const auto* brushNode) { return &brushNode->brush(); }));
@@ -3099,7 +3077,7 @@ bool MapDocument::csgConvexMerge()
 
       // We could be merging brushes that have different parents; use the parent of the
       // first brush.
-      Model::Node* parentNode = nullptr;
+      auto* parentNode = static_cast<Model::Node*>(nullptr);
       if (!selectedNodes().brushes().empty())
       {
         parentNode = selectedNodes().brushes().front()->parent();
@@ -3126,8 +3104,7 @@ bool MapDocument::csgConvexMerge()
       selectNodes({brushNode});
       transaction.commit();
     })
-    .if_error(
-      [&](const Model::BrushError e) { error() << "Could not create brush: " << e; })
+    .if_error([&](auto e) { error() << "Could not create brush: " << e.msg; })
     .is_success();
 }
 
@@ -3209,11 +3186,10 @@ bool MapDocument::csgIntersect()
   {
     auto* brushNode = *it;
     const auto& brush = brushNode->brush();
-    valid = intersection.intersect(m_worldBounds, brush)
-              .if_error([&](const Model::BrushError e) {
-                error() << "Could not intersect brushes: " << e;
-              })
-              .is_success();
+    valid =
+      intersection.intersect(m_worldBounds, brush)
+        .if_error([&](auto e) { error() << "Could not intersect brushes: " << e.msg; })
+        .is_success();
   }
 
   const auto toRemove = std::vector<Model::Node*>{std::begin(brushes), std::end(brushes)};
@@ -3299,18 +3275,6 @@ bool MapDocument::csgHollow()
   return transaction.commit();
 }
 
-namespace
-{
-struct ReplaceClippedBrushesError
-{
-  [[maybe_unused]] friend std::ostream& operator<<(
-    std::ostream& lhs, const ReplaceClippedBrushesError&)
-  {
-    return lhs << "Could not replace brushes in document";
-  }
-};
-} // namespace
-
 bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3)
 {
   return kdl::fold_results(
@@ -3327,40 +3291,38 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
                  .and_then([&](Model::BrushFace&& clipFace) {
                    return clippedBrush.clip(m_worldBounds, std::move(clipFace));
                  })
-                 .and_then([&]() -> kdl::result<std::pair<Model::Node*, Model::Brush>> {
+                 .and_then([&]() -> Result<std::pair<Model::Node*, Model::Brush>> {
                    return std::make_pair(
                      originalBrush->parent(), std::move(clippedBrush));
                  });
              }))
-    .and_then(
-      [&](
-        auto&& clippedBrushAndParents) -> kdl::result<void, ReplaceClippedBrushesError> {
-        auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-        const auto toRemove =
-          kdl::vec_element_cast<Model::Node*>(m_selectedNodes.brushes());
+    .and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
+      auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+      const auto toRemove =
+        kdl::vec_element_cast<Model::Node*>(m_selectedNodes.brushes());
 
-        for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
-        {
-          toAdd[parentNode].push_back(new Model::BrushNode{std::move(clippedBrush)});
-        }
+      for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
+      {
+        toAdd[parentNode].push_back(new Model::BrushNode{std::move(clippedBrush)});
+      }
 
-        auto transaction = Transaction{*this, "Clip Brushes"};
-        deselectAll();
-        removeNodes(toRemove);
+      auto transaction = Transaction{*this, "Clip Brushes"};
+      deselectAll();
+      removeNodes(toRemove);
 
-        const auto addedNodes = addNodes(toAdd);
-        if (addedNodes.empty())
-        {
-          transaction.cancel();
-          return ReplaceClippedBrushesError{};
-        }
-        selectNodes(addedNodes);
-        if (!transaction.commit())
-        {
-          return ReplaceClippedBrushesError{};
-        }
-        return kdl::void_success;
-      })
+      const auto addedNodes = addNodes(toAdd);
+      if (addedNodes.empty())
+      {
+        transaction.cancel();
+        return Error{"Could not replace brushes in document"};
+      }
+      selectNodes(addedNodes);
+      if (!transaction.commit())
+      {
+        return Error{"Could not replace brushes in document"};
+      }
+      return kdl::void_success;
+    })
     .if_error([&](const auto& e) { error() << "Could not clip brushes: " << e; })
     .is_success();
 }
@@ -3676,9 +3638,9 @@ bool MapDocument::extrudeBrushes(
         return brush
           .moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
           .transform([&]() { return m_worldBounds.contains(brush.bounds()); })
-          .or_else([&](const Model::BrushError e) {
-            error() << "Could not resize brush: " << e;
-            return kdl::result<bool>{false};
+          .transform_error([&](auto e) {
+            error() << "Could not resize brush: " << e.msg;
+            return false;
           })
           .value();
       },
@@ -3791,8 +3753,8 @@ bool MapDocument::snapVertices(const FloatType snapTo)
         {
           originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
             .transform([&]() { succeededBrushCount += 1; })
-            .transform_error([&](const Model::BrushError e) {
-              error() << "Could not snap vertices: " << e;
+            .transform_error([&](auto e) {
+              error() << "Could not snap vertices: " << e.msg;
               failedBrushCount += 1;
             });
         }
@@ -3858,9 +3820,8 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
             newVertexPositions =
               kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
           })
-          .if_error([&](const Model::BrushError e) {
-            error() << "Could not move brush vertices: " << e;
-          })
+          .if_error(
+            [&](auto e) { error() << "Could not move brush vertices: " << e.msg; })
           .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
@@ -3939,9 +3900,7 @@ bool MapDocument::moveEdges(
             newEdgePositions =
               kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
           })
-          .if_error([&](const Model::BrushError e) {
-            error() << "Could not move brush edges: " << e;
-          })
+          .if_error([&](auto e) { error() << "Could not move brush edges: " << e.msg; })
           .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
@@ -4007,9 +3966,7 @@ bool MapDocument::moveFaces(
             newFacePositions =
               kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
           })
-          .if_error([&](const Model::BrushError e) {
-            error() << "Could not move brush faces: " << e;
-          })
+          .if_error([&](auto e) { error() << "Could not move brush faces: " << e.msg; })
           .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
@@ -4059,9 +4016,7 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition)
         }
 
         return brush.addVertex(m_worldBounds, vertexPosition)
-          .if_error([&](const Model::BrushError e) {
-            error() << "Could not add brush vertex: " << e;
-          })
+          .if_error([&](auto e) { error() << "Could not add brush vertex: " << e.msg; })
           .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
@@ -4116,9 +4071,8 @@ bool MapDocument::removeVertices(
         }
 
         return brush.removeVertices(m_worldBounds, verticesToRemove)
-          .if_error([&](const Model::BrushError e) {
-            error() << "Could not remove brush vertices: " << e;
-          })
+          .if_error(
+            [&](auto e) { error() << "Could not remove brush vertices: " << e.msg; })
           .is_success();
       },
       [](Model::BezierPatch&) { return true; }));
@@ -4331,7 +4285,7 @@ std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point
   return result;
 }
 
-kdl::result<void, Model::GameError> MapDocument::createWorld(
+Result<void> MapDocument::createWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game)
@@ -4347,7 +4301,7 @@ kdl::result<void, Model::GameError> MapDocument::createWorld(
   });
 }
 
-kdl::result<void, Model::GameError> MapDocument::loadWorld(
+Result<void> MapDocument::loadWorld(
   const Model::MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game,
@@ -5224,5 +5178,4 @@ void Transaction::begin(std::string name)
 {
   m_document.startTransaction(std::move(name), TransactionScope::Oneshot);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

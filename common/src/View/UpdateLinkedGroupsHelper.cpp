@@ -19,11 +19,10 @@
 
 #include "UpdateLinkedGroupsHelper.h"
 
-#include "Model/BrushError.h"
+#include "Error.h"
 #include "Model/GroupNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
-#include "Model/UpdateLinkedGroupsError.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/overload.h>
@@ -36,9 +35,7 @@
 #include <map>
 #include <unordered_set>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 bool checkLinkedGroupsToUpdate(const std::vector<Model::GroupNode*>& changedLinkedGroups)
 {
@@ -64,8 +61,8 @@ UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(
 
 UpdateLinkedGroupsHelper::~UpdateLinkedGroupsHelper() = default;
 
-kdl::result<void, Model::UpdateLinkedGroupsError> UpdateLinkedGroupsHelper::
-  applyLinkedGroupUpdates(MapDocumentCommandFacade& document)
+Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(
+  MapDocumentCommandFacade& document)
 {
   return computeLinkedGroupUpdates(document).transform(
     [&]() { doApplyOrUndoLinkedGroupUpdates(document); });
@@ -110,8 +107,8 @@ void UpdateLinkedGroupsHelper::collateWith(UpdateLinkedGroupsHelper& other)
   }
 }
 
-kdl::result<void, Model::UpdateLinkedGroupsError> UpdateLinkedGroupsHelper::
-  computeLinkedGroupUpdates(MapDocumentCommandFacade& document)
+Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
+  MapDocumentCommandFacade& document)
 {
   return std::visit(
     kdl::overload(
@@ -121,19 +118,17 @@ kdl::result<void, Model::UpdateLinkedGroupsError> UpdateLinkedGroupsHelper::
             m_state = std::forward<decltype(linkedGroupUpdates)>(linkedGroupUpdates);
           });
       },
-      [](const LinkedGroupUpdates&) -> kdl::result<void, Model::UpdateLinkedGroupsError> {
-        return kdl::void_success;
-      }),
+      [](const LinkedGroupUpdates&) -> Result<void> { return kdl::void_success; }),
     m_state);
 }
 
-kdl::result<UpdateLinkedGroupsHelper::LinkedGroupUpdates, Model::UpdateLinkedGroupsError>
-UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
-  const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document)
+Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
+  computeLinkedGroupUpdates(
+    const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document)
 {
   if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
-    return Model::UpdateLinkedGroupsError::UpdateIsInconsistent;
+    return Error{"Cannot update multiple members of the same link set"};
   }
 
   const auto& worldBounds = document.worldBounds();
@@ -149,11 +144,9 @@ UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
                return Model::updateLinkedGroups(
                  *groupNode, groupNodesToUpdate, worldBounds);
              }))
-    .and_then(
-      [&](auto&& nestedUpdateLists)
-        -> kdl::result<LinkedGroupUpdates, Model::UpdateLinkedGroupsError> {
-        return kdl::vec_flatten(std::move(nestedUpdateLists));
-      });
+    .and_then([&](auto&& nestedUpdateLists) -> Result<LinkedGroupUpdates> {
+      return kdl::vec_flatten(std::move(nestedUpdateLists));
+    });
 }
 
 void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(
@@ -167,5 +160,4 @@ void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(
       }),
     std::move(m_state));
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

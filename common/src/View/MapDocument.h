@@ -28,9 +28,8 @@
 #include "Model/PortalFile.h"
 #include "Notifier.h"
 #include "NotifierConnection.h"
+#include "Result.h"
 #include "View/CachingLogger.h"
-
-#include <kdl/result_forward.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>
@@ -47,8 +46,9 @@
 namespace TrenchBroom
 {
 class Color;
+} // namespace TrenchBroom
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityDefinition;
 class EntityDefinitionFileSpec;
@@ -56,9 +56,9 @@ class EntityDefinitionManager;
 class EntityModelManager;
 class Texture;
 class TextureManager;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class Brush;
 class BrushFace;
@@ -67,7 +67,6 @@ class BrushFaceAttributes;
 class EditorContext;
 class Entity;
 class Game;
-struct GameError;
 class Issue;
 enum class MapFormat;
 class PickResult;
@@ -78,14 +77,9 @@ class TagManager;
 class TexCoordSystemSnapshot;
 class WorldNode;
 enum class WrapStyle;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
-{
-struct FileSystemError;
-}
-
-namespace View
+namespace TrenchBroom::View
 {
 class Action;
 class Command;
@@ -301,11 +295,11 @@ private: // tag and entity definition actions
   void createEntityDefinitionActions();
 
 public: // new, load, save document
-  kdl::result<void, Model::GameError> newDocument(
+  Result<void> newDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  kdl::result<void, Model::GameError> loadDocument(
+  Result<void> loadDocument(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,
@@ -313,7 +307,7 @@ public: // new, load, save document
   void saveDocument();
   void saveDocumentAs(const std::filesystem::path& path);
   void saveDocumentTo(const std::filesystem::path& path);
-  kdl::result<void, Model::GameError> exportDocumentAs(const IO::ExportOptions& options);
+  Result<void> exportDocumentAs(const IO::ExportOptions& options);
 
 private:
   void doSaveDocument(const std::filesystem::path& path);
@@ -691,11 +685,11 @@ public: // picking
   std::vector<Model::Node*> findNodesContaining(const vm::vec3& point) const;
 
 private: // world management
-  kdl::result<void, Model::GameError> createWorld(
+  Result<void> createWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game);
-  kdl::result<void, Model::GameError> loadWorld(
+  Result<void> loadWorld(
     Model::MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     std::shared_ptr<Model::Game> game,
@@ -846,5 +840,4 @@ public:
 private:
   void begin(std::string name);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

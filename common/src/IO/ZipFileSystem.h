@@ -20,8 +20,7 @@
 #pragma once
 
 #include "IO/ImageFileSystem.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <miniz/miniz.h>
 
@@ -30,7 +29,6 @@
 
 namespace TrenchBroom::IO
 {
-struct FileSystemError;
 
 class ZipFileSystem : public ImageFileSystem
 {
@@ -42,7 +40,7 @@ public:
   ~ZipFileSystem() override;
 
 private:
-  kdl::result<void, FileSystemError> doReadDirectory() override;
+  Result<void> doReadDirectory() override;
 
   std::string filename(mz_uint fileIndex);
 };

@@ -20,8 +20,7 @@
 #pragma once
 
 #include "IO/TextureUtils.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <string>
 
@@ -35,7 +34,7 @@ class FileSystem;
  * file system to locate the actual editor image for the shader. The shader is expected to
  * be readily parsed and available as a virtual object file in the file system.
  */
-kdl::result<Assets::Texture, ReadTextureError> readQuake3ShaderTexture(
+Result<Assets::Texture, ReadTextureError> readQuake3ShaderTexture(
   std::string shaderName, const File& file, const FileSystem& fs);
 
 } // namespace TrenchBroom::IO

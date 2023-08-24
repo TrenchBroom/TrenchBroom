@@ -19,18 +19,13 @@
 
 #pragma once
 
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <vecmath/forward.h>
 
 #include <filesystem>
 #include <iosfwd>
 #include <vector>
-
-namespace TrenchBroom::IO
-{
-struct FileFormatError;
-} // namespace TrenchBroom::IO
 
 namespace TrenchBroom::Model
 {
@@ -47,6 +42,6 @@ public:
 };
 
 bool canLoadPortalFile(const std::filesystem::path& path);
-kdl::result<PortalFile, IO::FileFormatError> loadPortalFile(std::istream& stream);
+Result<PortalFile> loadPortalFile(std::istream& stream);
 
 } // namespace TrenchBroom::Model

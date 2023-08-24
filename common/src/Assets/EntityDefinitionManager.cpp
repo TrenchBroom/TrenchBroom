@@ -19,10 +19,10 @@
 
 #include "EntityDefinitionManager.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "Model/Entity.h"
 #include "Model/EntityNodeBase.h"
@@ -34,16 +34,14 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 EntityDefinitionManager::~EntityDefinitionManager()
 {
   clear();
 }
 
-kdl::result<void, AssetError> EntityDefinitionManager::loadDefinitions(
+Result<void> EntityDefinitionManager::loadDefinitions(
   const std::filesystem::path& path,
   const IO::EntityDefinitionLoader& loader,
   IO::ParserStatus& status)
@@ -152,5 +150,4 @@ void EntityDefinitionManager::clearGroups()
 {
   m_groups.clear();
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2020 Kristian Duske
+ Copyright (C) 2023 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,20 +19,13 @@
 
 #pragma once
 
-#include <iosfwd>
+#include <kdl/result_forward.h>
 
 namespace TrenchBroom
 {
-namespace Model
-{
-enum class UpdateLinkedGroupsError
-{
-  TransformIsNotInvertible,
-  TransformFailed,
-  UpdateExceedsWorldBounds,
-  UpdateIsInconsistent
-};
+struct Error;
 
-std::ostream& operator<<(std::ostream& str, const UpdateLinkedGroupsError& e);
-} // namespace Model
+template <typename Value, typename FirstError = Error, typename... MoreErrors>
+using Result = kdl::result<Value, FirstError, MoreErrors...>;
+
 } // namespace TrenchBroom

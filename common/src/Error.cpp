@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/AssetError.h"
+#include "Error.h"
 
 #include <kdl/reflection_impl.h>
 
-namespace TrenchBroom::Assets
+namespace TrenchBroom
 {
 
-kdl_reflect_impl(AssetError);
+kdl_reflect_impl(Error);
 
-} // namespace TrenchBroom::Assets
+} // namespace TrenchBroom

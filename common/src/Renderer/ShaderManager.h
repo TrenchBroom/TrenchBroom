@@ -22,15 +22,13 @@
 #include "Renderer/GL.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderProgram.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <string>
 #include <unordered_map>
 
 namespace TrenchBroom::Renderer
 {
-struct RenderError;
 class ShaderConfig;
 
 class ShaderManager
@@ -45,14 +43,13 @@ private:
   ShaderProgram* m_currentProgram{nullptr};
 
 public:
-  kdl::result<void, RenderError> loadProgram(const ShaderConfig& config);
+  Result<void> loadProgram(const ShaderConfig& config);
   ShaderProgram& program(const ShaderConfig& config);
   ShaderProgram* currentProgram();
 
 private:
   void setCurrentProgram(ShaderProgram* program);
-  kdl::result<ShaderProgram, RenderError> createProgram(const ShaderConfig& config);
-  kdl::result<std::reference_wrapper<Shader>, RenderError> loadShader(
-    const std::string& name, GLenum type);
+  Result<ShaderProgram> createProgram(const ShaderConfig& config);
+  Result<std::reference_wrapper<Shader>> loadShader(const std::string& name, GLenum type);
 };
 } // namespace TrenchBroom::Renderer

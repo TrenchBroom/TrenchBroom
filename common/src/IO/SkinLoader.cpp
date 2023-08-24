@@ -22,10 +22,10 @@
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ReadQuake3ShaderTexture.h"
@@ -56,7 +56,7 @@ Assets::Texture loadSkin(
   Logger& logger)
 {
   return fs.openFile(path)
-    .and_then([&](auto file) -> kdl::result<Assets::Texture, ReadTextureError> {
+    .and_then([&](auto file) -> Result<Assets::Texture, ReadTextureError> {
       const auto extension = kdl::str_to_lower(path.extension().string());
       auto reader = file->reader().buffer();
       return extension == ".wal" ? readWalTexture(path.stem().string(), reader, palette)

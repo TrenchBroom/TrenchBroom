@@ -20,8 +20,7 @@
 #pragma once
 
 #include "IO/ImageFileSystem.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <vector>
@@ -29,15 +28,15 @@
 namespace TrenchBroom
 {
 class Logger;
+} // namespace TrenchBroom
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Quake3Shader;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
-struct FileSystemError;
 
 /**
  * Parses Quake 3 shader scripts found in a file system and makes the shader objects
@@ -75,15 +74,14 @@ public:
     Logger& logger);
 
 private:
-  kdl::result<void, FileSystemError> doReadDirectory() override;
+  Result<void> doReadDirectory() override;
 
-  kdl::result<std::vector<Assets::Quake3Shader>, FileSystemError> loadShaders() const;
-  kdl::result<void, FileSystemError> linkShaders(
-    std::vector<Assets::Quake3Shader>& shaders);
+  Result<std::vector<Assets::Quake3Shader>> loadShaders() const;
+  Result<void> linkShaders(std::vector<Assets::Quake3Shader>& shaders);
   void linkTextures(
     const std::vector<std::filesystem::path>& textures,
     std::vector<Assets::Quake3Shader>& shaders);
   void linkStandaloneShaders(std::vector<Assets::Quake3Shader>& shaders);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

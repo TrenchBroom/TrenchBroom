@@ -19,16 +19,15 @@
 
 #include "TestGame.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/TextureManager.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
-#include "IO/FileSystemError.h"
 #include "IO/LoadTextureCollection.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
@@ -38,7 +37,6 @@
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/GameConfig.h"
-#include "Model/GameError.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
@@ -51,9 +49,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 TestGame::TestGame()
   : m_defaultFaceAttributes{Model::BrushFaceAttributes::NoTextureName}
@@ -132,13 +128,13 @@ const std::vector<SmartTag>& TestGame::doSmartTags() const
   return m_smartTags;
 }
 
-kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doNewMap(
+Result<std::unique_ptr<WorldNode>> TestGame::doNewMap(
   const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const
 {
   return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
 }
 
-kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doLoadMap(
+Result<std::unique_ptr<WorldNode>> TestGame::doLoadMap(
   const MapFormat format,
   const vm::bbox3& /* worldBounds */,
   const std::filesystem::path& /* path */,
@@ -154,20 +150,16 @@ kdl::result<std::unique_ptr<WorldNode>, GameError> TestGame::doLoadMap(
   }
 }
 
-kdl::result<void, GameError> TestGame::doWriteMap(
+Result<void> TestGame::doWriteMap(
   WorldNode& world, const std::filesystem::path& path) const
 {
-  return IO::Disk::withOutputStream(
-           path,
-           [&](auto& stream) {
-             IO::NodeWriter writer(world, stream);
-             writer.writeMap();
-           })
-    .or_else(
-      [](auto e) { return kdl::result<void, GameError>{GameError{std::move(e.msg)}}; });
+  return IO::Disk::withOutputStream(path, [&](auto& stream) {
+    IO::NodeWriter writer(world, stream);
+    writer.writeMap();
+  });
 }
 
-kdl::result<void, GameError> TestGame::doExportMap(
+Result<void> TestGame::doExportMap(
   WorldNode& /* world */, const IO::ExportOptions& /* options */) const
 {
   return kdl::void_success;
@@ -240,7 +232,7 @@ void TestGame::doReloadWads(
   }
 }
 
-kdl::result<void, GameError> TestGame::doReloadShaders()
+Result<void> TestGame::doReloadShaders()
 {
   return kdl::void_success;
   ;
@@ -269,7 +261,7 @@ std::filesystem::path TestGame::doFindEntityDefinitionFile(
   return {};
 }
 
-kdl::result<std::vector<std::string>, GameError> TestGame::doAvailableMods() const
+Result<std::vector<std::string>> TestGame::doAvailableMods() const
 {
   return std::vector<std::string>{};
 }
@@ -306,11 +298,10 @@ const std::vector<CompilationTool>& TestGame::doCompilationTools() const
   return m_compilationTools;
 }
 
-kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError> TestGame::
-  doLoadEntityDefinitions(
-    IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
+Result<std::vector<Assets::EntityDefinition*>> TestGame::doLoadEntityDefinitions(
+  IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
-  return kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>{
+  return Result<std::vector<Assets::EntityDefinition*>>{
     std::vector<Assets::EntityDefinition*>{}};
 }
 
@@ -326,5 +317,4 @@ void TestGame::doLoadFrame(
   Logger& /* logger */) const
 {
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

@@ -42,6 +42,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/path_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/reflection_decl.h"
     "${KDL_INCLUDE_DIR}/kdl/reflection_impl.h"
+    "${KDL_INCLUDE_DIR}/kdl/regex_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/std_io.h"
     "${KDL_INCLUDE_DIR}/kdl/set_adapter.h"
     "${KDL_INCLUDE_DIR}/kdl/set_temp.h"

@@ -19,9 +19,9 @@
 
 #include "Shader.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
-#include "Renderer/RenderError.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -77,26 +77,20 @@ void Shader::attach(const GLuint programId) const
 namespace
 {
 
-kdl::result<std::vector<std::string>, RenderError> loadSource(
-  const std::filesystem::path& path)
+Result<std::vector<std::string>> loadSource(const std::filesystem::path& path)
 {
-  return IO::Disk::withInputStream(
-           path,
-           [](auto& stream) {
-             std::string line;
-             std::vector<std::string> lines;
+  return IO::Disk::withInputStream(path, [](auto& stream) {
+    std::string line;
+    std::vector<std::string> lines;
 
-             while (!stream.eof())
-             {
-               std::getline(stream, line);
-               lines.push_back(line + '\n');
-             }
+    while (!stream.eof())
+    {
+      std::getline(stream, line);
+      lines.push_back(line + '\n');
+    }
 
-             return lines;
-           })
-    .or_else([&](const auto& e) -> kdl::result<std::vector<std::string>, RenderError> {
-      return RenderError{"Could not load shader from '" + path.string() + "': " + e.msg};
-    });
+    return lines;
+  });
 }
 
 std::string getInfoLog(const GLuint shaderId)
@@ -117,8 +111,7 @@ std::string getInfoLog(const GLuint shaderId)
 
 } // namespace
 
-kdl::result<Shader, RenderError> loadShader(
-  const std::filesystem::path& path, const GLenum type)
+Result<Shader> loadShader(const std::filesystem::path& path, const GLenum type)
 {
   auto name = path.filename().string();
   auto shaderId = GLuint{0};
@@ -126,29 +119,27 @@ kdl::result<Shader, RenderError> loadShader(
 
   if (shaderId == 0)
   {
-    return RenderError{"Could not create shader " + name};
+    return Error{"Could not create shader " + name};
   }
 
-  return loadSource(path).and_then(
-    [&](const auto& source) -> kdl::result<Shader, RenderError> {
-      const auto linePtrs =
-        kdl::vec_transform(source, [](const auto& line) { return line.c_str(); });
+  return loadSource(path).and_then([&](const auto& source) -> Result<Shader> {
+    const auto linePtrs =
+      kdl::vec_transform(source, [](const auto& line) { return line.c_str(); });
 
-      glAssert(
-        glShaderSource(shaderId, GLsizei(linePtrs.size()), linePtrs.data(), nullptr));
-      glAssert(glCompileShader(shaderId));
+    glAssert(
+      glShaderSource(shaderId, GLsizei(linePtrs.size()), linePtrs.data(), nullptr));
+    glAssert(glCompileShader(shaderId));
 
-      auto compileStatus = GLint{};
-      glAssert(glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileStatus));
+    auto compileStatus = GLint{};
+    glAssert(glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileStatus));
 
-      if (compileStatus == 0)
-      {
-        return RenderError{
-          "Could not compile shader '" + name + "': " + getInfoLog(shaderId)};
-      }
+    if (compileStatus == 0)
+    {
+      return Error{"Could not compile shader '" + name + "': " + getInfoLog(shaderId)};
+    }
 
-      return Shader{std::move(name), type, shaderId};
-    });
+    return Shader{std::move(name), type, shaderId};
+  });
 }
 
 } // namespace TrenchBroom::Renderer

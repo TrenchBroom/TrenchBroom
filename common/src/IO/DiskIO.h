@@ -19,9 +19,10 @@
 
 #pragma once
 
+#include "Error.h"
 #include "Exceptions.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathMatcher.h"
+#include "Result.h"
 
 #include <kdl/result.h>
 
@@ -45,28 +46,26 @@ std::filesystem::path fixPath(const std::filesystem::path& path);
 
 PathInfo pathInfo(const std::filesystem::path& path);
 
-kdl::result<std::vector<std::filesystem::path>, FileSystemError> find(
+Result<std::vector<std::filesystem::path>> find(
   const std::filesystem::path& path,
   TraversalMode traversalMode,
   const PathMatcher& pathMatcher = matchAnyPath);
 
-kdl::result<std::shared_ptr<CFile>, FileSystemError> openFile(
-  const std::filesystem::path& path);
+Result<std::shared_ptr<CFile>> openFile(const std::filesystem::path& path);
 
 template <typename Stream, typename F>
 auto withStream(
   const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
-  -> kdl::wrap_result_t<decltype(function(std::declval<Stream&>())), FileSystemError>
+  -> kdl::wrap_result_t<decltype(function(std::declval<Stream&>())), Error>
 {
   using FnResultType = decltype(function(std::declval<Stream&>()));
-  using ResultType = kdl::wrap_result_t<FnResultType, FileSystemError>;
+  using ResultType = kdl::wrap_result_t<FnResultType, Error>;
   try
   {
     auto stream = Stream{path, mode};
     if (!stream)
     {
-      return ResultType{
-        FileSystemError{"Could not open stream for file '" + path.string() + "'"}};
+      return ResultType{Error{"Could not open stream for file '" + path.string() + "'"}};
     }
     if constexpr (kdl::is_result_v<FnResultType>)
     {
@@ -91,8 +90,8 @@ auto withStream(
   }
   catch (const std::filesystem::filesystem_error& e)
   {
-    return ResultType{FileSystemError{
-      "Could not open stream for file '" + path.string() + "': " + e.what()}};
+    return ResultType{
+      Error{"Could not open stream for file '" + path.string() + "': " + e.what()}};
   }
 }
 
@@ -122,14 +121,14 @@ auto withOutputStream(const std::filesystem::path& path, const F& function)
   return withStream<std::ofstream>(path, std::ios_base::out, function);
 }
 
-kdl::result<bool, FileSystemError> createDirectory(const std::filesystem::path& path);
+Result<bool> createDirectory(const std::filesystem::path& path);
 
-kdl::result<bool, FileSystemError> deleteFile(const std::filesystem::path& path);
+Result<bool> deleteFile(const std::filesystem::path& path);
 
-kdl::result<void, FileSystemError> copyFile(
+Result<void> copyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
-kdl::result<void, FileSystemError> moveFile(
+Result<void> moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 std::filesystem::path resolvePath(

@@ -19,6 +19,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/WorldReader.h"
 #include "MapDocumentTest.h"
@@ -26,7 +27,6 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/GameError.h"
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"

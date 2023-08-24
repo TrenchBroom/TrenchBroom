@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Error.h"
 #include "IO/TestEnvironment.h"
 #include "Model/GameConfig.h"
-#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 
 #include <filesystem>

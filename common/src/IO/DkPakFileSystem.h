@@ -20,22 +20,19 @@
 #pragma once
 
 #include "IO/ImageFileSystem.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <memory>
 
 namespace TrenchBroom::IO
 {
-struct FileSystemError;
-
 class DkPakFileSystem : public ImageFileSystem
 {
 public:
   using ImageFileSystem::ImageFileSystem;
 
 private:
-  kdl::result<void, FileSystemError> doReadDirectory() override;
+  Result<void> doReadDirectory() override;
 };
 } // namespace TrenchBroom::IO

@@ -19,10 +19,10 @@
 
 #include "ReadM8Texture.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
+#include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
@@ -43,8 +43,7 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-kdl::result<Assets::Texture, ReadTextureError> readM8Texture(
-  std::string name, Reader& reader)
+Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader& reader)
 {
   try
   {
@@ -116,7 +115,7 @@ kdl::result<Assets::Texture, ReadTextureError> readM8Texture(
           }
         }
 
-        return kdl::result<Assets::Texture>{Assets::Texture{
+        return Result<Assets::Texture>{Assets::Texture{
           std::move(name),
           widths[0],
           heights[0],
@@ -126,7 +125,7 @@ kdl::result<Assets::Texture, ReadTextureError> readM8Texture(
           Assets::TextureType::Opaque}};
       })
       .or_else([&](const auto& error) {
-        return kdl::result<Assets::Texture, ReadTextureError>{
+        return Result<Assets::Texture, ReadTextureError>{
           ReadTextureError{std::move(name), error.msg}};
       });
   }

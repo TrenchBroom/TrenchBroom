@@ -19,10 +19,10 @@
 
 #include "GLContextManager.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
-#include "Renderer/RenderError.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/ShaderProgram.h"

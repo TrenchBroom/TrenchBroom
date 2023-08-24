@@ -20,8 +20,8 @@
 #include "ShaderManager.h"
 
 #include "Ensure.h"
+#include "Error.h"
 #include "IO/SystemPaths.h"
-#include "Renderer/RenderError.h"
 #include "Renderer/ShaderConfig.h"
 
 #include "kdl/vector_utils.h"
@@ -35,16 +35,15 @@
 namespace TrenchBroom::Renderer
 {
 
-kdl::result<void, RenderError> ShaderManager::loadProgram(const ShaderConfig& config)
+Result<void> ShaderManager::loadProgram(const ShaderConfig& config)
 {
-  return createProgram(config).and_then(
-    [&](auto program) -> kdl::result<void, RenderError> {
-      if (!m_programs.emplace(config.name(), std::move(program)).second)
-      {
-        return RenderError{"Shader program '" + config.name() + "' already loaded"};
-      }
-      return kdl::void_success;
-    });
+  return createProgram(config).and_then([&](auto program) -> Result<void> {
+    if (!m_programs.emplace(config.name(), std::move(program)).second)
+    {
+      return Error{"Shader program '" + config.name() + "' already loaded"};
+    }
+    return kdl::void_success;
+  });
 }
 
 ShaderProgram& ShaderManager::program(const ShaderConfig& config)
@@ -64,8 +63,7 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
   m_currentProgram = program;
 }
 
-kdl::result<ShaderProgram, RenderError> ShaderManager::createProgram(
-  const ShaderConfig& config)
+Result<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
 {
   return createShaderProgram(config.name())
     .and_then([&](auto program) {
@@ -94,7 +92,7 @@ kdl::result<ShaderProgram, RenderError> ShaderManager::createProgram(
     });
 }
 
-kdl::result<std::reference_wrapper<Shader>, RenderError> ShaderManager::loadShader(
+Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
   const std::string& name, const GLenum type)
 {
   auto it = m_shaders.find(name);

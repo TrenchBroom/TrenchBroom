@@ -19,29 +19,27 @@
 
 #pragma once
 
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <map>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+
+namespace TrenchBroom::IO
 {
 class EntityDefinitionLoader;
 class ParserStatus;
-} // namespace IO
+} // namespace TrenchBroom::IO
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 }
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
-struct AssetError;
 class EntityDefinition;
 class EntityDefinitionGroup;
 enum class EntityDefinitionSortOrder;
@@ -58,7 +56,7 @@ private:
 public:
   ~EntityDefinitionManager();
 
-  kdl::result<void, AssetError> loadDefinitions(
+  Result<void> loadDefinitions(
     const std::filesystem::path& path,
     const IO::EntityDefinitionLoader& loader,
     IO::ParserStatus& status);
@@ -80,5 +78,4 @@ private:
   void clearCache();
   void clearGroups();
 };
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

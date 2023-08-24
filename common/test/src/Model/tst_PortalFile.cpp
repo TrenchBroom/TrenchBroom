@@ -17,9 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Error.h"
 #include "IO/DiskIO.h"
-#include "IO/FileFormatError.h"
-#include "IO/FileSystemError.h"
 #include "Model/PortalFile.h"
 
 #include <vecmath/polygon.h>

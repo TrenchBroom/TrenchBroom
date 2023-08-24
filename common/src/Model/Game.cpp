@@ -20,10 +20,9 @@
 #include "Game.h"
 
 #include "Assets/EntityDefinitionFileSpec.h"
+#include "Error.h"
 #include "IO/ExportOptions.h"
-#include "IO/FileSystemError.h"
 #include "Model/BrushFace.h"
-#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/WorldNode.h"
 
@@ -32,9 +31,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 const std::string& Game::gameName() const
 {
@@ -94,13 +91,13 @@ Game::SoftMapBounds Game::extractSoftMapBounds(const Entity& entity) const
   return doExtractSoftMapBounds(entity);
 }
 
-kdl::result<std::unique_ptr<WorldNode>, GameError> Game::newMap(
+Result<std::unique_ptr<WorldNode>> Game::newMap(
   const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const
 {
   return doNewMap(format, worldBounds, logger);
 }
 
-kdl::result<std::unique_ptr<WorldNode>, GameError> Game::loadMap(
+Result<std::unique_ptr<WorldNode>> Game::loadMap(
   const MapFormat format,
   const vm::bbox3& worldBounds,
   const std::filesystem::path& path,
@@ -109,14 +106,12 @@ kdl::result<std::unique_ptr<WorldNode>, GameError> Game::loadMap(
   return doLoadMap(format, worldBounds, path, logger);
 }
 
-kdl::result<void, GameError> Game::writeMap(
-  WorldNode& world, const std::filesystem::path& path) const
+Result<void> Game::writeMap(WorldNode& world, const std::filesystem::path& path) const
 {
   return doWriteMap(world, path);
 }
 
-kdl::result<void, GameError> Game::exportMap(
-  WorldNode& world, const IO::ExportOptions& options) const
+Result<void> Game::exportMap(WorldNode& world, const IO::ExportOptions& options) const
 {
   return doExportMap(world, options);
 }
@@ -165,7 +160,7 @@ void Game::reloadWads(
   doReloadWads(documentPath, wadPaths, logger);
 }
 
-kdl::result<void, GameError> Game::reloadShaders()
+Result<void> Game::reloadShaders()
 {
   return doReloadShaders();
 }
@@ -193,7 +188,7 @@ std::filesystem::path Game::findEntityDefinitionFile(
   return doFindEntityDefinitionFile(spec, searchPaths);
 }
 
-kdl::result<std::vector<std::string>, GameError> Game::availableMods() const
+Result<std::vector<std::string>> Game::availableMods() const
 {
   return doAvailableMods();
 }
@@ -227,5 +222,4 @@ const std::vector<CompilationTool>& Game::compilationTools() const
 {
   return doCompilationTools();
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

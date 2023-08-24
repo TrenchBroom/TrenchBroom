@@ -19,9 +19,9 @@
 
 #include "CreateComplexBrushTool.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/Game.h"
 #include "Model/Polyhedron.h"
@@ -60,11 +60,10 @@ void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
       game->defaultFaceAttribs());
 
     builder.createBrush(*m_polyhedron, document->currentTextureName())
-      .transform(
-        [&](Model::Brush&& b) { updateBrush(new Model::BrushNode(std::move(b))); })
-      .transform_error([&](const Model::BrushError e) {
+      .transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
+      .transform_error([&](auto e) {
         updateBrush(nullptr);
-        document->error() << "Could not update brush: " << e;
+        document->error() << "Could not update brush: " << e.msg;
       });
   }
   else

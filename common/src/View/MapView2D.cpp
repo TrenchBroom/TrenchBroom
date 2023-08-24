@@ -20,11 +20,11 @@
 #include "MapView2D.h"
 
 #include "Assets/EntityDefinitionManager.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "Model/BrushBuilder.h"
-#include "Model/BrushError.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/Hit.h"

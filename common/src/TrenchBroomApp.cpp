@@ -19,16 +19,17 @@
 
 #include "TrenchBroomApp.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
-#include "Model/GameError.h"
 #include "Model/GameFactory.h"
 #include "Model/MapFormat.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Result.h"
 #include "TrenchBroomStackWalker.h"
 #include "View/AboutDialog.h"
 #include "View/Actions.h"
@@ -343,9 +344,8 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 {
   const auto checkFileExists = [&]() {
     return IO::Disk::pathInfo(path) == IO::PathInfo::File
-             ? kdl::result<void, IO::FileSystemError>{}
-             : kdl::result<void, IO::FileSystemError>{
-               IO::FileSystemError{"File not found: " + path.string()}};
+             ? Result<void>{}
+             : Result<void>{Error{"'" + path.string() + "' not found"}};
   };
 
   auto* frame = static_cast<MapFrame*>(nullptr);
@@ -355,7 +355,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
     return checkFileExists()
       .or_else([&](const auto& e) {
         m_recentDocuments->removePath(path);
-        return kdl::result<void, IO::FileSystemError>{e};
+        return Result<void>{e};
       })
       .and_then([&]() { return gameFactory.detectGame(path); })
       .and_then([&](const auto& gameNameAndMapFormat) {
@@ -365,7 +365,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
         {
           if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
           {
-            return kdl::result<bool, Model::GameError>{false};
+            return Result<bool>{false};
           }
         }
 

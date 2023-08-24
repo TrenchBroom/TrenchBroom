@@ -20,6 +20,7 @@
 #include "EL/Expression.h"
 #include "EL/Expressions.h"
 #include "EL/Value.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/NodeWriter.h"
 #include "Model/BezierPatch.h"

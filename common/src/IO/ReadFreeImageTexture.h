@@ -22,8 +22,7 @@
 #include "Color.h"
 #include "IO/TextureUtils.h"
 #include "Renderer/GL.h"
-
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <string>
 
@@ -39,10 +38,10 @@ class Reader;
 
 Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
 
-kdl::result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
+Result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
   std::string name, const uint8_t* begin, size_t size);
 
-kdl::result<Assets::Texture, ReadTextureError> readFreeImageTexture(
+Result<Assets::Texture, ReadTextureError> readFreeImageTexture(
   std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO

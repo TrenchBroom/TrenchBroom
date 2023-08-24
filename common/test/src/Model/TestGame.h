@@ -22,6 +22,7 @@
 #include "IO/VirtualFileSystem.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/Game.h"
+#include "Result.h"
 
 #include <filesystem>
 #include <memory>
@@ -31,14 +32,15 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class Path;
 class VirtualFileSystem;
-} // namespace IO
+} // namespace TrenchBroom::IO
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class TestGame : public Game
 {
@@ -74,16 +76,16 @@ private:
 
   const std::vector<SmartTag>& doSmartTags() const override;
 
-  kdl::result<std::unique_ptr<WorldNode>, GameError> doNewMap(
+  Result<std::unique_ptr<WorldNode>> doNewMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
-  kdl::result<std::unique_ptr<WorldNode>, GameError> doLoadMap(
+  Result<std::unique_ptr<WorldNode>> doLoadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const override;
-  kdl::result<void, GameError> doWriteMap(
+  Result<void> doWriteMap(
     WorldNode& world, const std::filesystem::path& path) const override;
-  kdl::result<void, GameError> doExportMap(
+  Result<void> doExportMap(
     WorldNode& world, const IO::ExportOptions& options) const override;
 
   std::vector<Node*> doParseNodes(
@@ -112,7 +114,7 @@ private:
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) override;
-  kdl::result<void, GameError> doReloadShaders() override;
+  Result<void> doReloadShaders() override;
 
   bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
@@ -123,7 +125,7 @@ private:
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
-  kdl::result<std::vector<std::string>, GameError> doAvailableMods() const override;
+  Result<std::vector<std::string>> doAvailableMods() const override;
   std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
   std::string doDefaultMod() const override;
 
@@ -132,8 +134,7 @@ private:
   const BrushFaceAttributes& doDefaultFaceAttribs() const override;
   const std::vector<CompilationTool>& doCompilationTools() const override;
 
-  kdl::result<std::vector<Assets::EntityDefinition*>, Assets::AssetError>
-  doLoadEntityDefinitions(
+  Result<std::vector<Assets::EntityDefinition*>> doLoadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
   std::unique_ptr<Assets::EntityModel> doInitializeModel(
     const std::filesystem::path& path, Logger& logger) const override;
@@ -143,5 +144,4 @@ private:
     Assets::EntityModel& model,
     Logger& logger) const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

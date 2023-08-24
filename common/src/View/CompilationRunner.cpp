@@ -24,6 +24,7 @@
 #include <QProcess>
 #include <QtGlobal>
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
@@ -33,7 +34,6 @@
 #include "IO/TraversalMode.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
-#include "Model/GameError.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
@@ -159,7 +159,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
             }));
         });
       }
-      return kdl::result<void, IO::FileSystemError>{};
+      return Result<void>{};
     })
     .transform([&]() { emit end(); })
     .transform_error([&](auto e) {
@@ -240,7 +240,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
       {
         return kdl::fold_results(kdl::vec_transform(pathsToDelete, IO::Disk::deleteFile));
       }
-      return kdl::result<std::vector<bool>, IO::FileSystemError>{std::vector<bool>{}};
+      return Result<std::vector<bool>>{std::vector<bool>{}};
     })
     .transform([&](auto) { emit end(); })
     .transform_error([&](auto e) {

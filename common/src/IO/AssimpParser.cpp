@@ -22,9 +22,9 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
+#include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"

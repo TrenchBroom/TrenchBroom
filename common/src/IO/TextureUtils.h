@@ -20,10 +20,11 @@
 #pragma once
 
 #include "Assets/Texture.h"
-#include "IO/FileSystemError.h"
+#include "Error.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Macros.h"
+#include "Result.h"
 
 #include <kdl/reflection_decl.h>
 #include <kdl/result.h>
@@ -66,13 +67,13 @@ struct ReadTextureError
 inline auto makeReadTextureErrorHandler(const FileSystem& fs, Logger& logger)
 {
   return kdl::overload(
-    [&](FileSystemError e) {
+    [&](Error e) {
       logger.error() << "Could not open texture file: " << e.msg;
-      return kdl::result<Assets::Texture>{loadDefaultTexture(fs, "", logger)};
+      return Result<Assets::Texture>{loadDefaultTexture(fs, "", logger)};
     },
     [&](ReadTextureError e) {
       logger.error() << "Could not read texture '" << e.textureName << "': " << e.msg;
-      return kdl::result<Assets::Texture>{loadDefaultTexture(fs, e.textureName, logger)};
+      return Result<Assets::Texture>{loadDefaultTexture(fs, e.textureName, logger)};
     });
 }
 

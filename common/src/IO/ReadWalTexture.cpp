@@ -19,9 +19,9 @@
 
 #include "ReadWalTexture.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/Texture.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
@@ -101,7 +101,7 @@ std::tuple<Assets::TextureBufferList, bool> readMips(
   return {std::move(buffers), hasTransparency};
 }
 
-kdl::result<Assets::Texture, ReadTextureError> readQ2Wal(
+Result<Assets::Texture, ReadTextureError> readQ2Wal(
   std::string name, Reader& reader, const std::optional<Assets::Palette>& palette)
 {
   static const auto MaxMipLevels = size_t(4);
@@ -162,7 +162,7 @@ kdl::result<Assets::Texture, ReadTextureError> readQ2Wal(
   }
 }
 
-kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reader& reader)
+Result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reader& reader)
 {
   static const auto MaxMipLevels = size_t(9);
   auto averageColor = Color{};
@@ -220,7 +220,7 @@ kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reade
           gameData};
       })
       .or_else([&](const auto& error) {
-        return kdl::result<Assets::Texture, ReadTextureError>{
+        return Result<Assets::Texture, ReadTextureError>{
           ReadTextureError{std::move(name), error.msg}};
       });
     ;
@@ -233,7 +233,7 @@ kdl::result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reade
 
 } // namespace
 
-kdl::result<Assets::Texture, ReadTextureError> readWalTexture(
+Result<Assets::Texture, ReadTextureError> readWalTexture(
   std::string name, Reader& reader, const std::optional<Assets::Palette>& palette)
 {
   try

@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Color.h"
+#include "Result.h"
 
 #include <kdl/reflection_decl.h>
-#include <kdl/result_forward.h>
 
 #include <cassert>
 #include <filesystem>
@@ -38,7 +38,6 @@ class Reader;
 
 namespace TrenchBroom::Assets
 {
-struct AssetError;
 struct PaletteData;
 class TextureBuffer;
 
@@ -82,10 +81,9 @@ public:
     Color& averageColor) const;
 };
 
-kdl::result<Palette, AssetError> makePalette(const std::vector<unsigned char>& data);
+Result<Palette> makePalette(const std::vector<unsigned char>& data);
 
-kdl::result<Palette, AssetError> loadPalette(
-  const IO::File& file, const std::filesystem::path& path);
-kdl::result<Palette, AssetError> loadPalette(IO::Reader& reader);
+Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& path);
+Result<Palette> loadPalette(IO::Reader& reader);
 
 } // namespace TrenchBroom::Assets

@@ -19,12 +19,12 @@
 
 #include "ReadMipTexture.h"
 
-#include "Assets/AssetError.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Color.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
@@ -40,10 +40,9 @@ static constexpr size_t TextureNameLength = 16;
 namespace
 {
 
-using GetMipPalette =
-  std::function<kdl::result<Assets::Palette, Assets::AssetError>(Reader& reader)>;
+using GetMipPalette = std::function<Result<Assets::Palette>(Reader& reader)>;
 
-kdl::result<Assets::Palette, Assets::AssetError> readHlMipPalette(Reader& reader)
+Result<Assets::Palette> readHlMipPalette(Reader& reader)
 {
   reader.seekFromBegin(0);
   reader.seekFromBegin(MipLayout::TextureNameLength);
@@ -62,7 +61,7 @@ kdl::result<Assets::Palette, Assets::AssetError> readHlMipPalette(Reader& reader
   return Assets::makePalette(data);
 }
 
-kdl::result<Assets::Texture, ReadTextureError> readMipTexture(
+Result<Assets::Texture, ReadTextureError> readMipTexture(
   std::string name, Reader& reader, const GetMipPalette& getMipPalette)
 {
   static const auto MipLevels = size_t(4);
@@ -115,7 +114,7 @@ kdl::result<Assets::Texture, ReadTextureError> readMipTexture(
             ? Assets::TextureType::Masked
             : Assets::TextureType::Opaque;
 
-        return kdl::result<Assets::Texture>{Assets::Texture{
+        return Result<Assets::Texture>{Assets::Texture{
           std::move(name),
           width,
           height,
@@ -125,7 +124,7 @@ kdl::result<Assets::Texture, ReadTextureError> readMipTexture(
           type}};
       })
       .or_else([&](const auto& e) {
-        return kdl::result<Assets::Texture, ReadTextureError>{
+        return Result<Assets::Texture, ReadTextureError>{
           ReadTextureError{std::move(name), e.msg}};
       });
   }
@@ -150,13 +149,13 @@ std::string readMipTextureName(Reader& reader)
   }
 }
 
-kdl::result<Assets::Texture, ReadTextureError> readIdMipTexture(
+Result<Assets::Texture, ReadTextureError> readIdMipTexture(
   std::string name, Reader& reader, const Assets::Palette& palette)
 {
   return readMipTexture(std::move(name), reader, [&](Reader&) { return palette; });
 }
 
-kdl::result<Assets::Texture, ReadTextureError> readHlMipTexture(
+Result<Assets::Texture, ReadTextureError> readHlMipTexture(
   std::string name, Reader& reader)
 {
   return readMipTexture(std::move(name), reader, readHlMipPalette);

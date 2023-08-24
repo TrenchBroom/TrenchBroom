@@ -20,14 +20,13 @@
 #pragma once
 
 #include "IO/FileSystem.h"
+#include "Result.h"
 
 #include <filesystem>
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class DiskFileSystem : public virtual FileSystem
 {
@@ -39,15 +38,15 @@ public:
 
   const std::filesystem::path& root() const;
 
-  kdl::result<std::filesystem::path, FileSystemError> makeAbsolute(
+  Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
 
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
 protected:
-  kdl::result<std::vector<std::filesystem::path>, FileSystemError> doFind(
+  Result<std::vector<std::filesystem::path>> doFind(
     const std::filesystem::path& path, TraversalMode traversalMode) const override;
-  kdl::result<std::shared_ptr<File>, FileSystemError> doOpenFile(
+  Result<std::shared_ptr<File>> doOpenFile(
     const std::filesystem::path& path) const override;
 };
 
@@ -64,21 +63,18 @@ public:
   explicit WritableDiskFileSystem(const std::filesystem::path& root);
 
 private:
-  kdl::result<void, FileSystemError> doCreateFile(
+  Result<void> doCreateFile(
     const std::filesystem::path& path, const std::string& contents) override;
-  kdl::result<bool, FileSystemError> doCreateDirectory(
-    const std::filesystem::path& path) override;
-  kdl::result<bool, FileSystemError> doDeleteFile(
-    const std::filesystem::path& path) override;
-  kdl::result<void, FileSystemError> doCopyFile(
+  Result<bool> doCreateDirectory(const std::filesystem::path& path) override;
+  Result<bool> doDeleteFile(const std::filesystem::path& path) override;
+  Result<void> doCopyFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
-  kdl::result<void, FileSystemError> doMoveFile(
+  Result<void> doMoveFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
 };
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

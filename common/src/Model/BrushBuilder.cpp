@@ -20,8 +20,8 @@
 #include "BrushBuilder.h"
 
 #include "Ensure.h"
+#include "Error.h"
 #include "Model/Brush.h"
-#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Polyhedron.h"
 
@@ -34,9 +34,7 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBounds)
   : m_mapFormat(mapFormat)
@@ -55,7 +53,7 @@ BrushBuilder::BrushBuilder(
 {
 }
 
-kdl::result<Brush, BrushError> BrushBuilder::createCube(
+Result<Brush> BrushBuilder::createCube(
   const FloatType size, const std::string& textureName) const
 {
   return createCuboid(
@@ -68,7 +66,7 @@ kdl::result<Brush, BrushError> BrushBuilder::createCube(
     textureName);
 }
 
-kdl::result<Brush, BrushError> BrushBuilder::createCube(
+Result<Brush> BrushBuilder::createCube(
   FloatType size,
   const std::string& leftTexture,
   const std::string& rightTexture,
@@ -87,7 +85,7 @@ kdl::result<Brush, BrushError> BrushBuilder::createCube(
     bottomTexture);
 }
 
-kdl::result<Brush, BrushError> BrushBuilder::createCuboid(
+Result<Brush> BrushBuilder::createCuboid(
   const vm::vec3& size, const std::string& textureName) const
 {
   return createCuboid(
@@ -100,7 +98,7 @@ kdl::result<Brush, BrushError> BrushBuilder::createCuboid(
     textureName);
 }
 
-kdl::result<Brush, BrushError> BrushBuilder::createCuboid(
+Result<Brush> BrushBuilder::createCuboid(
   const vm::vec3& size,
   const std::string& leftTexture,
   const std::string& rightTexture,
@@ -119,14 +117,14 @@ kdl::result<Brush, BrushError> BrushBuilder::createCuboid(
     bottomTexture);
 }
 
-kdl::result<Brush, BrushError> BrushBuilder::createCuboid(
+Result<Brush> BrushBuilder::createCuboid(
   const vm::bbox3& bounds, const std::string& textureName) const
 {
   return createCuboid(
     bounds, textureName, textureName, textureName, textureName, textureName, textureName);
 }
 
-kdl::result<Brush, BrushError> BrushBuilder::createCuboid(
+Result<Brush> BrushBuilder::createCuboid(
   const vm::bbox3& bounds,
   const std::string& leftTexture,
   const std::string& rightTexture,
@@ -172,13 +170,13 @@ kdl::result<Brush, BrushError> BrushBuilder::createCuboid(
     .and_then([&](auto faces) { return Brush::create(m_worldBounds, std::move(faces)); });
 }
 
-kdl::result<Brush, BrushError> BrushBuilder::createBrush(
+Result<Brush> BrushBuilder::createBrush(
   const std::vector<vm::vec3>& points, const std::string& textureName) const
 {
   return createBrush(Polyhedron3(points), textureName);
 }
 
-kdl::result<Brush, BrushError> BrushBuilder::createBrush(
+Result<Brush> BrushBuilder::createBrush(
   const Polyhedron3& polyhedron, const std::string& textureName) const
 {
   assert(polyhedron.closed());
@@ -204,5 +202,4 @@ kdl::result<Brush, BrushError> BrushBuilder::createBrush(
     .and_then(
       [&](auto&& faces) { return Brush::create(m_worldBounds, std::move(faces)); });
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

@@ -66,7 +66,7 @@ struct TextureCollectionInfo
 };
 
 std::optional<TextureCollectionInfo> makeInfo(
-  const kdl::result<Assets::TextureCollection, LoadTextureCollectionError>& result)
+  const Result<Assets::TextureCollection>& result)
 {
   return result
     .transform([](const auto& textureCollection) -> std::optional<TextureCollectionInfo> {

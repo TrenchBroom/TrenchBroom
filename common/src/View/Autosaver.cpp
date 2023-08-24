@@ -19,10 +19,10 @@
 
 #include "Autosaver.h"
 
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/TraversalMode.h"
 #include "View/MapDocument.h"
@@ -41,9 +41,7 @@
 #include <limits>
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 IO::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename)
 {
@@ -117,8 +115,8 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
     .transform_error([&](auto e) { logger.error() << "Aborting autosave: " << e.msg; });
 }
 
-kdl::result<IO::WritableDiskFileSystem, IO::FileSystemError> Autosaver::
-  createBackupFileSystem(const std::filesystem::path& mapPath) const
+Result<IO::WritableDiskFileSystem> Autosaver::createBackupFileSystem(
+  const std::filesystem::path& mapPath) const
 {
   const auto basePath = mapPath.parent_path();
   const auto autosavePath = basePath / "autosave";
@@ -128,18 +126,17 @@ kdl::result<IO::WritableDiskFileSystem, IO::FileSystemError> Autosaver::
   });
 }
 
-kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> Autosaver::
-  collectBackups(const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const
+Result<std::vector<std::filesystem::path>> Autosaver::collectBackups(
+  const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const
 {
   return fs.find({}, IO::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
     .transform([](auto backupPaths) { return kdl::vec_sort(std::move(backupPaths)); });
 }
 
-kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> Autosaver::
-  thinBackups(
-    Logger& logger,
-    IO::WritableDiskFileSystem& fs,
-    const std::vector<std::filesystem::path>& backups) const
+Result<std::vector<std::filesystem::path>> Autosaver::thinBackups(
+  Logger& logger,
+  IO::WritableDiskFileSystem& fs,
+  const std::vector<std::filesystem::path>& backups) const
 {
   if (backups.size() < m_maxBackups)
   {
@@ -161,7 +158,7 @@ kdl::result<std::vector<std::filesystem::path>, IO::FileSystemError> Autosaver::
     .transform([&]() { return kdl::vec_slice_prefix(backups, m_maxBackups - 1); });
 }
 
-kdl::result<void, IO::FileSystemError> Autosaver::cleanBackups(
+Result<void> Autosaver::cleanBackups(
   IO::WritableDiskFileSystem& fs,
   std::vector<std::filesystem::path>& backups,
   const std::filesystem::path& mapBasename) const
@@ -171,8 +168,7 @@ kdl::result<void, IO::FileSystemError> Autosaver::cleanBackups(
       const auto& oldName = backup.filename();
       const auto newName = makeBackupName(mapBasename, i + 1);
 
-      return oldName != newName ? fs.moveFile(oldName, newName)
-                                : kdl::result<void, IO::FileSystemError>{};
+      return oldName != newName ? fs.moveFile(oldName, newName) : Result<void>{};
     }));
 }
 
@@ -182,5 +178,4 @@ std::filesystem::path Autosaver::makeBackupName(
   return kdl::path_add_extension(mapBasename, "." + kdl::str_to_string(index) + ".map");
 }
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

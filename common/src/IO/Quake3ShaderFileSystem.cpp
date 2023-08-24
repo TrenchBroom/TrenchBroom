@@ -20,8 +20,8 @@
 #include "Quake3ShaderFileSystem.h"
 
 #include "Assets/Quake3Shader.h"
+#include "Error.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/PathInfo.h"
 #include "IO/Quake3ShaderParser.h"
 #include "IO/SimpleParserStatus.h"
@@ -37,9 +37,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 Quake3ShaderFileSystem::Quake3ShaderFileSystem(
   const FileSystem& fs,
@@ -53,13 +51,12 @@ Quake3ShaderFileSystem::Quake3ShaderFileSystem(
 {
 }
 
-kdl::result<void, FileSystemError> Quake3ShaderFileSystem::doReadDirectory()
+Result<void> Quake3ShaderFileSystem::doReadDirectory()
 {
   return loadShaders().and_then([&](auto shaders) { return linkShaders(shaders); });
 }
 
-kdl::result<std::vector<Assets::Quake3Shader>, FileSystemError> Quake3ShaderFileSystem::
-  loadShaders() const
+Result<std::vector<Assets::Quake3Shader>> Quake3ShaderFileSystem::loadShaders() const
 {
   if (m_fs.pathInfo(m_shaderSearchPath) != PathInfo::Directory)
   {
@@ -95,7 +92,7 @@ kdl::result<std::vector<Assets::Quake3Shader>, FileSystemError> Quake3ShaderFile
     });
 }
 
-kdl::result<void, FileSystemError> Quake3ShaderFileSystem::linkShaders(
+Result<void> Quake3ShaderFileSystem::linkShaders(
   std::vector<Assets::Quake3Shader>& shaders)
 {
   return kdl::fold_results(
@@ -146,8 +143,7 @@ void Quake3ShaderFileSystem::linkTextures(
           std::make_shared<ObjectFile<Assets::Quake3Shader>>(shader));
         addFile(
           shaderPath,
-          [shaderFile = std::move(
-             shaderFile)]() -> kdl::result<std::shared_ptr<File>, FileSystemError> {
+          [shaderFile = std::move(shaderFile)]() -> Result<std::shared_ptr<File>> {
             return shaderFile;
           });
 
@@ -180,5 +176,4 @@ void Quake3ShaderFileSystem::linkStandaloneShaders(
     addFile(shaderPath, [shaderFile = std::move(shaderFile)]() { return shaderFile; });
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

@@ -19,8 +19,8 @@
 
 #include "WadFileSystem.h"
 
+#include "Error.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
@@ -28,9 +28,7 @@
 #include <kdl/string_format.h>
 #include <kdl/string_utils.h>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 namespace WadLayout
 {
@@ -57,21 +55,21 @@ namespace WadEntryType
 // static const char WEPalette   = '@';
 }
 
-kdl::result<void, FileSystemError> WadFileSystem::doReadDirectory()
+Result<void> WadFileSystem::doReadDirectory()
 {
   try
   {
     auto reader = m_file->reader();
     if (reader.size() < WadLayout::MinFileSize)
     {
-      return FileSystemError{"File does not contain a directory."};
+      return Error{"File does not contain a directory."};
     }
 
     reader.seekFromBegin(WadLayout::MagicOffset);
     const auto magic = reader.readString(WadLayout::MagicSize);
     if (kdl::str_to_lower(magic) != "wad2" && kdl::str_to_lower(magic) != "wad3")
     {
-      return FileSystemError{"Unknown wad file type '" + magic + "'"};
+      return Error{"Unknown wad file type '" + magic + "'"};
     }
 
     reader.seekFromBegin(WadLayout::NumEntriesAddress);
@@ -79,7 +77,7 @@ kdl::result<void, FileSystemError> WadFileSystem::doReadDirectory()
 
     if (reader.size() < WadLayout::MinFileSize + entryCount * WadLayout::DirEntrySize)
     {
-      return FileSystemError{"File does not contain a directory"};
+      return Error{"File does not contain a directory"};
     }
 
     reader.seekFromBegin(WadLayout::DirOffsetAddress);
@@ -87,7 +85,7 @@ kdl::result<void, FileSystemError> WadFileSystem::doReadDirectory()
 
     if (m_file->size() < directoryOffset + entryCount * WadLayout::DirEntrySize)
     {
-      return FileSystemError{"File directory is out of bounds."};
+      return Error{"File directory is out of bounds."};
     }
 
     reader.seekFromBegin(directoryOffset);
@@ -98,7 +96,7 @@ kdl::result<void, FileSystemError> WadFileSystem::doReadDirectory()
 
       if (m_file->size() < entryAddress + entrySize)
       {
-        return FileSystemError{kdl::str_to_string(
+        return Error{kdl::str_to_string(
           "File entry at address ", entryAddress, " is out of bounds")};
       }
 
@@ -114,18 +112,16 @@ kdl::result<void, FileSystemError> WadFileSystem::doReadDirectory()
       const auto path = std::filesystem::path{entryName + "." + entryType};
       auto file = std::static_pointer_cast<File>(
         std::make_shared<FileView>(m_file, entryAddress, entrySize));
-      addFile(
-        path,
-        [file = std::move(file)]()
-          -> kdl::result<std::shared_ptr<File>, FileSystemError> { return file; });
+      addFile(path, [file = std::move(file)]() -> Result<std::shared_ptr<File>> {
+        return file;
+      });
     }
 
     return kdl::void_success;
   }
   catch (const ReaderException& e)
   {
-    return FileSystemError{e.what()};
+    return Error{e.what()};
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

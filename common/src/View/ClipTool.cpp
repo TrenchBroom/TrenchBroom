@@ -19,9 +19,9 @@
 
 #include "ClipTool.h"
 
+#include "Error.h"
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/BrushError.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
@@ -997,9 +997,8 @@ void ClipTool::updateBrushes()
         .transform([&]() {
           brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
         })
-        .transform_error([&](const Model::BrushError e) {
-          document->error() << "Could not clip brush: " << e;
-        });
+        .transform_error(
+          [&](auto e) { document->error() << "Could not clip brush: " << e.msg; });
     };
 
   if (canClip())

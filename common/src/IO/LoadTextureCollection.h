@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include <kdl/reflection_decl.h>
-#include <kdl/result_forward.h>
+#include "Result.h"
 
 #include <filesystem>
 #include <iosfwd>
@@ -30,7 +29,7 @@
 namespace TrenchBroom
 {
 class Logger;
-}
+} // namespace TrenchBroom
 
 namespace TrenchBroom::Assets
 {
@@ -45,19 +44,11 @@ struct TextureConfig;
 namespace TrenchBroom::IO
 {
 class FileSystem;
-struct FileSystemError;
 
-kdl::result<std::vector<std::filesystem::path>, FileSystemError> findTextureCollections(
+Result<std::vector<std::filesystem::path>> findTextureCollections(
   const FileSystem& gameFS, const Model::TextureConfig& textureConfig);
 
-struct LoadTextureCollectionError
-{
-  std::string msg;
-
-  kdl_reflect_decl(LoadTextureCollectionError, msg);
-};
-
-kdl::result<Assets::TextureCollection, LoadTextureCollectionError> loadTextureCollection(
+Result<Assets::TextureCollection> loadTextureCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const Model::TextureConfig& textureConfig,

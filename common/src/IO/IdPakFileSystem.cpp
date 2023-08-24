@@ -19,9 +19,9 @@
 
 #include "IdPakFileSystem.h"
 
+#include "Error.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
-#include "IO/FileSystemError.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
@@ -30,9 +30,7 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 namespace PakLayout
 {
@@ -43,7 +41,7 @@ static const size_t EntryNameLength = 0x38;
 static const std::string HeaderMagic = "PACK";
 } // namespace PakLayout
 
-kdl::result<void, FileSystemError> IdPakFileSystem::doReadDirectory()
+Result<void> IdPakFileSystem::doReadDirectory()
 {
   try
   {
@@ -69,17 +67,16 @@ kdl::result<void, FileSystemError> IdPakFileSystem::doReadDirectory()
       auto entryFile = std::static_pointer_cast<File>(
         std::make_shared<FileView>(m_file, entryAddress, entrySize));
       addFile(
-        entryPath,
-        [entryFile = std::move(entryFile)]()
-          -> kdl::result<std::shared_ptr<File>, FileSystemError> { return entryFile; });
+        entryPath, [entryFile = std::move(entryFile)]() -> Result<std::shared_ptr<File>> {
+          return entryFile;
+        });
     }
 
     return kdl::void_success;
   }
   catch (const ReaderException& e)
   {
-    return FileSystemError{e.what()};
+    return Error{e.what()};
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

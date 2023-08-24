@@ -20,6 +20,7 @@
 #include "GroupNode.h"
 
 #include "Ensure.h"
+#include "Error.h"
 #include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
@@ -31,7 +32,6 @@
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
-#include "Model/UpdateLinkedGroupsError.h"
 #include "Model/Validator.h"
 #include "Model/WorldNode.h"
 
@@ -49,9 +49,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 /**
  * Recursively collect the nodes to clone + transform, starting with the children of
@@ -78,8 +76,7 @@ static std::vector<const Node*> collectNodesToCloneAndTransform(const Node& node
   return result;
 }
 
-static kdl::result<std::unique_ptr<Node>, UpdateLinkedGroupsError>
-cloneAndTransformRecursive(
+static Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
   const Node* nodeToClone,
   std::unordered_map<const Node*, NodeContents>& origNodeToTransformedContents,
   const vm::bbox3& worldBounds)
@@ -113,7 +110,7 @@ cloneAndTransformRecursive(
 
   if (!worldBounds.contains(clone->logicalBounds()))
   {
-    return UpdateLinkedGroupsError::UpdateExceedsWorldBounds;
+    return Error{"Updating a linked node would exceed world bounds"};
   }
 
   return kdl::fold_results(kdl::vec_transform(
@@ -137,13 +134,12 @@ cloneAndTransformRecursive(
  *
  * Returns a vector of the cloned direct children of `node`.
  */
-static kdl::result<std::vector<std::unique_ptr<Node>>, UpdateLinkedGroupsError>
-cloneAndTransformChildren(
+static Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
   const Node& node, const vm::bbox3& worldBounds, const vm::mat4x4& transformation)
 {
   auto nodesToClone = collectNodesToCloneAndTransform(node);
 
-  using TransformResult = kdl::result<std::pair<const Node*, NodeContents>, BrushError>;
+  using TransformResult = Result<std::pair<const Node*, NodeContents>>;
 
   // In parallel, produce pairs { node pointer, transformed contents } from the nodes in
   // `nodesToClone`
@@ -182,14 +178,12 @@ cloneAndTransformChildren(
 
   return kdl::fold_results(std::move(transformResults))
     .or_else(
-      [](const auto&) -> kdl::result<
-                        std::vector<std::pair<const Node*, NodeContents>>,
-                        UpdateLinkedGroupsError> {
-        return UpdateLinkedGroupsError::TransformFailed;
+      [](const auto&) -> Result<std::vector<std::pair<const Node*, NodeContents>>> {
+        return Error{"Failed to transform a linked node"};
       })
     .and_then(
       [&](auto origNodeAndTransformedContents)
-        -> kdl::result<std::vector<std::unique_ptr<Node>>, UpdateLinkedGroupsError> {
+        -> Result<std::vector<std::unique_ptr<Node>>> {
         // Move into map for easier lookup
         auto resultsMap = std::unordered_map<const Node*, NodeContents>{
           origNodeAndTransformedContents.begin(), origNodeAndTransformedContents.end()};
@@ -313,7 +307,7 @@ static void preserveEntityProperties(
   }
 }
 
-kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroups(
+Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
   const std::vector<Model::GroupNode*>& targetGroupNodes,
   const vm::bbox3& worldBounds)
@@ -323,7 +317,7 @@ kdl::result<UpdateLinkedGroupsResult, UpdateLinkedGroupsError> updateLinkedGroup
     vm::invert(sourceGroup.transformation());
   if (!success)
   {
-    return UpdateLinkedGroupsError::TransformIsNotInvertible;
+    return Error{"Group transformation is not invertible"};
   }
 
   const auto _invertedSourceTransformation = invertedSourceTransformation;
@@ -651,5 +645,4 @@ void GroupNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model
