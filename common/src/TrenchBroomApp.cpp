@@ -61,6 +61,7 @@
 #include <QProxyStyle>
 #include <QStandardPaths>
 #include <QSysInfo>
+#include <QTimer>
 #include <QUrl>
 
 #include <kdl/path_utils.h>
@@ -69,6 +70,7 @@
 
 #include <fmt/format.h>
 
+#include <chrono>
 #include <clocale>
 #include <csignal>
 #include <cstdlib>
@@ -114,6 +116,8 @@ LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPt
 TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   : QApplication{argc, argv}
 {
+  using namespace std::chrono_literals;
+
   // When this flag is enabled, font and palette changes propagate as though the user had
   // manually called the corresponding QWidget methods.
   setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles);
@@ -164,6 +168,13 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
     this,
     &TrenchBroomApp::recentDocumentsDidChange);
   m_recentDocuments->reload();
+  m_recentDocumentsReloadTimer = new QTimer{};
+  connect(
+    m_recentDocumentsReloadTimer,
+    &QTimer::timeout,
+    m_recentDocuments.get(),
+    &RecentDocuments::reload);
+  m_recentDocumentsReloadTimer->start(1s);
 
 #ifdef __APPLE__
   setQuitOnLastWindowClosed(false);
