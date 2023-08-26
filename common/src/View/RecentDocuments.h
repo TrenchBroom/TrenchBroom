@@ -48,6 +48,8 @@ public:
 
   const std::vector<std::filesystem::path>& recentDocuments() const;
 
+  void reload();
+
   void addMenu(QMenu& menu);
   void removeMenu(QMenu& menu);
 
@@ -55,7 +57,7 @@ public:
   void removePath(const std::filesystem::path& path);
 
 private:
-  void loadFromConfig();
+  std::vector<std::filesystem::path> loadFromConfig();
   void saveToConfig();
 
   void insertPath(const std::filesystem::path& path);

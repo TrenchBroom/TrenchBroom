@@ -163,6 +163,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
     &RecentDocuments::didChange,
     this,
     &TrenchBroomApp::recentDocumentsDidChange);
+  m_recentDocuments->reload();
 
 #ifdef __APPLE__
   setQuitOnLastWindowClosed(false);

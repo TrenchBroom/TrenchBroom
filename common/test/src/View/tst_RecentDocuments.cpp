@@ -73,12 +73,56 @@ TEST_CASE("RecentDocuments")
     });
 
     auto recentDocuments = RecentDocuments{5};
+    CHECK(recentDocuments.recentDocuments().empty());
+  }
+
+  SECTION("reload")
+  {
+    saveRecentDocuments({
+      "1.map",
+      "2.map",
+    });
+
+    auto recentDocuments = RecentDocuments{5};
+    REQUIRE(recentDocuments.recentDocuments().empty());
+
+    auto spy = QSignalSpy{&recentDocuments, SIGNAL(didChange())};
+
+    REQUIRE(spy.count() == 0);
+
+    recentDocuments.reload();
     CHECK(
       recentDocuments.recentDocuments()
       == std::vector<std::filesystem::path>{
         "1.map",
         "2.map",
       });
+    CHECK(spy.count() == 1);
+
+    recentDocuments.reload();
+    CHECK(
+      recentDocuments.recentDocuments()
+      == std::vector<std::filesystem::path>{
+        "1.map",
+        "2.map",
+      });
+    CHECK(spy.count() == 1);
+
+    saveRecentDocuments({
+      "1.map",
+      "2.map",
+      "3.map",
+    });
+
+    recentDocuments.reload();
+    CHECK(
+      recentDocuments.recentDocuments()
+      == std::vector<std::filesystem::path>{
+        "1.map",
+        "2.map",
+        "3.map",
+      });
+    CHECK(spy.count() == 2);
   }
 
   SECTION("updatePath")
@@ -88,6 +132,7 @@ TEST_CASE("RecentDocuments")
       "2.map",
     });
     auto recentDocuments = RecentDocuments{5};
+    recentDocuments.reload();
 
     auto spy = QSignalSpy{&recentDocuments, SIGNAL(didChange())};
 
@@ -158,6 +203,7 @@ TEST_CASE("RecentDocuments")
       "3.map",
     });
     auto recentDocuments = RecentDocuments{5};
+    recentDocuments.reload();
 
     auto spy = QSignalSpy{&recentDocuments, SIGNAL(didChange())};
 
@@ -209,6 +255,7 @@ TEST_CASE("RecentDocuments")
       "3.map",
     });
     auto recentDocuments = RecentDocuments{5};
+    recentDocuments.reload();
 
     recentDocuments.addMenu(menu1);
     CHECK(

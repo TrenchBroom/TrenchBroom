@@ -72,12 +72,21 @@ RecentDocuments::RecentDocuments(const size_t maxSize, QObject* parent)
   , m_maxSize{maxSize}
 {
   assert(m_maxSize > 0);
-  loadFromConfig();
 }
 
 const std::vector<std::filesystem::path>& RecentDocuments::recentDocuments() const
 {
   return m_recentDocuments;
+}
+
+void RecentDocuments::reload()
+{
+  const auto previousRecentDocuments = loadFromConfig();
+  if (previousRecentDocuments != m_recentDocuments)
+  {
+    updateMenus();
+    emit didChange();
+  }
 }
 
 void RecentDocuments::addMenu(QMenu& menu)
@@ -116,9 +125,9 @@ void RecentDocuments::removePath(const std::filesystem::path& path)
   }
 }
 
-void RecentDocuments::loadFromConfig()
+std::vector<std::filesystem::path> RecentDocuments::loadFromConfig()
 {
-  m_recentDocuments = loadRecentDocuments(m_maxSize);
+  return std::exchange(m_recentDocuments, loadRecentDocuments(m_maxSize));
 }
 
 void RecentDocuments::saveToConfig()
