@@ -24,6 +24,7 @@
 #include "Notifier.h"
 
 #include <filesystem>
+#include <functional>
 #include <vector>
 
 class QMenu;
@@ -41,10 +42,15 @@ private:
   MenuList m_menus;
 
   size_t m_maxSize;
+  std::function<bool(std::filesystem::path)> m_filterPredicate;
   std::vector<std::filesystem::path> m_recentDocuments;
+  std::vector<std::filesystem::path> m_filteredDocuments;
 
 public:
-  explicit RecentDocuments(size_t maxSize, QObject* parent = nullptr);
+  RecentDocuments(
+    size_t maxSize,
+    std::function<bool(std::filesystem::path)> filterPredicate,
+    QObject* parent = nullptr);
 
   const std::vector<std::filesystem::path>& recentDocuments() const;
 
@@ -57,8 +63,9 @@ public:
   void removePath(const std::filesystem::path& path);
 
 private:
-  std::vector<std::filesystem::path> loadFromConfig();
+  void loadFromConfig();
   void saveToConfig();
+  std::vector<std::filesystem::path> updateFilteredDocuments();
 
   void insertPath(const std::filesystem::path& path);
 

@@ -156,7 +156,8 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   // these must be initialized here and not earlier
   m_frameManager = std::make_unique<FrameManager>(useSDI());
 
-  m_recentDocuments = std::make_unique<RecentDocuments>(10);
+  m_recentDocuments = std::make_unique<RecentDocuments>(
+    10, [](const auto& path) { return std::filesystem::exists(path); });
   connect(
     m_recentDocuments.get(),
     &RecentDocuments::loadDocument,

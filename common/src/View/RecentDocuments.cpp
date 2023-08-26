@@ -67,22 +67,27 @@ void saveRecentDocuments(const std::vector<std::filesystem::path>& paths)
   }
 }
 
-RecentDocuments::RecentDocuments(const size_t maxSize, QObject* parent)
+RecentDocuments::RecentDocuments(
+  const size_t maxSize,
+  std::function<bool(std::filesystem::path)> filterPredicate,
+  QObject* parent)
   : QObject{parent}
   , m_maxSize{maxSize}
+  , m_filterPredicate{std::move(filterPredicate)}
 {
   assert(m_maxSize > 0);
 }
 
 const std::vector<std::filesystem::path>& RecentDocuments::recentDocuments() const
 {
-  return m_recentDocuments;
+  return m_filteredDocuments;
 }
 
 void RecentDocuments::reload()
 {
-  const auto previousRecentDocuments = loadFromConfig();
-  if (previousRecentDocuments != m_recentDocuments)
+  loadFromConfig();
+  const auto previousFilteredDocuments = updateFilteredDocuments();
+  if (previousFilteredDocuments != m_filteredDocuments)
   {
     updateMenus();
     emit didChange();
@@ -104,35 +109,46 @@ void RecentDocuments::removeMenu(QMenu& menu)
 
 void RecentDocuments::updatePath(const std::filesystem::path& path)
 {
+  const auto previousDocuments = m_filteredDocuments;
   insertPath(path);
-  updateMenus();
   saveToConfig();
-  emit didChange();
-}
-
-void RecentDocuments::removePath(const std::filesystem::path& path)
-{
-  const auto oldSize = m_recentDocuments.size();
-
-  const auto canonPath = path.lexically_normal();
-  m_recentDocuments = kdl::vec_erase(std::move(m_recentDocuments), canonPath);
-
-  if (oldSize > m_recentDocuments.size())
+  if (m_filteredDocuments != previousDocuments)
   {
     updateMenus();
-    saveToConfig();
     emit didChange();
   }
 }
 
-std::vector<std::filesystem::path> RecentDocuments::loadFromConfig()
+void RecentDocuments::removePath(const std::filesystem::path& path)
 {
-  return std::exchange(m_recentDocuments, loadRecentDocuments(m_maxSize));
+  const auto oldSize = m_filteredDocuments.size();
+
+  const auto canonPath = path.lexically_normal();
+  m_recentDocuments = kdl::vec_erase(std::move(m_recentDocuments), canonPath);
+  updateFilteredDocuments();
+  saveToConfig();
+
+  if (oldSize > m_filteredDocuments.size())
+  {
+    updateMenus();
+    emit didChange();
+  }
+}
+
+void RecentDocuments::loadFromConfig()
+{
+  m_recentDocuments = loadRecentDocuments(m_maxSize);
 }
 
 void RecentDocuments::saveToConfig()
 {
   saveRecentDocuments(m_recentDocuments);
+}
+
+std::vector<std::filesystem::path> RecentDocuments::updateFilteredDocuments()
+{
+  return std::exchange(
+    m_filteredDocuments, kdl::vec_filter(m_recentDocuments, m_filterPredicate));
 }
 
 void RecentDocuments::insertPath(const std::filesystem::path& path)
@@ -149,6 +165,7 @@ void RecentDocuments::insertPath(const std::filesystem::path& path)
   {
     m_recentDocuments.pop_back();
   }
+  updateFilteredDocuments();
 }
 
 void RecentDocuments::updateMenus()
@@ -167,7 +184,7 @@ void RecentDocuments::clearMenu(QMenu& menu)
 
 void RecentDocuments::createMenuItems(QMenu& menu)
 {
-  for (const auto& path : m_recentDocuments)
+  for (const auto& path : m_filteredDocuments)
   {
     menu.addAction(
       IO::pathAsQString(path.filename()), [this, path]() { loadDocument(path); });

@@ -45,6 +45,8 @@ std::vector<QString> getTexts(const QList<QAction*>& actions)
 
 TEST_CASE("RecentDocuments")
 {
+  auto filterPredicate = [](auto path) { return path != "filter.map"; };
+
   SECTION("load and save")
   {
     saveRecentDocuments({});
@@ -61,6 +63,7 @@ TEST_CASE("RecentDocuments")
     saveRecentDocuments({
       "1.map",
       "2.map",
+      "filter.map",
     });
     CHECK(loadRecentDocuments(1) == std::vector<std::filesystem::path>{"1.map"});
   }
@@ -70,9 +73,10 @@ TEST_CASE("RecentDocuments")
     saveRecentDocuments({
       "1.map",
       "2.map",
+      "filter.map",
     });
 
-    auto recentDocuments = RecentDocuments{5};
+    auto recentDocuments = RecentDocuments{5, filterPredicate};
     CHECK(recentDocuments.recentDocuments().empty());
   }
 
@@ -81,9 +85,10 @@ TEST_CASE("RecentDocuments")
     saveRecentDocuments({
       "1.map",
       "2.map",
+      "filter.map",
     });
 
-    auto recentDocuments = RecentDocuments{5};
+    auto recentDocuments = RecentDocuments{5, filterPredicate};
     REQUIRE(recentDocuments.recentDocuments().empty());
 
     auto spy = QSignalSpy{&recentDocuments, SIGNAL(didChange())};
@@ -130,8 +135,9 @@ TEST_CASE("RecentDocuments")
     saveRecentDocuments({
       "1.map",
       "2.map",
+      "filter.map",
     });
-    auto recentDocuments = RecentDocuments{5};
+    auto recentDocuments = RecentDocuments{5, filterPredicate};
     recentDocuments.reload();
 
     auto spy = QSignalSpy{&recentDocuments, SIGNAL(didChange())};
@@ -148,6 +154,7 @@ TEST_CASE("RecentDocuments")
       == std::vector<std::filesystem::path>{
         "2.map",
         "1.map",
+        "filter.map",
       });
     CHECK(spy.count() == 1);
 
@@ -169,7 +176,25 @@ TEST_CASE("RecentDocuments")
         "2.map",
         "1.map",
       });
-    CHECK(spy.count() == 3);
+    CHECK(spy.count() == 2);
+
+    recentDocuments.updatePath("filter.map");
+    CHECK(
+      recentDocuments.recentDocuments()
+      == std::vector<std::filesystem::path>{
+        "3.map",
+        "2.map",
+        "1.map",
+      });
+    CHECK(
+      loadRecentDocuments(5)
+      == std::vector<std::filesystem::path>{
+        "filter.map",
+        "3.map",
+        "2.map",
+        "1.map",
+      });
+    CHECK(spy.count() == 2);
 
     recentDocuments.updatePath("4.map");
     recentDocuments.updatePath("5.map");
@@ -181,7 +206,6 @@ TEST_CASE("RecentDocuments")
         "5.map",
         "4.map",
         "3.map",
-        "2.map",
       });
     CHECK(
       loadRecentDocuments(5)
@@ -189,10 +213,10 @@ TEST_CASE("RecentDocuments")
         "6.map",
         "5.map",
         "4.map",
+        "filter.map",
         "3.map",
-        "2.map",
       });
-    CHECK(spy.count() == 6);
+    CHECK(spy.count() == 5);
   }
 
   SECTION("removePath")
@@ -201,8 +225,9 @@ TEST_CASE("RecentDocuments")
       "1.map",
       "2.map",
       "3.map",
+      "filter.map",
     });
-    auto recentDocuments = RecentDocuments{5};
+    auto recentDocuments = RecentDocuments{5, filterPredicate};
     recentDocuments.reload();
 
     auto spy = QSignalSpy{&recentDocuments, SIGNAL(didChange())};
@@ -219,6 +244,7 @@ TEST_CASE("RecentDocuments")
       == std::vector<std::filesystem::path>{
         "1.map",
         "3.map",
+        "filter.map",
       });
     CHECK(spy.count() == 1);
 
@@ -240,6 +266,15 @@ TEST_CASE("RecentDocuments")
 
     recentDocuments.removePath("3.map");
     CHECK(recentDocuments.recentDocuments().empty());
+    CHECK(
+      loadRecentDocuments(5)
+      == std::vector<std::filesystem::path>{
+        "filter.map",
+      });
+    CHECK(spy.count() == 3);
+
+    recentDocuments.removePath("filter.map");
+    CHECK(recentDocuments.recentDocuments().empty());
     CHECK(loadRecentDocuments(5).empty());
     CHECK(spy.count() == 3);
   }
@@ -253,8 +288,9 @@ TEST_CASE("RecentDocuments")
       "1.map",
       "2.map",
       "3.map",
+      "filter.map",
     });
-    auto recentDocuments = RecentDocuments{5};
+    auto recentDocuments = RecentDocuments{5, filterPredicate};
     recentDocuments.reload();
 
     recentDocuments.addMenu(menu1);
