@@ -437,7 +437,9 @@ void GameFactory::writeCompilationConfig(
     gameConfig.compilationConfigParseFailed = false;
   }
 
-  m_configFs->createFileAtomic(profilesPath, stream.str())
+  m_configFs->createDirectory(profilesPath.parent_path())
+    .and_then(
+      [&](auto) { return m_configFs->createFileAtomic(profilesPath, stream.str()); })
     .transform([&]() {
       gameConfig.compilationConfig = std::move(compilationConfig);
 
@@ -490,7 +492,9 @@ void GameFactory::writeGameEngineConfig(
     gameConfig.gameEngineConfigParseFailed = false;
   }
 
-  m_configFs->createFileAtomic(profilesPath, stream.str())
+  m_configFs->createDirectory(profilesPath.parent_path())
+    .and_then(
+      [&](auto) { return m_configFs->createFileAtomic(profilesPath, stream.str()); })
     .transform([&]() {
       gameConfig.gameEngineConfig = std::move(gameEngineConfig);
       m_configFs->makeAbsolute(profilesPath)
