@@ -390,12 +390,10 @@ void CompilationRunToolTaskRunner::processReadyReadStandardOutput()
 }
 
 CompilationRunner::CompilationRunner(
-  std::unique_ptr<CompilationContext> context,
-  const Model::CompilationProfile& profile,
-  QObject* parent)
+  CompilationContext context, const Model::CompilationProfile& profile, QObject* parent)
   : QObject{parent}
   , m_context{std::move(context)}
-  , m_taskRunners{createTaskRunners(*m_context, profile)}
+  , m_taskRunners{createTaskRunners(m_context, profile)}
   , m_currentTask{std::end(m_taskRunners)}
 {
 }
@@ -465,14 +463,14 @@ void CompilationRunner::execute()
   emit compilationStarted();
 
   const auto workDir = QString::fromStdString(
-    m_context->variableValue(CompilationVariableNames::WORK_DIR_PATH));
+    m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH));
   if (!QDir{workDir}.exists())
   {
-    *m_context << "#### Error: working directory '" << workDir << "' does not exist\n";
+    m_context << "#### Error: working directory '" << workDir << "' does not exist\n";
   }
   else
   {
-    *m_context << "#### Using working directory '" << workDir << "'\n";
+    m_context << "#### Using working directory '" << workDir << "'\n";
   }
   m_currentTask->get()->execute();
 }

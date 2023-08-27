@@ -92,8 +92,8 @@ void CompilationRun::run(
 
   auto variables = CompilationVariables{document, buildWorkDir(profile, document)};
 
-  auto compilationContext = std::make_unique<CompilationContext>(
-    document, variables, TextOutputAdapter{currentOutput}, test);
+  auto compilationContext =
+    CompilationContext{document, variables, TextOutputAdapter{currentOutput}, test};
   m_currentRun = new CompilationRunner{std::move(compilationContext), profile, this};
   connect(
     m_currentRun,
@@ -126,8 +126,8 @@ void CompilationRun::cleanup()
 {
   if (m_currentRun)
   {
-    // It's not safe to delete a CompilationRunner during execution of one of its signals,
-    // so use deleteLater()
+    // It's not safe to delete a CompilationRunner during execution of one of its
+    // signals, so use deleteLater()
     m_currentRun->deleteLater();
     m_currentRun = nullptr;
   }
