@@ -61,6 +61,7 @@
 #include <QProxyStyle>
 #include <QStandardPaths>
 #include <QSysInfo>
+#include <QTimer>
 #include <QUrl>
 
 #include <kdl/path_utils.h>
@@ -69,6 +70,7 @@
 
 #include <fmt/format.h>
 
+#include <chrono>
 #include <clocale>
 #include <csignal>
 #include <cstdlib>
@@ -114,6 +116,8 @@ LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPt
 TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   : QApplication{argc, argv}
 {
+  using namespace std::chrono_literals;
+
   // When this flag is enabled, font and palette changes propagate as though the user had
   // manually called the corresponding QWidget methods.
   setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles);
@@ -152,7 +156,8 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   // these must be initialized here and not earlier
   m_frameManager = std::make_unique<FrameManager>(useSDI());
 
-  m_recentDocuments = std::make_unique<RecentDocuments>(10);
+  m_recentDocuments = std::make_unique<RecentDocuments>(
+    10, [](const auto& path) { return std::filesystem::exists(path); });
   connect(
     m_recentDocuments.get(),
     &RecentDocuments::loadDocument,
@@ -163,6 +168,14 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
     &RecentDocuments::didChange,
     this,
     &TrenchBroomApp::recentDocumentsDidChange);
+  m_recentDocuments->reload();
+  m_recentDocumentsReloadTimer = new QTimer{};
+  connect(
+    m_recentDocumentsReloadTimer,
+    &QTimer::timeout,
+    m_recentDocuments.get(),
+    &RecentDocuments::reload);
+  m_recentDocumentsReloadTimer->start(1s);
 
 #ifdef __APPLE__
   setQuitOnLastWindowClosed(false);
@@ -179,7 +192,7 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   const auto& actionManager = ActionManager::instance();
   actionManager.visitMainMenu(menuBuilder);
 
-  addRecentDocumentMenu(menuBuilder.recentDocumentsMenu);
+  addRecentDocumentMenu(*menuBuilder.recentDocumentsMenu);
 
   auto context = ActionExecutionContext{nullptr, nullptr};
   for (auto [tbAction, qtAction] : actionMap)
@@ -325,12 +338,12 @@ const std::vector<std::filesystem::path>& TrenchBroomApp::recentDocuments() cons
   return m_recentDocuments->recentDocuments();
 }
 
-void TrenchBroomApp::addRecentDocumentMenu(QMenu* menu)
+void TrenchBroomApp::addRecentDocumentMenu(QMenu& menu)
 {
   m_recentDocuments->addMenu(menu);
 }
 
-void TrenchBroomApp::removeRecentDocumentMenu(QMenu* menu)
+void TrenchBroomApp::removeRecentDocumentMenu(QMenu& menu)
 {
   m_recentDocuments->removeMenu(menu);
 }

@@ -24,14 +24,16 @@
 #include "Notifier.h"
 
 #include <filesystem>
+#include <functional>
 #include <vector>
 
 class QMenu;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+std::vector<std::filesystem::path> loadRecentDocuments(size_t max);
+void saveRecentDocuments(const std::vector<std::filesystem::path>& paths);
+
 class RecentDocuments : public QObject
 {
   Q_OBJECT
@@ -40,15 +42,22 @@ private:
   MenuList m_menus;
 
   size_t m_maxSize;
+  std::function<bool(std::filesystem::path)> m_filterPredicate;
   std::vector<std::filesystem::path> m_recentDocuments;
+  std::vector<std::filesystem::path> m_filteredDocuments;
 
 public:
-  explicit RecentDocuments(size_t maxSize, QObject* parent = nullptr);
+  RecentDocuments(
+    size_t maxSize,
+    std::function<bool(std::filesystem::path)> filterPredicate,
+    QObject* parent = nullptr);
 
   const std::vector<std::filesystem::path>& recentDocuments() const;
 
-  void addMenu(QMenu* menu);
-  void removeMenu(QMenu* menu);
+  void reload();
+
+  void addMenu(QMenu& menu);
+  void removeMenu(QMenu& menu);
 
   void updatePath(const std::filesystem::path& path);
   void removePath(const std::filesystem::path& path);
@@ -56,15 +65,15 @@ public:
 private:
   void loadFromConfig();
   void saveToConfig();
+  std::vector<std::filesystem::path> updateFilteredDocuments();
 
   void insertPath(const std::filesystem::path& path);
 
   void updateMenus();
-  void clearMenu(QMenu* menu);
-  void createMenuItems(QMenu* menu);
+  void clearMenu(QMenu& menu);
+  void createMenuItems(QMenu& menu);
 signals:
   void loadDocument(const std::filesystem::path& path) const;
   void didChange();
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

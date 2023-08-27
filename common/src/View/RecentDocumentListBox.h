@@ -25,9 +25,7 @@
 
 #include <filesystem>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class RecentDocumentListBox : public ImageListBox
 {
@@ -50,5 +48,4 @@ private:
 signals:
   void loadRecentDocument(const std::filesystem::path& path);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

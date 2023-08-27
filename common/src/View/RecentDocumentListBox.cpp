@@ -26,15 +26,13 @@
 
 #include <cassert>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 RecentDocumentListBox::RecentDocumentListBox(QWidget* parent)
-  : ImageListBox("No Recent Documents", true, parent)
-  , m_documentIcon(IO::loadPixmapResource("DocIcon.png"))
+  : ImageListBox{"No Recent Documents", true, parent}
+  , m_documentIcon{IO::loadPixmapResource("DocIcon.png")}
 {
-  TrenchBroomApp& app = View::TrenchBroomApp::instance();
+  auto& app = View::TrenchBroomApp::instance();
   connect(
     &app,
     &TrenchBroomApp::recentDocumentsDidChange,
@@ -50,9 +48,8 @@ void RecentDocumentListBox::recentDocumentsDidChange()
 
 size_t RecentDocumentListBox::itemCount() const
 {
-  const TrenchBroomApp& app = View::TrenchBroomApp::instance();
-  const auto& recentDocuments = app.recentDocuments();
-  return recentDocuments.size();
+  const auto& app = View::TrenchBroomApp::instance();
+  return app.recentDocuments().size();
 }
 
 QPixmap RecentDocumentListBox::image(const size_t /* index */) const
@@ -87,5 +84,4 @@ void RecentDocumentListBox::doubleClicked(const size_t index)
     emit loadRecentDocument(documentPath);
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

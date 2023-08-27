@@ -30,6 +30,7 @@
 
 class QMenu;
 class QSettings;
+class QTimer;
 
 namespace TrenchBroom
 {
@@ -49,6 +50,7 @@ private:
   std::unique_ptr<FrameManager> m_frameManager;
   std::unique_ptr<RecentDocuments> m_recentDocuments;
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;
+  QTimer* m_recentDocumentsReloadTimer;
 
 public:
   static TrenchBroomApp& instance();
@@ -68,8 +70,8 @@ private:
 
 public:
   const std::vector<std::filesystem::path>& recentDocuments() const;
-  void addRecentDocumentMenu(QMenu* menu);
-  void removeRecentDocumentMenu(QMenu* menu);
+  void addRecentDocumentMenu(QMenu& menu);
+  void removeRecentDocumentMenu(QMenu& menu);
   void updateRecentDocument(const std::filesystem::path& path);
 
   bool openDocument(const std::filesystem::path& path);
