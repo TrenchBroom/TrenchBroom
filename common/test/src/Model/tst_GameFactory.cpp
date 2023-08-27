@@ -26,15 +26,15 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 
 static const auto gamesPath = std::filesystem::path{"games"};
 static const auto userPath = std::filesystem::path{"user"};
 
-static void setupTestEnvironment(IO::TestEnvironment& env)
+namespace
+{
+void setupTestEnvironment(IO::TestEnvironment& env)
 {
   env.createDirectory(gamesPath);
   env.createDirectory(gamesPath / "Quake");
@@ -95,45 +95,45 @@ static void setupTestEnvironment(IO::TestEnvironment& env)
     "version": 1
 })");
 }
+} // namespace
 
-TEST_CASE("GameFactory.initialize")
+TEST_CASE("GameFactory")
 {
-  const auto env = IO::TestEnvironment{setupTestEnvironment};
-
-  auto& gameFactory = GameFactory::instance();
-  CHECK(
-    gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}).is_success());
-
-  CHECK(gameFactory.userGameConfigsPath() == env.dir() / userPath);
-  CHECK(gameFactory.gameList() == std::vector<std::string>{"Quake"});
-
-  const auto& gameConfig = gameFactory.gameConfig("Quake");
-  CHECK(gameConfig.name == "Quake");
-  CHECK(gameConfig.compilationConfig.profiles.size() == 1);
-  CHECK(gameConfig.gameEngineConfig.profiles.size() == 1);
-}
-
-TEST_CASE("GameFactory.detectGame")
-{
-  using namespace std::string_literals;
-
   auto env = IO::TestEnvironment{setupTestEnvironment};
-
   auto& gameFactory = GameFactory::instance();
-  REQUIRE_NOTHROW(
-    gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}));
 
-  const auto detectGame = [&](const auto& mapFile) {
-    return env.withTempFile(
-      mapFile, [&](const auto& path) { return gameFactory.detectGame(path); });
-  };
+  SECTION("initialize")
+  {
+    CHECK(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath})
+            .is_success());
 
-  CHECK(detectGame(R"(// Game: Quake
+    CHECK(gameFactory.userGameConfigsPath() == env.dir() / userPath);
+    CHECK(gameFactory.gameList() == std::vector<std::string>{"Quake"});
+
+    const auto& gameConfig = gameFactory.gameConfig("Quake");
+    CHECK(gameConfig.name == "Quake");
+    CHECK(gameConfig.compilationConfig.profiles.size() == 1);
+    CHECK(gameConfig.gameEngineConfig.profiles.size() == 1);
+  }
+
+  SECTION("detectGame")
+  {
+    using namespace std::string_literals;
+
+    REQUIRE_NOTHROW(
+      gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath}));
+
+    const auto detectGame = [&](const auto& mapFile) {
+      return env.withTempFile(
+        mapFile, [&](const auto& path) { return gameFactory.detectGame(path); });
+    };
+
+    CHECK(detectGame(R"(// Game: Quake
 // Format: Quake2
 )") == std::pair{"Quake"s, MapFormat::Quake2});
 
 
-  CHECK(detectGame(R"(// Game: Quake
+    CHECK(detectGame(R"(// Game: Quake
 // Format: Quake2
 {
 "classname" "worldspawn"
@@ -146,6 +146,7 @@ TEST_CASE("GameFactory.detectGame")
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
 }
 })") == std::pair{"Quake"s, MapFormat::Quake2});
+  }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model
