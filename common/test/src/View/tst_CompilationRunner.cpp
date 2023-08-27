@@ -19,6 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <QTextEdit>
+#include <QtTest/QSignalSpy>
 
 #include "EL/VariableStore.h"
 #include "IO/TestEnvironment.h"
@@ -193,6 +194,44 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
   CHECK(!testEnvironment.fileExists(file2));
   CHECK(testEnvironment.fileExists(file3));
   CHECK(testEnvironment.directoryExists(dir));
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "CompilationRunner.stopAfterFirstError")
+{
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  const auto does_not_exist = "does_not_exist.map";
+  const auto does_exist = "does_exist.map";
+  const auto should_not_exist = "should_not_exist.map";
+
+  auto testEnvironment = IO::TestEnvironment{};
+  testEnvironment.createFile(does_exist, "");
+
+  auto compilationProfile = Model::CompilationProfile{
+    "name",
+    testEnvironment.dir(),
+    {
+      Model::CompilationCopyFiles{true, does_not_exist, "does_not_matter.map"},
+      Model::CompilationCopyFiles{true, does_exist, should_not_exist},
+    }};
+
+  auto runner = CompilationRunner{
+    CompilationContext{document, variables, outputAdapter, false}, compilationProfile};
+
+  auto compilationStartedSpy = QSignalSpy{&runner, SIGNAL(compilationStarted())};
+  auto compilationEndedSpy = QSignalSpy{&runner, SIGNAL(compilationEnded())};
+
+  REQUIRE(compilationStartedSpy.isValid());
+  REQUIRE(compilationEndedSpy.isValid());
+
+  runner.execute();
+  REQUIRE(!runner.running());
+  REQUIRE(compilationStartedSpy.count() == 1);
+  REQUIRE(compilationEndedSpy.count() == 1);
+
+  CHECK_FALSE(testEnvironment.fileExists(should_not_exist));
 }
 
 TEST_CASE("CompilationRunner.interpolateToolsVariables")

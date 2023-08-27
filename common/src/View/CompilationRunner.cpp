@@ -455,7 +455,6 @@ void CompilationRunner::execute()
   m_currentTask = std::begin(m_taskRunners);
   if (m_currentTask == std::end(m_taskRunners))
   {
-    emit compilationEnded();
     return;
   }
   bindEvents(*m_currentTask->get());
