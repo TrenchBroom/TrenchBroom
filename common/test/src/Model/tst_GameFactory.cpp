@@ -94,6 +94,56 @@ void setupTestEnvironment(IO::TestEnvironment& env)
     ],
     "version": 1
 })");
+
+  // This config will fail to parse and should be ignored
+  env.createDirectory(gamesPath / "Quake 2");
+  env.createFile(gamesPath / "Quake 2/GameConfig.cfg", R"({
+    asdf
+})");
+
+  env.createDirectory(gamesPath);
+  env.createDirectory(gamesPath / "Quake 3");
+  env.createFile(gamesPath / "Quake 3/GameConfig.cfg", R"({
+    "version": 8,
+    "name": "Quake 3",
+    "icon": "Icon.png",
+    "fileformats": [
+        { "format": "Quake"
+    }
+    ],
+    "filesystem": {
+        "searchpath": "baseq3",
+        "packageformat": { "extension": "pk3", "format": "zip" }
+    },
+    "textures": {
+        "root": "textures",
+        "extensions": [ "" ],
+        "shaderSearchPath": "scripts",
+        "attribute": "_tb_textures"
+    },
+    "entities": {
+        "definitions": [],
+        "defaultcolor": "0.6 0.6 0.6 1.0",
+        "modelformats": [ "md3" ]
+    },
+    "tags":
+    {
+      "brush" : [], "brushface" : []
+    }
+})");
+
+  env.createDirectory(userPath);
+  env.createDirectory(userPath / "Quake 3");
+
+  // This config will fail to parse and should be ignored
+  env.createFile(userPath / "Quake 3/CompilationProfiles.cfg", R"({
+    asdf
+})");
+
+  // This config will fail to parse and should be ignored
+  env.createFile(userPath / "Quake 3/GameEngineProfiles.cfg", R"({
+    asdf
+})");
 }
 } // namespace
 
@@ -108,12 +158,17 @@ TEST_CASE("GameFactory")
             .is_success());
 
     CHECK(gameFactory.userGameConfigsPath() == env.dir() / userPath);
-    CHECK(gameFactory.gameList() == std::vector<std::string>{"Quake"});
+    CHECK(gameFactory.gameList() == std::vector<std::string>{"Quake", "Quake 3"});
 
-    const auto& gameConfig = gameFactory.gameConfig("Quake");
-    CHECK(gameConfig.name == "Quake");
-    CHECK(gameConfig.compilationConfig.profiles.size() == 1);
-    CHECK(gameConfig.gameEngineConfig.profiles.size() == 1);
+    const auto& quakeConfig = gameFactory.gameConfig("Quake");
+    CHECK(quakeConfig.name == "Quake");
+    CHECK(quakeConfig.compilationConfig.profiles.size() == 1);
+    CHECK(quakeConfig.gameEngineConfig.profiles.size() == 1);
+
+    const auto& quake3Config = gameFactory.gameConfig("Quake 3");
+    CHECK(quake3Config.name == "Quake 3");
+    CHECK(quake3Config.compilationConfig.profiles.empty());
+    CHECK(quake3Config.gameEngineConfig.profiles.empty());
   }
 
   SECTION("detectGame")

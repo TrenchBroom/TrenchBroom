@@ -451,7 +451,7 @@ bool TrenchBroomApp::initializeGameFactory()
           nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
       }
     })
-    .transform_error([](auto e) { qCritical() << QString::fromStdString(e.msg); })
+    .if_error([](auto e) { qCritical() << QString::fromStdString(e.msg); })
     .is_success();
 }
 
@@ -587,7 +587,7 @@ bool TrenchBroomApp::event(QEvent* event)
   }
   else if (event->type() == QEvent::ApplicationActivate)
   {
-    if (m_frameManager->allFramesClosed())
+    if (m_frameManager && m_frameManager->allFramesClosed())
     {
       showWelcomeWindow();
     }
