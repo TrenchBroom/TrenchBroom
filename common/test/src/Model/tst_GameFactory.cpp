@@ -151,6 +151,7 @@ TEST_CASE("GameFactory")
 {
   auto env = IO::TestEnvironment{setupTestEnvironment};
   auto& gameFactory = GameFactory::instance();
+  gameFactory.reset();
 
   SECTION("initialize")
   {

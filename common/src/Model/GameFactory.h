@@ -91,6 +91,12 @@ public:
    * loaded or a Error if a fatal error occurs
    */
   Result<std::vector<std::string>> initialize(const GamePathConfig& gamePathConfig);
+
+  /**
+   * Resets all state so that we can call initialize again.
+   */
+  void reset();
+
   /**
    * Saves the game engine configurations for the game with the given name.
    *

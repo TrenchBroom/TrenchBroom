@@ -68,6 +68,17 @@ Result<std::vector<std::string>> GameFactory::initialize(
   });
 }
 
+void GameFactory::reset()
+{
+  m_userGameDir = std::filesystem::path{};
+  m_configFs.reset();
+
+  m_names.clear();
+  m_configs.clear();
+  m_gamePaths.clear();
+  m_defaultEngines.clear();
+}
+
 void GameFactory::saveGameEngineConfig(
   const std::string& gameName, const GameEngineConfig& gameEngineConfig, Logger& logger)
 {
