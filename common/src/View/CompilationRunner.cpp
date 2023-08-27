@@ -47,9 +47,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 CompilationTaskRunner::CompilationTaskRunner(CompilationContext& context)
   : m_context{context}
@@ -532,5 +530,5 @@ void CompilationRunner::taskEnd()
     }
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

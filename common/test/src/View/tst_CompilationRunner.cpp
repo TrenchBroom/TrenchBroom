@@ -38,9 +38,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class ExecuteTask
 {
@@ -50,11 +48,11 @@ private:
   std::condition_variable m_condition;
 
 public:
-  bool started{false};
-  bool errored{false};
-  bool ended{false};
+  bool started = false;
+  bool errored = false;
+  bool ended = false;
 
-  ExecuteTask(CompilationTaskRunner& runner)
+  explicit ExecuteTask(CompilationTaskRunner& runner)
     : m_runner{runner}
   {
     QObject::connect(&m_runner, &CompilationTaskRunner::start, [&]() {
@@ -221,5 +219,4 @@ TEST_CASE("CompilationRunner.interpolateToolsVariables")
 
   CHECK(interpolated == expected);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

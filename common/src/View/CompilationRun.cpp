@@ -33,9 +33,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 CompilationRun::~CompilationRun()
 {
@@ -134,5 +132,5 @@ void CompilationRun::cleanup()
     m_currentRun = nullptr;
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

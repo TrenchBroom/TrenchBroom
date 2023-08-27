@@ -44,9 +44,7 @@
 #include <kdl/memory_utils.h>
 #include <kdl/overload.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 // CompilationTaskEditorBase
 
@@ -585,5 +583,4 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
 
   return renderer;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View
