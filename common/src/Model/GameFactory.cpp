@@ -68,6 +68,17 @@ Result<std::vector<std::string>> GameFactory::initialize(
   });
 }
 
+void GameFactory::reset()
+{
+  m_userGameDir = std::filesystem::path{};
+  m_configFs.reset();
+
+  m_names.clear();
+  m_configs.clear();
+  m_gamePaths.clear();
+  m_defaultEngines.clear();
+}
+
 void GameFactory::saveGameEngineConfig(
   const std::string& gameName, const GameEngineConfig& gameEngineConfig, Logger& logger)
 {
@@ -286,26 +297,36 @@ Result<void> GameFactory::loadGameConfig(const std::filesystem::path& path)
 {
   return m_configFs->openFile(path)
     .join(m_configFs->makeAbsolute(path))
-    .transform([&](auto configFile, auto absolutePath) {
+    .and_then([&](auto configFile, auto absolutePath) -> Result<void> {
       auto reader = configFile->reader().buffer();
       auto parser = IO::GameConfigParser{reader.stringView(), absolutePath};
-      auto config = parser.parse();
+      try
+      {
+        auto config = parser.parse();
 
-      loadCompilationConfig(config);
-      loadGameEngineConfig(config);
+        loadCompilationConfig(config);
+        loadGameEngineConfig(config);
 
-      const auto configName = config.name;
-      m_configs.emplace(configName, std::move(config));
-      m_names.push_back(configName);
+        const auto configName = config.name;
+        m_configs.emplace(configName, std::move(config));
+        m_names.push_back(configName);
 
-      const auto gamePathPrefPath = std::filesystem::path{"Games"} / configName / "Path";
-      m_gamePaths.emplace(
-        configName, Preference<std::filesystem::path>{gamePathPrefPath, {}});
+        const auto gamePathPrefPath =
+          std::filesystem::path{"Games"} / configName / "Path";
+        m_gamePaths.emplace(
+          configName, Preference<std::filesystem::path>{gamePathPrefPath, {}});
 
-      const auto defaultEnginePrefPath =
-        std::filesystem::path{"Games"} / configName / "Default Engine";
-      m_defaultEngines.emplace(
-        configName, Preference<std::filesystem::path>{defaultEnginePrefPath, {}});
+        const auto defaultEnginePrefPath =
+          std::filesystem::path{"Games"} / configName / "Default Engine";
+        m_defaultEngines.emplace(
+          configName, Preference<std::filesystem::path>{defaultEnginePrefPath, {}});
+
+        return Result<void>{};
+      }
+      catch (const ParserException& e)
+      {
+        return Error{e.what()};
+      }
     });
 }
 
