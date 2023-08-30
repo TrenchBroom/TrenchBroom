@@ -215,9 +215,15 @@ macro(configure_test_target TARGET)
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/games-testing" "${TEST_FIXTURE_DEST_DIR}/games")
 endmacro()
 
+file(GENERATE
+  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/ReturnExitCode.h"
+  CONTENT "#define RETURN_EXITCODE_PATH \"$<TARGET_FILE:return-exitcode>\"")
+
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
+target_include_directories(common-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 configure_test_target(common-test)
+add_dependencies(common-test return-exitcode)
 
 add_executable(common-regression-test ${COMMON_REGRESSION_TEST_SOURCE})
 target_include_directories(common-regression-test PRIVATE ${COMMON_TEST_SOURCE_DIR})

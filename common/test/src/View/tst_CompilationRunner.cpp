@@ -25,7 +25,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "IO/TestEnvironment.h"
 #include "MapDocumentTest.h"
 #include "Model/CompilationTask.h"
+#include "ReturnExitCode.h"
 #include "TestUtils.h"
+#include "TrenchBroomApp.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationRunner.h"
 #include "View/CompilationVariables.h"
@@ -41,6 +43,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace TrenchBroom::View
 {
+using namespace std::chrono_literals;
+
 class ExecuteTask
 {
 private:
@@ -73,13 +77,23 @@ public:
     });
   }
 
-  void executeAndWait(const int timeout)
+  bool executeAndWait(const std::chrono::milliseconds timeout)
   {
     m_runner.execute();
 
-    auto lock = std::unique_lock<std::mutex>{m_mutex};
-    m_condition.wait_for(
-      lock, std::chrono::milliseconds{timeout}, [&]() { return errored || ended; });
+    const auto endTime = std::chrono::system_clock::now() + timeout;
+    while (std::chrono::system_clock::now() < endTime)
+    {
+      TrenchBroomApp::instance().processEvents();
+
+      auto lock = std::unique_lock<std::mutex>{m_mutex};
+      if (m_condition.wait_for(lock, 50ms, [&]() { return errored || ended; }))
+      {
+        return true;
+      }
+    }
+
+    return false;
   }
 };
 
@@ -95,11 +109,108 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
   auto runner = CompilationRunToolTaskRunner{context, task};
 
   auto exec = ExecuteTask{runner};
-  exec.executeAndWait(500);
+  REQUIRE(exec.executeAndWait(5000ms));
 
   CHECK(exec.started);
   CHECK(exec.errored);
   CHECK_FALSE(exec.ended);
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolReturnsZeroExitCode")
+{
+  auto testEnvironment = IO::TestEnvironment{};
+  testEnvironment.createFile("test.txt", "hello world");
+
+  auto variables = CompilationVariables{document, testEnvironment.dir().string()};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
+  auto task = Model::CompilationRunTool{
+    true, RETURN_EXITCODE_PATH, "--exit 0", treatNonZeroResultCodeAsError};
+  auto runner = CompilationRunToolTaskRunner{context, task};
+
+  auto exec = ExecuteTask{runner};
+  REQUIRE(exec.executeAndWait(5000ms));
+
+  CHECK(exec.started);
+  CHECK_FALSE(exec.errored);
+  CHECK(exec.ended);
+}
+
+TEST_CASE_METHOD(
+  MapDocumentTest, "CompilationRunToolTaskRunner.toolReturnsNonZeroExitCode")
+{
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
+  auto task = Model::CompilationRunTool{
+    true, RETURN_EXITCODE_PATH, "--exit 1", treatNonZeroResultCodeAsError};
+  auto runner = CompilationRunToolTaskRunner{context, task};
+
+  auto exec = ExecuteTask{runner};
+  REQUIRE(exec.executeAndWait(5000ms));
+
+  CHECK(exec.started);
+  CHECK(exec.errored == treatNonZeroResultCodeAsError);
+  CHECK(exec.ended == !treatNonZeroResultCodeAsError);
+}
+
+#if !defined(_WIN32) || defined(NDEBUG)
+// std::abort pops up a dialog when run in debug mode on Windows
+TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolAborts")
+{
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
+  auto task = Model::CompilationRunTool{
+    true, RETURN_EXITCODE_PATH, "--abort", treatNonZeroResultCodeAsError};
+  auto runner = CompilationRunToolTaskRunner{context, task};
+
+  auto exec = ExecuteTask{runner};
+  REQUIRE(exec.executeAndWait(5000ms));
+
+  CHECK(exec.started);
+  CHECK(exec.errored);
+  CHECK_FALSE(exec.ended);
+}
+#endif
+
+TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolCrashes")
+{
+  auto variables = EL::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
+  auto task = Model::CompilationRunTool{
+    true, RETURN_EXITCODE_PATH, "--crash", treatNonZeroResultCodeAsError};
+  auto runner = CompilationRunToolTaskRunner{context, task};
+
+  auto exec = ExecuteTask{runner};
+  REQUIRE(exec.executeAndWait(5000ms));
+
+  CHECK(exec.started);
+#if defined _WIN32
+  // QProcess does not report a crash on SIGSEGV on Windows
+  CHECK(exec.errored == treatNonZeroResultCodeAsError);
+  CHECK(exec.ended == !treatNonZeroResultCodeAsError);
+#else
+  CHECK(exec.errored);
+  CHECK_FALSE(exec.ended);
+#endif
 }
 
 TEST_CASE_METHOD(
@@ -211,7 +322,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunner.stopAfterFirstError")
 
   auto compilationProfile = Model::CompilationProfile{
     "name",
-    testEnvironment.dir(),
+    testEnvironment.dir().string(),
     {
       Model::CompilationCopyFiles{true, does_not_exist, "does_not_matter.map"},
       Model::CompilationCopyFiles{true, does_exist, should_not_exist},
