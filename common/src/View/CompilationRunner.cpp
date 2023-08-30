@@ -319,6 +319,7 @@ void CompilationRunToolTaskRunner::startProcess()
         this,
         &CompilationRunToolTaskRunner::processReadyReadStandardOutput);
 
+      m_process->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
       m_process->setWorkingDirectory(QString::fromStdString(workDir));
       m_process->start(QString::fromStdString(cmd));
       if (!m_process->waitForStarted())
