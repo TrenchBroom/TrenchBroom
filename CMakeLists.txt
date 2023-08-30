@@ -144,6 +144,7 @@ set(APP_DIR "${CMAKE_SOURCE_DIR}/app")
 set(APP_RESOURCE_DIR "${APP_DIR}/resources")
 
 add_subdirectory(lib)
-add_subdirectory(common)
 add_subdirectory(dump-shortcuts)
+add_subdirectory(return-exitCode)
+add_subdirectory(common)
 add_subdirectory(app)
