@@ -91,7 +91,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
 
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  auto task = Model::CompilationRunTool{true, "", ""};
+  auto task = Model::CompilationRunTool{true, "", "", false};
   auto runner = CompilationRunToolTaskRunner{context, task};
 
   auto exec = ExecuteTask{runner};

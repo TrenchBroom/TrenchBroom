@@ -122,6 +122,10 @@ EL::Value CompilationConfigWriter::writeTasks(
           {
             map["enabled"] = EL::Value{false};
           }
+          if (runTool.treatNonZeroResultCodeAsError)
+          {
+            map["treatNonZeroResultCodeAsError"] = EL::Value{true};
+          }
           map["type"] = EL::Value{"tool"};
           map["tool"] = EL::Value{runTool.toolSpec};
           map["parameters"] = EL::Value{runTool.parameterSpec};

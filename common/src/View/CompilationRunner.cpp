@@ -366,10 +366,26 @@ void CompilationRunToolTaskRunner::processErrorOccurred(
 }
 
 void CompilationRunToolTaskRunner::processFinished(
-  const int exitCode, const QProcess::ExitStatus /* exitStatus */)
+  const int exitCode, const QProcess::ExitStatus exitStatus)
 {
-  m_context << "#### Finished with exit status " << exitCode << "\n\n";
-  emit end();
+  switch (exitStatus)
+  {
+  case QProcess::NormalExit:
+    m_context << "#### Finished with exit code " << exitCode << "\n\n";
+    if (exitCode == 0 || !m_task.treatNonZeroResultCodeAsError)
+    {
+      emit end();
+    }
+    else
+    {
+      emit error();
+    }
+    break;
+  case QProcess::CrashExit:
+    m_context << "#### Crashed with exit code " << exitCode << "\n\n";
+    emit error();
+    break;
+  }
 }
 
 void CompilationRunToolTaskRunner::processReadyReadStandardError()

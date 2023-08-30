@@ -171,10 +171,19 @@ Model::CompilationRunTool CompilationConfigParser::parseToolTask(
   expectStructure(
     value,
     "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': "
-    "'Boolean' } ]");
+    "'Boolean', 'treatNonZeroResultCodeAsError': 'Boolean' } ]");
 
   const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  return {enabled, value["tool"].stringValue(), value["parameters"].stringValue()};
+  const auto treatNonZeroResultCodeAsError =
+    value.contains("treatNonZeroResultCodeAsError")
+      ? value["treatNonZeroResultCodeAsError"].booleanValue()
+      : false;
+
+  return {
+    enabled,
+    value["tool"].stringValue(),
+    value["parameters"].stringValue(),
+    treatNonZeroResultCodeAsError};
 }
 } // namespace IO
 } // namespace TrenchBroom

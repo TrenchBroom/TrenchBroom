@@ -221,7 +221,7 @@ void CompilationProfileEditor::addTask()
     }
     if (chosenAction == runToolAction)
     {
-      return Model::CompilationRunTool{true, "", ""};
+      return Model::CompilationRunTool{true, "", "", false};
     }
     {
       return std::nullopt;

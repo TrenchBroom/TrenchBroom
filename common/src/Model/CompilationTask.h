@@ -69,8 +69,10 @@ struct CompilationRunTool
   bool enabled;
   std::string toolSpec;
   std::string parameterSpec;
+  bool treatNonZeroResultCodeAsError;
 
-  kdl_reflect_decl(CompilationRunTool, enabled, toolSpec, parameterSpec);
+  kdl_reflect_decl(
+    CompilationRunTool, enabled, toolSpec, parameterSpec, treatNonZeroResultCodeAsError);
 };
 
 using CompilationTask = std::variant<

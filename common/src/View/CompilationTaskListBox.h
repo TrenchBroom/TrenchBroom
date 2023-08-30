@@ -165,6 +165,7 @@ class CompilationRunToolTaskEditor : public CompilationTaskEditorBase
 private:
   MultiCompletionLineEdit* m_toolEditor = nullptr;
   MultiCompletionLineEdit* m_parametersEditor = nullptr;
+  QCheckBox* m_treatNonZeroResultCodeAsError = nullptr;
 
 public:
   CompilationRunToolTaskEditor(
@@ -180,6 +181,7 @@ private slots:
   void browseTool();
   void toolSpecChanged(const QString& text);
   void parameterSpecChanged(const QString& text);
+  void treatNonZeroResultCodeAsErrorChanged(int state);
 };
 
 class CompilationTaskListBox : public ControlListBox
