@@ -1052,6 +1052,7 @@ void MapViewBase::doRender()
   renderPortalFile(renderContext, renderBatch);
   renderCompass(renderBatch);
   renderFPS(renderContext, renderBatch);
+  renderSelectionOrigin(renderContext, renderBatch);
 
   renderBatch.render(renderContext);
 }
@@ -1168,6 +1169,24 @@ void MapViewBase::renderFPS(
   {
     auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.renderHeadsUp(m_currentFPS);
+  }
+}
+
+void MapViewBase::renderSelectionOrigin(
+  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+{
+  auto document = kdl::mem_lock(m_document);
+
+  if (document->hasSelectedNodes() && !m_toolBox.rotateObjectsToolActive()) {
+    const vm::bbox3& bounds = document->selectionBounds();
+
+    Renderer::RenderService renderService(renderContext, renderBatch);
+    renderService.setShowOccludedObjects();
+
+    renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+    renderService.renderHandleHighlight(vm::vec3f(bounds.center()));
+    renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
+    renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
   }
 }
 

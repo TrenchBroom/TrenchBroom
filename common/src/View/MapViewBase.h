@@ -340,6 +340,8 @@ private: // implement RenderView interface
   void renderCompass(Renderer::RenderBatch& renderBatch);
   void renderFPS(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderSelectionOrigin(
+    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
 public: // implement InputEventProcessor interface
   void processEvent(const KeyEvent& event) override;
