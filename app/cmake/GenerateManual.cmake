@@ -20,28 +20,21 @@ fix_win32_path(PANDOC_TEMPLATE_PATH)
 fix_win32_path(PANDOC_INPUT_PATH)
 fix_win32_path(PANDOC_OUTPUT_PATH)
 
-# Create directories
-add_custom_command(OUTPUT "${DOC_MANUAL_TARGET_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_TARGET_DIR}"
-)
-
-add_custom_command(OUTPUT "${DOC_MANUAL_IMAGES_TARGET_DIR}"
-    COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_IMAGES_TARGET_DIR}"
-)
-
 # Generate manual
-# 1. Run pandoc to create a temporary HTML file
-# 2. Run AddVersionToManual.cmake on the temporary HTML file
-# 3. Run TransformKeyboardShortcuts.cmake on the temporary HTML file
-# 4. Copy the temporary HTML file to its target
-# 5. Remove the temporary HTML file
+# 1. Create target directory
+# 2. Run pandoc to create a temporary HTML file
+# 3. Run AddVersionToManual.cmake on the temporary HTML file
+# 4. Run TransformKeyboardShortcuts.cmake on the temporary HTML file
+# 5. Copy the temporary HTML file to its target
+# 6. Remove the temporary HTML file
 add_custom_command(OUTPUT "${INDEX_OUTPUT_PATH}"
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_TARGET_DIR}"
     COMMAND ${PANDOC_PATH} --standalone --toc --toc-depth=2 --template "${PANDOC_TEMPLATE_PATH}" --from=markdown --to=html5 -o "${PANDOC_OUTPUT_PATH}" "${PANDOC_INPUT_PATH}"
     COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${PANDOC_OUTPUT_PATH}" -P "${CMAKE_CURRENT_BINARY_DIR}/AddVersionToManual.cmake"
     COMMAND ${CMAKE_COMMAND} -DINPUT="${PANDOC_OUTPUT_PATH}" -DOUTPUT="${PANDOC_OUTPUT_PATH}" -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake"
     COMMAND ${CMAKE_COMMAND} -E copy "${PANDOC_OUTPUT_PATH}" "${INDEX_OUTPUT_PATH}"
     COMMAND ${CMAKE_COMMAND} -E remove "${PANDOC_OUTPUT_PATH}"
-    DEPENDS "${DOC_MANUAL_TARGET_DIR}" "${PANDOC_TEMPLATE_PATH}" "${PANDOC_INPUT_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/AddVersionToManual.cmake.in"
+    DEPENDS "${PANDOC_TEMPLATE_PATH}" "${PANDOC_INPUT_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/TransformKeyboardShortcuts.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/cmake/AddVersionToManual.cmake.in"
 )
 
 # Dump the keyboard shortcuts
@@ -52,14 +45,16 @@ endif()
 if(XVFB_EXE STREQUAL "XVFB_EXE-NOTFOUND")
     add_custom_command(
             OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_TARGET_DIR}"
             COMMAND dump-shortcuts ARGS "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
-            DEPENDS "${DOC_MANUAL_TARGET_DIR}"
+            DEPENDS dump-shortcuts
             VERBATIM)
 else()
     add_custom_command(
             OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_TARGET_DIR}"
             COMMAND "${XVFB_EXE}" ARGS "-a" "$<TARGET_FILE:dump-shortcuts>" "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
-            DEPENDS "${DOC_MANUAL_TARGET_DIR}" dump-shortcuts
+            DEPENDS dump-shortcuts
             VERBATIM)
 endif()
 
@@ -89,10 +84,11 @@ foreach(MANUAL_SOURCE_FILE_ABSOLUTE ${DOC_MANUAL_SOURCE_FILES_ABSOLUTE})
         "${MANUAL_TARGET_FILE_ABSOLUTE}")
 endforeach(MANUAL_SOURCE_FILE_ABSOLUTE)
 
-# Copy the images using the relative paths (absolute paths would yield very long command lines which are then truncated by MSVC)
+# Copy the files using the relative paths (absolute paths would yield very long command lines which are then truncated by MSVC)
 add_custom_command(OUTPUT ${DOC_MANUAL_TARGET_FILES_ABSOLUTE}
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_TARGET_DIR}"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DOC_MANUAL_SOURCE_FILES_RELATIVE} "${DOC_MANUAL_TARGET_DIR}"
-    DEPENDS "${DOC_MANUAL_TARGET_DIR}" ${DOC_MANUAL_SOURCE_FILES_ABSOLUTE}
+    DEPENDS ${DOC_MANUAL_SOURCE_FILES_ABSOLUTE}
     WORKING_DIRECTORY "${DOC_MANUAL_SOURCE_DIR}"
 )
 
@@ -125,8 +121,9 @@ endforeach(IMAGE_SOURCE_FILE_ABSOLUTE)
 
 # Copy the images using the relative paths (absolute paths would yield very long command lines which are then truncated by MSVC)
 add_custom_command(OUTPUT ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_IMAGES_TARGET_DIR}"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DOC_MANUAL_SOURCE_IMAGE_FILES_RELATIVE} "${DOC_MANUAL_IMAGES_TARGET_DIR}"
-    DEPENDS "${DOC_MANUAL_IMAGES_TARGET_DIR}" ${DOC_MANUAL_SOURCE_IMAGE_FILES_ABSOLUTE}
+    DEPENDS ${DOC_MANUAL_SOURCE_IMAGE_FILES_ABSOLUTE}
     WORKING_DIRECTORY "${DOC_MANUAL_IMAGES_SOURCE_DIR}"
 )
 
