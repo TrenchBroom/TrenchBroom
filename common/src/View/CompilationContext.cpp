@@ -25,9 +25,7 @@
 
 #include <kdl/memory_utils.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 CompilationContext::CompilationContext(
   std::weak_ptr<MapDocument> document,
@@ -60,5 +58,4 @@ std::string CompilationContext::variableValue(const std::string& variableName) c
 {
   return m_variables->value(variableName).convertTo(EL::ValueType::String).stringValue();
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

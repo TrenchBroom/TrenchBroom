@@ -377,7 +377,7 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTask")
       {"A profile",
        "",
        {
-         Model::CompilationRunTool{true, "tyrbsp.exe", "this and that"},
+         Model::CompilationRunTool{true, "tyrbsp.exe", "this and that", false},
        }},
     }});
 }
@@ -393,7 +393,8 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndFourTasks")
     'tasks': [{
       'type':'tool',
       'tool': 'tyrbsp.exe',
-      'parameters': 'this and that'
+      'parameters': 'this and that',
+      'treatNonZeroResultCodeAsError': true
     },
     {
       'type':'copy',
@@ -422,7 +423,7 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndFourTasks")
       {"A profile",
        "",
        {
-         Model::CompilationRunTool{true, "tyrbsp.exe", "this and that"},
+         Model::CompilationRunTool{true, "tyrbsp.exe", "this and that", true},
          Model::CompilationCopyFiles{false, "the source", "the target"},
          Model::CompilationRenameFile{true, "the source", "the target"},
          Model::CompilationDeleteFiles{false, "some other target"},

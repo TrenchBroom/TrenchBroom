@@ -116,15 +116,19 @@ EL::Value CompilationConfigWriter::writeTasks(
           map["target"] = EL::Value{deleteFiles.targetSpec};
           return EL::Value{std::move(map)};
         },
-        [](const Model::CompilationRunTool& exportMap) {
+        [](const Model::CompilationRunTool& runTool) {
           auto map = EL::MapType{};
-          if (!exportMap.enabled)
+          if (!runTool.enabled)
           {
             map["enabled"] = EL::Value{false};
           }
+          if (runTool.treatNonZeroResultCodeAsError)
+          {
+            map["treatNonZeroResultCodeAsError"] = EL::Value{true};
+          }
           map["type"] = EL::Value{"tool"};
-          map["tool"] = EL::Value{exportMap.toolSpec};
-          map["parameters"] = EL::Value{exportMap.parameterSpec};
+          map["tool"] = EL::Value{runTool.toolSpec};
+          map["parameters"] = EL::Value{runTool.parameterSpec};
           return EL::Value{std::move(map)};
         }),
       task);

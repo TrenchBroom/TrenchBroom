@@ -24,19 +24,18 @@
 
 #include "Macros.h"
 #include "Model/CompilationTask.h"
+#include "View/CompilationContext.h"
 
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct CompilationProfile;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class CompilationContext;
 
@@ -176,13 +175,13 @@ class CompilationRunner : public QObject
 private:
   using TaskRunnerList = std::vector<std::unique_ptr<CompilationTaskRunner>>;
 
-  std::unique_ptr<CompilationContext> m_context;
+  CompilationContext m_context;
   TaskRunnerList m_taskRunners;
   TaskRunnerList::iterator m_currentTask;
 
 public:
   CompilationRunner(
-    std::unique_ptr<CompilationContext> context,
+    CompilationContext context,
     const Model::CompilationProfile& profile,
     QObject* parent = nullptr);
   ~CompilationRunner() override;
@@ -208,5 +207,5 @@ signals:
 
   deleteCopyAndMove(CompilationRunner);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

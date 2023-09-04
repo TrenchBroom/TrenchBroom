@@ -32,14 +32,12 @@ class QLayout;
 class QLineEdit;
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct CompilationProfile;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class MultiCompletionLineEdit;
@@ -53,8 +51,8 @@ protected:
   std::weak_ptr<MapDocument> m_document;
   Model::CompilationProfile& m_profile;
   Model::CompilationTask& m_task;
-  QCheckBox* m_enabledCheckbox{nullptr};
-  QHBoxLayout* m_taskLayout{nullptr};
+  QCheckBox* m_enabledCheckbox = nullptr;
+  QHBoxLayout* m_taskLayout = nullptr;
 
   std::vector<QCompleter*> m_completers;
 
@@ -81,7 +79,7 @@ class CompilationExportMapTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT
 private:
-  MultiCompletionLineEdit* m_targetEditor{nullptr};
+  MultiCompletionLineEdit* m_targetEditor = nullptr;
 
 public:
   CompilationExportMapTaskEditor(
@@ -101,8 +99,8 @@ class CompilationCopyFilesTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT
 private:
-  MultiCompletionLineEdit* m_sourceEditor{nullptr};
-  MultiCompletionLineEdit* m_targetEditor{nullptr};
+  MultiCompletionLineEdit* m_sourceEditor = nullptr;
+  MultiCompletionLineEdit* m_targetEditor = nullptr;
 
 public:
   CompilationCopyFilesTaskEditor(
@@ -123,8 +121,8 @@ class CompilationRenameFileTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT
 private:
-  MultiCompletionLineEdit* m_sourceEditor{nullptr};
-  MultiCompletionLineEdit* m_targetEditor{nullptr};
+  MultiCompletionLineEdit* m_sourceEditor = nullptr;
+  MultiCompletionLineEdit* m_targetEditor = nullptr;
 
 public:
   CompilationRenameFileTaskEditor(
@@ -145,7 +143,7 @@ class CompilationDeleteFilesTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT
 private:
-  MultiCompletionLineEdit* m_targetEditor{nullptr};
+  MultiCompletionLineEdit* m_targetEditor = nullptr;
 
 public:
   CompilationDeleteFilesTaskEditor(
@@ -165,8 +163,9 @@ class CompilationRunToolTaskEditor : public CompilationTaskEditorBase
 {
   Q_OBJECT
 private:
-  MultiCompletionLineEdit* m_toolEditor{nullptr};
-  MultiCompletionLineEdit* m_parametersEditor{nullptr};
+  MultiCompletionLineEdit* m_toolEditor = nullptr;
+  MultiCompletionLineEdit* m_parametersEditor = nullptr;
+  QCheckBox* m_treatNonZeroResultCodeAsError = nullptr;
 
 public:
   CompilationRunToolTaskEditor(
@@ -182,6 +181,7 @@ private slots:
   void browseTool();
   void toolSpecChanged(const QString& text);
   void parameterSpecChanged(const QString& text);
+  void treatNonZeroResultCodeAsErrorChanged(int state);
 };
 
 class CompilationTaskListBox : public ControlListBox
@@ -189,7 +189,7 @@ class CompilationTaskListBox : public ControlListBox
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  Model::CompilationProfile* m_profile{nullptr};
+  Model::CompilationProfile* m_profile = nullptr;
 
 public:
   explicit CompilationTaskListBox(
@@ -206,5 +206,4 @@ private:
 signals:
   void taskContextMenuRequested(const QPoint& globalPos, Model::CompilationTask& task);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

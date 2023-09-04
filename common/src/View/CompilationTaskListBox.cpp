@@ -44,9 +44,7 @@
 #include <kdl/memory_utils.h>
 #include <kdl/overload.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 // CompilationTaskEditorBase
 
@@ -464,6 +462,11 @@ Variables are allowed.)");
   setupCompleter(m_parametersEditor);
   formLayout->addRow("Parameters", m_parametersEditor);
 
+  m_treatNonZeroResultCodeAsError = new QCheckBox{"Stop on nonzero error code"};
+  m_treatNonZeroResultCodeAsError->setToolTip(
+    tr("Stop compilation if the tool returns a nonzero error code"));
+  formLayout->addRow("", m_treatNonZeroResultCodeAsError);
+
   connect(
     m_toolEditor,
     &QLineEdit::textChanged,
@@ -479,6 +482,11 @@ Variables are allowed.)");
     &QLineEdit::textChanged,
     this,
     &CompilationRunToolTaskEditor::parameterSpecChanged);
+  connect(
+    m_treatNonZeroResultCodeAsError,
+    &QCheckBox::stateChanged,
+    this,
+    &CompilationRunToolTaskEditor::treatNonZeroResultCodeAsErrorChanged);
 }
 
 void CompilationRunToolTaskEditor::updateItem()
@@ -495,6 +503,14 @@ void CompilationRunToolTaskEditor::updateItem()
   if (m_parametersEditor->text() != parametersSpec)
   {
     m_parametersEditor->setText(parametersSpec);
+  }
+
+  if (
+    m_treatNonZeroResultCodeAsError->isChecked() != task().treatNonZeroResultCodeAsError)
+  {
+    m_treatNonZeroResultCodeAsError->setCheckState(
+      task().treatNonZeroResultCodeAsError ? Qt::CheckState::Checked
+                                           : Qt::CheckState::Unchecked);
   }
 }
 
@@ -526,6 +542,12 @@ void CompilationRunToolTaskEditor::toolSpecChanged(const QString& text)
 void CompilationRunToolTaskEditor::parameterSpecChanged(const QString& text)
 {
   task().parameterSpec = text.toStdString();
+}
+
+void CompilationRunToolTaskEditor::treatNonZeroResultCodeAsErrorChanged(const int state)
+{
+  const auto value = (state == Qt::Checked);
+  task().treatNonZeroResultCodeAsError = value;
 }
 
 // CompilationTaskListBox
@@ -585,5 +607,4 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
 
   return renderer;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

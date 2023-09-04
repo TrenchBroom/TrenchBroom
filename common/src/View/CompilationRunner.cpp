@@ -47,9 +47,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 CompilationTaskRunner::CompilationTaskRunner(CompilationContext& context)
   : m_context{context}
@@ -321,6 +319,7 @@ void CompilationRunToolTaskRunner::startProcess()
         this,
         &CompilationRunToolTaskRunner::processReadyReadStandardOutput);
 
+      m_process->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
       m_process->setWorkingDirectory(QString::fromStdString(workDir));
       m_process->start(QString::fromStdString(cmd));
       if (!m_process->waitForStarted())
@@ -367,10 +366,26 @@ void CompilationRunToolTaskRunner::processErrorOccurred(
 }
 
 void CompilationRunToolTaskRunner::processFinished(
-  const int exitCode, const QProcess::ExitStatus /* exitStatus */)
+  const int exitCode, const QProcess::ExitStatus exitStatus)
 {
-  m_context << "#### Finished with exit status " << exitCode << "\n\n";
-  emit end();
+  switch (exitStatus)
+  {
+  case QProcess::NormalExit:
+    m_context << "#### Finished with exit code " << exitCode << "\n\n";
+    if (exitCode == 0 || !m_task.treatNonZeroResultCodeAsError)
+    {
+      emit end();
+    }
+    else
+    {
+      emit error();
+    }
+    break;
+  case QProcess::CrashExit:
+    m_context << "#### Crashed with exit code " << exitCode << "\n\n";
+    emit error();
+    break;
+  }
 }
 
 void CompilationRunToolTaskRunner::processReadyReadStandardError()
@@ -392,12 +407,10 @@ void CompilationRunToolTaskRunner::processReadyReadStandardOutput()
 }
 
 CompilationRunner::CompilationRunner(
-  std::unique_ptr<CompilationContext> context,
-  const Model::CompilationProfile& profile,
-  QObject* parent)
+  CompilationContext context, const Model::CompilationProfile& profile, QObject* parent)
   : QObject{parent}
   , m_context{std::move(context)}
-  , m_taskRunners{createTaskRunners(*m_context, profile)}
+  , m_taskRunners{createTaskRunners(m_context, profile)}
   , m_currentTask{std::end(m_taskRunners)}
 {
 }
@@ -459,7 +472,6 @@ void CompilationRunner::execute()
   m_currentTask = std::begin(m_taskRunners);
   if (m_currentTask == std::end(m_taskRunners))
   {
-    emit compilationEnded();
     return;
   }
   bindEvents(*m_currentTask->get());
@@ -467,14 +479,14 @@ void CompilationRunner::execute()
   emit compilationStarted();
 
   const auto workDir = QString::fromStdString(
-    m_context->variableValue(CompilationVariableNames::WORK_DIR_PATH));
+    m_context.variableValue(CompilationVariableNames::WORK_DIR_PATH));
   if (!QDir{workDir}.exists())
   {
-    *m_context << "#### Error: working directory '" << workDir << "' does not exist\n";
+    m_context << "#### Error: working directory '" << workDir << "' does not exist\n";
   }
   else
   {
-    *m_context << "#### Using working directory '" << workDir << "'\n";
+    m_context << "#### Using working directory '" << workDir << "'\n";
   }
   m_currentTask->get()->execute();
 }
@@ -532,5 +544,5 @@ void CompilationRunner::taskEnd()
     }
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
