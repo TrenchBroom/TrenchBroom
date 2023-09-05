@@ -51,12 +51,12 @@ Result<Assets::Palette> readHlMipPalette(Reader& reader)
   const auto height = reader.readSize<int32_t>();
   const auto mip0Offset = reader.readSize<int32_t>();
 
-  // each texture has two bytes after the last mip and before the palette data starts
-  const auto start = mip0Offset + (width * height * 85 >> 6) + 2;
-  reader.seekFromBegin(start);
+  // forward to the address of the color count
+  reader.seekFromBegin(mip0Offset + (width * height * 85 >> 6));
+  const auto colorCount = reader.readSize<uint16_t>();
 
-  // each texture has two bytes of padding at the end
-  auto data = std::vector<unsigned char>(reader.size() - start - 2);
+  // palette data starts right after the color count
+  auto data = std::vector<unsigned char>(colorCount * 3);
   reader.read(data.data(), data.size());
   return Assets::makePalette(data);
 }
