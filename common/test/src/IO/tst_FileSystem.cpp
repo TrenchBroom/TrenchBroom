@@ -43,14 +43,14 @@ TEST_CASE("FileSystem")
           DirectoryEntry{
             "nested_dir",
             {
-              FileEntry{"nested_dir_file_1.txt", makeObjectFile(1)},
               FileEntry{"nested_dir_file_2.map", makeObjectFile(2)},
+              FileEntry{"nested_dir_file_1.txt", makeObjectFile(1)},
             }},
           FileEntry{"some_dir_file_1.TXT", makeObjectFile(3)},
           FileEntry{"some_dir_file_2.doc", makeObjectFile(4)},
         }},
-      FileEntry{"root_file_1.map", makeObjectFile(5)},
-      FileEntry{"root_file_2.jpg", makeObjectFile(6)},
+      FileEntry{"root_file.map", makeObjectFile(5)},
+      FileEntry{"root_file.jpg", makeObjectFile(6)},
     }}};
 
   SECTION("makeAbsolute")
@@ -95,29 +95,29 @@ TEST_CASE("FileSystem")
       == Result<std::vector<std::filesystem::path>>{
         Error{"Path does not denote a directory: 'does_not_exist'"}});
     CHECK(
-      fs.find("root_file_1.map", TraversalMode::Flat)
+      fs.find("root_file.map", TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{
-        Error{"Path does not denote a directory: 'root_file_1.map'"}});
+        Error{"Path does not denote a directory: 'root_file.map'"}});
 
     CHECK(
       fs.find("", TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
-        "root_file_1.map",
-        "root_file_2.jpg",
         "some_dir",
+        "root_file.map",
+        "root_file.jpg",
       }});
 
     CHECK(
       fs.find("", TraversalMode::Recursive)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
-        "root_file_1.map",
-        "root_file_2.jpg",
         "some_dir",
         "some_dir/nested_dir",
-        "some_dir/nested_dir/nested_dir_file_1.txt",
         "some_dir/nested_dir/nested_dir_file_2.map",
+        "some_dir/nested_dir/nested_dir_file_1.txt",
         "some_dir/some_dir_file_1.TXT",
         "some_dir/some_dir_file_2.doc",
+        "root_file.map",
+        "root_file.jpg",
       }});
 
     CHECK(
@@ -132,8 +132,8 @@ TEST_CASE("FileSystem")
       fs.find("some_dir", TraversalMode::Recursive)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "some_dir/nested_dir",
-        "some_dir/nested_dir/nested_dir_file_1.txt",
         "some_dir/nested_dir/nested_dir_file_2.map",
+        "some_dir/nested_dir/nested_dir_file_1.txt",
         "some_dir/some_dir_file_1.TXT",
         "some_dir/some_dir_file_2.doc",
       }});
@@ -141,10 +141,10 @@ TEST_CASE("FileSystem")
     CHECK(
       fs.find("", TraversalMode::Recursive, makeExtensionPathMatcher({".txt", ".map"}))
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
-        "root_file_1.map",
-        "some_dir/nested_dir/nested_dir_file_1.txt",
         "some_dir/nested_dir/nested_dir_file_2.map",
+        "some_dir/nested_dir/nested_dir_file_1.txt",
         "some_dir/some_dir_file_1.TXT",
+        "root_file.map",
       }});
   }
 

@@ -54,9 +54,9 @@ Result<std::vector<std::filesystem::path>> FileSystem::find(
   }
 
   return doFind(path, traversalMode).transform([&](auto paths) {
-    return kdl::vec_sort(kdl::vec_filter(std::move(paths), [&](const auto& p) {
+    return kdl::vec_filter(std::move(paths), [&](const auto& p) {
       return pathMatcher(p, [&](const auto& x) { return pathInfo(x); });
-    }));
+    });
   });
 }
 

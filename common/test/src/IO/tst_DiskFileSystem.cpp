@@ -65,6 +65,7 @@ TestEnvironment makeTestEnvironment()
       env.createFile("anotherDir/test3.map", "//yet another test file\n{}");
     }};
 }
+
 } // namespace
 
 TEST_CASE("DiskFileSystemTest")
@@ -142,26 +143,26 @@ TEST_CASE("DiskFileSystemTest")
       == Result<std::vector<std::filesystem::path>>{
         Error{"Path does not denote a directory: 'asdf/bleh'"}});
 
-    CHECK(
-      fs.find(".", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+    CHECK_THAT(
+      fs.find(".", TraversalMode::Flat),
+      MatchesPathsResult({
         "anotherDir",
         "dir1",
         "dir2",
         "test.txt",
         "test2.map",
-      }});
+      }));
 
-    CHECK(
-      fs.find("anotherDir", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+    CHECK_THAT(
+      fs.find("anotherDir", TraversalMode::Flat),
+      MatchesPathsResult({
         "anotherDir/subDirTest",
         "anotherDir/test3.map",
-      }});
+      }));
 
-    CHECK(
-      fs.find(".", TraversalMode::Recursive)
-      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+    CHECK_THAT(
+      fs.find(".", TraversalMode::Recursive),
+      MatchesPathsResult({
         "anotherDir",
         "anotherDir/subDirTest",
         "anotherDir/subDirTest/test2.map",
@@ -170,7 +171,20 @@ TEST_CASE("DiskFileSystemTest")
         "dir2",
         "test.txt",
         "test2.map",
-      }});
+      }));
+
+    CHECK_THAT(
+      fs.find(".", TraversalMode::Recursive),
+      MatchesPathsResult({
+        "anotherDir",
+        "anotherDir/subDirTest",
+        "anotherDir/subDirTest/test2.map",
+        "anotherDir/test3.map",
+        "dir1",
+        "dir2",
+        "test.txt",
+        "test2.map",
+      }));
   }
 
   SECTION("openFile")

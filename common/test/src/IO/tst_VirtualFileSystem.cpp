@@ -128,8 +128,8 @@ TEST_CASE("VirtualFileSystem")
       CHECK(
         vfs.find("", TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
-          "bar",
           "foo",
+          "bar",
         }});
       CHECK(
         vfs.find("foo", TraversalMode::Flat)
@@ -241,9 +241,9 @@ TEST_CASE("VirtualFileSystem")
       CHECK(
         vfs.find("", TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
           "bar",
           "baz",
-          "foo",
         }});
       CHECK(
         vfs.find("foo", TraversalMode::Flat)
@@ -257,10 +257,10 @@ TEST_CASE("VirtualFileSystem")
       CHECK(
         vfs.find("bar", TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "bar/foo",
           "bar/bat",
           "bar/baz",
           "bar/cat",
-          "bar/foo",
         }});
     }
 
@@ -328,8 +328,8 @@ TEST_CASE("VirtualFileSystem")
       CHECK(
         vfs.find("", TraversalMode::Flat)
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
-          "bar",
           "foo",
+          "bar",
         }});
       CHECK(
         vfs.find("foo", TraversalMode::Flat)
@@ -427,6 +427,94 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(vfs.openFile("foo/bar/baz") == Result<std::shared_ptr<File>>{foo_bar_baz});
       CHECK(vfs.openFile("foo/bar/foo") == Result<std::shared_ptr<File>>{foo_bar_foo});
+    }
+  }
+
+  SECTION("with two file systems mounted at nested mount points and overriding")
+  {
+    auto fs1_foo_bar_a = std::make_shared<ObjectFile<Object>>(Object{1});
+    auto fs1_foo_bar_c = std::make_shared<ObjectFile<Object>>(Object{2});
+    auto fs1_foo_bar_e = std::make_shared<ObjectFile<Object>>(Object{3});
+    auto fs1_foo_bar_f = std::make_shared<ObjectFile<Object>>(Object{4});
+
+    auto fs2_foo_bar_b = std::make_shared<ObjectFile<Object>>(Object{5});
+    auto fs2_foo_bar_c = std::make_shared<ObjectFile<Object>>(Object{6});
+    auto fs2_foo_bar_d = std::make_shared<ObjectFile<Object>>(Object{7});
+    auto fs2_foo_bar_g = std::make_shared<ObjectFile<Object>>(Object{8});
+
+    vfs.mount(
+      "foo",
+      std::make_unique<TestFileSystem>(
+        Entry{DirectoryEntry{
+          "",
+          {
+            DirectoryEntry{
+              "bar",
+              {
+                FileEntry{"a", fs1_foo_bar_a},
+                FileEntry{"c", fs1_foo_bar_c}, // overridden by fs2_foo_bar_c
+                FileEntry{"e", fs1_foo_bar_e},
+                FileEntry{"f", fs1_foo_bar_f}, // overridden by directory in fs2
+                DirectoryEntry{"g", {}},       // overridden by fs2_foo_bar_g
+              }},
+          }}},
+        "/fs1"));
+    vfs.mount(
+      "foo/bar",
+      std::make_unique<TestFileSystem>(
+        Entry{DirectoryEntry{
+          "",
+          {
+            FileEntry{"b", fs2_foo_bar_b},
+            FileEntry{"c", fs2_foo_bar_c}, // overrides fs1_foo_bar_c
+            FileEntry{"d", fs2_foo_bar_d},
+            DirectoryEntry{"f", {}},       // overrides fs1_foo_bar_f
+            FileEntry{"g", fs2_foo_bar_g}, // overrides directory in fs1
+          }}},
+        "/fs2"));
+
+    SECTION("pathInfo")
+    {
+      CHECK(vfs.pathInfo("foo/bar/f") == PathInfo::Directory);
+      CHECK(vfs.pathInfo("foo/bar/g") == PathInfo::File);
+    }
+
+    SECTION("find")
+    {
+      CHECK(
+        vfs.find("", TraversalMode::Flat)
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+        }});
+      CHECK(
+        vfs.find("foo", TraversalMode::Flat)
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar",
+        }});
+      CHECK(
+        vfs.find("foo/bar", TraversalMode::Flat)
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar/a",
+          "foo/bar/e",
+          "foo/bar/b",
+          "foo/bar/c",
+          "foo/bar/d",
+          "foo/bar/f",
+          "foo/bar/g",
+        }});
+    }
+
+    SECTION("openFile")
+    {
+      CHECK(vfs.openFile("foo/bar/a") == Result<std::shared_ptr<File>>{fs1_foo_bar_a});
+      CHECK(vfs.openFile("foo/bar/b") == Result<std::shared_ptr<File>>{fs2_foo_bar_b});
+      CHECK(vfs.openFile("foo/bar/c") == Result<std::shared_ptr<File>>{fs2_foo_bar_c});
+      CHECK(vfs.openFile("foo/bar/d") == Result<std::shared_ptr<File>>{fs2_foo_bar_d});
+      CHECK(vfs.openFile("foo/bar/e") == Result<std::shared_ptr<File>>{fs1_foo_bar_e});
+      CHECK(
+        vfs.openFile("foo/bar/f")
+        == Result<std::shared_ptr<File>>{Error{"'foo/bar/f' not found"}});
+      CHECK(vfs.openFile("foo/bar/g") == Result<std::shared_ptr<File>>{fs2_foo_bar_g});
     }
   }
 }

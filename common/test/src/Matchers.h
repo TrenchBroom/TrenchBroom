@@ -19,15 +19,70 @@
 
 #pragma once
 
+#include "Error.h"
+#include "Result.h"
+
+#include <kdl/overload.h>
+#include <kdl/result.h>
 #include <kdl/std_io.h>
 
 #include <algorithm>
+#include <filesystem>
 #include <sstream>
+#include <vector>
 
 #include "Catch2.h"
 
 namespace TrenchBroom
 {
+
+template <typename M, typename T, typename... E>
+class ResultMatcher : public Catch::MatcherBase<kdl::result<T, E...>>
+{
+  kdl::result<T, E...> m_expected;
+
+public:
+  explicit ResultMatcher(kdl::result<T, E...> expected)
+    : m_expected{std::move(expected)}
+  {
+  }
+
+  bool match(const kdl::result<T, E...>& in) const override
+  {
+    return m_expected.visit(kdl::overload(
+      [&](const T& lhs) {
+        return in.visit(kdl::overload(
+          [&](const T& rhs) { return M{lhs}.match(rhs); },
+          [](const auto&) { return false; }));
+      },
+      (
+        [&](const E& lhs) {
+          return in.visit(kdl::overload(
+            [&](const E& rhs) { return lhs == rhs; }, [](const auto&) { return false; }));
+        },
+        ...)));
+  }
+
+  std::string describe() const override
+  {
+    auto str = std::stringstream{};
+    str << "matches " << m_expected;
+    return str.str();
+  }
+};
+
+template <typename M, typename T, typename... E>
+auto MatchesResult(kdl::result<T, E...> expected)
+{
+  return ResultMatcher<M, T, E...>{std::move(expected)};
+}
+
+inline auto MatchesPathsResult(std::vector<std::filesystem::path> paths)
+{
+  return MatchesResult<decltype(Catch::UnorderedEquals(paths))>(
+    Result<std::vector<std::filesystem::path>>{std::move(paths)});
+}
+
 template <typename T>
 class AnyOfMatcher : public Catch::MatcherBase<T>
 {
