@@ -48,7 +48,9 @@ ImageSpriteParser::ImageSpriteParser(
 
 bool ImageSpriteParser::canParse(const std::filesystem::path& path)
 {
-  return kdl::path_to_lower(path.extension()) == ".png";
+  static const auto extensions =
+    std::vector<std::string>{".png", ".jpg", ".jpeg", ".tga", ".bmp"};
+  return kdl::vec_contains(extensions, kdl::path_to_lower(path.extension()).string());
 }
 
 std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger& logger)
