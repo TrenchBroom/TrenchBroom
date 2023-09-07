@@ -36,9 +36,7 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 ImageSpriteParser::ImageSpriteParser(
   std::string name, std::shared_ptr<File> file, const FileSystem& fs)
@@ -111,5 +109,4 @@ void ImageSpriteParser::doLoadFrame(
     surface.addIndexedMesh(frame, builder.vertices(), builder.indices());
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

@@ -25,9 +25,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class File;
 class FileSystem;
@@ -49,5 +47,4 @@ private:
   void doLoadFrame(
     size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO
