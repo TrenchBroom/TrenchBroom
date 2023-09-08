@@ -40,7 +40,7 @@ std::string getTextureNameFromPathSuffix(
 
 bool checkTextureDimensions(size_t width, size_t height)
 {
-  return width <= 8192 && height <= 8192;
+  return width > 0 && height > 0 && width <= 8192 && height <= 8192;
 }
 
 size_t mipSize(const size_t width, const size_t height, const size_t mipLevel)

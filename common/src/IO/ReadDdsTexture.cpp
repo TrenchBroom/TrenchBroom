@@ -27,6 +27,8 @@
 
 #include <kdl/result.h>
 
+#include <fmt/format.h>
+
 namespace TrenchBroom::IO
 {
 namespace
@@ -147,7 +149,8 @@ Result<Assets::Texture, ReadTextureError> readDdsTexture(std::string name, Reade
 
     if (!checkTextureDimensions(width, height))
     {
-      return ReadTextureError{std::move(name), "Invalid texture dimensions"};
+      return ReadTextureError{
+        std::move(name), fmt::format("Invalid texture dimensions: {}*{}", width, height)};
     }
 
     reader.seekFromBegin(DdsLayout::PixelFormatOffset);

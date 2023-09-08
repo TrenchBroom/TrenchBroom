@@ -29,6 +29,8 @@
 #include <kdl/invoke.h>
 #include <kdl/result.h>
 
+#include <fmt/format.h>
+
 #include <cassert>
 #include <stdexcept>
 
@@ -108,7 +110,9 @@ Result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
 
     if (!checkTextureDimensions(imageWidth, imageHeight))
     {
-      return ReadTextureError{std::move(name), "Invalid texture dimensions"};
+      return ReadTextureError{
+        std::move(name),
+        fmt::format("Invalid texture dimensions: {}*{}", imageWidth, imageHeight)};
     }
 
     // This is supposed to indicate whether any pixels are transparent (alpha < 100%)
