@@ -309,7 +309,7 @@ Result<void> GameFactory::loadGameConfig(const std::filesystem::path& path)
 
         const auto configName = config.name;
         m_configs.emplace(configName, std::move(config));
-        m_names.push_back(configName);
+        kdl::wrap_set(m_names).insert(configName);
 
         const auto gamePathPrefPath =
           std::filesystem::path{"Games"} / configName / "Path";

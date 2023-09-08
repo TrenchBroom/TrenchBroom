@@ -94,9 +94,9 @@ TEST_CASE("TestFileSystem")
     CHECK(
       fs.find("", TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+        "some_dir",
         "root_file_1",
         "root_file_2",
-        "some_dir",
       }});
 
     CHECK(
@@ -117,14 +117,14 @@ TEST_CASE("TestFileSystem")
     CHECK(
       fs.find("", TraversalMode::Recursive)
       == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
-        "root_file_1",
-        "root_file_2",
         "some_dir",
         "some_dir/nested_dir",
         "some_dir/nested_dir/nested_dir_file_1",
         "some_dir/nested_dir/nested_dir_file_2",
         "some_dir/some_dir_file_1",
         "some_dir/some_dir_file_2",
+        "root_file_1",
+        "root_file_2",
       }});
   }
 

@@ -26,6 +26,7 @@
 #include "IO/TraversalMode.h"
 #include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
+#include "Matchers.h"
 #include "TestUtils.h"
 
 #include <filesystem>
@@ -841,42 +842,42 @@ TEST_CASE("Hierarchical ImageFileSystems")
 
   SECTION("find")
   {
-    CHECK(
-      fs->find("", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
-        "amnet.cfg",
+    CHECK_THAT(
+      fs->find("", TraversalMode::Flat),
+      MatchesPathsResult({
         "bear.cfg",
         "pics",
         "textures",
-      }});
-
-    CHECK(
-      fs->find("pics", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
-        "pics/tag1.pcx",
-        "pics/tag2.pcx",
-      }});
-
-    CHECK(
-      fs->find("", TraversalMode::Recursive)
-      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
         "amnet.cfg",
-        "bear.cfg",
-        "pics",
-        "pics/tag1.pcx",
+      }));
+
+    CHECK_THAT(
+      fs->find("pics", TraversalMode::Flat),
+      MatchesPathsResult({
         "pics/tag2.pcx",
+        "pics/tag1.pcx",
+      }));
+
+    CHECK_THAT(
+      fs->find("", TraversalMode::Recursive),
+      MatchesPathsResult({
+        "amnet.cfg",
         "textures",
-        "textures/e1u1",
-        "textures/e1u1/box1_3.wal",
-        "textures/e1u1/brlava.wal",
-        "textures/e1u2",
-        "textures/e1u2/angle1_1.wal",
-        "textures/e1u2/angle1_2.wal",
-        "textures/e1u2/basic1_7.wal",
         "textures/e1u3",
-        "textures/e1u3/stflr1_5.wal",
         "textures/e1u3/strs1_3.wal",
-      }});
+        "textures/e1u3/stflr1_5.wal",
+        "textures/e1u2",
+        "textures/e1u2/basic1_7.wal",
+        "textures/e1u2/angle1_2.wal",
+        "textures/e1u2/angle1_1.wal",
+        "textures/e1u1",
+        "textures/e1u1/brlava.wal",
+        "textures/e1u1/box1_3.wal",
+        "pics",
+        "pics/tag2.pcx",
+        "pics/tag1.pcx",
+        "bear.cfg",
+      }));
   }
 
   SECTION("openFile")
@@ -939,16 +940,16 @@ TEST_CASE("Flat ImageFileSystems")
     const auto traversalMode = GENERATE(TraversalMode::Flat, TraversalMode::Recursive);
     CAPTURE(traversalMode);
 
-    CHECK(
-      fs->find("", traversalMode)
-      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+    CHECK_THAT(
+      fs->find("", traversalMode),
+      MatchesPathsResult({
         "blowjob_machine.D", "bongs2.D",          "can-o-jam.D",     "cap4can-o-jam.D",
         "coffin1.D",         "coffin2.D",         "cr8_czg_1.D",     "cr8_czg_2.D",
         "cr8_czg_3.D",       "cr8_czg_4.D",       "cr8_czg_5.D",     "crackpipes.D",
         "czg_backhole.D",    "czg_fronthole.D",   "dex_5.D",         "eat_me.D",
         "for_sux-m-ass.D",   "lasthopeofhuman.D", "polished_turd.D", "speedM_1.D",
         "u_get_this.D",
-      }});
+      }));
   }
 
   SECTION("openFile")

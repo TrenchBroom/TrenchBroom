@@ -24,6 +24,7 @@
 #include "IO/TraversalMode.h"
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
+#include "Matchers.h"
 
 #include <filesystem>
 #include <memory>
@@ -56,19 +57,19 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
       fs, shaderSearchPath, textureSearchPaths, logger)
       .value());
 
-  CHECK(
-    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))
-    == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+  CHECK_THAT(
+    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""})),
+    MatchesPathsResult({
       texturePrefix / "test/editor_image",
       texturePrefix / "test/not_existing",
       texturePrefix / "test/not_existing2",
       texturePrefix / "test/test",
       texturePrefix / "test/test2",
-    }});
+    }));
 
-  CHECK(
-    fs.find(texturePrefix, TraversalMode::Recursive, makeExtensionPathMatcher({""}))
-    == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+  CHECK_THAT(
+    fs.find(texturePrefix, TraversalMode::Recursive, makeExtensionPathMatcher({""})),
+    MatchesPathsResult({
       texturePrefix / "__TB_empty",
       texturePrefix / "test",
       texturePrefix / "test/editor_image",
@@ -76,7 +77,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
       texturePrefix / "test/not_existing2",
       texturePrefix / "test/test",
       texturePrefix / "test/test2",
-    }});
+    }));
 }
 
 TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
@@ -103,15 +104,15 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
       fs, shaderSearchPath, textureSearchPaths, logger)
       .value());
 
-  CHECK(
-    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""}))
-    == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+  CHECK_THAT(
+    fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""})),
+    MatchesPathsResult({
       texturePrefix / "test/editor_image",
       texturePrefix / "test/not_existing",
       texturePrefix / "test/not_existing2",
       texturePrefix / "test/test",
       texturePrefix / "test/test2",
-    }});
+    }));
 }
 } // namespace IO
 } // namespace TrenchBroom
