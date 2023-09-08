@@ -149,7 +149,10 @@ void SmartWadEditor::addWads()
     {
       auto wadPaths = getWadPaths(nodes(), propertyKey());
       wadPaths.push_back(pathDialog.path());
+
       document()->setProperty(propertyKey(), getWadPathStr(wadPaths));
+      m_wadPaths->setCurrentRow(
+        m_wadPaths->count() - 1, QItemSelectionModel::ClearAndSelect);
     }
   }
 }
@@ -161,17 +164,22 @@ void SmartWadEditor::removeSelectedWads()
     return;
   }
 
-  auto wadPaths = getWadPaths(nodes(), propertyKey());
-  auto toRemove = std::vector<std::filesystem::path>{};
+  const auto indicesToRemove = kdl::vec_sort(
+    kdl::vec_transform(
+      m_wadPaths->selectedItems(),
+      [&](const auto& selectedItem) { return size_t(m_wadPaths->row(selectedItem)); }),
+    std::greater<size_t>{});
 
-  for (const auto* selectedItem : m_wadPaths->selectedItems())
+  auto wadPaths = getWadPaths(nodes(), propertyKey());
+  for (const auto index : indicesToRemove)
   {
-    const auto index = size_t(m_wadPaths->row(selectedItem));
-    toRemove.push_back(wadPaths[index]);
+    wadPaths = kdl::vec_erase_at(std::move(wadPaths), index);
   }
 
-  wadPaths = kdl::vec_erase_all(std::move(wadPaths), toRemove);
   document()->setProperty(propertyKey(), getWadPathStr(wadPaths));
+  m_wadPaths->setCurrentRow(
+    std::min(int(indicesToRemove.back()), m_wadPaths->count() - 1),
+    QItemSelectionModel::ClearAndSelect);
 }
 
 void SmartWadEditor::moveSelectedWadsUp()
@@ -188,7 +196,9 @@ void SmartWadEditor::moveSelectedWadsUp()
 
     using std::swap;
     swap(wadPaths[index], wadPaths[index - 1]);
+
     document()->setProperty(propertyKey(), getWadPathStr(wadPaths));
+    m_wadPaths->setCurrentRow(int(index) - 1, QItemSelectionModel::ClearAndSelect);
   }
 }
 
@@ -205,7 +215,9 @@ void SmartWadEditor::moveSelectedWadsDown()
   {
     using std::swap;
     swap(wadPaths[index], wadPaths[index + 1]);
+
     document()->setProperty(propertyKey(), getWadPathStr(wadPaths));
+    m_wadPaths->setCurrentRow(int(index) + 1, QItemSelectionModel::ClearAndSelect);
   }
 }
 
@@ -250,11 +262,29 @@ bool SmartWadEditor::canReloadWads() const
 
 void SmartWadEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes)
 {
+  const auto selectedRows =
+    kdl::vec_transform(m_wadPaths->selectedItems(), [&](const auto& selectedItem) {
+      return std::tuple{m_wadPaths->row(selectedItem), selectedItem->text()};
+    });
+
   m_wadPaths->clear();
 
   for (const auto& path : getWadPaths(nodes, propertyKey()))
   {
     m_wadPaths->addItem(IO::pathAsQString(path));
+  }
+
+  for (const auto& [index, text] : selectedRows)
+  {
+    if (index < m_wadPaths->count() && m_wadPaths->item(index)->text() == text)
+    {
+      m_wadPaths->setCurrentRow(index, QItemSelectionModel::Select);
+    }
+    else
+    {
+      m_wadPaths->clearSelection();
+      break;
+    }
   }
 }
 
