@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 
 #include <vecmath/forward.h>
@@ -67,16 +68,26 @@ struct AssimpVertex
   }
 };
 
+struct AssimpMeshWithTransforms
+{
+  const aiMesh* m_mesh;
+  aiMatrix4x4 m_transform;
+  aiMatrix4x4 m_axisTransform;
+
+  AssimpMeshWithTransforms(
+    const aiMesh* mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
+    : m_mesh(mesh)
+    , m_transform(transform)
+    , m_axisTransform(axisTransform)
+  {
+  }
+};
+
 class AssimpParser : public EntityModelParser
 {
 private:
   std::filesystem::path m_path;
   const FileSystem& m_fs;
-
-  std::vector<vm::vec3f> m_positions;
-  std::vector<AssimpVertex> m_vertices;
-  std::vector<AssimpFace> m_faces;
-  std::vector<Assets::Texture> m_textures;
 
 public:
   AssimpParser(std::filesystem::path path, const FileSystem& fs);
@@ -85,14 +96,18 @@ public:
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
-  void processNode(
+  void loadSceneFrame(
+    const aiScene* scene, size_t frameIndex, Assets::EntityModel& model) const;
+  static void processNode(
+    std::vector<AssimpMeshWithTransforms>& meshes,
     const aiNode& node,
     const aiScene& scene,
     const aiMatrix4x4& transform,
     const aiMatrix4x4& axisTransform);
-  void processMesh(
+  static std::vector<Assets::EntityModelVertex> computeMeshVertices(
     const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform);
-  void processMaterials(const aiScene& scene, Logger& logger);
+  std::vector<Assets::Texture> createTexturesForMaterial(
+    const aiScene& scene, size_t materialIndex, Logger& logger) const;
   static aiMatrix4x4 get_axis_transform(const aiScene& scene);
 };
 } // namespace IO
