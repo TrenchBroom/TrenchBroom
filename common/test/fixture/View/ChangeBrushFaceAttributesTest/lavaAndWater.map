@@ -3,7 +3,6 @@
 // entity 0
 {
 "classname" "worldspawn"
-"_tb_textures" "textures"
 // brush 0
 {
 ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) lavatest 0 0 0 1 1

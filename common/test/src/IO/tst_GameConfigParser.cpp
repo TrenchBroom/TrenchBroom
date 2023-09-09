@@ -200,8 +200,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
     "textures": {
         "root": "textures",
         "extensions": ["wal"],
-        "palette": "pics/colormap.pcx",
-        "attribute": "_tb_textures"
+        "palette": "pics/colormap.pcx"
     },
     "entities": {
         "definitions": [ "Quake2.fgd" ],
@@ -410,7 +409,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
         {"textures"},
         {".wal"},
         {"pics/colormap.pcx"},
-        "_tb_textures",
+        "",
         {},
         {},
       },
@@ -513,7 +512,6 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
         "root": "textures",
         "extensions": [ "" ],
         "shaderSearchPath": "scripts", // this will likely change when we get a material system
-        "attribute": "_tb_textures",
         "excludes": [
             "*_norm",
             "*_gloss"
@@ -740,7 +738,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
         {"textures"},
         {""},
         {},
-        "_tb_textures",
+        "",
         {"scripts"},
         {"*_norm", "*_gloss"},
       },

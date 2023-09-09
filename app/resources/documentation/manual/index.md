@@ -2451,7 +2451,6 @@ The game configuration is an [expression language](#expression_language) map wit
             "root": "textures",
             "extensions": [ ".wal" ],
             "palette": "pics/colormap.pcx",
-            "attribute": "_tb_textures",
         },
         "entities": { // the builtin entity definition files for this game
             "definitions": [ "Quake2.fgd" ],
@@ -2643,7 +2642,6 @@ The optional `excludes` key specifies a list of patterns matched against texture
 	"textures": {
         "root": "textures",
         "extensions": [ "" ],
-        "attribute": "_tb_textures",
         "excludes": [ "*_norm", "*_gloss" ]
     },
 

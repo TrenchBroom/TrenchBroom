@@ -3,7 +3,6 @@
 // entity 0
 {
 "classname" "worldspawn"
-"_tb_textures" "textures/mtrl"
 "back" "map-back/clouds.sol"
 "_tb_def" "builtin:neverball.fgd"
 "grad" "back/land.png"
