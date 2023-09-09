@@ -22,20 +22,18 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class PickResult;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class DragTracker;
 class DropTracker;
@@ -82,5 +80,4 @@ private:
   bool checkInvariant() const;
   bool chainEndsHere() const;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

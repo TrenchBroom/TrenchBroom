@@ -32,9 +32,7 @@
 #include <vecmath/line.h>
 #include <vecmath/vec.h>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 ToolController::~ToolController() = default;
 
@@ -189,5 +187,4 @@ bool ToolControllerGroup::doShouldHandleDrop(
 {
   return true;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

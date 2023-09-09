@@ -27,9 +27,7 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 ToolChain::ToolChain() = default;
 
@@ -246,5 +244,4 @@ bool ToolChain::chainEndsHere() const
 {
   return m_tool == nullptr;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

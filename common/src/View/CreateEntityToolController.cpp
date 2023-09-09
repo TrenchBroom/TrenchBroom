@@ -29,9 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 CreateEntityToolController::CreateEntityToolController(CreateEntityTool& tool)
   : m_tool(tool)
@@ -134,5 +132,4 @@ std::unique_ptr<DropTracker> CreateEntityToolController3D::createDropTracker(
       t.updateEntityPosition3D(is.pickRay(), is.pickResult());
     });
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

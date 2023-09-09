@@ -34,9 +34,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 TEST_CASE("GameTest.loadCorruptPackages")
 {
@@ -154,5 +152,4 @@ TEST_CASE("GameTest.loadQuake3Shaders")
       "test/test2",
     }));
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

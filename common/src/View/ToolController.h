@@ -33,22 +33,20 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Hit;
 class HitQuery;
 class PickResult;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class DragTracker;
 class DropTracker;
@@ -135,5 +133,4 @@ private: // subclassing interface
   virtual bool doShouldHandleDrop(
     const InputState& inputState, const std::string& payload) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

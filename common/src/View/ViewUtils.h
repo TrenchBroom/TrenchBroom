@@ -29,8 +29,9 @@ class QStringList;
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 
@@ -43,5 +44,5 @@ size_t loadEntityDefinitionFile(
 
 std::string queryGroupName(QWidget* parent, const std::string& suggestion);
 std::string queryLayerName(QWidget* parent, const std::string& suggestion);
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
