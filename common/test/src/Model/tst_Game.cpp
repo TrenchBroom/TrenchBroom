@@ -26,6 +26,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
+#include "Model/WorldNode.h"
 #include "TestUtils.h"
 
 #include <kdl/vector_utils.h>
@@ -36,6 +37,52 @@
 
 namespace TrenchBroom::Model
 {
+TEST_CASE("GameTest.newMap")
+{
+  auto logger = NullLogger();
+
+  SECTION("Creates correct worldspawn properties for new maps")
+  {
+    using T = std::tuple<std::string, MapFormat, std::vector<EntityProperty>>;
+    const auto [gameName, mapFormat, expectedProperties] = GENERATE(values<T>({
+      {"Quake",
+       MapFormat::Valve,
+       {
+         {"classname", "worldspawn"},
+         {"wad", ""},
+         {"mapversion", "220"},
+       }},
+      {"Quake3",
+       MapFormat::Quake3_Legacy,
+       {
+         {"classname", "worldspawn"},
+       }},
+      {"Quake3",
+       MapFormat::Quake3_Valve,
+       {
+         {"classname", "worldspawn"},
+         {"mapversion", "220"},
+       }},
+    }));
+
+    CAPTURE(gameName, mapFormat);
+
+    const auto configPath =
+      std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
+    const auto configStr = IO::readTextFile(configPath);
+    auto configParser = IO::GameConfigParser{configStr, configPath};
+    auto config = configParser.parse();
+
+    const auto gamePath =
+      std::filesystem::current_path() / "fixture/test/Model/Game" / gameName;
+    auto game = GameImpl{config, gamePath, logger};
+
+    auto world = game.newMap(mapFormat, vm::bbox3{8192.0}, logger).value();
+    CHECK_THAT(
+      world->entity().properties(), Catch::Matchers::UnorderedEquals(expectedProperties));
+  }
+}
+
 TEST_CASE("GameTest.loadCorruptPackages")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/2496

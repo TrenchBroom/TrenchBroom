@@ -191,6 +191,11 @@ Result<std::unique_ptr<WorldNode>> GameImpl::doNewMap(
       propertyConfig, EntityPropertyKeys::ValveVersion, "220");
   }
 
+  if (!m_config.textureConfig.property.empty())
+  {
+    worldEntity.addOrUpdateProperty(propertyConfig, m_config.textureConfig.property, "");
+  }
+
   auto worldNode = std::make_unique<WorldNode>(
     std::move(propertyConfig), std::move(worldEntity), format);
 
