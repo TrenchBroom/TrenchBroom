@@ -29,6 +29,7 @@
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
+#include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 
 #include <kdl/string_utils.h>
@@ -68,6 +69,8 @@ std::string getWadPathStr(const std::vector<std::filesystem::path>& wadPaths)
 SmartWadEditor::SmartWadEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
   : SmartPropertyEditor{std::move(document), parent}
 {
+  auto* header = new TitleBar{"Wad Files"};
+
   m_wadPaths = new QListWidget{};
   m_wadPaths->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -94,6 +97,7 @@ SmartWadEditor::SmartWadEditor(std::weak_ptr<MapDocument> document, QWidget* par
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
+  layout->addWidget(header);
   layout->addWidget(m_wadPaths, 1);
   layout->addWidget(new BorderLine{}, 0);
   layout->addLayout(toolBar, 0);
