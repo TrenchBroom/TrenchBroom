@@ -180,7 +180,6 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   m_positions.clear();
   m_vertices.clear();
   m_faces.clear();
-  m_textures.clear();
 
   // Import the file as an Assimp scene and populate our vectors.
   auto importer = Assimp::Importer{};
@@ -198,12 +197,12 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   }
 
   // Load materials as textures.
+  auto textures = std::vector<Assets::Texture>{};
   for (unsigned int i = 0; i < scene->mNumMaterials; i++)
   {
-    m_textures.push_back(processMaterial(*scene, i, logger));
+    textures.push_back(processMaterial(*scene, i, logger));
   }
-
-  surface.setSkins(std::move(m_textures));
+  surface.setSkins(std::move(textures));
 
   // load the reference pose as the only frame for this model
   loadSceneFrame(scene, surface, *model);

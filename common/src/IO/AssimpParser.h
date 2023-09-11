@@ -77,7 +77,6 @@ private:
   std::vector<vm::vec3f> m_positions;
   std::vector<AssimpVertex> m_vertices;
   std::vector<AssimpFace> m_faces;
-  std::vector<Assets::Texture> m_textures;
 
 public:
   AssimpParser(std::filesystem::path path, const FileSystem& fs);
