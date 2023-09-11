@@ -177,9 +177,6 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   model->addFrame();
   auto& surface = model->addSurface(m_path.string());
 
-  m_vertices.clear();
-  m_faces.clear();
-
   // Import the file as an Assimp scene and populate our vectors.
   auto importer = Assimp::Importer{};
   importer.SetIOHandler(new AssimpIOSystem{m_fs});
@@ -210,7 +207,9 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 }
 
 void AssimpParser::loadSceneFrame(
-  const aiScene* scene, Assets::EntityModelSurface& surface, Assets::EntityModel& model)
+  const aiScene* scene,
+  Assets::EntityModelSurface& surface,
+  Assets::EntityModel& model) const
 {
   auto meshes = std::vector<AssimpMeshWithTransforms>{};
 
@@ -223,14 +222,25 @@ void AssimpParser::loadSceneFrame(
     scene->mRootNode->mTransformation,
     get_axis_transform(*scene));
 
+
+  auto vertices = std::vector<Assets::EntityModelVertex>{};
+  auto faces = std::vector<AssimpFace>{};
+
   for (auto mesh : meshes)
   {
-    processMesh(*mesh.m_mesh, mesh.m_transform, mesh.m_axisTransform);
+    const auto offset = vertices.size();
+
+    const auto meshVerts =
+      computeMeshVertices(*mesh.m_mesh, mesh.m_transform, mesh.m_axisTransform);
+    const auto meshFaces = computeMeshFaces(*mesh.m_mesh, offset);
+
+    vertices.insert(vertices.end(), meshVerts.begin(), meshVerts.end());
+    faces.insert(faces.end(), meshFaces.begin(), meshFaces.end());
   }
 
   // Build bounds.
   auto bounds = vm::bbox3f::builder{};
-  if (m_vertices.empty())
+  if (vertices.empty())
   {
     // Passing empty bounds as bbox crashes the program, don't let it happen.
     throw ParserException{"Model has no vertices. (So no valid bounding box.)"};
@@ -238,7 +248,7 @@ void AssimpParser::loadSceneFrame(
   else
   {
     bounds.add(
-      std::begin(m_vertices), std::end(m_vertices), [](const Assets::EntityModelVertex& v) {
+      std::begin(vertices), std::end(vertices), [](const Assets::EntityModelVertex& v) {
         return v.attr;
       });
   }
@@ -247,7 +257,7 @@ void AssimpParser::loadSceneFrame(
   // Part 1: Collation
   size_t totalVertexCount = 0;
   auto size = Renderer::TexturedIndexRangeMap::Size{};
-  for (const auto& face : m_faces)
+  for (const auto& face : faces)
   {
     size.inc(
       surface.skin(face.m_material), Renderer::PrimType::Polygon, face.m_vertices.size());
@@ -259,11 +269,10 @@ void AssimpParser::loadSceneFrame(
   auto builder = Renderer::TexturedIndexRangeMapBuilder<Assets::EntityModelVertex::Type>{
     totalVertexCount, size};
 
-  for (const auto& face : m_faces)
+  for (const auto& face : faces)
   {
-    auto entityVertices = kdl::vec_transform(face.m_vertices, [&](const auto& index) {
-      return m_vertices[index];
-    });
+    auto entityVertices = kdl::vec_transform(
+      face.m_vertices, [&](const auto& index) { return vertices[index]; });
     builder.addPolygon(surface.skin(face.m_material), entityVertices);
   }
 
@@ -321,42 +330,66 @@ void AssimpParser::processNode(
   }
 }
 
-void AssimpParser::processMesh(
+std::vector<Assets::EntityModelVertex> AssimpParser::computeMeshVertices(
   const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
 {
+  std::vector<Assets::EntityModelVertex> vertices{};
+
   // Meshes have been sorted by primitive type, so we know for sure we'll ONLY get
   // triangles in a single mesh.
-  if (mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE)
+  if (!(mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE))
   {
-    const auto offset = m_vertices.size();
+    return vertices;
+  }
+
+  const size_t numVerts = mesh.mNumVertices;
+  vertices.reserve(numVerts);
+
+  {
     // Add all the vertices of the mesh.
-    for (unsigned int i = 0; i < mesh.mNumVertices; i++)
+    for (unsigned int i = 0; i < numVerts; i++)
     {
       const auto texcoords =
         mesh.mTextureCoords[0]
           ? vm::vec2f{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y}
           : vm::vec2f{0.0f, 0.0f};
 
-
       auto meshVertices = mesh.mVertices[i];
       meshVertices *= transform;
       meshVertices *= axisTransform;
-      m_vertices.emplace_back(
-        vm::vec3f{meshVertices.x, meshVertices.y, meshVertices.z}, texcoords);
+
+      const auto vec = vm::vec3f(meshVertices.x, meshVertices.y, meshVertices.z);
+      vertices.emplace_back(vec, texcoords);
     }
 
-    for (unsigned int i = 0; i < mesh.mNumFaces; i++)
-    {
-      auto verts = std::vector<size_t>{};
-      verts.reserve(mesh.mFaces[i].mNumIndices);
-
-      for (unsigned int j = 0; j < mesh.mFaces[i].mNumIndices; j++)
-      {
-        verts.push_back(mesh.mFaces[i].mIndices[j] + offset);
-      }
-      m_faces.emplace_back(mesh.mMaterialIndex, verts);
-    }
+    return vertices;
   }
+}
+
+std::vector<AssimpFace> AssimpParser::computeMeshFaces(const aiMesh& mesh, size_t offset)
+{
+  std::vector<AssimpFace> faces{};
+
+  // Meshes have been sorted by primitive type, so we know for sure we'll ONLY get
+  // triangles in a single mesh.
+  if (!(mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE))
+  {
+    return faces;
+  }
+
+  for (unsigned int i = 0; i < mesh.mNumFaces; i++)
+  {
+    auto verts = std::vector<size_t>{};
+    verts.reserve(mesh.mFaces[i].mNumIndices);
+
+    for (unsigned int j = 0; j < mesh.mFaces[i].mNumIndices; j++)
+    {
+      verts.push_back(mesh.mFaces[i].mIndices[j] + offset);
+    }
+
+    faces.emplace_back(mesh.mMaterialIndex, verts);
+  }
+  return faces;
 }
 
 namespace

@@ -79,9 +79,6 @@ private:
   std::filesystem::path m_path;
   const FileSystem& m_fs;
 
-  std::vector<Assets::EntityModelVertex> m_vertices;
-  std::vector<AssimpFace> m_faces;
-
 public:
   AssimpParser(std::filesystem::path path, const FileSystem& fs);
 
@@ -92,15 +89,16 @@ private:
   void loadSceneFrame(
     const aiScene* scene,
     Assets::EntityModelSurface& surface,
-    Assets::EntityModel& model);
+    Assets::EntityModel& model) const;
   static void processNode(
     std::vector<AssimpMeshWithTransforms>& meshes,
     const aiNode& node,
     const aiScene& scene,
     const aiMatrix4x4& transform,
     const aiMatrix4x4& axisTransform);
-  void processMesh(
+  static std::vector<Assets::EntityModelVertex> computeMeshVertices(
     const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform);
+  static std::vector<AssimpFace> computeMeshFaces(const aiMesh& mesh, size_t offset);
   Assets::Texture processMaterial(
     const aiScene& scene, size_t materialIndex, Logger& logger) const;
   static aiMatrix4x4 get_axis_transform(const aiScene& scene);
