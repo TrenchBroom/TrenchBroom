@@ -31,9 +31,8 @@
 #include "Logger.h"
 #include "Model/BrushFaceAttributes.h"
 #include "ReaderException.h"
+#include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
-#include "Renderer/TexturedIndexRangeMap.h"
-#include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 #include "kdl/result_fold.h"
 #include <kdl/path_utils.h>
@@ -209,7 +208,6 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   auto model = std::make_unique<Assets::EntityModel>(
     m_path.string(), Assets::PitchType::Normal, Assets::Orientation::Oriented);
   model->addFrame();
-  auto& surface = model->addSurface(m_path.string());
 
   // Import the file as an Assimp scene and populate our vectors.
   auto importer = Assimp::Importer{};
@@ -226,24 +224,32 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
       std::string{"Assimp couldn't import the file: "} + importer.GetErrorString()};
   }
 
-  // Load materials as textures.
-  auto textures = std::vector<Assets::Texture>{};
-  for (unsigned int i = 0; i < scene->mNumMaterials; i++)
+  // create a surface for each mesh in the scene and assign the mesh material to it
+  const auto numMeshes = scene->mNumMeshes;
+  for (size_t i = 0; i < numMeshes; ++i)
   {
-    textures.push_back(processMaterial(*scene, i, logger));
+    const auto& mesh = scene->mMeshes[i];
+
+    auto& surface = model->addSurface(scene->mMeshes[i]->mName.data);
+
+    // an assimp mesh will only ever have one material, but a material can have multiple
+    // alternatives (this is how assimp handles skins)
+    const std::string meshName = mesh->mName.data;
+
+    // load skins for this surface
+    const size_t meshMaterialIndex = mesh->mMaterialIndex;
+    auto textures = std::vector<Assets::Texture>{};
+    textures.push_back(processMaterial(*scene, meshMaterialIndex, logger));
+    surface.setSkins(std::move(textures));
   }
-  surface.setSkins(std::move(textures));
 
   // load the reference pose as the only frame for this model
-  loadSceneFrame(scene, surface, *model);
+  loadSceneFrame(scene, *model);
 
   return model;
 }
 
-void AssimpParser::loadSceneFrame(
-  const aiScene* scene,
-  Assets::EntityModelSurface& surface,
-  Assets::EntityModel& model) const
+void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& model) const
 {
   auto meshes = std::vector<AssimpMeshWithTransforms>{};
 
@@ -256,61 +262,70 @@ void AssimpParser::loadSceneFrame(
     scene->mRootNode->mTransformation,
     getAxisTransform(*scene));
 
-
-  auto vertices = std::vector<Assets::EntityModelVertex>{};
-  auto faces = std::vector<AssimpFace>{};
+  // store the mesh data in a list so we can compute the bounding box before creating the
+  // frame
+  auto meshData = std::vector<AssimpComputedMeshData>{};
+  auto bounds = vm::bbox3f::builder{};
 
   for (auto mesh : meshes)
   {
-    const auto offset = vertices.size();
+    const auto meshIndex = getMeshIndex(*scene, *mesh.m_mesh);
+    if (meshIndex < 0)
+    {
+      continue;
+    }
 
     const auto meshVerts =
       computeMeshVertices(*mesh.m_mesh, mesh.m_transform, mesh.m_axisTransform);
-    const auto meshFaces = computeMeshFaces(*mesh.m_mesh, offset);
 
-    vertices.insert(vertices.end(), meshVerts.begin(), meshVerts.end());
-    faces.insert(faces.end(), meshFaces.begin(), meshFaces.end());
+    for (auto v : meshVerts)
+    {
+      bounds.add(v.attr);
+    }
+
+    // build the mesh faces as triangles
+    const size_t numTriangles = mesh.m_mesh->mNumFaces;
+    const size_t numIndices = numTriangles * 3;
+
+    auto size = Renderer::IndexRangeMap::Size{};
+    size.inc(Renderer::PrimType::Triangles, numTriangles);
+    auto builder =
+      Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{numIndices, size};
+
+    for (unsigned int i = 0; i < numTriangles; i++)
+    {
+      const auto face = mesh.m_mesh->mFaces[i];
+
+      // ignore anything that's not a triangle
+      if (face.mNumIndices != 3)
+      {
+        continue;
+      }
+
+      builder.addTriangle(
+        meshVerts[face.mIndices[0]],
+        meshVerts[face.mIndices[1]],
+        meshVerts[face.mIndices[2]]);
+    }
+
+    meshData.emplace_back(meshIndex, builder.vertices(), builder.indices());
   }
 
-  // Build bounds.
-  auto bounds = vm::bbox3f::builder{};
-  if (vertices.empty())
+  if (!bounds.initialized())
   {
-    // Passing empty bounds as bbox crashes the program, don't let it happen.
+    // passing empty bounds as bbox crashes the program, don't let it happen
     throw ParserException{"Model has no vertices. (So no valid bounding box.)"};
   }
-  else
+
+  // we've processed the model, now we can create the frame and bind the meshes to it
+  const auto frameBounds = bounds.bounds();
+  auto& frame = model.loadFrame(0, m_path.string(), frameBounds);
+
+  for (const auto& data : meshData)
   {
-    bounds.add(
-      std::begin(vertices), std::end(vertices), [](const Assets::EntityModelVertex& v) {
-        return v.attr;
-      });
+    auto& surface = model.surface(data.m_meshIndex);
+    surface.addIndexedMesh(frame, data.m_vertices, data.m_indices);
   }
-
-  // Begin model construction.
-  // Part 1: Collation
-  size_t totalVertexCount = 0;
-  auto size = Renderer::TexturedIndexRangeMap::Size{};
-  for (const auto& face : faces)
-  {
-    size.inc(
-      surface.skin(face.m_material), Renderer::PrimType::Polygon, face.m_vertices.size());
-    totalVertexCount += face.m_vertices.size();
-  }
-
-  // Part 2: Building
-  auto& frame = model.loadFrame(0, m_path.string(), bounds.bounds());
-  auto builder = Renderer::TexturedIndexRangeMapBuilder<Assets::EntityModelVertex::Type>{
-    totalVertexCount, size};
-
-  for (const auto& face : faces)
-  {
-    auto entityVertices = kdl::vec_transform(
-      face.m_vertices, [&](const auto& index) { return vertices[index]; });
-    builder.addPolygon(surface.skin(face.m_material), entityVertices);
-  }
-
-  surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
 }
 
 AssimpParser::AssimpParser(std::filesystem::path path, const FileSystem& fs)
@@ -397,33 +412,6 @@ std::vector<Assets::EntityModelVertex> AssimpParser::computeMeshVertices(
   }
 
   return vertices;
-}
-
-std::vector<AssimpFace> AssimpParser::computeMeshFaces(const aiMesh& mesh, size_t offset)
-{
-  std::vector<AssimpFace> faces{};
-
-  // We pass through the aiProcess_Triangulate flag to assimp, so we know for sure we'll
-  // ONLY get triangles in a single mesh. This is just a safety net to make sure we don't
-  // do anything bad.
-  if (!(mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE))
-  {
-    return faces;
-  }
-
-  for (unsigned int i = 0; i < mesh.mNumFaces; i++)
-  {
-    auto verts = std::vector<size_t>{};
-    verts.reserve(mesh.mFaces[i].mNumIndices);
-
-    for (unsigned int j = 0; j < mesh.mFaces[i].mNumIndices; j++)
-    {
-      verts.push_back(mesh.mFaces[i].mIndices[j] + offset);
-    }
-
-    faces.emplace_back(mesh.mMaterialIndex, verts);
-  }
-  return faces;
 }
 
 namespace

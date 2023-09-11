@@ -39,7 +39,6 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class EntityModelSurface;
 class Texture;
 } // namespace Assets
 
@@ -88,7 +87,6 @@ private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
   void loadSceneFrame(
     const aiScene* scene,
-    Assets::EntityModelSurface& surface,
     Assets::EntityModel& model) const;
   static void processNode(
     std::vector<AssimpMeshWithTransforms>& meshes,
@@ -98,7 +96,6 @@ private:
     const aiMatrix4x4& axisTransform);
   static std::vector<Assets::EntityModelVertex> computeMeshVertices(
     const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform);
-  static std::vector<AssimpFace> computeMeshFaces(const aiMesh& mesh, size_t offset);
   Assets::Texture processMaterial(
     const aiScene& scene, size_t materialIndex, Logger& logger) const;
   static aiMatrix4x4 getAxisTransform(const aiScene& scene);
