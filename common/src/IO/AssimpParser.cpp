@@ -485,33 +485,42 @@ std::vector<Assets::Texture> AssimpParser::createTexturesForMaterial(
   try
   {
     // Is there even a single diffuse texture? If not, fail and load fallback material.
-    if (scene.mMaterials[materialIndex]->GetTextureCount(aiTextureType_DIFFUSE) == 0)
+    const auto textureCount =
+      scene.mMaterials[materialIndex]->GetTextureCount(aiTextureType_DIFFUSE);
+    if (textureCount == 0)
     {
       throw Exception{"Material does not contain a texture."};
     }
 
-    auto path = aiString{};
-    scene.mMaterials[materialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+    // load up every diffuse texture
+    for (unsigned int ti = 0; ti < textureCount; ti++)
+    {
+      auto path = aiString{};
+      scene.mMaterials[materialIndex]->GetTexture(aiTextureType_DIFFUSE, ti, &path);
 
-    const auto texturePath = std::filesystem::path{path.C_Str()};
-    const auto* texture = scene.GetEmbeddedTexture(path.C_Str());
-    if (!texture)
-    {
-      // The texture is not embedded. Load it using the file system.
-      const auto filePath = m_path.parent_path() / texturePath;
-      textures.push_back(loadTextureFromFileSystem(filePath, m_fs, logger));
-    }
-    else if (texture->mHeight != 0)
-    {
-      // The texture is uncompressed, load it directly.
-      textures.push_back(loadUncompressedEmbeddedTexture(
-        texture->pcData, texture->mFilename.C_Str(), texture->mWidth, texture->mHeight));
-    }
-    else
-    {
-      // The texture is embedded, but compressed. Let FreeImage load it from memory.
-      textures.push_back(loadCompressedEmbeddedTexture(
-        texture->mFilename.C_Str(), texture->pcData, texture->mWidth, m_fs, logger));
+      const auto texturePath = std::filesystem::path{path.C_Str()};
+      const auto* texture = scene.GetEmbeddedTexture(path.C_Str());
+      if (!texture)
+      {
+        // The texture is not embedded. Load it using the file system.
+        const auto filePath = m_path.parent_path() / texturePath;
+        textures.push_back(loadTextureFromFileSystem(filePath, m_fs, logger));
+      }
+      else if (texture->mHeight != 0)
+      {
+        // The texture is uncompressed, load it directly.
+        textures.push_back(loadUncompressedEmbeddedTexture(
+          texture->pcData,
+          texture->mFilename.C_Str(),
+          texture->mWidth,
+          texture->mHeight));
+      }
+      else
+      {
+        // The texture is embedded, but compressed. Let FreeImage load it from memory.
+        textures.push_back(loadCompressedEmbeddedTexture(
+          texture->mFilename.C_Str(), texture->pcData, texture->mWidth, m_fs, logger));
+      }
     }
   }
   catch (Exception& exception)
