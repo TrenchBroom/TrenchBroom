@@ -212,13 +212,21 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 void AssimpParser::loadSceneFrame(
   const aiScene* scene, Assets::EntityModelSurface& surface, Assets::EntityModel& model)
 {
+  auto meshes = std::vector<AssimpMeshWithTransforms>{};
+
   // Assimp files import as y-up. We must multiply the root transform with an axis
   // transform matrix.
   processNode(
+    meshes,
     *scene->mRootNode,
     *scene,
     scene->mRootNode->mTransformation,
     get_axis_transform(*scene));
+
+  for (auto mesh : meshes)
+  {
+    processMesh(*mesh.m_mesh, mesh.m_transform, mesh.m_axisTransform);
+  }
 
   // Build bounds.
   auto bounds = vm::bbox3f::builder{};
@@ -291,6 +299,7 @@ bool AssimpParser::canParse(const std::filesystem::path& path)
 }
 
 void AssimpParser::processNode(
+  std::vector<AssimpMeshWithTransforms>& meshes,
   const aiNode& node,
   const aiScene& scene,
   const aiMatrix4x4& transform,
@@ -299,11 +308,12 @@ void AssimpParser::processNode(
   for (unsigned int i = 0; i < node.mNumMeshes; i++)
   {
     const auto* mesh = scene.mMeshes[node.mMeshes[i]];
-    processMesh(*mesh, transform, axisTransform);
+    meshes.emplace_back(mesh, transform, axisTransform);
   }
   for (unsigned int i = 0; i < node.mNumChildren; i++)
   {
     processNode(
+      meshes,
       *node.mChildren[i],
       scene,
       transform * node.mChildren[i]->mTransformation,

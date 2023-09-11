@@ -58,6 +58,21 @@ struct AssimpFace
   }
 };
 
+struct AssimpMeshWithTransforms
+{
+  const aiMesh* m_mesh;
+  aiMatrix4x4 m_transform;
+  aiMatrix4x4 m_axisTransform;
+
+  AssimpMeshWithTransforms(
+    const aiMesh* mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
+    : m_mesh(mesh)
+    , m_transform(transform)
+    , m_axisTransform(axisTransform)
+  {
+  }
+};
+
 class AssimpParser : public EntityModelParser
 {
 private:
@@ -78,7 +93,8 @@ private:
     const aiScene* scene,
     Assets::EntityModelSurface& surface,
     Assets::EntityModel& model);
-  void processNode(
+  static void processNode(
+    std::vector<AssimpMeshWithTransforms>& meshes,
     const aiNode& node,
     const aiScene& scene,
     const aiMatrix4x4& transform,
