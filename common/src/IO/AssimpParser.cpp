@@ -345,25 +345,23 @@ std::vector<Assets::EntityModelVertex> AssimpParser::computeMeshVertices(
   const size_t numVerts = mesh.mNumVertices;
   vertices.reserve(numVerts);
 
+  // Add all the vertices of the mesh.
+  for (unsigned int i = 0; i < numVerts; i++)
   {
-    // Add all the vertices of the mesh.
-    for (unsigned int i = 0; i < numVerts; i++)
-    {
-      const auto texcoords =
-        mesh.mTextureCoords[0]
-          ? vm::vec2f{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y}
-          : vm::vec2f{0.0f, 0.0f};
+    const auto texcoords =
+      mesh.mTextureCoords[0]
+        ? vm::vec2f{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y}
+        : vm::vec2f{0.0f, 0.0f};
 
-      auto meshVertices = mesh.mVertices[i];
-      meshVertices *= transform;
-      meshVertices *= axisTransform;
+    auto meshVertices = mesh.mVertices[i];
+    meshVertices *= transform;
+    meshVertices *= axisTransform;
 
-      const auto vec = vm::vec3f(meshVertices.x, meshVertices.y, meshVertices.z);
-      vertices.emplace_back(vec, texcoords);
-    }
-
-    return vertices;
+    const auto vec = vm::vec3f(meshVertices.x, meshVertices.y, meshVertices.z);
+    vertices.emplace_back(vec, texcoords);
   }
+
+  return vertices;
 }
 
 std::vector<AssimpFace> AssimpParser::computeMeshFaces(const aiMesh& mesh, size_t offset)
@@ -461,58 +459,56 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 Assets::Texture AssimpParser::processMaterial(
   const aiScene& scene, size_t materialIndex, Logger& logger) const
 {
+  try
   {
-    try
+    // Is there even a single diffuse texture? If not, fail and load fallback material.
+    if (scene.mMaterials[materialIndex]->GetTextureCount(aiTextureType_DIFFUSE) == 0)
     {
-      // Is there even a single diffuse texture? If not, fail and load fallback material.
-      if (scene.mMaterials[materialIndex]->GetTextureCount(aiTextureType_DIFFUSE) == 0)
-      {
-        throw Exception{"Material does not contain a texture."};
-      }
-
-      auto path = aiString{};
-      scene.mMaterials[materialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
-
-      const auto texturePath = std::filesystem::path{path.C_Str()};
-      const auto* texture = scene.GetEmbeddedTexture(path.C_Str());
-      if (!texture)
-      {
-        // The texture is not embedded. Load it using the file system.
-        const auto filePath = m_path.parent_path() / texturePath;
-        return loadTextureFromFileSystem(filePath, m_fs, logger);
-      }
-      else if (texture->mHeight != 0)
-      {
-        // The texture is uncompressed, load it directly.
-        return loadUncompressedEmbeddedTexture(
-          texture->pcData, texture->mFilename.C_Str(), texture->mWidth, texture->mHeight);
-      }
-      else
-      {
-        // The texture is embedded, but compressed. Let FreeImage load it from memory.
-        return loadCompressedEmbeddedTexture(
-          texture->mFilename.C_Str(), texture->pcData, texture->mWidth, m_fs, logger);
-      }
+      throw Exception{"Material does not contain a texture."};
     }
-    catch (Exception& exception)
-    {
-      // Materials aren't guaranteed to have a name.
-      const auto materialName = scene.mMaterials[materialIndex]->GetName() != aiString{""}
-                                  ? scene.mMaterials[materialIndex]->GetName().C_Str()
-                                  : "nr. " + std::to_string(materialIndex + 1);
-      logger.error(
-        "Model " + m_path.string() + ": Loading fallback material for material "
-        + materialName + ": " + exception.what());
 
-      // Load fallback material in case we get any error.
-      if (auto fallbackTexture = loadFallbackTexture(m_fs))
-      {
-        return std::move(*fallbackTexture);
-      }
-      else
-      {
-        return loadDefaultTexture(m_fs, materialName, logger);
-      }
+    auto path = aiString{};
+    scene.mMaterials[materialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+
+    const auto texturePath = std::filesystem::path{path.C_Str()};
+    const auto* texture = scene.GetEmbeddedTexture(path.C_Str());
+    if (!texture)
+    {
+      // The texture is not embedded. Load it using the file system.
+      const auto filePath = m_path.parent_path() / texturePath;
+      return loadTextureFromFileSystem(filePath, m_fs, logger);
+    }
+    else if (texture->mHeight != 0)
+    {
+      // The texture is uncompressed, load it directly.
+      return loadUncompressedEmbeddedTexture(
+        texture->pcData, texture->mFilename.C_Str(), texture->mWidth, texture->mHeight);
+    }
+    else
+    {
+      // The texture is embedded, but compressed. Let FreeImage load it from memory.
+      return loadCompressedEmbeddedTexture(
+        texture->mFilename.C_Str(), texture->pcData, texture->mWidth, m_fs, logger);
+    }
+  }
+  catch (Exception& exception)
+  {
+    // Materials aren't guaranteed to have a name.
+    const auto materialName = scene.mMaterials[materialIndex]->GetName() != aiString{""}
+                                ? scene.mMaterials[materialIndex]->GetName().C_Str()
+                                : "nr. " + std::to_string(materialIndex + 1);
+    logger.error(
+      "Model " + m_path.string() + ": Loading fallback material for material "
+      + materialName + ": " + exception.what());
+
+    // Load fallback material in case we get any error.
+    if (auto fallbackTexture = loadFallbackTexture(m_fs))
+    {
+      return std::move(*fallbackTexture);
+    }
+    else
+    {
+      return loadDefaultTexture(m_fs, materialName, logger);
     }
   }
 }
