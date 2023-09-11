@@ -23,9 +23,6 @@
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
-
 #include <assimp/matrix4x4.h>
 
 #include <filesystem>
@@ -45,17 +42,6 @@ class Texture;
 namespace IO
 {
 class FileSystem;
-
-struct AssimpFace
-{
-  size_t m_material;
-  std::vector<size_t> m_vertices;
-  AssimpFace(size_t material, std::vector<size_t> vertices)
-    : m_material{material}
-    , m_vertices{std::move(vertices)}
-  {
-  }
-};
 
 struct AssimpMeshWithTransforms
 {
