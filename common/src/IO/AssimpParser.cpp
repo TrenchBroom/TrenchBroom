@@ -22,7 +22,6 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Texture.h"
-#include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/PathInfo.h"
@@ -267,7 +266,7 @@ void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& mod
   auto meshData = std::vector<AssimpComputedMeshData>{};
   auto bounds = vm::bbox3f::builder{};
 
-  for (auto mesh : meshes)
+  for (const auto& mesh : meshes)
   {
     const auto meshIndex = getMeshIndex(*scene, *mesh.m_mesh);
     if (meshIndex < 0)
@@ -275,10 +274,10 @@ void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& mod
       continue;
     }
 
-    const auto meshVerts =
+    const auto vertices =
       computeMeshVertices(*mesh.m_mesh, mesh.m_transform, mesh.m_axisTransform);
 
-    for (auto v : meshVerts)
+    for (const auto& v : vertices)
     {
       bounds.add(v.attr);
     }
@@ -303,9 +302,9 @@ void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& mod
       }
 
       builder.addTriangle(
-        meshVerts[face.mIndices[0]],
-        meshVerts[face.mIndices[1]],
-        meshVerts[face.mIndices[2]]);
+        vertices[face.mIndices[0]],
+        vertices[face.mIndices[1]],
+        vertices[face.mIndices[2]]);
     }
 
     meshData.emplace_back(meshIndex, builder.vertices(), builder.indices());

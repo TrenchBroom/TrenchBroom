@@ -85,9 +85,7 @@ public:
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
-  void loadSceneFrame(
-    const aiScene* scene,
-    Assets::EntityModel& model) const;
+  void loadSceneFrame(const aiScene* scene, Assets::EntityModel& model) const;
   static void processNode(
     std::vector<AssimpMeshWithTransforms>& meshes,
     const aiNode& node,
