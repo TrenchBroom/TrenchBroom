@@ -93,7 +93,7 @@ private:
   void processMesh(
     const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform);
   Assets::Texture processMaterial(
-    const aiScene& scene, size_t i, Logger& logger) const;
+    const aiScene& scene, size_t materialIndex, Logger& logger) const;
   static aiMatrix4x4 get_axis_transform(const aiScene& scene);
 };
 } // namespace IO

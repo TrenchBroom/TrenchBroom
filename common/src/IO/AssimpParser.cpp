@@ -408,19 +408,19 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 } // namespace
 
 Assets::Texture AssimpParser::processMaterial(
-  const aiScene& scene, size_t i, Logger& logger) const
+  const aiScene& scene, size_t materialIndex, Logger& logger) const
 {
   {
     try
     {
       // Is there even a single diffuse texture? If not, fail and load fallback material.
-      if (scene.mMaterials[i]->GetTextureCount(aiTextureType_DIFFUSE) == 0)
+      if (scene.mMaterials[materialIndex]->GetTextureCount(aiTextureType_DIFFUSE) == 0)
       {
         throw Exception{"Material does not contain a texture."};
       }
 
       auto path = aiString{};
-      scene.mMaterials[i]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+      scene.mMaterials[materialIndex]->GetTexture(aiTextureType_DIFFUSE, 0, &path);
 
       const auto texturePath = std::filesystem::path{path.C_Str()};
       const auto* texture = scene.GetEmbeddedTexture(path.C_Str());
@@ -446,9 +446,9 @@ Assets::Texture AssimpParser::processMaterial(
     catch (Exception& exception)
     {
       // Materials aren't guaranteed to have a name.
-      const auto materialName = scene.mMaterials[i]->GetName() != aiString{""}
-                                  ? scene.mMaterials[i]->GetName().C_Str()
-                                  : "nr. " + std::to_string(i + 1);
+      const auto materialName = scene.mMaterials[materialIndex]->GetName() != aiString{""}
+                                  ? scene.mMaterials[materialIndex]->GetName().C_Str()
+                                  : "nr. " + std::to_string(materialIndex + 1);
       logger.error(
         "Model " + m_path.string() + ": Loading fallback material for material "
         + materialName + ": " + exception.what());
