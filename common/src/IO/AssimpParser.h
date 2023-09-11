@@ -80,7 +80,7 @@ private:
     const aiMatrix4x4& axisTransform);
   static std::vector<Assets::EntityModelVertex> computeMeshVertices(
     const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform);
-  Assets::Texture processMaterial(
+  std::vector<Assets::Texture> createTexturesForMaterial(
     const aiScene& scene, size_t materialIndex, Logger& logger) const;
   static aiMatrix4x4 getAxisTransform(const aiScene& scene);
 };

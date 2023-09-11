@@ -223,7 +223,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
       std::string{"Assimp couldn't import the file: "} + importer.GetErrorString()};
   }
 
-  // create a surface for each mesh in the scene and assign the mesh material to it
+  // create a surface for each mesh in the scene and assign the skins/materials to it
   const auto numMeshes = scene->mNumMeshes;
   for (size_t i = 0; i < numMeshes; ++i)
   {
@@ -237,8 +237,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 
     // load skins for this surface
     const size_t meshMaterialIndex = mesh->mMaterialIndex;
-    auto textures = std::vector<Assets::Texture>{};
-    textures.push_back(processMaterial(*scene, meshMaterialIndex, logger));
+    auto textures = createTexturesForMaterial(*scene, meshMaterialIndex, logger);
     surface.setSkins(std::move(textures));
   }
 
@@ -479,9 +478,10 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 
 } // namespace
 
-Assets::Texture AssimpParser::processMaterial(
+std::vector<Assets::Texture> AssimpParser::createTexturesForMaterial(
   const aiScene& scene, size_t materialIndex, Logger& logger) const
 {
+  auto textures = std::vector<Assets::Texture>{};
   try
   {
     // Is there even a single diffuse texture? If not, fail and load fallback material.
@@ -499,19 +499,19 @@ Assets::Texture AssimpParser::processMaterial(
     {
       // The texture is not embedded. Load it using the file system.
       const auto filePath = m_path.parent_path() / texturePath;
-      return loadTextureFromFileSystem(filePath, m_fs, logger);
+      textures.push_back(loadTextureFromFileSystem(filePath, m_fs, logger));
     }
     else if (texture->mHeight != 0)
     {
       // The texture is uncompressed, load it directly.
-      return loadUncompressedEmbeddedTexture(
-        texture->pcData, texture->mFilename.C_Str(), texture->mWidth, texture->mHeight);
+      textures.push_back(loadUncompressedEmbeddedTexture(
+        texture->pcData, texture->mFilename.C_Str(), texture->mWidth, texture->mHeight));
     }
     else
     {
       // The texture is embedded, but compressed. Let FreeImage load it from memory.
-      return loadCompressedEmbeddedTexture(
-        texture->mFilename.C_Str(), texture->pcData, texture->mWidth, m_fs, logger);
+      textures.push_back(loadCompressedEmbeddedTexture(
+        texture->mFilename.C_Str(), texture->pcData, texture->mWidth, m_fs, logger));
     }
   }
   catch (Exception& exception)
@@ -527,13 +527,14 @@ Assets::Texture AssimpParser::processMaterial(
     // Load fallback material in case we get any error.
     if (auto fallbackTexture = loadFallbackTexture(m_fs))
     {
-      return std::move(*fallbackTexture);
+      textures.push_back(std::move(*fallbackTexture));
     }
     else
     {
-      return loadDefaultTexture(m_fs, materialName, logger);
+      textures.push_back(loadDefaultTexture(m_fs, materialName, logger));
     }
   }
+  return textures;
 }
 
 aiMatrix4x4 AssimpParser::getAxisTransform(const aiScene& scene)
