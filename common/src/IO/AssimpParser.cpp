@@ -205,6 +205,17 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 
   surface.setSkins(std::move(m_textures));
 
+  // load the reference pose as the only frame for this model
+  loadSceneFrame(scene, surface, *model);
+
+  return model;
+}
+
+void AssimpParser::loadSceneFrame(
+  const aiScene* scene,
+  Assets::EntityModelSurface& surface,
+  Assets::EntityModel& model)
+{
   // Assimp files import as y-up. We must multiply the root transform with an axis
   // transform matrix.
   processNode(
@@ -237,7 +248,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   }
 
   // Part 2: Building
-  auto& frame = model->loadFrame(0, m_path.string(), bounds.bounds());
+  auto& frame = model.loadFrame(0, m_path.string(), bounds.bounds());
   auto builder = Renderer::TexturedIndexRangeMapBuilder<Assets::EntityModelVertex::Type>{
     totalVertexCount, size};
 
@@ -251,7 +262,6 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   }
 
   surface.addTexturedMesh(frame, builder.vertices(), builder.indices());
-  return model;
 }
 
 AssimpParser::AssimpParser(std::filesystem::path path, const FileSystem& fs)

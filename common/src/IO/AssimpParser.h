@@ -38,8 +38,9 @@ namespace TrenchBroom
 {
 namespace Assets
 {
+class EntityModelSurface;
 class Texture;
-}
+} // namespace Assets
 
 namespace IO
 {
@@ -85,6 +86,10 @@ public:
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
+  void loadSceneFrame(
+    const aiScene* scene,
+    Assets::EntityModelSurface& surface,
+    Assets::EntityModel& model);
   void processNode(
     const aiNode& node,
     const aiScene& scene,
