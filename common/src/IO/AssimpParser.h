@@ -101,7 +101,7 @@ private:
   static std::vector<AssimpFace> computeMeshFaces(const aiMesh& mesh, size_t offset);
   Assets::Texture processMaterial(
     const aiScene& scene, size_t materialIndex, Logger& logger) const;
-  static aiMatrix4x4 get_axis_transform(const aiScene& scene);
+  static aiMatrix4x4 getAxisTransform(const aiScene& scene);
 };
 } // namespace IO
 } // namespace TrenchBroom

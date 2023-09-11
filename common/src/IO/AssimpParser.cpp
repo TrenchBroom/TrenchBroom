@@ -220,7 +220,7 @@ void AssimpParser::loadSceneFrame(
     *scene->mRootNode,
     *scene,
     scene->mRootNode->mTransformation,
-    get_axis_transform(*scene));
+    getAxisTransform(*scene));
 
 
   auto vertices = std::vector<Assets::EntityModelVertex>{};
@@ -513,9 +513,9 @@ Assets::Texture AssimpParser::processMaterial(
   }
 }
 
-aiMatrix4x4 AssimpParser::get_axis_transform(const aiScene& scene)
+aiMatrix4x4 AssimpParser::getAxisTransform(const aiScene& scene)
 {
-  aiMatrix4x4 matrix = aiMatrix4x4();
+  auto matrix = aiMatrix4x4{};
 
   if (scene.mMetaData)
   {
@@ -524,13 +524,13 @@ aiMatrix4x4 AssimpParser::get_axis_transform(const aiScene& scene)
             coordAxisSign = 0;
     float unitScale = 1.0f;
 
-    bool metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
-                           && scene.mMetaData->Get("UpAxisSign", upAxisSign)
-                           && scene.mMetaData->Get("FrontAxis", frontAxis)
-                           && scene.mMetaData->Get("FrontAxisSign", frontAxisSign)
-                           && scene.mMetaData->Get("CoordAxis", coordAxis)
-                           && scene.mMetaData->Get("CoordAxisSign", coordAxisSign)
-                           && scene.mMetaData->Get("UnitScaleFactor", unitScale);
+    const bool metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
+                                 && scene.mMetaData->Get("UpAxisSign", upAxisSign)
+                                 && scene.mMetaData->Get("FrontAxis", frontAxis)
+                                 && scene.mMetaData->Get("FrontAxisSign", frontAxisSign)
+                                 && scene.mMetaData->Get("CoordAxis", coordAxis)
+                                 && scene.mMetaData->Get("CoordAxisSign", coordAxisSign)
+                                 && scene.mMetaData->Get("UnitScaleFactor", unitScale);
 
     if (!metadataPresent)
     {
@@ -552,7 +552,7 @@ aiMatrix4x4 AssimpParser::get_axis_transform(const aiScene& scene)
     coord[static_cast<unsigned int>(coordAxis)] =
       static_cast<float>(coordAxisSign) * unitScale;
 
-    matrix = aiMatrix4x4t(
+    matrix = aiMatrix4x4t{
       coord.x,
       coord.y,
       coord.z,
@@ -568,7 +568,7 @@ aiMatrix4x4 AssimpParser::get_axis_transform(const aiScene& scene)
       0.0f,
       0.0f,
       0.0f,
-      1.0f);
+      1.0f};
   }
 
   return matrix;
