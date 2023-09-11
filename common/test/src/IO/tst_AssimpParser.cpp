@@ -1,4 +1,5 @@
 /*
+ Copyright (C) 2023 Daniel Walder
  Copyright (C) 2022 Kristian Duske
 
  This file is part of TrenchBroom.
@@ -18,21 +19,15 @@
  */
 
 #include "Assets/EntityModel.h"
-#include "Assets/Texture.h"
 #include "IO/AssimpParser.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/File.h"
-#include "IO/Quake3ShaderFileSystem.h"
-#include "IO/Reader.h"
 #include "Logger.h"
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("AssimpParserTest.loadBlenderModel")
 {
   auto logger = NullLogger{};
@@ -49,5 +44,23 @@ TEST_CASE("AssimpParserTest.loadBlenderModel")
   CHECK(model->surfaceCount() == 1);
   CHECK(model->surface(0).skinCount() == 1);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+TEST_CASE("AssimpParserTest.loadHLModelWithSkins")
+{
+  auto logger = NullLogger{};
+
+  const auto basePath = std::filesystem::current_path() / "fixture/test/IO/assimp";
+  auto fs = std::make_shared<DiskFileSystem>(basePath);
+
+  auto assimpParser = AssimpParser{"cube.mdl", *fs};
+
+  auto model = assimpParser.initializeModel(logger);
+  CHECK(model != nullptr);
+
+  CHECK(model->frameCount() == 1);
+  CHECK(model->surfaceCount() == 2);
+  CHECK(model->surface(0).skinCount() == 1);
+  CHECK(model->surface(1).skinCount() == 3);
+}
+
+} // namespace TrenchBroom::IO
