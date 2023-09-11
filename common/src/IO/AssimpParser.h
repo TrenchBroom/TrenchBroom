@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 
 #include <vecmath/forward.h>
@@ -57,25 +58,13 @@ struct AssimpFace
   }
 };
 
-struct AssimpVertex
-{
-  size_t m_position;
-  vm::vec2f m_texcoords;
-  AssimpVertex(size_t position, const vm::vec2f& texcoords)
-    : m_position{position}
-    , m_texcoords{texcoords}
-  {
-  }
-};
-
 class AssimpParser : public EntityModelParser
 {
 private:
   std::filesystem::path m_path;
   const FileSystem& m_fs;
 
-  std::vector<vm::vec3f> m_positions;
-  std::vector<AssimpVertex> m_vertices;
+  std::vector<Assets::EntityModelVertex> m_vertices;
   std::vector<AssimpFace> m_faces;
 
 public:

@@ -177,7 +177,6 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   model->addFrame();
   auto& surface = model->addSurface(m_path.string());
 
-  m_positions.clear();
   m_vertices.clear();
   m_faces.clear();
 
@@ -211,9 +210,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 }
 
 void AssimpParser::loadSceneFrame(
-  const aiScene* scene,
-  Assets::EntityModelSurface& surface,
-  Assets::EntityModel& model)
+  const aiScene* scene, Assets::EntityModelSurface& surface, Assets::EntityModel& model)
 {
   // Assimp files import as y-up. We must multiply the root transform with an axis
   // transform matrix.
@@ -225,14 +222,17 @@ void AssimpParser::loadSceneFrame(
 
   // Build bounds.
   auto bounds = vm::bbox3f::builder{};
-  if (m_positions.empty())
+  if (m_vertices.empty())
   {
     // Passing empty bounds as bbox crashes the program, don't let it happen.
     throw ParserException{"Model has no vertices. (So no valid bounding box.)"};
   }
   else
   {
-    bounds.add(std::begin(m_positions), std::end(m_positions));
+    bounds.add(
+      std::begin(m_vertices), std::end(m_vertices), [](const Assets::EntityModelVertex& v) {
+        return v.attr;
+      });
   }
 
   // Begin model construction.
@@ -254,8 +254,7 @@ void AssimpParser::loadSceneFrame(
   for (const auto& face : m_faces)
   {
     auto entityVertices = kdl::vec_transform(face.m_vertices, [&](const auto& index) {
-      return Assets::EntityModelVertex{
-        m_positions[m_vertices[index].m_position], m_vertices[index].m_texcoords};
+      return m_vertices[index];
     });
     builder.addPolygon(surface.skin(face.m_material), entityVertices);
   }
@@ -328,12 +327,12 @@ void AssimpParser::processMesh(
           ? vm::vec2f{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y}
           : vm::vec2f{0.0f, 0.0f};
 
-      m_vertices.emplace_back(m_positions.size(), texcoords);
 
       auto meshVertices = mesh.mVertices[i];
       meshVertices *= transform;
       meshVertices *= axisTransform;
-      m_positions.emplace_back(meshVertices.x, meshVertices.y, meshVertices.z);
+      m_vertices.emplace_back(
+        vm::vec3f{meshVertices.x, meshVertices.y, meshVertices.z}, texcoords);
     }
 
     for (unsigned int i = 0; i < mesh.mNumFaces; i++)
