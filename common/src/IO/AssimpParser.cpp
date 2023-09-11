@@ -166,6 +166,40 @@ public:
   }
 };
 
+struct AssimpComputedMeshData
+{
+  size_t m_meshIndex;
+  std::vector<Assets::EntityModelVertex> m_vertices;
+  Assets::EntityModelIndices m_indices;
+
+  AssimpComputedMeshData(
+    size_t meshIndex,
+    std::vector<Assets::EntityModelVertex> vertices,
+    Assets::EntityModelIndices indices)
+    : m_meshIndex(meshIndex)
+    , m_vertices(std::move(vertices))
+    , m_indices(std::move(indices))
+  {
+  }
+};
+
+/**
+ * Gets the index for a particular assimp mesh.
+ * Assimp meshes do not have unique names so we match by reference.
+ */
+int16_t getMeshIndex(const aiScene& scene, const aiMesh& mesh)
+{
+  for (uint16_t b = 0; b < scene.mNumMeshes; b++)
+  {
+    const aiMesh* m = scene.mMeshes[b];
+    if (m == &mesh)
+    {
+      return static_cast<int16_t>(b);
+    }
+  }
+  return -1;
+}
+
 } // namespace
 
 std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
