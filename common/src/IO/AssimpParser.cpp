@@ -335,8 +335,9 @@ std::vector<Assets::EntityModelVertex> AssimpParser::computeMeshVertices(
 {
   std::vector<Assets::EntityModelVertex> vertices{};
 
-  // Meshes have been sorted by primitive type, so we know for sure we'll ONLY get
-  // triangles in a single mesh.
+  // We pass through the aiProcess_Triangulate flag to assimp, so we know for sure we'll
+  // ONLY get triangles in a single mesh. This is just a safety net to make sure we don't
+  // do anything bad.
   if (!(mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE))
   {
     return vertices;
@@ -368,8 +369,9 @@ std::vector<AssimpFace> AssimpParser::computeMeshFaces(const aiMesh& mesh, size_
 {
   std::vector<AssimpFace> faces{};
 
-  // Meshes have been sorted by primitive type, so we know for sure we'll ONLY get
-  // triangles in a single mesh.
+  // We pass through the aiProcess_Triangulate flag to assimp, so we know for sure we'll
+  // ONLY get triangles in a single mesh. This is just a safety net to make sure we don't
+  // do anything bad.
   if (!(mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE))
   {
     return faces;
