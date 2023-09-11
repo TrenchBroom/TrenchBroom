@@ -423,7 +423,7 @@ Assets::Texture loadUncompressedEmbeddedTexture(
 }
 
 Assets::Texture loadCompressedEmbeddedTexture(
-  std::string name,
+  const std::string& name,
   const aiTexel* data,
   const size_t size,
   const FileSystem& fs,
