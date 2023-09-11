@@ -198,7 +198,10 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   }
 
   // Load materials as textures.
-  processMaterials(*scene, logger);
+  for (unsigned int i = 0; i < scene->mNumMaterials; i++)
+  {
+    m_textures.push_back(processMaterial(*scene, i, logger));
+  }
 
   surface.setSkins(std::move(m_textures));
 
@@ -404,9 +407,9 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 
 } // namespace
 
-void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
+Assets::Texture AssimpParser::processMaterial(
+  const aiScene& scene, size_t i, Logger& logger) const
 {
-  for (unsigned int i = 0; i < scene.mNumMaterials; i++)
   {
     try
     {
@@ -425,32 +428,23 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
       {
         // The texture is not embedded. Load it using the file system.
         const auto filePath = m_path.parent_path() / texturePath;
-        m_textures.push_back(loadTextureFromFileSystem(filePath, m_fs, logger));
+        return loadTextureFromFileSystem(filePath, m_fs, logger);
       }
       else if (texture->mHeight != 0)
       {
         // The texture is uncompressed, load it directly.
-        m_textures.push_back(loadUncompressedEmbeddedTexture(
-          texture->pcData,
-          texture->mFilename.C_Str(),
-          texture->mWidth,
-          texture->mHeight));
+        return loadUncompressedEmbeddedTexture(
+          texture->pcData, texture->mFilename.C_Str(), texture->mWidth, texture->mHeight);
       }
       else
       {
         // The texture is embedded, but compressed. Let FreeImage load it from memory.
-        m_textures.push_back(loadCompressedEmbeddedTexture(
-          texture->mFilename.C_Str(), texture->pcData, texture->mWidth, m_fs, logger));
+        return loadCompressedEmbeddedTexture(
+          texture->mFilename.C_Str(), texture->pcData, texture->mWidth, m_fs, logger);
       }
     }
     catch (Exception& exception)
     {
-      // Load fallback material in case we get any error.
-      if (auto fallbackTexture = loadFallbackTexture(m_fs))
-      {
-        m_textures.push_back(std::move(*fallbackTexture));
-      }
-
       // Materials aren't guaranteed to have a name.
       const auto materialName = scene.mMaterials[i]->GetName() != aiString{""}
                                   ? scene.mMaterials[i]->GetName().C_Str()
@@ -458,6 +452,16 @@ void AssimpParser::processMaterials(const aiScene& scene, Logger& logger)
       logger.error(
         "Model " + m_path.string() + ": Loading fallback material for material "
         + materialName + ": " + exception.what());
+
+      // Load fallback material in case we get any error.
+      if (auto fallbackTexture = loadFallbackTexture(m_fs))
+      {
+        return std::move(*fallbackTexture);
+      }
+      else
+      {
+        return loadDefaultTexture(m_fs, materialName, logger);
+      }
     }
   }
 }
