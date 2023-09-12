@@ -75,6 +75,8 @@ public:
 
   virtual std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState);
 
+  virtual bool shouldAcceptDrop(
+    const InputState& inputState, const std::string& payload) const;
   virtual std::unique_ptr<DropTracker> acceptDrop(
     const InputState& inputState, const std::string& payload);
 
@@ -130,7 +132,7 @@ public:
 
 private: // subclassing interface
   virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;
-  virtual bool doShouldHandleDrop(
+  virtual bool doShouldAcceptDrop(
     const InputState& inputState, const std::string& payload) const;
 };
 } // namespace TrenchBroom::View

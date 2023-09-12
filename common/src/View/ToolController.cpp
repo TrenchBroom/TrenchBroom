@@ -63,9 +63,15 @@ std::unique_ptr<DragTracker> ToolController::acceptMouseDrag(const InputState&)
   return nullptr;
 }
 
+bool ToolController::shouldAcceptDrop(const InputState&, const std::string&) const
+{
+  return false;
+}
+
 void ToolController::setRenderOptions(const InputState&, Renderer::RenderContext&) const
 {
 }
+
 void ToolController::render(
   const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&)
 {
@@ -151,7 +157,7 @@ std::unique_ptr<DragTracker> ToolControllerGroup::acceptMouseDrag(
 std::unique_ptr<DropTracker> ToolControllerGroup::acceptDrop(
   const InputState& inputState, const std::string& payload)
 {
-  if (!doShouldHandleDrop(inputState, payload))
+  if (!doShouldAcceptDrop(inputState, payload))
   {
     return nullptr;
   }
@@ -182,9 +188,9 @@ bool ToolControllerGroup::doShouldHandleMouseDrag(const InputState&) const
   return true;
 }
 
-bool ToolControllerGroup::doShouldHandleDrop(
-  const InputState&, const std::string& /* payload */) const
+bool ToolControllerGroup::doShouldAcceptDrop(
+  const InputState& inputState, const std::string& payload) const
 {
-  return true;
+  return m_chain.shouldAcceptDrop(inputState, payload);
 }
 } // namespace TrenchBroom::View

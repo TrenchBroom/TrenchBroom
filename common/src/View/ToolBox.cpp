@@ -62,7 +62,7 @@ void ToolBox::pick(
 bool ToolBox::dragEnter(
   ToolChain* chain, const InputState& inputState, const std::string& text)
 {
-  if (!m_enabled)
+  if (!m_enabled || !chain->shouldAcceptDrop(inputState, text))
   {
     return false;
   }

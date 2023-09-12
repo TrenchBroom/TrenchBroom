@@ -42,6 +42,8 @@ private:
   Tool& tool() override;
   const Tool& tool() const override;
 
+  bool shouldAcceptDrop(
+    const InputState& inputState, const std::string& payload) const override;
   std::unique_ptr<DropTracker> acceptDrop(
     const InputState& inputState, const std::string& payload) override;
 
