@@ -137,6 +137,7 @@ public: // parsing and serializing objects
 public: // texture collection handling
   void loadTextureCollections(Assets::TextureManager& textureManagerr) const;
 
+  const std::optional<std::string>& wadProperty() const;
   void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
@@ -212,6 +213,7 @@ private: // subclassing interface
     std::ostream& stream) const = 0;
 
   virtual void doLoadTextureCollections(Assets::TextureManager& textureManager) const = 0;
+  virtual const std::optional<std::string>& doGetWadProperty() const = 0;
   virtual void doReloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,

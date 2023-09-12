@@ -331,6 +331,11 @@ void GameImpl::doLoadTextureCollections(Assets::TextureManager& textureManager) 
   textureManager.reload(m_fs, m_config.textureConfig);
 }
 
+const std::optional<std::string>& GameImpl::doGetWadProperty() const
+{
+  return m_config.textureConfig.property;
+}
+
 void GameImpl::doReloadWads(
   const std::filesystem::path& documentPath,
   const std::vector<std::filesystem::path>& wadPaths,

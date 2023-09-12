@@ -152,6 +152,11 @@ void Game::loadTextureCollections(Assets::TextureManager& textureManager) const
   doLoadTextureCollections(textureManager);
 }
 
+const std::optional<std::string>& Game::wadProperty() const
+{
+  return doGetWadProperty();
+}
+
 void Game::reloadWads(
   const std::filesystem::path& documentPath,
   const std::vector<std::filesystem::path>& wadPaths,

@@ -135,13 +135,12 @@ void SmartPropertyEditorManager::createEditors()
       Assets::PropertyDefinitionType::ChoiceProperty),
     new SmartChoiceEditor{m_document});
   m_editors.emplace_back(
-    kdl::lift_and(
-      makeSmartPropertyEditorKeyMatcher({"wad"}),
-      [](const auto&, const auto& nodes) {
-        return nodes.size() == 1
-               && nodes.front()->entity().classname()
-                    == Model::EntityPropertyValues::WorldspawnClassname;
-      }),
+    [&](const auto& propertyKey, const auto& nodes) {
+      return propertyKey == kdl::mem_lock(m_document)->game()->wadProperty()
+             && nodes.size() == 1
+             && nodes.front()->entity().classname()
+                  == Model::EntityPropertyValues::WorldspawnClassname;
+    },
     new SmartWadEditor{m_document});
   m_editors.emplace_back(
     [](const auto&, const auto&) { return true; },
