@@ -88,7 +88,9 @@ size_t loadEntityDefinitionFile(
         ChoosePathTypeDialog{parent->window(), absPath, docPath, gamePath};
       if (pathDialog.exec() == QDialog::Accepted)
       {
-        const auto spec = Assets::EntityDefinitionFileSpec::external(pathDialog.path());
+        const auto path =
+          convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
+        const auto spec = Assets::EntityDefinitionFileSpec::external(path);
         document->setEntityDefinitionFile(spec);
         return static_cast<size_t>(i);
       }

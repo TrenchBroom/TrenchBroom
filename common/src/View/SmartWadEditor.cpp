@@ -142,17 +142,19 @@ void SmartWadEditor::addWads()
     updateFileDialogDefaultDirectoryWithFilename(
       FileDialogDir::TextureCollection, pathQStr);
 
+    const auto absWadPath = IO::pathFromQString(pathQStr);
     auto pathDialog = ChoosePathTypeDialog{
-      window(),
-      IO::pathFromQString(pathQStr),
-      document()->path(),
-      document()->game()->gamePath()};
+      window(), absWadPath, document()->path(), document()->game()->gamePath()};
 
     const int result = pathDialog.exec();
     if (result == QDialog::Accepted)
     {
       auto wadPaths = getWadPaths(nodes(), propertyKey());
-      wadPaths.push_back(pathDialog.path());
+      wadPaths.push_back(convertToPathType(
+        pathDialog.pathType(),
+        absWadPath,
+        document()->path(),
+        document()->game()->gamePath()));
 
       document()->setProperty(propertyKey(), getWadPathStr(wadPaths));
       m_wadPaths->setCurrentRow(
