@@ -204,6 +204,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/Compass3D.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EdgeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/EntityDecalRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.cpp
@@ -715,6 +716,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/Compass3D.h
         ${COMMON_SOURCE_DIR}/Renderer/EdgeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/EntityDecalRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.h
