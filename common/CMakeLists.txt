@@ -2,6 +2,7 @@ set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.cpp
+        ${COMMON_SOURCE_DIR}/Assets/DecalDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionGroup.cpp
@@ -479,6 +480,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/AssetReference.h
         ${COMMON_SOURCE_DIR}/Assets/AssetUtils.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
+        ${COMMON_SOURCE_DIR}/Assets/DecalDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionGroup.h

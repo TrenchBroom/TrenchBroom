@@ -45,6 +45,7 @@ TEST_CASE("resolveInheritance.filterBaseClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::PointClass,
@@ -55,12 +56,14 @@ TEST_CASE("resolveInheritance.filterBaseClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BrushClass,
      0,
      0,
      "brush",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -77,12 +80,14 @@ TEST_CASE("resolveInheritance.filterBaseClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BrushClass,
      0,
      0,
      "brush",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -110,12 +115,14 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::PointClass,
      0,
      1,
      "a",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -130,6 +137,7 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BaseClass,
@@ -140,12 +148,14 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::PointClass,
      0,
      1,
      "c",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -160,6 +170,7 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BaseClass,
@@ -170,12 +181,14 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::PointClass,
      0,
      0,
      "d",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -186,6 +199,7 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      0,
      1,
      "d",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -200,6 +214,7 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BrushClass,
@@ -210,12 +225,14 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BaseClass,
      0,
      0,
      "f",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -226,6 +243,7 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      0,
      1,
      "f",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -242,12 +260,14 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::PointClass,
      0,
      1,
      "c",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -262,6 +282,7 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::PointClass,
@@ -272,12 +293,14 @@ TEST_CASE("resolveInheritance.filterRedundantClasses")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BrushClass,
      0,
      0,
      "e",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -296,6 +319,8 @@ TEST_CASE("resolveInheritance.overrideMembersIfNotPresent")
 {
   const auto baseModelDef = Assets::ModelDefinition(
     EL::Expression(EL::LiteralExpression(EL::Value("abc")), 0, 0));
+  const auto baseDecalDef = Assets::DecalDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("def")), 1, 0));
 
   const auto input = std::vector<EntityDefinitionClassInfo>({
     // type                                   l  c  name     description    color size
@@ -308,12 +333,14 @@ TEST_CASE("resolveInheritance.overrideMembersIfNotPresent")
      Color(1, 2, 3),
      vm::bbox3(-1, 1),
      baseModelDef,
+     baseDecalDef,
      {},
      {}},
     {EntityDefinitionClassType::PointClass,
      0,
      0,
      "point",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -330,6 +357,7 @@ TEST_CASE("resolveInheritance.overrideMembersIfNotPresent")
      Color(1, 2, 3),
      vm::bbox3(-1, 1),
      baseModelDef,
+     baseDecalDef,
      {},
      {"base"}},
   });
@@ -353,6 +381,7 @@ TEST_CASE("resolveInheritance.skipMembersIfPresent")
      Color(1, 2, 3),
      vm::bbox3(-1, 1),
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::PointClass,
@@ -362,6 +391,7 @@ TEST_CASE("resolveInheritance.skipMembersIfPresent")
      "blah blah",
      Color(2, 3, 4),
      vm::bbox3(-2, 2),
+     std::nullopt,
      std::nullopt,
      {},
      {"base"}},
@@ -374,6 +404,7 @@ TEST_CASE("resolveInheritance.skipMembersIfPresent")
      "blah blah",
      Color(2, 3, 4),
      vm::bbox3(-2, 2),
+     std::nullopt,
      std::nullopt,
      {},
      {"base"}},
@@ -405,6 +436,7 @@ TEST_CASE("resolveInheritance.mergeModelDefinitions")
      std::nullopt,
      std::nullopt,
      baseModelDef,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::PointClass,
@@ -415,6 +447,7 @@ TEST_CASE("resolveInheritance.mergeModelDefinitions")
      std::nullopt,
      std::nullopt,
      pointModelDef,
+     std::nullopt,
      {},
      {"base"}},
   });
@@ -427,11 +460,66 @@ TEST_CASE("resolveInheritance.mergeModelDefinitions")
      std::nullopt,
      std::nullopt,
      mergedModelDef,
+     std::nullopt,
      {},
      {"base"}},
   });
 
   TestParserStatus status;
+  CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
+  CHECK(status.countStatus(LogLevel::Warn) == 0u);
+  CHECK(status.countStatus(LogLevel::Error) == 0u);
+}
+
+
+TEST_CASE("resolveInheritance.mergeDecalDefinitions")
+{
+  const auto baseDecalDef = Assets::DecalDefinition{
+    EL::Expression{EL::LiteralExpression{EL::Value{"decal1"}}, 0, 0}};
+  const auto pointDecalDef = Assets::DecalDefinition{
+    EL::Expression{EL::LiteralExpression{EL::Value{"decal2"}}, 0, 0}};
+  auto mergedDecalDef = pointDecalDef;
+  mergedDecalDef.append(baseDecalDef);
+
+  const auto input = std::vector<EntityDefinitionClassInfo>{
+    {EntityDefinitionClassType::BaseClass,
+     0,
+     0,
+     "base",
+     std::nullopt,
+     std::nullopt,
+     std::nullopt,
+     std::nullopt,
+     baseDecalDef,
+     {},
+     {}},
+    {EntityDefinitionClassType::PointClass,
+     0,
+     0,
+     "point",
+     std::nullopt,
+     std::nullopt,
+     std::nullopt,
+     std::nullopt,
+     pointDecalDef,
+     {},
+     {"base"}},
+  };
+  const auto expected = std::vector<EntityDefinitionClassInfo>{
+    {EntityDefinitionClassType::PointClass,
+     0,
+     0,
+     "point",
+     std::nullopt,
+     std::nullopt,
+     std::nullopt,
+     std::nullopt,
+     mergedDecalDef,
+     {},
+     {"base"}},
+  };
+
+  auto status = TestParserStatus{};
   CHECK_THAT(resolveInheritance(status, input), Catch::UnorderedEquals(expected));
   CHECK(status.countStatus(LogLevel::Warn) == 0u);
   CHECK(status.countStatus(LogLevel::Error) == 0u);
@@ -457,12 +545,14 @@ TEST_CASE("resolveInheritance.inheritPropertyDefinitions")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {a1_1, a2},
      {}},
     {EntityDefinitionClassType::PointClass,
      0,
      0,
      "point",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -475,6 +565,7 @@ TEST_CASE("resolveInheritance.inheritPropertyDefinitions")
      0,
      0,
      "point",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -512,12 +603,14 @@ TEST_CASE("resolveInheritance.mergeSpawnflagsSimpleInheritance")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {a1},
      {}},
     {EntityDefinitionClassType::PointClass,
      0,
      0,
      "point",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -571,9 +664,19 @@ TEST_CASE("resolveInheritance.chainOfBaseClasses")
   mergedModelDef.append(base2ModelDef);
   mergedModelDef.append(base1ModelDef);
 
+  const auto base1DecalDef = Assets::DecalDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("dec1")), 0, 0));
+  const auto base2DecalDef = Assets::DecalDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("dec2")), 0, 0));
+  const auto pointDecalDef = Assets::DecalDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("dec3")), 0, 0));
+  auto mergedDecalDef = pointDecalDef;
+  mergedDecalDef.append(base2DecalDef);
+  mergedDecalDef.append(base1DecalDef);
+
   const auto input = std::vector<EntityDefinitionClassInfo>({
-    // type                                   l  c  name     description   color size
-    // modelDef        properties      superclasses
+    // type  l  c  name description  color size
+    // modelDef  decalDef  properties  superclasses
     {EntityDefinitionClassType::BaseClass,
      0,
      0,
@@ -582,6 +685,7 @@ TEST_CASE("resolveInheritance.chainOfBaseClasses")
      std::nullopt,
      vm::bbox3(-2, 2),
      base1ModelDef,
+     base1DecalDef,
      {a1_1, a2},
      {}},
     {EntityDefinitionClassType::BaseClass,
@@ -592,6 +696,7 @@ TEST_CASE("resolveInheritance.chainOfBaseClasses")
      Color(1, 2, 3),
      std::nullopt,
      base2ModelDef,
+     base2DecalDef,
      {a1_2, a3},
      {"base1"}},
     {EntityDefinitionClassType::PointClass,
@@ -602,6 +707,7 @@ TEST_CASE("resolveInheritance.chainOfBaseClasses")
      std::nullopt,
      std::nullopt,
      pointModelDef,
+     pointDecalDef,
      {},
      {"base2"}},
   });
@@ -614,6 +720,7 @@ TEST_CASE("resolveInheritance.chainOfBaseClasses")
      Color(1, 2, 3),
      vm::bbox3(-2, 2),
      mergedModelDef,
+     mergedDecalDef,
      {a1_2, a3, a2},
      {"base2"}},
   });
@@ -643,9 +750,19 @@ TEST_CASE("resolveInheritance.multipleBaseClasses")
   mergedModelDef.append(base1ModelDef);
   mergedModelDef.append(base2ModelDef);
 
+  const auto base1DecalDef = Assets::DecalDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("dec1")), 0, 0));
+  const auto base2DecalDef = Assets::DecalDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("dec2")), 0, 0));
+  const auto pointDecalDef = Assets::DecalDefinition(
+    EL::Expression(EL::LiteralExpression(EL::Value("dec3")), 0, 0));
+  auto mergedDecalDef = pointDecalDef;
+  mergedDecalDef.append(base1DecalDef);
+  mergedDecalDef.append(base2DecalDef);
+
   const auto input = std::vector<EntityDefinitionClassInfo>({
-    // type                                   l  c  name     description   color size
-    // modelDef        properties      superclasses
+    // type  l  c  name description  color size
+    // modelDef  decalDef  properties  superclasses
     {EntityDefinitionClassType::BaseClass,
      0,
      0,
@@ -654,6 +771,7 @@ TEST_CASE("resolveInheritance.multipleBaseClasses")
      std::nullopt,
      vm::bbox3(-2, 2),
      base1ModelDef,
+     base1DecalDef,
      {a1_1, a2},
      {}},
     {EntityDefinitionClassType::BaseClass,
@@ -664,6 +782,7 @@ TEST_CASE("resolveInheritance.multipleBaseClasses")
      Color(1, 2, 3),
      std::nullopt,
      base2ModelDef,
+     base2DecalDef,
      {a1_2, a3},
      {}},
     {EntityDefinitionClassType::PointClass,
@@ -674,6 +793,7 @@ TEST_CASE("resolveInheritance.multipleBaseClasses")
      std::nullopt,
      std::nullopt,
      pointModelDef,
+     pointDecalDef,
      {},
      {"base1", "base2"}},
   });
@@ -686,6 +806,7 @@ TEST_CASE("resolveInheritance.multipleBaseClasses")
      Color(1, 2, 3),
      vm::bbox3(-2, 2),
      mergedModelDef,
+     mergedDecalDef,
      {a1_1, a2, a3},
      {"base1", "base2"}},
   });
@@ -716,6 +837,7 @@ TEST_CASE("resolveInheritance.diamondInheritance")
      std::nullopt,
      vm::bbox3(-2, 2),
      std::nullopt,
+     std::nullopt,
      {a1},
      {}},
     {EntityDefinitionClassType::BaseClass,
@@ -724,6 +846,7 @@ TEST_CASE("resolveInheritance.diamondInheritance")
      "base2_1",
      "base2_1",
      Color(1, 2, 3),
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      {a2_1},
@@ -736,6 +859,7 @@ TEST_CASE("resolveInheritance.diamondInheritance")
      std::nullopt,
      vm::bbox3(-1, 1),
      std::nullopt,
+     std::nullopt,
      {a2_2},
      {"base1"}},
     {EntityDefinitionClassType::PointClass,
@@ -746,12 +870,14 @@ TEST_CASE("resolveInheritance.diamondInheritance")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {a3},
      {"base2_1", "base2_2"}},
     {EntityDefinitionClassType::PointClass,
      0,
      0,
      "point2",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -768,6 +894,7 @@ TEST_CASE("resolveInheritance.diamondInheritance")
      Color(1, 2, 3),
      vm::bbox3(-2, 2),
      std::nullopt,
+     std::nullopt,
      {a3, a2_1, a1, a2_2},
      {"base2_1", "base2_2"}},
     {EntityDefinitionClassType::PointClass,
@@ -777,6 +904,7 @@ TEST_CASE("resolveInheritance.diamondInheritance")
      "base2_2",
      Color(1, 2, 3),
      vm::bbox3(-1, 1),
+     std::nullopt,
      std::nullopt,
      {a3, a2_2, a1, a2_1},
      {"base2_2", "base2_1"}},
@@ -801,6 +929,7 @@ TEST_CASE("resolveInheritance.overloadedSuperClass")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BrushClass,
@@ -808,6 +937,7 @@ TEST_CASE("resolveInheritance.overloadedSuperClass")
      0,
      "base",
      "brush",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -821,12 +951,14 @@ TEST_CASE("resolveInheritance.overloadedSuperClass")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {"base"}},
     {EntityDefinitionClassType::BrushClass,
      0,
      0,
      "brush",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -843,6 +975,7 @@ TEST_CASE("resolveInheritance.overloadedSuperClass")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BrushClass,
@@ -850,6 +983,7 @@ TEST_CASE("resolveInheritance.overloadedSuperClass")
      0,
      "base",
      "brush",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -863,6 +997,7 @@ TEST_CASE("resolveInheritance.overloadedSuperClass")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {"base"}},
     {EntityDefinitionClassType::BrushClass,
@@ -870,6 +1005,7 @@ TEST_CASE("resolveInheritance.overloadedSuperClass")
      0,
      "brush",
      "brush",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -896,6 +1032,7 @@ TEST_CASE("resolveInheritance.indirectOverloadedSuperClass")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BrushClass,
@@ -906,12 +1043,14 @@ TEST_CASE("resolveInheritance.indirectOverloadedSuperClass")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BaseClass,
      0,
      0,
      "mid",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -926,12 +1065,14 @@ TEST_CASE("resolveInheritance.indirectOverloadedSuperClass")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {"mid"}},
     {EntityDefinitionClassType::BrushClass,
      0,
      0,
      "brush",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -948,6 +1089,7 @@ TEST_CASE("resolveInheritance.indirectOverloadedSuperClass")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {}},
     {EntityDefinitionClassType::BrushClass,
@@ -955,6 +1097,7 @@ TEST_CASE("resolveInheritance.indirectOverloadedSuperClass")
      0,
      "base",
      "brush",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,
@@ -968,6 +1111,7 @@ TEST_CASE("resolveInheritance.indirectOverloadedSuperClass")
      std::nullopt,
      std::nullopt,
      std::nullopt,
+     std::nullopt,
      {},
      {"mid"}},
     {EntityDefinitionClassType::BrushClass,
@@ -975,6 +1119,7 @@ TEST_CASE("resolveInheritance.indirectOverloadedSuperClass")
      0,
      "brush",
      "brush",
+     std::nullopt,
      std::nullopt,
      std::nullopt,
      std::nullopt,

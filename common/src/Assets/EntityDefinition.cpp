@@ -191,10 +191,12 @@ PointEntityDefinition::PointEntityDefinition(
   const vm::bbox3& bounds,
   std::string description,
   std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions,
-  ModelDefinition modelDefinition)
+  ModelDefinition modelDefinition,
+  DecalDefinition decalDefinition)
   : EntityDefinition{std::move(name), color, std::move(description), std::move(propertyDefinitions)}
   , m_bounds{bounds}
   , m_modelDefinition{std::move(modelDefinition)}
+  , m_decalDefinition{std::move(decalDefinition)}
 {
 }
 
@@ -211,6 +213,11 @@ const vm::bbox3& PointEntityDefinition::bounds() const
 const ModelDefinition& PointEntityDefinition::modelDefinition() const
 {
   return m_modelDefinition;
+}
+
+const DecalDefinition& PointEntityDefinition::decalDefinition() const
+{
+  return m_decalDefinition;
 }
 
 BrushEntityDefinition::BrushEntityDefinition(

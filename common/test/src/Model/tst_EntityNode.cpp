@@ -138,6 +138,7 @@ TEST_CASE("EntityNodeTest.area")
     vm::bbox3(vm::vec3::zero(), vm::vec3(1.0, 2.0, 3.0)),
     "",
     {},
+    {},
     {});
   auto entityNode = EntityNode{Entity{}};
   entityNode.setDefinition(&definition);

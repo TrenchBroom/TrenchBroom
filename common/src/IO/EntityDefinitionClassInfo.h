@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Assets/DecalDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "Color.h"
 #include "FloatType.h"
@@ -62,6 +63,7 @@ struct EntityDefinitionClassInfo
   std::optional<Color> color;
   std::optional<vm::bbox3> size;
   std::optional<Assets::ModelDefinition> modelDefinition;
+  std::optional<Assets::DecalDefinition> decalDefinition;
 
   std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
   std::vector<std::string> superClasses;
@@ -76,6 +78,7 @@ struct EntityDefinitionClassInfo
     color,
     size,
     modelDefinition,
+    decalDefinition,
     propertyDefinitions,
     superClasses);
 };

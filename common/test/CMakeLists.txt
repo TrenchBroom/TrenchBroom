@@ -22,6 +22,7 @@ set(COMMON_TEST_UTILS_SOURCE
 
 set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_AssetUtils.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Assets/tst_DecalDefinition.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_EntityModel.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_ModelDefinition.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_EL.cpp"

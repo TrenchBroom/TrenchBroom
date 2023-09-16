@@ -21,6 +21,7 @@
 
 #include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
+#include "EL/Expressions.h"
 #include "Error.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
@@ -320,6 +321,13 @@ EntityDefinitionClassInfo FgdParser::parseSolidClassInfo(ParserStatus& status)
       classInfo.column,
       "Solid entity definition must not have model definitions");
   }
+  if (classInfo.decalDefinition)
+  {
+    status.warn(
+      classInfo.line,
+      classInfo.column,
+      "Solid entity definition must not have decal definitions");
+  }
   return classInfo;
 }
 
@@ -383,6 +391,14 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
         status.warn(token.line(), token.column(), "Found multiple model properties");
       }
       classInfo.modelDefinition = parseModel(status);
+    }
+    else if (kdl::ci::str_is_equal(typeName, "decal"))
+    {
+      if (classInfo.decalDefinition)
+      {
+        status.warn(token.line(), token.column(), "Found multiple decal properties");
+      }
+      classInfo.decalDefinition = parseDecal(status);
     }
     else
     {
@@ -495,6 +511,50 @@ Assets::ModelDefinition FgdParser::parseModel(ParserStatus& status)
       m_tokenizer.restore(snapshot);
       throw e;
     }
+  }
+  catch (const EL::EvaluationError& evaluationError)
+  {
+    throw ParserException{
+      m_tokenizer.line(), m_tokenizer.column(), evaluationError.what()};
+  }
+}
+
+Assets::DecalDefinition FgdParser::parseDecal(ParserStatus& status)
+{
+  expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
+
+  const auto snapshot = m_tokenizer.snapshot();
+  const auto line = m_tokenizer.line();
+  const auto column = m_tokenizer.column();
+
+  // Accept "decal()" and give it a default expression of `{ texture: texture }`
+  const auto token = m_tokenizer.peekToken();
+  if (token.hasType(FgdToken::CParenthesis))
+  {
+    expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
+    const auto defaultDecal =
+      EL::MapExpression{{{"texture", {EL::VariableExpression{"texture"}, line, column}}}};
+    const auto defaultExp = EL::Expression{defaultDecal, line, column};
+    return Assets::DecalDefinition{defaultExp};
+  }
+
+  try
+  {
+    auto parser =
+      ELParser{ELParser::Mode::Lenient, m_tokenizer.remainder(), line, column};
+    auto expression = parser.parse();
+
+    // advance our tokenizer by the amount that `parser` parsed
+    m_tokenizer.adoptState(parser.tokenizerState());
+    expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
+
+    expression = expression.optimize();
+    return Assets::DecalDefinition{expression};
+  }
+  catch (const ParserException&)
+  {
+    m_tokenizer.restore(snapshot);
+    throw;
   }
   catch (const EL::EvaluationError& evaluationError)
   {

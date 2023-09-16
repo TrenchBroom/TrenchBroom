@@ -35,8 +35,9 @@ namespace TrenchBroom
 {
 namespace Assets
 {
+class DecalDefinition;
 class ModelDefinition;
-}
+} // namespace Assets
 
 namespace IO
 {
@@ -118,6 +119,7 @@ private:
 
   std::vector<std::string> parseSuperClasses(ParserStatus& status);
   Assets::ModelDefinition parseModel(ParserStatus& status);
+  Assets::DecalDefinition parseDecal(ParserStatus& status);
   std::string parseNamedValue(ParserStatus& status, const std::string& name);
   void skipClassProperty(ParserStatus& status);
 
