@@ -460,4 +460,32 @@ TEST_CASE("intersection.polygon_clip_by_plane")
       });
   }
 }
+
+TEST_CASE("intersection.intersect_bbox_polygon")
+{
+  constexpr auto poly = square();
+
+  constexpr auto bbox1 = bbox3d{{-10, -10, -10}, {-5, -5, -5}};
+
+  constexpr auto bbox2 = bbox3d{{-1.1, -1.1, -1}, {-0.9, -0.9, 1}};
+  constexpr auto bbox3 = bbox3d{{0, 0, 0}, {2, 2, 2}};
+  constexpr auto bbox4 = bbox3d{{0.9, -0.1, -1}, {1.1, 0.1, 1}};
+
+  SECTION("no intersection")
+  {
+    CHECK_FALSE(intersect_bbox_polygon(bbox1, std::begin(poly), std::end(poly)));
+  }
+
+  SECTION("intersection")
+  {
+    // polygon point inside bbox
+    CHECK(intersect_bbox_polygon(bbox2, std::begin(poly), std::end(poly)));
+
+    // bbox edge intersects polygon
+    CHECK(intersect_bbox_polygon(bbox3, std::begin(poly), std::end(poly)));
+
+    // polygon edge intersects bbox
+    CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
+  }
+}
 } // namespace vm

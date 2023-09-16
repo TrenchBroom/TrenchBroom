@@ -735,4 +735,93 @@ constexpr std::vector<vec<T, 3>> polygon_clip_by_plane(
 
   return result;
 }
+
+/**
+ * Tests if a bounding box intersects a polygon
+ *
+ * @tparam T the component type
+ * @tparam I the vertex range iterator
+ * @tparam G a transformation from the range elements to points
+ * @param bbox the bbox to test against
+ * @param begin the vertex range start iterator
+ * @param end the vertex range end iterator
+ * @param get the transformation function
+ * @return true if the polygon and bbox intersect, false otherwise
+ */
+template <typename T, typename I, typename G = identity>
+constexpr bool intersect_bbox_polygon(
+  const bbox<T, 3>& bbox, I begin, I end, const G& get = G())
+{
+  /* somewhat naive implementation of an intersection test that i found on the internet
+   * there's likely a better way to do this.
+   *
+   * https://www.gamedev.net/forums/topic/224189-polygon-cube-aabb-intersection/
+   *
+   * 1) check if *any* of 3 points of the *polygon* are included inside the *cube*, if so
+   * return true (intersection).
+   *
+   * 2) if not : test every edge of the polygon against the 6 faces of the cube. If there
+   * is an intersection, return true.
+   *
+   * 3) if not : test every edge of the cube against the polygon, if there is an
+   * intersection, return true.
+   *
+   * 4) If all previous tests failed, there is no intersection, return false.
+   */
+
+  // 1
+  auto numVerts = size_t(0);
+  for (auto cur = begin; cur != end; ++cur)
+  {
+    const auto v = get(*cur);
+    if (bbox.contains(v))
+    {
+      return true;
+    }
+    ++numVerts;
+  }
+
+  assert(numVerts >= 3);
+  const auto [valid, pl] =
+    from_points(get(*begin), get(*std::next(begin)), get(*std::next(begin, 2)));
+  assert(valid);
+
+  // 2
+  for (auto cur = begin; cur != end; ++cur)
+  {
+    const auto next = std::next(cur) != end ? std::next(cur) : begin;
+
+    const auto start = get(*cur);
+    const auto dir = get(*next) - start;
+    const auto ln = line<T, 3>{start, dir};
+    const auto d = intersect_line_plane(ln, pl);
+    if (d >= T(0) && d <= T(1))
+    {
+      const auto pt = pl.project_point(point_at_distance(ln, d));
+      if (polygon_contains_point(pt, cur, end, get))
+      {
+        return true;
+      }
+    }
+  }
+
+  // 3
+  auto edgeIsect = false;
+  bbox.for_each_edge([&, pl = pl](const auto& start, const auto& en) {
+    const auto dir = en - start;
+    const auto ln = line<T, 3>{start, dir};
+    const auto d = intersect_line_plane(ln, pl);
+    if (d >= T(0) && d <= T(1))
+    {
+      const auto pt = pl.project_point(point_at_distance(ln, d));
+      if (polygon_contains_point(pt, begin, end, get))
+      {
+        edgeIsect = true;
+      }
+    }
+  });
+
+  // 4
+  return edgeIsect;
+}
 } // namespace vm
