@@ -549,6 +549,46 @@ public:
   }
 
   /**
+   * Finds every data item in this tree whose bounding box intersects with the given bbox
+   * and returns a list of those items.
+   *
+   * @param bbox the bbox to test
+   * @return a list containing all found data items
+   */
+  std::vector<U> find_intersectors(const vm::bbox<T, 3>& bbox) const
+  {
+    auto result = std::vector<U>{};
+    find_intersectors(bbox, std::back_inserter(result));
+    return result;
+  }
+
+  /**
+   * Finds every data item in this tree whose bounding box intersects with the given bbox
+   * and appends it to the given output iterator.
+   *
+   * @tparam O the output iterator type
+   * @param bbox the bbox to test
+   * @param out the output iterator to append to
+   */
+  template <typename O>
+  void find_intersectors(const vm::bbox<T, 3>& bbox, O out) const
+  {
+    if (m_root)
+    {
+      visit_node_if(
+        *m_root,
+        [&](const auto& node) {
+          const auto& data = get_data(node);
+          std::copy(data.begin(), data.end(), out);
+        },
+        [&](const auto& node) {
+          const auto bounds = get_address(node).to_bounds(m_min_size);
+          return bbox.intersects(bounds);
+        });
+    }
+  }
+
+  /**
    * Finds every data item in this tree whose bounding box contains the given point and
    * returns a list of those items.
    *

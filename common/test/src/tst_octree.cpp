@@ -578,11 +578,14 @@ TEST_CASE("octree.contains")
   CHECK(tree.contains(3));
 }
 
-TEST_CASE("octree.find_intersectors")
+TEST_CASE("octree.find_intersectors-ray")
 {
   auto tree = octree<double, int>{32.0};
 
-  SECTION("empty tree") { CHECK(tree.find_intersectors({{0, 0, 0}, {1, 0, 0}}).empty()); }
+  SECTION("empty tree")
+  {
+    CHECK(tree.find_intersectors(vm::ray3d{{0, 0, 0}, {1, 0, 0}}).empty());
+  }
 
   SECTION("single node")
   {
@@ -605,13 +608,77 @@ TEST_CASE("octree.find_intersectors")
             node{leaf_node{{1, 1, 1, 0}, {1}}})}});
 
     // the leaf that contains the data does not contain the ray origin
-    CHECK(tree.find_intersectors({{48, 48, 0}, {0, 0, -1}}).empty());
+    CHECK(tree.find_intersectors(vm::ray3d{{48, 48, 0}, {0, 0, -1}}).empty());
 
     // the leaf that contains the data contains the ray origin
-    CHECK(tree.find_intersectors({{48, 48, 48}, {0, 0, -1}}) == std::vector<int>{1});
+    CHECK(
+      tree.find_intersectors(vm::ray3d{{48, 48, 48}, {0, 0, -1}}) == std::vector<int>{1});
 
     // the leaf that contains the data is hit by the ray
-    CHECK(tree.find_intersectors({{48, 48, 0}, {0, 0, 1}}) == std::vector<int>{1});
+    CHECK(
+      tree.find_intersectors(vm::ray3d{{48, 48, 0}, {0, 0, 1}}) == std::vector<int>{1});
+  }
+}
+
+TEST_CASE("octree.find_intersectors-bbox")
+{
+  auto tree = octree<double, int>{32.0};
+
+  SECTION("empty tree")
+  {
+    CHECK(tree.find_intersectors(vm::bbox3d{{0, 0, 0}, {1, 1, 1}}).empty());
+  }
+
+  SECTION("single node")
+  {
+    tree.insert({{32, 32, 32}, {64, 64, 64}}, 1);
+    REQUIRE(
+      tree
+      == octree<double, int>{
+        32.0,
+        inner_node{
+          {-2, -2, -2, 2},
+          {},
+          kdl::vec_from(
+            node{leaf_node{{-2, -2, -2, 1}, {}}},
+            node{leaf_node{{0, -2, -2, 1}, {}}},
+            node{leaf_node{{-2, 0, -2, 1}, {}}},
+            node{leaf_node{{0, 0, -2, 1}, {}}},
+            node{leaf_node{{-2, -2, 0, 1}, {}}},
+            node{leaf_node{{0, -2, 0, 1}, {}}},
+            node{leaf_node{{-2, 0, 0, 1}, {}}},
+            node{leaf_node{{1, 1, 1, 0}, {1}}})}});
+
+    // non-intersection tests:
+
+    // not touching
+    CHECK(tree.find_intersectors(vm::bbox3d{{0, 0, 0}, {16, 16, 16}}).empty());
+
+    // intersection tests:
+
+    // share a corner
+    CHECK(
+      tree.find_intersectors(vm::bbox3d{{0, 0, 0}, {32, 32, 32}}) == std::vector<int>{1});
+
+    // share a face
+    CHECK(
+      tree.find_intersectors(vm::bbox3d{{0, 32, 32}, {32, 32, 32}})
+      == std::vector<int>{1});
+
+    // fully inside leaf
+    CHECK(
+      tree.find_intersectors(vm::bbox3d{{40, 40, 40}, {48, 48, 48}})
+      == std::vector<int>{1});
+
+    // fully contains leaf
+    CHECK(
+      tree.find_intersectors(vm::bbox3d{{0, 0, 0}, {128, 128, 128}})
+      == std::vector<int>{1});
+
+    // partially contains leaf
+    CHECK(
+      tree.find_intersectors(vm::bbox3d{{48, 48, 48}, {128, 128, 128}})
+      == std::vector<int>{1});
   }
 }
 
