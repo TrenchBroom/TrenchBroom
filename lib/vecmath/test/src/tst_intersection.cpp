@@ -32,6 +32,7 @@
 
 #include <array>
 
+#define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
 #include <catch2/catch.hpp>
 
 namespace vm
@@ -415,6 +416,48 @@ bool lineOnPlane(const plane3f& plane, const line3f& line)
   else
   {
     return true;
+  }
+}
+
+TEST_CASE("intersection.polygon_clip_by_plane")
+{
+  constexpr auto poly = square();
+
+  constexpr auto plane1 = plane3d{{0, 0, 0}, vec3d::pos_z()};
+  constexpr auto plane2 = plane3d{{0, 1, 0}, vec3d::pos_z()};
+  constexpr auto plane5 = plane3d{{0, -1, 0}, -vec3d::pos_z()};
+
+  constexpr auto plane3 = plane3d{{0, 0, 0}, vec3d::pos_x()};
+  const auto [_, plane4] =
+    vm::from_points(vec3d{-1, -1, 0}, vec3d{1, 1, 0}, vec3d{0, 0, 1});
+
+  SECTION("no clipping")
+  {
+    CHECK(polygon_clip_by_plane(plane1, std::begin(poly), std::end(poly)).empty());
+    CHECK(polygon_clip_by_plane(plane2, std::begin(poly), std::end(poly)).empty());
+    CHECK(polygon_clip_by_plane(plane5, std::begin(poly), std::end(poly)).empty());
+  }
+
+  SECTION("clipping")
+  {
+    // split into two rectangles
+    CHECK(
+      polygon_clip_by_plane(plane3, std::begin(poly), std::end(poly))
+      == std::vector<vec3d>{
+        {-1, -1, 0},
+        {-1, 1, 0},
+        {0, 1, 0},
+        {0, -1, 0},
+      });
+
+    // split into two triangles
+    CHECK(
+      polygon_clip_by_plane(plane4, std::begin(poly), std::end(poly))
+      == std::vector<vec3d>{
+        {-1, -1, 0},
+        {1, 1, 0},
+        {1, -1, 0},
+      });
   }
 }
 } // namespace vm

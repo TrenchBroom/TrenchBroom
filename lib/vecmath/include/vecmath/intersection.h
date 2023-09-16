@@ -29,6 +29,8 @@
 #include "util.h"
 #include "vec.h"
 
+#include <optional>
+
 namespace vm
 {
 
@@ -660,5 +662,77 @@ line<T, S> intersect_plane_plane(const plane<T, S>& p1, const plane<T, S>& p2)
   {
     return line<T, S>(point, lineDirection);
   }
+}
+
+/**
+ * Splits a polygon by a clipping plane and returns the part of the polgyon behind the
+ * plane.
+ *
+ * @tparam T the component type
+ * @tparam I the vertex range iterator
+ * @tparam G a transformation from the range elements to points
+ * @param p the plane to clip by
+ * @param begin the vertex range start iterator
+ * @param end the vertex range end iterator
+ * @param get the transformation function
+ * @return the remaining vertices of the clipped polygon
+ */
+template <typename T, typename I, typename G = identity>
+constexpr std::vector<vec<T, 3>> polygon_clip_by_plane(
+  const plane<T, 3>& p, I begin, I end, const G& get = G())
+{
+  constexpr T epsilon = T(0.0001);
+
+  size_t cb = 0, cf = 0, ct = 0;
+  for (auto cur = begin; cur != end; ++cur)
+  {
+    const auto dist = p.point_distance(get(*cur));
+    if (dist < -epsilon)
+    {
+      ++cb;
+    }
+    else if (dist > epsilon)
+    {
+      ++cf;
+    }
+    ++ct;
+  }
+
+  assert(ct >= 3);
+
+  auto result = std::vector<vec<T, 3>>{};
+  result.reserve(cb);
+
+  // check for cases where the plane doesn't clip the polygon
+  if (cb == 0)
+  {
+    return result;
+  }
+
+  const auto corrected_point_distance = [&](const auto& plane, const auto& point) {
+    const auto dist = plane.point_distance(point);
+    return abs(dist) > epsilon ? dist : T(0);
+  };
+
+  for (auto cur = begin; cur != end; ++cur)
+  {
+    auto next = std::next(cur) != end ? std::next(cur) : begin;
+    const auto s = get(*cur), e = get(*next);
+    const auto sd = corrected_point_distance(p, s), ed = corrected_point_distance(p, e);
+
+    if (sd <= T(0))
+    {
+      result.push_back(s);
+    }
+
+    if ((sd < T(0) && ed > T(0)) || (sd > T(0) && ed < T(0)))
+    {
+      const auto t = sd / (sd - ed);
+      const auto intersect = s * (T(1) - t) + e * t;
+      result.push_back(intersect);
+    }
+  }
+
+  return result;
 }
 } // namespace vm
