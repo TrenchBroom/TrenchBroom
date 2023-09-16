@@ -509,7 +509,7 @@ public:
 
   /**
    * Finds every data item in this tree whose bounding box intersects with the given ray
-   * and retuns a list of those items.
+   * and returns a list of those items.
    *
    * @param ray the ray to test
    * @return a list containing all found data items

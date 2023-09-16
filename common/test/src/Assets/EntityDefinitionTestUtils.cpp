@@ -35,17 +35,15 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 void assertModelDefinition(
   const ModelSpecification& expected,
   IO::EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr)
 {
-  IO::TestParserStatus status;
-  std::vector<EntityDefinition*> definitions = parser.parseDefinitions(status);
+  auto status = IO::TestParserStatus{};
+  auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
   const auto* definition = definitions[0];
@@ -64,7 +62,7 @@ void assertModelDefinition(
   assert(definition->type() == EntityDefinitionType::PointEntity);
 
   const auto* pointDefinition = dynamic_cast<const PointEntityDefinition*>(definition);
-  const ModelDefinition& modelDefinition = pointDefinition->modelDefinition();
+  const auto& modelDefinition = pointDefinition->modelDefinition();
   assertModelDefinition(expected, modelDefinition, entityPropertiesStr);
 }
 
@@ -74,9 +72,9 @@ void assertModelDefinition(
   const std::string& entityPropertiesStr)
 {
   const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr)
-                                     .evaluate(EL::EvaluationContext())
+                                     .evaluate(EL::EvaluationContext{})
                                      .mapValue();
-  const auto variableStore = EL::VariableTable(entityPropertiesMap);
+  const auto variableStore = EL::VariableTable{entityPropertiesMap};
   CHECK(actual.modelSpecification(variableStore) == expected);
 }
 
@@ -85,8 +83,8 @@ void assertDecalDefinition(
   IO::EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr)
 {
-  IO::TestParserStatus status;
-  std::vector<EntityDefinition*> definitions = parser.parseDefinitions(status);
+  auto status = IO::TestParserStatus{};
+  auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
   const auto* definition = definitions[0];
@@ -105,7 +103,7 @@ void assertDecalDefinition(
   assert(definition->type() == EntityDefinitionType::PointEntity);
 
   const auto* pointDefinition = dynamic_cast<const PointEntityDefinition*>(definition);
-  const DecalDefinition& modelDefinition = pointDefinition->decalDefinition();
+  const auto& modelDefinition = pointDefinition->decalDefinition();
   assertDecalDefinition(expected, modelDefinition, entityPropertiesStr);
 }
 
@@ -115,10 +113,9 @@ void assertDecalDefinition(
   const std::string& entityPropertiesStr)
 {
   const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr)
-                                     .evaluate(EL::EvaluationContext())
+                                     .evaluate(EL::EvaluationContext{})
                                      .mapValue();
-  const auto variableStore = EL::VariableTable(entityPropertiesMap);
+  const auto variableStore = EL::VariableTable{entityPropertiesMap};
   CHECK(actual.decalSpecification(variableStore) == expected);
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

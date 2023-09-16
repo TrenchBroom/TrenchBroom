@@ -72,19 +72,19 @@ constexpr int handle_polygon_edge_intersection(const vec<T, 3>& v0, const vec<T,
   if (
     (is_zero(v0.y(), constants<T>::almost_zero())
      && is_zero(v1.y(), constants<T>::almost_zero()))
-    || (v0.y() > T(0.0) && v1.y() > T(0.0)) || (v0.y() < T(0.0) && v1.y() < T(0.0)))
+    || (v0.y() > T(0) && v1.y() > T(0)) || (v0.y() < T(0) && v1.y() < T(0)))
   {
     return 0;
   }
 
   // Is segment entirely on the positive side of the X axis?
-  if (v0.x() > T(0.0) && v1.x() > T(0.0))
+  if (v0.x() > T(0) && v1.x() > T(0))
   {
     return 1;
   }
 
   // Is segment entirely on the negative side of the X axis?
-  if (v0.x() < T(0.0) && v1.x() < T(0.0))
+  if (v0.x() < T(0) && v1.x() < T(0))
   {
     return 0;
   }
@@ -99,7 +99,7 @@ constexpr int handle_polygon_edge_intersection(const vec<T, 3>& v0, const vec<T,
   }
 
   // Is the point of intersection on the positive X axis?
-  if (x > T(0.0))
+  if (x > T(0))
   {
     return 1;
   }
@@ -134,13 +134,13 @@ constexpr bool polygon_contains_point(
   const auto o = swizzle(p, axis);
 
   const auto fv = swizzle(get(*cur++), axis) - o; // The first vertex.
-  vec<T, 3> pv = fv;                              // The previous vertex.
+  auto pv = fv;                                   // The previous vertex.
 
-  int d = 0;
+  auto d = 0;
   while (cur != end)
   {
-    const vec<T, 3> cv = swizzle(get(*cur++), axis) - o; // The current vertex.
-    const int s = detail::handle_polygon_edge_intersection(pv, cv);
+    const auto cv = swizzle(get(*cur++), axis) - o; // The current vertex.
+    const auto s = detail::handle_polygon_edge_intersection(pv, cv);
     if (s == -1)
     {
       return true;
@@ -150,7 +150,7 @@ constexpr bool polygon_contains_point(
   }
 
   // Handle the edge from the last to the first vertex.
-  const int s = detail::handle_polygon_edge_intersection(pv, fv);
+  const auto s = detail::handle_polygon_edge_intersection(pv, fv);
   if (s == -1)
   {
     return true;
@@ -205,21 +205,21 @@ constexpr bool polygon_contains_point(
 template <typename T, typename I, typename G = identity>
 bool polygon_contains_point(const vec<T, 3>& p, I cur, I end, const G& get = G())
 {
-  I temp = cur;
+  auto temp = cur;
 
   assert(temp != end);
-  const vec<T, 3> p1 = get(*temp++);
+  const auto p1 = get(*temp++);
   assert(temp != end);
-  const vec<T, 3> p2 = get(*temp++);
+  const auto p2 = get(*temp++);
   assert(temp != end);
-  const vec<T, 3> p3 = get(*temp);
+  const auto p3 = get(*temp);
 
-  const auto normal_result = plane_normal(p1, p2, p3);
-  [[maybe_unused]] const auto normal_valid = std::get<0>(normal_result);
-  const auto normal_vector = std::get<1>(normal_result);
-  assert(normal_valid);
+  auto valid = false;
+  auto normal = vm::vec<T, 3>{};
+  std::tie(valid, normal) = plane_normal(p1, p2, p3);
+  assert(valid);
 
-  return polygon_contains_point(p, find_abs_max_component(normal_vector), cur, end, get);
+  return polygon_contains_point(p, find_abs_max_component(normal), cur, end, get);
 }
 
 /**
@@ -285,19 +285,19 @@ constexpr T intersect_ray_triangle(
   const auto q = cross(t, e1);
 
   const auto u = dot(q, e2) / a;
-  if (u < T(0.0))
+  if (u < T(0))
   {
     return nan<T>();
   }
 
   const auto v = dot(p, t) / a;
-  if (v < T(0.0))
+  if (v < T(0))
   {
     return nan<T>();
   }
 
   const auto w = dot(q, d) / a;
-  if (w < T(0.0))
+  if (w < T(0))
   {
     return nan<T>();
   }
@@ -361,14 +361,7 @@ template <typename T, typename I, typename G = identity>
 T intersect_ray_polygon(const ray<T, 3>& r, I cur, I end, const G& get = G())
 {
   const auto [valid, plane] = from_points(cur, end, get);
-  if (!valid)
-  {
-    return nan<T>();
-  }
-  else
-  {
-    return intersect_ray_polygon(r, plane, cur, end, get);
-  }
+  return valid ? intersect_ray_polygon(r, plane, cur, end, get) : nan<T>();
 }
 
 /**
@@ -388,7 +381,7 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
   // Compute candidate planes
   T origins[S]{};
   bool inside[S]{};
-  bool allInside = true;
+  auto allInside = true;
   for (size_t i = 0; i < S; ++i)
   {
     if (r.origin[i] < b.min[i])
@@ -403,14 +396,7 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
     }
     else
     {
-      if (r.direction[i] < static_cast<T>(0.0))
-      {
-        origins[i] = b.min[i];
-      }
-      else
-      {
-        origins[i] = b.max[i];
-      }
+      origins[i] = r.direction[i] < T(0) ? b.min[i] : b.max[i];
       inside[i] = true;
     }
   }
@@ -419,17 +405,11 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
   T distances[S]{};
   for (size_t i = 0; i < S; ++i)
   {
-    if (r.direction[i] != static_cast<T>(0.0))
-    {
-      distances[i] = (origins[i] - r.origin[i]) / r.direction[i];
-    }
-    else
-    {
-      distances[i] = static_cast<T>(-1.0);
-    }
+    distances[i] =
+      r.direction[i] != T(0) ? (origins[i] - r.origin[i]) / r.direction[i] : T(-1);
   }
 
-  size_t bestPlane = 0;
+  auto bestPlane = size_t(0);
   if (allInside)
   {
     // find the closest plane that was hit
@@ -462,7 +442,7 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
   }
 
   // Check if the final candidate actually hits the box
-  if (distances[bestPlane] < static_cast<T>(0.0))
+  if (distances[bestPlane] < T(0))
   {
     return nan<T>();
   }
@@ -471,7 +451,7 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
   {
     if (bestPlane != i)
     {
-      const T coord = r.origin[i] + distances[bestPlane] * r.direction[i];
+      const auto coord = r.origin[i] + distances[bestPlane] * r.direction[i];
       if (coord < b.min[i] || coord > b.max[i])
       {
         return nan<T>();
@@ -499,31 +479,22 @@ T intersect_ray_sphere(const ray<T, S>& r, const vec<T, S>& position, const T ra
 {
   const auto diff = r.origin - position;
 
-  const auto p = static_cast<T>(2.0) * dot(diff, r.direction);
+  const auto p = T(2) * dot(diff, r.direction);
   const auto q = squared_length(diff) - radius * radius;
 
-  const auto d = p * p - static_cast<T>(4.0) * q;
-  if (d < static_cast<T>(0.0))
+  const auto d = p * p - T(4) * q;
+  if (d < T(0))
   {
     return nan<T>();
   }
 
   const auto s = sqrt(d);
-  const auto t0 = (-p + s) / static_cast<T>(2.0);
-  const auto t1 = (-p - s) / static_cast<T>(2.0);
+  const auto t0 = (-p + s) / T(2);
+  const auto t1 = (-p - s) / T(2);
 
-  if (t0 < static_cast<T>(0.0) && t1 < static_cast<T>(0.0))
-  {
-    return nan<T>();
-  }
-  else if (t0 > static_cast<T>(0.0) && t1 > static_cast<T>(0.0))
-  {
-    return min(t0, t1);
-  }
-  else
-  {
-    return max(t0, t1);
-  }
+  return t0 < T(0) && t1 < T(0)   ? nan<T>()
+         : t0 > T(0) && t1 > T(0) ? min(t0, t1)
+                                  : max(t0, t1);
 }
 
 /**
@@ -553,9 +524,9 @@ T intersect_ray_torus(
   // since the distance from the ray origin to the point of intersection is invariant
   // under translation, we will not have to transform the result in any way
   const auto origin = r.origin - position;
-  const auto dd = vm::dot(r.direction, r.direction);
-  const auto od = vm::dot(origin, r.direction);
-  const auto oo = vm::dot(origin, origin);
+  const auto dd = dot(r.direction, r.direction);
+  const auto od = dot(origin, r.direction);
+  const auto oo = dot(origin, origin);
   const auto MM = majorRadius * majorRadius;
   const auto mm = minorRadius * minorRadius;
   const auto dz = r.direction.z();
@@ -563,38 +534,36 @@ T intersect_ray_torus(
   const auto omM = oo - mm - MM;
 
   const auto a = dd * dd;
-  const auto b = T(4.0) * dd * od;
-  const auto c = T(2.0) * dd * omM + T(4.0) * (od * od + MM * dz * dz);
-  const auto d = T(4.0) * od * omM + T(8.0) * MM * oz * dz;
-  const auto e = omM * omM - T(4.0) * MM * (mm - oz * oz);
+  const auto b = T(4) * dd * od;
+  const auto c = T(2) * dd * omM + T(4) * (od * od + MM * dz * dz);
+  const auto d = T(4) * od * omM + T(8) * MM * oz * dz;
+  const auto e = omM * omM - T(4) * MM * (mm - oz * oz);
 
-  auto [num, s1, s2, s3, s4] =
-    vm::solve_quartic(a, b, c, d, e, vm::constants<T>::almost_zero());
+  auto [num, s1, s2, s3, s4] = solve_quartic(a, b, c, d, e, constants<T>::almost_zero());
   if (num == 0)
   {
-    return vm::nan<T>();
+    return nan<T>();
   }
-  else
+
+  // only consider positive solutions
+  if (num > 0)
   {
-    // only consider positive solutions
-    if (num > 0)
-    {
-      s1 = s1 > T(0.0) ? s1 : vm::nan<T>();
-    }
-    if (num > 1)
-    {
-      s2 = s2 > T(0.0) ? s2 : vm::nan<T>();
-    }
-    if (num > 2)
-    {
-      s3 = s3 > T(0.0) ? s3 : vm::nan<T>();
-    }
-    if (num > 3)
-    {
-      s4 = s4 > T(0.0) ? s4 : vm::nan<T>();
-    }
-    return safe_min(s1, s2, s3, s4);
+    s1 = s1 > T(0) ? s1 : nan<T>();
   }
+  if (num > 1)
+  {
+    s2 = s2 > T(0) ? s2 : nan<T>();
+  }
+  if (num > 2)
+  {
+    s3 = s3 > T(0) ? s3 : nan<T>();
+  }
+  if (num > 3)
+  {
+    s4 = s4 > T(0) ? s4 : nan<T>();
+  }
+
+  return safe_min(s1, s2, s3, s4);
 }
 
 /**
@@ -612,14 +581,9 @@ template <typename T, size_t S>
 constexpr T intersect_line_plane(const line<T, S>& l, const plane<T, 3>& p)
 {
   const auto f = dot(l.direction, p.normal);
-  if (is_zero(f, constants<T>::almost_zero()))
-  {
-    return nan<T>();
-  }
-  else
-  {
-    return dot(p.distance * p.normal - l.point, p.normal) / f;
-  }
+  return !is_zero(f, constants<T>::almost_zero())
+           ? dot(p.distance * p.normal - l.point, p.normal) / f
+           : nan<T>();
 }
 
 /**
@@ -640,7 +604,7 @@ line<T, S> intersect_plane_plane(const plane<T, S>& p1, const plane<T, S>& p2)
   if (is_nan(lineDirection))
   {
     // the planes are parallel
-    return line<T, S>();
+    return line<T, S>{};
   }
 
   // Now we need to find a point that is on both planes.
@@ -650,18 +614,11 @@ line<T, S> intersect_plane_plane(const plane<T, S>& p1, const plane<T, S>& p2)
   // This will give us a line direction from this plane's anchor that
   // intersects the other plane.
 
-  const auto lineToP2 = line<T, S>(p1.anchor(), normalize(p1.project_vector(p2.normal)));
+  const auto lineToP2 = line<T, S>{p1.anchor(), normalize(p1.project_vector(p2.normal))};
   const auto dist = intersect_line_plane(lineToP2, p2);
   const auto point = point_at_distance(lineToP2, dist);
 
-  if (is_nan(point))
-  {
-    return line<T, S>();
-  }
-  else
-  {
-    return line<T, S>(point, lineDirection);
-  }
+  return !is_nan(point) ? line<T, S>{point, lineDirection} : line<T, S>{};
 }
 
 /**

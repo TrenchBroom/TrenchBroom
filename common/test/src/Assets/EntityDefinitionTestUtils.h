@@ -25,14 +25,12 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class EntityDefinitionParser;
 }
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityDefinition;
 class ModelDefinition;
@@ -60,8 +58,8 @@ void assertModelDefinition(
   const std::string& templateStr,
   const std::string& entityPropertiesStr = "{}")
 {
-  const std::string defStr = kdl::str_replace_every(templateStr, "${MODEL}", modelStr);
-  Parser parser(defStr, Color(1.0f, 1.0f, 1.0f, 1.0f));
+  const auto defStr = kdl::str_replace_every(templateStr, "${MODEL}", modelStr);
+  auto parser = Parser{defStr, Color{1, 1, 1, 1}};
   assertModelDefinition(expected, parser, entityPropertiesStr);
 }
 
@@ -85,9 +83,8 @@ void assertDecalDefinition(
   const std::string& templateStr,
   const std::string& entityPropertiesStr = "{}")
 {
-  const std::string defStr = kdl::str_replace_every(templateStr, "${DECAL}", decalStr);
-  Parser parser(defStr, Color(1.0f, 1.0f, 1.0f, 1.0f));
+  const auto defStr = kdl::str_replace_every(templateStr, "${DECAL}", decalStr);
+  auto parser = Parser{defStr, Color{1, 1, 1, 1}};
   assertDecalDefinition(expected, parser, entityPropertiesStr);
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

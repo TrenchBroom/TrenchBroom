@@ -31,16 +31,15 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class DecalDefinition;
 class ModelDefinition;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace IO
+namespace TrenchBroom::IO
 {
+
 struct EntityDefinitionClassInfo;
 enum class EntityDefinitionClassType;
 class FileSystem;
@@ -95,7 +94,7 @@ public:
 
 private:
   class PushIncludePath;
-  void pushIncludePath(const std::filesystem::path& path);
+  void pushIncludePath(std::filesystem::path path);
   void popIncludePath();
 
   std::filesystem::path currentRoot() const;
@@ -163,5 +162,5 @@ private:
   std::vector<EntityDefinitionClassInfo> handleInclude(
     ParserStatus& status, const std::filesystem::path& path);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO
