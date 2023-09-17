@@ -1556,16 +1556,14 @@ Model::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
   const auto hits = pickResult().all(type(Model::nodeHitType()));
   if (!hits.empty())
   {
-    auto* mergeTarget = findOutermostClosedGroup(Model::hitToNode(hits.front()));
-
-    const auto canReparentAll = std::all_of(
-      selectedNodes.nodes().begin(), selectedNodes.nodes().end(), [&](const auto* node) {
-        return node == mergeTarget || canReparentNode(node, mergeTarget);
-      });
-
-    if (canReparentAll)
+    if (auto* mergeTarget = findOutermostClosedGroup(Model::hitToNode(hits.front())))
     {
-      return mergeTarget;
+      if (kdl::all_of(selectedNodes.nodes(), [&](const auto* node) {
+            return node == mergeTarget || canReparentNode(node, mergeTarget);
+          }))
+      {
+        return mergeTarget;
+      }
     }
   }
 

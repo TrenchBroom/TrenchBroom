@@ -162,8 +162,9 @@ TEST_CASE_METHOD(
   CHECK(exec.ended == !treatNonZeroResultCodeAsError);
 }
 
-#if !defined(_WIN32) || defined(NDEBUG)
+#if (defined(_WIN64) && defined(NDEBUG)) || !defined(_WIN32)
 // std::abort pops up a dialog when run in debug mode on Windows
+// the test is unreliable on Windows 32bit
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolAborts")
 {
   auto variables = EL::NullVariableStore{};
