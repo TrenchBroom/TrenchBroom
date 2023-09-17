@@ -22,6 +22,7 @@
 #include <QDialog>
 
 #include <filesystem>
+#include <optional>
 
 class QRadioButton;
 class QWidget;
@@ -29,31 +30,43 @@ class QWidget;
 namespace TrenchBroom::View
 {
 
+enum class PathType
+{
+  Absolute,
+  DocumentRelative,
+  GameRelative,
+  AppRelative,
+};
+
+std::filesystem::path convertToPathType(
+  PathType pathType,
+  const std::filesystem::path& absPath,
+  const std::filesystem::path& docPath,
+  const std::filesystem::path& gamePath);
+
 class ChoosePathTypeDialog : public QDialog
 {
   Q_OBJECT
 private:
-  std::filesystem::path m_absPath;
-  std::filesystem::path m_docRelativePath;
-  std::filesystem::path m_gameRelativePath;
-  std::filesystem::path m_appRelativePath;
-
   QRadioButton* m_absRadio;
   QRadioButton* m_docRelativeRadio;
   QRadioButton* m_appRelativeRadio;
   QRadioButton* m_gameRelativeRadio;
 
 private:
-  void createGui();
+  void createGui(
+    const std::filesystem::path& absPath,
+    const std::filesystem::path& docPath,
+    const std::filesystem::path& gamePath);
 
 public:
   ChoosePathTypeDialog(
     QWidget* parent,
-    std::filesystem::path absPath,
+    const std::filesystem::path& absPath,
     const std::filesystem::path& docPath,
     const std::filesystem::path& gamePath);
 
-  const std::filesystem::path& path() const;
+  PathType pathType() const;
 };
 
 } // namespace TrenchBroom::View

@@ -1386,11 +1386,13 @@ void MapViewBase::showPopupMenuLater()
  */
 void MapViewBase::dragEnterEvent(QDragEnterEvent* dragEnterEvent)
 {
-  dragEnter(
-    static_cast<float>(dragEnterEvent->posF().x()),
-    static_cast<float>(dragEnterEvent->posF().y()),
-    dragEnterEvent->mimeData()->text().toStdString());
-  dragEnterEvent->acceptProposedAction();
+  if (dragEnter(
+        static_cast<float>(dragEnterEvent->posF().x()),
+        static_cast<float>(dragEnterEvent->posF().y()),
+        dragEnterEvent->mimeData()->text().toStdString()))
+  {
+    dragEnterEvent->acceptProposedAction();
+  }
 }
 
 void MapViewBase::dragLeaveEvent(QDragLeaveEvent*)

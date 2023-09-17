@@ -191,6 +191,11 @@ Result<std::unique_ptr<WorldNode>> GameImpl::doNewMap(
       propertyConfig, EntityPropertyKeys::ValveVersion, "220");
   }
 
+  if (m_config.textureConfig.property)
+  {
+    worldEntity.addOrUpdateProperty(propertyConfig, *m_config.textureConfig.property, "");
+  }
+
   auto worldNode = std::make_unique<WorldNode>(
     std::move(propertyConfig), std::move(worldEntity), format);
 
@@ -324,6 +329,11 @@ void GameImpl::doWriteBrushFacesToStream(
 void GameImpl::doLoadTextureCollections(Assets::TextureManager& textureManager) const
 {
   textureManager.reload(m_fs, m_config.textureConfig);
+}
+
+const std::optional<std::string>& GameImpl::doGetWadProperty() const
+{
+  return m_config.textureConfig.property;
 }
 
 void GameImpl::doReloadWads(

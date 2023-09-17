@@ -119,8 +119,7 @@ void setupTestEnvironment(IO::TestEnvironment& env)
     "textures": {
         "root": "textures",
         "extensions": [ "" ],
-        "shaderSearchPath": "scripts",
-        "attribute": "_tb_textures"
+        "shaderSearchPath": "scripts"
     },
     "entities": {
         "definitions": [],

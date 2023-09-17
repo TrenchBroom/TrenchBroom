@@ -106,11 +106,9 @@ Every game has a default mod which is always loaded by TrenchBroom. As an exampl
 
 ### Textures and Texture Collections {#textures}
 
-A texture is an image that is projected onto a face of a brush. Textures are usually not provided individually, but as texture collections. A texture collection can be a directory containing loose image files, or it can be an archive such as a wad file. Some games such as Quake 2 come with textures that are readily loadable by TrenchBroom. Such textures are called _internal_. _External_ textures on the other hand are textures that you provide by loading a texture collection. Since some games such as Quake don't come with their own textures readily available, you have to obtain the textures you wish to use and add them to TrenchBroom manually by [loading a texture collection](#texture_management).
+A texture is an image that is projected onto a face of a brush. Textures are usually not provided individually, but as texture collections. A texture collection can be a directory containing loose image files, or it can be an archive such as a wad file. Some games such as Quake 2 come with textures that are readily loadable by TrenchBroom. Such textures are called _internal_. _External_ textures on the other hand are textures that you provide by loading a wad file. Since some games such as Quake don't come with their own textures readily available, you have to obtain the textures you wish to use and add them to TrenchBroom manually by [loading a wad file](#texture_management).
 
-Multiple texture collections may contain a texture with the same name, resulting in a name conflict. Similar to how name conflicts are resolved with mods, TrenchBroom assigns priorities to texture collections and lets the texture collection with the highest priority win the conflict. Internal texture collections have a higher priority than external texture collections. The priority of internal or external texture collections then depends on the order in which they were loaded.
-
-TrenchBroom currently does not support high resolution replacement textures, but this is on the Todo list.
+Multiple texture collections may contain a texture with the same name, resulting in a name conflict. Such a conflict is resolved by observing the order in which the texture collections were loaded - the texture that was loaded most recently wins the conflict. You cannot control the load order unless you are using wad files.
 
 ## Startup {#startup}
 
@@ -183,7 +181,7 @@ The inspector is located at the right of the main window and contains various co
 
 ![Map, Entity, and Face inspectors (Mac OS X)](images/Inspector.png)
 
-The **Map Inspector** allows you to edit [layers](#layers), configure displayed [map bounds](#map_bounds), and set up which game modifications ([mods](#mods)) you are working with. The **Entity Inspector** is the tool of choice to change the [properties](#entity_properties) of entities. It also contains an entity browser that allows you to [create new entities](#creating_entities) by dragging them from the browser to a viewport and it allows you to [set up entity definitions](#entity_definitions). Additionally, you can manage entity definition files in the entity inspector. The face inspector is used to edit the attributes of the currently selected faces. At the top, it has a graphical [UV editor](#uv_editor). Below that, you can edit the face attributes directly by editing their values. To select a texture for the currently selected faces, you can use the [texture browser](#texture_browser). Finally, the face inspector allows you to [manage your texture collections](#texture_management).
+The **Map Inspector** allows you to edit [layers](#layers), configure displayed [map bounds](#map_bounds), and set up which game modifications ([mods](#mods)) you are working with. The **Entity Inspector** is the tool of choice to change the [properties](#entity_properties) of entities. It also contains an entity browser that allows you to [create new entities](#creating_entities) by dragging them from the browser to a viewport and it allows you to [set up entity definitions](#entity_definitions). Additionally, you can manage entity definition files in the entity inspector. The face inspector is used to edit the attributes of the currently selected faces. At the top, it has a graphical [UV editor](#uv_editor). Below that, you can edit the face attributes directly by editing their values. To select a texture for the currently selected faces, you can use the [texture browser](#texture_browser).
 
 ### The Info Bar
 
@@ -298,31 +296,21 @@ The path of an external entity definition file is stored in a worldspawn propert
 
 ### Managing Textures {#texture_management}
 
-[Texture collections](#textures) can be managed in the texture collection editor, which can be found at the bottom of the face inspector. There are two types of texture collections: file archives such as WAD files and directories containing loose textures such as WAL files. Depending on whether the game you are editing comes with internal textures or not, the texture collection editor looks and works differently.
+#### Wad Files
 
-To reload all texture collections from disk, choose #menu(Menu/File/Reload Texture Collections). This is useful if you're modifying textures while TrenchBroom is open.
+Wad files are managed via the `wad` worldspawn property. The property contains a semicolon separated list of paths where TrenchBroom will load a wad file from. Map compilers also use this property to find wad files.
 
-#### Texture Archive Management
+![Smart wad editor](images/SmartWadEditor.png) In TrenchBroom, you cannot edit this property directly, so you must use a smart property editor that's available for the `wad` property. This smart editor is available when you select the `wad` worldspawn property in the entity property editor. Click the `+` icon to add a wad file or the `-` icon to remove the selected wad files. The two triangle icons move a selected wad file up and down in the list. This only has an effect on how name conflicts between textures are resolved. The icon with the two circular arrows reloads all texture wads.
 
-![Texture collection editor](images/TextureCollectionArchiveEditor.png) Unfolding the texture collection editor presents you with a list of the currently loaded texture collections and a few buttons to manage that list. To load a texture collection, click the "+" button below the list, and to remove the selected texture collections, click the "-" button. The order in which the texture collections are loaded determines their respective priorities when TrenchBroom resolves name conflicts, so you can change the loading order by selecting a texture collection and clicking the triangle buttons. The lower a texture collection appears in the list, the higher is its priority. An easy way to think about this is to imagine that textures overwrite each other: If a texture is loaded that has a name conflict with an already loaded texture, then the newly loaded texture overwrites the previously loaded one.
+Alternatively, you can drag wad files onto the editor window from a file browser such as the Windows explorer. If the map uses wad files, these files will be loaded and their paths will get appended to the `wad` worldspawn property.
 
-It depends on the game how the texture collection paths are saved in the map file. For Quake and its direct descendants such as Hexen 2, the texture collection paths are stored in a worldspawn property called "wad", as that is what the BSP compilers expect. For other games, they are stored in a worldspawn property called "_tb_textures".
+#### Textures from directories
 
-#### Texture Directory Management
-
-![Texture collection editor](images/TextureCollectionDirectoryEditor.png) If the game you are currently editing comes with builtin textures, then these textures are usually stored in the game's assets at a particular path. For example in the case of Quake 2, the textures are stored in the PAK files in subdirectories under the path `textures`. TrenchBroom will find these texture collections and allow you to load them selectively in the texture collection editor. On the left side, TrenchBroom presents you with a list of all the texture collections it has found for the game, and on the right side, it shows a list of all texture collections that have been loaded. You can load a texture collection by selecting it on the left and clicking the "+" button below the list on the right. To remove a texture collection, select it on the right and click the "-" button.
+Unless you are using wad files, you don't need to do anything to manage your textures - TrenchBroom will automatically load all available texture collections.
 
 If you want to provide your own custom textures, you need to put them in a subdirectory where TrenchBroom can find them. For Quake 2, this means that you need to create a subdirectory called `textures` in the directory of the mod you're mapping for, or in the `baseq2` directory. Then you need to create another subdirectory with a name of your choice. Then you copy your texture files into that directory. TrenchBroom will then find that directory (possibly after restarting the editor) and allow you to load the textures from there. Currently, for a generic game you must create a `textures` folder in the game path directory you set in [game configuration](#game_configuration), or in a directory you loaded as a mod.
 
 You need to place your textures in a subdirectory exactly one level deep in the `textures` folder. Any loose images in `textures` will not be detected, nor will any nested in subdirectories of your collection.
-
-The following table lists the texture directories for all supported games.
-
-Game      Texture Directory Default
-----      ----------------- -------
-Quake 2   `<MOD>/textures`  `baseq2/textures`
-Daikatana `<MOD>/textures`  `data/textures`
-Generic   `<MOD>/textures`  `<GamePath>/textures`
 
 ## Interacting with the Editor
 
@@ -2451,7 +2439,6 @@ The game configuration is an [expression language](#expression_language) map wit
             "root": "textures",
             "extensions": [ ".wal" ],
             "palette": "pics/colormap.pcx",
-            "attribute": "_tb_textures",
         },
         "entities": { // the builtin entity definition files for this game
             "definitions": [ "Quake2.fgd" ],
@@ -2643,7 +2630,6 @@ The optional `excludes` key specifies a list of patterns matched against texture
 	"textures": {
         "root": "textures",
         "extensions": [ "" ],
-        "attribute": "_tb_textures",
         "excludes": [ "*_norm", "*_gloss" ]
     },
 

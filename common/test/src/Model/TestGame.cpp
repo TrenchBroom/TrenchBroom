@@ -216,6 +216,12 @@ void TestGame::doLoadTextureCollections(Assets::TextureManager& textureManager) 
   textureManager.reload(*m_fs, textureConfig);
 }
 
+const std::optional<std::string>& TestGame::doGetWadProperty() const
+{
+  static const auto property = std::optional<std::string>{"wad"};
+  return property;
+}
+
 void TestGame::doReloadWads(
   const std::filesystem::path&,
   const std::vector<std::filesystem::path>& wadPaths,

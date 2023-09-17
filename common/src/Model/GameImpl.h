@@ -113,6 +113,7 @@ private:
 
   void doLoadTextureCollections(Assets::TextureManager& textureManager) const override;
 
+  const std::optional<std::string>& doGetWadProperty() const override;
   void doReloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,

@@ -27,6 +27,8 @@
 
 #include <kdl/result.h>
 
+#include <fmt/format.h>
+
 #include <cassert>
 
 namespace TrenchBroom::IO
@@ -123,7 +125,8 @@ Result<Assets::Texture, ReadTextureError> readQ2Wal(
 
     if (!checkTextureDimensions(width, height))
     {
-      return ReadTextureError{std::move(name), "Invalid texture dimensions"};
+      return ReadTextureError{
+        std::move(name), fmt::format("Invalid texture dimensions: {}*{}", width, height)};
     }
 
     const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);
@@ -183,7 +186,8 @@ Result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reader& re
 
     if (!checkTextureDimensions(width, height))
     {
-      return ReadTextureError{std::move(name), "Invalid texture dimensions"};
+      return ReadTextureError{
+        std::move(name), fmt::format("Invalid texture dimensions: {}*{}", width, height)};
     }
 
     const auto mipLevels = readMipOffsets(MaxMipLevels, offsets, width, height, reader);

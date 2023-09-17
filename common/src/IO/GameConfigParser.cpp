@@ -550,7 +550,9 @@ Model::TextureConfig parseTextureConfig(const EL::Value& value)
     std::filesystem::path{value["root"].stringValue()},
     parseTextureExtensions(value),
     std::filesystem::path{value["palette"].stringValue()},
-    value["attribute"].stringValue(),
+    value["attribute"] != EL::Value::Null
+      ? std::optional{value["attribute"].stringValue()}
+      : std::nullopt,
     std::filesystem::path{value["shaderSearchPath"].stringValue()},
     value["excludes"].asStringList(),
   };

@@ -38,19 +38,20 @@
 #include <filesystem>
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 void combineFlags(
   const size_t numFlags, const int newFlagValue, int& setFlags, int& mixedFlags)
 {
   for (size_t i = 0; i < numFlags; ++i)
   {
-    const bool alreadySet = (newFlagValue & (1 << i)) != 0;
-    const bool willBeSet = (setFlags & (1 << i)) != 0;
+    const auto alreadySet = (newFlagValue & (1 << i)) != 0;
+    const auto willBeSet = (setFlags & (1 << i)) != 0;
     if (alreadySet == willBeSet)
+    {
       continue;
+    }
 
     setFlags &= ~(1 << i);
     mixedFlags |= (1 << i);
@@ -77,28 +78,23 @@ size_t loadEntityDefinitionFile(
   const auto gamePath = gameFactory.gamePath(game->gameName());
   const auto docPath = document->path();
 
-  try
+  for (int i = 0; i < pathStrs.size(); ++i)
   {
-    for (int i = 0; i < pathStrs.size(); ++i)
+    const auto& pathStr = pathStrs[i];
+    const auto absPath = IO::pathFromQString(pathStr);
+    if (game->isEntityDefinitionFile(absPath))
     {
-      const auto& pathStr = pathStrs[i];
-      const auto absPath = IO::pathFromQString(pathStr);
-      if (game->isEntityDefinitionFile(absPath))
+      auto pathDialog =
+        ChoosePathTypeDialog{parent->window(), absPath, docPath, gamePath};
+      if (pathDialog.exec() == QDialog::Accepted)
       {
-        ChoosePathTypeDialog pathDialog(parent->window(), absPath, docPath, gamePath);
-        if (pathDialog.exec() == QDialog::Accepted)
-        {
-          const Assets::EntityDefinitionFileSpec spec =
-            Assets::EntityDefinitionFileSpec::external(pathDialog.path());
-          document->setEntityDefinitionFile(spec);
-          return static_cast<size_t>(i);
-        }
+        const auto path =
+          convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
+        const auto spec = Assets::EntityDefinitionFileSpec::external(path);
+        document->setEntityDefinitionFile(spec);
+        return static_cast<size_t>(i);
       }
     }
-  }
-  catch (...)
-  {
-    throw;
   }
 
   return static_cast<size_t>(pathStrs.size());
@@ -109,15 +105,15 @@ static std::string queryObjectName(
 {
   while (true)
   {
-    bool ok = false;
-    const std::string name = QInputDialog::getText(
-                               parent,
-                               "Enter a name",
-                               QObject::tr("%1 Name").arg(objectType),
-                               QLineEdit::Normal,
-                               QString::fromStdString(suggestion),
-                               &ok)
-                               .toStdString();
+    auto ok = false;
+    const auto name = QInputDialog::getText(
+                        parent,
+                        "Enter a name",
+                        QObject::tr("%1 Name").arg(objectType),
+                        QLineEdit::Normal,
+                        QString::fromStdString(suggestion),
+                        &ok)
+                        .toStdString();
 
     if (!ok)
     {
@@ -168,5 +164,5 @@ std::string queryLayerName(QWidget* parent, const std::string& suggestion)
 {
   return queryObjectName(parent, QObject::tr("Layer"), suggestion);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

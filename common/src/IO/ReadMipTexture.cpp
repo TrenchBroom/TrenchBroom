@@ -30,6 +30,8 @@
 
 #include <kdl/result.h>
 
+#include <fmt/format.h>
+
 namespace TrenchBroom::IO
 {
 namespace MipLayout
@@ -81,7 +83,8 @@ Result<Assets::Texture, ReadTextureError> readMipTexture(
 
     if (!checkTextureDimensions(width, height))
     {
-      return ReadTextureError{std::move(name), "Invalid texture dimeions"};
+      return ReadTextureError{
+        std::move(name), fmt::format("Invalid texture dimensions: {}*{}", width, height)};
     }
 
     for (size_t i = 0; i < MipLevels; ++i)

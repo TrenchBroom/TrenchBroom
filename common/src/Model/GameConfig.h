@@ -71,7 +71,7 @@ struct TextureConfig
   std::filesystem::path root;
   std::vector<std::string> extensions;
   std::filesystem::path palette;
-  std::string property;
+  std::optional<std::string> property;
   std::filesystem::path shaderSearchPath;
   // Glob patterns used to match texture names for exclusion
   std::vector<std::string> excludes;

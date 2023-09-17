@@ -481,7 +481,6 @@ TEST_CASE("WorldReaderTest.parseQuake2ValveBrush")
 {
 "classname" "worldspawn"
 "mapversion" "220"
-"_tb_textures" "textures/e1u2"
 // brush 0
 {
 ( 208 190 80 ) ( 208 -62 80 ) ( 208 190 -176 ) e1u2/basic1_1 [ -0.625 1 0 34 ] [ 0 0 -1 0 ] 32.6509 1 1 0 1 0
@@ -512,7 +511,6 @@ TEST_CASE("WorldReaderTest.parseQuake3ValveBrush")
 {
 "classname" "worldspawn"
 "mapversion" "220"
-"_tb_textures" "textures/gothic_block"
 // brush 0
 {
 ( 208 190 80 ) ( 208 -62 80 ) ( 208 190 -176 ) gothic_block/blocks18c_3 [ -0.625 1 0 34 ] [ 0 0 -1 0 ] 32.6509 0.25 0.25 0 0 0

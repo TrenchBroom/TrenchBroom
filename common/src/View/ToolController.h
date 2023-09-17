@@ -33,22 +33,20 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Hit;
 class HitQuery;
 class PickResult;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class DragTracker;
 class DropTracker;
@@ -77,6 +75,8 @@ public:
 
   virtual std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState);
 
+  virtual bool shouldAcceptDrop(
+    const InputState& inputState, const std::string& payload) const;
   virtual std::unique_ptr<DropTracker> acceptDrop(
     const InputState& inputState, const std::string& payload);
 
@@ -132,8 +132,7 @@ public:
 
 private: // subclassing interface
   virtual bool doShouldHandleMouseDrag(const InputState& inputState) const;
-  virtual bool doShouldHandleDrop(
+  virtual bool doShouldAcceptDrop(
     const InputState& inputState, const std::string& payload) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View
