@@ -120,7 +120,7 @@ void GameEngineProfileManager::removeProfile()
     return;
   }
 
-  kdl::vec_erase_at(m_config.profiles, size_t(index));
+  m_config.profiles = kdl::vec_erase_at(std::move(m_config.profiles), size_t(index));
   m_profileList->reloadProfiles();
   m_profileList->setCurrentRow(index >= m_profileList->count() ? index - 1 : index);
 }
