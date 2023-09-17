@@ -34,10 +34,9 @@
 
 #include <filesystem>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 GameEngineProfileManager::GameEngineProfileManager(
   Model::GameEngineConfig config, QWidget* parent)
   : QWidget{parent}
@@ -121,7 +120,7 @@ void GameEngineProfileManager::removeProfile()
     return;
   }
 
-  kdl::vec_erase_at(m_config.profiles, size_t(index));
+  m_config.profiles = kdl::vec_erase_at(std::move(m_config.profiles), size_t(index));
   m_profileList->reloadProfiles();
   m_profileList->setCurrentRow(index >= m_profileList->count() ? index - 1 : index);
 }
@@ -131,5 +130,5 @@ void GameEngineProfileManager::currentProfileChanged(Model::GameEngineProfile* p
   m_profileEditor->setProfile(profile);
   m_removeProfileButton->setEnabled(profile != nullptr);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

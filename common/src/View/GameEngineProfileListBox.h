@@ -21,15 +21,13 @@
 
 #include "View/ControlListBox.h"
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct GameEngineConfig;
 struct GameEngineProfile;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class ElidedLabel;
 
@@ -86,5 +84,5 @@ signals:
    */
   void profileSelected(Model::GameEngineProfile& profile);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

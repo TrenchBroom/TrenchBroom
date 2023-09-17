@@ -36,10 +36,9 @@
 #include <kdl/set_temp.h>
 #include <kdl/string_compare.h>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 GameEngineProfileEditor::GameEngineProfileEditor(QWidget* parent)
   : QWidget{parent}
 {
@@ -173,5 +172,5 @@ void GameEngineProfileEditor::changePathClicked()
     updatePath(pathStr);
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

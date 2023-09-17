@@ -33,14 +33,12 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-GameEngineDialog::GameEngineDialog(const std::string& gameName, QWidget* parent)
-  : QDialog(parent)
-  , m_gameName(gameName)
-  , m_profileManager(nullptr)
+
+GameEngineDialog::GameEngineDialog(std::string gameName, QWidget* parent)
+  : QDialog{parent}
+  , m_gameName{std::move(gameName)}
 {
   setWindowTitle("Game Engines");
   setWindowIconTB(this);
@@ -49,21 +47,21 @@ GameEngineDialog::GameEngineDialog(const std::string& gameName, QWidget* parent)
 
 void GameEngineDialog::createGui()
 {
-  auto* gameIndicator = new CurrentGameIndicator(m_gameName);
+  auto* gameIndicator = new CurrentGameIndicator{m_gameName};
 
   auto& gameFactory = Model::GameFactory::instance();
   auto& gameConfig = gameFactory.gameConfig(m_gameName);
-  m_profileManager = new GameEngineProfileManager(gameConfig.gameEngineConfig);
+  m_profileManager = new GameEngineProfileManager{gameConfig.gameEngineConfig};
 
-  auto* buttons = new QDialogButtonBox(QDialogButtonBox::Close);
+  auto* buttons = new QDialogButtonBox{QDialogButtonBox::Close};
 
-  auto* layout = new QVBoxLayout();
-  layout->setContentsMargins(QMargins());
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(QMargins{});
   layout->setSpacing(0);
   setLayout(layout);
 
   layout->addWidget(gameIndicator);
-  layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
+  layout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
   layout->addWidget(m_profileManager, 1);
   layout->addLayout(wrapDialogButtonBox(buttons));
 
@@ -86,5 +84,5 @@ void GameEngineDialog::saveConfig()
   auto& gameFactory = Model::GameFactory::instance();
   gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config(), logger);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

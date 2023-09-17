@@ -25,15 +25,14 @@
 
 class QAbstractButton;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct GameEngineProfile;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class GameEngineProfileEditor;
 class GameEngineProfileListBox;
 
@@ -45,9 +44,9 @@ class GameEngineProfileManager : public QWidget
   Q_OBJECT
 private:
   Model::GameEngineConfig m_config;
-  GameEngineProfileListBox* m_profileList{nullptr};
-  GameEngineProfileEditor* m_profileEditor{nullptr};
-  QAbstractButton* m_removeProfileButton{nullptr};
+  GameEngineProfileListBox* m_profileList = nullptr;
+  GameEngineProfileEditor* m_profileEditor = nullptr;
+  QAbstractButton* m_removeProfileButton = nullptr;
 
 public:
   explicit GameEngineProfileManager(
@@ -59,5 +58,5 @@ private slots:
 
   void currentProfileChanged(Model::GameEngineProfile* profile);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
