@@ -34,10 +34,9 @@
 
 #include <filesystem>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 GameEngineProfileManager::GameEngineProfileManager(
   Model::GameEngineConfig config, QWidget* parent)
   : QWidget{parent}
@@ -131,5 +130,5 @@ void GameEngineProfileManager::currentProfileChanged(Model::GameEngineProfile* p
   m_profileEditor->setProfile(profile);
   m_removeProfileButton->setEnabled(profile != nullptr);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
