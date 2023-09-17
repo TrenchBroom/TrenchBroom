@@ -217,17 +217,25 @@ void LaunchGameEngineDialog::editGameEngines()
 {
   saveConfig();
 
-  const auto wasEmpty = m_gameEngineList->count() == 0;
-
   auto dialog = GameEngineDialog{kdl::mem_lock(m_document)->game()->gameName(), this};
   dialog.exec();
+
+  const auto previousRow = m_gameEngineList->currentRow();
 
   // reload m_config as it may have been changed by the GameEngineDialog
   reloadConfig();
 
-  if (wasEmpty && m_gameEngineList->count() > 0)
+  if (m_gameEngineList->count() > 0)
   {
-    m_gameEngineList->setCurrentRow(0);
+    if (previousRow >= 0)
+    {
+      m_gameEngineList->setCurrentRow(
+        std::min(previousRow, m_gameEngineList->count() - 1));
+    }
+    else
+    {
+      m_gameEngineList->setCurrentRow(0);
+    }
   }
 }
 
