@@ -210,6 +210,21 @@ const vm::mat4x4& Entity::modelTransformation() const
   return m_cachedProperties.modelTransformation;
 }
 
+Assets::DecalSpecification Entity::decalSpecification() const
+{
+  if (
+    const auto* pointDefinition =
+      dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get()))
+  {
+    const auto variableStore = EntityPropertiesVariableStore{*this};
+    return pointDefinition->decalDefinition().decalSpecification(variableStore);
+  }
+  else
+  {
+    return Assets::DecalSpecification{};
+  }
+}
+
 void Entity::unsetEntityDefinitionAndModel()
 {
   if (m_definition.get() == nullptr && m_model == nullptr)

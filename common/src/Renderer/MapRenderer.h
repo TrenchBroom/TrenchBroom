@@ -49,6 +49,7 @@ class Node;
 
 namespace Renderer
 {
+class EntityDecalRenderer;
 class EntityLinkRenderer;
 class GroupLinkRenderer;
 class ObjectRenderer;
@@ -63,6 +64,7 @@ private:
   std::unique_ptr<ObjectRenderer> m_defaultRenderer;
   std::unique_ptr<ObjectRenderer> m_selectionRenderer;
   std::unique_ptr<ObjectRenderer> m_lockedRenderer;
+  std::unique_ptr<EntityDecalRenderer> m_entityDecalRenderer;
   std::unique_ptr<EntityLinkRenderer> m_entityLinkRenderer;
   std::unique_ptr<GroupLinkRenderer> m_groupLinkRenderer;
 
@@ -91,6 +93,8 @@ private:
     std::weak_ptr<View::MapDocument> document);
   static std::unique_ptr<ObjectRenderer> createLockRenderer(
     std::weak_ptr<View::MapDocument> document);
+  static std::unique_ptr<EntityDecalRenderer> createEntityDecalRenderer(
+    std::weak_ptr<View::MapDocument> document);
   void clear();
 
 public: // color config
@@ -109,6 +113,7 @@ private:
   void renderSelectionTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderLockedOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderLockedTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
+  void renderEntityDecals(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderEntityLinks(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderGroupLinks(RenderContext& renderContext, RenderBatch& renderBatch);
 
@@ -125,6 +130,7 @@ private:
   void updateAllNodes();
 
   void invalidateRenderers(Renderer renderers);
+  void invalidateEntityDecalRenderer();
   void invalidateEntityLinkRenderer();
   void invalidateGroupLinkRenderer();
   void reloadEntityModels();

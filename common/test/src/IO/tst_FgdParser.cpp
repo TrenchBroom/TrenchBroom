@@ -867,6 +867,19 @@ TEST_CASE("FgdParserTest.parseLegacyModelWithParseError")
   kdl::vec_clear_and_delete(definitions);
 }
 
+static const auto FgdDecalDefinitionTemplate =
+  R"(@PointClass decal(${DECAL}) = infodecal : "Decal" [])";
+
+using Assets::assertDecalDefinition;
+
+TEST_CASE("FgdParserTest.parseELDecalDefinition")
+{
+  static const auto DecalDefinition = R"({ texture: "decal1" })";
+
+  assertDecalDefinition<FgdParser>(
+    Assets::DecalSpecification{"decal1"}, DecalDefinition, FgdDecalDefinitionTemplate);
+}
+
 TEST_CASE("FgdParserTest.parseMissingBounds")
 {
   const auto file = R"(

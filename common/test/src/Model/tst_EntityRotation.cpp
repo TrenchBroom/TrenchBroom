@@ -66,7 +66,8 @@ std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
       info->bounds,
       "",
       info->propertyDefinitions,
-      Assets::ModelDefinition{});
+      Assets::ModelDefinition{},
+      Assets::DecalDefinition{});
   case Assets::EntityDefinitionType::BrushEntity:
     return std::make_unique<Assets::BrushEntityDefinition>(
       "", Color{}, "", info->propertyDefinitions);

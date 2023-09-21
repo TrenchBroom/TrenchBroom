@@ -71,7 +71,7 @@ void MapDocumentTest::SetUp()
 
   // create two entity definitions
   m_pointEntityDef = new Assets::PointEntityDefinition(
-    "point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {});
+    "point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {}, {});
   m_brushEntityDef = new Assets::BrushEntityDefinition(
     "brush_entity", Color(), "this is a brush entity", {});
 
@@ -509,6 +509,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
         std::make_shared<Assets::StringPropertyDefinition>(
           "some_default_prop", "", "", !true(readOnly), "value"),
       },
+      {},
       {}};
     document->setEntityDefinitions({definitionWithDefaults});
 
@@ -616,6 +617,7 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
       std::make_shared<Assets::StringPropertyDefinition>(
         "default_prop_b", "", "", !true(readOnly), "default_value_b"),
     },
+    {},
     {}};
   document->setEntityDefinitions({definitionWithDefaults});
 

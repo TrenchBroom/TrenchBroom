@@ -32,6 +32,7 @@
 
 #include <array>
 
+#define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
 #include <catch2/catch.hpp>
 
 namespace vm
@@ -415,6 +416,76 @@ bool lineOnPlane(const plane3f& plane, const line3f& line)
   else
   {
     return true;
+  }
+}
+
+TEST_CASE("intersection.polygon_clip_by_plane")
+{
+  constexpr auto poly = square();
+
+  constexpr auto plane1 = plane3d{{0, 0, 0}, vec3d::pos_z()};
+  constexpr auto plane2 = plane3d{{0, 1, 0}, vec3d::pos_z()};
+  constexpr auto plane5 = plane3d{{0, -1, 0}, -vec3d::pos_z()};
+
+  constexpr auto plane3 = plane3d{{0, 0, 0}, vec3d::pos_x()};
+  const auto [_, plane4] =
+    vm::from_points(vec3d{-1, -1, 0}, vec3d{1, 1, 0}, vec3d{0, 0, 1});
+
+  SECTION("no clipping")
+  {
+    CHECK(polygon_clip_by_plane(plane1, std::begin(poly), std::end(poly)).empty());
+    CHECK(polygon_clip_by_plane(plane2, std::begin(poly), std::end(poly)).empty());
+    CHECK(polygon_clip_by_plane(plane5, std::begin(poly), std::end(poly)).empty());
+  }
+
+  SECTION("clipping")
+  {
+    // split into two rectangles
+    CHECK(
+      polygon_clip_by_plane(plane3, std::begin(poly), std::end(poly))
+      == std::vector<vec3d>{
+        {-1, -1, 0},
+        {-1, 1, 0},
+        {0, 1, 0},
+        {0, -1, 0},
+      });
+
+    // split into two triangles
+    CHECK(
+      polygon_clip_by_plane(plane4, std::begin(poly), std::end(poly))
+      == std::vector<vec3d>{
+        {-1, -1, 0},
+        {1, 1, 0},
+        {1, -1, 0},
+      });
+  }
+}
+
+TEST_CASE("intersection.intersect_bbox_polygon")
+{
+  constexpr auto poly = square();
+
+  constexpr auto bbox1 = bbox3d{{-10, -10, -10}, {-5, -5, -5}};
+
+  constexpr auto bbox2 = bbox3d{{-1.1, -1.1, -1}, {-0.9, -0.9, 1}};
+  constexpr auto bbox3 = bbox3d{{0, 0, 0}, {2, 2, 2}};
+  constexpr auto bbox4 = bbox3d{{0.9, -0.1, -1}, {1.1, 0.1, 1}};
+
+  SECTION("no intersection")
+  {
+    CHECK_FALSE(intersect_bbox_polygon(bbox1, std::begin(poly), std::end(poly)));
+  }
+
+  SECTION("intersection")
+  {
+    // polygon point inside bbox
+    CHECK(intersect_bbox_polygon(bbox2, std::begin(poly), std::end(poly)));
+
+    // bbox edge intersects polygon
+    CHECK(intersect_bbox_polygon(bbox3, std::begin(poly), std::end(poly)));
+
+    // polygon edge intersects bbox
+    CHECK(intersect_bbox_polygon(bbox4, std::begin(poly), std::end(poly)));
   }
 }
 } // namespace vm

@@ -35,20 +35,18 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 void assertModelDefinition(
   const ModelSpecification& expected,
   IO::EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr)
 {
-  IO::TestParserStatus status;
-  std::vector<EntityDefinition*> definitions = parser.parseDefinitions(status);
+  auto status = IO::TestParserStatus{};
+  auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  EntityDefinition* definition = definitions[0];
+  const auto* definition = definitions[0];
   CHECK(definition->type() == EntityDefinitionType::PointEntity);
 
   assertModelDefinition(expected, definition, entityPropertiesStr);
@@ -63,9 +61,8 @@ void assertModelDefinition(
 {
   assert(definition->type() == EntityDefinitionType::PointEntity);
 
-  const PointEntityDefinition* pointDefinition =
-    static_cast<const PointEntityDefinition*>(definition);
-  const ModelDefinition& modelDefinition = pointDefinition->modelDefinition();
+  const auto* pointDefinition = dynamic_cast<const PointEntityDefinition*>(definition);
+  const auto& modelDefinition = pointDefinition->modelDefinition();
   assertModelDefinition(expected, modelDefinition, entityPropertiesStr);
 }
 
@@ -75,10 +72,50 @@ void assertModelDefinition(
   const std::string& entityPropertiesStr)
 {
   const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr)
-                                     .evaluate(EL::EvaluationContext())
+                                     .evaluate(EL::EvaluationContext{})
                                      .mapValue();
-  const auto variableStore = EL::VariableTable(entityPropertiesMap);
+  const auto variableStore = EL::VariableTable{entityPropertiesMap};
   CHECK(actual.modelSpecification(variableStore) == expected);
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+void assertDecalDefinition(
+  const DecalSpecification& expected,
+  IO::EntityDefinitionParser& parser,
+  const std::string& entityPropertiesStr)
+{
+  auto status = IO::TestParserStatus{};
+  auto definitions = parser.parseDefinitions(status);
+  CHECK(definitions.size() == 1u);
+
+  const auto* definition = definitions[0];
+  CHECK(definition->type() == EntityDefinitionType::PointEntity);
+
+  assertDecalDefinition(expected, definition, entityPropertiesStr);
+
+  kdl::vec_clear_and_delete(definitions);
+}
+
+void assertDecalDefinition(
+  const DecalSpecification& expected,
+  const EntityDefinition* definition,
+  const std::string& entityPropertiesStr)
+{
+  assert(definition->type() == EntityDefinitionType::PointEntity);
+
+  const auto* pointDefinition = dynamic_cast<const PointEntityDefinition*>(definition);
+  const auto& modelDefinition = pointDefinition->decalDefinition();
+  assertDecalDefinition(expected, modelDefinition, entityPropertiesStr);
+}
+
+void assertDecalDefinition(
+  const DecalSpecification& expected,
+  const DecalDefinition& actual,
+  const std::string& entityPropertiesStr)
+{
+  const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr)
+                                     .evaluate(EL::EvaluationContext{})
+                                     .mapValue();
+  const auto variableStore = EL::VariableTable{entityPropertiesMap};
+  CHECK(actual.decalSpecification(variableStore) == expected);
+}
+} // namespace TrenchBroom::Assets

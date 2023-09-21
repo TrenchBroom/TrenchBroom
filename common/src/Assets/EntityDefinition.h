@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Assets/DecalDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "Color.h"
 #include "FloatType.h"
@@ -103,6 +104,7 @@ class PointEntityDefinition : public EntityDefinition
 private:
   vm::bbox3 m_bounds;
   ModelDefinition m_modelDefinition;
+  DecalDefinition m_decalDefinition;
 
 public:
   PointEntityDefinition(
@@ -111,11 +113,13 @@ public:
     const vm::bbox3& bounds,
     std::string description,
     std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions,
-    ModelDefinition modelDefinition);
+    ModelDefinition modelDefinition,
+    DecalDefinition decalDefinition);
 
   EntityDefinitionType type() const override;
   const vm::bbox3& bounds() const;
   const ModelDefinition& modelDefinition() const;
+  const DecalDefinition& decalDefinition() const;
 };
 
 class BrushEntityDefinition : public EntityDefinition

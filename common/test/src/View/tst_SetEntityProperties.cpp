@@ -46,10 +46,10 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
   // need to recreate these because document->setEntityDefinitions will delete the old
   // ones
   m_pointEntityDef = new Assets::PointEntityDefinition(
-    "point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {});
+    "point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {}, {});
 
   Assets::PointEntityDefinition* largeEntityDef = new Assets::PointEntityDefinition(
-    "large_entity", Color(), vm::bbox3(64.0), "this is a point entity", {}, {});
+    "large_entity", Color(), vm::bbox3(64.0), "this is a point entity", {}, {}, {});
   document->setEntityDefinitions(
     std::vector<Assets::EntityDefinition*>{m_pointEntityDef, largeEntityDef});
 

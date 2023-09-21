@@ -455,8 +455,8 @@ TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
 
 TEST_CASE("PreferencesTest.testWxEntityShortcuts")
 {
-  auto hellKnight = Assets::PointEntityDefinition{
-    "monster_hell_knight", {0, 0, 0}, {}, "", {}, Assets::ModelDefinition{}};
+  auto hellKnight =
+    Assets::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
   const auto defs = std::vector<Assets::EntityDefinition*>{&hellKnight};
 
   const auto actions =

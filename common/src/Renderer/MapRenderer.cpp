@@ -33,6 +33,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/BrushRenderer.h"
+#include "Renderer/EntityDecalRenderer.h"
 #include "Renderer/EntityLinkRenderer.h"
 #include "Renderer/GroupLinkRenderer.h"
 #include "Renderer/ObjectRenderer.h"
@@ -157,6 +158,7 @@ MapRenderer::MapRenderer(std::weak_ptr<View::MapDocument> document)
   , m_defaultRenderer{createDefaultRenderer(m_document)}
   , m_selectionRenderer{createSelectionRenderer(m_document)}
   , m_lockedRenderer{createLockRenderer(m_document)}
+  , m_entityDecalRenderer{createEntityDecalRenderer(m_document)}
   , m_entityLinkRenderer{std::make_unique<EntityLinkRenderer>(m_document)}
   , m_groupLinkRenderer{std::make_unique<GroupLinkRenderer>(m_document)}
 {
@@ -199,11 +201,18 @@ std::unique_ptr<ObjectRenderer> MapRenderer::createLockRenderer(
     LockedBrushRendererFilter{kdl::mem_lock(document)->editorContext()});
 }
 
+std::unique_ptr<EntityDecalRenderer> MapRenderer::createEntityDecalRenderer(
+  std::weak_ptr<View::MapDocument> document)
+{
+  return std::make_unique<EntityDecalRenderer>(document);
+}
+
 void MapRenderer::clear()
 {
   m_defaultRenderer->clear();
   m_selectionRenderer->clear();
   m_lockedRenderer->clear();
+  m_entityDecalRenderer->clear();
   m_entityLinkRenderer->invalidate();
   m_groupLinkRenderer->invalidate();
   m_trackedNodes.clear();
@@ -238,6 +247,7 @@ void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
   renderLockedTransparent(renderContext, renderBatch);
   renderSelectionTransparent(renderContext, renderBatch);
 
+  renderEntityDecals(renderContext, renderBatch);
   renderEntityLinks(renderContext, renderBatch);
   renderGroupLinks(renderContext, renderBatch);
 }
@@ -310,6 +320,16 @@ void MapRenderer::renderLockedTransparent(
 {
   m_lockedRenderer->setShowOverlays(renderContext.render3D());
   m_lockedRenderer->renderTransparent(renderContext, renderBatch);
+}
+
+void MapRenderer::renderEntityDecals(
+  RenderContext& renderContext, RenderBatch& renderBatch)
+{
+  // only render decals in the 3D view
+  if (renderContext.render3D())
+  {
+    m_entityDecalRenderer->render(renderContext, renderBatch);
+  }
 }
 
 void MapRenderer::renderEntityLinks(
@@ -502,6 +522,8 @@ void MapRenderer::updateAndInvalidateNode(Model::Node* node)
 
   // Update the metadata to reflect the changes that we made above
   m_trackedNodes[node] = desiredRenderers;
+
+  m_entityDecalRenderer->updateNode(node);
 }
 
 void MapRenderer::updateAndInvalidateNodeRecursive(Model::Node* node)
@@ -554,6 +576,8 @@ void MapRenderer::removeNode(Model::Node* node)
     // At this point, none of the default/selection/locked renderers,
     // or their underlying node-type specific renderers, have a reference
     // to `node` anymore, and they won't render it.
+
+    m_entityDecalRenderer->removeNode(node);
   }
 }
 
@@ -601,6 +625,11 @@ void MapRenderer::invalidateRenderers(const Renderer renderers)
   {
     m_lockedRenderer->invalidate();
   }
+}
+
+void MapRenderer::invalidateEntityDecalRenderer()
+{
+  m_entityDecalRenderer->invalidate();
 }
 
 void MapRenderer::invalidateEntityLinkRenderer()

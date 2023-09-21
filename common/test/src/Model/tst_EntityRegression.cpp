@@ -56,7 +56,8 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
     vm::bbox3{32.0},
     "",
     {},
-    Assets::ModelDefinition{modelExpression}};
+    Assets::ModelDefinition{modelExpression},
+    {}};
   const auto propertyConfig = EntityPropertyConfig{};
 
   auto entity = Entity{};

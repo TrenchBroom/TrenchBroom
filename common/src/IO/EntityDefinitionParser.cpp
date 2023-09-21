@@ -148,6 +148,15 @@ static void inheritAttributes(
   {
     inheritingClass.modelDefinition->append(*superClass.modelDefinition);
   }
+
+  if (!inheritingClass.decalDefinition)
+  {
+    inheritingClass.decalDefinition = superClass.decalDefinition;
+  }
+  else if (superClass.decalDefinition)
+  {
+    inheritingClass.decalDefinition->append(*superClass.decalDefinition);
+  }
 }
 
 /**
@@ -419,7 +428,8 @@ std::unique_ptr<Assets::EntityDefinition> EntityDefinitionParser::createDefiniti
   const auto size = classInfo.size.value_or(DefaultSize);
   auto description = classInfo.description.value_or("");
   auto& attributes = classInfo.propertyDefinitions;
-  auto modelDefinition = classInfo.modelDefinition.value_or(Assets::ModelDefinition());
+  auto modelDefinition = classInfo.modelDefinition.value_or(Assets::ModelDefinition{});
+  auto decalDefinition = classInfo.decalDefinition.value_or(Assets::DecalDefinition{});
 
   switch (classInfo.type)
   {
@@ -430,7 +440,8 @@ std::unique_ptr<Assets::EntityDefinition> EntityDefinitionParser::createDefiniti
       size,
       std::move(description),
       std::move(attributes),
-      std::move(modelDefinition));
+      std::move(modelDefinition),
+      std::move(decalDefinition));
   case EntityDefinitionClassType::BrushClass:
     return std::make_unique<Assets::BrushEntityDefinition>(
       name, color, std::move(description), std::move(attributes));

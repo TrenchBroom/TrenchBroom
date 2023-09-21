@@ -35,6 +35,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
+struct DecalSpecification;
 class EntityDefinition;
 class EntityModelFrame;
 struct ModelSpecification;
@@ -160,6 +161,8 @@ public:
 
   Assets::ModelSpecification modelSpecification() const;
   const vm::mat4x4& modelTransformation() const;
+
+  Assets::DecalSpecification decalSpecification() const;
 
   void unsetEntityDefinitionAndModel();
 
