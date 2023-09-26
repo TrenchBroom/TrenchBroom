@@ -28,13 +28,11 @@
 
 #include <cassert>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 BrushFaceReference::BrushFaceReference(BrushNode* node, const BrushFace& face)
-  : m_node(node)
-  , m_facePlane(face.boundary())
+  : m_node{node}
+  , m_facePlane{face.boundary()}
 {
   assert(m_node != nullptr);
 }
@@ -64,5 +62,4 @@ std::vector<BrushFaceHandle> resolveAllRefs(
   return kdl::vec_transform(
     faceRefs, [](const auto& faceRef) { return faceRef.resolve(); });
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

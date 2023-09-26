@@ -35,22 +35,21 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 std::unique_ptr<SelectionCommand> SelectionCommand::select(
-  const std::vector<Model::Node*>& nodes)
+  std::vector<Model::Node*> nodes)
 {
   return std::make_unique<SelectionCommand>(
-    Action::SelectNodes, nodes, std::vector<Model::BrushFaceHandle>{});
+    Action::SelectNodes, std::move(nodes), std::vector<Model::BrushFaceHandle>{});
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::select(
-  const std::vector<Model::BrushFaceHandle>& faces)
+  std::vector<Model::BrushFaceHandle> faces)
 {
   return std::make_unique<SelectionCommand>(
-    Action::SelectFaces, std::vector<Model::Node*>{}, faces);
+    Action::SelectFaces, std::vector<Model::Node*>{}, std::move(faces));
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::convertToFaces()
@@ -78,17 +77,17 @@ std::unique_ptr<SelectionCommand> SelectionCommand::selectAllFaces()
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::deselect(
-  const std::vector<Model::Node*>& nodes)
+  std::vector<Model::Node*> nodes)
 {
   return std::make_unique<SelectionCommand>(
-    Action::DeselectNodes, nodes, std::vector<Model::BrushFaceHandle>{});
+    Action::DeselectNodes, std::move(nodes), std::vector<Model::BrushFaceHandle>{});
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::deselect(
-  const std::vector<Model::BrushFaceHandle>& faces)
+  std::vector<Model::BrushFaceHandle> faces)
 {
   return std::make_unique<SelectionCommand>(
-    Action::DeselectFaces, std::vector<Model::Node*>{}, faces);
+    Action::DeselectFaces, std::vector<Model::Node*>{}, std::move(faces));
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::deselectAll()
@@ -101,12 +100,12 @@ std::unique_ptr<SelectionCommand> SelectionCommand::deselectAll()
 
 SelectionCommand::SelectionCommand(
   const Action action,
-  const std::vector<Model::Node*>& nodes,
-  const std::vector<Model::BrushFaceHandle>& faces)
-  : UndoableCommand(makeName(action, nodes.size(), faces.size()), false)
-  , m_action(action)
-  , m_nodes(nodes)
-  , m_faceRefs(Model::createRefs(faces))
+  std::vector<Model::Node*> nodes,
+  std::vector<Model::BrushFaceHandle> faces)
+  : UndoableCommand{makeName(action, nodes.size(), faces.size()), false}
+  , m_action{action}
+  , m_nodes{std::move(nodes)}
+  , m_faceRefs{Model::createRefs(faces)}
 {
 }
 
@@ -200,5 +199,5 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(
   }
   return std::make_unique<CommandResult>(true);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
