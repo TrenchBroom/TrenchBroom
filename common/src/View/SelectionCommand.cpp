@@ -20,6 +20,7 @@
 #include "SelectionCommand.h"
 
 #include "Ensure.h"
+#include "Error.h"
 #include "Macros.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -29,6 +30,7 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
+#include <kdl/result.h>
 #include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
@@ -159,30 +161,37 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
   {
   case Action::SelectNodes:
     document->performSelect(m_nodes);
-    break;
+    return std::make_unique<CommandResult>(true);
   case Action::SelectFaces:
-    document->performSelect(Model::resolveAllRefs(m_faceRefs));
-    break;
+    return std::make_unique<CommandResult>(
+      Model::resolveAllRefs(m_faceRefs)
+        .transform([&](const auto& faceHandles) { document->performSelect(faceHandles); })
+        .transform_error([&](const auto& e) { document->error() << e.msg; })
+        .is_success());
   case Action::SelectAllNodes:
     document->performSelectAllNodes();
-    break;
+    return std::make_unique<CommandResult>(true);
   case Action::SelectAllFaces:
     document->performSelectAllBrushFaces();
-    break;
+    return std::make_unique<CommandResult>(true);
   case Action::ConvertToFaces:
     document->performConvertToBrushFaceSelection();
-    break;
+    return std::make_unique<CommandResult>(true);
   case Action::DeselectNodes:
     document->performDeselect(m_nodes);
-    break;
+    return std::make_unique<CommandResult>(true);
   case Action::DeselectFaces:
-    document->performDeselect(Model::resolveAllRefs(m_faceRefs));
-    break;
+    return std::make_unique<CommandResult>(
+      Model::resolveAllRefs(m_faceRefs)
+        .transform(
+          [&](const auto& faceHandles) { document->performDeselect(faceHandles); })
+        .transform_error([&](const auto& e) { document->error() << e.msg; })
+        .is_success());
   case Action::DeselectAll:
     document->performDeselectAll();
-    break;
+    return std::make_unique<CommandResult>(true);
+    switchDefault();
   }
-  return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(
@@ -195,7 +204,11 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(
   }
   if (!m_previouslySelectedFaceRefs.empty())
   {
-    document->performSelect(Model::resolveAllRefs(m_previouslySelectedFaceRefs));
+    return std::make_unique<CommandResult>(
+      Model::resolveAllRefs(m_previouslySelectedFaceRefs)
+        .transform([&](const auto& faceHandles) { document->performSelect(faceHandles); })
+        .transform_error([&](const auto& e) { document->error() << e.msg; })
+        .is_success());
   }
   return std::make_unique<CommandResult>(true);
 }

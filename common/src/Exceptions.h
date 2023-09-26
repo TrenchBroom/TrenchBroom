@@ -36,12 +36,6 @@ public:
   const char* what() const noexcept override;
 };
 
-class BrushFaceReferenceException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 class EntityAttributeException : public Exception
 {
 public:
