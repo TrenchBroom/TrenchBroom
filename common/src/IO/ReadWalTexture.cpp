@@ -201,7 +201,7 @@ Result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reader& re
     const auto value = reader.readInt<int32_t>();
     const auto gameData = Assets::Q2Data{flags, contents, value};
 
-    return Assets::loadPalette(paletteReader)
+    return Assets::loadPalette(paletteReader, Assets::PaletteColorFormat::Rgb)
       .transform([&](const auto& palette) {
         auto [buffers, hasTransparency] = readMips(
           palette,

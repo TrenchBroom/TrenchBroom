@@ -60,7 +60,7 @@ Result<Assets::Palette> readHlMipPalette(Reader& reader)
   // palette data starts right after the color count
   auto data = std::vector<unsigned char>(colorCount * 3);
   reader.read(data.data(), data.size());
-  return Assets::makePalette(data);
+  return Assets::makePalette(data, Assets::PaletteColorFormat::Rgb);
 }
 
 Result<Assets::Texture, ReadTextureError> readMipTexture(

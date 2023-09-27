@@ -47,6 +47,12 @@ enum class PaletteTransparency
   Index255Transparent
 };
 
+enum class PaletteColorFormat
+{
+  Rgb,
+  Rgba,
+};
+
 class Palette
 {
 private:
@@ -81,9 +87,10 @@ public:
     Color& averageColor) const;
 };
 
-Result<Palette> makePalette(const std::vector<unsigned char>& data);
+Result<Palette> makePalette(
+  const std::vector<unsigned char>& data, PaletteColorFormat colorFormat);
 
 Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& path);
-Result<Palette> loadPalette(IO::Reader& reader);
+Result<Palette> loadPalette(IO::Reader& reader, PaletteColorFormat colorFormat);
 
 } // namespace TrenchBroom::Assets

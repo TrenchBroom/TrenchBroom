@@ -82,7 +82,7 @@ Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader
     auto paletteReader = reader.subReaderFromCurrent(M8Layout::PaletteSize);
     reader.seekForward(M8Layout::PaletteSize);
 
-    return Assets::loadPalette(paletteReader)
+    return Assets::loadPalette(paletteReader, Assets::PaletteColorFormat::Rgb)
       .and_then([&](const auto& palette) {
         reader.seekForward(4); // flags
         reader.seekForward(4); // contents
