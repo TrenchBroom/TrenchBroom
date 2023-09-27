@@ -21,14 +21,13 @@
 
 #include "FloatType.h"
 #include "Model/BrushFaceHandle.h"
+#include "Result.h"
 
 #include <vecmath/plane.h>
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 
@@ -57,11 +56,9 @@ public:
   BrushFaceReference(Model::BrushNode* node, const Model::BrushFace& face);
 
   /**
-   * Resolves the referenced brush face.
-   *
-   * @throws BrushFaceReferenceException if the face cannot be resolved
+   * Resolves the referenced brush face or an error if this reference cannot be resolved.
    */
-  BrushFaceHandle resolve() const;
+  Result<BrushFaceHandle> resolve() const;
 };
 
 /**
@@ -71,12 +68,9 @@ std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& h
 
 /**
  * Returns a vector brush face handles representing the faces to which the given face
- * references are resolved.
- *
- * @throws BrushFAceReferenceException if any of the given face references cannot be
- * resolved
+ * references are resolved or an error if any reference cannot be resolved.
  */
-std::vector<BrushFaceHandle> resolveAllRefs(
+Result<std::vector<BrushFaceHandle>> resolveAllRefs(
   const std::vector<BrushFaceReference>& faceRefs);
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

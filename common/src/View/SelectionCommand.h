@@ -28,19 +28,18 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFace;
 class BrushFaceHandle;
 class BrushFaceReference;
 class BrushNode;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class SelectionCommand : public UndoableCommand
 {
 private:
@@ -65,24 +64,23 @@ private:
   std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
 
 public:
-  static std::unique_ptr<SelectionCommand> select(const std::vector<Model::Node*>& nodes);
+  static std::unique_ptr<SelectionCommand> select(std::vector<Model::Node*> nodes);
   static std::unique_ptr<SelectionCommand> select(
-    const std::vector<Model::BrushFaceHandle>& faces);
+    std::vector<Model::BrushFaceHandle> faces);
 
   static std::unique_ptr<SelectionCommand> convertToFaces();
   static std::unique_ptr<SelectionCommand> selectAllNodes();
   static std::unique_ptr<SelectionCommand> selectAllFaces();
 
+  static std::unique_ptr<SelectionCommand> deselect(std::vector<Model::Node*> nodes);
   static std::unique_ptr<SelectionCommand> deselect(
-    const std::vector<Model::Node*>& nodes);
-  static std::unique_ptr<SelectionCommand> deselect(
-    const std::vector<Model::BrushFaceHandle>& faces);
+    std::vector<Model::BrushFaceHandle> faces);
   static std::unique_ptr<SelectionCommand> deselectAll();
 
   SelectionCommand(
     Action action,
-    const std::vector<Model::Node*>& nodes,
-    const std::vector<Model::BrushFaceHandle>& faces);
+    std::vector<Model::Node*> nodes,
+    std::vector<Model::BrushFaceHandle> faces);
   ~SelectionCommand() override;
 
 private:
@@ -94,5 +92,5 @@ private:
 
   deleteCopyAndMove(SelectionCommand);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
