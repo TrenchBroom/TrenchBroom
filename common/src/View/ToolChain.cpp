@@ -181,11 +181,8 @@ bool ToolChain::shouldAcceptDrop(
   {
     return false;
   }
-  if (m_tool->toolActive())
-  {
-    return m_tool->shouldAcceptDrop(inputState, payload);
-  }
-  return m_suffix->shouldAcceptDrop(inputState, payload);
+  return (m_tool->toolActive() && m_tool->shouldAcceptDrop(inputState, payload))
+         || m_suffix->shouldAcceptDrop(inputState, payload);
 }
 
 std::unique_ptr<DropTracker> ToolChain::dragEnter(
