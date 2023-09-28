@@ -49,10 +49,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("ModelUtils.findContainingLayer")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
@@ -882,5 +881,5 @@ TEST_CASE("ModelUtils.filterNodes")
       == std::vector<Model::EntityNode*>{&entityNode});
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

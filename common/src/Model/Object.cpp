@@ -21,12 +21,11 @@
 
 #include "Model/GroupNode.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
-Object::Object() {}
-Object::~Object() {}
+
+Object::Object() = default;
+Object::~Object() = default;
 
 Node* Object::container()
 {
@@ -68,5 +67,5 @@ bool Object::containingGroupOpened() const
   const auto* group = containingGroup();
   return group == nullptr || group->opened();
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

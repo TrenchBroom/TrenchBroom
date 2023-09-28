@@ -35,17 +35,16 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 enum class PitchType;
 class EntityModelFrame;
 struct ModelSpecification;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
+
 struct EntityPropertyConfig;
 
 class EntityNode : public EntityNodeBase, public Object
@@ -127,5 +126,5 @@ private: // implement Taggable interface
 private:
   deleteCopyAndMove(EntityNode);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

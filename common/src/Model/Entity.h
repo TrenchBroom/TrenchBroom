@@ -31,18 +31,17 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 struct DecalSpecification;
 class EntityDefinition;
 class EntityModelFrame;
 struct ModelSpecification;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
+
 class Entity;
 
 enum class SetDefaultPropertyMode
@@ -98,10 +97,10 @@ private:
    * Specifies whether this entity has children or not. This does not necessarily
    * correspond to the entity definition type because point entities can contain brushes.
    */
-  bool m_pointEntity;
+  bool m_pointEntity = true;
 
   Assets::AssetReference<Assets::EntityDefinition> m_definition;
-  const Assets::EntityModelFrame* m_model;
+  const Assets::EntityModelFrame* m_model = nullptr;
 
   /**
    * These properties are cached for performance reasons.
@@ -213,5 +212,5 @@ private:
 
 bool operator==(const Entity& lhs, const Entity& rhs);
 bool operator!=(const Entity& lhs, const Entity& rhs);
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

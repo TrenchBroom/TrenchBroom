@@ -59,7 +59,7 @@ public:
    *
    * @param iters the iterators
    */
-  zip_iterator(I... iters)
+  explicit zip_iterator(I... iters)
     : m_iters(std::forward<I>(iters)...)
   {
   }

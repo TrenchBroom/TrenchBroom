@@ -19,12 +19,17 @@
 
 #include "Group.h"
 
-namespace TrenchBroom
+#include <kdl/reflection_impl.h>
+
+#include <vecmath/mat_io.h>
+
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
+kdl_reflect_impl(Group);
+
 Group::Group(std::string name)
-  : m_name(std::move(name))
+  : m_name{std::move(name)}
 {
 }
 
@@ -38,7 +43,7 @@ void Group::setName(std::string name)
   m_name = std::move(name);
 }
 
-std::optional<std::string> Group::linkedGroupId() const
+const std::optional<std::string>& Group::linkedGroupId() const
 {
   return m_linkedGroupId;
 }
@@ -68,15 +73,4 @@ void Group::transform(const vm::mat4x4& transformation)
   m_transformation = transformation * m_transformation;
 }
 
-bool operator==(const Group& lhs, const Group& rhs)
-{
-  return lhs.m_name == rhs.m_name && lhs.m_linkedGroupId == rhs.m_linkedGroupId
-         && lhs.m_transformation == rhs.m_transformation;
-}
-
-bool operator!=(const Group& lhs, const Group& rhs)
-{
-  return !(lhs == rhs);
-}
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

@@ -24,6 +24,8 @@
 #include "Model/BrushGeometry.h"
 #include "Result.h"
 
+#include <kdl/reflection_decl.h>
+
 #include <vecmath/forward.h>
 
 #include <memory>
@@ -56,6 +58,8 @@ private:
   std::vector<BrushFace> m_faces;
   std::unique_ptr<BrushGeometry> m_geometry;
 
+  kdl_reflect_decl(Brush, m_faces);
+
 public:
   Brush();
 
@@ -70,7 +74,7 @@ public:
   static Result<Brush> create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces);
 
 private:
-  Brush(std::vector<BrushFace> faces);
+  explicit Brush(std::vector<BrushFace> faces);
 
   Result<void> updateGeometryFromFaces(const vm::bbox3& worldBounds);
 

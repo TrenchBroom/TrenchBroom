@@ -19,14 +19,12 @@
 
 #include "Layer.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 Layer::Layer(std::string name, const bool defaultLayer)
-  : m_defaultLayer(defaultLayer)
-  , m_name(std::move(name))
-  , m_omitFromExport(false)
+  : m_defaultLayer{defaultLayer}
+  , m_name{std::move(name)}
 {
 }
 
@@ -94,5 +92,5 @@ int Layer::defaultLayerSortIndex()
 {
   return -1;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

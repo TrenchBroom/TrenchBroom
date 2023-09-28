@@ -24,10 +24,9 @@
 #include <optional>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class Layer
 {
 private:
@@ -35,7 +34,7 @@ private:
   std::string m_name;
   std::optional<int> m_sortIndex;
   std::optional<Color> m_color;
-  bool m_omitFromExport;
+  bool m_omitFromExport = false;
 
 public:
   explicit Layer(std::string name, bool defaultLayer = false);
@@ -58,5 +57,5 @@ public:
   static int invalidSortIndex();
   static int defaultLayerSortIndex();
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

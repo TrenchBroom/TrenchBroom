@@ -29,7 +29,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_set.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_zip_iterator.cpp"
-        )
+)
 
 set_property(SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp" PROPERTY SKIP_UNITY_BUILD_INCLUSION ON)
 

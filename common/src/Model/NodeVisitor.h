@@ -21,10 +21,9 @@
 
 #include <optional>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class BrushNode;
 class EntityNode;
 class GroupNode;
@@ -141,8 +140,8 @@ private:
   const L& m_lambda;
 
 public:
-  NodeLambdaVisitor(const L& lambda)
-    : m_lambda(lambda)
+  explicit NodeLambdaVisitor(const L& lambda)
+    : m_lambda{lambda}
   {
   }
 
@@ -207,8 +206,8 @@ private:
   const L& m_lambda;
 
 public:
-  ConstNodeLambdaVisitor(const L& lambda)
-    : m_lambda(lambda)
+  explicit ConstNodeLambdaVisitor(const L& lambda)
+    : m_lambda{lambda}
   {
   }
 
@@ -262,5 +261,5 @@ private:
     }
   }
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

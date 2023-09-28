@@ -44,11 +44,10 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-TEST_CASE("UpdateLinkedGroupsHelperTest.checkLinkedGroupsToUpdate")
+
+TEST_CASE("checkLinkedGroupsToUpdate")
 {
   auto groupNode1 = Model::GroupNode{Model::Group{"test"}};
   auto linkedGroupNode = Model::GroupNode{Model::Group{"test"}};
@@ -69,7 +68,7 @@ class UpdateLinkedGroupsHelperTest : public MapDocumentTest
 {
 };
 
-TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "UpdateLinkedGroupsHelperTest.ownership")
+TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
 {
   class TestNode : public Model::EntityNode
   {
@@ -130,8 +129,7 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "UpdateLinkedGroupsHelperTest.own
   document.reset();
 }
 
-TEST_CASE_METHOD(
-  UpdateLinkedGroupsHelperTest, "UpdateLinkedGroupsHelperTest.applyLinkedGroupUpdates")
+TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 {
   auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
   setLinkedGroupId(*groupNode, "asdf");
@@ -270,8 +268,7 @@ static Model::GroupNode* findGroupByName(Model::Node& node, const std::string& n
 }
 
 TEST_CASE_METHOD(
-  UpdateLinkedGroupsHelperTest,
-  "UpdateLinkedGroupsHelperTest.applyLinkedGroupUpdatesWithNestedLinkedGroups")
+  UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdatesWithNestedLinkedGroups")
 {
   document->deselectAll();
 
@@ -575,5 +572,5 @@ TEST_CASE_METHOD(
     newNestedLinkedBrushNode->physicalBounds()
     == originalBrushBounds.translate(vm::vec3(32.0, 16.0, 8.0)));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
