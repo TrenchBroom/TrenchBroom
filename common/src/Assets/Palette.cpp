@@ -26,6 +26,7 @@
 #include "IO/File.h"
 #include "IO/ImageLoader.h"
 #include "IO/Reader.h"
+#include "Macros.h"
 
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
@@ -38,17 +39,23 @@
 namespace TrenchBroom::Assets
 {
 
-struct PaletteData
+kdl_reflect_impl(PaletteData);
+
+std::ostream& operator<<(std::ostream& lhs, const PaletteColorFormat rhs)
 {
-  /**
-   * 1024 bytes, RGBA order.
-   */
-  std::vector<unsigned char> opaqueData;
-  /**
-   * 1024 bytes, RGBA order.
-   */
-  std::vector<unsigned char> index255TransparentData;
-};
+  switch (rhs)
+  {
+  case PaletteColorFormat::Rgb:
+    lhs << "Rgb";
+    break;
+  case PaletteColorFormat::Rgba:
+    lhs << "Rgba";
+    break;
+    switchDefault();
+  }
+
+  return lhs;
+}
 
 Palette::Palette(std::shared_ptr<PaletteData> data)
   : m_data{std::move(data)}
@@ -106,6 +113,33 @@ bool Palette::indexedToRgba(
 
   return hasTransparency;
 }
+
+bool operator==(const Palette& lhs, const Palette& rhs)
+{
+  return lhs.m_data == rhs.m_data || *lhs.m_data == *rhs.m_data;
+}
+
+bool operator!=(const Palette& lhs, const Palette& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const Palette& rhs)
+{
+  auto str = kdl::struct_stream{lhs};
+  str << "Palette"
+      << "m_data";
+  if (rhs.m_data)
+  {
+    str << *rhs.m_data;
+  }
+  else
+  {
+    str << "nullptr";
+  }
+  return lhs;
+}
+
 
 Result<Palette> makePalette(
   const std::vector<unsigned char>& data, const PaletteColorFormat colorFormat)
