@@ -23,6 +23,7 @@
 #include "Model/GroupNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/overload.h>
@@ -144,7 +145,7 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
              [&](const auto* groupNode) {
                const auto groupNodesToUpdate = kdl::vec_erase(
                  Model::findLinkedGroups(
-                   *document.world(), *groupNode->group().linkedGroupId()),
+                   {document.world()}, *groupNode->group().linkedGroupId()),
                  groupNode);
 
                return Model::updateLinkedGroups(

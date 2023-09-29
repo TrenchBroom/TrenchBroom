@@ -23,6 +23,7 @@
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/ModelUtils.h"
+#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"
@@ -66,7 +67,7 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
     if (const auto linkedGroupId = groupNode->group().linkedGroupId())
     {
       const auto linkedGroupNodes =
-        Model::findLinkedGroups(*document->world(), *linkedGroupId);
+        Model::findLinkedGroups({document->world()}, *linkedGroupId);
 
       const auto linkColor = pref(Preferences::LinkedGroupColor);
       const auto sourcePosition = getLinkAnchorPosition(*groupNode);

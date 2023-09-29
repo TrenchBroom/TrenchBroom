@@ -154,47 +154,51 @@ const GroupNode* findOutermostClosedGroup(const Node* node)
 }
 
 std::vector<GroupNode*> findLinkedGroups(
-  WorldNode& worldNode, const std::string& linkedGroupId)
+  const std::vector<Node*>& nodes, const std::string& linkedGroupId)
 {
   auto result = std::vector<GroupNode*>{};
 
-  worldNode.accept(kdl::overload(
-    [](auto&& thisLambda, WorldNode* w) { w->visitChildren(thisLambda); },
-    [](auto&& thisLambda, LayerNode* l) { l->visitChildren(thisLambda); },
-    [&](auto&& thisLambda, GroupNode* g) {
-      if (g->group().linkedGroupId() == linkedGroupId)
-      {
-        result.push_back(g);
-      }
-      else
-      {
-        g->visitChildren(thisLambda);
-      }
-    },
-    [](EntityNode*) {},
-    [](BrushNode*) {},
-    [](PatchNode*) {}));
+  Node::visitAll(
+    nodes,
+    kdl::overload(
+      [](auto&& thisLambda, WorldNode* w) { w->visitChildren(thisLambda); },
+      [](auto&& thisLambda, LayerNode* l) { l->visitChildren(thisLambda); },
+      [&](auto&& thisLambda, GroupNode* g) {
+        if (g->group().linkedGroupId() == linkedGroupId)
+        {
+          result.push_back(g);
+        }
+        else
+        {
+          g->visitChildren(thisLambda);
+        }
+      },
+      [](EntityNode*) {},
+      [](BrushNode*) {},
+      [](PatchNode*) {}));
 
   return result;
 }
 
-std::vector<GroupNode*> findAllLinkedGroups(WorldNode& worldNode)
+std::vector<GroupNode*> findAllLinkedGroups(const std::vector<Node*>& nodes)
 {
   auto result = std::vector<GroupNode*>{};
 
-  worldNode.accept(kdl::overload(
-    [](auto&& thisLambda, WorldNode* w) { w->visitChildren(thisLambda); },
-    [](auto&& thisLambda, LayerNode* l) { l->visitChildren(thisLambda); },
-    [&](auto&& thisLambda, GroupNode* g) {
-      if (g->group().linkedGroupId())
-      {
-        result.push_back(g);
-      }
-      g->visitChildren(thisLambda);
-    },
-    [](EntityNode*) {},
-    [](BrushNode*) {},
-    [](PatchNode*) {}));
+  Node::visitAll(
+    nodes,
+    kdl::overload(
+      [](auto&& thisLambda, WorldNode* w) { w->visitChildren(thisLambda); },
+      [](auto&& thisLambda, LayerNode* l) { l->visitChildren(thisLambda); },
+      [&](auto&& thisLambda, GroupNode* g) {
+        if (g->group().linkedGroupId())
+        {
+          result.push_back(g);
+        }
+        g->visitChildren(thisLambda);
+      },
+      [](EntityNode*) {},
+      [](BrushNode*) {},
+      [](PatchNode*) {}));
 
   return result;
 }
@@ -722,7 +726,7 @@ SelectionResult nodeSelectionWithLinkedGroupConstraints(
       {
         // find the others and add them to the lock list
         for (GroupNode* otherGroup :
-             findLinkedGroups(world, *group->group().linkedGroupId()))
+             findLinkedGroups({&world}, *group->group().linkedGroupId()))
         {
           if (otherGroup == group)
           {
