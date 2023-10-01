@@ -34,6 +34,50 @@
 
 namespace kdl
 {
+namespace detail
+{
+template <typename = void, typename... C>
+struct has_std_size : std::false_type
+{
+};
+
+template <typename C>
+struct has_std_size<std::void_t<decltype(std::size(std::declval<C>()))>, C>
+  : std::true_type
+{
+};
+
+template <typename C>
+inline constexpr bool has_std_size_v = has_std_size<void, C>::value;
+
+template <typename = void, typename... C>
+struct has_size_member : std::false_type
+{
+};
+
+template <typename C>
+struct has_size_member<std::void_t<decltype(std::declval<C>().size())>, C>
+  : std::true_type
+{
+};
+
+template <typename C>
+inline constexpr bool has_size_member_v = has_size_member<void, C>::value;
+} // namespace detail
+
+template <typename V, typename C>
+void vec_reserve_to(V& v, const C& c)
+{
+  if constexpr (detail::has_std_size_v<C>)
+  {
+    v.reserve(std::size_t(std::size(c)));
+  }
+  else if constexpr (detail::has_size_member_v<C>)
+  {
+    v.reserve(std::size_t(c.size()));
+  }
+}
+
 template <typename T, typename... Rest>
 std::vector<T> vec_from(T t, Rest... rest)
 {
@@ -578,7 +622,7 @@ template <
 auto vec_filter(Range range, Predicate&& predicate)
 {
   auto result = std::vector<T>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (auto& x : range)
   {
@@ -615,7 +659,7 @@ template <
 auto vec_filter(Range range, Predicate&& predicate)
 {
   auto result = std::vector<T>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (std::size_t i = 0u; i < std::size(range); ++i)
   {
@@ -653,7 +697,7 @@ auto vec_transform(const Range& range, Transform&& transform)
   using ResultType = decltype(transform(std::declval<const T&>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (const auto& x : range)
   {
@@ -692,7 +736,7 @@ auto vec_transform(const Range& range, Transform&& transform)
     decltype(transform(std::declval<const T&>(), std::declval<std::size_t>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (std::size_t i = 0u; i < std::size(range); ++i)
   {
@@ -726,7 +770,8 @@ auto vec_transform(Range& range, Transform&& transform)
   using ResultType = decltype(transform(std::declval<T&>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
+
   for (auto& x : range)
   {
     result.push_back(transform(x));
@@ -762,7 +807,7 @@ auto vec_transform(Range& range, Transform&& transform)
   using ResultType = decltype(transform(std::declval<T&>(), std::declval<std::size_t>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (std::size_t i = 0u; i < std::size(range); ++i)
   {
@@ -796,7 +841,8 @@ auto vec_transform(Range&& range, Transform&& transform)
   using ResultType = decltype(transform(std::declval<T&&>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
+
   for (auto&& x : range)
   {
     result.push_back(transform(std::move(x)));
@@ -833,7 +879,7 @@ auto vec_transform(Range&& range, Transform&& transform)
     decltype(transform(std::declval<T&&>(), std::declval<std::size_t>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (std::size_t i = 0u; i < std::size(range); ++i)
   {
