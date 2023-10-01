@@ -158,6 +158,9 @@ auto make_zip_end(C&&... c)
 template <typename I>
 struct zip_range
 {
+  using value_type = typename I::value_type;
+  using iterator = I;
+
   I m_begin;
   I m_end;
 
