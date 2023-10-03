@@ -2143,20 +2143,7 @@ Model::GroupNode* MapDocument::createLinkedDuplicate()
   auto* groupNode = m_selectedNodes.groups().front();
   if (!groupNode->group().linkedGroupId())
   {
-    applyAndSwap(
-      *this,
-      "Set Linked Group ID",
-      m_selectedNodes.groups(),
-      findContainingLinkedGroups(*m_world, m_selectedNodes.groups()),
-      kdl::overload(
-        [](Model::Layer&) { return true; },
-        [&](Model::Group& group) {
-          group.setLinkedGroupId(generateUuid());
-          return true;
-        },
-        [](Model::Entity&) { return true; },
-        [](Model::Brush&) { return true; },
-        [](Model::BezierPatch&) { return true; }));
+    linkGroups({groupNode});
   }
 
   auto* groupNodeClone =
