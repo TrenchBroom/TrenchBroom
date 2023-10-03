@@ -23,6 +23,8 @@
 #include "FloatType.h"
 #include "Model/EntityProperties.h"
 
+#include <kdl/reflection_decl.h>
+
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
 #include <vecmath/vec.h>
@@ -92,6 +94,8 @@ public:
 private:
   std::vector<EntityProperty> m_properties;
   std::vector<std::string> m_protectedProperties;
+
+  kdl_reflect_decl(Entity, m_properties, m_protectedProperties);
 
   /**
    * Specifies whether this entity has children or not. This does not necessarily
@@ -209,8 +213,5 @@ private:
 
   void updateCachedProperties(const EntityPropertyConfig& propertyConfig);
 };
-
-bool operator==(const Entity& lhs, const Entity& rhs);
-bool operator!=(const Entity& lhs, const Entity& rhs);
 
 } // namespace TrenchBroom::Model

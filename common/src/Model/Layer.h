@@ -21,6 +21,8 @@
 
 #include "Color.h"
 
+#include <kdl/reflection_decl.h>
+
 #include <optional>
 #include <string>
 
@@ -35,6 +37,8 @@ private:
   std::optional<int> m_sortIndex;
   std::optional<Color> m_color;
   bool m_omitFromExport = false;
+
+  kdl_reflect_decl(Layer, m_defaultLayer, m_name, m_sortIndex, m_color, m_omitFromExport);
 
 public:
   explicit Layer(std::string name, bool defaultLayer = false);

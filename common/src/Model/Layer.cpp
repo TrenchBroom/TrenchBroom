@@ -19,8 +19,14 @@
 
 #include "Layer.h"
 
+#include <kdl/reflection_impl.h>
+
+#include <vecmath/vec_io.h>
+
 namespace TrenchBroom::Model
 {
+
+kdl_reflect_impl(Layer);
 
 Layer::Layer(std::string name, const bool defaultLayer)
   : m_defaultLayer{defaultLayer}

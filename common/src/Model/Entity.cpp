@@ -27,6 +27,7 @@
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotation.h"
 
+#include <kdl/reflection_impl.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -37,6 +38,7 @@
 #include <vecmath/vec_io.h>
 
 #include <algorithm>
+
 
 namespace TrenchBroom::Model
 {
@@ -65,6 +67,8 @@ void setDefaultProperties(
     }
   }
 }
+
+kdl_reflect_impl(Entity);
 
 const vm::bbox3 Entity::DefaultBounds = vm::bbox3{8.0};
 
@@ -464,16 +468,6 @@ void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig)
   {
     m_cachedProperties.modelTransformation = vm::mat4x4::identity();
   }
-}
-
-bool operator==(const Entity& lhs, const Entity& rhs)
-{
-  return lhs.properties() == rhs.properties();
-}
-
-bool operator!=(const Entity& lhs, const Entity& rhs)
-{
-  return !(lhs == rhs);
 }
 
 } // namespace TrenchBroom::Model
