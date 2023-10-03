@@ -42,6 +42,8 @@
 #include <functional>
 #include <set>
 
+#include "CatchUtils/Matchers.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom::View
@@ -516,10 +518,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createLinkedDuplicate")
   CHECK(document->canCreateLinkedDuplicate());
 
   auto* linkedGroupNode = document->createLinkedDuplicate();
-  CHECK(linkedGroupNode != nullptr);
-
-  CHECK(groupNode->group().linkedGroupId() != std::nullopt);
-  CHECK(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
+  CHECK_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.recursiveLinkedGroups")
@@ -536,9 +535,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.recursiveLinkedGroups")
   auto* linkedGroupNode = document->createLinkedDuplicate();
   document->deselectAll();
 
-  REQUIRE(linkedGroupNode != nullptr);
-  REQUIRE(groupNode->group().linkedGroupId() != std::nullopt);
-  REQUIRE(linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
+  REQUIRE_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
 
   SECTION("Adding a linked group to its linked sibling does nothing")
   {
@@ -633,10 +630,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
   SECTION("Separating all members of a link set")
   {
     auto* linkedGroupNode = document->createLinkedDuplicate();
-    REQUIRE(linkedGroupNode != nullptr);
-    REQUIRE(groupNode->group().linkedGroupId() != std::nullopt);
-    REQUIRE(
-      linkedGroupNode->group().linkedGroupId() == groupNode->group().linkedGroupId());
+    REQUIRE_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
 
     document->selectNodes({groupNode, linkedGroupNode});
     CHECK_FALSE(document->canSeparateLinkedGroups());
@@ -645,11 +639,9 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
   SECTION("Separating one group from a link set with two members")
   {
     auto* linkedGroupNode = document->createLinkedDuplicate();
-    REQUIRE(linkedGroupNode != nullptr);
+    REQUIRE_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
 
     const auto originalLinkedGroupId = groupNode->group().linkedGroupId();
-    REQUIRE(originalLinkedGroupId != std::nullopt);
-    REQUIRE(linkedGroupNode->group().linkedGroupId() == originalLinkedGroupId);
 
     document->deselectAll();
     document->selectNodes({linkedGroupNode});
@@ -670,15 +662,11 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
     auto* linkedGroupNode2 = document->createLinkedDuplicate();
     auto* linkedGroupNode3 = document->createLinkedDuplicate();
 
-    REQUIRE(linkedGroupNode1 != nullptr);
-    REQUIRE(linkedGroupNode2 != nullptr);
-    REQUIRE(linkedGroupNode3 != nullptr);
+    REQUIRE_THAT(*linkedGroupNode1, Model::MatchesNode(*groupNode));
+    REQUIRE_THAT(*linkedGroupNode2, Model::MatchesNode(*groupNode));
+    REQUIRE_THAT(*linkedGroupNode3, Model::MatchesNode(*groupNode));
 
     const auto originalLinkedGroupId = groupNode->group().linkedGroupId();
-    REQUIRE(originalLinkedGroupId != std::nullopt);
-    REQUIRE(linkedGroupNode1->group().linkedGroupId() == originalLinkedGroupId);
-    REQUIRE(linkedGroupNode2->group().linkedGroupId() == originalLinkedGroupId);
-    REQUIRE(linkedGroupNode3->group().linkedGroupId() == originalLinkedGroupId);
 
     document->deselectAll();
     document->selectNodes({linkedGroupNode2, linkedGroupNode3});
