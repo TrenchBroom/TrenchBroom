@@ -21,12 +21,14 @@
 
 #include "Error.h"
 #include "Result.h"
+#include "StringMakers.h"
 
 #include <kdl/overload.h>
 #include <kdl/result.h>
 #include <kdl/std_io.h>
 
 #include <algorithm>
+#include <cassert>
 #include <filesystem>
 #include <sstream>
 #include <vector>
@@ -206,3 +208,37 @@ UnorderedApproxVecMatcher<T, S> UnorderedApproxVecMatches(
 }
 
 } // namespace TrenchBroom
+
+namespace TrenchBroom::Model
+{
+class Node;
+
+class NodeMatcher : public Catch::MatcherBase<Node>
+{
+  const Node& m_expected;
+
+public:
+  explicit NodeMatcher(const Node& expected);
+
+  bool match(const Node& in) const override;
+
+  std::string describe() const override;
+};
+
+NodeMatcher MatchesNode(const Node& expected);
+
+class NodeVectorMatcher : public Catch::MatcherBase<const std::vector<Node*>&>
+{
+  const std::vector<Node*> m_expected;
+
+public:
+  explicit NodeVectorMatcher(std::vector<Node*> expected);
+
+  bool match(const std::vector<Node*>& in) const override;
+
+  std::string describe() const override;
+};
+
+NodeMatcher MatchesNodeVector(std::vector<Node*> expected);
+
+} // namespace TrenchBroom::Model
