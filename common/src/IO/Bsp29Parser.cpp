@@ -20,7 +20,6 @@
 #include "Bsp29Parser.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Exceptions.h"
 #include "IO/File.h"

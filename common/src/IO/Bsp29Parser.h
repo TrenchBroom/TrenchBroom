@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Assets/Palette.h"
 #include "Assets/TextureCollection.h"
 #include "IO/EntityModelParser.h"
 
@@ -74,7 +75,7 @@ private:
 
   std::string m_name;
   const Reader& m_reader;
-  const Assets::Palette& m_palette;
+  const Assets::Palette m_palette;
   const FileSystem& m_fs;
 
 public:
