@@ -89,6 +89,11 @@ endmacro(SET_XCODE_ATTRIBUTES)
 
 macro(set_compiler_config TARGET)
     if(COMPILER_IS_CLANG)
+        # disable warning about duplicate libraries, see https://gitlab.kitware.com/cmake/cmake/-/issues/25297
+        if (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 15)
+            target_link_options(${TARGET} PRIVATE LINKER:-no_warn_duplicate_libraries)
+        endif()
+
         target_compile_options(${TARGET} PRIVATE -Wall -Wextra -Wconversion -Wshadow-all -Wnon-virtual-dtor -Wmissing-prototypes -pedantic)
         target_compile_options(${TARGET} PRIVATE -Wno-global-constructors -Wno-exit-time-destructors -Wno-padded -Wno-format-nonliteral -Wno-used-but-marked-unused)
 
