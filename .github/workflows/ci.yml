@@ -36,6 +36,11 @@ jobs:
       # Record pull request head commit SHA
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       TB_OS_IMAGE: ${{ matrix.os }}
+      # Tells vcpkg where binary packages are stored.
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg/bincache
+      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
+      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+
     steps:
       # See: https://github.com/actions/checkout
       - name: Checkout code
@@ -43,6 +48,18 @@ jobs:
         with:
           fetch-depth: 0
           submodules: 'recursive'
+
+      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
+        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
+        shell: bash
+
+      # Set env vars needed for vcpkg to leverage the GitHub Action cache as a storage
+      # for Binary Caching.
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       # Dependencies
 
@@ -96,35 +113,7 @@ jobs:
         run: |
           brew install cmake p7zip pandoc qt5 ninja autoconf automake
 
-      # Restore from cache the previously built ports. If a "cache miss" occurs,
-      # then vcpkg is bootstrapped. Since a the vcpkg.json is being used later on
-      # to install the packages when `run-cmake` runs, no packages are installed at
-      # this time.
-      - name: Restore artifacts or setup vcpkg (do not install any package)
-        uses: lukka/run-vcpkg@v10
-        with:
-          # This is the default location of the directory containing vcpkg sources.
-          # Change it to the right location if needed.
-          # vcpkgDirectory: '${{ github.workspace }}/vcpkg'
-
-          # If not using a submodule for vcpkg sources, this specifies which commit
-          # id must be checkout from a Git repo. It must not set if using a submodule
-          # for vcpkg.
-          # vcpkgGitCommitId: '${{ matrix.vcpkgCommitId }}'
-
-          # This is the glob expression used to locate the vcpkg.json and add its
-          # hash to the cache key. Change it to match a single manifest file you want
-          # to use.
-          vcpkgJsonGlob: 'vcpkg.json'
-
-          # This is needed to run `vcpkg install` command (after vcpkg is built) in
-          # the directory where vcpkg.json has been located. Default is false,
-          # It is highly suggested to let `run-cmake` to run vcpkg (i.e. `false`)
-          # (i.e. let CMake run `vcpkg install`) using the vcpkg.cmake toolchain.
-          # runVcpkgInstall: 'true'
-          
       # Run build script
-
       - name: Linux build
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
         run: ./CI-linux.sh
