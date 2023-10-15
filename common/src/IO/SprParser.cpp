@@ -228,8 +228,8 @@ static Assets::Palette parseEmbeddedPalette(Reader& reader, const RenderMode ren
   auto data = std::vector<unsigned char>(paletteSize * 3);
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
-  return Assets::makePalette(data)
-    .if_error([](const auto& e) { throw AssetException{e.msg.c_str()}; })
+  return Assets::makePalette(data, Assets::PaletteColorFormat::Rgba)
+    .if_error([](const auto& e) { throw AssetException{e.msg}; })
     .value();
 }
 

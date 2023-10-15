@@ -26,6 +26,7 @@
 #include "IO/File.h"
 #include "IO/ImageLoader.h"
 #include "IO/Reader.h"
+#include "Macros.h"
 
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
@@ -38,17 +39,23 @@
 namespace TrenchBroom::Assets
 {
 
-struct PaletteData
+kdl_reflect_impl(PaletteData);
+
+std::ostream& operator<<(std::ostream& lhs, const PaletteColorFormat rhs)
 {
-  /**
-   * 1024 bytes, RGBA order.
-   */
-  std::vector<unsigned char> opaqueData;
-  /**
-   * 1024 bytes, RGBA order.
-   */
-  std::vector<unsigned char> index255TransparentData;
-};
+  switch (rhs)
+  {
+  case PaletteColorFormat::Rgb:
+    lhs << "Rgb";
+    break;
+  case PaletteColorFormat::Rgba:
+    lhs << "Rgba";
+    break;
+    switchDefault();
+  }
+
+  return lhs;
+}
 
 Palette::Palette(std::shared_ptr<PaletteData> data)
   : m_data{std::move(data)}
@@ -107,16 +114,45 @@ bool Palette::indexedToRgba(
   return hasTransparency;
 }
 
-Result<Palette> makePalette(const std::vector<unsigned char>& data)
+bool operator==(const Palette& lhs, const Palette& rhs)
+{
+  return lhs.m_data == rhs.m_data || *lhs.m_data == *rhs.m_data;
+}
+
+bool operator!=(const Palette& lhs, const Palette& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const Palette& rhs)
+{
+  auto str = kdl::struct_stream{lhs};
+  str << "Palette"
+      << "m_data";
+  if (rhs.m_data)
+  {
+    str << *rhs.m_data;
+  }
+  else
+  {
+    str << "nullptr";
+  }
+  return lhs;
+}
+
+
+Result<Palette> makePalette(
+  const std::vector<unsigned char>& data, const PaletteColorFormat colorFormat)
 {
   auto result = std::make_shared<PaletteData>();
 
-  if (data.size() == 768)
+  switch (colorFormat)
   {
+  case PaletteColorFormat::Rgb:
     // transform data to RGBA
-    result->opaqueData.reserve(1024);
+    result->opaqueData.reserve(data.size() / 3 * 4);
 
-    for (size_t i = 0; i < 256; ++i)
+    for (size_t i = 0; i < data.size() / 3; ++i)
     {
       const auto r = data[3 * i + 0];
       const auto g = data[3 * i + 1];
@@ -128,15 +164,18 @@ Result<Palette> makePalette(const std::vector<unsigned char>& data)
       result->opaqueData.push_back(0xFF);
     }
 
-    // build index255TransparentData from opaqueData
-    result->index255TransparentData = result->opaqueData;
-    result->index255TransparentData[1023] = 0;
-  }
-  else
-  {
+    if (!result->opaqueData.empty())
+    {
+      // build index255TransparentData from opaqueData
+      result->index255TransparentData = result->opaqueData;
+      result->index255TransparentData.back() = 0;
+    }
+    break;
+  case PaletteColorFormat::Rgba:
     // The data is already in RGBA format, don't process it
     result->opaqueData = data;
     result->index255TransparentData = data;
+    break;
   }
 
   return Palette{std::move(result)};
@@ -149,7 +188,7 @@ Result<Palette> loadLmp(IO::Reader& reader)
 {
   auto data = std::vector<unsigned char>(reader.size());
   reader.read(data.data(), data.size());
-  return makePalette(data);
+  return makePalette(data, PaletteColorFormat::Rgb);
 }
 
 Result<Palette> loadPcx(IO::Reader& reader)
@@ -157,7 +196,7 @@ Result<Palette> loadPcx(IO::Reader& reader)
   auto data = std::vector<unsigned char>(768);
   reader.seekFromEnd(data.size());
   reader.read(data.data(), data.size());
-  return makePalette(data);
+  return makePalette(data, PaletteColorFormat::Rgb);
 }
 
 Result<Palette> loadBmp(IO::Reader& reader)
@@ -167,7 +206,7 @@ Result<Palette> loadBmp(IO::Reader& reader)
     IO::ImageLoader{IO::ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
   auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
                                        : imageLoader.loadPixels(IO::ImageLoader::RGB);
-  return makePalette(data);
+  return makePalette(data, PaletteColorFormat::Rgb);
 }
 
 } // namespace
@@ -202,13 +241,13 @@ Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& p
   }
 }
 
-Result<Palette> loadPalette(IO::Reader& reader)
+Result<Palette> loadPalette(IO::Reader& reader, const PaletteColorFormat colorFormat)
 {
   try
   {
     auto data = std::vector<unsigned char>(reader.size());
     reader.read(data.data(), data.size());
-    return makePalette(data);
+    return makePalette(data, colorFormat);
   }
   catch (const Exception& e)
   {

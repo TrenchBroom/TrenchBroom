@@ -38,14 +38,35 @@ class Reader;
 
 namespace TrenchBroom::Assets
 {
-struct PaletteData;
 class TextureBuffer;
+
+struct PaletteData
+{
+  /**
+   * 1024 bytes, RGBA order.
+   */
+  std::vector<unsigned char> opaqueData;
+  /**
+   * 1024 bytes, RGBA order.
+   */
+  std::vector<unsigned char> index255TransparentData;
+
+  kdl_reflect_decl(PaletteData, opaqueData, index255TransparentData);
+};
 
 enum class PaletteTransparency
 {
   Opaque,
   Index255Transparent
 };
+
+enum class PaletteColorFormat
+{
+  Rgb,
+  Rgba,
+};
+
+std::ostream& operator<<(std::ostream& lhs, PaletteColorFormat rhs);
 
 class Palette
 {
@@ -79,11 +100,16 @@ public:
     TextureBuffer& rgbaImage,
     PaletteTransparency transparency,
     Color& averageColor) const;
+
+  friend bool operator==(const Palette& lhs, const Palette& rhs);
+  friend bool operator!=(const Palette& lhs, const Palette& rhs);
+  friend std::ostream& operator<<(std::ostream& lhs, const Palette& rhs);
 };
 
-Result<Palette> makePalette(const std::vector<unsigned char>& data);
+Result<Palette> makePalette(
+  const std::vector<unsigned char>& data, PaletteColorFormat colorFormat);
 
 Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& path);
-Result<Palette> loadPalette(IO::Reader& reader);
+Result<Palette> loadPalette(IO::Reader& reader, PaletteColorFormat colorFormat);
 
 } // namespace TrenchBroom::Assets

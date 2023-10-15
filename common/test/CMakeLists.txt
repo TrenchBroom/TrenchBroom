@@ -25,6 +25,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_DecalDefinition.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_EntityModel.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_ModelDefinition.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Assets/tst_Palette.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_EL.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_Expression.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_Interpolator.cpp"
