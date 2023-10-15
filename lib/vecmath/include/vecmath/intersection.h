@@ -29,8 +29,6 @@
 #include "util.h"
 #include "vec.h"
 
-#include <optional>
-
 namespace vm
 {
 
