@@ -638,17 +638,14 @@ constexpr std::vector<vec<T, 3>> polygon_clip_by_plane(
 {
   constexpr T epsilon = T(0.0001);
 
-  size_t cb = 0, cf = 0, ct = 0;
+  size_t cb = 0;
+  [[maybe_unused]] size_t ct = 0;
   for (auto cur = begin; cur != end; ++cur)
   {
     const auto dist = p.point_distance(get(*cur));
     if (dist < -epsilon)
     {
       ++cb;
-    }
-    else if (dist > epsilon)
-    {
-      ++cf;
     }
     ++ct;
   }
