@@ -19,6 +19,7 @@
  */
 
 #include "MapDocumentTest.h"
+#include "Matchers.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"

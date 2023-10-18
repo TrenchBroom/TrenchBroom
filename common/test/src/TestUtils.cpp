@@ -47,6 +47,8 @@
 #include <sstream>
 #include <string>
 
+#include "Catch2.h"
+
 namespace TrenchBroom
 {
 bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
@@ -510,45 +512,5 @@ void checkColor(
     CHECK(b == actualB);
     CHECK(a == actualA);
   }
-}
-
-// GlobMatcher
-
-GlobMatcher::GlobMatcher(const std::string& glob)
-  : m_glob(glob)
-{
-}
-
-bool GlobMatcher::match(const std::string& value) const
-{
-  return kdl::cs::str_matches_glob(value, m_glob);
-}
-
-std::string GlobMatcher::describe() const
-{
-  std::stringstream ss;
-  ss << "matches glob \"" << m_glob << "\"";
-  return ss.str();
-}
-
-GlobMatcher MatchesGlob(const std::string& glob)
-{
-  return GlobMatcher(glob);
-}
-
-TEST_CASE("TestUtilsTest.testUnorderedApproxVecMatcher")
-{
-  using V = std::vector<vm::vec3>;
-  CHECK_THAT((V{{1, 1, 1}}), UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}}, 0.02));
-  CHECK_THAT(
-    (V{{0, 0, 0}, {1, 1, 1}}),
-    UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}, {-0.01, -0.01, -0.01}}, 0.02));
-
-  CHECK_THAT(
-    (V{{1, 1, 1}}),
-    !UnorderedApproxVecMatches(
-      V{{1.01, 1.01, 1.01}, {1, 1, 1}}, 0.02)); // different number of elements
-  CHECK_THAT(
-    (V{{1, 1, 1}}), !UnorderedApproxVecMatches(V{{1.05, 1.01, 1.01}}, 0.02)); // too far
 }
 } // namespace TrenchBroom

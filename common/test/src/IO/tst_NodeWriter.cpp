@@ -19,6 +19,7 @@
 
 #include "Exceptions.h"
 #include "IO/NodeWriter.h"
+#include "Matchers.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -33,7 +34,6 @@
 #include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
-#include "TestUtils.h"
 
 #include <kdl/result.h>
 #include <kdl/string_compare.h>

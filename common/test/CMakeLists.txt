@@ -10,6 +10,7 @@ set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/TestFileSystem.h"
         "${COMMON_TEST_SOURCE_DIR}/IO/TestParserStatus.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/TestParserStatus.h"
+        "${COMMON_TEST_SOURCE_DIR}/Matchers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Matchers.h"
         "${COMMON_TEST_SOURCE_DIR}/QtPrettyPrinters.h"
         "${COMMON_TEST_SOURCE_DIR}/RunAllTests.cpp"

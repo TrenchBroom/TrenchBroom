@@ -120,4 +120,89 @@ AnyOfMatcher<T> MatchesAnyOf(std::initializer_list<T> expected)
   return AnyOfMatcher<T>(std::vector<T>{expected});
 }
 
+class GlobMatcher : public Catch::MatcherBase<std::string>
+{
+private:
+  std::string m_glob;
+
+public:
+  explicit GlobMatcher(std::string glob);
+  bool match(const std::string& value) const override;
+  std::string describe() const override;
+};
+
+GlobMatcher MatchesGlob(std::string glob);
+
+/**
+ * Catch2 matcher that compares two `std::vector`s of `vm::vec<T,S>`s,
+ * ignoring order of the `std::vector`s, and checking equality of `vm::vec<T,S>`s with an
+ * epsilon.
+ */
+template <typename T, std::size_t S>
+class UnorderedApproxVecMatcher : public Catch::MatcherBase<std::vector<vm::vec<T, S>>>
+{
+private:
+  std::vector<vm::vec<T, S>> m_expected;
+  T m_epsilon;
+
+public:
+  explicit UnorderedApproxVecMatcher(
+    const std::vector<vm::vec<T, S>>& expected, const T epsilon)
+    : m_expected(expected)
+    , m_epsilon(epsilon)
+  {
+  }
+
+  bool match(const std::vector<vm::vec<T, S>>& actual) const override
+  {
+    if (actual.size() != m_expected.size())
+    {
+      return false;
+    }
+
+    for (auto& actualElement : actual)
+    {
+      bool foundMatch = false;
+
+      for (size_t i = 0; i < m_expected.size(); ++i)
+      {
+        if (vm::is_equal(m_expected[i], actualElement, m_epsilon))
+        {
+          foundMatch = true;
+          break;
+        }
+      }
+
+      if (!foundMatch)
+      {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  std::string describe() const override
+  {
+    std::stringstream ss;
+    ss << "approximatetly unordered matches vecs (";
+    for (size_t i = 0; i < m_expected.size(); ++i)
+    {
+      ss << m_expected[i];
+      if (i + 1 < m_expected.size())
+      {
+        ss << ", ";
+      }
+    }
+    ss << ") with epsilon " << m_epsilon;
+    return ss.str();
+  }
+};
+
+template <typename T, std::size_t S>
+UnorderedApproxVecMatcher<T, S> UnorderedApproxVecMatches(
+  const std::vector<vm::vec<T, S>>& actual, const T epsilon)
+{
+  return UnorderedApproxVecMatcher(actual, epsilon);
+}
+
 } // namespace TrenchBroom
