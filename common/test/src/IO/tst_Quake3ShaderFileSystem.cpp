@@ -24,10 +24,11 @@
 #include "IO/TraversalMode.h"
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
-#include "Matchers.h"
 
 #include <filesystem>
 #include <memory>
+
+#include "CatchUtils/Matchers.h"
 
 #include "Catch2.h"
 

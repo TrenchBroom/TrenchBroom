@@ -19,7 +19,6 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Matchers.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -32,6 +31,8 @@
 #include <kdl/result.h>
 
 #include <filesystem>
+
+#include "CatchUtils/Matchers.h"
 
 #include "Catch2.h"
 

@@ -19,7 +19,6 @@
 
 #include "Exceptions.h"
 #include "IO/NodeWriter.h"
-#include "Matchers.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -49,6 +48,8 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+
+#include "CatchUtils/Matchers.h"
 
 #include "Catch2.h"
 
