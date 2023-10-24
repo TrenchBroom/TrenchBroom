@@ -283,24 +283,24 @@ constexpr T intersect_ray_triangle(
   const auto q = cross(t, e1);
 
   const auto u = dot(q, e2) / a;
-  if (u < T(0))
+  if (u < -constants<T>::almost_zero())
   {
     return nan<T>();
   }
 
   const auto v = dot(p, t) / a;
-  if (v < T(0))
+  if (v < -constants<T>::almost_zero())
   {
     return nan<T>();
   }
 
   const auto w = dot(q, d) / a;
-  if (w < T(0))
+  if (w < -constants<T>::almost_zero())
   {
     return nan<T>();
   }
 
-  if (v + w > T(1.0))
+  if (v + w - T(1) > constants<T>::almost_zero())
   {
     return nan<T>();
   }
