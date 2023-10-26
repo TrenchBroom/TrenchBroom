@@ -29,6 +29,7 @@ namespace TrenchBroom::IO::SystemPaths
  * .app bundle on macOS).
  */
 std::filesystem::path appDirectory();
+
 /**
  * Returns the directory where configs should be written
  * e.g. `C:\\Users\\<user>\\AppData\\Roaming\\TrenchBroom`
@@ -44,4 +45,7 @@ std::filesystem::path findResourceFile(const std::filesystem::path& file);
  */
 std::vector<std::filesystem::path> findResourceDirectories(
   const std::filesystem::path& directory);
+
+void setPortable();
+
 } // namespace TrenchBroom::IO::SystemPaths
