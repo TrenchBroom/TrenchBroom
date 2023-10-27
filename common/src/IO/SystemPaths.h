@@ -47,5 +47,6 @@ std::vector<std::filesystem::path> findResourceDirectories(
   const std::filesystem::path& directory);
 
 void setPortable();
-
+void setPortable(bool newState);
+bool isPortable();
 } // namespace TrenchBroom::IO::SystemPaths

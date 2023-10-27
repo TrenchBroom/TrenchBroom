@@ -33,10 +33,22 @@
 
 namespace TrenchBroom::IO::SystemPaths
 {
-bool isPortable = false;
+
+bool portableState = false;
+
+bool isPortable()
+{
+  return portableState;
+}
+
 void setPortable()
 {
-  isPortable = true;
+  setPortable(true);
+}
+
+void setPortable(bool newState)
+{
+  portableState = newState;
 }
 
 std::filesystem::path appDirectory()
@@ -46,7 +58,7 @@ std::filesystem::path appDirectory()
 
 std::filesystem::path userDataDirectory()
 {
-  if (isPortable)
+  if (isPortable())
   {
     return appDirectory() / "config";
   }
