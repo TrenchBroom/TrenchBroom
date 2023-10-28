@@ -30,6 +30,7 @@
 #include "Renderer/GL.h"
 #include "View/ColorButton.h"
 #include "View/FormWithSectionsLayout.h"
+#include "View/MapViewLayout.h"
 #include "View/QtUtils.h"
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
@@ -121,10 +122,12 @@ QWidget* ViewPreferencePane::createViewPreferences()
 
   m_layoutCombo = new QComboBox{};
   m_layoutCombo->setToolTip("Sets the layout of the editing views.");
-  m_layoutCombo->addItem("One Pane");
-  m_layoutCombo->addItem("Two Panes");
-  m_layoutCombo->addItem("Three Panes");
-  m_layoutCombo->addItem("Four Panes");
+  m_layoutCombo->addItem("One Pane", QVariant::fromValue(static_cast<int>(MapViewLayout::OnePane)));
+  m_layoutCombo->addItem("Two Panes (vertical)", QVariant::fromValue(static_cast<int>(MapViewLayout::TwoPanesVertical)));
+  m_layoutCombo->addItem("Two Panes (horizontal)", QVariant::fromValue(static_cast<int>(MapViewLayout::TwoPanesHorizontal)));
+  m_layoutCombo->addItem("Three Panes (vertical)", QVariant::fromValue(static_cast<int>(MapViewLayout::ThreePanesVertical)));
+  m_layoutCombo->addItem("Three Panes (horizontal)", QVariant::fromValue(static_cast<int>(MapViewLayout::ThreePanesHorizontal)));
+  m_layoutCombo->addItem("Four Panes", QVariant::fromValue(static_cast<int>(MapViewLayout::FourPanes)));
 
   m_link2dCameras = new QCheckBox{"Sync 2D views"};
   m_link2dCameras->setToolTip("All 2D views pan and zoom together.");
@@ -284,7 +287,7 @@ void ViewPreferencePane::doResetToDefaults()
 
 void ViewPreferencePane::doUpdateControls()
 {
-  m_layoutCombo->setCurrentIndex(pref(Preferences::MapViewLayout));
+  m_layoutCombo->setCurrentIndex(m_layoutCombo->findData(QVariant::fromValue(pref(Preferences::MapViewLayout))));
   m_link2dCameras->setChecked(pref(Preferences::Link2DCameras));
   m_brightnessSlider->setValue(brightnessToUI(pref(Preferences::Brightness)));
   m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
@@ -363,10 +366,10 @@ int ViewPreferencePane::findThemeIndex(const QString& theme)
 
 void ViewPreferencePane::layoutChanged(const int index)
 {
-  assert(index >= 0 && index < 4);
-
+  assert(index >= 0 && index < 6);
+  const auto value = m_layoutCombo->currentData().value<int>();
   auto& prefs = PreferenceManager::instance();
-  prefs.set(Preferences::MapViewLayout, index);
+  prefs.set(Preferences::MapViewLayout, value);
 }
 
 void ViewPreferencePane::link2dCamerasChanged(const int state)

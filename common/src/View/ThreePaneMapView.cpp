@@ -32,6 +32,7 @@
 namespace TrenchBroom::View
 {
 ThreePaneMapView::ThreePaneMapView(
+  bool verticalLayout,
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
@@ -42,25 +43,26 @@ ThreePaneMapView::ThreePaneMapView(
   , m_logger{logger}
   , m_document{std::move(document)}
 {
-  createGui(toolBox, mapRenderer, contextManager);
+  createGui(verticalLayout, toolBox, mapRenderer, contextManager);
 }
 
 ThreePaneMapView::~ThreePaneMapView()
 {
-  saveWindowState(m_hSplitter);
-  saveWindowState(m_vSplitter);
+  saveWindowState(m_bigSplitter);
+  saveWindowState(m_smallSplitter);
 }
 
 void ThreePaneMapView::createGui(
+  bool verticalLayout,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
-  m_hSplitter = new Splitter{};
-  m_hSplitter->setObjectName("ThreePaneMapView_HorizontalSplitter");
+  m_bigSplitter = new Splitter{};
+  m_bigSplitter->setObjectName("ThreePaneMapView_HorizontalSplitter");
 
-  m_vSplitter = new Splitter{Qt::Vertical};
-  m_vSplitter->setObjectName("ThreePaneMapView_VerticalSplitter");
+  m_smallSplitter = new Splitter{};
+  m_smallSplitter->setObjectName("ThreePaneMapView_VerticalSplitter");
 
   m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager, m_logger};
   m_mapViewXY = new MapView2D{
@@ -81,25 +83,36 @@ void ThreePaneMapView::createGui(
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   setLayout(layout);
-  layout->addWidget(m_hSplitter);
+  layout->addWidget(m_bigSplitter);
 
   // Add splitter children
-  m_vSplitter->addWidget(m_mapViewXY);
-  m_vSplitter->addWidget(m_mapViewZZ);
+  m_smallSplitter->addWidget(m_mapViewXY);
+  m_smallSplitter->addWidget(m_mapViewZZ);
 
-  m_hSplitter->addWidget(m_mapView3D);
-  m_hSplitter->addWidget(m_vSplitter);
+  m_bigSplitter->addWidget(m_mapView3D);
+  m_bigSplitter->addWidget(m_smallSplitter);
 
   // Configure minimum child sizes and initial splitter position at 50%
   m_mapViewXY->setMinimumSize(100, 100);
   m_mapViewZZ->setMinimumSize(100, 100);
   m_mapView3D->setMinimumSize(100, 100);
 
-  m_hSplitter->setSizes(QList<int>{1, 1});
-  m_vSplitter->setSizes(QList<int>{1, 1});
+  m_bigSplitter->setSizes(QList<int>{1, 1});
+  m_smallSplitter->setSizes(QList<int>{1, 1});
 
-  restoreWindowState(m_hSplitter);
-  restoreWindowState(m_vSplitter);
+  restoreWindowState(m_bigSplitter);
+  restoreWindowState(m_smallSplitter);
+
+  if (verticalLayout)
+  {
+    m_bigSplitter->setOrientation(Qt::Horizontal);
+    m_smallSplitter->setOrientation(Qt::Vertical);
+  }
+  else
+  {
+    m_bigSplitter->setOrientation(Qt::Vertical);
+    m_smallSplitter->setOrientation(Qt::Horizontal);
+  }
 }
 
 void ThreePaneMapView::doMaximizeView(MapView* view)
@@ -107,7 +120,7 @@ void ThreePaneMapView::doMaximizeView(MapView* view)
   assert(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewZZ);
   if (view == m_mapView3D)
   {
-    m_vSplitter->hide();
+    m_smallSplitter->hide();
   }
   else if (view == m_mapViewXY)
   {
@@ -125,8 +138,8 @@ void ThreePaneMapView::doRestoreViews()
 {
   for (int i = 0; i < 2; ++i)
   {
-    m_hSplitter->widget(i)->show();
-    m_vSplitter->widget(i)->show();
+    m_bigSplitter->widget(i)->show();
+    m_smallSplitter->widget(i)->show();
   }
 }
 } // namespace TrenchBroom::View

@@ -53,14 +53,15 @@ private:
   Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
 
-  QSplitter* m_hSplitter = nullptr;
-  QSplitter* m_vSplitter = nullptr;
+  QSplitter* m_bigSplitter = nullptr;
+  QSplitter* m_smallSplitter = nullptr;
   MapView3D* m_mapView3D = nullptr;
   MapView2D* m_mapViewXY = nullptr;
   CyclingMapView* m_mapViewZZ = nullptr;
 
 public:
   ThreePaneMapView(
+    bool verticalLayout,
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
@@ -71,6 +72,7 @@ public:
 
 private:
   void createGui(
+    bool verticalLayout,
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager);

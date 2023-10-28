@@ -102,13 +102,21 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
     m_mapView = new OnePaneMapView{
       m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
-  case MapViewLayout::TwoPanes:
+  case MapViewLayout::TwoPanesVertical:
     m_mapView = new TwoPaneMapView{
-      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+      true, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
-  case MapViewLayout::ThreePanes:
+  case MapViewLayout::TwoPanesHorizontal:
+    m_mapView = new TwoPaneMapView{
+      false, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+    break;
+  case MapViewLayout::ThreePanesVertical:
     m_mapView = new ThreePaneMapView{
-      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+      true, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+    break;
+  case MapViewLayout::ThreePanesHorizontal:
+    m_mapView = new ThreePaneMapView{
+      false, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
   case MapViewLayout::FourPanes:
     m_mapView = new FourPaneMapView{

@@ -31,6 +31,7 @@
 namespace TrenchBroom::View
 {
 TwoPaneMapView::TwoPaneMapView(
+  bool verticalLayout,
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
@@ -41,7 +42,7 @@ TwoPaneMapView::TwoPaneMapView(
   , m_logger{logger}
   , m_document(std::move(document))
 {
-  createGui(toolBox, mapRenderer, contextManager);
+  createGui(verticalLayout, toolBox, mapRenderer, contextManager);
 }
 
 TwoPaneMapView::~TwoPaneMapView()
@@ -50,6 +51,7 @@ TwoPaneMapView::~TwoPaneMapView()
 }
 
 void TwoPaneMapView::createGui(
+  bool verticalLayout,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
@@ -84,6 +86,8 @@ void TwoPaneMapView::createGui(
   m_splitter->setSizes(QList<int>{1, 1});
 
   restoreWindowState(m_splitter);
+
+  m_splitter->setOrientation(verticalLayout ? Qt::Horizontal : Qt::Vertical);
 }
 
 void TwoPaneMapView::doMaximizeView(MapView* view)

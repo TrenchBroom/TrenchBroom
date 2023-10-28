@@ -56,6 +56,7 @@ private:
 
 public:
   TwoPaneMapView(
+    bool verticalLayout,
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
@@ -66,6 +67,7 @@ public:
 
 private:
   void createGui(
+    bool verticalLayout,
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager);
