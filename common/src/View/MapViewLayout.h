@@ -28,9 +28,11 @@ enum class MapViewLayout
   OnePane,
   TwoPanesVertical,
   ThreePanesVertical,
-  FourPanes,
+  FourPanesGrid,
   TwoPanesHorizontal,
-  ThreePanesHorizontal
+  ThreePanesHorizontal,
+  FourPanesVertical,
+  FourPanesHorizontal,
 };
 } // namespace View
 } // namespace TrenchBroom

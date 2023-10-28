@@ -345,6 +345,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/FlyModeHelper.cpp
         ${COMMON_SOURCE_DIR}/View/FormWithSectionsLayout.cpp
         ${COMMON_SOURCE_DIR}/View/FourPaneMapView.cpp
+	${COMMON_SOURCE_DIR}/View/FourPaneAlternativeMapView.cpp
         ${COMMON_SOURCE_DIR}/View/FrameManager.cpp
         ${COMMON_SOURCE_DIR}/View/GameDialog.cpp
         ${COMMON_SOURCE_DIR}/View/GameEngineDialog.cpp
@@ -864,6 +865,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/FlyModeHelper.h
         ${COMMON_SOURCE_DIR}/View/FormWithSectionsLayout.h
         ${COMMON_SOURCE_DIR}/View/FourPaneMapView.h
+	${COMMON_SOURCE_DIR}/View/FourPaneAlternativeMapView.h
         ${COMMON_SOURCE_DIR}/View/FrameManager.h
         ${COMMON_SOURCE_DIR}/View/GameDialog.h
         ${COMMON_SOURCE_DIR}/View/GameEngineDialog.h

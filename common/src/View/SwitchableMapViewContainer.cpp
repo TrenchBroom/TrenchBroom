@@ -26,6 +26,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/MapRenderer.h"
+#include "View/FourPaneAlternativeMapView.h"
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
 #include "View/Inspector.h"
@@ -118,9 +119,17 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
     m_mapView = new ThreePaneMapView{
       false, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
-  case MapViewLayout::FourPanes:
+  case MapViewLayout::FourPanesGrid:
     m_mapView = new FourPaneMapView{
       m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+    break;
+  case MapViewLayout::FourPanesVertical:
+    m_mapView = new FourPaneAlternativeMapView{
+      true, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+    break;
+  case MapViewLayout::FourPanesHorizontal:
+    m_mapView = new FourPaneAlternativeMapView{
+      false, m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
     break;
     switchDefault();
   }

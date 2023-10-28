@@ -122,12 +122,29 @@ QWidget* ViewPreferencePane::createViewPreferences()
 
   m_layoutCombo = new QComboBox{};
   m_layoutCombo->setToolTip("Sets the layout of the editing views.");
-  m_layoutCombo->addItem("One Pane", QVariant::fromValue(static_cast<int>(MapViewLayout::OnePane)));
-  m_layoutCombo->addItem("Two Panes (vertical)", QVariant::fromValue(static_cast<int>(MapViewLayout::TwoPanesVertical)));
-  m_layoutCombo->addItem("Two Panes (horizontal)", QVariant::fromValue(static_cast<int>(MapViewLayout::TwoPanesHorizontal)));
-  m_layoutCombo->addItem("Three Panes (vertical)", QVariant::fromValue(static_cast<int>(MapViewLayout::ThreePanesVertical)));
-  m_layoutCombo->addItem("Three Panes (horizontal)", QVariant::fromValue(static_cast<int>(MapViewLayout::ThreePanesHorizontal)));
-  m_layoutCombo->addItem("Four Panes", QVariant::fromValue(static_cast<int>(MapViewLayout::FourPanes)));
+  m_layoutCombo->addItem(
+    "One Pane", QVariant::fromValue(static_cast<int>(MapViewLayout::OnePane)));
+  m_layoutCombo->addItem(
+    "Two Panes (vertical)",
+    QVariant::fromValue(static_cast<int>(MapViewLayout::TwoPanesVertical)));
+  m_layoutCombo->addItem(
+    "Two Panes (horizontal)",
+    QVariant::fromValue(static_cast<int>(MapViewLayout::TwoPanesHorizontal)));
+  m_layoutCombo->addItem(
+    "Three Panes (vertical)",
+    QVariant::fromValue(static_cast<int>(MapViewLayout::ThreePanesVertical)));
+  m_layoutCombo->addItem(
+    "Three Panes (horizontal)",
+    QVariant::fromValue(static_cast<int>(MapViewLayout::ThreePanesHorizontal)));
+  m_layoutCombo->addItem(
+    "Four Panes (grid)",
+    QVariant::fromValue(static_cast<int>(MapViewLayout::FourPanesGrid)));
+  m_layoutCombo->addItem(
+    "Four Panes (vertical)",
+    QVariant::fromValue(static_cast<int>(MapViewLayout::FourPanesVertical)));
+  m_layoutCombo->addItem(
+    "Four Panes (horizontal)",
+    QVariant::fromValue(static_cast<int>(MapViewLayout::FourPanesHorizontal)));
 
   m_link2dCameras = new QCheckBox{"Sync 2D views"};
   m_link2dCameras->setToolTip("All 2D views pan and zoom together.");
@@ -287,7 +304,8 @@ void ViewPreferencePane::doResetToDefaults()
 
 void ViewPreferencePane::doUpdateControls()
 {
-  m_layoutCombo->setCurrentIndex(m_layoutCombo->findData(QVariant::fromValue(pref(Preferences::MapViewLayout))));
+  m_layoutCombo->setCurrentIndex(
+    m_layoutCombo->findData(QVariant::fromValue(pref(Preferences::MapViewLayout))));
   m_link2dCameras->setChecked(pref(Preferences::Link2DCameras));
   m_brightnessSlider->setValue(brightnessToUI(pref(Preferences::Brightness)));
   m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
@@ -364,10 +382,10 @@ int ViewPreferencePane::findThemeIndex(const QString& theme)
   return 0;
 }
 
-void ViewPreferencePane::layoutChanged(const int index)
+void ViewPreferencePane::layoutChanged([[maybe_unused]] const int index)
 {
-  assert(index >= 0 && index < 6);
   const auto value = m_layoutCombo->currentData().value<int>();
+  assert(value >= 0 && value < 8);
   auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::MapViewLayout, value);
 }
