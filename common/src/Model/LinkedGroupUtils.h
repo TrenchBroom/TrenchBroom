@@ -23,13 +23,16 @@
 #include "Result.h"
 
 #include <memory>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 namespace TrenchBroom::Model
 {
+class EntityNode;
 class GroupNode;
 class Node;
+class WorldNode;
 
 using UpdateLinkedGroupsResult =
   std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>;
@@ -65,5 +68,9 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
   const std::vector<Model::GroupNode*>& targetGroupNodes,
   const vm::bbox3& worldBounds);
+
+std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes);
+std::vector<Error> initializeLinkIds(
+  GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
 
 } // namespace TrenchBroom::Model

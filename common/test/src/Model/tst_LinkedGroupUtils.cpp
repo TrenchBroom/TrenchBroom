@@ -17,16 +17,33 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Model/BezierPatch.h"
+#include "Model/Brush.h"
+#include "Model/BrushBuilder.h"
+#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
 #include "Model/LinkedGroupUtils.h"
+#include "Model/PatchNode.h"
+#include "Model/WorldNode.h"
 #include "TestUtils.h"
+
+#include "kdl/pair_iterator.h"
+#include "kdl/vector_utils.h"
+#include <kdl/map_utils.h>
 
 #include <vecmath/bbox.h>
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
+
+#include <numeric>
+#include <unordered_set>
+#include <vector>
+
+#include "CatchUtils/Matchers.h"
 
 #include "Catch2.h"
 
@@ -474,6 +491,434 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveEntityProperties")
         Catch::UnorderedEquals(targetEntityNode->entity().protectedProperties()));
     })
     .transform_error([](const auto&) { FAIL(); });
+}
+
+namespace
+{
+auto* createPatchNode()
+{
+  // clang-format off
+    return new PatchNode{BezierPatch{3, 3, {
+      {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
+      {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+  // clang-format on
+}
+
+template <typename K, typename V, typename S>
+auto getValue(const std::unordered_map<K, V>& m, const S& key)
+{
+  const auto it = m.find(key);
+  return it != m.end() ? std::optional{it->second} : std::nullopt;
+}
+
+std::unordered_map<const Node*, std::string> getLinkIds(const Node& node)
+{
+  auto result = std::unordered_map<const Node*, std::string>{};
+  node.accept(kdl::overload(
+    [](auto&& thisLambda, const WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, const GroupNode* groupNode) {
+      result[groupNode] = groupNode->group().linkId();
+      groupNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, const EntityNode* entityNode) {
+      result[entityNode] = entityNode->entity().linkId();
+      entityNode->visitChildren(thisLambda);
+    },
+    [&](const BrushNode* brushNode) { result[brushNode] = brushNode->brush().linkId(); },
+    [&](const PatchNode* patchNode) {
+      result[patchNode] = patchNode->patch().linkId();
+    }));
+  return result;
+}
+
+class LinkIdMatcher : public Catch::MatcherBase<const WorldNode&>
+{
+  std::vector<std::vector<const Node*>> m_expected;
+
+public:
+  explicit LinkIdMatcher(std::vector<std::vector<const Node*>> expected)
+    : m_expected{std::move(expected)}
+  {
+  }
+
+  bool match(const WorldNode& worldNode) const override
+  {
+    const auto linkIds = getLinkIds(worldNode);
+    const auto count = std::accumulate(
+      m_expected.begin(),
+      m_expected.end(),
+      size_t(0),
+      [](const auto c, const auto& nodesWithSameLinkId) {
+        return c + nodesWithSameLinkId.size();
+      });
+
+    const auto expectedLinkIds =
+      kdl::vec_transform(m_expected, [&](const auto& nodesWithSameLinkId) {
+        return getValue(linkIds, nodesWithSameLinkId.front());
+      });
+
+    return linkIds.size() == count
+           && kdl::all_of(
+             m_expected,
+             [&](const auto& nodesWithSameLinkId) {
+               if (nodesWithSameLinkId.empty())
+               {
+                 return false;
+               }
+
+               const auto linkId = getValue(linkIds, nodesWithSameLinkId.front());
+               return linkId && kdl::all_of(nodesWithSameLinkId, [&](auto* entity) {
+                        return getValue(linkIds, entity) == linkId;
+                      });
+             })
+           && kdl::none_of(
+             kdl::make_pair_range(expectedLinkIds), [](const auto& linkIdPair) {
+               const auto& [linkId1, linkId2] = linkIdPair;
+               return linkId1 == linkId2;
+             });
+  }
+
+  std::string describe() const override
+  {
+    return "matches " + ::Catch::Detail::stringify(m_expected);
+  }
+};
+
+auto MatchesLinkIds(std::vector<std::vector<const Node*>> expected)
+{
+  return LinkIdMatcher{std::move(expected)};
+}
+
+} // namespace
+
+TEST_CASE("initializeLinkIds")
+{
+  auto brushBuilder = BrushBuilder{MapFormat::Quake3, vm::bbox3{8192.0}};
+
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto& layerNode = *worldNode.defaultLayer();
+
+  auto* unlinkedGroupNode = new GroupNode{Group{"unlinked"}};
+  auto* unlinkedEntityNode = new EntityNode{Entity{}};
+
+  unlinkedGroupNode->addChildren({unlinkedEntityNode});
+  layerNode.addChildren({unlinkedGroupNode});
+
+  auto* outerGroupNode = new GroupNode{Group{"outer"}};
+  auto* outerEntityNode = new EntityNode{Entity{}};
+  auto* outerBrushNode = new BrushNode{brushBuilder.createCube(64.0, "texture").value()};
+
+  auto* innerGroupNode = new GroupNode{Group{"inner"}};
+  auto* innerPatchNode = createPatchNode();
+  auto* innerEntityNode = new EntityNode{Entity{}};
+
+  innerGroupNode->addChildren({innerPatchNode, innerEntityNode});
+  outerGroupNode->addChildren({outerEntityNode, outerBrushNode, innerGroupNode});
+
+  auto* linkedOuterGroupNode = new GroupNode{Group{"outer"}};
+  auto* linkedOuterEntityNode = new EntityNode{Entity{}};
+  auto* linkedOuterBrushNode =
+    new BrushNode{brushBuilder.createCube(64.0, "texture").value()};
+
+  auto* linkedInnerGroupNode = new GroupNode{Group{"inner"}};
+  auto* linkedInnerPatchNode = createPatchNode();
+  auto* linkedInnerEntityNode = new EntityNode{Entity{}};
+
+  setLinkId(*outerGroupNode, "outerGroupLinkId");
+  setLinkId(*linkedOuterGroupNode, "outerGroupLinkId");
+  setLinkId(*innerGroupNode, "innerGroupLinkId");
+  setLinkId(*linkedInnerGroupNode, "innerGroupLinkId");
+
+  layerNode.addChildren({outerGroupNode, linkedOuterGroupNode});
+
+  SECTION("If both groups have the same structure")
+  {
+    linkedInnerGroupNode->addChildren({linkedInnerPatchNode, linkedInnerEntityNode});
+    linkedOuterGroupNode->addChildren(
+      {linkedOuterEntityNode, linkedOuterBrushNode, linkedInnerGroupNode});
+
+    REQUIRE_THAT(
+      worldNode,
+      MatchesLinkIds({
+        {unlinkedGroupNode},
+        {unlinkedEntityNode},
+        {outerGroupNode, linkedOuterGroupNode},
+        {outerEntityNode},
+        {outerBrushNode},
+        {innerGroupNode, linkedInnerGroupNode},
+        {innerEntityNode},
+        {innerPatchNode},
+        {linkedOuterEntityNode},
+        {linkedOuterBrushNode},
+        {linkedInnerEntityNode},
+        {linkedInnerPatchNode},
+      }));
+
+    SECTION("With two groups")
+    {
+      CHECK(initializeLinkIds({&worldNode}).empty());
+
+      CHECK_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode, linkedOuterGroupNode},
+          {outerEntityNode, linkedOuterEntityNode},
+          {outerBrushNode, linkedOuterBrushNode},
+          {innerGroupNode, linkedInnerGroupNode},
+          {innerEntityNode, linkedInnerEntityNode},
+          {innerPatchNode, linkedInnerPatchNode},
+        }));
+    }
+
+    SECTION("With three groups")
+    {
+      auto* linkedOuterGroupNode2 = new GroupNode{Group{"outer"}};
+      auto* linkedOuterEntityNode2 = new EntityNode{Entity{}};
+      auto* linkedOuterBrushNode2 =
+        new BrushNode{brushBuilder.createCube(64.0, "texture").value()};
+
+      auto* linkedInnerGroupNode2 = new GroupNode{Group{"inner"}};
+      auto* linkedInnerPatchNode2 = createPatchNode();
+      auto* linkedInnerEntityNode2 = new EntityNode{Entity{}};
+
+      linkedInnerGroupNode2->addChildren({linkedInnerPatchNode2, linkedInnerEntityNode2});
+      linkedOuterGroupNode2->addChildren(
+        {linkedOuterEntityNode2, linkedOuterBrushNode2, linkedInnerGroupNode2});
+      layerNode.addChildren({linkedOuterGroupNode2});
+
+      setLinkId(*linkedOuterGroupNode2, "outerGroupLinkId");
+      setLinkId(*linkedInnerGroupNode2, "innerGroupLinkId");
+
+      CHECK(initializeLinkIds({&worldNode}).empty());
+
+      CHECK_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode, linkedOuterGroupNode, linkedOuterGroupNode2},
+          {outerEntityNode, linkedOuterEntityNode, linkedOuterEntityNode2},
+          {outerBrushNode, linkedOuterBrushNode, linkedOuterBrushNode2},
+          {innerGroupNode, linkedInnerGroupNode, linkedInnerGroupNode2},
+          {innerEntityNode, linkedInnerEntityNode, linkedInnerEntityNode2},
+          {innerPatchNode, linkedInnerPatchNode, linkedInnerPatchNode2},
+        }));
+    }
+
+    SECTION("If inner groups have different link IDs")
+    {
+      setLinkId(*linkedInnerGroupNode, "someOtherId");
+
+      CHECK(initializeLinkIds({&worldNode}).empty());
+
+      CHECK_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode, linkedOuterGroupNode},
+          {outerEntityNode, linkedOuterEntityNode},
+          {outerBrushNode, linkedOuterBrushNode},
+          {innerGroupNode, linkedInnerGroupNode},
+          {innerEntityNode, linkedInnerEntityNode},
+          {innerPatchNode, linkedInnerPatchNode},
+        }));
+    }
+
+    SECTION("If a nested group is linked to a top level duplicate")
+    {
+      auto* topLevelLinkedInnerGroupNode = new GroupNode{Group{"inner"}};
+      auto* topLevelLinkedInnerPatchNode = createPatchNode();
+      auto* topLevelLinkedInnerEntityNode = new EntityNode{Entity{}};
+
+      topLevelLinkedInnerGroupNode->addChildren(
+        {topLevelLinkedInnerPatchNode, topLevelLinkedInnerEntityNode});
+
+      setLinkId(*topLevelLinkedInnerGroupNode, "innerGroupLinkId");
+      layerNode.addChildren({topLevelLinkedInnerGroupNode});
+
+      REQUIRE_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode, linkedOuterGroupNode},
+          {outerEntityNode},
+          {outerBrushNode},
+          {innerGroupNode, linkedInnerGroupNode, topLevelLinkedInnerGroupNode},
+          {innerEntityNode},
+          {innerPatchNode},
+          {linkedOuterEntityNode},
+          {linkedOuterBrushNode},
+          {linkedInnerEntityNode},
+          {linkedInnerPatchNode},
+          {topLevelLinkedInnerEntityNode},
+          {topLevelLinkedInnerPatchNode},
+        }));
+
+      CHECK(initializeLinkIds({&worldNode}).empty());
+
+      CHECK_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode, linkedOuterGroupNode},
+          {outerEntityNode, linkedOuterEntityNode},
+          {outerBrushNode, linkedOuterBrushNode},
+          {innerGroupNode, linkedInnerGroupNode, topLevelLinkedInnerGroupNode},
+          {innerEntityNode, linkedInnerEntityNode, topLevelLinkedInnerEntityNode},
+          {innerPatchNode, linkedInnerPatchNode, topLevelLinkedInnerPatchNode},
+        }));
+    }
+  }
+
+  SECTION("If the groups have a structural mismatch")
+  {
+    SECTION("One outer group node has no children")
+    {
+      CHECK(
+        initializeLinkIds({&worldNode})
+        == std::vector{Error{"Inconsistent linked group structure"}});
+
+      CHECK_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode},
+          {outerEntityNode},
+          {outerBrushNode},
+          {innerGroupNode},
+          {innerEntityNode},
+          {innerPatchNode},
+          {linkedOuterGroupNode},
+        }));
+    }
+
+    SECTION("One outer group node has fewer children")
+    {
+      linkedOuterGroupNode->addChildren({linkedOuterEntityNode, linkedOuterBrushNode});
+
+      CHECK(
+        initializeLinkIds({&worldNode})
+        == std::vector{Error{"Inconsistent linked group structure"}});
+
+      CHECK_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode},
+          {outerEntityNode},
+          {outerBrushNode},
+          {innerGroupNode},
+          {innerEntityNode},
+          {innerPatchNode},
+          {linkedOuterGroupNode},
+          {linkedOuterEntityNode},
+          {linkedOuterBrushNode},
+        }));
+    }
+
+    SECTION("One inner group node has fewer children")
+    {
+      linkedOuterGroupNode->addChildren(
+        {linkedOuterEntityNode, linkedOuterBrushNode, linkedInnerGroupNode});
+      linkedInnerGroupNode->addChildren({linkedInnerPatchNode});
+
+      CHECK_THAT(
+        initializeLinkIds({&worldNode}),
+        Catch::UnorderedEquals(std::vector{
+          Error{"Inconsistent linked group structure"},
+          Error{"Inconsistent linked group structure"}}));
+
+      CHECK_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode},
+          {outerEntityNode},
+          {outerBrushNode},
+          {innerGroupNode},
+          {innerEntityNode},
+          {innerPatchNode},
+          {linkedOuterGroupNode},
+          {linkedOuterEntityNode},
+          {linkedOuterBrushNode},
+          {linkedInnerGroupNode},
+          {linkedInnerPatchNode},
+        }));
+    }
+
+    SECTION("One outer group node has children in different order")
+    {
+      linkedInnerGroupNode->addChildren({linkedInnerPatchNode, linkedInnerEntityNode});
+      linkedOuterGroupNode->addChildren(
+        {linkedOuterEntityNode, linkedInnerGroupNode, linkedOuterBrushNode});
+
+      CHECK(
+        initializeLinkIds({&worldNode})
+        == std::vector{Error{"Inconsistent linked group structure"}});
+
+      CHECK_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode},
+          {outerEntityNode},
+          {outerBrushNode},
+          {innerGroupNode, linkedInnerGroupNode},
+          {innerEntityNode, linkedInnerEntityNode},
+          {innerPatchNode, linkedInnerPatchNode},
+          {linkedOuterGroupNode},
+          {linkedOuterEntityNode},
+          {linkedOuterBrushNode},
+        }));
+    }
+
+    SECTION("One inner group node has children in different order")
+    {
+      linkedInnerGroupNode->addChildren({linkedInnerEntityNode, linkedInnerPatchNode});
+      linkedOuterGroupNode->addChildren(
+        {linkedOuterEntityNode, linkedOuterBrushNode, linkedInnerGroupNode});
+
+      CHECK_THAT(
+        initializeLinkIds({&worldNode}),
+        Catch::UnorderedEquals(std::vector{
+          Error{"Inconsistent linked group structure"},
+          Error{"Inconsistent linked group structure"}}));
+
+      CHECK_THAT(
+        worldNode,
+        MatchesLinkIds({
+          {unlinkedGroupNode},
+          {unlinkedEntityNode},
+          {outerGroupNode},
+          {outerEntityNode},
+          {outerBrushNode},
+          {innerGroupNode},
+          {innerEntityNode},
+          {innerPatchNode},
+          {linkedOuterGroupNode},
+          {linkedOuterEntityNode},
+          {linkedOuterBrushNode},
+          {linkedInnerGroupNode},
+          {linkedInnerEntityNode},
+          {linkedInnerPatchNode},
+        }));
+    }
+  }
 }
 
 } // namespace TrenchBroom::Model
