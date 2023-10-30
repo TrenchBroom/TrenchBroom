@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "range.h"
+
 #include <iterator>
 #include <tuple>
 
@@ -151,25 +153,6 @@ auto make_zip_end(C&&... c)
 }
 
 /**
- * A zip range returns zip iterators for begin() and end().
- *
- * @tparam I the types of the individual iterators
- */
-template <typename I>
-struct zip_range
-{
-  using value_type = typename I::value_type;
-  using iterator = I;
-
-  I m_begin;
-  I m_end;
-
-  I begin() const { return m_begin; }
-
-  I end() const { return m_end; }
-};
-
-/**
  * Creates a zip range of the given ranges.
  *
  * @tparam C the types of the ranges
@@ -179,7 +162,7 @@ template <typename... C>
 auto make_zip_range(C&&... c)
 {
   using I = decltype(make_zip_begin(std::forward<C>(c)...));
-  return zip_range<I>{
+  return range<I>{
     make_zip_begin(std::forward<C>(c)...), make_zip_end(std::forward<C>(c)...)};
 }
 } // namespace kdl
