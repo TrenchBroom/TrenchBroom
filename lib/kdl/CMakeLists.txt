@@ -27,6 +27,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/deref_iterator.h"
     "${KDL_INCLUDE_DIR}/kdl/enum_array.h"
     "${KDL_INCLUDE_DIR}/kdl/functional.h"
+    "${KDL_INCLUDE_DIR}/kdl/grouped_range.h"
     "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list.h"
     "${KDL_INCLUDE_DIR}/kdl/invoke.h"
