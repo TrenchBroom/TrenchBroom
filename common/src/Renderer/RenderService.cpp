@@ -82,7 +82,7 @@ RenderService::RenderService(RenderContext& renderContext, RenderBatch& renderBa
   , m_primitiveRenderer(std::make_unique<PrimitiveRenderer>())
   , m_foregroundColor(1.0f, 1.0f, 1.0f, 1.0f)
   , m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f)
-  , m_lineWidth(1.0f)
+  , m_lineWidth(pref(Preferences::LineWidth))
   , m_occlusionPolicy(PrimitiveRendererOcclusionPolicy::Transparent)
   , m_cullingPolicy(PrimitiveRendererCullingPolicy::CullBackfaces)
 {
@@ -105,7 +105,7 @@ void RenderService::setBackgroundColor(const Color& backgroundColor)
 
 void RenderService::setLineWidth(const float lineWidth)
 {
-  m_lineWidth = lineWidth;
+  m_lineWidth = lineWidth * pref(Preferences::LineWidth);
 }
 
 void RenderService::setShowOccludedObjects()

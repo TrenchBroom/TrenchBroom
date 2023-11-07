@@ -20,6 +20,8 @@
 #include "PrimitiveRenderer.h"
 
 #include "Color.h"
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/IndexRangeRenderer.h"
@@ -371,7 +373,7 @@ void PrimitiveRenderer::renderLines(RenderContext& renderContext)
   {
     attributes.render(renderer, shader);
   }
-  glAssert(glLineWidth(1.0f));
+  glAssert(glLineWidth(pref(Preferences::LineWidth)));
 }
 
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)

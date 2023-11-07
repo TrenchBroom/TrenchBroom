@@ -67,6 +67,7 @@ private:
   static QPalette darkPalette();
   bool loadStyleSheets();
   void loadStyle();
+  void setupDefaultLineWidth();
 
 public:
   const std::vector<std::filesystem::path>& recentDocuments() const;

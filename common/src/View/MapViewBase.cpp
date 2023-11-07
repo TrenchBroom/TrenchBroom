@@ -1143,7 +1143,8 @@ void MapViewBase::validatePortalFileRenderer(Renderer::RenderContext&)
         Renderer::PrimitiveRendererCullingPolicy::ShowBackfaces,
         poly.vertices());
 
-      const auto lineWidth = 4.0f;
+      const qreal r = devicePixelRatioF();
+      const auto lineWidth = static_cast<float>(4.0f * r);
       m_portalFileRenderer->renderPolygon(
         pref(Preferences::PortalFileBorderColor),
         lineWidth,
