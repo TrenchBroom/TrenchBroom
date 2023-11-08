@@ -77,7 +77,7 @@ bool PrimitiveRenderer::LineRenderAttributes::operator<(
 void PrimitiveRenderer::LineRenderAttributes::render(
   IndexRangeRenderer& renderer, ActiveShader& shader) const
 {
-  glAssert(glLineWidth(m_lineWidth));
+  glAssert(glLineWidth(m_lineWidth * pref(Preferences::LineWidth)));
   switch (m_occlusionPolicy)
   {
   case PrimitiveRendererOcclusionPolicy::Hide:
