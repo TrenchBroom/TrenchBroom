@@ -187,7 +187,7 @@ Preference<Color> GridColor2D("Rendere/Grid/Color2D", Color(0.8f, 0.8f, 0.8f, 0.
 Preference<int> TextureMinFilter("Renderer/Texture mode min filter", 0x2700);
 Preference<int> TextureMagFilter("Renderer/Texture mode mag filter", 0x2600);
 Preference<bool> EnableMSAA("Renderer/Enable multisampling", true);
-Preference<float> LineWidth(IO::Path("Renderer/Line Width"), 1.0f);
+Preference<float> LineWidth("Renderer/Line Width", 1.0f);
 
 Preference<bool> TextureLock("Editor/Texture lock", true);
 Preference<bool> UVLock("Editor/UV lock", false);
