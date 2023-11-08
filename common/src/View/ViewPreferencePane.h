@@ -40,7 +40,6 @@ private:
   QCheckBox* m_showAxes = nullptr;
   QComboBox* m_textureModeCombo = nullptr;
   QCheckBox* m_enableMsaa = nullptr;
-  QComboBox* m_lineWidth = nullptr;;
   QComboBox* m_themeCombo = nullptr;
   QComboBox* m_textureBrowserIconSizeCombo = nullptr;
   QComboBox* m_rendererFontSizeCombo = nullptr;
@@ -69,7 +68,6 @@ private slots:
   void fovChanged(int value);
   void showAxesChanged(int state);
   void enableMsaaChanged(int state);
-  void lineWidthChanged(const QString& text);
   void textureModeChanged(int index);
   void themeChanged(int index);
   void textureBrowserIconSizeChanged(int index);

@@ -161,20 +161,6 @@ QWidget* ViewPreferencePane::createViewPreferences()
   m_enableMsaa = new QCheckBox{};
   m_enableMsaa->setToolTip("Enable multisampling");
 
-  m_lineWidth = new QComboBox();
-  m_lineWidth->addItem("0.50");
-  m_lineWidth->addItem("0.75");
-  m_lineWidth->addItem("1.00");
-  m_lineWidth->addItem("1.25");
-  m_lineWidth->addItem("1.50");
-  m_lineWidth->addItem("1.75");
-  m_lineWidth->addItem("2.00");
-  m_lineWidth->addItem("2.25");
-  m_lineWidth->addItem("2.50");
-  m_lineWidth->addItem("3.00");
-  m_lineWidth->addItem("3.50");
-  m_lineWidth->setToolTip("Sets the line width used in rendering various elements such as edges and entity links");
-
   m_textureBrowserIconSizeCombo = new QComboBox{};
   m_textureBrowserIconSizeCombo->addItem("25%");
   m_textureBrowserIconSizeCombo->addItem("50%");
@@ -211,7 +197,6 @@ QWidget* ViewPreferencePane::createViewPreferences()
   layout->addRow("Show axes", m_showAxes);
   layout->addRow("Texture mode", m_textureModeCombo);
   layout->addRow("Enable multisampling", m_enableMsaa);
-  layout->addRow("Line width", m_lineWidth);
 
   layout->addSection("Texture Browser");
   layout->addRow("Icon size", m_textureBrowserIconSizeCombo);
@@ -254,11 +239,6 @@ void ViewPreferencePane::bindEvents()
   connect(
     m_enableMsaa, &QCheckBox::stateChanged, this, &ViewPreferencePane::enableMsaaChanged);
   connect(
-    m_lineWidth, 
-    &QComboBox::currentTextChanged,
-    this,
-    &ViewPreferencePane::lineWidthChanged);
-  connect(
     m_themeCombo,
     QOverload<int>::of(&QComboBox::activated),
     this,
@@ -295,7 +275,6 @@ void ViewPreferencePane::doResetToDefaults()
   prefs.resetToDefault(Preferences::CameraFov);
   prefs.resetToDefault(Preferences::ShowAxes);
   prefs.resetToDefault(Preferences::EnableMSAA);
-  prefs.resetToDefault(Preferences::LineWidth);
   prefs.resetToDefault(Preferences::TextureMinFilter);
   prefs.resetToDefault(Preferences::TextureMagFilter);
   prefs.resetToDefault(Preferences::Theme);
@@ -317,8 +296,6 @@ void ViewPreferencePane::doUpdateControls()
 
   m_showAxes->setChecked(pref(Preferences::ShowAxes));
   m_enableMsaa->setChecked(pref(Preferences::EnableMSAA));
-  m_lineWidth->setCurrentText(
-    QString::asprintf("%.2f", pref(Preferences::LineWidth)));
   m_themeCombo->setCurrentIndex(findThemeIndex(pref(Preferences::Theme)));
 
   const auto textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
@@ -430,17 +407,6 @@ void ViewPreferencePane::enableMsaaChanged(const int state)
   const auto value = state == Qt::Checked;
   auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::EnableMSAA, value);
-}
-
-void ViewPreferencePane::lineWidthChanged(const QString& str)
-{
-  bool ok;
-  const auto value = str.toFloat(&ok);
-  if (ok)
-  {
-    auto& prefs = PreferenceManager::instance();
-    prefs.set(Preferences::LineWidth, value);
-  }
 }
 
 void ViewPreferencePane::textureModeChanged(const int value)
