@@ -46,7 +46,6 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 	- Generic (for custom engines)
 	- More games can be supported with custom game configurations
 
-
 ## Releases
 - Binary builds are available from [releases](https://github.com/kduske/TrenchBroom/releases).
 

@@ -114,6 +114,22 @@ cmake .. -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH="cmake/packages"
 cmake --build . --target TrenchBroom
 ```
 
+### Docker
+
+[Docker](https://www.docker.com) is a tool that lets you build a working version of the application on your computer without needing to install all the extra software required for its construction.
+
+First, make sure you have [Docker Engine](https://docs.docker.com/engine/) installed and running. You can use [Docker Desktop](https://docs.docker.com/desktop/) as a friendly alternative, which is an easy-to-use program that helps you handle your Docker images, containers, and storage areas.
+
+After setting up Docker, go to the main folder of your TrenchBroom project on your computer.
+
+Then, open a command prompt and run this command:
+
+```bash
+./Build-linux.sh Debug
+```
+
+It starts the building process of TrenchBroom within Docker. Once it's built, the compiled application will be automatically transferred into the `build/app/` folder within your local TrenchBroom project.
+
 > **Note**: You can replace `Debug` with `Release` if you want to create a release build.
 
 ---
@@ -164,11 +180,11 @@ git log --oneline --decorate <LAST_REL_TAG>..HEAD
 Then, tag your changes:
 
 ```bash
-git tag -a v2019.1 -m "This tag marks TrenchBroom 2019.1."
+git tag -a v<LAST_REL_TAG> -m "This tag marks TrenchBroom <LAST_REL_TAG>."
 ```
 
 And finally, push the tagged release:
 
 ```bash
-git push origin v2019.1
+git push origin v<LAST_REL_TAG>
 ```
