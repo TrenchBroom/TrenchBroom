@@ -1,0 +1,11 @@
+/* ##### Variables ########## */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* Colors */
+
+        --color-gray-10: hsl(0, 0%, 10%);
+        --color-gray-15: hsl(0, 0%, 15%);
+        --color-orange: hsl(40, 90%, 60%);
+    }
+}

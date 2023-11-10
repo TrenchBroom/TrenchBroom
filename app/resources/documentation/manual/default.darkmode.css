@@ -1,0 +1,16 @@
+/* ##### Dark Mode ########## */
+
+@media (prefers-color-scheme: dark) {
+  /* Body */
+
+  body {
+    background-color: var(--color-gray-10);
+    color: var(--color-gray-90);
+  }
+
+  /* Table of Contents */
+
+  body #toc_toggler, body #toc {
+    background-color: var(--color-gray-15);
+  }
+}

@@ -3,7 +3,7 @@
 :root {
     /* Typography */
 
-    --typography-font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --typography-font-family-base: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
     --typography-font-family-code: 'Lucida Console', Monaco, monospace;
     --typography-font-size-x07500: calc(var(--typography-font-size-x10000) * 0.75);
     --typography-font-size-x08750: calc(var(--typography-font-size-x10000) * 0.875);
@@ -15,7 +15,7 @@
     --typography-font-weight-bold: 700;
     --typography-line-height-reset: 1;
     --typography-line-height-tight: 1.2;
-    --typography-line-height-normal: 1.5;
+    --typography-line-height-normal: 1.6;
 
     /* Colors */
 
@@ -23,6 +23,7 @@
     --color-gray-40: hsl(0, 0%, 40%);
     --color-gray-60: hsl(0, 0%, 60%);
     --color-gray-80: hsl(0, 0%, 80%);
+    --color-gray-90: hsl(0, 0%, 90%);
     --color-gray-97: hsl(0, 0%, 97%);
     --color-gray-100: hsl(0, 0%, 100%);
     --color-azureradiance: hsl(210, 100%, 50%);
