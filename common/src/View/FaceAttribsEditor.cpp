@@ -345,6 +345,7 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   auto* textureNameLabel = new QLabel{"Texture"};
   makeEmphasized(textureNameLabel);
   m_textureName = new QLabel{"none"};
+  m_textureName->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
   auto* textureSizeLabel = new QLabel{"Size"};
   makeEmphasized(textureSizeLabel);

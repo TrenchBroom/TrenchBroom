@@ -33,6 +33,24 @@
 
 namespace TrenchBroom::IO::SystemPaths
 {
+
+bool portableState = false;
+
+bool isPortable()
+{
+  return portableState;
+}
+
+void setPortable()
+{
+  setPortable(true);
+}
+
+void setPortable(bool newState)
+{
+  portableState = newState;
+}
+
 std::filesystem::path appDirectory()
 {
   return IO::pathFromQString(QCoreApplication::applicationDirPath());
@@ -40,6 +58,10 @@ std::filesystem::path appDirectory()
 
 std::filesystem::path userDataDirectory()
 {
+  if (isPortable())
+  {
+    return appDirectory() / "config";
+  }
 #if defined __linux__ || defined __FreeBSD__
   // Compatibility with wxWidgets
   return IO::pathFromQString(QDir::homePath()) / ".TrenchBroom";
