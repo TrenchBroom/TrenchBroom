@@ -20,8 +20,6 @@
 #include "PrimitiveRenderer.h"
 
 #include "Color.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/IndexRangeRenderer.h"
@@ -29,6 +27,9 @@
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
+
+#include <QApplication>
+#include <QScreen>
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
@@ -77,7 +78,9 @@ bool PrimitiveRenderer::LineRenderAttributes::operator<(
 void PrimitiveRenderer::LineRenderAttributes::render(
   IndexRangeRenderer& renderer, ActiveShader& shader) const
 {
-  glAssert(glLineWidth(m_lineWidth * pref(Preferences::LineWidth)));
+  QScreen* screen = QApplication::screens().at(0);
+  const auto ratio = screen->devicePixelRatio();
+  glAssert(glLineWidth(m_lineWidth * static_cast<float>(ratio)));
   switch (m_occlusionPolicy)
   {
   case PrimitiveRendererOcclusionPolicy::Hide:
@@ -373,7 +376,9 @@ void PrimitiveRenderer::renderLines(RenderContext& renderContext)
   {
     attributes.render(renderer, shader);
   }
-  glAssert(glLineWidth(pref(Preferences::LineWidth)));
+  QScreen* screen = QApplication::screens().at(0);
+  const auto ratio = screen->devicePixelRatio();
+  glAssert(glLineWidth(static_cast<float>(ratio)));
 }
 
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)

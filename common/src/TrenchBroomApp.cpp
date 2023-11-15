@@ -49,7 +49,6 @@
 #include "View/MainMenuBuilder.h"
 #endif
 
-#include <QApplication>
 #include <QColor>
 #include <QCommandLineParser>
 #include <QDebug>
@@ -60,7 +59,6 @@
 #include <QMessageBox>
 #include <QPalette>
 #include <QProxyStyle>
-#include <QScreen>
 #include <QStandardPaths>
 #include <QSysInfo>
 #include <QTimer>
@@ -154,7 +152,6 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
 
   loadStyleSheets();
   loadStyle();
-  setupDefaultLineWidth();
 
   // these must be initialized here and not earlier
   m_frameManager = std::make_unique<FrameManager>(useSDI());
@@ -335,13 +332,6 @@ void TrenchBroomApp::loadStyle()
     // System
     setStyle(new TrenchBroomProxyStyle{});
   }
-}
-
-void TrenchBroomApp::setupDefaultLineWidth() {
-  QScreen *screen = QApplication::screens().at(0);
-  qreal ratio = screen->devicePixelRatio();
-  const auto fratio = static_cast<float>(ratio);
-  setPref(Preferences::LineWidth, fratio);
 }
 
 const std::vector<std::filesystem::path>& TrenchBroomApp::recentDocuments() const
