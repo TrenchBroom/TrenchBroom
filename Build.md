@@ -20,10 +20,13 @@ git submodule update --init --recursive
 
 ## Dependencies
 
-TrenchBroom uses [vcpkg](https://vcpkg.io/) to manage build dependencies except for Qt. vcpkg is
-integrated into TrenchBroom's build system and will download and build all dependencies once during
-Cmake's configure phase. This is an automatic process, but it can take a little while when it
-happens for the first time.
+TrenchBroom uses [vcpkg](https://vcpkg.io/) to manage build dependencies except for Qt. vcpkg is integrated into TrenchBroom's build system and will download and build all dependencies once  during cmake's configure phase. This is an automatic process, but it can take a little while when it happens for the first time.
+
+---
+
+## Docker
+
+An external unofficial project called [Dockerized TrenchBroom](https://github.com/jonathanlinat/dockerized-trenchbroom) is available for developers. It facilitates the compilation of TrenchBroom's source code and the creation of binaries using [Docker](https://www.docker.com/).
 
 ---
 
