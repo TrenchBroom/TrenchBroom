@@ -2390,6 +2390,8 @@ Windows   `C:\Users\<username>\AppData\Roaming\TrenchBroom`
 macOS     `~/Library/Application Support/TrenchBroom`
 Linux     `~/.TrenchBroom`
 
+Running TrenchBroom with the `--portable` argument will instead put the `<UserDataPath>` in the current directory. This is intended to be run from within the `<ResourcePath>` directory to provide a fully self-contained instance of the application.  
+
 To add a new game configuration to TrenchBroom, place it into a folder under `<UserDataPath>/games` -- note that you might need to create that folder if it does not exist. You will need to write your own `GameConfig.cfg` file, or you can copy one of the builtin files and base your game configuration on that. Additionally, you can place additional resources in the folder you created. As an example, suppose you want to add a game configuration for a game called "Example". For this, you would create a new folder `<UserDataPath>/games/Example`, and within that folder, you would create a game configuration file called `GameConfig.cfg`. If you need additional resource such as an icon or entity definition files, you would place those files into this newly created folder as well.
 
 You can also access this directory using the folder icon button below the game list in the [game configuration dialog](#game_configuration).

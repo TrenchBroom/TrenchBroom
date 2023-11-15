@@ -215,6 +215,7 @@ TrenchBroomApp::~TrenchBroomApp()
 void TrenchBroomApp::parseCommandLineAndShowFrame()
 {
   auto parser = QCommandLineParser{};
+  parser.addOption(QCommandLineOption("portable"));
   parser.process(*this);
   openFilesOrWelcomeFrame(parser.positionalArguments());
 }

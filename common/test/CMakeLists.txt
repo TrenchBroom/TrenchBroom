@@ -59,6 +59,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ReadQuake3ShaderTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ReadWalTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ResourceUtils.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_SystemPaths.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_TestFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_TextureUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_Tokenizer.cpp"
