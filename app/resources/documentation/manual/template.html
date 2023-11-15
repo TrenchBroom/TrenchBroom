@@ -18,22 +18,7 @@ $for(author-meta)$
 <link rel="stylesheet" href="_responsive.css">
 <script src="shortcuts.js"></script>
 <script src="shortcuts_helper.js"></script>
-<script>(() => {
-  window.addEventListener('DOMContentLoaded', () => {
-    const tocToggledClass = 'toc_toggled';
-
-    document.body.querySelector('div#toc_toggler .toc_toggler_button').addEventListener('click', (event) => {
-      event.preventDefault();
-      document.body.classList.toggle(tocToggledClass);
-    });
-
-    document.body.querySelectorAll('a').forEach((element) => {
-      element.addEventListener('click', (event) => {
-        document.body.classList.remove(tocToggledClass);
-      });
-    });
-  });
-})()</script>
+<script src="toc_toggler.js"></script>
 </head>
 <body>
 $if(toc)$<div id="toc_toggler">
