@@ -19,6 +19,9 @@
 
 #include "PrimitiveRenderer.h"
 
+#include <QApplication>
+#include <QScreen>
+
 #include "Color.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -27,9 +30,6 @@
 #include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
-
-#include <QApplication>
-#include <QScreen>
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>
