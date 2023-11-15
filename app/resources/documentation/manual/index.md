@@ -1058,7 +1058,7 @@ Entities can be linked using special link properties. Each link has a source and
 
 ### Entity Link Visualization
 
-Entity Links are rendered as lines in the 3D and 2D viewports. TrenchBroom provides you with for modes for entity link visualization. You can switch between these modes in the dropdown menu that is displayed when you click on the "View" button at the right of the info bar. The following table explains the four different modes.
+Entity Links are rendered as lines in the 3D and 2D viewports. TrenchBroom provides you with four modes for entity link visualization. You can switch between these modes in the dropdown menu that is displayed when you click on the "View" button at the right of the info bar. The following table explains the four different modes.
 
 Mode                   Description
 ----                   -----------
