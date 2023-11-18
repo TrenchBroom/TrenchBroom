@@ -120,37 +120,25 @@ QWidget* ViewPreferencePane::createViewPreferences()
   themeLayout->addWidget(themeInfo);
   themeLayout->setContentsMargins(0, 0, 0, 0);
 
-  m_layoutCombo = new QComboBox{};
-  m_layoutCombo->setToolTip("Sets the layout of the editing views.");
-  m_layoutCombo->addItem(
-    "One Pane", QVariant::fromValue(static_cast<int>(MapViewLayout::OnePane)));
-  m_layoutCombo->addItem(
-    "Two Panes (vertical)",
-    QVariant::fromValue(static_cast<int>(MapViewLayout::TwoPanesVertical)));
-  m_layoutCombo->addItem(
-    "Two Panes (horizontal)",
-    QVariant::fromValue(static_cast<int>(MapViewLayout::TwoPanesHorizontal)));
-  m_layoutCombo->addItem(
-    "Three Panes (vertical)",
-    QVariant::fromValue(static_cast<int>(MapViewLayout::ThreePanesVertical)));
-  m_layoutCombo->addItem(
-    "Three Panes (horizontal)",
-    QVariant::fromValue(static_cast<int>(MapViewLayout::ThreePanesHorizontal)));
-  m_layoutCombo->addItem(
-    "Four Panes (grid)",
-    QVariant::fromValue(static_cast<int>(MapViewLayout::FourPanesGrid)));
-  m_layoutCombo->addItem(
-    "Four Panes (vertical)",
-    QVariant::fromValue(static_cast<int>(MapViewLayout::FourPanesVertical)));
-  m_layoutCombo->addItem(
-    "Four Panes (horizontal)",
-    QVariant::fromValue(static_cast<int>(MapViewLayout::FourPanesHorizontal)));
+  m_viewCountCombo = new QComboBox{};
+  m_viewCountCombo->setToolTip("Sets the number of displayed editing views.");
+  m_viewCountCombo->addItem("One Pane");
+  m_viewCountCombo->addItem("Two Panes");
+  m_viewCountCombo->addItem("Three Panes");
+  m_viewCountCombo->addItem("Four Panes");
+
+  m_viewArrangementCombo = new QComboBox{};
+  m_viewCountCombo->setToolTip("Sets the arrangement of the editing views.");
 
   m_link2dCameras = new QCheckBox{"Sync 2D views"};
   m_link2dCameras->setToolTip("All 2D views pan and zoom together.");
 
   auto* viewLayoutLayout = new QHBoxLayout{};
-  viewLayoutLayout->addWidget(m_layoutCombo);
+  viewLayoutLayout->addWidget(m_viewCountCombo);
+
+  viewLayoutLayout->addSpacing(LayoutConstants::NarrowHMargin);
+  viewLayoutLayout->addWidget(m_viewArrangementCombo);
+  viewLayoutLayout->setContentsMargins(0, 0, 0, 0);
   viewLayoutLayout->addSpacing(LayoutConstants::NarrowHMargin);
   viewLayoutLayout->addWidget(m_link2dCameras);
   viewLayoutLayout->setContentsMargins(0, 0, 0, 0);
@@ -233,7 +221,12 @@ QWidget* ViewPreferencePane::createViewPreferences()
 void ViewPreferencePane::bindEvents()
 {
   connect(
-    m_layoutCombo,
+    m_viewCountCombo,
+    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    this,
+    &ViewPreferencePane::layoutChanged);
+  connect(
+    m_viewArrangementCombo,
     QOverload<int>::of(&QComboBox::currentIndexChanged),
     this,
     &ViewPreferencePane::layoutChanged);
@@ -302,10 +295,68 @@ void ViewPreferencePane::doResetToDefaults()
   prefs.resetToDefault(Preferences::RendererFontSize);
 }
 
+void ViewPreferencePane::updateViewCombos()
+{
+  m_viewCountCombo->blockSignals(true);
+  m_viewArrangementCombo->blockSignals(true);
+
+  const auto viewLayout = static_cast<MapViewLayout>(pref(Preferences::MapViewLayout));
+  m_viewArrangementCombo->clear();
+  m_viewArrangementCombo->show();
+
+  if (viewLayout == MapViewLayout::OnePane)
+  {
+    m_viewCountCombo->setCurrentIndex(0);
+    m_viewArrangementCombo->hide();
+  }
+  else if (
+    viewLayout == MapViewLayout::TwoPanesVertical
+    || viewLayout == MapViewLayout::TwoPanesHorizontal)
+  {
+    m_viewCountCombo->setCurrentIndex(1);
+    m_viewArrangementCombo->addItem("vertical");
+    m_viewArrangementCombo->addItem("horizontal");
+    m_viewArrangementCombo->setCurrentIndex(
+      viewLayout == MapViewLayout::TwoPanesVertical ? 0 : 1);
+  }
+  else if (
+    viewLayout == MapViewLayout::ThreePanesVertical
+    || viewLayout == MapViewLayout::ThreePanesHorizontal)
+  {
+    m_viewCountCombo->setCurrentIndex(2);
+    m_viewArrangementCombo->addItem("vertical");
+    m_viewArrangementCombo->addItem("horizontal");
+    m_viewArrangementCombo->setCurrentIndex(
+      viewLayout == MapViewLayout::ThreePanesVertical ? 0 : 1);
+  }
+  else
+  {
+    m_viewCountCombo->setCurrentIndex(3);
+    m_viewArrangementCombo->addItem("vertical");
+    m_viewArrangementCombo->addItem("horizontal");
+    m_viewArrangementCombo->addItem("grid");
+    if (viewLayout == MapViewLayout::FourPanesVertical)
+    {
+      m_viewArrangementCombo->setCurrentIndex(0);
+    }
+    else if (viewLayout == MapViewLayout::FourPanesHorizontal)
+    {
+      m_viewArrangementCombo->setCurrentIndex(1);
+    }
+    else if (viewLayout == MapViewLayout::FourPanesGrid)
+    {
+      m_viewArrangementCombo->setCurrentIndex(2);
+    }
+  }
+
+  m_viewCountCombo->blockSignals(false);
+  m_viewArrangementCombo->blockSignals(false);
+}
+
 void ViewPreferencePane::doUpdateControls()
 {
-  m_layoutCombo->setCurrentIndex(
-    m_layoutCombo->findData(QVariant::fromValue(pref(Preferences::MapViewLayout))));
+  updateViewCombos();
+
   m_link2dCameras->setChecked(pref(Preferences::Link2DCameras));
   m_brightnessSlider->setValue(brightnessToUI(pref(Preferences::Brightness)));
   m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
@@ -384,10 +435,54 @@ int ViewPreferencePane::findThemeIndex(const QString& theme)
 
 void ViewPreferencePane::layoutChanged([[maybe_unused]] const int index)
 {
-  const auto value = m_layoutCombo->currentData().value<int>();
-  assert(value >= 0 && value < 8);
+  const auto countIndex = m_viewCountCombo->currentIndex();
+  const auto arrangementIndex = m_viewArrangementCombo->currentIndex();
+
   auto& prefs = PreferenceManager::instance();
-  prefs.set(Preferences::MapViewLayout, value);
+  if (countIndex == 0)
+  {
+    prefs.set(Preferences::MapViewLayout, static_cast<int>(MapViewLayout::OnePane));
+  }
+  else if (countIndex == 1 && arrangementIndex <= 0)
+  {
+    prefs.set(
+      Preferences::MapViewLayout, static_cast<int>(MapViewLayout::TwoPanesVertical));
+  }
+  else if (countIndex == 1 && arrangementIndex == 1)
+  {
+    prefs.set(
+      Preferences::MapViewLayout, static_cast<int>(MapViewLayout::TwoPanesHorizontal));
+  }
+  else if (countIndex == 2 && (arrangementIndex <= 0 || arrangementIndex > 1))
+  {
+    prefs.set(
+      Preferences::MapViewLayout, static_cast<int>(MapViewLayout::ThreePanesVertical));
+  }
+  else if (countIndex == 2 && arrangementIndex == 1)
+  {
+    prefs.set(
+      Preferences::MapViewLayout, static_cast<int>(MapViewLayout::ThreePanesHorizontal));
+  }
+  else if (countIndex == 3 && (arrangementIndex <= 0 || arrangementIndex > 2))
+  {
+    prefs.set(
+      Preferences::MapViewLayout, static_cast<int>(MapViewLayout::FourPanesVertical));
+  }
+  else if (countIndex == 3 && arrangementIndex == 1)
+  {
+    prefs.set(
+      Preferences::MapViewLayout, static_cast<int>(MapViewLayout::FourPanesHorizontal));
+  }
+  else if (countIndex == 3 && arrangementIndex == 2)
+  {
+    prefs.set(Preferences::MapViewLayout, static_cast<int>(MapViewLayout::FourPanesGrid));
+  }
+  else
+  {
+    assert(false);
+  }
+
+  updateViewCombos();
 }
 
 void ViewPreferencePane::link2dCamerasChanged(const int state)

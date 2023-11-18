@@ -32,7 +32,8 @@ class ViewPreferencePane : public PreferencePane
 {
   Q_OBJECT
 private:
-  QComboBox* m_layoutCombo = nullptr;
+  QComboBox* m_viewCountCombo = nullptr;
+  QComboBox* m_viewArrangementCombo = nullptr;
   QCheckBox* m_link2dCameras = nullptr;
   SliderWithLabel* m_brightnessSlider = nullptr;
   SliderWithLabel* m_gridAlphaSlider = nullptr;
@@ -58,6 +59,7 @@ private:
   void doUpdateControls() override;
   bool doValidate() override;
 
+  void updateViewCombos();
   size_t findTextureMode(int minFilter, int magFilter) const;
   int findThemeIndex(const QString& theme);
 private slots:
