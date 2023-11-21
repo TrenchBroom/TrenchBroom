@@ -1,4 +1,4 @@
-/* ##### Dark Mode ########## */
+/* ##### Default: Dark Mode ########## */
 
 @media (prefers-color-scheme: dark) {
   /* Body */
@@ -11,12 +11,13 @@
   /* Content Version */
 
   body #content_version #content_version_details div #content_version_heading {
-      color: var(--color-gray-60);
+    color: var(--color-gray-60);
   }
 
   /* Table of Contents */
 
   body #toc_toggler, body #toc {
     background-color: var(--color-gray-15);
+    box-shadow: 16px 0 24px -12px var(--color-gray-5);
   }
 }

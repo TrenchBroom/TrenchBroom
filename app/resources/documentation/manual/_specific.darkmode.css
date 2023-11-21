@@ -1,54 +1,54 @@
-/* ##### Specific ########## */
+/* ##### Specific: Dark Mode ########## */
 
 @media (prefers-color-scheme: dark) {
-    /* Code */
+  /* Code */
 
-    pre {
-        background-color: var(--color-gray-15);
-    }
+  pre {
+    background-color: var(--color-gray-15);
+  }
 
-    /* Link */
+  /* Link */
 
-    a:link, a:visited {
-        color: var(--color-maximumyellowred);
-    }
+  a:link, a:visited {
+    color: var(--color-maximumyellowred);
+  }
 
-    /* Figure */
+  /* Figure */
 
-    figure {
-        background-color: var(--color-gray-15);
-    }
+  figure {
+    background-color: var(--color-gray-15);
+  }
 
-    figure figcaption {
-        color: var(--color-gray-90);
-    }
+  figure figcaption {
+    color: var(--color-gray-90);
+  }
 
-    /* Image */
+  /* Image */
 
-    figure img {
-        background-color: var(--color-gray-15);
-    }
+  figure img {
+    background-color: var(--color-gray-15);
+  }
 
-    /* Table */
+  /* Table */
 
-    table tbody tr.odd {
-        background-color: var(--color-gray-15);
-    }
+  table tbody tr.odd {
+    background-color: var(--color-gray-15);
+  }
 
-    /* Shortcut */
+  /* Shortcut */
 
-    .shortcut {
-        background-color: var(--color-gray-15);
-    }
+  .shortcut {
+    background-color: var(--color-gray-15);
+  }
 
-    /* Back to Top & Table of Contents anchors */
+  /* Back to Top & Table of Contents anchors */
 
-    a[href="#"], .toc_toggler_button {
-        background-color: var(--color-gray-15);
-        color: var(--color-gray-90);
-    }
+  a[href="#"], .toc_toggler_button {
+    background-color: var(--color-gray-15);
+    color: var(--color-gray-90);
+  }
 
-    a[href="#"]:hover, a[href="#"]:focus, .toc_toggler_button:hover, .toc_toggler_button:focus {
-        background-color: var(--color-gray-20);
-    }
+  a[href="#"]:hover, a[href="#"]:focus, .toc_toggler_button:hover, .toc_toggler_button:focus {
+    background-color: var(--color-gray-20);
+  }
 }

@@ -1,16 +1,16 @@
-/* ##### Variables ########## */
+/* ##### Variables: Dark Mode ########## */
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        /* Colors */
+  :root {
+    /* Colors */
 
-        --color-gray-10: hsl(0, 0%, 10%);
-        --color-gray-15: hsl(0, 0%, 15%);
-        --color-gray-90: hsl(0, 0%, 90%);
-        --color-maximumyellowred: hsl(40, 90%, 60%);
+    --color-gray-10: hsl(0, 0%, 10%);
+    --color-gray-15: hsl(0, 0%, 15%);
+    --color-gray-90: hsl(0, 0%, 90%);
+    --color-maximumyellowred: hsl(40, 90%, 60%);
 
-        /* Borders */
-    
-        --border: var(--sizing-x00625) solid var(--color-gray-40);
-    }
+    /* Borders */
+
+    --border: var(--sizing-x00625) solid var(--color-gray-40);
+  }
 }
