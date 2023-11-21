@@ -41,6 +41,7 @@
 #include <kdl/memory_utils.h>
 #include <kdl/skip_iterator.h>
 #include <kdl/string_compare.h>
+#include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
 #include <vecmath/mat.h>
@@ -277,7 +278,11 @@ struct TextureBrowserView::MatchName
 
   bool operator()(const Assets::Texture* texture) const
   {
-    return !kdl::ci::str_contains(texture->name(), pattern);
+    const auto components = kdl::str_split(pattern, " ");
+    auto result = kdl::vec_filter(components, [&](const auto& substring) {
+      return (!kdl::ci::str_contains(texture->name(), substring));
+    });
+    return !result.empty();
   }
 };
 
