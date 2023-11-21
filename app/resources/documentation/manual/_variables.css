@@ -8,6 +8,7 @@
   --typography-font-size-x07500: calc(var(--typography-font-size-x10000) * 0.75);
   --typography-font-size-x08750: calc(var(--typography-font-size-x10000) * 0.875);
   --typography-font-size-x10000: 16px;
+  --typography-font-size-x11250: calc(var(--typography-font-size-x10000) * 1.125);
   --typography-font-size-x12500: calc(var(--typography-font-size-x10000) * 1.25);
   --typography-font-size-x15000: calc(var(--typography-font-size-x10000) * 1.5);
   --typography-font-size-x20000: calc(var(--typography-font-size-x10000) * 2);

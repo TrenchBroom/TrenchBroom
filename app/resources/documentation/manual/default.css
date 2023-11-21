@@ -68,6 +68,7 @@ body #toc #toc_inner > ul {
 }
 
 body #toc #toc_inner > ul > li > a {
+  font-size: var(--typography-font-size-x11250);
   font-weight: var(--typography-font-weight-bold);
 }
 
@@ -119,7 +120,7 @@ body #content_version #content_version_details div {
 }
 
 body #content_version #content_version_details div #content_version_heading {
-  font-size: var(--typography-font-size-x10000);
+  font-size: var(--typography-font-size-x11250);
   font-weight: var(--typography-font-weight-bold);
   color: var(--color-gray-40);
 }

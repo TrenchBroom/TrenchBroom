@@ -11,7 +11,7 @@
   /* Content Version */
 
   body #content_version #content_version_details div #content_version_heading {
-    color: var(--color-gray-60);
+    color: var(--color-gray-80);
   }
 
   /* Table of Contents */
