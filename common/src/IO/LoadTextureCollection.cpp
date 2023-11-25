@@ -48,6 +48,8 @@
 #include <kdl/string_format.h>
 #include <kdl/vector_utils.h>
 
+#include <FreeImage.h>
+
 #include <ostream>
 #include <string>
 #include <vector>
@@ -88,8 +90,33 @@ Result<Assets::Texture, ReadTextureError> readTexture(
   const size_t prefixLength,
   const std::optional<Assets::Palette>& palette)
 {
-  static const auto imageFileExtensions =
-    std::vector<std::string>{".jpg", ".jpeg", ".png", ".tga", ".bmp"};
+  static std::vector<std::string> imageFileExtensions;
+  if (imageFileExtensions.empty())
+  {
+    const int count = FreeImage_GetFIFCount();
+    assert(count >= 0);
+    imageFileExtensions.reserve(static_cast<size_t>(count));
+    for (int i = 0; i < count; ++i)
+    {
+      auto fif = static_cast<FREE_IMAGE_FORMAT>(i);
+      if (FreeImage_IsPluginEnabled(fif))
+      {
+        char const* extensionList = FreeImage_GetFIFExtensionList(fif);
+        size_t extensionListLen = strlen(extensionList) + 1;
+        size_t start = 0;
+        for (size_t ch = 0; ch < extensionListLen; ++ch)
+        {
+          if (extensionList[ch] == ',' || extensionList[ch] == '\0')
+          {
+            std::string ext = "." + std::string(extensionList + start, extensionList + ch);
+            imageFileExtensions.emplace_back(ext);
+            start = ch + 1;
+            imageFileExtensions.emplace_back(ext);
+          }
+        }
+      }
+    }
+  }
 
   const auto extension = kdl::str_to_lower(path.extension().string());
   if (extension == ".d")
