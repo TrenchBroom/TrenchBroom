@@ -59,10 +59,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 EntityBrowserView::EntityBrowserView(
   QScrollBar* scrollBar,
   GLContextManager& contextManager,
@@ -73,8 +72,6 @@ EntityBrowserView::EntityBrowserView(
   , m_entityDefinitionManager{entityDefinitionManager}
   , m_entityModelManager{entityModelManager}
   , m_logger{logger}
-  , m_group{false}
-  , m_hideUnused{false}
   , m_sortOrder{Assets::EntityDefinitionSortOrder::Name}
 {
   const auto hRotation = vm::quatf{vm::vec3f::pos_z(), vm::to_radians(-30.0f)};
@@ -561,5 +558,5 @@ const EntityCellData& EntityBrowserView::cellData(const Cell& cell) const
 {
   return cell.itemAs<EntityCellData>();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
