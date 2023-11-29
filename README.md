@@ -73,6 +73,7 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Quake icons by [Th3 ProphetMan](https://www.deviantart.com/th3-prophetman)
 - Hexen 2 icon by [thedoctor45](https://www.deviantart.com/thedoctor45)
 - [Source Sans Pro](https://fonts.google.com/specimen/Source+Sans+Pro) font
+- [Twemoji](https://github.com/twitter/twemoji) some editor icons (modified)
 
 ## Changes
 See [releases](https://github.com/TrenchBroom/TrenchBroom/releases) for latest changes.
