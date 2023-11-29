@@ -66,7 +66,7 @@
 
 @SolidClass base(Phong, Target, Targetname) color(0 255 255) = func_button : "When a button is touched by a player, it moves in the direction set by the 'angle' key, triggers all its targets, stays pressed by the amount of time set by the 'wait' key, then returns to its original position where it can be operated again."
 [
-	angle(angle) : "Determines the direction in which the button will move (up = -1, down = -2)"
+	angle(integer) : "Determines the direction in which the button will move (up = -1, down = -2)"
 	target(target_destination) : "All entities with a matching target name will be triggered"
 	speed(integer) : "Speed of the button's displacement" : 40
 	wait(integer) : "Number of seconds the button stays pressed (-1 = indefinitely)" : 1
@@ -93,7 +93,7 @@
 		2 : "The door will wait in both the start and end states for a trigger event" : 0
 	]
 	message(string) : "An optional string printed when the door is first touched"
-	angle(angle) : "Determines the opening direction of the door (up = -1, down = -2)"
+	angle(integer) : "Determines the opening direction of the door (up = -1, down = -2)"
 	health(integer) : "If set, door must take damage to open"
 	speed(integer) : "The speed with which the door opens" : 100
 	wait(integer) : "Wait before returning (-1 = never return)" : 3
@@ -129,7 +129,7 @@
 		2 : "The door will first slide to the left" : 0
 		4 : "The door will first slide down" : 0
 	]
-	angle(angle) : "The angle at which the door opens"
+	angle(integer) : "The angle at which the door opens"
 	message(string) : "An optional string printed when the door is first touched"
 	health(integer) : "If set, door must take damage to open"
 	speed(integer) : "The speed with which the door opens" : 100
@@ -207,7 +207,7 @@
 	[
 		1 : "The water will move to its destination when spawned and operate in reverse" : 0
 	]
-	angle(angle) : "Determines the opening direction (up = -1, down = -2)"
+	angle(integer) : "Determines the opening direction (up = -1, down = -2)"
 	speed(integer) : "The speed at which the water moves" : 25
 	wait(integer) : "Delay in seconds before returning to the initial position" : -1
 	lip(integer) : "Lip remaining at end of move" : 0
@@ -217,7 +217,7 @@
 @PointClass base(Targetname) color(0 180 180) size(-4 -4 -4, 4 4 4) = info_notnull : "A positional target for other entities. Unlike info_null, these are available in the game and can be targeted by other entities (e.g. info_player_intermission)."[]
 
 @BaseClass size(-16 -16 -24, 16 16 32) = Spawn [
-	angle(angle) : "The angle at which the player will face when spawned"
+	angle(integer) : "The angle at which the player will face when spawned"
 ]
 @PointClass base(Spawn) color(255 255 255) = info_player_start : "Single player spawn point." []
 @PointClass base(Spawn) color(255 0 255) = info_player_deathmatch : "Deathmatch spawn point." []
@@ -227,22 +227,22 @@
 @PointClass base(Spawn) color(0 255 0) = info_player_team4 : "Player spawn point for green team in teams or CTF gameplay." []
 @PointClass base(Spawn, Target) color(0 255 255) = info_player_intermission : "Camera for intermission screen between matches."
 [
-	angles(angle) : "The pitch yaw roll angles for the camera (e.g. 20 270 0)."
+	angles(string) : "The pitch yaw roll angles for the camera (e.g. 20 270 0)."
 ]
 
 @PointClass base(Target) color(255 255 255) size(-6 -6 -6, 6 6 6) = light : "Point light source."
 [
 	light(integer) : "Light radius" : 300
-	_color(color1) : "Light color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
+	_color(string) : "Light color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
 	_intensity(float) : "Light intensity as a positive scalar value" : "1"
 	_size(integer) : "Light size, to simulate area lights and cast penumbrae" : 16
 ]
 
 @PointClass base(Target) color(200 255 255) size(-6 -6 -6, 6 6 6) = light_spot : "Point light source with attenuation cone."
 [
-	angle(angle) : "Spotlight direction (up = -1, down = -2, yaw = positive value)"
+	angle(integer) : "Spotlight direction (up = -1, down = -2, yaw = positive value)"
 	light(integer) : "Spotlight radius" : 300
-	_color(color1) : "Spotlight color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
+	_color(string) : "Spotlight color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
 	_cone(integer) : "Spotlight attenuation cone width, in degrees" : 22
 	_intensity(float) : "Spotlight intensity as a positive scalar value" : "1"
 	_size(integer) : "Spotlight size, to simulate area lights and cast penumbrae" : 16
@@ -250,7 +250,7 @@
 
 @PointClass base(Target) color(255 255 0) size(-16 -16 -16, 16 16 16) = light_sun : "Directional sun light source."
 [
-	_color(color1) : "Sun color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
+	_color(string) : "Sun color as 3 decimal values from 0.0 - 1.0" : "1 1 1"
 	_intensity(float) : "Sun intensity as a positive scalar value" : "1"
 	_size(integer) : "Sun size, to simulate area lights and cast penumbrae" : 256
 ]
@@ -259,7 +259,7 @@
 [
 	acceleration(string) : "The sprite acceleration" : "0 0 0"
 	_color(string) : "The sprite HSVA color as 4 decimal values" : "0 0 1 1"
-	dir(vector) : "The sprite directional axis (0 0 0 is billboard)" : "0 0 0"
+	dir(string) : "The sprite directional axis (0 0 0 is billboard)" : "0 0 0"
 	density(float) : "The sprite density" : "1"
 	_end_color(string) : "The sprite HSVA end color as 4 decimal values" : "0 0 0 0"
 	height(float) : "The sprite height. Setting this will cause size to be ignored" : "0"
@@ -272,7 +272,7 @@
 	size_acceleration(float) : "The sprite size acceleration" : "0"
 	softness(float) : "The sprite softness scalar" : "1"
 	sprite(string) : "The sprite image name" : "particle1"
-	velocity(vector) : "The sprite velocity" : "0 0 0"
+	velocity(string) : "The sprite velocity" : "0 0 0"
 	width(float): "The sprite width. Setting this will cause size to be ignored" : "0"
 ]
 
@@ -291,7 +291,7 @@
  	drift(float) : "The factor of randomized drift applied to the emission rate"
 	hz(float) : "The emission rate, in events-per-second" : "10"
 	radius(float) : "The flame radius" : "16"
-	sound(sound) : "The looping sound to play, or 'none' to disable" : "world/fire"
+	sound(string) : "The looping sound to play, or 'none' to disable" : "world/fire"
 ]
 
 @SolidClass color(230 230 230) = misc_fog : "Fog volumes. When compiled, fog brushes are merged into the world. Fog volumes are processed during the lighting compile phase. These are typically contents atmospheric, but can be contents water, etc. Omit _color to use the material color."
@@ -306,14 +306,14 @@
 	persistence(float) : "The simplex noise persistence - multiplier per-octave of amplitude" : "0.5"
 	octaves(float) : "The number of octaves to sample" : "5"
 	seed(float) : "The simplex noise permutation vector seed" : "0"
-	offset(vector) : "An offset added to the noise calculation" : "0 0 0"
+	offset(string) : "An offset added to the noise calculation" : "0 0 0"
 ]
 
 @PointClass color(80 180 80) size(-16 -16 -16, 16 16 16) = misc_model : "Client-side emission of static models (non-interactive map objects). These are useful for placing trees, torches, and other non-brush scenery."
 [
-	angles(angle) : "The angles of orientation for the model"
+	angles(string) : "The angles of orientation for the model"
 	scale(float) : "The scale for a static model"
-	model(studio) : "The static model name, e.g. trees/mytree"
+	model(string) : "The static model name, e.g. trees/mytree"
 ]
 
 @PointClass color(40 120 40) size(-8 -8 -8, 8 8 8) = misc_sound : "Client-side emission of ambient sounds."
@@ -327,12 +327,12 @@
 	]
 	drift(float) : "The factor of randomized drift applied to the emission rate"
 	hz(float) : "The emission rate, in events-per-second" : "0"
-	sound(sound) : "The sound name, e.g. edge/wind"
+	sound(string) : "The sound name, e.g. edge/wind"
 ]
 
 @PointClass base(Target) color(220 200 20) size(-4 -4 -4, 4 4 4) = misc_sparks : "Client-side emission of spark effects."
 [
-	angle(angle) : "Sparks direction (up = -1, down = -2, yaw = positive value)"
+	angle(integer) : "Sparks direction (up = -1, down = -2, yaw = positive value)"
 	drift(float) : "The factor of randomized drift applied to the emission rate"
 	hz(float) : "The emission rate, in events-per-second" : "0"
 	target(target_source) : "The name of the entity to target to resolve the sparks direction."
@@ -343,7 +343,7 @@
 	acceleration(string) : "The sprite acceleration" : "0 0 0"
 	_color(string) : "The sprite HSVA color as 4 decimal values" : "0 0 1 1"
 	count(integer) : "The count of sprites to emit per emission" : 1
-	dir(vector) : "The sprite directional axis (0 0 0 is billboard)" : "0 0 0"
+	dir(string) : "The sprite directional axis (0 0 0 is billboard)" : "0 0 0"
 	density(float) : "The sprite density" : "1"
 	drift(float) : "The factor of randomized drift applied to the emission rate"
 	_end_color(string) : "The sprite HSVA end color as 4 decimal values" : "0 0 0 0"
@@ -358,7 +358,7 @@
 	softness(float) : "The sprite softness scalar" : "1"
 	sprite(string) : "The sprite image name" : "particle1"
 	team(string) : "The team name, for emitting randomized sprites that mix properties"
-	velocity(vector) : "The sprite velocity" : "0 0 0"
+	velocity(string) : "The sprite velocity" : "0 0 0"
 	width(float): "The sprite width. Setting this will cause size to be ignored" : "0"
 ]
 
@@ -370,9 +370,9 @@
 	hz(float) : "The emission rate, in events-per-second" : "10"
 	radius(float) : "The flame radius" : "16"
 	size(float) : "The initial sprite size" : "32"
-	sound(sound): "The looping sound to play, or 'none' to disable" : "world/steam"
+	sound(string): "The looping sound to play, or 'none' to disable" : "world/steam"
 	target(target_source) : "The name of the entity to target to resolve the steam direction and velocity"
-	velocity(vector) : "The steam velocity (if not specified via target)" : "0 0 32"
+	velocity(string) : "The steam velocity (if not specified via target)" : "0 0 32"
 ]
 
 @PointClass base(Target) color(0 255 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter : "Warps players who touch this entity to the targeted misc_teleporter_dest entity."
@@ -385,7 +385,7 @@
 
 @PointClass base(Targetname) color(255 0 0) size(-32 -32 -24, 32 32 -16) = misc_teleporter_dest : "Teleport destination for misc_teleporters."
 [
-	angle(angle) : "Direction in which player will look when teleported"
+	angle(integer) : "Direction in which player will look when teleported"
 ]
 
 @PointClass base(Target, Targetname) color(128 76 0) size(-8 -8 -8, 8 8 8) = path_corner : "Path corner for func_trains."
@@ -393,6 +393,7 @@
 	spawnflags(Flags) =
 	[
 		1 : "The path corner teleports the train as soon as it is selected" : 0
+		2 : "Suppress the default teleport effects"
 	]
 	target(string) : "The next corner in the path"
 	pathtarget(string) : "An entity to be used by this path corner when targeted"
@@ -404,7 +405,7 @@
 	[
 		1 : "The light will start on" : 0
 	]
-	_color(color1) : "The light color" : "1 1 1"
+	_color(string) : "The light color" : "1 1 1"
 	light(float) : "The light radius in units" : "300"
 	delay(float) : "The delay before activating, in seconds" : "0"
 	team(string) : "The team name for alternating lights"
@@ -425,7 +426,7 @@
 		2 : "Exponential"
 		3 : "Cubic"
 	]
-	sound(sound) : "The sound name, e.g. voices/haunting"
+	sound(string) : "The sound name, e.g. voices/haunting"
 ]
 
 @PointClass base(Targetname) color(128 128 160) size(-8 -8 -8, 8 8 8) = target_string : "Displays a center-printed message to the player when used."
@@ -489,8 +490,8 @@
 		1 : "The pusher is freed after it is used once" : 0
 		2 : "The pusher emits sprite effects to indicate its location" : 0
 	]
-	angles(angle) : "The direction to push the player in" : "0 0 0"
-	sound(sound) : "The sound effect to play when the player is pushed" : "world/jumppad"
+	angles(string) : "The direction to push the player in" : "0 0 0"
+	sound(string) : "The sound effect to play when the player is pushed" : "world/jumppad"
 	speed(integer) : "The speed with which to push the player" : 100
 ]
 
@@ -500,25 +501,24 @@
 [
 	message(string) : "The map title"
 	sky(string) : "The sky environment map" : "unit1_"
-	ambient(color1) : "The ambient light level" : "0 0 0"
+	ambient(string) : "The ambient light level" : "0 0 0"
 	brightness(float) : "Global light scale, a single positive scalar value" : "1"
 	saturation(float) : "Global light saturation, a single positive scalar value" : "1"
 	contrast(float) : "Global light contrast, a single positive scalar value" : "1"
 	ambient_intensity(float) : "Global ambient light intensity as a positive scalar value" : "1"
 	sun_intensity(float) : "Global sun light intensity as a positive scalar value" : "1"
-	light_intensity(float) : "Global point light intensity as a positive scalar value" : "1"
+	point_intensity(float) : "Global point light intensity as a positive scalar value" : "1"
+	spot_intensity(float) : "Global spot light intensity as a positive scalar value" : "1"
+	face_intensity(float) : "Global face light intensity as a positive scalar value" : "1"
 	patch_intensity(float) : "Global patch light intensity as a positive scalar value" : "1"
-	indirect_intensity(float) : "Global indirect light intensity as a positive scalar value, a single positive scalar value" : "1"
-	luxel_size(integer) : "Lightmap pixel size in world units" : 4
-	patch_size(integer) : "Surface light patch size in world units" : 64
-	caustics(float) : "Global caustics effects scale, a single positive scalar value" : "1"
+	caustic_intensity(float) : "Global caustic light intensity as positive scalar value" : "1"
 	weather(choices) : "Weather effects" : "none" =
 	[
 		"none" : "None"
 		"rain" : "Rain"
 		"snow" : "Snow"
 	]
-	fog_color(color1) : "Global fog color, as 3 decimal values from 0.0 - 1.0" : "0 0 0"
+	fog_color(string) : "Global fog color, as 3 decimal values from 0.0 - 1.0" : "0 0 0"
 	fog_density(float) : "Global fog density, a single positive scalar value" : "0"
 	fog_depth_range(string) : "Global fog depth range, in world units" : "128 2048"
 	gravity(integer) : "Gravity" : 800
