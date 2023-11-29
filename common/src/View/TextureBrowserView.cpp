@@ -38,6 +38,7 @@
 #include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
 
+#include "kdl/string_utils.h"
 #include <kdl/memory_utils.h>
 #include <kdl/skip_iterator.h>
 #include <kdl/string_compare.h>
@@ -261,7 +262,9 @@ std::vector<const Assets::Texture*> TextureBrowserView::filterTextures(
   if (!m_filterText.empty())
   {
     textures = kdl::vec_erase_if(std::move(textures), [&](const auto* texture) {
-      return !kdl::ci::str_contains(texture->name(), m_filterText);
+      return !kdl::all_of(kdl::str_split(m_filterText, " "), [&](const auto& pattern) {
+        return kdl::ci::str_contains(texture->name(), pattern);
+      });
     });
   }
   return textures;

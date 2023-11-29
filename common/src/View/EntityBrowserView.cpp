@@ -44,6 +44,7 @@
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
 
+#include "kdl/string_utils.h"
 #include <kdl/overload.h>
 #include <kdl/skip_iterator.h>
 #include <kdl/string_compare.h>
@@ -198,6 +199,18 @@ void EntityBrowserView::addEntitiesToLayout(
   }
 }
 
+namespace
+{
+bool matchesFilterText(
+  const Assets::PointEntityDefinition& definition, const std::string& filterText)
+{
+  return filterText.empty()
+         || kdl::all_of(kdl::str_split(filterText, " "), [&](const auto& pattern) {
+              return kdl::ci::str_contains(definition.name(), pattern);
+            });
+}
+} // namespace
+
 void EntityBrowserView::addEntityToLayout(
   Layout& layout,
   const Assets::PointEntityDefinition* definition,
@@ -205,7 +218,7 @@ void EntityBrowserView::addEntityToLayout(
 {
   if (
     (!m_hideUnused || definition->usageCount() > 0)
-    && (m_filterText.empty() || kdl::ci::str_contains(definition->name(), m_filterText)))
+    && matchesFilterText(*definition, m_filterText))
   {
 
     const auto maxCellWidth = layout.maxCellWidth();
