@@ -19,9 +19,6 @@
 
 #include "PrimitiveRenderer.h"
 
-#include <QApplication>
-#include <QScreen>
-
 #include "Color.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -76,11 +73,9 @@ bool PrimitiveRenderer::LineRenderAttributes::operator<(
 }
 
 void PrimitiveRenderer::LineRenderAttributes::render(
-  IndexRangeRenderer& renderer, ActiveShader& shader) const
+  IndexRangeRenderer& renderer, ActiveShader& shader, float dpiScale) const
 {
-  QScreen* screen = QApplication::screens().at(0);
-  const auto ratio = screen->devicePixelRatio();
-  glAssert(glLineWidth(m_lineWidth * static_cast<float>(ratio)));
+  glAssert(glLineWidth(m_lineWidth * dpiScale));
   switch (m_occlusionPolicy)
   {
   case PrimitiveRendererOcclusionPolicy::Hide:
@@ -372,13 +367,12 @@ void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 {
   ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
 
+  const auto scaledLineWidth = static_cast<float>(renderContext.dpiScale());
   for (auto& [attributes, renderer] : m_lineMeshRenderers)
   {
-    attributes.render(renderer, shader);
+    attributes.render(renderer, shader, scaledLineWidth);
   }
-  QScreen* screen = QApplication::screens().at(0);
-  const auto ratio = screen->devicePixelRatio();
-  glAssert(glLineWidth(static_cast<float>(ratio)));
+  glAssert(glLineWidth(scaledLineWidth));
 }
 
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)

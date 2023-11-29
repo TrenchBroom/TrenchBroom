@@ -48,6 +48,7 @@ RenderContext::RenderContext(
   , m_showFog(false)
   , m_showGrid(true)
   , m_gridSize(4)
+  , m_dpiScale(1.0)
   , m_hideSelection(false)
   , m_tintSelection(true)
   , m_showSelectionGuide(ShowSelectionGuide::Hide)
@@ -212,6 +213,16 @@ FloatType RenderContext::gridSize() const
 void RenderContext::setGridSize(const FloatType gridSize)
 {
   m_gridSize = gridSize;
+}
+
+FloatType RenderContext::dpiScale() const
+{
+  return m_dpiScale;
+}
+
+void RenderContext::setDpiScale(const FloatType dpiScale)
+{
+  m_dpiScale = dpiScale;
 }
 
 const vm::bbox3f& RenderContext::softMapBounds() const

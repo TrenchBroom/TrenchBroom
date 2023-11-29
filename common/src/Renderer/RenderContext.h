@@ -74,6 +74,7 @@ private:
 
   bool m_showGrid;
   FloatType m_gridSize;
+  FloatType m_dpiScale;
 
   bool m_hideSelection;
   bool m_tintSelection;
@@ -137,6 +138,9 @@ public:
 
   FloatType gridSize() const;
   void setGridSize(FloatType gridSize);
+
+  FloatType dpiScale() const;
+  void setDpiScale(FloatType dpiScale);
 
   bool hideSelection() const;
   void setHideSelection();

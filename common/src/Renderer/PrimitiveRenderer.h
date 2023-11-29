@@ -68,7 +68,7 @@ private:
       PrimitiveRendererOcclusionPolicy occlusionPolicy);
     bool operator<(const LineRenderAttributes& other) const;
 
-    void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
+    void render(IndexRangeRenderer& renderer, ActiveShader& shader, float dpiScale) const;
   };
 
   using LineMeshMap = std::map<LineRenderAttributes, IndexRangeMapBuilder<Vertex::Type>>;

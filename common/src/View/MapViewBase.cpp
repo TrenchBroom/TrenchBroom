@@ -22,6 +22,7 @@
 #include <QDebug>
 #include <QMenu>
 #include <QMimeData>
+#include <QScreen>
 #include <QShortcut>
 #include <QString>
 #include <QtGlobal>
@@ -1031,6 +1032,8 @@ void MapViewBase::doRender()
   renderContext.setShowFog(pref(Preferences::ShowFog));
   renderContext.setShowGrid(grid.visible());
   renderContext.setGridSize(grid.actualSize());
+  const auto ratio = QApplication::primaryScreen()->devicePixelRatio(); // to be changed
+  renderContext.setDpiScale(ratio);
   renderContext.setSoftMapBounds(
     pref(Preferences::ShowSoftMapBounds)
       ? vm::bbox3f{document->softMapBounds().bounds.value_or(vm::bbox3{})}
