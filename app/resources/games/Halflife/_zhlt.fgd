@@ -1,0 +1,247 @@
+
+// light_shadow
+// It creates toggleable shadow for func_door, func_breakable, ...
+@PointClass color(255 255 0) = light_shadow : "Dynamic shadow control"
+[
+	// Control the shadow of this solid entity.
+	// The solid entity must have 'Opaque' set in its lightflags.
+	target(target_destination) : "Target solid entity"
+	// Switch the light_shadow on/off will cause shadow to disappear/appear.
+	targetname(target_source) : "Name"
+	style(choices) : "Appearance (no name allowed)" : "" =
+	[
+		"" : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		12 : "Underwater mutation"
+	]
+	pattern(string) : "Custom Appearance"
+	convertto(choices) : "Classname in game" : "light" =
+	[
+		"light" : "light"
+		"light_spot" : "light_spot"
+	]
+	spawnflags(flags) =
+	[
+		1 : "Initially dark" : 0
+		2048 : "Not in Deathmatch" : 0
+	]
+]
+
+// light_bounce
+// Use as complement for light_shadow.
+@PointClass color(255 255 0) = light_bounce : "Bounce light control"
+[
+	// Control the light bounced from this solid entity.
+	target(target_destination) : "Target solid entity"
+	// When the targeted entity disappear, switch on the light_shadow and switch off the light_bounce at the same time.
+	targetname(target_source) : "Name"
+	style(choices) : "Appearance (no name allowed)" : "" =
+	[
+		"" : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		12 : "Underwater mutation"
+	]
+	pattern(string) : "Custom Appearance"
+	convertto(choices) : "Classname in game" : "light" =
+	[
+		"light" : "light"
+		"light_spot" : "light_spot"
+	]
+	spawnflags(flags) =
+	[
+		1 : "Initially dark" : 0
+		2048 : "Not in Deathmatch" : 0
+	]
+]
+
+// info_overview_point
+// It makes all entities visible from this place. This is useful for overview mode (dev_overview 1).
+// If "Reversed" is selected, this place will become visible from the entire map. This is useful for large skybox model.
+@PointClass color(255 0 0) = info_overview_point : "Disable VIS here for overview"
+[
+	reverse(choices) : "Reversed" : "" =
+	[
+		"": "No"
+		1: "Yes"
+	]
+]
+
+// info_sunlight
+// It generates a fake light_environment which defines sv_skycolor and sv_skyvec in game.
+// If you are using multiple light_environments, you will probably need this entity.
+@PointClass color(255 255 0) = info_sunlight : "light_environment information that affects model brightness"
+[
+	target(target_destination) : "Target"
+	angles(string) : "Pitch Yaw Roll (Y Z X)" : "0 0 0"
+	pitch(integer) : "Pitch" : -90
+	_light(color255) : "Brightness" : "0 0 0 100"
+]
+
+// func_group
+// It is not a real entity. Brushes in this entity are still world brushes.
+@SolidClass = func_group : "Solid brushes"
+[
+	zhlt_coplanarpriority(integer) : "Priority when faces overlap" : 0
+	zhlt_noclip(choices) : "Passable" : "" =
+	[
+		"": "No"
+		1: "Yes"
+	]
+]
+
+// info_texlights
+// It defines texture lights.
+// Add any texture name as a key and their brightness as the value.
+// Don't need to set colors because hlrad knows texture colors.
+@PointClass color(255 0 0) = info_texlights : "Texture name : Brightness"
+[
+]
+
+// info_smoothvalue
+// It specifies smoothing threshold angle for each texture.
+@PointClass color(255 0 0) = info_smoothvalue : "Texture name : Threshold of smooth angle"
+[
+]
+
+// info_translucent
+// It defines translucent effect for textures.
+// 0.0 = normal (only receive light from front), 1.0 = receive 100% light from back and 0% from front.
+// Can be used to simulate materials like fabric, coarse glass, plastic.
+// The thickness of brush with translucent textures can not exceed 2 units.
+@PointClass color(255 0 0) = info_translucent : "Texture name : translucent amount (0.0-1.0)"
+[
+]
+
+// info_angularfade
+// It gives textures metal like look.
+// 1.0 = normal; higher value = brightness decrease more quickly when the angle increases
+// Do not use this effect too much, because it looks unnatural and exaggerated.
+@PointClass color(255 0 0) = info_angularfade : "Texture name : the speed at which light fade as its direction becomes parellel to the texture (default 1.0)"
+[
+]
+
+// light_surface
+// It defines texture lights.
+// It is recommended to replace lights.rad and info_texlights with this entity.
+@PointClass color(255 255 0) = light_surface : "Advanced texture light"
+[
+	_tex(string) : "Texture name" : "" // texture name (not case sensitive)
+	_frange(string) : " Filter max distance" : "" // max distance from face center to this entity
+	_fdist(string) : " Filter max dist to plane" : "" // max distance from face plane to this entity
+	_fclass(string) : " Filter entity classname" : ""
+	_fname(string) : " Filter entity name" : ""
+	_light(color255) : "Texture brightness" : "255 255 255 80" // value >= 80 will ensure full brightness. Colored brightness is not recommended.
+	_texcolor(color255) : " Color(replace texture color)" : "" // emit light as if the texture is in this color
+	//  Note:
+	//    If you want to set cone angle or any other value to 0,
+	//      '0.0' should be used instead of '0'.
+	//    This is a bug in Hammer.
+	_cone(string) : " Inner(bright) angle(90default)" : "" // should be 90 for conventional texlights
+	_cone2(string) : " Outer(fading) angle(90default)" : "" // should be 90 for conventional texlights
+	_scale(string) : " Adjust emit scale(1.0default)" : "" // 0.0 = no emitting
+	_chop(string) : " Grid size of sampling" : "" // in inch; not affected by texture scale
+	_texlightgap(choices) : " Dark gap in front of texlight" : "" = // in texture pixels; size of dark area near the light source
+	[
+		"": "Default (no gap)"
+		"0.0": "0.0 - no gap"
+		"3.0": "3.0 - small gap"
+		"12.0": "12.0 - large gap"
+	]
+	_fast(choices) : " Fast" : "" =
+	[
+		"": "Auto"
+		1: "Yes"
+		2: "No"
+	]
+	// 'light_surface' will not be recognized by the game if we don't change its classname.
+	convertto(choices) : "Classname in game" : "light" =
+	[
+		"light" : "light"
+		"light_spot" : "light_spot"
+	]
+	targetname(target_source) : " Name" : "" // create a new light style with this name
+	style(choices) : " Appearance (no name allowed)" : "" = // use predefined light styles which have predefined patterns
+	[
+		"" : "Normal"
+		10: "Fluorescent flicker"
+		2 : "Slow, strong pulse"
+		11: "Slow pulse, noblack"
+		5 : "Gentle pulse"
+		1 : "Flicker A"
+		6 : "Flicker B"
+		3 : "Candle A"
+		7 : "Candle B"
+		8 : "Candle C"
+		4 : "Fast strobe"
+		9 : "Slow strobe"
+		12 : "Underwater mutation"
+	]
+	//  Light of the same style share the same pattern.
+	pattern(string) : " Custom Appearance" : "" // pattern defined by a sequence of letters
+	spawnflags(flags) =
+	[
+		1 : "Initially dark" : 0
+		2048 : "Not in Deathmatch" : 0
+	]
+]
+
+// func_detail
+// Similar in function to the func_detail in Source, though it is still subject to the bsp file format.
+@SolidClass = func_detail : "Detail brushes"
+[
+	// You can leave the detail level to 1. For tiny objects, you might set to 2, so that they won't chop faces of other func_details.
+	zhlt_detaillevel(integer) : "Detail level" : 1
+	// For large shapes such as terrain and walls, set this to no less than their detail level, so that they can chop the faces of adjacent world brushes.
+	zhlt_chopdown(integer) : "Lower its level to chop others" : 0
+	// Usually you don't have to use this.
+	zhlt_chopup(integer) : "Raise its level to get chopped" : 0
+	// For brushes in the same detail level and have overlapping faces (which are on the same plane), this priority determines which one will appear.
+	zhlt_coplanarpriority(integer) : "Priority when faces overlap" : 0
+	// Setting this to 0 will reduce clipnode count, but will lose the benefit of func_detail's better content deciding method which is designed to prevent "Ambiguous leafnode contents" problem.
+	zhlt_clipnodedetaillevel(integer) : "Detail level of cliphulls" : 1
+	// Very useful option which can reduce clipnode count.
+	zhlt_noclip(choices) : "Passable" : "" =
+	[
+		"": "No"
+		1: "Yes"
+	]
+]
+
+// info_hullshape
+// It replaces the default cuboid shape of the player when generating collision hulls for certain brushes.
+@SolidClass = info_hullshape : "Hull shape definition"
+[
+	targetname(target_source) : "Name"
+	defaulthulls(choices) : "Set as default shape" : "" =
+	[
+		"": "No"
+		2: "for hull 1"
+		4: "for hull 2"
+		8: "for hull 3"
+	]
+	disabled(choices) : "Disable this entity" : "" =
+	[
+		"": "No"
+		1: "Yes"
+	]
+]

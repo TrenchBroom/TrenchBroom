@@ -2715,3 +2715,15 @@
 @PointClass base(Targetname, RenderFields, Angles) size(-16 -16 0, 16 16 64 ) model({ "path": "models/fungus(small).mdl" }) = xen_spore_small : "Xen Spore (small)" []
 @PointClass base(Targetname, RenderFields, Angles) size(-40 -40 0, 40 40 120 ) model({ "path": "models/fungus.mdl" }) = xen_spore_medium : "Xen Spore (medium)" []
 @PointClass base(Targetname, RenderFields, Angles) size(-90 -90 0, 90 90 220 ) model({ "path": "models/fungus(large).mdl" }) = xen_spore_large : "Xen Spore (large)" []
+
+//
+// func_vehicle - requires 25th Anniversary Update
+//
+
+@include "_func_vehicle.fgd"
+
+//
+// ZHLT internal entities
+//
+
+@include "_zhlt.fgd"
