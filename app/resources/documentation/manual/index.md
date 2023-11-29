@@ -875,7 +875,7 @@ There are two aspects to working with textures in a level editor. [Texture manag
 
 ![The texture browser](images/TextureBrowser.png) The texture browser is part of the face inspector and is used for two purposes: Changing the texture for the currently selected faces and selecting the _current texture_. In the texture browser, textures are displayed with a maximum width of 64 pixels - wider textures are proportionally scaled down. The name of every texture is displayed below the image. Textures that are currently in used have a yellow border, while the current texture has a red border. If you hover over a texture image with the mouse, you will see a tooltip with the name and the dimensions of the texture.
 
-Below the texture browser, there are the same controls as in the [entity browser](#entity_browser): A dropdown for changing the sort order (name or usage count), a button to group by [texture collection](#texture_management), a button to filter by usage, and a text field to filter by name. If the size of the images is too small or too large on your monitor, you can change it in the [preferences](#view_layout_and_rendering).
+Below the texture browser, there are the same controls as in the [entity browser](#entity_browser): A dropdown for changing the sort order (name or usage count), a button to group by [texture collection](#texture_management), a button to filter by usage, and a text field to filter by name. Multiple words (space delimited) can be used. If the size of the images is too small or too large on your monitor, you can change it in the [preferences](#view_layout_and_rendering).
 
 ### Texture Projection Modes {#texture_projection_modes}
 
