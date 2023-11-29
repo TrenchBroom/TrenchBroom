@@ -215,12 +215,12 @@ void RenderContext::setGridSize(const FloatType gridSize)
   m_gridSize = gridSize;
 }
 
-FloatType RenderContext::dpiScale() const
+float RenderContext::dpiScale() const
 {
   return m_dpiScale;
 }
 
-void RenderContext::setDpiScale(const FloatType dpiScale)
+void RenderContext::setDpiScale(const float dpiScale)
 {
   m_dpiScale = dpiScale;
 }

@@ -73,7 +73,7 @@ bool PrimitiveRenderer::LineRenderAttributes::operator<(
 }
 
 void PrimitiveRenderer::LineRenderAttributes::render(
-  IndexRangeRenderer& renderer, ActiveShader& shader, float dpiScale) const
+  IndexRangeRenderer& renderer, ActiveShader& shader, const float dpiScale) const
 {
   glAssert(glLineWidth(m_lineWidth * dpiScale));
   switch (m_occlusionPolicy)
@@ -367,12 +367,11 @@ void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 {
   ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
 
-  const auto scaledLineWidth = static_cast<float>(renderContext.dpiScale());
   for (auto& [attributes, renderer] : m_lineMeshRenderers)
   {
-    attributes.render(renderer, shader, scaledLineWidth);
+    attributes.render(renderer, shader, renderContext.dpiScale());
   }
-  glAssert(glLineWidth(scaledLineWidth));
+  glAssert(glLineWidth(renderContext.dpiScale()));
 }
 
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)
