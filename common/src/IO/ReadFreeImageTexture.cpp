@@ -26,6 +26,8 @@
 #include "IO/ImageLoaderImpl.h"
 #include "IO/Reader.h"
 
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 #include <kdl/invoke.h>
 #include <kdl/result.h>
 
@@ -179,6 +181,40 @@ Result<Assets::Texture, ReadTextureError> readFreeImageTexture(
   auto* imageBegin = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
 
   return readFreeImageTextureFromMemory(std::move(name), imageBegin, imageSize);
+}
+
+namespace
+{
+std::vector<std::string> getSupportedFreeImageExtensions()
+{
+  auto result = std::vector<std::string>{};
+
+  const auto count = FreeImage_GetFIFCount();
+  assert(count >= 0);
+
+  for (int i = 0; i < count; ++i)
+  {
+    const auto format = static_cast<FREE_IMAGE_FORMAT>(i);
+    if (FreeImage_IsPluginEnabled(format))
+    {
+      const auto extensionListStr =
+        kdl::str_to_lower(std::string{FreeImage_GetFIFExtensionList(format)});
+      result = kdl::vec_concat(
+        std::move(result),
+        kdl::vec_transform(
+          kdl::str_split(extensionListStr, ","),
+          [](const auto& extension) { return "." + extension; }));
+    }
+  }
+
+  return result;
+}
+} // namespace
+
+bool isSupportedFreeImageExtension(const std::string& extension)
+{
+  static const auto extensions = getSupportedFreeImageExtensions();
+  return kdl::vec_contains(extensions, kdl::str_to_lower(extension));
 }
 
 } // namespace TrenchBroom::IO

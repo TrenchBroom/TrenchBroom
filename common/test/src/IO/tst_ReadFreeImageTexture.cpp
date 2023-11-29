@@ -153,4 +153,12 @@ TEST_CASE("readFreeImageTexture")
   }
 }
 
+TEST_CASE("isSupportedFreeImageExtension")
+{
+  CHECK(isSupportedFreeImageExtension(".jpg"));
+  CHECK(isSupportedFreeImageExtension(".jpeg"));
+  CHECK(isSupportedFreeImageExtension(".JPG"));
+  CHECK_FALSE(isSupportedFreeImageExtension("jpg"));
+}
+
 } // namespace TrenchBroom::IO
