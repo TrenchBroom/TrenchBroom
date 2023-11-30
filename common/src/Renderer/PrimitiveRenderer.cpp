@@ -73,9 +73,9 @@ bool PrimitiveRenderer::LineRenderAttributes::operator<(
 }
 
 void PrimitiveRenderer::LineRenderAttributes::render(
-  IndexRangeRenderer& renderer, ActiveShader& shader) const
+  IndexRangeRenderer& renderer, ActiveShader& shader, const float dpiScale) const
 {
-  glAssert(glLineWidth(m_lineWidth));
+  glAssert(glLineWidth(m_lineWidth * dpiScale));
   switch (m_occlusionPolicy)
   {
   case PrimitiveRendererOcclusionPolicy::Hide:
@@ -369,9 +369,9 @@ void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 
   for (auto& [attributes, renderer] : m_lineMeshRenderers)
   {
-    attributes.render(renderer, shader);
+    attributes.render(renderer, shader, renderContext.dpiScale());
   }
-  glAssert(glLineWidth(1.0f));
+  glAssert(glLineWidth(renderContext.dpiScale()));
 }
 
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)

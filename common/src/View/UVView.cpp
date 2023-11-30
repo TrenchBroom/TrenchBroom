@@ -195,6 +195,7 @@ void UVView::doRender()
     Renderer::RenderContext renderContext(
       Renderer::RenderMode::Render2D, m_camera, fontManager(), shaderManager());
     Renderer::RenderBatch renderBatch(vboManager());
+    renderContext.setDpiScale(static_cast<float>(window()->devicePixelRatioF()));
 
     setupGL(renderContext);
     renderTexture(renderContext, renderBatch);
@@ -310,6 +311,7 @@ private:
       "GridColor",
       vm::vec4f(
         Renderer::gridColorForTexture(texture), 0.6f)); // TODO: make this a preference
+    shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f(toTex));
     shader.set("GridDivider", vm::vec2f(m_helper.subDivisions()));

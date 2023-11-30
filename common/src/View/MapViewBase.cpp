@@ -1031,6 +1031,7 @@ void MapViewBase::doRender()
   renderContext.setShowFog(pref(Preferences::ShowFog));
   renderContext.setShowGrid(grid.visible());
   renderContext.setGridSize(grid.actualSize());
+  renderContext.setDpiScale(static_cast<float>(window()->devicePixelRatioF()));
   renderContext.setSoftMapBounds(
     pref(Preferences::ShowSoftMapBounds)
       ? vm::bbox3f{document->softMapBounds().bounds.value_or(vm::bbox3{})}
