@@ -174,9 +174,9 @@ struct AssimpComputedMeshData
     size_t meshIndex,
     std::vector<Assets::EntityModelVertex> vertices,
     Assets::EntityModelIndices indices)
-    : m_meshIndex(meshIndex)
-    , m_vertices(std::move(vertices))
-    , m_indices(std::move(indices))
+    : m_meshIndex{meshIndex}
+    , m_vertices{std::move(vertices)}
+    , m_indices{std::move(indices)}
   {
   }
 };
@@ -185,17 +185,17 @@ struct AssimpComputedMeshData
  * Gets the index for a particular assimp mesh.
  * Assimp meshes do not have unique names so we match by reference.
  */
-int16_t getMeshIndex(const aiScene& scene, const aiMesh& mesh)
+std::optional<int16_t> getMeshIndex(const aiScene& scene, const aiMesh& mesh)
 {
-  for (uint16_t b = 0; b < scene.mNumMeshes; b++)
+  for (uint16_t i = 0; i < scene.mNumMeshes; ++i)
   {
-    const aiMesh* m = scene.mMeshes[b];
+    const aiMesh* m = scene.mMeshes[i];
     if (m == &mesh)
     {
-      return static_cast<int16_t>(b);
+      return static_cast<int16_t>(i);
     }
   }
-  return -1;
+  return std::nullopt;
 }
 
 } // namespace
@@ -233,12 +233,10 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 
     // an assimp mesh will only ever have one material, but a material can have multiple
     // alternatives (this is how assimp handles skins)
-    const std::string meshName = mesh->mName.data;
 
     // load skins for this surface
-    const size_t meshMaterialIndex = mesh->mMaterialIndex;
-    auto textures = createTexturesForMaterial(*scene, meshMaterialIndex, logger);
-    surface.setSkins(std::move(textures));
+    const auto meshMaterialIndex = mesh->mMaterialIndex;
+    surface.setSkins({createTexturesForMaterial(*scene, meshMaterialIndex, logger)});
   }
 
   // load the reference pose as the only frame for this model
@@ -268,7 +266,7 @@ void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& mod
   for (const auto& mesh : meshes)
   {
     const auto meshIndex = getMeshIndex(*scene, *mesh.m_mesh);
-    if (meshIndex < 0)
+    if (!meshIndex.has_value())
     {
       continue;
     }
@@ -282,15 +280,15 @@ void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& mod
     }
 
     // build the mesh faces as triangles
-    const size_t numTriangles = mesh.m_mesh->mNumFaces;
-    const size_t numIndices = numTriangles * 3;
+    const auto numTriangles = mesh.m_mesh->mNumFaces;
+    const auto numIndices = numTriangles * 3;
 
     auto size = Renderer::IndexRangeMap::Size{};
     size.inc(Renderer::PrimType::Triangles, numTriangles);
     auto builder =
       Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{numIndices, size};
 
-    for (unsigned int i = 0; i < numTriangles; i++)
+    for (unsigned int i = 0; i < numTriangles; ++i)
     {
       const auto face = mesh.m_mesh->mFaces[i];
 
@@ -306,7 +304,7 @@ void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& mod
         vertices[face.mIndices[2]]);
     }
 
-    meshData.emplace_back(meshIndex, builder.vertices(), builder.indices());
+    meshData.emplace_back(meshIndex.value(), builder.vertices(), builder.indices());
   }
 
   if (!bounds.initialized())
@@ -361,12 +359,12 @@ void AssimpParser::processNode(
   const aiMatrix4x4& transform,
   const aiMatrix4x4& axisTransform)
 {
-  for (unsigned int i = 0; i < node.mNumMeshes; i++)
+  for (unsigned int i = 0; i < node.mNumMeshes; ++i)
   {
     const auto* mesh = scene.mMeshes[node.mMeshes[i]];
     meshes.emplace_back(mesh, transform, axisTransform);
   }
-  for (unsigned int i = 0; i < node.mNumChildren; i++)
+  for (unsigned int i = 0; i < node.mNumChildren; ++i)
   {
     processNode(
       meshes,
@@ -394,7 +392,7 @@ std::vector<Assets::EntityModelVertex> AssimpParser::computeMeshVertices(
   vertices.reserve(numVerts);
 
   // Add all the vertices of the mesh.
-  for (unsigned int i = 0; i < numVerts; i++)
+  for (unsigned int i = 0; i < numVerts; ++i)
   {
     const auto texcoords =
       mesh.mTextureCoords[0]
@@ -479,7 +477,8 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 } // namespace
 
 std::vector<Assets::Texture> AssimpParser::createTexturesForMaterial(
-  const aiScene& scene, size_t materialIndex, Logger& logger) const
+  const aiScene& scene,
+  const size_t materialIndex, Logger& logger) const
 {
   auto textures = std::vector<Assets::Texture>{};
   try
@@ -493,7 +492,7 @@ std::vector<Assets::Texture> AssimpParser::createTexturesForMaterial(
     }
 
     // load up every diffuse texture
-    for (unsigned int ti = 0; ti < textureCount; ti++)
+    for (unsigned int ti = 0; ti < textureCount; ++ti)
     {
       auto path = aiString{};
       scene.mMaterials[materialIndex]->GetTexture(aiTextureType_DIFFUSE, ti, &path);
@@ -557,7 +556,7 @@ aiMatrix4x4 AssimpParser::getAxisTransform(const aiScene& scene)
             coordAxisSign = 0;
     float unitScale = 1.0f;
 
-    const bool metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
+    const auto metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
                                  && scene.mMetaData->Get("UpAxisSign", upAxisSign)
                                  && scene.mMetaData->Get("FrontAxis", frontAxis)
                                  && scene.mMetaData->Get("FrontAxisSign", frontAxisSign)

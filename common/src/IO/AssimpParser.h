@@ -51,9 +51,9 @@ struct AssimpMeshWithTransforms
 
   AssimpMeshWithTransforms(
     const aiMesh* mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
-    : m_mesh(mesh)
-    , m_transform(transform)
-    , m_axisTransform(axisTransform)
+    : m_mesh{mesh}
+    , m_transform{transform}
+    , m_axisTransform{axisTransform}
   {
   }
 };
