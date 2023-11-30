@@ -28,6 +28,7 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/ModelUtils.h"
+#include "Model/PushSelection.h"
 #include "Model/WorldNode.h" // IWYU pragma: keep
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
@@ -62,6 +63,8 @@ void replaceTextures(
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.setTextureName(textureName);
+
+  const auto pushSelection = Model::PushSelection{document};
 
   auto transaction = Transaction{document, "Replace Textures"};
   document.selectBrushFaces(faces);
