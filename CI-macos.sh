@@ -56,6 +56,10 @@ fi
 
 cd "$BUILD_DIR"
 
+# see https://github.com/actions/runner-images/issues/7522
+echo killing...; sudo pkill -9 XProtect >/dev/null || true;
+echo waiting...; while pgrep XProtect; do sleep 3; done;
+
 cpack || exit 1
 ./app/generate_checksum.sh
 
