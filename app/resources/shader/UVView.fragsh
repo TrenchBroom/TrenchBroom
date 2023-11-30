@@ -59,7 +59,7 @@ float getSoftStripes(float coord, float gridDivider, float gridSize, float strip
 
 void gridLinesSoft(vec2 inCoords) {
     // the width of the grid lines, corrected by the texture scaling factors and the camera zoom level
-    vec2 lineWidths = abs(1.5 / GridScales / CameraZoom) * DpiScale;
+    vec2 lineWidths = abs(1.0 / GridScales / CameraZoom) * DpiScale;
     // the widths of each grid stripe
     vec2 stripeWidths = GridSizes / GridDivider;
     // ratio of the line widths and the stripe widths

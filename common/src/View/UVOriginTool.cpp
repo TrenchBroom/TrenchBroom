@@ -256,7 +256,7 @@ static void renderLineHandles(
   auto edgeRenderer = Renderer::DirectEdgeRenderer{
     Renderer::VertexArray::move(getHandleVertices(helper, highlightHandles)),
     Renderer::PrimType::Lines};
-  edgeRenderer.renderOnTop(renderBatch, 0.25f);
+  edgeRenderer.renderOnTop(renderBatch, 0.5f);
 }
 
 namespace
