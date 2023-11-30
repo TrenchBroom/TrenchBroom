@@ -359,12 +359,12 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   }
 
   // load the reference pose as the only frame for this model
-  loadSceneFrame(scene, *model);
+  loadSceneFrame(*scene, *model);
 
   return model;
 }
 
-void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& model) const
+void AssimpParser::loadSceneFrame(const aiScene& scene, Assets::EntityModel& model) const
 {
   auto meshes = std::vector<AssimpMeshWithTransforms>{};
 
@@ -372,10 +372,10 @@ void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& mod
   // transform matrix.
   processNode(
     meshes,
-    *scene->mRootNode,
-    *scene,
-    scene->mRootNode->mTransformation,
-    getAxisTransform(*scene));
+    *scene.mRootNode,
+    scene,
+    scene.mRootNode->mTransformation,
+    getAxisTransform(scene));
 
   // store the mesh data in a list so we can compute the bounding box before creating the
   // frame
@@ -384,7 +384,7 @@ void AssimpParser::loadSceneFrame(const aiScene* scene, Assets::EntityModel& mod
 
   for (const auto& mesh : meshes)
   {
-    const auto meshIndex = getMeshIndex(*scene, *mesh.m_mesh);
+    const auto meshIndex = getMeshIndex(scene, *mesh.m_mesh);
     if (!meshIndex.has_value())
     {
       continue;

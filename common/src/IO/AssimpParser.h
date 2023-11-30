@@ -71,7 +71,7 @@ public:
 
 private:
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
-  void loadSceneFrame(const aiScene* scene, Assets::EntityModel& model) const;
+  void loadSceneFrame(const aiScene& scene, Assets::EntityModel& model) const;
   std::vector<Assets::Texture> createTexturesForMaterial(
     const aiScene& scene, size_t materialIndex, Logger& logger) const;
 };
