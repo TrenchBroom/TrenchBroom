@@ -44,6 +44,7 @@
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
 
+#include "kdl/string_utils.h"
 #include <kdl/overload.h>
 #include <kdl/skip_iterator.h>
 #include <kdl/string_compare.h>
@@ -59,10 +60,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 EntityBrowserView::EntityBrowserView(
   QScrollBar* scrollBar,
   GLContextManager& contextManager,
@@ -73,8 +73,6 @@ EntityBrowserView::EntityBrowserView(
   , m_entityDefinitionManager{entityDefinitionManager}
   , m_entityModelManager{entityModelManager}
   , m_logger{logger}
-  , m_group{false}
-  , m_hideUnused{false}
   , m_sortOrder{Assets::EntityDefinitionSortOrder::Name}
 {
   const auto hRotation = vm::quatf{vm::vec3f::pos_z(), vm::to_radians(-30.0f)};
@@ -201,6 +199,18 @@ void EntityBrowserView::addEntitiesToLayout(
   }
 }
 
+namespace
+{
+bool matchesFilterText(
+  const Assets::PointEntityDefinition& definition, const std::string& filterText)
+{
+  return filterText.empty()
+         || kdl::all_of(kdl::str_split(filterText, " "), [&](const auto& pattern) {
+              return kdl::ci::str_contains(definition.name(), pattern);
+            });
+}
+} // namespace
+
 void EntityBrowserView::addEntityToLayout(
   Layout& layout,
   const Assets::PointEntityDefinition* definition,
@@ -208,7 +218,7 @@ void EntityBrowserView::addEntityToLayout(
 {
   if (
     (!m_hideUnused || definition->usageCount() > 0)
-    && (m_filterText.empty() || kdl::ci::str_contains(definition->name(), m_filterText)))
+    && matchesFilterText(*definition, m_filterText))
   {
 
     const auto maxCellWidth = layout.maxCellWidth();
@@ -561,5 +571,5 @@ const EntityCellData& EntityBrowserView::cellData(const Cell& cell) const
 {
   return cell.itemAs<EntityCellData>();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
