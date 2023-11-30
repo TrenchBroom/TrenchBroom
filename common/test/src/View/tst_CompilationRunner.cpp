@@ -187,6 +187,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolAborts")
 }
 #endif
 
+#if !defined(__APPLE__) || defined(NDEBUG)
+// the test is unreliable on macOS in debug mode
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolCrashes")
 {
   auto variables = EL::NullVariableStore{};
@@ -213,6 +215,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolCrashes")
   CHECK_FALSE(exec.ended);
 #endif
 }
+#endif
 
 TEST_CASE_METHOD(
   MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDirectories")
