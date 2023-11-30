@@ -538,8 +538,7 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 } // namespace
 
 std::vector<Assets::Texture> AssimpParser::createTexturesForMaterial(
-  const aiScene& scene,
-  const size_t materialIndex, Logger& logger) const
+  const aiScene& scene, const size_t materialIndex, Logger& logger) const
 {
   auto textures = std::vector<Assets::Texture>{};
   try
