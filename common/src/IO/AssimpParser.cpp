@@ -198,6 +198,125 @@ std::optional<int16_t> getMeshIndex(const aiScene& scene, const aiMesh& mesh)
   return std::nullopt;
 }
 
+void processNode(
+  std::vector<AssimpMeshWithTransforms>& meshes,
+  const aiNode& node,
+  const aiScene& scene,
+  const aiMatrix4x4& transform,
+  const aiMatrix4x4& axisTransform)
+{
+  for (unsigned int i = 0; i < node.mNumMeshes; ++i)
+  {
+    const auto* mesh = scene.mMeshes[node.mMeshes[i]];
+    meshes.emplace_back(mesh, transform, axisTransform);
+  }
+  for (unsigned int i = 0; i < node.mNumChildren; ++i)
+  {
+    processNode(
+      meshes,
+      *node.mChildren[i],
+      scene,
+      transform * node.mChildren[i]->mTransformation,
+      axisTransform);
+  }
+}
+
+std::vector<Assets::EntityModelVertex> computeMeshVertices(
+  const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
+{
+  std::vector<Assets::EntityModelVertex> vertices{};
+
+  // We pass through the aiProcess_Triangulate flag to assimp, so we know for sure we'll
+  // ONLY get triangles in a single mesh. This is just a safety net to make sure we don't
+  // do anything bad.
+  if (!(mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE))
+  {
+    return vertices;
+  }
+
+  const size_t numVerts = mesh.mNumVertices;
+  vertices.reserve(numVerts);
+
+  // Add all the vertices of the mesh.
+  for (unsigned int i = 0; i < numVerts; ++i)
+  {
+    const auto texcoords =
+      mesh.mTextureCoords[0]
+        ? vm::vec2f{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y}
+        : vm::vec2f{0.0f, 0.0f};
+
+    auto meshVertices = mesh.mVertices[i];
+    meshVertices *= transform;
+    meshVertices *= axisTransform;
+
+    const auto vec = vm::vec3f(meshVertices.x, meshVertices.y, meshVertices.z);
+    vertices.emplace_back(vec, texcoords);
+  }
+
+  return vertices;
+}
+
+aiMatrix4x4 getAxisTransform(const aiScene& scene)
+{
+  auto matrix = aiMatrix4x4{};
+
+  if (scene.mMetaData)
+  {
+    // These MUST be in32_t, or the metadata 'Get' function will get confused.
+    int32_t upAxis = 0, frontAxis = 0, coordAxis = 0, upAxisSign = 0, frontAxisSign = 0,
+            coordAxisSign = 0;
+    float unitScale = 1.0f;
+
+    const auto metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
+                                 && scene.mMetaData->Get("UpAxisSign", upAxisSign)
+                                 && scene.mMetaData->Get("FrontAxis", frontAxis)
+                                 && scene.mMetaData->Get("FrontAxisSign", frontAxisSign)
+                                 && scene.mMetaData->Get("CoordAxis", coordAxis)
+                                 && scene.mMetaData->Get("CoordAxisSign", coordAxisSign)
+                                 && scene.mMetaData->Get("UnitScaleFactor", unitScale);
+
+    if (!metadataPresent)
+    {
+      // By default, all 3D data from is provided in a right-handed coordinate system.
+      // +X to the right. -Z into the screen. +Y upwards.
+      upAxis = 1;
+      upAxisSign = 1;
+      frontAxis = 2;
+      frontAxisSign = 1;
+      coordAxis = 0;
+      coordAxisSign = 1;
+      unitScale = 1.0f;
+    }
+
+    aiVector3D up, front, coord;
+    up[static_cast<unsigned int>(upAxis)] = static_cast<float>(upAxisSign) * unitScale;
+    front[static_cast<unsigned int>(frontAxis)] =
+      static_cast<float>(frontAxisSign) * unitScale;
+    coord[static_cast<unsigned int>(coordAxis)] =
+      static_cast<float>(coordAxisSign) * unitScale;
+
+    matrix = aiMatrix4x4t{
+      coord.x,
+      coord.y,
+      coord.z,
+      0.0f,
+      -front.x,
+      -front.y,
+      -front.z,
+      0.0f,
+      up.x,
+      up.y,
+      up.z,
+      0.0f,
+      0.0f,
+      0.0f,
+      0.0f,
+      1.0f};
+  }
+
+  return matrix;
+}
+
 } // namespace
 
 std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
@@ -352,64 +471,6 @@ bool AssimpParser::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
-void AssimpParser::processNode(
-  std::vector<AssimpMeshWithTransforms>& meshes,
-  const aiNode& node,
-  const aiScene& scene,
-  const aiMatrix4x4& transform,
-  const aiMatrix4x4& axisTransform)
-{
-  for (unsigned int i = 0; i < node.mNumMeshes; ++i)
-  {
-    const auto* mesh = scene.mMeshes[node.mMeshes[i]];
-    meshes.emplace_back(mesh, transform, axisTransform);
-  }
-  for (unsigned int i = 0; i < node.mNumChildren; ++i)
-  {
-    processNode(
-      meshes,
-      *node.mChildren[i],
-      scene,
-      transform * node.mChildren[i]->mTransformation,
-      axisTransform);
-  }
-}
-
-std::vector<Assets::EntityModelVertex> AssimpParser::computeMeshVertices(
-  const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
-{
-  std::vector<Assets::EntityModelVertex> vertices{};
-
-  // We pass through the aiProcess_Triangulate flag to assimp, so we know for sure we'll
-  // ONLY get triangles in a single mesh. This is just a safety net to make sure we don't
-  // do anything bad.
-  if (!(mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE))
-  {
-    return vertices;
-  }
-
-  const size_t numVerts = mesh.mNumVertices;
-  vertices.reserve(numVerts);
-
-  // Add all the vertices of the mesh.
-  for (unsigned int i = 0; i < numVerts; ++i)
-  {
-    const auto texcoords =
-      mesh.mTextureCoords[0]
-        ? vm::vec2f{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y}
-        : vm::vec2f{0.0f, 0.0f};
-
-    auto meshVertices = mesh.mVertices[i];
-    meshVertices *= transform;
-    meshVertices *= axisTransform;
-
-    const auto vec = vm::vec3f(meshVertices.x, meshVertices.y, meshVertices.z);
-    vertices.emplace_back(vec, texcoords);
-  }
-
-  return vertices;
-}
-
 namespace
 {
 
@@ -543,67 +604,6 @@ std::vector<Assets::Texture> AssimpParser::createTexturesForMaterial(
     }
   }
   return textures;
-}
-
-aiMatrix4x4 AssimpParser::getAxisTransform(const aiScene& scene)
-{
-  auto matrix = aiMatrix4x4{};
-
-  if (scene.mMetaData)
-  {
-    // These MUST be in32_t, or the metadata 'Get' function will get confused.
-    int32_t upAxis = 0, frontAxis = 0, coordAxis = 0, upAxisSign = 0, frontAxisSign = 0,
-            coordAxisSign = 0;
-    float unitScale = 1.0f;
-
-    const auto metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
-                                 && scene.mMetaData->Get("UpAxisSign", upAxisSign)
-                                 && scene.mMetaData->Get("FrontAxis", frontAxis)
-                                 && scene.mMetaData->Get("FrontAxisSign", frontAxisSign)
-                                 && scene.mMetaData->Get("CoordAxis", coordAxis)
-                                 && scene.mMetaData->Get("CoordAxisSign", coordAxisSign)
-                                 && scene.mMetaData->Get("UnitScaleFactor", unitScale);
-
-    if (!metadataPresent)
-    {
-      // By default, all 3D data from is provided in a right-handed coordinate system.
-      // +X to the right. -Z into the screen. +Y upwards.
-      upAxis = 1;
-      upAxisSign = 1;
-      frontAxis = 2;
-      frontAxisSign = 1;
-      coordAxis = 0;
-      coordAxisSign = 1;
-      unitScale = 1.0f;
-    }
-
-    aiVector3D up, front, coord;
-    up[static_cast<unsigned int>(upAxis)] = static_cast<float>(upAxisSign) * unitScale;
-    front[static_cast<unsigned int>(frontAxis)] =
-      static_cast<float>(frontAxisSign) * unitScale;
-    coord[static_cast<unsigned int>(coordAxis)] =
-      static_cast<float>(coordAxisSign) * unitScale;
-
-    matrix = aiMatrix4x4t{
-      coord.x,
-      coord.y,
-      coord.z,
-      0.0f,
-      -front.x,
-      -front.y,
-      -front.z,
-      0.0f,
-      up.x,
-      up.y,
-      up.z,
-      0.0f,
-      0.0f,
-      0.0f,
-      0.0f,
-      1.0f};
-  }
-
-  return matrix;
 }
 
 } // namespace IO
