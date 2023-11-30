@@ -81,10 +81,7 @@ void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext)
     glSetEdgeOffset(m_params.offset);
   }
 
-  if (m_params.width != 1.0f)
-  {
-    glAssert(glLineWidth(m_params.width));
-  }
+  glAssert(glLineWidth(m_params.width * renderContext.dpiScale()));
 
   if (m_params.onTop)
   {
@@ -113,10 +110,7 @@ void EdgeRenderer::RenderBase::renderEdges(RenderContext& renderContext)
     glAssert(glEnable(GL_DEPTH_TEST));
   }
 
-  if (m_params.width != 1.0f)
-  {
-    glAssert(glLineWidth(1.0f));
-  }
+  glAssert(glLineWidth(renderContext.dpiScale()));
 
   if (m_params.offset != 0.0)
   {
