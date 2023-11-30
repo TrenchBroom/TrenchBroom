@@ -31,16 +31,15 @@
 
 class QScrollBar;
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 class TextureCollection;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class GLContextManager;
 class MapDocument;
 using TextureGroupData = std::string;
@@ -70,12 +69,12 @@ private:
   using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
   std::weak_ptr<MapDocument> m_document;
-  bool m_group;
-  bool m_hideUnused;
-  TextureSortOrder m_sortOrder;
+  bool m_group = false;
+  bool m_hideUnused = false;
+  TextureSortOrder m_sortOrder = TextureSortOrder::Name;
   std::string m_filterText;
 
-  const Assets::Texture* m_selectedTexture;
+  const Assets::Texture* m_selectedTexture = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -101,24 +100,27 @@ private:
 
   void doInitLayout(Layout& layout) override;
   void doReloadLayout(Layout& layout) override;
+
+  void addTexturesToLayout(
+    Layout& layout,
+    const std::vector<const Assets::Texture*>& textures,
+    const std::string& groupName,
+    const Renderer::FontDescriptor& font);
   void addTextureToLayout(
     Layout& layout,
     const Assets::Texture* texture,
     const std::string& groupName,
     const Renderer::FontDescriptor& font);
 
-  struct CompareByUsageCount;
-  struct CompareByName;
-  struct MatchUsageCount;
-  struct MatchName;
-
   const std::vector<Assets::TextureCollection>& getCollections() const;
   std::vector<const Assets::Texture*> getTextures(
     const Assets::TextureCollection& collection) const;
   std::vector<const Assets::Texture*> getTextures() const;
 
-  void filterTextures(std::vector<const Assets::Texture*>& textures) const;
-  void sortTextures(std::vector<const Assets::Texture*>& textures) const;
+  std::vector<const Assets::Texture*> filterTextures(
+    std::vector<const Assets::Texture*> textures) const;
+  std::vector<const Assets::Texture*> sortTextures(
+    std::vector<const Assets::Texture*> textures) const;
 
   void doClear() override;
   void doRender(Layout& layout, float y, float height) override;
@@ -141,5 +143,5 @@ private:
 signals:
   void textureSelected(const Assets::Texture* texture);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
