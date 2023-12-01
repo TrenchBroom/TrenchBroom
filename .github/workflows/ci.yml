@@ -111,7 +111,7 @@ jobs:
       - name: Install macOS dependencies
         if: ${{ matrix.os == 'macos-12' }}
         run: |
-          brew install cmake p7zip pandoc qt5 ninja autoconf automake
+          brew install cmake p7zip pandoc qt5 ninja autoconf automake kadwanev/brew/retry
 
       # Run build script
       - name: Linux build
