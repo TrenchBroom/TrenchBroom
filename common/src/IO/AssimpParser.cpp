@@ -504,14 +504,14 @@ Assets::Texture loadUncompressedEmbeddedTexture(
 }
 
 Assets::Texture loadCompressedEmbeddedTexture(
-  const std::string& name,
+  std::string name,
   const aiTexel* data,
   const size_t size,
   const FileSystem& fs,
   Logger& logger)
 {
   return readFreeImageTextureFromMemory(
-           name, reinterpret_cast<const uint8_t*>(data), size)
+           std::move(name), reinterpret_cast<const uint8_t*>(data), size)
     .or_else(makeReadTextureErrorHandler(fs, logger))
     .value();
 }
