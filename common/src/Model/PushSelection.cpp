@@ -24,36 +24,32 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 PushSelection::PushSelection(MapFacade* facade)
-  : m_facade(nullptr)
+  : PushSelection{*facade}
 {
-  initialize(facade);
 }
 
 PushSelection::PushSelection(MapFacade& facade)
-  : PushSelection(&facade)
+  : m_facade{facade}
+  , m_nodes{m_facade.selectedNodes().nodes()}
+  , m_faces{m_facade.selectedBrushFaces()}
 {
 }
 
 PushSelection::~PushSelection()
 {
-  m_facade->deselectAll();
-  if (!m_nodes.empty())
-    m_facade->selectNodes(m_nodes);
-  else if (!m_faces.empty())
-    m_facade->selectBrushFaces(m_faces);
+  m_facade.deselectAll();
+  if (!m_nodes.empty() && m_facade.selectedNodes().nodes() != m_nodes)
+  {
+    m_facade.selectNodes(m_nodes);
+  }
+  else if (!m_faces.empty() && m_facade.selectedBrushFaces() != m_faces)
+  {
+    m_facade.selectBrushFaces(m_faces);
+  }
 }
 
-void PushSelection::initialize(MapFacade* facade)
-{
-  assert(facade != nullptr);
-  m_facade = facade;
-  m_nodes = m_facade->selectedNodes().nodes();
-  m_faces = m_facade->selectedBrushFaces();
-}
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model
