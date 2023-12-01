@@ -49,5 +49,23 @@ TEST_CASE("AssimpParserTest.loadBlenderModel")
   CHECK(model->surfaceCount() == 1);
   CHECK(model->surface(0).skinCount() == 1);
 }
+
+TEST_CASE("AssimpParserTest.loadHLModelWithSkins")
+{
+  auto logger = NullLogger{};
+
+  const auto basePath = std::filesystem::current_path() / "fixture/test/IO/assimp";
+  auto fs = std::make_shared<DiskFileSystem>(basePath);
+
+  auto assimpParser = AssimpParser{"cube.mdl", *fs};
+
+  auto model = assimpParser.initializeModel(logger);
+  CHECK(model != nullptr);
+
+  CHECK(model->frameCount() == 1);
+  CHECK(model->surfaceCount() == 2);
+  CHECK(model->surface(0).skinCount() == 1);
+  CHECK(model->surface(1).skinCount() == 3);
+}
 } // namespace IO
 } // namespace TrenchBroom
