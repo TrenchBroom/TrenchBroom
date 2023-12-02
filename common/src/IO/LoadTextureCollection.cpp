@@ -88,9 +88,6 @@ Result<Assets::Texture, ReadTextureError> readTexture(
   const size_t prefixLength,
   const std::optional<Assets::Palette>& palette)
 {
-  static const auto imageFileExtensions =
-    std::vector<std::string>{".jpg", ".jpeg", ".png", ".tga", ".bmp"};
-
   const auto extension = kdl::str_to_lower(path.extension().string());
   if (extension == ".d")
   {
@@ -132,7 +129,7 @@ Result<Assets::Texture, ReadTextureError> readTexture(
     auto reader = file.reader().buffer();
     return readQuake3ShaderTexture(std::move(name), file, gameFS);
   }
-  else if (kdl::vec_contains(imageFileExtensions, extension))
+  else if (isSupportedFreeImageExtension(extension))
   {
     auto name = getTextureNameFromPathSuffix(path, prefixLength);
     auto reader = file.reader().buffer();
