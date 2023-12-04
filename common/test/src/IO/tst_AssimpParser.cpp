@@ -57,10 +57,27 @@ TEST_CASE("AssimpParserTest.loadHLModelWithSkins")
   auto model = assimpParser.initializeModel(logger);
   CHECK(model != nullptr);
 
-  CHECK(model->frameCount() == 1);
-  CHECK(model->surfaceCount() == 2);
+  CHECK(model->surfaceCount() == 4);
   CHECK(model->surface(0).skinCount() == 1);
   CHECK(model->surface(1).skinCount() == 3);
+  CHECK(model->surface(2).skinCount() == 1);
+  CHECK(model->surface(3).skinCount() == 1);
+}
+
+TEST_CASE("AssimpParserTest.loadHLModelWithAnimations")
+{
+  auto logger = NullLogger{};
+
+  const auto basePath = std::filesystem::current_path() / "fixture/test/IO/assimp";
+  auto fs = std::make_shared<DiskFileSystem>(basePath);
+
+  auto assimpParser = AssimpParser{"cube.mdl", *fs};
+
+  auto model = assimpParser.initializeModel(logger);
+  CHECK(model != nullptr);
+
+  CHECK(model->frameCount() == 3);
+  CHECK_NOTHROW(assimpParser.loadFrame(1, *model, logger));
 }
 
 } // namespace TrenchBroom::IO
