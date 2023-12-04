@@ -350,6 +350,58 @@ void processNode(
   }
 }
 
+#define AI_MDL_HL1_NODE_BODYPARTS "<MDL_bodyparts>"
+
+void processRootNode(
+  std::vector<AssimpMeshWithTransforms>& meshes,
+  const aiNode& node,
+  const aiScene& scene,
+  const aiMatrix4x4& transform,
+  const aiMatrix4x4& axisTransform)
+{
+  // HL1 models have a slightly different structure than normal, the format consists
+  // of multiple body parts, and each body part has one or more submodels. Only one
+  // submodel per body part should be rendered at a time.
+
+  // See if we have loaded a HL1 model
+  const auto hl1bodyParts = node.FindNode(AI_MDL_HL1_NODE_BODYPARTS);
+  if (!hl1bodyParts)
+  {
+    // not a HL1 model, just process like normal
+    processNode(meshes, node, scene, transform, axisTransform);
+    return;
+  }
+
+  /* HL models are loaded by assimp in a particular way, each bodypart and all
+   * its submodels are loaded into different nodes in the scene. To properly
+   * display the model, we must choose EXACTLY ONE submodel from each body
+   * part and render the meshes for those chosen submodels. */
+
+  // Assimp HL models face sideways by default so spin by -90 on the z axis
+  // this MIGHT be needed for non-HL models as well. To be safe for now, we
+  // only do this for HL models.
+  const aiQuaternion rotation(aiVector3t(0, 1, 0), -vm::Cf::half_pi());
+  const auto rotMatrix = aiMatrix4x4(rotation.GetMatrix());
+  const auto newAxisTransform = axisTransform * rotMatrix;
+
+  // loop through each body part
+  for (unsigned int i = 0; i < hl1bodyParts->mNumChildren; ++i)
+  {
+    const auto* bodypart = hl1bodyParts->mChildren[i];
+    if (bodypart->mNumChildren == 0)
+    {
+      // the body has no submodels (shouldn't happen for a normal HL model)
+      continue;
+    }
+
+    // until the "body" keyvalue is sent through to the parser,
+    // we just pick the first submodel for each body part.
+    const auto* submodel = bodypart->mChildren[0];
+
+    processNode(meshes, *submodel, scene, transform, newAxisTransform);
+  }
+}
+
 std::vector<Assets::EntityModelVertex> computeMeshVertices(
   const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
 {
@@ -453,7 +505,7 @@ Result<void> loadSceneFrame(
 
   // Assimp files import as y-up. We must multiply the root transform with an axis
   // transform matrix.
-  processNode(
+  processRootNode(
     meshes,
     *scene.mRootNode,
     scene,
