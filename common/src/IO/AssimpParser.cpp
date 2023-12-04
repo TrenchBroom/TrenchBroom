@@ -310,6 +310,22 @@ struct AssimpComputedMeshData
   Assets::EntityModelIndices m_indices;
 };
 
+struct AssimpBoneInformation
+{
+  size_t m_boneIndex;
+  int32_t m_parentIndex;
+  aiString m_name;
+  aiMatrix4x4 m_localTransform;
+  aiMatrix4x4 m_globalTransform;
+};
+
+struct AssimpVertexBoneWeight
+{
+  size_t m_boneIndex;
+  float m_weight;
+  const aiBone& m_bone;
+};
+
 /**
  * Gets the index for a particular assimp mesh.
  * Assimp meshes do not have unique names so we match by reference.
@@ -325,6 +341,126 @@ std::optional<size_t> getMeshIndex(const aiScene& scene, const aiMesh& mesh)
     }
   }
   return std::nullopt;
+}
+
+/**
+ * Gets the channel index for a particular assimp node, matched by name.
+ */
+std::optional<size_t> getChannelIndex(const aiAnimation& animation, const aiNode& node)
+{
+  for (unsigned int i = 0; i < animation.mNumChannels; ++i)
+  {
+    const aiNodeAnim* ch = animation.mChannels[i];
+    if (!std::strcmp(node.mName.data, ch->mNodeName.data))
+    {
+      return size_t(i);
+    }
+  }
+  return std::nullopt;
+}
+
+/**
+ * Computes the animation information for each channel in an
+ * animation sequence. Always uses the first frame of the animation.
+ */
+std::vector<AssimpBoneInformation> getAnimationInformation(
+  const aiNode& root, const aiAnimation& animation)
+{
+  auto indivTransforms = std::vector<aiMatrix4x4>{animation.mNumChannels};
+
+  // calculate the transformations for each animation channel
+  for (unsigned int i = 0; i < animation.mNumChannels; ++i)
+  {
+    const aiNodeAnim* channel = animation.mChannels[i];
+
+    aiVector3D position(0, 0, 0);
+    if (channel->mNumPositionKeys > 0)
+    {
+      position = channel->mPositionKeys[0].mValue;
+    }
+
+    aiQuaternion rotation(1, 0, 0, 0);
+    if (channel->mNumRotationKeys > 0)
+    {
+      rotation = channel->mRotationKeys[0].mValue;
+    }
+
+    aiVector3D scale(1, 1, 1);
+    if (channel->mNumScalingKeys > 0)
+    {
+      scale = channel->mScalingKeys[0].mValue;
+    }
+
+    // build a transformation matrix from it
+    aiMatrix4x4& mat = indivTransforms[i];
+    mat = aiMatrix4x4(rotation.GetMatrix());
+    mat.a1 *= scale.x;
+    mat.b1 *= scale.x;
+    mat.c1 *= scale.x;
+    mat.a2 *= scale.y;
+    mat.b2 *= scale.y;
+    mat.c2 *= scale.y;
+    mat.a3 *= scale.z;
+    mat.b3 *= scale.z;
+    mat.c3 *= scale.z;
+    mat.a4 = position.x;
+    mat.b4 = position.y;
+    mat.c4 = position.z;
+  }
+
+  // assemble the transform information from the bone hierarchy (child
+  // bones must be multiplied by their parent transformations, recursively)
+  auto transforms = std::vector<AssimpBoneInformation>{animation.mNumChannels};
+  for (unsigned int i = 0; i < animation.mNumChannels; ++i)
+  {
+    const aiNodeAnim* channel = animation.mChannels[i];
+
+    // start with the individual transformation of this channel
+    auto globalTransform = indivTransforms[i];
+    int32_t parentId = -1;
+
+    // traverse the bone hierarchy to compute the global transformation
+    auto boneNode = root.FindNode(channel->mNodeName);
+    if (!boneNode)
+    {
+      continue; // couldn't find the bone node, something is weird
+    }
+
+    // start at the first parent and walk up the tree
+    aiNode* parentNode = boneNode->mParent;
+    while (parentNode)
+    {
+      // use the node's default transformation, in case node isn't a bone
+      // and won't be transformed by this animation
+      aiMatrix4x4 nodeTransformation = parentNode->mTransformation;
+
+      // find the index of this bone in the channel list
+      const auto index = getChannelIndex(animation, *parentNode);
+      if (index.has_value())
+      {
+        nodeTransformation = indivTransforms[index.value()];
+
+        // if this is the first parent of the bone, set the parent id
+        if (parentNode == boneNode->mParent)
+        {
+          parentId = int32_t(index.value());
+        }
+      }
+      else
+      {
+        break;
+      }
+
+      globalTransform = nodeTransformation * globalTransform;
+      parentNode = parentNode->mParent;
+    }
+
+    // set the info and carry on
+    transforms[i] = {
+      i, parentId, channel->mNodeName, indivTransforms[i], globalTransform};
+  }
+
+  return transforms;
 }
 
 void processNode(
@@ -403,7 +539,10 @@ void processRootNode(
 }
 
 std::vector<Assets::EntityModelVertex> computeMeshVertices(
-  const aiMesh& mesh, const aiMatrix4x4& transform, const aiMatrix4x4& axisTransform)
+  const aiMesh& mesh,
+  const aiMatrix4x4& transform,
+  const aiMatrix4x4& axisTransform,
+  const std::vector<AssimpBoneInformation>& boneTransforms)
 {
   std::vector<Assets::EntityModelVertex> vertices{};
 
@@ -413,6 +552,37 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
   if (!(mesh.mPrimitiveTypes & aiPrimitiveType_TRIANGLE))
   {
     return vertices;
+  }
+
+  // the weights for each vertex are stored in the bones, not in
+  // the vertices. this loop lets us collect the bone weightings
+  // per vertex so we can process them.
+  std::vector<std::vector<AssimpVertexBoneWeight>> weightsPerVertex(mesh.mNumVertices);
+  for (unsigned int i = 0; i < mesh.mNumBones; ++i)
+  {
+    const aiBone* bone = mesh.mBones[i];
+
+    // find the bone with the matching name
+    size_t idx;
+    for (idx = 0; idx < boneTransforms.size(); ++idx)
+    {
+      const auto info = boneTransforms[idx];
+      if (!std::strcmp(info.m_name.data, bone->mName.data))
+      {
+        break;
+      }
+    }
+    if (idx >= boneTransforms.size())
+    {
+      // couldn't find a bone with this name, skip it
+      continue;
+    }
+
+    for (unsigned int j = 0; j < bone->mNumWeights; ++j)
+    {
+      weightsPerVertex[bone->mWeights[j].mVertexId].push_back(
+        {idx, bone->mWeights[j].mWeight, *bone});
+    }
   }
 
   const size_t numVerts = mesh.mNumVertices;
@@ -427,6 +597,32 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
         : vm::vec2f{0.0f, 0.0f};
 
     auto meshVertices = mesh.mVertices[i];
+
+    // Bone indices and weights
+    if (mesh.HasBones() && !boneTransforms.empty() && !weightsPerVertex[i].empty())
+    {
+      const auto vertWeights = weightsPerVertex[i];
+      auto vertPos = aiVector3D();
+
+      for (const auto& vertWeight : vertWeights)
+      {
+        auto boneIndex = vertWeight.m_boneIndex;
+        auto weight = vertWeight.m_weight;
+        auto bone = vertWeight.m_bone;
+        if (boneIndex < boneTransforms.size())
+        {
+          const auto& boneTransform = boneTransforms[boneIndex];
+          auto weightedPosition = meshVertices;
+          weightedPosition *= bone.mOffsetMatrix;
+          weightedPosition *= boneTransform.m_globalTransform;
+          weightedPosition *= weight;
+          vertPos += weightedPosition;
+        }
+      }
+
+      meshVertices = vertPos;
+    }
+
     meshVertices *= transform;
     meshVertices *= axisTransform;
 
@@ -504,6 +700,14 @@ Result<void> loadSceneFrame(
   Assets::EntityModel& model,
   const std::string& name)
 {
+  // load the animation information for the current "frame" (animation)
+  std::vector<AssimpBoneInformation> boneTransforms;
+  if (frameIndex < scene.mNumAnimations)
+  {
+    const auto animation = scene.mAnimations[frameIndex];
+    boneTransforms = getAnimationInformation(*scene.mRootNode, *animation);
+  }
+
   auto meshes = std::vector<AssimpMeshWithTransforms>{};
 
   // Assimp files import as y-up. We must multiply the root transform with an axis
@@ -524,8 +728,8 @@ Result<void> loadSceneFrame(
   {
     if (const auto meshIndex = getMeshIndex(scene, *mesh.m_mesh))
     {
-      const auto vertices =
-        computeMeshVertices(*mesh.m_mesh, mesh.m_transform, mesh.m_axisTransform);
+      const auto vertices = computeMeshVertices(
+        *mesh.m_mesh, mesh.m_transform, mesh.m_axisTransform, boneTransforms);
 
       for (const auto& v : vertices)
       {

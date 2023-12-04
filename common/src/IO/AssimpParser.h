@@ -24,7 +24,7 @@
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 
-#include <assimp/matrix4x4.h>
+#include <assimp/types.h>
 
 #include <filesystem>
 #include <vector>
