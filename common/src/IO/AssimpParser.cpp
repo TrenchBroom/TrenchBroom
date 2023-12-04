@@ -499,7 +499,10 @@ aiMatrix4x4 getAxisTransform(const aiScene& scene)
 }
 
 Result<void> loadSceneFrame(
-  const aiScene& scene, Assets::EntityModel& model, const std::string& name)
+  const aiScene& scene,
+  const size_t frameIndex,
+  Assets::EntityModel& model,
+  const std::string& name)
 {
   auto meshes = std::vector<AssimpMeshWithTransforms>{};
 
@@ -566,7 +569,7 @@ Result<void> loadSceneFrame(
 
   // we've processed the model, now we can create the frame and bind the meshes to it
   const auto frameBounds = bounds.bounds();
-  auto& frame = model.loadFrame(0, name, frameBounds);
+  auto& frame = model.loadFrame(frameIndex, name, frameBounds);
 
   for (const auto& data : meshData)
   {
@@ -616,11 +619,6 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
 
   const auto modelPath = m_path.string();
 
-  // Create model.
-  auto model = std::make_unique<Assets::EntityModel>(
-    modelPath, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-  model->addFrame();
-
   // Import the file as an Assimp scene and populate our vectors.
   auto importer = Assimp::Importer{};
   importer.SetIOHandler(new AssimpIOSystem{m_fs});
@@ -632,6 +630,18 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
       "Assimp couldn't import model from '{}': {}",
       m_path.string(),
       importer.GetErrorString())};
+  }
+
+  // Create model.
+  auto model = std::make_unique<Assets::EntityModel>(
+    modelPath, Assets::PitchType::Normal, Assets::Orientation::Oriented);
+
+  // create a frame for each animation in the scene
+  // if we have no animations, always load 1 frame for the reference model
+  const auto numSequences = std::max(scene->mNumAnimations, 1u);
+  for (size_t i = 0; i < numSequences; ++i)
+  {
+    model->addFrame();
   }
 
   // create a surface for each mesh in the scene and assign the skins/materials to it
@@ -650,14 +660,45 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
       {loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger)});
   }
 
-  // load the reference pose as the only frame for this model
-  return loadSceneFrame(*scene, *model, modelPath)
+  // the entity browser will want to see frame 0 most of the time, pre-emptively load it
+  return loadSceneFrame(*scene, 0, *model, modelPath)
     .transform([&]() { return std::move(model); })
     .if_error([&](auto e) {
       throw ParserException{fmt::format(
         "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
     })
     .value();
+}
+
+void AssimpParser::doLoadFrame(
+  size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
+{
+  constexpr auto assimpFlags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
+                               | aiProcess_FlipWindingOrder | aiProcess_SortByPType
+                               | aiProcess_FlipUVs;
+
+  const auto modelPath = m_path.string();
+
+  // Import the file as an Assimp scene and populate our vectors.
+  auto importer = Assimp::Importer{};
+  importer.SetIOHandler(new AssimpIOSystem{m_fs});
+
+  const auto* scene = importer.ReadFile(modelPath, assimpFlags);
+  if (!scene)
+  {
+    throw ParserException{fmt::format(
+      "Assimp couldn't import model from '{}': {}",
+      m_path.string(),
+      importer.GetErrorString())};
+  }
+
+  // load the requested frame
+  const auto result =
+    loadSceneFrame(*scene, frameIndex, model, modelPath).if_error([&](auto e) {
+      throw ParserException{fmt::format(
+        "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
+    });
+  static_cast<void>(result); // no return value, so discard the result if successful
 }
 
 } // namespace TrenchBroom::IO

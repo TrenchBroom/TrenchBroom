@@ -61,6 +61,8 @@ public:
   static bool canParse(const std::filesystem::path& path);
 
 private:
+  void doLoadFrame(
+    size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
 };
 
