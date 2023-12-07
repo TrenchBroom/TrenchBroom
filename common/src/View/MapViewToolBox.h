@@ -44,6 +44,7 @@ class VertexTool;
 class EdgeTool;
 class FaceTool;
 class MapDocument;
+class Selection;
 
 class MapViewToolBox : public ToolBox
 {
@@ -128,6 +129,9 @@ private: // notification
   void toolDeactivated(Tool& tool);
   void updateEditorContext();
   void documentWasNewedOrLoaded(MapDocument* document);
+  void selectionDidChange(const Selection& selection);
+
+  void updateToolPage();
 };
 } // namespace View
 } // namespace TrenchBroom
