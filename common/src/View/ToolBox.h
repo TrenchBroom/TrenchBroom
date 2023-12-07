@@ -119,6 +119,7 @@ public: // tool management
   void suppressWhileActive(Tool& suppressedTool, Tool& primaryTool);
 
   bool anyToolActive() const;
+  Tool* activeTool();
   void toggleTool(Tool& tool);
   void deactivateAllTools();
 

@@ -305,6 +305,8 @@ void MapViewToolBox::createTools(
   registerTool(faceTool(), bookCtrl);
   registerTool(createEntityTool(), bookCtrl);
   registerTool(drawShapeTool(), bookCtrl);
+
+  updateToolPage();
 }
 
 void MapViewToolBox::registerTool(Tool& tool, QStackedLayout* bookCtrl)
@@ -325,18 +327,20 @@ void MapViewToolBox::connectObservers()
     this, &MapViewToolBox::documentWasNewedOrLoaded);
   m_notifierConnection += document->documentWasLoadedNotifier.connect(
     this, &MapViewToolBox::documentWasNewedOrLoaded);
+  m_notifierConnection += document->selectionDidChangeNotifier.connect(
+    this, &MapViewToolBox::selectionDidChange);
 }
 
-void MapViewToolBox::toolActivated(Tool& tool)
+void MapViewToolBox::toolActivated(Tool&)
 {
   updateEditorContext();
-  tool.showPage();
+  updateToolPage();
 }
 
 void MapViewToolBox::toolDeactivated(Tool&)
 {
   updateEditorContext();
-  m_moveObjectsTool->showPage();
+  updateToolPage();
 }
 
 void MapViewToolBox::updateEditorContext()
@@ -350,5 +354,28 @@ void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*)
 {
   deactivateAllTools();
 }
+
+void MapViewToolBox::selectionDidChange(const Selection&)
+{
+  updateToolPage();
+}
+
+void MapViewToolBox::updateToolPage()
+{
+  auto document = kdl::mem_lock(m_document);
+  if (auto* activeTool = this->activeTool())
+  {
+    activeTool->showPage();
+  }
+  else if (document->hasSelection())
+  {
+    moveObjectsTool().showPage();
+  }
+  else
+  {
+    drawShapeTool().showPage();
+  }
+}
+
 } // namespace View
 } // namespace TrenchBroom
