@@ -25,6 +25,7 @@
 #include "Result.h"
 
 #include <vecmath/bbox.h>
+#include <vecmath/util.h>
 
 #include <string>
 #include <vector>
@@ -34,6 +35,12 @@ namespace TrenchBroom::Model
 class Brush;
 class ModelFactory;
 enum class MapFormat;
+
+enum class RadiusMode
+{
+  ToEdge,
+  ToVertex,
+};
 
 class BrushBuilder
 {
@@ -79,6 +86,13 @@ public:
     const std::string& backTexture,
     const std::string& topTexture,
     const std::string& bottomTexture) const;
+
+  Result<Brush> createCylinder(
+    const vm::bbox3& bounds,
+    size_t numSides,
+    RadiusMode radiusMode,
+    vm::axis::type axis,
+    const std::string& textureName) const;
 
   Result<Brush> createBrush(
     const std::vector<vm::vec3>& points, const std::string& textureName) const;
