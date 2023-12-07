@@ -253,6 +253,11 @@ bool ToolBox::anyToolActive() const
   return m_modalTool != nullptr;
 }
 
+Tool* ToolBox::activeTool()
+{
+  return m_modalTool;
+}
+
 void ToolBox::toggleTool(Tool& tool)
 {
   if (&tool == m_modalTool)
