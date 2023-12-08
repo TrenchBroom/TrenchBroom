@@ -17,10 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateSimpleBrushToolController2D.h"
-
+#include "DrawShapeToolController3D.h"
+#include "FloatType.h"
+#include "Model/BrushNode.h"
+#include "Model/Hit.h"
+#include "Model/HitFilter.h"
+#include "Model/PickResult.h"
 #include "Renderer/Camera.h"
-#include "View/CreateSimpleBrushTool.h"
+#include "View/DrawShapeTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
@@ -28,46 +32,43 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vm/intersection.h"
-#include "vm/scalar.h"
+#include "vm/bbox.h"
+#include "vm/line.h"
+#include "vm/plane.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom::View
 {
 
-CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(
-  CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document)
+DrawShapeToolController3D::DrawShapeToolController3D(
+  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
   , m_document{std::move(document)}
 {
 }
 
-Tool& CreateSimpleBrushToolController2D::tool()
+Tool& DrawShapeToolController3D::tool()
 {
   return m_tool;
 }
 
-const Tool& CreateSimpleBrushToolController2D::tool() const
+const Tool& DrawShapeToolController3D::tool() const
 {
   return m_tool;
 }
 
 namespace
 {
-class CreateSimpleBrushDragDelegate : public HandleDragTrackerDelegate
+class DrawShapeDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  CreateSimpleBrushTool& m_tool;
+  DrawShapeTool& m_tool;
   vm::bbox3 m_worldBounds;
-  vm::bbox3 m_referenceBounds;
 
 public:
-  CreateSimpleBrushDragDelegate(
-    CreateSimpleBrushTool& tool,
-    const vm::bbox3& worldBounds,
-    const vm::bbox3& referenceBounds)
+  DrawShapeDragDelegate(DrawShapeTool& tool, const vm::bbox3& worldBounds)
     : m_tool{tool}
     , m_worldBounds{worldBounds}
-    , m_referenceBounds{referenceBounds}
   {
   }
 
@@ -81,13 +82,31 @@ public:
     m_tool.update(currentBounds);
     m_tool.refreshViews();
 
-    const auto& camera = inputState.camera();
-    const auto plane = vm::plane3{
-      initialHandlePosition,
-      vm::vec3{vm::get_abs_max_component_axis(camera.direction())}};
-
     return makeHandlePositionProposer(
-      makePlaneHandlePicker(plane, handleOffset), makeIdentityHandleSnapper());
+      makePlaneHandlePicker(vm::horizontal_plane(initialHandlePosition), handleOffset),
+      makeIdentityHandleSnapper());
+  }
+
+  std::optional<UpdateDragConfig> modifierKeyChange(
+    const InputState& inputState, const DragState& dragState) override
+  {
+    if (inputState.modifierKeys() == ModifierKeys::MKAlt)
+    {
+      return UpdateDragConfig{
+        makeHandlePositionProposer(
+          makeLineHandlePicker(
+            vm::line3{dragState.currentHandlePosition, vm::vec3::pos_z()},
+            dragState.handleOffset),
+          makeIdentityHandleSnapper()),
+        ResetInitialHandlePosition::Keep};
+    }
+
+    return UpdateDragConfig{
+      makeHandlePositionProposer(
+        makePlaneHandlePicker(
+          vm::horizontal_plane(dragState.currentHandlePosition), dragState.handleOffset),
+        makeIdentityHandleSnapper()),
+      ResetInitialHandlePosition::Keep};
   }
 
   DragStatus drag(
@@ -146,36 +165,56 @@ private:
     const vm::vec3& initialHandlePosition,
     const vm::vec3& currentHandlePosition) const
   {
-    const auto bounds = vm::merge(
-      vm::bbox3{initialHandlePosition, initialHandlePosition}, currentHandlePosition);
+    const auto bounds = vm::bbox3{
+      vm::min(initialHandlePosition, currentHandlePosition),
+      vm::max(initialHandlePosition, currentHandlePosition)};
     return vm::intersect(snapBounds(inputState, bounds), m_worldBounds);
   }
 
-  vm::bbox3 snapBounds(const InputState& inputState, const vm::bbox3& bounds) const
+  vm::bbox3 snapBounds(const InputState& inputState, vm::bbox3 bounds) const
   {
+
+    // prevent flickering due to very small rounding errors
+    bounds.min = vm::correct(bounds.min);
+    bounds.max = vm::correct(bounds.max);
+
     const auto& grid = m_tool.grid();
-    auto min = grid.snapDown(bounds.min);
-    auto max = grid.snapUp(bounds.max);
+    bounds.min = grid.snapDown(bounds.min);
+    bounds.max = grid.snapUp(bounds.max);
 
     const auto& camera = inputState.camera();
-    const auto& refBounds = m_referenceBounds;
-    const auto factors =
-      vm::vec3{vm::abs(vm::get_abs_max_component_axis(camera.direction()))};
-    min = vm::mix(min, refBounds.min, factors);
-    max = vm::mix(max, refBounds.max, factors);
+    const auto cameraPosition = vm::vec3{camera.position()};
 
-    return vm::bbox3{min, max};
+    for (size_t i = 0; i < 3; i++)
+    {
+      if (bounds.max[i] <= bounds.min[i])
+      {
+        if (bounds.min[i] < cameraPosition[i])
+        {
+          bounds.max[i] = bounds.min[i] + grid.actualSize();
+        }
+        else
+        {
+          bounds.min[i] = bounds.max[i] - grid.actualSize();
+        }
+      }
+    }
+
+    return bounds;
   }
 };
 } // namespace
 
-std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(
+std::unique_ptr<DragTracker> DrawShapeToolController3D::acceptMouseDrag(
   const InputState& inputState)
 {
+  using namespace Model::HitFilters;
+
   if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
   {
     return nullptr;
   }
+
   if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
   {
     return nullptr;
@@ -187,28 +226,18 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(
     return nullptr;
   }
 
-  const auto& bounds = document->referenceBounds();
-  const auto& camera = inputState.camera();
-  const auto plane =
-    vm::plane3{bounds.min, vm::vec3{vm::get_abs_max_component_axis(camera.direction())}};
-
-  const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane);
-  if (vm::is_nan(distance))
-  {
-    return nullptr;
-  }
-
+  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
   const auto initialHandlePosition =
-    vm::point_at_distance(inputState.pickRay(), distance);
+    hit.isMatch() ? hit.hitPoint() : inputState.defaultPointUnderMouse();
+
   return createHandleDragTracker(
-    CreateSimpleBrushDragDelegate{
-      m_tool, document->worldBounds(), document->referenceBounds()},
+    DrawShapeDragDelegate{m_tool, document->worldBounds()},
     inputState,
     initialHandlePosition,
     initialHandlePosition);
 }
 
-bool CreateSimpleBrushToolController2D::cancel()
+bool DrawShapeToolController3D::cancel()
 {
   return false;
 }
