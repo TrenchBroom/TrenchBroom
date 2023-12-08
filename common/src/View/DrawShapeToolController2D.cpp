@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateSimpleBrushToolController2D.h"
+#include "DrawShapeToolController2D.h"
 
 #include "Renderer/Camera.h"
-#include "View/CreateSimpleBrushTool.h"
+#include "View/DrawShapeTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
@@ -29,42 +29,39 @@
 #include "kdl/memory_utils.h"
 
 #include "vm/intersection.h"
-#include "vm/scalar.h"
 
 namespace TrenchBroom::View
 {
 
-CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(
-  CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document)
+DrawShapeToolController2D::DrawShapeToolController2D(
+  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
   , m_document{std::move(document)}
 {
 }
 
-Tool& CreateSimpleBrushToolController2D::tool()
+Tool& DrawShapeToolController2D::tool()
 {
   return m_tool;
 }
 
-const Tool& CreateSimpleBrushToolController2D::tool() const
+const Tool& DrawShapeToolController2D::tool() const
 {
   return m_tool;
 }
 
 namespace
 {
-class CreateSimpleBrushDragDelegate : public HandleDragTrackerDelegate
+class DrawShapeDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  CreateSimpleBrushTool& m_tool;
+  DrawShapeTool& m_tool;
   vm::bbox3 m_worldBounds;
   vm::bbox3 m_referenceBounds;
 
 public:
-  CreateSimpleBrushDragDelegate(
-    CreateSimpleBrushTool& tool,
-    const vm::bbox3& worldBounds,
-    const vm::bbox3& referenceBounds)
+  DrawShapeDragDelegate(
+    DrawShapeTool& tool, const vm::bbox3& worldBounds, const vm::bbox3& referenceBounds)
     : m_tool{tool}
     , m_worldBounds{worldBounds}
     , m_referenceBounds{referenceBounds}
@@ -169,7 +166,7 @@ private:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(
+std::unique_ptr<DragTracker> DrawShapeToolController2D::acceptMouseDrag(
   const InputState& inputState)
 {
   if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
@@ -197,8 +194,7 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(
     const auto initialHandlePosition =
       vm::point_at_distance(inputState.pickRay(), *distance);
     return createHandleDragTracker(
-      CreateSimpleBrushDragDelegate{
-        m_tool, document->worldBounds(), document->referenceBounds()},
+      DrawShapeDragDelegate{m_tool, document->worldBounds(), document->referenceBounds()},
       inputState,
       initialHandlePosition,
       initialHandlePosition);
@@ -207,7 +203,7 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(
   return nullptr;
 }
 
-bool CreateSimpleBrushToolController2D::cancel()
+bool DrawShapeToolController2D::cancel()
 {
   return false;
 }

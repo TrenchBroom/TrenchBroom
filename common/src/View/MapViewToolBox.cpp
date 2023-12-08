@@ -23,7 +23,7 @@
 #include "View/ClipTool.h"
 #include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
-#include "View/CreateSimpleBrushTool.h"
+#include "View/DrawShapeTool.h"
 #include "View/EdgeTool.h"
 #include "View/ExtrudeTool.h"
 #include "View/FaceTool.h"
@@ -63,9 +63,9 @@ CreateEntityTool& MapViewToolBox::createEntityTool()
   return *m_createEntityTool;
 }
 
-CreateSimpleBrushTool& MapViewToolBox::createSimpleBrushTool()
+DrawShapeTool& MapViewToolBox::drawShapeTool()
 {
-  return *m_createSimpleBrushTool;
+  return *m_drawShapeTool;
 }
 
 MoveObjectsTool& MapViewToolBox::moveObjectsTool()
@@ -258,7 +258,7 @@ void MapViewToolBox::createTools(
   m_clipTool = std::make_unique<ClipTool>(document);
   m_createComplexBrushTool = std::make_unique<CreateComplexBrushTool>(document);
   m_createEntityTool = std::make_unique<CreateEntityTool>(document);
-  m_createSimpleBrushTool = std::make_unique<CreateSimpleBrushTool>(document);
+  m_drawShapeTool = std::make_unique<DrawShapeTool>(document);
   m_moveObjectsTool = std::make_unique<MoveObjectsTool>(document);
   m_extrudeTool = std::make_unique<ExtrudeTool>(document);
   m_rotateObjectsTool = std::make_unique<RotateObjectsTool>(document);
@@ -270,28 +270,28 @@ void MapViewToolBox::createTools(
 
   suppressWhileActive(moveObjectsTool(), createComplexBrushTool());
   suppressWhileActive(extrudeTool(), createComplexBrushTool());
-  suppressWhileActive(createSimpleBrushTool(), createComplexBrushTool());
+  suppressWhileActive(drawShapeTool(), createComplexBrushTool());
   suppressWhileActive(moveObjectsTool(), rotateObjectsTool());
   suppressWhileActive(extrudeTool(), rotateObjectsTool());
-  suppressWhileActive(createSimpleBrushTool(), rotateObjectsTool());
+  suppressWhileActive(drawShapeTool(), rotateObjectsTool());
   suppressWhileActive(moveObjectsTool(), scaleObjectsTool());
   suppressWhileActive(extrudeTool(), scaleObjectsTool());
-  suppressWhileActive(createSimpleBrushTool(), scaleObjectsTool());
+  suppressWhileActive(drawShapeTool(), scaleObjectsTool());
   suppressWhileActive(moveObjectsTool(), shearObjectsTool());
   suppressWhileActive(extrudeTool(), shearObjectsTool());
-  suppressWhileActive(createSimpleBrushTool(), shearObjectsTool());
+  suppressWhileActive(drawShapeTool(), shearObjectsTool());
   suppressWhileActive(moveObjectsTool(), vertexTool());
   suppressWhileActive(extrudeTool(), vertexTool());
-  suppressWhileActive(createSimpleBrushTool(), vertexTool());
+  suppressWhileActive(drawShapeTool(), vertexTool());
   suppressWhileActive(moveObjectsTool(), edgeTool());
   suppressWhileActive(extrudeTool(), edgeTool());
-  suppressWhileActive(createSimpleBrushTool(), edgeTool());
+  suppressWhileActive(drawShapeTool(), edgeTool());
   suppressWhileActive(moveObjectsTool(), faceTool());
   suppressWhileActive(extrudeTool(), faceTool());
-  suppressWhileActive(createSimpleBrushTool(), faceTool());
+  suppressWhileActive(drawShapeTool(), faceTool());
   suppressWhileActive(moveObjectsTool(), clipTool());
   suppressWhileActive(extrudeTool(), clipTool());
-  suppressWhileActive(createSimpleBrushTool(), clipTool());
+  suppressWhileActive(drawShapeTool(), clipTool());
 
   registerTool(moveObjectsTool(), bookCtrl);
   registerTool(rotateObjectsTool(), bookCtrl);
@@ -304,7 +304,7 @@ void MapViewToolBox::createTools(
   registerTool(edgeTool(), bookCtrl);
   registerTool(faceTool(), bookCtrl);
   registerTool(createEntityTool(), bookCtrl);
-  registerTool(createSimpleBrushTool(), bookCtrl);
+  registerTool(drawShapeTool(), bookCtrl);
 }
 
 void MapViewToolBox::registerTool(Tool& tool, QStackedLayout* bookCtrl)

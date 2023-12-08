@@ -17,15 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateSimpleBrushToolController3D.h"
-
+#include "DrawShapeToolController3D.h"
 #include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
-#include "View/CreateSimpleBrushTool.h"
+#include "View/DrawShapeTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
@@ -41,33 +40,33 @@
 namespace TrenchBroom::View
 {
 
-CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(
-  CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document)
+DrawShapeToolController3D::DrawShapeToolController3D(
+  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
   , m_document{std::move(document)}
 {
 }
 
-Tool& CreateSimpleBrushToolController3D::tool()
+Tool& DrawShapeToolController3D::tool()
 {
   return m_tool;
 }
 
-const Tool& CreateSimpleBrushToolController3D::tool() const
+const Tool& DrawShapeToolController3D::tool() const
 {
   return m_tool;
 }
 
 namespace
 {
-class CreateSimpleBrushDragDelegate : public HandleDragTrackerDelegate
+class DrawShapeDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  CreateSimpleBrushTool& m_tool;
+  DrawShapeTool& m_tool;
   vm::bbox3 m_worldBounds;
 
 public:
-  CreateSimpleBrushDragDelegate(CreateSimpleBrushTool& tool, const vm::bbox3& worldBounds)
+  DrawShapeDragDelegate(DrawShapeTool& tool, const vm::bbox3& worldBounds)
     : m_tool{tool}
     , m_worldBounds{worldBounds}
   {
@@ -206,7 +205,7 @@ private:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> CreateSimpleBrushToolController3D::acceptMouseDrag(
+std::unique_ptr<DragTracker> DrawShapeToolController3D::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace Model::HitFilters;
@@ -232,13 +231,13 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController3D::acceptMouseDrag(
     hit.isMatch() ? hit.hitPoint() : inputState.defaultPointUnderMouse();
 
   return createHandleDragTracker(
-    CreateSimpleBrushDragDelegate{m_tool, document->worldBounds()},
+    DrawShapeDragDelegate{m_tool, document->worldBounds()},
     inputState,
     initialHandlePosition,
     initialHandlePosition);
 }
 
-bool CreateSimpleBrushToolController3D::cancel()
+bool DrawShapeToolController3D::cancel()
 {
   return false;
 }
