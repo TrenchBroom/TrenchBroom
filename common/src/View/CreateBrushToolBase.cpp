@@ -28,24 +28,18 @@
 
 #include <kdl/memory_utils.h>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 CreateBrushToolBase::CreateBrushToolBase(
   const bool initiallyActive, std::weak_ptr<MapDocument> document)
-  : Tool(initiallyActive)
-  , m_document(document)
-  , m_brush(nullptr)
-  , m_brushRenderer(new Renderer::BrushRenderer())
+  : Tool{initiallyActive}
+  , m_document{std::move(document)}
+  , m_brushRenderer{std::make_unique<Renderer::BrushRenderer>()}
 {
 }
 
-CreateBrushToolBase::~CreateBrushToolBase()
-{
-  delete m_brushRenderer;
-  delete m_brush;
-}
+CreateBrushToolBase::~CreateBrushToolBase() = default;
 
 const Grid& CreateBrushToolBase::grid() const
 {
@@ -54,31 +48,30 @@ const Grid& CreateBrushToolBase::grid() const
 
 void CreateBrushToolBase::createBrush()
 {
-  if (m_brush != nullptr)
+  if (m_brushNode)
   {
     auto document = kdl::mem_lock(m_document);
 
     auto transaction = Transaction{document, "Create Brush"};
     document->deselectAll();
-    document->addNodes({{document->parentForNodes(), {m_brush}}});
-    document->selectNodes({m_brush});
+    auto addedNodes =
+      document->addNodes({{document->parentForNodes(), {m_brushNode.release()}}});
+    document->selectNodes(addedNodes);
     transaction.commit();
 
-    m_brush = nullptr;
     doBrushWasCreated();
   }
 }
 
 void CreateBrushToolBase::cancel()
 {
-  delete m_brush;
-  m_brush = nullptr;
+  m_brushNode.release();
 }
 
 void CreateBrushToolBase::render(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
 {
-  if (m_brush != nullptr)
+  if (m_brushNode)
   {
     renderBrush(renderContext, renderBatch);
   }
@@ -87,7 +80,7 @@ void CreateBrushToolBase::render(
 void CreateBrushToolBase::renderBrush(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
 {
-  ensure(m_brush != nullptr, "brush is null");
+  ensure(m_brushNode, "brush is not null");
 
   m_brushRenderer->setFaceColor(pref(Preferences::FaceColor));
   m_brushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
@@ -101,19 +94,18 @@ void CreateBrushToolBase::renderBrush(
   m_brushRenderer->setTransparencyAlpha(0.7f);
 
   m_brushRenderer->clear();
-  m_brushRenderer->addBrush(m_brush);
+  m_brushRenderer->addBrush(m_brushNode.get());
   m_brushRenderer->render(renderContext, renderBatch);
 
-  Renderer::SelectionBoundsRenderer boundsRenderer(m_brush->logicalBounds());
+  auto boundsRenderer = Renderer::SelectionBoundsRenderer{m_brushNode->logicalBounds()};
   boundsRenderer.render(renderContext, renderBatch);
 }
 
-void CreateBrushToolBase::updateBrush(Model::BrushNode* brush)
+void CreateBrushToolBase::updateBrush(std::unique_ptr<Model::BrushNode> brushNode)
 {
-  delete m_brush;
-  m_brush = brush;
+  m_brushNode = std::move(brushNode);
 }
 
 void CreateBrushToolBase::doBrushWasCreated() {}
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

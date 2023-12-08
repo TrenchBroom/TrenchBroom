@@ -21,10 +21,9 @@
 
 #include "View/ToolController.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class CreateComplexBrushTool;
 
 class CreateComplexBrushToolController3D : public ToolControllerGroup
@@ -51,5 +50,5 @@ private:
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

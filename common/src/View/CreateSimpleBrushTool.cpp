@@ -20,9 +20,8 @@
 #include "CreateSimpleBrushTool.h"
 
 #include "Error.h"
-#include "Exceptions.h"
 #include "FloatType.h"
-#include "Model/Brush.h"
+#include "Model/Brush.h" // IWYU pragma: keep
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/Game.h"
@@ -32,12 +31,11 @@
 #include <kdl/memory_utils.h>
 #include <kdl/result.h>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 CreateSimpleBrushTool::CreateSimpleBrushTool(std::weak_ptr<MapDocument> document)
-  : CreateBrushToolBase(true, document)
+  : CreateBrushToolBase{true, std::move(document)}
 {
 }
 
@@ -45,16 +43,16 @@ void CreateSimpleBrushTool::update(const vm::bbox3& bounds)
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  const auto builder = Model::BrushBuilder(
-    document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
+  const auto builder = Model::BrushBuilder{
+    document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs()};
 
   builder.createCuboid(bounds, document->currentTextureName())
-    .transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
+    .transform(
+      [&](auto b) { updateBrush(std::make_unique<Model::BrushNode>(std::move(b))); })
     .transform_error([&](auto e) {
       updateBrush(nullptr);
       document->error() << "Could not update brush: " << e;
     });
 }
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

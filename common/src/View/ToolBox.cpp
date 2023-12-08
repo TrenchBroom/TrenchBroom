@@ -22,7 +22,6 @@
 #include <QDateTime>
 #include <QDebug>
 
-#include "Ensure.h"
 #include "View/DragTracker.h"
 #include "View/DropTracker.h"
 #include "View/InputState.h"
@@ -230,7 +229,9 @@ bool ToolBox::cancel(ToolChain* chain)
   }
 
   if (chain->cancel())
+  {
     return true;
+  }
 
   if (anyToolActive())
   {

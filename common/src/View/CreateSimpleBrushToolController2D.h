@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/ToolController.h"
 
 #include <vecmath/bbox.h>
@@ -27,10 +26,9 @@
 
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class CreateSimpleBrushTool;
 class DragTracker;
 class MapDocument;
@@ -53,5 +51,5 @@ private:
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
