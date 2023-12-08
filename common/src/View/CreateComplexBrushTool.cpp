@@ -19,26 +19,23 @@
 
 #include "CreateComplexBrushTool.h"
 
-#include "Error.h"
-#include "Exceptions.h"
+#include "Error.h" // IWYU pragma: keep
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/Game.h"
 #include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
-#include "PreferenceManager.h"
 #include "View/MapDocument.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/result.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 CreateComplexBrushTool::CreateComplexBrushTool(std::weak_ptr<MapDocument> document)
-  : CreateBrushToolBase(false, document)
-  , m_polyhedron(std::make_unique<Model::Polyhedron3>())
+  : CreateBrushToolBase{false, std::move(document)}
+  , m_polyhedron{std::make_unique<Model::Polyhedron3>()}
 {
 }
 
@@ -54,13 +51,14 @@ void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
   {
     auto document = kdl::mem_lock(m_document);
     const auto game = document->game();
-    const Model::BrushBuilder builder(
+    const auto builder = Model::BrushBuilder{
       document->world()->mapFormat(),
       document->worldBounds(),
-      game->defaultFaceAttribs());
+      game->defaultFaceAttribs()};
 
     builder.createBrush(*m_polyhedron, document->currentTextureName())
-      .transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
+      .transform(
+        [&](auto b) { updateBrush(std::make_unique<Model::BrushNode>(std::move(b))); })
       .transform_error([&](auto e) {
         updateBrush(nullptr);
         document->error() << "Could not update brush: " << e.msg;
@@ -74,19 +72,19 @@ void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
 
 bool CreateComplexBrushTool::doActivate()
 {
-  update(Model::Polyhedron3());
+  update(Model::Polyhedron3{});
   return true;
 }
 
 bool CreateComplexBrushTool::doDeactivate()
 {
-  update(Model::Polyhedron3());
+  update(Model::Polyhedron3{});
   return true;
 }
 
 void CreateComplexBrushTool::doBrushWasCreated()
 {
-  update(Model::Polyhedron3());
+  update(Model::Polyhedron3{});
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

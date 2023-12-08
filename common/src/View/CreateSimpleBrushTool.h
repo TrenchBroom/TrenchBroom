@@ -24,9 +24,7 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 
@@ -36,5 +34,4 @@ public:
   explicit CreateSimpleBrushTool(std::weak_ptr<MapDocument> document);
   void update(const vm::bbox3& bounds);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

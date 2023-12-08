@@ -20,12 +20,10 @@
 #include "CreateSimpleBrushToolController3D.h"
 
 #include "FloatType.h"
-#include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
-#include "PreferenceManager.h"
 #include "Renderer/Camera.h"
 #include "View/CreateSimpleBrushTool.h"
 #include "View/Grid.h"
@@ -40,16 +38,13 @@
 #include "vm/plane.h"
 #include "vm/vec.h"
 
-#include <cassert>
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
 CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(
   CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
-  , m_document{document}
+  , m_document{std::move(document)}
 {
 }
 
@@ -81,7 +76,7 @@ public:
   HandlePositionProposer start(
     const InputState& inputState,
     const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset)
+    const vm::vec3& handleOffset) override
   {
     const auto currentBounds =
       makeBounds(inputState, initialHandlePosition, initialHandlePosition);
@@ -94,7 +89,7 @@ public:
   }
 
   std::optional<UpdateDragConfig> modifierKeyChange(
-    const InputState& inputState, const DragState& dragState)
+    const InputState& inputState, const DragState& dragState) override
   {
     if (inputState.modifierKeys() == ModifierKeys::MKAlt)
     {
@@ -118,7 +113,7 @@ public:
   DragStatus drag(
     const InputState& inputState,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition)
+    const vm::vec3& proposedHandlePosition) override
   {
     if (updateBounds(
           inputState,
@@ -132,15 +127,15 @@ public:
     return DragStatus::Deny;
   }
 
-  void end(const InputState&, const DragState&) { m_tool.createBrush(); }
+  void end(const InputState&, const DragState&) override { m_tool.createBrush(); }
 
-  void cancel(const DragState&) { m_tool.cancel(); }
+  void cancel(const DragState&) override { m_tool.cancel(); }
 
   void render(
     const InputState&,
     const DragState&,
     Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const
+    Renderer::RenderBatch& renderBatch) const override
   {
     m_tool.render(renderContext, renderBatch);
   }
@@ -247,5 +242,5 @@ bool CreateSimpleBrushToolController3D::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
