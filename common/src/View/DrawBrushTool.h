@@ -20,38 +20,18 @@
 #pragma once
 
 #include "FloatType.h"
-#include "View/ToolController.h"
-
-#include <vecmath/vec.h>
+#include "View/CreateBrushToolBase.h"
 
 #include <memory>
 
 namespace TrenchBroom::View
 {
-
-class CreateSimpleBrushTool;
-class DragTracker;
 class MapDocument;
 
-class CreateSimpleBrushToolController3D : public ToolController
+class DrawBrushTool : public CreateBrushToolBase
 {
-private:
-  CreateSimpleBrushTool& m_tool;
-  std::weak_ptr<MapDocument> m_document;
-
-  vm::vec3 m_initialPoint;
-
 public:
-  CreateSimpleBrushToolController3D(
-    CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document);
-
-private:
-  Tool& tool() override;
-  const Tool& tool() const override;
-
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
-
-  bool cancel() override;
+  explicit DrawBrushTool(std::weak_ptr<MapDocument> document);
+  void update(const vm::bbox3& bounds);
 };
-
 } // namespace TrenchBroom::View

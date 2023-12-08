@@ -29,19 +29,18 @@
 namespace TrenchBroom::View
 {
 
-class CreateSimpleBrushTool;
+class DrawBrushTool;
 class DragTracker;
 class MapDocument;
 
-class CreateSimpleBrushToolController2D : public ToolController
+class DrawBrushToolController2D : public ToolController
 {
 private:
-  CreateSimpleBrushTool& m_tool;
+  DrawBrushTool& m_tool;
   std::weak_ptr<MapDocument> m_document;
 
 public:
-  CreateSimpleBrushToolController2D(
-    CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document);
+  DrawBrushToolController2D(DrawBrushTool& tool, std::weak_ptr<MapDocument> document);
 
 private:
   Tool& tool() override;

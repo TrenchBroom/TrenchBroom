@@ -44,7 +44,7 @@
 #include "View/CameraTool2D.h"
 #include "View/ClipToolController.h"
 #include "View/CreateEntityToolController.h"
-#include "View/CreateSimpleBrushToolController2D.h"
+#include "View/DrawBrushToolController2D.h"
 #include "View/EdgeTool.h"
 #include "View/EdgeToolController.h"
 #include "View/ExtrudeToolController.h"
@@ -147,8 +147,8 @@ void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
   addTool(std::make_unique<FaceToolController>(toolBox.faceTool()));
   addTool(std::make_unique<CreateEntityToolController2D>(toolBox.createEntityTool()));
   addTool(std::make_unique<SelectionTool>(m_document));
-  addTool(std::make_unique<CreateSimpleBrushToolController2D>(
-    toolBox.createSimpleBrushTool(), m_document));
+  addTool(
+    std::make_unique<DrawBrushToolController2D>(toolBox.drawBrushTool(), m_document));
 }
 
 void MapView2D::connectObservers()

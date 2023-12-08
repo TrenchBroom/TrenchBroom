@@ -34,7 +34,7 @@ namespace View
 class ClipTool;
 class CreateComplexBrushTool;
 class CreateEntityTool;
-class CreateSimpleBrushTool;
+class DrawBrushTool;
 class MoveObjectsTool;
 class ExtrudeTool;
 class RotateObjectsTool;
@@ -53,7 +53,7 @@ private:
   std::unique_ptr<ClipTool> m_clipTool;
   std::unique_ptr<CreateComplexBrushTool> m_createComplexBrushTool;
   std::unique_ptr<CreateEntityTool> m_createEntityTool;
-  std::unique_ptr<CreateSimpleBrushTool> m_createSimpleBrushTool;
+  std::unique_ptr<DrawBrushTool> m_drawBrushTool;
   std::unique_ptr<MoveObjectsTool> m_moveObjectsTool;
   std::unique_ptr<ExtrudeTool> m_extrudeTool;
   std::unique_ptr<RotateObjectsTool> m_rotateObjectsTool;
@@ -73,7 +73,7 @@ public: // tools
   ClipTool& clipTool();
   CreateComplexBrushTool& createComplexBrushTool();
   CreateEntityTool& createEntityTool();
-  CreateSimpleBrushTool& createSimpleBrushTool();
+  DrawBrushTool& drawBrushTool();
   MoveObjectsTool& moveObjectsTool();
   ExtrudeTool& extrudeTool();
   RotateObjectsTool& rotateObjectsTool();

@@ -440,7 +440,7 @@ TrenchBroom gives you various options on how to create new objects. In the follo
 
 The easiest way to create a new brush is to just draw it with the mouse. To draw a brush, make sure nothing is currently selected and left drag in the 3D viewport or any of the 2D viewports. If you draw a brush in the 3D viewport, its shape is controlled by the point where you initially started your drag, the point currently under the mouse, and the current grid size. Essentially, you will draw your brush on the XY plane, and its height will be set to the current grid size. But it is possible to change the height while drawing a brush by holding #key(Alt). Whenever #key(Alt) is held, you can change the brush height, otherwise you control the X/Y extents of the brush.
 
-![Creating a cuboid in the 3D viewport](images/CreateSimpleBrush.gif)
+![Creating a cuboid in the 3D viewport](images/DrawBrush.gif)
 
 If, on the other hand, you draw a brush in a 2D viewport, you only control its extents on whatever axes the 2D view is set to display. So if you are drawing a brush in the XZ view, you control the X/Z extents with the mouse, and there's no way to change the Y extents directly, which is always fixed to the Y extents of the most recently selected objects. This of course applies to all of the different 2D viewports in the same way.
 

@@ -311,14 +311,14 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.cpp
         ${COMMON_SOURCE_DIR}/View/CreateEntityTool.cpp
         ${COMMON_SOURCE_DIR}/View/CreateEntityToolController.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushTool.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController2D.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController3D.cpp
         ${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
         ${COMMON_SOURCE_DIR}/View/DialogHeader.cpp
         ${COMMON_SOURCE_DIR}/View/DragTracker.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawBrushTool.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolController2D.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolController3D.cpp
         ${COMMON_SOURCE_DIR}/View/DropTracker.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
@@ -830,14 +830,14 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/View/CreateEntityTool.h
         ${COMMON_SOURCE_DIR}/View/CreateEntityToolController.h
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushTool.h
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController2D.h
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.h
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.h
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.h
         ${COMMON_SOURCE_DIR}/View/DialogHeader.h
         ${COMMON_SOURCE_DIR}/View/DragTracker.h
+        ${COMMON_SOURCE_DIR}/View/DrawBrushTool.h
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolController2D.h
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/View/DropTracker.h
         ${COMMON_SOURCE_DIR}/View/EdgeTool.h
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.h
