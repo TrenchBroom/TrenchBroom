@@ -420,13 +420,13 @@ std::vector<vm::vec3f> sphere3D(const float radius, const size_t iterations)
   triangles.push_back(Triangle{5, 9, 4});
 
   // subdivide the icosahedron
-  MidPointCache cache;
+  auto cache = MidPointCache{};
   for (size_t i = 0; i < iterations; ++i)
   {
     auto newTriangles = std::vector<Triangle>{};
     newTriangles.reserve(triangles.size() * 4);
 
-    for (Triangle& triangle : triangles)
+    for (const auto& triangle : triangles)
     {
       const auto index1 = midPoint(vertices, cache, triangle[0], triangle[1]);
       const auto index2 = midPoint(vertices, cache, triangle[1], triangle[2]);

@@ -22,7 +22,6 @@
 #include <QDateTime>
 #include <QDebug>
 
-#include "Ensure.h"
 #include "View/DragTracker.h"
 #include "View/DropTracker.h"
 #include "View/InputState.h"
@@ -34,16 +33,9 @@
 #include <string>
 #include <utility>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-ToolBox::ToolBox()
-  : m_modalTool(nullptr)
-  , m_enabled(true)
-{
-}
-
+ToolBox::ToolBox() = default;
 ToolBox::~ToolBox() = default;
 
 void ToolBox::addTool(Tool& tool)
@@ -80,7 +72,7 @@ bool ToolBox::dragEnter(
 bool ToolBox::dragMove(
   ToolChain* /* chain */, const InputState& inputState, const std::string& /* text */)
 {
-  if (!m_enabled || m_dropTracker == nullptr)
+  if (!m_enabled || !m_dropTracker)
   {
     return false;
   }
@@ -91,7 +83,7 @@ bool ToolBox::dragMove(
 
 void ToolBox::dragLeave(ToolChain* /* chain */, const InputState& inputState)
 {
-  if (!m_enabled || m_dropTracker == nullptr)
+  if (!m_enabled || !m_dropTracker)
   {
     return;
   }
@@ -103,7 +95,7 @@ void ToolBox::dragLeave(ToolChain* /* chain */, const InputState& inputState)
 bool ToolBox::dragDrop(
   ToolChain* /* chain */, const InputState& inputState, const std::string& /* text */)
 {
-  if (!m_enabled || m_dropTracker == nullptr)
+  if (!m_enabled || !m_dropTracker)
   {
     return false;
   }
@@ -115,60 +107,56 @@ bool ToolBox::dragDrop(
 
 void ToolBox::modifierKeyChange(ToolChain* chain, const InputState& inputState)
 {
-  if (!m_enabled)
+  if (m_enabled)
   {
-    return;
-  }
-  chain->modifierKeyChange(inputState);
-  if (m_dragTracker)
-  {
-    m_dragTracker->modifierKeyChange(inputState);
+    chain->modifierKeyChange(inputState);
+    if (m_dragTracker)
+    {
+      m_dragTracker->modifierKeyChange(inputState);
+    }
   }
 }
 
-void ToolBox::mouseDown(ToolChain* chain, const InputState& inputState)
+void ToolBox::mouseDown(ToolChain* chain, const InputState& inputState) const
 {
-  if (!m_enabled)
+  if (m_enabled)
   {
-    return;
+    chain->mouseDown(inputState);
   }
-  chain->mouseDown(inputState);
 }
 
-void ToolBox::mouseUp(ToolChain* chain, const InputState& inputState)
+void ToolBox::mouseUp(ToolChain* chain, const InputState& inputState) const
 {
-  if (!m_enabled)
+  if (m_enabled)
   {
-    return;
+    chain->mouseUp(inputState);
   }
-  chain->mouseUp(inputState);
 }
 
-bool ToolBox::mouseClick(ToolChain* chain, const InputState& inputState)
+bool ToolBox::mouseClick(ToolChain* chain, const InputState& inputState) const
 {
-  if (!m_enabled)
+  if (m_enabled)
   {
-    return false;
+    return chain->mouseClick(inputState);
   }
-  return chain->mouseClick(inputState);
+
+  return false;
 }
 
-void ToolBox::mouseDoubleClick(ToolChain* chain, const InputState& inputState)
+void ToolBox::mouseDoubleClick(ToolChain* chain, const InputState& inputState) const
 {
-  if (!m_enabled)
+  if (m_enabled)
   {
-    return;
+    chain->mouseDoubleClick(inputState);
   }
-  chain->mouseDoubleClick(inputState);
 }
 
-void ToolBox::mouseMove(ToolChain* chain, const InputState& inputState)
+void ToolBox::mouseMove(ToolChain* chain, const InputState& inputState) const
 {
-  if (!m_enabled)
+  if (m_enabled)
   {
-    return;
+    chain->mouseMove(inputState);
   }
-  chain->mouseMove(inputState);
 }
 
 bool ToolBox::dragging() const
@@ -178,11 +166,10 @@ bool ToolBox::dragging() const
 
 void ToolBox::startMouseDrag(ToolChain* chain, const InputState& inputState)
 {
-  if (!m_enabled)
+  if (m_enabled)
   {
-    return;
+    m_dragTracker = chain->startMouseDrag(inputState);
   }
-  m_dragTracker = chain->startMouseDrag(inputState);
 }
 
 bool ToolBox::mouseDrag(const InputState& inputState)
@@ -207,17 +194,16 @@ void ToolBox::cancelMouseDrag()
 
 void ToolBox::mouseScroll(ToolChain* chain, const InputState& inputState)
 {
-  if (!m_enabled)
+  if (m_enabled)
   {
-    return;
-  }
-  if (m_dragTracker)
-  {
-    m_dragTracker->mouseScroll(inputState);
-  }
-  else
-  {
-    chain->mouseScroll(inputState);
+    if (m_dragTracker)
+    {
+      m_dragTracker->mouseScroll(inputState);
+    }
+    else
+    {
+      chain->mouseScroll(inputState);
+    }
   }
 }
 
@@ -230,7 +216,9 @@ bool ToolBox::cancel(ToolChain* chain)
   }
 
   if (chain->cancel())
+  {
     return true;
+  }
 
   if (anyToolActive())
   {
@@ -256,29 +244,23 @@ void ToolBox::toggleTool(Tool& tool)
 {
   if (&tool == m_modalTool)
   {
-    Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
-    deactivateTool(*previousModalTool);
+    deactivateTool(*m_modalTool);
   }
   else
   {
-    if (m_modalTool != nullptr)
+    if (m_modalTool)
     {
-      Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
-      deactivateTool(*previousModalTool);
+      deactivateTool(*m_modalTool);
     }
-    if (activateTool(tool))
-    {
-      m_modalTool = &tool;
-    }
+    activateTool(tool);
   }
 }
 
 void ToolBox::deactivateAllTools()
 {
-  if (m_modalTool != nullptr)
+  if (m_modalTool)
   {
-    Tool* previousModalTool = std::exchange(m_modalTool, nullptr);
-    deactivateTool(*previousModalTool);
+    deactivateTool(*m_modalTool);
   }
 }
 
@@ -314,9 +296,6 @@ void ToolBox::renderTools(
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch)
 {
-  /* if (m_modalTool != nullptr)
-      m_modalTool->renderOnly(m_inputState, renderContext);
-  else */
   chain->render(inputState, renderContext, renderBatch);
   if (m_dragTracker)
   {
@@ -324,25 +303,23 @@ void ToolBox::renderTools(
   }
 }
 
-bool ToolBox::activateTool(Tool& tool)
+void ToolBox::activateTool(Tool& tool)
 {
-  if (!tool.activate())
+  if (tool.activate())
   {
-    return false;
-  }
-
-  auto it = m_suppressedTools.find(&tool);
-  if (it != std::end(m_suppressedTools))
-  {
-    for (Tool* suppress : it->second)
+    auto it = m_suppressedTools.find(&tool);
+    if (it != std::end(m_suppressedTools))
     {
-      suppress->deactivate();
-      toolDeactivatedNotifier(*suppress);
+      for (auto* suppress : it->second)
+      {
+        suppress->deactivate();
+        toolDeactivatedNotifier(*suppress);
+      }
     }
-  }
 
-  toolActivatedNotifier(tool);
-  return true;
+    m_modalTool = &tool;
+    toolActivatedNotifier(tool);
+  }
 }
 
 void ToolBox::deactivateTool(Tool& tool)
@@ -355,7 +332,7 @@ void ToolBox::deactivateTool(Tool& tool)
   auto it = m_suppressedTools.find(&tool);
   if (it != std::end(m_suppressedTools))
   {
-    for (Tool* suppress : it->second)
+    for (auto* suppress : it->second)
     {
       suppress->activate();
       toolActivatedNotifier(*suppress);
@@ -363,7 +340,7 @@ void ToolBox::deactivateTool(Tool& tool)
   }
 
   tool.deactivate();
+  m_modalTool = nullptr;
   toolDeactivatedNotifier(tool);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

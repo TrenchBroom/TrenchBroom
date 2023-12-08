@@ -24,11 +24,7 @@
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderUtils.h"
 
-#include "vm/vec.h"
-
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 Sphere::Sphere(const float radius, const size_t iterations)
 {
@@ -52,5 +48,4 @@ void Sphere::render()
 {
   m_array.render(PrimType::Triangles);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

@@ -239,11 +239,17 @@ void MapViewToolBox::moveVertices(const vm::vec3& delta)
 {
   assert(anyVertexToolActive());
   if (vertexToolActive())
+  {
     vertexTool().moveSelection(delta);
+  }
   else if (edgeToolActive())
+  {
     edgeTool().moveSelection(delta);
+  }
   else if (faceToolActive())
+  {
     faceTool().moveSelection(delta);
+  }
 }
 
 void MapViewToolBox::createTools(

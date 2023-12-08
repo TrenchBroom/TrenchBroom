@@ -24,21 +24,19 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class BrushRenderer;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class Grid;
 class MapDocument;
@@ -49,8 +47,8 @@ protected:
   std::weak_ptr<MapDocument> m_document;
 
 private:
-  Model::BrushNode* m_brush;
-  Renderer::BrushRenderer* m_brushRenderer;
+  std::unique_ptr<Model::BrushNode> m_brushNode;
+  std::unique_ptr<Renderer::BrushRenderer> m_brushRenderer;
 
 public:
   CreateBrushToolBase(bool initiallyActive, std::weak_ptr<MapDocument> document);
@@ -69,12 +67,12 @@ private:
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
 protected:
-  void updateBrush(Model::BrushNode* brush);
+  void updateBrush(std::unique_ptr<Model::BrushNode> brushNode);
 
 private:
   virtual void doBrushWasCreated();
 
   deleteCopyAndMove(CreateBrushToolBase);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

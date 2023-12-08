@@ -31,12 +31,9 @@
 #include "vm/intersection.h"
 #include "vm/scalar.h"
 
-#include <optional>
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
 CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(
   CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
@@ -214,5 +211,5 @@ bool CreateSimpleBrushToolController2D::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
