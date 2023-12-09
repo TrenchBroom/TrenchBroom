@@ -599,11 +599,11 @@ void MapViewBase::resetUVToWorld()
   document->setFaceAttributes(request);
 }
 
-void MapViewBase::createComplexBrush()
+void MapViewBase::assembleBrush()
 {
-  if (m_toolBox.createComplexBrushToolActive())
+  if (m_toolBox.assembleBrushToolActive())
   {
-    m_toolBox.performCreateComplexBrush();
+    m_toolBox.performAssembleBrush();
   }
 }
 
@@ -927,13 +927,13 @@ ActionContext::Type MapViewBase::actionContext() const
 
   const auto derivedContext = doGetActionContext();
   const auto toolContext =
-    m_toolBox.createComplexBrushToolActive() ? ActionContext::CreateComplexBrushTool
-    : m_toolBox.clipToolActive()             ? ActionContext::ClipTool
-    : m_toolBox.anyVertexToolActive()        ? ActionContext::AnyVertexTool
-    : m_toolBox.rotateObjectsToolActive()    ? ActionContext::RotateTool
-    : m_toolBox.scaleObjectsToolActive()     ? ActionContext::ScaleTool
-    : m_toolBox.shearObjectsToolActive()     ? ActionContext::ShearTool
-                                             : ActionContext::NoTool;
+    m_toolBox.assembleBrushToolActive()   ? ActionContext::AssembleBrushTool
+    : m_toolBox.clipToolActive()          ? ActionContext::ClipTool
+    : m_toolBox.anyVertexToolActive()     ? ActionContext::AnyVertexTool
+    : m_toolBox.rotateObjectsToolActive() ? ActionContext::RotateTool
+    : m_toolBox.scaleObjectsToolActive()  ? ActionContext::ScaleTool
+    : m_toolBox.shearObjectsToolActive()  ? ActionContext::ShearTool
+                                          : ActionContext::NoTool;
   const auto selectionContext =
     document->hasSelectedNodes()        ? ActionContext::NodeSelection
     : document->hasSelectedBrushFaces() ? ActionContext::FaceSelection

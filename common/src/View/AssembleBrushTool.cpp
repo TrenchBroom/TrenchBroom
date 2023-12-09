@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateComplexBrushTool.h"
+#include "AssembleBrushTool.h"
 
 #include "Error.h" // IWYU pragma: keep
 #include "Model/BrushBuilder.h"
@@ -33,18 +33,18 @@
 namespace TrenchBroom::View
 {
 
-CreateComplexBrushTool::CreateComplexBrushTool(std::weak_ptr<MapDocument> document)
+AssembleBrushTool::AssembleBrushTool(std::weak_ptr<MapDocument> document)
   : CreateBrushToolBase{false, std::move(document)}
   , m_polyhedron{std::make_unique<Model::Polyhedron3>()}
 {
 }
 
-const Model::Polyhedron3& CreateComplexBrushTool::polyhedron() const
+const Model::Polyhedron3& AssembleBrushTool::polyhedron() const
 {
   return *m_polyhedron;
 }
 
-void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
+void AssembleBrushTool::update(const Model::Polyhedron3& polyhedron)
 {
   *m_polyhedron = polyhedron;
   if (m_polyhedron->closed())
@@ -70,19 +70,19 @@ void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
   }
 }
 
-bool CreateComplexBrushTool::doActivate()
+bool AssembleBrushTool::doActivate()
 {
   update(Model::Polyhedron3{});
   return true;
 }
 
-bool CreateComplexBrushTool::doDeactivate()
+bool AssembleBrushTool::doDeactivate()
 {
   update(Model::Polyhedron3{});
   return true;
 }
 
-void CreateComplexBrushTool::doBrushWasCreated()
+void AssembleBrushTool::doBrushWasCreated()
 {
   update(Model::Polyhedron3{});
 }

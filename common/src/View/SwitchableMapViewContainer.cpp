@@ -132,7 +132,7 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
 
 bool SwitchableMapViewContainer::anyToolActive() const
 {
-  return createComplexBrushToolActive() || clipToolActive() || rotateObjectsToolActive()
+  return assembleBrushToolActive() || clipToolActive() || rotateObjectsToolActive()
          || scaleObjectsToolActive() || shearObjectsToolActive() || anyVertexToolActive();
 }
 
@@ -141,20 +141,20 @@ void SwitchableMapViewContainer::deactivateTool()
   m_toolBox->deactivateAllTools();
 }
 
-bool SwitchableMapViewContainer::createComplexBrushToolActive() const
+bool SwitchableMapViewContainer::assembleBrushToolActive() const
 {
-  return m_toolBox->createComplexBrushToolActive();
+  return m_toolBox->assembleBrushToolActive();
 }
 
-bool SwitchableMapViewContainer::canToggleCreateComplexBrushTool() const
+bool SwitchableMapViewContainer::canToggleAssembleBrushTool() const
 {
   return true;
 }
 
-void SwitchableMapViewContainer::toggleCreateComplexBrushTool()
+void SwitchableMapViewContainer::toggleAssembleBrushTool()
 {
-  assert(canToggleCreateComplexBrushTool());
-  m_toolBox->toggleCreateComplexBrushTool();
+  assert(canToggleAssembleBrushTool());
+  m_toolBox->toggleAssembleBrushTool();
 }
 
 bool SwitchableMapViewContainer::clipToolActive() const

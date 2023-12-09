@@ -284,9 +284,9 @@ public:
 
   bool anyToolActive() const;
 
-  void toggleCreateComplexBrushTool();
-  bool canToggleCreateComplexBrushTool() const;
-  bool createComplexBrushToolActive() const;
+  void toggleAssembleBrushTool();
+  bool canToggleAssembleBrushTool() const;
+  bool assembleBrushToolActive() const;
 
   void toggleClipTool();
   bool canToggleClipTool() const;

@@ -27,13 +27,13 @@
 namespace TrenchBroom::View
 {
 
-class CreateComplexBrushTool : public CreateBrushToolBase
+class AssembleBrushTool : public CreateBrushToolBase
 {
 private:
   std::unique_ptr<Model::Polyhedron3> m_polyhedron;
 
 public:
-  explicit CreateComplexBrushTool(std::weak_ptr<MapDocument> document);
+  explicit AssembleBrushTool(std::weak_ptr<MapDocument> document);
 
   const Model::Polyhedron3& polyhedron() const;
   void update(const Model::Polyhedron3& polyhedron);
