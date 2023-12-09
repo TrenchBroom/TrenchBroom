@@ -271,6 +271,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/Animation.cpp
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.cpp
+        ${COMMON_SOURCE_DIR}/View/AssembleBrushTool.cpp
+        ${COMMON_SOURCE_DIR}/View/AssembleBrushToolController3D.cpp
         ${COMMON_SOURCE_DIR}/View/Autosaver.cpp
         ${COMMON_SOURCE_DIR}/View/BorderLine.cpp
         ${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
@@ -309,8 +311,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/View/CrashDialog.cpp
         ${COMMON_SOURCE_DIR}/View/CreateBrushToolBase.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateComplexBrushTool.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.cpp
         ${COMMON_SOURCE_DIR}/View/CreateEntityTool.cpp
         ${COMMON_SOURCE_DIR}/View/CreateEntityToolController.cpp
         ${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
@@ -797,6 +797,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/Animation.h
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.h
+        ${COMMON_SOURCE_DIR}/View/AssembleBrushTool.h
+        ${COMMON_SOURCE_DIR}/View/AssembleBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/View/Autosaver.h
         ${COMMON_SOURCE_DIR}/View/BorderLine.h
         ${COMMON_SOURCE_DIR}/View/BorderPanel.h
@@ -834,8 +836,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ControlListBox.h
         ${COMMON_SOURCE_DIR}/View/CrashDialog.h
         ${COMMON_SOURCE_DIR}/View/CreateBrushToolBase.h
-        ${COMMON_SOURCE_DIR}/View/CreateComplexBrushTool.h
-        ${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/View/CreateEntityTool.h
         ${COMMON_SOURCE_DIR}/View/CreateEntityToolController.h
         ${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.h

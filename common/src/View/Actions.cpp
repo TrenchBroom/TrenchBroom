@@ -432,11 +432,11 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Create brush"},
     QObject::tr("Create Brush"),
     ActionContext::View3D | ActionContext::AnyOrNoSelection
-      | ActionContext::CreateComplexBrushTool,
+      | ActionContext::AssembleBrushTool,
     QKeySequence(Qt::Key_Return),
-    [](ActionExecutionContext& context) { context.view()->createComplexBrush(); },
+    [](ActionExecutionContext& context) { context.view()->assembleBrush(); },
     [](ActionExecutionContext& context) {
-      return context.hasDocument() && context.frame()->createComplexBrushToolActive();
+      return context.hasDocument() && context.frame()->assembleBrushToolActive();
     });
   createAction(
     std::filesystem::path{"Controls/Map view/Toggle clip side"},
@@ -1427,14 +1427,12 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Tools/Brush Tool"},
     QObject::tr("Brush Tool"),
     Qt::Key_B,
+    [](ActionExecutionContext& context) { context.frame()->toggleAssembleBrushTool(); },
     [](ActionExecutionContext& context) {
-      context.frame()->toggleCreateComplexBrushTool();
+      return context.hasDocument() && context.frame()->canToggleAssembleBrushTool();
     },
     [](ActionExecutionContext& context) {
-      return context.hasDocument() && context.frame()->canToggleCreateComplexBrushTool();
-    },
-    [](ActionExecutionContext& context) {
-      return context.hasDocument() && context.frame()->createComplexBrushToolActive();
+      return context.hasDocument() && context.frame()->assembleBrushToolActive();
     },
     std::filesystem::path{"BrushTool.svg"}));
   toolMenu.addItem(createMenuAction(

@@ -20,8 +20,8 @@
 #include "MapViewToolBox.h"
 
 #include "Model/EditorContext.h"
+#include "View/AssembleBrushTool.h"
 #include "View/ClipTool.h"
-#include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
 #include "View/DrawShapeTool.h"
 #include "View/EdgeTool.h"
@@ -53,9 +53,9 @@ ClipTool& MapViewToolBox::clipTool()
   return *m_clipTool;
 }
 
-CreateComplexBrushTool& MapViewToolBox::createComplexBrushTool()
+AssembleBrushTool& MapViewToolBox::assembleBrushTool()
 {
-  return *m_createComplexBrushTool;
+  return *m_assembleBrushTool;
 }
 
 CreateEntityTool& MapViewToolBox::createEntityTool()
@@ -108,19 +108,19 @@ FaceTool& MapViewToolBox::faceTool()
   return *m_faceTool;
 }
 
-void MapViewToolBox::toggleCreateComplexBrushTool()
+void MapViewToolBox::toggleAssembleBrushTool()
 {
-  toggleTool(createComplexBrushTool());
+  toggleTool(assembleBrushTool());
 }
 
-bool MapViewToolBox::createComplexBrushToolActive() const
+bool MapViewToolBox::assembleBrushToolActive() const
 {
-  return m_createComplexBrushTool->active();
+  return m_assembleBrushTool->active();
 }
 
-void MapViewToolBox::performCreateComplexBrush()
+void MapViewToolBox::performAssembleBrush()
 {
-  m_createComplexBrushTool->createBrush();
+  m_assembleBrushTool->createBrush();
 }
 
 void MapViewToolBox::toggleClipTool()
@@ -256,7 +256,7 @@ void MapViewToolBox::createTools(
   std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl)
 {
   m_clipTool = std::make_unique<ClipTool>(document);
-  m_createComplexBrushTool = std::make_unique<CreateComplexBrushTool>(document);
+  m_assembleBrushTool = std::make_unique<AssembleBrushTool>(document);
   m_createEntityTool = std::make_unique<CreateEntityTool>(document);
   m_drawShapeTool = std::make_unique<DrawShapeTool>(document);
   m_moveObjectsTool = std::make_unique<MoveObjectsTool>(document);
@@ -268,9 +268,9 @@ void MapViewToolBox::createTools(
   m_edgeTool = std::make_unique<EdgeTool>(document);
   m_faceTool = std::make_unique<FaceTool>(document);
 
-  suppressWhileActive(moveObjectsTool(), createComplexBrushTool());
-  suppressWhileActive(extrudeTool(), createComplexBrushTool());
-  suppressWhileActive(drawShapeTool(), createComplexBrushTool());
+  suppressWhileActive(moveObjectsTool(), assembleBrushTool());
+  suppressWhileActive(extrudeTool(), assembleBrushTool());
+  suppressWhileActive(drawShapeTool(), assembleBrushTool());
   suppressWhileActive(moveObjectsTool(), rotateObjectsTool());
   suppressWhileActive(extrudeTool(), rotateObjectsTool());
   suppressWhileActive(drawShapeTool(), rotateObjectsTool());
@@ -298,7 +298,7 @@ void MapViewToolBox::createTools(
   registerTool(scaleObjectsTool(), bookCtrl);
   registerTool(shearObjectsTool(), bookCtrl);
   registerTool(extrudeTool(), bookCtrl);
-  registerTool(createComplexBrushTool(), bookCtrl);
+  registerTool(assembleBrushTool(), bookCtrl);
   registerTool(clipTool(), bookCtrl);
   registerTool(vertexTool(), bookCtrl);
   registerTool(edgeTool(), bookCtrl);
@@ -343,7 +343,7 @@ void MapViewToolBox::updateEditorContext()
 {
   auto document = kdl::mem_lock(m_document);
   Model::EditorContext& editorContext = document->editorContext();
-  editorContext.setBlockSelection(createComplexBrushToolActive());
+  editorContext.setBlockSelection(assembleBrushToolActive());
 }
 
 void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*)

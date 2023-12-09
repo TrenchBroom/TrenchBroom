@@ -89,9 +89,9 @@ public:
   bool anyToolActive() const;
   void deactivateTool();
 
-  bool createComplexBrushToolActive() const;
-  bool canToggleCreateComplexBrushTool() const;
-  void toggleCreateComplexBrushTool();
+  bool assembleBrushToolActive() const;
+  bool canToggleAssembleBrushTool() const;
+  void toggleAssembleBrushTool();
 
   bool clipToolActive() const;
   bool canToggleClipTool() const;
