@@ -80,7 +80,7 @@ public:
   {
     const auto currentBounds =
       makeBounds(inputState, initialHandlePosition, initialHandlePosition);
-    m_tool.update(currentBounds);
+    m_tool.update(currentBounds, vm::axis::z);
     m_tool.refreshViews();
 
     return makeHandlePositionProposer(
@@ -157,7 +157,7 @@ private:
       return false;
     }
 
-    m_tool.update(currentBounds);
+    m_tool.update(currentBounds, vm::axis::z);
     return true;
   }
 

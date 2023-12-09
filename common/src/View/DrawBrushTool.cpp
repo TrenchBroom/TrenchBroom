@@ -39,7 +39,7 @@ DrawBrushTool::DrawBrushTool(std::weak_ptr<MapDocument> document)
 {
 }
 
-void DrawBrushTool::update(const vm::bbox3& bounds)
+void DrawBrushTool::update(const vm::bbox3& bounds, const vm::axis::type)
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
