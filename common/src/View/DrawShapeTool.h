@@ -22,6 +22,8 @@
 #include "FloatType.h"
 #include "View/CreateBrushesToolBase.h"
 
+#include "vm/util.h"
+
 #include <memory>
 
 namespace TrenchBroom::View
@@ -32,6 +34,6 @@ class DrawShapeTool : public CreateBrushesToolBase
 {
 public:
   explicit DrawShapeTool(std::weak_ptr<MapDocument> document);
-  void update(const vm::bbox3& bounds);
+  void update(const vm::bbox3& bounds, vm::axis::type axis);
 };
 } // namespace TrenchBroom::View

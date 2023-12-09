@@ -76,7 +76,9 @@ public:
   {
     const auto currentBounds =
       makeBounds(inputState, initialHandlePosition, initialHandlePosition);
-    m_tool.update(currentBounds);
+    const auto axis = vm::find_abs_max_component(inputState.camera().direction());
+
+    m_tool.update(currentBounds, axis);
     m_tool.refreshViews();
 
     const auto& camera = inputState.camera();
@@ -135,7 +137,8 @@ private:
       return false;
     }
 
-    m_tool.update(currentBounds);
+    const auto axis = vm::find_abs_max_component(inputState.camera().direction());
+    m_tool.update(currentBounds, axis);
     return true;
   }
 

@@ -40,7 +40,7 @@ DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
 {
 }
 
-void DrawShapeTool::update(const vm::bbox3& bounds)
+void DrawShapeTool::update(const vm::bbox3& bounds, const vm::axis::type)
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
