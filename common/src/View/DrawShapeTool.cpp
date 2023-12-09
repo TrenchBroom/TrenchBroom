@@ -35,19 +35,9 @@
 namespace TrenchBroom::View
 {
 
-namespace
-{
-auto createExtensions()
-{
-  auto result = std::vector<std::unique_ptr<DrawShapeToolExtension>>{};
-  result.push_back(std::make_unique<DrawShapeToolCuboidExtension>());
-  return result;
-}
-} // namespace
-
 DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
   : CreateBrushesToolBase{true, std::move(document)}
-  , m_extensionManager{createExtensions()}
+  , m_extensionManager{createDrawShapeToolExtensions()}
 {
 }
 
