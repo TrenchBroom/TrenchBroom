@@ -321,6 +321,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/DrawShapeTool.cpp
         ${COMMON_SOURCE_DIR}/View/DrawShapeToolController2D.cpp
         ${COMMON_SOURCE_DIR}/View/DrawShapeToolController3D.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolExtension.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolExtensions.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolPage.cpp
         ${COMMON_SOURCE_DIR}/View/DropTracker.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
@@ -846,6 +849,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/DrawShapeTool.h
         ${COMMON_SOURCE_DIR}/View/DrawShapeToolController2D.h
         ${COMMON_SOURCE_DIR}/View/DrawShapeToolController3D.h
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolExtension.h
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolExtensions.h
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolPage.h
         ${COMMON_SOURCE_DIR}/View/DropTracker.h
         ${COMMON_SOURCE_DIR}/View/EdgeTool.h
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.h

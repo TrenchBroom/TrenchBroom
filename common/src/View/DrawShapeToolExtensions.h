@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2023 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,27 +19,21 @@
 
 #pragma once
 
-#include "FloatType.h"
-#include "View/CreateBrushesToolBase.h"
 #include "View/DrawShapeToolExtension.h"
-
-#include "vm/util.h"
-
-#include <memory>
 
 namespace TrenchBroom::View
 {
 class MapDocument;
 
-class DrawShapeTool : public CreateBrushesToolBase
+class DrawShapeToolCuboidExtension : public DrawShapeToolExtension
 {
 public:
-  explicit DrawShapeTool(std::weak_ptr<MapDocument> document);
-  void update(const vm::bbox3& bounds, vm::axis::type axis);
-
-private:
-  DrawShapeToolExtensionManager m_extensionManager;
-
-  QWidget* doCreatePage(QWidget* parent) override;
+  const std::string& name() const override;
+  QWidget* createToolPage(QWidget* parent) override;
+  Result<std::vector<Model::Brush>> createBrushes(
+    const vm::bbox3& bounds,
+    vm::axis::type axis,
+    const MapDocument& document) const override;
 };
+
 } // namespace TrenchBroom::View

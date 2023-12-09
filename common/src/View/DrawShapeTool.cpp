@@ -19,13 +19,13 @@
 
 #include "DrawShapeTool.h"
 
-#include "Error.h"
+#include "Error.h" // IWYU pragma: keep
 #include "FloatType.h"
 #include "Model/Brush.h" // IWYU pragma: keep
-#include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
-#include "Model/Game.h"
-#include "Model/WorldNode.h"
+#include "View/DrawShapeToolExtension.h"
+#include "View/DrawShapeToolExtensions.h"
+#include "View/DrawShapeToolPage.h"
 #include "View/MapDocument.h"
 
 #include "kdl/memory_utils.h"
@@ -35,26 +35,41 @@
 namespace TrenchBroom::View
 {
 
+namespace
+{
+auto createExtensions()
+{
+  auto result = std::vector<std::unique_ptr<DrawShapeToolExtension>>{};
+  result.push_back(std::make_unique<DrawShapeToolCuboidExtension>());
+  return result;
+}
+} // namespace
+
 DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
   : CreateBrushesToolBase{true, std::move(document)}
+  , m_extensionManager{createExtensions()}
 {
 }
 
-void DrawShapeTool::update(const vm::bbox3& bounds, const vm::axis::type)
+void DrawShapeTool::update(const vm::bbox3& bounds, const vm::axis::type axis)
 {
   auto document = kdl::mem_lock(m_document);
-  const auto game = document->game();
-  const auto builder = Model::BrushBuilder{
-    document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs()};
-
-  builder.createCuboid(bounds, document->currentTextureName())
-    .transform([&](auto b) {
-      updateBrushes(kdl::vec_from(std::make_unique<Model::BrushNode>(std::move(b))));
+  m_extensionManager.currentExtension()
+    .createBrushes(bounds, axis, *document)
+    .transform([&](auto brushes) {
+      updateBrushes(kdl::vec_transform(std::move(brushes), [](auto brush) {
+        return std::make_unique<Model::BrushNode>(std::move(brush));
+      }));
     })
     .transform_error([&](auto e) {
       clearBrushes();
       document->error() << "Could not update brush: " << e;
     });
+}
+
+QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
+{
+  return new DrawShapeToolPage{m_document, m_extensionManager, parent};
 }
 
 } // namespace TrenchBroom::View
