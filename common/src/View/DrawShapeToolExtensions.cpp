@@ -57,8 +57,8 @@ Result<std::vector<Model::Brush>> DrawShapeToolCuboidExtension::createBrushes(
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
-DrawShapeToolCylinderExtensionPage::DrawShapeToolCylinderExtensionPage(
-  CylinderParameters& parameters, QWidget* parent)
+DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage(
+  CircularShapeParameters& parameters, QWidget* parent)
   : QWidget{parent}
   , m_parameters{parameters}
 {
@@ -122,7 +122,7 @@ const std::string& DrawShapeToolCylinderExtension::name() const
 
 QWidget* DrawShapeToolCylinderExtension::createToolPage(QWidget* parent)
 {
-  return new DrawShapeToolCylinderExtensionPage{m_parameters, parent};
+  return new DrawShapeToolCircularShapeExtensionPage{m_parameters, parent};
 }
 
 Result<std::vector<Model::Brush>> DrawShapeToolCylinderExtension::createBrushes(
@@ -141,11 +141,44 @@ Result<std::vector<Model::Brush>> DrawShapeToolCylinderExtension::createBrushes(
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
+DrawShapeToolConeExtension::DrawShapeToolConeExtension()
+  : m_parameters{8, Model::RadiusMode::ToEdge}
+{
+}
+
+const std::string& DrawShapeToolConeExtension::name() const
+{
+  static const auto name = std::string{"Cone"};
+  return name;
+}
+
+QWidget* DrawShapeToolConeExtension::createToolPage(QWidget* parent)
+{
+  return new DrawShapeToolCircularShapeExtensionPage{m_parameters, parent};
+}
+
+Result<std::vector<Model::Brush>> DrawShapeToolConeExtension::createBrushes(
+  const vm::bbox3& bounds, vm::axis::type axis, const MapDocument& document) const
+{
+  const auto game = document.game();
+  const auto builder = Model::BrushBuilder{
+    document.world()->mapFormat(), document.worldBounds(), game->defaultFaceAttribs()};
+  return builder
+    .createCone(
+      bounds,
+      m_parameters.numSides,
+      m_parameters.radiusMode,
+      axis,
+      document.currentTextureName())
+    .transform([](auto brush) { return std::vector{std::move(brush)}; });
+}
+
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions()
 {
   auto result = std::vector<std::unique_ptr<DrawShapeToolExtension>>{};
   result.push_back(std::make_unique<DrawShapeToolCuboidExtension>());
   result.push_back(std::make_unique<DrawShapeToolCylinderExtension>());
+  result.push_back(std::make_unique<DrawShapeToolConeExtension>());
   return result;
 }
 
