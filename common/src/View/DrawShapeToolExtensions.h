@@ -19,7 +19,17 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "View/DrawShapeToolExtension.h"
+
+#include <memory>
+#include <vector>
+
+namespace TrenchBroom::Model
+{
+enum class RadiusMode;
+}
 
 namespace TrenchBroom::View
 {
@@ -35,5 +45,41 @@ public:
     vm::axis::type axis,
     const MapDocument& document) const override;
 };
+
+struct CylinderParameters
+{
+  size_t numSides;
+  Model::RadiusMode radiusMode;
+};
+
+class DrawShapeToolCylinderExtensionPage : public QWidget
+{
+public:
+  explicit DrawShapeToolCylinderExtensionPage(
+    CylinderParameters& parameters, QWidget* parent = nullptr);
+
+private:
+  CylinderParameters& m_parameters;
+
+  Q_OBJECT
+};
+
+class DrawShapeToolCylinderExtension : public DrawShapeToolExtension
+{
+public:
+  DrawShapeToolCylinderExtension();
+
+  const std::string& name() const override;
+  QWidget* createToolPage(QWidget* parent) override;
+  Result<std::vector<Model::Brush>> createBrushes(
+    const vm::bbox3& bounds,
+    vm::axis::type axis,
+    const MapDocument& document) const override;
+
+private:
+  CylinderParameters m_parameters;
+};
+
+std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions();
 
 } // namespace TrenchBroom::View
