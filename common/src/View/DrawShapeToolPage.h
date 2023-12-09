@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2023 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,27 +19,40 @@
 
 #pragma once
 
-#include "FloatType.h"
-#include "View/CreateBrushesToolBase.h"
-#include "View/DrawShapeToolExtension.h"
+#include <QWidget>
 
-#include "vm/util.h"
+#include "NotifierConnection.h"
 
 #include <memory>
 
+class QComboBox;
+class QStackedLayout;
+
 namespace TrenchBroom::View
 {
+class DrawShapeToolExtensionManager;
 class MapDocument;
 
-class DrawShapeTool : public CreateBrushesToolBase
+class DrawShapeToolPage : public QWidget
 {
+  Q_OBJECT
+private:
+  std::weak_ptr<MapDocument> m_document;
+
+  QComboBox* m_extensions = nullptr;
+  QStackedLayout* m_extensionPages = nullptr;
+
+  NotifierConnection m_notifierConnection;
+
 public:
-  explicit DrawShapeTool(std::weak_ptr<MapDocument> document);
-  void update(const vm::bbox3& bounds, vm::axis::type axis);
+  explicit DrawShapeToolPage(
+    std::weak_ptr<MapDocument> document,
+    DrawShapeToolExtensionManager& extensionManager,
+    QWidget* parent = nullptr);
 
 private:
-  DrawShapeToolExtensionManager m_extensionManager;
-
-  QWidget* doCreatePage(QWidget* parent) override;
+  void createGui(DrawShapeToolExtensionManager& extensionManager);
+  void currentExtensionDidChange(size_t index);
 };
+
 } // namespace TrenchBroom::View
