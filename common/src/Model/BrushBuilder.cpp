@@ -232,6 +232,64 @@ Result<Brush> BrushBuilder::createCylinder(
   return createBrush(vertices, textureName);
 }
 
+namespace
+{
+auto makeUnitCone(const size_t numSides, const RadiusMode radiusMode)
+{
+  auto vertices = std::vector<vm::vec3>{};
+
+  switch (radiusMode)
+  {
+  case RadiusMode::ToEdge:
+    for (size_t i = 0; i < numSides; ++i)
+    {
+      const auto angle =
+        (FloatType(i) + 0.5) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
+      const auto a = vm::C::pi() / FloatType(numSides); // Half angle
+      const auto ca = std::cos(a);
+      const auto x = std::cos(angle) * 0.5 / ca + 0.5;
+      const auto y = std::sin(angle) * 0.5 / ca + 0.5;
+      vertices.emplace_back(x, y, 0.0);
+    }
+    break;
+  case RadiusMode::ToVertex:
+    for (size_t i = 0; i < numSides; ++i)
+    {
+      const auto angle =
+        FloatType(i) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
+      const auto x = std::cos(angle) * 0.5 + 0.5;
+      const auto y = std::sin(angle) * 0.5 + 0.5;
+      vertices.emplace_back(x, y, 0.0);
+    }
+    break;
+    switchDefault();
+  }
+
+  vertices.emplace_back(0.5, 0.5, 1.0);
+  return vertices;
+}
+} // namespace
+
+Result<Brush> BrushBuilder::createCone(
+  const vm::bbox3& bounds,
+  const size_t numSides,
+  const RadiusMode radiusMode,
+  const vm::axis::type axis,
+  const std::string& textureName) const
+{
+  ensure(numSides > 2, "cylinder has at least three sides");
+
+  const auto transform = vm::translation_matrix(bounds.min)
+                         * vm::scaling_matrix(bounds.size())
+                         * vm::translation_matrix(vm::vec3{0.5, 0.5, 0.5})
+                         * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis))
+                         * vm::translation_matrix(vm::vec3{-0.5, -0.5, -0.5});
+  const auto vertices = kdl::vec_transform(
+    makeUnitCone(numSides, radiusMode), [&](const auto& v) { return transform * v; });
+
+  return createBrush(vertices, textureName);
+}
+
 Result<Brush> BrushBuilder::createBrush(
   const std::vector<vm::vec3>& points, const std::string& textureName) const
 {
