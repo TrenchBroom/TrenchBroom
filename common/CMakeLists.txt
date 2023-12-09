@@ -319,6 +319,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/DrawBrushTool.cpp
         ${COMMON_SOURCE_DIR}/View/DrawBrushToolController2D.cpp
         ${COMMON_SOURCE_DIR}/View/DrawBrushToolController3D.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolExtension.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolExtensions.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolPage.cpp
         ${COMMON_SOURCE_DIR}/View/DropTracker.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
@@ -838,6 +841,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/DrawBrushTool.h
         ${COMMON_SOURCE_DIR}/View/DrawBrushToolController2D.h
         ${COMMON_SOURCE_DIR}/View/DrawBrushToolController3D.h
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolExtension.h
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolExtensions.h
+        ${COMMON_SOURCE_DIR}/View/DrawBrushToolPage.h
         ${COMMON_SOURCE_DIR}/View/DropTracker.h
         ${COMMON_SOURCE_DIR}/View/EdgeTool.h
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.h
