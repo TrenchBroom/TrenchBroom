@@ -56,8 +56,8 @@ Result<Model::Brush> DrawBrushToolCuboidExtension::createBrush(
   return builder.createCuboid(bounds, document.currentTextureName());
 }
 
-DrawBrushToolCylinderExtensionPage::DrawBrushToolCylinderExtensionPage(
-  CylinderParameters& parameters, QWidget* parent)
+DrawBrushToolCircularShapeExtensionPage::DrawBrushToolCircularShapeExtensionPage(
+  CircularShapeParameters& parameters, QWidget* parent)
   : QWidget{parent}
   , m_parameters{parameters}
 {
@@ -121,7 +121,7 @@ const std::string& DrawBrushToolCylinderExtension::name() const
 
 QWidget* DrawBrushToolCylinderExtension::createToolPage(QWidget* parent)
 {
-  return new DrawBrushToolCylinderExtensionPage{m_parameters, parent};
+  return new DrawBrushToolCircularShapeExtensionPage{m_parameters, parent};
 }
 
 Result<Model::Brush> DrawBrushToolCylinderExtension::createBrush(
@@ -138,11 +138,42 @@ Result<Model::Brush> DrawBrushToolCylinderExtension::createBrush(
     document.currentTextureName());
 }
 
+DrawBrushToolConeExtension::DrawBrushToolConeExtension()
+  : m_parameters{8, Model::RadiusMode::ToEdge}
+{
+}
+
+const std::string& DrawBrushToolConeExtension::name() const
+{
+  static const auto name = std::string{"Cone"};
+  return name;
+}
+
+QWidget* DrawBrushToolConeExtension::createToolPage(QWidget* parent)
+{
+  return new DrawBrushToolCircularShapeExtensionPage{m_parameters, parent};
+}
+
+Result<Model::Brush> DrawBrushToolConeExtension::createBrush(
+  const vm::bbox3& bounds, vm::axis::type axis, const MapDocument& document) const
+{
+  const auto game = document.game();
+  const auto builder = Model::BrushBuilder{
+    document.world()->mapFormat(), document.worldBounds(), game->defaultFaceAttribs()};
+  return builder.createCone(
+    bounds,
+    m_parameters.numSides,
+    m_parameters.radiusMode,
+    axis,
+    document.currentTextureName());
+}
+
 std::vector<std::unique_ptr<DrawBrushToolExtension>> createDrawBrushToolExtensions()
 {
   auto result = std::vector<std::unique_ptr<DrawBrushToolExtension>>{};
   result.push_back(std::make_unique<DrawBrushToolCuboidExtension>());
   result.push_back(std::make_unique<DrawBrushToolCylinderExtension>());
+  result.push_back(std::make_unique<DrawBrushToolConeExtension>());
   return result;
 }
 

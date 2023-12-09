@@ -46,20 +46,20 @@ public:
     const MapDocument& document) const override;
 };
 
-struct CylinderParameters
+struct CircularShapeParameters
 {
   size_t numSides;
   Model::RadiusMode radiusMode;
 };
 
-class DrawBrushToolCylinderExtensionPage : public QWidget
+class DrawBrushToolCircularShapeExtensionPage : public QWidget
 {
 public:
-  explicit DrawBrushToolCylinderExtensionPage(
-    CylinderParameters& parameters, QWidget* parent = nullptr);
+  explicit DrawBrushToolCircularShapeExtensionPage(
+    CircularShapeParameters& parameters, QWidget* parent = nullptr);
 
 private:
-  CylinderParameters& m_parameters;
+  CircularShapeParameters& m_parameters;
 
   Q_OBJECT
 };
@@ -77,7 +77,23 @@ public:
     const MapDocument& document) const override;
 
 private:
-  CylinderParameters m_parameters;
+  CircularShapeParameters m_parameters;
+};
+
+class DrawBrushToolConeExtension : public DrawBrushToolExtension
+{
+public:
+  DrawBrushToolConeExtension();
+
+  const std::string& name() const override;
+  QWidget* createToolPage(QWidget* parent) override;
+  Result<Model::Brush> createBrush(
+    const vm::bbox3& bounds,
+    vm::axis::type axis,
+    const MapDocument& document) const override;
+
+private:
+  CircularShapeParameters m_parameters;
 };
 
 std::vector<std::unique_ptr<DrawBrushToolExtension>> createDrawBrushToolExtensions();
