@@ -1720,22 +1720,22 @@ bool MapFrame::anyToolActive() const
   return m_mapView->anyToolActive();
 }
 
-void MapFrame::toggleCreateComplexBrushTool()
+void MapFrame::toggleAssembleBrushTool()
 {
-  if (canToggleCreateComplexBrushTool())
+  if (canToggleAssembleBrushTool())
   {
-    m_mapView->toggleCreateComplexBrushTool();
+    m_mapView->toggleAssembleBrushTool();
   }
 }
 
-bool MapFrame::canToggleCreateComplexBrushTool() const
+bool MapFrame::canToggleAssembleBrushTool() const
 {
-  return m_mapView->canToggleCreateComplexBrushTool();
+  return m_mapView->canToggleAssembleBrushTool();
 }
 
-bool MapFrame::createComplexBrushToolActive() const
+bool MapFrame::assembleBrushToolActive() const
 {
-  return m_mapView->createComplexBrushToolActive();
+  return m_mapView->assembleBrushToolActive();
 }
 
 void MapFrame::toggleClipTool()

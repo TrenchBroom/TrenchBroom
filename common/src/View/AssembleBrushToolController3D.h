@@ -24,15 +24,15 @@
 namespace TrenchBroom::View
 {
 
-class CreateComplexBrushTool;
+class AssembleBrushTool;
 
-class CreateComplexBrushToolController3D : public ToolControllerGroup
+class AssembleBrushToolController3D : public ToolControllerGroup
 {
 private:
-  CreateComplexBrushTool& m_tool;
+  AssembleBrushTool& m_tool;
 
 public:
-  explicit CreateComplexBrushToolController3D(CreateComplexBrushTool& tool);
+  explicit AssembleBrushToolController3D(AssembleBrushTool& tool);
 
 private:
   Tool& tool() override;
