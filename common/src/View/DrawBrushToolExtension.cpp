@@ -47,13 +47,16 @@ DrawBrushToolExtension& DrawBrushToolExtensionManager::currentExtension()
   return *m_extensions[m_currentExtensionIndex];
 }
 
-void DrawBrushToolExtensionManager::setCurrentExtensionIndex(size_t currentExtensionIndex)
+bool DrawBrushToolExtensionManager::setCurrentExtensionIndex(size_t currentExtensionIndex)
 {
   if (currentExtensionIndex != m_currentExtensionIndex)
   {
     m_currentExtensionIndex = currentExtensionIndex;
     currentExtensionDidChangeNotifier(m_currentExtensionIndex);
+    return true;
   }
+
+  return false;
 }
 
 } // namespace TrenchBroom::View

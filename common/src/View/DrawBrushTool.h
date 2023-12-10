@@ -37,6 +37,8 @@ public:
   explicit DrawBrushTool(std::weak_ptr<MapDocument> document);
   void update(const vm::bbox3& bounds, vm::axis::type axis);
 
+  bool cancel();
+
 private:
   DrawBrushToolExtensionManager m_extensionManager;
 

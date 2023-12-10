@@ -63,6 +63,18 @@ void DrawBrushTool::update(const vm::bbox3& bounds, const vm::axis::type axis)
     });
 }
 
+bool DrawBrushTool::cancel()
+{
+  auto document = kdl::mem_lock(m_document);
+  if (document->hasSelection())
+  {
+    // Let the map view deselect before we switch the shapes
+    return false;
+  }
+
+  return m_extensionManager.setCurrentExtensionIndex(0);
+}
+
 QWidget* DrawBrushTool::doCreatePage(QWidget* parent)
 {
   return new DrawBrushToolPage{m_document, m_extensionManager, parent};

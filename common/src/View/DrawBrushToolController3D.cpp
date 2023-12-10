@@ -280,7 +280,7 @@ std::unique_ptr<DragTracker> DrawBrushToolController3D::acceptMouseDrag(
 
 bool DrawBrushToolController3D::cancel()
 {
-  return false;
+  return m_tool.cancel();
 }
 
 } // namespace TrenchBroom::View
