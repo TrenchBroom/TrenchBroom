@@ -47,13 +47,16 @@ DrawShapeToolExtension& DrawShapeToolExtensionManager::currentExtension()
   return *m_extensions[m_currentExtensionIndex];
 }
 
-void DrawShapeToolExtensionManager::setCurrentExtensionIndex(size_t currentExtensionIndex)
+bool DrawShapeToolExtensionManager::setCurrentExtensionIndex(size_t currentExtensionIndex)
 {
   if (currentExtensionIndex != m_currentExtensionIndex)
   {
     m_currentExtensionIndex = currentExtensionIndex;
     currentExtensionDidChangeNotifier(m_currentExtensionIndex);
+    return true;
   }
+
+  return false;
 }
 
 } // namespace TrenchBroom::View
