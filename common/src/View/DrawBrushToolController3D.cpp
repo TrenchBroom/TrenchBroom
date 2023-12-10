@@ -91,6 +91,18 @@ public:
   std::optional<UpdateDragConfig> modifierKeyChange(
     const InputState& inputState, const DragState& dragState) override
   {
+    if (inputState.modifierKeys() == ModifierKeys::MKShift)
+    {
+      const auto currentBounds = makeBounds(
+        inputState, dragState.initialHandlePosition, dragState.currentHandlePosition);
+
+      if (!currentBounds.is_empty())
+      {
+        m_tool.update(currentBounds, vm::axis::z);
+        m_tool.refreshViews();
+      }
+    }
+
     if (inputState.modifierKeys() == ModifierKeys::MKAlt)
     {
       return UpdateDragConfig{
@@ -166,10 +178,35 @@ private:
     const vm::vec3& initialHandlePosition,
     const vm::vec3& currentHandlePosition) const
   {
-    const auto bounds = vm::bbox3{
-      vm::min(initialHandlePosition, currentHandlePosition),
-      vm::max(initialHandlePosition, currentHandlePosition)};
-    return vm::intersect(snapBounds(inputState, bounds), m_worldBounds);
+    auto bounds = snapBounds(
+      inputState,
+      vm::bbox3{
+        vm::min(initialHandlePosition, currentHandlePosition),
+        vm::max(initialHandlePosition, currentHandlePosition)});
+
+    if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+    {
+      const auto includeZAxis = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+
+      const auto xyAxes = vm::vec3::pos_x() + vm::vec3::pos_y();
+      const auto zAxis = vm::vec3::pos_z();
+      const auto allAxes = vm::vec3::one();
+      const auto noAxis = vm::vec3::zero();
+      const auto maxLengthAxes = includeZAxis ? allAxes : xyAxes;
+      const auto zLengthAxis = includeZAxis ? noAxis : zAxis;
+
+      const auto maxLength = vm::get_abs_max_component(bounds.size() * maxLengthAxes);
+
+      const auto lengthDiff = zLengthAxis * bounds.size() + maxLengthAxes * maxLength;
+
+      // The direction in which the user is dragging per component:
+      const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
+      bounds = vm::bbox3{
+        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3::one() - dragDir),
+        vm::mix(bounds.max, bounds.min + lengthDiff, dragDir)};
+    }
+
+    return vm::intersect(bounds, m_worldBounds);
   }
 
   vm::bbox3 snapBounds(const InputState& inputState, vm::bbox3 bounds) const
@@ -216,7 +253,10 @@ std::unique_ptr<DragTracker> DrawBrushToolController3D::acceptMouseDrag(
     return nullptr;
   }
 
-  if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+  if (!inputState.checkModifierKeys(
+        ModifierKeyPressed::MK_No,
+        ModifierKeyPressed::MK_No,
+        ModifierKeyPressed::MK_DontCare))
   {
     return nullptr;
   }
