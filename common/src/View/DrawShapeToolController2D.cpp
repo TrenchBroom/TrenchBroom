@@ -249,7 +249,7 @@ std::unique_ptr<DragTracker> DrawShapeToolController2D::acceptMouseDrag(
 
 bool DrawShapeToolController2D::cancel()
 {
-  return false;
+  return m_tool.cancel();
 }
 
 } // namespace TrenchBroom::View

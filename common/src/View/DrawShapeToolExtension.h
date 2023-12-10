@@ -56,7 +56,7 @@ public:
   const std::vector<DrawShapeToolExtension*> extensions() const;
 
   DrawShapeToolExtension& currentExtension();
-  void setCurrentExtensionIndex(size_t currentExtensionIndex);
+  bool setCurrentExtensionIndex(size_t currentExtensionIndex);
 
 private:
   std::vector<std::unique_ptr<DrawShapeToolExtension>> m_extensions;

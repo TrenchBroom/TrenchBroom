@@ -67,6 +67,18 @@ void DrawShapeTool::update(const vm::bbox3& bounds, const vm::axis::type axis)
     });
 }
 
+bool DrawShapeTool::cancel()
+{
+  auto document = kdl::mem_lock(m_document);
+  if (document->hasSelection())
+  {
+    // Let the map view deselect before we switch the shapes
+    return false;
+  }
+
+  return m_extensionManager.setCurrentExtensionIndex(0);
+}
+
 QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
 {
   return new DrawShapeToolPage{m_document, m_extensionManager, parent};
