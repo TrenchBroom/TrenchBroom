@@ -151,6 +151,10 @@ private:
     const tinyxml2::XMLElement& element,
     const std::string& attributeName,
     ParserStatus& status);
+  std::optional<bool> parseBoolean(
+    const tinyxml2::XMLElement& element,
+    const std::string& attributeName,
+    ParserStatus& status);
   std::optional<int> parseInteger(
     const tinyxml2::XMLElement& element,
     const std::string& attributeName,

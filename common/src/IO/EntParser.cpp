@@ -31,6 +31,7 @@
 #include "Model/EntityProperties.h"
 
 #include <kdl/string_utils.h>
+#include <kdl/string_compare.h>
 
 #include <vecmath/vec_io.h>
 
@@ -371,7 +372,7 @@ void EntParser::parseBooleanPropertyDefinition(
       const std::string& longDesc) -> std::shared_ptr<Assets::PropertyDefinition> {
     if (hasAttribute(element, "value"))
     {
-      const auto boolDefaultValue = parseInteger(element, "value", status);
+      const auto boolDefaultValue = parseBoolean(element, "value", status);
       if (boolDefaultValue.has_value())
       {
         return std::make_shared<Assets::BooleanPropertyDefinition>(
@@ -620,6 +621,34 @@ std::optional<Color> EntParser::parseColor(
   ParserStatus& status)
 {
   return Color::parse(parseString(element, attributeName, status));
+}
+
+std::optional<bool> EntParser::parseBoolean(
+  const tinyxml2::XMLElement& element,
+  const std::string& attributeName,
+  ParserStatus& /* status */)
+{
+  const auto strValue = element.Attribute(attributeName.c_str());
+  if (strValue == nullptr)
+  {
+    return std::nullopt;
+  }
+
+  size_t len = strlen(strValue);
+  if (len == kdl::ci::str_mismatch(strValue, "True"))
+  {
+    return true;
+  }
+  if (len == kdl::ci::str_mismatch(strValue, "False"))
+  {
+    return false;
+  }
+  const auto longValue = kdl::str_to_long(strValue);
+  if (longValue == 0 || longValue == 1)
+  {
+    return longValue == 1;
+  }
+  return std::nullopt;
 }
 
 std::optional<int> EntParser::parseInteger(
