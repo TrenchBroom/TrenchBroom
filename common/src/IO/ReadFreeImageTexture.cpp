@@ -213,6 +213,8 @@ std::vector<std::string> getSupportedFreeImageExtensions()
 
 bool isSupportedFreeImageExtension(const std::string& extension)
 {
+  InitFreeImage::initialize();
+
   static const auto extensions = getSupportedFreeImageExtensions();
   return kdl::vec_contains(extensions, kdl::str_to_lower(extension));
 }
