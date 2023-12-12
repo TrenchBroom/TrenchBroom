@@ -722,7 +722,7 @@ constexpr bool intersect_bbox_polygon(
    */
 
   // 1
-  auto numVerts = size_t(0);
+  [[maybe_unused]] auto numVerts = size_t(0);
   for (auto cur = begin; cur != end; ++cur)
   {
     const auto v = get(*cur);
