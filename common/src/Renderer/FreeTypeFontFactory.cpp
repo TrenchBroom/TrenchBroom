@@ -22,7 +22,7 @@
 #include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/Reader.h"
 #include "IO/SystemPaths.h"
 #include "Macros.h"
@@ -40,6 +40,17 @@ namespace TrenchBroom::Renderer
 
 namespace
 {
+auto initializeFreeType()
+{
+  auto library = FT_Library{nullptr};
+  if (const auto error = FT_Init_FreeType(&library); error != 0)
+  {
+    throw RenderException{"Error initializing FreeType: " + std::to_string(error)};
+  }
+
+  return kdl::resource{library, FT_Done_FreeType};
+}
+
 
 auto loadFont(FT_Library library, const FontDescriptor& fontDescriptor)
 {
@@ -48,24 +59,25 @@ auto loadFont(FT_Library library, const FontDescriptor& fontDescriptor)
                           : IO::SystemPaths::findResourceFile(fontDescriptor.path());
 
   return IO::Disk::openFile(fontPath)
-    .and_then([&](auto file) -> Result<std::pair<FT_Face, IO::BufferedReader>> {
-      auto reader = file->reader().buffer();
+    .and_then(
+      [&](auto file) -> Result<std::pair<kdl::resource<FT_Face>, IO::BufferedReader>> {
+        auto reader = file->reader().buffer();
 
-      auto face = FT_Face{};
-      const auto error = FT_New_Memory_Face(
-        library,
-        reinterpret_cast<const FT_Byte*>(reader.begin()),
-        FT_Long(reader.size()),
-        0,
-        &face);
-      if (error)
-      {
-        return Error{"FT_New_Memory_Face returned " + std::to_string(error)};
-      }
+        auto face = FT_Face{};
+        const auto error = FT_New_Memory_Face(
+          library,
+          reinterpret_cast<const FT_Byte*>(reader.begin()),
+          FT_Long(reader.size()),
+          0,
+          &face);
+        if (error)
+        {
+          return Error{"FT_New_Memory_Face returned " + std::to_string(error)};
+        }
 
-      FT_Set_Pixel_Sizes(face, 0, FT_UInt(fontDescriptor.size()));
-      return std::pair{face, std::move(reader)};
-    })
+        FT_Set_Pixel_Sizes(face, 0, FT_UInt(fontDescriptor.size()));
+        return std::pair{kdl::resource{face, FT_Done_Face}, std::move(reader)};
+      })
     .if_error([&](auto e) {
       throw RenderException{
         "Error loading font '" + fontDescriptor.name() + "': " + e.msg};
@@ -135,30 +147,15 @@ std::unique_ptr<TextureFont> buildFont(
 } // namespace
 
 FreeTypeFontFactory::FreeTypeFontFactory()
+  : m_library{initializeFreeType()}
 {
-  const auto error = FT_Init_FreeType(&m_library);
-  if (error != 0)
-  {
-    m_library = nullptr;
-    throw RenderException{"Error initializing FreeType: " + std::to_string(error)};
-  }
-}
-
-FreeTypeFontFactory::~FreeTypeFontFactory()
-{
-  if (m_library)
-  {
-    FT_Done_FreeType(m_library);
-    m_library = nullptr;
-  }
 }
 
 std::unique_ptr<TextureFont> FreeTypeFontFactory::doCreateFont(
   const FontDescriptor& fontDescriptor)
 {
-  auto [face, bufferedReader] = loadFont(m_library, fontDescriptor);
-  auto font = buildFont(face, fontDescriptor.minChar(), fontDescriptor.charCount());
-  FT_Done_Face(face);
+  auto [face, bufferedReader] = loadFont(*m_library, fontDescriptor);
+  auto font = buildFont(*face, fontDescriptor.minChar(), fontDescriptor.charCount());
 
   // NOTE: bufferedReader is returned from loadFont() just to keep the buffer from
   // being deallocated until after we call FT_Done_Face

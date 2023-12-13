@@ -24,6 +24,8 @@
 
 #include "Renderer/FontFactory.h"
 
+#include <kdl/resource.h>
+
 #include <memory>
 
 namespace TrenchBroom::Renderer
@@ -34,11 +36,10 @@ class TextureFont;
 class FreeTypeFontFactory : public FontFactory
 {
 private:
-  FT_Library m_library = nullptr;
+  kdl::resource<FT_Library> m_library;
 
 public:
   FreeTypeFontFactory();
-  ~FreeTypeFontFactory() override;
 
 private:
   std::unique_ptr<TextureFont> doCreateFont(
