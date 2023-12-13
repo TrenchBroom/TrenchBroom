@@ -334,8 +334,8 @@ std::optional<size_t> getMeshIndex(const aiScene& scene, const aiMesh& mesh)
 {
   for (unsigned int i = 0; i < scene.mNumMeshes; ++i)
   {
-    const aiMesh* m = scene.mMeshes[i];
-    if (m == &mesh)
+    const auto& m = *scene.mMeshes[i];
+    if (&m == &mesh)
     {
       return size_t(i);
     }
@@ -350,8 +350,8 @@ std::optional<size_t> getChannelIndex(const aiAnimation& animation, const aiNode
 {
   for (unsigned int i = 0; i < animation.mNumChannels; ++i)
   {
-    const aiNodeAnim* ch = animation.mChannels[i];
-    if (!std::strcmp(node.mName.data, ch->mNodeName.data))
+    const auto& ch = *animation.mChannels[i];
+    if (!std::strcmp(node.mName.data, ch.mNodeName.data))
     {
       return size_t(i);
     }
@@ -371,29 +371,18 @@ std::vector<AssimpBoneInformation> getAnimationInformation(
   // calculate the transformations for each animation channel
   for (unsigned int i = 0; i < animation.mNumChannels; ++i)
   {
-    const aiNodeAnim* channel = animation.mChannels[i];
+    const auto& channel = *animation.mChannels[i];
 
-    aiVector3D position(0, 0, 0);
-    if (channel->mNumPositionKeys > 0)
-    {
-      position = channel->mPositionKeys[0].mValue;
-    }
-
-    aiQuaternion rotation(1, 0, 0, 0);
-    if (channel->mNumRotationKeys > 0)
-    {
-      rotation = channel->mRotationKeys[0].mValue;
-    }
-
-    aiVector3D scale(1, 1, 1);
-    if (channel->mNumScalingKeys > 0)
-    {
-      scale = channel->mScalingKeys[0].mValue;
-    }
+    const auto position = channel.mNumPositionKeys > 0 ? channel.mPositionKeys[0].mValue
+                                                       : aiVector3D{0, 0, 0};
+    const auto rotation = channel.mNumRotationKeys > 0 ? channel.mRotationKeys[0].mValue
+                                                       : aiQuaternion{1, 0, 0, 0};
+    const auto scale =
+      channel.mNumScalingKeys > 0 ? channel.mScalingKeys[0].mValue : aiVector3D{1, 1, 1};
 
     // build a transformation matrix from it
-    aiMatrix4x4& mat = indivTransforms[i];
-    mat = aiMatrix4x4(rotation.GetMatrix());
+    auto& mat = indivTransforms[i];
+    mat = aiMatrix4x4{rotation.GetMatrix()};
     mat.a1 *= scale.x;
     mat.b1 *= scale.x;
     mat.c1 *= scale.x;
@@ -413,37 +402,36 @@ std::vector<AssimpBoneInformation> getAnimationInformation(
   auto transforms = std::vector<AssimpBoneInformation>{animation.mNumChannels};
   for (unsigned int i = 0; i < animation.mNumChannels; ++i)
   {
-    const aiNodeAnim* channel = animation.mChannels[i];
+    const auto& channel = *animation.mChannels[i];
 
     // start with the individual transformation of this channel
     auto globalTransform = indivTransforms[i];
     int32_t parentId = -1;
 
     // traverse the bone hierarchy to compute the global transformation
-    auto boneNode = root.FindNode(channel->mNodeName);
+    auto boneNode = root.FindNode(channel.mNodeName);
     if (!boneNode)
     {
       continue; // couldn't find the bone node, something is weird
     }
 
     // start at the first parent and walk up the tree
-    aiNode* parentNode = boneNode->mParent;
+    auto* parentNode = boneNode->mParent;
     while (parentNode)
     {
       // use the node's default transformation, in case node isn't a bone
       // and won't be transformed by this animation
-      aiMatrix4x4 nodeTransformation = parentNode->mTransformation;
+      auto nodeTransformation = parentNode->mTransformation;
 
       // find the index of this bone in the channel list
-      const auto index = getChannelIndex(animation, *parentNode);
-      if (index.has_value())
+      if (const auto index = getChannelIndex(animation, *parentNode))
       {
-        nodeTransformation = indivTransforms[index.value()];
+        nodeTransformation = indivTransforms[*index];
 
         // if this is the first parent of the bone, set the parent id
         if (parentNode == boneNode->mParent)
         {
-          parentId = int32_t(index.value());
+          parentId = int32_t(*index);
         }
       }
       else
@@ -457,7 +445,7 @@ std::vector<AssimpBoneInformation> getAnimationInformation(
 
     // set the info and carry on
     transforms[i] = {
-      i, parentId, channel->mNodeName, indivTransforms[i], globalTransform};
+      i, parentId, channel.mNodeName, indivTransforms[i], globalTransform};
   }
 
   return transforms;
@@ -486,7 +474,7 @@ void processNode(
   }
 }
 
-#define AI_MDL_HL1_NODE_BODYPARTS "<MDL_bodyparts>"
+static const auto AiMdlHl1NodeBodyparts = "<MDL_bodyparts>";
 
 void processRootNode(
   std::vector<AssimpMeshWithTransforms>& meshes,
@@ -500,41 +488,41 @@ void processRootNode(
   // submodel per body part should be rendered at a time.
 
   // See if we have loaded a HL1 model
-  const auto hl1bodyParts = node.FindNode(AI_MDL_HL1_NODE_BODYPARTS);
-  if (!hl1bodyParts)
+  if (const auto hl1BodyParts = node.FindNode(AiMdlHl1NodeBodyparts))
   {
-    // not a HL1 model, just process like normal
-    processNode(meshes, node, scene, transform, axisTransform);
-    return;
-  }
-
-  /* HL models are loaded by assimp in a particular way, each bodypart and all
+    /* HL models are loaded by assimp in a particular way, each bodypart and all
    * its submodels are loaded into different nodes in the scene. To properly
    * display the model, we must choose EXACTLY ONE submodel from each body
    * part and render the meshes for those chosen submodels. */
 
-  // Assimp HL models face sideways by default so spin by -90 on the z axis
-  // this MIGHT be needed for non-HL models as well. To be safe for now, we
-  // only do this for HL models.
-  const aiQuaternion rotation(aiVector3t(0, 1, 0), -vm::Cf::half_pi());
-  const auto rotMatrix = aiMatrix4x4(rotation.GetMatrix());
-  const auto newAxisTransform = axisTransform * rotMatrix;
+    // Assimp HL models face sideways by default so spin by -90 on the z axis
+    // this MIGHT be needed for non-HL models as well. To be safe for now, we
+    // only do this for HL models.
+    const aiQuaternion rotation(aiVector3t(0, 1, 0), -vm::Cf::half_pi());
+    const auto rotMatrix = aiMatrix4x4(rotation.GetMatrix());
+    const auto newAxisTransform = axisTransform * rotMatrix;
 
-  // loop through each body part
-  for (unsigned int i = 0; i < hl1bodyParts->mNumChildren; ++i)
-  {
-    const auto* bodypart = hl1bodyParts->mChildren[i];
-    if (bodypart->mNumChildren == 0)
+    // loop through each body part
+    for (unsigned int i = 0; i < hl1BodyParts->mNumChildren; ++i)
     {
-      // the body has no submodels (shouldn't happen for a normal HL model)
-      continue;
+      const auto* bodypart = hl1BodyParts->mChildren[i];
+      if (bodypart->mNumChildren == 0)
+      {
+        // the body has no submodels (shouldn't happen for a normal HL model)
+        continue;
+      }
+
+      // currently we don't have a way to know which submodel the user
+      // might want to see, so just use the first one.
+      const auto* submodel = bodypart->mChildren[0];
+
+      processNode(meshes, *submodel, scene, transform, newAxisTransform);
     }
-
-    // until the "body" keyvalue is sent through to the parser,
-    // we just pick the first submodel for each body part.
-    const auto* submodel = bodypart->mChildren[0];
-
-    processNode(meshes, *submodel, scene, transform, newAxisTransform);
+  }
+  else
+  {
+    // not a HL1 model, just process like normal
+    processNode(meshes, node, scene, transform, axisTransform);
   }
 }
 
@@ -557,17 +545,18 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
   // the weights for each vertex are stored in the bones, not in
   // the vertices. this loop lets us collect the bone weightings
   // per vertex so we can process them.
-  std::vector<std::vector<AssimpVertexBoneWeight>> weightsPerVertex(mesh.mNumVertices);
+  auto weightsPerVertex =
+    std::vector<std::vector<AssimpVertexBoneWeight>>{mesh.mNumVertices};
   for (unsigned int i = 0; i < mesh.mNumBones; ++i)
   {
-    const aiBone* bone = mesh.mBones[i];
+    const auto& bone = *mesh.mBones[i];
 
     // find the bone with the matching name
     size_t idx;
     for (idx = 0; idx < boneTransforms.size(); ++idx)
     {
       const auto info = boneTransforms[idx];
-      if (!std::strcmp(info.m_name.data, bone->mName.data))
+      if (!std::strcmp(info.m_name.data, bone.mName.data))
       {
         break;
       }
@@ -578,14 +567,14 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
       continue;
     }
 
-    for (unsigned int j = 0; j < bone->mNumWeights; ++j)
+    for (unsigned int j = 0; j < bone.mNumWeights; ++j)
     {
-      weightsPerVertex[bone->mWeights[j].mVertexId].push_back(
-        {idx, bone->mWeights[j].mWeight, *bone});
+      weightsPerVertex[bone.mWeights[j].mVertexId].push_back(
+        {idx, bone.mWeights[j].mWeight, bone});
     }
   }
 
-  const size_t numVerts = mesh.mNumVertices;
+  const auto numVerts = mesh.mNumVertices;
   vertices.reserve(numVerts);
 
   // Add all the vertices of the mesh.
@@ -701,7 +690,7 @@ Result<void> loadSceneFrame(
   const std::string& name)
 {
   // load the animation information for the current "frame" (animation)
-  std::vector<AssimpBoneInformation> boneTransforms;
+  auto boneTransforms = std::vector<AssimpBoneInformation>{};
   if (frameIndex < scene.mNumAnimations)
   {
     const auto animation = scene.mAnimations[frameIndex];
@@ -864,14 +853,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
       {loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger)});
   }
 
-  // the entity browser will want to see frame 0 most of the time, pre-emptively load it
-  return loadSceneFrame(*scene, 0, *model, modelPath)
-    .transform([&]() { return std::move(model); })
-    .if_error([&](auto e) {
-      throw ParserException{fmt::format(
-        "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
-    })
-    .value();
+  return model;
 }
 
 void AssimpParser::doLoadFrame(
@@ -899,9 +881,9 @@ void AssimpParser::doLoadFrame(
   // load the requested frame
   const auto result =
     loadSceneFrame(*scene, frameIndex, model, modelPath).if_error([&](auto e) {
-      throw ParserException{fmt::format(
-        "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
-    });
+    throw ParserException{fmt::format(
+      "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
+  });
   static_cast<void>(result); // no return value, so discard the result if successful
 }
 
