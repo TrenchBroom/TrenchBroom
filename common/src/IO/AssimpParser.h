@@ -24,10 +24,9 @@
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 
-#include <assimp/types.h>
+#include <assimp/matrix4x4.h>
 
 #include <filesystem>
-#include <vector>
 
 struct aiNode;
 struct aiScene;

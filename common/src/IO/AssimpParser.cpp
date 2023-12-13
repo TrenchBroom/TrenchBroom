@@ -45,11 +45,12 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <assimp/types.h>
 #include <fmt/format.h>
 
 #include <optional>
+#include <string_view>
 #include <utility>
-#include <vector>
 
 namespace TrenchBroom::IO
 {
@@ -79,10 +80,7 @@ public:
       m_reader.read(reinterpret_cast<char*>(buffer), size * count);
       return count;
     }
-    else
-    {
-      return 0;
-    }
+    return 0;
   }
 
   size_t Write(
@@ -334,8 +332,7 @@ std::optional<size_t> getMeshIndex(const aiScene& scene, const aiMesh& mesh)
 {
   for (unsigned int i = 0; i < scene.mNumMeshes; ++i)
   {
-    const auto& m = *scene.mMeshes[i];
-    if (&m == &mesh)
+    if (&mesh == scene.mMeshes[i])
     {
       return size_t(i);
     }
@@ -348,10 +345,11 @@ std::optional<size_t> getMeshIndex(const aiScene& scene, const aiMesh& mesh)
  */
 std::optional<size_t> getChannelIndex(const aiAnimation& animation, const aiNode& node)
 {
+  const auto nodeName = std::string_view{node.mName.data};
   for (unsigned int i = 0; i < animation.mNumChannels; ++i)
   {
-    const auto& ch = *animation.mChannels[i];
-    if (!std::strcmp(node.mName.data, ch.mNodeName.data))
+    const auto channelName = std::string_view{animation.mChannels[i]->mNodeName.data};
+    if (channelName == nodeName)
     {
       return size_t(i);
     }
@@ -374,20 +372,19 @@ std::tuple<size_t, aiMatrix4x4> getBoneParentChannelAndTransformation(
     // reached the root node
     return {-1, aiMatrix4x4{}};
   }
-  else if (const auto index = getChannelIndex(animation, *parentNode))
+
+  if (const auto index = getChannelIndex(animation, *parentNode))
   {
     // we have found the index of this bone in the channel list
-    const auto& transform = channelTransforms[*index];
-    aiMatrix4x4 parentTransform;
-    std::tie(std::ignore, parentTransform) =
+    const auto [parentIndex, parentTransform] =
       getBoneParentChannelAndTransformation(animation, *parentNode, channelTransforms);
-    return {*index, parentTransform * transform};
+    unused(parentIndex);
+
+    return {*index, parentTransform * channelTransforms[*index]};
   }
-  else
-  {
-    // this node is not a bone, use the node's default transformation
-    return {-1, parentNode->mTransformation};
-  }
+
+  // this node is not a bone, use the node's default transformation
+  return {-1, parentNode->mTransformation};
 }
 
 /**
@@ -397,7 +394,8 @@ std::tuple<size_t, aiMatrix4x4> getBoneParentChannelAndTransformation(
 std::vector<AssimpBoneInformation> getAnimationInformation(
   const aiNode& root, const aiAnimation& animation)
 {
-  auto indivTransforms = std::vector<aiMatrix4x4>{animation.mNumChannels};
+  auto indivTransforms = std::vector<aiMatrix4x4>{};
+  indivTransforms.reserve(animation.mNumChannels);
 
   // calculate the transformations for each animation channel
   for (unsigned int i = 0; i < animation.mNumChannels; ++i)
@@ -412,8 +410,7 @@ std::vector<AssimpBoneInformation> getAnimationInformation(
       channel.mNumScalingKeys > 0 ? channel.mScalingKeys[0].mValue : aiVector3D{1, 1, 1};
 
     // build a transformation matrix from it
-    auto& mat = indivTransforms[i];
-    mat = aiMatrix4x4{rotation.GetMatrix()};
+    auto mat = aiMatrix4x4{rotation.GetMatrix()};
     mat.a1 *= scale.x;
     mat.b1 *= scale.x;
     mat.c1 *= scale.x;
@@ -426,33 +423,37 @@ std::vector<AssimpBoneInformation> getAnimationInformation(
     mat.a4 = position.x;
     mat.b4 = position.y;
     mat.c4 = position.z;
+
+    indivTransforms.push_back(std::move(mat));
   }
 
   // assemble the transform information from the bone hierarchy (child
   // bones must be multiplied by their parent transformations, recursively)
-  auto transforms = std::vector<AssimpBoneInformation>{animation.mNumChannels};
+  auto transforms = std::vector<AssimpBoneInformation>{};
+  transforms.reserve(animation.mNumChannels);
+
   for (unsigned int i = 0; i < animation.mNumChannels; ++i)
   {
     const auto& channel = *animation.mChannels[i];
 
-    // start with the individual transformation of this channel
-    auto globalTransform = indivTransforms[i];
-
     // traverse the bone hierarchy to compute the global transformation
-    const auto* boneNode = root.FindNode(channel.mNodeName);
-    if (!boneNode)
+    if (const auto* boneNode = root.FindNode(channel.mNodeName))
     {
-      continue; // couldn't find the bone node, something is weird
+      const auto [parentId, parentTransform] =
+        getBoneParentChannelAndTransformation(animation, *boneNode, indivTransforms);
+
+      transforms.push_back(
+        {i,
+         int32_t(parentId),
+         channel.mNodeName,
+         indivTransforms[i],
+         parentTransform * indivTransforms[i]});
     }
-
-    const auto [parentId, parentTransform] =
-      getBoneParentChannelAndTransformation(animation, *boneNode, indivTransforms);
-
-    globalTransform = parentTransform * globalTransform;
-
-    // set the info and carry on
-    transforms[i] = {
-      i, int32_t(parentId), channel.mNodeName, indivTransforms[i], globalTransform};
+    else
+    {
+      // couldn't find the bone node, something is weird
+      transforms.emplace_back();
+    }
   }
 
   return transforms;
@@ -470,6 +471,7 @@ void processNode(
     const auto* mesh = scene.mMeshes[node.mMeshes[i]];
     meshes.push_back({mesh, transform, axisTransform});
   }
+
   for (unsigned int i = 0; i < node.mNumChildren; ++i)
   {
     processNode(
@@ -481,7 +483,7 @@ void processNode(
   }
 }
 
-static const auto AiMdlHl1NodeBodyparts = "<MDL_bodyparts>";
+const auto AiMdlHl1NodeBodyparts = "<MDL_bodyparts>";
 
 void processRootNode(
   std::vector<AssimpMeshWithTransforms>& meshes,
@@ -505,25 +507,20 @@ void processRootNode(
     // Assimp HL models face sideways by default so spin by -90 on the z axis
     // this MIGHT be needed for non-HL models as well. To be safe for now, we
     // only do this for HL models.
-    const aiQuaternion rotation(aiVector3t(0, 1, 0), -vm::Cf::half_pi());
-    const auto rotMatrix = aiMatrix4x4(rotation.GetMatrix());
+    const auto rotation = aiQuaternion{aiVector3t{0, 1, 0}, -vm::Cf::half_pi()};
+    const auto rotMatrix = aiMatrix4x4{rotation.GetMatrix()};
     const auto newAxisTransform = axisTransform * rotMatrix;
 
     // loop through each body part
     for (unsigned int i = 0; i < hl1BodyParts->mNumChildren; ++i)
     {
-      const auto* bodypart = hl1BodyParts->mChildren[i];
-      if (bodypart->mNumChildren == 0)
+      const auto& bodypart = *hl1BodyParts->mChildren[i];
+      if (bodypart.mNumChildren > 0)
       {
-        // the body has no submodels (shouldn't happen for a normal HL model)
-        continue;
+        // currently we don't have a way to know which submodel the user
+        // might want to see, so just use the first one.
+        processNode(meshes, *bodypart.mChildren[0], scene, transform, newAxisTransform);
       }
-
-      // currently we don't have a way to know which submodel the user
-      // might want to see, so just use the first one.
-      const auto* submodel = bodypart->mChildren[0];
-
-      processNode(meshes, *submodel, scene, transform, newAxisTransform);
     }
   }
   else
@@ -536,12 +533,13 @@ void processRootNode(
 std::optional<size_t> getBoneIndexByName(
   const std::vector<AssimpBoneInformation>& boneTransforms, const aiBone& bone)
 {
-  for (size_t idx = 0; idx < boneTransforms.size(); ++idx)
+  const auto boneName = std::string_view{bone.mName.data};
+  for (size_t i = 0; i < boneTransforms.size(); ++i)
   {
-    const auto& info = boneTransforms[idx];
-    if (!std::strcmp(info.m_name.data, bone.mName.data))
+    const auto boneTransformName = std::string_view{boneTransforms[i].m_name.data};
+    if (boneTransformName == boneName)
     {
-      return idx;
+      return i;
     }
   }
   return std::nullopt;
@@ -553,7 +551,7 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
   const aiMatrix4x4& axisTransform,
   const std::vector<AssimpBoneInformation>& boneTransforms)
 {
-  std::vector<Assets::EntityModelVertex> vertices{};
+  auto vertices = std::vector<Assets::EntityModelVertex>{};
 
   // We pass through the aiProcess_Triangulate flag to assimp, so we know for sure we'll
   // ONLY get triangles in a single mesh. This is just a safety net to make sure we don't
@@ -573,12 +571,12 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
     const auto& bone = *mesh.mBones[i];
 
     // find the bone with the matching name
-    if (const auto idx = getBoneIndexByName(boneTransforms, bone))
+    if (const auto index = getBoneIndexByName(boneTransforms, bone))
     {
       for (unsigned int j = 0; j < bone.mNumWeights; ++j)
       {
         weightsPerVertex[bone.mWeights[j].mVertexId].push_back(
-          {*idx, bone.mWeights[j].mWeight, bone});
+          {*index, bone.mWeights[j].mWeight, bone});
       }
     }
   }
@@ -600,13 +598,13 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
     if (mesh.HasBones() && !boneTransforms.empty() && !weightsPerVertex[i].empty())
     {
       const auto vertWeights = weightsPerVertex[i];
-      auto vertPos = aiVector3D();
+      auto vertPos = aiVector3D{};
 
       for (const auto& vertWeight : vertWeights)
       {
-        auto boneIndex = vertWeight.m_boneIndex;
-        auto weight = vertWeight.m_weight;
-        auto bone = vertWeight.m_bone;
+        const auto boneIndex = vertWeight.m_boneIndex;
+        const auto weight = vertWeight.m_weight;
+        const auto& bone = vertWeight.m_bone;
         if (boneIndex < boneTransforms.size())
         {
           const auto& boneTransform = boneTransforms[boneIndex];
@@ -624,8 +622,8 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
     meshVertices *= transform;
     meshVertices *= axisTransform;
 
-    const auto vec = vm::vec3f(meshVertices.x, meshVertices.y, meshVertices.z);
-    vertices.emplace_back(vec, texcoords);
+    vertices.emplace_back(
+      vm::vec3f{meshVertices.x, meshVertices.y, meshVertices.z}, texcoords);
   }
 
   return vertices;
@@ -633,14 +631,12 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
 
 aiMatrix4x4 getAxisTransform(const aiScene& scene)
 {
-  auto matrix = aiMatrix4x4{};
-
   if (scene.mMetaData)
   {
     // These MUST be in32_t, or the metadata 'Get' function will get confused.
     int32_t upAxis = 0, frontAxis = 0, coordAxis = 0, upAxisSign = 0, frontAxisSign = 0,
             coordAxisSign = 0;
-    float unitScale = 1.0f;
+    auto unitScale = 1.0f;
 
     const auto metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
                                  && scene.mMetaData->Get("UpAxisSign", upAxisSign)
@@ -663,14 +659,14 @@ aiMatrix4x4 getAxisTransform(const aiScene& scene)
       unitScale = 1.0f;
     }
 
-    aiVector3D up, front, coord;
-    up[static_cast<unsigned int>(upAxis)] = static_cast<float>(upAxisSign) * unitScale;
-    front[static_cast<unsigned int>(frontAxis)] =
-      static_cast<float>(frontAxisSign) * unitScale;
-    coord[static_cast<unsigned int>(coordAxis)] =
-      static_cast<float>(coordAxisSign) * unitScale;
+    auto up = aiVector3D{};
+    auto front = aiVector3D{};
+    auto coord = aiVector3D{};
+    up[static_cast<unsigned int>(upAxis)] = float(upAxisSign) * unitScale;
+    front[static_cast<unsigned int>(frontAxis)] = float(frontAxisSign) * unitScale;
+    coord[static_cast<unsigned int>(coordAxis)] = float(coordAxisSign) * unitScale;
 
-    matrix = aiMatrix4x4t{
+    return aiMatrix4x4t{
       coord.x,
       coord.y,
       coord.z,
@@ -689,7 +685,7 @@ aiMatrix4x4 getAxisTransform(const aiScene& scene)
       1.0f};
   }
 
-  return matrix;
+  return aiMatrix4x4{};
 }
 
 Result<void> loadSceneFrame(
@@ -699,12 +695,10 @@ Result<void> loadSceneFrame(
   const std::string& name)
 {
   // load the animation information for the current "frame" (animation)
-  auto boneTransforms = std::vector<AssimpBoneInformation>{};
-  if (frameIndex < scene.mNumAnimations)
-  {
-    const auto animation = scene.mAnimations[frameIndex];
-    boneTransforms = getAnimationInformation(*scene.mRootNode, *animation);
-  }
+  const auto boneTransforms =
+    frameIndex < scene.mNumAnimations
+      ? getAnimationInformation(*scene.mRootNode, *scene.mAnimations[frameIndex])
+      : std::vector<AssimpBoneInformation>{};
 
   auto meshes = std::vector<AssimpMeshWithTransforms>{};
 
@@ -748,15 +742,13 @@ Result<void> loadSceneFrame(
         const auto& face = mesh.m_mesh->mFaces[i];
 
         // ignore anything that's not a triangle
-        if (face.mNumIndices != 3)
+        if (face.mNumIndices == 3)
         {
-          continue;
+          builder.addTriangle(
+            vertices[face.mIndices[0]],
+            vertices[face.mIndices[1]],
+            vertices[face.mIndices[2]]);
         }
-
-        builder.addTriangle(
-          vertices[face.mIndices[0]],
-          vertices[face.mIndices[1]],
-          vertices[face.mIndices[2]]);
       }
 
       meshData.push_back({*meshIndex, builder.vertices(), builder.indices()});
@@ -888,12 +880,10 @@ void AssimpParser::doLoadFrame(
   }
 
   // load the requested frame
-  const auto result =
-    loadSceneFrame(*scene, frameIndex, model, modelPath).if_error([&](auto e) {
-      throw ParserException{fmt::format(
-        "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
-    });
-  static_cast<void>(result); // no return value, so discard the result if successful
+  loadSceneFrame(*scene, frameIndex, model, modelPath).transform_error([&](auto e) {
+    throw ParserException{
+      fmt::format("Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
+  });
 }
 
 } // namespace TrenchBroom::IO
