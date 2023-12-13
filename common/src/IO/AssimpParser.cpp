@@ -497,10 +497,10 @@ void processRootNode(
   // See if we have loaded a HL1 model
   if (const auto hl1BodyParts = node.FindNode(AiMdlHl1NodeBodyparts))
   {
-    /* HL models are loaded by assimp in a particular way, each bodypart and all
-   * its submodels are loaded into different nodes in the scene. To properly
-   * display the model, we must choose EXACTLY ONE submodel from each body
-   * part and render the meshes for those chosen submodels. */
+    // HL models are loaded by assimp in a particular way, each bodypart and all
+    // its submodels are loaded into different nodes in the scene. To properly
+    // display the model, we must choose EXACTLY ONE submodel from each body
+    // part and render the meshes for those chosen submodels.
 
     // Assimp HL models face sideways by default so spin by -90 on the z axis
     // this MIGHT be needed for non-HL models as well. To be safe for now, we
@@ -575,9 +575,9 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
     // find the bone with the matching name
     if (const auto idx = getBoneIndexByName(boneTransforms, bone))
     {
-    for (unsigned int j = 0; j < bone.mNumWeights; ++j)
-    {
-      weightsPerVertex[bone.mWeights[j].mVertexId].push_back(
+      for (unsigned int j = 0; j < bone.mNumWeights; ++j)
+      {
+        weightsPerVertex[bone.mWeights[j].mVertexId].push_back(
           {*idx, bone.mWeights[j].mWeight, bone});
       }
     }
@@ -890,9 +890,9 @@ void AssimpParser::doLoadFrame(
   // load the requested frame
   const auto result =
     loadSceneFrame(*scene, frameIndex, model, modelPath).if_error([&](auto e) {
-    throw ParserException{fmt::format(
-      "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
-  });
+      throw ParserException{fmt::format(
+        "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
+    });
   static_cast<void>(result); // no return value, so discard the result if successful
 }
 
