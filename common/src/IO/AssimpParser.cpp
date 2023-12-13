@@ -360,6 +360,37 @@ std::optional<size_t> getChannelIndex(const aiAnimation& animation, const aiNode
 }
 
 /**
+ * Gets the parent bone's channel index as well as its transformation,
+ * recursively multiplied by all bones further up the hierarchy.
+ */
+std::tuple<size_t, aiMatrix4x4> getBoneParentChannelAndTransformation(
+  const aiAnimation& animation,
+  const aiNode& boneNode,
+  const std::vector<aiMatrix4x4>& channelTransforms)
+{
+  const auto* parentNode = boneNode.mParent;
+  if (!parentNode)
+  {
+    // reached the root node
+    return {-1, aiMatrix4x4{}};
+  }
+  else if (const auto index = getChannelIndex(animation, *parentNode))
+  {
+    // we have found the index of this bone in the channel list
+    const auto& transform = channelTransforms[*index];
+    aiMatrix4x4 parentTransform;
+    std::tie(std::ignore, parentTransform) =
+      getBoneParentChannelAndTransformation(animation, *parentNode, channelTransforms);
+    return {*index, parentTransform * transform};
+  }
+  else
+  {
+    // this node is not a bone, use the node's default transformation
+    return {-1, parentNode->mTransformation};
+  }
+}
+
+/**
  * Computes the animation information for each channel in an
  * animation sequence. Always uses the first frame of the animation.
  */
@@ -406,46 +437,22 @@ std::vector<AssimpBoneInformation> getAnimationInformation(
 
     // start with the individual transformation of this channel
     auto globalTransform = indivTransforms[i];
-    int32_t parentId = -1;
 
     // traverse the bone hierarchy to compute the global transformation
-    auto boneNode = root.FindNode(channel.mNodeName);
+    const auto* boneNode = root.FindNode(channel.mNodeName);
     if (!boneNode)
     {
       continue; // couldn't find the bone node, something is weird
     }
 
-    // start at the first parent and walk up the tree
-    auto* parentNode = boneNode->mParent;
-    while (parentNode)
-    {
-      // use the node's default transformation, in case node isn't a bone
-      // and won't be transformed by this animation
-      auto nodeTransformation = parentNode->mTransformation;
+    const auto [parentId, parentTransform] =
+      getBoneParentChannelAndTransformation(animation, *boneNode, indivTransforms);
 
-      // find the index of this bone in the channel list
-      if (const auto index = getChannelIndex(animation, *parentNode))
-      {
-        nodeTransformation = indivTransforms[*index];
-
-        // if this is the first parent of the bone, set the parent id
-        if (parentNode == boneNode->mParent)
-        {
-          parentId = int32_t(*index);
-        }
-      }
-      else
-      {
-        break;
-      }
-
-      globalTransform = nodeTransformation * globalTransform;
-      parentNode = parentNode->mParent;
-    }
+    globalTransform = parentTransform * globalTransform;
 
     // set the info and carry on
     transforms[i] = {
-      i, parentId, channel.mNodeName, indivTransforms[i], globalTransform};
+      i, int32_t(parentId), channel.mNodeName, indivTransforms[i], globalTransform};
   }
 
   return transforms;
@@ -526,6 +533,20 @@ void processRootNode(
   }
 }
 
+std::optional<size_t> getBoneIndexByName(
+  const std::vector<AssimpBoneInformation>& boneTransforms, const aiBone& bone)
+{
+  for (size_t idx = 0; idx < boneTransforms.size(); ++idx)
+  {
+    const auto& info = boneTransforms[idx];
+    if (!std::strcmp(info.m_name.data, bone.mName.data))
+    {
+      return idx;
+    }
+  }
+  return std::nullopt;
+}
+
 std::vector<Assets::EntityModelVertex> computeMeshVertices(
   const aiMesh& mesh,
   const aiMatrix4x4& transform,
@@ -552,25 +573,13 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
     const auto& bone = *mesh.mBones[i];
 
     // find the bone with the matching name
-    size_t idx;
-    for (idx = 0; idx < boneTransforms.size(); ++idx)
+    if (const auto idx = getBoneIndexByName(boneTransforms, bone))
     {
-      const auto info = boneTransforms[idx];
-      if (!std::strcmp(info.m_name.data, bone.mName.data))
-      {
-        break;
-      }
-    }
-    if (idx >= boneTransforms.size())
-    {
-      // couldn't find a bone with this name, skip it
-      continue;
-    }
-
     for (unsigned int j = 0; j < bone.mNumWeights; ++j)
     {
       weightsPerVertex[bone.mWeights[j].mVertexId].push_back(
-        {idx, bone.mWeights[j].mWeight, bone});
+          {*idx, bone.mWeights[j].mWeight, bone});
+      }
     }
   }
 
