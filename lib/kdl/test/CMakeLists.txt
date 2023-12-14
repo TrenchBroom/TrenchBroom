@@ -14,6 +14,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_parallel.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_path_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_reflection.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_resource.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_result.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_set_adapter.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_set_temp.cpp"

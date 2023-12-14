@@ -26,6 +26,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/compact_trie.h"
     "${KDL_INCLUDE_DIR}/kdl/deref_iterator.h"
     "${KDL_INCLUDE_DIR}/kdl/enum_array.h"
+    "${KDL_INCLUDE_DIR}/kdl/resource.h"
     "${KDL_INCLUDE_DIR}/kdl/result.h"
     "${KDL_INCLUDE_DIR}/kdl/result_fold.h"
     "${KDL_INCLUDE_DIR}/kdl/result_forward.h"

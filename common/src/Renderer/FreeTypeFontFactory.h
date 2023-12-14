@@ -22,15 +22,13 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "IO/Reader.h"
 #include "Renderer/FontFactory.h"
 
-#include <memory>
-#include <utility>
+#include <kdl/resource.h>
 
-namespace TrenchBroom
-{
-namespace Renderer
+#include <memory>
+
+namespace TrenchBroom::Renderer
 {
 class FontDescriptor;
 class TextureFont;
@@ -38,22 +36,14 @@ class TextureFont;
 class FreeTypeFontFactory : public FontFactory
 {
 private:
-  FT_Library m_library;
+  kdl::resource<FT_Library> m_library;
 
 public:
   FreeTypeFontFactory();
-  ~FreeTypeFontFactory() override;
 
 private:
   std::unique_ptr<TextureFont> doCreateFont(
     const FontDescriptor& fontDescriptor) override;
-
-  std::pair<FT_Face, IO::BufferedReader> loadFont(const FontDescriptor& fontDescriptor);
-  std::unique_ptr<TextureFont> buildFont(
-    FT_Face face, unsigned char firstChar, unsigned char charCount);
-
-  Metrics computeMetrics(
-    FT_Face face, unsigned char firstChar, unsigned char charCount) const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer
