@@ -38,7 +38,5 @@ public:
 
 private:
   Result<void> doReadDirectory() override;
-
-  std::string filename(mz_uint fileIndex);
 };
 } // namespace TrenchBroom::IO
