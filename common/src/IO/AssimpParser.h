@@ -27,7 +27,6 @@
 #include <assimp/matrix4x4.h>
 
 #include <filesystem>
-#include <vector>
 
 struct aiNode;
 struct aiScene;
@@ -61,6 +60,8 @@ public:
   static bool canParse(const std::filesystem::path& path);
 
 private:
+  void doLoadFrame(
+    size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
   std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
 };
 
