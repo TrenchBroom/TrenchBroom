@@ -22,6 +22,8 @@
 #include "IO/Reader.h"
 #include "Result.h"
 
+#include <kdl/resource.h>
+
 #include <cstdio>
 #include <filesystem>
 #include <memory>
@@ -81,17 +83,14 @@ public:
  */
 class CFile : public File
 {
-public:
-  using FilePtr = std::unique_ptr<std::FILE, int (*)(std::FILE*)>;
-
 private:
-  FilePtr m_file;
+  kdl::resource<std::FILE*> m_file;
   size_t m_size;
 
   /**
    * Creates a new file with the given file ptr and size in bytes.
    */
-  CFile(FilePtr filePtr, size_t size);
+  CFile(kdl::resource<std::FILE*> file, size_t size);
 
 public:
   friend Result<std::shared_ptr<CFile>> createCFile(const std::filesystem::path& path);
