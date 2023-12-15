@@ -24,9 +24,6 @@
 
 #include <miniz/miniz.h>
 
-#include <filesystem>
-#include <memory>
-
 namespace TrenchBroom::IO
 {
 
