@@ -24,6 +24,8 @@
 
 #include <miniz/miniz.h>
 
+#include <mutex>
+
 namespace TrenchBroom::IO
 {
 
@@ -31,6 +33,7 @@ class ZipFileSystem : public ImageFileSystem
 {
 private:
   mz_zip_archive m_archive;
+  std::mutex m_mutex;
 
 public:
   using ImageFileSystem::ImageFileSystem;
