@@ -83,6 +83,14 @@ public:
  */
 class CFile : public File
 {
+public:
+#if defined __APPLE__
+  // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
+  using BufferType = std::shared_ptr<char>;
+#else
+  // G++ doesn't support using std::shared_ptr<T> to manage T[]
+  using BufferType = std::shared_ptr<char[]>;
+#endif
 private:
   kdl::resource<std::FILE*> m_file;
   size_t m_size;
@@ -102,6 +110,14 @@ public:
    * Returns the underlying file.
    */
   std::FILE* file() const;
+
+private:
+  friend class FileReaderSource;
+
+  Result<void> read(char* val, size_t position, size_t size) const;
+  Result<BufferType> buffer(size_t position, size_t size) const;
+
+  Error makeError(const std::string& msg) const;
 };
 
 Result<std::shared_ptr<CFile>> createCFile(const std::filesystem::path& path);
