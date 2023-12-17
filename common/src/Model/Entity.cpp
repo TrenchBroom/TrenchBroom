@@ -27,6 +27,7 @@
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotation.h"
 
+#include <kdl/reflection_impl.h>
 #include <kdl/string_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -38,9 +39,8 @@
 
 #include <algorithm>
 
-namespace TrenchBroom
-{
-namespace Model
+
+namespace TrenchBroom::Model
 {
 
 void setDefaultProperties(
@@ -68,21 +68,19 @@ void setDefaultProperties(
   }
 }
 
+kdl_reflect_impl(Entity);
+
 const vm::bbox3 Entity::DefaultBounds = vm::bbox3{8.0};
 
 Entity::Entity()
-  : m_pointEntity{true}
-  , m_model{nullptr}
-  , m_cachedProperties{
-      EntityPropertyValues::NoClassname, vm::vec3{}, vm::mat4x4{}, vm::mat4x4{}}
+  : m_cachedProperties{
+    EntityPropertyValues::NoClassname, vm::vec3{}, vm::mat4x4{}, vm::mat4x4{}}
 {
 }
 
 Entity::Entity(
   const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties)
   : m_properties{std::move(properties)}
-  , m_pointEntity{true}
-  , m_model{nullptr}
 {
   updateCachedProperties(propertyConfig);
 }
@@ -91,8 +89,6 @@ Entity::Entity(
   const EntityPropertyConfig& propertyConfig,
   std::initializer_list<EntityProperty> properties)
   : m_properties{std::move(properties)}
-  , m_pointEntity{true}
-  , m_model{nullptr}
 {
   updateCachedProperties(propertyConfig);
 }
@@ -474,14 +470,4 @@ void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig)
   }
 }
 
-bool operator==(const Entity& lhs, const Entity& rhs)
-{
-  return lhs.properties() == rhs.properties();
-}
-
-bool operator!=(const Entity& lhs, const Entity& rhs)
-{
-  return !(lhs == rhs);
-}
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

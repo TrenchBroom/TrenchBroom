@@ -33,7 +33,6 @@
 #include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
-#include "TestUtils.h"
 
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
@@ -49,6 +48,8 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+
+#include "CatchUtils/Matchers.h"
 
 #include "Catch2.h"
 

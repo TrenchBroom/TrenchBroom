@@ -21,10 +21,9 @@
 
 #include "FloatType.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class GroupNode;
 class LayerNode;
 class Node;
@@ -54,5 +53,5 @@ private: // subclassing interface
   virtual LayerNode* doGetContainingLayer() = 0;
   virtual GroupNode* doGetContainingGroup() = 0;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

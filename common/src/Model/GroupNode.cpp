@@ -51,12 +51,14 @@
 
 namespace TrenchBroom::Model
 {
+namespace
+{
 /**
  * Recursively collect the nodes to clone + transform, starting with the children of
  * `node`.
  * (`node` itself is skipped.)
  */
-static std::vector<const Node*> collectNodesToCloneAndTransform(const Node& node)
+std::vector<const Node*> collectNodesToCloneAndTransform(const Node& node)
 {
   auto result = std::vector<const Node*>{};
 
@@ -76,7 +78,7 @@ static std::vector<const Node*> collectNodesToCloneAndTransform(const Node& node
   return result;
 }
 
-static Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
+Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
   const Node* nodeToClone,
   std::unordered_map<const Node*, NodeContents>& origNodeToTransformedContents,
   const vm::bbox3& worldBounds)
@@ -134,7 +136,7 @@ static Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
  *
  * Returns a vector of the cloned direct children of `node`.
  */
-static Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
+Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
   const Node& node, const vm::bbox3& worldBounds, const vm::mat4x4& transformation)
 {
   auto nodesToClone = collectNodesToCloneAndTransform(node);
@@ -200,7 +202,7 @@ static Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
 }
 
 template <typename T>
-static void preserveGroupNames(
+void preserveGroupNames(
   const std::vector<T>& clonedNodes, const std::vector<Model::Node*>& correspondingNodes)
 {
   auto clIt = std::begin(clonedNodes);
@@ -235,7 +237,7 @@ static void preserveGroupNames(
   }
 }
 
-static void preserveEntityProperties(
+void preserveEntityProperties(
   EntityNode& clonedEntityNode, const EntityNode& correspondingEntityNode)
 {
   if (
@@ -268,7 +270,7 @@ static void preserveEntityProperties(
 }
 
 template <typename T>
-static void preserveEntityProperties(
+void preserveEntityProperties(
   const std::vector<T>& clonedNodes, const std::vector<Node*>& correspondingNodes)
 {
   auto clIt = std::begin(clonedNodes);
@@ -306,6 +308,7 @@ static void preserveEntityProperties(
     ++coIt;
   }
 }
+} // namespace
 
 Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
@@ -340,9 +343,6 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
 
 GroupNode::GroupNode(Group group)
   : m_group{std::move(group)}
-  , m_editState{EditState::Closed}
-  , m_boundsValid{false}
-  , m_hasPendingChanges{false}
 {
 }
 

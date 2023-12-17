@@ -46,16 +46,14 @@
 #include <optional>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 const HitType::Type EntityNode::EntityHitType = HitType::freeType();
-const vm::bbox3 EntityNode::DefaultBounds(8.0);
+const vm::bbox3 EntityNode::DefaultBounds = vm::bbox3{8.0};
 
 EntityNode::EntityNode(Entity entity)
-  : EntityNodeBase(std::move(entity))
-  , Object()
+  : EntityNodeBase{std::move(entity)}
 {
 }
 
@@ -92,7 +90,7 @@ const vm::bbox3& EntityNode::doGetPhysicalBounds() const
 
 FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const
 {
-  const vm::vec3 size = physicalBounds().size();
+  const auto size = physicalBounds().size();
   switch (axis)
   {
   case vm::axis::x:
@@ -108,9 +106,9 @@ FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const
 
 Node* EntityNode::doClone(const vm::bbox3& /* worldBounds */) const
 {
-  auto* entity = new EntityNode{m_entity};
-  cloneAttributes(entity);
-  return entity;
+  auto entity = std::make_unique<EntityNode>(m_entity);
+  cloneAttributes(entity.get());
+  return entity.release();
 }
 
 bool EntityNode::doCanAddChild(const Node* child) const
@@ -172,13 +170,13 @@ void EntityNode::doPick(
 {
   if (!hasChildren() && editorContext.visible(this))
   {
-    const vm::bbox3& myBounds = logicalBounds();
+    const auto& myBounds = logicalBounds();
     if (!myBounds.contains(ray.origin))
     {
-      const FloatType distance = vm::intersect_ray_bbox(ray, myBounds);
+      const auto distance = vm::intersect_ray_bbox(ray, myBounds);
       if (!vm::is_nan(distance))
       {
-        const vm::vec3 hitPoint = vm::point_at_distance(ray, distance);
+        const auto hitPoint = vm::point_at_distance(ray, distance);
         pickResult.addHit(Hit(EntityHitType, distance, hitPoint, this));
         return;
       }
@@ -192,16 +190,15 @@ void EntityNode::doPick(
       const auto [invertible, inverse] = vm::invert(transform);
       if (invertible)
       {
-        const auto transformedRay = vm::ray3f(ray.transform(inverse));
+        const auto transformedRay = vm::ray3f{ray.transform(inverse)};
         const auto distance = m_entity.model()->intersect(transformedRay);
         if (!vm::is_nan(distance))
         {
           // transform back to world space
           const auto transformedHitPoint =
-            vm::vec3(point_at_distance(transformedRay, distance));
+            vm::vec3{point_at_distance(transformedRay, distance)};
           const auto hitPoint = transform * transformedHitPoint;
-          pickResult.addHit(
-            Hit(EntityHitType, static_cast<FloatType>(distance), hitPoint, this));
+          pickResult.addHit(Hit{EntityHitType, FloatType(distance), hitPoint, this});
           return;
         }
       }
@@ -214,12 +211,16 @@ void EntityNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>
   if (hasChildren())
   {
     for (Node* child : Node::children())
+    {
       child->findNodesContaining(point, result);
+    }
   }
   else
   {
     if (logicalBounds().contains(point))
+    {
       result.push_back(this);
+    }
   }
 }
 
@@ -290,7 +291,7 @@ void EntityNode::validateBounds() const
 
   m_cachedBounds = CachedBounds{};
 
-  const bool hasModel = m_entity.model() != nullptr;
+  const auto hasModel = m_entity.model() != nullptr;
   if (hasModel)
   {
     m_cachedBounds->modelBounds =
@@ -334,5 +335,5 @@ void EntityNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

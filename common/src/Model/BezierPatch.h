@@ -31,15 +31,14 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
+
 class BezierPatch
 {
 public:
@@ -53,6 +52,14 @@ private:
 
   std::string m_textureName;
   Assets::AssetReference<Assets::Texture> m_textureReference;
+
+  kdl_reflect_decl(
+    BezierPatch,
+    m_pointRowCount,
+    m_pointColumnCount,
+    m_bounds,
+    m_controlPoints,
+    m_textureName);
 
 public:
   BezierPatch(
@@ -92,15 +99,6 @@ public:
   void transform(const vm::mat4x4& transformation);
 
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
-
-  kdl_reflect_decl(
-    BezierPatch,
-    m_pointRowCount,
-    m_pointColumnCount,
-    m_bounds,
-    m_controlPoints,
-    m_textureName);
 };
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

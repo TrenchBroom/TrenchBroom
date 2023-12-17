@@ -90,10 +90,10 @@ private:
   };
 
   Group m_group;
-  EditState m_editState;
+  EditState m_editState = EditState::Closed;
   mutable vm::bbox3 m_logicalBounds;
   mutable vm::bbox3 m_physicalBounds;
-  mutable bool m_boundsValid;
+  mutable bool m_boundsValid = false;
 
   /**
    * The ID used to serialize group nodes (see MapReader and NodeSerializer). This is set
@@ -102,7 +102,7 @@ private:
    */
   std::optional<IdType> m_persistentId;
 
-  bool m_hasPendingChanges;
+  bool m_hasPendingChanges = false;
 
 public:
   explicit GroupNode(Group group);

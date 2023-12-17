@@ -45,11 +45,10 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
-TEST_CASE("GroupNodeTest.openAndClose")
+
+TEST_CASE("GroupNode.openAndClose")
 {
   auto grandParentGroupNode = GroupNode{Group{"grandparent"}};
   auto* parentGroupNode = new GroupNode{Group{"parent"}};
@@ -105,7 +104,7 @@ TEST_CASE("GroupNodeTest.openAndClose")
   CHECK_FALSE(childGroupNode->hasOpenedDescendant());
 }
 
-TEST_CASE("GroupNodeTest.canAddChild")
+TEST_CASE("GroupNode.canAddChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
@@ -144,7 +143,7 @@ TEST_CASE("GroupNodeTest.canAddChild")
   }
 }
 
-TEST_CASE("GroupNodeTest.canRemoveChild")
+TEST_CASE("GroupNode.canRemoveChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
   constexpr auto mapFormat = MapFormat::Quake3;
@@ -171,7 +170,7 @@ TEST_CASE("GroupNodeTest.canRemoveChild")
   CHECK(groupNode.canRemoveChild(&patchNode));
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroups")
+TEST_CASE("GroupNode.updateLinkedGroups")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -239,7 +238,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroups")
   }
 }
 
-TEST_CASE("GroupNodeTest.updateNestedLinkedGroups")
+TEST_CASE("GroupNode.updateNestedLinkedGroups")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -323,7 +322,7 @@ TEST_CASE("GroupNodeTest.updateNestedLinkedGroups")
   }
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroupsRecursively")
+TEST_CASE("GroupNode.updateLinkedGroupsRecursively")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -394,7 +393,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsRecursively")
     .transform_error([](const auto&) { FAIL(); });
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroupsExceedsWorldBounds")
+TEST_CASE("GroupNode.updateLinkedGroupsExceedsWorldBounds")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -431,7 +430,7 @@ static void setGroupName(GroupNode& groupNode, const std::string& name)
   groupNode.setGroup(std::move(group));
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveNestedGroupNames")
+TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveNestedGroupNames")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -477,7 +476,7 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveNestedGroupNames")
   }
 }
 
-TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveEntityProperties")
+TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveEntityProperties")
 {
   const auto worldBounds = vm::bbox3(8192.0);
 
@@ -619,5 +618,5 @@ TEST_CASE("GroupNodeTest.updateLinkedGroupsAndPreserveEntityProperties")
     })
     .transform_error([](const auto&) { FAIL(); });
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

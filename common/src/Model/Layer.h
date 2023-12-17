@@ -21,13 +21,14 @@
 
 #include "Color.h"
 
+#include <kdl/reflection_decl.h>
+
 #include <optional>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class Layer
 {
 private:
@@ -35,7 +36,9 @@ private:
   std::string m_name;
   std::optional<int> m_sortIndex;
   std::optional<Color> m_color;
-  bool m_omitFromExport;
+  bool m_omitFromExport = false;
+
+  kdl_reflect_decl(Layer, m_defaultLayer, m_name, m_sortIndex, m_color, m_omitFromExport);
 
 public:
   explicit Layer(std::string name, bool defaultLayer = false);
@@ -58,5 +61,5 @@ public:
   static int invalidSortIndex();
   static int defaultLayerSortIndex();
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

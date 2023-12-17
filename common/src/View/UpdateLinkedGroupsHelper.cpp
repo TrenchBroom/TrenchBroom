@@ -23,6 +23,7 @@
 #include "Model/GroupNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/overload.h>
@@ -37,6 +38,17 @@
 
 namespace TrenchBroom::View
 {
+namespace
+{
+
+// Order groups so that descendants will be updated before their ancestors
+auto compareByAncestry(const Model::GroupNode* lhs, const Model::GroupNode* rhs)
+{
+  return rhs->isAncestorOf(lhs);
+}
+
+} // namespace
+
 bool checkLinkedGroupsToUpdate(const std::vector<Model::GroupNode*>& changedLinkedGroups)
 {
   const auto linkedGroupIds =
@@ -47,11 +59,6 @@ bool checkLinkedGroupsToUpdate(const std::vector<Model::GroupNode*>& changedLink
   return std::adjacent_find(std::begin(linkedGroupIds), std::end(linkedGroupIds))
          == std::end(linkedGroupIds);
 }
-
-// Order groups so that descendants will be updated before their ancestors
-const auto compareByAncestry = [](const auto* lhs, const auto* rhs) {
-  return rhs->isAncestorOf(lhs);
-};
 
 UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(
   ChangedLinkedGroups changedLinkedGroups)
@@ -138,13 +145,13 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
              [&](const auto* groupNode) {
                const auto groupNodesToUpdate = kdl::vec_erase(
                  Model::findLinkedGroups(
-                   *document.world(), *groupNode->group().linkedGroupId()),
+                   {document.world()}, *groupNode->group().linkedGroupId()),
                  groupNode);
 
                return Model::updateLinkedGroups(
                  *groupNode, groupNodesToUpdate, worldBounds);
              }))
-    .and_then([&](auto&& nestedUpdateLists) -> Result<LinkedGroupUpdates> {
+    .and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
       return kdl::vec_flatten(std::move(nestedUpdateLists));
     });
 }

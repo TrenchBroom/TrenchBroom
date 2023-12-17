@@ -29,6 +29,7 @@
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 
+#include <kdl/reflection_impl.h>
 #include <kdl/result.h>
 #include <kdl/result_fold.h>
 #include <kdl/string_utils.h>
@@ -51,6 +52,9 @@
 
 namespace TrenchBroom::Model
 {
+
+kdl_reflect_impl(Brush);
+
 class Brush::CopyCallback : public BrushGeometry::CopyCallback
 {
 public:
@@ -64,11 +68,11 @@ public:
 Brush::Brush() {}
 
 Brush::Brush(const Brush& other)
-  : m_faces(other.m_faces)
-  , m_geometry(
+  : m_faces{other.m_faces}
+  , m_geometry{
       other.m_geometry
         ? std::make_unique<BrushGeometry>(*other.m_geometry, CopyCallback())
-        : nullptr)
+        : nullptr}
 {
   if (m_geometry)
   {
@@ -84,8 +88,8 @@ Brush::Brush(const Brush& other)
 }
 
 Brush::Brush(Brush&& other) noexcept
-  : m_faces(std::move(other.m_faces))
-  , m_geometry(std::move(other.m_geometry))
+  : m_faces{std::move(other.m_faces)}
+  , m_geometry{std::move(other.m_geometry)}
 {
 }
 
@@ -106,13 +110,13 @@ void swap(Brush& lhs, Brush& rhs) noexcept
 Brush::~Brush() = default;
 
 Brush::Brush(std::vector<BrushFace> faces)
-  : m_faces(std::move(faces))
+  : m_faces{std::move(faces)}
 {
 }
 
 Result<Brush> Brush::create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces)
 {
-  Brush brush(std::move(faces));
+  auto brush = Brush{std::move(faces)};
   return brush.updateGeometryFromFaces(worldBounds).transform([&]() {
     return std::move(brush);
   });
@@ -1362,4 +1366,5 @@ bool operator!=(const Brush& lhs, const Brush& rhs)
 {
   return !(lhs == rhs);
 }
+
 } // namespace TrenchBroom::Model

@@ -49,10 +49,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("ModelUtils.findContainingLayer")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
@@ -216,14 +215,14 @@ TEST_CASE("ModelUtils.findLinkedGroups")
   worldNode.defaultLayer()->addChild(entityNode);
 
   CHECK_THAT(
-    findLinkedGroups(worldNode, "asdf"),
+    findLinkedGroups({&worldNode}, "asdf"),
     Catch::Matchers::UnorderedEquals(std::vector<Model::GroupNode*>{}));
   CHECK_THAT(
-    findLinkedGroups(worldNode, "group1"),
+    findLinkedGroups({&worldNode}, "group1"),
     Catch::Matchers::UnorderedEquals(
       std::vector<Model::GroupNode*>{groupNode1, linkedGroupNode1_1}));
   CHECK_THAT(
-    findLinkedGroups(worldNode, "group2"),
+    findLinkedGroups({&worldNode}, "group2"),
     Catch::Matchers::UnorderedEquals(std::vector<Model::GroupNode*>{
       groupNode2, linkedGroupNode2_1, linkedGroupNode2_2}));
 }
@@ -236,7 +235,7 @@ TEST_CASE("ModelUtils.findAllLinkedGroups")
   auto worldNode = WorldNode{{}, {}, mapFormat};
 
   CHECK_THAT(
-    findAllLinkedGroups(worldNode),
+    findAllLinkedGroups({&worldNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Model::GroupNode*>{}));
 
   auto* groupNode1 = new GroupNode{Group{"Group 1"}};
@@ -265,7 +264,7 @@ TEST_CASE("ModelUtils.findAllLinkedGroups")
   worldNode.defaultLayer()->addChild(entityNode);
 
   CHECK_THAT(
-    findAllLinkedGroups(worldNode),
+    findAllLinkedGroups({&worldNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Model::GroupNode*>{
       groupNode1,
       linkedGroupNode1_1,
@@ -882,5 +881,5 @@ TEST_CASE("ModelUtils.filterNodes")
       == std::vector<Model::EntityNode*>{&entityNode});
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

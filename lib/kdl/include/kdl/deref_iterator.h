@@ -20,8 +20,7 @@
 
 #pragma once
 
-#include <algorithm>
-#include <iterator>
+#include "range.h"
 
 namespace kdl
 {
@@ -151,107 +150,15 @@ public:
 template <typename I>
 deref_iterator(I) -> deref_iterator<I>;
 
-template <typename R>
-class deref_range
+/**
+ * Creates a deref range of the given range.
+ *
+ * @tparam C the types of the range
+ * @param c the ranges to iterate
+ */
+template <typename C>
+auto make_deref_range(C&& c)
 {
-private:
-  R& m_range;
-
-public:
-  explicit deref_range(R& range)
-    : m_range{range}
-  {
-  }
-
-  auto begin() { return deref_iterator{m_range.begin()}; }
-
-  auto end() { return deref_iterator{m_range.end()}; }
-
-  auto begin() const { return deref_iterator{m_range.begin()}; }
-
-  auto end() const { return deref_iterator{m_range.end()}; }
-
-  auto cbegin() { return deref_iterator{m_range.cbegin()}; }
-
-  auto cend() { return deref_iterator{m_range.cend()}; }
-
-  auto rbegin() { return deref_iterator{m_range.rbegin()}; }
-
-  auto rend() { return deref_iterator{m_range.rend()}; }
-
-  auto rbegin() const { return deref_iterator{m_range.rbegin()}; }
-
-  auto rend() const { return deref_iterator{m_range.rend()}; }
-
-  auto crbegin() { return deref_iterator{m_range.crbegin()}; }
-
-  auto crend() { return deref_iterator{m_range.crend()}; }
-};
-
-template <typename R>
-deref_range(R) -> deref_range<R>;
-
-template <typename R>
-bool operator==(const deref_range<R>& lhs, const deref_range<R>& rhs)
-{
-  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-}
-
-template <typename R>
-bool operator!=(const deref_range<R>& lhs, const deref_range<R>& rhs)
-{
-  return !(lhs == rhs);
-}
-
-template <typename R>
-class const_deref_range
-{
-private:
-  const R& m_range;
-
-public:
-  explicit const_deref_range(const R& range)
-    : m_range{range}
-  {
-  }
-
-  auto begin() { return deref_iterator{m_range.begin()}; }
-
-  auto end() { return deref_iterator{m_range.end()}; }
-
-  auto begin() const { return deref_iterator{m_range.begin()}; }
-
-  auto end() const { return deref_iterator{m_range.end()}; }
-
-  auto cbegin() { return deref_iterator{m_range.cbegin()}; }
-
-  auto cend() { return deref_iterator{m_range.cend()}; }
-
-  auto rbegin() { return deref_iterator{m_range.rbegin()}; }
-
-  auto rend() { return deref_iterator{m_range.rend()}; }
-
-  auto rbegin() const { return deref_iterator{m_range.rbegin()}; }
-
-  auto rend() const { return deref_iterator{m_range.rend()}; }
-
-  auto crbegin() { return deref_iterator{m_range.crbegin()}; }
-
-  auto crend() { return deref_iterator{m_range.crend()}; }
-};
-
-template <typename R>
-const_deref_range(R) -> const_deref_range<R>;
-
-template <typename R>
-bool operator==(const const_deref_range<R>& lhs, const const_deref_range<R>& rhs)
-{
-  return std::equal(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-}
-
-template <typename R>
-bool operator!=(const const_deref_range<R>& lhs, const const_deref_range<R>& rhs)
-{
-  return !(lhs == rhs);
+  return range{deref_iterator(std::begin(c)), deref_iterator(std::end(c))};
 }
 } // namespace kdl

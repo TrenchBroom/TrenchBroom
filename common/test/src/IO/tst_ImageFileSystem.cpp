@@ -26,10 +26,11 @@
 #include "IO/TraversalMode.h"
 #include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
-#include "Matchers.h"
 #include "TestUtils.h"
 
 #include <filesystem>
+
+#include "CatchUtils/Matchers.h"
 
 #include "Catch2.h"
 

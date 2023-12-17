@@ -23,6 +23,8 @@
 #include "FloatType.h"
 #include "Model/EntityProperties.h"
 
+#include <kdl/reflection_decl.h>
+
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>
 #include <vecmath/vec.h>
@@ -31,18 +33,17 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 struct DecalSpecification;
 class EntityDefinition;
 class EntityModelFrame;
 struct ModelSpecification;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
+
 class Entity;
 
 enum class SetDefaultPropertyMode
@@ -94,14 +95,16 @@ private:
   std::vector<EntityProperty> m_properties;
   std::vector<std::string> m_protectedProperties;
 
+  kdl_reflect_decl(Entity, m_properties, m_protectedProperties);
+
   /**
    * Specifies whether this entity has children or not. This does not necessarily
    * correspond to the entity definition type because point entities can contain brushes.
    */
-  bool m_pointEntity;
+  bool m_pointEntity = true;
 
   Assets::AssetReference<Assets::EntityDefinition> m_definition;
-  const Assets::EntityModelFrame* m_model;
+  const Assets::EntityModelFrame* m_model = nullptr;
 
   /**
    * These properties are cached for performance reasons.
@@ -211,7 +214,4 @@ private:
   void updateCachedProperties(const EntityPropertyConfig& propertyConfig);
 };
 
-bool operator==(const Entity& lhs, const Entity& rhs);
-bool operator!=(const Entity& lhs, const Entity& rhs);
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

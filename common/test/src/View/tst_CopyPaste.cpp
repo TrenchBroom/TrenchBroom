@@ -234,10 +234,7 @@ common/caulk
   }
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest,
-  "CopyPasteTest.copyPasteGroupResetsDuplicateGroupId",
-  "[CopyPasteTest]")
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGroupId")
 {
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});

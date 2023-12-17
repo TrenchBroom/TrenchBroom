@@ -52,17 +52,16 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 MapReader::MapReader(
   std::string_view str,
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
   Model::EntityPropertyConfig entityPropertyConfig,
   std::vector<std::string> linkedGroupsToKeep)
-  : StandardMapParser(std::move(str), sourceMapFormat, targetMapFormat)
+  : StandardMapParser{std::move(str), sourceMapFormat, targetMapFormat}
   , m_entityPropertyConfig{std::move(entityPropertyConfig)}
   , m_linkedGroupsToKeep{std::move(linkedGroupsToKeep)}
 {
@@ -256,7 +255,6 @@ struct NodeError
   size_t line;
   std::string msg;
 };
-} // namespace
 
 /** This is the result returned from functions that create nodes. */
 using CreateNodeResult = Result<NodeInfo, NodeError>;
@@ -266,7 +264,7 @@ using CreateNodeResult = Result<NodeInfo, NodeError>;
  * if present. In case of a malformed ID, an issue is added to the given vector of node
  * issues and an empty optional is returned.
  */
-static std::optional<ContainerInfo> extractContainerInfo(
+std::optional<ContainerInfo> extractContainerInfo(
   const std::vector<Model::EntityProperty>& properties,
   std::vector<NodeIssue>& nodeIssues)
 {
@@ -304,7 +302,7 @@ static std::optional<ContainerInfo> extractContainerInfo(
  * Creates a world node for the given entity info and configures its default layer
  * according to the information in the entity attributes.
  */
-static CreateNodeResult createWorldNode(
+CreateNodeResult createWorldNode(
   MapReader::EntityInfo entityInfo,
   const Model::EntityPropertyConfig& entityPropertyConfig,
   const Model::MapFormat mapFormat)
@@ -370,7 +368,7 @@ static CreateNodeResult createWorldNode(
  * Creates a layer node for the given entity info. Returns an error if the entity
  * attributes contain missing or invalid information.
  */
-static CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
+CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
 {
   const auto& properties = entityInfo.properties;
 
@@ -444,7 +442,7 @@ static CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
  * Creates a group node for the given entity info. Returns an error if the entity
  * attributes contain missing or invalid information.
  */
-static CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
+CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
 {
   const auto& name = findEntityPropertyOrDefault(
     entityInfo.properties, Model::EntityPropertyKeys::GroupName);
@@ -506,7 +504,7 @@ static CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
 /**
  * Creates an entity node for the given entity info.
  */
-static CreateNodeResult createEntityNode(
+CreateNodeResult createEntityNode(
   const Model::EntityPropertyConfig& entityPropertyConfig,
   MapReader::EntityInfo entityInfo)
 {
@@ -540,7 +538,7 @@ static CreateNodeResult createEntityNode(
  *
  * Returns an error if the node could not be created.
  */
-static CreateNodeResult createNodeFromEntityInfo(
+CreateNodeResult createNodeFromEntityInfo(
   const Model::EntityPropertyConfig& entityPropertyConfig,
   MapReader::EntityInfo entityInfo,
   const Model::MapFormat mapFormat)
@@ -566,7 +564,7 @@ static CreateNodeResult createNodeFromEntityInfo(
  * Creates a brush node from the given brush info. Returns an error if the brush could not
  * be created.
  */
-static CreateNodeResult createBrushNode(
+CreateNodeResult createBrushNode(
   MapReader::BrushInfo brushInfo, const vm::bbox3& worldBounds)
 {
   return Model::Brush::create(worldBounds, std::move(brushInfo.faces))
@@ -588,7 +586,7 @@ static CreateNodeResult createBrushNode(
 /**
  * Creates a patch node from the given patch info.
  */
-static CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo)
+CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo)
 {
   auto patchNode = std::make_unique<Model::PatchNode>(Model::BezierPatch{
     patchInfo.rowCount,
@@ -611,7 +609,7 @@ static CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo)
  * create. We need the indices to remain correct because we use them to refer to parent
  * nodes later.
  */
-static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
+std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
   const Model::EntityPropertyConfig& entityPropertyConfig,
   std::vector<MapReader::ObjectInfo> objectInfos,
   const vm::bbox3& worldBounds,
@@ -655,7 +653,7 @@ static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
     });
 }
 
-static void validateDuplicateLayersAndGroups(
+void validateDuplicateLayersAndGroups(
   std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
 {
   auto layerIds = std::unordered_set<Model::IdType>{};
@@ -696,7 +694,7 @@ static void validateDuplicateLayersAndGroups(
   }
 }
 
-static void unlinkGroup(Model::GroupNode& groupNode)
+void unlinkGroup(Model::GroupNode& groupNode)
 {
   auto newGroup = groupNode.group();
   newGroup.resetLinkedGroupId();
@@ -704,7 +702,7 @@ static void unlinkGroup(Model::GroupNode& groupNode)
   groupNode.setGroup(std::move(newGroup));
 }
 
-static void validateOrphanedLinkedGroups(
+void validateOrphanedLinkedGroups(
   std::vector<std::optional<NodeInfo>>& nodeInfos,
   const std::vector<std::string> linkedGroupsToKeep,
   ParserStatus& status)
@@ -761,7 +759,7 @@ static void validateOrphanedLinkedGroups(
   }
 }
 
-static void logValidationIssues(
+void logValidationIssues(
   std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
 {
   for (auto& nodeInfo : nodeInfos)
@@ -798,7 +796,7 @@ static void logValidationIssues(
   }
 }
 
-static bool isRecursiveLinkedGroup(
+bool isRecursiveLinkedGroup(
   const std::string& nestedLinkedGroupId, Model::Node* parentNode)
 {
   if (auto* parentGroupNode = dynamic_cast<Model::GroupNode*>(parentNode))
@@ -808,7 +806,7 @@ static bool isRecursiveLinkedGroup(
   return false;
 }
 
-static void validateRecursiveLinkedGroups(
+void validateRecursiveLinkedGroups(
   std::vector<std::optional<NodeInfo>>& nodeInfos,
   const std::unordered_map<Model::Node*, Model::Node*>& nodeToParentMap,
   ParserStatus& status)
@@ -852,7 +850,7 @@ static void validateRecursiveLinkedGroups(
  * Not every node comes with parent information, so the returned map does not contain
  * entries for each of the given nodes.
  */
-static std::unordered_map<Model::Node*, Model::Node*> buildNodeToParentMap(
+std::unordered_map<Model::Node*, Model::Node*> buildNodeToParentMap(
   std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
 {
   auto layerIdMap = std::unordered_map<Model::IdType, Model::LayerNode*>{};
@@ -945,6 +943,7 @@ static std::unordered_map<Model::Node*, Model::Node*> buildNodeToParentMap(
   }
   return nodeToParentMap;
 }
+} // namespace
 
 /**
  * Creates nodes from the recorded object infos and resolves parent / child relationships.
@@ -1041,5 +1040,5 @@ void MapReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */)
   auto& brush = std::get<BrushInfo>(m_objectInfos.back());
   brush.faces.push_back(std::move(face));
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

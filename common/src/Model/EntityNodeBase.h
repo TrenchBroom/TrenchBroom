@@ -28,29 +28,28 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class PropertyDefinition;
 class EntityDefinition;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
+
 const Assets::EntityDefinition* selectEntityDefinition(
   const std::vector<EntityNodeBase*>& nodes);
 const Assets::PropertyDefinition* propertyDefinition(
   const EntityNodeBase* node, const std::string& key);
 const Assets::PropertyDefinition* selectPropertyDefinition(
   const std::string& key, const std::vector<EntityNodeBase*>& nodes);
-std::string selectPRopertyValue(
+std::string selectPropertyValue(
   const std::string& key, const std::vector<EntityNodeBase*>& nodes);
 
 class EntityNodeBase : public Node
 {
 protected:
-  EntityNodeBase(Entity entity);
+  explicit EntityNodeBase(Entity entity);
 
   Entity m_entity;
 
@@ -60,7 +59,7 @@ protected:
   std::vector<EntityNodeBase*> m_killTargets;
 
 public:
-  virtual ~EntityNodeBase() override;
+  ~EntityNodeBase() override;
 
 public: // entity access
   const Entity& entity() const;
@@ -78,7 +77,7 @@ private: // property management internals
     vm::bbox3 m_oldPhysicalBounds;
 
   public:
-    NotifyPropertyChange(EntityNodeBase& node);
+    explicit NotifyPropertyChange(EntityNodeBase& node);
     ~NotifyPropertyChange();
   };
 
@@ -170,8 +169,8 @@ protected:
 
 private: // implemenation of node interface
   const std::string& doGetName() const override;
-  virtual void doAncestorWillChange() override;
-  virtual void doAncestorDidChange() override;
+  void doAncestorWillChange() override;
+  void doAncestorDidChange() override;
 
 private: // subclassing interface
   virtual void doPropertiesDidChange(const vm::bbox3& oldBounds) = 0;
@@ -185,5 +184,5 @@ private: // hide copy constructor and assignment operator
 
 bool operator==(const EntityNodeBase& lhs, const EntityNodeBase& rhs);
 bool operator!=(const EntityNodeBase& lhs, const EntityNodeBase& rhs);
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

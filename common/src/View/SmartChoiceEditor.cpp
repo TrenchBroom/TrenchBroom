@@ -125,7 +125,7 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
         document()->encoding(), option.value() + " : " + option.description()));
     }
 
-    const auto value = Model::selectPRopertyValue(propertyKey(), nodes);
+    const auto value = Model::selectPropertyValue(propertyKey(), nodes);
     m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
   }
 }

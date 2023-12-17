@@ -32,6 +32,8 @@
 
 #include <filesystem>
 
+#include "CatchUtils/Matchers.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom
