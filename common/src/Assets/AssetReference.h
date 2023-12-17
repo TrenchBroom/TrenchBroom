@@ -22,10 +22,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 template <typename T>
 class AssetReference
 {
@@ -34,27 +33,27 @@ private:
 
 public:
   explicit AssetReference(T* asset = nullptr)
-    : m_asset(asset)
+    : m_asset{asset}
   {
-    if (m_asset != nullptr)
+    if (m_asset)
     {
       m_asset->incUsageCount();
     }
   }
 
   AssetReference(const AssetReference& other) noexcept
-    : AssetReference(other.m_asset)
+    : AssetReference{other.m_asset}
   {
   }
 
   AssetReference(AssetReference&& other) noexcept
-    : m_asset(std::exchange(other.m_asset, nullptr))
+    : m_asset{std::exchange(other.m_asset, nullptr)}
   {
   }
 
   ~AssetReference()
   {
-    if (m_asset != nullptr)
+    if (m_asset)
     {
       m_asset->decUsageCount();
     }
@@ -102,5 +101,5 @@ public:
     return lhs;
   }
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets
