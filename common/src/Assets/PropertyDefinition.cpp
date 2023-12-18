@@ -21,28 +21,26 @@
 
 #include "Macros.h"
 
+#include "kdl/string_utils.h"
 #include <kdl/reflection_impl.h>
 
-#include <iostream>
 #include <memory>
-#include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 PropertyDefinition::PropertyDefinition(
-  const std::string& key,
+  std::string key,
   const PropertyDefinitionType type,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+  std::string shortDescription,
+  std::string longDescription,
   const bool readOnly)
-  : m_key(key)
-  , m_type(type)
-  , m_shortDescription(shortDescription)
-  , m_longDescription(longDescription)
-  , m_readOnly(readOnly)
+  : m_key{std::move(key)}
+  , m_type{type}
+  , m_shortDescription{std::move(shortDescription)}
+  , m_longDescription{std::move(longDescription)}
+  , m_readOnly{readOnly}
 {
 }
 
@@ -76,11 +74,7 @@ bool PropertyDefinition::readOnly() const
 bool PropertyDefinition::equals(const PropertyDefinition* other) const
 {
   ensure(other != nullptr, "other is null");
-  if (type() != other->type())
-    return false;
-  if (key() != other->key())
-    return false;
-  return doEquals(other);
+  return type() == other->type() && key() == other->key() && doEquals(other);
 }
 
 bool PropertyDefinition::doEquals(const PropertyDefinition* /* other */) const
@@ -94,47 +88,28 @@ std::string PropertyDefinition::defaultValue(const PropertyDefinition& definitio
   {
   case PropertyDefinitionType::StringProperty: {
     const auto& stringDef = static_cast<const StringPropertyDefinition&>(definition);
-    if (!stringDef.hasDefaultValue())
-      return "";
-    return stringDef.defaultValue();
+    return stringDef.hasDefaultValue() ? stringDef.defaultValue() : "";
   }
   case PropertyDefinitionType::BooleanProperty: {
     const auto& boolDef = static_cast<const BooleanPropertyDefinition&>(definition);
-    if (!boolDef.hasDefaultValue())
-      return "";
-    std::stringstream str;
-    str << boolDef.defaultValue();
-    return str.str();
+    return boolDef.hasDefaultValue() ? kdl::str_to_string(boolDef.defaultValue()) : "";
   }
   case PropertyDefinitionType::IntegerProperty: {
     const auto& intDef = static_cast<const IntegerPropertyDefinition&>(definition);
-    if (!intDef.hasDefaultValue())
-      return "";
-    std::stringstream str;
-    str << intDef.defaultValue();
-    return str.str();
+    return intDef.hasDefaultValue() ? kdl::str_to_string(intDef.defaultValue()) : "";
   }
   case PropertyDefinitionType::FloatProperty: {
     const auto& floatDef = static_cast<const FloatPropertyDefinition&>(definition);
-    if (!floatDef.hasDefaultValue())
-      return "";
-    std::stringstream str;
-    str << floatDef.defaultValue();
-    return str.str();
+    return floatDef.hasDefaultValue() ? kdl::str_to_string(floatDef.defaultValue()) : "";
   }
   case PropertyDefinitionType::ChoiceProperty: {
     const auto& choiceDef = static_cast<const ChoicePropertyDefinition&>(definition);
-    if (!choiceDef.hasDefaultValue())
-      return "";
-    std::stringstream str;
-    str << choiceDef.defaultValue();
-    return str.str();
+    return choiceDef.hasDefaultValue() ? kdl::str_to_string(choiceDef.defaultValue())
+                                       : "";
   }
   case PropertyDefinitionType::FlagsProperty: {
     const auto& flagsDef = static_cast<const FlagsPropertyDefinition&>(definition);
-    std::stringstream str;
-    str << flagsDef.defaultValue();
-    return str.str();
+    return kdl::str_to_string(flagsDef.defaultValue());
   }
   case PropertyDefinitionType::TargetSourceProperty:
   case PropertyDefinitionType::TargetDestinationProperty:
@@ -143,132 +118,153 @@ std::string PropertyDefinition::defaultValue(const PropertyDefinition& definitio
   }
 }
 
-PropertyDefinition* PropertyDefinition::clone(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+std::unique_ptr<PropertyDefinition> PropertyDefinition::clone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   bool readOnly) const
 {
-  return doClone(key, shortDescription, longDescription, readOnly);
+  return doClone(
+    std::move(key), std::move(shortDescription), std::move(longDescription), readOnly);
 }
 
-PropertyDefinition* PropertyDefinition::doClone(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+std::unique_ptr<PropertyDefinition> PropertyDefinition::doClone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   bool readOnly) const
 {
-  return new PropertyDefinition(key, type(), shortDescription, longDescription, readOnly);
+  return std::make_unique<PropertyDefinition>(
+    std::move(key),
+    type(),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly);
 }
 
 StringPropertyDefinition::StringPropertyDefinition(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   const bool readOnly,
   std::optional<std::string> defaultValue)
-  : PropertyDefinitionWithDefaultValue(
-    key,
+  : PropertyDefinitionWithDefaultValue{
+    std::move(key),
     PropertyDefinitionType::StringProperty,
-    shortDescription,
-    longDescription,
+    std::move(shortDescription),
+    std::move(longDescription),
     readOnly,
-    std::move(defaultValue))
+    std::move(defaultValue)}
 {
 }
 
-PropertyDefinition* StringPropertyDefinition::doClone(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+std::unique_ptr<PropertyDefinition> StringPropertyDefinition::doClone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   bool readOnly) const
 {
-  return new StringPropertyDefinition(
-    key, shortDescription, longDescription, readOnly, m_defaultValue);
+  return std::make_unique<StringPropertyDefinition>(
+    std::move(key),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    m_defaultValue);
 }
 
 BooleanPropertyDefinition::BooleanPropertyDefinition(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   const bool readOnly,
   std::optional<bool> defaultValue)
-  : PropertyDefinitionWithDefaultValue(
-    key,
+  : PropertyDefinitionWithDefaultValue{
+    std::move(key),
     PropertyDefinitionType::BooleanProperty,
-    shortDescription,
-    longDescription,
+    std::move(shortDescription),
+    std::move(longDescription),
     readOnly,
-    std::move(defaultValue))
+    std::move(defaultValue)}
 {
 }
 
-PropertyDefinition* BooleanPropertyDefinition::doClone(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+std::unique_ptr<PropertyDefinition> BooleanPropertyDefinition::doClone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   bool readOnly) const
 {
-  return new BooleanPropertyDefinition(
-    key, shortDescription, longDescription, readOnly, m_defaultValue);
+  return std::make_unique<BooleanPropertyDefinition>(
+    std::move(key),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    m_defaultValue);
 }
 
 IntegerPropertyDefinition::IntegerPropertyDefinition(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   const bool readOnly,
   std::optional<int> defaultValue)
-  : PropertyDefinitionWithDefaultValue(
-    key,
+  : PropertyDefinitionWithDefaultValue{
+    std::move(key),
     PropertyDefinitionType::IntegerProperty,
-    shortDescription,
-    longDescription,
+    std::move(shortDescription),
+    std::move(longDescription),
     readOnly,
-    std::move(defaultValue))
+    std::move(defaultValue)}
 {
 }
 
-PropertyDefinition* IntegerPropertyDefinition::doClone(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+std::unique_ptr<PropertyDefinition> IntegerPropertyDefinition::doClone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   bool readOnly) const
 {
-  return new IntegerPropertyDefinition(
-    key, shortDescription, longDescription, readOnly, m_defaultValue);
+  return std::make_unique<IntegerPropertyDefinition>(
+    std::move(key),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    m_defaultValue);
 }
 
 FloatPropertyDefinition::FloatPropertyDefinition(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   const bool readOnly,
   std::optional<float> defaultValue)
-  : PropertyDefinitionWithDefaultValue(
-    key,
+  : PropertyDefinitionWithDefaultValue{
+    std::move(key),
     PropertyDefinitionType::FloatProperty,
-    shortDescription,
-    longDescription,
+    std::move(shortDescription),
+    std::move(longDescription),
     readOnly,
-    std::move(defaultValue))
+    std::move(defaultValue)}
 {
 }
 
-PropertyDefinition* FloatPropertyDefinition::doClone(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+std::unique_ptr<PropertyDefinition> FloatPropertyDefinition::doClone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   bool readOnly) const
 {
-  return new FloatPropertyDefinition(
-    key, shortDescription, longDescription, readOnly, m_defaultValue);
+  return std::make_unique<FloatPropertyDefinition>(
+    std::move(key),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    m_defaultValue);
 }
 
-ChoicePropertyOption::ChoicePropertyOption(
-  const std::string& value, const std::string& description)
-  : m_value(value)
-  , m_description(description)
+ChoicePropertyOption::ChoicePropertyOption(std::string value, std::string description)
+  : m_value{std::move(value)}
+  , m_description{std::move(description)}
 {
 }
 
@@ -285,20 +281,14 @@ const std::string& ChoicePropertyOption::description() const
 kdl_reflect_impl(ChoicePropertyOption);
 
 ChoicePropertyDefinition::ChoicePropertyDefinition(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
-  const ChoicePropertyOption::List& options,
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
+  ChoicePropertyOption::List options,
   const bool readOnly,
   std::optional<std::string> defaultValue)
-  : PropertyDefinitionWithDefaultValue(
-    key,
-    PropertyDefinitionType::ChoiceProperty,
-    shortDescription,
-    longDescription,
-    readOnly,
-    std::move(defaultValue))
-  , m_options(options)
+  : PropertyDefinitionWithDefaultValue{std::move(key), PropertyDefinitionType::ChoiceProperty, std::move(shortDescription), std::move(longDescription), readOnly, std::move(defaultValue)}
+  , m_options{std::move(options)}
 {
 }
 
@@ -312,24 +302,29 @@ bool ChoicePropertyDefinition::doEquals(const PropertyDefinition* other) const
   return options() == static_cast<const ChoicePropertyDefinition*>(other)->options();
 }
 
-PropertyDefinition* ChoicePropertyDefinition::doClone(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+std::unique_ptr<PropertyDefinition> ChoicePropertyDefinition::doClone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   bool readOnly) const
 {
-  return new ChoicePropertyDefinition(
-    key, shortDescription, longDescription, options(), readOnly, m_defaultValue);
+  return std::make_unique<ChoicePropertyDefinition>(
+    std::move(key),
+    std::move(shortDescription),
+    std::move(longDescription),
+    options(),
+    readOnly,
+    m_defaultValue);
 }
 
 FlagsPropertyOption::FlagsPropertyOption(
   const int value,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+  std::string shortDescription,
+  std::string longDescription,
   const bool isDefault)
-  : m_value(value)
-  , m_shortDescription(shortDescription)
-  , m_longDescription(longDescription)
+  : m_value{value}
+  , m_shortDescription{std::move(shortDescription)}
+  , m_longDescription{std::move(longDescription)}
   , m_isDefault(isDefault)
 {
 }
@@ -356,18 +351,21 @@ bool FlagsPropertyOption::isDefault() const
 
 kdl_reflect_impl(FlagsPropertyOption);
 
-FlagsPropertyDefinition::FlagsPropertyDefinition(const std::string& key)
-  : PropertyDefinition(key, PropertyDefinitionType::FlagsProperty, "", "", false)
+FlagsPropertyDefinition::FlagsPropertyDefinition(std::string key)
+  : PropertyDefinition{
+    std::move(key), PropertyDefinitionType::FlagsProperty, "", "", false}
 {
 }
 
 int FlagsPropertyDefinition::defaultValue() const
 {
   int value = 0;
-  for (const FlagsPropertyOption& option : m_options)
+  for (const auto& option : m_options)
   {
     if (option.isDefault())
-      value |= option.value();
+    {
+      value = value | option.value();
+    }
   }
   return value;
 }
@@ -391,12 +389,12 @@ const FlagsPropertyOption* FlagsPropertyDefinition::option(const int value) cons
 
 void FlagsPropertyDefinition::addOption(
   const int value,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+  std::string shortDescription,
+  std::string longDescription,
   const bool isDefault)
 {
-  m_options.push_back(
-    FlagsPropertyOption(value, shortDescription, longDescription, isDefault));
+  m_options.emplace_back(
+    value, std::move(shortDescription), std::move(longDescription), isDefault);
 }
 
 bool FlagsPropertyDefinition::doEquals(const PropertyDefinition* other) const
@@ -404,13 +402,13 @@ bool FlagsPropertyDefinition::doEquals(const PropertyDefinition* other) const
   return options() == static_cast<const FlagsPropertyDefinition*>(other)->options();
 }
 
-PropertyDefinition* FlagsPropertyDefinition::doClone(
-  const std::string& key,
-  const std::string& /* shortDescription */,
-  const std::string& /* longDescription */,
+std::unique_ptr<PropertyDefinition> FlagsPropertyDefinition::doClone(
+  std::string key,
+  std::string /* shortDescription */,
+  std::string /* longDescription */,
   bool /* readOnly */) const
 {
-  auto result = std::make_unique<FlagsPropertyDefinition>(key);
+  auto result = std::make_unique<FlagsPropertyDefinition>(std::move(key));
   for (const auto& option : options())
   {
     result->addOption(
@@ -419,28 +417,36 @@ PropertyDefinition* FlagsPropertyDefinition::doClone(
       option.longDescription(),
       option.isDefault());
   }
-  return result.release();
+  return result;
 }
 
 UnknownPropertyDefinition::UnknownPropertyDefinition(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   const bool readOnly,
   std::optional<std::string> defaultValue)
-  : StringPropertyDefinition(
-    key, shortDescription, longDescription, readOnly, std::move(defaultValue))
+  : StringPropertyDefinition{
+    std::move(key),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    std::move(defaultValue)}
 {
 }
 
-PropertyDefinition* UnknownPropertyDefinition::doClone(
-  const std::string& key,
-  const std::string& shortDescription,
-  const std::string& longDescription,
+std::unique_ptr<PropertyDefinition> UnknownPropertyDefinition::doClone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
   bool readOnly) const
 {
-  return new UnknownPropertyDefinition(
-    key, shortDescription, longDescription, readOnly, m_defaultValue);
+  return std::make_unique<UnknownPropertyDefinition>(
+    std::move(key),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    m_defaultValue);
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

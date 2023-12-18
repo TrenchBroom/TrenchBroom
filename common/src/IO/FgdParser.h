@@ -122,29 +122,30 @@ private:
   std::string parseNamedValue(ParserStatus& status, const std::string& name);
   void skipClassProperty(ParserStatus& status);
 
-  PropertyDefinitionList parsePropertyDefinitions(ParserStatus& status);
-  PropertyDefinitionPtr parsePropertyDefinition(
+  std::vector<std::shared_ptr<Assets::PropertyDefinition>> parsePropertyDefinitions(
+    ParserStatus& status);
+  std::unique_ptr<Assets::PropertyDefinition> parsePropertyDefinition(
     ParserStatus& status,
-    const std::string& propertyKey,
+    std::string propertyKey,
     const std::string& typeName,
     size_t line,
     size_t column);
-  PropertyDefinitionPtr parseTargetSourcePropertyDefinition(
-    ParserStatus& status, const std::string& propertyKey);
-  PropertyDefinitionPtr parseTargetDestinationPropertyDefinition(
-    ParserStatus& status, const std::string& propertyKey);
-  PropertyDefinitionPtr parseStringPropertyDefinition(
-    ParserStatus& status, const std::string& propertyKey);
-  PropertyDefinitionPtr parseIntegerPropertyDefinition(
-    ParserStatus& status, const std::string& propertyKey);
-  PropertyDefinitionPtr parseFloatPropertyDefinition(
-    ParserStatus& status, const std::string& propertyKey);
-  PropertyDefinitionPtr parseChoicesPropertyDefinition(
-    ParserStatus& status, const std::string& propertyKey);
-  PropertyDefinitionPtr parseFlagsPropertyDefinition(
-    ParserStatus& status, const std::string& propertyKey);
-  PropertyDefinitionPtr parseUnknownPropertyDefinition(
-    ParserStatus& status, const std::string& propertyKey);
+  std::unique_ptr<Assets::PropertyDefinition> parseTargetSourcePropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
+  std::unique_ptr<Assets::PropertyDefinition> parseTargetDestinationPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
+  std::unique_ptr<Assets::PropertyDefinition> parseStringPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
+  std::unique_ptr<Assets::PropertyDefinition> parseIntegerPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
+  std::unique_ptr<Assets::PropertyDefinition> parseFloatPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
+  std::unique_ptr<Assets::PropertyDefinition> parseChoicesPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
+  std::unique_ptr<Assets::PropertyDefinition> parseFlagsPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
+  std::unique_ptr<Assets::PropertyDefinition> parseUnknownPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
 
   bool parseReadOnlyFlag(ParserStatus& status);
   std::string parsePropertyDescription(ParserStatus& status);
