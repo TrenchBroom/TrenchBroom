@@ -415,6 +415,54 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
   kdl::vec_clear_and_delete(definitions);
 }
 
+TEST_CASE("EntParserTest.parseBooleanProperty")
+{
+  const auto file = R"(
+<?xml version="1.0"?>
+<classes>
+  <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
+    <boolean key="prop_true"  name="true"  value="true" />
+    <boolean key="prop_false" name="false" value="false" />
+    <boolean key="prop_True"  name="True"  value="true" />
+    <boolean key="prop_False" name="False" value="false" />
+    <boolean key="prop_0"     name="0"     value="0" />
+    <boolean key="prop_1"     name="1"     value="1" />
+    <boolean key="prop_2"     name="2"     value="2" />
+    <boolean key="prop_n1"    name="-1"    value="-1" />
+  </point>
+</classes>
+)";
+
+  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+
+  auto status = TestParserStatus{};
+  auto definitions = parser.parseDefinitions(status);
+  REQUIRE(definitions.size() == 1u);
+
+  const auto* pointDefinition =
+    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+  REQUIRE(pointDefinition != nullptr);
+
+  const auto getDefaultValue = [&](const auto& key) -> std::optional<bool> {
+    const auto* propertyDefinition =
+      dynamic_cast<const Assets::BooleanPropertyDefinition*>(
+        pointDefinition->propertyDefinition(key));
+    return propertyDefinition ? std::optional{propertyDefinition->defaultValue()}
+                              : std::nullopt;
+  };
+
+  CHECK(getDefaultValue("prop_true") == true);
+  CHECK(getDefaultValue("prop_false") == false);
+  CHECK(getDefaultValue("prop_True") == true);
+  CHECK(getDefaultValue("prop_False") == false);
+  CHECK(getDefaultValue("prop_0") == false);
+  CHECK(getDefaultValue("prop_1") == true);
+  CHECK(getDefaultValue("prop_2") == true);
+  CHECK(getDefaultValue("prop_n1") == true);
+
+  kdl::vec_clear_and_delete(definitions);
+}
+
 TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
 {
   const std::string file = R"(

@@ -30,6 +30,7 @@
 #include "IO/ParserStatus.h"
 #include "Model/EntityProperties.h"
 
+#include "kdl/string_compare.h"
 #include <kdl/string_utils.h>
 
 #include <vecmath/vec_io.h>
@@ -134,6 +135,31 @@ std::optional<int> parseInteger(
   return kdl::str_to_int(getAttribute(element, attributeName));
 }
 
+std::optional<bool> parseBoolean(
+  const tinyxml2::XMLElement& element, const std::string& attributeName)
+{
+  const auto strValue = getAttribute(element, attributeName);
+  if (kdl::ci::str_is_equal(strValue, "true"))
+  {
+    return true;
+  }
+  if (kdl::ci::str_is_equal(strValue, "false"))
+  {
+    return false;
+  }
+
+  const auto intValue = kdl::str_to_int(strValue);
+  if (intValue != 0)
+  {
+    return true;
+  }
+  if (intValue == 0)
+  {
+    return false;
+  }
+
+  return std::nullopt;
+}
 
 std::optional<float> parseFloat(
   const tinyxml2::XMLElement& element, const std::string& attributeName)
@@ -346,14 +372,14 @@ std::unique_ptr<Assets::PropertyDefinition> parseBooleanPropertyDefinition(
     -> std::unique_ptr<Assets::PropertyDefinition> {
     if (hasAttribute(element, "value"))
     {
-      if (const auto boolDefaultValue = parseInteger(element, "value"))
+      if (const auto boolDefaultValue = parseBoolean(element, "value"))
       {
         return std::make_unique<Assets::BooleanPropertyDefinition>(
           std::move(name),
           std::move(shortDesc),
           std::move(longDesc),
           false,
-          *boolDefaultValue != 0);
+          *boolDefaultValue);
       }
 
       auto strDefaultValue = parseString(element, "value");
