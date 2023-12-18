@@ -74,16 +74,26 @@ Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format)
 {
   ensure(format == GL_RGBA || format == GL_BGRA, "format is GL_RGBA or GL_BGRA");
 
+  const auto r = size_t(format == GL_RGBA ? 0 : 2);
+  const auto g = size_t(format == GL_RGBA ? 1 : 1);
+  const auto b = size_t(format == GL_RGBA ? 2 : 0);
+  const auto a = size_t(3);
+
   const auto* const data = buffer.data();
   const auto bufferSize = buffer.size();
+  const auto numPixels = bufferSize / 4;
+
+  const auto stride = numPixels <= 4192 ? 1 : numPixels / 64;
+  const auto numSamples = numPixels / stride;
 
   auto average = Color{};
-  for (std::size_t i = 0; i < bufferSize; i += 4)
+  for (std::size_t i = 0; i < numSamples; ++i)
   {
-    average = average + Color{data[i], data[i + 1], data[i + 2], data[i + 3]};
+    const auto pixel = i * 4 * stride;
+    average =
+      average + Color{data[pixel + r], data[pixel + g], data[pixel + b], data[pixel + a]};
   }
-  const auto numPixels = bufferSize / 4;
-  average = average / static_cast<float>(numPixels);
+  average = average / static_cast<float>(numSamples);
 
   return average;
 }

@@ -20,11 +20,11 @@
 #include "File.h"
 
 #include "Error.h"
-#include "Exceptions.h"
 
 #include <kdl/result.h>
 
-#include <cstdio> // for FILE
+#include <cstdio>
+#include <cstring>
 
 namespace TrenchBroom::IO
 {
@@ -51,7 +51,7 @@ size_t OwningBufferFile::size() const
 
 namespace
 {
-Result<CFile::FilePtr> openPathAsFILE(
+Result<kdl::resource<std::FILE*>> openPathAsFILE(
   const std::filesystem::path& path, const std::string& mode)
 {
   // Windows: fopen() doesn't handle UTF-8. We have to use the nonstandard _wfopen
@@ -72,7 +72,7 @@ Result<CFile::FilePtr> openPathAsFILE(
     return Error{"Cannot open file " + path.string()};
   }
 
-  return std::unique_ptr<std::FILE, int (*)(std::FILE*)>{file, std::fclose};
+  return kdl::resource{file, std::fclose};
 }
 
 Result<size_t> fileSize(std::FILE* file)
@@ -103,15 +103,15 @@ Result<size_t> fileSize(std::FILE* file)
 }
 } // namespace
 
-CFile::CFile(FilePtr filePtr, const size_t size)
-  : m_file{std::move(filePtr)}
+CFile::CFile(kdl::resource<std::FILE*> file, const size_t size)
+  : m_file{std::move(file)}
   , m_size{size}
 {
 }
 
 Reader CFile::reader() const
 {
-  return Reader::from(m_file.get(), m_size);
+  return Reader::from(*this, m_size);
 }
 
 size_t CFile::size() const
@@ -121,15 +121,60 @@ size_t CFile::size() const
 
 std::FILE* CFile::file() const
 {
-  return m_file.get();
+  return *m_file;
+}
+
+Result<void> CFile::read(char* val, const size_t position, const size_t size) const
+{
+  auto guard = std::lock_guard{m_mutex};
+
+  const auto currentPosition = std::ftell(m_file.get());
+  if (currentPosition < 0)
+  {
+    return makeError("ftell failed");
+  }
+  if (size_t(currentPosition) != position)
+  {
+    if (std::fseek(*m_file, long(position), SEEK_SET) != 0)
+    {
+      return makeError("fseek failed");
+    }
+  }
+  if (std::fread(val, 1, size, *m_file) != size)
+  {
+    return makeError("fread failed");
+  }
+
+  return kdl::void_success;
+}
+
+Result<CFile::BufferType> CFile::buffer(const size_t position, const size_t size) const
+{
+#if defined __APPLE__
+  // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
+  auto buffer = BufferType{new char[size], std::default_delete<char[]>{}};
+#else
+  // G++ doesn't support using std::shared_ptr<T> to manage T[]
+  auto buffer = std::shared_ptr<char[]>{new char[size]};
+#endif
+
+  return read(buffer.get(), position, size).transform([&]() {
+    return std::move(buffer);
+  });
+}
+
+Error CFile::makeError(const std::string& msg) const
+{
+  return std::feof(*m_file) ? Error{msg + ": unexpected end of file"}
+                            : Error{msg + ": " + std::strerror(errno)};
 }
 
 Result<std::shared_ptr<CFile>> createCFile(const std::filesystem::path& path)
 {
-  return openPathAsFILE(path, "rb").and_then([](auto filePtr) {
-    return fileSize(filePtr.get()).transform([&](auto size) {
+  return openPathAsFILE(path, "rb").and_then([](auto file) {
+    return fileSize(*file).transform([&](auto size) {
       // NOLINTNEXTLINE
-      return std::shared_ptr<CFile>{new CFile{std::move(filePtr), size}};
+      return std::shared_ptr<CFile>{new CFile{std::move(file), size}};
     });
   });
 }

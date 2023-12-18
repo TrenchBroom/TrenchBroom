@@ -30,7 +30,32 @@
 
 namespace TrenchBroom::IO
 {
-// ZipFileSystem
+
+namespace
+{
+
+/**
+ * Helper to get the filename of a file in the zip archive
+ */
+std::string filename(mz_zip_archive& archive, const mz_uint fileIndex)
+{
+  // nameLen includes space for the null-terminator byte
+  const auto nameLen = mz_zip_reader_get_filename(&archive, fileIndex, nullptr, 0);
+  if (nameLen == 0)
+  {
+    return "";
+  }
+
+  auto result = std::string{};
+  result.resize(static_cast<size_t>(nameLen - 1));
+
+  // NOTE: this will overwrite the std::string's null terminator, which is permitted in
+  // C++17 and later
+  mz_zip_reader_get_filename(&archive, fileIndex, result.data(), nameLen);
+
+  return result;
+}
+} // namespace
 
 ZipFileSystem::~ZipFileSystem()
 {
@@ -51,8 +76,10 @@ Result<void> ZipFileSystem::doReadDirectory()
   {
     if (!mz_zip_reader_is_file_a_directory(&m_archive, i))
     {
-      const auto path = std::filesystem::path{filename(i)};
+      const auto path = std::filesystem::path{filename(m_archive, i)};
       addFile(path, [=]() -> Result<std::shared_ptr<File>> {
+        auto loadFileGoard = std::lock_guard{m_mutex};
+
         auto stat = mz_zip_archive_file_stat{};
         if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
         {
@@ -85,25 +112,4 @@ Result<void> ZipFileSystem::doReadDirectory()
   return kdl::void_success;
 }
 
-/**
- * Helper to get the filename of a file in the zip archive
- */
-std::string ZipFileSystem::filename(const mz_uint fileIndex)
-{
-  // nameLen includes space for the null-terminator byte
-  const auto nameLen = mz_zip_reader_get_filename(&m_archive, fileIndex, nullptr, 0);
-  if (nameLen == 0)
-  {
-    return "";
-  }
-
-  auto result = std::string{};
-  result.resize(static_cast<size_t>(nameLen - 1));
-
-  // NOTE: this will overwrite the std::string's null terminator, which is permitted in
-  // C++17 and later
-  mz_zip_reader_get_filename(&m_archive, fileIndex, result.data(), nameLen);
-
-  return result;
-}
 } // namespace TrenchBroom::IO

@@ -19,12 +19,13 @@
 
 #include "Reader.h"
 
+#include "Error.h" // IWYU pragma: keep
+#include "IO/File.h"
 #include "IO/ReaderException.h"
 
-#include <cassert>
-#include <cerrno>
+#include <kdl/result.h>
+
 #include <cstring>
-#include <functional>
 #include <string>
 #include <vector>
 
@@ -151,19 +152,11 @@ public:
 
 class OwningBufferReaderSource : public BufferReaderSource
 {
-public:
-#if defined __APPLE__
-  // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
-  using BufferType = std::shared_ptr<char>;
-#else
-  // G++ doesn't support using std::shared_ptr<T> to manage T[]
-  using BufferType = std::shared_ptr<char[]>;
-#endif
 private:
-  BufferType m_buffer;
+  CFile::BufferType m_buffer;
 
 public:
-  OwningBufferReaderSource(BufferType buffer, const char* begin, const char* end)
+  OwningBufferReaderSource(CFile::BufferType buffer, const char* begin, const char* end)
     : BufferReaderSource{begin, end}
     , m_buffer{std::move(buffer)}
   {
@@ -183,7 +176,7 @@ public:
 class FileReaderSource : public ReaderSource
 {
 private:
-  std::FILE* m_file;
+  const CFile& m_file;
   size_t m_offset;
   size_t m_length;
 
@@ -196,13 +189,11 @@ public:
    * @param offset the offset into the file at which this reader source should begin
    * @param length the length of this reader source
    */
-  FileReaderSource(std::FILE* file, const size_t offset, const size_t length)
+  FileReaderSource(const CFile& file, const size_t offset, const size_t length)
     : m_file{file}
     , m_offset{offset}
     , m_length{length}
   {
-    assert(m_file != nullptr);
-    std::rewind(m_file);
   }
 
 public:
@@ -210,22 +201,9 @@ public:
 
   void read(char* val, const size_t position, const size_t size) override
   {
-    const auto pos = std::ftell(m_file);
-    if (pos < 0)
-    {
-      throwError("ftell failed");
-    }
-    if (size_t(pos) != m_offset + position)
-    {
-      if (std::fseek(m_file, long(m_offset + position), SEEK_SET) != 0)
-      {
-        throwError("fseek failed");
-      }
-    }
-    if (std::fread(val, 1, size, m_file) != size)
-    {
-      throwError("fread failed");
-    }
+    m_file.read(val, m_offset + position, size).transform_error([](auto error) {
+      throw ReaderException{std::move(error.msg)};
+    });
   }
 
   std::shared_ptr<ReaderSource> subSource(
@@ -236,39 +214,14 @@ public:
 
   std::shared_ptr<BufferReaderSource> buffer() const override
   {
-    std::fseek(m_file, long(m_offset), SEEK_SET);
-
-#if defined __APPLE__
-    // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
-    auto buffer = OwningBufferReaderSource::BufferType{
-      new char[m_length], std::default_delete<char[]> {}};
-#else
-    // G++ doesn't support using std::shared_ptr<T> to manage T[]
-    auto buffer = std::shared_ptr<char[]>{new char[m_length]};
-#endif
-
-    const auto read = std::fread(buffer.get(), 1, m_length, m_file);
-    if (read != m_length)
-    {
-      throwError("fread failed");
-    }
-
-    const char* begin = buffer.get();
-    const char* end = begin + m_length;
-    return std::make_shared<OwningBufferReaderSource>(std::move(buffer), begin, end);
-  }
-
-private:
-  [[noreturn]] void throwError(const std::string& msg) const
-  {
-    if (std::feof(m_file))
-    {
-      throw ReaderException{msg + ": unexpected end of file"};
-    }
-    else
-    {
-      throw ReaderException{msg + ": " + std::strerror(errno)};
-    }
+    return m_file.buffer(m_offset, m_length)
+      .transform([&](auto buffer) {
+        const auto* begin = buffer.get();
+        const auto* end = begin + m_length;
+        return std::make_shared<OwningBufferReaderSource>(std::move(buffer), begin, end);
+      })
+      .if_error([&](auto error) { throw ReaderException{std::move(error.msg)}; })
+      .value();
   }
 };
 
@@ -280,7 +233,7 @@ Reader::Reader(std::shared_ptr<ReaderSource> source)
 
 Reader::~Reader() = default;
 
-Reader Reader::from(std::FILE* file, const size_t size)
+Reader Reader::from(const CFile& file, const size_t size)
 {
   return Reader{std::make_shared<FileReaderSource>(file, 0, size)};
 }

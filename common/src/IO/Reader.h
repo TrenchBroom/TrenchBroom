@@ -30,6 +30,7 @@ namespace TrenchBroom::IO
 {
 class BufferedReader;
 class BufferReaderSource;
+class CFile;
 class ReaderSource;
 
 /**
@@ -61,7 +62,7 @@ public:
    *
    * @throw ReaderException if the reader cannot be created
    */
-  static Reader from(std::FILE* file, size_t size);
+  static Reader from(const CFile& file, size_t size);
 
   /**
    * Creates a new reader that reads from the given memory region.

@@ -24,8 +24,7 @@
 
 #include <miniz/miniz.h>
 
-#include <filesystem>
-#include <memory>
+#include <mutex>
 
 namespace TrenchBroom::IO
 {
@@ -34,6 +33,7 @@ class ZipFileSystem : public ImageFileSystem
 {
 private:
   mz_zip_archive m_archive;
+  std::mutex m_mutex;
 
 public:
   using ImageFileSystem::ImageFileSystem;
@@ -41,7 +41,5 @@ public:
 
 private:
   Result<void> doReadDirectory() override;
-
-  std::string filename(mz_uint fileIndex);
 };
 } // namespace TrenchBroom::IO

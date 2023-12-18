@@ -22,9 +22,12 @@
 #include "IO/Reader.h"
 #include "Result.h"
 
+#include <kdl/resource.h>
+
 #include <cstdio>
 #include <filesystem>
 #include <memory>
+#include <mutex>
 
 namespace TrenchBroom::IO
 {
@@ -82,16 +85,22 @@ public:
 class CFile : public File
 {
 public:
-  using FilePtr = std::unique_ptr<std::FILE, int (*)(std::FILE*)>;
-
+#if defined __APPLE__
+  // AppleClang doesn't support std::shared_ptr<T[]> (new as of C++17)
+  using BufferType = std::shared_ptr<char>;
+#else
+  // G++ doesn't support using std::shared_ptr<T> to manage T[]
+  using BufferType = std::shared_ptr<char[]>;
+#endif
 private:
-  FilePtr m_file;
+  kdl::resource<std::FILE*> m_file;
   size_t m_size;
+  mutable std::mutex m_mutex;
 
   /**
    * Creates a new file with the given file ptr and size in bytes.
    */
-  CFile(FilePtr filePtr, size_t size);
+  CFile(kdl::resource<std::FILE*> file, size_t size);
 
 public:
   friend Result<std::shared_ptr<CFile>> createCFile(const std::filesystem::path& path);
@@ -103,6 +112,14 @@ public:
    * Returns the underlying file.
    */
   std::FILE* file() const;
+
+private:
+  friend class FileReaderSource;
+
+  Result<void> read(char* val, size_t position, size_t size) const;
+  Result<BufferType> buffer(size_t position, size_t size) const;
+
+  Error makeError(const std::string& msg) const;
 };
 
 Result<std::shared_ptr<CFile>> createCFile(const std::filesystem::path& path);
