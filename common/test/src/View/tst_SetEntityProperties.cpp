@@ -29,6 +29,7 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
+#include "kdl/vector_utils.h"
 #include <kdl/result.h>
 
 #include <vecmath/bbox.h>
@@ -45,16 +46,30 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
 {
   // need to recreate these because document->setEntityDefinitions will delete the old
   // ones
-  m_pointEntityDef = new Assets::PointEntityDefinition(
-    "point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {}, {});
+  auto pointEntityDefOwner = std::make_unique<Assets::PointEntityDefinition>(
+    "point_entity",
+    Color{},
+    vm::bbox3{16.0},
+    "this is a point entity",
+    std::vector<std::shared_ptr<Assets::PropertyDefinition>>{},
+    Assets::ModelDefinition{},
+    Assets::DecalDefinition{});
+  m_pointEntityDef = pointEntityDefOwner.get();
 
-  Assets::PointEntityDefinition* largeEntityDef = new Assets::PointEntityDefinition(
-    "large_entity", Color(), vm::bbox3(64.0), "this is a point entity", {}, {}, {});
-  document->setEntityDefinitions(
-    std::vector<Assets::EntityDefinition*>{m_pointEntityDef, largeEntityDef});
+  auto largeEntityDefOwner = std::make_unique<Assets::PointEntityDefinition>(
+    "large_entity",
+    Color{},
+    vm::bbox3{64.0},
+    "this is a point entity",
+    std::vector<std::shared_ptr<Assets::PropertyDefinition>>{},
+    Assets::ModelDefinition{},
+    Assets::DecalDefinition{});
+  auto* largeEntityDef = largeEntityDefOwner.get();
 
-  Model::EntityNode* entityNode =
-    new Model::EntityNode({}, {{"classname", "large_entity"}});
+  document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<Assets::EntityDefinition>>(
+    std::move(pointEntityDefOwner), std::move(largeEntityDefOwner)));
+
+  auto* entityNode = new Model::EntityNode({}, {{"classname", "large_entity"}});
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   REQUIRE(entityNode->entity().definition() == largeEntityDef);

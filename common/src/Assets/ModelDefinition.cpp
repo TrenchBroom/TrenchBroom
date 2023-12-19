@@ -68,18 +68,17 @@ ModelDefinition::ModelDefinition(const size_t line, const size_t column)
 {
 }
 
-ModelDefinition::ModelDefinition(const EL::Expression& expression)
-  : m_expression{expression}
+ModelDefinition::ModelDefinition(EL::Expression expression)
+  : m_expression{std::move(expression)}
 {
 }
 
-void ModelDefinition::append(const ModelDefinition& other)
+void ModelDefinition::append(ModelDefinition other)
 {
   const size_t line = m_expression.line();
   const size_t column = m_expression.column();
 
-  auto cases = std::vector<EL::Expression>{std::move(m_expression), other.m_expression};
-
+  auto cases = std::vector{std::move(m_expression), std::move(other.m_expression)};
   m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, line, column};
 }
 

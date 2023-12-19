@@ -75,8 +75,9 @@ void MapDocumentTest::SetUp()
   m_brushEntityDef = new Assets::BrushEntityDefinition(
     "brush_entity", Color(), "this is a brush entity", {});
 
-  document->setEntityDefinitions(
-    std::vector<Assets::EntityDefinition*>{m_pointEntityDef, m_brushEntityDef});
+  document->setEntityDefinitions(kdl::vec_from(
+    std::unique_ptr<Assets::EntityDefinition>{m_pointEntityDef},
+    std::unique_ptr<Assets::EntityDefinition>{m_brushEntityDef}));
 }
 
 MapDocumentTest::~MapDocumentTest()
@@ -500,18 +501,21 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
     document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "")
       .transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-    auto* definitionWithDefaults = new Assets::PointEntityDefinition{
+    auto definitionWithDefaultsOwner = std::make_unique<Assets::PointEntityDefinition>(
       "some_name",
       Color{},
       vm::bbox3{32.0},
       "",
-      {
+      std::vector<std::shared_ptr<Assets::PropertyDefinition>>{
         std::make_shared<Assets::StringPropertyDefinition>(
           "some_default_prop", "", "", !true(readOnly), "value"),
       },
-      {},
-      {}};
-    document->setEntityDefinitions({definitionWithDefaults});
+      Assets::ModelDefinition{},
+      Assets::DecalDefinition{});
+    auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
+    document->setEntityDefinitions(
+      kdl::vec_from<std::unique_ptr<Assets::EntityDefinition>>(
+        std::move(definitionWithDefaultsOwner)));
 
     auto* entityNode = document->createPointEntity(definitionWithDefaults, {0, 0, 0});
     REQUIRE(entityNode != nullptr);
@@ -573,15 +577,19 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
     document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "")
       .transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-    auto* definitionWithDefaults = new Assets::BrushEntityDefinition{
+    auto definitionWithDefaultsOwner = std::make_unique<Assets::BrushEntityDefinition>(
       "some_name",
       Color{},
       "",
-      {
+      std::vector<std::shared_ptr<Assets::PropertyDefinition>>{
         std::make_shared<Assets::StringPropertyDefinition>(
           "some_default_prop", "", "", !true(readOnly), "value"),
-      }};
-    document->setEntityDefinitions({definitionWithDefaults});
+      });
+    auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
+
+    document->setEntityDefinitions(
+      kdl::vec_from<std::unique_ptr<Assets::EntityDefinition>>(
+        std::move(definitionWithDefaultsOwner)));
 
     auto* brushNode = createBrushNode("some_texture");
     document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -604,12 +612,12 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
   document->deleteObjects();
 
   // Note: The test document does not automatically set the default properties
-  auto* definitionWithDefaults = new Assets::PointEntityDefinition{
+  auto definitionWithDefaultsOwner = std::make_unique<Assets::PointEntityDefinition>(
     "some_name",
     Color{},
     vm::bbox3{32.0},
     "",
-    {
+    std::vector<std::shared_ptr<Assets::PropertyDefinition>>{
       std::make_shared<Assets::StringPropertyDefinition>(
         "some_prop", "", "", !true(readOnly)),
       std::make_shared<Assets::StringPropertyDefinition>(
@@ -617,9 +625,12 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
       std::make_shared<Assets::StringPropertyDefinition>(
         "default_prop_b", "", "", !true(readOnly), "default_value_b"),
     },
-    {},
-    {}};
-  document->setEntityDefinitions({definitionWithDefaults});
+    Assets::ModelDefinition{},
+    Assets::DecalDefinition{});
+  auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
+
+  document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<Assets::EntityDefinition>>(
+    std::move(definitionWithDefaultsOwner)));
 
   auto* entityNodeWithoutDefinition = new Model::EntityNode{
     document->world()->entityPropertyConfig(),

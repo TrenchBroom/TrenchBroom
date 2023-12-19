@@ -32,14 +32,12 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 static const auto DefaultSize = vm::bbox3(-8, +8);
 
 EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
-  : m_defaultEntityColor(defaultEntityColor)
+  : m_defaultEntityColor{defaultEntityColor}
 {
 }
 
@@ -420,60 +418,68 @@ std::vector<EntityDefinitionClassInfo> resolveInheritance(
   return result;
 }
 
-std::unique_ptr<Assets::EntityDefinition> EntityDefinitionParser::createDefinition(
-  const EntityDefinitionClassInfo& classInfo) const
+namespace
 {
-  const auto& name = classInfo.name;
-  const auto color = classInfo.color.value_or(m_defaultEntityColor);
-  const auto size = classInfo.size.value_or(DefaultSize);
-  auto description = classInfo.description.value_or("");
-  auto& attributes = classInfo.propertyDefinitions;
-  auto modelDefinition = classInfo.modelDefinition.value_or(Assets::ModelDefinition{});
-  auto decalDefinition = classInfo.decalDefinition.value_or(Assets::DecalDefinition{});
+std::unique_ptr<Assets::EntityDefinition> createDefinition(
+  EntityDefinitionClassInfo classInfo, const Color& defaultEntityColor)
+{
+  auto name = std::move(classInfo.name);
+  auto color = std::move(classInfo.color).value_or(defaultEntityColor);
+  auto size = std::move(classInfo.size).value_or(DefaultSize);
+  auto description = std::move(classInfo.description).value_or("");
+  auto propertyDefinitions = std::move(classInfo.propertyDefinitions);
+  auto modelDefinition =
+    std::move(classInfo.modelDefinition).value_or(Assets::ModelDefinition{});
+  auto decalDefinition =
+    std::move(classInfo.decalDefinition).value_or(Assets::DecalDefinition{});
 
   switch (classInfo.type)
   {
   case EntityDefinitionClassType::PointClass:
     return std::make_unique<Assets::PointEntityDefinition>(
-      name,
+      std::move(name),
       color,
       size,
       std::move(description),
-      std::move(attributes),
+      std::move(propertyDefinitions),
       std::move(modelDefinition),
       std::move(decalDefinition));
   case EntityDefinitionClassType::BrushClass:
     return std::make_unique<Assets::BrushEntityDefinition>(
-      name, color, std::move(description), std::move(attributes));
+      std::move(name), color, std::move(description), std::move(propertyDefinitions));
   case EntityDefinitionClassType::BaseClass:
     return nullptr;
     switchDefault();
   };
 }
 
-std::vector<Assets::EntityDefinition*> EntityDefinitionParser::createDefinitions(
-  ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos) const
+std::vector<std::unique_ptr<Assets::EntityDefinition>> createDefinitions(
+  ParserStatus& status,
+  const std::vector<EntityDefinitionClassInfo>& classInfos,
+  const Color& defaultEntityColor)
 {
   const auto resolvedClasses =
     resolveInheritance(status, filterRedundantClasses(status, classInfos));
 
-  std::vector<Assets::EntityDefinition*> result;
-  for (const auto& classInfo : resolvedClasses)
+  auto result = std::vector<std::unique_ptr<Assets::EntityDefinition>>{};
+  for (auto classInfo : resolvedClasses)
   {
-    if (auto definition = createDefinition(classInfo))
+    if (auto definition = createDefinition(std::move(classInfo), defaultEntityColor))
     {
-      result.push_back(definition.release());
+      result.push_back(std::move(definition));
     }
   }
 
   return result;
 }
 
-EntityDefinitionParser::EntityDefinitionList EntityDefinitionParser::parseDefinitions(
-  ParserStatus& status)
+} // namespace
+
+std::vector<std::unique_ptr<Assets::EntityDefinition>> EntityDefinitionParser::
+  parseDefinitions(ParserStatus& status)
 {
-  auto classInfos = parseClassInfos(status);
-  return createDefinitions(status, std::move(classInfos));
+  const auto classInfos = parseClassInfos(status);
+  return createDefinitions(status, classInfos, m_defaultEntityColor);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

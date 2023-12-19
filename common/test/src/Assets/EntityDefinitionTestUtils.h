@@ -44,7 +44,7 @@ void assertModelDefinition(
   const std::string& entityPropertiesStr = "{}");
 void assertModelDefinition(
   const ModelSpecification& expected,
-  const EntityDefinition* definition,
+  const EntityDefinition& definition,
   const std::string& entityPropertiesStr = "{}");
 void assertModelDefinition(
   const ModelSpecification& expected,
@@ -69,7 +69,7 @@ void assertDecalDefinition(
   const std::string& entityPropertiesStr = "{}");
 void assertDecalDefinition(
   const DecalSpecification& expected,
-  const EntityDefinition* definition,
+  const EntityDefinition& definition,
   const std::string& entityPropertiesStr = "{}");
 void assertDecalDefinition(
   const DecalSpecification& expected,

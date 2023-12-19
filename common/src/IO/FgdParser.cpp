@@ -279,25 +279,23 @@ std::optional<EntityDefinitionClassInfo> FgdParser::parseClassInfo(ParserStatus&
   {
     return parseSolidClassInfo(status);
   }
-  else if (kdl::ci::str_is_equal(classname, "@PointClass"))
+  if (kdl::ci::str_is_equal(classname, "@PointClass"))
   {
     return parsePointClassInfo(status);
   }
-  else if (kdl::ci::str_is_equal(classname, "@BaseClass"))
+  if (kdl::ci::str_is_equal(classname, "@BaseClass"))
   {
     return parseBaseClassInfo(status);
   }
-  else if (kdl::ci::str_is_equal(classname, "@Main"))
+  if (kdl::ci::str_is_equal(classname, "@Main"))
   {
     skipMainClass(status);
     return std::nullopt;
   }
-  else
-  {
-    const auto msg = fmt::format("Unknown entity definition class '{}'", classname);
-    status.error(token.line(), token.column(), msg);
-    throw ParserException{token.line(), token.column(), msg};
-  }
+
+  const auto msg = fmt::format("Unknown entity definition class '{}'", classname);
+  status.error(token.line(), token.column(), msg);
+  throw ParserException{token.line(), token.column(), msg};
 }
 
 EntityDefinitionClassInfo FgdParser::parseSolidClassInfo(ParserStatus& status)
@@ -476,7 +474,7 @@ Assets::ModelDefinition FgdParser::parseModel(ParserStatus& status)
     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
     expression.optimize();
-    return Assets::ModelDefinition{expression};
+    return Assets::ModelDefinition{std::move(expression)};
   }
   catch (const ParserException& e)
   {
@@ -498,7 +496,7 @@ Assets::ModelDefinition FgdParser::parseModel(ParserStatus& status)
         fmt::format(
           "Legacy model expressions are deprecated, replace with '{}'",
           expression.asString()));
-      return Assets::ModelDefinition{expression};
+      return Assets::ModelDefinition{std::move(expression)};
     }
     catch (const ParserException&)
     {
@@ -526,10 +524,10 @@ Assets::DecalDefinition FgdParser::parseDecal(ParserStatus& status)
   if (token.hasType(FgdToken::CParenthesis))
   {
     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
-    const auto defaultDecal =
+    auto defaultDecal =
       EL::MapExpression{{{"texture", {EL::VariableExpression{"texture"}, line, column}}}};
-    const auto defaultExp = EL::Expression{defaultDecal, line, column};
-    return Assets::DecalDefinition{defaultExp};
+    auto defaultExp = EL::Expression{std::move(defaultDecal), line, column};
+    return Assets::DecalDefinition{std::move(defaultExp)};
   }
 
   try
@@ -543,7 +541,7 @@ Assets::DecalDefinition FgdParser::parseDecal(ParserStatus& status)
     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
     expression = expression.optimize();
-    return Assets::DecalDefinition{expression};
+    return Assets::DecalDefinition{std::move(expression)};
   }
   catch (const ParserException&)
   {
@@ -585,10 +583,10 @@ void FgdParser::skipClassProperty(ParserStatus& /* status */)
   } while (depth > 0 && token.type() != FgdToken::Eof);
 }
 
-FgdParser::PropertyDefinitionList FgdParser::parsePropertyDefinitions(
-  ParserStatus& status)
+std::vector<std::shared_ptr<Assets::PropertyDefinition>> FgdParser::
+  parsePropertyDefinitions(ParserStatus& status)
 {
-  auto propertyDefinitions = PropertyDefinitionList{};
+  auto propertyDefinitions = std::vector<std::shared_ptr<Assets::PropertyDefinition>>{};
 
   expect(status, FgdToken::OBracket, m_tokenizer.nextToken());
   auto token =
@@ -621,40 +619,40 @@ FgdParser::PropertyDefinitionList FgdParser::parsePropertyDefinitions(
   return propertyDefinitions;
 }
 
-FgdParser::PropertyDefinitionPtr FgdParser::parsePropertyDefinition(
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::parsePropertyDefinition(
   ParserStatus& status,
-  const std::string& propertyKey,
+  std::string propertyKey,
   const std::string& typeName,
   const size_t line,
   const size_t column)
 {
   if (kdl::ci::str_is_equal(typeName, "target_source"))
   {
-    return parseTargetSourcePropertyDefinition(status, propertyKey);
+    return parseTargetSourcePropertyDefinition(status, std::move(propertyKey));
   }
   if (kdl::ci::str_is_equal(typeName, "target_destination"))
   {
-    return parseTargetDestinationPropertyDefinition(status, propertyKey);
+    return parseTargetDestinationPropertyDefinition(status, std::move(propertyKey));
   }
   if (kdl::ci::str_is_equal(typeName, "string"))
   {
-    return parseStringPropertyDefinition(status, propertyKey);
+    return parseStringPropertyDefinition(status, std::move(propertyKey));
   }
   if (kdl::ci::str_is_equal(typeName, "integer"))
   {
-    return parseIntegerPropertyDefinition(status, propertyKey);
+    return parseIntegerPropertyDefinition(status, std::move(propertyKey));
   }
   if (kdl::ci::str_is_equal(typeName, "float"))
   {
-    return parseFloatPropertyDefinition(status, propertyKey);
+    return parseFloatPropertyDefinition(status, std::move(propertyKey));
   }
   if (kdl::ci::str_is_equal(typeName, "choices"))
   {
-    return parseChoicesPropertyDefinition(status, propertyKey);
+    return parseChoicesPropertyDefinition(status, std::move(propertyKey));
   }
   if (kdl::ci::str_is_equal(typeName, "flags"))
   {
-    return parseFlagsPropertyDefinition(status, propertyKey);
+    return parseFlagsPropertyDefinition(status, std::move(propertyKey));
   }
 
   status.debug(
@@ -662,79 +660,91 @@ FgdParser::PropertyDefinitionPtr FgdParser::parsePropertyDefinition(
     column,
     fmt::format(
       "Unknown property definition type '{}' for property '{}'", typeName, propertyKey));
-  return parseUnknownPropertyDefinition(status, propertyKey);
+  return parseUnknownPropertyDefinition(status, std::move(propertyKey));
 }
 
-FgdParser::PropertyDefinitionPtr FgdParser::parseTargetSourcePropertyDefinition(
-  ParserStatus& status, const std::string& propertyKey)
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::
+  parseTargetSourcePropertyDefinition(ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
-  const auto shortDescription = parsePropertyDescription(status);
+  auto shortDescription = parsePropertyDescription(status);
   parseDefaultStringValue(status);
-  const auto longDescription = parsePropertyDescription(status);
-  return std::make_shared<Assets::PropertyDefinition>(
-    propertyKey,
+  auto longDescription = parsePropertyDescription(status);
+  return std::make_unique<Assets::PropertyDefinition>(
+    std::move(propertyKey),
     Assets::PropertyDefinitionType::TargetSourceProperty,
-    shortDescription,
-    longDescription,
+    std::move(shortDescription),
+    std::move(longDescription),
     readOnly);
 }
 
-FgdParser::PropertyDefinitionPtr FgdParser::parseTargetDestinationPropertyDefinition(
-  ParserStatus& status, const std::string& propertyKey)
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::
+  parseTargetDestinationPropertyDefinition(ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
-  const auto shortDescription = parsePropertyDescription(status);
+  auto shortDescription = parsePropertyDescription(status);
   parseDefaultStringValue(status);
-  const auto longDescription = parsePropertyDescription(status);
-  return std::make_shared<Assets::PropertyDefinition>(
-    propertyKey,
+  auto longDescription = parsePropertyDescription(status);
+  return std::make_unique<Assets::PropertyDefinition>(
+    std::move(propertyKey),
     Assets::PropertyDefinitionType::TargetDestinationProperty,
-    shortDescription,
-    longDescription,
+    std::move(shortDescription),
+    std::move(longDescription),
     readOnly);
 }
 
-FgdParser::PropertyDefinitionPtr FgdParser::parseStringPropertyDefinition(
-  ParserStatus& status, const std::string& propertyKey)
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::parseStringPropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
-  const auto shortDescription = parsePropertyDescription(status);
-  const auto defaultValue = parseDefaultStringValue(status);
-  const auto longDescription = parsePropertyDescription(status);
-  return std::make_shared<Assets::StringPropertyDefinition>(
-    propertyKey, shortDescription, longDescription, readOnly, defaultValue);
+  auto shortDescription = parsePropertyDescription(status);
+  auto defaultValue = parseDefaultStringValue(status);
+  auto longDescription = parsePropertyDescription(status);
+  return std::make_unique<Assets::StringPropertyDefinition>(
+    std::move(propertyKey),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    std::move(defaultValue));
 }
 
-FgdParser::PropertyDefinitionPtr FgdParser::parseIntegerPropertyDefinition(
-  ParserStatus& status, const std::string& propertyKey)
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::parseIntegerPropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
-  const auto shortDescription = parsePropertyDescription(status);
-  const auto defaultValue = parseDefaultIntegerValue(status);
-  const auto longDescription = parsePropertyDescription(status);
-  return std::make_shared<Assets::IntegerPropertyDefinition>(
-    propertyKey, shortDescription, longDescription, readOnly, defaultValue);
+  auto shortDescription = parsePropertyDescription(status);
+  auto defaultValue = parseDefaultIntegerValue(status);
+  auto longDescription = parsePropertyDescription(status);
+  return std::make_unique<Assets::IntegerPropertyDefinition>(
+    std::move(propertyKey),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    std::move(defaultValue));
 }
 
-FgdParser::PropertyDefinitionPtr FgdParser::parseFloatPropertyDefinition(
-  ParserStatus& status, const std::string& propertyKey)
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::parseFloatPropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
-  const auto shortDescription = parsePropertyDescription(status);
-  const auto defaultValue = parseDefaultFloatValue(status);
-  const auto longDescription = parsePropertyDescription(status);
-  return std::make_shared<Assets::FloatPropertyDefinition>(
-    propertyKey, shortDescription, longDescription, readOnly, defaultValue);
+  auto shortDescription = parsePropertyDescription(status);
+  auto defaultValue = parseDefaultFloatValue(status);
+  auto longDescription = parsePropertyDescription(status);
+  return std::make_unique<Assets::FloatPropertyDefinition>(
+    std::move(propertyKey),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    std::move(defaultValue));
 }
 
-FgdParser::PropertyDefinitionPtr FgdParser::parseChoicesPropertyDefinition(
-  ParserStatus& status, const std::string& propertyKey)
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::parseChoicesPropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
-  const auto shortDescription = parsePropertyDescription(status);
-  const auto defaultValue = parseDefaultChoiceValue(status);
-  const auto longDescription = parsePropertyDescription(status);
+  auto shortDescription = parsePropertyDescription(status);
+  auto defaultValue = parseDefaultChoiceValue(status);
+  auto longDescription = parsePropertyDescription(status);
 
   expect(status, FgdToken::Equality, m_tokenizer.nextToken());
   expect(status, FgdToken::OBracket, m_tokenizer.nextToken());
@@ -747,23 +757,28 @@ FgdParser::PropertyDefinitionPtr FgdParser::parseChoicesPropertyDefinition(
   auto options = Assets::ChoicePropertyOption::List{};
   while (token.type() != FgdToken::CBracket)
   {
-    const auto value = token.data();
+    auto value = token.data();
     expect(status, FgdToken::Colon, m_tokenizer.nextToken());
-    const auto caption = parseString(status);
+    auto caption = parseString(status);
 
-    options.emplace_back(value, caption);
+    options.emplace_back(std::move(value), std::move(caption));
     token = expect(
       status,
       FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket,
       m_tokenizer.nextToken());
   }
 
-  return std::make_shared<Assets::ChoicePropertyDefinition>(
-    propertyKey, shortDescription, longDescription, options, readOnly, defaultValue);
+  return std::make_unique<Assets::ChoicePropertyDefinition>(
+    std::move(propertyKey),
+    std::move(shortDescription),
+    std::move(longDescription),
+    std::move(options),
+    readOnly,
+    std::move(defaultValue));
 }
 
-FgdParser::PropertyDefinitionPtr FgdParser::parseFlagsPropertyDefinition(
-  ParserStatus& status, const std::string& propertyKey)
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::parseFlagsPropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
 {
   // Flag property definitions do not have descriptions or defaults, see
   // https://developer.valvesoftware.com/wiki/FGD
@@ -774,13 +789,14 @@ FgdParser::PropertyDefinitionPtr FgdParser::parseFlagsPropertyDefinition(
   auto token =
     expect(status, FgdToken::Integer | FgdToken::CBracket, m_tokenizer.nextToken());
 
-  auto definition = std::make_shared<Assets::FlagsPropertyDefinition>(propertyKey);
+  auto definition =
+    std::make_unique<Assets::FlagsPropertyDefinition>(std::move(propertyKey));
 
   while (token.type() != FgdToken::CBracket)
   {
     const auto value = token.toInteger<int>();
     expect(status, FgdToken::Colon, m_tokenizer.nextToken());
-    const auto shortDescription = parseString(status);
+    auto shortDescription = parseString(status);
 
     auto defaultValue = false;
     token = expect(
@@ -807,20 +823,25 @@ FgdParser::PropertyDefinitionPtr FgdParser::parseFlagsPropertyDefinition(
         expect(status, FgdToken::Integer | FgdToken::CBracket, m_tokenizer.nextToken());
     }
 
-    definition->addOption(value, shortDescription, longDescription, defaultValue);
+    definition->addOption(
+      value, std::move(shortDescription), std::move(longDescription), defaultValue);
   }
   return definition;
 }
 
-FgdParser::PropertyDefinitionPtr FgdParser::parseUnknownPropertyDefinition(
-  ParserStatus& status, const std::string& propertyKey)
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::parseUnknownPropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
-  const auto shortDescription = parsePropertyDescription(status);
-  const auto defaultValue = parseDefaultStringValue(status);
-  const auto longDescription = parsePropertyDescription(status);
-  return std::make_shared<Assets::UnknownPropertyDefinition>(
-    propertyKey, shortDescription, longDescription, readOnly, defaultValue);
+  auto shortDescription = parsePropertyDescription(status);
+  auto defaultValue = parseDefaultStringValue(status);
+  auto longDescription = parsePropertyDescription(status);
+  return std::make_unique<Assets::UnknownPropertyDefinition>(
+    std::move(propertyKey),
+    std::move(shortDescription),
+    std::move(longDescription),
+    readOnly,
+    std::move(defaultValue));
 }
 
 bool FgdParser::parseReadOnlyFlag(ParserStatus& /* status */)

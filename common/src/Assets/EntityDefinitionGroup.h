@@ -22,9 +22,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityDefinition;
 enum class EntityDefinitionSortOrder;
@@ -37,8 +35,7 @@ private:
   std::vector<EntityDefinition*> m_definitions;
 
 public:
-  EntityDefinitionGroup(
-    const std::string& name, std::vector<EntityDefinition*> definitions);
+  EntityDefinitionGroup(std::string name, std::vector<EntityDefinition*> definitions);
 
   size_t index() const;
   const std::string& name() const;
@@ -47,5 +44,5 @@ public:
   std::vector<EntityDefinition*> definitions(
     EntityDefinitionType type, EntityDefinitionSortOrder order) const;
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

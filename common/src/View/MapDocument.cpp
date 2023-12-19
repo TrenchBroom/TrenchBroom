@@ -4346,9 +4346,9 @@ void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec
 }
 
 void MapDocument::setEntityDefinitions(
-  const std::vector<Assets::EntityDefinition*>& definitions)
+  std::vector<std::unique_ptr<Assets::EntityDefinition>> definitions)
 {
-  m_entityDefinitionManager->setDefinitions(definitions);
+  m_entityDefinitionManager->setDefinitions(std::move(definitions));
 }
 
 void MapDocument::reloadTextureCollections()

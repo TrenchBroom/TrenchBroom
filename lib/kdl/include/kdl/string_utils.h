@@ -24,6 +24,7 @@
 
 #include <algorithm> // for std::search
 #include <cassert>
+#include <charconv>
 #include <iterator>
 #include <optional>
 #include <sstream>
@@ -283,6 +284,15 @@ std::string str_to_string(Args&&... args)
   return str.str();
 }
 
+namespace detail
+{
+inline auto skip_whitespace(const std::string_view str)
+{
+  const auto first = str.find_first_not_of(Whitespace);
+  return first != std::string::npos ? str.substr(first) : std::string_view{};
+}
+} // namespace detail
+
 /**
  * Interprets the given string as a signed integer and returns it. If the given string
  * cannot be parsed, returns an empty optional.
@@ -291,20 +301,13 @@ std::string str_to_string(Args&&... args)
  * @return the signed integer value or an empty optional if the given string cannot be
  * interpreted as a signed integer
  */
-inline std::optional<int> str_to_int(const std::string& str)
+inline std::optional<int> str_to_int(std::string_view str)
 {
-  try
-  {
-    return stoi(str);
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
+  str = detail::skip_whitespace(str);
+  int value;
+  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
 }
 
 /**
@@ -315,20 +318,13 @@ inline std::optional<int> str_to_int(const std::string& str)
  * @return the signed long integer value or an empty optional if the given string cannot
  * be interpreted as a signed long integer
  */
-inline std::optional<long> str_to_long(const std::string& str)
+inline std::optional<long> str_to_long(std::string_view str)
 {
-  try
-  {
-    return stol(str);
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
+  str = detail::skip_whitespace(str);
+  long value;
+  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
 }
 
 /**
@@ -339,20 +335,13 @@ inline std::optional<long> str_to_long(const std::string& str)
  * @return the signed long long integer value or an empty optional if the given string
  * cannot be interpreted as a signed long long integer
  */
-inline std::optional<long long> str_to_long_long(const std::string& str)
+inline std::optional<long long> str_to_long_long(std::string_view str)
 {
-  try
-  {
-    return stoll(str);
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
+  str = detail::skip_whitespace(str);
+  long long value;
+  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
 }
 
 /**
@@ -363,20 +352,13 @@ inline std::optional<long long> str_to_long_long(const std::string& str)
  * @return the unsigned long integer value or an empty optional if the given string cannot
  * be interpreted as an unsigned long integer
  */
-inline std::optional<unsigned long> str_to_u_long(const std::string& str)
+inline std::optional<unsigned long> str_to_u_long(std::string_view str)
 {
-  try
-  {
-    return stoul(str);
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
+  str = detail::skip_whitespace(str);
+  unsigned long value;
+  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
 }
 
 /**
@@ -387,20 +369,13 @@ inline std::optional<unsigned long> str_to_u_long(const std::string& str)
  * @return the unsigned long long integer value or an empty optional if the given string
  * cannot be interpreted as an unsigned long long integer
  */
-inline std::optional<unsigned long long> str_to_u_long_long(const std::string& str)
+inline std::optional<unsigned long long> str_to_u_long_long(std::string_view str)
 {
-  try
-  {
-    return stoull(str);
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
+  str = detail::skip_whitespace(str);
+  unsigned long long value;
+  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
 }
 
 /**
@@ -411,20 +386,13 @@ inline std::optional<unsigned long long> str_to_u_long_long(const std::string& s
  * @return the std::size_t value or an empty optional if the given string cannot be
  * interpreted as an std::size_t
  */
-inline std::optional<std::size_t> str_to_size(const std::string& str)
+inline std::optional<std::size_t> str_to_size(std::string_view str)
 {
-  try
-  {
-    return static_cast<std::size_t>(stoul(str));
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
+  str = detail::skip_whitespace(str);
+  size_t value;
+  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
 }
 
 /**
@@ -435,11 +403,14 @@ inline std::optional<std::size_t> str_to_size(const std::string& str)
  * @return the 32 bit floating point value value or an empty optional if the given string
  * cannot be interpreted as an 32 bit floating point value
  */
-inline std::optional<float> str_to_float(const std::string& str)
+inline std::optional<float> str_to_float(std::string_view str)
 {
+  str = detail::skip_whitespace(str);
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 11)
+  // std::from_chars is not yet implemented for float
   try
   {
-    return stof(str);
+    return stof(std::string{str});
   }
   catch (std::invalid_argument&)
   {
@@ -449,6 +420,12 @@ inline std::optional<float> str_to_float(const std::string& str)
   {
     return std::nullopt;
   }
+#else
+  float value;
+  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
+#endif
 }
 
 /**
@@ -459,11 +436,14 @@ inline std::optional<float> str_to_float(const std::string& str)
  * @return the 64 bit floating point value value or an empty optional if the given string
  * cannot be interpreted as an 64 bit floating point value
  */
-inline std::optional<double> str_to_double(const std::string& str)
+inline std::optional<double> str_to_double(std::string_view str)
 {
+  str = detail::skip_whitespace(str);
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 11)
+  // std::from_chars is not yet implemented for double
   try
   {
-    return stod(str);
+    return stod(std::string{str});
   }
   catch (std::invalid_argument&)
   {
@@ -473,6 +453,12 @@ inline std::optional<double> str_to_double(const std::string& str)
   {
     return std::nullopt;
   }
+#else
+  double value;
+  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
+#endif
 }
 
 /**
@@ -483,11 +469,14 @@ inline std::optional<double> str_to_double(const std::string& str)
  * @return the long double value value value or an empty optional if the given string
  * cannot be interpreted as an long double value value
  */
-inline std::optional<long double> str_to_long_double(const std::string& str)
+inline std::optional<long double> str_to_long_double(std::string_view str)
 {
+  str = detail::skip_whitespace(str);
+#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 11)
+  // std::from_chars is not yet implemented for double
   try
   {
-    return stold(str);
+    return stold(std::string{str});
   }
   catch (std::invalid_argument&)
   {
@@ -497,5 +486,11 @@ inline std::optional<long double> str_to_long_double(const std::string& str)
   {
     return std::nullopt;
   }
+#else
+  long double value;
+  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
+#endif
 }
 } // namespace kdl

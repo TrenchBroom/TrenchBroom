@@ -22,6 +22,7 @@
 #include "Result.h"
 
 #include <filesystem>
+#include <memory>
 #include <vector>
 
 namespace TrenchBroom::Assets
@@ -37,11 +38,8 @@ class EntityDefinitionLoader
 {
 public:
   virtual ~EntityDefinitionLoader();
-  Result<std::vector<Assets::EntityDefinition*>> loadEntityDefinitions(
-    ParserStatus& status, const std::filesystem::path& path) const;
-
-private:
-  virtual Result<std::vector<Assets::EntityDefinition*>> doLoadEntityDefinitions(
+  virtual Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>>
+  loadEntityDefinitions(
     ParserStatus& status, const std::filesystem::path& path) const = 0;
 };
 } // namespace TrenchBroom::IO
