@@ -143,7 +143,10 @@ TEST_CASE("result_test.constructor")
        == std::variant<Error1, Error2>{Error2{}}));
   }
 
-  SECTION("void result without errors") { CHECK((result<void>{}.is_success())); }
+  SECTION("void result without errors")
+  {
+    CHECK((result<void>{}.is_success()));
+  }
 }
 
 TEST_CASE("result_test.converting_constructor")
