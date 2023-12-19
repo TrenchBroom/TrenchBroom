@@ -98,7 +98,6 @@ TEST_CASE("EntParserTest.parseEmptyFile")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("EntParserTest.parseWhitespaceFile")
@@ -112,7 +111,6 @@ TEST_CASE("EntParserTest.parseWhitespaceFile")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("EntParserTest.parseMalformedXML")
@@ -174,7 +172,7 @@ Updated: 2011-03-02
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -252,8 +250,6 @@ Updated: 2011-03-02
   CHECK(
     scaleDefinition->longDescription()
     == "Scaling factor (default 64), good values are between 50 and 300, depending on the map.");
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("EntParserTest.parseSimpleGroupEntityDefinition")
@@ -289,7 +285,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
   CHECK(definitions.size() == 1u);
 
   const auto* brushDefinition =
-    dynamic_cast<const Assets::BrushEntityDefinition*>(definitions.front());
+    dynamic_cast<const Assets::BrushEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a brush entity definition");
   CHECK(brushDefinition != nullptr);
 
@@ -336,8 +332,6 @@ Target this entity with a misc_model to have the model attached to the entity (s
       {1, "X_AXIS", "X Axis", false},
       {2, "Y_AXIS", "Y Axis", false},
     });
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("EntParserTest.parseListPropertyDefinition")
@@ -372,7 +366,7 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -411,8 +405,6 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
       {"1", "red"},
       {"2", "green"},
     });
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("EntParserTest.parseBooleanProperty")
@@ -440,7 +432,7 @@ TEST_CASE("EntParserTest.parseBooleanProperty")
   REQUIRE(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
   REQUIRE(pointDefinition != nullptr);
 
   const auto getDefaultValue = [&](const auto& key) -> std::optional<bool> {
@@ -459,8 +451,6 @@ TEST_CASE("EntParserTest.parseBooleanProperty")
   CHECK(getDefaultValue("prop_1") == true);
   CHECK(getDefaultValue("prop_2") == true);
   CHECK(getDefaultValue("prop_n1") == true);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
@@ -482,7 +472,7 @@ TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -498,8 +488,6 @@ TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
 
   UNSCOPED_INFO("Expected correct default value for '_scale' property definition");
   CHECK(scaleDefinition->defaultValue() == "asdf");
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("EntParserTest.parseLegacyModelDefinition")
@@ -519,15 +507,13 @@ TEST_CASE("EntParserTest.parseLegacyModelDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
   const auto& modelDefinition = pointDefinition->modelDefinition();
   CHECK(
     modelDefinition.defaultModelSpecification().path == "models/powerups/ammo/bfgam.md3");
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("EntParserTest.parseELStaticModelDefinition")
@@ -547,7 +533,7 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front());
+    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -555,8 +541,6 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition")
   CHECK(
     modelDefinition.defaultModelSpecification().path
     == "models/powerups/ammo/bfgam2.md3");
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
@@ -576,10 +560,8 @@ TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
-  CHECK(definition->bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
-
-  kdl::vec_clear_and_delete(definitions);
+  const auto& definition = static_cast<Assets::PointEntityDefinition&>(*definitions[0]);
+  CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
 }
 } // namespace IO
 } // namespace TrenchBroom

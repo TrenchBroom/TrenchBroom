@@ -102,7 +102,6 @@ TEST_CASE("DefParserTest.parseEmptyFile")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parseWhitespaceFile")
@@ -116,7 +115,6 @@ TEST_CASE("DefParserTest.parseWhitespaceFile")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parseCommentsFile")
@@ -130,7 +128,6 @@ TEST_CASE("DefParserTest.parseCommentsFile")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parseSolidClass")
@@ -158,19 +155,17 @@ Set sounds to the cd track to play.
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::BrushEntity);
-  CHECK(definition->name() == "worldspawn");
-  CHECK(definition->color() == Color{0.0f, 0.0f, 0.0f, 1.0f});
-  CHECK(definition->description() == R"(Only used for the world entity. 
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::BrushEntity);
+  CHECK(definition.name() == "worldspawn");
+  CHECK(definition.color() == Color{0.0f, 0.0f, 0.0f, 1.0f});
+  CHECK(definition.description() == R"(Only used for the world entity. 
 Set message to the level name. 
 Set sounds to the cd track to play. 
 "worldtype"	type of world)");
 
-  const auto& properties = definition->propertyDefinitions();
+  const auto& properties = definition.propertyDefinitions();
   CHECK(properties.size() == 1u);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parsePointClass")
@@ -187,26 +182,25 @@ TEST_CASE("DefParserTest.parsePointClass")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "monster_zombie");
-  CHECK(definition->color() == Color{1.0f, 0.0f, 0.0f, 1.0f});
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "monster_zombie");
+  CHECK(definition.color() == Color{1.0f, 0.0f, 0.0f, 1.0f});
   CHECK(
-    definition->description()
+    definition.description()
     == R"(If crucified, stick the bounding box 12 pixels back into a wall to look right.)");
 
-  const auto* pointDefinition =
-    static_cast<const Assets::PointEntityDefinition*>(definition);
-  CHECK(
-    pointDefinition->bounds() == vm::bbox3{{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}});
+  const auto& pointDefinition =
+    static_cast<const Assets::PointEntityDefinition&>(definition);
+  CHECK(pointDefinition.bounds() == vm::bbox3{{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}});
 
-  const auto& properties = definition->propertyDefinitions();
+  const auto& properties = definition.propertyDefinitions();
   CHECK(properties.size() == 1u); // spawnflags
 
   const auto property = properties[0];
   CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-  const auto* spawnflags = definition->spawnflags();
+  const auto* spawnflags = definition.spawnflags();
   CHECK(spawnflags != nullptr);
   CHECK(spawnflags->defaultValue() == 0);
 
@@ -216,8 +210,6 @@ TEST_CASE("DefParserTest.parsePointClass")
       {1, "Crucified", "", false},
       {2, "ambush", "", false},
     });
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
@@ -233,24 +225,23 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "item_health");
-  CHECK(definition->color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
-  CHECK(definition->description() == "some desc");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "item_health");
+  CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
+  CHECK(definition.description() == "some desc");
 
-  const auto* pointDefinition =
-    static_cast<const Assets::PointEntityDefinition*>(definition);
-  CHECK(
-    pointDefinition->bounds() == vm::bbox3{{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}});
+  const auto& pointDefinition =
+    static_cast<const Assets::PointEntityDefinition&>(definition);
+  CHECK(pointDefinition.bounds() == vm::bbox3{{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}});
 
-  const auto& properties = definition->propertyDefinitions();
+  const auto& properties = definition.propertyDefinitions();
   CHECK(properties.size() == 1u); // spawnflags
 
   const auto property = properties[0];
   CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-  const auto* spawnflags = definition->spawnflags();
+  const auto* spawnflags = definition.spawnflags();
   CHECK(spawnflags != nullptr);
   CHECK(spawnflags->defaultValue() == 0);
 
@@ -263,8 +254,6 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
       {8, "", "", false},
       {16, "RESPAWN", "", false},
     });
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
@@ -280,19 +269,19 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::BrushEntity);
-  CHECK(definition->name() == "item_health");
-  CHECK(definition->color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
-  CHECK(definition->description() == "some desc");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::BrushEntity);
+  CHECK(definition.name() == "item_health");
+  CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
+  CHECK(definition.description() == "some desc");
 
-  const auto& properties = definition->propertyDefinitions();
+  const auto& properties = definition.propertyDefinitions();
   CHECK(properties.size() == 1u); // spawnflags
 
   const auto property = properties[0];
   CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
-  const auto* spawnflags = definition->spawnflags();
+  const auto* spawnflags = definition.spawnflags();
   CHECK(spawnflags != nullptr);
   CHECK(spawnflags->defaultValue() == 0);
 
@@ -304,8 +293,6 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
       {4, "", "", false},
       {8, "RESPAWN", "", false},
     });
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
@@ -347,20 +334,20 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "light");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "light");
 
-  CHECK(definition->propertyDefinitions().size() == 2u);
+  CHECK(definition.propertyDefinitions().size() == 2u);
 
-  const auto* stylePropertyDefinition = definition->propertyDefinition("style");
+  const auto* stylePropertyDefinition = definition.propertyDefinition("style");
   CHECK(stylePropertyDefinition != nullptr);
   CHECK(stylePropertyDefinition->key() == "style");
   CHECK(
     stylePropertyDefinition->type() == Assets::PropertyDefinitionType::ChoiceProperty);
 
   const auto* spawnflagsPropertyDefinition =
-    definition->propertyDefinition(Model::EntityPropertyKeys::Spawnflags);
+    definition.propertyDefinition(Model::EntityPropertyKeys::Spawnflags);
   CHECK(spawnflagsPropertyDefinition != nullptr);
   CHECK(spawnflagsPropertyDefinition->key() == Model::EntityPropertyKeys::Spawnflags);
   CHECK(
@@ -386,8 +373,6 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
       {"10", "fluorescent flicker"},
       {"11", "slow pulse not fade to black"},
     });
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 static const auto DefModelDefinitionTemplate = R"(
@@ -462,10 +447,8 @@ TEST_CASE("DefParserTest.parseInvalidBounds")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
-  CHECK(definition->bounds() == vm::bbox3d{8.0});
-
-  kdl::vec_clear_and_delete(definitions);
+  const auto& definition = static_cast<Assets::PointEntityDefinition&>(*definitions[0]);
+  CHECK(definition.bounds() == vm::bbox3d{8.0});
 }
 } // namespace IO
 } // namespace TrenchBroom

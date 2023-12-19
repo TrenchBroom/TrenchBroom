@@ -50,7 +50,8 @@ public:
   explicit EntityDefinitionParser(const Color& defaultEntityColor);
   virtual ~EntityDefinitionParser();
 
-  std::vector<Assets::EntityDefinition*> parseDefinitions(ParserStatus& status);
+  std::vector<std::unique_ptr<Assets::EntityDefinition>> parseDefinitions(
+    ParserStatus& status);
 
 private:
   virtual std::vector<EntityDefinitionClassInfo> parseClassInfos(

@@ -25,14 +25,13 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 EntityDefinitionGroup::EntityDefinitionGroup(
-  const std::string& name, std::vector<EntityDefinition*> definitions)
-  : m_name(name)
-  , m_definitions(std::move(definitions))
+  std::string name, std::vector<EntityDefinition*> definitions)
+  : m_name{std::move(name)}
+  , m_definitions{std::move(definitions)}
 {
 }
 
@@ -43,9 +42,7 @@ const std::string& EntityDefinitionGroup::name() const
 
 const std::string EntityDefinitionGroup::displayName() const
 {
-  if (m_name.empty())
-    return "Misc";
-  return kdl::str_capitalize(m_name);
+  return !m_name.empty() ? kdl::str_capitalize(m_name) : "Misc";
 }
 
 const std::vector<EntityDefinition*>& EntityDefinitionGroup::definitions() const
@@ -58,5 +55,5 @@ std::vector<EntityDefinition*> EntityDefinitionGroup::definitions(
 {
   return EntityDefinition::filterAndSort(m_definitions, type, order);
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

@@ -19,6 +19,7 @@
 
 #include "TestGame.h"
 
+#include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/TextureManager.h"
@@ -304,11 +305,12 @@ const std::vector<CompilationTool>& TestGame::doCompilationTools() const
   return m_compilationTools;
 }
 
-Result<std::vector<Assets::EntityDefinition*>> TestGame::doLoadEntityDefinitions(
-  IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
+Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> TestGame::
+  loadEntityDefinitions(
+    IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
-  return Result<std::vector<Assets::EntityDefinition*>>{
-    std::vector<Assets::EntityDefinition*>{}};
+  return Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>>{
+    std::vector<std::unique_ptr<Assets::EntityDefinition>>{}};
 }
 
 std::unique_ptr<Assets::EntityModel> TestGame::doInitializeModel(

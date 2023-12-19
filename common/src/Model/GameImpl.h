@@ -121,8 +121,6 @@ private:
   Result<void> doReloadShaders() override;
 
   bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
-  Result<std::vector<Assets::EntityDefinition*>> doLoadEntityDefinitions(
-    IO::ParserStatus& status, const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
     const override;
   Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(
@@ -131,6 +129,9 @@ private:
   std::filesystem::path doFindEntityDefinitionFile(
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
+
+  Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> loadEntityDefinitions(
+    IO::ParserStatus& status, const std::filesystem::path& path) const override;
 
   std::unique_ptr<Assets::EntityModel> doInitializeModel(
     const std::filesystem::path& path, Logger& logger) const override;

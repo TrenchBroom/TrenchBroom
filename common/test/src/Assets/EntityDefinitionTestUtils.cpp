@@ -46,23 +46,21 @@ void assertModelDefinition(
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == EntityDefinitionType::PointEntity);
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == EntityDefinitionType::PointEntity);
 
   assertModelDefinition(expected, definition, entityPropertiesStr);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 void assertModelDefinition(
   const ModelSpecification& expected,
-  const EntityDefinition* definition,
+  const EntityDefinition& definition,
   const std::string& entityPropertiesStr)
 {
-  assert(definition->type() == EntityDefinitionType::PointEntity);
+  assert(definition.type() == EntityDefinitionType::PointEntity);
 
-  const auto* pointDefinition = dynamic_cast<const PointEntityDefinition*>(definition);
-  const auto& modelDefinition = pointDefinition->modelDefinition();
+  const auto& pointDefinition = static_cast<const PointEntityDefinition&>(definition);
+  const auto& modelDefinition = pointDefinition.modelDefinition();
   assertModelDefinition(expected, modelDefinition, entityPropertiesStr);
 }
 
@@ -87,23 +85,21 @@ void assertDecalDefinition(
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == EntityDefinitionType::PointEntity);
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == EntityDefinitionType::PointEntity);
 
   assertDecalDefinition(expected, definition, entityPropertiesStr);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 void assertDecalDefinition(
   const DecalSpecification& expected,
-  const EntityDefinition* definition,
+  const EntityDefinition& definition,
   const std::string& entityPropertiesStr)
 {
-  assert(definition->type() == EntityDefinitionType::PointEntity);
+  assert(definition.type() == EntityDefinitionType::PointEntity);
 
-  const auto* pointDefinition = dynamic_cast<const PointEntityDefinition*>(definition);
-  const auto& modelDefinition = pointDefinition->decalDefinition();
+  const auto& pointDefinition = static_cast<const PointEntityDefinition&>(definition);
+  const auto& modelDefinition = pointDefinition.decalDefinition();
   assertDecalDefinition(expected, modelDefinition, entityPropertiesStr);
 }
 

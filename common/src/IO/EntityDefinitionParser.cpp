@@ -453,7 +453,7 @@ std::unique_ptr<Assets::EntityDefinition> createDefinition(
   };
 }
 
-std::vector<Assets::EntityDefinition*> createDefinitions(
+std::vector<std::unique_ptr<Assets::EntityDefinition>> createDefinitions(
   ParserStatus& status,
   const std::vector<EntityDefinitionClassInfo>& classInfos,
   const Color& defaultEntityColor)
@@ -461,12 +461,12 @@ std::vector<Assets::EntityDefinition*> createDefinitions(
   const auto resolvedClasses =
     resolveInheritance(status, filterRedundantClasses(status, classInfos));
 
-  auto result = std::vector<Assets::EntityDefinition*>{};
+  auto result = std::vector<std::unique_ptr<Assets::EntityDefinition>>{};
   for (auto classInfo : resolvedClasses)
   {
     if (auto definition = createDefinition(std::move(classInfo), defaultEntityColor))
     {
-      result.push_back(definition.release());
+      result.push_back(std::move(definition));
     }
   }
 
@@ -475,8 +475,8 @@ std::vector<Assets::EntityDefinition*> createDefinitions(
 
 } // namespace
 
-std::vector<Assets::EntityDefinition*> EntityDefinitionParser::parseDefinitions(
-  ParserStatus& status)
+std::vector<std::unique_ptr<Assets::EntityDefinition>> EntityDefinitionParser::
+  parseDefinitions(ParserStatus& status)
 {
   const auto classInfos = parseClassInfos(status);
   return createDefinitions(status, classInfos, m_defaultEntityColor);

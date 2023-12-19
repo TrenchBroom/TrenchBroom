@@ -49,7 +49,7 @@ class EntityDefinitionManager
 {
 private:
   using Cache = std::map<std::string, EntityDefinition*>;
-  std::vector<EntityDefinition*> m_definitions;
+  std::vector<std::unique_ptr<EntityDefinition>> m_definitions;
   std::vector<EntityDefinitionGroup> m_groups;
   Cache m_cache;
 
@@ -60,14 +60,14 @@ public:
     const std::filesystem::path& path,
     const IO::EntityDefinitionLoader& loader,
     IO::ParserStatus& status);
-  void setDefinitions(const std::vector<EntityDefinition*>& newDefinitions);
+  void setDefinitions(std::vector<std::unique_ptr<EntityDefinition>> newDefinitions);
   void clear();
 
   EntityDefinition* definition(const Model::EntityNodeBase* node) const;
   EntityDefinition* definition(const std::string& classname) const;
   std::vector<EntityDefinition*> definitions(
     EntityDefinitionType type, EntityDefinitionSortOrder order) const;
-  const std::vector<EntityDefinition*>& definitions() const;
+  std::vector<EntityDefinition*> definitions() const;
 
   const std::vector<EntityDefinitionGroup>& groups() const;
 

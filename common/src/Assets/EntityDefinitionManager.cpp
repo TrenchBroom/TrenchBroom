@@ -52,11 +52,11 @@ Result<void> EntityDefinitionManager::loadDefinitions(
 }
 
 void EntityDefinitionManager::setDefinitions(
-  const std::vector<EntityDefinition*>& newDefinitions)
+  std::vector<std::unique_ptr<EntityDefinition>> newDefinitions)
 {
   clear();
 
-  m_definitions = newDefinitions;
+  m_definitions = std::move(newDefinitions);
 
   updateIndices();
   updateGroups();
@@ -67,7 +67,6 @@ void EntityDefinitionManager::clear()
 {
   clearCache();
   clearGroups();
-  kdl::vec_clear_and_delete(m_definitions);
 }
 
 EntityDefinition* EntityDefinitionManager::definition(
@@ -79,26 +78,23 @@ EntityDefinition* EntityDefinitionManager::definition(
 
 EntityDefinition* EntityDefinitionManager::definition(const std::string& classname) const
 {
-  auto it = m_cache.find(classname);
-  if (it == std::end(m_cache))
-  {
-    return nullptr;
-  }
-  else
+  if (auto it = m_cache.find(classname); it != m_cache.end())
   {
     return it->second;
   }
+  return nullptr;
 }
 
 std::vector<EntityDefinition*> EntityDefinitionManager::definitions(
   const EntityDefinitionType type, const EntityDefinitionSortOrder order) const
 {
-  return EntityDefinition::filterAndSort(m_definitions, type, order);
+  return EntityDefinition::filterAndSort(definitions(), type, order);
 }
 
-const std::vector<EntityDefinition*>& EntityDefinitionManager::definitions() const
+std::vector<EntityDefinition*> EntityDefinitionManager::definitions() const
 {
-  return m_definitions;
+  return kdl::vec_transform(
+    m_definitions, [](const auto& definition) { return definition.get(); });
 }
 
 const std::vector<EntityDefinitionGroup>& EntityDefinitionManager::groups() const
@@ -118,26 +114,27 @@ void EntityDefinitionManager::updateGroups()
 {
   clearGroups();
 
-  std::map<std::string, std::vector<EntityDefinition*>> groupMap;
+  auto groupMap = std::map<std::string, std::vector<EntityDefinition*>>{};
 
-  for (auto* definition : m_definitions)
+  for (auto& definition : m_definitions)
   {
-    const std::string groupName = definition->groupName();
-    groupMap[groupName].push_back(definition);
+    auto groupName = definition->groupName();
+    groupMap[std::move(groupName)].push_back(definition.get());
   }
 
   for (auto& [groupName, definitions] : groupMap)
   {
-    m_groups.push_back(EntityDefinitionGroup(groupName, std::move(definitions)));
+    m_groups.emplace_back(groupName, std::move(definitions));
   }
 }
 
 void EntityDefinitionManager::updateCache()
 {
   clearCache();
-  for (EntityDefinition* definition : m_definitions)
+
+  for (auto& definition : m_definitions)
   {
-    m_cache[definition->name()] = definition;
+    m_cache[definition->name()] = definition.get();
   }
 }
 
@@ -150,4 +147,5 @@ void EntityDefinitionManager::clearGroups()
 {
   m_groups.clear();
 }
+
 } // namespace TrenchBroom::Assets

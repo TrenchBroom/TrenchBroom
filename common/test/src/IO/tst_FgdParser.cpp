@@ -86,7 +86,6 @@ TEST_CASE("FgdParserTest.parseEmptyFile")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseWhitespaceFile")
@@ -97,7 +96,6 @@ TEST_CASE("FgdParserTest.parseWhitespaceFile")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseCommentsFile")
@@ -110,7 +108,6 @@ TEST_CASE("FgdParserTest.parseCommentsFile")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseEmptyFlagDescription")
@@ -131,7 +128,6 @@ TEST_CASE("FgdParserTest.parseEmptyFlagDescription")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseSolidClass")
@@ -158,16 +154,14 @@ TEST_CASE("FgdParserTest.parseSolidClass")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::BrushEntity);
-  CHECK(definition->name() == "worldspawn");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-  CHECK(definition->description() == "World entity");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::BrushEntity);
+  CHECK(definition.name() == "worldspawn");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  CHECK(definition.description() == "World entity");
 
-  const auto& propertyDefinitions = definition->propertyDefinitions();
+  const auto& propertyDefinitions = definition.propertyDefinitions();
   CHECK(propertyDefinitions.size() == 6u);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parsePointClass")
@@ -188,16 +182,14 @@ TEST_CASE("FgdParserTest.parsePointClass")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-  CHECK(definition->description() == "Wildcard entity");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  CHECK(definition.description() == "Wildcard entity");
 
-  const auto& propertyDefinitions = definition->propertyDefinitions();
+  const auto& propertyDefinitions = definition.propertyDefinitions();
   CHECK(propertyDefinitions.size() == 5u);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseBaseProperty")
@@ -219,7 +211,6 @@ TEST_CASE("FgdParserTest.parseBaseProperty")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.empty());
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses")
@@ -255,16 +246,14 @@ TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-  CHECK(definition->description() == "Wildcard entity");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  CHECK(definition.description() == "Wildcard entity");
 
-  const auto& propertyDefinitions = definition->propertyDefinitions();
+  const auto& propertyDefinitions = definition.propertyDefinitions();
   CHECK(propertyDefinitions.size() == 9u);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parsePointClassWithUnknownClassProperties")
@@ -286,16 +275,14 @@ TEST_CASE("FgdParserTest.parsePointClassWithUnknownClassProperties")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-  CHECK(definition->description() == "Wildcard entity");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  CHECK(definition.description() == "Wildcard entity");
 
-  const auto& propertyDefinitions = definition->propertyDefinitions();
+  const auto& propertyDefinitions = definition.propertyDefinitions();
   CHECK(propertyDefinitions.size() == 5u);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseType_TargetSourcePropertyDefinition")
@@ -313,13 +300,13 @@ TEST_CASE("FgdParserTest.parseType_TargetSourcePropertyDefinition")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-  CHECK(definition->description() == "Wildcard entity");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  CHECK(definition.description() == "Wildcard entity");
 
-  const auto& propertyDefinitions = definition->propertyDefinitions();
+  const auto& propertyDefinitions = definition.propertyDefinitions();
   CHECK(propertyDefinitions.size() == 1u);
 
   auto propertyDefinition = propertyDefinitions[0];
@@ -328,8 +315,6 @@ TEST_CASE("FgdParserTest.parseType_TargetSourcePropertyDefinition")
   CHECK(propertyDefinition->key() == "targetname");
   CHECK(propertyDefinition->shortDescription() == "Source");
   CHECK(propertyDefinition->longDescription() == "A long description");
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseType_TargetDestinationPropertyDefinition")
@@ -347,13 +332,13 @@ TEST_CASE("FgdParserTest.parseType_TargetDestinationPropertyDefinition")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-  CHECK(definition->description() == "Wildcard entity");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  CHECK(definition.description() == "Wildcard entity");
 
-  const auto& propertyDefinitions = definition->propertyDefinitions();
+  const auto& propertyDefinitions = definition.propertyDefinitions();
   CHECK(propertyDefinitions.size() == 1u);
 
   auto propertyDefinition = propertyDefinitions[0];
@@ -363,8 +348,6 @@ TEST_CASE("FgdParserTest.parseType_TargetDestinationPropertyDefinition")
   CHECK(propertyDefinition->key() == "target");
   CHECK(propertyDefinition->shortDescription() == "Target");
   CHECK(propertyDefinition->longDescription().empty());
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
@@ -383,15 +366,15 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-  CHECK(definition->description() == "Wildcard entity");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  CHECK(definition.description() == "Wildcard entity");
 
-  CHECK(definition->propertyDefinitions().size() == 2u);
+  CHECK(definition.propertyDefinitions().size() == 2u);
 
-  const auto* propertyDefinition1 = definition->propertyDefinition("message");
+  const auto* propertyDefinition1 = definition.propertyDefinition("message");
   CHECK(propertyDefinition1 != nullptr);
   CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::StringProperty);
 
@@ -402,7 +385,7 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
   CHECK(stringPropertyDefinition1->longDescription() == "Long description 1");
   CHECK_FALSE(stringPropertyDefinition1->hasDefaultValue());
 
-  const auto* propertyDefinition2 = definition->propertyDefinition("message2");
+  const auto* propertyDefinition2 = definition.propertyDefinition("message2");
   CHECK(propertyDefinition2 != nullptr);
   CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::StringProperty);
 
@@ -413,8 +396,6 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
   CHECK(stringPropertyDefinition2->longDescription() == "Long description 2");
   CHECK(stringPropertyDefinition2->hasDefaultValue());
   CHECK(stringPropertyDefinition2->defaultValue() == "DefaultValue");
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 /**
@@ -436,15 +417,15 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-  CHECK(definition->description() == "Wildcard entity");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  CHECK(definition.description() == "Wildcard entity");
 
-  CHECK(definition->propertyDefinitions().size() == 2u);
+  CHECK(definition.propertyDefinitions().size() == 2u);
 
-  const auto* propertyDefinition1 = definition->propertyDefinition("name");
+  const auto* propertyDefinition1 = definition.propertyDefinition("name");
   CHECK(propertyDefinition1 != nullptr);
   CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::StringProperty);
 
@@ -456,7 +437,7 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault")
   CHECK(stringPropertyDefinition1->hasDefaultValue());
   CHECK(stringPropertyDefinition1->defaultValue() == "3");
 
-  const auto* propertyDefinition2 = definition->propertyDefinition("other");
+  const auto* propertyDefinition2 = definition.propertyDefinition("other");
   CHECK(propertyDefinition2 != nullptr);
   CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::StringProperty);
 
@@ -467,8 +448,6 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault")
   CHECK(stringPropertyDefinition2->longDescription().empty());
   CHECK(stringPropertyDefinition2->hasDefaultValue());
   CHECK(stringPropertyDefinition2->defaultValue() == "1.5");
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition")
@@ -486,15 +465,15 @@ TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-  CHECK(definition->description() == "Wildcard entity");
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  CHECK(definition.description() == "Wildcard entity");
 
-  CHECK(definition->propertyDefinitions().size() == 2u);
+  CHECK(definition.propertyDefinitions().size() == 2u);
 
-  const auto* propertyDefinition1 = definition->propertyDefinition("sounds");
+  const auto* propertyDefinition1 = definition.propertyDefinition("sounds");
   CHECK(propertyDefinition1 != nullptr);
   CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::IntegerProperty);
 
@@ -505,7 +484,7 @@ TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition")
   CHECK(intPropertyDefinition1->longDescription() == "Longer description");
   CHECK_FALSE(intPropertyDefinition1->hasDefaultValue());
 
-  const auto* propertyDefinition2 = definition->propertyDefinition("sounds2");
+  const auto* propertyDefinition2 = definition.propertyDefinition("sounds2");
   CHECK(propertyDefinition2 != nullptr);
   CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::IntegerProperty);
 
@@ -516,8 +495,6 @@ TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition")
   CHECK(intPropertyDefinition2->longDescription() == "Longer description");
   CHECK(intPropertyDefinition2->hasDefaultValue());
   CHECK(intPropertyDefinition2->defaultValue() == 2);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseReadOnlyPropertyDefinition")
@@ -536,16 +513,14 @@ TEST_CASE("FgdParserTest.parseReadOnlyPropertyDefinition")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->propertyDefinitions().size() == 2u);
+  const auto& definition = *definitions[0];
+  CHECK(definition.propertyDefinitions().size() == 2u);
 
-  const auto* propertyDefinition1 = definition->propertyDefinition("sounds");
+  const auto* propertyDefinition1 = definition.propertyDefinition("sounds");
   CHECK(propertyDefinition1->readOnly());
 
-  const auto* propertyDefinition2 = definition->propertyDefinition("sounds2");
+  const auto* propertyDefinition2 = definition.propertyDefinition("sounds2");
   CHECK_FALSE(propertyDefinition2->readOnly());
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseFloatPropertyDefinition")
@@ -564,16 +539,16 @@ TEST_CASE("FgdParserTest.parseFloatPropertyDefinition")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   ;
-  CHECK(definition->description() == "Wildcard entity");
+  CHECK(definition.description() == "Wildcard entity");
 
-  CHECK(definition->propertyDefinitions().size() == 2u);
+  CHECK(definition.propertyDefinitions().size() == 2u);
 
-  const auto* propertyDefinition1 = definition->propertyDefinition("test");
+  const auto* propertyDefinition1 = definition.propertyDefinition("test");
   CHECK(propertyDefinition1 != nullptr);
   CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::FloatProperty);
 
@@ -584,7 +559,7 @@ TEST_CASE("FgdParserTest.parseFloatPropertyDefinition")
   CHECK(floatPropertyDefinition1->longDescription() == "Longer description 1");
   CHECK_FALSE(floatPropertyDefinition1->hasDefaultValue());
 
-  const auto* propertyDefinition2 = definition->propertyDefinition("test2");
+  const auto* propertyDefinition2 = definition.propertyDefinition("test2");
   CHECK(propertyDefinition2 != nullptr);
   CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::FloatProperty);
 
@@ -597,8 +572,6 @@ TEST_CASE("FgdParserTest.parseFloatPropertyDefinition")
   CHECK(floatPropertyDefinition2->longDescription() == "Longer description 2");
   CHECK(floatPropertyDefinition2->hasDefaultValue());
   CHECK(floatPropertyDefinition2->defaultValue() == 2.7f);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
@@ -644,16 +617,16 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   ;
-  CHECK(definition->description() == "Wildcard entity");
+  CHECK(definition.description() == "Wildcard entity");
 
-  CHECK(definition->propertyDefinitions().size() == 5u);
+  CHECK(definition.propertyDefinitions().size() == 5u);
 
-  const auto* propertyDefinition1 = definition->propertyDefinition("worldtype");
+  const auto* propertyDefinition1 = definition.propertyDefinition("worldtype");
   CHECK(propertyDefinition1 != nullptr);
   CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::ChoiceProperty);
 
@@ -672,7 +645,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
       {"2", "Base"},
     });
 
-  const auto* propertyDefinition2 = definition->propertyDefinition("worldtype2");
+  const auto* propertyDefinition2 = definition.propertyDefinition("worldtype2");
   CHECK(propertyDefinition2 != nullptr);
   CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::ChoiceProperty);
 
@@ -691,7 +664,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
       {"1", "Metal (runic)"},
     });
 
-  const auto* propertyDefinition3 = definition->propertyDefinition("puzzle_id");
+  const auto* propertyDefinition3 = definition.propertyDefinition("puzzle_id");
   const auto* choicePropertyDefinition3 =
     static_cast<const Assets::ChoicePropertyDefinition*>(propertyDefinition3);
   CHECK(choicePropertyDefinition3->key() == "puzzle_id");
@@ -708,7 +681,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
       {"scrol", "Disrupt Magic Scroll"},
     });
 
-  const auto* propertyDefinition4 = definition->propertyDefinition("floaty");
+  const auto* propertyDefinition4 = definition.propertyDefinition("floaty");
   const auto* choicePropertyDefinition4 =
     static_cast<const Assets::ChoicePropertyDefinition*>(propertyDefinition4);
   CHECK(choicePropertyDefinition4->key() == "floaty");
@@ -725,7 +698,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
       {"0.1", "Yet more"},
     });
 
-  const auto* propertyDefinition5 = definition->propertyDefinition("negative");
+  const auto* propertyDefinition5 = definition.propertyDefinition("negative");
   const auto* choicePropertyDefinition5 =
     static_cast<const Assets::ChoicePropertyDefinition*>(propertyDefinition5);
   CHECK(choicePropertyDefinition5->key() == "negative");
@@ -741,8 +714,6 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
       {"-1", "Something else"},
       {"1", "Yet more"},
     });
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
@@ -766,16 +737,16 @@ TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions[0];
-  CHECK(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  CHECK(definition->name() == "info_notnull");
-  CHECK(definition->color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
+  const auto& definition = *definitions[0];
+  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.name() == "info_notnull");
+  CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   ;
-  CHECK(definition->description() == "Wildcard entity");
+  CHECK(definition.description() == "Wildcard entity");
 
-  CHECK(definition->propertyDefinitions().size() == 1u);
+  CHECK(definition.propertyDefinitions().size() == 1u);
 
-  const auto* propertyDefinition = definition->propertyDefinition("spawnflags");
+  const auto* propertyDefinition = definition.propertyDefinition("spawnflags");
   CHECK(propertyDefinition != nullptr);
   CHECK(propertyDefinition->type() == Assets::PropertyDefinitionType::FlagsProperty);
 
@@ -793,8 +764,6 @@ TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
       {1024, "Not on Hard", "", false},
       {2048, "Not in Deathmatch", "", true},
     });
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 static const auto FgdModelDefinitionTemplate =
@@ -863,8 +832,6 @@ TEST_CASE("FgdParserTest.parseLegacyModelWithParseError")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
-
-  kdl::vec_clear_and_delete(definitions);
 }
 
 static const auto FgdDecalDefinitionTemplate =
@@ -893,10 +860,9 @@ decor_goddess_statue : "Goddess Statue" []
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
-  CHECK(definition->bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
-
-  kdl::vec_clear_and_delete(definitions);
+  const auto& definition =
+    static_cast<const Assets::PointEntityDefinition&>(*definitions[0]);
+  CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
 }
 
 TEST_CASE("FgdParserTest.parseInvalidBounds")
@@ -911,10 +877,9 @@ decor_goddess_statue : "Goddess Statue" [])";
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = static_cast<Assets::PointEntityDefinition*>(definitions[0]);
-  CHECK(definition->bounds() == vm::bbox3d{{-32.0, -32.0, 0.0}, {32.0, 32.0, 256.0}});
-
-  kdl::vec_clear_and_delete(definitions);
+  const auto& definition =
+    static_cast<const Assets::PointEntityDefinition&>(*definitions[0]);
+  CHECK(definition.bounds() == vm::bbox3d{{-32.0, -32.0, 0.0}, {32.0, 32.0, 256.0}});
 }
 
 TEST_CASE("FgdParserTest.parseInvalidModel")
@@ -929,8 +894,7 @@ decor_goddess_statue : "Goddess Statue" [])";
   CHECK_THROWS_WITH(
     [&]() {
       auto status = TestParserStatus{};
-      auto definitions = parser.parseDefinitions(status);
-      kdl::vec_clear_and_delete(definitions);
+      parser.parseDefinitions(status);
     }(),
     Catch::Matchers::StartsWith("At line 3, column 8:"));
 }
@@ -947,8 +911,7 @@ model({"path"
   CHECK_THROWS_WITH(
     [&]() {
       auto status = TestParserStatus{};
-      auto definitions = parser.parseDefinitions(status);
-      kdl::vec_clear_and_delete(definitions);
+      parser.parseDefinitions(status);
     }(),
     Catch::Matchers::StartsWith("At line 4, column 64:"));
 }
@@ -965,14 +928,12 @@ TEST_CASE("FgdParserTest.parseInclude")
   auto status = TestParserStatus{};
   auto defs = parser.parseDefinitions(status);
   CHECK(defs.size() == 2u);
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) {
+  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
     return def->name() == "worldspawn";
   }));
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) {
+  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
     return def->name() == "info_player_start";
   }));
-
-  kdl::vec_clear_and_delete(defs);
 }
 
 TEST_CASE("FgdParserTest.parseNestedInclude")
@@ -987,17 +948,15 @@ TEST_CASE("FgdParserTest.parseNestedInclude")
   auto status = TestParserStatus{};
   auto defs = parser.parseDefinitions(status);
   CHECK(defs.size() == 3u);
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) {
+  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
     return def->name() == "worldspawn";
   }));
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) {
+  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
     return def->name() == "info_player_start";
   }));
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) {
+  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
     return def->name() == "info_player_coop";
   }));
-
-  kdl::vec_clear_and_delete(defs);
 }
 
 TEST_CASE("FgdParserTest.parseRecursiveInclude")
@@ -1012,11 +971,9 @@ TEST_CASE("FgdParserTest.parseRecursiveInclude")
   auto status = TestParserStatus{};
   auto defs = parser.parseDefinitions(status);
   CHECK(defs.size() == 1u);
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto* def) {
+  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
     return def->name() == "worldspawn";
   }));
-
-  kdl::vec_clear_and_delete(defs);
 }
 
 TEST_CASE("FgdParserTest.parseStringContinuations")
@@ -1034,12 +991,10 @@ TEST_CASE("FgdParserTest.parseStringContinuations")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto* definition = definitions.front();
+  const auto& definition = *definitions.front();
   CHECK(
-    definition->description()
+    definition.description()
     == R"(This is an example description for this example entity. It will appear in the help dialog for this entity)");
-
-  kdl::vec_clear_and_delete(definitions);
 }
 } // namespace IO
 } // namespace TrenchBroom

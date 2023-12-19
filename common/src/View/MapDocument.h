@@ -702,7 +702,8 @@ public: // asset management
   void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
 
   // For testing
-  void setEntityDefinitions(const std::vector<Assets::EntityDefinition*>& definitions);
+  void setEntityDefinitions(
+    std::vector<std::unique_ptr<Assets::EntityDefinition>> definitions);
 
   void reloadTextureCollections();
   void reloadEntityDefinitions();
