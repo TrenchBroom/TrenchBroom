@@ -123,12 +123,12 @@ TEST_CASE("string_format_test.str_to_string")
 
 TEST_CASE("string_format_test.str_to_int")
 {
-  CHECK(str_to_int("0") == std::optional<int>{0});
-  CHECK(str_to_int("1") == std::optional<int>{1});
-  CHECK(str_to_int("123231") == std::optional<int>{123231});
-  CHECK(str_to_int("-123231") == std::optional<int>{-123231});
-  CHECK(str_to_int("123231b") == std::optional<int>{123231});
-  CHECK(str_to_int("   123231   ") == std::optional<int>{123231});
+  CHECK(str_to_int("0") == 0);
+  CHECK(str_to_int("1") == 1);
+  CHECK(str_to_int("123231") == 123231);
+  CHECK(str_to_int("-123231") == -123231);
+  CHECK(str_to_int("123231b") == 123231);
+  CHECK(str_to_int("   123231   ") == 123231);
   CHECK(str_to_int("a123231") == std::nullopt);
   CHECK(str_to_int(" ") == std::nullopt);
   CHECK(str_to_int("") == std::nullopt);
@@ -136,14 +136,14 @@ TEST_CASE("string_format_test.str_to_int")
 
 TEST_CASE("string_format_test.str_to_long")
 {
-  CHECK(str_to_long("0") == std::optional<long>{0l});
-  CHECK(str_to_long("1") == std::optional<long>{1l});
-  CHECK(str_to_long("123231") == std::optional<long>{123231l});
-  CHECK(str_to_long("-123231") == std::optional<long>{-123231l});
-  CHECK(str_to_long("2147483647") == std::optional<long>{2147483647l});
-  CHECK(str_to_long("-2147483646") == std::optional<long>{-2147483646l});
-  CHECK(str_to_long("123231b") == std::optional<long>{123231l});
-  CHECK(str_to_long("   123231   ") == std::optional<long>{123231l});
+  CHECK(str_to_long("0") == 0l);
+  CHECK(str_to_long("1") == 1l);
+  CHECK(str_to_long("123231") == 123231l);
+  CHECK(str_to_long("-123231") == -123231l);
+  CHECK(str_to_long("2147483647") == 2147483647l);
+  CHECK(str_to_long("-2147483646") == -2147483646l);
+  CHECK(str_to_long("123231b") == 123231l);
+  CHECK(str_to_long("   123231   ") == 123231l);
   CHECK(str_to_long("a123231") == std::nullopt);
   CHECK(str_to_long(" ") == std::nullopt);
   CHECK(str_to_long("") == std::nullopt);
@@ -151,20 +151,16 @@ TEST_CASE("string_format_test.str_to_long")
 
 TEST_CASE("string_format_test.str_to_long_long")
 {
-  CHECK(str_to_long_long("0") == std::optional<long long>{0ll});
-  CHECK(str_to_long_long("1") == std::optional<long long>{1ll});
-  CHECK(str_to_long_long("123231") == std::optional<long long>{123231ll});
-  CHECK(str_to_long_long("-123231") == std::optional<long long>{-123231ll});
-  CHECK(str_to_long_long("2147483647") == std::optional<long long>{2147483647ll});
-  CHECK(str_to_long_long("-2147483646") == std::optional<long long>{-2147483646ll});
-  CHECK(
-    str_to_long_long("9223372036854775807")
-    == std::optional<long long>{9'223'372'036'854'775'807ll});
-  CHECK(
-    str_to_long_long("-9223372036854775806")
-    == std::optional<long long>{-9'223'372'036'854'775'806ll});
-  CHECK(str_to_long_long("123231b") == std::optional<long long>{123231ll});
-  CHECK(str_to_long_long("   123231   ") == std::optional<long long>{123231ll});
+  CHECK(str_to_long_long("0") == 0ll);
+  CHECK(str_to_long_long("1") == 1ll);
+  CHECK(str_to_long_long("123231") == 123231ll);
+  CHECK(str_to_long_long("-123231") == -123231ll);
+  CHECK(str_to_long_long("2147483647") == 2147483647ll);
+  CHECK(str_to_long_long("-2147483646") == -2147483646ll);
+  CHECK(str_to_long_long("9223372036854775807") == 9'223'372'036'854'775'807ll);
+  CHECK(str_to_long_long("-9223372036854775806") == -9'223'372'036'854'775'806ll);
+  CHECK(str_to_long_long("123231b") == 123231ll);
+  CHECK(str_to_long_long("   123231   ") == 123231ll);
   CHECK(str_to_long_long("a123231") == std::nullopt);
   CHECK(str_to_long_long(" ") == std::nullopt);
   CHECK(str_to_long_long("") == std::nullopt);
@@ -173,12 +169,12 @@ TEST_CASE("string_format_test.str_to_long_long")
 TEST_CASE("string_format_test.str_to_u_long")
 {
 
-  CHECK(str_to_u_long("0") == std::optional<unsigned long>{0ul});
-  CHECK(str_to_u_long("1") == std::optional<unsigned long>{1ul});
-  CHECK(str_to_u_long("123231") == std::optional<unsigned long>{123231ul});
-  CHECK(str_to_u_long("2147483647") == std::optional<unsigned long>{2147483647ul});
-  CHECK(str_to_u_long("123231b") == std::optional<unsigned long>{123231ul});
-  CHECK(str_to_u_long("   123231   ") == std::optional<unsigned long>{123231ul});
+  CHECK(str_to_u_long("0") == 0ul);
+  CHECK(str_to_u_long("1") == 1ul);
+  CHECK(str_to_u_long("123231") == 123231ul);
+  CHECK(str_to_u_long("2147483647") == 2147483647ul);
+  CHECK(str_to_u_long("123231b") == 123231ul);
+  CHECK(str_to_u_long("   123231   ") == 123231ul);
   CHECK(str_to_u_long("a123231") == std::nullopt);
   CHECK(str_to_u_long(" ") == std::nullopt);
   CHECK(str_to_u_long("") == std::nullopt);
@@ -186,17 +182,13 @@ TEST_CASE("string_format_test.str_to_u_long")
 
 TEST_CASE("string_format_test.str_to_u_long_long")
 {
-  CHECK(str_to_u_long_long("0") == std::optional<unsigned long long>{0ull});
-  CHECK(str_to_u_long_long("1") == std::optional<unsigned long long>{1ull});
-  CHECK(str_to_u_long_long("123231") == std::optional<unsigned long long>{123231ull});
-  CHECK(
-    str_to_u_long_long("2147483647") == std::optional<unsigned long long>{2147483647ull});
-  CHECK(
-    str_to_u_long_long("9223372036854775807")
-    == std::optional<unsigned long long>{9'223'372'036'854'775'807ull});
-  CHECK(str_to_u_long_long("123231b") == std::optional<unsigned long long>{123231ull});
-  CHECK(
-    str_to_u_long_long("   123231   ") == std::optional<unsigned long long>{123231ull});
+  CHECK(str_to_u_long_long("0") == 0ull);
+  CHECK(str_to_u_long_long("1") == 1ull);
+  CHECK(str_to_u_long_long("123231") == 123231ull);
+  CHECK(str_to_u_long_long("2147483647") == 2147483647ull);
+  CHECK(str_to_u_long_long("9223372036854775807") == 9'223'372'036'854'775'807ull);
+  CHECK(str_to_u_long_long("123231b") == 123231ull);
+  CHECK(str_to_u_long_long("   123231   ") == 123231ull);
   CHECK(str_to_u_long_long("a123231") == std::nullopt);
   CHECK(str_to_u_long_long(" ") == std::nullopt);
   CHECK(str_to_u_long_long("") == std::nullopt);
@@ -204,12 +196,12 @@ TEST_CASE("string_format_test.str_to_u_long_long")
 
 TEST_CASE("string_format_test.str_to_size")
 {
-  CHECK(str_to_size("0") == std::optional<std::size_t>{0u});
-  CHECK(str_to_size("1") == std::optional<std::size_t>{1u});
-  CHECK(str_to_size("123231") == std::optional<std::size_t>{123231u});
-  CHECK(str_to_size("2147483647") == std::optional<std::size_t>{2147483647u});
-  CHECK(str_to_size("123231b") == std::optional<std::size_t>{123231u});
-  CHECK(str_to_size("   123231   ") == std::optional<std::size_t>{123231u});
+  CHECK(str_to_size("0") == 0u);
+  CHECK(str_to_size("1") == 1u);
+  CHECK(str_to_size("123231") == 123231u);
+  CHECK(str_to_size("2147483647") == 2147483647u);
+  CHECK(str_to_size("123231b") == 123231u);
+  CHECK(str_to_size("   123231   ") == 123231u);
   CHECK(str_to_size("a123231") == std::nullopt);
   CHECK(str_to_size(" ") == std::nullopt);
   CHECK(str_to_size("") == std::nullopt);
@@ -217,8 +209,9 @@ TEST_CASE("string_format_test.str_to_size")
 
 TEST_CASE("string_format_test.str_to_float")
 {
-  CHECK(str_to_float("0") == std::optional<float>{0.0f});
-  CHECK(str_to_float("1.0") == std::optional<float>{1.0f});
+  CHECK(str_to_float("0") == 0.0f);
+  CHECK(str_to_float("1.0") == 1.0f);
+  CHECK(str_to_float("  1.0     ") == 1.0f);
   CHECK(str_to_float("a123231.0") == std::nullopt);
   CHECK(str_to_float(" ") == std::nullopt);
   CHECK(str_to_float("") == std::nullopt);
@@ -226,8 +219,9 @@ TEST_CASE("string_format_test.str_to_float")
 
 TEST_CASE("string_format_test.str_to_double")
 {
-  CHECK(str_to_double("0") == std::optional<double>{0.0});
-  CHECK(str_to_double("1.0") == std::optional<double>{1.0});
+  CHECK(str_to_double("0") == 0.0);
+  CHECK(str_to_double("1.0") == 1.0);
+  CHECK(str_to_double("  1.0     ") == 1.0);
   CHECK(str_to_double("a123231.0") == std::nullopt);
   CHECK(str_to_double(" ") == std::nullopt);
   CHECK(str_to_double("") == std::nullopt);
@@ -235,8 +229,9 @@ TEST_CASE("string_format_test.str_to_double")
 
 TEST_CASE("string_format_test.str_to_long_double")
 {
-  CHECK(str_to_long_double("0") == std::optional<long double>{0.0L});
-  CHECK(str_to_long_double("1.0") == std::optional<long double>{1.0L});
+  CHECK(str_to_long_double("0") == 0.0L);
+  CHECK(str_to_long_double("1.0") == 1.0L);
+  CHECK(str_to_long_double("  1.0     ") == 1.0L);
   CHECK(str_to_long_double("a123231.0") == std::nullopt);
   CHECK(str_to_long_double(" ") == std::nullopt);
   CHECK(str_to_long_double("") == std::nullopt);
