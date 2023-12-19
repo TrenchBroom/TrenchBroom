@@ -255,7 +255,10 @@ TEST_CASE("RestrictedDragTracker.drag")
       data.dragStatusToReturn = DragStatus::End;
       const auto dragResult = tracker.drag(InputState{});
 
-      THEN("the drag tracker returns false") { CHECK_FALSE(dragResult); }
+      THEN("the drag tracker returns false")
+      {
+        CHECK_FALSE(dragResult);
+      }
     }
   }
 }

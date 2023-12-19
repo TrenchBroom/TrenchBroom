@@ -117,7 +117,10 @@ protected:
 #pragma warning(push)
 #pragma warning(disable : 4702)
 #endif
-  void setResult(R&& result) { m_result = std::move(result); }
+  void setResult(R&& result)
+  {
+    m_result = std::move(result);
+  }
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif

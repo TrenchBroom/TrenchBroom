@@ -103,14 +103,20 @@ constexpr auto reflection_split_tokens(std::string_view str)
   {                                                                                      \
     return kdl::detail::reflection_split_tokens<C>(#__VA_ARGS__);                        \
   }                                                                                      \
-  [[maybe_unused]] auto members() const { return std::forward_as_tuple(__VA_ARGS__); }
+  [[maybe_unused]] auto members() const                                                  \
+  {                                                                                      \
+    return std::forward_as_tuple(__VA_ARGS__);                                           \
+  }
 
 #define kdl_reflect_members_0()                                                          \
   [[maybe_unused]] constexpr static auto member_names()                                  \
   {                                                                                      \
     return std::array<std::string_view, 0>{};                                            \
   }                                                                                      \
-  [[maybe_unused]] auto members() const { return std::tuple<>{}; }
+  [[maybe_unused]] auto members() const                                                  \
+  {                                                                                      \
+    return std::tuple<>{};                                                               \
+  }
 
 #define kdl_reflect_relational_operators(type_name)                                      \
   template <                                                                             \

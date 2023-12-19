@@ -929,12 +929,18 @@ public:
   /**
    * Indicates whether the given result contains a value.
    */
-  bool is_success() const { return m_value.index() == 0u; }
+  bool is_success() const
+  {
+    return m_value.index() == 0u;
+  }
 
   /**
    * Indicates whether the given result contains an error.
    */
-  bool is_error() const { return !is_success(); }
+  bool is_error() const
+  {
+    return !is_success();
+  }
 
   /**
    * Indicates whether the given result contains the given type of error.
@@ -952,7 +958,10 @@ public:
     return lhs.m_value == rhs.m_value;
   }
 
-  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
+  friend bool operator!=(const result& lhs, const result& rhs)
+  {
+    return !(lhs == rhs);
+  }
 };
 
 template <typename... Values, typename... Errors>
@@ -1534,12 +1543,18 @@ public:
   /**
    * Indicates whether the given result contains a value.
    */
-  bool is_success() const { return m_value.index() == 0u; }
+  bool is_success() const
+  {
+    return m_value.index() == 0u;
+  }
 
   /**
    * Indicates whether the given result contains an error.
    */
-  bool is_error() const { return !is_success(); }
+  bool is_error() const
+  {
+    return !is_success();
+  }
 
   /**
    * Indicates whether the given result contains the given type of error.
@@ -1557,7 +1572,10 @@ public:
     return lhs.m_value == rhs.m_value;
   }
 
-  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
+  friend bool operator!=(const result& lhs, const result& rhs)
+  {
+    return !(lhs == rhs);
+  }
 };
 
 namespace detail
@@ -2127,7 +2145,10 @@ public:
   /**
    * Indicates whether this result contains an error.
    */
-  bool is_error() const { return !is_success(); }
+  bool is_error() const
+  {
+    return !is_success();
+  }
 
   /**
    * Indicates whether the given result contains the given type of error.
@@ -2145,6 +2166,9 @@ public:
     return lhs.m_value == rhs.m_value;
   }
 
-  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
+  friend bool operator!=(const result& lhs, const result& rhs)
+  {
+    return !(lhs == rhs);
+  }
 };
 } // namespace kdl
