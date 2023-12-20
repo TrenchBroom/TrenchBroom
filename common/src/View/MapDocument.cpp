@@ -2354,11 +2354,11 @@ bool MapDocument::updateLinkedGroups()
 
 void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
 {
-  const auto selectedGroupsWithLinkGroupIds = kdl::vec_filter(
+  const auto selectedGroupsWithLinkedGroupIds = kdl::vec_filter(
     m_selectedNodes.groups(),
     [](const auto& g) { return g->group().linkedGroupId() != std::nullopt; });
   auto selectedLinkedGroupIds = kdl::vec_transform(
-    selectedGroupsWithLinkGroupIds,
+    selectedGroupsWithLinkedGroupIds,
     [](const auto& g) { return *g->group().linkedGroupId(); });
   selectedLinkedGroupIds =
     kdl::vec_sort_and_remove_duplicates(std::move(selectedLinkedGroupIds));
