@@ -20,9 +20,18 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Model/Brush.h"
 #include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
 #include "Model/HitType.h"
+#include "Model/LayerNode.h"
 #include "Model/Node.h"
+#include "Model/PatchNode.h"
+#include "Model/WorldNode.h"
+
+#include <kdl/overload.h>
 
 #include <vecmath/bbox.h>
 
@@ -78,6 +87,59 @@ std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes);
 std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
 
 std::vector<Node*> collectNodes(const std::vector<Node*>& nodes);
+
+template <typename T, typename Predicate>
+std::vector<Node*> collectNodes(const std::vector<T*>& nodes, const Predicate& predicate)
+{
+  auto result = std::vector<Node*>{};
+
+  for (auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [&](auto&& thisLambda, WorldNode* worldNode) {
+        if (predicate(worldNode))
+        {
+          result.push_back(worldNode);
+        }
+        worldNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, LayerNode* layerNode) {
+        if (predicate(layerNode))
+        {
+          result.push_back(layerNode);
+        }
+        layerNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, GroupNode* groupNode) {
+        if (predicate(groupNode))
+        {
+          result.push_back(groupNode);
+        }
+        groupNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, EntityNode* entityNode) {
+        if (predicate(entityNode))
+        {
+          result.push_back(entityNode);
+        }
+        entityNode->visitChildren(thisLambda);
+      },
+      [&](BrushNode* brushNode) {
+        if (predicate(brushNode))
+        {
+          result.push_back(brushNode);
+        }
+      },
+      [&](PatchNode* patchNode) {
+        if (predicate(patchNode))
+        {
+          result.push_back(patchNode);
+        }
+      }));
+  }
+
+  return result;
+}
 
 std::vector<Node*> collectTouchingNodes(
   const std::vector<Node*>& nodes, const std::vector<BrushNode*>& brushes);

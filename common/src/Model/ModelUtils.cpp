@@ -23,16 +23,9 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
-#include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "Polyhedron.h"
 
-#include <kdl/overload.h>
 #include <kdl/vector_utils.h>
 
 #include <vector>
@@ -331,32 +324,15 @@ std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& 
 
 std::vector<Node*> collectNodes(const std::vector<Node*>& nodes)
 {
-  auto allNodes = std::vector<Node*>{};
-
-  for (auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [&](auto&& thisLambda, WorldNode* world) {
-        allNodes.push_back(world);
-        world->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, LayerNode* layer) {
-        allNodes.push_back(layer);
-        layer->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, GroupNode* group) {
-        allNodes.push_back(group);
-        group->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, EntityNode* entity) {
-        allNodes.push_back(entity);
-        entity->visitChildren(thisLambda);
-      },
-      [&](BrushNode* brush) { allNodes.push_back(brush); },
-      [&](PatchNode* patch) { allNodes.push_back(patch); }));
-  }
-
-  return allNodes;
+  return collectNodes(
+    nodes,
+    kdl::overload(
+      [&](WorldNode*) { return true; },
+      [&](LayerNode*) { return true; },
+      [&](GroupNode*) { return true; },
+      [&](EntityNode*) { return true; },
+      [&](BrushNode*) { return true; },
+      [&](PatchNode*) { return true; }));
 }
 
 /**
@@ -446,38 +422,15 @@ std::vector<Node*> collectContainedNodes(
 
 std::vector<Node*> collectSelectedNodes(const std::vector<Node*>& nodes)
 {
-  auto selectedNodes = std::vector<Node*>{};
-
-  const auto collectIfSelected = [&](auto* node) {
-    if (node->selected())
-    {
-      selectedNodes.push_back(node);
-    }
-  };
-
-  for (auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
-      [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [&](auto&& thisLambda, GroupNode* group) {
-        collectIfSelected(group);
-        group->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, EntityNode* entity) {
-        collectIfSelected(entity);
-        entity->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, BrushNode* brush) {
-        collectIfSelected(brush);
-        brush->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, PatchNode* patch) {
-        collectIfSelected(patch);
-        patch->visitChildren(thisLambda);
-      }));
-  }
-  return selectedNodes;
+  return collectNodes(
+    nodes,
+    kdl::overload(
+      [&](WorldNode*) { return false; },
+      [&](LayerNode*) { return false; },
+      [&](GroupNode* groupNode) { return groupNode->selected(); },
+      [&](EntityNode* entityNode) { return entityNode->selected(); },
+      [&](BrushNode* brushNode) { return brushNode->selected(); },
+      [&](PatchNode* patchNode) { return patchNode->selected(); }));
 }
 
 std::vector<Node*> collectSelectableNodes(
