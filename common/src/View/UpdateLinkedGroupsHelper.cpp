@@ -21,6 +21,7 @@
 
 #include "Error.h"
 #include "Model/GroupNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/WorldNode.h"
