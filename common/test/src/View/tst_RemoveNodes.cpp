@@ -32,10 +32,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes")
 {
   SECTION("Update linked groups")
@@ -73,7 +72,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer")
 {
-  Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
+  auto* layer = new Model::LayerNode{Model::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
 
   document->removeNodes({layer});
@@ -85,13 +84,13 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity")
 {
-  Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
+  auto* layer = new Model::LayerNode{Model::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
 
-  Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
+  auto* entity = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{layer, {entity}}});
 
-  Model::BrushNode* brush = createBrushNode();
+  auto* brush = createBrushNode();
   document->addNodes({{entity, {brush}}});
 
   document->removeNodes({brush});
@@ -105,12 +104,12 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup")
 {
-  Model::GroupNode* group = new Model::GroupNode(Model::Group("group"));
+  auto* group = new Model::GroupNode{Model::Group{"group"}};
   document->addNodes({{document->parentForNodes(), {group}}});
 
   document->openGroup(group);
 
-  Model::BrushNode* brush = createBrushNode();
+  auto* brush = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brush}}});
 
   document->removeNodes({brush});
@@ -126,17 +125,17 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups")
 {
-  Model::GroupNode* outer = new Model::GroupNode(Model::Group("outer"));
+  auto* outer = new Model::GroupNode{Model::Group{"outer"}};
   document->addNodes({{document->parentForNodes(), {outer}}});
 
   document->openGroup(outer);
 
-  Model::GroupNode* inner = new Model::GroupNode(Model::Group("inner"));
+  auto* inner = new Model::GroupNode{Model::Group{"inner"}};
   document->addNodes({{document->parentForNodes(), {inner}}});
 
   document->openGroup(inner);
 
-  Model::BrushNode* brush = createBrushNode();
+  auto* brush = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brush}}});
 
   document->removeNodes({brush});
@@ -154,7 +153,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups"
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroups")
 {
-  auto* groupNode = new Model::GroupNode(Model::Group("outer"));
+  auto* groupNode = new Model::GroupNode{Model::Group{"outer"}};
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
   document->openGroup(groupNode);
@@ -184,7 +183,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroups")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsWithRecursiveDelete")
 {
-  auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));
+  auto* outerGroupNode = new Model::GroupNode{Model::Group{"outer"}};
   document->addNodes({{document->parentForNodes(), {outerGroupNode}}});
 
   document->openGroup(outerGroupNode);
@@ -232,5 +231,5 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.unlinkSingletonLinkedGroups")
   document->removeNodes({linkedGroupNode});
   CHECK_FALSE(groupNode->group().linkedGroupId().has_value());
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

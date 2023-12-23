@@ -45,11 +45,10 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-TEST_CASE("WorldReaderTest.parseEmptyMap")
+
+TEST_CASE("WorldReader.parseEmptyMap")
 {
   const auto data = "";
   const auto worldBounds = vm::bbox3{8192.0};
@@ -64,7 +63,7 @@ TEST_CASE("WorldReaderTest.parseEmptyMap")
   CHECK_FALSE(world->children().front()->hasChildren());
 }
 
-TEST_CASE("WorldReaderTest.parseMapWithEmptyEntity")
+TEST_CASE("WorldReader.parseMapWithEmptyEntity")
 {
   const auto data = "{}";
   const auto worldBounds = vm::bbox3{8192.0};
@@ -79,7 +78,7 @@ TEST_CASE("WorldReaderTest.parseMapWithEmptyEntity")
   CHECK(world->children().front()->childCount() == 1u);
 }
 
-TEST_CASE("WorldReaderTest.parseMapWithWorldspawn")
+TEST_CASE("WorldReader.parseMapWithWorldspawn")
 {
   const auto data = R"(
 {
@@ -111,7 +110,7 @@ TEST_CASE("WorldReaderTest.parseMapWithWorldspawn")
   CHECK(!defaultLayer->layer().omitFromExport());
 }
 
-TEST_CASE("WorldReaderTest.parseDefaultLayerProperties")
+TEST_CASE("WorldReader.parseDefaultLayerProperties")
 {
   const auto data = R"(
 {
@@ -141,7 +140,7 @@ TEST_CASE("WorldReaderTest.parseDefaultLayerProperties")
   CHECK(defaultLayer->layer().omitFromExport());
 }
 
-TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity")
+TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneMoreEntity")
 {
   const auto data = R"(
 {
@@ -183,7 +182,7 @@ TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneMoreEntity")
   CHECK(*entityNode->entity().property("angle") == " -1 ");
 }
 
-TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush")
+TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneBrush")
 {
   const auto data = R"(
 {
@@ -263,7 +262,7 @@ TEST_CASE("WorldReaderTest.parseMapWithWorldspawnAndOneBrush")
     != nullptr);
 }
 
-TEST_CASE("WorldReaderTest.parseMapAndCheckFaceFlags")
+TEST_CASE("WorldReader.parseMapAndCheckFaceFlags")
 {
   const auto data = R"(
 {
@@ -306,7 +305,7 @@ TEST_CASE("WorldReaderTest.parseMapAndCheckFaceFlags")
   CHECK(face->attributes().yScale() == -0.55f);
 }
 
-TEST_CASE("WorldReaderTest.parseBrushWithCurlyBraceInTextureName")
+TEST_CASE("WorldReader.parseBrushWithCurlyBraceInTextureName")
 {
   const auto data = R"(
 {
@@ -380,7 +379,7 @@ TEST_CASE("WorldReaderTest.parseBrushWithCurlyBraceInTextureName")
     != nullptr);
 }
 
-TEST_CASE("WorldReaderTest.parseValveBrush")
+TEST_CASE("WorldReader.parseValveBrush")
 {
   const auto data = R"(
 {
@@ -408,7 +407,7 @@ TEST_CASE("WorldReaderTest.parseValveBrush")
   checkBrushTexCoordSystem(brush, true);
 }
 
-TEST_CASE("WorldReaderTest.parseQuake2Brush")
+TEST_CASE("WorldReader.parseQuake2Brush")
 {
   const auto data = R"(
 {
@@ -475,7 +474,7 @@ TEST_CASE("WorldReaderTest.parseQuake2Brush")
   }
 }
 
-TEST_CASE("WorldReaderTest.parseQuake2ValveBrush")
+TEST_CASE("WorldReader.parseQuake2ValveBrush")
 {
   const auto data = R"(
 {
@@ -505,7 +504,7 @@ TEST_CASE("WorldReaderTest.parseQuake2ValveBrush")
   checkBrushTexCoordSystem(brush, true);
 }
 
-TEST_CASE("WorldReaderTest.parseQuake3ValveBrush")
+TEST_CASE("WorldReader.parseQuake3ValveBrush")
 {
   const auto data = R"(
 {
@@ -535,7 +534,7 @@ TEST_CASE("WorldReaderTest.parseQuake3ValveBrush")
   checkBrushTexCoordSystem(brush, true);
 }
 
-TEST_CASE("WorldReaderTest.parseDaikatanaBrush")
+TEST_CASE("WorldReader.parseDaikatanaBrush")
 {
   const auto data = R"(
 {
@@ -582,7 +581,7 @@ TEST_CASE("WorldReaderTest.parseDaikatanaBrush")
   CHECK_FALSE(brush.face(*c_mf_v3cww_index).attributes().hasColor());
 }
 
-TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader")
+TEST_CASE("WorldReader.parseDaikatanaMapHeader")
 {
   const auto data = R"(
 ////////////////////////////////////////////////////////////
@@ -626,7 +625,7 @@ TEST_CASE("WorldReaderTest.parseDaikatanaMapHeader")
   checkBrushTexCoordSystem(brush, false);
 }
 
-TEST_CASE("WorldReaderTest.parseQuakeBrushWithNumericalTextureName")
+TEST_CASE("WorldReader.parseQuakeBrushWithNumericalTextureName")
 {
   const auto data = R"(
 {
@@ -654,7 +653,7 @@ TEST_CASE("WorldReaderTest.parseQuakeBrushWithNumericalTextureName")
   checkBrushTexCoordSystem(brush, false);
 }
 
-TEST_CASE("WorldReaderTest.parseBrushesWithLayer")
+TEST_CASE("WorldReader.parseBrushesWithLayer")
 {
   const auto data = R"(
 {
@@ -715,7 +714,7 @@ TEST_CASE("WorldReaderTest.parseBrushesWithLayer")
   CHECK(!myLayerNode->locked());
 }
 
-TEST_CASE("WorldReaderTest.parseLayersWithReverseSort")
+TEST_CASE("WorldReader.parseLayersWithReverseSort")
 {
   const auto data = R"(
 {
@@ -773,7 +772,7 @@ TEST_CASE("WorldReaderTest.parseLayersWithReverseSort")
   CHECK(!sortNode1->layer().omitFromExport());
 }
 
-TEST_CASE("WorldReaderTest.parseLayersWithReversedSortIndicesWithGaps")
+TEST_CASE("WorldReader.parseLayersWithReversedSortIndicesWithGaps")
 {
   const auto data = R"(
 {
@@ -831,7 +830,7 @@ TEST_CASE("WorldReaderTest.parseLayersWithReversedSortIndicesWithGaps")
   CHECK(sortNode5->layer().sortIndex() == 5);
 }
 
-TEST_CASE("WorldReaderTest.parseLayersWithSortIndicesWithGapsAndDuplicates")
+TEST_CASE("WorldReader.parseLayersWithSortIndicesWithGapsAndDuplicates")
 {
   const std::string data = R"end(
 {
@@ -927,7 +926,7 @@ TEST_CASE("WorldReaderTest.parseLayersWithSortIndicesWithGapsAndDuplicates")
   CHECK(sortNode12->layer().sortIndex() == 12);
 }
 
-TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer")
+TEST_CASE("WorldReader.parseEntitiesAndBrushesWithLayer")
 {
   const auto data = R"(
 {
@@ -988,7 +987,7 @@ TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithLayer")
   CHECK(world->children().back()->children().back()->childCount() == 1u);
 }
 
-TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithGroup")
+TEST_CASE("WorldReader.parseEntitiesAndBrushesWithGroup")
 {
   const auto data = R"(
 {
@@ -1070,7 +1069,7 @@ TEST_CASE("WorldReaderTest.parseEntitiesAndBrushesWithGroup")
   CHECK(mySubGroup->childCount() == 1u);
 }
 
-TEST_CASE("WorldReaderTest.parseLayersAndGroupsAndRetainIds")
+TEST_CASE("WorldReader.parseLayersAndGroupsAndRetainIds")
 {
   const auto data = R"(
 {
@@ -1125,7 +1124,7 @@ TEST_CASE("WorldReaderTest.parseLayersAndGroupsAndRetainIds")
   CHECK(groupNode2->persistentId() == 22u);
 }
 
-TEST_CASE("WorldReaderTest.parseBrushPrimitive")
+TEST_CASE("WorldReader.parseBrushPrimitive")
 {
   const auto data = R"(
             {
@@ -1154,7 +1153,7 @@ TEST_CASE("WorldReaderTest.parseBrushPrimitive")
   CHECK(world->defaultLayer()->childCount() == 0u);
 }
 
-TEST_CASE("WorldReaderTest.parseBrushPrimitiveAndLegacyBrush")
+TEST_CASE("WorldReader.parseBrushPrimitiveAndLegacyBrush")
 {
   const auto data = R"(
 {
@@ -1191,7 +1190,7 @@ brushDef
   CHECK(world->defaultLayer()->childCount() == 1u);
 }
 
-TEST_CASE("WorldReaderTest.parseQuake3Patch")
+TEST_CASE("WorldReader.parseQuake3Patch")
 {
   const auto data = R"(
 {
@@ -1250,7 +1249,7 @@ common/caulk
     }));
 }
 
-TEST_CASE("WorldReaderTest.parseMultipleClassnames")
+TEST_CASE("WorldReader.parseMultipleClassnames")
 {
   // See https://github.com/TrenchBroom/TrenchBroom/issues/1485
 
@@ -1268,7 +1267,7 @@ TEST_CASE("WorldReaderTest.parseMultipleClassnames")
   CHECK_NOTHROW(reader.read(worldBounds, status));
 }
 
-TEST_CASE("WorldReaderTest.parseEscapedDoubleQuotationMarks")
+TEST_CASE("WorldReader.parseEscapedDoubleQuotationMarks")
 {
   const auto data = R"(
 {
@@ -1291,7 +1290,7 @@ TEST_CASE("WorldReaderTest.parseEscapedDoubleQuotationMarks")
   CHECK(*worldNode->entity().property("message") == "yay \\\"Mr. Robot!\\\"");
 }
 
-TEST_CASE("WorldReaderTest.parsePropertyWithUnescapedPathAndTrailingBackslash")
+TEST_CASE("WorldReader.parsePropertyWithUnescapedPathAndTrailingBackslash")
 {
   const auto data = R"(
 {
@@ -1314,7 +1313,7 @@ TEST_CASE("WorldReaderTest.parsePropertyWithUnescapedPathAndTrailingBackslash")
   CHECK(*worldNode->entity().property("path") == "c:\\a\\b\\c\\");
 }
 
-TEST_CASE("WorldReaderTest.parsePropertyWithEscapedPathAndTrailingBackslash")
+TEST_CASE("WorldReader.parsePropertyWithEscapedPathAndTrailingBackslash")
 {
   const auto data = R"(
 {
@@ -1337,7 +1336,7 @@ TEST_CASE("WorldReaderTest.parsePropertyWithEscapedPathAndTrailingBackslash")
   CHECK(*worldNode->entity().property("path") == "c:\\\\a\\\\b\\\\c\\\\");
 }
 
-TEST_CASE("WorldReaderTest.parsePropertyTrailingEscapedBackslash")
+TEST_CASE("WorldReader.parsePropertyTrailingEscapedBackslash")
 {
   const auto data = R"(
 {
@@ -1361,7 +1360,7 @@ TEST_CASE("WorldReaderTest.parsePropertyTrailingEscapedBackslash")
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/1739
-TEST_CASE("WorldReaderTest.parsePropertyNewlineEscapeSequence")
+TEST_CASE("WorldReader.parsePropertyNewlineEscapeSequence")
 {
   const auto data = R"(
 {
@@ -1385,7 +1384,7 @@ TEST_CASE("WorldReaderTest.parsePropertyNewlineEscapeSequence")
 }
 
 /*
-TEST_CASE("WorldReaderTest.parseIssueIgnoreFlags") {
+TEST_CASE("WorldReader.parseIssueIgnoreFlags") {
     const auto data = "{"
                       "\"classname\" \"worldspawn\""
                       "{\n"
@@ -1431,7 +1430,7 @@ doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
 }
  */
 
-TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap")
+TEST_CASE("WorldReader.parseHeretic2QuarkMap")
 {
   const auto mapPath =
     std::filesystem::current_path() / "fixture/test/IO/Map/Heretic2Quark.map";
@@ -1461,7 +1460,7 @@ TEST_CASE("WorldReaderTest.parseHeretic2QuarkMap")
   }
 }
 
-TEST_CASE("WorldReaderTest.parseTBEmptyTextureName")
+TEST_CASE("WorldReader.parseTBEmptyTextureName")
 {
   const auto data = R"(
 // entity 0
@@ -1501,7 +1500,7 @@ TEST_CASE("WorldReaderTest.parseTBEmptyTextureName")
   }
 }
 
-TEST_CASE("WorldReaderTest.parseQuotedTextureNames")
+TEST_CASE("WorldReader.parseQuotedTextureNames")
 {
   using NameInfo = std::tuple<std::string, std::string>;
 
@@ -1556,7 +1555,7 @@ TEST_CASE("WorldReaderTest.parseQuotedTextureNames")
   CHECK(brushNode->brush().face(0).attributes().textureName() == expectedName);
 }
 
-TEST_CASE("WorldReaderTest.parseLinkedGroups")
+TEST_CASE("WorldReader.parseLinkedGroups")
 {
   const auto data = R"(
 {
@@ -1608,7 +1607,7 @@ TEST_CASE("WorldReaderTest.parseLinkedGroups")
     == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
 }
 
-TEST_CASE("WorldReaderTest.parseOrphanedLinkedGroups")
+TEST_CASE("WorldReader.parseOrphanedLinkedGroups")
 {
   const auto data = R"(
 {
@@ -1641,7 +1640,7 @@ TEST_CASE("WorldReaderTest.parseOrphanedLinkedGroups")
   CHECK(groupNode->group().transformation() == vm::mat4x4::identity());
 }
 
-TEST_CASE("WorldReaderTest.parseLinkedGroupsWithMissingTransformation")
+TEST_CASE("WorldReader.parseLinkedGroupsWithMissingTransformation")
 {
   const auto data = R"(
 {
@@ -1705,7 +1704,7 @@ TEST_CASE("WorldReaderTest.parseLinkedGroupsWithMissingTransformation")
     == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
 }
 
-TEST_CASE("WorldReaderTest.parseGroupWithUnnecessaryTransformation")
+TEST_CASE("WorldReader.parseGroupWithUnnecessaryTransformation")
 {
   const auto data = R"(
 {
@@ -1737,7 +1736,7 @@ TEST_CASE("WorldReaderTest.parseGroupWithUnnecessaryTransformation")
   CHECK(groupNode->group().transformation() == vm::mat4x4d{});
 }
 
-TEST_CASE("WorldReaderTest.parseRecursiveLinkedGroups")
+TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
 {
   const auto data = R"(
 {
@@ -1868,7 +1867,7 @@ TEST_CASE("WorldReaderTest.parseRecursiveLinkedGroups")
   CHECK(groupNode8->group().transformation() == vm::mat4x4::identity());
 }
 
-TEST_CASE("WorldReaderTest.parseProtectedEntityProperties")
+TEST_CASE("WorldReader.parseProtectedEntityProperties")
 {
   const auto data = R"(
 {
@@ -1931,7 +1930,7 @@ TEST_CASE("WorldReaderTest.parseProtectedEntityProperties")
   }
 }
 
-TEST_CASE("WorldReaderTest.parseUnknownFormatEmptyMap")
+TEST_CASE("WorldReader.parseUnknownFormatEmptyMap")
 {
   const auto data = R"(
 {
@@ -1947,5 +1946,5 @@ TEST_CASE("WorldReaderTest.parseUnknownFormatEmptyMap")
   REQUIRE(world != nullptr);
   CHECK(world->mapFormat() == Model::MapFormat::Standard);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -1775,17 +1775,17 @@ void MapDocument::duplicateObjects()
   auto nodesToSelect = std::vector<Model::Node*>{};
   auto newParentMap = std::map<Model::Node*, Model::Node*>{};
 
-  for (Model::Node* original : selectedNodes().nodes())
+  for (auto* original : selectedNodes().nodes())
   {
-    Model::Node* suggestedParent = parentForNodes(std::vector<Model::Node*>{original});
-    Model::Node* clone = original->cloneRecursively(m_worldBounds);
+    auto* suggestedParent = parentForNodes({original});
+    auto* clone = original->cloneRecursively(m_worldBounds);
 
     if (shouldCloneParentWhenCloningNode(original))
     {
       // e.g. original is a brush in a brush entity, so we need to clone the entity
       // (parent) see if the parent was already cloned and if not, clone it and store it
-      Model::Node* parent = original->parent();
-      Model::Node* newParent = nullptr;
+      auto* parent = original->parent();
+      auto* newParent = static_cast<Model::Node*>(nullptr);
       const auto it = newParentMap.find(parent);
       if (it != std::end(newParentMap))
       {

@@ -28,16 +28,15 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentLayerToLayer")
 {
-  Model::LayerNode* layer1 = new Model::LayerNode(Model::Layer("Layer 1"));
+  auto* layer1 = new Model::LayerNode{Model::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer1}}});
 
-  Model::LayerNode* layer2 = new Model::LayerNode(Model::Layer("Layer 2"));
+  auto* layer2 = new Model::LayerNode{Model::Layer{"Layer 2"}};
   document->addNodes({{document->world(), {layer2}}});
 
   CHECK_FALSE(document->reparentNodes({{layer2, {layer1}}}));
@@ -45,13 +44,13 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentLayerToLayer")
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentBetweenLayers")
 {
-  Model::LayerNode* oldParent = new Model::LayerNode(Model::Layer("Layer 1"));
+  auto* oldParent = new Model::LayerNode{Model::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {oldParent}}});
 
-  Model::LayerNode* newParent = new Model::LayerNode(Model::Layer("Layer 2"));
+  auto* newParent = new Model::LayerNode{Model::Layer{"Layer 2"}};
   document->addNodes({{document->world(), {newParent}}});
 
-  Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
+  auto* entity = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{oldParent, {entity}}});
 
   assert(entity->parent() == oldParent);
@@ -64,7 +63,7 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentBetweenLayers")
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentGroupToItself")
 {
-  Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
+  auto* group = new Model::GroupNode{Model::Group{"Group"}};
   document->addNodes({{document->parentForNodes(), {group}}});
 
   CHECK_FALSE(document->reparentNodes({{group, {group}}}));
@@ -72,10 +71,10 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentGroupToItself")
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentGroupToChild")
 {
-  Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
+  auto* outer = new Model::GroupNode{Model::Group{"Outer"}};
   document->addNodes({{document->parentForNodes(), {outer}}});
 
-  Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
+  auto* inner = new Model::GroupNode{Model::Group{"Inner"}};
   document->addNodes({{outer, {inner}}});
 
   CHECK_FALSE(document->reparentNodes({{inner, {outer}}}));
@@ -83,10 +82,10 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentGroupToChild")
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyGroup")
 {
-  Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
+  auto* group = new Model::GroupNode{Model::Group{"Group"}};
   document->addNodes({{document->parentForNodes(), {group}}});
 
-  Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
+  auto* entity = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{group, {entity}}});
 
   CHECK(document->reparentNodes({{document->parentForNodes(), {entity}}}));
@@ -100,13 +99,13 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyGroup")
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.recursivelyRemoveEmptyGroups")
 {
-  Model::GroupNode* outer = new Model::GroupNode(Model::Group("Outer"));
+  auto* outer = new Model::GroupNode{Model::Group{"Outer"}};
   document->addNodes({{document->parentForNodes(), {outer}}});
 
-  Model::GroupNode* inner = new Model::GroupNode(Model::Group("Inner"));
+  auto* inner = new Model::GroupNode{Model::Group{"Inner"}};
   document->addNodes({{outer, {inner}}});
 
-  Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
+  auto* entity = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{inner, {entity}}});
 
   CHECK(document->reparentNodes({{document->parentForNodes(), {entity}}}));
@@ -122,10 +121,10 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.recursivelyRemoveEmptyGroup
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyEntity")
 {
-  Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
+  auto* entity = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entity}}});
 
-  Model::BrushNode* brush = createBrushNode();
+  auto* brush = createBrushNode();
   document->addNodes({{entity, {brush}}});
 
   CHECK(document->reparentNodes({{document->parentForNodes(), {brush}}}));
@@ -139,13 +138,13 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyEntity")
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyGroupAndEntity")
 {
-  Model::GroupNode* group = new Model::GroupNode(Model::Group("Group"));
+  auto* group = new Model::GroupNode{Model::Group{"Group"}};
   document->addNodes({{document->parentForNodes(), {group}}});
 
-  Model::EntityNode* entity = new Model::EntityNode{Model::Entity{}};
+  auto* entity = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{group, {entity}}});
 
-  Model::BrushNode* brush = createBrushNode();
+  auto* brush = createBrushNode();
   document->addNodes({{entity, {brush}}});
 
   CHECK(document->reparentNodes({{document->parentForNodes(), {brush}}}));
@@ -171,7 +170,7 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroups")
   document->deselectAll();
 
   document->selectNodes({linkedGroupNode});
-  document->translateObjects(vm::vec3(32.0, 0.0, 0.0));
+  document->translateObjects(vm::vec3{32, 0, 0});
   document->deselectAll();
 
   SECTION("Move node into group node")
@@ -228,7 +227,7 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroups")
 TEST_CASE_METHOD(
   MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsAfterRecursiveDelete")
 {
-  auto* outerGroupNode = new Model::GroupNode(Model::Group("outer"));
+  auto* outerGroupNode = new Model::GroupNode{Model::Group{"outer"}};
   document->addNodes({{document->parentForNodes(), {outerGroupNode}}});
 
   document->openGroup(outerGroupNode);
@@ -305,5 +304,5 @@ TEST_CASE_METHOD(
   CHECK(groupNode->childCount() == 1u);
   CHECK(linkedGroupNode->childCount() == 1u);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
