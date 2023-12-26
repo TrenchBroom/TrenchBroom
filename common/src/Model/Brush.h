@@ -57,8 +57,9 @@ public:
 private:
   std::vector<BrushFace> m_faces;
   std::unique_ptr<BrushGeometry> m_geometry;
+  std::string m_linkId;
 
-  kdl_reflect_decl(Brush, m_faces);
+  kdl_reflect_decl(Brush, m_faces, m_linkId);
 
 public:
   Brush();
@@ -80,6 +81,10 @@ private:
 
 public:
   const vm::bbox3& bounds() const;
+
+public: // link ID:
+  const std::string& linkId() const;
+  void setLinkId(std::string linkId);
 
 public: // face management:
   std::optional<size_t> findFace(const std::string& textureName) const;

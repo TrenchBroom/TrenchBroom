@@ -36,10 +36,11 @@ class Group
 private:
   std::string m_name;
   std::optional<std::string> m_linkedGroupId;
+  std::string m_linkId;
 
   vm::mat4x4 m_transformation;
 
-  kdl_reflect_decl(Group, m_name, m_linkedGroupId, m_transformation);
+  kdl_reflect_decl(Group, m_name, m_linkedGroupId, m_linkId, m_transformation);
 
 public:
   explicit Group(std::string name);
@@ -50,6 +51,9 @@ public:
   const std::optional<std::string>& linkedGroupId() const;
   void setLinkedGroupId(std::string linkedGroupId);
   void resetLinkedGroupId();
+
+  const std::string& linkId() const;
+  void setLinkId(std::string linkId);
 
   const vm::mat4x4& transformation() const;
   void setTransformation(const vm::mat4x4& transformation);
