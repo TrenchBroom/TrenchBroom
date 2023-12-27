@@ -65,9 +65,9 @@ public:
 
   Brush(const Brush& other);
   Brush(Brush&& other) noexcept;
-  Brush& operator=(Brush other) noexcept;
 
-  friend void swap(Brush& lhs, Brush& rhs) noexcept;
+  Brush& operator=(const Brush& other);
+  Brush& operator=(Brush&& other) noexcept;
 
   ~Brush();
 

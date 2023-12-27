@@ -87,25 +87,15 @@ Brush::Brush(const Brush& other)
   }
 }
 
-Brush::Brush(Brush&& other) noexcept
-  : m_faces{std::move(other.m_faces)}
-  , m_geometry{std::move(other.m_geometry)}
-{
-}
+Brush::Brush(Brush&& other) noexcept = default;
 
-Brush& Brush::operator=(Brush other) noexcept
+Brush& Brush::operator=(const Brush& other)
 {
-  using std::swap;
-  swap(*this, other);
+  *this = Brush{other};
   return *this;
 }
 
-void swap(Brush& lhs, Brush& rhs) noexcept
-{
-  using std::swap;
-  swap(lhs.m_faces, rhs.m_faces);
-  swap(lhs.m_geometry, rhs.m_geometry);
-}
+Brush& Brush::operator=(Brush&& other) noexcept = default;
 
 Brush::~Brush() = default;
 
