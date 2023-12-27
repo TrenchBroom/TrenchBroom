@@ -66,9 +66,9 @@ const GroupNode* findContainingLinkedGroup(const Node& node);
 GroupNode* findOutermostClosedGroup(Node* node);
 const GroupNode* findOutermostClosedGroup(const Node* node);
 
-std::vector<GroupNode*> findLinkedGroups(
+std::vector<GroupNode*> collectLinkedGroups(
   const std::vector<Node*>& nodes, const std::string& linkedGroupId);
-std::vector<GroupNode*> findAllLinkedGroups(const std::vector<Node*>& nodes);
+std::vector<GroupNode*> collectNestedLinkedGroups(const std::vector<Node*>& nodes);
 
 /**
  * Collect the linked group IDs of the given node and all of its ancestors.

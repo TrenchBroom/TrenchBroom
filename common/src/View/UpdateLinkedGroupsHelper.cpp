@@ -144,7 +144,7 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
              changedLinkedGroups,
              [&](const auto* groupNode) {
                const auto groupNodesToUpdate = kdl::vec_erase(
-                 Model::findLinkedGroups(
+                 Model::collectLinkedGroups(
                    {document.world()}, *groupNode->group().linkedGroupId()),
                  groupNode);
 

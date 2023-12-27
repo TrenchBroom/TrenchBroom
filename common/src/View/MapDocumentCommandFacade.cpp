@@ -201,7 +201,7 @@ void MapDocumentCommandFacade::performDeselect(
   const std::vector<Model::BrushFaceHandle>& faces)
 {
   const auto implicitlyLockedGroups = kdl::vector_set<Model::GroupNode*>{kdl::vec_filter(
-    Model::findAllLinkedGroups({m_world.get()}),
+    Model::collectNestedLinkedGroups({m_world.get()}),
     [](const auto* group) { return group->lockedByOtherSelection(); })};
 
   selectionWillChangeNotifier();

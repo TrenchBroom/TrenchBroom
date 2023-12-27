@@ -143,7 +143,7 @@ static auto findLinkedGroupsRecursively(
     {
       if (const auto linkedGroupId = groupNode->group().linkedGroupId())
       {
-        if (Model::findLinkedGroups({&worldNode}, *linkedGroupId).size() > 1u)
+        if (Model::collectLinkedGroups({&worldNode}, *linkedGroupId).size() > 1u)
         {
           result.emplace_back(groupNode);
           return;
@@ -183,7 +183,8 @@ static auto findContainingLinkedGroups(
 }
 
 template <typename T>
-static auto findAllLinkedGroups(Model::WorldNode& worldNode, const std::vector<T*>& nodes)
+static auto collectNestedLinkedGroups(
+  Model::WorldNode& worldNode, const std::vector<T*>& nodes)
 {
   return findLinkedGroupsRecursively(worldNode, nodes, true);
 }
@@ -1517,7 +1518,7 @@ std::vector<Model::Node*> MapDocument::addNodes(
     transaction.cancel();
     return {};
   }
-  setHasPendingChanges(findAllLinkedGroups(*m_world, kdl::map_keys(nodes)), true);
+  setHasPendingChanges(collectNestedLinkedGroups(*m_world, kdl::map_keys(nodes)), true);
 
   const auto addedNodes = collectChildren(nodes);
   ensureVisible(addedNodes);
@@ -1553,7 +1554,7 @@ void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes)
   auto removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
   auto linkedGroupIdsOfRemovedGroups = std::vector<std::string>{};
   const auto changedLinkedGroups =
-    findAllLinkedGroups(*m_world, kdl::map_keys(removableNodes));
+    collectNestedLinkedGroups(*m_world, kdl::map_keys(removableNodes));
 
   auto transaction = Transaction{*this};
   while (!removableNodes.empty())
@@ -1572,7 +1573,7 @@ void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes)
   auto singletonLinkSetsAfterRemoval = std::vector<Model::GroupNode*>{};
   for (const auto& linkedGroupId : linkedGroupIdsOfRemovedGroups)
   {
-    const auto linkedGroups = Model::findLinkedGroups({m_world.get()}, linkedGroupId);
+    const auto linkedGroups = Model::collectLinkedGroups({m_world.get()}, linkedGroupId);
     if (linkedGroups.size() == 1u)
     {
       singletonLinkSetsAfterRemoval.push_back(linkedGroups.front());
@@ -1678,7 +1679,7 @@ bool MapDocument::reparentNodes(
     nodesToRemove = kdl::map_merge(nodesToRemove, Model::parentChildrenMap(children));
   }
 
-  const auto changedLinkedGroups = findAllLinkedGroups(
+  const auto changedLinkedGroups = collectNestedLinkedGroups(
     *m_world, kdl::vec_concat(kdl::map_keys(nodesToAdd), kdl::map_keys(nodesToRemove)));
 
   if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
@@ -2187,7 +2188,7 @@ void MapDocument::selectLinkedGroups()
   {
     groupNodesToSelect = kdl::vec_concat(
       std::move(groupNodesToSelect),
-      Model::findLinkedGroups({m_world.get()}, linkedGroupId));
+      Model::collectLinkedGroups({m_world.get()}, linkedGroupId));
   }
 
   groupNodesToSelect = kdl::vec_sort_and_remove_duplicates(std::move(groupNodesToSelect));
@@ -2270,7 +2271,7 @@ bool MapDocument::canSeparateLinkedGroups() const
       if (const auto linkedGroupId = groupNode->group().linkedGroupId())
       {
         const auto linkedGroups =
-          Model::findLinkedGroups({m_world.get()}, *linkedGroupId);
+          Model::collectLinkedGroups({m_world.get()}, *linkedGroupId);
         return linkedGroups.size() > 1u
                && std::any_of(
                  std::begin(linkedGroups),
@@ -2368,7 +2369,7 @@ void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
 
   for (const auto& linkedGroupId : selectedLinkedGroupIds)
   {
-    auto linkedGroups = Model::findLinkedGroups({m_world.get()}, linkedGroupId);
+    auto linkedGroups = Model::collectLinkedGroups({m_world.get()}, linkedGroupId);
 
     // partition the linked groups into selected and unselected ones
     const auto it = std::partition(
@@ -3469,7 +3470,7 @@ static std::optional<std::string> findUnprotectedPropertyValue(
   {
     if (const auto linkedGroupId = containingLinkedGroup->group().linkedGroupId())
     {
-      const auto linkedGroups = Model::findLinkedGroups({&worldNode}, *linkedGroupId);
+      const auto linkedGroups = Model::collectLinkedGroups({&worldNode}, *linkedGroupId);
       const auto pathFromContainingLinkedGroup =
         entityNode.pathFrom(*containingLinkedGroup);
       if (
@@ -3541,7 +3542,7 @@ bool MapDocument::clearProtectedProperties()
       continue;
     }
 
-    const auto linkedGroups = Model::findLinkedGroups({m_world.get()}, *linkedGroupId);
+    const auto linkedGroups = Model::collectLinkedGroups({m_world.get()}, *linkedGroupId);
     const auto pathFromContainingLinkedGroup =
       entityNode->pathFrom(*containingLinkedGroup);
 
