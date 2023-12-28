@@ -458,8 +458,8 @@ public: // visitors
   /**
    * Visit every node in the given vector with the given lambda.
    */
-  template <typename N, typename L>
-  static void visitAll(const std::vector<N*>& nodes, const L& lambda)
+  template <typename R, typename L>
+  static void visitAll(const R& nodes, const L& lambda)
   {
     for (auto* node : nodes)
     {
