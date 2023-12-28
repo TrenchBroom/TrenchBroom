@@ -43,6 +43,11 @@ struct range
 
   I end() const { return m_end; }
 
+  auto front() const { return *m_begin; }
+  auto back() const { return *std::prev(m_end); }
+
+  bool empty() const { return m_begin == m_end; }
+
   template <typename I2>
   bool operator==(const range<I2>& other) const
   {
