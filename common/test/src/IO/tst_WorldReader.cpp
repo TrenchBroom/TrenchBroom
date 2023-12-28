@@ -43,10 +43,14 @@
 #include <filesystem>
 #include <string>
 
+#include "CatchUtils/Matchers.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom::IO
 {
+
+using namespace std::string_literals;
 
 TEST_CASE("WorldReader.parseEmptyMap")
 {
@@ -1593,11 +1597,13 @@ TEST_CASE("WorldReader.parseLinkedGroups")
   auto* groupNode2 =
     dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().back());
 
-  CHECK(groupNode1 != nullptr);
-  CHECK(groupNode2 != nullptr);
+  REQUIRE(groupNode1 != nullptr);
+  REQUIRE(groupNode2 != nullptr);
 
   CHECK(groupNode1->group().linkedGroupId() == "abcd");
+  CHECK(groupNode1->group().linkId() == "abcd");
   CHECK(groupNode2->group().linkedGroupId() == "abcd");
+  CHECK(groupNode2->group().linkId() == "abcd");
 
   CHECK(
     groupNode1->group().transformation()
@@ -1637,6 +1643,7 @@ TEST_CASE("WorldReader.parseOrphanedLinkedGroups")
 
   CHECK(groupNode != nullptr);
   CHECK(groupNode->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode->group().linkId() != "abcd");
   CHECK(groupNode->group().transformation() == vm::mat4x4::identity());
 }
 
@@ -1687,11 +1694,12 @@ TEST_CASE("WorldReader.parseLinkedGroupsWithMissingTransformation")
   auto* groupNode3 =
     dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[2]);
 
-  CHECK(groupNode1 != nullptr);
-  CHECK(groupNode2 != nullptr);
-  CHECK(groupNode3 != nullptr);
+  REQUIRE(groupNode1 != nullptr);
+  REQUIRE(groupNode2 != nullptr);
+  REQUIRE(groupNode3 != nullptr);
 
   CHECK(groupNode1->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode1->group().linkId() != "1");
   CHECK(groupNode2->group().linkedGroupId() == "1");
   CHECK(groupNode3->group().linkedGroupId() == "1");
 
@@ -1745,7 +1753,7 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
-"_tb_name" "Group 1"
+"_tb_name" "groupNode_1_abcd"
 "_tb_id" "1"
 "_tb_linked_group_id" "abcd"
 "_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
@@ -1753,7 +1761,7 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
-"_tb_name" "Group 2"
+"_tb_name" "groupNode_1_1_abcd"
 "_tb_id" "2"
 "_tb_group" "1"
 "_tb_linked_group_id" "abcd"
@@ -1762,7 +1770,7 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
-"_tb_name" "Group 3"
+"_tb_name" "groupNode_2_xyz"
 "_tb_id" "3"
 "_tb_linked_group_id" "xyz"
 "_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
@@ -1770,7 +1778,7 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
-"_tb_name" "Group 4"
+"_tb_name" "groupNode_2_1_xyz"
 "_tb_id" "4"
 "_tb_group" "3"
 "_tb_linked_group_id" "xyz"
@@ -1779,7 +1787,7 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
-"_tb_name" "Group 5"
+"_tb_name" "groupNode_3_xyz"
 "_tb_id" "5"
 "_tb_linked_group_id" "xyz"
 "_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
@@ -1787,24 +1795,32 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
-"_tb_name" "Group 6"
+"_tb_name" "groupNode_3_1"
 "_tb_id" "6"
+"_tb_group" "5"
+"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
+}
+{
+"classname" "func_group"
+"_tb_type" "_tb_group"
+"_tb_name" "groupNode_4_fgh"
+"_tb_id" "7"
 "_tb_linked_group_id" "fgh"
 "_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
 }
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
-"_tb_name" "Group 7"
-"_tb_id" "7"
-"_tb_group" "6"
+"_tb_name" "groupNode_4_1"
+"_tb_id" "8"
+"_tb_group" "7"
 }
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
-"_tb_name" "Group 8"
-"_tb_id" "8"
-"_tb_group" "7"
+"_tb_name" "groupNode_4_1_1_fgh"
+"_tb_id" "9"
+"_tb_group" "8"
 "_tb_linked_group_id" "fgh"
 "_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
 }
@@ -1817,54 +1833,61 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
-  CHECK(world->defaultLayer()->childCount() == 4u);
+  REQUIRE(world->defaultLayer()->childCount() == 4u);
 
-  const auto* groupNode1 =
+  const auto* groupNode_1_abcd =
     dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[0]);
 
-  CHECK(groupNode1->childCount() == 1u);
-  const auto* groupNode2 =
-    dynamic_cast<Model::GroupNode*>(groupNode1->children().front());
+  REQUIRE(groupNode_1_abcd->childCount() == 1u);
+  const auto* groupNode_1_2_abcd =
+    dynamic_cast<Model::GroupNode*>(groupNode_1_abcd->children().front());
 
-  const auto* groupNode3 =
+  const auto* groupNode_2_xyz =
     dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[1]);
 
-  CHECK(groupNode3->childCount() == 1u);
-  const auto* groupNode4 =
-    dynamic_cast<Model::GroupNode*>(groupNode3->children().front());
+  REQUIRE(groupNode_2_xyz->childCount() == 1u);
+  const auto* groupNode_2_1_xyz =
+    dynamic_cast<Model::GroupNode*>(groupNode_2_xyz->children().front());
 
-  const auto* groupNode5 =
+  const auto* groupNode_3_xyz =
     dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[2]);
 
-  const auto* groupNode6 =
+  const auto* groupNode_4_fgh =
     dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[3]);
 
-  CHECK(groupNode6->childCount() == 1u);
-  const auto* groupNode7 =
-    dynamic_cast<Model::GroupNode*>(groupNode6->children().front());
+  REQUIRE(groupNode_4_fgh->childCount() == 1u);
+  const auto* groupNode_4_1 =
+    dynamic_cast<Model::GroupNode*>(groupNode_4_fgh->children().front());
 
-  CHECK(groupNode7->childCount() == 1u);
-  const auto* groupNode8 =
-    dynamic_cast<Model::GroupNode*>(groupNode7->children().front());
+  REQUIRE(groupNode_4_1->childCount() == 1u);
+  const auto* groupNode_4_1_1_fgh =
+    dynamic_cast<Model::GroupNode*>(groupNode_4_1->children().front());
 
-  CHECK(groupNode1->group().linkedGroupId() == std::nullopt);
-  CHECK(groupNode1->group().transformation() == vm::mat4x4::identity());
-  CHECK(groupNode2->group().linkedGroupId() == std::nullopt);
-  CHECK(groupNode2->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_1_abcd->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode_1_abcd->group().linkId() != "abcd");
+  CHECK(groupNode_1_abcd->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_1_2_abcd->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode_1_2_abcd->group().linkId() != "abcd");
+  CHECK(groupNode_1_2_abcd->group().transformation() == vm::mat4x4::identity());
 
-  CHECK(groupNode3->group().linkedGroupId() != std::nullopt);
-  CHECK(groupNode3->group().transformation() != vm::mat4x4::identity());
-  CHECK(groupNode4->group().linkedGroupId() == std::nullopt);
-  CHECK(groupNode4->group().transformation() == vm::mat4x4::identity());
-  CHECK(groupNode5->group().linkedGroupId() == groupNode3->group().linkedGroupId());
-  CHECK(groupNode5->group().transformation() != vm::mat4x4::identity());
+  CHECK(groupNode_2_xyz->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode_2_xyz->group().linkId() != "xyz");
+  CHECK(groupNode_2_xyz->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_2_1_xyz->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode_2_1_xyz->group().linkId() != "xyz");
+  CHECK(groupNode_2_1_xyz->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_3_xyz->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode_3_xyz->group().linkId() != "xyz");
+  CHECK(groupNode_3_xyz->group().transformation() == vm::mat4x4::identity());
 
-  CHECK(groupNode6->group().linkedGroupId() == std::nullopt);
-  CHECK(groupNode6->group().transformation() == vm::mat4x4::identity());
-  CHECK(groupNode7->group().linkedGroupId() == std::nullopt);
-  CHECK(groupNode7->group().transformation() == vm::mat4x4::identity());
-  CHECK(groupNode8->group().linkedGroupId() == std::nullopt);
-  CHECK(groupNode8->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_4_fgh->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode_4_fgh->group().linkId() != "fgh");
+  CHECK(groupNode_4_fgh->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_4_1->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode_4_1->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_4_1_1_fgh->group().linkedGroupId() == std::nullopt);
+  CHECK(groupNode_4_1_1_fgh->group().linkId() != "fgh");
+  CHECK(groupNode_4_1_1_fgh->group().transformation() == vm::mat4x4::identity());
 }
 
 TEST_CASE("WorldReader.parseProtectedEntityProperties")

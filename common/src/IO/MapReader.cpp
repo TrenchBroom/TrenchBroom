@@ -33,6 +33,7 @@
 #include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
+#include "Uuid.h"
 
 #include <kdl/parallel.h>
 #include <kdl/result.h>
@@ -478,6 +479,7 @@ CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
     if (const auto transformation = vm::parse<FloatType, 4u, 4u>(transformationStr))
     {
       group.setLinkedGroupId(linkedGroupId);
+      group.setLinkId(linkedGroupId);
       group.setTransformation(*transformation);
     }
     else
@@ -698,6 +700,7 @@ void unlinkGroup(Model::GroupNode& groupNode)
 {
   auto newGroup = groupNode.group();
   newGroup.resetLinkedGroupId();
+  newGroup.setLinkId(generateUuid());
   newGroup.setTransformation(vm::mat4x4::identity());
   groupNode.setGroup(std::move(newGroup));
 }

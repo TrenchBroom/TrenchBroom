@@ -20,17 +20,25 @@
 #include "WorldReader.h"
 
 #include "Color.h"
+#include "Error.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/LockState.h"
+#include "Model/ModelUtils.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
 
+#include "kdl/grouped_range.h"
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 #include <kdl/string_utils.h>
 #include <kdl/vector_set.h>
+
+#include <fmt/format.h>
 
 #include <cassert>
 #include <sstream>
@@ -161,6 +169,16 @@ void sanitizeLayerSortIndicies(Model::WorldNode& worldNode, ParserStatus& /* sta
     layerNode->setLayer(std::move(layer));
   }
 }
+
+void setLinkIds(Model::WorldNode& worldNode, ParserStatus& status)
+{
+  const auto errors = Model::initializeLinkIds({&worldNode});
+  for (const auto& error : errors)
+  {
+    status.error("Could not restore linked groups: " + error.msg);
+  }
+}
+
 } // namespace
 
 std::unique_ptr<Model::WorldNode> WorldReader::read(
@@ -168,6 +186,7 @@ std::unique_ptr<Model::WorldNode> WorldReader::read(
 {
   readEntities(worldBounds, status);
   sanitizeLayerSortIndicies(*m_worldNode, status);
+  setLinkIds(*m_worldNode, status);
   m_worldNode->rebuildNodeTree();
   m_worldNode->enableNodeTreeUpdates();
   return std::move(m_worldNode);
