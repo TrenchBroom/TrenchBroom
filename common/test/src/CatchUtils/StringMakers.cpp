@@ -160,4 +160,9 @@ std::string convertToString(const Node& node)
   return str.str();
 }
 
+std::string convertToString(const Node* node)
+{
+  return node ? convertToString(*node) : "nullptr";
+}
+
 } // namespace TrenchBroom::Model
