@@ -35,6 +35,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/memory_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/meta_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/overload.h"
+    "${KDL_INCLUDE_DIR}/kdl/pair_iterator.h"
     "${KDL_INCLUDE_DIR}/kdl/parallel.h"
     "${KDL_INCLUDE_DIR}/kdl/path_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/product_iterator.h"
