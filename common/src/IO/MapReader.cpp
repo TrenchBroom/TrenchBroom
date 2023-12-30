@@ -696,12 +696,17 @@ void validateDuplicateLayersAndGroups(
   }
 }
 
-void unlinkGroup(Model::GroupNode& groupNode)
+void unlinkGroup(Model::GroupNode& groupNode, const bool resetLinkId)
 {
   auto newGroup = groupNode.group();
   newGroup.resetLinkedGroupId();
-  newGroup.setLinkId(generateUuid());
   newGroup.setTransformation(vm::mat4x4::identity());
+
+  if (resetLinkId)
+  {
+    newGroup.setLinkId(generateUuid());
+  }
+
   groupNode.setGroup(std::move(newGroup));
 }
 
@@ -751,7 +756,7 @@ void validateOrphanedLinkedGroups(
                 groupNode->lineNumber(),
                 kdl::str_to_string(
                   "Unlinking orphaned linked group with ID '", *linkedGroupId, "'"));
-              unlinkGroup(*groupNode);
+              unlinkGroup(*groupNode, false);
             }
           }
         },
@@ -834,7 +839,7 @@ void validateRecursiveLinkedGroups(
                   *groupNode->persistentId(),
                   "'"));
 
-              unlinkGroup(*groupNode);
+              unlinkGroup(*groupNode, true);
               break;
             }
             iParent = nodeToParentMap.find(iParent->second);

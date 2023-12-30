@@ -896,6 +896,55 @@ void fixRecursiveLinkedGroups(
   }
 }
 
+void initializeLinkIds(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd,
+  const Model::WorldNode& worldNode,
+  Logger& logger)
+{
+  const auto groupsToAdd = kdl::vec_sort(
+    kdl::vec_transform(
+      Model::collectNodes(
+        kdl::vec_flatten(kdl::map_values(nodesToAdd)),
+        [](const auto* node) {
+          return dynamic_cast<const Model::GroupNode*>(node) != nullptr;
+        }),
+      [](auto* node) { return dynamic_cast<Model::GroupNode*>(node); }),
+    [](const auto* lhs, const auto* rhs) {
+      return lhs->group().linkId() < rhs->group().linkId();
+    });
+  const auto groupsByLinkId =
+    kdl::make_grouped_range(groupsToAdd, [](const auto* lhs, const auto* rhs) {
+      return lhs->group().linkId() == rhs->group().linkId();
+    });
+
+  for (const auto& groupsWithSameLinkId : groupsByLinkId)
+  {
+    const auto& linkId = groupsWithSameLinkId.front()->group().linkId();
+    const auto existingLinkedGroups = kdl::vec_transform(
+      Model::collectNodes(
+        std::vector{&worldNode},
+        [&](const auto* node) {
+          if (const auto* groupNode = dynamic_cast<const Model::GroupNode*>(node))
+          {
+            return groupNode->group().linkId() == linkId;
+          }
+          return false;
+        }),
+      [](auto* node) { return dynamic_cast<Model::GroupNode*>(node); });
+
+    if (!existingLinkedGroups.empty())
+    {
+      for (const auto& e : Model::initializeLinkIds(
+             *existingLinkedGroups.front(),
+             std::vector<Model::GroupNode*>(
+               groupsWithSameLinkId.begin(), groupsWithSameLinkId.end())))
+      {
+        logger.warn() << "Could not paste linked groups: " + e.msg;
+      }
+    }
+  }
+}
+
 } // namespace
 
 bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
@@ -903,6 +952,7 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
   const auto nodesToAdd = extractNodesToPaste(nodes, parentForNodes());
   fixRedundantPersistentIds(nodesToAdd, allPersistentGroupIds(*m_world.get()));
   fixRecursiveLinkedGroups(nodesToAdd, *this);
+  initializeLinkIds(nodesToAdd, *m_world, *this);
 
   auto transaction = Transaction{*this, "Paste Nodes"};
 

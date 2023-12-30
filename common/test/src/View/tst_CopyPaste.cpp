@@ -347,63 +347,141 @@ TEST_CASE_METHOD(
   document->selectNodes({groupNode});
   auto* linkedGroup = document->createLinkedDuplicate();
 
-  document->deselectAll();
-  document->selectNodes({linkedGroup});
-  const auto data = document->serializeSelectedNodes();
+  Model::setLinkId(*groupNode, *groupNode->group().linkedGroupId());
+  Model::setLinkId(*linkedGroup, *groupNode->group().linkedGroupId());
+
+  const auto originalGroupLinkId = linkedGroup->group().linkId();
+  REQUIRE(originalGroupLinkId == groupNode->group().linkId());
+
+  auto* linkedBrush = dynamic_cast<Model::BrushNode*>(linkedGroup->children().front());
+  REQUIRE(linkedBrush);
+
+  const auto originalBrushLinkId = linkedBrush->brush().linkId();
+  REQUIRE(originalBrushLinkId == brushNode->brush().linkId());
 
   document->deselectAll();
 
-  SECTION("Pasting unknown linked group ID")
+  SECTION("Pasting one linked group")
   {
+    document->selectNodes({linkedGroup});
+    const auto data = document->serializeSelectedNodes();
+
+    document->deselectAll();
+
+    SECTION("Pasting unknown linked group ID")
+    {
+      const auto linkedGroupId = groupNode->group().linkedGroupId();
+      REQUIRE(linkedGroupId);
+
+      document->selectAllNodes();
+      document->deleteObjects();
+
+      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->world()->defaultLayer()->childCount() == 1);
+
+      const auto* pastedGroup = dynamic_cast<Model::GroupNode*>(
+        document->world()->defaultLayer()->children().back());
+      REQUIRE(pastedGroup);
+
+      CHECK(pastedGroup->group().linkedGroupId() == std::nullopt);
+      CHECK(pastedGroup->group().linkId() == originalGroupLinkId);
+    }
+
+    SECTION("Pasting duplicate linked group ID")
+    {
+      const auto linkedGroupId = groupNode->group().linkedGroupId();
+      REQUIRE(linkedGroupId);
+
+      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->world()->defaultLayer()->childCount() == 3);
+
+      const auto* pastedGroup = dynamic_cast<Model::GroupNode*>(
+        document->world()->defaultLayer()->children().back());
+      REQUIRE(pastedGroup);
+
+      CHECK(pastedGroup->group().linkedGroupId() == linkedGroupId);
+      CHECK(pastedGroup->group().linkId() == originalGroupLinkId);
+
+      const auto* pastedBrush =
+        dynamic_cast<Model::BrushNode*>(pastedGroup->children().front());
+      REQUIRE(pastedBrush);
+
+      CHECK(pastedBrush->brush().linkId() == originalBrushLinkId);
+    }
+
+    SECTION("Pasting recursive linked group")
+    {
+      document->openGroup(groupNode);
+
+      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(groupNode->childCount() == 2);
+      CHECK(linkedGroup->childCount() == 2);
+
+      auto* pastedGroup = dynamic_cast<Model::GroupNode*>(groupNode->children().back());
+      REQUIRE(pastedGroup);
+
+      CHECK(pastedGroup->group().linkedGroupId() == std::nullopt);
+      CHECK(pastedGroup->group().linkId() != originalGroupLinkId);
+
+      const auto* pastedBrush =
+        dynamic_cast<Model::BrushNode*>(pastedGroup->children().front());
+      REQUIRE(pastedBrush);
+
+      CHECK(pastedBrush->brush().linkId() != originalBrushLinkId);
+
+      auto* linkedPastedGroup =
+        dynamic_cast<Model::GroupNode*>(linkedGroup->children().back());
+      REQUIRE(linkedPastedGroup);
+
+      CHECK(linkedPastedGroup->group().linkedGroupId() == std::nullopt);
+      CHECK(linkedPastedGroup->group().linkId() == pastedGroup->group().linkId());
+
+      const auto* linkedPastedBrush =
+        dynamic_cast<Model::BrushNode*>(linkedPastedGroup->children().front());
+      REQUIRE(pastedBrush);
+
+      CHECK(linkedPastedBrush->brush().linkId() == pastedBrush->brush().linkId());
+    }
+  }
+
+  SECTION("Pasting two linked groups")
+  {
+    document->selectNodes({groupNode, linkedGroup});
+    const auto data = document->serializeSelectedNodes();
+
+    document->deselectAll();
+
     const auto linkedGroupId = groupNode->group().linkedGroupId();
     REQUIRE(linkedGroupId);
 
-    document->selectAllNodes();
-    document->deleteObjects();
-
     CHECK(document->paste(data) == PasteType::Node);
-    CHECK(document->world()->defaultLayer()->childCount() == 1);
+    CHECK(document->world()->defaultLayer()->childCount() == 4);
 
-    const auto* pastedGroup = dynamic_cast<Model::GroupNode*>(
-      document->world()->defaultLayer()->children().back());
-    REQUIRE(pastedGroup);
+    const auto* pastedGroup1 =
+      dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[2]);
+    REQUIRE(pastedGroup1);
 
-    CHECK(pastedGroup->group().linkedGroupId() == std::nullopt);
-  }
+    const auto* pastedGroup2 =
+      dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[3]);
+    REQUIRE(pastedGroup2);
 
-  SECTION("Pasting duplicate linked group ID")
-  {
-    const auto linkedGroupId = groupNode->group().linkedGroupId();
-    REQUIRE(linkedGroupId);
+    CHECK(pastedGroup1->group().linkedGroupId() == linkedGroupId);
+    CHECK(pastedGroup1->group().linkId() == originalGroupLinkId);
 
-    CHECK(document->paste(data) == PasteType::Node);
-    CHECK(document->world()->defaultLayer()->childCount() == 3);
+    CHECK(pastedGroup2->group().linkedGroupId() == linkedGroupId);
+    CHECK(pastedGroup2->group().linkId() == originalGroupLinkId);
 
-    const auto* pastedGroup = dynamic_cast<Model::GroupNode*>(
-      document->world()->defaultLayer()->children().back());
-    REQUIRE(pastedGroup);
+    const auto* pastedBrush1 =
+      dynamic_cast<Model::BrushNode*>(pastedGroup1->children().front());
+    REQUIRE(pastedBrush1);
 
-    CHECK(pastedGroup->group().linkedGroupId() == linkedGroupId);
-  }
+    CHECK(pastedBrush1->brush().linkId() == originalBrushLinkId);
 
-  SECTION("Pasting recursive linked group")
-  {
-    document->openGroup(groupNode);
+    const auto* pastedBrush2 =
+      dynamic_cast<Model::BrushNode*>(pastedGroup2->children().front());
+    REQUIRE(pastedBrush2);
 
-    CHECK(document->paste(data) == PasteType::Node);
-    CHECK(groupNode->childCount() == 2);
-    CHECK(linkedGroup->childCount() == 2);
-
-    auto* pastedGroup = dynamic_cast<Model::GroupNode*>(groupNode->children().back());
-    REQUIRE(pastedGroup);
-
-    CHECK(pastedGroup->group().linkedGroupId() == std::nullopt);
-
-    auto* linkedPastedGroup =
-      dynamic_cast<Model::GroupNode*>(linkedGroup->children().back());
-    REQUIRE(linkedPastedGroup);
-
-    CHECK(linkedPastedGroup->group().linkedGroupId() == std::nullopt);
+    CHECK(pastedBrush2->brush().linkId() == originalBrushLinkId);
   }
 }
 

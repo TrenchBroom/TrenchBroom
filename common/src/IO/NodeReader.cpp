@@ -19,12 +19,14 @@
 
 #include "NodeReader.h"
 
+#include "Error.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/WorldNode.h"
 
 #include <kdl/vector_utils.h>
@@ -73,6 +75,10 @@ std::vector<Model::Node*> NodeReader::read(
           status);
         !result.empty())
     {
+      for (const auto& error : Model::initializeLinkIds(result))
+      {
+        status.error("Could not restore linked groups: " + error.msg);
+      }
       return result;
     }
   }
