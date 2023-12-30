@@ -162,7 +162,8 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces")
     brush.selectFace(1u);
     REQUIRE(brush.hasSelectedFaces());
 
-    auto clone = std::unique_ptr<BrushNode>(brush.clone(worldBounds));
+    auto clone = std::unique_ptr<BrushNode>(
+      static_cast<BrushNode*>(brush.clone(worldBounds, SetLinkId::generate)));
     CHECK(!clone->hasSelectedFaces());
   }
 }
@@ -171,14 +172,14 @@ TEST_CASE("BrushNodeTest.containsPatchNode")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto builder = Model::BrushBuilder{MapFormat::Quake3, worldBounds};
-  auto brushNode = Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+  auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
+  auto brushNode = BrushNode{builder.createCube(64.0, "some_texture").value()};
   transformNode(
     brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
   // a half cylinder that, at this position, just sticks out of the brush
   // clang-format off
-  auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
+  auto patchNode = PatchNode{BezierPatch{3, 5, {
     { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
       {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
       {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
@@ -198,15 +199,15 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto builder = Model::BrushBuilder{MapFormat::Quake3, worldBounds};
+  auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
 
-  auto brushNode = Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+  auto brushNode = BrushNode{builder.createCube(64.0, "some_texture").value()};
   transformNode(
     brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
   // a half cylinder that, at this position, just sticks out of the brush
   // clang-format off
-  auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
+  auto patchNode = PatchNode{BezierPatch{3, 5, {
     { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
       {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
       {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
@@ -241,7 +242,7 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode")
 
   SECTION("Brush does not contain any grid points, but patch intersects")
   {
-    auto thinBrushNode = Model::BrushNode{
+    auto thinBrushNode = BrushNode{
       builder
         .createCuboid(
           vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_texture")
@@ -328,7 +329,8 @@ TEST_CASE("BrushNodeTest.clone")
       })
       .value());
 
-  BrushNode* clone = original.clone(worldBounds);
+  auto clone = std::unique_ptr<BrushNode>{
+    static_cast<BrushNode*>(original.clone(worldBounds, SetLinkId::generate))};
 
   CHECK(clone->brush().faceCount() == original.brush().faceCount());
   for (const auto& originalFace : original.brush().faces())
@@ -339,8 +341,6 @@ TEST_CASE("BrushNodeTest.clone")
     const auto& cloneFace = clone->brush().face(*cloneFaceIndex);
     CHECK(cloneFace == originalFace);
   }
-
-  delete clone;
 }
 } // namespace Model
 } // namespace TrenchBroom

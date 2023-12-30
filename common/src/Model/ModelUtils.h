@@ -70,6 +70,10 @@ std::vector<GroupNode*> collectLinkedGroups(
   const std::vector<Node*>& nodes, const std::string& linkedGroupId);
 std::vector<GroupNode*> collectNestedLinkedGroups(const std::vector<Node*>& nodes);
 
+std::vector<Node*> collectLinkedNodes(
+  const std::vector<Node*>& nodes, const std::string& linkId);
+std::vector<Node*> collectLinkedNodes(const std::vector<Node*>& nodes, const Node& node);
+
 /**
  * Collect the linked group IDs of the given node and all of its ancestors.
  */

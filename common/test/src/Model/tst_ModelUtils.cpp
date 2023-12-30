@@ -196,13 +196,13 @@ TEST_CASE("ModelUtils.findLinkedGroups")
   setLinkedGroupId(*groupNode1, "group1");
   setLinkedGroupId(*groupNode2, "group2");
 
-  auto* linkedGroupNode1_1 =
-    static_cast<Model::GroupNode*>(groupNode1->cloneRecursively(worldBounds));
+  auto* linkedGroupNode1_1 = static_cast<Model::GroupNode*>(
+    groupNode1->cloneRecursively(worldBounds, SetLinkId::keep));
 
-  auto* linkedGroupNode2_1 =
-    static_cast<Model::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
-  auto* linkedGroupNode2_2 =
-    static_cast<Model::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
+  auto* linkedGroupNode2_1 = static_cast<Model::GroupNode*>(
+    groupNode2->cloneRecursively(worldBounds, SetLinkId::keep));
+  auto* linkedGroupNode2_2 = static_cast<Model::GroupNode*>(
+    groupNode2->cloneRecursively(worldBounds, SetLinkId::keep));
 
   worldNode.defaultLayer()->addChild(groupNode1);
   worldNode.defaultLayer()->addChild(groupNode2);
@@ -245,13 +245,13 @@ TEST_CASE("ModelUtils.findAllLinkedGroups")
   setLinkedGroupId(*groupNode1, "group1");
   setLinkedGroupId(*groupNode2, "group2");
 
-  auto* linkedGroupNode1_1 =
-    static_cast<Model::GroupNode*>(groupNode1->cloneRecursively(worldBounds));
+  auto* linkedGroupNode1_1 = static_cast<Model::GroupNode*>(
+    groupNode1->cloneRecursively(worldBounds, SetLinkId::keep));
 
-  auto* linkedGroupNode2_1 =
-    static_cast<Model::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
-  auto* linkedGroupNode2_2 =
-    static_cast<Model::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
+  auto* linkedGroupNode2_1 = static_cast<Model::GroupNode*>(
+    groupNode2->cloneRecursively(worldBounds, SetLinkId::keep));
+  auto* linkedGroupNode2_2 = static_cast<Model::GroupNode*>(
+    groupNode2->cloneRecursively(worldBounds, SetLinkId::keep));
 
   worldNode.defaultLayer()->addChild(groupNode1);
   worldNode.defaultLayer()->addChild(groupNode2);

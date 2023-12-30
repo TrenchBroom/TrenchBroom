@@ -864,8 +864,8 @@ TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
     group.setLinkedGroupId("asdf");
     groupNode->setGroup(std::move(group));
 
-    auto* groupNodeClone =
-      static_cast<Model::GroupNode*>(groupNode->cloneRecursively(worldBounds));
+    auto* groupNodeClone = static_cast<Model::GroupNode*>(
+      groupNode->cloneRecursively(worldBounds, Model::SetLinkId::keep));
 
     auto groupClone = groupNodeClone->group();
     groupClone.transform(vm::translation_matrix(vm::vec3{0, 16, 0}));
@@ -923,8 +923,8 @@ TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup")
   auto* groupNode = new Model::GroupNode{std::move(group)};
   worldNode.defaultLayer()->addChild(groupNode);
 
-  auto* groupNodeClone =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(worldBounds));
+  auto* groupNodeClone = static_cast<Model::GroupNode*>(
+    groupNode->cloneRecursively(worldBounds, Model::SetLinkId::keep));
   auto groupClone = groupNodeClone->group();
   groupClone.transform(vm::translation_matrix(vm::vec3{0, 16, 0}));
   groupNodeClone->setGroup(std::move(groupClone));

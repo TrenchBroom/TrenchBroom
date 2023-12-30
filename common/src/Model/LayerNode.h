@@ -73,7 +73,7 @@ private: // implement Node interface
   const vm::bbox3& doGetPhysicalBounds() const override;
   FloatType doGetProjectedArea(vm::axis::type axis) const override;
 
-  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doClone(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const override;
   bool doCanAddChild(const Node* child) const override;
   bool doCanRemoveChild(const Node* child) const override;
   bool doRemoveIfEmpty() const override;

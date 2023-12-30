@@ -171,8 +171,8 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transformObjects")
 
     document->addNodes({{document->parentForNodes(), {node}}});
 
-    const auto originalNode =
-      std::unique_ptr<Model::Node>{node->cloneRecursively(document->worldBounds())};
+    const auto originalNode = std::unique_ptr<Model::Node>{
+      node->cloneRecursively(document->worldBounds(), Model::SetLinkId::generate)};
     const auto transformation = vm::translation_matrix(vm::vec3d{1, 2, 3});
 
     WHEN("The node is transformed")

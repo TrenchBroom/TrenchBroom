@@ -93,8 +93,8 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
   auto* entityNode = new TestNode{Model::Entity{}, deleted};
   groupNode->addChild(entityNode);
 
-  auto* linkedNode =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+  auto* linkedNode = static_cast<Model::GroupNode*>(
+    groupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
 
   document->addNodes({{document->parentForNodes(), {groupNode, linkedNode}}});
 
@@ -137,8 +137,8 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
   auto* brushNode = createBrushNode();
   groupNode->addChild(brushNode);
 
-  auto* linkedGroupNode =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+  auto* linkedGroupNode = static_cast<Model::GroupNode*>(
+    groupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
 
   REQUIRE(linkedGroupNode->children().size() == 1u);
   auto* linkedBrushNode =
@@ -287,7 +287,7 @@ TEST_CASE_METHOD(
   // create a linked group of the inner group node so that cloning the outer group node
   // will create a linked clone of the inner group node
   auto* linkedInnerGroupNode = static_cast<Model::GroupNode*>(
-    innerGroupNode->cloneRecursively(document->worldBounds()));
+    innerGroupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
   setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
   REQUIRE(
     linkedInnerGroupNode->group().linkedGroupId()
@@ -296,7 +296,7 @@ TEST_CASE_METHOD(
   document->addNodes({{document->parentForNodes(), {linkedInnerGroupNode}}});
 
   auto* linkedOuterGroupNode = static_cast<Model::GroupNode*>(
-    outerGroupNode->cloneRecursively(document->worldBounds()));
+    outerGroupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
   setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
   REQUIRE(
     linkedOuterGroupNode->group().linkedGroupId()

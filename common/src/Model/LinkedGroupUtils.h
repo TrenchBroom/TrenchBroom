@@ -21,6 +21,7 @@
 
 #include "FloatType.h"
 #include "Result.h"
+#include "Uuid.h"
 
 #include <memory>
 #include <unordered_map>
@@ -72,5 +73,15 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
 std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes);
 std::vector<Error> initializeLinkIds(
   GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
+
+template <typename T>
+T setNewLinkIdIf(T x, const bool setNewLinkId)
+{
+  if (setNewLinkId)
+  {
+    x.setLinkId(generateUuid());
+  }
+  return x;
+}
 
 } // namespace TrenchBroom::Model

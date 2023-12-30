@@ -1643,7 +1643,7 @@ TEST_CASE("WorldReader.parseOrphanedLinkedGroups")
 
   CHECK(groupNode != nullptr);
   CHECK(groupNode->group().linkedGroupId() == std::nullopt);
-  CHECK(groupNode->group().linkId() != "abcd");
+  CHECK(groupNode->group().linkId() == "abcd");
   CHECK(groupNode->group().transformation() == vm::mat4x4::identity());
 }
 
@@ -1864,7 +1864,7 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
     dynamic_cast<Model::GroupNode*>(groupNode_4_1->children().front());
 
   CHECK(groupNode_1_abcd->group().linkedGroupId() == std::nullopt);
-  CHECK(groupNode_1_abcd->group().linkId() != "abcd");
+  CHECK(groupNode_1_abcd->group().linkId() == "abcd");
   CHECK(groupNode_1_abcd->group().transformation() == vm::mat4x4::identity());
   CHECK(groupNode_1_2_abcd->group().linkedGroupId() == std::nullopt);
   CHECK(groupNode_1_2_abcd->group().linkId() != "abcd");
@@ -1881,7 +1881,7 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
   CHECK(groupNode_3_xyz->group().transformation() == vm::mat4x4::identity());
 
   CHECK(groupNode_4_fgh->group().linkedGroupId() == std::nullopt);
-  CHECK(groupNode_4_fgh->group().linkId() != "fgh");
+  CHECK(groupNode_4_fgh->group().linkId() == "fgh");
   CHECK(groupNode_4_fgh->group().transformation() == vm::mat4x4::identity());
   CHECK(groupNode_4_1->group().linkedGroupId() == std::nullopt);
   CHECK(groupNode_4_1->group().transformation() == vm::mat4x4::identity());

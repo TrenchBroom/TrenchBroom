@@ -77,8 +77,6 @@ public:
   ~BrushNode() override;
 
 public:
-  BrushNode* clone(const vm::bbox3& worldBounds) const;
-
   EntityNodeBase* entity();
   const EntityNodeBase* entity() const;
 
@@ -107,7 +105,7 @@ private: // implement Node interface
 
   FloatType doGetProjectedArea(vm::axis::type axis) const override;
 
-  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doClone(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const override;
 
   bool doCanAddChild(const Node* child) const override;
   bool doCanRemoveChild(const Node* child) const override;

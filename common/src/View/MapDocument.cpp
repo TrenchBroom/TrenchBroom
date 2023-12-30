@@ -898,48 +898,38 @@ void fixRecursiveLinkedGroups(
 
 void initializeLinkIds(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd,
-  const Model::WorldNode& worldNode,
+  Model::WorldNode& worldNode,
   Logger& logger)
 {
   const auto groupsToAdd = kdl::vec_sort(
-    kdl::vec_transform(
-      Model::collectNodes(
-        kdl::vec_flatten(kdl::map_values(nodesToAdd)),
-        [](const auto* node) {
-          return dynamic_cast<const Model::GroupNode*>(node) != nullptr;
-        }),
-      [](auto* node) { return dynamic_cast<Model::GroupNode*>(node); }),
+    Model::collectNestedLinkedGroups(kdl::vec_flatten(kdl::map_values(nodesToAdd))),
     [](const auto* lhs, const auto* rhs) {
       return lhs->group().linkId() < rhs->group().linkId();
     });
+
   const auto groupsByLinkId =
     kdl::make_grouped_range(groupsToAdd, [](const auto* lhs, const auto* rhs) {
       return lhs->group().linkId() == rhs->group().linkId();
     });
 
-  for (const auto& groupsWithSameLinkId : groupsByLinkId)
+  for (const auto& linkedGroupsToAdd : groupsByLinkId)
   {
-    const auto& linkId = groupsWithSameLinkId.front()->group().linkId();
-    const auto existingLinkedGroups = kdl::vec_transform(
-      Model::collectNodes(
-        std::vector{&worldNode},
-        [&](const auto* node) {
-          if (const auto* groupNode = dynamic_cast<const Model::GroupNode*>(node))
-          {
-            return groupNode->group().linkId() == linkId;
-          }
-          return false;
-        }),
-      [](auto* node) { return dynamic_cast<Model::GroupNode*>(node); });
+    const auto& linkId = linkedGroupsToAdd.front()->group().linkId();
+    const auto existingLinkedNodes = Model::collectLinkedNodes({&worldNode}, linkId);
 
-    if (!existingLinkedGroups.empty())
+    if (!existingLinkedNodes.empty())
     {
-      for (const auto& e : Model::initializeLinkIds(
-             *existingLinkedGroups.front(),
-             std::vector<Model::GroupNode*>(
-               groupsWithSameLinkId.begin(), groupsWithSameLinkId.end())))
+      if (
+        auto* existingLinkedGroup =
+          dynamic_cast<Model::GroupNode*>(existingLinkedNodes.front()))
       {
-        logger.warn() << "Could not paste linked groups: " + e.msg;
+        const auto errors = Model::initializeLinkIds(
+          *existingLinkedGroup,
+          std::vector(linkedGroupsToAdd.begin(), linkedGroupsToAdd.end()));
+        for (const auto& error : errors)
+        {
+          logger.warn() << "Could not paste linked groups: " + error.msg;
+        }
       }
     }
   }
@@ -1849,7 +1839,12 @@ void MapDocument::duplicateObjects()
   for (auto* original : selectedNodes().nodes())
   {
     auto* suggestedParent = parentForNodes({original});
-    auto* clone = original->cloneRecursively(m_worldBounds);
+
+    const auto isLinkedNode =
+      Model::collectLinkedNodes({m_world.get()}, *original).size() > 1;
+    const auto setLinkIds =
+      isLinkedNode ? Model::SetLinkId::keep : Model::SetLinkId::generate;
+    auto* clone = original->cloneRecursively(m_worldBounds, setLinkIds);
 
     if (shouldCloneParentWhenCloningNode(original))
     {
@@ -1866,7 +1861,7 @@ void MapDocument::duplicateObjects()
       else
       {
         // parent was not cloned yet
-        newParent = parent->clone(m_worldBounds);
+        newParent = parent->clone(m_worldBounds, setLinkIds);
         newParentMap.insert({parent, newParent});
         nodesToAdd[suggestedParent].push_back(newParent);
       }
@@ -2218,8 +2213,8 @@ Model::GroupNode* MapDocument::createLinkedDuplicate()
     linkGroups({groupNode});
   }
 
-  auto* groupNodeClone =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(m_worldBounds));
+  auto* groupNodeClone = static_cast<Model::GroupNode*>(
+    groupNode->cloneRecursively(m_worldBounds, Model::SetLinkId::keep));
   auto* suggestedParent = parentForNodes(std::vector<Model::Node*>{groupNode});
   if (addNodes({{suggestedParent, {groupNodeClone}}}).empty())
   {

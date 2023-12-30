@@ -80,7 +80,7 @@ TEST_CASE("GroupNode.updateLinkedGroups")
   SECTION("Update a single target group")
   {
     auto groupNodeClone = std::unique_ptr<GroupNode>{
-      static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds))};
+      static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
     REQUIRE(
       groupNodeClone->group().transformation()
       == vm::translation_matrix(vm::vec3{1, 0, 0}));
@@ -127,8 +127,8 @@ TEST_CASE("GroupNode.updateNestedLinkedGroups")
   auto* innerGroupEntityNode = new EntityNode{Entity{}};
   innerGroupNode->addChild(innerGroupEntityNode);
 
-  auto innerGroupNodeClone = std::unique_ptr<GroupNode>{
-    static_cast<GroupNode*>(innerGroupNode->cloneRecursively(worldBounds))};
+  auto innerGroupNodeClone = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(
+    innerGroupNode->cloneRecursively(worldBounds, SetLinkId::keep))};
   REQUIRE(innerGroupNodeClone->group().transformation() == vm::mat4x4{});
 
   transformNode(
@@ -225,8 +225,8 @@ TEST_CASE("GroupNode.updateLinkedGroupsRecursively")
      +-innerGroupEntityNode
   */
 
-  auto outerGroupNodeClone = std::unique_ptr<GroupNode>{
-    static_cast<GroupNode*>(outerGroupNode.cloneRecursively(worldBounds))};
+  auto outerGroupNodeClone = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(
+    outerGroupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
   REQUIRE(outerGroupNodeClone->group().transformation() == vm::mat4x4{});
   REQUIRE(outerGroupNodeClone->childCount() == 1u);
 
@@ -278,7 +278,7 @@ TEST_CASE("GroupNode.updateLinkedGroupsExceedsWorldBounds")
   groupNode.addChild(entityNode);
 
   auto groupNodeClone = std::unique_ptr<GroupNode>{
-    static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds))};
+    static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
 
   transformNode(
     *groupNodeClone, vm::translation_matrix(vm::vec3{8192 - 8, 0, 0}), worldBounds);
@@ -311,12 +311,12 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveNestedGroupNames")
   auto* innerGroupNode = new GroupNode{Group{"innerGroupNode"}};
   outerGroupNode.addChild(innerGroupNode);
 
-  auto innerGroupNodeClone = std::unique_ptr<GroupNode>(
-    static_cast<GroupNode*>(innerGroupNode->cloneRecursively(worldBounds)));
+  auto innerGroupNodeClone = std::unique_ptr<GroupNode>(static_cast<GroupNode*>(
+    innerGroupNode->cloneRecursively(worldBounds, SetLinkId::keep)));
   setGroupName(*innerGroupNodeClone, "innerGroupNodeClone");
 
-  auto outerGroupNodeClone = std::unique_ptr<GroupNode>(
-    static_cast<GroupNode*>(outerGroupNode.cloneRecursively(worldBounds)));
+  auto outerGroupNodeClone = std::unique_ptr<GroupNode>(static_cast<GroupNode*>(
+    outerGroupNode.cloneRecursively(worldBounds, SetLinkId::keep)));
   setGroupName(*outerGroupNodeClone, "outerGroupNodeClone");
 
   auto* innerGroupNodeNestedClone =
@@ -332,8 +332,7 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveNestedGroupNames")
    */
 
   SECTION(
-    "Updating outerGroupNode retains the names of its linked group and the nested "
-    "linked "
+    "Updating outerGroupNode retains the names of its linked group and the nested linked "
     "group")
   {
     updateLinkedGroups(outerGroupNode, {outerGroupNodeClone.get()}, worldBounds)
@@ -358,8 +357,8 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveEntityProperties")
   auto* sourceEntityNode = new EntityNode{Entity{}};
   sourceGroupNode.addChild(sourceEntityNode);
 
-  auto targetGroupNode = std::unique_ptr<GroupNode>{
-    static_cast<GroupNode*>(sourceGroupNode.cloneRecursively(worldBounds))};
+  auto targetGroupNode = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(
+    sourceGroupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
 
   auto* targetEntityNode = static_cast<EntityNode*>(targetGroupNode->children().front());
   REQUIRE_THAT(

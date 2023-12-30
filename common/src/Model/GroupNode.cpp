@@ -27,6 +27,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/NodeContents.h"
 #include "Model/PatchNode.h"
@@ -182,9 +183,11 @@ FloatType GroupNode::doGetProjectedArea(const vm::axis::type) const
   return static_cast<FloatType>(0);
 }
 
-Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const
+Node* GroupNode::doClone(
+  const vm::bbox3& /* worldBounds */, const SetLinkId setLinkIds) const
 {
-  auto groupNode = std::make_unique<GroupNode>(m_group);
+  auto groupNode = std::make_unique<GroupNode>(
+    setNewLinkIdIf(m_group, setLinkIds == SetLinkId::generate));
   cloneAttributes(groupNode.get());
   return groupNode.release();
 }

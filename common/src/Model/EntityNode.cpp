@@ -24,6 +24,7 @@
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityPropertiesVariableStore.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
@@ -104,9 +105,11 @@ FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const
   }
 }
 
-Node* EntityNode::doClone(const vm::bbox3& /* worldBounds */) const
+Node* EntityNode::doClone(
+  const vm::bbox3& /* worldBounds */, const SetLinkId setLinkIds) const
 {
-  auto entity = std::make_unique<EntityNode>(m_entity);
+  auto entity = std::make_unique<EntityNode>(
+    setNewLinkIdIf(m_entity, setLinkIds == SetLinkId::generate));
   cloneAttributes(entity.get());
   return entity.release();
 }

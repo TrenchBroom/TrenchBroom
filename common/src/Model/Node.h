@@ -56,6 +56,12 @@ struct NodePath
   kdl_reflect_decl(NodePath, indices);
 };
 
+enum class SetLinkId
+{
+  generate,
+  keep,
+};
+
 class Node : public Taggable
 {
 private:
@@ -129,28 +135,32 @@ public: // getters
   FloatType projectedArea(vm::axis::type axis) const;
 
 public: // cloning and snapshots
-  Node* clone(const vm::bbox3& worldBounds) const;
-  Node* cloneRecursively(const vm::bbox3& worldBounds) const;
+  Node* clone(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const;
+  Node* cloneRecursively(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const;
 
 protected:
   void cloneAttributes(Node* node) const;
 
   static std::vector<Node*> clone(
-    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
+    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes, SetLinkId setLinkIds);
   static std::vector<Node*> cloneRecursively(
-    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
+    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes, SetLinkId setLinkIds);
 
   template <typename I, typename O>
-  static void clone(const vm::bbox3& worldBounds, I cur, I end, O result)
+  static void clone(
+    const vm::bbox3& worldBounds, const SetLinkId setLinkIds, I cur, I end, O result)
   {
-    std::for_each(cur, end, [&](auto* node) { result++ = node->clone(worldBounds); });
+    std::for_each(
+      cur, end, [&](auto* node) { result++ = node->clone(worldBounds, setLinkIds); });
   }
 
   template <typename I, typename O>
-  static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result)
+  static void cloneRecursively(
+    const vm::bbox3& worldBounds, const SetLinkId setLinkIds, I cur, I end, O result)
   {
-    std::for_each(
-      cur, end, [&](auto* node) { result++ = node->cloneRecursively(worldBounds); });
+    std::for_each(cur, end, [&](auto* node) {
+      result++ = node->cloneRecursively(worldBounds, setLinkIds);
+    });
   }
 
 public: // tree management
@@ -509,8 +519,9 @@ private: // subclassing interface
 
   virtual FloatType doGetProjectedArea(vm::axis::type axis) const = 0;
 
-  virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;
-  virtual Node* doCloneRecursively(const vm::bbox3& worldBounds) const;
+  virtual Node* doClone(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const = 0;
+  virtual Node* doCloneRecursively(
+    const vm::bbox3& worldBounds, SetLinkId setLinkIds) const;
 
   virtual bool doCanAddChild(const Node* child) const = 0;
   virtual bool doCanRemoveChild(const Node* child) const = 0;

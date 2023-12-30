@@ -196,6 +196,41 @@ std::vector<GroupNode*> collectNestedLinkedGroups(const std::vector<Node*>& node
   return result;
 }
 
+std::vector<Node*> collectLinkedNodes(
+  const std::vector<Node*>& nodes, const std::string& linkId)
+{
+  return collectNodes(nodes, [&](const auto* node) {
+    return node->accept(kdl::overload(
+      [](const WorldNode*) { return false; },
+      [](const LayerNode*) { return false; },
+      [&](const GroupNode* groupNode) { return groupNode->group().linkId() == linkId; },
+      [&](const EntityNode* entityNode) {
+        return entityNode->entity().linkId() == linkId;
+      },
+      [&](const BrushNode* brushNode) { return brushNode->brush().linkId() == linkId; },
+      [&](const PatchNode* patchNode) { return patchNode->patch().linkId() == linkId; }));
+  });
+}
+
+std::vector<Node*> collectLinkedNodes(const std::vector<Node*>& nodes, const Node& node)
+{
+  return node.accept(kdl::overload(
+    [](const WorldNode*) { return std::vector<Node*>{}; },
+    [](const LayerNode*) { return std::vector<Node*>{}; },
+    [&](const GroupNode* groupNode) {
+      return collectLinkedNodes(nodes, groupNode->group().linkId());
+    },
+    [&](const EntityNode* entityNode) {
+      return collectLinkedNodes(nodes, entityNode->entity().linkId());
+    },
+    [&](const BrushNode* brushNode) {
+      return collectLinkedNodes(nodes, brushNode->brush().linkId());
+    },
+    [&](const PatchNode* patchNode) {
+      return collectLinkedNodes(nodes, patchNode->patch().linkId());
+    }));
+}
+
 std::vector<std::string> collectParentLinkedGroupIds(const Node& parentNode)
 {
   auto result = std::vector<std::string>{};

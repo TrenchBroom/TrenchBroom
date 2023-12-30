@@ -441,7 +441,7 @@ TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups")
   innerGroupNode->addChild(entityNode);
 
   auto* linkedInnerGroupNode = static_cast<Model::GroupNode*>(
-    innerGroupNode->cloneRecursively(document->worldBounds()));
+    innerGroupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
 
   auto* linkedEntityNode =
     dynamic_cast<Model::EntityNode*>(linkedInnerGroupNode->children().front());
