@@ -122,6 +122,43 @@ AnyOfMatcher<T> MatchesAnyOf(std::initializer_list<T> expected)
   return AnyOfMatcher<T>(std::vector<T>{expected});
 }
 
+template <typename T>
+class NoneOfMatcher : public Catch::MatcherBase<T>
+{
+  std::vector<T> m_expected;
+
+public:
+  explicit NoneOfMatcher(std::vector<T> expected)
+    : m_expected{std::move(expected)}
+  {
+  }
+
+  bool match(const T& in) const override
+  {
+    return std::none_of(
+      m_expected.begin(), m_expected.end(), [&](const auto& e) { return in == e; });
+  }
+
+  std::string describe() const override
+  {
+    auto str = std::stringstream{};
+    str << "matches none of " << kdl::make_streamable(m_expected);
+    return str.str();
+  }
+};
+
+template <typename T>
+NoneOfMatcher<T> MatchesNoneOf(std::vector<T> expected)
+{
+  return NoneOfMatcher<T>{std::move(expected)};
+}
+
+template <typename T>
+NoneOfMatcher<T> MatchesNoneOf(std::initializer_list<T> expected)
+{
+  return NoneOfMatcher<T>(std::vector<T>{expected});
+}
+
 class GlobMatcher : public Catch::MatcherBase<std::string>
 {
 private:
