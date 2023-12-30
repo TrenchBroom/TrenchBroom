@@ -59,6 +59,7 @@
 #include "Model/LayerNode.h"
 #include "Model/LinkSourceValidator.h"
 #include "Model/LinkTargetValidator.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/LockState.h"
 #include "Model/LongPropertyKeyValidator.h"
 #include "Model/LongPropertyValueValidator.h"
@@ -103,6 +104,7 @@
 #include "View/UpdateLinkedGroupsHelper.h"
 #include "View/ViewEffectsService.h"
 
+#include "kdl/grouped_range.h"
 #include <kdl/collection_utils.h>
 #include <kdl/map_utils.h>
 #include <kdl/memory_utils.h>
@@ -738,36 +740,15 @@ PasteType MapDocument::paste(const std::string& str)
   return PasteType::Failed;
 }
 
-static std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root)
+namespace
 {
-  auto result = std::vector<Model::IdType>{};
-  root.accept(kdl::overload(
-    [](auto&& thisLambda, const Model::WorldNode* worldNode) {
-      worldNode->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, const Model::LayerNode* layerNode) {
-      layerNode->visitChildren(thisLambda);
-    },
-    [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
-      if (const auto persistentId = groupNode->persistentId())
-      {
-        result.push_back(*persistentId);
-      }
-      groupNode->visitChildren(thisLambda);
-    },
-    [](const Model::EntityNode*) {},
-    [](const Model::BrushNode*) {},
-    [](const Model::PatchNode*) {}));
-  return result;
-}
 
-bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
+auto extractNodesToPaste(const std::vector<Model::Node*>& nodes, Model::Node* parent)
 {
   auto nodesToDetach = std::vector<Model::Node*>{};
   auto nodesToDelete = std::vector<Model::Node*>{};
   auto nodesToAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
 
-  auto* parent = parentForNodes();
   for (auto* node : nodes)
   {
     node->accept(kdl::overload(
@@ -816,8 +797,37 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
   }
   kdl::vec_clear_and_delete(nodesToDelete);
 
-  // Clean up persistent IDs of any groups being pasted
-  auto persistentGroupIds = kdl::vector_set(allPersistentGroupIds(*m_world.get()));
+  return nodesToAdd;
+}
+
+std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root)
+{
+  auto result = std::vector<Model::IdType>{};
+  root.accept(kdl::overload(
+    [](auto&& thisLambda, const Model::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const Model::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
+      if (const auto persistentId = groupNode->persistentId())
+      {
+        result.push_back(*persistentId);
+      }
+      groupNode->visitChildren(thisLambda);
+    },
+    [](const Model::EntityNode*) {},
+    [](const Model::BrushNode*) {},
+    [](const Model::PatchNode*) {}));
+  return result;
+}
+
+void fixRedundantPersistentIds(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd,
+  const std::vector<Model::IdType>& existingPersistentGroupIds)
+{
+  auto persistentGroupIds = kdl::vector_set{existingPersistentGroupIds};
   for (auto& [newParent, nodesToAddToParent] : nodesToAdd)
   {
     for (auto* node : nodesToAddToParent)
@@ -834,8 +844,7 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
           {
             if (!persistentGroupIds.insert(*persistentGroupId).second)
             {
-              // a group with this ID is already in the map or being pasted, so reset the
-              // ID
+              // a group with this ID is already in the map or being pasted
               groupNode->resetPersistentId();
             }
           }
@@ -846,8 +855,11 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
         [](Model::PatchNode*) {}));
     }
   }
+}
 
-  // unlink any recursive linked groups
+void fixRecursiveLinkedGroups(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, Logger& logger)
+{
   for (auto& [newParent, nodesToAddToParent] : nodesToAdd)
   {
     const auto linkedGroupIds =
@@ -867,10 +879,11 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
             if (std::binary_search(
                   linkedGroupIds.begin(), linkedGroupIds.end(), *linkedGroupId))
             {
-              warn() << "Unlinking recursive linked group with ID '" << *linkedGroupId
-                     << "'";
+              logger.warn() << "Unlinking recursive linked group with ID '"
+                            << *linkedGroupId << "'";
               auto group = groupNode->group();
               group.resetLinkedGroupId();
+              group.setLinkId(generateUuid());
               groupNode->setGroup(std::move(group));
             }
           }
@@ -881,7 +894,15 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
         [](Model::PatchNode*) {}));
     }
   }
+}
 
+} // namespace
+
+bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
+{
+  const auto nodesToAdd = extractNodesToPaste(nodes, parentForNodes());
+  fixRedundantPersistentIds(nodesToAdd, allPersistentGroupIds(*m_world.get()));
+  fixRecursiveLinkedGroups(nodesToAdd, *this);
 
   auto transaction = Transaction{*this, "Paste Nodes"};
 
