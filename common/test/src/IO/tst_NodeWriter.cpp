@@ -33,6 +33,7 @@
 #include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
+#include "TestUtils.h"
 
 #include <kdl/result.h>
 #include <kdl/string_compare.h>
@@ -401,6 +402,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer")
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
   auto* groupNode = new Model::GroupNode{Model::Group{"Group"}};
+  Model::setLinkId(*groupNode, "group_link_id");
   map.defaultLayer()->addChild(groupNode);
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
@@ -423,6 +425,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer")
 "_tb_type" "_tb_group"
 "_tb_name" "Group"
 "_tb_id" "{}"
+"_tb_linked_group_id" "group_link_id"
 // brush 0
 {{
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
@@ -448,6 +451,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer")
   map.addChild(layerNode);
 
   auto* groupNode = new Model::GroupNode{Model::Group{"Group"}};
+  Model::setLinkId(*groupNode, "group_link_id");
   layerNode->addChild(groupNode);
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
@@ -477,6 +481,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer")
 "_tb_type" "_tb_group"
 "_tb_name" "Group"
 "_tb_id" "{1}"
+"_tb_linked_group_id" "group_link_id"
 "_tb_layer" "{0}"
 // brush 0
 {{
@@ -504,9 +509,11 @@ TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer")
   map.addChild(layerNode);
 
   auto* outerGroupNode = new Model::GroupNode{Model::Group{"Outer Group"}};
+  Model::setLinkId(*outerGroupNode, "outer_group_link_id");
   layerNode->addChild(outerGroupNode);
 
   auto* innerGroupNode = new Model::GroupNode{Model::Group{"Inner Group"}};
+  Model::setLinkId(*innerGroupNode, "inner_group_link_id");
   outerGroupNode->addChild(innerGroupNode);
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
@@ -536,6 +543,7 @@ TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer")
 "_tb_type" "_tb_group"
 "_tb_name" "Outer Group"
 "_tb_id" "{1}"
+"_tb_linked_group_id" "outer_group_link_id"
 "_tb_layer" "{0}"
 }}
 // entity 3
@@ -544,6 +552,7 @@ TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer")
 "_tb_type" "_tb_group"
 "_tb_name" "Inner Group"
 "_tb_id" "{2}"
+"_tb_linked_group_id" "inner_group_link_id"
 "_tb_group" "{1}"
 // brush 0
 {{
@@ -574,10 +583,12 @@ TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs")
 
   auto* outerGroupNode = new Model::GroupNode{Model::Group{"Outer Group"}};
   outerGroupNode->setPersistentId(21u);
+  Model::setLinkId(*outerGroupNode, "outer_group_link_id");
   layerNode1->addChild(outerGroupNode);
 
   auto* innerGroupNode = new Model::GroupNode{Model::Group{"Inner Group"}};
   innerGroupNode->setPersistentId(7u);
+  Model::setLinkId(*innerGroupNode, "inner_group_link_id");
   outerGroupNode->addChild(innerGroupNode);
 
   auto* layerNode2 = new Model::LayerNode{Model::Layer{"Custom Layer 2"}};
@@ -611,6 +622,7 @@ TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs")
 "_tb_type" "_tb_group"
 "_tb_name" "Outer Group"
 "_tb_id" "21"
+"_tb_linked_group_id" "outer_group_link_id"
 "_tb_layer" "1"
 }
 // entity 3
@@ -619,6 +631,7 @@ TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs")
 "_tb_type" "_tb_group"
 "_tb_name" "Inner Group"
 "_tb_id" "7"
+"_tb_linked_group_id" "inner_group_link_id"
 "_tb_group" "21"
 // brush 0
 {
@@ -777,6 +790,9 @@ TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup")
   auto* innerGroupNode = new Model::GroupNode{Model::Group{"Inner Group"}};
   auto* innerBrushNode = new Model::BrushNode{builder.createCube(64.0, "none").value()};
 
+  Model::setLinkId(*outerGroupNode, "outer_group_link_id");
+  Model::setLinkId(*innerGroupNode, "inner_group_link_id");
+
   innerGroupNode->addChild(innerBrushNode);
   outerGroupNode->addChild(innerGroupNode);
   map.defaultLayer()->addChild(worldBrushNode);
@@ -807,6 +823,7 @@ TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup")
 "_tb_type" "_tb_group"
 "_tb_name" "Inner Group"
 "_tb_id" "{}"
+"_tb_linked_group_id" "inner_group_link_id"
 // brush 0
 {{
 ( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) none 0 0 0 1 1
@@ -828,13 +845,11 @@ TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
 
   auto worldNode = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
-  auto group = Model::Group{"Group"};
-  group.transform(vm::translation_matrix(vm::vec3{32, 0, 0}));
-  auto* groupNode = new Model::GroupNode{std::move(group)};
-
+  auto* groupNode = new Model::GroupNode{Model::Group{"Group"}};
+  Model::setLinkId(*groupNode, "group_link_id");
   worldNode.defaultLayer()->addChild(groupNode);
 
-  SECTION("Group node without linked group ID does not write ID or transformation")
+  SECTION("Group node with identity transformation does not write transformation")
   {
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -852,28 +867,17 @@ TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
 "_tb_type" "_tb_group"
 "_tb_name" "Group"
 "_tb_id" "{}"
+"_tb_linked_group_id" "group_link_id"
 }}
 )",
       *groupNode->persistentId());
     CHECK(actual == expected);
   }
 
-  SECTION("Group nodes with linked group ID does write ID and transformation")
+  SECTION("Group node with changed transformation writes transformation")
   {
-    group = groupNode->group();
-    group.setLinkedGroupId("asdf");
-    groupNode->setGroup(std::move(group));
-
-    auto* groupNodeClone = static_cast<Model::GroupNode*>(
-      groupNode->cloneRecursively(worldBounds, Model::SetLinkId::keep));
-
-    auto groupClone = groupNodeClone->group();
-    groupClone.transform(vm::translation_matrix(vm::vec3{0, 16, 0}));
-    groupNodeClone->setGroup(std::move(groupClone));
-
-    worldNode.defaultLayer()->addChild(groupNodeClone);
-    REQUIRE(
-      groupNodeClone->group().linkedGroupId() == groupNode->group().linkedGroupId());
+    Model::transformNode(
+      *groupNode, vm::translation_matrix(vm::vec3{32, 0, 0}), worldBounds);
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -891,21 +895,11 @@ TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
 "_tb_type" "_tb_group"
 "_tb_name" "Group"
 "_tb_id" "{0}"
-"_tb_linked_group_id" "asdf"
+"_tb_linked_group_id" "group_link_id"
 "_tb_transformation" "1 0 0 32 0 1 0 0 0 0 1 0 0 0 0 1"
 }}
-// entity 2
-{{
-"classname" "func_group"
-"_tb_type" "_tb_group"
-"_tb_name" "Group"
-"_tb_id" "{1}"
-"_tb_linked_group_id" "asdf"
-"_tb_transformation" "1 0 0 32 0 1 0 16 0 0 1 0 0 0 0 1"
-}}
 )",
-      *groupNode->persistentId(),
-      *groupNodeClone->persistentId());
+      *groupNode->persistentId());
     CHECK(actual == expected);
   }
 }
@@ -916,21 +910,19 @@ TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup")
 
   auto worldNode = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
-  auto group = Model::Group{"Group"};
-  group.transform(vm::translation_matrix(vm::vec3{32, 0, 0}));
-  group.setLinkedGroupId("asdf");
-
-  auto* groupNode = new Model::GroupNode{std::move(group)};
+  auto* groupNode = new Model::GroupNode{Model::Group{"Group"}};
+  Model::setLinkId(*groupNode, "asdf");
+  Model::transformNode(
+    *groupNode, vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)), worldBounds);
   worldNode.defaultLayer()->addChild(groupNode);
 
   auto* groupNodeClone = static_cast<Model::GroupNode*>(
     groupNode->cloneRecursively(worldBounds, Model::SetLinkId::keep));
-  auto groupClone = groupNodeClone->group();
-  groupClone.transform(vm::translation_matrix(vm::vec3{0, 16, 0}));
-  groupNodeClone->setGroup(std::move(groupClone));
+  Model::transformNode(
+    *groupNodeClone, vm::translation_matrix(vm::vec3(0.0, 16.0, 0.0)), worldBounds);
 
   worldNode.defaultLayer()->addChild(groupNodeClone);
-  REQUIRE(groupNodeClone->group().linkedGroupId() == groupNode->group().linkedGroupId());
+  REQUIRE(groupNodeClone->group().linkId() == groupNode->group().linkId());
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{worldNode, str};

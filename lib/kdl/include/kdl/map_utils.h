@@ -31,15 +31,14 @@ namespace kdl
  * Returns a vector containing copies of the given map's keys. The keys are returned in
  * the order in which they are stored in the given map.
  *
- * @tparam K the key type
- * @tparam V the value type
+ * @tparam Map the map type
  * @param m the map
  * @return a vector containing the keys
  */
-template <typename K, typename V>
-std::vector<K> map_keys(const std::map<K, V>& m)
+template <typename Map>
+auto map_keys(const Map& m)
 {
-  std::vector<K> result;
+  auto result = std::vector<typename Map::key_type>{};
   result.reserve(m.size());
   for (const auto& [key, value] : m)
   {
@@ -52,15 +51,14 @@ std::vector<K> map_keys(const std::map<K, V>& m)
  * Returns a vector containing copies of the given map's values. The values are returned
  * in the order in which they appear in the given map.
  *
- * @tparam K the key type
- * @tparam V the value type
+ * @tparam Map the map type
  * @param m the map
  * @return a vector containing the values
  */
-template <typename K, typename V>
-std::vector<V> map_values(const std::map<K, V>& m)
+template <typename Map>
+auto map_values(const Map& m)
 {
-  std::vector<V> result;
+  auto result = std::vector<typename Map::mapped_type>{};
   result.reserve(m.size());
   for (const auto& [key, value] : m)
   {

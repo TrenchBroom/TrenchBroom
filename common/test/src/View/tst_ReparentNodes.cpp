@@ -26,6 +26,8 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
+#include "CatchUtils/Matchers.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom::View
@@ -247,18 +249,26 @@ TEST_CASE_METHOD(
   document->selectNodes({outerGroupNode});
 
   auto* linkedOuterGroupNode = document->createLinkedDuplicate();
+  REQUIRE(
+    outerGroupNode->children()
+    == std::vector<Model::Node*>{outerEntityNode, innerGroupNode});
+  REQUIRE_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
 
   document->deselectAll();
 
   document->reparentNodes({{document->parentForNodes(), {innerEntityNode}}});
-  REQUIRE(outerGroupNode->children() == std::vector<Model::Node*>{outerEntityNode});
-  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+  CHECK(outerGroupNode->children() == std::vector<Model::Node*>{outerEntityNode});
+  CHECK_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
 
   document->undoCommand();
-  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+  CHECK(
+    outerGroupNode->children()
+    == std::vector<Model::Node*>{outerEntityNode, innerGroupNode});
+  REQUIRE_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
 
   document->redoCommand();
-  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+  CHECK(outerGroupNode->children() == std::vector<Model::Node*>{outerEntityNode});
+  CHECK_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroupsFails")

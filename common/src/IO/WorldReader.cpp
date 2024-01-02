@@ -73,7 +73,7 @@ WorldReader::WorldReader(
   std::string_view str,
   const Model::MapFormat sourceAndTargetMapFormat,
   const Model::EntityPropertyConfig& entityPropertyConfig)
-  : MapReader{std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat, entityPropertyConfig, {}}
+  : MapReader{std::move(str), sourceAndTargetMapFormat, sourceAndTargetMapFormat, entityPropertyConfig}
   , m_worldNode{std::make_unique<Model::WorldNode>(
       entityPropertyConfig, Model::Entity{}, sourceAndTargetMapFormat)}
 {

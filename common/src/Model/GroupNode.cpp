@@ -193,45 +193,14 @@ Node* GroupNode::doClone(
 }
 
 /** Check whether the given parent node or any of its ancestors and the given group node
- *  or any of its descendants have the same linked group id.
+ *  or any of its descendants have the same link id.
  */
 static bool checkRecursiveLinkedGroups(
   const Node& parentNode, const GroupNode& groupNodeToAdd)
 {
-  const auto ancestorLinkedGroupIds = [&]() {
-    auto result = std::vector<std::string>{};
-    const auto* node = &parentNode;
-    while (node)
-    {
-      const auto* groupNode = dynamic_cast<const Model::GroupNode*>(node);
-      const auto linkedGroupId =
-        groupNode ? groupNode->group().linkedGroupId() : std::nullopt;
-      if (linkedGroupId)
-      {
-        result.push_back(*linkedGroupId);
-      }
-      node = node->parent();
-    }
-    return kdl::vec_sort_and_remove_duplicates(std::move(result));
-  }();
-
-  const auto linkedGroupIdsToAdd = [&]() {
-    auto result = std::vector<std::string>{};
-    groupNodeToAdd.accept(kdl::overload(
-      [](const WorldNode*) {},
-      [](const LayerNode*) {},
-      [&](auto&& thisLambda, const GroupNode* groupNode) {
-        if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-        {
-          result.push_back(*linkedGroupId);
-        }
-        Node::visitAll(groupNode->children(), thisLambda);
-      },
-      [](const EntityNode*) {},
-      [](const BrushNode*) {},
-      [](const PatchNode*) {}));
-    return kdl::vec_sort_and_remove_duplicates(std::move(result));
-  }();
+  const auto ancestorLinkedGroupIds =
+    kdl::vec_sort(collectParentLinkedGroupIds(parentNode));
+  const auto linkedGroupIdsToAdd = collectLinkedGroupIds(groupNodeToAdd);
 
   return kdl::set_has_shared_element(ancestorLinkedGroupIds, linkedGroupIdsToAdd);
 }
@@ -358,5 +327,10 @@ void GroupNode::doAcceptTagVisitor(TagVisitor& visitor)
 void GroupNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
+}
+
+bool compareGroupNodesByLinkId(const GroupNode* lhs, const GroupNode* rhs)
+{
+  return lhs->group().linkId() < rhs->group().linkId();
 }
 } // namespace TrenchBroom::Model

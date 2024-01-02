@@ -31,6 +31,7 @@
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
+#include "kdl/vector_utils.h"
 #include <kdl/overload.h>
 
 #include <vecmath/bbox.h>
@@ -46,6 +47,7 @@ class BrushFaceHandle;
 class EditorContext;
 class LayerNode;
 class Node;
+class Object;
 
 HitType::Type nodeHitType();
 
@@ -56,9 +58,6 @@ std::vector<LayerNode*> findContainingLayersUserSorted(const std::vector<Node*>&
 GroupNode* findContainingGroup(Node* node);
 const GroupNode* findContainingGroup(const Node* node);
 
-GroupNode* findContainingLinkedGroup(Node& node);
-const GroupNode* findContainingLinkedGroup(const Node& node);
-
 /**
  * Searches the ancestor chain of `node` for the outermost closed group and returns
  * it if one is found, otherwise returns nullptr.
@@ -66,31 +65,29 @@ const GroupNode* findContainingLinkedGroup(const Node& node);
 GroupNode* findOutermostClosedGroup(Node* node);
 const GroupNode* findOutermostClosedGroup(const Node* node);
 
-std::vector<GroupNode*> collectLinkedGroups(
-  const std::vector<Node*>& nodes, const std::string& linkedGroupId);
-std::vector<GroupNode*> collectNestedLinkedGroups(const std::vector<Node*>& nodes);
+std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes);
 
-std::vector<Node*> collectLinkedNodes(
-  const std::vector<Node*>& nodes, const std::string& linkId);
-std::vector<Node*> collectLinkedNodes(const std::vector<Node*>& nodes, const Node& node);
-
-/**
- * Collect the linked group IDs of the given node and all of its ancestors.
- */
-std::vector<std::string> collectParentLinkedGroupIds(const Node& parent);
-
-std::vector<Node*> collectParents(const std::vector<Node*>& nodes);
-std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes);
-std::vector<Node*> collectParents(
+std::vector<Node*> collectAncestors(const std::vector<Node*>& nodes);
+std::vector<Node*> collectAncestors(const std::map<Node*, std::vector<Node*>>& nodes);
+std::vector<Node*> collectAncestors(
   const std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>& nodes);
 
-std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes);
-std::vector<Node*> collectChildren(
-  const std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>& nodes);
 std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes);
 std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& nodes);
 
-std::vector<Node*> collectNodes(const std::vector<Node*>& nodes);
+template <typename T = Node>
+std::vector<Node*> collectNodes(const std::vector<T*>& nodes)
+{
+  return collectNodes(
+    nodes,
+    kdl::overload(
+      [&](WorldNode*) { return true; },
+      [&](LayerNode*) { return true; },
+      [&](GroupNode*) { return true; },
+      [&](EntityNode*) { return true; },
+      [&](BrushNode*) { return true; },
+      [&](PatchNode*) { return true; }));
+}
 
 template <typename T, typename Predicate>
 std::vector<Node*> collectNodes(const std::vector<T*>& nodes, const Predicate& predicate)
@@ -167,43 +164,5 @@ vm::bbox3 computePhysicalBounds(
 
 std::vector<BrushNode*> filterBrushNodes(const std::vector<Node*>& nodes);
 std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes);
-
-struct SelectionResult
-{
-  std::vector<Node*> nodesToSelect;
-  std::vector<GroupNode*> groupsToLock;
-};
-
-/**
- * Given a list of `nodes` the user wants to select, returns the subset that we should
- * allow selection of, as well as a list of linked groups to lock.
- *
- * - Attempting to select nodes inside a linked group will propose locking all other
- * groups in that link set. This is intended to prevent users from making conflicting
- * commands as well as communicate which specific linked group they are modifying.
- *
- * - If `nodes` contains members of different groups in the same link set,
- *  only those in the first group will be allowed to be selected ("first" in the order of
- * `nodes`).
- *
- * Note: no changes are made, just the proposed selection and locking is returned.
- */
-SelectionResult nodeSelectionWithLinkedGroupConstraints(
-  WorldNode& world, const std::vector<Node*>& nodes);
-
-struct FaceSelectionResult
-{
-  std::vector<BrushFaceHandle> facesToSelect;
-  std::vector<GroupNode*> groupsToLock;
-};
-
-/**
- * Given a list of `faces` the user wants to select, returns the subset that we should
- * allow selection of, as well as a list of linked groups to lock.
- *
- * @see nodeSelectionWithLinkedGroupConstraints()
- */
-FaceSelectionResult faceSelectionWithLinkedGroupConstraints(
-  WorldNode& world, const std::vector<BrushFaceHandle>& faces);
 
 } // namespace TrenchBroom::Model

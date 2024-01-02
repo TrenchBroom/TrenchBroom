@@ -347,9 +347,6 @@ TEST_CASE_METHOD(
   document->selectNodes({groupNode});
   auto* linkedGroup = document->createLinkedDuplicate();
 
-  Model::setLinkId(*groupNode, *groupNode->group().linkedGroupId());
-  Model::setLinkId(*linkedGroup, *groupNode->group().linkedGroupId());
-
   const auto originalGroupLinkId = linkedGroup->group().linkId();
   REQUIRE(originalGroupLinkId == groupNode->group().linkId());
 
@@ -370,9 +367,6 @@ TEST_CASE_METHOD(
 
     SECTION("Pasting unknown linked group ID")
     {
-      const auto linkedGroupId = groupNode->group().linkedGroupId();
-      REQUIRE(linkedGroupId);
-
       document->selectAllNodes();
       document->deleteObjects();
 
@@ -383,15 +377,11 @@ TEST_CASE_METHOD(
         document->world()->defaultLayer()->children().back());
       REQUIRE(pastedGroup);
 
-      CHECK(pastedGroup->group().linkedGroupId() == std::nullopt);
       CHECK(pastedGroup->group().linkId() == originalGroupLinkId);
     }
 
     SECTION("Pasting duplicate linked group ID")
     {
-      const auto linkedGroupId = groupNode->group().linkedGroupId();
-      REQUIRE(linkedGroupId);
-
       CHECK(document->paste(data) == PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 3);
 
@@ -399,7 +389,6 @@ TEST_CASE_METHOD(
         document->world()->defaultLayer()->children().back());
       REQUIRE(pastedGroup);
 
-      CHECK(pastedGroup->group().linkedGroupId() == linkedGroupId);
       CHECK(pastedGroup->group().linkId() == originalGroupLinkId);
 
       const auto* pastedBrush =
@@ -420,7 +409,6 @@ TEST_CASE_METHOD(
       auto* pastedGroup = dynamic_cast<Model::GroupNode*>(groupNode->children().back());
       REQUIRE(pastedGroup);
 
-      CHECK(pastedGroup->group().linkedGroupId() == std::nullopt);
       CHECK(pastedGroup->group().linkId() != originalGroupLinkId);
 
       const auto* pastedBrush =
@@ -433,7 +421,6 @@ TEST_CASE_METHOD(
         dynamic_cast<Model::GroupNode*>(linkedGroup->children().back());
       REQUIRE(linkedPastedGroup);
 
-      CHECK(linkedPastedGroup->group().linkedGroupId() == std::nullopt);
       CHECK(linkedPastedGroup->group().linkId() == pastedGroup->group().linkId());
 
       const auto* linkedPastedBrush =
@@ -451,9 +438,6 @@ TEST_CASE_METHOD(
 
     document->deselectAll();
 
-    const auto linkedGroupId = groupNode->group().linkedGroupId();
-    REQUIRE(linkedGroupId);
-
     CHECK(document->paste(data) == PasteType::Node);
     CHECK(document->world()->defaultLayer()->childCount() == 4);
 
@@ -465,10 +449,7 @@ TEST_CASE_METHOD(
       dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[3]);
     REQUIRE(pastedGroup2);
 
-    CHECK(pastedGroup1->group().linkedGroupId() == linkedGroupId);
     CHECK(pastedGroup1->group().linkId() == originalGroupLinkId);
-
-    CHECK(pastedGroup2->group().linkedGroupId() == linkedGroupId);
     CHECK(pastedGroup2->group().linkId() == originalGroupLinkId);
 
     const auto* pastedBrush1 =

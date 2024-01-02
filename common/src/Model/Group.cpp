@@ -46,21 +46,6 @@ void Group::setName(std::string name)
   m_name = std::move(name);
 }
 
-const std::optional<std::string>& Group::linkedGroupId() const
-{
-  return m_linkedGroupId;
-}
-
-void Group::setLinkedGroupId(std::string linkedGroupId)
-{
-  m_linkedGroupId = std::move(linkedGroupId);
-}
-
-void Group::resetLinkedGroupId()
-{
-  m_linkedGroupId = std::nullopt;
-}
-
 const std::string& Group::linkId() const
 {
   return m_linkId;

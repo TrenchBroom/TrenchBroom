@@ -144,4 +144,7 @@ private: // implement Taggable interface
 private:
   deleteCopyAndMove(GroupNode);
 };
+
+bool compareGroupNodesByLinkId(const GroupNode* lhs, const GroupNode* rhs);
+
 } // namespace TrenchBroom::Model

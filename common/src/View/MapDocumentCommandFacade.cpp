@@ -34,6 +34,7 @@
 #include "Model/GroupNode.h"
 #include "Model/Issue.h"
 #include "Model/LayerNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
@@ -200,9 +201,9 @@ void MapDocumentCommandFacade::performDeselect(const std::vector<Model::Node*>& 
 void MapDocumentCommandFacade::performDeselect(
   const std::vector<Model::BrushFaceHandle>& faces)
 {
-  const auto implicitlyLockedGroups = kdl::vector_set<Model::GroupNode*>{kdl::vec_filter(
-    Model::collectNestedLinkedGroups({m_world.get()}),
-    [](const auto* group) { return group->lockedByOtherSelection(); })};
+  const auto implicitlyLockedGroups = kdl::vector_set{kdl::vec_filter(
+    Model::collectGroups({m_world.get()}),
+    [](const auto* groupNode) { return groupNode->lockedByOtherSelection(); })};
 
   selectionWillChangeNotifier();
 
@@ -265,7 +266,7 @@ void MapDocumentCommandFacade::performDeselectAll()
 void MapDocumentCommandFacade::performAddNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
 {
-  const std::vector<Model::Node*> parents = collectParents(nodes);
+  const std::vector<Model::Node*> parents = collectAncestors(nodes);
   NotifyBeforeAndAfter notifyParents(
     nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
@@ -287,11 +288,11 @@ void MapDocumentCommandFacade::performAddNodes(
 void MapDocumentCommandFacade::performRemoveNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
 {
-  const std::vector<Model::Node*> parents = collectParents(nodes);
+  const std::vector<Model::Node*> parents = collectAncestors(nodes);
   NotifyBeforeAndAfter notifyParents(
     nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
-  const std::vector<Model::Node*> allChildren = collectChildren(nodes);
+  const auto allChildren = kdl::vec_flatten(kdl::map_values(nodes));
   NotifyBeforeAndAfter notifyChildren(
     nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
 
@@ -327,7 +328,7 @@ MapDocumentCommandFacade::performReplaceChildren(
     return {};
   }
 
-  const std::vector<Model::Node*> parents = collectParents(nodes);
+  const std::vector<Model::Node*> parents = collectAncestors(nodes);
   NotifyBeforeAndAfter notifyParents(
     nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
@@ -405,7 +406,7 @@ void MapDocumentCommandFacade::performSwapNodeContents(
 {
   const auto nodes =
     kdl::vec_transform(nodesToSwap, [](const auto& pair) { return pair.first; });
-  const auto parents = collectParents(nodes);
+  const auto parents = collectAncestors(nodes);
   const auto descendants = collectDescendants(nodes);
 
   NotifyBeforeAndAfter notifyNodes(
@@ -527,7 +528,9 @@ void MapDocumentCommandFacade::restoreVisibilityState(
   for (const auto& [node, state] : nodes)
   {
     if (node->setVisibilityState(state))
+    {
       changedNodes.push_back(node);
+    }
   }
 
   nodeVisibilityDidChangeNotifier(changedNodes);
@@ -564,7 +567,9 @@ void MapDocumentCommandFacade::restoreLockState(
   for (const auto& [node, state] : nodes)
   {
     if (node->setLockState(state))
+    {
       changedNodes.push_back(node);
+    }
   }
 
   nodeLockingDidChangeNotifier(changedNodes);

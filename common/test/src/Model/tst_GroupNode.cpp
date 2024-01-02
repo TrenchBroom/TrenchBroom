@@ -133,8 +133,8 @@ TEST_CASE("GroupNode.canAddChild")
   SECTION("Recursive linked groups")
   {
     auto linkedGroupNode = std::make_unique<GroupNode>(Group{"group"});
-    setLinkedGroupId(groupNode, "linked_group_id");
-    setLinkedGroupId(*linkedGroupNode, *groupNode.group().linkedGroupId());
+    setLinkId(groupNode, "linked_group_id");
+    setLinkId(*linkedGroupNode, groupNode.group().linkId());
     CHECK_FALSE(groupNode.canAddChild(linkedGroupNode.get()));
 
     auto outerGroupNode = GroupNode{Group{"outer_group"}};

@@ -183,11 +183,11 @@ void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& rende
 
     for (const auto* group : m_groups)
     {
-      if (shouldRenderGroup(group))
+      if (shouldRenderGroup(*group))
       {
         if (!m_overrideColors)
         {
-          renderService.setForegroundColor(groupColor(group));
+          renderService.setForegroundColor(groupColor(*group));
         }
 
         const GroupNameAnchor anchor(group);
@@ -199,7 +199,7 @@ void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& rende
         {
           renderService.setHideOccludedObjects();
         }
-        renderService.renderString(groupString(group), anchor);
+        renderService.renderString(groupString(*group), anchor);
       }
     }
   }
@@ -217,9 +217,9 @@ void GroupRenderer::validateBounds()
     std::vector<GLVertexTypes::P3::Vertex> vertices;
     vertices.reserve(24 * m_groups.size());
 
-    for (const Model::GroupNode* group : m_groups)
+    for (const auto* group : m_groups)
     {
-      if (shouldRenderGroup(group))
+      if (shouldRenderGroup(*group))
       {
         group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
           vertices.emplace_back(vm::vec3f(v1));
@@ -236,11 +236,11 @@ void GroupRenderer::validateBounds()
     std::vector<GLVertexTypes::P3C4::Vertex> vertices;
     vertices.reserve(24 * m_groups.size());
 
-    for (const Model::GroupNode* group : m_groups)
+    for (const auto* group : m_groups)
     {
-      if (shouldRenderGroup(group))
+      if (shouldRenderGroup(*group))
       {
-        const auto color = groupColor(group);
+        const auto color = groupColor(*group);
         group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
           vertices.emplace_back(vm::vec3f(v1), color);
           vertices.emplace_back(vm::vec3f(v2), color);
@@ -255,29 +255,21 @@ void GroupRenderer::validateBounds()
   m_boundsValid = true;
 }
 
-bool GroupRenderer::shouldRenderGroup(const Model::GroupNode* group) const
+bool GroupRenderer::shouldRenderGroup(const Model::GroupNode& group) const
 {
-  const auto& currentGroup = m_editorContext.currentGroup();
-  const auto* parentGroup = group->containingGroup();
-  return parentGroup == currentGroup && m_editorContext.visible(group);
+  const auto* currentGroup = m_editorContext.currentGroup();
+  const auto* parentGroup = group.containingGroup();
+  return parentGroup == currentGroup && m_editorContext.visible(&group);
 }
 
-AttrString GroupRenderer::groupString(const Model::GroupNode* groupNode) const
+AttrString GroupRenderer::groupString(const Model::GroupNode& groupNode) const
 {
-  if (groupNode->group().linkedGroupId())
-  {
-    return groupNode->name() + " (linked)";
-  }
-  else
-  {
-    return groupNode->name();
-  }
+  return groupNode.name();
 }
 
-Color GroupRenderer::groupColor(const Model::GroupNode* groupNode) const
+Color GroupRenderer::groupColor(const Model::GroupNode&) const
 {
-  return groupNode->group().linkedGroupId() ? pref(Preferences::LinkedGroupColor)
-                                            : pref(Preferences::DefaultGroupColor);
+  return pref(Preferences::DefaultGroupColor);
 }
 } // namespace Renderer
 } // namespace TrenchBroom

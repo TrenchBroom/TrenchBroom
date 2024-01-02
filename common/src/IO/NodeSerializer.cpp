@@ -353,13 +353,13 @@ std::vector<Model::EntityProperty> NodeSerializer::groupProperties(
       Model::EntityPropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())),
   };
 
-  if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-  {
-    result.emplace_back(
-      Model::EntityPropertyKeys::LinkedGroupId, kdl::str_to_string(*linkedGroupId));
+  const auto& linkId = groupNode->group().linkId();
+  result.emplace_back(Model::EntityPropertyKeys::LinkId, kdl::str_to_string(linkId));
 
-    // write transformation matrix in column major format
-    const auto& transformation = groupNode->group().transformation();
+  // write transformation matrix in column major format
+  const auto& transformation = groupNode->group().transformation();
+  if (transformation != vm::mat4x4d::identity())
+  {
     const auto transformationStr = fmt::format(
       "{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}",
       transformation[0][0],

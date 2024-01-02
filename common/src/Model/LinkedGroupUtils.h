@@ -20,8 +20,19 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Model/BrushFaceHandle.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/NodeVisitor.h"
+#include "Model/PatchNode.h"
+#include "Model/WorldNode.h"
 #include "Result.h"
 #include "Uuid.h"
+
+#include "kdl/overload.h"
+#include "kdl/vector_utils.h"
 
 #include <memory>
 #include <unordered_map>
@@ -30,10 +41,75 @@
 
 namespace TrenchBroom::Model
 {
-class EntityNode;
-class GroupNode;
-class Node;
-class WorldNode;
+
+std::vector<Node*> collectLinkedNodes(
+  const std::vector<Node*>& nodes, const std::string& linkId);
+
+template <typename N>
+std::vector<N*> collectLinkedNodes(const std::vector<Node*>& nodes, const N& node)
+{
+  return kdl::vec_element_cast<N*>(node.accept(kdl::overload(
+    [](const WorldNode*) { return std::vector<Node*>{}; },
+    [](const LayerNode*) { return std::vector<Node*>{}; },
+    [&](const GroupNode* groupNode) {
+      return collectLinkedNodes(nodes, groupNode->group().linkId());
+    },
+    [&](const EntityNode* entityNode) {
+      return collectLinkedNodes(nodes, entityNode->entity().linkId());
+    },
+    [&](const BrushNode* brushNode) {
+      return collectLinkedNodes(nodes, brushNode->brush().linkId());
+    },
+    [&](const PatchNode* patchNode) {
+      return collectLinkedNodes(nodes, patchNode->patch().linkId());
+    })));
+}
+
+std::vector<GroupNode*> collectLinkedGroups(
+  const std::vector<Node*>& nodes, const std::string& linkId);
+
+std::vector<std::string> collectLinkedGroupIds(const std::vector<Node*>& nodes);
+std::vector<std::string> collectLinkedGroupIds(const Node& node);
+
+std::vector<std::string> collectParentLinkedGroupIds(const Node& parent);
+
+struct SelectionResult
+{
+  std::vector<Node*> nodesToSelect;
+  std::vector<GroupNode*> groupsToLock;
+};
+
+/**
+ * Given a list of `nodes` the user wants to select, returns the subset that we should
+ * allow selection of, as well as a list of linked groups to lock.
+ *
+ * - Attempting to select nodes inside a linked group will propose locking all other
+ * groups in that link set. This is intended to prevent users from making conflicting
+ * commands as well as communicate which specific linked group they are modifying.
+ *
+ * - If `nodes` contains members of different groups in the same link set,
+ *  only those in the first group will be allowed to be selected ("first" in the order of
+ * `nodes`).
+ *
+ * Note: no changes are made, just the proposed selection and locking is returned.
+ */
+SelectionResult nodeSelectionWithLinkedGroupConstraints(
+  WorldNode& world, const std::vector<Node*>& nodes);
+
+struct FaceSelectionResult
+{
+  std::vector<BrushFaceHandle> facesToSelect;
+  std::vector<GroupNode*> groupsToLock;
+};
+
+/**
+ * Given a list of `faces` the user wants to select, returns the subset that we should
+ * allow selection of, as well as a list of linked groups to lock.
+ *
+ * @see nodeSelectionWithLinkedGroupConstraints()
+ */
+FaceSelectionResult faceSelectionWithLinkedGroupConstraints(
+  WorldNode& world, const std::vector<BrushFaceHandle>& faces);
 
 using UpdateLinkedGroupsResult =
   std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>;
@@ -71,8 +147,13 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const vm::bbox3& worldBounds);
 
 std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes);
-std::vector<Error> initializeLinkIds(
-  GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
+
+
+Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(
+  const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
+
+std::vector<Error> copyAndSetLinkIds(
+  const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
 
 template <typename T>
 T setNewLinkIdIf(T x, const bool setNewLinkId)

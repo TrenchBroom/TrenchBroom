@@ -30,6 +30,8 @@
 
 #include <cstdio>
 
+#include "CatchUtils/Matchers.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom::View
@@ -203,33 +205,26 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsWithRecursi
   document->selectNodes({outerGroupNode});
 
   auto* linkedOuterGroupNode = document->createLinkedDuplicate();
-
   document->deselectAll();
+
+  REQUIRE(
+    outerGroupNode->children()
+    == std::vector<Model::Node*>{outerEntityNode, innerGroupNode});
+  REQUIRE_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
 
   document->removeNodes({innerEntityNode});
   REQUIRE(outerGroupNode->children() == std::vector<Model::Node*>{outerEntityNode});
-  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+  CHECK_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
 
   document->undoCommand();
-  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
+  REQUIRE(
+    outerGroupNode->children()
+    == std::vector<Model::Node*>{outerEntityNode, innerGroupNode});
+  CHECK_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
 
   document->redoCommand();
-  CHECK(linkedOuterGroupNode->childCount() == outerGroupNode->childCount());
-}
-
-TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.unlinkSingletonLinkedGroups")
-{
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
-  document->addNodes({{document->parentForNodes(), {entityNode}}});
-
-  document->selectNodes({entityNode});
-  auto* groupNode = document->groupSelection("group");
-  auto* linkedGroupNode = document->createLinkedDuplicate();
-
-  REQUIRE(groupNode->group().linkedGroupId().has_value());
-
-  document->removeNodes({linkedGroupNode});
-  CHECK_FALSE(groupNode->group().linkedGroupId().has_value());
+  REQUIRE(outerGroupNode->children() == std::vector<Model::Node*>{outerEntityNode});
+  CHECK_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
 }
 
 } // namespace TrenchBroom::View

@@ -54,7 +54,7 @@ bool checkLinkedGroupsToUpdate(const std::vector<Model::GroupNode*>& changedLink
 {
   const auto linkedGroupIds =
     kdl::vec_sort(kdl::vec_transform(changedLinkedGroups, [](const auto* groupNode) {
-      return groupNode->group().linkedGroupId();
+      return groupNode->group().linkId();
     }));
 
   return std::adjacent_find(std::begin(linkedGroupIds), std::end(linkedGroupIds))
@@ -140,18 +140,17 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
   }
 
   const auto& worldBounds = document.worldBounds();
-  return kdl::fold_results(
-           kdl::vec_transform(
-             changedLinkedGroups,
-             [&](const auto* groupNode) {
-               const auto groupNodesToUpdate = kdl::vec_erase(
-                 Model::collectLinkedGroups(
-                   {document.world()}, *groupNode->group().linkedGroupId()),
-                 groupNode);
+  return kdl::fold_results(kdl::vec_transform(
+                             changedLinkedGroups,
+                             [&](const auto* groupNode) {
+                               const auto groupNodesToUpdate = kdl::vec_erase(
+                                 Model::collectLinkedGroups(
+                                   {document.world()}, groupNode->group().linkId()),
+                                 groupNode);
 
-               return Model::updateLinkedGroups(
-                 *groupNode, groupNodesToUpdate, worldBounds);
-             }))
+                               return Model::updateLinkedGroups(
+                                 *groupNode, groupNodesToUpdate, worldBounds);
+                             }))
     .and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
       return kdl::vec_flatten(std::move(nestedUpdateLists));
     });

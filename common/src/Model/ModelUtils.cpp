@@ -94,26 +94,6 @@ const GroupNode* findContainingGroup(const Node* node)
   return findContainingGroup(const_cast<Node*>(node));
 }
 
-GroupNode* findContainingLinkedGroup(Node& node)
-{
-  auto* containingGroupNode = findContainingGroup(&node);
-  while (containingGroupNode)
-  {
-    if (containingGroupNode->group().linkedGroupId().has_value())
-    {
-      return containingGroupNode;
-    }
-    containingGroupNode = findContainingGroup(containingGroupNode);
-  }
-
-  return nullptr;
-}
-
-const GroupNode* findContainingLinkedGroup(const Node& node)
-{
-  return findContainingLinkedGroup(const_cast<Node&>(node));
-}
-
 GroupNode* findOutermostClosedGroup(Node* node)
 {
   return node
@@ -146,110 +126,29 @@ const GroupNode* findOutermostClosedGroup(const Node* node)
   return findOutermostClosedGroup(const_cast<Node*>(node));
 }
 
-std::vector<GroupNode*> collectLinkedGroups(
-  const std::vector<Node*>& nodes, const std::string& linkedGroupId)
+std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes)
 {
   auto result = std::vector<GroupNode*>{};
-
   Node::visitAll(
     nodes,
     kdl::overload(
-      [](auto&& thisLambda, WorldNode* w) { w->visitChildren(thisLambda); },
-      [](auto&& thisLambda, LayerNode* l) { l->visitChildren(thisLambda); },
-      [&](auto&& thisLambda, GroupNode* g) {
-        if (g->group().linkedGroupId() == linkedGroupId)
-        {
-          result.push_back(g);
-        }
-        else
-        {
-          g->visitChildren(thisLambda);
-        }
+      [](auto&& thisLambda, const WorldNode* worldNode) {
+        worldNode->visitChildren(thisLambda);
       },
-      [](EntityNode*) {},
-      [](BrushNode*) {},
-      [](PatchNode*) {}));
-
+      [](auto&& thisLambda, const LayerNode* layerNode) {
+        layerNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, GroupNode* groupNode) {
+        result.push_back(groupNode);
+        groupNode->visitChildren(thisLambda);
+      },
+      [](const EntityNode*) {},
+      [](const BrushNode*) {},
+      [](const PatchNode*) {}));
   return result;
 }
 
-std::vector<GroupNode*> collectNestedLinkedGroups(const std::vector<Node*>& nodes)
-{
-  auto result = std::vector<GroupNode*>{};
-
-  Node::visitAll(
-    nodes,
-    kdl::overload(
-      [](auto&& thisLambda, WorldNode* w) { w->visitChildren(thisLambda); },
-      [](auto&& thisLambda, LayerNode* l) { l->visitChildren(thisLambda); },
-      [&](auto&& thisLambda, GroupNode* g) {
-        if (g->group().linkedGroupId())
-        {
-          result.push_back(g);
-        }
-        g->visitChildren(thisLambda);
-      },
-      [](EntityNode*) {},
-      [](BrushNode*) {},
-      [](PatchNode*) {}));
-
-  return result;
-}
-
-std::vector<Node*> collectLinkedNodes(
-  const std::vector<Node*>& nodes, const std::string& linkId)
-{
-  return collectNodes(nodes, [&](const auto* node) {
-    return node->accept(kdl::overload(
-      [](const WorldNode*) { return false; },
-      [](const LayerNode*) { return false; },
-      [&](const GroupNode* groupNode) { return groupNode->group().linkId() == linkId; },
-      [&](const EntityNode* entityNode) {
-        return entityNode->entity().linkId() == linkId;
-      },
-      [&](const BrushNode* brushNode) { return brushNode->brush().linkId() == linkId; },
-      [&](const PatchNode* patchNode) { return patchNode->patch().linkId() == linkId; }));
-  });
-}
-
-std::vector<Node*> collectLinkedNodes(const std::vector<Node*>& nodes, const Node& node)
-{
-  return node.accept(kdl::overload(
-    [](const WorldNode*) { return std::vector<Node*>{}; },
-    [](const LayerNode*) { return std::vector<Node*>{}; },
-    [&](const GroupNode* groupNode) {
-      return collectLinkedNodes(nodes, groupNode->group().linkId());
-    },
-    [&](const EntityNode* entityNode) {
-      return collectLinkedNodes(nodes, entityNode->entity().linkId());
-    },
-    [&](const BrushNode* brushNode) {
-      return collectLinkedNodes(nodes, brushNode->brush().linkId());
-    },
-    [&](const PatchNode* patchNode) {
-      return collectLinkedNodes(nodes, patchNode->patch().linkId());
-    }));
-}
-
-std::vector<std::string> collectParentLinkedGroupIds(const Node& parentNode)
-{
-  auto result = std::vector<std::string>{};
-  const auto* currentNode = &parentNode;
-  while (currentNode)
-  {
-    if (const auto* currentGroupNode = dynamic_cast<const GroupNode*>(currentNode))
-    {
-      if (const auto& linkedGroupId = currentGroupNode->group().linkedGroupId())
-      {
-        result.push_back(*linkedGroupId);
-      }
-    }
-    currentNode = currentNode->parent();
-  }
-  return result;
-}
-
-static void collectWithParents(Node* node, std::vector<Node*>& result)
+static void collectWithAncestors(Node* node, std::vector<Node*>& result)
 {
   if (node != nullptr)
   {
@@ -278,59 +177,36 @@ static void collectWithParents(Node* node, std::vector<Node*>& result)
   }
 }
 
-std::vector<Node*> collectParents(const std::vector<Node*>& nodes)
+std::vector<Node*> collectAncestors(const std::vector<Node*>& nodes)
 {
   std::vector<Node*> result;
   for (auto* node : nodes)
   {
-    collectWithParents(node->parent(), result);
+    collectWithAncestors(node->parent(), result);
   }
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
 template <typename T>
-static std::vector<Node*> doCollectParents(const T& nodes)
+static std::vector<Node*> doCollectAncestors(const T& nodes)
 {
   std::vector<Node*> result;
   for (const auto& [parent, children] : nodes)
   {
-    collectWithParents(parent, result);
+    collectWithAncestors(parent, result);
   }
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
-std::vector<Node*> collectParents(const std::map<Node*, std::vector<Node*>>& nodes)
+std::vector<Node*> collectAncestors(const std::map<Node*, std::vector<Node*>>& nodes)
 {
-  return doCollectParents(nodes);
+  return doCollectAncestors(nodes);
 }
 
-std::vector<Node*> collectParents(
+std::vector<Node*> collectAncestors(
   const std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>& nodes)
 {
-  return doCollectParents(nodes);
-}
-
-std::vector<Node*> collectChildren(const std::map<Node*, std::vector<Node*>>& nodes)
-{
-  std::vector<Node*> result;
-  for (const auto& [parent, children] : nodes)
-  {
-    result = kdl::vec_concat(std::move(result), children);
-  }
-  return result;
-}
-
-std::vector<Node*> collectChildren(
-  const std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>& nodes)
-{
-  std::vector<Node*> result;
-  for (const auto& [parent, children] : nodes)
-  {
-    result = kdl::vec_concat(
-      std::move(result),
-      kdl::vec_transform(children, [](auto& child) { return child.get(); }));
-  }
-  return result;
+  return doCollectAncestors(nodes);
 }
 
 std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes)
@@ -355,19 +231,6 @@ std::map<Node*, std::vector<Node*>> parentChildrenMap(const std::vector<Node*>& 
   }
 
   return result;
-}
-
-std::vector<Node*> collectNodes(const std::vector<Node*>& nodes)
-{
-  return collectNodes(
-    nodes,
-    kdl::overload(
-      [&](WorldNode*) { return true; },
-      [&](LayerNode*) { return true; },
-      [&](GroupNode*) { return true; },
-      [&](EntityNode*) { return true; },
-      [&](BrushNode*) { return true; },
-      [&](PatchNode*) { return true; }));
 }
 
 /**
@@ -653,104 +516,6 @@ std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes)
       [](PatchNode*) {}));
   }
   return result;
-}
-
-/**
- * Gets the parent linked groups of `node` (0, 1, or more) by adding them to `dest`.
- * (Doesn't return a vector, to avoid allocations.)
- */
-static void getContainingLinkedGroups(Node& node, std::vector<GroupNode*>& result)
-{
-  GroupNode* groupNode = findContainingLinkedGroup(node);
-  while (groupNode)
-  {
-    result.push_back(groupNode);
-    groupNode = findContainingLinkedGroup(*groupNode);
-  }
-}
-
-SelectionResult nodeSelectionWithLinkedGroupConstraints(
-  WorldNode& world, const std::vector<Node*>& nodes)
-{
-  auto groupsToLock = kdl::vector_set<GroupNode*>{};
-  auto groupsToKeepUnlocked = kdl::vector_set<GroupNode*>{};
-
-  // collects subset of `nodes` which pass the constraints
-  auto nodesToSelect = std::vector<Node*>{};
-
-  auto linkedGroupsContainingNode = std::vector<GroupNode*>{};
-  for (Node* node : nodes)
-  {
-    linkedGroupsContainingNode.clear();
-    getContainingLinkedGroups(*node, linkedGroupsContainingNode);
-
-    const bool isNodeInGroupsToLock = std::any_of(
-      std::begin(linkedGroupsContainingNode),
-      std::end(linkedGroupsContainingNode),
-      [&](GroupNode* group) { return groupsToLock.count(group) == 1u; });
-
-    if (isNodeInGroupsToLock)
-    {
-      // don't bother trying to select this node.
-      continue;
-    }
-
-    // we will allow selection of `node`, but we need to implicitly lock
-    // any other groups in the link sets of the groups listed in
-    // `linkedGroupsContainingNode`.
-
-    // first check if we've already processed all of these
-    const bool areAncestorLinkedGroupsHandled = std::all_of(
-      std::begin(linkedGroupsContainingNode),
-      std::end(linkedGroupsContainingNode),
-      [&](GroupNode* group) { return groupsToKeepUnlocked.count(group) == 1u; });
-
-    if (!areAncestorLinkedGroupsHandled)
-    {
-      // for each `group` in `linkedGroupsContainingNode`,
-      // implicitly lock other groups in the link set of `group`, but keep `group` itself
-      // unlocked.
-      for (GroupNode* group : linkedGroupsContainingNode)
-      {
-        // find the others and add them to the lock list
-        for (GroupNode* otherGroup :
-             collectLinkedGroups({&world}, *group->group().linkedGroupId()))
-        {
-          if (otherGroup == group)
-          {
-            continue;
-          }
-          groupsToLock.insert(otherGroup);
-        }
-        groupsToKeepUnlocked.insert(group);
-      }
-    }
-
-    nodesToSelect.push_back(node);
-  }
-
-  return {nodesToSelect, groupsToLock.release_data()};
-}
-
-FaceSelectionResult faceSelectionWithLinkedGroupConstraints(
-  WorldNode& world, const std::vector<BrushFaceHandle>& faces)
-{
-  const std::vector<Node*> nodes =
-    kdl::vec_transform(faces, [](auto handle) -> Node* { return handle.node(); });
-  auto constrainedNodes = nodeSelectionWithLinkedGroupConstraints(world, nodes);
-
-  const auto nodesToSelect = kdl::vector_set<Node*>{constrainedNodes.nodesToSelect};
-
-  auto facesToSelect = std::vector<BrushFaceHandle>{};
-  for (const auto& handle : faces)
-  {
-    if (nodesToSelect.count(handle.node()) != 0)
-    {
-      facesToSelect.push_back(handle);
-    }
-  }
-
-  return {std::move(facesToSelect), std::move(constrainedNodes.groupsToLock)};
 }
 
 } // namespace TrenchBroom::Model
