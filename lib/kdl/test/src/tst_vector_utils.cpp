@@ -63,30 +63,31 @@ base::~base() = default;
 
 struct derived : public base
 {
-  ~derived() override;
+  ~derived() override = default;
 };
 
-derived::~derived() = default;
-
-TEST_CASE("vector_utils_test.vec_element_cast")
+struct other : public base
 {
-  auto vd = std::vector<derived*>{new derived(), new derived()};
-  auto vb = vec_element_cast<base*>(vd);
+  ~other() override = default;
+};
 
-  CHECK(vb.size() == vd.size());
-  for (std::size_t i = 0u; i < vd.size(); ++i)
-  {
-    CHECK(vb[i] == vd[i]);
-  }
+TEST_CASE("vector_utils_test.vec_dynamic_cast")
+{
+  auto d = std::make_unique<derived>();
+  auto o = std::make_unique<other>();
+  const auto vd = std::vector<base*>{d.get(), o.get()};
 
-  auto vbd = vec_element_cast<derived*>(vb);
-  CHECK(vbd.size() == vb.size());
-  for (std::size_t i = 0u; i < vb.size(); ++i)
-  {
-    CHECK(vbd[i] == vb[i]);
-  }
+  CHECK(vec_dynamic_cast<derived>(vd) == std::vector<derived*>{d.get()});
+  CHECK(vec_dynamic_cast<other>(vd) == std::vector<other*>{o.get()});
+}
 
-  vec_clear_and_delete(vd);
+TEST_CASE("vector_utils_test.vec_static_cast")
+{
+  auto d1 = std::make_unique<derived>();
+  auto d2 = std::make_unique<derived>();
+  const auto vd = std::vector<derived*>{d1.get(), d2.get()};
+
+  CHECK(vec_static_cast<base*>(vd) == std::vector<base*>{d1.get(), d2.get()});
 }
 
 TEST_CASE("vector_utils_test.vec_index_of")
@@ -137,7 +138,7 @@ template <typename T, typename... R>
 static auto makeVec(T&& t, R... r)
 {
   std::vector<T> result;
-  result.push_back(std::move(t));
+  result.push_back(std::forward<T>(t));
   (..., result.push_back(std::forward<R>(r)));
   return result;
 }

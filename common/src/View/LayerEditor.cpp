@@ -404,7 +404,7 @@ bool LayerEditor::canHideAllLayers() const
 void LayerEditor::onLockAllLayers()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
+  const auto nodes = kdl::vec_static_cast<Model::Node*>(document->world()->allLayers());
   document->lock(nodes);
 }
 
@@ -419,7 +419,7 @@ bool LayerEditor::canLockAllLayers() const
 void LayerEditor::onUnlockAllLayers()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
+  const auto nodes = kdl::vec_static_cast<Model::Node*>(document->world()->allLayers());
   document->resetLock(nodes);
 }
 

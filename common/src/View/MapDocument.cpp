@@ -1916,7 +1916,7 @@ Model::EntityNode* MapDocument::createBrushEntity(
 
   auto* entityNode = new Model::EntityNode{std::move(entity)};
 
-  const auto nodes = kdl::vec_element_cast<Model::Node*>(brushes);
+  const auto nodes = kdl::vec_static_cast<Model::Node*>(brushes);
 
   auto transaction = Transaction{*this, "Create " + definition->name()};
   deselectAll();
@@ -2684,7 +2684,7 @@ void MapDocument::setOmitLayerFromExport(
 void MapDocument::selectAllInLayers(const std::vector<Model::LayerNode*>& layers)
 {
   const auto nodes = Model::collectSelectableNodes(
-    kdl::vec_element_cast<Model::Node*>(layers), editorContext());
+    kdl::vec_static_cast<Model::Node*>(layers), editorContext());
 
   deselectAll();
   selectNodes(nodes);
@@ -2723,7 +2723,7 @@ void MapDocument::show(const std::vector<Model::Node*>& nodes)
 void MapDocument::showAll()
 {
   resetVisibility(
-    Model::collectDescendants(kdl::vec_element_cast<Model::Node*>(m_world->allLayers())));
+    Model::collectDescendants(kdl::vec_static_cast<Model::Node*>(m_world->allLayers())));
 }
 
 void MapDocument::ensureVisible(const std::vector<Model::Node*>& nodes)
@@ -3285,8 +3285,7 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
              }))
     .and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
       auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-      const auto toRemove =
-        kdl::vec_element_cast<Model::Node*>(m_selectedNodes.brushes());
+      const auto toRemove = kdl::vec_static_cast<Model::Node*>(m_selectedNodes.brushes());
 
       for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
       {
@@ -3548,7 +3547,7 @@ bool MapDocument::canClearProtectedProperties() const
     return false;
   }
 
-  return canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes));
+  return canUpdateLinkedGroups(kdl::vec_static_cast<Model::Node*>(entityNodes));
 }
 
 void MapDocument::setDefaultProperties(const Model::SetDefaultPropertyMode mode)

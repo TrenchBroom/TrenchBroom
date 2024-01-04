@@ -252,7 +252,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
     // clang-format on
 
     const auto nodes = resolvePaths(paths);
-    const auto brushNodes = kdl::vec_element_cast<Model::BrushNode*>(nodes);
+    const auto brushNodes = kdl::vec_static_cast<Model::BrushNode*>(nodes);
 
     document->selectNodes(nodes);
 
@@ -460,7 +460,7 @@ TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups")
   CHECK(document->canUpdateLinkedGroups({entityNode}));
   CHECK(document->canUpdateLinkedGroups({linkedEntityNode}));
   CHECK_FALSE(
-    document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes)));
+    document->canUpdateLinkedGroups(kdl::vec_static_cast<Model::Node*>(entityNodes)));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")

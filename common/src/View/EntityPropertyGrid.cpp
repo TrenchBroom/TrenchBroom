@@ -33,7 +33,9 @@
 #include <QToolButton>
 
 #include "Macros.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/EntityProperties.h"
+#include "Model/Node.h"
 #include "View/BorderLine.h"
 #include "View/EntityPropertyItemDelegate.h"
 #include "View/EntityPropertyModel.h"
@@ -451,7 +453,7 @@ void EntityPropertyGrid::updateControlsEnabled()
   auto document = kdl::mem_lock(m_document);
   const auto nodes = document->allSelectedEntityNodes();
   const auto canUpdateLinkedGroups =
-    document->canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(nodes));
+    document->canUpdateLinkedGroups(kdl::vec_static_cast<Model::Node*>(nodes));
   m_table->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_addPropertyButton->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_removePropertiesButton->setEnabled(

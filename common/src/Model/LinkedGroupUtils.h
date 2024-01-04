@@ -48,7 +48,7 @@ std::vector<Node*> collectLinkedNodes(
 template <typename N>
 std::vector<N*> collectLinkedNodes(const std::vector<Node*>& nodes, const N& node)
 {
-  return kdl::vec_element_cast<N*>(node.accept(kdl::overload(
+  return kdl::vec_static_cast<N*>(node.accept(kdl::overload(
     [](const WorldNode*) { return std::vector<Node*>{}; },
     [](const LayerNode*) { return std::vector<Node*>{}; },
     [&](const GroupNode* groupNode) {

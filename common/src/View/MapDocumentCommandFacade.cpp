@@ -124,7 +124,7 @@ void MapDocumentCommandFacade::performSelect(
     node->setLockedByOtherSelection(true);
   }
   nodeLockingDidChangeNotifier(
-    kdl::vec_element_cast<Model::Node*>(constrained.groupsToLock));
+    kdl::vec_static_cast<Model::Node*>(constrained.groupsToLock));
 
   std::vector<Model::BrushFaceHandle> selected;
   selected.reserve(constrained.facesToSelect.size());
@@ -239,14 +239,14 @@ void MapDocumentCommandFacade::performDeselect(
     node->setLockedByOtherSelection(true);
   }
   nodeLockingDidChangeNotifier(
-    kdl::vec_element_cast<Model::Node*>(groupsToLock.get_data()));
+    kdl::vec_static_cast<Model::Node*>(groupsToLock.get_data()));
 
   const auto groupsToUnlock = kdl::set_difference(implicitlyLockedGroups, groupsToLock);
   for (Model::GroupNode* node : groupsToUnlock)
   {
     node->setLockedByOtherSelection(false);
   }
-  nodeLockingDidChangeNotifier(kdl::vec_element_cast<Model::Node*>(groupsToUnlock));
+  nodeLockingDidChangeNotifier(kdl::vec_static_cast<Model::Node*>(groupsToUnlock));
 }
 
 void MapDocumentCommandFacade::performDeselectAll()

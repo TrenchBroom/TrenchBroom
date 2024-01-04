@@ -438,7 +438,7 @@ public: // rendering
     const Color& color) const
   {
     renderService.setForegroundColor(color);
-    renderService.renderHandles(kdl::vec_element_cast<typename HH::float_type>(handles));
+    renderService.renderHandles(kdl::vec_static_cast<typename HH::float_type>(handles));
   }
 
   template <typename HH>

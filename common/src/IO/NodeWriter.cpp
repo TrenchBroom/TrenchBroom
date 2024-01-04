@@ -142,7 +142,7 @@ void NodeWriter::writeCustomLayer(const Model::LayerNode* layerNode)
 
 void NodeWriter::writeNodes(const std::vector<Model::Node*>& nodes)
 {
-  m_serializer->beginFile(kdl::vec_element_cast<const Model::Node*>(nodes));
+  m_serializer->beginFile(kdl::vec_static_cast<const Model::Node*>(nodes));
 
   // Assort nodes according to their type and, in case of brushes, whether they are entity
   // or world brushes.
