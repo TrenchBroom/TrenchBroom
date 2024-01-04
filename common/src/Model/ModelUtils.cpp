@@ -24,6 +24,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/EditorContext.h"
+#include "Model/NodeQueries.h"
 #include "Polyhedron.h"
 
 #include <kdl/vector_utils.h>
@@ -57,7 +58,7 @@ LayerNode* findContainingLayer(Node* node)
     }));
 }
 
-std::vector<LayerNode*> findContainingLayersUserSorted(const std::vector<Node*>& nodes)
+std::vector<LayerNode*> collectContainingLayersUserSorted(const std::vector<Node*>& nodes)
 {
   std::vector<LayerNode*> layers;
   for (auto* node : nodes)
@@ -145,77 +146,6 @@ std::vector<GroupNode*> collectGroups(const std::vector<Node*>& nodes)
       [](const EntityNode*) {},
       [](const BrushNode*) {},
       [](const PatchNode*) {}));
-  return result;
-}
-
-static void collectWithAncestors(Node* node, std::vector<Node*>& result)
-{
-  if (node != nullptr)
-  {
-    node->accept(kdl::overload(
-      [&](WorldNode* world) { result.push_back(world); },
-      [&](auto&& thisLambda, LayerNode* layer) {
-        result.push_back(layer);
-        layer->visitParent(thisLambda);
-      },
-      [&](auto&& thisLambda, GroupNode* group) {
-        result.push_back(group);
-        group->visitParent(thisLambda);
-      },
-      [&](auto&& thisLambda, EntityNode* entity) {
-        result.push_back(entity);
-        entity->visitParent(thisLambda);
-      },
-      [&](auto&& thisLambda, BrushNode* brush) {
-        result.push_back(brush);
-        brush->visitParent(thisLambda);
-      },
-      [&](auto&& thisLambda, PatchNode* patch) {
-        result.push_back(patch);
-        patch->visitParent(thisLambda);
-      }));
-  }
-}
-
-std::vector<Node*> collectAncestors(const std::vector<Node*>& nodes)
-{
-  std::vector<Node*> result;
-  for (auto* node : nodes)
-  {
-    collectWithAncestors(node->parent(), result);
-  }
-  return kdl::vec_sort_and_remove_duplicates(std::move(result));
-}
-
-template <typename T>
-static std::vector<Node*> doCollectAncestors(const T& nodes)
-{
-  std::vector<Node*> result;
-  for (const auto& [parent, children] : nodes)
-  {
-    collectWithAncestors(parent, result);
-  }
-  return kdl::vec_sort_and_remove_duplicates(std::move(result));
-}
-
-std::vector<Node*> collectAncestors(const std::map<Node*, std::vector<Node*>>& nodes)
-{
-  return doCollectAncestors(nodes);
-}
-
-std::vector<Node*> collectAncestors(
-  const std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>& nodes)
-{
-  return doCollectAncestors(nodes);
-}
-
-std::vector<Node*> collectDescendants(const std::vector<Node*>& nodes)
-{
-  auto result = std::vector<Node*>{};
-  for (auto* node : nodes)
-  {
-    result = kdl::vec_concat(std::move(result), collectNodes(node->children()));
-  }
   return result;
 }
 
@@ -320,15 +250,8 @@ std::vector<Node*> collectContainedNodes(
 
 std::vector<Node*> collectSelectedNodes(const std::vector<Node*>& nodes)
 {
-  return collectNodes(
-    nodes,
-    kdl::overload(
-      [&](WorldNode*) { return false; },
-      [&](LayerNode*) { return false; },
-      [&](GroupNode* groupNode) { return groupNode->selected(); },
-      [&](EntityNode* entityNode) { return entityNode->selected(); },
-      [&](BrushNode* brushNode) { return brushNode->selected(); },
-      [&](PatchNode* patchNode) { return patchNode->selected(); }));
+  return collectNodesAndDescendants(
+    nodes, [](const auto* node) { return node->selected(); });
 }
 
 std::vector<Node*> collectSelectableNodes(
@@ -377,79 +300,20 @@ std::vector<Node*> collectSelectableNodes(
   return result;
 }
 
-std::vector<BrushFaceHandle> collectBrushFaces(const std::vector<Node*>& nodes)
-{
-  auto faces = std::vector<BrushFaceHandle>{};
-  for (auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
-      [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
-      [](auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
-      [&](BrushNode* brushNode) {
-        const auto& brush = brushNode->brush();
-        for (size_t i = 0; i < brush.faceCount(); ++i)
-        {
-          faces.emplace_back(brushNode, i);
-        }
-      },
-      [](PatchNode*) {}));
-  }
-  return faces;
-}
-
 std::vector<BrushFaceHandle> collectSelectedBrushFaces(const std::vector<Node*>& nodes)
 {
-  auto faces = std::vector<BrushFaceHandle>{};
-  for (auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
-      [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
-      [](auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
-      [&](BrushNode* brushNode) {
-        const auto& brush = brushNode->brush();
-        for (size_t i = 0; i < brush.faceCount(); ++i)
-        {
-          const auto& face = brush.face(i);
-          if (face.selected())
-          {
-            faces.emplace_back(brushNode, i);
-          }
-        }
-      },
-      [](PatchNode*) {}));
-  }
-  return faces;
+  return collectBrushFaces(nodes, [](const BrushNode&, const BrushFace& brushFace) {
+    return brushFace.selected();
+  });
 }
 
 std::vector<BrushFaceHandle> collectSelectableBrushFaces(
   const std::vector<Node*>& nodes, const EditorContext& editorContext)
 {
-  auto faces = std::vector<BrushFaceHandle>{};
-  for (auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [](auto&& thisLambda, WorldNode* world) { world->visitChildren(thisLambda); },
-      [](auto&& thisLambda, LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [](auto&& thisLambda, GroupNode* group) { group->visitChildren(thisLambda); },
-      [](auto&& thisLambda, EntityNode* entity) { entity->visitChildren(thisLambda); },
-      [&](BrushNode* brushNode) {
-        const auto& brush = brushNode->brush();
-        for (size_t i = 0; i < brush.faceCount(); ++i)
-        {
-          const auto& face = brush.face(i);
-          if (editorContext.selectable(brushNode, face))
-          {
-            faces.emplace_back(brushNode, i);
-          }
-        }
-      },
-      [](PatchNode*) {}));
-  }
-  return faces;
+  return collectBrushFaces(
+    nodes, [&](const BrushNode& brushNode, const BrushFace& brushFace) {
+      return editorContext.selectable(&brushNode, brushFace);
+    });
 }
 
 vm::bbox3 computeLogicalBounds(

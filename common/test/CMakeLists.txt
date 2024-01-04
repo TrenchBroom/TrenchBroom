@@ -93,6 +93,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_ModelUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_Node.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_NodeCollection.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/tst_NodeQueries.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_PatchNode.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_PointTrace.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_Polyhedron.cpp"

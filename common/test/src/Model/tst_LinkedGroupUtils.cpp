@@ -83,14 +83,14 @@ TEST_CASE("collectLinkedGroups")
   worldNode.defaultLayer()->addChild(entityNode);
 
   CHECK_THAT(
-    collectLinkedGroups({&worldNode}, "asdf"),
+    collectGroupsWithLinkId({&worldNode}, "asdf"),
     Catch::Matchers::UnorderedEquals(std::vector<Model::GroupNode*>{}));
   CHECK_THAT(
-    collectLinkedGroups({&worldNode}, "group1"),
+    collectGroupsWithLinkId({&worldNode}, "group1"),
     Catch::Matchers::UnorderedEquals(
       std::vector<Model::GroupNode*>{groupNode1, linkedGroupNode1_1}));
   CHECK_THAT(
-    collectLinkedGroups({&worldNode}, "group2"),
+    collectGroupsWithLinkId({&worldNode}, "group2"),
     Catch::Matchers::UnorderedEquals(std::vector<Model::GroupNode*>{
       groupNode2, linkedGroupNode2_1, linkedGroupNode2_2}));
 }

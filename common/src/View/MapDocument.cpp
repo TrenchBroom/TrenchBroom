@@ -70,6 +70,7 @@
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeContents.h"
+#include "Model/NodeQueries.h"
 #include "Model/NonIntegerVerticesValidator.h"
 #include "Model/PatchNode.h"
 #include "Model/PointEntityWithBrushesValidator.h"
@@ -894,7 +895,7 @@ void copyAndSetLinkIds(
   for (const auto& linkedGroupsToAdd : groupsByLinkId)
   {
     const auto& linkId = linkedGroupsToAdd.front()->group().linkId();
-    const auto existingLinkedNodes = Model::collectLinkedNodes({&worldNode}, linkId);
+    const auto existingLinkedNodes = Model::collectNodesWithLinkId({&worldNode}, linkId);
 
     if (!existingLinkedNodes.empty())
     {
@@ -1694,9 +1695,9 @@ bool MapDocument::reparentNodes(
   {
     auto* newParentLayer = Model::findContainingLayer(newParent);
 
-    const auto nodesToDowngrade = kdl::vec_filter(
-      Model::collectNodes(nodes),
-      [&](auto* node) { return Model::findContainingLayer(node) != newParentLayer; });
+    const auto nodesToDowngrade = Model::collectNodesAndDescendants(
+      nodes,
+      [&](Model::Object* node) { return node->containingLayer() != newParentLayer; });
 
     downgradeUnlockedToInherit(nodesToDowngrade);
     downgradeShownToInherit(nodesToDowngrade);
@@ -2177,7 +2178,7 @@ void MapDocument::selectLinkedGroups()
   const auto linkIdsToSelect = Model::collectLinkedGroupIds(m_selectedNodes.nodes());
   const auto groupNodesToSelect =
     kdl::vec_flatten(kdl::vec_transform(linkIdsToSelect, [&](const auto& linkId) {
-      return Model::collectLinkedNodes({m_world.get()}, linkId);
+      return Model::collectNodesWithLinkId({m_world.get()}, linkId);
     }));
 
   auto transaction = Transaction{*this, "Select Linked Groups"};
@@ -2263,7 +2264,7 @@ void MapDocument::linkGroups(const std::vector<Model::GroupNode*>& groupNodes)
 
 void MapDocument::unlinkGroups(const std::vector<Model::GroupNode*>& groupNodes)
 {
-  const auto nodesToUnlink = Model::collectNodes(groupNodes);
+  const auto nodesToUnlink = Model::collectNodesAndDescendants(groupNodes);
   applyAndSwap(
     *this,
     "Reset Linked Group ID",
@@ -2299,7 +2300,8 @@ void MapDocument::separateLinkedGroups()
 bool MapDocument::canSeparateLinkedGroups() const
 {
   return kdl::any_of(m_selectedNodes.groups(), [&](const auto* groupNode) {
-    const auto linkedGroups = Model::collectLinkedNodes({m_world.get()}, *groupNode);
+    const auto linkedGroups =
+      Model::collectNodesWithLinkId({m_world.get()}, groupNode->group().linkId());
     return linkedGroups.size() > 1u
            && kdl::any_of(linkedGroups, [](const auto* linkedGroupNode) {
                 return !linkedGroupNode->selected();
@@ -2382,7 +2384,7 @@ void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
 
   for (const auto& linkedGroupId : selectedLinkIds)
   {
-    auto linkedGroups = Model::collectLinkedGroups({m_world.get()}, linkedGroupId);
+    auto linkedGroups = Model::collectGroupsWithLinkId({m_world.get()}, linkedGroupId);
 
     // partition the linked groups into selected and unselected ones
     const auto it = std::partition(
@@ -2722,8 +2724,7 @@ void MapDocument::show(const std::vector<Model::Node*>& nodes)
 
 void MapDocument::showAll()
 {
-  resetVisibility(
-    Model::collectDescendants(kdl::vec_static_cast<Model::Node*>(m_world->allLayers())));
+  resetVisibility(Model::collectDescendants(m_world->allLayers()));
 }
 
 void MapDocument::ensureVisible(const std::vector<Model::Node*>& nodes)

@@ -20,6 +20,8 @@
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
+#include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
@@ -180,135 +182,6 @@ TEST_CASE("ModelUtils.findOutermostClosedGroup")
     CHECK(findOutermostClosedGroup(brushNode) == nullptr);
     CHECK(findOutermostClosedGroup(patchNode) == nullptr);
   }
-}
-
-TEST_CASE("ModelUtils.collectWithParents")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
-
-  // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
-  // clang-format on
-
-  innerGroupNode->addChildren({entityNode, brushNode});
-  outerGroupNode->addChildren({innerGroupNode, patchNode});
-  layerNode->addChild(outerGroupNode);
-  worldNode.addChild(layerNode);
-
-  CHECK_THAT(
-    collectAncestors({&worldNode}), Catch::UnorderedEquals(std::vector<Node*>{}));
-  CHECK_THAT(
-    collectAncestors({layerNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{&worldNode}));
-  CHECK_THAT(
-    collectAncestors({outerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode}));
-  CHECK_THAT(
-    collectAncestors({innerGroupNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
-  CHECK_THAT(
-    collectAncestors({entityNode}),
-    Catch::UnorderedEquals(
-      std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
-  CHECK_THAT(
-    collectAncestors({brushNode}),
-    Catch::UnorderedEquals(
-      std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
-  CHECK_THAT(
-    collectAncestors({patchNode}),
-    Catch::UnorderedEquals(std::vector<Node*>{&worldNode, layerNode, outerGroupNode}));
-  CHECK_THAT(
-    collectAncestors({brushNode, patchNode}),
-    Catch::UnorderedEquals(
-      std::vector<Node*>{&worldNode, layerNode, outerGroupNode, innerGroupNode}));
-}
-
-TEST_CASE("ModelUtils.collectNodes")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-
-  auto* layerNode = new LayerNode{Layer{"layer"}};
-  auto* outerGroupNode = new GroupNode{Group{"outer"}};
-  auto* innerGroupNode = new GroupNode{Group{"inner"}};
-  auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
-
-  // clang-format off
-  auto* patchNode = new PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
-  // clang-format on
-
-  innerGroupNode->addChildren({entityNode, brushNode});
-  outerGroupNode->addChildren({innerGroupNode, patchNode});
-  layerNode->addChild(outerGroupNode);
-  worldNode.addChild(layerNode);
-
-  /*
-  worldNode
-  + defaultLayer
-  + layerNode
-    + outerGroupNode
-      + innerGroupNode
-        + entityNode
-        + brushNode
-      + patchNode
-  */
-
-  CHECK_THAT(
-    collectNodes({&worldNode}),
-    Catch::Equals(std::vector<Node*>{
-      &worldNode,
-      worldNode.defaultLayer(),
-      layerNode,
-      outerGroupNode,
-      innerGroupNode,
-      entityNode,
-      brushNode,
-      patchNode}));
-  CHECK_THAT(
-    collectNodes({layerNode}),
-    Catch::Equals(std::vector<Node*>{
-      layerNode, outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
-  CHECK_THAT(
-    collectNodes({outerGroupNode}),
-    Catch::Equals(std::vector<Node*>{
-      outerGroupNode, innerGroupNode, entityNode, brushNode, patchNode}));
-  CHECK_THAT(
-    collectNodes({innerGroupNode}),
-    Catch::Equals(std::vector<Node*>{innerGroupNode, entityNode, brushNode}));
-  CHECK_THAT(collectNodes({entityNode}), Catch::Equals(std::vector<Node*>{entityNode}));
-  CHECK_THAT(collectNodes({brushNode}), Catch::Equals(std::vector<Node*>{brushNode}));
-  CHECK_THAT(collectNodes({patchNode}), Catch::Equals(std::vector<Node*>{patchNode}));
-  CHECK_THAT(
-    collectNodes({innerGroupNode, outerGroupNode}),
-    Catch::Equals(std::vector<Node*>{
-      innerGroupNode,
-      entityNode,
-      brushNode,
-      outerGroupNode,
-      innerGroupNode,
-      entityNode,
-      brushNode,
-      patchNode}));
 }
 
 TEST_CASE("ModelUtils.collectTouchingNodes")
@@ -504,36 +377,35 @@ TEST_CASE("ModelUtils.collectSelectedNodes")
   + layerNode
   */
   CHECK_THAT(
-    collectSelectedNodes({&worldNode}), Catch::Matchers::Equals(std::vector<Node*>{}));
+    collectSelectedNodes({&worldNode}), Catch::UnorderedEquals(std::vector<Node*>{}));
 
   brushNode->select();
   patchNode->select();
 
   CHECK_THAT(
     collectSelectedNodes({&worldNode}),
-    Catch::Matchers::Equals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode}),
-    Catch::Matchers::Equals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
     collectSelectedNodes({innerGroupNode}),
-    Catch::Matchers::Equals(std::vector<Node*>{brushNode}));
+    Catch::UnorderedEquals(std::vector<Node*>{brushNode}));
 
   CHECK_THAT(
     collectSelectedNodes({innerGroupNode, patchNode}),
-    Catch::Matchers::Equals(std::vector<Node*>{brushNode, patchNode}));
+    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode, innerGroupNode}),
-    Catch::Matchers::Equals(std::vector<Node*>{brushNode, patchNode, brushNode}));
+    Catch::UnorderedEquals(std::vector<Node*>{brushNode, patchNode}));
 
   innerGroupNode->select();
   CHECK_THAT(
     collectSelectedNodes({outerGroupNode, innerGroupNode}),
-    Catch::Matchers::Equals(std::vector<Node*>{
-      innerGroupNode, brushNode, patchNode, innerGroupNode, brushNode}));
+    Catch::UnorderedEquals(std::vector<Node*>{innerGroupNode, brushNode, patchNode}));
 }
 
 TEST_CASE("ModelUtils.collectSelectableNodes")
@@ -587,22 +459,6 @@ TEST_CASE("ModelUtils.collectSelectableNodes")
     Catch::Matchers::Equals(std::vector<Node*>{outerGroupNode, entityNode, brushNode}));
 }
 
-TEST_CASE("ModelUtils.collectBrushFaces")
-{
-  constexpr auto worldBounds = vm::bbox3d{8192.0};
-  constexpr auto mapFormat = MapFormat::Quake3;
-
-  auto worldNode = WorldNode{{}, {}, mapFormat};
-  auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
-
-  worldNode.defaultLayer()->addChild(brushNode);
-
-  CHECK_THAT(
-    collectBrushFaces({&worldNode}),
-    Catch::Matchers::UnorderedEquals(toHandles(brushNode)));
-}
-
 TEST_CASE("ModelUtils.collectSelectedBrushFaces")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
@@ -622,7 +478,7 @@ TEST_CASE("ModelUtils.collectSelectedBrushFaces")
     CHECK_THAT(
       collectSelectedBrushFaces({&worldNode}),
       Catch::Matchers::UnorderedEquals(
-        std::vector<Model::BrushFaceHandle>{{brushNode, 0}, {brushNode, 1}}));
+        std::vector<Model::BrushFaceHandle>{{brushNode, 0u}, {brushNode, 1u}}));
   }
 
   SECTION("Node selection")

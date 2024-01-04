@@ -29,6 +29,7 @@
 #include "Model/Game.h"
 #include "Model/LayerNode.h"
 #include "Model/ModelUtils.h"
+#include "Model/NodeQueries.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
 #include "Renderer/PerspectiveCamera.h"

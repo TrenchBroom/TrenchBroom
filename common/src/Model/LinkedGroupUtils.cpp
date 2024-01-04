@@ -24,6 +24,7 @@
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeContents.h"
+#include "Model/NodeQueries.h"
 #include "Uuid.h"
 
 #include "kdl/grouped_range.h"
@@ -35,46 +36,27 @@
 namespace TrenchBroom::Model
 {
 
-std::vector<Node*> collectLinkedNodes(
+std::vector<Node*> collectNodesWithLinkId(
   const std::vector<Node*>& nodes, const std::string& linkId)
 {
-  return collectNodes(nodes, [&](const auto* node) {
-    return node->accept(kdl::overload(
-      [](const WorldNode*) { return false; },
-      [](const LayerNode*) { return false; },
+  return collectNodesAndDescendants(
+    nodes,
+    kdl::overload(
       [&](const GroupNode* groupNode) { return groupNode->group().linkId() == linkId; },
       [&](const EntityNode* entityNode) {
         return entityNode->entity().linkId() == linkId;
       },
       [&](const BrushNode* brushNode) { return brushNode->brush().linkId() == linkId; },
       [&](const PatchNode* patchNode) { return patchNode->patch().linkId() == linkId; }));
-  });
 }
 
-std::vector<GroupNode*> collectLinkedGroups(
+std::vector<GroupNode*> collectGroupsWithLinkId(
   const std::vector<Node*>& nodes, const std::string& linkId)
 {
-  auto result = std::vector<GroupNode*>{};
-  Node::visitAll(
-    nodes,
-    kdl::overload(
-      [](auto&& thisLambda, const WorldNode* worldNode) {
-        worldNode->visitChildren(thisLambda);
-      },
-      [](auto&& thisLambda, const LayerNode* layerNode) {
-        layerNode->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, GroupNode* groupNode) {
-        if (groupNode->group().linkId() == linkId)
-        {
-          result.push_back(groupNode);
-        }
-        groupNode->visitChildren(thisLambda);
-      },
-      [](const EntityNode*) {},
-      [](const BrushNode*) {},
-      [](const PatchNode*) {}));
-  return result;
+  return kdl::vec_static_cast<GroupNode*>(
+    collectNodesAndDescendants(nodes, kdl::overload([&](const GroupNode* groupNode) {
+                                 return groupNode->group().linkId() == linkId;
+                               })));
 }
 
 std::vector<std::string> collectLinkedGroupIds(const std::vector<Node*>& nodes)
@@ -178,7 +160,7 @@ SelectionResult nodeSelectionWithLinkedGroupConstraints(
       {
         // find the others and add them to the lock list
         for (auto* otherGroup :
-             collectLinkedGroups({&world}, groupNode->group().linkId()))
+             collectGroupsWithLinkId({&world}, groupNode->group().linkId()))
         {
           if (otherGroup == groupNode)
           {
@@ -219,31 +201,6 @@ FaceSelectionResult faceSelectionWithLinkedGroupConstraints(
 
 namespace
 {
-/**
- * Recursively collect the nodes to clone + transform, starting with the children of
- * `node`.
- * (`node` itself is skipped.)
- */
-std::vector<const Node*> collectNodesToCloneAndTransform(const Node& node)
-{
-  auto result = std::vector<const Node*>{};
-
-  std::function<void(const Node*)> collectNodes = [&](const Node* n) {
-    result.push_back(n);
-    for (auto* child : n->children())
-    {
-      collectNodes(child);
-    }
-  };
-
-  for (auto* child : node.children())
-  {
-    collectNodes(child);
-  }
-
-  return result;
-}
-
 Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
   const Node* nodeToClone,
   std::unordered_map<const Node*, NodeContents>& origNodeToTransformedContents,
@@ -305,7 +262,7 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
 Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
   const Node& node, const vm::bbox3& worldBounds, const vm::mat4x4& transformation)
 {
-  auto nodesToClone = collectNodesToCloneAndTransform(node);
+  auto nodesToClone = collectDescendants(std::vector{&node});
 
   using TransformResult = Result<std::pair<const Node*, NodeContents>>;
 

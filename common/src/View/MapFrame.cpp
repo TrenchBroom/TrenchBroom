@@ -669,7 +669,7 @@ static QString describeSelection(const MapDocument* document)
 
   // get the layers of the selected nodes
   const std::vector<Model::LayerNode*> selectedObjectLayers =
-    Model::findContainingLayersUserSorted(selectedNodes.nodes());
+    Model::collectContainingLayersUserSorted(selectedNodes.nodes());
   QString layersDescription;
   if (selectedObjectLayers.size() == 1)
   {

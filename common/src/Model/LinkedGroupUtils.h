@@ -42,7 +42,7 @@
 namespace TrenchBroom::Model
 {
 
-std::vector<Node*> collectLinkedNodes(
+std::vector<Node*> collectNodesWithLinkId(
   const std::vector<Node*>& nodes, const std::string& linkId);
 
 template <typename N>
@@ -52,20 +52,20 @@ std::vector<N*> collectLinkedNodes(const std::vector<Node*>& nodes, const N& nod
     [](const WorldNode*) { return std::vector<Node*>{}; },
     [](const LayerNode*) { return std::vector<Node*>{}; },
     [&](const GroupNode* groupNode) {
-      return collectLinkedNodes(nodes, groupNode->group().linkId());
+      return collectNodesWithLinkId(nodes, groupNode->group().linkId());
     },
     [&](const EntityNode* entityNode) {
-      return collectLinkedNodes(nodes, entityNode->entity().linkId());
+      return collectNodesWithLinkId(nodes, entityNode->entity().linkId());
     },
     [&](const BrushNode* brushNode) {
-      return collectLinkedNodes(nodes, brushNode->brush().linkId());
+      return collectNodesWithLinkId(nodes, brushNode->brush().linkId());
     },
     [&](const PatchNode* patchNode) {
-      return collectLinkedNodes(nodes, patchNode->patch().linkId());
+      return collectNodesWithLinkId(nodes, patchNode->patch().linkId());
     })));
 }
 
-std::vector<GroupNode*> collectLinkedGroups(
+std::vector<GroupNode*> collectGroupsWithLinkId(
   const std::vector<Node*>& nodes, const std::string& linkId);
 
 std::vector<std::string> collectLinkedGroupIds(const std::vector<Node*>& nodes);

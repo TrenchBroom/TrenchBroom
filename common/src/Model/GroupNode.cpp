@@ -192,11 +192,12 @@ Node* GroupNode::doClone(
   return groupNode.release();
 }
 
+namespace
+{
 /** Check whether the given parent node or any of its ancestors and the given group node
  *  or any of its descendants have the same link id.
  */
-static bool checkRecursiveLinkedGroups(
-  const Node& parentNode, const GroupNode& groupNodeToAdd)
+bool checkRecursiveLinkedGroups(const Node& parentNode, const GroupNode& groupNodeToAdd)
 {
   const auto ancestorLinkedGroupIds =
     kdl::vec_sort(collectParentLinkedGroupIds(parentNode));
@@ -204,6 +205,7 @@ static bool checkRecursiveLinkedGroups(
 
   return kdl::set_has_shared_element(ancestorLinkedGroupIds, linkedGroupIdsToAdd);
 }
+} // namespace
 
 bool GroupNode::doCanAddChild(const Node* child) const
 {

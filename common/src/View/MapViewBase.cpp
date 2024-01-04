@@ -1259,7 +1259,7 @@ void MapViewBase::showPopupMenuLater()
 
   // Layer operations
 
-  const auto selectedObjectLayers = Model::findContainingLayersUserSorted(nodes);
+  const auto selectedObjectLayers = Model::collectContainingLayersUserSorted(nodes);
 
   auto* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
   for (auto* layerNode : document->world()->allLayersUserSorted())

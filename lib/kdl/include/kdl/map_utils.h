@@ -38,7 +38,8 @@ namespace kdl
 template <typename Map>
 auto map_keys(const Map& m)
 {
-  auto result = std::vector<typename Map::key_type>{};
+  using T = std::remove_cv_t<std::remove_reference_t<decltype(std::get<0>(*m.begin()))>>;
+  auto result = std::vector<T>{};
   result.reserve(m.size());
   for (const auto& [key, value] : m)
   {
@@ -58,7 +59,8 @@ auto map_keys(const Map& m)
 template <typename Map>
 auto map_values(const Map& m)
 {
-  auto result = std::vector<typename Map::mapped_type>{};
+  using T = std::remove_cv_t<std::remove_reference_t<decltype(std::get<1>(*m.begin()))>>;
+  auto result = std::vector<T>{};
   result.reserve(m.size());
   for (const auto& [key, value] : m)
   {

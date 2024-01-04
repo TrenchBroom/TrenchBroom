@@ -36,6 +36,7 @@
 #include "Model/LayerNode.h"
 #include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
+#include "Model/NodeQueries.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
@@ -266,7 +267,7 @@ void MapDocumentCommandFacade::performDeselectAll()
 void MapDocumentCommandFacade::performAddNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
 {
-  const std::vector<Model::Node*> parents = collectAncestors(nodes);
+  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
   NotifyBeforeAndAfter notifyParents(
     nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
@@ -288,7 +289,7 @@ void MapDocumentCommandFacade::performAddNodes(
 void MapDocumentCommandFacade::performRemoveNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
 {
-  const std::vector<Model::Node*> parents = collectAncestors(nodes);
+  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
   NotifyBeforeAndAfter notifyParents(
     nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
@@ -328,7 +329,7 @@ MapDocumentCommandFacade::performReplaceChildren(
     return {};
   }
 
-  const std::vector<Model::Node*> parents = collectAncestors(nodes);
+  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
   NotifyBeforeAndAfter notifyParents(
     nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
 
