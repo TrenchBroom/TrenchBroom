@@ -33,6 +33,9 @@
 #include <kdl/result_fold.h>
 #include <kdl/zip_iterator.h>
 
+#include <string_view>
+#include <unordered_map>
+
 namespace TrenchBroom::Model
 {
 
@@ -324,40 +327,72 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
       });
 }
 
+auto makeLinkIdToNodeMap(const std::vector<Node*>& nodes)
+{
+  auto result = std::unordered_map<std::string_view, const Node*>{};
+  Node::visitAll(
+    nodes,
+    kdl::overload(
+      [](auto&& thisLambda, const WorldNode* worldNode) {
+        worldNode->visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, const LayerNode* layerNode) {
+        layerNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, const GroupNode* groupNode) {
+        result[groupNode->group().linkId()] = groupNode;
+        groupNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, const EntityNode* entityNode) {
+        result[entityNode->entity().linkId()] = entityNode;
+        entityNode->visitChildren(thisLambda);
+      },
+      [&](const BrushNode* brushNode) {
+        result[brushNode->brush().linkId()] = brushNode;
+      },
+      [&](const PatchNode* patchNode) {
+        result[patchNode->patch().linkId()] = patchNode;
+      }));
+  return result;
+}
+
+template <typename N>
+const N* getCorrespondingNode(
+  const std::unordered_map<std::string_view, const Node*>& correspondingNodes,
+  const std::string_view linkId)
+{
+  auto it = correspondingNodes.find(linkId);
+  return it != correspondingNodes.end() ? dynamic_cast<const N*>(it->second) : nullptr;
+}
+
 template <typename T>
 void preserveGroupNames(
-  const std::vector<T>& clonedNodes, const std::vector<Node*>& correspondingNodes)
+  const std::vector<T>& clonedNodes,
+  const std::unordered_map<std::string_view, const Node*>& correspondingNodes)
 {
-  auto clIt = std::begin(clonedNodes);
-  auto coIt = std::begin(correspondingNodes);
-  while (clIt != std::end(clonedNodes) && coIt != std::end(correspondingNodes))
-  {
-    auto& clonedNode = *clIt;
-    const auto* correspondingNode = *coIt;
-
-    clonedNode->accept(kdl::overload(
-      [](WorldNode*) {},
-      [](LayerNode*) {},
-      [&](GroupNode* clonedGroupNode) {
-        if (
-          const auto* correspondingGroupNode =
-            dynamic_cast<const GroupNode*>(correspondingNode))
-        {
-          auto group = clonedGroupNode->group();
-          group.setName(correspondingGroupNode->group().name());
-          clonedGroupNode->setGroup(std::move(group));
-
-          preserveGroupNames(
-            clonedGroupNode->children(), correspondingGroupNode->children());
-        }
+  return Node::visitAll(
+    clonedNodes,
+    kdl::overload(
+      [](auto&& thisLambda, const WorldNode* worldNode) {
+        worldNode->visitChildren(thisLambda);
       },
-      [](EntityNode*) {},
-      [](BrushNode*) {},
-      [](PatchNode*) {}));
-
-    ++clIt;
-    ++coIt;
-  }
+      [](auto&& thisLambda, const LayerNode* layerNode) {
+        layerNode->visitChildren(thisLambda);
+      },
+      [&](auto&& thisLambda, GroupNode* groupNode) {
+        if (
+          const auto* correspondingNode = getCorrespondingNode<GroupNode>(
+            correspondingNodes, groupNode->group().linkId()))
+        {
+          auto group = groupNode->group();
+          group.setName(correspondingNode->group().name());
+          groupNode->setGroup(std::move(group));
+        }
+        groupNode->visitChildren(thisLambda);
+      },
+      [](const EntityNode*) {},
+      [](const BrushNode*) {},
+      [](const PatchNode*) {}));
 }
 
 void preserveEntityProperties(
@@ -394,42 +429,31 @@ void preserveEntityProperties(
 
 template <typename T>
 void preserveEntityProperties(
-  const std::vector<T>& clonedNodes, const std::vector<Node*>& correspondingNodes)
+  const std::vector<T>& clonedNodes,
+  const std::unordered_map<std::string_view, const Node*>& correspondingNodes)
 {
-  auto clIt = std::begin(clonedNodes);
-  auto coIt = std::begin(correspondingNodes);
-  while (clIt != std::end(clonedNodes) && coIt != std::end(correspondingNodes))
-  {
-    auto& clonedNode =
-      *clIt; // deduces either to std::unique_ptr<Node>& or Node*& depending on T
-    const auto* correspondingNode = *coIt;
-
-    clonedNode->accept(kdl::overload(
-      [](WorldNode*) {},
-      [](LayerNode*) {},
-      [&](GroupNode* clonedGroupNode) {
+  return Node::visitAll(
+    clonedNodes,
+    kdl::overload(
+      [](auto&& thisLambda, const WorldNode* worldNode) {
+        worldNode->visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, const LayerNode* layerNode) {
+        layerNode->visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, const GroupNode* groupNode) {
+        groupNode->visitChildren(thisLambda);
+      },
+      [&](EntityNode* entityNode) {
         if (
-          const auto* correspondingGroupNode =
-            dynamic_cast<const GroupNode*>(correspondingNode))
+          const auto* correspondingNode = getCorrespondingNode<EntityNode>(
+            correspondingNodes, entityNode->entity().linkId()))
         {
-          preserveEntityProperties(
-            clonedGroupNode->children(), correspondingGroupNode->children());
+          preserveEntityProperties(*entityNode, *correspondingNode);
         }
       },
-      [&](EntityNode* clonedEntityNode) {
-        if (
-          const auto* correspondingEntityNode =
-            dynamic_cast<const EntityNode*>(correspondingNode))
-        {
-          preserveEntityProperties(*clonedEntityNode, *correspondingEntityNode);
-        }
-      },
-      [](BrushNode*) {},
-      [](PatchNode*) {}));
-
-    ++clIt;
-    ++coIt;
-  }
+      [](const BrushNode*) {},
+      [](const PatchNode*) {}));
 }
 } // namespace
 
@@ -454,12 +478,11 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
       const auto transformation =
         targetGroupNode->group().transformation() * _invertedSourceTransformation;
       return cloneAndTransformChildren(sourceGroupNode, worldBounds, transformation)
-        .transform([&](std::vector<std::unique_ptr<Node>>&& newChildren) {
-          preserveGroupNames(newChildren, targetGroupNode->children());
-          preserveEntityProperties(newChildren, targetGroupNode->children());
-
-          return std::make_pair(
-            static_cast<Node*>(targetGroupNode), std::move(newChildren));
+        .transform([&](auto newChildren) {
+          const auto linkIdToNodeMap = makeLinkIdToNodeMap(targetGroupNode->children());
+          preserveGroupNames(newChildren, linkIdToNodeMap);
+          preserveEntityProperties(newChildren, linkIdToNodeMap);
+          return std::pair{static_cast<Node*>(targetGroupNode), std::move(newChildren)};
         });
     }));
 }

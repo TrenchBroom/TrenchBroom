@@ -584,7 +584,6 @@ TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
       const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
       REQUIRE(newEntityNode != nullptr);
 
-      /* EXPECTED:
       CHECK_THAT(
         newEntityNode->entity().properties(),
         Catch::UnorderedEquals(std::vector<EntityProperty>{
@@ -593,15 +592,6 @@ TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
       CHECK_THAT(
         newEntityNode->entity().protectedProperties(),
         Catch::UnorderedEquals(std::vector<std::string>{"light"}));
-      ACTUAL: */
-      CHECK_THAT(
-        newEntityNode->entity().properties(),
-        Catch::UnorderedEquals(std::vector<EntityProperty>{
-          {"light", "400"},
-        }));
-      CHECK_THAT(
-        newEntityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{}));
     })
     .transform_error([](const auto&) { FAIL(); });
 }
