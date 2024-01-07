@@ -471,7 +471,7 @@ public: // visitors
   template <typename R, typename L>
   static void visitAll(const R& nodes, const L& lambda)
   {
-    for (auto* node : nodes)
+    for (auto& node : nodes)
     {
       node->accept(lambda);
     }
