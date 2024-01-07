@@ -537,6 +537,75 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveEntityProperties")
     .transform_error([](const auto&) { FAIL(); });
 }
 
+TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
+{
+  // see https://github.com/TrenchBroom/TrenchBroom/issues/4257
+
+  const auto worldBounds = vm::bbox3{8192.0};
+  const auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
+
+  auto sourceGroupNode = GroupNode{Group{"name"}};
+  auto* sourceBrushNode = new BrushNode{brushBuilder.createCube(64.0, "texture").value()};
+  auto* sourceEntityNode = new EntityNode{Entity{
+    {},
+    {
+      {"light", "400"},
+    }}};
+
+  sourceGroupNode.addChildren({sourceBrushNode, sourceEntityNode});
+
+  auto targetGroupNode = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(
+    sourceGroupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
+
+  auto* targetEntityNode = dynamic_cast<EntityNode*>(targetGroupNode->children().back());
+  REQUIRE(targetEntityNode != nullptr);
+  REQUIRE(targetEntityNode->entity() == sourceEntityNode->entity());
+
+  {
+    auto targetEntity = targetEntityNode->entity();
+    targetEntity.setProtectedProperties({"light"});
+    targetEntity.addOrUpdateProperty({}, "light", "500");
+    targetEntityNode->setEntity(std::move(targetEntity));
+  }
+
+  auto* sourceBrushEntity = new EntityNode{Entity{}};
+  sourceGroupNode.removeChild(sourceBrushNode);
+  sourceBrushEntity->addChildren({sourceBrushNode});
+  sourceGroupNode.addChildren({sourceBrushEntity});
+
+  updateLinkedGroups(sourceGroupNode, {targetGroupNode.get()}, worldBounds)
+    .transform([&](const UpdateLinkedGroupsResult& r) {
+      REQUIRE(r.size() == 1u);
+      const auto& p = r.front();
+
+      const auto& newChildren = p.second;
+      REQUIRE(newChildren.size() == 2u);
+
+      const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
+      REQUIRE(newEntityNode != nullptr);
+
+      /* EXPECTED:
+      CHECK_THAT(
+        newEntityNode->entity().properties(),
+        Catch::UnorderedEquals(std::vector<EntityProperty>{
+          {"light", "500"},
+        }));
+      CHECK_THAT(
+        newEntityNode->entity().protectedProperties(),
+        Catch::UnorderedEquals(std::vector<std::string>{"light"}));
+      ACTUAL: */
+      CHECK_THAT(
+        newEntityNode->entity().properties(),
+        Catch::UnorderedEquals(std::vector<EntityProperty>{
+          {"light", "400"},
+        }));
+      CHECK_THAT(
+        newEntityNode->entity().protectedProperties(),
+        Catch::UnorderedEquals(std::vector<std::string>{}));
+    })
+    .transform_error([](const auto&) { FAIL(); });
+}
+
 namespace
 {
 auto* createPatchNode()
