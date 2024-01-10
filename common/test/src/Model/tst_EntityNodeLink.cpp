@@ -30,323 +30,290 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("EntityNodeLinkTest.testCreateLink")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
-  EntityNode* targetNode = new Model::EntityNode(Model::Entity());
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode{Entity{}};
+  auto* targetNode = new EntityNode{Entity{}};
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode->setEntity(Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
+  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
 
-  targetNode->setEntity(Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->linkTargets();
-  CHECK(targets.size() == 1u);
-  CHECK(targets.front() == targetNode);
+  CHECK(sourceNode->linkSources().empty());
+  CHECK_THAT(
+    sourceNode->linkTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
-  const std::vector<EntityNodeBase*>& sources = targetNode->linkSources();
-  CHECK(sources.size() == 1u);
-  CHECK(sources.front() == sourceNode);
+  CHECK_THAT(
+    targetNode->linkSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode->linkTargets().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode1 = new Model::EntityNode(Model::Entity());
-  EntityNode* sourceNode2 = new Model::EntityNode(Model::Entity());
-  EntityNode* targetNode = new Model::EntityNode(Model::Entity());
-  world.defaultLayer()->addChild(sourceNode1);
-  world.defaultLayer()->addChild(sourceNode2);
-  world.defaultLayer()->addChild(targetNode);
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode1 = new EntityNode{Entity{}};
+  auto* sourceNode2 = new EntityNode{Entity{}};
+  auto* targetNode = new EntityNode{Entity{}};
+  worldNode.defaultLayer()->addChild(sourceNode1);
+  worldNode.defaultLayer()->addChild(sourceNode2);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode1->setEntity(Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
+  sourceNode1->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
 
-  sourceNode2->setEntity(Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
+  sourceNode2->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
 
-  targetNode->setEntity(Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  const std::vector<EntityNodeBase*>& targets1 = sourceNode1->linkTargets();
-  CHECK(targets1.size() == 1u);
-  CHECK(targets1.front() == targetNode);
+  CHECK(sourceNode1->linkSources().empty());
+  CHECK_THAT(
+    sourceNode1->linkTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
-  const std::vector<EntityNodeBase*>& targets2 = sourceNode2->linkTargets();
-  CHECK(targets2.size() == 1u);
-  CHECK(targets2.front() == targetNode);
+  CHECK(sourceNode2->linkSources().empty());
+  CHECK_THAT(
+    sourceNode2->linkTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
-  const std::vector<EntityNodeBase*>& sources = targetNode->linkSources();
-  CHECK(sources.size() == 2u);
-  CHECK(kdl::vec_contains(sources, sourceNode1));
-  CHECK(kdl::vec_contains(sources, sourceNode2));
+  CHECK_THAT(
+    targetNode->linkSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode1, sourceNode2}));
+  CHECK(targetNode->linkTargets().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
-  EntityNode* targetNode1 = new Model::EntityNode(Model::Entity());
-  EntityNode* targetNode2 = new Model::EntityNode(Model::Entity());
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode1);
-  world.defaultLayer()->addChild(targetNode2);
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode{Entity{}};
+  auto* targetNode1 = new EntityNode{Entity{}};
+  auto* targetNode2 = new EntityNode{Entity{}};
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode1);
+  worldNode.defaultLayer()->addChild(targetNode2);
 
   sourceNode->setEntity(Entity(
     {},
-    {{EntityPropertyKeys::Target + "1", "target_name1"},
-     {EntityPropertyKeys::Target + "2", "target_name2"}}));
+    {{EntityPropertyKeys::Target + "1", "a1"},
+     {EntityPropertyKeys::Target + "2", "a2"}}));
 
   // here we need to query for all entities having a numbered "target" property,
   // not just those having a "target" property
-  targetNode1->setEntity(Entity({}, {{EntityPropertyKeys::Targetname, "target_name1"}}));
+  targetNode1->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a1"}}});
 
-  targetNode2->setEntity(Entity({}, {{EntityPropertyKeys::Targetname, "target_name2"}}));
+  targetNode2->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a2"}}});
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->linkTargets();
-  CHECK(targets.size() == 2u);
-  CHECK(kdl::vec_contains(targets, targetNode1));
-  CHECK(kdl::vec_contains(targets, targetNode2));
+  CHECK(sourceNode->linkSources().empty());
+  CHECK_THAT(
+    sourceNode->linkTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode1, targetNode2}));
 
-  const std::vector<EntityNodeBase*>& sources1 = targetNode1->linkSources();
-  CHECK(sources1.size() == 1u);
-  CHECK(sources1.front() == sourceNode);
+  CHECK_THAT(
+    targetNode1->linkSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode1->linkTargets().empty());
 
-  const std::vector<EntityNodeBase*>& sources2 = targetNode2->linkSources();
-  CHECK(sources2.size() == 1u);
-  CHECK(sources2.front() == sourceNode);
+  CHECK_THAT(
+    targetNode2->linkSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode2->linkTargets().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testLoadLink")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->linkTargets();
-  CHECK(targets.size() == 1u);
-  CHECK(targets.front() == targetNode);
+  CHECK(sourceNode->linkSources().empty());
+  CHECK_THAT(
+    sourceNode->linkTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
-  const std::vector<EntityNodeBase*>& sources = targetNode->linkSources();
-  CHECK(sources.size() == 1u);
-  CHECK(sources.front() == sourceNode);
+  CHECK_THAT(
+    targetNode->linkSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode->linkTargets().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode->setEntity(Entity({}, {{EntityPropertyKeys::Target, "other_name"}}));
+  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "b"}}});
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->linkTargets();
-  CHECK(targets.empty());
-
-  const std::vector<EntityNodeBase*>& sources = targetNode->linkSources();
-  CHECK(sources.empty());
+  CHECK(sourceNode->linkTargets().empty());
+  CHECK(targetNode->linkSources().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  targetNode->setEntity(Entity({}, {{EntityPropertyKeys::Targetname, "other_name"}}));
+  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->linkTargets();
-  CHECK(targets.empty());
-
-  const std::vector<EntityNodeBase*>& sources = targetNode->linkSources();
-  CHECK(sources.empty());
+  CHECK(sourceNode->linkTargets().empty());
+  CHECK(targetNode->linkSources().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  world.defaultLayer()->removeChild(sourceNode);
+  worldNode.defaultLayer()->removeChild(sourceNode);
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->linkTargets();
-  CHECK(targets.empty());
-
-  const std::vector<EntityNodeBase*>& sources = targetNode->linkSources();
-  CHECK(sources.empty());
+  CHECK(sourceNode->linkTargets().empty());
+  CHECK(targetNode->linkSources().empty());
 
   delete sourceNode;
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Target, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  world.defaultLayer()->removeChild(targetNode);
+  worldNode.defaultLayer()->removeChild(targetNode);
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->linkTargets();
-  CHECK(targets.empty());
-
-  const std::vector<EntityNodeBase*>& sources = targetNode->linkSources();
-  CHECK(sources.empty());
+  CHECK(sourceNode->linkTargets().empty());
+  CHECK(targetNode->linkSources().empty());
 
   delete targetNode;
 }
 
 TEST_CASE("EntityNodeLinkTest.testCreateKillLink")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(Model::Entity());
-  EntityNode* targetNode = new Model::EntityNode(Model::Entity());
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode{Entity{}};
+  auto* targetNode = new EntityNode{Entity{}};
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode->setEntity(Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
+  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
 
-  targetNode->setEntity(Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->killTargets();
-  CHECK(targets.size() == 1u);
-  CHECK(targets.front() == targetNode);
+  CHECK(sourceNode->killSources().empty());
+  CHECK_THAT(
+    sourceNode->killTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
-  const std::vector<EntityNodeBase*>& sources = targetNode->killSources();
-  CHECK(sources.size() == 1u);
-  CHECK(sources.front() == sourceNode);
+  CHECK_THAT(
+    targetNode->killSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode->killTargets().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testLoadKillLink")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->killTargets();
-  CHECK(targets.size() == 1u);
-  CHECK(targets.front() == targetNode);
+  CHECK(sourceNode->killSources().empty());
+  CHECK_THAT(
+    sourceNode->killTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
 
-  const std::vector<EntityNodeBase*>& sources = targetNode->killSources();
-  CHECK(sources.size() == 1u);
-  CHECK(sources.front() == sourceNode);
+  CHECK_THAT(
+    targetNode->killSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode->killTargets().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode->setEntity(Entity({}, {{EntityPropertyKeys::Killtarget, "other_name"}}));
+  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Killtarget, "b"}}});
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->killTargets();
-  CHECK(targets.empty());
-
-  const std::vector<EntityNodeBase*>& sources = targetNode->killSources();
-  CHECK(sources.empty());
+  CHECK(sourceNode->killTargets().empty());
+  CHECK(targetNode->killSources().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  targetNode->setEntity(Entity({}, {{EntityPropertyKeys::Targetname, "other_name"}}));
+  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->killTargets();
-  CHECK(targets.empty());
-
-  const std::vector<EntityNodeBase*>& sources = targetNode->killSources();
-  CHECK(sources.empty());
+  CHECK(sourceNode->killTargets().empty());
+  CHECK(targetNode->killSources().empty());
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  world.defaultLayer()->removeChild(sourceNode);
+  worldNode.defaultLayer()->removeChild(sourceNode);
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->killTargets();
-  CHECK(targets.empty());
-
-  const std::vector<EntityNodeBase*>& sources = targetNode->killSources();
-  CHECK(sources.empty());
+  CHECK(sourceNode->killTargets().empty());
+  CHECK(targetNode->killSources().empty());
 
   delete sourceNode;
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget")
 {
-  WorldNode world({}, {}, MapFormat::Standard);
-  EntityNode* sourceNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Killtarget, "target_name"}}));
-  EntityNode* targetNode = new Model::EntityNode(
-    Model::Entity({}, {{EntityPropertyKeys::Targetname, "target_name"}}));
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
 
-  world.defaultLayer()->addChild(sourceNode);
-  world.defaultLayer()->addChild(targetNode);
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
 
-  world.defaultLayer()->removeChild(targetNode);
+  worldNode.defaultLayer()->removeChild(targetNode);
 
-  const std::vector<EntityNodeBase*>& targets = sourceNode->killTargets();
-  CHECK(targets.empty());
-
-  const std::vector<EntityNodeBase*>& sources = targetNode->killSources();
-  CHECK(sources.empty());
+  CHECK(sourceNode->killTargets().empty());
+  CHECK(targetNode->killSources().empty());
 
   delete targetNode;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model
