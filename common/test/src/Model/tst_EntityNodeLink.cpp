@@ -306,6 +306,61 @@ TEST_CASE("EntityNodeLinkTest.testLoadKillLink")
   CHECK(targetNode->killTargets().empty());
 }
 
+
+TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingSource")
+{
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
+
+  REQUIRE(sourceNode->killSources().empty());
+  REQUIRE(sourceNode->killTargets().empty());
+  REQUIRE(targetNode->killSources().empty());
+  REQUIRE(targetNode->killTargets().empty());
+
+  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Killtarget, "b"}}});
+
+  CHECK(sourceNode->killSources().empty());
+  CHECK_THAT(
+    sourceNode->killTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+
+  CHECK_THAT(
+    targetNode->killSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode->killTargets().empty());
+}
+
+TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingTarget")
+{
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
+
+  REQUIRE(sourceNode->killSources().empty());
+  REQUIRE(sourceNode->killTargets().empty());
+  REQUIRE(targetNode->killSources().empty());
+  REQUIRE(targetNode->killTargets().empty());
+
+  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+
+  CHECK(sourceNode->killSources().empty());
+  CHECK_THAT(
+    sourceNode->killTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+
+  CHECK_THAT(
+    targetNode->killSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode->killTargets().empty());
+}
+
 TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
