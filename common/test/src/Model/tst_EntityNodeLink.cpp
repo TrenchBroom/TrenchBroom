@@ -145,6 +145,60 @@ TEST_CASE("EntityNodeLinkTest.testLoadLink")
   CHECK(targetNode->linkTargets().empty());
 }
 
+TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingSource")
+{
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
+
+  REQUIRE(sourceNode->linkSources().empty());
+  REQUIRE(sourceNode->linkTargets().empty());
+  REQUIRE(targetNode->linkSources().empty());
+  REQUIRE(targetNode->linkTargets().empty());
+
+  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "b"}}});
+
+  CHECK(sourceNode->linkSources().empty());
+  CHECK_THAT(
+    sourceNode->linkTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+
+  CHECK_THAT(
+    targetNode->linkSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode->linkTargets().empty());
+}
+
+TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingTarget")
+{
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
+  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+
+  worldNode.defaultLayer()->addChild(sourceNode);
+  worldNode.defaultLayer()->addChild(targetNode);
+
+  REQUIRE(sourceNode->linkSources().empty());
+  REQUIRE(sourceNode->linkTargets().empty());
+  REQUIRE(targetNode->linkSources().empty());
+  REQUIRE(targetNode->linkTargets().empty());
+
+  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+
+  CHECK(sourceNode->linkSources().empty());
+  CHECK_THAT(
+    sourceNode->linkTargets(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
+
+  CHECK_THAT(
+    targetNode->linkSources(),
+    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
+  CHECK(targetNode->linkTargets().empty());
+}
+
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};

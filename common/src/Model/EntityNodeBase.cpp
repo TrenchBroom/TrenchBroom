@@ -209,12 +209,12 @@ void EntityNodeBase::updateLinks(
     const auto& oldProp = *oldIt;
     const auto& newProp = *newIt;
 
-    if (oldProp < newProp)
+    if (oldProp.key() < newProp.key())
     {
       removeLinks(oldProp.key(), oldProp.value());
       ++oldIt;
     }
-    else if (oldProp > newProp)
+    else if (oldProp.key() > newProp.key())
     {
       addLinks(newProp.key(), newProp.value());
       ++newIt;
