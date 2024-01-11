@@ -22,6 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
 
+#include "kdl/invoke.h"
 #include <kdl/collection_utils.h>
 #include <kdl/vector_utils.h>
 
@@ -101,11 +102,10 @@ const Entity& EntityNodeBase::entity() const
 Entity EntityNodeBase::setEntity(Entity entity)
 {
   const auto notifyChange = NotifyPropertyChange{*this};
-  updateIndexAndLinks(entity.properties());
 
-  using std::swap;
-  swap(m_entity, entity);
-  return entity;
+  auto oldEntity = std::exchange(m_entity, std::move(entity));
+  updateIndexAndLinks(oldEntity.properties());
+  return oldEntity;
 }
 
 void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
@@ -139,10 +139,10 @@ void EntityNodeBase::propertiesDidChange(const vm::bbox3& oldPhysicalBounds)
   doPropertiesDidChange(oldPhysicalBounds);
 }
 
-void EntityNodeBase::updateIndexAndLinks(const std::vector<EntityProperty>& newProperties)
+void EntityNodeBase::updateIndexAndLinks(const std::vector<EntityProperty>& oldProperties)
 {
-  const auto oldSorted = kdl::vec_sort(m_entity.properties());
-  const auto newSorted = kdl::vec_sort(newProperties);
+  const auto oldSorted = kdl::vec_sort(oldProperties);
+  const auto newSorted = kdl::vec_sort(m_entity.properties());
 
   updatePropertyIndex(oldSorted, newSorted);
   updateLinks(oldSorted, newSorted);
@@ -209,12 +209,12 @@ void EntityNodeBase::updateLinks(
     const auto& oldProp = *oldIt;
     const auto& newProp = *newIt;
 
-    if (oldProp < newProp)
+    if (oldProp.key() < newProp.key())
     {
       removeLinks(oldProp.key(), oldProp.value());
       ++oldIt;
     }
-    else if (oldProp > newProp)
+    else if (oldProp.key() > newProp.key())
     {
       addLinks(newProp.key(), newProp.value());
       ++newIt;
