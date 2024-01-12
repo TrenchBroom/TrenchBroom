@@ -23,6 +23,7 @@
 
 class QCheckBox;
 class QKeySequence;
+class QLabel;
 
 namespace TrenchBroom
 {
@@ -56,6 +57,13 @@ private:
   KeySequenceEdit* m_rightKeyEditor = nullptr;
   KeySequenceEdit* m_upKeyEditor = nullptr;
   KeySequenceEdit* m_downKeyEditor = nullptr;
+  QLabel* m_forwardKeyConflictIcon = nullptr;
+  QLabel* m_backwardKeyConflictIcon = nullptr;
+  QLabel* m_leftKeyConflictIcon = nullptr;
+  QLabel* m_rightKeyConflictIcon = nullptr;
+  QLabel* m_upKeyConflictIcon = nullptr;
+  QLabel* m_downKeyConflictIcon = nullptr;
+
   SliderWithLabel* m_flyMoveSpeedSlider = nullptr;
 
 public:
@@ -93,6 +101,9 @@ private slots:
   void downKeyChanged();
 
   void flyMoveSpeedChanged(int value);
+
+private:
+  void updateConflicts();
 };
 
 } // namespace TrenchBroom::View

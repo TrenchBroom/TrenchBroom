@@ -22,6 +22,7 @@
 #include <QCheckBox>
 #include <QLabel>
 
+#include "IO/ResourceUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/FormWithSectionsLayout.h"
@@ -31,6 +32,8 @@
 #include "View/ViewConstants.h"
 
 #include <algorithm>
+#include <tuple>
+#include <vector>
 
 namespace TrenchBroom::View
 {
@@ -74,6 +77,26 @@ void MousePreferencePane::createGui()
   m_downKeyEditor = new KeySequenceEdit{1};
   m_downKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
+  m_forwardKeyConflictIcon = new QLabel{};
+  m_backwardKeyConflictIcon = new QLabel{};
+  m_leftKeyConflictIcon = new QLabel{};
+  m_rightKeyConflictIcon = new QLabel{};
+  m_upKeyConflictIcon = new QLabel{};
+  m_downKeyConflictIcon = new QLabel{};
+
+  for (auto& icon : std::vector{
+         m_forwardKeyConflictIcon,
+         m_backwardKeyConflictIcon,
+         m_leftKeyConflictIcon,
+         m_rightKeyConflictIcon,
+         m_upKeyConflictIcon,
+         m_downKeyConflictIcon})
+  {
+    icon->setPixmap(IO::loadSVGPixmap("Conflict.svg"));
+    icon->setVisible(false);
+    icon->setToolTip("This shortcut is in conflict");
+  }
+
   m_flyMoveSpeedSlider = new SliderWithLabel{0, 100};
   m_flyMoveSpeedSlider->setMaximumWidth(400);
 
@@ -101,13 +124,22 @@ void MousePreferencePane::createGui()
   layout->addRow("", m_moveInCursorDirCheckBox);
 
   layout->addSection("Move Keys");
-  layout->addRow("Forward", m_forwardKeyEditor);
-  layout->addRow("Backward", m_backwardKeyEditor);
-  layout->addRow("Left", m_leftKeyEditor);
-  layout->addRow("Right", m_rightKeyEditor);
-  layout->addRow("Up", m_upKeyEditor);
-  layout->addRow("Down", m_downKeyEditor);
-  layout->addRow("Speed", m_flyMoveSpeedSlider);
+
+  for (auto& [label, editor, icon] : {
+         std::tuple{"Forward", m_forwardKeyEditor, m_forwardKeyConflictIcon},
+         std::tuple{"Backward", m_backwardKeyEditor, m_backwardKeyConflictIcon},
+         std::tuple{"Left", m_leftKeyEditor, m_leftKeyConflictIcon},
+         std::tuple{"Right", m_rightKeyEditor, m_rightKeyConflictIcon},
+         std::tuple{"Up", m_upKeyEditor, m_upKeyConflictIcon},
+         std::tuple{"Down", m_downKeyEditor, m_downKeyConflictIcon},
+       })
+  {
+    auto* editorLayout = new QHBoxLayout{};
+    editorLayout->addWidget(editor);
+    editorLayout->addWidget(icon);
+    layout->addRow(label, editorLayout);
+  }
+
   layout->addRow(
     "",
     makeInfo(new QLabel{"Turn mouse wheel while holding right mouse button in 3D view to "
@@ -272,6 +304,8 @@ void MousePreferencePane::doUpdateControls()
 
   m_flyMoveSpeedSlider->setRatio(
     pref(Preferences::CameraFlyMoveSpeed) / Preferences::MaxCameraFlyMoveSpeed);
+
+  updateConflicts();
 }
 
 bool MousePreferencePane::doValidate()
@@ -359,8 +393,62 @@ void MousePreferencePane::moveInCursorDirChanged(const int state)
 namespace
 {
 
-bool hasConflict(
-  const QKeySequence& keySequence, const Preference<QKeySequence>& preference)
+void setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preference)
+{
+  const auto keySequence = editor->keySequence();
+  auto& prefs = PreferenceManager::instance();
+  prefs.set(preference, keySequence);
+}
+
+} // namespace
+
+void MousePreferencePane::forwardKeyChanged()
+{
+  setKeySequence(m_forwardKeyEditor, Preferences::CameraFlyForward());
+  updateConflicts();
+}
+
+void MousePreferencePane::backwardKeyChanged()
+{
+  setKeySequence(m_backwardKeyEditor, Preferences::CameraFlyBackward());
+  updateConflicts();
+}
+
+void MousePreferencePane::leftKeyChanged()
+{
+  setKeySequence(m_leftKeyEditor, Preferences::CameraFlyLeft());
+  updateConflicts();
+}
+
+void MousePreferencePane::rightKeyChanged()
+{
+  setKeySequence(m_rightKeyEditor, Preferences::CameraFlyRight());
+  updateConflicts();
+}
+
+void MousePreferencePane::upKeyChanged()
+{
+  setKeySequence(m_upKeyEditor, Preferences::CameraFlyUp());
+  updateConflicts();
+}
+
+void MousePreferencePane::downKeyChanged()
+{
+  setKeySequence(m_downKeyEditor, Preferences::CameraFlyDown());
+  updateConflicts();
+}
+
+void MousePreferencePane::flyMoveSpeedChanged(const int /* value */)
+{
+  const auto ratio = Preferences::MaxCameraFlyMoveSpeed * m_flyMoveSpeedSlider->ratio();
+  auto& prefs = PreferenceManager::instance();
+  prefs.set(Preferences::CameraFlyMoveSpeed, ratio);
+}
+
+namespace
+{
+
+bool hasConflict(Preference<QKeySequence>& preference)
 {
   const auto prefs = std::vector<Preference<QKeySequence>*>{
     &Preferences::CameraFlyForward(),
@@ -371,61 +459,26 @@ bool hasConflict(
     &Preferences::CameraFlyDown()};
 
   return kdl::any_of(prefs, [&](auto* other) {
-    return preference.path() != other->path() && pref(*other) == keySequence;
+    return preference.path() != other->path() && pref(*other) == pref(preference);
   });
-}
-
-void setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preference)
-{
-  const auto keySequence = editor->keySequence();
-  auto& prefs = PreferenceManager::instance();
-  if (!hasConflict(keySequence, preference))
-  {
-    prefs.set(preference, keySequence);
-  }
-  else
-  {
-    editor->setKeySequence(prefs.get(preference));
-  }
 }
 
 } // namespace
 
-void MousePreferencePane::forwardKeyChanged()
+void MousePreferencePane::updateConflicts()
 {
-  setKeySequence(m_forwardKeyEditor, Preferences::CameraFlyForward());
-}
-
-void MousePreferencePane::backwardKeyChanged()
-{
-  setKeySequence(m_backwardKeyEditor, Preferences::CameraFlyBackward());
-}
-
-void MousePreferencePane::leftKeyChanged()
-{
-  setKeySequence(m_leftKeyEditor, Preferences::CameraFlyLeft());
-}
-
-void MousePreferencePane::rightKeyChanged()
-{
-  setKeySequence(m_rightKeyEditor, Preferences::CameraFlyRight());
-}
-
-void MousePreferencePane::upKeyChanged()
-{
-  setKeySequence(m_upKeyEditor, Preferences::CameraFlyUp());
-}
-
-void MousePreferencePane::downKeyChanged()
-{
-  setKeySequence(m_downKeyEditor, Preferences::CameraFlyDown());
-}
-
-void MousePreferencePane::flyMoveSpeedChanged(const int /* value */)
-{
-  const auto ratio = Preferences::MaxCameraFlyMoveSpeed * m_flyMoveSpeedSlider->ratio();
-  auto& prefs = PreferenceManager::instance();
-  prefs.set(Preferences::CameraFlyMoveSpeed, ratio);
+  for (auto& [preference, icon] :
+       std::vector<std::tuple<Preference<QKeySequence>&, QLabel*>>{
+         {Preferences::CameraFlyForward(), m_forwardKeyConflictIcon},
+         {Preferences::CameraFlyBackward(), m_backwardKeyConflictIcon},
+         {Preferences::CameraFlyLeft(), m_leftKeyConflictIcon},
+         {Preferences::CameraFlyRight(), m_rightKeyConflictIcon},
+         {Preferences::CameraFlyUp(), m_upKeyConflictIcon},
+         {Preferences::CameraFlyDown(), m_downKeyConflictIcon},
+       })
+  {
+    icon->setVisible(hasConflict(preference));
+  }
 }
 
 } // namespace TrenchBroom::View
