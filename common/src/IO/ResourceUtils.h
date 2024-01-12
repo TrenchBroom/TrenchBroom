@@ -53,6 +53,8 @@ Assets::Texture loadDefaultTexture(
 
 QPixmap loadPixmapResource(const std::filesystem::path& imagePath);
 
+QPixmap loadSVGPixmap(const std::filesystem::path& imagePath);
+
 /**
  * Loads an SVG image into a QIcon
  */
