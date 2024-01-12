@@ -32,30 +32,11 @@
 
 #include <algorithm>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 MousePreferencePane::MousePreferencePane(QWidget* parent)
-  : PreferencePane(parent)
-  , m_lookSpeedSlider(nullptr)
-  , m_invertLookHAxisCheckBox(nullptr)
-  , m_invertLookVAxisCheckBox(nullptr)
-  , m_panSpeedSlider(nullptr)
-  , m_invertPanHAxisCheckBox(nullptr)
-  , m_invertPanVAxisCheckBox(nullptr)
-  , m_moveSpeedSlider(nullptr)
-  , m_invertMouseWheelCheckBox(nullptr)
-  , m_enableAltMoveCheckBox(nullptr)
-  , m_invertAltMoveAxisCheckBox(nullptr)
-  , m_moveInCursorDirCheckBox(nullptr)
-  , m_forwardKeyEditor(nullptr)
-  , m_backwardKeyEditor(nullptr)
-  , m_leftKeyEditor(nullptr)
-  , m_rightKeyEditor(nullptr)
-  , m_upKeyEditor(nullptr)
-  , m_downKeyEditor(nullptr)
-  , m_flyMoveSpeedSlider(nullptr)
+  : PreferencePane{parent}
 {
   createGui();
   bindEvents();
@@ -63,40 +44,40 @@ MousePreferencePane::MousePreferencePane(QWidget* parent)
 
 void MousePreferencePane::createGui()
 {
-  m_lookSpeedSlider = new SliderWithLabel(1, 100);
+  m_lookSpeedSlider = new SliderWithLabel{1, 100};
   m_lookSpeedSlider->setMaximumWidth(400);
-  m_invertLookHAxisCheckBox = new QCheckBox("Invert X axis");
-  m_invertLookVAxisCheckBox = new QCheckBox("Invert Y axis");
+  m_invertLookHAxisCheckBox = new QCheckBox{"Invert X axis"};
+  m_invertLookVAxisCheckBox = new QCheckBox{"Invert Y axis"};
 
-  m_panSpeedSlider = new SliderWithLabel(1, 100);
+  m_panSpeedSlider = new SliderWithLabel{1, 100};
   m_panSpeedSlider->setMaximumWidth(400);
-  m_invertPanHAxisCheckBox = new QCheckBox("Invert X axis");
-  m_invertPanVAxisCheckBox = new QCheckBox("Invert Y axis");
+  m_invertPanHAxisCheckBox = new QCheckBox{"Invert X axis"};
+  m_invertPanVAxisCheckBox = new QCheckBox{"Invert Y axis"};
 
-  m_moveSpeedSlider = new SliderWithLabel(1, 100);
+  m_moveSpeedSlider = new SliderWithLabel{1, 100};
   m_moveSpeedSlider->setMaximumWidth(400);
-  m_invertMouseWheelCheckBox = new QCheckBox("Invert mouse wheel");
-  m_enableAltMoveCheckBox = new QCheckBox("Alt + middle mouse drag to move camera");
-  m_invertAltMoveAxisCheckBox = new QCheckBox("Invert Z axis in Alt + middle mouse drag");
-  m_moveInCursorDirCheckBox = new QCheckBox("Move camera towards cursor");
+  m_invertMouseWheelCheckBox = new QCheckBox{"Invert mouse wheel"};
+  m_enableAltMoveCheckBox = new QCheckBox{"Alt + middle mouse drag to move camera"};
+  m_invertAltMoveAxisCheckBox = new QCheckBox{"Invert Z axis in Alt + middle mouse drag"};
+  m_moveInCursorDirCheckBox = new QCheckBox{"Move camera towards cursor"};
 
-  m_forwardKeyEditor = new KeySequenceEdit(1);
+  m_forwardKeyEditor = new KeySequenceEdit{1};
   m_forwardKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-  m_backwardKeyEditor = new KeySequenceEdit(1);
+  m_backwardKeyEditor = new KeySequenceEdit{1};
   m_backwardKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-  m_leftKeyEditor = new KeySequenceEdit(1);
+  m_leftKeyEditor = new KeySequenceEdit{1};
   m_leftKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-  m_rightKeyEditor = new KeySequenceEdit(1);
+  m_rightKeyEditor = new KeySequenceEdit{1};
   m_rightKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-  m_upKeyEditor = new KeySequenceEdit(1);
+  m_upKeyEditor = new KeySequenceEdit{1};
   m_upKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-  m_downKeyEditor = new KeySequenceEdit(1);
+  m_downKeyEditor = new KeySequenceEdit{1};
   m_downKeyEditor->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
 
-  m_flyMoveSpeedSlider = new SliderWithLabel(0, 100);
+  m_flyMoveSpeedSlider = new SliderWithLabel{0, 100};
   m_flyMoveSpeedSlider->setMaximumWidth(400);
 
-  auto* layout = new FormWithSectionsLayout();
+  auto* layout = new FormWithSectionsLayout{};
   layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
   layout->setVerticalSpacing(2);
   // override the default to make the sliders take up maximum width
@@ -129,8 +110,8 @@ void MousePreferencePane::createGui()
   layout->addRow("Speed", m_flyMoveSpeedSlider);
   layout->addRow(
     "",
-    makeInfo(new QLabel("Turn mouse wheel while holding right mouse button in 3D view to "
-                        "adjust speed on the fly.")));
+    makeInfo(new QLabel{"Turn mouse wheel while holding right mouse button in 3D view to "
+                        "adjust speed on the fly."}));
 
   setLayout(layout);
   setMinimumWidth(400);
@@ -241,7 +222,7 @@ bool MousePreferencePane::doCanResetToDefaults()
 
 void MousePreferencePane::doResetToDefaults()
 {
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.resetToDefault(Preferences::CameraLookSpeed);
   prefs.resetToDefault(Preferences::CameraLookInvertH);
   prefs.resetToDefault(Preferences::CameraLookInvertV);
@@ -301,79 +282,114 @@ bool MousePreferencePane::doValidate()
 void MousePreferencePane::lookSpeedChanged(const int /* value */)
 {
   const auto ratio = m_lookSpeedSlider->ratio();
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraLookSpeed, ratio);
 }
 
 void MousePreferencePane::invertLookHAxisChanged(const int state)
 {
   const auto value = (state == Qt::Checked);
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraLookInvertH, value);
 }
 
 void MousePreferencePane::invertLookVAxisChanged(const int state)
 {
   const auto value = (state == Qt::Checked);
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraLookInvertV, value);
 }
 
 void MousePreferencePane::panSpeedChanged(const int /* value */)
 {
   const auto ratio = m_panSpeedSlider->ratio();
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraPanSpeed, ratio);
 }
 
 void MousePreferencePane::invertPanHAxisChanged(const int state)
 {
   const auto value = (state == Qt::Checked);
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraPanInvertH, value);
 }
 
 void MousePreferencePane::invertPanVAxisChanged(const int state)
 {
   const auto value = (state == Qt::Checked);
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraPanInvertV, value);
 }
 
 void MousePreferencePane::moveSpeedChanged(const int /* value */)
 {
   const auto ratio = m_moveSpeedSlider->ratio();
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraMoveSpeed, ratio);
 }
 
 void MousePreferencePane::invertMouseWheelChanged(const int state)
 {
   const auto value = (state == Qt::Checked);
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraMouseWheelInvert, value);
 }
 
 void MousePreferencePane::enableAltMoveChanged(const int state)
 {
   const auto value = (state == Qt::Checked);
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraEnableAltMove, value);
 }
 
 void MousePreferencePane::invertAltMoveAxisChanged(const int state)
 {
   const auto value = (state == Qt::Checked);
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraAltMoveInvert, value);
 }
 
 void MousePreferencePane::moveInCursorDirChanged(const int state)
 {
   const auto value = (state == Qt::Checked);
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraMoveInCursorDir, value);
 }
+
+namespace
+{
+
+bool hasConflict(
+  const QKeySequence& keySequence, const Preference<QKeySequence>& preference)
+{
+  const auto prefs = std::vector<Preference<QKeySequence>*>{
+    &Preferences::CameraFlyForward(),
+    &Preferences::CameraFlyBackward(),
+    &Preferences::CameraFlyLeft(),
+    &Preferences::CameraFlyRight(),
+    &Preferences::CameraFlyUp(),
+    &Preferences::CameraFlyDown()};
+
+  return kdl::any_of(prefs, [&](auto* other) {
+    return preference.path() != other->path() && pref(*other) == keySequence;
+  });
+}
+
+void setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preference)
+{
+  const auto keySequence = editor->keySequence();
+  auto& prefs = PreferenceManager::instance();
+  if (!hasConflict(keySequence, preference))
+  {
+    prefs.set(preference, keySequence);
+  }
+  else
+  {
+    editor->setKeySequence(prefs.get(preference));
+  }
+}
+
+} // namespace
 
 void MousePreferencePane::forwardKeyChanged()
 {
@@ -408,40 +424,8 @@ void MousePreferencePane::downKeyChanged()
 void MousePreferencePane::flyMoveSpeedChanged(const int /* value */)
 {
   const auto ratio = Preferences::MaxCameraFlyMoveSpeed * m_flyMoveSpeedSlider->ratio();
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraFlyMoveSpeed, ratio);
 }
 
-void MousePreferencePane::setKeySequence(
-  KeySequenceEdit* editor, Preference<QKeySequence>& preference)
-{
-  const auto keySequence = editor->keySequence();
-  PreferenceManager& prefs = PreferenceManager::instance();
-  if (!hasConflict(keySequence, preference))
-  {
-    prefs.set(preference, keySequence);
-  }
-  else
-  {
-    editor->setKeySequence(prefs.get(preference));
-  }
-}
-
-bool MousePreferencePane::hasConflict(
-  const QKeySequence& keySequence, const Preference<QKeySequence>& preference) const
-{
-  const auto prefs = std::vector<Preference<QKeySequence>*>{
-    &Preferences::CameraFlyForward(),
-    &Preferences::CameraFlyBackward(),
-    &Preferences::CameraFlyLeft(),
-    &Preferences::CameraFlyRight(),
-    &Preferences::CameraFlyUp(),
-    &Preferences::CameraFlyDown()};
-
-  return std::any_of(
-    std::begin(prefs), std::end(prefs), [&keySequence, &preference](auto* other) {
-      return preference.path() != other->path() && pref(*other) == keySequence;
-    });
-}
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

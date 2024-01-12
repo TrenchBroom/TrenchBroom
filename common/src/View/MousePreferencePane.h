@@ -28,8 +28,9 @@ namespace TrenchBroom
 {
 template <typename T>
 class Preference;
+}
 
-namespace View
+namespace TrenchBroom::View
 {
 class KeySequenceEdit;
 class SliderWithLabel;
@@ -37,25 +38,25 @@ class SliderWithLabel;
 class MousePreferencePane : public PreferencePane
 {
 private:
-  SliderWithLabel* m_lookSpeedSlider;
-  QCheckBox* m_invertLookHAxisCheckBox;
-  QCheckBox* m_invertLookVAxisCheckBox;
-  SliderWithLabel* m_panSpeedSlider;
-  QCheckBox* m_invertPanHAxisCheckBox;
-  QCheckBox* m_invertPanVAxisCheckBox;
-  SliderWithLabel* m_moveSpeedSlider;
-  QCheckBox* m_invertMouseWheelCheckBox;
-  QCheckBox* m_enableAltMoveCheckBox;
-  QCheckBox* m_invertAltMoveAxisCheckBox;
-  QCheckBox* m_moveInCursorDirCheckBox;
+  SliderWithLabel* m_lookSpeedSlider = nullptr;
+  QCheckBox* m_invertLookHAxisCheckBox = nullptr;
+  QCheckBox* m_invertLookVAxisCheckBox = nullptr;
+  SliderWithLabel* m_panSpeedSlider = nullptr;
+  QCheckBox* m_invertPanHAxisCheckBox = nullptr;
+  QCheckBox* m_invertPanVAxisCheckBox = nullptr;
+  SliderWithLabel* m_moveSpeedSlider = nullptr;
+  QCheckBox* m_invertMouseWheelCheckBox = nullptr;
+  QCheckBox* m_enableAltMoveCheckBox = nullptr;
+  QCheckBox* m_invertAltMoveAxisCheckBox = nullptr;
+  QCheckBox* m_moveInCursorDirCheckBox = nullptr;
 
-  KeySequenceEdit* m_forwardKeyEditor;
-  KeySequenceEdit* m_backwardKeyEditor;
-  KeySequenceEdit* m_leftKeyEditor;
-  KeySequenceEdit* m_rightKeyEditor;
-  KeySequenceEdit* m_upKeyEditor;
-  KeySequenceEdit* m_downKeyEditor;
-  SliderWithLabel* m_flyMoveSpeedSlider;
+  KeySequenceEdit* m_forwardKeyEditor = nullptr;
+  KeySequenceEdit* m_backwardKeyEditor = nullptr;
+  KeySequenceEdit* m_leftKeyEditor = nullptr;
+  KeySequenceEdit* m_rightKeyEditor = nullptr;
+  KeySequenceEdit* m_upKeyEditor = nullptr;
+  KeySequenceEdit* m_downKeyEditor = nullptr;
+  SliderWithLabel* m_flyMoveSpeedSlider = nullptr;
 
 public:
   explicit MousePreferencePane(QWidget* parent = nullptr);
@@ -92,11 +93,6 @@ private slots:
   void downKeyChanged();
 
   void flyMoveSpeedChanged(int value);
-
-private:
-  void setKeySequence(KeySequenceEdit* editor, Preference<QKeySequence>& preference);
-  bool hasConflict(
-    const QKeySequence& keySequence, const Preference<QKeySequence>& preference) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

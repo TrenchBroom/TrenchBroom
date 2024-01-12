@@ -46,12 +46,10 @@
 #include <map>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-Assets::Texture loadDefaultTexture(
-  const FileSystem& fs, const std::string& name, Logger& logger)
+
+Assets::Texture loadDefaultTexture(const FileSystem& fs, std::string name, Logger& logger)
 {
   // recursion guard
   static auto executing = false;
@@ -66,7 +64,7 @@ Assets::Texture loadDefaultTexture(
       })
       .transform_error([&](auto e) {
         logger.error() << "Could not load default texture: " << e.msg;
-        return Assets::Texture{name, 32, 32};
+        return Assets::Texture{std::move(name), 32, 32};
       })
       .value();
   }
@@ -74,7 +72,7 @@ Assets::Texture loadDefaultTexture(
   {
     logger.error() << "Could not load default texture";
   }
-  return Assets::Texture{name, 32, 32};
+  return Assets::Texture{std::move(name), 32, 32};
 }
 
 static QString imagePathToString(const std::filesystem::path& imagePath)
@@ -90,7 +88,9 @@ QPixmap loadPixmapResource(const std::filesystem::path& imagePath)
   return QPixmap{imagePathToString(imagePath)};
 }
 
-static QImage createDisabledState(const QImage& image)
+namespace
+{
+QImage createDisabledState(const QImage& image)
 {
   // Convert to greyscale, divide the opacity by 3
   auto disabledImage = image.convertToFormat(QImage::Format_ARGB32);
@@ -111,7 +111,7 @@ static QImage createDisabledState(const QImage& image)
   return disabledImage;
 }
 
-static void renderSvgToIcon(
+void renderSvgToIcon(
   QSvgRenderer& svgSource,
   QIcon& icon,
   const QIcon::State state,
@@ -142,6 +142,7 @@ static void renderSvgToIcon(
   icon.addPixmap(QPixmap::fromImage(image), QIcon::Normal, state);
   icon.addPixmap(QPixmap::fromImage(createDisabledState(image)), QIcon::Disabled, state);
 }
+} // namespace
 
 QIcon loadSVGIcon(const std::filesystem::path& imagePath)
 {
@@ -214,5 +215,5 @@ QIcon loadSVGIcon(const std::filesystem::path& imagePath)
 
   return result;
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO
