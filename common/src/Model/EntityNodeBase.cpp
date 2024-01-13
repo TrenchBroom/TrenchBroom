@@ -82,7 +82,10 @@ std::string selectPropertyValue(
   const auto* value = select(
     kdl::vec_transform(
       nodes, [&](const auto* node) { return node->entity().property(key); }),
-    [](const auto* lhs, const auto* rhs) { return *lhs == *rhs; });
+    [](const auto* lhs, const auto* rhs) {
+      return (lhs == nullptr && rhs == nullptr)
+             || (lhs != nullptr && rhs != nullptr && *lhs == *rhs);
+    });
 
   return value ? *value : "";
 }
