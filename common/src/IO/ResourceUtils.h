@@ -29,13 +29,14 @@ class QPixmap;
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class FileSystem;
 
@@ -48,13 +49,15 @@ class FileSystem;
  * @return the default texture
  */
 Assets::Texture loadDefaultTexture(
-  const FileSystem& fs, const std::string& name, Logger& logger);
+  const FileSystem& fs, std::string name, Logger& logger);
 
 QPixmap loadPixmapResource(const std::filesystem::path& imagePath);
+
+QPixmap loadSVGPixmap(const std::filesystem::path& imagePath);
 
 /**
  * Loads an SVG image into a QIcon
  */
 QIcon loadSVGIcon(const std::filesystem::path& imagePath);
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO
