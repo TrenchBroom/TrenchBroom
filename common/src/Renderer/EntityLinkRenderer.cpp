@@ -128,7 +128,7 @@ struct CollectTransitiveSelectedLinksVisitor
   {
     if (editorContext.visible(&node))
     {
-      if (!visited.insert(&node).second)
+      if (visited.insert(&node).second)
       {
         addSources(node.linkSources(), node, links);
         addSources(node.killSources(), node, links);
