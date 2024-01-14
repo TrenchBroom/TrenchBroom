@@ -439,6 +439,25 @@ void Entity::applyRotation(
   }
 }
 
+namespace
+{
+auto parseOrigin(const std::string* str)
+{
+  if (!str)
+  {
+    return vm::vec3::zero();
+  }
+
+  const auto parsed = vm::parse<FloatType, 3>(*str);
+  if (!parsed || vm::is_nan(*parsed))
+  {
+    return vm::vec3::zero();
+  }
+
+  return *parsed;
+}
+} // namespace
+
 void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig)
 {
   const auto* classnameValue = property(EntityPropertyKeys::Classname);
@@ -447,9 +466,7 @@ void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig)
   // order is important here because EntityRotation::getRotation accesses classname
   m_cachedProperties.classname =
     classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
-  m_cachedProperties.origin =
-    originValue ? vm::parse<FloatType, 3>(*originValue).value_or(vm::vec3::zero())
-                : vm::vec3::zero();
+  m_cachedProperties.origin = parseOrigin(originValue);
   m_cachedProperties.rotation = entityRotation(*this);
 
   if (
