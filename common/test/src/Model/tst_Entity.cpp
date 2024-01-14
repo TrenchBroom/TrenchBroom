@@ -524,6 +524,24 @@ TEST_CASE("EntityTest")
       CHECK(entity.origin() == vm::vec3::zero());
     }
 
+    SECTION("Entities with invalid origin property return 0,0,0")
+    {
+      entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "1 2");
+      CHECK(entity.origin() == vm::vec3::zero());
+
+      entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "asdf");
+      CHECK(entity.origin() == vm::vec3::zero());
+    }
+
+    SECTION("Entities with nan origin property return 0,0,0")
+    {
+      entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "1 2 nan");
+      CHECK(entity.origin() == vm::vec3::zero());
+
+      entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "nan nan nan");
+      CHECK(entity.origin() == vm::vec3::zero());
+    }
+
     entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "1 2 3");
     SECTION("Entities with an origin property return the value")
     {
