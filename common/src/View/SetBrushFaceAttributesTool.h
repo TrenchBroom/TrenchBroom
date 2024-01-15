@@ -26,9 +26,7 @@
 #include <memory>
 #include <optional>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class DragTracker;
 class MapDocument;
@@ -52,7 +50,7 @@ private:
   std::weak_ptr<MapDocument> m_document;
 
 public:
-  SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document);
+  explicit SetBrushFaceAttributesTool(std::weak_ptr<MapDocument> document);
 
 private:
   Tool& tool() override;
@@ -68,5 +66,5 @@ private:
   void copyAttributesFromSelection(const InputState& inputState, bool applyToBrush);
   bool canCopyAttributesFromSelection(const InputState& inputState) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
