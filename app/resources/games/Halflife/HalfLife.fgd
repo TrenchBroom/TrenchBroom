@@ -869,7 +869,7 @@
 	]
 ]
 
-@PointClass sprite() base(Targetname, RenderFields) size(-4 -4 -4, 4 4 4) color(30 100 0) = env_glow : "Light Glow/Haze" 
+@PointClass sprite() base(Targetname, RenderFields) size(-4 -4 -4, 4 4 4) color(30 100 0) model({"path":model,"scale":scale}) = env_glow : "Light Glow/Haze" 
 [
 	model(sprite) : "Sprite Name" : "sprites/glow01.spr"
 	scale(integer) : "Scale" : 1
@@ -1032,7 +1032,7 @@
 	]
 ]
 
-@PointClass sprite() base(Targetname, RenderFields, Angles) size(-4 -4 -4, 4 4 4) = env_sprite : "Sprite Effect" 
+@PointClass sprite() base(Targetname, RenderFields, Angles) size(-4 -4 -4, 4 4 4) model({"path":model,"scale":scale}) = env_sprite : "Sprite Effect" 
 [
 	framerate(string) : "Framerate" : "10.0"
 	model(sprite) : "Sprite Name" : "sprites/glow01.spr"
