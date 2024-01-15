@@ -21,10 +21,9 @@
 
 #include <QSplitter>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class SplitterHandle : public QSplitterHandle
 {
   Q_OBJECT
@@ -54,5 +53,5 @@ private slots:
   void doSplitterMoved();
 #endif
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -23,29 +23,28 @@
 #include <QPaintEvent>
 #include <QPainter>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 SplitterHandle::SplitterHandle(const Qt::Orientation orientation, QSplitter* parent)
-  : QSplitterHandle(orientation, parent)
+  : QSplitterHandle{orientation, parent}
 {
 }
 
 QSize SplitterHandle::sizeHint() const
 {
-  return QSize(3, 3);
+  return {3, 3};
 }
 
 void SplitterHandle::paintEvent(QPaintEvent* event)
 {
-  QPainter painter(this);
+  auto painter = QPainter{this};
   painter.setPen(Qt::NoPen);
-  painter.fillRect(event->rect(), QBrush(palette().color(QPalette::Mid)));
+  painter.fillRect(event->rect(), QBrush{palette().color(QPalette::Mid)});
 }
 
 Splitter::Splitter(const Qt::Orientation orientation, QWidget* parent)
-  : QSplitter(orientation, parent)
+  : QSplitter{orientation, parent}
 {
 #ifdef __APPLE__
   connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
@@ -53,7 +52,7 @@ Splitter::Splitter(const Qt::Orientation orientation, QWidget* parent)
 }
 
 Splitter::Splitter(QWidget* parent)
-  : QSplitter(parent)
+  : QSplitter{parent}
 {
 #ifdef __APPLE__
   connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
@@ -62,7 +61,7 @@ Splitter::Splitter(QWidget* parent)
 
 QSplitterHandle* Splitter::createHandle()
 {
-  return new SplitterHandle(orientation(), this);
+  return new SplitterHandle{orientation(), this};
 }
 
 #ifdef __APPLE__
@@ -75,5 +74,5 @@ void Splitter::doSplitterMoved()
   }
 }
 #endif
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
