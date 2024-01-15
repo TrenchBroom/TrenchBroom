@@ -24,11 +24,21 @@
 namespace TrenchBroom::View
 {
 
+enum class DrawKnob
+{
+  Yes,
+  No,
+};
+
 class SplitterHandle : public QSplitterHandle
 {
   Q_OBJECT
+private:
+  bool m_drawKnob;
+
 public:
-  explicit SplitterHandle(Qt::Orientation orientation, QSplitter* parent = nullptr);
+  explicit SplitterHandle(
+    Qt::Orientation orientation, DrawKnob drawKnob, QSplitter* parent = nullptr);
 
   QSize sizeHint() const override;
 
@@ -39,8 +49,13 @@ protected:
 class Splitter : public QSplitter
 {
   Q_OBJECT
+private:
+  DrawKnob m_drawKnob = DrawKnob::Yes;
+
 public:
+  Splitter(Qt::Orientation orientation, DrawKnob drawKnob, QWidget* parent = nullptr);
   explicit Splitter(Qt::Orientation orientation, QWidget* parent = nullptr);
+  explicit Splitter(DrawKnob drawKnob, QWidget* parent = nullptr);
   explicit Splitter(QWidget* parent = nullptr);
 
 protected:

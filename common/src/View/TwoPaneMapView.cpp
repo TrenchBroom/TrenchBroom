@@ -56,7 +56,7 @@ void TwoPaneMapView::createGui(
 {
 
   // See comment in CyclingMapView::createGui
-  m_splitter = new Splitter{};
+  m_splitter = new Splitter{DrawKnob::No};
   m_splitter->setObjectName("TwoPaneMapView_Splitter");
 
   auto* layout = new QHBoxLayout{};

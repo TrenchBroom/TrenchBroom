@@ -366,11 +366,11 @@ void MapFrame::createGui()
   setWindowIconTB(this);
   setWindowTitle("TrenchBroom");
 
-  m_hSplitter = new Splitter(Qt::Horizontal);
+  m_hSplitter = new Splitter(Qt::Horizontal, DrawKnob::No);
   m_hSplitter->setChildrenCollapsible(false);
   m_hSplitter->setObjectName("MapFrame_HorizontalSplitter");
 
-  m_vSplitter = new Splitter(Qt::Vertical);
+  m_vSplitter = new Splitter(Qt::Vertical, DrawKnob::No);
   m_vSplitter->setChildrenCollapsible(false);
   m_vSplitter->setObjectName("MapFrame_VerticalSplitterSplitter");
 
