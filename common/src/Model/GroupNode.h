@@ -37,40 +37,6 @@
 
 namespace TrenchBroom::Model
 {
-using UpdateLinkedGroupsResult =
-  std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>;
-
-/**
- * Updates the given target group nodes from the given source group node.
- *
- * The children of the source node are cloned (recursively) and transformed into the
- * target nodes by means of the recorded transformations of the source group and the
- * corresponding target groups.
- *
- * Depending on the protected property keys of the cloned entities and their corresponding
- * entities in the target groups, some entity property changes may not be propagated from
- * the source group to the target groups. Specifically, if an entity property is protected
- * in either the cloned entity or its corresponding entity in a target group, then changes
- * to that entity property incl. removal are not propagated. This also applies to numbered
- * properties, i.e. properties whose names end in a number. So if the entity property
- * "target" is protected, then changes to the property "target2" are not propagated or
- * overwritten during propagation.
- *
- * If this operation fails for any child and target group, then an error is returned. The
- * operation can fail if any of the following conditions arises:
- *
- * - the transformation of the source group node is not invertible
- * - transforming any of the source node's children fails
- * - any of the transformed children is no longer within the world bounds
- *
- * If this operation succeeds, a vector of pairs is returned where each pair consists of
- * the target node that should be updated, and the new children that should replace the
- * target node's children.
- */
-Result<UpdateLinkedGroupsResult> updateLinkedGroups(
-  const GroupNode& sourceGroupNode,
-  const std::vector<Model::GroupNode*>& targetGroupNodes,
-  const vm::bbox3& worldBounds);
 
 /**
  * A group of nodes that can be edited as one.
@@ -137,7 +103,7 @@ private: // implement methods inherited from Node
 
   FloatType doGetProjectedArea(vm::axis::type axis) const override;
 
-  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doClone(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const override;
 
   bool doCanAddChild(const Node* child) const override;
   bool doCanRemoveChild(const Node* child) const override;
@@ -178,4 +144,7 @@ private: // implement Taggable interface
 private:
   deleteCopyAndMove(GroupNode);
 };
+
+bool compareGroupNodesByLinkId(const GroupNode* lhs, const GroupNode* rhs);
+
 } // namespace TrenchBroom::Model

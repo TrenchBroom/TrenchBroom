@@ -26,6 +26,7 @@
 #include "Model/EntityProperties.h"
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotation.h"
+#include "Uuid.h"
 
 #include <kdl/reflection_impl.h>
 #include <kdl/string_utils.h>
@@ -73,14 +74,16 @@ kdl_reflect_impl(Entity);
 const vm::bbox3 Entity::DefaultBounds = vm::bbox3{8.0};
 
 Entity::Entity()
-  : m_cachedProperties{
-    EntityPropertyValues::NoClassname, vm::vec3{}, vm::mat4x4{}, vm::mat4x4{}}
+  : m_linkId{generateUuid()}
+  , m_cachedProperties{
+      EntityPropertyValues::NoClassname, vm::vec3{}, vm::mat4x4{}, vm::mat4x4{}}
 {
 }
 
 Entity::Entity(
   const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties)
   : m_properties{std::move(properties)}
+  , m_linkId{generateUuid()}
 {
   updateCachedProperties(propertyConfig);
 }
@@ -89,6 +92,7 @@ Entity::Entity(
   const EntityPropertyConfig& propertyConfig,
   std::initializer_list<EntityProperty> properties)
   : m_properties{std::move(properties)}
+  , m_linkId{generateUuid()}
 {
   updateCachedProperties(propertyConfig);
 }
@@ -105,6 +109,16 @@ Entity& Entity::operator=(const Entity& other) = default;
 Entity& Entity::operator=(Entity&& other) = default;
 
 Entity::~Entity() = default;
+
+const std::string& Entity::linkId() const
+{
+  return m_linkId;
+}
+
+void Entity::setLinkId(std::string linkId)
+{
+  m_linkId = std::move(linkId);
+}
 
 void Entity::setProperties(
   const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties)

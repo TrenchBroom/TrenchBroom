@@ -105,7 +105,6 @@ public: // only public so that helper methods can see these declarations
 
 private:
   Model::EntityPropertyConfig m_entityPropertyConfig;
-  std::vector<std::string> m_linkedGroupsToKeep;
   vm::bbox3 m_worldBounds;
 
 private: // data populated in response to MapParser callbacks
@@ -121,15 +120,13 @@ protected:
    * @param sourceMapFormat the expected format of the given string
    * @param targetMapFormat the format to convert the created objects to
    * @param entityPropertyConfig the entity property config to use
-   * @param linkedGroupsToKeep the IDs of linked groups which should not be unlinked even
    * if orphaned
    */
   MapReader(
     std::string_view str,
     Model::MapFormat sourceMapFormat,
     Model::MapFormat targetMapFormat,
-    Model::EntityPropertyConfig entityPropertyConfig,
-    std::vector<std::string> linkedGroupsToKeep);
+    Model::EntityPropertyConfig entityPropertyConfig);
 
   /**
    * Attempts to parse as one or more entities.

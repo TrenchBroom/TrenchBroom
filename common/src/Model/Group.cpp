@@ -19,6 +19,8 @@
 
 #include "Group.h"
 
+#include "Uuid.h"
+
 #include <kdl/reflection_impl.h>
 
 #include <vecmath/mat_io.h>
@@ -30,6 +32,7 @@ kdl_reflect_impl(Group);
 
 Group::Group(std::string name)
   : m_name{std::move(name)}
+  , m_linkId{generateUuid()}
 {
 }
 
@@ -43,19 +46,14 @@ void Group::setName(std::string name)
   m_name = std::move(name);
 }
 
-const std::optional<std::string>& Group::linkedGroupId() const
+const std::string& Group::linkId() const
 {
-  return m_linkedGroupId;
+  return m_linkId;
 }
 
-void Group::setLinkedGroupId(std::string linkedGroupId)
+void Group::setLinkId(std::string linkId)
 {
-  m_linkedGroupId = std::move(linkedGroupId);
-}
-
-void Group::resetLinkedGroupId()
-{
-  m_linkedGroupId = std::nullopt;
+  m_linkId = std::move(linkId);
 }
 
 const vm::mat4x4& Group::transformation() const

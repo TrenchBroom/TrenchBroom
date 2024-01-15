@@ -146,6 +146,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/IssueType.cpp
         ${COMMON_SOURCE_DIR}/Model/Layer.cpp
         ${COMMON_SOURCE_DIR}/Model/LayerNode.cpp
+        ${COMMON_SOURCE_DIR}/Model/LinkedGroupUtils.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkSourceValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkTargetValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyValidator.cpp
@@ -635,6 +636,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/IssueType.h
         ${COMMON_SOURCE_DIR}/Model/Layer.h
         ${COMMON_SOURCE_DIR}/Model/LayerNode.h
+        ${COMMON_SOURCE_DIR}/Model/LinkedGroupUtils.h
         ${COMMON_SOURCE_DIR}/Model/LinkSourceValidator.h
         ${COMMON_SOURCE_DIR}/Model/LinkTargetValidator.h
         ${COMMON_SOURCE_DIR}/Model/LockState.cpp
@@ -651,6 +653,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Node.h
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.h
         ${COMMON_SOURCE_DIR}/Model/NodeContents.h
+        ${COMMON_SOURCE_DIR}/Model/NodeQueries.h
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.h
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesValidator.h
         ${COMMON_SOURCE_DIR}/Model/Object.h

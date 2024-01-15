@@ -33,6 +33,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 #include "Model/PatchNode.h"
+#include "Model/WorldNode.h"
 #include "TestLogger.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -381,11 +382,35 @@ void checkBrushTexCoordSystem(
   checkFaceTexCoordSystem(faces[5], expectParallel);
 }
 
-void setLinkedGroupId(GroupNode& groupNode, std::string linkedGroupId)
+void setLinkId(Node& node, std::string linkId)
 {
-  auto group = groupNode.group();
-  group.setLinkedGroupId(std::move(linkedGroupId));
-  groupNode.setGroup(std::move(group));
+  node.accept(kdl::overload(
+    [&](WorldNode* worldNode) {
+      auto entity = worldNode->entity();
+      entity.setLinkId(std::move(linkId));
+      worldNode->setEntity(std::move(entity));
+    },
+    [](const LayerNode*) {},
+    [&](GroupNode* groupNode) {
+      auto group = groupNode->group();
+      group.setLinkId(std::move(linkId));
+      groupNode->setGroup(std::move(group));
+    },
+    [&](EntityNode* entityNode) {
+      auto entity = entityNode->entity();
+      entity.setLinkId(std::move(linkId));
+      entityNode->setEntity(std::move(entity));
+    },
+    [&](BrushNode* brushNode) {
+      auto brush = brushNode->brush();
+      brush.setLinkId(std::move(linkId));
+      brushNode->setBrush(std::move(brush));
+    },
+    [&](PatchNode* patchNode) {
+      auto patch = patchNode->patch();
+      patch.setLinkId(std::move(linkId));
+      patchNode->setPatch(std::move(patch));
+    }));
 }
 } // namespace Model
 

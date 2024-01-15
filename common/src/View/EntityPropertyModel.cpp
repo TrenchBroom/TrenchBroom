@@ -112,7 +112,7 @@ static bool isPropertyValueMutable(const Model::Entity& entity, const std::strin
 static bool isPropertyProtectable(
   const Model::EntityNodeBase& entityNode, const std::string& key)
 {
-  return Model::findContainingLinkedGroup(entityNode) != nullptr
+  return Model::findContainingGroup(&entityNode)
          && key != Model::EntityPropertyKeys::Origin;
 }
 
@@ -724,20 +724,9 @@ std::vector<std::string> EntityPropertyModel::getAllClassnames() const
 static bool computeShouldShowProtectedProperties(
   const std::vector<Model::EntityNodeBase*>& entityNodes)
 {
-  if (entityNodes.empty())
-  {
-    return false;
-  }
-
-  for (const auto* entityNode : entityNodes)
-  {
-    if (Model::findContainingLinkedGroup(*entityNode) == nullptr)
-    {
-      return false;
-    }
-  }
-
-  return true;
+  return !entityNodes.empty() && kdl::all_of(entityNodes, [](const auto* entityNode) {
+    return Model::findContainingGroup(entityNode);
+  });
 }
 
 void EntityPropertyModel::updateFromMapDocument()

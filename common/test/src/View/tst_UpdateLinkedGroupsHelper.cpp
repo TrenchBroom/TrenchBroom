@@ -51,11 +51,11 @@ TEST_CASE("checkLinkedGroupsToUpdate")
 {
   auto groupNode1 = Model::GroupNode{Model::Group{"test"}};
   auto linkedGroupNode = Model::GroupNode{Model::Group{"test"}};
-  setLinkedGroupId(groupNode1, "asdf");
-  setLinkedGroupId(linkedGroupNode, "asdf");
+  setLinkId(groupNode1, "asdf");
+  setLinkId(linkedGroupNode, "asdf");
 
   auto groupNode2 = Model::GroupNode{Model::Group{"test"}};
-  setLinkedGroupId(groupNode2, "fdsa");
+  setLinkId(groupNode2, "fdsa");
 
   CHECK(checkLinkedGroupsToUpdate({}));
   CHECK(checkLinkedGroupsToUpdate({&groupNode1}));
@@ -87,14 +87,14 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
   };
 
   auto* groupNode = new Model::GroupNode{Model::Group{""}};
-  setLinkedGroupId(*groupNode, "asdf");
+  setLinkId(*groupNode, "asdf");
 
   bool deleted = false;
   auto* entityNode = new TestNode{Model::Entity{}, deleted};
   groupNode->addChild(entityNode);
 
-  auto* linkedNode =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+  auto* linkedNode = static_cast<Model::GroupNode*>(
+    groupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
 
   document->addNodes({{document->parentForNodes(), {groupNode, linkedNode}}});
 
@@ -132,13 +132,13 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
 TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 {
   auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
-  setLinkedGroupId(*groupNode, "asdf");
+  setLinkId(*groupNode, "asdf");
 
   auto* brushNode = createBrushNode();
   groupNode->addChild(brushNode);
 
-  auto* linkedGroupNode =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+  auto* linkedGroupNode = static_cast<Model::GroupNode*>(
+    groupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
 
   REQUIRE(linkedGroupNode->children().size() == 1u);
   auto* linkedBrushNode =
@@ -273,10 +273,10 @@ TEST_CASE_METHOD(
   document->deselectAll();
 
   auto* outerGroupNode = new Model::GroupNode{Model::Group{"outerGroupNode"}};
-  setLinkedGroupId(*outerGroupNode, "outerGroupNode");
+  setLinkId(*outerGroupNode, "outerGroupNode");
 
   auto* innerGroupNode = new Model::GroupNode{Model::Group{"innerGroupNode"}};
-  setLinkedGroupId(*innerGroupNode, "innerGroupNode");
+  setLinkId(*innerGroupNode, "innerGroupNode");
 
   auto* brushNode = createBrushNode();
   innerGroupNode->addChild(brushNode);
@@ -287,20 +287,16 @@ TEST_CASE_METHOD(
   // create a linked group of the inner group node so that cloning the outer group node
   // will create a linked clone of the inner group node
   auto* linkedInnerGroupNode = static_cast<Model::GroupNode*>(
-    innerGroupNode->cloneRecursively(document->worldBounds()));
+    innerGroupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
   setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
-  REQUIRE(
-    linkedInnerGroupNode->group().linkedGroupId()
-    == innerGroupNode->group().linkedGroupId());
+  REQUIRE(linkedInnerGroupNode->group().linkId() == innerGroupNode->group().linkId());
 
   document->addNodes({{document->parentForNodes(), {linkedInnerGroupNode}}});
 
   auto* linkedOuterGroupNode = static_cast<Model::GroupNode*>(
-    outerGroupNode->cloneRecursively(document->worldBounds()));
+    outerGroupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
   setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
-  REQUIRE(
-    linkedOuterGroupNode->group().linkedGroupId()
-    == outerGroupNode->group().linkedGroupId());
+  REQUIRE(linkedOuterGroupNode->group().linkId() == outerGroupNode->group().linkId());
 
   document->addNodes({{document->parentForNodes(), {linkedOuterGroupNode}}});
 
@@ -308,8 +304,7 @@ TEST_CASE_METHOD(
     static_cast<Model::GroupNode*>(linkedOuterGroupNode->children().front());
   setGroupName(*nestedLinkedInnerGroupNode, "nestedLinkedInnerGroupNode");
   REQUIRE(
-    nestedLinkedInnerGroupNode->group().linkedGroupId()
-    == innerGroupNode->group().linkedGroupId());
+    nestedLinkedInnerGroupNode->group().linkId() == innerGroupNode->group().linkId());
 
   /*
   world

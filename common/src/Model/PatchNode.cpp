@@ -26,6 +26,7 @@
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/LayerNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
@@ -385,9 +386,9 @@ FloatType PatchNode::doGetProjectedArea(const vm::axis::type axis) const
   }
 }
 
-Node* PatchNode::doClone(const vm::bbox3&) const
+Node* PatchNode::doClone(const vm::bbox3&, const SetLinkId setLinkIds) const
 {
-  return new PatchNode(m_patch);
+  return new PatchNode{setNewLinkIdIf(m_patch, setLinkIds == SetLinkId::generate)};
 }
 
 bool PatchNode::doCanAddChild(const Node*) const

@@ -240,6 +240,10 @@ private:
       !(invokableWithNode && invokableWithLambdaAndNode),
       "Visitor implements both lambda and non-lambda overloads for the given node type");
 
+    static_assert(
+      !(!invokableWithNode && !invokableWithLambdaAndNode),
+      "Visitor must take node by const pointer");
+
     if constexpr (invokableWithLambdaAndNode)
     {
       if constexpr (NodeLambdaHasResult_v<L>)

@@ -33,6 +33,8 @@ namespace TrenchBroom::Model
 class Node;
 
 std::string convertToString(const Node& node);
+
+std::string convertToString(const Node* node);
 } // namespace TrenchBroom::Model
 
 namespace Catch
@@ -95,6 +97,69 @@ template <>
 struct StringMaker<TrenchBroom::Model::PatchNode>
 {
   static std::string convert(const TrenchBroom::Model::PatchNode& value)
+  {
+    return convertToString(value);
+  }
+};
+
+template <>
+struct StringMaker<const TrenchBroom::Model::Node*>
+{
+  static std::string convert(const TrenchBroom::Model::Node* value)
+  {
+    return convertToString(value);
+  }
+};
+
+template <>
+struct StringMaker<const TrenchBroom::Model::WorldNode*>
+{
+  static std::string convert(const TrenchBroom::Model::WorldNode* value)
+  {
+    return convertToString(value);
+  }
+};
+
+template <>
+struct StringMaker<const TrenchBroom::Model::LayerNode*>
+{
+  static std::string convert(const TrenchBroom::Model::LayerNode* value)
+  {
+    return convertToString(value);
+  }
+};
+
+template <>
+struct StringMaker<const TrenchBroom::Model::GroupNode*>
+{
+  static std::string convert(const TrenchBroom::Model::GroupNode* value)
+  {
+    return convertToString(value);
+  }
+};
+
+template <>
+struct StringMaker<const TrenchBroom::Model::EntityNode*>
+{
+  static std::string convert(const TrenchBroom::Model::EntityNode* value)
+  {
+    return convertToString(value);
+  }
+};
+
+template <>
+struct StringMaker<const TrenchBroom::Model::BrushNode*>
+{
+  static std::string convert(const TrenchBroom::Model::BrushNode* value)
+  {
+    return convertToString(value);
+  }
+};
+
+template <>
+struct StringMaker<const TrenchBroom::Model::PatchNode*>
+{
+  static std::string convert(const TrenchBroom::Model::PatchNode* value)
   {
     return convertToString(value);
   }

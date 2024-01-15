@@ -176,7 +176,7 @@ T vec_pop_front(std::vector<T>& v)
  * @return a vector containing the elements of a, but with O as the element type
  */
 template <typename O, typename T, typename A>
-std::vector<O> vec_element_cast(std::vector<T, A> v)
+std::vector<O*> vec_dynamic_cast(std::vector<T*, A> v)
 {
   if constexpr (std::is_same_v<T, O>)
   {
@@ -184,11 +184,46 @@ std::vector<O> vec_element_cast(std::vector<T, A> v)
   }
   else
   {
-    std::vector<O> result;
+    auto result = std::vector<O*>{};
     result.reserve(v.size());
-    for (const auto& e : v)
+    for (auto& e : v)
     {
-      result.push_back(O(e));
+      if (auto o = dynamic_cast<O*>(e))
+      {
+        result.push_back(std::move(o));
+      }
+    }
+    return result;
+  }
+}
+
+/**
+ * Returns a vector containing elements of type O, each of which is constructed by passing
+ * the corresponding element of v to the constructor of o, e.g. result.push_back(O(e)),
+ * where result is the resulting vector, and e is an element from v.
+ *
+ * Precondition: O must be constructible with an argument of type T
+ *
+ * @tparam O the type of the result vector elements
+ * @tparam T the type of the vector elements
+ * @tparam A the vector's allocator type
+ * @param v the vector to cast
+ * @return a vector containing the elements of a, but with O as the element type
+ */
+template <typename O, typename T, typename A>
+std::vector<O> vec_static_cast(std::vector<T, A> v)
+{
+  if constexpr (std::is_same_v<T, O>)
+  {
+    return v;
+  }
+  else
+  {
+    auto result = std::vector<O>{};
+    result.reserve(v.size());
+    for (auto& e : v)
+    {
+      result.push_back(static_cast<O>(e));
     }
     return result;
   }

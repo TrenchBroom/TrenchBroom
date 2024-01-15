@@ -109,14 +109,15 @@ FloatType Node::projectedArea(const vm::axis::type axis) const
   return doGetProjectedArea(axis);
 }
 
-Node* Node::clone(const vm::bbox3& worldBounds) const
+Node* Node::clone(const vm::bbox3& worldBounds, const SetLinkId setLinkIds) const
 {
-  return doClone(worldBounds);
+  return doClone(worldBounds, setLinkIds);
 }
 
-Node* Node::cloneRecursively(const vm::bbox3& worldBounds) const
+Node* Node::cloneRecursively(
+  const vm::bbox3& worldBounds, const SetLinkId setLinkIds) const
 {
-  return doCloneRecursively(worldBounds);
+  return doCloneRecursively(worldBounds, setLinkIds);
 }
 
 void Node::cloneAttributes(Node* node) const
@@ -126,21 +127,34 @@ void Node::cloneAttributes(Node* node) const
 }
 
 std::vector<Node*> Node::clone(
-  const vm::bbox3& worldBounds, const std::vector<Node*>& nodes)
+  const vm::bbox3& worldBounds,
+  const std::vector<Node*>& nodes,
+  const SetLinkId setLinkIds)
 {
   auto clones = std::vector<Node*>{};
   clones.reserve(nodes.size());
-  clone(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
+  clone(
+    worldBounds,
+    setLinkIds,
+    std::begin(nodes),
+    std::end(nodes),
+    std::back_inserter(clones));
   return clones;
 }
 
 std::vector<Node*> Node::cloneRecursively(
-  const vm::bbox3& worldBounds, const std::vector<Node*>& nodes)
+  const vm::bbox3& worldBounds,
+  const std::vector<Node*>& nodes,
+  const SetLinkId setLinkIds)
 {
   auto clones = std::vector<Node*>{};
   clones.reserve(nodes.size());
   cloneRecursively(
-    worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
+    worldBounds,
+    setLinkIds,
+    std::begin(nodes),
+    std::end(nodes),
+    std::back_inserter(clones));
   return clones;
 }
 
@@ -881,10 +895,11 @@ void Node::removeFromIndex(
   doRemoveFromIndex(node, key, value);
 }
 
-Node* Node::doCloneRecursively(const vm::bbox3& worldBounds) const
+Node* Node::doCloneRecursively(
+  const vm::bbox3& worldBounds, const SetLinkId setLinkIds) const
 {
-  auto* clone = Node::clone(worldBounds);
-  clone->addChildren(Node::cloneRecursively(worldBounds, children()));
+  auto* clone = Node::clone(worldBounds, setLinkIds);
+  clone->addChildren(Node::cloneRecursively(worldBounds, children(), setLinkIds));
   return clone;
 }
 

@@ -28,6 +28,7 @@
 #include "Model/TexCoordSystem.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
+#include "Uuid.h"
 
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
@@ -69,10 +70,8 @@ Brush::Brush() {}
 
 Brush::Brush(const Brush& other)
   : m_faces{other.m_faces}
-  , m_geometry{
-      other.m_geometry
-        ? std::make_unique<BrushGeometry>(*other.m_geometry, CopyCallback())
-        : nullptr}
+  , m_geometry{other.m_geometry ? std::make_unique<BrushGeometry>(*other.m_geometry, CopyCallback()) : nullptr}
+  , m_linkId{other.m_linkId}
 {
   if (m_geometry)
   {
@@ -87,30 +86,21 @@ Brush::Brush(const Brush& other)
   }
 }
 
-Brush::Brush(Brush&& other) noexcept
-  : m_faces{std::move(other.m_faces)}
-  , m_geometry{std::move(other.m_geometry)}
-{
-}
+Brush::Brush(Brush&& other) noexcept = default;
 
-Brush& Brush::operator=(Brush other) noexcept
+Brush& Brush::operator=(const Brush& other)
 {
-  using std::swap;
-  swap(*this, other);
+  *this = Brush{other};
   return *this;
 }
 
-void swap(Brush& lhs, Brush& rhs) noexcept
-{
-  using std::swap;
-  swap(lhs.m_faces, rhs.m_faces);
-  swap(lhs.m_geometry, rhs.m_geometry);
-}
+Brush& Brush::operator=(Brush&& other) noexcept = default;
 
 Brush::~Brush() = default;
 
 Brush::Brush(std::vector<BrushFace> faces)
   : m_faces{std::move(faces)}
+  , m_linkId{generateUuid()}
 {
 }
 
@@ -181,6 +171,16 @@ const vm::bbox3& Brush::bounds() const
 {
   ensure(m_geometry != nullptr, "geometry is null");
   return m_geometry->bounds();
+}
+
+const std::string& Brush::linkId() const
+{
+  return m_linkId;
+}
+
+void Brush::setLinkId(std::string linkId)
+{
+  m_linkId = std::move(linkId);
 }
 
 std::optional<size_t> Brush::findFace(const std::string& textureName) const

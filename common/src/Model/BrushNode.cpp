@@ -31,6 +31,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
@@ -76,11 +77,6 @@ BrushNode::BrushNode(Brush brush)
 }
 
 BrushNode::~BrushNode() = default;
-
-BrushNode* BrushNode::clone(const vm::bbox3& worldBounds) const
-{
-  return static_cast<BrushNode*>(Node::clone(worldBounds));
-}
 
 const EntityNodeBase* BrushNode::entity() const
 {
@@ -318,9 +314,11 @@ FloatType BrushNode::doGetProjectedArea(const vm::axis::type axis) const
   return result;
 }
 
-Node* BrushNode::doClone(const vm::bbox3& /* worldBounds */) const
+Node* BrushNode::doClone(
+  const vm::bbox3& /* worldBounds */, const SetLinkId setLinkIds) const
 {
-  auto* result = new BrushNode(m_brush);
+  auto* result =
+    new BrushNode{setNewLinkIdIf(m_brush, setLinkIds == SetLinkId::generate)};
   cloneAttributes(result);
   return result;
 }

@@ -650,7 +650,7 @@ TEST_CASE("BrushFaceTest.testValveRotation")
 
   IO::TestParserStatus status;
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   BrushNode* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(pyramidLight != nullptr);
 
@@ -719,7 +719,7 @@ TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   BrushNode* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(pyramidLight != nullptr);
 
@@ -793,7 +793,7 @@ TEST_CASE("BrushFaceTest.move45DegreeFace")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   BrushNode* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   CHECK(brushNode != nullptr);
 
@@ -883,7 +883,7 @@ TEST_CASE("BrushFaceTest.flipTexture")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(brushNode != nullptr);
 

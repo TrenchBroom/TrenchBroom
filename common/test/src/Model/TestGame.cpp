@@ -170,12 +170,10 @@ std::vector<Node*> TestGame::doParseNodes(
   const std::string& str,
   const MapFormat mapFormat,
   const vm::bbox3& worldBounds,
-  const std::vector<std::string>& linkedGroupsToKeep,
   Logger& /* logger */) const
 {
   IO::TestParserStatus status;
-  return IO::NodeReader::read(
-    str, mapFormat, worldBounds, {}, linkedGroupsToKeep, status);
+  return IO::NodeReader::read(str, mapFormat, worldBounds, {}, status);
 }
 
 std::vector<BrushFace> TestGame::doParseBrushFaces(

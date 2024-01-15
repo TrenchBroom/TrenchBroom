@@ -18,50 +18,31 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "kdl/pair_iterator.h"
+#include "kdl/std_io.h"
 
-#include <algorithm>
+#include <vector>
+
+#include "catch2.h"
 
 namespace kdl
 {
-
-/**
- * A range with begin and end members.
- *
- * @tparam I the types of the individual iterators
- */
-template <typename I>
-struct range
+TEST_CASE("pair_iterator")
 {
-  using value_type = typename I::value_type;
-  using iterator = I;
+  using Catch::Matchers::UnorderedEquals;
 
-  I m_begin;
-  I m_end;
+  using T = std::tuple<std::vector<int>, std::vector<std::tuple<int, int>>>;
+  const auto& [range, expected] = GENERATE(values<T>({
+    {{}, {}},
+    {{1}, {}},
+    {{1, 2}, {{1, 2}}},
+    {{1, 2, 3}, {{1, 2}, {1, 3}, {2, 3}}},
+  }));
 
-  I begin() const { return m_begin; }
+  CAPTURE(range);
 
-  I end() const { return m_end; }
-
-  auto front() const { return *m_begin; }
-  auto back() const { return *std::prev(m_end); }
-
-  bool empty() const { return m_begin == m_end; }
-
-  template <typename I2>
-  bool operator==(const range<I2>& other) const
-  {
-    return std::equal(m_begin, m_end, other.m_begin, other.m_end);
-  }
-
-  template <typename I2>
-  bool operator!=(const range<I2>& other) const
-  {
-    return !(*this == other);
-  }
-};
-
-template <typename I>
-range(I, I) -> range<I>;
-
+  const auto r = make_pair_range(range);
+  const auto v = std::vector<std::tuple<int, int>>(r.begin(), r.end());
+  CHECK_THAT(v, UnorderedEquals(expected));
+}
 } // namespace kdl

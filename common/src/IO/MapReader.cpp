@@ -33,6 +33,7 @@
 #include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
+#include "Uuid.h"
 
 #include <kdl/parallel.h>
 #include <kdl/result.h>
@@ -59,11 +60,9 @@ MapReader::MapReader(
   std::string_view str,
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
-  Model::EntityPropertyConfig entityPropertyConfig,
-  std::vector<std::string> linkedGroupsToKeep)
+  Model::EntityPropertyConfig entityPropertyConfig)
   : StandardMapParser{std::move(str), sourceMapFormat, targetMapFormat}
   , m_entityPropertyConfig{std::move(entityPropertyConfig)}
-  , m_linkedGroupsToKeep{std::move(linkedGroupsToKeep)}
 {
 }
 
@@ -469,20 +468,24 @@ CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
   auto group = Model::Group{name};
   auto nodeIssues = std::vector<NodeIssue>{};
 
-  const auto& linkedGroupId = findEntityPropertyOrDefault(
-    entityInfo.properties, Model::EntityPropertyKeys::LinkedGroupId);
+  const auto& linkedGroupId =
+    findEntityPropertyOrDefault(entityInfo.properties, Model::EntityPropertyKeys::LinkId);
   if (!linkedGroupId.empty())
   {
+    group.setLinkId(linkedGroupId);
+
     const auto& transformationStr = findEntityPropertyOrDefault(
       entityInfo.properties, Model::EntityPropertyKeys::GroupTransformation);
-    if (const auto transformation = vm::parse<FloatType, 4u, 4u>(transformationStr))
+    if (!transformationStr.empty())
     {
-      group.setLinkedGroupId(linkedGroupId);
-      group.setTransformation(*transformation);
-    }
-    else
-    {
-      nodeIssues.emplace_back(MalformedTransformationIssue{transformationStr});
+      if (const auto transformation = vm::parse<FloatType, 4u, 4u>(transformationStr))
+      {
+        group.setTransformation(*transformation);
+      }
+      else
+      {
+        nodeIssues.emplace_back(MalformedTransformationIssue{transformationStr});
+      }
     }
   }
 
@@ -694,69 +697,17 @@ void validateDuplicateLayersAndGroups(
   }
 }
 
-void unlinkGroup(Model::GroupNode& groupNode)
+void unlinkGroup(Model::GroupNode& groupNode, const bool resetLinkId)
 {
   auto newGroup = groupNode.group();
-  newGroup.resetLinkedGroupId();
   newGroup.setTransformation(vm::mat4x4::identity());
+
+  if (resetLinkId)
+  {
+    newGroup.setLinkId(generateUuid());
+  }
+
   groupNode.setGroup(std::move(newGroup));
-}
-
-void validateOrphanedLinkedGroups(
-  std::vector<std::optional<NodeInfo>>& nodeInfos,
-  const std::vector<std::string> linkedGroupsToKeep,
-  ParserStatus& status)
-{
-  auto linkedGroupCounts = std::unordered_map<std::string, size_t>{};
-  for (const auto& linkedGroupId : linkedGroupsToKeep)
-  {
-    linkedGroupCounts[linkedGroupId] = 1;
-  }
-
-  for (const auto& nodeInfo : nodeInfos)
-  {
-    if (nodeInfo)
-    {
-      nodeInfo->node->accept(kdl::overload(
-        [](const Model::WorldNode*) {},
-        [](const Model::LayerNode*) {},
-        [&](const Model::GroupNode* groupNode) {
-          if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-          {
-            linkedGroupCounts[*linkedGroupId]++;
-          }
-        },
-        [](const Model::EntityNode*) {},
-        [](const Model::BrushNode*) {},
-        [](const Model::PatchNode*) {}));
-    }
-  }
-
-  for (auto& nodeInfo : nodeInfos)
-  {
-    if (nodeInfo)
-    {
-      nodeInfo->node->accept(kdl::overload(
-        [](const Model::WorldNode*) {},
-        [](const Model::LayerNode*) {},
-        [&](Model::GroupNode* groupNode) {
-          if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-          {
-            if (linkedGroupCounts[*linkedGroupId] == 1)
-            {
-              status.error(
-                groupNode->lineNumber(),
-                kdl::str_to_string(
-                  "Unlinking orphaned linked group with ID '", *linkedGroupId, "'"));
-              unlinkGroup(*groupNode);
-            }
-          }
-        },
-        [](const Model::EntityNode*) {},
-        [](const Model::BrushNode*) {},
-        [](const Model::PatchNode*) {}));
-    }
-  }
 }
 
 void logValidationIssues(
@@ -796,12 +747,11 @@ void logValidationIssues(
   }
 }
 
-bool isRecursiveLinkedGroup(
-  const std::string& nestedLinkedGroupId, Model::Node* parentNode)
+bool isRecursiveLinkedGroup(const std::string& nestedLinkId, Model::Node* parentNode)
 {
   if (auto* parentGroupNode = dynamic_cast<Model::GroupNode*>(parentNode))
   {
-    return nestedLinkedGroupId == parentGroupNode->group().linkedGroupId();
+    return nestedLinkId == parentGroupNode->group().linkId();
   }
   return false;
 }
@@ -817,25 +767,23 @@ void validateRecursiveLinkedGroups(
     {
       if (auto* groupNode = dynamic_cast<Model::GroupNode*>(nodeInfo->node.get()))
       {
-        if (const auto groupNodeLinkedGroupId = groupNode->group().linkedGroupId())
+        const auto groupNodeLinkId = groupNode->group().linkId();
+        auto iParent = nodeToParentMap.find(groupNode);
+        while (iParent != nodeToParentMap.end())
         {
-          auto iParent = nodeToParentMap.find(groupNode);
-          while (iParent != nodeToParentMap.end())
+          if (isRecursiveLinkedGroup(groupNodeLinkId, iParent->second))
           {
-            if (isRecursiveLinkedGroup(*groupNodeLinkedGroupId, iParent->second))
-            {
-              status.error(
-                groupNode->lineNumber(),
-                kdl::str_to_string(
-                  "Unlinking recursive linked group with ID '",
-                  *groupNode->persistentId(),
-                  "'"));
+            status.error(
+              groupNode->lineNumber(),
+              kdl::str_to_string(
+                "Unlinking recursive linked group with ID '",
+                *groupNode->persistentId(),
+                "'"));
 
-              unlinkGroup(*groupNode);
-              break;
-            }
-            iParent = nodeToParentMap.find(iParent->second);
+            unlinkGroup(*groupNode, true);
+            break;
           }
+          iParent = nodeToParentMap.find(iParent->second);
         }
       }
     }
@@ -1001,7 +949,6 @@ void MapReader::createNodes(ParserStatus& status)
   const auto nodeToParentMap = buildNodeToParentMap(nodeInfos, status);
 
   validateRecursiveLinkedGroups(nodeInfos, nodeToParentMap, status);
-  validateOrphanedLinkedGroups(nodeInfos, m_linkedGroupsToKeep, status);
 
   logValidationIssues(nodeInfos, status);
 

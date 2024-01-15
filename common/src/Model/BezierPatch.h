@@ -49,6 +49,7 @@ private:
   size_t m_pointColumnCount;
   std::vector<Point> m_controlPoints;
   vm::bbox3 m_bounds;
+  std::string m_linkId;
 
   std::string m_textureName;
   Assets::AssetReference<Assets::Texture> m_textureReference;
@@ -59,7 +60,8 @@ private:
     m_pointColumnCount,
     m_bounds,
     m_controlPoints,
-    m_textureName);
+    m_textureName,
+    m_linkId);
 
 public:
   BezierPatch(
@@ -75,6 +77,11 @@ public:
   BezierPatch& operator=(const BezierPatch& other);
   BezierPatch& operator=(BezierPatch&& other) noexcept;
 
+public: // link ID:
+  const std::string& linkId() const;
+  void setLinkId(std::string linkId);
+
+public: // control points:
   size_t pointRowCount() const;
   size_t pointColumnCount() const;
 

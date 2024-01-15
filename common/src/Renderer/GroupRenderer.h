@@ -109,10 +109,10 @@ private:
   void invalidateBounds();
   void validateBounds();
 
-  bool shouldRenderGroup(const Model::GroupNode* group) const;
+  bool shouldRenderGroup(const Model::GroupNode& group) const;
 
-  AttrString groupString(const Model::GroupNode* group) const;
-  Color groupColor(const Model::GroupNode* group) const;
+  AttrString groupString(const Model::GroupNode& group) const;
+  Color groupColor(const Model::GroupNode& group) const;
 };
 } // namespace Renderer
 } // namespace TrenchBroom
