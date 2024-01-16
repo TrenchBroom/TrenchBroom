@@ -382,7 +382,8 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
       {
         status.warn(token.line(), token.column(), "Found multiple model properties");
       }
-      classInfo.modelDefinition = parseModel(status);
+      classInfo.modelDefinition =
+        parseModel(status, kdl::ci::str_is_equal(typeName, "sprite"));
     }
     else if (kdl::ci::str_is_equal(typeName, "decal"))
     {
@@ -455,14 +456,27 @@ std::vector<std::string> FgdParser::parseSuperClasses(ParserStatus& status)
   return superClasses;
 }
 
-Assets::ModelDefinition FgdParser::parseModel(ParserStatus& status)
+Assets::ModelDefinition FgdParser::parseModel(
+  ParserStatus& status, const bool allowEmptyExpression)
 {
   expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
 
-  const auto snapshot = m_tokenizer.snapshot();
   const auto line = m_tokenizer.line();
   const auto column = m_tokenizer.column();
 
+  if (allowEmptyExpression && m_tokenizer.peekToken().hasType(FgdToken::CParenthesis))
+  {
+    m_tokenizer.skipToken();
+
+    auto defaultModel = EL::MapExpression{{
+      {"path", {EL::VariableExpression{"model"}, line, column}},
+      {"scale", {EL::VariableExpression{"scale"}, line, column}},
+    }};
+    auto defaultExp = EL::Expression{std::move(defaultModel), line, column};
+    return Assets::ModelDefinition{std::move(defaultExp)};
+  }
+
+  const auto snapshot = m_tokenizer.snapshot();
   try
   {
     auto parser =

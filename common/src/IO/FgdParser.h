@@ -117,7 +117,7 @@ private:
   void skipMainClass(ParserStatus& status);
 
   std::vector<std::string> parseSuperClasses(ParserStatus& status);
-  Assets::ModelDefinition parseModel(ParserStatus& status);
+  Assets::ModelDefinition parseModel(ParserStatus& status, bool allowEmptyExpression);
   Assets::DecalDefinition parseDecal(ParserStatus& status);
   std::string parseNamedValue(ParserStatus& status, const std::string& name);
   void skipClassProperty(ParserStatus& status);

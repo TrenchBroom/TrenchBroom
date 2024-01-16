@@ -858,6 +858,40 @@ TEST_CASE("FgdParserTest.parseELDecalDefinition")
     Assets::DecalSpecification{"decal1"}, DecalDefinition, FgdDecalDefinitionTemplate);
 }
 
+static const auto FgdSpriteDefinitionTemplate =
+  R"(@PointClass sprite(${MODEL}) = env_sprite : "Sprite" [])";
+
+TEST_CASE("FgdParserTest.parseEmptySpriteDefinition")
+{
+  static const auto SpriteDefinition = "";
+
+  assertModelDefinition<FgdParser>(
+    Assets::ModelSpecification{"spritex.spr", 0, 0},
+    SpriteDefinition,
+    FgdSpriteDefinitionTemplate,
+    R"({ "model": "spritex.spr" })");
+}
+
+TEST_CASE("FgdParserTest.parseELSpriteDefinition")
+{
+  static const auto SpriteDefinition = R"({ path: "spritex.spr" })";
+
+  assertModelDefinition<FgdParser>(
+    Assets::ModelSpecification{"spritex.spr", 0, 0},
+    SpriteDefinition,
+    FgdSpriteDefinitionTemplate);
+}
+
+TEST_CASE("FgdParserTest.parseELSpriteDefinitionShorthand")
+{
+  static const auto SpriteDefinition = R"("spritex.spr")";
+
+  assertModelDefinition<FgdParser>(
+    Assets::ModelSpecification{"spritex.spr", 0, 0},
+    SpriteDefinition,
+    FgdSpriteDefinitionTemplate);
+}
+
 TEST_CASE("FgdParserTest.parseMissingBounds")
 {
   const auto file = R"(
