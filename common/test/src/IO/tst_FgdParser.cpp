@@ -839,6 +839,17 @@ static const auto FgdDecalDefinitionTemplate =
 
 using Assets::assertDecalDefinition;
 
+TEST_CASE("FgdParserTest.parseEmptyDecalDefinition")
+{
+  static const auto DecalDefinition = "";
+
+  assertDecalDefinition<FgdParser>(
+    Assets::DecalSpecification{"decal1"},
+    DecalDefinition,
+    FgdDecalDefinitionTemplate,
+    R"({ "texture": "decal1" })");
+}
+
 TEST_CASE("FgdParserTest.parseELDecalDefinition")
 {
   static const auto DecalDefinition = R"({ texture: "decal1" })";
