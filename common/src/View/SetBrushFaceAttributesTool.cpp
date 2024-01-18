@@ -28,6 +28,8 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
+#include "Model/LinkedGroupUtils.h"
+#include "Model/ModelUtils.h"
 #include "Model/TexCoordSystem.h"
 #include "View/DragTracker.h"
 #include "View/InputState.h"
@@ -35,6 +37,8 @@
 #include "View/TransactionScope.h"
 
 #include <kdl/memory_utils.h>
+
+#include <vecmath/polygon.h>
 
 #include <vector>
 
@@ -132,6 +136,83 @@ bool applies(const InputState& inputState)
          && (textureOnly || projection || rotation);
 }
 
+std::optional<Model::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
+  Model::GroupNode& containingSourceGroupNode,
+  const Model::BrushFaceHandle& sourceFaceHandle,
+  const Model::BrushFaceHandle& targetFaceHandle)
+{
+  const auto& sourceBrushNode = *sourceFaceHandle.node();
+  const auto& targetBrushNode = *targetFaceHandle.node();
+  const auto linkedBrushNodes =
+    Model::collectLinkedNodes({&containingSourceGroupNode}, targetBrushNode);
+
+  if (linkedBrushNodes.empty())
+  {
+    return targetFaceHandle;
+  }
+
+  auto* linkedBrushNodeInSourceGroup =
+    dynamic_cast<Model::BrushNode*>(linkedBrushNodes.front());
+  ensure(linkedBrushNodeInSourceGroup, "linked nodes are consistent");
+
+  const auto* containingTargetGroupNode = targetBrushNode.containingGroup();
+  assert(containingTargetGroupNode);
+
+  const auto [invertible, targetTransformation] =
+    vm::invert(containingTargetGroupNode->group().transformation());
+  assert(invertible);
+  unused(invertible);
+
+  const auto transformation =
+    containingSourceGroupNode.group().transformation() * targetTransformation;
+
+  // Find the face in the source group that corresponds to the target face by
+  // untransforming the normal and searching the linked brush node
+  const auto targetNormal = targetFaceHandle.face().normal();
+  const auto targetFaceInSourceGroupNormal =
+    vm::strip_translation(transformation) * targetNormal;
+  if (
+    const auto targetFaceInLinkedBrushIndex =
+      linkedBrushNodeInSourceGroup->brush().findFace(targetFaceInSourceGroupNormal))
+  {
+    // Can't apply to the same face
+    if (
+      linkedBrushNodeInSourceGroup != &sourceBrushNode
+      || sourceFaceHandle.faceIndex() != targetFaceInLinkedBrushIndex)
+    {
+      return Model::BrushFaceHandle{
+        linkedBrushNodeInSourceGroup, *targetFaceInLinkedBrushIndex};
+    }
+  }
+
+  return std::nullopt;
+}
+
+auto selectTargetFaceHandlesForLinkedGroups(
+  const Model::BrushFaceHandle& sourceFaceHandle,
+  const std::vector<Model::BrushFaceHandle>& targetFaceHandles)
+{
+  auto* containingGroupNode = Model::findContainingGroup(sourceFaceHandle.node());
+  if (!containingGroupNode)
+  {
+    return targetFaceHandles;
+  }
+
+  auto result = std::vector<Model::BrushFaceHandle>{};
+  result.reserve(targetFaceHandles.size());
+
+  for (const auto& targetFaceHandle : targetFaceHandles)
+  {
+    if (
+      auto newTargetFaceHandle = selectTargetFaceHandleForLinkedGroups(
+        *containingGroupNode, sourceFaceHandle, targetFaceHandle))
+    {
+      result.push_back(std::move(*newTargetFaceHandle));
+    }
+  }
+  return result;
+}
+
 void transferFaceAttributes(
   MapDocument& document,
   const InputState& inputState,
@@ -139,13 +220,16 @@ void transferFaceAttributes(
   const std::vector<Model::BrushFaceHandle>& targetFaceHandles,
   const Model::BrushFaceHandle& faceToSelectAfter)
 {
+  const auto targetFaceHandlesForLinkedGroups =
+    selectTargetFaceHandlesForLinkedGroups(sourceFaceHandle, targetFaceHandles);
+
   const auto style = copyTextureAttribsRotationModifiersDown(inputState)
                        ? Model::WrapStyle::Rotation
                        : Model::WrapStyle::Projection;
 
   auto transaction = Transaction{document, TransferFaceAttributesTransactionName};
   document.deselectAll();
-  document.selectBrushFaces(targetFaceHandles);
+  document.selectBrushFaces(targetFaceHandlesForLinkedGroups);
 
   if (copyTextureOnlyModifiersDown(inputState))
   {
