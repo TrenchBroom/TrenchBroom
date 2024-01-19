@@ -28,6 +28,8 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
+#include "Model/LinkedGroupUtils.h"
+#include "Model/ModelUtils.h"
 #include "Model/TexCoordSystem.h"
 #include "View/DragTracker.h"
 #include "View/InputState.h"
@@ -36,12 +38,13 @@
 
 #include <kdl/memory_utils.h>
 
+#include <vecmath/polygon.h>
+
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 static const std::string TransferFaceAttributesTransactionName =
   "Transfer Face Attributes";
 
@@ -49,7 +52,7 @@ SetBrushFaceAttributesTool::SetBrushFaceAttributesTool(
   std::weak_ptr<MapDocument> document)
   : ToolController{}
   , Tool{true}
-  , m_document{document}
+  , m_document{std::move(document)}
 {
 }
 
@@ -85,34 +88,36 @@ bool SetBrushFaceAttributesTool::mouseDoubleClick(const InputState& inputState)
     // undone/redone, it appears as one atomic action.
     auto document = kdl::mem_lock(m_document);
 
+    // The last click may not have been handled by this tool, see:
+    // https://github.com/TrenchBroom/TrenchBroom/issues/3332
     if (
-      !document->canUndoCommand()
-      || document->undoCommandName() != TransferFaceAttributesTransactionName)
+      document->canUndoCommand()
+      && document->undoCommandName() == TransferFaceAttributesTransactionName)
     {
-      // The last click may not have been handled by this tool, see:
-      // https://github.com/TrenchBroom/TrenchBroom/issues/3332
-      return false;
-    }
-    document->undoCommand();
+      document->undoCommand();
 
-    copyAttributesFromSelection(inputState, true);
-    return true;
+      copyAttributesFromSelection(inputState, true);
+      return true;
+    }
   }
 
   return false;
 }
 
-static bool copyTextureOnlyModifiersDown(const InputState& inputState)
+namespace
+{
+
+bool copyTextureOnlyModifiersDown(const InputState& inputState)
 {
   return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd);
 }
 
-static bool copyTextureAttribsProjectionModifiersDown(const InputState& inputState)
+bool copyTextureAttribsProjectionModifiersDown(const InputState& inputState)
 {
   return inputState.modifierKeys() == (ModifierKeys::MKAlt);
 }
 
-static bool copyTextureAttribsRotationModifiersDown(const InputState& inputState)
+bool copyTextureAttribsRotationModifiersDown(const InputState& inputState)
 {
   return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKShift);
 }
@@ -121,30 +126,110 @@ static bool copyTextureAttribsRotationModifiersDown(const InputState& inputState
  * Checks the mouse state. The requirements are the same whether this is a click, a double
  * click, or a drag.
  */
-static bool applies(const InputState& inputState)
+bool applies(const InputState& inputState)
 {
-  const bool textureOnly = copyTextureOnlyModifiersDown(inputState);
-  const bool projection = copyTextureAttribsProjectionModifiersDown(inputState);
-  const bool rotation = copyTextureAttribsRotationModifiersDown(inputState);
+  const auto textureOnly = copyTextureOnlyModifiersDown(inputState);
+  const auto projection = copyTextureAttribsProjectionModifiersDown(inputState);
+  const auto rotation = copyTextureAttribsRotationModifiersDown(inputState);
 
   return inputState.mouseButtonsPressed(MouseButtons::MBLeft)
          && (textureOnly || projection || rotation);
 }
 
-static void transferFaceAttributes(
+std::optional<Model::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
+  Model::GroupNode& containingSourceGroupNode,
+  const Model::BrushFaceHandle& sourceFaceHandle,
+  const Model::BrushFaceHandle& targetFaceHandle)
+{
+  const auto& sourceBrushNode = *sourceFaceHandle.node();
+  const auto& targetBrushNode = *targetFaceHandle.node();
+  const auto linkedBrushNodes =
+    Model::collectLinkedNodes({&containingSourceGroupNode}, targetBrushNode);
+
+  if (linkedBrushNodes.empty())
+  {
+    return targetFaceHandle;
+  }
+
+  auto* linkedBrushNodeInSourceGroup =
+    dynamic_cast<Model::BrushNode*>(linkedBrushNodes.front());
+  ensure(linkedBrushNodeInSourceGroup, "linked nodes are consistent");
+
+  const auto* containingTargetGroupNode = targetBrushNode.containingGroup();
+  assert(containingTargetGroupNode);
+
+  const auto [invertible, targetTransformation] =
+    vm::invert(containingTargetGroupNode->group().transformation());
+  assert(invertible);
+  unused(invertible);
+
+  const auto transformation =
+    containingSourceGroupNode.group().transformation() * targetTransformation;
+
+  // Find the face in the source group that corresponds to the target face by
+  // untransforming the normal and searching the linked brush node
+  const auto targetNormal = targetFaceHandle.face().normal();
+  const auto targetFaceInSourceGroupNormal =
+    vm::strip_translation(transformation) * targetNormal;
+  if (
+    const auto targetFaceInLinkedBrushIndex =
+      linkedBrushNodeInSourceGroup->brush().findFace(targetFaceInSourceGroupNormal))
+  {
+    // Can't apply to the same face
+    if (
+      linkedBrushNodeInSourceGroup != &sourceBrushNode
+      || sourceFaceHandle.faceIndex() != targetFaceInLinkedBrushIndex)
+    {
+      return Model::BrushFaceHandle{
+        linkedBrushNodeInSourceGroup, *targetFaceInLinkedBrushIndex};
+    }
+  }
+
+  return std::nullopt;
+}
+
+auto selectTargetFaceHandlesForLinkedGroups(
+  const Model::BrushFaceHandle& sourceFaceHandle,
+  const std::vector<Model::BrushFaceHandle>& targetFaceHandles)
+{
+  auto* containingGroupNode = Model::findContainingGroup(sourceFaceHandle.node());
+  if (!containingGroupNode)
+  {
+    return targetFaceHandles;
+  }
+
+  auto result = std::vector<Model::BrushFaceHandle>{};
+  result.reserve(targetFaceHandles.size());
+
+  for (const auto& targetFaceHandle : targetFaceHandles)
+  {
+    if (
+      auto newTargetFaceHandle = selectTargetFaceHandleForLinkedGroups(
+        *containingGroupNode, sourceFaceHandle, targetFaceHandle))
+    {
+      result.push_back(std::move(*newTargetFaceHandle));
+    }
+  }
+  return result;
+}
+
+void transferFaceAttributes(
   MapDocument& document,
   const InputState& inputState,
   const Model::BrushFaceHandle& sourceFaceHandle,
   const std::vector<Model::BrushFaceHandle>& targetFaceHandles,
   const Model::BrushFaceHandle& faceToSelectAfter)
 {
+  const auto targetFaceHandlesForLinkedGroups =
+    selectTargetFaceHandlesForLinkedGroups(sourceFaceHandle, targetFaceHandles);
+
   const auto style = copyTextureAttribsRotationModifiersDown(inputState)
                        ? Model::WrapStyle::Rotation
                        : Model::WrapStyle::Projection;
 
   auto transaction = Transaction{document, TransferFaceAttributesTransactionName};
   document.deselectAll();
-  document.selectBrushFaces(targetFaceHandles);
+  document.selectBrushFaces(targetFaceHandlesForLinkedGroups);
 
   if (copyTextureOnlyModifiersDown(inputState))
   {
@@ -156,7 +241,7 @@ static void transferFaceAttributes(
   {
     auto snapshot = sourceFaceHandle.face().takeTexCoordSystemSnapshot();
     document.setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
-    if (snapshot != nullptr)
+    if (snapshot)
     {
       document.copyTexCoordSystemFromFace(
         *snapshot,
@@ -171,8 +256,6 @@ static void transferFaceAttributes(
   transaction.commit();
 }
 
-namespace
-{
 class SetBrushFaceAttributesDragTracker : public DragTracker
 {
 private:
@@ -189,12 +272,11 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState)
+  bool drag(const InputState& inputState) override
   {
     using namespace Model::HitFilters;
 
-    const Model::Hit& hit =
-      inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+    const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
     const auto faceHandle = Model::hitToFaceHandle(hit);
     if (!faceHandle)
     {
@@ -231,9 +313,9 @@ public:
     return true;
   }
 
-  void end(const InputState&) { m_document.commitTransaction(); }
+  void end(const InputState&) override { m_document.commitTransaction(); }
 
-  void cancel() { m_document.cancelTransaction(); }
+  void cancel() override { m_document.cancelTransaction(); }
 };
 } // namespace
 
@@ -248,8 +330,7 @@ std::unique_ptr<DragTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
   auto document = kdl::mem_lock(m_document);
 
   // Need to have a selected face to start painting alignment
-  const std::vector<Model::BrushFaceHandle>& selectedFaces =
-    document->selectedBrushFaces();
+  const auto& selectedFaces = document->selectedBrushFaces();
   if (selectedFaces.size() != 1)
   {
     return nullptr;
@@ -278,8 +359,7 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
   const auto selectedFaces = document->selectedBrushFaces();
   assert(!selectedFaces.empty());
 
-  const Model::Hit& hit =
-    inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
   if (const auto targetFaceHandle = Model::hitToFaceHandle(hit))
   {
     const auto sourceFaceHandle = selectedFaces.front();
@@ -310,14 +390,8 @@ bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(
     return false;
   }
 
-  const Model::Hit& hit =
-    inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-  if (!hit.isMatch())
-  {
-    return false;
-  }
-
-  return true;
+  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+  return hit.isMatch();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
