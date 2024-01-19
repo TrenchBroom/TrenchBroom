@@ -7,6 +7,9 @@ qmake -v
 cmake --version
 pandoc --version
 
+# Qt install prefix
+brew --prefix qt5
+
 # Build TB
 
 BUILD_TYPE_VALUE="Release"
