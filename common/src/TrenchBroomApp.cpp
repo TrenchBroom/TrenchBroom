@@ -613,7 +613,7 @@ void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
     for (const auto& fileName : fileNames)
     {
       const auto path = IO::pathFromQString(fileName);
-      anyDocumentOpened = anyDocumentOpened | (!path.empty() && openDocument(path));
+      anyDocumentOpened = anyDocumentOpened || (!path.empty() && openDocument(path));
     }
   }
 
