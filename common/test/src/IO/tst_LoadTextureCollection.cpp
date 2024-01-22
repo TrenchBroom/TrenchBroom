@@ -40,9 +40,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 namespace
@@ -219,5 +217,5 @@ TEST_CASE("loadTextureCollection")
       });
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

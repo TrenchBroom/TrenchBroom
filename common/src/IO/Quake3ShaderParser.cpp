@@ -29,12 +29,11 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 Quake3ShaderTokenizer::Quake3ShaderTokenizer(std::string_view str)
-  : Tokenizer(std::move(str), "", '\\')
+  : Tokenizer{std::move(str), "", '\\'}
 {
 }
 
@@ -49,12 +48,12 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
     {
     case '{':
       advance();
-      return Token(
-        Quake3ShaderToken::OBrace, c, c + 1, offset(c), startLine, startColumn);
+      return Token{
+        Quake3ShaderToken::OBrace, c, c + 1, offset(c), startLine, startColumn};
     case '}':
       advance();
-      return Token(
-        Quake3ShaderToken::CBrace, c, c + 1, offset(c), startLine, startColumn);
+      return Token{
+        Quake3ShaderToken::CBrace, c, c + 1, offset(c), startLine, startColumn};
     case '\r':
       if (lookAhead() == '\n')
       {
@@ -65,20 +64,19 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
       switchFallthrough();
     case '\n':
       discardWhile(Whitespace()); // handle empty lines and such
-      return Token(Quake3ShaderToken::Eol, c, c + 1, offset(c), startLine, startColumn);
+      return Token{Quake3ShaderToken::Eol, c, c + 1, offset(c), startLine, startColumn};
     case ' ':
     case '\t':
       advance();
       break;
-    case '$': {
-      const auto* e = readUntil(Whitespace());
-      if (e == nullptr)
+    case '$':
+      if (const auto* e = readUntil(Whitespace()))
       {
-        throw ParserException(
-          startLine, startColumn, "Unexpected character: " + std::string(c, 1));
+        return Token{
+          Quake3ShaderToken::Variable, c, e, offset(c), startLine, startColumn};
       }
-      return Token(Quake3ShaderToken::Variable, c, e, offset(c), startLine, startColumn);
-    }
+      throw ParserException{
+        startLine, startColumn, "Unexpected character: " + std::string{c, 1}};
     case '/':
       if (lookAhead() == '/')
       {
@@ -89,7 +87,7 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
         // relevant e.g. for terminating a block entry
         break;
       }
-      else if (lookAhead() == '*')
+      if (lookAhead() == '*')
       {
         // parse multiline comment delimited by /* and */
         advance(2);
@@ -104,35 +102,34 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
       // fall through into the default case to parse a string that starts with '/'
       switchFallthrough();
     default:
-      auto* e = readDecimal(Whitespace());
-      if (e != nullptr)
+      if (const auto* e = readDecimal(Whitespace()))
       {
-        return Token(Quake3ShaderToken::Number, c, e, offset(c), startLine, startColumn);
+        return Token{Quake3ShaderToken::Number, c, e, offset(c), startLine, startColumn};
       }
 
-      e = readUntil(Whitespace());
-      if (e == nullptr)
+      if (const auto* e = readUntil(Whitespace()))
       {
-        throw ParserException(
-          startLine, startColumn, "Unexpected character: " + std::string(c, 1));
+        return Token{Quake3ShaderToken::String, c, e, offset(c), startLine, startColumn};
       }
-      return Token(Quake3ShaderToken::String, c, e, offset(c), startLine, startColumn);
+
+      throw ParserException{
+        startLine, startColumn, "Unexpected character: " + std::string{c, 1}};
     }
   }
-  return Token(Quake3ShaderToken::Eof, nullptr, nullptr, length(), line(), column());
+  return Token{Quake3ShaderToken::Eof, nullptr, nullptr, length(), line(), column()};
 }
 
 Quake3ShaderParser::Quake3ShaderParser(std::string_view str)
-  : m_tokenizer(std::move(str))
+  : m_tokenizer{std::move(str)}
 {
 }
 
 std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse(ParserStatus& status)
 {
-  std::vector<Assets::Quake3Shader> result;
+  auto result = std::vector<Assets::Quake3Shader>{};
   while (!m_tokenizer.peekToken(Quake3ShaderToken::Eol).hasType(Quake3ShaderToken::Eof))
   {
-    Assets::Quake3Shader shader;
+    auto shader = Assets::Quake3Shader{};
     parseTexture(shader, status);
     parseBody(shader, status);
     result.push_back(shader);
@@ -202,6 +199,7 @@ void Quake3ShaderParser::parseBodyEntry(
 {
   auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
   expect(Quake3ShaderToken::String, token);
+
   const auto key = token.data();
   if (key == "qer_editorimage")
   {
@@ -246,6 +244,7 @@ void Quake3ShaderParser::parseStageEntry(
 {
   auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
   expect(Quake3ShaderToken::String, token);
+
   const auto key = token.data();
   if (key == "map")
   {
@@ -269,7 +268,7 @@ void Quake3ShaderParser::parseStageEntry(
       stage.blendFunc.srcFactor = kdl::str_to_upper(param1);
       stage.blendFunc.destFactor = kdl::str_to_upper(param2);
 
-      bool valid = true;
+      auto valid = true;
       if (!stage.blendFunc.validateSrcFactor())
       {
         valid = false;
@@ -333,16 +332,16 @@ void Quake3ShaderParser::skipRemainderOfEntry()
 
 Quake3ShaderParser::TokenNameMap Quake3ShaderParser::tokenNames() const
 {
-  TokenNameMap result;
-  result[Quake3ShaderToken::Number] = "number";
-  result[Quake3ShaderToken::String] = "string";
-  result[Quake3ShaderToken::Variable] = "variable";
-  result[Quake3ShaderToken::OBrace] = "'{'";
-  result[Quake3ShaderToken::CBrace] = "'}'";
-  result[Quake3ShaderToken::Comment] = "comment";
-  result[Quake3ShaderToken::Eol] = "end of line";
-  result[Quake3ShaderToken::Eof] = "end of file";
-  return result;
+  return {
+    {Quake3ShaderToken::Number, "number"},
+    {Quake3ShaderToken::String, "string"},
+    {Quake3ShaderToken::Variable, "variable"},
+    {Quake3ShaderToken::OBrace, "'{'"},
+    {Quake3ShaderToken::CBrace, "'}'"},
+    {Quake3ShaderToken::Comment, "comment"},
+    {Quake3ShaderToken::Eol, "end of line"},
+    {Quake3ShaderToken::Eof, "end of file"},
+  };
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO
