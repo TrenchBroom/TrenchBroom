@@ -203,19 +203,20 @@ Result<Assets::TextureCollection> loadTextureCollection(
                kdl::vec_parallel_transform(
                  std::move(texturePaths),
                  [&](const auto texturePath) {
-                   return gameFS.openFile(texturePath).and_then([&](const auto& file) {
-                     return readTexture(*file, texturePath)
-                       .or_else(makeReadTextureErrorHandler(gameFS, nullLogger))
-                       .transform([&](auto texture) {
-                         gameFS.makeAbsolute(texturePath)
-                           .transform([&](auto absPath) {
-                             texture.setAbsolutePath(std::move(absPath));
-                           })
-                           .or_else([](auto) { return kdl::void_success; });
-                         texture.setRelativePath(texturePath);
-                         return texture;
-                       });
-                   });
+                   return gameFS.openFile(texturePath)
+                     .and_then([&](const auto& file) {
+                       return readTexture(*file, texturePath)
+                         .transform([&](auto texture) {
+                           gameFS.makeAbsolute(texturePath)
+                             .transform([&](auto absPath) {
+                               texture.setAbsolutePath(std::move(absPath));
+                             })
+                             .or_else([](auto) { return kdl::void_success; });
+                           texture.setRelativePath(texturePath);
+                           return texture;
+                         });
+                     })
+                     .or_else(makeReadTextureErrorHandler(gameFS, nullLogger));
                  }))
         .transform([&](auto textures) {
           return Assets::TextureCollection{path, std::move(textures)};
