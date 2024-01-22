@@ -226,6 +226,66 @@ textures/eerie/ironcrosslt2_10000
     }}));
 }
 
+TEST_CASE("Quake3ShaderParserTest.caseSensitivity")
+{
+  const auto data = R"(
+textures/eerie/ironcrosslt2_10000
+{
+
+    Q3MAP_LIGHTIMAGE textures/gothic_light/ironcrosslt2.blend.tga
+    // this TGA is the source for the color of the blended light
+
+    QER_EDITORIMAGE textures/gothic_light/ironcrosslt2.tga
+    //base TGA (used because the shader is used with several
+    // different light values
+
+    Q3MAP_SURFACELIGHT 10000
+    //emitted light value of 10,000
+
+    {
+    MAP $lightmap
+    //source texture is affected by the lightmap
+    RGBGEN IDENTITY
+    // this command HANDLES the overbright bits created by "sunlight"
+    // in the game
+    }
+    {
+    MAP textures/gothic_light/ironcrosslt2.tga
+    BLENDFUNC FILTER
+    RGBGEN IDENTITY
+    }
+    {
+    MAP textures/gothic_light/ironcrosslt2.blend.tga
+    BLENDFUNC ADD
+    }
+
+})";
+  auto parser = Quake3ShaderParser{data};
+  auto status = TestParserStatus{};
+
+  CHECK_THAT(
+    parser.parse(status),
+    Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
+      "textures/eerie/ironcrosslt2_10000",            // shaderPath
+      "textures/gothic_light/ironcrosslt2.tga",       // editorImage
+      "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
+      Assets::Quake3Shader::Culling::Front,           // culling
+      {},                                             // surfaceParms
+      {{
+         "$lightmap", // map
+         {"", ""}     // blendFunc
+       },
+       {
+         "textures/gothic_light/ironcrosslt2.tga", // map
+         {"GL_DST_COLOR", "GL_ZERO"}               // blendFunc
+       },
+       {
+         "textures/gothic_light/ironcrosslt2.blend.tga", // map
+         {"GL_ONE", "GL_ONE"}                            // blendFunc
+       }}                                                // stages
+    }}));
+}
+
 TEST_CASE("Quake3ShaderParserTest.parseTwoShaders")
 {
   const auto data = R"(

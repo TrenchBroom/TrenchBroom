@@ -201,34 +201,35 @@ void Quake3ShaderParser::parseBodyEntry(
   expect(Quake3ShaderToken::String, token);
 
   const auto key = token.data();
-  if (key == "qer_editorimage")
+  if (kdl::ci::str_is_equal(key, "qer_editorimage"))
   {
     token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
     shader.editorImage = std::filesystem::path{token.data()};
   }
-  else if (key == "q3map_lightimage")
+  else if (kdl::ci::str_is_equal(key, "q3map_lightimage"))
   {
     token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
     shader.lightImage = std::filesystem::path{token.data()};
   }
-  else if (key == "surfaceparm")
+  else if (kdl::ci::str_is_equal(key, "surfaceparm"))
   {
     token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
     shader.surfaceParms.insert(token.data());
   }
-  else if (key == "cull")
+  else if (kdl::ci::str_is_equal(key, "cull"))
   {
     token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
     const auto value = token.data();
-    if (value == "front")
+    if (kdl::ci::str_is_equal(value, "front"))
     {
       shader.culling = Assets::Quake3Shader::Culling::Front;
     }
-    else if (value == "back")
+    else if (kdl::ci::str_is_equal(value, "back"))
     {
       shader.culling = Assets::Quake3Shader::Culling::Back;
     }
-    else if (value == "none" || value == "disable")
+    else if (
+      kdl::ci::str_is_equal(value, "none") || kdl::ci::str_is_equal(value, "disable"))
     {
       shader.culling = Assets::Quake3Shader::Culling::None;
     }
@@ -246,13 +247,13 @@ void Quake3ShaderParser::parseStageEntry(
   expect(Quake3ShaderToken::String, token);
 
   const auto key = token.data();
-  if (key == "map")
+  if (kdl::ci::str_is_equal(key, "map"))
   {
     token = expect(
       Quake3ShaderToken::String | Quake3ShaderToken::Variable, m_tokenizer.nextToken());
     stage.map = std::filesystem::path{token.data()};
   }
-  else if (key == "blendFunc")
+  else if (kdl::ci::str_is_equal(key, "blendFunc"))
   {
     const auto line = token.line();
 
