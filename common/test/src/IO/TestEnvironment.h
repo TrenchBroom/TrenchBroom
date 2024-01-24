@@ -28,10 +28,9 @@
 #include <functional>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 class TestEnvironment
 {
 private:
@@ -75,5 +74,5 @@ public:
     return f(path);
   }
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -27,10 +27,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TestEnvironment::TestEnvironment(const std::string& dir, const SetupFunction& setup)
   : m_sandboxPath{std::filesystem::current_path() / generateUuid()}
   , m_dir{m_sandboxPath / dir}
@@ -98,5 +97,4 @@ std::string TestEnvironment::loadFile(const std::filesystem::path& path) const
   return std::string{std::istreambuf_iterator<char>{stream}, {}};
 }
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

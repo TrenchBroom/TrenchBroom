@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include "IO/FileSystem.h"
-#include "Result.h"
+#include "IO/PathMatcher.h"
 
 #include <chrono>
 #include <filesystem>
@@ -30,12 +29,6 @@ namespace TrenchBroom
 {
 class Logger;
 } // namespace TrenchBroom
-
-namespace TrenchBroom::IO
-{
-class FileSystem;
-class WritableDiskFileSystem;
-} // namespace TrenchBroom::IO
 
 namespace TrenchBroom::View
 {
@@ -82,19 +75,5 @@ public:
 
 private:
   void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
-  Result<IO::WritableDiskFileSystem> createBackupFileSystem(
-    const std::filesystem::path& mapPath) const;
-  Result<std::vector<std::filesystem::path>> collectBackups(
-    const IO::FileSystem& fs, const std::filesystem::path& mapBasename) const;
-  Result<std::vector<std::filesystem::path>> thinBackups(
-    Logger& logger,
-    IO::WritableDiskFileSystem& fs,
-    const std::vector<std::filesystem::path>& backups) const;
-  Result<void> cleanBackups(
-    IO::WritableDiskFileSystem& fs,
-    std::vector<std::filesystem::path>& backups,
-    const std::filesystem::path& mapBasename) const;
-  std::filesystem::path makeBackupName(
-    const std::filesystem::path& mapBasename, size_t index) const;
 };
 } // namespace TrenchBroom::View
