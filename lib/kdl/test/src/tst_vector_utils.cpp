@@ -162,6 +162,20 @@ TEST_CASE("vector_utils_test.vec_concat_move")
   CHECK(*v[1] == 2);
 }
 
+TEST_CASE("vector_utils_test.vec_push_back")
+{
+  using ivec = std::vector<int>;
+  using svec = std::vector<std::string>;
+
+  CHECK_THAT(vec_push_back(ivec{}), Catch::Equals(ivec{}));
+  CHECK_THAT(vec_push_back(ivec{}, 1), Catch::Equals(ivec{1}));
+  CHECK_THAT(vec_push_back(ivec{1}, 2, 3), Catch::Equals(ivec{1, 2, 3}));
+
+  CHECK_THAT(
+    vec_push_back(svec{}, "hey", std::string{"there"}),
+    Catch::Equals(svec{"hey", "there"}));
+}
+
 TEST_CASE("vector_utils_test.vec_slice")
 {
   using vec = std::vector<int>;

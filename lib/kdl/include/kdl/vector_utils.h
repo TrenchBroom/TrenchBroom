@@ -371,6 +371,22 @@ std::vector<T, A> vec_concat(std::vector<T, A> v, Args... args)
   detail::vec_concat(v, std::move(args)...);
   return v;
 }
+
+/**
+ * Appends the given elements. Each element must be a type convertible to T and it is
+ * perfectly forwarded to std::vector<T, A>::push_back.
+ *
+ * @tparam T the element type
+ * @tparam A the allocator type
+ * @tparam Args parameter pack containing the elements to append to v
+ * @param v the first vector to append to
+ * @param args the elements to append
+ */
+template <typename T, typename A, typename... Args>
+auto vec_push_back(std::vector<T, A> v, Args... args)
+{
+  v.reserve(v.size() + sizeof...(args));
+  (..., v.push_back(std::forward<Args>(args)));
   return v;
 }
 
