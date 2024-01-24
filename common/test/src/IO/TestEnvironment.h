@@ -55,6 +55,8 @@ public:
 
   bool directoryExists(const std::filesystem::path& path) const;
   bool fileExists(const std::filesystem::path& path) const;
+  std::vector<std::filesystem::path> directoryContents(
+    const std::filesystem::path& path) const;
 
   std::string loadFile(const std::filesystem::path& path) const;
 

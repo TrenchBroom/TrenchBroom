@@ -115,7 +115,7 @@ Result<std::vector<std::filesystem::path>> thinBackups(
     return backups;
   }
 
-  const auto toDelete = kdl::vec_slice_suffix(backups, backups.size() - maxBackups + 1);
+  const auto toDelete = kdl::vec_slice_prefix(backups, 1);
   return kdl::fold_results(
            kdl::vec_transform(
              toDelete,
@@ -127,7 +127,7 @@ Result<std::vector<std::filesystem::path>> thinBackups(
                  }
                });
              }))
-    .transform([&]() { return kdl::vec_slice_prefix(backups, maxBackups - 1); });
+    .transform([&]() { return kdl::vec_slice_suffix(backups, backups.size() - 1); });
 }
 
 std::filesystem::path makeBackupName(

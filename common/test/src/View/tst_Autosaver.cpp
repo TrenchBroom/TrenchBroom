@@ -23,10 +23,15 @@
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/BrushNode.h"
+#include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
 #include "TestUtils.h"
 #include "View/Autosaver.h"
 #include "View/MapDocumentTest.h"
+
+#include "kdl/vector_utils.h"
+
+#include <fmt/format.h>
 
 #include <chrono>
 #include <filesystem>
@@ -56,6 +61,7 @@ IO::TestEnvironment makeTestEnvironment()
                                env.createFile("test.20.map", "some content");
                              }};
 }
+
 } // namespace
 
 TEST_CASE("AutosaverTest.makeBackupPathMatcher")
@@ -170,6 +176,157 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
 
   autosaver.triggerAutosave(logger);
   CHECK(env.fileExists("autosave/test.2.map"));
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
+{
+  using namespace std::chrono_literals;
+
+  constexpr auto maxBackups = 3u;
+  auto env = IO::TestEnvironment{};
+  env.createDirectory("autosave");
+
+  SECTION("Files are rotated")
+  {
+    const auto initialPaths = std::vector<std::filesystem::path>{
+      "autosave/test.1.map",
+      "autosave/test.2.map",
+    };
+
+    for (const auto& path : initialPaths)
+    {
+      env.createFile(path, path.u8string());
+    }
+
+    REQUIRE(env.directoryContents("autosave") == initialPaths);
+    REQUIRE(
+      kdl::vec_transform(
+        initialPaths, [&](const auto& path) { return env.loadFile(path); })
+      == std::vector<std::string>{
+        "autosave/test.1.map",
+        "autosave/test.2.map",
+      });
+
+    auto logger = NullLogger{};
+
+    document->saveDocumentAs(env.dir() / "test.map");
+    assert(env.fileExists("test.map"));
+
+    auto autosaver = Autosaver{document, 100ms, maxBackups};
+
+    // modify the map
+    document->addNodes({{document->currentLayer(), {new Model::EntityNode{{}}}}});
+
+    std::this_thread::sleep_for(100ms);
+    autosaver.triggerAutosave(logger);
+
+    const auto allPaths = kdl::vec_push_back(initialPaths, "autosave/test.3.map");
+
+    CHECK(env.directoryContents("autosave") == allPaths);
+    CHECK(
+      kdl::vec_transform(allPaths, [&](const auto& path) { return env.loadFile(path); })
+      == std::vector<std::string>{
+        "autosave/test.1.map",
+        "autosave/test.2.map",
+        R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+}
+)",
+      });
+
+    // modify the map again
+    document->addNodes({{document->currentLayer(), {new Model::EntityNode{{}}}}});
+
+    std::this_thread::sleep_for(100ms);
+    autosaver.triggerAutosave(logger);
+
+    CHECK(env.directoryContents("autosave") == allPaths);
+    CHECK(
+      kdl::vec_transform(allPaths, [&](const auto& path) { return env.loadFile(path); })
+      == std::vector<std::string>{
+        "autosave/test.2.map",
+        R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+}
+)",
+        R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+}
+// entity 2
+{
+}
+)",
+      });
+  }
+
+  SECTION("Gaps are compacted")
+  {
+    const auto initialPaths = std::vector<std::filesystem::path>{
+      "autosave/test.1.map",
+      "autosave/test.3.map",
+    };
+
+    for (const auto& path : initialPaths)
+    {
+      env.createFile(path, path.u8string());
+    }
+
+    REQUIRE(env.directoryContents("autosave") == initialPaths);
+    REQUIRE(
+      kdl::vec_transform(
+        initialPaths, [&](const auto& path) { return env.loadFile(path); })
+      == std::vector<std::string>{
+        "autosave/test.1.map",
+        "autosave/test.3.map",
+      });
+
+    auto logger = NullLogger{};
+
+    document->saveDocumentAs(env.dir() / "test.map");
+    assert(env.fileExists("test.map"));
+
+    auto autosaver = Autosaver{document, 100ms, maxBackups};
+
+    // modify the map
+    document->addNodes({{document->currentLayer(), {new Model::EntityNode{{}}}}});
+
+    std::this_thread::sleep_for(100ms);
+    autosaver.triggerAutosave(logger);
+
+    const auto allPaths = std::vector<std::filesystem::path>{
+      "autosave/test.1.map",
+      "autosave/test.2.map",
+      "autosave/test.3.map",
+    };
+
+    CHECK(env.directoryContents("autosave") == allPaths);
+    CHECK(
+      kdl::vec_transform(allPaths, [&](const auto& path) { return env.loadFile(path); })
+      == std::vector<std::string>{
+        "autosave/test.1.map",
+        "autosave/test.3.map",
+        R"(// entity 0
+{
+"classname" "worldspawn"
+}
+// entity 1
+{
+}
+)",
+      });
+  }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesPresent")
