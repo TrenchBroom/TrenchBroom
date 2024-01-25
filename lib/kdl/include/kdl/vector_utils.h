@@ -319,25 +319,25 @@ bool vec_contains(const std::vector<T, A>& v, const X& x)
 namespace detail
 {
 template <typename T, typename A>
-void vec_append(std::vector<T, A>&)
+void vec_concat(std::vector<T, A>&)
 {
 }
 
 template <typename T, typename A, typename Arg>
-void vec_append(std::vector<T, A>& v1, const Arg& arg)
+void vec_concat(std::vector<T, A>& v1, const Arg& arg)
 {
   v1.insert(std::end(v1), std::begin(arg), std::end(arg));
 }
 
 template <typename T, typename A, typename Arg, typename... Rest>
-void vec_append(std::vector<T, A>& v1, const Arg& arg, Rest&&... rest)
+void vec_concat(std::vector<T, A>& v1, const Arg& arg, Rest&&... rest)
 {
-  vec_append(v1, arg);
-  vec_append(v1, std::forward<Rest>(rest)...);
+  vec_concat(v1, arg);
+  vec_concat(v1, std::forward<Rest>(rest)...);
 }
 
 template <typename T, typename A, typename Arg>
-void vec_append(std::vector<T, A>& v1, Arg&& arg)
+void vec_concat(std::vector<T, A>& v1, Arg&& arg)
 {
   for (auto& x : arg)
   {
@@ -346,10 +346,10 @@ void vec_append(std::vector<T, A>& v1, Arg&& arg)
 }
 
 template <typename T, typename A, typename Arg, typename... Rest>
-void vec_append(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest)
+void vec_concat(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest)
 {
-  vec_append(v1, std::forward<Arg>(arg));
-  vec_append(v1, std::forward<Rest>(rest)...);
+  vec_concat(v1, std::forward<Arg>(arg));
+  vec_concat(v1, std::forward<Rest>(rest)...);
 }
 } // namespace detail
 
@@ -368,7 +368,25 @@ template <typename T, typename A, typename... Args>
 std::vector<T, A> vec_concat(std::vector<T, A> v, Args... args)
 {
   v.reserve(kdl::col_total_size(v, args...));
-  detail::vec_append(v, std::move(args)...);
+  detail::vec_concat(v, std::move(args)...);
+  return v;
+}
+
+/**
+ * Appends the given elements. Each element must be a type convertible to T and it is
+ * perfectly forwarded to std::vector<T, A>::push_back.
+ *
+ * @tparam T the element type
+ * @tparam A the allocator type
+ * @tparam Args parameter pack containing the elements to append to v
+ * @param v the first vector to append to
+ * @param args the elements to append
+ */
+template <typename T, typename A, typename... Args>
+auto vec_push_back(std::vector<T, A> v, Args... args)
+{
+  v.reserve(v.size() + sizeof...(args));
+  (..., v.push_back(std::forward<Args>(args)));
   return v;
 }
 
