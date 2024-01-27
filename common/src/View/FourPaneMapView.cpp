@@ -57,13 +57,13 @@ void FourPaneMapView::createGui(
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
-  m_hSplitter = new Splitter{};
+  m_hSplitter = new Splitter{DrawKnob::No};
   m_hSplitter->setObjectName("FourPaneMapView_HorizontalSplitter");
 
-  m_leftVSplitter = new Splitter{Qt::Vertical};
+  m_leftVSplitter = new Splitter{Qt::Vertical, DrawKnob::No};
   m_leftVSplitter->setObjectName("FourPaneMapView_LeftVerticalSplitter");
 
-  m_rightVSplitter = new Splitter{Qt::Vertical};
+  m_rightVSplitter = new Splitter{Qt::Vertical, DrawKnob::No};
   m_rightVSplitter->setObjectName("FourPaneMapView_RightVerticalSplitter");
 
   m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager, m_logger};

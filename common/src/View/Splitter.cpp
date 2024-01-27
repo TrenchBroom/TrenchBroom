@@ -23,29 +23,56 @@
 #include <QPaintEvent>
 #include <QPainter>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-SplitterHandle::SplitterHandle(const Qt::Orientation orientation, QSplitter* parent)
-  : QSplitterHandle(orientation, parent)
+
+SplitterHandle::SplitterHandle(
+  const Qt::Orientation orientation, const DrawKnob drawKnob, QSplitter* parent)
+  : QSplitterHandle{orientation, parent}
+  , m_drawKnob{drawKnob == DrawKnob::Yes}
 {
 }
 
 QSize SplitterHandle::sizeHint() const
 {
-  return QSize(3, 3);
+  return {6, 6};
 }
 
 void SplitterHandle::paintEvent(QPaintEvent* event)
 {
-  QPainter painter(this);
+  const auto rect = event->rect();
+
+  auto painter = QPainter{this};
   painter.setPen(Qt::NoPen);
-  painter.fillRect(event->rect(), QBrush(palette().color(QPalette::Mid)));
+  painter.fillRect(rect, QBrush{palette().color(QPalette::Mid)});
+
+  if (m_drawKnob)
+  {
+    const auto knob = QRect{rect.center() - QPoint{20, 20}, QSize{40, 40}};
+    painter.fillRect(
+      knob.intersected(rect.adjusted(+1, +1, -1, -1)),
+      QBrush{palette().color(QPalette::Midlight)});
+  }
+}
+
+Splitter::Splitter(
+  const Qt::Orientation orientation, const DrawKnob drawKnob, QWidget* parent)
+  : QSplitter{orientation, parent}
+  , m_drawKnob{drawKnob}
+{
+#ifdef __APPLE__
+  connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
+#endif
 }
 
 Splitter::Splitter(const Qt::Orientation orientation, QWidget* parent)
-  : QSplitter(orientation, parent)
+  : Splitter{orientation, DrawKnob::Yes, parent}
+{
+}
+
+Splitter::Splitter(const DrawKnob drawKnob, QWidget* parent)
+  : QSplitter{parent}
+  , m_drawKnob{drawKnob}
 {
 #ifdef __APPLE__
   connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
@@ -53,16 +80,13 @@ Splitter::Splitter(const Qt::Orientation orientation, QWidget* parent)
 }
 
 Splitter::Splitter(QWidget* parent)
-  : QSplitter(parent)
+  : Splitter{DrawKnob::Yes, parent}
 {
-#ifdef __APPLE__
-  connect(this, &QSplitter::splitterMoved, this, &Splitter::doSplitterMoved);
-#endif
 }
 
 QSplitterHandle* Splitter::createHandle()
 {
-  return new SplitterHandle(orientation(), this);
+  return new SplitterHandle{orientation(), m_drawKnob, this};
 }
 
 #ifdef __APPLE__
@@ -75,5 +99,5 @@ void Splitter::doSplitterMoved()
   }
 }
 #endif
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

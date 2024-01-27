@@ -56,10 +56,10 @@ void ThreePaneMapView::createGui(
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
-  m_hSplitter = new Splitter{};
+  m_hSplitter = new Splitter{DrawKnob::No};
   m_hSplitter->setObjectName("ThreePaneMapView_HorizontalSplitter");
 
-  m_vSplitter = new Splitter{Qt::Vertical};
+  m_vSplitter = new Splitter{Qt::Vertical, DrawKnob::No};
   m_vSplitter->setObjectName("ThreePaneMapView_VerticalSplitter");
 
   m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager, m_logger};
