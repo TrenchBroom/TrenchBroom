@@ -124,6 +124,22 @@ std::FILE* CFile::file() const
   return *m_file;
 }
 
+std::unique_ptr<OwningBufferFile> CFile::buffer() const
+{
+  if (std::fseek(file(), 0, SEEK_SET))
+  {
+    return nullptr;
+  }
+
+  auto buffer = std::make_unique<char[]>(size());
+  if (std::fread(buffer.get(), 1, size(), file()) != size())
+  {
+    return nullptr;
+  }
+
+  return std::make_unique<OwningBufferFile>(std::move(buffer), size());
+}
+
 Result<void> CFile::read(char* val, const size_t position, const size_t size) const
 {
   auto guard = std::lock_guard{m_mutex};
