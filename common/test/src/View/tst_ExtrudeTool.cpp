@@ -50,6 +50,8 @@
 #include <filesystem>
 #include <memory>
 
+#include "CatchUtils/Matchers.h"
+
 #include "Catch2.h"
 
 namespace TrenchBroom::View
@@ -358,6 +360,12 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
         {{-16, 176, 16}, {16, 192, 32}}, {{-16, 192, 16}, {16, 224, 32}}};
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
     }
+
+    CHECK_THAT(
+      kdl::vec_transform(
+        document->selectedNodes().brushes(),
+        [](const auto* brushNode) { return brushNode->brush().linkId(); }),
+      AllDifferent<std::vector<std::string>>());
   }
 
   SECTION("split brushes inwards 48 units towards -Y")
@@ -462,6 +470,12 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
       const auto expectedBounds = std::vector<vm::bbox3>{{{-16, 224, 16}, {16, 240, 32}}};
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
     }
+
+    CHECK_THAT(
+      kdl::vec_transform(
+        document->selectedNodes().brushes(),
+        [](const auto* brushNode) { return brushNode->brush().linkId(); }),
+      AllDifferent<std::vector<std::string>>());
   }
 }
 } // namespace TrenchBroom::View

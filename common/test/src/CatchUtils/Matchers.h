@@ -23,6 +23,7 @@
 #include "Result.h"
 #include "StringMakers.h"
 
+#include "kdl/vector_utils.h"
 #include <kdl/overload.h>
 #include <kdl/result.h>
 #include <kdl/std_io.h>
@@ -157,6 +158,29 @@ template <typename T>
 NoneOfMatcher<T> MatchesNoneOf(std::initializer_list<T> expected)
 {
   return NoneOfMatcher<T>(std::vector<T>{expected});
+}
+
+template <typename T>
+class AllDifferentMatcher : public Catch::MatcherBase<T>
+{
+public:
+  bool match(const T& in) const override
+  {
+    return in.size() == kdl::vec_sort_and_remove_duplicates(in).size();
+  }
+
+  std::string describe() const override
+  {
+    auto str = std::stringstream{};
+    str << "contains no duplicates";
+    return str.str();
+  }
+};
+
+template <typename T>
+AllDifferentMatcher<T> AllDifferent()
+{
+  return AllDifferentMatcher<T>{};
 }
 
 class GlobMatcher : public Catch::MatcherBase<std::string>

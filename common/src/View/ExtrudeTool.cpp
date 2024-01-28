@@ -32,6 +32,7 @@
 #include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "Uuid.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
 
@@ -502,6 +503,9 @@ bool splitBrushesInward(
     // "Front" means the part closer to the drag handles at the drag start
     auto frontBrush = dragHandle.brushAtDragStart;
     auto backBrush = dragHandle.brushAtDragStart;
+
+    frontBrush.setLinkId(generateUuid());
+    backBrush.setLinkId(generateUuid());
 
     auto clipFace = frontBrush.face(dragHandle.faceHandle.faceIndex());
 
