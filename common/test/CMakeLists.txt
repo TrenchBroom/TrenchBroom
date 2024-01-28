@@ -114,6 +114,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/View/tst_AddNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_Autosaver.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_ChangeBrushFaceAttributes.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/tst_ClipTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_ClipToolController.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_CommandProcessor.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_CompilationRunner.cpp"
