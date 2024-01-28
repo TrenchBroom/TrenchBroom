@@ -963,4 +963,32 @@ TEST_CASE("Flat ImageFileSystems")
   }
 }
 
+TEST_CASE("WadFileSystem")
+{
+  SECTION("Wad files can be replaced while wad file system exists")
+  {
+    const auto wadPath =
+      std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg.wad";
+    const auto copyPath =
+      std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg_2.wad";
+
+    REQUIRE_FALSE(std::filesystem::is_regular_file(copyPath));
+    REQUIRE_NOTHROW(std::filesystem::copy(wadPath, copyPath));
+    REQUIRE(std::filesystem::is_regular_file(copyPath));
+
+    {
+      const auto fs = openFS<WadFileSystem>(copyPath);
+
+      auto errorCode = std::error_code{};
+      CHECK(std::filesystem::remove(copyPath, errorCode));
+      CHECK(errorCode == std::error_code{});
+    }
+
+    if (std::filesystem::is_regular_file(copyPath))
+    {
+      REQUIRE(std::filesystem::remove(copyPath));
+    }
+  }
+}
+
 } // namespace TrenchBroom::IO
