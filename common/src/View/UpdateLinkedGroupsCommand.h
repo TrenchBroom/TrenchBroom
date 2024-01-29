@@ -39,8 +39,8 @@ namespace View
 class UpdateLinkedGroupsCommand : public UpdateLinkedGroupsCommandBase
 {
 public:
-  UpdateLinkedGroupsCommand(std::vector<Model::GroupNode*> changedLinkedGroups);
-  ~UpdateLinkedGroupsCommand();
+  explicit UpdateLinkedGroupsCommand(std::vector<Model::GroupNode*> changedLinkedGroups);
+  ~UpdateLinkedGroupsCommand() override;
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
   std::unique_ptr<CommandResult> doPerformUndo(

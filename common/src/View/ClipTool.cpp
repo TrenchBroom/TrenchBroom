@@ -49,164 +49,86 @@
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>
 
-#include <algorithm>
-#include <map>
-#include <optional>
-#include <vector>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
-namespace TrenchBroom
+#include <algorithm>
+#include <optional>
+
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 const Model::HitType::Type ClipTool::PointHitType = Model::HitType::freeType();
 
-ClipTool::ClipStrategy::~ClipStrategy() = default;
-
-void ClipTool::ClipStrategy::pick(
-  const vm::ray3& pickRay,
-  const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+class ClipStrategy
 {
-  doPick(pickRay, camera, pickResult);
-}
+public:
+  virtual ~ClipStrategy() = default;
 
-void ClipTool::ClipStrategy::render(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
-  const Model::PickResult& pickResult)
+  virtual void pick(
+    const vm::ray3& pickRay,
+    const Renderer::Camera& camera,
+    Model::PickResult& pickResult) const = 0;
+  virtual void render(
+    Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch,
+    const Model::PickResult& pickResult) = 0;
+  virtual void renderFeedback(
+    Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch,
+    const vm::vec3& point) const = 0;
+
+  virtual std::optional<vm::vec3> computeThirdPoint() const = 0;
+
+  virtual bool canClip() const = 0;
+  virtual bool hasPoints() const = 0;
+  virtual bool canAddPoint(const vm::vec3& point) const = 0;
+  virtual void addPoint(const vm::vec3& point, std::vector<vm::vec3> helpVectors) = 0;
+  virtual bool canRemoveLastPoint() const = 0;
+  virtual void removeLastPoint() = 0;
+
+  virtual std::optional<std::tuple<vm::vec3, vm::vec3>> canDragPoint(
+    const Model::PickResult& pickResult) const = 0;
+  virtual void beginDragPoint(const Model::PickResult& pickResult) = 0;
+  virtual void beginDragLastPoint() = 0;
+  virtual bool dragPoint(
+    const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) = 0;
+  virtual void endDragPoint() = 0;
+  virtual void cancelDragPoint() = 0;
+
+  virtual bool setFace(const Model::BrushFaceHandle& faceHandle) = 0;
+  virtual void reset() = 0;
+  virtual std::vector<vm::vec3> getPoints() const = 0;
+};
+
+namespace
 {
-  doRender(renderContext, renderBatch, pickResult);
-}
 
-void ClipTool::ClipStrategy::renderFeedback(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
-  const vm::vec3& point) const
-{
-  doRenderFeedback(renderContext, renderBatch, point);
-}
-
-bool ClipTool::ClipStrategy::computeThirdPoint(vm::vec3& point) const
-{
-  return doComputeThirdPoint(point);
-}
-
-bool ClipTool::ClipStrategy::canClip() const
-{
-  return doCanClip();
-}
-
-bool ClipTool::ClipStrategy::hasPoints() const
-{
-  return doHasPoints();
-}
-
-bool ClipTool::ClipStrategy::canAddPoint(const vm::vec3& point) const
-{
-  return doCanAddPoint(point);
-}
-
-void ClipTool::ClipStrategy::addPoint(
-  const vm::vec3& point, const std::vector<vm::vec3>& helpVectors)
-{
-  assert(canAddPoint(point));
-  return doAddPoint(point, helpVectors);
-}
-
-bool ClipTool::ClipStrategy::canRemoveLastPoint() const
-{
-  return doCanRemoveLastPoint();
-}
-
-void ClipTool::ClipStrategy::removeLastPoint()
-{
-  doRemoveLastPoint();
-}
-
-std::optional<std::tuple<vm::vec3, vm::vec3>> ClipTool::ClipStrategy::canDragPoint(
-  const Model::PickResult& pickResult) const
-{
-  return doCanDragPoint(pickResult);
-}
-
-void ClipTool::ClipStrategy::beginDragPoint(const Model::PickResult& pickResult)
-{
-  doBeginDragPoint(pickResult);
-}
-
-void ClipTool::ClipStrategy::beginDragLastPoint()
-{
-  doBeginDragLastPoint();
-}
-
-bool ClipTool::ClipStrategy::dragPoint(
-  const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors)
-{
-  return doDragPoint(newPosition, helpVectors);
-}
-
-void ClipTool::ClipStrategy::endDragPoint()
-{
-  doEndDragPoint();
-}
-
-void ClipTool::ClipStrategy::cancelDragPoint()
-{
-  doCancelDragPoint();
-}
-
-bool ClipTool::ClipStrategy::setFace(const Model::BrushFaceHandle& faceHandle)
-{
-  return doSetFace(faceHandle);
-}
-
-void ClipTool::ClipStrategy::reset()
-{
-  doReset();
-}
-
-size_t ClipTool::ClipStrategy::getPoints(
-  vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const
-{
-  return doGetPoints(point1, point2, point3);
-}
-
-class ClipTool::PointClipStrategy : public ClipTool::ClipStrategy
+class PointClipStrategy : public ClipStrategy
 {
 private:
   struct ClipPoint
   {
     vm::vec3 point;
     std::vector<vm::vec3> helpVectors;
-
-    ClipPoint() = default;
-
-    ClipPoint(const vm::vec3& i_point, const std::vector<vm::vec3>& i_helpVectors)
-      : point(i_point)
-      , helpVectors(i_helpVectors)
-    {
-    }
   };
 
-  ClipPoint m_points[3];
-  size_t m_numPoints;
-  size_t m_dragIndex;
-  ClipPoint m_originalPoint;
+  struct DragState
+  {
+    size_t index;
+    ClipPoint originalPoint;
+  };
+
+  std::vector<ClipPoint> m_points;
+  std::optional<DragState> m_dragState;
 
 public:
-  PointClipStrategy()
-    : m_numPoints(0)
-    , m_dragIndex(4)
-  {
-  }
-
-private:
-  void doPick(
+  void pick(
     const vm::ray3& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const override
   {
-    for (size_t i = 0; i < m_numPoints; ++i)
+    for (size_t i = 0; i < m_points.size(); ++i)
     {
       const auto& point = m_points[i].point;
       const auto distance = camera.pickPointHandle(
@@ -214,12 +136,12 @@ private:
       if (!vm::is_nan(distance))
       {
         const auto hitPoint = vm::point_at_distance(pickRay, distance);
-        pickResult.addHit(Model::Hit(PointHitType, distance, hitPoint, i));
+        pickResult.addHit(Model::Hit{ClipTool::PointHitType, distance, hitPoint, i});
       }
     }
   }
 
-  void doRender(
+  void render(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
     const Model::PickResult& pickResult) override
@@ -228,21 +150,27 @@ private:
     renderHighlight(renderContext, renderBatch, pickResult);
   }
 
-  void doRenderFeedback(
+  void renderFeedback(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
     const vm::vec3& point) const override
   {
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
-    renderService.renderHandle(vm::vec3f(point));
+    renderService.renderHandle(vm::vec3f{point});
   }
 
-  bool doComputeThirdPoint(vm::vec3& point) const override
+  std::optional<vm::vec3> computeThirdPoint() const override
   {
-    ensure(m_numPoints == 2, "invalid numPoints");
-    point = m_points[1].point + 128.0 * computeHelpVector();
-    return !vm::is_colinear(m_points[0].point, m_points[1].point, point);
+    if (m_points.size() == 2)
+    {
+      const auto point = m_points[1].point + 128.0 * computeHelpVector();
+      if (!vm::is_colinear(m_points[0].point, m_points[1].point, point))
+      {
+        return point;
+      }
+    }
+    return std::nullopt;
   }
 
   vm::vec3 computeHelpVector() const
@@ -266,101 +194,58 @@ private:
 
     if (counts[firstIndex] > counts[nextIndex])
     {
-      return vm::vec3::axis(static_cast<size_t>(firstIndex % 3));
+      return vm::vec3::axis(size_t(firstIndex % 3));
     }
-    else
+
+    // two counts are equal
+    if (firstIndex % 3 == 2 || nextIndex % 3 == 2)
     {
-      // two counts are equal
-      if (firstIndex % 3 == 2 || nextIndex % 3 == 2)
-      {
-        // prefer the Z axis if possible:
-        return vm::vec3::pos_z();
-      }
-      else
-      {
-        // Z axis cannot win, so X and Y axis are a tie, prefer the X axis:
-        return vm::vec3::pos_x();
-      }
+      // prefer the Z axis if possible:
+      return vm::vec3::pos_z();
     }
+
+    // Z axis cannot win, so X and Y axis are a tie, prefer the X axis:
+    return vm::vec3::pos_x();
   }
 
   std::vector<vm::vec3> combineHelpVectors() const
   {
-    std::vector<vm::vec3> result;
-    for (size_t i = 0; i < m_numPoints; ++i)
-    {
-      const std::vector<vm::vec3>& helpVectors = m_points[i].helpVectors;
-      result = kdl::vec_concat(std::move(result), helpVectors);
-    }
-
-    return result;
+    return kdl::vec_flatten(
+      kdl::vec_transform(m_points, [](const auto& point) { return point.helpVectors; }));
   }
 
-  bool doCanClip() const override
+  bool canClip() const override { return m_points.size() == 3 || computeThirdPoint(); }
+
+  bool hasPoints() const override { return !m_points.empty(); }
+
+  bool canAddPoint(const vm::vec3& point) const override
   {
-    if (m_numPoints < 2)
-    {
-      return false;
-    }
-    else if (m_numPoints == 2)
-    {
-      vm::vec3 point3;
-      if (!computeThirdPoint(point3))
-      {
-        return false;
-      }
-    }
-    return true;
+    return (m_points.size() < 2
+            || (m_points.size() == 2 && !vm::is_colinear(m_points[0].point, m_points[1].point, point)))
+           && kdl::none_of(m_points, [&](const auto& p) {
+                return vm::is_equal(p.point, point, vm::C::almost_zero());
+              });
   }
 
-  bool doHasPoints() const override { return m_numPoints > 0; }
-
-  bool doCanAddPoint(const vm::vec3& point) const override
+  void addPoint(const vm::vec3& point, std::vector<vm::vec3> helpVectors) override
   {
-    if (m_numPoints == 3)
-    {
-      return false;
-    }
-    else if (
-      m_numPoints == 2 && vm::is_colinear(m_points[0].point, m_points[1].point, point))
-    {
-      return false;
-    }
-    else
-    {
-      // Don't allow to place a point onto another point!
-      for (size_t i = 0; i < m_numPoints; ++i)
-      {
-        if (vm::is_equal(m_points[i].point, point, vm::C::almost_zero()))
-        {
-          return false;
-        }
-      }
-      return true;
-    }
+    m_points.push_back(ClipPoint{point, std::move(helpVectors)});
   }
 
-  void doAddPoint(
-    const vm::vec3& point, const std::vector<vm::vec3>& helpVectors) override
-  {
-    m_points[m_numPoints] = ClipPoint(point, helpVectors);
-    ++m_numPoints;
-  }
+  bool canRemoveLastPoint() const override { return hasPoints(); }
 
-  bool doCanRemoveLastPoint() const override { return m_numPoints > 0; }
-
-  void doRemoveLastPoint() override
+  void removeLastPoint() override
   {
     ensure(canRemoveLastPoint(), "can't remove last point");
-    --m_numPoints;
+    m_points.pop_back();
   }
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> doCanDragPoint(
+  std::optional<std::tuple<vm::vec3, vm::vec3>> canDragPoint(
     const Model::PickResult& pickResult) const override
   {
     using namespace Model::HitFilters;
 
-    const auto& hit = pickResult.first(type(PointHitType));
+    const auto& hit = pickResult.first(type(ClipTool::PointHitType));
     if (!hit.isMatch())
     {
       return std::nullopt;
@@ -371,58 +256,43 @@ private:
     return {{position, hit.hitPoint() - position}};
   }
 
-  void doBeginDragPoint(const Model::PickResult& pickResult) override
+  void beginDragPoint(const Model::PickResult& pickResult) override
   {
     using namespace Model::HitFilters;
-    const auto& hit = pickResult.first(type(PointHitType));
+
+    const auto& hit = pickResult.first(type(ClipTool::PointHitType));
     assert(hit.isMatch());
-    m_dragIndex = hit.target<size_t>();
-    m_originalPoint = m_points[m_dragIndex];
+
+    const auto dragIndex = hit.target<size_t>();
+    m_dragState = DragState{dragIndex, m_points[dragIndex]};
   }
 
-  void doBeginDragLastPoint() override
+  void beginDragLastPoint() override
   {
-    ensure(m_numPoints > 0, "invalid numPoints");
-    m_dragIndex = m_numPoints - 1;
-    m_originalPoint = m_points[m_dragIndex];
+    ensure(hasPoints(), "invalid numPoints");
+    m_dragState = DragState{m_points.size() - 1, m_points.back()};
   }
 
-  bool doDragPoint(
+  bool dragPoint(
     const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) override
   {
-    ensure(m_dragIndex < m_numPoints, "drag index out of range");
+    ensure(m_dragState, "Clip tool is dragging");
 
     // Don't allow to drag a point onto another point!
-    for (size_t i = 0; i < m_numPoints; ++i)
+    for (size_t i = 0; i < m_points.size(); ++i)
     {
       if (
-        m_dragIndex != i
+        m_dragState->index != i
         && vm::is_equal(m_points[i].point, newPosition, vm::C::almost_zero()))
       {
         return false;
       }
     }
 
-    if (m_numPoints == 3)
+    if (m_points.size() == 3)
     {
-      size_t index0, index1;
-      switch (m_dragIndex)
-      {
-      case 0:
-        index0 = 1;
-        index1 = 2;
-        break;
-      case 1:
-        index0 = 0;
-        index1 = 2;
-        break;
-      case 2:
-      default:
-        index0 = 0;
-        index1 = 1;
-        break;
-      }
-
+      const auto index0 = m_dragState->index + 1 % 3;
+      const auto index1 = m_dragState->index + 2 % 3;
       if (vm::is_colinear(m_points[index0].point, m_points[index1].point, newPosition))
       {
         return false;
@@ -431,87 +301,70 @@ private:
 
     if (helpVectors.empty())
     {
-      m_points[m_dragIndex] = ClipPoint(newPosition, m_points[m_dragIndex].helpVectors);
+      m_points[m_dragState->index] =
+        ClipPoint{newPosition, m_points[m_dragState->index].helpVectors};
     }
     else
     {
-      m_points[m_dragIndex] = ClipPoint(newPosition, helpVectors);
+      m_points[m_dragState->index] = ClipPoint{newPosition, helpVectors};
     }
     return true;
   }
 
-  void doEndDragPoint() override { m_dragIndex = 4; }
+  void endDragPoint() override { m_dragState = std::nullopt; }
 
-  void doCancelDragPoint() override
+  void cancelDragPoint() override
   {
-    ensure(m_dragIndex < m_numPoints, "drag index out of range");
-    m_points[m_dragIndex] = m_originalPoint;
-    m_dragIndex = 4;
+    ensure(m_dragState, "Clip tool is dragging");
+    m_points[m_dragState->index] = m_dragState->originalPoint;
+    m_dragState = std::nullopt;
   }
 
-  bool doSetFace(const Model::BrushFaceHandle& /* faceHandle */) override
-  {
-    return false;
-  }
+  bool setFace(const Model::BrushFaceHandle& /* faceHandle */) override { return false; }
 
-  void doReset() override { m_numPoints = 0; }
+  void reset() override { m_points.clear(); }
 
-  size_t doGetPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const override
+  std::vector<vm::vec3> getPoints() const override
   {
-    switch (m_numPoints)
+    auto result = kdl::vec_transform(m_points, [](const auto& p) { return p.point; });
+    if (const auto thirdPoint = computeThirdPoint())
     {
-    case 0:
-      return 0;
-    case 1:
-      point1 = m_points[0].point;
-      return 1;
-    case 2:
-      point1 = m_points[0].point;
-      point2 = m_points[1].point;
-      if (computeThirdPoint(point3))
-        return 3;
-      return 2;
-    case 3:
-      point1 = m_points[0].point;
-      point2 = m_points[1].point;
-      point3 = m_points[2].point;
-      return 3;
-    default:
-      ensure(false, "invalid numPoints");
-      return 0;
+      result = kdl::vec_push_back(std::move(result), *thirdPoint);
     }
+    return result;
   }
 
 private:
   void renderPoints(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
   {
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
     renderService.setShowOccludedObjects();
 
-    if (m_numPoints > 1)
+    if (m_points.size() > 1)
     {
       renderService.renderLine(
-        vm::vec3f(m_points[0].point), vm::vec3f(m_points[1].point));
-      if (m_numPoints > 2)
+        vm::vec3f{m_points[0].point}, vm::vec3f{m_points[1].point});
+
+      if (m_points.size() > 2)
       {
         renderService.renderLine(
-          vm::vec3f(m_points[1].point), vm::vec3f(m_points[2].point));
+          vm::vec3f{m_points[1].point}, vm::vec3f{m_points[2].point});
         renderService.renderLine(
-          vm::vec3f(m_points[2].point), vm::vec3f(m_points[0].point));
+          vm::vec3f{m_points[2].point}, vm::vec3f{m_points[0].point});
       }
     }
 
     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
     renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
 
-    for (size_t i = 0; i < m_numPoints; ++i)
+    for (size_t i = 0; i < m_points.size(); ++i)
     {
       const auto& point = m_points[i].point;
-      renderService.renderHandle(vm::vec3f(point));
+      renderService.renderHandle(vm::vec3f{point});
       renderService.renderString(
-        kdl::str_to_string(i + 1, ": ", point), vm::vec3f(point));
+        fmt::format("{}: {}", i + 1, fmt::streamed(point)), vm::vec3f{point});
     }
   }
 
@@ -520,14 +373,15 @@ private:
     Renderer::RenderBatch& renderBatch,
     const Model::PickResult& pickResult)
   {
-    if (m_dragIndex < m_numPoints)
+    if (m_dragState)
     {
-      renderHighlight(renderContext, renderBatch, m_dragIndex);
+      renderHighlight(renderContext, renderBatch, m_dragState->index);
     }
     else
     {
       using namespace Model::HitFilters;
-      const auto& hit = pickResult.first(type(PointHitType));
+
+      const auto& hit = pickResult.first(type(ClipTool::PointHitType));
       if (hit.isMatch())
       {
         const auto index = hit.target<size_t>();
@@ -541,43 +395,34 @@ private:
     Renderer::RenderBatch& renderBatch,
     const size_t index)
   {
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
     renderService.renderHandleHighlight(vm::vec3f(m_points[index].point));
   }
 };
 
-class ClipTool::FaceClipStrategy : public ClipTool::ClipStrategy
+class FaceClipStrategy : public ClipStrategy
 {
 private:
   std::optional<Model::BrushFaceHandle> m_faceHandle;
 
-private:
-  void doPick(
-    const vm::ray3& /* pickRay */,
-    const Renderer::Camera& /* camera */,
-    Model::PickResult&) const override
+public:
+  void pick(const vm::ray3&, const Renderer::Camera&, Model::PickResult&) const override
   {
   }
 
-  void doRender(
+  void render(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
     const Model::PickResult&) override
   {
     if (m_faceHandle)
     {
-      Renderer::RenderService renderService(renderContext, renderBatch);
+      auto renderService = Renderer::RenderService{renderContext, renderBatch};
 
-      const auto vertices = m_faceHandle->face().vertices();
-
-      std::vector<vm::vec3f> positions;
-      positions.reserve(vertices.size());
-
-      for (const Model::BrushVertex* vertex : vertices)
-      {
-        positions.push_back(vm::vec3f(vertex->position()));
-      }
+      const auto positions = kdl::vec_transform(
+        m_faceHandle->face().vertices(),
+        [](const auto& vertex) { return vm::vec3f{vertex->position()}; });
 
       renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
       renderService.renderPolygonOutline(positions);
@@ -587,77 +432,65 @@ private:
     }
   }
 
-  void doRenderFeedback(
-    Renderer::RenderContext&,
-    Renderer::RenderBatch&,
-    const vm::vec3& /* point */) const override
+  void renderFeedback(
+    Renderer::RenderContext&, Renderer::RenderBatch&, const vm::vec3&) const override
   {
   }
 
-  vm::vec3 doGetHelpVector() const { return vm::vec3::zero(); }
+  vm::vec3 getHelpVector() const { return vm::vec3::zero(); }
 
-  bool doComputeThirdPoint(vm::vec3& /* point */) const override { return false; }
+  std::optional<vm::vec3> computeThirdPoint() const override { return std::nullopt; }
 
-  bool doCanClip() const override { return m_faceHandle.has_value(); }
-  bool doHasPoints() const override { return false; }
-  bool doCanAddPoint(const vm::vec3& /* point */) const override { return false; }
-  void doAddPoint(
-    const vm::vec3& /* point */, const std::vector<vm::vec3>& /* helpVectors */) override
-  {
-  }
-  bool doCanRemoveLastPoint() const override { return false; }
-  void doRemoveLastPoint() override {}
+  bool canClip() const override { return m_faceHandle.has_value(); }
+  bool hasPoints() const override { return false; }
+  bool canAddPoint(const vm::vec3&) const override { return false; }
+  void addPoint(const vm::vec3&, std::vector<vm::vec3>) override {}
+  bool canRemoveLastPoint() const override { return false; }
+  void removeLastPoint() override {}
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> doCanDragPoint(
+  std::optional<std::tuple<vm::vec3, vm::vec3>> canDragPoint(
     const Model::PickResult&) const override
   {
     return std::nullopt;
   }
-  void doBeginDragPoint(const Model::PickResult&) override {}
-  void doBeginDragLastPoint() override {}
-  bool doDragPoint(
+  void beginDragPoint(const Model::PickResult&) override {}
+  void beginDragLastPoint() override {}
+  bool dragPoint(
     const vm::vec3& /* newPosition */,
     const std::vector<vm::vec3>& /* helpVectors */) override
   {
     return false;
   }
-  void doEndDragPoint() override {}
-  void doCancelDragPoint() override {}
+  void endDragPoint() override {}
+  void cancelDragPoint() override {}
 
-  bool doSetFace(const Model::BrushFaceHandle& faceHandle) override
+  bool setFace(const Model::BrushFaceHandle& faceHandle) override
   {
     m_faceHandle = faceHandle;
     return true;
   }
 
-  void doReset() override { m_faceHandle = std::nullopt; }
+  void reset() override { m_faceHandle = std::nullopt; }
 
-  size_t doGetPoints(vm::vec3& point1, vm::vec3& point2, vm::vec3& point3) const override
+  std::vector<vm::vec3> getPoints() const override
   {
     if (m_faceHandle)
     {
       const auto& points = m_faceHandle->face().points();
-      point1 = points[0];
-      point2 = points[1];
-      point3 = points[2];
-      return 3;
+      return {points.begin(), points.end()};
     }
-    else
-    {
-      return 0;
-    }
+
+    return {};
   }
 };
 
+} // namespace
+
 ClipTool::ClipTool(std::weak_ptr<MapDocument> document)
-  : Tool(false)
-  , m_document(std::move(document))
-  , m_clipSide(ClipSide_Front)
-  , m_strategy(nullptr)
-  , m_remainingBrushRenderer(std::make_unique<Renderer::BrushRenderer>())
-  , m_clippedBrushRenderer(std::make_unique<Renderer::BrushRenderer>())
-  , m_ignoreNotifications(false)
-  , m_dragging(false)
+  : Tool{false}
+  , m_document{std::move(document)}
+  , m_remainingBrushRenderer{std::make_unique<Renderer::BrushRenderer>()}
+  , m_clippedBrushRenderer{std::make_unique<Renderer::BrushRenderer>()}
 {
 }
 
@@ -678,14 +511,14 @@ void ClipTool::toggleSide()
   {
     switch (m_clipSide)
     {
-    case ClipSide_Front:
-      m_clipSide = ClipSide_Both;
+    case ClipSide::Front:
+      m_clipSide = ClipSide::Both;
       break;
-    case ClipSide_Both:
-      m_clipSide = ClipSide_Back;
+    case ClipSide::Both:
+      m_clipSide = ClipSide::Back;
       break;
-    case ClipSide_Back:
-      m_clipSide = ClipSide_Front;
+    case ClipSide::Back:
+      m_clipSide = ClipSide::Front;
       break;
     }
     update();
@@ -695,7 +528,7 @@ void ClipTool::toggleSide()
 void ClipTool::pick(
   const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
 {
-  if (m_strategy != nullptr)
+  if (m_strategy)
   {
     m_strategy->pick(pickRay, camera, pickResult);
   }
@@ -737,7 +570,7 @@ void ClipTool::renderStrategy(
   Renderer::RenderBatch& renderBatch,
   const Model::PickResult& pickResult)
 {
-  if (m_strategy != nullptr)
+  if (m_strategy)
   {
     m_strategy->render(renderContext, renderBatch, pickResult);
   }
@@ -748,13 +581,13 @@ void ClipTool::renderFeedback(
   Renderer::RenderBatch& renderBatch,
   const vm::vec3& point) const
 {
-  if (m_strategy != nullptr)
+  if (m_strategy)
   {
     m_strategy->renderFeedback(renderContext, renderBatch, point);
   }
   else
   {
-    PointClipStrategy().renderFeedback(renderContext, renderBatch, point);
+    PointClipStrategy{}.renderFeedback(renderContext, renderBatch, point);
   }
 }
 
@@ -766,14 +599,14 @@ bool ClipTool::hasBrushes() const
 
 bool ClipTool::canClip() const
 {
-  return m_strategy != nullptr && m_strategy->canClip();
+  return m_strategy && m_strategy->canClip();
 }
 
 void ClipTool::performClip()
 {
   if (!m_dragging && canClip())
   {
-    const kdl::set_temp ignoreNotifications(m_ignoreNotifications);
+    const auto ignoreNotifications = kdl::set_temp{m_ignoreNotifications};
 
     auto document = kdl::mem_lock(m_document);
     auto transaction = Transaction{document, "Clip Brushes"};
@@ -794,7 +627,7 @@ void ClipTool::performClip()
 
 std::map<Model::Node*, std::vector<Model::Node*>> ClipTool::clipBrushes()
 {
-  std::map<Model::Node*, std::vector<Model::Node*>> result;
+  auto result = std::map<Model::Node*, std::vector<Model::Node*>>{};
   if (!m_frontBrushes.empty())
   {
     if (keepFrontBrushes())
@@ -833,18 +666,18 @@ vm::vec3 ClipTool::defaultClipPointPos() const
 
 bool ClipTool::canAddPoint(const vm::vec3& point) const
 {
-  return m_strategy == nullptr || m_strategy->canAddPoint(point);
+  return !m_strategy || m_strategy->canAddPoint(point);
 }
 
 bool ClipTool::hasPoints() const
 {
-  return m_strategy != nullptr && m_strategy->hasPoints();
+  return m_strategy && m_strategy->hasPoints();
 }
 
 void ClipTool::addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors)
 {
   assert(canAddPoint(point));
-  if (m_strategy == nullptr)
+  if (!m_strategy)
   {
     m_strategy = std::make_unique<PointClipStrategy>();
   }
@@ -855,7 +688,7 @@ void ClipTool::addPoint(const vm::vec3& point, const std::vector<vm::vec3>& help
 
 bool ClipTool::canRemoveLastPoint() const
 {
-  return m_strategy != nullptr && m_strategy->canRemoveLastPoint();
+  return m_strategy && m_strategy->canRemoveLastPoint();
 }
 
 bool ClipTool::removeLastPoint()
@@ -866,6 +699,7 @@ bool ClipTool::removeLastPoint()
     update();
     return true;
   }
+
   return false;
 }
 
@@ -873,26 +707,24 @@ std::optional<std::tuple<vm::vec3, vm::vec3>> ClipTool::beginDragPoint(
   const Model::PickResult& pickResult)
 {
   assert(!m_dragging);
-  if (m_strategy == nullptr)
+  if (m_strategy)
   {
-    return std::nullopt;
+    const auto pointAndOffset = m_strategy->canDragPoint(pickResult);
+    if (pointAndOffset)
+    {
+      m_strategy->beginDragPoint(pickResult);
+      m_dragging = true;
+      return pointAndOffset;
+    }
   }
 
-  const auto pointAndOffset = m_strategy->canDragPoint(pickResult);
-  if (!pointAndOffset)
-  {
-    return std::nullopt;
-  }
-
-  m_strategy->beginDragPoint(pickResult);
-  m_dragging = true;
-  return pointAndOffset;
+  return std::nullopt;
 }
 
 void ClipTool::beginDragLastPoint()
 {
   assert(!m_dragging);
-  ensure(m_strategy != nullptr, "strategy is null");
+  ensure(m_strategy, "strategy is not null");
   m_strategy->beginDragLastPoint();
   m_dragging = true;
 }
@@ -901,22 +733,20 @@ bool ClipTool::dragPoint(
   const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors)
 {
   assert(m_dragging);
-  ensure(m_strategy != nullptr, "strategy is null");
+  ensure(m_strategy, "strategy is not null");
   if (!m_strategy->dragPoint(newPosition, helpVectors))
   {
     return false;
   }
-  else
-  {
-    update();
-    return true;
-  }
+
+  update();
+  return true;
 }
 
 void ClipTool::endDragPoint()
 {
   assert(m_dragging);
-  ensure(m_strategy != nullptr, "strategy is null");
+  ensure(m_strategy, "strategy is not null");
   m_strategy->endDragPoint();
   m_dragging = false;
   refreshViews();
@@ -925,7 +755,7 @@ void ClipTool::endDragPoint()
 void ClipTool::cancelDragPoint()
 {
   assert(m_dragging);
-  ensure(m_strategy != nullptr, "strategy is null");
+  ensure(m_strategy, "strategy is not null");
   m_strategy->cancelDragPoint();
   m_dragging = false;
   refreshViews();
@@ -940,15 +770,13 @@ void ClipTool::setFace(const Model::BrushFaceHandle& faceHandle)
 
 bool ClipTool::reset()
 {
-  if (m_strategy != nullptr)
+  if (m_strategy)
   {
     resetStrategy();
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
 void ClipTool::resetStrategy()
@@ -1003,14 +831,13 @@ void ClipTool::updateBrushes()
 
   if (canClip())
   {
-    vm::vec3 point1, point2, point3;
-    const auto numPoints = m_strategy->getPoints(point1, point2, point3);
-    ensure(numPoints == 3, "invalid number of points");
+    const auto points = m_strategy->getPoints();
+    ensure(points.size() == 3, "invalid number of points");
 
     for (auto* brushNode : brushNodes)
     {
-      clip(brushNode, point1, point2, point3, m_frontBrushes);
-      clip(brushNode, point1, point3, point2, m_backBrushes);
+      clip(brushNode, points[0], points[1], points[2], m_frontBrushes);
+      clip(brushNode, points[0], points[2], points[1], m_backBrushes);
     }
   }
   else
@@ -1018,7 +845,7 @@ void ClipTool::updateBrushes()
     for (auto* brushNode : brushNodes)
     {
       auto* parent = brushNode->parent();
-      m_frontBrushes[parent].push_back(new Model::BrushNode(brushNode->brush()));
+      m_frontBrushes[parent].push_back(new Model::BrushNode{brushNode->brush()});
     }
   }
 }
@@ -1105,12 +932,12 @@ void ClipTool::addBrushesToRenderer(
 
 bool ClipTool::keepFrontBrushes() const
 {
-  return m_clipSide != ClipSide_Back;
+  return m_clipSide != ClipSide::Back;
 }
 
 bool ClipTool::keepBackBrushes() const
 {
-  return m_clipSide != ClipSide_Front;
+  return m_clipSide != ClipSide::Front;
 }
 
 bool ClipTool::doActivate()
@@ -1120,12 +947,10 @@ bool ClipTool::doActivate()
   {
     return false;
   }
-  else
-  {
-    connectObservers();
-    resetStrategy();
-    return true;
-  }
+
+  connectObservers();
+  resetStrategy();
+  return true;
 }
 
 bool ClipTool::doDeactivate()
@@ -1188,5 +1013,5 @@ void ClipTool::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
     update();
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
