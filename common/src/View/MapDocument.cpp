@@ -97,6 +97,7 @@
 #include "View/RepeatStack.h"
 #include "View/SelectionCommand.h"
 #include "View/SetCurrentLayerCommand.h"
+#include "View/SetLinkIdsCommand.h"
 #include "View/SetLockStateCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/SwapNodeContentsCommand.h"
@@ -2214,48 +2215,13 @@ void MapDocument::linkGroups(const std::vector<Model::GroupNode*>& groupNodes)
       kdl::vec_slice_suffix(groupNodes, groupNodes.size() - 1);
     Model::copyAndReturnLinkIds(sourceGroupNode, targetGroupNodes)
       .transform([&](auto linkIds) {
-        auto nodesAndContents =
-          kdl::vec_transform(linkIds, [](const auto& nodeAndLinkId) {
-            auto& node = nodeAndLinkId.first;
-            auto& linkId = nodeAndLinkId.second;
-            return node->accept(kdl::overload(
-              [&](
-                const Model::WorldNode*) -> std::pair<Model::Node*, Model::NodeContents> {
-                ensure(false, "no unexpected world node");
-              },
-              [](
-                const Model::LayerNode*) -> std::pair<Model::Node*, Model::NodeContents> {
-                ensure(false, "no unexpected layer node");
-              },
-              [&](const Model::GroupNode* groupNode)
-                -> std::pair<Model::Node*, Model::NodeContents> {
-                auto group = groupNode->group();
-                group.setLinkId(std::move(linkId));
-                return {node, Model::NodeContents{std::move(group)}};
-              },
-              [&](const Model::EntityNode* entityNode)
-                -> std::pair<Model::Node*, Model::NodeContents> {
-                auto entity = entityNode->entity();
-                entity.setLinkId(std::move(linkId));
-                return {node, Model::NodeContents{std::move(entity)}};
-              },
-              [&](const Model::BrushNode* brushNode)
-                -> std::pair<Model::Node*, Model::NodeContents> {
-                auto brush = brushNode->brush();
-                brush.setLinkId(std::move(linkId));
-                return {node, Model::NodeContents{std::move(brush)}};
-              },
-              [&](const Model::PatchNode* patchNode)
-                -> std::pair<Model::Node*, Model::NodeContents> {
-                auto patch = patchNode->patch();
-                patch.setLinkId(std::move(linkId));
-                return {node, Model::NodeContents{std::move(patch)}};
-              }));
+        auto linkIdVector = kdl::vec_transform(
+          std::move(linkIds), [](auto pair) -> std::tuple<Model::Node*, std::string> {
+            return {std::move(pair)};
           });
 
-
-        swapNodeContents(
-          "Set Link ID", nodesAndContents, collectContainingGroups(groupNodes));
+        executeAndStore(
+          std::make_unique<SetLinkIdsCommand>("Set Link ID", std::move(linkIdVector)));
       })
       .transform_error([&](auto e) { error() << "Could not link groups: " << e.msg; });
     ;
@@ -2265,29 +2231,14 @@ void MapDocument::linkGroups(const std::vector<Model::GroupNode*>& groupNodes)
 void MapDocument::unlinkGroups(const std::vector<Model::GroupNode*>& groupNodes)
 {
   const auto nodesToUnlink = Model::collectNodesAndDescendants(groupNodes);
-  applyAndSwap(
-    *this,
-    "Reset Linked Group ID",
-    nodesToUnlink,
-    collectContainingGroups(groupNodes),
-    kdl::overload(
-      [](Model::Layer&) { return true; },
-      [&](Model::Group& group) {
-        group.setLinkId(generateUuid());
-        return true;
-      },
-      [](Model::Entity& entity) {
-        entity.setLinkId(generateUuid());
-        return true;
-      },
-      [](Model::Brush& brush) {
-        brush.setLinkId(generateUuid());
-        return true;
-      },
-      [](Model::BezierPatch& patch) {
-        patch.setLinkId(generateUuid());
-        return true;
-      }));
+
+  auto linkIds = kdl::vec_transform(
+    nodesToUnlink, [](auto* node) -> std::tuple<Model::Node*, std::string> {
+      return {node, generateUuid()};
+    });
+
+  executeAndStore(
+    std::make_unique<SetLinkIdsCommand>("Reset Link ID", std::move(linkIds)));
 }
 
 void MapDocument::separateLinkedGroups()
