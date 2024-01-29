@@ -298,23 +298,23 @@ std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* log
 
     const auto w = static_cast<float>(pictureFrame.width);
     const auto h = static_cast<float>(pictureFrame.height);
-    const auto x1 = static_cast<float>(pictureFrame.x);
-    const auto y1 = static_cast<float>(pictureFrame.y) - h;
-    const auto x2 = x1 + w;
-    const auto y2 = y1 + h;
+    const auto y1 = static_cast<float>(pictureFrame.x);
+    const auto z1 = static_cast<float>(pictureFrame.y) - h;
+    const auto y2 = y1 + w;
+    const auto z2 = z1 + h;
 
-    const auto bboxMin = vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
-    const auto bboxMax = vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
+    const auto bboxMin = vm::vec3f{vm::min(y1, y2), vm::min(y1, y2), vm::min(z1, z2)};
+    const auto bboxMax = vm::vec3f{vm::max(y1, y2), vm::max(y1, y2), vm::max(z1, z2)};
     auto& modelFrame = model->loadFrame(i, std::to_string(i), {bboxMin, bboxMax});
 
     const auto triangles = std::vector<Assets::EntityModelVertex>{
-      Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
-      Assets::EntityModelVertex{{x1, y2, 0}, {0, 0}},
-      Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+      Assets::EntityModelVertex{{0, y2, z1}, {0, 1}},
+      Assets::EntityModelVertex{{0, y2, z2}, {0, 0}},
+      Assets::EntityModelVertex{{0, y1, z2}, {1, 0}},
 
-      Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
-      Assets::EntityModelVertex{{x2, y1, 0}, {1, 1}},
-      Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+      Assets::EntityModelVertex{{0, y1, z2}, {1, 0}},
+      Assets::EntityModelVertex{{0, y1, z1}, {1, 1}},
+      Assets::EntityModelVertex{{0, y2, z1}, {0, 1}},
     };
 
     auto size = Renderer::IndexRangeMap::Size{};
