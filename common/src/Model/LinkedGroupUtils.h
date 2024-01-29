@@ -51,17 +51,8 @@ std::vector<N*> collectLinkedNodes(const std::vector<Node*>& nodes, const N& nod
   return kdl::vec_static_cast<N*>(node.accept(kdl::overload(
     [](const WorldNode*) { return std::vector<Node*>{}; },
     [](const LayerNode*) { return std::vector<Node*>{}; },
-    [&](const GroupNode* groupNode) {
-      return collectNodesWithLinkId(nodes, groupNode->group().linkId());
-    },
-    [&](const EntityNode* entityNode) {
-      return collectNodesWithLinkId(nodes, entityNode->entity().linkId());
-    },
-    [&](const BrushNode* brushNode) {
-      return collectNodesWithLinkId(nodes, brushNode->brush().linkId());
-    },
-    [&](const PatchNode* patchNode) {
-      return collectNodesWithLinkId(nodes, patchNode->patch().linkId());
+    [&](const Object* object) {
+      return collectNodesWithLinkId(nodes, object->linkId());
     })));
 }
 
@@ -154,15 +145,5 @@ Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(
 
 std::vector<Error> copyAndSetLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
-
-template <typename T>
-T setNewLinkIdIf(T x, const bool setNewLinkId)
-{
-  if (setNewLinkId)
-  {
-    x.setLinkId(generateUuid());
-  }
-  return x;
-}
 
 } // namespace TrenchBroom::Model

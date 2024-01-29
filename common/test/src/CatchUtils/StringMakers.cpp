@@ -80,6 +80,7 @@ void printGroupNode(
   const auto childIndent = indent + "  ";
   str << indent << "GroupNode{\n";
   str << childIndent << "m_group: " << groupNode.group() << ",\n";
+  str << childIndent << "m_linkId: " << groupNode.linkId() << ",\n";
   printChildren(groupNode, childIndent, str);
   str << ",\n";
   str << indent << "}";
@@ -91,6 +92,7 @@ void printEntityNode(
   const auto childIndent = indent + "  ";
   str << indent << "EntityNode{\n";
   str << childIndent << "m_entity: " << entityNode.entity() << ",\n";
+  str << childIndent << "m_linkId: " << entityNode.linkId() << ",\n";
   printChildren(entityNode, childIndent, str);
   str << ",\n";
   str << indent << "}";
@@ -102,6 +104,7 @@ void printBrushNode(
   const auto childIndent = indent + "  ";
   str << indent << "BrushNode{\n";
   str << childIndent << "m_brush: " << brushNode.brush() << ",\n";
+  str << childIndent << "m_linkId: " << brushNode.linkId() << ",\n";
   printChildren(brushNode, childIndent, str);
   str << ",\n";
   str << indent << "}";
@@ -113,6 +116,7 @@ void printPatchNode(
   const auto childIndent = indent + "  ";
   str << indent << "PatchNode{\n";
   str << childIndent << "m_patch: " << patchNode.patch() << ",\n";
+  str << childIndent << "m_linkId: " << patchNode.linkId() << ",\n";
   printChildren(patchNode, childIndent, str);
   str << ",\n";
   str << indent << "}";

@@ -20,16 +20,14 @@
 #include "SetLinkIdsCommand.h"
 
 #include "Ensure.h"
-#include "Model/BezierPatch.h"
-#include "Model/Brush.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
+#include "Model/Object.h"
 #include "Model/PatchNode.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <kdl/result.h>
@@ -61,28 +59,9 @@ auto setLinkIds(const std::vector<std::tuple<Model::Node*, std::string>>& linkId
       [](const Model::LayerNode*) -> std::tuple<Model::Node*, std::string> {
         ensure(false, "no unexpected layer node");
       },
-      [&](const Model::GroupNode* groupNode) -> std::tuple<Model::Node*, std::string> {
-        auto group = groupNode->group();
-        auto oldLinkId = group.linkId();
-        group.setLinkId(std::move(linkId));
-        return {node, std::move(oldLinkId)};
-      },
-      [&](const Model::EntityNode* entityNode) -> std::tuple<Model::Node*, std::string> {
-        auto entity = entityNode->entity();
-        auto oldLinkId = entity.linkId();
-        entity.setLinkId(std::move(linkId));
-        return {node, std::move(oldLinkId)};
-      },
-      [&](const Model::BrushNode* brushNode) -> std::tuple<Model::Node*, std::string> {
-        auto brush = brushNode->brush();
-        auto oldLinkId = brush.linkId();
-        brush.setLinkId(std::move(linkId));
-        return {node, std::move(oldLinkId)};
-      },
-      [&](const Model::PatchNode* patchNode) -> std::tuple<Model::Node*, std::string> {
-        auto patch = patchNode->patch();
-        auto oldLinkId = patch.linkId();
-        patch.setLinkId(std::move(linkId));
+      [&](Model::Object* object) -> std::tuple<Model::Node*, std::string> {
+        auto oldLinkId = object->linkId();
+        object->setLinkId(std::move(linkId));
         return {node, std::move(oldLinkId)};
       }));
   });

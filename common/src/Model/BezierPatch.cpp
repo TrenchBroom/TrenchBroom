@@ -21,7 +21,6 @@
 
 #include "Assets/Texture.h"
 #include "Ensure.h"
-#include "Uuid.h"
 
 #include <kdl/reflection_impl.h>
 
@@ -58,7 +57,6 @@ BezierPatch::BezierPatch(
   , m_pointColumnCount{pointColumnCount}
   , m_controlPoints{std::move(controlPoints)}
   , m_bounds(computeBounds(m_controlPoints))
-  , m_linkId{generateUuid()}
   , m_textureName{std::move(textureName)}
 {
   ensure(
@@ -79,16 +77,6 @@ BezierPatch::BezierPatch(BezierPatch&& other) noexcept = default;
 
 BezierPatch& BezierPatch::operator=(const BezierPatch& other) = default;
 BezierPatch& BezierPatch::operator=(BezierPatch&& other) noexcept = default;
-
-const std::string& BezierPatch::linkId() const
-{
-  return m_linkId;
-}
-
-void BezierPatch::setLinkId(std::string linkId)
-{
-  m_linkId = std::move(linkId);
-}
 
 size_t BezierPatch::pointRowCount() const
 {

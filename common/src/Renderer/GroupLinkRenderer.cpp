@@ -58,7 +58,7 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
 
   if (groupNode)
   {
-    const auto& linkId = groupNode->group().linkId();
+    const auto& linkId = groupNode->linkId();
     const auto linkedGroupNodes =
       Model::collectGroupsWithLinkId({document->world()}, linkId);
 

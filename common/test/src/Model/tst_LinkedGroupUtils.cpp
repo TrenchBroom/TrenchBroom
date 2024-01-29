@@ -626,17 +626,15 @@ std::unordered_map<const Node*, std::string> getLinkIds(const Node& node)
       layerNode->visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, const GroupNode* groupNode) {
-      result[groupNode] = groupNode->group().linkId();
+      result[groupNode] = groupNode->linkId();
       groupNode->visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, const EntityNode* entityNode) {
-      result[entityNode] = entityNode->entity().linkId();
+      result[entityNode] = entityNode->linkId();
       entityNode->visitChildren(thisLambda);
     },
-    [&](const BrushNode* brushNode) { result[brushNode] = brushNode->brush().linkId(); },
-    [&](const PatchNode* patchNode) {
-      result[patchNode] = patchNode->patch().linkId();
-    }));
+    [&](const BrushNode* brushNode) { result[brushNode] = brushNode->linkId(); },
+    [&](const PatchNode* patchNode) { result[patchNode] = patchNode->linkId(); }));
   return result;
 }
 

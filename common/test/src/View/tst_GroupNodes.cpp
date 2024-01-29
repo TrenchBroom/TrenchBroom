@@ -421,8 +421,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups")
   auto* groupNode = document->groupSelection("test");
   REQUIRE(groupNode != nullptr);
 
-  const auto originalGroupLinkId = groupNode->group().linkId();
-  const auto originalBrushLinkId = brushNode->brush().linkId();
+  const auto originalGroupLinkId = groupNode->linkId();
+  const auto originalBrushLinkId = brushNode->linkId();
 
   document->deselectAll();
   document->selectNodes({groupNode});
@@ -456,9 +456,9 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups")
       document->world()->defaultLayer()->children(),
       Catch::UnorderedEquals(
         std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedBrushNode2}));
-    CHECK(groupNode->group().linkId() == linkedGroupNode->group().linkId());
-    CHECK(linkedGroupNode2->group().linkId() != groupNode->group().linkId());
-    CHECK(linkedBrushNode2->brush().linkId() != brushNode->brush().linkId());
+    CHECK(groupNode->linkId() == linkedGroupNode->linkId());
+    CHECK(linkedGroupNode2->linkId() != groupNode->linkId());
+    CHECK(linkedBrushNode2->linkId() != brushNode->linkId());
   }
 
   SECTION(
@@ -473,14 +473,14 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups")
       Catch::UnorderedEquals(
         std::vector<Model::Node*>{groupNode, linkedBrushNode, linkedBrushNode2}));
 
-    CHECK(groupNode->group().linkId() == originalGroupLinkId);
-    CHECK(linkedGroupNode->group().linkId() != originalGroupLinkId);
-    CHECK(linkedGroupNode2->group().linkId() != originalGroupLinkId);
-    CHECK(linkedGroupNode2->group().linkId() != linkedGroupNode->group().linkId());
+    CHECK(groupNode->linkId() == originalGroupLinkId);
+    CHECK(linkedGroupNode->linkId() != originalGroupLinkId);
+    CHECK(linkedGroupNode2->linkId() != originalGroupLinkId);
+    CHECK(linkedGroupNode2->linkId() != linkedGroupNode->linkId());
 
-    CHECK(linkedBrushNode->brush().linkId() != brushNode->brush().linkId());
-    CHECK(linkedBrushNode2->brush().linkId() != brushNode->brush().linkId());
-    CHECK(linkedBrushNode2->brush().linkId() != linkedBrushNode->brush().linkId());
+    CHECK(linkedBrushNode->linkId() != brushNode->linkId());
+    CHECK(linkedBrushNode2->linkId() != brushNode->linkId());
+    CHECK(linkedBrushNode2->linkId() != linkedBrushNode->linkId());
   }
 
   SECTION("Given three linked groups, we ungroup all of them")
@@ -495,13 +495,13 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups")
       Catch::UnorderedEquals(
         std::vector<Model::Node*>{brushNode, linkedBrushNode, linkedBrushNode2}));
 
-    CHECK(groupNode->group().linkId() != originalGroupLinkId);
-    CHECK(linkedGroupNode->group().linkId() != originalGroupLinkId);
-    CHECK(linkedGroupNode2->group().linkId() != originalGroupLinkId);
+    CHECK(groupNode->linkId() != originalGroupLinkId);
+    CHECK(linkedGroupNode->linkId() != originalGroupLinkId);
+    CHECK(linkedGroupNode2->linkId() != originalGroupLinkId);
 
-    CHECK(linkedGroupNode->group().linkId() != groupNode->group().linkId());
-    CHECK(linkedGroupNode2->group().linkId() != groupNode->group().linkId());
-    CHECK(linkedGroupNode2->group().linkId() != linkedGroupNode->group().linkId());
+    CHECK(linkedGroupNode->linkId() != groupNode->linkId());
+    CHECK(linkedGroupNode2->linkId() != groupNode->linkId());
+    CHECK(linkedGroupNode2->linkId() != linkedGroupNode->linkId());
   }
 
   document->undoCommand();
@@ -509,13 +509,13 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups")
     document->world()->defaultLayer()->children(),
     Catch::UnorderedEquals(
       std::vector<Model::Node*>{groupNode, linkedGroupNode, linkedGroupNode2}));
-  CHECK(groupNode->group().linkId() == originalGroupLinkId);
-  CHECK(linkedGroupNode->group().linkId() == originalGroupLinkId);
-  CHECK(linkedGroupNode2->group().linkId() == originalGroupLinkId);
+  CHECK(groupNode->linkId() == originalGroupLinkId);
+  CHECK(linkedGroupNode->linkId() == originalGroupLinkId);
+  CHECK(linkedGroupNode2->linkId() == originalGroupLinkId);
 
-  CHECK(brushNode->brush().linkId() == originalBrushLinkId);
-  CHECK(linkedBrushNode->brush().linkId() == originalBrushLinkId);
-  CHECK(linkedBrushNode2->brush().linkId() == originalBrushLinkId);
+  CHECK(brushNode->linkId() == originalBrushLinkId);
+  CHECK(linkedBrushNode->linkId() == originalBrushLinkId);
+  CHECK(linkedBrushNode2->linkId() == originalBrushLinkId);
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createLinkedDuplicate")
@@ -640,8 +640,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
   document->deselectAll();
   document->selectNodes({groupNode});
 
-  const auto originalGroupLinkId = groupNode->group().linkId();
-  const auto originalBrushLinkId = brushNode->brush().linkId();
+  const auto originalGroupLinkId = groupNode->linkId();
+  const auto originalBrushLinkId = brushNode->linkId();
 
   SECTION("Separating a group that isn't linked")
   {
@@ -671,16 +671,16 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
 
     CHECK(document->canSeparateLinkedGroups());
     document->separateLinkedGroups();
-    CHECK(groupNode->group().linkId() == originalGroupLinkId);
-    CHECK(brushNode->brush().linkId() == originalBrushLinkId);
-    CHECK(linkedGroupNode->group().linkId() != originalGroupLinkId);
-    CHECK(linkedBrushNode->brush().linkId() != originalBrushLinkId);
+    CHECK(groupNode->linkId() == originalGroupLinkId);
+    CHECK(brushNode->linkId() == originalBrushLinkId);
+    CHECK(linkedGroupNode->linkId() != originalGroupLinkId);
+    CHECK(linkedBrushNode->linkId() != originalBrushLinkId);
 
     document->undoCommand();
-    CHECK(groupNode->group().linkId() == originalGroupLinkId);
-    CHECK(linkedGroupNode->group().linkId() == originalGroupLinkId);
-    CHECK(brushNode->brush().linkId() == originalBrushLinkId);
-    CHECK(linkedBrushNode->brush().linkId() == originalBrushLinkId);
+    CHECK(groupNode->linkId() == originalGroupLinkId);
+    CHECK(linkedGroupNode->linkId() == originalGroupLinkId);
+    CHECK(brushNode->linkId() == originalBrushLinkId);
+    CHECK(linkedBrushNode->linkId() == originalBrushLinkId);
   }
 
   SECTION("Separating multiple groups from a link set with several members")
@@ -705,28 +705,28 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
     CHECK(document->canSeparateLinkedGroups());
 
     document->separateLinkedGroups();
-    CHECK(groupNode->group().linkId() == originalGroupLinkId);
-    CHECK(linkedGroupNode1->group().linkId() == originalGroupLinkId);
+    CHECK(groupNode->linkId() == originalGroupLinkId);
+    CHECK(linkedGroupNode1->linkId() == originalGroupLinkId);
 
-    CHECK(linkedGroupNode2->group().linkId() != originalGroupLinkId);
-    CHECK(linkedGroupNode3->group().linkId() == linkedGroupNode2->group().linkId());
+    CHECK(linkedGroupNode2->linkId() != originalGroupLinkId);
+    CHECK(linkedGroupNode3->linkId() == linkedGroupNode2->linkId());
 
-    CHECK(linkedBrushNode2->brush().linkId() != originalBrushLinkId);
-    CHECK(linkedBrushNode3->brush().linkId() == linkedBrushNode2->brush().linkId());
+    CHECK(linkedBrushNode2->linkId() != originalBrushLinkId);
+    CHECK(linkedBrushNode3->linkId() == linkedBrushNode2->linkId());
 
     CHECK(document->selectedNodes().groupCount() == 2u);
 
     document->undoCommand();
 
-    CHECK(groupNode->group().linkId() == originalGroupLinkId);
-    CHECK(linkedGroupNode1->group().linkId() == originalGroupLinkId);
-    CHECK(linkedGroupNode2->group().linkId() == originalGroupLinkId);
-    CHECK(linkedGroupNode3->group().linkId() == originalGroupLinkId);
+    CHECK(groupNode->linkId() == originalGroupLinkId);
+    CHECK(linkedGroupNode1->linkId() == originalGroupLinkId);
+    CHECK(linkedGroupNode2->linkId() == originalGroupLinkId);
+    CHECK(linkedGroupNode3->linkId() == originalGroupLinkId);
 
-    CHECK(brushNode->brush().linkId() == originalBrushLinkId);
-    CHECK(linkedBrushNode1->brush().linkId() == originalBrushLinkId);
-    CHECK(linkedBrushNode2->brush().linkId() == originalBrushLinkId);
-    CHECK(linkedBrushNode3->brush().linkId() == originalBrushLinkId);
+    CHECK(brushNode->linkId() == originalBrushLinkId);
+    CHECK(linkedBrushNode1->linkId() == originalBrushLinkId);
+    CHECK(linkedBrushNode2->linkId() == originalBrushLinkId);
+    CHECK(linkedBrushNode3->linkId() == originalBrushLinkId);
   }
 }
 

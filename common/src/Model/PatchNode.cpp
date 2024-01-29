@@ -388,7 +388,9 @@ FloatType PatchNode::doGetProjectedArea(const vm::axis::type axis) const
 
 Node* PatchNode::doClone(const vm::bbox3&, const SetLinkId setLinkIds) const
 {
-  return new PatchNode{setNewLinkIdIf(m_patch, setLinkIds == SetLinkId::generate)};
+  auto result = std::make_unique<PatchNode>(m_patch);
+  result->cloneLinkId(*this, setLinkIds);
+  return result.release();
 }
 
 bool PatchNode::doCanAddChild(const Node*) const

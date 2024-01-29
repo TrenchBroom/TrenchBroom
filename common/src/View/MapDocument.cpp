@@ -857,16 +857,16 @@ void fixRecursiveLinkedGroups(
           layerNode->visitChildren(thisLambda);
         },
         [&](auto&& thisLambda, Model::GroupNode* groupNode) {
-          const auto& linkId = groupNode->group().linkId();
+          const auto& linkId = groupNode->linkId();
           if (std::binary_search(linkedGroupIds.begin(), linkedGroupIds.end(), linkId))
           {
             logger.warn() << "Unlinking recursive linked group with ID '" << linkId
                           << "'";
 
             auto group = groupNode->group();
-            group.setLinkId(generateUuid());
             group.setTransformation(vm::mat4x4d::identity());
             groupNode->setGroup(std::move(group));
+            groupNode->setLinkId(generateUuid());
           }
           groupNode->visitChildren(thisLambda);
         },
@@ -884,18 +884,15 @@ void copyAndSetLinkIds(
 {
   const auto groupsToAdd = kdl::vec_sort(
     Model::collectGroups(kdl::vec_flatten(kdl::map_values(nodesToAdd))),
-    [](const auto* lhs, const auto* rhs) {
-      return lhs->group().linkId() < rhs->group().linkId();
-    });
+    Model::compareGroupNodesByLinkId);
 
-  const auto groupsByLinkId =
-    kdl::make_grouped_range(groupsToAdd, [](const auto* lhs, const auto* rhs) {
-      return lhs->group().linkId() == rhs->group().linkId();
-    });
+  const auto groupsByLinkId = kdl::make_grouped_range(
+    groupsToAdd,
+    [](const auto* lhs, const auto* rhs) { return lhs->linkId() == rhs->linkId(); });
 
   for (const auto& linkedGroupsToAdd : groupsByLinkId)
   {
-    const auto& linkId = linkedGroupsToAdd.front()->group().linkId();
+    const auto& linkId = linkedGroupsToAdd.front()->linkId();
     const auto existingLinkedNodes = Model::collectNodesWithLinkId({&worldNode}, linkId);
 
     if (!existingLinkedNodes.empty())
@@ -2197,11 +2194,11 @@ bool MapDocument::canSelectLinkedGroups() const
 
   const auto allLinkIds = kdl::vec_sort(kdl::vec_transform(
     Model::collectGroups({m_world.get()}),
-    [](const auto& groupNode) { return groupNode->group().linkId(); }));
+    [](const auto& groupNode) { return groupNode->linkId(); }));
 
   return kdl::all_of(m_selectedNodes.groups(), [&](const auto* groupNode) {
     const auto [iBegin, iEnd] =
-      std::equal_range(allLinkIds.begin(), allLinkIds.end(), groupNode->group().linkId());
+      std::equal_range(allLinkIds.begin(), allLinkIds.end(), groupNode->linkId());
     return std::distance(iBegin, iEnd) > 1;
   });
 }
@@ -2252,7 +2249,7 @@ bool MapDocument::canSeparateLinkedGroups() const
 {
   return kdl::any_of(m_selectedNodes.groups(), [&](const auto* groupNode) {
     const auto linkedGroups =
-      Model::collectNodesWithLinkId({m_world.get()}, groupNode->group().linkId());
+      Model::collectNodesWithLinkId({m_world.get()}, groupNode->linkId());
     return linkedGroups.size() > 1u
            && kdl::any_of(linkedGroups, [](const auto* linkedGroupNode) {
                 return !linkedGroupNode->selected();

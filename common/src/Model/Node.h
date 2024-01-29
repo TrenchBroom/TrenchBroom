@@ -48,6 +48,7 @@ class Issue;
 class NodeVisitor;
 class PickResult;
 class Validator;
+class Object;
 
 struct NodePath
 {

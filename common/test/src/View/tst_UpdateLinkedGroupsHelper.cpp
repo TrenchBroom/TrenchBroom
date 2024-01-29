@@ -289,22 +289,21 @@ TEST_CASE_METHOD(
   auto* linkedInnerGroupNode = static_cast<Model::GroupNode*>(
     innerGroupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
   setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
-  REQUIRE(linkedInnerGroupNode->group().linkId() == innerGroupNode->group().linkId());
+  REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
   document->addNodes({{document->parentForNodes(), {linkedInnerGroupNode}}});
 
   auto* linkedOuterGroupNode = static_cast<Model::GroupNode*>(
     outerGroupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
   setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
-  REQUIRE(linkedOuterGroupNode->group().linkId() == outerGroupNode->group().linkId());
+  REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
 
   document->addNodes({{document->parentForNodes(), {linkedOuterGroupNode}}});
 
   auto* nestedLinkedInnerGroupNode =
     static_cast<Model::GroupNode*>(linkedOuterGroupNode->children().front());
   setGroupName(*nestedLinkedInnerGroupNode, "nestedLinkedInnerGroupNode");
-  REQUIRE(
-    nestedLinkedInnerGroupNode->group().linkId() == innerGroupNode->group().linkId());
+  REQUIRE(nestedLinkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
   /*
   world

@@ -50,7 +50,7 @@ TEST_CASE("convertToString")
   CHECK(convertToString(worldNode) == R"(WorldNode{
   m_entityPropertyConfig: EntityPropertyConfig{defaultModelScaleExpression: nullopt, setDefaultProperties: 0, updateAnglePropertyAfterTransform: 1},
   m_mapFormat: Quake3,
-  m_entity: Entity{m_properties: [EntityProperty{m_key: classname, m_value: worldspawn}], m_protectedProperties: [], m_linkId: world_link_id},
+  m_entity: Entity{m_properties: [EntityProperty{m_key: classname, m_value: worldspawn}], m_protectedProperties: []},
   m_children: [
     LayerNode{
       m_layer: Layer{m_defaultLayer: 1, m_name: Default Layer, m_sortIndex: nullopt, m_color: nullopt, m_omitFromExport: 0},
@@ -84,24 +84,28 @@ TEST_CASE("convertToString")
   CHECK(convertToString(worldNode) == R"(WorldNode{
   m_entityPropertyConfig: EntityPropertyConfig{defaultModelScaleExpression: nullopt, setDefaultProperties: 0, updateAnglePropertyAfterTransform: 1},
   m_mapFormat: Quake3,
-  m_entity: Entity{m_properties: [EntityProperty{m_key: classname, m_value: worldspawn}], m_protectedProperties: [], m_linkId: world_link_id},
+  m_entity: Entity{m_properties: [EntityProperty{m_key: classname, m_value: worldspawn}], m_protectedProperties: []},
   m_children: [
     LayerNode{
       m_layer: Layer{m_defaultLayer: 1, m_name: Default Layer, m_sortIndex: nullopt, m_color: nullopt, m_omitFromExport: 0},
       m_children: [
         GroupNode{
-          m_group: Group{m_name: group, m_linkId: group_link_id, m_transformation: 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1},
+          m_group: Group{m_name: group, m_transformation: 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1},
+          m_linkId: group_link_id,
           m_children: [
             EntityNode{
-              m_entity: Entity{m_properties: [], m_protectedProperties: [], m_linkId: entity_link_id},
+              m_entity: Entity{m_properties: [], m_protectedProperties: []},
+              m_linkId: entity_link_id,
               m_children: [],
             },
             BrushNode{
-              m_brush: Brush{m_faces: [BrushFace{m_points: [-32 -32 -32,-32 -31 -32,-32 -32 -31], m_boundary: { normal: (-1 0 0), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [-32 -32 -32,-32 -32 -31,-31 -32 -32], m_boundary: { normal: (0 -1 0), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [-32 -32 -32,-31 -32 -32,-32 -31 -32], m_boundary: { normal: (0 0 -1), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [32 32 32,32 33 32,33 32 32], m_boundary: { normal: (0 0 1), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [32 32 32,33 32 32,32 32 33], m_boundary: { normal: (0 1 0), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [32 32 32,32 32 33,32 33 32], m_boundary: { normal: (1 0 0), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}}], m_linkId: brush_link_id},
+              m_brush: Brush{m_faces: [BrushFace{m_points: [-32 -32 -32,-32 -31 -32,-32 -32 -31], m_boundary: { normal: (-1 0 0), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [-32 -32 -32,-32 -32 -31,-31 -32 -32], m_boundary: { normal: (0 -1 0), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [-32 -32 -32,-31 -32 -32,-32 -31 -32], m_boundary: { normal: (0 0 -1), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [32 32 32,32 33 32,33 32 32], m_boundary: { normal: (0 0 1), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [32 32 32,33 32 32,32 32 33], m_boundary: { normal: (0 1 0), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}},BrushFace{m_points: [32 32 32,32 32 33,32 33 32], m_boundary: { normal: (1 0 0), distance: 32 }, m_attributes: BrushFaceAttributes{m_textureName: texture, m_offset: 0 0, m_scale: 1 1, m_rotation: 0, m_surfaceContents: nullopt, m_surfaceFlags: nullopt, m_surfaceValue: nullopt, m_color: nullopt}, m_textureReference: AssetReference<T>{m_asset: null}}]},
+              m_linkId: brush_link_id,
               m_children: [],
             },
             PatchNode{
-              m_patch: BezierPatch{m_pointRowCount: 3, m_pointColumnCount: 3, m_bounds: { min: (0 0 0), max: (2 2 2) }, m_controlPoints: [0 0 0 0 0,1 0 1 0 0,2 0 0 0 0,0 1 1 0 0,1 1 2 0 0,2 1 1 0 0,0 2 0 0 0,1 2 1 0 0,2 2 0 0 0], m_textureName: texture, m_linkId: patch_link_id},
+              m_patch: BezierPatch{m_pointRowCount: 3, m_pointColumnCount: 3, m_bounds: { min: (0 0 0), max: (2 2 2) }, m_controlPoints: [0 0 0 0 0,1 0 1 0 0,2 0 0 0 0,0 1 1 0 0,1 1 2 0 0,2 1 1 0 0,0 2 0 0 0,1 2 1 0 0,2 2 0 0 0], m_textureName: texture},
+              m_linkId: patch_link_id,
               m_children: [],
             }
           ],

@@ -465,32 +465,37 @@ CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
       kdl::str_to_string("Skipping group entity: '", idStr, "' is not a valid id")};
   }
 
-  auto group = Model::Group{name};
+  auto transformation = std::optional<vm::mat4x4d>{};
   auto nodeIssues = std::vector<NodeIssue>{};
 
-  const auto& linkedGroupId =
+  const auto linkId =
     findEntityPropertyOrDefault(entityInfo.properties, Model::EntityPropertyKeys::LinkId);
-  if (!linkedGroupId.empty())
+  if (!linkId.empty())
   {
-    group.setLinkId(linkedGroupId);
-
     const auto& transformationStr = findEntityPropertyOrDefault(
       entityInfo.properties, Model::EntityPropertyKeys::GroupTransformation);
     if (!transformationStr.empty())
     {
-      if (const auto transformation = vm::parse<FloatType, 4u, 4u>(transformationStr))
-      {
-        group.setTransformation(*transformation);
-      }
-      else
+      transformation = vm::parse<FloatType, 4u, 4u>(transformationStr);
+      if (!transformation)
       {
         nodeIssues.emplace_back(MalformedTransformationIssue{transformationStr});
       }
     }
   }
 
+  auto group = Model::Group{name};
+  if (transformation)
+  {
+    group.setTransformation(*transformation);
+  }
+
   auto groupNode = std::make_unique<Model::GroupNode>(std::move(group));
   groupNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
+  if (!linkId.empty())
+  {
+    groupNode->setLinkId(linkId);
+  }
 
   const auto groupId = static_cast<Model::IdType>(*rawId);
   groupNode->setPersistentId(groupId);
@@ -701,13 +706,12 @@ void unlinkGroup(Model::GroupNode& groupNode, const bool resetLinkId)
 {
   auto newGroup = groupNode.group();
   newGroup.setTransformation(vm::mat4x4::identity());
+  groupNode.setGroup(std::move(newGroup));
 
   if (resetLinkId)
   {
-    newGroup.setLinkId(generateUuid());
+    groupNode.setLinkId(generateUuid());
   }
-
-  groupNode.setGroup(std::move(newGroup));
 }
 
 void logValidationIssues(
@@ -751,7 +755,7 @@ bool isRecursiveLinkedGroup(const std::string& nestedLinkId, Model::Node* parent
 {
   if (auto* parentGroupNode = dynamic_cast<Model::GroupNode*>(parentNode))
   {
-    return nestedLinkId == parentGroupNode->group().linkId();
+    return nestedLinkId == parentGroupNode->linkId();
   }
   return false;
 }
@@ -767,7 +771,7 @@ void validateRecursiveLinkedGroups(
     {
       if (auto* groupNode = dynamic_cast<Model::GroupNode*>(nodeInfo->node.get()))
       {
-        const auto groupNodeLinkId = groupNode->group().linkId();
+        const auto groupNodeLinkId = groupNode->linkId();
         auto iParent = nodeToParentMap.find(groupNode);
         while (iParent != nodeToParentMap.end())
         {

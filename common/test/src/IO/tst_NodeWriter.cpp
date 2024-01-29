@@ -922,7 +922,7 @@ TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup")
     *groupNodeClone, vm::translation_matrix(vm::vec3(0.0, 16.0, 0.0)), worldBounds);
 
   worldNode.defaultLayer()->addChild(groupNodeClone);
-  REQUIRE(groupNodeClone->group().linkId() == groupNode->group().linkId());
+  REQUIRE(groupNodeClone->linkId() == groupNode->linkId());
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{worldNode, str};

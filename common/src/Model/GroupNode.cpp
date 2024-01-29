@@ -186,10 +186,10 @@ FloatType GroupNode::doGetProjectedArea(const vm::axis::type) const
 Node* GroupNode::doClone(
   const vm::bbox3& /* worldBounds */, const SetLinkId setLinkIds) const
 {
-  auto groupNode = std::make_unique<GroupNode>(
-    setNewLinkIdIf(m_group, setLinkIds == SetLinkId::generate));
-  cloneAttributes(groupNode.get());
-  return groupNode.release();
+  auto result = std::make_unique<GroupNode>(m_group);
+  result->cloneLinkId(*this, setLinkIds);
+  cloneAttributes(result.get());
+  return result.release();
 }
 
 namespace
@@ -333,6 +333,6 @@ void GroupNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 
 bool compareGroupNodesByLinkId(const GroupNode* lhs, const GroupNode* rhs)
 {
-  return lhs->group().linkId() < rhs->group().linkId();
+  return lhs->linkId() < rhs->linkId();
 }
 } // namespace TrenchBroom::Model

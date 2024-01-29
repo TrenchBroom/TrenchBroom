@@ -353,7 +353,7 @@ std::vector<Model::EntityProperty> NodeSerializer::groupProperties(
       Model::EntityPropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())),
   };
 
-  const auto& linkId = groupNode->group().linkId();
+  const auto& linkId = groupNode->linkId();
   result.emplace_back(Model::EntityPropertyKeys::LinkId, kdl::str_to_string(linkId));
 
   // write transformation matrix in column major format
