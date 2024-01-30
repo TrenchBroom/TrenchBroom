@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Ensure.h"
 #include "Error.h"
 #include "IO/FileSystem.h"
 #include "Result.h"
@@ -85,13 +86,18 @@ private:
   virtual Result<void> doReadDirectory() = 0;
 };
 
+template <typename FileType>
 class ImageFileSystem : public ImageFileSystemBase
 {
 protected:
-  std::shared_ptr<CFile> m_file;
+  std::shared_ptr<FileType> m_file;
 
 public:
-  explicit ImageFileSystem(std::shared_ptr<CFile> file);
+  explicit ImageFileSystem(std::shared_ptr<FileType> file)
+    : m_file{std::move(file)}
+  {
+    ensure(m_file, "file must not be null");
+  }
 };
 
 template <typename T, typename... Args>

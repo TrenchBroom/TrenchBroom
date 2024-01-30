@@ -274,10 +274,4 @@ Result<std::shared_ptr<File>> ImageFileSystemBase::doOpenFile(
     },
     Result<std::shared_ptr<File>>{Error{"'" + path.string() + "' not found"}});
 }
-
-ImageFileSystem::ImageFileSystem(std::shared_ptr<CFile> file)
-  : m_file{std::move(file)}
-{
-  ensure(m_file, "file must not be null");
-}
 } // namespace TrenchBroom::IO

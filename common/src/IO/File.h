@@ -113,6 +113,8 @@ public:
    */
   std::FILE* file() const;
 
+  std::unique_ptr<OwningBufferFile> buffer() const;
+
 private:
   friend class FileReaderSource;
 

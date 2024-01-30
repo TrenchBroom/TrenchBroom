@@ -34,10 +34,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 const auto cr8_czg_03_contents = std::vector<unsigned char>{
   0x63, 0x72, 0x38, 0x5F, 0x63, 0x7A, 0x67, 0x5F, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00,
@@ -963,5 +962,33 @@ TEST_CASE("Flat ImageFileSystems")
     CHECK(contents == cr8_czg_03_contents);
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+TEST_CASE("WadFileSystem")
+{
+  SECTION("Wad files can be replaced while wad file system exists")
+  {
+    const auto wadPath =
+      std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg.wad";
+    const auto copyPath =
+      std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg_2.wad";
+
+    REQUIRE_FALSE(std::filesystem::is_regular_file(copyPath));
+    REQUIRE_NOTHROW(std::filesystem::copy(wadPath, copyPath));
+    REQUIRE(std::filesystem::is_regular_file(copyPath));
+
+    {
+      const auto fs = openFS<WadFileSystem>(copyPath);
+
+      auto errorCode = std::error_code{};
+      CHECK(std::filesystem::remove(copyPath, errorCode));
+      CHECK(errorCode == std::error_code{});
+    }
+
+    if (std::filesystem::is_regular_file(copyPath))
+    {
+      REQUIRE(std::filesystem::remove(copyPath));
+    }
+  }
+}
+
+} // namespace TrenchBroom::IO

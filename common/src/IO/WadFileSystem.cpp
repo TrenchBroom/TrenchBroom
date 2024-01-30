@@ -55,6 +55,11 @@ namespace WadEntryType
 // static const char WEPalette   = '@';
 }
 
+WadFileSystem::WadFileSystem(std::shared_ptr<CFile> file)
+  : ImageFileSystem{file->buffer()}
+{
+}
+
 Result<void> WadFileSystem::doReadDirectory()
 {
   try

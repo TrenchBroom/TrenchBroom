@@ -27,7 +27,9 @@
 
 namespace TrenchBroom::IO
 {
-class DkPakFileSystem : public ImageFileSystem
+class CFile;
+
+class DkPakFileSystem : public ImageFileSystem<CFile>
 {
 public:
   using ImageFileSystem::ImageFileSystem;

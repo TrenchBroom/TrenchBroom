@@ -27,11 +27,12 @@
 namespace TrenchBroom::IO
 {
 class FileSystem;
+class OwningBufferFile;
 
-class WadFileSystem : public ImageFileSystem
+class WadFileSystem : public ImageFileSystem<OwningBufferFile>
 {
 public:
-  using ImageFileSystem::ImageFileSystem;
+  explicit WadFileSystem(std::shared_ptr<CFile> file);
 
 private:
   Result<void> doReadDirectory() override;
