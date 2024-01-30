@@ -28,9 +28,7 @@ class QScrollBar;
 class QDrag;
 class QMimeData;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class GLContextManager;
 
@@ -45,14 +43,14 @@ protected:
 
 private:
   Layout m_layout;
-  Cell* m_selectedCell;
-  bool m_layoutInitialized;
+  Cell* m_selectedCell = nullptr;
+  bool m_layoutInitialized = false;
 
-  bool m_valid;
+  bool m_valid = false;
 
-  QScrollBar* m_scrollBar;
-  QPoint m_lastMousePos;
-  bool m_potentialDrag;
+  QScrollBar* m_scrollBar = nullptr;
+  QPoint m_lastMousePos = QPoint{};
+  bool m_potentialDrag = false;
 
   void updateScrollBar();
   void initLayout();
@@ -73,14 +71,13 @@ public:
   void scrollToCell(L&& visitor)
   {
 
-    for (const LayoutGroup& group : m_layout.groups())
+    for (const auto& group : m_layout.groups())
     {
-      for (const LayoutRow& row : group.rows())
+      for (const auto& row : group.rows())
       {
-        for (const LayoutCell& cell : row.cells())
+        for (const auto& cell : row.cells())
         {
-          const bool foundCell = visitor(cell);
-          if (foundCell)
+          if (visitor(cell))
           {
             scrollToCellInternal(cell);
             return;
@@ -135,5 +132,5 @@ public: // implement InputEventProcessor interface
   void processEvent(const MouseEvent& event) override;
   void processEvent(const CancelEvent& event) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

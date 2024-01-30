@@ -26,10 +26,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 struct LayoutBounds
 {
   float x;
@@ -49,7 +48,6 @@ struct LayoutBounds
 class LayoutCell
 {
 private:
-  std::any m_item;
   float m_x;
   float m_y;
   float m_itemWidth;
@@ -61,6 +59,7 @@ private:
   LayoutBounds m_cellBounds;
   LayoutBounds m_itemBounds;
   LayoutBounds m_titleBounds;
+  std::any m_item;
 
 public:
   LayoutCell(
@@ -84,12 +83,11 @@ public:
   template <typename T>
   const T& itemAs() const
   {
-    const T* result = std::any_cast<T>(&m_item);
-    if (!result)
+    if (const auto* result = std::any_cast<T>(&m_item))
     {
-      throw std::bad_any_cast{};
+      return *result;
     }
-    return *result;
+    throw std::bad_any_cast{};
   }
 
   float scale() const;
@@ -233,25 +231,25 @@ public:
 class CellLayout
 {
 private:
-  float m_width;
-  float m_cellMargin;
-  float m_titleMargin;
-  float m_rowMargin;
-  float m_groupMargin;
-  float m_outerMargin;
   size_t m_maxCellsPerRow;
-  float m_maxUpScale;
-  float m_minCellWidth;
-  float m_maxCellWidth;
-  float m_minCellHeight;
-  float m_maxCellHeight;
+  float m_width = 1.0f;
+  float m_cellMargin = 0.0f;
+  float m_titleMargin = 0.0f;
+  float m_rowMargin = 0.0f;
+  float m_groupMargin = 0.0f;
+  float m_outerMargin = 0.0f;
+  float m_maxUpScale = 1.0f;
+  float m_minCellWidth = 100.0f;
+  float m_maxCellWidth = 100.0f;
+  float m_minCellHeight = 100.0f;
+  float m_maxCellHeight = 100.0f;
 
   std::vector<LayoutGroup> m_groups;
-  bool m_valid;
-  float m_height;
+  bool m_valid = false;
+  float m_height = 0.0f;
 
 public:
-  CellLayout(size_t maxCellsPerRow = 0);
+  explicit CellLayout(size_t maxCellsPerRow = 0);
 
   float titleMargin() const;
   void setTitleMargin(float titleMargin);
@@ -306,5 +304,5 @@ public:
 private:
   void validate();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

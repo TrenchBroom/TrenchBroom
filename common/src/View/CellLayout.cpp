@@ -25,10 +25,9 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 float LayoutBounds::left() const
 {
   return x;
@@ -152,14 +151,13 @@ void LayoutCell::doLayout(
 
   m_scale =
     std::min(std::min(maxWidth / m_itemWidth, maxHeight / m_itemHeight), maxUpScale);
-  const float scaledItemWidth = m_scale * m_itemWidth;
-  const float scaledItemHeight = m_scale * m_itemHeight;
-  const float clippedTitleWidth = std::min(m_titleWidth, maxWidth);
-  const float cellWidth =
-    std::max(minWidth, std::max(scaledItemWidth, clippedTitleWidth));
-  const float cellHeight = std::max(
+  const auto scaledItemWidth = m_scale * m_itemWidth;
+  const auto scaledItemHeight = m_scale * m_itemHeight;
+  const auto clippedTitleWidth = std::min(m_titleWidth, maxWidth);
+  const auto cellWidth = std::max(minWidth, std::max(scaledItemWidth, clippedTitleWidth));
+  const auto cellHeight = std::max(
     minHeight, std::max(minHeight, scaledItemHeight) + m_titleHeight + m_titleMargin);
-  const float itemY =
+  const auto itemY =
     m_y + std::max(0.0f, cellHeight - m_titleHeight - scaledItemHeight - m_titleMargin);
 
   m_cellBounds = LayoutBounds{m_x, m_y, cellWidth, cellHeight};
@@ -214,15 +212,15 @@ const LayoutCell* LayoutRow::cellAt(const float x, const float y) const
 {
   for (size_t i = 0; i < m_cells.size(); ++i)
   {
-    const LayoutCell& cell = m_cells[i];
-    const LayoutBounds& cellBounds = cell.cellBounds();
+    const auto& cell = m_cells[i];
+    const auto& cellBounds = cell.cellBounds();
     if (x > cellBounds.right())
     {
       continue;
     }
-    else if (x < cellBounds.left())
+    if (x < cellBounds.left())
     {
-      break;
+      return nullptr;
     }
     if (cell.hitTest(x, y))
     {
@@ -243,9 +241,8 @@ bool LayoutRow::canAddItem(
   const float titleWidth,
   const float titleHeight) const
 {
-
-  float x = m_bounds.right();
-  float width = m_bounds.width;
+  auto x = m_bounds.right();
+  auto width = m_bounds.width;
   if (!m_cells.empty())
   {
     x += m_cellMargin;
@@ -309,10 +306,9 @@ void LayoutRow::addItem(
     m_maxCellHeight};
   width += cell.cellBounds().width;
 
-  const float newItemRowHeight =
+  const auto newItemRowHeight =
     cell.cellBounds().height - cell.titleBounds().height - m_titleMargin;
-  bool readjust = newItemRowHeight > m_minCellHeight;
-  if (readjust)
+  if (newItemRowHeight > m_minCellHeight)
   {
     m_minCellHeight = newItemRowHeight;
     assert(m_minCellHeight <= m_maxCellHeight);
@@ -365,7 +361,6 @@ LayoutGroup::LayoutGroup(
   , m_maxCellHeight{maxCellHeight}
   , m_titleBounds{0.0f, y, width + 2.0f * x, titleHeight}
   , m_contentBounds{x, y + titleHeight + m_rowMargin, width, 0.0f}
-  , m_rows{}
 {
 }
 
@@ -393,7 +388,6 @@ LayoutGroup::LayoutGroup(
   , m_maxCellHeight{maxCellHeight}
   , m_titleBounds{x, y, width, 0.0f}
   , m_contentBounds{x, y, width, 0.0f}
-  , m_rows{}
 {
 }
 
@@ -449,8 +443,8 @@ size_t LayoutGroup::indexOfRowAt(const float y) const
 {
   for (size_t i = 0; i < m_rows.size(); ++i)
   {
-    const LayoutRow& row = m_rows[i];
-    const LayoutBounds& rowBounds = row.bounds();
+    const auto& row = m_rows[i];
+    const auto& rowBounds = row.bounds();
     if (y < rowBounds.bottom())
     {
       return i;
@@ -464,17 +458,17 @@ const LayoutCell* LayoutGroup::cellAt(const float x, const float y) const
 {
   for (size_t i = 0; i < m_rows.size(); ++i)
   {
-    const LayoutRow& row = m_rows[i];
-    const LayoutBounds& rowBounds = row.bounds();
+    const auto& row = m_rows[i];
+    const auto& rowBounds = row.bounds();
     if (y > rowBounds.bottom())
     {
       continue;
     }
-    else if (y < rowBounds.top())
+    if (y < rowBounds.top())
     {
-      break;
+      return nullptr;
     }
-    if (const LayoutCell* cell = row.cellAt(x, y))
+    if (const auto* cell = row.cellAt(x, y))
     {
       return cell;
     }
@@ -502,7 +496,7 @@ void LayoutGroup::addItem(
 {
   if (m_rows.empty())
   {
-    const float y = m_contentBounds.top();
+    const auto y = m_contentBounds.top();
     m_rows.emplace_back(
       m_contentBounds.left(),
       y,
@@ -519,8 +513,8 @@ void LayoutGroup::addItem(
 
   if (!m_rows.back().canAddItem(itemWidth, itemHeight, titleWidth, titleHeight))
   {
-    const LayoutBounds oldBounds = m_rows.back().bounds();
-    const float y = oldBounds.bottom() + m_rowMargin;
+    const auto oldBounds = m_rows.back().bounds();
+    const auto y = oldBounds.bottom() + m_rowMargin;
     m_rows.emplace_back(
       m_contentBounds.left(),
       y,
@@ -534,7 +528,7 @@ void LayoutGroup::addItem(
       m_minCellHeight,
       m_maxCellHeight);
 
-    const float newRowHeight = m_rows.back().bounds().height;
+    const auto newRowHeight = m_rows.back().bounds().height;
     m_contentBounds = LayoutBounds{
       m_contentBounds.left(),
       m_contentBounds.top(),
@@ -542,12 +536,12 @@ void LayoutGroup::addItem(
       m_contentBounds.height + newRowHeight + m_rowMargin};
   }
 
-  const float oldRowHeight = m_rows.back().bounds().height;
+  const auto oldRowHeight = m_rows.back().bounds().height;
 
   assert(m_rows.back().canAddItem(itemWidth, itemHeight, titleWidth, titleHeight));
   m_rows.back().addItem(std::move(item), itemWidth, itemHeight, titleWidth, titleHeight);
 
-  const float newRowHeight = m_rows.back().bounds().height;
+  const auto newRowHeight = m_rows.back().bounds().height;
   m_contentBounds = LayoutBounds{
     m_contentBounds.left(),
     m_contentBounds.top(),
@@ -556,21 +550,7 @@ void LayoutGroup::addItem(
 }
 
 CellLayout::CellLayout(const size_t maxCellsPerRow)
-  : m_width{1.0f}
-  , m_cellMargin{0.0f}
-  , m_titleMargin{0.0f}
-  , m_rowMargin{0.0f}
-  , m_groupMargin{0.0f}
-  , m_outerMargin{0.0f}
-  , m_maxCellsPerRow{maxCellsPerRow}
-  , m_maxUpScale{1.0f}
-  , m_minCellWidth{100.0f}
-  , m_maxCellWidth{100.0f}
-  , m_minCellHeight{100.0f}
-  , m_maxCellHeight{100.0f}
-  , m_groups{}
-  , m_valid{false}
-  , m_height{0.0f}
+  : m_maxCellsPerRow{maxCellsPerRow}
 {
   invalidate();
 }
@@ -732,7 +712,7 @@ float CellLayout::rowPosition(const float y, const int offset)
     validate();
   }
 
-  size_t groupIndex = m_groups.size();
+  auto groupIndex = m_groups.size();
   for (size_t i = 0; i < m_groups.size(); ++i)
   {
     const LayoutGroup& candidate = m_groups[i];
@@ -755,21 +735,21 @@ float CellLayout::rowPosition(const float y, const int offset)
     return y;
   }
 
-  size_t rowIndex = m_groups[groupIndex].indexOfRowAt(y);
-  int newIndex = static_cast<int>(rowIndex) + offset;
+  auto rowIndex = m_groups[groupIndex].indexOfRowAt(y);
+  int newIndex = int(rowIndex) + offset;
   if (newIndex < 0)
   {
     while (newIndex < 0 && groupIndex > 0)
     {
-      newIndex += static_cast<int>(m_groups[--groupIndex].rows().size());
+      newIndex += int(m_groups[--groupIndex].rows().size());
     }
   }
-  else if (newIndex >= static_cast<int>(m_groups[groupIndex].rows().size()))
+  else if (newIndex >= int(m_groups[groupIndex].rows().size()))
   {
     while (groupIndex < m_groups.size() - 1
-           && newIndex >= static_cast<int>(m_groups[groupIndex].rows().size()))
+           && newIndex >= int(m_groups[groupIndex].rows().size()))
     {
-      newIndex -= static_cast<int>(m_groups[groupIndex++].rows().size());
+      newIndex -= int(m_groups[groupIndex++].rows().size());
     }
   }
 
@@ -777,7 +757,7 @@ float CellLayout::rowPosition(const float y, const int offset)
   {
     if (newIndex >= 0)
     {
-      rowIndex = static_cast<size_t>(newIndex);
+      rowIndex = size_t(newIndex);
       if (rowIndex < m_groups[groupIndex].rows().size())
       {
         return m_groups[groupIndex].rows()[rowIndex].bounds().top();
@@ -821,17 +801,17 @@ const LayoutCell* CellLayout::cellAt(const float x, const float y)
 
   for (size_t i = 0; i < m_groups.size(); ++i)
   {
-    const LayoutGroup& group = m_groups[i];
-    const LayoutBounds groupBounds = group.bounds();
+    const auto& group = m_groups[i];
+    const auto groupBounds = group.bounds();
     if (y > groupBounds.bottom())
     {
       continue;
     }
-    else if (y < groupBounds.top())
+    if (y < groupBounds.top())
     {
-      break;
+      return nullptr;
     }
-    if (const LayoutCell* cell = group.cellAt(x, y))
+    if (const auto* cell = group.cellAt(x, y))
     {
       return cell;
     }
@@ -847,7 +827,7 @@ void CellLayout::addGroup(std::string groupItem, const float titleHeight)
     validate();
   }
 
-  float y = 0.0f;
+  auto y = 0.0f;
   if (!m_groups.empty())
   {
     y = m_groups.back().bounds().bottom() + m_groupMargin;
@@ -906,10 +886,10 @@ void CellLayout::addItem(
     }
   }
 
-  const float oldGroupHeight = m_groups.back().bounds().height;
+  const auto oldGroupHeight = m_groups.back().bounds().height;
   m_groups.back().addItem(
     std::move(item), itemWidth, itemHeight, titleWidth, titleHeight);
-  const float newGroupHeight = m_groups.back().bounds().height;
+  const auto newGroupHeight = m_groups.back().bounds().height;
 
   m_height += (newGroupHeight - oldGroupHeight);
 }
@@ -934,28 +914,24 @@ void CellLayout::validate()
     auto copy = m_groups;
     m_groups.clear();
 
-    for (LayoutGroup& group : copy)
+    for (auto& group : copy)
     {
       addGroup(group.item(), group.titleBounds().height);
-      for (const LayoutRow& row : group.rows())
+      for (const auto& row : group.rows())
       {
-        for (const LayoutCell& cell : row.cells())
+        for (const auto& cell : row.cells())
         {
-          const LayoutBounds& itemBounds = cell.itemBounds();
-          const LayoutBounds& titleBounds = cell.titleBounds();
-          float scale = cell.scale();
-          float itemWidth = itemBounds.width / scale;
-          float itemHeight = itemBounds.height / scale;
+          const auto& itemBounds = cell.itemBounds();
+          const auto& titleBounds = cell.titleBounds();
+          const auto scale = cell.scale();
+          const auto itemWidth = itemBounds.width / scale;
+          const auto itemHeight = itemBounds.height / scale;
           addItem(
-            std::move(cell.item()),
-            itemWidth,
-            itemHeight,
-            titleBounds.width,
-            titleBounds.height);
+            cell.item(), itemWidth, itemHeight, titleBounds.width, titleBounds.height);
         }
       }
     }
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

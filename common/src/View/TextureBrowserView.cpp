@@ -158,13 +158,13 @@ void TextureBrowserView::doReloadLayout(Layout& layout)
   const auto fontSize = pref(Preferences::BrowserFontSize);
   assert(fontSize > 0);
 
-  const auto font = Renderer::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
+  const auto font = Renderer::FontDescriptor{fontPath, size_t(fontSize)};
 
   if (m_group)
   {
     for (const auto& collection : getCollections())
     {
-      layout.addGroup(collection.name(), static_cast<float>(fontSize) + 2.0f);
+      layout.addGroup(collection.name(), float(fontSize) + 2.0f);
       addTexturesToLayout(layout, getTextures(collection), collection.name(), font);
     }
   }
@@ -209,10 +209,8 @@ void TextureBrowserView::addTextureToLayout(
     vm::max(groupNameSize.x(), textureNameSize.x()), 2.0f * defaultTextHeight + 4.0f);
 
   const auto scaleFactor = pref(Preferences::TextureBrowserIconSize);
-  const auto scaledTextureWidth =
-    vm::round(scaleFactor * static_cast<float>(texture->width()));
-  const auto scaledTextureHeight =
-    vm::round(scaleFactor * static_cast<float>(texture->height()));
+  const auto scaledTextureWidth = vm::round(scaleFactor * float(texture->width()));
+  const auto scaledTextureHeight = vm::round(scaleFactor * float(texture->height()));
 
   auto cellData = TextureCellData{
     texture,
@@ -298,10 +296,10 @@ void TextureBrowserView::doRender(Layout& layout, const float y, const float hei
   auto document = kdl::mem_lock(m_document);
   document->textureManager().commitChanges();
 
-  const auto viewLeft = static_cast<float>(0);
-  const auto viewTop = static_cast<float>(size().height());
-  const auto viewRight = static_cast<float>(size().width());
-  const auto viewBottom = static_cast<float>(0);
+  const auto viewLeft = float(0);
+  const auto viewTop = float(size().height());
+  const auto viewRight = float(size().width());
+  const auto viewBottom = float(0);
 
   const auto transformation = Renderer::Transformation{
     vm::ortho_matrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom),
@@ -491,8 +489,7 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
   Layout& layout, const float y, const float height)
 {
   auto defaultDescriptor = Renderer::FontDescriptor{
-    pref(Preferences::RendererFontPath()),
-    static_cast<size_t>(pref(Preferences::BrowserFontSize))};
+    pref(Preferences::RendererFontPath()), size_t(pref(Preferences::BrowserFontSize))};
 
   const auto textColor = std::vector<Color>{pref(Preferences::BrowserTextColor)};
   const auto subTextColor = std::vector<Color>{pref(Preferences::BrowserSubTextColor)};
