@@ -1416,26 +1416,38 @@ void MapFrame::pasteAtCursorPosition()
   if (canPaste())
   {
     const auto referenceBounds = m_document->referenceBounds();
-    if (paste() == PasteType::Node && m_document->hasSelectedNodes())
+
+    auto transaction = Transaction{m_document, "Paste"};
+    switch (paste())
     {
-      const auto bounds = m_document->selectionBounds();
-
-      // The pasted objects must be hidden to prevent the picking done in
-      // pasteObjectsDelta from hitting them
-      // (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
-      const auto nodes = m_document->selectedNodes().nodes();
-
-      auto transaction = Transaction{m_document};
-      m_document->hide(nodes);
-      const auto delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
-      m_document->show(nodes);
-      m_document->selectNodes(nodes); // Hiding deselected the nodes, so reselect them
-      if (!m_document->translateObjects(delta))
+    case PasteType::Node:
+      if (m_document->hasSelectedNodes())
       {
-        transaction.cancel();
-        return;
+        const auto bounds = m_document->selectionBounds();
+
+        // The pasted objects must be hidden to prevent the picking done in
+        // pasteObjectsDelta from hitting them
+        // (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
+        const auto nodes = m_document->selectedNodes().nodes();
+
+        m_document->hide(nodes);
+        const auto delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
+        m_document->show(nodes);
+        m_document->selectNodes(nodes); // Hiding deselected the nodes, so reselect them
+        if (!m_document->translateObjects(delta))
+        {
+          transaction.cancel();
+          break;
+        }
       }
       transaction.commit();
+      break;
+    case PasteType::BrushFace:
+      transaction.commit();
+      break;
+    case PasteType::Failed:
+      transaction.cancel();
+      break;
     }
   }
 }
