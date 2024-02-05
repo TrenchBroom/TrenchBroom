@@ -63,7 +63,6 @@ jobs:
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       # Dependencies
-
       - name: Install common Linux dependencies
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
         run: |
@@ -143,32 +142,42 @@ jobs:
       # These need to be separate, otherwise all of the artifacts are bundled into
       # one .zip file.
 
-      # win64
-      - name: Upload win64 artifact
-        uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
-        with:
-          name: win64
-          path: |
-            cmakebuild/*.7z
-            cmakebuild/*.7z.md5
-
-      # win32
+      # Windows 2019 x32
       - name: Upload win32 artifact
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
         with:
-          name: win32
+          name: windows-2019-x32
           path: |
             cmakebuild/*.7z
             cmakebuild/*.7z.md5
 
-      # Linux
+      # Windows 2019 x64
+      - name: Upload win64 artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
+        with:
+          name: windows-2019-x64
+          path: |
+            cmakebuild/*.7z
+            cmakebuild/*.7z.md5
+
+      # Ubuntu 20.04
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+        if: ${{ matrix.os == 'ubuntu-20.04' }}
         with:
-          name: linux
+          name: ubuntu-20.04
+          path: |
+            build/*.deb
+            build/*.md5
+
+      # Ubuntu 22.04
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        with:
+          name: ubuntu-22.04
           path: |
             build/*.deb
             build/*.md5
@@ -178,7 +187,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-12' && matrix.tb-build-type != 'asan' }}
         with:
-          name: macos
+          name: macos-12
           path: |
             build/*.dmg
             build/*.md5
