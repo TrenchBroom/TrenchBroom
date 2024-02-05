@@ -35,7 +35,6 @@ else
     echo "Skipping common-benmchark because this is a debug build"
 fi
 
-
 cd "$BUILD_DIR"
 
 cpack || exit 1
