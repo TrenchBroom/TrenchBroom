@@ -5056,6 +5056,18 @@ Transaction::State Transaction::state() const
   return m_state;
 }
 
+void Transaction::finish(const bool commit)
+{
+  if (commit)
+  {
+    this->commit();
+  }
+  else
+  {
+    cancel();
+  }
+}
+
 bool Transaction::commit()
 {
   assert(m_state == State::Running);

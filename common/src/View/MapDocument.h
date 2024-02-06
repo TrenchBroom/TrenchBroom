@@ -834,6 +834,7 @@ public:
 
   State state() const;
 
+  void finish(bool commit);
   bool commit();
   void rollback();
   void cancel();
