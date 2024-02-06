@@ -37,6 +37,7 @@ extern const std::string Classname;
 extern const std::string Origin;
 extern const std::string Wad;
 extern const std::string Mods;
+extern const std::string EnabledTextureCollections;
 extern const std::string Spawnflags;
 extern const std::string EntityDefinitions;
 extern const std::string Angle;
