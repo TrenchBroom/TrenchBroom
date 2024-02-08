@@ -37,11 +37,15 @@ namespace Renderer
 TextureFont::TextureFont(
   std::unique_ptr<FontTexture> texture,
   const std::vector<FontGlyph>& glyphs,
+  const int ascend,
+  const int descend,
   const int lineHeight,
   const unsigned char firstChar,
   const unsigned char charCount)
   : m_texture(std::move(texture))
   , m_glyphs(glyphs)
+  , m_ascend(ascend)
+  , m_descend(descend)
   , m_lineHeight(lineHeight)
   , m_firstChar(firstChar)
   , m_charCount(charCount)
@@ -49,6 +53,21 @@ TextureFont::TextureFont(
 }
 
 TextureFont::~TextureFont() = default;
+
+int TextureFont::ascend() const
+{
+  return m_ascend;
+}
+
+int TextureFont::descend() const
+{
+  return m_descend;
+}
+
+int TextureFont::lineHeight() const
+{
+  return m_lineHeight;
+}
 
 class MeasureString : public AttrString::LineFunc
 {
