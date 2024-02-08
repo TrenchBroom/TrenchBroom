@@ -42,7 +42,7 @@ void CellView::updateScrollBar()
     const auto thumbSize = size().height();
     const auto range = int(m_layout.height());
     m_scrollBar->setMinimum(0);
-    m_scrollBar->setMaximum(range - thumbSize);
+    m_scrollBar->setMaximum(std::max(range - thumbSize, 0));
     m_scrollBar->setPageStep(thumbSize);
     m_scrollBar->setSingleStep(int(m_layout.minCellHeight()));
   }
