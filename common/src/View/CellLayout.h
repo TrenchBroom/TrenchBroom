@@ -48,6 +48,7 @@ struct LayoutBounds
 class LayoutCell
 {
 private:
+  std::any m_item;
   float m_x;
   float m_y;
   float m_itemWidth;
@@ -59,10 +60,10 @@ private:
   LayoutBounds m_cellBounds;
   LayoutBounds m_itemBounds;
   LayoutBounds m_titleBounds;
-  std::any m_item;
 
 public:
   LayoutCell(
+    std::any item,
     float x,
     float y,
     float itemWidth,
@@ -78,7 +79,6 @@ public:
 
   std::any& item();
   const std::any& item() const;
-  void setItem(std::any item);
 
   template <typename T>
   const T& itemAs() const

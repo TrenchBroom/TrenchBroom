@@ -59,6 +59,7 @@ bool LayoutBounds::intersectsY(const float rangeY, const float rangeHeight) cons
 }
 
 LayoutCell::LayoutCell(
+  std::any item,
   const float x,
   const float y,
   const float itemWidth,
@@ -71,7 +72,8 @@ LayoutCell::LayoutCell(
   const float maxWidth,
   const float minHeight,
   const float maxHeight)
-  : m_x{x}
+  : m_item{std::move(item)}
+  , m_x{x}
   , m_y{y}
   , m_itemWidth{itemWidth}
   , m_itemHeight{itemHeight}
@@ -90,11 +92,6 @@ std::any& LayoutCell::item()
 const std::any& LayoutCell::item() const
 {
   return m_item;
-}
-
-void LayoutCell::setItem(std::any item)
-{
-  m_item = std::move(item);
 }
 
 float LayoutCell::scale() const
@@ -250,6 +247,7 @@ bool LayoutRow::canAddItem(
   }
 
   auto cell = LayoutCell{
+    std::any{},
     x,
     m_bounds.top(),
     itemWidth,
@@ -292,6 +290,7 @@ void LayoutRow::addItem(
   }
 
   auto cell = LayoutCell{
+    std::move(item),
     x,
     m_bounds.top(),
     itemWidth,
@@ -321,7 +320,6 @@ void LayoutRow::addItem(
     width,
     std::max(m_bounds.height, cell.cellBounds().height)};
 
-  cell.setItem(std::move(item));
   m_cells.push_back(std::move(cell));
 }
 
