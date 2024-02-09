@@ -333,7 +333,7 @@ void LayoutRow::readjustItems()
 }
 
 LayoutGroup::LayoutGroup(
-  std::string item,
+  std::string title,
   const float x,
   const float y,
   const float cellMargin,
@@ -347,7 +347,7 @@ LayoutGroup::LayoutGroup(
   const float maxCellWidth,
   const float minCellHeight,
   const float maxCellHeight)
-  : m_item{std::move(item)}
+  : m_title{std::move(title)}
   , m_cellMargin{cellMargin}
   , m_titleMargin{titleMargin}
   , m_rowMargin{rowMargin}
@@ -389,9 +389,9 @@ LayoutGroup::LayoutGroup(
 {
 }
 
-const std::string& LayoutGroup::item() const
+const std::string& LayoutGroup::title() const
 {
-  return m_item;
+  return m_title;
 }
 
 const LayoutBounds& LayoutGroup::titleBounds() const
@@ -818,7 +818,7 @@ const LayoutCell* CellLayout::cellAt(const float x, const float y)
   return nullptr;
 }
 
-void CellLayout::addGroup(std::string groupItem, const float titleHeight)
+void CellLayout::addGroup(std::string title, const float titleHeight)
 {
   if (!m_valid)
   {
@@ -833,7 +833,7 @@ void CellLayout::addGroup(std::string groupItem, const float titleHeight)
   }
 
   m_groups.emplace_back(
-    std::move(groupItem),
+    std::move(title),
     m_outerMargin,
     y,
     m_cellMargin,
@@ -914,7 +914,7 @@ void CellLayout::validate()
 
     for (auto& group : copy)
     {
-      addGroup(group.item(), group.titleBounds().height);
+      addGroup(group.title(), group.titleBounds().height);
       for (const auto& row : group.rows())
       {
         for (const auto& cell : row.cells())

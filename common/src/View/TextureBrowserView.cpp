@@ -410,7 +410,7 @@ void TextureBrowserView::renderGroupTitleBackgrounds(
 
   for (const auto& group : layout.groups())
   {
-    if (group.intersectsY(y, height))
+    if (group.intersectsY(y, height) && !group.title().empty())
     {
       const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
       vertices.emplace_back(
@@ -471,7 +471,7 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
   {
     if (group.intersectsY(y, height))
     {
-      const auto& groupTitle = group.item();
+      const auto& groupTitle = group.title();
       if (!groupTitle.empty())
       {
         const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);

@@ -490,7 +490,7 @@ EntityBrowserView::StringMap EntityBrowserView::collectStringVertices(
   {
     if (group.intersectsY(y, height))
     {
-      const auto& title = group.item();
+      const auto& title = group.title();
       if (!title.empty())
       {
         const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);

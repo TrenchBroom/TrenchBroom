@@ -160,7 +160,7 @@ private:
 class LayoutGroup
 {
 private:
-  std::string m_item;
+  std::string m_title;
   float m_cellMargin;
   float m_titleMargin;
   float m_rowMargin;
@@ -177,7 +177,7 @@ private:
 
 public:
   LayoutGroup(
-    std::string item,
+    std::string title,
     float x,
     float y,
     float cellMargin,
@@ -206,7 +206,7 @@ public:
     float minCellHeight,
     float maxCellHeight);
 
-  const std::string& item() const;
+  const std::string& title() const;
 
   const LayoutBounds& titleBounds() const;
   LayoutBounds titleBoundsForVisibleRect(float y, float height, float groupMargin) const;
@@ -291,7 +291,7 @@ public:
   const std::vector<LayoutGroup>& groups();
   const LayoutCell* cellAt(float x, float y);
 
-  void addGroup(std::string groupItem, float titleHeight);
+  void addGroup(std::string title, float titleHeight);
   void addItem(
     std::any item,
     float itemWidth,
