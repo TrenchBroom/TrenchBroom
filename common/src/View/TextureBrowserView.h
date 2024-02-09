@@ -54,9 +54,6 @@ class TextureBrowserView : public CellView
 {
   Q_OBJECT
 private:
-  using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
-  using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
-
   std::weak_ptr<MapDocument> m_document;
   bool m_group = false;
   bool m_hideUnused = false;
@@ -115,10 +112,6 @@ private:
   void renderBounds(Layout& layout, float y, float height);
   const Color& textureColor(const Assets::Texture& texture) const;
   void renderTextures(Layout& layout, float y, float height);
-  void renderNames(Layout& layout, float y, float height);
-  void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
-  void renderStrings(Layout& layout, float y, float height);
-  StringMap collectStringVertices(Layout& layout, float y, float height);
 
   void doLeftClick(Layout& layout, float x, float y) override;
   QString tooltip(const Cell& cell) override;

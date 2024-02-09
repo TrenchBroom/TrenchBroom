@@ -115,6 +115,9 @@ private:
   void doRender() override;
   void setupGL();
 
+  void renderTitleBackgrounds(float y, float height);
+  void renderTitleStrings(float y, float height);
+
   virtual void doInitLayout(Layout& layout) = 0;
   virtual void doReloadLayout(Layout& layout) = 0;
   virtual void doClear();
