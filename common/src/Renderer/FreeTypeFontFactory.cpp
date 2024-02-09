@@ -85,39 +85,25 @@ auto loadFont(FT_Library library, const FontDescriptor& fontDescriptor)
     .value();
 }
 
-FontFactory::Metrics computeMetrics(
-  FT_Face face, const unsigned char firstChar, const unsigned char charCount)
+FontFactory::Metrics computeMetrics(FT_Face face)
 {
-  const auto glyph = face->glyph;
+  const auto ascend = size_t(face->size->metrics.ascender >> 6);
+  const auto descend = size_t(-face->size->metrics.descender >> 6);
+  const auto lineHeight = size_t(face->size->metrics.height >> 6);
+  const auto width = size_t(face->size->metrics.max_advance >> 6);
 
-  auto maxWidth = 0;
-  auto maxAscend = 0;
-  auto maxDescend = 0;
-  auto lineHeight = 0;
-
-  for (unsigned char c = firstChar; c < firstChar + charCount; ++c)
-  {
-    if (FT_Load_Char(face, FT_ULong(c), FT_LOAD_RENDER) == 0)
-    {
-      maxWidth = std::max(maxWidth, glyph->bitmap_left + FT_Int(glyph->bitmap.width));
-      maxAscend = std::max(maxAscend, glyph->bitmap_top);
-      maxDescend = std::max(maxDescend, FT_Int(glyph->bitmap.rows) - glyph->bitmap_top);
-      lineHeight = std::max(lineHeight, int(glyph->metrics.height >> 6));
-    }
-  }
-
-  const auto cellSize = std::max(maxWidth, maxAscend + maxDescend);
-  return {size_t(cellSize), size_t(maxAscend), size_t(lineHeight)};
+  const auto cellSize = std::max(width, ascend + descend);
+  return {cellSize, ascend, descend, lineHeight};
 }
 
 std::unique_ptr<TextureFont> buildFont(
   FT_Face face, const unsigned char firstChar, const unsigned char charCount)
 {
-  const auto metrics = computeMetrics(face, firstChar, charCount);
+  const auto metrics = computeMetrics(face);
 
   auto texture =
     std::make_unique<FontTexture>(charCount, metrics.cellSize, metrics.lineHeight);
-  auto glyphBuilder = FontGlyphBuilder{metrics.maxAscend, metrics.cellSize, 3, *texture};
+  auto glyphBuilder = FontGlyphBuilder{metrics.ascend, metrics.cellSize, 3, *texture};
 
   const auto glyph = face->glyph;
   auto glyphs = std::vector<FontGlyph>{};
@@ -141,7 +127,13 @@ std::unique_ptr<TextureFont> buildFont(
   }
 
   return std::make_unique<TextureFont>(
-    std::move(texture), glyphs, int(metrics.lineHeight), firstChar, charCount);
+    std::move(texture),
+    glyphs,
+    int(metrics.ascend),
+    int(metrics.descend),
+    int(metrics.lineHeight),
+    firstChar,
+    charCount);
 }
 
 } // namespace

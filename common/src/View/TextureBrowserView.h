@@ -44,17 +44,6 @@ class GLContextManager;
 class MapDocument;
 using TextureGroupData = std::string;
 
-struct TextureCellData
-{
-  const Assets::Texture* texture;
-  std::string mainTitle;
-  std::string subTitle;
-  vm::vec2f mainTitleOffset;
-  vm::vec2f subTitleOffset;
-  Renderer::FontDescriptor mainTitleFont;
-  Renderer::FontDescriptor subTitleFont;
-};
-
 enum class TextureSortOrder
 {
   Name,
@@ -65,9 +54,6 @@ class TextureBrowserView : public CellView
 {
   Q_OBJECT
 private:
-  using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
-  using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
-
   std::weak_ptr<MapDocument> m_document;
   bool m_group = false;
   bool m_hideUnused = false;
@@ -104,13 +90,9 @@ private:
   void addTexturesToLayout(
     Layout& layout,
     const std::vector<const Assets::Texture*>& textures,
-    const std::string& groupName,
     const Renderer::FontDescriptor& font);
   void addTextureToLayout(
-    Layout& layout,
-    const Assets::Texture* texture,
-    const std::string& groupName,
-    const Renderer::FontDescriptor& font);
+    Layout& layout, const Assets::Texture* texture, const Renderer::FontDescriptor& font);
 
   const std::vector<Assets::TextureCollection>& getCollections() const;
   std::vector<const Assets::Texture*> getTextures(
@@ -130,16 +112,12 @@ private:
   void renderBounds(Layout& layout, float y, float height);
   const Color& textureColor(const Assets::Texture& texture) const;
   void renderTextures(Layout& layout, float y, float height);
-  void renderNames(Layout& layout, float y, float height);
-  void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
-  void renderStrings(Layout& layout, float y, float height);
-  StringMap collectStringVertices(Layout& layout, float y, float height);
 
   void doLeftClick(Layout& layout, float x, float y) override;
   QString tooltip(const Cell& cell) override;
   void doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) override;
 
-  const TextureCellData& cellData(const Cell& cell) const;
+  const Assets::Texture& cellData(const Cell& cell) const;
 signals:
   void textureSelected(const Assets::Texture* texture);
 };

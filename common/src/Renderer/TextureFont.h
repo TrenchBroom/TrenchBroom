@@ -41,6 +41,8 @@ class TextureFont
 private:
   std::unique_ptr<FontTexture> m_texture;
   std::vector<FontGlyph> m_glyphs;
+  int m_ascend;
+  int m_descend;
   int m_lineHeight;
 
   unsigned char m_firstChar;
@@ -50,12 +52,18 @@ public:
   TextureFont(
     std::unique_ptr<FontTexture> texture,
     const std::vector<FontGlyph>& glyphs,
+    int ascend,
+    int descend,
     int lineHeight,
     unsigned char firstChar,
     unsigned char charCount);
   ~TextureFont();
 
   deleteCopyAndMove(TextureFont);
+
+  int ascend() const;
+  int descend() const;
+  int lineHeight() const;
 
   std::vector<vm::vec2f> quads(
     const AttrString& string,
