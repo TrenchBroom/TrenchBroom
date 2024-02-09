@@ -165,48 +165,40 @@ void TextureBrowserView::doReloadLayout(Layout& layout)
     for (const auto& collection : getCollections())
     {
       layout.addGroup(collection.name(), float(fontSize) + 2.0f);
-      addTexturesToLayout(layout, getTextures(collection), collection.name(), font);
+      addTexturesToLayout(layout, getTextures(collection), font);
     }
   }
   else
   {
-    addTexturesToLayout(layout, getTextures(), "", font);
+    addTexturesToLayout(layout, getTextures(), font);
   }
 }
 
 void TextureBrowserView::addTexturesToLayout(
   Layout& layout,
   const std::vector<const Assets::Texture*>& textures,
-  const std::string& groupName,
   const Renderer::FontDescriptor& font)
 {
   for (const auto* texture : textures)
   {
-    addTextureToLayout(layout, texture, groupName, font);
+    addTextureToLayout(layout, texture, font);
   }
 }
 
 void TextureBrowserView::addTextureToLayout(
-  Layout& layout,
-  const Assets::Texture* texture,
-  const std::string& groupName,
-  const Renderer::FontDescriptor& font)
+  Layout& layout, const Assets::Texture* texture, const Renderer::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
 
   const auto textureName = std::filesystem::path{texture->name()}.filename().string();
 
-  const auto textureFont =
+  const auto textureNameFont =
     fontManager().selectFontSize(font, textureName, maxCellWidth, 6);
-  const auto groupFont = fontManager().selectFontSize(font, groupName, maxCellWidth, 6);
 
-  const auto defaultTextHeight =
-    fontManager().font(font).measure(groupName + textureName).y();
-  const auto textureNameSize = fontManager().font(textureFont).measure(textureName);
-  const auto groupNameSize = fontManager().font(groupFont).measure(groupName);
+  const auto defaultTextHeight = fontManager().font(font).measure(textureName).y();
+  const auto textureNameSize = fontManager().font(textureNameFont).measure(textureName);
 
-  const auto totalSize = vm::vec2f(
-    vm::max(groupNameSize.x(), textureNameSize.x()), 2.0f * defaultTextHeight + 4.0f);
+  const auto totalSize = vm::vec2f{textureNameSize.x(), 2.0f * defaultTextHeight + 4.0f};
 
   const auto scaleFactor = pref(Preferences::TextureBrowserIconSize);
   const auto scaledTextureWidth = vm::round(scaleFactor * float(texture->width()));
@@ -215,11 +207,8 @@ void TextureBrowserView::addTextureToLayout(
   auto cellData = TextureCellData{
     texture,
     textureName,
-    groupName,
     vm::vec2f{(maxCellWidth - textureNameSize.x()) / 2.0f, defaultTextHeight + 3.0f},
-    vm::vec2f{(maxCellWidth - groupNameSize.x()) / 2.0f, 1.0f},
-    textureFont,
-    groupFont};
+    textureNameFont};
 
   layout.addItem(
     std::move(cellData),
@@ -499,8 +488,8 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
   {
     if (group.intersectsY(y, height))
     {
-      const auto& title = group.item();
-      if (!title.empty())
+      const auto& groupTitle = group.item();
+      if (!groupTitle.empty())
       {
         const auto titleBounds = layout.titleBoundsForVisibleRect(group, y, height);
         const auto offset = vm::vec2f(
@@ -508,7 +497,7 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
           height - (titleBounds.top() - y) - titleBounds.height);
 
         auto& font = fontManager().font(defaultDescriptor);
-        const auto quads = font.quads(title, false, offset);
+        const auto quads = font.quads(groupTitle, false, offset);
         const auto titleVertices = TextVertex::toList(
           quads.size() / 2,
           kdl::skip_iterator{std::begin(quads), std::end(quads), 0, 2},
@@ -525,24 +514,16 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
         {
           for (const auto& cell : row.cells())
           {
-            const auto titleBounds = cell.titleBounds();
-            const auto& textureFont = fontManager().font(cellData(cell).mainTitleFont);
-            const auto& groupFont = fontManager().font(cellData(cell).subTitleFont);
+            const auto textureNameBounds = cell.titleBounds();
+            const auto& font = fontManager().font(cellData(cell).fontDescriptor);
 
             // y is relative to top, but OpenGL coords are relative to bottom, so invert
-            const auto titleOffset =
-              vm::vec2f(titleBounds.left(), y + height - titleBounds.bottom());
+            const auto renderOffset = vm::vec2f(
+              textureNameBounds.left(), y + height - textureNameBounds.bottom());
+            const auto totalOffset = renderOffset + cellData(cell).offset;
 
-            const auto textureNameOffset = titleOffset + cellData(cell).mainTitleOffset;
-            const auto groupNameOffset = titleOffset + cellData(cell).subTitleOffset;
-
-            const auto& textureName = cellData(cell).mainTitle;
-            const auto& groupName = cellData(cell).subTitle;
-
-            const auto textureNameQuads =
-              textureFont.quads(textureName, false, textureNameOffset);
-            const auto groupNameQuads =
-              groupFont.quads(groupName, false, groupNameOffset);
+            const auto& textureName = cellData(cell).title;
+            const auto textureNameQuads = font.quads(textureName, false, totalOffset);
 
             const auto textureNameVertices = TextVertex::toList(
               textureNameQuads.size() / 2,
@@ -552,21 +533,9 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
                 std::begin(textureNameQuads), std::end(textureNameQuads), 1, 2},
               kdl::skip_iterator{std::begin(textColor), std::end(textColor), 0, 0});
 
-            const auto groupNameVertices = TextVertex::toList(
-              groupNameQuads.size() / 2,
-              kdl::skip_iterator{
-                std::begin(groupNameQuads), std::end(groupNameQuads), 0, 2},
-              kdl::skip_iterator{
-                std::begin(groupNameQuads), std::end(groupNameQuads), 1, 2},
-              kdl::skip_iterator{std::begin(subTextColor), std::end(subTextColor), 0, 0});
-
-            auto& mainTitleVertices = stringVertices[cellData(cell).mainTitleFont];
-            mainTitleVertices =
-              kdl::vec_concat(std::move(mainTitleVertices), textureNameVertices);
-
-            auto& subTitleVertices = stringVertices[cellData(cell).subTitleFont];
-            subTitleVertices =
-              kdl::vec_concat(std::move(subTitleVertices), groupNameVertices);
+            auto& allTextureNameVertices = stringVertices[cellData(cell).fontDescriptor];
+            allTextureNameVertices =
+              kdl::vec_concat(std::move(allTextureNameVertices), textureNameVertices);
           }
         }
       }

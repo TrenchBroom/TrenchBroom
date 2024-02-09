@@ -47,12 +47,9 @@ using TextureGroupData = std::string;
 struct TextureCellData
 {
   const Assets::Texture* texture;
-  std::string mainTitle;
-  std::string subTitle;
-  vm::vec2f mainTitleOffset;
-  vm::vec2f subTitleOffset;
-  Renderer::FontDescriptor mainTitleFont;
-  Renderer::FontDescriptor subTitleFont;
+  std::string title;
+  vm::vec2f offset;
+  Renderer::FontDescriptor fontDescriptor;
 };
 
 enum class TextureSortOrder
@@ -104,13 +101,9 @@ private:
   void addTexturesToLayout(
     Layout& layout,
     const std::vector<const Assets::Texture*>& textures,
-    const std::string& groupName,
     const Renderer::FontDescriptor& font);
   void addTextureToLayout(
-    Layout& layout,
-    const Assets::Texture* texture,
-    const std::string& groupName,
-    const Renderer::FontDescriptor& font);
+    Layout& layout, const Assets::Texture* texture, const Renderer::FontDescriptor& font);
 
   const std::vector<Assets::TextureCollection>& getCollections() const;
   std::vector<const Assets::Texture*> getTextures(
