@@ -128,8 +128,8 @@ void TextureBrowserView::setSelectedTexture(const Assets::Texture* selectedTextu
 void TextureBrowserView::revealTexture(const Assets::Texture* texture)
 {
   scrollToCell([=](const Cell& cell) {
-    const auto* cellTexture = cellData(cell).texture;
-    return cellTexture == texture;
+    const auto& cellTexture = cellData(cell);
+    return &cellTexture == texture;
   });
 }
 
@@ -191,31 +191,14 @@ void TextureBrowserView::addTextureToLayout(
   const auto maxCellWidth = layout.maxCellWidth();
 
   const auto textureName = std::filesystem::path{texture->name()}.filename().string();
-
-  const auto textureNameFont =
-    fontManager().selectFontSize(font, textureName, maxCellWidth, 6);
-
-  const auto defaultTextHeight = fontManager().font(font).measure(textureName).y();
-  const auto textureNameSize = fontManager().font(textureNameFont).measure(textureName);
-
-  const auto totalSize = vm::vec2f{textureNameSize.x(), 2.0f * defaultTextHeight + 4.0f};
+  const auto titleHeight = fontManager().font(font).measure(textureName).y();
 
   const auto scaleFactor = pref(Preferences::TextureBrowserIconSize);
   const auto scaledTextureWidth = vm::round(scaleFactor * float(texture->width()));
   const auto scaledTextureHeight = vm::round(scaleFactor * float(texture->height()));
 
-  auto cellData = TextureCellData{
-    texture,
-    textureName,
-    vm::vec2f{(maxCellWidth - textureNameSize.x()) / 2.0f, defaultTextHeight + 3.0f},
-    textureNameFont};
-
   layout.addItem(
-    std::move(cellData),
-    scaledTextureWidth,
-    scaledTextureHeight,
-    maxCellWidth,
-    totalSize.y());
+    texture, scaledTextureWidth, scaledTextureHeight, maxCellWidth, titleHeight + 4.0f);
 }
 
 const std::vector<Assets::TextureCollection>& TextureBrowserView::getCollections() const
@@ -329,8 +312,8 @@ void TextureBrowserView::renderBounds(Layout& layout, const float y, const float
           for (const auto& cell : row.cells())
           {
             const auto& bounds = cell.itemBounds();
-            const auto* texture = cellData(cell).texture;
-            const auto& color = textureColor(*texture);
+            const auto& texture = cellData(cell);
+            const auto& color = textureColor(texture);
             vertices.emplace_back(
               vm::vec2f{bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)}, color);
             vertices.emplace_back(
@@ -390,7 +373,7 @@ void TextureBrowserView::renderTextures(Layout& layout, const float y, const flo
           for (const auto& cell : row.cells())
           {
             const auto& bounds = cell.itemBounds();
-            const auto* texture = cellData(cell).texture;
+            const auto& texture = cellData(cell);
 
             auto vertexArray = Renderer::VertexArray::move(std::vector<TextureVertex>{
               TextureVertex{{bounds.left(), height - (bounds.top() - y)}, {0, 0}},
@@ -399,13 +382,13 @@ void TextureBrowserView::renderTextures(Layout& layout, const float y, const flo
               TextureVertex{{bounds.right(), height - (bounds.top() - y)}, {1, 0}},
             });
 
-            shader.set("GrayScale", texture->overridden());
-            texture->activate();
+            shader.set("GrayScale", texture.overridden());
+            texture.activate();
 
             vertexArray.prepare(vboManager());
             vertexArray.render(Renderer::PrimType::Quads);
 
-            texture->deactivate();
+            texture.deactivate();
           }
         }
       }
@@ -477,7 +460,7 @@ void TextureBrowserView::renderStrings(Layout& layout, const float y, const floa
 TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
   Layout& layout, const float y, const float height)
 {
-  auto defaultDescriptor = Renderer::FontDescriptor{
+  auto defaultFont = Renderer::FontDescriptor{
     pref(Preferences::RendererFontPath()), size_t(pref(Preferences::BrowserFontSize))};
 
   const auto textColor = std::vector<Color>{pref(Preferences::BrowserTextColor)};
@@ -496,14 +479,14 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
           titleBounds.left() + 2.0f,
           height - (titleBounds.top() - y) - titleBounds.height);
 
-        auto& font = fontManager().font(defaultDescriptor);
+        auto& font = fontManager().font(defaultFont);
         const auto quads = font.quads(groupTitle, false, offset);
         const auto titleVertices = TextVertex::toList(
           quads.size() / 2,
           kdl::skip_iterator{std::begin(quads), std::end(quads), 0, 2},
           kdl::skip_iterator{std::begin(quads), std::end(quads), 1, 2},
           kdl::skip_iterator{std::begin(textColor), std::end(textColor), 0, 0});
-        auto& vertices = stringVertices[defaultDescriptor];
+        auto& vertices = stringVertices[defaultFont];
         vertices.insert(
           std::end(vertices), std::begin(titleVertices), std::end(titleVertices));
       }
@@ -514,16 +497,24 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
         {
           for (const auto& cell : row.cells())
           {
+            const auto& texture = cellData(cell);
+            const auto textureName =
+              std::filesystem::path{texture.name()}.filename().string();
             const auto textureNameBounds = cell.titleBounds();
-            const auto& font = fontManager().font(cellData(cell).fontDescriptor);
+            const auto textureNameFont = fontManager().selectFontSize(
+              defaultFont, textureName, textureNameBounds.width, 6);
+            const auto& font = fontManager().font(textureNameFont);
+            const auto textureNameSize = font.measure(textureName);
+
+            const auto textureNameX =
+              textureNameBounds.left()
+              + std::max((textureNameBounds.width - textureNameSize.x()) / 2.0f, 0.0f);
 
             // y is relative to top, but OpenGL coords are relative to bottom, so invert
-            const auto renderOffset = vm::vec2f(
-              textureNameBounds.left(), y + height - textureNameBounds.bottom());
-            const auto totalOffset = renderOffset + cellData(cell).offset;
+            const auto renderOffset =
+              vm::vec2f{textureNameX, y + height - textureNameBounds.bottom()};
 
-            const auto& textureName = cellData(cell).title;
-            const auto textureNameQuads = font.quads(textureName, false, totalOffset);
+            const auto textureNameQuads = font.quads(textureName, false, renderOffset);
 
             const auto textureNameVertices = TextVertex::toList(
               textureNameQuads.size() / 2,
@@ -533,7 +524,7 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
                 std::begin(textureNameQuads), std::end(textureNameQuads), 1, 2},
               kdl::skip_iterator{std::begin(textColor), std::end(textColor), 0, 0});
 
-            auto& allTextureNameVertices = stringVertices[cellData(cell).fontDescriptor];
+            auto& allTextureNameVertices = stringVertices[textureNameFont];
             allTextureNameVertices =
               kdl::vec_concat(std::move(allTextureNameVertices), textureNameVertices);
           }
@@ -549,15 +540,14 @@ void TextureBrowserView::doLeftClick(Layout& layout, const float x, const float 
 {
   if (const auto* cell = layout.cellAt(x, y))
   {
-    if (!cellData(*cell).texture->overridden())
+    const auto& texture = cellData(*cell);
+    if (!texture.overridden())
     {
-      auto* texture = cellData(*cell).texture;
-
       // NOTE: wx had the ability for the textureSelected event to veto the selection, but
       // it wasn't used.
-      setSelectedTexture(texture);
+      setSelectedTexture(&texture);
 
-      emit textureSelected(texture);
+      emit textureSelected(&texture);
 
       update();
     }
@@ -568,8 +558,8 @@ QString TextureBrowserView::tooltip(const Cell& cell)
 {
   auto tooltip = QString{};
   auto ss = QTextStream{&tooltip};
-  ss << QString::fromStdString(cellData(cell).texture->name()) << "\n";
-  ss << cellData(cell).texture->width() << "x" << cellData(cell).texture->height();
+  ss << QString::fromStdString(cellData(cell).name()) << "\n";
+  ss << cellData(cell).width() << "x" << cellData(cell).height();
   return tooltip;
 }
 
@@ -578,12 +568,12 @@ void TextureBrowserView::doContextMenu(
 {
   if (const auto* cell = layout.cellAt(x, y))
   {
-    if (!cellData(*cell).texture->overridden())
+    const auto& texture = cellData(*cell);
+    if (!cellData(*cell).overridden())
     {
-      auto* texture = cellData(*cell).texture;
 
       auto menu = QMenu{this};
-      menu.addAction(tr("Select Faces"), this, [=]() {
+      menu.addAction(tr("Select Faces"), this, [&, texture = &texture]() {
         auto doc = kdl::mem_lock(m_document);
         doc->selectFacesWithTexture(texture);
       });
@@ -592,9 +582,9 @@ void TextureBrowserView::doContextMenu(
   }
 }
 
-const TextureCellData& TextureBrowserView::cellData(const Cell& cell) const
+const Assets::Texture& TextureBrowserView::cellData(const Cell& cell) const
 {
-  return cell.itemAs<TextureCellData>();
+  return *cell.itemAs<const Assets::Texture*>();
 }
 
 } // namespace TrenchBroom::View

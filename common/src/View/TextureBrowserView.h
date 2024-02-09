@@ -44,14 +44,6 @@ class GLContextManager;
 class MapDocument;
 using TextureGroupData = std::string;
 
-struct TextureCellData
-{
-  const Assets::Texture* texture;
-  std::string title;
-  vm::vec2f offset;
-  Renderer::FontDescriptor fontDescriptor;
-};
-
 enum class TextureSortOrder
 {
   Name,
@@ -132,7 +124,7 @@ private:
   QString tooltip(const Cell& cell) override;
   void doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) override;
 
-  const TextureCellData& cellData(const Cell& cell) const;
+  const Assets::Texture& cellData(const Cell& cell) const;
 signals:
   void textureSelected(const Assets::Texture* texture);
 };
