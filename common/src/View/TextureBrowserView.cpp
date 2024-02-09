@@ -198,7 +198,12 @@ void TextureBrowserView::addTextureToLayout(
   const auto scaledTextureHeight = vm::round(scaleFactor * float(texture->height()));
 
   layout.addItem(
-    texture, scaledTextureWidth, scaledTextureHeight, maxCellWidth, titleHeight + 4.0f);
+    texture,
+    textureName,
+    scaledTextureWidth,
+    scaledTextureHeight,
+    maxCellWidth,
+    titleHeight + 4.0f);
 }
 
 const std::vector<Assets::TextureCollection>& TextureBrowserView::getCollections() const
@@ -497,14 +502,12 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
         {
           for (const auto& cell : row.cells())
           {
-            const auto& texture = cellData(cell);
-            const auto textureName =
-              std::filesystem::path{texture.name()}.filename().string();
+            const auto& cellTitle = cell.title();
             const auto textureNameBounds = cell.titleBounds();
             const auto textureNameFont = fontManager().selectFontSize(
-              defaultFont, textureName, textureNameBounds.width, 6);
+              defaultFont, cellTitle, textureNameBounds.width, 6);
             const auto& font = fontManager().font(textureNameFont);
-            const auto textureNameSize = font.measure(textureName);
+            const auto textureNameSize = font.measure(cellTitle);
 
             const auto textureNameX =
               textureNameBounds.left()
@@ -514,14 +517,14 @@ TextureBrowserView::StringMap TextureBrowserView::collectStringVertices(
             const auto renderOffset =
               vm::vec2f{textureNameX, y + height - textureNameBounds.bottom()};
 
-            const auto textureNameQuads = font.quads(textureName, false, renderOffset);
+            const auto cellTitleQuads = font.quads(cellTitle, false, renderOffset);
 
             const auto textureNameVertices = TextVertex::toList(
-              textureNameQuads.size() / 2,
+              cellTitleQuads.size() / 2,
               kdl::skip_iterator{
-                std::begin(textureNameQuads), std::end(textureNameQuads), 0, 2},
+                std::begin(cellTitleQuads), std::end(cellTitleQuads), 0, 2},
               kdl::skip_iterator{
-                std::begin(textureNameQuads), std::end(textureNameQuads), 1, 2},
+                std::begin(cellTitleQuads), std::end(cellTitleQuads), 1, 2},
               kdl::skip_iterator{std::begin(textColor), std::end(textColor), 0, 0});
 
             auto& allTextureNameVertices = stringVertices[textureNameFont];

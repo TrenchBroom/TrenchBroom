@@ -60,6 +60,7 @@ bool LayoutBounds::intersectsY(const float rangeY, const float rangeHeight) cons
 
 LayoutCell::LayoutCell(
   std::any item,
+  std::string title,
   const float x,
   const float y,
   const float itemWidth,
@@ -73,6 +74,7 @@ LayoutCell::LayoutCell(
   const float minHeight,
   const float maxHeight)
   : m_item{std::move(item)}
+  , m_title{std::move(title)}
   , m_x{x}
   , m_y{y}
   , m_itemWidth{itemWidth}
@@ -92,6 +94,11 @@ std::any& LayoutCell::item()
 const std::any& LayoutCell::item() const
 {
   return m_item;
+}
+
+const std::string& LayoutCell::title() const
+{
+  return m_title;
 }
 
 float LayoutCell::scale() const
@@ -248,6 +255,7 @@ bool LayoutRow::canAddItem(
 
   auto cell = LayoutCell{
     std::any{},
+    "",
     x,
     m_bounds.top(),
     itemWidth,
@@ -276,6 +284,7 @@ bool LayoutRow::canAddItem(
 
 void LayoutRow::addItem(
   std::any item,
+  std::string title,
   const float itemWidth,
   const float itemHeight,
   const float titleWidth,
@@ -291,6 +300,7 @@ void LayoutRow::addItem(
 
   auto cell = LayoutCell{
     std::move(item),
+    std::move(title),
     x,
     m_bounds.top(),
     itemWidth,
@@ -487,6 +497,7 @@ bool LayoutGroup::intersectsY(const float y, const float height) const
 
 void LayoutGroup::addItem(
   std::any item,
+  std::string title,
   const float itemWidth,
   const float itemHeight,
   const float titleWidth,
@@ -537,7 +548,8 @@ void LayoutGroup::addItem(
   const auto oldRowHeight = m_rows.back().bounds().height;
 
   assert(m_rows.back().canAddItem(itemWidth, itemHeight, titleWidth, titleHeight));
-  m_rows.back().addItem(std::move(item), itemWidth, itemHeight, titleWidth, titleHeight);
+  m_rows.back().addItem(
+    std::move(item), std::move(title), itemWidth, itemHeight, titleWidth, titleHeight);
 
   const auto newRowHeight = m_rows.back().bounds().height;
   m_contentBounds = LayoutBounds{
@@ -852,6 +864,7 @@ void CellLayout::addGroup(std::string title, const float titleHeight)
 
 void CellLayout::addItem(
   std::any item,
+  std::string title,
   const float itemWidth,
   const float itemHeight,
   const float titleWidth,
@@ -886,7 +899,7 @@ void CellLayout::addItem(
 
   const auto oldGroupHeight = m_groups.back().bounds().height;
   m_groups.back().addItem(
-    std::move(item), itemWidth, itemHeight, titleWidth, titleHeight);
+    std::move(item), std::move(title), itemWidth, itemHeight, titleWidth, titleHeight);
   const auto newGroupHeight = m_groups.back().bounds().height;
 
   m_height += (newGroupHeight - oldGroupHeight);
@@ -925,7 +938,12 @@ void CellLayout::validate()
           const auto itemWidth = itemBounds.width / scale;
           const auto itemHeight = itemBounds.height / scale;
           addItem(
-            cell.item(), itemWidth, itemHeight, titleBounds.width, titleBounds.height);
+            cell.item(),
+            cell.title(),
+            itemWidth,
+            itemHeight,
+            titleBounds.width,
+            titleBounds.height);
         }
       }
     }

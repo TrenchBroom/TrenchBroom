@@ -273,6 +273,7 @@ void EntityBrowserView::addEntityToLayout(
         actualFont,
         rotatedBounds,
         modelScale},
+      definition->name(),
       boundsSize.y(),
       boundsSize.z(),
       actualSize.x(),
@@ -520,8 +521,7 @@ EntityBrowserView::StringMap EntityBrowserView::collectStringVertices(
               titleBounds.left(), height - (titleBounds.top() - y) - titleBounds.height};
 
             auto& font = fontManager().font(cellData(cell).fontDescriptor);
-            const auto quads =
-              font.quads(cellData(cell).entityDefinition->name(), false, offset);
+            const auto quads = font.quads(cell.title(), false, offset);
             const auto titleVertices = TextVertex::toList(
               quads.size() / 2,
               kdl::skip_iterator{std::begin(quads), std::end(quads), 0, 2},

@@ -49,6 +49,7 @@ class LayoutCell
 {
 private:
   std::any m_item;
+  std::string m_title;
   float m_x;
   float m_y;
   float m_itemWidth;
@@ -64,6 +65,7 @@ private:
 public:
   LayoutCell(
     std::any item,
+    std::string title,
     float x,
     float y,
     float itemWidth,
@@ -89,6 +91,8 @@ public:
     }
     throw std::bad_any_cast{};
   }
+
+  const std::string& title() const;
 
   float scale() const;
 
@@ -148,6 +152,7 @@ public:
     float itemWidth, float itemHeight, float titleWidth, float titleHeight) const;
   void addItem(
     std::any item,
+    std::string title,
     float itemWidth,
     float itemHeight,
     float titleWidth,
@@ -222,6 +227,7 @@ public:
 
   void addItem(
     std::any item,
+    std::string title,
     float itemWidth,
     float itemHeight,
     float titleWidth,
@@ -294,6 +300,7 @@ public:
   void addGroup(std::string title, float titleHeight);
   void addItem(
     std::any item,
+    std::string title,
     float itemWidth,
     float itemHeight,
     float titleWidth,
