@@ -23,32 +23,12 @@
 #include <QLayout>
 
 #include "View/BorderLine.h"
+#include "View/ClickableTitleBar.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
 namespace TrenchBroom::View
 {
-
-ClickableTitleBar::ClickableTitleBar(
-  const QString& title, const QString& stateText, QWidget* parent)
-  : TitleBar{title, parent, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, true}
-  , m_stateText{new QLabel{stateText}}
-{
-  m_stateText->setFont(m_titleLabel->font());
-  makeInfo(m_stateText);
-
-  layout()->addWidget(m_stateText);
-}
-
-void ClickableTitleBar::setStateText(const QString& stateText)
-{
-  m_stateText->setText(stateText);
-}
-
-void ClickableTitleBar::mousePressEvent(QMouseEvent* /* event */)
-{
-  emit titleBarClicked();
-}
 
 CollapsibleTitledPanel::CollapsibleTitledPanel(
   const QString& title, const bool initiallyExpanded, QWidget* parent)

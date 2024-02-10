@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2024 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -28,33 +28,23 @@ class QLabel;
 namespace TrenchBroom::View
 {
 class BorderLine;
-class ClickableTitleBar;
 
-class CollapsibleTitledPanel : public QWidget
+class ClickableTitleBar : public TitleBar
 {
   Q_OBJECT
 private:
-  ClickableTitleBar* m_titleBar = nullptr;
-  BorderLine* m_divider = nullptr;
-  QWidget* m_panel = nullptr;
-  bool m_expanded = true;
+  QLabel* m_stateText = nullptr;
 
 public:
-  explicit CollapsibleTitledPanel(
-    const QString& title, bool initiallyExpanded = true, QWidget* parent = nullptr);
+  ClickableTitleBar(
+    const QString& title, const QString& stateText, QWidget* parent = nullptr);
 
-  QWidget* getPanel() const;
+  void setStateText(const QString& stateText);
+signals:
+  void titleBarClicked();
 
-  void expand();
-  void collapse();
-  bool expanded() const;
-  void setExpanded(bool expanded);
-
-  QByteArray saveState() const;
-  bool restoreState(const QByteArray& state);
-
-private:
-  void updateExpanded();
+protected:
+  void mousePressEvent(QMouseEvent* event) override;
 };
 
 } // namespace TrenchBroom::View
