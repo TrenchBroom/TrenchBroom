@@ -40,7 +40,7 @@ class DrawBrushToolCuboidExtension : public DrawBrushToolExtension
 public:
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<Model::Brush> createBrush(
+  std::vector<Result<Model::Brush>> createBrushes(
     const vm::bbox3& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
@@ -50,6 +50,8 @@ struct CircularShapeParameters
 {
   size_t numSides;
   Model::RadiusMode radiusMode;
+  double thickness = 16.0;
+  bool hollow;
 };
 
 class DrawBrushToolCircularShapeExtensionPage : public QWidget
@@ -71,7 +73,7 @@ public:
 
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<Model::Brush> createBrush(
+  std::vector<Result<Model::Brush>> createBrushes(
     const vm::bbox3& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
@@ -87,7 +89,7 @@ public:
 
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<Model::Brush> createBrush(
+  std::vector<Result<Model::Brush>> createBrushes(
     const vm::bbox3& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;

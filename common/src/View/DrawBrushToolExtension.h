@@ -41,7 +41,7 @@ public:
   virtual ~DrawBrushToolExtension();
   virtual const std::string& name() const = 0;
   virtual QWidget* createToolPage(QWidget* parent = nullptr) = 0;
-  virtual Result<Model::Brush> createBrush(
+  virtual std::vector<Result<Model::Brush>> createBrushes(
     const vm::bbox3& bounds, vm::axis::type axis, const MapDocument& document) const = 0;
 };
 

@@ -46,14 +46,14 @@ QWidget* DrawBrushToolCuboidExtension::createToolPage(QWidget* parent)
   return new QWidget{parent};
 }
 
-Result<Model::Brush> DrawBrushToolCuboidExtension::createBrush(
+std::vector<Result<Model::Brush>> DrawBrushToolCuboidExtension::createBrushes(
   const vm::bbox3& bounds, const vm::axis::type, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = Model::BrushBuilder{
     document.world()->mapFormat(), document.worldBounds(), game->defaultFaceAttribs()};
 
-  return builder.createCuboid(bounds, document.currentTextureName());
+  return {builder.createCuboid(bounds, document.currentTextureName())};
 }
 
 DrawBrushToolCircularShapeExtensionPage::DrawBrushToolCircularShapeExtensionPage(
@@ -83,6 +83,12 @@ DrawBrushToolCircularShapeExtensionPage::DrawBrushToolCircularShapeExtensionPage
   radiusModeButtonGroup->addButton(radiusModeEdgeButton);
   radiusModeButtonGroup->addButton(radiusModeVertexButton);
 
+  auto* hollowCheckBox = new QCheckBox(tr("Hollow"));
+  hollowCheckBox->setChecked(m_parameters.hollow);
+  auto* thicknessLabel = new QLabel(tr("Thickness:"));
+  auto* thicknessSpinBox = new QDoubleSpinBox;
+  thicknessSpinBox->setValue(m_parameters.thickness);
+
   connect(
     numSidesBox,
     QOverload<int>::of(&QSpinBox::valueChanged),
@@ -94,7 +100,18 @@ DrawBrushToolCircularShapeExtensionPage::DrawBrushToolCircularShapeExtensionPage
   connect(radiusModeVertexButton, &QToolButton::clicked, this, [=]() {
     m_parameters.radiusMode = Model::RadiusMode::ToVertex;
   });
-
+  connect(hollowCheckBox, &QCheckBox::stateChanged, this, [=](int state) {
+    bool isHollow = (state == Qt::Checked);
+    thicknessLabel->setVisible(isHollow);
+    thicknessSpinBox->setVisible(isHollow);
+    m_parameters.hollow = isHollow;
+  });
+  connect(
+    thicknessSpinBox,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    [this](double value) { m_parameters.thickness = value;
+  });
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(QMargins{});
   layout->setSpacing(LayoutConstants::MediumHMargin);
@@ -103,13 +120,16 @@ DrawBrushToolCircularShapeExtensionPage::DrawBrushToolCircularShapeExtensionPage
   layout->addWidget(numSidesBox, 0, Qt::AlignVCenter);
   layout->addWidget(radiusModeEdgeButton, 0, Qt::AlignVCenter);
   layout->addWidget(radiusModeVertexButton, 0, Qt::AlignVCenter);
+  layout->addWidget(hollowCheckBox, 0, Qt::AlignVCenter);
+  layout->addWidget(thicknessLabel, 0, Qt::AlignVCenter);
+  layout->addWidget(thicknessSpinBox, 0, Qt::AlignVCenter);
   layout->addStretch(1);
 
   setLayout(layout);
 }
 
 DrawBrushToolCylinderExtension::DrawBrushToolCylinderExtension()
-  : m_parameters{8, Model::RadiusMode::ToEdge}
+  : m_parameters{8, Model::RadiusMode::ToEdge, 16.0, false}
 {
 }
 
@@ -124,7 +144,7 @@ QWidget* DrawBrushToolCylinderExtension::createToolPage(QWidget* parent)
   return new DrawBrushToolCircularShapeExtensionPage{m_parameters, parent};
 }
 
-Result<Model::Brush> DrawBrushToolCylinderExtension::createBrush(
+std::vector<Result<Model::Brush>> DrawBrushToolCylinderExtension::createBrushes(
   const vm::bbox3& bounds, vm::axis::type axis, const MapDocument& document) const
 {
   const auto game = document.game();
@@ -139,7 +159,7 @@ Result<Model::Brush> DrawBrushToolCylinderExtension::createBrush(
 }
 
 DrawBrushToolConeExtension::DrawBrushToolConeExtension()
-  : m_parameters{8, Model::RadiusMode::ToEdge}
+  : m_parameters{8, Model::RadiusMode::ToEdge, 16.0, false}
 {
 }
 
@@ -154,18 +174,18 @@ QWidget* DrawBrushToolConeExtension::createToolPage(QWidget* parent)
   return new DrawBrushToolCircularShapeExtensionPage{m_parameters, parent};
 }
 
-Result<Model::Brush> DrawBrushToolConeExtension::createBrush(
+std::vector<Result<Model::Brush>> DrawBrushToolConeExtension::createBrushes(
   const vm::bbox3& bounds, vm::axis::type axis, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = Model::BrushBuilder{
     document.world()->mapFormat(), document.worldBounds(), game->defaultFaceAttribs()};
-  return builder.createCone(
+  return {builder.createCone(
     bounds,
     m_parameters.numSides,
     m_parameters.radiusMode,
     axis,
-    document.currentTextureName());
+    document.currentTextureName())};
 }
 
 std::vector<std::unique_ptr<DrawBrushToolExtension>> createDrawBrushToolExtensions()

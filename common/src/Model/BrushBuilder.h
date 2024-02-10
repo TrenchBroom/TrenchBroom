@@ -87,7 +87,7 @@ public:
     const std::string& topTexture,
     const std::string& bottomTexture) const;
 
-  Result<Brush> createCylinder(
+  std::vector<Result<Brush>> createCylinder(
     const vm::bbox3& bounds,
     size_t numSides,
     RadiusMode radiusMode,

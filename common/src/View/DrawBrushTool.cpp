@@ -43,14 +43,15 @@ DrawBrushTool::DrawBrushTool(std::weak_ptr<MapDocument> document)
 void DrawBrushTool::update(const vm::bbox3& bounds, const vm::axis::type axis)
 {
   auto document = kdl::mem_lock(m_document);
-  m_extensionManager.currentExtension()
-    .createBrush(bounds, axis, *document)
+  /* m_extensionManager.currentExtension()
+    .createBrushes(bounds, axis, *document)
     .transform(
-      [&](auto b) { updateBrush(std::make_unique<Model::BrushNode>(std::move(b))); })
+      [&](auto b) { updateBrushes(std::make_unique<Model::BrushNode>(std::move(b))); })
     .transform_error([&](auto e) {
-      updateBrush(nullptr);
+      clearBrushes();
       document->error() << "Could not update brush: " << e;
-    });
+    });*/
+  updateBrushes(m_extensionManager.currentExtension().createBrushes(bounds, axis, *document));
 }
 
 bool DrawBrushTool::cancel()

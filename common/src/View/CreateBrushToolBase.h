@@ -21,6 +21,8 @@
 
 #include "Macros.h"
 #include "View/Tool.h"
+#include "Result.h"
+#include "Model/Brush.h"
 
 #include <memory>
 
@@ -47,7 +49,7 @@ protected:
   std::weak_ptr<MapDocument> m_document;
 
 private:
-  std::unique_ptr<Model::BrushNode> m_brushNode;
+  std::vector<std::unique_ptr<Model::BrushNode>> m_brushNodes;
   std::unique_ptr<Renderer::BrushRenderer> m_brushRenderer;
 
 public:
@@ -57,17 +59,19 @@ public:
 public:
   const Grid& grid() const;
 
-  void createBrush();
+  void createBrushes();
   void cancel();
 
   void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
 private:
-  void renderBrush(
+  void renderBrushes(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
 protected:
-  void updateBrush(std::unique_ptr<Model::BrushNode> brushNode);
+  void updateBrush(std::unique_ptr<Model::BrushNode> brushNode); // TODO: Do we still need this?
+  void updateBrushes(std::vector<Result<Model::Brush>> brushes);
+  void clearBrushes();
 
 private:
   virtual void doBrushWasCreated();

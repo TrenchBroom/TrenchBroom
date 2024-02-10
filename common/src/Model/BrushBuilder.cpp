@@ -212,7 +212,7 @@ auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
 }
 } // namespace
 
-Result<Brush> BrushBuilder::createCylinder(
+std::vector<Result<Brush>> BrushBuilder::createCylinder(
   const vm::bbox3& bounds,
   const size_t numSides,
   const RadiusMode radiusMode,
@@ -226,10 +226,13 @@ Result<Brush> BrushBuilder::createCylinder(
                          * vm::translation_matrix(vm::vec3{0.5, 0.5, 0.5})
                          * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis))
                          * vm::translation_matrix(vm::vec3{-0.5, -0.5, -0.5});
-  const auto vertices = kdl::vec_transform(
-    makeUnitCylinder(numSides, radiusMode), [&](const auto& v) { return transform * v; });
-
-  return createBrush(vertices, textureName);
+//  const auto vertices = kdl::vec_transform(
+//    makeUnitCylinder(numSides, radiusMode), [&](const auto& v) { return transform * v; });
+  auto verts_vec = std::vector<std::vector<vm::vec3>> {};
+  verts_vec.push_back(makeUnitCylinder(numSides, radiusMode)); // TODO :Call this for each side or break it up or whatever.
+  return kdl::vec_transform(verts_vec, [&](const auto& verts) {
+    return createBrush(transform * verts, textureName);
+  });
 }
 
 namespace

@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Error.h"
 #include "CreateBrushToolBase.h"
 
 #include "Model/BrushNode.h"
@@ -46,16 +47,21 @@ const Grid& CreateBrushToolBase::grid() const
   return kdl::mem_lock(m_document)->grid();
 }
 
-void CreateBrushToolBase::createBrush()
+void CreateBrushToolBase::createBrushes()
 {
-  if (m_brushNode)
+  if (m_brushNodes.size() > 0)
   {
     auto document = kdl::mem_lock(m_document);
 
     auto transaction = Transaction{document, "Create Brush"};
     document->deselectAll();
+    std::vector<Model::Node*> brushNodes = {};
+    for (auto& node : m_brushNodes)
+    {
+      brushNodes.push_back(node.release());
+    }
     auto addedNodes =
-      document->addNodes({{document->parentForNodes(), {m_brushNode.release()}}});
+      document->addNodes({{document->parentForNodes(), brushNodes}});
     document->selectNodes(addedNodes);
     transaction.commit();
 
@@ -65,45 +71,75 @@ void CreateBrushToolBase::createBrush()
 
 void CreateBrushToolBase::cancel()
 {
-  m_brushNode.release();
+  for (auto& node : m_brushNodes)
+  {
+    node.release();
+  }
 }
 
 void CreateBrushToolBase::render(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
 {
-  if (m_brushNode)
+  if (m_brushNodes.size() > 0)
   {
-    renderBrush(renderContext, renderBatch);
+    renderBrushes(renderContext, renderBatch);
   }
 }
 
-void CreateBrushToolBase::renderBrush(
+void CreateBrushToolBase::renderBrushes(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
 {
-  ensure(m_brushNode, "brush is not null");
+  for (size_t i = 0; i < m_brushNodes.size(); ++i)
+  {
+    auto brushNode = m_brushNodes[i].get();
+    ensure(brushNode, "brush is not null");
 
-  m_brushRenderer->setFaceColor(pref(Preferences::FaceColor));
-  m_brushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
-  m_brushRenderer->setShowEdges(true);
-  m_brushRenderer->setShowOccludedEdges(true);
-  m_brushRenderer->setOccludedEdgeColor(Color(
-    pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
-  m_brushRenderer->setTint(true);
-  m_brushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
-  m_brushRenderer->setForceTransparent(true);
-  m_brushRenderer->setTransparencyAlpha(0.7f);
+    m_brushRenderer->setFaceColor(pref(Preferences::FaceColor));
+    m_brushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
+    m_brushRenderer->setShowEdges(true);
+    m_brushRenderer->setShowOccludedEdges(true);
+    m_brushRenderer->setOccludedEdgeColor(Color(
+      pref(Preferences::SelectedEdgeColor), pref(Preferences::OccludedSelectedEdgeAlpha)));
+    m_brushRenderer->setTint(true);
+    m_brushRenderer->setTintColor(pref(Preferences::SelectedFaceColor));
+    m_brushRenderer->setForceTransparent(true);
+    m_brushRenderer->setTransparencyAlpha(0.7f);
 
-  m_brushRenderer->clear();
-  m_brushRenderer->addBrush(m_brushNode.get());
-  m_brushRenderer->render(renderContext, renderBatch);
+    m_brushRenderer->clear();
+    m_brushRenderer->addBrush(brushNode);
+    m_brushRenderer->render(renderContext, renderBatch);
 
-  auto boundsRenderer = Renderer::SelectionBoundsRenderer{m_brushNode->logicalBounds()};
-  boundsRenderer.render(renderContext, renderBatch);
+    auto boundsRenderer = Renderer::SelectionBoundsRenderer{brushNode->logicalBounds()};
+    boundsRenderer.render(renderContext, renderBatch);
+  }
 }
 
-void CreateBrushToolBase::updateBrush(std::unique_ptr<Model::BrushNode> brushNode)
+void CreateBrushToolBase::updateBrush(std::unique_ptr<Model::BrushNode> brushNode) // not sure if we still need this - leaving just to get stuff compiling again.
 {
-  m_brushNode = std::move(brushNode);
+  m_brushNodes.clear();
+  m_brushNodes.push_back(std::move(brushNode));
+}
+
+void CreateBrushToolBase::updateBrushes(std::vector<Result<Model::Brush>> brushNodes)
+{
+  m_brushNodes.clear();
+
+  for (const auto& brushResult : brushNodes)
+  {
+    brushResult
+      .transform(
+        [&](auto brush) { m_brushNodes.push_back(std::make_unique<Model::BrushNode>(std::move(brush))); })
+      .transform_error([&](auto e) {
+        // TODO: document->error() << "Could not update brush: " << e;
+        assert(false);
+      });
+  }
+}
+
+
+void CreateBrushToolBase::clearBrushes()
+{
+  m_brushNodes.clear();
 }
 
 void CreateBrushToolBase::doBrushWasCreated() {}

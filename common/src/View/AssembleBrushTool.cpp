@@ -58,15 +58,15 @@ void AssembleBrushTool::update(const Model::Polyhedron3& polyhedron)
 
     builder.createBrush(*m_polyhedron, document->currentTextureName())
       .transform(
-        [&](auto b) { updateBrush(std::make_unique<Model::BrushNode>(std::move(b))); })
+        [&](auto brush) { updateBrush(std::make_unique<Model::BrushNode>(std::move(brush))); })
       .transform_error([&](auto e) {
-        updateBrush(nullptr);
+        clearBrushes();
         document->error() << "Could not update brush: " << e.msg;
       });
   }
   else
   {
-    updateBrush(nullptr);
+    clearBrushes();
   }
 }
 
