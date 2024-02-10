@@ -26,41 +26,38 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TitleBar::TitleBar(
   const QString& title,
   QWidget* parent,
   const int hMargin,
   const int vMargin,
   const bool boldTitle)
-  : QWidget(parent)
-  , m_titleText(nullptr)
+  : QWidget{parent}
+  , m_titleLabel{new QLabel{title}}
 {
-  m_titleText = new QLabel(title);
-
   // Tell ControlListBox to not update the title label's color when the selection changes,
   // in case this widget is used inside of a ControlListBox.
-  m_titleText->setProperty(ControlListBox::LabelColorShouldNotUpdateWhenSelected, true);
+  m_titleLabel->setProperty(ControlListBox::LabelColorShouldNotUpdateWhenSelected, true);
 
   if (boldTitle)
   {
-    makeEmphasized(m_titleText);
+    makeEmphasized(m_titleLabel);
   }
 
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(hMargin, vMargin, hMargin, vMargin);
   layout->setSpacing(LayoutConstants::WideHMargin);
-  layout->addWidget(m_titleText, 1);
+  layout->addWidget(m_titleLabel, 1);
   setLayout(layout);
 }
 
 TitleBar::TitleBar(
   const QString& title, const int hMargin, const int vMargin, const bool boldTitle)
-  : TitleBar(title, nullptr, hMargin, vMargin, boldTitle)
+  : TitleBar{title, nullptr, hMargin, vMargin, boldTitle}
 {
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

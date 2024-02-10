@@ -31,17 +31,12 @@
 #include "View/Splitter.h"
 #include "View/TitledPanel.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 EntityInspector::EntityInspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
-  : TabBookPage(parent)
-  , m_splitter(nullptr)
-  , m_attributeEditor(nullptr)
-  , m_entityBrowser(nullptr)
-  , m_entityDefinitionFileChooser(nullptr)
+  : TabBookPage{parent}
 {
   createGui(std::move(document), contextManager);
 }
@@ -55,7 +50,7 @@ EntityInspector::~EntityInspector()
 void EntityInspector::createGui(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
 {
-  m_splitter = new Splitter(Qt::Vertical);
+  m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("EntityInspector_Splitter");
 
   m_splitter->addWidget(createAttributeEditor(m_splitter, document));
@@ -70,13 +65,13 @@ void EntityInspector::createGui(
 
   m_entityDefinitionFileChooser = createEntityDefinitionFileChooser(this, document);
 
-  auto* outerSizer = new QVBoxLayout();
-  outerSizer->setContentsMargins(0, 0, 0, 0);
-  outerSizer->setSpacing(0);
-  outerSizer->addWidget(m_splitter, 1);
-  outerSizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
-  outerSizer->addWidget(m_entityDefinitionFileChooser, 0);
-  setLayout(outerSizer);
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(0);
+  layout->addWidget(m_splitter, 1);
+  layout->addWidget(new BorderLine{}, 0);
+  layout->addWidget(m_entityDefinitionFileChooser, 0);
+  setLayout(layout);
 
   restoreWindowState(m_splitter);
 }
@@ -84,20 +79,20 @@ void EntityInspector::createGui(
 QWidget* EntityInspector::createAttributeEditor(
   QWidget* parent, std::weak_ptr<MapDocument> document)
 {
-  m_attributeEditor = new EntityPropertyEditor(std::move(document), parent);
+  m_attributeEditor = new EntityPropertyEditor{std::move(document), parent};
   return m_attributeEditor;
 }
 
 QWidget* EntityInspector::createEntityBrowser(
   QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
 {
-  auto* panel = new TitledPanel(tr("Entity Browser"), parent);
-  m_entityBrowser = new EntityBrowser(std::move(document), contextManager);
+  auto* panel = new TitledPanel{tr("Entity Browser"), parent};
+  m_entityBrowser = new EntityBrowser{std::move(document), contextManager};
 
-  auto* sizer = new QVBoxLayout();
-  sizer->setContentsMargins(0, 0, 0, 0);
-  sizer->addWidget(m_entityBrowser, 1);
-  panel->getPanel()->setLayout(sizer);
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->addWidget(m_entityBrowser, 1);
+  panel->getPanel()->setLayout(layout);
 
   return panel;
 }
@@ -105,19 +100,19 @@ QWidget* EntityInspector::createEntityBrowser(
 CollapsibleTitledPanel* EntityInspector::createEntityDefinitionFileChooser(
   QWidget* parent, std::weak_ptr<MapDocument> document)
 {
-  auto* panel = new CollapsibleTitledPanel(tr("Entity Definitions"), true, parent);
+  auto* panel = new CollapsibleTitledPanel{tr("Entity Definitions"), true, parent};
   panel->setObjectName("EntityInspector_EntityDefinitionFileChooser");
 
-  auto* entityDefinitionFileChooser = new EntityDefinitionFileChooser(document);
+  auto* entityDefinitionFileChooser = new EntityDefinitionFileChooser{document};
 
-  auto* sizer = new QVBoxLayout();
-  sizer->setContentsMargins(0, 0, 0, 0);
-  sizer->addWidget(entityDefinitionFileChooser, 1);
-  panel->getPanel()->setLayout(sizer);
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->addWidget(entityDefinitionFileChooser, 1);
+  panel->getPanel()->setLayout(layout);
 
   restoreWindowState(panel);
 
   return panel;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
