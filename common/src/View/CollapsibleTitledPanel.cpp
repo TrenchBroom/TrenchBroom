@@ -29,7 +29,7 @@
 namespace TrenchBroom::View
 {
 
-CollapsibleTitleBar::CollapsibleTitleBar(
+ClickableTitleBar::ClickableTitleBar(
   const QString& title, const QString& stateText, QWidget* parent)
   : TitleBar{title, parent, LayoutConstants::NarrowHMargin, LayoutConstants::NarrowVMargin, true}
   , m_stateText{new QLabel{stateText}}
@@ -40,12 +40,12 @@ CollapsibleTitleBar::CollapsibleTitleBar(
   layout()->addWidget(m_stateText);
 }
 
-void CollapsibleTitleBar::setStateText(const QString& stateText)
+void ClickableTitleBar::setStateText(const QString& stateText)
 {
   m_stateText->setText(stateText);
 }
 
-void CollapsibleTitleBar::mousePressEvent(QMouseEvent* /* event */)
+void ClickableTitleBar::mousePressEvent(QMouseEvent* /* event */)
 {
   emit titleBarClicked();
 }
@@ -53,7 +53,7 @@ void CollapsibleTitleBar::mousePressEvent(QMouseEvent* /* event */)
 CollapsibleTitledPanel::CollapsibleTitledPanel(
   const QString& title, const bool initiallyExpanded, QWidget* parent)
   : QWidget{parent}
-  , m_titleBar{new CollapsibleTitleBar{title, "hide"}}
+  , m_titleBar{new ClickableTitleBar{title, "hide"}}
   , m_divider{new BorderLine{}}
   , m_panel{new QWidget{}}
   , m_expanded{initiallyExpanded}
@@ -66,7 +66,7 @@ CollapsibleTitledPanel::CollapsibleTitledPanel(
   sizer->addWidget(m_panel, 1);
   setLayout(sizer);
 
-  connect(m_titleBar, &CollapsibleTitleBar::titleBarClicked, this, [=]() {
+  connect(m_titleBar, &ClickableTitleBar::titleBarClicked, this, [=]() {
     setExpanded(!m_expanded);
   });
 

@@ -29,14 +29,14 @@ namespace TrenchBroom::View
 {
 class BorderLine;
 
-class CollapsibleTitleBar : public TitleBar
+class ClickableTitleBar : public TitleBar
 {
   Q_OBJECT
 private:
   QLabel* m_stateText = nullptr;
 
 public:
-  CollapsibleTitleBar(
+  ClickableTitleBar(
     const QString& title, const QString& stateText, QWidget* parent = nullptr);
 
   void setStateText(const QString& stateText);
@@ -51,7 +51,7 @@ class CollapsibleTitledPanel : public QWidget
 {
   Q_OBJECT
 private:
-  CollapsibleTitleBar* m_titleBar = nullptr;
+  ClickableTitleBar* m_titleBar = nullptr;
   BorderLine* m_divider = nullptr;
   QWidget* m_panel = nullptr;
   bool m_expanded = true;
