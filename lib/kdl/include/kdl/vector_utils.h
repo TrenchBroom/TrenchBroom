@@ -979,9 +979,8 @@ auto vec_flatten(std::vector<std::vector<T, A1>, A2> vec)
  * Returns a vector containing those values from s1 which are not also in s2. Values from
  * s1 and s2 are compared using the common comparator from both sets.
  *
- * Expects that both S1 and S2 declare the types of their values with ::value_type and the
- * comparator used to compare the values with ::value_compare. Additionally, the type of
- * value_compare must be identical in both sets.
+ * Expects that both S1 and S2 declare the types of their values with ::value_type and
+ * and that S1 and S2 are sorted and unique according to comparator C.
  *
  * The value type of the returned vector is the common type of S1 and S2's member types.
  * The values from s1 which are not also in s2 are added to the returned vector in the
@@ -989,21 +988,22 @@ auto vec_flatten(std::vector<std::vector<T, A1>, A2> vec)
  *
  * @tparam S1 the type of the first set
  * @tparam S2 the type of the second set
+ * @tparam C the type of the comparator to use
  * @param s1 the first set
  * @param s2 the second set
+ * @param c the comparator to use
  * @return a vector containing the set difference of s1 and s2.
  */
-template <typename S1, typename S2>
-auto set_difference(const S1& s1, const S2& s2)
+template <
+  typename S1,
+  typename S2,
+  typename C =
+    std::less<std::common_type_t<typename S1::value_type, typename S2::value_type>>>
+auto set_difference(const S1& s1, const S2& s2, const C& c = C{})
 {
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
-  using C1 = typename S1::value_compare;
-  using C2 = typename S2::value_compare;
-  static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
-
   using T = std::common_type_t<T1, T2>;
-  using C = C1;
 
   std::vector<T> result;
   result.reserve(s1.size());
@@ -1013,7 +1013,7 @@ auto set_difference(const S1& s1, const S2& s2)
     std::begin(s2),
     std::end(s2),
     std::back_inserter(result),
-    C());
+    c);
   return result;
 }
 
@@ -1022,9 +1022,8 @@ auto set_difference(const S1& s1, const S2& s2)
  * values from s1 and s2 is a duplicate if the values are equivalent according to the
  * common comparator of s1 and s2.
  *
- * Expects that both S1 and S2 declare the types of their values with ::value_type and the
- * comparator used to compare the values with ::value_compare. Additionally, the type of
- * value_compare must be identical in both sets.
+ * Expects that both S1 and S2 declare the types of their values with ::value_type and
+ * and that S1 and S2 are sorted and unique according to comparator C.
  *
  * The value type of the returned vector is the common type of S1 and S2's member types.
  * The order of the values in the returned vector complies with the common comparator of
@@ -1032,21 +1031,22 @@ auto set_difference(const S1& s1, const S2& s2)
  *
  * @tparam S1 the type of the first set
  * @tparam S2 the type of the second set
+ * @tparam C the type of the comparator to use
  * @param s1 the first set
  * @param s2 the second set
+ * @param c the comparator to use
  * @return a vector containing the set union of s1 and s2.
  */
-template <typename S1, typename S2>
-auto set_union(const S1& s1, const S2& s2)
+template <
+  typename S1,
+  typename S2,
+  typename C =
+    std::less<std::common_type_t<typename S1::value_type, typename S2::value_type>>>
+auto set_union(const S1& s1, const S2& s2, const C& c = C{})
 {
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
-  using C1 = typename S1::value_compare;
-  using C2 = typename S2::value_compare;
-  static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
-
   using T = typename std::common_type<T1, T2>::type;
-  using C = C1;
 
   std::vector<T> result;
   result.reserve(s1.size() + s2.size());
@@ -1056,16 +1056,15 @@ auto set_union(const S1& s1, const S2& s2)
     std::begin(s2),
     std::end(s2),
     std::back_inserter(result),
-    C());
+    c);
   return result;
 }
 
 /**
  * Returns a vector containing all values from s1 and s2 which are present in both sets.
  *
- * Expects that both S1 and S2 declare the types of their values with ::value_type and the
- * comparator used to compare the values with ::value_compare. Additionally, the type of
- * value_compare must be identical in both sets.
+ * Expects that both S1 and S2 declare the types of their values with ::value_type and
+ * and that S1 and S2 are sorted and unique according to comparator C.
  *
  * The value type of the returned vector is the common type of S1 and S2's member types.
  * The order of the values in the returned vector complies with the common comparator of
@@ -1073,21 +1072,22 @@ auto set_union(const S1& s1, const S2& s2)
  *
  * @tparam S1 the type of the first set
  * @tparam S2 the type of the second set
+ * @tparam C the type of the comparator to use
  * @param s1 the first set
  * @param s2 the second set
+ * @param c the comparator to use
  * @return a vector containing the set union of s1 and s2.
  */
-template <typename S1, typename S2>
-auto set_intersection(const S1& s1, const S2& s2)
+template <
+  typename S1,
+  typename S2,
+  typename C =
+    std::less<std::common_type_t<typename S1::value_type, typename S2::value_type>>>
+auto set_intersection(const S1& s1, const S2& s2, const C& c = C{})
 {
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
-  using C1 = typename S1::value_compare;
-  using C2 = typename S2::value_compare;
-  static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
-
   using T = typename std::common_type<T1, T2>::type;
-  using C = C1;
 
   std::vector<T> result;
   result.reserve(s1.size() + s2.size());
@@ -1097,7 +1097,7 @@ auto set_intersection(const S1& s1, const S2& s2)
     std::begin(s2),
     std::end(s2),
     std::back_inserter(result),
-    C());
+    c);
   return result;
 }
 
