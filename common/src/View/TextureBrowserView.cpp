@@ -273,6 +273,16 @@ void TextureBrowserView::doRender(Layout& layout, const float y, const float hei
   auto document = kdl::mem_lock(m_document);
   document->textureManager().commitChanges();
 
+  const auto viewLeft = float(0);
+  const auto viewTop = float(size().height());
+  const auto viewRight = float(size().width());
+  const auto viewBottom = float(0);
+
+  const auto transformation = Renderer::Transformation{
+    vm::ortho_matrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom),
+    vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y())
+      * vm::translation_matrix(vm::vec3f{0.0f, 0.0f, 0.1f})};
+
   renderBounds(layout, y, height);
   renderTextures(layout, y, height);
 }
