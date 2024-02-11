@@ -4308,6 +4308,13 @@ std::vector<std::filesystem::path> MapDocument::enabledTextureCollections() cons
         kdl::str_split(*textureCollectionStr, ";"),
         [](const auto& str) { return std::filesystem::path{str}; }));
     }
+    else if (
+      const auto* wadStr = m_world->entity().property(Model::EntityPropertyKeys::Wad))
+    {
+      return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+        kdl::str_split(*wadStr, ";"),
+        [](const auto& str) { return std::filesystem::path{str}.filename(); }));
+    }
   }
   return {};
 }
