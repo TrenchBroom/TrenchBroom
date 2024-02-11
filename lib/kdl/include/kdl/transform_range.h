@@ -119,6 +119,7 @@ public:
   using const_iterator = transform_iterator<typename C::const_iterator, Transform>;
   using const_reverse_iterator =
     transform_iterator<typename C::const_reverse_iterator, Transform>;
+  using value_type = typename const_iterator::value_type;
 
 private:
   const C& m_container;

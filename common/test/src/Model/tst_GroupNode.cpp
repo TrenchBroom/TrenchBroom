@@ -134,7 +134,7 @@ TEST_CASE("GroupNode.canAddChild")
   {
     auto linkedGroupNode = std::make_unique<GroupNode>(Group{"group"});
     setLinkId(groupNode, "linked_group_id");
-    setLinkId(*linkedGroupNode, groupNode.group().linkId());
+    setLinkId(*linkedGroupNode, groupNode.linkId());
     CHECK_FALSE(groupNode.canAddChild(linkedGroupNode.get()));
 
     auto outerGroupNode = GroupNode{Group{"outer_group"}};

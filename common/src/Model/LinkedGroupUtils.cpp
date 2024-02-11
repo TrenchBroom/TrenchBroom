@@ -45,12 +45,10 @@ std::vector<Node*> collectNodesWithLinkId(
   return collectNodesAndDescendants(
     nodes,
     kdl::overload(
-      [&](const GroupNode* groupNode) { return groupNode->group().linkId() == linkId; },
-      [&](const EntityNode* entityNode) {
-        return entityNode->entity().linkId() == linkId;
-      },
-      [&](const BrushNode* brushNode) { return brushNode->brush().linkId() == linkId; },
-      [&](const PatchNode* patchNode) { return patchNode->patch().linkId() == linkId; }));
+      [&](const GroupNode* groupNode) { return groupNode->linkId() == linkId; },
+      [&](const EntityNode* entityNode) { return entityNode->linkId() == linkId; },
+      [&](const BrushNode* brushNode) { return brushNode->linkId() == linkId; },
+      [&](const PatchNode* patchNode) { return patchNode->linkId() == linkId; }));
 }
 
 std::vector<GroupNode*> collectGroupsWithLinkId(
@@ -58,7 +56,7 @@ std::vector<GroupNode*> collectGroupsWithLinkId(
 {
   return kdl::vec_static_cast<GroupNode*>(
     collectNodesAndDescendants(nodes, kdl::overload([&](const GroupNode* groupNode) {
-                                 return groupNode->group().linkId() == linkId;
+                                 return groupNode->linkId() == linkId;
                                })));
 }
 
@@ -76,7 +74,7 @@ std::vector<std::string> collectLinkedGroupIds(const std::vector<Node*>& nodes)
         layerNode->visitChildren(thisLambda);
       },
       [&](auto&& thisLambda, const GroupNode* groupNode) {
-        result.push_back(groupNode->group().linkId());
+        result.push_back(groupNode->linkId());
         groupNode->visitChildren(thisLambda);
       },
       [](const EntityNode*) {},
@@ -98,7 +96,7 @@ std::vector<std::string> collectParentLinkedGroupIds(const Node& parentNode)
   {
     if (const auto* currentGroupNode = dynamic_cast<const GroupNode*>(currentNode))
     {
-      result.push_back(currentGroupNode->group().linkId());
+      result.push_back(currentGroupNode->linkId());
     }
     currentNode = currentNode->parent();
   }
@@ -162,8 +160,7 @@ SelectionResult nodeSelectionWithLinkedGroupConstraints(
       for (auto* groupNode : containingGroupNodes)
       {
         // find the others and add them to the lock list
-        for (auto* otherGroup :
-             collectGroupsWithLinkId({&world}, groupNode->group().linkId()))
+        for (auto* otherGroup : collectGroupsWithLinkId({&world}, groupNode->linkId()))
         {
           if (otherGroup == groupNode)
           {
@@ -220,20 +217,28 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
     },
     [&](const GroupNode* groupNode) -> std::unique_ptr<Node> {
       auto& group = std::get<Group>(origNodeToTransformedContents.at(groupNode).get());
-      return std::make_unique<GroupNode>(std::move(group));
+      auto newGroupNode = std::make_unique<GroupNode>(std::move(group));
+      newGroupNode->setLinkId(groupNode->linkId());
+      return newGroupNode;
     },
     [&](const EntityNode* entityNode) -> std::unique_ptr<Node> {
       auto& entity = std::get<Entity>(origNodeToTransformedContents.at(entityNode).get());
-      return std::make_unique<EntityNode>(std::move(entity));
+      auto newEntityNode = std::make_unique<EntityNode>(std::move(entity));
+      newEntityNode->setLinkId(entityNode->linkId());
+      return newEntityNode;
     },
     [&](const BrushNode* brushNode) -> std::unique_ptr<Node> {
       auto& brush = std::get<Brush>(origNodeToTransformedContents.at(brushNode).get());
-      return std::make_unique<BrushNode>(std::move(brush));
+      auto newBrushNode = std::make_unique<BrushNode>(std::move(brush));
+      newBrushNode->setLinkId(brushNode->linkId());
+      return newBrushNode;
     },
     [&](const PatchNode* patchNode) -> std::unique_ptr<Node> {
       auto& patch =
         std::get<BezierPatch>(origNodeToTransformedContents.at(patchNode).get());
-      return std::make_unique<PatchNode>(std::move(patch));
+      auto newPatchNode = std::make_unique<PatchNode>(std::move(patch));
+      newPatchNode->setLinkId(patchNode->linkId());
+      return newPatchNode;
     }));
 
   if (!worldBounds.contains(clone->logicalBounds()))
@@ -340,19 +345,15 @@ auto makeLinkIdToNodeMap(const std::vector<Node*>& nodes)
         layerNode->visitChildren(thisLambda);
       },
       [&](auto&& thisLambda, const GroupNode* groupNode) {
-        result[groupNode->group().linkId()] = groupNode;
+        result[groupNode->linkId()] = groupNode;
         groupNode->visitChildren(thisLambda);
       },
       [&](auto&& thisLambda, const EntityNode* entityNode) {
-        result[entityNode->entity().linkId()] = entityNode;
+        result[entityNode->linkId()] = entityNode;
         entityNode->visitChildren(thisLambda);
       },
-      [&](const BrushNode* brushNode) {
-        result[brushNode->brush().linkId()] = brushNode;
-      },
-      [&](const PatchNode* patchNode) {
-        result[patchNode->patch().linkId()] = patchNode;
-      }));
+      [&](const BrushNode* brushNode) { result[brushNode->linkId()] = brushNode; },
+      [&](const PatchNode* patchNode) { result[patchNode->linkId()] = patchNode; }));
   return result;
 }
 
@@ -381,8 +382,8 @@ void preserveGroupNames(
       },
       [&](auto&& thisLambda, GroupNode* groupNode) {
         if (
-          const auto* correspondingNode = getCorrespondingNode<GroupNode>(
-            correspondingNodes, groupNode->group().linkId()))
+          const auto* correspondingNode =
+            getCorrespondingNode<GroupNode>(correspondingNodes, groupNode->linkId()))
         {
           auto group = groupNode->group();
           group.setName(correspondingNode->group().name());
@@ -446,8 +447,8 @@ void preserveEntityProperties(
       },
       [&](EntityNode* entityNode) {
         if (
-          const auto* correspondingNode = getCorrespondingNode<EntityNode>(
-            correspondingNodes, entityNode->entity().linkId()))
+          const auto* correspondingNode =
+            getCorrespondingNode<EntityNode>(correspondingNodes, entityNode->linkId()))
         {
           preserveEntityProperties(*entityNode, *correspondingNode);
         }
@@ -574,19 +575,19 @@ Result<void> copyLinkIds(
       [&](const WorldNode&, const WorldNode&) { return Result<bool>{true}; },
       [&](const LayerNode&, const LayerNode&) { return Result<bool>{true}; },
       [&](const GroupNode& sourceGroupNode, GroupNode& targetGroupNode) {
-        linkIds[&targetGroupNode] = sourceGroupNode.group().linkId();
+        linkIds[&targetGroupNode] = sourceGroupNode.linkId();
         return Result<bool>{true};
       },
       [&](const EntityNode& sourceEntityNode, EntityNode& targetEntityNode) {
-        linkIds[&targetEntityNode] = sourceEntityNode.entity().linkId();
+        linkIds[&targetEntityNode] = sourceEntityNode.linkId();
         return Result<bool>{true};
       },
       [&](const BrushNode& sourceBrushNode, BrushNode& targetBrushNode) {
-        linkIds[&targetBrushNode] = sourceBrushNode.brush().linkId();
+        linkIds[&targetBrushNode] = sourceBrushNode.linkId();
         return Result<bool>{false};
       },
       [&](const PatchNode& sourcePatchNode, PatchNode& targetPatchNode) {
-        linkIds[&targetPatchNode] = sourcePatchNode.patch().linkId();
+        linkIds[&targetPatchNode] = sourcePatchNode.linkId();
         return Result<bool>{false};
       }));
 }
@@ -630,35 +631,16 @@ void setLinkIds(
         node->accept(kdl::overload(
           [](const WorldNode*) {},
           [](const LayerNode*) {},
-          [&linkId = linkId](GroupNode* groupNode) {
-            auto group = groupNode->group();
-            group.setLinkId(std::move(linkId));
-            groupNode->setGroup(std::move(group));
-          },
-          [&linkId = linkId](EntityNode* entityNode) {
-            auto entity = entityNode->entity();
-            entity.setLinkId(std::move(linkId));
-            entityNode->setEntity(std::move(entity));
-          },
-          [&linkId = linkId](BrushNode* brushNode) {
-            auto brush = brushNode->brush();
-            brush.setLinkId(std::move(linkId));
-            brushNode->setBrush(std::move(brush));
-          },
-          [&linkId = linkId](PatchNode* patchNode) {
-            auto patch = patchNode->patch();
-            patch.setLinkId(std::move(linkId));
-            patchNode->setPatch(std::move(patch));
-          }));
+          [&linkId = linkId](Object* object) { object->setLinkId(std::move(linkId)); }));
       }
     })
     .transform_error([&](auto e) {
       for (auto* linkedGroupNode : groups)
       {
         auto group = linkedGroupNode->group();
-        group.setLinkId(generateUuid());
         group.setTransformation(vm::mat4x4::identity());
         linkedGroupNode->setGroup(std::move(group));
+        linkedGroupNode->setLinkId(generateUuid());
       }
       errors.push_back(std::move(e));
     });
@@ -669,13 +651,10 @@ void setLinkIds(
 std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes)
 {
   const auto allGroupNodes =
-    kdl::vec_sort(collectGroups(nodes), [](const auto* lhs, const auto* rhs) {
-      return lhs->group().linkId() < rhs->group().linkId();
-    });
-  const auto groupNodesByLinkId =
-    kdl::make_grouped_range(allGroupNodes, [](const auto* lhs, const auto* rhs) {
-      return lhs->group().linkId() == rhs->group().linkId();
-    });
+    kdl::vec_sort(collectGroups(nodes), compareGroupNodesByLinkId);
+  const auto groupNodesByLinkId = kdl::make_grouped_range(
+    allGroupNodes,
+    [](const auto* lhs, const auto* rhs) { return lhs->linkId() == rhs->linkId(); });
 
   auto errors = std::vector<Error>{};
   for (const auto groupNodesWithId : groupNodesByLinkId)

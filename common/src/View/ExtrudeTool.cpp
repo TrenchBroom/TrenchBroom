@@ -534,7 +534,7 @@ bool splitBrushesInward(
       // Look up the new face index of the new drag handle
       if (const auto newDragFaceIndex = newBrushNode->brush().findFace(clipFace.normal()))
       {
-        newDragFaces.push_back(Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
+        newDragFaces.emplace_back(newBrushNode, *newDragFaceIndex);
       }
     }
   }
@@ -551,7 +551,7 @@ bool splitBrushesInward(
   // Add the newly split off brushes and select them (keeping the original brushes
   // selected).
   // FIXME: deal with linked group update failure (needed for #3647)
-  const auto addedNodes = document.addNodes(std::move(newNodes));
+  const auto addedNodes = document.addNodes(newNodes);
   document.selectNodes(addedNodes);
 
   dragState.currentDragFaces = std::move(newDragFaces);

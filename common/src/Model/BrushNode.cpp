@@ -317,10 +317,10 @@ FloatType BrushNode::doGetProjectedArea(const vm::axis::type axis) const
 Node* BrushNode::doClone(
   const vm::bbox3& /* worldBounds */, const SetLinkId setLinkIds) const
 {
-  auto* result =
-    new BrushNode{setNewLinkIdIf(m_brush, setLinkIds == SetLinkId::generate)};
-  cloneAttributes(result);
-  return result;
+  auto result = std::make_unique<BrushNode>(m_brush);
+  result->cloneLinkId(*this, setLinkIds);
+  cloneAttributes(result.get());
+  return result.release();
 }
 
 bool BrushNode::doCanAddChild(const Node* /* child */) const

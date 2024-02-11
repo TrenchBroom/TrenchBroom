@@ -1600,8 +1600,8 @@ TEST_CASE("WorldReader.parseLinkedGroups")
   REQUIRE(groupNode1 != nullptr);
   REQUIRE(groupNode2 != nullptr);
 
-  CHECK(groupNode1->group().linkId() == "abcd");
-  CHECK(groupNode2->group().linkId() == "abcd");
+  CHECK(groupNode1->linkId() == "abcd");
+  CHECK(groupNode2->linkId() == "abcd");
 
   CHECK(
     groupNode1->group().transformation()
@@ -1640,7 +1640,7 @@ TEST_CASE("WorldReader.parseOrphanedLinkedGroups")
     dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
 
   CHECK(groupNode != nullptr);
-  CHECK(groupNode->group().linkId() == "abcd");
+  CHECK(groupNode->linkId() == "abcd");
   CHECK(
     groupNode->group().transformation() == vm::translation_matrix(vm::vec3{32, 0, 0}));
 }
@@ -1696,9 +1696,9 @@ TEST_CASE("WorldReader.parseLinkedGroupsWithMissingTransformation")
   REQUIRE(groupNode2 != nullptr);
   REQUIRE(groupNode3 != nullptr);
 
-  CHECK(groupNode1->group().linkId() == "1");
-  CHECK(groupNode2->group().linkId() == "1");
-  CHECK(groupNode3->group().linkId() == "1");
+  CHECK(groupNode1->linkId() == "1");
+  CHECK(groupNode2->linkId() == "1");
+  CHECK(groupNode3->linkId() == "1");
 
   CHECK(groupNode1->group().transformation() == vm::mat4x4d::identity());
   CHECK(
@@ -1859,30 +1859,30 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
   const auto* groupNode_4_1_1_fgh =
     dynamic_cast<Model::GroupNode*>(groupNode_4_1->children().front());
 
-  CHECK(groupNode_1_abcd->group().linkId() == "abcd");
+  CHECK(groupNode_1_abcd->linkId() == "abcd");
   CHECK(
     groupNode_1_abcd->group().transformation()
     == vm::translation_matrix(vm::vec3{32, 0, 0}));
-  CHECK(groupNode_1_2_abcd->group().linkId() != "abcd");
+  CHECK(groupNode_1_2_abcd->linkId() != "abcd");
   CHECK(groupNode_1_2_abcd->group().transformation() == vm::mat4x4::identity());
 
-  CHECK(groupNode_2_xyz->group().linkId() == "xyz");
+  CHECK(groupNode_2_xyz->linkId() == "xyz");
   CHECK(
     groupNode_2_xyz->group().transformation()
     == vm::translation_matrix(vm::vec3{32, 0, 0}));
-  CHECK(groupNode_2_1_xyz->group().linkId() != "xyz");
+  CHECK(groupNode_2_1_xyz->linkId() != "xyz");
   CHECK(groupNode_2_1_xyz->group().transformation() == vm::mat4x4::identity());
-  CHECK(groupNode_3_xyz->group().linkId() == "xyz");
+  CHECK(groupNode_3_xyz->linkId() == "xyz");
   CHECK(
     groupNode_3_xyz->group().transformation()
     == vm::translation_matrix(vm::vec3{32, 0, 0}));
 
-  CHECK(groupNode_4_fgh->group().linkId() == "fgh");
+  CHECK(groupNode_4_fgh->linkId() == "fgh");
   CHECK(
     groupNode_4_fgh->group().transformation()
     == vm::translation_matrix(vm::vec3{32, 0, 0}));
   CHECK(groupNode_4_1->group().transformation() == vm::mat4x4::identity());
-  CHECK(groupNode_4_1_1_fgh->group().linkId() != "fgh");
+  CHECK(groupNode_4_1_1_fgh->linkId() != "fgh");
   CHECK(groupNode_4_1_1_fgh->group().transformation() == vm::mat4x4::identity());
 }
 

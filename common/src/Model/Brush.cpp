@@ -28,7 +28,6 @@
 #include "Model/TexCoordSystem.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
-#include "Uuid.h"
 
 #include <kdl/reflection_impl.h>
 #include <kdl/result.h>
@@ -70,8 +69,10 @@ Brush::Brush() {}
 
 Brush::Brush(const Brush& other)
   : m_faces{other.m_faces}
-  , m_geometry{other.m_geometry ? std::make_unique<BrushGeometry>(*other.m_geometry, CopyCallback()) : nullptr}
-  , m_linkId{other.m_linkId}
+  , m_geometry{
+      other.m_geometry
+        ? std::make_unique<BrushGeometry>(*other.m_geometry, CopyCallback())
+        : nullptr}
 {
   if (m_geometry)
   {
@@ -100,7 +101,6 @@ Brush::~Brush() = default;
 
 Brush::Brush(std::vector<BrushFace> faces)
   : m_faces{std::move(faces)}
-  , m_linkId{generateUuid()}
 {
 }
 
@@ -171,16 +171,6 @@ const vm::bbox3& Brush::bounds() const
 {
   ensure(m_geometry != nullptr, "geometry is null");
   return m_geometry->bounds();
-}
-
-const std::string& Brush::linkId() const
-{
-  return m_linkId;
-}
-
-void Brush::setLinkId(std::string linkId)
-{
-  m_linkId = std::move(linkId);
 }
 
 std::optional<size_t> Brush::findFace(const std::string& textureName) const

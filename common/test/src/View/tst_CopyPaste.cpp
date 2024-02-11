@@ -347,14 +347,14 @@ TEST_CASE_METHOD(
   document->selectNodes({groupNode});
   auto* linkedGroup = document->createLinkedDuplicate();
 
-  const auto originalGroupLinkId = linkedGroup->group().linkId();
-  REQUIRE(originalGroupLinkId == groupNode->group().linkId());
+  const auto originalGroupLinkId = linkedGroup->linkId();
+  REQUIRE(originalGroupLinkId == groupNode->linkId());
 
   auto* linkedBrush = dynamic_cast<Model::BrushNode*>(linkedGroup->children().front());
   REQUIRE(linkedBrush);
 
-  const auto originalBrushLinkId = linkedBrush->brush().linkId();
-  REQUIRE(originalBrushLinkId == brushNode->brush().linkId());
+  const auto originalBrushLinkId = linkedBrush->linkId();
+  REQUIRE(originalBrushLinkId == brushNode->linkId());
 
   document->deselectAll();
 
@@ -377,7 +377,7 @@ TEST_CASE_METHOD(
         document->world()->defaultLayer()->children().back());
       REQUIRE(pastedGroup);
 
-      CHECK(pastedGroup->group().linkId() == originalGroupLinkId);
+      CHECK(pastedGroup->linkId() == originalGroupLinkId);
     }
 
     SECTION("Pasting duplicate linked group ID")
@@ -389,13 +389,13 @@ TEST_CASE_METHOD(
         document->world()->defaultLayer()->children().back());
       REQUIRE(pastedGroup);
 
-      CHECK(pastedGroup->group().linkId() == originalGroupLinkId);
+      CHECK(pastedGroup->linkId() == originalGroupLinkId);
 
       const auto* pastedBrush =
         dynamic_cast<Model::BrushNode*>(pastedGroup->children().front());
       REQUIRE(pastedBrush);
 
-      CHECK(pastedBrush->brush().linkId() == originalBrushLinkId);
+      CHECK(pastedBrush->linkId() == originalBrushLinkId);
     }
 
     SECTION("Pasting recursive linked group")
@@ -409,25 +409,25 @@ TEST_CASE_METHOD(
       auto* pastedGroup = dynamic_cast<Model::GroupNode*>(groupNode->children().back());
       REQUIRE(pastedGroup);
 
-      CHECK(pastedGroup->group().linkId() != originalGroupLinkId);
+      CHECK(pastedGroup->linkId() != originalGroupLinkId);
 
       const auto* pastedBrush =
         dynamic_cast<Model::BrushNode*>(pastedGroup->children().front());
       REQUIRE(pastedBrush);
 
-      CHECK(pastedBrush->brush().linkId() != originalBrushLinkId);
+      CHECK(pastedBrush->linkId() != originalBrushLinkId);
 
       auto* linkedPastedGroup =
         dynamic_cast<Model::GroupNode*>(linkedGroup->children().back());
       REQUIRE(linkedPastedGroup);
 
-      CHECK(linkedPastedGroup->group().linkId() == pastedGroup->group().linkId());
+      CHECK(linkedPastedGroup->linkId() == pastedGroup->linkId());
 
       const auto* linkedPastedBrush =
         dynamic_cast<Model::BrushNode*>(linkedPastedGroup->children().front());
       REQUIRE(pastedBrush);
 
-      CHECK(linkedPastedBrush->brush().linkId() == pastedBrush->brush().linkId());
+      CHECK(linkedPastedBrush->linkId() == pastedBrush->linkId());
     }
   }
 
@@ -449,20 +449,20 @@ TEST_CASE_METHOD(
       dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[3]);
     REQUIRE(pastedGroup2);
 
-    CHECK(pastedGroup1->group().linkId() == originalGroupLinkId);
-    CHECK(pastedGroup2->group().linkId() == originalGroupLinkId);
+    CHECK(pastedGroup1->linkId() == originalGroupLinkId);
+    CHECK(pastedGroup2->linkId() == originalGroupLinkId);
 
     const auto* pastedBrush1 =
       dynamic_cast<Model::BrushNode*>(pastedGroup1->children().front());
     REQUIRE(pastedBrush1);
 
-    CHECK(pastedBrush1->brush().linkId() == originalBrushLinkId);
+    CHECK(pastedBrush1->linkId() == originalBrushLinkId);
 
     const auto* pastedBrush2 =
       dynamic_cast<Model::BrushNode*>(pastedGroup2->children().front());
     REQUIRE(pastedBrush2);
 
-    CHECK(pastedBrush2->brush().linkId() == originalBrushLinkId);
+    CHECK(pastedBrush2->linkId() == originalBrushLinkId);
   }
 }
 

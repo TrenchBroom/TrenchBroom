@@ -108,10 +108,10 @@ FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const
 Node* EntityNode::doClone(
   const vm::bbox3& /* worldBounds */, const SetLinkId setLinkIds) const
 {
-  auto entity = std::make_unique<EntityNode>(
-    setNewLinkIdIf(m_entity, setLinkIds == SetLinkId::generate));
-  cloneAttributes(entity.get());
-  return entity.release();
+  auto result = std::make_unique<EntityNode>(m_entity);
+  result->cloneLinkId(*this, setLinkIds);
+  cloneAttributes(result.get());
+  return result.release();
 }
 
 bool EntityNode::doCanAddChild(const Node* child) const

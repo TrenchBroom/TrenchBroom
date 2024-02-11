@@ -32,6 +32,11 @@ class Node;
 class PatchNode;
 class WorldNode;
 
+#ifdef _MSC_VER
+// silence apurious "C4702: unreachable code" warnings
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
 class NodeVisitor
 {
 protected:
@@ -112,18 +117,7 @@ public:
   R&& result() { return std::move(m_result).value(); }
 
 protected:
-#ifdef _MSC_VER
-// silence a spurious "C4702: unreachable code" warning
-#pragma warning(push)
-#pragma warning(disable : 4702)
-#endif
-  void setResult(R&& result)
-  {
-    m_result = std::move(result);
-  }
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
+  void setResult(R&& result) { m_result = std::move(result); }
 };
 
 class NodeLambdaVisitorNoResult
@@ -268,5 +262,8 @@ private:
     }
   }
 };
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 } // namespace TrenchBroom::Model

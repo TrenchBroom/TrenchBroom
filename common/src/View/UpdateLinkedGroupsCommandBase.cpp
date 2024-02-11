@@ -41,7 +41,7 @@ UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
 {
 }
 
-UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() {}
+UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() = default;
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
   MapDocumentCommandFacade* document)
