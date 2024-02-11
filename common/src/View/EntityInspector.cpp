@@ -29,7 +29,7 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
-#include "View/TitledPanel.h"
+#include "View/SwitchableTitledPanel.h"
 
 namespace TrenchBroom::View
 {
@@ -44,7 +44,6 @@ EntityInspector::EntityInspector(
 EntityInspector::~EntityInspector()
 {
   saveWindowState(m_splitter);
-  saveWindowState(m_entityDefinitionFileChooser);
 }
 
 void EntityInspector::createGui(
@@ -63,14 +62,10 @@ void EntityInspector::createGui(
   m_attributeEditor->setMinimumSize(100, 150);
   m_entityBrowser->setMinimumSize(100, 150);
 
-  m_entityDefinitionFileChooser = createEntityDefinitionFileChooser(this, document);
-
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(m_splitter, 1);
-  layout->addWidget(new BorderLine{}, 0);
-  layout->addWidget(m_entityDefinitionFileChooser, 0);
   setLayout(layout);
 
   restoreWindowState(m_splitter);
@@ -86,31 +81,22 @@ QWidget* EntityInspector::createAttributeEditor(
 QWidget* EntityInspector::createEntityBrowser(
   QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
 {
-  auto* panel = new TitledPanel{tr("Entity Browser"), parent};
-  m_entityBrowser = new EntityBrowser{std::move(document), contextManager};
+  auto* panel = new SwitchableTitledPanel{
+    tr("Entity Browser"), {{tr("Browser"), tr("Settings")}}, parent};
 
-  auto* layout = new QVBoxLayout{};
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(m_entityBrowser, 1);
-  panel->getPanel()->setLayout(layout);
+  m_entityBrowser = new EntityBrowser{document, contextManager};
 
-  return panel;
-}
+  auto* entityBrowserLayout = new QVBoxLayout{};
+  entityBrowserLayout->setContentsMargins(0, 0, 0, 0);
+  entityBrowserLayout->addWidget(m_entityBrowser, 1);
+  panel->getPanel(0)->setLayout(entityBrowserLayout);
 
-CollapsibleTitledPanel* EntityInspector::createEntityDefinitionFileChooser(
-  QWidget* parent, std::weak_ptr<MapDocument> document)
-{
-  auto* panel = new CollapsibleTitledPanel{tr("Entity Definitions"), true, parent};
-  panel->setObjectName("EntityInspector_EntityDefinitionFileChooser");
+  auto* entityDefinitionFileEditor = new EntityDefinitionFileChooser{document};
 
-  auto* entityDefinitionFileChooser = new EntityDefinitionFileChooser{document};
-
-  auto* layout = new QVBoxLayout{};
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->addWidget(entityDefinitionFileChooser, 1);
-  panel->getPanel()->setLayout(layout);
-
-  restoreWindowState(panel);
+  auto* entityDefinitionFileEditorLayout = new QVBoxLayout{};
+  entityDefinitionFileEditorLayout->setContentsMargins(0, 0, 0, 0);
+  entityDefinitionFileEditorLayout->addWidget(entityDefinitionFileEditor, 1);
+  panel->getPanel(1)->setLayout(entityDefinitionFileEditorLayout);
 
   return panel;
 }
