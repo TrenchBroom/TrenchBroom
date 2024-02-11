@@ -441,6 +441,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/Splitter.cpp
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
+        ${COMMON_SOURCE_DIR}/View/SwitchableTitledPanel.cpp
         ${COMMON_SOURCE_DIR}/View/TabBar.cpp
         ${COMMON_SOURCE_DIR}/View/TabBook.cpp
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.cpp
@@ -966,6 +967,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/Splitter.h
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.h
         ${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.h
+        ${COMMON_SOURCE_DIR}/View/SwitchableTitledPanel.h
         ${COMMON_SOURCE_DIR}/View/TabBar.h
         ${COMMON_SOURCE_DIR}/View/TabBook.h
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.h
