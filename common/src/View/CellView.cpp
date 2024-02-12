@@ -367,6 +367,8 @@ void CellView::doRender()
   const auto y = float(visibleRect.y());
   const auto h = float(visibleRect.height());
 
+  doRender(m_layout, y, h);
+
   const auto viewLeft = float(0);
   const auto viewTop = float(size().height());
   const auto viewRight = float(size().width());
@@ -379,11 +381,8 @@ void CellView::doRender()
 
   glAssert(glDisable(GL_DEPTH_TEST));
   glAssert(glFrontFace(GL_CCW));
-
   renderTitleBackgrounds(y, h);
   renderTitleStrings(y, h);
-
-  doRender(m_layout, y, h);
 }
 
 void CellView::setupGL()
