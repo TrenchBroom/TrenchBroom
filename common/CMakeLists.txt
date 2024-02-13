@@ -284,6 +284,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CellView.cpp
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
         ${COMMON_SOURCE_DIR}/View/ClickableLabel.cpp
+        ${COMMON_SOURCE_DIR}/View/ClickableTitleBar.cpp
         ${COMMON_SOURCE_DIR}/View/ClipTool.cpp
         ${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
         ${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
@@ -440,11 +441,13 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/Splitter.cpp
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
+        ${COMMON_SOURCE_DIR}/View/SwitchableTitledPanel.cpp
         ${COMMON_SOURCE_DIR}/View/TabBar.cpp
         ${COMMON_SOURCE_DIR}/View/TabBook.cpp
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.cpp
         ${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
         ${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
+        ${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/TitleBar.cpp
         ${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
@@ -807,6 +810,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CellView.h
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.h
         ${COMMON_SOURCE_DIR}/View/ClickableLabel.h
+        ${COMMON_SOURCE_DIR}/View/ClickableTitleBar.h
         ${COMMON_SOURCE_DIR}/View/ClipTool.h
         ${COMMON_SOURCE_DIR}/View/ClipToolController.h
         ${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
@@ -964,11 +968,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/Splitter.h
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.h
         ${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.h
+        ${COMMON_SOURCE_DIR}/View/SwitchableTitledPanel.h
         ${COMMON_SOURCE_DIR}/View/TabBar.h
         ${COMMON_SOURCE_DIR}/View/TabBook.h
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.h
         ${COMMON_SOURCE_DIR}/View/TextureBrowser.h
         ${COMMON_SOURCE_DIR}/View/TextureBrowserView.h
+        ${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.h
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.h
         ${COMMON_SOURCE_DIR}/View/TitleBar.h
         ${COMMON_SOURCE_DIR}/View/TitledPanel.h

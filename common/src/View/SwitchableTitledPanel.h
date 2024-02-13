@@ -21,25 +21,45 @@
 
 #include <QWidget>
 
-class QLabel;
+#include "View/TitleBar.h"
+
+#include <array>
+
+class QStackedLayout;
 
 namespace TrenchBroom::View
 {
+class BorderLine;
+class ClickableTitleBar;
 
-class TitleBar : public QWidget
+class SwitchableTitledPanel : public QWidget
 {
-protected:
-  QLabel* m_titleLabel = nullptr;
+  Q_OBJECT
+private:
+  struct SwitchablePanel
+  {
+    QWidget* panel = nullptr;
+    QString stateText;
+  };
+
+  ClickableTitleBar* m_titleBar = nullptr;
+  BorderLine* m_divider = nullptr;
+  QStackedLayout* m_stackedLayout = nullptr;
+  std::array<SwitchablePanel, 2> m_panels;
 
 public:
-  TitleBar(
+  explicit SwitchableTitledPanel(
     const QString& title,
-    QWidget* parent,
-    int hMargin = 0,
-    int vMargin = 0,
-    bool boldTitle = true);
-  explicit TitleBar(
-    const QString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
+    const std::array<QString, 2>& stateTexts,
+    QWidget* parent = nullptr);
+
+  QWidget* getPanel(size_t index) const;
+
+  size_t currentIndex() const;
+  void setCurrentIndex(size_t index);
+
+  QByteArray saveState() const;
+  bool restoreState(const QByteArray& state);
 };
 
 } // namespace TrenchBroom::View

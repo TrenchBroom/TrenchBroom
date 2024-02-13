@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2024 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -21,25 +21,30 @@
 
 #include <QWidget>
 
+#include "View/TitleBar.h"
+
 class QLabel;
 
 namespace TrenchBroom::View
 {
+class BorderLine;
 
-class TitleBar : public QWidget
+class ClickableTitleBar : public TitleBar
 {
-protected:
-  QLabel* m_titleLabel = nullptr;
+  Q_OBJECT
+private:
+  QLabel* m_stateText = nullptr;
 
 public:
-  TitleBar(
-    const QString& title,
-    QWidget* parent,
-    int hMargin = 0,
-    int vMargin = 0,
-    bool boldTitle = true);
-  explicit TitleBar(
-    const QString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
+  ClickableTitleBar(
+    const QString& title, const QString& stateText, QWidget* parent = nullptr);
+
+  void setStateText(const QString& stateText);
+signals:
+  void titleBarClicked();
+
+protected:
+  void mousePressEvent(QMouseEvent* event) override;
 };
 
 } // namespace TrenchBroom::View

@@ -25,38 +25,19 @@
 
 class QLabel;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class BorderLine;
-
-class CollapsibleTitleBar : public TitleBar
-{
-  Q_OBJECT
-private:
-  QLabel* m_stateText;
-
-public:
-  CollapsibleTitleBar(
-    const QString& title, const QString& stateText, QWidget* parent = nullptr);
-
-  void setStateText(const QString& stateText);
-signals:
-  void titleBarClicked();
-
-protected:
-  void mousePressEvent(QMouseEvent* event) override;
-};
+class ClickableTitleBar;
 
 class CollapsibleTitledPanel : public QWidget
 {
   Q_OBJECT
 private:
-  CollapsibleTitleBar* m_titleBar;
-  BorderLine* m_divider;
-  QWidget* m_panel;
-  bool m_expanded;
+  ClickableTitleBar* m_titleBar = nullptr;
+  BorderLine* m_divider = nullptr;
+  QWidget* m_panel = nullptr;
+  bool m_expanded = true;
 
 public:
   explicit CollapsibleTitledPanel(
@@ -75,5 +56,5 @@ public:
 private:
   void updateExpanded();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

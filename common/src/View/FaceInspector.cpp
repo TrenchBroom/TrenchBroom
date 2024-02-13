@@ -28,13 +28,13 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EntityNode.h"
 #include "View/BorderLine.h"
-#include "View/CollapsibleTitledPanel.h"
 #include "View/FaceAttribsEditor.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
+#include "View/SwitchableTitledPanel.h"
 #include "View/TextureBrowser.h"
-#include "View/TitledPanel.h"
+#include "View/TextureCollectionEditor.h"
 
 #include <kdl/memory_utils.h>
 
@@ -105,14 +105,22 @@ QWidget* FaceInspector::createFaceAttribsEditor(
 QWidget* FaceInspector::createTextureBrowser(
   QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
 {
-  auto* panel = new TitledPanel{tr("Texture Browser"), parent};
-  m_textureBrowser = new TextureBrowser{std::move(document), contextManager};
+  auto* panel = new SwitchableTitledPanel{
+    tr("Texture Browser"), {{tr("Browser"), tr("Settings")}}, parent};
 
-  auto* layout = new QVBoxLayout{};
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->setSpacing(0);
-  layout->addWidget(m_textureBrowser, 1);
-  panel->getPanel()->setLayout(layout);
+  m_textureBrowser = new TextureBrowser{document, contextManager};
+
+  auto* textureBrowserLayout = new QVBoxLayout{};
+  textureBrowserLayout->setContentsMargins(0, 0, 0, 0);
+  textureBrowserLayout->addWidget(m_textureBrowser, 1);
+  panel->getPanel(0)->setLayout(textureBrowserLayout);
+
+  auto* textureCollectionEditor = new TextureCollectionEditor{document};
+
+  auto* textureCollectionEditorLayout = new QVBoxLayout{};
+  textureCollectionEditorLayout->setContentsMargins(0, 0, 0, 0);
+  textureCollectionEditorLayout->addWidget(textureCollectionEditor, 1);
+  panel->getPanel(1)->setLayout(textureCollectionEditorLayout);
 
   return panel;
 }

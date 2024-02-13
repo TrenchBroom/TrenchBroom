@@ -4296,6 +4296,57 @@ void MapDocument::reloadEntityDefinitions()
   info("Reloading entity definitions");
 }
 
+std::vector<std::filesystem::path> MapDocument::enabledTextureCollections() const
+{
+  if (m_world)
+  {
+    if (
+      const auto* textureCollectionStr =
+        m_world->entity().property(Model::EntityPropertyKeys::EnabledTextureCollections))
+    {
+      return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+        kdl::str_split(*textureCollectionStr, ";"),
+        [](const auto& str) { return std::filesystem::path{str}; }));
+    }
+    else if (
+      const auto* wadStr = m_world->entity().property(Model::EntityPropertyKeys::Wad))
+    {
+      return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+        kdl::str_split(*wadStr, ";"),
+        [](const auto& str) { return std::filesystem::path{str}.filename(); }));
+    }
+  }
+  return {};
+}
+
+std::vector<std::filesystem::path> MapDocument::disabledTextureCollections() const
+{
+  if (m_world)
+  {
+    auto textureCollections = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+      m_textureManager->collections(),
+      [](const auto& collection) { return std::filesystem::path{collection.name()}; }));
+
+    return kdl::set_difference(textureCollections, enabledTextureCollections());
+  }
+  return {};
+}
+
+void MapDocument::setEnabledTextureCollections(
+  const std::vector<std::filesystem::path>& enabledTextureCollections)
+{
+  const auto enabledTextureCollectionStr = kdl::str_join(
+    kdl::vec_transform(
+      kdl::vec_sort_and_remove_duplicates(enabledTextureCollections),
+      [](const auto& path) { return path.u8string(); }),
+    ";");
+
+  auto transaction = Transaction{*this, "Set enabled texture collections"};
+  const auto success = setProperty(
+    Model::EntityPropertyKeys::EnabledTextureCollections, enabledTextureCollectionStr);
+  transaction.finish(success);
+}
+
 void MapDocument::loadAssets()
 {
   loadEntityDefinitions();
@@ -5054,6 +5105,18 @@ Transaction::~Transaction()
 Transaction::State Transaction::state() const
 {
   return m_state;
+}
+
+void Transaction::finish(const bool commit)
+{
+  if (commit)
+  {
+    this->commit();
+  }
+  else
+  {
+    cancel();
+  }
 }
 
 bool Transaction::commit()

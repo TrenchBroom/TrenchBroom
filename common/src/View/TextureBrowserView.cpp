@@ -162,10 +162,10 @@ void TextureBrowserView::doReloadLayout(Layout& layout)
 
   if (m_group)
   {
-    for (const auto& collection : getCollections())
+    for (const auto* collection : getCollections())
     {
-      layout.addGroup(collection.name(), float(fontSize) + 2.0f);
-      addTexturesToLayout(layout, getTextures(collection), font);
+      layout.addGroup(collection->name(), float(fontSize) + 2.0f);
+      addTexturesToLayout(layout, getTextures(*collection), font);
     }
   }
   else
@@ -206,10 +206,21 @@ void TextureBrowserView::addTextureToLayout(
     titleHeight + 4.0f);
 }
 
-const std::vector<Assets::TextureCollection>& TextureBrowserView::getCollections() const
+std::vector<const Assets::TextureCollection*> TextureBrowserView::getCollections() const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->textureManager().collections();
+  const auto enabledTextureCollections = document->enabledTextureCollections();
+
+  auto result = std::vector<const Assets::TextureCollection*>{};
+  for (const auto& collection : document->textureManager().collections())
+  {
+    if (kdl::vec_contains(
+          enabledTextureCollections, std::filesystem::path{collection.name()}))
+    {
+      result.push_back(&collection);
+    }
+  }
+  return result;
 }
 
 std::vector<const Assets::Texture*> TextureBrowserView::getTextures(
@@ -221,8 +232,19 @@ std::vector<const Assets::Texture*> TextureBrowserView::getTextures(
 
 std::vector<const Assets::Texture*> TextureBrowserView::getTextures() const
 {
-  auto doc = kdl::mem_lock(m_document);
-  return sortTextures(filterTextures(doc->textureManager().textures()));
+  auto document = kdl::mem_lock(m_document);
+  auto textures = std::vector<const Assets::Texture*>{};
+  for (const auto& collection : getCollections())
+  {
+    for (const auto& texture : collection->textures())
+    {
+      if (!texture.overridden())
+      {
+        textures.push_back(&texture);
+      }
+    }
+  }
+  return sortTextures(filterTextures(textures));
 }
 
 std::vector<const Assets::Texture*> TextureBrowserView::filterTextures(

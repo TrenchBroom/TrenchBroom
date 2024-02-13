@@ -708,6 +708,12 @@ public: // asset management
   void reloadTextureCollections();
   void reloadEntityDefinitions();
 
+  std::vector<std::filesystem::path> enabledTextureCollections() const;
+  std::vector<std::filesystem::path> disabledTextureCollections() const;
+
+  void setEnabledTextureCollections(
+    const std::vector<std::filesystem::path>& enabledTextureCollections);
+
 private:
   void loadAssets();
   void unloadAssets();
@@ -834,6 +840,7 @@ public:
 
   State state() const;
 
+  void finish(bool commit);
   bool commit();
   void rollback();
   void cancel();

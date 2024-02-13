@@ -33,20 +33,18 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFaceHandle;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class GLContextManager;
 class MapDocument;
@@ -58,12 +56,12 @@ class TextureBrowser : public QWidget
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  QComboBox* m_sortOrderChoice;
-  QPushButton* m_groupButton;
-  QPushButton* m_usedButton;
-  QLineEdit* m_filterBox;
-  QScrollBar* m_scrollBar;
-  TextureBrowserView* m_view;
+  QComboBox* m_sortOrderChoice = nullptr;
+  QPushButton* m_groupButton = nullptr;
+  QPushButton* m_usedButton = nullptr;
+  QLineEdit* m_filterBox = nullptr;
+  QScrollBar* m_scrollBar = nullptr;
+  TextureBrowserView* m_view = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -103,5 +101,5 @@ private:
   void reload();
   void updateSelectedTexture();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

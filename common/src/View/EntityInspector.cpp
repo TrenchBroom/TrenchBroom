@@ -29,19 +29,14 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
-#include "View/TitledPanel.h"
+#include "View/SwitchableTitledPanel.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 EntityInspector::EntityInspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
-  : TabBookPage(parent)
-  , m_splitter(nullptr)
-  , m_attributeEditor(nullptr)
-  , m_entityBrowser(nullptr)
-  , m_entityDefinitionFileChooser(nullptr)
+  : TabBookPage{parent}
 {
   createGui(std::move(document), contextManager);
 }
@@ -49,13 +44,12 @@ EntityInspector::EntityInspector(
 EntityInspector::~EntityInspector()
 {
   saveWindowState(m_splitter);
-  saveWindowState(m_entityDefinitionFileChooser);
 }
 
 void EntityInspector::createGui(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
 {
-  m_splitter = new Splitter(Qt::Vertical);
+  m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("EntityInspector_Splitter");
 
   m_splitter->addWidget(createAttributeEditor(m_splitter, document));
@@ -68,15 +62,11 @@ void EntityInspector::createGui(
   m_attributeEditor->setMinimumSize(100, 150);
   m_entityBrowser->setMinimumSize(100, 150);
 
-  m_entityDefinitionFileChooser = createEntityDefinitionFileChooser(this, document);
-
-  auto* outerSizer = new QVBoxLayout();
-  outerSizer->setContentsMargins(0, 0, 0, 0);
-  outerSizer->setSpacing(0);
-  outerSizer->addWidget(m_splitter, 1);
-  outerSizer->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 0);
-  outerSizer->addWidget(m_entityDefinitionFileChooser, 0);
-  setLayout(outerSizer);
+  auto* layout = new QVBoxLayout{};
+  layout->setContentsMargins(0, 0, 0, 0);
+  layout->setSpacing(0);
+  layout->addWidget(m_splitter, 1);
+  setLayout(layout);
 
   restoreWindowState(m_splitter);
 }
@@ -84,40 +74,31 @@ void EntityInspector::createGui(
 QWidget* EntityInspector::createAttributeEditor(
   QWidget* parent, std::weak_ptr<MapDocument> document)
 {
-  m_attributeEditor = new EntityPropertyEditor(std::move(document), parent);
+  m_attributeEditor = new EntityPropertyEditor{std::move(document), parent};
   return m_attributeEditor;
 }
 
 QWidget* EntityInspector::createEntityBrowser(
   QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
 {
-  auto* panel = new TitledPanel(tr("Entity Browser"), parent);
-  m_entityBrowser = new EntityBrowser(std::move(document), contextManager);
+  auto* panel = new SwitchableTitledPanel{
+    tr("Entity Browser"), {{tr("Browser"), tr("Settings")}}, parent};
 
-  auto* sizer = new QVBoxLayout();
-  sizer->setContentsMargins(0, 0, 0, 0);
-  sizer->addWidget(m_entityBrowser, 1);
-  panel->getPanel()->setLayout(sizer);
+  m_entityBrowser = new EntityBrowser{document, contextManager};
 
-  return panel;
-}
+  auto* entityBrowserLayout = new QVBoxLayout{};
+  entityBrowserLayout->setContentsMargins(0, 0, 0, 0);
+  entityBrowserLayout->addWidget(m_entityBrowser, 1);
+  panel->getPanel(0)->setLayout(entityBrowserLayout);
 
-CollapsibleTitledPanel* EntityInspector::createEntityDefinitionFileChooser(
-  QWidget* parent, std::weak_ptr<MapDocument> document)
-{
-  auto* panel = new CollapsibleTitledPanel(tr("Entity Definitions"), true, parent);
-  panel->setObjectName("EntityInspector_EntityDefinitionFileChooser");
+  auto* entityDefinitionFileEditor = new EntityDefinitionFileChooser{document};
 
-  auto* entityDefinitionFileChooser = new EntityDefinitionFileChooser(document);
-
-  auto* sizer = new QVBoxLayout();
-  sizer->setContentsMargins(0, 0, 0, 0);
-  sizer->addWidget(entityDefinitionFileChooser, 1);
-  panel->getPanel()->setLayout(sizer);
-
-  restoreWindowState(panel);
+  auto* entityDefinitionFileEditorLayout = new QVBoxLayout{};
+  entityDefinitionFileEditorLayout->setContentsMargins(0, 0, 0, 0);
+  entityDefinitionFileEditorLayout->addWidget(entityDefinitionFileEditor, 1);
+  panel->getPanel(1)->setLayout(entityDefinitionFileEditorLayout);
 
   return panel;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -77,6 +77,7 @@ static bool isPropertyKeyMutable(const Model::Entity& entity, const std::string&
       || key == Model::EntityPropertyKeys::Mods
       || key == Model::EntityPropertyKeys::EntityDefinitions
       || key == Model::EntityPropertyKeys::Wad
+      || key == Model::EntityPropertyKeys::EnabledTextureCollections
       || key == Model::EntityPropertyKeys::SoftMapBounds
       || key == Model::EntityPropertyKeys::LayerColor
       || key == Model::EntityPropertyKeys::LayerLocked

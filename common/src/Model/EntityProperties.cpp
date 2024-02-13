@@ -38,6 +38,7 @@ const std::string Classname = "classname";
 const std::string Origin = "origin";
 const std::string Wad = "wad";
 const std::string Mods = "_tb_mod";
+const std::string EnabledTextureCollections = "_tb_textures";
 const std::string Spawnflags = "spawnflags";
 const std::string EntityDefinitions = "_tb_def";
 const std::string Angle = "angle";
