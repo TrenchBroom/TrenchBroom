@@ -2173,7 +2173,8 @@ void MapDocument::selectLinkedGroups()
     return;
   }
 
-  const auto linkIdsToSelect = Model::collectLinkedGroupIds(m_selectedNodes.nodes());
+  const auto linkIdsToSelect = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+    m_selectedNodes.groups(), [](const auto* groupNode) { return groupNode->linkId(); }));
   const auto groupNodesToSelect =
     kdl::vec_flatten(kdl::vec_transform(linkIdsToSelect, [&](const auto& linkId) {
       return Model::collectNodesWithLinkId({m_world.get()}, linkId);
@@ -2325,7 +2326,8 @@ bool MapDocument::updateLinkedGroups()
 
 void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
 {
-  const auto selectedLinkIds = Model::collectLinkedGroupIds(m_selectedNodes.nodes());
+  const auto selectedLinkIds = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+    m_selectedNodes.groups(), [](const auto* groupNode) { return groupNode->linkId(); }));
 
   auto groupsToUnlink = std::vector<Model::GroupNode*>{};
   auto groupsToRelink = std::vector<std::vector<Model::GroupNode*>>{};
