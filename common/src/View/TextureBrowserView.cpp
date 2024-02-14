@@ -214,8 +214,7 @@ std::vector<const Assets::TextureCollection*> TextureBrowserView::getCollections
   auto result = std::vector<const Assets::TextureCollection*>{};
   for (const auto& collection : document->textureManager().collections())
   {
-    if (kdl::vec_contains(
-          enabledTextureCollections, std::filesystem::path{collection.name()}))
+    if (kdl::vec_contains(enabledTextureCollections, collection.path()))
     {
       result.push_back(&collection);
     }
