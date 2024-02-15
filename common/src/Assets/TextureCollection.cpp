@@ -73,11 +73,6 @@ const std::filesystem::path& TextureCollection::path() const
   return m_path;
 }
 
-std::string TextureCollection::name() const
-{
-  return !m_path.empty() ? m_path.filename().string() : "";
-}
-
 size_t TextureCollection::textureCount() const
 {
   return m_textures.size();

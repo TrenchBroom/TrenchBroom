@@ -62,7 +62,6 @@ public:
 
   bool loaded() const;
   const std::filesystem::path& path() const;
-  std::string name() const;
   size_t textureCount() const;
 
   const std::vector<Texture>& textures() const;

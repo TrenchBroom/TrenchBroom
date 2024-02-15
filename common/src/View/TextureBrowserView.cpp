@@ -164,7 +164,7 @@ void TextureBrowserView::doReloadLayout(Layout& layout)
   {
     for (const auto* collection : getCollections())
     {
-      layout.addGroup(collection->name(), float(fontSize) + 2.0f);
+      layout.addGroup(collection->path().u8string(), float(fontSize) + 2.0f);
       addTexturesToLayout(layout, getTextures(*collection), font);
     }
   }
