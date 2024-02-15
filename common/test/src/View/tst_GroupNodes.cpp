@@ -587,6 +587,32 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups")
   CHECK(linkedBrushNode2->linkId() == originalBrushLinkId);
 }
 
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.reparentLinkedNode")
+{
+  auto* brushNode = createBrushNode();
+  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+
+  document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
+  document->selectNodes({brushNode, entityNode});
+
+  auto* groupNode = document->groupSelection("test");
+  REQUIRE(groupNode != nullptr);
+
+  document->deselectAll();
+  document->selectNodes({groupNode});
+
+  auto* linkedGroupNode = document->createLinkedDuplicate();
+  REQUIRE_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
+
+  document->deselectAll();
+  document->openGroup(groupNode);
+
+  document->reparentNodes({{document->world()->defaultLayer(), {brushNode}}});
+  REQUIRE(groupNode->children() == std::vector<Model::Node*>{entityNode});
+  REQUIRE(brushNode->parent() == document->world()->defaultLayer());
+  REQUIRE_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
+}
+
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.createLinkedDuplicate")
 {
   auto* brushNode = createBrushNode();
