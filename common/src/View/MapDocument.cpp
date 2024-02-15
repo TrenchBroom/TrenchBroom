@@ -1776,10 +1776,11 @@ void MapDocument::duplicateObjects()
   {
     auto* suggestedParent = parentForNodes({original});
 
-    const auto isLinkedNode =
-      Model::collectLinkedNodes({m_world.get()}, *original).size() > 1;
+    const auto isLinkedGroup =
+      dynamic_cast<const Model::GroupNode*>(original) != nullptr
+      && Model::collectLinkedNodes({m_world.get()}, *original).size() > 1;
     const auto setLinkIds =
-      isLinkedNode ? Model::SetLinkId::keep : Model::SetLinkId::generate;
+      isLinkedGroup ? Model::SetLinkId::keep : Model::SetLinkId::generate;
     auto* clone = original->cloneRecursively(m_worldBounds, setLinkIds);
 
     if (shouldCloneParentWhenCloningNode(original))
