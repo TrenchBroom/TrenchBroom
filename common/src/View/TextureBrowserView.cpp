@@ -164,7 +164,7 @@ void TextureBrowserView::doReloadLayout(Layout& layout)
   {
     for (const auto* collection : getCollections())
     {
-      layout.addGroup(collection->name(), float(fontSize) + 2.0f);
+      layout.addGroup(collection->path().u8string(), float(fontSize) + 2.0f);
       addTexturesToLayout(layout, getTextures(*collection), font);
     }
   }
@@ -214,8 +214,7 @@ std::vector<const Assets::TextureCollection*> TextureBrowserView::getCollections
   auto result = std::vector<const Assets::TextureCollection*>{};
   for (const auto& collection : document->textureManager().collections())
   {
-    if (kdl::vec_contains(
-          enabledTextureCollections, std::filesystem::path{collection.name()}))
+    if (kdl::vec_contains(enabledTextureCollections, collection.path()))
     {
       result.push_back(&collection);
     }

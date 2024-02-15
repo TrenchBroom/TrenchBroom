@@ -4310,13 +4310,27 @@ std::vector<std::filesystem::path> MapDocument::enabledTextureCollections() cons
         kdl::str_split(*textureCollectionStr, ";"),
         [](const auto& str) { return std::filesystem::path{str}; }));
     }
-    else if (
-      const auto* wadStr = m_world->entity().property(Model::EntityPropertyKeys::Wad))
+
+    // If the map uses wad files, always enable all of them by default
+    if (m_world->entity().property(Model::EntityPropertyKeys::Wad))
     {
       return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-        kdl::str_split(*wadStr, ";"),
-        [](const auto& str) { return std::filesystem::path{str}.filename(); }));
+        m_textureManager->collections(),
+        [](const auto& collection) { return collection.path(); }));
     }
+
+    // Otherwise, enable all texture collections with used textures in them
+    auto result = std::vector<std::filesystem::path>{};
+    for (const auto& collection : m_textureManager->collections())
+    {
+      if (kdl::any_of(collection.textures(), [](const auto& texture) {
+            return texture.usageCount() > 0;
+          }))
+      {
+        result.push_back(collection.path());
+      }
+    }
+    return kdl::vec_sort_and_remove_duplicates(result);
   }
   return {};
 }
@@ -4327,7 +4341,7 @@ std::vector<std::filesystem::path> MapDocument::disabledTextureCollections() con
   {
     auto textureCollections = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
       m_textureManager->collections(),
-      [](const auto& collection) { return std::filesystem::path{collection.name()}; }));
+      [](const auto& collection) { return collection.path(); }));
 
     return kdl::set_difference(textureCollections, enabledTextureCollections());
   }
