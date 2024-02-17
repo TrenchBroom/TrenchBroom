@@ -137,6 +137,12 @@ public:
     detail::node_address address;
     std::vector<U> data;
 
+    leaf_node(detail::node_address i_address, std::vector<U> i_data)
+      : address{std::move(i_address)}
+      , data{std::move(i_data)}
+    {
+    }
+
     leaf_node(const leaf_node&) = delete;
     leaf_node(leaf_node&&) noexcept = default;
 

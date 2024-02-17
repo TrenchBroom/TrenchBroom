@@ -255,13 +255,13 @@ void GamePreferencePane::createGui()
     {
       edit->setToolTip(QString::fromStdString(*tool.description));
     }
-    connect(edit, &QLineEdit::editingFinished, this, [=]() {
+    connect(edit, &QLineEdit::editingFinished, this, [&, toolName]() {
       Model::GameFactory::instance().setCompilationToolPath(
         m_gameName, toolName, IO::pathFromQString(edit->text()));
     });
 
     auto* browseButton = new QPushButton("...");
-    connect(browseButton, &QPushButton::clicked, this, [=]() {
+    connect(browseButton, &QPushButton::clicked, this, [&, toolName]() {
       const QString pathStr = QFileDialog::getOpenFileName(
         this,
         tr("%1 Path").arg(QString::fromStdString(toolName)),

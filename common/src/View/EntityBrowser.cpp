@@ -103,7 +103,7 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
   m_sortOrderChoice->setCurrentIndex(0);
   m_sortOrderChoice->setToolTip(tr("Select ordering criterion"));
   connect(
-    m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [=](int index) {
+    m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [&](int index) {
       auto sortOrder = static_cast<Assets::EntityDefinitionSortOrder>(
         m_sortOrderChoice->itemData(index).toInt());
       m_view->setSortOrder(sortOrder);
@@ -112,19 +112,19 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
   m_groupButton = new QPushButton(tr("Group"));
   m_groupButton->setToolTip(tr("Group entity definitions by category"));
   m_groupButton->setCheckable(true);
-  connect(m_groupButton, &QAbstractButton::clicked, this, [=]() {
+  connect(m_groupButton, &QAbstractButton::clicked, this, [&]() {
     m_view->setGroup(m_groupButton->isChecked());
   });
 
   m_usedButton = new QPushButton(tr("Used"));
   m_usedButton->setToolTip(tr("Only show entity definitions currently in use"));
   m_usedButton->setCheckable(true);
-  connect(m_usedButton, &QAbstractButton::clicked, this, [=]() {
+  connect(m_usedButton, &QAbstractButton::clicked, this, [&]() {
     m_view->setHideUnused(m_usedButton->isChecked());
   });
 
   m_filterBox = createSearchBox();
-  connect(m_filterBox, &QLineEdit::textEdited, this, [=]() {
+  connect(m_filterBox, &QLineEdit::textEdited, this, [&]() {
     m_view->setFilterText(m_filterBox->text().toStdString());
   });
 

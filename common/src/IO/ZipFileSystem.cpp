@@ -77,7 +77,7 @@ Result<void> ZipFileSystem::doReadDirectory()
     if (!mz_zip_reader_is_file_a_directory(&m_archive, i))
     {
       const auto path = std::filesystem::path{filename(m_archive, i)};
-      addFile(path, [=]() -> Result<std::shared_ptr<File>> {
+      addFile(path, [&, i, path]() -> Result<std::shared_ptr<File>> {
         auto loadFileGoard = std::lock_guard{m_mutex};
 
         auto stat = mz_zip_archive_file_stat{};

@@ -1245,7 +1245,8 @@ R"(// entity 0
   auto writer = NodeWriter{map, str};
   writer.writeMap();
 
-  CHECK(str.str() == fmt::format(expectedSerializationTemplate, expectedName));
+  CHECK(
+    str.str() == fmt::format(fmt::runtime(expectedSerializationTemplate), expectedName));
 }
 
 TEST_CASE("NodeWriterTest.writePatch")

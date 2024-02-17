@@ -127,7 +127,7 @@ void TextureBrowser::createGui(GLContextManager& contextManager)
   m_sortOrderChoice->setCurrentIndex(0);
   m_sortOrderChoice->setToolTip(tr("Select ordering criterion"));
   connect(
-    m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [=](int index) {
+    m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [&](int index) {
       auto sortOrder =
         static_cast<TextureSortOrder>(m_sortOrderChoice->itemData(index).toInt());
       m_view->setSortOrder(sortOrder);
@@ -136,19 +136,19 @@ void TextureBrowser::createGui(GLContextManager& contextManager)
   m_groupButton = new QPushButton{tr("Group")};
   m_groupButton->setToolTip(tr("Group textures by texture collection"));
   m_groupButton->setCheckable(true);
-  connect(m_groupButton, &QAbstractButton::clicked, this, [=]() {
+  connect(m_groupButton, &QAbstractButton::clicked, this, [&]() {
     m_view->setGroup(m_groupButton->isChecked());
   });
 
   m_usedButton = new QPushButton{tr("Used")};
   m_usedButton->setToolTip(tr("Only show textures currently in use"));
   m_usedButton->setCheckable(true);
-  connect(m_usedButton, &QAbstractButton::clicked, this, [=]() {
+  connect(m_usedButton, &QAbstractButton::clicked, this, [&]() {
     m_view->setHideUnused(m_usedButton->isChecked());
   });
 
   m_filterBox = createSearchBox();
-  connect(m_filterBox, &QLineEdit::textEdited, this, [=]() {
+  connect(m_filterBox, &QLineEdit::textEdited, this, [&]() {
     m_view->setFilterText(m_filterBox->text().toStdString());
   });
 

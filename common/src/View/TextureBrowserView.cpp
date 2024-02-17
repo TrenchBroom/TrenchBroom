@@ -127,7 +127,7 @@ void TextureBrowserView::setSelectedTexture(const Assets::Texture* selectedTextu
 
 void TextureBrowserView::revealTexture(const Assets::Texture* texture)
 {
-  scrollToCell([=](const Cell& cell) {
+  scrollToCell([&](const Cell& cell) {
     const auto& cellTexture = cellData(cell);
     return &cellTexture == texture;
   });
@@ -164,7 +164,7 @@ void TextureBrowserView::doReloadLayout(Layout& layout)
   {
     for (const auto* collection : getCollections())
     {
-      layout.addGroup(collection->path().u8string(), float(fontSize) + 2.0f);
+      layout.addGroup(collection->path().string(), float(fontSize) + 2.0f);
       addTexturesToLayout(layout, getTextures(*collection), font);
     }
   }

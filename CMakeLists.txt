@@ -29,7 +29,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Set TrenchBroom item as default single startup project (NOTE: CMake 3.6 and newer)
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT TrenchBroom)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 

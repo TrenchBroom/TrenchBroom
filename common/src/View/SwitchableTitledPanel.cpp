@@ -49,7 +49,7 @@ SwitchableTitledPanel::SwitchableTitledPanel(
   outerLayout->addLayout(m_stackedLayout, 1);
   setLayout(outerLayout);
 
-  connect(m_titleBar, &ClickableTitleBar::titleBarClicked, this, [=]() {
+  connect(m_titleBar, &ClickableTitleBar::titleBarClicked, this, [&]() {
     setCurrentIndex(1 - currentIndex());
   });
 }

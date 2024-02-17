@@ -46,7 +46,7 @@ CollapsibleTitledPanel::CollapsibleTitledPanel(
   sizer->addWidget(m_panel, 1);
   setLayout(sizer);
 
-  connect(m_titleBar, &ClickableTitleBar::titleBarClicked, this, [=]() {
+  connect(m_titleBar, &ClickableTitleBar::titleBarClicked, this, [&]() {
     setExpanded(!m_expanded);
   });
 

@@ -71,24 +71,26 @@ constexpr auto reflection_split_tokens(std::string_view str)
   {
     return result;
   }
-
-  str = str.substr(str.find_first_not_of(ws));
-  for (auto i = 0u; i < C - 1; ++i)
+  else
   {
-    const auto c = str.find_first_of(",");
-    const auto e = str.substr(0, c).find_last_not_of(ws);
+    str = str.substr(str.find_first_not_of(ws));
+    for (auto i = 0u; i < C - 1; ++i)
+    {
+      const auto c = str.find_first_of(",");
+      const auto e = str.substr(0, c).find_last_not_of(ws);
 
-    result[i] = str.substr(0, e + 1);
-    str = str.substr(str.find_first_not_of(ws, c + 1));
-  }
+      result[i] = str.substr(0, e + 1);
+      str = str.substr(str.find_first_not_of(ws, c + 1));
+    }
 
-  auto e = str.find_last_not_of(ws);
-  if (e == std::string_view::npos)
-  {
-    e = str.size() - 1;
+    auto e = str.find_last_not_of(ws);
+    if (e == std::string_view::npos)
+    {
+      e = str.size() - 1;
+    }
+    result[C - 1] = str.substr(0, e + 1);
+    return result;
   }
-  result[C - 1] = str.substr(0, e + 1);
-  return result;
 }
 } // namespace detail
 
@@ -111,7 +113,7 @@ constexpr auto reflection_split_tokens(std::string_view str)
 #define kdl_reflect_members_0()                                                          \
   [[maybe_unused]] constexpr static auto member_names()                                  \
   {                                                                                      \
-    return std::array<std::string_view, 0>{};                                            \
+    return std::array<std::string_view, 0>();                                            \
   }                                                                                      \
   [[maybe_unused]] auto members() const                                                  \
   {                                                                                      \

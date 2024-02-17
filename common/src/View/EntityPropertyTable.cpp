@@ -48,7 +48,7 @@ void EntityPropertyTable::finishEditing(QWidget* editor)
  */
 QString EntityPropertyTable::insertRowShortcutString()
 {
-  return QKeySequence{Qt::Key_Return | Qt::CTRL}.toString(QKeySequence::NativeText);
+  return QKeySequence{+Qt::CTRL + Qt::Key_Return}.toString(QKeySequence::NativeText);
 }
 
 /**
