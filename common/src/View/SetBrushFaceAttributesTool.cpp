@@ -136,53 +136,95 @@ bool applies(const InputState& inputState)
          && (textureOnly || projection || rotation);
 }
 
+size_t findClosestFace(const Model::Brush& brush, const vm::vec3& normal)
+{
+  size_t best = 0;
+  for (size_t i = 1; i < brush.faceCount(); ++i)
+  {
+    const auto& bestFace = brush.face(best);
+    const auto& face = brush.face(i);
+    if (vm::dot(face.normal(), normal) > vm::dot(bestFace.normal(), normal))
+    {
+      best = i;
+    }
+  }
+  return best;
+}
+
+/**
+ * If the source face and the target face are in different linked groups with identical
+ * link IDs, then applying a change to the target face will lead to the group containing
+ * the source face to be deleted and replaced by the replicated group that contained the
+ * target face. We want to avoid this.
+ *
+ * Instead, we want to find a face in the same group that contains the source face to
+ * which we can apply the change, and achieve the same effect. For this, the new target
+ * face must be linked to the old target face.
+ *
+ * Nested linked groups further complicate matters. We must make sure that we select the
+ * innermost containing linked groups for both the old and new targets!
+ */
 std::optional<Model::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
   Model::GroupNode& containingSourceGroupNode,
   const Model::BrushFaceHandle& sourceFaceHandle,
-  const Model::BrushFaceHandle& targetFaceHandle)
+  const Model::BrushFaceHandle& oldTargetFaceHandle)
 {
   const auto& sourceBrushNode = *sourceFaceHandle.node();
-  const auto& targetBrushNode = *targetFaceHandle.node();
-  const auto linkedBrushNodes =
-    Model::collectLinkedNodes({&containingSourceGroupNode}, targetBrushNode);
+  const auto& oldTargetBrushNode = *oldTargetFaceHandle.node();
 
-  if (linkedBrushNodes.empty())
+  // The target is already in the same linked group as the source
+  if (containingSourceGroupNode.isAncestorOf(&oldTargetBrushNode))
   {
-    return targetFaceHandle;
+    return oldTargetFaceHandle;
   }
 
-  auto* linkedBrushNodeInSourceGroup =
-    dynamic_cast<Model::BrushNode*>(linkedBrushNodes.front());
-  ensure(linkedBrushNodeInSourceGroup, "linked nodes are consistent");
+  const auto linkedTargetBrushNodesInSourceGroup =
+    Model::collectLinkedNodes({&containingSourceGroupNode}, oldTargetBrushNode);
 
-  const auto* containingTargetGroupNode = targetBrushNode.containingGroup();
-  assert(containingTargetGroupNode);
+  if (linkedTargetBrushNodesInSourceGroup.empty())
+  {
+    return oldTargetFaceHandle;
+  }
 
-  const auto [invertible, targetTransformation] =
-    vm::invert(containingTargetGroupNode->group().transformation());
+  auto* newTargetBrushNode =
+    dynamic_cast<Model::BrushNode*>(linkedTargetBrushNodesInSourceGroup.front());
+  ensure(newTargetBrushNode, "linked nodes are consistent");
+
+  const auto* oldTargetContainingGroupNode = oldTargetBrushNode.containingGroup();
+  assert(oldTargetContainingGroupNode);
+
+  const auto* newTargetContainingGroupNode = newTargetBrushNode->containingGroup();
+  assert(newTargetContainingGroupNode);
+
+  ensure(
+    oldTargetContainingGroupNode->linkId() == newTargetContainingGroupNode->linkId(),
+    "containing groups are linked");
+
+  const auto [invertible, oldTargetTransformation] =
+    vm::invert(oldTargetContainingGroupNode->group().transformation());
   assert(invertible);
   unused(invertible);
 
-  const auto transformation =
-    containingSourceGroupNode.group().transformation() * targetTransformation;
+  const auto newTargetTransformation =
+    newTargetContainingGroupNode->group().transformation();
+  const auto oldToNewTargetTransformation =
+    newTargetTransformation * oldTargetTransformation;
 
   // Find the face in the source group that corresponds to the target face by
   // untransforming the normal and searching the linked brush node
-  const auto targetNormal = targetFaceHandle.face().normal();
-  const auto targetFaceInSourceGroupNormal =
-    vm::strip_translation(transformation) * targetNormal;
+  const auto oldTargetNormal = oldTargetFaceHandle.face().normal();
+  const auto newTargetNormal =
+    vm::strip_translation(oldToNewTargetTransformation) * oldTargetNormal;
+
+  const auto newTargetFaceIndex =
+    findClosestFace(newTargetBrushNode->brush(), newTargetNormal);
+
+  // Can't apply to the same face
   if (
-    const auto targetFaceInLinkedBrushIndex =
-      linkedBrushNodeInSourceGroup->brush().findFace(targetFaceInSourceGroupNormal))
+    newTargetBrushNode != &sourceBrushNode
+    || sourceFaceHandle.faceIndex() != newTargetFaceIndex)
   {
-    // Can't apply to the same face
-    if (
-      linkedBrushNodeInSourceGroup != &sourceBrushNode
-      || sourceFaceHandle.faceIndex() != targetFaceInLinkedBrushIndex)
-    {
-      return Model::BrushFaceHandle{
-        linkedBrushNodeInSourceGroup, *targetFaceInLinkedBrushIndex};
-    }
+    return Model::BrushFaceHandle{newTargetBrushNode, newTargetFaceIndex};
   }
 
   return std::nullopt;
