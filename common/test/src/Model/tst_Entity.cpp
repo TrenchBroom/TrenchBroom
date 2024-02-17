@@ -25,14 +25,14 @@
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/approx.h"
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/mat_io.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <filesystem>
 

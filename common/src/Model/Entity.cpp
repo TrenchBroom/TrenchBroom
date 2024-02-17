@@ -27,15 +27,15 @@
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotation.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/bbox.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <algorithm>
 

@@ -34,7 +34,7 @@
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
 
-#include <vecmath/scalar.h>
+#include "vm/scalar.h"
 
 #include <array>
 #include <string>

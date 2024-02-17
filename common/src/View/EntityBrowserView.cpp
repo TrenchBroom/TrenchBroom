@@ -44,17 +44,17 @@
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
 
+#include "kdl/overload.h"
+#include "kdl/skip_iterator.h"
+#include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
-#include <kdl/overload.h>
-#include <kdl/skip_iterator.h>
-#include <kdl/string_compare.h>
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/quat.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/quat.h"
+#include "vm/vec.h"
 
 #include <map>
 #include <string>

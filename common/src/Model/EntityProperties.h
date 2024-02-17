@@ -21,7 +21,7 @@
 
 #include "EL/Expression.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <optional>
 #include <string>

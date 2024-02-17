@@ -21,21 +21,21 @@
 
 // The catch2 header must be included only when all stream insertion
 // operators used in assertions are visible. We add this new wrapper header
-// that includes these operators for the vecmath types to ensure that they
+// that includes these operators for the vm types to ensure that they
 // work consistently.
 
-// Include this header instead of <catch2/catch.hpp> to ensure that vecmath
+// Include this header instead of <catch2/catch.hpp> to ensure that vm
 // stream operators work consistently.
 
-#include <kdl/result_io.h>
+#include "kdl/result_io.h"
 
-#include <vecmath/bbox_io.h>
-#include <vecmath/forward.h>
-#include <vecmath/line_io.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/plane_io.h>
-#include <vecmath/ray_io.h>
-#include <vecmath/vec_io.h>
+#include "vm/bbox_io.h"
+#include "vm/forward.h"
+#include "vm/line_io.h"
+#include "vm/mat_io.h"
+#include "vm/plane_io.h"
+#include "vm/ray_io.h"
+#include "vm/vec_io.h"
 
 #define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
 #include <catch2/catch.hpp>

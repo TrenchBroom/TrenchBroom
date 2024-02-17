@@ -22,11 +22,11 @@
 #include "Assets/Texture.h"
 #include "Ensure.h"
 
-#include <kdl/reflection_impl.h>
+#include "kdl/reflection_impl.h"
 
-#include <vecmath/bbox_io.h>
-#include <vecmath/bezier_surface.h>
-#include <vecmath/vec_io.h>
+#include "vm/bbox_io.h"
+#include "vm/bezier_surface.h"
+#include "vm/vec_io.h"
 
 #include <cassert>
 

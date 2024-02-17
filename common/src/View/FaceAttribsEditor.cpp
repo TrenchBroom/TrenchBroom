@@ -45,12 +45,12 @@
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <memory>
 #include <string>

@@ -22,9 +22,9 @@
 #include "EL/Expression.h"
 #include "FloatType.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 #include <filesystem>
 #include <iosfwd>

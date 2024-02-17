@@ -35,7 +35,7 @@
 #include "View/TextureBrowserView.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 // for use in QVariant
 Q_DECLARE_METATYPE(TrenchBroom::View::TextureSortOrder)

@@ -23,8 +23,8 @@
 #include "IO/TraversalMode.h"
 #include "TestFileSystem.h"
 
-#include <kdl/result.h>
-#include <kdl/result_io.h>
+#include "kdl/result.h"
+#include "kdl/result_io.h"
 
 #include <filesystem>
 

@@ -29,8 +29,8 @@
 #include "IO/ParserStatus.h"
 #include "Model/EntityProperties.h"
 
-#include <kdl/string_format.h>
-#include <kdl/vector_utils.h>
+#include "kdl/string_format.h"
+#include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 

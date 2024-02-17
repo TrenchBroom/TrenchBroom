@@ -29,20 +29,20 @@
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/polygon.h>
-#include <vecmath/segment.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include "vm/intersection.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
+#include "vm/util.h"
+#include "vm/vec.h"
+#include "vm/vec_ext.h"
 
 #include <iterator>
 #include <set>

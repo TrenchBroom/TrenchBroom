@@ -30,10 +30,10 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
-#include <kdl/path_utils.h>
-#include <kdl/string_format.h>
+#include "kdl/path_utils.h"
+#include "kdl/string_format.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 #include <functional>
 #include <string>

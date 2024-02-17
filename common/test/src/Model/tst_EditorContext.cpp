@@ -35,11 +35,11 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 
-#include <kdl/result.h>
-#include <kdl/result_io.h>
+#include "kdl/result.h"
+#include "kdl/result_io.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
 
 #include <functional>
 #include <tuple>

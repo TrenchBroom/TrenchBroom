@@ -65,15 +65,15 @@
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/overload.h>
-#include <kdl/path_utils.h>
-#include <kdl/result.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/path_utils.h"
+#include "kdl/result.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/vec_io.h>
+#include "vm/vec_io.h"
 
 #include <fstream>
 #include <string>

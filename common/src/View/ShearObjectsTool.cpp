@@ -35,13 +35,13 @@
 #include "View/ScaleObjectsTool.h"
 #include "View/TransactionScope.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/polygon.h>
-#include <vecmath/vec.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/intersection.h"
+#include "vm/polygon.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {

@@ -22,13 +22,13 @@
 #include "Macros.h"
 #include "Polyhedron.h"
 
-#include <vecmath/constants.h>
-#include <vecmath/intersection.h>
-#include <vecmath/plane.h>
-#include <vecmath/ray.h>
-#include <vecmath/scalar.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
+#include "vm/constants.h"
+#include "vm/intersection.h"
+#include "vm/plane.h"
+#include "vm/ray.h"
+#include "vm/scalar.h"
+#include "vm/util.h"
+#include "vm/vec.h"
 
 #include <unordered_set>
 

@@ -36,14 +36,14 @@
 #include "Model/Validator.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/overload.h>
-#include <kdl/parallel.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/parallel.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/ray.h>
+#include "vm/ray.h"
 
 #include <functional>
 #include <string>

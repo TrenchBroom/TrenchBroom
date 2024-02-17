@@ -26,12 +26,12 @@
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
 
-#include <vecmath/scalar.h>
-#include <vecmath/vec_io.h>
+#include "vm/scalar.h"
+#include "vm/vec_io.h"
 
 #include <ostream>
 

@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "View/InputState.h"
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 #include <cassert>
 

@@ -24,16 +24,16 @@
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/line.h>
-#include <vecmath/line_io.h>
-#include <vecmath/plane.h>
-#include <vecmath/plane_io.h>
-#include <vecmath/ray.h>
-#include <vecmath/ray_io.h>
-#include <vecmath/scalar.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/approx.h"
+#include "vm/line.h"
+#include "vm/line_io.h"
+#include "vm/plane.h"
+#include "vm/plane_io.h"
+#include "vm/ray.h"
+#include "vm/ray_io.h"
+#include "vm/scalar.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <tuple>
 #include <vector>

@@ -36,8 +36,8 @@
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom::View
 {

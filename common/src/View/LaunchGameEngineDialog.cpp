@@ -45,8 +45,8 @@
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_utils.h"
 
 #include <string>
 

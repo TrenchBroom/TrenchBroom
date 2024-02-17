@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "View/MapViewContainer.h"
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 namespace TrenchBroom::View
 {

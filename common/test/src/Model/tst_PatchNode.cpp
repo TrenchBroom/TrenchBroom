@@ -23,13 +23,13 @@
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/ray.h>
-#include <vecmath/ray_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/approx.h"
+#include "vm/ray.h"
+#include "vm/ray_io.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include "Catch2.h"
 

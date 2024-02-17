@@ -25,11 +25,11 @@
 #include "Model/HitType.h"
 #include "Model/Object.h"
 
-#include <kdl/result_forward.h>
+#include "kdl/result_forward.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/util.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/util.h"
 
 #include <optional>
 #include <string>

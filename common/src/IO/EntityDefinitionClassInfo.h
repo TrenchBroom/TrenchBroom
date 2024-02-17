@@ -24,9 +24,9 @@
 #include "Color.h"
 #include "FloatType.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include <iosfwd>
 #include <memory>

@@ -29,10 +29,10 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
+#include "kdl/result.h"
 #include "kdl/vector_utils.h"
-#include <kdl/result.h>
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include <vector>
 

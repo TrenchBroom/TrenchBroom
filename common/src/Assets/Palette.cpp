@@ -28,9 +28,9 @@
 #include "IO/Reader.h"
 #include "Macros.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/result.h>
-#include <kdl/string_format.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/result.h"
+#include "kdl/string_format.h"
 
 #include <cstring>
 #include <ostream>

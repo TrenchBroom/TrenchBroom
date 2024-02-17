@@ -31,9 +31,9 @@
 #include "Model/EntityProperties.h"
 
 #include "kdl/string_compare.h"
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
-#include <vecmath/vec_io.h>
+#include "vm/vec_io.h"
 
 #include <fmt/format.h>
 

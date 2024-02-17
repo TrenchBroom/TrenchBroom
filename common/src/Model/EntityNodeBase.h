@@ -23,7 +23,7 @@
 #include "Model/EntityProperties.h"
 #include "Model/Node.h"
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include <string>
 #include <vector>

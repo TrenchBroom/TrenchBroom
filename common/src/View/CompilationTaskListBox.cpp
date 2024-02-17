@@ -41,8 +41,8 @@
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
 
 namespace TrenchBroom::View
 {

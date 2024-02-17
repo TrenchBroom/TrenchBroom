@@ -24,11 +24,11 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/vector_utils.h>
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/plane_io.h>
+#include "vm/plane_io.h"
 
 #include <cassert>
 

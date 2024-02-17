@@ -29,14 +29,14 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/scalar.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/intersection.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/scalar.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <tuple>
 

@@ -21,8 +21,8 @@
 
 #include "Model/TagManager.h"
 
-#include <kdl/string_utils.h>
-#include <kdl/struct_io.h>
+#include "kdl/string_utils.h"
+#include "kdl/struct_io.h"
 
 #include <cassert>
 #include <ostream>

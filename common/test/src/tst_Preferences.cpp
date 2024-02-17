@@ -29,10 +29,10 @@
 #include "QtPrettyPrinters.h"
 #include "View/Actions.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/bbox.h>
+#include "vm/approx.h"
+#include "vm/bbox.h"
 
 #include <filesystem>
 #include <iostream>

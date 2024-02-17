@@ -23,11 +23,11 @@
 #include "FloatType.h"
 #include "Model/EntityProperties.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/mat.h"
+#include "vm/vec.h"
 
 #include <string>
 #include <vector>

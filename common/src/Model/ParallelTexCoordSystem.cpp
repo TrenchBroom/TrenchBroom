@@ -25,9 +25,9 @@
 #include "Model/BrushFace.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/vec.h"
 
 #include <algorithm> // for std::max_element
 #include <cstddef>

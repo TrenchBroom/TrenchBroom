@@ -22,7 +22,7 @@
 #include "Assets/Palette.h"
 #include "IO/TextureUtils.h"
 
-#include <kdl/result_forward.h>
+#include "kdl/result_forward.h"
 
 #include <string>
 

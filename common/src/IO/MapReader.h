@@ -27,10 +27,10 @@
 #include "Model/EntityProperties.h"
 #include "Model/IdType.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
 
 #include <optional>
 #include <string_view>

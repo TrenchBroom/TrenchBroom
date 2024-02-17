@@ -36,9 +36,9 @@
 #include "TestUtils.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <kdl/map_utils.h>
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/map_utils.h"
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
 #include <filesystem>
 

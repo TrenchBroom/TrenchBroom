@@ -26,9 +26,9 @@
 #include "IO/PathInfo.h"
 #include "IO/TraversalMode.h"
 
-#include <kdl/overload.h>
-#include <kdl/path_utils.h>
-#include <kdl/result.h>
+#include "kdl/overload.h"
+#include "kdl/path_utils.h"
+#include "kdl/result.h"
 
 #include <cassert>
 #include <memory>

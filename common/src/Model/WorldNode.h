@@ -27,7 +27,7 @@
 #include "Model/MapFormat.h"
 #include "Model/Node.h"
 
-#include <kdl/result_forward.h>
+#include "kdl/result_forward.h"
 
 #include <memory>
 #include <string>

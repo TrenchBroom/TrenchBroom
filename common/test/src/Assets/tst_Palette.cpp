@@ -23,7 +23,7 @@
 #include "IO/File.h"
 #include "Result.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include "Catch2.h"
 

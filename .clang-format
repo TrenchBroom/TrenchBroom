@@ -79,7 +79,7 @@ UseTab: Never
 # - Qt includes
 # - TB includes
 # - kdl lib
-# - vecmath lib
+# - vm lib
 # - std lib
 # - anything else
 # - catch2
@@ -95,9 +95,9 @@ IncludeCategories:
     Priority:        4
   - Regex:           '^"kdl/.*'
     Priority:        4
-  - Regex:           '^<vecmath/.*'
+  - Regex:           '^<vm/.*'
     Priority:        5
-  - Regex:           '^"vecmath/.*'
+  - Regex:           '^"vm/.*'
     Priority:        5
   - Regex:           '^"CatchUtils/.*'
     Priority:        10

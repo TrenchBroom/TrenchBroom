@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 #include <cstdio>
 #include <memory>

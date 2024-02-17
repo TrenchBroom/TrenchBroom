@@ -36,10 +36,10 @@
 #include "View/PickRequest.h"
 #include "View/SelectionTool.h"
 
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/ray.h>
+#include "vm/ray.h"
 
 #include "Catch2.h"
 

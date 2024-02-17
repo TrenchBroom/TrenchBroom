@@ -41,8 +41,8 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/overload.h>
-#include <kdl/vector_set.h>
+#include "kdl/overload.h"
+#include "kdl/vector_set.h"
 
 namespace TrenchBroom
 {

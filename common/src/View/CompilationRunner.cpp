@@ -39,10 +39,10 @@
 #include "View/MapDocument.h"
 
 #include "kdl/functional.h"
+#include "kdl/overload.h"
 #include "kdl/result_fold.h"
-#include <kdl/overload.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <filesystem>
 #include <string>

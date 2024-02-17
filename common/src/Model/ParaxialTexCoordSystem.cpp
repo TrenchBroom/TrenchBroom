@@ -25,9 +25,9 @@
 #include "Model/BrushFace.h"
 #include "Model/ParallelTexCoordSystem.h"
 
-#include <vecmath/plane.h>
-#include <vecmath/quat.h>
-#include <vecmath/vec.h>
+#include "vm/plane.h"
+#include "vm/quat.h"
+#include "vm/vec.h"
 
 #include <array>
 #include <cassert>

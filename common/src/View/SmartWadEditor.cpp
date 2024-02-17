@@ -32,8 +32,8 @@
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <filesystem>
 

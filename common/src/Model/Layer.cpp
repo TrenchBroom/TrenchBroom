@@ -19,9 +19,9 @@
 
 #include "Layer.h"
 
-#include <kdl/reflection_impl.h>
+#include "kdl/reflection_impl.h"
 
-#include <vecmath/vec_io.h>
+#include "vm/vec_io.h"
 
 namespace TrenchBroom::Model
 {

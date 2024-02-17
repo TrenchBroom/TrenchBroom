@@ -27,14 +27,14 @@
 #include "Model/HitAdapter.h"
 #include "View/Grid.h"
 
-#include <kdl/reflection_impl.h>
+#include "kdl/reflection_impl.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/line.h>
-#include <vecmath/plane.h>
-#include <vecmath/quat.h>
-#include <vecmath/vec_io.h>
+#include "vm/distance.h"
+#include "vm/intersection.h"
+#include "vm/line.h"
+#include "vm/plane.h"
+#include "vm/quat.h"
+#include "vm/vec_io.h"
 
 #include <ostream>
 

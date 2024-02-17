@@ -24,7 +24,7 @@
 #include "NotifierConnection.h"
 #include "View/MapDocument.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 #include <map>
 #include <memory>

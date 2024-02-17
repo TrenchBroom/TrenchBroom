@@ -26,10 +26,10 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/scalar.h>
+#include "vm/intersection.h"
+#include "vm/scalar.h"
 
 #include <optional>
 

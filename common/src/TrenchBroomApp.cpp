@@ -64,9 +64,9 @@
 #include <QTimer>
 #include <QUrl>
 
-#include <kdl/path_utils.h>
-#include <kdl/set_temp.h>
-#include <kdl/string_utils.h>
+#include "kdl/path_utils.h"
+#include "kdl/set_temp.h"
+#include "kdl/string_utils.h"
 
 #include <fmt/format.h>
 

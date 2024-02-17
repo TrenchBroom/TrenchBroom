@@ -106,22 +106,22 @@
 #include "View/UpdateLinkedGroupsHelper.h"
 #include "View/ViewEffectsService.h"
 
+#include "kdl/collection_utils.h"
 #include "kdl/grouped_range.h"
-#include <kdl/collection_utils.h>
-#include <kdl/map_utils.h>
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/parallel.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_format.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/map_utils.h"
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/parallel.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/string_format.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/polygon.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/polygon.h"
+#include "vm/util.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <algorithm>
 #include <cassert>

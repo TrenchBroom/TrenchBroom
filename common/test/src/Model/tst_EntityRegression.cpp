@@ -27,10 +27,10 @@
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include "Catch2.h"
 

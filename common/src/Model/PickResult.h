@@ -23,7 +23,7 @@
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 
-#include <vecmath/util.h>
+#include "vm/util.h"
 
 #include <memory>
 #include <vector>

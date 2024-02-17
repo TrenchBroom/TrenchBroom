@@ -30,7 +30,7 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include <vector>
 

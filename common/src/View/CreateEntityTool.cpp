@@ -37,9 +37,9 @@
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include <string>
 

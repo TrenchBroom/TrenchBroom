@@ -23,8 +23,8 @@
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 
-#include <kdl/path_utils.h>
-#include <kdl/reflection_impl.h>
+#include "kdl/path_utils.h"
+#include "kdl/reflection_impl.h"
 
 namespace TrenchBroom::IO
 {

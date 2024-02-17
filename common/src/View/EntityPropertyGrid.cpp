@@ -44,10 +44,10 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_format.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_format.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <vector>
 

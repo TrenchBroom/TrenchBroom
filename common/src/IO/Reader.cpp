@@ -23,7 +23,7 @@
 #include "IO/File.h"
 #include "IO/ReaderException.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <cstring>
 #include <string>

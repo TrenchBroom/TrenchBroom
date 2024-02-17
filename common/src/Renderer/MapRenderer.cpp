@@ -43,10 +43,10 @@
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/path_utils.h>
-#include <kdl/vector_set.h>
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/path_utils.h"
+#include "kdl/vector_set.h"
 
 #include <set>
 #include <vector>

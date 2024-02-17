@@ -23,7 +23,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VboManager.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom
 {

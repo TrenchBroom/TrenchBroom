@@ -26,7 +26,7 @@
 #include "Model/GameFactory.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <string>
 #include <vector>

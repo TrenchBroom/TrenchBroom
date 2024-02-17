@@ -30,10 +30,10 @@
 #include "View/TransactionScope.h"
 #include "View/UVViewHelper.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/vec.h>
+#include "vm/intersection.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {

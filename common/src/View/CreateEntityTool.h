@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "View/Tool.h"
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include <memory>
 #include <string>

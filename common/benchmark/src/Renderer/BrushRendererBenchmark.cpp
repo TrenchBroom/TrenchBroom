@@ -30,7 +30,7 @@
 #include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <algorithm>
 #include <chrono>

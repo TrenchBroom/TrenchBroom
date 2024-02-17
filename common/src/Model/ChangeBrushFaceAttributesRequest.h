@@ -21,7 +21,7 @@
 
 #include "Color.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 #include <optional>
 #include <string>

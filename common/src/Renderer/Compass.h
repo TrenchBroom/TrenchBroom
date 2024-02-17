@@ -22,7 +22,7 @@
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 namespace TrenchBroom
 {

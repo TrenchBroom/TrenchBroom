@@ -21,7 +21,7 @@
 
 #include "Model/GroupNode.h"
 
-#include <kdl/overload.h>
+#include "kdl/overload.h"
 
 namespace TrenchBroom
 {

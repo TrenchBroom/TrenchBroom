@@ -21,7 +21,7 @@
 #include "IO/DiskIO.h"
 #include "Model/PortalFile.h"
 
-#include <vecmath/polygon.h>
+#include "vm/polygon.h"
 
 #include <filesystem>
 #include <memory>

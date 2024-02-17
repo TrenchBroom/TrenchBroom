@@ -25,7 +25,7 @@
 #include "Renderer/FaceRenderer.h"
 #include "Renderer/Renderable.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <memory>
 #include <unordered_map>

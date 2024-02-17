@@ -23,8 +23,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/vector_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom
 {

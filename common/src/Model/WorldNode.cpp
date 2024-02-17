@@ -32,11 +32,11 @@
 #include "Model/ValidatorRegistry.h"
 #include "octree.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/bbox_io.h>
+#include "vm/bbox_io.h"
 
 #include <sstream>
 #include <string>

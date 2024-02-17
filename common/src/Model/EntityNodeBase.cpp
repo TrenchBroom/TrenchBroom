@@ -22,9 +22,9 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
 
+#include "kdl/collection_utils.h"
 #include "kdl/invoke.h"
-#include <kdl/collection_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <string>
 #include <vector>

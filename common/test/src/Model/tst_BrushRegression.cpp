@@ -33,17 +33,17 @@
 #include "Model/Polyhedron.h"
 #include "TestUtils.h"
 
-#include <kdl/intrusive_circular_list.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/vector_utils.h>
+#include "kdl/intrusive_circular_list.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/polygon.h>
-#include <vecmath/ray.h>
-#include <vecmath/segment.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include "vm/approx.h"
+#include "vm/polygon.h"
+#include "vm/ray.h"
+#include "vm/segment.h"
+#include "vm/vec.h"
+#include "vm/vec_ext.h"
 
 #include <filesystem>
 #include <fstream>

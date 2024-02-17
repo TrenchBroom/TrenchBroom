@@ -28,8 +28,8 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityProperties.h"
 
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
 #include <string>
 #include <vector>

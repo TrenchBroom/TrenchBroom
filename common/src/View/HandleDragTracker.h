@@ -25,10 +25,10 @@
 #include "View/DragTracker.h"
 #include "View/InputState.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <functional>
 #include <memory>

@@ -23,13 +23,13 @@
 #include "Error.h"
 #include "IO/DiskIO.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/result.h>
-#include <kdl/string_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/result.h"
+#include "kdl/string_utils.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/ray.h>
-#include <vecmath/vec_io.h>
+#include "vm/distance.h"
+#include "vm/ray.h"
+#include "vm/vec_io.h"
 
 #include <cassert>
 #include <istream>

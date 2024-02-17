@@ -22,8 +22,8 @@
 
 #include "Macros.h"
 
-#include <kdl/overload.h>
-#include <kdl/reflection_impl.h>
+#include "kdl/overload.h"
+#include "kdl/reflection_impl.h"
 
 #include <ostream>
 

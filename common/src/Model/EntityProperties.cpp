@@ -21,9 +21,9 @@
 
 #include "Assets/EntityDefinition.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/string_compare.h>
-#include <kdl/vector_set.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
+#include "kdl/vector_set.h"
 
 #include <string>
 #include <vector>

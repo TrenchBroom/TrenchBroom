@@ -21,8 +21,8 @@
 
 #include "Macros.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <string>

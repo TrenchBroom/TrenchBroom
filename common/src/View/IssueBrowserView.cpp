@@ -37,10 +37,10 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <vector>
 

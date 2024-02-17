@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "View/ViewEffectsService.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 namespace TrenchBroom::Renderer
 {

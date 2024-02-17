@@ -24,11 +24,11 @@
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 
-#include <kdl/set_temp.h>
-#include <kdl/vector_utils.h>
+#include "kdl/set_temp.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom::View
 {

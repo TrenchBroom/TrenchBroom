@@ -23,11 +23,11 @@
 #include "Model/BrushFace.h"
 #include "Model/EntityProperties.h"
 
-#include <kdl/invoke.h>
-#include <kdl/vector_set.h>
+#include "kdl/invoke.h"
+#include "kdl/vector_set.h"
 
-#include <vecmath/plane.h>
-#include <vecmath/vec.h>
+#include "vm/plane.h"
+#include "vm/vec.h"
 
 #include <string>
 #include <vector>

@@ -23,7 +23,7 @@
 #include "Model/Tag.h"
 #include "Model/TagVisitor.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <functional>
 #include <iosfwd>

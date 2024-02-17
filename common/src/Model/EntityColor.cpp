@@ -25,8 +25,8 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/overload.h>
-#include <kdl/string_utils.h>
+#include "kdl/overload.h"
+#include "kdl/string_utils.h"
 
 #include <cassert>
 #include <sstream>

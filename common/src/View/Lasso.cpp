@@ -23,11 +23,11 @@
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/polygon.h>
-#include <vecmath/segment.h>
+#include "vm/intersection.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
 
 namespace TrenchBroom
 {

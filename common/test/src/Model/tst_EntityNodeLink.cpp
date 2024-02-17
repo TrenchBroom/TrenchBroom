@@ -24,7 +24,7 @@
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vector>
 

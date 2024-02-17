@@ -31,18 +31,18 @@
 #include "Model/TagVisitor.h"
 #include "Model/Validator.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/string_utils.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/string_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/intersection.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/util.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <optional>
 #include <vector>

@@ -21,7 +21,7 @@
 
 #include <QAbstractTableModel>
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <iosfwd>
 #include <map>

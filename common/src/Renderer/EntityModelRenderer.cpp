@@ -39,7 +39,7 @@
 #include "Renderer/TexturedIndexRangeRenderer.h"
 #include "Renderer/Transformation.h"
 
-#include <vecmath/mat.h>
+#include "vm/mat.h"
 
 #include <vector>
 

@@ -23,7 +23,7 @@
 
 #include "View/QtUtils.h"
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
 #include <cassert>
 

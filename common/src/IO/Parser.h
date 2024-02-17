@@ -22,7 +22,7 @@
 #include "Exceptions.h"
 #include "IO/Token.h"
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
 #include <map>
 #include <string>

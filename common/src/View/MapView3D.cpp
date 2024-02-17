@@ -68,9 +68,9 @@
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 
-#include <kdl/set_temp.h>
+#include "kdl/set_temp.h"
 
-#include <vecmath/util.h>
+#include "vm/util.h"
 
 #include <memory>
 

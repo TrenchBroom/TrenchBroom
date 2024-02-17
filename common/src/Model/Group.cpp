@@ -19,9 +19,9 @@
 
 #include "Group.h"
 
-#include <kdl/reflection_impl.h>
+#include "kdl/reflection_impl.h"
 
-#include <vecmath/mat_io.h>
+#include "vm/mat_io.h"
 
 namespace TrenchBroom::Model
 {

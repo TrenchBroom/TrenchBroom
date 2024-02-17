@@ -25,7 +25,7 @@
 #include "Model/GroupNode.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include "Catch2.h"
 

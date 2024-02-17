@@ -23,7 +23,7 @@
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 #include <array>
 #include <filesystem>

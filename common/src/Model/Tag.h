@@ -22,7 +22,7 @@
 #include "Macros.h"
 #include "Model/TagType.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <iosfwd>
 #include <memory>

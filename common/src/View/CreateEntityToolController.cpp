@@ -24,7 +24,7 @@
 #include "View/DropTracker.h"
 #include "View/InputState.h"
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
 #include <functional>
 #include <string>

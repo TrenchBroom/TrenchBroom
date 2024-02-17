@@ -27,9 +27,9 @@
 #include "Logger.h"
 #include "TestUtils.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/result.h>
-#include <kdl/result_io.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/result.h"
+#include "kdl/result_io.h"
 
 #include <filesystem>
 #include <string>

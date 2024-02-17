@@ -22,7 +22,7 @@
 #include "Color.h"
 #include "Result.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <cassert>
 #include <filesystem>

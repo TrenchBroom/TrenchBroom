@@ -23,10 +23,10 @@
 #include "Renderer/FontGlyph.h"
 #include "Renderer/FontTexture.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <string>
 

@@ -26,8 +26,8 @@
 #include "Macros.h"
 #include "Result.h"
 
-#include <kdl/reflection_decl.h>
-#include <kdl/result.h>
+#include "kdl/reflection_decl.h"
+#include "kdl/result.h"
 
 #include <filesystem>
 #include <functional>

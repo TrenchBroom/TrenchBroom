@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <kdl/intrusive_circular_list_forward.h>
+#include "kdl/intrusive_circular_list_forward.h"
 
 namespace TrenchBroom
 {

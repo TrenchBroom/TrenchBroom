@@ -18,7 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include <kdl/string_format.h>
+#include "kdl/string_format.h"
 
 #include "catch2.h"
 

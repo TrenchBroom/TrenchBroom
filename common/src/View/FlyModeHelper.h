@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 #include <cstdint>
 

@@ -21,7 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 
-#include <kdl/string_format.h>
+#include "kdl/string_format.h"
 
 #include <string>
 

@@ -29,9 +29,9 @@
 #include "TestLogger.h"
 #include "TestUtils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/intersection.h>
-#include <vecmath/ray.h>
+#include "vm/bbox.h"
+#include "vm/intersection.h"
+#include "vm/ray.h"
 
 #include <filesystem>
 

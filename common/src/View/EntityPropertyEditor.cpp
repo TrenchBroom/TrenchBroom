@@ -34,7 +34,7 @@
 #include "View/SmartPropertyEditorManager.h"
 #include "View/Splitter.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <algorithm>
 

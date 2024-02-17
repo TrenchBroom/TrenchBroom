@@ -29,7 +29,7 @@
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <filesystem>
 

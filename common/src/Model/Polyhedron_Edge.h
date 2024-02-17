@@ -22,11 +22,11 @@
 #include "Macros.h"
 #include "Polyhedron.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/plane.h>
-#include <vecmath/scalar.h>
-#include <vecmath/segment.h>
-#include <vecmath/vec.h>
+#include "vm/distance.h"
+#include "vm/plane.h"
+#include "vm/scalar.h"
+#include "vm/segment.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {

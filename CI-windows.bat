@@ -21,8 +21,8 @@ IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
 set BUILD_DIR="%cd%"
 
-cd lib\vecmath\test\Release
-vecmath-test.exe
+cd lib\vm\test\Release
+vm-test.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 

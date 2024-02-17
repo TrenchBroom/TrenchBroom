@@ -25,10 +25,10 @@
 #include "Model/Issue.h"
 #include "Model/Validator.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/vector_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include <cassert>
 #include <iterator>

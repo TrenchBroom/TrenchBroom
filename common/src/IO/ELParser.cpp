@@ -22,7 +22,7 @@
 #include "EL/Expressions.h"
 #include "EL/Value.h"
 
-#include <kdl/string_format.h>
+#include "kdl/string_format.h"
 
 #include <optional>
 #include <sstream>
