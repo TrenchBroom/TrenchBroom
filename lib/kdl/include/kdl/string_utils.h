@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "string_format.h"
+#include "kdl/string_format.h"
 
 #include <algorithm> // for std::search
 #include <cassert>

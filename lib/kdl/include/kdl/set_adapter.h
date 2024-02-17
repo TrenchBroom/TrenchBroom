@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "collection_utils.h"
+#include "kdl/collection_utils.h"
 
 #include <algorithm> // for std::sort, std::unique, std::lower_bound, std::upper_bound
 #include <cassert>

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "collection_utils.h"
+#include "kdl/collection_utils.h"
 
 // Note: all except <cassert> are included by <vector> anyway, so there's no point in
 // splitting this up further
