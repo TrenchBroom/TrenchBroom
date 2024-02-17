@@ -1074,29 +1074,32 @@ std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const
                    : std::vector<Model::EntityNodeBase*>{};
   }
 
-  std::vector<Model::EntityNodeBase*> nodes;
-  const auto addEntity = [&](auto* entity) {
-    ensure(entity != nullptr, "entity is null");
-    nodes.push_back(entity);
-  };
-
+  auto result = std::vector<Model::EntityNodeBase*>{};
   for (auto* node : m_selectedNodes)
   {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, Model::WorldNode* world) {
-        nodes.push_back(world);
+        result.push_back(world);
         world->visitChildren(thisLambda);
       },
       [&](
         auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
       [&](
         auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
-      [&](Model::EntityNode* entity) { addEntity(entity); },
-      [&](Model::BrushNode* brush) { addEntity(brush->entity()); },
-      [&](Model::PatchNode* patch) { addEntity(patch->entity()); }));
+      [&](Model::EntityNode* entity) { result.push_back(entity); },
+      [&](Model::BrushNode* brush) { result.push_back(brush->entity()); },
+      [&](Model::PatchNode* patch) { result.push_back(patch->entity()); }));
   }
 
-  return kdl::vec_sort_and_remove_duplicates(std::move(nodes));
+  result = kdl::vec_sort_and_remove_duplicates(std::move(result));
+
+  // Don't select worldspawn together with any other entities
+  return result.size() == 1
+           ? result
+           : kdl::vec_filter(std::move(result), [](const auto* entityNode) {
+               return entityNode->entity().classname()
+                      != Model::EntityPropertyValues::WorldspawnClassname;
+             });
 }
 
 std::vector<Model::BrushNode*> MapDocument::allSelectedBrushNodes() const
