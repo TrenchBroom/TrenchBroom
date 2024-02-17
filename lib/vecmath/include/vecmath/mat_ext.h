@@ -21,11 +21,11 @@
 
 #pragma once
 
-#include "bbox.h"
-#include "mat.h"
-#include "quat.h"
-#include "util.h"
-#include "vec.h"
+#include "vecmath/bbox.h"
+#include "vecmath/mat.h"
+#include "vecmath/quat.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
 
 #include <array>
 #include <tuple>

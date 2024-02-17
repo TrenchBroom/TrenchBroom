@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "constants.h"
-#include "constexpr_util.h"
-#include "scalar.h"
+#include "vecmath/constants.h"
+#include "vecmath/constexpr_util.h"
+#include "vecmath/scalar.h"
 
 #include <cassert>
 #include <cstddef>

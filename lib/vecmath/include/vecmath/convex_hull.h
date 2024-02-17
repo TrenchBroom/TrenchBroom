@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "util.h"
-#include "vec.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
 
 #include <algorithm>
 #include <iterator>

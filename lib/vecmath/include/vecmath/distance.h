@@ -21,13 +21,13 @@
 
 #pragma once
 
-#include "abstract_line.h"
-#include "constants.h"
-#include "line.h"
-#include "polygon.h"
-#include "ray.h"
-#include "segment.h"
-#include "vec.h"
+#include "vecmath/abstract_line.h"
+#include "vecmath/constants.h"
+#include "vecmath/line.h"
+#include "vecmath/polygon.h"
+#include "vecmath/ray.h"
+#include "vecmath/segment.h"
+#include "vecmath/vec.h"
 
 #include <cstddef>
 

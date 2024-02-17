@@ -21,11 +21,11 @@
 
 #pragma once
 
-#include "constants.h"
-#include "mat.h"
-#include "scalar.h"
-#include "util.h"
-#include "vec.h"
+#include "vecmath/constants.h"
+#include "vecmath/mat.h"
+#include "vecmath/scalar.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
 
 #include <tuple>
 #include <type_traits>

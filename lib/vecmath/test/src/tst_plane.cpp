@@ -21,16 +21,16 @@
 
 #include "test_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/constexpr_util.h>
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/plane.h>
-#include <vecmath/plane_io.h>
-#include <vecmath/scalar.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/constexpr_util.h"
+#include "vecmath/forward.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/plane.h"
+#include "vecmath/plane_io.h"
+#include "vecmath/scalar.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <array>
 #include <sstream>

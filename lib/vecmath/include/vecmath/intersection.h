@@ -21,13 +21,13 @@
 
 #pragma once
 
-#include "bbox.h"
-#include "line.h"
-#include "plane.h"
-#include "ray.h"
-#include "scalar.h"
-#include "util.h"
-#include "vec.h"
+#include "vecmath/bbox.h"
+#include "vecmath/line.h"
+#include "vecmath/plane.h"
+#include "vecmath/ray.h"
+#include "vecmath/scalar.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
 
 namespace vm
 {

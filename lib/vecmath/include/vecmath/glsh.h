@@ -19,8 +19,8 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "forward.h"
-#include "scalar.h"
+#include "vecmath/forward.h"
+#include "vecmath/scalar.h"
 
 namespace vm
 {

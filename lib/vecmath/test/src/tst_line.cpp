@@ -21,13 +21,13 @@
 
 #include "test_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/forward.h>
-#include <vecmath/line.h>
-#include <vecmath/line_io.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/scalar.h>
+#include "vecmath/approx.h"
+#include "vecmath/forward.h"
+#include "vecmath/line.h"
+#include "vecmath/line_io.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/scalar.h"
 
 #include <sstream>
 

@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "mat.h"
+#include "vecmath/mat.h"
 
 #include <optional>
 #include <ostream>

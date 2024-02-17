@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "ray.h"
-#include "vec_io.h"
+#include "vecmath/ray.h"
+#include "vecmath/vec_io.h"
 
 #include <ostream>
 

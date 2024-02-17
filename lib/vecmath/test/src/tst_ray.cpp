@@ -21,17 +21,17 @@
 
 #include "test_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/ray.h>
-#include <vecmath/ray_io.h>
-#include <vecmath/scalar.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/forward.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/mat_io.h"
+#include "vecmath/ray.h"
+#include "vecmath/ray_io.h"
+#include "vecmath/scalar.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <sstream>
 

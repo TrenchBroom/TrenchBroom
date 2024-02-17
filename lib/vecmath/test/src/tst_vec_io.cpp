@@ -21,8 +21,8 @@
 
 #include "test_utils.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/forward.h"
+#include "vecmath/vec_io.h"
 
 #include <sstream>
 

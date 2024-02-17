@@ -21,10 +21,10 @@
 
 #include "test_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/forward.h>
-#include <vecmath/vec_ext.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/forward.h"
+#include "vecmath/vec_ext.h"
+#include "vecmath/vec_io.h"
 
 #include <array>
 #include <vector>

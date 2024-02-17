@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "scalar.h"
-#include "vec.h"
+#include "vecmath/scalar.h"
+#include "vecmath/vec.h"
 
 #include <cassert>
 

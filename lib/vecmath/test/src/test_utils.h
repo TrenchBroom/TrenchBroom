@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #define CE_CHECK(expr)                                                                   \
   {                                                                                      \

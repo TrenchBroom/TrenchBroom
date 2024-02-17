@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include <vecmath/forward.h>
-#include <vecmath/scalar.h>
+#include "vecmath/forward.h"
+#include "vecmath/scalar.h"
 
 #include <cassert>
 #include <ostream>

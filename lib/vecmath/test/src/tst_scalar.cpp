@@ -21,8 +21,8 @@
 
 #include "test_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/scalar.h>
+#include "vecmath/approx.h"
+#include "vecmath/scalar.h"
 
 #include <array>
 #include <limits>

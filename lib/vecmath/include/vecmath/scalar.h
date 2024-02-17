@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "constants.h"
+#include "vecmath/constants.h"
 
 #include <cassert>
 #include <cmath>

@@ -18,10 +18,10 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include <vecmath/bezier_surface.h>
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bezier_surface.h"
+#include "vecmath/forward.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <array>
 #include <tuple>

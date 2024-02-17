@@ -21,10 +21,10 @@
 
 #pragma once
 
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_ext.h"
 
 #include <algorithm>
 #include <cstddef>

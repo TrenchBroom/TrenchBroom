@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "line.h"
-#include "vec_io.h"
+#include "vecmath/line.h"
+#include "vecmath/vec_io.h"
 
 #include <ostream>
 

@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "bbox.h"
-#include "vec_io.h"
+#include "vecmath/bbox.h"
+#include "vecmath/vec_io.h"
 
 #include <ostream>
 

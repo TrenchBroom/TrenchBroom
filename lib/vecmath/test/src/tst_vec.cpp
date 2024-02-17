@@ -21,12 +21,12 @@
 
 #include "test_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/forward.h>
-#include <vecmath/mat_ext.h> // used by rotate_pos_x_by_degrees
-#include <vecmath/mat_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/forward.h"
+#include "vecmath/mat_ext.h" // used by rotate_pos_x_by_degrees
+#include "vecmath/mat_io.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <array>
 #include <limits>

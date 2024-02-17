@@ -21,14 +21,14 @@
 
 #include "test_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/constexpr_util.h>
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/quat.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/constexpr_util.h"
+#include "vecmath/forward.h"
+#include "vecmath/intersection.h"
+#include "vecmath/quat.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_ext.h"
+#include "vecmath/vec_io.h"
 
 #include <array>
 

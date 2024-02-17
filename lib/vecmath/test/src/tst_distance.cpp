@@ -21,14 +21,14 @@
 
 #include "test_utils.h"
 
-#include <vecmath/abstract_line.h>
-#include <vecmath/approx.h>
-#include <vecmath/constants.h>
-#include <vecmath/distance.h>
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
+#include "vecmath/abstract_line.h"
+#include "vecmath/approx.h"
+#include "vecmath/constants.h"
+#include "vecmath/distance.h"
+#include "vecmath/forward.h"
+#include "vecmath/mat.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
 
 #include <catch2/catch.hpp>
 

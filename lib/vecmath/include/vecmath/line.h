@@ -21,9 +21,9 @@
 
 #pragma once
 
-#include "abstract_line.h"
-#include "mat.h"
-#include "vec.h"
+#include "vecmath/abstract_line.h"
+#include "vecmath/mat.h"
+#include "vecmath/vec.h"
 
 namespace vm
 {

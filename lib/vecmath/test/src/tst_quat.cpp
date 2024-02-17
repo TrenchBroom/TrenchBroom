@@ -21,12 +21,12 @@
 
 #include "test_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/forward.h>
-#include <vecmath/quat.h>
-#include <vecmath/scalar.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/forward.h"
+#include "vecmath/quat.h"
+#include "vecmath/scalar.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <catch2/catch.hpp>
 

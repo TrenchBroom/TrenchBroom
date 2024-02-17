@@ -21,10 +21,10 @@
 
 #pragma once
 
-#include "mat.h"
-#include "quat.h"
-#include "scalar.h"
-#include "vec.h"
+#include "vecmath/mat.h"
+#include "vecmath/quat.h"
+#include "vecmath/scalar.h"
+#include "vecmath/vec.h"
 
 #include <array>
 

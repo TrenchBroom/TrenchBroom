@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "constants.h"
-#include "vec.h"
+#include "vecmath/constants.h"
+#include "vecmath/vec.h"
 
 #include <cassert>
 #include <tuple>

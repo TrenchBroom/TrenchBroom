@@ -21,8 +21,8 @@
 
 #pragma once
 
-#include "plane.h"
-#include "vec_io.h"
+#include "vecmath/plane.h"
+#include "vecmath/vec_io.h"
 
 #include <ostream>
 

@@ -19,9 +19,9 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include <vecmath/convex_hull.h>
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
+#include "vecmath/convex_hull.h"
+#include "vecmath/forward.h"
+#include "vecmath/vec.h"
 
 #include <vector>
 
