@@ -22,10 +22,10 @@
 #include "Assets/Texture.h"
 #include "Renderer/GL.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
+#include "vecmath/bbox.h"
+#include "vecmath/forward.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
 
 #include <map>
 

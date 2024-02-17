@@ -37,12 +37,12 @@
 
 #include "kdl/result.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bbox.h"
+#include "vecmath/bbox_io.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <memory>
 #include <string>

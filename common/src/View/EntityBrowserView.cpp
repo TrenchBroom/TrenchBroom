@@ -50,11 +50,11 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/quat.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/quat.h"
+#include "vecmath/vec.h"
 
 #include <map>
 #include <string>

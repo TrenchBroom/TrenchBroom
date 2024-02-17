@@ -53,8 +53,8 @@
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/polygon.h>
-#include <vecmath/segment.h>
+#include "vecmath/polygon.h"
+#include "vecmath/segment.h"
 
 #include <map>
 #include <memory>

@@ -31,11 +31,11 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bbox.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <algorithm>
 

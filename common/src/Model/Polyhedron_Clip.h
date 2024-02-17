@@ -24,9 +24,9 @@
 #include "Macros.h"
 #include "Polyhedron.h"
 
-#include <vecmath/plane.h>
-#include <vecmath/scalar.h>
-#include <vecmath/util.h>
+#include "vecmath/plane.h"
+#include "vecmath/scalar.h"
+#include "vecmath/util.h"
 
 namespace TrenchBroom
 {

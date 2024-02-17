@@ -36,7 +36,7 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/bbox_io.h>
+#include "vecmath/bbox_io.h"
 
 #include <sstream>
 #include <string>

@@ -28,10 +28,10 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/scalar.h>
-#include <vecmath/vec.h>
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/scalar.h"
+#include "vecmath/vec.h"
 
 namespace TrenchBroom
 {

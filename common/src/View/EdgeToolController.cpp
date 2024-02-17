@@ -21,7 +21,7 @@
 
 #include "View/EdgeTool.h"
 
-#include <vecmath/polygon.h>
+#include "vecmath/polygon.h"
 
 #include <memory>
 

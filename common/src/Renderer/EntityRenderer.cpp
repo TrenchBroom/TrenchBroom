@@ -36,11 +36,11 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/scalar.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/scalar.h"
+#include "vecmath/vec.h"
 
 #include <vector>
 

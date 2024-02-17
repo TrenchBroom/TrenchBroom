@@ -26,8 +26,8 @@
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/vec.h>
+#include "vecmath/bbox.h"
+#include "vecmath/vec.h"
 
 #include <memory>
 #include <optional>

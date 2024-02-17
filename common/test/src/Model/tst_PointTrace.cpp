@@ -20,8 +20,8 @@
 #include "Error.h"
 #include "Model/PointTrace.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <sstream>
 

@@ -32,7 +32,7 @@
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
-#include <vecmath/vec_io.h> // for Color stream output operator
+#include "vecmath/vec_io.h" // for Color stream output operator
 
 #include <fmt/format.h>
 

@@ -35,9 +35,9 @@
 #include "kdl/pair_iterator.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
+#include "vecmath/bbox.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
 
 #include <numeric>
 #include <unordered_set>

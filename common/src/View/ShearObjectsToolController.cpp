@@ -36,7 +36,7 @@
 
 #include "kdl/memory_utils.h"
 
-#include <vecmath/polygon.h>
+#include "vecmath/polygon.h"
 
 #include <cassert>
 

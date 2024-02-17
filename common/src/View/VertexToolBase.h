@@ -50,9 +50,9 @@
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/forward.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <cassert>
 #include <map>

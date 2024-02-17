@@ -36,9 +36,9 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/zip_iterator.h"
 
-#include <vecmath/bbox_io.h>
-#include <vecmath/intersection.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bbox_io.h"
+#include "vecmath/intersection.h"
+#include "vecmath/vec_io.h"
 
 #include <cassert>
 #include <ostream>

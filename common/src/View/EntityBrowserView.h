@@ -25,9 +25,9 @@
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/quat.h>
+#include "vecmath/bbox.h"
+#include "vecmath/forward.h"
+#include "vecmath/quat.h"
 
 #include <optional>
 #include <string>

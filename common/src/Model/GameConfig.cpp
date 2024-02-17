@@ -26,8 +26,8 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/string_utils.h"
 
-#include <vecmath/bbox_io.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bbox_io.h"
+#include "vecmath/vec_io.h"
 
 #include <cassert>
 #include <ostream>

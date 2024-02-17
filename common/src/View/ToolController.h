@@ -25,9 +25,9 @@
 #include "ToolChain.h"
 #include "View/InputState.h"
 
-#include <vecmath/line.h>
-#include <vecmath/plane.h>
-#include <vecmath/vec.h>
+#include "vecmath/line.h"
+#include "vecmath/plane.h"
+#include "vecmath/vec.h"
 
 #include <memory>
 #include <string>

@@ -38,11 +38,11 @@
 #include "View/RotateObjectsTool.h"
 #include "View/ToolController.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/quat.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
+#include "vecmath/intersection.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/quat.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
 
 #include <functional>
 #include <memory>

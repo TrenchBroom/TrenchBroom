@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include <vecmath/constants.h>
-#include <vecmath/forward.h>
+#include "vecmath/constants.h"
+#include "vecmath/forward.h"
 
 using FloatType = double;
 

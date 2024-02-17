@@ -28,8 +28,8 @@
 
 #include "kdl/memory_utils.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/scalar.h>
+#include "vecmath/intersection.h"
+#include "vecmath/scalar.h"
 
 #include <optional>
 

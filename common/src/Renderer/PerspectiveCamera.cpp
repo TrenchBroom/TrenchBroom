@@ -29,11 +29,11 @@
 #include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/intersection.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/vec.h"
 
 #include <limits>
 #include <vector>

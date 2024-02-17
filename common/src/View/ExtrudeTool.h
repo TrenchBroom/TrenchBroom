@@ -28,10 +28,10 @@
 
 #include "kdl/reflection_decl.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/line.h>
-#include <vecmath/plane.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/line.h"
+#include "vecmath/plane.h"
+#include "vecmath/vec.h"
 
 #include <memory>
 #include <variant>

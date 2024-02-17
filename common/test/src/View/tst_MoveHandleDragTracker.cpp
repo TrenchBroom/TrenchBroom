@@ -22,11 +22,11 @@
 #include "View/MoveHandleDragTracker.h"
 #include "View/PickRequest.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/ray.h>
-#include <vecmath/ray_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/ray.h"
+#include "vecmath/ray_io.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include "Catch2.h"
 

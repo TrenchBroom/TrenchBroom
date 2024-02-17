@@ -24,11 +24,11 @@
 #include "Macros.h"
 #include "Notifier.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/plane.h>
-#include <vecmath/scalar.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/intersection.h"
+#include "vecmath/plane.h"
+#include "vecmath/scalar.h"
+#include "vecmath/vec.h"
 
 #include <array>
 

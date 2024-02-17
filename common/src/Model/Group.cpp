@@ -21,7 +21,7 @@
 
 #include "kdl/reflection_impl.h"
 
-#include <vecmath/mat_io.h>
+#include "vecmath/mat_io.h"
 
 namespace TrenchBroom::Model
 {

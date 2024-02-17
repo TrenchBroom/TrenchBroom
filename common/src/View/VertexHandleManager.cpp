@@ -25,11 +25,11 @@
 #include "Preferences.h"
 #include "View/Grid.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/plane.h>
-#include <vecmath/ray.h>
-#include <vecmath/vec.h>
+#include "vecmath/distance.h"
+#include "vecmath/intersection.h"
+#include "vecmath/plane.h"
+#include "vecmath/ray.h"
+#include "vecmath/vec.h"
 
 namespace TrenchBroom
 {

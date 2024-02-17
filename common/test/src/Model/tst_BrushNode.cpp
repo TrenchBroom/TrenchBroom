@@ -40,13 +40,13 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/polygon.h>
-#include <vecmath/ray.h>
-#include <vecmath/segment.h>
-#include <vecmath/vec.h>
+#include "vecmath/approx.h"
+#include "vecmath/bbox.h"
+#include "vecmath/bbox_io.h"
+#include "vecmath/polygon.h"
+#include "vecmath/ray.h"
+#include "vecmath/segment.h"
+#include "vecmath/vec.h"
 
 #include <memory>
 #include <string>

@@ -27,10 +27,10 @@
 #include "View/Grid.h"
 #include "View/Tool.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/line.h>
-#include <vecmath/vec.h>
+#include "vecmath/distance.h"
+#include "vecmath/intersection.h"
+#include "vecmath/line.h"
+#include "vecmath/vec.h"
 
 namespace TrenchBroom::View
 {

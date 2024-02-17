@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "View/VertexToolBase.h"
 
-#include <vecmath/polygon.h>
+#include "vecmath/polygon.h"
 
 #include <memory>
 #include <string>

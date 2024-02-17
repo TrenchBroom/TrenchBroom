@@ -23,7 +23,7 @@
 #include "IO/ExportOptions.h"
 #include "IO/NodeSerializer.h"
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #include <array>
 #include <iosfwd>

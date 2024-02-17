@@ -30,8 +30,8 @@
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
 
-#include <vecmath/scalar.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/scalar.h"
+#include "vecmath/vec_io.h"
 
 #include <ostream>
 

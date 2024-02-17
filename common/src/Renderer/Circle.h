@@ -21,8 +21,8 @@
 
 #include "Renderer/VertexArray.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/util.h>
+#include "vecmath/forward.h"
+#include "vecmath/util.h"
 
 namespace TrenchBroom
 {

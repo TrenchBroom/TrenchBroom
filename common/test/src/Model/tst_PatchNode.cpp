@@ -25,11 +25,11 @@
 
 #include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/ray.h>
-#include <vecmath/ray_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/ray.h"
+#include "vecmath/ray_io.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include "Catch2.h"
 

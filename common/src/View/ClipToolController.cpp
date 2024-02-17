@@ -40,10 +40,10 @@
 
 #include "kdl/vector_utils.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/segment.h>
-#include <vecmath/vec.h>
+#include "vecmath/distance.h"
+#include "vecmath/intersection.h"
+#include "vecmath/segment.h"
+#include "vecmath/vec.h"
 
 #include <memory>
 #include <optional>

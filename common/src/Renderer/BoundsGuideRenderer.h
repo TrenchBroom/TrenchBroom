@@ -24,7 +24,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 
-#include <vecmath/bbox.h>
+#include "vecmath/bbox.h"
 
 #include <memory>
 

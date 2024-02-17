@@ -27,9 +27,9 @@
 #include "kdl/result.h"
 #include "kdl/string_utils.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/ray.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/distance.h"
+#include "vecmath/ray.h"
+#include "vecmath/vec_io.h"
 
 #include <cassert>
 #include <istream>

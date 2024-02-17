@@ -30,7 +30,7 @@
 
 #include "kdl/result_forward.h"
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #include <memory>
 #include <optional>

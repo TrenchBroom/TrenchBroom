@@ -27,7 +27,7 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 
-#include <vecmath/util.h>
+#include "vecmath/util.h"
 
 namespace TrenchBroom
 {

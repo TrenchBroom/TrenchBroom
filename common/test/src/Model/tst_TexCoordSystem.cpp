@@ -23,7 +23,7 @@
 #include "Model/ParallelTexCoordSystem.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
-#include <vecmath/vec.h>
+#include "vecmath/vec.h"
 
 #include "Catch2.h"
 

@@ -26,9 +26,9 @@
 
 #include "kdl/result.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/mat.h"
+#include "vecmath/vec.h"
 
 #include <memory>
 #include <sstream>

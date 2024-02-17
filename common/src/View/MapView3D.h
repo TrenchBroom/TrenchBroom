@@ -22,7 +22,7 @@
 #include "NotifierConnection.h"
 #include "View/MapViewBase.h"
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #include <filesystem>
 #include <memory>

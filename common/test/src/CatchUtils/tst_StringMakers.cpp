@@ -33,7 +33,7 @@
 #include "StringMakers.h"
 #include "TestUtils.h"
 
-#include <vecmath/bbox.h>
+#include "vecmath/bbox.h"
 
 #include "Catch2.h"
 

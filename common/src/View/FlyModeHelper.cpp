@@ -26,7 +26,7 @@
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 
-#include <vecmath/vec.h>
+#include "vecmath/vec.h"
 
 namespace TrenchBroom
 {

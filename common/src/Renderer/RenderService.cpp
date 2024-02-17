@@ -34,11 +34,11 @@
 #include "Renderer/TextAnchor.h"
 #include "Renderer/TextRenderer.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/polygon.h>
-#include <vecmath/segment.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include "vecmath/forward.h"
+#include "vecmath/polygon.h"
+#include "vecmath/segment.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_ext.h"
 
 namespace TrenchBroom
 {

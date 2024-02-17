@@ -21,13 +21,13 @@
 
 #include "Polyhedron.h"
 
-#include <vecmath/constants.h>
-#include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/plane.h>
-#include <vecmath/ray.h>
-#include <vecmath/segment.h>
-#include <vecmath/util.h>
+#include "vecmath/constants.h"
+#include "vecmath/distance.h"
+#include "vecmath/intersection.h"
+#include "vecmath/plane.h"
+#include "vecmath/ray.h"
+#include "vecmath/segment.h"
+#include "vecmath/util.h"
 
 namespace TrenchBroom
 {

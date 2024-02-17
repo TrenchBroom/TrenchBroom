@@ -21,8 +21,8 @@
 
 #include "Assets/EntityModel_Forward.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
+#include "vecmath/bbox.h"
+#include "vecmath/forward.h"
 
 #include <memory>
 #include <string>

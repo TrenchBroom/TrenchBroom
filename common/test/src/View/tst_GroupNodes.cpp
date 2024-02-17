@@ -37,7 +37,7 @@
 
 #include "kdl/result.h"
 
-#include <vecmath/mat_ext.h>
+#include "vecmath/mat_ext.h"
 
 #include <functional>
 #include <set>

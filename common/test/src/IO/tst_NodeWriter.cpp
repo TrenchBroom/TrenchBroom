@@ -38,11 +38,11 @@
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
 
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/mat_io.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <fmt/format.h>
 

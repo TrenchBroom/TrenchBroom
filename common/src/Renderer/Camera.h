@@ -22,10 +22,10 @@
 #include "FloatType.h"
 #include "Notifier.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/ray.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/mat.h"
+#include "vecmath/ray.h"
+#include "vecmath/vec.h"
 
 namespace TrenchBroom
 {

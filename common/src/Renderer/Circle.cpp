@@ -24,10 +24,10 @@
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderUtils.h"
 
-#include <vecmath/constants.h>
-#include <vecmath/forward.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
+#include "vecmath/constants.h"
+#include "vecmath/forward.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
 
 #include <cassert>
 

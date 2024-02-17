@@ -45,11 +45,11 @@
 
 #include "kdl/memory_utils.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/intersection.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/vec.h"
 
 #include <optional>
 

@@ -25,7 +25,7 @@
 #include "Model/Layer.h"
 #include "Model/Node.h"
 
-#include <vecmath/bbox.h>
+#include "vecmath/bbox.h"
 
 #include <optional>
 #include <string>

@@ -26,7 +26,7 @@
 
 #include "kdl/reflection_decl.h"
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #include <memory>
 #include <optional>

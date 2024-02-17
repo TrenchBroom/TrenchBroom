@@ -33,7 +33,7 @@
 #include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #include <functional>
 #include <string>

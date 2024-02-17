@@ -25,9 +25,9 @@
 
 #include "kdl/vector_utils.h"
 
-#include <vecmath/scalar.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
+#include "vecmath/scalar.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
 
 #include <algorithm>
 #include <cassert>

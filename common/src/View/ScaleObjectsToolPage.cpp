@@ -36,8 +36,8 @@
 #include "kdl/memory_utils.h"
 #include "kdl/string_utils.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 namespace TrenchBroom
 {

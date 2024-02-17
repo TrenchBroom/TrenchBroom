@@ -23,7 +23,7 @@
 
 #include "View/MapViewLayout.h"
 
-#include <vecmath/util.h>
+#include "vecmath/util.h"
 
 namespace TrenchBroom
 {

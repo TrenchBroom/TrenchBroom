@@ -31,8 +31,8 @@
 #include "kdl/result.h"
 #include "kdl/string_format.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/vec.h>
+#include "vecmath/bbox.h"
+#include "vecmath/vec.h"
 
 #include <vector>
 

@@ -48,14 +48,14 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/polygon.h>
-#include <vecmath/segment.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include "vecmath/intersection.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/polygon.h"
+#include "vecmath/segment.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_ext.h"
 
 #include <algorithm> // for std::remove
 #include <iterator>

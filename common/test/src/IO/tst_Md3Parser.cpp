@@ -27,9 +27,9 @@
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
+#include "vecmath/bbox.h"
+#include "vecmath/forward.h"
+#include "vecmath/vec.h"
 
 #include <cstdio>
 #include <filesystem>

@@ -28,7 +28,7 @@
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/plane_io.h>
+#include "vecmath/plane_io.h"
 
 #include <cassert>
 

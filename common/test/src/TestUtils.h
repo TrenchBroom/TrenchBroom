@@ -26,11 +26,11 @@
 
 #include "kdl/vector_set.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h> // enable Catch2 to print vm::vec on test failures
+#include "vecmath/forward.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_io.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h" // enable Catch2 to print vm::vec on test failures
 
 #include <filesystem>
 #include <memory>

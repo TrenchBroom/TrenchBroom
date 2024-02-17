@@ -23,13 +23,13 @@
 
 #include "kdl/vector_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/plane.h>
-#include <vecmath/ray.h>
-#include <vecmath/scalar.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bbox.h"
+#include "vecmath/plane.h"
+#include "vecmath/ray.h"
+#include "vecmath/scalar.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <sstream>
 #include <unordered_map>

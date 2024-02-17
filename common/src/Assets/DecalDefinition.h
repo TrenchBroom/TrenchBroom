@@ -23,7 +23,7 @@
 
 #include "kdl/reflection_decl.h"
 
-#include <vecmath/vec.h>
+#include "vecmath/vec.h"
 
 #include <iosfwd>
 

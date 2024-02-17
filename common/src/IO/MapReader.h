@@ -29,8 +29,8 @@
 
 #include "kdl/result.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
+#include "vecmath/bbox.h"
+#include "vecmath/forward.h"
 
 #include <optional>
 #include <string_view>

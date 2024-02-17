@@ -24,9 +24,9 @@
 
 #include "kdl/reflection_impl.h"
 
-#include <vecmath/bbox_io.h>
-#include <vecmath/bezier_surface.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bbox_io.h"
+#include "vecmath/bezier_surface.h"
+#include "vecmath/vec_io.h"
 
 #include <cassert>
 

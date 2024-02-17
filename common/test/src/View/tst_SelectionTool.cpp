@@ -39,7 +39,7 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/ray.h>
+#include "vecmath/ray.h"
 
 #include "Catch2.h"
 

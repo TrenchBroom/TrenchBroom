@@ -29,13 +29,13 @@
 
 #include "kdl/result_io.h"
 
-#include <vecmath/bbox_io.h>
-#include <vecmath/forward.h>
-#include <vecmath/line_io.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/plane_io.h>
-#include <vecmath/ray_io.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bbox_io.h"
+#include "vecmath/forward.h"
+#include "vecmath/line_io.h"
+#include "vecmath/mat_io.h"
+#include "vecmath/plane_io.h"
+#include "vecmath/ray_io.h"
+#include "vecmath/vec_io.h"
 
 #define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
 #include <catch2/catch.hpp>

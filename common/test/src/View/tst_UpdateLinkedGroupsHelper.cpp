@@ -34,13 +34,13 @@
 #include "kdl/overload.h"
 #include "kdl/result.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bbox.h"
+#include "vecmath/bbox_io.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/mat_io.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include "Catch2.h"
 

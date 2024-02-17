@@ -23,8 +23,8 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/EntityColor.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/util.h>
+#include "vecmath/forward.h"
+#include "vecmath/util.h"
 
 #include <map>
 #include <memory>

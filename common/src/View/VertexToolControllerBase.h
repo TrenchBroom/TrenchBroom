@@ -27,7 +27,7 @@
 #include "View/MoveHandleDragTracker.h"
 #include "View/ToolController.h"
 
-#include <vecmath/intersection.h>
+#include "vecmath/intersection.h"
 
 #include <unordered_set>
 #include <vector>

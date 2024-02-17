@@ -118,10 +118,10 @@
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/polygon.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/polygon.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <algorithm>
 #include <cassert>

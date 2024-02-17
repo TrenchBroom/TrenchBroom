@@ -73,7 +73,7 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/vec_io.h>
+#include "vecmath/vec_io.h"
 
 #include <fstream>
 #include <string>

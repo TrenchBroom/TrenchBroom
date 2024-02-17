@@ -23,8 +23,8 @@
 
 #include "kdl/reflection_impl.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <string>
 

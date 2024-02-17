@@ -32,11 +32,11 @@
 #include "View/DragTracker.h"
 #include "View/InputState.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/plane.h>
-#include <vecmath/scalar.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/intersection.h"
+#include "vecmath/plane.h"
+#include "vecmath/scalar.h"
+#include "vecmath/vec.h"
 
 namespace TrenchBroom
 {

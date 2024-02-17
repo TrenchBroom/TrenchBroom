@@ -21,8 +21,8 @@
 
 #include "kdl/memory_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/ray.h>
+#include "vecmath/bbox.h"
+#include "vecmath/ray.h"
 
 namespace TrenchBroom
 {

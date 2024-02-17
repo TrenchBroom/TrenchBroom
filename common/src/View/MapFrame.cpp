@@ -97,8 +97,8 @@
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <cassert>
 #include <chrono>

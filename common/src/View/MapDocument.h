@@ -31,9 +31,9 @@
 #include "Result.h"
 #include "View/CachingLogger.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/util.h>
+#include "vecmath/bbox.h"
+#include "vecmath/forward.h"
+#include "vecmath/util.h"
 
 #include <filesystem>
 #include <map>

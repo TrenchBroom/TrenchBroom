@@ -21,9 +21,9 @@
 
 #include "Macros.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/ray.h>
+#include "vecmath/distance.h"
+#include "vecmath/intersection.h"
+#include "vecmath/ray.h"
 
 namespace TrenchBroom
 {

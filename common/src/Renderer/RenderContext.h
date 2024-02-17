@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "Renderer/Transformation.h"
 
-#include <vecmath/bbox.h>
+#include "vecmath/bbox.h"
 
 namespace TrenchBroom
 {

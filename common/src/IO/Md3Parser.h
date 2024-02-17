@@ -22,7 +22,7 @@
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #include <filesystem>
 #include <memory>

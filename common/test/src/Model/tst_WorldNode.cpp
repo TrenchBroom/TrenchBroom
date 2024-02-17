@@ -36,9 +36,9 @@
 #include "kdl/result_io.h"
 #include "kdl/string_utils.h"
 
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/mat_io.h>
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/mat_io.h"
 
 #include "Catch2.h"
 

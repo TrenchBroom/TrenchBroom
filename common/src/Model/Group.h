@@ -23,7 +23,7 @@
 
 #include "kdl/reflection_decl.h"
 
-#include <vecmath/mat.h>
+#include "vecmath/mat.h"
 
 #include <string>
 

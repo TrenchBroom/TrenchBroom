@@ -41,9 +41,9 @@
 
 #include "kdl/memory_utils.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/ray.h>
-#include <vecmath/vec.h>
+#include "vecmath/intersection.h"
+#include "vecmath/ray.h"
+#include "vecmath/vec.h"
 
 #include <numeric>
 #include <vector>

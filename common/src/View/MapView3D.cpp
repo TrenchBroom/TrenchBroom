@@ -70,7 +70,7 @@
 
 #include "kdl/set_temp.h"
 
-#include <vecmath/util.h>
+#include "vecmath/util.h"
 
 #include <memory>
 

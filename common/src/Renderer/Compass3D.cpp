@@ -22,7 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 
-#include <vecmath/mat.h>
+#include "vecmath/mat.h"
 
 namespace TrenchBroom
 {

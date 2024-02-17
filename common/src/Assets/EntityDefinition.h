@@ -24,7 +24,7 @@
 #include "Color.h"
 #include "FloatType.h"
 
-#include <vecmath/bbox.h>
+#include "vecmath/bbox.h"
 
 #include <atomic>
 #include <memory>

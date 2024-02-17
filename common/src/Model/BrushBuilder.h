@@ -24,7 +24,7 @@
 #include "Model/Polyhedron3.h"
 #include "Result.h"
 
-#include <vecmath/bbox.h>
+#include "vecmath/bbox.h"
 
 #include <string>
 #include <vector>

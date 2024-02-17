@@ -37,16 +37,16 @@
 #include "kdl/result.h"
 #include "kdl/string_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/plane.h>
-#include <vecmath/plane_io.h>
-#include <vecmath/polygon.h>
-#include <vecmath/scalar.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/bbox.h"
+#include "vecmath/intersection.h"
+#include "vecmath/mat.h"
+#include "vecmath/plane.h"
+#include "vecmath/plane_io.h"
+#include "vecmath/polygon.h"
+#include "vecmath/scalar.h"
+#include "vecmath/util.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <sstream>
 #include <string>

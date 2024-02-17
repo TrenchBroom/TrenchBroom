@@ -26,7 +26,7 @@
 
 #include "kdl/reflection_decl.h"
 
-#include <vecmath/bbox.h>
+#include "vecmath/bbox.h"
 
 #include <iosfwd>
 #include <memory>

@@ -31,8 +31,8 @@
 
 #include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/bbox.h>
+#include "vecmath/approx.h"
+#include "vecmath/bbox.h"
 
 #include <filesystem>
 #include <iostream>

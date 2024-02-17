@@ -38,12 +38,12 @@
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/polygon.h>
-#include <vecmath/ray.h>
-#include <vecmath/segment.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include "vecmath/approx.h"
+#include "vecmath/polygon.h"
+#include "vecmath/ray.h"
+#include "vecmath/segment.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_ext.h"
 
 #include <fstream>
 #include <string>

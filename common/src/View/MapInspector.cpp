@@ -39,7 +39,7 @@
 
 #include "kdl/memory_utils.h"
 
-#include <vecmath/vec_io.h>
+#include "vecmath/vec_io.h"
 
 #include <optional>
 #include <utility>

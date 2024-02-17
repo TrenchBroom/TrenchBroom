@@ -23,7 +23,7 @@
 #include "View/RotateObjectsHandle.h"
 #include "View/Tool.h"
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #include <memory>
 #include <vector>

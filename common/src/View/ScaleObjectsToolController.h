@@ -22,7 +22,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "View/ToolController.h"
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #include <memory>
 

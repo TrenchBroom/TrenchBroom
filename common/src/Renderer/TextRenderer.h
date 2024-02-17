@@ -25,8 +25,8 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/vec.h"
 
 #include <vector>
 

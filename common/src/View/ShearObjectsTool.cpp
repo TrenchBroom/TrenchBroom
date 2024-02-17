@@ -37,11 +37,11 @@
 
 #include "kdl/memory_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/polygon.h>
-#include <vecmath/vec.h>
+#include "vecmath/bbox.h"
+#include "vecmath/forward.h"
+#include "vecmath/intersection.h"
+#include "vecmath/polygon.h"
+#include "vecmath/vec.h"
 
 namespace TrenchBroom
 {

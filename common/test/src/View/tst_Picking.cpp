@@ -34,9 +34,9 @@
 
 #include "kdl/result.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/ray.h>
-#include <vecmath/ray_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/ray.h"
+#include "vecmath/ray_io.h"
 
 #include <vector>
 

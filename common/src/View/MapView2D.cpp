@@ -65,7 +65,7 @@
 #include "kdl/overload.h"
 #include "kdl/result.h"
 
-#include <vecmath/util.h>
+#include "vecmath/util.h"
 
 #include <memory>
 #include <vector>

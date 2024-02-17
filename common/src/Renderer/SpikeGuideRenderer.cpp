@@ -31,9 +31,9 @@
 #include "Renderer/VboManager.h"
 #include "View/MapDocument.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/ray.h>
-#include <vecmath/vec.h>
+#include "vecmath/forward.h"
+#include "vecmath/ray.h"
+#include "vecmath/vec.h"
 
 #include <memory>
 

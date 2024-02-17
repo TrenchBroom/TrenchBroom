@@ -31,9 +31,9 @@
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/vec.h"
 
 #include <string>
 

@@ -21,7 +21,7 @@
 
 #include "FloatType.h"
 
-#include <vecmath/ray.h>
+#include "vecmath/ray.h"
 
 namespace TrenchBroom
 {

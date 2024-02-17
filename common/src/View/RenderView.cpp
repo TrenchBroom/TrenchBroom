@@ -73,8 +73,8 @@
 #ifdef _WIN32
 #endif
 
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
 
 #include <iostream>
 

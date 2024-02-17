@@ -40,11 +40,11 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
+#include "vecmath/approx.h"
+#include "vecmath/forward.h"
+#include "vecmath/mat.h"
+#include "vecmath/mat_ext.h"
+#include "vecmath/vec.h"
 
 #include <memory>
 #include <vector>

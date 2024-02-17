@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <vecmath/forward.h>
+#include "vecmath/forward.h"
 
 #include <vector>
 

@@ -41,11 +41,11 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/ray.h>
-#include <vecmath/scalar.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vecmath/approx.h"
+#include "vecmath/ray.h"
+#include "vecmath/scalar.h"
+#include "vecmath/vec.h"
+#include "vecmath/vec_io.h"
 
 #include <filesystem>
 #include <memory>
