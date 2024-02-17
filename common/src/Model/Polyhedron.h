@@ -23,12 +23,12 @@
 
 #include "kdl/intrusive_circular_list.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/forward.h"
-#include "vecmath/plane.h"
-#include "vecmath/segment.h"
-#include "vecmath/util.h"
-#include "vecmath/vec.h"
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/plane.h"
+#include "vm/segment.h"
+#include "vm/util.h"
+#include "vm/vec.h"
 
 #include <initializer_list>
 #include <limits>

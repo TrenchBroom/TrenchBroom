@@ -23,10 +23,10 @@
 #include "Model/Polyhedron_DefaultPayload.h"
 #include "Model/Polyhedron_Instantiation.h"
 
-#include "vecmath/plane.h"
-#include "vecmath/scalar.h"
-#include "vecmath/vec.h"
-#include "vecmath/vec_io.h"
+#include "vm/plane.h"
+#include "vm/scalar.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <iterator>
 #include <set>

@@ -23,8 +23,8 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vecmath/ray.h"
-#include "vecmath/vec.h"
+#include "vm/ray.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {

@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "Model/MapFormat.h"
 
-#include "vecmath/forward.h"
+#include "vm/forward.h"
 
 #include <cassert>
 #include <map>

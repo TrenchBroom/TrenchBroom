@@ -22,8 +22,8 @@
 #include "Color.h"
 #include "Renderer/Renderable.h"
 
-#include "vecmath/forward.h"
-#include "vecmath/vec.h"
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <unordered_map>

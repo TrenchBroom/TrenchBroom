@@ -24,7 +24,7 @@
 #include "FloatType.h"
 #include "NotifierConnection.h"
 
-#include "vecmath/forward.h"
+#include "vm/forward.h"
 
 #include <memory>
 #include <optional>

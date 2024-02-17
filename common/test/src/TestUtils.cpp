@@ -41,9 +41,9 @@
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
 
-#include "vecmath/polygon.h"
-#include "vecmath/scalar.h"
-#include "vecmath/segment.h"
+#include "vm/polygon.h"
+#include "vm/scalar.h"
+#include "vm/segment.h"
 
 #include <sstream>
 #include <string>

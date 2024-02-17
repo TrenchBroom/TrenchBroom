@@ -24,9 +24,9 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/forward.h"
-#include "vecmath/vec.h"
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <string>
 #include <vector>

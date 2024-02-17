@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "Model/TexCoordSystem.h"
 
-#include "vecmath/vec.h"
+#include "vm/vec.h"
 
 #include <memory>
 

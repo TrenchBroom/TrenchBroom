@@ -27,7 +27,7 @@
 #include "Model/Object.h"
 #include "Result.h"
 
-#include "vecmath/bbox.h"
+#include "vm/bbox.h"
 
 #include <memory>
 #include <optional>

@@ -20,7 +20,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "FloatType.h"
 #include "Matchers.h"
 
-#include "vecmath/vec.h"
+#include "vm/vec.h"
 
 #include "Catch2.h"
 

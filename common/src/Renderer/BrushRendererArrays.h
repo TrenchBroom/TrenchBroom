@@ -28,7 +28,7 @@
 #include "Renderer/Vbo.h"
 #include "Renderer/VboManager.h"
 
-#include "vecmath/vec.h"
+#include "vm/vec.h"
 
 #include <cassert>
 #include <memory>

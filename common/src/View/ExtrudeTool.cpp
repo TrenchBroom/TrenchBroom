@@ -44,10 +44,10 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vecmath/distance.h"
-#include "vecmath/line_io.h"
-#include "vecmath/plane_io.h"
-#include "vecmath/vec_io.h"
+#include "vm/distance.h"
+#include "vm/line_io.h"
+#include "vm/plane_io.h"
+#include "vm/vec_io.h"
 
 #include <limits>
 #include <map>

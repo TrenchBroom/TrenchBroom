@@ -35,10 +35,10 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/line.h"
-#include "vecmath/plane.h"
-#include "vecmath/vec.h"
+#include "vm/bbox.h"
+#include "vm/line.h"
+#include "vm/plane.h"
+#include "vm/vec.h"
 
 #include <cassert>
 

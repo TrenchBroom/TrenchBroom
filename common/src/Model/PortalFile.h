@@ -21,7 +21,7 @@
 
 #include "Result.h"
 
-#include "vecmath/forward.h"
+#include "vm/forward.h"
 
 #include <filesystem>
 #include <iosfwd>

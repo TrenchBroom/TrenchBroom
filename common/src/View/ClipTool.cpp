@@ -45,9 +45,9 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vecmath/ray.h"
-#include "vecmath/vec.h"
-#include "vecmath/vec_io.h"
+#include "vm/ray.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>

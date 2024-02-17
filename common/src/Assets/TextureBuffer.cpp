@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 
-#include "vecmath/vec.h"
+#include "vm/vec.h"
 
 #include <FreeImage.h>
 #include <algorithm> // for std::max

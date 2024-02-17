@@ -36,8 +36,8 @@
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vecmath/polygon.h"
-#include "vecmath/segment.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
 
 #include <cassert>
 

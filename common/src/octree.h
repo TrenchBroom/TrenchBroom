@@ -27,11 +27,11 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/bbox_io.h"
-#include "vecmath/intersection.h"
-#include "vecmath/ray.h"
-#include "vecmath/scalar.h"
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
+#include "vm/intersection.h"
+#include "vm/ray.h"
+#include "vm/scalar.h"
 
 #include <algorithm>
 #include <cassert>

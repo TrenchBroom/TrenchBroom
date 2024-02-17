@@ -42,8 +42,8 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vecmath/mat.h"
-#include "vecmath/mat_io.h"
+#include "vm/mat.h"
+#include "vm/mat_io.h"
 
 #include <cassert>
 #include <optional>

@@ -22,7 +22,7 @@
 #include "Color.h"
 #include "Preference.h"
 
-#include "vecmath/util.h"
+#include "vm/util.h"
 
 #include <filesystem>
 #include <vector>

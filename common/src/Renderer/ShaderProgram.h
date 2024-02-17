@@ -23,7 +23,7 @@
 #include "Renderer/GL.h"
 #include "Result.h"
 
-#include "vecmath/forward.h"
+#include "vm/forward.h"
 
 #include <string>
 #include <unordered_map>

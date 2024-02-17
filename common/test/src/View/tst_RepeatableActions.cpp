@@ -27,14 +27,14 @@
 
 #include "kdl/result.h"
 
-#include "vecmath/approx.h"
-#include "vecmath/bbox_io.h"
-#include "vecmath/mat.h"
-#include "vecmath/mat_ext.h"
-#include "vecmath/mat_io.h"
-#include "vecmath/scalar.h"
-#include "vecmath/vec.h"
-#include "vecmath/vec_io.h"
+#include "vm/approx.h"
+#include "vm/bbox_io.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/mat_io.h"
+#include "vm/scalar.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include "Catch2.h"
 

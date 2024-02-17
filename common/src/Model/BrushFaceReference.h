@@ -23,7 +23,7 @@
 #include "Model/BrushFaceHandle.h"
 #include "Result.h"
 
-#include "vecmath/plane.h"
+#include "vm/plane.h"
 
 #include <vector>
 

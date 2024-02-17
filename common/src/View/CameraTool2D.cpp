@@ -25,8 +25,8 @@
 #include "View/DragTracker.h"
 #include "View/InputState.h"
 
-#include "vecmath/forward.h"
-#include "vecmath/vec.h"
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {

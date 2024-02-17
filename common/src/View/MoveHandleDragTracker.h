@@ -28,9 +28,9 @@
 
 #include "kdl/string_utils.h"
 
-#include "vecmath/line.h"
-#include "vecmath/plane.h"
-#include "vecmath/vec.h"
+#include "vm/line.h"
+#include "vm/plane.h"
+#include "vm/vec.h"
 
 #include <array>
 #include <cassert>

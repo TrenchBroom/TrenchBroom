@@ -20,7 +20,7 @@
 #include "IO/Token.h"
 #include "IO/Tokenizer.h"
 
-#include "vecmath/approx.h"
+#include "vm/approx.h"
 
 #include <string>
 

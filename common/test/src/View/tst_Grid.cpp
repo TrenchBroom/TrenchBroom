@@ -30,9 +30,9 @@
 
 #include "kdl/result.h"
 
-#include "vecmath/approx.h"
-#include "vecmath/polygon.h"
-#include "vecmath/segment.h"
+#include "vm/approx.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
 
 #include <cmath>
 

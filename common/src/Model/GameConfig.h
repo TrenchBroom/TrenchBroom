@@ -29,7 +29,7 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vecmath/bbox.h"
+#include "vm/bbox.h"
 
 #include <filesystem>
 #include <optional>

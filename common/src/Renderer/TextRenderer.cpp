@@ -31,9 +31,9 @@
 #include "Renderer/TextAnchor.h"
 #include "Renderer/TextureFont.h"
 
-#include "vecmath/forward.h"
-#include "vecmath/mat_ext.h"
-#include "vecmath/vec.h"
+#include "vm/forward.h"
+#include "vm/mat_ext.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {

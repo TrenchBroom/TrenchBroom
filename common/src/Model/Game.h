@@ -27,8 +27,8 @@
 #include "Model/MapFormat.h"
 #include "Result.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/forward.h"
+#include "vm/bbox.h"
+#include "vm/forward.h"
 
 #include <filesystem>
 #include <map>

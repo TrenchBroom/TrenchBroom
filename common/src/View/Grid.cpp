@@ -26,10 +26,10 @@
 #include "Model/BrushNode.h"
 #include "Model/Polyhedron.h"
 
-#include "vecmath/intersection.h"
-#include "vecmath/ray.h"
-#include "vecmath/scalar.h"
-#include "vecmath/vec.h"
+#include "vm/intersection.h"
+#include "vm/ray.h"
+#include "vm/scalar.h"
+#include "vm/vec.h"
 
 #include <cmath>
 

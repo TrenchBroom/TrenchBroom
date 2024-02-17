@@ -40,9 +40,9 @@
 #include "kdl/memory_utils.h"
 #include "kdl/string_utils.h"
 
-#include "vecmath/util.h"
-#include "vecmath/vec.h"
-#include "vecmath/vec_io.h"
+#include "vm/util.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 namespace TrenchBroom
 {

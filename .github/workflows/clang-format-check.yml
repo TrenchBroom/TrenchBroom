@@ -11,7 +11,7 @@ jobs:
           - 'common'
           - 'dump-shortcuts'
           - 'lib/kdl'
-          - 'lib/vecmath'
+          - 'lib/vm'
     steps:
     - name: Checkout code
       uses: actions/checkout@v4

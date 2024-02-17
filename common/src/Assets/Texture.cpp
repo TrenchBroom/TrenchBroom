@@ -27,7 +27,7 @@
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 
-#include "vecmath/vec_io.h"
+#include "vm/vec_io.h"
 
 #include <algorithm> // for std::max
 #include <cassert>

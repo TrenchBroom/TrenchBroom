@@ -22,10 +22,10 @@
 #include "Macros.h"
 #include "View/SwapNodeContentsCommand.h"
 
-#include "vecmath/forward.h"
-#include "vecmath/polygon.h"
-#include "vecmath/segment.h"
-#include "vecmath/vec.h"
+#include "vm/forward.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <vector>

@@ -26,9 +26,9 @@
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
-#include "vecmath/forward.h"
-#include "vecmath/polygon.h"
-#include "vecmath/vec.h"
+#include "vm/forward.h"
+#include "vm/polygon.h"
+#include "vm/vec.h"
 
 #include <string>
 

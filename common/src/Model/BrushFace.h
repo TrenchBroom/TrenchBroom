@@ -30,9 +30,9 @@
 #include "kdl/reflection_decl.h"
 #include "kdl/transform_range.h"
 
-#include "vecmath/plane.h"
-#include "vecmath/util.h"
-#include "vecmath/vec.h"
+#include "vm/plane.h"
+#include "vm/util.h"
+#include "vm/vec.h"
 
 #include <array>
 #include <memory>

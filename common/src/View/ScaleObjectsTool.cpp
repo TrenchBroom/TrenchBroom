@@ -35,12 +35,12 @@
 #include "kdl/memory_utils.h"
 #include "kdl/string_utils.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/distance.h"
-#include "vecmath/intersection.h"
-#include "vecmath/line.h"
-#include "vecmath/vec.h"
-#include "vecmath/vec_io.h"
+#include "vm/bbox.h"
+#include "vm/distance.h"
+#include "vm/intersection.h"
+#include "vm/line.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <set>
 

@@ -41,7 +41,7 @@
 
 #include "kdl/skip_iterator.h"
 
-#include "vecmath/mat_ext.h"
+#include "vm/mat_ext.h"
 
 #include <algorithm>
 #include <map>

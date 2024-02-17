@@ -24,11 +24,11 @@
 
 #include "kdl/vector_utils.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/constants.h"
-#include "vecmath/plane.h"
-#include "vecmath/segment.h"
-#include "vecmath/util.h"
+#include "vm/bbox.h"
+#include "vm/constants.h"
+#include "vm/plane.h"
+#include "vm/segment.h"
+#include "vm/util.h"
 
 #include <list>
 #include <unordered_set>

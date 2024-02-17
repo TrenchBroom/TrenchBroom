@@ -22,10 +22,10 @@
 
 // The catch2 header must be included only when all stream insertion
 // operators used in assertions are visible. We add this new wrapper header
-// that includes these operators for the vecmath types to ensure that they
+// that includes these operators for the vm types to ensure that they
 // work consistently.
 
-// Include this header instead of <catch2/catch.hpp> to ensure that vecmath
+// Include this header instead of <catch2/catch.hpp> to ensure that vm
 // stream operators work consistently.
 
 #define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1

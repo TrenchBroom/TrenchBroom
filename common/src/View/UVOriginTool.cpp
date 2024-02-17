@@ -42,12 +42,12 @@
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
-#include "vecmath/distance.h"
-#include "vecmath/intersection.h"
-#include "vecmath/line.h"
-#include "vecmath/mat.h"
-#include "vecmath/mat_ext.h"
-#include "vecmath/vec.h"
+#include "vm/distance.h"
+#include "vm/intersection.h"
+#include "vm/line.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/vec.h"
 
 #include <vector>
 

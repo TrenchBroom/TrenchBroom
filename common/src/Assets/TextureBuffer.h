@@ -21,7 +21,7 @@
 
 #include "Renderer/GL.h"
 
-#include "vecmath/forward.h"
+#include "vm/forward.h"
 
 #include <memory>
 #include <vector>

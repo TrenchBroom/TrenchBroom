@@ -1,3 +1,3 @@
 add_subdirectory(kdl)
-add_subdirectory(vecmath)
+add_subdirectory(vm)
 add_subdirectory(stackwalker)

@@ -25,7 +25,7 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vecmath/forward.h"
+#include "vm/forward.h"
 
 #include <atomic>
 #include <filesystem>

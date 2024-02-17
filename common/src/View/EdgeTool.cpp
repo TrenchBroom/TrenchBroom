@@ -24,7 +24,7 @@
 #include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
 
-#include "vecmath/polygon.h"
+#include "vm/polygon.h"
 
 namespace TrenchBroom
 {

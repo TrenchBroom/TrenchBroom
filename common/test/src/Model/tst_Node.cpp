@@ -43,13 +43,13 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/bbox_io.h"
-#include "vecmath/mat.h"
-#include "vecmath/mat_ext.h"
-#include "vecmath/mat_io.h"
-#include "vecmath/ray.h"
-#include "vecmath/ray_io.h"
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/mat_io.h"
+#include "vm/ray.h"
+#include "vm/ray_io.h"
 
 #include <variant>
 #include <vector>

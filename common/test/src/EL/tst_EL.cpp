@@ -21,7 +21,7 @@
 #include "EL/Types.h"
 #include "EL/Value.h"
 
-#include "vecmath/scalar.h"
+#include "vm/scalar.h"
 
 #include <limits>
 #include <string>

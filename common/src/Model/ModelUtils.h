@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "Model/HitType.h"
 
-#include "vecmath/bbox.h"
+#include "vm/bbox.h"
 
 #include <map>
 #include <memory>

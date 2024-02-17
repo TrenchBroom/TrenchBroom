@@ -28,7 +28,7 @@
 
 #include "kdl/vector_set.h"
 
-#include "vecmath/segment.h"
+#include "vm/segment.h"
 
 #include <iterator>
 #include <map>

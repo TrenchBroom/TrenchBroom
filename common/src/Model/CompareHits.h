@@ -21,7 +21,7 @@
 
 #include "FloatType.h"
 
-#include "vecmath/util.h"
+#include "vm/util.h"
 
 #include <memory>
 

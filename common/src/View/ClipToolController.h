@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "View/ToolController.h"
 
-#include "vecmath/forward.h"
+#include "vm/forward.h"
 
 #include <memory>
 #include <vector>

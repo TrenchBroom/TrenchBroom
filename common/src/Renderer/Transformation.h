@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "vecmath/forward.h"
-#include "vecmath/mat.h"
+#include "vm/forward.h"
+#include "vm/mat.h"
 
 #include <vector>
 

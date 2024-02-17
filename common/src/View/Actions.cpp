@@ -34,7 +34,7 @@
 #include "View/MapFrame.h"
 #include "View/MapViewBase.h"
 
-#include "vecmath/util.h"
+#include "vm/util.h"
 
 #include <cassert>
 #include <set>

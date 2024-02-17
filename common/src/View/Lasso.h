@@ -21,8 +21,8 @@
 
 #include "FloatType.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/plane.h"
+#include "vm/bbox.h"
+#include "vm/plane.h"
 
 namespace TrenchBroom
 {

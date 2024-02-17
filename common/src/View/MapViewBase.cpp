@@ -78,8 +78,8 @@
 #include "kdl/string_format.h"
 #include "kdl/vector_utils.h"
 
-#include "vecmath/polygon.h"
-#include "vecmath/util.h"
+#include "vm/polygon.h"
+#include "vm/util.h"
 
 #include <sstream>
 #include <vector>

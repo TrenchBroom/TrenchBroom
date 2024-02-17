@@ -21,10 +21,10 @@
 
 #include "kdl/string_utils.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/forward.h"
-#include "vecmath/ray.h"
-#include "vecmath/vec.h"
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/ray.h"
+#include "vm/vec.h"
 
 #include "Catch2.h"
 

@@ -28,9 +28,9 @@
 
 #include "kdl/vector_utils.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/forward.h"
-#include "vecmath/intersection.h"
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/intersection.h"
 
 #include <string>
 

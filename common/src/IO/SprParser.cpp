@@ -33,8 +33,8 @@
 #include "kdl/result.h"
 #include "kdl/string_format.h"
 
-#include "vecmath/bbox.h"
-#include "vecmath/vec.h"
+#include "vm/bbox.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {

@@ -21,7 +21,7 @@
 
 #include "Renderer/Camera.h"
 
-#include "vecmath/forward.h"
+#include "vm/forward.h"
 
 #include <vector>
 

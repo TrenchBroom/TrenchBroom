@@ -32,7 +32,7 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-#include "vecmath/bbox.h"
+#include "vm/bbox.h"
 
 #include <vector>
 

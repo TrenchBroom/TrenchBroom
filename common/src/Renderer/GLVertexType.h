@@ -22,7 +22,7 @@
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexAttributeType.h"
 
-#include "vecmath/forward.h"
+#include "vm/forward.h"
 
 namespace TrenchBroom
 {
