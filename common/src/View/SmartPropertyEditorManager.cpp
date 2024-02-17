@@ -34,9 +34,9 @@
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartWadEditor.h"
 
-#include <kdl/functional.h>
-#include <kdl/memory_utils.h>
-#include <kdl/string_compare.h>
+#include "kdl/functional.h"
+#include "kdl/memory_utils.h"
+#include "kdl/string_compare.h"
 
 namespace TrenchBroom::View
 {

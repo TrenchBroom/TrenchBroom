@@ -26,7 +26,7 @@
 #include "Renderer/TexturedIndexRangeRenderer.h"
 #include "octree.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>

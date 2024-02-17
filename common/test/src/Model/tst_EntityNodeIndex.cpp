@@ -21,7 +21,7 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityNodeIndex.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <string>
 #include <vector>

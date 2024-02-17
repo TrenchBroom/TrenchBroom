@@ -31,9 +31,9 @@
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
 
 #include <filesystem>
 #include <memory>

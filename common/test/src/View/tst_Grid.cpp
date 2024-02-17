@@ -28,7 +28,7 @@
 #include "Model/WorldNode.h"
 #include "View/Grid.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/polygon.h>

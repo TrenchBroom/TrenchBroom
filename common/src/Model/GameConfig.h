@@ -27,7 +27,7 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/Tag.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <vecmath/bbox.h>
 

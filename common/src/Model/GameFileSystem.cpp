@@ -35,8 +35,8 @@
 #include "Model/GameConfig.h"
 
 #include "kdl/result_fold.h"
-#include <kdl/string_compare.h>
-#include <kdl/vector_utils.h>
+#include "kdl/string_compare.h"
+#include "kdl/vector_utils.h"
 
 #include <memory>
 

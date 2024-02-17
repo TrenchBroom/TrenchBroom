@@ -93,9 +93,9 @@
 #include "View/VertexTool.h"
 #include "View/ViewUtils.h"
 
-#include <kdl/overload.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
+#include "kdl/overload.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
 
 #include <vecmath/vec.h>
 #include <vecmath/vec_io.h>

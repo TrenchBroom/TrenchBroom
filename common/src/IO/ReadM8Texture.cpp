@@ -26,7 +26,7 @@
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <iostream>
 #include <string>

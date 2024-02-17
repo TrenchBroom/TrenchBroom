@@ -27,14 +27,14 @@
 #include "IO/TraversalMode.h"
 #include "View/MapDocument.h"
 
+#include "kdl/memory_utils.h"
+#include "kdl/path_utils.h"
+#include "kdl/result.h"
 #include "kdl/result_fold.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
-#include <kdl/memory_utils.h>
-#include <kdl/path_utils.h>
-#include <kdl/result.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
 
 #include <algorithm> // for std::sort
 #include <cassert>

@@ -29,8 +29,8 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/result.h>
+#include "kdl/memory_utils.h"
+#include "kdl/result.h"
 
 namespace TrenchBroom
 {

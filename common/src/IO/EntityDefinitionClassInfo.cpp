@@ -23,8 +23,8 @@
 #include "Macros.h"
 #include "Model/EntityProperties.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/vector_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/bbox_io.h>
 #include <vecmath/vec_io.h>

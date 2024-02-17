@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "Model/Validator.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <cassert>
 

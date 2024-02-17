@@ -35,7 +35,7 @@
 #include "View/MapDocumentTest.h"
 #include "View/PasteType.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <vecmath/mat_ext.h>
 

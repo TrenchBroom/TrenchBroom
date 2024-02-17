@@ -27,7 +27,7 @@
 #include "Notifier.h"
 #include "View/QtUtils.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom::View
 {

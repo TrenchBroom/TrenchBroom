@@ -31,8 +31,8 @@
 #include "View/MapDocumentTest.h"
 #include "View/UpdateLinkedGroupsHelper.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>

@@ -22,7 +22,7 @@
 #include "View/SwapNodeContentsCommand.h"
 #include "View/VertexTool.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom
 {

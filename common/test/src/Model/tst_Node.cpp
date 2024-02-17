@@ -39,9 +39,9 @@
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>

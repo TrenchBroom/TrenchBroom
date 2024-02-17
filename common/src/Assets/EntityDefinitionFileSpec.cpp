@@ -19,7 +19,7 @@
 
 #include "EntityDefinitionFileSpec.h"
 
-#include <kdl/string_compare.h>
+#include "kdl/string_compare.h"
 
 #include <cassert>
 #include <string>

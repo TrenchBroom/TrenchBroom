@@ -25,7 +25,7 @@
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <string>
 

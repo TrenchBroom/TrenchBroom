@@ -28,7 +28,7 @@
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <string>
 #include <vector>

@@ -31,9 +31,9 @@
 #include "Model/TagVisitor.h"
 #include "Model/Validator.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/string_utils.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/string_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>

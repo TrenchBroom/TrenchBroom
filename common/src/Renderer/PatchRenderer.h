@@ -24,7 +24,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/TexturedIndexArrayRenderer.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <vector>
 

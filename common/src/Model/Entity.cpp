@@ -27,9 +27,9 @@
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotation.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/mat.h>

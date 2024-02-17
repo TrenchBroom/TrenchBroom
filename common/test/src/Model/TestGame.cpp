@@ -41,8 +41,8 @@
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
-#include <kdl/result.h>
-#include <kdl/string_utils.h>
+#include "kdl/result.h"
+#include "kdl/string_utils.h"
 
 #include <fstream>
 #include <memory>

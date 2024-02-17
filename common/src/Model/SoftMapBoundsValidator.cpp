@@ -28,7 +28,7 @@
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <optional>
 #include <string>

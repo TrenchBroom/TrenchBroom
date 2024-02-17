@@ -37,9 +37,9 @@
 #include "TestUtils.h"
 #include "View/ExtrudeTool.h"
 
-#include <kdl/result.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/result.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/ray.h>

@@ -24,8 +24,8 @@
 #include "Model/GameFactory.h"
 #include "View/MapDocument.h"
 
-#include <kdl/path_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/path_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <memory>
 #include <string>

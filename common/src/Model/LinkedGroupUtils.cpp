@@ -28,10 +28,10 @@
 #include "Uuid.h"
 
 #include "kdl/grouped_range.h"
-#include <kdl/parallel.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/zip_iterator.h>
+#include "kdl/parallel.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/zip_iterator.h"
 
 #include <string_view>
 #include <unordered_map>

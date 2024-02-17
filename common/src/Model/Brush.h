@@ -24,7 +24,7 @@
 #include "Model/BrushGeometry.h"
 #include "Result.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <vecmath/forward.h>
 

@@ -23,7 +23,7 @@
 #include "Color.h"
 #include "Renderer/EdgeRenderer.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <vector>
 

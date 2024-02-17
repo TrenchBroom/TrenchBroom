@@ -37,8 +37,8 @@
 #include "Model/Polyhedron.h"
 #include "TestUtils.h"
 
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/forward.h>

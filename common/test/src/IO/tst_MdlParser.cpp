@@ -28,7 +28,7 @@
 #include "Logger.h"
 #include "Model/EntityNode.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include "Catch2.h"
 

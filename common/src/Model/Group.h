@@ -21,7 +21,7 @@
 
 #include "FloatType.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <vecmath/mat.h>
 

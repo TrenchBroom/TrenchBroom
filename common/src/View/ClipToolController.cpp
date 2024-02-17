@@ -38,7 +38,7 @@
 #include "View/HandleDragTracker.h"
 #include "View/MapDocument.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>

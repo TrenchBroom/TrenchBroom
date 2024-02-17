@@ -33,7 +33,7 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/line.h>

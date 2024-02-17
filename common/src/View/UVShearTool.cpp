@@ -30,7 +30,7 @@
 #include "View/TransactionScope.h"
 #include "View/UVViewHelper.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <vecmath/intersection.h>
 #include <vecmath/vec.h>

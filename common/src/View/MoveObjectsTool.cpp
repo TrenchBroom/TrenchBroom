@@ -27,7 +27,7 @@
 #include "View/MoveObjectsToolPage.h"
 #include "View/TransactionScope.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <vecmath/bbox.h>
 

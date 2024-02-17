@@ -32,8 +32,8 @@
 #include "Preference.h"
 #include "Result.h"
 
-#include <kdl/result.h>
-#include <kdl/vector_set.h>
+#include "kdl/result.h"
+#include "kdl/vector_set.h"
 
 #include <filesystem>
 #include <map>

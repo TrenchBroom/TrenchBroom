@@ -24,9 +24,9 @@
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
-#include <kdl/result.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
+#include "kdl/result.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
 
 namespace TrenchBroom::IO
 {

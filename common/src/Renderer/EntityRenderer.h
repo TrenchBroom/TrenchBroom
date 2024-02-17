@@ -25,7 +25,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/TriangleRenderer.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <vecmath/forward.h>
 

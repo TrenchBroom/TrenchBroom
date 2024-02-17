@@ -29,11 +29,11 @@
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/intersection.h>
 #include <vecmath/mat.h>

@@ -26,7 +26,7 @@
 #include "Renderer/TextAnchor.h"
 #include "View/HandleDragTracker.h"
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
 #include <vecmath/line.h>
 #include <vecmath/plane.h>

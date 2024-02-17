@@ -28,7 +28,7 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
 #include <string>
 #include <vector>

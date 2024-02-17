@@ -29,8 +29,8 @@
 #include "Model/Node.h"
 #include "Model/PatchNode.h"
 
-#include <kdl/overload.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/vector_utils.h"
 
 #include <string>
 

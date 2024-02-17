@@ -33,9 +33,9 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
-#include <kdl/path_utils.h>
-#include <kdl/result.h>
-#include <kdl/string_format.h>
+#include "kdl/path_utils.h"
+#include "kdl/result.h"
+#include "kdl/string_format.h"
 
 #include <string>
 

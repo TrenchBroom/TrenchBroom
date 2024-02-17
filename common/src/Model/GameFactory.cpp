@@ -38,12 +38,12 @@
 #include "Model/GameImpl.h"
 #include "PreferenceManager.h"
 
-#include <kdl/collection_utils.h>
-#include <kdl/path_utils.h>
-#include <kdl/result.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/collection_utils.h"
+#include "kdl/path_utils.h"
+#include "kdl/result.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <fstream>
 #include <iostream>

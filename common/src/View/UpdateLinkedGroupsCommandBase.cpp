@@ -24,7 +24,7 @@
 #include "View/MapDocumentCommandFacade.h"
 #include "View/UpdateLinkedGroupsCommand.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <string>
 

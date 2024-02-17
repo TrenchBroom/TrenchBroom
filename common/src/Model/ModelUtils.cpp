@@ -27,7 +27,7 @@
 #include "Model/NodeQueries.h"
 #include "Polyhedron.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vector>
 

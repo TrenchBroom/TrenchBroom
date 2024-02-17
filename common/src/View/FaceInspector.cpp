@@ -39,7 +39,7 @@
 #include "View/TextureBrowser.h"
 #include "View/TextureCollectionEditor.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <vector>
 

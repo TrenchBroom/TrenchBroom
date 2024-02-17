@@ -26,7 +26,7 @@
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <string>
 

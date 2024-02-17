@@ -37,7 +37,7 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <vecmath/vec_io.h>
 

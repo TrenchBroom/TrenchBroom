@@ -24,7 +24,7 @@
 #include "IO/ImageFileSystem.h"
 #include "Model/MapFormat.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>

@@ -19,7 +19,7 @@
 
 #include "BoundsGuideRenderer.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/ray.h>

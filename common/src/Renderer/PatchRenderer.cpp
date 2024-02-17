@@ -38,7 +38,7 @@
 #include "Renderer/TexturedIndexArrayRenderer.h"
 #include "Renderer/VertexArray.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

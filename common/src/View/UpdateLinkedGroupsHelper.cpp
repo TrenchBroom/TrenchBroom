@@ -27,10 +27,10 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/vector_utils.h"
 
 #include <algorithm>
 #include <cassert>

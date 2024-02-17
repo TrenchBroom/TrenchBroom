@@ -35,12 +35,12 @@
 #include "Model/WorldNode.h"
 #include "Uuid.h"
 
-#include <kdl/parallel.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/parallel.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_io.h>

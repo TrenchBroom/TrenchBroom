@@ -35,8 +35,8 @@
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
-#include <kdl/result.h>
-#include <kdl/string_compare.h>
+#include "kdl/result.h"
+#include "kdl/string_compare.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>

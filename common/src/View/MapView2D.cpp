@@ -62,8 +62,8 @@
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
 
 #include <vecmath/util.h>
 

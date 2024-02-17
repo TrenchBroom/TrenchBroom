@@ -27,7 +27,7 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
-#include <kdl/overload.h>
+#include "kdl/overload.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>

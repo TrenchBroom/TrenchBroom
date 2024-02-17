@@ -23,8 +23,8 @@
 #include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <kdl/map_utils.h>
-#include <kdl/overload.h>
+#include "kdl/map_utils.h"
+#include "kdl/overload.h"
 
 namespace TrenchBroom
 {

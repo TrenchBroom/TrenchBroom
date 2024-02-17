@@ -45,13 +45,13 @@
 #include "View/Selection.h"
 #include "View/UndoableCommand.h"
 
-#include <kdl/map_utils.h>
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/map_utils.h"
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/polygon.h>
 #include <vecmath/segment.h>

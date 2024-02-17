@@ -26,7 +26,7 @@
 #include "Model/Tag.h"
 #include "Model/VisibilityState.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>

@@ -23,7 +23,7 @@
 #include "View/TransactionScope.h"
 #include "View/UndoableCommand.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <chrono>
 #include <memory>

@@ -30,8 +30,8 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom::View
 {

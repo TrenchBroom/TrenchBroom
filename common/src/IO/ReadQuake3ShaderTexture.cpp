@@ -28,11 +28,11 @@
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/TraversalMode.h"
 
+#include "kdl/functional.h"
+#include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include <kdl/functional.h>
-#include <kdl/result.h>
-#include <kdl/string_format.h>
-#include <kdl/vector_utils.h>
+#include "kdl/string_format.h"
+#include "kdl/vector_utils.h"
 
 #include <filesystem>
 #include <optional>

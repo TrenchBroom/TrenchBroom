@@ -24,10 +24,10 @@
 #include "IO/TraversalMode.h"
 #include "Macros.h"
 
+#include "kdl/path_utils.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
 #include "kdl/vector_utils.h"
-#include <kdl/path_utils.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
 
 namespace TrenchBroom::IO::Disk
 {

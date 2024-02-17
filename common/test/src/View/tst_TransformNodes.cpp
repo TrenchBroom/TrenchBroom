@@ -33,9 +33,9 @@
 #include "Preferences.h"
 #include "TestUtils.h"
 
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
-#include <kdl/zip_iterator.h>
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
+#include "kdl/zip_iterator.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/mat.h>

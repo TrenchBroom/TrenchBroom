@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "Token.h"
 
-#include <kdl/string_format.h>
+#include "kdl/string_format.h"
 
 #include <cassert>
 #include <string>

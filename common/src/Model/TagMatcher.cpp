@@ -34,10 +34,10 @@
 #include "Model/NodeCollection.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/string_compare.h>
-#include <kdl/string_utils.h>
-#include <kdl/struct_io.h>
-#include <kdl/vector_utils.h>
+#include "kdl/string_compare.h"
+#include "kdl/string_utils.h"
+#include "kdl/struct_io.h"
+#include "kdl/vector_utils.h"
 
 #include <ostream>
 #include <vector>

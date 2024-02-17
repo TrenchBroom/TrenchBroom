@@ -24,8 +24,8 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityProperties.h"
 
-#include <kdl/compact_trie.h>
-#include <kdl/vector_utils.h>
+#include "kdl/compact_trie.h"
+#include "kdl/vector_utils.h"
 
 #include <iterator>
 #include <list>

@@ -24,7 +24,7 @@
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderManager.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>

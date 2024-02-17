@@ -35,8 +35,8 @@
 #include "View/MapDocumentTest.h"
 #include "View/SwapNodeContentsCommand.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/result.h>
+#include "kdl/memory_utils.h"
+#include "kdl/result.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>

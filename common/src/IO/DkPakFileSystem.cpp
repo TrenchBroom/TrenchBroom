@@ -24,8 +24,8 @@
 #include "IO/File.h"
 #include "IO/ReaderException.h"
 
-#include <kdl/result.h>
-#include <kdl/string_format.h>
+#include "kdl/result.h"
+#include "kdl/string_format.h"
 
 #include <cassert>
 #include <cstring>

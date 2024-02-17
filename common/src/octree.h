@@ -22,10 +22,10 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 
-#include <kdl/overload.h>
-#include <kdl/reflection_decl.h>
-#include <kdl/reflection_impl.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/reflection_decl.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>

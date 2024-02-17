@@ -27,7 +27,7 @@
 #include "Model/HitAdapter.h"
 #include "View/Grid.h"
 
-#include <kdl/reflection_impl.h>
+#include "kdl/reflection_impl.h"
 
 #include <vecmath/distance.h>
 #include <vecmath/intersection.h>

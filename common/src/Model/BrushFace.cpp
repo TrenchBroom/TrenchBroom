@@ -32,10 +32,10 @@
 #include "Model/TexCoordSystem.h"
 #include "Polyhedron.h"
 
-#include <kdl/overload.h>
-#include <kdl/reflection_impl.h>
-#include <kdl/result.h>
-#include <kdl/string_utils.h>
+#include "kdl/overload.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/result.h"
+#include "kdl/string_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/intersection.h>

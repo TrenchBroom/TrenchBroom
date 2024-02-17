@@ -26,7 +26,7 @@
 #include "NotifierConnection.h"
 #include "View/Tool.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/line.h>

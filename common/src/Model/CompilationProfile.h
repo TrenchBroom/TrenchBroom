@@ -21,7 +21,7 @@
 
 #include "Model/CompilationTask.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <vector>
 

@@ -32,7 +32,7 @@
 #include "TestUtils.h"
 #include "View/SelectionTool.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/ray.h>

@@ -25,7 +25,7 @@
 #include "Model/HitType.h"
 #include "Model/Object.h"
 
-#include <kdl/result_forward.h>
+#include "kdl/result_forward.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>

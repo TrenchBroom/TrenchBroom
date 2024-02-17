@@ -42,13 +42,13 @@
 #include "View/TransactionScope.h"
 #include "View/VertexHandleManager.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/set_temp.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/set_temp.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/vec.h>

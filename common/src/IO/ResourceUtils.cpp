@@ -40,8 +40,8 @@
 #include "IO/SystemPaths.h"
 #include "Logger.h"
 
-#include <kdl/result.h>
-#include <kdl/set_temp.h>
+#include "kdl/result.h"
+#include "kdl/set_temp.h"
 
 #include <map>
 #include <string>

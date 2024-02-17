@@ -19,7 +19,7 @@
 
 #include "AllocationTracker.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <algorithm>
 #include <cassert>

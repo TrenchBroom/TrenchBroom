@@ -21,8 +21,8 @@
 
 #include "Ensure.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/vector_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/vector_utils.h"
 
 #include <string>
 #include <vector>

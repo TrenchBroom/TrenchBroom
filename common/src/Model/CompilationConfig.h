@@ -21,7 +21,7 @@
 
 #include "Model/CompilationProfile.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 namespace TrenchBroom
 {

@@ -28,10 +28,10 @@
 #include "IO/TraversalMode.h"
 #include "Logger.h"
 
+#include "kdl/path_utils.h"
+#include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include <kdl/path_utils.h>
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <memory>
 #include <string>

@@ -24,7 +24,7 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/vec.h>

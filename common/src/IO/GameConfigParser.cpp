@@ -30,7 +30,7 @@
 #include "Model/TagAttribute.h"
 #include "Model/TagMatcher.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vecmath/vec_io.h>
 

@@ -36,11 +36,11 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/collection_utils.h>
-#include <kdl/memory_utils.h>
-#include <kdl/result.h>
-#include <kdl/string_compare.h>
-#include <kdl/vector_utils.h>
+#include "kdl/collection_utils.h"
+#include "kdl/memory_utils.h"
+#include "kdl/result.h"
+#include "kdl/string_compare.h"
+#include "kdl/vector_utils.h"
 
 #include <cassert>
 #include <string>

@@ -23,7 +23,7 @@
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/ray.h>

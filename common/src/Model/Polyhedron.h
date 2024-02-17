@@ -21,7 +21,7 @@
 
 #include "Polyhedron_Forward.h"
 
-#include <kdl/intrusive_circular_list.h>
+#include "kdl/intrusive_circular_list.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/forward.h>

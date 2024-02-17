@@ -25,7 +25,7 @@
 #include "IO/Tokenizer.h"
 #include "Model/MapFormat.h"
 
-#include <kdl/vector_set_forward.h>
+#include "kdl/vector_set_forward.h"
 
 #include <vecmath/forward.h>
 

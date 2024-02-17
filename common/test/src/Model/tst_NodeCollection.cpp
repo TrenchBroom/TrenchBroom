@@ -32,8 +32,8 @@
 #include "Model/NodeCollection.h"
 #include "Model/PatchNode.h"
 
-#include <kdl/result.h>
-#include <kdl/result_io.h>
+#include "kdl/result.h"
+#include "kdl/result_io.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>

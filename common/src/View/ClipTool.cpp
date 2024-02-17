@@ -38,12 +38,12 @@
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 
-#include <kdl/map_utils.h>
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/set_temp.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/map_utils.h"
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/set_temp.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/ray.h>
 #include <vecmath/vec.h>

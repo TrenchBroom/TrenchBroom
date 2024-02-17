@@ -37,9 +37,9 @@
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
-#include <kdl/result.h>
-#include <kdl/result_io.h>
-#include <kdl/vector_utils.h>
+#include "kdl/result.h"
+#include "kdl/result_io.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>

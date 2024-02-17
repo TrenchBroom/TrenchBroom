@@ -22,7 +22,7 @@
 #include "Model/TagType.h"
 #include "Notifier.h"
 
-#include <kdl/bitset.h>
+#include "kdl/bitset.h"
 
 namespace TrenchBroom
 {

@@ -33,8 +33,8 @@
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 
-#include <kdl/path_utils.h>
-#include <kdl/result.h>
+#include "kdl/path_utils.h"
+#include "kdl/result.h"
 
 #include <string>
 

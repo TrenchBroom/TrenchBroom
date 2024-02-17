@@ -23,9 +23,9 @@
 #include "Error.h"
 #include "IO/DiskIO.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/result.h>
-#include <kdl/string_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/result.h"
+#include "kdl/string_utils.h"
 
 #include <vecmath/distance.h>
 #include <vecmath/ray.h>

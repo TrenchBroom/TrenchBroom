@@ -34,11 +34,11 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include "kdl/path_utils.h"
+#include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include <kdl/path_utils.h>
-#include <kdl/result.h>
-#include <kdl/string_format.h>
-#include <kdl/vector_utils.h>
+#include "kdl/string_format.h"
+#include "kdl/vector_utils.h"
 
 #include <assimp/IOStream.hpp>
 #include <assimp/IOSystem.hpp>

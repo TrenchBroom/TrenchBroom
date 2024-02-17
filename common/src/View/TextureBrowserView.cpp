@@ -38,11 +38,11 @@
 #include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/skip_iterator.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/skip_iterator.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>

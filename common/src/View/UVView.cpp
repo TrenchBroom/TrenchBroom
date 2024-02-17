@@ -49,7 +49,7 @@
 #include "View/UVScaleTool.h"
 #include "View/UVShearTool.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <cassert>
 #include <memory>

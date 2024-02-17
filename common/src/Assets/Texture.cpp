@@ -24,8 +24,8 @@
 #include "Macros.h"
 #include "Renderer/GL.h"
 
-#include <kdl/overload.h>
-#include <kdl/reflection_impl.h>
+#include "kdl/overload.h"
+#include "kdl/reflection_impl.h"
 
 #include <vecmath/vec_io.h>
 

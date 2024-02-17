@@ -31,8 +31,8 @@
 #include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/TexturedIndexRangeMapBuilder.h"
 
-#include <kdl/result.h>
-#include <kdl/string_format.h>
+#include "kdl/result.h"
+#include "kdl/string_format.h"
 
 #include <fmt/format.h>
 

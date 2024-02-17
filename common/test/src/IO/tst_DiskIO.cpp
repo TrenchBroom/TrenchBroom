@@ -30,7 +30,7 @@
 #include "IO/TraversalMode.h"
 #include "Macros.h"
 
-#include <kdl/regex_utils.h>
+#include "kdl/regex_utils.h"
 
 #include <algorithm>
 #include <filesystem>

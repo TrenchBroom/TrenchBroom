@@ -44,12 +44,12 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/map_utils.h>
-#include <kdl/memory_utils.h>
-#include <kdl/reflection_impl.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/map_utils.h"
+#include "kdl/memory_utils.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <cassert>
 #include <iterator>

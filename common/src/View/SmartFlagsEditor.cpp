@@ -30,8 +30,8 @@
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 
-#include <kdl/set_temp.h>
-#include <kdl/string_utils.h>
+#include "kdl/set_temp.h"
+#include "kdl/string_utils.h"
 
 #include <cassert>
 #include <memory>

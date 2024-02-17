@@ -25,9 +25,9 @@
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_utils.h"
 
 #include <vecmath/forward.h>
 #include <vecmath/mat.h>

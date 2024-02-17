@@ -35,14 +35,14 @@
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
 
-#include <kdl/map_utils.h>
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/reflection_impl.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/map_utils.h"
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/distance.h>
 #include <vecmath/line_io.h>

@@ -35,7 +35,7 @@
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/bbox_io.h>

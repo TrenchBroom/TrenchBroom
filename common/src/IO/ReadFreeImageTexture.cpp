@@ -26,11 +26,11 @@
 #include "IO/ImageLoaderImpl.h"
 #include "IO/Reader.h"
 
+#include "kdl/invoke.h"
+#include "kdl/resource.h"
+#include "kdl/result.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
-#include <kdl/invoke.h>
-#include <kdl/resource.h>
-#include <kdl/result.h>
 
 #include <fmt/format.h>
 

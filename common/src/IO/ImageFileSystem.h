@@ -24,8 +24,8 @@
 #include "IO/FileSystem.h"
 #include "Result.h"
 
-#include <kdl/result.h>
-#include <kdl/string_compare.h>
+#include "kdl/result.h"
+#include "kdl/string_compare.h"
 
 #include <filesystem>
 #include <functional>

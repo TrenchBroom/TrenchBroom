@@ -23,8 +23,8 @@
 #include "IO/ParserStatus.h"
 #include "Macros.h"
 
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
 
 #include <filesystem>
 #include <string>

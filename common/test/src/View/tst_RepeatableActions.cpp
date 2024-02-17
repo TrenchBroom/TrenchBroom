@@ -25,7 +25,7 @@
 #include "View/MapDocumentTest.h"
 #include "View/TransactionScope.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/bbox_io.h>

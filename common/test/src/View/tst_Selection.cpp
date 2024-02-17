@@ -30,7 +30,7 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <vecmath/mat.h>
 #include <vecmath/mat_ext.h>

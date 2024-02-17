@@ -37,8 +37,8 @@
 #include "View/SpinControl.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_utils.h"
 
 #include <vecmath/util.h>
 #include <vecmath/vec.h>

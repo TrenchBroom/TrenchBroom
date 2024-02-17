@@ -38,8 +38,8 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <kdl/result.h>
-#include <kdl/string_compare.h>
+#include "kdl/result.h"
+#include "kdl/string_compare.h"
 
 #include <vecmath/polygon.h>
 #include <vecmath/scalar.h>

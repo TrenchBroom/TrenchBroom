@@ -27,7 +27,7 @@
 #include "IO/TestParserStatus.h"
 #include "IO/TraversalMode.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <algorithm>
 #include <filesystem>

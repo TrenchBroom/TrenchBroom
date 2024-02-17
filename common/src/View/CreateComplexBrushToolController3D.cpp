@@ -39,7 +39,7 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <vecmath/line.h>
 #include <vecmath/vec.h>

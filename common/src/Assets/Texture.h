@@ -23,7 +23,7 @@
 #include "Color.h"
 #include "Renderer/GL.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <vecmath/forward.h>
 

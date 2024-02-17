@@ -32,8 +32,8 @@
 #include "View/ScaleObjectsToolPage.h"
 #include "View/TransactionScope.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_utils.h"
 
 #include <vecmath/bbox.h>
 #include <vecmath/distance.h>

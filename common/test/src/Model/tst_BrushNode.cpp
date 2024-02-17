@@ -36,9 +36,9 @@
 #include "Model/PickResult.h"
 #include "TestUtils.h"
 
-#include <kdl/collection_utils.h>
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/collection_utils.h"
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
 #include <vecmath/approx.h>
 #include <vecmath/bbox.h>
