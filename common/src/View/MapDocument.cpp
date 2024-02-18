@@ -4102,6 +4102,8 @@ const std::string& MapDocument::redoCommandName() const
 void MapDocument::undoCommand()
 {
   doUndoCommand();
+  updateLinkedGroups();
+
   // Undo/redo in the repeat system is not supported for now, so just clear the repeat
   // stack
   m_repeatStack->clear();
@@ -4110,6 +4112,10 @@ void MapDocument::undoCommand()
 void MapDocument::redoCommand()
 {
   doRedoCommand();
+  updateLinkedGroups();
+
+  // Undo/redo in the repeat system is not supported for now, so just clear the repeat
+  // stack
   m_repeatStack->clear();
 }
 
