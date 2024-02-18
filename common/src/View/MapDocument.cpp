@@ -1839,7 +1839,7 @@ void MapDocument::duplicateObjects()
   {
     m_viewEffectsService->flashSelection();
   }
-  m_repeatStack->push([=]() { this->duplicateObjects(); });
+  m_repeatStack->push([&]() { duplicateObjects(); });
 }
 
 Model::EntityNode* MapDocument::createPointEntity(
@@ -2891,8 +2891,9 @@ bool MapDocument::transformObjects(
 
       if (success)
       {
-        m_repeatStack->push(
-          [=]() { this->transformObjects(commandName, transformation); });
+        m_repeatStack->push([&, commandName, transformation]() {
+          transformObjects(commandName, transformation);
+        });
       }
       return success;
     })
@@ -4358,7 +4359,7 @@ void MapDocument::setEnabledTextureCollections(
   const auto enabledTextureCollectionStr = kdl::str_join(
     kdl::vec_transform(
       kdl::vec_sort_and_remove_duplicates(enabledTextureCollections),
-      [](const auto& path) { return path.u8string(); }),
+      [](const auto& path) { return path.string(); }),
     ";");
 
   auto transaction = Transaction{*this, "Set enabled texture collections"};
@@ -5112,14 +5113,20 @@ Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name
 
 Transaction::Transaction(MapDocument& document, std::string name)
   : m_document{document}
+  , m_name{std::move(name)}
   , m_state{State::Running}
 {
-  begin(std::move(name));
+  begin();
 }
 
 Transaction::~Transaction()
 {
-  assert(m_state != State::Running);
+  if (m_state == State::Running)
+  {
+    m_document.error() << "Cancelling unfinished transaction with name '" << m_name
+                       << "' - please report this on github!";
+    cancel();
+  }
 }
 
 Transaction::State Transaction::state() const
@@ -5165,8 +5172,8 @@ void Transaction::cancel()
   m_state = State::Cancelled;
 }
 
-void Transaction::begin(std::string name)
+void Transaction::begin()
 {
-  m_document.startTransaction(std::move(name), TransactionScope::Oneshot);
+  m_document.startTransaction(m_name, TransactionScope::Oneshot);
 }
 } // namespace TrenchBroom::View
