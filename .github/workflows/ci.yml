@@ -19,18 +19,18 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, ubuntu-22.04, macos-12, windows-2019]
+        os: [ubuntu-20.04, ubuntu-22.04, macos-12, windows-2022]
         tb-build-type: [release]
         tb-arch: [default-arch]
         exclude:
-          - os: windows-2019
+          - os: windows-2022
             tb-arch: default-arch
         include:
           - os: macos-12
             tb-build-type: asan
-          - os: windows-2019
+          - os: windows-2022
             tb-arch: x64
-          - os: windows-2019
+          - os: windows-2022
             tb-arch: Win32
     env:
       # Record pull request head commit SHA
@@ -82,7 +82,7 @@ jobs:
           sudo apt install qt5-default libqt5svg5-dev
 
       - name: Install Pandoc (Windows)
-        if: ${{ matrix.os == 'windows-2019' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         run: |
           # Chocolatey was taking 3 minutes to install pandoc; just install it directly
           Invoke-WebRequest 'https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-windows-x86_64.zip' -OutFile 'pandoc.zip'
@@ -95,14 +95,14 @@ jobs:
           echo "$tb_pandoc_path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install Qt on Windows (x64)
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
+        if: ${{ matrix.os == 'windows-2022' && matrix.tb-arch == 'x64' }}
         uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           arch: 'win64_msvc2019_64'
 
       - name: Install Qt on Windows (Win32)
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
+        if: ${{ matrix.os == 'windows-2022' && matrix.tb-arch == 'Win32' }}
         uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
@@ -127,7 +127,7 @@ jobs:
           ./CI-macos.sh
 
       - name: Windows build
-        if: ${{ matrix.os == 'windows-2019' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         # NOTE: docs at https://github.com/jurplel/install-qt-action
         # mention that it sets a Qt5_DIR environment variable.
         # Our script expects it in QT5_INSTALL_DIR
@@ -142,22 +142,22 @@ jobs:
       # These need to be separate, otherwise all of the artifacts are bundled into
       # one .zip file.
 
-      # Windows 2019 x32
+      # Windows 2022 x32
       - name: Upload win32 artifact
         uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'Win32' }}
+        if: ${{ matrix.os == 'windows-2022' && matrix.tb-arch == 'Win32' }}
         with:
-          name: windows-2019-x32
+          name: windows-2022-x32
           path: |
             cmakebuild/*.7z
             cmakebuild/*.7z.md5
 
-      # Windows 2019 x64
+      # Windows 2022 x64
       - name: Upload win64 artifact
         uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'windows-2019' && matrix.tb-arch == 'x64' }}
+        if: ${{ matrix.os == 'windows-2022' && matrix.tb-arch == 'x64' }}
         with:
-          name: windows-2019-x64
+          name: windows-2022-x64
           path: |
             cmakebuild/*.7z
             cmakebuild/*.7z.md5
