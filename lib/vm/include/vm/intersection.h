@@ -249,6 +249,13 @@ constexpr T intersect_ray_plane(const ray<T, S>& r, const plane<T, S>& p)
   return s;
 }
 
+#ifdef _MSC_VER
+// MSVC complains about a potential divide by zero every time we divide by a, but we check
+// a via is_zero, so it's safe.
+#pragma warning(push)
+#pragma warning(disable : 4723)
+#endif
+
 /**
  * Compute the point of intersection of the given ray and a triangle with the given points
  * as vertices.
@@ -307,6 +314,10 @@ constexpr T intersect_ray_triangle(
 
   return u;
 }
+
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
 
 /**
  * Computes the point of intersection of the given ray and the polygon with the given
