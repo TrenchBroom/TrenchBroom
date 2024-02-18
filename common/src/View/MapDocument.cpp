@@ -4148,7 +4148,7 @@ bool MapDocument::commitTransaction()
 
   if (!updateLinkedGroups())
   {
-    rollbackTransaction();
+    cancelTransaction();
     return false;
   }
 
