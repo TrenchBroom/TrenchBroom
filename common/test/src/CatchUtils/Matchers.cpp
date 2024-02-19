@@ -90,20 +90,24 @@ bool nodesMatch(const Node& lhs, const Node& rhs)
     [&](const GroupNode* expectedGroupNode) {
       const auto* inGroupNode = dynamic_cast<const GroupNode*>(&rhs);
       return inGroupNode && inGroupNode->group() == expectedGroupNode->group()
+             && inGroupNode->linkId() == expectedGroupNode->linkId()
              && nodesMatch(inGroupNode->children(), expectedGroupNode->children());
     },
     [&](const EntityNode* expectedEntityNode) {
       const auto* inEntityNode = dynamic_cast<const EntityNode*>(&rhs);
       return inEntityNode && inEntityNode->entity() == expectedEntityNode->entity()
+             && inEntityNode->linkId() == expectedEntityNode->linkId()
              && nodesMatch(inEntityNode->children(), expectedEntityNode->children());
     },
     [&](const BrushNode* expectedBrushNode) {
       const auto* inBrushNode = dynamic_cast<const BrushNode*>(&rhs);
-      return inBrushNode && inBrushNode->brush() == expectedBrushNode->brush();
+      return inBrushNode && inBrushNode->brush() == expectedBrushNode->brush()
+             && inBrushNode->linkId() == expectedBrushNode->linkId();
     },
     [&](const PatchNode* expectedPatchNode) {
       const auto* inPatchNode = dynamic_cast<const PatchNode*>(&rhs);
-      return inPatchNode && inPatchNode->patch() == expectedPatchNode->patch();
+      return inPatchNode && inPatchNode->patch() == expectedPatchNode->patch()
+             && inPatchNode->linkId() == expectedPatchNode->linkId();
     }));
 }
 
