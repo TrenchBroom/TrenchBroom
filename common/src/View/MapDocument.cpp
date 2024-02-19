@@ -1665,6 +1665,46 @@ void MapDocument::closeRemovedGroups(
   }
 }
 
+namespace
+{
+auto setLinkIdsForReparentingNodes(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToReparent)
+{
+  auto result = std::vector<std::tuple<Model::Node*, std::string>>{};
+  for (const auto& [newParent, nodes] : nodesToReparent)
+  {
+    Model::Node::visitAll(
+      nodes,
+      kdl::overload(
+        [](const Model::WorldNode*) {},
+        [](const Model::LayerNode*) {},
+        [](const Model::GroupNode*) {
+          // group nodes can keep their ID because they should remain in their link set
+        },
+        [&, newParent = newParent](auto&& thisLambda, Model::EntityNode* entityNode) {
+          if (newParent->isAncestorOf(entityNode->parent()))
+          {
+            result.emplace_back(entityNode, generateUuid());
+            entityNode->visitChildren(thisLambda);
+          }
+        },
+        [&, newParent = newParent](Model::BrushNode* brushNode) {
+          if (newParent->isAncestorOf(brushNode->parent()))
+          {
+            result.emplace_back(brushNode, generateUuid());
+          }
+        },
+        [&, newParent = newParent](Model::PatchNode* patchNode) {
+          if (newParent->isAncestorOf(patchNode->parent()))
+          {
+            result.emplace_back(patchNode, generateUuid());
+          }
+        }));
+  }
+  return result;
+}
+} // namespace
+
 bool MapDocument::reparentNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd)
 {
@@ -1703,6 +1743,10 @@ bool MapDocument::reparentNodes(
     downgradeUnlockedToInherit(nodesToDowngrade);
     downgradeShownToInherit(nodesToDowngrade);
   }
+
+  // Reset link IDs of nodes being reparented, but don't recurse into nested groups
+  executeAndStore(std::make_unique<SetLinkIdsCommand>(
+    "Set Link ID", setLinkIdsForReparentingNodes(nodesToAdd)));
 
   const auto result =
     executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
@@ -2298,10 +2342,7 @@ static std::vector<Model::GroupNode*> collectGroupsWithPendingChanges(Model::Nod
       {
         result.push_back(groupNode);
       }
-      else
-      {
-        groupNode->visitChildren(thisLambda);
-      }
+      groupNode->visitChildren(thisLambda);
     },
     [](const Model::EntityNode*) {},
     [](const Model::BrushNode*) {},
