@@ -1665,6 +1665,46 @@ void MapDocument::closeRemovedGroups(
   }
 }
 
+namespace
+{
+auto setLinkIdsForReparentingNodes(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToReparent)
+{
+  auto result = std::vector<std::tuple<Model::Node*, std::string>>{};
+  for (const auto& [newParent, nodes] : nodesToReparent)
+  {
+    Model::Node::visitAll(
+      nodes,
+      kdl::overload(
+        [](const Model::WorldNode*) {},
+        [](const Model::LayerNode*) {},
+        [](const Model::GroupNode*) {
+          // group nodes can keep their ID because they should remain in their link set
+        },
+        [&, newParent = newParent](auto&& thisLambda, Model::EntityNode* entityNode) {
+          if (newParent->isAncestorOf(entityNode->parent()))
+          {
+            result.emplace_back(entityNode, generateUuid());
+            entityNode->visitChildren(thisLambda);
+          }
+        },
+        [&, newParent = newParent](Model::BrushNode* brushNode) {
+          if (newParent->isAncestorOf(brushNode->parent()))
+          {
+            result.emplace_back(brushNode, generateUuid());
+          }
+        },
+        [&, newParent = newParent](Model::PatchNode* patchNode) {
+          if (newParent->isAncestorOf(patchNode->parent()))
+          {
+            result.emplace_back(patchNode, generateUuid());
+          }
+        }));
+  }
+  return result;
+}
+} // namespace
+
 bool MapDocument::reparentNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd)
 {
@@ -1703,6 +1743,10 @@ bool MapDocument::reparentNodes(
     downgradeUnlockedToInherit(nodesToDowngrade);
     downgradeShownToInherit(nodesToDowngrade);
   }
+
+  // Reset link IDs of nodes being reparented, but don't recurse into nested groups
+  executeAndStore(std::make_unique<SetLinkIdsCommand>(
+    "Set Link ID", setLinkIdsForReparentingNodes(nodesToAdd)));
 
   const auto result =
     executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
@@ -1839,7 +1883,7 @@ void MapDocument::duplicateObjects()
   {
     m_viewEffectsService->flashSelection();
   }
-  m_repeatStack->push([=]() { this->duplicateObjects(); });
+  m_repeatStack->push([&]() { duplicateObjects(); });
 }
 
 Model::EntityNode* MapDocument::createPointEntity(
@@ -2298,10 +2342,7 @@ static std::vector<Model::GroupNode*> collectGroupsWithPendingChanges(Model::Nod
       {
         result.push_back(groupNode);
       }
-      else
-      {
-        groupNode->visitChildren(thisLambda);
-      }
+      groupNode->visitChildren(thisLambda);
     },
     [](const Model::EntityNode*) {},
     [](const Model::BrushNode*) {},
@@ -2891,8 +2932,9 @@ bool MapDocument::transformObjects(
 
       if (success)
       {
-        m_repeatStack->push(
-          [=]() { this->transformObjects(commandName, transformation); });
+        m_repeatStack->push([&, commandName, transformation]() {
+          transformObjects(commandName, transformation);
+        });
       }
       return success;
     })
@@ -4101,6 +4143,8 @@ const std::string& MapDocument::redoCommandName() const
 void MapDocument::undoCommand()
 {
   doUndoCommand();
+  updateLinkedGroups();
+
   // Undo/redo in the repeat system is not supported for now, so just clear the repeat
   // stack
   m_repeatStack->clear();
@@ -4109,6 +4153,10 @@ void MapDocument::undoCommand()
 void MapDocument::redoCommand()
 {
   doRedoCommand();
+  updateLinkedGroups();
+
+  // Undo/redo in the repeat system is not supported for now, so just clear the repeat
+  // stack
   m_repeatStack->clear();
 }
 
@@ -4147,7 +4195,7 @@ bool MapDocument::commitTransaction()
 
   if (!updateLinkedGroups())
   {
-    rollbackTransaction();
+    cancelTransaction();
     return false;
   }
 
@@ -4358,7 +4406,7 @@ void MapDocument::setEnabledTextureCollections(
   const auto enabledTextureCollectionStr = kdl::str_join(
     kdl::vec_transform(
       kdl::vec_sort_and_remove_duplicates(enabledTextureCollections),
-      [](const auto& path) { return path.u8string(); }),
+      [](const auto& path) { return path.string(); }),
     ";");
 
   auto transaction = Transaction{*this, "Set enabled texture collections"};
@@ -5112,14 +5160,20 @@ Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name
 
 Transaction::Transaction(MapDocument& document, std::string name)
   : m_document{document}
+  , m_name{std::move(name)}
   , m_state{State::Running}
 {
-  begin(std::move(name));
+  begin();
 }
 
 Transaction::~Transaction()
 {
-  assert(m_state != State::Running);
+  if (m_state == State::Running)
+  {
+    m_document.error() << "Cancelling unfinished transaction with name '" << m_name
+                       << "' - please report this on github!";
+    cancel();
+  }
 }
 
 Transaction::State Transaction::state() const
@@ -5165,8 +5219,8 @@ void Transaction::cancel()
   m_state = State::Cancelled;
 }
 
-void Transaction::begin(std::string name)
+void Transaction::begin()
 {
-  m_document.startTransaction(std::move(name), TransactionScope::Oneshot);
+  m_document.startTransaction(m_name, TransactionScope::Oneshot);
 }
 } // namespace TrenchBroom::View

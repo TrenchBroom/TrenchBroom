@@ -830,6 +830,7 @@ public:
 
 private:
   MapDocument& m_document;
+  std::string m_name;
   State m_state;
 
 public:
@@ -846,6 +847,6 @@ public:
   void cancel();
 
 private:
-  void begin(std::string name);
+  void begin();
 };
 } // namespace TrenchBroom::View

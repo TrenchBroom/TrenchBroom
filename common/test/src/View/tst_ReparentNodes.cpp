@@ -160,6 +160,93 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.removeEmptyGroupAndEntity")
   CHECK(brush->parent() == entity);
 }
 
+TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.resetLinkIds")
+{
+  auto* nestedBrushNode = createBrushNode();
+  auto* nestedEntityNode = new Model::EntityNode{Model::Entity{}};
+
+  document->addNodes({{document->parentForNodes(), {nestedBrushNode, nestedEntityNode}}});
+  document->selectNodes({nestedBrushNode, nestedEntityNode});
+
+  auto* nestedGroupNode = document->groupSelection("nested");
+
+  document->deselectAll();
+  document->selectNodes({nestedGroupNode});
+
+  auto* linkedNestedGroupNode = document->createLinkedDuplicate();
+
+  auto* brushNode = createBrushNode();
+  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityBrushNode = createBrushNode();
+  entityNode->addChild(entityBrushNode);
+
+  document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
+
+  document->selectNodes({brushNode, entityNode, nestedGroupNode});
+  auto* groupNode = document->groupSelection("group");
+
+  document->deselectAll();
+  document->selectNodes({groupNode});
+
+  auto* linkedGroupNode = document->createLinkedDuplicate();
+  auto* linkedGroupNode2 = document->createLinkedDuplicate();
+
+  document->deselectAll();
+
+  const auto originalNestedBrushLinkId = nestedBrushNode->linkId();
+  const auto originalBrushLinkId = brushNode->linkId();
+  const auto originalEntityLinkId = entityNode->linkId();
+  const auto originalEntityBrushLinkId = entityBrushNode->linkId();
+
+  REQUIRE_THAT(*linkedNestedGroupNode, MatchesNode(*nestedGroupNode));
+  REQUIRE_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
+  REQUIRE_THAT(*linkedGroupNode2, Model::MatchesNode(*groupNode));
+
+  SECTION("Moving a brush entity to the world resets its link IDs")
+  {
+    REQUIRE(document->reparentNodes({{document->parentForNodes(), {entityNode}}}));
+
+    CHECK(entityNode->linkId() != originalEntityLinkId);
+    CHECK(entityBrushNode->linkId() != originalEntityBrushLinkId);
+
+    CHECK_THAT(*linkedNestedGroupNode, MatchesNode(*nestedGroupNode));
+    CHECK_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
+    CHECK_THAT(*linkedGroupNode2, Model::MatchesNode(*groupNode));
+  }
+
+  SECTION("Moving objects out of a nested group into the container resets their link IDs")
+  {
+    REQUIRE(document->reparentNodes({{groupNode, {nestedBrushNode}}}));
+    CHECK(nestedBrushNode->linkId() != originalNestedBrushLinkId);
+
+    CHECK_THAT(*linkedNestedGroupNode, MatchesNode(*nestedGroupNode));
+    CHECK_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
+    CHECK_THAT(*linkedGroupNode2, Model::MatchesNode(*groupNode));
+  }
+
+  SECTION("Moving objects into a nested linked group keeps their link IDs")
+  {
+    REQUIRE(document->reparentNodes({{nestedGroupNode, {brushNode}}}));
+    CHECK(brushNode->linkId() == originalBrushLinkId);
+
+    CHECK_THAT(*linkedNestedGroupNode, MatchesNode(*nestedGroupNode));
+    CHECK_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
+    CHECK_THAT(*linkedGroupNode2, Model::MatchesNode(*groupNode));
+  }
+
+  SECTION("Grouping objects within a linked group keeps their link IDs")
+  {
+    document->selectNodes({entityNode});
+    document->groupSelection("new group");
+    CHECK(entityNode->linkId() == originalEntityLinkId);
+    CHECK(entityBrushNode->linkId() == originalEntityBrushLinkId);
+
+    CHECK_THAT(*linkedNestedGroupNode, MatchesNode(*nestedGroupNode));
+    CHECK_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
+    CHECK_THAT(*linkedGroupNode2, Model::MatchesNode(*groupNode));
+  }
+}
+
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroups")
 {
   auto* groupNode = new Model::GroupNode{Model::Group{"group"}};

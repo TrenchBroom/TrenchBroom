@@ -278,6 +278,7 @@ void MapDocumentCommandFacade::performAddNodes(
     addedNodes = kdl::vec_concat(std::move(addedNodes), children);
   }
 
+  setHasPendingChanges(Model::collectGroups(addedNodes), false);
   setEntityDefinitions(addedNodes);
   setEntityModels(addedNodes);
   setTextures(addedNodes);
