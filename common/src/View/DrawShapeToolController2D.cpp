@@ -18,6 +18,7 @@
  */
 
 #include "DrawShapeToolController2D.h"
+
 #include "Renderer/Camera.h"
 #include "View/DrawShapeTool.h"
 #include "View/Grid.h"
@@ -104,7 +105,7 @@ public:
     return DragStatus::Deny;
   }
 
-  void end(const InputState&, const DragState&) override { m_tool.createBrush(); }
+  void end(const InputState&, const DragState&) override { m_tool.createBrushes(); }
 
   void cancel(const DragState&) override { m_tool.cancel(); }
 

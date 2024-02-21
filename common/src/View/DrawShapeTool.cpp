@@ -18,6 +18,7 @@
  */
 
 #include "DrawShapeTool.h"
+
 #include "Error.h"
 #include "FloatType.h"
 #include "Model/Brush.h" // IWYU pragma: keep
@@ -29,12 +30,13 @@
 
 #include "kdl/memory_utils.h"
 #include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom::View
 {
 
 DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
-  : CreateBrushToolBase{true, std::move(document)}
+  : CreateBrushesToolBase{true, std::move(document)}
 {
 }
 
@@ -46,10 +48,11 @@ void DrawShapeTool::update(const vm::bbox3& bounds)
     document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs()};
 
   builder.createCuboid(bounds, document->currentTextureName())
-    .transform(
-      [&](auto b) { updateBrush(std::make_unique<Model::BrushNode>(std::move(b))); })
+    .transform([&](auto b) {
+      updateBrushes(kdl::vec_from(std::make_unique<Model::BrushNode>(std::move(b))));
+    })
     .transform_error([&](auto e) {
-      updateBrush(nullptr);
+      clearBrushes();
       document->error() << "Could not update brush: " << e;
     });
 }

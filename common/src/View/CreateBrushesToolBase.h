@@ -41,38 +41,35 @@ namespace TrenchBroom::View
 class Grid;
 class MapDocument;
 
-class CreateBrushToolBase : public Tool
+class CreateBrushesToolBase : public Tool
 {
 protected:
   std::weak_ptr<MapDocument> m_document;
 
 private:
-  std::unique_ptr<Model::BrushNode> m_brushNode;
+  std::vector<std::unique_ptr<Model::BrushNode>> m_brushNodes;
   std::unique_ptr<Renderer::BrushRenderer> m_brushRenderer;
 
 public:
-  CreateBrushToolBase(bool initiallyActive, std::weak_ptr<MapDocument> document);
-  ~CreateBrushToolBase() override;
+  CreateBrushesToolBase(bool initiallyActive, std::weak_ptr<MapDocument> document);
+  ~CreateBrushesToolBase() override;
 
 public:
   const Grid& grid() const;
 
-  void createBrush();
+  void createBrushes();
+  void clearBrushes();
   void cancel();
 
   void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
-private:
-  void renderBrush(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-
 protected:
-  void updateBrush(std::unique_ptr<Model::BrushNode> brushNode);
+  void updateBrushes(std::vector<std::unique_ptr<Model::BrushNode>> brushNodes);
 
 private:
-  virtual void doBrushWasCreated();
+  virtual void doBrushesWereCreated();
 
-  deleteCopyAndMove(CreateBrushToolBase);
+  deleteCopyAndMove(CreateBrushesToolBase);
 };
 
 } // namespace TrenchBroom::View

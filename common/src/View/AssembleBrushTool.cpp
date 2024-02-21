@@ -29,12 +29,13 @@
 
 #include "kdl/memory_utils.h"
 #include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom::View
 {
 
 AssembleBrushTool::AssembleBrushTool(std::weak_ptr<MapDocument> document)
-  : CreateBrushToolBase{false, std::move(document)}
+  : CreateBrushesToolBase{false, std::move(document)}
   , m_polyhedron{std::make_unique<Model::Polyhedron3>()}
 {
 }
@@ -57,16 +58,17 @@ void AssembleBrushTool::update(const Model::Polyhedron3& polyhedron)
       game->defaultFaceAttribs()};
 
     builder.createBrush(*m_polyhedron, document->currentTextureName())
-      .transform(
-        [&](auto b) { updateBrush(std::make_unique<Model::BrushNode>(std::move(b))); })
+      .transform([&](auto b) {
+        updateBrushes(kdl::vec_from(std::make_unique<Model::BrushNode>(std::move(b))));
+      })
       .transform_error([&](auto e) {
-        updateBrush(nullptr);
+        clearBrushes();
         document->error() << "Could not update brush: " << e.msg;
       });
   }
   else
   {
-    updateBrush(nullptr);
+    clearBrushes();
   }
 }
 
@@ -82,7 +84,7 @@ bool AssembleBrushTool::doDeactivate()
   return true;
 }
 
-void AssembleBrushTool::doBrushWasCreated()
+void AssembleBrushTool::doBrushesWereCreated()
 {
   update(Model::Polyhedron3{});
 }
