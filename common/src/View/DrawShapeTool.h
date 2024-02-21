@@ -20,7 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
-#include "View/CreateBrushToolBase.h"
+#include "View/CreateBrushesToolBase.h"
 
 #include <memory>
 
@@ -28,7 +28,7 @@ namespace TrenchBroom::View
 {
 class MapDocument;
 
-class DrawShapeTool : public CreateBrushToolBase
+class DrawShapeTool : public CreateBrushesToolBase
 {
 public:
   explicit DrawShapeTool(std::weak_ptr<MapDocument> document);

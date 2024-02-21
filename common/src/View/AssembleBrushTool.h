@@ -20,14 +20,14 @@
 #pragma once
 
 #include "Model/Polyhedron3.h"
-#include "View/CreateBrushToolBase.h"
+#include "View/CreateBrushesToolBase.h"
 
 #include <memory>
 
 namespace TrenchBroom::View
 {
 
-class AssembleBrushTool : public CreateBrushToolBase
+class AssembleBrushTool : public CreateBrushesToolBase
 {
 private:
   std::unique_ptr<Model::Polyhedron3> m_polyhedron;
@@ -41,7 +41,7 @@ public:
 private:
   bool doActivate() override;
   bool doDeactivate() override;
-  void doBrushWasCreated() override;
+  void doBrushesWereCreated() override;
 };
 
 } // namespace TrenchBroom::View

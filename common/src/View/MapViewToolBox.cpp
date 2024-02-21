@@ -120,7 +120,7 @@ bool MapViewToolBox::assembleBrushToolActive() const
 
 void MapViewToolBox::performAssembleBrush()
 {
-  m_assembleBrushTool->createBrush();
+  m_assembleBrushTool->createBrushes();
 }
 
 void MapViewToolBox::toggleClipTool()
