@@ -187,15 +187,15 @@ public:
     }
 
     const auto first = std::max_element(std::begin(counts), std::end(counts));
+    const auto firstIndex = std::distance(std::begin(counts), first);
+
     const auto next = std::max_element(std::next(first), std::end(counts));
-
-    const auto firstIndex = first - std::begin(counts);
-    const auto nextIndex = next - std::begin(counts);
-
-    if (counts[firstIndex] > counts[nextIndex])
+    if (next == std::end(counts) || *first > *next)
     {
       return vm::vec3::axis(size_t(firstIndex % 3));
     }
+
+    const auto nextIndex = std::distance(std::begin(counts), next);
 
     // two counts are equal
     if (firstIndex % 3 == 2 || nextIndex % 3 == 2)
