@@ -35,41 +35,13 @@
 #include "vm/intersection.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-const Model::HitType::Type UVShearTool::XHandleHitType = Model::HitType::freeType();
-const Model::HitType::Type UVShearTool::YHandleHitType = Model::HitType::freeType();
 
-UVShearTool::UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
-  : ToolController{}
-  , Tool{true}
-  , m_document{document}
-  , m_helper{helper}
+namespace
 {
-}
 
-Tool& UVShearTool::tool()
-{
-  return *this;
-}
-
-const Tool& UVShearTool::tool() const
-{
-  return *this;
-}
-
-void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResult)
-{
-  static const Model::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
-  if (m_helper.valid())
-  {
-    m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
-  }
-}
-
-static vm::vec2f getHit(
+vm::vec2f getHit(
   const UVViewHelper& helper,
   const vm::vec3& xAxis,
   const vm::vec3& yAxis,
@@ -80,13 +52,9 @@ static vm::vec2f getHit(
   const auto hitPoint = vm::point_at_distance(pickRay, hitPointDist);
   const auto hitVec = hitPoint - helper.origin();
 
-  return vm::vec2f{
-    static_cast<float>(vm::dot(hitVec, xAxis)),
-    static_cast<float>(vm::dot(hitVec, yAxis))};
+  return vm::vec2f{float(vm::dot(hitVec, xAxis)), float(vm::dot(hitVec, yAxis))};
 }
 
-namespace
-{
 class UVShearDragTracker : public DragTracker
 {
 private:
@@ -163,7 +131,38 @@ public:
 
   void cancel() override { m_document.cancelTransaction(); }
 };
+
 } // namespace
+
+const Model::HitType::Type UVShearTool::XHandleHitType = Model::HitType::freeType();
+const Model::HitType::Type UVShearTool::YHandleHitType = Model::HitType::freeType();
+
+UVShearTool::UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
+  : ToolController{}
+  , Tool{true}
+  , m_document{std::move(document)}
+  , m_helper{helper}
+{
+}
+
+Tool& UVShearTool::tool()
+{
+  return *this;
+}
+
+const Tool& UVShearTool::tool() const
+{
+  return *this;
+}
+
+void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResult)
+{
+  static const Model::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
+  if (m_helper.valid())
+  {
+    m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
+  }
+}
 
 std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inputState)
 {
@@ -183,8 +182,8 @@ std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inpu
     return nullptr;
   }
 
-  const Model::Hit& xHit = inputState.pickResult().first(type(XHandleHitType));
-  const Model::Hit& yHit = inputState.pickResult().first(type(YHandleHitType));
+  const auto& xHit = inputState.pickResult().first(type(XHandleHitType));
+  const auto& yHit = inputState.pickResult().first(type(YHandleHitType));
 
   if (!(xHit.isMatch() ^ yHit.isMatch()))
   {
@@ -212,5 +211,5 @@ bool UVShearTool::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

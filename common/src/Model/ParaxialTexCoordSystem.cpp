@@ -204,9 +204,9 @@ void ParaxialTexCoordSystem::doTransform(
   bool lockTexture,
   const vm::vec3& oldInvariant)
 {
-  const vm::vec3 offset = transformation * vm::vec3::zero();
-  const vm::vec3& oldNormal = oldBoundary.normal;
-  vm::vec3 newNormal = newBoundary.normal;
+  const auto offset = transformation * vm::vec3::zero();
+  const auto& oldNormal = oldBoundary.normal;
+  auto newNormal = newBoundary.normal;
   assert(vm::is_unit(newNormal, vm::C::almost_zero()));
 
   // fix some rounding errors - if the old and new texture axes are almost the same, use
@@ -223,90 +223,102 @@ void ParaxialTexCoordSystem::doTransform(
   }
 
   // calculate the current texture coordinates of the origin
-  const vm::vec2f oldInvariantTexCoords =
+  const auto oldInvariantTexCoords =
     computeTexCoords(oldInvariant, attribs.scale()) + attribs.offset();
 
   // project the texture axes onto the boundary plane along the texture Z axis
-  const vm::vec2 scale(attribs.scale());
-  const vm::vec3 boundaryOffset = oldBoundary.project_point(vm::vec3::zero(), getZAxis());
-  const vm::vec3 oldXAxisOnBoundary =
+  const auto scale = vm::vec2{attribs.scale()};
+  const auto boundaryOffset = oldBoundary.project_point(vm::vec3::zero(), getZAxis());
+  const auto oldXAxisOnBoundary =
     oldBoundary.project_point(m_xAxis * scale.x(), getZAxis()) - boundaryOffset;
-  const vm::vec3 oldYAxisOnBoundary =
+  const auto oldYAxisOnBoundary =
     oldBoundary.project_point(m_yAxis * scale.y(), getZAxis()) - boundaryOffset;
 
   // transform the projected texture axes and compensate the translational component
-  const vm::vec3 transformedXAxis = transformation * oldXAxisOnBoundary - offset;
-  const vm::vec3 transformedYAxis = transformation * oldYAxisOnBoundary - offset;
+  const auto transformedXAxis = transformation * oldXAxisOnBoundary - offset;
+  const auto transformedYAxis = transformation * oldYAxisOnBoundary - offset;
 
   const bool preferX = textureSize.x() >= textureSize.y();
 
   // obtain the new texture plane norm and the new base texture axes
   vm::vec3 newBaseXAxis, newBaseYAxis, newProjectionAxis;
-  const size_t newIndex = planeNormalIndex(newNormal);
+  const auto newIndex = planeNormalIndex(newNormal);
   axes(newIndex, newBaseXAxis, newBaseYAxis, newProjectionAxis);
 
-  const vm::plane3 newTexturePlane(0.0, newProjectionAxis);
+  const auto newTexturePlane = vm::plane3{0.0, newProjectionAxis};
 
   // project the transformed texture axes onto the new texture projection plane
-  const vm::vec3 projectedTransformedXAxis =
-    newTexturePlane.project_point(transformedXAxis);
-  const vm::vec3 projectedTransformedYAxis =
-    newTexturePlane.project_point(transformedYAxis);
+  const auto projectedTransformedXAxis = newTexturePlane.project_point(transformedXAxis);
+  const auto projectedTransformedYAxis = newTexturePlane.project_point(transformedYAxis);
   assert(
     !vm::is_nan(projectedTransformedXAxis) && !vm::is_nan(projectedTransformedYAxis));
 
-  const vm::vec3 normalizedXAxis = vm::normalize(projectedTransformedXAxis);
-  const vm::vec3 normalizedYAxis = vm::normalize(projectedTransformedYAxis);
+  const auto normalizedXAxis = vm::normalize(projectedTransformedXAxis);
+  const auto normalizedYAxis = vm::normalize(projectedTransformedYAxis);
 
   // determine the rotation angle from the dot product of the new base axes and the
   // transformed, projected and normalized texture axes
-  float cosX = static_cast<float>(vm::dot(newBaseXAxis, normalizedXAxis));
-  float cosY = static_cast<float>(vm::dot(newBaseYAxis, normalizedYAxis));
+  auto cosX = float(vm::dot(newBaseXAxis, normalizedXAxis));
+  auto cosY = float(vm::dot(newBaseYAxis, normalizedYAxis));
   assert(!vm::is_nan(cosX));
   assert(!vm::is_nan(cosY));
 
-  float radX = std::acos(cosX);
-  if (dot(cross(newBaseXAxis, normalizedXAxis), newProjectionAxis) < 0.0)
+  auto radX = std::acos(cosX);
+  if (vm::dot(vm::cross(newBaseXAxis, normalizedXAxis), newProjectionAxis) < 0.0)
+  {
     radX *= -1.0f;
+  }
 
-  float radY = std::acos(cosY);
-  if (dot(cross(newBaseYAxis, normalizedYAxis), newProjectionAxis) < 0.0)
+  auto radY = std::acos(cosY);
+  if (vm::dot(vm::cross(newBaseYAxis, normalizedYAxis), newProjectionAxis) < 0.0)
+  {
     radY *= -1.0f;
+  }
 
   // TODO: be smarter about choosing between the X and Y axis rotations - sometimes either
   // one can be better
-  float rad = preferX ? radX : radY;
+  auto rad = preferX ? radX : radY;
 
   // for some reason, when the texture plane normal is the Y axis, we must rotation
   // clockwise
-  const size_t planeNormIndex = (newIndex / 2) * 6;
+  const auto planeNormIndex = (newIndex / 2) * 6;
   if (planeNormIndex == 12)
+  {
     rad *= -1.0f;
+  }
 
-  const float newRotation = vm::correct(vm::normalize_degrees(vm::to_degrees(rad)), 4);
+  const auto newRotation = vm::correct(vm::normalize_degrees(vm::to_degrees(rad)), 4);
   doSetRotation(newNormal, newRotation, newRotation);
 
   // finally compute the scaling factors
-  vm::vec2f newScale = correct(
-    vm::vec2f(length(projectedTransformedXAxis), length(projectedTransformedYAxis)), 4);
+  auto newScale = vm::correct(
+    vm::vec2f{
+      float(vm::length(projectedTransformedXAxis)),
+      float(vm::length(projectedTransformedYAxis)),
+    },
+    4);
 
   // the sign of the scaling factors depends on the angle between the new texture axis and
   // the projected transformed axis
-  if (dot(m_xAxis, normalizedXAxis) < 0.0)
+  if (vm::dot(m_xAxis, normalizedXAxis) < 0.0)
+  {
     newScale[0] *= -1.0f;
-  if (dot(m_yAxis, normalizedYAxis) < 0.0)
+  }
+  if (vm::dot(m_yAxis, normalizedYAxis) < 0.0)
+  {
     newScale[1] *= -1.0f;
+  }
 
   // compute the parameters of the transformed texture coordinate system
-  const vm::vec3 newInvariant = transformation * oldInvariant;
+  const auto newInvariant = transformation * oldInvariant;
 
   // determine the new texture coordinates of the transformed center of the face, sans
   // offsets
-  const vm::vec2f newInvariantTexCoords = computeTexCoords(newInvariant, newScale);
+  const auto newInvariantTexCoords = computeTexCoords(newInvariant, newScale);
 
   // since the center should be invariant, the offsets are determined by the difference of
   // the current and the original texture coordiknates of the center
-  const vm::vec2f newOffset = correct(
+  const auto newOffset = vm::correct(
     attribs.modOffset(oldInvariantTexCoords - newInvariantTexCoords, textureSize), 4);
 
   assert(!vm::is_nan(newOffset));

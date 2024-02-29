@@ -48,48 +48,20 @@
 #include <numeric>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-const Model::HitType::Type UVScaleTool::XHandleHitType = Model::HitType::freeType();
-const Model::HitType::Type UVScaleTool::YHandleHitType = Model::HitType::freeType();
 
-UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
-  : ToolController{}
-  , Tool{true}
-  , m_document{std::move(document)}
-  , m_helper{helper}
+namespace
 {
-}
 
-Tool& UVScaleTool::tool()
-{
-  return *this;
-}
-
-const Tool& UVScaleTool::tool() const
-{
-  return *this;
-}
-
-void UVScaleTool::pick(const InputState& inputState, Model::PickResult& pickResult)
-{
-  static const Model::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
-  if (m_helper.valid())
-  {
-    m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
-  }
-}
-
-static vm::vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit)
+vm::vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit)
 {
   const auto x = xHit.isMatch() ? xHit.target<int>() : 0;
   const auto y = yHit.isMatch() ? yHit.target<int>() : 0;
   return vm::vec2i{x, y};
 }
 
-static std::tuple<vm::vec2i, vm::vec2b> getHandleAndSelector(const InputState& inputState)
+std::tuple<vm::vec2i, vm::vec2b> getHandleAndSelector(const InputState& inputState)
 {
   using namespace Model::HitFilters;
 
@@ -99,7 +71,7 @@ static std::tuple<vm::vec2i, vm::vec2b> getHandleAndSelector(const InputState& i
   return {getScaleHandle(xHit, yHit), vm::vec2b{xHit.isMatch(), yHit.isMatch()}};
 }
 
-static vm::vec2f getHitPoint(const UVViewHelper& helper, const vm::ray3& pickRay)
+vm::vec2f getHitPoint(const UVViewHelper& helper, const vm::ray3& pickRay)
 {
   const auto& boundary = helper.face()->boundary();
   const auto facePointDist = vm::intersect_ray_plane(pickRay, boundary);
@@ -110,13 +82,12 @@ static vm::vec2f getHitPoint(const UVViewHelper& helper, const vm::ray3& pickRay
   return vm::vec2f{toTex * facePoint};
 }
 
-static vm::vec2f getScaledTranslatedHandlePos(
-  const UVViewHelper& helper, const vm::vec2i handle)
+vm::vec2f getScaledTranslatedHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
 {
   return vm::vec2f{handle} * vm::vec2f{helper.stripeSize()};
 }
 
-static vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
+vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
 {
   const auto toWorld = helper.face()->fromTexCoordSystemMatrix(
     helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
@@ -127,7 +98,7 @@ static vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle
     toTex * toWorld * vm::vec3{getScaledTranslatedHandlePos(helper, handle)}};
 }
 
-static vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
+vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 {
   const auto toTex =
     helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
@@ -155,7 +126,7 @@ static vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 
 using EdgeVertex = Renderer::GLVertexTypes::P3::Vertex;
 
-static std::vector<EdgeVertex> getHandleVertices(
+std::vector<EdgeVertex> getHandleVertices(
   const UVViewHelper& helper, const vm::vec2i& handle, const vm::vec2b& selector)
 {
   const auto stripeSize = helper.stripeSize();
@@ -169,20 +140,20 @@ static std::vector<EdgeVertex> getHandleVertices(
 
   if (selector.x())
   {
-    vertices.push_back(EdgeVertex(vm::vec3f(v1)));
-    vertices.push_back(EdgeVertex(vm::vec3f(v2)));
+    vertices.emplace_back(vm::vec3f{v1});
+    vertices.emplace_back(vm::vec3f{v2});
   }
 
   if (selector.y())
   {
-    vertices.push_back(EdgeVertex(vm::vec3f(h1)));
-    vertices.push_back(EdgeVertex(vm::vec3f(h2)));
+    vertices.emplace_back(vm::vec3f{h1});
+    vertices.emplace_back(vm::vec3f{h2});
   }
 
   return vertices;
 }
 
-static void renderHighlight(
+void renderHighlight(
   const UVViewHelper& helper,
   const vm::vec2i& handle,
   const vm::vec2b& selector,
@@ -196,8 +167,6 @@ static void renderHighlight(
   handleRenderer.render(renderBatch, color, 1.0f);
 }
 
-namespace
-{
 class UVScaleDragTracker : public DragTracker
 {
 private:
@@ -281,7 +250,38 @@ public:
     renderHighlight(m_helper, m_handle, m_selector, renderBatch);
   }
 };
+
 } // namespace
+
+const Model::HitType::Type UVScaleTool::XHandleHitType = Model::HitType::freeType();
+const Model::HitType::Type UVScaleTool::YHandleHitType = Model::HitType::freeType();
+
+UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
+  : ToolController{}
+  , Tool{true}
+  , m_document{std::move(document)}
+  , m_helper{helper}
+{
+}
+
+Tool& UVScaleTool::tool()
+{
+  return *this;
+}
+
+const Tool& UVScaleTool::tool() const
+{
+  return *this;
+}
+
+void UVScaleTool::pick(const InputState& inputState, Model::PickResult& pickResult)
+{
+  static const Model::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
+  if (m_helper.valid())
+  {
+    m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
+  }
+}
 
 std::unique_ptr<DragTracker> UVScaleTool::acceptMouseDrag(const InputState& inputState)
 {
@@ -350,5 +350,5 @@ bool UVScaleTool::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

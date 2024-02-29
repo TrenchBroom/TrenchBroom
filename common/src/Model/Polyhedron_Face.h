@@ -502,12 +502,12 @@ template <typename T, typename FP, typename VP>
 class Polyhedron_Face<T, FP, VP>::RayIntersection
 {
 private:
-  typedef enum
+  enum class Type
   {
-    Type_Front = 1,
-    Type_Back = 2,
-    Type_None = 3
-  } Type;
+    Front = 1,
+    Back = 2,
+    None = 3
+  };
 
   Type m_type;
   T m_distance;
@@ -516,27 +516,27 @@ private:
     : m_type(type)
     , m_distance(distance)
   {
-    assert(!vm::is_nan(m_distance) || m_type == Type_None);
+    assert(!vm::is_nan(m_distance) || m_type == Type::None);
   }
 
 public:
   static RayIntersection Front(const T distance)
   {
-    return RayIntersection(Type_Front, distance);
+    return RayIntersection(Type::Front, distance);
   }
 
   static RayIntersection Back(const T distance)
   {
-    return RayIntersection(Type_Back, distance);
+    return RayIntersection(Type::Back, distance);
   }
 
-  static RayIntersection None() { return RayIntersection(Type_None, vm::nan<T>()); }
+  static RayIntersection None() { return RayIntersection(Type::None, vm::nan<T>()); }
 
-  bool front() const { return m_type == Type_Front; }
+  bool front() const { return m_type == Type::Front; }
 
-  bool back() const { return m_type == Type_Back; }
+  bool back() const { return m_type == Type::Back; }
 
-  bool none() const { return m_type == Type_None; }
+  bool none() const { return m_type == Type::None; }
 
   T distance() const { return m_distance; }
 };

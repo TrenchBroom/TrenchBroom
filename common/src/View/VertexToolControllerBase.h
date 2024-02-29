@@ -32,14 +32,12 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class Tool;
 
@@ -128,7 +126,7 @@ protected:
     std::unique_ptr<Lasso> m_lasso;
 
   public:
-    LassoDragDelegate(T& tool)
+    explicit LassoDragDelegate(T& tool)
       : m_tool{tool}
     {
     }
@@ -281,15 +279,15 @@ protected:
       auto result = std::vector<Model::Hit>{};
       auto visitedBrushes = std::unordered_set<Model::BrushNode*>{};
 
-      const Model::Hit& first = pickResult.first(type(m_hitType));
+      const auto& first = pickResult.first(type(m_hitType));
       if (first.isMatch())
       {
-        const H& firstHandle = first.target<const H&>();
+        const H& firstHandle = first.template target<const H&>();
 
         const auto matches = pickResult.all(type(m_hitType));
-        for (const Model::Hit& match : matches)
+        for (const auto& match : matches)
         {
-          const H& handle = match.target<const H&>();
+          const H& handle = match.template target<const H&>();
 
           if (equalHandles(handle, firstHandle))
           {
@@ -329,7 +327,7 @@ protected:
     T& m_tool;
 
   public:
-    MoveDragDelegate(T& tool)
+    explicit MoveDragDelegate(T& tool)
       : m_tool{tool}
     {
     }
@@ -439,7 +437,7 @@ protected:
 
 protected:
   explicit VertexToolControllerBase(T& tool)
-    : m_tool(tool)
+    : m_tool{tool}
   {
   }
 
@@ -451,5 +449,5 @@ private:
 
   const Tool& tool() const override { return m_tool; }
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

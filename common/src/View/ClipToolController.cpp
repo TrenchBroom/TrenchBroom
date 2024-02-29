@@ -172,7 +172,7 @@ public:
     const auto& pickRay = inputState.pickRay();
     const auto defaultPos = m_tool.defaultClipPointPos();
     const auto distance =
-      vm::intersect_ray_plane(pickRay, vm::plane3(defaultPos, viewDir));
+      vm::intersect_ray_plane(pickRay, vm::plane3{defaultPos, viewDir});
     if (vm::is_nan(distance))
     {
       return std::nullopt;

@@ -40,7 +40,7 @@ namespace View
 CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(
   CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
-  , m_document{document}
+  , m_document{std::move(document)}
 {
 }
 
