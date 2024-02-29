@@ -324,7 +324,7 @@ private:
   bool m_secondPointSet{false};
 
 public:
-  AddClipPointDragDelegate(PartDelegateBase& delegate)
+  explicit AddClipPointDragDelegate(PartDelegateBase& delegate)
     : m_delegate{delegate}
   {
   }
@@ -456,7 +456,7 @@ private:
   PartDelegateBase& m_delegate;
 
 public:
-  MoveClipPointDragDelegate(PartDelegateBase& delegate)
+  explicit MoveClipPointDragDelegate(PartDelegateBase& delegate)
     : m_delegate{delegate}
   {
   }
