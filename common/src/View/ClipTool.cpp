@@ -291,8 +291,8 @@ public:
 
     if (m_points.size() == 3)
     {
-      const auto index0 = m_dragState->index + 1 % 3;
-      const auto index1 = m_dragState->index + 2 % 3;
+      const auto index0 = (m_dragState->index + 1) % 3;
+      const auto index1 = (m_dragState->index + 2) % 3;
       if (vm::is_colinear(m_points[index0].point, m_points[index1].point, newPosition))
       {
         return false;
