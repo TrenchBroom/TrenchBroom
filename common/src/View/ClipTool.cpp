@@ -253,7 +253,7 @@ public:
 
     const auto index = hit.target<size_t>();
     const auto position = m_points[index].point;
-    return {{position, hit.hitPoint() - position}};
+    return {{position, hit.hitPoint()}};
   }
 
   void beginDragPoint(const Model::PickResult& pickResult) override
@@ -709,12 +709,12 @@ std::optional<std::tuple<vm::vec3, vm::vec3>> ClipTool::beginDragPoint(
   assert(!m_dragging);
   if (m_strategy)
   {
-    const auto pointAndOffset = m_strategy->canDragPoint(pickResult);
-    if (pointAndOffset)
+    const auto handlePositionAndHitPoint = m_strategy->canDragPoint(pickResult);
+    if (handlePositionAndHitPoint)
     {
       m_strategy->beginDragPoint(pickResult);
       m_dragging = true;
-      return pointAndOffset;
+      return handlePositionAndHitPoint;
     }
   }
 

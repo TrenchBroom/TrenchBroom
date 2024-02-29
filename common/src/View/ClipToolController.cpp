@@ -595,18 +595,18 @@ ClipToolController2D::ClipToolController2D(ClipTool& tool)
   : ClipToolControllerBase{tool}
 {
   addController(
-    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
-  addController(
     std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
+  addController(
+    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
 }
 
 ClipToolController3D::ClipToolController3D(ClipTool& tool)
   : ClipToolControllerBase{tool}
 {
   addController(
-    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
-  addController(
     std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
+  addController(
+    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
 }
 } // namespace View
 } // namespace TrenchBroom
