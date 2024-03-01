@@ -187,15 +187,15 @@ public:
     }
 
     const auto first = std::max_element(std::begin(counts), std::end(counts));
+    const auto firstIndex = std::distance(std::begin(counts), first);
+
     const auto next = std::max_element(std::next(first), std::end(counts));
-
-    const auto firstIndex = first - std::begin(counts);
-    const auto nextIndex = next - std::begin(counts);
-
-    if (counts[firstIndex] > counts[nextIndex])
+    if (next == std::end(counts) || *first > *next)
     {
       return vm::vec3::axis(size_t(firstIndex % 3));
     }
+
+    const auto nextIndex = std::distance(std::begin(counts), next);
 
     // two counts are equal
     if (firstIndex % 3 == 2 || nextIndex % 3 == 2)
@@ -253,7 +253,7 @@ public:
 
     const auto index = hit.target<size_t>();
     const auto position = m_points[index].point;
-    return {{position, hit.hitPoint() - position}};
+    return {{position, hit.hitPoint()}};
   }
 
   void beginDragPoint(const Model::PickResult& pickResult) override
@@ -291,8 +291,8 @@ public:
 
     if (m_points.size() == 3)
     {
-      const auto index0 = m_dragState->index + 1 % 3;
-      const auto index1 = m_dragState->index + 2 % 3;
+      const auto index0 = (m_dragState->index + 1) % 3;
+      const auto index1 = (m_dragState->index + 2) % 3;
       if (vm::is_colinear(m_points[index0].point, m_points[index1].point, newPosition))
       {
         return false;
@@ -709,12 +709,12 @@ std::optional<std::tuple<vm::vec3, vm::vec3>> ClipTool::beginDragPoint(
   assert(!m_dragging);
   if (m_strategy)
   {
-    const auto pointAndOffset = m_strategy->canDragPoint(pickResult);
-    if (pointAndOffset)
+    const auto handlePositionAndHitPoint = m_strategy->canDragPoint(pickResult);
+    if (handlePositionAndHitPoint)
     {
       m_strategy->beginDragPoint(pickResult);
       m_dragging = true;
-      return pointAndOffset;
+      return handlePositionAndHitPoint;
     }
   }
 

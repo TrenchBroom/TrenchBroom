@@ -324,7 +324,7 @@ private:
   bool m_secondPointSet{false};
 
 public:
-  AddClipPointDragDelegate(PartDelegateBase& delegate)
+  explicit AddClipPointDragDelegate(PartDelegateBase& delegate)
     : m_delegate{delegate}
   {
   }
@@ -456,7 +456,7 @@ private:
   PartDelegateBase& m_delegate;
 
 public:
-  MoveClipPointDragDelegate(PartDelegateBase& delegate)
+  explicit MoveClipPointDragDelegate(PartDelegateBase& delegate)
     : m_delegate{delegate}
   {
   }
@@ -595,18 +595,18 @@ ClipToolController2D::ClipToolController2D(ClipTool& tool)
   : ClipToolControllerBase{tool}
 {
   addController(
-    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
-  addController(
     std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
+  addController(
+    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
 }
 
 ClipToolController3D::ClipToolController3D(ClipTool& tool)
   : ClipToolControllerBase{tool}
 {
   addController(
-    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
-  addController(
     std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
+  addController(
+    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
 }
 } // namespace View
 } // namespace TrenchBroom
