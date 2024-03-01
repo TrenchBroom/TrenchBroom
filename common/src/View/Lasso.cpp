@@ -23,6 +23,8 @@
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 
+#include "kdl/optional_utils.h"
+
 #include "vm/intersection.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -50,8 +52,11 @@ void Lasso::update(const vm::vec3& point)
 bool Lasso::selects(
   const vm::vec3& point, const vm::plane3& plane, const vm::bbox2& box) const
 {
-  const auto projected = project(point, plane);
-  return !vm::is_nan(projected) && box.contains(vm::vec2{projected});
+  if (const auto projected = project(point, plane))
+  {
+    return box.contains(vm::vec2{*projected});
+  }
+  return false;
 }
 
 bool Lasso::selects(
@@ -66,17 +71,15 @@ bool Lasso::selects(
   return selects(polygon.center(), plane, box);
 }
 
-vm::vec3 Lasso::project(const vm::vec3& point, const vm::plane3& plane) const
+std::optional<vm::vec3> Lasso::project(
+  const vm::vec3& point, const vm::plane3& plane) const
 {
   const auto ray = vm::ray3{m_camera.pickRay(vm::vec3f{point})};
-  const auto hitDistance = vm::intersect_ray_plane(ray, plane);
-  if (vm::is_nan(hitDistance))
-  {
-    return vm::vec3::nan();
-  }
-
-  const auto hitPoint = vm::point_at_distance(ray, hitDistance);
-  return getTransform() * hitPoint;
+  return kdl::optional_transform(
+    vm::intersect_ray_plane(ray, plane), [&](const auto hitDistance) {
+      const auto hitPoint = vm::point_at_distance(ray, hitDistance);
+      return getTransform() * hitPoint;
+    });
 }
 
 void Lasso::render(

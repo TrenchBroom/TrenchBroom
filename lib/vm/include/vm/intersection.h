@@ -29,6 +29,8 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <optional>
+
 namespace vm
 {
 
@@ -228,22 +230,22 @@ bool polygon_contains_point(const vec<T, 3>& p, I cur, I end, const G& get = G()
  * @tparam S the number of components
  * @param r the ray
  * @param p the plane
- * @return the distance to the intersection point, or NaN if the ray does not intersect
- * the plane
+ * @return the distance to the intersection point, or nullopt if the ray does not
+ * intersect the plane
  */
 template <typename T, size_t S>
-constexpr T intersect_ray_plane(const ray<T, S>& r, const plane<T, S>& p)
+constexpr std::optional<T> intersect_ray_plane(const ray<T, S>& r, const plane<T, S>& p)
 {
   const auto d = dot(r.direction, p.normal);
   if (is_zero(d, constants<T>::almost_zero()))
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto s = dot(p.anchor() - r.origin, p.normal) / d;
   if (s < -constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   return s;
@@ -338,17 +340,15 @@ template <typename T, typename I, typename G = identity>
 constexpr T intersect_ray_polygon(
   const ray<T, 3>& r, const plane<T, 3>& p, I cur, I end, const G& get = G())
 {
-  const auto distance = intersect_ray_plane(r, p);
-  if (is_nan(distance))
+  if (const auto distance = intersect_ray_plane(r, p))
   {
-    return distance;
+    const auto point = point_at_distance(r, *distance);
+    if (polygon_contains_point(point, p.normal, cur, end, get))
+    {
+      return *distance;
+    }
   }
 
-  const auto point = point_at_distance(r, distance);
-  if (polygon_contains_point(point, p.normal, cur, end, get))
-  {
-    return distance;
-  }
   return nan<T>();
 }
 

@@ -151,7 +151,8 @@ TEST_CASE("intersection.intersect_ray_plane")
 {
   constexpr auto ray = ray3f(vec3f::zero(), vec3f::pos_z());
   CER_CHECK(
-    is_nan(intersect_ray_plane(ray, plane3f(vec3f(0.0f, 0.0f, -1.0f), vec3f::pos_z()))));
+    intersect_ray_plane(ray, plane3f(vec3f(0.0f, 0.0f, -1.0f), vec3f::pos_z()))
+    == std::nullopt);
   CER_CHECK(
     intersect_ray_plane(ray, plane3f(vec3f(0.0f, 0.0f, 0.0f), vec3f::pos_z()))
     == approx(0.0f));

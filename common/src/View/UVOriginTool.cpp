@@ -42,6 +42,8 @@
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
+#include "kdl/optional_utils.h"
+
 #include "vm/distance.h"
 #include "vm/intersection.h"
 #include "vm/line.h"
@@ -87,12 +89,13 @@ vm::vec2f getSelector(const InputState& inputState)
 vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
 {
   const auto& boundary = helper.face()->boundary();
-  const auto distance = vm::intersect_ray_plane(ray, boundary);
-  const auto hitPoint = vm::point_at_distance(ray, distance);
-
-  const auto transform =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  return vm::vec2f{transform * hitPoint};
+  return *kdl::optional_transform(
+    vm::intersect_ray_plane(ray, boundary), [&](const auto distance) {
+      const auto hitPoint = vm::point_at_distance(ray, distance);
+      const auto transform =
+        helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+      return vm::vec2f{transform * hitPoint};
+    });
 }
 
 vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)

@@ -233,11 +233,15 @@ protected:
         vm::vec3{
           camera.defaultPoint(static_cast<float>(LassoDragDelegate::LassoDistance))},
         vm::vec3{camera.direction()});
-      const auto initialPoint = vm::point_at_distance(
-        inputState.pickRay(), vm::intersect_ray_plane(inputState.pickRay(), plane));
 
-      return createHandleDragTracker(
-        LassoDragDelegate{m_tool}, inputState, initialPoint, initialPoint);
+      if (const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane))
+      {
+        const auto initialPoint = vm::point_at_distance(inputState.pickRay(), *distance);
+        return createHandleDragTracker(
+          LassoDragDelegate{m_tool}, inputState, initialPoint, initialPoint);
+      }
+
+      return nullptr;
     }
 
     bool cancel() override { return m_tool.deselectAll(); }

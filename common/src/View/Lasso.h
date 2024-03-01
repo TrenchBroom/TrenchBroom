@@ -70,7 +70,7 @@ private:
     const vm::segment3& edge, const vm::plane3& plane, const vm::bbox2& box) const;
   bool selects(
     const vm::polygon3& polygon, const vm::plane3& plane, const vm::bbox2& box) const;
-  vm::vec3 project(const vm::vec3& point, const vm::plane3& plane) const;
+  std::optional<vm::vec3> project(const vm::vec3& point, const vm::plane3& plane) const;
 
 public:
   void render(

@@ -354,10 +354,9 @@ static float computeCameraOffset(
     const auto ray = vm::ray3f(camera.position(), -camera.direction());
     const auto newPlane =
       vm::plane3f(vm::vec3f(point) + 64.0f * plane.normal, plane.normal);
-    const auto dist = vm::intersect_ray_plane(ray, newPlane);
-    if (!vm::is_nan(dist) && dist > 0.0f)
+    if (const auto dist = vm::intersect_ray_plane(ray, newPlane); dist && *dist > 0.0f)
     {
-      offset = std::max(offset, dist);
+      offset = std::max(offset, *dist);
     }
   };
 

@@ -40,6 +40,7 @@
 #include "View/UVViewHelper.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/optional_utils.h"
 
 #include "vm/intersection.h"
 #include "vm/ray.h"
@@ -71,15 +72,16 @@ std::tuple<vm::vec2i, vm::vec2b> getHandleAndSelector(const InputState& inputSta
   return {getScaleHandle(xHit, yHit), vm::vec2b{xHit.isMatch(), yHit.isMatch()}};
 }
 
-vm::vec2f getHitPoint(const UVViewHelper& helper, const vm::ray3& pickRay)
+std::optional<vm::vec2f> getHitPoint(const UVViewHelper& helper, const vm::ray3& pickRay)
 {
   const auto& boundary = helper.face()->boundary();
-  const auto facePointDist = vm::intersect_ray_plane(pickRay, boundary);
-  const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
+  return kdl::optional_transform(
+    vm::intersect_ray_plane(pickRay, boundary), [&](const auto facePointDist) {
+      const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
+      const auto toTex = helper.face()->toTexCoordSystemMatrix({0, 0}, {1, 1}, true);
 
-  const auto toTex =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  return vm::vec2f{toTex * facePoint};
+      return vm::vec2f{toTex * facePoint};
+    });
 }
 
 vm::vec2f getScaledTranslatedHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
@@ -194,7 +196,12 @@ public:
   bool drag(const InputState& inputState) override
   {
     const auto curPoint = getHitPoint(m_helper, inputState.pickRay());
-    const auto dragDeltaFaceCoords = curPoint - m_lastHitPoint;
+    if (!curPoint)
+    {
+      return false;
+    }
+
+    const auto dragDeltaFaceCoords = *curPoint - m_lastHitPoint;
 
     const auto curHandlePosTexCoords = getScaledTranslatedHandlePos(m_helper, m_handle);
     const auto newHandlePosFaceCoords =
@@ -308,9 +315,13 @@ std::unique_ptr<DragTracker> UVScaleTool::acceptMouseDrag(const InputState& inpu
   }
 
   const auto initialHitPoint = getHitPoint(m_helper, inputState.pickRay());
+  if (!initialHitPoint)
+  {
+    return nullptr;
+  }
 
   return std::make_unique<UVScaleDragTracker>(
-    *kdl::mem_lock(m_document), m_helper, handle, selector, initialHitPoint);
+    *kdl::mem_lock(m_document), m_helper, handle, selector, *initialHitPoint);
 }
 
 void UVScaleTool::render(

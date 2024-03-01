@@ -31,6 +31,7 @@
 #include "View/UVViewHelper.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/optional_utils.h"
 
 #include "vm/intersection.h"
 #include "vm/vec.h"
@@ -41,18 +42,19 @@ namespace TrenchBroom::View
 namespace
 {
 
-vm::vec2f getHit(
+std::optional<vm::vec2f> getHit(
   const UVViewHelper& helper,
   const vm::vec3& xAxis,
   const vm::vec3& yAxis,
   const vm::ray3& pickRay)
 {
   const auto& boundary = helper.face()->boundary();
-  const auto hitPointDist = vm::intersect_ray_plane(pickRay, boundary);
-  const auto hitPoint = vm::point_at_distance(pickRay, hitPointDist);
-  const auto hitVec = hitPoint - helper.origin();
-
-  return vm::vec2f{float(vm::dot(hitVec, xAxis)), float(vm::dot(hitVec, yAxis))};
+  return kdl::optional_transform(
+    vm::intersect_ray_plane(pickRay, boundary), [&](const auto distance) {
+      const auto hitPoint = vm::point_at_distance(pickRay, distance);
+      const auto hitVec = hitPoint - helper.origin();
+      return vm::vec2f{float(vm::dot(hitVec, xAxis)), float(vm::dot(hitVec, yAxis))};
+    });
 }
 
 class UVShearDragTracker : public DragTracker
@@ -88,7 +90,12 @@ public:
   bool drag(const InputState& inputState) override
   {
     const auto currentHit = getHit(m_helper, m_xAxis, m_yAxis, inputState.pickRay());
-    const auto delta = currentHit - m_lastHit;
+    if (!currentHit)
+    {
+      return false;
+    }
+
+    const auto delta = *currentHit - m_lastHit;
 
     const auto origin = m_helper.origin();
     const auto oldCoords = vm::vec2f{
@@ -123,7 +130,7 @@ public:
     request.setOffset(newOffset);
     m_document.setFaceAttributes(request);
 
-    m_lastHit = currentHit;
+    m_lastHit = *currentHit;
     return true;
   }
 
@@ -195,16 +202,20 @@ std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inpu
   const auto xAxis = m_helper.face()->textureXAxis();
   const auto yAxis = m_helper.face()->textureYAxis();
   const auto initialHit = getHit(m_helper, xAxis, yAxis, inputState.pickRay());
+  if (!initialHit)
+  {
+    return nullptr;
+  }
 
   // #1350: Don't allow shearing if the shear would result in very large changes. This
   // happens if the shear handle to be dragged is very close to one of the texture axes.
-  if (vm::is_zero(initialHit.x(), 6.0f) || vm::is_zero(initialHit.y(), 6.0f))
+  if (vm::is_zero(initialHit->x(), 6.0f) || vm::is_zero(initialHit->y(), 6.0f))
   {
     return nullptr;
   }
 
   return std::make_unique<UVShearDragTracker>(
-    *kdl::mem_lock(m_document), m_helper, selector, xAxis, yAxis, initialHit);
+    *kdl::mem_lock(m_document), m_helper, selector, xAxis, yAxis, *initialHit);
 }
 
 bool UVShearTool::cancel()

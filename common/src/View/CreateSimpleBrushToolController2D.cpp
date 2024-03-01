@@ -195,20 +195,19 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(
   const auto plane =
     vm::plane3{bounds.min, vm::vec3{vm::get_abs_max_component_axis(camera.direction())}};
 
-  const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane);
-  if (vm::is_nan(distance))
+  if (const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane))
   {
-    return nullptr;
+    const auto initialHandlePosition =
+      vm::point_at_distance(inputState.pickRay(), *distance);
+    return createHandleDragTracker(
+      CreateSimpleBrushDragDelegate{
+        m_tool, document->worldBounds(), document->referenceBounds()},
+      inputState,
+      initialHandlePosition,
+      initialHandlePosition);
   }
 
-  const auto initialHandlePosition =
-    vm::point_at_distance(inputState.pickRay(), distance);
-  return createHandleDragTracker(
-    CreateSimpleBrushDragDelegate{
-      m_tool, document->worldBounds(), document->referenceBounds()},
-    inputState,
-    initialHandlePosition,
-    initialHandlePosition);
+  return nullptr;
 }
 
 bool CreateSimpleBrushToolController2D::cancel()

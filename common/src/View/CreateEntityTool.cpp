@@ -105,18 +105,13 @@ void CreateEntityTool::updateEntityPosition2D(const vm::ray3& pickRay)
                         : m_referenceBounds.max;
   const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
 
-  const auto distance = vm::intersect_ray_plane(pickRay, dragPlane);
-  if (!vm::is_nan(distance))
+  const auto& grid = document->grid();
+  const auto delta = grid.moveDeltaForBounds(
+    dragPlane, m_entity->logicalBounds(), document->worldBounds(), pickRay);
+
+  if (!vm::is_zero(delta, vm::C::almost_zero()))
   {
-
-    const auto& grid = document->grid();
-    const auto delta = grid.moveDeltaForBounds(
-      dragPlane, m_entity->logicalBounds(), document->worldBounds(), pickRay);
-
-    if (!vm::is_zero(delta, vm::C::almost_zero()))
-    {
-      document->translateObjects(delta);
-    }
+    document->translateObjects(delta);
   }
 }
 

@@ -44,6 +44,7 @@
 #include "View/UVViewHelper.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/optional_utils.h"
 
 #include "vm/forward.h"
 #include "vm/intersection.h"
@@ -210,7 +211,7 @@ public:
     const auto& boundary = m_helper.face()->boundary();
     const auto& pickRay = inputState.pickRay();
     const auto curPointDistance = vm::intersect_ray_plane(pickRay, boundary);
-    const auto curPoint = vm::point_at_distance(pickRay, curPointDistance);
+    const auto curPoint = vm::point_at_distance(pickRay, *curPointDistance);
 
     const auto toFaceOld =
       m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
@@ -261,41 +262,43 @@ public:
   }
 };
 
-std::optional<float> computeInitialAngle(
+std::optional<vm::vec2f> hitPointInFaceCoords(
   const UVViewHelper& helper, const InputState& inputState)
 {
   using namespace Model::HitFilters;
 
   const auto toFace =
     helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  auto hitPointInFaceCoords = vm::vec2f{};
 
   const auto& angleHandleHit =
     inputState.pickResult().first(type(UVRotateTool::AngleHandleHitType));
   if (angleHandleHit.isMatch())
   {
-    hitPointInFaceCoords = vm::vec2f{toFace * angleHandleHit.hitPoint()};
+    return vm::vec2f{toFace * angleHandleHit.hitPoint()};
   }
-  else if (inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd))
+
+  if (inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd))
   {
     // If Ctrl is pressed, allow starting the drag anywhere, not just on the handle
     const auto& boundary = helper.face()->boundary();
     const auto& pickRay = inputState.pickRay();
-    const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary);
-    if (vm::is_nan(distanceToFace))
-    {
-      return std::nullopt;
-    }
-    const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
-    hitPointInFaceCoords = vm::vec2f{toFace * hitPoint};
-  }
-  else
-  {
-    return std::nullopt;
+    return kdl::optional_transform(
+      vm::intersect_ray_plane(pickRay, boundary), [&](const auto distanceToFace) {
+        const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
+        return vm::vec2f{toFace * hitPoint};
+      });
   }
 
-  return measureAngle(helper, hitPointInFaceCoords)
-         - helper.face()->attributes().rotation();
+  return std::nullopt;
+}
+
+std::optional<float> computeInitialAngle(
+  const UVViewHelper& helper, const InputState& inputState)
+{
+  return kdl::optional_transform(
+    hitPointInFaceCoords(helper, inputState), [&](const auto& point) {
+      return measureAngle(helper, point) - helper.face()->attributes().rotation();
+    });
 }
 
 } // namespace
@@ -330,10 +333,9 @@ void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickRes
   const auto& boundary = m_helper.face()->boundary();
 
   const auto& pickRay = inputState.pickRay();
-  const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary);
-  if (!vm::is_nan(distanceToFace))
+  if (const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary))
   {
-    const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
+    const auto hitPoint = vm::point_at_distance(pickRay, *distanceToFace);
 
     const auto fromFace = m_helper.face()->fromTexCoordSystemMatrix(
       vm::vec2f::zero(), vm::vec2f::one(), true);
@@ -349,7 +351,7 @@ void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickRes
     if (error <= RotateHandleWidth / zoom)
     {
       pickResult.addHit(
-        Model::Hit{AngleHandleHitType, distanceToFace, hitPoint, 0, error});
+        Model::Hit{AngleHandleHitType, *distanceToFace, hitPoint, 0, error});
     }
   }
 }

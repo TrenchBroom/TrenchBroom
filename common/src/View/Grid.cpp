@@ -129,15 +129,15 @@ FloatType Grid::intersectWithRay(const vm::ray3& ray, const size_t skip) const
     vm::intersect_ray_plane(ray, vm::plane3(planeAnchor, vm::vec3::pos_z()));
 
   auto dist = distX;
-  if (!vm::is_nan(distY) && (vm::is_nan(dist) || std::abs(distY) < std::abs(dist)))
+  if (distY && (!dist || std::abs(*distY) < std::abs(*dist)))
   {
     dist = distY;
   }
-  if (!vm::is_nan(distZ) && (vm::is_nan(dist) || std::abs(distZ) < std::abs(dist)))
+  if (distZ && (!dist || std::abs(*distZ) < std::abs(*dist)))
   {
     dist = distZ;
   }
-  return dist;
+  return *dist;
 }
 
 vm::vec3 Grid::moveDeltaForPoint(const vm::vec3& point, const vm::vec3& delta) const
@@ -187,7 +187,12 @@ vm::vec3 Grid::moveDeltaForBounds(
   // This will become one of the corners of our resulting bbox.
   // Note that this means we might let the box clip into the plane somewhat.
   const auto dist = vm::intersect_ray_plane(ray, targetPlane);
-  const auto hitPoint = vm::point_at_distance(ray, dist);
+  if (!dist)
+  {
+    return vm::vec3{0, 0, 0};
+  }
+
+  const auto hitPoint = vm::point_at_distance(ray, *dist);
 
   // Local axis system where Z is the largest magnitude component of targetPlane.normal,
   // and X and Y are the other two axes.
