@@ -111,7 +111,7 @@ Orientation EntityModelLoadedFrame::orientation() const
 
 float EntityModelLoadedFrame::intersect(const vm::ray3f& ray) const
 {
-  auto closestDistance = vm::nan<float>();
+  auto closestDistance = std::optional<float>{};
 
   const auto candidates = m_spacialTree->find_intersectors(ray);
   for (const auto triNum : candidates)
@@ -123,7 +123,7 @@ float EntityModelLoadedFrame::intersect(const vm::ray3f& ray) const
       vm::safe_min(closestDistance, vm::intersect_ray_triangle(ray, p1, p2, p3));
   }
 
-  return closestDistance;
+  return closestDistance.value_or(vm::nan<float>());
 }
 
 void EntityModelLoadedFrame::addToSpacialTree(

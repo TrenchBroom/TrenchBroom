@@ -168,13 +168,17 @@ TEST_CASE("intersection.intersect_ray_triangle")
   constexpr auto p2 = vec3d(3.0, 2.0, 2.0);
 
   CER_CHECK(
-    is_nan(intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_x()), p0, p1, p2)));
+    intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_x()), p0, p1, p2)
+    == std::nullopt);
   CER_CHECK(
-    is_nan(intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_y()), p0, p1, p2)));
+    intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_y()), p0, p1, p2)
+    == std::nullopt);
   CER_CHECK(
-    is_nan(intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_z()), p0, p1, p2)));
-  CER_CHECK(is_nan(
-    intersect_ray_triangle(ray3d(vec3d(0.0, 0.0, 2.0), vec3d::pos_y()), p0, p1, p2)));
+    intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_z()), p0, p1, p2)
+    == std::nullopt);
+  CER_CHECK(
+    intersect_ray_triangle(ray3d(vec3d(0.0, 0.0, 2.0), vec3d::pos_y()), p0, p1, p2)
+    == std::nullopt);
   CER_CHECK(
     intersect_ray_triangle(ray3d(vec3d(3.0, 5.0, 0.0), vec3d::pos_z()), p0, p1, p2)
     == approx(2.0));

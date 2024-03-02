@@ -267,11 +267,11 @@ constexpr std::optional<T> intersect_ray_plane(const ray<T, S>& r, const plane<T
  * @param p1 the first point
  * @param p2 the second point
  * @param p3 the third point
- * @return the distance to the point of intersection or NaN if the given ray does not
+ * @return the distance to the point of intersection or nullopt if the given ray does not
  * intersect the given triangle
  */
 template <typename T>
-constexpr T intersect_ray_triangle(
+constexpr std::optional<T> intersect_ray_triangle(
   const ray<T, 3>& r, const vec<T, 3>& p1, const vec<T, 3>& p2, const vec<T, 3>& p3)
 {
   // see
@@ -285,7 +285,7 @@ constexpr T intersect_ray_triangle(
   const auto a = dot(p, e1);
   if (is_zero(a, constants<T>::almost_zero()))
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto t = o - p1;
@@ -294,24 +294,24 @@ constexpr T intersect_ray_triangle(
   const auto u = dot(q, e2) / a;
   if (u < -constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto v = dot(p, t) / a;
   if (v < -constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto w = dot(q, d) / a;
   if (w < -constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   if (v + w - T(1) > constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   return u;

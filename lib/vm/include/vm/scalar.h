@@ -27,6 +27,7 @@
 #include <cmath>
 #include <cstddef>
 #include <limits>
+#include <optional>
 #include <tuple>
 #include <type_traits>
 #include <utility>
@@ -289,6 +290,49 @@ constexpr T safe_min(const T lhs, const T rhs, const Rest... rest)
   {
     return safe_min(rhs, rest...);
   }
+}
+
+/**
+ * Returns the given value. Used as the base case of the variadic safe_min template.
+ *
+ * @tparam T the argument type
+ * @param v the value to return
+ * @return the given value
+ */
+template <typename T>
+constexpr std::optional<T> safe_min(const std::optional<T>& v)
+{
+  return v;
+}
+
+/**
+ * Returns the minimum of the given values, but checks if any of the given values is
+ * nullopt, in which case it is not considered in the result.
+ *
+ * @tparam T the argument type
+ * @tparam Rest the types of the remaining arguments
+ * @param lhs the first value
+ * @param rhs the second value
+ * @param rest the remaining values
+ * @return the minimum of the given values or nullopt if all values are nullopt
+ */
+template <typename T, typename... Rest>
+constexpr std::optional<T> safe_min(
+  const std::optional<T>& lhs, const std::optional<T>& rhs, const Rest... rest)
+{
+  if (!lhs)
+  {
+    return safe_min(rhs, rest...);
+  }
+  if (!rhs)
+  {
+    return safe_min(lhs, rest...);
+  }
+  if (*lhs < *rhs)
+  {
+    return safe_min(lhs, rest...);
+  }
+  return safe_min(rhs, rest...);
 }
 
 /**

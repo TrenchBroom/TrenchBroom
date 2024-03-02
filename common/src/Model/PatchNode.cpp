@@ -426,11 +426,10 @@ void PatchNode::doPick(
     return;
   }
   const auto pickTriangle = [&](const auto& p0, const auto& p1, const auto& p2) {
-    if (const auto distance = vm::intersect_ray_triangle(pickRay, p0, p1, p2);
-        !vm::is_nan(distance))
+    if (const auto distance = vm::intersect_ray_triangle(pickRay, p0, p1, p2))
     {
-      const auto hitPoint = vm::point_at_distance(pickRay, distance);
-      pickResult.addHit(Hit(PatchHitType, distance, hitPoint, this));
+      const auto hitPoint = vm::point_at_distance(pickRay, *distance);
+      pickResult.addHit(Hit(PatchHitType, *distance, hitPoint, this));
       return true;
     }
     return false;
