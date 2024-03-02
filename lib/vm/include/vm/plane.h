@@ -241,15 +241,15 @@ public:
    *
    * @param point the point to project
    * @param direction the projection direction
-   * @return the projected point
+   * @return the projected point or nullopt if it cannot projected
    */
-  constexpr vec<T, S> project_point(
+  constexpr std::optional<vec<T, S>> project_point(
     const vec<T, S>& point, const vec<T, S>& direction) const
   {
     const auto cos = dot(direction, normal);
     if (is_zero(cos, constants<T>::almost_zero()))
     {
-      return vec<T, S>::nan();
+      return std::nullopt;
     }
     const auto d = dot(distance * normal - point, normal) / cos;
     return point + direction * d;
@@ -275,10 +275,14 @@ public:
    * @param direction the projection direction
    * @return the projected vector
    */
-  constexpr vec<T, S> project_vector(
+  constexpr std::optional<vec<T, S>> project_vector(
     const vec<T, S>& vector, const vec<T, S>& direction) const
   {
-    return project_point(anchor() + vector, direction) - anchor();
+    if (const auto point = project_point(anchor() + vector, direction))
+    {
+      return *point - anchor();
+    }
+    return std::nullopt;
   }
 };
 

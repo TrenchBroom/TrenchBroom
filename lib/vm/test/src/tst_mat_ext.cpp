@@ -362,10 +362,12 @@ TEST_CASE("mat.points_transformation_matrix")
 
   const auto M2 =
     points_transformation_matrix(in[0], in[1], in[2], out[0], out[1], out[2]);
+  CHECK(M2 != std::nullopt);
+
   vec3d test[3];
   for (size_t i = 0; i < 3; ++i)
   {
-    test[i] = M2 * in[i];
+    test[i] = *M2 * in[i];
 
     CHECK(test[i] == approx(out[i]));
   }

@@ -620,10 +620,10 @@ std::optional<line<T, S>> intersect_plane_plane(
   // This will give us a line direction from this plane's anchor that
   // intersects the other plane.
 
-  const auto lineDir = normalize(p1.project_vector(p2.normal));
-  if (!is_nan(lineDir))
+  if (const auto lineToP2Direction = p1.project_vector(p2.normal);
+      lineToP2Direction != vec<T, S>::zero())
   {
-    const auto lineToP2 = line<T, S>{p1.anchor(), lineDir};
+    const auto lineToP2 = line<T, S>{p1.anchor(), normalize(lineToP2Direction)};
     if (const auto dist = intersect_line_plane(lineToP2, p2))
     {
       const auto point = point_at_distance(lineToP2, *dist);

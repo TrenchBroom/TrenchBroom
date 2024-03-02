@@ -244,10 +244,9 @@ private:
    * @param matcher a polyhedron matcher which is used to identify related vertices
    * @param left the face of the left polyhedron
    * @param right the face of the right polyhedron
-   * @return {true, transform} if a transform could be found, otherwise {false,
-   * unspecified}
+   * @return the transformation matrix or nullopt if it cannot be found
    */
-  static std::tuple<bool, vm::mat4x4> findTransformForUVLock(
+  static std::optional<vm::mat4x4> findTransformForUVLock(
     const PolyhedronMatcher<BrushGeometry>& matcher,
     BrushFaceGeometry* left,
     BrushFaceGeometry* right);
