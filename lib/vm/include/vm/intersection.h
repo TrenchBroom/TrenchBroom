@@ -580,16 +580,16 @@ std::optional<T> intersect_ray_torus(
  * @tparam S the number of components
  * @param l the line
  * @param p the plane
- * @return the distance to the intersection point, or NaN if the line does not intersect
- * the plane
+ * @return the distance to the intersection point, or nullopt if the line does not
+ * intersect the plane
  */
 template <typename T, size_t S>
-constexpr T intersect_line_plane(const line<T, S>& l, const plane<T, 3>& p)
+constexpr std::optional<T> intersect_line_plane(const line<T, S>& l, const plane<T, 3>& p)
 {
   const auto f = dot(l.direction, p.normal);
   return !is_zero(f, constants<T>::almost_zero())
-           ? dot(p.distance * p.normal - l.point, p.normal) / f
-           : nan<T>();
+           ? std::optional{dot(p.distance * p.normal - l.point, p.normal) / f}
+           : std::nullopt;
 }
 
 /**
@@ -620,11 +620,18 @@ line<T, S> intersect_plane_plane(const plane<T, S>& p1, const plane<T, S>& p2)
   // This will give us a line direction from this plane's anchor that
   // intersects the other plane.
 
-  const auto lineToP2 = line<T, S>{p1.anchor(), normalize(p1.project_vector(p2.normal))};
-  const auto dist = intersect_line_plane(lineToP2, p2);
-  const auto point = point_at_distance(lineToP2, dist);
+  const auto lineDir = normalize(p1.project_vector(p2.normal));
+  if (!is_nan(lineDir))
+  {
+    const auto lineToP2 = line<T, S>{p1.anchor(), lineDir};
+    if (const auto dist = intersect_line_plane(lineToP2, p2))
+    {
+      const auto point = point_at_distance(lineToP2, *dist);
+      return line<T, S>{point, lineDirection};
+    }
+  }
 
-  return !is_nan(point) ? line<T, S>{point, lineDirection} : line<T, S>{};
+  return line<T, S>{};
 }
 
 /**
@@ -753,9 +760,9 @@ constexpr bool intersect_bbox_polygon(
     const auto dir = get(*next) - start;
     const auto ln = line<T, 3>{start, dir};
     const auto d = intersect_line_plane(ln, pl);
-    if (d >= T(0) && d <= T(1))
+    if (d && *d >= T(0) && *d <= T(1))
     {
-      const auto pt = pl.project_point(point_at_distance(ln, d));
+      const auto pt = pl.project_point(point_at_distance(ln, *d));
       if (polygon_contains_point(pt, cur, end, get))
       {
         return true;
@@ -769,9 +776,9 @@ constexpr bool intersect_bbox_polygon(
     const auto dir = en - start;
     const auto ln = line<T, 3>{start, dir};
     const auto d = intersect_line_plane(ln, pl);
-    if (d >= T(0) && d <= T(1))
+    if (d && *d >= T(0) && *d <= T(1))
     {
-      const auto pt = pl.project_point(point_at_distance(ln, d));
+      const auto pt = pl.project_point(point_at_distance(ln, *d));
       if (polygon_contains_point(pt, begin, end, get))
       {
         edgeIsect = true;

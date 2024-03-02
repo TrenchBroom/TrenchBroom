@@ -367,7 +367,7 @@ TEST_CASE("intersection.intersect_line_plane")
 {
   constexpr auto p = plane3f(5.0f, vec3f::pos_z());
   constexpr auto l = line3f(vec3f(0, 0, 15), normalize_c(vec3f(1, 0, -1)));
-  CER_CHECK(point_at_distance(l, intersect_line_plane(l, p)) == approx(vec3f(10, 0, 5)));
+  CER_CHECK(point_at_distance(l, *intersect_line_plane(l, p)) == approx(vec3f(10, 0, 5)));
 }
 
 TEST_CASE("intersection.intersect_plane_plane")

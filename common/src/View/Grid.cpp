@@ -257,9 +257,9 @@ FloatType Grid::snapToGridPlane(const vm::line3& line, const FloatType distance)
   {
     const auto p = vm::plane3{c, vm::vec3::axis(i)};
     const auto y = vm::intersect_line_plane(line, p);
-    if (!vm::is_nan(y) && vm::abs(y - distance) < vm::abs(snappedDistance - distance))
+    if (y && vm::abs(*y - distance) < vm::abs(snappedDistance - distance))
     {
-      snappedDistance = y;
+      snappedDistance = *y;
     }
   }
 
