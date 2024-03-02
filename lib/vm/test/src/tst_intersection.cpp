@@ -376,18 +376,15 @@ TEST_CASE("intersection.intersect_plane_plane")
   constexpr auto p2 = plane3f(20.0f, vec3f::pos_x());
   const auto line = intersect_plane_plane(p1, p2);
 
-  CHECK(lineOnPlane(p1, line));
-  CHECK(lineOnPlane(p2, line));
+  CHECK(lineOnPlane(p1, *line));
+  CHECK(lineOnPlane(p2, *line));
 }
 
 TEST_CASE("intersection.intersect_plane_plane_parallel")
 {
   constexpr auto p1 = plane3f(10.0f, vec3f::pos_z());
   constexpr auto p2 = plane3f(11.0f, vec3f::pos_z());
-  const line3f line = intersect_plane_plane(p1, p2);
-
-  CHECK(line.direction == vec3f::zero());
-  CHECK(line.point == vec3f::zero());
+  CHECK(intersect_plane_plane(p1, p2) == std::nullopt);
 }
 
 TEST_CASE("intersection.intersect_plane_plane_similar")
@@ -400,8 +397,8 @@ TEST_CASE("intersection.intersect_plane_plane_similar")
       * vec3f::pos_x()); // p1 rotated by 0.5 degrees
   const auto line = intersect_plane_plane(p1, p2);
 
-  CHECK(lineOnPlane(p1, line));
-  CHECK(lineOnPlane(p2, line));
+  CHECK(lineOnPlane(p1, *line));
+  CHECK(lineOnPlane(p2, *line));
 }
 
 TEST_CASE("intersection.intersect_plane_plane_too_similar")
@@ -412,10 +409,8 @@ TEST_CASE("intersection.intersect_plane_plane_too_similar")
     anchor,
     quatf(vec3f::neg_y(), to_radians(0.0001f))
       * vec3f::pos_x()); // p1 rotated by 0.0001 degrees
-  const auto line = intersect_plane_plane(p1, p2);
 
-  CHECK(line.direction == vec3f::zero());
-  CHECK(line.point == vec3f::zero());
+  CHECK(intersect_plane_plane(p1, p2) == std::nullopt);
 }
 
 bool lineOnPlane(const plane3f& plane, const line3f& line)

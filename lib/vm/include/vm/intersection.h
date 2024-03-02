@@ -599,18 +599,18 @@ constexpr std::optional<T> intersect_line_plane(const line<T, S>& l, const plane
  * @tparam S the number of components
  * @param p1 the first plane
  * @param p2 the second plane
- * @return the line of intersection, or an uninitialized plane (with normal 0) if the
- * planes are parallel
+ * @return the line of intersection, or nullopt if the planes are parallel
  */
 template <typename T, size_t S>
-line<T, S> intersect_plane_plane(const plane<T, S>& p1, const plane<T, S>& p2)
+std::optional<line<T, S>> intersect_plane_plane(
+  const plane<T, S>& p1, const plane<T, S>& p2)
 {
   const auto lineDirection = normalize(cross(p1.normal, p2.normal));
 
   if (is_nan(lineDirection))
   {
     // the planes are parallel
-    return line<T, S>{};
+    return std::nullopt;
   }
 
   // Now we need to find a point that is on both planes.
@@ -631,7 +631,7 @@ line<T, S> intersect_plane_plane(const plane<T, S>& p1, const plane<T, S>& p2)
     }
   }
 
-  return line<T, S>{};
+  return std::nullopt;
 }
 
 /**

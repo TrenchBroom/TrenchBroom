@@ -288,7 +288,8 @@ void BrushFace::copyTexCoordSystemFromFace(
 {
   // Get a line, and a reference point, that are on both the source face's plane and our
   // plane
-  const auto seam = vm::intersect_plane_plane(sourceFacePlane, m_boundary);
+  const auto seam =
+    vm::intersect_plane_plane(sourceFacePlane, m_boundary).value_or(vm::line3{});
   const auto refPoint = vm::project_point(seam, center());
 
   coordSystemSnapshot.restore(*m_texCoordSystem);
@@ -303,13 +304,10 @@ void BrushFace::copyTexCoordSystemFromFace(
 
   // Adjust the offset on this face so that the texture coordinates at the refPoint stay
   // the same
-  if (!vm::is_zero(seam.direction, vm::C::almost_zero()))
-  {
-    const auto currentCoords =
-      m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
-    const auto offsetChange = desriedCoords - currentCoords;
-    m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
-  }
+  const auto currentCoords =
+    m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
+  const auto offsetChange = desriedCoords - currentCoords;
+  m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
 }
 
 const BrushFace::Points& BrushFace::points() const
@@ -695,10 +693,9 @@ Result<void> BrushFace::updatePointsFromVertices()
     .transform([&]() {
       // Get a line, and a reference point, that are on both the old plane
       // (before moving the face) and after moving the face.
-      const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary);
-      if (!vm::is_zero(seam.direction, vm::C::almost_zero()))
+      if (const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary))
       {
-        const auto refPoint = project_point(seam, center());
+        const auto refPoint = project_point(*seam, center());
 
         // Get the texcoords at the refPoint using the old face's attribs and tex coord
         // system
