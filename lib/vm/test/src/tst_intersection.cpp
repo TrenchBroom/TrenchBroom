@@ -358,8 +358,9 @@ TEST_CASE("intersection.intersect_ray_torus")
       1.0f)
     == approx(4.0f));
 
-  CHECK(is_nan(intersect_ray_torus(
-    ray3f(vec3f::zero(), vec3f::pos_z()), vec3f::zero(), 5.0f, 1.0f)));
+  CHECK(
+    intersect_ray_torus(ray3f(vec3f::zero(), vec3f::pos_z()), vec3f::zero(), 5.0f, 1.0f)
+    == std::nullopt);
 }
 
 TEST_CASE("intersection.intersect_line_plane")

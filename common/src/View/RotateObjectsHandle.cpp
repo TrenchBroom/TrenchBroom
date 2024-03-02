@@ -118,12 +118,12 @@ Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(
   {
     const auto transformedRay = pickRay.transform(inverse);
     const auto transformedPosition = inverse * m_position;
-    const auto transformedDistance = vm::intersect_ray_torus(
-      transformedRay, transformedPosition, majorRadius(), minorRadius());
-    if (!vm::is_nan(transformedDistance))
+    if (
+      const auto transformedDistance = vm::intersect_ray_torus(
+        transformedRay, transformedPosition, majorRadius(), minorRadius()))
     {
       const auto transformedHitPoint =
-        vm::point_at_distance(transformedRay, transformedDistance);
+        vm::point_at_distance(transformedRay, *transformedDistance);
       const auto hitPoint = transform * transformedHitPoint;
       const auto distance = vm::dot(hitPoint - pickRay.origin, pickRay.direction);
       return Model::Hit(HandleHitType, distance, hitPoint, area);

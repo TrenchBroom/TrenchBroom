@@ -522,11 +522,11 @@ std::optional<T> intersect_ray_sphere(
  * @param majorRadius the major radius (the distance between the tube's center and the
  * center of the torus)
  * @param minorRadius the minor radius (the radius of the tube)
- * @return the distance to the closest intersection point, or NaN if the given ray does
- * not intersect the given torus
+ * @return the distance to the closest intersection point, or nullopt if the given ray
+ * does not intersect the given torus
  */
 template <typename T, size_t S>
-T intersect_ray_torus(
+std::optional<T> intersect_ray_torus(
   const ray<T, S>& r, const vec<T, S>& position, const T majorRadius, const T minorRadius)
 {
   // see https://marcin-chwedczuk.github.io/ray-tracing-torus
@@ -550,29 +550,24 @@ T intersect_ray_torus(
   const auto d = T(4) * od * omM + T(8) * MM * oz * dz;
   const auto e = omM * omM - T(4) * MM * (mm - oz * oz);
 
-  auto [num, s1, s2, s3, s4] = solve_quartic(a, b, c, d, e, constants<T>::almost_zero());
+  size_t num = 0u;
+  auto s1 = std::optional<T>{};
+  auto s2 = std::optional<T>{};
+  auto s3 = std::optional<T>{};
+  auto s4 = std::optional<T>{};
+
+  std::tie(num, s1, s2, s3, s4) =
+    solve_quartic(a, b, c, d, e, constants<T>::almost_zero());
   if (num == 0)
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   // only consider positive solutions
-  if (num > 0)
-  {
-    s1 = s1 > T(0) ? s1 : nan<T>();
-  }
-  if (num > 1)
-  {
-    s2 = s2 > T(0) ? s2 : nan<T>();
-  }
-  if (num > 2)
-  {
-    s3 = s3 > T(0) ? s3 : nan<T>();
-  }
-  if (num > 3)
-  {
-    s4 = s4 > T(0) ? s4 : nan<T>();
-  }
+  s1 = num > 0 && s1 > T(0) ? s1 : std::nullopt;
+  s2 = num > 1 && s2 > T(0) ? s2 : std::nullopt;
+  s3 = num > 2 && s3 > T(0) ? s3 : std::nullopt;
+  s4 = num > 3 && s4 > T(0) ? s4 : std::nullopt;
 
   return safe_min(s1, s2, s3, s4);
 }

@@ -672,11 +672,9 @@ TEST_CASE("scalar.solve_quartic")
   using c = constants<double>;
 
   checkSolution(
-    {0u, nan<double>(), nan<double>(), nan<double>(), nan<double>()},
-    solve_quartic(1.0, 1.0, 1.0, 1.0, 1.0, c::almost_zero()));
+    {0u, 0.0, 0.0, 0.0, 0.0}, solve_quartic(1.0, 1.0, 1.0, 1.0, 1.0, c::almost_zero()));
   checkSolution(
-    {0u, nan<double>(), nan<double>(), nan<double>(), nan<double>()},
-    solve_quartic(1.0, -1.0, 1.0, -1.0, 1.0, c::almost_zero()));
+    {0u, 0.0, 0.0, 0.0, 0.0}, solve_quartic(1.0, -1.0, 1.0, -1.0, 1.0, c::almost_zero()));
   checkSolution(
     {4u,
      -0.203258341626567109,
@@ -685,13 +683,12 @@ TEST_CASE("scalar.solve_quartic")
      0.362199992663244539},
     solve_quartic(1.0, 2.0, -14.0, 2.0, 1.0, c::almost_zero()));
   checkSolution(
-    {2u, 1.5986745079, -1.0, nan<double>(), nan<double>()},
+    {2u, 1.5986745079, -1.0, 0.0, 0.0},
     solve_quartic(1.0, 3.0, 0.0, -8.0, -6.0, c::almost_zero()));
   checkSolution(
-    {2u, -1.0, -1.0, nan<double>(), nan<double>()},
-    solve_quartic(1.0, 4.0, 6.0, 4.0, 1.0, c::almost_zero()));
+    {2u, -1.0, -1.0, 0.0, 0.0}, solve_quartic(1.0, 4.0, 6.0, 4.0, 1.0, c::almost_zero()));
   checkSolution(
-    {2u, -3.0, 2.0, nan<double>(), nan<double>()},
+    {2u, -3.0, 2.0, 0.0, 0.0},
     solve_quartic(1.0, 2.0, -11.0, -12.0, 36.0, c::almost_zero()));
   checkSolution(
     {4u, -1.0 - sqrt(6.0), -1.0 - sqrt(11.0), sqrt(11.0) - 1.0, sqrt(6.0) - 1.0},

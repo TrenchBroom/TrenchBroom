@@ -954,11 +954,11 @@ std::tuple<std::size_t, T, T> solve_quadratic(
 
   if (is_zero(D, epsilon))
   {
-    return {1u, -p, nan<T>()};
+    return {1u, -p, T(0)};
   }
   else if (D < T(0.0))
   {
-    return {0u, nan<T>(), nan<T>()};
+    return {0u, T(0), T(0)};
   }
   else
   {
@@ -1092,35 +1092,31 @@ std::tuple<size_t, T, T, T, T> solve_quartic(
   const auto r = -T(3.0 / 256.0) * A * A * A * A + T(1.0 / 16.0) * A * A * B
                  - T(1.0 / 4.0) * A * C + D;
 
-  std::size_t num = 0;
-  T solutions[4] = {nan<T>(), nan<T>(), nan<T>(), nan<T>()};
+  size_t num = 0u;
+  T solutions[4] = {T(0), T(0), T(0), T(0)};
   if (is_zero(r, epsilon))
   {
     // no absolute term: y(y^3 + py + q) = 0
-    const auto solutions3 = solve_cubic(T(1.0), T(0.0), p, q, epsilon);
-    const auto num3 = std::get<0>(solutions3);
-    num = num3 + 1u;
-    solutions[0] = std::get<1>(solutions3);
-    solutions[1] = std::get<2>(solutions3);
-    solutions[2] = std::get<3>(solutions3);
-    solutions[num - 1] = T(0.0);
+    std::tie(num, solutions[0], solutions[1], solutions[2]) =
+      solve_cubic(T(1.0), T(0.0), p, q, epsilon);
+    solutions[num] = T(0);
+    num += 1u;
   }
   else
   {
     // solve the resolvent cubic ...
-    const auto solutions3 = solve_cubic(
+    const auto [num3, z, ignore1, ignore2] = solve_cubic(
       T(1.0),
       -T(1.0 / 2.0) * p,
       -r,
       T(1.0 / 2.0) * r * p - T(1.0 / 8.0) * q * q,
       epsilon);
 
-    assert(std::get<0>(solutions3) > 0u);
+    assert(num3 > 0u);
+    (void)ignore1;
+    (void)ignore2;
 
-    // ... and take the one real solution ...
-    const auto z = std::get<1>(solutions3);
-
-    // ... to build two quadratic equations
+    // ... and take the one real solution z to build two quadratic equations
     auto u = z * z - r;
     auto v = T(2) * z - p;
 
@@ -1134,7 +1130,7 @@ std::tuple<size_t, T, T, T, T> solve_quartic(
     }
     else
     {
-      return {0u, nan<T>(), nan<T>(), nan<T>(), nan<T>()};
+      return {0u, T(0), T(0), T(0), T(0)};
     }
 
     if (is_zero(v, epsilon))
@@ -1147,33 +1143,18 @@ std::tuple<size_t, T, T, T, T> solve_quartic(
     }
     else
     {
-      return {0u, nan<T>(), nan<T>(), nan<T>(), nan<T>()};
+      return {0u, T(0), T(0), T(0), T(0)};
     }
 
-    const auto solutions2_1 = solve_quadratic(T(1), q < T(0) ? -v : v, z - u, epsilon);
-    const auto solutions2_2 = solve_quadratic(T(1), q < T(0) ? v : -v, z + u, epsilon);
+    size_t num2_1 = 0u;
+    std::tie(num2_1, solutions[0], solutions[1]) =
+      solve_quadratic(T(1), q < T(0) ? -v : v, z - u, epsilon);
 
-    const auto num2_1 = std::get<0>(solutions2_1);
-    const auto num2_2 = std::get<0>(solutions2_2);
+    size_t num2_2 = 0u;
+    std::tie(num2_2, solutions[num2_1], solutions[num2_1 + 1]) =
+      solve_quadratic(T(1), q < T(0) ? v : -v, z + u, epsilon);
+
     num = num2_1 + num2_2;
-
-    if (num2_1 > 0u)
-    {
-      solutions[0] = std::get<1>(solutions2_1);
-    }
-    if (num2_1 > 1u)
-    {
-      solutions[1] = std::get<2>(solutions2_1);
-    }
-
-    if (num2_1 > 0u)
-    {
-      solutions[0 + num2_1] = std::get<1>(solutions2_2);
-    }
-    if (num2_1 > 1u)
-    {
-      solutions[1 + num2_1] = std::get<2>(solutions2_2);
-    }
   }
 
   // resubstitute
