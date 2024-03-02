@@ -481,11 +481,12 @@ constexpr std::optional<T> intersect_ray_bbox(const ray<T, S>& r, const bbox<T, 
  * @param r the ray
  * @param position the position of the sphere (its center)
  * @param radius the radius of the sphere
- * @return the distance to the closest intersection point, or NaN if the given ray does
- * not intersect the given sphere
+ * @return the distance to the closest intersection point, or nullopt if the given
+ * ray does not intersect the given sphere
  */
 template <typename T, size_t S>
-T intersect_ray_sphere(const ray<T, S>& r, const vec<T, S>& position, const T radius)
+std::optional<T> intersect_ray_sphere(
+  const ray<T, S>& r, const vec<T, S>& position, const T radius)
 {
   const auto diff = r.origin - position;
 
@@ -495,16 +496,16 @@ T intersect_ray_sphere(const ray<T, S>& r, const vec<T, S>& position, const T ra
   const auto d = p * p - T(4) * q;
   if (d < T(0))
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto s = sqrt(d);
   const auto t0 = (-p + s) / T(2);
   const auto t1 = (-p - s) / T(2);
 
-  return t0 < T(0) && t1 < T(0)   ? nan<T>()
-         : t0 > T(0) && t1 > T(0) ? min(t0, t1)
-                                  : max(t0, t1);
+  return t0 < T(0) && t1 < T(0)   ? std::nullopt
+         : t0 > T(0) && t1 > T(0) ? std::optional{min(t0, t1)}
+                                  : std::optional{max(t0, t1)};
 }
 
 /**

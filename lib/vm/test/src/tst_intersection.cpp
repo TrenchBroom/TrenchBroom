@@ -324,7 +324,7 @@ TEST_CASE("intersection.intersect_ray_sphere")
   CHECK(intersect_ray_sphere(ray, vec3f(0.0f, 0.0f, 5.0f), 2.0f) == approx(3.0f));
 
   // miss
-  CHECK(is_nan(intersect_ray_sphere(ray, vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
+  CHECK(intersect_ray_sphere(ray, vec3f(3.0f, 2.0f, 2.0f), 1.0f) == std::nullopt);
 }
 
 TEST_CASE("intersection.intersect_ray_torus")

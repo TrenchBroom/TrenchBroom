@@ -47,13 +47,13 @@ void VertexHandleManager::pick(
 {
   for (const auto& [position, info] : m_handles)
   {
-    const auto distance = camera.pickPointHandle(
-      pickRay, position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-    if (!vm::is_nan(distance))
+    if (
+      const auto distance = camera.pickPointHandle(
+        pickRay, position, static_cast<FloatType>(pref(Preferences::HandleRadius))))
     {
-      const auto hitPoint = vm::point_at_distance(pickRay, distance);
+      const auto hitPoint = vm::point_at_distance(pickRay, *distance);
       const auto error = vm::squared_distance(pickRay, position).distance;
-      pickResult.addHit(Model::Hit(HandleHitType, distance, hitPoint, position, error));
+      pickResult.addHit(Model::Hit(HandleHitType, *distance, hitPoint, position, error));
     }
   }
 }
@@ -98,19 +98,19 @@ void EdgeHandleManager::pickGridHandle(
 {
   for (const auto& [position, info] : m_handles)
   {
-    const FloatType edgeDist = camera.pickLineSegmentHandle(
-      pickRay, position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-    if (!vm::is_nan(edgeDist))
+    if (
+      const auto edgeDist = camera.pickLineSegmentHandle(
+        pickRay, position, FloatType(pref(Preferences::HandleRadius))))
     {
-      const vm::vec3 pointHandle =
-        grid.snap(vm::point_at_distance(pickRay, edgeDist), position);
-      const FloatType pointDist = camera.pickPointHandle(
-        pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-      if (!vm::is_nan(pointDist))
+      const auto pointHandle =
+        grid.snap(vm::point_at_distance(pickRay, *edgeDist), position);
+      if (
+        const auto pointDist = camera.pickPointHandle(
+          pickRay, pointHandle, FloatType(pref(Preferences::HandleRadius))))
       {
-        const vm::vec3 hitPoint = vm::point_at_distance(pickRay, pointDist);
-        pickResult.addHit(
-          Model::Hit(HandleHitType, pointDist, hitPoint, HitType(position, pointHandle)));
+        const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
+        pickResult.addHit(Model::Hit(
+          HandleHitType, *pointDist, hitPoint, HitType(position, pointHandle)));
       }
     }
   }
@@ -123,14 +123,14 @@ void EdgeHandleManager::pickCenterHandle(
 {
   for (const auto& [position, info] : m_handles)
   {
-    const vm::vec3 pointHandle = position.center();
+    const auto pointHandle = position.center();
 
-    const FloatType pointDist = camera.pickPointHandle(
-      pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-    if (!vm::is_nan(pointDist))
+    if (
+      const auto pointDist = camera.pickPointHandle(
+        pickRay, pointHandle, FloatType(pref(Preferences::HandleRadius))))
     {
-      const vm::vec3 hitPoint = vm::point_at_distance(pickRay, pointDist);
-      pickResult.addHit(Model::Hit(HandleHitType, pointDist, hitPoint, position));
+      const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
+      pickResult.addHit(Model::Hit(HandleHitType, *pointDist, hitPoint, position));
     }
   }
 }
@@ -189,13 +189,13 @@ void FaceHandleManager::pickGridHandle(
       const auto pointHandle =
         grid.snap(vm::point_at_distance(pickRay, *distance), plane);
 
-      const auto pointDist = camera.pickPointHandle(
-        pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-      if (!vm::is_nan(pointDist))
+      if (
+        const auto pointDist = camera.pickPointHandle(
+          pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius))))
       {
-        const auto hitPoint = vm::point_at_distance(pickRay, pointDist);
-        pickResult.addHit(
-          Model::Hit(HandleHitType, pointDist, hitPoint, HitType(position, pointHandle)));
+        const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
+        pickResult.addHit(Model::Hit(
+          HandleHitType, *pointDist, hitPoint, HitType(position, pointHandle)));
       }
     }
   }
@@ -210,12 +210,12 @@ void FaceHandleManager::pickCenterHandle(
   {
     const auto pointHandle = position.center();
 
-    const auto pointDist = camera.pickPointHandle(
-      pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-    if (!vm::is_nan(pointDist))
+    if (
+      const auto pointDist = camera.pickPointHandle(
+        pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius))))
     {
-      const auto hitPoint = vm::point_at_distance(pickRay, pointDist);
-      pickResult.addHit(Model::Hit(HandleHitType, pointDist, hitPoint, position));
+      const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
+      pickResult.addHit(Model::Hit(HandleHitType, *pointDist, hitPoint, position));
     }
   }
 }

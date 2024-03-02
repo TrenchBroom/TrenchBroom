@@ -93,17 +93,14 @@ FloatType RotateObjectsHandle::Handle::minorRadius()
 Model::Hit RotateObjectsHandle::Handle::pickCenterHandle(
   const vm::ray3& pickRay, const Renderer::Camera& camera) const
 {
-  const FloatType distance = camera.pickPointHandle(
-    pickRay, m_position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-  if (vm::is_nan(distance))
+  if (
+    const auto distance = camera.pickPointHandle(
+      pickRay, m_position, static_cast<FloatType>(pref(Preferences::HandleRadius))))
   {
-    return Model::Hit::NoHit;
+    const auto hitPoint = vm::point_at_distance(pickRay, *distance);
+    return Model::Hit(HandleHitType, *distance, hitPoint, HitArea::Center);
   }
-  else
-  {
-    return Model::Hit(
-      HandleHitType, distance, vm::point_at_distance(pickRay, distance), HitArea::Center);
-  }
+  return Model::Hit::NoHit;
 }
 
 Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(

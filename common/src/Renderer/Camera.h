@@ -27,6 +27,8 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
+#include <optional>
+
 namespace TrenchBroom
 {
 class Color;
@@ -177,11 +179,11 @@ public:
     const Color& color) const;
   float pickFrustum(float size, const vm::ray3f& ray) const;
 
-  FloatType pickPointHandle(
+  std::optional<FloatType> pickPointHandle(
     const vm::ray3& pickRay,
     const vm::vec3& handlePosition,
     FloatType handleRadius) const;
-  FloatType pickLineSegmentHandle(
+  std::optional<FloatType> pickLineSegmentHandle(
     const vm::ray3& pickRay,
     const vm::segment3& handlePosition,
     FloatType handleRadius) const;
