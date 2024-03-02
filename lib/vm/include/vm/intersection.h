@@ -333,11 +333,11 @@ constexpr std::optional<T> intersect_ray_triangle(
  * @param cur the vertex range start iterator
  * @param end the vertex range end iterator
  * @param get the transformation function
- * @return the distance from the origin of the ray to the point of intersection or NaN if
- * the ray does not intersect the polygon
+ * @return the distance from the origin of the ray to the point of intersection or nullopt
+ * if the ray does not intersect the polygon
  */
 template <typename T, typename I, typename G = identity>
-constexpr T intersect_ray_polygon(
+constexpr std::optional<T> intersect_ray_polygon(
   const ray<T, 3>& r, const plane<T, 3>& p, I cur, I end, const G& get = G())
 {
   if (const auto distance = intersect_ray_plane(r, p))
@@ -349,7 +349,7 @@ constexpr T intersect_ray_polygon(
     }
   }
 
-  return nan<T>();
+  return std::nullopt;
 }
 
 /**
@@ -363,14 +363,15 @@ constexpr T intersect_ray_polygon(
  * @param cur the vertex range start iterator
  * @param end the vertex range end iterator
  * @param get the transformation function
- * @return the distance from the origin of the ray to the point of intersection or NaN if
- * the ray does not intersect the polygon
+ * @return the distance from the origin of the ray to the point of intersection or nullopt
+ * if the ray does not intersect the polygon
  */
 template <typename T, typename I, typename G = identity>
-T intersect_ray_polygon(const ray<T, 3>& r, I cur, I end, const G& get = G())
+std::optional<T> intersect_ray_polygon(
+  const ray<T, 3>& r, I cur, I end, const G& get = G())
 {
   const auto [valid, plane] = from_points(cur, end, get);
-  return valid ? intersect_ray_polygon(r, plane, cur, end, get) : nan<T>();
+  return valid ? intersect_ray_polygon(r, plane, cur, end, get) : std::nullopt;
 }
 
 /**

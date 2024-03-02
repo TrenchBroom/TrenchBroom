@@ -197,26 +197,34 @@ TEST_CASE("intersection.intersect_ray_square")
 {
   constexpr auto poly = square() + vec3d(0, 0, 1);
 
-  CER_CHECK(is_nan(intersect_ray_polygon(
-    ray3d(vec3d::zero(), vec3d::neg_z()),
-    plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
-    std::begin(poly),
-    std::end(poly))));
-  CER_CHECK(is_nan(intersect_ray_polygon(
-    ray3d(vec3d(2, 2, 0), vec3d::pos_z()),
-    plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
-    std::begin(poly),
-    std::end(poly))));
-  CER_CHECK(is_nan(intersect_ray_polygon(
-    ray3d(vec3d(-2, 0, 1), vec3d::pos_x()),
-    plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
-    std::begin(poly),
-    std::end(poly))));
-  CER_CHECK(is_nan(intersect_ray_polygon(
-    ray3d(vec3d(-2, 0, 0), vec3d::pos_x()),
-    plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
-    std::begin(poly),
-    std::end(poly))));
+  CER_CHECK(
+    intersect_ray_polygon(
+      ray3d(vec3d::zero(), vec3d::neg_z()),
+      plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
+      std::begin(poly),
+      std::end(poly))
+    == std::nullopt);
+  CER_CHECK(
+    intersect_ray_polygon(
+      ray3d(vec3d(2, 2, 0), vec3d::pos_z()),
+      plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
+      std::begin(poly),
+      std::end(poly))
+    == std::nullopt);
+  CER_CHECK(
+    intersect_ray_polygon(
+      ray3d(vec3d(-2, 0, 1), vec3d::pos_x()),
+      plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
+      std::begin(poly),
+      std::end(poly))
+    == std::nullopt);
+  CER_CHECK(
+    intersect_ray_polygon(
+      ray3d(vec3d(-2, 0, 0), vec3d::pos_x()),
+      plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
+      std::begin(poly),
+      std::end(poly))
+    == std::nullopt);
 
   CER_CHECK(
     intersect_ray_polygon(

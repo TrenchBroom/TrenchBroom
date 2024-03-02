@@ -182,11 +182,12 @@ void FaceHandleManager::pickGridHandle(
       continue;
     }
 
-    const auto distance =
-      vm::intersect_ray_polygon(pickRay, plane, std::begin(position), std::end(position));
-    if (!vm::is_nan(distance))
+    if (
+      const auto distance = vm::intersect_ray_polygon(
+        pickRay, plane, std::begin(position), std::end(position)))
     {
-      const auto pointHandle = grid.snap(vm::point_at_distance(pickRay, distance), plane);
+      const auto pointHandle =
+        grid.snap(vm::point_at_distance(pickRay, *distance), plane);
 
       const auto pointDist = camera.pickPointHandle(
         pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius)));

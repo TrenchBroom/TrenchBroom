@@ -775,12 +775,12 @@ void ScaleObjectsTool::pick3D(
   {
     const auto poly = polygonForBBoxSide(myBounds, side);
 
-    const auto dist =
-      vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
-    if (!vm::is_nan(dist))
+    if (
+      const auto dist =
+        vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly)))
     {
-      localPickResult.addHit(Model::Hit(
-        ScaleToolSideHitType, dist, vm::point_at_distance(pickRay, dist), side));
+      const auto hitPoint = vm::point_at_distance(pickRay, *dist);
+      localPickResult.addHit(Model::Hit(ScaleToolSideHitType, *dist, hitPoint, side));
     }
   }
 

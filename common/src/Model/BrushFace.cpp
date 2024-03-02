@@ -854,11 +854,12 @@ FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const
   else
   {
     return vm::intersect_ray_polygon(
-      ray,
-      m_boundary,
-      m_geometry->boundary().begin(),
-      m_geometry->boundary().end(),
-      BrushGeometry::GetVertexPosition());
+             ray,
+             m_boundary,
+             m_geometry->boundary().begin(),
+             m_geometry->boundary().end(),
+             BrushGeometry::GetVertexPosition())
+      .value_or(vm::nan<FloatType>());
   }
 }
 

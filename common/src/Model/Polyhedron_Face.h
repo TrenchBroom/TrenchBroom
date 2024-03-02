@@ -558,17 +558,17 @@ typename Polyhedron_Face<T, FP, VP>::RayIntersection Polyhedron_Face<T, FP, VP>:
       return e->origin()->position();
     });
 
-  if (vm::is_nan(distance))
+  if (!distance)
   {
     return RayIntersection::None();
   }
   else if (cos < 0.0)
   {
-    return RayIntersection::Front(distance);
+    return RayIntersection::Front(*distance);
   }
   else
   {
-    return RayIntersection::Back(distance);
+    return RayIntersection::Back(*distance);
   }
 }
 } // namespace Model
