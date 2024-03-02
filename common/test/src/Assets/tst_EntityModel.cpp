@@ -72,8 +72,8 @@ TEST_CASE("BSP model intersection test")
         const auto endPoint = vm::vec3f::zero();
         const auto ray = vm::ray3f(startPoint, vm::normalize(endPoint - startPoint));
 
-        const float treeDist = frame->intersect(ray);
-        const float expected = vm::intersect_ray_bbox(ray, box);
+        const auto treeDist = frame->intersect(ray);
+        const auto expected = vm::intersect_ray_bbox(ray, box);
 
         CHECK(expected == Approx(treeDist));
       }
@@ -83,7 +83,7 @@ TEST_CASE("BSP model intersection test")
   // test a missing ray
   const auto missRay = vm::ray3f(vm::vec3f(0, -33, -33), vm::vec3f::pos_y());
   CHECK(vm::is_nan(frame->intersect(missRay)));
-  CHECK(vm::is_nan(vm::intersect_ray_bbox(missRay, box)));
+  CHECK(vm::intersect_ray_bbox(missRay, box) == std::nullopt);
 }
 
 static Texture makeDummyTexture(const std::string& name)

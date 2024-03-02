@@ -382,11 +382,11 @@ std::optional<T> intersect_ray_polygon(
  * @tparam S the number of components
  * @param r the ray
  * @param b the bounding box
- * @return the distance to the closest intersection point, or NaN if the ray does not
+ * @return the distance to the closest intersection point, or nullopt if the ray does not
  * intersect the bounding box
  */
 template <typename T, size_t S>
-constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
+constexpr std::optional<T> intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
 {
   // Compute candidate planes
   T origins[S]{};
@@ -454,7 +454,7 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
   // Check if the final candidate actually hits the box
   if (distances[bestPlane] < T(0))
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   for (size_t i = 0; i < S; ++i)
@@ -464,7 +464,7 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
       const auto coord = r.origin[i] + distances[bestPlane] * r.direction[i];
       if (coord < b.min[i] || coord > b.max[i])
       {
-        return nan<T>();
+        return std::nullopt;
       }
     }
   }

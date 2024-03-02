@@ -302,7 +302,8 @@ TEST_CASE("intersection.intersect_ray_bbox")
 {
   constexpr auto bounds = bbox3f(vec3f(-12.0f, -3.0f, 4.0f), vec3f(8.0f, 9.0f, 8.0f));
 
-  CER_CHECK(is_nan(intersect_ray_bbox(ray3f(vec3f::zero(), vec3f::neg_z()), bounds)));
+  CER_CHECK(
+    intersect_ray_bbox(ray3f(vec3f::zero(), vec3f::neg_z()), bounds) == std::nullopt);
   CER_CHECK(
     intersect_ray_bbox(ray3f(vec3f::zero(), vec3f::pos_z()), bounds) == approx(4.0f));
 

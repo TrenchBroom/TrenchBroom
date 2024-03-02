@@ -176,11 +176,10 @@ void EntityNode::doPick(
     const auto& myBounds = logicalBounds();
     if (!myBounds.contains(ray.origin))
     {
-      const auto distance = vm::intersect_ray_bbox(ray, myBounds);
-      if (!vm::is_nan(distance))
+      if (const auto distance = vm::intersect_ray_bbox(ray, myBounds))
       {
-        const auto hitPoint = vm::point_at_distance(ray, distance);
-        pickResult.addHit(Hit(EntityHitType, distance, hitPoint, this));
+        const auto hitPoint = vm::point_at_distance(ray, *distance);
+        pickResult.addHit(Hit(EntityHitType, *distance, hitPoint, this));
         return;
       }
     }

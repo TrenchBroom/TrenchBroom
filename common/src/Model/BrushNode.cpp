@@ -385,7 +385,7 @@ void BrushNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>&
 std::optional<std::tuple<FloatType, size_t>> BrushNode::findFaceHit(
   const vm::ray3& ray) const
 {
-  if (!vm::is_nan(vm::intersect_ray_bbox(ray, logicalBounds())))
+  if (vm::intersect_ray_bbox(ray, logicalBounds()))
   {
     for (size_t i = 0u; i < m_brush.faceCount(); ++i)
     {
