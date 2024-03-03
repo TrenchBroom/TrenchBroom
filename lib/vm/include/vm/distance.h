@@ -29,6 +29,7 @@
 #include "vm/segment.h"
 #include "vm/vec.h"
 
+#include <cassert>
 #include <cstddef>
 
 namespace vm
@@ -230,6 +231,7 @@ struct line_distance
   constexpr static line_distance Parallel(
     const T i_position1, const T i_distance, const T i_position2)
   {
+    assert(!is_nan(i_position1) && !is_nan(i_distance) && !is_nan(i_position2));
     return {true, i_position1, i_distance, i_position2};
   }
 
@@ -244,6 +246,7 @@ struct line_distance
   constexpr static line_distance NonParallel(
     const T i_position1, const T i_distance, const T i_position2)
   {
+    assert(!is_nan(i_position1) && !is_nan(i_distance) && !is_nan(i_position2));
     return {false, i_position1, i_distance, i_position2};
   }
 

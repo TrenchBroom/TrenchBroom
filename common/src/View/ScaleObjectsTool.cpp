@@ -627,7 +627,7 @@ BackSide pickBackSideOfBox(
       {
         const auto result =
           vm::distance(pickRay, vm::segment3(points[i], points[(i + 1) % 4]));
-        if (!vm::is_nan(result.distance) && result.distance < closestDistToRay)
+        if (result.distance < closestDistToRay)
         {
           closestDistToRay = result.distance;
           bestNormal = n;
