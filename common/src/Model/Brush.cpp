@@ -927,8 +927,7 @@ Brush::CanMoveVerticesResult Brush::doCanMoveVertices(
              == vm::plane_status::above)
       {
         const auto ray = vm::ray3(oldPos, normalize(newPos - oldPos));
-        const auto distance = face->intersectWithRay(ray, vm::side::back);
-        if (!vm::is_nan(distance))
+        if (face->intersectWithRay(ray, vm::side::back))
         {
           return CanMoveVerticesResult::rejectVertexMove();
         }

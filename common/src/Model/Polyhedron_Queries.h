@@ -316,22 +316,24 @@ bool Polyhedron<T, FP, VP>::edgeIntersectsPolyhedron(
 
   for (const auto* rhsFace : rhs.faces())
   {
-    const auto result = rhsFace->intersectWithRay(lhsRay);
-    if (result.front())
+    if (const auto result = rhsFace->intersectWithRay(lhsRay))
     {
-      if (result.distance() <= rayLen)
+      if (result->front())
       {
-        return true;
+        if (result->distance() <= rayLen)
+        {
+          return true;
+        }
+        frontHit = true;
       }
-      frontHit = true;
-    }
-    else if (result.back())
-    {
-      if (result.distance() <= rayLen)
+      else if (result->back())
       {
-        return true;
+        if (result->distance() <= rayLen)
+        {
+          return true;
+        }
+        backHit = true;
       }
-      backHit = true;
     }
   }
 
@@ -345,36 +347,32 @@ bool Polyhedron<T, FP, VP>::edgeIntersectsFace(const Edge* lhsEdge, const Face* 
   const auto& lhsEnd = lhsEdge->secondVertex()->position();
   const auto lhsRay = vm::ray<T, 3>(lhsStart, normalize(lhsEnd - lhsStart));
 
-  const auto dist = rhsFace->intersectWithRay(lhsRay, vm::side::both);
-  if (vm::is_nan(dist))
+  if (const auto dist = rhsFace->intersectWithRay(lhsRay, vm::side::both))
   {
-    const auto& edgeDir = lhsRay.direction;
-    const auto faceNorm = rhsFace->normal();
-    if (vm::is_zero(dot(faceNorm, edgeDir), vm::constants<T>::almost_zero()))
-    {
-      // ray and face are parallel, intersect with edges
-
-      static const auto MaxDistance =
-        vm::constants<T>::almost_zero() * vm::constants<T>::almost_zero();
-
-      for (const auto* rhsEdge : rhsFace->boundary())
-      {
-        const auto& start = rhsEdge->origin()->position();
-        const auto& end = rhsEdge->destination()->position();
-        if (vm::distance(lhsRay, vm::segment<T, 3>(start, end)).distance <= MaxDistance)
-        {
-          return true;
-        }
-      }
-    }
-    else
-    {
-      return false;
-    }
+    const auto rayLen = dot(lhsEnd - lhsStart, lhsRay.direction);
+    return dist <= rayLen;
   }
 
-  const auto rayLen = dot(lhsEnd - lhsStart, lhsRay.direction);
-  return dist <= rayLen;
+  const auto& edgeDir = lhsRay.direction;
+  const auto faceNorm = rhsFace->normal();
+  if (vm::is_zero(dot(faceNorm, edgeDir), vm::constants<T>::almost_zero()))
+  {
+    // ray and face are parallel, intersect with edges
+
+    static const auto MaxDistance =
+      vm::constants<T>::almost_zero() * vm::constants<T>::almost_zero();
+
+    for (const auto* rhsEdge : rhsFace->boundary())
+    {
+      const auto& start = rhsEdge->origin()->position();
+      const auto& end = rhsEdge->destination()->position();
+      if (vm::distance(lhsRay, vm::segment<T, 3>(start, end)).distance <= MaxDistance)
+      {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 template <typename T, typename FP, typename VP>

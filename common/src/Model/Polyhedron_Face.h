@@ -22,6 +22,8 @@
 #include "Macros.h"
 #include "Polyhedron.h"
 
+#include "kdl/optional_utils.h"
+
 #include "vm/constants.h"
 #include "vm/intersection.h"
 #include "vm/plane.h"
@@ -295,25 +297,21 @@ vm::vec<T, 3> Polyhedron_Face<T, FP, VP>::center() const
 }
 
 template <typename T, typename FP, typename VP>
-T Polyhedron_Face<T, FP, VP>::intersectWithRay(
+std::optional<T> Polyhedron_Face<T, FP, VP>::intersectWithRay(
   const vm::ray<T, 3>& ray, const vm::side side) const
 {
-  const RayIntersection result = intersectWithRay(ray);
-  if (result.none())
-  {
-    return result.distance();
-  }
-
-  switch (side)
-  {
-  case vm::side::front:
-    return result.front() ? result.distance() : vm::nan<T>();
-  case vm::side::back:
-    return result.back() ? result.distance() : vm::nan<T>();
-  case vm::side::both:
-    return result.distance();
-    switchDefault();
-  }
+  return kdl::optional_transform(intersectWithRay(ray), [&](const auto result) {
+    switch (side)
+    {
+    case vm::side::front:
+      return result.front() ? std::optional{result.distance()} : std::nullopt;
+    case vm::side::back:
+      return result.back() ? std::optional{result.distance()} : std::nullopt;
+    case vm::side::both:
+      return std::optional{result.distance()};
+      switchDefault();
+    }
+  });
 }
 
 template <typename T, typename FP, typename VP>
@@ -506,7 +504,6 @@ private:
   {
     Front = 1,
     Back = 2,
-    None = 3
   };
 
   Type m_type;
@@ -516,7 +513,7 @@ private:
     : m_type(type)
     , m_distance(distance)
   {
-    assert(!vm::is_nan(m_distance) || m_type == Type::None);
+    assert(!vm::is_nan(m_distance));
   }
 
 public:
@@ -530,27 +527,23 @@ public:
     return RayIntersection(Type::Back, distance);
   }
 
-  static RayIntersection None() { return RayIntersection(Type::None, vm::nan<T>()); }
-
   bool front() const { return m_type == Type::Front; }
 
   bool back() const { return m_type == Type::Back; }
-
-  bool none() const { return m_type == Type::None; }
 
   T distance() const { return m_distance; }
 };
 
 template <typename T, typename FP, typename VP>
-typename Polyhedron_Face<T, FP, VP>::RayIntersection Polyhedron_Face<T, FP, VP>::
-  intersectWithRay(const vm::ray<T, 3>& ray) const
+typename std::optional<typename Polyhedron_Face<T, FP, VP>::RayIntersection>
+Polyhedron_Face<T, FP, VP>::intersectWithRay(const vm::ray<T, 3>& ray) const
 {
   const vm::plane<T, 3> plane(origin(), normal());
   const auto cos = dot(plane.normal, ray.direction);
 
   if (vm::is_zero(cos, vm::constants<T>::almost_zero()))
   {
-    return RayIntersection::None();
+    return std::nullopt;
   }
 
   const auto distance = vm::intersect_ray_polygon(
@@ -558,18 +551,9 @@ typename Polyhedron_Face<T, FP, VP>::RayIntersection Polyhedron_Face<T, FP, VP>:
       return e->origin()->position();
     });
 
-  if (!distance)
-  {
-    return RayIntersection::None();
-  }
-  else if (cos < 0.0)
-  {
-    return RayIntersection::Front(*distance);
-  }
-  else
-  {
-    return RayIntersection::Back(*distance);
-  }
+  return kdl::optional_transform(distance, [&](const auto d) {
+    return cos < 0.0 ? RayIntersection::Front(d) : RayIntersection::Back(d);
+  });
 }
 } // namespace Model
 } // namespace TrenchBroom
