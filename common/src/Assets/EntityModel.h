@@ -25,6 +25,7 @@
 #include "vm/forward.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -146,10 +147,10 @@ public:
    * Intersects this frame with the given ray and returns the point of intersection.
    *
    * @param ray the ray to intersect
-   * @return the distance to the point of intersection or NaN if the given ray does not
-   * intersect this frame
+   * @return the distance to the point of intersection or nullopt if the given ray does
+   * not intersect this frame
    */
-  virtual float intersect(const vm::ray3f& ray) const = 0;
+  virtual std::optional<float> intersect(const vm::ray3f& ray) const = 0;
 };
 
 /**
@@ -193,7 +194,7 @@ public:
   const vm::bbox3f& bounds() const override;
   PitchType pitchType() const override;
   Orientation orientation() const override;
-  float intersect(const vm::ray3f& ray) const override;
+  std::optional<float> intersect(const vm::ray3f& ray) const override;
 
   /**
    * Adds the given primitives to the spacial tree for this frame.
