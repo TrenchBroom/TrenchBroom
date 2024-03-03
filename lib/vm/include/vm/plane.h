@@ -27,7 +27,6 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
-#include <tuple>
 #include <type_traits>
 
 namespace vm
