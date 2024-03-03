@@ -50,6 +50,8 @@ struct CircularShapeParameters
 {
   size_t numSides;
   Model::RadiusMode radiusMode;
+  bool hollow;
+  double thickness;
 };
 
 class DrawShapeToolCircularShapeExtensionPage : public QWidget
