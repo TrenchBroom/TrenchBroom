@@ -212,11 +212,13 @@ auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
 }
 } // namespace
 
-Result<Brush> BrushBuilder::createCylinder(
+Result<std::vector<Brush>> BrushBuilder::createCylinder(
   const vm::bbox3& bounds,
   const size_t numSides,
   const RadiusMode radiusMode,
   const vm::axis::type axis,
+  const bool hollow,
+  const double thickness,
   const std::string& textureName) const
 {
   ensure(numSides > 2, "cylinder has at least three sides");
@@ -226,10 +228,83 @@ Result<Brush> BrushBuilder::createCylinder(
                          * vm::translation_matrix(vm::vec3{0.5, 0.5, 0.5})
                          * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis))
                          * vm::translation_matrix(vm::vec3{-0.5, -0.5, -0.5});
-  const auto vertices = kdl::vec_transform(
-    makeUnitCylinder(numSides, radiusMode), [&](const auto& v) { return transform * v; });
 
-  return createBrush(vertices, textureName);
+  if (hollow)
+  {
+    std::vector<Brush> brushes;
+    vm::vec3 bounds_size = bounds.size();
+    double inner_radius_scale_x = 1.0 - thickness * 2.0 / bounds_size[0];
+    double inner_radius_scale_y = 1.0 - thickness * 2.0 / bounds_size[1];
+    for (size_t side = 0; side < numSides; ++side)
+    {
+      auto vertices = std::vector<vm::vec3>{};
+      switch (radiusMode)
+      {
+      case RadiusMode::ToEdge:
+        for (size_t i = side; i <= side + 1; ++i)
+        {
+          const auto angle =
+            (FloatType(i) + 0.5) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
+          const auto a = vm::C::pi() / FloatType(numSides); // Half angle
+          const auto ca = std::cos(a);
+          const auto x = std::cos(angle) / ca;
+          const auto y = std::sin(angle) / ca;
+          vertices.emplace_back(transform * vm::vec3(x * 0.5 + 0.5, y * 0.5 + 0.5, 0.0));
+          vertices.emplace_back(transform * vm::vec3(x * 0.5 + 0.5, y * 0.5 + 0.5, 1.0));
+          vertices.emplace_back(
+            transform
+            * vm::vec3(
+              x * inner_radius_scale_x * 0.5 + 0.5,
+              y * inner_radius_scale_y * 0.5 + 0.5,
+              0.0));
+          vertices.emplace_back(
+            transform
+            * vm::vec3(
+              x * inner_radius_scale_x * 0.5 + 0.5,
+              y * inner_radius_scale_y * 0.5 + 0.5,
+              1.0));
+        }
+        break;
+      case RadiusMode::ToVertex:
+        for (size_t i = side; i <= side + 1; ++i)
+        {
+          const auto angle =
+            FloatType(i) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
+          const auto x = std::cos(angle);
+          const auto y = std::sin(angle);
+          vertices.emplace_back(transform * vm::vec3(x * 0.5 + 0.5, y * 0.5 + 0.5, 0.0));
+          vertices.emplace_back(transform * vm::vec3(x * 0.5 + 0.5, y * 0.5 + 0.5, 1.0));
+          vertices.emplace_back(
+            transform
+            * vm::vec3(
+              x * inner_radius_scale_x * 0.5 + 0.5,
+              y * inner_radius_scale_y * 0.5 + 0.5,
+              0.0));
+          vertices.emplace_back(
+            transform
+            * vm::vec3(
+              x * inner_radius_scale_x * 0.5 + 0.5,
+              y * inner_radius_scale_y * 0.5 + 0.5,
+              1.0));
+        }
+        break;
+      switchDefault();
+      }
+
+      createBrush(vertices, textureName).transform([&](auto brush) {
+        brushes.push_back(std::move(brush));
+      });
+    }
+    return Result<std::vector<Brush>> {brushes};
+  }
+  else
+  {
+    const auto vertices = kdl::vec_transform(
+      makeUnitCylinder(numSides, radiusMode), [&](const auto& v) { return transform * v; });
+
+    return createBrush(vertices, textureName)
+      .transform([](auto brush) { return std::vector{std::move(brush)}; });
+  }
 }
 
 namespace
