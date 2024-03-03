@@ -24,6 +24,7 @@
 #include "vm/scalar.h"
 
 #include <cassert>
+#include <optional>
 #include <ostream>
 #include <vector>
 
@@ -53,7 +54,17 @@ public:
     return lhs >= (rhs.m_value - rhs.m_epsilon) && lhs <= (rhs.m_value + rhs.m_epsilon);
   }
 
+  friend constexpr bool operator==(const std::optional<T>& lhs, const approx<T>& rhs)
+  {
+    return lhs && *lhs == rhs;
+  }
+
   friend constexpr bool operator==(const approx<T>& lhs, const T rhs)
+  {
+    return rhs == lhs;
+  }
+
+  friend constexpr bool operator==(const approx<T>& lhs, const std::optional<T>& rhs)
   {
     return rhs == lhs;
   }
@@ -63,7 +74,17 @@ public:
     return !(lhs == rhs);
   }
 
+  friend constexpr bool operator!=(const std::optional<T>& lhs, const approx<T>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
   friend constexpr bool operator!=(const approx<T>& lhs, const T rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+  friend constexpr bool operator!=(const approx<T>& lhs, const std::optional<T>& rhs)
   {
     return !(lhs == rhs);
   }
@@ -73,44 +94,183 @@ public:
     return lhs < (rhs.m_value - rhs.m_epsilon);
   }
 
+  friend constexpr bool operator<(const std::optional<T>& lhs, const approx<T>& rhs)
+  {
+    return !lhs || *lhs < rhs;
+  }
+
   friend constexpr bool operator<(const approx<T> lhs, const T rhs)
   {
     return lhs.m_value < (rhs - lhs.m_epsilon);
   }
 
+  friend constexpr bool operator<(const approx<T> lhs, const std::optional<T>& rhs)
+  {
+    return rhs && lhs < *rhs;
+  }
+
   friend constexpr bool operator<=(const T lhs, const approx<T>& rhs)
   {
-    return lhs <= (rhs.m_value + rhs.m_epsilon);
+    return lhs < rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator<=(const std::optional<T>& lhs, const approx<T>& rhs)
+  {
+    return lhs < rhs || lhs == rhs;
   }
 
   friend constexpr bool operator<=(const approx<T> lhs, const T rhs)
   {
-    return lhs.m_value <= (rhs + lhs.m_epsilon);
+    return lhs < rhs || lhs == rhs;
   }
 
-  friend constexpr bool operator>(const T lhs, const approx<T>& rhs)
+  friend constexpr bool operator<=(const approx<T> lhs, const std::optional<T>& rhs)
   {
-    return lhs > (rhs.m_value + rhs.m_epsilon);
+    return lhs < rhs || lhs == rhs;
   }
 
-  friend constexpr bool operator>(const approx<T> lhs, const T rhs)
+  friend constexpr bool operator>(const T lhs, const approx<T>& rhs) { return rhs < lhs; }
+
+  friend constexpr bool operator>(const std::optional<T>& lhs, const approx<T>& rhs)
   {
-    return lhs.m_value > (rhs + lhs.m_epsilon);
+    return rhs < lhs;
+  }
+
+  friend constexpr bool operator>(const approx<T> lhs, const T rhs) { return rhs < lhs; }
+
+  friend constexpr bool operator>(const approx<T> lhs, const std::optional<T>& rhs)
+  {
+    return rhs < lhs;
   }
 
   friend constexpr bool operator>=(const T lhs, const approx<T>& rhs)
   {
-    return lhs >= (rhs.m_value - rhs.m_epsilon);
+    return lhs > rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator>=(const std::optional<T>& lhs, const approx<T>& rhs)
+  {
+    return lhs > rhs || lhs == rhs;
   }
 
   friend constexpr bool operator>=(const approx<T> lhs, const T rhs)
   {
-    return lhs.m_value >= (rhs - lhs.m_epsilon);
+    return lhs > rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator>=(const approx<T> lhs, const std::optional<T>& rhs)
+  {
+    return lhs > rhs || lhs == rhs;
   }
 
   friend std::ostream& operator<<(std::ostream& str, const approx<T>& a)
   {
     str << a.m_value;
+    return str;
+  }
+};
+
+template <typename T>
+class optional_approx
+{
+private:
+  const std::optional<T> m_value;
+  const T m_epsilon;
+
+public:
+  constexpr explicit optional_approx(std::optional<T> value, const T epsilon)
+    : m_value{std::move(value)}
+    , m_epsilon{epsilon}
+  {
+    assert(epsilon >= T(0));
+  }
+  constexpr explicit optional_approx(std::optional<T> value)
+    : optional_approx<T>{std::move(value), vm::constants<T>::almost_zero()}
+  {
+  }
+
+  friend constexpr bool operator==(
+    const std::optional<T>& lhs, const optional_approx<T>& rhs)
+  {
+    return (!lhs && !rhs.m_value) || (lhs && rhs.m_value && *lhs >= (*rhs.m_value - rhs.m_epsilon) && *lhs <= (*rhs.m_value + rhs.m_epsilon));
+  }
+
+  friend constexpr bool operator==(
+    const optional_approx<T>& lhs, const std::optional<T>& rhs)
+  {
+    return rhs == lhs;
+  }
+
+  friend constexpr bool operator!=(
+    const std::optional<T>& lhs, const optional_approx<T>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+  friend constexpr bool operator!=(
+    const optional_approx<T>& lhs, const std::optional<T>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+  friend constexpr bool operator<(
+    const std::optional<T>& lhs, const optional_approx<T>& rhs)
+  {
+    return !lhs || (rhs.m_value && *lhs < (*rhs.m_value - rhs.m_epsilon));
+  }
+
+  friend constexpr bool operator<(
+    const optional_approx<T> lhs, const std::optional<T>& rhs)
+  {
+    return !lhs.m_value || (rhs && *lhs.m_value < (*rhs - lhs.m_epsilon));
+  }
+
+  friend constexpr bool operator<=(
+    const std::optional<T>& lhs, const optional_approx<T>& rhs)
+  {
+    return lhs < rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator<=(
+    const optional_approx<T> lhs, const std::optional<T>& rhs)
+  {
+    return lhs < rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator>(
+    const std::optional<T>& lhs, const optional_approx<T>& rhs)
+  {
+    return rhs < lhs;
+  }
+
+  friend constexpr bool operator>(
+    const optional_approx<T> lhs, const std::optional<T>& rhs)
+  {
+    return rhs < lhs;
+  }
+
+  friend constexpr bool operator>=(
+    const std::optional<T>& lhs, const optional_approx<T>& rhs)
+  {
+    return lhs > rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator>=(
+    const optional_approx<T> lhs, const std::optional<T>& rhs)
+  {
+    return lhs > rhs || lhs == rhs;
+  }
+
+  friend std::ostream& operator<<(std::ostream& str, const optional_approx<T>& a)
+  {
+    if (a.m_value)
+    {
+      str << *a.m_value;
+    }
+    else
+    {
+      str << "nullopt";
+    }
     return str;
   }
 };
@@ -176,7 +336,19 @@ public:
     return is_equal(lhs, rhs.m_value, rhs.m_epsilon);
   }
 
+  friend constexpr bool operator==(
+    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
+  {
+    return lhs && is_equal(*lhs, rhs.m_value, rhs.m_epsilon);
+  }
+
   friend constexpr bool operator==(const approx<vec<T, S>>& lhs, const vec<T, S>& rhs)
+  {
+    return rhs == lhs;
+  }
+
+  friend constexpr bool operator==(
+    const approx<vec<T, S>>& lhs, const std::optional<vec<T, S>>& rhs)
   {
     return rhs == lhs;
   }
@@ -186,7 +358,19 @@ public:
     return !(lhs == rhs);
   }
 
+  friend constexpr bool operator!=(
+    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
   friend constexpr bool operator!=(const approx<vec<T, S>>& lhs, const vec<T, S>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+  friend constexpr bool operator!=(
+    const approx<vec<T, S>>& lhs, const std::optional<vec<T, S>>& rhs)
   {
     return !(lhs == rhs);
   }
@@ -196,39 +380,87 @@ public:
     return lhs < (rhs.m_value - vec<T, S>::fill(rhs.m_epsilon));
   }
 
+  friend constexpr bool operator<(
+    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
+  {
+    return !lhs || lhs < (rhs.m_value - vec<T, S>::fill(rhs.m_epsilon));
+  }
+
   friend constexpr bool operator<(const approx<vec<T, S>> lhs, const vec<T, S>& rhs)
   {
     return lhs.m_value < (rhs - vec<T, S>::fill(lhs.m_epsilon));
   }
 
+  friend constexpr bool operator<(
+    const approx<vec<T, S>> lhs, const std::optional<vec<T, S>>& rhs)
+  {
+    return rhs && lhs.m_value < (rhs - vec<T, S>::fill(lhs.m_epsilon));
+  }
+
   friend constexpr bool operator<=(const vec<T, S>& lhs, const approx<vec<T, S>>& rhs)
   {
-    return lhs <= (rhs.m_value + vec<T, S>::fill(rhs.m_epsilon));
+    return lhs < rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator<=(
+    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
+  {
+    return lhs < rhs || lhs == rhs;
   }
 
   friend constexpr bool operator<=(const approx<vec<T, S>> lhs, const vec<T, S>& rhs)
   {
-    return lhs.m_value <= (rhs + vec<T, S>::fill(lhs.m_epsilon));
+    return lhs < rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator<=(
+    const approx<vec<T, S>> lhs, const std::optional<vec<T, S>>& rhs)
+  {
+    return lhs < rhs || lhs == rhs;
   }
 
   friend constexpr bool operator>(const vec<T, S>& lhs, const approx<vec<T, S>>& rhs)
   {
-    return lhs > (rhs.m_value + vec<T, S>::fill(rhs.m_epsilon));
+    return rhs < lhs;
+  }
+
+  friend constexpr bool operator>(
+    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
+  {
+    return rhs < lhs;
   }
 
   friend constexpr bool operator>(const approx<vec<T, S>> lhs, const vec<T, S>& rhs)
   {
-    return lhs.m_value > (rhs + vec<T, S>::fill(lhs.m_epsilon));
+    return rhs < lhs;
+  }
+
+  friend constexpr bool operator>(
+    const approx<vec<T, S>> lhs, const std::optional<vec<T, S>>& rhs)
+  {
+    return rhs < lhs;
   }
 
   friend constexpr bool operator>=(const vec<T, S>& lhs, const approx<vec<T, S>>& rhs)
   {
-    return lhs >= (rhs.m_value - rhs.m_epsilon);
+    return lhs > rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator>=(
+    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
+  {
+    return lhs > rhs || lhs == rhs;
   }
 
   friend constexpr bool operator>=(const approx<vec<T, S>> lhs, const vec<T, S>& rhs)
   {
-    return lhs.m_value >= (rhs - lhs.m_epsilon);
+    return lhs > rhs || lhs == rhs;
+  }
+
+  friend constexpr bool operator>=(
+    const approx<vec<T, S>> lhs, const std::optional<vec<T, S>>& rhs)
+  {
+    return lhs > rhs || lhs == rhs;
   }
 
   friend std::ostream& operator<<(std::ostream& str, const approx<vec<T, S>>& a)
@@ -264,7 +496,19 @@ public:
   }
 
   friend constexpr bool operator==(
+    const std::optional<mat<T, R, C>>& lhs, const approx<mat<T, R, C>>& rhs)
+  {
+    return lhs && is_equal(*lhs, rhs.m_value, rhs.m_epsilon);
+  }
+
+  friend constexpr bool operator==(
     const approx<mat<T, R, C>>& lhs, const mat<T, R, C>& rhs)
+  {
+    return rhs == lhs;
+  }
+
+  friend constexpr bool operator==(
+    const approx<mat<T, R, C>>& lhs, const std::optional<mat<T, R, C>>& rhs)
   {
     return rhs == lhs;
   }
@@ -276,7 +520,19 @@ public:
   }
 
   friend constexpr bool operator!=(
+    const std::optional<mat<T, R, C>>& lhs, const approx<mat<T, R, C>>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+  friend constexpr bool operator!=(
     const approx<mat<T, R, C>>& lhs, const mat<T, R, C>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+  friend constexpr bool operator!=(
+    const approx<mat<T, R, C>>& lhs, const std::optional<mat<T, R, C>>& rhs)
   {
     return !(lhs == rhs);
   }
