@@ -831,25 +831,18 @@ vm::vec2f BrushFace::textureCoords(const vm::vec3& point) const
   return m_texCoordSystem->getTexCoords(point, m_attributes, textureSize());
 }
 
-FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const
+std::optional<FloatType> BrushFace::intersectWithRay(const vm::ray3& ray) const
 {
   ensure(m_geometry != nullptr, "geometry is null");
 
-  const FloatType cos = dot(m_boundary.normal, ray.direction);
-  if (cos >= FloatType(0.0))
-  {
-    return vm::nan<FloatType>();
-  }
-  else
-  {
-    return vm::intersect_ray_polygon(
-             ray,
-             m_boundary,
-             m_geometry->boundary().begin(),
-             m_geometry->boundary().end(),
-             BrushGeometry::GetVertexPosition())
-      .value_or(vm::nan<FloatType>());
-  }
+  const auto cos = vm::dot(m_boundary.normal, ray.direction);
+  return cos < FloatType(0) ? vm::intersect_ray_polygon(
+           ray,
+           m_boundary,
+           m_geometry->boundary().begin(),
+           m_geometry->boundary().end(),
+           BrushGeometry::GetVertexPosition())
+                            : std::nullopt;
 }
 
 Result<void> BrushFace::setPoints(

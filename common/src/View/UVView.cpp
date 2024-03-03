@@ -416,12 +416,11 @@ Model::PickResult UVView::doPick(const vm::ray3& pickRay) const
   if (!m_helper.valid())
     return pickResult;
 
-  const FloatType distance = m_helper.face()->intersectWithRay(pickRay);
-  if (!vm::is_nan(distance))
+  if (const auto distance = m_helper.face()->intersectWithRay(pickRay))
   {
-    const vm::vec3 hitPoint = vm::point_at_distance(pickRay, distance);
+    const vm::vec3 hitPoint = vm::point_at_distance(pickRay, *distance);
     pickResult.addHit(
-      Model::Hit(UVView::FaceHitType, distance, hitPoint, m_helper.face()));
+      Model::Hit(UVView::FaceHitType, *distance, hitPoint, m_helper.face()));
   }
   return pickResult;
 }

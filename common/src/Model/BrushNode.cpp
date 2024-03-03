@@ -187,10 +187,10 @@ static bool faceIntersectsEdge(
   const BrushFace& face, const vm::vec3& p0, const vm::vec3& p1)
 {
   const auto ray = vm::ray3{p0, p1 - p0}; // not normalized
-  if (const auto dist = face.intersectWithRay(ray); !vm::is_nan(dist))
+  if (const auto dist = face.intersectWithRay(ray))
   {
     // dist is scaled by inverse of vm::length(p1 - p0)
-    return dist >= 0.0 && dist <= 1.0;
+    return *dist >= 0.0 && *dist <= 1.0;
   }
   return false;
 }
@@ -390,10 +390,9 @@ std::optional<std::tuple<FloatType, size_t>> BrushNode::findFaceHit(
     for (size_t i = 0u; i < m_brush.faceCount(); ++i)
     {
       const auto& face = m_brush.face(i);
-      const auto distance = face.intersectWithRay(ray);
-      if (!vm::is_nan(distance))
+      if (const auto distance = face.intersectWithRay(ray))
       {
-        return std::make_tuple(distance, i);
+        return std::tuple{*distance, i};
       }
     }
   }
