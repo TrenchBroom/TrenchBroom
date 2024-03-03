@@ -87,11 +87,13 @@ public:
     const std::string& topTexture,
     const std::string& bottomTexture) const;
 
-  Result<Brush> createCylinder(
+  Result<std::vector<Brush>> createCylinder(
     const vm::bbox3& bounds,
     size_t numSides,
     RadiusMode radiusMode,
     vm::axis::type axis,
+    bool hollow,
+    double thickness,
     const std::string& textureName) const;
 
   Result<Brush> createCone(

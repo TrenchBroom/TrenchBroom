@@ -84,6 +84,17 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
   radiusModeButtonGroup->addButton(radiusModeEdgeButton);
   radiusModeButtonGroup->addButton(radiusModeVertexButton);
 
+  auto* hollowCheckbox = new QCheckBox(tr("Hollow"));
+  hollowCheckbox->setChecked(m_parameters.hollow);
+  auto* thicknessLabel = new QLabel{tr("Thickness: ")};
+  auto* thicknessSpinBox = new QDoubleSpinBox(this);
+  thicknessSpinBox->setDecimals(2);
+  thicknessSpinBox->setSingleStep(1.0);
+  thicknessSpinBox->setMinimum(0.01);
+  thicknessSpinBox->setValue(m_parameters.thickness);
+  thicknessLabel->setVisible(m_parameters.hollow);
+  thicknessSpinBox->setVisible(m_parameters.hollow);
+
   connect(
     numSidesBox,
     QOverload<int>::of(&QSpinBox::valueChanged),
@@ -95,6 +106,16 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
   connect(radiusModeVertexButton, &QToolButton::clicked, this, [=]() {
     m_parameters.radiusMode = Model::RadiusMode::ToVertex;
   });
+  connect(hollowCheckbox, &QCheckBox::stateChanged, [=](int state) {
+    bool hollow = (state == Qt::Checked);
+    m_parameters.hollow = hollow;
+    thicknessLabel->setVisible(hollow);
+    thicknessSpinBox->setVisible(hollow);
+  });
+  connect(
+    thicknessSpinBox,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    [=](double value) { m_parameters.thickness = value; });
 
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(QMargins{});
@@ -104,13 +125,16 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
   layout->addWidget(numSidesBox, 0, Qt::AlignVCenter);
   layout->addWidget(radiusModeEdgeButton, 0, Qt::AlignVCenter);
   layout->addWidget(radiusModeVertexButton, 0, Qt::AlignVCenter);
+  layout->addWidget(hollowCheckbox, 0, Qt::AlignVCenter);
+  layout->addWidget(thicknessLabel, 0, Qt::AlignVCenter);
+  layout->addWidget(thicknessSpinBox, 0, Qt::AlignVCenter);
   layout->addStretch(1);
 
   setLayout(layout);
 }
 
 DrawShapeToolCylinderExtension::DrawShapeToolCylinderExtension()
-  : m_parameters{8, Model::RadiusMode::ToEdge}
+  : m_parameters{8, Model::RadiusMode::ToEdge, false, 16.0}
 {
 }
 
@@ -137,12 +161,13 @@ Result<std::vector<Model::Brush>> DrawShapeToolCylinderExtension::createBrushes(
       m_parameters.numSides,
       m_parameters.radiusMode,
       axis,
-      document.currentTextureName())
-    .transform([](auto brush) { return std::vector{std::move(brush)}; });
+      m_parameters.hollow,
+      m_parameters.thickness,
+      document.currentTextureName());
 }
 
 DrawShapeToolConeExtension::DrawShapeToolConeExtension()
-  : m_parameters{8, Model::RadiusMode::ToEdge}
+  : m_parameters{8, Model::RadiusMode::ToEdge, false, 16.0}
 {
 }
 
