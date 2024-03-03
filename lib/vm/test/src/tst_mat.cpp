@@ -543,17 +543,6 @@ TEST_CASE("mat.compute_adjugate")
   CER_CHECK(compute_adjugate(m3) == approx(r3));
 }
 
-#define CER_CHECK_INVERTIBLE(exp, mat)                                                   \
-  {                                                                                      \
-    constexpr auto _i_r = invert((mat));                                                 \
-    CER_CHECK(std::get<0>(_i_r)) CER_CHECK(std::get<1>(_i_r) == approx(exp));            \
-  }
-#define CER_CHECK_NOT_INVERTIBLE(mat)                                                    \
-  {                                                                                      \
-    constexpr auto _i_r = invert((mat));                                                 \
-    CER_CHECK_FALSE(std::get<0>(_i_r))                                                   \
-  }
-
 TEST_CASE("mat.invert")
 {
   constexpr auto m1 = mat4x4d(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
@@ -578,11 +567,11 @@ TEST_CASE("mat.invert")
     0.062895089713301,
     0.10101526083903);
 
-  CER_CHECK_INVERTIBLE(mat4x4d::identity(), mat4x4d::identity())
-  CER_CHECK_INVERTIBLE(r2, m2)
-  CER_CHECK_INVERTIBLE(m4, m3)
-  CER_CHECK_NOT_INVERTIBLE(mat4x4d::zero())
-  CER_CHECK_NOT_INVERTIBLE(m1)
+  CER_CHECK(invert(mat4x4d::identity()) == mat4x4d::identity());
+  CER_CHECK(invert(m2) == vm::approx(r2));
+  CER_CHECK(invert(m3) == vm::approx(m4));
+  CER_CHECK(invert(mat4x4d::zero()) == std::nullopt);
+  CER_CHECK(invert(m1) == std::nullopt);
 }
 
 TEST_CASE("mat.lup_solve")
@@ -608,12 +597,9 @@ TEST_CASE("mat.lup_solve")
   constexpr auto b = A * x;
 
   // solve for x
-  constexpr auto result = lup_solve(A, b);
-  constexpr auto success = std::get<0>(result);
-  constexpr auto x2 = std::get<1>(result);
+  constexpr auto x2 = lup_solve(A, b);
 
-  CER_CHECK(success)
   CER_CHECK(x2 == approx(x));
-  CER_CHECK(A * x2 == approx(b));
+  CER_CHECK(A * *x2 == approx(b));
 }
 } // namespace vm

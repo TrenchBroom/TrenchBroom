@@ -253,10 +253,8 @@ void ParallelTexCoordSystem::doTransform(
   //     uv = ? * transform * point
   //
   // The solution for ? is (worldToTexSpace * transform_inverse)
-  const auto [invertible, inverseTransform] = invert(effectiveTransformation);
-  assert(invertible);
-  unused(invertible);
-  const auto newWorldToTexSpace = worldToTexSpace * inverseTransform;
+  const auto inverseTransform = invert(effectiveTransformation);
+  const auto newWorldToTexSpace = worldToTexSpace * *inverseTransform;
 
   // extract the new m_xAxis and m_yAxis from newWorldToTexSpace.
   // note, the matrix is in column major format.
@@ -394,11 +392,9 @@ void ParallelTexCoordSystem::doShearTexture(
 
   const auto toMatrix =
     vm::coordinate_system_matrix(m_xAxis, m_yAxis, getZAxis(), vm::vec3::zero());
-  const auto [invertible, fromMatrix] = vm::invert(toMatrix);
-  assert(invertible);
-  unused(invertible);
+  const auto fromMatrix = vm::invert(toMatrix);
 
-  const auto transform = fromMatrix * shear * toMatrix;
+  const auto transform = *fromMatrix * shear * toMatrix;
   m_xAxis = transform * m_xAxis;
   m_yAxis = transform * m_yAxis;
 }

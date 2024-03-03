@@ -200,15 +200,13 @@ std::optional<Model::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
     oldTargetContainingGroupNode->linkId() == newTargetContainingGroupNode->linkId(),
     "containing groups are linked");
 
-  const auto [invertible, oldTargetTransformation] =
+  const auto oldTargetTransformation =
     vm::invert(oldTargetContainingGroupNode->group().transformation());
-  assert(invertible);
-  unused(invertible);
 
   const auto newTargetTransformation =
     newTargetContainingGroupNode->group().transformation();
   const auto oldToNewTargetTransformation =
-    newTargetTransformation * oldTargetTransformation;
+    newTargetTransformation * *oldTargetTransformation;
 
   // Find the face in the source group that corresponds to the target face by
   // untransforming the normal and searching the linked brush node

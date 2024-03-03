@@ -523,10 +523,7 @@ void Camera::validateMatrices() const
   doValidateMatrices(m_projectionMatrix, m_viewMatrix);
   m_matrix = m_projectionMatrix * m_viewMatrix;
 
-  const auto [invertible, inverse] = vm::invert(m_matrix);
-  assert(invertible);
-  unused(invertible);
-  m_inverseMatrix = inverse;
+  m_inverseMatrix = *vm::invert(m_matrix);
   m_valid = true;
 }
 

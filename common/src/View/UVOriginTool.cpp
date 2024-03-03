@@ -232,17 +232,15 @@ private:
 
     const auto& boundary = m_helper.face()->boundary();
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
-    const auto [invertible, fromPlane] = vm::invert(toPlane);
+    const auto fromPlane = vm::invert(toPlane);
     const auto originPosition(
       toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()});
-    assert(invertible);
-    unused(invertible);
 
     const auto& handleColor = pref(Preferences::HandleColor);
     const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
     const auto toWorldTransform = Renderer::MultiplyModelMatrix{
-      renderContext.transformation(), vm::mat4x4f{fromPlane}};
+      renderContext.transformation(), vm::mat4x4f{*fromPlane}};
     const auto translation = vm::translation_matrix(vm::vec3{originPosition});
     const auto centerTransform = Renderer::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{translation}};

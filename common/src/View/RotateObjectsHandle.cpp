@@ -108,16 +108,10 @@ Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(
 {
   const auto transform = handleTransform(camera, area);
 
-  const auto [invertible, inverse] = vm::invert(transform);
-  if (!invertible)
+  if (const auto inverse = vm::invert(transform))
   {
-    return Model::Hit::NoHit;
-  }
-
-  if (invertible)
-  {
-    const auto transformedRay = pickRay.transform(inverse);
-    const auto transformedPosition = inverse * m_position;
+    const auto transformedRay = pickRay.transform(*inverse);
+    const auto transformedPosition = *inverse * m_position;
     if (
       const auto transformedDistance = vm::intersect_ray_torus(
         transformedRay, transformedPosition, majorRadius(), minorRadius()))

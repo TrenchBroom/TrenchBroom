@@ -189,10 +189,9 @@ void EntityNode::doPick(
     {
       // we transform the ray into the model's space
       const auto transform = m_entity.modelTransformation();
-      const auto [invertible, inverse] = vm::invert(transform);
-      if (invertible)
+      if (const auto inverse = vm::invert(transform))
       {
-        const auto transformedRay = vm::ray3f{ray.transform(inverse)};
+        const auto transformedRay = vm::ray3f{ray.transform(*inverse)};
         const auto distance = m_entity.model()->intersect(transformedRay);
         if (!vm::is_nan(distance))
         {

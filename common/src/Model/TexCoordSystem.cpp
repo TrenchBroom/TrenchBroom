@@ -161,12 +161,10 @@ void TexCoordSystem::moveTexture(
   BrushFaceAttributes& attribs) const
 {
   const auto toPlane = vm::plane_projection_matrix(0.0, normal);
-  const auto [invertible, fromPlane] = invert(toPlane);
-  const auto transform = fromPlane * vm::mat4x4::zero_out<2>() * toPlane;
+  const auto fromPlane = invert(toPlane);
+  const auto transform = *fromPlane * vm::mat4x4::zero_out<2>() * toPlane;
   const auto texX = normalize(transform * getXAxis());
   const auto texY = normalize(transform * getYAxis());
-  assert(invertible);
-  unused(invertible);
 
   vm::vec3 vAxis, hAxis;
   size_t xIndex = 0;
@@ -308,10 +306,7 @@ vm::mat4x4 TexCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) cons
 vm::mat4x4 TexCoordSystem::fromMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale) const
 {
-  const auto [invertible, result] = invert(toMatrix(offset, scale));
-  assert(invertible);
-  unused(invertible);
-  return result;
+  return *invert(toMatrix(offset, scale));
 }
 
 float TexCoordSystem::measureAngle(

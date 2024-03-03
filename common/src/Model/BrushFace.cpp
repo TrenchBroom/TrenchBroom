@@ -335,9 +335,7 @@ vm::vec3 BrushFace::boundsCenter() const
 
   const auto toPlane =
     vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal);
-  const auto [invertible, fromPlane] = vm::invert(toPlane);
-  assert(invertible);
-  unused(invertible);
+  const auto fromPlane = vm::invert(toPlane);
 
   const auto* first = m_geometry->boundary().front();
   const auto* current = first;
@@ -351,7 +349,7 @@ vm::vec3 BrushFace::boundsCenter() const
     bounds = merge(bounds, toPlane * current->origin()->position());
     current = current->next();
   }
-  return fromPlane * bounds.center();
+  return *fromPlane * bounds.center();
 }
 
 FloatType BrushFace::projectedArea(const vm::axis::type axis) const
@@ -718,10 +716,8 @@ vm::mat4x4 BrushFace::projectToBoundaryMatrix() const
     m_texCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one()) * vm::vec3::pos_z();
   const auto worldToPlaneMatrix =
     vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal, texZAxis);
-  const auto [invertible, planeToWorldMatrix] = vm::invert(worldToPlaneMatrix);
-  assert(invertible);
-  unused(invertible);
-  return planeToWorldMatrix * vm::mat4x4::zero_out<2>() * worldToPlaneMatrix;
+  const auto planeToWorldMatrix = vm::invert(worldToPlaneMatrix);
+  return *planeToWorldMatrix * vm::mat4x4::zero_out<2>() * worldToPlaneMatrix;
 }
 
 vm::mat4x4 BrushFace::toTexCoordSystemMatrix(

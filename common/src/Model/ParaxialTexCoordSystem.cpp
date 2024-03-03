@@ -604,15 +604,15 @@ static std::optional<ParaxialAttribsNoOffset> extractParaxialAttribs(
   // M = scaleM * rotateM * axisFlipsM;
 
   // strip off the magnitude component of the scale, and `axisFlipsM`.
-  auto [applyAbsScaleMInvOk, applyAbsScaleMInv] = vm::invert(applyAbsScaleM);
-  auto [axisFlipsMInvOk, axisFlipsMInv] = vm::invert(axisFlipsM);
+  auto applyAbsScaleMInv = vm::invert(applyAbsScaleM);
+  auto axisFlipsMInv = vm::invert(axisFlipsM);
 
-  if (!applyAbsScaleMInvOk || !axisFlipsMInvOk)
+  if (!applyAbsScaleMInv || !axisFlipsMInv)
   {
     return std::nullopt;
   }
 
-  const vm::mat2x2f flipRotate = applyAbsScaleMInv * M * axisFlipsMInv;
+  const vm::mat2x2f flipRotate = *applyAbsScaleMInv * M * *axisFlipsMInv;
 
   // We don't know the signs on the scales, which will mess up figuring out the rotation,
   // so try all 4 combinations
@@ -626,12 +626,12 @@ static std::optional<ParaxialAttribsNoOffset> extractParaxialAttribs(
 
       const vm::mat2x2f applyGuessedFlipM{xScaleSign, 0, 0, yScaleSign};
 
-      auto [invOk, inv] = vm::invert(applyGuessedFlipM);
-      if (!invOk)
+      auto inv = vm::invert(applyGuessedFlipM);
+      if (!inv)
       {
         continue;
       }
-      const vm::mat2x2f rotateMGuess = inv * flipRotate;
+      const vm::mat2x2f rotateMGuess = *inv * flipRotate;
       const float angleGuess = mat2x2_extract_rotation_degrees(rotateMGuess);
 
       const vm::mat2x2f applyAngleGuessM = mat2x2_rotation_degrees(angleGuess);
@@ -730,12 +730,12 @@ static std::optional<ParaxialAttribs> texCoordMatrixToParaxial(
     p0p2[0],
     p0p2[1]};
 
-  const auto [mInvOk, Minv] = vm::invert(M);
-  if (!mInvOk)
+  const auto Minv = vm::invert(M);
+  if (!Minv)
   {
     return std::nullopt;
   }
-  const vm::vec4f abcd = Minv * vm::vec4f(p0p1UV[0], p0p1UV[1], p0p2UV[0], p0p2UV[1]);
+  const vm::vec4f abcd = *Minv * vm::vec4f(p0p1UV[0], p0p1UV[1], p0p2UV[0], p0p2UV[1]);
 
   const vm::mat2x2f texPlaneToUV{abcd[0], abcd[1], abcd[2], abcd[3]};
 

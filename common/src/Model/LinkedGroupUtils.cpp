@@ -464,20 +464,18 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const vm::bbox3& worldBounds)
 {
   const auto& sourceGroup = sourceGroupNode.group();
-  const auto [success, invertedSourceTransformation] =
-    vm::invert(sourceGroup.transformation());
-  if (!success)
+  const auto invertedSourceTransformation = vm::invert(sourceGroup.transformation());
+  if (!invertedSourceTransformation)
   {
     return Error{"Group transformation is not invertible"};
   }
 
-  const auto _invertedSourceTransformation = invertedSourceTransformation;
   const auto targetGroupNodesToUpdate =
     kdl::vec_erase(targetGroupNodes, &sourceGroupNode);
   return kdl::fold_results(
     kdl::vec_transform(targetGroupNodesToUpdate, [&](auto* targetGroupNode) {
       const auto transformation =
-        targetGroupNode->group().transformation() * _invertedSourceTransformation;
+        targetGroupNode->group().transformation() * *invertedSourceTransformation;
       return cloneAndTransformChildren(sourceGroupNode, worldBounds, transformation)
         .transform([&](auto newChildren) {
           const auto linkIdToNodeMap = makeLinkIdToNodeMap(targetGroupNode->children());

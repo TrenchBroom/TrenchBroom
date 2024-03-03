@@ -86,16 +86,14 @@ void Lasso::render(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const
 {
   const auto transform = getTransform();
-  const auto [invertible, inverseTransform] = vm::invert(transform);
-  assert(invertible);
-  unused(invertible);
+  const auto inverseTransform = vm::invert(transform);
 
   const auto box = getBox(transform);
   const auto polygon = std::vector<vm::vec3f>{
-    vm::vec3f{inverseTransform * vm::vec3{box.min.x(), box.min.y(), 0.0}},
-    vm::vec3f{inverseTransform * vm::vec3{box.min.x(), box.max.y(), 0.0}},
-    vm::vec3f{inverseTransform * vm::vec3{box.max.x(), box.max.y(), 0.0}},
-    vm::vec3f{inverseTransform * vm::vec3{box.max.x(), box.min.y(), 0.0}},
+    vm::vec3f{*inverseTransform * vm::vec3{box.min.x(), box.min.y(), 0.0}},
+    vm::vec3f{*inverseTransform * vm::vec3{box.min.x(), box.max.y(), 0.0}},
+    vm::vec3f{*inverseTransform * vm::vec3{box.max.x(), box.max.y(), 0.0}},
+    vm::vec3f{*inverseTransform * vm::vec3{box.max.x(), box.min.y(), 0.0}},
   };
 
   auto renderService = Renderer::RenderService{renderContext, renderBatch};
