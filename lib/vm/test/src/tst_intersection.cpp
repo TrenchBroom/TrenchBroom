@@ -438,8 +438,7 @@ TEST_CASE("intersection.polygon_clip_by_plane")
   constexpr auto plane5 = plane3d{{0, -1, 0}, -vec3d::pos_z()};
 
   constexpr auto plane3 = plane3d{{0, 0, 0}, vec3d::pos_x()};
-  const auto [_, plane4] =
-    vm::from_points(vec3d{-1, -1, 0}, vec3d{1, 1, 0}, vec3d{0, 0, 1});
+  const auto plane4 = *vm::from_points(vec3d{-1, -1, 0}, vec3d{1, 1, 0}, vec3d{0, 0, 1});
 
   SECTION("no clipping")
   {

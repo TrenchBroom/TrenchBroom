@@ -294,16 +294,15 @@ TEST_CASE("GridTest.moveDeltaForBounds")
 
   SECTION("drop onto a slope")
   {
-    const auto [ok, slope] =
+    const auto slope =
       vm::from_points(vm::vec3::zero(), vm::vec3(0, 100, 5), vm::vec3(100, 0, 0));
-    REQUIRE(ok);
-    CHECK(slope.normal.z() > 0.0);
+    CHECK(slope->normal.z() > 0.0);
 
     const auto pickRay = make_ray_from_to(vm::vec3(0, 0, 200), vm::vec3(17, 17, 0));
 
     // Float above the sloped plane
     CHECK(
-      grid16.moveDeltaForBounds(slope, box, worldBounds, pickRay)
+      grid16.moveDeltaForBounds(*slope, box, worldBounds, pickRay)
       == vm::approx(vm::vec3(16, 16, 16)));
   }
 }

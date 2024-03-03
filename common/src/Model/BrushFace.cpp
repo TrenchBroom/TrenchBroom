@@ -212,15 +212,11 @@ Result<BrushFace> BrushFace::create(
   std::unique_ptr<TexCoordSystem> texCoordSystem)
 {
   Points points = {{vm::correct(point0), vm::correct(point1), vm::correct(point2)}};
-  const auto [result, plane] = vm::from_points(points[0], points[1], points[2]);
-  if (result)
+  if (const auto plane = vm::from_points(points[0], points[1], points[2]))
   {
-    return BrushFace(points, plane, attributes, std::move(texCoordSystem));
+    return BrushFace{points, *plane, attributes, std::move(texCoordSystem)};
   }
-  else
-  {
-    return Error{"Brush has invalid face"};
-  }
+  return Error{"Brush has invalid face"};
 }
 
 BrushFace::BrushFace(
@@ -868,16 +864,12 @@ Result<void> BrushFace::setPoints(
   m_points[2] = point2;
   correctPoints();
 
-  const auto [result, plane] = vm::from_points(m_points[0], m_points[1], m_points[2]);
-  if (result)
+  if (const auto plane = vm::from_points(m_points[0], m_points[1], m_points[2]))
   {
-    m_boundary = plane;
+    m_boundary = *plane;
     return kdl::void_success;
   }
-  else
-  {
-    return Error{"Brush has invalid face"};
-  }
+  return Error{"Brush has invalid face"};
 }
 
 void BrushFace::correctPoints()

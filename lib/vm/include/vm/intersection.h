@@ -214,12 +214,11 @@ bool polygon_contains_point(const vec<T, 3>& p, I cur, I end, const G& get = G()
   assert(temp != end);
   const auto p3 = get(*temp);
 
-  auto valid = false;
-  auto normal = vm::vec<T, 3>{};
-  std::tie(valid, normal) = plane_normal(p1, p2, p3);
-  assert(valid);
-
-  return polygon_contains_point(p, find_abs_max_component(normal), cur, end, get);
+  if (const auto normal = plane_normal(p1, p2, p3))
+  {
+    return polygon_contains_point(p, find_abs_max_component(*normal), cur, end, get);
+  }
+  return false;
 }
 
 /**
@@ -370,8 +369,11 @@ template <typename T, typename I, typename G = identity>
 std::optional<T> intersect_ray_polygon(
   const ray<T, 3>& r, I cur, I end, const G& get = G())
 {
-  const auto [valid, plane] = from_points(cur, end, get);
-  return valid ? intersect_ray_polygon(r, plane, cur, end, get) : std::nullopt;
+  if (const auto plane = from_points(cur, end, get))
+  {
+    return intersect_ray_polygon(r, *plane, cur, end, get);
+  }
+  return std::nullopt;
 }
 
 /**
@@ -747,9 +749,9 @@ constexpr bool intersect_bbox_polygon(
     }
   }
 
-  const auto [valid, pl] =
+  const auto pl =
     from_points(get(*begin), get(*std::next(begin)), get(*std::next(begin, 2)));
-  assert(valid);
+  assert(pl);
 
   // 2
   for (auto cur = begin; cur != end; ++cur)
@@ -759,10 +761,10 @@ constexpr bool intersect_bbox_polygon(
     const auto start = get(*cur);
     const auto dir = get(*next) - start;
     const auto ln = line<T, 3>{start, dir};
-    const auto d = intersect_line_plane(ln, pl);
+    const auto d = intersect_line_plane(ln, *pl);
     if (d && *d >= T(0) && *d <= T(1))
     {
-      const auto pt = pl.project_point(point_at_distance(ln, *d));
+      const auto pt = pl->project_point(point_at_distance(ln, *d));
       if (polygon_contains_point(pt, cur, end, get))
       {
         return true;
@@ -775,10 +777,10 @@ constexpr bool intersect_bbox_polygon(
   bbox.for_each_edge([&, pl = pl](const auto& start, const auto& en) {
     const auto dir = en - start;
     const auto ln = line<T, 3>{start, dir};
-    const auto d = intersect_line_plane(ln, pl);
+    const auto d = intersect_line_plane(ln, *pl);
     if (d && *d >= T(0) && *d <= T(1))
     {
-      const auto pt = pl.project_point(point_at_distance(ln, *d));
+      const auto pt = pl->project_point(point_at_distance(ln, *d));
       if (polygon_contains_point(pt, begin, end, get))
       {
         edgeIsect = true;

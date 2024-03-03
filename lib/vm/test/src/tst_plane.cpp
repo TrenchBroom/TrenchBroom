@@ -226,79 +226,63 @@ TEST_CASE("plane.project_vector_direction")
     == approx(vec3d(2, 2, 0)));
 }
 
-TEST_CASE("plane.is_equal"){CER_CHECK(is_equal(
-  plane3f(0.0f, vec3f::pos_x()),
-  plane3f(0.0f, vec3f::pos_x()),
-  constants<float>::almost_zero()))
-                              CER_CHECK(is_equal(
-                                plane3f(0.0f, vec3f::pos_y()),
-                                plane3f(0.0f, vec3f::pos_y()),
-                                constants<float>::almost_zero()))
-                                CER_CHECK(is_equal(
-                                  plane3f(0.0f, vec3f::pos_z()),
-                                  plane3f(0.0f, vec3f::pos_z()),
-                                  constants<float>::almost_zero()))
-                                  CER_CHECK_FALSE(is_equal(
-                                    plane3f(0.0f, vec3f::pos_x()),
-                                    plane3f(0.0f, vec3f::neg_x()),
-                                    constants<float>::almost_zero()))
-                                    CER_CHECK_FALSE(is_equal(
-                                      plane3f(0.0f, vec3f::pos_x()),
-                                      plane3f(0.0f, vec3f::pos_y()),
-                                      constants<float>::almost_zero()))}
+TEST_CASE("plane.is_equal")
+{
+  CER_CHECK(is_equal(
+    plane3f(0.0f, vec3f::pos_x()),
+    plane3f(0.0f, vec3f::pos_x()),
+    constants<float>::almost_zero()));
+  CER_CHECK(is_equal(
+    plane3f(0.0f, vec3f::pos_y()),
+    plane3f(0.0f, vec3f::pos_y()),
+    constants<float>::almost_zero()));
+  CER_CHECK(is_equal(
+    plane3f(0.0f, vec3f::pos_z()),
+    plane3f(0.0f, vec3f::pos_z()),
+    constants<float>::almost_zero()));
+  CER_CHECK_FALSE(is_equal(
+    plane3f(0.0f, vec3f::pos_x()),
+    plane3f(0.0f, vec3f::neg_x()),
+    constants<float>::almost_zero()));
+  CER_CHECK_FALSE(is_equal(
+    plane3f(0.0f, vec3f::pos_x()),
+    plane3f(0.0f, vec3f::pos_y()),
+    constants<float>::almost_zero()));
+}
 
-TEST_CASE("plane.operator_equal"){
-  CER_CHECK(plane3d() == plane3d())
-    CER_CHECK(plane3d(10.0, vec3d::pos_z()) == plane3d(10.0, vec3d::pos_z()))
-      CER_CHECK_FALSE(plane3d(20.0, vec3d::pos_z()) == plane3d(10.0, vec3d::pos_z()))
-        CER_CHECK_FALSE(plane3d(10.0, vec3d::neg_z()) == plane3d(10.0, vec3d::pos_z()))
-          CER_CHECK_FALSE(
-            plane3d(10.0, normalize_c(vec3d::one())) == plane3d(10.0, vec3d::pos_z()))}
+TEST_CASE("plane.operator_equal")
+{
+  CER_CHECK(plane3d() == plane3d());
+  CER_CHECK(plane3d(10.0, vec3d::pos_z()) == plane3d(10.0, vec3d::pos_z()));
+  CER_CHECK_FALSE(plane3d(20.0, vec3d::pos_z()) == plane3d(10.0, vec3d::pos_z()));
+  CER_CHECK_FALSE(plane3d(10.0, vec3d::neg_z()) == plane3d(10.0, vec3d::pos_z()));
+  CER_CHECK_FALSE(
+    plane3d(10.0, normalize_c(vec3d::one())) == plane3d(10.0, vec3d::pos_z()));
+}
 
 TEST_CASE("plane.operator_not_equal")
 {
-  CER_CHECK_FALSE(plane3d() != plane3d())
-  CER_CHECK_FALSE(plane3d(10.0, vec3d::pos_z()) != plane3d(10.0, vec3d::pos_z()))
-  CER_CHECK(plane3d(20.0, vec3d::pos_z()) != plane3d(10.0, vec3d::pos_z()))
-  CER_CHECK(plane3d(10.0, vec3d::neg_z()) != plane3d(10.0, vec3d::pos_z()))
-  CER_CHECK(plane3d(10.0, normalize_c(vec3d::one())) != plane3d(10.0, vec3d::pos_z()))
-}
-
-template <typename T>
-void checkValidPlaneNormal(
-  const vec<T, 3>& expected,
-  const vec<T, 3>& p1,
-  const vec<T, 3>& p2,
-  const vec<T, 3>& p3)
-{
-  const auto result = plane_normal(p1, p2, p3);
-  CHECK(std::get<0>(result));
-  CHECK(std::get<1>(result) == approx(expected));
-}
-
-template <typename T>
-void checkInvalidPlaneNormal(
-  const vec<T, 3>& p1, const vec<T, 3>& p2, const vec<T, 3>& p3)
-{
-  const auto result = plane_normal(p1, p2, p3);
-  CHECK_FALSE(std::get<0>(result));
+  CER_CHECK_FALSE(plane3d() != plane3d());
+  CER_CHECK_FALSE(plane3d(10.0, vec3d::pos_z()) != plane3d(10.0, vec3d::pos_z()));
+  CER_CHECK(plane3d(20.0, vec3d::pos_z()) != plane3d(10.0, vec3d::pos_z()));
+  CER_CHECK(plane3d(10.0, vec3d::neg_z()) != plane3d(10.0, vec3d::pos_z()));
+  CER_CHECK(plane3d(10.0, normalize_c(vec3d::one())) != plane3d(10.0, vec3d::pos_z()));
 }
 
 TEST_CASE("plane.plane_normal")
 {
-  checkValidPlaneNormal(vec3d::pos_z(), vec3d::zero(), vec3d::pos_y(), vec3d::pos_x());
-  checkValidPlaneNormal(
-    vec3d::pos_z(), vec3d::zero(), normalize(vec3d(1, 1, 0)), vec3d::pos_x());
-  checkInvalidPlaneNormal(vec3d::zero(), vec3d::zero(), vec3d::pos_x());
-  checkInvalidPlaneNormal(vec3d::zero(), vec3d::pos_x(), vec3d::pos_x());
-  checkInvalidPlaneNormal(vec3d::zero(), vec3d::neg_x(), vec3d::pos_x());
-  checkInvalidPlaneNormal(vec3d::zero(), vec3d::zero(), vec3d::pos_x());
+  CHECK(plane_normal(vec3d::zero(), vec3d::pos_y(), vec3d::pos_x()) == vec3d::pos_z());
+  CHECK(
+    plane_normal(vec3d::zero(), normalize(vec3d(1, 1, 0)), vec3d::pos_x())
+    == vec3d::pos_z());
+  CHECK(plane_normal(vec3d::zero(), vec3d::zero(), vec3d::pos_x()) == std::nullopt);
+  CHECK(plane_normal(vec3d::zero(), vec3d::pos_x(), vec3d::pos_x()) == std::nullopt);
+  CHECK(plane_normal(vec3d::zero(), vec3d::neg_x(), vec3d::pos_x()) == std::nullopt);
+  CHECK(plane_normal(vec3d::zero(), vec3d::zero(), vec3d::pos_x()) == std::nullopt);
 }
 
 TEST_CASE("plane.from_points")
 {
-  bool valid;
-  plane3f plane;
   std::array<vec3f, 3> points;
   const float epsilon = constants<float>::point_status_epsilon();
 
@@ -306,91 +290,91 @@ TEST_CASE("plane.from_points")
   points[1] = vec3f(0.0f, 1.0f, 0.0f);
   points[2] = vec3f(1.0f, 0.0f, 0.0f);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK(valid);
-  CHECK(plane.normal == approx(vec3f::pos_z()));
-  CHECK(plane.distance == approx(0.0f));
+  auto plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane);
+  CHECK(plane->normal == approx(vec3f::pos_z()));
+  CHECK(plane->distance == approx(0.0f));
 
   // right angle, short vectors
   points[0] = vec3f(0.0f, 0.0f, 0.0f);
   points[1] = vec3f(0.0f, epsilon, 0.0f);
   points[2] = vec3f(epsilon, 0.0f, 0.0f);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK(valid);
-  CHECK(plane.normal == approx(vec3f::pos_z()));
-  CHECK(plane.distance == approx(0.0f));
+  plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane);
+  CHECK(plane->normal == approx(vec3f::pos_z()));
+  CHECK(plane->distance == approx(0.0f));
 
   // plane point vectors at a 45 degree angle, short vectors
   points[0] = vec3f(0.0f, 0.0f, 0.0f);
   points[1] = vec3f(epsilon, epsilon, 0.0f);
   points[2] = vec3f(epsilon, 0.0f, 0.0f);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK(valid);
-  CHECK(plane.normal == approx(vec3f::pos_z()));
-  CHECK(plane.distance == approx(0.0f));
+  plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane);
+  CHECK(plane->normal == approx(vec3f::pos_z()));
+  CHECK(plane->distance == approx(0.0f));
 
   // horizontal plane at z=length units above the origin
   points[0] = vec3f(0.0f, 0.0f, epsilon);
   points[1] = vec3f(0.0f, epsilon, epsilon);
   points[2] = vec3f(epsilon, 0.0f, epsilon);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK(valid);
-  CHECK(plane.normal == approx(vec3f::pos_z()));
-  CHECK(plane.distance == approx(epsilon));
+  plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane);
+  CHECK(plane->normal == approx(vec3f::pos_z()));
+  CHECK(plane->distance == approx(epsilon));
 
   // small angle (triangle 1000 units wide, length units tall)
   points[0] = vec3f(0.0f, 0.0f, 0.0f);
   points[1] = vec3f(1000.0f, epsilon, 0.0f);
   points[2] = vec3f(1000.0f, 0.0f, 0.0f);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK(valid);
-  CHECK(plane.normal == approx(vec3f::pos_z()));
-  CHECK(plane.distance == approx(0.0f));
+  plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane);
+  CHECK(plane->normal == approx(vec3f::pos_z()));
+  CHECK(plane->distance == approx(0.0f));
 
   // small angle
   points[0] = vec3f(224.0f, -400.0f, 1648.0f);
   points[1] = vec3f(304.0f, -432.0f, 1248.0f + epsilon);
   points[2] = vec3f(304.0f, -432.0f, 1248.0f);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK(valid);
-  CHECK(length(plane.normal) == approx(1.0f));
+  plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane);
+  CHECK(length(plane->normal) == approx(1.0f));
 
   // too-small angle (triangle 1000 units wide, length/100 units tall)
   points[0] = vec3f(0.0f, 0.0f, 0.0f);
   points[1] = vec3f(1000.0f, epsilon / 100.0f, 0.0f);
   points[2] = vec3f(1000.0f, 0.0f, 0.0f);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK_FALSE(valid);
+  plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane == std::nullopt);
 
   // all zero
   points[0] = vec3f(0.0f, 0.0f, 0.0f);
   points[1] = vec3f(0.0f, 0.0f, 0.0f);
   points[2] = vec3f(0.0f, 0.0f, 0.0f);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK_FALSE(valid);
+  plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane == std::nullopt);
 
   // same direction, short vectors
   points[0] = vec3f(0.0f, 0.0f, 0.0f);
   points[1] = vec3f(2 * epsilon, 0.0f, 0.0f);
   points[2] = vec3f(epsilon, 0.0f, 0.0f);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK_FALSE(valid);
+  plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane == std::nullopt);
 
   // opposite, short vectors
   points[0] = vec3f(0.0f, 0.0f, 0.0f);
   points[1] = vec3f(-epsilon, 0.0f, 0.0f);
   points[2] = vec3f(epsilon, 0.0f, 0.0f);
 
-  std::tie(valid, plane) = from_points(std::begin(points), std::end(points));
-  CHECK_FALSE(valid);
+  plane = from_points(std::begin(points), std::end(points));
+  CHECK(plane == std::nullopt);
 }
 
 TEST_CASE("plane.horizontal_plane")

@@ -176,26 +176,23 @@ void FaceHandleManager::pickGridHandle(
 {
   for (const auto& [position, info] : m_handles)
   {
-    const auto [valid, plane] = vm::from_points(std::begin(position), std::end(position));
-    if (!valid)
+    if (const auto plane = vm::from_points(std::begin(position), std::end(position)))
     {
-      continue;
-    }
-
-    if (
-      const auto distance = vm::intersect_ray_polygon(
-        pickRay, plane, std::begin(position), std::end(position)))
-    {
-      const auto pointHandle =
-        grid.snap(vm::point_at_distance(pickRay, *distance), plane);
-
       if (
-        const auto pointDist = camera.pickPointHandle(
-          pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius))))
+        const auto distance = vm::intersect_ray_polygon(
+          pickRay, *plane, std::begin(position), std::end(position)))
       {
-        const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-        pickResult.addHit(Model::Hit(
-          HandleHitType, *pointDist, hitPoint, HitType(position, pointHandle)));
+        const auto pointHandle =
+          grid.snap(vm::point_at_distance(pickRay, *distance), *plane);
+
+        if (
+          const auto pointDist = camera.pickPointHandle(
+            pickRay, pointHandle, FloatType(pref(Preferences::HandleRadius))))
+        {
+          const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
+          pickResult.addHit(Model::Hit(
+            HandleHitType, *pointDist, hitPoint, HitType(position, pointHandle)));
+        }
       }
     }
   }
