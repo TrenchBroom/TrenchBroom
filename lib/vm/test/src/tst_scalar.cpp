@@ -119,23 +119,33 @@ TEST_CASE("scalar.abs_max")
 
 TEST_CASE("scalar.safe_min")
 {
-  CER_CHECK(safe_min(+1.0, +1.0) == +1.0);
-  CER_CHECK(safe_min(+1.0, +2.0) == +1.0);
-  CER_CHECK(safe_min(+2.0, +1.0) == +1.0);
-  CER_CHECK(safe_min(-1.0, +2.0) == -1.0);
-  CER_CHECK(safe_min(+1.0, -2.0) == -2.0);
-  CER_CHECK(safe_min(-1.0, -2.0) == -2.0);
-  CER_CHECK(safe_min(-1.0, -2.0, -3.0) == -3.0);
+  CER_CHECK(safe_min(std::optional{+1.0}, std::optional{+1.0}) == +1.0);
+  CER_CHECK(safe_min(std::optional{+1.0}, std::optional{+2.0}) == +1.0);
+  CER_CHECK(safe_min(std::optional{+2.0}, std::optional{+1.0}) == +1.0);
+  CER_CHECK(safe_min(std::optional{-1.0}, std::optional{+2.0}) == -1.0);
+  CER_CHECK(safe_min(std::optional{+1.0}, std::optional{-2.0}) == -2.0);
+  CER_CHECK(safe_min(std::optional{-1.0}, std::optional{-2.0}) == -2.0);
+  CER_CHECK(
+    safe_min(std::optional{-1.0}, std::optional{-2.0}, std::optional{-3.0}) == -3.0);
 
-  CER_CHECK(safe_min(+1.0, nan<double>()) == +1.0);
-  CER_CHECK(safe_min(nan<double>(), -1.0) == -1.0);
-  CER_CHECK(is_nan(safe_min(nan<double>(), nan<double>())));
+  CER_CHECK(safe_min(std::optional{+1.0}, std::optional<double>{}) == +1.0);
+  CER_CHECK(safe_min(std::optional<double>{}, std::optional{-1.0}) == -1.0);
+  CER_CHECK(
+    safe_min(std::optional<double>{}, std::optional<double>{})
+    == std::optional<double>{});
 
-  CER_CHECK(safe_min(nan<double>(), +1.0, -2.0) == -2.0)
-  CER_CHECK(safe_min(+1.0, nan<double>(), -2.0) == -2.0)
-  CER_CHECK(safe_min(+1.0, -2.0, nan<double>()) == -2.0)
-  CER_CHECK(safe_min(+1.0, nan<double>(), nan<double>()) == +1.0)
-  CER_CHECK(is_nan(safe_min(nan<double>(), nan<double>(), nan<double>())));
+  CER_CHECK(
+    safe_min(std::optional<double>{}, std::optional{+1.0}, std::optional{-2.0}) == -2.0)
+  CER_CHECK(
+    safe_min(std::optional{+1.0}, std::optional<double>{}, std::optional{-2.0}) == -2.0)
+  CER_CHECK(
+    safe_min(std::optional{+1.0}, std::optional{-2.0}, std::optional<double>{}) == -2.0)
+  CER_CHECK(
+    safe_min(std::optional{+1.0}, std::optional<double>{}, std::optional<double>{})
+    == +1.0)
+  CER_CHECK(
+    safe_min(std::optional<double>{}, std::optional<double>{}, std::optional<double>{})
+    == std::optional<double>{});
 }
 
 TEST_CASE("scalar.safe_max")
