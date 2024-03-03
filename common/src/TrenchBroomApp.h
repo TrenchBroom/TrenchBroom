@@ -69,7 +69,7 @@ private:
   void loadStyle();
 
 public:
-  const std::vector<std::filesystem::path>& recentDocuments() const;
+  std::vector<std::filesystem::path> recentDocuments() const;
   void addRecentDocumentMenu(QMenu& menu);
   void removeRecentDocumentMenu(QMenu& menu);
   void updateRecentDocument(const std::filesystem::path& path);

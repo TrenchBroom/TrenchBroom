@@ -52,7 +52,7 @@ public:
     std::function<bool(std::filesystem::path)> filterPredicate,
     QObject* parent = nullptr);
 
-  const std::vector<std::filesystem::path>& recentDocuments() const;
+  std::vector<std::filesystem::path> recentDocuments() const;
 
   void reload();
 
