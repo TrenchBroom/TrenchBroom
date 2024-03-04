@@ -334,7 +334,7 @@ void TrenchBroomApp::loadStyle()
   }
 }
 
-const std::vector<std::filesystem::path>& TrenchBroomApp::recentDocuments() const
+std::vector<std::filesystem::path> TrenchBroomApp::recentDocuments() const
 {
   return m_recentDocuments->recentDocuments();
 }
