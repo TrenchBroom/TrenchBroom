@@ -681,9 +681,8 @@ constexpr bool is_zero(const T v, const T epsilon)
   static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
   // MSVC sometimes complains about a possible division by 0 when we use is_zero to check
   // that the denominator is not 0. The diagnostic does not understand that abs(v) >
-  // epsilon implies that v
-  // != 0, so we make it explicit.
-  return v == 0.0 || abs(v) <= epsilon;
+  // epsilon implies that v != 0, so we make it explicit.
+  return v == T(0) || abs(v) <= epsilon;
 }
 
 /**

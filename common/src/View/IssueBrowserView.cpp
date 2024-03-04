@@ -295,8 +295,8 @@ void IssueBrowserView::itemRightClicked(const QPoint& pos)
     for (const auto* quickFix : quickFixes)
     {
       quickFixMenu->addAction(
-        QString::fromStdString(quickFix->description()), this, [=]() {
-          this->applyQuickFix(*quickFix);
+        QString::fromStdString(quickFix->description()), this, [&]() {
+          applyQuickFix(*quickFix);
         });
     }
 

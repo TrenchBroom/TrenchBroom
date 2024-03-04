@@ -261,7 +261,7 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
     tr("Add a new property (%1)").arg(EntityPropertyTable::insertRowShortcutString()),
     this);
   connect(
-    m_addPropertyButton, &QAbstractButton::clicked, this, [=](const bool /* checked */) {
+    m_addPropertyButton, &QAbstractButton::clicked, this, [&](const bool /* checked */) {
       addProperty(false);
     });
 
@@ -271,7 +271,7 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
     m_addProtectedPropertyButton,
     &QAbstractButton::clicked,
     this,
-    [=](const bool /* checked */) { addProperty(true); });
+    [&](const bool /* checked */) { addProperty(true); });
 
   m_removePropertiesButton = createBitmapButton(
     "Remove.svg",
@@ -282,18 +282,18 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
     m_removePropertiesButton,
     &QAbstractButton::clicked,
     this,
-    [=](const bool /* checked */) { removeSelectedProperties(); });
+    [&](const bool /* checked */) { removeSelectedProperties(); });
 
   auto* setDefaultPropertiesMenu = new QMenu{this};
-  setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [=]() {
+  setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [&]() {
     kdl::mem_lock(m_document)
       ->setDefaultProperties(Model::SetDefaultPropertyMode::SetExisting);
   });
-  setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [=]() {
+  setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [&]() {
     kdl::mem_lock(m_document)
       ->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
   });
-  setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [=]() {
+  setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
     kdl::mem_lock(m_document)
       ->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
   });
@@ -308,13 +308,13 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
     m_showDefaultPropertiesCheckBox,
     &QCheckBox::stateChanged,
     this,
-    [=](const int state) { m_model->setShowDefaultRows(state == Qt::Checked); });
+    [&](const int state) { m_model->setShowDefaultRows(state == Qt::Checked); });
   m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());
 
-  connect(m_table, &EntityPropertyTable::addRowShortcutTriggered, this, [=]() {
+  connect(m_table, &EntityPropertyTable::addRowShortcutTriggered, this, [&]() {
     addProperty(false);
   });
-  connect(m_table, &EntityPropertyTable::removeRowsShortcutTriggered, this, [=]() {
+  connect(m_table, &EntityPropertyTable::removeRowsShortcutTriggered, this, [&]() {
     removeSelectedProperties();
   });
 
@@ -322,7 +322,7 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
     m_table->selectionModel(),
     &QItemSelectionModel::currentChanged,
     this,
-    [=](const QModelIndex& current, const QModelIndex& previous) {
+    [&](const QModelIndex& current, const QModelIndex& previous) {
       unused(current);
       unused(previous);
       // NOTE: when we get this signal, the selection hasn't been updated yet.
@@ -335,7 +335,7 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
       emit currentRowChanged();
     });
 
-  connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [=]() {
+  connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [&]() {
     if (!m_table->selectionModel()->selectedIndexes().empty())
     {
       backupSelection();
@@ -345,13 +345,13 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
   });
 
   // e.g. handles setting a value of a default property so it becomes non-default
-  connect(m_proxyModel, &QAbstractItemModel::dataChanged, this, [=]() {
+  connect(m_proxyModel, &QAbstractItemModel::dataChanged, this, [&]() {
     updateControlsEnabled();
     emit currentRowChanged();
   });
 
   // e.g. handles deleting 2 rows
-  connect(m_proxyModel, &QAbstractItemModel::modelReset, this, [=]() {
+  connect(m_proxyModel, &QAbstractItemModel::modelReset, this, [&]() {
     updateControlsEnabled();
     emit currentRowChanged();
   });

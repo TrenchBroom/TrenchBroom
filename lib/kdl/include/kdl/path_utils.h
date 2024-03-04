@@ -48,7 +48,7 @@ inline std::filesystem::path path_front(const std::filesystem::path& path)
 
 inline std::filesystem::path path_to_lower(const std::filesystem::path& path)
 {
-  return std::filesystem::path{str_to_lower(path.u8string())};
+  return std::filesystem::path{str_to_lower(path.string())};
 }
 
 inline std::filesystem::path path_clip(

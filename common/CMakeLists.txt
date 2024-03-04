@@ -1025,6 +1025,7 @@ if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <any>
             <array>
             <cassert>
+            <chrono>
             <cstddef>
             <cstdio>
             <cstdlib>
@@ -1041,6 +1042,7 @@ if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <memory>
             <optional>
             <ostream>
+            <ranges>
             <set>
             <string>
             <tuple>

@@ -314,7 +314,7 @@ PropertyRow PropertyRow::rowForEntityNodes(
     std::next(nodes.begin()),
     nodes.end(),
     PropertyRow{key, nodes.front()},
-    [](PropertyRow& lhs, const Model::EntityNodeBase* rhs) {
+    [](PropertyRow lhs, const Model::EntityNodeBase* rhs) {
       lhs.merge(rhs);
       return lhs;
     });

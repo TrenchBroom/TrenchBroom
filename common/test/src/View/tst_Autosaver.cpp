@@ -195,7 +195,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
 
     for (const auto& path : initialPaths)
     {
-      env.createFile(path, path.u8string());
+      env.createFile(path, path.string());
     }
 
     REQUIRE(env.directoryContents("autosave") == initialPaths);
@@ -280,7 +280,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
 
     for (const auto& path : initialPaths)
     {
-      env.createFile(path, path.u8string());
+      env.createFile(path, path.string());
     }
 
     REQUIRE(env.directoryContents("autosave") == initialPaths);

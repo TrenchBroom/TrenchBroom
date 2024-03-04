@@ -93,10 +93,11 @@ ControlListBoxItemRenderer* CompilationProfileListBox::createItemRenderer(
 {
   auto& profile = m_config.profiles[index];
   auto* renderer = new CompilationProfileItemRenderer{profile, parent};
-  connect(renderer, &QWidget::customContextMenuRequested, this, [=](const QPoint& pos) {
-    emit this->profileContextMenuRequested(
-      renderer->mapToGlobal(pos), m_config.profiles[index]);
-  });
+  connect(
+    renderer, &QWidget::customContextMenuRequested, this, [&, index](const QPoint& pos) {
+      emit this->profileContextMenuRequested(
+        renderer->mapToGlobal(pos), m_config.profiles[index]);
+    });
   return renderer;
 }
 } // namespace View

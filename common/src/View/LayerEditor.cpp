@@ -489,11 +489,11 @@ void LayerEditor::createGui()
   connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onAddLayer);
   connect(
     m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onRemoveLayer);
-  connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, [=]() {
+  connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, [&]() {
     Model::LayerNode* layer = m_layerList->selectedLayer();
     moveLayer(layer, -1);
   });
-  connect(m_moveLayerDownButton, &QAbstractButton::pressed, this, [=]() {
+  connect(m_moveLayerDownButton, &QAbstractButton::pressed, this, [&]() {
     Model::LayerNode* layer = m_layerList->selectedLayer();
     moveLayer(layer, 1);
   });

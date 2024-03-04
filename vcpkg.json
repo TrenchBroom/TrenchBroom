@@ -39,8 +39,11 @@
       "platform": "!linux"
     }
   ],
-  "builtin-baseline": "40619a55c3e76dc4005c8d1b7395071471bb8b96",
+  "builtin-baseline": "13bde2ff13192e1b2fdd37bd9b475c7665ae6ae5",
   "overrides": [
-    { "name": "catch2", "version": "2.13.8" }
+    {
+      "name": "catch2",
+      "version": "2.13.8"
+    }
   ]
 }

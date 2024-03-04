@@ -64,7 +64,7 @@ Result<kdl::resource<std::FILE*>> openPathAsFILE(
 #ifdef _WIN32
     _wfopen(path.wstring().c_str(), std::wstring{mode.begin(), mode.end()}.c_str());
 #else
-    fopen(path.u8string().c_str(), mode.c_str());
+    fopen(path.string().c_str(), mode.c_str());
 #endif
 
   if (!file)
