@@ -21,35 +21,34 @@
 
 #include "View/ToolController.h"
 
-namespace TrenchBroom
-{
-namespace View
-{
-class CreateComplexBrushTool;
+#include "vm/bbox.h"
+#include "vm/vec.h"
 
-class CreateComplexBrushToolController3D : public ToolControllerGroup
+#include <memory>
+
+namespace TrenchBroom::View
+{
+
+class DrawShapeTool;
+class DragTracker;
+class MapDocument;
+
+class DrawShapeToolController2D : public ToolController
 {
 private:
-  CreateComplexBrushTool& m_tool;
+  DrawShapeTool& m_tool;
+  std::weak_ptr<MapDocument> m_document;
 
 public:
-  explicit CreateComplexBrushToolController3D(CreateComplexBrushTool& tool);
+  DrawShapeToolController2D(DrawShapeTool& tool, std::weak_ptr<MapDocument> document);
 
 private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  bool mouseClick(const InputState& inputState) override;
-  bool mouseDoubleClick(const InputState& inputState) override;
-
-  bool doShouldHandleMouseDrag(const InputState& inputState) const override;
-
-  void render(
-    const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override;
+  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

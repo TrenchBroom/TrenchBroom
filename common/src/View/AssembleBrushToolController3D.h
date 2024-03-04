@@ -19,30 +19,36 @@
 
 #pragma once
 
-#include "Model/Polyhedron3.h"
-#include "View/CreateBrushToolBase.h"
+#include "View/ToolController.h"
 
-#include <memory>
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
-class CreateComplexBrushTool : public CreateBrushToolBase
+class AssembleBrushTool;
+
+class AssembleBrushToolController3D : public ToolControllerGroup
 {
 private:
-  std::unique_ptr<Model::Polyhedron3> m_polyhedron;
+  AssembleBrushTool& m_tool;
 
 public:
-  CreateComplexBrushTool(std::weak_ptr<MapDocument> document);
-
-  const Model::Polyhedron3& polyhedron() const;
-  void update(const Model::Polyhedron3& polyhedron);
+  explicit AssembleBrushToolController3D(AssembleBrushTool& tool);
 
 private:
-  bool doActivate() override;
-  bool doDeactivate() override;
-  void doBrushWasCreated() override;
+  Tool& tool() override;
+  const Tool& tool() const override;
+
+  bool mouseClick(const InputState& inputState) override;
+  bool mouseDoubleClick(const InputState& inputState) override;
+
+  bool doShouldHandleMouseDrag(const InputState& inputState) const override;
+
+  void render(
+    const InputState& inputState,
+    Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch) override;
+
+  bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

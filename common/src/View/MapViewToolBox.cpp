@@ -20,10 +20,10 @@
 #include "MapViewToolBox.h"
 
 #include "Model/EditorContext.h"
+#include "View/AssembleBrushTool.h"
 #include "View/ClipTool.h"
-#include "View/CreateComplexBrushTool.h"
 #include "View/CreateEntityTool.h"
-#include "View/CreateSimpleBrushTool.h"
+#include "View/DrawShapeTool.h"
 #include "View/EdgeTool.h"
 #include "View/ExtrudeTool.h"
 #include "View/FaceTool.h"
@@ -53,9 +53,9 @@ ClipTool& MapViewToolBox::clipTool()
   return *m_clipTool;
 }
 
-CreateComplexBrushTool& MapViewToolBox::createComplexBrushTool()
+AssembleBrushTool& MapViewToolBox::assembleBrushTool()
 {
-  return *m_createComplexBrushTool;
+  return *m_assembleBrushTool;
 }
 
 CreateEntityTool& MapViewToolBox::createEntityTool()
@@ -63,9 +63,9 @@ CreateEntityTool& MapViewToolBox::createEntityTool()
   return *m_createEntityTool;
 }
 
-CreateSimpleBrushTool& MapViewToolBox::createSimpleBrushTool()
+DrawShapeTool& MapViewToolBox::drawShapeTool()
 {
-  return *m_createSimpleBrushTool;
+  return *m_drawShapeTool;
 }
 
 MoveObjectsTool& MapViewToolBox::moveObjectsTool()
@@ -108,19 +108,19 @@ FaceTool& MapViewToolBox::faceTool()
   return *m_faceTool;
 }
 
-void MapViewToolBox::toggleCreateComplexBrushTool()
+void MapViewToolBox::toggleAssembleBrushTool()
 {
-  toggleTool(createComplexBrushTool());
+  toggleTool(assembleBrushTool());
 }
 
-bool MapViewToolBox::createComplexBrushToolActive() const
+bool MapViewToolBox::assembleBrushToolActive() const
 {
-  return m_createComplexBrushTool->active();
+  return m_assembleBrushTool->active();
 }
 
-void MapViewToolBox::performCreateComplexBrush()
+void MapViewToolBox::performAssembleBrush()
 {
-  m_createComplexBrushTool->createBrush();
+  m_assembleBrushTool->createBrushes();
 }
 
 void MapViewToolBox::toggleClipTool()
@@ -239,20 +239,26 @@ void MapViewToolBox::moveVertices(const vm::vec3& delta)
 {
   assert(anyVertexToolActive());
   if (vertexToolActive())
+  {
     vertexTool().moveSelection(delta);
+  }
   else if (edgeToolActive())
+  {
     edgeTool().moveSelection(delta);
+  }
   else if (faceToolActive())
+  {
     faceTool().moveSelection(delta);
+  }
 }
 
 void MapViewToolBox::createTools(
   std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl)
 {
   m_clipTool = std::make_unique<ClipTool>(document);
-  m_createComplexBrushTool = std::make_unique<CreateComplexBrushTool>(document);
+  m_assembleBrushTool = std::make_unique<AssembleBrushTool>(document);
   m_createEntityTool = std::make_unique<CreateEntityTool>(document);
-  m_createSimpleBrushTool = std::make_unique<CreateSimpleBrushTool>(document);
+  m_drawShapeTool = std::make_unique<DrawShapeTool>(document);
   m_moveObjectsTool = std::make_unique<MoveObjectsTool>(document);
   m_extrudeTool = std::make_unique<ExtrudeTool>(document);
   m_rotateObjectsTool = std::make_unique<RotateObjectsTool>(document);
@@ -262,43 +268,45 @@ void MapViewToolBox::createTools(
   m_edgeTool = std::make_unique<EdgeTool>(document);
   m_faceTool = std::make_unique<FaceTool>(document);
 
-  suppressWhileActive(moveObjectsTool(), createComplexBrushTool());
-  suppressWhileActive(extrudeTool(), createComplexBrushTool());
-  suppressWhileActive(createSimpleBrushTool(), createComplexBrushTool());
+  suppressWhileActive(moveObjectsTool(), assembleBrushTool());
+  suppressWhileActive(extrudeTool(), assembleBrushTool());
+  suppressWhileActive(drawShapeTool(), assembleBrushTool());
   suppressWhileActive(moveObjectsTool(), rotateObjectsTool());
   suppressWhileActive(extrudeTool(), rotateObjectsTool());
-  suppressWhileActive(createSimpleBrushTool(), rotateObjectsTool());
+  suppressWhileActive(drawShapeTool(), rotateObjectsTool());
   suppressWhileActive(moveObjectsTool(), scaleObjectsTool());
   suppressWhileActive(extrudeTool(), scaleObjectsTool());
-  suppressWhileActive(createSimpleBrushTool(), scaleObjectsTool());
+  suppressWhileActive(drawShapeTool(), scaleObjectsTool());
   suppressWhileActive(moveObjectsTool(), shearObjectsTool());
   suppressWhileActive(extrudeTool(), shearObjectsTool());
-  suppressWhileActive(createSimpleBrushTool(), shearObjectsTool());
+  suppressWhileActive(drawShapeTool(), shearObjectsTool());
   suppressWhileActive(moveObjectsTool(), vertexTool());
   suppressWhileActive(extrudeTool(), vertexTool());
-  suppressWhileActive(createSimpleBrushTool(), vertexTool());
+  suppressWhileActive(drawShapeTool(), vertexTool());
   suppressWhileActive(moveObjectsTool(), edgeTool());
   suppressWhileActive(extrudeTool(), edgeTool());
-  suppressWhileActive(createSimpleBrushTool(), edgeTool());
+  suppressWhileActive(drawShapeTool(), edgeTool());
   suppressWhileActive(moveObjectsTool(), faceTool());
   suppressWhileActive(extrudeTool(), faceTool());
-  suppressWhileActive(createSimpleBrushTool(), faceTool());
+  suppressWhileActive(drawShapeTool(), faceTool());
   suppressWhileActive(moveObjectsTool(), clipTool());
   suppressWhileActive(extrudeTool(), clipTool());
-  suppressWhileActive(createSimpleBrushTool(), clipTool());
+  suppressWhileActive(drawShapeTool(), clipTool());
 
   registerTool(moveObjectsTool(), bookCtrl);
   registerTool(rotateObjectsTool(), bookCtrl);
   registerTool(scaleObjectsTool(), bookCtrl);
   registerTool(shearObjectsTool(), bookCtrl);
   registerTool(extrudeTool(), bookCtrl);
-  registerTool(createComplexBrushTool(), bookCtrl);
+  registerTool(assembleBrushTool(), bookCtrl);
   registerTool(clipTool(), bookCtrl);
   registerTool(vertexTool(), bookCtrl);
   registerTool(edgeTool(), bookCtrl);
   registerTool(faceTool(), bookCtrl);
   registerTool(createEntityTool(), bookCtrl);
-  registerTool(createSimpleBrushTool(), bookCtrl);
+  registerTool(drawShapeTool(), bookCtrl);
+
+  updateToolPage();
 }
 
 void MapViewToolBox::registerTool(Tool& tool, QStackedLayout* bookCtrl)
@@ -319,30 +327,55 @@ void MapViewToolBox::connectObservers()
     this, &MapViewToolBox::documentWasNewedOrLoaded);
   m_notifierConnection += document->documentWasLoadedNotifier.connect(
     this, &MapViewToolBox::documentWasNewedOrLoaded);
+  m_notifierConnection += document->selectionDidChangeNotifier.connect(
+    this, &MapViewToolBox::selectionDidChange);
 }
 
-void MapViewToolBox::toolActivated(Tool& tool)
+void MapViewToolBox::toolActivated(Tool&)
 {
   updateEditorContext();
-  tool.showPage();
+  updateToolPage();
 }
 
 void MapViewToolBox::toolDeactivated(Tool&)
 {
   updateEditorContext();
-  m_moveObjectsTool->showPage();
+  updateToolPage();
 }
 
 void MapViewToolBox::updateEditorContext()
 {
   auto document = kdl::mem_lock(m_document);
   Model::EditorContext& editorContext = document->editorContext();
-  editorContext.setBlockSelection(createComplexBrushToolActive());
+  editorContext.setBlockSelection(assembleBrushToolActive());
 }
 
 void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*)
 {
   deactivateAllTools();
 }
+
+void MapViewToolBox::selectionDidChange(const Selection&)
+{
+  updateToolPage();
+}
+
+void MapViewToolBox::updateToolPage()
+{
+  auto document = kdl::mem_lock(m_document);
+  if (auto* activeTool = this->activeTool())
+  {
+    activeTool->showPage();
+  }
+  else if (document->hasSelection())
+  {
+    moveObjectsTool().showPage();
+  }
+  else
+  {
+    drawShapeTool().showPage();
+  }
+}
+
 } // namespace View
 } // namespace TrenchBroom

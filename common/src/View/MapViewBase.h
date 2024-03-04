@@ -209,7 +209,7 @@ public: // texture actions
   void resetTexturesToWorld();
 
 public: // tool mode actions
-  void createComplexBrush();
+  void assembleBrush();
 
   void toggleClipSide();
   void performClip();

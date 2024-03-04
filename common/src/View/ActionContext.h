@@ -32,14 +32,14 @@ static const Type View3D = 1u << 0u;
 static const Type View2D = 1u << 1u;
 static const Type AnyView = View3D | View2D;
 static const Type NoTool = 1u << 2u;
-static const Type CreateComplexBrushTool = 1u << 3u;
+static const Type AssembleBrushTool = 1u << 3u;
 static const Type ClipTool = 1u << 4u;
 static const Type RotateTool = 1u << 5u;
 static const Type ScaleTool = 1u << 6u;
 static const Type ShearTool = 1u << 7u;
 static const Type AnyVertexTool = 1u << 8u;
 static const Type AnyTool =
-  AnyVertexTool | CreateComplexBrushTool | ClipTool | RotateTool | ScaleTool | ShearTool;
+  AnyVertexTool | AssembleBrushTool | ClipTool | RotateTool | ScaleTool | ShearTool;
 static const Type AnyOrNoTool = AnyTool | NoTool;
 static const Type NoSelection = 1u << 9u;
 static const Type NodeSelection = 1u << 10u;

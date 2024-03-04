@@ -32,9 +32,9 @@ namespace TrenchBroom
 namespace View
 {
 class ClipTool;
-class CreateComplexBrushTool;
+class AssembleBrushTool;
 class CreateEntityTool;
-class CreateSimpleBrushTool;
+class DrawShapeTool;
 class MoveObjectsTool;
 class ExtrudeTool;
 class RotateObjectsTool;
@@ -44,6 +44,7 @@ class VertexTool;
 class EdgeTool;
 class FaceTool;
 class MapDocument;
+class Selection;
 
 class MapViewToolBox : public ToolBox
 {
@@ -51,9 +52,9 @@ private:
   std::weak_ptr<MapDocument> m_document;
 
   std::unique_ptr<ClipTool> m_clipTool;
-  std::unique_ptr<CreateComplexBrushTool> m_createComplexBrushTool;
+  std::unique_ptr<AssembleBrushTool> m_assembleBrushTool;
   std::unique_ptr<CreateEntityTool> m_createEntityTool;
-  std::unique_ptr<CreateSimpleBrushTool> m_createSimpleBrushTool;
+  std::unique_ptr<DrawShapeTool> m_drawShapeTool;
   std::unique_ptr<MoveObjectsTool> m_moveObjectsTool;
   std::unique_ptr<ExtrudeTool> m_extrudeTool;
   std::unique_ptr<RotateObjectsTool> m_rotateObjectsTool;
@@ -71,9 +72,9 @@ public:
 
 public: // tools
   ClipTool& clipTool();
-  CreateComplexBrushTool& createComplexBrushTool();
+  AssembleBrushTool& assembleBrushTool();
   CreateEntityTool& createEntityTool();
-  CreateSimpleBrushTool& createSimpleBrushTool();
+  DrawShapeTool& drawShapeTool();
   MoveObjectsTool& moveObjectsTool();
   ExtrudeTool& extrudeTool();
   RotateObjectsTool& rotateObjectsTool();
@@ -83,9 +84,9 @@ public: // tools
   EdgeTool& edgeTool();
   FaceTool& faceTool();
 
-  void toggleCreateComplexBrushTool();
-  bool createComplexBrushToolActive() const;
-  void performCreateComplexBrush();
+  void toggleAssembleBrushTool();
+  bool assembleBrushToolActive() const;
+  void performAssembleBrush();
 
   void toggleClipTool();
   bool clipToolActive() const;
@@ -128,6 +129,9 @@ private: // notification
   void toolDeactivated(Tool& tool);
   void updateEditorContext();
   void documentWasNewedOrLoaded(MapDocument* document);
+  void selectionDidChange(const Selection& selection);
+
+  void updateToolPage();
 };
 } // namespace View
 } // namespace TrenchBroom
