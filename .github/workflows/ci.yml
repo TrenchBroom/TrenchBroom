@@ -19,14 +19,14 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-12, windows-2022]
+        os: [ubuntu-22.04, macos-13, windows-2022]
         tb-build-type: [release]
         tb-arch: [default-arch]
         exclude:
           - os: windows-2022
             tb-arch: default-arch
         include:
-          - os: macos-12
+          - os: macos-13
             tb-build-type: asan
           - os: windows-2022
             tb-arch: x64
@@ -103,7 +103,7 @@ jobs:
           arch: 'win32_msvc2019'
 
       - name: Install macOS dependencies
-        if: ${{ matrix.os == 'macos-12' }}
+        if: ${{ matrix.os == 'macos-13' }}
         run: |
           brew install cmake p7zip pandoc qt5 ninja autoconf automake kadwanev/brew/retry
 
@@ -113,7 +113,7 @@ jobs:
         run: ./CI-linux.sh
 
       - name: macOS build
-        if: ${{ matrix.os == 'macos-12' }}
+        if: ${{ matrix.os == 'macos-13' }}
         run: |
           if [ '${{ matrix.tb-build-type }}' = 'asan' ]; then
             export TB_DEBUG_BUILD=true
@@ -169,9 +169,9 @@ jobs:
       # macOS
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'macos-12' && matrix.tb-build-type != 'asan' }}
+        if: ${{ matrix.os == 'macos-13' && matrix.tb-build-type != 'asan' }}
         with:
-          name: macos-12
+          name: macos-13
           path: |
             build/*.dmg
             build/*.md5
