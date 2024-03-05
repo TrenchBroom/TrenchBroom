@@ -19,7 +19,7 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [ubuntu-20.04, ubuntu-22.04, macos-12, windows-2022]
+        os: [ubuntu-22.04, macos-12, windows-2022]
         tb-build-type: [release]
         tb-arch: [default-arch]
         exclude:
@@ -74,12 +74,6 @@ jobs:
         run: |
           sudo apt update
           sudo apt install qtbase5-dev libqt5svg5-dev
-
-      - name: Install Qt5 on Ubuntu 20.04
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
-        run: |
-          sudo apt update
-          sudo apt install qt5-default libqt5svg5-dev
 
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2022' }}
@@ -162,16 +156,6 @@ jobs:
             cmakebuild/*.7z
             cmakebuild/*.7z.md5
 
-      # Ubuntu 20.04
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'ubuntu-20.04' }}
-        with:
-          name: ubuntu-20.04
-          path: |
-            build/*.deb
-            build/*.md5
-
       # Ubuntu 22.04
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v4
@@ -212,7 +196,7 @@ jobs:
 
       - name: Upload compiled manual
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-20.04' }}
+        if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-22.04' }}
         with:
           # I've created a SSH key pair following https://github.com/peaceiris/actions-gh-pages#%EF%B8%8F-create-ssh-deploy-key
           # The TrenchBroom/TrenchBroom repo has a repository secret ACTIONS_DEPLOY_KEY set to the SSH private key
