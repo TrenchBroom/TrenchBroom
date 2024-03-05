@@ -733,7 +733,7 @@ constexpr bool intersect_bbox_polygon(
    */
 
   // 1
-  auto numVerts = size_t(0);
+  assert(std::distance(begin, end) >= 3);
   for (auto cur = begin; cur != end; ++cur)
   {
     const auto v = get(*cur);
@@ -741,10 +741,8 @@ constexpr bool intersect_bbox_polygon(
     {
       return true;
     }
-    ++numVerts;
   }
 
-  assert(numVerts >= 3);
   const auto [valid, pl] =
     from_points(get(*begin), get(*std::next(begin)), get(*std::next(begin, 2)));
   assert(valid);
