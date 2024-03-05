@@ -395,6 +395,7 @@ public: // selection
 
   void selectAllNodes() override;
   void selectSiblings() override;
+  void selectEntitiesWithSameClassname() override;
   void selectTouching(bool del) override;
   void selectInside(bool del) override;
   void selectInverse() override;

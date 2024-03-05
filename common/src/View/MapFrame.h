@@ -256,6 +256,7 @@ public:
 
   void selectAll();
   void selectSiblings();
+  void selectEntitiesWithSameClassname();
   void selectTouching();
   void selectInside();
   void selectTall();
@@ -265,6 +266,7 @@ public:
 
   bool canSelect() const;
   bool canSelectSiblings() const;
+  bool canSelectEntitiesWithSameClassname() const;
   bool canSelectByBrush() const;
   bool canSelectTall() const;
   bool canDeselect() const;

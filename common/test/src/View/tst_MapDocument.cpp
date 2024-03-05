@@ -240,7 +240,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
     using T = std::vector<Model::NodePath>;
 
     // clang-format off
-    const auto 
+    const auto
     paths = GENERATE_COPY(values<T>({
     {},
     {getPath(brushNodeInDefaultLayer)},
@@ -265,7 +265,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
     using T = std::tuple<std::vector<Model::NodePath>, bool>;
 
     // clang-format off
-    const auto 
+    const auto
     [pathsToSelect,                      expectedResult] = GENERATE_COPY(values<T>({
     {std::vector<Model::NodePath>{},     false},
     {{getPath(pointEntityNode)},         false},
@@ -285,6 +285,74 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
     document->selectNodes(nodes);
 
     CHECK(document->hasAnySelectedBrushNodes() == expectedResult);
+  }
+}
+
+TEST_CASE_METHOD(MapDocumentTest, "SelectEntitiesWithSameClassname")
+{
+  const auto createEntityOfClass = [](const char* classname) {
+    return new Model::EntityNode{Model::Entity{
+      Model::EntityPropertyConfig{}, {Model::EntityProperty("classname", classname)}}};
+  };
+
+  auto* pointEntityType1 = createEntityOfClass("type1");
+  auto* pointEntityType2 = createEntityOfClass("type2");
+
+  auto* brushEntityType1 = new Model::EntityNode{Model::Entity{}};
+  auto* brushNodeType1 = &brushEntityType1->addChild(createBrushNode("brushNodeType1"));
+  auto* brushEntityType2 = new Model::EntityNode{Model::Entity{}};
+  auto* brushNodeType2 = &brushEntityType2->addChild(createBrushNode("brushNodeType2"));
+  auto* worldBrushNode = createBrushNode("worldBrushNode");
+
+  document->addNodes({
+    {document->world()->defaultLayer(),
+     {pointEntityType1, pointEntityType2, brushEntityType1, brushEntityType2}},
+    {brushEntityType1, {brushNodeType1}},
+    {brushEntityType2, {brushNodeType2}},
+  });
+
+  SECTION(
+    "Select all entities with classname 'type1', from original point entity selection")
+  {
+    document->deselectAll();
+    document->selectNodes(std::vector<Model::Node*>{pointEntityType1});
+    document->selectEntitiesWithSameClassname();
+
+    const auto& selected = document->selectedNodes();
+    const std::vector<Model::Node*> expectedSelection{pointEntityType1, brushEntityType1};
+    CHECK(
+      kdl::set_difference(expectedSelection, selected.nodes())
+      == std::vector<Model::Node*>{});
+    CHECK(
+      kdl::set_difference(selected.nodes(), expectedSelection)
+      == std::vector<Model::Node*>{});
+  }
+
+  SECTION(
+    "Select all entities with classname 'type2', from original brush entity selection")
+  {
+    document->deselectAll();
+    document->selectNodes(std::vector<Model::Node*>{brushEntityType2});
+    document->selectEntitiesWithSameClassname();
+
+    const auto& selected = document->selectedNodes();
+    const std::vector<Model::Node*> expectedSelection{pointEntityType2, brushEntityType2};
+    CHECK(
+      kdl::set_difference(expectedSelection, selected.nodes())
+      == std::vector<Model::Node*>{});
+    CHECK(
+      kdl::set_difference(selected.nodes(), expectedSelection)
+      == std::vector<Model::Node*>{});
+  }
+
+  SECTION("Select all entities with same classname as a world brush (empty selection)")
+  {
+    document->deselectAll();
+    document->selectNodes(std::vector<Model::Node*>{worldBrushNode});
+    document->selectEntitiesWithSameClassname();
+
+    const auto& selected = document->selectedNodes();
+    CHECK(selected.empty());
   }
 }
 

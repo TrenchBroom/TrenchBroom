@@ -368,6 +368,29 @@ bool applyAndSwap(
 
   return success;
 }
+
+std::string getClassname(const Model::Node* node)
+{
+  if (!node)
+  {
+    return std::string{};
+  }
+
+  const Model::EntityNodeBase* classnameNode = nullptr;
+  node->accept(kdl::overload(
+    [&](const Model::EntityNode* entityNode) { classnameNode = entityNode; },
+    [](const Model::WorldNode*) {},
+    [](const Model::LayerNode*) {},
+    [](const Model::GroupNode*) {},
+    [&](const Model::BrushNode* brushNode) { classnameNode = brushNode->entity(); },
+    [](const Model::PatchNode*) {}));
+
+  const std::string* value =
+    classnameNode ? classnameNode->entity().property(Model::EntityPropertyKeys::Classname)
+                  : nullptr;
+
+  return value ? (*value) : std::string{};
+}
 } // namespace
 
 const vm::bbox3 MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
@@ -1250,6 +1273,51 @@ void MapDocument::selectSiblings()
   auto transaction = Transaction{*this, "Select Siblings"};
   deselectAll();
   selectNodes(nodesToSelect);
+  transaction.commit();
+}
+
+void MapDocument::selectEntitiesWithSameClassname()
+{
+  const auto& nodes = selectedNodes().nodes();
+  if (nodes.empty())
+  {
+    // Nothing to do.
+    return;
+  }
+
+  // Compile a set of classnames used by the currently selected nodes.
+  std::unordered_set<std::string> classnames;
+  for (auto* node : nodes)
+  {
+    const std::string classname = getClassname(node);
+
+    // We don't consider the worldspawn classname to be valid to select by,
+    // because selecting all the world brushes in this way isn't very useful
+    // (they're not really considered the same as an actual brush entity by a user).
+    if (
+      !classname.empty() && classname != Model::EntityPropertyValues::WorldspawnClassname)
+    {
+      classnames.insert(classname);
+    }
+  }
+
+  // Get the current set of nodes that we may select from.
+  const auto rootNode = currentGroupOrWorld();
+  auto nodesThatMayBeSelected =
+    Model::collectSelectableNodes(rootNode->children(), editorContext());
+
+  // Filter the selected nodes to only those whose classname matches
+  // one of the classnames we previously had selected.
+  auto nodesToSelect =
+    kdl::vec_filter(std::move(nodesThatMayBeSelected), [&](Model::Node* node) -> bool {
+      const std::string classname = getClassname(node);
+      return !classname.empty() && classnames.find(classname) != classnames.end();
+    });
+
+  // Make the selection.
+  auto transaction = Transaction{*this, "Select Entities With Same Classname"};
+  deselectAll();
+  selectNodes(kdl::vec_static_cast<Model::Node*>(std::move(nodesToSelect)));
   transaction.commit();
 }
 

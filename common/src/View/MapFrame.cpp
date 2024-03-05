@@ -1565,6 +1565,14 @@ void MapFrame::selectSiblings()
   }
 }
 
+void MapFrame::selectEntitiesWithSameClassname()
+{
+  if (canSelectEntitiesWithSameClassname())
+  {
+    m_document->selectEntitiesWithSameClassname();
+  }
+}
+
 void MapFrame::selectTouching()
 {
   if (canSelectByBrush())
@@ -1641,6 +1649,42 @@ bool MapFrame::canSelect() const
 bool MapFrame::canSelectSiblings() const
 {
   return canChangeSelection() && m_document->hasSelectedNodes();
+}
+
+bool MapFrame::canSelectEntitiesWithSameClassname() const
+{
+  if (!canChangeSelection() || !m_document->hasSelectedNodes())
+  {
+    return false;
+  }
+
+  const auto& nodes = m_document->selectedNodes();
+
+  // If we have any point entities selected, we know we can
+  // perform the selection based on their classnames.
+  if (nodes.hasEntities())
+  {
+    return true;
+  }
+
+  // No point entities, so check brushes for brush entities.
+  return kdl::vec_contains(
+    nodes.brushes(), [](const Model::BrushNode* brushNode) -> bool {
+      const auto* parentEnt = brushNode->entity();
+
+      if (!parentEnt)
+      {
+        return false;
+      }
+
+      const std::string* classname =
+        parentEnt->entity().property(Model::EntityPropertyKeys::Classname);
+
+      // We don't consider the worldspawn classname to be valid to select by,
+      // because selecting all the world brushes in this way isn't very useful
+      // (they're not really considered the same as an actual brush entity by a user).
+      return classname && *classname != Model::EntityPropertyValues::WorldspawnClassname;
+    });
 }
 
 bool MapFrame::canSelectByBrush() const

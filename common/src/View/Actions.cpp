@@ -1286,6 +1286,17 @@ void ActionManager::createEditMenu()
       return context.hasDocument() && context.frame()->canSelectSiblings();
     }));
   editMenu.addItem(createMenuAction(
+    std::filesystem::path{"Menu/Edit/Select With Same Classname"},
+    QObject::tr("Select With Same Classname"),
+    0,
+    [](ActionExecutionContext& context) {
+      context.frame()->selectEntitiesWithSameClassname();
+    },
+    [](ActionExecutionContext& context) {
+      return context.hasDocument()
+             && context.frame()->canSelectEntitiesWithSameClassname();
+    }));
+  editMenu.addItem(createMenuAction(
     std::filesystem::path{"Menu/Edit/Select Touching"},
     QObject::tr("Select Touching"),
     +Qt::CTRL + Qt::Key_T,
