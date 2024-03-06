@@ -131,12 +131,12 @@ public:
     for (size_t i = 0; i < m_points.size(); ++i)
     {
       const auto& point = m_points[i].point;
-      const auto distance = camera.pickPointHandle(
-        pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-      if (!vm::is_nan(distance))
+      if (
+        const auto distance = camera.pickPointHandle(
+          pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius))))
       {
-        const auto hitPoint = vm::point_at_distance(pickRay, distance);
-        pickResult.addHit(Model::Hit{ClipTool::PointHitType, distance, hitPoint, i});
+        const auto hitPoint = vm::point_at_distance(pickRay, *distance);
+        pickResult.addHit(Model::Hit{ClipTool::PointHitType, *distance, hitPoint, i});
       }
     }
   }

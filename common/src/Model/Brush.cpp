@@ -927,8 +927,7 @@ Brush::CanMoveVerticesResult Brush::doCanMoveVertices(
              == vm::plane_status::above)
       {
         const auto ray = vm::ray3(oldPos, normalize(newPos - oldPos));
-        const auto distance = face->intersectWithRay(ray, vm::side::back);
-        if (!vm::is_nan(distance))
+        if (face->intersectWithRay(ray, vm::side::back))
         {
           return CanMoveVerticesResult::rejectVertexMove();
         }
@@ -986,7 +985,7 @@ Result<void> Brush::doMoveVertices(
   return updateFacesFromGeometry(worldBounds, matcher, newGeometry, uvLock);
 }
 
-std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(
+std::optional<vm::mat4x4> Brush::findTransformForUVLock(
   const PolyhedronMatcher<BrushGeometry>& matcher,
   BrushFaceGeometry* left,
   BrushFaceGeometry* right)
@@ -1015,7 +1014,7 @@ std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(
   // 4 corners.)
   if (unmovedVerts.size() >= 3)
   {
-    return std::make_tuple(false, vm::mat4x4());
+    return std::nullopt;
   }
 
   std::vector<std::pair<vm::vec3, vm::vec3>> referenceVerts;
@@ -1034,7 +1033,7 @@ std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(
   if (referenceVerts.size() < 3)
   {
     // Can't create a transform as there are not enough verts
-    return std::make_tuple(false, vm::mat4x4());
+    return std::nullopt;
   }
 
   const auto M = vm::points_transformation_matrix(
@@ -1048,10 +1047,10 @@ std::tuple<bool, vm::mat4x4> Brush::findTransformForUVLock(
   if (!(M == M))
   {
     // Transform contains nan
-    return std::make_tuple(false, vm::mat4x4());
+    return std::nullopt;
   }
 
-  return std::make_tuple(true, M);
+  return M;
 }
 
 void Brush::applyUVLock(
@@ -1059,36 +1058,35 @@ void Brush::applyUVLock(
   const BrushFace& leftFace,
   BrushFace& rightFace)
 {
-  const auto [success, M] =
-    findTransformForUVLock(matcher, leftFace.geometry(), rightFace.geometry());
-  if (!success)
+  if (
+    const auto M =
+      findTransformForUVLock(matcher, leftFace.geometry(), rightFace.geometry()))
   {
-    return;
-  }
 
-  // We want to re-set the texturing of `rightFace` using the texturing from M * leftFace.
-  // We don't want to disturb the actual geometry of `rightFace` which is already
-  // finalized. So the idea is, clone `leftFace`, transform it by M using texture lock,
-  // then copy the texture settings from the transformed clone (which should have an
-  // identical plane to `rightFace` within FP error) to `rightFace`.
-  BrushFace leftClone = leftFace;
-  leftClone.transform(M, true)
-    .transform([&]() {
-      auto snapshot =
-        std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
-      rightFace.setAttributes(leftClone.attributes());
-      if (snapshot)
-      {
-        // Note, the wrap style doesn't matter because the source and destination faces
-        // should have the same plane
-        rightFace.copyTexCoordSystemFromFace(
-          *snapshot, leftClone.attributes(), leftClone.boundary(), WrapStyle::Rotation);
-      }
-      rightFace.resetTexCoordSystemCache();
-    })
-    .transform_error([](auto) {
-      // do nothing
-    });
+    // We want to re-set the texturing of `rightFace` using the texturing from M *
+    // leftFace. We don't want to disturb the actual geometry of `rightFace` which is
+    // already finalized. So the idea is, clone `leftFace`, transform it by M using
+    // texture lock, then copy the texture settings from the transformed clone (which
+    // should have an identical plane to `rightFace` within FP error) to `rightFace`.
+    BrushFace leftClone = leftFace;
+    leftClone.transform(*M, true)
+      .transform([&]() {
+        auto snapshot =
+          std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
+        rightFace.setAttributes(leftClone.attributes());
+        if (snapshot)
+        {
+          // Note, the wrap style doesn't matter because the source and destination faces
+          // should have the same plane
+          rightFace.copyTexCoordSystemFromFace(
+            *snapshot, leftClone.attributes(), leftClone.boundary(), WrapStyle::Rotation);
+        }
+        rightFace.resetTexCoordSystemCache();
+      })
+      .transform_error([](auto) {
+        // do nothing
+      });
+  }
 }
 
 Result<void> Brush::updateFacesFromGeometry(

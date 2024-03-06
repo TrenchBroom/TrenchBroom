@@ -138,12 +138,12 @@ void ShearObjectsTool::pick3D(
   {
     const auto poly = polygonForBBoxSide(myBounds, side);
 
-    const auto dist =
-      vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
-    if (!vm::is_nan(dist))
+    if (
+      const auto dist =
+        vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly)))
     {
-      localPickResult.addHit(Model::Hit(
-        ShearToolSideHitType, dist, vm::point_at_distance(pickRay, dist), side));
+      const auto hitPoint = vm::point_at_distance(pickRay, *dist);
+      localPickResult.addHit(Model::Hit(ShearToolSideHitType, *dist, hitPoint, side));
     }
   }
 

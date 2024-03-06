@@ -212,15 +212,11 @@ Result<BrushFace> BrushFace::create(
   std::unique_ptr<TexCoordSystem> texCoordSystem)
 {
   Points points = {{vm::correct(point0), vm::correct(point1), vm::correct(point2)}};
-  const auto [result, plane] = vm::from_points(points[0], points[1], points[2]);
-  if (result)
+  if (const auto plane = vm::from_points(points[0], points[1], points[2]))
   {
-    return BrushFace(points, plane, attributes, std::move(texCoordSystem));
+    return BrushFace{points, *plane, attributes, std::move(texCoordSystem)};
   }
-  else
-  {
-    return Error{"Brush has invalid face"};
-  }
+  return Error{"Brush has invalid face"};
 }
 
 BrushFace::BrushFace(
@@ -288,7 +284,8 @@ void BrushFace::copyTexCoordSystemFromFace(
 {
   // Get a line, and a reference point, that are on both the source face's plane and our
   // plane
-  const auto seam = vm::intersect_plane_plane(sourceFacePlane, m_boundary);
+  const auto seam =
+    vm::intersect_plane_plane(sourceFacePlane, m_boundary).value_or(vm::line3{});
   const auto refPoint = vm::project_point(seam, center());
 
   coordSystemSnapshot.restore(*m_texCoordSystem);
@@ -303,13 +300,10 @@ void BrushFace::copyTexCoordSystemFromFace(
 
   // Adjust the offset on this face so that the texture coordinates at the refPoint stay
   // the same
-  if (!vm::is_zero(seam.direction, vm::C::almost_zero()))
-  {
-    const auto currentCoords =
-      m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
-    const auto offsetChange = desriedCoords - currentCoords;
-    m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
-  }
+  const auto currentCoords =
+    m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
+  const auto offsetChange = desriedCoords - currentCoords;
+  m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
 }
 
 const BrushFace::Points& BrushFace::points() const
@@ -341,9 +335,7 @@ vm::vec3 BrushFace::boundsCenter() const
 
   const auto toPlane =
     vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal);
-  const auto [invertible, fromPlane] = vm::invert(toPlane);
-  assert(invertible);
-  unused(invertible);
+  const auto fromPlane = vm::invert(toPlane);
 
   const auto* first = m_geometry->boundary().front();
   const auto* current = first;
@@ -357,7 +349,7 @@ vm::vec3 BrushFace::boundsCenter() const
     bounds = merge(bounds, toPlane * current->origin()->position());
     current = current->next();
   }
-  return fromPlane * bounds.center();
+  return *fromPlane * bounds.center();
 }
 
 FloatType BrushFace::projectedArea(const vm::axis::type axis) const
@@ -695,10 +687,9 @@ Result<void> BrushFace::updatePointsFromVertices()
     .transform([&]() {
       // Get a line, and a reference point, that are on both the old plane
       // (before moving the face) and after moving the face.
-      const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary);
-      if (!vm::is_zero(seam.direction, vm::C::almost_zero()))
+      if (const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary))
       {
-        const auto refPoint = project_point(seam, center());
+        const auto refPoint = project_point(*seam, center());
 
         // Get the texcoords at the refPoint using the old face's attribs and tex coord
         // system
@@ -725,10 +716,8 @@ vm::mat4x4 BrushFace::projectToBoundaryMatrix() const
     m_texCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one()) * vm::vec3::pos_z();
   const auto worldToPlaneMatrix =
     vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal, texZAxis);
-  const auto [invertible, planeToWorldMatrix] = vm::invert(worldToPlaneMatrix);
-  assert(invertible);
-  unused(invertible);
-  return planeToWorldMatrix * vm::mat4x4::zero_out<2>() * worldToPlaneMatrix;
+  const auto planeToWorldMatrix = vm::invert(worldToPlaneMatrix);
+  return *planeToWorldMatrix * vm::mat4x4::zero_out<2>() * worldToPlaneMatrix;
 }
 
 vm::mat4x4 BrushFace::toTexCoordSystemMatrix(
@@ -842,24 +831,18 @@ vm::vec2f BrushFace::textureCoords(const vm::vec3& point) const
   return m_texCoordSystem->getTexCoords(point, m_attributes, textureSize());
 }
 
-FloatType BrushFace::intersectWithRay(const vm::ray3& ray) const
+std::optional<FloatType> BrushFace::intersectWithRay(const vm::ray3& ray) const
 {
   ensure(m_geometry != nullptr, "geometry is null");
 
-  const FloatType cos = dot(m_boundary.normal, ray.direction);
-  if (cos >= FloatType(0.0))
-  {
-    return vm::nan<FloatType>();
-  }
-  else
-  {
-    return vm::intersect_ray_polygon(
-      ray,
-      m_boundary,
-      m_geometry->boundary().begin(),
-      m_geometry->boundary().end(),
-      BrushGeometry::GetVertexPosition());
-  }
+  const auto cos = vm::dot(m_boundary.normal, ray.direction);
+  return cos < FloatType(0) ? vm::intersect_ray_polygon(
+           ray,
+           m_boundary,
+           m_geometry->boundary().begin(),
+           m_geometry->boundary().end(),
+           BrushGeometry::GetVertexPosition())
+                            : std::nullopt;
 }
 
 Result<void> BrushFace::setPoints(
@@ -870,16 +853,12 @@ Result<void> BrushFace::setPoints(
   m_points[2] = point2;
   correctPoints();
 
-  const auto [result, plane] = vm::from_points(m_points[0], m_points[1], m_points[2]);
-  if (result)
+  if (const auto plane = vm::from_points(m_points[0], m_points[1], m_points[2]))
   {
-    m_boundary = plane;
+    m_boundary = *plane;
     return kdl::void_success;
   }
-  else
-  {
-    return Error{"Brush has invalid face"};
-  }
+  return Error{"Brush has invalid face"};
 }
 
 void BrushFace::correctPoints()

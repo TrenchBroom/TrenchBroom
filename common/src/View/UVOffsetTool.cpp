@@ -31,6 +31,7 @@
 #include "View/UVView.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/optional_utils.h"
 
 #include "vm/forward.h"
 #include "vm/intersection.h"
@@ -39,68 +40,49 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-UVOffsetTool::UVOffsetTool(
-  std::weak_ptr<MapDocument> document, const UVViewHelper& helper)
-  : ToolController{}
-  , Tool{true}
-  , m_document{std::move(document)}
-  , m_helper{helper}
-{
-}
-
-Tool& UVOffsetTool::tool()
-{
-  return *this;
-}
-
-const Tool& UVOffsetTool::tool() const
-{
-  return *this;
-}
-
-static vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
-{
-  const auto& boundary = helper.face()->boundary();
-  const auto distance = vm::intersect_ray_plane(ray, boundary);
-  const auto hitPoint = vm::point_at_distance(ray, distance);
-
-  const auto transform = helper.face()->toTexCoordSystemMatrix(
-    vm::vec2f::zero(), helper.face()->attributes().scale(), true);
-  return vm::vec2f{transform * hitPoint};
-}
-
-static vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
-{
-  assert(helper.valid());
-
-  const auto* texture = helper.texture();
-  if (texture == nullptr)
-  {
-    return vm::round(delta);
-  }
-
-  const auto transform = helper.face()->toTexCoordSystemMatrix(
-    helper.face()->attributes().offset() - delta,
-    helper.face()->attributes().scale(),
-    true);
-
-  auto distance = vm::vec2f::max();
-  for (const Model::BrushVertex* vertex : helper.face()->vertices())
-  {
-    const auto temp =
-      helper.computeDistanceFromTextureGrid(transform * vertex->position());
-    distance = vm::abs_min(distance, temp);
-  }
-
-  return helper.snapDelta(delta, -distance);
-}
 
 namespace
 {
+
+vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
+{
+  const auto& boundary = helper.face()->boundary();
+  return *kdl::optional_transform(
+    vm::intersect_ray_plane(ray, boundary), [&](const auto distance) {
+      const auto hitPoint = vm::point_at_distance(ray, distance);
+      const auto transform = helper.face()->toTexCoordSystemMatrix(
+        vm::vec2f::zero(), helper.face()->attributes().scale(), true);
+      return vm::vec2f{transform * hitPoint};
+    });
+}
+
+vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
+{
+  assert(helper.valid());
+
+  if (helper.texture())
+  {
+    const auto transform = helper.face()->toTexCoordSystemMatrix(
+      helper.face()->attributes().offset() - delta,
+      helper.face()->attributes().scale(),
+      true);
+
+    auto distance = vm::vec2f::max();
+    for (const auto* vertex : helper.face()->vertices())
+    {
+      const auto temp =
+        helper.computeDistanceFromTextureGrid(transform * vertex->position());
+      distance = vm::abs_min(distance, temp);
+    }
+
+    return helper.snapDelta(delta, -distance);
+  }
+
+  return vm::round(delta);
+}
+
 class UVOffsetDragTracker : public DragTracker
 {
 private:
@@ -118,7 +100,7 @@ public:
     m_document.startTransaction("Move Texture", TransactionScope::LongRunning);
   }
 
-  bool drag(const InputState& inputState)
+  bool drag(const InputState& inputState) override
   {
     assert(m_helper.valid());
 
@@ -143,11 +125,31 @@ public:
     return true;
   }
 
-  void end(const InputState&) { m_document.commitTransaction(); }
+  void end(const InputState&) override { m_document.commitTransaction(); }
 
-  void cancel() { m_document.cancelTransaction(); }
+  void cancel() override { m_document.cancelTransaction(); }
 };
+
 } // namespace
+
+UVOffsetTool::UVOffsetTool(
+  std::weak_ptr<MapDocument> document, const UVViewHelper& helper)
+  : ToolController{}
+  , Tool{true}
+  , m_document{std::move(document)}
+  , m_helper{helper}
+{
+}
+
+Tool& UVOffsetTool::tool()
+{
+  return *this;
+}
+
+const Tool& UVOffsetTool::tool() const
+{
+  return *this;
+}
 
 std::unique_ptr<DragTracker> UVOffsetTool::acceptMouseDrag(const InputState& inputState)
 {
@@ -168,5 +170,5 @@ bool UVOffsetTool::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

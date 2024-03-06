@@ -207,36 +207,35 @@ typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addNonColinearThi
   assert(h2->next() == h2);
   assert(h2->previous() == h2);
 
-  const auto [success, plane] = vm::from_points(v2->position(), v1->position(), position);
-  if (!success)
+  if (const auto plane = vm::from_points(v2->position(), v1->position(), position))
   {
-    return nullptr;
+    Vertex* v3 = new Vertex(position);
+    HalfEdge* h3 = new HalfEdge(v3);
+
+    Edge* e1 = m_edges.front();
+    e1->makeFirstEdge(h1);
+    e1->unsetSecondEdge();
+
+    HalfEdgeList boundary;
+    boundary.push_back(h1);
+    boundary.push_back(h2);
+    boundary.push_back(h3);
+
+    Face* face = new Face(std::move(boundary), *plane);
+
+    Edge* e2 = new Edge(h2);
+    Edge* e3 = new Edge(h3);
+
+    m_vertices.push_back(v3);
+    m_edges.push_back(e2);
+    m_edges.push_back(e3);
+    m_faces.push_back(face);
+
+    return v3;
   }
-
-  Vertex* v3 = new Vertex(position);
-  HalfEdge* h3 = new HalfEdge(v3);
-
-  Edge* e1 = m_edges.front();
-  e1->makeFirstEdge(h1);
-  e1->unsetSecondEdge();
-
-  HalfEdgeList boundary;
-  boundary.push_back(h1);
-  boundary.push_back(h2);
-  boundary.push_back(h3);
-
-  Face* face = new Face(std::move(boundary), plane);
-
-  Edge* e2 = new Edge(h2);
-  Edge* e3 = new Edge(h3);
-
-  m_vertices.push_back(v3);
-  m_edges.push_back(e2);
-  m_edges.push_back(e3);
-  m_faces.push_back(face);
-
-  return v3;
+  return nullptr;
 }
+
 
 template <typename T, typename FP, typename VP>
 typename Polyhedron<T, FP, VP>::Vertex* Polyhedron<T, FP, VP>::addFurtherPoint(
@@ -827,11 +826,7 @@ bool Polyhedron<T, FP, VP>::checkSeamForWeaving(
     auto* v1 = edge->secondVertex();
     auto* v2 = edge->firstVertex();
 
-    const auto [valid, normal] =
-      vm::plane_normal(position, v1->position(), v2->position());
-    unused(normal);
-
-    if (!valid)
+    if (!vm::plane_normal(position, v1->position(), v2->position()))
     {
       return false;
     }
@@ -878,14 +873,13 @@ std::optional<typename Polyhedron<T, FP, VP>::WeaveConeResult> Polyhedron<T, FP,
       firstSeamEdge = h2;
     }
 
-    const auto [success, plane] =
-      vm::from_points(v1->position(), position, v2->position());
-    if (!success)
+    const auto plane = vm::from_points(v1->position(), position, v2->position());
+    if (!plane)
     {
       return std::nullopt;
     }
 
-    faces.push_back(new Face(std::move(boundary), plane));
+    faces.push_back(new Face(std::move(boundary), *plane));
 
     if (last != nullptr)
     {

@@ -265,14 +265,14 @@ private:
     }
 
     const auto hit = m_tool.polyhedron().pickFace(inputState.pickRay());
-    if (!hit.isMatch())
+    if (!hit)
     {
       return nullptr;
     }
 
     const vm::vec3 initialHandlePosition =
-      vm::point_at_distance(inputState.pickRay(), hit.distance);
-    const vm::vec3 normal = hit.face->normal();
+      vm::point_at_distance(inputState.pickRay(), hit->distance);
+    const vm::vec3 normal = hit->face.normal();
 
     return createHandleDragTracker(
       DuplicateFaceDragDelegate{m_tool, normal},
@@ -406,8 +406,7 @@ void CreateComplexBrushToolController3D::render(
 
     if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift))
     {
-      const auto hit = polyhedron.pickFace(inputState.pickRay());
-      if (hit.isMatch())
+      if (polyhedron.pickFace(inputState.pickRay()))
       {
         const auto* face = polyhedron.faces().front();
         const auto pos3 = face->vertexPositions();

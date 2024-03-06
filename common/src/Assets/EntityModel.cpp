@@ -32,11 +32,13 @@
 #include "vm/forward.h"
 #include "vm/intersection.h"
 
+#include <fmt/format.h>
+
+#include <ranges>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
+
 {
 // EntityModelFrame
 
@@ -67,12 +69,12 @@ void EntityModelFrame::setSkinOffset(const size_t skinOffset)
 
 EntityModelLoadedFrame::EntityModelLoadedFrame(
   const size_t index,
-  const std::string& name,
+  std::string name,
   const vm::bbox3f& bounds,
   const PitchType pitchType,
   const Orientation orientation)
   : EntityModelFrame{index}
-  , m_name{name}
+  , m_name{std::move(name)}
   , m_bounds{bounds}
   , m_pitchType{pitchType}
   , m_orientation{orientation}
@@ -107,16 +109,16 @@ Orientation EntityModelLoadedFrame::orientation() const
   return m_orientation;
 }
 
-float EntityModelLoadedFrame::intersect(const vm::ray3f& ray) const
+std::optional<float> EntityModelLoadedFrame::intersect(const vm::ray3f& ray) const
 {
-  auto closestDistance = vm::nan<float>();
+  auto closestDistance = std::optional<float>{};
 
   const auto candidates = m_spacialTree->find_intersectors(ray);
-  for (const TriNum triNum : candidates)
+  for (const auto triNum : candidates)
   {
-    const vm::vec3f& p1 = m_tris[triNum * 3 + 0];
-    const vm::vec3f& p2 = m_tris[triNum * 3 + 1];
-    const vm::vec3f& p3 = m_tris[triNum * 3 + 2];
+    const auto& p1 = m_tris[triNum * 3 + 0];
+    const auto& p2 = m_tris[triNum * 3 + 1];
+    const auto& p3 = m_tris[triNum * 3 + 2];
     closestDistance =
       vm::safe_min(closestDistance, vm::intersect_ray_triangle(ray, p1, p2, p3));
   }
@@ -150,7 +152,7 @@ void EntityModelLoadedFrame::addToSpacialTree(
       bounds.add(p2);
       bounds.add(p3);
 
-      const size_t triIndex = m_tris.size() / 3u;
+      const auto triIndex = m_tris.size() / 3u;
       m_tris.push_back(p1);
       m_tris.push_back(p2);
       m_tris.push_back(p3);
@@ -173,7 +175,7 @@ void EntityModelLoadedFrame::addToSpacialTree(
       bounds.add(p2);
       bounds.add(p3);
 
-      const size_t triIndex = m_tris.size() / 3u;
+      const auto triIndex = m_tris.size() / 3u;
       m_tris.push_back(p1);
       m_tris.push_back(p2);
       m_tris.push_back(p3);
@@ -196,7 +198,7 @@ void EntityModelLoadedFrame::addToSpacialTree(
       bounds.add(p2);
       bounds.add(p3);
 
-      const size_t triIndex = m_tris.size() / 3u;
+      const auto triIndex = m_tris.size() / 3u;
       if (i % 2 == 0)
       {
         m_tris.push_back(p1);
@@ -253,7 +255,7 @@ public:
 
   Orientation orientation() const override { return Orientation::Oriented; }
 
-  float intersect(const vm::ray3f& /* ray */) const override { return vm::nan<float>(); }
+  std::optional<float> intersect(const vm::ray3f&) const override { return std::nullopt; }
 };
 
 // EntityModel::Mesh
@@ -465,15 +467,8 @@ std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModelSurface::buildR
   assert(frameIndex < frameCount());
   assert(skinIndex < skinCount());
 
-  if (m_meshes[frameIndex] == nullptr)
-  {
-    return nullptr;
-  }
-  else
-  {
-    const auto* skin = this->skin(skinIndex);
-    return m_meshes[frameIndex]->buildRenderer(skin);
-  }
+  return m_meshes[frameIndex] ? m_meshes[frameIndex]->buildRenderer(skin(skinIndex))
+                              : nullptr;
 }
 
 // EntityModel
@@ -481,7 +476,6 @@ std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModelSurface::buildR
 EntityModel::EntityModel(
   std::string name, const PitchType pitchType, const Orientation orientation)
   : m_name{std::move(name)}
-  , m_prepared{false}
   , m_pitchType{pitchType}
   , m_orientation{orientation}
 {
@@ -490,7 +484,7 @@ EntityModel::EntityModel(
 std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(
   const size_t skinIndex, const size_t frameIndex) const
 {
-  std::vector<std::unique_ptr<Renderer::TexturedIndexRangeRenderer>> renderers;
+  auto renderers = std::vector<std::unique_ptr<Renderer::TexturedIndexRangeRenderer>>{};
   if (frameIndex >= frameCount())
   {
     return nullptr;
@@ -508,27 +502,14 @@ std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(
       renderers.push_back(std::move(renderer));
     }
   }
-  if (renderers.empty())
-  {
-    return nullptr;
-  }
-  else
-  {
-    return std::make_unique<Renderer::MultiTexturedIndexRangeRenderer>(
-      std::move(renderers));
-  }
+  return !renderers.empty() ? std::make_unique<Renderer::MultiTexturedIndexRangeRenderer>(
+           std::move(renderers))
+                            : nullptr;
 }
 
 vm::bbox3f EntityModel::bounds(const size_t frameIndex) const
 {
-  if (frameIndex >= m_frames.size())
-  {
-    return vm::bbox3f(8.0f);
-  }
-  else
-  {
-    return m_frames[frameIndex]->bounds();
-  }
+  return frameIndex < m_frames.size() ? m_frames[frameIndex]->bounds() : vm::bbox3f{8.0f};
 }
 
 bool EntityModel::prepared() const
@@ -563,17 +544,16 @@ EntityModelFrame& EntityModel::addFrame()
 }
 
 EntityModelLoadedFrame& EntityModel::loadFrame(
-  const size_t frameIndex, const std::string& name, const vm::bbox3f& bounds)
+  const size_t frameIndex, std::string name, const vm::bbox3f& bounds)
 {
   if (frameIndex >= frameCount())
   {
-    throw AssetException(
-      "Frame index " + std::to_string(frameIndex)
-      + " is out of bounds (frame count = " + std::to_string(frameCount()) + ")");
+    throw AssetException{fmt::format(
+      "Frame index {} is out of bounds (frame count = {})", frameIndex, frameCount())};
   }
 
   auto frame = std::make_unique<EntityModelLoadedFrame>(
-    frameIndex, name, bounds, m_pitchType, m_orientation);
+    frameIndex, std::move(name), bounds, m_pitchType, m_orientation);
   frame->setSkinOffset(m_frames[frameIndex]->skinOffset());
 
   auto& result = *frame;
@@ -619,47 +599,30 @@ std::vector<const EntityModelSurface*> EntityModel::surfaces() const
 
 const EntityModelFrame* EntityModel::frame(const std::string& name) const
 {
-  for (const auto& frame : m_frames)
-  {
-    if (frame->name() == name)
-    {
-      return frame.get();
-    }
-  }
-  return nullptr;
+  const auto it = std::ranges::find_if(
+    m_frames, [&](const auto& frame) { return frame->name() == name; });
+  return it != m_frames.end() ? it->get() : nullptr;
 }
 
 const EntityModelFrame* EntityModel::frame(const size_t index) const
 {
-  if (index >= frameCount())
-  {
-    return nullptr;
-  }
-  else
-  {
-    return m_frames[index].get();
-  }
+  return index < frameCount() ? m_frames[index].get() : nullptr;
 }
 
 EntityModelSurface& EntityModel::surface(const size_t index)
 {
   if (index >= surfaceCount())
   {
-    throw std::out_of_range("Surface index is out of bounds");
+    throw std::out_of_range{"Surface index is out of bounds"};
   }
   return *m_surfaces[index];
 }
 
 const EntityModelSurface* EntityModel::surface(const std::string& name) const
 {
-  for (const auto& surface : m_surfaces)
-  {
-    if (surface->name() == name)
-    {
-      return surface.get();
-    }
-  }
-  return nullptr;
+  const auto it = std::ranges::find_if(
+    m_surfaces, [&](const auto& surface) { return surface->name() == name; });
+  return it != m_surfaces.end() ? it->get() : nullptr;
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

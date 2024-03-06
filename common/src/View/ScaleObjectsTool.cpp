@@ -627,7 +627,7 @@ BackSide pickBackSideOfBox(
       {
         const auto result =
           vm::distance(pickRay, vm::segment3(points[i], points[(i + 1) % 4]));
-        if (!vm::is_nan(result.distance) && result.distance < closestDistToRay)
+        if (result.distance < closestDistToRay)
         {
           closestDistToRay = result.distance;
           bestNormal = n;
@@ -700,12 +700,12 @@ void ScaleObjectsTool::pick2D(
       // could figure out which endpoint is closer to camera, or just test both.
       for (const vm::vec3& point : std::vector<vm::vec3>{points.start(), points.end()})
       {
-        const FloatType dist = camera.pickPointHandle(
-          pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-        if (!vm::is_nan(dist))
+        if (
+          const auto dist = camera.pickPointHandle(
+            pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius))))
         {
-          localPickResult.addHit(Model::Hit(
-            ScaleToolEdgeHitType, dist, vm::point_at_distance(pickRay, dist), edge));
+          const auto hitPoint = vm::point_at_distance(pickRay, *dist);
+          localPickResult.addHit(Model::Hit(ScaleToolEdgeHitType, *dist, hitPoint, edge));
         }
       }
     }
@@ -748,11 +748,10 @@ void ScaleObjectsTool::pick3D(
     // cylinders of the edge handles, so they take priority where they overlap.
     const auto cornerRadius =
       static_cast<FloatType>(pref(Preferences::HandleRadius)) * 2.0;
-    const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius);
-    if (!vm::is_nan(dist))
+    if (const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius))
     {
-      localPickResult.addHit(Model::Hit(
-        ScaleToolCornerHitType, dist, vm::point_at_distance(pickRay, dist), corner));
+      const auto hitPoint = vm::point_at_distance(pickRay, *dist);
+      localPickResult.addHit(Model::Hit(ScaleToolCornerHitType, *dist, hitPoint, corner));
     }
   }
 
@@ -761,12 +760,12 @@ void ScaleObjectsTool::pick3D(
   {
     const vm::segment3 points = pointsForBBoxEdge(myBounds, edge);
 
-    const auto dist = camera.pickLineSegmentHandle(
-      pickRay, points, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-    if (!vm::is_nan(dist))
+    if (
+      const auto dist = camera.pickLineSegmentHandle(
+        pickRay, points, static_cast<FloatType>(pref(Preferences::HandleRadius))))
     {
-      localPickResult.addHit(Model::Hit(
-        ScaleToolEdgeHitType, dist, vm::point_at_distance(pickRay, dist), edge));
+      const auto hitPoint = vm::point_at_distance(pickRay, *dist);
+      localPickResult.addHit(Model::Hit(ScaleToolEdgeHitType, *dist, hitPoint, edge));
     }
   }
 
@@ -775,12 +774,12 @@ void ScaleObjectsTool::pick3D(
   {
     const auto poly = polygonForBBoxSide(myBounds, side);
 
-    const auto dist =
-      vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
-    if (!vm::is_nan(dist))
+    if (
+      const auto dist =
+        vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly)))
     {
-      localPickResult.addHit(Model::Hit(
-        ScaleToolSideHitType, dist, vm::point_at_distance(pickRay, dist), side));
+      const auto hitPoint = vm::point_at_distance(pickRay, *dist);
+      localPickResult.addHit(Model::Hit(ScaleToolSideHitType, *dist, hitPoint, side));
     }
   }
 

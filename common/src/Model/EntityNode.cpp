@@ -176,11 +176,10 @@ void EntityNode::doPick(
     const auto& myBounds = logicalBounds();
     if (!myBounds.contains(ray.origin))
     {
-      const auto distance = vm::intersect_ray_bbox(ray, myBounds);
-      if (!vm::is_nan(distance))
+      if (const auto distance = vm::intersect_ray_bbox(ray, myBounds))
       {
-        const auto hitPoint = vm::point_at_distance(ray, distance);
-        pickResult.addHit(Hit(EntityHitType, distance, hitPoint, this));
+        const auto hitPoint = vm::point_at_distance(ray, *distance);
+        pickResult.addHit(Hit(EntityHitType, *distance, hitPoint, this));
         return;
       }
     }
@@ -190,19 +189,16 @@ void EntityNode::doPick(
     {
       // we transform the ray into the model's space
       const auto transform = m_entity.modelTransformation();
-      const auto [invertible, inverse] = vm::invert(transform);
-      if (invertible)
+      if (const auto inverse = vm::invert(transform))
       {
-        const auto transformedRay = vm::ray3f{ray.transform(inverse)};
-        const auto distance = m_entity.model()->intersect(transformedRay);
-        if (!vm::is_nan(distance))
+        const auto transformedRay = vm::ray3f{ray.transform(*inverse)};
+        if (const auto distance = m_entity.model()->intersect(transformedRay))
         {
           // transform back to world space
           const auto transformedHitPoint =
-            vm::vec3{point_at_distance(transformedRay, distance)};
+            vm::vec3{point_at_distance(transformedRay, *distance)};
           const auto hitPoint = transform * transformedHitPoint;
-          pickResult.addHit(Hit{EntityHitType, FloatType(distance), hitPoint, this});
-          return;
+          pickResult.addHit(Hit{EntityHitType, FloatType(*distance), hitPoint, this});
         }
       }
     }

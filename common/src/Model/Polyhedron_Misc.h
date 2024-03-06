@@ -592,27 +592,7 @@ void Polyhedron<T, FP, VP>::clear()
 }
 
 template <typename T, typename FP, typename VP>
-Polyhedron<T, FP, VP>::FaceHit::FaceHit(Face* i_face, const T i_distance)
-  : face(i_face)
-  , distance(i_distance)
-{
-}
-
-template <typename T, typename FP, typename VP>
-Polyhedron<T, FP, VP>::FaceHit::FaceHit()
-  : face(nullptr)
-  , distance(vm::nan<T>())
-{
-}
-
-template <typename T, typename FP, typename VP>
-bool Polyhedron<T, FP, VP>::FaceHit::isMatch() const
-{
-  return face != nullptr;
-}
-
-template <typename T, typename FP, typename VP>
-typename Polyhedron<T, FP, VP>::FaceHit Polyhedron<T, FP, VP>::pickFace(
+std::optional<typename Polyhedron<T, FP, VP>::FaceHit> Polyhedron<T, FP, VP>::pickFace(
   const vm::ray<T, 3>& ray) const
 {
   const auto side = polygon() ? vm::side::both : vm::side::front;
@@ -620,14 +600,13 @@ typename Polyhedron<T, FP, VP>::FaceHit Polyhedron<T, FP, VP>::pickFace(
   auto* currentFace = firstFace;
   do
   {
-    const auto distance = currentFace->intersectWithRay(ray, side);
-    if (!vm::is_nan(distance))
+    if (const auto distance = currentFace->intersectWithRay(ray, side))
     {
-      return FaceHit(currentFace, distance);
+      return FaceHit{*currentFace, *distance};
     }
     currentFace = currentFace->next();
   } while (currentFace != firstFace);
-  return FaceHit();
+  return std::nullopt;
 }
 
 template <typename T, typename FP, typename VP>

@@ -93,17 +93,14 @@ FloatType RotateObjectsHandle::Handle::minorRadius()
 Model::Hit RotateObjectsHandle::Handle::pickCenterHandle(
   const vm::ray3& pickRay, const Renderer::Camera& camera) const
 {
-  const FloatType distance = camera.pickPointHandle(
-    pickRay, m_position, static_cast<FloatType>(pref(Preferences::HandleRadius)));
-  if (vm::is_nan(distance))
+  if (
+    const auto distance = camera.pickPointHandle(
+      pickRay, m_position, static_cast<FloatType>(pref(Preferences::HandleRadius))))
   {
-    return Model::Hit::NoHit;
+    const auto hitPoint = vm::point_at_distance(pickRay, *distance);
+    return Model::Hit(HandleHitType, *distance, hitPoint, HitArea::Center);
   }
-  else
-  {
-    return Model::Hit(
-      HandleHitType, distance, vm::point_at_distance(pickRay, distance), HitArea::Center);
-  }
+  return Model::Hit::NoHit;
 }
 
 Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(
@@ -111,22 +108,16 @@ Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(
 {
   const auto transform = handleTransform(camera, area);
 
-  const auto [invertible, inverse] = vm::invert(transform);
-  if (!invertible)
+  if (const auto inverse = vm::invert(transform))
   {
-    return Model::Hit::NoHit;
-  }
-
-  if (invertible)
-  {
-    const auto transformedRay = pickRay.transform(inverse);
-    const auto transformedPosition = inverse * m_position;
-    const auto transformedDistance = vm::intersect_ray_torus(
-      transformedRay, transformedPosition, majorRadius(), minorRadius());
-    if (!vm::is_nan(transformedDistance))
+    const auto transformedRay = pickRay.transform(*inverse);
+    const auto transformedPosition = *inverse * m_position;
+    if (
+      const auto transformedDistance = vm::intersect_ray_torus(
+        transformedRay, transformedPosition, majorRadius(), minorRadius()))
     {
       const auto transformedHitPoint =
-        vm::point_at_distance(transformedRay, transformedDistance);
+        vm::point_at_distance(transformedRay, *transformedDistance);
       const auto hitPoint = transform * transformedHitPoint;
       const auto distance = vm::dot(hitPoint - pickRay.origin, pickRay.direction);
       return Model::Hit(HandleHitType, distance, hitPoint, area);

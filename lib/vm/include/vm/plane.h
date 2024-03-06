@@ -27,7 +27,6 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
-#include <tuple>
 #include <type_traits>
 
 namespace vm
@@ -241,15 +240,15 @@ public:
    *
    * @param point the point to project
    * @param direction the projection direction
-   * @return the projected point
+   * @return the projected point or nullopt if it cannot projected
    */
-  constexpr vec<T, S> project_point(
+  constexpr std::optional<vec<T, S>> project_point(
     const vec<T, S>& point, const vec<T, S>& direction) const
   {
     const auto cos = dot(direction, normal);
     if (is_zero(cos, constants<T>::almost_zero()))
     {
-      return vec<T, S>::nan();
+      return std::nullopt;
     }
     const auto d = dot(distance * normal - point, normal) / cos;
     return point + direction * d;
@@ -275,10 +274,14 @@ public:
    * @param direction the projection direction
    * @return the projected vector
    */
-  constexpr vec<T, S> project_vector(
+  constexpr std::optional<vec<T, S>> project_vector(
     const vec<T, S>& vector, const vec<T, S>& direction) const
   {
-    return project_point(anchor() + vector, direction) - anchor();
+    if (const auto point = project_point(anchor() + vector, direction))
+    {
+      return *point - anchor();
+    }
+    return std::nullopt;
   }
 };
 
@@ -346,7 +349,7 @@ constexpr bool operator!=(const plane<T, S>& lhs, const plane<T, S>& rhs)
  * (p2-p1).
  *
  * Note that the three points must not be colinear so as to be a valid three point
- * representation of a plane. *
+ * representation of a plane.
  *
  * @tparam T the component type
  * @param p1 the first plane point
@@ -354,10 +357,10 @@ constexpr bool operator!=(const plane<T, S>& lhs, const plane<T, S>& rhs)
  * @param p3 the third plane point
  * @param epsilon an epsilon value used to determine whether the given three points do not
  * define a plane
- * @return a pair of a boolean indicating whether the plane is valid, and the normal
+ * @return the normal if the plane is valid and nullopt otherwise
  */
 template <typename T>
-std::tuple<bool, vec<T, 3>> plane_normal(
+std::optional<vec<T, 3>> plane_normal(
   const vec<T, 3>& p1,
   const vec<T, 3>& p2,
   const vec<T, 3>& p3,
@@ -373,12 +376,9 @@ std::tuple<bool, vec<T, 3>> plane_normal(
   const auto sin_theta = abs(length(normal) / (length(v1) * length(v2)));
   if (is_nan(sin_theta) || is_inf(sin_theta) || sin_theta < epsilon)
   {
-    return std::make_tuple(false, vec<T, 3>::zero());
+    return std::nullopt;
   }
-  else
-  {
-    return std::make_tuple(true, normalize(normal));
-  }
+  return normalize(normal);
 }
 
 /**
@@ -401,21 +401,17 @@ std::tuple<bool, vec<T, 3>> plane_normal(
  * @param p1 the first point
  * @param p2 the second point
  * @param p3 the third point
- * @return a pair of a boolean indicating whether the plane is valid, and the plane itself
+ * @return the plane if the points define a valid plane and nullopt otherwise
  */
 template <typename T>
-std::tuple<bool, plane<T, 3>> from_points(
+std::optional<plane<T, 3>> from_points(
   const vec<T, 3>& p1, const vec<T, 3>& p2, const vec<T, 3>& p3)
 {
-  const auto [valid, normal] = plane_normal(p1, p2, p3);
-  if (!valid)
+  if (const auto normal = plane_normal(p1, p2, p3))
   {
-    return std::make_tuple(false, plane<T, 3>());
+    return plane<T, 3>{p1, *normal};
   }
-  else
-  {
-    return std::make_tuple(true, plane<T, 3>(p1, normal));
-  }
+  return std::nullopt;
 }
 
 /**
@@ -442,29 +438,27 @@ std::tuple<bool, plane<T, 3>> from_points(
  * @param cur the start of the range
  * @param end the end of the range
  * @param get the mapping function
- * @return a pair of a boolean indicating whether the plane is valid, and the plane itself
+ * @return the plane if the opints define a valid plane and nullopt otherwise
  */
 template <typename I, typename G = identity>
-auto from_points(I cur, I end, const G& get = G()) -> std::
-  tuple<bool, plane<typename std::remove_reference<decltype(get(*cur))>::type::type, 3>>
+auto from_points(I cur, I end, const G& get = G()) -> std::optional<
+  plane<typename std::remove_reference<decltype(get(*cur))>::type::type, 3>>
 {
-  using T = typename std::remove_reference<decltype(get(*cur))>::type::type;
-
   if (cur == end)
   {
-    return std::make_tuple(false, plane<T, 3>());
+    return std::nullopt;
   }
   const auto p1 = *cur;
   ++cur;
   if (cur == end)
   {
-    return std::make_tuple(false, plane<T, 3>());
+    return std::nullopt;
   }
   const auto p2 = *cur;
   ++cur;
   if (cur == end)
   {
-    return std::make_tuple(false, plane<T, 3>());
+    return std::nullopt;
   }
   const auto p3 = *cur;
 

@@ -455,7 +455,7 @@ float Camera::pickFrustum(const float size, const vm::ray3f& ray) const
   return doPickFrustum(size, ray);
 }
 
-FloatType Camera::pickPointHandle(
+std::optional<FloatType> Camera::pickPointHandle(
   const vm::ray3& pickRay,
   const vm::vec3& handlePosition,
   const FloatType handleRadius) const
@@ -466,7 +466,7 @@ FloatType Camera::pickPointHandle(
     pickRay, handlePosition, FloatType(2.0) * handleRadius * scaling);
 }
 
-FloatType Camera::pickLineSegmentHandle(
+std::optional<FloatType> Camera::pickLineSegmentHandle(
   const vm::ray3& pickRay,
   const vm::segment3& handlePosition,
   const FloatType handleRadius) const
@@ -474,7 +474,7 @@ FloatType Camera::pickLineSegmentHandle(
   const auto dist = distance(pickRay, handlePosition);
   if (dist.parallel)
   {
-    return vm::nan<FloatType>();
+    return std::nullopt;
   }
 
   const auto pointHandlePosition = vm::point_at_distance(handlePosition, dist.position2);
@@ -523,10 +523,7 @@ void Camera::validateMatrices() const
   doValidateMatrices(m_projectionMatrix, m_viewMatrix);
   m_matrix = m_projectionMatrix * m_viewMatrix;
 
-  const auto [invertible, inverse] = vm::invert(m_matrix);
-  assert(invertible);
-  unused(invertible);
-  m_inverseMatrix = inverse;
+  m_inverseMatrix = *vm::invert(m_matrix);
   m_valid = true;
 }
 

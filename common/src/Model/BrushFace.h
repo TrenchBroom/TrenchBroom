@@ -36,6 +36,7 @@
 
 #include <array>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -264,7 +265,7 @@ public:
 
   vm::vec2f textureCoords(const vm::vec3& point) const;
 
-  FloatType intersectWithRay(const vm::ray3& ray) const;
+  std::optional<FloatType> intersectWithRay(const vm::ray3& ray) const;
 
 private:
   Result<void> setPoints(

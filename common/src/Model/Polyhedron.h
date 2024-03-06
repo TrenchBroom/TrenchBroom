@@ -959,10 +959,10 @@ public:
    *
    * @param ray the ray
    * @param side the side(s) from which a hit should be considered
-   * @return the distance to the point of intersection or NaN if the given ray does not
-   * intersect this face from the given side
+   * @return the distance to the point of intersection or nullopt if the given ray does
+   * not intersect this face from the given side
    */
-  T intersectWithRay(const vm::ray<T, 3>& ray, const vm::side side) const;
+  std::optional<T> intersectWithRay(const vm::ray<T, 3>& ray, vm::side side) const;
 
   /**
    * Computes the position of the given point in relation to the plane on which this face
@@ -1098,7 +1098,7 @@ private:
   /**
    * Intersects this face with the given ray and returns the result.
    */
-  RayIntersection intersectWithRay(const vm::ray<T, 3>& ray) const;
+  std::optional<RayIntersection> intersectWithRay(const vm::ray<T, 3>& ray) const;
 };
 
 template <typename T, typename FP, typename VP>
@@ -1409,28 +1409,21 @@ public: // Accessors
   void clear();
 
   /**
-   * The result of picking this polyhedron with a ray. If the polyhedron was hit, the face
-   * member contains a pointer to the face that was hit by the ray, and the distance
-   * member contains the distance from the ray origin to the hit point. If the polyhedron
-   * was not hit, the face member is null and the distance member is NaN.
+   * The result of picking this polyhedron with a ray.
    */
   struct FaceHit
   {
-    Face* face;
+    Face& face;
     T distance;
-
-    FaceHit(Face* i_face, const T i_distance);
-    FaceHit();
-    bool isMatch() const;
   };
 
   /**
    * Picks this polyhedron with the given ray and returns a face hit.
    *
    * @param ray the pick ray
-   * @return the face hit
+   * @return the face hit or nullopt if no face was hit by the ray
    */
-  FaceHit pickFace(const vm::ray<T, 3>& ray) const;
+  std::optional<FaceHit> pickFace(const vm::ray<T, 3>& ray) const;
 
 public: // General purpose methods
   /**

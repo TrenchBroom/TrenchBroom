@@ -42,6 +42,8 @@
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
+#include "kdl/optional_utils.h"
+
 #include "vm/distance.h"
 #include "vm/intersection.h"
 #include "vm/line.h"
@@ -51,33 +53,13 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-const Model::HitType::Type UVOriginTool::XHandleHitType = Model::HitType::freeType();
-const Model::HitType::Type UVOriginTool::YHandleHitType = Model::HitType::freeType();
-const FloatType UVOriginTool::MaxPickDistance = 5.0;
-const float UVOriginTool::OriginHandleRadius = 5.0f;
 
-UVOriginTool::UVOriginTool(UVViewHelper& helper)
-  : ToolController{}
-  , Tool{true}
-  , m_helper{helper}
+namespace
 {
-}
 
-Tool& UVOriginTool::tool()
-{
-  return *this;
-}
-
-const Tool& UVOriginTool::tool() const
-{
-  return *this;
-}
-
-static std::tuple<vm::line3, vm::line3> computeOriginHandles(const UVViewHelper& helper)
+std::tuple<vm::line3, vm::line3> computeOriginHandles(const UVViewHelper& helper)
 {
   const auto toWorld =
     helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
@@ -91,56 +73,7 @@ static std::tuple<vm::line3, vm::line3> computeOriginHandles(const UVViewHelper&
   };
 }
 
-void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickResult)
-{
-  if (m_helper.valid())
-  {
-    const auto [xHandle, yHandle] = computeOriginHandles(m_helper);
-
-    const auto fromTex = m_helper.face()->fromTexCoordSystemMatrix(
-      vm::vec2f::zero(), vm::vec2f::one(), true);
-    const auto origin = fromTex * vm::vec3{m_helper.originInFaceCoords()};
-
-    const auto& pickRay = inputState.pickRay();
-    const auto oDistance = vm::distance(pickRay, origin);
-    if (
-      oDistance.distance
-      <= static_cast<FloatType>(OriginHandleRadius / m_helper.cameraZoom()))
-    {
-      const auto hitPoint = vm::point_at_distance(pickRay, oDistance.position);
-      pickResult.addHit(Model::Hit{
-        XHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance});
-      pickResult.addHit(Model::Hit{
-        YHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance});
-    }
-    else
-    {
-      const auto xDistance = vm::distance(pickRay, xHandle);
-      const auto yDistance = vm::distance(pickRay, yHandle);
-
-      assert(!xDistance.parallel);
-      assert(!yDistance.parallel);
-
-      const auto maxDistance =
-        MaxPickDistance / static_cast<FloatType>(m_helper.cameraZoom());
-      if (xDistance.distance <= maxDistance)
-      {
-        const auto hitPoint = vm::point_at_distance(pickRay, xDistance.position1);
-        pickResult.addHit(Model::Hit{
-          XHandleHitType, xDistance.position1, hitPoint, xHandle, xDistance.distance});
-      }
-
-      if (yDistance.distance <= maxDistance)
-      {
-        const auto hitPoint = vm::point_at_distance(pickRay, yDistance.position1);
-        pickResult.addHit(Model::Hit{
-          YHandleHitType, yDistance.position1, hitPoint, yHandle, yDistance.distance});
-      }
-    }
-  }
-}
-
-static vm::vec2f getSelector(const InputState& inputState)
+vm::vec2f getSelector(const InputState& inputState)
 {
   using namespace Model::HitFilters;
 
@@ -153,18 +86,19 @@ static vm::vec2f getSelector(const InputState& inputState)
     xHandleHit.isMatch() ? 1.0f : 0.0f, yHandleHit.isMatch() ? 1.0f : 0.0f};
 }
 
-static vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
+vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
 {
   const auto& boundary = helper.face()->boundary();
-  const auto distance = vm::intersect_ray_plane(ray, boundary);
-  const auto hitPoint = vm::point_at_distance(ray, distance);
-
-  const auto transform =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  return vm::vec2f{transform * hitPoint};
+  return *kdl::optional_transform(
+    vm::intersect_ray_plane(ray, boundary), [&](const auto distance) {
+      const auto hitPoint = vm::point_at_distance(ray, distance);
+      const auto transform =
+        helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+      return vm::vec2f{transform * hitPoint};
+    });
 }
 
-static vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
+vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
 {
   assert(helper.valid());
 
@@ -230,7 +164,7 @@ static vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
 
 using EdgeVertex = Renderer::GLVertexTypes::P3C4::Vertex;
 
-static std::vector<EdgeVertex> getHandleVertices(
+std::vector<EdgeVertex> getHandleVertices(
   const UVViewHelper& helper, const vm::vec2b& highlightHandle)
 {
   const auto xColor =
@@ -248,7 +182,7 @@ static std::vector<EdgeVertex> getHandleVertices(
     EdgeVertex{vm::vec3f{y2}, yColor}};
 }
 
-static void renderLineHandles(
+void renderLineHandles(
   const UVViewHelper& helper,
   const vm::vec2b& highlightHandles,
   Renderer::RenderBatch& renderBatch)
@@ -259,8 +193,6 @@ static void renderLineHandles(
   edgeRenderer.renderOnTop(renderBatch, 0.5f);
 }
 
-namespace
-{
 class RenderOrigin : public Renderer::DirectRenderable
 {
 private:
@@ -300,17 +232,15 @@ private:
 
     const auto& boundary = m_helper.face()->boundary();
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
-    const auto [invertible, fromPlane] = vm::invert(toPlane);
+    const auto fromPlane = vm::invert(toPlane);
     const auto originPosition(
       toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()});
-    assert(invertible);
-    unused(invertible);
 
     const auto& handleColor = pref(Preferences::HandleColor);
     const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
     const auto toWorldTransform = Renderer::MultiplyModelMatrix{
-      renderContext.transformation(), vm::mat4x4f{fromPlane}};
+      renderContext.transformation(), vm::mat4x4f{*fromPlane}};
     const auto translation = vm::translation_matrix(vm::vec3{originPosition});
     const auto centerTransform = Renderer::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{translation}};
@@ -321,17 +251,14 @@ private:
     m_originHandle.render();
   }
 };
-} // namespace
 
-static void renderOriginHandle(
+void renderOriginHandle(
   const UVViewHelper& helper, const bool highlight, Renderer::RenderBatch& renderBatch)
 {
   renderBatch.addOneShot(
     new RenderOrigin{helper, UVOriginTool::OriginHandleRadius, highlight});
 }
 
-namespace
-{
 class UVOriginDragTracker : public DragTracker
 {
 private:
@@ -347,7 +274,7 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState)
+  bool drag(const InputState& inputState) override
   {
     const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
 
@@ -367,11 +294,13 @@ public:
     }
   }
 
-  void end(const InputState&) {}
-  void cancel() {}
+  void end(const InputState&) override {}
+  void cancel() override {}
 
   void render(
-    const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) const
+    const InputState&,
+    Renderer::RenderContext&,
+    Renderer::RenderBatch& renderBatch) const override
   {
     const auto highlightHandles = vm::vec2b{m_selector.x() > 0.0, m_selector.y() > 0.0};
 
@@ -379,7 +308,79 @@ public:
     renderOriginHandle(m_helper, true, renderBatch);
   }
 };
+
 } // namespace
+
+const Model::HitType::Type UVOriginTool::XHandleHitType = Model::HitType::freeType();
+const Model::HitType::Type UVOriginTool::YHandleHitType = Model::HitType::freeType();
+const FloatType UVOriginTool::MaxPickDistance = 5.0;
+const float UVOriginTool::OriginHandleRadius = 5.0f;
+
+UVOriginTool::UVOriginTool(UVViewHelper& helper)
+  : ToolController{}
+  , Tool{true}
+  , m_helper{helper}
+{
+}
+
+Tool& UVOriginTool::tool()
+{
+  return *this;
+}
+
+const Tool& UVOriginTool::tool() const
+{
+  return *this;
+}
+
+void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickResult)
+{
+  if (m_helper.valid())
+  {
+    const auto [xHandle, yHandle] = computeOriginHandles(m_helper);
+
+    const auto fromTex = m_helper.face()->fromTexCoordSystemMatrix(
+      vm::vec2f::zero(), vm::vec2f::one(), true);
+    const auto origin = fromTex * vm::vec3{m_helper.originInFaceCoords()};
+
+    const auto& pickRay = inputState.pickRay();
+    const auto oDistance = vm::distance(pickRay, origin);
+    if (
+      oDistance.distance
+      <= static_cast<FloatType>(OriginHandleRadius / m_helper.cameraZoom()))
+    {
+      const auto hitPoint = vm::point_at_distance(pickRay, oDistance.position);
+      pickResult.addHit(Model::Hit{
+        XHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance});
+      pickResult.addHit(Model::Hit{
+        YHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance});
+    }
+    else
+    {
+      const auto xDistance = vm::distance(pickRay, xHandle);
+      const auto yDistance = vm::distance(pickRay, yHandle);
+
+      assert(!xDistance.parallel);
+      assert(!yDistance.parallel);
+
+      const auto maxDistance =
+        MaxPickDistance / static_cast<FloatType>(m_helper.cameraZoom());
+      if (xDistance.distance <= maxDistance)
+      {
+        const auto hitPoint = vm::point_at_distance(pickRay, xDistance.position1);
+        pickResult.addHit(Model::Hit{
+          XHandleHitType, xDistance.position1, hitPoint, xHandle, xDistance.distance});
+      }
+
+      if (yDistance.distance <= maxDistance)
+      {
+        const auto hitPoint = vm::point_at_distance(pickRay, yDistance.position1);
+        pickResult.addHit(Model::Hit{
+          YHandleHitType, yDistance.position1, hitPoint, yHandle, yDistance.distance});
+      }
+    }
+  }
+}
 
 std::unique_ptr<DragTracker> UVOriginTool::acceptMouseDrag(const InputState& inputState)
 {
@@ -432,5 +433,5 @@ bool UVOriginTool::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -213,12 +213,14 @@ public:
     const float scrollDist = inputState.scrollY();
 
     const auto orbitPlane = vm::plane3f{m_orbitCenter, m_camera.direction()};
-    const float maxDistance =
-      vm::max(vm::intersect_ray_plane(m_camera.viewRay(), orbitPlane) - 32.0f, 0.0f);
-    const float distance =
-      vm::min(factor * scrollDist * moveSpeed(m_camera, false), maxDistance);
+    if (const auto hit = vm::intersect_ray_plane(m_camera.viewRay(), orbitPlane))
+    {
+      const float maxDistance = vm::max(*hit - 32.0f, 0.0f);
+      const float distance =
+        vm::min(factor * scrollDist * moveSpeed(m_camera, false), maxDistance);
 
-    m_camera.moveBy(distance * m_camera.direction());
+      m_camera.moveBy(distance * m_camera.direction());
+    }
   }
 
   bool drag(const InputState& inputState) override

@@ -93,8 +93,13 @@ std::vector<Vertex> createDecalBrushFace(
 
   // because the texture axes don't have to align to the face, we might have a reversed
   // face here. if so, reverse the points to get a valid face for the plane
-  const auto [_, vertPlane] = vm::from_points(verts[0], verts[1], verts[2]);
-  if (!vm::is_equal(plane.normal, vertPlane.normal, vm::C::almost_zero()))
+  const auto vertPlane = vm::from_points(verts[0], verts[1], verts[2]);
+  if (!vertPlane)
+  {
+    return {};
+  }
+
+  if (!vm::is_equal(plane.normal, vertPlane->normal, vm::C::almost_zero()))
   {
     std::reverse(std::begin(verts), std::end(verts));
   }

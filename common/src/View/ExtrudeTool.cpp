@@ -128,10 +128,6 @@ std::optional<EdgeInfo> getEdgeInfo(
 
   const auto segment = edge->segment();
   const auto dist = vm::distance(pickRay, segment);
-  if (vm::is_nan(dist.distance))
-  {
-    return std::nullopt;
-  }
 
   const auto leftFaceIndex = edge->firstFace()->payload();
   const auto rightFaceIndex = edge->secondFace()->payload();

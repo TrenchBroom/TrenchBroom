@@ -539,42 +539,42 @@ TEST_CASE("PolyhedronTest.clipWithInvalidSeam")
     8192.0 * vm::vec3d(+1.0, +1.0, +1.0),
   };
 
-  poly.clip(std::get<1>(vm::from_points(
+  poly.clip(*vm::from_points(
     vm::vec3d(-459.0, 1579.0, -115.0),
     vm::vec3d(-483.0, 1371.0, 131.0),
-    vm::vec3d(-184.0, 1428.0, 237.0))));
-  poly.clip(std::get<1>(vm::from_points(
+    vm::vec3d(-184.0, 1428.0, 237.0)));
+  poly.clip(*vm::from_points(
     vm::vec3d(-184.0, 1428.0, 237.0),
     vm::vec3d(-184.0, 1513.0, 396.0),
-    vm::vec3d(-184.0, 1777.0, 254.0))));
-  poly.clip(std::get<1>(vm::from_points(
+    vm::vec3d(-184.0, 1777.0, 254.0)));
+  poly.clip(*vm::from_points(
     vm::vec3d(-484.0, 1513.0, 395.0),
     vm::vec3d(-483.0, 1371.0, 131.0),
-    vm::vec3d(-483.0, 1777.0, 253.0))));
-  poly.clip(std::get<1>(vm::from_points(
+    vm::vec3d(-483.0, 1777.0, 253.0)));
+  poly.clip(*vm::from_points(
     vm::vec3d(-483.0, 1371.0, 131.0),
     vm::vec3d(-459.0, 1579.0, -115.0),
-    vm::vec3d(-483.0, 1777.0, 253.0))));
-  poly.clip(std::get<1>(vm::from_points(
+    vm::vec3d(-483.0, 1777.0, 253.0)));
+  poly.clip(*vm::from_points(
     vm::vec3d(-184.0, 1513.0, 396.0),
     vm::vec3d(-484.0, 1513.0, 395.0),
-    vm::vec3d(-184.0, 1777.0, 254.0))));
-  poly.clip(std::get<1>(vm::from_points(
+    vm::vec3d(-184.0, 1777.0, 254.0)));
+  poly.clip(*vm::from_points(
     vm::vec3d(-184.0, 1777.0, 254.0),
     vm::vec3d(-483.0, 1777.0, 253.0),
-    vm::vec3d(-183.0, 1692.0, 95.0))));
-  poly.clip(std::get<1>(vm::from_points(
+    vm::vec3d(-183.0, 1692.0, 95.0)));
+  poly.clip(*vm::from_points(
     vm::vec3d(-483.0, 1777.0, 253.0),
     vm::vec3d(-459.0, 1579.0, -115.0),
-    vm::vec3d(-183.0, 1692.0, 95.0)))); //  Assertion failure here!
-  poly.clip(std::get<1>(vm::from_points(
+    vm::vec3d(-183.0, 1692.0, 95.0))); //  Assertion failure here!
+  poly.clip(*vm::from_points(
     vm::vec3d(-483.0, 1371.0, 131.0),
     vm::vec3d(-484.0, 1513.0, 395.0),
-    vm::vec3d(-184.0, 1513.0, 396.0))));
-  poly.clip(std::get<1>(vm::from_points(
+    vm::vec3d(-184.0, 1513.0, 396.0)));
+  poly.clip(*vm::from_points(
     vm::vec3d(-483.0, 1371.0, 131.0),
     vm::vec3d(-184.0, 1513.0, 396.0),
-    vm::vec3d(-184.0, 1428.0, 237.0))));
+    vm::vec3d(-184.0, 1428.0, 237.0)));
 }
 
 TEST_CASE("PolyhedronTest.subtractFailWithMissingFragments")

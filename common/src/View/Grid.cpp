@@ -33,14 +33,11 @@
 
 #include <cmath>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 Grid::Grid(const int size)
-  : m_size(size)
-  , m_snap(true)
-  , m_visible(true)
+  : m_size{size}
 {
 }
 
@@ -82,11 +79,7 @@ void Grid::decSize()
 
 FloatType Grid::actualSize() const
 {
-  if (snap())
-  {
-    return actualSize(m_size);
-  }
-  return FloatType(1);
+  return snap() ? actualSize(m_size) : FloatType(1);
 }
 
 FloatType Grid::angle() const
@@ -118,7 +111,7 @@ void Grid::toggleSnap()
 
 FloatType Grid::intersectWithRay(const vm::ray3& ray, const size_t skip) const
 {
-  vm::vec3 planeAnchor;
+  auto planeAnchor = vm::vec3{};
 
   for (size_t i = 0; i < 3; ++i)
   {
@@ -136,15 +129,15 @@ FloatType Grid::intersectWithRay(const vm::ray3& ray, const size_t skip) const
     vm::intersect_ray_plane(ray, vm::plane3(planeAnchor, vm::vec3::pos_z()));
 
   auto dist = distX;
-  if (!vm::is_nan(distY) && (vm::is_nan(dist) || std::abs(distY) < std::abs(dist)))
+  if (distY && (!dist || std::abs(*distY) < std::abs(*dist)))
   {
     dist = distY;
   }
-  if (!vm::is_nan(distZ) && (vm::is_nan(dist) || std::abs(distZ) < std::abs(dist)))
+  if (distZ && (!dist || std::abs(*distZ) < std::abs(*dist)))
   {
     dist = distZ;
   }
-  return dist;
+  return *dist;
 }
 
 vm::vec3 Grid::moveDeltaForPoint(const vm::vec3& point, const vm::vec3& delta) const
@@ -193,16 +186,21 @@ vm::vec3 Grid::moveDeltaForBounds(
   // First, find the ray/plane intersection, and snap it to grid.
   // This will become one of the corners of our resulting bbox.
   // Note that this means we might let the box clip into the plane somewhat.
-  const FloatType dist = vm::intersect_ray_plane(ray, targetPlane);
-  const vm::vec3 hitPoint = vm::point_at_distance(ray, dist);
+  const auto dist = vm::intersect_ray_plane(ray, targetPlane);
+  if (!dist)
+  {
+    return vm::vec3{0, 0, 0};
+  }
+
+  const auto hitPoint = vm::point_at_distance(ray, *dist);
 
   // Local axis system where Z is the largest magnitude component of targetPlane.normal,
   // and X and Y are the other two axes.
-  const size_t localZ = vm::find_abs_max_component(targetPlane.normal, 0);
-  const size_t localX = vm::find_abs_max_component(targetPlane.normal, 1);
-  const size_t localY = vm::find_abs_max_component(targetPlane.normal, 2);
+  const auto localZ = vm::find_abs_max_component(targetPlane.normal, 0);
+  const auto localX = vm::find_abs_max_component(targetPlane.normal, 1);
+  const auto localY = vm::find_abs_max_component(targetPlane.normal, 2);
 
-  vm::vec3 firstCorner = snapTowards(hitPoint, -ray.direction);
+  auto firstCorner = snapTowards(hitPoint, -ray.direction);
   if (vm::is_equal(
         targetPlane.normal,
         vm::get_abs_max_component_axis(targetPlane.normal),
@@ -212,7 +210,7 @@ vm::vec3 Grid::moveDeltaForBounds(
     firstCorner[localZ] = hitPoint[localZ];
   }
 
-  vm::vec3 newMinPos = firstCorner;
+  auto newMinPos = firstCorner;
 
   // The remaining task is to decide which corner of the bbox firstCorner is.
   // Start with using firstCorner as the bbox min, and for each axis,
@@ -259,9 +257,9 @@ FloatType Grid::snapToGridPlane(const vm::line3& line, const FloatType distance)
   {
     const auto p = vm::plane3{c, vm::vec3::axis(i)};
     const auto y = vm::intersect_line_plane(line, p);
-    if (!vm::is_nan(y) && vm::abs(y - distance) < vm::abs(snappedDistance - distance))
+    if (y && vm::abs(*y - distance) < vm::abs(snappedDistance - distance))
     {
-      snappedDistance = y;
+      snappedDistance = *y;
     }
   }
 
@@ -314,5 +312,5 @@ vm::vec3 Grid::referencePoint(const vm::bbox3& bounds) const
 {
   return snap(bounds.center());
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

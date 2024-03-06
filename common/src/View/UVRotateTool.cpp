@@ -44,6 +44,7 @@
 #include "View/UVViewHelper.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/optional_utils.h"
 
 #include "vm/forward.h"
 #include "vm/intersection.h"
@@ -53,74 +54,23 @@
 
 #include <optional>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+
+namespace
 {
-const Model::HitType::Type UVRotateTool::AngleHandleHitType = Model::HitType::freeType();
-static constexpr auto CenterHandleRadius = 2.5;
-static constexpr auto RotateHandleRadius = 32.0;
-static constexpr auto RotateHandleWidth = 5.0;
 
-UVRotateTool::UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
-  : ToolController{}
-  , Tool{true}
-  , m_document{document}
-  , m_helper{helper}
-{
-}
+constexpr auto CenterHandleRadius = 2.5;
+constexpr auto RotateHandleRadius = 32.0;
+constexpr auto RotateHandleWidth = 5.0;
 
-Tool& UVRotateTool::tool()
-{
-  return *this;
-}
-
-const Tool& UVRotateTool::tool() const
-{
-  return *this;
-}
-
-void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickResult)
-{
-  if (!m_helper.valid())
-  {
-    return;
-  }
-
-  const auto& boundary = m_helper.face()->boundary();
-
-  const auto& pickRay = inputState.pickRay();
-  const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary);
-  if (!vm::is_nan(distanceToFace))
-  {
-    const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
-
-    const auto fromFace = m_helper.face()->fromTexCoordSystemMatrix(
-      vm::vec2f::zero(), vm::vec2f::one(), true);
-    const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
-
-    const auto originOnPlane =
-      toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()};
-    const auto hitPointOnPlane = toPlane * hitPoint;
-
-    const auto zoom = static_cast<FloatType>(m_helper.cameraZoom());
-    const auto error =
-      vm::abs(RotateHandleRadius / zoom - vm::distance(hitPointOnPlane, originOnPlane));
-    if (error <= RotateHandleWidth / zoom)
-    {
-      pickResult.addHit(
-        Model::Hit{AngleHandleHitType, distanceToFace, hitPoint, 0, error});
-    }
-  }
-}
-
-static float measureAngle(const UVViewHelper& helper, const vm::vec2f& point)
+float measureAngle(const UVViewHelper& helper, const vm::vec2f& point)
 {
   const auto origin = helper.originInFaceCoords();
   return vm::mod(helper.face()->measureTextureAngle(origin, point), 360.0f);
 }
 
-static float snapAngle(const UVViewHelper& helper, const float angle)
+float snapAngle(const UVViewHelper& helper, const float angle)
 {
   const float angles[] = {
     vm::mod(angle + 0.0f, 360.0f),
@@ -155,8 +105,13 @@ static float snapAngle(const UVViewHelper& helper, const float angle)
   return angle;
 }
 
-namespace
+Renderer::Circle makeCircle(
+  const UVViewHelper& helper, const float radius, const size_t segments, const bool fill)
 {
+  const auto zoom = helper.cameraZoom();
+  return Renderer::Circle{radius / zoom, segments, fill};
+}
+
 class Render : public Renderer::DirectRenderable
 {
 private:
@@ -179,17 +134,6 @@ public:
   }
 
 private:
-  static Renderer::Circle makeCircle(
-    const UVViewHelper& helper,
-    const float radius,
-    const size_t segments,
-    const bool fill)
-  {
-    const auto zoom = helper.cameraZoom();
-    return Renderer::Circle{radius / zoom, segments, fill};
-  }
-
-private:
   void doPrepareVertices(Renderer::VboManager& vboManager) override
   {
     m_center.prepare(vboManager);
@@ -203,9 +147,7 @@ private:
 
     const auto& boundary = m_helper.face()->boundary();
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
-    const auto [invertible, fromPlane] = vm::invert(toPlane);
-    assert(invertible);
-    unused(invertible);
+    const auto fromPlane = vm::invert(toPlane);
 
     const auto originPosition =
       toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()};
@@ -217,7 +159,7 @@ private:
     auto shader = Renderer::ActiveShader{
       renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
     const auto toWorldTransform = Renderer::MultiplyModelMatrix{
-      renderContext.transformation(), vm::mat4x4f{fromPlane}};
+      renderContext.transformation(), vm::mat4x4f{*fromPlane}};
     {
       const auto translation = vm::translation_matrix(vm::vec3{originPosition});
       const auto centerTransform = Renderer::MultiplyModelMatrix{
@@ -267,7 +209,7 @@ public:
     const auto& boundary = m_helper.face()->boundary();
     const auto& pickRay = inputState.pickRay();
     const auto curPointDistance = vm::intersect_ray_plane(pickRay, boundary);
-    const auto curPoint = vm::point_at_distance(pickRay, curPointDistance);
+    const auto curPoint = vm::point_at_distance(pickRay, *curPointDistance);
 
     const auto toFaceOld =
       m_helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
@@ -313,50 +255,103 @@ public:
     Renderer::RenderContext&,
     Renderer::RenderBatch& renderBatch) const override
   {
-    renderBatch.addOneShot(new Render{
-      m_helper,
-      static_cast<float>(CenterHandleRadius),
-      static_cast<float>(RotateHandleRadius),
-      true});
+    renderBatch.addOneShot(
+      new Render{m_helper, float(CenterHandleRadius), float(RotateHandleRadius), true});
   }
 };
-} // namespace
 
-static std::optional<float> computeInitialAngle(
+std::optional<vm::vec2f> hitPointInFaceCoords(
   const UVViewHelper& helper, const InputState& inputState)
 {
   using namespace Model::HitFilters;
 
   const auto toFace =
     helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  auto hitPointInFaceCoords = vm::vec2f{};
 
   const auto& angleHandleHit =
     inputState.pickResult().first(type(UVRotateTool::AngleHandleHitType));
   if (angleHandleHit.isMatch())
   {
-    hitPointInFaceCoords = vm::vec2f{toFace * angleHandleHit.hitPoint()};
+    return vm::vec2f{toFace * angleHandleHit.hitPoint()};
   }
-  else if (inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd))
+
+  if (inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd))
   {
     // If Ctrl is pressed, allow starting the drag anywhere, not just on the handle
     const auto& boundary = helper.face()->boundary();
     const auto& pickRay = inputState.pickRay();
-    const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary);
-    if (vm::is_nan(distanceToFace))
-    {
-      return std::nullopt;
-    }
-    const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
-    hitPointInFaceCoords = vm::vec2f{toFace * hitPoint};
-  }
-  else
-  {
-    return std::nullopt;
+    return kdl::optional_transform(
+      vm::intersect_ray_plane(pickRay, boundary), [&](const auto distanceToFace) {
+        const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
+        return vm::vec2f{toFace * hitPoint};
+      });
   }
 
-  return measureAngle(helper, hitPointInFaceCoords)
-         - helper.face()->attributes().rotation();
+  return std::nullopt;
+}
+
+std::optional<float> computeInitialAngle(
+  const UVViewHelper& helper, const InputState& inputState)
+{
+  return kdl::optional_transform(
+    hitPointInFaceCoords(helper, inputState), [&](const auto& point) {
+      return measureAngle(helper, point) - helper.face()->attributes().rotation();
+    });
+}
+
+} // namespace
+
+const Model::HitType::Type UVRotateTool::AngleHandleHitType = Model::HitType::freeType();
+
+UVRotateTool::UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
+  : ToolController{}
+  , Tool{true}
+  , m_document{std::move(document)}
+  , m_helper{helper}
+{
+}
+
+Tool& UVRotateTool::tool()
+{
+  return *this;
+}
+
+const Tool& UVRotateTool::tool() const
+{
+  return *this;
+}
+
+void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickResult)
+{
+  if (!m_helper.valid())
+  {
+    return;
+  }
+
+  const auto& boundary = m_helper.face()->boundary();
+
+  const auto& pickRay = inputState.pickRay();
+  if (const auto distanceToFace = vm::intersect_ray_plane(pickRay, boundary))
+  {
+    const auto hitPoint = vm::point_at_distance(pickRay, *distanceToFace);
+
+    const auto fromFace = m_helper.face()->fromTexCoordSystemMatrix(
+      vm::vec2f::zero(), vm::vec2f::one(), true);
+    const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
+
+    const auto originOnPlane =
+      toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()};
+    const auto hitPointOnPlane = toPlane * hitPoint;
+
+    const auto zoom = static_cast<FloatType>(m_helper.cameraZoom());
+    const auto error =
+      vm::abs(RotateHandleRadius / zoom - vm::distance(hitPointOnPlane, originOnPlane));
+    if (error <= RotateHandleWidth / zoom)
+    {
+      pickResult.addHit(
+        Model::Hit{AngleHandleHitType, *distanceToFace, hitPoint, 0, error});
+    }
+  }
 }
 
 std::unique_ptr<DragTracker> UVRotateTool::acceptMouseDrag(const InputState& inputState)
@@ -404,15 +399,12 @@ void UVRotateTool::render(
     inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd)
     || inputState.pickResult().first(type(AngleHandleHitType)).isMatch();
   renderBatch.addOneShot(new Render{
-    m_helper,
-    static_cast<float>(CenterHandleRadius),
-    static_cast<float>(RotateHandleRadius),
-    highlight});
+    m_helper, float(CenterHandleRadius), float(RotateHandleRadius), highlight});
 }
 
 bool UVRotateTool::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

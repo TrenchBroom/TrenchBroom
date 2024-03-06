@@ -38,6 +38,7 @@
 #include "View/HandleDragTracker.h"
 #include "View/MapDocument.h"
 
+#include "kdl/optional_utils.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/distance.h"
@@ -171,16 +172,13 @@ public:
 
     const auto& pickRay = inputState.pickRay();
     const auto defaultPos = m_tool.defaultClipPointPos();
-    const auto distance =
-      vm::intersect_ray_plane(pickRay, vm::plane3(defaultPos, viewDir));
-    if (vm::is_nan(distance))
-    {
-      return std::nullopt;
-    }
-
-    const auto hitPoint = vm::point_at_distance(pickRay, distance);
-    const auto position = m_tool.grid().snap(hitPoint);
-    return {{position, hitPoint}};
+    return kdl::optional_transform(
+      vm::intersect_ray_plane(pickRay, vm::plane3{defaultPos, viewDir}),
+      [&](const auto distance) {
+        const auto hitPoint = vm::point_at_distance(pickRay, distance);
+        const auto position = m_tool.grid().snap(hitPoint);
+        return std::tuple{position, hitPoint};
+      });
   }
 };
 

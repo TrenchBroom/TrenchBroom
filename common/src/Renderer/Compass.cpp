@@ -200,10 +200,7 @@ vm::mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const
   rotation[1] = vm::vec4f(camera.direction());
   rotation[2] = vm::vec4f(camera.up());
 
-  const auto [invertible, inverseRotation] = invert(rotation);
-  assert(invertible);
-  unused(invertible);
-  return inverseRotation;
+  return *invert(rotation);
 }
 
 void Compass::renderBackground(RenderContext& renderContext)

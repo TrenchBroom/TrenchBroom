@@ -25,6 +25,7 @@
 #include "vm/forward.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -32,15 +33,16 @@ namespace TrenchBroom
 {
 template <typename T, typename U>
 class octree;
+}
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 enum class PrimType;
 class TexturedIndexRangeRenderer;
 class TexturedRenderer;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 class TextureCollection;
@@ -145,10 +147,10 @@ public:
    * Intersects this frame with the given ray and returns the point of intersection.
    *
    * @param ray the ray to intersect
-   * @return the distance to the point of intersection or NaN if the given ray does not
-   * intersect this frame
+   * @return the distance to the point of intersection or nullopt if the given ray does
+   * not intersect this frame
    */
-  virtual float intersect(const vm::ray3f& ray) const = 0;
+  virtual std::optional<float> intersect(const vm::ray3f& ray) const = 0;
 };
 
 /**
@@ -180,19 +182,19 @@ public:
    */
   EntityModelLoadedFrame(
     size_t index,
-    const std::string& name,
+    std::string name,
     const vm::bbox3f& bounds,
     PitchType pitchType,
     Orientation orientation);
 
-  ~EntityModelLoadedFrame();
+  ~EntityModelLoadedFrame() override;
 
   bool loaded() const override;
   const std::string& name() const override;
   const vm::bbox3f& bounds() const override;
   PitchType pitchType() const override;
   Orientation orientation() const override;
-  float intersect(const vm::ray3f& ray) const override;
+  std::optional<float> intersect(const vm::ray3f& ray) const override;
 
   /**
    * Adds the given primitives to the spacial tree for this frame.
@@ -340,11 +342,11 @@ class EntityModel
 {
 private:
   std::string m_name;
-  bool m_prepared;
   std::vector<std::unique_ptr<EntityModelFrame>> m_frames;
   std::vector<std::unique_ptr<EntityModelSurface>> m_surfaces;
   PitchType m_pitchType;
   Orientation m_orientation;
+  bool m_prepared = false;
 
 public:
   /**
@@ -414,7 +416,7 @@ public:
    * @throws AssetException if the given frame index is out of bounds
    */
   EntityModelLoadedFrame& loadFrame(
-    size_t frameIndex, const std::string& name, const vm::bbox3f& bounds);
+    size_t frameIndex, std::string name, const vm::bbox3f& bounds);
 
   /**
    * Adds a surface with the given name.
@@ -492,5 +494,5 @@ public:
    */
   const EntityModelSurface* surface(const std::string& name) const;
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

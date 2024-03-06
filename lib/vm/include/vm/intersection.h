@@ -29,6 +29,8 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <optional>
+
 namespace vm
 {
 
@@ -212,12 +214,11 @@ bool polygon_contains_point(const vec<T, 3>& p, I cur, I end, const G& get = G()
   assert(temp != end);
   const auto p3 = get(*temp);
 
-  auto valid = false;
-  auto normal = vm::vec<T, 3>{};
-  std::tie(valid, normal) = plane_normal(p1, p2, p3);
-  assert(valid);
-
-  return polygon_contains_point(p, find_abs_max_component(normal), cur, end, get);
+  if (const auto normal = plane_normal(p1, p2, p3))
+  {
+    return polygon_contains_point(p, find_abs_max_component(*normal), cur, end, get);
+  }
+  return false;
 }
 
 /**
@@ -228,22 +229,22 @@ bool polygon_contains_point(const vec<T, 3>& p, I cur, I end, const G& get = G()
  * @tparam S the number of components
  * @param r the ray
  * @param p the plane
- * @return the distance to the intersection point, or NaN if the ray does not intersect
- * the plane
+ * @return the distance to the intersection point, or nullopt if the ray does not
+ * intersect the plane
  */
 template <typename T, size_t S>
-constexpr T intersect_ray_plane(const ray<T, S>& r, const plane<T, S>& p)
+constexpr std::optional<T> intersect_ray_plane(const ray<T, S>& r, const plane<T, S>& p)
 {
   const auto d = dot(r.direction, p.normal);
   if (is_zero(d, constants<T>::almost_zero()))
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto s = dot(p.anchor() - r.origin, p.normal) / d;
   if (s < -constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   return s;
@@ -265,11 +266,11 @@ constexpr T intersect_ray_plane(const ray<T, S>& r, const plane<T, S>& p)
  * @param p1 the first point
  * @param p2 the second point
  * @param p3 the third point
- * @return the distance to the point of intersection or NaN if the given ray does not
+ * @return the distance to the point of intersection or nullopt if the given ray does not
  * intersect the given triangle
  */
 template <typename T>
-constexpr T intersect_ray_triangle(
+constexpr std::optional<T> intersect_ray_triangle(
   const ray<T, 3>& r, const vec<T, 3>& p1, const vec<T, 3>& p2, const vec<T, 3>& p3)
 {
   // see
@@ -283,7 +284,7 @@ constexpr T intersect_ray_triangle(
   const auto a = dot(p, e1);
   if (is_zero(a, constants<T>::almost_zero()))
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto t = o - p1;
@@ -292,24 +293,24 @@ constexpr T intersect_ray_triangle(
   const auto u = dot(q, e2) / a;
   if (u < -constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto v = dot(p, t) / a;
   if (v < -constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto w = dot(q, d) / a;
   if (w < -constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   if (v + w - T(1) > constants<T>::almost_zero())
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   return u;
@@ -331,25 +332,23 @@ constexpr T intersect_ray_triangle(
  * @param cur the vertex range start iterator
  * @param end the vertex range end iterator
  * @param get the transformation function
- * @return the distance from the origin of the ray to the point of intersection or NaN if
- * the ray does not intersect the polygon
+ * @return the distance from the origin of the ray to the point of intersection or nullopt
+ * if the ray does not intersect the polygon
  */
 template <typename T, typename I, typename G = identity>
-constexpr T intersect_ray_polygon(
+constexpr std::optional<T> intersect_ray_polygon(
   const ray<T, 3>& r, const plane<T, 3>& p, I cur, I end, const G& get = G())
 {
-  const auto distance = intersect_ray_plane(r, p);
-  if (is_nan(distance))
+  if (const auto distance = intersect_ray_plane(r, p))
   {
-    return distance;
+    const auto point = point_at_distance(r, *distance);
+    if (polygon_contains_point(point, p.normal, cur, end, get))
+    {
+      return *distance;
+    }
   }
 
-  const auto point = point_at_distance(r, distance);
-  if (polygon_contains_point(point, p.normal, cur, end, get))
-  {
-    return distance;
-  }
-  return nan<T>();
+  return std::nullopt;
 }
 
 /**
@@ -363,14 +362,18 @@ constexpr T intersect_ray_polygon(
  * @param cur the vertex range start iterator
  * @param end the vertex range end iterator
  * @param get the transformation function
- * @return the distance from the origin of the ray to the point of intersection or NaN if
- * the ray does not intersect the polygon
+ * @return the distance from the origin of the ray to the point of intersection or nullopt
+ * if the ray does not intersect the polygon
  */
 template <typename T, typename I, typename G = identity>
-T intersect_ray_polygon(const ray<T, 3>& r, I cur, I end, const G& get = G())
+std::optional<T> intersect_ray_polygon(
+  const ray<T, 3>& r, I cur, I end, const G& get = G())
 {
-  const auto [valid, plane] = from_points(cur, end, get);
-  return valid ? intersect_ray_polygon(r, plane, cur, end, get) : nan<T>();
+  if (const auto plane = from_points(cur, end, get))
+  {
+    return intersect_ray_polygon(r, *plane, cur, end, get);
+  }
+  return std::nullopt;
 }
 
 /**
@@ -381,11 +384,11 @@ T intersect_ray_polygon(const ray<T, 3>& r, I cur, I end, const G& get = G())
  * @tparam S the number of components
  * @param r the ray
  * @param b the bounding box
- * @return the distance to the closest intersection point, or NaN if the ray does not
+ * @return the distance to the closest intersection point, or nullopt if the ray does not
  * intersect the bounding box
  */
 template <typename T, size_t S>
-constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
+constexpr std::optional<T> intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
 {
   // Compute candidate planes
   T origins[S]{};
@@ -453,7 +456,7 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
   // Check if the final candidate actually hits the box
   if (distances[bestPlane] < T(0))
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   for (size_t i = 0; i < S; ++i)
@@ -463,7 +466,7 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
       const auto coord = r.origin[i] + distances[bestPlane] * r.direction[i];
       if (coord < b.min[i] || coord > b.max[i])
       {
-        return nan<T>();
+        return std::nullopt;
       }
     }
   }
@@ -480,11 +483,12 @@ constexpr T intersect_ray_bbox(const ray<T, S>& r, const bbox<T, S>& b)
  * @param r the ray
  * @param position the position of the sphere (its center)
  * @param radius the radius of the sphere
- * @return the distance to the closest intersection point, or NaN if the given ray does
- * not intersect the given sphere
+ * @return the distance to the closest intersection point, or nullopt if the given
+ * ray does not intersect the given sphere
  */
 template <typename T, size_t S>
-T intersect_ray_sphere(const ray<T, S>& r, const vec<T, S>& position, const T radius)
+std::optional<T> intersect_ray_sphere(
+  const ray<T, S>& r, const vec<T, S>& position, const T radius)
 {
   const auto diff = r.origin - position;
 
@@ -494,16 +498,16 @@ T intersect_ray_sphere(const ray<T, S>& r, const vec<T, S>& position, const T ra
   const auto d = p * p - T(4) * q;
   if (d < T(0))
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   const auto s = sqrt(d);
   const auto t0 = (-p + s) / T(2);
   const auto t1 = (-p - s) / T(2);
 
-  return t0 < T(0) && t1 < T(0)   ? nan<T>()
-         : t0 > T(0) && t1 > T(0) ? min(t0, t1)
-                                  : max(t0, t1);
+  return t0 < T(0) && t1 < T(0)   ? std::nullopt
+         : t0 > T(0) && t1 > T(0) ? std::optional{min(t0, t1)}
+                                  : std::optional{max(t0, t1)};
 }
 
 /**
@@ -520,11 +524,11 @@ T intersect_ray_sphere(const ray<T, S>& r, const vec<T, S>& position, const T ra
  * @param majorRadius the major radius (the distance between the tube's center and the
  * center of the torus)
  * @param minorRadius the minor radius (the radius of the tube)
- * @return the distance to the closest intersection point, or NaN if the given ray does
- * not intersect the given torus
+ * @return the distance to the closest intersection point, or nullopt if the given ray
+ * does not intersect the given torus
  */
 template <typename T, size_t S>
-T intersect_ray_torus(
+std::optional<T> intersect_ray_torus(
   const ray<T, S>& r, const vec<T, S>& position, const T majorRadius, const T minorRadius)
 {
   // see https://marcin-chwedczuk.github.io/ray-tracing-torus
@@ -548,29 +552,24 @@ T intersect_ray_torus(
   const auto d = T(4) * od * omM + T(8) * MM * oz * dz;
   const auto e = omM * omM - T(4) * MM * (mm - oz * oz);
 
-  auto [num, s1, s2, s3, s4] = solve_quartic(a, b, c, d, e, constants<T>::almost_zero());
+  size_t num = 0u;
+  auto s1 = std::optional<T>{};
+  auto s2 = std::optional<T>{};
+  auto s3 = std::optional<T>{};
+  auto s4 = std::optional<T>{};
+
+  std::tie(num, s1, s2, s3, s4) =
+    solve_quartic(a, b, c, d, e, constants<T>::almost_zero());
   if (num == 0)
   {
-    return nan<T>();
+    return std::nullopt;
   }
 
   // only consider positive solutions
-  if (num > 0)
-  {
-    s1 = s1 > T(0) ? s1 : nan<T>();
-  }
-  if (num > 1)
-  {
-    s2 = s2 > T(0) ? s2 : nan<T>();
-  }
-  if (num > 2)
-  {
-    s3 = s3 > T(0) ? s3 : nan<T>();
-  }
-  if (num > 3)
-  {
-    s4 = s4 > T(0) ? s4 : nan<T>();
-  }
+  s1 = num > 0 && s1 > T(0) ? s1 : std::nullopt;
+  s2 = num > 1 && s2 > T(0) ? s2 : std::nullopt;
+  s3 = num > 2 && s3 > T(0) ? s3 : std::nullopt;
+  s4 = num > 3 && s4 > T(0) ? s4 : std::nullopt;
 
   return safe_min(s1, s2, s3, s4);
 }
@@ -583,16 +582,16 @@ T intersect_ray_torus(
  * @tparam S the number of components
  * @param l the line
  * @param p the plane
- * @return the distance to the intersection point, or NaN if the line does not intersect
- * the plane
+ * @return the distance to the intersection point, or nullopt if the line does not
+ * intersect the plane
  */
 template <typename T, size_t S>
-constexpr T intersect_line_plane(const line<T, S>& l, const plane<T, 3>& p)
+constexpr std::optional<T> intersect_line_plane(const line<T, S>& l, const plane<T, 3>& p)
 {
   const auto f = dot(l.direction, p.normal);
   return !is_zero(f, constants<T>::almost_zero())
-           ? dot(p.distance * p.normal - l.point, p.normal) / f
-           : nan<T>();
+           ? std::optional{dot(p.distance * p.normal - l.point, p.normal) / f}
+           : std::nullopt;
 }
 
 /**
@@ -602,18 +601,18 @@ constexpr T intersect_line_plane(const line<T, S>& l, const plane<T, 3>& p)
  * @tparam S the number of components
  * @param p1 the first plane
  * @param p2 the second plane
- * @return the line of intersection, or an uninitialized plane (with normal 0) if the
- * planes are parallel
+ * @return the line of intersection, or nullopt if the planes are parallel
  */
 template <typename T, size_t S>
-line<T, S> intersect_plane_plane(const plane<T, S>& p1, const plane<T, S>& p2)
+std::optional<line<T, S>> intersect_plane_plane(
+  const plane<T, S>& p1, const plane<T, S>& p2)
 {
   const auto lineDirection = normalize(cross(p1.normal, p2.normal));
 
   if (is_nan(lineDirection))
   {
     // the planes are parallel
-    return line<T, S>{};
+    return std::nullopt;
   }
 
   // Now we need to find a point that is on both planes.
@@ -623,11 +622,18 @@ line<T, S> intersect_plane_plane(const plane<T, S>& p1, const plane<T, S>& p2)
   // This will give us a line direction from this plane's anchor that
   // intersects the other plane.
 
-  const auto lineToP2 = line<T, S>{p1.anchor(), normalize(p1.project_vector(p2.normal))};
-  const auto dist = intersect_line_plane(lineToP2, p2);
-  const auto point = point_at_distance(lineToP2, dist);
+  if (const auto lineToP2Direction = p1.project_vector(p2.normal);
+      lineToP2Direction != vec<T, S>::zero())
+  {
+    const auto lineToP2 = line<T, S>{p1.anchor(), normalize(lineToP2Direction)};
+    if (const auto dist = intersect_line_plane(lineToP2, p2))
+    {
+      const auto point = point_at_distance(lineToP2, *dist);
+      return line<T, S>{point, lineDirection};
+    }
+  }
 
-  return !is_nan(point) ? line<T, S>{point, lineDirection} : line<T, S>{};
+  return std::nullopt;
 }
 
 /**
@@ -733,7 +739,7 @@ constexpr bool intersect_bbox_polygon(
    */
 
   // 1
-  auto numVerts = size_t(0);
+  assert(std::distance(begin, end) >= 3);
   for (auto cur = begin; cur != end; ++cur)
   {
     const auto v = get(*cur);
@@ -741,13 +747,11 @@ constexpr bool intersect_bbox_polygon(
     {
       return true;
     }
-    ++numVerts;
   }
 
-  assert(numVerts >= 3);
-  const auto [valid, pl] =
+  const auto pl =
     from_points(get(*begin), get(*std::next(begin)), get(*std::next(begin, 2)));
-  assert(valid);
+  assert(pl);
 
   // 2
   for (auto cur = begin; cur != end; ++cur)
@@ -757,10 +761,10 @@ constexpr bool intersect_bbox_polygon(
     const auto start = get(*cur);
     const auto dir = get(*next) - start;
     const auto ln = line<T, 3>{start, dir};
-    const auto d = intersect_line_plane(ln, pl);
-    if (d >= T(0) && d <= T(1))
+    const auto d = intersect_line_plane(ln, *pl);
+    if (d && *d >= T(0) && *d <= T(1))
     {
-      const auto pt = pl.project_point(point_at_distance(ln, d));
+      const auto pt = pl->project_point(point_at_distance(ln, *d));
       if (polygon_contains_point(pt, cur, end, get))
       {
         return true;
@@ -773,10 +777,10 @@ constexpr bool intersect_bbox_polygon(
   bbox.for_each_edge([&, pl = pl](const auto& start, const auto& en) {
     const auto dir = en - start;
     const auto ln = line<T, 3>{start, dir};
-    const auto d = intersect_line_plane(ln, pl);
-    if (d >= T(0) && d <= T(1))
+    const auto d = intersect_line_plane(ln, *pl);
+    if (d && *d >= T(0) && *d <= T(1))
     {
-      const auto pt = pl.project_point(point_at_distance(ln, d));
+      const auto pt = pl->project_point(point_at_distance(ln, *d));
       if (polygon_contains_point(pt, begin, end, get))
       {
         edgeIsect = true;

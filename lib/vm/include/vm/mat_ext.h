@@ -28,7 +28,7 @@
 #include "vm/vec.h"
 
 #include <array>
-#include <tuple>
+#include <optional>
 #include <vector>
 
 namespace vm
@@ -656,10 +656,8 @@ template <typename T>
 constexpr mat<T, 4, 4> coordinate_system_matrix(
   const vec<T, 3>& x, const vec<T, 3>& y, const vec<T, 3>& z, const vec<T, 3>& o)
 {
-  const auto result = invert(mat<T, 4, 4>(
+  return *invert(mat<T, 4, 4>(
     x[0], y[0], z[0], o[0], x[1], y[1], z[1], o[1], x[2], y[2], z[2], o[2], 0, 0, 0, 1));
-  assert(std::get<0>(result));
-  return std::get<1>(result);
 }
 
 /**
@@ -846,10 +844,11 @@ constexpr mat<T, 4, 4> shear_bbox_matrix(
  * @param onPlane2Out what input point 2 should be mapped to
  * @param offPlaneOut what input point 3 should be mapped to, should be off the plane
  * specified by output points 0, 1, 2
- * @return a 4x4 matrix that performs the requested mapping of points
+ * @return a 4x4 matrix that performs the requested mapping of points or nullopt if the
+ * mapping is impossible
  */
 template <typename T>
-constexpr mat<T, 4, 4> points_transformation_matrix(
+constexpr std::optional<mat<T, 4, 4>> points_transformation_matrix(
   const vec<T, 3>& onPlane0In,
   const vec<T, 3>& onPlane1In,
   const vec<T, 3>& onPlane2In,
@@ -902,32 +901,31 @@ constexpr mat<T, 4, 4> points_transformation_matrix(
     0.0,        0.0,        0.0,        0.0,        0.0,        0.0,        0.0,
     0.0,        vec2In.x(), vec2In.y(), vec2In.z()};
 
-  const auto [success, X] = lup_solve(A, B);
-  if (!success)
+  if (const auto X = lup_solve(A, B))
   {
-    return mat<T, 4, 4>::fill(nan<T>());
+    const mat<T, 4, 4> xformWithoutTranslation(
+      (*X)[0],
+      (*X)[1],
+      (*X)[2],
+      0.0,
+      (*X)[3],
+      (*X)[4],
+      (*X)[5],
+      0.0,
+      (*X)[6],
+      (*X)[7],
+      (*X)[8],
+      0.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0);
+
+    return translation_matrix(onPlane0Out) * xformWithoutTranslation
+           * translation_matrix(-onPlane0In);
   }
 
-  const mat<T, 4, 4> xformWithoutTranslation(
-    X[0],
-    X[1],
-    X[2],
-    0.0,
-    X[3],
-    X[4],
-    X[5],
-    0.0,
-    X[6],
-    X[7],
-    X[8],
-    0.0,
-    0.0,
-    0.0,
-    0.0,
-    1.0);
-
-  return translation_matrix(onPlane0Out) * xformWithoutTranslation
-         * translation_matrix(-onPlane0In);
+  return std::nullopt;
 }
 
 /**
@@ -945,10 +943,11 @@ constexpr mat<T, 4, 4> points_transformation_matrix(
  * @param onPlane0Out what input point 0 should be mapped to
  * @param onPlane1Out what input point 1 should be mapped to
  * @param onPlane2Out what input point 2 should be mapped to
- * @return a 4x4 matrix that performs the requested mapping of points
+ * @return a 4x4 matrix that performs the requested mapping of points or nullopt if the
+ * mapping is impossible
  */
 template <typename T>
-constexpr mat<T, 4, 4> points_transformation_matrix(
+constexpr std::optional<mat<T, 4, 4>> points_transformation_matrix(
   const vec<T, 3>& onPlane0In,
   const vec<T, 3>& onPlane1In,
   const vec<T, 3>& onPlane2In,

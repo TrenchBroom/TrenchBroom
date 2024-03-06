@@ -151,7 +151,8 @@ TEST_CASE("intersection.intersect_ray_plane")
 {
   constexpr auto ray = ray3f(vec3f::zero(), vec3f::pos_z());
   CER_CHECK(
-    is_nan(intersect_ray_plane(ray, plane3f(vec3f(0.0f, 0.0f, -1.0f), vec3f::pos_z()))));
+    intersect_ray_plane(ray, plane3f(vec3f(0.0f, 0.0f, -1.0f), vec3f::pos_z()))
+    == std::nullopt);
   CER_CHECK(
     intersect_ray_plane(ray, plane3f(vec3f(0.0f, 0.0f, 0.0f), vec3f::pos_z()))
     == approx(0.0f));
@@ -167,13 +168,17 @@ TEST_CASE("intersection.intersect_ray_triangle")
   constexpr auto p2 = vec3d(3.0, 2.0, 2.0);
 
   CER_CHECK(
-    is_nan(intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_x()), p0, p1, p2)));
+    intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_x()), p0, p1, p2)
+    == std::nullopt);
   CER_CHECK(
-    is_nan(intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_y()), p0, p1, p2)));
+    intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_y()), p0, p1, p2)
+    == std::nullopt);
   CER_CHECK(
-    is_nan(intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_z()), p0, p1, p2)));
-  CER_CHECK(is_nan(
-    intersect_ray_triangle(ray3d(vec3d(0.0, 0.0, 2.0), vec3d::pos_y()), p0, p1, p2)));
+    intersect_ray_triangle(ray3d(vec3d::zero(), vec3d::pos_z()), p0, p1, p2)
+    == std::nullopt);
+  CER_CHECK(
+    intersect_ray_triangle(ray3d(vec3d(0.0, 0.0, 2.0), vec3d::pos_y()), p0, p1, p2)
+    == std::nullopt);
   CER_CHECK(
     intersect_ray_triangle(ray3d(vec3d(3.0, 5.0, 0.0), vec3d::pos_z()), p0, p1, p2)
     == approx(2.0));
@@ -192,26 +197,34 @@ TEST_CASE("intersection.intersect_ray_square")
 {
   constexpr auto poly = square() + vec3d(0, 0, 1);
 
-  CER_CHECK(is_nan(intersect_ray_polygon(
-    ray3d(vec3d::zero(), vec3d::neg_z()),
-    plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
-    std::begin(poly),
-    std::end(poly))));
-  CER_CHECK(is_nan(intersect_ray_polygon(
-    ray3d(vec3d(2, 2, 0), vec3d::pos_z()),
-    plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
-    std::begin(poly),
-    std::end(poly))));
-  CER_CHECK(is_nan(intersect_ray_polygon(
-    ray3d(vec3d(-2, 0, 1), vec3d::pos_x()),
-    plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
-    std::begin(poly),
-    std::end(poly))));
-  CER_CHECK(is_nan(intersect_ray_polygon(
-    ray3d(vec3d(-2, 0, 0), vec3d::pos_x()),
-    plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
-    std::begin(poly),
-    std::end(poly))));
+  CER_CHECK(
+    intersect_ray_polygon(
+      ray3d(vec3d::zero(), vec3d::neg_z()),
+      plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
+      std::begin(poly),
+      std::end(poly))
+    == std::nullopt);
+  CER_CHECK(
+    intersect_ray_polygon(
+      ray3d(vec3d(2, 2, 0), vec3d::pos_z()),
+      plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
+      std::begin(poly),
+      std::end(poly))
+    == std::nullopt);
+  CER_CHECK(
+    intersect_ray_polygon(
+      ray3d(vec3d(-2, 0, 1), vec3d::pos_x()),
+      plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
+      std::begin(poly),
+      std::end(poly))
+    == std::nullopt);
+  CER_CHECK(
+    intersect_ray_polygon(
+      ray3d(vec3d(-2, 0, 0), vec3d::pos_x()),
+      plane3d(vec3d(0, 0, 1), vec3d::pos_z()),
+      std::begin(poly),
+      std::end(poly))
+    == std::nullopt);
 
   CER_CHECK(
     intersect_ray_polygon(
@@ -289,7 +302,8 @@ TEST_CASE("intersection.intersect_ray_bbox")
 {
   constexpr auto bounds = bbox3f(vec3f(-12.0f, -3.0f, 4.0f), vec3f(8.0f, 9.0f, 8.0f));
 
-  CER_CHECK(is_nan(intersect_ray_bbox(ray3f(vec3f::zero(), vec3f::neg_z()), bounds)));
+  CER_CHECK(
+    intersect_ray_bbox(ray3f(vec3f::zero(), vec3f::neg_z()), bounds) == std::nullopt);
   CER_CHECK(
     intersect_ray_bbox(ray3f(vec3f::zero(), vec3f::pos_z()), bounds) == approx(4.0f));
 
@@ -310,7 +324,7 @@ TEST_CASE("intersection.intersect_ray_sphere")
   CHECK(intersect_ray_sphere(ray, vec3f(0.0f, 0.0f, 5.0f), 2.0f) == approx(3.0f));
 
   // miss
-  CHECK(is_nan(intersect_ray_sphere(ray, vec3f(3.0f, 2.0f, 2.0f), 1.0f)));
+  CHECK(intersect_ray_sphere(ray, vec3f(3.0f, 2.0f, 2.0f), 1.0f) == std::nullopt);
 }
 
 TEST_CASE("intersection.intersect_ray_torus")
@@ -344,15 +358,16 @@ TEST_CASE("intersection.intersect_ray_torus")
       1.0f)
     == approx(4.0f));
 
-  CHECK(is_nan(intersect_ray_torus(
-    ray3f(vec3f::zero(), vec3f::pos_z()), vec3f::zero(), 5.0f, 1.0f)));
+  CHECK(
+    intersect_ray_torus(ray3f(vec3f::zero(), vec3f::pos_z()), vec3f::zero(), 5.0f, 1.0f)
+    == std::nullopt);
 }
 
 TEST_CASE("intersection.intersect_line_plane")
 {
   constexpr auto p = plane3f(5.0f, vec3f::pos_z());
   constexpr auto l = line3f(vec3f(0, 0, 15), normalize_c(vec3f(1, 0, -1)));
-  CER_CHECK(point_at_distance(l, intersect_line_plane(l, p)) == approx(vec3f(10, 0, 5)));
+  CER_CHECK(point_at_distance(l, *intersect_line_plane(l, p)) == approx(vec3f(10, 0, 5)));
 }
 
 TEST_CASE("intersection.intersect_plane_plane")
@@ -361,18 +376,15 @@ TEST_CASE("intersection.intersect_plane_plane")
   constexpr auto p2 = plane3f(20.0f, vec3f::pos_x());
   const auto line = intersect_plane_plane(p1, p2);
 
-  CHECK(lineOnPlane(p1, line));
-  CHECK(lineOnPlane(p2, line));
+  CHECK(lineOnPlane(p1, *line));
+  CHECK(lineOnPlane(p2, *line));
 }
 
 TEST_CASE("intersection.intersect_plane_plane_parallel")
 {
   constexpr auto p1 = plane3f(10.0f, vec3f::pos_z());
   constexpr auto p2 = plane3f(11.0f, vec3f::pos_z());
-  const line3f line = intersect_plane_plane(p1, p2);
-
-  CHECK(line.direction == vec3f::zero());
-  CHECK(line.point == vec3f::zero());
+  CHECK(intersect_plane_plane(p1, p2) == std::nullopt);
 }
 
 TEST_CASE("intersection.intersect_plane_plane_similar")
@@ -385,8 +397,8 @@ TEST_CASE("intersection.intersect_plane_plane_similar")
       * vec3f::pos_x()); // p1 rotated by 0.5 degrees
   const auto line = intersect_plane_plane(p1, p2);
 
-  CHECK(lineOnPlane(p1, line));
-  CHECK(lineOnPlane(p2, line));
+  CHECK(lineOnPlane(p1, *line));
+  CHECK(lineOnPlane(p2, *line));
 }
 
 TEST_CASE("intersection.intersect_plane_plane_too_similar")
@@ -397,10 +409,8 @@ TEST_CASE("intersection.intersect_plane_plane_too_similar")
     anchor,
     quatf(vec3f::neg_y(), to_radians(0.0001f))
       * vec3f::pos_x()); // p1 rotated by 0.0001 degrees
-  const auto line = intersect_plane_plane(p1, p2);
 
-  CHECK(line.direction == vec3f::zero());
-  CHECK(line.point == vec3f::zero());
+  CHECK(intersect_plane_plane(p1, p2) == std::nullopt);
 }
 
 bool lineOnPlane(const plane3f& plane, const line3f& line)
@@ -428,8 +438,7 @@ TEST_CASE("intersection.polygon_clip_by_plane")
   constexpr auto plane5 = plane3d{{0, -1, 0}, -vec3d::pos_z()};
 
   constexpr auto plane3 = plane3d{{0, 0, 0}, vec3d::pos_x()};
-  const auto [_, plane4] =
-    vm::from_points(vec3d{-1, -1, 0}, vec3d{1, 1, 0}, vec3d{0, 0, 1});
+  const auto plane4 = *vm::from_points(vec3d{-1, -1, 0}, vec3d{1, 1, 0}, vec3d{0, 0, 1});
 
   SECTION("no clipping")
   {

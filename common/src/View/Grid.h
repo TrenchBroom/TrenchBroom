@@ -33,15 +33,14 @@
 #include <array>
 
 // FIXME: should this be moved to Model?
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFace;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class Grid
 {
 public:
@@ -50,8 +49,8 @@ public:
 
 private:
   int m_size;
-  bool m_snap;
-  bool m_visible;
+  bool m_snap = true;
+  bool m_visible = true;
 
 public:
   Notifier<> gridDidChangeNotifier;
@@ -90,65 +89,51 @@ public:
   template <typename T>
   T snapAngle(const T a, const T snapAngle) const
   {
-    if (!snap())
-    {
-      return a;
-    }
-    else
-    {
-      return snapAngle * vm::round(a / snapAngle);
-    }
+    return snap() ? snapAngle * vm::round(a / snapAngle) : a;
   }
 
 public: // Snap scalars.
   template <typename T>
   T snap(const T f) const
   {
-    return snap(f, SnapDir_None);
+    return snap(f, SnapDir::None);
   }
 
   template <typename T>
   T offset(const T f) const
   {
-    if (!snap())
-    {
-      return static_cast<T>(0.0);
-    }
-    else
-    {
-      return f - snap(f);
-    }
+    return snap() ? f - snap(f) : T(0);
   }
 
   template <typename T>
   T snapUp(const T f, const bool skip) const
   {
-    return snap(f, SnapDir_Up, skip);
+    return snap(f, SnapDir::Up, skip);
   }
 
   template <typename T>
   T snapDown(const T f, const bool skip) const
   {
-    return snap(f, SnapDir_Down, skip);
+    return snap(f, SnapDir::Down, skip);
   }
 
 private:
-  typedef enum
+  enum class SnapDir
   {
     /**
      * Snap to nearest grid increment (rounding away from 0 if the input is half way
      * between two multiples of the grid size).
      */
-    SnapDir_None,
+    None,
     /**
      * If off-grid, snap to the next larger grid increment.
      */
-    SnapDir_Up,
+    Up,
     /**
      * If off-grid, snap to the next smaller grid increment.
      */
-    SnapDir_Down
-  } SnapDir;
+    Down
+  };
 
   /**
    * Snaps a scalar to the grid.
@@ -156,7 +141,7 @@ private:
    * @tparam T scalar type
    * @param f scalar to snap
    * @param snapDir snap direction, see SnapDir
-   * @param skip If true, SnapDir_Up/SnapDir_Down snap to the next larger/smaller grid
+   * @param skip If true, SnapDir::Up/SnapDir::Down snap to the next larger/smaller grid
    * increment even if the input is already on-grid (within almost_zero()). If false,
    * on-grid inputs stay at the same grid increment.
    * @return snapped scalar
@@ -169,21 +154,21 @@ private:
       return f;
     }
 
-    const T actSize = static_cast<T>(actualSize());
+    const auto actSize = T(actualSize());
     switch (snapDir)
     {
-    case SnapDir_None:
+    case SnapDir::None:
       return vm::snap(f, actSize);
-    case SnapDir_Up: {
-      const T s = actSize * std::ceil(f / actSize);
+    case SnapDir::Up: {
+      const auto s = actSize * std::ceil(f / actSize);
       return (skip && vm::is_equal(s, f, vm::constants<T>::almost_zero()))
-               ? s + static_cast<T>(actualSize())
+               ? s + T(actualSize())
                : s;
     }
-    case SnapDir_Down: {
-      const T s = actSize * std::floor(f / actSize);
+    case SnapDir::Down: {
+      const auto s = actSize * std::floor(f / actSize);
       return (skip && vm::is_equal(s, f, vm::constants<T>::almost_zero()))
-               ? s - static_cast<T>(actualSize())
+               ? s - T(actualSize())
                : s;
     }
       switchDefault();
@@ -197,32 +182,25 @@ public: // Snap vectors.
   template <typename T, size_t S>
   vm::vec<T, S> snap(const vm::vec<T, S>& p) const
   {
-    return snap(p, SnapDir_None);
+    return snap(p, SnapDir::None);
   }
 
   template <typename T, size_t S>
   vm::vec<T, S> offset(const vm::vec<T, S>& p) const
   {
-    if (!snap())
-    {
-      return vm::vec<T, S>::zero();
-    }
-    else
-    {
-      return p - snap(p);
-    }
+    return snap() ? p - snap(p) : vm::vec<T, S>::zero();
   }
 
   template <typename T, size_t S>
   vm::vec<T, S> snapUp(const vm::vec<T, S>& p, const bool skip = false) const
   {
-    return snap(p, SnapDir_Up, skip);
+    return snap(p, SnapDir::Up, skip);
   }
 
   template <typename T, size_t S>
   vm::vec<T, S> snapDown(const vm::vec<T, S>& p, const bool skip = false) const
   {
-    return snap(p, SnapDir_Down, skip);
+    return snap(p, SnapDir::Down, skip);
   }
 
 private:
@@ -234,7 +212,8 @@ private:
     {
       return p;
     }
-    vm::vec<T, S> result;
+
+    auto result = vm::vec<T, S>{};
     for (size_t i = 0; i < S; ++i)
     {
       result[i] = snap(p[i], snapDir, skip);
@@ -251,21 +230,13 @@ public: // Snap towards an arbitrary direction.
     {
       return p;
     }
-    vm::vec3 result;
+
+    auto result = vm::vec<T, S>{};
     for (size_t i = 0; i < S; ++i)
     {
-      if (d[i] > T(0.0))
-      {
-        result[i] = snapUp(p[i], skip);
-      }
-      else if (d[i] < T(0.0))
-      {
-        result[i] = snapDown(p[i], skip);
-      }
-      else
-      {
-        result[i] = snap(p[i]);
-      }
+      result[i] = d[i] > T(0)   ? result[i] = snapUp(p[i], skip)
+                  : d[i] < T(0) ? snapDown(p[i], skip)
+                                : snap(p[i]);
     }
     return result;
   }
@@ -274,21 +245,21 @@ public: // Snapping on a plane.
   template <typename T>
   vm::vec<T, 3> snap(const vm::vec<T, 3>& p, const vm::plane<T, 3>& onPlane) const
   {
-    return snap(p, onPlane, SnapDir_None, false);
+    return snap(p, onPlane, SnapDir::None, false);
   }
 
   template <typename T>
   vm::vec<T, 3> snapUp(
     const vm::vec<T, 3>& p, const vm::plane<T, 3>& onPlane, const bool skip = false) const
   {
-    return snap(p, onPlane, SnapDir_Up, skip);
+    return snap(p, onPlane, SnapDir::Up, skip);
   }
 
   template <typename T>
   vm::vec<T, 3> snapDown(
     const vm::vec<T, 3>& p, const vm::plane<T, 3>& onPlane, const bool skip = false) const
   {
-    return snap(p, onPlane, SnapDir_Down, skip);
+    return snap(p, onPlane, SnapDir::Down, skip);
   }
 
   template <typename T, size_t S>
@@ -303,7 +274,7 @@ public: // Snapping on a plane.
     for (size_t i = 0; i < S; ++i)
     {
       snapDirs[i] =
-        (d[i] < 0.0 ? SnapDir_Down : (d[i] > 0.0 ? SnapDir_Up : SnapDir_None));
+        (d[i] < 0.0 ? SnapDir::Down : (d[i] > 0.0 ? SnapDir::Up : SnapDir::None));
     }
 
     return snap(p, onPlane, snapDirs, skip);
@@ -339,7 +310,7 @@ private:
     const bool skip = false) const
   {
 
-    vm::vec<T, 3> result;
+    auto result = vm::vec<T, 3>{};
     switch (vm::find_abs_max_component(onPlane.normal))
     {
     case vm::axis::x:
@@ -378,7 +349,7 @@ public:
     {
       if (line.direction[i] != 0.0)
       {
-        const std::array<T, 2> v = {
+        const auto v = std::array<T, 2>{
           {snapDown(pr[i], false) - line.point[i], snapUp(pr[i], false) - line.point[i]}};
         for (size_t j = 0; j < 2; ++j)
         {
@@ -408,14 +379,7 @@ public:
     const auto snapped = snap(p, vm::line<T, 3>(orig, dir));
     const auto dist = vm::dot(dir, snapped - orig);
 
-    if (dist < 0.0 || dist > len)
-    {
-      return vm::vec<T, 3>::nan();
-    }
-    else
-    {
-      return snapped;
-    }
+    return dist >= 0.0 && dist <= len ? snapped : vm::vec<T, 3>::nan();
   }
 
   template <typename T>
@@ -426,7 +390,7 @@ public:
   {
     ensure(polygon.vertexCount() >= 3, "polygon has too few vertices");
 
-    const auto plane = vm::plane<T, 3>(polygon.vertices().front(), normal);
+    const auto plane = vm::plane<T, 3>{polygon.vertices().front(), normal};
     auto ps = snap(p, plane);
     auto err = vm::squared_length(p - ps);
 
@@ -443,7 +407,7 @@ public:
 
     while (cur != end)
     {
-      const auto cand = snap(p, vm::segment<T, 3>(*last, *cur));
+      const auto cand = snap(p, vm::segment<T, 3>{*last, *cur});
       if (!vm::is_nan(cand))
       {
         const auto cerr = vm::squared_length(p - cand);
@@ -489,5 +453,5 @@ public:
 
   vm::vec3 referencePoint(const vm::bbox3& bounds) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
