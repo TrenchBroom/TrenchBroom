@@ -467,22 +467,20 @@ protected:
     return end;
   }
 
-  const char* discardWhile(std::string_view allow)
+  void discardWhile(std::string_view allow)
   {
     while (!eof() && isAnyOf(curChar(), allow))
     {
       advance();
     }
-    return curPos();
   }
 
-  const char* discardUntil(std::string_view delims)
+  void discardUntil(std::string_view delims)
   {
     while (!eof() && !isAnyOf(curChar(), delims))
     {
       advance();
     }
-    return curPos();
   }
 
   bool matchesPattern(std::string_view pattern) const
