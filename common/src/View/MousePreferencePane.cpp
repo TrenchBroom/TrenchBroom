@@ -140,6 +140,7 @@ void MousePreferencePane::createGui()
     layout->addRow(label, editorLayout);
   }
 
+  layout->addRow(tr("Speed"), m_flyMoveSpeedSlider);
   layout->addRow(
     "",
     makeInfo(new QLabel{"Turn mouse wheel while holding right mouse button in 3D view to "
