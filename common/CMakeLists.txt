@@ -13,6 +13,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/Palette.cpp
         ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
+        ${COMMON_SOURCE_DIR}/Assets/Resource.cpp
+        ${COMMON_SOURCE_DIR}/Assets/ResourceManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/Texture.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.cpp
@@ -498,6 +500,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/Palette.h
         ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
+        ${COMMON_SOURCE_DIR}/Assets/Resource.h
+        ${COMMON_SOURCE_DIR}/Assets/ResourceManager.h
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
