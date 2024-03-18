@@ -94,6 +94,9 @@ TestEnvironment makeTestEnvironment()
       env.createFile("test2.map", "//test file\n{}");
       env.createFile("anotherDir/subDirTest/test2.map", "//sub dir test file\n{}");
       env.createFile("anotherDir/test3.map", "//yet another test file\n{}");
+
+      env.createSymLink("anotherDir/subDirTest", "linkedDir");
+      env.createSymLink("test2.map", "linkedTest2.map");
     }};
 }
 
@@ -136,6 +139,9 @@ TEST_CASE("DiskIO")
     CHECK(Disk::pathInfo(env.dir() / "anotherDir/TEST3.map") == PathInfo::File);
     CHECK(
       Disk::pathInfo(env.dir() / "anotherDir/subDirTest/test2.map") == PathInfo::File);
+
+    CHECK(Disk::pathInfo(env.dir() / "linkedDir") == PathInfo::Directory);
+    CHECK(Disk::pathInfo(env.dir() / "linkedTest2.map") == PathInfo::File);
   }
 
   SECTION("find")
@@ -171,6 +177,8 @@ TEST_CASE("DiskIO")
         env.dir() / "anotherDir",
         env.dir() / "test.txt",
         env.dir() / "test2.map",
+        env.dir() / "linkedDir",
+        env.dir() / "linkedTest2.map",
       }));
 
     CHECK_THAT(
@@ -184,6 +192,11 @@ TEST_CASE("DiskIO")
         env.dir() / "anotherDir/test3.map",
         env.dir() / "test.txt",
         env.dir() / "test2.map",
+        env.dir() / "linkedDir",
+        /* EXPECTED:
+        env.dir() / "linkedDir/test2.map",
+        */
+        env.dir() / "linkedTest2.map",
       }));
   }
 
@@ -223,6 +236,12 @@ TEST_CASE("DiskIO")
 
     file = Disk::openFile(env.dir() / "anotherDir/subDirTest/test2.map");
     CHECK(file.is_success());
+
+    file = Disk::openFile(env.dir() / "linkedDir/test2.map");
+    CHECK(file.is_success());
+
+    file = Disk::openFile(env.dir() / "linkedTest2.map");
+    CHECK(file.is_success());
   }
 
   SECTION("withStream")
@@ -236,6 +255,9 @@ TEST_CASE("DiskIO")
           + "'"});
 
       CHECK(Disk::withInputStream(env.dir() / "test.txt", readAll) == "some content");
+      CHECK(
+        Disk::withInputStream(env.dir() / "linkedTest2.map", readAll)
+        == "//test file\n{}");
     }
 
     SECTION("withOutputStream")
@@ -255,6 +277,18 @@ TEST_CASE("DiskIO")
       CHECK(
         Disk::withInputStream(env.dir() / "some_other_name.txt", readAll)
         == "some text...");
+
+      REQUIRE(Disk::withOutputStream(
+                env.dir() / "linkedTest2.map",
+                std::ios::out | std::ios::app,
+                [](auto& stream) { stream << "\nwow even more content"; })
+                .is_success());
+      CHECK(
+        Disk::withInputStream(env.dir() / "test2.map", readAll)
+        == "//test file\n{}\nwow even more content");
+      CHECK(
+        Disk::withInputStream(env.dir() / "linkedTest2.map", readAll)
+        == "//test file\n{}\nwow even more content");
     }
   }
 
@@ -269,6 +303,9 @@ TEST_CASE("DiskIO")
       Disk::createDirectory(env.dir() / "yetAnotherDir/and/a/nested/directory")
       == Result<bool>{true});
     CHECK(std::filesystem::exists(env.dir() / "yetAnotherDir/and/a/nested/directory"));
+
+    CHECK(Disk::createDirectory(env.dir() / "linkedDir/nestedDir") == Result<bool>{true});
+    CHECK(std::filesystem::exists(env.dir() / "linkedDir/nestedDir"));
 
     CHECK_THAT(
       Disk::createDirectory(env.dir() / "test.txt"),
@@ -323,6 +360,22 @@ TEST_CASE("DiskIO")
         "Failed to delete '" + (env.dir() / "anotherDir/test3.map").string()
         + "': Permission denied"}});
 #endif
+
+    SECTION("Delete symlink")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "linkedTest2.map") == PathInfo::File);
+      CHECK(Disk::deleteFile(env.dir() / "linkedTest2.map") == Result<bool>{true});
+      CHECK(Disk::pathInfo(env.dir() / "linkedTest2.map") == PathInfo::Unknown);
+      CHECK(Disk::pathInfo(env.dir() / "test2.map") == PathInfo::File);
+    }
+
+    SECTION("Delete linked file")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "test2.map") == PathInfo::File);
+      CHECK(Disk::deleteFile(env.dir() / "test2.map") == Result<bool>{true});
+      CHECK(Disk::pathInfo(env.dir() / "linkedTest2.map") == PathInfo::Unknown);
+      CHECK(Disk::pathInfo(env.dir() / "test2.map") == PathInfo::Unknown);
+    }
   }
 
   SECTION("copyFile")
@@ -590,6 +643,14 @@ TEST_CASE("DiskIO")
       == env.dir() / "anotherDir/subDirTest/test2.map");
     CHECK(Disk::resolvePath(rootPaths, "/asfd/blah") == "");
     CHECK(Disk::resolvePath(rootPaths, "adk3kdk/bhb") == "");
+
+    CHECK(
+      Disk::resolvePath(rootPaths, "linkedTest2.map") == env.dir() / "linkedTest2.map");
+
+    CHECK(
+      Disk::resolvePath(rootPaths, "linkedDir/test2.map")
+      == env.dir() / "linkedDir/test2.map");
   }
 }
+
 } // namespace TrenchBroom::IO
