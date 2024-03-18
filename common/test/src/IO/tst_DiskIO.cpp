@@ -193,9 +193,7 @@ TEST_CASE("DiskIO")
         env.dir() / "test.txt",
         env.dir() / "test2.map",
         env.dir() / "linkedDir",
-        /* EXPECTED:
         env.dir() / "linkedDir/test2.map",
-        */
         env.dir() / "linkedTest2.map",
       }));
   }
