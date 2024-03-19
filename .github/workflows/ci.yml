@@ -111,6 +111,8 @@ jobs:
           brew unlink python@3.12
           brew uninstall --force azure-cli
           brew uninstall --force aws-sam-cli
+          brew uninstall --force cfn-lint
+          brew uninstall --force cookiecutter
           brew uninstall --force pipx
           brew uninstall --force python@3.11
           brew uninstall --force python@3.12
