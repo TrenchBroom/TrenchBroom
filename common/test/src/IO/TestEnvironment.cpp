@@ -71,6 +71,19 @@ void TestEnvironment::createFile(
   stream << contents;
 }
 
+void TestEnvironment::createSymLink(
+  const std::filesystem::path& target, const std::filesystem::path& link)
+{
+  if (std::filesystem::is_directory(m_dir / target))
+  {
+    std::filesystem::create_directory_symlink(m_dir / target, m_dir / link);
+  }
+  else
+  {
+    std::filesystem::create_symlink(m_dir / target, m_dir / link);
+  }
+}
+
 static bool deleteDirectoryAbsolute(const std::filesystem::path& absolutePath)
 {
   return std::filesystem::remove_all(absolutePath);
