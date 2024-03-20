@@ -415,32 +415,39 @@ Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> GameImpl::
   const auto extension = path.extension().string();
   const auto& defaultColor = m_config.entityConfig.defaultColor;
 
-  if (kdl::ci::str_is_equal(".fgd", extension))
+  try
   {
-    return IO::Disk::openFile(path).transform([&](auto file) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::FgdParser{reader.stringView(), defaultColor, path};
-      return parser.parseDefinitions(status);
-    });
-  }
-  if (kdl::ci::str_is_equal(".def", extension))
-  {
-    return IO::Disk::openFile(path).transform([&](auto file) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::DefParser{reader.stringView(), defaultColor};
-      return parser.parseDefinitions(status);
-    });
-  }
-  if (kdl::ci::str_is_equal(".ent", extension))
-  {
-    return IO::Disk::openFile(path).transform([&](auto file) {
-      auto reader = file->reader().buffer();
-      auto parser = IO::EntParser{reader.stringView(), defaultColor};
-      return parser.parseDefinitions(status);
-    });
-  }
+    if (kdl::ci::str_is_equal(".fgd", extension))
+    {
+      return IO::Disk::openFile(path).transform([&](auto file) {
+        auto reader = file->reader().buffer();
+        auto parser = IO::FgdParser{reader.stringView(), defaultColor, path};
+        return parser.parseDefinitions(status);
+      });
+    }
+    if (kdl::ci::str_is_equal(".def", extension))
+    {
+      return IO::Disk::openFile(path).transform([&](auto file) {
+        auto reader = file->reader().buffer();
+        auto parser = IO::DefParser{reader.stringView(), defaultColor};
+        return parser.parseDefinitions(status);
+      });
+    }
+    if (kdl::ci::str_is_equal(".ent", extension))
+    {
+      return IO::Disk::openFile(path).transform([&](auto file) {
+        auto reader = file->reader().buffer();
+        auto parser = IO::EntParser{reader.stringView(), defaultColor};
+        return parser.parseDefinitions(status);
+      });
+    }
 
-  return Error{"Unknown entity definition format: '" + path.string() + "'"};
+    return Error{"Unknown entity definition format: '" + path.string() + "'"};
+  }
+  catch (const ParserException& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 std::unique_ptr<Assets::EntityModel> GameImpl::doInitializeModel(
