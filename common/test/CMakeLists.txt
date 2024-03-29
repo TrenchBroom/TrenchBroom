@@ -3,6 +3,7 @@ set(COMMON_TEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_TEST_UTILS_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Assets/EntityDefinitionTestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/EntityDefinitionTestUtils.h"
+        "${COMMON_TEST_SOURCE_DIR}/Assets/MockTaskRunner.h"
         "${COMMON_TEST_SOURCE_DIR}/Catch2.h"
         "${COMMON_TEST_SOURCE_DIR}/CatchUtils/Matchers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/CatchUtils/Matchers.h"
@@ -29,6 +30,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_EntityModel.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_ModelDefinition.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_Palette.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Assets/tst_Resource.cpp"
         "${COMMON_TEST_SOURCE_DIR}/CatchUtils/tst_Matchers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/CatchUtils/tst_StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_EL.cpp"
