@@ -31,6 +31,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_ModelDefinition.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_Palette.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Assets/tst_Resource.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Assets/tst_ResourceManager.cpp"
         "${COMMON_TEST_SOURCE_DIR}/CatchUtils/tst_Matchers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/CatchUtils/tst_StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_EL.cpp"
