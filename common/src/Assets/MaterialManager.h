@@ -44,6 +44,7 @@ namespace Assets
 {
 class Material;
 class MaterialCollection;
+class ResourceId;
 
 class MaterialManager
 {
@@ -87,6 +88,9 @@ public:
 
   const Material* material(const std::string& name) const;
   Material* material(const std::string& name);
+
+  const std::vector<const Material*> findMaterialsByTextureResourceId(
+    const std::vector<ResourceId>& textureResourceIds) const;
 
   const std::vector<const Material*>& materials() const;
   const std::vector<MaterialCollection>& collections() const;

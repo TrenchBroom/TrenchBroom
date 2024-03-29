@@ -35,6 +35,7 @@ namespace TrenchBroom::Assets
 {
 class Material;
 class MaterialCollection;
+class ResourceId;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::View
@@ -82,6 +83,8 @@ public:
   void revealMaterial(const Assets::Material* material);
 
 private:
+  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resources);
+
   void reloadMaterials();
 
   void doInitLayout(Layout& layout) override;

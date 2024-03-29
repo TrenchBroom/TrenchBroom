@@ -38,6 +38,7 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
+#include "Assets/Resource.h"
 #include "Console.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -117,6 +118,7 @@ MapFrame::MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> docu
   , m_lastInputTime(std::chrono::system_clock::now())
   , m_autosaver(std::make_unique<Autosaver>(m_document))
   , m_autosaveTimer(new QTimer{this})
+  , m_processResourcesTimer(new QTimer{this})
   , m_contextManager(std::make_unique<GLContextManager>())
   , m_updateTitleSignalDelayer{new SignalDelayer{this}}
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
@@ -144,6 +146,7 @@ MapFrame::MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> docu
   m_document->setViewEffectsService(m_mapView);
 
   m_autosaveTimer->start(1000);
+  m_processResourcesTimer->start(20);
 
   connectObservers();
   bindEvents();
@@ -886,6 +889,8 @@ void MapFrame::portalFileDidChange()
 void MapFrame::bindEvents()
 {
   connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::triggerAutosave);
+  connect(
+    m_processResourcesTimer, &QTimer::timeout, this, &MapFrame::triggerProcessResources);
   connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
   connect(
     m_gridChoice,
@@ -2462,6 +2467,12 @@ void MapFrame::triggerAutosave()
   {
     m_autosaver->triggerAutosave(logger());
   }
+}
+
+void MapFrame::triggerProcessResources()
+{
+  auto document = kdl::mem_lock(m_document);
+  document->processResourcesAsync(Assets::ProcessContext{true});
 }
 
 // DebugPaletteWindow

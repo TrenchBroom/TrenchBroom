@@ -1042,6 +1042,11 @@ void MapViewBase::doRender()
   renderFPS(renderContext, renderBatch);
 
   renderBatch.render(renderContext);
+
+  if (document->needsResourceProcessing())
+  {
+    update();
+  }
 }
 
 void MapViewBase::setupGL(Renderer::RenderContext& context)

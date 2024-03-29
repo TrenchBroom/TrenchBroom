@@ -27,6 +27,8 @@
 #include "Assets/EntityModelManager.h"
 #include "Assets/Material.h"
 #include "Assets/MaterialManager.h"
+#include "Assets/ResourceManager.h"
+#include "Assets/Texture.h"
 #include "EL/ELExceptions.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -136,6 +138,7 @@
 
 namespace TrenchBroom::View
 {
+
 namespace
 {
 
@@ -376,6 +379,7 @@ const std::string MapDocument::DefaultDocumentName("unnamed.map");
 MapDocument::MapDocument()
   : m_worldBounds(DefaultWorldBounds)
   , m_world(nullptr)
+  , m_resourceManager(std::make_unique<Assets::ResourceManager>())
   , m_entityDefinitionManager(std::make_unique<Assets::EntityDefinitionManager>())
   , m_entityModelManager(std::make_unique<Assets::EntityModelManager>(
       pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
@@ -4235,9 +4239,46 @@ std::unique_ptr<CommandResult> MapDocument::executeAndStore(
   return doExecuteAndStore(std::move(command));
 }
 
-void MapDocument::commitPendingAssets()
+void MapDocument::processResourcesSync(const Assets::ProcessContext& processContext)
 {
-  m_materialManager->commitChanges();
+  auto allProcessedResourceIds = std::vector<Assets::ResourceId>{};
+  while (m_resourceManager->needsProcessing())
+  {
+    auto processedResourceIds = m_resourceManager->process(
+      [](auto task) {
+        auto promise = std::promise<std::unique_ptr<Assets::TaskResult>>{};
+        promise.set_value(task());
+        return promise.get_future();
+      },
+      processContext);
+
+    allProcessedResourceIds = kdl::vec_concat(
+      std::move(allProcessedResourceIds), std::move(processedResourceIds));
+  }
+
+  if (!allProcessedResourceIds.empty())
+  {
+    resourcesWereProcessedNotifier.notify(
+      kdl::vec_sort_and_remove_duplicates(std::move(allProcessedResourceIds)));
+  }
+}
+
+void MapDocument::processResourcesAsync(const Assets::ProcessContext& processContext)
+{
+  const auto processedResourceIds = m_resourceManager->process(
+    [](auto task) { return std::async(std::move(task)); },
+    processContext,
+    std::chrono::milliseconds{20});
+
+  if (!processedResourceIds.empty())
+  {
+    resourcesWereProcessedNotifier.notify(processedResourceIds);
+  }
+}
+
+bool MapDocument::needsResourceProcessing()
+{
+  return m_resourceManager->needsProcessing();
 }
 
 void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const

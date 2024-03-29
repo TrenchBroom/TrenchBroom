@@ -65,6 +65,8 @@ MaterialBrowserView::MaterialBrowserView(
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->materialUsageCountsDidChangeNotifier.connect(
     this, &MaterialBrowserView::reloadMaterials);
+  m_notifierConnection += document->resourcesWereProcessedNotifier.connect(
+    this, &MaterialBrowserView::resourcesWereProcessed);
 }
 
 MaterialBrowserView::~MaterialBrowserView()
@@ -128,6 +130,11 @@ void MaterialBrowserView::revealMaterial(const Assets::Material* material)
     const auto& cellMaterial = cellData(cell);
     return &cellMaterial == material;
   });
+}
+
+void MaterialBrowserView::resourcesWereProcessed(const std::vector<Assets::ResourceId>&)
+{
+  reloadMaterials();
 }
 
 void MaterialBrowserView::reloadMaterials()
@@ -286,9 +293,6 @@ void MaterialBrowserView::doClear() {}
 
 void MaterialBrowserView::doRender(Layout& layout, const float y, const float height)
 {
-  auto document = kdl::mem_lock(m_document);
-  document->materialManager().commitChanges();
-
   const auto viewLeft = float(0);
   const auto viewTop = float(size().height());
   const auto viewRight = float(size().width());

@@ -20,6 +20,8 @@
 #include "MapRenderer.h"
 
 #include "Assets/EntityDefinitionManager.h"
+#include "Assets/MaterialManager.h"
+#include "Assets/Resource.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -226,7 +228,6 @@ void MapRenderer::restoreSelectionColors()
 
 void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
 {
-  commitPendingChanges();
   setupGL(renderBatch);
   renderDefaultOpaque(renderContext, renderBatch);
   renderLockedOpaque(renderContext, renderBatch);
@@ -250,12 +251,6 @@ void MapRenderer::clear()
   m_entityLinkRenderer->invalidate();
   m_groupLinkRenderer->invalidate();
   m_trackedNodes.clear();
-}
-
-void MapRenderer::commitPendingChanges()
-{
-  auto document = kdl::mem_lock(m_document);
-  document->commitPendingAssets();
 }
 
 class SetupGL : public Renderable
@@ -678,6 +673,8 @@ void MapRenderer::connectObservers()
     this, &MapRenderer::brushFacesDidChange);
   m_notifierConnection +=
     document->selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
+  m_notifierConnection += document->resourcesWereProcessedNotifier.connect(
+    this, &MapRenderer::resourcesWereProcessed);
   m_notifierConnection += document->materialCollectionsWillChangeNotifier.connect(
     this, &MapRenderer::materialCollectionsWillChange);
   m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(
@@ -802,6 +799,18 @@ void MapRenderer::selectionDidChange(const View::Selection& selection)
 
   invalidateEntityLinkRenderer();
   invalidateGroupLinkRenderer();
+}
+
+void MapRenderer::resourcesWereProcessed(
+  const std::vector<Assets::ResourceId>& resourceIds)
+{
+  const auto document = kdl::mem_lock(m_document);
+  const auto& materialManager = document->materialManager();
+  const auto materials = materialManager.findMaterialsByTextureResourceId(resourceIds);
+
+  m_defaultRenderer->invalidateMaterials(materials);
+  m_selectionRenderer->invalidateMaterials(materials);
+  m_lockedRenderer->invalidateMaterials(materials);
 }
 
 void MapRenderer::materialCollectionsWillChange()

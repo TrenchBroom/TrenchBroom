@@ -198,7 +198,9 @@ public:
    * lingering Material* pointers.
    */
   void invalidate();
+  void invalidateMaterials(const std::vector<const Assets::Material*>& materials);
   void invalidateBrush(const Model::BrushNode* brush);
+  void invalidateMaterial(const Assets::Material& material);
   bool valid() const;
 
   /**

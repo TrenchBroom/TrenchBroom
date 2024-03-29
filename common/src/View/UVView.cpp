@@ -277,9 +277,6 @@ void UVView::doRender()
 {
   if (m_helper.valid())
   {
-    auto document = kdl::mem_lock(m_document);
-    document->commitPendingAssets();
-
     auto renderContext = Renderer::RenderContext{
       Renderer::RenderMode::Render2D, m_camera, fontManager(), shaderManager()};
     auto renderBatch = Renderer::RenderBatch{vboManager()};
