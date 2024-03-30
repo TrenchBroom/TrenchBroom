@@ -420,6 +420,35 @@ std::unique_ptr<PropertyDefinition> FlagsPropertyDefinition::doClone(
   return result;
 }
 
+
+ IOPropertyDefinition::IOPropertyDefinition(
+  std::string key,
+  IOPropertyArgType argumentType,
+  std::string shortDescription,
+  std::string longDescription,
+  IOPropertyDirection ioDirection)
+  : PropertyDefinition{
+    std::move(key),
+    PropertyDefinitionType::IOProperty,
+    std::move(shortDescription),
+    std::move(longDescription),
+    true}
+{
+  m_ioDirection = ioDirection;
+  m_argumentType = argumentType;
+}
+
+
+IOPropertyDirection IOPropertyDefinition::ioDirection() const
+{
+  return m_ioDirection;
+}
+
+IOPropertyArgType IOPropertyDefinition::argumentType() const
+{
+  return m_argumentType;
+}
+
 UnknownPropertyDefinition::UnknownPropertyDefinition(
   std::string key,
   std::string shortDescription,

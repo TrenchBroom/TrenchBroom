@@ -612,13 +612,24 @@ std::vector<std::shared_ptr<Assets::PropertyDefinition>> FgdParser::
     const auto line = token.line();
     const auto column = token.column();
 
-    expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
-    token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
-    const auto typeName = token.data();
-    expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
+    std::unique_ptr<Assets::PropertyDefinition> propertyDefinition;
+    if ((propertyKey == "input" || propertyKey == "output") &&
+      m_tokenizer.peekToken().type() == FgdToken::Word
+      )
+    {
+      propertyDefinition = parseIOPropertyDefinition(status, propertyKey);
+    }
+    else
+    {
+      expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
+      token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
+      const auto typeName = token.data();
+      expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
-    auto propertyDefinition =
-      parsePropertyDefinition(status, propertyKey, typeName, line, column);
+      propertyDefinition =
+        parsePropertyDefinition(status, propertyKey, typeName, line, column);
+    }
+
     if (!addPropertyDefinition(propertyDefinitions, std::move(propertyDefinition)))
     {
       status.warn(
@@ -675,6 +686,30 @@ std::unique_ptr<Assets::PropertyDefinition> FgdParser::parsePropertyDefinition(
     fmt::format(
       "Unknown property definition type '{}' for property '{}'", typeName, propertyKey));
   return parseUnknownPropertyDefinition(status, std::move(propertyKey));
+}
+
+std::unique_ptr<Assets::PropertyDefinition> FgdParser::parseIOPropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
+{
+  auto token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
+
+  const auto ioKey = token.data();
+
+  expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
+  const auto argType = parseIOType(status);
+  expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
+
+  const auto shortDescription = parsePropertyDescription(status);
+  const auto direction = (propertyKey == "input") ? Assets::IOPropertyDirection::Input : Assets::IOPropertyDirection::Output;
+
+
+  return std::make_unique<Assets::IOPropertyDefinition>(
+    ioKey,
+    argType,
+    shortDescription,
+    shortDescription,
+    direction
+  );
 }
 
 std::unique_ptr<Assets::PropertyDefinition> FgdParser::
@@ -1054,6 +1089,27 @@ std::string FgdParser::parseString(ParserStatus& status)
   {
     return token.data();
   }
+}
+
+Assets::IOPropertyArgType FgdParser::parseIOType(ParserStatus& status)
+{
+  auto token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
+  const auto line = token.line();
+  const auto column = token.column();
+  const auto typeString = token.data();
+
+
+  if (typeString == "void") { return Assets::IOPropertyArgType::Void; }
+  if (typeString == "float") { return Assets::IOPropertyArgType::Float; }
+  if (typeString == "integer") { return Assets::IOPropertyArgType::Integer; }
+  if (typeString == "string") { return Assets::IOPropertyArgType::String; }
+  if (typeString == "bool") { return Assets::IOPropertyArgType::Bool; }
+
+  status.warn(
+    line,
+    column,
+    fmt::format("Unknown IO argument type {}", typeString));
+  return Assets::IOPropertyArgType::Unknown;
 }
 
 std::vector<EntityDefinitionClassInfo> FgdParser::parseInclude(ParserStatus& status)

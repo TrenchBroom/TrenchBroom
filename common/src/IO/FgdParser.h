@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Assets/PropertyDefinition.h"
 #include "Color.h"
 #include "FloatType.h"
 #include "IO/EntityDefinitionParser.h"
@@ -130,6 +131,8 @@ private:
     const std::string& typeName,
     size_t line,
     size_t column);
+  std::unique_ptr<Assets::PropertyDefinition> parseIOPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
   std::unique_ptr<Assets::PropertyDefinition> parseTargetSourcePropertyDefinition(
     ParserStatus& status, std::string propertyKey);
   std::unique_ptr<Assets::PropertyDefinition> parseTargetDestinationPropertyDefinition(
@@ -158,6 +161,7 @@ private:
   vm::bbox3 parseSize(ParserStatus& status);
   Color parseColor(ParserStatus& status);
   std::string parseString(ParserStatus& status);
+  Assets::IOPropertyArgType parseIOType(ParserStatus& status);
 
   std::vector<EntityDefinitionClassInfo> parseInclude(ParserStatus& status);
   std::vector<EntityDefinitionClassInfo> handleInclude(

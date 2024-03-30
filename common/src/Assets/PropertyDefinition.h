@@ -27,6 +27,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 namespace TrenchBroom::Assets
 {
@@ -40,7 +41,8 @@ enum class PropertyDefinitionType
   IntegerProperty,
   FloatProperty,
   ChoiceProperty,
-  FlagsProperty
+  FlagsProperty,
+  IOProperty
 };
 
 class PropertyDefinition
@@ -274,6 +276,43 @@ private:
     std::string shortDescription,
     std::string longDescription,
     bool readOnly) const override;
+};
+
+
+enum class IOPropertyDirection
+{
+  Input,
+  Output
+};
+
+enum class IOPropertyArgType
+{
+  Void,
+  Integer,
+  Float,
+  String,
+  Bool,
+  Unknown
+};
+
+
+class IOPropertyDefinition : public PropertyDefinition
+{
+private:
+  IOPropertyDirection m_ioDirection;
+  IOPropertyArgType m_argumentType;
+
+public:
+  IOPropertyDefinition(
+    std::string key,
+    IOPropertyArgType argumentType,
+    std::string shortDescription,
+    std::string longDescription,
+    IOPropertyDirection ioDirection
+  );
+
+  IOPropertyDirection ioDirection() const;
+  IOPropertyArgType argumentType() const;
 };
 
 class UnknownPropertyDefinition : public StringPropertyDefinition

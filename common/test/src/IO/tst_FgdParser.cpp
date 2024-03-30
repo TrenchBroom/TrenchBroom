@@ -146,6 +146,11 @@ TEST_CASE("FgdParserTest.parseSolidClass")
        light(integer) : "Ambient light"
        _sunlight(integer) : "Sunlight"
        _sun_mangle(string) : "Sun mangle (Yaw pitch roll)"
+      input(integer) : "IO test" : 0
+      output(integer): "IO test" : 0
+
+      input DoDisplayMessage(void) : "Displays message again"
+      output OnSpawn(integer) : "Fires on initial spawn"
     ])-";
 
   auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
@@ -161,7 +166,7 @@ TEST_CASE("FgdParserTest.parseSolidClass")
   CHECK(definition.description() == "World entity");
 
   const auto& propertyDefinitions = definition.propertyDefinitions();
-  CHECK(propertyDefinitions.size() == 6u);
+  CHECK(propertyDefinitions.size() == 10u);
 }
 
 TEST_CASE("FgdParserTest.parsePointClass")
@@ -174,6 +179,11 @@ TEST_CASE("FgdParserTest.parsePointClass")
     	nextthink(integer) : "nextthink"
     	noise(string) : "noise"
     	touch(string) : "self.touch"
+        input(integer) : "IO test" : 0
+        output(integer): "IO test" : 0
+
+        input DoMakeNoise(void) : "Makes a noise"
+        output OnTouch(integer) : "Fires on initial spawn"
     ])";
 
   auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
@@ -189,7 +199,7 @@ TEST_CASE("FgdParserTest.parsePointClass")
   CHECK(definition.description() == "Wildcard entity");
 
   const auto& propertyDefinitions = definition.propertyDefinitions();
-  CHECK(propertyDefinitions.size() == 5u);
+  CHECK(propertyDefinitions.size() == 7u);
 }
 
 TEST_CASE("FgdParserTest.parseBaseProperty")
@@ -225,12 +235,16 @@ TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses")
     		2048 : "Not in Deathmatch" : 0
     	]
     ]
+    @baseclass = IOBase [
+      input DoThing(void) : "Does a thing"
+      output OnUse(integer) : "Fires on use"
+    ]
     @baseclass = Targetname [ targetname(target_source) : "Name" ]
     @baseclass = Target [ 
     	target(target_destination) : "Target" 
     	killtarget(target_destination) : "Killtarget"
     ]
-    @PointClass base(Appearflags, Target, Targetname) = info_notnull : "Wildcard entity" // I love you
+    @PointClass base(Appearflags, Target, Targetname, IOBase) = info_notnull : "Wildcard entity" // I love you
     [
     	use(string) : "self.use"
     	think(string) : "self.think"
@@ -253,7 +267,7 @@ TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses")
   CHECK(definition.description() == "Wildcard entity");
 
   const auto& propertyDefinitions = definition.propertyDefinitions();
-  CHECK(propertyDefinitions.size() == 9u);
+  CHECK(propertyDefinitions.size() == 11u);
 }
 
 TEST_CASE("FgdParserTest.parsePointClassWithUnknownClassProperties")
