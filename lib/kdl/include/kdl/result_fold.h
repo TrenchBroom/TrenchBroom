@@ -117,4 +117,38 @@ auto select_first(C&& c, const F& f)
 {
   return select_first(std::begin(c), std::end(c), f);
 }
+
+struct result_fold
+{
+};
+
+inline auto fold()
+{
+  return result_fold{};
+}
+
+template <typename C>
+auto operator|(C&& c, const result_fold&)
+{
+  return fold_results(std::forward<C>(c));
+}
+
+template <typename F>
+struct result_first
+{
+  F f;
+};
+
+template <typename F>
+auto first(F f)
+{
+  return result_first<F>{std::move(f)};
+}
+
+template <typename C, typename F>
+auto operator|(C&& c, const result_first<F>& first)
+{
+  return select_first(std::forward<C>(c), first.f);
+}
+
 } // namespace kdl
