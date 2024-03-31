@@ -26,11 +26,14 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <vector>
 #include <type_traits>
+#include <variant>
+#include <vector>
 
 namespace TrenchBroom::Assets
 {
+class ChoiceOption;
+class FlagOption;
 
 enum class PropertyDefinitionType
 {
@@ -42,295 +45,120 @@ enum class PropertyDefinitionType
   FloatProperty,
   ChoiceProperty,
   FlagsProperty,
-  IOProperty
+  UnknownProperty
 };
 
-class PropertyDefinition
+enum class IOType
 {
-public:
-private:
-  std::string m_key;
-  PropertyDefinitionType m_type;
-  std::string m_shortDescription;
-  std::string m_longDescription;
-  bool m_readOnly;
-
-public:
-  PropertyDefinition(
-    std::string key,
-    PropertyDefinitionType type,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly);
-  virtual ~PropertyDefinition();
-
-  const std::string& key() const;
-  PropertyDefinitionType type() const;
-  const std::string& shortDescription() const;
-  const std::string& longDescription() const;
-
-  bool readOnly() const;
-
-  bool equals(const PropertyDefinition* other) const;
-
-  static std::string defaultValue(const PropertyDefinition& definition);
-
-  std::unique_ptr<PropertyDefinition> clone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const;
-
-private:
-  virtual bool doEquals(const PropertyDefinition* other) const;
-  virtual std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const;
+  Void,
+  Bool,
+  Float,
+  Integer,
+  String,
+  Unknown
 };
 
-template <typename T>
-class PropertyDefinitionWithDefaultValue : public PropertyDefinition
+enum class IODirection
 {
-protected:
-  std::optional<T> m_defaultValue;
-
-public:
-  bool hasDefaultValue() const { return m_defaultValue.has_value(); }
-
-  const T& defaultValue() const
-  {
-    ensure(hasDefaultValue(), "property definition has no default value");
-    return *m_defaultValue;
-  }
-
-protected:
-  PropertyDefinitionWithDefaultValue(
-    std::string key,
-    PropertyDefinitionType type,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<T> defaultValue = std::nullopt)
-    : PropertyDefinition(key, type, shortDescription, longDescription, readOnly)
-    , m_defaultValue(std::move(defaultValue))
-  {
-  }
+  Input,
+  Output
 };
 
-class StringPropertyDefinition : public PropertyDefinitionWithDefaultValue<std::string>
+using PropertyTypeVariant = std::variant<PropertyDefinitionType, IOType>;
+using PropertyDefaultValueVariant =
+  std::variant<std::monostate, float, int, bool, std::string, ChoiceOption>;
+using PropertyOptionVariant = std::variant<std::monostate, ChoiceOption, FlagOption>;
+
+
+class ChoiceOption
 {
 public:
-  StringPropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<std::string> defaultValue = std::nullopt);
-
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
-};
-
-class BooleanPropertyDefinition : public PropertyDefinitionWithDefaultValue<bool>
-{
-public:
-  BooleanPropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<bool> defaultValue = std::nullopt);
-
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
-};
-
-class IntegerPropertyDefinition : public PropertyDefinitionWithDefaultValue<int>
-{
-public:
-  IntegerPropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<int> defaultValue = std::nullopt);
-
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
-};
-
-class FloatPropertyDefinition : public PropertyDefinitionWithDefaultValue<float>
-{
-public:
-  FloatPropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<float> defaultValue = std::nullopt);
-
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
-};
-
-class ChoicePropertyOption
-{
-public:
-  using List = std::vector<ChoicePropertyOption>;
+  using List = std::vector<ChoiceOption>;
 
 private:
   std::string m_value;
   std::string m_description;
 
 public:
-  ChoicePropertyOption(std::string value, std::string description);
+  ChoiceOption(std::string value, std::string description);
+  ~ChoiceOption();
   const std::string& value() const;
   const std::string& description() const;
 
-  kdl_reflect_decl(ChoicePropertyOption, m_value, m_description);
+  kdl_reflect_decl(ChoiceOption, m_value, m_description);
 };
 
-class ChoicePropertyDefinition : public PropertyDefinitionWithDefaultValue<std::string>
-{
-private:
-  ChoicePropertyOption::List m_options;
-
-public:
-  ChoicePropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    ChoicePropertyOption::List options,
-    bool readOnly,
-    std::optional<std::string> defaultValue = std::nullopt);
-  const ChoicePropertyOption::List& options() const;
-
-private:
-  bool doEquals(const PropertyDefinition* other) const override;
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
-};
-
-class FlagsPropertyOption
+class FlagOption
 {
 public:
-  using List = std::vector<FlagsPropertyOption>;
+  using List = std::vector<PropertyOptionVariant>;
 
 private:
   int m_value;
   std::string m_shortDescription;
   std::string m_longDescription;
-  bool m_isDefault;
+  bool m_defaultState;
 
 public:
-  FlagsPropertyOption(
-    int value, std::string shortDescription, std::string longDescription, bool isDefault);
+  FlagOption(
+    int value,
+    std::string shortDescription,
+    std::string longDescription,
+    bool defaultState);
+  ~FlagOption();
+
   int value() const;
   const std::string& shortDescription() const;
   const std::string& longDescription() const;
-  bool isDefault() const;
+  bool defaultState() const;
 
-  kdl_reflect_decl(
-    FlagsPropertyOption, m_shortDescription, m_longDescription, m_isDefault);
+  kdl_reflect_decl(FlagOption, m_shortDescription, m_longDescription, m_defaultState);
 };
 
-class FlagsPropertyDefinition : public PropertyDefinition
+class PropertyDefinition
 {
 private:
-  FlagsPropertyOption::List m_options;
+  std::string m_key;
+  PropertyTypeVariant m_type;
+  std::string m_shortDescription;
+  std::string m_longDescription;
+  bool m_readOnly;
+  PropertyDefaultValueVariant m_defaultValue = std::monostate{};
+  std::optional<IODirection> m_ioDirection;
+
+  std::vector<PropertyOptionVariant> m_options;
 
 public:
-  explicit FlagsPropertyDefinition(std::string key);
-
-  int defaultValue() const;
-  const FlagsPropertyOption::List& options() const;
-  const FlagsPropertyOption* option(int value) const;
-  void addOption(
-    int value, std::string shortDescription, std::string longDescription, bool isDefault);
-
-private:
-  bool doEquals(const PropertyDefinition* other) const override;
-  std::unique_ptr<PropertyDefinition> doClone(
+  PropertyDefinition(
     std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
-};
-
-
-enum class IOPropertyDirection
-{
-  Input,
-  Output
-};
-
-enum class IOPropertyArgType
-{
-  Void,
-  Integer,
-  Float,
-  String,
-  Bool,
-  Unknown
-};
-
-
-class IOPropertyDefinition : public PropertyDefinition
-{
-private:
-  IOPropertyDirection m_ioDirection;
-  IOPropertyArgType m_argumentType;
-
-public:
-  IOPropertyDefinition(
-    std::string key,
-    IOPropertyArgType argumentType,
-    std::string shortDescription,
-    std::string longDescription,
-    IOPropertyDirection ioDirection
-  );
-
-  IOPropertyDirection ioDirection() const;
-  IOPropertyArgType argumentType() const;
-};
-
-class UnknownPropertyDefinition : public StringPropertyDefinition
-{
-public:
-  UnknownPropertyDefinition(
-    std::string key,
+    PropertyTypeVariant type,
     std::string shortDescription,
     std::string longDescription,
     bool readOnly,
-    std::optional<std::string> defaultValue = std::nullopt);
+    PropertyDefaultValueVariant defaultValue);
+  virtual ~PropertyDefinition();
 
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
+  const std::string& key() const;
+  PropertyTypeVariant type() const;
+  const std::string& shortDescription() const;
+  const std::string& longDescription() const;
+  const std::optional<IODirection> ioDirection() const;
+
+  bool readOnly() const;
+  bool isIO() const;
+  PropertyDefaultValueVariant defaultValue();
+
+  void setOptions(std::vector<PropertyOptionVariant> options);
+  void setIODirection(IODirection direction);
+
+  bool equals(const PropertyDefinition* other) const;
+
+  std::unique_ptr<PropertyDefinition> clone(
     std::string key,
     std::string shortDescription,
     std::string longDescription,
-    bool readOnly) const override;
+    bool readOnly);
 };
+
 
 } // namespace TrenchBroom::Assets

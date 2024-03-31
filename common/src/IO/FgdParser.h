@@ -46,6 +46,10 @@ enum class EntityDefinitionClassType;
 class FileSystem;
 class ParserStatus;
 
+using PropertyTypeMap = std::unordered_map<std::string, Assets::PropertyDefinitionType>;
+using IOTypeMap = std::unordered_map<std::string, Assets::IOType>;
+using PropDefType = Assets::PropertyDefinitionType;
+
 namespace FgdToken
 {
 using Type = unsigned int;
@@ -103,6 +107,8 @@ private:
 
 private:
   TokenNameMap tokenNames() const override;
+  static PropertyTypeMap propertyTypeNames();
+  static IOTypeMap ioTypeNames();
 
   std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
@@ -125,12 +131,11 @@ private:
 
   std::vector<std::shared_ptr<Assets::PropertyDefinition>> parsePropertyDefinitions(
     ParserStatus& status);
+  Assets::PropertyDefinitionType getPropertyType(ParserStatus& status);
   std::unique_ptr<Assets::PropertyDefinition> parsePropertyDefinition(
-    ParserStatus& status,
-    std::string propertyKey,
-    const std::string& typeName,
-    size_t line,
-    size_t column);
+    ParserStatus& status);
+  Assets::PropertyDefaultValueVariant parseDefaultValue(
+    ParserStatus& status, Assets::PropertyDefinitionType propertyType);
   std::unique_ptr<Assets::PropertyDefinition> parseIOPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
   std::unique_ptr<Assets::PropertyDefinition> parseTargetSourcePropertyDefinition(
@@ -161,7 +166,6 @@ private:
   vm::bbox3 parseSize(ParserStatus& status);
   Color parseColor(ParserStatus& status);
   std::string parseString(ParserStatus& status);
-  Assets::IOPropertyArgType parseIOType(ParserStatus& status);
 
   std::vector<EntityDefinitionClassInfo> parseInclude(ParserStatus& status);
   std::vector<EntityDefinitionClassInfo> handleInclude(
