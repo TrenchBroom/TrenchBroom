@@ -327,8 +327,8 @@ Target this entity with a misc_model to have the model attached to the entity (s
   CHECK(spawnflags->defaultValue() == 0);
 
   CHECK(
-    spawnflags->options()
-    == std::vector<Assets::FlagsPropertyOption>{
+    *spawnflags->options()
+    == std::vector<Assets::FlagOption>{
       {1, "X_AXIS", "X Axis", false},
       {2, "Y_AXIS", "Y Axis", false},
     });
@@ -399,8 +399,8 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
   CHECK(colorIndexDefinition->longDescription() == expectedDescription);
 
   CHECK(
-    colorIndexDefinition->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    *colorIndexDefinition->options()
+    == std::vector<Assets::ChoiceOption>{
       {"0", "white"},
       {"1", "red"},
       {"2", "green"},

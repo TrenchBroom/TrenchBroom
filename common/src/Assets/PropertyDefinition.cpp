@@ -31,98 +31,13 @@
 namespace TrenchBroom::Assets
 {
 
-PropertyDefinition::PropertyDefinition(
-  std::string key,
-  PropertyTypeVariant type,
-  std::string shortDescription,
-  std::string longDescription,
-  bool readOnly,
-  PropertyDefaultValueVariant defaultValue)
-  : m_key{std::move(key)}
-  , m_type{type}
-  , m_shortDescription{std::move(shortDescription)}
-  , m_longDescription{std::move(longDescription)}
-  , m_readOnly{readOnly}
-  , m_defaultValue{std::move(defaultValue)}
-{
-}
-
-PropertyDefinition::~PropertyDefinition() = default;
-
-const std::string& PropertyDefinition::key() const
-{
-  return m_key;
-}
-
-PropertyTypeVariant PropertyDefinition::type() const
-{
-  return m_type;
-}
-
-const std::string& PropertyDefinition::shortDescription() const
-{
-  return m_shortDescription;
-}
-
-const std::string& PropertyDefinition::longDescription() const
-{
-  return m_longDescription;
-}
-const std::optional<IODirection> PropertyDefinition::ioDirection() const
-{
-  return m_ioDirection;
-}
-
-bool PropertyDefinition::readOnly() const
-{
-  return m_readOnly;
-}
-bool PropertyDefinition::isIO() const
-{
-  return m_type.index() == 1;
-}
-
-PropertyDefaultValueVariant PropertyDefinition::defaultValue()
-{
-  return m_defaultValue;
-}
-void PropertyDefinition::setOptions(std::vector<PropertyOptionVariant> options)
-{
-  m_options = options;
-}
-void PropertyDefinition::setIODirection(IODirection direction)
-{
-  m_ioDirection = direction;
-}
-
-
-bool PropertyDefinition::equals(const PropertyDefinition* other) const
-{
-  ensure(other != nullptr, "other is null");
-  return (type() == other->type() && key() == other->key());
-}
-
-std::unique_ptr<PropertyDefinition> PropertyDefinition::clone(
-  std::string key,
-  std::string shortDescription,
-  std::string longDescription,
-  bool readOnly)
-{
-  return std::make_unique<PropertyDefinition>(
-    std::move(key),
-    type(),
-    std::move(shortDescription),
-    std::move(longDescription),
-    readOnly,
-    defaultValue());
-}
-
 ChoiceOption::ChoiceOption(std::string value, std::string description)
   : m_value{std::move(value)}
   , m_description{std::move(description)}
 {
 }
 ChoiceOption::~ChoiceOption() = default;
+
 
 const std::string& ChoiceOption::value() const
 {
@@ -134,6 +49,7 @@ const std::string& ChoiceOption::description() const
   return m_description;
 }
 
+
 FlagOption::FlagOption(
   int value, std::string shortDescription, std::string longDescription, bool defaultState)
   : m_value{value}
@@ -144,6 +60,10 @@ FlagOption::FlagOption(
 }
 FlagOption::~FlagOption() = default;
 
+int FlagOption::value() const
+{
+  return m_value;
+}
 const std::string& FlagOption::shortDescription() const
 {
   return m_shortDescription;
@@ -154,14 +74,117 @@ const std::string& FlagOption::longDescription() const
   return m_longDescription;
 }
 
-int FlagOption::value() const
-{
-  return m_value;
-}
-
 bool FlagOption::defaultState() const
 {
   return m_defaultState;
+}
+
+PropertyDefinition::PropertyDefinition(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
+  bool readOnly,
+  std::optional<PropertyType> defaultValue)
+  : m_key{std::move(key)}
+  , m_type{PropertyDefinitionType::UnknownProperty}
+  , m_shortDescription{std::move(shortDescription)}
+  , m_longDescription{std::move(longDescription)}
+  , m_readOnly{readOnly}
+  , m_defaultValue{std::move(defaultValue)}
+  , m_ioType{std::nullopt}
+{
+}
+PropertyDefinition::~PropertyDefinition() = default;
+
+const std::string& PropertyDefinition::key() const
+{
+  return m_key;
+}
+PropertyDefinitionType PropertyDefinition::type() const
+{
+  return m_type;
+}
+const std::string& PropertyDefinition::shortDescription() const
+{
+  return m_shortDescription;
+}
+const std::string& PropertyDefinition::longDescription() const
+{
+  return m_longDescription;
+}
+bool PropertyDefinition::readOnly() const
+{
+  return m_readOnly;
+}
+const std::optional<PropertyDefinition::PropertyType> PropertyDefinition::defaultValue()
+  const
+{
+  return m_defaultValue;
+}
+std::optional<PropertyDefinition::OptionsType> PropertyDefinition::options() const
+{
+  return m_options;
+}
+
+std::optional<IOType> PropertyDefinition::ioType() const
+{
+  return m_ioType;
+}
+
+bool PropertyDefinition::equals(const PropertyDefinition* other) const
+{
+  ensure(other != nullptr, "other is null");
+  return type() == other->type() && key() == other->key() && doEquals(other);
+}
+
+bool PropertyDefinition::doEquals(const PropertyDefinition* other) const
+{
+  return true;
+}
+
+std::unique_ptr<PropertyDefinition> PropertyDefinition::clone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
+  bool readOnly) const
+{
+  return doClone(key, shortDescription, longDescription, readOnly);
+}
+
+std::unique_ptr<PropertyDefinition> PropertyDefinition::doClone(
+  std::string key,
+  std::string shortDescription,
+  std::string longDescription,
+  bool readOnly) const
+{
+  return std::make_unique<PropertyDefinition>(
+    std::move(key), std::move(shortDescription), std::move(longDescription), readOnly);
+}
+
+
+
+
+
+
+template <>
+inline void ChoicePropertyDefinition::addOption(const OptionType* new_item)
+{
+  m_options->emplace_back(new_item->value(), new_item->description());
+}
+
+template <>
+inline bool ChoicePropertyDefinition::doEquals(const PropertyDefinitionT* other) const
+{
+  if (options().has_value() && other->options().has_value())
+  {
+    const auto this_val = options().value();
+    const auto other_val = other->options().value();
+    return this_val == other_val;
+  }
+  else
+  {
+    return options().has_value() == other->options().has_value();
+  }
 }
 
 

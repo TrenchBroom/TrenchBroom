@@ -271,7 +271,7 @@ std::unique_ptr<Assets::PropertyDefinition> DefParser::parseSpawnflags(
   ParserStatus& /* status */)
 {
   auto definition = std::make_unique<Assets::FlagsPropertyDefinition>(
-    Model::EntityPropertyKeys::Spawnflags);
+    Model::EntityPropertyKeys::Spawnflags, "", "", false);
   size_t numOptions = 0;
 
   auto token = m_tokenizer.peekToken();
@@ -280,7 +280,8 @@ std::unique_ptr<Assets::PropertyDefinition> DefParser::parseSpawnflags(
     token = m_tokenizer.nextToken();
     const auto name = token.hasType(DefToken::Word) ? token.data() : "";
     const auto value = 1 << numOptions++;
-    definition->addOption(value, name, "", false);
+    const auto option = Assets::FlagOption(value, name, "", false);
+    definition->addOption(&option);
     token = m_tokenizer.peekToken();
   }
 
@@ -371,7 +372,7 @@ std::unique_ptr<Assets::PropertyDefinition> DefParser::parseChoicePropertyDefini
   auto token = expect(status, DefToken::QuotedString, m_tokenizer.nextToken());
   auto propertyKey = token.data();
 
-  Assets::ChoicePropertyOption::List options;
+  Assets::ChoiceOption::List options;
   expect(status, DefToken::OParenthesis, nextTokenIgnoringNewlines());
   token = nextTokenIgnoringNewlines();
   while (token.type() == DefToken::OParenthesis)
@@ -390,8 +391,11 @@ std::unique_ptr<Assets::PropertyDefinition> DefParser::parseChoicePropertyDefini
 
   expect(status, DefToken::CParenthesis, token);
 
-  return std::make_unique<Assets::ChoicePropertyDefinition>(
-    std::move(propertyKey), "", "", std::move(options), false);
+  auto definition = std::make_unique<Assets::ChoicePropertyDefinition>(
+    std::move(propertyKey), "", "", false, nullptr);
+  definition->setOptions(std::move(options));
+
+  return definition;
 }
 
 Assets::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)

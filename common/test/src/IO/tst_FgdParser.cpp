@@ -653,7 +653,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition1->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<Assets::ChoiceOption>{
       {"0", "Medieval"},
       {"1", "Metal (runic)"},
       {"2", "Base"},
@@ -673,7 +673,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition2->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<Assets::ChoiceOption>{
       {"0", "Medieval"},
       {"1", "Metal (runic)"},
     });
@@ -689,7 +689,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition3->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<Assets::ChoiceOption>{
       {"keep3", "Mill key"},
       {"cskey", "Castle key"},
       {"scrol", "Disrupt Magic Scroll"},
@@ -706,7 +706,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition4->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<Assets::ChoiceOption>{
       {"1.0", "Something"},
       {"2.3", "Something else"},
       {"0.1", "Yet more"},
@@ -723,7 +723,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition5->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<Assets::ChoiceOption>{
       {"-2", "Something"},
       {"-1", "Something else"},
       {"1", "Yet more"},
@@ -772,7 +772,7 @@ TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
 
   CHECK(
     flagsPropertyDefinition->options()
-    == std::vector<Assets::FlagsPropertyOption>{
+    == std::vector<Assets::FlagOption>{
       {256, "Not on Easy", "", false},
       {512, "Not on Normal", "", true},
       {1024, "Not on Hard", "", false},

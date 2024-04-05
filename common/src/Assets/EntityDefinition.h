@@ -23,6 +23,7 @@
 #include "Assets/ModelDefinition.h"
 #include "Color.h"
 #include "FloatType.h"
+#include "PropertyDefinition.h"
 
 #include "vm/bbox.h"
 
@@ -35,9 +36,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class PropertyDefinition;
-class FlagsPropertyDefinition;
-class FlagsPropertyOption;
+
 
 enum class EntityDefinitionType
 {

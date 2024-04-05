@@ -127,7 +127,12 @@ QString EntityPropertyEditor::optionDescriptions(
 
     auto result = QString{};
     auto stream = QTextStream{&result};
-    for (const auto& option : choiceDef.options())
+    if (!choiceDef.options().has_value())
+    {
+      return result;
+    }
+    auto options = choiceDef.options().value();
+    for (const auto& option : options)
     {
       stream << bullet << option.value().c_str();
       if (!option.description().empty())
@@ -145,7 +150,8 @@ QString EntityPropertyEditor::optionDescriptions(
     // The options are not necessarily sorted by value, so we sort the descriptions here
     // by inserting into a map sorted by the flag value.
     auto flagDescriptors = std::map<int, QString>{};
-    for (const auto& option : flagsDef.options())
+    auto options = flagsDef.options().value_or(std::vector<Assets::FlagOption>{});
+    for (const auto& option : options)
     {
       auto line = QString{};
       auto stream = QTextStream{&line};

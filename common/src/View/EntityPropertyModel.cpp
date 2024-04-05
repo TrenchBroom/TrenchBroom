@@ -186,7 +186,7 @@ PropertyRow::PropertyRow(std::string key, const Model::EntityNodeBase* node)
   }
   else if (definition != nullptr)
   {
-    m_value = Assets::PropertyDefinition::defaultValue(*definition);
+    m_value = definition->defaultValue().value_or("");
     m_valueType = ValueType::Unset;
   }
   else

@@ -58,7 +58,8 @@ static std::shared_ptr<Assets::PropertyDefinition> mergeAttributes(
   {
 
     const auto& name = inheritingClassAttribute.key();
-    auto result = std::make_shared<Assets::FlagsPropertyDefinition>(name);
+    auto result = std::make_shared<Assets::FlagsPropertyDefinition>(
+      name, "", "", false);
 
     const auto& baseclassFlags =
       static_cast<const Assets::FlagsPropertyDefinition&>(superClassAttribute);
@@ -72,19 +73,11 @@ static std::shared_ptr<Assets::PropertyDefinition> mergeAttributes(
 
       if (baseclassFlag != nullptr && classFlag == nullptr)
       {
-        result->addOption(
-          baseclassFlag->value(),
-          baseclassFlag->shortDescription(),
-          baseclassFlag->longDescription(),
-          baseclassFlag->isDefault());
+        result->addOption(baseclassFlag);
       }
       else if (classFlag != nullptr)
       {
-        result->addOption(
-          classFlag->value(),
-          classFlag->shortDescription(),
-          classFlag->longDescription(),
-          classFlag->isDefault());
+        result->addOption(classFlag);
       }
     }
 
