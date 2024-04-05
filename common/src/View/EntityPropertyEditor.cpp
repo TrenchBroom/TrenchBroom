@@ -178,6 +178,9 @@ QString EntityPropertyEditor::optionDescriptions(
   case Assets::PropertyDefinitionType::FloatProperty:
   case Assets::PropertyDefinitionType::TargetSourceProperty:
   case Assets::PropertyDefinitionType::TargetDestinationProperty:
+  case Assets::PropertyDefinitionType::InputProperty:
+  case Assets::PropertyDefinitionType::OutputProperty:
+  case Assets::PropertyDefinitionType::UnknownProperty:
     return QString();
     switchDefault();
   }
