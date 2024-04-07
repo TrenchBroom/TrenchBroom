@@ -36,7 +36,7 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityNodeIndex.h"
 #include "Model/EntityProperties.h"
-// #include "Model/Group.h"
+#include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/WorldNode.h"

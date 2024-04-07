@@ -548,7 +548,7 @@ std::unique_ptr<Assets::PropertyDefinition> parseSpawnflags(
         auto shortDesc = parseString(*flagElement, "key");
         auto longDesc = parseString(*flagElement, "name");
         const auto option =
-          Assets::FlagPropertyOption(value, std::move(shortDesc), std::move(longDesc), false);
+          Assets::FlagsPropertyOption(value, std::move(shortDesc), std::move(longDesc), false);
         result->addOption(&option);
       }
 

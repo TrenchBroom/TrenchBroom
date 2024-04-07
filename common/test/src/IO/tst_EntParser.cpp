@@ -328,7 +328,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
   CHECK(
     *spawnflags->options()
-    == std::vector<Assets::FlagPropertyOption>{
+    == std::vector<Assets::FlagsPropertyOption>{
       {1, "X_AXIS", "X Axis", false},
       {2, "Y_AXIS", "Y Axis", false},
     });

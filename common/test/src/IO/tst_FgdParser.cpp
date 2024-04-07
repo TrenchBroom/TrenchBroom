@@ -772,7 +772,7 @@ TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
 
   CHECK(
     flagsPropertyDefinition->options()
-    == std::vector<Assets::FlagPropertyOption>{
+    == std::vector<Assets::FlagsPropertyOption>{
       {256, "Not on Easy", "", false},
       {512, "Not on Normal", "", true},
       {1024, "Not on Hard", "", false},

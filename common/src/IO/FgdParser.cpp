@@ -791,7 +791,7 @@ std::unique_ptr<
     std::make_unique<Assets::PropertyDefinitionT<PropertyDefinitionType::FlagsProperty>>(
       propertyKey, std::string{}, std::string{}, false);
 
-  auto options = Assets::FlagPropertyOption::List{};
+  auto options = Assets::FlagsPropertyOption::List{};
 
   while (token.type() != FgdToken::CBracket)
   {

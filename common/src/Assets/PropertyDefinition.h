@@ -34,7 +34,7 @@ namespace TrenchBroom::Assets
 {
 
 class ChoicePropertyOption;
-class FlagPropertyOption;
+class FlagsPropertyOption;
 class PropertyDefinition;
 
 enum class PropertyDefinitionType
@@ -122,10 +122,10 @@ public:
   kdl_reflect_decl(ChoicePropertyOption, m_value, m_description);
 };
 
-class FlagPropertyOption
+class FlagsPropertyOption
 {
 public:
-  using List = std::vector<FlagPropertyOption>;
+  using List = std::vector<FlagsPropertyOption>;
 
 private:
   int m_value;
@@ -134,19 +134,19 @@ private:
   bool m_defaultState;
 
 public:
-  FlagPropertyOption(
+  FlagsPropertyOption(
     int value,
     std::string shortDescription,
     std::string longDescription,
     bool defaultState);
-  ~FlagPropertyOption();
+  ~FlagsPropertyOption();
 
   int value() const;
   const std::string& shortDescription() const;
   const std::string& longDescription() const;
   bool defaultState() const;
 
-  kdl_reflect_decl(FlagPropertyOption, m_shortDescription, m_longDescription, m_defaultState);
+  kdl_reflect_decl(FlagsPropertyOption, m_shortDescription, m_longDescription, m_defaultState);
 };
 
 
@@ -215,7 +215,7 @@ public:
   using PropertyType = PropertyTypeMap::find_type<PropertyDefinitionType, P>;
   using OptionType = std::conditional_t<
     P == PropertyDefinitionType::FlagsProperty,
-    FlagPropertyOption,
+    FlagsPropertyOption,
     std::
       conditional_t<P == PropertyDefinitionType::ChoiceProperty, ChoicePropertyOption, NoValue>>;
   using OptionsType = std::conditional_t<
@@ -277,7 +277,7 @@ inline std::ostream& operator<<(std::ostream& lhs, const ChoicePropertyOption& r
   lhs << rhs.value() << " " << rhs.description();
   return lhs;
 }
-inline std::ostream& operator<<(std::ostream& lhs, const FlagPropertyOption& rhs)
+inline std::ostream& operator<<(std::ostream& lhs, const FlagsPropertyOption& rhs)
 {
   lhs << rhs.value() << rhs.shortDescription();
   return lhs;

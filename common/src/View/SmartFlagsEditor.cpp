@@ -118,7 +118,7 @@ void SmartFlagsEditor::getFlags(
       if (propDef != nullptr)
       {
         const int flag = static_cast<int>(1 << i);
-        const Assets::FlagPropertyOption* flagDef = propDef->option(flag);
+        const Assets::FlagsPropertyOption* flagDef = propDef->option(flag);
         if (flagDef != nullptr)
         {
           label = QString::fromStdString(flagDef->shortDescription());

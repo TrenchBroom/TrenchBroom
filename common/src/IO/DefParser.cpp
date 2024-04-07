@@ -280,7 +280,7 @@ std::unique_ptr<Assets::PropertyDefinition> DefParser::parseSpawnflags(
     token = m_tokenizer.nextToken();
     const auto name = token.hasType(DefToken::Word) ? token.data() : "";
     const auto value = 1 << numOptions++;
-    const auto option = Assets::FlagPropertyOption(value, name, "", false);
+    const auto option = Assets::FlagsPropertyOption(value, name, "", false);
     definition->addOption(&option);
     token = m_tokenizer.peekToken();
   }

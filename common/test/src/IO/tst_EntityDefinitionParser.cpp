@@ -575,15 +575,15 @@ TEST_CASE("resolveInheritance")
   {
     auto a1 = std::make_shared<Assets::FlagsPropertyDefinition>(
       Model::EntityPropertyKeys::Spawnflags);
-    const auto o1 = Assets::FlagPropertyOption{1 << 1, "a1_1", "", true};
-    const auto o2 = Assets::FlagPropertyOption{1 << 2, "a1_2", "", false};
+    const auto o1 = Assets::FlagsPropertyOption{1 << 1, "a1_1", "", true};
+    const auto o2 = Assets::FlagsPropertyOption{1 << 2, "a1_2", "", false};
     a1->addOption(&o1);
     a1->addOption(&o2);
 
     auto a2 = std::make_shared<Assets::FlagsPropertyDefinition>(
       Model::EntityPropertyKeys::Spawnflags);
-    const auto o3 = Assets::FlagPropertyOption{1 << 2, "a2_2", "", true};
-    const auto o4 = Assets::FlagPropertyOption{1 << 4, "a2_4", "", false};
+    const auto o3 = Assets::FlagsPropertyOption{1 << 2, "a2_2", "", true};
+    const auto o4 = Assets::FlagsPropertyOption{1 << 4, "a2_4", "", false};
     a2->addOption(&o3);
     a2->addOption(&o4);
 
@@ -631,7 +631,7 @@ TEST_CASE("resolveInheritance")
     const auto& options = flagsPropertyDefinition.options();
     CHECK_THAT(
       *options,
-      Catch::Equals(std::vector<Assets::FlagPropertyOption>{
+      Catch::Equals(std::vector<Assets::FlagsPropertyOption>{
         {1 << 1, "a1_1", "", true},
         {1 << 2, "a2_2", "", true},
         {1 << 4, "a2_4", "", false},

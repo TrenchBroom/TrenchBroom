@@ -50,7 +50,7 @@ const std::string& ChoicePropertyOption::description() const
 }
 
 
-FlagPropertyOption::FlagPropertyOption(
+FlagsPropertyOption::FlagsPropertyOption(
   int value, std::string shortDescription, std::string longDescription, bool defaultState)
   : m_value{value}
   , m_shortDescription{std::move(shortDescription)}
@@ -58,23 +58,23 @@ FlagPropertyOption::FlagPropertyOption(
   , m_defaultState{defaultState}
 {
 }
-FlagPropertyOption::~FlagPropertyOption() = default;
+FlagsPropertyOption::~FlagsPropertyOption() = default;
 
-int FlagPropertyOption::value() const
+int FlagsPropertyOption::value() const
 {
   return m_value;
 }
-const std::string& FlagPropertyOption::shortDescription() const
+const std::string& FlagsPropertyOption::shortDescription() const
 {
   return m_shortDescription;
 }
 
-const std::string& FlagPropertyOption::longDescription() const
+const std::string& FlagsPropertyOption::longDescription() const
 {
   return m_longDescription;
 }
 
-bool FlagPropertyOption::defaultState() const
+bool FlagsPropertyOption::defaultState() const
 {
   return m_defaultState;
 }

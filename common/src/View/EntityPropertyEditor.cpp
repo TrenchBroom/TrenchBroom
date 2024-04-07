@@ -150,7 +150,7 @@ QString EntityPropertyEditor::optionDescriptions(
     // The options are not necessarily sorted by value, so we sort the descriptions here
     // by inserting into a map sorted by the flag value.
     auto flagDescriptors = std::map<int, QString>{};
-    auto options = flagsDef.options().value_or(std::vector<Assets::FlagPropertyOption>{});
+    auto options = flagsDef.options().value_or(std::vector<Assets::FlagsPropertyOption>{});
     for (const auto& option : options)
     {
       auto line = QString{};
