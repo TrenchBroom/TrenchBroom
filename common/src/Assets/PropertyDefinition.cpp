@@ -31,13 +31,13 @@
 namespace TrenchBroom::Assets
 {
 
+
 ChoicePropertyOption::ChoicePropertyOption(std::string value, std::string description)
   : m_value{std::move(value)}
   , m_description{std::move(description)}
 {
 }
 ChoicePropertyOption::~ChoicePropertyOption() = default;
-
 
 const std::string& ChoicePropertyOption::value() const
 {
@@ -79,6 +79,7 @@ bool FlagsPropertyOption::defaultState() const
   return m_defaultState;
 }
 
+
 PropertyDefinition::PropertyDefinition(
   std::string key,
   std::string shortDescription,
@@ -94,24 +95,45 @@ PropertyDefinition::PropertyDefinition(
   , m_ioType{std::nullopt}
 {
 }
+PropertyDefinition::PropertyDefinition(
+  std::string key,
+  PropertyDefinitionType type,
+  std::string shortDescription,
+  std::string longDescription,
+  bool readOnly,
+  std::optional<PropertyType> defaultValue,
+  std::optional<IOType> ioType)
+  : m_key{std::move(key)}
+  , m_shortDescription{std::move(shortDescription)}
+  , m_longDescription{std::move(longDescription)}
+  , m_readOnly{readOnly}
+  , m_defaultValue{std::move(defaultValue)}
+  , m_type{std::move(type)}
+  , m_ioType{std::move(ioType)}
+{
+}
 PropertyDefinition::~PropertyDefinition() = default;
 
 const std::string& PropertyDefinition::key() const
 {
   return m_key;
 }
+
 PropertyDefinitionType PropertyDefinition::type() const
 {
   return m_type;
 }
+
 const std::string& PropertyDefinition::shortDescription() const
 {
   return m_shortDescription;
 }
+
 const std::string& PropertyDefinition::longDescription() const
 {
   return m_longDescription;
 }
+
 bool PropertyDefinition::readOnly() const
 {
   return m_readOnly;
@@ -127,20 +149,25 @@ std::string PropertyDefinition::defaultValue(const PropertyDefinition& definitio
   }
   case PropertyDefinitionType::BooleanProperty: {
     const auto& boolDef = static_cast<const BooleanPropertyDefinition&>(definition);
-    return boolDef.hasDefaultValue() ? kdl::str_to_string(boolDef.defaultValue().value()) : "";
+    return boolDef.hasDefaultValue() ? kdl::str_to_string(boolDef.defaultValue().value())
+                                     : "";
   }
   case PropertyDefinitionType::IntegerProperty: {
     const auto& intDef = static_cast<const IntegerPropertyDefinition&>(definition);
-    return intDef.hasDefaultValue() ? kdl::str_to_string(intDef.defaultValue().value()) : "";
+    return intDef.hasDefaultValue() ? kdl::str_to_string(intDef.defaultValue().value())
+                                    : "";
   }
   case PropertyDefinitionType::FloatProperty: {
     const auto& floatDef = static_cast<const FloatPropertyDefinition&>(definition);
-    return floatDef.hasDefaultValue() ? kdl::str_to_string(floatDef.defaultValue().value()) : "";
+    return floatDef.hasDefaultValue()
+             ? kdl::str_to_string(floatDef.defaultValue().value())
+             : "";
   }
   case PropertyDefinitionType::ChoiceProperty: {
     const auto& choiceDef = static_cast<const ChoicePropertyDefinition&>(definition);
-    return choiceDef.hasDefaultValue() ? kdl::str_to_string(choiceDef.defaultValue().value())
-                                       : "";
+    return choiceDef.hasDefaultValue()
+             ? kdl::str_to_string(choiceDef.defaultValue().value())
+             : "";
   }
   case PropertyDefinitionType::FlagsProperty: {
     const auto& flagsDef = static_cast<const FlagsPropertyDefinition&>(definition);
@@ -155,6 +182,7 @@ std::string PropertyDefinition::defaultValue(const PropertyDefinition& definitio
     switchDefault();
   }
 }
+
 std::optional<PropertyDefinition::OptionsType> PropertyDefinition::options() const
 {
   return m_options;
@@ -193,28 +221,6 @@ std::unique_ptr<PropertyDefinition> PropertyDefinition::doClone(
 {
   return std::make_unique<PropertyDefinition>(
     std::move(key), std::move(shortDescription), std::move(longDescription), readOnly);
-}
-
-
-template <>
-inline void ChoicePropertyDefinition::addOption(const OptionType* new_item)
-{
-  m_options->emplace_back(new_item->value(), new_item->description());
-}
-
-template <>
-inline bool ChoicePropertyDefinition::doEquals(const PropertyDefinitionT* other) const
-{
-  if (options().has_value() && other->options().has_value())
-  {
-    const auto this_val = options().value();
-    const auto other_val = other->options().value();
-    return this_val == other_val;
-  }
-  else
-  {
-    return options().has_value() == other->options().has_value();
-  }
 }
 
 

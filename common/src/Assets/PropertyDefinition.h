@@ -28,6 +28,7 @@
 #include <optional>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 namespace TrenchBroom::Assets
@@ -146,7 +147,8 @@ public:
   const std::string& longDescription() const;
   bool defaultState() const;
 
-  kdl_reflect_decl(FlagsPropertyOption, m_shortDescription, m_longDescription, m_defaultState);
+  kdl_reflect_decl(
+    FlagsPropertyOption, m_shortDescription, m_longDescription, m_defaultState);
 };
 
 
@@ -177,10 +179,18 @@ public:
     std::string longDescription,
     bool readOnly,
     std::optional<PropertyType> defaultValue = {});
+  PropertyDefinition(
+    std::string key,
+    PropertyDefinitionType type,
+    std::string shortDescription,
+    std::string longDescription,
+    bool readOnly,
+    std::optional<PropertyType> defaultValue,
+    std::optional<IOType> ioType);
   virtual ~PropertyDefinition();
 
   const std::string& key() const;
-  PropertyDefinitionType type() const;
+  virtual PropertyDefinitionType type() const;
   const std::string& shortDescription() const;
   const std::string& longDescription() const;
   bool readOnly() const;
@@ -216,8 +226,10 @@ public:
   using OptionType = std::conditional_t<
     P == PropertyDefinitionType::FlagsProperty,
     FlagsPropertyOption,
-    std::
-      conditional_t<P == PropertyDefinitionType::ChoiceProperty, ChoicePropertyOption, NoValue>>;
+    std::conditional_t<
+      P == PropertyDefinitionType::ChoiceProperty,
+      ChoicePropertyOption,
+      NoValue>>;
   using OptionsType = std::conditional_t<
     std::is_same_v<OptionType, NoValue>,
     std::string,
@@ -226,7 +238,6 @@ public:
     std::conditional_t<P == PropertyDefinitionType::FlagsProperty, int, PropertyType>;
 
 private:
-  // PropertyDefinitionType m_type;
   std::optional<DefaultValueType> m_defaultValue;
   std::optional<OptionsType> m_options;
 
@@ -237,39 +248,50 @@ public:
     std::string shortDescription = std::string{},
     std::string longDescription = std::string{},
     bool readOnly = false,
-    std::optional<DefaultValueType> defaultValue = {});
+    std::optional<DefaultValueType> defaultValue = {})
+    : PropertyDefinition(key, shortDescription, longDescription, readOnly)
+    , m_defaultValue{std::move(defaultValue)}
+    , m_options{OptionsType{}}
+  {
+    m_type = P;
+  }
 
   PropertyDefinitionT(
     std::string key,
     std::string shortDescription,
     std::string longDescription,
     bool readOnly,
-    IOType ioType);
+    IOType ioType)
+    : PropertyDefinition(
+        key, P, shortDescription, longDescription, readOnly, std::nullopt, ioType)
+    , m_defaultValue{std::nullopt}
+    , m_options{OptionsType{}} {};
 
-  ~PropertyDefinitionT() override;
+  ~PropertyDefinitionT() override = default;
 
-  PropertyDefinitionType type() const;
-  std::optional<DefaultValueType> defaultValue() const;
-  bool hasDefaultValue() const override;
+  PropertyDefinitionType type() const override { return m_type; };
+  std::optional<DefaultValueType> defaultValue() const { return m_defaultValue; };
 
-  const std::optional<OptionsType> options() const;
-  const OptionType* option(const int value) const;
-  void setOptions(OptionsType options);
-  void addOption(const OptionType* new_item);
 
-  std::unique_ptr<PropertyDefinitionT<P>> clone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const;
+  bool hasDefaultValue() const override { return m_defaultValue.has_value(); };
+
+  const std::optional<OptionsType> options() const { return m_options; };
+  const OptionType* option(const int value) const { return nullptr; };
+  void setOptions(OptionsType options) { m_options = options; };
+  void addOption(const OptionType* new_item) { return; };
 
 private:
   std::unique_ptr<PropertyDefinition> doClone(
     std::string key,
     std::string shortDescription,
     std::string longDescription,
-    bool readOnly) const override;
-  bool doEquals(const PropertyDefinitionT<P>* other) const;
+    bool readOnly) const override
+  {
+    return std::make_unique<PropertyDefinitionT<P>>(
+      key, shortDescription, longDescription, readOnly);
+  };
+
+  bool doEquals(const PropertyDefinitionT<P>* other) const { return true; };
 };
 
 inline std::ostream& operator<<(std::ostream& lhs, const ChoicePropertyOption& rhs)
@@ -283,114 +305,10 @@ inline std::ostream& operator<<(std::ostream& lhs, const FlagsPropertyOption& rh
   return lhs;
 }
 
-template <PropertyDefinitionType P>
-PropertyDefinitionT<P>::PropertyDefinitionT(
-  std::string key,
-  std::string shortDescription,
-  std::string longDescription,
-  bool readOnly,
-  std::optional<DefaultValueType> defaultValue)
-  : PropertyDefinition(key, shortDescription, longDescription, readOnly)
-  , m_defaultValue{defaultValue}
-  , m_options{OptionsType{}}
-{
-  m_type = P;
-}
-
-template <PropertyDefinitionType P>
-PropertyDefinitionT<P>::PropertyDefinitionT(
-  std::string key,
-  std::string shortDescription,
-  std::string longDescription,
-  bool readOnly,
-  IOType ioType)
-  : PropertyDefinition(key, shortDescription, longDescription, readOnly)
-  , m_defaultValue{std::nullopt}
-  , m_options{OptionsType{}}
-{
-  m_ioType = ioType;
-  m_type = P;
-}
-
-template <PropertyDefinitionType P>
-PropertyDefinitionT<P>::~PropertyDefinitionT() = default;
-
-template <PropertyDefinitionType P>
-bool PropertyDefinitionT<P>::hasDefaultValue() const
-{
-  return m_defaultValue.has_value();
-}
-
-template <PropertyDefinitionType P>
-const std::optional<typename PropertyDefinitionT<P>::OptionsType> PropertyDefinitionT<
-  P>::options() const
-{
-  return m_options;
-}
-
-template <PropertyDefinitionType P>
-const typename PropertyDefinitionT<P>::OptionType* PropertyDefinitionT<P>::option(
-  const int value) const
-{
-  return nullptr;
-}
-
-template <PropertyDefinitionType P>
-PropertyDefinitionType PropertyDefinitionT<P>::type() const
-{
-  return m_type;
-}
-
-template <PropertyDefinitionType P>
-std::optional<typename PropertyDefinitionT<P>::DefaultValueType> PropertyDefinitionT<
-  P>::defaultValue() const
-{
-  return m_defaultValue;
-}
-
-template <PropertyDefinitionType P>
-void PropertyDefinitionT<P>::setOptions(OptionsType options)
-{
-  m_options = options;
-}
-
-template <PropertyDefinitionType P>
-void PropertyDefinitionT<P>::addOption(const OptionType* new_item)
-{
-  return;
-}
-
-template <PropertyDefinitionType P>
-std::unique_ptr<PropertyDefinitionT<P>> PropertyDefinitionT<P>::clone(
-  std::string key,
-  std::string shortDescription,
-  std::string longDescription,
-  bool readOnly) const
-{
-  return doClone(key, shortDescription, longDescription, readOnly);
-}
-
-template <PropertyDefinitionType P>
-std::unique_ptr<PropertyDefinition> PropertyDefinitionT<P>::doClone(
-  std::string key,
-  std::string shortDescription,
-  std::string longDescription,
-  bool readOnly) const
-{
-  return std::make_unique<PropertyDefinitionT<P>>(
-    key, shortDescription, longDescription, readOnly);
-}
-
-
-template <PropertyDefinitionType P>
-bool PropertyDefinitionT<P>::doEquals(const PropertyDefinitionT<P>* other) const
-{
-  return true;
-}
 
 template <>
-inline const typename FlagsPropertyDefinition::OptionType* FlagsPropertyDefinition::
-  option(const int value) const
+inline const FlagsPropertyDefinition::OptionType* FlagsPropertyDefinition::option(
+  const int value) const
 {
   if (m_options.has_value() == false)
   {
@@ -447,10 +365,25 @@ inline std::unique_ptr<PropertyDefinition> FlagsPropertyDefinition::doClone(
 }
 
 template <>
-inline void ChoicePropertyDefinition::addOption(const OptionType* new_item);
+inline void ChoicePropertyDefinition::addOption(const OptionType* new_item)
+{
+  m_options->emplace_back(new_item->value(), new_item->description());
+}
 
 template <>
-inline bool ChoicePropertyDefinition::doEquals(const PropertyDefinitionT* other) const;
+inline bool ChoicePropertyDefinition::doEquals(const PropertyDefinitionT* other) const
+{
+  if (options().has_value() && other->options().has_value())
+  {
+    const auto this_val = options().value();
+    const auto other_val = other->options().value();
+    return this_val == other_val;
+  }
+  else
+  {
+    return options().has_value() == other->options().has_value();
+  }
+}
 
 template <>
 inline std::unique_ptr<PropertyDefinition> ChoicePropertyDefinition::doClone(

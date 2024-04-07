@@ -912,6 +912,7 @@ bool FgdParser::parseReadOnlyFlag(ParserStatus& status)
   }
   return false;
 }
+
 std::string FgdParser::parsePropertyDescription(ParserStatus& status)
 {
   auto token = m_tokenizer.peekToken();
@@ -926,6 +927,7 @@ std::string FgdParser::parsePropertyDescription(ParserStatus& status)
   }
   return "";
 }
+
 
 template <>
 std::optional<float> FgdParser::parseDefaultValue(ParserStatus& status)
@@ -1028,6 +1030,7 @@ std::optional<char> FgdParser::parseDefaultValue<char>(ParserStatus& status)
 {
   return std::nullopt;
 };
+
 
 vm::vec3 FgdParser::parseVector(ParserStatus& status)
 {
