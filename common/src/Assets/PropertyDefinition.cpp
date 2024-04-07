@@ -86,11 +86,11 @@ PropertyDefinition::PropertyDefinition(
   bool readOnly,
   std::optional<PropertyType> defaultValue)
   : m_key{std::move(key)}
-  , m_type{PropertyDefinitionType::UnknownProperty}
   , m_shortDescription{std::move(shortDescription)}
   , m_longDescription{std::move(longDescription)}
   , m_readOnly{readOnly}
   , m_defaultValue{std::move(defaultValue)}
+  , m_type{PropertyDefinitionType::UnknownProperty}
   , m_ioType{std::nullopt}
 {
 }
@@ -116,10 +116,43 @@ bool PropertyDefinition::readOnly() const
 {
   return m_readOnly;
 }
-const std::optional<PropertyDefinition::PropertyType> PropertyDefinition::defaultValue()
-  const
+std::optional<std::string> PropertyDefinition::defaultValue(const PropertyDefinition& definition)
 {
-  return m_defaultValue;
+  switch (definition.type())
+  {
+  case PropertyDefinitionType::StringProperty: {
+    const auto& stringDef = static_cast<const StringPropertyDefinition&>(definition);
+    return stringDef.defaultValue();
+  }
+  case PropertyDefinitionType::BooleanProperty: {
+    const auto& boolDef = static_cast<const BooleanPropertyDefinition&>(definition);
+    return boolDef.hasDefaultValue() ? kdl::str_to_string(boolDef.defaultValue().value()) : "";
+  }
+  case PropertyDefinitionType::IntegerProperty: {
+    const auto& intDef = static_cast<const IntegerPropertyDefinition&>(definition);
+    return intDef.hasDefaultValue() ? kdl::str_to_string(intDef.defaultValue().value()) : "";
+  }
+  case PropertyDefinitionType::FloatProperty: {
+    const auto& floatDef = static_cast<const FloatPropertyDefinition&>(definition);
+    return floatDef.hasDefaultValue() ? kdl::str_to_string(floatDef.defaultValue().value()) : "";
+  }
+  case PropertyDefinitionType::ChoiceProperty: {
+    const auto& choiceDef = static_cast<const ChoicePropertyDefinition&>(definition);
+    return choiceDef.hasDefaultValue() ? kdl::str_to_string(choiceDef.defaultValue().value())
+                                       : "";
+  }
+  case PropertyDefinitionType::FlagsProperty: {
+    const auto& flagsDef = static_cast<const FlagsPropertyDefinition&>(definition);
+    return kdl::str_to_string(flagsDef.defaultValue().value());
+  }
+  case PropertyDefinitionType::TargetSourceProperty:
+  case PropertyDefinitionType::TargetDestinationProperty:
+    return "";
+  case PropertyDefinitionType::InputProperty:
+  case PropertyDefinitionType::OutputProperty:
+    return std::nullopt;
+    switchDefault();
+  }
 }
 std::optional<PropertyDefinition::OptionsType> PropertyDefinition::options() const
 {
@@ -160,10 +193,6 @@ std::unique_ptr<PropertyDefinition> PropertyDefinition::doClone(
   return std::make_unique<PropertyDefinition>(
     std::move(key), std::move(shortDescription), std::move(longDescription), readOnly);
 }
-
-
-
-
 
 
 template <>

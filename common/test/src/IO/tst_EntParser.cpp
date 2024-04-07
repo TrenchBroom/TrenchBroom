@@ -399,7 +399,7 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
   CHECK(colorIndexDefinition->longDescription() == expectedDescription);
 
   CHECK(
-    *colorIndexDefinition->options()
+    colorIndexDefinition->options()
     == std::vector<Assets::ChoiceOption>{
       {"0", "white"},
       {"1", "red"},
@@ -479,12 +479,12 @@ TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
   UNSCOPED_INFO("Expected one property definitions");
   CHECK(pointDefinition->propertyDefinitions().size() == 1u);
 
-  const auto* scaleDefinition = dynamic_cast<const Assets::StringPropertyDefinition*>(
+  const auto* scaleDefinition = dynamic_cast<const Assets::UnknownPropertyDefinition*>(
     pointDefinition->propertyDefinition("_scale"));
   UNSCOPED_INFO("Missing property definition for '_scale' key");
   CHECK(scaleDefinition != nullptr);
   UNSCOPED_INFO("Expected angles property definition to be of Float type");
-  CHECK(scaleDefinition->type() == Assets::PropertyDefinitionType::StringProperty);
+  CHECK(scaleDefinition->type() == Assets::PropertyDefinitionType::UnknownProperty);
 
   UNSCOPED_INFO("Expected correct default value for '_scale' property definition");
   CHECK(scaleDefinition->defaultValue() == "asdf");

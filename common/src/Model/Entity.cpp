@@ -51,7 +51,7 @@ void setDefaultProperties(
 {
   for (const auto& propertyDefinition : entityDefinition.propertyDefinitions())
   {
-    if (const auto defaultValue = propertyDefinition->defaultValue();
+    if (const auto defaultValue = propertyDefinition->defaultValue(*propertyDefinition);
         defaultValue.has_value())
     {
       const auto hasProperty = entity.hasProperty(propertyDefinition->key());

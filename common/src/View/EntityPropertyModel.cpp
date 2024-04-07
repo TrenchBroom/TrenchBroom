@@ -36,7 +36,7 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityNodeIndex.h"
 #include "Model/EntityProperties.h"
-#include "Model/Group.h"
+// #include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/WorldNode.h"
@@ -186,7 +186,7 @@ PropertyRow::PropertyRow(std::string key, const Model::EntityNodeBase* node)
   }
   else if (definition != nullptr)
   {
-    m_value = definition->defaultValue().value_or("");
+    m_value = definition->defaultValue(*definition).value_or("");
     m_valueType = ValueType::Unset;
   }
   else

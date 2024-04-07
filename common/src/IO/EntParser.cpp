@@ -297,12 +297,12 @@ std::unique_ptr<Assets::PropertyDefinition> parseRealPropertyDefinition(
       auto floatDefaultValue = parseFloat(element, "value");
       if (floatDefaultValue)
       {
-        return std::make_unique<Assets::FloatPropertyDefinition>(
-          std::move(name),
-          std::move(shortDesc),
-          std::move(longDesc),
+        return std::make_unique<Assets::PropertyDefinitionT<Assets::PropertyDefinitionType::FloatProperty>>(
+          name,
+          shortDesc,
+          longDesc,
           false,
-          std::move(floatDefaultValue));
+          floatDefaultValue);
       }
 
       auto strDefaultValue = parseString(element, "value");
@@ -423,7 +423,7 @@ std::unique_ptr<Assets::PropertyDefinition> parseUnknownPropertyDefinition(
     auto defaultValue = hasAttribute(element, "value")
                           ? std::optional(parseString(element, "value"))
                           : std::nullopt;
-    return std::make_unique<Assets::UnknownPropertyDefinition>(
+    return std::make_unique<Assets::StringPropertyDefinition>(
       std::move(name),
       std::move(shortDesc),
       std::move(longDesc),

@@ -657,7 +657,7 @@ Assets::IOType FgdParser::getIOType(ParserStatus& status)
   if (it == ioTypeMap.end())
   {
     status.warn(
-      line, column, std::format("Unknown input/output argument type {}", typeName));
+      line, column, fmt::format("Unknown input/output argument type {}", typeName));
   }
 
   return propertyType;
@@ -948,6 +948,7 @@ std::optional<float> FgdParser::parseDefaultValue(ParserStatus& status)
           token.column(),
           fmt::format("Unquoted float default value {}", token.data()));
       }
+      return token.toFloat<float>();
     }
   }
   return std::nullopt;

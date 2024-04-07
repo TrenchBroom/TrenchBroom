@@ -199,7 +199,7 @@ TEST_CASE("FgdParserTest.parsePointClass")
   CHECK(definition.description() == "Wildcard entity");
 
   const auto& propertyDefinitions = definition.propertyDefinitions();
-  CHECK(propertyDefinitions.size() == 7u);
+  CHECK(propertyDefinitions.size() == 9u);
 }
 
 TEST_CASE("FgdParserTest.parseBaseProperty")

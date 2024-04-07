@@ -392,7 +392,7 @@ std::unique_ptr<Assets::PropertyDefinition> DefParser::parseChoicePropertyDefini
   expect(status, DefToken::CParenthesis, token);
 
   auto definition = std::make_unique<Assets::ChoicePropertyDefinition>(
-    std::move(propertyKey), "", "", false, nullptr);
+    std::move(propertyKey), "", "", false);
   definition->setOptions(std::move(options));
 
   return definition;

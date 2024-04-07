@@ -92,7 +92,7 @@ TEST_CASE("EntityTest")
         std::make_shared<Assets::StringPropertyDefinition>(
           "some_prop", "", "", !true(readOnly)),
         std::make_shared<Assets::StringPropertyDefinition>(
-          "some_default_prop", "", "", !true(readOnly), "value"),
+          std::string{"some_default_prop"}, std::string{""}, std::string{""}, !true(readOnly), std::string{"value"}),
       },
       {},
       {}};
