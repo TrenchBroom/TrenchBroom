@@ -205,7 +205,7 @@ TEST_CASE("DefParserTest.parsePointClass")
   CHECK(spawnflags->defaultValue() == 0);
 
   CHECK(
-    *spawnflags->options()
+    spawnflags->options()
     == std::vector<Assets::FlagsPropertyOption>{
       {1, "Crucified", "", false},
       {2, "ambush", "", false},
@@ -246,7 +246,7 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
   CHECK(spawnflags->defaultValue() == 0);
 
   CHECK(
-    *spawnflags->options()
+    spawnflags->options()
     == std::vector<Assets::FlagsPropertyOption>{
       {1, "", "", false},
       {2, "SUSPENDED", "", false},
@@ -286,7 +286,7 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
   CHECK(spawnflags->defaultValue() == 0);
 
   CHECK(
-    *spawnflags->options()
+    spawnflags->options()
     == std::vector<Assets::FlagsPropertyOption>{
       {1, "SUSPENDED", "", false},
       {2, "SPIN", "", false},
@@ -358,7 +358,7 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
     static_cast<const Assets::ChoicePropertyDefinition*>(stylePropertyDefinition);
 
   CHECK(
-    *choice->options()
+    choice->options()
     == std::vector<Assets::ChoicePropertyOption>{
       {"0", "normal"},
       {"1", "flicker (first variety)"},
