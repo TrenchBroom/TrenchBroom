@@ -117,9 +117,9 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
   {
     m_comboBox->setDisabled(false);
     const auto* choiceDef = static_cast<const Assets::ChoicePropertyDefinition*>(propDef);
-    const auto& options = choiceDef->options().value_or(std::vector<Assets::ChoiceOption>{});
+    const auto& options = choiceDef->options().value_or(std::vector<Assets::ChoicePropertyOption>{});
 
-    for (const Assets::ChoiceOption& option : options)
+    for (const Assets::ChoicePropertyOption& option : options)
     {
       m_comboBox->addItem(mapStringToUnicode(
         document()->encoding(), option.value() + " : " + option.description()));

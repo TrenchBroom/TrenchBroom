@@ -58,8 +58,7 @@ static std::shared_ptr<Assets::PropertyDefinition> mergeAttributes(
   {
 
     const auto& name = inheritingClassAttribute.key();
-    auto result = std::make_shared<Assets::FlagsPropertyDefinition>(
-      name, "", "", false);
+    auto result = std::make_shared<Assets::FlagsPropertyDefinition>(name);
 
     const auto& baseclassFlags =
       static_cast<const Assets::FlagsPropertyDefinition&>(superClassAttribute);

@@ -33,8 +33,8 @@
 namespace TrenchBroom::Assets
 {
 
-class ChoiceOption;
-class FlagOption;
+class ChoicePropertyOption;
+class FlagPropertyOption;
 class PropertyDefinition;
 
 enum class PropertyDefinitionType
@@ -103,29 +103,29 @@ using PropertyTypeMap = kdl::ct_map::ct_map<
     PropertyDefinitionType::TargetSourceProperty,
     std::string>>;
 
-class ChoiceOption
+class ChoicePropertyOption
 {
 public:
-  using List = std::vector<ChoiceOption>;
+  using List = std::vector<ChoicePropertyOption>;
 
 private:
   std::string m_value;
   std::string m_description;
 
 public:
-  ChoiceOption(std::string value, std::string description);
-  ~ChoiceOption();
+  ChoicePropertyOption(std::string value, std::string description);
+  ~ChoicePropertyOption();
 
   const std::string& value() const;
   const std::string& description() const;
 
-  kdl_reflect_decl(ChoiceOption, m_value, m_description);
+  kdl_reflect_decl(ChoicePropertyOption, m_value, m_description);
 };
 
-class FlagOption
+class FlagPropertyOption
 {
 public:
-  using List = std::vector<FlagOption>;
+  using List = std::vector<FlagPropertyOption>;
 
 private:
   int m_value;
@@ -134,19 +134,19 @@ private:
   bool m_defaultState;
 
 public:
-  FlagOption(
+  FlagPropertyOption(
     int value,
     std::string shortDescription,
     std::string longDescription,
     bool defaultState);
-  ~FlagOption();
+  ~FlagPropertyOption();
 
   int value() const;
   const std::string& shortDescription() const;
   const std::string& longDescription() const;
   bool defaultState() const;
 
-  kdl_reflect_decl(FlagOption, m_shortDescription, m_longDescription, m_defaultState);
+  kdl_reflect_decl(FlagPropertyOption, m_shortDescription, m_longDescription, m_defaultState);
 };
 
 
@@ -167,8 +167,8 @@ private:
   std::optional<OptionsType> m_options;
 
 protected:
-  std::optional<IOType> m_ioType;
   PropertyDefinitionType m_type;
+  std::optional<IOType> m_ioType;
 
 public:
   PropertyDefinition(
@@ -185,8 +185,8 @@ public:
   const std::string& longDescription() const;
   bool readOnly() const;
 
-  static std::optional<std::string> defaultValue(const PropertyDefinition &definition);
-  bool hasDefaultValue() const { return m_defaultValue.has_value(); };
+  static std::string defaultValue(const PropertyDefinition& definition);
+  virtual bool hasDefaultValue() const { return m_defaultValue.has_value(); };
 
   std::optional<OptionsType> options() const;
   std::optional<IOType> ioType() const;
@@ -215,9 +215,9 @@ public:
   using PropertyType = PropertyTypeMap::find_type<PropertyDefinitionType, P>;
   using OptionType = std::conditional_t<
     P == PropertyDefinitionType::FlagsProperty,
-    FlagOption,
+    FlagPropertyOption,
     std::
-      conditional_t<P == PropertyDefinitionType::ChoiceProperty, ChoiceOption, NoValue>>;
+      conditional_t<P == PropertyDefinitionType::ChoiceProperty, ChoicePropertyOption, NoValue>>;
   using OptionsType = std::conditional_t<
     std::is_same_v<OptionType, NoValue>,
     std::string,
@@ -250,7 +250,7 @@ public:
 
   PropertyDefinitionType type() const;
   std::optional<DefaultValueType> defaultValue() const;
-  bool hasDefaultValue() const;
+  bool hasDefaultValue() const override;
 
   const std::optional<OptionsType> options() const;
   const OptionType* option(const int value) const;
@@ -272,12 +272,12 @@ private:
   bool doEquals(const PropertyDefinitionT<P>* other) const;
 };
 
-inline std::ostream& operator<<(std::ostream& lhs, const ChoiceOption& rhs)
+inline std::ostream& operator<<(std::ostream& lhs, const ChoicePropertyOption& rhs)
 {
   lhs << rhs.value() << " " << rhs.description();
   return lhs;
 }
-inline std::ostream& operator<<(std::ostream& lhs, const FlagOption& rhs)
+inline std::ostream& operator<<(std::ostream& lhs, const FlagPropertyOption& rhs)
 {
   lhs << rhs.value() << rhs.shortDescription();
   return lhs;

@@ -678,7 +678,7 @@ std::vector<std::shared_ptr<Assets::PropertyDefinition>> FgdParser::
   {
     auto propertyKey = token.data();
     const auto line = token.line();
-    const auto column = token.line();
+    const auto column = token.column();
 
     std::string typeName = {};
 
@@ -791,7 +791,7 @@ std::unique_ptr<
     std::make_unique<Assets::PropertyDefinitionT<PropertyDefinitionType::FlagsProperty>>(
       propertyKey, std::string{}, std::string{}, false);
 
-  auto options = Assets::FlagOption::List{};
+  auto options = Assets::FlagPropertyOption::List{};
 
   while (token.type() != FgdToken::CBracket)
   {
@@ -854,7 +854,7 @@ std::unique_ptr<
     FgdToken::CBracket | FgdToken::Decimal | FgdToken::Integer | FgdToken::String,
     m_tokenizer.nextToken());
 
-  auto options = Assets::ChoiceOption::List{};
+  auto options = Assets::ChoicePropertyOption::List{};
   while (token.type() != FgdToken::CBracket)
   {
     auto value = token.data();

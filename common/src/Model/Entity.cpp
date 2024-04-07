@@ -51,8 +51,9 @@ void setDefaultProperties(
 {
   for (const auto& propertyDefinition : entityDefinition.propertyDefinitions())
   {
-    if (const auto defaultValue = propertyDefinition->defaultValue(*propertyDefinition);
-        defaultValue.has_value())
+    if (const auto defaultValue =
+          Assets::PropertyDefinition::defaultValue(*propertyDefinition);
+        !defaultValue.empty())
     {
       const auto hasProperty = entity.hasProperty(propertyDefinition->key());
       if (
@@ -61,7 +62,7 @@ void setDefaultProperties(
         || (mode == SetDefaultPropertyMode::SetMissing && !hasProperty))
       {
         entity.addOrUpdateProperty(
-          propertyConfig, propertyDefinition->key(), defaultValue.value());
+          propertyConfig, propertyDefinition->key(), defaultValue);
       }
     }
   }

@@ -31,26 +31,26 @@
 namespace TrenchBroom::Assets
 {
 
-ChoiceOption::ChoiceOption(std::string value, std::string description)
+ChoicePropertyOption::ChoicePropertyOption(std::string value, std::string description)
   : m_value{std::move(value)}
   , m_description{std::move(description)}
 {
 }
-ChoiceOption::~ChoiceOption() = default;
+ChoicePropertyOption::~ChoicePropertyOption() = default;
 
 
-const std::string& ChoiceOption::value() const
+const std::string& ChoicePropertyOption::value() const
 {
   return m_value;
 }
 
-const std::string& ChoiceOption::description() const
+const std::string& ChoicePropertyOption::description() const
 {
   return m_description;
 }
 
 
-FlagOption::FlagOption(
+FlagPropertyOption::FlagPropertyOption(
   int value, std::string shortDescription, std::string longDescription, bool defaultState)
   : m_value{value}
   , m_shortDescription{std::move(shortDescription)}
@@ -58,23 +58,23 @@ FlagOption::FlagOption(
   , m_defaultState{defaultState}
 {
 }
-FlagOption::~FlagOption() = default;
+FlagPropertyOption::~FlagPropertyOption() = default;
 
-int FlagOption::value() const
+int FlagPropertyOption::value() const
 {
   return m_value;
 }
-const std::string& FlagOption::shortDescription() const
+const std::string& FlagPropertyOption::shortDescription() const
 {
   return m_shortDescription;
 }
 
-const std::string& FlagOption::longDescription() const
+const std::string& FlagPropertyOption::longDescription() const
 {
   return m_longDescription;
 }
 
-bool FlagOption::defaultState() const
+bool FlagPropertyOption::defaultState() const
 {
   return m_defaultState;
 }
@@ -116,13 +116,14 @@ bool PropertyDefinition::readOnly() const
 {
   return m_readOnly;
 }
-std::optional<std::string> PropertyDefinition::defaultValue(const PropertyDefinition& definition)
+
+std::string PropertyDefinition::defaultValue(const PropertyDefinition& definition)
 {
   switch (definition.type())
   {
   case PropertyDefinitionType::StringProperty: {
     const auto& stringDef = static_cast<const StringPropertyDefinition&>(definition);
-    return stringDef.defaultValue();
+    return stringDef.defaultValue().value_or("");
   }
   case PropertyDefinitionType::BooleanProperty: {
     const auto& boolDef = static_cast<const BooleanPropertyDefinition&>(definition);
@@ -150,7 +151,7 @@ std::optional<std::string> PropertyDefinition::defaultValue(const PropertyDefini
     return "";
   case PropertyDefinitionType::InputProperty:
   case PropertyDefinitionType::OutputProperty:
-    return std::nullopt;
+    return "";
     switchDefault();
   }
 }

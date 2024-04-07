@@ -203,7 +203,7 @@ std::unique_ptr<Assets::PropertyDefinition> parseListDeclaration(
   if (expectAttribute(element, "name", status))
   {
     auto name = parseString(element, "name");
-    auto options = Assets::ChoiceOption::List{};
+    auto options = Assets::ChoicePropertyOption::List{};
 
     const auto* itemElement = element.FirstChildElement("item");
     while (itemElement)
@@ -297,12 +297,12 @@ std::unique_ptr<Assets::PropertyDefinition> parseRealPropertyDefinition(
       auto floatDefaultValue = parseFloat(element, "value");
       if (floatDefaultValue)
       {
-        return std::make_unique<Assets::PropertyDefinitionT<Assets::PropertyDefinitionType::FloatProperty>>(
-          name,
-          shortDesc,
-          longDesc,
+        return std::make_unique<Assets::FloatPropertyDefinition>(
+          std::move(name),
+          std::move(shortDesc),
+          std::move(longDesc),
           false,
-          floatDefaultValue);
+          std::move(floatDefaultValue));
       }
 
       auto strDefaultValue = parseString(element, "value");
@@ -530,7 +530,7 @@ std::unique_ptr<Assets::PropertyDefinition> parseSpawnflags(
   if (const auto* flagElement = element.FirstChildElement("flag"))
   {
     auto result = std::make_unique<Assets::FlagsPropertyDefinition>(
-      Model::EntityPropertyKeys::Spawnflags, "", "", false);
+      Model::EntityPropertyKeys::Spawnflags);
     do
     {
       const auto bit = parseSize(*flagElement, "bit");
@@ -548,7 +548,7 @@ std::unique_ptr<Assets::PropertyDefinition> parseSpawnflags(
         auto shortDesc = parseString(*flagElement, "key");
         auto longDesc = parseString(*flagElement, "name");
         const auto option =
-          Assets::FlagOption(value, std::move(shortDesc), std::move(longDesc), false);
+          Assets::FlagPropertyOption(value, std::move(shortDesc), std::move(longDesc), false);
         result->addOption(&option);
       }
 
