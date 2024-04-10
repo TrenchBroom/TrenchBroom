@@ -1,0 +1,166 @@
+name: trenchbroom
+adopt-info: trenchbroom
+grade: stable
+summary: A modern cross-platform level editor for Quake-engine based games.
+description: |
+  TrenchBroom is a cross platform level editor for Quake-engine based games.
+  It supports Quake, Quake 2, Quake 3 and Hexen 2 and runs on Windows (XP and newer),
+  Mac OS X (10.6 and newer) and Linux. TrenchBroom is easy to use and provides
+  many simple and advanced tools to create complex and interesting levels with ease.
+
+  General
+    - Full support for editing in 3D and in up to three 2D views
+    - High performance renderer with support for huge maps
+    - Unlimited Undo and Redo
+    - Macro-like command repetition
+    - Issue browser with automatic quick fixes
+    - Point file support
+    - Automatic backups
+    - Free and cross platform
+
+  Brush Editing
+    - Robust vertex editing with edge and face splitting and manipulating multiple vertices together
+    - Clipping tool with two and three points
+    - CSG operations: merge, subtract, intersect
+    - UV view for easy texture manipulations
+    - Precise texture lock for all brush editing operations
+    - Multiple texture collections
+
+  Entity Editing
+    - Entity browser with drag and drop support
+    - Support for FGD and DEF files for entity definitions
+    - Mod support
+    - Entity link visualization
+    - Displays 3D models in the editor
+    - Smart entity property editors
+
+  To enable Quake engines within the editor install and connect an engine:
+
+  ```
+    # Quake 1 support
+    snap install quakespasm-beidl # or vkquake
+    snap connect trenchbroom:quake-engine quakespasm-beidl:quake-engine
+  ```
+
+  ```
+    # Quake 2 support
+    snap install yamagi-quake2-beidl
+    snap connect trenchbroom:quake2-engine yamagi-quake2-beidl:quake2-engine
+  ```
+
+  The engine will be available at one of these locations:
+    - `/snap/trenchbroom/current/quake-engine/`
+    - `/snap/trenchbroom/current/quake2-engine/`
+  Or:
+    - `/var/lib/snapd/snap/trenchbroom/current/quake-engine/`
+    - `/var/lib/snapd/snap/trenchbroom/current/quake2-engine/`
+
+confinement: strict
+base: core22
+
+architectures:
+- build-on: amd64
+
+apps:
+  trenchbroom:
+    command-chain:
+    - bin/graphics-core22-wrapper
+    command: usr/bin/trenchbroom -platform xcb
+    extensions: [ kde-neon ]
+    plugs: [ x11, desktop, opengl, pulseaudio, home, removable-media ]
+
+plugs:
+  quake-modtools:
+    content: quake-modtools
+    interface: content
+    target: $SNAP/quaketools
+    default-provider: quake-toolkit:quake-modtools
+  quake-engine:
+    content: quake-engine
+    interface: content
+    target: $SNAP/quake-engine
+  quake2-engine:
+    content: quake2-engine
+    interface: content
+    target: $SNAP/quake2-engine
+  quake3-engine:
+    content: quake3-engine
+    interface: content
+    target: $SNAP/quake3-engine
+  graphics-core22:
+    interface: content
+    target: $SNAP/graphics
+    default-provider: mesa-core22
+
+layout:
+  /usr/share/libdrm:
+    bind: $SNAP/graphics/libdrm
+  /usr/share/drirc.d:
+    symlink: $SNAP/graphics/drirc.d
+  /usr/share/X11:
+    symlink: $SNAP/graphics/X11
+
+parts:
+  glew:
+    source: https://github.com/nigels-com/glew/releases/download/glew-2.2.0/glew-2.2.0.tgz
+    plugin: make
+    make-parameters:
+      - SYSTEM=linux-egl
+    build-packages:
+      - mesa-common-dev
+      - libegl1-mesa-dev
+  trenchbroom:
+    after: [ glew ]
+    source: .
+    plugin: cmake
+    cmake-generator: Ninja
+    cmake-parameters:
+      - -DCMAKE_INSTALL_PREFIX=/usr
+      - -DCMAKE_MAKE_PROGRAM=ninja
+      - -DCMAKE_PREFIX_PATH="${CRAFT_PART_SRC}/cmake/packages"
+      - -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      - -DTB_SUPPRESS_PCH=1
+    build-environment:
+      - VCPKG_FORCE_SYSTEM_BINARIES: 1
+      - QT_PLUGIN_PATH: /snap/kf5-5-108-qt-5-15-10-core22/current/usr/lib/${CRAFT_ARCH_TRIPLET}/qt5/plugins/
+    override-build: |
+      cd $CRAFT_PART_SRC
+      craftctl set version="$(git describe --abbrev=0 --tags)"
+      craftctl default
+    build-snaps:
+      - cmake
+    build-packages:
+      - build-essential
+      - freeglut3-dev
+      - mesa-common-dev
+      - libgl1-mesa-dev
+      - libglu1-mesa-dev
+      - libglm-dev
+      - libxxf86vm-dev
+      - libfreeimage-dev
+      - libfreetype6-dev
+      - libtinyxml2-dev
+      - pandoc
+      - p7zip-full
+      - ninja-build
+      - curl
+      - zip
+      - unzip
+      - tar
+      - xvfb
+    stage-packages:
+      - libilmbase25
+      - libopenexr25
+      - libfreeimage3
+      - libjxr0
+      - libraw20
+      - libtinyxml2-9
+  graphics-core22:
+    after: [ trenchbroom ]
+    source: https://github.com/MirServer/graphics-core.git
+    plugin: dump
+    override-prime: |
+      craftctl default
+      ${CRAFT_PART_SRC}/bin/graphics-core22-cleanup mesa-core22 nvidia-core22
+    prime:
+    - bin/graphics-core22-wrapper
