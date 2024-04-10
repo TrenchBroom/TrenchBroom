@@ -43,15 +43,11 @@
 #include "vm/forward.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 PatchRenderer::PatchRenderer(const Model::EditorContext& editorContext)
   : m_editorContext{editorContext}
-  , m_grayscale{false}
-  , m_tint{false}
-  , m_alpha{1.0f}
 {
 }
 
@@ -266,8 +262,8 @@ static DirectEdgeRenderer buildEdgeRenderer(
       const auto l = 0u;
       const auto r = grid.pointColumnCount - 1u;
 
-      size_t row = t;
-      size_t col = l;
+      auto row = t;
+      auto col = l;
 
       while (col < r)
       {
@@ -337,7 +333,7 @@ struct RenderFunc : public TextureRenderFunc
   void before(const Assets::Texture* texture) override
   {
     shader.set("GridColor", gridColorForTexture(texture));
-    if (texture != nullptr)
+    if (texture)
     {
       texture->activate();
       shader.set("ApplyTexture", applyTexture);
@@ -352,7 +348,7 @@ struct RenderFunc : public TextureRenderFunc
 
   void after(const Assets::Texture* texture) override
   {
-    if (texture != nullptr)
+    if (texture)
     {
       texture->deactivate();
     }
@@ -415,5 +411,5 @@ void PatchRenderer::doRender(RenderContext& context)
   }
   */
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

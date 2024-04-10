@@ -37,213 +37,465 @@
 #include "kdl/result.h"
 #include "kdl/string_format.h"
 
+#include "vm/vec.h"
+
+#include <fmt/format.h>
+
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-const vm::vec3f DkmParser::Normals[162] = {
-  vm::vec3f(-0.525731f, 0.000000f, 0.850651f),
-  vm::vec3f(-0.442863f, 0.238856f, 0.864188f),
-  vm::vec3f(-0.295242f, 0.000000f, 0.955423f),
-  vm::vec3f(-0.309017f, 0.500000f, 0.809017f),
-  vm::vec3f(-0.162460f, 0.262866f, 0.951056f),
-  vm::vec3f(0.000000f, 0.000000f, 1.000000f),
-  vm::vec3f(0.000000f, 0.850651f, 0.525731f),
-  vm::vec3f(-0.147621f, 0.716567f, 0.681718f),
-  vm::vec3f(0.147621f, 0.716567f, 0.681718f),
-  vm::vec3f(0.000000f, 0.525731f, 0.850651f),
-  vm::vec3f(0.309017f, 0.500000f, 0.809017f),
-  vm::vec3f(0.525731f, 0.000000f, 0.850651f),
-  vm::vec3f(0.295242f, 0.000000f, 0.955423f),
-  vm::vec3f(0.442863f, 0.238856f, 0.864188f),
-  vm::vec3f(0.162460f, 0.262866f, 0.951056f),
-  vm::vec3f(-0.681718f, 0.147621f, 0.716567f),
-  vm::vec3f(-0.809017f, 0.309017f, 0.500000f),
-  vm::vec3f(-0.587785f, 0.425325f, 0.688191f),
-  vm::vec3f(-0.850651f, 0.525731f, 0.000000f),
-  vm::vec3f(-0.864188f, 0.442863f, 0.238856f),
-  vm::vec3f(-0.716567f, 0.681718f, 0.147621f),
-  vm::vec3f(-0.688191f, 0.587785f, 0.425325f),
-  vm::vec3f(-0.500000f, 0.809017f, 0.309017f),
-  vm::vec3f(-0.238856f, 0.864188f, 0.442863f),
-  vm::vec3f(-0.425325f, 0.688191f, 0.587785f),
-  vm::vec3f(-0.716567f, 0.681718f, -0.147621f),
-  vm::vec3f(-0.500000f, 0.809017f, -0.309017f),
-  vm::vec3f(-0.525731f, 0.850651f, 0.000000f),
-  vm::vec3f(0.000000f, 0.850651f, -0.525731f),
-  vm::vec3f(-0.238856f, 0.864188f, -0.442863f),
-  vm::vec3f(0.000000f, 0.955423f, -0.295242f),
-  vm::vec3f(-0.262866f, 0.951056f, -0.162460f),
-  vm::vec3f(0.000000f, 1.000000f, 0.000000f),
-  vm::vec3f(0.000000f, 0.955423f, 0.295242f),
-  vm::vec3f(-0.262866f, 0.951056f, 0.162460f),
-  vm::vec3f(0.238856f, 0.864188f, 0.442863f),
-  vm::vec3f(0.262866f, 0.951056f, 0.162460f),
-  vm::vec3f(0.500000f, 0.809017f, 0.309017f),
-  vm::vec3f(0.238856f, 0.864188f, -0.442863f),
-  vm::vec3f(0.262866f, 0.951056f, -0.162460f),
-  vm::vec3f(0.500000f, 0.809017f, -0.309017f),
-  vm::vec3f(0.850651f, 0.525731f, 0.000000f),
-  vm::vec3f(0.716567f, 0.681718f, 0.147621f),
-  vm::vec3f(0.716567f, 0.681718f, -0.147621f),
-  vm::vec3f(0.525731f, 0.850651f, 0.000000f),
-  vm::vec3f(0.425325f, 0.688191f, 0.587785f),
-  vm::vec3f(0.864188f, 0.442863f, 0.238856f),
-  vm::vec3f(0.688191f, 0.587785f, 0.425325f),
-  vm::vec3f(0.809017f, 0.309017f, 0.500000f),
-  vm::vec3f(0.681718f, 0.147621f, 0.716567f),
-  vm::vec3f(0.587785f, 0.425325f, 0.688191f),
-  vm::vec3f(0.955423f, 0.295242f, 0.000000f),
-  vm::vec3f(1.000000f, 0.000000f, 0.000000f),
-  vm::vec3f(0.951056f, 0.162460f, 0.262866f),
-  vm::vec3f(0.850651f, -0.525731f, 0.000000f),
-  vm::vec3f(0.955423f, -0.295242f, 0.000000f),
-  vm::vec3f(0.864188f, -0.442863f, 0.238856f),
-  vm::vec3f(0.951056f, -0.162460f, 0.262866f),
-  vm::vec3f(0.809017f, -0.309017f, 0.500000f),
-  vm::vec3f(0.681718f, -0.147621f, 0.716567f),
-  vm::vec3f(0.850651f, 0.000000f, 0.525731f),
-  vm::vec3f(0.864188f, 0.442863f, -0.238856f),
-  vm::vec3f(0.809017f, 0.309017f, -0.500000f),
-  vm::vec3f(0.951056f, 0.162460f, -0.262866f),
-  vm::vec3f(0.525731f, 0.000000f, -0.850651f),
-  vm::vec3f(0.681718f, 0.147621f, -0.716567f),
-  vm::vec3f(0.681718f, -0.147621f, -0.716567f),
-  vm::vec3f(0.850651f, 0.000000f, -0.525731f),
-  vm::vec3f(0.809017f, -0.309017f, -0.500000f),
-  vm::vec3f(0.864188f, -0.442863f, -0.238856f),
-  vm::vec3f(0.951056f, -0.162460f, -0.262866f),
-  vm::vec3f(0.147621f, 0.716567f, -0.681718f),
-  vm::vec3f(0.309017f, 0.500000f, -0.809017f),
-  vm::vec3f(0.425325f, 0.688191f, -0.587785f),
-  vm::vec3f(0.442863f, 0.238856f, -0.864188f),
-  vm::vec3f(0.587785f, 0.425325f, -0.688191f),
-  vm::vec3f(0.688191f, 0.587785f, -0.425325f),
-  vm::vec3f(-0.147621f, 0.716567f, -0.681718f),
-  vm::vec3f(-0.309017f, 0.500000f, -0.809017f),
-  vm::vec3f(0.000000f, 0.525731f, -0.850651f),
-  vm::vec3f(-0.525731f, 0.000000f, -0.850651f),
-  vm::vec3f(-0.442863f, 0.238856f, -0.864188f),
-  vm::vec3f(-0.295242f, 0.000000f, -0.955423f),
-  vm::vec3f(-0.162460f, 0.262866f, -0.951056f),
-  vm::vec3f(0.000000f, 0.000000f, -1.000000f),
-  vm::vec3f(0.295242f, 0.000000f, -0.955423f),
-  vm::vec3f(0.162460f, 0.262866f, -0.951056f),
-  vm::vec3f(-0.442863f, -0.238856f, -0.864188f),
-  vm::vec3f(-0.309017f, -0.500000f, -0.809017f),
-  vm::vec3f(-0.162460f, -0.262866f, -0.951056f),
-  vm::vec3f(0.000000f, -0.850651f, -0.525731f),
-  vm::vec3f(-0.147621f, -0.716567f, -0.681718f),
-  vm::vec3f(0.147621f, -0.716567f, -0.681718f),
-  vm::vec3f(0.000000f, -0.525731f, -0.850651f),
-  vm::vec3f(0.309017f, -0.500000f, -0.809017f),
-  vm::vec3f(0.442863f, -0.238856f, -0.864188f),
-  vm::vec3f(0.162460f, -0.262866f, -0.951056f),
-  vm::vec3f(0.238856f, -0.864188f, -0.442863f),
-  vm::vec3f(0.500000f, -0.809017f, -0.309017f),
-  vm::vec3f(0.425325f, -0.688191f, -0.587785f),
-  vm::vec3f(0.716567f, -0.681718f, -0.147621f),
-  vm::vec3f(0.688191f, -0.587785f, -0.425325f),
-  vm::vec3f(0.587785f, -0.425325f, -0.688191f),
-  vm::vec3f(0.000000f, -0.955423f, -0.295242f),
-  vm::vec3f(0.000000f, -1.000000f, 0.000000f),
-  vm::vec3f(0.262866f, -0.951056f, -0.162460f),
-  vm::vec3f(0.000000f, -0.850651f, 0.525731f),
-  vm::vec3f(0.000000f, -0.955423f, 0.295242f),
-  vm::vec3f(0.238856f, -0.864188f, 0.442863f),
-  vm::vec3f(0.262866f, -0.951056f, 0.162460f),
-  vm::vec3f(0.500000f, -0.809017f, 0.309017f),
-  vm::vec3f(0.716567f, -0.681718f, 0.147621f),
-  vm::vec3f(0.525731f, -0.850651f, 0.000000f),
-  vm::vec3f(-0.238856f, -0.864188f, -0.442863f),
-  vm::vec3f(-0.500000f, -0.809017f, -0.309017f),
-  vm::vec3f(-0.262866f, -0.951056f, -0.162460f),
-  vm::vec3f(-0.850651f, -0.525731f, 0.000000f),
-  vm::vec3f(-0.716567f, -0.681718f, -0.147621f),
-  vm::vec3f(-0.716567f, -0.681718f, 0.147621f),
-  vm::vec3f(-0.525731f, -0.850651f, 0.000000f),
-  vm::vec3f(-0.500000f, -0.809017f, 0.309017f),
-  vm::vec3f(-0.238856f, -0.864188f, 0.442863f),
-  vm::vec3f(-0.262866f, -0.951056f, 0.162460f),
-  vm::vec3f(-0.864188f, -0.442863f, 0.238856f),
-  vm::vec3f(-0.809017f, -0.309017f, 0.500000f),
-  vm::vec3f(-0.688191f, -0.587785f, 0.425325f),
-  vm::vec3f(-0.681718f, -0.147621f, 0.716567f),
-  vm::vec3f(-0.442863f, -0.238856f, 0.864188f),
-  vm::vec3f(-0.587785f, -0.425325f, 0.688191f),
-  vm::vec3f(-0.309017f, -0.500000f, 0.809017f),
-  vm::vec3f(-0.147621f, -0.716567f, 0.681718f),
-  vm::vec3f(-0.425325f, -0.688191f, 0.587785f),
-  vm::vec3f(-0.162460f, -0.262866f, 0.951056f),
-  vm::vec3f(0.442863f, -0.238856f, 0.864188f),
-  vm::vec3f(0.162460f, -0.262866f, 0.951056f),
-  vm::vec3f(0.309017f, -0.500000f, 0.809017f),
-  vm::vec3f(0.147621f, -0.716567f, 0.681718f),
-  vm::vec3f(0.000000f, -0.525731f, 0.850651f),
-  vm::vec3f(0.425325f, -0.688191f, 0.587785f),
-  vm::vec3f(0.587785f, -0.425325f, 0.688191f),
-  vm::vec3f(0.688191f, -0.587785f, 0.425325f),
-  vm::vec3f(-0.955423f, 0.295242f, 0.000000f),
-  vm::vec3f(-0.951056f, 0.162460f, 0.262866f),
-  vm::vec3f(-1.000000f, 0.000000f, 0.000000f),
-  vm::vec3f(-0.850651f, 0.000000f, 0.525731f),
-  vm::vec3f(-0.955423f, -0.295242f, 0.000000f),
-  vm::vec3f(-0.951056f, -0.162460f, 0.262866f),
-  vm::vec3f(-0.864188f, 0.442863f, -0.238856f),
-  vm::vec3f(-0.951056f, 0.162460f, -0.262866f),
-  vm::vec3f(-0.809017f, 0.309017f, -0.500000f),
-  vm::vec3f(-0.864188f, -0.442863f, -0.238856f),
-  vm::vec3f(-0.951056f, -0.162460f, -0.262866f),
-  vm::vec3f(-0.809017f, -0.309017f, -0.500000f),
-  vm::vec3f(-0.681718f, 0.147621f, -0.716567f),
-  vm::vec3f(-0.681718f, -0.147621f, -0.716567f),
-  vm::vec3f(-0.850651f, 0.000000f, -0.525731f),
-  vm::vec3f(-0.688191f, 0.587785f, -0.425325f),
-  vm::vec3f(-0.587785f, 0.425325f, -0.688191f),
-  vm::vec3f(-0.425325f, 0.688191f, -0.587785f),
-  vm::vec3f(-0.425325f, -0.688191f, -0.587785f),
-  vm::vec3f(-0.587785f, -0.425325f, -0.688191f),
-  vm::vec3f(-0.688191f, -0.587785f, -0.425325f)};
 
-DkmParser::DkmFrame::DkmFrame(const size_t vertexCount)
-  : name("")
-  , vertices(vertexCount)
+namespace DkmLayout
 {
+static const int Ident = (('D' << 24) + ('M' << 16) + ('K' << 8) + 'D');
+static const int Version1 = 1;
+static const int Version2 = 2;
+static const size_t SkinNameLength = 64;
+static const size_t FrameNameLength = 16;
+} // namespace DkmLayout
+
+namespace
+{
+const vm::vec3f Normals[162] = {
+  vm::vec3f{-0.525731f, 0.000000f, 0.850651f},
+  vm::vec3f{-0.442863f, 0.238856f, 0.864188f},
+  vm::vec3f{-0.295242f, 0.000000f, 0.955423f},
+  vm::vec3f{-0.309017f, 0.500000f, 0.809017f},
+  vm::vec3f{-0.162460f, 0.262866f, 0.951056f},
+  vm::vec3f{0.000000f, 0.000000f, 1.000000f},
+  vm::vec3f{0.000000f, 0.850651f, 0.525731f},
+  vm::vec3f{-0.147621f, 0.716567f, 0.681718f},
+  vm::vec3f{0.147621f, 0.716567f, 0.681718f},
+  vm::vec3f{0.000000f, 0.525731f, 0.850651f},
+  vm::vec3f{0.309017f, 0.500000f, 0.809017f},
+  vm::vec3f{0.525731f, 0.000000f, 0.850651f},
+  vm::vec3f{0.295242f, 0.000000f, 0.955423f},
+  vm::vec3f{0.442863f, 0.238856f, 0.864188f},
+  vm::vec3f{0.162460f, 0.262866f, 0.951056f},
+  vm::vec3f{-0.681718f, 0.147621f, 0.716567f},
+  vm::vec3f{-0.809017f, 0.309017f, 0.500000f},
+  vm::vec3f{-0.587785f, 0.425325f, 0.688191f},
+  vm::vec3f{-0.850651f, 0.525731f, 0.000000f},
+  vm::vec3f{-0.864188f, 0.442863f, 0.238856f},
+  vm::vec3f{-0.716567f, 0.681718f, 0.147621f},
+  vm::vec3f{-0.688191f, 0.587785f, 0.425325f},
+  vm::vec3f{-0.500000f, 0.809017f, 0.309017f},
+  vm::vec3f{-0.238856f, 0.864188f, 0.442863f},
+  vm::vec3f{-0.425325f, 0.688191f, 0.587785f},
+  vm::vec3f{-0.716567f, 0.681718f, -0.147621f},
+  vm::vec3f{-0.500000f, 0.809017f, -0.309017f},
+  vm::vec3f{-0.525731f, 0.850651f, 0.000000f},
+  vm::vec3f{0.000000f, 0.850651f, -0.525731f},
+  vm::vec3f{-0.238856f, 0.864188f, -0.442863f},
+  vm::vec3f{0.000000f, 0.955423f, -0.295242f},
+  vm::vec3f{-0.262866f, 0.951056f, -0.162460f},
+  vm::vec3f{0.000000f, 1.000000f, 0.000000f},
+  vm::vec3f{0.000000f, 0.955423f, 0.295242f},
+  vm::vec3f{-0.262866f, 0.951056f, 0.162460f},
+  vm::vec3f{0.238856f, 0.864188f, 0.442863f},
+  vm::vec3f{0.262866f, 0.951056f, 0.162460f},
+  vm::vec3f{0.500000f, 0.809017f, 0.309017f},
+  vm::vec3f{0.238856f, 0.864188f, -0.442863f},
+  vm::vec3f{0.262866f, 0.951056f, -0.162460f},
+  vm::vec3f{0.500000f, 0.809017f, -0.309017f},
+  vm::vec3f{0.850651f, 0.525731f, 0.000000f},
+  vm::vec3f{0.716567f, 0.681718f, 0.147621f},
+  vm::vec3f{0.716567f, 0.681718f, -0.147621f},
+  vm::vec3f{0.525731f, 0.850651f, 0.000000f},
+  vm::vec3f{0.425325f, 0.688191f, 0.587785f},
+  vm::vec3f{0.864188f, 0.442863f, 0.238856f},
+  vm::vec3f{0.688191f, 0.587785f, 0.425325f},
+  vm::vec3f{0.809017f, 0.309017f, 0.500000f},
+  vm::vec3f{0.681718f, 0.147621f, 0.716567f},
+  vm::vec3f{0.587785f, 0.425325f, 0.688191f},
+  vm::vec3f{0.955423f, 0.295242f, 0.000000f},
+  vm::vec3f{1.000000f, 0.000000f, 0.000000f},
+  vm::vec3f{0.951056f, 0.162460f, 0.262866f},
+  vm::vec3f{0.850651f, -0.525731f, 0.000000f},
+  vm::vec3f{0.955423f, -0.295242f, 0.000000f},
+  vm::vec3f{0.864188f, -0.442863f, 0.238856f},
+  vm::vec3f{0.951056f, -0.162460f, 0.262866f},
+  vm::vec3f{0.809017f, -0.309017f, 0.500000f},
+  vm::vec3f{0.681718f, -0.147621f, 0.716567f},
+  vm::vec3f{0.850651f, 0.000000f, 0.525731f},
+  vm::vec3f{0.864188f, 0.442863f, -0.238856f},
+  vm::vec3f{0.809017f, 0.309017f, -0.500000f},
+  vm::vec3f{0.951056f, 0.162460f, -0.262866f},
+  vm::vec3f{0.525731f, 0.000000f, -0.850651f},
+  vm::vec3f{0.681718f, 0.147621f, -0.716567f},
+  vm::vec3f{0.681718f, -0.147621f, -0.716567f},
+  vm::vec3f{0.850651f, 0.000000f, -0.525731f},
+  vm::vec3f{0.809017f, -0.309017f, -0.500000f},
+  vm::vec3f{0.864188f, -0.442863f, -0.238856f},
+  vm::vec3f{0.951056f, -0.162460f, -0.262866f},
+  vm::vec3f{0.147621f, 0.716567f, -0.681718f},
+  vm::vec3f{0.309017f, 0.500000f, -0.809017f},
+  vm::vec3f{0.425325f, 0.688191f, -0.587785f},
+  vm::vec3f{0.442863f, 0.238856f, -0.864188f},
+  vm::vec3f{0.587785f, 0.425325f, -0.688191f},
+  vm::vec3f{0.688191f, 0.587785f, -0.425325f},
+  vm::vec3f{-0.147621f, 0.716567f, -0.681718f},
+  vm::vec3f{-0.309017f, 0.500000f, -0.809017f},
+  vm::vec3f{0.000000f, 0.525731f, -0.850651f},
+  vm::vec3f{-0.525731f, 0.000000f, -0.850651f},
+  vm::vec3f{-0.442863f, 0.238856f, -0.864188f},
+  vm::vec3f{-0.295242f, 0.000000f, -0.955423f},
+  vm::vec3f{-0.162460f, 0.262866f, -0.951056f},
+  vm::vec3f{0.000000f, 0.000000f, -1.000000f},
+  vm::vec3f{0.295242f, 0.000000f, -0.955423f},
+  vm::vec3f{0.162460f, 0.262866f, -0.951056f},
+  vm::vec3f{-0.442863f, -0.238856f, -0.864188f},
+  vm::vec3f{-0.309017f, -0.500000f, -0.809017f},
+  vm::vec3f{-0.162460f, -0.262866f, -0.951056f},
+  vm::vec3f{0.000000f, -0.850651f, -0.525731f},
+  vm::vec3f{-0.147621f, -0.716567f, -0.681718f},
+  vm::vec3f{0.147621f, -0.716567f, -0.681718f},
+  vm::vec3f{0.000000f, -0.525731f, -0.850651f},
+  vm::vec3f{0.309017f, -0.500000f, -0.809017f},
+  vm::vec3f{0.442863f, -0.238856f, -0.864188f},
+  vm::vec3f{0.162460f, -0.262866f, -0.951056f},
+  vm::vec3f{0.238856f, -0.864188f, -0.442863f},
+  vm::vec3f{0.500000f, -0.809017f, -0.309017f},
+  vm::vec3f{0.425325f, -0.688191f, -0.587785f},
+  vm::vec3f{0.716567f, -0.681718f, -0.147621f},
+  vm::vec3f{0.688191f, -0.587785f, -0.425325f},
+  vm::vec3f{0.587785f, -0.425325f, -0.688191f},
+  vm::vec3f{0.000000f, -0.955423f, -0.295242f},
+  vm::vec3f{0.000000f, -1.000000f, 0.000000f},
+  vm::vec3f{0.262866f, -0.951056f, -0.162460f},
+  vm::vec3f{0.000000f, -0.850651f, 0.525731f},
+  vm::vec3f{0.000000f, -0.955423f, 0.295242f},
+  vm::vec3f{0.238856f, -0.864188f, 0.442863f},
+  vm::vec3f{0.262866f, -0.951056f, 0.162460f},
+  vm::vec3f{0.500000f, -0.809017f, 0.309017f},
+  vm::vec3f{0.716567f, -0.681718f, 0.147621f},
+  vm::vec3f{0.525731f, -0.850651f, 0.000000f},
+  vm::vec3f{-0.238856f, -0.864188f, -0.442863f},
+  vm::vec3f{-0.500000f, -0.809017f, -0.309017f},
+  vm::vec3f{-0.262866f, -0.951056f, -0.162460f},
+  vm::vec3f{-0.850651f, -0.525731f, 0.000000f},
+  vm::vec3f{-0.716567f, -0.681718f, -0.147621f},
+  vm::vec3f{-0.716567f, -0.681718f, 0.147621f},
+  vm::vec3f{-0.525731f, -0.850651f, 0.000000f},
+  vm::vec3f{-0.500000f, -0.809017f, 0.309017f},
+  vm::vec3f{-0.238856f, -0.864188f, 0.442863f},
+  vm::vec3f{-0.262866f, -0.951056f, 0.162460f},
+  vm::vec3f{-0.864188f, -0.442863f, 0.238856f},
+  vm::vec3f{-0.809017f, -0.309017f, 0.500000f},
+  vm::vec3f{-0.688191f, -0.587785f, 0.425325f},
+  vm::vec3f{-0.681718f, -0.147621f, 0.716567f},
+  vm::vec3f{-0.442863f, -0.238856f, 0.864188f},
+  vm::vec3f{-0.587785f, -0.425325f, 0.688191f},
+  vm::vec3f{-0.309017f, -0.500000f, 0.809017f},
+  vm::vec3f{-0.147621f, -0.716567f, 0.681718f},
+  vm::vec3f{-0.425325f, -0.688191f, 0.587785f},
+  vm::vec3f{-0.162460f, -0.262866f, 0.951056f},
+  vm::vec3f{0.442863f, -0.238856f, 0.864188f},
+  vm::vec3f{0.162460f, -0.262866f, 0.951056f},
+  vm::vec3f{0.309017f, -0.500000f, 0.809017f},
+  vm::vec3f{0.147621f, -0.716567f, 0.681718f},
+  vm::vec3f{0.000000f, -0.525731f, 0.850651f},
+  vm::vec3f{0.425325f, -0.688191f, 0.587785f},
+  vm::vec3f{0.587785f, -0.425325f, 0.688191f},
+  vm::vec3f{0.688191f, -0.587785f, 0.425325f},
+  vm::vec3f{-0.955423f, 0.295242f, 0.000000f},
+  vm::vec3f{-0.951056f, 0.162460f, 0.262866f},
+  vm::vec3f{-1.000000f, 0.000000f, 0.000000f},
+  vm::vec3f{-0.850651f, 0.000000f, 0.525731f},
+  vm::vec3f{-0.955423f, -0.295242f, 0.000000f},
+  vm::vec3f{-0.951056f, -0.162460f, 0.262866f},
+  vm::vec3f{-0.864188f, 0.442863f, -0.238856f},
+  vm::vec3f{-0.951056f, 0.162460f, -0.262866f},
+  vm::vec3f{-0.809017f, 0.309017f, -0.500000f},
+  vm::vec3f{-0.864188f, -0.442863f, -0.238856f},
+  vm::vec3f{-0.951056f, -0.162460f, -0.262866f},
+  vm::vec3f{-0.809017f, -0.309017f, -0.500000f},
+  vm::vec3f{-0.681718f, 0.147621f, -0.716567f},
+  vm::vec3f{-0.681718f, -0.147621f, -0.716567f},
+  vm::vec3f{-0.850651f, 0.000000f, -0.525731f},
+  vm::vec3f{-0.688191f, 0.587785f, -0.425325f},
+  vm::vec3f{-0.587785f, 0.425325f, -0.688191f},
+  vm::vec3f{-0.425325f, 0.688191f, -0.587785f},
+  vm::vec3f{-0.425325f, -0.688191f, -0.587785f},
+  vm::vec3f{-0.587785f, -0.425325f, -0.688191f},
+  vm::vec3f{-0.688191f, -0.587785f, -0.425325f},
+};
+
+struct DkmVertex
+{
+  unsigned int x, y, z;
+  unsigned char normalIndex;
+};
+
+struct DkmFrame
+{
+  vm::vec3f scale;
+  vm::vec3f offset;
+  std::string name;
+  std::vector<DkmVertex> vertices;
+
+  vm::vec3f vertex(size_t index) const
+  {
+    assert(index < vertices.size());
+
+    const auto& vertex = vertices[index];
+    const auto position = vm::vec3f{float(vertex.x), float(vertex.y), float(vertex.z)};
+    return position * scale + offset;
+  }
+
+  const vm::vec3f& normal(size_t index) const
+  {
+    assert(index < vertices.size());
+
+    const DkmVertex& vertex = vertices[index];
+    return Normals[vertex.normalIndex];
+  }
+};
+
+struct DkmMeshVertex
+{
+  size_t vertexIndex;
+  vm::vec2f uv;
+};
+
+struct DkmMesh
+{
+  Renderer::PrimType type;
+  std::vector<DkmMeshVertex> vertices;
+};
+
+auto parseSkins(Reader reader, const size_t count)
+{
+  auto skins = std::vector<std::string>{};
+  skins.reserve(count);
+
+  for (size_t i = 0; i < count; ++i)
+  {
+    skins.push_back(reader.readString(DkmLayout::SkinNameLength));
+  }
+
+  return skins;
 }
 
-vm::vec3f DkmParser::DkmFrame::vertex(const size_t index) const
+auto parseUnpackedVertex(Reader& reader)
 {
-  assert(index < vertices.size());
-
-  const DkmVertex& vertex = vertices[index];
-  const vm::vec3f position(
-    static_cast<float>(vertex.x),
-    static_cast<float>(vertex.y),
-    static_cast<float>(vertex.z));
-  return position * scale + offset;
+  const auto x = reader.readUnsignedChar<char>();
+  const auto y = reader.readUnsignedChar<char>();
+  const auto z = reader.readUnsignedChar<char>();
+  const auto normalIndex = reader.readUnsignedChar<char>();
+  return DkmVertex{x, y, z, normalIndex};
 }
 
-const vm::vec3f& DkmParser::DkmFrame::normal(const size_t index) const
+auto parsePackedVertex(Reader& reader)
 {
-  assert(index < vertices.size());
-
-  const DkmVertex& vertex = vertices[index];
-  return Normals[vertex.normalIndex];
+  const auto packedPosition = reader.read<uint32_t, uint32_t>();
+  const auto normalIndex = reader.readUnsignedChar<char>();
+  return DkmVertex{
+    (packedPosition & 0xFFE00000) >> 21,
+    (packedPosition & 0x1FF800) >> 11,
+    (packedPosition & 0x7FF),
+    normalIndex,
+  };
 }
 
-DkmParser::DkmMesh::DkmMesh(const int i_vertexCount)
-  : type(i_vertexCount < 0 ? Fan : Strip)
-  , vertexCount(static_cast<size_t>(i_vertexCount < 0 ? -i_vertexCount : i_vertexCount))
-  , vertices(vertexCount)
+auto parseVertices(Reader& reader, const size_t vertexCount, const int version)
 {
+  assert(version == 1 || version == 2);
+
+  auto vertices = std::vector<DkmVertex>{};
+  vertices.reserve(vertexCount);
+
+  if (version == 1)
+  {
+    for (size_t i = 0; i < vertexCount; ++i)
+    {
+      vertices.push_back(parseUnpackedVertex(reader));
+    }
+  }
+  else
+  {
+    /* Version 2 vertices are packed into a 32bit integer
+     * X occupies the first 11 bits
+     * Y occupies the following 10 bits
+     * Z occupies the following 11 bits
+     */
+    for (size_t i = 0; i < vertexCount; ++i)
+    {
+      vertices.push_back(parsePackedVertex(reader));
+    }
+  }
+
+  return vertices;
 }
 
-DkmParser::DkmParser(const std::string& name, const Reader& reader, const FileSystem& fs)
-  : m_name(name)
-  , m_reader(reader)
-  , m_fs(fs)
+auto parseFrame(
+  Reader reader,
+  const size_t /* frameIndex */,
+  const size_t vertexCount,
+  const int version)
+{
+  const auto scale = reader.readVec<float, 3>();
+  const auto offset = reader.readVec<float, 3>();
+  auto name = reader.readString(DkmLayout::FrameNameLength);
+  auto vertices = parseVertices(reader, vertexCount, version);
+
+  return DkmFrame{
+    scale,
+    offset,
+    std::move(name),
+    std::move(vertices),
+  };
+}
+
+auto parseMeshVertices(Reader& reader, const size_t count)
+{
+  auto vertices = std::vector<DkmMeshVertex>{};
+  vertices.reserve(count);
+
+  for (size_t i = 0; i < count; ++i)
+  {
+    const auto vertexIndex = reader.readSize<int32_t>();
+    const auto u = reader.readFloat<float>();
+    const auto v = reader.readFloat<float>();
+    vertices.push_back({vertexIndex, {u, v}});
+  }
+
+  return vertices;
+}
+
+auto parseMeshes(Reader reader, const size_t /* commandCount */)
+{
+  auto meshes = std::vector<DkmMesh>{};
+
+  // vertex count is signed, where < 0 indicates a triangle fan and > 0 indicates a
+  // triangle strip
+  auto vertexCount = reader.readInt<int32_t>();
+  while (vertexCount != 0)
+  {
+    /* const auto skinIndex    = */ reader.readSize<int32_t>();
+    /* const auto surfaceIndex = */ reader.readSize<int32_t>();
+
+    const auto type = vertexCount < 0 ? Renderer::PrimType::TriangleFan
+                                      : Renderer::PrimType::TriangleStrip;
+    auto vertices = parseMeshVertices(reader, size_t(std::abs(vertexCount)));
+    meshes.push_back({type, std::move(vertices)});
+
+    vertexCount = reader.readInt<int32_t>();
+  }
+
+  return meshes;
+}
+
+/**
+ * Daikatana's models contain wrong skin paths. They often refer to a skin like "x/y.bmp"
+ * which does not exist, and the correct skin file name will be "x/y.wal" instead. That's
+ * why we try to find a matching file name by disregarding the extension.
+ */
+auto findSkin(const std::string& skin, const FileSystem& fs)
+{
+  const auto skinPath = std::filesystem::path{skin};
+  if (fs.pathInfo(skinPath) == PathInfo::File)
+  {
+    return skinPath;
+  }
+
+  // try "wal" extension instead
+  if (kdl::str_to_lower(skinPath.extension().string()) == ".bmp")
+  {
+    const auto walPath = kdl::path_replace_extension(skinPath, ".wal");
+    if (fs.pathInfo(walPath) == PathInfo::File)
+    {
+      return walPath;
+    }
+  }
+
+  // Search for any file with the correct base name.
+  const auto folder = skinPath.parent_path();
+  const auto basename = skinPath.stem();
+  return fs
+    .find(folder, TraversalMode::Flat, makeFilenamePathMatcher(basename.string() + ".*"))
+    .transform([&](auto items) { return items.size() == 1 ? items.front() : skinPath; })
+    .if_error([](auto e) { throw AssetException{e.msg}; })
+    .value();
+}
+
+void loadSkins(
+  Assets::EntityModelSurface& surface,
+  const std::vector<std::string>& skins,
+  const FileSystem& fs,
+  Logger& logger)
+{
+  auto textures = std::vector<Assets::Texture>{};
+  textures.reserve(skins.size());
+
+  for (const auto& skin : skins)
+  {
+    const auto skinPath = findSkin(skin, fs);
+    textures.push_back(loadSkin(skinPath, fs, logger));
+  }
+
+  surface.setSkins(std::move(textures));
+}
+
+auto getVertices(const DkmFrame& frame, const std::vector<DkmMeshVertex>& meshVertices)
+{
+  return kdl::vec_transform(meshVertices, [&](const auto& meshVertex) {
+    const auto position = frame.vertex(meshVertex.vertexIndex);
+    return Assets::EntityModelVertex{position, meshVertex.uv};
+  });
+}
+
+void buildFrame(
+  Assets::EntityModel& model,
+  Assets::EntityModelSurface& surface,
+  const size_t frameIndex,
+  const DkmFrame& frame,
+  const std::vector<DkmMesh>& meshes)
+{
+  size_t vertexCount = 0;
+  auto size = Renderer::IndexRangeMap::Size{};
+
+  for (const auto& mesh : meshes)
+  {
+    vertexCount += mesh.vertices.size();
+    size.inc(mesh.type);
+  }
+
+  auto bounds = vm::bbox3f::builder{};
+
+  auto builder =
+    Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{vertexCount, size};
+  for (const auto& mesh : meshes)
+  {
+    if (!mesh.vertices.empty())
+    {
+      vertexCount += mesh.vertices.size();
+      const auto vertices = getVertices(frame, mesh.vertices);
+
+      bounds.add(vertices.begin(), vertices.end(), Renderer::GetVertexComponent<0>());
+      if (mesh.type == Renderer::PrimType::TriangleStrip)
+      {
+        builder.addTriangleStrip(vertices);
+      }
+      else if (mesh.type == Renderer::PrimType::TriangleFan)
+      {
+        builder.addTriangleFan(vertices);
+      }
+    }
+  }
+
+  auto& modelFrame = model.loadFrame(frameIndex, frame.name, bounds.bounds());
+  surface.addIndexedMesh(
+    modelFrame, std::move(builder.vertices()), std::move(builder.indices()));
+}
+
+} // namespace
+
+DkmParser::DkmParser(std::string name, const Reader& reader, const FileSystem& fs)
+  : m_name{std::move(name)}
+  , m_reader{reader}
+  , m_fs{fs}
 {
 }
 
@@ -262,20 +514,21 @@ bool DkmParser::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger)
+std::unique_ptr<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
 {
   auto reader = m_reader;
 
-  const int ident = reader.readInt<int32_t>();
-  const int version = reader.readInt<int32_t>();
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
 
   if (ident != DkmLayout::Ident)
   {
-    throw AssetException("Unknown DKM model ident: " + std::to_string(ident));
+    throw AssetException{fmt::format("Unknown DKM model ident: {}", ident)};
   }
+
   if (version != DkmLayout::Version1 && version != DkmLayout::Version2)
   {
-    throw AssetException("Unknown DKM model version: " + std::to_string(version));
+    throw AssetException{fmt::format("Unknown DKM model version: {}", version)};
   }
 
   /* const auto origin = */ reader.readVec<float, 3>();
@@ -302,25 +555,26 @@ std::unique_ptr<Assets::EntityModel> DkmParser::doInitializeModel(Logger& logger
   }
 
   auto& surface = model->addSurface(m_name);
-  loadSkins(surface, skins, logger);
+  loadSkins(surface, skins, m_fs, logger);
 
   return model;
 }
 
-void DkmParser::doLoadFrame(
+void DkmParser::loadFrame(
   size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
 {
   auto reader = m_reader;
-  const int ident = reader.readInt<int32_t>();
-  const int version = reader.readInt<int32_t>();
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
 
   if (ident != DkmLayout::Ident)
   {
-    throw AssetException("Unknown DKM model ident: " + std::to_string(ident));
+    throw AssetException{fmt::format("Unknown DKM model ident: {}", ident)};
   }
+
   if (version != DkmLayout::Version1 && version != DkmLayout::Version2)
   {
-    throw AssetException("Unknown DKM model version: " + std::to_string(version));
+    throw AssetException{fmt::format("Unknown DKM model version: {}", version)};
   }
 
   /* const auto origin = */ reader.readVec<float, 3>();
@@ -354,209 +608,4 @@ void DkmParser::doLoadFrame(
   buildFrame(model, surface, frameIndex, frame, meshes);
 }
 
-DkmParser::DkmSkinList DkmParser::parseSkins(Reader reader, const size_t skinCount)
-{
-  DkmSkinList skins;
-  skins.reserve(skinCount);
-  for (size_t i = 0; i < skinCount; ++i)
-  {
-    skins.emplace_back(reader.readString(DkmLayout::SkinNameLength));
-  }
-  return skins;
-}
-
-DkmParser::DkmFrame DkmParser::parseFrame(
-  Reader reader,
-  const size_t /* frameIndex */,
-  const size_t vertexCount,
-  const int version)
-{
-  assert(version == 1 || version == 2);
-
-  auto frame = DkmFrame(vertexCount);
-
-  frame.scale = reader.readVec<float, 3>();
-  frame.offset = reader.readVec<float, 3>();
-  frame.name = reader.readString(DkmLayout::FrameNameLength);
-
-  assert(!vm::is_nan(frame.scale));
-  assert(!vm::is_nan(frame.offset));
-
-  if (version == 1)
-  {
-    for (size_t i = 0; i < vertexCount; ++i)
-    {
-      frame.vertices[i].x = reader.readUnsignedChar<char>();
-      frame.vertices[i].y = reader.readUnsignedChar<char>();
-      frame.vertices[i].z = reader.readUnsignedChar<char>();
-      frame.vertices[i].normalIndex = reader.readUnsignedChar<char>();
-    }
-  }
-  else
-  {
-    /* Version 2 vertices are packed into a 32bit integer
-     * X occupies the first 11 bits
-     * Y occupies the following 10 bits
-     * Z occupies the following 11 bits
-     */
-    for (size_t i = 0; i < vertexCount; ++i)
-    {
-      const auto packedPosition = reader.read<uint32_t, uint32_t>();
-      frame.vertices[i].x = (packedPosition & 0xFFE00000) >> 21;
-      frame.vertices[i].y = (packedPosition & 0x1FF800) >> 11;
-      frame.vertices[i].z = (packedPosition & 0x7FF);
-      frame.vertices[i].normalIndex = reader.readUnsignedChar<char>();
-    }
-  }
-
-  return frame;
-}
-
-DkmParser::DkmMeshList DkmParser::parseMeshes(
-  Reader reader, const size_t /* commandCount */)
-{
-  DkmMeshList meshes;
-
-  // vertex count is signed, where < 0 indicates a triangle fan and > 0 indicates a
-  // triangle strip
-  auto vertexCount = reader.readInt<int32_t>();
-  while (vertexCount != 0)
-  {
-    /* const size_t skinIndex    = */ reader.readSize<int32_t>();
-    /* const size_t surfaceIndex = */ reader.readSize<int32_t>();
-
-    DkmMesh mesh(vertexCount);
-    for (size_t i = 0; i < mesh.vertexCount; ++i)
-    {
-      mesh.vertices[i].vertexIndex =
-        reader.readSize<int32_t>(); // index before texcoords in DKM
-      mesh.vertices[i].texCoords[0] = reader.readFloat<float>();
-      mesh.vertices[i].texCoords[1] = reader.readFloat<float>();
-    }
-    meshes.push_back(mesh);
-    vertexCount = reader.readInt<int32_t>();
-  }
-
-  return meshes;
-}
-
-void DkmParser::loadSkins(
-  Assets::EntityModelSurface& surface,
-  const DkmParser::DkmSkinList& skins,
-  Logger& logger)
-{
-  std::vector<Assets::Texture> textures;
-  textures.reserve(skins.size());
-
-  for (const auto& skin : skins)
-  {
-    const auto skinPath = findSkin(skin);
-    textures.push_back(loadSkin(skinPath, m_fs, logger));
-  }
-
-  surface.setSkins(std::move(textures));
-}
-
-/**
- * Daikatana's models contain wrong skin paths. They often refer to a skin like "x/y.bmp"
- * which does not exist, and the correct skin file name will be "x/y.wal" instead. That's
- * why we try to find a matching file name by disregarding the extension.
- */
-std::filesystem::path DkmParser::findSkin(const std::string& skin) const
-{
-  const auto skinPath = std::filesystem::path{skin};
-  if (m_fs.pathInfo(skinPath) == PathInfo::File)
-  {
-    return skinPath;
-  }
-
-  // try "wal" extension instead
-  if (kdl::str_to_lower(skinPath.extension().string()) == ".bmp")
-  {
-    const auto walPath = kdl::path_replace_extension(skinPath, ".wal");
-    if (m_fs.pathInfo(walPath) == PathInfo::File)
-    {
-      return walPath;
-    }
-  }
-
-  // Search for any file with the correct base name.
-  const auto folder = skinPath.parent_path();
-  const auto basename = skinPath.stem();
-  return m_fs
-    .find(folder, TraversalMode::Flat, makeFilenamePathMatcher(basename.string() + ".*"))
-    .transform([&](auto items) { return items.size() == 1 ? items.front() : skinPath; })
-    .if_error([](auto e) { throw AssetException{e.msg}; })
-    .value();
-}
-
-void DkmParser::buildFrame(
-  Assets::EntityModel& model,
-  Assets::EntityModelSurface& surface,
-  const size_t frameIndex,
-  const DkmFrame& frame,
-  const DkmMeshList& meshes)
-{
-  size_t vertexCount = 0;
-  Renderer::IndexRangeMap::Size size;
-  for (const auto& md2Mesh : meshes)
-  {
-    vertexCount += md2Mesh.vertices.size();
-    if (md2Mesh.type == DkmMesh::Fan)
-    {
-      size.inc(Renderer::PrimType::TriangleFan);
-    }
-    else
-    {
-      size.inc(Renderer::PrimType::TriangleStrip);
-    }
-  }
-
-  vm::bbox3f::builder bounds;
-
-  Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type> builder(
-    vertexCount, size);
-  for (const auto& md2Mesh : meshes)
-  {
-    if (!md2Mesh.vertices.empty())
-    {
-      vertexCount += md2Mesh.vertices.size();
-      const auto vertices = getVertices(frame, md2Mesh.vertices);
-
-      bounds.add(
-        std::begin(vertices), std::end(vertices), Renderer::GetVertexComponent<0>());
-
-      if (md2Mesh.type == DkmMesh::Fan)
-      {
-        builder.addTriangleFan(vertices);
-      }
-      else
-      {
-        builder.addTriangleStrip(vertices);
-      }
-    }
-  }
-
-  auto& modelFrame = model.loadFrame(frameIndex, frame.name, bounds.bounds());
-  surface.addIndexedMesh(
-    modelFrame, std::move(builder.vertices()), std::move(builder.indices()));
-}
-
-std::vector<Assets::EntityModelVertex> DkmParser::getVertices(
-  const DkmFrame& frame, const DkmMeshVertexList& meshVertices) const
-{
-  std::vector<Assets::EntityModelVertex> result;
-  result.reserve(meshVertices.size());
-
-  for (const DkmMeshVertex& md2MeshVertex : meshVertices)
-  {
-    const auto position = frame.vertex(md2MeshVertex.vertexIndex);
-    const auto& texCoords = md2MeshVertex.texCoords;
-
-    result.emplace_back(position, texCoords);
-  }
-
-  return result;
-}
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

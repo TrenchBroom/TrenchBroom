@@ -59,12 +59,10 @@ std::vector<Vertex> createDecalBrushFace(
   const Model::EntityNode* entityNode,
   const Model::BrushNode* brush,
   const Model::BrushFace& face,
-  const Assets::Texture* texture)
+  const Assets::Texture& texture)
 {
-  assert(texture != nullptr);
-
-  const auto textureSize = vm::vec2f{float(texture->width()), float(texture->height())};
-  const auto textureName = texture->name();
+  const auto textureSize = vm::vec2f{float(texture.width()), float(texture.height())};
+  const auto textureName = texture.name();
 
   // copy the face properties, used to calculate the decal size and texture coords
   auto attrs = Model::BrushFaceAttributes{textureName, face.attributes()};
@@ -361,8 +359,9 @@ void EntityDecalRenderer::validateDecalData(
       if (vm::intersect_bbox_polygon(
             shrunkBounds, facePolygon.begin(), facePolygon.end()))
       {
+        assert(data.texture);
         const auto decalPolygon =
-          createDecalBrushFace(entityNode, brush, face, data.texture);
+          createDecalBrushFace(entityNode, brush, face, *data.texture);
         if (!decalPolygon.empty())
         {
           // add the geometry to be uploaded into the VBO

@@ -35,10 +35,9 @@
 #include <iostream>
 #include <utility>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 std::ostream& operator<<(std::ostream& str, const ObjSerializer::IndexedVertex& vertex)
 {
   str << " " << (vertex.vertex + 1u) << "/" << (vertex.texCoords + 1u) << "/"
@@ -155,7 +154,7 @@ static void writeMtlFile(
 static void writeVertices(std::ostream& str, const std::vector<vm::vec3>& vertices)
 {
   str << "# vertices\n";
-  for (const vm::vec3& elem : vertices)
+  for (const auto& elem : vertices)
   {
     // no idea why I have to switch Y and Z
     fmt::format_to(
@@ -166,7 +165,7 @@ static void writeVertices(std::ostream& str, const std::vector<vm::vec3>& vertic
 static void writeTexCoords(std::ostream& str, const std::vector<vm::vec2f>& texCoords)
 {
   str << "# texture coordinates\n";
-  for (const vm::vec2f& elem : texCoords)
+  for (const auto& elem : texCoords)
   {
     // multiplying Y by -1 needed to get the UV's to appear correct in Blender and UE4
     // (see: https://github.com/TrenchBroom/TrenchBroom/issues/2851 )
@@ -178,7 +177,7 @@ static void writeTexCoords(std::ostream& str, const std::vector<vm::vec2f>& texC
 static void writeNormals(std::ostream& str, const std::vector<vm::vec3>& normals)
 {
   str << "# normals\n";
-  for (const vm::vec3& elem : normals)
+  for (const auto& elem : normals)
   {
     // no idea why I have to switch Y and Z
     fmt::format_to(
@@ -226,9 +225,9 @@ void ObjSerializer::doEndFile()
     m_objects);
 }
 
-void ObjSerializer::doBeginEntity(const Model::Node* /* node */) {}
-void ObjSerializer::doEndEntity(const Model::Node* /* node */) {}
-void ObjSerializer::doEntityProperty(const Model::EntityProperty& /* property */) {}
+void ObjSerializer::doBeginEntity(const Model::Node*) {}
+void ObjSerializer::doEndEntity(const Model::Node*) {}
+void ObjSerializer::doEntityProperty(const Model::EntityProperty&) {}
 
 void ObjSerializer::doBrush(const Model::BrushNode* brush)
 {
@@ -238,35 +237,35 @@ void ObjSerializer::doBrush(const Model::BrushNode* brush)
   // Vertex positions inserted from now on should get new indices
   m_vertices.clearIndices();
 
-  for (const Model::BrushFace& face : brush->brush().faces())
+  for (const auto& face : brush->brush().faces())
   {
     doBrushFace(face);
   }
 
-  m_objects.push_back(std::move(*m_currentBrush));
+  m_objects.emplace_back(std::move(*m_currentBrush));
   m_currentBrush = std::nullopt;
 }
 
 void ObjSerializer::doBrushFace(const Model::BrushFace& face)
 {
-  const vm::vec3& normal = face.boundary().normal;
-  const size_t normalIndex = m_normals.index(normal);
+  const auto& normal = face.boundary().normal;
+  const auto normalIndex = m_normals.index(normal);
 
   auto indexedVertices = std::vector<IndexedVertex>{};
   indexedVertices.reserve(face.vertexCount());
 
-  for (const Model::BrushVertex* vertex : face.vertices())
+  for (const auto* vertex : face.vertices())
   {
-    const vm::vec3& position = vertex->position();
-    const vm::vec2f texCoords = face.textureCoords(position);
+    const auto& position = vertex->position();
+    const auto texCoords = face.textureCoords(position);
 
-    const size_t vertexIndex = m_vertices.index(position);
-    const size_t texCoordsIndex = m_texCoords.index(texCoords);
+    const auto vertexIndex = m_vertices.index(position);
+    const auto texCoordsIndex = m_texCoords.index(texCoords);
 
     indexedVertices.push_back(IndexedVertex{vertexIndex, texCoordsIndex, normalIndex});
   }
 
-  m_currentBrush->faces.push_back(BrushFace{
+  m_currentBrush->faces.emplace_back(BrushFace{
     std::move(indexedVertices), face.attributes().textureName(), face.texture()});
 }
 
@@ -283,9 +282,9 @@ void ObjSerializer::doPatch(const Model::PatchNode* patchNode)
   m_vertices.clearIndices();
 
   const auto makeIndexedVertex = [&](const auto& p) {
-    const size_t positionIndex = m_vertices.index(p.position);
-    const size_t texCoordsIndex = m_texCoords.index(vm::vec2f{p.texCoords});
-    const size_t normalIndex = m_normals.index(p.normal);
+    const auto positionIndex = m_vertices.index(p.position);
+    const auto texCoordsIndex = m_texCoords.index(vm::vec2f{p.texCoords});
+    const auto normalIndex = m_normals.index(p.normal);
 
     return IndexedVertex{positionIndex, texCoordsIndex, normalIndex};
   };
@@ -304,7 +303,7 @@ void ObjSerializer::doPatch(const Model::PatchNode* patchNode)
     }
   }
 
-  m_objects.push_back(std::move(patchObject));
+  m_objects.emplace_back(std::move(patchObject));
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

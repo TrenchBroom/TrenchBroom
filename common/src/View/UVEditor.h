@@ -29,9 +29,7 @@ class QSpinBox;
 class QWidget;
 class QAbstractButton;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class Selection;
 class GLContextManager;
@@ -44,16 +42,16 @@ class UVEditor : public QWidget
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  UVView* m_uvView{nullptr};
-  QSpinBox* m_xSubDivisionEditor{nullptr};
-  QSpinBox* m_ySubDivisionEditor{nullptr};
+  UVView* m_uvView = nullptr;
+  QSpinBox* m_xSubDivisionEditor = nullptr;
+  QSpinBox* m_ySubDivisionEditor = nullptr;
 
-  QAbstractButton* m_resetTextureButton{nullptr};
-  QAbstractButton* m_resetTextureToWorldButton{nullptr};
-  QAbstractButton* m_flipTextureHButton{nullptr};
-  QAbstractButton* m_flipTextureVButton{nullptr};
-  QAbstractButton* m_rotateTextureCCWButton{nullptr};
-  QAbstractButton* m_rotateTextureCWButton{nullptr};
+  QAbstractButton* m_resetTextureButton = nullptr;
+  QAbstractButton* m_resetTextureToWorldButton = nullptr;
+  QAbstractButton* m_flipTextureHButton = nullptr;
+  QAbstractButton* m_flipTextureVButton = nullptr;
+  QAbstractButton* m_rotateTextureCCWButton = nullptr;
+  QAbstractButton* m_rotateTextureCWButton = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -83,5 +81,5 @@ private:
   void rotateTextureCWClicked();
   void subDivisionChanged();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

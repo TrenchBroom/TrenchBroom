@@ -84,27 +84,22 @@
 #include <sstream>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
 MapViewBase::MapViewBase(
-  Logger* logger,
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& renderer,
-  GLContextManager& contextManager)
+  GLContextManager& contextManager,
+  Logger* logger)
   : RenderView{contextManager}
-  , m_logger{logger}
   , m_document{std::move(document)}
   , m_toolBox{toolBox}
-  , m_animationManager{std::make_unique<AnimationManager>(this)}
   , m_renderer{renderer}
-  , m_compass{nullptr}
-  , m_portalFileRenderer{nullptr}
-  , m_isCurrent{false}
+  , m_logger{logger}
+  , m_animationManager{std::make_unique<AnimationManager>(this)}
   , m_updateActionStatesSignalDelayer{new SignalDelayer{this}}
 {
   setToolBox(toolBox);
@@ -390,7 +385,7 @@ void MapViewBase::moveRotationCenter(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
-  const auto delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+  const auto delta = moveDirection(direction) * FloatType(grid.actualSize());
   m_toolBox.moveRotationCenter(delta);
   update();
 }
@@ -399,7 +394,7 @@ void MapViewBase::moveVertices(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
-  const auto delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+  const auto delta = moveDirection(direction) * FloatType(grid.actualSize());
   m_toolBox.moveVertices(delta);
 }
 
@@ -407,7 +402,7 @@ void MapViewBase::moveObjects(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
-  const auto delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+  const auto delta = moveDirection(direction) * FloatType(grid.actualSize());
   document->translateObjects(delta);
 }
 
@@ -436,22 +431,20 @@ void MapViewBase::duplicateAndMoveObjects(const vm::direction direction)
 void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clockwise)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasSelectedNodes())
+  if (document->hasSelectedNodes())
   {
-    return;
+    const auto axis = rotationAxis(axisSpec, clockwise);
+    const auto angle = m_toolBox.rotateObjectsToolActive()
+                         ? vm::abs(m_toolBox.rotateToolAngle())
+                         : vm::C::half_pi();
+
+    const auto& grid = document->grid();
+    const auto center = m_toolBox.rotateObjectsToolActive()
+                          ? m_toolBox.rotateToolCenter()
+                          : grid.referencePoint(document->selectionBounds());
+
+    document->rotateObjects(center, axis, angle);
   }
-
-  const auto axis = rotationAxis(axisSpec, clockwise);
-  const auto angle = m_toolBox.rotateObjectsToolActive()
-                       ? vm::abs(m_toolBox.rotateToolAngle())
-                       : vm::C::half_pi();
-
-  const auto& grid = document->grid();
-  const auto center = m_toolBox.rotateObjectsToolActive()
-                        ? m_toolBox.rotateToolCenter()
-                        : grid.referencePoint(document->selectionBounds());
-
-  document->rotateObjects(center, axis, angle);
 }
 
 vm::vec3 MapViewBase::rotationAxis(
@@ -633,23 +626,17 @@ void MapViewBase::resetCameraZoom()
 
 void MapViewBase::cancel()
 {
-  if (doCancel())
+  if (!doCancel() && !ToolBoxConnector::cancel())
   {
-    return;
-  }
-  if (ToolBoxConnector::cancel())
-  {
-    return;
-  }
-
-  auto document = kdl::mem_lock(m_document);
-  if (document->hasSelection())
-  {
-    document->deselectAll();
-  }
-  else if (document->currentGroup() != nullptr)
-  {
-    document->closeGroup();
+    auto document = kdl::mem_lock(m_document);
+    if (document->hasSelection())
+    {
+      document->deselectAll();
+    }
+    else if (document->currentGroup())
+    {
+      document->closeGroup();
+    }
   }
 }
 
@@ -776,7 +763,8 @@ void MapViewBase::makeStructural()
   {
     reparentNodes(toReparent, document->parentForNodes(toReparent), false);
   }
-  bool anyTagDisabled = false;
+
+  auto anyTagDisabled = false;
   auto callback = EnableDisableTagCallback{};
   for (auto* brush : document->selectedNodes().brushes())
   {
@@ -793,10 +781,11 @@ void MapViewBase::makeStructural()
   if (!anyTagDisabled && toReparent.empty())
   {
     transaction.cancel();
-    return;
   }
-
-  transaction.commit();
+  else
+  {
+    transaction.commit();
+  }
 }
 
 void MapViewBase::toggleEntityDefinitionVisible(
@@ -1114,7 +1103,7 @@ void MapViewBase::renderPointFile(
 void MapViewBase::renderPortalFile(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
 {
-  if (m_portalFileRenderer == nullptr)
+  if (!m_portalFileRenderer)
   {
     validatePortalFileRenderer(renderContext);
     assert(m_portalFileRenderer != nullptr);
@@ -1134,7 +1123,7 @@ void MapViewBase::validatePortalFileRenderer(Renderer::RenderContext&)
 
   auto document = kdl::mem_lock(m_document);
   auto* portalFile = document->portalFile();
-  if (portalFile != nullptr)
+  if (portalFile)
   {
     for (const auto& poly : portalFile->portals())
     {
@@ -1736,5 +1725,5 @@ bool MapViewBase::doBeforePopupMenu()
   return true;
 }
 void MapViewBase::doAfterPopupMenu() {}
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

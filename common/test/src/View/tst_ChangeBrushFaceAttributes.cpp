@@ -35,10 +35,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(
   ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face")
 {
@@ -317,5 +316,5 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
     CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == (WaterFlag | LavaFlag));
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

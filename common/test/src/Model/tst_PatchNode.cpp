@@ -45,13 +45,13 @@ private:
 
 public:
   constexpr explicit approx(const GP value, const FloatType epsilon)
-    : m_value(value)
-    , m_epsilon(epsilon)
+    : m_value{value}
+    , m_epsilon{epsilon}
   {
     assert(epsilon >= FloatType(0));
   }
   constexpr explicit approx(const GP value)
-    : approx(value, vm::constants<FloatType>::almost_zero())
+    : approx{value, vm::constants<FloatType>::almost_zero()}
   {
   }
 
@@ -85,10 +85,9 @@ public:
 };
 } // namespace vm
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("PatchNode.computeGridNormals") {}
 
 TEST_CASE("PatchNode.makePatchGrid")
@@ -212,5 +211,5 @@ TEST_CASE("PatchNode.pickFlatPatch")
     CHECK(pickResult.size() == 0u);
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

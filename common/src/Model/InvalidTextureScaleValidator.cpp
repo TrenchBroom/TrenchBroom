@@ -32,13 +32,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+
+const auto Type = freeIssueType();
 
 IssueQuickFix makeResetTextureScaleQuickFix()
 {
@@ -88,5 +87,5 @@ void InvalidTextureScaleValidator::doValidate(
     }
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

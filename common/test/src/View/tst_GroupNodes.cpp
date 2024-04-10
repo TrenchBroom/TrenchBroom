@@ -169,7 +169,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.undoMoveGroupContainingBrushEn
   auto* groupNode = document->groupSelection("test");
   CHECK(groupNode->selected());
 
-  CHECK(document->translateObjects(vm::vec3(16, 0, 0)));
+  CHECK(document->translateObjects(vm::vec3{16, 0, 0}));
 
   CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
 
@@ -391,8 +391,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   auto* brushNode1 = new Model::BrushNode(
-    builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture")
-      .value());
+    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "texture").value());
   document->addNodes({{entityNode1, {brushNode1}}});
   document->selectNodes({entityNode1});
   CHECK_THAT(

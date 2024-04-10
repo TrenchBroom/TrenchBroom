@@ -41,20 +41,12 @@
 // for use in QVariant
 Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionSortOrder)
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 EntityBrowser::EntityBrowser(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
-  : QWidget(parent)
-  , m_document(std::move(document))
-  , m_sortOrderChoice(nullptr)
-  , m_groupButton(nullptr)
-  , m_usedButton(nullptr)
-  , m_filterBox(nullptr)
-  , m_scrollBar(nullptr)
-  , m_view(nullptr)
+  : QWidget{parent}
+  , m_document{std::move(document)}
 {
   createGui(contextManager);
   connectObservers();
@@ -62,7 +54,7 @@ EntityBrowser::EntityBrowser(
 
 void EntityBrowser::reload()
 {
-  if (m_view != nullptr)
+  if (m_view)
   {
     auto document = kdl::mem_lock(m_document);
     m_view->setDefaultModelScaleExpression(
@@ -75,27 +67,27 @@ void EntityBrowser::reload()
 
 void EntityBrowser::createGui(GLContextManager& contextManager)
 {
-  m_scrollBar = new QScrollBar(Qt::Vertical);
+  m_scrollBar = new QScrollBar{Qt::Vertical};
 
   auto document = kdl::mem_lock(m_document);
 
-  m_view = new EntityBrowserView(
+  m_view = new EntityBrowserView{
     m_scrollBar,
     contextManager,
     document->entityDefinitionManager(),
     document->entityModelManager(),
-    *document);
+    *document};
 
-  auto* browserPanelSizer = new QHBoxLayout();
+  auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
   browserPanelSizer->setSpacing(0);
   browserPanelSizer->addWidget(m_view, 1);
   browserPanelSizer->addWidget(m_scrollBar, 0);
 
-  auto* browserPanel = new QWidget(this);
+  auto* browserPanel = new QWidget{};
   browserPanel->setLayout(browserPanelSizer);
 
-  m_sortOrderChoice = new QComboBox();
+  m_sortOrderChoice = new QComboBox{};
   m_sortOrderChoice->addItem(
     tr("Name"), QVariant::fromValue(Assets::EntityDefinitionSortOrder::Name));
   m_sortOrderChoice->addItem(
@@ -109,14 +101,14 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
       m_view->setSortOrder(sortOrder);
     });
 
-  m_groupButton = new QPushButton(tr("Group"));
+  m_groupButton = new QPushButton{tr("Group")};
   m_groupButton->setToolTip(tr("Group entity definitions by category"));
   m_groupButton->setCheckable(true);
   connect(m_groupButton, &QAbstractButton::clicked, this, [&]() {
     m_view->setGroup(m_groupButton->isChecked());
   });
 
-  m_usedButton = new QPushButton(tr("Used"));
+  m_usedButton = new QPushButton{tr("Used")};
   m_usedButton->setToolTip(tr("Only show entity definitions currently in use"));
   m_usedButton->setCheckable(true);
   connect(m_usedButton, &QAbstractButton::clicked, this, [&]() {
@@ -128,7 +120,7 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
     m_view->setFilterText(m_filterBox->text().toStdString());
   });
 
-  auto* controlSizer = new QHBoxLayout();
+  auto* controlSizer = new QHBoxLayout{};
   controlSizer->setContentsMargins(
     LayoutConstants::NarrowHMargin,
     LayoutConstants::NarrowVMargin,
@@ -140,7 +132,7 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
   controlSizer->addWidget(m_usedButton, 0);
   controlSizer->addWidget(m_filterBox, 1);
 
-  auto* outerSizer = new QVBoxLayout();
+  auto* outerSizer = new QVBoxLayout{};
   outerSizer->setContentsMargins(0, 0, 0, 0);
   outerSizer->setSpacing(0);
   outerSizer->addWidget(browserPanel, 1);
@@ -163,7 +155,7 @@ void EntityBrowser::connectObservers()
   m_notifierConnection +=
     document->nodesDidChangeNotifier.connect(this, &EntityBrowser::nodesDidChange);
 
-  PreferenceManager& prefs = PreferenceManager::instance();
+  auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
     prefs.preferenceDidChangeNotifier.connect(this, &EntityBrowser::preferenceDidChange);
 }
@@ -206,5 +198,5 @@ void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
     m_view->update();
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

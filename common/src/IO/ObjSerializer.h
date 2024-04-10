@@ -33,22 +33,20 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
 class EntityProperty;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class ObjSerializer : public NodeSerializer
 {
@@ -158,5 +156,5 @@ private:
 
   void doPatch(const Model::PatchNode* patchNode) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

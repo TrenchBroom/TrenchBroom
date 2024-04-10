@@ -35,10 +35,36 @@
 #include <cstring>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
+
+namespace
 {
+
+class FilterWrapper : public BrushRenderer::Filter
+{
+private:
+  const Filter& m_filter;
+  bool m_showHiddenBrushes;
+  BrushRenderer::NoFilter m_noFilter;
+
+  const Filter& resolve() const { return m_showHiddenBrushes ? m_noFilter : m_filter; }
+
+public:
+  FilterWrapper(const Filter& filter, const bool showHiddenBrushes)
+    : m_filter{filter}
+    , m_showHiddenBrushes{showHiddenBrushes}
+  {
+  }
+
+  RenderSettings markFaces(const Model::BrushNode& brush) const override
+  {
+    return resolve().markFaces(brush);
+  }
+};
+
+} // namespace
+
 // Filter
 
 BrushRenderer::Filter::Filter() = default;
@@ -47,7 +73,7 @@ BrushRenderer::Filter::~Filter() = default;
 
 BrushRenderer::Filter::RenderSettings BrushRenderer::Filter::renderNothing()
 {
-  return std::make_tuple(FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderNone);
+  return std::tuple{FaceRenderPolicy::RenderNone, EdgeRenderPolicy::RenderNone};
 }
 
 // DefaultFilter
@@ -143,13 +169,6 @@ BrushRenderer::Filter::RenderSettings BrushRenderer::NoFilter::markFaces(
 
 BrushRenderer::BrushRenderer()
   : m_filter{std::make_unique<NoFilter>()}
-  , m_showEdges{false}
-  , m_grayscale{false}
-  , m_tint{false}
-  , m_showOccludedEdges{false}
-  , m_forceTransparent{false}
-  , m_transparencyAlpha{1.0f}
-  , m_showHiddenBrushes{false}
 {
   clear();
 }
@@ -341,38 +360,6 @@ void BrushRenderer::renderEdges(RenderBatch& renderBatch)
   m_edgeRenderer.render(renderBatch, m_edgeColor);
 }
 
-class BrushRenderer::FilterWrapper : public BrushRenderer::Filter
-{
-private:
-  const Filter& m_filter;
-  bool m_showHiddenBrushes;
-  NoFilter m_noFilter;
-
-  const Filter& resolve() const
-  {
-    if (m_showHiddenBrushes)
-    {
-      return m_noFilter;
-    }
-    else
-    {
-      return m_filter;
-    }
-  }
-
-public:
-  FilterWrapper(const Filter& filter, const bool showHiddenBrushes)
-    : m_filter{filter}
-    , m_showHiddenBrushes{showHiddenBrushes}
-  {
-  }
-
-  RenderSettings markFaces(const Model::BrushNode& brush) const override
-  {
-    return resolve().markFaces(brush);
-  }
-};
-
 void BrushRenderer::validate()
 {
   assert(!valid());
@@ -541,7 +528,7 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
 
   // insert edge indices into VBO
   {
-    const size_t edgeIndexCount = countMarkedEdgeIndices(brushNode, edgePolicy);
+    const auto edgeIndexCount = countMarkedEdgeIndices(brushNode, edgePolicy);
     if (edgeIndexCount > 0)
     {
       auto [key, insertDest] =
@@ -561,7 +548,7 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
   // insert face indices
 
   auto& facesSortedByTex = brushCache.cachedFacesSortedByTexture();
-  const size_t facesSortedByTexSize = facesSortedByTex.size();
+  const auto facesSortedByTexSize = facesSortedByTex.size();
 
   size_t nextI;
   for (size_t i = 0; i < facesSortedByTexSize; i = nextI)
@@ -704,7 +691,7 @@ void BrushRenderer::removeBrushFromVbo(const Model::BrushNode& brushNode)
     return;
   }
 
-  const BrushInfo& info = it->second;
+  const auto& info = it->second;
 
   // update Vbo's
   m_vertexArray->deleteVerticesWithKey(info.vertexHolderKey);
@@ -715,7 +702,7 @@ void BrushRenderer::removeBrushFromVbo(const Model::BrushNode& brushNode)
 
   for (const auto& [texture, opaqueKey] : info.opaqueFaceIndicesKeys)
   {
-    std::shared_ptr<BrushIndexArray> faceIndexHolder = m_opaqueFaces->at(texture);
+    auto faceIndexHolder = m_opaqueFaces->at(texture);
     faceIndexHolder->zeroElementsWithKey(opaqueKey);
 
     if (!faceIndexHolder->hasValidIndices())
@@ -727,7 +714,7 @@ void BrushRenderer::removeBrushFromVbo(const Model::BrushNode& brushNode)
   }
   for (const auto& [texture, transparentKey] : info.transparentFaceIndicesKeys)
   {
-    std::shared_ptr<BrushIndexArray> faceIndexHolder = m_transparentFaces->at(texture);
+    auto faceIndexHolder = m_transparentFaces->at(texture);
     faceIndexHolder->zeroElementsWithKey(transparentKey);
 
     if (!faceIndexHolder->hasValidIndices())
@@ -740,5 +727,5 @@ void BrushRenderer::removeBrushFromVbo(const Model::BrushNode& brushNode)
 
   m_brushInfo.erase(it);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

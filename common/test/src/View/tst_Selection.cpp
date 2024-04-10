@@ -40,10 +40,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
 {
   GIVEN("A document with multiple entity nodes in various configurations")
@@ -220,13 +219,11 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching")
 {
-  Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-  Model::BrushNode* brushNode1 =
-    new Model::BrushNode(builder.createCube(64.0, "none").value());
-  Model::BrushNode* brushNode2 =
-    new Model::BrushNode(builder.createCube(64.0, "none").value());
-  Model::BrushNode* brushNode3 =
-    new Model::BrushNode(builder.createCube(64.0, "none").value());
+  auto builder =
+    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  auto* brushNode1 = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode2 = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode3 = new Model::BrushNode{builder.createCube(64.0, "none").value()};
 
   transformNode(
     *brushNode2,
@@ -263,15 +260,15 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476")
   document->selectAllNodes();
   document->deleteObjects();
 
-  const Model::BrushBuilder builder(
-    document->world()->mapFormat(), document->worldBounds());
-  const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+  const auto builder =
+    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
 
-  auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "texture").value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
-  auto* brushNode2 = new Model::BrushNode(
-    builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
+  auto* brushNode2 = new Model::BrushNode{
+    builder.createCuboid(box.translate({1, 1, 1}), "texture").value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   document->selectAllNodes();
@@ -303,25 +300,24 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup")
   document->deleteObjects();
   assert(document->selectedNodes().nodeCount() == 0);
 
-  Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
+  auto* layer = new Model::LayerNode{Model::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
 
-  Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
+  auto* group = new Model::GroupNode{Model::Group{"Unnamed"}};
   document->addNodes({{layer, {group}}});
 
-  Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-  const vm::bbox3 brushBounds(
-    vm::vec3(-32.0, -32.0, -32.0), vm::vec3(+32.0, +32.0, +32.0));
+  auto builder =
+    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  const auto brushBounds = vm::bbox3{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
 
-  Model::BrushNode* brush =
-    new Model::BrushNode(builder.createCuboid(brushBounds, "texture").value());
+  auto* brush =
+    new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
   document->addNodes({{group, {brush}}});
 
-  const vm::bbox3 selectionBounds(
-    vm::vec3(-16.0, -16.0, -48.0), vm::vec3(+16.0, +16.0, +48.0));
+  const auto selectionBounds = vm::bbox3{{-16.0, -16.0, -48.0}, {+16.0, +16.0, +48.0}};
 
-  Model::BrushNode* selectionBrush =
-    new Model::BrushNode(builder.createCuboid(selectionBounds, "texture").value());
+  auto* selectionBrush =
+    new Model::BrushNode{builder.createCuboid(selectionBounds, "texture").value()};
   document->addNodes({{layer, {selectionBrush}}});
 
   document->selectNodes({selectionBrush});
@@ -336,25 +332,24 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup")
   document->deleteObjects();
   assert(document->selectedNodes().nodeCount() == 0);
 
-  Model::LayerNode* layer = new Model::LayerNode(Model::Layer("Layer 1"));
+  auto* layer = new Model::LayerNode{Model::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
 
-  Model::GroupNode* group = new Model::GroupNode(Model::Group("Unnamed"));
+  auto* group = new Model::GroupNode{Model::Group{"Unnamed"}};
   document->addNodes({{layer, {group}}});
 
-  Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-  const vm::bbox3 brushBounds(
-    vm::vec3(-32.0, -32.0, -32.0), vm::vec3(+32.0, +32.0, +32.0));
+  auto builder =
+    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  const auto brushBounds = vm::bbox3{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
 
-  Model::BrushNode* brush =
-    new Model::BrushNode(builder.createCuboid(brushBounds, "texture").value());
+  auto* brush =
+    new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
   document->addNodes({{group, {brush}}});
 
-  const vm::bbox3 selectionBounds(
-    vm::vec3(-48.0, -48.0, -48.0), vm::vec3(+48.0, +48.0, +48.0));
+  const auto selectionBounds = vm::bbox3{{-48.0, -48.0, -48.0}, {+48.0, +48.0, +48.0}};
 
-  Model::BrushNode* selectionBrush =
-    new Model::BrushNode(builder.createCuboid(selectionBounds, "texture").value());
+  auto* selectionBrush =
+    new Model::BrushNode{builder.createCuboid(selectionBounds, "texture").value()};
   document->addNodes({{layer, {selectionBrush}}});
 
   document->selectNodes({selectionBrush});
@@ -367,13 +362,11 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall")
 {
   using Catch::Matchers::UnorderedEquals;
 
-  Model::BrushBuilder builder(document->world()->mapFormat(), document->worldBounds());
-  Model::BrushNode* brushNode1 =
-    new Model::BrushNode(builder.createCube(64.0, "none").value());
-  Model::BrushNode* brushNode2 =
-    new Model::BrushNode(builder.createCube(64.0, "none").value());
-  Model::BrushNode* brushNode3 =
-    new Model::BrushNode(builder.createCube(64.0, "none").value());
+  auto builder =
+    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  auto* brushNode1 = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode2 = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode3 = new Model::BrushNode{builder.createCube(64.0, "none").value()};
 
   transformNode(
     *brushNode2,
@@ -417,19 +410,19 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse")
   document->selectAllNodes();
   document->deleteObjects();
 
-  const Model::BrushBuilder builder(
-    document->world()->mapFormat(), document->worldBounds());
-  const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+  const auto builder =
+    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
 
-  auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "texture").value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
-  auto* brushNode2 = new Model::BrushNode(
-    builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
+  auto* brushNode2 = new Model::BrushNode{
+    builder.createCuboid(box.translate({1, 1, 1}), "texture").value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
-  auto* brushNode3 = new Model::BrushNode(
-    builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture").value());
+  auto* brushNode3 = new Model::BrushNode{
+    builder.createCuboid(box.translate({2, 2, 2}), "texture").value()};
   document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   auto* patchNode = createPatchNode();
@@ -505,19 +498,19 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
   document->selectAllNodes();
   document->deleteObjects();
 
-  const Model::BrushBuilder builder(
-    document->world()->mapFormat(), document->worldBounds());
-  const auto box = vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64));
+  const auto builder =
+    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
 
-  auto* brushNode1 = new Model::BrushNode(builder.createCuboid(box, "texture").value());
+  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "texture").value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
-  auto* brushNode2 = new Model::BrushNode(
-    builder.createCuboid(box.translate(vm::vec3(1, 1, 1)), "texture").value());
+  auto* brushNode2 = new Model::BrushNode{
+    builder.createCuboid(box.translate({1, 1, 1}), "texture").value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
-  auto* brushNode3 = new Model::BrushNode(
-    builder.createCuboid(box.translate(vm::vec3(2, 2, 2)), "texture").value());
+  auto* brushNode3 = new Model::BrushNode{
+    builder.createCuboid(box.translate({2, 2, 2}), "texture").value()};
   document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   auto* patchNode = createPatchNode();
@@ -574,7 +567,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds")
 {
-  auto* entityNode = new Model::EntityNode({}, {{"classname", "point_entity"}});
+  auto* entityNode = new Model::EntityNode{{}, {{"classname", "point_entity"}}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   REQUIRE(!entityNode->logicalBounds().is_empty());
 
@@ -602,7 +595,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds")
 TEST_CASE_METHOD(
   MapDocumentTest, "SelectionCommandTest.faceSelectionUndoAfterTranslationUndo")
 {
-  Model::BrushNode* brushNode = createBrushNode();
+  auto* brushNode = createBrushNode();
   CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -628,8 +621,8 @@ TEST_CASE_METHOD(
     Catch::Equals(std::vector<Model::BrushNode*>{brushNode}));
 
   // translate the brush
-  document->translateObjects(vm::vec3(10.0, 0.0, 0.0));
-  CHECK(brushNode->logicalBounds().center() == vm::vec3(10.0, 0.0, 0.0));
+  document->translateObjects(vm::vec3{10.0, 0.0, 0.0});
+  CHECK(brushNode->logicalBounds().center() == vm::vec3{10.0, 0.0, 0.0});
 
   // Start undoing changes
 
@@ -652,5 +645,5 @@ TEST_CASE_METHOD(
     document->selectedBrushFaces(),
     Catch::Equals(std::vector<Model::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

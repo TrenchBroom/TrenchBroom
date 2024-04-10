@@ -25,15 +25,14 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
+
 vm::vec3f gridColorForTexture(const Assets::Texture* texture);
 
 void glSetEdgeOffset(double f);
@@ -83,13 +82,11 @@ struct VertsAndNormals
 {
   std::vector<vm::vec3f> vertices;
   std::vector<vm::vec3f> normals;
-
-  explicit VertsAndNormals(size_t vertexCount);
 };
 
 std::vector<vm::vec3f> sphere3D(float radius, size_t iterations);
 VertsAndNormals circle3D(float radius, size_t segments);
 VertsAndNormals cylinder3D(float radius, float length, size_t segments);
 VertsAndNormals cone3D(float radius, float length, size_t segments);
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

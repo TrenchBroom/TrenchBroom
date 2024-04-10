@@ -84,7 +84,7 @@ MapView3D::MapView3D(
   Renderer::MapRenderer& renderer,
   GLContextManager& contextManager,
   Logger* logger)
-  : MapViewBase(logger, std::move(document), toolBox, renderer, contextManager)
+  : MapViewBase(std::move(document), toolBox, renderer, contextManager, logger)
   , m_camera(std::make_unique<Renderer::PerspectiveCamera>())
   , m_flyModeHelper(std::make_unique<FlyModeHelper>(*m_camera))
   , m_ignoreCameraChangeEvents(false)

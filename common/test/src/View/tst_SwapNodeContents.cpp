@@ -51,10 +51,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes")
 {
   auto* brushNode = createBrushNode();
@@ -230,5 +229,5 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
     linkedBrushNode->physicalBounds()
     == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -33,43 +33,43 @@
 #include "TestUtils.h"
 #include "View/MapDocumentTest.h"
 
+#include "kdl/vector_utils.h"
+
 #include <filesystem>
 #include <vector>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
+
 class TagManagementTest : public MapDocumentTest
 {
 protected:
-  Assets::Texture* m_textureA;
-  Assets::Texture* m_textureB;
-  Assets::Texture* m_textureC;
-  const Assets::TextureCollection* m_textureCollection;
+  Assets::Texture* m_textureA = nullptr;
+  Assets::Texture* m_textureB = nullptr;
+  Assets::Texture* m_textureC = nullptr;
+  const Assets::TextureCollection* m_textureCollection = nullptr;
 
 private:
   void SetUp()
   {
-    auto textureA = Assets::Texture("some_texture", 16, 16);
-    auto textureB = Assets::Texture("other_texture", 32, 32);
-    auto textureC = Assets::Texture("yet_another_texture", 64, 64);
+    auto textureA = Assets::Texture{"some_texture", 16, 16};
+    auto textureB = Assets::Texture{"other_texture", 32, 32};
+    auto textureC = Assets::Texture{"yet_another_texture", 64, 64};
 
-    const std::string singleParam("some_parm");
-    const std::set<std::string> multiParams({"parm1", "parm2"});
+    const auto singleParam = std::string{"some_parm"};
+    const auto multiParams = std::set<std::string>{"parm1", "parm2"};
 
     textureA.setSurfaceParms({singleParam});
     textureB.setSurfaceParms(multiParams);
 
-    std::vector<Assets::Texture> textures;
-    textures.push_back(std::move(textureA));
-    textures.push_back(std::move(textureB));
-    textures.push_back(std::move(textureC));
+    auto textures =
+      kdl::vec_from(std::move(textureA), std::move(textureB), std::move(textureC));
 
-    std::vector<Assets::TextureCollection> collections;
-    collections.emplace_back(std::move(textures));
+    auto collections = kdl::vec_from(Assets::TextureCollection{std::move(textures)});
 
     auto& textureManager = document->textureManager();
     textureManager.setTextureCollections(std::move(collections));
@@ -79,42 +79,52 @@ private:
     m_textureB = textureManager.texture("other_texture");
     m_textureC = textureManager.texture("yet_another_texture");
 
-    const std::string textureMatch("some_texture");
-    const std::string texturePatternMatch("*er_texture");
-    const std::string singleParamMatch("parm2");
-    const kdl::vector_set<std::string> multiParamsMatch{"some_parm", "parm1", "parm3"};
+    const auto textureMatch = std::string{"some_texture"};
+    const auto texturePatternMatch = std::string{"*er_texture"};
+    const auto singleParamMatch = std::string{"parm2"};
+    const auto multiParamsMatch =
+      kdl::vector_set<std::string>{"some_parm", "parm1", "parm3"};
     game->setSmartTags(
-      {Model::SmartTag(
-         "texture", {}, std::make_unique<Model::TextureNameTagMatcher>(textureMatch)),
-       Model::SmartTag(
+      {Model::SmartTag{
+         "texture",
+         {},
+         std::make_unique<Model::TextureNameTagMatcher>(textureMatch),
+       },
+       Model::SmartTag{
          "texturePattern",
          {},
-         std::make_unique<Model::TextureNameTagMatcher>(texturePatternMatch)),
-       Model::SmartTag(
+         std::make_unique<Model::TextureNameTagMatcher>(texturePatternMatch),
+       },
+       Model::SmartTag{
          "surfaceparm_single",
          {},
-         std::make_unique<Model::SurfaceParmTagMatcher>(singleParamMatch)),
-       Model::SmartTag(
+         std::make_unique<Model::SurfaceParmTagMatcher>(singleParamMatch),
+       },
+       Model::SmartTag{
          "surfaceparm_multi",
          {},
-         std::make_unique<Model::SurfaceParmTagMatcher>(multiParamsMatch)),
-       Model::SmartTag(
-         "contentflags", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1)),
-       Model::SmartTag(
-         "surfaceflags", {}, std::make_unique<Model::SurfaceFlagsTagMatcher>(1)),
-       Model::SmartTag(
+         std::make_unique<Model::SurfaceParmTagMatcher>(multiParamsMatch),
+       },
+       Model::SmartTag{
+         "contentflags",
+         {},
+         std::make_unique<Model::ContentFlagsTagMatcher>(1),
+       },
+       Model::SmartTag{
+         "surfaceflags",
+         {},
+         std::make_unique<Model::SurfaceFlagsTagMatcher>(1),
+       },
+       Model::SmartTag{
          "entity",
          {},
-         std::make_unique<Model::EntityClassNameTagMatcher>("brush_entity", ""))});
+         std::make_unique<Model::EntityClassNameTagMatcher>("brush_entity", ""),
+       }});
     document->registerSmartTags();
   }
 
 protected:
-  TagManagementTest()
-    : MapDocumentTest()
-  {
-    SetUp();
-  }
+  TagManagementTest() { SetUp(); }
 };
 
 class TestCallback : public Model::TagMatcherCallback
@@ -124,12 +134,14 @@ private:
 
 public:
   explicit TestCallback(const size_t option)
-    : m_option(option)
+    : m_option{option}
   {
   }
 
-  size_t selectOption(const std::vector<std::string>& /* options */) { return m_option; }
+  size_t selectOption(const std::vector<std::string>&) override { return m_option; }
 };
+
+} // namespace
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistration")
 {
@@ -170,12 +182,16 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistrationAssignsTyp
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.duplicateTag")
 {
   game->setSmartTags({
-    Model::SmartTag(
-      "texture", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture")),
-    Model::SmartTag(
+    Model::SmartTag{
       "texture",
       {},
-      std::make_unique<Model::SurfaceParmTagMatcher>("some_other_texture")),
+      std::make_unique<Model::TextureNameTagMatcher>("some_texture"),
+    },
+    Model::SmartTag{
+      "texture",
+      {},
+      std::make_unique<Model::SurfaceParmTagMatcher>("some_other_texture"),
+    },
   });
   CHECK_THROWS_AS(document->registerSmartTags(), std::logic_error);
 }
@@ -212,12 +228,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableTextureNameTag")
   const auto& tag = document->smartTag("texture");
   CHECK(tag.canEnable());
 
-  const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{nonMatchingBrushNode, 0u};
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
 
   CHECK(tag.matches(faceHandle.face()));
@@ -279,12 +295,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceParmTag")
   const auto& tag = document->smartTag("surfaceparm_single");
   CHECK(tag.canEnable());
 
-  const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{nonMatchingBrushNode, 0u};
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
 
   CHECK(tag.matches(faceHandle.face()));
@@ -336,12 +352,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableContentFlagsTag")
   const auto& tag = document->smartTag("contentflags");
   CHECK(tag.canEnable());
 
-  const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{nonMatchingBrushNode, 0u};
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
 
   CHECK(tag.matches(faceHandle.face()));
@@ -363,12 +379,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableContentFlagsTag")
   const auto& tag = document->smartTag("contentflags");
   CHECK(tag.canDisable());
 
-  const auto faceHandle = Model::BrushFaceHandle(matchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{matchingBrushNode, 0u};
   CHECK(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.disable(callback, *document);
 
   CHECK_FALSE(tag.matches(faceHandle.face()));
@@ -414,12 +430,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceFlagsTag")
   const auto& tag = document->smartTag("surfaceflags");
   CHECK(tag.canEnable());
 
-  const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{nonMatchingBrushNode, 0u};
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
 
   CHECK(tag.matches(faceHandle.face()));
@@ -441,12 +457,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceFlagsTag")
   const auto& tag = document->smartTag("surfaceflags");
   CHECK(tag.canDisable());
 
-  const auto faceHandle = Model::BrushFaceHandle(matchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{matchingBrushNode, 0u};
   CHECK(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.disable(callback, *document);
 
   CHECK_FALSE(tag.matches(faceHandle.face()));
@@ -482,7 +498,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTag"
 
   document->selectNodes({brushNode});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
   CHECK(tag.matches(*brushNode));
 }
@@ -501,7 +517,7 @@ TEST_CASE_METHOD(
   const auto& tag = document->smartTag("entity");
   document->selectNodes({brushNode});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
   CHECK(tag.matches(*brushNode));
 
@@ -529,7 +545,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag
 
   document->selectNodes({brushNode});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.disable(callback, *document);
   CHECK_FALSE(tag.matches(*brushNode));
 }
@@ -666,7 +682,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushFaceTags")
 
   const auto& tag = document->smartTag("contentflags");
 
-  const auto faceHandle = Model::BrushFaceHandle(brushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{brushNode, 0u};
   CHECK_FALSE(faceHandle.face().hasTag(tag));
 
   Model::ChangeBrushFaceAttributesRequest request;
@@ -683,5 +699,5 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushFaceTags")
     CHECK(!faces[i].hasTag(tag));
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

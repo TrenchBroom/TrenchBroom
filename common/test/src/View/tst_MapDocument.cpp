@@ -44,19 +44,15 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 MapDocumentTest::MapDocumentTest()
-  : MapDocumentTest(Model::MapFormat::Standard)
+  : MapDocumentTest{Model::MapFormat::Standard}
 {
 }
 
 MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat)
-  : m_mapFormat(mapFormat)
-  , m_pointEntityDef(nullptr)
-  , m_brushEntityDef(nullptr)
+  : m_mapFormat{mapFormat}
 {
   SetUp();
 }
@@ -65,15 +61,15 @@ void MapDocumentTest::SetUp()
 {
   game = std::make_shared<Model::TestGame>();
   document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(m_mapFormat, vm::bbox3(8192.0), game).transform_error([](auto e) {
+  document->newDocument(m_mapFormat, vm::bbox3{8192.0}, game).transform_error([](auto e) {
     throw std::runtime_error{e.msg};
   });
 
   // create two entity definitions
-  m_pointEntityDef = new Assets::PointEntityDefinition(
-    "point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {}, {});
-  m_brushEntityDef = new Assets::BrushEntityDefinition(
-    "brush_entity", Color(), "this is a brush entity", {});
+  m_pointEntityDef = new Assets::PointEntityDefinition{
+    "point_entity", Color{}, vm::bbox3{16.0}, "this is a point entity", {}, {}, {}};
+  m_brushEntityDef = new Assets::BrushEntityDefinition{
+    "brush_entity", Color{}, "this is a brush entity", {}};
 
   document->setEntityDefinitions(kdl::vec_from(
     std::unique_ptr<Assets::EntityDefinition>{m_pointEntityDef},
@@ -90,12 +86,15 @@ Model::BrushNode* MapDocumentTest::createBrushNode(
   const std::string& textureName,
   const std::function<void(Model::Brush&)>& brushFunc) const
 {
-  const Model::WorldNode* world = document->world();
-  Model::BrushBuilder builder(
-    world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs());
-  Model::Brush brush = builder.createCube(32.0, textureName).value();
+  const auto* worldNode = document->world();
+  auto builder = Model::BrushBuilder{
+    worldNode->mapFormat(),
+    document->worldBounds(),
+    document->game()->defaultFaceAttribs()};
+
+  auto brush = builder.createCube(32.0, textureName).value();
   brushFunc(brush);
-  return new Model::BrushNode(std::move(brush));
+  return new Model::BrushNode{std::move(brush)};
 }
 
 Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureName) const
@@ -109,7 +108,7 @@ Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureNam
 }
 
 ValveMapDocumentTest::ValveMapDocumentTest()
-  : MapDocumentTest(Model::MapFormat::Valve)
+  : MapDocumentTest{Model::MapFormat::Valve}
 {
 }
 
@@ -843,5 +842,4 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
   }
 }
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

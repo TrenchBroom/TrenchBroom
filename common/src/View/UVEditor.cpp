@@ -35,10 +35,9 @@
 
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 UVEditor::UVEditor(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
@@ -114,13 +113,13 @@ void UVEditor::createGui(GLContextManager& contextManager)
     this,
     &UVEditor::rotateTextureCWClicked);
 
-  auto* gridLabel = new QLabel("Grid ");
+  auto* gridLabel = new QLabel{"Grid "};
   makeEmphasized(gridLabel);
-  m_xSubDivisionEditor = new QSpinBox();
+  m_xSubDivisionEditor = new QSpinBox{};
   m_xSubDivisionEditor->setRange(1, 16);
   m_xSubDivisionEditor->setValue(1);
 
-  m_ySubDivisionEditor = new QSpinBox();
+  m_ySubDivisionEditor = new QSpinBox{};
   m_ySubDivisionEditor->setRange(1, 16);
   m_ySubDivisionEditor->setValue(1);
 
@@ -135,7 +134,7 @@ void UVEditor::createGui(GLContextManager& contextManager)
     this,
     &UVEditor::subDivisionChanged);
 
-  auto* bottomLayout = new QHBoxLayout();
+  auto* bottomLayout = new QHBoxLayout{};
   bottomLayout->setContentsMargins(
     LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
   bottomLayout->setSpacing(LayoutConstants::NarrowHMargin);
@@ -147,14 +146,14 @@ void UVEditor::createGui(GLContextManager& contextManager)
   bottomLayout->addWidget(m_rotateTextureCWButton);
   bottomLayout->addStretch();
   bottomLayout->addWidget(gridLabel);
-  bottomLayout->addWidget(new QLabel("X:"));
+  bottomLayout->addWidget(new QLabel{"X:"});
   bottomLayout->addWidget(m_xSubDivisionEditor);
   bottomLayout->addSpacing(
     LayoutConstants::MediumHMargin - LayoutConstants::NarrowHMargin);
-  bottomLayout->addWidget(new QLabel("Y:"));
+  bottomLayout->addWidget(new QLabel{"Y:"});
   bottomLayout->addWidget(m_ySubDivisionEditor);
 
-  auto* outerLayout = new QVBoxLayout();
+  auto* outerLayout = new QVBoxLayout{};
   outerLayout->setContentsMargins(0, 0, 0, 0);
   outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
   outerLayout->addWidget(m_uvView, 1);
@@ -178,7 +177,7 @@ void UVEditor::connectObservers()
 
 void UVEditor::resetTextureClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
   request.resetAll(document->game()->defaultFaceAttribs());
@@ -187,7 +186,7 @@ void UVEditor::resetTextureClicked()
 
 void UVEditor::resetTextureToWorldClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
   request.resetAllToParaxial(document->game()->defaultFaceAttribs());
@@ -196,7 +195,7 @@ void UVEditor::resetTextureToWorldClicked()
 
 void UVEditor::flipTextureHClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.mulXScale(-1.0f);
 
   auto document = kdl::mem_lock(m_document);
@@ -205,7 +204,7 @@ void UVEditor::flipTextureHClicked()
 
 void UVEditor::flipTextureVClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.mulYScale(-1.0f);
 
   auto document = kdl::mem_lock(m_document);
@@ -214,7 +213,7 @@ void UVEditor::flipTextureVClicked()
 
 void UVEditor::rotateTextureCCWClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.addRotation(90.0f);
 
   auto document = kdl::mem_lock(m_document);
@@ -223,7 +222,7 @@ void UVEditor::rotateTextureCCWClicked()
 
 void UVEditor::rotateTextureCWClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.addRotation(-90.0f);
 
   auto document = kdl::mem_lock(m_document);
@@ -236,5 +235,5 @@ void UVEditor::subDivisionChanged()
   const int y = m_ySubDivisionEditor->value();
   m_uvView->setSubDivisions(vm::vec2i(x, y));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

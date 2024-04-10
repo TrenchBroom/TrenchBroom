@@ -29,14 +29,12 @@
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 
 class BrushFaceAttributes
@@ -47,9 +45,9 @@ public:
 private:
   std::string m_textureName;
 
-  vm::vec2f m_offset;
-  vm::vec2f m_scale;
-  float m_rotation;
+  vm::vec2f m_offset = vm::vec2f::zero();
+  vm::vec2f m_scale = vm::vec2f::one();
+  float m_rotation = 0.0f;
 
   std::optional<int> m_surfaceContents;
   std::optional<int> m_surfaceFlags;
@@ -59,10 +57,7 @@ private:
 
 public:
   explicit BrushFaceAttributes(std::string_view textureName);
-  BrushFaceAttributes(const BrushFaceAttributes& other);
   BrushFaceAttributes(std::string_view textureName, const BrushFaceAttributes& other);
-
-  BrushFaceAttributes& operator=(BrushFaceAttributes other);
 
   kdl_reflect_decl(
     BrushFaceAttributes,
@@ -74,8 +69,6 @@ public:
     m_surfaceFlags,
     m_surfaceValue,
     m_color);
-
-  friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
 
   const std::string& textureName() const;
 
@@ -114,5 +107,4 @@ public:
   bool setColor(const std::optional<Color>& color);
 };
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

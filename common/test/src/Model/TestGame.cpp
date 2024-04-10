@@ -61,6 +61,251 @@ TestGame::TestGame()
 
 TestGame::~TestGame() = default;
 
+const std::string& TestGame::gameName() const
+{
+  static const std::string name("Test");
+  return name;
+}
+
+std::filesystem::path TestGame::gamePath() const
+{
+  return ".";
+}
+
+void TestGame::setGamePath(
+  const std::filesystem::path& /* gamePath */, Logger& /* logger */)
+{
+}
+
+std::optional<vm::bbox3> TestGame::softMapBounds() const
+{
+  return {vm::bbox3()};
+}
+
+Game::SoftMapBounds TestGame::extractSoftMapBounds(const Entity&) const
+{
+  return {Game::SoftMapBoundsType::Game, vm::bbox3()};
+}
+
+void TestGame::setAdditionalSearchPaths(
+  const std::vector<std::filesystem::path>& /* searchPaths */, Logger& /* logger */)
+{
+}
+Game::PathErrors TestGame::checkAdditionalSearchPaths(
+  const std::vector<std::filesystem::path>& /* searchPaths */) const
+{
+  return PathErrors();
+}
+
+const CompilationConfig& TestGame::compilationConfig()
+{
+  static CompilationConfig config;
+  return config;
+}
+
+const std::vector<CompilationTool>& TestGame::compilationTools() const
+{
+  return m_compilationTools;
+}
+
+size_t TestGame::maxPropertyLength() const
+{
+  return 1024;
+}
+
+const std::vector<SmartTag>& TestGame::smartTags() const
+{
+  return m_smartTags;
+}
+
+Result<std::unique_ptr<WorldNode>> TestGame::newMap(
+  const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const
+{
+  return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
+}
+
+Result<std::unique_ptr<WorldNode>> TestGame::loadMap(
+  const MapFormat format,
+  const vm::bbox3& /* worldBounds */,
+  const std::filesystem::path& /* path */,
+  Logger& /* logger */) const
+{
+  if (!m_worldNodeToLoad)
+  {
+    return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
+  }
+  else
+  {
+    return std::move(m_worldNodeToLoad);
+  }
+}
+
+Result<void> TestGame::writeMap(WorldNode& world, const std::filesystem::path& path) const
+{
+  return IO::Disk::withOutputStream(path, [&](auto& stream) {
+    IO::NodeWriter writer(world, stream);
+    writer.writeMap();
+  });
+}
+
+Result<void> TestGame::exportMap(
+  WorldNode& /* world */, const IO::ExportOptions& /* options */) const
+{
+  return kdl::void_success;
+}
+
+std::vector<Node*> TestGame::parseNodes(
+  const std::string& str,
+  const MapFormat mapFormat,
+  const vm::bbox3& worldBounds,
+  Logger& /* logger */) const
+{
+  IO::TestParserStatus status;
+  return IO::NodeReader::read(str, mapFormat, worldBounds, {}, status);
+}
+
+std::vector<BrushFace> TestGame::parseBrushFaces(
+  const std::string& str,
+  const MapFormat mapFormat,
+  const vm::bbox3& worldBounds,
+  Logger& /* logger */) const
+{
+  IO::TestParserStatus status;
+  IO::BrushFaceReader reader(str, mapFormat);
+  return reader.read(worldBounds, status);
+}
+
+void TestGame::writeNodesToStream(
+  WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const
+{
+  IO::NodeWriter writer(world, stream);
+  writer.writeNodes(nodes);
+}
+
+void TestGame::writeBrushFacesToStream(
+  WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const
+{
+  IO::NodeWriter writer(world, stream);
+  writer.writeBrushFaces(faces);
+}
+
+void TestGame::loadTextureCollections(Assets::TextureManager& textureManager) const
+{
+  const Model::TextureConfig textureConfig{
+    "textures",
+    {".D"},
+    "fixture/test/palette.lmp",
+    "wad",
+    "",
+    {},
+  };
+
+  textureManager.reload(*m_fs, textureConfig);
+}
+
+const std::optional<std::string>& TestGame::wadProperty() const
+{
+  static const auto property = std::optional<std::string>{"wad"};
+  return property;
+}
+
+void TestGame::reloadWads(
+  const std::filesystem::path&,
+  const std::vector<std::filesystem::path>& wadPaths,
+  Logger&)
+{
+  m_fs->unmountAll();
+  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));
+
+  for (const auto& wadPath : wadPaths)
+  {
+    const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
+    m_fs->mount("textures", IO::openFS<IO::WadFileSystem>(absoluteWadPath));
+  }
+}
+
+Result<void> TestGame::reloadShaders()
+{
+  return kdl::void_success;
+  ;
+}
+
+bool TestGame::isEntityDefinitionFile(const std::filesystem::path& /* path */) const
+{
+  return false;
+}
+
+std::vector<Assets::EntityDefinitionFileSpec> TestGame::allEntityDefinitionFiles() const
+{
+  return std::vector<Assets::EntityDefinitionFileSpec>();
+}
+
+Assets::EntityDefinitionFileSpec TestGame::extractEntityDefinitionFile(
+  const Entity& /* entity */) const
+{
+  return Assets::EntityDefinitionFileSpec();
+}
+
+std::filesystem::path TestGame::findEntityDefinitionFile(
+  const Assets::EntityDefinitionFileSpec& /* spec */,
+  const std::vector<std::filesystem::path>& /* searchPaths */) const
+{
+  return {};
+}
+
+Result<std::vector<std::string>> TestGame::availableMods() const
+{
+  return std::vector<std::string>{};
+}
+
+std::vector<std::string> TestGame::extractEnabledMods(const Entity& /* entity */) const
+{
+  return {};
+}
+
+std::string TestGame::defaultMod() const
+{
+  return "";
+}
+
+const Model::FlagsConfig& TestGame::surfaceFlags() const
+{
+  static const Model::FlagsConfig config;
+  return config;
+}
+
+const Model::FlagsConfig& TestGame::contentFlags() const
+{
+  static const Model::FlagsConfig config;
+  return config;
+}
+
+const Model::BrushFaceAttributes& TestGame::defaultFaceAttribs() const
+{
+  return m_defaultFaceAttributes;
+}
+
+Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> TestGame::
+  loadEntityDefinitions(
+    IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
+{
+  return Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>>{
+    std::vector<std::unique_ptr<Assets::EntityDefinition>>{}};
+}
+
+std::unique_ptr<Assets::EntityModel> TestGame::initializeModel(
+  const std::filesystem::path& /* path */, Logger& /* logger */) const
+{
+  return nullptr;
+}
+void TestGame::loadFrame(
+  const std::filesystem::path& /* path */,
+  size_t /* frameIndex */,
+  Assets::EntityModel& /* model */,
+  Logger& /* logger */) const
+{
+}
+
 void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)
 {
   m_worldNodeToLoad = std::move(worldNode);
@@ -77,249 +322,4 @@ void TestGame::setDefaultFaceAttributes(
   m_defaultFaceAttributes = defaultFaceAttributes;
 }
 
-const std::string& TestGame::doGameName() const
-{
-  static const std::string name("Test");
-  return name;
-}
-
-std::filesystem::path TestGame::doGamePath() const
-{
-  return ".";
-}
-
-void TestGame::doSetGamePath(
-  const std::filesystem::path& /* gamePath */, Logger& /* logger */)
-{
-}
-
-std::optional<vm::bbox3> TestGame::doSoftMapBounds() const
-{
-  return {vm::bbox3()};
-}
-
-Game::SoftMapBounds TestGame::doExtractSoftMapBounds(const Entity&) const
-{
-  return {Game::SoftMapBoundsType::Game, vm::bbox3()};
-}
-
-void TestGame::doSetAdditionalSearchPaths(
-  const std::vector<std::filesystem::path>& /* searchPaths */, Logger& /* logger */)
-{
-}
-Game::PathErrors TestGame::doCheckAdditionalSearchPaths(
-  const std::vector<std::filesystem::path>& /* searchPaths */) const
-{
-  return PathErrors();
-}
-
-const CompilationConfig& TestGame::doCompilationConfig()
-{
-  static CompilationConfig config;
-  return config;
-}
-
-size_t TestGame::doMaxPropertyLength() const
-{
-  return 1024;
-}
-
-const std::vector<SmartTag>& TestGame::doSmartTags() const
-{
-  return m_smartTags;
-}
-
-Result<std::unique_ptr<WorldNode>> TestGame::doNewMap(
-  const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const
-{
-  return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
-}
-
-Result<std::unique_ptr<WorldNode>> TestGame::doLoadMap(
-  const MapFormat format,
-  const vm::bbox3& /* worldBounds */,
-  const std::filesystem::path& /* path */,
-  Logger& /* logger */) const
-{
-  if (!m_worldNodeToLoad)
-  {
-    return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
-  }
-  else
-  {
-    return std::move(m_worldNodeToLoad);
-  }
-}
-
-Result<void> TestGame::doWriteMap(
-  WorldNode& world, const std::filesystem::path& path) const
-{
-  return IO::Disk::withOutputStream(path, [&](auto& stream) {
-    IO::NodeWriter writer(world, stream);
-    writer.writeMap();
-  });
-}
-
-Result<void> TestGame::doExportMap(
-  WorldNode& /* world */, const IO::ExportOptions& /* options */) const
-{
-  return kdl::void_success;
-}
-
-std::vector<Node*> TestGame::doParseNodes(
-  const std::string& str,
-  const MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
-  Logger& /* logger */) const
-{
-  IO::TestParserStatus status;
-  return IO::NodeReader::read(str, mapFormat, worldBounds, {}, status);
-}
-
-std::vector<BrushFace> TestGame::doParseBrushFaces(
-  const std::string& str,
-  const MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
-  Logger& /* logger */) const
-{
-  IO::TestParserStatus status;
-  IO::BrushFaceReader reader(str, mapFormat);
-  return reader.read(worldBounds, status);
-}
-
-void TestGame::doWriteNodesToStream(
-  WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const
-{
-  IO::NodeWriter writer(world, stream);
-  writer.writeNodes(nodes);
-}
-
-void TestGame::doWriteBrushFacesToStream(
-  WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const
-{
-  IO::NodeWriter writer(world, stream);
-  writer.writeBrushFaces(faces);
-}
-
-void TestGame::doLoadTextureCollections(Assets::TextureManager& textureManager) const
-{
-  const Model::TextureConfig textureConfig{
-    "textures",
-    {".D"},
-    "fixture/test/palette.lmp",
-    "wad",
-    "",
-    {},
-  };
-
-  textureManager.reload(*m_fs, textureConfig);
-}
-
-const std::optional<std::string>& TestGame::doGetWadProperty() const
-{
-  static const auto property = std::optional<std::string>{"wad"};
-  return property;
-}
-
-void TestGame::doReloadWads(
-  const std::filesystem::path&,
-  const std::vector<std::filesystem::path>& wadPaths,
-  Logger&)
-{
-  m_fs->unmountAll();
-  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));
-
-  for (const auto& wadPath : wadPaths)
-  {
-    const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
-    m_fs->mount("textures", IO::openFS<IO::WadFileSystem>(absoluteWadPath));
-  }
-}
-
-Result<void> TestGame::doReloadShaders()
-{
-  return kdl::void_success;
-  ;
-}
-
-bool TestGame::doIsEntityDefinitionFile(const std::filesystem::path& /* path */) const
-{
-  return false;
-}
-
-std::vector<Assets::EntityDefinitionFileSpec> TestGame::doAllEntityDefinitionFiles() const
-{
-  return std::vector<Assets::EntityDefinitionFileSpec>();
-}
-
-Assets::EntityDefinitionFileSpec TestGame::doExtractEntityDefinitionFile(
-  const Entity& /* entity */) const
-{
-  return Assets::EntityDefinitionFileSpec();
-}
-
-std::filesystem::path TestGame::doFindEntityDefinitionFile(
-  const Assets::EntityDefinitionFileSpec& /* spec */,
-  const std::vector<std::filesystem::path>& /* searchPaths */) const
-{
-  return {};
-}
-
-Result<std::vector<std::string>> TestGame::doAvailableMods() const
-{
-  return std::vector<std::string>{};
-}
-
-std::vector<std::string> TestGame::doExtractEnabledMods(const Entity& /* entity */) const
-{
-  return {};
-}
-
-std::string TestGame::doDefaultMod() const
-{
-  return "";
-}
-
-const Model::FlagsConfig& TestGame::doSurfaceFlags() const
-{
-  static const Model::FlagsConfig config;
-  return config;
-}
-
-const Model::FlagsConfig& TestGame::doContentFlags() const
-{
-  static const Model::FlagsConfig config;
-  return config;
-}
-
-const Model::BrushFaceAttributes& TestGame::doDefaultFaceAttribs() const
-{
-  return m_defaultFaceAttributes;
-}
-
-const std::vector<CompilationTool>& TestGame::doCompilationTools() const
-{
-  return m_compilationTools;
-}
-
-Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> TestGame::
-  loadEntityDefinitions(
-    IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
-{
-  return Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>>{
-    std::vector<std::unique_ptr<Assets::EntityDefinition>>{}};
-}
-
-std::unique_ptr<Assets::EntityModel> TestGame::doInitializeModel(
-  const std::filesystem::path& /* path */, Logger& /* logger */) const
-{
-  return nullptr;
-}
-void TestGame::doLoadFrame(
-  const std::filesystem::path& /* path */,
-  size_t /* frameIndex */,
-  Assets::EntityModel& /* model */,
-  Logger& /* logger */) const
-{
-}
 } // namespace TrenchBroom::Model

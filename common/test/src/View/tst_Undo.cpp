@@ -36,24 +36,23 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
 {
   document->deselectAll();
   document->setProperty(
     Model::EntityPropertyKeys::Wad, "fixture/test/IO/Wad/cr8_czg.wad");
 
-  Model::BrushNode* brushNode = createBrushNode("coffin1");
+  auto* brushNode = createBrushNode("coffin1");
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
-  const Assets::Texture* texture = document->textureManager().texture("coffin1");
+  const auto* texture = document->textureManager().texture("coffin1");
   CHECK(texture != nullptr);
   CHECK(texture->usageCount() == 6u);
 
-  for (const Model::BrushFace& face : brushNode->brush().faces())
+  for (const auto& face : brushNode->brush().faces())
   {
     CHECK(face.texture() == texture);
   }
@@ -85,8 +84,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
 
     document->selectBrushFaces({{brushNode, *topFaceIndex}});
 
-    Model::ChangeBrushFaceAttributesRequest request;
-    request.setXOffset(static_cast<float>(12.34f));
+    auto request = Model::ChangeBrushFaceAttributesRequest{};
+    request.setXOffset(12.34f);
     REQUIRE(document->setFaceAttributes(request));
 
     document->undoCommand(); // undo move
@@ -98,7 +97,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
     REQUIRE(!document->hasSelectedBrushFaces());
   }
 
-  for (const Model::BrushFace& face : brushNode->brush().faces())
+  for (const auto& face : brushNode->brush().faces())
   {
     CHECK(face.texture() == texture);
   }
@@ -120,5 +119,5 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation")
   document->undoCommand();
   CHECK(!entityNode->entity().hasProperty("angle"));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

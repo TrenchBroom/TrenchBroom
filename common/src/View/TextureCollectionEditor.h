@@ -84,7 +84,6 @@ private:
   void updateAllTextureCollections();
   void updateAvailableTextureCollections();
   void updateEnabledTextureCollections();
-  void updateListBox(QListWidget* box, const std::vector<std::filesystem::path>& paths);
 
   std::vector<std::filesystem::path> availableTextureCollections() const;
   std::vector<std::filesystem::path> enabledTextureCollections() const;

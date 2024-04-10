@@ -40,18 +40,21 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
+namespace
 {
+
 class TestIssue : public Issue
 {
 public:
-  TestIssue(Node& node)
+  explicit TestIssue(Node& node)
     : Issue{0, node, ""}
   {
   }
 };
+
+} // namespace
 
 TEST_CASE("Issue.addSelectableNodes")
 {
@@ -125,5 +128,5 @@ TEST_CASE("Issue.addSelectableNodes")
     getSelectableNodes(TestIssue{*patchNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{patchNode}));
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

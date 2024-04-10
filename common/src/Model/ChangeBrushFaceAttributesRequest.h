@@ -27,10 +27,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class BrushFace;
 class BrushFaceHandle;
 class BrushFaceAttributes;
@@ -38,63 +37,59 @@ class BrushFaceAttributes;
 class ChangeBrushFaceAttributesRequest
 {
 public:
-  // TODO: replace with class based enum
-  typedef enum
+  enum class AxisOp
   {
-    AxisOp_None,
-    AxisOp_Reset,
-    AxisOp_ToParaxial,
-    AxisOp_ToParallel
-  } AxisOp;
+    None,
+    Reset,
+    ToParaxial,
+    ToParallel
+  };
 
-  // TODO: replace with class based enum
-  typedef enum
+  enum class ValueOp
   {
-    ValueOp_None,
-    ValueOp_Set,
-    ValueOp_Add,
-    ValueOp_Mul
-  } ValueOp;
+    None,
+    Set,
+    Add,
+    Mul
+  };
 
-  // TODO: replace with class based enum
-  typedef enum
+  enum class FlagOp
   {
-    FlagOp_None,
-    FlagOp_Replace,
-    FlagOp_Set,   // TODO: rename to SetBits
-    FlagOp_Unset, // TODO: rename to UnsetBits or ClearBits
-  } FlagOp;
+    None,
+    Replace,
+    Set,   // TODO: rename to SetBits
+    Unset, // TODO: rename to UnsetBits or ClearBits
+  };
 
-  // TODO: replace with class based enum
-  typedef enum
+  enum class TextureOp
   {
-    TextureOp_None,
-    TextureOp_Set
-  } TextureOp;
+    None,
+    Set
+  };
 
 private:
   std::string m_textureName;
-  float m_xOffset;
-  float m_yOffset;
-  float m_rotation;
-  float m_xScale;
-  float m_yScale;
+  float m_xOffset = 0.0f;
+  float m_yOffset = 0.0f;
+  float m_rotation = 0.0f;
+  float m_xScale = 0.0f;
+  float m_yScale = 0.0f;
   std::optional<int> m_surfaceFlags;
   std::optional<int> m_contentFlags;
   std::optional<float> m_surfaceValue;
   std::optional<Color> m_colorValue;
 
-  TextureOp m_textureOp;
-  AxisOp m_axisOp;
-  ValueOp m_xOffsetOp;
-  ValueOp m_yOffsetOp;
-  ValueOp m_rotationOp;
-  ValueOp m_xScaleOp;
-  ValueOp m_yScaleOp;
-  FlagOp m_surfaceFlagsOp;
-  FlagOp m_contentFlagsOp;
-  ValueOp m_surfaceValueOp;
-  ValueOp m_colorValueOp;
+  TextureOp m_textureOp = TextureOp::None;
+  AxisOp m_axisOp = AxisOp::None;
+  ValueOp m_xOffsetOp = ValueOp::None;
+  ValueOp m_yOffsetOp = ValueOp::None;
+  ValueOp m_rotationOp = ValueOp::None;
+  ValueOp m_xScaleOp = ValueOp::None;
+  ValueOp m_yScaleOp = ValueOp::None;
+  FlagOp m_surfaceFlagsOp = FlagOp::None;
+  FlagOp m_contentFlagsOp = FlagOp::None;
+  ValueOp m_surfaceValueOp = ValueOp::None;
+  ValueOp m_colorValueOp = ValueOp::None;
 
 public:
   ChangeBrushFaceAttributesRequest();
@@ -178,5 +173,5 @@ public:
   void setAll(const Model::BrushFaceAttributes& attributes);
   void setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

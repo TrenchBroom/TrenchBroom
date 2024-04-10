@@ -55,10 +55,9 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 FaceAttribsEditor::FaceAttribsEditor(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
@@ -931,5 +930,5 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFl
   const auto& contentFlags = game->contentFlags();
   return getFlags(contentFlags.flags);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

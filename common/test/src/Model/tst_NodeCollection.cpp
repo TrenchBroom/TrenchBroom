@@ -42,11 +42,10 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
-TEST_CASE("NodeCollectionTest.empty")
+
+TEST_CASE("NodeCollection.empty")
 {
   auto nodeCollection = NodeCollection{};
   CHECK(nodeCollection.empty());
@@ -509,5 +508,5 @@ TEST_CASE("NodeCollection.clear")
   CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{});
   CHECK(nodeCollection.patches() == std::vector<PatchNode*>{});
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

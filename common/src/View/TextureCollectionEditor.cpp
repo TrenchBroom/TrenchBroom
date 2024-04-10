@@ -288,22 +288,15 @@ void TextureCollectionEditor::updateAllTextureCollections()
   updateEnabledTextureCollections();
 }
 
-void TextureCollectionEditor::updateAvailableTextureCollections()
+namespace
 {
-  updateListBox(m_availableCollectionsList, availableTextureCollections());
-}
 
-void TextureCollectionEditor::updateEnabledTextureCollections()
-{
-  updateListBox(m_enabledCollectionsList, enabledTextureCollections());
-}
-
-void TextureCollectionEditor::updateListBox(
-  QListWidget* box, const std::vector<std::filesystem::path>& paths)
+void updateListBox(QListWidget* box, const std::vector<std::filesystem::path>& paths)
 {
   // We need to block QListWidget::itemSelectionChanged from firing while clearing and
-  // rebuilding the list because it will cause debugUIConsistency() to fail, as the number
-  // of list items in the UI won't match the document's texture collections lists.
+  // rebuilding the list because it will cause debugUIConsistency() to fail, as the
+  // number of list items in the UI won't match the document's texture collections
+  // lists.
   auto blocker = QSignalBlocker{box};
 
   box->clear();
@@ -311,6 +304,18 @@ void TextureCollectionEditor::updateListBox(
   {
     box->addItem(IO::pathAsQString(path));
   }
+}
+
+} // namespace
+
+void TextureCollectionEditor::updateAvailableTextureCollections()
+{
+  updateListBox(m_availableCollectionsList, enabledTextureCollections());
+}
+
+void TextureCollectionEditor::updateEnabledTextureCollections()
+{
+  updateListBox(m_enabledCollectionsList, enabledTextureCollections());
 }
 
 std::vector<std::filesystem::path> TextureCollectionEditor::availableTextureCollections()

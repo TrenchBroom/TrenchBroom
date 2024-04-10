@@ -21,26 +21,11 @@
 
 #include "Assets/EntityModel.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 EntityModelParser::~EntityModelParser() = default;
 
-std::unique_ptr<Assets::EntityModel> EntityModelParser::initializeModel(Logger& logger)
-{
-  return doInitializeModel(logger);
-}
+void EntityModelParser::loadFrame(const size_t, Assets::EntityModel&, Logger&) {}
 
-void EntityModelParser::loadFrame(
-  const size_t frameIndex, Assets::EntityModel& model, Logger& logger)
-{
-  return doLoadFrame(frameIndex, model, logger);
-}
-
-void EntityModelParser::doLoadFrame(
-  const size_t /* frameIndex */, Assets::EntityModel& /* model */, Logger& /* logger */)
-{
-}
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

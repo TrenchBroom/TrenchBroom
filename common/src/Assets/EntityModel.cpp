@@ -481,6 +481,11 @@ EntityModel::EntityModel(
 {
 }
 
+const std::string& EntityModel::name() const
+{
+  return m_name;
+}
+
 std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(
   const size_t skinIndex, const size_t frameIndex) const
 {

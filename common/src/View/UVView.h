@@ -35,22 +35,20 @@
 
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFaceHandle;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class ActiveShader;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class Selection;
@@ -109,7 +107,6 @@ private:
 
   void setupGL(Renderer::RenderContext& renderContext);
 
-  class RenderTexture;
   void renderTexture(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
@@ -129,5 +126,5 @@ private:
   PickRequest doGetPickRequest(float x, float y) const override;
   Model::PickResult doPick(const vm::ray3& pickRay) const override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

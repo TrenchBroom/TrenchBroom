@@ -156,14 +156,6 @@ QWidget* FaceInspector::createTextureBrowserInfo()
   return panel;
 }
 
-static bool allFacesHaveTexture(
-  const std::vector<Model::BrushFaceHandle>& faceHandles, const Assets::Texture* texture)
-{
-  return std::all_of(faceHandles.begin(), faceHandles.end(), [&](const auto& faceHandle) {
-    return faceHandle.face().texture() == texture;
-  });
-}
-
 void FaceInspector::textureSelected(const Assets::Texture* texture)
 {
   auto document = kdl::mem_lock(m_document);
@@ -173,7 +165,12 @@ void FaceInspector::textureSelected(const Assets::Texture* texture)
   {
     if (!faces.empty())
     {
-      const auto textureNameToSet = !allFacesHaveTexture(faces, texture)
+      const auto allFacesHaveTexture =
+        std::all_of(faces.begin(), faces.end(), [&](const auto& faceHandle) {
+          return faceHandle.face().texture() == texture;
+        });
+
+      const auto textureNameToSet = !allFacesHaveTexture
                                       ? texture->name()
                                       : Model::BrushFaceAttributes::NoTextureName;
 
@@ -207,4 +204,5 @@ void FaceInspector::documentWasNewedOrOpened(MapDocument* document)
   const auto& gameConfig = Model::GameFactory::instance().gameConfig(game.gameName());
   m_textureBrowserInfo->setVisible(gameConfig.textureConfig.property != std::nullopt);
 }
+
 } // namespace TrenchBroom::View

@@ -32,17 +32,16 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
 class EditorContext;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
+
 class BrushRenderer
 {
 public:
@@ -118,9 +117,6 @@ public:
   };
 
 private:
-  class FilterWrapper;
-
-private:
   std::unique_ptr<Filter> m_filter;
 
   struct BrushInfo
@@ -160,29 +156,22 @@ private:
   IndexedEdgeRenderer m_edgeRenderer;
 
   Color m_faceColor;
-  bool m_showEdges;
+  bool m_showEdges = false;
   Color m_edgeColor;
-  bool m_grayscale;
-  bool m_tint;
+  bool m_grayscale = false;
+  bool m_tint = false;
   Color m_tintColor;
-  bool m_showOccludedEdges;
+  bool m_showOccludedEdges = false;
   Color m_occludedEdgeColor;
-  bool m_forceTransparent;
-  float m_transparencyAlpha;
+  bool m_forceTransparent = false;
+  float m_transparencyAlpha = 1.0f;
 
-  bool m_showHiddenBrushes;
+  bool m_showHiddenBrushes = false;
 
 public:
   template <typename FilterT>
-  explicit BrushRenderer(const FilterT& filter)
-    : m_filter{std::make_unique<FilterT>(filter)}
-    , m_showEdges{false}
-    , m_grayscale{false}
-    , m_tint{false}
-    , m_showOccludedEdges{false}
-    , m_forceTransparent{false}
-    , m_transparencyAlpha{1.0f}
-    , m_showHiddenBrushes{false}
+  explicit BrushRenderer(FilterT filter)
+    : m_filter{std::make_unique<FilterT>(std::move(filter))}
   {
     clear();
   }
@@ -322,5 +311,5 @@ private:
 
   deleteCopyAndMove(BrushRenderer);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

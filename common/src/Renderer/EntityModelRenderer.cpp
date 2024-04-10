@@ -43,10 +43,9 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 EntityModelRenderer::EntityModelRenderer(
   Logger& logger,
   Assets::EntityModelManager& entityModelManager,
@@ -54,8 +53,6 @@ EntityModelRenderer::EntityModelRenderer(
   : m_logger{logger}
   , m_entityModelManager{entityModelManager}
   , m_editorContext{editorContext}
-  , m_applyTinting{false}
-  , m_showHiddenEntities{false}
 {
 }
 
@@ -214,5 +211,5 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
     renderer->render();
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

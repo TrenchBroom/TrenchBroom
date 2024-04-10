@@ -23,21 +23,20 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
+
 class BrushRendererBrushCache
 {
 public:
@@ -99,5 +98,5 @@ public:
   const std::vector<CachedFace>& cachedFacesSortedByTexture() const;
   const std::vector<CachedEdge>& cachedEdges() const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

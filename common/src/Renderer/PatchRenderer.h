@@ -28,15 +28,13 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class EditorContext;
 class PatchNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class RenderContext;
@@ -54,14 +52,14 @@ private:
   DirectEdgeRenderer m_edgeRenderer;
 
   Color m_defaultColor;
-  bool m_grayscale;
-  bool m_tint;
+  bool m_grayscale = false;
+  bool m_tint = false;
   Color m_tintColor;
-  float m_alpha;
+  float m_alpha = 1.0f;
 
-  bool m_showEdges;
+  bool m_showEdges = true;
   Color m_edgeColor;
-  bool m_showOccludedEdges;
+  bool m_showOccludedEdges = false;
   Color m_occludedEdgeColor;
 
 public:
@@ -126,5 +124,5 @@ private: // implement IndexedRenderable interface
   void prepareVerticesAndIndices(VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

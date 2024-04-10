@@ -38,10 +38,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname")
 {
   // need to recreate these because document->setEntityDefinitions will delete the old
@@ -423,17 +422,16 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
   document->selectAllNodes();
   document->deleteObjects();
 
-  const Model::BrushBuilder builder(
-    document->world()->mapFormat(), document->worldBounds());
+  const auto builder =
+    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
-  auto* brushNode = new Model::BrushNode(
-    builder.createCuboid(vm::bbox3(vm::vec3(0, 0, 0), vm::vec3(64, 64, 64)), "texture")
-      .value());
+  auto* brushNode = new Model::BrushNode{
+    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "texture").value()};
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   document->selectAllNodes();
 
-  Model::EntityNode* brushEntNode = document->createBrushEntity(m_brushEntityDef);
+  auto* brushEntNode = document->createBrushEntity(m_brushEntityDef);
   REQUIRE_THAT(
     document->selectedNodes().nodes(),
     Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode}));
@@ -444,5 +442,5 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
   REQUIRE(brushEntNode->entity().hasProperty("spawnflags"));
   CHECK(*brushEntNode->entity().property("spawnflags") == "2");
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

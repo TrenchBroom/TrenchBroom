@@ -804,7 +804,7 @@ bool AssimpParser::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
-std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
+std::unique_ptr<Assets::EntityModel> AssimpParser::initializeModel(
   TrenchBroom::Logger& logger)
 {
   constexpr auto assimpFlags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
@@ -857,7 +857,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   return model;
 }
 
-void AssimpParser::doLoadFrame(
+void AssimpParser::loadFrame(
   size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
 {
   constexpr auto assimpFlags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices

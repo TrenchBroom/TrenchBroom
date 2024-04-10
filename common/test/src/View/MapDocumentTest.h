@@ -26,23 +26,22 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class BrushEntityDefinition;
 class PointEntityDefinition;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class Brush;
 class PatchNode;
 class TestGame;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class MapDocumentTest
 {
 private:
@@ -51,8 +50,8 @@ private:
 protected:
   std::shared_ptr<Model::TestGame> game;
   std::shared_ptr<MapDocument> document;
-  Assets::PointEntityDefinition* m_pointEntityDef;
-  Assets::BrushEntityDefinition* m_brushEntityDef;
+  Assets::PointEntityDefinition* m_pointEntityDef = nullptr;
+  Assets::BrushEntityDefinition* m_brushEntityDef = nullptr;
 
 protected:
   MapDocumentTest();
@@ -83,5 +82,4 @@ public:
   Quake3MapDocumentTest();
 };
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

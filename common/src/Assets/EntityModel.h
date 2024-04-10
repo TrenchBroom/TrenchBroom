@@ -359,6 +359,11 @@ public:
   explicit EntityModel(std::string name, PitchType pitchType, Orientation orientation);
 
   /**
+   * Returns the name of this model.
+   */
+  const std::string& name() const;
+
+  /**
    * Creates a renderer to render the given frame of the model using the skin with the
    * given index.
    *

@@ -44,10 +44,9 @@
 #include <ostream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 constexpr static size_t DefaultSubdivisionsPerSurface = 3u;
 
 kdl_reflect_impl(PatchGrid::Point);
@@ -488,5 +487,5 @@ void PatchNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

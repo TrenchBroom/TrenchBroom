@@ -27,19 +27,20 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityModelManager;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class EditorContext;
 class EntityNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class ShaderConfig;
@@ -55,10 +56,10 @@ private:
 
   std::unordered_map<const Model::EntityNode*, TexturedRenderer*> m_entities;
 
-  bool m_applyTinting;
+  bool m_applyTinting = false;
   Color m_tintColor;
 
-  bool m_showHiddenEntities;
+  bool m_showHiddenEntities = false;
 
 public:
   EntityModelRenderer(
@@ -100,7 +101,7 @@ public:
   void clear();
 
   bool applyTinting() const;
-  void setApplyTinting(const bool applyTinting);
+  void setApplyTinting(bool applyTinting);
   const Color& tintColor() const;
   void setTintColor(const Color& tintColor);
 
@@ -113,5 +114,5 @@ private:
   void doPrepareVertices(VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

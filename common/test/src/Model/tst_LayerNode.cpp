@@ -36,10 +36,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("LayerNodeTest.canAddChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
@@ -93,5 +92,5 @@ TEST_CASE("LayerNodeTest.canRemoveChild")
   CHECK(layerNode.canRemoveChild(&brushNode));
   CHECK(layerNode.canRemoveChild(&patchNode));
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

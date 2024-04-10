@@ -55,103 +55,105 @@ private:
 public:
   GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& logger);
 
-private:
-  void initializeFileSystem(Logger& logger);
-
-private:
-  const std::string& doGameName() const override;
-  std::filesystem::path doGamePath() const override;
-  void doSetGamePath(const std::filesystem::path& gamePath, Logger& logger) override;
-  void doSetAdditionalSearchPaths(
-    const std::vector<std::filesystem::path>& searchPaths, Logger& logger) override;
-  PathErrors doCheckAdditionalSearchPaths(
-    const std::vector<std::filesystem::path>& searchPaths) const override;
-
-  const CompilationConfig& doCompilationConfig() override;
-
-  size_t doMaxPropertyLength() const override;
-
-  std::optional<vm::bbox3> doSoftMapBounds() const override;
-  SoftMapBounds doExtractSoftMapBounds(const Entity& entity) const override;
-
-  const std::vector<SmartTag>& doSmartTags() const override;
-
-  Result<std::unique_ptr<WorldNode>> doNewMap(
-    MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
-  Result<std::unique_ptr<WorldNode>> doLoadMap(
-    MapFormat format,
-    const vm::bbox3& worldBounds,
-    const std::filesystem::path& path,
-    Logger& logger) const override;
-  Result<void> doWriteMap(
-    WorldNode& world, const std::filesystem::path& path, bool exporting) const;
-  Result<void> doWriteMap(
-    WorldNode& world, const std::filesystem::path& path) const override;
-  Result<void> doExportMap(
-    WorldNode& world, const IO::ExportOptions& options) const override;
-
-  std::vector<Node*> doParseNodes(
-    const std::string& str,
-    MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
-    Logger& logger) const override;
-  std::vector<BrushFace> doParseBrushFaces(
-    const std::string& str,
-    MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
-    Logger& logger) const override;
-
-  void doWriteNodesToStream(
-    WorldNode& world,
-    const std::vector<Node*>& nodes,
-    std::ostream& stream) const override;
-  void doWriteBrushFacesToStream(
-    WorldNode& world,
-    const std::vector<BrushFace>& faces,
-    std::ostream& stream) const override;
-
-  void doLoadTextureCollections(Assets::TextureManager& textureManager) const override;
-
-  const std::optional<std::string>& doGetWadProperty() const override;
-  void doReloadWads(
-    const std::filesystem::path& documentPath,
-    const std::vector<std::filesystem::path>& wadPaths,
-    Logger& logger) override;
-  Result<void> doReloadShaders() override;
-
-  bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
-  std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
-    const override;
-  Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(
-    const Entity& entity) const override;
-  Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
-  std::filesystem::path doFindEntityDefinitionFile(
-    const Assets::EntityDefinitionFileSpec& spec,
-    const std::vector<std::filesystem::path>& searchPaths) const override;
-
+public: // implement EntityDefinitionLoader interface:
   Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> loadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
 
-  std::unique_ptr<Assets::EntityModel> doInitializeModel(
+public: // implement EntityModelLoader interface:
+  std::unique_ptr<Assets::EntityModel> initializeModel(
     const std::filesystem::path& path, Logger& logger) const override;
-  void doLoadFrame(
+  void loadFrame(
     const std::filesystem::path& path,
     size_t frameIndex,
     Assets::EntityModel& model,
     Logger& logger) const override;
 
+public: // implement Game interface
+  const std::string& gameName() const override;
+  std::filesystem::path gamePath() const override;
+
+  void setGamePath(const std::filesystem::path& gamePath, Logger& logger) override;
+  void setAdditionalSearchPaths(
+    const std::vector<std::filesystem::path>& searchPaths, Logger& logger) override;
+  PathErrors checkAdditionalSearchPaths(
+    const std::vector<std::filesystem::path>& searchPaths) const override;
+
+  const CompilationConfig& compilationConfig() override;
+
+  const std::vector<CompilationTool>& compilationTools() const override;
+
+  size_t maxPropertyLength() const override;
+
+  std::optional<vm::bbox3> softMapBounds() const override;
+  SoftMapBounds extractSoftMapBounds(const Entity& entity) const override;
+
+  const std::vector<SmartTag>& smartTags() const override;
+
+  Result<std::unique_ptr<WorldNode>> newMap(
+    MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
+  Result<std::unique_ptr<WorldNode>> loadMap(
+    MapFormat format,
+    const vm::bbox3& worldBounds,
+    const std::filesystem::path& path,
+    Logger& logger) const override;
+  Result<void> writeMap(
+    WorldNode& world, const std::filesystem::path& path, bool exporting) const;
+  Result<void> writeMap(
+    WorldNode& world, const std::filesystem::path& path) const override;
+  Result<void> exportMap(
+    WorldNode& world, const IO::ExportOptions& options) const override;
+
+  std::vector<Node*> parseNodes(
+    const std::string& str,
+    MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
+    Logger& logger) const override;
+  std::vector<BrushFace> parseBrushFaces(
+    const std::string& str,
+    MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
+    Logger& logger) const override;
+
+  void writeNodesToStream(
+    WorldNode& world,
+    const std::vector<Node*>& nodes,
+    std::ostream& stream) const override;
+  void writeBrushFacesToStream(
+    WorldNode& world,
+    const std::vector<BrushFace>& faces,
+    std::ostream& stream) const override;
+
+  void loadTextureCollections(Assets::TextureManager& textureManager) const override;
+
+  const std::optional<std::string>& wadProperty() const override;
+  void reloadWads(
+    const std::filesystem::path& documentPath,
+    const std::vector<std::filesystem::path>& wadPaths,
+    Logger& logger) override;
+  Result<void> reloadShaders() override;
+
+  bool isEntityDefinitionFile(const std::filesystem::path& path) const override;
+  std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;
+  Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(
+    const Entity& entity) const override;
+  Assets::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
+  std::filesystem::path findEntityDefinitionFile(
+    const Assets::EntityDefinitionFileSpec& spec,
+    const std::vector<std::filesystem::path>& searchPaths) const override;
+
   Result<Assets::Palette> loadTexturePalette() const;
 
-  Result<std::vector<std::string>> doAvailableMods() const override;
-  std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
-  std::string doDefaultMod() const override;
+  Result<std::vector<std::string>> availableMods() const override;
+  std::vector<std::string> extractEnabledMods(const Entity& entity) const override;
+  std::string defaultMod() const override;
 
-  const FlagsConfig& doSurfaceFlags() const override;
-  const FlagsConfig& doContentFlags() const override;
-  const BrushFaceAttributes& doDefaultFaceAttribs() const override;
-  const std::vector<CompilationTool>& doCompilationTools() const override;
+  const FlagsConfig& surfaceFlags() const override;
+  const FlagsConfig& contentFlags() const override;
+  const BrushFaceAttributes& defaultFaceAttribs() const override;
 
 private:
+  void initializeFileSystem(Logger& logger);
+
   EntityPropertyConfig entityPropertyConfig() const;
 
   void writeLongAttribute(

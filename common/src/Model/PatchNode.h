@@ -31,14 +31,12 @@
 
 #include <optional>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 
@@ -132,5 +130,5 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(TagVisitor& visitor) override;
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

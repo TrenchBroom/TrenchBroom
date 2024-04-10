@@ -39,24 +39,25 @@ class QAction;
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class BrushEntityDefinition;
 class EntityDefinition;
 enum class EntityDefinitionType;
 class PointEntityDefinition;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class GroupNode;
 class Node;
 class NodeCollection;
 class SmartTag;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class Compass;
@@ -65,9 +66,9 @@ class PrimitiveRenderer;
 class RenderBatch;
 class RenderContext;
 enum class RenderMode;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class Action;
 class AnimationManager;
@@ -89,14 +90,14 @@ public:
   static const int DefaultCameraAnimationDuration;
 
 protected:
-  Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
   MapViewToolBox& m_toolBox;
+  Renderer::MapRenderer& m_renderer;
+  Logger* m_logger = nullptr;
 
   std::unique_ptr<AnimationManager> m_animationManager;
 
 private:
-  Renderer::MapRenderer& m_renderer;
   std::unique_ptr<Renderer::Compass> m_compass;
   std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
 
@@ -104,9 +105,9 @@ private:
    * Tracks whether this map view has most recently gotten the focus. This is tracked and
    * updated by a MapViewActivationTracker instance.
    */
-  bool m_isCurrent;
+  bool m_isCurrent = false;
 
-  SignalDelayer* m_updateActionStatesSignalDelayer;
+  SignalDelayer* m_updateActionStatesSignalDelayer = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -115,11 +116,11 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    Logger* logger,
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& renderer,
-    GLContextManager& contextManager);
+    GLContextManager& contextManager,
+    Logger* logger);
 
   void setCompass(std::unique_ptr<Renderer::Compass> compass);
 
@@ -393,5 +394,5 @@ private: // subclassing interface
   virtual bool doBeforePopupMenu();
   virtual void doAfterPopupMenu();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

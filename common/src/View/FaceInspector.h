@@ -27,14 +27,12 @@
 class QSplitter;
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Texture;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class CollapsibleTitledPanel;
 class FaceAttribsEditor;
@@ -47,10 +45,10 @@ class FaceInspector : public TabBookPage
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  QSplitter* m_splitter{nullptr};
-  FaceAttribsEditor* m_faceAttribsEditor{nullptr};
-  TextureBrowser* m_textureBrowser{nullptr};
-  QWidget* m_textureBrowserInfo{nullptr};
+  QSplitter* m_splitter = nullptr;
+  FaceAttribsEditor* m_faceAttribsEditor = nullptr;
+  TextureBrowser* m_textureBrowser = nullptr;
+  QWidget* m_textureBrowserInfo = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -75,5 +73,5 @@ private:
   void connectObservers();
   void documentWasNewedOrOpened(MapDocument* document);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

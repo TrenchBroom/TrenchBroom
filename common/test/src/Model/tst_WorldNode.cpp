@@ -42,10 +42,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("WorldNodeTest.canAddChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
@@ -429,5 +428,5 @@ TEST_CASE("WorldNodeTest.setPersistentIdsWhenAddingLayersAndGroups")
   layerNode->addChild(groupNode);
   CHECK(groupNode->persistentId() == 2u);
 }
-} // namespace Model
+
 } // namespace TrenchBroom

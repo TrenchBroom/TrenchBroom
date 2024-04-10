@@ -26,10 +26,9 @@
 
 #include <algorithm>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 BrushRendererBrushCache::CachedFace::CachedFace(
   const Model::BrushFace* i_face, const size_t i_indexOfFirstVertexRelativeToBrush)
   : texture(i_face->texture())
@@ -164,5 +163,5 @@ const std::vector<BrushRendererBrushCache::CachedEdge>& BrushRendererBrushCache:
   assert(m_rendererCacheValid);
   return m_cachedEdges;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

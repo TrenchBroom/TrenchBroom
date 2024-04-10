@@ -23,6 +23,7 @@
 #include "Model/Tag.h"
 #include "Model/TagVisitor.h"
 
+#include "kdl/reflection_decl.h"
 #include "kdl/vector_set.h"
 
 #include <functional>
@@ -32,57 +33,13 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
 class ChangeBrushFaceAttributesRequest;
 class Game;
 class MapFacade;
-
-class MatchVisitor : public ConstTagVisitor
-{
-private:
-  bool m_matches;
-
-public:
-  MatchVisitor();
-
-  bool matches() const;
-
-protected:
-  void setMatches();
-};
-
-class BrushFaceMatchVisitor : public MatchVisitor
-{
-private:
-  std::function<bool(const BrushFace&)> m_matcher;
-
-public:
-  explicit BrushFaceMatchVisitor(std::function<bool(const BrushFace&)> matcher)
-    : m_matcher(std::move(matcher))
-  {
-  }
-
-  void visit(const BrushFace& face) override;
-};
-
-class BrushMatchVisitor : public MatchVisitor
-{
-private:
-  std::function<bool(const BrushNode&)> m_matcher;
-
-public:
-  explicit BrushMatchVisitor(std::function<bool(const BrushNode&)> matcher)
-    : m_matcher(std::move(matcher))
-  {
-  }
-
-  void visit(const BrushNode& brush) override;
-};
 
 class TextureTagMatcher : public TagMatcher
 {
@@ -101,7 +58,7 @@ private:
   std::string m_pattern;
 
 public:
-  explicit TextureNameTagMatcher(const std::string& pattern);
+  explicit TextureNameTagMatcher(std::string pattern);
   std::unique_ptr<TagMatcher> clone() const override;
   bool matches(const Taggable& taggable) const override;
   void appendToStream(std::ostream& str) const override;
@@ -117,8 +74,8 @@ private:
   kdl::vector_set<std::string> m_parameters;
 
 public:
-  explicit SurfaceParmTagMatcher(const std::string& parameter);
-  explicit SurfaceParmTagMatcher(const kdl::vector_set<std::string>& parameters);
+  explicit SurfaceParmTagMatcher(std::string parameter);
+  explicit SurfaceParmTagMatcher(kdl::vector_set<std::string> parameters);
   std::unique_ptr<TagMatcher> clone() const override;
   bool matches(const Taggable& taggable) const override;
   void appendToStream(std::ostream& str) const override;
@@ -182,7 +139,7 @@ private:
   std::string m_texture;
 
 public:
-  EntityClassNameTagMatcher(const std::string& pattern, const std::string& texture);
+  EntityClassNameTagMatcher(std::string pattern, std::string texture);
   std::unique_ptr<TagMatcher> clone() const override;
 
 public:
@@ -196,5 +153,5 @@ public:
 private:
   bool matchesClassname(const std::string& classname) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

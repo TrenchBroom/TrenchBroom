@@ -135,7 +135,7 @@ bool AseParser::canParse(const std::filesystem::path& path)
   return kdl::str_to_lower(path.extension().string()) == ".ase";
 }
 
-std::unique_ptr<Assets::EntityModel> AseParser::doInitializeModel(Logger& logger)
+std::unique_ptr<Assets::EntityModel> AseParser::initializeModel(Logger& logger)
 {
   auto scene = Scene{};
   parseAseFile(logger, scene);

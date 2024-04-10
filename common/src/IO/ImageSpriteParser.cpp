@@ -51,7 +51,7 @@ bool ImageSpriteParser::canParse(const std::filesystem::path& path)
   return isSupportedFreeImageExtension(path.extension().string());
 }
 
-std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger& logger)
+std::unique_ptr<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& logger)
 {
   auto textures = std::vector<Assets::Texture>{};
 
@@ -70,7 +70,7 @@ std::unique_ptr<Assets::EntityModel> ImageSpriteParser::doInitializeModel(Logger
   return model;
 }
 
-void ImageSpriteParser::doLoadFrame(
+void ImageSpriteParser::loadFrame(
   const size_t frameIndex, Assets::EntityModel& model, Logger&)
 {
   auto& surface = model.surface(0);
