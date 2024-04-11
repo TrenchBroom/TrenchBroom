@@ -836,14 +836,14 @@ bool FaceAttribsEditor::hasSurfaceFlags() const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  return !game->surfaceFlags().flags.empty();
+  return !game->config().faceAttribsConfig.surfaceFlags.flags.empty();
 }
 
 bool FaceAttribsEditor::hasContentFlags() const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  return !game->contentFlags().flags.empty();
+  return !game->config().faceAttribsConfig.contentFlags.flags.empty();
 }
 
 void FaceAttribsEditor::showSurfaceFlagsEditor()
@@ -917,7 +917,7 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFl
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  const auto& surfaceFlags = game->surfaceFlags();
+  const auto& surfaceFlags = game->config().faceAttribsConfig.surfaceFlags;
   return getFlags(surfaceFlags.flags);
 }
 
@@ -926,7 +926,7 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFl
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  const auto& contentFlags = game->contentFlags();
+  const auto& contentFlags = game->config().faceAttribsConfig.contentFlags;
   return getFlags(contentFlags.flags);
 }
 

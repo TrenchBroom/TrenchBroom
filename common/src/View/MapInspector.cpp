@@ -412,7 +412,7 @@ void MapPropertiesEditor::updateGui()
     return;
   }
 
-  const std::optional<vm::bbox3> gameBounds = game->softMapBounds();
+  const std::optional<vm::bbox3> gameBounds = game->config().softMapBounds;
   m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
   m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
 

@@ -64,10 +64,10 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
     EL::Value{kdl::vec_transform(mods, [](const auto& mod) { return EL::Value{mod}; })});
 
   const auto& factory = Model::GameFactory::instance();
-  for (const auto& tool : document->game()->compilationTools())
+  for (const auto& tool : document->game()->config().compilationTools)
   {
     const auto toolPath =
-      factory.compilationToolPath(document->game()->gameName(), tool.name);
+      factory.compilationToolPath(document->game()->config().name, tool.name);
     // e.g. variable name might be "qbsp", and the value is the path to the user's local
     // qbsp executable
     declare(tool.name, EL::Value{toolPath.string()});

@@ -37,7 +37,7 @@ namespace TrenchBroom::Model
 bool Game::isGamePathPreference(const std::filesystem::path& prefPath) const
 {
   const GameFactory& gameFactory = GameFactory::instance();
-  return gameFactory.isGamePathPreference(gameName(), prefPath);
+  return gameFactory.isGamePathPreference(config().name, prefPath);
 }
 
 } // namespace TrenchBroom::Model

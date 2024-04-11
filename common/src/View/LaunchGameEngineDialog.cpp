@@ -68,7 +68,7 @@ void LaunchGameEngineDialog::createGui()
   setWindowTitle("Launch Engine");
 
   auto document = kdl::mem_lock(m_document);
-  const auto& gameName = document->game()->gameName();
+  const auto& gameName = document->game()->config().name;
   auto* gameIndicator = new CurrentGameIndicator{gameName};
 
   auto* midPanel = new QWidget{this};
@@ -182,7 +182,7 @@ void LaunchGameEngineDialog::createGui()
 void LaunchGameEngineDialog::reloadConfig()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto& gameName = document->game()->gameName();
+  const auto& gameName = document->game()->config().name;
 
   auto& gameFactory = Model::GameFactory::instance();
   const auto& gameConfig = gameFactory.gameConfig(gameName);
@@ -217,7 +217,7 @@ void LaunchGameEngineDialog::editGameEngines()
 {
   saveConfig();
 
-  auto dialog = GameEngineDialog{kdl::mem_lock(m_document)->game()->gameName(), this};
+  auto dialog = GameEngineDialog{kdl::mem_lock(m_document)->game()->config().name, this};
   dialog.exec();
 
   const auto previousRow = m_gameEngineList->currentRow();
@@ -300,7 +300,7 @@ void LaunchGameEngineDialog::done(const int r)
 void LaunchGameEngineDialog::saveConfig()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto& gameName = document->game()->gameName();
+  const auto& gameName = document->game()->config().name;
   auto& gameFactory = Model::GameFactory::instance();
   gameFactory.saveGameEngineConfig(gameName, m_config, document->logger());
 }

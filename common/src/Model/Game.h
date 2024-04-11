@@ -49,6 +49,11 @@ class EntityDefinitionFileSpec;
 class MaterialManager;
 } // namespace TrenchBroom::Assets
 
+namespace TrenchBroom::IO
+{
+class FileSystem;
+}
+
 namespace TrenchBroom::Model
 {
 class EntityNodeBase;
@@ -64,7 +69,8 @@ class WorldNode;
 class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader
 {
 public: // game configuration
-  virtual const std::string& gameName() const = 0;
+  virtual const GameConfig& config() const = 0;
+  virtual const IO::FileSystem& gameFileSystem() const = 0;
 
   bool isGamePathPreference(const std::filesystem::path& prefPath) const;
 
@@ -77,14 +83,6 @@ public: // game configuration
   using PathErrors = std::map<std::filesystem::path, std::string>;
   virtual PathErrors checkAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths) const = 0;
-
-  virtual const CompilationConfig& compilationConfig() = 0;
-
-  virtual const std::vector<CompilationTool>& compilationTools() const = 0;
-
-  virtual size_t maxPropertyLength() const = 0;
-
-  virtual const std::vector<SmartTag>& smartTags() const = 0;
 
   enum class SoftMapBoundsType
   {
@@ -100,11 +98,6 @@ public: // game configuration
      */
     std::optional<vm::bbox3> bounds;
   };
-
-  /**
-   * Returns the soft map bounds configured in the game config
-   */
-  virtual std::optional<vm::bbox3> softMapBounds() const = 0;
 
   /**
    * Returns the soft map bounds specified in the given World entity, or if unset, the
@@ -148,7 +141,6 @@ public: // material collection handling
   virtual void loadMaterialCollections(
     Assets::MaterialManager& materialManager) const = 0;
 
-  virtual const std::optional<std::string>& wadProperty() const = 0;
   virtual void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
@@ -169,10 +161,5 @@ public: // mods
   virtual Result<std::vector<std::string>> availableMods() const = 0;
   virtual std::vector<std::string> extractEnabledMods(const Entity& entity) const = 0;
   virtual std::string defaultMod() const = 0;
-
-public: // configs for faces
-  virtual const FlagsConfig& surfaceFlags() const = 0;
-  virtual const FlagsConfig& contentFlags() const = 0;
-  virtual const BrushFaceAttributes& defaultFaceAttribs() const = 0;
 };
 } // namespace TrenchBroom::Model

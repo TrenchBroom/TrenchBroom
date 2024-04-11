@@ -90,7 +90,7 @@ Model::BrushNode* MapDocumentTest::createBrushNode(
   auto builder = Model::BrushBuilder{
     worldNode->mapFormat(),
     document->worldBounds(),
-    document->game()->defaultFaceAttribs()};
+    document->game()->config().faceAttribsConfig.defaults};
 
   auto brush = builder.createCube(32.0, materialName).value();
   brushFunc(brush);

@@ -136,7 +136,8 @@ void SmartPropertyEditorManager::createEditors()
     new SmartChoiceEditor{m_document});
   m_editors.emplace_back(
     [&](const auto& propertyKey, const auto& nodes) {
-      return propertyKey == kdl::mem_lock(m_document)->game()->wadProperty()
+      return propertyKey
+               == kdl::mem_lock(m_document)->game()->config().materialConfig.property
              && nodes.size() == 1
              && nodes.front()->entity().classname()
                   == Model::EntityPropertyValues::WorldspawnClassname;

@@ -2987,7 +2987,7 @@ bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis)
 bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
 {
   const auto builder = Model::BrushBuilder{
-    m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
+    m_world->mapFormat(), m_worldBounds, m_game->config().faceAttribsConfig.defaults};
 
   return builder.createBrush(points, currentMaterialName())
     .and_then([&](auto b) -> Result<void> {
@@ -3049,7 +3049,7 @@ bool MapDocument::csgConvexMerge()
   }
 
   const auto builder = Model::BrushBuilder{
-    m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
+    m_world->mapFormat(), m_worldBounds, m_game->config().faceAttribsConfig.defaults};
   return builder.createBrush(polyhedron, currentMaterialName())
     .transform([&](auto b) {
       b.cloneFaceAttributesFrom(kdl::vec_transform(
@@ -4833,10 +4833,10 @@ void MapDocument::registerValidators()
     std::make_unique<Model::SoftMapBoundsValidator>(m_game, *m_world));
   m_world->registerValidator(std::make_unique<Model::EmptyPropertyKeyValidator>());
   m_world->registerValidator(std::make_unique<Model::EmptyPropertyValueValidator>());
-  m_world->registerValidator(
-    std::make_unique<Model::LongPropertyKeyValidator>(m_game->maxPropertyLength()));
-  m_world->registerValidator(
-    std::make_unique<Model::LongPropertyValueValidator>(m_game->maxPropertyLength()));
+  m_world->registerValidator(std::make_unique<Model::LongPropertyKeyValidator>(
+    m_game->config().maxPropertyLength));
+  m_world->registerValidator(std::make_unique<Model::LongPropertyValueValidator>(
+    m_game->config().maxPropertyLength));
   m_world->registerValidator(
     std::make_unique<Model::PropertyKeyWithDoubleQuotationMarksValidator>());
   m_world->registerValidator(
@@ -4849,7 +4849,7 @@ void MapDocument::registerSmartTags()
   ensure(m_game.get() != nullptr, "game is null");
 
   m_tagManager->clearSmartTags();
-  m_tagManager->registerSmartTags(m_game->smartTags());
+  m_tagManager->registerSmartTags(m_game->config().smartTags);
 }
 
 const std::vector<Model::SmartTag>& MapDocument::smartTags() const
@@ -5108,7 +5108,7 @@ void MapDocument::preferenceDidChange(const std::filesystem::path& path)
   if (isGamePathPreference(path))
   {
     const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-    const std::filesystem::path newGamePath = gameFactory.gamePath(m_game->gameName());
+    const std::filesystem::path newGamePath = gameFactory.gamePath(m_game->config().name);
     m_game->setGamePath(newGamePath, logger());
 
     clearEntityModels();

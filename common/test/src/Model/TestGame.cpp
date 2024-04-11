@@ -53,18 +53,21 @@
 namespace TrenchBroom::Model
 {
 TestGame::TestGame()
-  : m_defaultFaceAttributes{Model::BrushFaceAttributes::NoMaterialName}
-  , m_fs{std::make_unique<IO::VirtualFileSystem>()}
+  : m_fs{std::make_unique<IO::VirtualFileSystem>()}
 {
   m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));
 }
 
 TestGame::~TestGame() = default;
 
-const std::string& TestGame::gameName() const
+const GameConfig& TestGame::config() const
 {
-  static const std::string name("Test");
-  return name;
+  return m_config;
+}
+
+const IO::FileSystem& TestGame::gameFileSystem() const
+{
+  return *m_fs;
 }
 
 std::filesystem::path TestGame::gamePath() const
@@ -75,11 +78,6 @@ std::filesystem::path TestGame::gamePath() const
 void TestGame::setGamePath(
   const std::filesystem::path& /* gamePath */, Logger& /* logger */)
 {
-}
-
-std::optional<vm::bbox3> TestGame::softMapBounds() const
-{
-  return {vm::bbox3()};
 }
 
 Game::SoftMapBounds TestGame::extractSoftMapBounds(const Entity&) const
@@ -95,27 +93,6 @@ Game::PathErrors TestGame::checkAdditionalSearchPaths(
   const std::vector<std::filesystem::path>& /* searchPaths */) const
 {
   return PathErrors();
-}
-
-const CompilationConfig& TestGame::compilationConfig()
-{
-  static CompilationConfig config;
-  return config;
-}
-
-const std::vector<CompilationTool>& TestGame::compilationTools() const
-{
-  return m_compilationTools;
-}
-
-size_t TestGame::maxPropertyLength() const
-{
-  return 1024;
-}
-
-const std::vector<SmartTag>& TestGame::smartTags() const
-{
-  return m_smartTags;
 }
 
 Result<std::unique_ptr<WorldNode>> TestGame::newMap(
@@ -203,12 +180,6 @@ void TestGame::loadMaterialCollections(Assets::MaterialManager& materialManager)
   materialManager.reload(*m_fs, materialConfig);
 }
 
-const std::optional<std::string>& TestGame::wadProperty() const
-{
-  static const auto property = std::optional<std::string>{"wad"};
-  return property;
-}
-
 void TestGame::reloadWads(
   const std::filesystem::path&,
   const std::vector<std::filesystem::path>& wadPaths,
@@ -268,23 +239,6 @@ std::string TestGame::defaultMod() const
   return "";
 }
 
-const Model::FlagsConfig& TestGame::surfaceFlags() const
-{
-  static const Model::FlagsConfig config;
-  return config;
-}
-
-const Model::FlagsConfig& TestGame::contentFlags() const
-{
-  static const Model::FlagsConfig config;
-  return config;
-}
-
-const Model::BrushFaceAttributes& TestGame::defaultFaceAttribs() const
-{
-  return m_defaultFaceAttributes;
-}
-
 Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> TestGame::
   loadEntityDefinitions(
     IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
@@ -313,13 +267,13 @@ void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)
 
 void TestGame::setSmartTags(std::vector<SmartTag> smartTags)
 {
-  m_smartTags = std::move(smartTags);
+  m_config.smartTags = std::move(smartTags);
 }
 
 void TestGame::setDefaultFaceAttributes(
   const Model::BrushFaceAttributes& defaultFaceAttributes)
 {
-  m_defaultFaceAttributes = defaultFaceAttributes;
+  m_config.faceAttribsConfig.defaults = defaultFaceAttributes;
 }
 
 } // namespace TrenchBroom::Model

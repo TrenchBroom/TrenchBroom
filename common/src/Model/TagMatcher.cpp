@@ -369,7 +369,7 @@ ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int i_flags)
     [](auto& request, const auto flags) { request.setContentFlags(flags); },
     [](auto& request, const auto flags) { request.unsetContentFlags(flags); },
     [](const auto& game, const auto flags) {
-      return game.contentFlags().flagNames(flags);
+      return game.config().faceAttribsConfig.contentFlags.flagNames(flags);
     }}
 {
 }
@@ -385,8 +385,8 @@ SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int i_flags)
     [](const auto& face) { return face.resolvedSurfaceFlags(); },
     [](auto& request, const auto flags) { request.setSurfaceFlags(flags); },
     [](auto& request, const auto flags) { request.unsetSurfaceFlags(flags); },
-    [](const Game& game, const auto flags) {
-      return game.surfaceFlags().flagNames(flags);
+    [](const auto& game, const auto flags) {
+      return game.config().faceAttribsConfig.surfaceFlags.flagNames(flags);
     }}
 {
 }

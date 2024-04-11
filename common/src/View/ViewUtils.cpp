@@ -75,7 +75,7 @@ size_t loadEntityDefinitionFile(
   auto document = kdl::mem_lock(i_document);
   auto game = document->game();
   const auto& gameFactory = Model::GameFactory::instance();
-  const auto gamePath = gameFactory.gamePath(game->gameName());
+  const auto gamePath = gameFactory.gamePath(game->config().name);
   const auto docPath = document->path();
 
   for (int i = 0; i < pathStrs.size(); ++i)

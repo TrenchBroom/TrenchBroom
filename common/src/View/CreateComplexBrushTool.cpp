@@ -57,7 +57,7 @@ void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
     const Model::BrushBuilder builder(
       document->world()->mapFormat(),
       document->worldBounds(),
-      game->defaultFaceAttribs());
+      game->config().faceAttribsConfig.defaults);
 
     builder.createBrush(*m_polyhedron, document->currentMaterialName())
       .transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })

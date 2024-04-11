@@ -51,7 +51,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 {
   const auto* world = document->world();
   auto builder = Model::BrushBuilder{
-    world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs()};
+    world->mapFormat(),
+    document->worldBounds(),
+    document->game()->config().faceAttribsConfig.defaults};
 
   auto tool = SelectionTool{document};
 
