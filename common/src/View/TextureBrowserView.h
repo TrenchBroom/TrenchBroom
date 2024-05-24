@@ -82,7 +82,7 @@ public:
   void revealTexture(const Assets::Texture* texture);
 
 private:
-  void usageCountDidChange();
+  void reloadTextures();
 
   void doInitLayout(Layout& layout) override;
   void doReloadLayout(Layout& layout) override;

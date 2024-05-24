@@ -63,7 +63,7 @@ TextureBrowserView::TextureBrowserView(
 {
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->textureUsageCountsDidChangeNotifier.connect(
-    this, &TextureBrowserView::usageCountDidChange);
+    this, &TextureBrowserView::reloadTextures);
 }
 
 TextureBrowserView::~TextureBrowserView()
@@ -76,8 +76,7 @@ void TextureBrowserView::setSortOrder(const TextureSortOrder sortOrder)
   if (sortOrder != m_sortOrder)
   {
     m_sortOrder = sortOrder;
-    invalidate();
-    update();
+    reloadTextures();
   }
 }
 
@@ -86,8 +85,7 @@ void TextureBrowserView::setGroup(const bool group)
   if (group != m_group)
   {
     m_group = group;
-    invalidate();
-    update();
+    reloadTextures();
   }
 }
 
@@ -96,8 +94,7 @@ void TextureBrowserView::setHideUnused(const bool hideUnused)
   if (hideUnused != m_hideUnused)
   {
     m_hideUnused = hideUnused;
-    invalidate();
-    update();
+    reloadTextures();
   }
 }
 
@@ -106,8 +103,7 @@ void TextureBrowserView::setFilterText(const std::string& filterText)
   if (filterText != m_filterText)
   {
     m_filterText = filterText;
-    invalidate();
-    update();
+    reloadTextures();
   }
 }
 
@@ -133,7 +129,7 @@ void TextureBrowserView::revealTexture(const Assets::Texture* texture)
   });
 }
 
-void TextureBrowserView::usageCountDidChange()
+void TextureBrowserView::reloadTextures()
 {
   invalidate();
   update();
