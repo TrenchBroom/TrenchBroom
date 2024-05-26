@@ -106,7 +106,7 @@ jobs:
         if: ${{ matrix.os == 'macos-13' }}
         run: |
           brew update
-          brew install cmake p7zip pandoc qt5 ninja autoconf automake kadwanev/brew/retry
+          brew install cmake p7zip pandoc qt@5 ninja autoconf automake kadwanev/brew/retry
 
       # Run build script
       - name: Linux build
