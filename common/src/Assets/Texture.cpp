@@ -123,7 +123,6 @@ Texture::Texture(
   , m_height{height}
   , m_averageColor{averageColor}
   , m_usageCount{0u}
-  , m_overridden{false}
   , m_format{format}
   , m_type{type}
   , m_culling{TextureCulling::Default}
@@ -151,7 +150,6 @@ Texture::Texture(
   , m_height{height}
   , m_averageColor{averageColor}
   , m_usageCount{0u}
-  , m_overridden{false}
   , m_format{format}
   , m_type{type}
   , m_culling{TextureCulling::Default}
@@ -192,7 +190,6 @@ Texture::Texture(
   , m_height{height}
   , m_averageColor(Color(0.0f, 0.0f, 0.0f, 1.0f))
   , m_usageCount{0u}
-  , m_overridden{false}
   , m_format{format}
   , m_type{type}
   , m_culling{TextureCulling::Default}
@@ -212,7 +209,6 @@ Texture::Texture(Texture&& other)
   , m_height{std::move(other.m_height)}
   , m_averageColor{std::move(other.m_averageColor)}
   , m_usageCount{static_cast<size_t>(other.m_usageCount)}
-  , m_overridden{std::move(other.m_overridden)}
   , m_format{std::move(other.m_format)}
   , m_type{std::move(other.m_type)}
   , m_surfaceParms{std::move(other.m_surfaceParms)}
@@ -233,7 +229,6 @@ Texture& Texture::operator=(Texture&& other)
   m_height = std::move(other.m_height);
   m_averageColor = std::move(other.m_averageColor);
   m_usageCount = static_cast<size_t>(other.m_usageCount);
-  m_overridden = std::move(other.m_overridden);
   m_format = std::move(other.m_format);
   m_type = std::move(other.m_type);
   m_surfaceParms = std::move(other.m_surfaceParms);
@@ -352,16 +347,6 @@ void Texture::decUsageCount()
   const size_t previous = m_usageCount--;
   assert(previous > 0);
   unused(previous);
-}
-
-bool Texture::overridden() const
-{
-  return m_overridden;
-}
-
-void Texture::setOverridden(const bool overridden)
-{
-  m_overridden = overridden;
 }
 
 bool Texture::isPrepared() const

@@ -115,7 +115,6 @@ private:
   Color m_averageColor;
 
   std::atomic<size_t> m_usageCount;
-  bool m_overridden;
 
   GLenum m_format;
   TextureType m_type;
@@ -145,7 +144,6 @@ private:
     m_height,
     m_averageColor,
     m_usageCount,
-    m_overridden,
     m_format,
     m_type,
     m_surfaceParms,
@@ -225,8 +223,6 @@ public:
   size_t usageCount() const;
   void incUsageCount();
   void decUsageCount();
-  bool overridden() const;
-  void setOverridden(bool overridden);
 
   bool isPrepared() const;
   void prepare(GLuint textureId, int minFilter, int magFilter);
