@@ -105,30 +105,8 @@ jobs:
       - name: Install macOS dependencies
         if: ${{ matrix.os == 'macos-13' }}
         run: |
-          # workaround for https://github.com/actions/runner-images/issues/4020
-          # copied from https://github.com/Gelmo/warfork-qfusion/commit/79f3dd021b5b74d19647a4bf225d488c9b3dd44d
-          # remove when fixed or upgrading to macos-14
-          brew unlink python@3.12
-          brew uninstall --force azure-cli
-          brew uninstall --force aws-sam-cli
-          brew uninstall --force cfn-lint
-          brew uninstall --force cookiecutter
-          brew uninstall --force pipx
-          brew uninstall --force python@3.11
-          brew uninstall --force python@3.12
-          rm -f '/usr/local/bin/2to3'
-          rm -f '/usr/local/bin/2to3-3.12'
-          rm -f '/usr/local/bin/idle3'
-          rm -f '/usr/local/bin/idle3.12'
-          rm -f '/usr/local/bin/pydoc3'
-          rm -f '/usr/local/bin/pydoc3.12'
-          rm -f '/usr/local/bin/python3'
-          rm -f '/usr/local/bin/python3-config'
-          rm -f '/usr/local/bin/python3.12'
-          rm -f '/usr/local/bin/python3.12-config'
-          brew install python@3 || brew link --overwrite python@3
           brew update
-          brew install cmake p7zip pandoc qt5 ninja autoconf automake kadwanev/brew/retry
+          brew install cmake p7zip pandoc qt@5 ninja autoconf automake kadwanev/brew/retry
 
       # Run build script
       - name: Linux build
