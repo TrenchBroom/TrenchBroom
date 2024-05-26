@@ -237,10 +237,7 @@ std::vector<const Assets::Texture*> TextureBrowserView::getTextures() const
   {
     for (const auto& texture : collection->textures())
     {
-      if (!texture.overridden())
-      {
-        textures.push_back(&texture);
-      }
+      textures.push_back(&texture);
     }
   }
   return sortTextures(filterTextures(textures));
@@ -404,7 +401,6 @@ void TextureBrowserView::renderTextures(Layout& layout, const float y, const flo
               TextureVertex{{bounds.right(), height - (bounds.top() - y)}, {1, 0}},
             });
 
-            shader.set("GrayScale", texture.overridden());
             texture.activate();
 
             vertexArray.prepare(vboManager());
@@ -423,16 +419,13 @@ void TextureBrowserView::doLeftClick(Layout& layout, const float x, const float 
   if (const auto* cell = layout.cellAt(x, y))
   {
     const auto& texture = cellData(*cell);
-    if (!texture.overridden())
-    {
-      // NOTE: wx had the ability for the textureSelected event to veto the selection, but
-      // it wasn't used.
-      setSelectedTexture(&texture);
+    // NOTE: wx had the ability for the textureSelected event to veto the selection, but
+    // it wasn't used.
+    setSelectedTexture(&texture);
 
-      emit textureSelected(&texture);
+    emit textureSelected(&texture);
 
-      update();
-    }
+    update();
   }
 }
 
@@ -451,16 +444,12 @@ void TextureBrowserView::doContextMenu(
   if (const auto* cell = layout.cellAt(x, y))
   {
     const auto& texture = cellData(*cell);
-    if (!cellData(*cell).overridden())
-    {
-
-      auto menu = QMenu{this};
-      menu.addAction(tr("Select Faces"), this, [&, texture = &texture]() {
-        auto doc = kdl::mem_lock(m_document);
-        doc->selectFacesWithTexture(texture);
-      });
-      menu.exec(event->globalPos());
-    }
+    auto menu = QMenu{this};
+    menu.addAction(tr("Select Faces"), this, [&, texture = &texture]() {
+      auto doc = kdl::mem_lock(m_document);
+      doc->selectFacesWithTexture(texture);
+    });
+    menu.exec(event->globalPos());
   }
 }
 

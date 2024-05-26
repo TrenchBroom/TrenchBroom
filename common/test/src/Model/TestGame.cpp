@@ -232,8 +232,7 @@ void TestGame::doReloadWads(
   for (const auto& wadPath : wadPaths)
   {
     const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
-    m_fs->mount(
-      "textures" / wadPath.filename(), IO::openFS<IO::WadFileSystem>(absoluteWadPath));
+    m_fs->mount("textures", IO::openFS<IO::WadFileSystem>(absoluteWadPath));
   }
 }
 

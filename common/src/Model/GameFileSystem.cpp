@@ -220,14 +220,13 @@ void GameFileSystem::mountWads(
 {
   for (const auto& wadPath : wadPaths)
   {
-    const auto mountPath = rootPath / wadPath.filename();
     const auto resolvedWadPath = IO::Disk::resolvePath(wadSearchPaths, wadPath);
     IO::Disk::openFile(resolvedWadPath)
       .and_then([](auto file) {
         return IO::createImageFileSystem<IO::WadFileSystem>(std::move(file));
       })
       .transform(
-        [&](auto fs) { m_wadMountPoints.push_back(mount(mountPath, std::move(fs))); })
+        [&](auto fs) { m_wadMountPoints.push_back(mount(rootPath, std::move(fs))); })
       .transform_error([&](auto e) {
         logger.error() << "Could not load wad file at '" << wadPath << "': " << e.msg;
       });

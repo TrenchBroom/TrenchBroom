@@ -90,7 +90,7 @@ TEST_CASE("loadTextureCollection")
 
   const auto wadPath =
     std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg.wad";
-  fs.mount("textures" / wadPath.filename(), openFS<WadFileSystem>(wadPath));
+  fs.mount("textures", openFS<WadFileSystem>(wadPath));
 
   auto logger = NullLogger{};
 
@@ -105,8 +105,7 @@ TEST_CASE("loadTextureCollection")
       {},
     };
 
-    CHECK(loadTextureCollection("textures/missing.wad", fs, textureConfig, logger)
-            .is_error());
+    CHECK(loadTextureCollection("some_other_path", fs, textureConfig, logger).is_error());
   }
 
   SECTION("missing palette")
@@ -121,9 +120,9 @@ TEST_CASE("loadTextureCollection")
     };
 
     CHECK(
-      makeInfo(loadTextureCollection("textures/cr8_czg.wad", fs, textureConfig, logger))
+      makeInfo(loadTextureCollection("textures", fs, textureConfig, logger))
       == TextureCollectionInfo{
-        "textures/cr8_czg.wad",
+        "textures",
         {
           {"cr8_czg_1", 32, 32},       {"cr8_czg_2", 32, 32},
           {"cr8_czg_3", 32, 32},       {"cr8_czg_4", 32, 32},
@@ -152,9 +151,9 @@ TEST_CASE("loadTextureCollection")
     };
 
     CHECK(
-      makeInfo(loadTextureCollection("textures/cr8_czg.wad", fs, textureConfig, logger))
+      makeInfo(loadTextureCollection("textures", fs, textureConfig, logger))
       == TextureCollectionInfo{
-        "textures/cr8_czg.wad",
+        "textures",
         {
           {"cr8_czg_1", 64, 64},
           {"cr8_czg_2", 64, 64},
@@ -193,9 +192,9 @@ TEST_CASE("loadTextureCollection")
     };
 
     CHECK(
-      makeInfo(loadTextureCollection("textures/cr8_czg.wad", fs, textureConfig, logger))
+      makeInfo(loadTextureCollection("textures", fs, textureConfig, logger))
       == TextureCollectionInfo{
-        "textures/cr8_czg.wad",
+        "textures",
         {
           {"cr8_czg_1", 64, 64},
           {"cr8_czg_2", 64, 64},

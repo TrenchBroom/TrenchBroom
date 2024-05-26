@@ -89,10 +89,10 @@ Result<Assets::Texture, ReadTextureError> readTexture(
   const size_t prefixLength,
   const std::optional<Assets::Palette>& palette)
 {
+  auto name = getTextureNameFromPathSuffix(path, prefixLength);
   const auto extension = kdl::str_to_lower(path.extension().string());
   if (extension == ".d")
   {
-    auto name = path.stem().string();
     if (!palette)
     {
       return ReadTextureError{std::move(name), "Could not load texture: missing palette"};
@@ -102,42 +102,35 @@ Result<Assets::Texture, ReadTextureError> readTexture(
   }
   else if (extension == ".c")
   {
-    auto name = path.stem().string();
     auto reader = file.reader().buffer();
     return readHlMipTexture(std::move(name), reader);
   }
   else if (extension == ".wal")
   {
-    auto name = getTextureNameFromPathSuffix(path, prefixLength);
     auto reader = file.reader().buffer();
     return readWalTexture(std::move(name), reader, palette);
   }
   else if (extension == ".m8")
   {
-    auto name = getTextureNameFromPathSuffix(path, prefixLength);
     auto reader = file.reader().buffer();
     return readM8Texture(std::move(name), reader);
   }
   else if (extension == ".dds")
   {
-    auto name = getTextureNameFromPathSuffix(path, prefixLength);
     auto reader = file.reader().buffer();
     return readDdsTexture(std::move(name), reader);
   }
   else if (extension.empty())
   {
-    auto name = getTextureNameFromPathSuffix(path, prefixLength);
     auto reader = file.reader().buffer();
     return readQuake3ShaderTexture(std::move(name), file, gameFS);
   }
   else if (isSupportedFreeImageExtension(extension))
   {
-    auto name = getTextureNameFromPathSuffix(path, prefixLength);
     auto reader = file.reader().buffer();
     return readFreeImageTexture(std::move(name), reader);
   }
 
-  auto name = getTextureNameFromPathSuffix(path, prefixLength);
   return ReadTextureError{
     std::move(name), "Unknown texture file extension: " + path.extension().string()};
 }
