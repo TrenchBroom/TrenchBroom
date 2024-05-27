@@ -209,11 +209,11 @@ Preference<Color> BrowserGroupBackgroundColor(
 Preference<Color> BrowserBackgroundColor(
   "Browser/Background color", Color(0.14f, 0.14f, 0.14f, 1.0f));
 Preference<float> MaterialBrowserIconSize("Texture Browser/Icon size", 1.0f);
-Preference<Color> TextureBrowserDefaultColor(
+Preference<Color> MaterialBrowserDefaultColor(
   "Texture Browser/Default color", Color(0.0f, 0.0f, 0.0f, 0.0f));
-Preference<Color> TextureBrowserSelectedColor(
+Preference<Color> MaterialBrowserSelectedColor(
   "Texture Browser/Selected color", Color(1.0f, 0.0f, 0.0f, 1.0f));
-Preference<Color> TextureBrowserUsedColor(
+Preference<Color> MaterialBrowserUsedColor(
   "Texture Browser/Used color", Color(1.0f, 0.7f, 0.0f, 1.0f));
 
 Preference<float> CameraLookSpeed("Controls/Camera/Look speed", 0.5f);
@@ -392,9 +392,9 @@ const std::vector<PreferenceBase*>& staticPreferences()
     &BrowserBackgroundColor,
     &BrowserGroupBackgroundColor,
     &MaterialBrowserIconSize,
-    &TextureBrowserDefaultColor,
-    &TextureBrowserSelectedColor,
-    &TextureBrowserUsedColor,
+    &MaterialBrowserDefaultColor,
+    &MaterialBrowserSelectedColor,
+    &MaterialBrowserUsedColor,
     &CameraLookSpeed,
     &CameraLookInvertH,
     &CameraLookInvertV,

@@ -48,7 +48,7 @@ namespace TrenchBroom::View
 {
 class GLContextManager;
 class MapDocument;
-class TextureBrowserView;
+class MaterialBrowserView;
 enum class TextureSortOrder;
 
 class MaterialBrowser : public QWidget
@@ -61,7 +61,7 @@ private:
   QPushButton* m_usedButton = nullptr;
   QLineEdit* m_filterBox = nullptr;
   QScrollBar* m_scrollBar = nullptr;
-  TextureBrowserView* m_view = nullptr;
+  MaterialBrowserView* m_view = nullptr;
 
   NotifierConnection m_notifierConnection;
 

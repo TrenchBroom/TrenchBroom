@@ -141,9 +141,9 @@ extern Preference<Color> BrowserSubTextColor;
 extern Preference<Color> BrowserBackgroundColor;
 extern Preference<Color> BrowserGroupBackgroundColor;
 extern Preference<float> MaterialBrowserIconSize;
-extern Preference<Color> TextureBrowserDefaultColor;
-extern Preference<Color> TextureBrowserSelectedColor;
-extern Preference<Color> TextureBrowserUsedColor;
+extern Preference<Color> MaterialBrowserDefaultColor;
+extern Preference<Color> MaterialBrowserSelectedColor;
+extern Preference<Color> MaterialBrowserUsedColor;
 
 extern Preference<float> CameraLookSpeed;
 extern Preference<bool> CameraLookInvertH;

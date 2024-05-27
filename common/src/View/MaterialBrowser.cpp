@@ -112,7 +112,7 @@ void MaterialBrowser::createGui(GLContextManager& contextManager)
   m_scrollBar = new QScrollBar{Qt::Vertical};
 
   auto document = kdl::mem_lock(m_document);
-  m_view = new TextureBrowserView{m_scrollBar, contextManager, document};
+  m_view = new MaterialBrowserView{m_scrollBar, contextManager, document};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
@@ -177,7 +177,7 @@ void MaterialBrowser::bindEvents()
 {
   connect(
     m_view,
-    &TextureBrowserView::textureSelected,
+    &MaterialBrowserView::textureSelected,
     this,
     &MaterialBrowser::textureSelected);
 }

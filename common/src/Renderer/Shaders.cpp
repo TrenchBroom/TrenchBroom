@@ -76,15 +76,15 @@ const ShaderConfig TextBackgroundShader = ShaderConfig{
   {"TextBackground.vertsh"},
   {"TextBackground.fragsh"},
 };
-const ShaderConfig TextureBrowserShader = ShaderConfig{
-  "Texture Browser",
-  {"TextureBrowser.vertsh"},
-  {"TextureBrowser.fragsh"},
+const ShaderConfig MaterialBrowserShader = ShaderConfig{
+  "Material Browser",
+  {"MaterialBrowser.vertsh"},
+  {"MaterialBrowser.fragsh"},
 };
-const ShaderConfig TextureBrowserBorderShader = ShaderConfig{
-  "Texture Browser Border",
-  {"TextureBrowserBorder.vertsh"},
-  {"TextureBrowserBorder.fragsh"},
+const ShaderConfig MaterialBrowserBorderShader = ShaderConfig{
+  "Material Browser Border",
+  {"MaterialBrowserBorder.vertsh"},
+  {"MaterialBrowserBorder.fragsh"},
 };
 const ShaderConfig HandleShader = ShaderConfig{
   "Handle",

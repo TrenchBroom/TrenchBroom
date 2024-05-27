@@ -54,7 +54,7 @@
 namespace TrenchBroom::View
 {
 
-TextureBrowserView::TextureBrowserView(
+MaterialBrowserView::MaterialBrowserView(
   QScrollBar* scrollBar,
   GLContextManager& contextManager,
   std::weak_ptr<MapDocument> document_)
@@ -63,15 +63,15 @@ TextureBrowserView::TextureBrowserView(
 {
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->textureUsageCountsDidChangeNotifier.connect(
-    this, &TextureBrowserView::reloadTextures);
+    this, &MaterialBrowserView::reloadTextures);
 }
 
-TextureBrowserView::~TextureBrowserView()
+MaterialBrowserView::~MaterialBrowserView()
 {
   clear();
 }
 
-void TextureBrowserView::setSortOrder(const TextureSortOrder sortOrder)
+void MaterialBrowserView::setSortOrder(const TextureSortOrder sortOrder)
 {
   if (sortOrder != m_sortOrder)
   {
@@ -80,7 +80,7 @@ void TextureBrowserView::setSortOrder(const TextureSortOrder sortOrder)
   }
 }
 
-void TextureBrowserView::setGroup(const bool group)
+void MaterialBrowserView::setGroup(const bool group)
 {
   if (group != m_group)
   {
@@ -89,7 +89,7 @@ void TextureBrowserView::setGroup(const bool group)
   }
 }
 
-void TextureBrowserView::setHideUnused(const bool hideUnused)
+void MaterialBrowserView::setHideUnused(const bool hideUnused)
 {
   if (hideUnused != m_hideUnused)
   {
@@ -98,7 +98,7 @@ void TextureBrowserView::setHideUnused(const bool hideUnused)
   }
 }
 
-void TextureBrowserView::setFilterText(const std::string& filterText)
+void MaterialBrowserView::setFilterText(const std::string& filterText)
 {
   if (filterText != m_filterText)
   {
@@ -107,12 +107,12 @@ void TextureBrowserView::setFilterText(const std::string& filterText)
   }
 }
 
-const Assets::Material* TextureBrowserView::selectedTexture() const
+const Assets::Material* MaterialBrowserView::selectedTexture() const
 {
   return m_selectedTexture;
 }
 
-void TextureBrowserView::setSelectedTexture(const Assets::Material* selectedTexture)
+void MaterialBrowserView::setSelectedTexture(const Assets::Material* selectedTexture)
 {
   if (m_selectedTexture != selectedTexture)
   {
@@ -121,7 +121,7 @@ void TextureBrowserView::setSelectedTexture(const Assets::Material* selectedText
   }
 }
 
-void TextureBrowserView::revealTexture(const Assets::Material* texture)
+void MaterialBrowserView::revealTexture(const Assets::Material* texture)
 {
   scrollToCell([&](const Cell& cell) {
     const auto& cellTexture = cellData(cell);
@@ -129,13 +129,13 @@ void TextureBrowserView::revealTexture(const Assets::Material* texture)
   });
 }
 
-void TextureBrowserView::reloadTextures()
+void MaterialBrowserView::reloadTextures()
 {
   invalidate();
   update();
 }
 
-void TextureBrowserView::doInitLayout(Layout& layout)
+void MaterialBrowserView::doInitLayout(Layout& layout)
 {
   const auto scaleFactor = pref(Preferences::MaterialBrowserIconSize);
 
@@ -148,7 +148,7 @@ void TextureBrowserView::doInitLayout(Layout& layout)
   layout.setCellHeight(scaleFactor * 64.0f, scaleFactor * 128.0f);
 }
 
-void TextureBrowserView::doReloadLayout(Layout& layout)
+void MaterialBrowserView::doReloadLayout(Layout& layout)
 {
   const auto& fontPath = pref(Preferences::RendererFontPath());
   const auto fontSize = pref(Preferences::BrowserFontSize);
@@ -170,7 +170,7 @@ void TextureBrowserView::doReloadLayout(Layout& layout)
   }
 }
 
-void TextureBrowserView::addTexturesToLayout(
+void MaterialBrowserView::addTexturesToLayout(
   Layout& layout,
   const std::vector<const Assets::Material*>& textures,
   const Renderer::FontDescriptor& font)
@@ -181,7 +181,7 @@ void TextureBrowserView::addTexturesToLayout(
   }
 }
 
-void TextureBrowserView::addTextureToLayout(
+void MaterialBrowserView::addTextureToLayout(
   Layout& layout, const Assets::Material* texture, const Renderer::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
@@ -202,7 +202,7 @@ void TextureBrowserView::addTextureToLayout(
     titleHeight + 4.0f);
 }
 
-std::vector<const Assets::MaterialCollection*> TextureBrowserView::getCollections() const
+std::vector<const Assets::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
   auto document = kdl::mem_lock(m_document);
   const auto enabledTextureCollections = document->enabledTextureCollections();
@@ -218,14 +218,14 @@ std::vector<const Assets::MaterialCollection*> TextureBrowserView::getCollection
   return result;
 }
 
-std::vector<const Assets::Material*> TextureBrowserView::getTextures(
+std::vector<const Assets::Material*> MaterialBrowserView::getTextures(
   const Assets::MaterialCollection& collection) const
 {
   return sortTextures(filterTextures(
     kdl::vec_transform(collection.textures(), [](const auto& t) { return &t; })));
 }
 
-std::vector<const Assets::Material*> TextureBrowserView::getTextures() const
+std::vector<const Assets::Material*> MaterialBrowserView::getTextures() const
 {
   auto document = kdl::mem_lock(m_document);
   auto textures = std::vector<const Assets::Material*>{};
@@ -239,7 +239,7 @@ std::vector<const Assets::Material*> TextureBrowserView::getTextures() const
   return sortTextures(filterTextures(textures));
 }
 
-std::vector<const Assets::Material*> TextureBrowserView::filterTextures(
+std::vector<const Assets::Material*> MaterialBrowserView::filterTextures(
   std::vector<const Assets::Material*> textures) const
 {
   if (m_hideUnused)
@@ -259,7 +259,7 @@ std::vector<const Assets::Material*> TextureBrowserView::filterTextures(
   return textures;
 }
 
-std::vector<const Assets::Material*> TextureBrowserView::sortTextures(
+std::vector<const Assets::Material*> MaterialBrowserView::sortTextures(
   std::vector<const Assets::Material*> textures) const
 {
   const auto compareNames = [](const auto& lhs, const auto& rhs) {
@@ -280,9 +280,9 @@ std::vector<const Assets::Material*> TextureBrowserView::sortTextures(
   }
 }
 
-void TextureBrowserView::doClear() {}
+void MaterialBrowserView::doClear() {}
 
-void TextureBrowserView::doRender(Layout& layout, const float y, const float height)
+void MaterialBrowserView::doRender(Layout& layout, const float y, const float height)
 {
   auto document = kdl::mem_lock(m_document);
   document->textureManager().commitChanges();
@@ -301,17 +301,17 @@ void TextureBrowserView::doRender(Layout& layout, const float y, const float hei
   renderTextures(layout, y, height);
 }
 
-bool TextureBrowserView::doShouldRenderFocusIndicator() const
+bool MaterialBrowserView::doShouldRenderFocusIndicator() const
 {
   return false;
 }
 
-const Color& TextureBrowserView::getBackgroundColor()
+const Color& MaterialBrowserView::getBackgroundColor()
 {
   return pref(Preferences::BrowserBackgroundColor);
 }
 
-void TextureBrowserView::renderBounds(Layout& layout, const float y, const float height)
+void MaterialBrowserView::renderBounds(Layout& layout, const float y, const float height)
 {
   using BoundsVertex = Renderer::GLVertexTypes::P2C4::Vertex;
   auto vertices = std::vector<BoundsVertex>{};
@@ -348,31 +348,32 @@ void TextureBrowserView::renderBounds(Layout& layout, const float y, const float
 
   auto vertexArray = Renderer::VertexArray::move(std::move(vertices));
   auto shader = Renderer::ActiveShader{
-    shaderManager(), Renderer::Shaders::TextureBrowserBorderShader};
+    shaderManager(), Renderer::Shaders::MaterialBrowserBorderShader};
 
   vertexArray.prepare(vboManager());
   vertexArray.render(Renderer::PrimType::Quads);
 }
 
-const Color& TextureBrowserView::textureColor(const Assets::Material& texture) const
+const Color& MaterialBrowserView::textureColor(const Assets::Material& texture) const
 {
   if (&texture == m_selectedTexture)
   {
-    return pref(Preferences::TextureBrowserSelectedColor);
+    return pref(Preferences::MaterialBrowserSelectedColor);
   }
   if (texture.usageCount() > 0)
   {
-    return pref(Preferences::TextureBrowserUsedColor);
+    return pref(Preferences::MaterialBrowserUsedColor);
   }
-  return pref(Preferences::TextureBrowserDefaultColor);
+  return pref(Preferences::MaterialBrowserDefaultColor);
 }
 
-void TextureBrowserView::renderTextures(Layout& layout, const float y, const float height)
+void MaterialBrowserView::renderTextures(
+  Layout& layout, const float y, const float height)
 {
   using TextureVertex = Renderer::GLVertexTypes::P2T2::Vertex;
 
   auto shader =
-    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::TextureBrowserShader};
+    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::MaterialBrowserShader};
   shader.set("ApplyTinting", false);
   shader.set("Texture", 0);
   shader.set("Brightness", pref(Preferences::Brightness));
@@ -410,7 +411,7 @@ void TextureBrowserView::renderTextures(Layout& layout, const float y, const flo
   }
 }
 
-void TextureBrowserView::doLeftClick(Layout& layout, const float x, const float y)
+void MaterialBrowserView::doLeftClick(Layout& layout, const float x, const float y)
 {
   if (const auto* cell = layout.cellAt(x, y))
   {
@@ -425,7 +426,7 @@ void TextureBrowserView::doLeftClick(Layout& layout, const float x, const float 
   }
 }
 
-QString TextureBrowserView::tooltip(const Cell& cell)
+QString MaterialBrowserView::tooltip(const Cell& cell)
 {
   auto tooltip = QString{};
   auto ss = QTextStream{&tooltip};
@@ -434,7 +435,7 @@ QString TextureBrowserView::tooltip(const Cell& cell)
   return tooltip;
 }
 
-void TextureBrowserView::doContextMenu(
+void MaterialBrowserView::doContextMenu(
   Layout& layout, float x, float y, QContextMenuEvent* event)
 {
   if (const auto* cell = layout.cellAt(x, y))
@@ -449,7 +450,7 @@ void TextureBrowserView::doContextMenu(
   }
 }
 
-const Assets::Material& TextureBrowserView::cellData(const Cell& cell) const
+const Assets::Material& MaterialBrowserView::cellData(const Cell& cell) const
 {
   return *cell.itemAs<const Assets::Material*>();
 }

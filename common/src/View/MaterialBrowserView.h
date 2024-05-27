@@ -42,7 +42,7 @@ namespace TrenchBroom::View
 
 class GLContextManager;
 class MapDocument;
-using TextureGroupData = std::string;
+using MaterialGroupData = std::string;
 
 enum class TextureSortOrder
 {
@@ -50,7 +50,7 @@ enum class TextureSortOrder
   Usage
 };
 
-class TextureBrowserView : public CellView
+class MaterialBrowserView : public CellView
 {
   Q_OBJECT
 private:
@@ -65,11 +65,11 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  TextureBrowserView(
+  MaterialBrowserView(
     QScrollBar* scrollBar,
     GLContextManager& contextManager,
     std::weak_ptr<MapDocument> document);
-  ~TextureBrowserView() override;
+  ~MaterialBrowserView() override;
 
   void setSortOrder(TextureSortOrder sortOrder);
   void setGroup(bool group);
