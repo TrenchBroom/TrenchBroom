@@ -19,7 +19,7 @@
 
 #include "Assets/Material.h"
 #include "Assets/MaterialCollection.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/BrushFace.h"

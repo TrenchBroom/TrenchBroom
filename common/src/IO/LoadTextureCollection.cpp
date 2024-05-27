@@ -20,8 +20,8 @@
 #include "LoadTextureCollection.h"
 
 #include "Assets/MaterialCollection.h"
+#include "Assets/MaterialManager.h"
 #include "Assets/Palette.h"
-#include "Assets/TextureManager.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/File.h"

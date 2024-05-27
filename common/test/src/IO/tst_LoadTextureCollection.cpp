@@ -18,8 +18,8 @@
  */
 
 #include "Assets/Material.h"
+#include "Assets/MaterialManager.h"
 #include "Assets/Palette.h"
-#include "Assets/TextureManager.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"

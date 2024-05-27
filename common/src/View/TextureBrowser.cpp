@@ -27,7 +27,7 @@
 #include <QtGlobal>
 
 #include "Assets/Material.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"

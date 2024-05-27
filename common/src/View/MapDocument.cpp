@@ -26,7 +26,7 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/Material.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "EL/ELExceptions.h"
 #include "Error.h"
 #include "Exceptions.h"

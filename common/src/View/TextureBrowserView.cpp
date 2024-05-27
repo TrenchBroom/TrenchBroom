@@ -24,7 +24,7 @@
 
 #include "Assets/Material.h"
 #include "Assets/MaterialCollection.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"

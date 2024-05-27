@@ -20,7 +20,7 @@
 #include "MapDocumentCommandFacade.h"
 
 #include "Assets/EntityDefinitionFileSpec.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "Model/Brush.h"

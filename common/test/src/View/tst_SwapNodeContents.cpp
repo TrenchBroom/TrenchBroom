@@ -19,7 +19,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/Material.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "FloatType.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"

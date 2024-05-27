@@ -22,7 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/Material.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"

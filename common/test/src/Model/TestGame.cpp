@@ -22,7 +22,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "IO/BrushFaceReader.h"

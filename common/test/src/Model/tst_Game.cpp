@@ -19,7 +19,7 @@
 
 #include "Assets/Material.h"
 #include "Assets/MaterialCollection.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
 #include "Logger.h"
