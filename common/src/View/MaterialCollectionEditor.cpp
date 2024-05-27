@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TextureCollectionEditor.h"
+#include "MaterialCollectionEditor.h"
 
 #include <QListWidget>
 #include <QToolButton>

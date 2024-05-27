@@ -34,10 +34,10 @@
 #include "View/FaceAttribsEditor.h"
 #include "View/MapDocument.h"
 #include "View/MaterialBrowser.h"
+#include "View/MaterialCollectionEditor.h"
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 #include "View/SwitchableTitledPanel.h"
-#include "View/TextureCollectionEditor.h"
 
 #include "kdl/memory_utils.h"
 
