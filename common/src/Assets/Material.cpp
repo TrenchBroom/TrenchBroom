@@ -75,19 +75,19 @@ std::ostream& operator<<(std::ostream& lhs, const TextureCulling& rhs)
   return lhs;
 }
 
-kdl_reflect_impl(TextureBlendFunc);
+kdl_reflect_impl(MaterialBlendFunc);
 
-std::ostream& operator<<(std::ostream& lhs, const TextureBlendFunc::Enable& rhs)
+std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs)
 {
   switch (rhs)
   {
-  case TextureBlendFunc::Enable::UseDefault:
+  case MaterialBlendFunc::Enable::UseDefault:
     lhs << "UseDefault";
     break;
-  case TextureBlendFunc::Enable::UseFactors:
+  case MaterialBlendFunc::Enable::UseFactors:
     lhs << "UseFactors";
     break;
-  case TextureBlendFunc::Enable::DisableBlend:
+  case MaterialBlendFunc::Enable::DisableBlend:
     lhs << "DisableBlend";
     break;
     switchDefault();
@@ -126,7 +126,7 @@ Material::Material(
   , m_format{format}
   , m_type{type}
   , m_culling{TextureCulling::Default}
-  , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
+  , m_blendFunc{MaterialBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
 {
@@ -153,7 +153,7 @@ Material::Material(
   , m_format{format}
   , m_type{type}
   , m_culling{TextureCulling::Default}
-  , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
+  , m_blendFunc{MaterialBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId(0)
   , m_buffers{std::move(buffers)}
   , m_gameData{std::move(gameData)}
@@ -193,7 +193,7 @@ Material::Material(
   , m_format{format}
   , m_type{type}
   , m_culling{TextureCulling::Default}
-  , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
+  , m_blendFunc{MaterialBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
 {
@@ -317,14 +317,14 @@ void Material::setCulling(const TextureCulling culling)
 
 void Material::setBlendFunc(const GLenum srcFactor, const GLenum destFactor)
 {
-  m_blendFunc.enable = TextureBlendFunc::Enable::UseFactors;
+  m_blendFunc.enable = MaterialBlendFunc::Enable::UseFactors;
   m_blendFunc.srcFactor = srcFactor;
   m_blendFunc.destFactor = destFactor;
 }
 
 void Material::disableBlend()
 {
-  m_blendFunc.enable = TextureBlendFunc::Enable::DisableBlend;
+  m_blendFunc.enable = MaterialBlendFunc::Enable::DisableBlend;
 }
 
 const GameData& Material::gameData() const
@@ -479,16 +479,16 @@ void Material::activate() const
       break;
     }
 
-    if (m_blendFunc.enable != TextureBlendFunc::Enable::UseDefault)
+    if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
     {
       glAssert(glPushAttrib(GL_COLOR_BUFFER_BIT));
-      if (m_blendFunc.enable == TextureBlendFunc::Enable::UseFactors)
+      if (m_blendFunc.enable == MaterialBlendFunc::Enable::UseFactors)
       {
         glAssert(glBlendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor));
       }
       else
       {
-        assert(m_blendFunc.enable == TextureBlendFunc::Enable::DisableBlend);
+        assert(m_blendFunc.enable == MaterialBlendFunc::Enable::DisableBlend);
         glAssert(glDisable(GL_BLEND));
       }
     }
@@ -499,7 +499,7 @@ void Material::deactivate() const
 {
   if (isPrepared())
   {
-    if (m_blendFunc.enable != TextureBlendFunc::Enable::UseDefault)
+    if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
     {
       glAssert(glPopAttrib());
     }

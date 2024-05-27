@@ -59,7 +59,7 @@ enum class TextureCulling
 
 std::ostream& operator<<(std::ostream& lhs, const TextureCulling& rhs);
 
-struct TextureBlendFunc
+struct MaterialBlendFunc
 {
   enum class Enable
   {
@@ -81,10 +81,10 @@ struct TextureBlendFunc
   GLenum srcFactor;
   GLenum destFactor;
 
-  kdl_reflect_decl(TextureBlendFunc, enable, srcFactor, destFactor);
+  kdl_reflect_decl(MaterialBlendFunc, enable, srcFactor, destFactor);
 };
 
-std::ostream& operator<<(std::ostream& lhs, const TextureBlendFunc::Enable& rhs);
+std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs);
 
 struct Q2Data
 {
@@ -128,7 +128,7 @@ private:
   TextureCulling m_culling;
 
   // Quake 3 blend function, move to materials
-  TextureBlendFunc m_blendFunc;
+  MaterialBlendFunc m_blendFunc;
 
   mutable GLuint m_textureId;
   mutable BufferList m_buffers;
