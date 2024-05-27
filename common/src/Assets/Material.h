@@ -48,7 +48,7 @@ enum class TextureType
 
 std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs);
 
-enum class TextureCulling
+enum class MaterialCulling
 {
   Default,
   None,
@@ -57,7 +57,7 @@ enum class TextureCulling
   Both
 };
 
-std::ostream& operator<<(std::ostream& lhs, const TextureCulling& rhs);
+std::ostream& operator<<(std::ostream& lhs, const MaterialCulling& rhs);
 
 struct MaterialBlendFunc
 {
@@ -125,7 +125,7 @@ private:
   std::set<std::string> m_surfaceParms;
 
   // Quake 3 surface culling; move to materials
-  TextureCulling m_culling;
+  MaterialCulling m_culling;
 
   // Quake 3 blend function, move to materials
   MaterialBlendFunc m_blendFunc;
@@ -212,8 +212,8 @@ public:
   const std::set<std::string>& surfaceParms() const;
   void setSurfaceParms(std::set<std::string> surfaceParms);
 
-  TextureCulling culling() const;
-  void setCulling(TextureCulling culling);
+  MaterialCulling culling() const;
+  void setCulling(MaterialCulling culling);
 
   void setBlendFunc(GLenum srcFactor, GLenum destFactor);
   void disableBlend();

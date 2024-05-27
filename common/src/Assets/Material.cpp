@@ -51,23 +51,23 @@ std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs)
   return lhs;
 }
 
-std::ostream& operator<<(std::ostream& lhs, const TextureCulling& rhs)
+std::ostream& operator<<(std::ostream& lhs, const MaterialCulling& rhs)
 {
   switch (rhs)
   {
-  case TextureCulling::Default:
+  case MaterialCulling::Default:
     lhs << "Default";
     break;
-  case TextureCulling::None:
+  case MaterialCulling::None:
     lhs << "None";
     break;
-  case TextureCulling::Front:
+  case MaterialCulling::Front:
     lhs << "Front";
     break;
-  case TextureCulling::Back:
+  case MaterialCulling::Back:
     lhs << "Back";
     break;
-  case TextureCulling::Both:
+  case MaterialCulling::Both:
     lhs << "Both";
     break;
     switchDefault();
@@ -125,7 +125,7 @@ Material::Material(
   , m_usageCount{0u}
   , m_format{format}
   , m_type{type}
-  , m_culling{TextureCulling::Default}
+  , m_culling{MaterialCulling::Default}
   , m_blendFunc{MaterialBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
@@ -152,7 +152,7 @@ Material::Material(
   , m_usageCount{0u}
   , m_format{format}
   , m_type{type}
-  , m_culling{TextureCulling::Default}
+  , m_culling{MaterialCulling::Default}
   , m_blendFunc{MaterialBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId(0)
   , m_buffers{std::move(buffers)}
@@ -192,7 +192,7 @@ Material::Material(
   , m_usageCount{0u}
   , m_format{format}
   , m_type{type}
-  , m_culling{TextureCulling::Default}
+  , m_culling{MaterialCulling::Default}
   , m_blendFunc{MaterialBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
   , m_textureId{0}
   , m_gameData{std::move(gameData)}
@@ -305,12 +305,12 @@ void Material::setSurfaceParms(std::set<std::string> surfaceParms)
   m_surfaceParms = std::move(surfaceParms);
 }
 
-TextureCulling Material::culling() const
+MaterialCulling Material::culling() const
 {
   return m_culling;
 }
 
-void Material::setCulling(const TextureCulling culling)
+void Material::setCulling(const MaterialCulling culling)
 {
   m_culling = culling;
 }
@@ -465,17 +465,17 @@ void Material::activate() const
 
     switch (m_culling)
     {
-    case Assets::TextureCulling::None:
+    case Assets::MaterialCulling::None:
       glAssert(glDisable(GL_CULL_FACE));
       break;
-    case Assets::TextureCulling::Front:
+    case Assets::MaterialCulling::Front:
       glAssert(glCullFace(GL_FRONT));
       break;
-    case Assets::TextureCulling::Both:
+    case Assets::MaterialCulling::Both:
       glAssert(glCullFace(GL_FRONT_AND_BACK));
       break;
-    case Assets::TextureCulling::Default:
-    case Assets::TextureCulling::Back:
+    case Assets::MaterialCulling::Default:
+    case Assets::MaterialCulling::Back:
       break;
     }
 
@@ -506,17 +506,17 @@ void Material::deactivate() const
 
     switch (m_culling)
     {
-    case Assets::TextureCulling::None:
+    case Assets::MaterialCulling::None:
       glAssert(glEnable(GL_CULL_FACE));
       break;
-    case Assets::TextureCulling::Front:
+    case Assets::MaterialCulling::Front:
       glAssert(glCullFace(GL_BACK));
       break;
-    case Assets::TextureCulling::Both:
+    case Assets::MaterialCulling::Both:
       glAssert(glCullFace(GL_BACK));
       break;
-    case Assets::TextureCulling::Default:
-    case Assets::TextureCulling::Back:
+    case Assets::MaterialCulling::Default:
+    case Assets::MaterialCulling::Back:
       break;
     }
 

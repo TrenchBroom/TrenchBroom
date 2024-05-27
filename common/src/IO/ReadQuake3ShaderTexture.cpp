@@ -160,13 +160,13 @@ Result<Assets::Material, ReadTextureError> readQuake3ShaderTexture(
       switch (shader.culling)
       {
       case Assets::Quake3Shader::Culling::Front:
-        texture.setCulling(Assets::TextureCulling::Back);
+        texture.setCulling(Assets::MaterialCulling::Back);
         break;
       case Assets::Quake3Shader::Culling::Back:
-        texture.setCulling(Assets::TextureCulling::Front);
+        texture.setCulling(Assets::MaterialCulling::Front);
         break;
       case Assets::Quake3Shader::Culling::None:
-        texture.setCulling(Assets::TextureCulling::None);
+        texture.setCulling(Assets::MaterialCulling::None);
         break;
       }
 
