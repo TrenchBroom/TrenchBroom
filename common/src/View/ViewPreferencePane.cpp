@@ -278,7 +278,7 @@ void ViewPreferencePane::doResetToDefaults()
   prefs.resetToDefault(Preferences::TextureMinFilter);
   prefs.resetToDefault(Preferences::TextureMagFilter);
   prefs.resetToDefault(Preferences::Theme);
-  prefs.resetToDefault(Preferences::TextureBrowserIconSize);
+  prefs.resetToDefault(Preferences::MaterialBrowserIconSize);
   prefs.resetToDefault(Preferences::RendererFontSize);
 }
 
@@ -298,7 +298,7 @@ void ViewPreferencePane::doUpdateControls()
   m_enableMsaa->setChecked(pref(Preferences::EnableMSAA));
   m_themeCombo->setCurrentIndex(findThemeIndex(pref(Preferences::Theme)));
 
-  const auto textureBrowserIconSize = pref(Preferences::TextureBrowserIconSize);
+  const auto textureBrowserIconSize = pref(Preferences::MaterialBrowserIconSize);
   if (textureBrowserIconSize == 0.25f)
   {
     m_textureBrowserIconSizeCombo->setCurrentIndex(0);
@@ -434,25 +434,25 @@ void ViewPreferencePane::textureBrowserIconSizeChanged(const int index)
   switch (index)
   {
   case 0:
-    prefs.set(Preferences::TextureBrowserIconSize, 0.25f);
+    prefs.set(Preferences::MaterialBrowserIconSize, 0.25f);
     break;
   case 1:
-    prefs.set(Preferences::TextureBrowserIconSize, 0.5f);
+    prefs.set(Preferences::MaterialBrowserIconSize, 0.5f);
     break;
   case 2:
-    prefs.set(Preferences::TextureBrowserIconSize, 1.0f);
+    prefs.set(Preferences::MaterialBrowserIconSize, 1.0f);
     break;
   case 3:
-    prefs.set(Preferences::TextureBrowserIconSize, 1.5f);
+    prefs.set(Preferences::MaterialBrowserIconSize, 1.5f);
     break;
   case 4:
-    prefs.set(Preferences::TextureBrowserIconSize, 2.0f);
+    prefs.set(Preferences::MaterialBrowserIconSize, 2.0f);
     break;
   case 5:
-    prefs.set(Preferences::TextureBrowserIconSize, 2.5f);
+    prefs.set(Preferences::MaterialBrowserIconSize, 2.5f);
     break;
   case 6:
-    prefs.set(Preferences::TextureBrowserIconSize, 3.0f);
+    prefs.set(Preferences::MaterialBrowserIconSize, 3.0f);
     break;
   }
 }

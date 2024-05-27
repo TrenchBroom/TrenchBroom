@@ -41,7 +41,7 @@ namespace TrenchBroom::View
 
 class GLContextManager;
 class MapDocument;
-class TextureBrowser;
+class MaterialBrowser;
 
 class ReplaceTextureDialog : public QDialog
 {
@@ -49,8 +49,8 @@ class ReplaceTextureDialog : public QDialog
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  TextureBrowser* m_subjectBrowser = nullptr;
-  TextureBrowser* m_replacementBrowser = nullptr;
+  MaterialBrowser* m_subjectBrowser = nullptr;
+  MaterialBrowser* m_replacementBrowser = nullptr;
   QPushButton* m_replaceButton = nullptr;
 
 public:

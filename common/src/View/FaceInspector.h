@@ -38,7 +38,7 @@ class CollapsibleTitledPanel;
 class FaceAttribsEditor;
 class GLContextManager;
 class MapDocument;
-class TextureBrowser;
+class MaterialBrowser;
 
 class FaceInspector : public TabBookPage
 {
@@ -47,7 +47,7 @@ private:
   std::weak_ptr<MapDocument> m_document;
   QSplitter* m_splitter = nullptr;
   FaceAttribsEditor* m_faceAttribsEditor = nullptr;
-  TextureBrowser* m_textureBrowser = nullptr;
+  MaterialBrowser* m_textureBrowser = nullptr;
   QWidget* m_textureBrowserInfo = nullptr;
 
   NotifierConnection m_notifierConnection;

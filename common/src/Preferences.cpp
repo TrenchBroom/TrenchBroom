@@ -208,7 +208,7 @@ Preference<Color> BrowserGroupBackgroundColor(
   "Browser/Group background color", Color(0.1f, 0.1f, 0.1f, 0.8f));
 Preference<Color> BrowserBackgroundColor(
   "Browser/Background color", Color(0.14f, 0.14f, 0.14f, 1.0f));
-Preference<float> TextureBrowserIconSize("Texture Browser/Icon size", 1.0f);
+Preference<float> MaterialBrowserIconSize("Texture Browser/Icon size", 1.0f);
 Preference<Color> TextureBrowserDefaultColor(
   "Texture Browser/Default color", Color(0.0f, 0.0f, 0.0f, 0.0f));
 Preference<Color> TextureBrowserSelectedColor(
@@ -391,7 +391,7 @@ const std::vector<PreferenceBase*>& staticPreferences()
     &BrowserSubTextColor,
     &BrowserBackgroundColor,
     &BrowserGroupBackgroundColor,
-    &TextureBrowserIconSize,
+    &MaterialBrowserIconSize,
     &TextureBrowserDefaultColor,
     &TextureBrowserSelectedColor,
     &TextureBrowserUsedColor,

@@ -51,7 +51,7 @@ class MapDocument;
 class TextureBrowserView;
 enum class TextureSortOrder;
 
-class TextureBrowser : public QWidget
+class MaterialBrowser : public QWidget
 {
   Q_OBJECT
 private:
@@ -66,7 +66,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  TextureBrowser(
+  MaterialBrowser(
     std::weak_ptr<MapDocument> document,
     GLContextManager& contextManager,
     QWidget* parent = nullptr);

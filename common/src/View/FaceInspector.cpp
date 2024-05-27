@@ -90,7 +90,7 @@ void FaceInspector::createGui(GLContextManager& contextManager)
 
   connect(
     m_textureBrowser,
-    &TextureBrowser::textureSelected,
+    &MaterialBrowser::textureSelected,
     this,
     &FaceInspector::textureSelected);
 
@@ -108,7 +108,7 @@ QWidget* FaceInspector::createTextureBrowser(GLContextManager& contextManager)
   auto* panel =
     new SwitchableTitledPanel{tr("Texture Browser"), {{tr("Browser"), tr("Settings")}}};
 
-  m_textureBrowser = new TextureBrowser{m_document, contextManager};
+  m_textureBrowser = new MaterialBrowser{m_document, contextManager};
 
   auto* textureBrowserLayout = new QVBoxLayout{};
   textureBrowserLayout->setContentsMargins(0, 0, 0, 0);

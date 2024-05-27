@@ -140,7 +140,7 @@ extern Preference<Color> BrowserTextColor;
 extern Preference<Color> BrowserSubTextColor;
 extern Preference<Color> BrowserBackgroundColor;
 extern Preference<Color> BrowserGroupBackgroundColor;
-extern Preference<float> TextureBrowserIconSize;
+extern Preference<float> MaterialBrowserIconSize;
 extern Preference<Color> TextureBrowserDefaultColor;
 extern Preference<Color> TextureBrowserSelectedColor;
 extern Preference<Color> TextureBrowserUsedColor;

@@ -137,7 +137,7 @@ void TextureBrowserView::reloadTextures()
 
 void TextureBrowserView::doInitLayout(Layout& layout)
 {
-  const auto scaleFactor = pref(Preferences::TextureBrowserIconSize);
+  const auto scaleFactor = pref(Preferences::MaterialBrowserIconSize);
 
   layout.setOuterMargin(5.0f);
   layout.setGroupMargin(5.0f);
@@ -189,7 +189,7 @@ void TextureBrowserView::addTextureToLayout(
   const auto textureName = std::filesystem::path{texture->name()}.filename().string();
   const auto titleHeight = fontManager().font(font).measure(textureName).y();
 
-  const auto scaleFactor = pref(Preferences::TextureBrowserIconSize);
+  const auto scaleFactor = pref(Preferences::MaterialBrowserIconSize);
   const auto scaledTextureWidth = vm::round(scaleFactor * float(texture->width()));
   const auto scaledTextureHeight = vm::round(scaleFactor * float(texture->height()));
 

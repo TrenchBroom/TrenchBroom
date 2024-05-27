@@ -130,11 +130,11 @@ void ReplaceTextureDialog::createGui(GLContextManager& contextManager)
   setWindowTitle(tr("Replace Texture"));
 
   auto* subjectPanel = new TitledPanel{tr("Find")};
-  m_subjectBrowser = new TextureBrowser{m_document, contextManager};
+  m_subjectBrowser = new MaterialBrowser{m_document, contextManager};
   m_subjectBrowser->setHideUnused(true);
   connect(
     m_subjectBrowser,
-    &TextureBrowser::textureSelected,
+    &MaterialBrowser::textureSelected,
     this,
     &ReplaceTextureDialog::subjectSelected);
 
@@ -145,11 +145,11 @@ void ReplaceTextureDialog::createGui(GLContextManager& contextManager)
   subjectPanel->getPanel()->setLayout(subjectPanelLayout);
 
   auto* replacementPanel = new TitledPanel{tr("Replace with")};
-  m_replacementBrowser = new TextureBrowser{m_document, contextManager};
+  m_replacementBrowser = new MaterialBrowser{m_document, contextManager};
   m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
   connect(
     m_replacementBrowser,
-    &TextureBrowser::textureSelected,
+    &MaterialBrowser::textureSelected,
     this,
     &ReplaceTextureDialog::replacementSelected);
 

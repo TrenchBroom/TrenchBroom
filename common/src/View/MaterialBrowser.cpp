@@ -43,7 +43,7 @@ Q_DECLARE_METATYPE(TrenchBroom::View::TextureSortOrder)
 namespace TrenchBroom::View
 {
 
-TextureBrowser::TextureBrowser(
+MaterialBrowser::MaterialBrowser(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
   , m_document{std::move(document)}
@@ -54,23 +54,23 @@ TextureBrowser::TextureBrowser(
   reload();
 }
 
-const Assets::Material* TextureBrowser::selectedTexture() const
+const Assets::Material* MaterialBrowser::selectedTexture() const
 {
   return m_view->selectedTexture();
 }
 
-void TextureBrowser::setSelectedTexture(const Assets::Material* selectedTexture)
+void MaterialBrowser::setSelectedTexture(const Assets::Material* selectedTexture)
 {
   m_view->setSelectedTexture(selectedTexture);
 }
 
-void TextureBrowser::revealTexture(const Assets::Material* texture)
+void MaterialBrowser::revealTexture(const Assets::Material* texture)
 {
   setFilterText("");
   m_view->revealTexture(texture);
 }
 
-void TextureBrowser::setSortOrder(const TextureSortOrder sortOrder)
+void MaterialBrowser::setSortOrder(const TextureSortOrder sortOrder)
 {
   m_view->setSortOrder(sortOrder);
   switch (sortOrder)
@@ -85,19 +85,19 @@ void TextureBrowser::setSortOrder(const TextureSortOrder sortOrder)
   }
 }
 
-void TextureBrowser::setGroup(const bool group)
+void MaterialBrowser::setGroup(const bool group)
 {
   m_view->setGroup(group);
   m_groupButton->setChecked(group);
 }
 
-void TextureBrowser::setHideUnused(const bool hideUnused)
+void MaterialBrowser::setHideUnused(const bool hideUnused)
 {
   m_view->setHideUnused(hideUnused);
   m_usedButton->setChecked(hideUnused);
 }
 
-void TextureBrowser::setFilterText(const std::string& filterText)
+void MaterialBrowser::setFilterText(const std::string& filterText)
 {
   m_view->setFilterText(filterText);
   m_filterBox->setText(QString::fromStdString(filterText));
@@ -106,7 +106,7 @@ void TextureBrowser::setFilterText(const std::string& filterText)
 /**
  * See EntityBrowser::createGui
  */
-void TextureBrowser::createGui(GLContextManager& contextManager)
+void MaterialBrowser::createGui(GLContextManager& contextManager)
 {
   auto* browserPanel = new QWidget{};
   m_scrollBar = new QScrollBar{Qt::Vertical};
@@ -173,82 +173,85 @@ void TextureBrowser::createGui(GLContextManager& contextManager)
   setLayout(outerLayout);
 }
 
-void TextureBrowser::bindEvents()
+void MaterialBrowser::bindEvents()
 {
   connect(
-    m_view, &TextureBrowserView::textureSelected, this, &TextureBrowser::textureSelected);
+    m_view,
+    &TextureBrowserView::textureSelected,
+    this,
+    &MaterialBrowser::textureSelected);
 }
 
-void TextureBrowser::connectObservers()
+void MaterialBrowser::connectObservers()
 {
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection +=
-    document->documentWasNewedNotifier.connect(this, &TextureBrowser::documentWasNewed);
+    document->documentWasNewedNotifier.connect(this, &MaterialBrowser::documentWasNewed);
+  m_notifierConnection += document->documentWasLoadedNotifier.connect(
+    this, &MaterialBrowser::documentWasLoaded);
   m_notifierConnection +=
-    document->documentWasLoadedNotifier.connect(this, &TextureBrowser::documentWasLoaded);
+    document->nodesWereAddedNotifier.connect(this, &MaterialBrowser::nodesWereAdded);
   m_notifierConnection +=
-    document->nodesWereAddedNotifier.connect(this, &TextureBrowser::nodesWereAdded);
+    document->nodesWereRemovedNotifier.connect(this, &MaterialBrowser::nodesWereRemoved);
   m_notifierConnection +=
-    document->nodesWereRemovedNotifier.connect(this, &TextureBrowser::nodesWereRemoved);
-  m_notifierConnection +=
-    document->nodesDidChangeNotifier.connect(this, &TextureBrowser::nodesDidChange);
+    document->nodesDidChangeNotifier.connect(this, &MaterialBrowser::nodesDidChange);
   m_notifierConnection += document->brushFacesDidChangeNotifier.connect(
-    this, &TextureBrowser::brushFacesDidChange);
+    this, &MaterialBrowser::brushFacesDidChange);
   m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
-    this, &TextureBrowser::textureCollectionsDidChange);
+    this, &MaterialBrowser::textureCollectionsDidChange);
   m_notifierConnection += document->currentTextureNameDidChangeNotifier.connect(
-    this, &TextureBrowser::currentTextureNameDidChange);
+    this, &MaterialBrowser::currentTextureNameDidChange);
 
   auto& prefs = PreferenceManager::instance();
-  m_notifierConnection +=
-    prefs.preferenceDidChangeNotifier.connect(this, &TextureBrowser::preferenceDidChange);
+  m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(
+    this, &MaterialBrowser::preferenceDidChange);
 }
 
-void TextureBrowser::documentWasNewed(MapDocument*)
+void MaterialBrowser::documentWasNewed(MapDocument*)
 {
   reload();
 }
 
-void TextureBrowser::documentWasLoaded(MapDocument*)
+void MaterialBrowser::documentWasLoaded(MapDocument*)
 {
   reload();
 }
 
-void TextureBrowser::nodesWereAdded(const std::vector<Model::Node*>&)
+void MaterialBrowser::nodesWereAdded(const std::vector<Model::Node*>&)
 {
   reload();
 }
 
-void TextureBrowser::nodesWereRemoved(const std::vector<Model::Node*>&)
+void MaterialBrowser::nodesWereRemoved(const std::vector<Model::Node*>&)
 {
   reload();
 }
 
-void TextureBrowser::nodesDidChange(const std::vector<Model::Node*>&)
+void MaterialBrowser::nodesDidChange(const std::vector<Model::Node*>&)
 {
   reload();
 }
 
-void TextureBrowser::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
+void MaterialBrowser::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
 {
   reload();
 }
 
-void TextureBrowser::textureCollectionsDidChange()
+void MaterialBrowser::textureCollectionsDidChange()
 {
   reload();
 }
 
-void TextureBrowser::currentTextureNameDidChange(const std::string& /* textureName */)
+void MaterialBrowser::currentTextureNameDidChange(const std::string& /* textureName */)
 {
   updateSelectedTexture();
 }
 
-void TextureBrowser::preferenceDidChange(const std::filesystem::path& path)
+void MaterialBrowser::preferenceDidChange(const std::filesystem::path& path)
 {
   auto document = kdl::mem_lock(m_document);
   if (
-    path == Preferences::TextureBrowserIconSize.path()
+    path == Preferences::MaterialBrowserIconSize.path()
     || document->isGamePathPreference(path))
   {
     reload();
@@ -259,7 +262,7 @@ void TextureBrowser::preferenceDidChange(const std::filesystem::path& path)
   }
 }
 
-void TextureBrowser::reload()
+void MaterialBrowser::reload()
 {
   if (m_view)
   {
@@ -269,7 +272,7 @@ void TextureBrowser::reload()
   }
 }
 
-void TextureBrowser::updateSelectedTexture()
+void MaterialBrowser::updateSelectedTexture()
 {
   auto document = kdl::mem_lock(m_document);
   const auto& textureName = document->currentTextureName();
