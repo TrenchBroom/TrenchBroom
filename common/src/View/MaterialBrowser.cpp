@@ -31,8 +31,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"
+#include "View/MaterialBrowserView.h"
 #include "View/QtUtils.h"
-#include "View/TextureBrowserView.h"
 #include "View/ViewConstants.h"
 
 #include "kdl/memory_utils.h"

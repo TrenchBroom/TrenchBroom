@@ -390,6 +390,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/MapViewContainer.cpp
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
         ${COMMON_SOURCE_DIR}/View/MaterialBrowser.cpp
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowserView.cpp
         ${COMMON_SOURCE_DIR}/View/ModEditor.cpp
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
         ${COMMON_SOURCE_DIR}/View/MoveHandleDragTracker.cpp
@@ -446,7 +447,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/TabBar.cpp
         ${COMMON_SOURCE_DIR}/View/TabBook.cpp
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.cpp
-        ${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
         ${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/TitleBar.cpp
@@ -916,6 +916,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MapViewLayout.h
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.h
         ${COMMON_SOURCE_DIR}/View/MaterialBrowser.h
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowserView.h
         ${COMMON_SOURCE_DIR}/View/ModEditor.h
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.h
         ${COMMON_SOURCE_DIR}/View/MoveHandleDragTracker.h
@@ -973,7 +974,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/TabBar.h
         ${COMMON_SOURCE_DIR}/View/TabBook.h
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.h
-        ${COMMON_SOURCE_DIR}/View/TextureBrowserView.h
         ${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.h
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.h
         ${COMMON_SOURCE_DIR}/View/TitleBar.h
