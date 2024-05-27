@@ -20,7 +20,7 @@
 #include "TextureManager.h"
 
 #include "Assets/Material.h"
-#include "Assets/TextureCollection.h"
+#include "Assets/MaterialCollection.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "IO/LoadTextureCollection.h"

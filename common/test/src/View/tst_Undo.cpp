@@ -18,7 +18,7 @@
  */
 
 #include "Assets/Material.h"
-#include "Assets/TextureCollection.h"
+#include "Assets/MaterialCollection.h"
 #include "Assets/TextureManager.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"

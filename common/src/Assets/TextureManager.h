@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Assets/TextureCollection.h"
+#include "Assets/MaterialCollection.h"
 
 #include <filesystem>
 #include <map>

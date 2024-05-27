@@ -19,7 +19,7 @@
 
 #include "EntityModel.h"
 
-#include "Assets/TextureCollection.h"
+#include "Assets/MaterialCollection.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/TexturedIndexRangeMap.h"

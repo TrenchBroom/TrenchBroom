@@ -19,8 +19,8 @@
 
 #include "Material.h"
 
+#include "Assets/MaterialCollection.h"
 #include "Assets/TextureBuffer.h"
-#include "Assets/TextureCollection.h"
 #include "Macros.h"
 #include "Renderer/GL.h"
 

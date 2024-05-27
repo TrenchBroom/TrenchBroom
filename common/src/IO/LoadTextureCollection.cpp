@@ -19,8 +19,8 @@
 
 #include "LoadTextureCollection.h"
 
+#include "Assets/MaterialCollection.h"
 #include "Assets/Palette.h"
-#include "Assets/TextureCollection.h"
 #include "Assets/TextureManager.h"
 #include "Ensure.h"
 #include "Error.h"

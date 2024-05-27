@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TextureCollection.h"
+#include "MaterialCollection.h"
 
 #include "Ensure.h"
 

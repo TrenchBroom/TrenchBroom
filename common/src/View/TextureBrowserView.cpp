@@ -23,7 +23,7 @@
 #include <QTextStream>
 
 #include "Assets/Material.h"
-#include "Assets/TextureCollection.h"
+#include "Assets/MaterialCollection.h"
 #include "Assets/TextureManager.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
