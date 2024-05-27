@@ -32,8 +32,8 @@
 #include "Model/WorldNode.h" // IWYU pragma: keep
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
+#include "View/MaterialBrowser.h"
 #include "View/QtUtils.h"
-#include "View/TextureBrowser.h"
 #include "View/TitledPanel.h"
 
 #include "kdl/memory_utils.h"
