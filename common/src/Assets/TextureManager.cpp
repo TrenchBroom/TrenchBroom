@@ -64,7 +64,7 @@ void TextureManager::reload(
     });
 }
 
-void TextureManager::setTextureCollections(std::vector<TextureCollection> collections)
+void TextureManager::setTextureCollections(std::vector<MaterialCollection> collections)
 {
   for (auto& collection : collections)
   {
@@ -97,7 +97,7 @@ void TextureManager::setTextureCollections(
             m_logger.error() << "Could not load texture collection '" << path
                              << "': " << error.msg;
           }
-          return Assets::TextureCollection{path};
+          return Assets::MaterialCollection{path};
         })
         .transform([&](auto collection) {
           if (!collection.textures().empty())
@@ -122,7 +122,7 @@ void TextureManager::setTextureCollections(
   m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
 }
 
-void TextureManager::addTextureCollection(Assets::TextureCollection collection)
+void TextureManager::addTextureCollection(Assets::MaterialCollection collection)
 {
   const auto index = m_collections.size();
   m_collections.push_back(std::move(collection));
@@ -176,7 +176,7 @@ const std::vector<const Material*>& TextureManager::textures() const
   return m_textures;
 }
 
-const std::vector<TextureCollection>& TextureManager::collections() const
+const std::vector<MaterialCollection>& TextureManager::collections() const
 {
   return m_collections;
 }

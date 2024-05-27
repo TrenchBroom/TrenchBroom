@@ -31,7 +31,7 @@
 namespace TrenchBroom::Assets
 {
 
-class TextureCollection
+class MaterialCollection
 {
 private:
   using TextureIdList = std::vector<GLuint>;
@@ -44,21 +44,21 @@ private:
 
   friend class Material;
 
-  kdl_reflect_decl(TextureCollection, m_loaded, m_path, m_textures);
+  kdl_reflect_decl(MaterialCollection, m_loaded, m_path, m_textures);
 
 public:
-  TextureCollection();
-  explicit TextureCollection(std::vector<Material> textures);
-  explicit TextureCollection(std::filesystem::path path);
-  TextureCollection(std::filesystem::path path, std::vector<Material> textures);
+  MaterialCollection();
+  explicit MaterialCollection(std::vector<Material> textures);
+  explicit MaterialCollection(std::filesystem::path path);
+  MaterialCollection(std::filesystem::path path, std::vector<Material> textures);
 
-  TextureCollection(const TextureCollection&) = delete;
-  TextureCollection& operator=(const TextureCollection&) = delete;
+  MaterialCollection(const MaterialCollection&) = delete;
+  MaterialCollection& operator=(const MaterialCollection&) = delete;
 
-  TextureCollection(TextureCollection&& other) = default;
-  TextureCollection& operator=(TextureCollection&& other) = default;
+  MaterialCollection(MaterialCollection&& other) = default;
+  MaterialCollection& operator=(MaterialCollection&& other) = default;
 
-  ~TextureCollection();
+  ~MaterialCollection();
 
   bool loaded() const;
   const std::filesystem::path& path() const;

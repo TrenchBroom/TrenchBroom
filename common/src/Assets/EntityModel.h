@@ -45,7 +45,7 @@ class TexturedRenderer;
 namespace TrenchBroom::Assets
 {
 class Material;
-class TextureCollection;
+class MaterialCollection;
 
 enum class PitchType
 {
@@ -229,7 +229,7 @@ class EntityModelSurface
 private:
   std::string m_name;
   std::vector<std::unique_ptr<EntityModelMesh>> m_meshes;
-  std::unique_ptr<TextureCollection> m_skins;
+  std::unique_ptr<MaterialCollection> m_skins;
 
 public:
   /**

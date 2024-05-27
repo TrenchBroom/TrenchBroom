@@ -134,13 +134,13 @@ void SmartWadEditor::addWads()
   const auto pathQStr = QFileDialog::getOpenFileName(
     nullptr,
     tr("Load Wad File"),
-    fileDialogDefaultDirectory(FileDialogDir::TextureCollection),
+    fileDialogDefaultDirectory(FileDialogDir::MaterialCollection),
     tr("Wad files (*.wad);;All files (*.*)"));
 
   if (!pathQStr.isEmpty())
   {
     updateFileDialogDefaultDirectoryWithFilename(
-      FileDialogDir::TextureCollection, pathQStr);
+      FileDialogDir::MaterialCollection, pathQStr);
 
     const auto absWadPath = IO::pathFromQString(pathQStr);
     auto pathDialog = ChoosePathTypeDialog{

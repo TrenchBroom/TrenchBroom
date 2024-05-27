@@ -34,7 +34,7 @@ class QScrollBar;
 namespace TrenchBroom::Assets
 {
 class Material;
-class TextureCollection;
+class MaterialCollection;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::View
@@ -96,9 +96,9 @@ private:
     const Assets::Material* texture,
     const Renderer::FontDescriptor& font);
 
-  std::vector<const Assets::TextureCollection*> getCollections() const;
+  std::vector<const Assets::MaterialCollection*> getCollections() const;
   std::vector<const Assets::Material*> getTextures(
-    const Assets::TextureCollection& collection) const;
+    const Assets::MaterialCollection& collection) const;
   std::vector<const Assets::Material*> getTextures() const;
 
   std::vector<const Assets::Material*> filterTextures(

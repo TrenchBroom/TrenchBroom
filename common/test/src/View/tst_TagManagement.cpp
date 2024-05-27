@@ -51,7 +51,7 @@ protected:
   Assets::Material* m_textureA = nullptr;
   Assets::Material* m_textureB = nullptr;
   Assets::Material* m_textureC = nullptr;
-  const Assets::TextureCollection* m_textureCollection = nullptr;
+  const Assets::MaterialCollection* m_textureCollection = nullptr;
 
 private:
   void SetUp()
@@ -69,7 +69,7 @@ private:
     auto textures =
       kdl::vec_from(std::move(textureA), std::move(textureB), std::move(textureC));
 
-    auto collections = kdl::vec_from(Assets::TextureCollection{std::move(textures)});
+    auto collections = kdl::vec_from(Assets::MaterialCollection{std::move(textures)});
 
     auto& textureManager = document->textureManager();
     textureManager.setTextureCollections(std::move(collections));

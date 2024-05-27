@@ -64,7 +64,7 @@ struct TextureCollectionInfo
 };
 
 std::optional<TextureCollectionInfo> makeInfo(
-  const Result<Assets::TextureCollection>& result)
+  const Result<Assets::MaterialCollection>& result)
 {
   return result
     .transform([](const auto& textureCollection) -> std::optional<TextureCollectionInfo> {

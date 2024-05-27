@@ -396,7 +396,7 @@ private:
 EntityModelSurface::EntityModelSurface(std::string name, const size_t frameCount)
   : m_name{std::move(name)}
   , m_meshes{frameCount}
-  , m_skins{std::make_unique<TextureCollection>()}
+  , m_skins{std::make_unique<MaterialCollection>()}
 {
 }
 
@@ -439,7 +439,7 @@ void EntityModelSurface::addTexturedMesh(
 
 void EntityModelSurface::setSkins(std::vector<Material> skins)
 {
-  m_skins = std::make_unique<TextureCollection>(std::move(skins));
+  m_skins = std::make_unique<MaterialCollection>(std::move(skins));
 }
 
 size_t EntityModelSurface::frameCount() const

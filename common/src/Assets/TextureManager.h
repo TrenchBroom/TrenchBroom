@@ -43,17 +43,17 @@ struct TextureConfig;
 namespace Assets
 {
 class Material;
-class TextureCollection;
+class MaterialCollection;
 
 class TextureManager
 {
 private:
   Logger& m_logger;
 
-  std::vector<TextureCollection> m_collections;
+  std::vector<MaterialCollection> m_collections;
 
   std::vector<size_t> m_toPrepare;
-  std::vector<TextureCollection> m_toRemove;
+  std::vector<MaterialCollection> m_toRemove;
 
   std::map<std::string, Material*> m_texturesByName;
   std::vector<const Material*> m_textures;
@@ -69,7 +69,7 @@ public:
   void reload(const IO::FileSystem& fs, const Model::TextureConfig& textureConfig);
 
   // for testing
-  void setTextureCollections(std::vector<TextureCollection> collections);
+  void setTextureCollections(std::vector<MaterialCollection> collections);
 
 private:
   void setTextureCollections(
@@ -77,7 +77,7 @@ private:
     const IO::FileSystem& fs,
     const Model::TextureConfig& textureConfig);
 
-  void addTextureCollection(Assets::TextureCollection collection);
+  void addTextureCollection(Assets::MaterialCollection collection);
 
 public:
   void clear();
@@ -89,7 +89,7 @@ public:
   Material* texture(const std::string& name);
 
   const std::vector<const Material*>& textures() const;
-  const std::vector<TextureCollection>& collections() const;
+  const std::vector<MaterialCollection>& collections() const;
 
 private:
   void resetTextureMode();

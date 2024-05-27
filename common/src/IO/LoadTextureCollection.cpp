@@ -167,7 +167,7 @@ Result<std::vector<std::filesystem::path>> findTextureCollections(
     });
 }
 
-Result<Assets::TextureCollection> loadTextureCollection(
+Result<Assets::MaterialCollection> loadTextureCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const Model::TextureConfig& textureConfig,
@@ -212,7 +212,7 @@ Result<Assets::TextureCollection> loadTextureCollection(
                      .or_else(makeReadTextureErrorHandler(gameFS, nullLogger));
                  }))
         .transform([&](auto textures) {
-          return Assets::TextureCollection{path, std::move(textures)};
+          return Assets::MaterialCollection{path, std::move(textures)};
         });
     });
 }

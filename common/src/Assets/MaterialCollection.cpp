@@ -30,21 +30,21 @@
 namespace TrenchBroom::Assets
 {
 
-kdl_reflect_impl(TextureCollection);
+kdl_reflect_impl(MaterialCollection);
 
-TextureCollection::TextureCollection() = default;
+MaterialCollection::MaterialCollection() = default;
 
-TextureCollection::TextureCollection(std::vector<Material> textures)
+MaterialCollection::MaterialCollection(std::vector<Material> textures)
   : m_textures{std::move(textures)}
 {
 }
 
-TextureCollection::TextureCollection(std::filesystem::path path)
+MaterialCollection::MaterialCollection(std::filesystem::path path)
   : m_path{std::move(path)}
 {
 }
 
-TextureCollection::TextureCollection(
+MaterialCollection::MaterialCollection(
   std::filesystem::path path, std::vector<Material> textures)
   : m_path{std::move(path)}
   , m_textures{std::move(textures)}
@@ -52,7 +52,7 @@ TextureCollection::TextureCollection(
 {
 }
 
-TextureCollection::~TextureCollection()
+MaterialCollection::~MaterialCollection()
 {
   if (!m_textureIds.empty())
   {
@@ -63,43 +63,43 @@ TextureCollection::~TextureCollection()
   }
 }
 
-bool TextureCollection::loaded() const
+bool MaterialCollection::loaded() const
 {
   return m_loaded;
 }
 
-const std::filesystem::path& TextureCollection::path() const
+const std::filesystem::path& MaterialCollection::path() const
 {
   return m_path;
 }
 
-size_t TextureCollection::textureCount() const
+size_t MaterialCollection::textureCount() const
 {
   return m_textures.size();
 }
 
-const std::vector<Material>& TextureCollection::textures() const
+const std::vector<Material>& MaterialCollection::textures() const
 {
   return m_textures;
 }
 
-std::vector<Material>& TextureCollection::textures()
+std::vector<Material>& MaterialCollection::textures()
 {
   return m_textures;
 }
 
-const Material* TextureCollection::textureByIndex(const size_t index) const
+const Material* MaterialCollection::textureByIndex(const size_t index) const
 {
   return index < m_textures.size() ? &m_textures[index] : nullptr;
 }
 
-Material* TextureCollection::textureByIndex(const size_t index)
+Material* MaterialCollection::textureByIndex(const size_t index)
 {
   return const_cast<Material*>(
-    const_cast<const TextureCollection*>(this)->textureByIndex(index));
+    const_cast<const MaterialCollection*>(this)->textureByIndex(index));
 }
 
-const Material* TextureCollection::textureByName(const std::string& name) const
+const Material* MaterialCollection::textureByName(const std::string& name) const
 {
   const auto it =
     std::find_if(m_textures.begin(), m_textures.end(), [&](const auto& texture) {
@@ -108,18 +108,18 @@ const Material* TextureCollection::textureByName(const std::string& name) const
   return it != m_textures.end() ? &*it : nullptr;
 }
 
-Material* TextureCollection::textureByName(const std::string& name)
+Material* MaterialCollection::textureByName(const std::string& name)
 {
   return const_cast<Material*>(
-    const_cast<const TextureCollection*>(this)->textureByName(name));
+    const_cast<const MaterialCollection*>(this)->textureByName(name));
 }
 
-bool TextureCollection::prepared() const
+bool MaterialCollection::prepared() const
 {
   return !m_textureIds.empty();
 }
 
-void TextureCollection::prepare(const int minFilter, const int magFilter)
+void MaterialCollection::prepare(const int minFilter, const int magFilter)
 {
   assert(!prepared());
 
@@ -137,7 +137,7 @@ void TextureCollection::prepare(const int minFilter, const int magFilter)
   }
 }
 
-void TextureCollection::setTextureMode(const int minFilter, const int magFilter)
+void MaterialCollection::setTextureMode(const int minFilter, const int magFilter)
 {
   for (auto& texture : m_textures)
   {

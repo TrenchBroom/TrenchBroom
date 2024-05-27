@@ -202,12 +202,12 @@ void TextureBrowserView::addTextureToLayout(
     titleHeight + 4.0f);
 }
 
-std::vector<const Assets::TextureCollection*> TextureBrowserView::getCollections() const
+std::vector<const Assets::MaterialCollection*> TextureBrowserView::getCollections() const
 {
   auto document = kdl::mem_lock(m_document);
   const auto enabledTextureCollections = document->enabledTextureCollections();
 
-  auto result = std::vector<const Assets::TextureCollection*>{};
+  auto result = std::vector<const Assets::MaterialCollection*>{};
   for (const auto& collection : document->textureManager().collections())
   {
     if (kdl::vec_contains(enabledTextureCollections, collection.path()))
@@ -219,7 +219,7 @@ std::vector<const Assets::TextureCollection*> TextureBrowserView::getCollections
 }
 
 std::vector<const Assets::Material*> TextureBrowserView::getTextures(
-  const Assets::TextureCollection& collection) const
+  const Assets::MaterialCollection& collection) const
 {
   return sortTextures(filterTextures(
     kdl::vec_transform(collection.textures(), [](const auto& t) { return &t; })));
