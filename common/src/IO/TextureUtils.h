@@ -41,7 +41,7 @@ class Logger;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::IO
@@ -69,11 +69,11 @@ inline auto makeReadTextureErrorHandler(const FileSystem& fs, Logger& logger)
   return kdl::overload(
     [&](Error e) {
       logger.error() << "Could not open texture file: " << e.msg;
-      return Result<Assets::Texture>{loadDefaultTexture(fs, "", logger)};
+      return Result<Assets::Material>{loadDefaultTexture(fs, "", logger)};
     },
     [&](ReadTextureError e) {
       logger.error() << "Could not read texture '" << e.textureName << "': " << e.msg;
-      return Result<Assets::Texture>{loadDefaultTexture(fs, e.textureName, logger)};
+      return Result<Assets::Material>{loadDefaultTexture(fs, e.textureName, logger)};
     });
 }
 

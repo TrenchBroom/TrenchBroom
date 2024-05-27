@@ -79,10 +79,10 @@ Result<Assets::Palette> loadPalette(
   });
 }
 
-using ReadTextureFunc = std::function<Result<Assets::Texture, ReadTextureError>(
+using ReadTextureFunc = std::function<Result<Assets::Material, ReadTextureError>(
   const File&, const std::filesystem::path&)>;
 
-Result<Assets::Texture, ReadTextureError> readTexture(
+Result<Assets::Material, ReadTextureError> readTexture(
   const File& file,
   const std::filesystem::path& path,
   const FileSystem& gameFS,

@@ -1421,7 +1421,7 @@ void MapDocument::convertToFaceSelection()
   executeAndStore(SelectionCommand::convertToFaces());
 }
 
-void MapDocument::selectFacesWithTexture(const Assets::Texture* texture)
+void MapDocument::selectFacesWithTexture(const Assets::Material* texture)
 {
   const auto faces = kdl::vec_filter(
     Model::collectSelectableBrushFaces(
@@ -4522,7 +4522,7 @@ static auto makeSetTexturesVisitor(Assets::TextureManager& manager)
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
         const Model::BrushFace& face = brush.face(i);
-        Assets::Texture* texture = manager.texture(face.attributes().textureName());
+        Assets::Material* texture = manager.texture(face.attributes().textureName());
         brushNode->setFaceTexture(i, texture);
       }
     },
@@ -4569,7 +4569,8 @@ void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHan
   {
     Model::BrushNode* node = faceHandle.node();
     const Model::BrushFace& face = faceHandle.face();
-    Assets::Texture* texture = m_textureManager->texture(face.attributes().textureName());
+    Assets::Material* texture =
+      m_textureManager->texture(face.attributes().textureName());
     node->setFaceTexture(faceHandle.faceIndex(), texture);
   }
   textureUsageCountsDidChangeNotifier();

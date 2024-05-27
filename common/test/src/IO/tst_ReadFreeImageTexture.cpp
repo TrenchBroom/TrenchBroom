@@ -61,7 +61,7 @@ void assertTexture(const std::string& name, const size_t width, const size_t hei
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2474
-void testImageContents(const Assets::Texture& texture, const ColorMatch match)
+void testImageContents(const Assets::Material& texture, const ColorMatch match)
 {
   const std::size_t w = 64u;
   const std::size_t h = 64u;

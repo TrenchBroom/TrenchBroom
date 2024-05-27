@@ -28,7 +28,7 @@ class QPushButton;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
@@ -64,8 +64,8 @@ private:
   std::vector<Model::BrushFaceHandle> getApplicableFaces() const;
   void createGui(GLContextManager& contextManager);
 private slots:
-  void subjectSelected(const Assets::Texture* subject);
-  void replacementSelected(const Assets::Texture* replacement);
+  void subjectSelected(const Assets::Material* subject);
+  void replacementSelected(const Assets::Material* replacement);
   void updateReplaceButton();
 };
 

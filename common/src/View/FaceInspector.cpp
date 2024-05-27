@@ -64,7 +64,7 @@ bool FaceInspector::cancelMouseDrag()
   return m_faceAttribsEditor->cancelMouseDrag();
 }
 
-void FaceInspector::revealTexture(const Assets::Texture* texture)
+void FaceInspector::revealTexture(const Assets::Material* texture)
 {
   m_textureBrowser->revealTexture(texture);
   m_textureBrowser->setSelectedTexture(texture);
@@ -156,7 +156,7 @@ QWidget* FaceInspector::createTextureBrowserInfo()
   return panel;
 }
 
-void FaceInspector::textureSelected(const Assets::Texture* texture)
+void FaceInspector::textureSelected(const Assets::Material* texture)
 {
   auto document = kdl::mem_lock(m_document);
   const auto faces = document->allSelectedBrushFaces();

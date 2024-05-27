@@ -128,7 +128,8 @@ void readDdsMips(Reader& reader, Assets::TextureBufferList& buffers)
 
 } // namespace
 
-Result<Assets::Texture, ReadTextureError> readDdsTexture(std::string name, Reader& reader)
+Result<Assets::Material, ReadTextureError> readDdsTexture(
+  std::string name, Reader& reader)
 {
   try
   {
@@ -253,7 +254,7 @@ Result<Assets::Texture, ReadTextureError> readDdsTexture(std::string name, Reade
     Assets::setMipBufferSize(buffers, numMips, width, height, format);
     readDdsMips(reader, buffers);
 
-    return Assets::Texture{
+    return Assets::Material{
       std::move(name),
       width,
       height,

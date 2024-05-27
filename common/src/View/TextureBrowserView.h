@@ -33,7 +33,7 @@ class QScrollBar;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 class TextureCollection;
 } // namespace TrenchBroom::Assets
 
@@ -60,7 +60,7 @@ private:
   TextureSortOrder m_sortOrder = TextureSortOrder::Name;
   std::string m_filterText;
 
-  const Assets::Texture* m_selectedTexture = nullptr;
+  const Assets::Material* m_selectedTexture = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -76,10 +76,10 @@ public:
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
 
-  const Assets::Texture* selectedTexture() const;
-  void setSelectedTexture(const Assets::Texture* selectedTexture);
+  const Assets::Material* selectedTexture() const;
+  void setSelectedTexture(const Assets::Material* selectedTexture);
 
-  void revealTexture(const Assets::Texture* texture);
+  void revealTexture(const Assets::Material* texture);
 
 private:
   void reloadTextures();
@@ -89,20 +89,22 @@ private:
 
   void addTexturesToLayout(
     Layout& layout,
-    const std::vector<const Assets::Texture*>& textures,
+    const std::vector<const Assets::Material*>& textures,
     const Renderer::FontDescriptor& font);
   void addTextureToLayout(
-    Layout& layout, const Assets::Texture* texture, const Renderer::FontDescriptor& font);
+    Layout& layout,
+    const Assets::Material* texture,
+    const Renderer::FontDescriptor& font);
 
   std::vector<const Assets::TextureCollection*> getCollections() const;
-  std::vector<const Assets::Texture*> getTextures(
+  std::vector<const Assets::Material*> getTextures(
     const Assets::TextureCollection& collection) const;
-  std::vector<const Assets::Texture*> getTextures() const;
+  std::vector<const Assets::Material*> getTextures() const;
 
-  std::vector<const Assets::Texture*> filterTextures(
-    std::vector<const Assets::Texture*> textures) const;
-  std::vector<const Assets::Texture*> sortTextures(
-    std::vector<const Assets::Texture*> textures) const;
+  std::vector<const Assets::Material*> filterTextures(
+    std::vector<const Assets::Material*> textures) const;
+  std::vector<const Assets::Material*> sortTextures(
+    std::vector<const Assets::Material*> textures) const;
 
   void doClear() override;
   void doRender(Layout& layout, float y, float height) override;
@@ -110,16 +112,16 @@ private:
   const Color& getBackgroundColor() override;
 
   void renderBounds(Layout& layout, float y, float height);
-  const Color& textureColor(const Assets::Texture& texture) const;
+  const Color& textureColor(const Assets::Material& texture) const;
   void renderTextures(Layout& layout, float y, float height);
 
   void doLeftClick(Layout& layout, float x, float y) override;
   QString tooltip(const Cell& cell) override;
   void doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) override;
 
-  const Assets::Texture& cellData(const Cell& cell) const;
+  const Assets::Material& cellData(const Cell& cell) const;
 signals:
-  void textureSelected(const Assets::Texture* texture);
+  void textureSelected(const Assets::Material* texture);
 };
 
 } // namespace TrenchBroom::View

@@ -27,7 +27,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class Texture;
+class Material;
 }
 
 namespace Renderer

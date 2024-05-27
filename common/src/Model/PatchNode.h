@@ -33,7 +33,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
@@ -91,7 +91,7 @@ public:
   const BezierPatch& patch() const;
   BezierPatch setPatch(BezierPatch patch);
 
-  void setTexture(Assets::Texture* texture);
+  void setTexture(Assets::Material* texture);
 
   const PatchGrid& grid() const;
 

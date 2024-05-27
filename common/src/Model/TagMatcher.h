@@ -49,7 +49,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  virtual bool matchesTexture(const Assets::Texture* texture) const = 0;
+  virtual bool matchesTexture(const Assets::Material* texture) const = 0;
 };
 
 class TextureNameTagMatcher : public TextureTagMatcher
@@ -64,7 +64,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesTexture(const Assets::Texture* texture) const override;
+  bool matchesTexture(const Assets::Material* texture) const override;
   bool matchesTextureName(std::string_view textureName) const;
 };
 
@@ -81,7 +81,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesTexture(const Assets::Texture* texture) const override;
+  bool matchesTexture(const Assets::Material* texture) const override;
 };
 
 class FlagsTagMatcher : public TagMatcher

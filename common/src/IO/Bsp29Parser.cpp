@@ -99,11 +99,11 @@ struct FaceInfo
 };
 
 
-std::vector<Assets::Texture> parseTextures(
+std::vector<Assets::Material> parseTextures(
   Reader reader, const Assets::Palette& palette, const FileSystem& fs, Logger& logger)
 {
   const auto textureCount = reader.readSize<int32_t>();
-  auto result = std::vector<Assets::Texture>{};
+  auto result = std::vector<Assets::Material>{};
   result.reserve(textureCount);
 
   for (size_t i = 0; i < textureCount; ++i)
@@ -188,7 +188,9 @@ std::vector<int> parseFaceEdges(Reader reader, const size_t faceEdgeCount)
 }
 
 vm::vec2f textureCoords(
-  const vm::vec3f& vertex, const TextureInfo& textureInfo, const Assets::Texture* texture)
+  const vm::vec3f& vertex,
+  const TextureInfo& textureInfo,
+  const Assets::Material* texture)
 {
   return texture ? vm::vec2f{
            (vm::dot(vertex, textureInfo.sAxis) + textureInfo.sOffset)

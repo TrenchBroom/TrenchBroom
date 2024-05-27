@@ -330,7 +330,7 @@ struct RenderFunc : public TextureRenderFunc
   {
   }
 
-  void before(const Assets::Texture* texture) override
+  void before(const Assets::Material* texture) override
   {
     shader.set("GridColor", gridColorForTexture(texture));
     if (texture)
@@ -346,7 +346,7 @@ struct RenderFunc : public TextureRenderFunc
     }
   }
 
-  void after(const Assets::Texture* texture) override
+  void after(const Assets::Material* texture) override
   {
     if (texture)
     {

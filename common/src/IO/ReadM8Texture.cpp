@@ -43,7 +43,7 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader& reader)
+Result<Assets::Material, ReadTextureError> readM8Texture(std::string name, Reader& reader)
 {
   try
   {
@@ -115,7 +115,7 @@ Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader
           }
         }
 
-        return Result<Assets::Texture>{Assets::Texture{
+        return Result<Assets::Material>{Assets::Material{
           std::move(name),
           widths[0],
           heights[0],
@@ -125,7 +125,7 @@ Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader
           Assets::TextureType::Opaque}};
       })
       .or_else([&](const auto& error) {
-        return Result<Assets::Texture, ReadTextureError>{
+        return Result<Assets::Material, ReadTextureError>{
           ReadTextureError{std::move(name), error.msg}};
       });
   }

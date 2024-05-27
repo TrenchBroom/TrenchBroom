@@ -123,9 +123,9 @@ private:
   {
     AllocationTracker::Block* vertexHolderKey;
     AllocationTracker::Block* edgeIndicesKey;
-    std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>>
+    std::vector<std::pair<const Assets::Material*, AllocationTracker::Block*>>
       opaqueFaceIndicesKeys;
-    std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>>
+    std::vector<std::pair<const Assets::Material*, AllocationTracker::Block*>>
       transparentFaceIndicesKeys;
   };
   /**
@@ -147,7 +147,7 @@ private:
   std::shared_ptr<BrushIndexArray> m_edgeIndices;
 
   using TextureToBrushIndicesMap =
-    std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
+    std::unordered_map<const Assets::Material*, std::shared_ptr<BrushIndexArray>>;
   std::shared_ptr<TextureToBrushIndicesMap> m_transparentFaces;
   std::shared_ptr<TextureToBrushIndicesMap> m_opaqueFaces;
 

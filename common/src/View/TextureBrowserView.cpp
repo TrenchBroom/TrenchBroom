@@ -107,12 +107,12 @@ void TextureBrowserView::setFilterText(const std::string& filterText)
   }
 }
 
-const Assets::Texture* TextureBrowserView::selectedTexture() const
+const Assets::Material* TextureBrowserView::selectedTexture() const
 {
   return m_selectedTexture;
 }
 
-void TextureBrowserView::setSelectedTexture(const Assets::Texture* selectedTexture)
+void TextureBrowserView::setSelectedTexture(const Assets::Material* selectedTexture)
 {
   if (m_selectedTexture != selectedTexture)
   {
@@ -121,7 +121,7 @@ void TextureBrowserView::setSelectedTexture(const Assets::Texture* selectedTextu
   }
 }
 
-void TextureBrowserView::revealTexture(const Assets::Texture* texture)
+void TextureBrowserView::revealTexture(const Assets::Material* texture)
 {
   scrollToCell([&](const Cell& cell) {
     const auto& cellTexture = cellData(cell);
@@ -172,7 +172,7 @@ void TextureBrowserView::doReloadLayout(Layout& layout)
 
 void TextureBrowserView::addTexturesToLayout(
   Layout& layout,
-  const std::vector<const Assets::Texture*>& textures,
+  const std::vector<const Assets::Material*>& textures,
   const Renderer::FontDescriptor& font)
 {
   for (const auto* texture : textures)
@@ -182,7 +182,7 @@ void TextureBrowserView::addTexturesToLayout(
 }
 
 void TextureBrowserView::addTextureToLayout(
-  Layout& layout, const Assets::Texture* texture, const Renderer::FontDescriptor& font)
+  Layout& layout, const Assets::Material* texture, const Renderer::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
 
@@ -218,17 +218,17 @@ std::vector<const Assets::TextureCollection*> TextureBrowserView::getCollections
   return result;
 }
 
-std::vector<const Assets::Texture*> TextureBrowserView::getTextures(
+std::vector<const Assets::Material*> TextureBrowserView::getTextures(
   const Assets::TextureCollection& collection) const
 {
   return sortTextures(filterTextures(
     kdl::vec_transform(collection.textures(), [](const auto& t) { return &t; })));
 }
 
-std::vector<const Assets::Texture*> TextureBrowserView::getTextures() const
+std::vector<const Assets::Material*> TextureBrowserView::getTextures() const
 {
   auto document = kdl::mem_lock(m_document);
-  auto textures = std::vector<const Assets::Texture*>{};
+  auto textures = std::vector<const Assets::Material*>{};
   for (const auto& collection : getCollections())
   {
     for (const auto& texture : collection->textures())
@@ -239,8 +239,8 @@ std::vector<const Assets::Texture*> TextureBrowserView::getTextures() const
   return sortTextures(filterTextures(textures));
 }
 
-std::vector<const Assets::Texture*> TextureBrowserView::filterTextures(
-  std::vector<const Assets::Texture*> textures) const
+std::vector<const Assets::Material*> TextureBrowserView::filterTextures(
+  std::vector<const Assets::Material*> textures) const
 {
   if (m_hideUnused)
   {
@@ -259,8 +259,8 @@ std::vector<const Assets::Texture*> TextureBrowserView::filterTextures(
   return textures;
 }
 
-std::vector<const Assets::Texture*> TextureBrowserView::sortTextures(
-  std::vector<const Assets::Texture*> textures) const
+std::vector<const Assets::Material*> TextureBrowserView::sortTextures(
+  std::vector<const Assets::Material*> textures) const
 {
   const auto compareNames = [](const auto& lhs, const auto& rhs) {
     return kdl::ci::string_less{}(lhs->name(), rhs->name());
@@ -354,7 +354,7 @@ void TextureBrowserView::renderBounds(Layout& layout, const float y, const float
   vertexArray.render(Renderer::PrimType::Quads);
 }
 
-const Color& TextureBrowserView::textureColor(const Assets::Texture& texture) const
+const Color& TextureBrowserView::textureColor(const Assets::Material& texture) const
 {
   if (&texture == m_selectedTexture)
   {
@@ -449,9 +449,9 @@ void TextureBrowserView::doContextMenu(
   }
 }
 
-const Assets::Texture& TextureBrowserView::cellData(const Cell& cell) const
+const Assets::Material& TextureBrowserView::cellData(const Cell& cell) const
 {
-  return *cell.itemAs<const Assets::Texture*>();
+  return *cell.itemAs<const Assets::Material*>();
 }
 
 } // namespace TrenchBroom::View

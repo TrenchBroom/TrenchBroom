@@ -27,7 +27,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class Texture;
+class Material;
 }
 
 namespace Renderer
@@ -47,10 +47,10 @@ class VertexArray;
 class TexturedIndexRangeMap
 {
 public:
-  using Texture = Assets::Texture;
+  using Material = Assets::Material;
 
 private:
-  using TextureToIndexRangeMap = std::map<const Texture*, IndexRangeMap>;
+  using TextureToIndexRangeMap = std::map<const Material*, IndexRangeMap>;
   using TextureToIndexRangeMapPtr = std::shared_ptr<TextureToIndexRangeMap>;
 
 public:
@@ -67,7 +67,7 @@ public:
   private:
     friend class TexturedIndexRangeMap;
 
-    using TextureToSize = std::map<const Texture*, IndexRangeMap::Size>;
+    using TextureToSize = std::map<const Material*, IndexRangeMap::Size>;
     TextureToSize m_sizes;
     TextureToSize::iterator m_current;
 
@@ -84,7 +84,7 @@ public:
      * @param primType the primitive type
      * @param vertexCount the number of vertices to count
      */
-    void inc(const Texture* texture, PrimType primType, size_t vertexCount = 1);
+    void inc(const Material* texture, PrimType primType, size_t vertexCount = 1);
 
     /**
      * Increase the storage by the given size.
@@ -94,8 +94,8 @@ public:
     void inc(const Size& other);
 
   private:
-    IndexRangeMap::Size& findCurrent(const Texture* texture);
-    bool isCurrent(const Texture* texture) const;
+    IndexRangeMap::Size& findCurrent(const Material* texture);
+    bool isCurrent(const Material* texture) const;
 
     void initialize(TextureToIndexRangeMap& data) const;
   };
@@ -125,7 +125,7 @@ public:
    * @param texture the texture
    * @param primitives an index range map containing the primitives
    */
-  TexturedIndexRangeMap(const Texture* texture, IndexRangeMap primitives);
+  TexturedIndexRangeMap(const Material* texture, IndexRangeMap primitives);
 
   /**
    * Creates a new index range map containing a single range of the given primitive type
@@ -137,7 +137,7 @@ public:
    * @param vertexCount the number of vertices in the range
    */
   TexturedIndexRangeMap(
-    const Texture* texture, PrimType primType, size_t index, size_t vertexCount);
+    const Material* texture, PrimType primType, size_t index, size_t vertexCount);
 
   /**
    * Records a range of primitives at the given index with the given length and using the
@@ -148,7 +148,7 @@ public:
    * @param index the start index of the range
    * @param vertexCount the number of vertices in the range
    */
-  void add(const Texture* texture, PrimType primType, size_t index, size_t vertexCount);
+  void add(const Material* texture, PrimType primType, size_t index, size_t vertexCount);
 
   /**
    * Records ranges of primitives using the given texture.
@@ -156,7 +156,7 @@ public:
    * @param texture the texture to use
    * @param primitives an index range map containing the primitives
    */
-  void add(const Texture* texture, IndexRangeMap primitives);
+  void add(const Material* texture, IndexRangeMap primitives);
 
   /**
    * Adds all ranges stored in the given textured index range map to this one.
@@ -190,12 +190,12 @@ public:
    * @param func the function to invoke
    */
   void forEachPrimitive(
-    std::function<void(const Texture* texture, PrimType, size_t index, size_t count)>
+    std::function<void(const Material* texture, PrimType, size_t index, size_t count)>
       func) const;
 
 private:
-  IndexRangeMap& findCurrent(const Texture* texture);
-  bool isCurrent(const Texture* texture) const;
+  IndexRangeMap& findCurrent(const Material* texture);
+  bool isCurrent(const Material* texture) const;
 };
 } // namespace Renderer
 } // namespace TrenchBroom

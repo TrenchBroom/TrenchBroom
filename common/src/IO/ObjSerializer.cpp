@@ -108,7 +108,7 @@ static void writeMtlFile(
   const std::vector<ObjSerializer::Object>& objects,
   const IO::ObjExportOptions& options)
 {
-  auto usedTextures = std::map<std::string, const Assets::Texture*>{};
+  auto usedTextures = std::map<std::string, const Assets::Material*>{};
 
   for (const auto& object : objects)
   {

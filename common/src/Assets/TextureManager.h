@@ -42,7 +42,7 @@ struct TextureConfig;
 
 namespace Assets
 {
-class Texture;
+class Material;
 class TextureCollection;
 
 class TextureManager
@@ -55,8 +55,8 @@ private:
   std::vector<size_t> m_toPrepare;
   std::vector<TextureCollection> m_toRemove;
 
-  std::map<std::string, Texture*> m_texturesByName;
-  std::vector<const Texture*> m_textures;
+  std::map<std::string, Material*> m_texturesByName;
+  std::vector<const Material*> m_textures;
 
   int m_minFilter;
   int m_magFilter;
@@ -85,10 +85,10 @@ public:
   void setTextureMode(int minFilter, int magFilter);
   void commitChanges();
 
-  const Texture* texture(const std::string& name) const;
-  Texture* texture(const std::string& name);
+  const Material* texture(const std::string& name) const;
+  Material* texture(const std::string& name);
 
-  const std::vector<const Texture*>& textures() const;
+  const std::vector<const Material*>& textures() const;
   const std::vector<TextureCollection>& collections() const;
 
 private:

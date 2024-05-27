@@ -35,7 +35,7 @@ class QScrollBar;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
@@ -71,16 +71,16 @@ public:
     GLContextManager& contextManager,
     QWidget* parent = nullptr);
 
-  const Assets::Texture* selectedTexture() const;
-  void setSelectedTexture(const Assets::Texture* selectedTexture);
-  void revealTexture(const Assets::Texture* texture);
+  const Assets::Material* selectedTexture() const;
+  void setSelectedTexture(const Assets::Material* selectedTexture);
+  void revealTexture(const Assets::Material* texture);
 
   void setSortOrder(TextureSortOrder sortOrder);
   void setGroup(bool group);
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
 signals:
-  void textureSelected(const Assets::Texture* texture);
+  void textureSelected(const Assets::Material* texture);
 
 private:
   void createGui(GLContextManager& contextManager);

@@ -144,12 +144,12 @@ void BezierPatch::setTextureName(std::string textureName)
   m_textureName = std::move(textureName);
 }
 
-const Assets::Texture* BezierPatch::texture() const
+const Assets::Material* BezierPatch::texture() const
 {
   return m_textureReference.get();
 }
 
-bool BezierPatch::setTexture(Assets::Texture* texture)
+bool BezierPatch::setTexture(Assets::Material* texture)
 {
   if (texture == this->texture())
   {

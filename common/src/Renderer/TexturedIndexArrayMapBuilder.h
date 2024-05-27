@@ -28,7 +28,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class Texture;
+class Material;
 }
 
 namespace Renderer
@@ -42,7 +42,7 @@ namespace Renderer
 class TexturedIndexArrayMapBuilder
 {
 public:
-  using Texture = Assets::Texture;
+  using Material = Assets::Material;
   using Index = GLuint;
   using IndexList = std::vector<Index>;
 
@@ -79,7 +79,7 @@ public:
    * @param texture the texture to use
    * @param i the index to record
    */
-  void addPoint(const Texture* texture, Index i);
+  void addPoint(const Material* texture, Index i);
 
   /**
    * Adds multiple textured points, represented by the vertices in a vertex array at the
@@ -88,7 +88,7 @@ public:
    * @param texture the texture to use
    * @param indices the indices to record
    */
-  void addPoints(const Texture* texture, const IndexList& indices);
+  void addPoints(const Material* texture, const IndexList& indices);
 
   /**
    * Adds a textured line, represented by the vertices in a vertex array at the given two
@@ -98,7 +98,7 @@ public:
    * @param i1 the index of the start vertex to record
    * @param i2 the index of the end vertex to record
    */
-  void addLine(const Texture* texture, Index i1, Index i2);
+  void addLine(const Material* texture, Index i1, Index i2);
 
   /**
    * Adds multiple textured lines, each represented by two vertices in a vertex array. The
@@ -108,7 +108,7 @@ public:
    * @param texture the texture to use
    * @param indices a list of indices containing the pairs of vertex indices to record
    */
-  void addLines(const Texture* texture, const IndexList& indices);
+  void addLines(const Material* texture, const IndexList& indices);
 
   /**
    * Adds a textured triangle, represented by the vertices in a vertex array at the given
@@ -119,7 +119,7 @@ public:
    * @param i2 the index of the second vertex to record
    * @param i3 the index of the third vertex to record
    */
-  void addTriangle(const Texture* texture, Index i1, Index i2, Index i3);
+  void addTriangle(const Material* texture, Index i1, Index i2, Index i3);
 
   /**
    * Adds multiple textured triangles, each represented by three vertices in a vertex
@@ -129,7 +129,7 @@ public:
    * @param texture the texture to use
    * @param indices a list of indices containing the triples of vertex indices to record
    */
-  void addTriangles(const Texture* texture, const IndexList& indices);
+  void addTriangles(const Material* texture, const IndexList& indices);
 
   /**
    * Adds a textured quad, represented by the vertices in a vertex array at the given
@@ -141,7 +141,7 @@ public:
    * @param i3 the index of the third vertex to record
    * @param i4 the index of the fourth vertex to record
    */
-  void addQuad(const Texture* texture, Index, Index i1, Index i2, Index i3, Index i4);
+  void addQuad(const Material* texture, Index, Index i1, Index i2, Index i3, Index i4);
 
   /**
    * Adds multiple textured quads, each represented by four vertices in a vertex array.
@@ -152,7 +152,7 @@ public:
    * @param indices a list of indices containing the four-tuples of vertex indices to
    * record
    */
-  void addQuads(const Texture* texture, const IndexList& indices);
+  void addQuads(const Material* texture, const IndexList& indices);
 
   /**
    * Adds multiple textured quads by adding a range of indices specified by the given base
@@ -168,7 +168,7 @@ public:
    * @param baseIndex the base index at which to start the range
    * @param vertexCount the number of vertices contained in the range
    */
-  void addQuads(const Texture* texture, Index baseIndex, size_t vertexCount);
+  void addQuads(const Material* texture, Index baseIndex, size_t vertexCount);
 
   /**
    * Adds a textured polygon with the given indices. Note that the polygon is translated
@@ -177,7 +177,7 @@ public:
    * @param texture the texture to use
    * @param indices the indices of the vertices making up the polygon to add
    */
-  void addPolygon(const Texture* texture, const IndexList& indices);
+  void addPolygon(const Material* texture, const IndexList& indices);
 
   /**
    * Adds a textured polygon with indices computed from the given range. The polygons
@@ -189,10 +189,10 @@ public:
    * @param baseIndex the index of the first vertex of the polygon
    * @param vertexCount the number of vertices of the polygon
    */
-  void addPolygon(const Texture* texture, Index baseIndex, size_t vertexCount);
+  void addPolygon(const Material* texture, Index baseIndex, size_t vertexCount);
 
 private:
-  void add(const Texture* texture, PrimType primType, const IndexList& indices);
+  void add(const Material* texture, PrimType primType, const IndexList& indices);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

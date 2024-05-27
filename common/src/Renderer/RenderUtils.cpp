@@ -36,7 +36,7 @@ namespace
 constexpr auto EdgeOffset = 0.0001;
 }
 
-vm::vec3f gridColorForTexture(const Assets::Texture* texture)
+vm::vec3f gridColorForTexture(const Assets::Material* texture)
 {
   if (!texture)
   {
@@ -89,10 +89,10 @@ void coordinateSystemVerticesZ(const vm::bbox3f& bounds, vm::vec3f& start, vm::v
 }
 
 TextureRenderFunc::~TextureRenderFunc() = default;
-void TextureRenderFunc::before(const Assets::Texture* /* texture */) {}
-void TextureRenderFunc::after(const Assets::Texture* /* texture */) {}
+void TextureRenderFunc::before(const Assets::Material* /* texture */) {}
+void TextureRenderFunc::after(const Assets::Material* /* texture */) {}
 
-void DefaultTextureRenderFunc::before(const Assets::Texture* texture)
+void DefaultTextureRenderFunc::before(const Assets::Material* texture)
 {
   if (texture)
   {
@@ -100,7 +100,7 @@ void DefaultTextureRenderFunc::before(const Assets::Texture* texture)
   }
 }
 
-void DefaultTextureRenderFunc::after(const Assets::Texture* texture)
+void DefaultTextureRenderFunc::after(const Assets::Material* texture)
 {
   if (texture)
   {

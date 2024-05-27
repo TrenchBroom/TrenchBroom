@@ -27,13 +27,13 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Renderer
 {
 
-vm::vec3f gridColorForTexture(const Assets::Texture* texture);
+vm::vec3f gridColorForTexture(const Assets::Material* texture);
 
 void glSetEdgeOffset(double f);
 void glResetEdgeOffset();
@@ -49,15 +49,15 @@ class TextureRenderFunc
 {
 public:
   virtual ~TextureRenderFunc();
-  virtual void before(const Assets::Texture* texture);
-  virtual void after(const Assets::Texture* texture);
+  virtual void before(const Assets::Material* texture);
+  virtual void after(const Assets::Material* texture);
 };
 
 class DefaultTextureRenderFunc : public TextureRenderFunc
 {
 public:
-  void before(const Assets::Texture* texture) override;
-  void after(const Assets::Texture* texture) override;
+  void before(const Assets::Material* texture) override;
+  void after(const Assets::Material* texture) override;
 };
 
 std::vector<vm::vec2f> circle2D(float radius, size_t segments);

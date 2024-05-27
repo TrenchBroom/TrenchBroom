@@ -2125,7 +2125,7 @@ void MapFrame::showLaunchEngineDialog()
 namespace
 {
 
-const Assets::Texture* textureToReveal(std::shared_ptr<MapDocument> document)
+const Assets::Material* textureToReveal(std::shared_ptr<MapDocument> document)
 {
   const auto* firstTexture = document->allSelectedBrushFaces().front().face().texture();
   const auto allFacesHaveIdenticalTexture = kdl::all_of(
@@ -2150,7 +2150,7 @@ void MapFrame::revealTexture()
   }
 }
 
-void MapFrame::revealTexture(const Assets::Texture* texture)
+void MapFrame::revealTexture(const Assets::Material* texture)
 {
   m_inspector->switchToPage(InspectorPage::Face);
   m_inspector->faceInspector()->revealTexture(texture);

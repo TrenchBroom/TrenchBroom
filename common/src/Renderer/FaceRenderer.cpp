@@ -53,7 +53,7 @@ public:
   {
   }
 
-  void before(const Assets::Texture* texture) override
+  void before(const Assets::Material* texture) override
   {
     if (texture)
     {
@@ -68,7 +68,7 @@ public:
     }
   }
 
-  void after(const Assets::Texture* texture) override
+  void after(const Assets::Material* texture) override
   {
     if (texture)
     {

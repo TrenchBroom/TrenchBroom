@@ -162,7 +162,7 @@ public:
   }
 };
 
-std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
+std::optional<Assets::Material> loadFallbackTexture(const FileSystem& fs)
 {
   static const auto NoTextureName = Model::BrushFaceAttributes::NoTextureName;
 
@@ -181,7 +181,7 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
   });
 }
 
-Assets::Texture loadFallbackOrDefaultTexture(
+Assets::Material loadFallbackOrDefaultTexture(
   const FileSystem& fs, const std::string& defaultMaterialName, Logger& logger)
 {
   if (auto fallbackTexture = loadFallbackTexture(fs))
@@ -191,7 +191,7 @@ Assets::Texture loadFallbackOrDefaultTexture(
   return {loadDefaultTexture(fs, defaultMaterialName, logger)};
 }
 
-Assets::Texture loadTextureFromFileSystem(
+Assets::Material loadTextureFromFileSystem(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   return fs.openFile(path)
@@ -203,7 +203,7 @@ Assets::Texture loadTextureFromFileSystem(
     .value();
 }
 
-Assets::Texture loadUncompressedEmbeddedTexture(
+Assets::Material loadUncompressedEmbeddedTexture(
   std::string name, const aiTexel& data, const size_t width, const size_t height)
 {
   auto buffer = Assets::TextureBuffer{width * height * sizeof(aiTexel)};
@@ -220,7 +220,7 @@ Assets::Texture loadUncompressedEmbeddedTexture(
     Assets::TextureType::Masked};
 }
 
-Assets::Texture loadCompressedEmbeddedTexture(
+Assets::Material loadCompressedEmbeddedTexture(
   std::string name,
   const aiTexel& data,
   const size_t size,
@@ -233,7 +233,7 @@ Assets::Texture loadCompressedEmbeddedTexture(
     .value();
 }
 
-Assets::Texture loadTexture(
+Assets::Material loadTexture(
   const aiTexture* texture,
   const std::filesystem::path& texturePath,
   const std::filesystem::path& modelPath,
@@ -259,14 +259,14 @@ Assets::Texture loadTexture(
     texture->mFilename.C_Str(), *texture->pcData, texture->mWidth, fs, logger);
 }
 
-std::vector<Assets::Texture> loadTexturesForMaterial(
+std::vector<Assets::Material> loadTexturesForMaterial(
   const aiScene& scene,
   const size_t materialIndex,
   const std::filesystem::path& modelPath,
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Texture>{};
+  auto textures = std::vector<Assets::Material>{};
 
   // Is there even a single diffuse texture? If not, fail and load fallback material.
   const auto textureCount =

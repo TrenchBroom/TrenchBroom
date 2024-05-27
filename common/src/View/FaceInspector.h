@@ -29,7 +29,7 @@ class QWidget;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::View
@@ -60,7 +60,7 @@ public:
   ~FaceInspector() override;
 
   bool cancelMouseDrag();
-  void revealTexture(const Assets::Texture* texture);
+  void revealTexture(const Assets::Material* texture);
 
 private:
   void createGui(GLContextManager& contextManager);
@@ -68,7 +68,7 @@ private:
   QWidget* createTextureBrowser(GLContextManager& contextManager);
   QWidget* createTextureBrowserInfo();
 
-  void textureSelected(const Assets::Texture* texture);
+  void textureSelected(const Assets::Material* texture);
 
   void connectObservers();
   void documentWasNewedOrOpened(MapDocument* document);

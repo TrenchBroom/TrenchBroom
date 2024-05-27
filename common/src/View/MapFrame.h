@@ -52,7 +52,7 @@ class Logger;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
@@ -392,7 +392,7 @@ public:
   bool canRevealTexture() const;
   void revealTexture();
 
-  void revealTexture(const Assets::Texture* texture);
+  void revealTexture(const Assets::Material* texture);
 
   void debugPrintVertices();
   void debugCreateBrush();

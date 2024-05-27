@@ -35,7 +35,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
@@ -90,7 +90,7 @@ public:
   {
     std::vector<IndexedVertex> verts;
     std::string textureName;
-    const Assets::Texture* texture;
+    const Assets::Material* texture;
   };
 
   struct BrushObject
@@ -111,7 +111,7 @@ public:
     size_t patchNo;
     std::vector<PatchQuad> quads;
     std::string textureName;
-    const Assets::Texture* texture;
+    const Assets::Material* texture;
   };
 
   using Object = std::variant<BrushObject, PatchObject>;

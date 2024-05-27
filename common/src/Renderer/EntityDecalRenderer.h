@@ -33,7 +33,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 struct DecalSpecification;
 } // namespace TrenchBroom::Assets
 
@@ -63,7 +63,7 @@ private:
      * and the decal geometry is stored in the VBO */
     bool validated = false;
 
-    Assets::Texture* texture = nullptr;
+    Assets::Material* texture = nullptr;
 
     AllocationTracker::Block* vertexHolderKey = nullptr;
     AllocationTracker::Block* faceIndicesKey = nullptr;
@@ -77,7 +77,7 @@ private:
 
   using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
   using TextureToBrushIndicesMap =
-    std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
+    std::unordered_map<const Assets::Material*, std::shared_ptr<BrushIndexArray>>;
 
   std::shared_ptr<TextureToBrushIndicesMap> m_faces;
   std::shared_ptr<BrushVertexArray> m_vertexArray;

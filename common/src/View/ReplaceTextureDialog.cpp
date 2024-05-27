@@ -188,12 +188,12 @@ void ReplaceTextureDialog::createGui(GLContextManager& contextManager)
   setMinimumSize(650, 450);
 }
 
-void ReplaceTextureDialog::subjectSelected(const Assets::Texture* /* subject */)
+void ReplaceTextureDialog::subjectSelected(const Assets::Material* /* subject */)
 {
   updateReplaceButton();
 }
 
-void ReplaceTextureDialog::replacementSelected(const Assets::Texture* /* replacement */)
+void ReplaceTextureDialog::replacementSelected(const Assets::Material* /* replacement */)
 {
   updateReplaceButton();
 }

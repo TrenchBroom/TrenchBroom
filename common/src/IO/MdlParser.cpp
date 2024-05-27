@@ -467,7 +467,7 @@ void skipSkins(
   }
 }
 
-Assets::Texture parseSkin(
+Assets::Material parseSkin(
   Reader& reader,
   const size_t width,
   const size_t height,
@@ -490,7 +490,7 @@ Assets::Texture parseSkin(
   {
     palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
-    return Assets::Texture{
+    return Assets::Material{
       std::move(skinName), width, height, avgColor, std::move(rgbaImage), GL_RGBA, type};
   }
 
@@ -500,7 +500,7 @@ Assets::Texture parseSkin(
   palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
   reader.seekForward((pictureCount - 1) * size); // skip all remaining pictures
 
-  return Assets::Texture{
+  return Assets::Material{
     std::move(skinName), width, height, avgColor, std::move(rgbaImage), GL_RGBA, type};
 }
 
@@ -514,7 +514,7 @@ void parseSkins(
   const std::string& modelName,
   const Assets::Palette& palette)
 {
-  auto textures = std::vector<Assets::Texture>{};
+  auto textures = std::vector<Assets::Material>{};
   textures.reserve(count);
 
   for (size_t i = 0; i < count; ++i)

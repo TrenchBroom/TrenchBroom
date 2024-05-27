@@ -51,7 +51,7 @@ const Model::BrushFace* UVViewHelper::face() const
   return valid() ? &m_faceHandle->face() : nullptr;
 }
 
-const Assets::Texture* UVViewHelper::texture() const
+const Assets::Material* UVViewHelper::texture() const
 {
   return valid() ? face()->texture() : nullptr;
 }

@@ -109,7 +109,7 @@ std::optional<std::filesystem::path> findImagePath(
   return std::nullopt;
 }
 
-Result<Assets::Texture, ReadTextureError> loadTextureImage(
+Result<Assets::Material, ReadTextureError> loadTextureImage(
   std::string shaderName, const std::filesystem::path& imagePath, const FileSystem& fs)
 {
   auto imageName = imagePath.filename();
@@ -125,14 +125,14 @@ Result<Assets::Texture, ReadTextureError> loadTextureImage(
       return readFreeImageTexture(shaderName, reader);
     })
     .or_else([&](auto e) {
-      return Result<Assets::Texture, ReadTextureError>{
+      return Result<Assets::Material, ReadTextureError>{
         ReadTextureError{shaderName, e.msg}};
     });
 }
 
 } // namespace
 
-Result<Assets::Texture, ReadTextureError> readQuake3ShaderTexture(
+Result<Assets::Material, ReadTextureError> readQuake3ShaderTexture(
   std::string shaderName, const File& file, const FileSystem& fs)
 {
   const auto* shaderFile = dynamic_cast<const ObjectFile<Assets::Quake3Shader>*>(&file);

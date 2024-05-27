@@ -54,17 +54,17 @@ TextureBrowser::TextureBrowser(
   reload();
 }
 
-const Assets::Texture* TextureBrowser::selectedTexture() const
+const Assets::Material* TextureBrowser::selectedTexture() const
 {
   return m_view->selectedTexture();
 }
 
-void TextureBrowser::setSelectedTexture(const Assets::Texture* selectedTexture)
+void TextureBrowser::setSelectedTexture(const Assets::Material* selectedTexture)
 {
   m_view->setSelectedTexture(selectedTexture);
 }
 
-void TextureBrowser::revealTexture(const Assets::Texture* texture)
+void TextureBrowser::revealTexture(const Assets::Material* texture)
 {
   setFilterText("");
   m_view->revealTexture(texture);

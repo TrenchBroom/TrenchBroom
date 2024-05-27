@@ -87,7 +87,7 @@ void loadSurfaceSkins(
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Texture>{};
+  auto textures = std::vector<Assets::Material>{};
   textures.reserve(shaderPaths.size());
 
   for (const auto& shaderPath : shaderPaths)

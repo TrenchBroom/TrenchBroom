@@ -59,7 +59,7 @@ std::vector<Vertex> createDecalBrushFace(
   const Model::EntityNode* entityNode,
   const Model::BrushNode* brush,
   const Model::BrushFace& face,
-  const Assets::Texture& texture)
+  const Assets::Material& texture)
 {
   const auto textureSize = vm::vec2f{float(texture.width()), float(texture.height())};
   const auto textureName = texture.name();

@@ -33,7 +33,7 @@ TexturedIndexRangeMap::Size::Size()
 }
 
 void TexturedIndexRangeMap::Size::inc(
-  const Texture* texture, const PrimType primType, const size_t vertexCount)
+  const Material* texture, const PrimType primType, const size_t vertexCount)
 {
   auto& sizeForKey = findCurrent(texture);
   sizeForKey.inc(primType, vertexCount);
@@ -48,7 +48,7 @@ void TexturedIndexRangeMap::Size::inc(const TexturedIndexRangeMap::Size& other)
   }
 }
 
-IndexRangeMap::Size& TexturedIndexRangeMap::Size::findCurrent(const Texture* texture)
+IndexRangeMap::Size& TexturedIndexRangeMap::Size::findCurrent(const Material* texture)
 {
   if (!isCurrent(texture))
   {
@@ -58,7 +58,7 @@ IndexRangeMap::Size& TexturedIndexRangeMap::Size::findCurrent(const Texture* tex
   return m_current->second;
 }
 
-bool TexturedIndexRangeMap::Size::isCurrent(const Texture* texture) const
+bool TexturedIndexRangeMap::Size::isCurrent(const Material* texture) const
 {
   if (m_current == std::end(m_sizes))
   {
@@ -92,7 +92,7 @@ TexturedIndexRangeMap::TexturedIndexRangeMap(const Size& size)
 }
 
 TexturedIndexRangeMap::TexturedIndexRangeMap(
-  const Texture* texture, IndexRangeMap primitives)
+  const Material* texture, IndexRangeMap primitives)
   : m_data(new TextureToIndexRangeMap())
   , m_current(m_data->end())
 {
@@ -100,7 +100,7 @@ TexturedIndexRangeMap::TexturedIndexRangeMap(
 }
 
 TexturedIndexRangeMap::TexturedIndexRangeMap(
-  const Texture* texture,
+  const Material* texture,
   const PrimType primType,
   const size_t index,
   const size_t vertexCount)
@@ -111,7 +111,7 @@ TexturedIndexRangeMap::TexturedIndexRangeMap(
 }
 
 void TexturedIndexRangeMap::add(
-  const Texture* texture,
+  const Material* texture,
   const PrimType primType,
   const size_t index,
   const size_t vertexCount)
@@ -120,7 +120,7 @@ void TexturedIndexRangeMap::add(
   current.add(primType, index, vertexCount);
 }
 
-void TexturedIndexRangeMap::add(const Texture* texture, IndexRangeMap primitives)
+void TexturedIndexRangeMap::add(const Material* texture, IndexRangeMap primitives)
 {
   m_data->insert(std::make_pair(texture, std::move(primitives)));
 }
@@ -151,7 +151,7 @@ void TexturedIndexRangeMap::render(VertexArray& vertexArray, TextureRenderFunc& 
 }
 
 void TexturedIndexRangeMap::forEachPrimitive(
-  std::function<void(const Texture*, PrimType, size_t, size_t)> func) const
+  std::function<void(const Material*, PrimType, size_t, size_t)> func) const
 {
   for (const auto& entry : *m_data)
   {
@@ -165,7 +165,7 @@ void TexturedIndexRangeMap::forEachPrimitive(
   }
 }
 
-IndexRangeMap& TexturedIndexRangeMap::findCurrent(const Texture* texture)
+IndexRangeMap& TexturedIndexRangeMap::findCurrent(const Material* texture)
 {
   if (!isCurrent(texture))
   {
@@ -175,7 +175,7 @@ IndexRangeMap& TexturedIndexRangeMap::findCurrent(const Texture* texture)
   return m_current->second;
 }
 
-bool TexturedIndexRangeMap::isCurrent(const Texture* texture) const
+bool TexturedIndexRangeMap::isCurrent(const Material* texture) const
 {
   if (m_current == m_data->end())
   {

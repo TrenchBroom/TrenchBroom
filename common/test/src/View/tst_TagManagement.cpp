@@ -48,17 +48,17 @@ namespace
 class TagManagementTest : public MapDocumentTest
 {
 protected:
-  Assets::Texture* m_textureA = nullptr;
-  Assets::Texture* m_textureB = nullptr;
-  Assets::Texture* m_textureC = nullptr;
+  Assets::Material* m_textureA = nullptr;
+  Assets::Material* m_textureB = nullptr;
+  Assets::Material* m_textureC = nullptr;
   const Assets::TextureCollection* m_textureCollection = nullptr;
 
 private:
   void SetUp()
   {
-    auto textureA = Assets::Texture{"some_texture", 16, 16};
-    auto textureB = Assets::Texture{"other_texture", 32, 32};
-    auto textureC = Assets::Texture{"yet_another_texture", 64, 64};
+    auto textureA = Assets::Material{"some_texture", 16, 16};
+    auto textureB = Assets::Material{"other_texture", 32, 32};
+    auto textureC = Assets::Material{"yet_another_texture", 64, 64};
 
     const auto singleParam = std::string{"some_parm"};
     const auto multiParams = std::set<std::string>{"parm1", "parm2"};

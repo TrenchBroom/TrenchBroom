@@ -39,7 +39,7 @@ class Logger;
 namespace Assets
 {
 class EntityModel;
-class Texture;
+class Material;
 } // namespace Assets
 
 namespace IO
@@ -185,7 +185,7 @@ private: // model construction
     Logger& logger, const Scene& scene) const;
   bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
 
-  Assets::Texture loadTexture(Logger& logger, const std::filesystem::path& path) const;
+  Assets::Material loadTexture(Logger& logger, const std::filesystem::path& path) const;
   std::filesystem::path fixTexturePath(Logger& logger, std::filesystem::path path) const;
 };
 } // namespace IO

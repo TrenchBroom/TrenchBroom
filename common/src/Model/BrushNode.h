@@ -41,7 +41,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class Texture;
+class Material;
 }
 
 namespace Renderer
@@ -89,7 +89,7 @@ public:
 
   void updateFaceTags(size_t faceIndex, TagManager& tagManager);
 
-  void setFaceTexture(size_t faceIndex, Assets::Texture* texture);
+  void setFaceTexture(size_t faceIndex, Assets::Material* texture);
 
   bool contains(const Node* node) const;
   bool intersects(const Node* node) const;

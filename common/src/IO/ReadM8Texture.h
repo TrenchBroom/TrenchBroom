@@ -31,6 +31,7 @@ class Reader;
 /**
  * Heretic 2 .m8 format
  */
-Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader& reader);
+Result<Assets::Material, ReadTextureError> readM8Texture(
+  std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO

@@ -98,7 +98,7 @@ Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format)
   return average;
 }
 
-Result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
+Result<Assets::Material, ReadTextureError> readFreeImageTextureFromMemory(
   std::string name, const uint8_t* begin, const size_t size)
 {
   try
@@ -164,10 +164,10 @@ Result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
       FI_RGBA_BLUE_MASK,
       TRUE);
 
-    const auto textureType = Assets::Texture::selectTextureType(masked);
+    const auto textureType = Assets::Material::selectTextureType(masked);
     const auto averageColor = getAverageColor(buffers.at(0), format);
 
-    return Assets::Texture{
+    return Assets::Material{
       std::move(name),
       imageWidth,
       imageHeight,
@@ -182,7 +182,7 @@ Result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
   }
 }
 
-Result<Assets::Texture, ReadTextureError> readFreeImageTexture(
+Result<Assets::Material, ReadTextureError> readFreeImageTexture(
   std::string name, Reader& reader)
 {
   auto bufferedReader = reader.buffer();

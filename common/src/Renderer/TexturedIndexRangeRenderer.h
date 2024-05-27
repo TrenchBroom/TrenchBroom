@@ -29,7 +29,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class Texture;
+class Material;
 }
 
 namespace Renderer
@@ -61,7 +61,7 @@ public:
     const VertexArray& vertexArray, const TexturedIndexRangeMap& indexRange);
   TexturedIndexRangeRenderer(
     const VertexArray& vertexArray,
-    const Assets::Texture* texture,
+    const Assets::Material* texture,
     const IndexRangeMap& indexRange);
   ~TexturedIndexRangeRenderer() override;
 

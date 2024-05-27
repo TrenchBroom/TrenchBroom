@@ -34,7 +34,7 @@ struct aiMesh;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::IO

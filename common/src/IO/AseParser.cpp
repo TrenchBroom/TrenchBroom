@@ -666,7 +666,7 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
   auto& surface = model->addSurface(m_name);
 
   // Load the textures
-  auto textures = std::vector<Assets::Texture>{};
+  auto textures = std::vector<Assets::Material>{};
   textures.reserve(scene.materialPaths.size());
   for (const auto& path : scene.materialPaths)
   {
@@ -764,7 +764,7 @@ bool AseParser::checkIndices(Logger& logger, const MeshFace& face, const Mesh& m
   return true;
 }
 
-Assets::Texture AseParser::loadTexture(
+Assets::Material AseParser::loadTexture(
   Logger& logger, const std::filesystem::path& path) const
 {
   const auto actualPath = fixTexturePath(logger, path);

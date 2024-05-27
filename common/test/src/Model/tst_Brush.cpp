@@ -2173,7 +2173,7 @@ TEST_CASE("moveFaceWithUVLock")
 
   const vm::bbox3 worldBounds(4096.0);
 
-  Assets::Texture testTexture("testTexture", 64, 64);
+  Assets::Material testTexture("testTexture", 64, 64);
 
   BrushBuilder builder(format, worldBounds);
   Brush brush = builder.createCube(64.0, "").value();

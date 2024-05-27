@@ -99,7 +99,7 @@ using GameData = std::variant<std::monostate, Q2Data>;
 
 std::ostream& operator<<(std::ostream& lhs, const GameData& rhs);
 
-class Texture
+class Material
 {
 private:
   using Buffer = TextureBuffer;
@@ -136,7 +136,7 @@ private:
   GameData m_gameData;
 
   kdl_reflect_decl(
-    Texture,
+    Material,
     m_name,
     m_absolutePath,
     m_relativePath,
@@ -152,7 +152,7 @@ private:
     m_gameData);
 
 public:
-  Texture(
+  Material(
     std::string name,
     size_t width,
     size_t height,
@@ -161,7 +161,7 @@ public:
     GLenum format,
     TextureType type,
     GameData gameData = std::monostate{});
-  Texture(
+  Material(
     std::string name,
     size_t width,
     size_t height,
@@ -170,7 +170,7 @@ public:
     GLenum format,
     TextureType type,
     GameData gameData = std::monostate{});
-  Texture(
+  Material(
     std::string name,
     size_t width,
     size_t height,
@@ -178,13 +178,13 @@ public:
     TextureType type = TextureType::Opaque,
     GameData gameData = std::monostate{});
 
-  Texture(const Texture&) = delete;
-  Texture& operator=(const Texture&) = delete;
+  Material(const Material&) = delete;
+  Material& operator=(const Material&) = delete;
 
-  Texture(Texture&& other);
-  Texture& operator=(Texture&& other);
+  Material(Material&& other);
+  Material& operator=(Material&& other);
 
-  ~Texture();
+  ~Material();
 
   static TextureType selectTextureType(bool masked);
 

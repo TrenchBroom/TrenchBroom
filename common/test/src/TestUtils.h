@@ -41,7 +41,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class Texture;
+class Material;
 }
 
 bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
@@ -182,9 +182,9 @@ enum class ColorMatch
 };
 
 int getComponentOfPixel(
-  const Assets::Texture& texture, std::size_t x, std::size_t y, Component component);
+  const Assets::Material& texture, std::size_t x, std::size_t y, Component component);
 void checkColor(
-  const Assets::Texture& texture,
+  const Assets::Material& texture,
   std::size_t x,
   std::size_t y,
   int r,

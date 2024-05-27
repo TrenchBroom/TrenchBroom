@@ -91,8 +91,8 @@ TEST_CASE("BrushFaceTest.textureUsageCount")
   const vm::vec3 p0(0.0, 0.0, 4.0);
   const vm::vec3 p1(1.0, 0.0, 4.0);
   const vm::vec3 p2(0.0, -1.0, 4.0);
-  Assets::Texture texture("testTexture", 64, 64);
-  Assets::Texture texture2("testTexture2", 64, 64);
+  Assets::Material texture("testTexture", 64, 64);
+  Assets::Material texture2("testTexture2", 64, 64);
 
   CHECK(texture.usageCount() == 0u);
   CHECK(texture2.usageCount() == 0u);
@@ -567,7 +567,7 @@ static void checkTextureLockOffWithScale(const Brush& cube)
 TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
 {
   const vm::bbox3 worldBounds(8192.0);
-  Assets::Texture texture("testTexture", 64, 64);
+  Assets::Material texture("testTexture", 64, 64);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush cube = builder.createCube(128.0, "").value();
@@ -592,7 +592,7 @@ TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
 TEST_CASE("BrushFaceTest.testTextureLock_Paraxial")
 {
   const vm::bbox3 worldBounds(8192.0);
-  Assets::Texture texture("testTexture", 64, 64);
+  Assets::Material texture("testTexture", 64, 64);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush cube = builder.createCube(128.0, "").value();
@@ -612,7 +612,7 @@ TEST_CASE("BrushFaceTest.testTextureLock_Paraxial")
 TEST_CASE("BrushFaceTest.testTextureLock_Parallel")
 {
   const vm::bbox3 worldBounds(8192.0);
-  Assets::Texture texture("testTexture", 64, 64);
+  Assets::Material texture("testTexture", 64, 64);
 
   BrushBuilder builder(MapFormat::Valve, worldBounds);
   Brush cube = builder.createCube(128.0, "").value();
@@ -822,7 +822,7 @@ TEST_CASE("BrushFaceTest.formatConversion")
   BrushBuilder standardBuilder(MapFormat::Standard, worldBounds);
   BrushBuilder valveBuilder(MapFormat::Valve, worldBounds);
 
-  Assets::Texture texture("testTexture", 64, 64);
+  Assets::Material texture("testTexture", 64, 64);
 
   const Brush startingCube = standardBuilder.createCube(128.0, "")
                                .transform([&](Brush&& brush) {

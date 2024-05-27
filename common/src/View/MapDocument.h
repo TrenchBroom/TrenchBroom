@@ -54,7 +54,7 @@ class EntityDefinition;
 class EntityDefinitionFileSpec;
 class EntityDefinitionManager;
 class EntityModelManager;
-class Texture;
+class Material;
 class TextureManager;
 } // namespace TrenchBroom::Assets
 
@@ -402,7 +402,7 @@ public: // selection
   void selectNodes(const std::vector<Model::Node*>& nodes) override;
   void selectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) override;
   void convertToFaceSelection() override;
-  void selectFacesWithTexture(const Assets::Texture* texture);
+  void selectFacesWithTexture(const Assets::Material* texture);
   void selectTall(vm::axis::type cameraAxis);
 
   void deselectAll() override;

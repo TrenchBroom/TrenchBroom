@@ -426,7 +426,7 @@ DocumentGameConfig newMapDocument(
 } // namespace View
 
 int getComponentOfPixel(
-  const Assets::Texture& texture,
+  const Assets::Material& texture,
   const std::size_t x,
   const std::size_t y,
   const Component component)
@@ -484,7 +484,7 @@ int getComponentOfPixel(
 }
 
 void checkColor(
-  const Assets::Texture& texture,
+  const Assets::Material& texture,
   const std::size_t x,
   const std::size_t y,
   const int r,

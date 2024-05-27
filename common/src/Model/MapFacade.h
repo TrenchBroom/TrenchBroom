@@ -38,8 +38,8 @@ namespace Assets
 class BrushEntityDefinition;
 class EntityDefinitionManager;
 class EntityModelManager;
+class Material;
 class PointEntityDefinition;
-class Texture;
 class TextureManager;
 } // namespace Assets
 

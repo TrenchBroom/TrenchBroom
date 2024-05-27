@@ -426,7 +426,7 @@ void loadSkins(
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Texture>{};
+  auto textures = std::vector<Assets::Material>{};
   textures.reserve(skins.size());
 
   for (const auto& skin : skins)

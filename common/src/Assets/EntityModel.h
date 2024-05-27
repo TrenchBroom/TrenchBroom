@@ -44,7 +44,7 @@ class TexturedRenderer;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 class TextureCollection;
 
 enum class PitchType
@@ -295,7 +295,7 @@ public:
    *
    * @param skins the textures to set
    */
-  void setSkins(std::vector<Texture> skins);
+  void setSkins(std::vector<Material> skins);
 
   /**
    * Returns the number of frame meshes in this surface, should match the model's frame
@@ -318,7 +318,7 @@ public:
    * @param name the name of the skin to find
    * @return the skin with the given name, or null if no such skin was found
    */
-  const Texture* skin(const std::string& name) const;
+  const Material* skin(const std::string& name) const;
 
   /**
    * Returns the skin with the given index.
@@ -326,7 +326,7 @@ public:
    * @param index the index of the skin to find
    * @return the skin with the given index, or null if the index is out of bounds
    */
-  const Texture* skin(size_t index) const;
+  const Material* skin(size_t index) const;
 
   std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex);

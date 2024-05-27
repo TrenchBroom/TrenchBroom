@@ -48,15 +48,15 @@ static constexpr size_t NumTextures = 256;
 /**
  * Both returned vectors need to be freed with VecUtils::clearAndDelete
  */
-static std::pair<std::vector<Model::BrushNode*>, std::vector<Assets::Texture*>>
+static std::pair<std::vector<Model::BrushNode*>, std::vector<Assets::Material*>>
 makeBrushes()
 {
   // make textures
-  std::vector<Assets::Texture*> textures;
+  std::vector<Assets::Material*> textures;
   for (size_t i = 0; i < NumTextures; ++i)
   {
     const auto textureName = "texture " + std::to_string(i);
-    textures.push_back(new Assets::Texture(textureName, 64, 64));
+    textures.push_back(new Assets::Material(textureName, 64, 64));
   }
 
   // make brushes, cycling through the textures for each face
@@ -96,7 +96,7 @@ TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
 {
   auto brushesTextures = makeBrushes();
   std::vector<Model::BrushNode*> brushes = brushesTextures.first;
-  std::vector<Assets::Texture*> textures = brushesTextures.second;
+  std::vector<Assets::Material*> textures = brushesTextures.second;
 
   BrushRenderer r;
 

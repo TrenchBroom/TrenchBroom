@@ -38,10 +38,10 @@ class Reader;
 
 Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
 
-Result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
+Result<Assets::Material, ReadTextureError> readFreeImageTextureFromMemory(
   std::string name, const uint8_t* begin, size_t size);
 
-Result<Assets::Texture, ReadTextureError> readFreeImageTexture(
+Result<Assets::Material, ReadTextureError> readFreeImageTexture(
   std::string name, Reader& reader);
 
 bool isSupportedFreeImageExtension(const std::string& extension);

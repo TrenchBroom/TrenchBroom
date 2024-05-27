@@ -37,7 +37,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-static Assets::Texture loadTexture(const std::string& name)
+static Assets::Material loadTexture(const std::string& name)
 {
   const auto ddsPath = std::filesystem::current_path() / "fixture/test/IO/Dds/";
   auto diskFS = DiskFileSystem{ddsPath};

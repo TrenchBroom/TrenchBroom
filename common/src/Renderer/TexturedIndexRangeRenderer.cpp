@@ -36,7 +36,7 @@ TexturedIndexRangeRenderer::TexturedIndexRangeRenderer(
 
 TexturedIndexRangeRenderer::TexturedIndexRangeRenderer(
   const VertexArray& vertexArray,
-  const Assets::Texture* texture,
+  const Assets::Material* texture,
   const IndexRangeMap& indexRange)
   : m_vertexArray(vertexArray)
   , m_indexRange(texture, indexRange)

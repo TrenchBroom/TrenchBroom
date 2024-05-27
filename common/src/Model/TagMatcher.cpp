@@ -105,7 +105,7 @@ void TextureTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) 
 {
   const auto& textureManager = facade.textureManager();
   const auto& allTextures = textureManager.textures();
-  auto matchingTextures = std::vector<const Assets::Texture*>{};
+  auto matchingTextures = std::vector<const Assets::Material*>{};
 
   std::copy_if(
     std::begin(allTextures),
@@ -120,7 +120,7 @@ void TextureTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) 
       return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
     });
 
-  const Assets::Texture* texture = nullptr;
+  const Assets::Material* texture = nullptr;
   if (matchingTextures.empty())
   {
     return;
@@ -184,7 +184,7 @@ void TextureNameTagMatcher::appendToStream(std::ostream& str) const
                           << "m_pattern" << m_pattern;
 }
 
-bool TextureNameTagMatcher::matchesTexture(const Assets::Texture* texture) const
+bool TextureNameTagMatcher::matchesTexture(const Assets::Material* texture) const
 {
   return texture && matchesTextureName(texture->name());
 }
@@ -235,7 +235,7 @@ void SurfaceParmTagMatcher::appendToStream(std::ostream& str) const
                           << "m_parameters" << m_parameters;
 }
 
-bool SurfaceParmTagMatcher::matchesTexture(const Assets::Texture* texture) const
+bool SurfaceParmTagMatcher::matchesTexture(const Assets::Material* texture) const
 {
   if (texture)
   {

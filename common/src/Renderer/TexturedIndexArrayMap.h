@@ -27,7 +27,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class Texture;
+class Material;
 }
 
 namespace Renderer
@@ -43,10 +43,10 @@ class TextureRenderFunc;
 class TexturedIndexArrayMap
 {
 public:
-  using Texture = Assets::Texture;
+  using Material = Assets::Material;
 
 private:
-  using TextureToIndexArrayMap = std::unordered_map<const Texture*, IndexArrayMap>;
+  using TextureToIndexArrayMap = std::unordered_map<const Material*, IndexArrayMap>;
 
 public:
   /**
@@ -58,7 +58,7 @@ public:
   private:
     friend class TexturedIndexArrayMap;
 
-    using TextureToSize = std::unordered_map<const Texture*, IndexArrayMap::Size>;
+    using TextureToSize = std::unordered_map<const Material*, IndexArrayMap::Size>;
     TextureToSize m_sizes;
     size_t m_indexCount;
 
@@ -75,7 +75,7 @@ public:
      * @param primType the primitive type
      * @param count the number of primitives to account for
      */
-    void inc(const Texture* texture, PrimType primType, size_t count);
+    void inc(const Material* texture, PrimType primType, size_t count);
 
     /**
      * Increase the storage by the given size.
@@ -83,7 +83,7 @@ public:
      * @param texture the texture
      * @param size the size to increment by
      */
-    void inc(const Texture* texture, const IndexArrayMap::Size& size);
+    void inc(const Material* texture, const IndexArrayMap::Size& size);
 
     /**
      * The total number of indices that have been accounted for.
@@ -135,7 +135,7 @@ public:
    * @return the offset of the next block that would be recorded for the given primitive
    * type
    */
-  size_t add(const Texture* texture, PrimType primType, size_t count);
+  size_t add(const Material* texture, PrimType primType, size_t count);
 
   /**
    * Renders the recorded primitives using the indices stored in the given index array.

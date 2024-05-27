@@ -288,7 +288,8 @@ public:
    * @param skin the texture to use when rendering the mesh
    * @return the renderer
    */
-  std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(const Texture* skin)
+  std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(
+    const Material* skin)
   {
     const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
     return doBuildRenderer(skin, vertexArray);
@@ -303,7 +304,7 @@ private:
    * @return the renderer
    */
   virtual std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(
-    const Texture* skin, const Renderer::VertexArray& vertices) = 0;
+    const Material* skin, const Renderer::VertexArray& vertices) = 0;
 };
 
 // EntityModel::IndexedMesh
@@ -339,7 +340,7 @@ public:
 
 private:
   std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(
-    const Texture* skin, const Renderer::VertexArray& vertices) override
+    const Material* skin, const Renderer::VertexArray& vertices) override
   {
     const Renderer::TexturedIndexRangeMap texturedIndices(skin, m_indices);
     return std::make_unique<Renderer::TexturedIndexRangeRenderer>(
@@ -374,7 +375,7 @@ public:
     , m_indices{std::move(indices)}
   {
     m_indices.forEachPrimitive([&](
-                                 const Texture* /* texture */,
+                                 const Material* /* texture */,
                                  const Renderer::PrimType primType,
                                  const size_t index,
                                  const size_t count) {
@@ -384,7 +385,7 @@ public:
 
 private:
   std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(
-    const Texture* /* skin */, const Renderer::VertexArray& vertices) override
+    const Material* /* skin */, const Renderer::VertexArray& vertices) override
   {
     return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
   }
@@ -436,7 +437,7 @@ void EntityModelSurface::addTexturedMesh(
     frame, std::move(vertices), std::move(indices));
 }
 
-void EntityModelSurface::setSkins(std::vector<Texture> skins)
+void EntityModelSurface::setSkins(std::vector<Material> skins)
 {
   m_skins = std::make_unique<TextureCollection>(std::move(skins));
 }
@@ -451,12 +452,12 @@ size_t EntityModelSurface::skinCount() const
   return m_skins->textureCount();
 }
 
-const Texture* EntityModelSurface::skin(const std::string& name) const
+const Material* EntityModelSurface::skin(const std::string& name) const
 {
   return m_skins->textureByName(name);
 }
 
-const Texture* EntityModelSurface::skin(const size_t index) const
+const Material* EntityModelSurface::skin(const size_t index) const
 {
   return m_skins->textureByIndex(index);
 }

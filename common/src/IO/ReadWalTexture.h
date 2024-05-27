@@ -28,14 +28,14 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::IO
 {
 class Reader;
 
-Result<Assets::Texture, ReadTextureError> readWalTexture(
+Result<Assets::Material, ReadTextureError> readWalTexture(
   std::string name, Reader& reader, const std::optional<Assets::Palette>& palette);
 
 } // namespace TrenchBroom::IO

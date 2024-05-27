@@ -33,7 +33,7 @@ class Logger;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::IO
@@ -48,7 +48,7 @@ class FileSystem;
  * @param name the name of the texture to be returned
  * @return the default texture
  */
-Assets::Texture loadDefaultTexture(
+Assets::Material loadDefaultTexture(
   const FileSystem& fs, std::string name, Logger& logger);
 
 QPixmap loadPixmapResource(const std::filesystem::path& imagePath);

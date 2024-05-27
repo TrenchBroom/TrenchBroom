@@ -34,7 +34,7 @@ kdl_reflect_impl(TextureCollection);
 
 TextureCollection::TextureCollection() = default;
 
-TextureCollection::TextureCollection(std::vector<Texture> textures)
+TextureCollection::TextureCollection(std::vector<Material> textures)
   : m_textures{std::move(textures)}
 {
 }
@@ -45,7 +45,7 @@ TextureCollection::TextureCollection(std::filesystem::path path)
 }
 
 TextureCollection::TextureCollection(
-  std::filesystem::path path, std::vector<Texture> textures)
+  std::filesystem::path path, std::vector<Material> textures)
   : m_path{std::move(path)}
   , m_textures{std::move(textures)}
   , m_loaded{true}
@@ -78,28 +78,28 @@ size_t TextureCollection::textureCount() const
   return m_textures.size();
 }
 
-const std::vector<Texture>& TextureCollection::textures() const
+const std::vector<Material>& TextureCollection::textures() const
 {
   return m_textures;
 }
 
-std::vector<Texture>& TextureCollection::textures()
+std::vector<Material>& TextureCollection::textures()
 {
   return m_textures;
 }
 
-const Texture* TextureCollection::textureByIndex(const size_t index) const
+const Material* TextureCollection::textureByIndex(const size_t index) const
 {
   return index < m_textures.size() ? &m_textures[index] : nullptr;
 }
 
-Texture* TextureCollection::textureByIndex(const size_t index)
+Material* TextureCollection::textureByIndex(const size_t index)
 {
-  return const_cast<Texture*>(
+  return const_cast<Material*>(
     const_cast<const TextureCollection*>(this)->textureByIndex(index));
 }
 
-const Texture* TextureCollection::textureByName(const std::string& name) const
+const Material* TextureCollection::textureByName(const std::string& name) const
 {
   const auto it =
     std::find_if(m_textures.begin(), m_textures.end(), [&](const auto& texture) {
@@ -108,9 +108,9 @@ const Texture* TextureCollection::textureByName(const std::string& name) const
   return it != m_textures.end() ? &*it : nullptr;
 }
 
-Texture* TextureCollection::textureByName(const std::string& name)
+Material* TextureCollection::textureByName(const std::string& name)
 {
-  return const_cast<Texture*>(
+  return const_cast<Material*>(
     const_cast<const TextureCollection*>(this)->textureByName(name));
 }
 

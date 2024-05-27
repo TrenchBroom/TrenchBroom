@@ -30,7 +30,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Renderer
@@ -43,7 +43,7 @@ class FaceRenderer : public IndexedRenderable
 {
 private:
   using TextureToBrushIndicesMap =
-    const std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
+    const std::unordered_map<const Assets::Material*, std::shared_ptr<BrushIndexArray>>;
 
   std::shared_ptr<BrushVertexArray> m_vertexArray;
   std::shared_ptr<TextureToBrushIndicesMap> m_indexArrayMap;

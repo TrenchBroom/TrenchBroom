@@ -63,7 +63,7 @@ Result<Assets::Palette> readHlMipPalette(Reader& reader)
   return Assets::makePalette(data, Assets::PaletteColorFormat::Rgb);
 }
 
-Result<Assets::Texture, ReadTextureError> readMipTexture(
+Result<Assets::Material, ReadTextureError> readMipTexture(
   std::string name, Reader& reader, const GetMipPalette& getMipPalette)
 {
   static const auto MipLevels = size_t(4);
@@ -117,7 +117,7 @@ Result<Assets::Texture, ReadTextureError> readMipTexture(
             ? Assets::TextureType::Masked
             : Assets::TextureType::Opaque;
 
-        return Result<Assets::Texture>{Assets::Texture{
+        return Result<Assets::Material>{Assets::Material{
           std::move(name),
           width,
           height,
@@ -127,7 +127,7 @@ Result<Assets::Texture, ReadTextureError> readMipTexture(
           type}};
       })
       .or_else([&](const auto& e) {
-        return Result<Assets::Texture, ReadTextureError>{
+        return Result<Assets::Material, ReadTextureError>{
           ReadTextureError{std::move(name), e.msg}};
       });
   }
@@ -152,13 +152,13 @@ std::string readMipTextureName(Reader& reader)
   }
 }
 
-Result<Assets::Texture, ReadTextureError> readIdMipTexture(
+Result<Assets::Material, ReadTextureError> readIdMipTexture(
   std::string name, Reader& reader, const Assets::Palette& palette)
 {
   return readMipTexture(std::move(name), reader, [&](Reader&) { return palette; });
 }
 
-Result<Assets::Texture, ReadTextureError> readHlMipTexture(
+Result<Assets::Material, ReadTextureError> readHlMipTexture(
   std::string name, Reader& reader)
 {
   return readMipTexture(std::move(name), reader, readHlMipPalette);

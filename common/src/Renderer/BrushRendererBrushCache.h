@@ -25,7 +25,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
@@ -45,7 +45,7 @@ public:
 
   struct CachedFace
   {
-    const Assets::Texture* texture;
+    const Assets::Material* texture;
     const Model::BrushFace* face;
     size_t vertexCount;
     size_t indexOfFirstVertexRelativeToBrush;

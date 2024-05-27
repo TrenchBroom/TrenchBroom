@@ -499,7 +499,7 @@ const TexCoordSystem& BrushFace::texCoordSystem() const
   return *m_texCoordSystem;
 }
 
-const Assets::Texture* BrushFace::texture() const
+const Assets::Material* BrushFace::texture() const
 {
   return m_textureReference.get();
 }
@@ -521,7 +521,7 @@ vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const
   return m_attributes.modOffset(offset, textureSize());
 }
 
-bool BrushFace::setTexture(Assets::Texture* texture)
+bool BrushFace::setTexture(Assets::Material* texture)
 {
   if (texture == this->texture())
   {

@@ -29,7 +29,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Renderer
@@ -69,7 +69,7 @@ public:
 
   bool valid() const;
   const Model::BrushFace* face() const;
-  const Assets::Texture* texture() const;
+  const Assets::Material* texture() const;
   void setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle);
   void cameraViewportChanged();
 

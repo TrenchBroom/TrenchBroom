@@ -42,7 +42,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
@@ -93,7 +93,7 @@ private:
   vm::plane3 m_boundary;
   BrushFaceAttributes m_attributes;
 
-  Assets::AssetReference<Assets::Texture> m_textureReference;
+  Assets::AssetReference<Assets::Material> m_textureReference;
   std::unique_ptr<TexCoordSystem> m_texCoordSystem;
   BrushFaceGeometry* m_geometry;
 
@@ -209,11 +209,11 @@ public:
   void resetTexCoordSystemCache();
   const TexCoordSystem& texCoordSystem() const;
 
-  const Assets::Texture* texture() const;
+  const Assets::Material* texture() const;
   vm::vec2f textureSize() const;
   vm::vec2f modOffset(const vm::vec2f& offset) const;
 
-  bool setTexture(Assets::Texture* texture);
+  bool setTexture(Assets::Material* texture);
 
   vm::vec3 textureXAxis() const;
   vm::vec3 textureYAxis() const;

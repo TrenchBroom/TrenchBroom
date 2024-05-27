@@ -87,9 +87,9 @@ TEST_CASE("BSP model intersection test")
   CHECK(vm::intersect_ray_bbox(missRay, box) == std::nullopt);
 }
 
-static Texture makeDummyTexture(const std::string& name)
+static Material makeDummyTexture(const std::string& name)
 {
-  return Texture{
+  return Material{
     name, 1, 1, Color::zero(), TextureBuffer{4}, GL_RGBA, TextureType::Opaque};
 }
 
@@ -118,7 +118,7 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   // Prepare the first surface - it will only have one skin
   auto& surface1 = model.addSurface("surface 1");
 
-  auto textures1 = std::vector<Texture>{};
+  auto textures1 = std::vector<Material>{};
   textures1.push_back(makeDummyTexture("skin1"));
   surface1.setSkins(std::move(textures1));
 
@@ -128,7 +128,7 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   // The second surface will have two skins
   auto& surface2 = model.addSurface("surface 2");
 
-  auto textures2 = std::vector<Texture>{};
+  auto textures2 = std::vector<Material>{};
   textures2.push_back(makeDummyTexture("skin2a"));
   textures2.push_back(makeDummyTexture("skin2b"));
   surface2.setSkins(std::move(textures2));

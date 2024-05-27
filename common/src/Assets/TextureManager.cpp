@@ -160,18 +160,18 @@ void TextureManager::commitChanges()
   m_toRemove.clear();
 }
 
-const Texture* TextureManager::texture(const std::string& name) const
+const Material* TextureManager::texture(const std::string& name) const
 {
   auto it = m_texturesByName.find(kdl::str_to_lower(name));
   return it != m_texturesByName.end() ? it->second : nullptr;
 }
 
-Texture* TextureManager::texture(const std::string& name)
+Material* TextureManager::texture(const std::string& name)
 {
-  return const_cast<Texture*>(const_cast<const TextureManager*>(this)->texture(name));
+  return const_cast<Material*>(const_cast<const TextureManager*>(this)->texture(name));
 }
 
-const std::vector<const Texture*>& TextureManager::textures() const
+const std::vector<const Material*>& TextureManager::textures() const
 {
   return m_textures;
 }
@@ -227,7 +227,7 @@ void TextureManager::updateTextures()
   }
 
   m_textures = kdl::vec_transform(kdl::map_values(m_texturesByName), [](auto* t) {
-    return const_cast<const Texture*>(t);
+    return const_cast<const Material*>(t);
   });
 }
 } // namespace Assets

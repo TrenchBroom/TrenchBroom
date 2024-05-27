@@ -107,9 +107,9 @@ std::ostream& operator<<(std::ostream& lhs, const GameData& rhs)
 
 kdl_reflect_impl(Q2Data);
 
-kdl_reflect_impl(Texture);
+kdl_reflect_impl(Material);
 
-Texture::Texture(
+Material::Material(
   std::string name,
   const size_t width,
   const size_t height,
@@ -136,7 +136,7 @@ Texture::Texture(
   m_buffers.push_back(std::move(buffer));
 }
 
-Texture::Texture(
+Material::Material(
   std::string name,
   const size_t width,
   const size_t height,
@@ -178,7 +178,7 @@ Texture::Texture(
   }
 }
 
-Texture::Texture(
+Material::Material(
   std::string name,
   const size_t width,
   const size_t height,
@@ -199,9 +199,9 @@ Texture::Texture(
 {
 }
 
-Texture::~Texture() = default;
+Material::~Material() = default;
 
-Texture::Texture(Texture&& other)
+Material::Material(Material&& other)
   : m_name{std::move(other.m_name)}
   , m_absolutePath{std::move(other.m_absolutePath)}
   , m_relativePath{std::move(other.m_relativePath)}
@@ -220,7 +220,7 @@ Texture::Texture(Texture&& other)
 {
 }
 
-Texture& Texture::operator=(Texture&& other)
+Material& Material::operator=(Material&& other)
 {
   m_name = std::move(other.m_name);
   m_absolutePath = std::move(other.m_absolutePath);
@@ -240,121 +240,121 @@ Texture& Texture::operator=(Texture&& other)
   return *this;
 }
 
-TextureType Texture::selectTextureType(const bool masked)
+TextureType Material::selectTextureType(const bool masked)
 {
   return masked ? TextureType::Masked : TextureType::Opaque;
 }
 
-const std::string& Texture::name() const
+const std::string& Material::name() const
 {
   return m_name;
 }
 
-const std::filesystem::path& Texture::absolutePath() const
+const std::filesystem::path& Material::absolutePath() const
 {
   return m_absolutePath;
 }
 
-void Texture::setAbsolutePath(std::filesystem::path absolutePath)
+void Material::setAbsolutePath(std::filesystem::path absolutePath)
 {
   m_absolutePath = std::move(absolutePath);
 }
 
-const std::filesystem::path& Texture::relativePath() const
+const std::filesystem::path& Material::relativePath() const
 {
   return m_relativePath;
 }
 
-void Texture::setRelativePath(std::filesystem::path relativePath)
+void Material::setRelativePath(std::filesystem::path relativePath)
 {
   m_relativePath = std::move(relativePath);
 }
 
-size_t Texture::width() const
+size_t Material::width() const
 {
   return m_width;
 }
 
-size_t Texture::height() const
+size_t Material::height() const
 {
   return m_height;
 }
 
-const Color& Texture::averageColor() const
+const Color& Material::averageColor() const
 {
   return m_averageColor;
 }
 
-bool Texture::masked() const
+bool Material::masked() const
 {
   return m_type == TextureType::Masked;
 }
 
-void Texture::setOpaque()
+void Material::setOpaque()
 {
   m_type = TextureType::Opaque;
 }
 
-const std::set<std::string>& Texture::surfaceParms() const
+const std::set<std::string>& Material::surfaceParms() const
 {
   return m_surfaceParms;
 }
 
-void Texture::setSurfaceParms(std::set<std::string> surfaceParms)
+void Material::setSurfaceParms(std::set<std::string> surfaceParms)
 {
   m_surfaceParms = std::move(surfaceParms);
 }
 
-TextureCulling Texture::culling() const
+TextureCulling Material::culling() const
 {
   return m_culling;
 }
 
-void Texture::setCulling(const TextureCulling culling)
+void Material::setCulling(const TextureCulling culling)
 {
   m_culling = culling;
 }
 
-void Texture::setBlendFunc(const GLenum srcFactor, const GLenum destFactor)
+void Material::setBlendFunc(const GLenum srcFactor, const GLenum destFactor)
 {
   m_blendFunc.enable = TextureBlendFunc::Enable::UseFactors;
   m_blendFunc.srcFactor = srcFactor;
   m_blendFunc.destFactor = destFactor;
 }
 
-void Texture::disableBlend()
+void Material::disableBlend()
 {
   m_blendFunc.enable = TextureBlendFunc::Enable::DisableBlend;
 }
 
-const GameData& Texture::gameData() const
+const GameData& Material::gameData() const
 {
   return m_gameData;
 }
 
-size_t Texture::usageCount() const
+size_t Material::usageCount() const
 {
   return static_cast<size_t>(m_usageCount);
 }
 
-void Texture::incUsageCount()
+void Material::incUsageCount()
 {
   ++m_usageCount;
 }
 
-void Texture::decUsageCount()
+void Material::decUsageCount()
 {
   const size_t previous = m_usageCount--;
   assert(previous > 0);
   unused(previous);
 }
 
-bool Texture::isPrepared() const
+bool Material::isPrepared() const
 {
   return m_textureId != 0;
 }
 
-void Texture::prepare(const GLuint textureId, const int minFilter, const int magFilter)
+void Material::prepare(const GLuint textureId, const int minFilter, const int magFilter)
 {
   assert(textureId > 0);
   assert(m_textureId == 0);
@@ -437,7 +437,7 @@ void Texture::prepare(const GLuint textureId, const int minFilter, const int mag
   }
 }
 
-void Texture::setMode(const int minFilter, const int magFilter)
+void Material::setMode(const int minFilter, const int magFilter)
 {
   if (isPrepared())
   {
@@ -457,7 +457,7 @@ void Texture::setMode(const int minFilter, const int magFilter)
   }
 }
 
-void Texture::activate() const
+void Material::activate() const
 {
   if (isPrepared())
   {
@@ -495,7 +495,7 @@ void Texture::activate() const
   }
 }
 
-void Texture::deactivate() const
+void Material::deactivate() const
 {
   if (isPrepared())
   {
@@ -524,17 +524,17 @@ void Texture::deactivate() const
   }
 }
 
-const Texture::BufferList& Texture::buffersIfUnprepared() const
+const Material::BufferList& Material::buffersIfUnprepared() const
 {
   return m_buffers;
 }
 
-GLenum Texture::format() const
+GLenum Material::format() const
 {
   return m_format;
 }
 
-TextureType Texture::type() const
+TextureType Material::type() const
 {
   return m_type;
 }

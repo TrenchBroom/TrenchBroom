@@ -49,13 +49,13 @@ struct TextureInfo
   kdl_reflect_inline(TextureInfo, name, width, height);
 };
 
-bool operator==(const Assets::Texture& lhs, const TextureInfo& rhs)
+bool operator==(const Assets::Material& lhs, const TextureInfo& rhs)
 {
   return lhs.name() == rhs.name && lhs.width() == rhs.width && lhs.height() == rhs.height;
 }
 
 bool operator==(
-  const Result<Assets::Texture, ReadTextureError>& lhs,
+  const Result<Assets::Material, ReadTextureError>& lhs,
   const Result<TextureInfo, ReadTextureError>& rhs)
 {
   if (lhs.is_success())

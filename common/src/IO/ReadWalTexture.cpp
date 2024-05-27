@@ -103,7 +103,7 @@ std::tuple<Assets::TextureBufferList, bool> readMips(
   return {std::move(buffers), hasTransparency};
 }
 
-Result<Assets::Texture, ReadTextureError> readQ2Wal(
+Result<Assets::Material, ReadTextureError> readQ2Wal(
   std::string name, Reader& reader, const std::optional<Assets::Palette>& palette)
 {
   static const auto MaxMipLevels = size_t(4);
@@ -149,7 +149,7 @@ Result<Assets::Texture, ReadTextureError> readQ2Wal(
 
     unused(hasTransparency);
 
-    return Assets::Texture{
+    return Assets::Material{
       std::move(name),
       width,
       height,
@@ -165,7 +165,7 @@ Result<Assets::Texture, ReadTextureError> readQ2Wal(
   }
 }
 
-Result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reader& reader)
+Result<Assets::Material, ReadTextureError> readDkWal(std::string name, Reader& reader)
 {
   static const auto MaxMipLevels = size_t(9);
   auto averageColor = Color{};
@@ -213,7 +213,7 @@ Result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reader& re
           averageColor,
           Assets::PaletteTransparency::Index255Transparent);
 
-        return Assets::Texture{
+        return Assets::Material{
           std::move(name),
           width,
           height,
@@ -224,7 +224,7 @@ Result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reader& re
           gameData};
       })
       .or_else([&](const auto& error) {
-        return Result<Assets::Texture, ReadTextureError>{
+        return Result<Assets::Material, ReadTextureError>{
           ReadTextureError{std::move(name), error.msg}};
       });
     ;
@@ -237,7 +237,7 @@ Result<Assets::Texture, ReadTextureError> readDkWal(std::string name, Reader& re
 
 } // namespace
 
-Result<Assets::Texture, ReadTextureError> readWalTexture(
+Result<Assets::Material, ReadTextureError> readWalTexture(
   std::string name, Reader& reader, const std::optional<Assets::Palette>& palette)
 {
   try
