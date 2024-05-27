@@ -18,7 +18,7 @@
  */
 
 #include "../../test/src/Catch2.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "BenchmarkUtils.h"
 #include "Error.h"
 #include "Exceptions.h"

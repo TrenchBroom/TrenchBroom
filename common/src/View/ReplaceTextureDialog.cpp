@@ -23,7 +23,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"

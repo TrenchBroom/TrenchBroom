@@ -19,7 +19,7 @@
 
 #include "TestUtils.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/DiskIO.h"

@@ -19,7 +19,7 @@
 
 #include "UVScaleTool.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"

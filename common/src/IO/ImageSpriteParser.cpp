@@ -20,7 +20,7 @@
 #include "ImageSpriteParser.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "FloatType.h"
 #include "IO/File.h"
 #include "IO/ReadFreeImageTexture.h"

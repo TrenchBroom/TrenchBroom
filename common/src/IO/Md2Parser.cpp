@@ -20,8 +20,8 @@
 #include "Md2Parser.h"
 
 #include "Assets/EntityModel.h"
+#include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "Exceptions.h"
 #include "IO/Reader.h"
 #include "IO/SkinLoader.h"

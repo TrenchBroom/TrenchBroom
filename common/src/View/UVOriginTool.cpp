@@ -19,7 +19,7 @@
 
 #include "UVOriginTool.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Hit.h"

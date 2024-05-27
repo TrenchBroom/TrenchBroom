@@ -20,7 +20,7 @@
 #include "EntityDecalRenderer.h"
 
 #include "Assets/DecalDefinition.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Assets/TextureManager.h"
 #include "BrushRendererArrays.h"
 #include "Model/BrushFace.h"

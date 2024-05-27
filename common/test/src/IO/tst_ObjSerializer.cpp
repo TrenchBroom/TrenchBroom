@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Error.h"
 #include "IO/ExportOptions.h"
 #include "IO/NodeWriter.h"

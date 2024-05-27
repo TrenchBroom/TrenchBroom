@@ -18,7 +18,7 @@
  */
 
 #include "Assets/EntityDefinition.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Assets/TextureManager.h"
 #include "FloatType.h"
 #include "Model/BezierPatch.h"

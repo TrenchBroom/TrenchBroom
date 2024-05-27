@@ -19,7 +19,7 @@
 
 #include "BrushFaceAttributes.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 
 #include "kdl/reflection_impl.h"
 

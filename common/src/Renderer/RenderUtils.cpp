@@ -19,7 +19,7 @@
 
 #include "RenderUtils.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Renderer/GL.h"
 
 #include "vm/bbox.h"

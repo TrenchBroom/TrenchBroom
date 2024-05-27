@@ -9,11 +9,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.cpp
+        ${COMMON_SOURCE_DIR}/Assets/Material.cpp
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Palette.cpp
         ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
-        ${COMMON_SOURCE_DIR}/Assets/Texture.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.cpp
@@ -204,8 +204,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/Compass2D.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Compass3D.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EdgeRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityDecalRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.cpp
@@ -494,11 +494,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
+        ${COMMON_SOURCE_DIR}/Assets/Material.h
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Palette.h
         ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
-        ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h
         ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
         ${COMMON_SOURCE_DIR}/Assets/TextureManager.h
@@ -722,8 +722,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/Compass2D.h
         ${COMMON_SOURCE_DIR}/Renderer/Compass3D.h
         ${COMMON_SOURCE_DIR}/Renderer/EdgeRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityDecalRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.h

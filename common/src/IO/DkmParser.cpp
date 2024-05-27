@@ -20,7 +20,7 @@
 #include "DkmParser.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "IO/FileSystem.h"

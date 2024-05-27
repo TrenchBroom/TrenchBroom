@@ -21,7 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Assets/TextureManager.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"

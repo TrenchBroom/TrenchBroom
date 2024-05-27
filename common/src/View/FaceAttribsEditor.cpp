@@ -25,7 +25,7 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Color.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"

@@ -26,7 +26,7 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Assets/TextureManager.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

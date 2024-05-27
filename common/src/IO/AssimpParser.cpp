@@ -22,7 +22,7 @@
 #include "AssimpParser.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/PathInfo.h"

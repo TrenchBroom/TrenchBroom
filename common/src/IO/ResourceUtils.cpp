@@ -30,7 +30,7 @@
 #include <QSvgRenderer>
 #include <QThread>
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/File.h"

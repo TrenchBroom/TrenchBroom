@@ -19,7 +19,7 @@
 
 #include "ReadWalTexture.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/Reader.h"

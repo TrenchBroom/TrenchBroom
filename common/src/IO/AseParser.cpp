@@ -20,7 +20,7 @@
 #include "AseParser.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "IO/FileSystem.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"

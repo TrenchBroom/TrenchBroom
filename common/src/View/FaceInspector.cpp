@@ -22,7 +22,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceHandle.h"

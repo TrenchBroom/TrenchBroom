@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/ParallelTexCoordSystem.h"

@@ -19,7 +19,7 @@
 
 #include "ObjSerializer.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Ensure.h"
 #include "IO/ExportOptions.h"
 #include "Model/BrushFace.h"

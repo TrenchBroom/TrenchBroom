@@ -19,7 +19,7 @@
 
 #include "PatchRenderer.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Model/EditorContext.h"
 #include "Model/PatchNode.h"
 #include "PreferenceManager.h"

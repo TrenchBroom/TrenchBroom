@@ -20,7 +20,7 @@
 
 #include "ReadDdsTexture.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Assets/TextureBuffer.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"

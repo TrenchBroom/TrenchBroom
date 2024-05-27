@@ -19,7 +19,7 @@
 
 #include "ParaxialTexCoordSystem.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Ensure.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"

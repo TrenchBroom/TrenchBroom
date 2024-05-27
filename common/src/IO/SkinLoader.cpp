@@ -19,8 +19,8 @@
 
 #include "SkinLoader.h"
 
+#include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "Exceptions.h"

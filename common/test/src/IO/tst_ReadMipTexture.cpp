@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "Assets/TextureCollection.h"
 #include "Error.h"
 #include "IO/DiskFileSystem.h"

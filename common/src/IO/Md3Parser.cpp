@@ -20,7 +20,7 @@
 #include "Md3Parser.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Exceptions.h"
 #include "IO/Reader.h"
 #include "IO/ResourceUtils.h"

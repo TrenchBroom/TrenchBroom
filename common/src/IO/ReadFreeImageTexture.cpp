@@ -19,7 +19,7 @@
 
 #include "ReadFreeImageTexture.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Assets/TextureBuffer.h"
 #include "Ensure.h"
 #include "FreeImage.h"
