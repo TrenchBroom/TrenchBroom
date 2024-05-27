@@ -115,7 +115,7 @@ QWidget* FaceInspector::createTextureBrowser(GLContextManager& contextManager)
   textureBrowserLayout->addWidget(m_textureBrowser, 1);
   panel->getPanel(0)->setLayout(textureBrowserLayout);
 
-  auto* textureCollectionEditor = new TextureCollectionEditor{m_document};
+  auto* textureCollectionEditor = new MaterialCollectionEditor{m_document};
   m_textureBrowserInfo = createTextureBrowserInfo();
 
   auto* textureCollectionEditorLayout = new QVBoxLayout{};

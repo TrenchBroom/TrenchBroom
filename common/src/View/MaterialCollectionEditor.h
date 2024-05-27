@@ -39,7 +39,7 @@ namespace TrenchBroom::View
 {
 class MapDocument;
 
-class TextureCollectionEditor : public QWidget
+class MaterialCollectionEditor : public QWidget
 {
   Q_OBJECT
 private:
@@ -55,7 +55,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit TextureCollectionEditor(
+  explicit MaterialCollectionEditor(
     std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
 private:
