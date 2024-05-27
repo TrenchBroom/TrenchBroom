@@ -40,7 +40,7 @@ class EntityDefinitionManager;
 class EntityModelManager;
 class Material;
 class PointEntityDefinition;
-class TextureManager;
+class MaterialManager;
 } // namespace Assets
 
 namespace Model
@@ -75,7 +75,7 @@ public: // getters
 
   virtual Assets::EntityDefinitionManager& entityDefinitionManager() = 0;
   virtual Assets::EntityModelManager& entityModelManager() = 0;
-  virtual Assets::TextureManager& textureManager() = 0;
+  virtual Assets::MaterialManager& textureManager() = 0;
 
 public: // selection
   virtual bool hasSelection() const = 0;

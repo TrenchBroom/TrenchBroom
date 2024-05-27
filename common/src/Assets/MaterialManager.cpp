@@ -42,16 +42,16 @@ namespace TrenchBroom
 namespace Assets
 {
 
-TextureManager::TextureManager(int magFilter, int minFilter, Logger& logger)
+MaterialManager::MaterialManager(int magFilter, int minFilter, Logger& logger)
   : m_logger{logger}
   , m_minFilter{minFilter}
   , m_magFilter{magFilter}
 {
 }
 
-TextureManager::~TextureManager() = default;
+MaterialManager::~MaterialManager() = default;
 
-void TextureManager::reload(
+void MaterialManager::reload(
   const IO::FileSystem& fs, const Model::TextureConfig& textureConfig)
 {
   findTextureCollections(fs, textureConfig)
@@ -64,7 +64,7 @@ void TextureManager::reload(
     });
 }
 
-void TextureManager::setTextureCollections(std::vector<MaterialCollection> collections)
+void MaterialManager::setTextureCollections(std::vector<MaterialCollection> collections)
 {
   for (auto& collection : collections)
   {
@@ -73,7 +73,7 @@ void TextureManager::setTextureCollections(std::vector<MaterialCollection> colle
   updateTextures();
 }
 
-void TextureManager::setTextureCollections(
+void MaterialManager::setTextureCollections(
   const std::vector<std::filesystem::path>& paths,
   const IO::FileSystem& fs,
   const Model::TextureConfig& textureConfig)
@@ -122,7 +122,7 @@ void TextureManager::setTextureCollections(
   m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
 }
 
-void TextureManager::addTextureCollection(Assets::MaterialCollection collection)
+void MaterialManager::addTextureCollection(Assets::MaterialCollection collection)
 {
   const auto index = m_collections.size();
   m_collections.push_back(std::move(collection));
@@ -135,7 +135,7 @@ void TextureManager::addTextureCollection(Assets::MaterialCollection collection)
   m_logger.debug() << "Added texture collection " << m_collections[index].path();
 }
 
-void TextureManager::clear()
+void MaterialManager::clear()
 {
   m_collections.clear();
 
@@ -146,42 +146,42 @@ void TextureManager::clear()
   // Remove logging because it might fail when the document is already destroyed.
 }
 
-void TextureManager::setTextureMode(const int minFilter, const int magFilter)
+void MaterialManager::setTextureMode(const int minFilter, const int magFilter)
 {
   m_minFilter = minFilter;
   m_magFilter = magFilter;
   m_resetTextureMode = true;
 }
 
-void TextureManager::commitChanges()
+void MaterialManager::commitChanges()
 {
   resetTextureMode();
   prepare();
   m_toRemove.clear();
 }
 
-const Material* TextureManager::texture(const std::string& name) const
+const Material* MaterialManager::texture(const std::string& name) const
 {
   auto it = m_texturesByName.find(kdl::str_to_lower(name));
   return it != m_texturesByName.end() ? it->second : nullptr;
 }
 
-Material* TextureManager::texture(const std::string& name)
+Material* MaterialManager::texture(const std::string& name)
 {
-  return const_cast<Material*>(const_cast<const TextureManager*>(this)->texture(name));
+  return const_cast<Material*>(const_cast<const MaterialManager*>(this)->texture(name));
 }
 
-const std::vector<const Material*>& TextureManager::textures() const
+const std::vector<const Material*>& MaterialManager::textures() const
 {
   return m_textures;
 }
 
-const std::vector<MaterialCollection>& TextureManager::collections() const
+const std::vector<MaterialCollection>& MaterialManager::collections() const
 {
   return m_collections;
 }
 
-void TextureManager::resetTextureMode()
+void MaterialManager::resetTextureMode()
 {
   if (m_resetTextureMode)
   {
@@ -193,7 +193,7 @@ void TextureManager::resetTextureMode()
   }
 }
 
-void TextureManager::prepare()
+void MaterialManager::prepare()
 {
   for (const auto index : m_toPrepare)
   {
@@ -203,7 +203,7 @@ void TextureManager::prepare()
   m_toPrepare.clear();
 }
 
-void TextureManager::updateTextures()
+void MaterialManager::updateTextures()
 {
   m_texturesByName.clear();
   m_textures.clear();

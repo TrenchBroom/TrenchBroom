@@ -123,7 +123,7 @@ public: // implement Game interface
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  void loadTextureCollections(Assets::TextureManager& textureManager) const override;
+  void loadTextureCollections(Assets::MaterialManager& textureManager) const override;
 
   const std::optional<std::string>& wadProperty() const override;
   void reloadWads(

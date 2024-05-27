@@ -46,7 +46,7 @@ class Logger;
 namespace TrenchBroom::Assets
 {
 class EntityDefinitionFileSpec;
-class TextureManager;
+class MaterialManager;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::Model
@@ -145,7 +145,7 @@ public: // parsing and serializing objects
     std::ostream& stream) const = 0;
 
 public: // texture collection handling
-  virtual void loadTextureCollections(Assets::TextureManager& textureManagerr) const = 0;
+  virtual void loadTextureCollections(Assets::MaterialManager& textureManagerr) const = 0;
 
   virtual const std::optional<std::string>& wadProperty() const = 0;
   virtual void reloadWads(

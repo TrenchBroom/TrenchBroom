@@ -379,7 +379,7 @@ MapDocument::MapDocument()
   , m_entityDefinitionManager(std::make_unique<Assets::EntityDefinitionManager>())
   , m_entityModelManager(std::make_unique<Assets::EntityModelManager>(
       pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
-  , m_textureManager(std::make_unique<Assets::TextureManager>(
+  , m_textureManager(std::make_unique<Assets::MaterialManager>(
       pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
   , m_tagManager(std::make_unique<Model::TagManager>())
   , m_editorContext(std::make_unique<Model::EditorContext>())
@@ -534,7 +534,7 @@ Assets::EntityModelManager& MapDocument::entityModelManager()
   return *m_entityModelManager;
 }
 
-Assets::TextureManager& MapDocument::textureManager()
+Assets::MaterialManager& MapDocument::textureManager()
 {
   return *m_textureManager;
 }
@@ -4508,7 +4508,7 @@ void MapDocument::unloadTextures()
   m_textureManager->clear();
 }
 
-static auto makeSetTexturesVisitor(Assets::TextureManager& manager)
+static auto makeSetTexturesVisitor(Assets::MaterialManager& manager)
 {
   return kdl::overload(
     [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },

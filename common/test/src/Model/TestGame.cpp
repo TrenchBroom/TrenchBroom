@@ -189,7 +189,7 @@ void TestGame::writeBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void TestGame::loadTextureCollections(Assets::TextureManager& textureManager) const
+void TestGame::loadTextureCollections(Assets::MaterialManager& textureManager) const
 {
   const Model::TextureConfig textureConfig{
     "textures",

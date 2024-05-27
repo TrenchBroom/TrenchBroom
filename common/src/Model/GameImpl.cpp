@@ -539,7 +539,7 @@ void GameImpl::writeBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void GameImpl::loadTextureCollections(Assets::TextureManager& textureManager) const
+void GameImpl::loadTextureCollections(Assets::MaterialManager& textureManager) const
 {
   textureManager.reload(m_fs, m_config.textureConfig);
 }

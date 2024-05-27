@@ -45,7 +45,7 @@ namespace Assets
 class Material;
 class MaterialCollection;
 
-class TextureManager
+class MaterialManager
 {
 private:
   Logger& m_logger;
@@ -63,8 +63,8 @@ private:
   bool m_resetTextureMode{false};
 
 public:
-  TextureManager(int magFilter, int minFilter, Logger& logger);
-  ~TextureManager();
+  MaterialManager(int magFilter, int minFilter, Logger& logger);
+  ~MaterialManager();
 
   void reload(const IO::FileSystem& fs, const Model::TextureConfig& textureConfig);
 

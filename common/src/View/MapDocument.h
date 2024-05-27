@@ -55,7 +55,7 @@ class EntityDefinitionFileSpec;
 class EntityDefinitionManager;
 class EntityModelManager;
 class Material;
-class TextureManager;
+class MaterialManager;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::Model
@@ -121,7 +121,7 @@ protected:
 
   std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
   std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
-  std::unique_ptr<Assets::TextureManager> m_textureManager;
+  std::unique_ptr<Assets::MaterialManager> m_textureManager;
   std::unique_ptr<Model::TagManager> m_tagManager;
 
   std::unique_ptr<Model::EditorContext> m_editorContext;
@@ -258,7 +258,7 @@ public:
 
   Assets::EntityDefinitionManager& entityDefinitionManager() override;
   Assets::EntityModelManager& entityModelManager() override;
-  Assets::TextureManager& textureManager() override;
+  Assets::MaterialManager& textureManager() override;
 
   Grid& grid() const;
 
