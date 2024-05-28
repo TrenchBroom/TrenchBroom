@@ -49,40 +49,40 @@ public:
     const vm::bbox3& worldBounds,
     const BrushFaceAttributes& defaultAttribs);
 
-  Result<Brush> createCube(FloatType size, const std::string& textureName) const;
+  Result<Brush> createCube(FloatType size, const std::string& materialName) const;
   Result<Brush> createCube(
     FloatType size,
-    const std::string& leftTexture,
-    const std::string& rightTexture,
-    const std::string& frontTexture,
-    const std::string& backTexture,
-    const std::string& topTexture,
-    const std::string& bottomTexture) const;
+    const std::string& leftMaterial,
+    const std::string& rightMaterial,
+    const std::string& frontMaterial,
+    const std::string& backMaterial,
+    const std::string& topMaterial,
+    const std::string& bottomMaterial) const;
 
-  Result<Brush> createCuboid(const vm::vec3& size, const std::string& textureName) const;
+  Result<Brush> createCuboid(const vm::vec3& size, const std::string& materialName) const;
   Result<Brush> createCuboid(
     const vm::vec3& size,
-    const std::string& leftTexture,
-    const std::string& rightTexture,
-    const std::string& frontTexture,
-    const std::string& backTexture,
-    const std::string& topTexture,
-    const std::string& bottomTexture) const;
+    const std::string& leftMaterial,
+    const std::string& rightMaterial,
+    const std::string& frontMaterial,
+    const std::string& backMaterial,
+    const std::string& topMaterial,
+    const std::string& bottomMaterial) const;
 
   Result<Brush> createCuboid(
-    const vm::bbox3& bounds, const std::string& textureName) const;
+    const vm::bbox3& bounds, const std::string& materialName) const;
   Result<Brush> createCuboid(
     const vm::bbox3& bounds,
-    const std::string& leftTexture,
-    const std::string& rightTexture,
-    const std::string& frontTexture,
-    const std::string& backTexture,
-    const std::string& topTexture,
-    const std::string& bottomTexture) const;
+    const std::string& leftMaterial,
+    const std::string& rightMaterial,
+    const std::string& frontMaterial,
+    const std::string& backMaterial,
+    const std::string& topMaterial,
+    const std::string& bottomMaterial) const;
 
   Result<Brush> createBrush(
-    const std::vector<vm::vec3>& points, const std::string& textureName) const;
+    const std::vector<vm::vec3>& points, const std::string& materialName) const;
   Result<Brush> createBrush(
-    const Polyhedron3& polyhedron, const std::string& textureName) const;
+    const Polyhedron3& polyhedron, const std::string& materialName) const;
 };
 } // namespace TrenchBroom::Model
