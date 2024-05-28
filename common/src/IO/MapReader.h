@@ -60,7 +60,7 @@ class ParserStatus;
  *
  *  - WorldReader (loading a whole .map)
  *  - NodeReader (reading part of a map, for pasting into an existing map)
- *  - BrushFaceReader (reading faces when copy/pasting texture alignment)
+ *  - BrushFaceReader (reading faces when copy/pasting UV alignment)
  *
  * The flow of control is:
  *
@@ -95,7 +95,7 @@ public: // only public so that helper methods can see these declarations
     size_t rowCount;
     size_t columnCount;
     std::vector<Model::BezierPatch::Point> controlPoints;
-    std::string textureName;
+    std::string materialName;
     size_t startLine;
     size_t lineCount;
     std::optional<size_t> parentIndex;
@@ -170,8 +170,8 @@ protected: // implement MapParser interface
     const vm::vec3& point2,
     const vm::vec3& point3,
     const Model::BrushFaceAttributes& attribs,
-    const vm::vec3& texAxisX,
-    const vm::vec3& texAxisY,
+    const vm::vec3& uAxis,
+    const vm::vec3& vAxis,
     ParserStatus& status) override;
   void onPatch(
     size_t startLine,
@@ -180,7 +180,7 @@ protected: // implement MapParser interface
     size_t rowCount,
     size_t columnCount,
     std::vector<vm::vec<FloatType, 5>> controlPoints,
-    std::string textureName,
+    std::string materialName,
     ParserStatus& status) override;
 
 private: // helper methods
