@@ -164,7 +164,7 @@ void MapViewBase::connectObservers()
     document->commandUndoneNotifier.connect(this, &MapViewBase::commandUndone);
   m_notifierConnection +=
     document->selectionDidChangeNotifier.connect(this, &MapViewBase::selectionDidChange);
-  m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
+  m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
     this, &MapViewBase::textureCollectionsDidChange);
   m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(
     this, &MapViewBase::entityDefinitionsDidChange);
@@ -501,7 +501,7 @@ void MapViewBase::moveTextures(
   if (document->hasSelectedBrushFaces())
   {
     const auto offset = moveTextureOffset(direction, mode);
-    document->moveTextures(camera().up(), camera().right(), offset);
+    document->translateUV(camera().up(), camera().right(), offset);
   }
 }
 
@@ -548,7 +548,7 @@ void MapViewBase::rotateTextures(const bool clockwise, const TextureActionMode m
   if (document->hasSelectedBrushFaces())
   {
     const auto angle = rotateTextureAngle(clockwise, mode);
-    document->rotateTextures(angle);
+    document->rotateUV(angle);
   }
 }
 
@@ -579,7 +579,7 @@ void MapViewBase::flipTextures(const vm::direction direction)
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedBrushFaces())
   {
-    document->flipTextures(camera().up(), camera().right(), direction);
+    document->flipUV(camera().up(), camera().right(), direction);
   }
 }
 

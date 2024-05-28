@@ -283,7 +283,7 @@ void transferFaceAttributes(
     document.setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
     if (snapshot)
     {
-      document.copyTexCoordSystemFromFace(
+      document.copyUVFromFace(
         *snapshot,
         sourceFaceHandle.face().attributes(),
         sourceFaceHandle.face().boundary(),

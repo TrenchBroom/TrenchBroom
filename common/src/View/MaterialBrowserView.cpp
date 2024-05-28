@@ -62,7 +62,7 @@ MaterialBrowserView::MaterialBrowserView(
   , m_document{std::move(document_)}
 {
   auto document = kdl::mem_lock(m_document);
-  m_notifierConnection += document->textureUsageCountsDidChangeNotifier.connect(
+  m_notifierConnection += document->materialUsageCountsDidChangeNotifier.connect(
     this, &MaterialBrowserView::reloadMaterials);
 }
 
@@ -205,10 +205,10 @@ void MaterialBrowserView::addMaterialToLayout(
 std::vector<const Assets::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
   auto document = kdl::mem_lock(m_document);
-  const auto enabledMaterialCollections = document->enabledTextureCollections();
+  const auto enabledMaterialCollections = document->enabledMaterialCollections();
 
   auto result = std::vector<const Assets::MaterialCollection*>{};
-  for (const auto& collection : document->textureManager().collections())
+  for (const auto& collection : document->materialManager().collections())
   {
     if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
     {
@@ -285,7 +285,7 @@ void MaterialBrowserView::doClear() {}
 void MaterialBrowserView::doRender(Layout& layout, const float y, const float height)
 {
   auto document = kdl::mem_lock(m_document);
-  document->textureManager().commitChanges();
+  document->materialManager().commitChanges();
 
   const auto viewLeft = float(0);
   const auto viewTop = float(size().height());
@@ -441,7 +441,7 @@ void MaterialBrowserView::doContextMenu(
     auto menu = QMenu{this};
     menu.addAction(tr("Select Faces"), this, [&, material = &material]() {
       auto doc = kdl::mem_lock(m_document);
-      doc->selectFacesWithTexture(material);
+      doc->selectFacesWithMaterial(material);
     });
     menu.exec(event->globalPos());
   }

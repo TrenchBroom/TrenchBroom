@@ -66,7 +66,7 @@ void MaterialCollectionEditor::addSelectedTextureCollections()
   enabledCollections = kdl::vec_sort_and_remove_duplicates(std::move(enabledCollections));
 
   auto document = kdl::mem_lock(m_document);
-  document->setEnabledTextureCollections(enabledCollections);
+  document->setEnabledMaterialCollections(enabledCollections);
 }
 
 void MaterialCollectionEditor::removeSelectedTextureCollections()
@@ -88,13 +88,13 @@ void MaterialCollectionEditor::removeSelectedTextureCollections()
   }
 
   auto document = kdl::mem_lock(m_document);
-  document->setEnabledTextureCollections(enabledCollections);
+  document->setEnabledMaterialCollections(enabledCollections);
 }
 
 void MaterialCollectionEditor::reloadTextureCollections()
 {
   auto document = kdl::mem_lock(m_document);
-  document->reloadTextureCollections();
+  document->reloadMaterialCollections();
 }
 
 void MaterialCollectionEditor::availableTextureCollectionSelectionChanged()
@@ -234,7 +234,7 @@ void MaterialCollectionEditor::connectObservers()
     this, &MaterialCollectionEditor::nodesDidChange);
   m_notifierConnection += document->documentWasLoadedNotifier.connect(
     this, &MaterialCollectionEditor::documentWasNewedOrLoaded);
-  m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
+  m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::textureCollectionsDidChange);
   m_notifierConnection += document->modsDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::modsDidChange);
@@ -322,14 +322,14 @@ std::vector<std::filesystem::path> MaterialCollectionEditor::availableTextureCol
   const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->disabledTextureCollections();
+  return document->disabledMaterialCollections();
 }
 
 std::vector<std::filesystem::path> MaterialCollectionEditor::enabledTextureCollections()
   const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->enabledTextureCollections();
+  return document->enabledMaterialCollections();
 }
 
 } // namespace TrenchBroom::View

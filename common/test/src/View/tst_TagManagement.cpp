@@ -71,7 +71,7 @@ private:
 
     auto collections = kdl::vec_from(Assets::MaterialCollection{std::move(textures)});
 
-    auto& textureManager = document->textureManager();
+    auto& textureManager = document->materialManager();
     textureManager.setMaterialCollections(std::move(collections));
     m_textureCollection = &textureManager.collections().back();
 

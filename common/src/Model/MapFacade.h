@@ -75,7 +75,7 @@ public: // getters
 
   virtual Assets::EntityDefinitionManager& entityDefinitionManager() = 0;
   virtual Assets::EntityModelManager& entityModelManager() = 0;
-  virtual Assets::MaterialManager& textureManager() = 0;
+  virtual Assets::MaterialManager& materialManager() = 0;
 
 public: // selection
   virtual bool hasSelection() const = 0;
@@ -91,7 +91,7 @@ public: // selection
   virtual const vm::bbox3& referenceBounds() const = 0;
   virtual const vm::bbox3& lastSelectionBounds() const = 0;
   virtual const vm::bbox3& selectionBounds() const = 0;
-  virtual const std::string& currentTextureName() const = 0;
+  virtual const std::string& currentMaterialName() const = 0;
 
   virtual void selectAllNodes() = 0;
   virtual void selectSiblings() = 0;
@@ -163,10 +163,10 @@ public: // modifying face attributes
   virtual bool setFaceAttributesExceptContentFlags(
     const BrushFaceAttributes& attributes) = 0;
   virtual bool setFaceAttributes(const ChangeBrushFaceAttributesRequest& request) = 0;
-  virtual bool moveTextures(
+  virtual bool translateUV(
     const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta) = 0;
-  virtual bool rotateTextures(float angle) = 0;
-  virtual bool shearTextures(const vm::vec2f& factors) = 0;
+  virtual bool rotateUV(float angle) = 0;
+  virtual bool shearUV(const vm::vec2f& factors) = 0;
 
 public: // modifying vertices
   virtual bool snapVertices(FloatType snapTo) = 0;

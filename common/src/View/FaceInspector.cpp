@@ -174,15 +174,15 @@ void FaceInspector::textureSelected(const Assets::Material* texture)
                                       ? texture->name()
                                       : Model::BrushFaceAttributes::NoTextureName;
 
-      document->setCurrentTextureName(textureNameToSet);
+      document->setCurrentMaterialName(textureNameToSet);
       auto request = Model::ChangeBrushFaceAttributesRequest{};
       request.setTextureName(textureNameToSet);
       document->setFaceAttributes(request);
     }
     else
     {
-      document->setCurrentTextureName(
-        document->currentTextureName() != texture->name()
+      document->setCurrentMaterialName(
+        document->currentMaterialName() != texture->name()
           ? texture->name()
           : Model::BrushFaceAttributes::NoTextureName);
     }

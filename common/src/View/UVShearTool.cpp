@@ -108,7 +108,7 @@ public:
       const auto factors = vm::vec2f{-delta.y() / m_initialHit.x(), 0.0f};
       if (!vm::is_zero(factors, vm::Cf::almost_zero()))
       {
-        m_document.shearTextures(factors);
+        m_document.shearUV(factors);
       }
     }
     else if (m_selector[1])
@@ -116,7 +116,7 @@ public:
       const auto factors = vm::vec2f{0.0f, -delta.x() / m_initialHit.y()};
       if (!vm::is_zero(factors, vm::Cf::almost_zero()))
       {
-        m_document.shearTextures(factors);
+        m_document.shearUV(factors);
       }
     }
 

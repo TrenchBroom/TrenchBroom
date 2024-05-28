@@ -229,7 +229,7 @@ void SmartWadEditor::moveSelectedWadsDown()
 
 void SmartWadEditor::reloadWads()
 {
-  document()->reloadTextureCollections();
+  document()->reloadMaterialCollections();
 }
 
 bool SmartWadEditor::canRemoveWads() const

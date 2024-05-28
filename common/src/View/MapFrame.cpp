@@ -1232,7 +1232,7 @@ bool MapFrame::canReloadPortalFile() const
 
 void MapFrame::reloadTextureCollections()
 {
-  m_document->reloadTextureCollections();
+  m_document->reloadMaterialCollections();
 }
 
 void MapFrame::reloadEntityDefinitions()

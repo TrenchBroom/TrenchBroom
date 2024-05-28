@@ -189,7 +189,7 @@ TEST_CASE("MapDocument.reloadTextureCollections")
   REQUIRE(
     kdl::none_of(faces, [](const auto* face) { return face->texture() == nullptr; }));
 
-  CHECK_NOTHROW(document->reloadTextureCollections());
+  CHECK_NOTHROW(document->reloadMaterialCollections());
 
   REQUIRE(
     kdl::none_of(faces, [](const auto* face) { return face->texture() == nullptr; }));

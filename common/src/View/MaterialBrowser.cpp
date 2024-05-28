@@ -197,9 +197,9 @@ void MaterialBrowser::connectObservers()
     document->nodesDidChangeNotifier.connect(this, &MaterialBrowser::nodesDidChange);
   m_notifierConnection += document->brushFacesDidChangeNotifier.connect(
     this, &MaterialBrowser::brushFacesDidChange);
-  m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
+  m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
     this, &MaterialBrowser::materialCollectionsDidChange);
-  m_notifierConnection += document->currentTextureNameDidChangeNotifier.connect(
+  m_notifierConnection += document->currentMaterialNameDidChangeNotifier.connect(
     this, &MaterialBrowser::currentMaterialNameDidChange);
 
   auto& prefs = PreferenceManager::instance();
@@ -275,8 +275,8 @@ void MaterialBrowser::reload()
 void MaterialBrowser::updateSelectedMaterial()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto& materialName = document->currentTextureName();
-  const auto* material = document->textureManager().material(materialName);
+  const auto& materialName = document->currentMaterialName();
+  const auto* material = document->materialManager().material(materialName);
   m_view->setSelectedMaterial(material);
 }
 

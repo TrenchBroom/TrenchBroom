@@ -48,7 +48,7 @@ void CreateSimpleBrushTool::update(const vm::bbox3& bounds)
   const auto builder = Model::BrushBuilder(
     document->world()->mapFormat(), document->worldBounds(), game->defaultFaceAttribs());
 
-  builder.createCuboid(bounds, document->currentTextureName())
+  builder.createCuboid(bounds, document->currentMaterialName())
     .transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
     .transform_error([&](auto e) {
       updateBrush(nullptr);

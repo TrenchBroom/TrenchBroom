@@ -678,7 +678,7 @@ void MapRenderer::connectObservers()
     this, &MapRenderer::brushFacesDidChange);
   m_notifierConnection +=
     document->selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
-  m_notifierConnection += document->textureCollectionsWillChangeNotifier.connect(
+  m_notifierConnection += document->materialCollectionsWillChangeNotifier.connect(
     this, &MapRenderer::textureCollectionsWillChange);
   m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(
     this, &MapRenderer::entityDefinitionsDidChange);

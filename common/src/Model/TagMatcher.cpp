@@ -103,7 +103,7 @@ public:
 
 void MaterialTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const
 {
-  const auto& textureManager = facade.textureManager();
+  const auto& textureManager = facade.materialManager();
   const auto& allTextures = textureManager.materials();
   auto matchingTextures = std::vector<const Assets::Material*>{};
 

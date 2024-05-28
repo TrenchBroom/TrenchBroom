@@ -816,7 +816,7 @@ void ClipTool::updateBrushes()
         p1,
         p2,
         p3,
-        Model::BrushFaceAttributes(document->currentTextureName()),
+        Model::BrushFaceAttributes(document->currentMaterialName()),
         document->world()->mapFormat())
         .and_then([&](Model::BrushFace&& clipFace) {
           setFaceAttributes(brush.faces(), clipFace);
