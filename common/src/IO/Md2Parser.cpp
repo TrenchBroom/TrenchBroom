@@ -244,7 +244,7 @@ struct Md2Frame
 struct Md2MeshVertex
 {
   size_t vertexIndex;
-  vm::vec2f texCoords;
+  vm::vec2f uv;
 };
 
 struct Md2Mesh
@@ -336,15 +336,15 @@ void loadSkins(
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Material>{};
-  textures.reserve(skins.size());
+  auto materials = std::vector<Assets::Material>{};
+  materials.reserve(skins.size());
 
   for (const auto& skin : skins)
   {
-    textures.push_back(loadSkin(skin, fs, palette, logger));
+    materials.push_back(loadSkin(skin, fs, palette, logger));
   }
 
-  surface.setSkins(std::move(textures));
+  surface.setSkins(std::move(materials));
 }
 
 auto getVertices(const Md2Frame& frame, const std::vector<Md2MeshVertex>& meshVertices)
@@ -355,9 +355,9 @@ auto getVertices(const Md2Frame& frame, const std::vector<Md2MeshVertex>& meshVe
   for (const auto& md2MeshVertex : meshVertices)
   {
     const auto position = frame.vertex(md2MeshVertex.vertexIndex);
-    const auto& texCoords = md2MeshVertex.texCoords;
+    const auto& uv = md2MeshVertex.uv;
 
-    vertices.emplace_back(position, texCoords);
+    vertices.emplace_back(position, uv);
   }
 
   return vertices;
