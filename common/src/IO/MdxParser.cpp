@@ -243,7 +243,7 @@ struct MdxFrame
 struct MdxMeshVertex
 {
   size_t vertexIndex;
-  vm::vec2f texCoords;
+  vm::vec2f uv;
 };
 
 struct MdxMesh
@@ -301,9 +301,9 @@ auto parseMeshVertices(Reader& reader, const size_t count)
   for (size_t i = 0; i < count; ++i)
   {
     const auto vertexIndex = reader.readSize<int32_t>();
-    const auto s = reader.readFloat<float>();
-    const auto t = reader.readFloat<float>();
-    vertices.push_back({vertexIndex, {s, t}});
+    const auto u = reader.readFloat<float>();
+    const auto v = reader.readFloat<float>();
+    vertices.push_back({vertexIndex, {u, v}});
   }
 
   return vertices;
@@ -333,16 +333,16 @@ void loadSkins(
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Material>{};
-  textures.reserve(skins.size());
+  auto materials = std::vector<Assets::Material>{};
+  materials.reserve(skins.size());
 
   for (const auto& skin : skins)
   {
     const auto path = std::filesystem::path{skin}.relative_path();
-    textures.push_back(loadSkin(path, fs, logger));
+    materials.push_back(loadSkin(path, fs, logger));
   }
 
-  surface.setSkins(std::move(textures));
+  surface.setSkins(std::move(materials));
 }
 
 auto getVertices(const MdxFrame& frame, const std::vector<MdxMeshVertex>& meshVertices)
@@ -353,7 +353,7 @@ auto getVertices(const MdxFrame& frame, const std::vector<MdxMeshVertex>& meshVe
   for (const auto& md2MeshVertex : meshVertices)
   {
     const auto position = frame.vertex(md2MeshVertex.vertexIndex);
-    vertices.emplace_back(position, md2MeshVertex.texCoords);
+    vertices.emplace_back(position, md2MeshVertex.uv);
   }
 
   return vertices;
