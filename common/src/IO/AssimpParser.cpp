@@ -305,7 +305,7 @@ struct AssimpComputedMeshData
 {
   size_t m_meshIndex;
   std::vector<Assets::EntityModelVertex> m_vertices;
-  Assets::EntityModelIndices m_indices;
+  Renderer::IndexRangeMap m_indices;
 };
 
 struct AssimpBoneInformation

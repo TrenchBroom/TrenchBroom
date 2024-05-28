@@ -38,6 +38,8 @@ class octree;
 namespace TrenchBroom::Renderer
 {
 enum class PrimType;
+class IndexRangeMap;
+class MaterialIndexRangeMap;
 class MaterialIndexRangeRenderer;
 class MaterialRenderer;
 } // namespace TrenchBroom::Renderer
@@ -276,7 +278,7 @@ public:
   void addIndexedMesh(
     EntityModelLoadedFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    EntityModelIndices indices);
+    Renderer::IndexRangeMap indices);
 
   /**
    * Adds a new multitextured mesh to this surface.
@@ -288,7 +290,7 @@ public:
   void addTexturedMesh(
     EntityModelLoadedFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    EntityModelTexturedIndices indices);
+    Renderer::MaterialIndexRangeMap indices);
 
   /**
    * Sets the given textures as skins to this surface.

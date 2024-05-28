@@ -315,7 +315,7 @@ private:
 class EntityModelIndexedMesh : public EntityModelMesh
 {
 private:
-  EntityModelIndices m_indices;
+  Renderer::IndexRangeMap m_indices;
 
 public:
   /**
@@ -328,7 +328,7 @@ public:
   EntityModelIndexedMesh(
     EntityModelLoadedFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    EntityModelIndices indices)
+    Renderer::IndexRangeMap indices)
     : EntityModelMesh{std::move(vertices)}
     , m_indices{std::move(indices)}
   {
@@ -357,7 +357,7 @@ private:
 class EntityModelTexturedMesh : public EntityModelMesh
 {
 private:
-  EntityModelTexturedIndices m_indices;
+  Renderer::MaterialIndexRangeMap m_indices;
 
 public:
   /**
@@ -370,7 +370,7 @@ public:
   EntityModelTexturedMesh(
     EntityModelLoadedFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    EntityModelTexturedIndices indices)
+    Renderer::MaterialIndexRangeMap indices)
     : EntityModelMesh{std::move(vertices)}
     , m_indices{std::move(indices)}
   {
@@ -420,7 +420,7 @@ void EntityModelSurface::setTextureMode(const int minFilter, const int magFilter
 void EntityModelSurface::addIndexedMesh(
   EntityModelLoadedFrame& frame,
   std::vector<EntityModelVertex> vertices,
-  EntityModelIndices indices)
+  Renderer::IndexRangeMap indices)
 {
   assert(frame.index() < frameCount());
   m_meshes[frame.index()] = std::make_unique<EntityModelIndexedMesh>(
@@ -430,7 +430,7 @@ void EntityModelSurface::addIndexedMesh(
 void EntityModelSurface::addTexturedMesh(
   EntityModelLoadedFrame& frame,
   std::vector<EntityModelVertex> vertices,
-  EntityModelTexturedIndices indices)
+  Renderer::MaterialIndexRangeMap indices)
 {
   assert(frame.index() < frameCount());
   m_meshes[frame.index()] = std::make_unique<EntityModelTexturedMesh>(
