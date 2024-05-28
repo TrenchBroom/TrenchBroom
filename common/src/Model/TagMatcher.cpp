@@ -101,7 +101,7 @@ public:
 
 } // namespace
 
-void TextureTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const
+void MaterialTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const
 {
   const auto& textureManager = facade.textureManager();
   const auto& allTextures = textureManager.textures();
@@ -148,27 +148,27 @@ void TextureTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) 
   facade.setFaceAttributes(request);
 }
 
-bool TextureTagMatcher::canEnable() const
+bool MaterialTagMatcher::canEnable() const
 {
   return true;
 }
 
-void TextureTagMatcher::appendToStream(std::ostream& str) const
+void MaterialTagMatcher::appendToStream(std::ostream& str) const
 {
   kdl::struct_stream{str} << "TextureTagMatcher";
 }
 
-TextureNameTagMatcher::TextureNameTagMatcher(std::string pattern)
+MaterialNameTagMatcher::MaterialNameTagMatcher(std::string pattern)
   : m_pattern{std::move(pattern)}
 {
 }
 
-std::unique_ptr<TagMatcher> TextureNameTagMatcher::clone() const
+std::unique_ptr<TagMatcher> MaterialNameTagMatcher::clone() const
 {
-  return std::make_unique<TextureNameTagMatcher>(m_pattern);
+  return std::make_unique<MaterialNameTagMatcher>(m_pattern);
 }
 
-bool TextureNameTagMatcher::matches(const Taggable& taggable) const
+bool MaterialNameTagMatcher::matches(const Taggable& taggable) const
 {
   auto visitor = BrushFaceMatchVisitor{[&](const auto& face) {
     return matchesTextureName(face.attributes().textureName());
@@ -178,18 +178,18 @@ bool TextureNameTagMatcher::matches(const Taggable& taggable) const
   return visitor.matches();
 }
 
-void TextureNameTagMatcher::appendToStream(std::ostream& str) const
+void MaterialNameTagMatcher::appendToStream(std::ostream& str) const
 {
   kdl::struct_stream{str} << "TextureNameTagMatcher"
                           << "m_pattern" << m_pattern;
 }
 
-bool TextureNameTagMatcher::matchesTexture(const Assets::Material* texture) const
+bool MaterialNameTagMatcher::matchesTexture(const Assets::Material* texture) const
 {
   return texture && matchesTextureName(texture->name());
 }
 
-bool TextureNameTagMatcher::matchesTextureName(std::string_view textureName) const
+bool MaterialNameTagMatcher::matchesTextureName(std::string_view textureName) const
 {
   // If the match pattern doesn't contain a slash, match against
   // only the last component of the texture name.

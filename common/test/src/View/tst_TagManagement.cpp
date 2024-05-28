@@ -88,12 +88,12 @@ private:
       {Model::SmartTag{
          "texture",
          {},
-         std::make_unique<Model::TextureNameTagMatcher>(textureMatch),
+         std::make_unique<Model::MaterialNameTagMatcher>(textureMatch),
        },
        Model::SmartTag{
          "texturePattern",
          {},
-         std::make_unique<Model::TextureNameTagMatcher>(texturePatternMatch),
+         std::make_unique<Model::MaterialNameTagMatcher>(texturePatternMatch),
        },
        Model::SmartTag{
          "surfaceparm_single",
@@ -185,7 +185,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.duplicateTag")
     Model::SmartTag{
       "texture",
       {},
-      std::make_unique<Model::TextureNameTagMatcher>("some_texture"),
+      std::make_unique<Model::MaterialNameTagMatcher>("some_texture"),
     },
     Model::SmartTag{
       "texture",

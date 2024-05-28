@@ -241,7 +241,7 @@ void parseFaceTags(
       result.emplace_back(
         entry["name"].stringValue(),
         parseTagAttributes(entry["attribs"]),
-        std::make_unique<Model::TextureNameTagMatcher>(entry["pattern"].stringValue()));
+        std::make_unique<Model::MaterialNameTagMatcher>(entry["pattern"].stringValue()));
     }
     else if (match == "surfaceparm")
     {

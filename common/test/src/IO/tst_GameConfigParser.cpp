@@ -168,17 +168,17 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
         Model::SmartTag{
           "Clip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("clip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("clip")},
         Model::SmartTag{
           "Skip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("skip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("skip")},
         Model::SmartTag{
           "Hint",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("hint*")},
+          std::make_unique<Model::MaterialNameTagMatcher>("hint*")},
         Model::SmartTag{
-          "Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")},
+          "Liquid", {}, std::make_unique<Model::MaterialNameTagMatcher>("\\**")},
       },            // smart tags
       std::nullopt, // soft map bounds
       {}            // compilation tools
@@ -471,15 +471,15 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
         Model::SmartTag{
           "Clip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("clip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("clip")},
         Model::SmartTag{
           "Skip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("skip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("skip")},
         Model::SmartTag{
           "Hint",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("hint*")},
+          std::make_unique<Model::MaterialNameTagMatcher>("hint*")},
         Model::SmartTag{
           "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
         Model::SmartTag{
@@ -811,15 +811,15 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
         Model::SmartTag{
           "Clip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("clip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("clip")},
         Model::SmartTag{
           "Skip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("skip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("skip")},
         Model::SmartTag{
           "Hint",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("hint*")},
+          std::make_unique<Model::MaterialNameTagMatcher>("hint*")},
         Model::SmartTag{
           "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
         Model::SmartTag{

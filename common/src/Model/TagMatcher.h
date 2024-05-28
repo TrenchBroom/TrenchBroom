@@ -41,7 +41,7 @@ class ChangeBrushFaceAttributesRequest;
 class Game;
 class MapFacade;
 
-class TextureTagMatcher : public TagMatcher
+class MaterialTagMatcher : public TagMatcher
 {
 public:
   void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
@@ -52,13 +52,13 @@ private:
   virtual bool matchesTexture(const Assets::Material* texture) const = 0;
 };
 
-class TextureNameTagMatcher : public TextureTagMatcher
+class MaterialNameTagMatcher : public MaterialTagMatcher
 {
 private:
   std::string m_pattern;
 
 public:
-  explicit TextureNameTagMatcher(std::string pattern);
+  explicit MaterialNameTagMatcher(std::string pattern);
   std::unique_ptr<TagMatcher> clone() const override;
   bool matches(const Taggable& taggable) const override;
   void appendToStream(std::ostream& str) const override;
@@ -68,7 +68,7 @@ private:
   bool matchesTextureName(std::string_view textureName) const;
 };
 
-class SurfaceParmTagMatcher : public TextureTagMatcher
+class SurfaceParmTagMatcher : public MaterialTagMatcher
 {
 private:
   kdl::vector_set<std::string> m_parameters;
