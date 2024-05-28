@@ -344,7 +344,7 @@ BezierPatch PatchNode::setPatch(BezierPatch patch)
 
 void PatchNode::setTexture(Assets::Material* texture)
 {
-  m_patch.setTexture(texture);
+  m_patch.setMaterial(texture);
 }
 
 const PatchGrid& PatchNode::grid() const

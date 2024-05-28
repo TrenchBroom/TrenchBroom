@@ -1228,7 +1228,7 @@ common/caulk
   CHECK(patchNode != nullptr);
 
   const auto& patch = patchNode->patch();
-  CHECK(patch.textureName() == "common/caulk");
+  CHECK(patch.materialName() == "common/caulk");
   CHECK(patch.pointRowCount() == 5);
   CHECK(patch.pointColumnCount() == 3);
 

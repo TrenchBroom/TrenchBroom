@@ -273,7 +273,7 @@ void ObjSerializer::doPatch(const Model::PatchNode* patchNode)
 {
   const auto& patch = patchNode->patch();
   auto patchObject =
-    PatchObject{entityNo(), brushNo(), {}, patch.textureName(), patch.texture()};
+    PatchObject{entityNo(), brushNo(), {}, patch.materialName(), patch.material()};
 
   const auto& patchGrid = patchNode->grid();
   patchObject.quads.reserve(patchGrid.quadRowCount() * patchGrid.quadColumnCount());

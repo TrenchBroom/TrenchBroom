@@ -476,7 +476,7 @@ MapFileSerializer::PrecomputedString MapFileSerializer::writePatch(
   ++lineCount;
   fmt::format_to(std::ostreambuf_iterator<char>(stream), "{{\n");
   ++lineCount;
-  fmt::format_to(std::ostreambuf_iterator<char>(stream), "{}\n", patch.textureName());
+  fmt::format_to(std::ostreambuf_iterator<char>(stream), "{}\n", patch.materialName());
   ++lineCount;
   fmt::format_to(
     std::ostreambuf_iterator<char>(stream),

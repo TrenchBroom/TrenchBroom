@@ -164,7 +164,7 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
     {
       vertexCount += patchNode->grid().pointRowCount * patchNode->grid().pointColumnCount;
 
-      const auto* texture = patchNode->patch().texture();
+      const auto* texture = patchNode->patch().material();
       const auto quadCount =
         patchNode->grid().quadRowCount() * patchNode->grid().quadColumnCount();
       indexArrayMapSize.inc(texture, PrimType::Triangles, 6u * quadCount);
@@ -190,7 +190,7 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
       });
       vertices = kdl::vec_concat(std::move(vertices), std::move(gridVertices));
 
-      const auto* texture = patchNode->patch().texture();
+      const auto* texture = patchNode->patch().material();
 
       const auto pointsPerRow = grid.pointColumnCount;
       for (size_t row = 0u; row < grid.quadRowCount(); ++row)

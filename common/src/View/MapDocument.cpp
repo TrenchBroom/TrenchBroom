@@ -4527,7 +4527,7 @@ static auto makeSetMaterialsVisitor(Assets::MaterialManager& manager)
       }
     },
     [&](Model::PatchNode* patchNode) {
-      auto* material = manager.material(patchNode->patch().textureName());
+      auto* material = manager.material(patchNode->patch().materialName());
       patchNode->setTexture(material);
     });
 }

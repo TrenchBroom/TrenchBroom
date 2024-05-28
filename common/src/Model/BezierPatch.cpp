@@ -52,12 +52,12 @@ BezierPatch::BezierPatch(
   const size_t pointRowCount,
   const size_t pointColumnCount,
   std::vector<Point> controlPoints,
-  std::string textureName)
+  std::string materialName)
   : m_pointRowCount{pointRowCount}
   , m_pointColumnCount{pointColumnCount}
   , m_controlPoints{std::move(controlPoints)}
   , m_bounds(computeBounds(m_controlPoints))
-  , m_textureName{std::move(textureName)}
+  , m_materialName{std::move(materialName)}
 {
   ensure(
     m_pointRowCount > 2 && m_pointColumnCount > 2,
@@ -134,29 +134,29 @@ const vm::bbox3& BezierPatch::bounds() const
   return m_bounds;
 }
 
-const std::string& BezierPatch::textureName() const
+const std::string& BezierPatch::materialName() const
 {
-  return m_textureName;
+  return m_materialName;
 }
 
-void BezierPatch::setTextureName(std::string textureName)
+void BezierPatch::setMaterialName(std::string materialName)
 {
-  m_textureName = std::move(textureName);
+  m_materialName = std::move(materialName);
 }
 
-const Assets::Material* BezierPatch::texture() const
+const Assets::Material* BezierPatch::material() const
 {
-  return m_textureReference.get();
+  return m_materialReference.get();
 }
 
-bool BezierPatch::setTexture(Assets::Material* texture)
+bool BezierPatch::setMaterial(Assets::Material* material)
 {
-  if (texture == this->texture())
+  if (material == this->material())
   {
     return false;
   }
 
-  m_textureReference = Assets::AssetReference{texture};
+  m_materialReference = Assets::AssetReference{material};
   return true;
 }
 
