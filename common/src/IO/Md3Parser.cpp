@@ -52,7 +52,7 @@ static const size_t SurfaceNameLength = 64;
 static const size_t TriangleLength = 3 * sizeof(int32_t);
 static const size_t ShaderNameLength = 64;
 static const size_t ShaderLength = ShaderNameLength + sizeof(int32_t);
-static const size_t TexCoordLength = 2 * sizeof(float);
+static const size_t UVLength = 2 * sizeof(float);
 static const size_t VertexLength = 4 * sizeof(int16_t);
 static const float VertexScale = 1.0f / 64.0f;
 } // namespace Md3Layout
@@ -81,21 +81,21 @@ auto parseShaders(Reader reader, const size_t shaderCount)
   return shaders;
 }
 
-void loadSurfaceSkins(
+void loadSurfaceMaterials(
   Assets::EntityModelSurface& surface,
   const std::vector<std::filesystem::path>& shaderPaths,
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Material>{};
-  textures.reserve(shaderPaths.size());
+  auto materials = std::vector<Assets::Material>{};
+  materials.reserve(shaderPaths.size());
 
   for (const auto& shaderPath : shaderPaths)
   {
-    textures.push_back(loadShader(kdl::path_remove_extension(shaderPath), fs, logger));
+    materials.push_back(loadShader(kdl::path_remove_extension(shaderPath), fs, logger));
   }
 
-  surface.setSkins(std::move(textures));
+  surface.setSkins(std::move(materials));
 }
 
 void parseSurfaces(
@@ -123,7 +123,7 @@ void parseSurfaces(
 
     /* const auto triangleOffset = */ reader.readSize<int32_t>();
     const auto shaderOffset = reader.readSize<int32_t>();
-    /* const auto texCoordOffset = */ reader.readSize<int32_t>();
+    /* const auto uvOffset = */ reader.readSize<int32_t>();
     /* const auto vertexOffset = */ reader.readSize<int32_t>();
     const auto endOffset = reader.readSize<int32_t>();
 
@@ -132,7 +132,7 @@ void parseSurfaces(
       shaderCount);
 
     auto& surface = model.addSurface(surfaceName);
-    loadSurfaceSkins(surface, shaders, fs, logger);
+    loadSurfaceMaterials(surface, shaders, fs, logger);
 
     reader = reader.subReaderFromBegin(endOffset);
   }
@@ -166,19 +166,19 @@ auto parseVertexPositions(Reader reader, const size_t vertexCount)
   return positions;
 }
 
-auto parseTexCoords(Reader reader, const size_t vertexCount)
+auto parseUV(Reader reader, const size_t vertexCount)
 {
-  auto texCoords = std::vector<vm::vec2f>{};
-  texCoords.reserve(vertexCount);
+  auto uv = std::vector<vm::vec2f>{};
+  uv.reserve(vertexCount);
 
   for (size_t i = 0; i < vertexCount; ++i)
   {
-    const auto s = reader.readFloat<float>();
-    const auto t = reader.readFloat<float>();
-    texCoords.emplace_back(s, t);
+    const auto u = reader.readFloat<float>();
+    const auto v = reader.readFloat<float>();
+    uv.emplace_back(u, v);
   }
 
-  return texCoords;
+  return uv;
 }
 
 auto buildVertices(
@@ -281,9 +281,8 @@ void parseFrameSurfaces(
 
       const auto vertexPositions = parseVertexPositions(
         reader.subReaderFromBegin(frameVertexOffset, frameVertexLength), vertexCount);
-      const auto texCoords = parseTexCoords(
-        reader.subReaderFromBegin(
-          texCoordOffset, vertexCount * Md3Layout::TexCoordLength),
+      const auto texCoords = parseUV(
+        reader.subReaderFromBegin(texCoordOffset, vertexCount * Md3Layout::UVLength),
         vertexCount);
       const auto vertices = buildVertices(vertexPositions, texCoords);
 
@@ -345,7 +344,7 @@ std::unique_ptr<Assets::EntityModel> Md3Parser::initializeModel(Logger& logger)
   const auto frameCount = reader.readSize<int32_t>();
   /* const auto tagCount = */ reader.readSize<int32_t>();
   const auto surfaceCount = reader.readSize<int32_t>();
-  /* const auto skinCount = */ reader.readSize<int32_t>();
+  /* const auto materialCount = */ reader.readSize<int32_t>();
 
   /* const auto frameOffset = */ reader.readSize<int32_t>();
   /* const auto tagOffset = */ reader.readSize<int32_t>();
@@ -388,7 +387,7 @@ void Md3Parser::loadFrame(
   /* const auto frameCount = */ reader.readSize<int32_t>();
   /* const auto tagCount = */ reader.readSize<int32_t>();
   /* const auto surfaceCount = */ reader.readSize<int32_t>();
-  /* const auto skinCount = */ reader.readSize<int32_t>();
+  /* const auto materialCount = */ reader.readSize<int32_t>();
 
   const auto frameOffset = reader.readSize<int32_t>();
   /* const auto tagOffset = */ reader.readSize<int32_t>();
