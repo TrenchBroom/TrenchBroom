@@ -89,8 +89,8 @@ public:
   struct BrushFace
   {
     std::vector<IndexedVertex> verts;
-    std::string textureName;
-    const Assets::Material* texture;
+    std::string materialName;
+    const Assets::Material* material;
   };
 
   struct BrushObject
@@ -110,8 +110,8 @@ public:
     size_t entityNo;
     size_t patchNo;
     std::vector<PatchQuad> quads;
-    std::string textureName;
-    const Assets::Material* texture;
+    std::string materialName;
+    const Assets::Material* material;
   };
 
   using Object = std::variant<BrushObject, PatchObject>;

@@ -50,7 +50,7 @@ std::ostream& operator<<(std::ostream& str, const ObjSerializer::BrushObject& ob
   str << "o entity" << object.entityNo << "_brush" << object.brushNo << "\n";
   for (const auto& face : object.faces)
   {
-    str << "usemtl " << face.textureName << "\n";
+    str << "usemtl " << face.materialName << "\n";
     str << "f";
     for (const auto& vertex : face.verts)
     {
@@ -64,7 +64,7 @@ std::ostream& operator<<(std::ostream& str, const ObjSerializer::BrushObject& ob
 std::ostream& operator<<(std::ostream& str, const ObjSerializer::PatchObject& object)
 {
   str << "o entity" << object.entityNo << "_patch" << object.patchNo << "\n";
-  str << "usemtl " << object.textureName << "\n";
+  str << "usemtl " << object.materialName << "\n";
   for (const auto& quad : object.quads)
   {
     str << "f";
@@ -108,7 +108,7 @@ static void writeMtlFile(
   const std::vector<ObjSerializer::Object>& objects,
   const IO::ObjExportOptions& options)
 {
-  auto usedTextures = std::map<std::string, const Assets::Material*>{};
+  auto usedMaterials = std::map<std::string, const Assets::Material*>{};
 
   for (const auto& object : objects)
   {
@@ -117,31 +117,31 @@ static void writeMtlFile(
         [&](const ObjSerializer::BrushObject& brushObject) {
           for (const auto& face : brushObject.faces)
           {
-            usedTextures[face.textureName] = face.texture;
+            usedMaterials[face.materialName] = face.material;
           }
         },
         [&](const ObjSerializer::PatchObject& patchObject) {
-          usedTextures[patchObject.textureName] = patchObject.texture;
+          usedMaterials[patchObject.materialName] = patchObject.material;
         }),
       object);
   }
 
   const auto basePath = options.exportPath.parent_path();
-  for (const auto& [textureName, texture] : usedTextures)
+  for (const auto& [materialName, material] : usedMaterials)
   {
-    str << "newmtl " << textureName << "\n";
-    if (texture)
+    str << "newmtl " << materialName << "\n";
+    if (material)
     {
       switch (options.mtlPathMode)
       {
       case ObjMtlPathMode::RelativeToGamePath:
-        str << "map_Kd " << texture->relativePath().generic_string() << "\n";
+        str << "map_Kd " << material->relativePath().generic_string() << "\n";
         break;
       case ObjMtlPathMode::RelativeToExportPath:
-        // textures loaded from image files (pak files) don't have absolute paths
-        if (!texture->absolutePath().empty())
+        // materials loaded from image files (pak files) don't have absolute paths
+        if (!material->absolutePath().empty())
         {
-          const auto mtlPath = texture->absolutePath().lexically_relative(basePath);
+          const auto mtlPath = material->absolutePath().lexically_relative(basePath);
           str << "map_Kd " << mtlPath.generic_string() << "\n";
         }
         break;
