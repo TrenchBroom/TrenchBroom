@@ -63,7 +63,7 @@ MaterialBrowserView::MaterialBrowserView(
 {
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->textureUsageCountsDidChangeNotifier.connect(
-    this, &MaterialBrowserView::reloadTextures);
+    this, &MaterialBrowserView::reloadMaterials);
 }
 
 MaterialBrowserView::~MaterialBrowserView()
@@ -76,7 +76,7 @@ void MaterialBrowserView::setSortOrder(const MaterialSortOrder sortOrder)
   if (sortOrder != m_sortOrder)
   {
     m_sortOrder = sortOrder;
-    reloadTextures();
+    reloadMaterials();
   }
 }
 
@@ -85,7 +85,7 @@ void MaterialBrowserView::setGroup(const bool group)
   if (group != m_group)
   {
     m_group = group;
-    reloadTextures();
+    reloadMaterials();
   }
 }
 
@@ -94,7 +94,7 @@ void MaterialBrowserView::setHideUnused(const bool hideUnused)
   if (hideUnused != m_hideUnused)
   {
     m_hideUnused = hideUnused;
-    reloadTextures();
+    reloadMaterials();
   }
 }
 
@@ -103,33 +103,33 @@ void MaterialBrowserView::setFilterText(const std::string& filterText)
   if (filterText != m_filterText)
   {
     m_filterText = filterText;
-    reloadTextures();
+    reloadMaterials();
   }
 }
 
-const Assets::Material* MaterialBrowserView::selectedTexture() const
+const Assets::Material* MaterialBrowserView::selectedMaterial() const
 {
-  return m_selectedTexture;
+  return m_selectedMaterial;
 }
 
-void MaterialBrowserView::setSelectedTexture(const Assets::Material* selectedTexture)
+void MaterialBrowserView::setSelectedMaterial(const Assets::Material* selectedMaterial)
 {
-  if (m_selectedTexture != selectedTexture)
+  if (m_selectedMaterial != selectedMaterial)
   {
-    m_selectedTexture = selectedTexture;
+    m_selectedMaterial = selectedMaterial;
     update();
   }
 }
 
-void MaterialBrowserView::revealTexture(const Assets::Material* texture)
+void MaterialBrowserView::revealMaterial(const Assets::Material* material)
 {
   scrollToCell([&](const Cell& cell) {
-    const auto& cellTexture = cellData(cell);
-    return &cellTexture == texture;
+    const auto& cellMaterial = cellData(cell);
+    return &cellMaterial == material;
   });
 }
 
-void MaterialBrowserView::reloadTextures()
+void MaterialBrowserView::reloadMaterials()
 {
   invalidate();
   update();
@@ -161,43 +161,43 @@ void MaterialBrowserView::doReloadLayout(Layout& layout)
     for (const auto* collection : getCollections())
     {
       layout.addGroup(collection->path().string(), float(fontSize) + 2.0f);
-      addTexturesToLayout(layout, getTextures(*collection), font);
+      addMaterialsToLayout(layout, getMaterials(*collection), font);
     }
   }
   else
   {
-    addTexturesToLayout(layout, getTextures(), font);
+    addMaterialsToLayout(layout, getMaterials(), font);
   }
 }
 
-void MaterialBrowserView::addTexturesToLayout(
+void MaterialBrowserView::addMaterialsToLayout(
   Layout& layout,
-  const std::vector<const Assets::Material*>& textures,
+  const std::vector<const Assets::Material*>& materials,
   const Renderer::FontDescriptor& font)
 {
-  for (const auto* texture : textures)
+  for (const auto* material : materials)
   {
-    addTextureToLayout(layout, texture, font);
+    addMaterialToLayout(layout, material, font);
   }
 }
 
-void MaterialBrowserView::addTextureToLayout(
-  Layout& layout, const Assets::Material* texture, const Renderer::FontDescriptor& font)
+void MaterialBrowserView::addMaterialToLayout(
+  Layout& layout, const Assets::Material* material, const Renderer::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
 
-  const auto textureName = std::filesystem::path{texture->name()}.filename().string();
-  const auto titleHeight = fontManager().font(font).measure(textureName).y();
+  const auto materialName = std::filesystem::path{material->name()}.filename().string();
+  const auto titleHeight = fontManager().font(font).measure(materialName).y();
 
   const auto scaleFactor = pref(Preferences::MaterialBrowserIconSize);
-  const auto scaledTextureWidth = vm::round(scaleFactor * float(texture->width()));
-  const auto scaledTextureHeight = vm::round(scaleFactor * float(texture->height()));
+  const auto scaledMaterialWidth = vm::round(scaleFactor * float(material->width()));
+  const auto scaledMaterialHeight = vm::round(scaleFactor * float(material->height()));
 
   layout.addItem(
-    texture,
-    textureName,
-    scaledTextureWidth,
-    scaledTextureHeight,
+    material,
+    materialName,
+    scaledMaterialWidth,
+    scaledMaterialHeight,
     maxCellWidth,
     titleHeight + 4.0f);
 }
@@ -205,12 +205,12 @@ void MaterialBrowserView::addTextureToLayout(
 std::vector<const Assets::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
   auto document = kdl::mem_lock(m_document);
-  const auto enabledTextureCollections = document->enabledTextureCollections();
+  const auto enabledMaterialCollections = document->enabledTextureCollections();
 
   auto result = std::vector<const Assets::MaterialCollection*>{};
   for (const auto& collection : document->textureManager().collections())
   {
-    if (kdl::vec_contains(enabledTextureCollections, collection.path()))
+    if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
     {
       result.push_back(&collection);
     }
@@ -218,49 +218,49 @@ std::vector<const Assets::MaterialCollection*> MaterialBrowserView::getCollectio
   return result;
 }
 
-std::vector<const Assets::Material*> MaterialBrowserView::getTextures(
+std::vector<const Assets::Material*> MaterialBrowserView::getMaterials(
   const Assets::MaterialCollection& collection) const
 {
-  return sortTextures(filterTextures(
+  return sortMaterials(filterMaterials(
     kdl::vec_transform(collection.materials(), [](const auto& t) { return &t; })));
 }
 
-std::vector<const Assets::Material*> MaterialBrowserView::getTextures() const
+std::vector<const Assets::Material*> MaterialBrowserView::getMaterials() const
 {
   auto document = kdl::mem_lock(m_document);
-  auto textures = std::vector<const Assets::Material*>{};
+  auto materials = std::vector<const Assets::Material*>{};
   for (const auto& collection : getCollections())
   {
-    for (const auto& texture : collection->materials())
+    for (const auto& material : collection->materials())
     {
-      textures.push_back(&texture);
+      materials.push_back(&material);
     }
   }
-  return sortTextures(filterTextures(textures));
+  return sortMaterials(filterMaterials(materials));
 }
 
-std::vector<const Assets::Material*> MaterialBrowserView::filterTextures(
-  std::vector<const Assets::Material*> textures) const
+std::vector<const Assets::Material*> MaterialBrowserView::filterMaterials(
+  std::vector<const Assets::Material*> materials) const
 {
   if (m_hideUnused)
   {
-    textures = kdl::vec_erase_if(std::move(textures), [](const auto* texture) {
-      return texture->usageCount() == 0;
+    materials = kdl::vec_erase_if(std::move(materials), [](const auto* material) {
+      return material->usageCount() == 0;
     });
   }
   if (!m_filterText.empty())
   {
-    textures = kdl::vec_erase_if(std::move(textures), [&](const auto* texture) {
+    materials = kdl::vec_erase_if(std::move(materials), [&](const auto* material) {
       return !kdl::all_of(kdl::str_split(m_filterText, " "), [&](const auto& pattern) {
-        return kdl::ci::str_contains(texture->name(), pattern);
+        return kdl::ci::str_contains(material->name(), pattern);
       });
     });
   }
-  return textures;
+  return materials;
 }
 
-std::vector<const Assets::Material*> MaterialBrowserView::sortTextures(
-  std::vector<const Assets::Material*> textures) const
+std::vector<const Assets::Material*> MaterialBrowserView::sortMaterials(
+  std::vector<const Assets::Material*> materials) const
 {
   const auto compareNames = [](const auto& lhs, const auto& rhs) {
     return kdl::ci::string_less{}(lhs->name(), rhs->name());
@@ -269,9 +269,9 @@ std::vector<const Assets::Material*> MaterialBrowserView::sortTextures(
   switch (m_sortOrder)
   {
   case MaterialSortOrder::Name:
-    return kdl::vec_sort(std::move(textures), compareNames);
+    return kdl::vec_sort(std::move(materials), compareNames);
   case MaterialSortOrder::Usage:
-    return kdl::vec_sort(std::move(textures), [&](const auto* lhs, const auto* rhs) {
+    return kdl::vec_sort(std::move(materials), [&](const auto* lhs, const auto* rhs) {
       return lhs->usageCount() < rhs->usageCount()   ? false
              : lhs->usageCount() > rhs->usageCount() ? true
                                                      : compareNames(lhs, rhs);
@@ -298,7 +298,7 @@ void MaterialBrowserView::doRender(Layout& layout, const float y, const float he
       * vm::translation_matrix(vm::vec3f{0.0f, 0.0f, 0.1f})};
 
   renderBounds(layout, y, height);
-  renderTextures(layout, y, height);
+  renderMaterials(layout, y, height);
 }
 
 bool MaterialBrowserView::doShouldRenderFocusIndicator() const
@@ -327,8 +327,8 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
           for (const auto& cell : row.cells())
           {
             const auto& bounds = cell.itemBounds();
-            const auto& texture = cellData(cell);
-            const auto& color = textureColor(texture);
+            const auto& material = cellData(cell);
+            const auto& color = materialColor(material);
             vertices.emplace_back(
               vm::vec2f{bounds.left() - 2.0f, height - (bounds.top() - 2.0f - y)}, color);
             vertices.emplace_back(
@@ -354,23 +354,23 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
   vertexArray.render(Renderer::PrimType::Quads);
 }
 
-const Color& MaterialBrowserView::textureColor(const Assets::Material& texture) const
+const Color& MaterialBrowserView::materialColor(const Assets::Material& material) const
 {
-  if (&texture == m_selectedTexture)
+  if (&material == m_selectedMaterial)
   {
     return pref(Preferences::MaterialBrowserSelectedColor);
   }
-  if (texture.usageCount() > 0)
+  if (material.usageCount() > 0)
   {
     return pref(Preferences::MaterialBrowserUsedColor);
   }
   return pref(Preferences::MaterialBrowserDefaultColor);
 }
 
-void MaterialBrowserView::renderTextures(
+void MaterialBrowserView::renderMaterials(
   Layout& layout, const float y, const float height)
 {
-  using TextureVertex = Renderer::GLVertexTypes::P2T2::Vertex;
+  using Vertex = Renderer::GLVertexTypes::P2T2::Vertex;
 
   auto shader =
     Renderer::ActiveShader{shaderManager(), Renderer::Shaders::MaterialBrowserShader};
@@ -389,21 +389,21 @@ void MaterialBrowserView::renderTextures(
           for (const auto& cell : row.cells())
           {
             const auto& bounds = cell.itemBounds();
-            const auto& texture = cellData(cell);
+            const auto& material = cellData(cell);
 
-            auto vertexArray = Renderer::VertexArray::move(std::vector<TextureVertex>{
-              TextureVertex{{bounds.left(), height - (bounds.top() - y)}, {0, 0}},
-              TextureVertex{{bounds.left(), height - (bounds.bottom() - y)}, {0, 1}},
-              TextureVertex{{bounds.right(), height - (bounds.bottom() - y)}, {1, 1}},
-              TextureVertex{{bounds.right(), height - (bounds.top() - y)}, {1, 0}},
+            auto vertexArray = Renderer::VertexArray::move(std::vector<Vertex>{
+              Vertex{{bounds.left(), height - (bounds.top() - y)}, {0, 0}},
+              Vertex{{bounds.left(), height - (bounds.bottom() - y)}, {0, 1}},
+              Vertex{{bounds.right(), height - (bounds.bottom() - y)}, {1, 1}},
+              Vertex{{bounds.right(), height - (bounds.top() - y)}, {1, 0}},
             });
 
-            texture.activate();
+            material.activate();
 
             vertexArray.prepare(vboManager());
             vertexArray.render(Renderer::PrimType::Quads);
 
-            texture.deactivate();
+            material.deactivate();
           }
         }
       }
@@ -415,12 +415,9 @@ void MaterialBrowserView::doLeftClick(Layout& layout, const float x, const float
 {
   if (const auto* cell = layout.cellAt(x, y))
   {
-    const auto& texture = cellData(*cell);
-    // NOTE: wx had the ability for the textureSelected event to veto the selection, but
-    // it wasn't used.
-    setSelectedTexture(&texture);
-
-    emit textureSelected(&texture);
+    const auto& material = cellData(*cell);
+    setSelectedMaterial(&material);
+    emit materialSelected(&material);
 
     update();
   }
@@ -440,11 +437,11 @@ void MaterialBrowserView::doContextMenu(
 {
   if (const auto* cell = layout.cellAt(x, y))
   {
-    const auto& texture = cellData(*cell);
+    const auto& material = cellData(*cell);
     auto menu = QMenu{this};
-    menu.addAction(tr("Select Faces"), this, [&, texture = &texture]() {
+    menu.addAction(tr("Select Faces"), this, [&, material = &material]() {
       auto doc = kdl::mem_lock(m_document);
-      doc->selectFacesWithTexture(texture);
+      doc->selectFacesWithTexture(material);
     });
     menu.exec(event->globalPos());
   }

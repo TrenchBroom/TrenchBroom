@@ -60,7 +60,7 @@ private:
   MaterialSortOrder m_sortOrder = MaterialSortOrder::Name;
   std::string m_filterText;
 
-  const Assets::Material* m_selectedTexture = nullptr;
+  const Assets::Material* m_selectedMaterial = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -76,35 +76,35 @@ public:
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
 
-  const Assets::Material* selectedTexture() const;
-  void setSelectedTexture(const Assets::Material* selectedTexture);
+  const Assets::Material* selectedMaterial() const;
+  void setSelectedMaterial(const Assets::Material* selectedMaterial);
 
-  void revealTexture(const Assets::Material* texture);
+  void revealMaterial(const Assets::Material* material);
 
 private:
-  void reloadTextures();
+  void reloadMaterials();
 
   void doInitLayout(Layout& layout) override;
   void doReloadLayout(Layout& layout) override;
 
-  void addTexturesToLayout(
+  void addMaterialsToLayout(
     Layout& layout,
-    const std::vector<const Assets::Material*>& textures,
+    const std::vector<const Assets::Material*>& materials,
     const Renderer::FontDescriptor& font);
-  void addTextureToLayout(
+  void addMaterialToLayout(
     Layout& layout,
-    const Assets::Material* texture,
+    const Assets::Material* material,
     const Renderer::FontDescriptor& font);
 
   std::vector<const Assets::MaterialCollection*> getCollections() const;
-  std::vector<const Assets::Material*> getTextures(
+  std::vector<const Assets::Material*> getMaterials(
     const Assets::MaterialCollection& collection) const;
-  std::vector<const Assets::Material*> getTextures() const;
+  std::vector<const Assets::Material*> getMaterials() const;
 
-  std::vector<const Assets::Material*> filterTextures(
-    std::vector<const Assets::Material*> textures) const;
-  std::vector<const Assets::Material*> sortTextures(
-    std::vector<const Assets::Material*> textures) const;
+  std::vector<const Assets::Material*> filterMaterials(
+    std::vector<const Assets::Material*> materials) const;
+  std::vector<const Assets::Material*> sortMaterials(
+    std::vector<const Assets::Material*> materials) const;
 
   void doClear() override;
   void doRender(Layout& layout, float y, float height) override;
@@ -112,8 +112,8 @@ private:
   const Color& getBackgroundColor() override;
 
   void renderBounds(Layout& layout, float y, float height);
-  const Color& textureColor(const Assets::Material& texture) const;
-  void renderTextures(Layout& layout, float y, float height);
+  const Color& materialColor(const Assets::Material& material) const;
+  void renderMaterials(Layout& layout, float y, float height);
 
   void doLeftClick(Layout& layout, float x, float y) override;
   QString tooltip(const Cell& cell) override;
@@ -121,7 +121,7 @@ private:
 
   const Assets::Material& cellData(const Cell& cell) const;
 signals:
-  void textureSelected(const Assets::Material* texture);
+  void materialSelected(const Assets::Material* material);
 };
 
 } // namespace TrenchBroom::View

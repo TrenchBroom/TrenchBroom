@@ -56,18 +56,18 @@ MaterialBrowser::MaterialBrowser(
 
 const Assets::Material* MaterialBrowser::selectedTexture() const
 {
-  return m_view->selectedTexture();
+  return m_view->selectedMaterial();
 }
 
 void MaterialBrowser::setSelectedTexture(const Assets::Material* selectedTexture)
 {
-  m_view->setSelectedTexture(selectedTexture);
+  m_view->setSelectedMaterial(selectedTexture);
 }
 
 void MaterialBrowser::revealTexture(const Assets::Material* texture)
 {
   setFilterText("");
-  m_view->revealTexture(texture);
+  m_view->revealMaterial(texture);
 }
 
 void MaterialBrowser::setSortOrder(const MaterialSortOrder sortOrder)
@@ -177,7 +177,7 @@ void MaterialBrowser::bindEvents()
 {
   connect(
     m_view,
-    &MaterialBrowserView::textureSelected,
+    &MaterialBrowserView::materialSelected,
     this,
     &MaterialBrowser::textureSelected);
 }
@@ -277,7 +277,7 @@ void MaterialBrowser::updateSelectedTexture()
   auto document = kdl::mem_lock(m_document);
   const auto& textureName = document->currentTextureName();
   const auto* texture = document->textureManager().material(textureName);
-  m_view->setSelectedTexture(texture);
+  m_view->setSelectedMaterial(texture);
 }
 
 } // namespace TrenchBroom::View
