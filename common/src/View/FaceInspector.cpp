@@ -202,7 +202,7 @@ void FaceInspector::documentWasNewedOrOpened(MapDocument* document)
 {
   const auto& game = *document->game();
   const auto& gameConfig = Model::GameFactory::instance().gameConfig(game.gameName());
-  m_textureBrowserInfo->setVisible(gameConfig.textureConfig.property != std::nullopt);
+  m_textureBrowserInfo->setVisible(gameConfig.materialConfig.property != std::nullopt);
 }
 
 } // namespace TrenchBroom::View

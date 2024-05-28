@@ -191,7 +191,7 @@ void TestGame::writeBrushFacesToStream(
 
 void TestGame::loadTextureCollections(Assets::MaterialManager& textureManager) const
 {
-  const Model::TextureConfig textureConfig{
+  const Model::MaterialConfig textureConfig{
     "textures",
     {".D"},
     "fixture/test/palette.lmp",

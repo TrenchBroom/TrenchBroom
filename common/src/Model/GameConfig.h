@@ -66,7 +66,7 @@ struct FileSystemConfig
   kdl_reflect_decl(FileSystemConfig, searchPath, packageFormat);
 };
 
-struct TextureConfig
+struct MaterialConfig
 {
   std::filesystem::path root;
   std::vector<std::string> extensions;
@@ -77,7 +77,7 @@ struct TextureConfig
   std::vector<std::string> excludes;
 
   kdl_reflect_decl(
-    TextureConfig, root, extensions, palette, property, shaderSearchPath, excludes);
+    MaterialConfig, root, extensions, palette, property, shaderSearchPath, excludes);
 };
 
 struct EntityConfig
@@ -136,7 +136,7 @@ struct GameConfig
   bool experimental;
   std::vector<MapFormatConfig> fileFormats;
   FileSystemConfig fileSystemConfig;
-  TextureConfig textureConfig;
+  MaterialConfig materialConfig;
   EntityConfig entityConfig;
   FaceAttribsConfig faceAttribsConfig;
   std::vector<SmartTag> smartTags;
@@ -158,7 +158,7 @@ struct GameConfig
     experimental,
     fileFormats,
     fileSystemConfig,
-    textureConfig,
+    materialConfig,
     entityConfig,
     faceAttribsConfig,
     smartTags,

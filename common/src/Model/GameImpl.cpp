@@ -412,9 +412,10 @@ Result<std::unique_ptr<WorldNode>> GameImpl::newMap(
       propertyConfig, EntityPropertyKeys::ValveVersion, "220");
   }
 
-  if (m_config.textureConfig.property)
+  if (m_config.materialConfig.property)
   {
-    worldEntity.addOrUpdateProperty(propertyConfig, *m_config.textureConfig.property, "");
+    worldEntity.addOrUpdateProperty(
+      propertyConfig, *m_config.materialConfig.property, "");
   }
 
   auto worldNode = std::make_unique<WorldNode>(
@@ -541,12 +542,12 @@ void GameImpl::writeBrushFacesToStream(
 
 void GameImpl::loadTextureCollections(Assets::MaterialManager& textureManager) const
 {
-  textureManager.reload(m_fs, m_config.textureConfig);
+  textureManager.reload(m_fs, m_config.materialConfig);
 }
 
 const std::optional<std::string>& GameImpl::wadProperty() const
 {
-  return m_config.textureConfig.property;
+  return m_config.materialConfig.property;
 }
 
 void GameImpl::reloadWads(
@@ -559,7 +560,7 @@ void GameImpl::reloadWads(
     m_gamePath,                 // Search for assets relative to the location of the game.
     IO::SystemPaths::appDirectory(), // Search for assets relative to the application.
   };
-  m_fs.reloadWads(m_config.textureConfig.root, searchPaths, wadPaths, logger);
+  m_fs.reloadWads(m_config.materialConfig.root, searchPaths, wadPaths, logger);
 }
 
 Result<void> GameImpl::reloadShaders()
@@ -629,7 +630,7 @@ std::filesystem::path GameImpl::findEntityDefinitionFile(
 
 Result<Assets::Palette> GameImpl::loadTexturePalette() const
 {
-  const auto& path = m_config.textureConfig.palette;
+  const auto& path = m_config.materialConfig.palette;
   return m_fs.openFile(path).and_then(
     [&](auto file) { return Assets::loadPalette(*file, path); });
   ;

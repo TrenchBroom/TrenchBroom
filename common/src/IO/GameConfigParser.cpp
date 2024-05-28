@@ -537,7 +537,7 @@ std::vector<std::string> parseTextureExtensions(const EL::Value& value)
   return parsePackageFormatConfig(value["format"]).extensions;
 }
 
-Model::TextureConfig parseTextureConfig(const EL::Value& value)
+Model::MaterialConfig parseTextureConfig(const EL::Value& value)
 {
   expectStructure(
     value,
@@ -546,7 +546,7 @@ Model::TextureConfig parseTextureConfig(const EL::Value& value)
       {'extensions': 'String', 'format': 'Map', 'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String', 'excludes': 'Array'}
     ])");
 
-  return Model::TextureConfig{
+  return Model::MaterialConfig{
     std::filesystem::path{value["root"].stringValue()},
     parseTextureExtensions(value),
     std::filesystem::path{value["palette"].stringValue()},

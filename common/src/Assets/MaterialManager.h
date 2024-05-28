@@ -37,7 +37,7 @@ class FileSystem;
 
 namespace Model
 {
-struct TextureConfig;
+struct MaterialConfig;
 }
 
 namespace Assets
@@ -66,7 +66,7 @@ public:
   MaterialManager(int magFilter, int minFilter, Logger& logger);
   ~MaterialManager();
 
-  void reload(const IO::FileSystem& fs, const Model::TextureConfig& textureConfig);
+  void reload(const IO::FileSystem& fs, const Model::MaterialConfig& textureConfig);
 
   // for testing
   void setTextureCollections(std::vector<MaterialCollection> collections);
@@ -75,7 +75,7 @@ private:
   void setTextureCollections(
     const std::vector<std::filesystem::path>& paths,
     const IO::FileSystem& fs,
-    const Model::TextureConfig& textureConfig);
+    const Model::MaterialConfig& textureConfig);
 
   void addTextureCollection(Assets::MaterialCollection collection);
 

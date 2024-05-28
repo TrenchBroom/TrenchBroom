@@ -96,7 +96,7 @@ TEST_CASE("loadTextureCollection")
 
   SECTION("invalid path")
   {
-    const auto textureConfig = Model::TextureConfig{
+    const auto textureConfig = Model::MaterialConfig{
       "textures",
       {".D"},
       "fixture/test/palette.lmp",
@@ -110,7 +110,7 @@ TEST_CASE("loadTextureCollection")
 
   SECTION("missing palette")
   {
-    const auto textureConfig = Model::TextureConfig{
+    const auto textureConfig = Model::MaterialConfig{
       "textures",
       {".D"},
       "fixture/test/missing.lmp",
@@ -141,7 +141,7 @@ TEST_CASE("loadTextureCollection")
 
   SECTION("loading all textures")
   {
-    const auto textureConfig = Model::TextureConfig{
+    const auto textureConfig = Model::MaterialConfig{
       "textures",
       {".D"},
       "fixture/test/palette.lmp",
@@ -182,7 +182,7 @@ TEST_CASE("loadTextureCollection")
 
   SECTION("loading with texture exclusions")
   {
-    const auto textureConfig = Model::TextureConfig{
+    const auto textureConfig = Model::MaterialConfig{
       "textures",
       {".D"},
       "fixture/test/palette.lmp",

@@ -45,7 +45,7 @@ kdl_reflect_impl(PackageFormatConfig);
 
 kdl_reflect_impl(FileSystemConfig);
 
-kdl_reflect_impl(TextureConfig);
+kdl_reflect_impl(MaterialConfig);
 
 kdl_reflect_impl(EntityConfig);
 

@@ -52,7 +52,7 @@ MaterialManager::MaterialManager(int magFilter, int minFilter, Logger& logger)
 MaterialManager::~MaterialManager() = default;
 
 void MaterialManager::reload(
-  const IO::FileSystem& fs, const Model::TextureConfig& textureConfig)
+  const IO::FileSystem& fs, const Model::MaterialConfig& textureConfig)
 {
   findTextureCollections(fs, textureConfig)
     .transform([&](auto textureCollections) {
@@ -76,7 +76,7 @@ void MaterialManager::setTextureCollections(std::vector<MaterialCollection> coll
 void MaterialManager::setTextureCollections(
   const std::vector<std::filesystem::path>& paths,
   const IO::FileSystem& fs,
-  const Model::TextureConfig& textureConfig)
+  const Model::MaterialConfig& textureConfig)
 {
   auto collections = std::move(m_collections);
   clear();

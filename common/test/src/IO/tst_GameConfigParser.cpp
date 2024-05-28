@@ -146,7 +146,7 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
        Model::MapFormatConfig{"Standard", {}},
        Model::MapFormatConfig{"Valve", {}}},
       Model::FileSystemConfig{{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
-      Model::TextureConfig{
+      Model::MaterialConfig{
         {"textures"},
         {".D"},
         {"gfx/palette.lmp"},
@@ -405,7 +405,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
       false,
       {Model::MapFormatConfig{"Quake2", {}}},
       Model::FileSystemConfig{{"baseq2"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
-      Model::TextureConfig{
+      Model::MaterialConfig{
         {"textures"},
         {".wal"},
         {"pics/colormap.pcx"},
@@ -734,7 +734,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
       false,
       {Model::MapFormatConfig{"Quake3", {}}},
       Model::FileSystemConfig{{"baseq3"}, Model::PackageFormatConfig{{".pk3"}, "zip"}},
-      Model::TextureConfig{
+      Model::MaterialConfig{
         {"textures"},
         {""},
         {},
@@ -921,7 +921,7 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
       false,
       {Model::MapFormatConfig{"Standard", {}}},
       Model::FileSystemConfig{{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
-      Model::TextureConfig{
+      Model::MaterialConfig{
         {"textures"},
         {".D"},
         {"gfx/palette.lmp"},

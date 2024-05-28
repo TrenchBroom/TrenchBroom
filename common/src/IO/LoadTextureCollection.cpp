@@ -67,7 +67,7 @@ bool shouldExclude(
 }
 
 Result<Assets::Palette> loadPalette(
-  const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig)
 {
   if (textureConfig.palette.empty())
   {
@@ -136,7 +136,7 @@ Result<Assets::Material, ReadTextureError> readTexture(
 }
 
 Result<ReadTextureFunc> makeReadTextureFunc(
-  const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig)
 {
   return loadPalette(gameFS, textureConfig)
     .transform([](auto palette) { return std::optional{std::move(palette)}; })
@@ -154,7 +154,7 @@ Result<ReadTextureFunc> makeReadTextureFunc(
 } // namespace
 
 Result<std::vector<std::filesystem::path>> findTextureCollections(
-  const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig)
 {
   return gameFS
     .find(
@@ -170,7 +170,7 @@ Result<std::vector<std::filesystem::path>> findTextureCollections(
 Result<Assets::MaterialCollection> loadTextureCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
-  const Model::TextureConfig& textureConfig,
+  const Model::MaterialConfig& textureConfig,
   Logger&)
 {
   if (gameFS.pathInfo(path) != PathInfo::Directory)

@@ -38,7 +38,7 @@ class MaterialCollection;
 
 namespace TrenchBroom::Model
 {
-struct TextureConfig;
+struct MaterialConfig;
 }
 
 namespace TrenchBroom::IO
@@ -46,12 +46,12 @@ namespace TrenchBroom::IO
 class FileSystem;
 
 Result<std::vector<std::filesystem::path>> findTextureCollections(
-  const FileSystem& gameFS, const Model::TextureConfig& textureConfig);
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig);
 
 Result<Assets::MaterialCollection> loadTextureCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
-  const Model::TextureConfig& textureConfig,
+  const Model::MaterialConfig& textureConfig,
   Logger& logger);
 
 } // namespace TrenchBroom::IO
