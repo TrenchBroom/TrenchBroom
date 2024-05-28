@@ -89,6 +89,8 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   const size_t prefixLength,
   const std::optional<Assets::Palette>& palette)
 {
+  // TODO: extract this into a separate function and replace SkinLoader with it!
+
   auto name = getMaterialNameFromPathSuffix(path, prefixLength);
   const auto extension = kdl::str_to_lower(path.extension().string());
   if (extension == ".d")
