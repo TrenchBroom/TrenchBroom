@@ -38,7 +38,7 @@ namespace Assets
 
 namespace
 {
-std::string textureName(const EL::Value& value)
+std::string materialName(const EL::Value& value)
 {
   using namespace std::string_literals;
   return value.type() == EL::ValueType::String ? value.stringValue() : ""s;
@@ -49,9 +49,9 @@ DecalSpecification convertToDecal(const EL::Value& value)
   switch (value.type())
   {
   case EL::ValueType::Map:
-    return {textureName(value[DecalSpecificationKeys::Texture])};
+    return {materialName(value[DecalSpecificationKeys::Material])};
   case EL::ValueType::String:
-    return {textureName(value)};
+    return {materialName(value)};
   case EL::ValueType::Boolean:
   case EL::ValueType::Number:
   case EL::ValueType::Array:

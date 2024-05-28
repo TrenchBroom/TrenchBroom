@@ -51,7 +51,7 @@ std::optional<Assets::DecalSpecification> getDecalSpecification(
   const Model::EntityNode* entityNode)
 {
   const auto decalSpec = entityNode->entity().decalSpecification();
-  return decalSpec.textureName.empty() ? std::nullopt : std::make_optional(decalSpec);
+  return decalSpec.materialName.empty() ? std::nullopt : std::make_optional(decalSpec);
 }
 
 using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
@@ -330,7 +330,7 @@ void EntityDecalRenderer::validateDecalData(
     }
   }
 
-  data.texture = document->materialManager().material(spec->textureName);
+  data.texture = document->materialManager().material(spec->materialName);
   if (!data.texture)
   {
     // no decal texture was found, don't generate any geometry
