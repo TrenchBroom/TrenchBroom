@@ -768,7 +768,7 @@ Result<void> loadSceneFrame(
   for (const auto& data : meshData)
   {
     auto& surface = model.surface(data.m_meshIndex);
-    surface.addIndexedMesh(frame, data.m_vertices, data.m_indices);
+    surface.addMesh(frame, data.m_vertices, data.m_indices);
   }
 
   return Result<void>{};

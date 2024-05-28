@@ -223,7 +223,7 @@ void EntityModelManager::resetTextureMode()
   {
     for (const auto& [path, model] : m_models)
     {
-      model->setTextureMode(m_minFilter, m_magFilter);
+      model->setFilterMode(m_minFilter, m_magFilter);
     }
     m_resetTextureMode = false;
   }

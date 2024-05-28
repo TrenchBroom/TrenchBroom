@@ -283,9 +283,9 @@ public:
 
 public:
   /**
-   * Returns a renderer that renders this mesh with the given texture.
+   * Returns a renderer that renders this mesh with the given material.
    *
-   * @param skin the texture to use when rendering the mesh
+   * @param skin the material to use when rendering the mesh
    * @return the renderer
    */
   std::unique_ptr<Renderer::MaterialIndexRangeRenderer> buildRenderer(
@@ -308,6 +308,9 @@ private:
 };
 
 // EntityModel::IndexedMesh
+
+namespace
+{
 
 /**
  * A model frame mesh for indexed rendering. Stores vertices and vertex indices.
@@ -342,32 +345,31 @@ private:
   std::unique_ptr<Renderer::MaterialIndexRangeRenderer> doBuildRenderer(
     const Material* skin, const Renderer::VertexArray& vertices) override
   {
-    const Renderer::MaterialIndexRangeMap texturedIndices(skin, m_indices);
-    return std::make_unique<Renderer::MaterialIndexRangeRenderer>(
-      vertices, texturedIndices);
+    const Renderer::MaterialIndexRangeMap indices(skin, m_indices);
+    return std::make_unique<Renderer::MaterialIndexRangeRenderer>(vertices, indices);
   }
 };
 
-// EntityModel::TexturedMesh
+// EntityModelMaterialMesh
 
 /**
- * A model frame mesh for per texture indexed rendering. Stores vertices and per texture
+ * A model frame mesh for per material indexed rendering. Stores vertices and per material
  * indices.
  */
-class EntityModelTexturedMesh : public EntityModelMesh
+class EntityModelMaterialMesh : public EntityModelMesh
 {
 private:
   Renderer::MaterialIndexRangeMap m_indices;
 
 public:
   /**
-   * Creates a new frame mesh with the given vertices and per texture indices.
+   * Creates a new frame mesh with the given vertices and per material indices.
    *
    * @param frame the frame to which this mesh belongs
    * @param vertices the vertices
-   * @param indices the per texture indices
+   * @param indices the per material indices
    */
-  EntityModelTexturedMesh(
+  EntityModelMaterialMesh(
     EntityModelLoadedFrame& frame,
     std::vector<EntityModelVertex> vertices,
     Renderer::MaterialIndexRangeMap indices)
@@ -375,7 +377,7 @@ public:
     , m_indices{std::move(indices)}
   {
     m_indices.forEachPrimitive([&](
-                                 const Material* /* texture */,
+                                 const Material* /* material */,
                                  const Renderer::PrimType primType,
                                  const size_t index,
                                  const size_t count) {
@@ -390,6 +392,8 @@ private:
     return std::make_unique<Renderer::MaterialIndexRangeRenderer>(vertices, m_indices);
   }
 };
+
+} // namespace
 
 // EntityModel::Surface
 
@@ -412,12 +416,12 @@ void EntityModelSurface::prepare(const int minFilter, const int magFilter)
   m_skins->prepare(minFilter, magFilter);
 }
 
-void EntityModelSurface::setTextureMode(const int minFilter, const int magFilter)
+void EntityModelSurface::setFilterMode(const int minFilter, const int magFilter)
 {
   m_skins->setFilterMode(minFilter, magFilter);
 }
 
-void EntityModelSurface::addIndexedMesh(
+void EntityModelSurface::addMesh(
   EntityModelLoadedFrame& frame,
   std::vector<EntityModelVertex> vertices,
   Renderer::IndexRangeMap indices)
@@ -427,13 +431,13 @@ void EntityModelSurface::addIndexedMesh(
     frame, std::move(vertices), std::move(indices));
 }
 
-void EntityModelSurface::addTexturedMesh(
+void EntityModelSurface::addMesh(
   EntityModelLoadedFrame& frame,
   std::vector<EntityModelVertex> vertices,
   Renderer::MaterialIndexRangeMap indices)
 {
   assert(frame.index() < frameCount());
-  m_meshes[frame.index()] = std::make_unique<EntityModelTexturedMesh>(
+  m_meshes[frame.index()] = std::make_unique<EntityModelMaterialMesh>(
     frame, std::move(vertices), std::move(indices));
 }
 
@@ -535,11 +539,11 @@ void EntityModel::prepare(const int minFilter, const int magFilter)
   }
 }
 
-void EntityModel::setTextureMode(const int minFilter, const int magFilter)
+void EntityModel::setFilterMode(const int minFilter, const int magFilter)
 {
   for (auto& surface : m_surfaces)
   {
-    surface->setTextureMode(minFilter, magFilter);
+    surface->setFilterMode(minFilter, magFilter);
   }
 }
 

@@ -268,8 +268,7 @@ void parseFrame(
 
   const auto frameName = fmt::format("{}_{}", model.name(), frameIndex);
   auto& frame = model.loadFrame(frameIndex, frameName, bounds.bounds());
-  surface.addTexturedMesh(
-    frame, std::move(builder.vertices()), std::move(builder.indices()));
+  surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 
 } // namespace

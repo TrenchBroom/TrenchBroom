@@ -123,7 +123,7 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   surface1.setSkins(std::move(textures1));
 
   auto builder1 = makeDummyBuilder();
-  surface1.addIndexedMesh(frame, builder1.vertices(), builder1.indices());
+  surface1.addMesh(frame, builder1.vertices(), builder1.indices());
 
   // The second surface will have two skins
   auto& surface2 = model.addSurface("surface 2");
@@ -134,7 +134,7 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   surface2.setSkins(std::move(textures2));
 
   auto builder2 = makeDummyBuilder();
-  surface2.addIndexedMesh(frame, builder2.vertices(), builder2.indices());
+  surface2.addMesh(frame, builder2.vertices(), builder2.indices());
 
   // even though the model has 2 skins, we should get a valid renderer even if we request
   // to use skin 3

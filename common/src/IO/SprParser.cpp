@@ -323,7 +323,7 @@ std::unique_ptr<Assets::EntityModel> SprParser::initializeModel(Logger& /* logge
       Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{6, size};
     builder.addTriangles(triangles);
 
-    surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
+    surface.addMesh(modelFrame, builder.vertices(), builder.indices());
   }
 
   surface.setSkins(std::move(textures));

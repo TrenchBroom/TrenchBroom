@@ -329,8 +329,7 @@ void doParseFrame(
   builder.addTriangles(frameTriangles);
 
   auto& frame = model.loadFrame(frameIndex, name, bounds.bounds());
-  surface.addIndexedMesh(
-    frame, std::move(builder.vertices()), std::move(builder.indices()));
+  surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 
 void parseFrame(

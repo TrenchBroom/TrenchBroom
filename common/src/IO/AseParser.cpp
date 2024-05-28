@@ -737,8 +737,7 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
       builder.addTriangle(texture, Vertex{v2, uv2}, Vertex{v1, uv1}, Vertex{v0, uv0});
     }
   }
-  surface.addTexturedMesh(
-    frame, std::move(builder.vertices()), std::move(builder.indices()));
+  surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 
   return model;
 }

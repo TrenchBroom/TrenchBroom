@@ -106,7 +106,7 @@ void ImageSpriteParser::loadFrame(
       Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{6, size};
     builder.addTriangles(triangles);
 
-    surface.addIndexedMesh(frame, builder.vertices(), builder.indices());
+    surface.addMesh(frame, builder.vertices(), builder.indices());
   }
 }
 } // namespace TrenchBroom::IO

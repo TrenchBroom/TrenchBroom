@@ -246,7 +246,7 @@ void buildFrameSurface(
     frameVertices.push_back(v3);
   }
 
-  surface.addIndexedMesh(frame, std::move(frameVertices), std::move(rangeMap));
+  surface.addMesh(frame, std::move(frameVertices), std::move(rangeMap));
 }
 
 void parseFrameSurfaces(

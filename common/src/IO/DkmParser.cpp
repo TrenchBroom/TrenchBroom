@@ -486,7 +486,7 @@ void buildFrame(
   }
 
   auto& modelFrame = model.loadFrame(frameIndex, frame.name, bounds.bounds());
-  surface.addIndexedMesh(
+  surface.addMesh(
     modelFrame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 
