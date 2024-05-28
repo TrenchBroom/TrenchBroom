@@ -187,7 +187,7 @@ void MaterialManager::resetTextureMode()
   {
     for (auto& collection : m_collections)
     {
-      collection.setTextureMode(m_minFilter, m_magFilter);
+      collection.setFilterMode(m_minFilter, m_magFilter);
     }
     m_resetTextureMode = false;
   }

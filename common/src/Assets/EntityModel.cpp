@@ -414,7 +414,7 @@ void EntityModelSurface::prepare(const int minFilter, const int magFilter)
 
 void EntityModelSurface::setTextureMode(const int minFilter, const int magFilter)
 {
-  m_skins->setTextureMode(minFilter, magFilter);
+  m_skins->setFilterMode(minFilter, magFilter);
 }
 
 void EntityModelSurface::addIndexedMesh(

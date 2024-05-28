@@ -75,7 +75,7 @@ public:
 
   bool prepared() const;
   void prepare(int minFilter, int magFilter);
-  void setTextureMode(int minFilter, int magFilter);
+  void setFilterMode(int minFilter, int magFilter);
 };
 
 } // namespace TrenchBroom::Assets

@@ -226,7 +226,7 @@ public:
 
   bool isPrepared() const;
   void prepare(GLuint textureId, int minFilter, int magFilter);
-  void setMode(int minFilter, int magFilter);
+  void setFilterMode(int minFilter, int magFilter);
 
   void activate() const;
   void deactivate() const;

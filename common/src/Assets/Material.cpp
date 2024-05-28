@@ -437,7 +437,7 @@ void Material::prepare(const GLuint textureId, const int minFilter, const int ma
   }
 }
 
-void Material::setMode(const int minFilter, const int magFilter)
+void Material::setFilterMode(const int minFilter, const int magFilter)
 {
   if (isPrepared())
   {

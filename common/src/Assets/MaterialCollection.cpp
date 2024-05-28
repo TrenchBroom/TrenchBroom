@@ -138,11 +138,11 @@ void MaterialCollection::prepare(const int minFilter, const int magFilter)
   }
 }
 
-void MaterialCollection::setTextureMode(const int minFilter, const int magFilter)
+void MaterialCollection::setFilterMode(const int minFilter, const int magFilter)
 {
   for (auto& material : m_materials)
   {
-    material.setMode(minFilter, magFilter);
+    material.setFilterMode(minFilter, magFilter);
   }
 }
 
