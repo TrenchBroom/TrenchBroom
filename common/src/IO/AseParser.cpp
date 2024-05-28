@@ -665,16 +665,16 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
   model->addFrame();
   auto& surface = model->addSurface(m_name);
 
-  // Load the textures
-  auto textures = std::vector<Assets::Material>{};
-  textures.reserve(scene.materialPaths.size());
+  // Load the materials
+  auto materials = std::vector<Assets::Material>{};
+  materials.reserve(scene.materialPaths.size());
   for (const auto& path : scene.materialPaths)
   {
-    textures.push_back(loadTexture(logger, path));
+    materials.push_back(loadMaterial(logger, path));
   }
 
-  textures.push_back(loadDefaultTexture(m_fs, "", logger));
-  surface.setSkins(std::move(textures));
+  materials.push_back(loadDefaultTexture(m_fs, "", logger));
+  surface.setSkins(std::move(materials));
 
   // Count vertices and build bounds
   auto bounds = vm::bbox3f::builder();
@@ -685,17 +685,17 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
     const auto& mesh = geomObject.mesh;
     bounds.add(mesh.vertices.begin(), mesh.vertices.end());
 
-    auto textureIndex = geomObject.materialIndex;
-    if (textureIndex >= surface.skinCount() - 1u)
+    auto materialIndex = geomObject.materialIndex;
+    if (materialIndex >= surface.skinCount() - 1u)
     {
-      logger.warn() << "Invalid material index " << textureIndex;
-      textureIndex = surface.skinCount() - 1u; // default texture
+      logger.warn() << "Invalid material index " << materialIndex;
+      materialIndex = surface.skinCount() - 1u; // default material
     }
 
-    const auto* texture = surface.skin(textureIndex);
+    const auto* material = surface.skin(materialIndex);
 
     const auto vertexCount = mesh.faces.size() * 3;
-    size.inc(texture, Renderer::PrimType::Triangles, vertexCount);
+    size.inc(material, Renderer::PrimType::Triangles, vertexCount);
     totalVertexCount += vertexCount;
   }
 
@@ -708,9 +708,9 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
   {
     const auto& mesh = geomObject.mesh;
 
-    const auto textureIndex = geomObject.materialIndex;
-    const auto* texture =
-      textureIndex < surface.skinCount() ? surface.skin(textureIndex) : nullptr;
+    const auto materialIndex = geomObject.materialIndex;
+    const auto* material =
+      materialIndex < surface.skinCount() ? surface.skin(materialIndex) : nullptr;
 
     for (const auto& face : mesh.faces)
     {
@@ -734,7 +734,7 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
       const auto uv2 =
         fv2.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f::zero() : mesh.uv[fv2.uvIndex];
 
-      builder.addTriangle(texture, Vertex{v2, uv2}, Vertex{v1, uv1}, Vertex{v0, uv0});
+      builder.addTriangle(material, Vertex{v2, uv2}, Vertex{v1, uv1}, Vertex{v0, uv0});
     }
   }
   surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
@@ -763,14 +763,14 @@ bool AseParser::checkIndices(Logger& logger, const MeshFace& face, const Mesh& m
   return true;
 }
 
-Assets::Material AseParser::loadTexture(
+Assets::Material AseParser::loadMaterial(
   Logger& logger, const std::filesystem::path& path) const
 {
-  const auto actualPath = fixTexturePath(logger, path);
+  const auto actualPath = fixMaterialPath(logger, path);
   return loadShader(actualPath, m_fs, logger);
 }
 
-std::filesystem::path AseParser::fixTexturePath(
+std::filesystem::path AseParser::fixMaterialPath(
   Logger& /* logger */, std::filesystem::path path) const
 {
   if (!path.is_absolute())
