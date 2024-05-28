@@ -48,7 +48,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_GameConfigParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_GameEngineConfigParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ImageFileSystem.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/IO/tst_LoadTextureCollection.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_LoadMaterialCollection.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_Md3Parser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_MdlParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_NodeReader.cpp"

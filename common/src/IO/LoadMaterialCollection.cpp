@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LoadTextureCollection.h"
+#include "LoadMaterialCollection.h"
 
 #include "Assets/MaterialCollection.h"
 #include "Assets/MaterialManager.h"

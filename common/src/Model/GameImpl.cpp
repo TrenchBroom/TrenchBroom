@@ -41,7 +41,7 @@
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"
 #include "IO/ImageSpriteParser.h"
-#include "IO/LoadTextureCollection.h"
+#include "IO/LoadMaterialCollection.h"
 #include "IO/Md2Parser.h"
 #include "IO/Md3Parser.h"
 #include "IO/MdlParser.h"

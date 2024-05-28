@@ -23,7 +23,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/LoadTextureCollection.h"
+#include "IO/LoadMaterialCollection.h"
 #include "IO/ReadMipTexture.h"
 #include "IO/VirtualFileSystem.h"
 #include "IO/WadFileSystem.h"

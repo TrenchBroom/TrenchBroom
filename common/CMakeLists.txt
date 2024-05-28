@@ -62,7 +62,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.cpp
         ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.cpp
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/LoadTextureCollection.cpp
+        ${COMMON_SOURCE_DIR}/IO/LoadMaterialCollection.cpp
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/MapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MapReader.cpp
@@ -549,7 +549,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.h
         ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.h
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.h
-        ${COMMON_SOURCE_DIR}/IO/LoadTextureCollection.h
+        ${COMMON_SOURCE_DIR}/IO/LoadMaterialCollection.h
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
         ${COMMON_SOURCE_DIR}/IO/MapParser.h
         ${COMMON_SOURCE_DIR}/IO/MapReader.h

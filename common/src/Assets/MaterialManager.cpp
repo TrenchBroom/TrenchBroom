@@ -23,7 +23,7 @@
 #include "Assets/MaterialCollection.h"
 #include "Error.h"
 #include "Exceptions.h"
-#include "IO/LoadTextureCollection.h"
+#include "IO/LoadMaterialCollection.h"
 #include "Logger.h"
 
 #include "kdl/map_utils.h"
