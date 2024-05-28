@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Assets/Palette.h"
-#include "IO/TextureUtils.h"
+#include "IO/MaterialUtils.h"
 
 #include "kdl/result_forward.h"
 

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "IO/TextureUtils.h"
+#include "IO/MaterialUtils.h"
 #include "Result.h"
 
 #include <string>

@@ -21,8 +21,8 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"
-#include "IO/TextureUtils.h"
 #include "Logger.h"
 
 #include "kdl/result.h"

@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "IO/TextureUtils.h"
+#include "IO/MaterialUtils.h"
 #include "Renderer/GL.h"
 #include "Result.h"
 

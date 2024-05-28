@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TextureUtils.h"
+#include "MaterialUtils.h"
 
 #include "Assets/TextureBuffer.h"
 #include "IO/File.h"
