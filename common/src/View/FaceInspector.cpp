@@ -66,8 +66,8 @@ bool FaceInspector::cancelMouseDrag()
 
 void FaceInspector::revealTexture(const Assets::Material* texture)
 {
-  m_textureBrowser->revealTexture(texture);
-  m_textureBrowser->setSelectedTexture(texture);
+  m_textureBrowser->revealMaterial(texture);
+  m_textureBrowser->setSelectedMaterial(texture);
 }
 
 void FaceInspector::createGui(GLContextManager& contextManager)
@@ -90,7 +90,7 @@ void FaceInspector::createGui(GLContextManager& contextManager)
 
   connect(
     m_textureBrowser,
-    &MaterialBrowser::textureSelected,
+    &MaterialBrowser::materialSelected,
     this,
     &FaceInspector::textureSelected);
 

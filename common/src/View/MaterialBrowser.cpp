@@ -54,20 +54,20 @@ MaterialBrowser::MaterialBrowser(
   reload();
 }
 
-const Assets::Material* MaterialBrowser::selectedTexture() const
+const Assets::Material* MaterialBrowser::selectedMaterial() const
 {
   return m_view->selectedMaterial();
 }
 
-void MaterialBrowser::setSelectedTexture(const Assets::Material* selectedTexture)
+void MaterialBrowser::setSelectedMaterial(const Assets::Material* selectedMaterial)
 {
-  m_view->setSelectedMaterial(selectedTexture);
+  m_view->setSelectedMaterial(selectedMaterial);
 }
 
-void MaterialBrowser::revealTexture(const Assets::Material* texture)
+void MaterialBrowser::revealMaterial(const Assets::Material* material)
 {
   setFilterText("");
-  m_view->revealMaterial(texture);
+  m_view->revealMaterial(material);
 }
 
 void MaterialBrowser::setSortOrder(const MaterialSortOrder sortOrder)
@@ -134,14 +134,14 @@ void MaterialBrowser::createGui(GLContextManager& contextManager)
     });
 
   m_groupButton = new QPushButton{tr("Group")};
-  m_groupButton->setToolTip(tr("Group textures by texture collection"));
+  m_groupButton->setToolTip(tr("Group materials by material collection"));
   m_groupButton->setCheckable(true);
   connect(m_groupButton, &QAbstractButton::clicked, this, [&]() {
     m_view->setGroup(m_groupButton->isChecked());
   });
 
   m_usedButton = new QPushButton{tr("Used")};
-  m_usedButton->setToolTip(tr("Only show textures currently in use"));
+  m_usedButton->setToolTip(tr("Only show materials currently in use"));
   m_usedButton->setCheckable(true);
   connect(m_usedButton, &QAbstractButton::clicked, this, [&]() {
     m_view->setHideUnused(m_usedButton->isChecked());
@@ -179,7 +179,7 @@ void MaterialBrowser::bindEvents()
     m_view,
     &MaterialBrowserView::materialSelected,
     this,
-    &MaterialBrowser::textureSelected);
+    &MaterialBrowser::materialSelected);
 }
 
 void MaterialBrowser::connectObservers()
@@ -198,9 +198,9 @@ void MaterialBrowser::connectObservers()
   m_notifierConnection += document->brushFacesDidChangeNotifier.connect(
     this, &MaterialBrowser::brushFacesDidChange);
   m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
-    this, &MaterialBrowser::textureCollectionsDidChange);
+    this, &MaterialBrowser::materialCollectionsDidChange);
   m_notifierConnection += document->currentTextureNameDidChangeNotifier.connect(
-    this, &MaterialBrowser::currentTextureNameDidChange);
+    this, &MaterialBrowser::currentMaterialNameDidChange);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection += prefs.preferenceDidChangeNotifier.connect(
@@ -237,14 +237,14 @@ void MaterialBrowser::brushFacesDidChange(const std::vector<Model::BrushFaceHand
   reload();
 }
 
-void MaterialBrowser::textureCollectionsDidChange()
+void MaterialBrowser::materialCollectionsDidChange()
 {
   reload();
 }
 
-void MaterialBrowser::currentTextureNameDidChange(const std::string& /* textureName */)
+void MaterialBrowser::currentMaterialNameDidChange(const std::string& /* materialName */)
 {
-  updateSelectedTexture();
+  updateSelectedMaterial();
 }
 
 void MaterialBrowser::preferenceDidChange(const std::filesystem::path& path)
@@ -266,18 +266,18 @@ void MaterialBrowser::reload()
 {
   if (m_view)
   {
-    updateSelectedTexture();
+    updateSelectedMaterial();
     m_view->invalidate();
     m_view->update();
   }
 }
 
-void MaterialBrowser::updateSelectedTexture()
+void MaterialBrowser::updateSelectedMaterial()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto& textureName = document->currentTextureName();
-  const auto* texture = document->textureManager().material(textureName);
-  m_view->setSelectedMaterial(texture);
+  const auto& materialName = document->currentTextureName();
+  const auto* material = document->textureManager().material(materialName);
+  m_view->setSelectedMaterial(material);
 }
 
 } // namespace TrenchBroom::View

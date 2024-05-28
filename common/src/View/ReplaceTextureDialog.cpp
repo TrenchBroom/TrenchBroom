@@ -79,10 +79,10 @@ void replaceTextures(
 
 void ReplaceTextureDialog::accept()
 {
-  const auto* subject = m_subjectBrowser->selectedTexture();
+  const auto* subject = m_subjectBrowser->selectedMaterial();
   ensure(subject != nullptr, "subject is null");
 
-  const auto* replacement = m_replacementBrowser->selectedTexture();
+  const auto* replacement = m_replacementBrowser->selectedMaterial();
   ensure(replacement != nullptr, "replacement is null");
 
   auto document = kdl::mem_lock(m_document);
@@ -110,7 +110,7 @@ void ReplaceTextureDialog::accept()
 
 std::vector<Model::BrushFaceHandle> ReplaceTextureDialog::getApplicableFaces() const
 {
-  const auto* subject = m_subjectBrowser->selectedTexture();
+  const auto* subject = m_subjectBrowser->selectedMaterial();
   ensure(subject != nullptr, "subject is null");
 
   auto document = kdl::mem_lock(m_document);
@@ -134,7 +134,7 @@ void ReplaceTextureDialog::createGui(GLContextManager& contextManager)
   m_subjectBrowser->setHideUnused(true);
   connect(
     m_subjectBrowser,
-    &MaterialBrowser::textureSelected,
+    &MaterialBrowser::materialSelected,
     this,
     &ReplaceTextureDialog::subjectSelected);
 
@@ -146,10 +146,10 @@ void ReplaceTextureDialog::createGui(GLContextManager& contextManager)
 
   auto* replacementPanel = new TitledPanel{tr("Replace with")};
   m_replacementBrowser = new MaterialBrowser{m_document, contextManager};
-  m_replacementBrowser->setSelectedTexture(nullptr); // Override the current texture.
+  m_replacementBrowser->setSelectedMaterial(nullptr); // Override the current texture.
   connect(
     m_replacementBrowser,
-    &MaterialBrowser::textureSelected,
+    &MaterialBrowser::materialSelected,
     this,
     &ReplaceTextureDialog::replacementSelected);
 
@@ -200,8 +200,8 @@ void ReplaceTextureDialog::replacementSelected(const Assets::Material* /* replac
 
 void ReplaceTextureDialog::updateReplaceButton()
 {
-  const auto* subject = m_subjectBrowser->selectedTexture();
-  const auto* replacement = m_replacementBrowser->selectedTexture();
+  const auto* subject = m_subjectBrowser->selectedMaterial();
+  const auto* replacement = m_replacementBrowser->selectedMaterial();
   m_replaceButton->setEnabled(subject && replacement);
 }
 

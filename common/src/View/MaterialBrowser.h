@@ -71,16 +71,16 @@ public:
     GLContextManager& contextManager,
     QWidget* parent = nullptr);
 
-  const Assets::Material* selectedTexture() const;
-  void setSelectedTexture(const Assets::Material* selectedTexture);
-  void revealTexture(const Assets::Material* texture);
+  const Assets::Material* selectedMaterial() const;
+  void setSelectedMaterial(const Assets::Material* selectedMaterial);
+  void revealMaterial(const Assets::Material* material);
 
   void setSortOrder(MaterialSortOrder sortOrder);
   void setGroup(bool group);
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
 signals:
-  void textureSelected(const Assets::Material* texture);
+  void materialSelected(const Assets::Material* material);
 
 private:
   void createGui(GLContextManager& contextManager);
@@ -94,12 +94,12 @@ private:
   void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
   void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
-  void textureCollectionsDidChange();
-  void currentTextureNameDidChange(const std::string& textureName);
+  void materialCollectionsDidChange();
+  void currentMaterialNameDidChange(const std::string& materialName);
   void preferenceDidChange(const std::filesystem::path& path);
 
   void reload();
-  void updateSelectedTexture();
+  void updateSelectedMaterial();
 };
 
 } // namespace TrenchBroom::View
