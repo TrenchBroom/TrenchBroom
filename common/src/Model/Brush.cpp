@@ -176,7 +176,7 @@ const vm::bbox3& Brush::bounds() const
 std::optional<size_t> Brush::findFace(const std::string& materialName) const
 {
   return kdl::vec_index_of(m_faces, [&](const BrushFace& face) {
-    return face.attributes().textureName() == materialName;
+    return face.attributes().materialName() == materialName;
   });
 }
 

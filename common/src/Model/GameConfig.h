@@ -115,7 +115,7 @@ struct FaceAttribsConfig
 {
   FlagsConfig surfaceFlags;
   FlagsConfig contentFlags;
-  BrushFaceAttributes defaults{BrushFaceAttributes::NoTextureName};
+  BrushFaceAttributes defaults{BrushFaceAttributes::NoMaterialName};
 
   kdl_reflect_decl(FaceAttribsConfig, surfaceFlags, contentFlags);
 };

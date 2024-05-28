@@ -222,7 +222,7 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneBrush")
     vm::vec3{0.0, 0.0, 0.0},
     vm::vec3{64.0, 0.0, -16.0});
   CHECK(face1 != nullptr);
-  CHECK(face1->attributes().textureName() == "tex1");
+  CHECK(face1->attributes().materialName() == "tex1");
   CHECK(face1->attributes().xOffset() == 1.0);
   CHECK(face1->attributes().yOffset() == 2.0);
   CHECK(face1->attributes().rotation() == 3.0);
@@ -1460,7 +1460,7 @@ TEST_CASE("WorldReader.parseHeretic2QuarkMap")
   CHECK(brushNode->logicalBounds() == vm::bbox3{{-512, -512, -64}, {512, 512, 0}});
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK("general/sand1" == face.attributes().textureName());
+    CHECK("general/sand1" == face.attributes().materialName());
   }
 }
 
@@ -1499,8 +1499,8 @@ TEST_CASE("WorldReader.parseTBEmptyTextureName")
 
   for (const auto& face : brush->brush().faces())
   {
-    CHECK(!face.attributes().textureName().empty());
-    CHECK(face.attributes().textureName() == Model::BrushFaceAttributes::NoTextureName);
+    CHECK(!face.attributes().materialName().empty());
+    CHECK(face.attributes().materialName() == Model::BrushFaceAttributes::NoMaterialName);
   }
 }
 
@@ -1556,7 +1556,7 @@ TEST_CASE("WorldReader.parseQuotedTextureNames")
     dynamic_cast<Model::BrushNode*>(defaultLayerNode->children().front());
   REQUIRE(brushNode != nullptr);
 
-  CHECK(brushNode->brush().face(0).attributes().textureName() == expectedName);
+  CHECK(brushNode->brush().face(0).attributes().materialName() == expectedName);
 }
 
 TEST_CASE("WorldReader.parseLinkedGroups")

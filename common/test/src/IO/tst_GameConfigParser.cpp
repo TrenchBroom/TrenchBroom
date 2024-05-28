@@ -462,7 +462,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
           {"ladder",
            "Brushes with this flag allow a player to move up and down a vertical surface",
            1 << 29}}},
-        Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName}},
+        Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName}},
       {
         Model::SmartTag{
           "Trigger",

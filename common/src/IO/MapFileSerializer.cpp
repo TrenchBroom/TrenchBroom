@@ -98,9 +98,9 @@ protected:
 
   void writeMaterialInfo(std::ostream& stream, const Model::BrushFace& face) const
   {
-    const std::string& materialName = face.attributes().textureName().empty()
-                                        ? Model::BrushFaceAttributes::NoTextureName
-                                        : face.attributes().textureName();
+    const std::string& materialName = face.attributes().materialName().empty()
+                                        ? Model::BrushFaceAttributes::NoMaterialName
+                                        : face.attributes().materialName();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>(stream),
@@ -116,9 +116,9 @@ protected:
 
   void writeValveMaterialInfo(std::ostream& stream, const Model::BrushFace& face) const
   {
-    const std::string& materialName = face.attributes().textureName().empty()
-                                        ? Model::BrushFaceAttributes::NoTextureName
-                                        : face.attributes().textureName();
+    const std::string& materialName = face.attributes().materialName().empty()
+                                        ? Model::BrushFaceAttributes::NoMaterialName
+                                        : face.attributes().materialName();
     const vm::vec3 uAxis = face.uAxis();
     const vm::vec3 vAxis = face.vAxis();
 

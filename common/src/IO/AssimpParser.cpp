@@ -164,7 +164,7 @@ public:
 
 std::optional<Assets::Material> loadFallbackTexture(const FileSystem& fs)
 {
-  static const auto NoTextureName = Model::BrushFaceAttributes::NoTextureName;
+  static const auto NoTextureName = Model::BrushFaceAttributes::NoMaterialName;
 
   static const auto texturePaths = std::vector<std::filesystem::path>{
     "textures" / kdl::path_add_extension(NoTextureName, ".png"),

@@ -423,7 +423,7 @@ Result<std::unique_ptr<WorldNode>> GameImpl::newMap(
 
   const auto builder =
     Model::BrushBuilder{worldNode->mapFormat(), worldBounds, defaultFaceAttribs()};
-  builder.createCuboid({128.0, 128.0, 32.0}, Model::BrushFaceAttributes::NoTextureName)
+  builder.createCuboid({128.0, 128.0, 32.0}, Model::BrushFaceAttributes::NoMaterialName)
     .transform(
       [&](auto b) { worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)}); })
     .transform_error(

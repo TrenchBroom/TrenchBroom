@@ -1340,7 +1340,7 @@ void MapViewBase::showPopupMenuLater()
     const auto* texture = faceHandle->face().material();
     menu.addAction(
       tr("Reveal %1 in Texture Browser")
-        .arg(QString::fromStdString(faceHandle->face().attributes().textureName())),
+        .arg(QString::fromStdString(faceHandle->face().attributes().materialName())),
       mapFrame,
       [=] { mapFrame->revealTexture(texture); });
 

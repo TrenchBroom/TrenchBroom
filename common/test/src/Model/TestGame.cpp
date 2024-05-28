@@ -53,7 +53,7 @@
 namespace TrenchBroom::Model
 {
 TestGame::TestGame()
-  : m_defaultFaceAttributes{Model::BrushFaceAttributes::NoTextureName}
+  : m_defaultFaceAttributes{Model::BrushFaceAttributes::NoMaterialName}
   , m_fs{std::make_unique<IO::VirtualFileSystem>()}
 {
   m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));

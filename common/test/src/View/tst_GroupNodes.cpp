@@ -883,7 +883,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLin
       REQUIRE(brush != nullptr);
 
       auto attrs = brush->brush().face(0).attributes();
-      CHECK(attrs.textureName() == "abc");
+      CHECK(attrs.materialName() == "abc");
     }
   }
 

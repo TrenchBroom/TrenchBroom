@@ -191,7 +191,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 
     auto& face = brush1.face(*index);
     auto attribs = face.attributes();
-    attribs.setTextureName("e1u1/brwater");
+    attribs.setMaterialName("e1u1/brwater");
     attribs.setSurfaceContents(0);
     attribs.setSurfaceFlags(0);
     attribs.setSurfaceValue(0.0f);
@@ -204,7 +204,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 
     auto& face = brush1.face(*index);
     auto attribs = face.attributes();
-    attribs.setTextureName("e1u1/brlava");
+    attribs.setMaterialName("e1u1/brlava");
     attribs.setSurfaceContents(8);
     attribs.setSurfaceFlags(9);
     attribs.setSurfaceValue(700.0f);

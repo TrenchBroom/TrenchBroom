@@ -39,7 +39,7 @@ namespace TrenchBroom::Model
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBounds)
   : m_mapFormat{mapFormat}
   , m_worldBounds{worldBounds}
-  , m_defaultAttribs{BrushFaceAttributes::NoTextureName}
+  , m_defaultAttribs{BrushFaceAttributes::NoMaterialName}
 {
 }
 

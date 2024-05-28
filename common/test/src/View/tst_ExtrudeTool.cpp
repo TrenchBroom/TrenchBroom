@@ -271,7 +271,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
   CHECK_THAT(
     kdl::vec_transform(
       tool.proposedDragHandles(),
-      [](const auto& h) { return h.faceAtDragStart().attributes().textureName(); }),
+      [](const auto& h) { return h.faceAtDragStart().attributes().materialName(); }),
     Catch::UnorderedEquals(expectedDragFaceTextureNames));
 }
 

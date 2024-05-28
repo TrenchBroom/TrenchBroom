@@ -49,7 +49,7 @@ TEST_CASE("BrushBuilderTest.createCube")
 
   for (size_t i = 0; i < faces.size(); ++i)
   {
-    CHECK(faces[i].attributes().textureName() == "someName");
+    CHECK(faces[i].attributes().materialName() == "someName");
   }
 }
 
@@ -76,7 +76,7 @@ TEST_CASE("BrushBuilderTest.createCubeDefaults")
 
   for (size_t i = 0; i < faces.size(); ++i)
   {
-    CHECK(faces[i].attributes().textureName() == "someName");
+    CHECK(faces[i].attributes().materialName() == "someName");
     CHECK(faces[i].attributes().offset() == vm::vec2f{0.5f, 0.5f});
     CHECK(faces[i].attributes().scale() == vm::vec2f{0.5f, 0.5f});
     CHECK(faces[i].attributes().rotation() == 45.0f);
@@ -123,7 +123,7 @@ TEST_CASE("BrushBuilderTest.createBrushDefaults")
 
   for (size_t i = 0; i < faces.size(); ++i)
   {
-    CHECK(faces[i].attributes().textureName() == "someName");
+    CHECK(faces[i].attributes().materialName() == "someName");
     CHECK(faces[i].attributes().offset() == vm::vec2f{0.5f, 0.5f});
     CHECK(faces[i].attributes().scale() == vm::vec2f{0.5f, 0.5f});
     CHECK(faces[i].attributes().rotation() == 45.0f);

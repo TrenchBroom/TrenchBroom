@@ -421,7 +421,7 @@ void BrushFace::setAttributes(const BrushFaceAttributes& attributes)
 bool BrushFace::setAttributes(const BrushFace& other)
 {
   auto result = false;
-  result |= m_attributes.setTextureName(other.attributes().textureName());
+  result |= m_attributes.setMaterialName(other.attributes().materialName());
   result |= m_attributes.setXOffset(other.attributes().xOffset());
   result |= m_attributes.setYOffset(other.attributes().yOffset());
   result |= m_attributes.setRotation(other.attributes().rotation());

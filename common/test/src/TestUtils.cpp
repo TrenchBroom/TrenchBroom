@@ -256,7 +256,7 @@ void assertTexture(
   REQUIRE(faceIndex);
 
   const BrushFace& face = brush.face(*faceIndex);
-  CHECK(face.attributes().textureName() == expected);
+  CHECK(face.attributes().materialName() == expected);
 }
 
 void assertTexture(
@@ -293,7 +293,7 @@ void assertTexture(
   REQUIRE(faceIndex);
 
   const BrushFace& face = brush.face(*faceIndex);
-  CHECK(face.attributes().textureName() == expected);
+  CHECK(face.attributes().materialName() == expected);
 }
 
 void transformNode(

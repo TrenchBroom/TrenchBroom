@@ -274,7 +274,7 @@ void transferFaceAttributes(
   if (copyTextureOnlyModifiersDown(inputState))
   {
     auto request = Model::ChangeBrushFaceAttributesRequest{};
-    request.setTextureName(sourceFaceHandle.face().attributes().textureName());
+    request.setTextureName(sourceFaceHandle.face().attributes().materialName());
     document.setFaceAttributes(request);
   }
   else

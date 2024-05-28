@@ -687,7 +687,7 @@ void FaceAttribsEditor::updateControls()
     auto colorValueMulti = false;
 
     const auto& firstFace = faceHandles[0].face();
-    const auto& textureName = firstFace.attributes().textureName();
+    const auto& textureName = firstFace.attributes().materialName();
     const auto xOffset = firstFace.attributes().xOffset();
     const auto yOffset = firstFace.attributes().yOffset();
     const auto rotation = firstFace.attributes().rotation();
@@ -707,7 +707,7 @@ void FaceAttribsEditor::updateControls()
     for (size_t i = 1; i < faceHandles.size(); i++)
     {
       const auto& face = faceHandles[i].face();
-      textureMulti |= (textureName != face.attributes().textureName());
+      textureMulti |= (textureName != face.attributes().materialName());
       xOffsetMulti |= (xOffset != face.attributes().xOffset());
       yOffsetMulti |= (yOffset != face.attributes().yOffset());
       rotationMulti |= (rotation != face.attributes().rotation());
@@ -748,7 +748,7 @@ void FaceAttribsEditor::updateControls()
     }
     else
     {
-      if (textureName == Model::BrushFaceAttributes::NoTextureName)
+      if (textureName == Model::BrushFaceAttributes::NoMaterialName)
       {
         m_textureName->setText("none");
         m_textureName->setEnabled(false);

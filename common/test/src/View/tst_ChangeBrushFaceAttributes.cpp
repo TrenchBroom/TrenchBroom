@@ -60,7 +60,7 @@ TEST_CASE_METHOD(
   CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 10.0f);
 
   auto defaultFaceAttrs =
-    Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName};
+    Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName};
   defaultFaceAttrs.setXScale(0.5f);
   defaultFaceAttrs.setYScale(2.0f);
   game->setDefaultFaceAttributes(defaultFaceAttrs);
@@ -91,7 +91,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
 
   for (const auto& face : brushNode->brush().faces())
   {
-    REQUIRE(face.attributes().textureName() == "original");
+    REQUIRE(face.attributes().materialName() == "original");
   }
 
   document->selectNodes({brushNode});
@@ -101,7 +101,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
   document->setFaceAttributes(setTexture1);
   for (const auto& face : brushNode->brush().faces())
   {
-    REQUIRE(face.attributes().textureName() == "texture1");
+    REQUIRE(face.attributes().materialName() == "texture1");
   }
 
   auto setTexture2 = Model::ChangeBrushFaceAttributesRequest{};
@@ -109,19 +109,19 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
   document->setFaceAttributes(setTexture2);
   for (const auto& face : brushNode->brush().faces())
   {
-    REQUIRE(face.attributes().textureName() == "texture2");
+    REQUIRE(face.attributes().materialName() == "texture2");
   }
 
   document->undoCommand();
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK(face.attributes().textureName() == "original");
+    CHECK(face.attributes().materialName() == "original");
   }
 
   document->redoCommand();
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK(face.attributes().textureName() == "texture2");
+    CHECK(face.attributes().materialName() == "texture2");
   }
 }
 
@@ -152,7 +152,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
 
   {
     const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
-    CHECK(firstAttrs.textureName() == "first");
+    CHECK(firstAttrs.materialName() == "first");
     CHECK(firstAttrs.xOffset() == 32.0f);
     CHECK(firstAttrs.yOffset() == 64.0f);
     CHECK(firstAttrs.rotation() == 90.0f);
@@ -182,7 +182,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
 
   {
     const auto& secondAttrs = brushNode->brush().face(secondFaceIndex).attributes();
-    CHECK(secondAttrs.textureName() == "second");
+    CHECK(secondAttrs.materialName() == "second");
     CHECK(secondAttrs.xOffset() == 16.0f);
     CHECK(secondAttrs.yOffset() == 48.0f);
     CHECK(secondAttrs.rotation() == 45.0f);
@@ -229,7 +229,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   {
     const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
     const auto& newThirdAttrs = brushNode->brush().face(thirdFaceIndex).attributes();
-    CHECK(newThirdAttrs.textureName() == firstAttrs.textureName());
+    CHECK(newThirdAttrs.materialName() == firstAttrs.materialName());
     CHECK(newThirdAttrs.xOffset() == firstAttrs.xOffset());
     CHECK(newThirdAttrs.yOffset() == firstAttrs.yOffset());
     CHECK(newThirdAttrs.rotation() == firstAttrs.rotation());
@@ -255,7 +255,7 @@ TEST_CASE_METHOD(
   request.setTextureName("something_else");
   document->setFaceAttributes(request);
 
-  CHECK(brushNode->brush().face(0).attributes().textureName() == "something_else");
+  CHECK(brushNode->brush().face(0).attributes().materialName() == "something_else");
   CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
 }
 
@@ -299,7 +299,7 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
       // contents
       CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
       CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == WaterFlag);
-      CHECK(lavabrush->brush().face(0).attributes().textureName() == "watertest");
+      CHECK(lavabrush->brush().face(0).attributes().materialName() == "watertest");
     }
   }
 

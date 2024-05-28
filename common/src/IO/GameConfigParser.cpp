@@ -335,7 +335,7 @@ Model::BrushFaceAttributes parseFaceAttribsDefaults(
   const Model::FlagsConfig& surfaceFlags,
   const Model::FlagsConfig& contentFlags)
 {
-  auto defaults = Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName};
+  auto defaults = Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName};
   if (value == EL::Value::Null)
   {
     return defaults;
@@ -454,7 +454,7 @@ Model::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& value)
     return Model::FaceAttribsConfig{
       {},
       {},
-      Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName},
+      Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName},
     };
   }
 

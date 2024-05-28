@@ -388,7 +388,7 @@ MapDocument::MapDocument()
   , m_lastSaveModificationCount(0)
   , m_modificationCount(0)
   , m_currentLayer(nullptr)
-  , m_currentMaterialName(Model::BrushFaceAttributes::NoTextureName)
+  , m_currentMaterialName(Model::BrushFaceAttributes::NoMaterialName)
   , m_lastSelectionBounds(0.0, 32.0)
   , m_selectionBoundsValid(true)
   , m_viewEffectsService(nullptr)
@@ -1411,7 +1411,7 @@ void MapDocument::selectBrushFaces(const std::vector<Model::BrushFaceHandle>& ha
   executeAndStore(SelectionCommand::select(handles));
   if (!handles.empty())
   {
-    setCurrentMaterialName(handles.back().face().attributes().textureName());
+    setCurrentMaterialName(handles.back().face().attributes().materialName());
   }
 }
 
@@ -1467,7 +1467,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
         }
 
         return brushBuilder
-          .createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
+          .createBrush(tallVertices, Model::BrushFaceAttributes::NoMaterialName)
           .transform([](auto brush) {
             return std::make_unique<Model::BrushNode>(std::move(brush));
           });
@@ -3683,8 +3683,7 @@ bool MapDocument::flipUV(
     isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
     m_selectedBrushFaces,
     [&](Model::BrushFace& face) {
-      face.flipUV(
-        vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
+      face.flipUV(vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
       return true;
     });
 }
@@ -4522,7 +4521,7 @@ static auto makeSetMaterialsVisitor(Assets::MaterialManager& manager)
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
         const Model::BrushFace& face = brush.face(i);
-        Assets::Material* material = manager.material(face.attributes().textureName());
+        Assets::Material* material = manager.material(face.attributes().materialName());
         brushNode->setFaceTexture(i, material);
       }
     },
@@ -4569,7 +4568,7 @@ void MapDocument::setMaterials(const std::vector<Model::BrushFaceHandle>& faceHa
   {
     Model::BrushNode* node = faceHandle.node();
     const Model::BrushFace& face = faceHandle.face();
-    auto* material = m_materialManager->material(face.attributes().textureName());
+    auto* material = m_materialManager->material(face.attributes().materialName());
     node->setFaceTexture(faceHandle.faceIndex(), material);
   }
   materialUsageCountsDidChangeNotifier();

@@ -1371,7 +1371,7 @@ TEST_CASE("BrushTest.movePointRemainingPolygon")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -127.0));
@@ -1437,7 +1437,7 @@ TEST_CASE("BrushTest.movePointRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   assertMovingVertexDeletes(
@@ -1677,7 +1677,7 @@ TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
+    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName).value();
   CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 
@@ -1711,7 +1711,7 @@ TEST_CASE("BrushTest.moveEdgesRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
+    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName).value();
   CHECK(brush.addVertex(worldBounds, edge1.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge1.end()).is_success());
   CHECK(brush.addVertex(worldBounds, edge2.start()).is_success());
@@ -1781,7 +1781,7 @@ TEST_CASE("BrushNodeTest.cannotMoveFace")
   Brush brush =
     builder
       .createCuboid(
-        vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName)
+        vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   std::vector<vm::vec3> vertexPositions(4);
@@ -1876,7 +1876,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPoint")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -1897,7 +1897,7 @@ TEST_CASE("BrushTest.movePolygonRemainingEdge")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -1909,7 +1909,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128.0, Model::BrushFaceAttributes::NoTextureName).value();
+    builder.createCube(128.0, Model::BrushFaceAttributes::NoMaterialName).value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
@@ -1933,7 +1933,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon2")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
   CHECK(brush.bounds() == vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)));
 
@@ -1968,7 +1968,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   const auto topFaceIndex = brush.findFace(topFaceNormal);
@@ -2016,7 +2016,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   // Try to move the top face down along the Z axis
@@ -2083,7 +2083,7 @@ TEST_CASE("BrushTest.moveTwoFaces")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   CHECK(brush.hasFace(vm::polygon3(leftPolygon)));
@@ -2111,7 +2111,7 @@ TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
+    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName).value();
   CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 
@@ -2309,22 +2309,22 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 
   // left brush textures
   CHECK(
-    left->face(*left->findFace(vm::vec3::pos_x())).attributes().textureName()
+    left->face(*left->findFace(vm::vec3::pos_x())).attributes().materialName()
     == subtrahendTexture);
   CHECK(
-    left->face(*left->findFace(vm::vec3::neg_x())).attributes().textureName()
+    left->face(*left->findFace(vm::vec3::neg_x())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    left->face(*left->findFace(vm::vec3::pos_y())).attributes().textureName()
+    left->face(*left->findFace(vm::vec3::pos_y())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    left->face(*left->findFace(vm::vec3::neg_y())).attributes().textureName()
+    left->face(*left->findFace(vm::vec3::neg_y())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    left->face(*left->findFace(vm::vec3::pos_z())).attributes().textureName()
+    left->face(*left->findFace(vm::vec3::pos_z())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    left->face(*left->findFace(vm::vec3::neg_z())).attributes().textureName()
+    left->face(*left->findFace(vm::vec3::neg_z())).attributes().materialName()
     == minuendTexture);
 
   // top brush faces
@@ -2338,22 +2338,22 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 
   // top brush textures
   CHECK(
-    top->face(*top->findFace(vm::vec3::pos_x())).attributes().textureName()
+    top->face(*top->findFace(vm::vec3::pos_x())).attributes().materialName()
     == subtrahendTexture);
   CHECK(
-    top->face(*top->findFace(vm::vec3::neg_x())).attributes().textureName()
+    top->face(*top->findFace(vm::vec3::neg_x())).attributes().materialName()
     == subtrahendTexture);
   CHECK(
-    top->face(*top->findFace(vm::vec3::pos_y())).attributes().textureName()
+    top->face(*top->findFace(vm::vec3::pos_y())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    top->face(*top->findFace(vm::vec3::neg_y())).attributes().textureName()
+    top->face(*top->findFace(vm::vec3::neg_y())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    top->face(*top->findFace(vm::vec3::pos_z())).attributes().textureName()
+    top->face(*top->findFace(vm::vec3::pos_z())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    top->face(*top->findFace(vm::vec3::neg_z())).attributes().textureName()
+    top->face(*top->findFace(vm::vec3::neg_z())).attributes().materialName()
     == subtrahendTexture);
 
   // right brush faces
@@ -2367,22 +2367,22 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 
   // right brush textures
   CHECK(
-    right->face(*right->findFace(vm::vec3::pos_x())).attributes().textureName()
+    right->face(*right->findFace(vm::vec3::pos_x())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    right->face(*right->findFace(vm::vec3::neg_x())).attributes().textureName()
+    right->face(*right->findFace(vm::vec3::neg_x())).attributes().materialName()
     == subtrahendTexture);
   CHECK(
-    right->face(*right->findFace(vm::vec3::pos_y())).attributes().textureName()
+    right->face(*right->findFace(vm::vec3::pos_y())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    right->face(*right->findFace(vm::vec3::neg_y())).attributes().textureName()
+    right->face(*right->findFace(vm::vec3::neg_y())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    right->face(*right->findFace(vm::vec3::pos_z())).attributes().textureName()
+    right->face(*right->findFace(vm::vec3::pos_z())).attributes().materialName()
     == minuendTexture);
   CHECK(
-    right->face(*right->findFace(vm::vec3::neg_z())).attributes().textureName()
+    right->face(*right->findFace(vm::vec3::neg_z())).attributes().materialName()
     == minuendTexture);
 }
 

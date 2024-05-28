@@ -182,7 +182,7 @@ TEST_CASE("MapDocument.reloadTextureCollections")
   REQUIRE(faces.size() == 4);
   REQUIRE(
     kdl::vec_transform(
-      faces, [](const auto* face) { return face->attributes().textureName(); })
+      faces, [](const auto* face) { return face->attributes().materialName(); })
     == std::vector<std::string>{
       "b_pv_v1a1", "e1m1/b_pv_v1a2", "e1m1/f1/b_rc_v4", "lavatest"});
 

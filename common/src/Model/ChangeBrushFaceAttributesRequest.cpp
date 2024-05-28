@@ -134,7 +134,7 @@ bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const
   switch (m_textureOp)
   {
   case TextureOp::Set:
-    result |= attributes.setTextureName(m_textureName);
+    result |= attributes.setMaterialName(m_textureName);
     break;
   case TextureOp::None:
     break;
@@ -440,7 +440,7 @@ void ChangeBrushFaceAttributesRequest::setAll(
 void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(
   const Model::BrushFaceAttributes& attributes)
 {
-  setTextureName(attributes.textureName());
+  setTextureName(attributes.materialName());
   setXOffset(attributes.xOffset());
   setYOffset(attributes.yOffset());
   setRotation(attributes.rotation());

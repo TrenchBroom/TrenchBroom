@@ -266,7 +266,7 @@ void ObjSerializer::doBrushFace(const Model::BrushFace& face)
   }
 
   m_currentBrush->faces.emplace_back(BrushFace{
-    std::move(indexedVertices), face.attributes().textureName(), face.material()});
+    std::move(indexedVertices), face.attributes().materialName(), face.material()});
 }
 
 void ObjSerializer::doPatch(const Model::PatchNode* patchNode)

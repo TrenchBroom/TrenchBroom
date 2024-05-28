@@ -31,16 +31,16 @@
 namespace TrenchBroom::Model
 {
 
-const std::string BrushFaceAttributes::NoTextureName = "__TB_empty";
+const std::string BrushFaceAttributes::NoMaterialName = "__TB_empty";
 
-BrushFaceAttributes::BrushFaceAttributes(std::string_view textureName)
-  : m_textureName{textureName}
+BrushFaceAttributes::BrushFaceAttributes(std::string_view materialName)
+  : m_materialName{materialName}
 {
 }
 
 BrushFaceAttributes::BrushFaceAttributes(
-  std::string_view textureName, const BrushFaceAttributes& other)
-  : m_textureName{textureName}
+  std::string_view materialName, const BrushFaceAttributes& other)
+  : m_materialName{materialName}
   , m_offset{other.m_offset}
   , m_scale{other.m_scale}
   , m_rotation{other.m_rotation}
@@ -53,9 +53,9 @@ BrushFaceAttributes::BrushFaceAttributes(
 
 kdl_reflect_impl(BrushFaceAttributes);
 
-const std::string& BrushFaceAttributes::textureName() const
+const std::string& BrushFaceAttributes::materialName() const
 {
-  return m_textureName;
+  return m_materialName;
 }
 
 const vm::vec2f& BrushFaceAttributes::offset() const
@@ -74,9 +74,9 @@ float BrushFaceAttributes::yOffset() const
 }
 
 vm::vec2f BrushFaceAttributes::modOffset(
-  const vm::vec2f& offset, const vm::vec2f& textureSize) const
+  const vm::vec2f& offset, const vm::vec2f& size) const
 {
-  return offset - snapDown(offset, textureSize);
+  return offset - snapDown(offset, size);
 }
 
 const vm::vec2f& BrushFaceAttributes::scale() const
@@ -135,11 +135,11 @@ bool BrushFaceAttributes::valid() const
          && !vm::is_zero(m_scale.y(), vm::Cf::almost_zero());
 }
 
-bool BrushFaceAttributes::setTextureName(const std::string& textureName)
+bool BrushFaceAttributes::setMaterialName(const std::string& materialName)
 {
-  if (textureName != m_textureName)
+  if (materialName != m_materialName)
   {
-    m_textureName = textureName;
+    m_materialName = materialName;
     return true;
   }
   return false;
