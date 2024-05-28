@@ -42,11 +42,11 @@ class RenderBatch;
 class FaceRenderer : public IndexedRenderable
 {
 private:
-  using TextureToBrushIndicesMap =
+  using MaterialToBrushIndicesMap =
     const std::unordered_map<const Assets::Material*, std::shared_ptr<BrushIndexArray>>;
 
   std::shared_ptr<BrushVertexArray> m_vertexArray;
-  std::shared_ptr<TextureToBrushIndicesMap> m_indexArrayMap;
+  std::shared_ptr<MaterialToBrushIndicesMap> m_indexArrayMap;
   Color m_faceColor;
   bool m_grayscale = false;
   bool m_tint = false;
@@ -57,7 +57,7 @@ public:
   FaceRenderer();
   FaceRenderer(
     std::shared_ptr<BrushVertexArray> vertexArray,
-    std::shared_ptr<TextureToBrushIndicesMap> indexArrayMap,
+    std::shared_ptr<MaterialToBrushIndicesMap> indexArrayMap,
     const Color& faceColor);
 
   void setGrayscale(bool grayscale);

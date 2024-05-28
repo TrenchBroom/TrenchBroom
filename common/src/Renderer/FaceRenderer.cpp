@@ -83,7 +83,7 @@ FaceRenderer::FaceRenderer() = default;
 
 FaceRenderer::FaceRenderer(
   std::shared_ptr<BrushVertexArray> vertexArray,
-  std::shared_ptr<TextureToBrushIndicesMap> indexArrayMap,
+  std::shared_ptr<MaterialToBrushIndicesMap> indexArrayMap,
   const Color& faceColor)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexArrayMap{std::move(indexArrayMap)}
