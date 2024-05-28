@@ -223,8 +223,8 @@ const int MF_HOLEY = (1 << 14);
 struct MdlSkinVertex
 {
   bool onseam;
-  int s;
-  int t;
+  int u;
+  int v;
 };
 
 struct MdlSkinTriangle
@@ -284,14 +284,14 @@ auto makeFrameTriangles(
       const auto vertexIndex = triangle.vertices[j];
       const auto& skinVertex = vertices[vertexIndex];
 
-      auto texCoords = vm::vec2f{
-        float(skinVertex.s) / float(skinWidth), float(skinVertex.t) / float(skinHeight)};
+      auto uv = vm::vec2f{
+        float(skinVertex.u) / float(skinWidth), float(skinVertex.v) / float(skinHeight)};
       if (skinVertex.onseam && !triangle.front)
       {
-        texCoords[0] += 0.5f;
+        uv[0] += 0.5f;
       }
 
-      frameTriangles.emplace_back(positions[vertexIndex], texCoords);
+      frameTriangles.emplace_back(positions[vertexIndex], uv);
     }
   }
 
@@ -433,9 +433,9 @@ std::vector<MdlSkinVertex> parseVertices(Reader& reader, size_t count)
   for (size_t i = 0; i < count; ++i)
   {
     const auto onSeam = reader.readBool<int32_t>();
-    const auto s = reader.readInt<int32_t>();
-    const auto t = reader.readInt<int32_t>();
-    vertices.push_back(MdlSkinVertex{onSeam, s, t});
+    const auto u = reader.readInt<int32_t>();
+    const auto v = reader.readInt<int32_t>();
+    vertices.push_back(MdlSkinVertex{onSeam, u, v});
   }
 
   return vertices;
@@ -513,17 +513,17 @@ void parseSkins(
   const std::string& modelName,
   const Assets::Palette& palette)
 {
-  auto textures = std::vector<Assets::Material>{};
-  textures.reserve(count);
+  auto skins = std::vector<Assets::Material>{};
+  skins.reserve(count);
 
   for (size_t i = 0; i < count; ++i)
   {
     auto skinName = fmt::format("{}_{}", modelName, i);
-    textures.push_back(
+    skins.push_back(
       parseSkin(reader, width, height, flags, std::move(skinName), palette));
   }
 
-  surface.setSkins(std::move(textures));
+  surface.setSkins(std::move(skins));
 }
 
 } // namespace
