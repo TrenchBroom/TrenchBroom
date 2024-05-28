@@ -173,10 +173,10 @@ const vm::bbox3& Brush::bounds() const
   return m_geometry->bounds();
 }
 
-std::optional<size_t> Brush::findFace(const std::string& textureName) const
+std::optional<size_t> Brush::findFace(const std::string& materialName) const
 {
   return kdl::vec_index_of(m_faces, [&](const BrushFace& face) {
-    return face.attributes().textureName() == textureName;
+    return face.attributes().textureName() == materialName;
   });
 }
 
@@ -376,22 +376,22 @@ Result<void> Brush::moveBoundary(
   const vm::bbox3& worldBounds,
   const size_t faceIndex,
   const vm::vec3& delta,
-  const bool lockTexture)
+  const bool lockMaterial)
 {
   assert(faceIndex < faceCount());
 
   return m_faces[faceIndex]
-    .transform(vm::translation_matrix(delta), lockTexture)
+    .transform(vm::translation_matrix(delta), lockMaterial)
     .and_then([&]() { return updateGeometryFromFaces(worldBounds); });
 }
 
 Result<void> Brush::expand(
-  const vm::bbox3& worldBounds, const FloatType delta, const bool lockTexture)
+  const vm::bbox3& worldBounds, const FloatType delta, const bool lockMaterial)
 {
   for (auto& face : m_faces)
   {
     const vm::vec3 moveAmount = face.boundary().normal * delta;
-    if (!face.transform(vm::translation_matrix(moveAmount), lockTexture).is_success())
+    if (!face.transform(vm::translation_matrix(moveAmount), lockMaterial).is_success())
     {
       return Error{"Brush has invalid face"};
     }
@@ -1063,11 +1063,12 @@ void Brush::applyUVLock(
       findTransformForUVLock(matcher, leftFace.geometry(), rightFace.geometry()))
   {
 
-    // We want to re-set the texturing of `rightFace` using the texturing from M *
+    // We want to re-set the alignment of `rightFace` using the alignment from M *
     // leftFace. We don't want to disturb the actual geometry of `rightFace` which is
-    // already finalized. So the idea is, clone `leftFace`, transform it by M using
-    // texture lock, then copy the texture settings from the transformed clone (which
-    // should have an identical plane to `rightFace` within FP error) to `rightFace`.
+    // already finalized. So the idea is, clone `leftFace`, transform it by M with the
+    // material alignment locked, then copy the UV attributes from the transformed clone
+    // (which should have an identical plane to `rightFace` within FP error) to
+    // `rightFace`.
     BrushFace leftClone = leftFace;
     leftClone.transform(*M, true)
       .transform([&]() {
@@ -1134,7 +1135,7 @@ Result<void> Brush::updateFacesFromGeometry(
 std::vector<Result<Brush>> Brush::subtract(
   const MapFormat mapFormat,
   const vm::bbox3& worldBounds,
-  const std::string& defaultTextureName,
+  const std::string& defaultMaterialName,
   const std::vector<const Brush*>& subtrahends) const
 {
   auto result = std::vector<BrushGeometry>{*m_geometry};
@@ -1153,18 +1154,19 @@ std::vector<Result<Brush>> Brush::subtract(
   }
 
   return kdl::vec_transform(result, [&](const auto& geometry) {
-    return createBrush(mapFormat, worldBounds, defaultTextureName, geometry, subtrahends);
+    return createBrush(
+      mapFormat, worldBounds, defaultMaterialName, geometry, subtrahends);
   });
 }
 
 std::vector<Result<Brush>> Brush::subtract(
   const MapFormat mapFormat,
   const vm::bbox3& worldBounds,
-  const std::string& defaultTextureName,
+  const std::string& defaultMaterialName,
   const Brush& subtrahend) const
 {
   return subtract(
-    mapFormat, worldBounds, defaultTextureName, std::vector<const Brush*>{&subtrahend});
+    mapFormat, worldBounds, defaultMaterialName, std::vector<const Brush*>{&subtrahend});
 }
 
 Result<void> Brush::intersect(const vm::bbox3& worldBounds, const Brush& brush)
@@ -1174,11 +1176,13 @@ Result<void> Brush::intersect(const vm::bbox3& worldBounds, const Brush& brush)
 }
 
 Result<void> Brush::transform(
-  const vm::bbox3& worldBounds, const vm::mat4x4& transformation, const bool lockTextures)
+  const vm::bbox3& worldBounds,
+  const vm::mat4x4& transformation,
+  const bool lockMaterials)
 {
   for (auto& face : m_faces)
   {
-    if (!face.transform(transformation, lockTextures).is_success())
+    if (!face.transform(transformation, lockMaterials).is_success())
     {
       return Error{"Brush has invalid face"};
     }
@@ -1223,7 +1227,7 @@ bool Brush::intersects(const Brush& brush) const
 Result<Brush> Brush::createBrush(
   const MapFormat mapFormat,
   const vm::bbox3& worldBounds,
-  const std::string& defaultTextureName,
+  const std::string& defaultMaterialName,
   const BrushGeometry& geometry,
   const std::vector<const Brush*>& subtrahends) const
 {
@@ -1240,7 +1244,7 @@ Result<Brush> Brush::createBrush(
                const auto& p2 = h2->origin()->position();
 
                return BrushFace::create(
-                 p0, p1, p2, BrushFaceAttributes(defaultTextureName), mapFormat);
+                 p0, p1, p2, BrushFaceAttributes(defaultMaterialName), mapFormat);
              }))
     .and_then([&](std::vector<BrushFace>&& faces) {
       return Brush::create(worldBounds, std::move(faces));
