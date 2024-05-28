@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturedIndexArrayMapBuilder.h"
+#include "MaterialIndexArrayMapBuilder.h"
 
 #include "Renderer/PrimType.h"
 

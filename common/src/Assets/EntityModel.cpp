@@ -21,9 +21,9 @@
 
 #include "Assets/MaterialCollection.h"
 #include "Renderer/IndexRangeMap.h"
+#include "Renderer/MaterialIndexRangeMap.h"
+#include "Renderer/MaterialIndexRangeRenderer.h"
 #include "Renderer/PrimType.h"
-#include "Renderer/TexturedIndexRangeMap.h"
-#include "Renderer/TexturedIndexRangeRenderer.h"
 #include "octree.h"
 
 #include "kdl/vector_utils.h"

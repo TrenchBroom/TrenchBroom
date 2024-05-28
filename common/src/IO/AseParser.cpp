@@ -26,9 +26,9 @@
 #include "IO/ResourceUtils.h"
 #include "IO/SkinLoader.h"
 #include "Logger.h"
+#include "Renderer/MaterialIndexRangeMap.h"
+#include "Renderer/MaterialIndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
-#include "Renderer/TexturedIndexRangeMap.h"
-#include "Renderer/TexturedIndexRangeMapBuilder.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/string_format.h"

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Renderer/TexturedIndexRangeMap.h"
+#include "Renderer/MaterialIndexRangeMap.h"
 #include "Renderer/VertexArray.h"
 
 #include <memory>

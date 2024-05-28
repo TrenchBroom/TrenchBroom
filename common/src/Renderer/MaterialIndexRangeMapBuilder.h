@@ -19,8 +19,8 @@
 
 #pragma once
 
+#include "Renderer/MaterialIndexRangeMap.h"
 #include "Renderer/PrimType.h"
-#include "Renderer/TexturedIndexRangeMap.h"
 #include "Renderer/VertexListBuilder.h"
 
 #include <vector>

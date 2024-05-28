@@ -25,7 +25,7 @@
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
 #include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/TexturedIndexRangeRenderer.h"
+#include "Renderer/MaterialIndexRangeRenderer.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 

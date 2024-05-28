@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Renderer/IndexArray.h"
-#include "Renderer/TexturedIndexArrayMap.h"
+#include "Renderer/MaterialIndexArrayMap.h"
 #include "Renderer/VertexArray.h"
 
 namespace TrenchBroom

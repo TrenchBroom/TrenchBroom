@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Renderer/GL.h"
-#include "Renderer/TexturedIndexArrayMap.h"
+#include "Renderer/MaterialIndexArrayMap.h"
 
 #include <vector>
 

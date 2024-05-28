@@ -32,11 +32,11 @@
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
+#include "Renderer/MaterialIndexRangeRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
-#include "Renderer/TexturedIndexRangeRenderer.h"
 #include "Renderer/Transformation.h"
 
 #include "vm/mat.h"

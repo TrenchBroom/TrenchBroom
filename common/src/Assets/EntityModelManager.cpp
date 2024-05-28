@@ -26,7 +26,7 @@
 #include "Logger.h"
 #include "Macros.h"
 #include "Model/EntityNode.h"
-#include "Renderer/TexturedIndexRangeRenderer.h"
+#include "Renderer/MaterialIndexRangeRenderer.h"
 
 namespace TrenchBroom
 {

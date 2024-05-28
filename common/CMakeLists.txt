@@ -227,6 +227,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/LinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMap.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMapBuilder.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeMap.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ObjectRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/OrthographicCamera.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PatchRenderer.cpp
@@ -250,11 +255,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.cpp
@@ -750,6 +750,12 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/LinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMap.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMapBuilder.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeMap.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeMapBuilder.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/ObjectRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/OrthographicCamera.h
         ${COMMON_SOURCE_DIR}/Renderer/PatchRenderer.h
@@ -773,12 +779,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.h
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMapBuilder.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.h
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.h
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.h

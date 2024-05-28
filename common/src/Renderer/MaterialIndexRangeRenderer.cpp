@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TexturedIndexRangeRenderer.h"
+#include "MaterialIndexRangeRenderer.h"
 
 namespace TrenchBroom
 {
