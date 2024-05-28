@@ -426,16 +426,16 @@ void loadSkins(
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Material>{};
-  textures.reserve(skins.size());
+  auto materials = std::vector<Assets::Material>{};
+  materials.reserve(skins.size());
 
   for (const auto& skin : skins)
   {
     const auto skinPath = findSkin(skin, fs);
-    textures.push_back(loadSkin(skinPath, fs, logger));
+    materials.push_back(loadSkin(skinPath, fs, logger));
   }
 
-  surface.setSkins(std::move(textures));
+  surface.setSkins(std::move(materials));
 }
 
 auto getVertices(const DkmFrame& frame, const std::vector<DkmMeshVertex>& meshVertices)
