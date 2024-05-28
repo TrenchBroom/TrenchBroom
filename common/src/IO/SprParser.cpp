@@ -62,7 +62,7 @@ bool SprParser::canParse(const std::filesystem::path& path, Reader reader)
 
 struct SprPicture
 {
-  Assets::Material texture;
+  Assets::Material material;
   int x;
   int y;
   size_t width;
@@ -287,13 +287,13 @@ std::unique_ptr<Assets::EntityModel> SprParser::initializeModel(Logger& /* logge
 
   auto& surface = model->addSurface(m_name);
 
-  auto textures = std::vector<Assets::Material>{};
-  textures.reserve(frameCount);
+  auto materials = std::vector<Assets::Material>{};
+  materials.reserve(frameCount);
 
   for (size_t i = 0; i < frameCount; ++i)
   {
     auto pictureFrame = parsePictureFrame(reader, palette);
-    textures.push_back(std::move(pictureFrame.texture));
+    materials.push_back(std::move(pictureFrame.material));
 
     const auto w = static_cast<float>(pictureFrame.width);
     const auto h = static_cast<float>(pictureFrame.height);
@@ -326,7 +326,7 @@ std::unique_ptr<Assets::EntityModel> SprParser::initializeModel(Logger& /* logge
     surface.addMesh(modelFrame, builder.vertices(), builder.indices());
   }
 
-  surface.setSkins(std::move(textures));
+  surface.setSkins(std::move(materials));
 
   return model;
 }
