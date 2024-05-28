@@ -4522,12 +4522,12 @@ static auto makeSetTexturesVisitor(Assets::MaterialManager& manager)
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
         const Model::BrushFace& face = brush.face(i);
-        Assets::Material* texture = manager.texture(face.attributes().textureName());
+        Assets::Material* texture = manager.material(face.attributes().textureName());
         brushNode->setFaceTexture(i, texture);
       }
     },
     [&](Model::PatchNode* patchNode) {
-      auto* texture = manager.texture(patchNode->patch().textureName());
+      auto* texture = manager.material(patchNode->patch().textureName());
       patchNode->setTexture(texture);
     });
 }
@@ -4570,7 +4570,7 @@ void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHan
     Model::BrushNode* node = faceHandle.node();
     const Model::BrushFace& face = faceHandle.face();
     Assets::Material* texture =
-      m_textureManager->texture(face.attributes().textureName());
+      m_textureManager->material(face.attributes().textureName());
     node->setFaceTexture(faceHandle.faceIndex(), texture);
   }
   textureUsageCountsDidChangeNotifier();
@@ -5124,7 +5124,7 @@ void MapDocument::preferenceDidChange(const std::filesystem::path& path)
   {
     m_entityModelManager->setTextureMode(
       pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
-    m_textureManager->setTextureMode(
+    m_textureManager->setFilterMode(
       pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
   }
 }

@@ -48,7 +48,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
   auto* brushNode = createBrushNode("coffin1");
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
-  const auto* texture = document->textureManager().texture("coffin1");
+  const auto* texture = document->textureManager().material("coffin1");
   CHECK(texture != nullptr);
   CHECK(texture->usageCount() == 6u);
 

@@ -72,12 +72,12 @@ private:
     auto collections = kdl::vec_from(Assets::MaterialCollection{std::move(textures)});
 
     auto& textureManager = document->textureManager();
-    textureManager.setTextureCollections(std::move(collections));
+    textureManager.setMaterialCollections(std::move(collections));
     m_textureCollection = &textureManager.collections().back();
 
-    m_textureA = textureManager.texture("some_texture");
-    m_textureB = textureManager.texture("other_texture");
-    m_textureC = textureManager.texture("yet_another_texture");
+    m_textureA = textureManager.material("some_texture");
+    m_textureB = textureManager.material("other_texture");
+    m_textureC = textureManager.material("yet_another_texture");
 
     const auto textureMatch = std::string{"some_texture"};
     const auto texturePatternMatch = std::string{"*er_texture"};

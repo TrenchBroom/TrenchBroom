@@ -276,7 +276,7 @@ void MaterialBrowser::updateSelectedTexture()
 {
   auto document = kdl::mem_lock(m_document);
   const auto& textureName = document->currentTextureName();
-  const auto* texture = document->textureManager().texture(textureName);
+  const auto* texture = document->textureManager().material(textureName);
   m_view->setSelectedTexture(texture);
 }
 

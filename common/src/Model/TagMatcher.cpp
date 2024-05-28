@@ -104,7 +104,7 @@ public:
 void MaterialTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const
 {
   const auto& textureManager = facade.textureManager();
-  const auto& allTextures = textureManager.textures();
+  const auto& allTextures = textureManager.materials();
   auto matchingTextures = std::vector<const Assets::Material*>{};
 
   std::copy_if(

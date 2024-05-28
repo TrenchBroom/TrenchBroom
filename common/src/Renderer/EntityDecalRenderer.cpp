@@ -330,7 +330,7 @@ void EntityDecalRenderer::validateDecalData(
     }
   }
 
-  data.texture = document->textureManager().texture(spec->textureName);
+  data.texture = document->textureManager().material(spec->textureName);
   if (!data.texture)
   {
     // no decal texture was found, don't generate any geometry

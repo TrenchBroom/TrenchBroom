@@ -102,7 +102,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount")
     Model::EntityPropertyKeys::Wad, "fixture/test/IO/Wad/cr8_czg.wad");
 
   constexpr auto TextureName = "bongs2";
-  const auto* texture = document->textureManager().texture(TextureName);
+  const auto* texture = document->textureManager().material(TextureName);
   REQUIRE(texture != nullptr);
 
   auto* brushNode = createBrushNode(TextureName);

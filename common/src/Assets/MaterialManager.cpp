@@ -52,31 +52,31 @@ MaterialManager::MaterialManager(int magFilter, int minFilter, Logger& logger)
 MaterialManager::~MaterialManager() = default;
 
 void MaterialManager::reload(
-  const IO::FileSystem& fs, const Model::MaterialConfig& textureConfig)
+  const IO::FileSystem& fs, const Model::MaterialConfig& materialConfig)
 {
-  findTextureCollections(fs, textureConfig)
-    .transform([&](auto textureCollections) {
-      setTextureCollections(std::move(textureCollections), fs, textureConfig);
+  findTextureCollections(fs, materialConfig)
+    .transform([&](auto materialCollections) {
+      setMaterialCollections(std::move(materialCollections), fs, materialConfig);
     })
     .transform_error([&](auto e) {
-      m_logger.error() << "Could not reload texture collections: " + e.msg;
-      setTextureCollections({}, fs, textureConfig);
+      m_logger.error() << "Could not reload material collections: " + e.msg;
+      setMaterialCollections({}, fs, materialConfig);
     });
 }
 
-void MaterialManager::setTextureCollections(std::vector<MaterialCollection> collections)
+void MaterialManager::setMaterialCollections(std::vector<MaterialCollection> collections)
 {
   for (auto& collection : collections)
   {
-    addTextureCollection(std::move(collection));
+    addMaterialCollection(std::move(collection));
   }
-  updateTextures();
+  updateMaterials();
 }
 
-void MaterialManager::setTextureCollections(
+void MaterialManager::setMaterialCollections(
   const std::vector<std::filesystem::path>& paths,
   const IO::FileSystem& fs,
-  const Model::MaterialConfig& textureConfig)
+  const Model::MaterialConfig& materialConfig)
 {
   auto collections = std::move(m_collections);
   clear();
@@ -90,11 +90,11 @@ void MaterialManager::setTextureCollections(
 
     if (it == collections.end() || !it->loaded())
     {
-      IO::loadTextureCollection(path, fs, textureConfig, m_logger)
+      IO::loadTextureCollection(path, fs, materialConfig, m_logger)
         .transform_error([&](const auto& error) {
           if (it == collections.end())
           {
-            m_logger.error() << "Could not load texture collection '" << path
+            m_logger.error() << "Could not load material collection '" << path
                              << "': " << error.msg;
           }
           return Assets::MaterialCollection{path};
@@ -102,14 +102,14 @@ void MaterialManager::setTextureCollections(
         .transform([&](auto collection) {
           if (!collection.materials().empty())
           {
-            m_logger.info() << "Loaded texture collection '" << path << "'";
+            m_logger.info() << "Loaded material collection '" << path << "'";
           }
-          addTextureCollection(std::move(collection));
+          addMaterialCollection(std::move(collection));
         });
     }
     else
     {
-      addTextureCollection(std::move(*it));
+      addMaterialCollection(std::move(*it));
     }
 
     if (it != collections.end())
@@ -118,11 +118,11 @@ void MaterialManager::setTextureCollections(
     }
   }
 
-  updateTextures();
+  updateMaterials();
   m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
 }
 
-void MaterialManager::addTextureCollection(Assets::MaterialCollection collection)
+void MaterialManager::addMaterialCollection(Assets::MaterialCollection collection)
 {
   const auto index = m_collections.size();
   m_collections.push_back(std::move(collection));
@@ -132,7 +132,7 @@ void MaterialManager::addTextureCollection(Assets::MaterialCollection collection
     m_toPrepare.push_back(index);
   }
 
-  m_logger.debug() << "Added texture collection " << m_collections[index].path();
+  m_logger.debug() << "Added material collection " << m_collections[index].path();
 }
 
 void MaterialManager::clear()
@@ -140,40 +140,40 @@ void MaterialManager::clear()
   m_collections.clear();
 
   m_toPrepare.clear();
-  m_texturesByName.clear();
-  m_textures.clear();
+  m_materialsByName.clear();
+  m_materials.clear();
 
   // Remove logging because it might fail when the document is already destroyed.
 }
 
-void MaterialManager::setTextureMode(const int minFilter, const int magFilter)
+void MaterialManager::setFilterMode(const int minFilter, const int magFilter)
 {
   m_minFilter = minFilter;
   m_magFilter = magFilter;
-  m_resetTextureMode = true;
+  m_resetFilterMode = true;
 }
 
 void MaterialManager::commitChanges()
 {
-  resetTextureMode();
+  resetFilterMode();
   prepare();
   m_toRemove.clear();
 }
 
-const Material* MaterialManager::texture(const std::string& name) const
+const Material* MaterialManager::material(const std::string& name) const
 {
-  auto it = m_texturesByName.find(kdl::str_to_lower(name));
-  return it != m_texturesByName.end() ? it->second : nullptr;
+  auto it = m_materialsByName.find(kdl::str_to_lower(name));
+  return it != m_materialsByName.end() ? it->second : nullptr;
 }
 
-Material* MaterialManager::texture(const std::string& name)
+Material* MaterialManager::material(const std::string& name)
 {
-  return const_cast<Material*>(const_cast<const MaterialManager*>(this)->texture(name));
+  return const_cast<Material*>(const_cast<const MaterialManager*>(this)->material(name));
 }
 
-const std::vector<const Material*>& MaterialManager::textures() const
+const std::vector<const Material*>& MaterialManager::materials() const
 {
-  return m_textures;
+  return m_materials;
 }
 
 const std::vector<MaterialCollection>& MaterialManager::collections() const
@@ -181,15 +181,15 @@ const std::vector<MaterialCollection>& MaterialManager::collections() const
   return m_collections;
 }
 
-void MaterialManager::resetTextureMode()
+void MaterialManager::resetFilterMode()
 {
-  if (m_resetTextureMode)
+  if (m_resetFilterMode)
   {
     for (auto& collection : m_collections)
     {
       collection.setFilterMode(m_minFilter, m_magFilter);
     }
-    m_resetTextureMode = false;
+    m_resetFilterMode = false;
   }
 }
 
@@ -203,30 +203,30 @@ void MaterialManager::prepare()
   m_toPrepare.clear();
 }
 
-void MaterialManager::updateTextures()
+void MaterialManager::updateMaterials()
 {
-  m_texturesByName.clear();
-  m_textures.clear();
+  m_materialsByName.clear();
+  m_materials.clear();
 
   for (auto& collection : m_collections)
   {
-    for (auto& texture : collection.materials())
+    for (auto& material : collection.materials())
     {
-      const auto key = kdl::str_to_lower(texture.name());
+      const auto key = kdl::str_to_lower(material.name());
 
-      auto mIt = m_texturesByName.find(key);
-      if (mIt != m_texturesByName.end())
+      auto mIt = m_materialsByName.find(key);
+      if (mIt != m_materialsByName.end())
       {
-        mIt->second = &texture;
+        mIt->second = &material;
       }
       else
       {
-        m_texturesByName.insert(std::make_pair(key, &texture));
+        m_materialsByName.insert(std::make_pair(key, &material));
       }
     }
   }
 
-  m_textures = kdl::vec_transform(kdl::map_values(m_texturesByName), [](auto* t) {
+  m_materials = kdl::vec_transform(kdl::map_values(m_materialsByName), [](auto* t) {
     return const_cast<const Material*>(t);
   });
 }
