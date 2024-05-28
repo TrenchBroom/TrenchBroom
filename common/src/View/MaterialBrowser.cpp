@@ -38,7 +38,7 @@
 #include "kdl/memory_utils.h"
 
 // for use in QVariant
-Q_DECLARE_METATYPE(TrenchBroom::View::TextureSortOrder)
+Q_DECLARE_METATYPE(TrenchBroom::View::MaterialSortOrder)
 
 namespace TrenchBroom::View
 {
@@ -70,15 +70,15 @@ void MaterialBrowser::revealTexture(const Assets::Material* texture)
   m_view->revealTexture(texture);
 }
 
-void MaterialBrowser::setSortOrder(const TextureSortOrder sortOrder)
+void MaterialBrowser::setSortOrder(const MaterialSortOrder sortOrder)
 {
   m_view->setSortOrder(sortOrder);
   switch (sortOrder)
   {
-  case TextureSortOrder::Name:
+  case MaterialSortOrder::Name:
     m_sortOrderChoice->setCurrentIndex(0);
     break;
-  case TextureSortOrder::Usage:
+  case MaterialSortOrder::Usage:
     m_sortOrderChoice->setCurrentIndex(1);
     break;
     switchDefault();
@@ -122,14 +122,14 @@ void MaterialBrowser::createGui(GLContextManager& contextManager)
   browserPanel->setLayout(browserPanelSizer);
 
   m_sortOrderChoice = new QComboBox{};
-  m_sortOrderChoice->addItem(tr("Name"), QVariant::fromValue(TextureSortOrder::Name));
-  m_sortOrderChoice->addItem(tr("Usage"), QVariant::fromValue(TextureSortOrder::Usage));
+  m_sortOrderChoice->addItem(tr("Name"), QVariant::fromValue(MaterialSortOrder::Name));
+  m_sortOrderChoice->addItem(tr("Usage"), QVariant::fromValue(MaterialSortOrder::Usage));
   m_sortOrderChoice->setCurrentIndex(0);
   m_sortOrderChoice->setToolTip(tr("Select ordering criterion"));
   connect(
     m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [&](int index) {
       auto sortOrder =
-        static_cast<TextureSortOrder>(m_sortOrderChoice->itemData(index).toInt());
+        static_cast<MaterialSortOrder>(m_sortOrderChoice->itemData(index).toInt());
       m_view->setSortOrder(sortOrder);
     });
 

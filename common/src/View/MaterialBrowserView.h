@@ -44,7 +44,7 @@ class GLContextManager;
 class MapDocument;
 using MaterialGroupData = std::string;
 
-enum class TextureSortOrder
+enum class MaterialSortOrder
 {
   Name,
   Usage
@@ -57,7 +57,7 @@ private:
   std::weak_ptr<MapDocument> m_document;
   bool m_group = false;
   bool m_hideUnused = false;
-  TextureSortOrder m_sortOrder = TextureSortOrder::Name;
+  MaterialSortOrder m_sortOrder = MaterialSortOrder::Name;
   std::string m_filterText;
 
   const Assets::Material* m_selectedTexture = nullptr;
@@ -71,7 +71,7 @@ public:
     std::weak_ptr<MapDocument> document);
   ~MaterialBrowserView() override;
 
-  void setSortOrder(TextureSortOrder sortOrder);
+  void setSortOrder(MaterialSortOrder sortOrder);
   void setGroup(bool group);
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);

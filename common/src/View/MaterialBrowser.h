@@ -49,7 +49,7 @@ namespace TrenchBroom::View
 class GLContextManager;
 class MapDocument;
 class MaterialBrowserView;
-enum class TextureSortOrder;
+enum class MaterialSortOrder;
 
 class MaterialBrowser : public QWidget
 {
@@ -75,7 +75,7 @@ public:
   void setSelectedTexture(const Assets::Material* selectedTexture);
   void revealTexture(const Assets::Material* texture);
 
-  void setSortOrder(TextureSortOrder sortOrder);
+  void setSortOrder(MaterialSortOrder sortOrder);
   void setGroup(bool group);
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);

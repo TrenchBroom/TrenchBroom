@@ -71,7 +71,7 @@ MaterialBrowserView::~MaterialBrowserView()
   clear();
 }
 
-void MaterialBrowserView::setSortOrder(const TextureSortOrder sortOrder)
+void MaterialBrowserView::setSortOrder(const MaterialSortOrder sortOrder)
 {
   if (sortOrder != m_sortOrder)
   {
@@ -268,9 +268,9 @@ std::vector<const Assets::Material*> MaterialBrowserView::sortTextures(
 
   switch (m_sortOrder)
   {
-  case TextureSortOrder::Name:
+  case MaterialSortOrder::Name:
     return kdl::vec_sort(std::move(textures), compareNames);
-  case TextureSortOrder::Usage:
+  case MaterialSortOrder::Usage:
     return kdl::vec_sort(std::move(textures), [&](const auto* lhs, const auto* rhs) {
       return lhs->usageCount() < rhs->usageCount()   ? false
              : lhs->usageCount() > rhs->usageCount() ? true
