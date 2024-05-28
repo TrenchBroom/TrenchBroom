@@ -53,19 +53,19 @@ bool ImageSpriteParser::canParse(const std::filesystem::path& path)
 
 std::unique_ptr<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& logger)
 {
-  auto textures = std::vector<Assets::Material>{};
+  auto materials = std::vector<Assets::Material>{};
 
   auto reader = m_file->reader().buffer();
-  textures.push_back(readFreeImageTexture(m_name, reader)
-                       .or_else(makeReadTextureErrorHandler(m_fs, logger))
-                       .value());
+  materials.push_back(readFreeImageTexture(m_name, reader)
+                        .or_else(makeReadTextureErrorHandler(m_fs, logger))
+                        .value());
 
   auto model = std::make_unique<Assets::EntityModel>(
     m_name, Assets::PitchType::Normal, Assets::Orientation::ViewPlaneParallel);
   model->addFrame();
 
   auto& surface = model->addSurface(m_name);
-  surface.setSkins(std::move(textures));
+  surface.setSkins(std::move(materials));
 
   return model;
 }
@@ -75,10 +75,10 @@ void ImageSpriteParser::loadFrame(
 {
   auto& surface = model.surface(0);
 
-  if (const auto* texture = surface.skin(0))
+  if (const auto* material = surface.skin(0))
   {
-    const auto w = static_cast<float>(texture->width());
-    const auto h = static_cast<float>(texture->height());
+    const auto w = static_cast<float>(material->width());
+    const auto h = static_cast<float>(material->height());
     const auto x1 = -w / 2.0f;
     const auto y1 = -h / 2.0f;
     const auto x2 = x1 + w;
