@@ -63,7 +63,7 @@ Result<Assets::Palette> readHlMipPalette(Reader& reader)
   return Assets::makePalette(data, Assets::PaletteColorFormat::Rgb);
 }
 
-Result<Assets::Material, ReadTextureError> readMipTexture(
+Result<Assets::Material, ReadMaterialError> readMipTexture(
   std::string name, Reader& reader, const GetMipPalette& getMipPalette)
 {
   static const auto MipLevels = size_t(4);
@@ -83,7 +83,7 @@ Result<Assets::Material, ReadTextureError> readMipTexture(
 
     if (!checkTextureDimensions(width, height))
     {
-      return ReadTextureError{
+      return ReadMaterialError{
         std::move(name), fmt::format("Invalid texture dimensions: {}*{}", width, height)};
     }
 
@@ -127,13 +127,13 @@ Result<Assets::Material, ReadTextureError> readMipTexture(
           type}};
       })
       .or_else([&](const auto& e) {
-        return Result<Assets::Material, ReadTextureError>{
-          ReadTextureError{std::move(name), e.msg}};
+        return Result<Assets::Material, ReadMaterialError>{
+          ReadMaterialError{std::move(name), e.msg}};
       });
   }
   catch (const ReaderException& e)
   {
-    return ReadTextureError{std::move(name), e.what()};
+    return ReadMaterialError{std::move(name), e.what()};
   }
 }
 
@@ -152,13 +152,13 @@ std::string readMipTextureName(Reader& reader)
   }
 }
 
-Result<Assets::Material, ReadTextureError> readIdMipTexture(
+Result<Assets::Material, ReadMaterialError> readIdMipTexture(
   std::string name, Reader& reader, const Assets::Palette& palette)
 {
   return readMipTexture(std::move(name), reader, [&](Reader&) { return palette; });
 }
 
-Result<Assets::Material, ReadTextureError> readHlMipTexture(
+Result<Assets::Material, ReadMaterialError> readHlMipTexture(
   std::string name, Reader& reader)
 {
   return readMipTexture(std::move(name), reader, readHlMipPalette);

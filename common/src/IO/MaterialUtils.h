@@ -49,31 +49,31 @@ namespace TrenchBroom::IO
 class File;
 class FileSystem;
 
-std::string getTextureNameFromPathSuffix(
+std::string getMaterialNameFromPathSuffix(
   const std::filesystem::path& path, size_t prefixLength);
 
 bool checkTextureDimensions(size_t width, size_t height);
 
 size_t mipSize(size_t width, size_t height, size_t mipLevel);
 
-struct ReadTextureError
+struct ReadMaterialError
 {
-  std::string textureName;
+  std::string materialName;
   std::string msg;
 
-  kdl_reflect_decl(ReadTextureError, textureName, msg);
+  kdl_reflect_decl(ReadMaterialError, materialName, msg);
 };
 
-inline auto makeReadTextureErrorHandler(const FileSystem& fs, Logger& logger)
+inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
 {
   return kdl::overload(
     [&](Error e) {
-      logger.error() << "Could not open texture file: " << e.msg;
+      logger.error() << "Could not open material file: " << e.msg;
       return Result<Assets::Material>{loadDefaultTexture(fs, "", logger)};
     },
-    [&](ReadTextureError e) {
-      logger.error() << "Could not read texture '" << e.textureName << "': " << e.msg;
-      return Result<Assets::Material>{loadDefaultTexture(fs, e.textureName, logger)};
+    [&](ReadMaterialError e) {
+      logger.error() << "Could not read material '" << e.materialName << "': " << e.msg;
+      return Result<Assets::Material>{loadDefaultTexture(fs, e.materialName, logger)};
     });
 }
 

@@ -103,7 +103,7 @@ std::tuple<Assets::TextureBufferList, bool> readMips(
   return {std::move(buffers), hasTransparency};
 }
 
-Result<Assets::Material, ReadTextureError> readQ2Wal(
+Result<Assets::Material, ReadMaterialError> readQ2Wal(
   std::string name, Reader& reader, const std::optional<Assets::Palette>& palette)
 {
   static const auto MaxMipLevels = size_t(4);
@@ -114,7 +114,7 @@ Result<Assets::Material, ReadTextureError> readQ2Wal(
 
   if (!palette)
   {
-    return ReadTextureError{std::move(name), "Missing palette"};
+    return ReadMaterialError{std::move(name), "Missing palette"};
   }
 
   try
@@ -125,7 +125,7 @@ Result<Assets::Material, ReadTextureError> readQ2Wal(
 
     if (!checkTextureDimensions(width, height))
     {
-      return ReadTextureError{
+      return ReadMaterialError{
         std::move(name), fmt::format("Invalid texture dimensions: {}*{}", width, height)};
     }
 
@@ -161,11 +161,11 @@ Result<Assets::Material, ReadTextureError> readQ2Wal(
   }
   catch (const ReaderException& e)
   {
-    return ReadTextureError{std::move(name), e.what()};
+    return ReadMaterialError{std::move(name), e.what()};
   }
 }
 
-Result<Assets::Material, ReadTextureError> readDkWal(std::string name, Reader& reader)
+Result<Assets::Material, ReadMaterialError> readDkWal(std::string name, Reader& reader)
 {
   static const auto MaxMipLevels = size_t(9);
   auto averageColor = Color{};
@@ -186,7 +186,7 @@ Result<Assets::Material, ReadTextureError> readDkWal(std::string name, Reader& r
 
     if (!checkTextureDimensions(width, height))
     {
-      return ReadTextureError{
+      return ReadMaterialError{
         std::move(name), fmt::format("Invalid texture dimensions: {}*{}", width, height)};
     }
 
@@ -224,20 +224,20 @@ Result<Assets::Material, ReadTextureError> readDkWal(std::string name, Reader& r
           gameData};
       })
       .or_else([&](const auto& error) {
-        return Result<Assets::Material, ReadTextureError>{
-          ReadTextureError{std::move(name), error.msg}};
+        return Result<Assets::Material, ReadMaterialError>{
+          ReadMaterialError{std::move(name), error.msg}};
       });
     ;
   }
   catch (const ReaderException& e)
   {
-    return ReadTextureError{std::move(name), e.what()};
+    return ReadMaterialError{std::move(name), e.what()};
   }
 }
 
 } // namespace
 
-Result<Assets::Material, ReadTextureError> readWalTexture(
+Result<Assets::Material, ReadMaterialError> readWalTexture(
   std::string name, Reader& reader, const std::optional<Assets::Palette>& palette)
 {
   try
@@ -253,7 +253,7 @@ Result<Assets::Material, ReadTextureError> readWalTexture(
   }
   catch (const Exception& e)
   {
-    return ReadTextureError{std::move(name), e.what()};
+    return ReadMaterialError{std::move(name), e.what()};
   }
 }
 

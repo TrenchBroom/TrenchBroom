@@ -52,7 +52,7 @@ TEST_CASE("getTextureNameFromPathSuffix")
 
   CAPTURE(prefixLength, path);
 
-  CHECK(getTextureNameFromPathSuffix(path, prefixLength) == expectedResult);
+  CHECK(getMaterialNameFromPathSuffix(path, prefixLength) == expectedResult);
 }
 
 TEST_CASE("makeReadTextureErrorHandler")
@@ -67,7 +67,7 @@ TEST_CASE("makeReadTextureErrorHandler")
   REQUIRE(result.is_error());
 
   const auto defaultTexture =
-    std::move(result).or_else(makeReadTextureErrorHandler(diskFS, logger)).value();
+    std::move(result).or_else(makeReadMaterialErrorHandler(diskFS, logger)).value();
   CHECK(defaultTexture.name() == "corruptPngTest");
   CHECK(defaultTexture.width() == 32);
   CHECK(defaultTexture.height() == 32);

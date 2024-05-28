@@ -29,7 +29,7 @@
 namespace TrenchBroom::IO
 {
 
-std::string getTextureNameFromPathSuffix(
+std::string getMaterialNameFromPathSuffix(
   const std::filesystem::path& path, size_t prefixLength)
 {
   return prefixLength < kdl::path_length(path)
@@ -49,6 +49,6 @@ size_t mipSize(const size_t width, const size_t height, const size_t mipLevel)
   return size.x() * size.y();
 }
 
-kdl_reflect_impl(ReadTextureError);
+kdl_reflect_impl(ReadMaterialError);
 
 } // namespace TrenchBroom::IO

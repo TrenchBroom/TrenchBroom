@@ -57,7 +57,7 @@ std::unique_ptr<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& 
 
   auto reader = m_file->reader().buffer();
   materials.push_back(readFreeImageTexture(m_name, reader)
-                        .or_else(makeReadTextureErrorHandler(m_fs, logger))
+                        .or_else(makeReadMaterialErrorHandler(m_fs, logger))
                         .value());
 
   auto model = std::make_unique<Assets::EntityModel>(

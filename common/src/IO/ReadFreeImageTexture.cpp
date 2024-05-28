@@ -98,7 +98,7 @@ Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format)
   return average;
 }
 
-Result<Assets::Material, ReadTextureError> readFreeImageTextureFromMemory(
+Result<Assets::Material, ReadMaterialError> readFreeImageTextureFromMemory(
   std::string name, const uint8_t* begin, const size_t size)
 {
   try
@@ -115,7 +115,7 @@ Result<Assets::Material, ReadTextureError> readFreeImageTextureFromMemory(
 
     if (!image)
     {
-      return ReadTextureError{std::move(name), "FreeImage could not load image data"};
+      return ReadMaterialError{std::move(name), "FreeImage could not load image data"};
     }
 
     const auto imageWidth = size_t(FreeImage_GetWidth(*image));
@@ -123,7 +123,7 @@ Result<Assets::Material, ReadTextureError> readFreeImageTextureFromMemory(
 
     if (!checkTextureDimensions(imageWidth, imageHeight))
     {
-      return ReadTextureError{
+      return ReadMaterialError{
         std::move(name),
         fmt::format("Invalid texture dimensions: {}*{}", imageWidth, imageHeight)};
     }
@@ -146,7 +146,7 @@ Result<Assets::Material, ReadTextureError> readFreeImageTextureFromMemory(
 
     if (!image)
     {
-      return ReadTextureError{std::move(name), "Unsupported pixel format"};
+      return ReadMaterialError{std::move(name), "Unsupported pixel format"};
     }
 
     assert(FreeImage_GetLine(*image) / FreeImage_GetWidth(*image) == 4);
@@ -178,11 +178,11 @@ Result<Assets::Material, ReadTextureError> readFreeImageTextureFromMemory(
   }
   catch (const std::exception& e)
   {
-    return ReadTextureError{std::move(name), e.what()};
+    return ReadMaterialError{std::move(name), e.what()};
   }
 }
 
-Result<Assets::Material, ReadTextureError> readFreeImageTexture(
+Result<Assets::Material, ReadMaterialError> readFreeImageTexture(
   std::string name, Reader& reader)
 {
   auto bufferedReader = reader.buffer();

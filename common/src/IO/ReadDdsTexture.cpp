@@ -128,7 +128,7 @@ void readDdsMips(Reader& reader, Assets::TextureBufferList& buffers)
 
 } // namespace
 
-Result<Assets::Material, ReadTextureError> readDdsTexture(
+Result<Assets::Material, ReadMaterialError> readDdsTexture(
   std::string name, Reader& reader)
 {
   try
@@ -136,7 +136,7 @@ Result<Assets::Material, ReadTextureError> readDdsTexture(
     const auto ident = reader.readSize<uint32_t>();
     if (ident != DdsLayout::Ident)
     {
-      return ReadTextureError{
+      return ReadMaterialError{
         std::move(name), "Unknown Dds ident: " + std::to_string(ident)};
     }
 
@@ -150,7 +150,7 @@ Result<Assets::Material, ReadTextureError> readDdsTexture(
 
     if (!checkTextureDimensions(width, height))
     {
-      return ReadTextureError{
+      return ReadMaterialError{
         std::move(name), fmt::format("Invalid texture dimensions: {}*{}", width, height)};
     }
 
@@ -244,7 +244,7 @@ Result<Assets::Material, ReadTextureError> readDdsTexture(
 
     if (!format)
     {
-      return ReadTextureError{
+      return ReadMaterialError{
         std::move(name), "Invalid Dds texture format: " + std::to_string(format)};
     }
 
@@ -265,7 +265,7 @@ Result<Assets::Material, ReadTextureError> readDdsTexture(
   }
   catch (const ReaderException& e)
   {
-    return ReadTextureError{std::move(name), e.what()};
+    return ReadMaterialError{std::move(name), e.what()};
   }
 }
 

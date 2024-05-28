@@ -35,7 +35,7 @@ namespace TrenchBroom::IO
 {
 class Reader;
 
-Result<Assets::Material, ReadTextureError> readWalTexture(
+Result<Assets::Material, ReadMaterialError> readWalTexture(
   std::string name, Reader& reader, const std::optional<Assets::Palette>& palette);
 
 } // namespace TrenchBroom::IO

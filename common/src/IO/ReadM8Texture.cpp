@@ -43,14 +43,15 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<Assets::Material, ReadTextureError> readM8Texture(std::string name, Reader& reader)
+Result<Assets::Material, ReadMaterialError> readM8Texture(
+  std::string name, Reader& reader)
 {
   try
   {
     const auto version = reader.readInt<int32_t>();
     if (version != M8Layout::Version)
     {
-      return ReadTextureError{
+      return ReadMaterialError{
         std::move(name), "Unknown M8 texture version: " + std::to_string(version)};
     }
 
@@ -125,13 +126,13 @@ Result<Assets::Material, ReadTextureError> readM8Texture(std::string name, Reade
           Assets::TextureType::Opaque}};
       })
       .or_else([&](const auto& error) {
-        return Result<Assets::Material, ReadTextureError>{
-          ReadTextureError{std::move(name), error.msg}};
+        return Result<Assets::Material, ReadMaterialError>{
+          ReadMaterialError{std::move(name), error.msg}};
       });
   }
   catch (const ReaderException& e)
   {
-    return ReadTextureError{std::move(name), e.what()};
+    return ReadMaterialError{std::move(name), e.what()};
   }
 }
 

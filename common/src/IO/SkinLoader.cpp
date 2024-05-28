@@ -56,7 +56,7 @@ Assets::Material loadSkin(
   Logger& logger)
 {
   return fs.openFile(path)
-    .and_then([&](auto file) -> Result<Assets::Material, ReadTextureError> {
+    .and_then([&](auto file) -> Result<Assets::Material, ReadMaterialError> {
       const auto extension = kdl::str_to_lower(path.extension().string());
       auto reader = file->reader().buffer();
       return extension == ".wal" ? readWalTexture(path.stem().string(), reader, palette)

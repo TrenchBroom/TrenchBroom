@@ -109,7 +109,7 @@ std::vector<Assets::Material> parseMaterials(
     auto materialReader = reader.subReaderFromBegin(size_t(offset)).buffer();
 
     result.push_back(readIdMipTexture(materialName, materialReader, palette)
-                       .or_else(makeReadTextureErrorHandler(fs, logger))
+                       .or_else(makeReadMaterialErrorHandler(fs, logger))
                        .value());
   }
 

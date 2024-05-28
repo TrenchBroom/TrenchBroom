@@ -199,7 +199,7 @@ Assets::Material loadTextureFromFileSystem(
       auto reader = file->reader().buffer();
       return readFreeImageTexture("", reader);
     })
-    .or_else(makeReadTextureErrorHandler(fs, logger))
+    .or_else(makeReadMaterialErrorHandler(fs, logger))
     .value();
 }
 
@@ -229,7 +229,7 @@ Assets::Material loadCompressedEmbeddedTexture(
 {
   return readFreeImageTextureFromMemory(
            std::move(name), reinterpret_cast<const uint8_t*>(&data), size)
-    .or_else(makeReadTextureErrorHandler(fs, logger))
+    .or_else(makeReadMaterialErrorHandler(fs, logger))
     .value();
 }
 

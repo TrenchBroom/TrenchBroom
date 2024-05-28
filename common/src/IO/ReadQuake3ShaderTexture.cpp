@@ -109,13 +109,13 @@ std::optional<std::filesystem::path> findImagePath(
   return std::nullopt;
 }
 
-Result<Assets::Material, ReadTextureError> loadTextureImage(
+Result<Assets::Material, ReadMaterialError> loadTextureImage(
   std::string shaderName, const std::filesystem::path& imagePath, const FileSystem& fs)
 {
   auto imageName = imagePath.filename();
   if (fs.pathInfo(imagePath) != PathInfo::File)
   {
-    return ReadTextureError{
+    return ReadMaterialError{
       std::move(shaderName), "Image file '" + imagePath.string() + "' does not exist"};
   }
 
@@ -125,27 +125,27 @@ Result<Assets::Material, ReadTextureError> loadTextureImage(
       return readFreeImageTexture(shaderName, reader);
     })
     .or_else([&](auto e) {
-      return Result<Assets::Material, ReadTextureError>{
-        ReadTextureError{shaderName, e.msg}};
+      return Result<Assets::Material, ReadMaterialError>{
+        ReadMaterialError{shaderName, e.msg}};
     });
 }
 
 } // namespace
 
-Result<Assets::Material, ReadTextureError> readQuake3ShaderTexture(
+Result<Assets::Material, ReadMaterialError> readQuake3ShaderTexture(
   std::string shaderName, const File& file, const FileSystem& fs)
 {
   const auto* shaderFile = dynamic_cast<const ObjectFile<Assets::Quake3Shader>*>(&file);
   if (!shaderFile)
   {
-    return ReadTextureError{std::move(shaderName), "Shader not found: " + shaderName};
+    return ReadMaterialError{std::move(shaderName), "Shader not found: " + shaderName};
   }
 
   const auto& shader = shaderFile->object();
   const auto imagePath = findImagePath(shader, fs);
   if (!imagePath)
   {
-    return ReadTextureError{
+    return ReadMaterialError{
       std::move(shaderName),
       "Could not find texture path for shader '" + shader.shaderPath.string() + "'"};
   }

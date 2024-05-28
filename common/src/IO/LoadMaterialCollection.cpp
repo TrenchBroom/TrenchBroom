@@ -79,23 +79,24 @@ Result<Assets::Palette> loadPalette(
   });
 }
 
-using ReadMaterialFunc = std::function<Result<Assets::Material, ReadTextureError>(
+using ReadMaterialFunc = std::function<Result<Assets::Material, ReadMaterialError>(
   const File&, const std::filesystem::path&)>;
 
-Result<Assets::Material, ReadTextureError> readMaterial(
+Result<Assets::Material, ReadMaterialError> readMaterial(
   const File& file,
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const size_t prefixLength,
   const std::optional<Assets::Palette>& palette)
 {
-  auto name = getTextureNameFromPathSuffix(path, prefixLength);
+  auto name = getMaterialNameFromPathSuffix(path, prefixLength);
   const auto extension = kdl::str_to_lower(path.extension().string());
   if (extension == ".d")
   {
     if (!palette)
     {
-      return ReadTextureError{std::move(name), "Could not load texture: missing palette"};
+      return ReadMaterialError{
+        std::move(name), "Could not load texture: missing palette"};
     }
     auto reader = file.reader().buffer();
     return readIdMipTexture(std::move(name), reader, *palette);
@@ -131,7 +132,7 @@ Result<Assets::Material, ReadTextureError> readMaterial(
     return readFreeImageTexture(std::move(name), reader);
   }
 
-  return ReadTextureError{
+  return ReadMaterialError{
     std::move(name), "Unknown texture file extension: " + path.extension().string()};
 }
 
@@ -209,7 +210,7 @@ Result<Assets::MaterialCollection> loadMaterialCollection(
                            return material;
                          });
                      })
-                     .or_else(makeReadTextureErrorHandler(gameFS, nullLogger));
+                     .or_else(makeReadMaterialErrorHandler(gameFS, nullLogger));
                  }))
         .transform([&](auto materials) {
           return Assets::MaterialCollection{path, std::move(materials)};

@@ -35,10 +35,10 @@ class Reader;
 
 std::string readMipTextureName(Reader& reader);
 
-Result<Assets::Material, ReadTextureError> readIdMipTexture(
+Result<Assets::Material, ReadMaterialError> readIdMipTexture(
   std::string name, Reader& reader, const Assets::Palette& palette);
 
-Result<Assets::Material, ReadTextureError> readHlMipTexture(
+Result<Assets::Material, ReadMaterialError> readHlMipTexture(
   std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO
