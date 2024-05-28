@@ -2127,10 +2127,10 @@ namespace
 
 const Assets::Material* textureToReveal(std::shared_ptr<MapDocument> document)
 {
-  const auto* firstTexture = document->allSelectedBrushFaces().front().face().texture();
+  const auto* firstTexture = document->allSelectedBrushFaces().front().face().material();
   const auto allFacesHaveIdenticalTexture = kdl::all_of(
     document->allSelectedBrushFaces(),
-    [&](const auto& face) { return face.face().texture() == firstTexture; });
+    [&](const auto& face) { return face.face().material() == firstTexture; });
 
   return allFacesHaveIdenticalTexture ? firstTexture : nullptr;
 }

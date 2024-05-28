@@ -45,8 +45,8 @@ TEST_CASE_METHOD(
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const size_t faceIndex = 0u;
-  const auto initialX = brushNode->brush().face(faceIndex).textureXAxis();
-  const auto initialY = brushNode->brush().face(faceIndex).textureYAxis();
+  const auto initialX = brushNode->brush().face(faceIndex).uAxis();
+  const auto initialY = brushNode->brush().face(faceIndex).vAxis();
 
   document->selectBrushFaces({{brushNode, faceIndex}});
 
@@ -80,8 +80,8 @@ TEST_CASE_METHOD(
     brushNode->brush().face(faceIndex).attributes().yScale()
     == defaultFaceAttrs.yScale());
 
-  CHECK(brushNode->brush().face(faceIndex).textureXAxis() == initialX);
-  CHECK(brushNode->brush().face(faceIndex).textureYAxis() == initialY);
+  CHECK(brushNode->brush().face(faceIndex).uAxis() == initialX);
+  CHECK(brushNode->brush().face(faceIndex).vAxis() == initialY);
 }
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")

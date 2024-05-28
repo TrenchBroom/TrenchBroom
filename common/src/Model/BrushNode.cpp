@@ -148,7 +148,7 @@ void BrushNode::updateFaceTags(const size_t faceIndex, TagManager& tagManager)
 
 void BrushNode::setFaceTexture(const size_t faceIndex, Assets::Material* texture)
 {
-  m_brush.face(faceIndex).setTexture(texture);
+  m_brush.face(faceIndex).setMaterial(texture);
 
   invalidateIssues();
   invalidateVertexCache();

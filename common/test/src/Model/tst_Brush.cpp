@@ -2179,7 +2179,7 @@ TEST_CASE("moveFaceWithUVLock")
   Brush brush = builder.createCube(64.0, "").value();
   for (auto& face : brush.faces())
   {
-    face.setTexture(&testTexture);
+    face.setMaterial(&testTexture);
   }
 
   const auto delta = vm::vec3(+8.0, 0.0, 0.0);
@@ -2201,7 +2201,7 @@ TEST_CASE("moveFaceWithUVLock")
   for (auto& oldFace : brush.faces())
   {
     const auto oldTexCoords = kdl::vec_transform(
-      oldFace.vertexPositions(), [&](auto x) { return oldFace.textureCoords(x); });
+      oldFace.vertexPositions(), [&](auto x) { return oldFace.uvCoords(x); });
     const auto shearedVertexPositions =
       kdl::vec_transform(oldFace.vertexPositions(), [&](auto x) { return M * x; });
     const auto shearedPolygon = vm::polygon3(shearedVertexPositions);
@@ -2215,7 +2215,7 @@ TEST_CASE("moveFaceWithUVLock")
       REQUIRE(newFaceIndex);
       const BrushFace& newFace = changed.face(*newFaceIndex);
       const auto newTexCoords = kdl::vec_transform(
-        shearedVertexPositions, [&](auto x) { return newFace.textureCoords(x); });
+        shearedVertexPositions, [&](auto x) { return newFace.uvCoords(x); });
       if (
         normal == vm::vec3::pos_z() || normal == vm::vec3::pos_y()
         || normal == vm::vec3::neg_y())
@@ -2237,8 +2237,7 @@ TEST_CASE("moveFaceWithUVLock")
       const BrushFace& newFaceWithUVLock =
         changedWithUVLock.face(*newFaceWithUVLockIndex);
       const auto newTexCoordsWithUVLock = kdl::vec_transform(
-        shearedVertexPositions,
-        [&](auto x) { return newFaceWithUVLock.textureCoords(x); });
+        shearedVertexPositions, [&](auto x) { return newFaceWithUVLock.uvCoords(x); });
       if (normal == vm::vec3d::pos_z() || (format == MapFormat::Valve))
       {
         CHECK(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));

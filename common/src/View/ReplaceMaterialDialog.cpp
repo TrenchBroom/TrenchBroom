@@ -121,7 +121,7 @@ std::vector<Model::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() 
   }
 
   return kdl::vec_filter(
-    faces, [&](const auto& handle) { return handle.face().texture() == subject; });
+    faces, [&](const auto& handle) { return handle.face().material() == subject; });
 }
 
 void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)

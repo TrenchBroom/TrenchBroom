@@ -251,21 +251,21 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceParmTag")
     std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureA->name(), [&](auto& b) {
       for (auto& face : b.faces())
       {
-        face.setTexture(m_textureA);
+        face.setMaterial(m_textureA);
       }
     }));
   auto nodeB =
     std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureB->name(), [&](auto& b) {
       for (auto& face : b.faces())
       {
-        face.setTexture(m_textureB);
+        face.setMaterial(m_textureB);
       }
     }));
   auto nodeC =
     std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureC->name(), [&](auto& b) {
       for (auto& face : b.faces())
       {
-        face.setTexture(m_textureC);
+        face.setMaterial(m_textureC);
       }
     }));
   const auto& singleTag = document->smartTag("surfaceparm_single");

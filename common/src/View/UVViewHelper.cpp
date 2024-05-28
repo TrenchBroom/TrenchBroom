@@ -53,7 +53,7 @@ const Model::BrushFace* UVViewHelper::face() const
 
 const Assets::Material* UVViewHelper::texture() const
 {
-  return valid() ? face()->texture() : nullptr;
+  return valid() ? face()->material() : nullptr;
 }
 
 void UVViewHelper::setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle)
@@ -90,7 +90,7 @@ vm::vec2 UVViewHelper::stripeSize() const
 {
   assert(valid());
 
-  if (const auto* texture = face()->texture())
+  if (const auto* texture = face()->material())
   {
     const auto width = FloatType(texture->width()) / FloatType(m_subDivisions.x());
     const auto height = FloatType(texture->height()) / FloatType(m_subDivisions.y());
@@ -152,7 +152,7 @@ void UVViewHelper::pickTextureGrid(
 {
   assert(valid());
 
-  if (face()->texture())
+  if (face()->material())
   {
     const auto& boundary = face()->boundary();
     if (const auto distance = vm::intersect_ray_plane(ray, boundary))

@@ -223,7 +223,7 @@ std::unique_ptr<TagMatcher> SurfaceParmTagMatcher::clone() const
 bool SurfaceParmTagMatcher::matches(const Taggable& taggable) const
 {
   auto visitor = BrushFaceMatchVisitor{
-    [&](const auto& face) { return matchesTexture(face.texture()); }};
+    [&](const auto& face) { return matchesTexture(face.material()); }};
 
   taggable.accept(visitor);
   return visitor.matches();

@@ -167,7 +167,7 @@ void FaceInspector::textureSelected(const Assets::Material* texture)
     {
       const auto allFacesHaveTexture =
         std::all_of(faces.begin(), faces.end(), [&](const auto& faceHandle) {
-          return faceHandle.face().texture() == texture;
+          return faceHandle.face().material() == texture;
         });
 
       const auto textureNameToSet = !allFacesHaveTexture

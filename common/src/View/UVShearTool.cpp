@@ -199,8 +199,8 @@ std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inpu
 
   const auto selector = vm::vec2b{xHit.isMatch(), yHit.isMatch()};
 
-  const auto xAxis = m_helper.face()->textureXAxis();
-  const auto yAxis = m_helper.face()->textureYAxis();
+  const auto xAxis = m_helper.face()->uAxis();
+  const auto yAxis = m_helper.face()->vAxis();
   const auto initialHit = getHit(m_helper, xAxis, yAxis, inputState.pickRay());
   if (!initialHit)
   {

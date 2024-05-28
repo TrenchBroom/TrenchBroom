@@ -140,7 +140,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   }
 
   // and to the texture grid
-  const auto* texture = helper.face()->texture();
+  const auto* texture = helper.face()->material();
   if (texture != nullptr)
   {
     distanceInTexCoords = vm::abs_min(

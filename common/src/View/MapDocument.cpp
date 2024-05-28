@@ -1426,7 +1426,7 @@ void MapDocument::selectFacesWithMaterial(const Assets::Material* material)
   const auto faces = kdl::vec_filter(
     Model::collectSelectableBrushFaces(
       std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
-    [&](const auto& faceHandle) { return faceHandle.face().texture() == material; });
+    [&](const auto& faceHandle) { return faceHandle.face().material() == material; });
 
   auto transaction = Transaction{*this, "Select Faces with Material"};
   deselectAll();
@@ -3647,7 +3647,7 @@ bool MapDocument::translateUV(
 {
   return applyAndSwap(
     *this, "Move UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
+      face.moveUV(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
       return true;
     });
 }
@@ -3656,7 +3656,7 @@ bool MapDocument::rotateUV(const float angle)
 {
   return applyAndSwap(
     *this, "Rotate UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.rotateTexture(angle);
+      face.rotateUV(angle);
       return true;
     });
 }
@@ -3665,7 +3665,7 @@ bool MapDocument::shearUV(const vm::vec2f& factors)
 {
   return applyAndSwap(
     *this, "Shear UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.shearTexture(factors);
+      face.shearUV(factors);
       return true;
     });
 }
@@ -3683,7 +3683,7 @@ bool MapDocument::flipUV(
     isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
     m_selectedBrushFaces,
     [&](Model::BrushFace& face) {
-      face.flipTexture(
+      face.flipUV(
         vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
       return true;
     });

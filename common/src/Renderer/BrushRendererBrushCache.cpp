@@ -31,7 +31,7 @@ namespace TrenchBroom::Renderer
 
 BrushRendererBrushCache::CachedFace::CachedFace(
   const Model::BrushFace* i_face, const size_t i_indexOfFirstVertexRelativeToBrush)
-  : texture(i_face->texture())
+  : texture(i_face->material())
   , face(i_face)
   , vertexCount(i_face->vertexCount())
   , indexOfFirstVertexRelativeToBrush(i_indexOfFirstVertexRelativeToBrush)
@@ -99,9 +99,7 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode& brushN
 
       const auto& position = vertex->position();
       m_cachedVertices.emplace_back(
-        vm::vec3f{position},
-        vm::vec3f{face.boundary().normal},
-        face.textureCoords(position));
+        vm::vec3f{position}, vm::vec3f{face.boundary().normal}, face.uvCoords(position));
 
       currentHalfEdge = currentHalfEdge->previous();
     }

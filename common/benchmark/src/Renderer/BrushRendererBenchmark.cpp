@@ -71,7 +71,7 @@ makeBrushes()
     Model::Brush brush = builder.createCube(64.0, "").value();
     for (Model::BrushFace& face : brush.faces())
     {
-      face.setTexture(materials.at((currentMaterialIndex++) % NumMaterials));
+      face.setMaterial(materials.at((currentMaterialIndex++) % NumMaterials));
     }
     Model::BrushNode* brushNode = new Model::BrushNode(std::move(brush));
     result.push_back(brushNode);

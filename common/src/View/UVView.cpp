@@ -96,10 +96,10 @@ private:
     const auto pos4 = -w2 * r - h2 * u + p;
 
     return {
-      Vertex{pos1, normal, m_helper.face()->textureCoords(vm::vec3(pos1))},
-      Vertex{pos2, normal, m_helper.face()->textureCoords(vm::vec3(pos2))},
-      Vertex{pos3, normal, m_helper.face()->textureCoords(vm::vec3(pos3))},
-      Vertex{pos4, normal, m_helper.face()->textureCoords(vm::vec3(pos4))},
+      Vertex{pos1, normal, m_helper.face()->uvCoords(vm::vec3(pos1))},
+      Vertex{pos2, normal, m_helper.face()->uvCoords(vm::vec3(pos2))},
+      Vertex{pos3, normal, m_helper.face()->uvCoords(vm::vec3(pos3))},
+      Vertex{pos4, normal, m_helper.face()->uvCoords(vm::vec3(pos4))},
     };
   }
 
@@ -115,7 +115,7 @@ private:
     const auto& scale = m_helper.face()->attributes().scale();
     const auto toTex = m_helper.face()->toTexCoordSystemMatrix(offset, scale, true);
 
-    const auto* texture = m_helper.face()->texture();
+    const auto* texture = m_helper.face()->material();
     ensure(texture, "texture is null");
 
     texture->activate();
@@ -329,7 +329,7 @@ void UVView::setupGL(Renderer::RenderContext& renderContext)
 
 void UVView::renderTexture(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
 {
-  if (m_helper.face()->texture())
+  if (m_helper.face()->material())
   {
     renderBatch.addOneShot(new RenderTexture{m_helper});
   }
@@ -361,11 +361,9 @@ void UVView::renderTextureAxes(
 
   const auto& normal = m_helper.face()->boundary().normal;
   const auto xAxis = vm::vec3f{
-    m_helper.face()->textureXAxis()
-    - vm::dot(m_helper.face()->textureXAxis(), normal) * normal};
+    m_helper.face()->uAxis() - vm::dot(m_helper.face()->uAxis(), normal) * normal};
   const auto yAxis = vm::vec3f{
-    m_helper.face()->textureYAxis()
-    - vm::dot(m_helper.face()->textureYAxis(), normal) * normal};
+    m_helper.face()->vAxis() - vm::dot(m_helper.face()->vAxis(), normal) * normal};
   const auto center = vm::vec3f{m_helper.face()->boundsCenter()};
 
   const auto length = 32.0f / m_helper.cameraZoom();

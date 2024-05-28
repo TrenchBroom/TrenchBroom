@@ -757,7 +757,7 @@ void FaceAttribsEditor::updateControls()
       }
       else
       {
-        if (const auto* texture = firstFace.texture())
+        if (const auto* texture = firstFace.material())
         {
           m_textureName->setText(QString::fromStdString(textureName));
           m_textureSize->setText(

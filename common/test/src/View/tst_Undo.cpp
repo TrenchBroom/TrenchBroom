@@ -54,7 +54,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
 
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK(face.texture() == texture);
+    CHECK(face.material() == texture);
   }
 
   SECTION("translate brush")
@@ -99,7 +99,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
 
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK(face.texture() == texture);
+    CHECK(face.material() == texture);
   }
 }
 

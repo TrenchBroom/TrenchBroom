@@ -187,12 +187,12 @@ TEST_CASE("MapDocument.reloadTextureCollections")
       "b_pv_v1a1", "e1m1/b_pv_v1a2", "e1m1/f1/b_rc_v4", "lavatest"});
 
   REQUIRE(
-    kdl::none_of(faces, [](const auto* face) { return face->texture() == nullptr; }));
+    kdl::none_of(faces, [](const auto* face) { return face->material() == nullptr; }));
 
   CHECK_NOTHROW(document->reloadMaterialCollections());
 
   REQUIRE(
-    kdl::none_of(faces, [](const auto* face) { return face->texture() == nullptr; }));
+    kdl::none_of(faces, [](const auto* face) { return face->material() == nullptr; }));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")

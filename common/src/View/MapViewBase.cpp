@@ -1337,7 +1337,7 @@ void MapViewBase::showPopupMenuLater()
   const auto faceHandle = Model::hitToFaceHandle(hit);
   if (faceHandle)
   {
-    const auto* texture = faceHandle->face().texture();
+    const auto* texture = faceHandle->face().material();
     menu.addAction(
       tr("Reveal %1 in Texture Browser")
         .arg(QString::fromStdString(faceHandle->face().attributes().textureName())),

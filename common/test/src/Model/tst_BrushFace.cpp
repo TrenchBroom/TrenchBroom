@@ -110,7 +110,7 @@ TEST_CASE("BrushFaceTest.textureUsageCount")
     CHECK(texture.usageCount() == 0u);
 
     // test setTexture
-    face.setTexture(&texture);
+    face.setMaterial(&texture);
     CHECK(texture.usageCount() == 1u);
     CHECK(texture2.usageCount() == 0u);
 
@@ -124,12 +124,12 @@ TEST_CASE("BrushFaceTest.textureUsageCount")
     CHECK(texture.usageCount() == 1u);
 
     // test setTexture with different texture
-    face.setTexture(&texture2);
+    face.setMaterial(&texture2);
     CHECK(texture.usageCount() == 0u);
     CHECK(texture2.usageCount() == 1u);
 
     // test setTexture with the same texture
-    face.setTexture(&texture2);
+    face.setMaterial(&texture2);
     CHECK(texture2.usageCount() == 1u);
   }
 
@@ -171,7 +171,7 @@ static void getFaceVertsAndTexCoords(
     vertPositions->push_back(vertex->position());
     if (vertTexCoords != nullptr)
     {
-      vertTexCoords->push_back(face.textureCoords(vm::vec3(vertex->position())));
+      vertTexCoords->push_back(face.uvCoords(vm::vec3(vertex->position())));
     }
   }
 }
@@ -186,7 +186,7 @@ static void resetFaceTextureAlignment(BrushFace& face)
   attributes.setYScale(1.0);
 
   face.setAttributes(attributes);
-  face.resetTextureAxes();
+  face.resetUVAxes();
 }
 
 /**
@@ -200,7 +200,7 @@ static void checkUVListsEqual(
   // We require a texture, so that face.textureSize() returns a correct value and not 1x1,
   // and so face.textureCoords() returns UV's that are divided by the texture size.
   // Otherwise, the UV comparisons below could spuriously pass.
-  REQUIRE(face.texture() != nullptr);
+  REQUIRE(face.material() != nullptr);
 
   CHECK(UVListsEqual(uvs, transformedVertUVs));
 }
@@ -244,8 +244,8 @@ static void checkTextureLockOffWithTransform(
   std::vector<vm::vec2f> face_UVs, resetFace_UVs;
   for (size_t i = 0; i < verts.size(); i++)
   {
-    face_UVs.push_back(face.textureCoords(transformedVerts[i]));
-    resetFace_UVs.push_back(resetFace.textureCoords(transformedVerts[i]));
+    face_UVs.push_back(face.uvCoords(transformedVerts[i]));
+    resetFace_UVs.push_back(resetFace.uvCoords(transformedVerts[i]));
   }
 
   checkUVListsEqual(face_UVs, resetFace_UVs, face);
@@ -262,8 +262,8 @@ static void checkFaceUVsEqual(const BrushFace& face, const BrushFace& other)
     verts.push_back(vertex->position());
 
     const vm::vec3 position(vertex->position());
-    faceUVs.push_back(face.textureCoords(position));
-    otherFaceUVs.push_back(other.textureCoords(position));
+    faceUVs.push_back(face.uvCoords(position));
+    otherFaceUVs.push_back(other.uvCoords(position));
   }
 
   checkUVListsEqual(faceUVs, otherFaceUVs, face);
@@ -310,7 +310,7 @@ static void checkTextureLockOnWithTransform(
   std::vector<vm::vec2f> transformedVertUVs;
   for (size_t i = 0; i < verts.size(); i++)
   {
-    transformedVertUVs.push_back(face.textureCoords(transformedVerts[i]));
+    transformedVertUVs.push_back(face.uvCoords(transformedVerts[i]));
   }
 
 #if 0
@@ -520,8 +520,8 @@ static void checkTextureLockOffWithVerticalFlip(const Brush& cube)
   std::vector<vm::vec2f> face_UVs, origFace_UVs;
   for (const auto vert : origFace.vertices())
   {
-    face_UVs.push_back(face.textureCoords(vert->position()));
-    origFace_UVs.push_back(origFace.textureCoords(vert->position()));
+    face_UVs.push_back(face.uvCoords(vert->position()));
+    origFace_UVs.push_back(origFace.uvCoords(vert->position()));
   }
 
   checkUVListsEqual(face_UVs, origFace_UVs, face);
@@ -545,15 +545,15 @@ static void checkTextureLockOffWithScale(const Brush& cube)
   face.resetTexCoordSystemCache();
 
   // get UV at mins; should be equal
-  const vm::vec2f left_origTC = origFace.textureCoords(mins);
-  const vm::vec2f left_transformedTC = face.textureCoords(mins);
+  const vm::vec2f left_origTC = origFace.uvCoords(mins);
+  const vm::vec2f left_transformedTC = face.uvCoords(mins);
   CHECK(texCoordsEqual(left_origTC, left_transformedTC));
 
   // get UVs at mins, plus the X size of the cube
   const vm::vec2f right_origTC =
-    origFace.textureCoords(mins + vm::vec3(cube.bounds().size().x(), 0, 0));
+    origFace.uvCoords(mins + vm::vec3(cube.bounds().size().x(), 0, 0));
   const vm::vec2f right_transformedTC =
-    face.textureCoords(mins + vm::vec3(2.0 * cube.bounds().size().x(), 0, 0));
+    face.uvCoords(mins + vm::vec3(2.0 * cube.bounds().size().x(), 0, 0));
 
   // this assumes that the U axis of the texture was scaled (i.e. the texture is oriented
   // upright)
@@ -574,19 +574,18 @@ TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
   BrushFace& face = cube.faces().front();
 
   // This face's texture normal is in the same direction as the face normal
-  const vm::vec3 textureNormal =
-    normalize(cross(face.textureXAxis(), face.textureYAxis()));
+  const vm::vec3 textureNormal = normalize(cross(face.uAxis(), face.vAxis()));
 
   const vm::quat3 rot45(textureNormal, vm::to_radians(45.0));
-  const vm::vec3 newXAxis(rot45 * face.textureXAxis());
-  const vm::vec3 newYAxis(rot45 * face.textureYAxis());
+  const vm::vec3 newXAxis(rot45 * face.uAxis());
+  const vm::vec3 newYAxis(rot45 * face.vAxis());
 
   BrushFaceAttributes attributes = face.attributes();
   attributes.setRotation(-45.0f);
   face.setAttributes(attributes);
 
-  CHECK(face.textureXAxis() == vm::approx(newXAxis));
-  CHECK(face.textureYAxis() == vm::approx(newYAxis));
+  CHECK(face.uAxis() == vm::approx(newXAxis));
+  CHECK(face.vAxis() == vm::approx(newYAxis));
 }
 
 TEST_CASE("BrushFaceTest.testTextureLock_Paraxial")
@@ -601,7 +600,7 @@ TEST_CASE("BrushFaceTest.testTextureLock_Paraxial")
   for (size_t i = 0; i < faces.size(); ++i)
   {
     BrushFace& face = faces[i];
-    face.setTexture(&texture);
+    face.setMaterial(&texture);
     checkTextureLockForFace(face, false);
   }
 
@@ -621,7 +620,7 @@ TEST_CASE("BrushFaceTest.testTextureLock_Parallel")
   for (size_t i = 0; i < faces.size(); ++i)
   {
     BrushFace& face = faces[i];
-    face.setTexture(&texture);
+    face.setMaterial(&texture);
     checkTextureLockForFace(face, true);
   }
 
@@ -668,25 +667,24 @@ TEST_CASE("BrushFaceTest.testValveRotation")
   }
   REQUIRE(negXFace != nullptr);
 
-  CHECK(negXFace->textureXAxis() == vm::vec3::pos_y());
-  CHECK(negXFace->textureYAxis() == vm::vec3::neg_z());
+  CHECK(negXFace->uAxis() == vm::vec3::pos_y());
+  CHECK(negXFace->vAxis() == vm::vec3::neg_z());
 
   // This face's texture normal is in the same direction as the face normal
-  const vm::vec3 textureNormal =
-    normalize(cross(negXFace->textureXAxis(), negXFace->textureYAxis()));
+  const vm::vec3 textureNormal = normalize(cross(negXFace->uAxis(), negXFace->vAxis()));
   CHECK(dot(textureNormal, vm::vec3(negXFace->boundary().normal)) > 0.0);
 
   const vm::quat3 rot45(textureNormal, vm::to_radians(45.0));
-  const vm::vec3 newXAxis(rot45 * negXFace->textureXAxis());
-  const vm::vec3 newYAxis(rot45 * negXFace->textureYAxis());
+  const vm::vec3 newXAxis(rot45 * negXFace->uAxis());
+  const vm::vec3 newYAxis(rot45 * negXFace->vAxis());
 
   // Rotate by 45 degrees CCW
   CHECK(negXFace->attributes().rotation() == vm::approx(0.0f));
-  negXFace->rotateTexture(45.0);
+  negXFace->rotateUV(45.0);
   CHECK(negXFace->attributes().rotation() == vm::approx(45.0f));
 
-  CHECK(negXFace->textureXAxis() == vm::approx(newXAxis));
-  CHECK(negXFace->textureYAxis() == vm::approx(newYAxis));
+  CHECK(negXFace->uAxis() == vm::approx(newXAxis));
+  CHECK(negXFace->vAxis() == vm::approx(newYAxis));
 
   kdl::vec_clear_and_delete(nodes);
 }
@@ -744,8 +742,8 @@ TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
   REQUIRE(negYFace != nullptr);
   REQUIRE(posXFace != nullptr);
 
-  CHECK(negYFace->textureXAxis() == vm::vec3::pos_x());
-  CHECK(negYFace->textureYAxis() == vm::vec3::neg_z());
+  CHECK(negYFace->uAxis() == vm::vec3::pos_x());
+  CHECK(negYFace->vAxis() == vm::vec3::neg_z());
 
   auto snapshot = negYFace->takeTexCoordSystemSnapshot();
 
@@ -753,19 +751,19 @@ TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
   posXFace->copyTexCoordSystemFromFace(
     *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Rotation);
   CHECK(
-    posXFace->textureXAxis()
+    posXFace->uAxis()
     == vm::approx(
       vm::vec3(0.030303030303030123, 0.96969696969696961, -0.24242424242424243)));
   CHECK(
-    posXFace->textureYAxis()
+    posXFace->vAxis()
     == vm::approx(
       vm::vec3(-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011)));
 
   // copy texturing from the negYFace to posXFace using the projection method
   posXFace->copyTexCoordSystemFromFace(
     *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Projection);
-  CHECK(posXFace->textureXAxis() == vm::approx(vm::vec3::neg_y()));
-  CHECK(posXFace->textureYAxis() == vm::approx(vm::vec3::neg_z()));
+  CHECK(posXFace->uAxis() == vm::approx(vm::vec3::neg_y()));
+  CHECK(posXFace->vAxis() == vm::approx(vm::vec3::neg_z()));
 
   kdl::vec_clear_and_delete(nodes);
 }
@@ -829,7 +827,7 @@ TEST_CASE("BrushFaceTest.formatConversion")
                                  for (size_t i = 0; i < brush.faceCount(); ++i)
                                  {
                                    BrushFace& face = brush.face(i);
-                                   face.setTexture(&texture);
+                                   face.setMaterial(&texture);
                                  }
                                  return std::move(brush);
                                })
@@ -898,13 +896,13 @@ TEST_CASE("BrushFaceTest.flipTexture")
 
     SECTION("Left flip")
     {
-      face.flipTexture(cameraUp, cameraRight, vm::direction::left);
+      face.flipUV(cameraUp, cameraRight, vm::direction::left);
       CHECK(face.attributes().scale() == vm::vec2f(-1, 1));
     }
 
     SECTION("Up flip")
     {
-      face.flipTexture(cameraUp, cameraRight, vm::direction::up);
+      face.flipUV(cameraUp, cameraRight, vm::direction::up);
       CHECK(face.attributes().scale() == vm::vec2f(1, -1));
     }
   }
@@ -916,13 +914,13 @@ TEST_CASE("BrushFaceTest.flipTexture")
 
     SECTION("left arrow (does vertical flip)")
     {
-      face.flipTexture(cameraUp, cameraRight, vm::direction::left);
+      face.flipUV(cameraUp, cameraRight, vm::direction::left);
       CHECK(face.attributes().scale() == vm::vec2f(1, -1));
     }
 
     SECTION("up arrow (does horizontal flip)")
     {
-      face.flipTexture(cameraUp, cameraRight, vm::direction::up);
+      face.flipUV(cameraUp, cameraRight, vm::direction::up);
       CHECK(face.attributes().scale() == vm::vec2f(-1, 1));
     }
   }

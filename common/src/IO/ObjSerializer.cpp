@@ -257,7 +257,7 @@ void ObjSerializer::doBrushFace(const Model::BrushFace& face)
   for (const auto* vertex : face.vertices())
   {
     const auto& position = vertex->position();
-    const auto texCoords = face.textureCoords(position);
+    const auto texCoords = face.uvCoords(position);
 
     const auto vertexIndex = m_vertices.index(position);
     const auto texCoordsIndex = m_texCoords.index(texCoords);
@@ -266,7 +266,7 @@ void ObjSerializer::doBrushFace(const Model::BrushFace& face)
   }
 
   m_currentBrush->faces.emplace_back(BrushFace{
-    std::move(indexedVertices), face.attributes().textureName(), face.texture()});
+    std::move(indexedVertices), face.attributes().textureName(), face.material()});
 }
 
 void ObjSerializer::doPatch(const Model::PatchNode* patchNode)

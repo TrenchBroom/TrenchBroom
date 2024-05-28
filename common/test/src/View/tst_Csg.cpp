@@ -148,8 +148,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   const auto& brush3 = brushNode3->brush();
 
   const auto& top = brush3.face(*brush3.findFace(vm::vec3::pos_z()));
-  CHECK(top.textureXAxis() == vm::vec3{1, 0, 0});
-  CHECK(top.textureYAxis() == vm::vec3{0, 1, 0});
+  CHECK(top.uAxis() == vm::vec3{1, 0, 0});
+  CHECK(top.vAxis() == vm::vec3{0, 1, 0});
 }
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturing")
@@ -193,8 +193,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   // the texture alignment from the top of brush2 should have transferred
   // to the bottom face of brush3
   const auto& top = brush3.face(*brush3.findFace(vm::vec3::neg_z()));
-  CHECK(top.textureXAxis() == vm::vec3{1, 0, 0});
-  CHECK(top.textureYAxis() == vm::vec3{0, 1, 0});
+  CHECK(top.uAxis() == vm::vec3{1, 0, 0});
+  CHECK(top.vAxis() == vm::vec3{0, 1, 0});
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes")

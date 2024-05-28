@@ -174,13 +174,13 @@ bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const
   switch (m_axisOp)
   {
   case AxisOp::Reset:
-    brushFace.resetTextureAxes();
+    brushFace.resetUVAxes();
     result |= true;
     break;
   case AxisOp::None:
     break;
   case AxisOp::ToParaxial:
-    brushFace.resetTextureAxesToParaxial();
+    brushFace.resetUVAxesToParaxial();
     result |= true;
     break;
   case AxisOp::ToParallel:

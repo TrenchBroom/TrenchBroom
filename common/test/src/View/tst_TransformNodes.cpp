@@ -483,7 +483,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
     const Model::BrushFace& face =
       brushNode->brush().face(*brushNode->brush().findFace(normal));
     return kdl::vec_transform(
-      face.vertexPositions(), [&](auto x) { return face.textureCoords(x); });
+      face.vertexPositions(), [&](auto x) { return face.uvCoords(x); });
   };
 
   // Brushes in linked groups should have texture lock forced on
