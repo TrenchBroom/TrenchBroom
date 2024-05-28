@@ -70,7 +70,7 @@ private:
 
   int m_minFilter;
   int m_magFilter;
-  bool m_resetTextureMode;
+  bool m_resetFilterMode;
 
   mutable ModelCache m_models;
   mutable ModelMismatches m_modelMismatches;
@@ -86,7 +86,7 @@ public:
 
   void clear();
 
-  void setTextureMode(int minFilter, int magFilter);
+  void setFilterMode(int minFilter, int magFilter);
   void setLoader(const IO::EntityModelLoader* loader);
   Renderer::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 
@@ -102,7 +102,7 @@ public:
   void prepare(Renderer::VboManager& vboManager);
 
 private:
-  void resetTextureMode();
+  void resetFilterMode();
   void prepareModels();
   void prepareRenderers(Renderer::VboManager& vboManager);
 };

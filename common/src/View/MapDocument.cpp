@@ -5121,7 +5121,7 @@ void MapDocument::preferenceDidChange(const std::filesystem::path& path)
     path == Preferences::TextureMinFilter.path()
     || path == Preferences::TextureMagFilter.path())
   {
-    m_entityModelManager->setTextureMode(
+    m_entityModelManager->setFilterMode(
       pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
     m_materialManager->setFilterMode(
       pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
