@@ -38,7 +38,7 @@ namespace TrenchBroom::Renderer
 namespace
 {
 
-class RenderFunc : public TextureRenderFunc
+class RenderFunc : public MaterialRenderFunc
 {
 private:
   ActiveShader& m_shader;

@@ -88,23 +88,23 @@ void coordinateSystemVerticesZ(const vm::bbox3f& bounds, vm::vec3f& start, vm::v
   end = vm::vec3f{center.x(), center.y(), bounds.max.z()};
 }
 
-TextureRenderFunc::~TextureRenderFunc() = default;
-void TextureRenderFunc::before(const Assets::Material* /* texture */) {}
-void TextureRenderFunc::after(const Assets::Material* /* texture */) {}
+MaterialRenderFunc::~MaterialRenderFunc() = default;
+void MaterialRenderFunc::before(const Assets::Material* /* material */) {}
+void MaterialRenderFunc::after(const Assets::Material* /* material */) {}
 
-void DefaultTextureRenderFunc::before(const Assets::Material* texture)
+void DefaultMaterialRenderFunc::before(const Assets::Material* material)
 {
-  if (texture)
+  if (material)
   {
-    texture->activate();
+    material->activate();
   }
 }
 
-void DefaultTextureRenderFunc::after(const Assets::Material* texture)
+void DefaultMaterialRenderFunc::after(const Assets::Material* material)
 {
-  if (texture)
+  if (material)
   {
-    texture->deactivate();
+    material->deactivate();
   }
 }
 

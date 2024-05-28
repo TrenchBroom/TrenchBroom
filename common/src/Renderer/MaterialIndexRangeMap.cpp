@@ -136,11 +136,11 @@ void MaterialIndexRangeMap::add(const MaterialIndexRangeMap& other)
 
 void MaterialIndexRangeMap::render(VertexArray& vertexArray)
 {
-  DefaultTextureRenderFunc func;
+  DefaultMaterialRenderFunc func;
   render(vertexArray, func);
 }
 
-void MaterialIndexRangeMap::render(VertexArray& vertexArray, TextureRenderFunc& func)
+void MaterialIndexRangeMap::render(VertexArray& vertexArray, MaterialRenderFunc& func)
 {
   for (const auto& [material, indexArray] : *m_data)
   {

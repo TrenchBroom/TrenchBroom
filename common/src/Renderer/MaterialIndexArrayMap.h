@@ -33,7 +33,7 @@ class Material;
 namespace Renderer
 {
 class IndexArray;
-class TextureRenderFunc;
+class MaterialRenderFunc;
 
 /**
  * Manages ranges of primitives to be rendered using indices stored in an IndexArray
@@ -153,7 +153,7 @@ public:
    * @param indexArray the index array to render
    * @param func the material callbacks
    */
-  void render(IndexArray& indexArray, TextureRenderFunc& func);
+  void render(IndexArray& indexArray, MaterialRenderFunc& func);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

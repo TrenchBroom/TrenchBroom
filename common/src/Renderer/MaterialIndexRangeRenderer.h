@@ -35,7 +35,7 @@ class Material;
 namespace Renderer
 {
 class VboManager;
-class TextureRenderFunc;
+class MaterialRenderFunc;
 
 class MaterialRenderer
 {
@@ -46,7 +46,7 @@ public:
 
   virtual void prepare(VboManager& vboManager) = 0;
   virtual void render() = 0;
-  virtual void render(TextureRenderFunc& func) = 0;
+  virtual void render(MaterialRenderFunc& func) = 0;
 };
 
 class MaterialIndexRangeRenderer : public MaterialRenderer
@@ -69,7 +69,7 @@ public:
 
   void prepare(VboManager& vboManager) override;
   void render() override;
-  void render(TextureRenderFunc& func) override;
+  void render(MaterialRenderFunc& func) override;
 };
 
 class MultiMaterialIndexRangeRenderer : public MaterialRenderer
@@ -86,7 +86,7 @@ public:
 
   void prepare(VboManager& vboManager) override;
   void render() override;
-  void render(TextureRenderFunc& func) override;
+  void render(MaterialRenderFunc& func) override;
 };
 } // namespace Renderer
 } // namespace TrenchBroom

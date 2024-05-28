@@ -57,7 +57,7 @@ void MaterialIndexArrayRenderer::render()
   }
 }
 
-void MaterialIndexArrayRenderer::render(TextureRenderFunc& func)
+void MaterialIndexArrayRenderer::render(MaterialRenderFunc& func)
 {
   if (m_vertexArray.setup())
   {

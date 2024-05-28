@@ -316,7 +316,7 @@ void PatchRenderer::prepareVerticesAndIndices(VboManager& vboManager)
 
 namespace
 {
-struct RenderFunc : public TextureRenderFunc
+struct RenderFunc : public MaterialRenderFunc
 {
   ActiveShader& shader;
   bool applyTexture;

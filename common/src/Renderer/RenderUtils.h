@@ -45,19 +45,19 @@ void coordinateSystemVerticesY(
 void coordinateSystemVerticesZ(
   const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
 
-class TextureRenderFunc
+class MaterialRenderFunc
 {
 public:
-  virtual ~TextureRenderFunc();
-  virtual void before(const Assets::Material* texture);
-  virtual void after(const Assets::Material* texture);
+  virtual ~MaterialRenderFunc();
+  virtual void before(const Assets::Material* material);
+  virtual void after(const Assets::Material* material);
 };
 
-class DefaultTextureRenderFunc : public TextureRenderFunc
+class DefaultMaterialRenderFunc : public MaterialRenderFunc
 {
 public:
-  void before(const Assets::Material* texture) override;
-  void after(const Assets::Material* texture) override;
+  void before(const Assets::Material* material) override;
+  void after(const Assets::Material* material) override;
 };
 
 std::vector<vm::vec2f> circle2D(float radius, size_t segments);

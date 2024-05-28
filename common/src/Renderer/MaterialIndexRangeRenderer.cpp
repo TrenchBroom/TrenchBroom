@@ -64,7 +64,7 @@ void MaterialIndexRangeRenderer::render()
   }
 }
 
-void MaterialIndexRangeRenderer::render(TextureRenderFunc& func)
+void MaterialIndexRangeRenderer::render(MaterialRenderFunc& func)
 {
   if (m_vertexArray.setup())
   {
@@ -109,7 +109,7 @@ void MultiMaterialIndexRangeRenderer::render()
   }
 }
 
-void MultiMaterialIndexRangeRenderer::render(TextureRenderFunc& func)
+void MultiMaterialIndexRangeRenderer::render(MaterialRenderFunc& func)
 {
   for (auto& renderer : m_renderers)
   {

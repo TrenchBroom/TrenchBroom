@@ -33,7 +33,7 @@ class Material;
 namespace Renderer
 {
 class VboManager;
-class TextureRenderFunc;
+class MaterialRenderFunc;
 
 class MaterialIndexArrayRenderer
 {
@@ -51,7 +51,7 @@ public:
 
   void prepare(VboManager& vboManager);
   void render();
-  void render(TextureRenderFunc& func);
+  void render(MaterialRenderFunc& func);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

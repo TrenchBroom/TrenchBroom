@@ -32,11 +32,11 @@ class Material;
 
 namespace Renderer
 {
-class TextureRenderFunc;
+class MaterialRenderFunc;
 class VertexArray;
 
 /**
- * Manages ranges of textured primitives that consist of vertices stored in a vertex
+ * Manages ranges of primitives that consist of vertices stored in a vertex
  * array. For each primitive type, multiple ranges of vertices can be stored, each range
  * having an offset and a length. When rendered using a vertex array, each of the ranges
  * is rendered using the vertices in the array at the range recorded here.
@@ -160,9 +160,9 @@ public:
   void add(const Material* material, IndexRangeMap primitives);
 
   /**
-   * Adds all ranges stored in the given textured index range map to this one.
+   * Adds all ranges stored in the given index range map to this one.
    *
-   * @param other the textured index range map to add
+   * @param other the index range map to add
    */
   void add(const MaterialIndexRangeMap& other);
 
@@ -183,7 +183,7 @@ public:
    * @param vertexArray the vertex array to render with
    * @param func the material callbacks
    */
-  void render(VertexArray& vertexArray, TextureRenderFunc& func);
+  void render(VertexArray& vertexArray, MaterialRenderFunc& func);
 
   /**
    * Invokes the given function for each primitive stored in this map.

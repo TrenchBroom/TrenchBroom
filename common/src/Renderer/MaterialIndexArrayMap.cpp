@@ -89,11 +89,11 @@ size_t MaterialIndexArrayMap::add(
 
 void MaterialIndexArrayMap::render(IndexArray& indexArray)
 {
-  auto func = DefaultTextureRenderFunc{};
+  auto func = DefaultMaterialRenderFunc{};
   render(indexArray, func);
 }
 
-void MaterialIndexArrayMap::render(IndexArray& indexArray, TextureRenderFunc& func)
+void MaterialIndexArrayMap::render(IndexArray& indexArray, MaterialRenderFunc& func)
 {
   for (const auto& [material, indexRange] : m_ranges)
   {
