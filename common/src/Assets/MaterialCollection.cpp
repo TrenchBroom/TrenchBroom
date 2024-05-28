@@ -34,8 +34,8 @@ kdl_reflect_impl(MaterialCollection);
 
 MaterialCollection::MaterialCollection() = default;
 
-MaterialCollection::MaterialCollection(std::vector<Material> textures)
-  : m_textures{std::move(textures)}
+MaterialCollection::MaterialCollection(std::vector<Material> materials)
+  : m_materials{std::move(materials)}
 {
 }
 
@@ -45,9 +45,9 @@ MaterialCollection::MaterialCollection(std::filesystem::path path)
 }
 
 MaterialCollection::MaterialCollection(
-  std::filesystem::path path, std::vector<Material> textures)
+  std::filesystem::path path, std::vector<Material> materials)
   : m_path{std::move(path)}
-  , m_textures{std::move(textures)}
+  , m_materials{std::move(materials)}
   , m_loaded{true}
 {
 }
@@ -73,45 +73,45 @@ const std::filesystem::path& MaterialCollection::path() const
   return m_path;
 }
 
-size_t MaterialCollection::textureCount() const
+size_t MaterialCollection::materialCount() const
 {
-  return m_textures.size();
+  return m_materials.size();
 }
 
-const std::vector<Material>& MaterialCollection::textures() const
+const std::vector<Material>& MaterialCollection::materials() const
 {
-  return m_textures;
+  return m_materials;
 }
 
-std::vector<Material>& MaterialCollection::textures()
+std::vector<Material>& MaterialCollection::materials()
 {
-  return m_textures;
+  return m_materials;
 }
 
-const Material* MaterialCollection::textureByIndex(const size_t index) const
+const Material* MaterialCollection::materialByIndex(const size_t index) const
 {
-  return index < m_textures.size() ? &m_textures[index] : nullptr;
+  return index < m_materials.size() ? &m_materials[index] : nullptr;
 }
 
-Material* MaterialCollection::textureByIndex(const size_t index)
+Material* MaterialCollection::materialByIndex(const size_t index)
 {
   return const_cast<Material*>(
-    const_cast<const MaterialCollection*>(this)->textureByIndex(index));
+    const_cast<const MaterialCollection*>(this)->materialByIndex(index));
 }
 
-const Material* MaterialCollection::textureByName(const std::string& name) const
+const Material* MaterialCollection::materialByName(const std::string& name) const
 {
   const auto it =
-    std::find_if(m_textures.begin(), m_textures.end(), [&](const auto& texture) {
-      return texture.name() == name;
+    std::find_if(m_materials.begin(), m_materials.end(), [&](const auto& material) {
+      return material.name() == name;
     });
-  return it != m_textures.end() ? &*it : nullptr;
+  return it != m_materials.end() ? &*it : nullptr;
 }
 
-Material* MaterialCollection::textureByName(const std::string& name)
+Material* MaterialCollection::materialByName(const std::string& name)
 {
   return const_cast<Material*>(
-    const_cast<const MaterialCollection*>(this)->textureByName(name));
+    const_cast<const MaterialCollection*>(this)->materialByName(name));
 }
 
 bool MaterialCollection::prepared() const
@@ -123,25 +123,26 @@ void MaterialCollection::prepare(const int minFilter, const int magFilter)
 {
   assert(!prepared());
 
-  m_textureIds.resize(textureCount());
-  if (textureCount() != 0u)
+  m_textureIds.resize(materialCount());
+  if (materialCount() != 0u)
   {
     glAssert(glGenTextures(
-      static_cast<GLsizei>(textureCount()), static_cast<GLuint*>(&m_textureIds.front())));
+      static_cast<GLsizei>(materialCount()),
+      static_cast<GLuint*>(&m_textureIds.front())));
 
-    for (size_t i = 0; i < textureCount(); ++i)
+    for (size_t i = 0; i < materialCount(); ++i)
     {
-      auto& texture = m_textures[i];
-      texture.prepare(m_textureIds[i], minFilter, magFilter);
+      auto& material = m_materials[i];
+      material.prepare(m_textureIds[i], minFilter, magFilter);
     }
   }
 }
 
 void MaterialCollection::setTextureMode(const int minFilter, const int magFilter)
 {
-  for (auto& texture : m_textures)
+  for (auto& material : m_materials)
   {
-    texture.setMode(minFilter, magFilter);
+    material.setMode(minFilter, magFilter);
   }
 }
 

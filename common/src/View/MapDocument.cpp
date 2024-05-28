@@ -4375,7 +4375,7 @@ std::vector<std::filesystem::path> MapDocument::enabledTextureCollections() cons
     auto result = std::vector<std::filesystem::path>{};
     for (const auto& collection : m_textureManager->collections())
     {
-      if (kdl::any_of(collection.textures(), [](const auto& texture) {
+      if (kdl::any_of(collection.materials(), [](const auto& texture) {
             return texture.usageCount() > 0;
           }))
       {

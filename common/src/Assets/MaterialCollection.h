@@ -37,20 +37,20 @@ private:
   using TextureIdList = std::vector<GLuint>;
 
   std::filesystem::path m_path;
-  std::vector<Material> m_textures;
+  std::vector<Material> m_materials;
 
   bool m_loaded{false};
   TextureIdList m_textureIds;
 
   friend class Material;
 
-  kdl_reflect_decl(MaterialCollection, m_loaded, m_path, m_textures);
+  kdl_reflect_decl(MaterialCollection, m_loaded, m_path, m_materials);
 
 public:
   MaterialCollection();
-  explicit MaterialCollection(std::vector<Material> textures);
+  explicit MaterialCollection(std::vector<Material> materials);
   explicit MaterialCollection(std::filesystem::path path);
-  MaterialCollection(std::filesystem::path path, std::vector<Material> textures);
+  MaterialCollection(std::filesystem::path path, std::vector<Material> materials);
 
   MaterialCollection(const MaterialCollection&) = delete;
   MaterialCollection& operator=(const MaterialCollection&) = delete;
@@ -62,16 +62,16 @@ public:
 
   bool loaded() const;
   const std::filesystem::path& path() const;
-  size_t textureCount() const;
+  size_t materialCount() const;
 
-  const std::vector<Material>& textures() const;
-  std::vector<Material>& textures();
+  const std::vector<Material>& materials() const;
+  std::vector<Material>& materials();
 
-  const Material* textureByIndex(size_t index) const;
-  Material* textureByIndex(size_t index);
+  const Material* materialByIndex(size_t index) const;
+  Material* materialByIndex(size_t index);
 
-  const Material* textureByName(const std::string& name) const;
-  Material* textureByName(const std::string& name);
+  const Material* materialByName(const std::string& name) const;
+  Material* materialByName(const std::string& name);
 
   bool prepared() const;
   void prepare(int minFilter, int magFilter);

@@ -449,17 +449,17 @@ size_t EntityModelSurface::frameCount() const
 
 size_t EntityModelSurface::skinCount() const
 {
-  return m_skins->textureCount();
+  return m_skins->materialCount();
 }
 
 const Material* EntityModelSurface::skin(const std::string& name) const
 {
-  return m_skins->textureByName(name);
+  return m_skins->materialByName(name);
 }
 
 const Material* EntityModelSurface::skin(const size_t index) const
 {
-  return m_skins->textureByIndex(index);
+  return m_skins->materialByIndex(index);
 }
 
 std::unique_ptr<Renderer::MaterialIndexRangeRenderer> EntityModelSurface::buildRenderer(

@@ -100,7 +100,7 @@ void MaterialManager::setTextureCollections(
           return Assets::MaterialCollection{path};
         })
         .transform([&](auto collection) {
-          if (!collection.textures().empty())
+          if (!collection.materials().empty())
           {
             m_logger.info() << "Loaded texture collection '" << path << "'";
           }
@@ -210,7 +210,7 @@ void MaterialManager::updateTextures()
 
   for (auto& collection : m_collections)
   {
-    for (auto& texture : collection.textures())
+    for (auto& texture : collection.materials())
     {
       const auto key = kdl::str_to_lower(texture.name());
 

@@ -70,7 +70,7 @@ std::optional<TextureCollectionInfo> makeInfo(
     .transform([](const auto& textureCollection) -> std::optional<TextureCollectionInfo> {
       return TextureCollectionInfo{
         textureCollection.path(),
-        kdl::vec_transform(textureCollection.textures(), [](const auto& texture) {
+        kdl::vec_transform(textureCollection.materials(), [](const auto& texture) {
           return TextureInfo{
             texture.name(),
             texture.width(),

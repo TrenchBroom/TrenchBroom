@@ -191,13 +191,13 @@ public:
   const std::string& name() const;
 
   /**
-   * Absolute path of the texture
+   * Absolute path of the material
    */
   const std::filesystem::path& absolutePath() const;
   void setAbsolutePath(std::filesystem::path absolutePath);
 
   /**
-   * Relative path of the texture in the game filesystem
+   * Relative path of the material in the game filesystem
    */
   const std::filesystem::path& relativePath() const;
   void setRelativePath(std::filesystem::path relativePath);

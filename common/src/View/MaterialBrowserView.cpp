@@ -222,7 +222,7 @@ std::vector<const Assets::Material*> MaterialBrowserView::getTextures(
   const Assets::MaterialCollection& collection) const
 {
   return sortTextures(filterTextures(
-    kdl::vec_transform(collection.textures(), [](const auto& t) { return &t; })));
+    kdl::vec_transform(collection.materials(), [](const auto& t) { return &t; })));
 }
 
 std::vector<const Assets::Material*> MaterialBrowserView::getTextures() const
@@ -231,7 +231,7 @@ std::vector<const Assets::Material*> MaterialBrowserView::getTextures() const
   auto textures = std::vector<const Assets::Material*>{};
   for (const auto& collection : getCollections())
   {
-    for (const auto& texture : collection->textures())
+    for (const auto& texture : collection->materials())
     {
       textures.push_back(&texture);
     }

@@ -171,7 +171,7 @@ TEST_CASE("GameTest.loadQuake3Shaders")
   CHECK(skiesCollection != textureCollections.end());
 
   const auto skiesTextureNames = kdl::vec_transform(
-    skiesCollection->textures(), [](const auto& texture) { return texture.name(); });
+    skiesCollection->materials(), [](const auto& texture) { return texture.name(); });
 
   CHECK_THAT(
     skiesTextureNames,
@@ -187,7 +187,7 @@ TEST_CASE("GameTest.loadQuake3Shaders")
   CHECK(testCollection != textureCollections.end());
 
   const auto testTextureNames = kdl::vec_transform(
-    testCollection->textures(), [](const auto& texture) { return texture.name(); });
+    testCollection->materials(), [](const auto& texture) { return texture.name(); });
 
   CHECK_THAT(
     testTextureNames,
