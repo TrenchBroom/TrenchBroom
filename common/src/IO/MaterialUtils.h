@@ -69,11 +69,11 @@ inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
   return kdl::overload(
     [&](Error e) {
       logger.error() << "Could not open material file: " << e.msg;
-      return Result<Assets::Material>{loadDefaultTexture(fs, "", logger)};
+      return Result<Assets::Material>{loadDefaultMaterial(fs, "", logger)};
     },
     [&](ReadMaterialError e) {
       logger.error() << "Could not read material '" << e.materialName << "': " << e.msg;
-      return Result<Assets::Material>{loadDefaultTexture(fs, e.materialName, logger)};
+      return Result<Assets::Material>{loadDefaultMaterial(fs, e.materialName, logger)};
     });
 }
 

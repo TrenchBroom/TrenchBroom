@@ -49,7 +49,7 @@
 namespace TrenchBroom::IO
 {
 
-Assets::Material loadDefaultTexture(
+Assets::Material loadDefaultMaterial(
   const FileSystem& fs, std::string name, Logger& logger)
 {
   // recursion guard
@@ -64,14 +64,14 @@ Assets::Material loadDefaultTexture(
         return readFreeImageTexture(name, reader);
       })
       .transform_error([&](auto e) {
-        logger.error() << "Could not load default texture: " << e.msg;
+        logger.error() << "Could not load default material: " << e.msg;
         return Assets::Material{std::move(name), 32, 32};
       })
       .value();
   }
   else
   {
-    logger.error() << "Could not load default texture";
+    logger.error() << "Could not load default material";
   }
   return Assets::Material{std::move(name), 32, 32};
 }

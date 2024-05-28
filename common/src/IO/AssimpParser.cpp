@@ -188,7 +188,7 @@ Assets::Material loadFallbackOrDefaultTexture(
   {
     return {std::move(*fallbackTexture)};
   }
-  return {loadDefaultTexture(fs, defaultMaterialName, logger)};
+  return {loadDefaultMaterial(fs, defaultMaterialName, logger)};
 }
 
 Assets::Material loadTextureFromFileSystem(

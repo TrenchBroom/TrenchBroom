@@ -101,7 +101,7 @@ std::vector<Assets::Material> parseMaterials(
     // 2153: Some BSPs contain negative offsets.
     if (offset < 0)
     {
-      result.push_back(loadDefaultTexture(fs, "unknown", logger));
+      result.push_back(loadDefaultMaterial(fs, "unknown", logger));
       continue;
     }
 

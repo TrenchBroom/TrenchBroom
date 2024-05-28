@@ -673,7 +673,7 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
     materials.push_back(loadMaterial(logger, path));
   }
 
-  materials.push_back(loadDefaultTexture(m_fs, "", logger));
+  materials.push_back(loadDefaultMaterial(m_fs, "", logger));
   surface.setSkins(std::move(materials));
 
   // Count vertices and build bounds

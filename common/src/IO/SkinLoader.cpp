@@ -64,7 +64,7 @@ Assets::Material loadSkin(
     })
     .transform_error([&](auto e) -> Assets::Material {
       logger.error() << "Could not load skin '" << path << "': " << e.msg;
-      return loadDefaultTexture(fs, path.stem().string(), logger);
+      return loadDefaultMaterial(fs, path.stem().string(), logger);
     })
     .value();
 }
@@ -83,7 +83,7 @@ Assets::Material loadShader(
     .and_then([&](auto file) { return readQuake3ShaderTexture(name, *file, fs); })
     .transform_error([&](auto e) {
       logger.error() << "Could not load shader '" << path << "': " << e.msg;
-      return loadDefaultTexture(fs, name, logger);
+      return loadDefaultMaterial(fs, name, logger);
     })
     .value();
 }
