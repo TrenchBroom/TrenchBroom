@@ -218,7 +218,7 @@ void parseFrame(
   const auto modelFaceIndex = reader.readSize<int32_t>();
   const auto modelFaceCount = reader.readSize<int32_t>();
   auto totalVertexCount = size_t(0);
-  auto size = Renderer::TexturedIndexRangeMap::Size{};
+  auto size = Renderer::MaterialIndexRangeMap::Size{};
 
   for (size_t i = 0; i < modelFaceCount; ++i)
   {
@@ -235,7 +235,7 @@ void parseFrame(
   auto bounds = vm::bbox3f::builder{};
 
   auto builder =
-    Renderer::TexturedIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
+    Renderer::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
   for (size_t i = 0; i < modelFaceCount; ++i)
   {
     const auto& faceInfo = faceInfos[modelFaceIndex + i];

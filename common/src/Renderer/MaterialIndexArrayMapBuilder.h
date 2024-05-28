@@ -34,12 +34,12 @@ class Material;
 namespace Renderer
 {
 /**
- * Builds index array map by recording textured rendering primitives. The corded data can
- * be used to create an index array that can be uploaded to video card memory, and to
- * render the recorded textured primitives with the indices from that array using the
- * constructed textured index array map.
+ * Builds index array map by recording rendering primitives. The corded data can be used
+ * to create an index array that can be uploaded to video card memory, and to render the
+ * recorded primitives with the indices from that array using the constructed index array
+ * map.
  */
-class TexturedIndexArrayMapBuilder
+class MaterialIndexArrayMapBuilder
 {
 public:
   using Material = Assets::Material;
@@ -48,16 +48,16 @@ public:
 
 private:
   IndexList m_indices;
-  TexturedIndexArrayMap m_ranges;
+  MaterialIndexArrayMap m_ranges;
 
 public:
   /**
-   * Creates a new builder with the internal textured index array map initialized to the
+   * Creates a new builder with the internal index array map initialized to the
    * given size.
    *
    * @param size the size to initialize to
    */
-  explicit TexturedIndexArrayMapBuilder(const TexturedIndexArrayMap::Size& size);
+  explicit MaterialIndexArrayMapBuilder(const MaterialIndexArrayMap::Size& size);
 
   /**
    * Returns the recorded indices.
@@ -67,95 +67,95 @@ public:
   IndexList& indices();
 
   /**
-   * Returns the recorded index ranges for the textured primitives that were added.
+   * Returns the recorded index ranges for the primitives that were added.
    *
    * @return the recorded index ranges
    */
-  TexturedIndexArrayMap& ranges();
+  MaterialIndexArrayMap& ranges();
 
   /**
-   * Adds a textured point, represented by a vertex in a vertex array at the given index.
+   * Adds a point, represented by a vertex in a vertex array at the given index.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param i the index to record
    */
-  void addPoint(const Material* texture, Index i);
+  void addPoint(const Material* material, Index i);
 
   /**
-   * Adds multiple textured points, represented by the vertices in a vertex array at the
+   * Adds multiple points, represented by the vertices in a vertex array at the
    * given indices.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param indices the indices to record
    */
-  void addPoints(const Material* texture, const IndexList& indices);
+  void addPoints(const Material* material, const IndexList& indices);
 
   /**
-   * Adds a textured line, represented by the vertices in a vertex array at the given two
+   * Adds a line, represented by the vertices in a vertex array at the given two
    * indices.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param i1 the index of the start vertex to record
    * @param i2 the index of the end vertex to record
    */
-  void addLine(const Material* texture, Index i1, Index i2);
+  void addLine(const Material* material, Index i1, Index i2);
 
   /**
-   * Adds multiple textured lines, each represented by two vertices in a vertex array. The
+   * Adds multiple lines, each represented by two vertices in a vertex array. The
    * given index array contains pairs of indices, where each pair consists of the index of
    * the first and the index of the second vertex.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param indices a list of indices containing the pairs of vertex indices to record
    */
-  void addLines(const Material* texture, const IndexList& indices);
+  void addLines(const Material* material, const IndexList& indices);
 
   /**
-   * Adds a textured triangle, represented by the vertices in a vertex array at the given
+   * Adds a triangle, represented by the vertices in a vertex array at the given
    * indices.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param i1 the index of the first vertex to record
    * @param i2 the index of the second vertex to record
    * @param i3 the index of the third vertex to record
    */
-  void addTriangle(const Material* texture, Index i1, Index i2, Index i3);
+  void addTriangle(const Material* material, Index i1, Index i2, Index i3);
 
   /**
-   * Adds multiple textured triangles, each represented by three vertices in a vertex
+   * Adds multiple triangles, each represented by three vertices in a vertex
    * array. The given index array contains triples of indices, where each triple consists
    * of the indices of the three vertices making up the triangle to add.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param indices a list of indices containing the triples of vertex indices to record
    */
-  void addTriangles(const Material* texture, const IndexList& indices);
+  void addTriangles(const Material* material, const IndexList& indices);
 
   /**
-   * Adds a textured quad, represented by the vertices in a vertex array at the given
+   * Adds a quad, represented by the vertices in a vertex array at the given
    * indices.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param i1 the index of the first vertex to record
    * @param i2 the index of the second vertex to record
    * @param i3 the index of the third vertex to record
    * @param i4 the index of the fourth vertex to record
    */
-  void addQuad(const Material* texture, Index, Index i1, Index i2, Index i3, Index i4);
+  void addQuad(const Material* material, Index, Index i1, Index i2, Index i3, Index i4);
 
   /**
-   * Adds multiple textured quads, each represented by four vertices in a vertex array.
+   * Adds multiple quads, each represented by four vertices in a vertex array.
    * The given index array contains four-tuples of indices, where each tuple consists of
    * the indices of the four vertices making up the quad to add.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param indices a list of indices containing the four-tuples of vertex indices to
    * record
    */
-  void addQuads(const Material* texture, const IndexList& indices);
+  void addQuads(const Material* material, const IndexList& indices);
 
   /**
-   * Adds multiple textured quads by adding a range of indices specified by the given base
+   * Adds multiple quads by adding a range of indices specified by the given base
    * index and length. Specifically, a call to this method records a sequence of indices
    * which is computed using the given base index and vertex count as follows.
    *
@@ -164,35 +164,35 @@ public:
    * ...
    * index n = baseIndex + vertexCount - 1;
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param baseIndex the base index at which to start the range
    * @param vertexCount the number of vertices contained in the range
    */
-  void addQuads(const Material* texture, Index baseIndex, size_t vertexCount);
+  void addQuads(const Material* material, Index baseIndex, size_t vertexCount);
 
   /**
-   * Adds a textured polygon with the given indices. Note that the polygon is translated
-   * to a set of textured triangles and no actual polygon is recorded at all.
+   * Adds a polygon with the given indices. Note that the polygon is translated
+   * to a set of triangles and no actual polygon is recorded at all.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param indices the indices of the vertices making up the polygon to add
    */
-  void addPolygon(const Material* texture, const IndexList& indices);
+  void addPolygon(const Material* material, const IndexList& indices);
 
   /**
-   * Adds a textured polygon with indices computed from the given range. The polygons
+   * Adds a polygon with indices computed from the given range. The polygons
    * vertices are expected to be stored sequentially in a vertex array, starting at the
    * given base index. The given vertex count indicates the number of vertices to add.
    * Note that the polygon is translated to a set of triangles.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param baseIndex the index of the first vertex of the polygon
    * @param vertexCount the number of vertices of the polygon
    */
-  void addPolygon(const Material* texture, Index baseIndex, size_t vertexCount);
+  void addPolygon(const Material* material, Index baseIndex, size_t vertexCount);
 
 private:
-  void add(const Material* texture, PrimType primType, const IndexList& indices);
+  void add(const Material* material, PrimType primType, const IndexList& indices);
 };
 } // namespace Renderer
 } // namespace TrenchBroom

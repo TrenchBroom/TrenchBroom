@@ -27,79 +27,79 @@ namespace TrenchBroom
 {
 namespace Renderer
 {
-TexturedIndexArrayMap::Size::Size()
+MaterialIndexArrayMap::Size::Size()
   : m_indexCount{0u}
 {
 }
 
-size_t TexturedIndexArrayMap::Size::indexCount() const
+size_t MaterialIndexArrayMap::Size::indexCount() const
 {
   return m_indexCount;
 }
 
-void TexturedIndexArrayMap::Size::inc(
-  const Material* texture, const PrimType primType, const size_t count)
+void MaterialIndexArrayMap::Size::inc(
+  const Material* material, const PrimType primType, const size_t count)
 {
-  m_sizes[texture].inc(primType, count);
+  m_sizes[material].inc(primType, count);
   m_indexCount += count;
 }
 
-void TexturedIndexArrayMap::Size::inc(
-  const TexturedIndexArrayMap::Material* texture, const IndexArrayMap::Size& size)
+void MaterialIndexArrayMap::Size::inc(
+  const MaterialIndexArrayMap::Material* material, const IndexArrayMap::Size& size)
 {
-  m_sizes[texture].inc(size);
+  m_sizes[material].inc(size);
   m_indexCount += size.indexCount();
 }
 
-void TexturedIndexArrayMap::Size::initialize(TextureToIndexArrayMap& ranges) const
+void MaterialIndexArrayMap::Size::initialize(MaterialToIndexArrayMap& ranges) const
 {
   size_t baseOffset = 0;
 
-  for (const auto& [texture, size] : m_sizes)
+  for (const auto& [material, size] : m_sizes)
   {
-    ranges.emplace(texture, IndexArrayMap{size, baseOffset});
+    ranges.emplace(material, IndexArrayMap{size, baseOffset});
     baseOffset += size.indexCount();
   }
 }
 
-TexturedIndexArrayMap::TexturedIndexArrayMap() = default;
+MaterialIndexArrayMap::MaterialIndexArrayMap() = default;
 
-TexturedIndexArrayMap::TexturedIndexArrayMap(const Size& size)
+MaterialIndexArrayMap::MaterialIndexArrayMap(const Size& size)
 {
   size.initialize(m_ranges);
 }
 
-TexturedIndexArrayMap::Size TexturedIndexArrayMap::size() const
+MaterialIndexArrayMap::Size MaterialIndexArrayMap::size() const
 {
   auto result = Size{};
-  for (const auto& [texture, indexArray] : m_ranges)
+  for (const auto& [material, indexArray] : m_ranges)
   {
-    result.inc(texture, indexArray.size());
+    result.inc(material, indexArray.size());
   }
   return result;
 }
 
-size_t TexturedIndexArrayMap::add(
-  const Material* texture, const PrimType primType, const size_t count)
+size_t MaterialIndexArrayMap::add(
+  const Material* material, const PrimType primType, const size_t count)
 {
-  auto it = m_ranges.find(texture);
+  auto it = m_ranges.find(material);
   assert(it != std::end(m_ranges));
   return it->second.add(primType, count);
 }
 
-void TexturedIndexArrayMap::render(IndexArray& indexArray)
+void MaterialIndexArrayMap::render(IndexArray& indexArray)
 {
   auto func = DefaultTextureRenderFunc{};
   render(indexArray, func);
 }
 
-void TexturedIndexArrayMap::render(IndexArray& indexArray, TextureRenderFunc& func)
+void MaterialIndexArrayMap::render(IndexArray& indexArray, TextureRenderFunc& func)
 {
-  for (const auto& [texture, indexRange] : m_ranges)
+  for (const auto& [material, indexRange] : m_ranges)
   {
-    func.before(texture);
+    func.before(material);
     indexRange.render(indexArray);
-    func.after(texture);
+    func.after(material);
   }
 }
 } // namespace Renderer

@@ -73,7 +73,7 @@ void EntityModelManager::setLoader(const IO::EntityModelLoader* loader)
   m_loader = loader;
 }
 
-Renderer::TexturedRenderer* EntityModelManager::renderer(
+Renderer::MaterialRenderer* EntityModelManager::renderer(
   const Assets::ModelSpecification& spec) const
 {
   auto* entityModel = safeGetModel(spec.path);

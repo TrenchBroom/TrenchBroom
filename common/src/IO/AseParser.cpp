@@ -679,7 +679,7 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
   // Count vertices and build bounds
   auto bounds = vm::bbox3f::builder();
   auto totalVertexCount = size_t(0);
-  auto size = Renderer::TexturedIndexRangeMap::Size{};
+  auto size = Renderer::MaterialIndexRangeMap::Size{};
   for (const auto& geomObject : scene.geomObjects)
   {
     const auto& mesh = geomObject.mesh;
@@ -703,7 +703,7 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
 
   // Collect vertex data
   auto builder =
-    Renderer::TexturedIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
+    Renderer::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
   for (const auto& geomObject : scene.geomObjects)
   {
     const auto& mesh = geomObject.mesh;

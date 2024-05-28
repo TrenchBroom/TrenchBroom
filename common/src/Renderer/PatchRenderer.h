@@ -48,7 +48,7 @@ private:
   bool m_valid = true;
   kdl::vector_set<const Model::PatchNode*> m_patchNodes;
 
-  TexturedIndexArrayRenderer m_patchMeshRenderer;
+  MaterialIndexArrayRenderer m_patchMeshRenderer;
   DirectEdgeRenderer m_edgeRenderer;
 
   Color m_defaultColor;

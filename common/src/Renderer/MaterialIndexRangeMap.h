@@ -41,17 +41,17 @@ class VertexArray;
  * having an offset and a length. When rendered using a vertex array, each of the ranges
  * is rendered using the vertices in the array at the range recorded here.
  *
- * The primitives are grouped per texture to avoid costly texture switches during
+ * The primitives are grouped per material to avoid costly material switches during
  * rendering.
  */
-class TexturedIndexRangeMap
+class MaterialIndexRangeMap
 {
 public:
   using Material = Assets::Material;
 
 private:
-  using TextureToIndexRangeMap = std::map<const Material*, IndexRangeMap>;
-  using TextureToIndexRangeMapPtr = std::shared_ptr<TextureToIndexRangeMap>;
+  using MaterialToIndexRangeMap = std::map<const Material*, IndexRangeMap>;
+  using MaterialToIndexRangeMapPtr = std::shared_ptr<MaterialToIndexRangeMap>;
 
 public:
   /**
@@ -65,11 +65,11 @@ public:
   class Size
   {
   private:
-    friend class TexturedIndexRangeMap;
+    friend class MaterialIndexRangeMap;
 
-    using TextureToSize = std::map<const Material*, IndexRangeMap::Size>;
-    TextureToSize m_sizes;
-    TextureToSize::iterator m_current;
+    using MaterialToSize = std::map<const Material*, IndexRangeMap::Size>;
+    MaterialToSize m_sizes;
+    MaterialToSize::iterator m_current;
 
   public:
     /**
@@ -80,11 +80,11 @@ public:
     /**
      * Count the given primitive.
      *
-     * @param texture the texture
+     * @param material the material
      * @param primType the primitive type
      * @param vertexCount the number of vertices to count
      */
-    void inc(const Material* texture, PrimType primType, size_t vertexCount = 1);
+    void inc(const Material* material, PrimType primType, size_t vertexCount = 1);
 
     /**
      * Increase the storage by the given size.
@@ -94,22 +94,22 @@ public:
     void inc(const Size& other);
 
   private:
-    IndexRangeMap::Size& findCurrent(const Material* texture);
-    bool isCurrent(const Material* texture) const;
+    IndexRangeMap::Size& findCurrent(const Material* material);
+    bool isCurrent(const Material* material) const;
 
-    void initialize(TextureToIndexRangeMap& data) const;
+    void initialize(MaterialToIndexRangeMap& data) const;
   };
 
 private:
-  TextureToIndexRangeMapPtr m_data;
-  TextureToIndexRangeMap::iterator m_current;
+  MaterialToIndexRangeMapPtr m_data;
+  MaterialToIndexRangeMap::iterator m_current;
 
 public:
   /**
    * Creates a new empty index range map that allows for dynamic growth. Note that dynamic
    * growth may incur a performance cost as data buffers are reallocated when they grow.
    */
-  TexturedIndexRangeMap();
+  MaterialIndexRangeMap();
 
   /**
    * Creates a new index range map and initialize the internal data structures to the
@@ -117,57 +117,58 @@ public:
    *
    * @param size the sizes to initialize this range map to
    */
-  explicit TexturedIndexRangeMap(const Size& size);
+  explicit MaterialIndexRangeMap(const Size& size);
 
   /**
-   * Creates a new index range map containing the given primitives with the given texture.
+   * Creates a new index range map containing the given primitives with the given
+   * material.
    *
-   * @param texture the texture
+   * @param material the material
    * @param primitives an index range map containing the primitives
    */
-  TexturedIndexRangeMap(const Material* texture, IndexRangeMap primitives);
+  MaterialIndexRangeMap(const Material* material, IndexRangeMap primitives);
 
   /**
    * Creates a new index range map containing a single range of the given primitive type
-   * and texture, starting at the given index and with the given number of vertices.
+   * and material, starting at the given index and with the given number of vertices.
    *
-   * @param texture the texture
+   * @param material the material
    * @param primType the primitive type
    * @param index the start index of the range
    * @param vertexCount the number of vertices in the range
    */
-  TexturedIndexRangeMap(
-    const Material* texture, PrimType primType, size_t index, size_t vertexCount);
+  MaterialIndexRangeMap(
+    const Material* material, PrimType primType, size_t index, size_t vertexCount);
 
   /**
    * Records a range of primitives at the given index with the given length and using the
-   * given texture.
+   * given material.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param primType the type of primitives in the range
    * @param index the start index of the range
    * @param vertexCount the number of vertices in the range
    */
-  void add(const Material* texture, PrimType primType, size_t index, size_t vertexCount);
+  void add(const Material* material, PrimType primType, size_t index, size_t vertexCount);
 
   /**
-   * Records ranges of primitives using the given texture.
+   * Records ranges of primitives using the given material.
    *
-   * @param texture the texture to use
+   * @param material the material to use
    * @param primitives an index range map containing the primitives
    */
-  void add(const Material* texture, IndexRangeMap primitives);
+  void add(const Material* material, IndexRangeMap primitives);
 
   /**
    * Adds all ranges stored in the given textured index range map to this one.
    *
    * @param other the textured index range map to add
    */
-  void add(const TexturedIndexRangeMap& other);
+  void add(const MaterialIndexRangeMap& other);
 
   /**
    * Renders the primitives stored in this index range map using the vertices in the given
-   * vertex array. The primitives are batched by their associated textures.
+   * vertex array. The primitives are batched by their associated materials.
    *
    * @param vertexArray the vertex array to render with
    */
@@ -175,12 +176,12 @@ public:
 
   /**
    * Renders the primitives stored in this index range map using the vertices in the given
-   * vertex array. The primitives are batched by their associated textures. The given
+   * vertex array. The primitives are batched by their associated materials. The given
    * render function type provides two callbacks. One is called before all primitives with
-   * a given texture is rendered, and one is called afterwards.
+   * a given material is rendered, and one is called afterwards.
    *
    * @param vertexArray the vertex array to render with
-   * @param func the texture callbacks
+   * @param func the material callbacks
    */
   void render(VertexArray& vertexArray, TextureRenderFunc& func);
 
@@ -190,12 +191,12 @@ public:
    * @param func the function to invoke
    */
   void forEachPrimitive(
-    std::function<void(const Material* texture, PrimType, size_t index, size_t count)>
+    std::function<void(const Material* material, PrimType, size_t index, size_t count)>
       func) const;
 
 private:
-  IndexRangeMap& findCurrent(const Material* texture);
-  bool isCurrent(const Material* texture) const;
+  IndexRangeMap& findCurrent(const Material* material);
+  bool isCurrent(const Material* material) const;
 };
 } // namespace Renderer
 } // namespace TrenchBroom

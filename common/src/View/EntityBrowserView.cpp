@@ -236,7 +236,7 @@ void EntityBrowserView::addEntityToLayout(
       EL::NullVariableStore{},
       m_defaultScaleModelExpression)};
 
-    auto* modelRenderer = static_cast<Renderer::TexturedRenderer*>(nullptr);
+    auto* modelRenderer = static_cast<Renderer::MaterialRenderer*>(nullptr);
     auto rotatedBounds = vm::bbox3f{};
     auto modelOrientation = Assets::Orientation::Oriented;
 

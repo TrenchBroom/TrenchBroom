@@ -27,38 +27,38 @@ namespace TrenchBroom
 {
 namespace Renderer
 {
-TexturedIndexRangeMap::Size::Size()
+MaterialIndexRangeMap::Size::Size()
   : m_current(std::end(m_sizes))
 {
 }
 
-void TexturedIndexRangeMap::Size::inc(
-  const Material* texture, const PrimType primType, const size_t vertexCount)
+void MaterialIndexRangeMap::Size::inc(
+  const Material* material, const PrimType primType, const size_t vertexCount)
 {
-  auto& sizeForKey = findCurrent(texture);
+  auto& sizeForKey = findCurrent(material);
   sizeForKey.inc(primType, vertexCount);
 }
 
-void TexturedIndexRangeMap::Size::inc(const TexturedIndexRangeMap::Size& other)
+void MaterialIndexRangeMap::Size::inc(const MaterialIndexRangeMap::Size& other)
 {
-  for (const auto& [texture, indexRange] : other.m_sizes)
+  for (const auto& [material, indexRange] : other.m_sizes)
   {
-    auto& sizeForKey = findCurrent(texture);
+    auto& sizeForKey = findCurrent(material);
     sizeForKey.inc(indexRange);
   }
 }
 
-IndexRangeMap::Size& TexturedIndexRangeMap::Size::findCurrent(const Material* texture)
+IndexRangeMap::Size& MaterialIndexRangeMap::Size::findCurrent(const Material* material)
 {
-  if (!isCurrent(texture))
+  if (!isCurrent(material))
   {
-    const auto result = m_sizes.try_emplace(texture);
+    const auto result = m_sizes.try_emplace(material);
     m_current = result.first;
   }
   return m_current->second;
 }
 
-bool TexturedIndexRangeMap::Size::isCurrent(const Material* texture) const
+bool MaterialIndexRangeMap::Size::isCurrent(const Material* material) const
 {
   if (m_current == std::end(m_sizes))
   {
@@ -66,116 +66,117 @@ bool TexturedIndexRangeMap::Size::isCurrent(const Material* texture) const
   }
 
   const auto& cmp = m_sizes.key_comp();
-  const auto* currentTexture = m_current->first;
-  return !cmp(texture, currentTexture) && !cmp(currentTexture, texture);
+  const auto* currentMaterial = m_current->first;
+  return !cmp(material, currentMaterial) && !cmp(currentMaterial, material);
 }
 
-void TexturedIndexRangeMap::Size::initialize(TextureToIndexRangeMap& data) const
+void MaterialIndexRangeMap::Size::initialize(MaterialToIndexRangeMap& data) const
 {
-  for (const auto& [texture, size] : m_sizes)
+  for (const auto& [material, size] : m_sizes)
   {
-    data.insert(std::make_pair(texture, IndexRangeMap(size)));
+    data.insert(std::make_pair(material, IndexRangeMap(size)));
   }
 }
 
-TexturedIndexRangeMap::TexturedIndexRangeMap()
-  : m_data(new TextureToIndexRangeMap())
+MaterialIndexRangeMap::MaterialIndexRangeMap()
+  : m_data(new MaterialToIndexRangeMap())
   , m_current(m_data->end())
 {
 }
 
-TexturedIndexRangeMap::TexturedIndexRangeMap(const Size& size)
-  : m_data(new TextureToIndexRangeMap())
+MaterialIndexRangeMap::MaterialIndexRangeMap(const Size& size)
+  : m_data(new MaterialToIndexRangeMap())
   , m_current(m_data->end())
 {
   size.initialize(*m_data);
 }
 
-TexturedIndexRangeMap::TexturedIndexRangeMap(
-  const Material* texture, IndexRangeMap primitives)
-  : m_data(new TextureToIndexRangeMap())
+MaterialIndexRangeMap::MaterialIndexRangeMap(
+  const Material* material, IndexRangeMap primitives)
+  : m_data(new MaterialToIndexRangeMap())
   , m_current(m_data->end())
 {
-  add(texture, std::move(primitives));
+  add(material, std::move(primitives));
 }
 
-TexturedIndexRangeMap::TexturedIndexRangeMap(
-  const Material* texture,
+MaterialIndexRangeMap::MaterialIndexRangeMap(
+  const Material* material,
   const PrimType primType,
   const size_t index,
   const size_t vertexCount)
-  : m_data(new TextureToIndexRangeMap())
+  : m_data(new MaterialToIndexRangeMap())
   , m_current(m_data->end())
 {
-  m_data->insert(std::make_pair(texture, IndexRangeMap(primType, index, vertexCount)));
+  m_data->insert(std::make_pair(material, IndexRangeMap(primType, index, vertexCount)));
 }
 
-void TexturedIndexRangeMap::add(
-  const Material* texture,
+void MaterialIndexRangeMap::add(
+  const Material* material,
   const PrimType primType,
   const size_t index,
   const size_t vertexCount)
 {
-  auto& current = findCurrent(texture);
+  auto& current = findCurrent(material);
   current.add(primType, index, vertexCount);
 }
 
-void TexturedIndexRangeMap::add(const Material* texture, IndexRangeMap primitives)
+void MaterialIndexRangeMap::add(const Material* material, IndexRangeMap primitives)
 {
-  m_data->insert(std::make_pair(texture, std::move(primitives)));
+  m_data->insert(std::make_pair(material, std::move(primitives)));
 }
 
-void TexturedIndexRangeMap::add(const TexturedIndexRangeMap& other)
+void MaterialIndexRangeMap::add(const MaterialIndexRangeMap& other)
 {
-  for (const auto& [texture, indexRangeMap] : *other.m_data)
+  for (const auto& [material, indexRangeMap] : *other.m_data)
   {
-    auto& current = findCurrent(texture);
+    auto& current = findCurrent(material);
     current.add(indexRangeMap);
   }
 }
 
-void TexturedIndexRangeMap::render(VertexArray& vertexArray)
+void MaterialIndexRangeMap::render(VertexArray& vertexArray)
 {
   DefaultTextureRenderFunc func;
   render(vertexArray, func);
 }
 
-void TexturedIndexRangeMap::render(VertexArray& vertexArray, TextureRenderFunc& func)
+void MaterialIndexRangeMap::render(VertexArray& vertexArray, TextureRenderFunc& func)
 {
-  for (const auto& [texture, indexArray] : *m_data)
+  for (const auto& [material, indexArray] : *m_data)
   {
-    func.before(texture);
+    func.before(material);
     indexArray.render(vertexArray);
-    func.after(texture);
+    func.after(material);
   }
 }
 
-void TexturedIndexRangeMap::forEachPrimitive(
+void MaterialIndexRangeMap::forEachPrimitive(
   std::function<void(const Material*, PrimType, size_t, size_t)> func) const
 {
   for (const auto& entry : *m_data)
   {
-    const auto* texture = entry.first;
+    const auto* material = entry.first;
     const auto& indexArray = entry.second;
 
     indexArray.forEachPrimitive(
-      [&func, &texture](const PrimType primType, const size_t index, const size_t count) {
-        func(texture, primType, index, count);
+      [&func, &material](
+        const PrimType primType, const size_t index, const size_t count) {
+        func(material, primType, index, count);
       });
   }
 }
 
-IndexRangeMap& TexturedIndexRangeMap::findCurrent(const Material* texture)
+IndexRangeMap& MaterialIndexRangeMap::findCurrent(const Material* material)
 {
-  if (!isCurrent(texture))
+  if (!isCurrent(material))
   {
-    m_current = m_data->find(texture);
+    m_current = m_data->find(material);
   }
   assert(m_current != m_data->end());
   return m_current->second;
 }
 
-bool TexturedIndexRangeMap::isCurrent(const Material* texture) const
+bool MaterialIndexRangeMap::isCurrent(const Material* material) const
 {
   if (m_current == m_data->end())
   {
@@ -183,8 +184,8 @@ bool TexturedIndexRangeMap::isCurrent(const Material* texture) const
   }
 
   const auto& cmp = m_data->key_comp();
-  const auto* currentTexture = m_current->first;
-  return !cmp(texture, currentTexture) && !cmp(currentTexture, texture);
+  const auto* currentMaterial = m_current->first;
+  return !cmp(material, currentMaterial) && !cmp(currentMaterial, material);
 }
 } // namespace Renderer
 } // namespace TrenchBroom

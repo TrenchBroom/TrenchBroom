@@ -288,7 +288,7 @@ public:
    * @param skin the texture to use when rendering the mesh
    * @return the renderer
    */
-  std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(
+  std::unique_ptr<Renderer::MaterialIndexRangeRenderer> buildRenderer(
     const Material* skin)
   {
     const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
@@ -303,7 +303,7 @@ private:
    * @param vertices the vertices associated with this mesh
    * @return the renderer
    */
-  virtual std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(
+  virtual std::unique_ptr<Renderer::MaterialIndexRangeRenderer> doBuildRenderer(
     const Material* skin, const Renderer::VertexArray& vertices) = 0;
 };
 
@@ -339,11 +339,11 @@ public:
   }
 
 private:
-  std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(
+  std::unique_ptr<Renderer::MaterialIndexRangeRenderer> doBuildRenderer(
     const Material* skin, const Renderer::VertexArray& vertices) override
   {
-    const Renderer::TexturedIndexRangeMap texturedIndices(skin, m_indices);
-    return std::make_unique<Renderer::TexturedIndexRangeRenderer>(
+    const Renderer::MaterialIndexRangeMap texturedIndices(skin, m_indices);
+    return std::make_unique<Renderer::MaterialIndexRangeRenderer>(
       vertices, texturedIndices);
   }
 };
@@ -384,10 +384,10 @@ public:
   }
 
 private:
-  std::unique_ptr<Renderer::TexturedIndexRangeRenderer> doBuildRenderer(
+  std::unique_ptr<Renderer::MaterialIndexRangeRenderer> doBuildRenderer(
     const Material* /* skin */, const Renderer::VertexArray& vertices) override
   {
-    return std::make_unique<Renderer::TexturedIndexRangeRenderer>(vertices, m_indices);
+    return std::make_unique<Renderer::MaterialIndexRangeRenderer>(vertices, m_indices);
   }
 };
 
@@ -462,7 +462,7 @@ const Material* EntityModelSurface::skin(const size_t index) const
   return m_skins->textureByIndex(index);
 }
 
-std::unique_ptr<Renderer::TexturedIndexRangeRenderer> EntityModelSurface::buildRenderer(
+std::unique_ptr<Renderer::MaterialIndexRangeRenderer> EntityModelSurface::buildRenderer(
   const size_t skinIndex, const size_t frameIndex)
 {
   assert(frameIndex < frameCount());
@@ -487,10 +487,10 @@ const std::string& EntityModel::name() const
   return m_name;
 }
 
-std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(
+std::unique_ptr<Renderer::MaterialRenderer> EntityModel::buildRenderer(
   const size_t skinIndex, const size_t frameIndex) const
 {
-  auto renderers = std::vector<std::unique_ptr<Renderer::TexturedIndexRangeRenderer>>{};
+  auto renderers = std::vector<std::unique_ptr<Renderer::MaterialIndexRangeRenderer>>{};
   if (frameIndex >= frameCount())
   {
     return nullptr;
@@ -508,7 +508,7 @@ std::unique_ptr<Renderer::TexturedRenderer> EntityModel::buildRenderer(
       renderers.push_back(std::move(renderer));
     }
   }
-  return !renderers.empty() ? std::make_unique<Renderer::MultiTexturedIndexRangeRenderer>(
+  return !renderers.empty() ? std::make_unique<Renderer::MultiMaterialIndexRangeRenderer>(
            std::move(renderers))
                             : nullptr;
 }

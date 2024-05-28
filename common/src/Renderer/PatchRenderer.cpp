@@ -151,12 +151,12 @@ void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatc
   }
 }
 
-static TexturedIndexArrayRenderer buildMeshRenderer(
+static MaterialIndexArrayRenderer buildMeshRenderer(
   const std::vector<const Model::PatchNode*>& patchNodes,
   const Model::EditorContext& editorContext)
 {
   size_t vertexCount = 0u;
-  auto indexArrayMapSize = TexturedIndexArrayMap::Size{};
+  auto indexArrayMapSize = MaterialIndexArrayMap::Size{};
 
   for (const auto* patchNode : patchNodes)
   {
@@ -175,8 +175,8 @@ static TexturedIndexArrayRenderer buildMeshRenderer(
   auto vertices = std::vector<Vertex>{};
   vertices.reserve(vertexCount);
 
-  auto indexArrayMapBuilder = TexturedIndexArrayMapBuilder{indexArrayMapSize};
-  using Index = TexturedIndexArrayMapBuilder::Index;
+  auto indexArrayMapBuilder = MaterialIndexArrayMapBuilder{indexArrayMapSize};
+  using Index = MaterialIndexArrayMapBuilder::Index;
 
   for (const auto* patchNode : patchNodes)
   {
@@ -219,7 +219,7 @@ static TexturedIndexArrayRenderer buildMeshRenderer(
 
   auto vertexArray = VertexArray::move(std::move(vertices));
   auto indexArray = IndexArray::move(std::move(indexArrayMapBuilder.indices()));
-  return TexturedIndexArrayRenderer{
+  return MaterialIndexArrayRenderer{
     std::move(vertexArray),
     std::move(indexArray),
     std::move(indexArrayMapBuilder.ranges())};

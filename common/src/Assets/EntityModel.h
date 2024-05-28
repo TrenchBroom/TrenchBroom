@@ -38,8 +38,8 @@ class octree;
 namespace TrenchBroom::Renderer
 {
 enum class PrimType;
-class TexturedIndexRangeRenderer;
-class TexturedRenderer;
+class MaterialIndexRangeRenderer;
+class MaterialRenderer;
 } // namespace TrenchBroom::Renderer
 
 namespace TrenchBroom::Assets
@@ -328,7 +328,7 @@ public:
    */
   const Material* skin(size_t index) const;
 
-  std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(
+  std::unique_ptr<Renderer::MaterialIndexRangeRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex);
 };
 
@@ -371,7 +371,7 @@ public:
    * @param frameIndex the index of the frame to render
    * @return the renderer
    */
-  std::unique_ptr<Renderer::TexturedRenderer> buildRenderer(
+  std::unique_ptr<Renderer::MaterialRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex) const;
 
   /**

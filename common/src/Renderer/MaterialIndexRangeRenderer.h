@@ -37,10 +37,10 @@ namespace Renderer
 class VboManager;
 class TextureRenderFunc;
 
-class TexturedRenderer
+class MaterialRenderer
 {
 public:
-  virtual ~TexturedRenderer();
+  virtual ~MaterialRenderer();
 
   virtual bool empty() const = 0;
 
@@ -49,21 +49,21 @@ public:
   virtual void render(TextureRenderFunc& func) = 0;
 };
 
-class TexturedIndexRangeRenderer : public TexturedRenderer
+class MaterialIndexRangeRenderer : public MaterialRenderer
 {
 private:
   VertexArray m_vertexArray;
-  TexturedIndexRangeMap m_indexRange;
+  MaterialIndexRangeMap m_indexRange;
 
 public:
-  TexturedIndexRangeRenderer();
-  TexturedIndexRangeRenderer(
-    const VertexArray& vertexArray, const TexturedIndexRangeMap& indexRange);
-  TexturedIndexRangeRenderer(
+  MaterialIndexRangeRenderer();
+  MaterialIndexRangeRenderer(
+    const VertexArray& vertexArray, const MaterialIndexRangeMap& indexRange);
+  MaterialIndexRangeRenderer(
     const VertexArray& vertexArray,
-    const Assets::Material* texture,
+    const Assets::Material* material,
     const IndexRangeMap& indexRange);
-  ~TexturedIndexRangeRenderer() override;
+  ~MaterialIndexRangeRenderer() override;
 
   bool empty() const override;
 
@@ -72,15 +72,15 @@ public:
   void render(TextureRenderFunc& func) override;
 };
 
-class MultiTexturedIndexRangeRenderer : public TexturedRenderer
+class MultiMaterialIndexRangeRenderer : public MaterialRenderer
 {
 private:
-  std::vector<std::unique_ptr<TexturedIndexRangeRenderer>> m_renderers;
+  std::vector<std::unique_ptr<MaterialIndexRangeRenderer>> m_renderers;
 
 public:
-  MultiTexturedIndexRangeRenderer(
-    std::vector<std::unique_ptr<TexturedIndexRangeRenderer>> renderers);
-  ~MultiTexturedIndexRangeRenderer() override;
+  MultiMaterialIndexRangeRenderer(
+    std::vector<std::unique_ptr<MaterialIndexRangeRenderer>> renderers);
+  ~MultiMaterialIndexRangeRenderer() override;
 
   bool empty() const override;
 

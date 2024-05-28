@@ -23,28 +23,28 @@ namespace TrenchBroom
 {
 namespace Renderer
 {
-TexturedIndexArrayRenderer::TexturedIndexArrayRenderer() {}
+MaterialIndexArrayRenderer::MaterialIndexArrayRenderer() {}
 
-TexturedIndexArrayRenderer::TexturedIndexArrayRenderer(
-  VertexArray vertexArray, IndexArray indexArray, TexturedIndexArrayMap indexArrayMap)
+MaterialIndexArrayRenderer::MaterialIndexArrayRenderer(
+  VertexArray vertexArray, IndexArray indexArray, MaterialIndexArrayMap indexArrayMap)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexArray{std::move(indexArray)}
   , m_indexRanges{std::move(indexArrayMap)}
 {
 }
 
-bool TexturedIndexArrayRenderer::empty() const
+bool MaterialIndexArrayRenderer::empty() const
 {
   return m_indexArray.empty();
 }
 
-void TexturedIndexArrayRenderer::prepare(VboManager& vboManager)
+void MaterialIndexArrayRenderer::prepare(VboManager& vboManager)
 {
   m_vertexArray.prepare(vboManager);
   m_indexArray.prepare(vboManager);
 }
 
-void TexturedIndexArrayRenderer::render()
+void MaterialIndexArrayRenderer::render()
 {
   if (m_vertexArray.setup())
   {
@@ -57,7 +57,7 @@ void TexturedIndexArrayRenderer::render()
   }
 }
 
-void TexturedIndexArrayRenderer::render(TextureRenderFunc& func)
+void MaterialIndexArrayRenderer::render(TextureRenderFunc& func)
 {
   if (m_vertexArray.setup())
   {

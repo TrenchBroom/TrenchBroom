@@ -44,7 +44,7 @@ namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class ShaderConfig;
-class TexturedRenderer;
+class MaterialRenderer;
 
 class EntityModelRenderer : public DirectRenderable
 {
@@ -54,7 +54,7 @@ private:
   Assets::EntityModelManager& m_entityModelManager;
   const Model::EditorContext& m_editorContext;
 
-  std::unordered_map<const Model::EntityNode*, TexturedRenderer*> m_entities;
+  std::unordered_map<const Model::EntityNode*, MaterialRenderer*> m_entities;
 
   bool m_applyTinting = false;
   Color m_tintColor;

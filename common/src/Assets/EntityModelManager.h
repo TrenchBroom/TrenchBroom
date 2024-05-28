@@ -42,7 +42,7 @@ class EntityNode;
 
 namespace Renderer
 {
-class TexturedRenderer;
+class MaterialRenderer;
 class VboManager;
 } // namespace Renderer
 
@@ -61,9 +61,9 @@ private:
   using ModelList = std::vector<EntityModel*>;
 
   using RendererCache =
-    std::map<ModelSpecification, std::unique_ptr<Renderer::TexturedRenderer>>;
+    std::map<ModelSpecification, std::unique_ptr<Renderer::MaterialRenderer>>;
   using RendererMismatches = kdl::vector_set<ModelSpecification>;
-  using RendererList = std::vector<Renderer::TexturedRenderer*>;
+  using RendererList = std::vector<Renderer::MaterialRenderer*>;
 
   Logger& m_logger;
   const IO::EntityModelLoader* m_loader;
@@ -88,7 +88,7 @@ public:
 
   void setTextureMode(int minFilter, int magFilter);
   void setLoader(const IO::EntityModelLoader* loader);
-  Renderer::TexturedRenderer* renderer(const ModelSpecification& spec) const;
+  Renderer::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 
   const EntityModelFrame* frame(const ModelSpecification& spec) const;
 
