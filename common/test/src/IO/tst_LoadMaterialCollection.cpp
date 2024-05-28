@@ -46,44 +46,45 @@ namespace TrenchBroom::IO
 namespace
 {
 
-struct TextureInfo
+struct MaterialInfo
 {
   std::string name;
   size_t width;
   size_t height;
 
-  kdl_reflect_inline(TextureInfo, name, width, height);
+  kdl_reflect_inline(MaterialInfo, name, width, height);
 };
 
-struct TextureCollectionInfo
+struct MaterialCollectionInfo
 {
   std::filesystem::path path;
-  std::vector<TextureInfo> textures;
+  std::vector<MaterialInfo> materials;
 
-  kdl_reflect_inline(TextureCollectionInfo, path, textures);
+  kdl_reflect_inline(MaterialCollectionInfo, path, materials);
 };
 
-std::optional<TextureCollectionInfo> makeInfo(
+std::optional<MaterialCollectionInfo> makeInfo(
   const Result<Assets::MaterialCollection>& result)
 {
   return result
-    .transform([](const auto& textureCollection) -> std::optional<TextureCollectionInfo> {
-      return TextureCollectionInfo{
-        textureCollection.path(),
-        kdl::vec_transform(textureCollection.materials(), [](const auto& texture) {
-          return TextureInfo{
-            texture.name(),
-            texture.width(),
-            texture.height(),
-          };
-        })};
-    })
+    .transform(
+      [](const auto& materialCollection) -> std::optional<MaterialCollectionInfo> {
+        return MaterialCollectionInfo{
+          materialCollection.path(),
+          kdl::vec_transform(materialCollection.materials(), [](const auto& material) {
+            return MaterialInfo{
+              material.name(),
+              material.width(),
+              material.height(),
+            };
+          })};
+      })
     .value_or(std::nullopt);
 }
 
 } // namespace
 
-TEST_CASE("loadTextureCollection")
+TEST_CASE("loadMaterialCollection")
 {
   auto fs = VirtualFileSystem{};
   fs.mount("", std::make_unique<DiskFileSystem>(std::filesystem::current_path()));
@@ -105,7 +106,8 @@ TEST_CASE("loadTextureCollection")
       {},
     };
 
-    CHECK(loadTextureCollection("some_other_path", fs, textureConfig, logger).is_error());
+    CHECK(
+      loadMaterialCollection("some_other_path", fs, textureConfig, logger).is_error());
   }
 
   SECTION("missing palette")
@@ -120,8 +122,8 @@ TEST_CASE("loadTextureCollection")
     };
 
     CHECK(
-      makeInfo(loadTextureCollection("textures", fs, textureConfig, logger))
-      == TextureCollectionInfo{
+      makeInfo(loadMaterialCollection("textures", fs, textureConfig, logger))
+      == MaterialCollectionInfo{
         "textures",
         {
           {"cr8_czg_1", 32, 32},       {"cr8_czg_2", 32, 32},
@@ -139,7 +141,7 @@ TEST_CASE("loadTextureCollection")
       });
   }
 
-  SECTION("loading all textures")
+  SECTION("loading all materials")
   {
     const auto textureConfig = Model::MaterialConfig{
       "textures",
@@ -151,8 +153,8 @@ TEST_CASE("loadTextureCollection")
     };
 
     CHECK(
-      makeInfo(loadTextureCollection("textures", fs, textureConfig, logger))
-      == TextureCollectionInfo{
+      makeInfo(loadMaterialCollection("textures", fs, textureConfig, logger))
+      == MaterialCollectionInfo{
         "textures",
         {
           {"cr8_czg_1", 64, 64},
@@ -180,7 +182,7 @@ TEST_CASE("loadTextureCollection")
       });
   }
 
-  SECTION("loading with texture exclusions")
+  SECTION("loading with exclusions")
   {
     const auto textureConfig = Model::MaterialConfig{
       "textures",
@@ -192,8 +194,8 @@ TEST_CASE("loadTextureCollection")
     };
 
     CHECK(
-      makeInfo(loadTextureCollection("textures", fs, textureConfig, logger))
-      == TextureCollectionInfo{
+      makeInfo(loadMaterialCollection("textures", fs, textureConfig, logger))
+      == MaterialCollectionInfo{
         "textures",
         {
           {"cr8_czg_1", 64, 64},

@@ -54,7 +54,7 @@ MaterialManager::~MaterialManager() = default;
 void MaterialManager::reload(
   const IO::FileSystem& fs, const Model::MaterialConfig& materialConfig)
 {
-  findTextureCollections(fs, materialConfig)
+  findMaterialCollections(fs, materialConfig)
     .transform([&](auto materialCollections) {
       setMaterialCollections(std::move(materialCollections), fs, materialConfig);
     })
@@ -90,7 +90,7 @@ void MaterialManager::setMaterialCollections(
 
     if (it == collections.end() || !it->loaded())
     {
-      IO::loadTextureCollection(path, fs, materialConfig, m_logger)
+      IO::loadMaterialCollection(path, fs, materialConfig, m_logger)
         .transform_error([&](const auto& error) {
           if (it == collections.end())
           {

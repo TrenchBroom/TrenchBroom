@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "LoadMaterialCollection.h"
+#include "LoadTextureCollection.h"
 
 #include "Assets/MaterialCollection.h"
 #include "Assets/MaterialManager.h"
@@ -59,30 +59,30 @@ namespace TrenchBroom::IO
 namespace
 {
 bool shouldExclude(
-  const std::string& materialName, const std::vector<std::string>& patterns)
+  const std::string& textureName, const std::vector<std::string>& patterns)
 {
   return std::any_of(patterns.begin(), patterns.end(), [&](const auto& pattern) {
-    return kdl::ci::str_matches_glob(materialName, pattern);
+    return kdl::ci::str_matches_glob(textureName, pattern);
   });
 }
 
 Result<Assets::Palette> loadPalette(
-  const FileSystem& gameFS, const Model::MaterialConfig& materialConfig)
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig)
 {
-  if (materialConfig.palette.empty())
+  if (textureConfig.palette.empty())
   {
-    return Error{"Material config is missing palette definition"};
+    return Error{"Texture config is missing palette definition"};
   }
 
-  return gameFS.openFile(materialConfig.palette).and_then([&](auto file) {
-    return Assets::loadPalette(*file, materialConfig.palette);
+  return gameFS.openFile(textureConfig.palette).and_then([&](auto file) {
+    return Assets::loadPalette(*file, textureConfig.palette);
   });
 }
 
 using ReadMaterialFunc = std::function<Result<Assets::Material, ReadTextureError>(
   const File&, const std::filesystem::path&)>;
 
-Result<Assets::Material, ReadTextureError> readMaterial(
+Result<Assets::Material, ReadTextureError> readTexture(
   const File& file,
   const std::filesystem::path& path,
   const FileSystem& gameFS,
@@ -135,18 +135,18 @@ Result<Assets::Material, ReadTextureError> readMaterial(
     std::move(name), "Unknown texture file extension: " + path.extension().string()};
 }
 
-Result<ReadMaterialFunc> makeReadMaterialFunc(
-  const FileSystem& gameFS, const Model::MaterialConfig& materialConfig)
+Result<ReadMaterialFunc> makeReadTextureFunc(
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig)
 {
-  return loadPalette(gameFS, materialConfig)
+  return loadPalette(gameFS, textureConfig)
     .transform([](auto palette) { return std::optional{std::move(palette)}; })
     .transform_error([](auto) -> std::optional<Assets::Palette> { return std::nullopt; })
-    .and_then([&](auto palette) -> Result<ReadMaterialFunc> {
+    .and_then([&](auto palette) -> Result<ReadTextureFunc> {
       return [&,
               palette = std::move(palette),
-              prefixLength = kdl::path_length(materialConfig.root)](
+              prefixLength = kdl::path_length(textureConfig.root)](
                const File& file, const std::filesystem::path& path) {
-        return readMaterial(file, path, gameFS, prefixLength, palette);
+        return readTexture(file, path, gameFS, prefixLength, palette);
       };
     });
 }
@@ -154,15 +154,15 @@ Result<ReadMaterialFunc> makeReadMaterialFunc(
 } // namespace
 
 Result<std::vector<std::filesystem::path>> findMaterialCollections(
-  const FileSystem& gameFS, const Model::MaterialConfig& materialConfig)
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig)
 {
   return gameFS
     .find(
-      materialConfig.root,
+      textureConfig.root,
       TraversalMode::Recursive,
       makePathInfoPathMatcher({PathInfo::Directory}))
     .transform([&](auto paths) {
-      paths.insert(paths.begin(), materialConfig.root);
+      paths.insert(paths.begin(), textureConfig.root);
       return paths;
     });
 }
@@ -170,49 +170,49 @@ Result<std::vector<std::filesystem::path>> findMaterialCollections(
 Result<Assets::MaterialCollection> loadMaterialCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
-  const Model::MaterialConfig& materialConfig,
+  const Model::MaterialConfig& textureConfig,
   Logger&)
 {
   if (gameFS.pathInfo(path) != PathInfo::Directory)
   {
     return Error{
-      "Could not load material collection '" + path.string() + "': not a directory"};
+      "Could not load texture collection '" + path.string() + "': not a directory"};
   }
 
-  const auto pathMatcher = !materialConfig.extensions.empty()
-                             ? makeExtensionPathMatcher(materialConfig.extensions)
+  const auto pathMatcher = !textureConfig.extensions.empty()
+                             ? makeExtensionPathMatcher(textureConfig.extensions)
                              : matchAnyPath;
 
   return gameFS.find(path, TraversalMode::Flat, pathMatcher)
-    .transform([&](auto materialPaths) {
-      return kdl::vec_filter(std::move(materialPaths), [&](const auto& materialPath) {
-        return !shouldExclude(materialPath.stem().string(), materialConfig.excludes);
+    .transform([&](auto texturePaths) {
+      return kdl::vec_filter(std::move(texturePaths), [&](const auto& texturePath) {
+        return !shouldExclude(texturePath.stem().string(), textureConfig.excludes);
       });
     })
-    .join(makeReadMaterialFunc(gameFS, materialConfig))
-    .and_then([&](auto materialPaths, const auto& readMaterial) {
+    .join(makeReadTextureFunc(gameFS, textureConfig))
+    .and_then([&](auto texturePaths, const auto& readTexture) {
       auto nullLogger = NullLogger{};
       return kdl::fold_results(
                kdl::vec_parallel_transform(
-                 std::move(materialPaths),
-                 [&](const auto materialPath) {
-                   return gameFS.openFile(materialPath)
+                 std::move(texturePaths),
+                 [&](const auto texturePath) {
+                   return gameFS.openFile(texturePath)
                      .and_then([&](const auto& file) {
-                       return readMaterial(*file, materialPath)
-                         .transform([&](auto material) {
-                           gameFS.makeAbsolute(materialPath)
+                       return readTexture(*file, texturePath)
+                         .transform([&](auto texture) {
+                           gameFS.makeAbsolute(texturePath)
                              .transform([&](auto absPath) {
-                               material.setAbsolutePath(std::move(absPath));
+                               texture.setAbsolutePath(std::move(absPath));
                              })
                              .or_else([](auto) { return kdl::void_success; });
-                           material.setRelativePath(materialPath);
-                           return material;
+                           texture.setRelativePath(texturePath);
+                           return texture;
                          });
                      })
                      .or_else(makeReadTextureErrorHandler(gameFS, nullLogger));
                  }))
-        .transform([&](auto materials) {
-          return Assets::MaterialCollection{path, std::move(materials)};
+        .transform([&](auto textures) {
+          return Assets::MaterialCollection{path, std::move(textures)};
         });
     });
 }
