@@ -133,10 +133,9 @@ private:
   void parsePatch(ParserStatus& status, size_t startLine);
 
   std::tuple<vm::vec3, vm::vec3, vm::vec3> parseFacePoints(ParserStatus& status);
-  std::string parseTextureName(ParserStatus& status);
-  std::tuple<vm::vec3, float, vm::vec3, float> parseValveTextureAxes(
-    ParserStatus& status);
-  std::tuple<vm::vec3, vm::vec3> parsePrimitiveTextureAxes(ParserStatus& status);
+  std::string parseMaterialName(ParserStatus& status);
+  std::tuple<vm::vec3, float, vm::vec3, float> parseValveUVAxes(ParserStatus& status);
+  std::tuple<vm::vec3, vm::vec3> parsePrimitiveUVAxes(ParserStatus& status);
 
   template <size_t S = 3, typename T = FloatType>
   vm::vec<T, S> parseFloatVector(const QuakeMapToken::Type o, const QuakeMapToken::Type c)
