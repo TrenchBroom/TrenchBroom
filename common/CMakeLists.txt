@@ -413,7 +413,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/RenderView.cpp
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RepeatStack.cpp
-        ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
+        ${COMMON_SOURCE_DIR}/View/ReplaceMaterialDialog.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.cpp
@@ -940,7 +940,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/RenderView.h
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/RepeatStack.h
-        ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.h
+        ${COMMON_SOURCE_DIR}/View/ReplaceMaterialDialog.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.h

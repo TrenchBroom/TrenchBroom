@@ -86,7 +86,7 @@
 #include "View/PasteType.h"
 #include "View/QtUtils.h"
 #include "View/RenderView.h"
-#include "View/ReplaceTextureDialog.h"
+#include "View/ReplaceMaterialDialog.h"
 #include "View/SignalDelayer.h"
 #include "View/Splitter.h"
 #include "View/SwitchableMapViewContainer.h"
@@ -1643,7 +1643,7 @@ bool MapFrame::canRenameSelectedGroups() const
 
 void MapFrame::replaceTexture()
 {
-  auto dialog = ReplaceTextureDialog{m_document, *m_contextManager, this};
+  auto dialog = ReplaceMaterialDialog{m_document, *m_contextManager, this};
   dialog.exec();
 }
 

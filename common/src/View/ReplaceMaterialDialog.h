@@ -43,7 +43,7 @@ class GLContextManager;
 class MapDocument;
 class MaterialBrowser;
 
-class ReplaceTextureDialog : public QDialog
+class ReplaceMaterialDialog : public QDialog
 {
   Q_OBJECT
 private:
@@ -54,7 +54,7 @@ private:
   QPushButton* m_replaceButton = nullptr;
 
 public:
-  ReplaceTextureDialog(
+  ReplaceMaterialDialog(
     std::weak_ptr<MapDocument> document,
     GLContextManager& contextManager,
     QWidget* parent = nullptr);
