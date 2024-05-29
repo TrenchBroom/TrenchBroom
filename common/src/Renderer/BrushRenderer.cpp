@@ -217,8 +217,8 @@ void BrushRenderer::clear()
 
   m_vertexArray = std::make_shared<BrushVertexArray>();
   m_edgeIndices = std::make_shared<BrushIndexArray>();
-  m_transparentFaces = std::make_shared<TextureToBrushIndicesMap>();
-  m_opaqueFaces = std::make_shared<TextureToBrushIndicesMap>();
+  m_transparentFaces = std::make_shared<MaterialToBrushIndicesMap>();
+  m_opaqueFaces = std::make_shared<MaterialToBrushIndicesMap>();
 
   m_opaqueFaceRenderer = FaceRenderer{m_vertexArray, m_opaqueFaces, m_faceColor};
   m_transparentFaceRenderer =
@@ -547,31 +547,31 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
 
   // insert face indices
 
-  auto& facesSortedByTex = brushCache.cachedFacesSortedByTexture();
-  const auto facesSortedByTexSize = facesSortedByTex.size();
+  auto& facesSortedByMaterial = brushCache.cachedFacesSortedByTexture();
+  const auto facesSortedByMaterialCount = facesSortedByMaterial.size();
 
   size_t nextI;
-  for (size_t i = 0; i < facesSortedByTexSize; i = nextI)
+  for (size_t i = 0; i < facesSortedByMaterialCount; i = nextI)
   {
-    const auto* texture = facesSortedByTex[i].texture;
+    const auto* material = facesSortedByMaterial[i].texture;
 
     size_t opaqueIndexCount = 0;
     size_t transparentIndexCount = 0;
 
-    // find the i value for the next texture
-    for (nextI = i + 1;
-         nextI < facesSortedByTexSize && facesSortedByTex[nextI].texture == texture;
+    // find the i value for the next material
+    for (nextI = i + 1; nextI < facesSortedByMaterialCount
+                        && facesSortedByMaterial[nextI].texture == material;
          ++nextI)
     {
     }
 
-    // process all faces with this texture (they'll be consecutive)
+    // process all faces with this material (they'll be consecutive)
     for (size_t j = i; j < nextI; ++j)
     {
-      const auto& cache = facesSortedByTex[j];
+      const auto& cache = facesSortedByMaterial[j];
       if (cache.face->isMarked())
       {
-        assert(cache.texture == texture);
+        assert(cache.texture == material);
         if (shouldDrawFaceInTransparentPass(brushNode, *cache.face))
         {
           transparentIndexCount += triIndicesCountForPolygon(cache.vertexCount);
@@ -586,7 +586,7 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
     if (transparentIndexCount > 0)
     {
       auto& faceVboMap = *m_transparentFaces;
-      auto& holderPtr = faceVboMap[texture];
+      auto& holderPtr = faceVboMap[material];
       if (holderPtr == nullptr)
       {
         // inserts into map!
@@ -595,13 +595,13 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
 
       auto [key, insertDest] =
         holderPtr->getPointerToInsertElementsAt(transparentIndexCount);
-      info.transparentFaceIndicesKeys.emplace_back(texture, key);
+      info.transparentFaceIndicesKeys.emplace_back(material, key);
 
-      // process all faces with this texture (they'll be consecutive)
+      // process all faces with this material (they'll be consecutive)
       auto* currentDest = insertDest;
       for (size_t j = i; j < nextI; ++j)
       {
-        const auto& cache = facesSortedByTex[j];
+        const auto& cache = facesSortedByMaterial[j];
         if (
           cache.face->isMarked()
           && shouldDrawFaceInTransparentPass(brushNode, *cache.face))
@@ -621,7 +621,7 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
     if (opaqueIndexCount > 0)
     {
       auto& faceVboMap = *m_opaqueFaces;
-      auto& holderPtr = faceVboMap[texture];
+      auto& holderPtr = faceVboMap[material];
       if (holderPtr == nullptr)
       {
         // inserts into map!
@@ -629,13 +629,13 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
       }
 
       auto [key, insertDest] = holderPtr->getPointerToInsertElementsAt(opaqueIndexCount);
-      info.opaqueFaceIndicesKeys.emplace_back(texture, key);
+      info.opaqueFaceIndicesKeys.emplace_back(material, key);
 
-      // process all faces with this texture (they'll be consecutive)
+      // process all faces with this material (they'll be consecutive)
       auto* currentDest = insertDest;
       for (size_t j = i; j < nextI; ++j)
       {
-        const auto& cache = facesSortedByTex[j];
+        const auto& cache = facesSortedByMaterial[j];
         if (
           cache.face->isMarked()
           && !shouldDrawFaceInTransparentPass(brushNode, *cache.face))
@@ -700,28 +700,28 @@ void BrushRenderer::removeBrushFromVbo(const Model::BrushNode& brushNode)
     m_edgeIndices->zeroElementsWithKey(info.edgeIndicesKey);
   }
 
-  for (const auto& [texture, opaqueKey] : info.opaqueFaceIndicesKeys)
+  for (const auto& [material, opaqueKey] : info.opaqueFaceIndicesKeys)
   {
-    auto faceIndexHolder = m_opaqueFaces->at(texture);
+    auto faceIndexHolder = m_opaqueFaces->at(material);
     faceIndexHolder->zeroElementsWithKey(opaqueKey);
 
     if (!faceIndexHolder->hasValidIndices())
     {
-      // There are no indices left to render for this texture, so delete the <Texture,
+      // There are no indices left to render for this material, so delete the <Material,
       // BrushIndexArray> entry from the map
-      m_opaqueFaces->erase(texture);
+      m_opaqueFaces->erase(material);
     }
   }
-  for (const auto& [texture, transparentKey] : info.transparentFaceIndicesKeys)
+  for (const auto& [material, transparentKey] : info.transparentFaceIndicesKeys)
   {
-    auto faceIndexHolder = m_transparentFaces->at(texture);
+    auto faceIndexHolder = m_transparentFaces->at(material);
     faceIndexHolder->zeroElementsWithKey(transparentKey);
 
     if (!faceIndexHolder->hasValidIndices())
     {
-      // There are no indices left to render for this texture, so delete the <Texture,
+      // There are no indices left to render for this material, so delete the <Material,
       // BrushIndexArray> entry from the map
-      m_transparentFaces->erase(texture);
+      m_transparentFaces->erase(material);
     }
   }
 

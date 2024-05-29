@@ -146,10 +146,10 @@ private:
   std::shared_ptr<BrushVertexArray> m_vertexArray;
   std::shared_ptr<BrushIndexArray> m_edgeIndices;
 
-  using TextureToBrushIndicesMap =
+  using MaterialToBrushIndicesMap =
     std::unordered_map<const Assets::Material*, std::shared_ptr<BrushIndexArray>>;
-  std::shared_ptr<TextureToBrushIndicesMap> m_transparentFaces;
-  std::shared_ptr<TextureToBrushIndicesMap> m_opaqueFaces;
+  std::shared_ptr<MaterialToBrushIndicesMap> m_transparentFaces;
+  std::shared_ptr<MaterialToBrushIndicesMap> m_opaqueFaces;
 
   FaceRenderer m_opaqueFaceRenderer;
   FaceRenderer m_transparentFaceRenderer;
@@ -195,14 +195,14 @@ public:
    *
    * Additionally, calling `invalidate()` guarantees the m_brushInfo, m_transparentFaces,
    * and m_opaqueFaces maps will be empty, so the BrushRenderer will not have any
-   * lingering Texture* pointers.
+   * lingering Material* pointers.
    */
   void invalidate();
   void invalidateBrush(const Model::BrushNode* brush);
   bool valid() const;
 
   /**
-   * Sets the color to render untextured faces with.
+   * Sets the color to render faces with no material with.
    */
   void setFaceColor(const Color& faceColor);
 
