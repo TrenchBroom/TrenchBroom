@@ -164,10 +164,10 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
     {
       vertexCount += patchNode->grid().pointRowCount * patchNode->grid().pointColumnCount;
 
-      const auto* texture = patchNode->patch().material();
+      const auto* material = patchNode->patch().material();
       const auto quadCount =
         patchNode->grid().quadRowCount() * patchNode->grid().quadColumnCount();
-      indexArrayMapSize.inc(texture, PrimType::Triangles, 6u * quadCount);
+      indexArrayMapSize.inc(material, PrimType::Triangles, 6u * quadCount);
     }
   }
 
@@ -190,7 +190,7 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
       });
       vertices = kdl::vec_concat(std::move(vertices), std::move(gridVertices));
 
-      const auto* texture = patchNode->patch().material();
+      const auto* material = patchNode->patch().material();
 
       const auto pointsPerRow = grid.pointColumnCount;
       for (size_t row = 0u; row < grid.quadRowCount(); ++row)
@@ -203,12 +203,12 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
           const auto i3 = vertexOffset + (row + 1u) * pointsPerRow + col;
 
           indexArrayMapBuilder.addTriangle(
-            texture,
+            material,
             static_cast<Index>(i0),
             static_cast<Index>(i1),
             static_cast<Index>(i2));
           indexArrayMapBuilder.addTriangle(
-            texture,
+            material,
             static_cast<Index>(i2),
             static_cast<Index>(i3),
             static_cast<Index>(i0));
@@ -319,25 +319,25 @@ namespace
 struct RenderFunc : public MaterialRenderFunc
 {
   ActiveShader& shader;
-  bool applyTexture;
+  bool applyMaterial;
   const Color& defaultColor;
 
   RenderFunc(
-    ActiveShader& i_shader, const bool i_applyTexture, const Color& i_defaultColor)
+    ActiveShader& i_shader, const bool i_applyMaterial, const Color& i_defaultColor)
     : shader{i_shader}
-    , applyTexture{i_applyTexture}
+    , applyMaterial{i_applyMaterial}
     , defaultColor{i_defaultColor}
   {
   }
 
-  void before(const Assets::Material* texture) override
+  void before(const Assets::Material* material) override
   {
-    shader.set("GridColor", gridColorForTexture(texture));
-    if (texture)
+    shader.set("GridColor", gridColorForTexture(material));
+    if (material)
     {
-      texture->activate();
-      shader.set("ApplyTexture", applyTexture);
-      shader.set("Color", texture->averageColor());
+      material->activate();
+      shader.set("ApplyTexture", applyMaterial);
+      shader.set("Color", material->averageColor());
     }
     else
     {
@@ -346,11 +346,11 @@ struct RenderFunc : public MaterialRenderFunc
     }
   }
 
-  void after(const Assets::Material* texture) override
+  void after(const Assets::Material* material) override
   {
-    if (texture)
+    if (material)
     {
-      texture->deactivate();
+      material->deactivate();
     }
   }
 };
@@ -362,7 +362,7 @@ void PatchRenderer::doRender(RenderContext& context)
   auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
   auto& prefs = PreferenceManager::instance();
 
-  const bool applyTexture = context.showTextures();
+  const bool applyMaterial = context.showTextures();
   const bool shadeFaces = context.shadeFaces();
   const bool showFog = context.showFog();
 
@@ -372,7 +372,7 @@ void PatchRenderer::doRender(RenderContext& context)
   shader.set("RenderGrid", context.showGrid());
   shader.set("GridSize", static_cast<float>(context.gridSize()));
   shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
-  shader.set("ApplyTexture", applyTexture);
+  shader.set("ApplyTexture", applyMaterial);
   shader.set("Texture", 0);
   shader.set("ApplyTinting", m_tint);
   if (m_tint)
@@ -396,7 +396,7 @@ void PatchRenderer::doRender(RenderContext& context)
       prefs.get(Preferences::SoftMapBoundsColor).b(),
       0.1f});
 
-  auto func = RenderFunc{shader, applyTexture, m_defaultColor};
+  auto func = RenderFunc{shader, applyMaterial, m_defaultColor};
   /*
   if (m_alpha < 1.0f) {
       glAssert(glDepthMask(GL_FALSE));
