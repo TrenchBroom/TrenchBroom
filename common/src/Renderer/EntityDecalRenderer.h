@@ -63,7 +63,7 @@ private:
      * and the decal geometry is stored in the VBO */
     bool validated = false;
 
-    Assets::Material* texture = nullptr;
+    Assets::Material* material = nullptr;
 
     AllocationTracker::Block* vertexHolderKey = nullptr;
     AllocationTracker::Block* faceIndicesKey = nullptr;
@@ -76,10 +76,10 @@ private:
   EntityWithDependenciesMap m_entities;
 
   using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
-  using TextureToBrushIndicesMap =
+  using MaterialToBrushIndicesMap =
     std::unordered_map<const Assets::Material*, std::shared_ptr<BrushIndexArray>>;
 
-  std::shared_ptr<TextureToBrushIndicesMap> m_faces;
+  std::shared_ptr<MaterialToBrushIndicesMap> m_faces;
   std::shared_ptr<BrushVertexArray> m_vertexArray;
   FaceRenderer m_faceRenderer;
   Color m_faceColor;
