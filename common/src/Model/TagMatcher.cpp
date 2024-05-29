@@ -103,48 +103,48 @@ public:
 
 void MaterialTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade) const
 {
-  const auto& textureManager = facade.materialManager();
-  const auto& allTextures = textureManager.materials();
-  auto matchingTextures = std::vector<const Assets::Material*>{};
+  const auto& materialManager = facade.materialManager();
+  const auto& allMaterials = materialManager.materials();
+  auto matchingMaterials = std::vector<const Assets::Material*>{};
 
   std::copy_if(
-    std::begin(allTextures),
-    std::end(allTextures),
-    std::back_inserter(matchingTextures),
-    [this](auto* texture) { return matchesTexture(texture); });
+    std::begin(allMaterials),
+    std::end(allMaterials),
+    std::back_inserter(matchingMaterials),
+    [this](auto* material) { return matchesMaterial(material); });
 
   std::sort(
-    std::begin(matchingTextures),
-    std::end(matchingTextures),
+    std::begin(matchingMaterials),
+    std::end(matchingMaterials),
     [](const auto* lhs, const auto* rhs) {
       return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
     });
 
-  const Assets::Material* texture = nullptr;
-  if (matchingTextures.empty())
+  const Assets::Material* material = nullptr;
+  if (matchingMaterials.empty())
   {
     return;
   }
-  else if (matchingTextures.size() == 1)
+  else if (matchingMaterials.size() == 1)
   {
-    texture = matchingTextures.front();
+    material = matchingMaterials.front();
   }
   else
   {
     const auto options = kdl::vec_transform(
-      matchingTextures, [](const auto* current) { return current->name(); });
+      matchingMaterials, [](const auto* current) { return current->name(); });
     const auto index = callback.selectOption(options);
-    if (index >= matchingTextures.size())
+    if (index >= matchingMaterials.size())
     {
       return;
     }
-    texture = matchingTextures[index];
+    material = matchingMaterials[index];
   }
 
-  assert(texture != nullptr);
+  assert(material != nullptr);
 
   auto request = ChangeBrushFaceAttributesRequest{};
-  request.setMaterialName(texture->name());
+  request.setMaterialName(material->name());
   facade.setFaceAttributes(request);
 }
 
@@ -155,7 +155,7 @@ bool MaterialTagMatcher::canEnable() const
 
 void MaterialTagMatcher::appendToStream(std::ostream& str) const
 {
-  kdl::struct_stream{str} << "TextureTagMatcher";
+  kdl::struct_stream{str} << "MaterialTagMatcher";
 }
 
 MaterialNameTagMatcher::MaterialNameTagMatcher(std::string pattern)
@@ -171,7 +171,7 @@ std::unique_ptr<TagMatcher> MaterialNameTagMatcher::clone() const
 bool MaterialNameTagMatcher::matches(const Taggable& taggable) const
 {
   auto visitor = BrushFaceMatchVisitor{[&](const auto& face) {
-    return matchesTextureName(face.attributes().materialName());
+    return matchesMaterialName(face.attributes().materialName());
   }};
 
   taggable.accept(visitor);
@@ -180,29 +180,29 @@ bool MaterialNameTagMatcher::matches(const Taggable& taggable) const
 
 void MaterialNameTagMatcher::appendToStream(std::ostream& str) const
 {
-  kdl::struct_stream{str} << "TextureNameTagMatcher"
+  kdl::struct_stream{str} << "MaterialNameTagMatcher"
                           << "m_pattern" << m_pattern;
 }
 
-bool MaterialNameTagMatcher::matchesTexture(const Assets::Material* texture) const
+bool MaterialNameTagMatcher::matchesMaterial(const Assets::Material* material) const
 {
-  return texture && matchesTextureName(texture->name());
+  return material && matchesMaterialName(material->name());
 }
 
-bool MaterialNameTagMatcher::matchesTextureName(std::string_view textureName) const
+bool MaterialNameTagMatcher::matchesMaterialName(std::string_view materialName) const
 {
   // If the match pattern doesn't contain a slash, match against
-  // only the last component of the texture name.
+  // only the last component of the material name.
   if (m_pattern.find('/') == std::string::npos)
   {
-    const auto pos = textureName.find_last_of('/');
+    const auto pos = materialName.find_last_of('/');
     if (pos != std::string::npos)
     {
-      textureName = textureName.substr(pos + 1);
+      materialName = materialName.substr(pos + 1);
     }
   }
 
-  return kdl::ci::str_matches_glob(textureName, m_pattern);
+  return kdl::ci::str_matches_glob(materialName, m_pattern);
 }
 
 SurfaceParmTagMatcher::SurfaceParmTagMatcher(std::string parameter)
@@ -223,7 +223,7 @@ std::unique_ptr<TagMatcher> SurfaceParmTagMatcher::clone() const
 bool SurfaceParmTagMatcher::matches(const Taggable& taggable) const
 {
   auto visitor = BrushFaceMatchVisitor{
-    [&](const auto& face) { return matchesTexture(face.material()); }};
+    [&](const auto& face) { return matchesMaterial(face.material()); }};
 
   taggable.accept(visitor);
   return visitor.matches();
@@ -235,20 +235,20 @@ void SurfaceParmTagMatcher::appendToStream(std::ostream& str) const
                           << "m_parameters" << m_parameters;
 }
 
-bool SurfaceParmTagMatcher::matchesTexture(const Assets::Material* texture) const
+bool SurfaceParmTagMatcher::matchesMaterial(const Assets::Material* material) const
 {
-  if (texture)
+  if (material)
   {
-    const auto& parameters = texture->surfaceParms();
-    auto iTexParams = parameters.begin();
+    const auto& parameters = material->surfaceParms();
+    auto iMaterialParams = parameters.begin();
     auto iTagParams = m_parameters.begin();
-    while (iTexParams != parameters.end() && iTagParams != m_parameters.end())
+    while (iMaterialParams != parameters.end() && iTagParams != m_parameters.end())
     {
-      if (*iTexParams < *iTagParams)
+      if (*iMaterialParams < *iTagParams)
       {
-        ++iTexParams;
+        ++iMaterialParams;
       }
-      else if (*iTagParams < *iTexParams)
+      else if (*iTagParams < *iMaterialParams)
       {
         ++iTagParams;
       }
@@ -397,15 +397,15 @@ std::unique_ptr<TagMatcher> SurfaceFlagsTagMatcher::clone() const
 }
 
 EntityClassNameTagMatcher::EntityClassNameTagMatcher(
-  std::string pattern, std::string texture)
+  std::string pattern, std::string material)
   : m_pattern{std::move(pattern)}
-  , m_texture{std::move(texture)}
+  , m_material{std::move(material)}
 {
 }
 
 std::unique_ptr<TagMatcher> EntityClassNameTagMatcher::clone() const
 {
-  return std::make_unique<EntityClassNameTagMatcher>(m_pattern, m_texture);
+  return std::make_unique<EntityClassNameTagMatcher>(m_pattern, m_material);
 }
 
 bool EntityClassNameTagMatcher::matches(const Taggable& taggable) const
@@ -477,10 +477,10 @@ void EntityClassNameTagMatcher::enable(
   assert(definition != nullptr);
   facade.createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
 
-  if (!m_texture.empty())
+  if (!m_material.empty())
   {
     ChangeBrushFaceAttributesRequest request;
-    request.setMaterialName(m_texture);
+    request.setMaterialName(m_material);
     facade.setFaceAttributes(request);
   }
 }
@@ -523,7 +523,7 @@ bool EntityClassNameTagMatcher::canDisable() const
 void EntityClassNameTagMatcher::appendToStream(std::ostream& str) const
 {
   kdl::struct_stream{str} << "EntityClassNameMatcher"
-                          << "m_pattern" << m_pattern << "m_texture" << m_texture;
+                          << "m_pattern" << m_pattern << "m_material" << m_material;
 }
 
 bool EntityClassNameTagMatcher::matchesClassname(const std::string& classname) const

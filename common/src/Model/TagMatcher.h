@@ -49,7 +49,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  virtual bool matchesTexture(const Assets::Material* texture) const = 0;
+  virtual bool matchesMaterial(const Assets::Material* material) const = 0;
 };
 
 class MaterialNameTagMatcher : public MaterialTagMatcher
@@ -64,8 +64,8 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesTexture(const Assets::Material* texture) const override;
-  bool matchesTextureName(std::string_view textureName) const;
+  bool matchesMaterial(const Assets::Material* material) const override;
+  bool matchesMaterialName(std::string_view materialName) const;
 };
 
 class SurfaceParmTagMatcher : public MaterialTagMatcher
@@ -81,7 +81,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesTexture(const Assets::Material* texture) const override;
+  bool matchesMaterial(const Assets::Material* material) const override;
 };
 
 class FlagsTagMatcher : public TagMatcher
@@ -134,12 +134,12 @@ class EntityClassNameTagMatcher : public TagMatcher
 private:
   std::string m_pattern;
   /**
-   * The texture to set when this tag is enabled.
+   * The material to set when this tag is enabled.
    */
-  std::string m_texture;
+  std::string m_material;
 
 public:
-  EntityClassNameTagMatcher(std::string pattern, std::string texture);
+  EntityClassNameTagMatcher(std::string pattern, std::string material);
   std::unique_ptr<TagMatcher> clone() const override;
 
 public:
