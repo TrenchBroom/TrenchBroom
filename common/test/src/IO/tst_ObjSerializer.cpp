@@ -407,7 +407,7 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
 
   for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)
   {
-    brushNode->setFaceTexture(i, &texture);
+    brushNode->setFaceMaterial(i, &texture);
   }
 
   auto objStream = std::ostringstream{};

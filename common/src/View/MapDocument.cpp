@@ -4522,7 +4522,7 @@ static auto makeSetMaterialsVisitor(Assets::MaterialManager& manager)
       {
         const Model::BrushFace& face = brush.face(i);
         Assets::Material* material = manager.material(face.attributes().materialName());
-        brushNode->setFaceTexture(i, material);
+        brushNode->setFaceMaterial(i, material);
       }
     },
     [&](Model::PatchNode* patchNode) {
@@ -4544,7 +4544,7 @@ static auto makeUnsetMaterialsVisitor()
       const Model::Brush& brush = brushNode->brush();
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
-        brushNode->setFaceTexture(i, nullptr);
+        brushNode->setFaceMaterial(i, nullptr);
       }
     },
     [](Model::PatchNode* patchNode) { patchNode->setTexture(nullptr); });
@@ -4569,7 +4569,7 @@ void MapDocument::setMaterials(const std::vector<Model::BrushFaceHandle>& faceHa
     Model::BrushNode* node = faceHandle.node();
     const Model::BrushFace& face = faceHandle.face();
     auto* material = m_materialManager->material(face.attributes().materialName());
-    node->setFaceTexture(faceHandle.faceIndex(), material);
+    node->setFaceMaterial(faceHandle.faceIndex(), material);
   }
   materialUsageCountsDidChangeNotifier();
 }

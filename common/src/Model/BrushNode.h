@@ -89,7 +89,7 @@ public:
 
   void updateFaceTags(size_t faceIndex, TagManager& tagManager);
 
-  void setFaceTexture(size_t faceIndex, Assets::Material* texture);
+  void setFaceMaterial(size_t faceIndex, Assets::Material* material);
 
   bool contains(const Node* node) const;
   bool intersects(const Node* node) const;
