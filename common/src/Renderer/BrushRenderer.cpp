@@ -547,20 +547,20 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
 
   // insert face indices
 
-  auto& facesSortedByMaterial = brushCache.cachedFacesSortedByTexture();
+  auto& facesSortedByMaterial = brushCache.cachedFacesSortedByMaterial();
   const auto facesSortedByMaterialCount = facesSortedByMaterial.size();
 
   size_t nextI;
   for (size_t i = 0; i < facesSortedByMaterialCount; i = nextI)
   {
-    const auto* material = facesSortedByMaterial[i].texture;
+    const auto* material = facesSortedByMaterial[i].material;
 
     size_t opaqueIndexCount = 0;
     size_t transparentIndexCount = 0;
 
     // find the i value for the next material
     for (nextI = i + 1; nextI < facesSortedByMaterialCount
-                        && facesSortedByMaterial[nextI].texture == material;
+                        && facesSortedByMaterial[nextI].material == material;
          ++nextI)
     {
     }
@@ -571,7 +571,7 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
       const auto& cache = facesSortedByMaterial[j];
       if (cache.face->isMarked())
       {
-        assert(cache.texture == material);
+        assert(cache.material == material);
         if (shouldDrawFaceInTransparentPass(brushNode, *cache.face))
         {
           transparentIndexCount += triIndicesCountForPolygon(cache.vertexCount);
