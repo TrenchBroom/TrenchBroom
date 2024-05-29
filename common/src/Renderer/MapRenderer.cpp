@@ -679,7 +679,7 @@ void MapRenderer::connectObservers()
   m_notifierConnection +=
     document->selectionDidChangeNotifier.connect(this, &MapRenderer::selectionDidChange);
   m_notifierConnection += document->materialCollectionsWillChangeNotifier.connect(
-    this, &MapRenderer::textureCollectionsWillChange);
+    this, &MapRenderer::materialCollectionsWillChange);
   m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(
     this, &MapRenderer::entityDefinitionsDidChange);
   m_notifierConnection +=
@@ -804,7 +804,7 @@ void MapRenderer::selectionDidChange(const View::Selection& selection)
   invalidateGroupLinkRenderer();
 }
 
-void MapRenderer::textureCollectionsWillChange()
+void MapRenderer::materialCollectionsWillChange()
 {
   invalidateRenderers(Renderer::All);
 }

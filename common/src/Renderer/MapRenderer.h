@@ -146,7 +146,7 @@ private: // notification
 
   void selectionDidChange(const View::Selection& selection);
 
-  void textureCollectionsWillChange();
+  void materialCollectionsWillChange();
   void entityDefinitionsDidChange();
   void modsDidChange();
 
