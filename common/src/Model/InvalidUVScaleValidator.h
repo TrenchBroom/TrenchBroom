@@ -26,10 +26,10 @@
 namespace TrenchBroom::Model
 {
 
-class InvalidTextureScaleValidator : public Validator
+class InvalidUVScaleValidator : public Validator
 {
 public:
-  InvalidTextureScaleValidator();
+  InvalidUVScaleValidator();
 
 private:
   void doValidate(

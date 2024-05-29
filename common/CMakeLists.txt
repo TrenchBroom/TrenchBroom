@@ -140,7 +140,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitFilter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitType.cpp
-        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/InvalidUVScaleValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Issue.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueType.cpp
@@ -634,7 +634,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
         ${COMMON_SOURCE_DIR}/Model/HitType.h
         ${COMMON_SOURCE_DIR}/Model/IdType.h
-        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleValidator.h
+        ${COMMON_SOURCE_DIR}/Model/InvalidUVScaleValidator.h
         ${COMMON_SOURCE_DIR}/Model/Issue.h
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/IssueType.h

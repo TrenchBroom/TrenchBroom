@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "InvalidTextureScaleValidator.h"
+#include "InvalidUVScaleValidator.h"
 
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
@@ -39,11 +39,10 @@ namespace
 
 const auto Type = freeIssueType();
 
-IssueQuickFix makeResetTextureScaleQuickFix()
+IssueQuickFix makeResetUVScaleQuickFix()
 {
   return {
-    "Reset Texture Scale",
-    [](MapFacade& facade, const std::vector<const Issue*>& issues) {
+    "Reset UV Scale", [](MapFacade& facade, const std::vector<const Issue*>& issues) {
       const auto pushSelection = PushSelection{facade};
 
       auto faceHandles = std::vector<BrushFaceHandle>{};
@@ -67,13 +66,13 @@ IssueQuickFix makeResetTextureScaleQuickFix()
 }
 } // namespace
 
-InvalidTextureScaleValidator::InvalidTextureScaleValidator()
-  : Validator{Type, "Invalid texture scale"}
+InvalidUVScaleValidator::InvalidUVScaleValidator()
+  : Validator{Type, "Invalid UV scale"}
 {
-  addQuickFix(makeResetTextureScaleQuickFix());
+  addQuickFix(makeResetUVScaleQuickFix());
 }
 
-void InvalidTextureScaleValidator::doValidate(
+void InvalidUVScaleValidator::doValidate(
   BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
   const auto& brush = brushNode.brush();
@@ -83,7 +82,7 @@ void InvalidTextureScaleValidator::doValidate(
     if (!face.attributes().valid())
     {
       issues.push_back(std::make_unique<BrushFaceIssue>(
-        Type, brushNode, i, "Face has invalid texture scale."));
+        Type, brushNode, i, "Face has invalid UV scale."));
     }
   }
 }

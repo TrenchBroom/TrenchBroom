@@ -55,7 +55,7 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
-#include "Model/InvalidTextureScaleValidator.h"
+#include "Model/InvalidUVScaleValidator.h"
 #include "Model/LayerNode.h"
 #include "Model/LinkSourceValidator.h"
 #include "Model/LinkTargetValidator.h"
@@ -4840,7 +4840,7 @@ void MapDocument::registerValidators()
     std::make_unique<Model::PropertyKeyWithDoubleQuotationMarksValidator>());
   m_world->registerValidator(
     std::make_unique<Model::PropertyValueWithDoubleQuotationMarksValidator>());
-  m_world->registerValidator(std::make_unique<Model::InvalidTextureScaleValidator>());
+  m_world->registerValidator(std::make_unique<Model::InvalidUVScaleValidator>());
 }
 
 void MapDocument::registerSmartTags()
