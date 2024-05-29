@@ -62,7 +62,7 @@ void replaceMaterials(
   const std::string& materialName)
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
-  request.setTextureName(materialName);
+  request.setMaterialName(materialName);
 
   const auto pushSelection = Model::PushSelection{document};
 

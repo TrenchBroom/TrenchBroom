@@ -176,7 +176,7 @@ void FaceInspector::textureSelected(const Assets::Material* texture)
 
       document->setCurrentMaterialName(textureNameToSet);
       auto request = Model::ChangeBrushFaceAttributesRequest{};
-      request.setTextureName(textureNameToSet);
+      request.setMaterialName(textureNameToSet);
       document->setFaceAttributes(request);
     }
     else

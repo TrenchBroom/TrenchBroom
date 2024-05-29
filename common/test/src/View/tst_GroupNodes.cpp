@@ -873,7 +873,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLin
     document->selectNodes({groupNode, linkedGroupNode});
 
     auto setTexture = Model::ChangeBrushFaceAttributesRequest{};
-    setTexture.setTextureName("abc");
+    setTexture.setMaterialName("abc");
     CHECK(document->setFaceAttributes(setTexture));
 
     // check that the brushes in both linked groups were textured

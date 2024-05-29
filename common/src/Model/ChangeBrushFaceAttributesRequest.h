@@ -61,14 +61,14 @@ public:
     Unset, // TODO: rename to UnsetBits or ClearBits
   };
 
-  enum class TextureOp
+  enum class MaterialOp
   {
     None,
     Set
   };
 
 private:
-  std::string m_textureName;
+  std::string m_materialName;
   float m_xOffset = 0.0f;
   float m_yOffset = 0.0f;
   float m_rotation = 0.0f;
@@ -79,7 +79,7 @@ private:
   std::optional<float> m_surfaceValue;
   std::optional<Color> m_colorValue;
 
-  TextureOp m_textureOp = TextureOp::None;
+  MaterialOp m_materialOp = MaterialOp::None;
   AxisOp m_axisOp = AxisOp::None;
   ValueOp m_xOffsetOp = ValueOp::None;
   ValueOp m_yOffsetOp = ValueOp::None;
@@ -102,11 +102,11 @@ public:
   void resetAll(const BrushFaceAttributes& defaultFaceAttributes);
   void resetAllToParaxial(const BrushFaceAttributes& defaultFaceAttributes);
 
-  void setTextureName(const std::string& textureName);
+  void setMaterialName(const std::string& materialName);
 
-  void resetTextureAxes();
-  void resetTextureAxesToParaxial();
-  void resetTextureAxesToParallel();
+  void resetUVAxes();
+  void resetUVAxesToParaxial();
+  void resetUVAxesToParallel();
 
   void setOffset(const vm::vec2f& offset);
   void addOffset(const vm::vec2f& offset);

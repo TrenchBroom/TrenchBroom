@@ -144,7 +144,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade)
   assert(texture != nullptr);
 
   auto request = ChangeBrushFaceAttributesRequest{};
-  request.setTextureName(texture->name());
+  request.setMaterialName(texture->name());
   facade.setFaceAttributes(request);
 }
 
@@ -480,7 +480,7 @@ void EntityClassNameTagMatcher::enable(
   if (!m_texture.empty())
   {
     ChangeBrushFaceAttributesRequest request;
-    request.setTextureName(m_texture);
+    request.setMaterialName(m_texture);
     facade.setFaceAttributes(request);
   }
 }

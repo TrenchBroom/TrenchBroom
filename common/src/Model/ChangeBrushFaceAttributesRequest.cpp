@@ -131,12 +131,12 @@ bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const
 
   BrushFaceAttributes attributes = brushFace.attributes();
 
-  switch (m_textureOp)
+  switch (m_materialOp)
   {
-  case TextureOp::Set:
-    result |= attributes.setMaterialName(m_textureName);
+  case MaterialOp::Set:
+    result |= attributes.setMaterialName(m_materialName);
     break;
-  case TextureOp::None:
+  case MaterialOp::None:
     break;
     switchDefault();
   }
@@ -194,7 +194,7 @@ bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const
 void ChangeBrushFaceAttributesRequest::resetAll(
   const BrushFaceAttributes& defaultFaceAttributes)
 {
-  resetTextureAxes();
+  resetUVAxes();
   setOffset(vm::vec2f::zero());
   setRotation(0.0f);
   setScale(defaultFaceAttributes.scale());
@@ -203,29 +203,29 @@ void ChangeBrushFaceAttributesRequest::resetAll(
 void ChangeBrushFaceAttributesRequest::resetAllToParaxial(
   const BrushFaceAttributes& defaultFaceAttributes)
 {
-  resetTextureAxesToParaxial();
+  resetUVAxesToParaxial();
   setOffset(vm::vec2f::zero());
   setRotation(0.0f);
   setScale(defaultFaceAttributes.scale());
 }
 
-void ChangeBrushFaceAttributesRequest::setTextureName(const std::string& textureName)
+void ChangeBrushFaceAttributesRequest::setMaterialName(const std::string& materialName)
 {
-  m_textureName = textureName;
-  m_textureOp = TextureOp::Set;
+  m_materialName = materialName;
+  m_materialOp = MaterialOp::Set;
 }
 
-void ChangeBrushFaceAttributesRequest::resetTextureAxes()
+void ChangeBrushFaceAttributesRequest::resetUVAxes()
 {
   m_axisOp = AxisOp::Reset;
 }
 
-void ChangeBrushFaceAttributesRequest::resetTextureAxesToParaxial()
+void ChangeBrushFaceAttributesRequest::resetUVAxesToParaxial()
 {
   m_axisOp = AxisOp::ToParaxial;
 }
 
-void ChangeBrushFaceAttributesRequest::resetTextureAxesToParallel()
+void ChangeBrushFaceAttributesRequest::resetUVAxesToParallel()
 {
   m_axisOp = AxisOp::ToParallel;
 }
@@ -440,7 +440,7 @@ void ChangeBrushFaceAttributesRequest::setAll(
 void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(
   const Model::BrushFaceAttributes& attributes)
 {
-  setTextureName(attributes.materialName());
+  setMaterialName(attributes.materialName());
   setXOffset(attributes.xOffset());
   setYOffset(attributes.yOffset());
   setRotation(attributes.rotation());

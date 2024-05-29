@@ -97,7 +97,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
   document->selectNodes({brushNode});
 
   auto setTexture1 = Model::ChangeBrushFaceAttributesRequest{};
-  setTexture1.setTextureName("texture1");
+  setTexture1.setMaterialName("texture1");
   document->setFaceAttributes(setTexture1);
   for (const auto& face : brushNode->brush().faces())
   {
@@ -105,7 +105,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
   }
 
   auto setTexture2 = Model::ChangeBrushFaceAttributesRequest{};
-  setTexture2.setTextureName("texture2");
+  setTexture2.setMaterialName("texture2");
   document->setFaceAttributes(setTexture2);
   for (const auto& face : brushNode->brush().faces())
   {
@@ -138,7 +138,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   document->selectBrushFaces({{brushNode, firstFaceIndex}});
 
   auto setFirstFace = Model::ChangeBrushFaceAttributesRequest{};
-  setFirstFace.setTextureName("first");
+  setFirstFace.setMaterialName("first");
   setFirstFace.setXOffset(32.0f);
   setFirstFace.setYOffset(64.0f);
   setFirstFace.setRotation(90.0f);
@@ -168,7 +168,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   document->selectBrushFaces({{brushNode, secondFaceIndex}});
 
   auto setSecondFace = Model::ChangeBrushFaceAttributesRequest{};
-  setSecondFace.setTextureName("second");
+  setSecondFace.setMaterialName("second");
   setSecondFace.setXOffset(16.0f);
   setSecondFace.setYOffset(48.0f);
   setSecondFace.setRotation(45.0f);
@@ -252,7 +252,7 @@ TEST_CASE_METHOD(
   CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
 
   auto request = Model::ChangeBrushFaceAttributesRequest{};
-  request.setTextureName("something_else");
+  request.setMaterialName("something_else");
   document->setFaceAttributes(request);
 
   CHECK(brushNode->brush().face(0).attributes().materialName() == "something_else");
