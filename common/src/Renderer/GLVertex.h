@@ -30,7 +30,7 @@ template <typename... AttrTypes>
 struct GLVertexType;
 
 /**
- * Stores the attribute values of an OpenGL vertex such as the position, the texture
+ * Stores the attribute values of an OpenGL vertex such as the position, the UV
  * coordinates or the normal.
  *
  * Refer to the corresponding vertex type to see how to use vertices in conjunction with
