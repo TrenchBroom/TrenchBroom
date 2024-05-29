@@ -4355,7 +4355,7 @@ std::vector<std::filesystem::path> MapDocument::enabledMaterialCollections() con
   {
     if (
       const auto* materialCollectionStr =
-        m_world->entity().property(Model::EntityPropertyKeys::EnabledTextureCollections))
+        m_world->entity().property(Model::EntityPropertyKeys::EnabledMaterialCollections))
     {
       return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
         kdl::str_split(*materialCollectionStr, ";"),
@@ -4410,7 +4410,7 @@ void MapDocument::setEnabledMaterialCollections(
 
   auto transaction = Transaction{*this, "Set enabled material collections"};
   const auto success = setProperty(
-    Model::EntityPropertyKeys::EnabledTextureCollections, enabledMaterialCollectionStr);
+    Model::EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
   transaction.finish(success);
 }
 
