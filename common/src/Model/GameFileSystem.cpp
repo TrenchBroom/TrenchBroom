@@ -195,13 +195,13 @@ void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logge
 {
   // To support Quake 3 shaders, we add a shader file system that loads the shaders
   // and makes them available as virtual files.
-  const auto& textureConfig = config.materialConfig;
-  if (!textureConfig.shaderSearchPath.empty())
+  const auto& materialConfig = config.materialConfig;
+  if (!materialConfig.shaderSearchPath.empty())
   {
     logger.info() << "Adding shader file system";
-    auto shaderSearchPath = textureConfig.shaderSearchPath;
+    auto shaderSearchPath = materialConfig.shaderSearchPath;
     auto textureSearchPaths =
-      std::vector<std::filesystem::path>{textureConfig.root, "models"};
+      std::vector<std::filesystem::path>{materialConfig.root, "models"};
 
     auto shaderFs =
       IO::createImageFileSystem<IO::Quake3ShaderFileSystem>(
