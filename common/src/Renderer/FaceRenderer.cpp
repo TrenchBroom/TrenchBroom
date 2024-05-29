@@ -42,24 +42,24 @@ class RenderFunc : public MaterialRenderFunc
 {
 private:
   ActiveShader& m_shader;
-  bool m_applyTexture;
+  bool m_applyMaterial;
   Color m_defaultColor;
 
 public:
-  RenderFunc(ActiveShader& shader, const bool applyTexture, const Color& defaultColor)
+  RenderFunc(ActiveShader& shader, const bool applyMaterial, const Color& defaultColor)
     : m_shader{shader}
-    , m_applyTexture{applyTexture}
+    , m_applyMaterial{applyMaterial}
     , m_defaultColor{defaultColor}
   {
   }
 
-  void before(const Assets::Material* texture) override
+  void before(const Assets::Material* material) override
   {
-    if (texture)
+    if (material)
     {
-      texture->activate();
-      m_shader.set("ApplyMaterial", m_applyTexture);
-      m_shader.set("Color", texture->averageColor());
+      material->activate();
+      m_shader.set("ApplyMaterial", m_applyMaterial);
+      m_shader.set("Color", material->averageColor());
     }
     else
     {
@@ -68,11 +68,11 @@ public:
     }
   }
 
-  void after(const Assets::Material* texture) override
+  void after(const Assets::Material* material) override
   {
-    if (texture)
+    if (material)
     {
-      texture->deactivate();
+      material->deactivate();
     }
   }
 };
@@ -120,7 +120,7 @@ void FaceRenderer::prepareVerticesAndIndices(VboManager& vboManager)
 {
   m_vertexArray->prepare(vboManager);
 
-  for (const auto& [texture, brushIndexHolderPtr] : *m_indexArrayMap)
+  for (const auto& [material, brushIndexHolderPtr] : *m_indexArrayMap)
   {
     brushIndexHolderPtr->prepare(vboManager);
   }
@@ -134,7 +134,7 @@ void FaceRenderer::doRender(RenderContext& context)
     auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
     auto& prefs = PreferenceManager::instance();
 
-    const auto applyTexture = context.showTextures();
+    const auto applyMaterial = context.showTextures();
     const auto shadeFaces = context.shadeFaces();
     const auto showFog = context.showFog();
 
@@ -144,7 +144,7 @@ void FaceRenderer::doRender(RenderContext& context)
     shader.set("RenderGrid", context.showGrid());
     shader.set("GridSize", static_cast<float>(context.gridSize()));
     shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
-    shader.set("ApplyMaterial", applyTexture);
+    shader.set("ApplyMaterial", applyMaterial);
     shader.set("Material", 0);
     shader.set("ApplyTinting", m_tint);
     if (m_tint)
@@ -164,26 +164,26 @@ void FaceRenderer::doRender(RenderContext& context)
       "SoftMapBoundsColor",
       vm::vec4f{prefs.get(Preferences::SoftMapBoundsColor).xyz(), 0.1f});
 
-    auto func = RenderFunc{shader, applyTexture, m_faceColor};
+    auto func = RenderFunc{shader, applyMaterial, m_faceColor};
     if (m_alpha < 1.0f)
     {
       glAssert(glDepthMask(GL_FALSE));
     }
-    for (const auto& [texture, brushIndexHolderPtr] : *m_indexArrayMap)
+    for (const auto& [material, brushIndexHolderPtr] : *m_indexArrayMap)
     {
       if (brushIndexHolderPtr->hasValidIndices())
       {
-        const auto enableMasked = texture && texture->masked();
+        const auto enableMasked = material && material->masked();
 
-        // set any per-texture uniforms
-        shader.set("GridColor", gridColorForTexture(texture));
+        // set any per-material uniforms
+        shader.set("GridColor", gridColorForTexture(material));
         shader.set("EnableMasked", enableMasked);
 
-        func.before(texture);
+        func.before(material);
         brushIndexHolderPtr->setupIndices();
         brushIndexHolderPtr->render(PrimType::Triangles);
         brushIndexHolderPtr->cleanupIndices();
-        func.after(texture);
+        func.after(material);
       }
     }
     if (m_alpha < 1.0f)
