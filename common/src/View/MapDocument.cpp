@@ -4527,7 +4527,7 @@ static auto makeSetMaterialsVisitor(Assets::MaterialManager& manager)
     },
     [&](Model::PatchNode* patchNode) {
       auto* material = manager.material(patchNode->patch().materialName());
-      patchNode->setTexture(material);
+      patchNode->setMaterial(material);
     });
 }
 
@@ -4547,7 +4547,7 @@ static auto makeUnsetMaterialsVisitor()
         brushNode->setFaceMaterial(i, nullptr);
       }
     },
-    [](Model::PatchNode* patchNode) { patchNode->setTexture(nullptr); });
+    [](Model::PatchNode* patchNode) { patchNode->setMaterial(nullptr); });
 }
 
 void MapDocument::setMaterials()

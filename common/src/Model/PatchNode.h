@@ -91,7 +91,7 @@ public:
   const BezierPatch& patch() const;
   BezierPatch setPatch(BezierPatch patch);
 
-  void setTexture(Assets::Material* texture);
+  void setMaterial(Assets::Material* material);
 
   const PatchGrid& grid() const;
 
