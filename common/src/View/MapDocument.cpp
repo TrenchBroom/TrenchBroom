@@ -4493,7 +4493,7 @@ void MapDocument::loadMaterials()
         [](const auto& str) { return std::filesystem::path{str}; });
       m_game->reloadWads(path(), wadPaths, logger());
     }
-    m_game->loadTextureCollections(*m_materialManager);
+    m_game->loadMaterialCollections(*m_materialManager);
   }
   catch (const Exception& e)
   {

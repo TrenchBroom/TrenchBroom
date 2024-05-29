@@ -143,28 +143,28 @@ std::unique_ptr<Assets::EntityModel> GameImpl::initializeModel(
 
         if (IO::MdlParser::canParse(path, reader))
         {
-          return loadTexturePalette().transform([&](auto palette) {
+          return loadPalette().transform([&](auto palette) {
             auto parser = IO::MdlParser{modelName, reader, palette};
             return parser.initializeModel(logger);
           });
         }
         if (IO::Md2Parser::canParse(path, reader))
         {
-          return loadTexturePalette().transform([&](auto palette) {
+          return loadPalette().transform([&](auto palette) {
             auto parser = IO::Md2Parser{modelName, reader, palette, m_fs};
             return parser.initializeModel(logger);
           });
         }
         if (IO::Bsp29Parser::canParse(path, reader))
         {
-          return loadTexturePalette().transform([&](auto palette) {
+          return loadPalette().transform([&](auto palette) {
             auto parser = IO::Bsp29Parser{modelName, reader, palette, m_fs};
             return parser.initializeModel(logger);
           });
         }
         if (IO::SprParser::canParse(path, reader))
         {
-          return loadTexturePalette().transform([&](auto palette) {
+          return loadPalette().transform([&](auto palette) {
             auto parser = IO::SprParser{modelName, reader, palette};
             return parser.initializeModel(logger);
           });
@@ -233,28 +233,28 @@ void GameImpl::loadFrame(
 
         if (IO::MdlParser::canParse(path, reader))
         {
-          return loadTexturePalette().transform([&](auto palette) {
+          return loadPalette().transform([&](auto palette) {
             auto parser = IO::MdlParser{modelName, reader, palette};
             parser.loadFrame(frameIndex, model, logger);
           });
         }
         if (IO::Md2Parser::canParse(path, reader))
         {
-          return loadTexturePalette().transform([&](auto palette) {
+          return loadPalette().transform([&](auto palette) {
             auto parser = IO::Md2Parser{modelName, reader, palette, m_fs};
             parser.loadFrame(frameIndex, model, logger);
           });
         }
         if (IO::Bsp29Parser::canParse(path, reader))
         {
-          return loadTexturePalette().transform([&](auto palette) {
+          return loadPalette().transform([&](auto palette) {
             auto parser = IO::Bsp29Parser{modelName, reader, palette, m_fs};
             parser.loadFrame(frameIndex, model, logger);
           });
         }
         if (IO::SprParser::canParse(path, reader))
         {
-          return loadTexturePalette().transform([&](auto palette) {
+          return loadPalette().transform([&](auto palette) {
             auto parser = IO::SprParser{modelName, reader, palette};
             parser.loadFrame(frameIndex, model, logger);
           });
@@ -540,9 +540,9 @@ void GameImpl::writeBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void GameImpl::loadTextureCollections(Assets::MaterialManager& textureManager) const
+void GameImpl::loadMaterialCollections(Assets::MaterialManager& materialManager) const
 {
-  textureManager.reload(m_fs, m_config.materialConfig);
+  materialManager.reload(m_fs, m_config.materialConfig);
 }
 
 const std::optional<std::string>& GameImpl::wadProperty() const
@@ -628,7 +628,7 @@ std::filesystem::path GameImpl::findEntityDefinitionFile(
   return IO::Disk::resolvePath(searchPaths, path);
 }
 
-Result<Assets::Palette> GameImpl::loadTexturePalette() const
+Result<Assets::Palette> GameImpl::loadPalette() const
 {
   const auto& path = m_config.materialConfig.palette;
   return m_fs.openFile(path).and_then(

@@ -144,8 +144,9 @@ public: // parsing and serializing objects
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const = 0;
 
-public: // texture collection handling
-  virtual void loadTextureCollections(Assets::MaterialManager& textureManagerr) const = 0;
+public: // material collection handling
+  virtual void loadMaterialCollections(
+    Assets::MaterialManager& materialManager) const = 0;
 
   virtual const std::optional<std::string>& wadProperty() const = 0;
   virtual void reloadWads(

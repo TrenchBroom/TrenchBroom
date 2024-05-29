@@ -123,7 +123,7 @@ public: // implement Game interface
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  void loadTextureCollections(Assets::MaterialManager& textureManager) const override;
+  void loadMaterialCollections(Assets::MaterialManager& materialManager) const override;
 
   const std::optional<std::string>& wadProperty() const override;
   void reloadWads(
@@ -141,7 +141,7 @@ public: // implement Game interface
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
-  Result<Assets::Palette> loadTexturePalette() const;
+  Result<Assets::Palette> loadPalette() const;
 
   Result<std::vector<std::string>> availableMods() const override;
   std::vector<std::string> extractEnabledMods(const Entity& entity) const override;

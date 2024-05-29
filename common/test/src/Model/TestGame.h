@@ -105,7 +105,7 @@ public:
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  void loadTextureCollections(Assets::MaterialManager& textureManager) const override;
+  void loadMaterialCollections(Assets::MaterialManager& materialManager) const override;
 
   const std::optional<std::string>& wadProperty() const override;
   void reloadWads(

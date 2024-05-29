@@ -126,7 +126,7 @@ TEST_CASE("GameTest.loadQuake3Shaders")
   auto worldspawn = Entity{};
 
   auto textureManager = Assets::MaterialManager{0, 0, logger};
-  game.loadTextureCollections(textureManager);
+  game.loadMaterialCollections(textureManager);
 
   /*
    * The shader script contains five entries:

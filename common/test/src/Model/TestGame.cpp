@@ -189,9 +189,9 @@ void TestGame::writeBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void TestGame::loadTextureCollections(Assets::MaterialManager& textureManager) const
+void TestGame::loadMaterialCollections(Assets::MaterialManager& materialManager) const
 {
-  const Model::MaterialConfig textureConfig{
+  const Model::MaterialConfig materialConfig{
     "textures",
     {".D"},
     "fixture/test/palette.lmp",
@@ -200,7 +200,7 @@ void TestGame::loadTextureCollections(Assets::MaterialManager& textureManager) c
     {},
   };
 
-  textureManager.reload(*m_fs, textureConfig);
+  materialManager.reload(*m_fs, materialConfig);
 }
 
 const std::optional<std::string>& TestGame::wadProperty() const
