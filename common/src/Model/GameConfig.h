@@ -73,7 +73,7 @@ struct MaterialConfig
   std::filesystem::path palette;
   std::optional<std::string> property;
   std::filesystem::path shaderSearchPath;
-  // Glob patterns used to match texture names for exclusion
+  // Glob patterns used to match material names for exclusion
   std::vector<std::string> excludes;
 
   kdl_reflect_decl(
