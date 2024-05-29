@@ -58,12 +58,12 @@ public:
     if (texture)
     {
       texture->activate();
-      m_shader.set("ApplyTexture", m_applyTexture);
+      m_shader.set("ApplyMaterial", m_applyTexture);
       m_shader.set("Color", texture->averageColor());
     }
     else
     {
-      m_shader.set("ApplyTexture", false);
+      m_shader.set("ApplyMaterial", false);
       m_shader.set("Color", m_defaultColor);
     }
   }
@@ -144,8 +144,8 @@ void FaceRenderer::doRender(RenderContext& context)
     shader.set("RenderGrid", context.showGrid());
     shader.set("GridSize", static_cast<float>(context.gridSize()));
     shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
-    shader.set("ApplyTexture", applyTexture);
-    shader.set("Texture", 0);
+    shader.set("ApplyMaterial", applyTexture);
+    shader.set("Material", 0);
     shader.set("ApplyTinting", m_tint);
     if (m_tint)
     {

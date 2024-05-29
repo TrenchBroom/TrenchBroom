@@ -336,12 +336,12 @@ struct RenderFunc : public MaterialRenderFunc
     if (material)
     {
       material->activate();
-      shader.set("ApplyTexture", applyMaterial);
+      shader.set("ApplyMaterial", applyMaterial);
       shader.set("Color", material->averageColor());
     }
     else
     {
-      shader.set("ApplyTexture", false);
+      shader.set("ApplyMaterial", false);
       shader.set("Color", defaultColor);
     }
   }
@@ -372,8 +372,8 @@ void PatchRenderer::doRender(RenderContext& context)
   shader.set("RenderGrid", context.showGrid());
   shader.set("GridSize", static_cast<float>(context.gridSize()));
   shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
-  shader.set("ApplyTexture", applyMaterial);
-  shader.set("Texture", 0);
+  shader.set("ApplyMaterial", applyMaterial);
+  shader.set("Material", 0);
   shader.set("ApplyTinting", m_tint);
   if (m_tint)
   {

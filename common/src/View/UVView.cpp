@@ -122,7 +122,7 @@ private:
 
     auto shader = Renderer::ActiveShader{
       renderContext.shaderManager(), Renderer::Shaders::UVViewShader};
-    shader.set("ApplyTexture", true);
+    shader.set("ApplyMaterial", true);
     shader.set("Color", texture->averageColor());
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
@@ -133,7 +133,7 @@ private:
     shader.set("GridMatrix", vm::mat4x4f{toTex});
     shader.set("GridDivider", vm::vec2f{m_helper.subDivisions()});
     shader.set("CameraZoom", m_helper.cameraZoom());
-    shader.set("Texture", 0);
+    shader.set("Material", 0);
 
     m_vertexArray.render(Renderer::PrimType::Quads);
 
