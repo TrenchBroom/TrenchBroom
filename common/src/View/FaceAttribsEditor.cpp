@@ -392,7 +392,7 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   m_surfaceValueEditor->setIncrements(1.0, 10.0, 100.0);
   m_surfaceValueEditor->setDigits(0, 6);
   m_surfaceValueUnsetButton =
-    createBitmapButton("ResetTexture.svg", tr("Unset surface value"));
+    createBitmapButton("ResetUV.svg", tr("Unset surface value"));
   m_surfaceValueEditorLayout =
     createUnsetButtonLayout(m_surfaceValueEditor, m_surfaceValueUnsetButton);
 
@@ -400,7 +400,7 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   makeEmphasized(m_surfaceFlagsLabel);
   m_surfaceFlagsEditor = new FlagsPopupEditor{2, this};
   m_surfaceFlagsUnsetButton =
-    createBitmapButton("ResetTexture.svg", tr("Unset surface flags"));
+    createBitmapButton("ResetUV.svg", tr("Unset surface flags"));
   m_surfaceFlagsEditorLayout =
     createUnsetButtonLayout(m_surfaceFlagsEditor, m_surfaceFlagsUnsetButton);
 
@@ -408,14 +408,14 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   makeEmphasized(m_contentFlagsLabel);
   m_contentFlagsEditor = new FlagsPopupEditor{2, this};
   m_contentFlagsUnsetButton =
-    createBitmapButton("ResetTexture.svg", tr("Unset content flags"));
+    createBitmapButton("ResetUV.svg", tr("Unset content flags"));
   m_contentFlagsEditorLayout =
     createUnsetButtonLayout(m_contentFlagsEditor, m_contentFlagsUnsetButton);
 
   m_colorLabel = new QLabel{"Color"};
   makeEmphasized(m_colorLabel);
   m_colorEditor = new QLineEdit{};
-  m_colorUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset color"));
+  m_colorUnsetButton = createBitmapButton("ResetUV.svg", tr("Unset color"));
   m_colorEditorLayout = createUnsetButtonLayout(m_colorEditor, m_colorUnsetButton);
 
   const Qt::Alignment LabelFlags = Qt::AlignVCenter | Qt::AlignRight;

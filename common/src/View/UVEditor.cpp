@@ -70,9 +70,9 @@ void UVEditor::createGui(GLContextManager& contextManager)
   m_uvView = new UVView{m_document, contextManager};
 
   m_resetTextureButton =
-    createBitmapButton("ResetTexture.svg", tr("Reset texture alignment"), this);
+    createBitmapButton("ResetUV.svg", tr("Reset texture alignment"), this);
   m_resetTextureToWorldButton = createBitmapButton(
-    "ResetTextureToWorld.svg", tr("Reset texture alignment to world aligned"), this);
+    "ResetUVToWorld.svg", tr("Reset texture alignment to world aligned"), this);
   m_flipTextureHButton =
     createBitmapButton("FlipTextureH.svg", tr("Flip texture X axis"), this);
   m_flipTextureVButton =
