@@ -188,7 +188,7 @@ Preference<int> TextureMinFilter("Renderer/Texture mode min filter", 0x2700);
 Preference<int> TextureMagFilter("Renderer/Texture mode mag filter", 0x2600);
 Preference<bool> EnableMSAA("Renderer/Enable multisampling", true);
 
-Preference<bool> TextureLock("Editor/Texture lock", true);
+Preference<bool> AlignmentLock("Editor/Texture lock", true);
 Preference<bool> UVLock("Editor/UV lock", false);
 
 Preference<std::filesystem::path>& RendererFontPath()
@@ -382,7 +382,7 @@ const std::vector<PreferenceBase*>& staticPreferences()
     &GridColor2D,
     &TextureMinFilter,
     &TextureMagFilter,
-    &TextureLock,
+    &AlignmentLock,
     &UVLock,
     &RendererFontPath(),
     &RendererFontSize,

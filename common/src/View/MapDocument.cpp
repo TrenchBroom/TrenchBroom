@@ -2885,7 +2885,7 @@ bool MapDocument::transformObjects(
 
   using TransformResult = Result<std::pair<Model::Node*, Model::NodeContents>>;
 
-  const bool textureLock = pref(Preferences::TextureLock);
+  const bool textureLock = pref(Preferences::AlignmentLock);
   auto transformResults = kdl::vec_parallel_transform(
     nodesToTransform, [&](Model::Node* node) -> TransformResult {
       return node->accept(kdl::overload(
@@ -3592,7 +3592,8 @@ bool MapDocument::extrudeBrushes(
         }
 
         return brush
-          .moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
+          .moveBoundary(
+            m_worldBounds, *faceIndex, delta, pref(Preferences::AlignmentLock))
           .transform([&]() { return m_worldBounds.contains(brush.bounds()); })
           .transform_error([&](auto e) {
             error() << "Could not resize brush: " << e.msg;

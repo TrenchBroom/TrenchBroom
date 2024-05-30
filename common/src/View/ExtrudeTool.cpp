@@ -391,7 +391,7 @@ bool splitBrushesOutward(
   MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState)
 {
   const auto& worldBounds = document.worldBounds();
-  const bool lockAlignment = pref(Preferences::TextureLock);
+  const bool lockAlignment = pref(Preferences::AlignmentLock);
 
   // First ensure that the drag can be applied at all. For this, check whether each drag
   // handle is moved "up" along its normal.
@@ -471,7 +471,7 @@ bool splitBrushesInward(
   MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState)
 {
   const auto& worldBounds = document.worldBounds();
-  const bool lockAlignment = pref(Preferences::TextureLock);
+  const bool lockAlignment = pref(Preferences::AlignmentLock);
 
   // First ensure that the drag can be applied at all. For this, check whether each drag
   // handle is moved "down" along its normal.

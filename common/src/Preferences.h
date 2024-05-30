@@ -129,7 +129,7 @@ extern Preference<int> TextureMinFilter;
 extern Preference<int> TextureMagFilter;
 extern Preference<bool> EnableMSAA;
 
-extern Preference<bool> TextureLock;
+extern Preference<bool> AlignmentLock;
 extern Preference<bool> UVLock;
 
 Preference<std::filesystem::path>& RendererFontPath();

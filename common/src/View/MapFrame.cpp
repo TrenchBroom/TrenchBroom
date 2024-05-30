@@ -1899,7 +1899,7 @@ bool MapFrame::canSnapVertices() const
 
 void MapFrame::toggleTextureLock()
 {
-  togglePref(Preferences::TextureLock);
+  togglePref(Preferences::AlignmentLock);
 }
 
 void MapFrame::toggleUVLock()

@@ -473,7 +473,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
   auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroup->children().at(0));
   REQUIRE(linkedBrushNode != nullptr);
 
-  setPref(Preferences::TextureLock, false);
+  setPref(Preferences::AlignmentLock, false);
 
   const auto delta = vm::vec3{0.125, 0, 0};
   REQUIRE(document->translateObjects(delta));
@@ -491,7 +491,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
     getTexCoords(brushNode1, vm::vec3::pos_z()),
     getTexCoords(linkedBrushNode, vm::vec3::pos_z())));
 
-  PreferenceManager::instance().resetToDefault(Preferences::TextureLock);
+  PreferenceManager::instance().resetToDefault(Preferences::AlignmentLock);
 }
 
 } // namespace TrenchBroom::View

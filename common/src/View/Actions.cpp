@@ -1590,8 +1590,8 @@ void ActionManager::createEditMenu()
     0,
     [](ActionExecutionContext& context) { context.frame()->toggleTextureLock(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); },
-    [](ActionExecutionContext&) { return pref(Preferences::TextureLock); },
-    std::filesystem::path{"TextureLock.svg"}));
+    [](ActionExecutionContext&) { return pref(Preferences::AlignmentLock); },
+    std::filesystem::path{"AlignmentLock.svg"}));
   editMenu.addItem(createMenuAction(
     std::filesystem::path{"Menu/Edit/UV Lock"},
     QObject::tr("UV Lock"),
