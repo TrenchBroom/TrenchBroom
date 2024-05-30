@@ -1230,7 +1230,7 @@ bool MapFrame::canReloadPortalFile() const
   return m_document->canReloadPortalFile();
 }
 
-void MapFrame::reloadTextureCollections()
+void MapFrame::reloadMaterialCollections()
 {
   m_document->reloadMaterialCollections();
 }
@@ -1641,7 +1641,7 @@ bool MapFrame::canRenameSelectedGroups() const
   return document->selectedNodes().hasOnlyGroups();
 }
 
-void MapFrame::replaceTexture()
+void MapFrame::replaceMaterial()
 {
   auto dialog = ReplaceMaterialDialog{m_document, *m_contextManager, this};
   dialog.exec();
@@ -1897,7 +1897,7 @@ bool MapFrame::canSnapVertices() const
   return m_document->hasAnySelectedBrushNodes();
 }
 
-void MapFrame::toggleTextureLock()
+void MapFrame::toggleAlignmentLock()
 {
   togglePref(Preferences::AlignmentLock);
 }
@@ -2125,35 +2125,35 @@ void MapFrame::showLaunchEngineDialog()
 namespace
 {
 
-const Assets::Material* textureToReveal(std::shared_ptr<MapDocument> document)
+const Assets::Material* materialToReveal(std::shared_ptr<MapDocument> document)
 {
-  const auto* firstTexture = document->allSelectedBrushFaces().front().face().material();
-  const auto allFacesHaveIdenticalTexture = kdl::all_of(
+  const auto* firstMaterial = document->allSelectedBrushFaces().front().face().material();
+  const auto allFacesHaveIdenticalMaterial = kdl::all_of(
     document->allSelectedBrushFaces(),
-    [&](const auto& face) { return face.face().material() == firstTexture; });
+    [&](const auto& face) { return face.face().material() == firstMaterial; });
 
-  return allFacesHaveIdenticalTexture ? firstTexture : nullptr;
+  return allFacesHaveIdenticalMaterial ? firstMaterial : nullptr;
 }
 
 } // namespace
 
-bool MapFrame::canRevealTexture() const
+bool MapFrame::canRevealMaterial() const
 {
-  return textureToReveal(m_document) != nullptr;
+  return materialToReveal(m_document) != nullptr;
 }
 
-void MapFrame::revealTexture()
+void MapFrame::revealMaterial()
 {
-  if (const auto texture = textureToReveal(m_document))
+  if (const auto material = materialToReveal(m_document))
   {
-    revealTexture(texture);
+    revealMaterial(material);
   }
 }
 
-void MapFrame::revealTexture(const Assets::Material* texture)
+void MapFrame::revealMaterial(const Assets::Material* material)
 {
   m_inspector->switchToPage(InspectorPage::Face);
-  m_inspector->faceInspector()->revealMaterial(texture);
+  m_inspector->faceInspector()->revealMaterial(material);
 }
 
 void MapFrame::debugPrintVertices()

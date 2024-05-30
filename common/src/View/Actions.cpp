@@ -819,7 +819,7 @@ void ActionManager::createViewActions()
     QObject::tr("Reveal in texture browser"),
     ActionContext::View3D | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     QKeySequence(),
-    [](ActionExecutionContext& context) { context.frame()->revealTexture(); },
+    [](ActionExecutionContext& context) { context.frame()->revealMaterial(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
     std::filesystem::path{"Controls/Map view/Flip textures horizontally"},
@@ -1140,7 +1140,7 @@ void ActionManager::createFileMenu()
     std::filesystem::path{"Menu/File/Reload Texture Collections"},
     QObject::tr("Reload Texture Collections"),
     Qt::Key_F5,
-    [](ActionExecutionContext& context) { context.frame()->reloadTextureCollections(); },
+    [](ActionExecutionContext& context) { context.frame()->reloadMaterialCollections(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); }));
   fileMenu.addItem(createMenuAction(
     std::filesystem::path{"Menu/File/Reload Entity Definitions"},
@@ -1588,7 +1588,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Texture Lock"},
     QObject::tr("Texture Lock"),
     0,
-    [](ActionExecutionContext& context) { context.frame()->toggleTextureLock(); },
+    [](ActionExecutionContext& context) { context.frame()->toggleAlignmentLock(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); },
     [](ActionExecutionContext&) { return pref(Preferences::AlignmentLock); },
     std::filesystem::path{"AlignmentLock.svg"}));
@@ -1605,7 +1605,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Replace Texture..."},
     QObject::tr("Replace Texture..."),
     0,
-    [](ActionExecutionContext& context) { context.frame()->replaceTexture(); },
+    [](ActionExecutionContext& context) { context.frame()->replaceMaterial(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); }));
 }
 

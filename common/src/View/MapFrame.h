@@ -225,7 +225,7 @@ public:
   bool canReloadPortalFile() const;
   bool canUnloadPointFile() const;
 
-  void reloadTextureCollections();
+  void reloadMaterialCollections();
   void reloadEntityDefinitions();
   void closeDocument();
 
@@ -333,9 +333,9 @@ public:
   void snapVerticesToGrid();
   bool canSnapVertices() const;
 
-  void replaceTexture();
+  void replaceMaterial();
 
-  void toggleTextureLock();
+  void toggleAlignmentLock();
   void toggleUVLock();
 
   void toggleShowGrid();
@@ -389,10 +389,10 @@ public:
 
   void showLaunchEngineDialog();
 
-  bool canRevealTexture() const;
-  void revealTexture();
+  bool canRevealMaterial() const;
+  void revealMaterial();
 
-  void revealTexture(const Assets::Material* texture);
+  void revealMaterial(const Assets::Material* material);
 
   void debugPrintVertices();
   void debugCreateBrush();

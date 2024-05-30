@@ -1342,7 +1342,7 @@ void MapViewBase::showPopupMenuLater()
       tr("Reveal %1 in Texture Browser")
         .arg(QString::fromStdString(faceHandle->face().attributes().materialName())),
       mapFrame,
-      [=] { mapFrame->revealTexture(texture); });
+      [=] { mapFrame->revealMaterial(texture); });
 
     menu.addSeparator();
   }
