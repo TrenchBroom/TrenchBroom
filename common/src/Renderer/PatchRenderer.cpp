@@ -332,7 +332,7 @@ struct RenderFunc : public MaterialRenderFunc
 
   void before(const Assets::Material* material) override
   {
-    shader.set("GridColor", gridColorForTexture(material));
+    shader.set("GridColor", gridColorForMaterial(material));
     if (material)
     {
       material->activate();

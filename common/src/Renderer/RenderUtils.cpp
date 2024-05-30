@@ -36,24 +36,24 @@ namespace
 constexpr auto EdgeOffset = 0.0001;
 }
 
-vm::vec3f gridColorForTexture(const Assets::Material* texture)
+vm::vec3f gridColorForMaterial(const Assets::Material* material)
 {
-  if (!texture)
+  if (!material)
   {
     return vm::vec3f::fill(1.0f);
   }
 
   if (
-    (texture->averageColor().r() + texture->averageColor().g()
-     + texture->averageColor().b())
+    (material->averageColor().r() + material->averageColor().g()
+     + material->averageColor().b())
       / 3.0f
     > 0.50f)
   {
-    // bright texture grid color
+    // bright material grid color
     return vm::vec3f::fill(0.0f);
   }
 
-  // dark texture grid color
+  // dark material grid color
   return vm::vec3f::fill(1.0f);
 }
 

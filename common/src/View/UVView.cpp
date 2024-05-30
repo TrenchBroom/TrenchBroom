@@ -127,7 +127,7 @@ private:
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
     shader.set("GridSizes", vm::vec2f{float(texture->width()), float(texture->height())});
-    shader.set("GridColor", vm::vec4f{Renderer::gridColorForTexture(texture), 0.6f});
+    shader.set("GridColor", vm::vec4f{Renderer::gridColorForMaterial(texture), 0.6f});
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f{toTex});

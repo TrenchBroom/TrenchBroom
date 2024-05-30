@@ -33,7 +33,7 @@ class Material;
 namespace TrenchBroom::Renderer
 {
 
-vm::vec3f gridColorForTexture(const Assets::Material* texture);
+vm::vec3f gridColorForMaterial(const Assets::Material* material);
 
 void glSetEdgeOffset(double f);
 void glResetEdgeOffset();
