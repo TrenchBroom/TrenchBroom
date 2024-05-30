@@ -2885,7 +2885,7 @@ bool MapDocument::transformObjects(
 
   using TransformResult = Result<std::pair<Model::Node*, Model::NodeContents>>;
 
-  const bool textureLock = pref(Preferences::AlignmentLock);
+  const bool alignmentLock = pref(Preferences::AlignmentLock);
   auto transformResults = kdl::vec_parallel_transform(
     nodesToTransform, [&](Model::Node* node) -> TransformResult {
       return node->accept(kdl::overload(
@@ -2906,12 +2906,12 @@ bool MapDocument::transformObjects(
           return std::make_pair(entityNode, Model::NodeContents{std::move(entity)});
         },
         [&](Model::BrushNode* brushNode) -> TransformResult {
-          const bool lockTextures =
-            textureLock
+          const bool lockAlignment =
+            alignmentLock
             || Model::collectLinkedNodes({m_world.get()}, *brushNode).size() > 1;
 
           auto brush = brushNode->brush();
-          return brush.transform(m_worldBounds, transformation, lockTextures)
+          return brush.transform(m_worldBounds, transformation, lockAlignment)
             .and_then([&]() -> TransformResult {
               return std::make_pair(brushNode, Model::NodeContents{std::move(brush)});
             });
