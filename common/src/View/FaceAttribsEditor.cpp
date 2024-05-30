@@ -341,10 +341,10 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
 {
   m_uvEditor = new UVEditor{m_document, contextManager};
 
-  auto* textureNameLabel = new QLabel{"Texture"};
-  makeEmphasized(textureNameLabel);
-  m_textureName = new QLabel{"none"};
-  m_textureName->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  auto* materialNameLabel = new QLabel{"Material"};
+  makeEmphasized(materialNameLabel);
+  m_materialName = new QLabel{"none"};
+  m_materialName->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
   auto* textureSizeLabel = new QLabel{"Size"};
   makeEmphasized(textureSizeLabel);
@@ -433,8 +433,8 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   int r = 0;
   int c = 0;
 
-  faceAttribsLayout->addWidget(textureNameLabel, r, c++, LabelFlags);
-  faceAttribsLayout->addWidget(m_textureName, r, c++, ValueFlags);
+  faceAttribsLayout->addWidget(materialNameLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_materialName, r, c++, ValueFlags);
   faceAttribsLayout->addWidget(textureSizeLabel, r, c++, LabelFlags);
   faceAttribsLayout->addWidget(m_textureSize, r, c++, ValueFlags);
   ++r;
@@ -574,7 +574,7 @@ void FaceAttribsEditor::connectObservers()
   m_notifierConnection += document->selectionDidChangeNotifier.connect(
     this, &FaceAttribsEditor::selectionDidChange);
   m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
-    this, &FaceAttribsEditor::textureCollectionsDidChange);
+    this, &FaceAttribsEditor::materialCollectionsDidChange);
   m_notifierConnection += document->grid().gridDidChangeNotifier.connect(
     this, &FaceAttribsEditor::updateIncrements);
 }
@@ -604,7 +604,7 @@ void FaceAttribsEditor::selectionDidChange(const Selection&)
   updateControlsDelayed();
 }
 
-void FaceAttribsEditor::textureCollectionsDidChange()
+void FaceAttribsEditor::materialCollectionsDidChange()
 {
   updateControls();
 }
@@ -677,7 +677,7 @@ void FaceAttribsEditor::updateControls()
   const auto faceHandles = kdl::mem_lock(m_document)->allSelectedBrushFaces();
   if (!faceHandles.empty())
   {
-    auto textureMulti = false;
+    auto materialMulti = false;
     auto xOffsetMulti = false;
     auto yOffsetMulti = false;
     auto rotationMulti = false;
@@ -687,7 +687,7 @@ void FaceAttribsEditor::updateControls()
     auto colorValueMulti = false;
 
     const auto& firstFace = faceHandles[0].face();
-    const auto& textureName = firstFace.attributes().materialName();
+    const auto& materialName = firstFace.attributes().materialName();
     const auto xOffset = firstFace.attributes().xOffset();
     const auto yOffset = firstFace.attributes().yOffset();
     const auto rotation = firstFace.attributes().rotation();
@@ -707,7 +707,7 @@ void FaceAttribsEditor::updateControls()
     for (size_t i = 1; i < faceHandles.size(); i++)
     {
       const auto& face = faceHandles[i].face();
-      textureMulti |= (textureName != face.attributes().materialName());
+      materialMulti |= (materialName != face.attributes().materialName());
       xOffsetMulti |= (xOffset != face.attributes().xOffset());
       yOffsetMulti |= (yOffset != face.attributes().yOffset());
       rotationMulti |= (rotation != face.attributes().rotation());
@@ -739,36 +739,36 @@ void FaceAttribsEditor::updateControls()
     m_contentFlagsEditor->setEnabled(true);
     m_colorEditor->setEnabled(true);
 
-    if (textureMulti)
+    if (materialMulti)
     {
-      m_textureName->setText("multi");
-      m_textureName->setEnabled(false);
+      m_materialName->setText("multi");
+      m_materialName->setEnabled(false);
       m_textureSize->setText("multi");
       m_textureSize->setEnabled(false);
     }
     else
     {
-      if (textureName == Model::BrushFaceAttributes::NoMaterialName)
+      if (materialName == Model::BrushFaceAttributes::NoMaterialName)
       {
-        m_textureName->setText("none");
-        m_textureName->setEnabled(false);
+        m_materialName->setText("none");
+        m_materialName->setEnabled(false);
         m_textureSize->setText("");
         m_textureSize->setEnabled(false);
       }
       else
       {
-        if (const auto* texture = firstFace.material())
+        if (const auto* material = firstFace.material())
         {
-          m_textureName->setText(QString::fromStdString(textureName));
+          m_materialName->setText(QString::fromStdString(materialName));
           m_textureSize->setText(
-            QStringLiteral("%1 * %2").arg(texture->width()).arg(texture->height()));
-          m_textureName->setEnabled(true);
+            QStringLiteral("%1 * %2").arg(material->width()).arg(material->height()));
+          m_materialName->setEnabled(true);
           m_textureSize->setEnabled(true);
         }
         else
         {
-          m_textureName->setText(QString::fromStdString(textureName) + " (not found)");
-          m_textureName->setEnabled(false);
+          m_materialName->setText(QString::fromStdString(materialName) + " (not found)");
+          m_materialName->setEnabled(false);
           m_textureSize->setEnabled(false);
         }
       }
@@ -814,7 +814,6 @@ void FaceAttribsEditor::updateControls()
     disableAndSetPlaceholder(m_rotationEditor, "n/a");
     disableAndSetPlaceholder(m_surfaceValueEditor, "n/a");
 
-    // m_textureView->setTexture(nullptr);
     m_surfaceFlagsEditor->setEnabled(false);
     m_contentFlagsEditor->setEnabled(false);
     m_colorEditor->setText("");

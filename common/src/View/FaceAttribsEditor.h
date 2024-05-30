@@ -35,7 +35,7 @@ namespace TrenchBroom::Model
 {
 class BrushFaceHandle;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
 namespace TrenchBroom::View
 {
@@ -54,7 +54,7 @@ private:
   std::weak_ptr<MapDocument> m_document;
 
   UVEditor* m_uvEditor = nullptr;
-  QLabel* m_textureName = nullptr;
+  QLabel* m_materialName = nullptr;
   QLabel* m_textureSize = nullptr;
   SpinControl* m_xOffsetEditor = nullptr;
   SpinControl* m_yOffsetEditor = nullptr;
@@ -119,7 +119,7 @@ private:
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
   void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
   void selectionDidChange(const Selection& selection);
-  void textureCollectionsDidChange();
+  void materialCollectionsDidChange();
 
   void updateControls();
   void updateControlsDelayed();
@@ -139,4 +139,4 @@ private:
   std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
 };
 
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View
