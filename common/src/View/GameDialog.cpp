@@ -47,7 +47,7 @@ bool GameDialog::showNewDocumentDialog(
 {
   auto dialog = GameDialog{
     "Select Game",
-    R"(Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and textures by going to the map inspector, the entity inspector and the face inspector, respectively.)",
+    R"(Select a game from the list on the right, then click OK. Once the new document is created, you can set up mod directories, entity definitions and materials by going to the map inspector, the entity inspector and the face inspector, respectively.)",
     GameDialog::DialogType::New,
     parent};
 
