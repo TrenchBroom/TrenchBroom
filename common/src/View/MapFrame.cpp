@@ -2153,7 +2153,7 @@ void MapFrame::revealTexture()
 void MapFrame::revealTexture(const Assets::Material* texture)
 {
   m_inspector->switchToPage(InspectorPage::Face);
-  m_inspector->faceInspector()->revealTexture(texture);
+  m_inspector->faceInspector()->revealMaterial(texture);
 }
 
 void MapFrame::debugPrintVertices()

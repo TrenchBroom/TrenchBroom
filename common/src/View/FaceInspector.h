@@ -47,8 +47,8 @@ private:
   std::weak_ptr<MapDocument> m_document;
   QSplitter* m_splitter = nullptr;
   FaceAttribsEditor* m_faceAttribsEditor = nullptr;
-  MaterialBrowser* m_textureBrowser = nullptr;
-  QWidget* m_textureBrowserInfo = nullptr;
+  MaterialBrowser* m_materialBrowser = nullptr;
+  QWidget* m_materialBrowserInfo = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -60,15 +60,15 @@ public:
   ~FaceInspector() override;
 
   bool cancelMouseDrag();
-  void revealTexture(const Assets::Material* texture);
+  void revealMaterial(const Assets::Material* material);
 
 private:
   void createGui(GLContextManager& contextManager);
   QWidget* createFaceAttribsEditor(GLContextManager& contextManager);
-  QWidget* createTextureBrowser(GLContextManager& contextManager);
-  QWidget* createTextureBrowserInfo();
+  QWidget* createMaterialBrowser(GLContextManager& contextManager);
+  QWidget* createMaterialBrowserInfo();
 
-  void textureSelected(const Assets::Material* texture);
+  void materialSelected(const Assets::Material* material);
 
   void connectObservers();
   void documentWasNewedOrOpened(MapDocument* document);
