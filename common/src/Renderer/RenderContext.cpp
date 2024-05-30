@@ -67,14 +67,14 @@ ShaderManager& RenderContext::shaderManager()
   return m_shaderManager;
 }
 
-bool RenderContext::showTextures() const
+bool RenderContext::showMaterials() const
 {
-  return m_showTextures;
+  return m_showMaterials;
 }
 
-void RenderContext::setShowTextures(const bool showTextures)
+void RenderContext::setShowMaterials(const bool showMaterials)
 {
-  m_showTextures = showTextures;
+  m_showMaterials = showMaterials;
 }
 
 bool RenderContext::showFaces() const

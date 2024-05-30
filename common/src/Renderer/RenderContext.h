@@ -56,7 +56,7 @@ private:
   ShaderManager& m_shaderManager;
 
   // settings for any map rendering view
-  bool m_showTextures = true;
+  bool m_showMaterials = true;
   bool m_showFaces = true;
   bool m_showEdges = true;
   bool m_shadeFaces = true;
@@ -98,8 +98,8 @@ public:
   FontManager& fontManager();
   ShaderManager& shaderManager();
 
-  bool showTextures() const;
-  void setShowTextures(bool showTextures);
+  bool showMaterials() const;
+  void setShowMaterials(bool showMaterials);
 
   bool showFaces() const;
   void setShowFaces(bool showFaces);

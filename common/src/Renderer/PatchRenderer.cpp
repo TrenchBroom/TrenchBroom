@@ -362,7 +362,7 @@ void PatchRenderer::doRender(RenderContext& context)
   auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
   auto& prefs = PreferenceManager::instance();
 
-  const bool applyMaterial = context.showTextures();
+  const bool applyMaterial = context.showMaterials();
   const bool shadeFaces = context.shadeFaces();
   const bool showFog = context.showFog();
 

@@ -134,7 +134,7 @@ void FaceRenderer::doRender(RenderContext& context)
     auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
     auto& prefs = PreferenceManager::instance();
 
-    const auto applyMaterial = context.showTextures();
+    const auto applyMaterial = context.showMaterials();
     const auto shadeFaces = context.shadeFaces();
     const auto showFog = context.showFog();
 

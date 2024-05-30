@@ -1005,7 +1005,7 @@ void MapViewBase::doRender()
 
   auto renderContext =
     Renderer::RenderContext{doGetRenderMode(), camera(), fontManager(), shaderManager()};
-  renderContext.setShowTextures(
+  renderContext.setShowMaterials(
     pref(Preferences::FaceRenderMode) == Preferences::faceRenderModeTextured());
   renderContext.setShowFaces(
     pref(Preferences::FaceRenderMode) != Preferences::faceRenderModeSkip());
