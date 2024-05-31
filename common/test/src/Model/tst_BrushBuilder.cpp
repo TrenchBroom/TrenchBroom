@@ -57,7 +57,7 @@ TEST_CASE("BrushBuilderTest.createCubeDefaults")
 {
   const auto worldBounds = vm::bbox3{8192.0};
 
-  auto defaultAttribs = BrushFaceAttributes{"defaultTexture"};
+  auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
   defaultAttribs.setOffset({0.5f, 0.5f});
   defaultAttribs.setScale({0.5f, 0.5f});
   defaultAttribs.setRotation(45.0f);
@@ -91,7 +91,7 @@ TEST_CASE("BrushBuilderTest.createBrushDefaults")
 {
   const auto worldBounds = vm::bbox3{8192.0};
 
-  auto defaultAttribs = BrushFaceAttributes{"defaultTexture"};
+  auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
   defaultAttribs.setOffset({0.5f, 0.5f});
   defaultAttribs.setScale({0.5f, 0.5f});
   defaultAttribs.setRotation(45.0f);
