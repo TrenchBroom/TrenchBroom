@@ -97,7 +97,7 @@ public:
     , m_helper{helper}
     , m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())}
   {
-    m_document.startTransaction("Move Texture", TransactionScope::LongRunning);
+    m_document.startTransaction("Move UV", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override
