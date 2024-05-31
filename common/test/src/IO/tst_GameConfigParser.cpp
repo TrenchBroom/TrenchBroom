@@ -566,7 +566,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
     },
     "faceattribs": {
         "defaults": {
-            "textureName": "defaultTexture",
+            "textureName": "defaultMaterial",
             "offset": [0, 0],
             "scale": [0.5, 0.5],
             "rotation": 0,
@@ -716,7 +716,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
 }
 )%");
 
-  Model::BrushFaceAttributes expectedBrushFaceAttributes("defaultTexture");
+  Model::BrushFaceAttributes expectedBrushFaceAttributes("defaultMaterial");
   expectedBrushFaceAttributes.setOffset(vm::vec2f(0.0f, 0.0f));
   expectedBrushFaceAttributes.setScale(vm::vec2f(0.5f, 0.5f));
   expectedBrushFaceAttributes.setRotation(0.0f);
