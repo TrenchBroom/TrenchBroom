@@ -46,7 +46,7 @@ class Material;
 
 bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
 bool pointExactlyIntegral(const vm::vec3d& point);
-bool UVListsEqual(
+bool uvListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
 
 namespace IO
@@ -78,53 +78,53 @@ BrushFace createParaxial(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
-  const std::string& textureName = "");
+  const std::string& materialName = "");
 
 std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges);
 std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces);
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const BrushNode* brush, const vm::vec3d& faceNormal);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3,
   const vm::vec3d& v4);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brush,
   const std::vector<vm::vec3d>& vertices);
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const BrushNode* brush, const vm::polygon3d& vertices);
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const Brush& brush, const vm::vec3d& faceNormal);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3,
   const vm::vec3d& v4);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const std::vector<vm::vec3d>& vertices);
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const Brush& brush, const vm::polygon3d& vertices);
 
 void transformNode(
@@ -182,9 +182,9 @@ enum class ColorMatch
 };
 
 int getComponentOfPixel(
-  const Assets::Material& texture, std::size_t x, std::size_t y, Component component);
+  const Assets::Material& material, std::size_t x, std::size_t y, Component component);
 void checkColor(
-  const Assets::Material& texture,
+  const Assets::Material& material,
   std::size_t x,
   std::size_t y,
   int r,

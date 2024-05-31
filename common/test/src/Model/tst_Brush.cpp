@@ -313,14 +313,14 @@ TEST_CASE("BrushTest.moveVertex")
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p9));
 
-  assertTexture("left", brush, p1, p2, p4, p3);
-  assertTexture("right", brush, p5, p7, p6);
-  assertTexture("right", brush, p6, p7, p9);
-  assertTexture("front", brush, p1, p5, p6, p2);
-  assertTexture("back", brush, p3, p4, p7);
-  assertTexture("back", brush, p4, p9, p7);
-  assertTexture("top", brush, p2, p6, p9, p4);
-  assertTexture("bottom", brush, p1, p3, p7, p5);
+  assertMaterial("left", brush, p1, p2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p6);
+  assertMaterial("right", brush, p6, p7, p9);
+  assertMaterial("front", brush, p1, p5, p6, p2);
+  assertMaterial("back", brush, p3, p4, p7);
+  assertMaterial("back", brush, p4, p9, p7);
+  assertMaterial("top", brush, p2, p6, p9, p4);
+  assertMaterial("bottom", brush, p1, p3, p7, p5);
 
   oldVertexPositions = std::move(newVertexPositions);
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, p8 - p9).is_success());
@@ -329,12 +329,12 @@ TEST_CASE("BrushTest.moveVertex")
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p8));
 
-  assertTexture("left", brush, p1, p2, p4, p3);
-  assertTexture("right", brush, p5, p7, p8, p6);
-  assertTexture("front", brush, p1, p5, p6, p2);
-  assertTexture("back", brush, p3, p4, p8, p7);
-  assertTexture("top", brush, p2, p6, p8, p4);
-  assertTexture("bottom", brush, p1, p3, p7, p5);
+  assertMaterial("left", brush, p1, p2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p8, p6);
+  assertMaterial("front", brush, p1, p5, p6, p2);
+  assertMaterial("back", brush, p3, p4, p8, p7);
+  assertMaterial("top", brush, p2, p6, p8, p4);
+  assertMaterial("bottom", brush, p1, p3, p7, p5);
 }
 
 TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide")
@@ -1598,12 +1598,12 @@ TEST_CASE("BrushTest.moveEdge")
   const vm::vec3 p1_2(-32.0, -32.0, -16.0);
   const vm::vec3 p2_2(-32.0, -32.0, +48.0);
 
-  assertTexture("left", brush, p1, p2, p4, p3);
-  assertTexture("right", brush, p5, p7, p8, p6);
-  assertTexture("front", brush, p1, p5, p6, p2);
-  assertTexture("back", brush, p3, p4, p8, p7);
-  assertTexture("top", brush, p2, p6, p8, p4);
-  assertTexture("bottom", brush, p1, p3, p7, p5);
+  assertMaterial("left", brush, p1, p2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p8, p6);
+  assertMaterial("front", brush, p1, p5, p6, p2);
+  assertMaterial("back", brush, p3, p4, p8, p7);
+  assertMaterial("top", brush, p2, p6, p8, p4);
+  assertMaterial("bottom", brush, p1, p3, p7, p5);
 
   const auto originalEdge = vm::segment(p1, p2);
   auto oldEdgePositions = std::vector<vm::segment3>({originalEdge});
@@ -1615,14 +1615,14 @@ TEST_CASE("BrushTest.moveEdge")
   CHECK(newEdgePositions.size() == 1u);
   CHECK(newEdgePositions[0] == vm::segment3(p1_2, p2_2));
 
-  assertTexture("left", brush, p1_2, p2_2, p4, p3);
-  assertTexture("right", brush, p5, p7, p8, p6);
-  assertTexture("front", brush, p1_2, p5, p6, p2_2);
-  assertTexture("back", brush, p3, p4, p8, p7);
-  assertTexture("top", brush, p2_2, p6, p8);
-  assertTexture("top", brush, p2_2, p8, p4);
-  assertTexture("bottom", brush, p1_2, p3, p5);
-  assertTexture("bottom", brush, p3, p7, p5);
+  assertMaterial("left", brush, p1_2, p2_2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p8, p6);
+  assertMaterial("front", brush, p1_2, p5, p6, p2_2);
+  assertMaterial("back", brush, p3, p4, p8, p7);
+  assertMaterial("top", brush, p2_2, p6, p8);
+  assertMaterial("top", brush, p2_2, p8, p4);
+  assertMaterial("bottom", brush, p1_2, p3, p5);
+  assertMaterial("bottom", brush, p3, p7, p5);
 
   CHECK(brush.canMoveEdges(worldBounds, newEdgePositions, p1 - p1_2));
 
@@ -1635,12 +1635,12 @@ TEST_CASE("BrushTest.moveEdge")
   CHECK(newEdgePositions.size() == 1u);
   CHECK(newEdgePositions[0] == originalEdge);
 
-  assertTexture("left", brush, p1, p2, p4, p3);
-  assertTexture("right", brush, p5, p7, p8, p6);
-  assertTexture("front", brush, p1, p5, p6, p2);
-  assertTexture("back", brush, p3, p4, p8, p7);
-  assertTexture("top", brush, p2, p6, p8, p4);
-  assertTexture("bottom", brush, p1, p3, p7, p5);
+  assertMaterial("left", brush, p1, p2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p8, p6);
+  assertMaterial("front", brush, p1, p5, p6, p2);
+  assertMaterial("back", brush, p3, p4, p8, p7);
+  assertMaterial("top", brush, p2, p6, p8, p4);
+  assertMaterial("bottom", brush, p1, p3, p7, p5);
 }
 
 static void assertCanMoveEdges(
@@ -2220,12 +2220,12 @@ TEST_CASE("moveFaceWithUVLock")
         normal == vm::vec3::pos_z() || normal == vm::vec3::pos_y()
         || normal == vm::vec3::neg_y())
       {
-        CHECK_FALSE(UVListsEqual(oldTexCoords, newTexCoords));
+        CHECK_FALSE(uvListsEqual(oldTexCoords, newTexCoords));
         // TODO: actually check the UV's
       }
       else
       {
-        CHECK(UVListsEqual(oldTexCoords, newTexCoords));
+        CHECK(uvListsEqual(oldTexCoords, newTexCoords));
       }
     }
 
@@ -2240,7 +2240,7 @@ TEST_CASE("moveFaceWithUVLock")
         shearedVertexPositions, [&](auto x) { return newFaceWithUVLock.uvCoords(x); });
       if (normal == vm::vec3d::pos_z() || (format == MapFormat::Valve))
       {
-        CHECK(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
+        CHECK(uvListsEqual(oldTexCoords, newTexCoordsWithUVLock));
       }
     }
   }

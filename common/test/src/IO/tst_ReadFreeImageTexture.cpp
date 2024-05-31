@@ -47,7 +47,7 @@ auto loadTexture(const std::string& name)
   return readFreeImageTexture(name, reader);
 }
 
-void assertTexture(const std::string& name, const size_t width, const size_t height)
+void assertMaterial(const std::string& name, const size_t width, const size_t height)
 {
   loadTexture(name)
     .transform([&](const auto& texture) {
@@ -101,8 +101,8 @@ TEST_CASE("readFreeImageTexture")
 {
   SECTION("loading PNGs")
   {
-    assertTexture("5x5.png", 5, 5);
-    assertTexture("707x710.png", 707, 710);
+    assertMaterial("5x5.png", 5, 5);
+    assertMaterial("707x710.png", 707, 710);
     testImageContents(loadTexture("pngContentsTest.png").value(), ColorMatch::Exact);
     CHECK(loadTexture("corruptPngTest.png").is_error());
 

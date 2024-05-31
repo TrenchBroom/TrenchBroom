@@ -202,7 +202,7 @@ static void checkUVListsEqual(
   // Otherwise, the UV comparisons below could spuriously pass.
   REQUIRE(face.material() != nullptr);
 
-  CHECK(UVListsEqual(uvs, transformedVertUVs));
+  CHECK(uvListsEqual(uvs, transformedVertUVs));
 }
 
 /**

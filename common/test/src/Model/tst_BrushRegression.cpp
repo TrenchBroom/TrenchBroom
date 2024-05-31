@@ -724,20 +724,20 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
   // Make sure that the faces have the textures we expect before the vertex is deleted.
 
   // side faces
-  assertTexture("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p7, p6});
-  assertTexture("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8, p7});
-  assertTexture("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
-  assertTexture("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
-  assertTexture("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
+  assertMaterial("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p7, p6});
+  assertMaterial("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8, p7});
+  assertMaterial("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
+  assertMaterial("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
+  assertMaterial("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
 
   // bottom face
-  assertTexture("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
+  assertMaterial("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
 
   // top faces
-  assertTexture("*slime", brush, std::vector<vm::vec3d>{p6, p7, p11});
-  assertTexture("*slime0", brush, std::vector<vm::vec3d>{p7, p8, p11});
-  assertTexture("*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11});
-  assertTexture("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
+  assertMaterial("*slime", brush, std::vector<vm::vec3d>{p6, p7, p11});
+  assertMaterial("*slime0", brush, std::vector<vm::vec3d>{p7, p8, p11});
+  assertMaterial("*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11});
+  assertMaterial("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
 
   // delete the vertex
   CHECK(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3d>{p7}));
@@ -746,21 +746,21 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
   // assert the structure and textures
 
   // side faces
-  assertTexture("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p6});
-  assertTexture("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8});
-  assertTexture("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
-  assertTexture("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
-  assertTexture("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
+  assertMaterial("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p6});
+  assertMaterial("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8});
+  assertMaterial("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
+  assertMaterial("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
+  assertMaterial("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
 
   // bottom face
-  assertTexture("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
+  assertMaterial("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
 
   // top faces
-  assertTexture("*slime", brush, std::vector<vm::vec3d>{p6, p2, p11});
-  assertTexture("*slime0", brush, std::vector<vm::vec3d>{p2, p8, p11});
-  assertTexture(
+  assertMaterial("*slime", brush, std::vector<vm::vec3d>{p6, p2, p11});
+  assertMaterial("*slime0", brush, std::vector<vm::vec3d>{p2, p8, p11});
+  assertMaterial(
     "*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11}); // failure, becomes *slime0
-  assertTexture("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
+  assertMaterial("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
 
   kdl::col_delete_all(nodes);
 }

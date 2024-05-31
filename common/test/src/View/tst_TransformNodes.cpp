@@ -487,7 +487,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
   };
 
   // Brushes in linked groups should have texture lock forced on
-  CHECK(UVListsEqual(
+  CHECK(uvListsEqual(
     getTexCoords(brushNode1, vm::vec3::pos_z()),
     getTexCoords(linkedBrushNode, vm::vec3::pos_z())));
 
