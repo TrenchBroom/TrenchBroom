@@ -74,16 +74,11 @@ SmartWadEditor::SmartWadEditor(std::weak_ptr<MapDocument> document, QWidget* par
   m_wadPaths = new QListWidget{};
   m_wadPaths->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-  m_addWadsButton =
-    createBitmapButton("Add.svg", "Add texture collections from the file system");
-  m_removeWadsButton =
-    createBitmapButton("Remove.svg", "Remove the selected texture collections");
-  m_moveWadUpButton =
-    createBitmapButton("Up.svg", "Move the selected texture collection up");
-  m_moveWadDownButton =
-    createBitmapButton("Down.svg", "Move the selected texture collection down");
-  m_reloadWadsButton =
-    createBitmapButton("Refresh.svg", "Reload all texture collections");
+  m_addWadsButton = createBitmapButton("Add.svg", "Add wad files from the file system");
+  m_removeWadsButton = createBitmapButton("Remove.svg", "Remove the selected wad files");
+  m_moveWadUpButton = createBitmapButton("Up.svg", "Move the selected wad file up");
+  m_moveWadDownButton = createBitmapButton("Down.svg", "Move the selected wad file down");
+  m_reloadWadsButton = createBitmapButton("Refresh.svg", "Reload all wad files");
 
   auto* toolBar = createMiniToolBarLayout(
     m_addWadsButton,
