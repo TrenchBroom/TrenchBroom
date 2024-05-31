@@ -145,7 +145,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   {
     distanceInTexCoords = vm::abs_min(
       distanceInTexCoords,
-      helper.computeDistanceFromTextureGrid(vm::vec3{newOriginInTexCoords}));
+      helper.computeDistanceFromUVGrid(vm::vec3{newOriginInTexCoords}));
   }
 
   // finally snap to the face center

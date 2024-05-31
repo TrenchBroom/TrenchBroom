@@ -69,7 +69,7 @@ public:
 
   bool valid() const;
   const Model::BrushFace* face() const;
-  const Assets::Material* texture() const;
+  const Assets::Material* material() const;
   void setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle);
   void cameraViewportChanged();
 
@@ -85,13 +85,13 @@ public:
   const Renderer::OrthographicCamera& camera() const;
   float cameraZoom() const;
 
-  void pickTextureGrid(
+  void pickUVGrid(
     const vm::ray3& ray,
     const Model::HitType::Type hitTypes[2],
     Model::PickResult& pickResult) const;
 
   vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
-  vm::vec2f computeDistanceFromTextureGrid(const vm::vec3& position) const;
+  vm::vec2f computeDistanceFromUVGrid(const vm::vec3& position) const;
 
   void computeOriginHandleVertices(
     vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
@@ -107,9 +107,9 @@ public:
     const vm::mat4x4& toWorld) const;
 
   /**
-   * Converts texture space to view space (pixels in the UV viewport).
+   * Converts UV space to view space (pixels in the UV viewport).
    */
-  vm::vec2f texToViewCoords(const vm::vec2f& pos) const;
+  vm::vec2f uvToViewCoords(const vm::vec2f& pos) const;
 
 private:
   void resetOrigin();

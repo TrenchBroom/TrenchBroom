@@ -167,7 +167,7 @@ void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResu
   static const Model::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
   if (m_helper.valid())
   {
-    m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
+    m_helper.pickUVGrid(inputState.pickRay(), HitTypes, pickResult);
   }
 }
 
