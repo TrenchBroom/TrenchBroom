@@ -199,7 +199,7 @@ public:
     , m_helper{helper}
     , m_initialAngle{initialAngle}
   {
-    document.startTransaction("Rotate Texture", TransactionScope::LongRunning);
+    document.startTransaction("Rotate UV", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override
