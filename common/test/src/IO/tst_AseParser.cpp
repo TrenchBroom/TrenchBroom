@@ -99,7 +99,7 @@ TEST_CASE("AseParserTest.fallbackToMaterialName")
   CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
   CHECK(model->frame(0)->loaded());
 
-  // account for the default texture
+  // account for the default material
   CHECK(model->surface(0).skinCount() == 2u);
   CHECK(model->surface(0).skin(0)->name() == "textures/bigtile");
 }
