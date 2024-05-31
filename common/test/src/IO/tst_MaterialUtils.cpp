@@ -35,7 +35,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("getTextureNameFromPathSuffix")
+TEST_CASE("getMaterialNameFromPathSuffix")
 {
   using T = std::tuple<size_t, std::filesystem::path, std::string>;
 
@@ -55,7 +55,7 @@ TEST_CASE("getTextureNameFromPathSuffix")
   CHECK(getMaterialNameFromPathSuffix(path, prefixLength) == expectedResult);
 }
 
-TEST_CASE("makeReadTextureErrorHandler")
+TEST_CASE("makeReadMaterialErrorHandler")
 {
   auto logger = NullLogger{};
   auto diskFS = DiskFileSystem{
@@ -66,11 +66,11 @@ TEST_CASE("makeReadTextureErrorHandler")
   auto result = readFreeImageTexture("corruptPngTest", reader);
   REQUIRE(result.is_error());
 
-  const auto defaultTexture =
+  const auto defaultMagerial =
     std::move(result).or_else(makeReadMaterialErrorHandler(diskFS, logger)).value();
-  CHECK(defaultTexture.name() == "corruptPngTest");
-  CHECK(defaultTexture.width() == 32);
-  CHECK(defaultTexture.height() == 32);
+  CHECK(defaultMagerial.name() == "corruptPngTest");
+  CHECK(defaultMagerial.width() == 32);
+  CHECK(defaultMagerial.height() == 32);
 }
 } // namespace IO
 } // namespace TrenchBroom
