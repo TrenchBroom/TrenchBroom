@@ -60,9 +60,9 @@ class UVOffsetTool;
 class UVCameraTool;
 
 /**
- A view which allows the user to manipulate the texture projection interactively with the
- mouse. The user can change texture offsets, scaling factors and rotation. If supported by
- the map format, the user can manipulate the texture axes as well.
+ A view which allows the user to manipulate the UV projection interactively with the
+ mouse. The user can change UV offsets, scaling factors and rotation. If supported by the
+ map format, the user can manipulate the UV axes as well.
  */
 class UVView : public RenderView, public ToolBoxConnector
 {
@@ -107,12 +107,12 @@ private:
 
   void setupGL(Renderer::RenderContext& renderContext);
 
-  void renderTexture(
+  void renderMaterial(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
   void renderFace(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-  void renderTextureAxes(
+  void renderUVAxes(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
   void renderToolBox(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);

@@ -29,7 +29,7 @@
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/EdgeRenderer.h"
-#include "Renderer/FaceRenderer.h" // for gridColorForTexture()
+#include "Renderer/FaceRenderer.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
@@ -61,7 +61,7 @@ namespace TrenchBroom::View
 namespace
 {
 
-class RenderTexture : public Renderer::DirectRenderable
+class RenderMaterial : public Renderer::DirectRenderable
 {
 private:
   using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
@@ -70,7 +70,7 @@ private:
   Renderer::VertexArray m_vertexArray;
 
 public:
-  explicit RenderTexture(const UVViewHelper& helper)
+  explicit RenderMaterial(const UVViewHelper& helper)
     : m_helper{helper}
     , m_vertexArray{Renderer::VertexArray::move(getVertices())}
   {
@@ -115,19 +115,20 @@ private:
     const auto& scale = m_helper.face()->attributes().scale();
     const auto toTex = m_helper.face()->toTexCoordSystemMatrix(offset, scale, true);
 
-    const auto* texture = m_helper.face()->material();
-    ensure(texture, "texture is null");
+    const auto* material = m_helper.face()->material();
+    ensure(material, "material is null");
 
-    texture->activate();
+    material->activate();
 
     auto shader = Renderer::ActiveShader{
       renderContext.shaderManager(), Renderer::Shaders::UVViewShader};
     shader.set("ApplyMaterial", true);
-    shader.set("Color", texture->averageColor());
+    shader.set("Color", material->averageColor());
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
-    shader.set("GridSizes", vm::vec2f{float(texture->width()), float(texture->height())});
-    shader.set("GridColor", vm::vec4f{Renderer::gridColorForMaterial(texture), 0.6f});
+    shader.set(
+      "GridSizes", vm::vec2f{float(material->width()), float(material->height())});
+    shader.set("GridColor", vm::vec4f{Renderer::gridColorForMaterial(material), 0.6f});
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f{toTex});
@@ -137,7 +138,7 @@ private:
 
     m_vertexArray.render(Renderer::PrimType::Quads);
 
-    texture->deactivate();
+    material->deactivate();
   }
 };
 
@@ -282,10 +283,10 @@ void UVView::doRender()
     renderContext.setDpiScale(float(window()->devicePixelRatioF()));
 
     setupGL(renderContext);
-    renderTexture(renderContext, renderBatch);
+    renderMaterial(renderContext, renderBatch);
     renderFace(renderContext, renderBatch);
     renderToolBox(renderContext, renderBatch);
-    renderTextureAxes(renderContext, renderBatch);
+    renderUVAxes(renderContext, renderBatch);
 
     renderBatch.render(renderContext);
   }
@@ -327,11 +328,11 @@ void UVView::setupGL(Renderer::RenderContext& renderContext)
   glAssert(glDisable(GL_DEPTH_TEST));
 }
 
-void UVView::renderTexture(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+void UVView::renderMaterial(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
 {
   if (m_helper.face()->material())
   {
-    renderBatch.addOneShot(new RenderTexture{m_helper});
+    renderBatch.addOneShot(new RenderMaterial{m_helper});
   }
 }
 
@@ -352,8 +353,7 @@ void UVView::renderFace(Renderer::RenderContext&, Renderer::RenderBatch& renderB
   edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
 }
 
-void UVView::renderTextureAxes(
-  Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+void UVView::renderUVAxes(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
 {
   using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
 
