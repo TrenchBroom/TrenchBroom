@@ -97,7 +97,7 @@ TEST_CASE("loadMaterialCollection")
 
   SECTION("invalid path")
   {
-    const auto textureConfig = Model::MaterialConfig{
+    const auto materialConfig = Model::MaterialConfig{
       "textures",
       {".D"},
       "fixture/test/palette.lmp",
@@ -107,12 +107,12 @@ TEST_CASE("loadMaterialCollection")
     };
 
     CHECK(
-      loadMaterialCollection("some_other_path", fs, textureConfig, logger).is_error());
+      loadMaterialCollection("some_other_path", fs, materialConfig, logger).is_error());
   }
 
   SECTION("missing palette")
   {
-    const auto textureConfig = Model::MaterialConfig{
+    const auto materialConfig = Model::MaterialConfig{
       "textures",
       {".D"},
       "fixture/test/missing.lmp",
@@ -122,7 +122,7 @@ TEST_CASE("loadMaterialCollection")
     };
 
     CHECK(
-      makeInfo(loadMaterialCollection("textures", fs, textureConfig, logger))
+      makeInfo(loadMaterialCollection("textures", fs, materialConfig, logger))
       == MaterialCollectionInfo{
         "textures",
         {
@@ -143,7 +143,7 @@ TEST_CASE("loadMaterialCollection")
 
   SECTION("loading all materials")
   {
-    const auto textureConfig = Model::MaterialConfig{
+    const auto materialConfig = Model::MaterialConfig{
       "textures",
       {".D"},
       "fixture/test/palette.lmp",
@@ -153,7 +153,7 @@ TEST_CASE("loadMaterialCollection")
     };
 
     CHECK(
-      makeInfo(loadMaterialCollection("textures", fs, textureConfig, logger))
+      makeInfo(loadMaterialCollection("textures", fs, materialConfig, logger))
       == MaterialCollectionInfo{
         "textures",
         {
@@ -184,7 +184,7 @@ TEST_CASE("loadMaterialCollection")
 
   SECTION("loading with exclusions")
   {
-    const auto textureConfig = Model::MaterialConfig{
+    const auto materialConfig = Model::MaterialConfig{
       "textures",
       {".D"},
       "fixture/test/palette.lmp",
@@ -194,7 +194,7 @@ TEST_CASE("loadMaterialCollection")
     };
 
     CHECK(
-      makeInfo(loadMaterialCollection("textures", fs, textureConfig, logger))
+      makeInfo(loadMaterialCollection("textures", fs, materialConfig, logger))
       == MaterialCollectionInfo{
         "textures",
         {
