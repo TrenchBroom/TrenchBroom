@@ -59,15 +59,15 @@ public:
     std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
 private:
-  void addSelectedTextureCollections();
-  void removeSelectedTextureCollections();
-  void reloadTextureCollections();
-  void availableTextureCollectionSelectionChanged();
-  void enabledTextureCollectionSelectionChanged();
+  void addSelectedMaterialCollections();
+  void removeSelectedMaterialCollections();
+  void reloadMaterialCollections();
+  void availableMaterialCollectionSelectionChanged();
+  void enabledMaterialCollectionSelectionChanged();
 
-  bool canAddTextureCollections() const;
-  bool canRemoveTextureCollections() const;
-  bool canReloadTextureCollections() const;
+  bool canAddMaterialCollections() const;
+  bool canRemoveMaterialCollections() const;
+  bool canReloadMaterialCollections() const;
 
 private:
   void createGui();
@@ -77,16 +77,16 @@ private:
 
   void documentWasNewedOrLoaded(MapDocument*);
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
-  void textureCollectionsDidChange();
+  void materialCollectionsDidChange();
   void modsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 
-  void updateAllTextureCollections();
-  void updateAvailableTextureCollections();
-  void updateEnabledTextureCollections();
+  void updateAllMaterialCollections();
+  void updateAvailableMaterialCollections();
+  void updateEnabledMaterialCollections();
 
-  std::vector<std::filesystem::path> availableTextureCollections() const;
-  std::vector<std::filesystem::path> enabledTextureCollections() const;
+  std::vector<std::filesystem::path> availableMaterialCollections() const;
+  std::vector<std::filesystem::path> enabledMaterialCollections() const;
 };
 
 } // namespace TrenchBroom::View

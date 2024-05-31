@@ -48,14 +48,14 @@ MaterialCollectionEditor::MaterialCollectionEditor(
 {
   createGui();
   connectObservers();
-  updateAllTextureCollections();
+  updateAllMaterialCollections();
   updateButtons();
 }
 
-void MaterialCollectionEditor::addSelectedTextureCollections()
+void MaterialCollectionEditor::addSelectedMaterialCollections()
 {
-  const auto availableCollections = availableTextureCollections();
-  auto enabledCollections = enabledTextureCollections();
+  const auto availableCollections = availableMaterialCollections();
+  auto enabledCollections = enabledMaterialCollections();
 
   for (auto* selectedItem : m_availableCollectionsList->selectedItems())
   {
@@ -69,9 +69,9 @@ void MaterialCollectionEditor::addSelectedTextureCollections()
   document->setEnabledMaterialCollections(enabledCollections);
 }
 
-void MaterialCollectionEditor::removeSelectedTextureCollections()
+void MaterialCollectionEditor::removeSelectedMaterialCollections()
 {
-  auto enabledCollections = enabledTextureCollections();
+  auto enabledCollections = enabledMaterialCollections();
 
   auto selections = std::vector<int>{};
   for (auto* selectedItem : m_enabledCollectionsList->selectedItems())
@@ -91,33 +91,33 @@ void MaterialCollectionEditor::removeSelectedTextureCollections()
   document->setEnabledMaterialCollections(enabledCollections);
 }
 
-void MaterialCollectionEditor::reloadTextureCollections()
+void MaterialCollectionEditor::reloadMaterialCollections()
 {
   auto document = kdl::mem_lock(m_document);
   document->reloadMaterialCollections();
 }
 
-void MaterialCollectionEditor::availableTextureCollectionSelectionChanged()
+void MaterialCollectionEditor::availableMaterialCollectionSelectionChanged()
 {
   updateButtons();
 }
 
-void MaterialCollectionEditor::enabledTextureCollectionSelectionChanged()
+void MaterialCollectionEditor::enabledMaterialCollectionSelectionChanged()
 {
   updateButtons();
 }
 
-bool MaterialCollectionEditor::canAddTextureCollections() const
+bool MaterialCollectionEditor::canAddMaterialCollections() const
 {
   return !m_availableCollectionsList->selectedItems().empty();
 }
 
-bool MaterialCollectionEditor::canRemoveTextureCollections() const
+bool MaterialCollectionEditor::canRemoveMaterialCollections() const
 {
   return !m_enabledCollectionsList->selectedItems().empty();
 }
 
-bool MaterialCollectionEditor::canReloadTextureCollections() const
+bool MaterialCollectionEditor::canReloadMaterialCollections() const
 {
   return m_enabledCollectionsList->count() != 0;
 }
@@ -155,11 +155,11 @@ void MaterialCollectionEditor::createGui()
   enabledCollectionsContainer->getPanel()->setLayout(enabledCollectionsContainerLayout);
 
   m_addCollectionsButton =
-    createBitmapButton("Add.svg", tr("Enable the selected texture collections"), this);
+    createBitmapButton("Add.svg", tr("Enable the selected material collections"), this);
   m_removeCollectionsButton = createBitmapButton(
-    "Remove.svg", tr("Disable the selected texture collections"), this);
-  m_reloadCollectionsButton =
-    createBitmapButton("Refresh.svg", tr("Reload all enabled texture collections"), this);
+    "Remove.svg", tr("Disable the selected material collections"), this);
+  m_reloadCollectionsButton = createBitmapButton(
+    "Refresh.svg", tr("Reload all enabled material collections"), this);
 
   auto* toolBar = createMiniToolBarLayout(
     m_addCollectionsButton,
@@ -179,50 +179,50 @@ void MaterialCollectionEditor::createGui()
 
   setLayout(layout);
 
-  updateAllTextureCollections();
+  updateAllMaterialCollections();
 
   connect(
     m_availableCollectionsList,
     &QListWidget::itemSelectionChanged,
     this,
-    &MaterialCollectionEditor::availableTextureCollectionSelectionChanged);
+    &MaterialCollectionEditor::availableMaterialCollectionSelectionChanged);
   connect(
     m_enabledCollectionsList,
     &QListWidget::itemSelectionChanged,
     this,
-    &MaterialCollectionEditor::enabledTextureCollectionSelectionChanged);
+    &MaterialCollectionEditor::enabledMaterialCollectionSelectionChanged);
   connect(
     m_availableCollectionsList,
     &QListWidget::itemDoubleClicked,
     this,
-    &MaterialCollectionEditor::addSelectedTextureCollections);
+    &MaterialCollectionEditor::addSelectedMaterialCollections);
   connect(
     m_enabledCollectionsList,
     &QListWidget::itemDoubleClicked,
     this,
-    &MaterialCollectionEditor::removeSelectedTextureCollections);
+    &MaterialCollectionEditor::removeSelectedMaterialCollections);
   connect(
     m_addCollectionsButton,
     &QAbstractButton::clicked,
     this,
-    &MaterialCollectionEditor::addSelectedTextureCollections);
+    &MaterialCollectionEditor::addSelectedMaterialCollections);
   connect(
     m_removeCollectionsButton,
     &QAbstractButton::clicked,
     this,
-    &MaterialCollectionEditor::removeSelectedTextureCollections);
+    &MaterialCollectionEditor::removeSelectedMaterialCollections);
   connect(
     m_reloadCollectionsButton,
     &QAbstractButton::clicked,
     this,
-    &MaterialCollectionEditor::reloadTextureCollections);
+    &MaterialCollectionEditor::reloadMaterialCollections);
 }
 
 void MaterialCollectionEditor::updateButtons()
 {
-  m_addCollectionsButton->setEnabled(canAddTextureCollections());
-  m_removeCollectionsButton->setEnabled(canRemoveTextureCollections());
-  m_reloadCollectionsButton->setEnabled(canReloadTextureCollections());
+  m_addCollectionsButton->setEnabled(canAddMaterialCollections());
+  m_removeCollectionsButton->setEnabled(canRemoveMaterialCollections());
+  m_reloadCollectionsButton->setEnabled(canReloadMaterialCollections());
 }
 
 void MaterialCollectionEditor::connectObservers()
@@ -235,7 +235,7 @@ void MaterialCollectionEditor::connectObservers()
   m_notifierConnection += document->documentWasLoadedNotifier.connect(
     this, &MaterialCollectionEditor::documentWasNewedOrLoaded);
   m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
-    this, &MaterialCollectionEditor::textureCollectionsDidChange);
+    this, &MaterialCollectionEditor::materialCollectionsDidChange);
   m_notifierConnection += document->modsDidChangeNotifier.connect(
     this, &MaterialCollectionEditor::modsDidChange);
 
@@ -246,7 +246,7 @@ void MaterialCollectionEditor::connectObservers()
 
 void MaterialCollectionEditor::documentWasNewedOrLoaded(MapDocument*)
 {
-  updateAllTextureCollections();
+  updateAllMaterialCollections();
   updateButtons();
 }
 
@@ -255,20 +255,20 @@ void MaterialCollectionEditor::nodesDidChange(const std::vector<Model::Node*>& n
   auto document = kdl::mem_lock(m_document);
   if (kdl::vec_contains(nodes, document->world()))
   {
-    updateAllTextureCollections();
+    updateAllMaterialCollections();
     updateButtons();
   }
 }
 
-void MaterialCollectionEditor::textureCollectionsDidChange()
+void MaterialCollectionEditor::materialCollectionsDidChange()
 {
-  updateAllTextureCollections();
+  updateAllMaterialCollections();
   updateButtons();
 }
 
 void MaterialCollectionEditor::modsDidChange()
 {
-  updateAllTextureCollections();
+  updateAllMaterialCollections();
   updateButtons();
 }
 
@@ -277,15 +277,15 @@ void MaterialCollectionEditor::preferenceDidChange(const std::filesystem::path& 
   auto document = kdl::mem_lock(m_document);
   if (document->isGamePathPreference(path))
   {
-    updateAllTextureCollections();
+    updateAllMaterialCollections();
     updateButtons();
   }
 }
 
-void MaterialCollectionEditor::updateAllTextureCollections()
+void MaterialCollectionEditor::updateAllMaterialCollections()
 {
-  updateAvailableTextureCollections();
-  updateEnabledTextureCollections();
+  updateAvailableMaterialCollections();
+  updateEnabledMaterialCollections();
 }
 
 namespace
@@ -295,7 +295,7 @@ void updateListBox(QListWidget* box, const std::vector<std::filesystem::path>& p
 {
   // We need to block QListWidget::itemSelectionChanged from firing while clearing and
   // rebuilding the list because it will cause debugUIConsistency() to fail, as the
-  // number of list items in the UI won't match the document's texture collections
+  // number of list items in the UI won't match the document's material collections
   // lists.
   auto blocker = QSignalBlocker{box};
 
@@ -308,24 +308,24 @@ void updateListBox(QListWidget* box, const std::vector<std::filesystem::path>& p
 
 } // namespace
 
-void MaterialCollectionEditor::updateAvailableTextureCollections()
+void MaterialCollectionEditor::updateAvailableMaterialCollections()
 {
-  updateListBox(m_availableCollectionsList, enabledTextureCollections());
+  updateListBox(m_availableCollectionsList, enabledMaterialCollections());
 }
 
-void MaterialCollectionEditor::updateEnabledTextureCollections()
+void MaterialCollectionEditor::updateEnabledMaterialCollections()
 {
-  updateListBox(m_enabledCollectionsList, enabledTextureCollections());
+  updateListBox(m_enabledCollectionsList, enabledMaterialCollections());
 }
 
-std::vector<std::filesystem::path> MaterialCollectionEditor::availableTextureCollections()
-  const
+std::vector<std::filesystem::path> MaterialCollectionEditor::
+  availableMaterialCollections() const
 {
   auto document = kdl::mem_lock(m_document);
   return document->disabledMaterialCollections();
 }
 
-std::vector<std::filesystem::path> MaterialCollectionEditor::enabledTextureCollections()
+std::vector<std::filesystem::path> MaterialCollectionEditor::enabledMaterialCollections()
   const
 {
   auto document = kdl::mem_lock(m_document);
