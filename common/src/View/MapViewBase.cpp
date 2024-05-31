@@ -165,7 +165,7 @@ void MapViewBase::connectObservers()
   m_notifierConnection +=
     document->selectionDidChangeNotifier.connect(this, &MapViewBase::selectionDidChange);
   m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
-    this, &MapViewBase::textureCollectionsDidChange);
+    this, &MapViewBase::materialCollectionsDidChange);
   m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(
     this, &MapViewBase::entityDefinitionsDidChange);
   m_notifierConnection +=
@@ -243,7 +243,7 @@ void MapViewBase::selectionDidChange(const Selection&)
   updateActionStatesDelayed();
 }
 
-void MapViewBase::textureCollectionsDidChange()
+void MapViewBase::materialCollectionsDidChange()
 {
   update();
 }
@@ -494,30 +494,29 @@ bool MapViewBase::canFlipObjects() const
   return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
 }
 
-void MapViewBase::moveTextures(
-  const vm::direction direction, const TextureActionMode mode)
+void MapViewBase::moveUV(const vm::direction direction, const UVActionMode mode)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedBrushFaces())
   {
-    const auto offset = moveTextureOffset(direction, mode);
+    const auto offset = moveUVOffset(direction, mode);
     document->translateUV(camera().up(), camera().right(), offset);
   }
 }
 
-vm::vec2f MapViewBase::moveTextureOffset(
-  const vm::direction direction, const TextureActionMode mode) const
+vm::vec2f MapViewBase::moveUVOffset(
+  const vm::direction direction, const UVActionMode mode) const
 {
   switch (direction)
   {
   case vm::direction::up:
-    return vm::vec2f{0.0f, moveTextureDistance(mode)};
+    return vm::vec2f{0.0f, moveUVDistance(mode)};
   case vm::direction::down:
-    return vm::vec2f{0.0f, -moveTextureDistance(mode)};
+    return vm::vec2f{0.0f, -moveUVDistance(mode)};
   case vm::direction::left:
-    return vm::vec2f{-moveTextureDistance(mode), 0.0f};
+    return vm::vec2f{-moveUVDistance(mode), 0.0f};
   case vm::direction::right:
-    return vm::vec2f{moveTextureDistance(mode), 0.0f};
+    return vm::vec2f{moveUVDistance(mode), 0.0f};
   case vm::direction::forward:
   case vm::direction::backward:
     return vm::vec2f{};
@@ -525,35 +524,34 @@ vm::vec2f MapViewBase::moveTextureOffset(
   }
 }
 
-float MapViewBase::moveTextureDistance(const TextureActionMode mode) const
+float MapViewBase::moveUVDistance(const UVActionMode mode) const
 {
   const auto& grid = kdl::mem_lock(m_document)->grid();
   const auto gridSize = static_cast<float>(grid.actualSize());
 
   switch (mode)
   {
-  case TextureActionMode::Fine:
+  case UVActionMode::Fine:
     return 1.0f;
-  case TextureActionMode::Coarse:
+  case UVActionMode::Coarse:
     return 2.0f * gridSize;
-  case TextureActionMode::Normal:
+  case UVActionMode::Normal:
     return gridSize;
     switchDefault();
   }
 }
 
-void MapViewBase::rotateTextures(const bool clockwise, const TextureActionMode mode)
+void MapViewBase::rotateUV(const bool clockwise, const UVActionMode mode)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedBrushFaces())
   {
-    const auto angle = rotateTextureAngle(clockwise, mode);
+    const auto angle = rotateUVAngle(clockwise, mode);
     document->rotateUV(angle);
   }
 }
 
-float MapViewBase::rotateTextureAngle(
-  const bool clockwise, const TextureActionMode mode) const
+float MapViewBase::rotateUVAngle(const bool clockwise, const UVActionMode mode) const
 {
   const auto& grid = kdl::mem_lock(m_document)->grid();
   const auto gridAngle = static_cast<float>(vm::to_degrees(grid.angle()));
@@ -561,20 +559,20 @@ float MapViewBase::rotateTextureAngle(
 
   switch (mode)
   {
-  case TextureActionMode::Fine:
+  case UVActionMode::Fine:
     angle = 1.0f;
     break;
-  case TextureActionMode::Coarse:
+  case UVActionMode::Coarse:
     angle = 90.0f;
     break;
-  case TextureActionMode::Normal:
+  case UVActionMode::Normal:
     angle = gridAngle;
     break;
   }
   return clockwise ? angle : -angle;
 }
 
-void MapViewBase::flipTextures(const vm::direction direction)
+void MapViewBase::flipUV(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedBrushFaces())
@@ -583,7 +581,7 @@ void MapViewBase::flipTextures(const vm::direction direction)
   }
 }
 
-void MapViewBase::resetTextures()
+void MapViewBase::resetUV()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
 
@@ -592,7 +590,7 @@ void MapViewBase::resetTextures()
   document->setFaceAttributes(request);
 }
 
-void MapViewBase::resetTexturesToWorld()
+void MapViewBase::resetUVToWorld()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
 
@@ -846,12 +844,12 @@ void MapViewBase::toggleShowBrushes()
   togglePref(Preferences::ShowBrushes);
 }
 
-void MapViewBase::showTextures()
+void MapViewBase::showMaterials()
 {
   setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeTextured());
 }
 
-void MapViewBase::hideTextures()
+void MapViewBase::hideMaterials()
 {
   setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeFlat());
 }
@@ -1337,12 +1335,12 @@ void MapViewBase::showPopupMenuLater()
   const auto faceHandle = Model::hitToFaceHandle(hit);
   if (faceHandle)
   {
-    const auto* texture = faceHandle->face().material();
+    const auto* material = faceHandle->face().material();
     menu.addAction(
-      tr("Reveal %1 in Texture Browser")
+      tr("Reveal %1 in Material Browser")
         .arg(QString::fromStdString(faceHandle->face().attributes().materialName())),
       mapFrame,
-      [=] { mapFrame->revealMaterial(texture); });
+      [=] { mapFrame->revealMaterial(material); });
 
     menu.addSeparator();
   }

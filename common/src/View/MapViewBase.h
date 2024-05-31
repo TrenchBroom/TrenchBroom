@@ -156,7 +156,7 @@ private:
   void commandDone(Command& command);
   void commandUndone(UndoableCommand& command);
   void selectionDidChange(const Selection& selection);
-  void textureCollectionsDidChange();
+  void materialCollectionsDidChange();
   void entityDefinitionsDidChange();
   void modsDidChange();
   void editorContextDidChange();
@@ -192,22 +192,24 @@ public: // move, rotate, flip actions
   void flipObjects(vm::direction direction);
   bool canFlipObjects() const;
 
-public: // texture actions
-  enum class TextureActionMode
+public: // UV actions
+  enum class UVActionMode
   {
     Normal,
     Coarse,
     Fine
   };
 
-  void moveTextures(vm::direction direction, TextureActionMode mode);
-  vm::vec2f moveTextureOffset(vm::direction direction, TextureActionMode mode) const;
-  float moveTextureDistance(TextureActionMode mode) const;
-  void rotateTextures(bool clockwise, TextureActionMode mode);
-  float rotateTextureAngle(bool clockwise, TextureActionMode mode) const;
-  void flipTextures(vm::direction direction);
-  void resetTextures();
-  void resetTexturesToWorld();
+  void moveUV(vm::direction direction, UVActionMode mode);
+  vm::vec2f moveUVOffset(vm::direction direction, UVActionMode mode) const;
+  float moveUVDistance(UVActionMode mode) const;
+
+  void rotateUV(bool clockwise, UVActionMode mode);
+  float rotateUVAngle(bool clockwise, UVActionMode mode) const;
+
+  void flipUV(vm::direction direction);
+  void resetUV();
+  void resetUVToWorld();
 
 public: // tool mode actions
   void createComplexBrush();
@@ -290,8 +292,8 @@ public: // view filters
   void toggleShowPointEntities();
   void toggleShowPointEntityModels();
   void toggleShowBrushes();
-  void showTextures();
-  void hideTextures();
+  void showMaterials();
+  void hideMaterials();
   void hideFaces();
   void toggleShadeFaces();
   void toggleShowFog();
