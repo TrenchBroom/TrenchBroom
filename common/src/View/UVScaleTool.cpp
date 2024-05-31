@@ -176,7 +176,7 @@ private:
   const UVViewHelper& m_helper;
   vm::vec2i m_handle;
   vm::vec2b m_selector;
-  vm::vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
+  vm::vec2f m_lastHitPoint; // in non-scaled, non-translated UV coordinates
 public:
   UVScaleDragTracker(
     MapDocument& document,
@@ -190,7 +190,7 @@ public:
     , m_selector{selector}
     , m_lastHitPoint{initialHitPoint}
   {
-    document.startTransaction("Scale Texture", TransactionScope::LongRunning);
+    document.startTransaction("Scale UV", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override
