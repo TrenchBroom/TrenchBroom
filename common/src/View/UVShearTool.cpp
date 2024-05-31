@@ -84,7 +84,7 @@ public:
     , m_initialHit{initialHit}
     , m_lastHit{initialHit}
   {
-    m_document.startTransaction("Shear Texture", TransactionScope::LongRunning);
+    m_document.startTransaction("Shear UV", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override
@@ -208,7 +208,7 @@ std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inpu
   }
 
   // #1350: Don't allow shearing if the shear would result in very large changes. This
-  // happens if the shear handle to be dragged is very close to one of the texture axes.
+  // happens if the shear handle to be dragged is very close to one of the UV axes.
   if (vm::is_zero(initialHit->x(), 6.0f) || vm::is_zero(initialHit->y(), 6.0f))
   {
     return nullptr;
