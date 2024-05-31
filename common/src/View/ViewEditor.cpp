@@ -460,7 +460,7 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
   auto* inner = panel->getPanel();
 
   const auto FaceRenderModes =
-    QStringList{"Show textures", "Hide textures", "Hide faces"};
+    QStringList{"Show materials", "Hide materials", "Hide faces"};
   const auto FaceRenderModesPrefValues = QStringList{
     Preferences::faceRenderModeTextured(),
     Preferences::faceRenderModeFlat(),
