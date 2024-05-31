@@ -9,29 +9,30 @@
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    inkscape:export-ydpi="96"
    inkscape:export-xdpi="96"
-   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/RotateTextureCCW.png"
+   inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/FlipTextureH.png"
    version="1.1"
    x="0"
    y="0"
    width="16"
    height="16"
    viewBox="0, 0, 16, 16"
-   id="svg88"
-   sodipodi:docname="RotateTextureCCW.svg"
+   id="svg84"
+   sodipodi:docname="FlipUAxis.svg"
    inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)">
   <metadata
-     id="metadata94">
+     id="metadata90">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <defs
-     id="defs92" />
+     id="defs88" />
   <sodipodi:namedview
      inkscape:document-rotation="0"
      pagecolor="#ffffff"
@@ -44,45 +45,29 @@
      inkscape:pageshadow="2"
      inkscape:window-width="2488"
      inkscape:window-height="1373"
-     id="namedview90"
+     id="namedview86"
      showgrid="true"
-     inkscape:zoom="57.187261"
-     inkscape:cx="3.2778018"
-     inkscape:cy="7.2080546"
+     inkscape:zoom="28.676159"
+     inkscape:cx="-2.7944436"
+     inkscape:cy="7.8593708"
      inkscape:window-x="72"
      inkscape:window-y="30"
      inkscape:window-maximized="1"
-     inkscape:current-layer="svg88">
+     inkscape:current-layer="svg84"
+     inkscape:snap-bbox="false"
+     inkscape:bbox-nodes="true">
     <inkscape:grid
-       id="grid1415"
-       type="xygrid" />
+       type="xygrid"
+       id="grid92"
+       empspacing="4" />
   </sodipodi:namedview>
-  <g
-     style="fill:#3f3f3f;fill-opacity:1"
-     id="Layer_1">
-    <path
-       style="fill:#3f3f3f;fill-opacity:1"
-       d="M4.5,13.5 L4.5,13.5"
-       fill-opacity="0"
-       stroke="#000000"
-       stroke-width="1"
-       id="path79" />
-    <path
-       style="fill:#3f3f3f;fill-opacity:1"
-       d="M12.5,5.5 L12.5,5.5"
-       fill-opacity="0"
-       stroke="#000000"
-       stroke-width="1"
-       id="path81" />
-    <path
-       style="fill:#3f3f3f;fill-opacity:1"
-       d="M6,5 L8,5 C11,5 12,6 12,10 L12,13 C12,13 10,13 10,13 C10,13 10,11 10,11 C10,7 10,7 6,7 C6,7 6,5 6,5 z"
-       fill="#494949"
-       id="path83" />
-    <path
-       style="fill:#3f3f3f;fill-opacity:1"
-       d="M6,3 L6,9 L3,6"
-       fill="#494949"
-       id="path85" />
-  </g>
+  <path
+     style="fill:#3f3f3f;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+     d="m 2,8 4,3 V 9 h 4 v 2 L 14,8 10,5 V 7 H 6 V 5 Z"
+     id="path909"
+     inkscape:connector-curvature="0"
+     sodipodi:nodetypes="ccccccccccc"
+     inkscape:export-filename="/media/psf/Home/Documents/Code/TrenchBroom_qt/app/resources/graphics/images/path909.png"
+     inkscape:export-xdpi="96"
+     inkscape:export-ydpi="96" />
 </svg>

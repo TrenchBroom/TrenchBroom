@@ -57,61 +57,40 @@ void UVEditor::updateButtons()
   auto document = kdl::mem_lock(m_document);
   const bool enabled = !document->allSelectedBrushFaces().empty();
 
-  m_resetTextureButton->setEnabled(enabled);
-  m_resetTextureToWorldButton->setEnabled(enabled);
-  m_flipTextureHButton->setEnabled(enabled);
-  m_flipTextureVButton->setEnabled(enabled);
-  m_rotateTextureCCWButton->setEnabled(enabled);
-  m_rotateTextureCWButton->setEnabled(enabled);
+  m_resetUVButton->setEnabled(enabled);
+  m_resetUVToWorldButton->setEnabled(enabled);
+  m_flipUAxisButton->setEnabled(enabled);
+  m_flipVAxisButton->setEnabled(enabled);
+  m_rotateUVCCWButton->setEnabled(enabled);
+  m_rotateUVCWButton->setEnabled(enabled);
 }
 
 void UVEditor::createGui(GLContextManager& contextManager)
 {
   m_uvView = new UVView{m_document, contextManager};
 
-  m_resetTextureButton =
-    createBitmapButton("ResetUV.svg", tr("Reset texture alignment"), this);
-  m_resetTextureToWorldButton = createBitmapButton(
-    "ResetUVToWorld.svg", tr("Reset texture alignment to world aligned"), this);
-  m_flipTextureHButton =
-    createBitmapButton("FlipTextureH.svg", tr("Flip texture X axis"), this);
-  m_flipTextureVButton =
-    createBitmapButton("FlipTextureV.svg", tr("Flip texture Y axis"), this);
-  m_rotateTextureCCWButton = createBitmapButton(
-    "RotateTextureCCW.svg", tr("Rotate texture 90° counter-clockwise"), this);
-  m_rotateTextureCWButton =
-    createBitmapButton("RotateTextureCW.svg", tr("Rotate texture 90° clockwise"), this);
+  m_resetUVButton = createBitmapButton("ResetUV.svg", tr("Reset UV alignment"), this);
+  m_resetUVToWorldButton = createBitmapButton(
+    "ResetUVToWorld.svg", tr("Reset UV alignment to world aligned"), this);
+  m_flipUAxisButton = createBitmapButton("FlipUAxis.svg", tr("Flip U axis"), this);
+  m_flipVAxisButton = createBitmapButton("FlipVAxis.svg", tr("Flip V axis"), this);
+  m_rotateUVCCWButton =
+    createBitmapButton("RotateUVCCW.svg", tr("Rotate UV 90° counter-clockwise"), this);
+  m_rotateUVCWButton =
+    createBitmapButton("RotateUVCW.svg", tr("Rotate UV 90° clockwise"), this);
 
+  connect(m_resetUVButton, &QAbstractButton::clicked, this, &UVEditor::resetUVClicked);
   connect(
-    m_resetTextureButton,
+    m_resetUVToWorldButton,
     &QAbstractButton::clicked,
     this,
-    &UVEditor::resetTextureClicked);
+    &UVEditor::resetUVToWorldClicked);
+  connect(m_flipUAxisButton, &QAbstractButton::clicked, this, &UVEditor::flipUVHClicked);
+  connect(m_flipVAxisButton, &QAbstractButton::clicked, this, &UVEditor::flipUVVClicked);
   connect(
-    m_resetTextureToWorldButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::resetTextureToWorldClicked);
+    m_rotateUVCCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateUVCCWClicked);
   connect(
-    m_flipTextureHButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::flipTextureHClicked);
-  connect(
-    m_flipTextureVButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::flipTextureVClicked);
-  connect(
-    m_rotateTextureCCWButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::rotateTextureCCWClicked);
-  connect(
-    m_rotateTextureCWButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::rotateTextureCWClicked);
+    m_rotateUVCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateUVCWClicked);
 
   auto* gridLabel = new QLabel{"Grid "};
   makeEmphasized(gridLabel);
@@ -138,12 +117,12 @@ void UVEditor::createGui(GLContextManager& contextManager)
   bottomLayout->setContentsMargins(
     LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
   bottomLayout->setSpacing(LayoutConstants::NarrowHMargin);
-  bottomLayout->addWidget(m_resetTextureButton);
-  bottomLayout->addWidget(m_resetTextureToWorldButton);
-  bottomLayout->addWidget(m_flipTextureHButton);
-  bottomLayout->addWidget(m_flipTextureVButton);
-  bottomLayout->addWidget(m_rotateTextureCCWButton);
-  bottomLayout->addWidget(m_rotateTextureCWButton);
+  bottomLayout->addWidget(m_resetUVButton);
+  bottomLayout->addWidget(m_resetUVToWorldButton);
+  bottomLayout->addWidget(m_flipUAxisButton);
+  bottomLayout->addWidget(m_flipVAxisButton);
+  bottomLayout->addWidget(m_rotateUVCCWButton);
+  bottomLayout->addWidget(m_rotateUVCWButton);
   bottomLayout->addStretch();
   bottomLayout->addWidget(gridLabel);
   bottomLayout->addWidget(new QLabel{"X:"});
@@ -175,7 +154,7 @@ void UVEditor::connectObservers()
     document->selectionDidChangeNotifier.connect(this, &UVEditor::selectionDidChange);
 }
 
-void UVEditor::resetTextureClicked()
+void UVEditor::resetUVClicked()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
 
@@ -184,7 +163,7 @@ void UVEditor::resetTextureClicked()
   document->setFaceAttributes(request);
 }
 
-void UVEditor::resetTextureToWorldClicked()
+void UVEditor::resetUVToWorldClicked()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
 
@@ -193,7 +172,7 @@ void UVEditor::resetTextureToWorldClicked()
   document->setFaceAttributes(request);
 }
 
-void UVEditor::flipTextureHClicked()
+void UVEditor::flipUVHClicked()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.mulXScale(-1.0f);
@@ -202,7 +181,7 @@ void UVEditor::flipTextureHClicked()
   document->setFaceAttributes(request);
 }
 
-void UVEditor::flipTextureVClicked()
+void UVEditor::flipUVVClicked()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.mulYScale(-1.0f);
@@ -211,7 +190,7 @@ void UVEditor::flipTextureVClicked()
   document->setFaceAttributes(request);
 }
 
-void UVEditor::rotateTextureCCWClicked()
+void UVEditor::rotateUVCCWClicked()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.addRotation(90.0f);
@@ -220,7 +199,7 @@ void UVEditor::rotateTextureCCWClicked()
   document->setFaceAttributes(request);
 }
 
-void UVEditor::rotateTextureCWClicked()
+void UVEditor::rotateUVCWClicked()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.addRotation(-90.0f);
