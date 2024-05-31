@@ -309,7 +309,7 @@ TEST_CASE("WorldReader.parseMapAndCheckFaceFlags")
   CHECK(face->attributes().yScale() == -0.55f);
 }
 
-TEST_CASE("WorldReader.parseBrushWithCurlyBraceInTextureName")
+TEST_CASE("WorldReader.parseBrushWithCurlyBraceInMaterialName")
 {
   const auto data = R"(
 {
@@ -629,7 +629,7 @@ TEST_CASE("WorldReader.parseDaikatanaMapHeader")
   checkBrushTexCoordSystem(brush, false);
 }
 
-TEST_CASE("WorldReader.parseQuakeBrushWithNumericalTextureName")
+TEST_CASE("WorldReader.parseQuakeBrushWithNumericalMaterialName")
 {
   const auto data = R"(
 {
@@ -1464,7 +1464,7 @@ TEST_CASE("WorldReader.parseHeretic2QuarkMap")
   }
 }
 
-TEST_CASE("WorldReader.parseTBEmptyTextureName")
+TEST_CASE("WorldReader.parseTBEmptyMaterialName")
 {
   const auto data = R"(
 // entity 0
@@ -1504,13 +1504,13 @@ TEST_CASE("WorldReader.parseTBEmptyTextureName")
   }
 }
 
-TEST_CASE("WorldReader.parseQuotedTextureNames")
+TEST_CASE("WorldReader.parseQuotedMaterialNames")
 {
   using NameInfo = std::tuple<std::string, std::string>;
 
   // clang-format off
   const auto 
-  [textureName,       expectedName] = GENERATE(values<NameInfo>({
+  [materialName,      expectedName] = GENERATE(values<NameInfo>({
   {R"(some_name)",    R"(some_name)"},
   {R"("some name")",  R"(some name)"},
   {R"("some\\name")", R"(some\name)"},
@@ -1519,7 +1519,7 @@ TEST_CASE("WorldReader.parseQuotedTextureNames")
   }));
   // clang-format on
 
-  CAPTURE(textureName, expectedName);
+  CAPTURE(materialName, expectedName);
 
   const auto data = fmt::format(
     R"(
@@ -1536,7 +1536,7 @@ TEST_CASE("WorldReader.parseQuotedTextureNames")
 ( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) {0} 0 0 0 1 1
 }}
 }})",
-    textureName);
+    materialName);
 
   const auto worldBounds = vm::bbox3{8192.0};
 
