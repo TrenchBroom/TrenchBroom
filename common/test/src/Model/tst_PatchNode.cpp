@@ -162,7 +162,7 @@ TEST_CASE("PatchNode.makePatchGrid")
 
   CAPTURE(r, c, sd, controlPoints);
   CHECK(
-    makePatchGrid(BezierPatch{r, c, controlPoints, "texture"}, sd).points
+    makePatchGrid(BezierPatch{r, c, controlPoints, "material"}, sd).points
     == kdl::vec_transform(expectedPoints, [](const auto& p) { return vm::approx{p}; }));
 }
 
@@ -177,7 +177,7 @@ TEST_CASE("PatchNode.pickFlatPatch")
     P{0.0, 2.0, 0.0}, P{1.0, 2.0, 0.0}, P{2.0, 2.0, 0.0}, P{3.0, 2.0, 0.0}, P{4.0, 2.0, 0.0},
     P{0.0, 1.0, 0.0}, P{1.0, 1.0, 0.0}, P{2.0, 1.0, 0.0}, P{3.0, 1.0, 0.0}, P{4.0, 1.0, 0.0},
     P{0.0, 0.0, 0.0}, P{1.0, 0.0, 0.0}, P{2.0, 0.0, 0.0}, P{3.0, 0.0, 0.0}, P{4.0, 0.0, 0.0},
-  }, "texture"}};
+  }, "material"}};
   // clang-format on
 
   using T = std::tuple<vm::ray3, std::optional<vm::vec3>>;
