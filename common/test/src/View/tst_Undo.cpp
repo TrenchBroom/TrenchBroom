@@ -39,7 +39,7 @@
 namespace TrenchBroom::View
 {
 
-TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
+TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
 {
   document->deselectAll();
   document->setProperty(
@@ -48,36 +48,36 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
   auto* brushNode = createBrushNode("coffin1");
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
-  const auto* texture = document->materialManager().material("coffin1");
-  CHECK(texture != nullptr);
-  CHECK(texture->usageCount() == 6u);
+  const auto* material = document->materialManager().material("coffin1");
+  CHECK(material != nullptr);
+  CHECK(material->usageCount() == 6u);
 
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK(face.material() == texture);
+    CHECK(face.material() == material);
   }
 
   SECTION("translate brush")
   {
     document->selectNodes({brushNode});
     document->translateObjects(vm::vec3(1, 1, 1));
-    CHECK(texture->usageCount() == 6u);
+    CHECK(material->usageCount() == 6u);
 
     document->undoCommand();
-    CHECK(texture->usageCount() == 6u);
+    CHECK(material->usageCount() == 6u);
   }
 
   SECTION("delete brush")
   {
     document->selectNodes({brushNode});
     document->deleteObjects();
-    CHECK(texture->usageCount() == 0u);
+    CHECK(material->usageCount() == 0u);
 
     document->undoCommand();
-    CHECK(texture->usageCount() == 6u);
+    CHECK(material->usageCount() == 6u);
   }
 
-  SECTION("select top face, move texture")
+  SECTION("select top face, translate UV")
   {
     auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
     REQUIRE(topFaceIndex.has_value());
@@ -89,17 +89,17 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setTexturesAfterRestore")
     REQUIRE(document->setFaceAttributes(request));
 
     document->undoCommand(); // undo move
-    CHECK(texture->usageCount() == 6u);
+    CHECK(material->usageCount() == 6u);
     REQUIRE(document->hasSelectedBrushFaces());
 
     document->undoCommand(); // undo select
-    CHECK(texture->usageCount() == 6u);
+    CHECK(material->usageCount() == 6u);
     REQUIRE(!document->hasSelectedBrushFaces());
   }
 
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK(face.material() == texture);
+    CHECK(face.material() == material);
   }
 }
 
