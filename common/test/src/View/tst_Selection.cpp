@@ -264,11 +264,11 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
 
-  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "texture").value()};
+  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(box.translate({1, 1, 1}), "texture").value()};
+    builder.createCuboid(box.translate({1, 1, 1}), "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   document->selectAllNodes();
@@ -311,13 +311,13 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup")
   const auto brushBounds = vm::bbox3{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
 
   auto* brush =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(brushBounds, "material").value()};
   document->addNodes({{group, {brush}}});
 
   const auto selectionBounds = vm::bbox3{{-16.0, -16.0, -48.0}, {+16.0, +16.0, +48.0}};
 
   auto* selectionBrush =
-    new Model::BrushNode{builder.createCuboid(selectionBounds, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(selectionBounds, "material").value()};
   document->addNodes({{layer, {selectionBrush}}});
 
   document->selectNodes({selectionBrush});
@@ -343,13 +343,13 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup")
   const auto brushBounds = vm::bbox3{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
 
   auto* brush =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(brushBounds, "material").value()};
   document->addNodes({{group, {brush}}});
 
   const auto selectionBounds = vm::bbox3{{-48.0, -48.0, -48.0}, {+48.0, +48.0, +48.0}};
 
   auto* selectionBrush =
-    new Model::BrushNode{builder.createCuboid(selectionBounds, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(selectionBounds, "material").value()};
   document->addNodes({{layer, {selectionBrush}}});
 
   document->selectNodes({selectionBrush});
@@ -414,15 +414,15 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
 
-  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "texture").value()};
+  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(box.translate({1, 1, 1}), "texture").value()};
+    builder.createCuboid(box.translate({1, 1, 1}), "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   auto* brushNode3 = new Model::BrushNode{
-    builder.createCuboid(box.translate({2, 2, 2}), "texture").value()};
+    builder.createCuboid(box.translate({2, 2, 2}), "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   auto* patchNode = createPatchNode();
@@ -502,15 +502,15 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
 
-  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "texture").value()};
+  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(box.translate({1, 1, 1}), "texture").value()};
+    builder.createCuboid(box.translate({1, 1, 1}), "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   auto* brushNode3 = new Model::BrushNode{
-    builder.createCuboid(box.translate({2, 2, 2}), "texture").value()};
+    builder.createCuboid(box.translate({2, 2, 2}), "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   auto* patchNode = createPatchNode();
