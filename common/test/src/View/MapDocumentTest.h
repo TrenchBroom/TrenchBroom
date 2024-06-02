@@ -65,9 +65,9 @@ protected:
 
 public:
   Model::BrushNode* createBrushNode(
-    const std::string& textureName = "texture",
+    const std::string& materialName = "material",
     const std::function<void(Model::Brush&)>& brushFunc = [](Model::Brush&) {}) const;
-  Model::PatchNode* createPatchNode(const std::string& textureName = "texture") const;
+  Model::PatchNode* createPatchNode(const std::string& materialName = "material") const;
 };
 
 class ValveMapDocumentTest : public MapDocumentTest
