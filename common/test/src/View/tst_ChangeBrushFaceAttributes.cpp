@@ -96,20 +96,20 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
 
   document->selectNodes({brushNode});
 
-  auto setTexture1 = Model::ChangeBrushFaceAttributesRequest{};
-  setTexture1.setMaterialName("texture1");
-  document->setFaceAttributes(setTexture1);
+  auto setMaterial1 = Model::ChangeBrushFaceAttributesRequest{};
+  setMaterial1.setMaterialName("material1");
+  document->setFaceAttributes(setMaterial1);
   for (const auto& face : brushNode->brush().faces())
   {
-    REQUIRE(face.attributes().materialName() == "texture1");
+    REQUIRE(face.attributes().materialName() == "material1");
   }
 
-  auto setTexture2 = Model::ChangeBrushFaceAttributesRequest{};
-  setTexture2.setMaterialName("texture2");
-  document->setFaceAttributes(setTexture2);
+  auto setMaterial2 = Model::ChangeBrushFaceAttributesRequest{};
+  setMaterial2.setMaterialName("material2");
+  document->setFaceAttributes(setMaterial2);
   for (const auto& face : brushNode->brush().faces())
   {
-    REQUIRE(face.attributes().materialName() == "texture2");
+    REQUIRE(face.attributes().materialName() == "material2");
   }
 
   document->undoCommand();
@@ -121,7 +121,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
   document->redoCommand();
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK(face.attributes().materialName() == "texture2");
+    CHECK(face.attributes().materialName() == "material2");
   }
 }
 
@@ -243,7 +243,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
 }
 
 TEST_CASE_METHOD(
-  ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setTextureKeepsSurfaceFlagsUnset")
+  ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setMaterialKeepsSurfaceFlagsUnset")
 {
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
