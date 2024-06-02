@@ -76,13 +76,13 @@ TEST_CASE("NodeCollection.counts")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
@@ -103,13 +103,13 @@ TEST_CASE("NodeCollection.has")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -220,13 +220,13 @@ TEST_CASE("NodeCollection.iterators")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -252,13 +252,13 @@ TEST_CASE("NodeCollection.collections")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -297,11 +297,11 @@ TEST_CASE("NodeCollection.collections")
   SECTION("nested brushes")
   {
     auto* brushInLayer = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
     auto* brushInGroup = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
     auto* brushInEntity = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
     layerNode.addChild(brushInLayer);
     groupNode.addChild(brushInGroup);
@@ -318,13 +318,13 @@ TEST_CASE("NodeCollection.addNode")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -378,13 +378,13 @@ TEST_CASE("NodeCollection.addNodes")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -414,13 +414,13 @@ TEST_CASE("NodeCollection.removeNode")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -484,13 +484,13 @@ TEST_CASE("NodeCollection.clear")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
