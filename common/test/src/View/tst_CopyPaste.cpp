@@ -292,7 +292,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 64}};
 
-  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "texture").value()};
+  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
