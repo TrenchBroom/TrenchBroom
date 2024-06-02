@@ -623,15 +623,16 @@ TEST_CASE("NodeTest.accept")
   auto layerNode = LayerNode{Layer{"name"}};
   auto groupNode = GroupNode{Group{"name"}};
   auto entityNode = EntityNode{{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{worldNode.mapFormat(), worldBounds}.createCube(32.0, "texture").value()};
+  auto brushNode = BrushNode{BrushBuilder{worldNode.mapFormat(), worldBounds}
+                               .createCube(32.0, "material")
+                               .value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, { 
     BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
     BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
     BezierPatch::Point{}, BezierPatch::Point{}, BezierPatch::Point{},
-  }, "texture"}};
+  }, "material"}};
   // clang-format on
 
   SECTION("Non const nodes accept non const visitor")
