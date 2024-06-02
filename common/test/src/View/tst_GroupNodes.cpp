@@ -391,7 +391,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   auto* brushNode1 = new Model::BrushNode(
-    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "texture").value());
+    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material").value());
   document->addNodes({{entityNode1, {brushNode1}}});
   document->selectNodes({entityNode1});
   CHECK_THAT(
@@ -868,15 +868,15 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLin
     CHECK(!linkedGroupNode->locked());
   }
 
-  SECTION("Can select two linked groups and apply a texture")
+  SECTION("Can select two linked groups and apply a material")
   {
     document->selectNodes({groupNode, linkedGroupNode});
 
-    auto setTexture = Model::ChangeBrushFaceAttributesRequest{};
-    setTexture.setMaterialName("abc");
-    CHECK(document->setFaceAttributes(setTexture));
+    auto setMaterial = Model::ChangeBrushFaceAttributesRequest{};
+    setMaterial.setMaterialName("abc");
+    CHECK(document->setFaceAttributes(setMaterial));
 
-    // check that the brushes in both linked groups were textured
+    // check that the brushes in both linked groups got a material
     for (auto* g : std::vector<Model::GroupNode*>{groupNode, linkedGroupNode})
     {
       auto* brush = dynamic_cast<Model::BrushNode*>(g->children().at(0));
