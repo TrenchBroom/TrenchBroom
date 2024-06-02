@@ -551,7 +551,7 @@ TEST_CASE("BrushTest.moveVertexFailing1")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   for (size_t i = 0; i < oldPositions.size(); ++i)
   {
@@ -678,7 +678,7 @@ TEST_CASE("BrushTest.moveVerticesFail_2158")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
+TEST_CASE("BrushTest.removeVertexWithCorrectMaterials_2082")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2082
 
@@ -721,7 +721,7 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
 
   const vm::vec3 p11(32.0, 0.0, 64.0);
 
-  // Make sure that the faces have the textures we expect before the vertex is deleted.
+  // Make sure that the faces have the materials we expect before the vertex is deleted.
 
   // side faces
   assertMaterial("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p7, p6});
@@ -743,7 +743,7 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
   CHECK(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3d>{p7}));
   CHECK(brush.removeVertices(worldBounds, std::vector<vm::vec3d>{p7}).is_success());
 
-  // assert the structure and textures
+  // assert the structure and materials
 
   // side faces
   assertMaterial("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p6});
@@ -1561,7 +1561,7 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
   const auto result = kdl::fold_results(
-    minuend.subtract(MapFormat::Valve, worldBounds, "some_texture", subtrahend));
+    minuend.subtract(MapFormat::Valve, worldBounds, "some_material", subtrahend));
   CHECK_FALSE(result.is_error());
 
   kdl::col_delete_all(minuendNodes);
@@ -1597,7 +1597,7 @@ TEST_CASE("BrushTest.subtractDome")
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
   const auto result =
-    minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend);
+    minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend);
 
   kdl::col_delete_all(minuendNodes);
   kdl::col_delete_all(subtrahendNodes);
@@ -1698,7 +1698,7 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
 
   const auto fragments =
     kdl::fold_results(
-      minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend))
+      minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend))
       .value();
   CHECK(fragments.size() == 8u);
 
