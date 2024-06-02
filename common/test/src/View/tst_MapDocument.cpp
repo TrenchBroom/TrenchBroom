@@ -83,7 +83,7 @@ MapDocumentTest::~MapDocumentTest()
 }
 
 Model::BrushNode* MapDocumentTest::createBrushNode(
-  const std::string& textureName,
+  const std::string& materialName,
   const std::function<void(Model::Brush&)>& brushFunc) const
 {
   const auto* worldNode = document->world();
@@ -92,18 +92,18 @@ Model::BrushNode* MapDocumentTest::createBrushNode(
     document->worldBounds(),
     document->game()->defaultFaceAttribs()};
 
-  auto brush = builder.createCube(32.0, textureName).value();
+  auto brush = builder.createCube(32.0, materialName).value();
   brushFunc(brush);
   return new Model::BrushNode{std::move(brush)};
 }
 
-Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureName) const
+Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& materialName) const
 {
   // clang-format off
   return new Model::PatchNode{Model::BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, textureName}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, materialName}};
   // clang-format on
 }
 
@@ -164,10 +164,10 @@ TEST_CASE("MapDocumentTest.mixedFormats")
     IO::WorldReaderException);
 }
 
-TEST_CASE("MapDocument.reloadTextureCollections")
+TEST_CASE("MapDocument.reloadMaterialCollections")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    "fixture/test/View/MapDocumentTest/reloadTextureCollectionsQ2.map",
+    "fixture/test/View/MapDocumentTest/reloadMaterialCollectionsQ2.map",
     "Quake2",
     Model::MapFormat::Quake2);
 
@@ -532,7 +532,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
 
   SECTION("Brush entity is created and selected")
   {
-    auto* brushNode = createBrushNode("some_texture");
+    auto* brushNode = createBrushNode("some_material");
     document->addNodes({{document->parentForNodes(), {brushNode}}});
 
     document->selectNodes({brushNode});
@@ -544,9 +544,9 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
 
   SECTION("Copies properties from existing brush entity")
   {
-    auto* brushNode1 = createBrushNode("some_texture");
-    auto* brushNode2 = createBrushNode("some_texture");
-    auto* brushNode3 = createBrushNode("some_texture");
+    auto* brushNode1 = createBrushNode("some_material");
+    auto* brushNode2 = createBrushNode("some_material");
+    auto* brushNode3 = createBrushNode("some_material");
     document->addNodes(
       {{document->parentForNodes(), {brushNode1, brushNode2, brushNode3}}});
 
@@ -588,7 +588,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
       kdl::vec_from<std::unique_ptr<Assets::EntityDefinition>>(
         std::move(definitionWithDefaultsOwner)));
 
-    auto* brushNode = createBrushNode("some_texture");
+    auto* brushNode = createBrushNode("some_material");
     document->addNodes({{document->parentForNodes(), {brushNode}}});
 
     document->selectNodes({brushNode});
