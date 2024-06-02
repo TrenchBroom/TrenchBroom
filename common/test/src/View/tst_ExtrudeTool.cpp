@@ -74,7 +74,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(brushBounds, "material").value()};
 
   document->addNodes({{document->currentLayer(), {brushNode1}}});
   document->selectNodes({brushNode1});
@@ -133,7 +133,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(brushBounds, "material").value()};
 
   document->addNodes({{document->currentLayer(), {brushNode1}}});
   document->selectNodes({brushNode1});
@@ -226,7 +226,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
 
   // clang-format off
   const auto 
-  [mapName,                                        expectedDragFaceTextureNames] = GENERATE(values<T>({
+  [mapName,                              expectedDragFaceMaterialNames] = GENERATE(values<T>({
   {"findDragFaces_noCoplanarFaces.map",  {"larger_top_face"}},
   {"findDragFaces_twoCoplanarFaces.map", {"larger_top_face", "smaller_top_face"}}
   }));
@@ -272,7 +272,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
     kdl::vec_transform(
       tool.proposedDragHandles(),
       [](const auto& h) { return h.faceAtDragStart().attributes().materialName(); }),
-    Catch::UnorderedEquals(expectedDragFaceTextureNames));
+    Catch::UnorderedEquals(expectedDragFaceMaterialNames));
 }
 
 TEST_CASE("ExtrudeToolTest.splitBrushes")
