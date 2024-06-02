@@ -51,13 +51,13 @@ TEST_CASE("NodeQueries")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   innerGroupNode->addChildren({entityNode, brushNode});
@@ -196,7 +196,7 @@ TEST_CASE("collectBrushFaces")
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   worldNode.defaultLayer()->addChild(brushNode);
 
