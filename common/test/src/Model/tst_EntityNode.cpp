@@ -63,13 +63,13 @@ TEST_CASE("EntityNodeTest.canAddChild")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   CHECK_FALSE(entityNode.canAddChild(&worldNode));
@@ -90,13 +90,13 @@ TEST_CASE("EntityNodeTest.canRemoveChild")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   CHECK(entityNode.canRemoveChild(&worldNode));
@@ -114,9 +114,9 @@ TEST_CASE("EntityNodeTest.setPointEntity")
 
   auto entityNode = EntityNode{Entity{}};
   auto brushNode1 =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
   auto brushNode2 =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   REQUIRE(entityNode.entity().pointEntity());
   entityNode.addChild(&brushNode1);
