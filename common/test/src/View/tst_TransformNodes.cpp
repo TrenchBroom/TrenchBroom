@@ -107,10 +107,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "texture")
+    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
       .value()};
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "texture")
+    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
       .value()};
 
   checkBrushIntegral(brushNode1);
@@ -196,10 +196,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "texture")
+    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
       .value()};
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "texture")
+    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
       .value()};
 
   checkBrushIntegral(brushNode1);
@@ -232,10 +232,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "texture")
+    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
       .value()};
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "texture")
+    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
       .value()};
 
   auto* entityNode = new Model::EntityNode{
@@ -285,7 +285,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -331,7 +331,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -379,7 +379,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
   const auto& brush = brushNode->brush();
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -413,7 +413,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -435,7 +435,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsWithCenter")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "texture").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -456,7 +456,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
 
-  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "texture").value()};
+  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "material").value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
@@ -486,7 +486,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
       face.vertexPositions(), [&](auto x) { return face.uvCoords(x); });
   };
 
-  // Brushes in linked groups should have texture lock forced on
+  // Brushes in linked groups should have alignment lock forced on
   CHECK(uvListsEqual(
     getTexCoords(brushNode1, vm::vec3::pos_z()),
     getTexCoords(linkedBrushNode, vm::vec3::pos_z())));
