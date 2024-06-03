@@ -37,7 +37,7 @@ namespace Model
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-TEST_CASE("TexCoordSystemTest.testSnapshotTypeSafety")
+TEST_CASE("UVCoordSystemTest.testSnapshotTypeSafety")
 {
   BrushFaceAttributes attribs("");
 
