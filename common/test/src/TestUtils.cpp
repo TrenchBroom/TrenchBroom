@@ -186,7 +186,7 @@ BrushFace createParaxial(
            point1,
            point2,
            attributes,
-           std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes))
+           std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, attributes))
     .value();
 }
 
@@ -362,7 +362,7 @@ const Model::BrushFace* findFaceByPoints(
 void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel)
 {
   auto snapshot = face.takeTexCoordSystemSnapshot();
-  auto* check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
+  auto* check = dynamic_cast<Model::ParallelUVCoordSystemSnapshot*>(snapshot.get());
   const bool isParallel = (check != nullptr);
   CHECK(isParallel == expectParallel);
 }

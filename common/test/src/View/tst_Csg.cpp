@@ -118,7 +118,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto texAlignment = Model::ParallelTexCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
+  auto texAlignment = Model::ParallelUVCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
   auto brush1 =
@@ -160,7 +160,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto texAlignment = Model::ParallelTexCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
+  auto texAlignment = Model::ParallelUVCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
   auto brush1 =

@@ -30,7 +30,7 @@
 namespace TrenchBroom::Model
 {
 
-class ParaxialTexCoordSystem : public TexCoordSystem
+class ParaxialUVCoordSystem : public UVCoordSystem
 {
 private:
   size_t m_index = 0;
@@ -38,15 +38,15 @@ private:
   vm::vec3 m_yAxis;
 
 public:
-  ParaxialTexCoordSystem(
+  ParaxialUVCoordSystem(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs);
-  ParaxialTexCoordSystem(const vm::vec3& normal, const BrushFaceAttributes& attribs);
-  ParaxialTexCoordSystem(size_t index, const vm::vec3& xAxis, const vm::vec3& yAxis);
+  ParaxialUVCoordSystem(const vm::vec3& normal, const BrushFaceAttributes& attribs);
+  ParaxialUVCoordSystem(size_t index, const vm::vec3& xAxis, const vm::vec3& yAxis);
 
-  static std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> fromParallel(
+  static std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> fromParallel(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -57,9 +57,9 @@ public:
   static size_t planeNormalIndex(const vm::vec3& normal);
   static std::tuple<vm::vec3, vm::vec3, vm::vec3> axes(size_t index);
 
-  std::unique_ptr<TexCoordSystem> clone() const override;
-  std::unique_ptr<TexCoordSystemSnapshot> takeSnapshot() const override;
-  void restoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
+  std::unique_ptr<UVCoordSystem> clone() const override;
+  std::unique_ptr<UVCoordSystemSnapshot> takeSnapshot() const override;
+  void restoreSnapshot(const UVCoordSystemSnapshot& snapshot) override;
 
   vm::vec3 xAxis() const override;
   vm::vec3 yAxis() const override;
@@ -94,12 +94,12 @@ public:
   float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
 
-  std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> toParallel(
+  std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParallel(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs) const override;
-  std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> toParaxial(
+  std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParaxial(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -115,7 +115,7 @@ private:
     const vm::vec3& newNormal,
     const BrushFaceAttributes& attribs) override;
 
-  deleteCopyAndMove(ParaxialTexCoordSystem);
+  deleteCopyAndMove(ParaxialUVCoordSystem);
 };
 
 } // namespace TrenchBroom::Model

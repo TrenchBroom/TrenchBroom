@@ -29,28 +29,28 @@
 namespace TrenchBroom::Model
 {
 
-TexCoordSystemSnapshot::~TexCoordSystemSnapshot() = default;
+UVCoordSystemSnapshot::~UVCoordSystemSnapshot() = default;
 
-void TexCoordSystemSnapshot::restore(TexCoordSystem& coordSystem) const
+void UVCoordSystemSnapshot::restore(UVCoordSystem& coordSystem) const
 {
   coordSystem.restoreSnapshot(*this);
 }
 
-TexCoordSystem::TexCoordSystem() = default;
+UVCoordSystem::UVCoordSystem() = default;
 
-TexCoordSystem::~TexCoordSystem() = default;
+UVCoordSystem::~UVCoordSystem() = default;
 
-bool operator==(const TexCoordSystem& lhs, const TexCoordSystem& rhs)
+bool operator==(const UVCoordSystem& lhs, const UVCoordSystem& rhs)
 {
   return lhs.xAxis() == rhs.xAxis() && lhs.yAxis() == rhs.yAxis();
 }
 
-bool operator!=(const TexCoordSystem& lhs, const TexCoordSystem& rhs)
+bool operator!=(const UVCoordSystem& lhs, const UVCoordSystem& rhs)
 {
   return !(lhs == rhs);
 }
 
-void TexCoordSystem::updateNormal(
+void UVCoordSystem::updateNormal(
   const vm::vec3& oldNormal,
   const vm::vec3& newNormal,
   const BrushFaceAttributes& attribs,
@@ -70,7 +70,7 @@ void TexCoordSystem::updateNormal(
   }
 }
 
-void TexCoordSystem::moveTexture(
+void UVCoordSystem::moveTexture(
   const vm::vec3& normal,
   const vm::vec3& up,
   const vm::vec3& right,
@@ -184,14 +184,14 @@ void TexCoordSystem::moveTexture(
   attribs.setOffset(attribs.offset() + actualOffset);
 }
 
-void TexCoordSystem::rotateTexture(
+void UVCoordSystem::rotateTexture(
   const vm::vec3& normal, const float angle, BrushFaceAttributes& attribs) const
 {
   const auto actualAngle = isRotationInverted(normal) ? -angle : angle;
   attribs.setRotation(attribs.rotation() + actualAngle);
 }
 
-vm::mat4x4 TexCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const
+vm::mat4x4 UVCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const
 {
   const vm::vec3 x = safeScaleAxis(xAxis(), s.x());
   const vm::vec3 y = safeScaleAxis(yAxis(), s.y());
@@ -216,13 +216,13 @@ vm::mat4x4 TexCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) cons
     1.0};
 }
 
-vm::mat4x4 TexCoordSystem::fromMatrix(
+vm::mat4x4 UVCoordSystem::fromMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale) const
 {
   return *invert(toMatrix(offset, scale));
 }
 
-vm::vec2f TexCoordSystem::computeTexCoords(
+vm::vec2f UVCoordSystem::computeTexCoords(
   const vm::vec3& point, const vm::vec2f& scale) const
 {
   return vm::vec2f{

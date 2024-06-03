@@ -74,7 +74,7 @@ class PointTrace;
 class PortalFile;
 class SmartTag;
 class TagManager;
-class TexCoordSystemSnapshot;
+class UVCoordSystemSnapshot;
 class WorldNode;
 enum class WrapStyle;
 } // namespace TrenchBroom::Model
@@ -605,7 +605,7 @@ public:
     const Model::BrushFaceAttributes& attributes) override;
   bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) override;
   bool copyUVFromFace(
-    const Model::TexCoordSystemSnapshot& coordSystemSnapshot,
+    const Model::UVCoordSystemSnapshot& coordSystemSnapshot,
     const Model::BrushFaceAttributes& attribs,
     const vm::plane3& sourceFacePlane,
     Model::WrapStyle wrapStyle);

@@ -135,14 +135,13 @@ Result<BrushFace> BrushFace::create(
              point1,
              point2,
              attributes,
-             std::make_unique<ParallelTexCoordSystem>(point0, point1, point2, attributes))
+             std::make_unique<ParallelUVCoordSystem>(point0, point1, point2, attributes))
            : BrushFace::create(
              point0,
              point1,
              point2,
              attributes,
-             std::make_unique<ParaxialTexCoordSystem>(
-               point0, point1, point2, attributes));
+             std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, attributes));
 }
 
 Result<BrushFace> BrushFace::createFromStandard(
@@ -154,20 +153,20 @@ Result<BrushFace> BrushFace::createFromStandard(
 {
   assert(mapFormat != MapFormat::Unknown);
 
-  std::unique_ptr<TexCoordSystem> texCoordSystem;
+  std::unique_ptr<UVCoordSystem> texCoordSystem;
   BrushFaceAttributes attribs("");
 
   if (Model::isParallelTexCoordSystem(mapFormat))
   {
     // Convert paraxial to parallel
     std::tie(texCoordSystem, attribs) =
-      ParallelTexCoordSystem::fromParaxial(point0, point1, point2, inputAttribs);
+      ParallelUVCoordSystem::fromParaxial(point0, point1, point2, inputAttribs);
   }
   else
   {
     // Pass through paraxial
     texCoordSystem =
-      std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, inputAttribs);
+      std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, inputAttribs);
     attribs = inputAttribs;
   }
 
@@ -185,19 +184,19 @@ Result<BrushFace> BrushFace::createFromValve(
 {
   assert(mapFormat != MapFormat::Unknown);
 
-  std::unique_ptr<TexCoordSystem> texCoordSystem;
+  std::unique_ptr<UVCoordSystem> texCoordSystem;
   BrushFaceAttributes attribs("");
 
   if (Model::isParallelTexCoordSystem(mapFormat))
   {
     // Pass through parallel
-    texCoordSystem = std::make_unique<ParallelTexCoordSystem>(texAxisX, texAxisY);
+    texCoordSystem = std::make_unique<ParallelUVCoordSystem>(texAxisX, texAxisY);
     attribs = inputAttribs;
   }
   else
   {
     // Convert parallel to paraxial
-    std::tie(texCoordSystem, attribs) = ParaxialTexCoordSystem::fromParallel(
+    std::tie(texCoordSystem, attribs) = ParaxialUVCoordSystem::fromParallel(
       point1, point2, point3, inputAttribs, texAxisX, texAxisY);
   }
 
@@ -209,7 +208,7 @@ Result<BrushFace> BrushFace::create(
   const vm::vec3& point1,
   const vm::vec3& point2,
   const BrushFaceAttributes& attributes,
-  std::unique_ptr<TexCoordSystem> texCoordSystem)
+  std::unique_ptr<UVCoordSystem> texCoordSystem)
 {
   Points points = {{vm::correct(point0), vm::correct(point1), vm::correct(point2)}};
   if (const auto plane = vm::from_points(points[0], points[1], points[2]))
@@ -223,7 +222,7 @@ BrushFace::BrushFace(
   const BrushFace::Points& points,
   const vm::plane3& boundary,
   const BrushFaceAttributes& attributes,
-  std::unique_ptr<TexCoordSystem> texCoordSystem)
+  std::unique_ptr<UVCoordSystem> texCoordSystem)
   : m_points(points)
   , m_boundary(boundary)
   , m_attributes(attributes)
@@ -265,19 +264,19 @@ void BrushFace::sortFaces(std::vector<BrushFace>& faces)
   });
 }
 
-std::unique_ptr<TexCoordSystemSnapshot> BrushFace::takeTexCoordSystemSnapshot() const
+std::unique_ptr<UVCoordSystemSnapshot> BrushFace::takeTexCoordSystemSnapshot() const
 {
   return m_texCoordSystem->takeSnapshot();
 }
 
 void BrushFace::restoreTexCoordSystemSnapshot(
-  const TexCoordSystemSnapshot& coordSystemSnapshot)
+  const UVCoordSystemSnapshot& coordSystemSnapshot)
 {
   coordSystemSnapshot.restore(*m_texCoordSystem);
 }
 
 void BrushFace::copyTexCoordSystemFromFace(
-  const TexCoordSystemSnapshot& coordSystemSnapshot,
+  const UVCoordSystemSnapshot& coordSystemSnapshot,
   const BrushFaceAttributes& attributes,
   const vm::plane3& sourceFacePlane,
   const WrapStyle wrapStyle)
@@ -494,7 +493,7 @@ void BrushFace::resetTexCoordSystemCache()
   }
 }
 
-const TexCoordSystem& BrushFace::texCoordSystem() const
+const UVCoordSystem& BrushFace::texCoordSystem() const
 {
   return *m_texCoordSystem;
 }

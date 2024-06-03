@@ -1073,7 +1073,7 @@ void Brush::applyUVLock(
     leftClone.transform(*M, true)
       .transform([&]() {
         auto snapshot =
-          std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
+          std::unique_ptr<UVCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
         rightFace.setAttributes(leftClone.attributes());
         if (snapshot)
         {

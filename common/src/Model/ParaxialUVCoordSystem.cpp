@@ -96,8 +96,8 @@ vm::vec2f projectToAxisPlane(const vm::vec3f& snappedNormal, const vm::vec3f& po
 std::tuple<vm::vec3f, vm::vec3f, vm::vec3f> textureAxesFromFacePlane(
   const vm::plane3& facePlane)
 {
-  const auto index = ParaxialTexCoordSystem::planeNormalIndex(facePlane.normal);
-  const auto [xAxis, yAxis, pAxis] = ParaxialTexCoordSystem::axes(index);
+  const auto index = ParaxialUVCoordSystem::planeNormalIndex(facePlane.normal);
+  const auto [xAxis, yAxis, pAxis] = ParaxialUVCoordSystem::axes(index);
 
   return {
     vm::vec3f{xAxis},
@@ -146,7 +146,7 @@ vm::vec2f getTexCoordsAtPoint(
   tempAttribs.setScale(attribs.scale);
   tempAttribs.setOffset(attribs.offset);
 
-  auto temp = ParaxialTexCoordSystem{facePlane.normal, tempAttribs};
+  auto temp = ParaxialUVCoordSystem{facePlane.normal, tempAttribs};
   return temp.getTexCoords(point, tempAttribs, vm::vec2f{1.0f, 1.0f});
 }
 
@@ -446,7 +446,7 @@ vm::mat4x4f valveTo4x4Matrix(
 }
 } // namespace
 
-ParaxialTexCoordSystem::ParaxialTexCoordSystem(
+ParaxialUVCoordSystem::ParaxialUVCoordSystem(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -455,13 +455,13 @@ ParaxialTexCoordSystem::ParaxialTexCoordSystem(
   resetCache(point0, point1, point2, attribs);
 }
 
-ParaxialTexCoordSystem::ParaxialTexCoordSystem(
+ParaxialUVCoordSystem::ParaxialUVCoordSystem(
   const vm::vec3& normal, const BrushFaceAttributes& attribs)
 {
   setRotation(normal, 0.0f, attribs.rotation());
 }
 
-ParaxialTexCoordSystem::ParaxialTexCoordSystem(
+ParaxialUVCoordSystem::ParaxialUVCoordSystem(
   const size_t index, const vm::vec3& xAxis, const vm::vec3& yAxis)
   : m_index{index}
   , m_xAxis{xAxis}
@@ -469,7 +469,7 @@ ParaxialTexCoordSystem::ParaxialTexCoordSystem(
 {
 }
 
-std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParaxialTexCoordSystem::
+std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParaxialUVCoordSystem::
   fromParallel(
     const vm::vec3& point0,
     const vm::vec3& point1,
@@ -504,12 +504,12 @@ std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParaxialTexCoor
   }
 
   return {
-    std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, newAttribs),
+    std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, newAttribs),
     newAttribs,
   };
 }
 
-size_t ParaxialTexCoordSystem::planeNormalIndex(const vm::vec3& normal)
+size_t ParaxialUVCoordSystem::planeNormalIndex(const vm::vec3& normal)
 {
   size_t bestIndex = 0;
   auto bestDot = FloatType(0);
@@ -525,7 +525,7 @@ size_t ParaxialTexCoordSystem::planeNormalIndex(const vm::vec3& normal)
   return bestIndex;
 }
 
-std::tuple<vm::vec3, vm::vec3, vm::vec3> ParaxialTexCoordSystem::axes(const size_t index)
+std::tuple<vm::vec3, vm::vec3, vm::vec3> ParaxialUVCoordSystem::axes(const size_t index)
 {
   return {
     BaseAxes[index * 3 + 1],
@@ -534,37 +534,37 @@ std::tuple<vm::vec3, vm::vec3, vm::vec3> ParaxialTexCoordSystem::axes(const size
   };
 }
 
-std::unique_ptr<TexCoordSystem> ParaxialTexCoordSystem::clone() const
+std::unique_ptr<UVCoordSystem> ParaxialUVCoordSystem::clone() const
 {
-  return std::make_unique<ParaxialTexCoordSystem>(m_index, m_xAxis, m_yAxis);
+  return std::make_unique<ParaxialUVCoordSystem>(m_index, m_xAxis, m_yAxis);
 }
 
-std::unique_ptr<TexCoordSystemSnapshot> ParaxialTexCoordSystem::takeSnapshot() const
+std::unique_ptr<UVCoordSystemSnapshot> ParaxialUVCoordSystem::takeSnapshot() const
 {
-  return std::unique_ptr<TexCoordSystemSnapshot>();
+  return std::unique_ptr<UVCoordSystemSnapshot>();
 }
 
-void ParaxialTexCoordSystem::restoreSnapshot(const TexCoordSystemSnapshot& /* snapshot */)
+void ParaxialUVCoordSystem::restoreSnapshot(const UVCoordSystemSnapshot& /* snapshot */)
 {
   ensure(false, "unsupported");
 }
 
-vm::vec3 ParaxialTexCoordSystem::xAxis() const
+vm::vec3 ParaxialUVCoordSystem::xAxis() const
 {
   return m_xAxis;
 }
 
-vm::vec3 ParaxialTexCoordSystem::yAxis() const
+vm::vec3 ParaxialUVCoordSystem::yAxis() const
 {
   return m_yAxis;
 }
 
-vm::vec3 ParaxialTexCoordSystem::zAxis() const
+vm::vec3 ParaxialUVCoordSystem::zAxis() const
 {
   return BaseAxes[m_index * 3 + 0];
 }
 
-void ParaxialTexCoordSystem::resetCache(
+void ParaxialUVCoordSystem::resetCache(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -576,19 +576,19 @@ void ParaxialTexCoordSystem::resetCache(
   }
 }
 
-void ParaxialTexCoordSystem::resetTextureAxes(const vm::vec3& /* normal */) {}
+void ParaxialUVCoordSystem::resetTextureAxes(const vm::vec3& /* normal */) {}
 
-void ParaxialTexCoordSystem::resetTextureAxesToParaxial(
+void ParaxialUVCoordSystem::resetTextureAxesToParaxial(
   const vm::vec3& /* normal */, const float /* angle */)
 {
 }
 
-void ParaxialTexCoordSystem::resetTextureAxesToParallel(
+void ParaxialUVCoordSystem::resetTextureAxesToParallel(
   const vm::vec3& /* normal */, const float /* angle */)
 {
 }
 
-vm::vec2f ParaxialTexCoordSystem::getTexCoords(
+vm::vec2f ParaxialUVCoordSystem::getTexCoords(
   const vm::vec3& point,
   const BrushFaceAttributes& attribs,
   const vm::vec2f& textureSize) const
@@ -596,7 +596,7 @@ vm::vec2f ParaxialTexCoordSystem::getTexCoords(
   return (computeTexCoords(point, attribs.scale()) + attribs.offset()) / textureSize;
 }
 
-void ParaxialTexCoordSystem::setRotation(
+void ParaxialUVCoordSystem::setRotation(
   const vm::vec3& normal, const float /* oldAngle */, const float newAngle)
 {
   m_index = planeNormalIndex(normal);
@@ -605,7 +605,7 @@ void ParaxialTexCoordSystem::setRotation(
     rotateAxes(m_xAxis, m_yAxis, vm::to_radians(FloatType(newAngle)), m_index);
 }
 
-void ParaxialTexCoordSystem::transform(
+void ParaxialUVCoordSystem::transform(
   const vm::plane3& oldBoundary,
   const vm::plane3& newBoundary,
   const vm::mat4x4& transformation,
@@ -746,13 +746,13 @@ void ParaxialTexCoordSystem::transform(
   }
 }
 
-void ParaxialTexCoordSystem::shearTexture(
+void ParaxialUVCoordSystem::shearTexture(
   const vm::vec3& /* normal */, const vm::vec2f& /* factors */)
 {
   // not supported
 }
 
-float ParaxialTexCoordSystem::measureAngle(
+float ParaxialUVCoordSystem::measureAngle(
   const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const
 {
   const auto rot = vm::quatf{vm::vec3f{0, 0, 1}, -vm::to_radians(currentAngle)};
@@ -764,17 +764,17 @@ float ParaxialTexCoordSystem::measureAngle(
   return vm::to_degrees(angleInRadians);
 }
 
-std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParaxialTexCoordSystem::
+std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParaxialUVCoordSystem::
   toParallel(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs) const
 {
-  return ParallelTexCoordSystem::fromParaxial(point0, point1, point2, attribs);
+  return ParallelUVCoordSystem::fromParaxial(point0, point1, point2, attribs);
 }
 
-std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParaxialTexCoordSystem::
+std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParaxialUVCoordSystem::
   toParaxial(
     const vm::vec3&,
     const vm::vec3&,
@@ -785,19 +785,19 @@ std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParaxialTexCoor
   return {clone(), attribs};
 }
 
-bool ParaxialTexCoordSystem::isRotationInverted(const vm::vec3& normal) const
+bool ParaxialUVCoordSystem::isRotationInverted(const vm::vec3& normal) const
 {
   const auto index = planeNormalIndex(normal);
   return index % 2 == 0;
 }
 
-void ParaxialTexCoordSystem::updateNormalWithProjection(
+void ParaxialUVCoordSystem::updateNormalWithProjection(
   const vm::vec3& newNormal, const BrushFaceAttributes& attribs)
 {
   setRotation(newNormal, attribs.rotation(), attribs.rotation());
 }
 
-void ParaxialTexCoordSystem::updateNormalWithRotation(
+void ParaxialUVCoordSystem::updateNormalWithRotation(
   const vm::vec3& /* oldNormal */,
   const vm::vec3& newNormal,
   const BrushFaceAttributes& attribs)

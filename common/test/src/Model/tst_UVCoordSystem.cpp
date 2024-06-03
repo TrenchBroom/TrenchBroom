@@ -41,10 +41,10 @@ TEST_CASE("TexCoordSystemTest.testSnapshotTypeSafety")
 {
   BrushFaceAttributes attribs("");
 
-  ParaxialTexCoordSystem paraxial(vm::vec3::pos_z(), attribs);
+  ParaxialUVCoordSystem paraxial(vm::vec3::pos_z(), attribs);
   CHECK(paraxial.takeSnapshot() == nullptr);
 
-  ParallelTexCoordSystem parallel(vm::vec3::pos_y(), vm::vec3::pos_x());
+  ParallelUVCoordSystem parallel(vm::vec3::pos_y(), vm::vec3::pos_x());
   auto parallelSnapshot = parallel.takeSnapshot();
   CHECK(parallelSnapshot != nullptr);
 

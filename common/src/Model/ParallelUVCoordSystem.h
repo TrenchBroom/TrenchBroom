@@ -32,48 +32,48 @@
 namespace TrenchBroom::Model
 {
 
-class ParallelTexCoordSystemSnapshot : public TexCoordSystemSnapshot
+class ParallelUVCoordSystemSnapshot : public UVCoordSystemSnapshot
 {
 private:
   vm::vec3 m_xAxis;
   vm::vec3 m_yAxis;
 
 public:
-  ParallelTexCoordSystemSnapshot(const vm::vec3& xAxis, const vm::vec3& yAxis);
-  explicit ParallelTexCoordSystemSnapshot(const ParallelTexCoordSystem* coordSystem);
+  ParallelUVCoordSystemSnapshot(const vm::vec3& xAxis, const vm::vec3& yAxis);
+  explicit ParallelUVCoordSystemSnapshot(const ParallelUVCoordSystem* coordSystem);
 
-  std::unique_ptr<TexCoordSystemSnapshot> clone() const override;
+  std::unique_ptr<UVCoordSystemSnapshot> clone() const override;
 
 private:
-  void doRestore(ParallelTexCoordSystem& coordSystem) const override;
-  void doRestore(ParaxialTexCoordSystem& coordSystem) const override;
+  void doRestore(ParallelUVCoordSystem& coordSystem) const override;
+  void doRestore(ParaxialUVCoordSystem& coordSystem) const override;
 };
 
-class ParallelTexCoordSystem : public TexCoordSystem
+class ParallelUVCoordSystem : public UVCoordSystem
 {
 private:
   vm::vec3 m_xAxis;
   vm::vec3 m_yAxis;
 
-  friend class ParallelTexCoordSystemSnapshot;
+  friend class ParallelUVCoordSystemSnapshot;
 
 public:
-  ParallelTexCoordSystem(
+  ParallelUVCoordSystem(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs);
-  ParallelTexCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis);
+  ParallelUVCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis);
 
-  static std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> fromParaxial(
+  static std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> fromParaxial(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs);
 
-  std::unique_ptr<TexCoordSystem> clone() const override;
-  std::unique_ptr<TexCoordSystemSnapshot> takeSnapshot() const override;
-  void restoreSnapshot(const TexCoordSystemSnapshot& snapshot) override;
+  std::unique_ptr<UVCoordSystem> clone() const override;
+  std::unique_ptr<UVCoordSystemSnapshot> takeSnapshot() const override;
+  void restoreSnapshot(const UVCoordSystemSnapshot& snapshot) override;
 
   vm::vec3 xAxis() const override;
   vm::vec3 yAxis() const override;
@@ -110,12 +110,12 @@ public:
   float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
 
-  std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> toParallel(
+  std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParallel(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs) const override;
-  std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> toParaxial(
+  std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParaxial(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -134,7 +134,7 @@ private:
   float computeTextureAngle(
     const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const;
 
-  deleteCopyAndMove(ParallelTexCoordSystem);
+  deleteCopyAndMove(ParallelUVCoordSystem);
 };
 
 } // namespace TrenchBroom::Model

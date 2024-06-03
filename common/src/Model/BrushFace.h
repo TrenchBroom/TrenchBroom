@@ -47,8 +47,8 @@ class Material;
 
 namespace TrenchBroom::Model
 {
-class TexCoordSystem;
-class TexCoordSystemSnapshot;
+class UVCoordSystem;
+class UVCoordSystemSnapshot;
 enum class WrapStyle;
 enum class MapFormat;
 
@@ -94,7 +94,7 @@ private:
   BrushFaceAttributes m_attributes;
 
   Assets::AssetReference<Assets::Material> m_materialReference;
-  std::unique_ptr<TexCoordSystem> m_texCoordSystem;
+  std::unique_ptr<UVCoordSystem> m_texCoordSystem;
   BrushFaceGeometry* m_geometry;
 
   mutable size_t m_lineNumber;
@@ -170,20 +170,20 @@ public:
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attributes,
-    std::unique_ptr<TexCoordSystem> texCoordSystem);
+    std::unique_ptr<UVCoordSystem> texCoordSystem);
 
   BrushFace(
     const BrushFace::Points& points,
     const vm::plane3& boundary,
     const BrushFaceAttributes& attributes,
-    std::unique_ptr<TexCoordSystem> texCoordSystem);
+    std::unique_ptr<UVCoordSystem> texCoordSystem);
 
   static void sortFaces(std::vector<BrushFace>& faces);
 
-  std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
-  void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
+  std::unique_ptr<UVCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
+  void restoreTexCoordSystemSnapshot(const UVCoordSystemSnapshot& coordSystemSnapshot);
   void copyTexCoordSystemFromFace(
-    const TexCoordSystemSnapshot& coordSystemSnapshot,
+    const UVCoordSystemSnapshot& coordSystemSnapshot,
     const BrushFaceAttributes& attributes,
     const vm::plane3& sourceFacePlane,
     WrapStyle wrapStyle);
@@ -207,7 +207,7 @@ public:
   Color resolvedColor() const;
 
   void resetTexCoordSystemCache();
-  const TexCoordSystem& texCoordSystem() const;
+  const UVCoordSystem& texCoordSystem() const;
 
   const Assets::Material* material() const;
   vm::vec2f textureSize() const;

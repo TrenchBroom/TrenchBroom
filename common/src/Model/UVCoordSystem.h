@@ -30,23 +30,23 @@
 
 namespace TrenchBroom::Model
 {
-class ParallelTexCoordSystem;
-class ParaxialTexCoordSystem;
-class TexCoordSystem;
+class ParallelUVCoordSystem;
+class ParaxialUVCoordSystem;
+class UVCoordSystem;
 
-class TexCoordSystemSnapshot
+class UVCoordSystemSnapshot
 {
 public:
-  virtual ~TexCoordSystemSnapshot();
-  void restore(TexCoordSystem& coordSystem) const;
-  virtual std::unique_ptr<TexCoordSystemSnapshot> clone() const = 0;
+  virtual ~UVCoordSystemSnapshot();
+  void restore(UVCoordSystem& coordSystem) const;
+  virtual std::unique_ptr<UVCoordSystemSnapshot> clone() const = 0;
 
 private:
-  virtual void doRestore(ParallelTexCoordSystem& coordSystem) const = 0;
-  virtual void doRestore(ParaxialTexCoordSystem& coordSystem) const = 0;
+  virtual void doRestore(ParallelUVCoordSystem& coordSystem) const = 0;
+  virtual void doRestore(ParaxialUVCoordSystem& coordSystem) const = 0;
 
-  friend class ParallelTexCoordSystem;
-  friend class ParaxialTexCoordSystem;
+  friend class ParallelUVCoordSystem;
+  friend class ParaxialUVCoordSystem;
 };
 
 enum class WrapStyle
@@ -55,18 +55,18 @@ enum class WrapStyle
   Rotation
 };
 
-class TexCoordSystem
+class UVCoordSystem
 {
 public:
-  TexCoordSystem();
-  virtual ~TexCoordSystem();
+  UVCoordSystem();
+  virtual ~UVCoordSystem();
 
-  friend bool operator==(const TexCoordSystem& lhs, const TexCoordSystem& rhs);
-  friend bool operator!=(const TexCoordSystem& lhs, const TexCoordSystem& rhs);
+  friend bool operator==(const UVCoordSystem& lhs, const UVCoordSystem& rhs);
+  friend bool operator!=(const UVCoordSystem& lhs, const UVCoordSystem& rhs);
 
-  virtual std::unique_ptr<TexCoordSystem> clone() const = 0;
-  virtual std::unique_ptr<TexCoordSystemSnapshot> takeSnapshot() const = 0;
-  virtual void restoreSnapshot(const TexCoordSystemSnapshot& snapshot) = 0;
+  virtual std::unique_ptr<UVCoordSystem> clone() const = 0;
+  virtual std::unique_ptr<UVCoordSystemSnapshot> takeSnapshot() const = 0;
+  virtual void restoreSnapshot(const UVCoordSystemSnapshot& snapshot) = 0;
 
   virtual vm::vec3 xAxis() const = 0;
   virtual vm::vec3 yAxis() const = 0;
@@ -117,19 +117,19 @@ public:
   virtual float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const = 0;
 
-  virtual std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> toParallel(
+  virtual std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParallel(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs) const = 0;
-  virtual std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> toParaxial(
+  virtual std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParaxial(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs) const = 0;
 
 private:
-  friend class TexCoordSystemSnapshot;
+  friend class UVCoordSystemSnapshot;
 
   virtual bool isRotationInverted(const vm::vec3& normal) const = 0;
 
@@ -157,7 +157,7 @@ protected:
     return axis / safeScale(T1(factor));
   }
 
-  deleteCopyAndMove(TexCoordSystem);
+  deleteCopyAndMove(UVCoordSystem);
 };
 
 } // namespace TrenchBroom::Model

@@ -67,33 +67,33 @@ std::tuple<vm::vec3, vm::vec3> applyRotation(
 
 } // namespace
 
-ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(
+ParallelUVCoordSystemSnapshot::ParallelUVCoordSystemSnapshot(
   const vm::vec3& xAxis, const vm::vec3& yAxis)
   : m_xAxis{xAxis}
   , m_yAxis{yAxis}
 {
 }
 
-ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(
-  const ParallelTexCoordSystem* coordSystem)
+ParallelUVCoordSystemSnapshot::ParallelUVCoordSystemSnapshot(
+  const ParallelUVCoordSystem* coordSystem)
   : m_xAxis{coordSystem->xAxis()}
   , m_yAxis{coordSystem->yAxis()}
 {
 }
 
-std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystemSnapshot::clone() const
+std::unique_ptr<UVCoordSystemSnapshot> ParallelUVCoordSystemSnapshot::clone() const
 {
-  return std::make_unique<ParallelTexCoordSystemSnapshot>(m_xAxis, m_yAxis);
+  return std::make_unique<ParallelUVCoordSystemSnapshot>(m_xAxis, m_yAxis);
 }
 
-void ParallelTexCoordSystemSnapshot::doRestore(ParallelTexCoordSystem& coordSystem) const
+void ParallelUVCoordSystemSnapshot::doRestore(ParallelUVCoordSystem& coordSystem) const
 {
   coordSystem.m_xAxis = m_xAxis;
   coordSystem.m_yAxis = m_yAxis;
 }
 
-void ParallelTexCoordSystemSnapshot::doRestore(
-  ParaxialTexCoordSystem& /* coordSystem */) const
+void ParallelUVCoordSystemSnapshot::doRestore(
+  ParaxialUVCoordSystem& /* coordSystem */) const
 {
   ensure(false, "wrong coord system type");
 }
@@ -107,7 +107,7 @@ void ParallelTexCoordSystemSnapshot::doRestore(
  * @param point2 a point defining the face plane
  * @param attribs face attributes
  */
-ParallelTexCoordSystem::ParallelTexCoordSystem(
+ParallelUVCoordSystem::ParallelUVCoordSystem(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -119,56 +119,55 @@ ParallelTexCoordSystem::ParallelTexCoordSystem(
     applyRotation(xAxis(), yAxis(), normal, FloatType(attribs.rotation()));
 }
 
-ParallelTexCoordSystem::ParallelTexCoordSystem(
-  const vm::vec3& xAxis, const vm::vec3& yAxis)
+ParallelUVCoordSystem::ParallelUVCoordSystem(const vm::vec3& xAxis, const vm::vec3& yAxis)
   : m_xAxis{xAxis}
   , m_yAxis{yAxis}
 {
 }
 
-std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::
+std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParallelUVCoordSystem::
   fromParaxial(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs)
 {
-  const auto tempParaxial = ParaxialTexCoordSystem{point0, point1, point2, attribs};
+  const auto tempParaxial = ParaxialUVCoordSystem{point0, point1, point2, attribs};
   return {
-    ParallelTexCoordSystem{tempParaxial.xAxis(), tempParaxial.yAxis()}.clone(), attribs};
+    ParallelUVCoordSystem{tempParaxial.xAxis(), tempParaxial.yAxis()}.clone(), attribs};
 }
 
-std::unique_ptr<TexCoordSystem> ParallelTexCoordSystem::clone() const
+std::unique_ptr<UVCoordSystem> ParallelUVCoordSystem::clone() const
 {
-  return std::make_unique<ParallelTexCoordSystem>(xAxis(), yAxis());
+  return std::make_unique<ParallelUVCoordSystem>(xAxis(), yAxis());
 }
 
-std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystem::takeSnapshot() const
+std::unique_ptr<UVCoordSystemSnapshot> ParallelUVCoordSystem::takeSnapshot() const
 {
-  return std::make_unique<ParallelTexCoordSystemSnapshot>(this);
+  return std::make_unique<ParallelUVCoordSystemSnapshot>(this);
 }
 
-void ParallelTexCoordSystem::restoreSnapshot(const TexCoordSystemSnapshot& snapshot)
+void ParallelUVCoordSystem::restoreSnapshot(const UVCoordSystemSnapshot& snapshot)
 {
   snapshot.doRestore(*this);
 }
 
-vm::vec3 ParallelTexCoordSystem::xAxis() const
+vm::vec3 ParallelUVCoordSystem::xAxis() const
 {
   return m_xAxis;
 }
 
-vm::vec3 ParallelTexCoordSystem::yAxis() const
+vm::vec3 ParallelUVCoordSystem::yAxis() const
 {
   return m_yAxis;
 }
 
-vm::vec3 ParallelTexCoordSystem::zAxis() const
+vm::vec3 ParallelUVCoordSystem::zAxis() const
 {
   return vm::normalize(vm::cross(xAxis(), yAxis()));
 }
 
-void ParallelTexCoordSystem::resetCache(
+void ParallelUVCoordSystem::resetCache(
   const vm::vec3& /* point0 */,
   const vm::vec3& /* point1 */,
   const vm::vec3& /* point2 */,
@@ -177,27 +176,27 @@ void ParallelTexCoordSystem::resetCache(
   // no-op
 }
 
-void ParallelTexCoordSystem::resetTextureAxes(const vm::vec3& normal)
+void ParallelUVCoordSystem::resetTextureAxes(const vm::vec3& normal)
 {
   std::tie(m_xAxis, m_yAxis) = computeInitialAxes(normal);
 }
 
-void ParallelTexCoordSystem::resetTextureAxesToParaxial(
+void ParallelUVCoordSystem::resetTextureAxesToParaxial(
   const vm::vec3& normal, float angle)
 {
-  const auto index = ParaxialTexCoordSystem::planeNormalIndex(normal);
-  std::tie(m_xAxis, m_yAxis, std::ignore) = ParaxialTexCoordSystem::axes(index);
+  const auto index = ParaxialUVCoordSystem::planeNormalIndex(normal);
+  std::tie(m_xAxis, m_yAxis, std::ignore) = ParaxialUVCoordSystem::axes(index);
   std::tie(m_xAxis, m_yAxis) = applyRotation(xAxis(), yAxis(), normal, FloatType(angle));
 }
 
-void ParallelTexCoordSystem::resetTextureAxesToParallel(
+void ParallelUVCoordSystem::resetTextureAxesToParallel(
   const vm::vec3& normal, float angle)
 {
   std::tie(m_xAxis, m_yAxis) = computeInitialAxes(normal);
   std::tie(m_xAxis, m_yAxis) = applyRotation(xAxis(), yAxis(), normal, FloatType(angle));
 }
 
-vm::vec2f ParallelTexCoordSystem::getTexCoords(
+vm::vec2f ParallelUVCoordSystem::getTexCoords(
   const vm::vec3& point,
   const BrushFaceAttributes& attribs,
   const vm::vec2f& textureSize) const
@@ -209,7 +208,7 @@ vm::vec2f ParallelTexCoordSystem::getTexCoords(
  * Rotates from `oldAngle` to `newAngle`. Both of these are in CCW degrees about
  * the texture normal (`getZAxis()`). The provided `normal` is ignored.
  */
-void ParallelTexCoordSystem::setRotation(
+void ParallelUVCoordSystem::setRotation(
   const vm::vec3& /* normal */, const float oldAngle, const float newAngle)
 {
   const auto angleDelta = newAngle - oldAngle;
@@ -220,7 +219,7 @@ void ParallelTexCoordSystem::setRotation(
   }
 }
 
-void ParallelTexCoordSystem::transform(
+void ParallelUVCoordSystem::transform(
   const vm::plane3& oldBoundary,
   const vm::plane3& newBoundary,
   const vm::mat4x4& transformation,
@@ -296,8 +295,7 @@ void ParallelTexCoordSystem::transform(
   attribs.setOffset(newOffset);
 }
 
-void ParallelTexCoordSystem::shearTexture(
-  const vm::vec3& /* normal */, const vm::vec2f& f)
+void ParallelUVCoordSystem::shearTexture(const vm::vec3& /* normal */, const vm::vec2f& f)
 {
   const vm::mat4x4 shear(
     1.0, f[0], 0.0, 0.0, f[1], 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
@@ -316,7 +314,7 @@ void ParallelTexCoordSystem::shearTexture(
  * axis, in CCW degrees about the texture normal. Returns this, added to `currentAngle`
  * (also in CCW degrees).
  */
-float ParallelTexCoordSystem::measureAngle(
+float ParallelUVCoordSystem::measureAngle(
   const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const
 {
   const auto vec = vm::vec3f{point - center};
@@ -325,7 +323,7 @@ float ParallelTexCoordSystem::measureAngle(
   return currentAngle + vm::to_degrees(angleInRadians);
 }
 
-std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::
+std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParallelUVCoordSystem::
   toParallel(
     const vm::vec3&,
     const vm::vec3&,
@@ -335,29 +333,29 @@ std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoor
   return {clone(), attribs};
 }
 
-std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::
+std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParallelUVCoordSystem::
   toParaxial(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs) const
 {
-  return ParaxialTexCoordSystem::fromParallel(
+  return ParaxialUVCoordSystem::fromParallel(
     point0, point1, point2, attribs, xAxis(), yAxis());
 }
 
-bool ParallelTexCoordSystem::isRotationInverted(const vm::vec3& /* normal */) const
+bool ParallelUVCoordSystem::isRotationInverted(const vm::vec3& /* normal */) const
 {
   return false;
 }
 
-void ParallelTexCoordSystem::updateNormalWithProjection(
+void ParallelUVCoordSystem::updateNormalWithProjection(
   const vm::vec3& newNormal, const BrushFaceAttributes& /* attribs */)
 {
   // Goal: (m_xAxis, m_yAxis) define the texture projection that was used for a face with
   // oldNormal. We want to update (m_xAxis, m_yAxis) to be usable on a face with
   // newNormal. Since this is the "projection" method (attempts to emulate
-  // ParaxialTexCoordSystem), we want to modify (m_xAxis, m_yAxis) as little as possible
+  // ParaxialUVCoordSystem), we want to modify (m_xAxis, m_yAxis) as little as possible
   // and only make 90 degree rotations if necessary.
 
   // Method: build a cube where the front face is the old texture projection (m_xAxis,
@@ -417,7 +415,7 @@ void ParallelTexCoordSystem::updateNormalWithProjection(
   }
 }
 
-void ParallelTexCoordSystem::updateNormalWithRotation(
+void ParallelUVCoordSystem::updateNormalWithRotation(
   const vm::vec3& oldNormal,
   const vm::vec3& newNormal,
   const BrushFaceAttributes& /* attribs */)
@@ -438,7 +436,7 @@ void ParallelTexCoordSystem::updateNormalWithRotation(
   m_yAxis = rotation * yAxis();
 }
 
-float ParallelTexCoordSystem::computeTextureAngle(
+float ParallelUVCoordSystem::computeTextureAngle(
   const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const
 {
   const auto rotationScale = vm::strip_translation(transformation);

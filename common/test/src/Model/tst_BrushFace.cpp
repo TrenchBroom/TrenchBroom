@@ -64,7 +64,7 @@ TEST_CASE("BrushFaceTest.constructWithValidPoints")
   const BrushFaceAttributes attribs("");
   BrushFace face =
     BrushFace::create(
-      p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs))
+      p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
       .value();
   CHECK(face.points()[0] == vm::approx(p0));
   CHECK(face.points()[1] == vm::approx(p1));
@@ -82,7 +82,7 @@ TEST_CASE("BrushFaceTest.constructWithColinearPoints")
   const BrushFaceAttributes attribs("");
   CHECK_FALSE(
     BrushFace::create(
-      p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs))
+      p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
       .is_success());
 }
 
@@ -100,13 +100,10 @@ TEST_CASE("BrushFaceTest.materialUsageCount")
   BrushFaceAttributes attribs("");
   {
     // test constructor
-    BrushFace face = BrushFace::create(
-                       p0,
-                       p1,
-                       p2,
-                       attribs,
-                       std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs))
-                       .value();
+    BrushFace face =
+      BrushFace::create(
+        p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
+        .value();
     CHECK(material.usageCount() == 0u);
 
     // test setMaterial
@@ -837,16 +834,16 @@ TEST_CASE("BrushFaceTest.formatConversion")
   auto testTransform = [&](const vm::mat4x4& transform) {
     auto standardCube = startingCube;
     REQUIRE(standardCube.transform(worldBounds, transform, true).is_success());
-    CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(
-      &standardCube.face(0).texCoordSystem()));
+    CHECK(
+      dynamic_cast<const ParaxialUVCoordSystem*>(&standardCube.face(0).texCoordSystem()));
 
     const Brush valveCube = standardCube.convertToParallel();
     CHECK(
-      dynamic_cast<const ParallelTexCoordSystem*>(&valveCube.face(0).texCoordSystem()));
+      dynamic_cast<const ParallelUVCoordSystem*>(&valveCube.face(0).texCoordSystem()));
     checkBrushUVsEqual(standardCube, valveCube);
 
     const Brush standardCubeRoundTrip = valveCube.convertToParaxial();
-    CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(
+    CHECK(dynamic_cast<const ParaxialUVCoordSystem*>(
       &standardCubeRoundTrip.face(0).texCoordSystem()));
     checkBrushUVsEqual(standardCube, standardCubeRoundTrip);
   };
