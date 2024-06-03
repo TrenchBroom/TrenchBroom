@@ -82,7 +82,7 @@ public:
   struct IndexedVertex
   {
     size_t vertex;
-    size_t texCoords;
+    size_t uvCoords;
     size_t normal;
   };
 
@@ -130,7 +130,7 @@ private:
   ObjExportOptions m_options;
 
   IndexMap<vm::vec3> m_vertices;
-  IndexMap<vm::vec2f> m_texCoords;
+  IndexMap<vm::vec2f> m_uvCoords;
   IndexMap<vm::vec3> m_normals;
 
   std::optional<BrushObject> m_currentBrush;
