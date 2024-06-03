@@ -95,7 +95,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush1")
 
   Model::BrushNode* brushNode =
     static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brushNode, false);
+  checkBrushUVCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
   CHECK(
@@ -168,7 +168,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush2")
   CHECK(defaultLayer->childCount() == 1u);
   Model::BrushNode* brush =
     static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brush, false);
+  checkBrushUVCoordSystem(brush, false);
 }
 
 TEST_CASE("WorldReaderTest.parseProblematicBrush3")
@@ -197,7 +197,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush3")
   CHECK(defaultLayer->childCount() == 1u);
   Model::BrushNode* brush =
     static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brush, false);
+  checkBrushUVCoordSystem(brush, false);
 }
 } // namespace IO
 } // namespace TrenchBroom

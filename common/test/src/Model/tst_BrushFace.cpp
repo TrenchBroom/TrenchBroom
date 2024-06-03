@@ -545,7 +545,7 @@ static void checkAlignmentLockOffWithScale(const Brush& cube)
   // get UV at mins; should be equal
   const vm::vec2f left_origTC = origFace.uvCoords(mins);
   const vm::vec2f left_transformedTC = face.uvCoords(mins);
-  CHECK(texCoordsEqual(left_origTC, left_transformedTC));
+  CHECK(uvCoordsEqual(left_origTC, left_transformedTC));
 
   // get UVs at mins, plus the X size of the cube
   const vm::vec2f right_origTC =

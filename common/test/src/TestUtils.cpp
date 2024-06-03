@@ -52,7 +52,7 @@
 
 namespace TrenchBroom
 {
-bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
+bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
 {
   for (size_t i = 0; i < 2; ++i)
   {
@@ -93,7 +93,7 @@ bool uvListsEqual(
   {
     return false;
   }
-  if (!texCoordsEqual(uvs[0], transformedVertUVs[0]))
+  if (!uvCoordsEqual(uvs[0], transformedVertUVs[0]))
   {
     return false;
   }
@@ -101,7 +101,7 @@ bool uvListsEqual(
   for (size_t i = 1; i < uvs.size(); ++i)
   {
     // note, just checking:
-    //   texCoordsEqual(uvs[i], transformedVertUVs[i]);
+    //   uvCoordsEqual(uvs[i], transformedVertUVs[i]);
     // would be too lenient.
     const vm::vec2f expected = uvs[i] - uvs[0];
     const vm::vec2f actual = transformedVertUVs[i] - transformedVertUVs[0];
@@ -113,20 +113,20 @@ bool uvListsEqual(
   return true;
 }
 
-TEST_CASE("TestUtilsTest.testTexCoordsEqual")
+TEST_CASE("TestUtilsTest.testUVCoordsEqual")
 {
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.0, 0.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(1.0, 0.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(2.00001, 0.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-10.0, 2.0)));
-  CHECK(texCoordsEqual(vm::vec2f(2.0, -3.0), vm::vec2f(-10.0, 2.0)));
-  CHECK(texCoordsEqual(vm::vec2f(-2.0, -3.0), vm::vec2f(-10.0, 2.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-1.0, 1.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-0.00001, 0.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.25, 0.0), vm::vec2f(-0.75, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.0, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(1.0, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(2.00001, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-10.0, 2.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(2.0, -3.0), vm::vec2f(-10.0, 2.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(-2.0, -3.0), vm::vec2f(-10.0, 2.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-1.0, 1.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-0.00001, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.25, 0.0), vm::vec2f(-0.75, 0.0)));
 
-  CHECK_FALSE(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.1, 0.1)));
-  CHECK_FALSE(texCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
+  CHECK_FALSE(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.1, 0.1)));
+  CHECK_FALSE(uvCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
 }
 
 TEST_CASE("TestUtilsTest.uvListsEqual")
@@ -359,7 +359,7 @@ const Model::BrushFace* findFaceByPoints(
   return nullptr;
 }
 
-void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel)
+void checkFaceUVCoordSystem(const Model::BrushFace& face, const bool expectParallel)
 {
   auto snapshot = face.takeUVCoordSystemSnapshot();
   auto* check = dynamic_cast<Model::ParallelUVCoordSystemSnapshot*>(snapshot.get());
@@ -367,17 +367,16 @@ void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectPara
   CHECK(isParallel == expectParallel);
 }
 
-void checkBrushTexCoordSystem(
-  const Model::BrushNode* brushNode, const bool expectParallel)
+void checkBrushUVCoordSystem(const Model::BrushNode* brushNode, const bool expectParallel)
 {
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
-  checkFaceTexCoordSystem(faces[0], expectParallel);
-  checkFaceTexCoordSystem(faces[1], expectParallel);
-  checkFaceTexCoordSystem(faces[2], expectParallel);
-  checkFaceTexCoordSystem(faces[3], expectParallel);
-  checkFaceTexCoordSystem(faces[4], expectParallel);
-  checkFaceTexCoordSystem(faces[5], expectParallel);
+  checkFaceUVCoordSystem(faces[0], expectParallel);
+  checkFaceUVCoordSystem(faces[1], expectParallel);
+  checkFaceUVCoordSystem(faces[2], expectParallel);
+  checkFaceUVCoordSystem(faces[3], expectParallel);
+  checkFaceUVCoordSystem(faces[4], expectParallel);
+  checkFaceUVCoordSystem(faces[5], expectParallel);
 }
 
 void setLinkId(Node& node, std::string linkId)
