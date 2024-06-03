@@ -587,7 +587,7 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
   // Add all the vertices of the mesh.
   for (unsigned int i = 0; i < numVerts; ++i)
   {
-    const auto texcoords =
+    const auto uvCoords =
       mesh.mTextureCoords[0]
         ? vm::vec2f{mesh.mTextureCoords[0][i].x, mesh.mTextureCoords[0][i].y}
         : vm::vec2f{0.0f, 0.0f};
@@ -623,7 +623,7 @@ std::vector<Assets::EntityModelVertex> computeMeshVertices(
     meshVertices *= axisTransform;
 
     vertices.emplace_back(
-      vm::vec3f{meshVertices.x, meshVertices.y, meshVertices.z}, texcoords);
+      vm::vec3f{meshVertices.x, meshVertices.y, meshVertices.z}, uvCoords);
   }
 
   return vertices;
