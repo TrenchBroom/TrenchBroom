@@ -62,7 +62,7 @@ namespace
 std::tuple<vm::line3, vm::line3> computeOriginHandles(const UVViewHelper& helper)
 {
   const auto toWorld =
-    helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
   const auto origin = vm::vec3{helper.originInFaceCoords()};
   const auto linePoint = toWorld * origin;
@@ -93,7 +93,7 @@ vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
     vm::intersect_ray_plane(ray, boundary), [&](const auto distance) {
       const auto hitPoint = vm::point_at_distance(ray, distance);
       const auto transform =
-        helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+        helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
       return vm::vec2f{transform * hitPoint};
     });
 }
@@ -114,12 +114,12 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   // coordinates and snap the delta to the distance.
 
   const auto w2fTransform =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  const auto w2tTransform = helper.face()->toTexCoordSystemMatrix(
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+  const auto w2tTransform = helper.face()->toUVCoordSystemMatrix(
     helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
   const auto f2wTransform =
-    helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  const auto t2wTransform = helper.face()->fromTexCoordSystemMatrix(
+    helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+  const auto t2wTransform = helper.face()->fromUVCoordSystemMatrix(
     helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
   const auto f2tTransform = w2tTransform * f2wTransform;
   const auto t2fTransform = w2fTransform * t2wTransform;
@@ -227,8 +227,8 @@ private:
 
   void doRender(Renderer::RenderContext& renderContext) override
   {
-    const auto fromFace = m_helper.face()->fromTexCoordSystemMatrix(
-      vm::vec2f::zero(), vm::vec2f::one(), true);
+    const auto fromFace =
+      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
     const auto& boundary = m_helper.face()->boundary();
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
@@ -339,8 +339,8 @@ void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickRes
   {
     const auto [xHandle, yHandle] = computeOriginHandles(m_helper);
 
-    const auto fromTex = m_helper.face()->fromTexCoordSystemMatrix(
-      vm::vec2f::zero(), vm::vec2f::one(), true);
+    const auto fromTex =
+      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
     const auto origin = fromTex * vm::vec3{m_helper.originInFaceCoords()};
 
     const auto& pickRay = inputState.pickRay();

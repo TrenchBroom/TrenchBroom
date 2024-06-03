@@ -279,7 +279,7 @@ void transferFaceAttributes(
   }
   else
   {
-    auto snapshot = sourceFaceHandle.face().takeTexCoordSystemSnapshot();
+    auto snapshot = sourceFaceHandle.face().takeUVCoordSystemSnapshot();
     document.setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
     if (snapshot)
     {

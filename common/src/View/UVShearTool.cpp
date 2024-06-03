@@ -99,7 +99,7 @@ public:
 
     const auto origin = m_helper.origin();
     const auto oldCoords = vm::vec2f{
-      m_helper.face()->toTexCoordSystemMatrix(
+      m_helper.face()->toUVCoordSystemMatrix(
         vm::vec2f::zero(), m_helper.face()->attributes().scale(), true)
       * origin};
 
@@ -121,7 +121,7 @@ public:
     }
 
     const auto newCoords = vm::vec2f{
-      m_helper.face()->toTexCoordSystemMatrix(
+      m_helper.face()->toUVCoordSystemMatrix(
         vm::vec2f::zero(), m_helper.face()->attributes().scale(), true)
       * origin};
     const auto newOffset = m_helper.face()->attributes().offset() + oldCoords - newCoords;

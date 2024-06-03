@@ -78,7 +78,7 @@ std::optional<vm::vec2f> getHitPoint(const UVViewHelper& helper, const vm::ray3&
   return kdl::optional_transform(
     vm::intersect_ray_plane(pickRay, boundary), [&](const auto facePointDist) {
       const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
-      const auto toTex = helper.face()->toTexCoordSystemMatrix({0, 0}, {1, 1}, true);
+      const auto toTex = helper.face()->toUVCoordSystemMatrix({0, 0}, {1, 1}, true);
 
       return vm::vec2f{toTex * facePoint};
     });
@@ -91,10 +91,10 @@ vm::vec2f getScaledTranslatedHandlePos(const UVViewHelper& helper, const vm::vec
 
 vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
 {
-  const auto toWorld = helper.face()->fromTexCoordSystemMatrix(
+  const auto toWorld = helper.face()->fromUVCoordSystemMatrix(
     helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
   const auto toTex =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
   return vm::vec2f{
     toTex * toWorld * vm::vec3{getScaledTranslatedHandlePos(helper, handle)}};
@@ -103,7 +103,7 @@ vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
 vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 {
   const auto toTex =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
   const auto vertices = helper.face()->vertices();
   auto distance = std::accumulate(

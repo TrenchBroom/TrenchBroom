@@ -3637,7 +3637,7 @@ bool MapDocument::copyUVFromFace(
 {
   return applyAndSwap(
     *this, "Copy UV Alignment", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.copyTexCoordSystemFromFace(
+      face.copyUVCoordSystemFromFace(
         coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
       return true;
     });

@@ -216,7 +216,7 @@ static void checkAlignmentLockOffWithTransform(
   BrushFace face = origFace;
   resetFaceUVAlignment(face);
   REQUIRE(face.transform(transform, false).is_success());
-  face.resetTexCoordSystemCache();
+  face.resetUVCoordSystemCache();
 
   // reset alignment, transform the face (alignment lock off), then reset the alignment
   // again
@@ -294,7 +294,7 @@ static void checkAlignmentLockOnWithTransform(
   // transform the face
   BrushFace face = origFace;
   REQUIRE(face.transform(transform, true).is_success());
-  face.resetTexCoordSystemCache();
+  face.resetUVCoordSystemCache();
 
   // transform the verts
   std::vector<vm::vec3> transformedVerts;
@@ -510,7 +510,7 @@ static void checkAlignmentLockOffWithVerticalFlip(const Brush& cube)
   // transform the face (alignment lock off)
   BrushFace face = origFace;
   REQUIRE(face.transform(transform, false).is_success());
-  face.resetTexCoordSystemCache();
+  face.resetUVCoordSystemCache();
 
   // UVs of the verts of `face` and `origFace` should be the same now
 
@@ -540,7 +540,7 @@ static void checkAlignmentLockOffWithScale(const Brush& cube)
   // transform the face (alignment lock off)
   BrushFace face = origFace;
   REQUIRE(face.transform(transform, false).is_success());
-  face.resetTexCoordSystemCache();
+  face.resetUVCoordSystemCache();
 
   // get UV at mins; should be equal
   const vm::vec2f left_origTC = origFace.uvCoords(mins);
@@ -743,10 +743,10 @@ TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
   CHECK(negYFace->uAxis() == vm::vec3::pos_x());
   CHECK(negYFace->vAxis() == vm::vec3::neg_z());
 
-  auto snapshot = negYFace->takeTexCoordSystemSnapshot();
+  auto snapshot = negYFace->takeUVCoordSystemSnapshot();
 
   // copy texturing from the negYFace to posXFace using the rotation method
-  posXFace->copyTexCoordSystemFromFace(
+  posXFace->copyUVCoordSystemFromFace(
     *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Rotation);
   CHECK(
     posXFace->uAxis()
@@ -758,7 +758,7 @@ TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
       vm::vec3(-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011)));
 
   // copy texturing from the negYFace to posXFace using the projection method
-  posXFace->copyTexCoordSystemFromFace(
+  posXFace->copyUVCoordSystemFromFace(
     *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Projection);
   CHECK(posXFace->uAxis() == vm::approx(vm::vec3::neg_y()));
   CHECK(posXFace->vAxis() == vm::approx(vm::vec3::neg_z()));
@@ -835,16 +835,15 @@ TEST_CASE("BrushFaceTest.formatConversion")
     auto standardCube = startingCube;
     REQUIRE(standardCube.transform(worldBounds, transform, true).is_success());
     CHECK(
-      dynamic_cast<const ParaxialUVCoordSystem*>(&standardCube.face(0).texCoordSystem()));
+      dynamic_cast<const ParaxialUVCoordSystem*>(&standardCube.face(0).uvCoordSystem()));
 
     const Brush valveCube = standardCube.convertToParallel();
-    CHECK(
-      dynamic_cast<const ParallelUVCoordSystem*>(&valveCube.face(0).texCoordSystem()));
+    CHECK(dynamic_cast<const ParallelUVCoordSystem*>(&valveCube.face(0).uvCoordSystem()));
     checkBrushUVsEqual(standardCube, valveCube);
 
     const Brush standardCubeRoundTrip = valveCube.convertToParaxial();
     CHECK(dynamic_cast<const ParaxialUVCoordSystem*>(
-      &standardCubeRoundTrip.face(0).texCoordSystem()));
+      &standardCubeRoundTrip.face(0).uvCoordSystem()));
     checkBrushUVsEqual(standardCube, standardCubeRoundTrip);
   };
 

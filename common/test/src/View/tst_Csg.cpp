@@ -125,13 +125,13 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 64, 64}}, "material")
       .value();
   brush1.face(*brush1.findFace(vm::vec3::pos_z()))
-    .restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+    .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto brush2 =
     builder.createCuboid(vm::bbox3{vm::vec3{32, 0, 0}, vm::vec3{64, 64, 64}}, "material")
       .value();
   brush2.face(*brush2.findFace(vm::vec3::pos_z()))
-    .restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+    .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
   auto* brushNode2 = new Model::BrushNode{std::move(brush2)};
@@ -170,7 +170,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 32}}, "material")
       .value();
   brush2.face(*brush2.findFace(vm::vec3::pos_z()))
-    .restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+    .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
   auto* brushNode2 = new Model::BrushNode{std::move(brush2)};

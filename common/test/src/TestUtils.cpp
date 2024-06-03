@@ -361,7 +361,7 @@ const Model::BrushFace* findFaceByPoints(
 
 void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel)
 {
-  auto snapshot = face.takeTexCoordSystemSnapshot();
+  auto snapshot = face.takeUVCoordSystemSnapshot();
   auto* check = dynamic_cast<Model::ParallelUVCoordSystemSnapshot*>(snapshot.get());
   const bool isParallel = (check != nullptr);
   CHECK(isParallel == expectParallel);

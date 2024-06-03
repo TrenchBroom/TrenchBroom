@@ -66,7 +66,7 @@ std::vector<Vertex> createDecalBrushFace(
 
   // copy the face properties, used to calculate the decal size and UV coords
   auto attrs = Model::BrushFaceAttributes{materialName, face.attributes()};
-  auto uvCoords = face.texCoordSystem().clone();
+  auto uvCoords = face.uvCoordSystem().clone();
 
   // create the geometry for the decal
   const auto plane = face.boundary();
