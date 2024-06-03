@@ -283,7 +283,7 @@ void ObjSerializer::doPatch(const Model::PatchNode* patchNode)
 
   const auto makeIndexedVertex = [&](const auto& p) {
     const auto positionIndex = m_vertices.index(p.position);
-    const auto uvCoordsIndex = m_uvCoords.index(vm::vec2f{p.texCoords});
+    const auto uvCoordsIndex = m_uvCoords.index(vm::vec2f{p.uvCoords});
     const auto normalIndex = m_normals.index(p.normal);
 
     return IndexedVertex{positionIndex, uvCoordsIndex, normalIndex};

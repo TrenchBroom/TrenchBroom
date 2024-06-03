@@ -186,7 +186,7 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
 
       const auto& grid = patchNode->grid();
       auto gridVertices = kdl::vec_transform(grid.points, [](const auto& p) {
-        return Vertex{vm::vec3f{p.position}, vm::vec3f{p.normal}, vm::vec2f{p.texCoords}};
+        return Vertex{vm::vec3f{p.position}, vm::vec3f{p.normal}, vm::vec2f{p.uvCoords}};
       });
       vertices = kdl::vec_concat(std::move(vertices), std::move(gridVertices));
 
