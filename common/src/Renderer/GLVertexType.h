@@ -179,15 +179,15 @@ using P2 = GLVertexType<GLVertexAttributeTypes::P2>;
 using P3 = GLVertexType<GLVertexAttributeTypes::P3>;
 using P2C4 = GLVertexType<GLVertexAttributeTypes::P2, GLVertexAttributeTypes::C4>;
 using P3C4 = GLVertexType<GLVertexAttributeTypes::P3, GLVertexAttributeTypes::C4>;
-using P2T2 = GLVertexType<GLVertexAttributeTypes::P2, GLVertexAttributeTypes::T02>;
-using P3T2 = GLVertexType<GLVertexAttributeTypes::P3, GLVertexAttributeTypes::T02>;
-using P2T2C4 = GLVertexType<
+using P2UV2 = GLVertexType<GLVertexAttributeTypes::P2, GLVertexAttributeTypes::UV02>;
+using P3UV2 = GLVertexType<GLVertexAttributeTypes::P3, GLVertexAttributeTypes::UV02>;
+using P2UV2C4 = GLVertexType<
   GLVertexAttributeTypes::P2,
-  GLVertexAttributeTypes::T02,
+  GLVertexAttributeTypes::UV02,
   GLVertexAttributeTypes::C4>;
-using P3T2C4 = GLVertexType<
+using P3UV2C4 = GLVertexType<
   GLVertexAttributeTypes::P3,
-  GLVertexAttributeTypes::T02,
+  GLVertexAttributeTypes::UV02,
   GLVertexAttributeTypes::C4>;
 using P3N = GLVertexType<GLVertexAttributeTypes::P3, GLVertexAttributeTypes::N>;
 using P3NC4 = GLVertexType<
@@ -197,7 +197,7 @@ using P3NC4 = GLVertexType<
 using P3NT2 = GLVertexType<
   GLVertexAttributeTypes::P3,
   GLVertexAttributeTypes::N,
-  GLVertexAttributeTypes::T02>;
+  GLVertexAttributeTypes::UV02>;
 } // namespace GLVertexTypes
 } // namespace Renderer
 } // namespace TrenchBroom

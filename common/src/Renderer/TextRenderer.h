@@ -77,7 +77,7 @@ private:
     EntryCollection();
   };
 
-  using TextVertex = GLVertexTypes::P3T2C4::Vertex;
+  using TextVertex = GLVertexTypes::P3UV2C4::Vertex;
   using RectVertex = GLVertexTypes::P3C4::Vertex;
 
   FontDescriptor m_fontDescriptor;

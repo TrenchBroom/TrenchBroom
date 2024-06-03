@@ -370,7 +370,7 @@ const Color& MaterialBrowserView::materialColor(const Assets::Material& material
 void MaterialBrowserView::renderMaterials(
   Layout& layout, const float y, const float height)
 {
-  using Vertex = Renderer::GLVertexTypes::P2T2::Vertex;
+  using Vertex = Renderer::GLVertexTypes::P2UV2::Vertex;
 
   auto shader =
     Renderer::ActiveShader{shaderManager(), Renderer::Shaders::MaterialBrowserShader};
