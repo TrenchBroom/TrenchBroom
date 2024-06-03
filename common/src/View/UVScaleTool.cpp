@@ -209,7 +209,7 @@ public:
     const auto newHandlePosSnapped = snap(m_helper, newHandlePosFaceCoords);
 
     const auto originHandlePosFaceCoords = m_helper.originInFaceCoords();
-    const auto originHandlePosUVCoords = m_helper.originInTexCoords();
+    const auto originHandlePosUVCoords = m_helper.originInUVCoords();
 
     const auto newHandleDistFaceCoords = newHandlePosSnapped - originHandlePosFaceCoords;
     const auto curHandleDistUVCoords = curHandlePosUVCoords - originHandlePosUVCoords;
@@ -232,7 +232,7 @@ public:
     request.setScale(newScale);
     m_document.setFaceAttributes(request);
 
-    const auto newOriginInUVCoords = vm::correct(m_helper.originInTexCoords(), 4, 0.0f);
+    const auto newOriginInUVCoords = vm::correct(m_helper.originInUVCoords(), 4, 0.0f);
     const auto originDelta = originHandlePosUVCoords - newOriginInUVCoords;
 
     request.clear();

@@ -119,7 +119,7 @@ const vm::vec2f UVViewHelper::originInFaceCoords() const
   return vm::vec2f{toFace * origin()};
 }
 
-const vm::vec2f UVViewHelper::originInTexCoords() const
+const vm::vec2f UVViewHelper::originInUVCoords() const
 {
   assert(valid());
 
@@ -158,32 +158,32 @@ void UVViewHelper::pickUVGrid(
     if (const auto distance = vm::intersect_ray_plane(ray, boundary))
     {
       const auto hitPointInWorldCoords = vm::point_at_distance(ray, *distance);
-      const auto hitPointInTexCoords = vm::vec2f{
+      const auto hitPointInUVCoords = vm::vec2f{
         face()->toUVCoordSystemMatrix(
           face()->attributes().offset(), face()->attributes().scale(), true)
         * hitPointInWorldCoords};
-      const auto hitPointInViewCoords = uvToViewCoords(hitPointInTexCoords);
+      const auto hitPointInViewCoords = uvToViewCoords(hitPointInUVCoords);
 
       // X and Y distance in texels to the closest grid intersection.
       // (i.e. so the X component is the distance to the closest vertical gridline, and
       // the Y the distance to the closest horizontal gridline.)
-      const auto distanceFromGridTexCoords =
-        computeDistanceFromUVGrid(vm::vec3(hitPointInTexCoords, 0.0f));
-      const vm::vec2f closestPointsOnGridInTexCoords[2] = {
-        hitPointInTexCoords
-          + vm::vec2f{distanceFromGridTexCoords.x(), 0.0f}, // closest point on a vertical
-                                                            // gridline
-        hitPointInTexCoords
-          + vm::vec2f{0.0f, distanceFromGridTexCoords.y()}, // closest point on a
-                                                            // horizontal gridline
+      const auto distanceFromGridUVCoords =
+        computeDistanceFromUVGrid(vm::vec3(hitPointInUVCoords, 0.0f));
+      const vm::vec2f closestPointsOnGridInUVCoords[2] = {
+        hitPointInUVCoords
+          + vm::vec2f{distanceFromGridUVCoords.x(), 0.0f}, // closest point on a vertical
+                                                           // gridline
+        hitPointInUVCoords
+          + vm::vec2f{0.0f, distanceFromGridUVCoords.y()}, // closest point on a
+                                                           // horizontal gridline
       };
 
       // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
       const float distToClosestGridInViewCoords[2] = {
         vm::distance(
-          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInTexCoords[0])),
+          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUVCoords[0])),
         vm::distance(
-          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInTexCoords[1]))};
+          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUVCoords[1]))};
 
       // FIXME: factor out and share with other tools
       constexpr auto maxDistance = 5.0f;
@@ -195,7 +195,7 @@ void UVViewHelper::pickUVGrid(
         if (error <= maxDistance)
         {
           const auto stripeSize = UVViewHelper::stripeSize();
-          const auto index = int(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
+          const auto index = int(vm::round(hitPointInUVCoords[i] / stripeSize[i]));
           pickResult.addHit(
             {hitTypes[i], *distance, hitPointInWorldCoords, index, error});
         }
