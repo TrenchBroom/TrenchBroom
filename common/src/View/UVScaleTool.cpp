@@ -203,23 +203,23 @@ public:
 
     const auto dragDeltaFaceCoords = *curPoint - m_lastHitPoint;
 
-    const auto curHandlePosTexCoords = getScaledTranslatedHandlePos(m_helper, m_handle);
+    const auto curHandlePosUVCoords = getScaledTranslatedHandlePos(m_helper, m_handle);
     const auto newHandlePosFaceCoords =
       getHandlePos(m_helper, m_handle) + dragDeltaFaceCoords;
     const auto newHandlePosSnapped = snap(m_helper, newHandlePosFaceCoords);
 
     const auto originHandlePosFaceCoords = m_helper.originInFaceCoords();
-    const auto originHandlePosTexCoords = m_helper.originInTexCoords();
+    const auto originHandlePosUVCoords = m_helper.originInTexCoords();
 
     const auto newHandleDistFaceCoords = newHandlePosSnapped - originHandlePosFaceCoords;
-    const auto curHandleDistTexCoords = curHandlePosTexCoords - originHandlePosTexCoords;
+    const auto curHandleDistUVCoords = curHandlePosUVCoords - originHandlePosUVCoords;
 
     auto newScale = m_helper.face()->attributes().scale();
     for (size_t i = 0; i < 2; ++i)
     {
       if (m_selector[i])
       {
-        const auto value = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
+        const auto value = newHandleDistFaceCoords[i] / curHandleDistUVCoords[i];
         if (value != 0.0f)
         {
           newScale[i] = value;
@@ -232,8 +232,8 @@ public:
     request.setScale(newScale);
     m_document.setFaceAttributes(request);
 
-    const auto newOriginInTexCoords = vm::correct(m_helper.originInTexCoords(), 4, 0.0f);
-    const auto originDelta = originHandlePosTexCoords - newOriginInTexCoords;
+    const auto newOriginInUVCoords = vm::correct(m_helper.originInTexCoords(), 4, 0.0f);
+    const auto originDelta = originHandlePosUVCoords - newOriginInUVCoords;
 
     request.clear();
     request.addOffset(originDelta);
