@@ -68,20 +68,20 @@ public:
   virtual std::unique_ptr<UVCoordSystemSnapshot> takeSnapshot() const = 0;
   virtual void restoreSnapshot(const UVCoordSystemSnapshot& snapshot) = 0;
 
-  virtual vm::vec3 xAxis() const = 0;
-  virtual vm::vec3 yAxis() const = 0;
-  virtual vm::vec3 zAxis() const = 0;
+  virtual vm::vec3 uAxis() const = 0;
+  virtual vm::vec3 vAxis() const = 0;
+  virtual vm::vec3 normal() const = 0;
 
   virtual void resetCache(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs) = 0;
-  virtual void resetTextureAxes(const vm::vec3& normal) = 0;
-  virtual void resetTextureAxesToParaxial(const vm::vec3& normal, float angle) = 0;
-  virtual void resetTextureAxesToParallel(const vm::vec3& normal, float angle) = 0;
+  virtual void reset(const vm::vec3& normal) = 0;
+  virtual void resetToParaxial(const vm::vec3& normal, float angle) = 0;
+  virtual void resetToParallel(const vm::vec3& normal, float angle) = 0;
 
-  virtual vm::vec2f getTexCoords(
+  virtual vm::vec2f uvCoords(
     const vm::vec3& point,
     const BrushFaceAttributes& attribs,
     const vm::vec2f& textureSize) const = 0;
@@ -95,21 +95,20 @@ public:
     const vm::vec2f& textureSize,
     bool lockTexture,
     const vm::vec3& invariant) = 0;
-  void updateNormal(
+  void setNormal(
     const vm::vec3& oldNormal,
     const vm::vec3& newNormal,
     const BrushFaceAttributes& attribs,
     WrapStyle style);
 
-  void moveTexture(
+  void translate(
     const vm::vec3& normal,
     const vm::vec3& up,
     const vm::vec3& right,
     const vm::vec2f& offset,
     BrushFaceAttributes& attribs) const;
-  void rotateTexture(
-    const vm::vec3& normal, float angle, BrushFaceAttributes& attribs) const;
-  virtual void shearTexture(const vm::vec3& normal, const vm::vec2f& factors) = 0;
+  void rotate(const vm::vec3& normal, float angle, BrushFaceAttributes& attribs) const;
+  virtual void shear(const vm::vec3& normal, const vm::vec2f& factors) = 0;
 
   vm::mat4x4 toMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
   vm::mat4x4 fromMatrix(const vm::vec2f& offset, const vm::vec2f& scale) const;
@@ -141,7 +140,7 @@ private:
     const BrushFaceAttributes& attribs) = 0;
 
 protected:
-  vm::vec2f computeTexCoords(const vm::vec3& point, const vm::vec2f& scale) const;
+  vm::vec2f computeUVCoords(const vm::vec3& point, const vm::vec2f& scale) const;
 
   template <typename T>
   T safeScale(const T value) const

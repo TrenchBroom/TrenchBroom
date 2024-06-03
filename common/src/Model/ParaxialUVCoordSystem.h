@@ -34,8 +34,8 @@ class ParaxialUVCoordSystem : public UVCoordSystem
 {
 private:
   size_t m_index = 0;
-  vm::vec3 m_xAxis;
-  vm::vec3 m_yAxis;
+  vm::vec3 m_uAxis;
+  vm::vec3 m_vAxis;
 
 public:
   ParaxialUVCoordSystem(
@@ -44,15 +44,15 @@ public:
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs);
   ParaxialUVCoordSystem(const vm::vec3& normal, const BrushFaceAttributes& attribs);
-  ParaxialUVCoordSystem(size_t index, const vm::vec3& xAxis, const vm::vec3& yAxis);
+  ParaxialUVCoordSystem(size_t index, const vm::vec3& uAxis, const vm::vec3& vAxis);
 
   static std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> fromParallel(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs,
-    const vm::vec3& xAxis,
-    const vm::vec3& yAxis);
+    const vm::vec3& uAxis,
+    const vm::vec3& vAxis);
 
   static size_t planeNormalIndex(const vm::vec3& normal);
   static std::tuple<vm::vec3, vm::vec3, vm::vec3> axes(size_t index);
@@ -61,20 +61,20 @@ public:
   std::unique_ptr<UVCoordSystemSnapshot> takeSnapshot() const override;
   void restoreSnapshot(const UVCoordSystemSnapshot& snapshot) override;
 
-  vm::vec3 xAxis() const override;
-  vm::vec3 yAxis() const override;
-  vm::vec3 zAxis() const override;
+  vm::vec3 uAxis() const override;
+  vm::vec3 vAxis() const override;
+  vm::vec3 normal() const override;
 
   void resetCache(
     const vm::vec3& point0,
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs) override;
-  void resetTextureAxes(const vm::vec3& normal) override;
-  void resetTextureAxesToParaxial(const vm::vec3& normal, float angle) override;
-  void resetTextureAxesToParallel(const vm::vec3& normal, float angle) override;
+  void reset(const vm::vec3& normal) override;
+  void resetToParaxial(const vm::vec3& normal, float angle) override;
+  void resetToParallel(const vm::vec3& normal, float angle) override;
 
-  vm::vec2f getTexCoords(
+  vm::vec2f uvCoords(
     const vm::vec3& point,
     const BrushFaceAttributes& attribs,
     const vm::vec2f& textureSize) const override;
@@ -89,7 +89,7 @@ public:
     bool lockTexture,
     const vm::vec3& invariant) override;
 
-  void shearTexture(const vm::vec3& normal, const vm::vec2f& factors) override;
+  void shear(const vm::vec3& normal, const vm::vec2f& factors) override;
 
   float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;

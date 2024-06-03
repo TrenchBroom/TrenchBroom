@@ -292,15 +292,15 @@ void BrushFace::copyUVCoordSystemFromFace(
   // Get the UV coords at the refPoint using the source face's attributes and tex coord
   // system
   const auto desriedCoords =
-    m_uvCoordSystem->getTexCoords(refPoint, attributes, vm::vec2f::one());
+    m_uvCoordSystem->uvCoords(refPoint, attributes, vm::vec2f::one());
 
-  m_uvCoordSystem->updateNormal(
+  m_uvCoordSystem->setNormal(
     sourceFacePlane.normal, m_boundary.normal, m_attributes, wrapStyle);
 
   // Adjust the offset on this face so that the UV coordinates at the refPoint stay
   // the same
   const auto currentCoords =
-    m_uvCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
+    m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
   const auto offsetChange = desriedCoords - currentCoords;
   m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
 }
@@ -538,22 +538,22 @@ bool BrushFace::setMaterial(Assets::Material* material)
 
 vm::vec3 BrushFace::uAxis() const
 {
-  return m_uvCoordSystem->xAxis();
+  return m_uvCoordSystem->uAxis();
 }
 
 vm::vec3 BrushFace::vAxis() const
 {
-  return m_uvCoordSystem->yAxis();
+  return m_uvCoordSystem->vAxis();
 }
 
 void BrushFace::resetUVAxes()
 {
-  m_uvCoordSystem->resetTextureAxes(m_boundary.normal);
+  m_uvCoordSystem->reset(m_boundary.normal);
 }
 
 void BrushFace::resetUVAxesToParaxial()
 {
-  m_uvCoordSystem->resetTextureAxesToParaxial(m_boundary.normal, 0.0f);
+  m_uvCoordSystem->resetToParaxial(m_boundary.normal, 0.0f);
 }
 
 void BrushFace::convertToParaxial()
@@ -576,19 +576,19 @@ void BrushFace::convertToParallel()
 
 void BrushFace::moveUV(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset)
 {
-  m_uvCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attributes);
+  m_uvCoordSystem->translate(m_boundary.normal, up, right, offset, m_attributes);
 }
 
 void BrushFace::rotateUV(const float angle)
 {
   const float oldRotation = m_attributes.rotation();
-  m_uvCoordSystem->rotateTexture(m_boundary.normal, angle, m_attributes);
+  m_uvCoordSystem->rotate(m_boundary.normal, angle, m_attributes);
   m_uvCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
 }
 
 void BrushFace::shearUV(const vm::vec2f& factors)
 {
-  m_uvCoordSystem->shearTexture(m_boundary.normal, factors);
+  m_uvCoordSystem->shear(m_boundary.normal, factors);
 }
 
 void BrushFace::flipUV(
@@ -697,15 +697,15 @@ Result<void> BrushFace::updatePointsFromVertices()
         // Get the UV coordinates at the refPoint using the old face's attribs and UV
         // coordinage system
         const auto desriedCoords =
-          m_uvCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
+          m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
 
-        m_uvCoordSystem->updateNormal(
+        m_uvCoordSystem->setNormal(
           oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
 
         // Adjust the offset on this face so that the UV coordinates at the refPoint
         // stay the same
         const auto currentCoords =
-          m_uvCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
+          m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
         const auto offsetChange = desriedCoords - currentCoords;
         m_attributes.setOffset(
           correct(modOffset(m_attributes.offset() + offsetChange), 4));
@@ -830,7 +830,7 @@ void BrushFace::deselect()
 
 vm::vec2f BrushFace::uvCoords(const vm::vec3& point) const
 {
-  return m_uvCoordSystem->getTexCoords(point, m_attributes, textureSize());
+  return m_uvCoordSystem->uvCoords(point, m_attributes, textureSize());
 }
 
 std::optional<FloatType> BrushFace::intersectWithRay(const vm::ray3& ray) const

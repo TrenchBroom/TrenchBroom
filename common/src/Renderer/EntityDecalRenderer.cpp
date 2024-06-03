@@ -66,7 +66,7 @@ std::vector<Vertex> createDecalBrushFace(
 
   // copy the face properties, used to calculate the decal size and UV coords
   auto attrs = Model::BrushFaceAttributes{materialName, face.attributes()};
-  auto uvCoords = face.uvCoordSystem().clone();
+  auto uvCoordSystem = face.uvCoordSystem().clone();
 
   // create the geometry for the decal
   const auto plane = face.boundary();
@@ -74,8 +74,10 @@ std::vector<Vertex> createDecalBrushFace(
   const auto center = plane.project_point(origin);
 
   // re-project the vertices in case the UV axes are not on the face plane
-  const auto xShift = uvCoords->xAxis() * double(attrs.xScale() * textureSize.x() / 2.0f);
-  const auto yShift = uvCoords->yAxis() * double(attrs.yScale() * textureSize.y() / 2.0f);
+  const auto xShift =
+    uvCoordSystem->uAxis() * double(attrs.xScale() * textureSize.x() / 2.0f);
+  const auto yShift =
+    uvCoordSystem->vAxis() * double(attrs.yScale() * textureSize.y() / 2.0f);
 
   // we want to shift every vertex by just a little bit to avoid z-fighting
   const auto offset = plane.normal * 0.1;
@@ -103,8 +105,8 @@ std::vector<Vertex> createDecalBrushFace(
 
   // calculate the UV offset based on the first vertex location
   const auto vtx = verts[0];
-  const auto xOffs = -vm::dot(vtx, uvCoords->xAxis()) / attrs.xScale();
-  const auto yOffs = -vm::dot(vtx, uvCoords->yAxis()) / attrs.yScale();
+  const auto xOffs = -vm::dot(vtx, uvCoordSystem->uAxis()) / attrs.xScale();
+  const auto yOffs = -vm::dot(vtx, uvCoordSystem->vAxis()) / attrs.yScale();
   attrs.setXOffset(float(xOffs));
   attrs.setYOffset(float(yOffs));
 
@@ -128,7 +130,7 @@ std::vector<Vertex> createDecalBrushFace(
   // convert the geometry into a list of vertices
   const auto norm = vm::vec3f{plane.normal};
   return kdl::vec_transform(verts, [&](const auto& v) {
-    return Vertex{vm::vec3f{v}, norm, uvCoords->getTexCoords(v, attrs, textureSize)};
+    return Vertex{vm::vec3f{v}, norm, uvCoordSystem->uvCoords(v, attrs, textureSize)};
   });
 }
 
