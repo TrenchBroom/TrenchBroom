@@ -125,40 +125,39 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   const auto t2fTransform = w2fTransform * t2wTransform;
 
   const auto newOriginInFaceCoords = helper.originInFaceCoords() + delta;
-  const auto newOriginInTexCoords =
+  const auto newOriginInUVCoords =
     vm::vec2f{f2tTransform * vm::vec3{newOriginInFaceCoords}};
 
   // now snap to the vertices
   // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of
   // the vertices instead, we must snap to the edges!
-  auto distanceInTexCoords = vm::vec2f::max();
+  auto distanceInUVCoords = vm::vec2f::max();
   for (const Model::BrushVertex* vertex : helper.face()->vertices())
   {
-    distanceInTexCoords = vm::abs_min(
-      distanceInTexCoords,
-      vm::vec2f{w2tTransform * vertex->position()} - newOriginInTexCoords);
+    distanceInUVCoords = vm::abs_min(
+      distanceInUVCoords,
+      vm::vec2f{w2tTransform * vertex->position()} - newOriginInUVCoords);
   }
 
   // and to the UV grid
   const auto* material = helper.face()->material();
   if (material != nullptr)
   {
-    distanceInTexCoords = vm::abs_min(
-      distanceInTexCoords,
-      helper.computeDistanceFromUVGrid(vm::vec3{newOriginInTexCoords}));
+    distanceInUVCoords = vm::abs_min(
+      distanceInUVCoords,
+      helper.computeDistanceFromUVGrid(vm::vec3{newOriginInUVCoords}));
   }
 
   // finally snap to the face center
   const auto faceCenter = vm::vec2f{w2tTransform * helper.face()->boundsCenter()};
-  distanceInTexCoords =
-    vm::abs_min(distanceInTexCoords, faceCenter - newOriginInTexCoords);
+  distanceInUVCoords = vm::abs_min(distanceInUVCoords, faceCenter - newOriginInUVCoords);
 
   // now we have a distance in the scaled and translated UV coordinate system so we
   // transform the new position plus distance back to the unscaled and untranslated UV
   // coordinate system and take the actual distance
   const auto distanceInFaceCoords =
     newOriginInFaceCoords
-    - vm::vec2f{t2fTransform * vm::vec3{newOriginInTexCoords + distanceInTexCoords}};
+    - vm::vec2f{t2fTransform * vm::vec3{newOriginInUVCoords + distanceInUVCoords}};
   return helper.snapDelta(delta, -distanceInFaceCoords);
 }
 
