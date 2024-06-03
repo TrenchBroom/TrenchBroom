@@ -182,9 +182,9 @@ auto parseUV(Reader reader, const size_t vertexCount)
 }
 
 auto buildVertices(
-  const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& texCoords)
+  const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& uvCoords)
 {
-  assert(positions.size() == texCoords.size());
+  assert(positions.size() == uvCoords.size());
   const auto vertexCount = positions.size();
 
   using Vertex = Assets::EntityModelVertex;
@@ -193,7 +193,7 @@ auto buildVertices(
 
   for (size_t i = 0; i < vertexCount; ++i)
   {
-    vertices.emplace_back(positions[i], texCoords[i]);
+    vertices.emplace_back(positions[i], uvCoords[i]);
   }
 
   return vertices;
@@ -270,7 +270,7 @@ void parseFrameSurfaces(
 
     const auto triangleOffset = reader.readSize<int32_t>();
     /* const auto shaderOffset = */ reader.readSize<int32_t>();
-    const auto texCoordOffset = reader.readSize<int32_t>();
+    const auto uvCoordOffset = reader.readSize<int32_t>();
     const auto vertexOffset = reader.readSize<int32_t>();
     const auto endOffset = reader.readSize<int32_t>();
 
@@ -281,10 +281,10 @@ void parseFrameSurfaces(
 
       const auto vertexPositions = parseVertexPositions(
         reader.subReaderFromBegin(frameVertexOffset, frameVertexLength), vertexCount);
-      const auto texCoords = parseUV(
-        reader.subReaderFromBegin(texCoordOffset, vertexCount * Md3Layout::UVLength),
+      const auto uvCoords = parseUV(
+        reader.subReaderFromBegin(uvCoordOffset, vertexCount * Md3Layout::UVLength),
         vertexCount);
-      const auto vertices = buildVertices(vertexPositions, texCoords);
+      const auto vertices = buildVertices(vertexPositions, uvCoords);
 
       const auto triangles = parseTriangles(
         reader.subReaderFromBegin(
