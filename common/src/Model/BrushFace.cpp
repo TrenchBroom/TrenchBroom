@@ -129,7 +129,7 @@ Result<BrushFace> BrushFace::create(
   const BrushFaceAttributes& attributes,
   const MapFormat mapFormat)
 {
-  return Model::isParallelTexCoordSystem(mapFormat)
+  return Model::isParallelUVCoordSystem(mapFormat)
            ? BrushFace::create(
              point0,
              point1,
@@ -156,7 +156,7 @@ Result<BrushFace> BrushFace::createFromStandard(
   std::unique_ptr<UVCoordSystem> uvCoordSystem;
   BrushFaceAttributes attribs("");
 
-  if (Model::isParallelTexCoordSystem(mapFormat))
+  if (Model::isParallelUVCoordSystem(mapFormat))
   {
     // Convert paraxial to parallel
     std::tie(uvCoordSystem, attribs) =
@@ -187,7 +187,7 @@ Result<BrushFace> BrushFace::createFromValve(
   std::unique_ptr<UVCoordSystem> uvCoordSystem;
   BrushFaceAttributes attribs("");
 
-  if (Model::isParallelTexCoordSystem(mapFormat))
+  if (Model::isParallelUVCoordSystem(mapFormat))
   {
     // Pass through parallel
     uvCoordSystem = std::make_unique<ParallelUVCoordSystem>(uAxis, vAxis);

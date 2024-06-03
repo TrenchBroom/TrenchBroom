@@ -98,6 +98,6 @@ std::string formatName(MapFormat format);
  * @return the preferred format, then the other compatible formats
  */
 std::vector<MapFormat> compatibleFormats(MapFormat format);
-bool isParallelTexCoordSystem(MapFormat format);
+bool isParallelUVCoordSystem(MapFormat format);
 
 } // namespace TrenchBroom::Model
