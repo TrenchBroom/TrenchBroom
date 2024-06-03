@@ -244,11 +244,11 @@ void parseFrame(
                                    : edgeInfos[size_t(faceEdgeIndex)].vertexIndex1;
 
         const auto& position = vertices[vertexIndex];
-        const auto texCoords = uvCoords(position, materialInfo, skin);
+        const auto uvCoordss = uvCoords(position, materialInfo, skin);
 
         bounds.add(position);
 
-        faceVertices.emplace_back(position, texCoords);
+        faceVertices.emplace_back(position, uvCoordss);
       }
 
       builder.addPolygon(skin, faceVertices);
