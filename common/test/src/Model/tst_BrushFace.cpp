@@ -158,17 +158,17 @@ TEST_CASE("BrushFaceTest.projectedArea")
   CHECK(face.projectedArea(vm::axis::z) == vm::approx{0.0});
 }
 
-static void getFaceVertsAndTexCoords(
+static void getFaceVertsAndUVCoords(
   const BrushFace& face,
   std::vector<vm::vec3>* vertPositions,
-  std::vector<vm::vec2f>* vertTexCoords)
+  std::vector<vm::vec2f>* vertUVCoords)
 {
   for (const auto* vertex : face.vertices())
   {
     vertPositions->push_back(vertex->position());
-    if (vertTexCoords != nullptr)
+    if (vertUVCoords != nullptr)
     {
-      vertTexCoords->push_back(face.uvCoords(vm::vec3(vertex->position())));
+      vertUVCoords->push_back(face.uvCoords(vm::vec3(vertex->position())));
     }
   }
 }
@@ -228,7 +228,7 @@ static void checkAlignmentLockOffWithTransform(
   // UVs of the verts of `face` and `resetFace` should be the same now
 
   std::vector<vm::vec3> verts;
-  getFaceVertsAndTexCoords(origFace, &verts, nullptr);
+  getFaceVertsAndUVCoords(origFace, &verts, nullptr);
 
   // transform the verts
   std::vector<vm::vec3> transformedVerts;
@@ -288,7 +288,7 @@ static void checkAlignmentLockOnWithTransform(
 {
   std::vector<vm::vec3> verts;
   std::vector<vm::vec2f> uvs;
-  getFaceVertsAndTexCoords(origFace, &verts, &uvs);
+  getFaceVertsAndUVCoords(origFace, &verts, &uvs);
   CHECK(verts.size() >= 3u);
 
   // transform the face
@@ -473,7 +473,7 @@ static void doWithAlignmentLockTestTransforms(const bool doParallelTests, L&& la
   doWithSingleAxisRotations(45, lambda);
 
   // rotation on multiple axes simultaneously is only expected to work on
-  // ParallelTexCoordSystem
+  // ParallelUVCoordSystem
   if (doParallelTests)
   {
     doMultiAxisRotations(30.0, lambda);
@@ -688,7 +688,7 @@ TEST_CASE("BrushFaceTest.testValveRotation")
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/1995
-TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
+TEST_CASE("BrushFaceTest.testCopyUVCoordSystem")
 {
   const std::string data(
     "{\n"
