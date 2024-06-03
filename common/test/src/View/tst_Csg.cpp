@@ -24,7 +24,7 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
-#include "Model/ParallelTexCoordSystem.h"
+#include "Model/ParallelUVCoordSystem.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 

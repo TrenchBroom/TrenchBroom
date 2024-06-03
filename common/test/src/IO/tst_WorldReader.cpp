@@ -29,7 +29,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/ParallelTexCoordSystem.h"
+#include "Model/ParallelUVCoordSystem.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"

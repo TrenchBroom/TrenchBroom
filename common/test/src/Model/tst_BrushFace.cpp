@@ -32,8 +32,8 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
-#include "Model/ParallelTexCoordSystem.h"
-#include "Model/ParaxialTexCoordSystem.h"
+#include "Model/ParallelUVCoordSystem.h"
+#include "Model/ParaxialUVCoordSystem.h"
 #include "Model/Polyhedron.h"
 #include "TestUtils.h"
 

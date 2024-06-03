@@ -29,7 +29,7 @@
 #include "Model/EntityNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/Polyhedron_Face.h"
-#include "Model/TexCoordSystem.h"
+#include "Model/UVCoordSystem.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "octree.h"

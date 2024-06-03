@@ -25,7 +25,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/MapFormat.h"
-#include "Model/TexCoordSystem.h"
+#include "Model/UVCoordSystem.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 

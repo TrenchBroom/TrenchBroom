@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
-#include "Model/ParaxialTexCoordSystem.h"
+#include "Model/ParaxialUVCoordSystem.h"
 
 #include "vm/bbox.h"
 

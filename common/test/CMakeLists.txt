@@ -99,7 +99,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_Polyhedron.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_PortalFile.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_Tagging.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/Model/tst_TexCoordSystem.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/Model/tst_UVCoordSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_WorldNode.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Renderer/tst_AllocationTracker.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Renderer/tst_Camera.cpp"

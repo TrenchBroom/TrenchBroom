@@ -30,7 +30,7 @@
 #include "Model/HitFilter.h"
 #include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
-#include "Model/TexCoordSystem.h"
+#include "Model/UVCoordSystem.h"
 #include "View/DragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"

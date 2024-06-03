@@ -21,7 +21,7 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/TexCoordSystem.h"
+#include "Model/UVCoordSystem.h"
 
 #include "vm/forward.h"
 #include "vm/vec.h"

@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ParallelTexCoordSystem.h"
+#include "ParallelUVCoordSystem.h"
 
 #include "Assets/Material.h"
 #include "Ensure.h"
 #include "FloatType.h"
 #include "Macros.h"
 #include "Model/BrushFace.h"
-#include "Model/ParaxialTexCoordSystem.h"
+#include "Model/ParaxialUVCoordSystem.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
