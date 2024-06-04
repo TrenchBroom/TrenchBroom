@@ -174,7 +174,7 @@ Result<Assets::MaterialCollection> loadMaterialCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const Model::MaterialConfig& materialConfig,
-  Logger&)
+  Logger& logger)
 {
   if (gameFS.pathInfo(path) != PathInfo::Directory)
   {
@@ -194,7 +194,6 @@ Result<Assets::MaterialCollection> loadMaterialCollection(
     })
     .join(makeReadMaterialFunc(gameFS, materialConfig))
     .and_then([&](auto materialPaths, const auto& readMaterial) {
-      auto nullLogger = NullLogger{};
       return kdl::fold_results(
                kdl::vec_parallel_transform(
                  std::move(materialPaths),
@@ -212,7 +211,7 @@ Result<Assets::MaterialCollection> loadMaterialCollection(
                            return material;
                          });
                      })
-                     .or_else(makeReadMaterialErrorHandler(gameFS, nullLogger));
+                     .or_else(makeReadMaterialErrorHandler(gameFS, logger));
                  }))
         .transform([&](auto materials) {
           return Assets::MaterialCollection{path, std::move(materials)};
