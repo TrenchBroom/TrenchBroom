@@ -81,9 +81,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 
 namespace
@@ -794,5 +792,5 @@ static void CrashHandler(int /* signum */)
 }
 #endif
 
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

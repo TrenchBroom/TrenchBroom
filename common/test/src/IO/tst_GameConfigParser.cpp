@@ -33,10 +33,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
@@ -940,5 +939,5 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
       {}            // compilation tools
     });
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

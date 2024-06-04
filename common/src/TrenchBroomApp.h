@@ -35,10 +35,10 @@ class QTimer;
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace View
+namespace TrenchBroom::View
 {
-class ExecutableEvent;
 class FrameManager;
 class RecentDocuments;
 class WelcomeWindow;
@@ -108,5 +108,5 @@ void setCrashReportGUIEnbled(bool guiEnabled);
   const std::string& stacktrace, const std::string& reason);
 bool isReportingCrash();
 
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
