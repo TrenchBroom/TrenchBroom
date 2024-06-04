@@ -9,32 +9,32 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
 ## Features {#features}
 
 * **General**
-	- Full support for editing in 3D and in up to three 2D views
-	- High performance renderer with support for huge maps
-	- Unlimited Undo and Redo
-	- Macro-like command repetition
+  - Full support for editing in 3D and in up to three 2D views
+  - High performance renderer with support for huge maps
+  - Unlimited Undo and Redo
+  - Macro-like command repetition
     - Linked groups
-	- Issue browser with automatic quick fixes
-	- Run external compilers and launch game engines
-	- Point file support
-	- Portal file support
-	- Automatic backups
-	- Free and cross platform
+  - Issue browser with automatic quick fixes
+  - Run external compilers and launch game engines
+  - Point file support
+  - Portal file support
+  - Automatic backups
+  - Free and cross platform
 * **Brush Editing**
-	- Robust vertex editing with edge and face splitting and manipulating multiple vertices together
-	- Clipping tool with two and three points
-	- Scale and shear tools
-	- CSG operations: merge, subtract, hollow
-	- UV view for easy texture manipulations
-	- Precise texture lock for all brush editing operations
-	- Multiple texture collections
+  - Robust vertex editing with edge and face splitting and manipulating multiple vertices together
+  - Clipping tool with two and three points
+  - Scale and shear tools
+  - CSG operations: merge, subtract, hollow
+  - UV view for easy texturing manipulations
+  - Precise alignment lock for all brush editing operations
+  - Multiple material collections
 * **Entity Editing**
-	- Entity browser with drag and drop support
-	- Support for FGD, ENT and DEF files for entity definitions
-	- Mod support
-	- Entity link visualization
-	- Displays 3D models in the editor (supports mdl, md2, md3, bsp, dkm)
-	- Smart entity property editors
+  - Entity browser with drag and drop support
+  - Support for FGD, ENT and DEF files for entity definitions
+  - Mod support
+  - Entity link visualization
+  - Displays 3D models in the editor (supports mdl, md2, md3, bsp, dkm)
+  - Smart entity property editors
 
 ## About this Document
 
@@ -60,7 +60,7 @@ In Quake-engine based games, levels are usually called maps. The following simpl
 
 The first line specifies that a **map** contains an entity followed by zero or more entities. In EBNF, the braces surrounding the word "Entity" indicate that it stands for a possibly empty sequence of entities. Altogether, line one means that a map is just a sequence of one or more entities. An **entity** is a possibly empty sequence of properties followed by zero or more brushes. A **property** is just a key-value pair, and both the key and the value are strings (this information was omitted from the EBNF).
 
-Line four defines a **Brush** as a possibly empty sequence of faces (but usually it will have at least four, otherwise the brush would be invalid). And in line five, we finally define that a **Face** has a plane, a texture, the X and Y offsets and scales, the rotation angle, and possibly other attributes depending on the game.
+Line four defines a **Brush** as a possibly empty sequence of faces (but usually it will have at least four, otherwise the brush would be invalid). And in line five, we finally define that a **Face** has a plane, a material, the X and Y offsets and scales, the rotation angle, and possibly other attributes depending on the game.
 
 In this document, we use the term _object_ to refer to entities and brushes.
 
@@ -79,18 +79,18 @@ To summarize, TrenchBroom sees a map as a hierarchy (a tree). The root of the hi
 
 ### Brush Geometry {#brush_geometry}
 
-In standard map files, the geometry of a brush is defined by a set of faces. Apart from the attributes defining the texture mapping, a face also specifies a plane using three plane points. The plane is oriented by the order in which the three points are written in the face specification in the map file. Here is an example:
+In standard map files, the geometry of a brush is defined by a set of faces. Apart from the attributes defining the UV mapping, a face also specifies a plane using three plane points. The plane is oriented by the order in which the three points are written in the face specification in the map file. Here is an example:
 
     ( 32 32 -3824  ) ( -32 32 -3824  ) ( -32 96 -3824 ) mmetal1_2 0 0 0 1 1
 
 The plane points are given as three groups of three numbers. Each group is made up of three numbers that specify the X,Y and Z coordinates of the respective plane point. The three points, p1, p2 and p3, define two vectors, v1 and v2, as follows:
 
-	  *p2
-	 /|\
-	  |
-	  v2
-	  |
-	p1*--v1--->*p3
+    *p2
+   /|\
+    |
+    v2
+    |
+  p1*--v1--->*p3
 
 The normal of the plane is in the direction of the cross product of v1 and v2. In the diagram above, the plane normal points towards you. Together with its normal, the plane divides three dimensional space into two half spaces: The upper half space above the plane, and the lower half space below the plane. In this interpretation, the volume of the brush is the intersection of the lower half spaces defined by the face planes. This way of defining brushes has the advantage that all brushes are automatically convex. However, this representation of brushes does not directly contain any other geometric information of the brush, particularly its vertices, edges, and facets, which must be computed from the plane representation. In TrenchBroom, the vertices, edges, and facets are called the **brush geometry**. TrenchBroom uses the same method as the BSP compilers to compute the brush geometry. Having the brush geometry is necessary mainly for two things: Rendering and vertex editing.
 
@@ -100,15 +100,15 @@ To TrenchBroom, entities are just a sequence of properties (key value pairs), mo
 
 ### Mods {#mods}
 
-A mod (short for game modification) is a way of extending a Quake-engine based game with custom gameplay and assets. Custom assets include models, sounds, and textures. From the perspective of the game, a mod is a subdirectory in the game directory where the additional assets reside in the form of loose files or archives such as pak files. As far as TrenchBroom is concerned, a mod just provides assets, some of which replace existing assets from the game and some of which are new. For example, a mod might provide a new model for an entity, or it provides an entirely new entity. In order to make these new entities usable in TrenchBroom, two things are required: First, TrenchBroom needs an entity definition for these entities, and TrenchBroom needs to know where it should look for the models to display in the viewports. The first issue can be addressed by pointing TrenchBroom to an alternate [entity definition file](#entity_definitions), and the second issue can be addressed by [adding a mod directory](#mod_setup) for the current map.
+A mod (short for game modification) is a way of extending a Quake-engine based game with custom gameplay and assets. Custom assets include models, sounds, and materials. From the perspective of the game, a mod is a subdirectory in the game directory where the additional assets reside in the form of loose files or archives such as pak files. As far as TrenchBroom is concerned, a mod just provides assets, some of which replace existing assets from the game and some of which are new. For example, a mod might provide a new model for an entity, or it provides an entirely new entity. In order to make these new entities usable in TrenchBroom, two things are required: First, TrenchBroom needs an entity definition for these entities, and TrenchBroom needs to know where it should look for the models to display in the viewports. The first issue can be addressed by pointing TrenchBroom to an alternate [entity definition file](#entity_definitions), and the second issue can be addressed by [adding a mod directory](#mod_setup) for the current map.
 
 Every game has a default mod which is always loaded by TrenchBroom. As an example, the default mod for Quake is _id1_, which is the directory that contains all game content. TrenchBroom supports multiple mods, and in the case of multiple mods, there has to be a policy for resolving name conflicts between resources. For example, a mod might provide an entity model for an entity defined in the default mod in order to replace the default model with a more detailed one. To do this, the mod provides an entity model with the same name as the one it wants to replace. To resolve such name conflicts, TrenchBroom assigns priorities for mods, and if a name conflict occurs between different mods, the mod with the highest priority wins. Note that the default mod always has the lowest priority.
 
-### Textures and Texture Collections {#textures}
+### Materials and Material Collections {#materials}
 
-A texture is an image that is projected onto a face of a brush. Textures are usually not provided individually, but as texture collections. A texture collection can be a directory containing loose image files, or it can be an archive such as a wad file. Some games such as Quake 2 come with textures that are readily loadable by TrenchBroom. Such textures are called _internal_. _External_ textures on the other hand are textures that you provide by loading a wad file. Since some games such as Quake don't come with their own textures readily available, you have to obtain the textures you wish to use and add them to TrenchBroom manually by [loading a wad file](#texture_management).
+A material defines how a surface is rendered and how it interacts with light. In TrenchBroom, materials are usually closely related to textures. When TrenchBroom finds a texture on the filesystem, it automatically creates a default material for it. For Quake 3, additional material properties are read from shader files. Materials are usually not provided individually, but as material collections. A material collection can be a directory containing loose image files, or it can be an archive such as a wad file. Some games such as Quake 2 come with textures that are readily loadable by TrenchBroom. Such textures are called _internal_. _External_ textures on the other hand are textures that you provide by loading a wad file. Since some games such as Quake don't come with their own textures readily available, you have to obtain the textures you wish to use and add them to TrenchBroom manually by [loading a wad file](#material_management).
 
-Multiple texture collections may contain a texture with the same name, resulting in a name conflict. Such a conflict is resolved by observing the order in which the texture collections were loaded - the texture that was loaded most recently wins the conflict. You cannot control the load order unless you are using wad files.
+Multiple material collections may contain a material with the same name, resulting in a name conflict. Such a conflict is resolved by observing the order in which the material collections were loaded - the material that was loaded most recently wins the conflict. You cannot control the load order unless you are using wad files.
 
 ## Startup {#startup}
 
@@ -122,9 +122,9 @@ If you choose to create a new map, TrenchBroom needs to know which game the map 
 
 ![The game selection dialog (Mac OS X)](images/GameSelectionDialog.png)
 
-The list of supported games is shown on the right side of the dialog. Below the game list, there is a dropdown menu for choosing a map format; this is only shown if the game supports more than one map format. One example for this is Quake, which supports both the standard format and the Valve 220 format for map files. In the screenshot above, none of the games in the list were actually found on the hard disk. This is because the respective game paths have not been configured yet. TrenchBroom allows you to create maps for missing games, but you will not be able to see the entity models in the editor and other resources such as textures might be missing as well. To open the game configuration preferences, you can click the button labeled "Open preferences...". Click [here](#game_configuration) to find out how to configure the supported games.
+The list of supported games is shown on the right side of the dialog. Below the game list, there is a dropdown menu for choosing a map format; this is only shown if the game supports more than one map format. One example for this is Quake, which supports both the standard format and the Valve 220 format for map files. In the screenshot above, none of the games in the list were actually found on the hard disk. This is because the respective game paths have not been configured yet. TrenchBroom allows you to create maps for missing games, but you will not be able to see the entity models in the editor and other resources such as materials might be missing as well. To open the game configuration preferences, you can click the button labeled "Open preferences...". Click [here](#game_configuration) to find out how to configure the supported games.
 
-Once you have selected a game and a map format, TrenchBroom will open the main editing window with a new map. The following section gives an overview of this window and its main elements. If you want to find out how to [work with mods](#mods) and how to [add textures](#texture_management), you can skip ahead to the respective sections.
+Once you have selected a game and a map format, TrenchBroom will open the main editing window with a new map. The following section gives an overview of this window and its main elements. If you want to find out how to [work with mods](#mods) and how to [add materials](#material_management), you can skip ahead to the respective sections.
 
 ## Main Window {#main_window}
 
@@ -181,7 +181,7 @@ The inspector is located at the right of the main window and contains various co
 
 ![Map, Entity, and Face inspectors (Mac OS X)](images/Inspector.png)
 
-The **Map Inspector** allows you to edit [layers](#layers), configure displayed [map bounds](#map_bounds), and set up which game modifications ([mods](#mods)) you are working with. The **Entity Inspector** is the tool of choice to change the [properties](#entity_properties) of entities. It also contains an entity browser that allows you to [create new entities](#creating_entities) by dragging them from the browser to a viewport and it allows you to [set up entity definitions](#entity_definitions). Additionally, you can manage entity definition files in the entity inspector. The face inspector is used to edit the attributes of the currently selected faces. At the top, it has a graphical [UV editor](#uv_editor). Below that, you can edit the face attributes directly by editing their values. To select a texture for the currently selected faces, you can use the [texture browser](#texture_browser).
+The **Map Inspector** allows you to edit [layers](#layers), configure displayed [map bounds](#map_bounds), and set up which game modifications ([mods](#mods)) you are working with. The **Entity Inspector** is the tool of choice to change the [properties](#entity_properties) of entities. It also contains an entity browser that allows you to [create new entities](#creating_entities) by dragging them from the browser to a viewport and it allows you to [set up entity definitions](#entity_definitions). Additionally, you can manage entity definition files in the entity inspector. The face inspector is used to edit the attributes of the currently selected faces. At the top, it has a graphical [UV editor](#uv_editor). Below that, you can edit the face attributes directly by editing their values. To select a material for the currently selected faces, you can use the [material browser](#material_browser).
 
 ### The Info Bar
 
@@ -232,7 +232,7 @@ To temporarily adjust the camera's zoom, hold #key(Shift) and scroll the mouse w
 
 # Selection {#selection}
 
-There are two different kinds of things that can be selected in TrenchBroom: objects and brush faces. Most of the time, you will select objects such as entities and brushes. Selecting individual brush faces is only useful for changing their attributes, e.g. the textures. You can only select objects or brush faces, but not both at the same time. However, a selection of brushes (and nothing else) is treated as if all of their brush faces were selected individually.
+There are two different kinds of things that can be selected in TrenchBroom: objects and brush faces. Most of the time, you will select objects such as entities and brushes. Selecting individual brush faces is only useful for changing their attributes, e.g. the materials. You can only select objects or brush faces, but not both at the same time. However, a selection of brushes (and nothing else) is treated as if all of their brush faces were selected individually.
 
 ![Object selection in 3D and 2D viewports](images/ObjectSelection.gif)
 
@@ -270,11 +270,11 @@ To select a brush face, you need to hold #key(Shift) and left click it in the 3D
 
 # Editing
 
-In this section, we will cover all topics related to the actual editing of a map. We begin by explaining how to set up the map itself, that is, how to set up mods, entity definitions, and texture collection. Afterwards, we show you how to create new objects such as entities or brushes, how to edit and transform them, and how to delete them. After that, we explain how you can work with textures in TrenchBroom. The following section introduces the various tools at your disposal to shape brushes while the section after that focuses on entities and how to edit their properties. The goal of the final section is to help you keep an overview in your map by using layers, groups, and by various other means.
+In this section, we will cover all topics related to the actual editing of a map. We begin by explaining how to set up the map itself, that is, how to set up mods, entity definitions, and material collection. Afterwards, we show you how to create new objects such as entities or brushes, how to edit and transform them, and how to delete them. After that, we explain how you can work with materials in TrenchBroom. The following section introduces the various tools at your disposal to shape brushes while the section after that focuses on entities and how to edit their properties. The goal of the final section is to help you keep an overview in your map by using layers, groups, and by various other means.
 
 ## Map Setup
 
-The first step when creating a new map is the setup of mods, entity definitions, and texture collections.
+The first step when creating a new map is the setup of mods, entity definitions, and material collections.
 
 ### Setting Up Mods {#mod_setup}
 
@@ -296,19 +296,19 @@ Note that FGD and ENT files contain much more information than DEF files and are
 
 The path of an external entity definition file is stored in a worldspawn property called "_tb_def".
 
-### Managing Textures {#texture_management}
+### Managing Materials {#material_management}
 
 #### Wad Files
 
 Wad files are managed via the `wad` worldspawn property. The property contains a semicolon separated list of paths where TrenchBroom will load a wad file from. Map compilers also use this property to find wad files.
 
-![Smart wad editor](images/SmartWadEditor.png) In TrenchBroom, you cannot edit this property directly, so you must use a smart property editor that's available for the `wad` property. This smart editor is available when you select the `wad` worldspawn property in the entity property editor. Click the `+` icon to add a wad file or the `-` icon to remove the selected wad files. The two triangle icons move a selected wad file up and down in the list. This only has an effect on how name conflicts between textures are resolved. The icon with the two circular arrows reloads all texture wads.
+![Smart wad editor](images/SmartWadEditor.png) In TrenchBroom, you cannot edit this property directly, so you must use a smart property editor that's available for the `wad` property. This smart editor is available when you select the `wad` worldspawn property in the entity property editor. Click the `+` icon to add a wad file or the `-` icon to remove the selected wad files. The two triangle icons move a selected wad file up and down in the list. This only has an effect on how name conflicts between materials are resolved. The icon with the two circular arrows reloads all texture wads.
 
 Alternatively, you can drag wad files onto the editor window from a file browser such as the Windows explorer. If the map uses wad files, these files will be loaded and their paths will get appended to the `wad` worldspawn property.
 
-#### Textures from directories
+#### Materials from directories
 
-Unless you are using wad files, you don't need to do anything to manage your textures - TrenchBroom will automatically load all available texture collections.
+Unless you are using wad files, you don't need to do anything to manage your materials - TrenchBroom will automatically load all available material collections.
 
 If you want to provide your own custom textures, you need to put them in a subdirectory where TrenchBroom can find them. For Quake 2, this means that you need to create a subdirectory called `textures` in the directory of the mod you're mapping for, or in the `baseq2` directory. Then you need to create another subdirectory with a name of your choice. Then you copy your texture files into that directory. TrenchBroom will then find that directory (possibly after restarting the editor) and allow you to load the textures from there. Currently, for a generic game you must create a `textures` folder in the game path directory you set in [game configuration](#game_configuration), or in a directory you loaded as a mod.
 
@@ -425,8 +425,8 @@ Select All in Layers
 Make Structural
 :   Moves brushes back into the world and clears any content flags. See [Brush Entities](#brush_entities).
 
-Reveal TEXTURENAME in Texture Browser
-:   Switches to the face inspector and scroll to the clicked texture in the [Texture Browser](#texture_browser).
+Reveal MATERIALNAME in Material Browser
+:   Switches to the face inspector and scroll to the clicked material in the [Material Browser](#material_browser).
 
 Create Point Entity
 :   Create a [Point Entity](#point_entities) of the chosen type.
@@ -446,7 +446,7 @@ The easiest way to create a new brush is to just draw it with the mouse. To draw
 
 If, on the other hand, you draw a brush in a 2D viewport, you only control its extents on whatever axes the 2D view is set to display. So if you are drawing a brush in the XZ view, you control the X/Z extents with the mouse, and there's no way to change the Y extents directly, which is always fixed to the Y extents of the most recently selected objects. This of course applies to all of the different 2D viewports in the same way.
 
-In either case, the texture assigned to the newly created brush is the _current texture_. The current texture is set by choosing a texture in the [texture browser](#texture_browser) or by selecting a face that already has a texture. This concept applies to other ways of creating new brushes, too.
+In either case, the material assigned to the newly created brush is the _current material_. The current material is set by choosing a material in the [material browser](#material_browser) or by selecting a face that already has a material. This concept applies to other ways of creating new brushes, too.
 
 This way of creating brushes only allows you to create cuboids. In the next section, you will learn how to create more complex brush shapes with the complex brush tool.
 
@@ -511,7 +511,7 @@ Note that in the image above, the selected brush flashes while it is moved to th
 
 ### Copy and Paste
 
-You can copy objects by selecting them and choosing #menu(Menu/Edit/Copy). TrenchBroom will create text representations of the selected objects as if they were saved to a map, and put that text representation on the clipboard. This allows you to paste them into map files, and also to directly copy objects from map files and paste them into TrenchBroom. Note that you can also copy brush faces, which will also put a text representation of that brush face on the clipboard. Having copied a brush face, you can paste the attributes of that face (texture, offset, scale, etc.) into other selected brush faces.
+You can copy objects by selecting them and choosing #menu(Menu/Edit/Copy). TrenchBroom will create text representations of the selected objects as if they were saved to a map, and put that text representation on the clipboard. This allows you to paste them into map files, and also to directly copy objects from map files and paste them into TrenchBroom. Note that you can also copy brush faces, which will also put a text representation of that brush face on the clipboard. Having copied a brush face, you can paste the attributes of that face (material, offset, scale, etc.) into other selected brush faces.
 
 There are two menu commands to paste objects from the clipboard into the map. The simpler of the two is #menu(Menu/Edit/Paste at Original Position), which will simply paste the objects from the clipboard without changing their position. The other command, available at #menu(Menu/Edit/Paste), does not paste the objects from the clipboard at their original positions, but will try to position them using the current mouse position. If pasted into the 3D viewport, the pasted objects will be placed on top of the brush under the mouse. If no brush is under the mouse, the objects will be placed at a default distance. The bounding box of the pasted objects is snapped to the grid, and TrenchBroom will attempt to keep the center of the bounding box of the pasted objects near the mouse cursor. The following clip illustrates these concepts. The light fixture is copied, then pasted several times.
 
@@ -521,7 +521,7 @@ Positioning of objects pasted into a 2D viewport attempts to achieve a similar e
 
 ## Editing Objects
 
-The following section is divided into several sub sections: First, we introduce editing operations that can be applied to all objects, such as moving, rotating, or deleting them. Then we proceed with the tools to shape brushes, such as the clip tool, the vertex tool, and the CSG operations. Afterwards we explain how you work with textures in TrenchBroom, and then we move on to editing entities and their properties. The final subsection deals with TrenchBroom's undo and redo capabilities.
+The following section is divided into several sub sections: First, we introduce editing operations that can be applied to all objects, such as moving, rotating, or deleting them. Then we proceed with the tools to shape brushes, such as the clip tool, the vertex tool, and the CSG operations. Afterwards we explain how you work with materials in TrenchBroom, and then we move on to editing entities and their properties. The final subsection deals with TrenchBroom's undo and redo capabilities.
 
 ### Moving Objects {#moving_objects}
 
@@ -635,7 +635,7 @@ Two modifiers can be used in both the 2D and 3D views:
 
 Hit #menu(Menu/Edit/Tools/Shear Tool) to activate the shear tool. Dragging a side of the bounding box shears along that plane. You can add the #key(Alt) key to drag vertically if you're not shearing the top or bottom of the bounding box.
 
-Texture lock in the Shear tool only works in Valve 220 format maps.
+Alignment lock in the Shear tool only works in Valve 220 format maps.
 
 ![Vertical shearing in the 3D viewport](images/Shear3DVertical.gif)
 
@@ -680,7 +680,7 @@ The brush extrude tool offers a quick way to move an individual face of a brush 
 
 ![Moving faces](images/ExtrudeTool2DFaceMoving.gif)
 
-The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane. The [UV Lock](#uv_lock) setting controls whether texture lock is used when dragging faces using this mode.
+The distance is snapped to the current grid size. Moving multiple faces is possible if the faces lie on the same plane. The [UV Lock](#uv_lock) setting controls whether alignment lock is used when dragging faces using this mode.
 
 ### Clipping
 
@@ -790,7 +790,7 @@ Finally, the face tool also supports the same keyboard commands as the vertex to
 
 #### UV Lock {#uv_lock}
 
-The regular Texture Lock preference doesn't apply to vertex editing - instead, there is a separate preference called UV Lock toggled with #menu(Menu/Edit/UV Lock) or the UV Lock toolbar button:
+The regular Alignment Lock preference doesn't apply to vertex editing - instead, there is a separate preference called UV Lock toggled with #menu(Menu/Edit/UV Lock) or the UV Lock toolbar button:
 
 ![UV Lock toolbar button](images/UVLock.png)
 
@@ -835,83 +835,83 @@ CSG intersection takes a set of brushes and computes their intersection, that is
 
 You can perform a CSG intersection by selecting the brushes you wish to intersect, and then choosing #menu(Menu/Edit/CSG/Intersect).
 
-#### Textures and CSG Operations {#textures_and_csg_operations}
+#### Materials and CSG Operations {#materials_and_csg_operations}
 
-In each of the CSG operations, new brushes are created, and TrenchBroom has to assign textures to their faces. To determine which texture to assign to a new brush face, TrenchBroom will attempt to find a face in the input brushes that has the same plane as the newly created face. If such a face was found, TrenchBroom assigns the texture and attributes of that brush face to the newly created brush face. Otherwise, it will assign the [current texture](#working_with_textures).
+In each of the CSG operations, new brushes are created, and TrenchBroom has to assign materials to their faces. To determine which material to assign to a new brush face, TrenchBroom will attempt to find a face in the input brushes that has the same plane as the newly created face. If such a face was found, TrenchBroom assigns the material and attributes of that brush face to the newly created brush face. Otherwise, it will assign the [current material](#working_with_materials).
 
-![CSG texture handling](images/CSGTexturing.gif)
+![CSG material handling](images/CSGTexturing.gif)
 
-In the example above, a brush is subtracted from another brush to form an archway. The subtrahend has a blue brick texture and the minuend has a dark metal texture. After the subtraction, those faces of the result that line up with the faces of the subtrahend have also been assigned the blue brick texture, while those faces that line up with the faces of the minuend brush have been assigned the dark metal texture. Some of the faces of the result brushes are invisible because they are shared by other brushes - these faces have been assigned the current texture because no face of the subtrahend or the minuend lines up with them.
+In the example above, a brush is subtracted from another brush to form an archway. The subtrahend has a blue brick material and the minuend has a dark metal material. After the subtraction, those faces of the result that line up with the faces of the subtrahend have also been assigned the blue brick material, while those faces that line up with the faces of the minuend brush have been assigned the dark metal material. Some of the faces of the result brushes are invisible because they are shared by other brushes - these faces have been assigned the current material because no face of the subtrahend or the minuend lines up with them.
 
 ## Special Brush and Face Types {#special_brush_face_types}
 
-Most Quake based games have certain special types of brushes and faces. An example for a special brush type is a *trigger brush* that activates some game logic. A special face type may be a face textured with a special _clip_ texture that is invisible, but blocks the player from passing it. In Quake 3, _caulk_ faces are often used to tell the bsp compiler to skip certain faces because they are invisible.
+Most Quake based games have certain special types of brushes and faces. An example for a special brush type is a *trigger brush* that activates some game logic. A special face type may be a face with a special _clip_ material that is invisible, but blocks the player from passing it. In Quake 3, _caulk_ faces are often used to tell the bsp compiler to skip certain faces because they are invisible.
 
 TrenchBroom is aware of these special brush and face types as long as they are configured in the [game configuration file](#game_configuration_files) for a game. Special brush or face types can be detected by TrenchBroom in the following ways:
 
 * **Brush Types**
-	- **Entity Classname Pattern** If a brush is contained in an entity whose classname matches a certain pattern, it will receive the special brush type (example: trigger brushes).
+  - **Entity Classname Pattern** If a brush is contained in an entity whose classname matches a certain pattern, it will receive the special brush type (example: trigger brushes).
 * **Face Types**
-	- **Texture Name Pattern** If a brush face has a texture whose name matches a certain pattern, it will receive the special face type (example: clip textures).
-	- **Content Flags** If a brush has one of several content flags, it will receive the special face type.
-	- **Surface Flags** If a brush has one of several surface flags, it will receive the special face type.
-	- **Surface Parm** If a brush has a specific surface parameter, it will receive the special face type.
+  - **Material Name Pattern** If a brush face has a material whose name matches a certain pattern, it will receive the special face type (example: clip textures).
+  - **Content Flags** If a brush has one of several content flags, it will receive the special face type.
+  - **Surface Flags** If a brush has one of several surface flags, it will receive the special face type.
+  - **Surface Parm** If a brush has a specific surface parameter, it will receive the special face type.
 
 TrenchBroom allows you to filter for special brush and face types in the [filtering and rendering options](#filtering_rendering_options). Furthermore, you can assign a keyboard shortcut to set or unset a special brush type (if supported). The following special brush and face types can be set / unset in this way:
 
 * **Brush Types**
-	- **Entity Classname Pattern** Can be set and unset. Setting a brush type wraps the selected brushes in a newly created entity with a classname that matches the pattern. If more than one classnames in the currently loaded entity definitions matches the pattern, a dropdown menu is shown to allow you to choose one of the options. Unsetting a brush type simply moves the selected brushes into the world.
+  - **Entity Classname Pattern** Can be set and unset. Setting a brush type wraps the selected brushes in a newly created entity with a classname that matches the pattern. If more than one classnames in the currently loaded entity definitions matches the pattern, a dropdown menu is shown to allow you to choose one of the options. Unsetting a brush type simply moves the selected brushes into the world.
 * **Face Types**
-	- **Texture Name Pattern** Can be set only. Setting a face type sets a texture whose name matches the pattern on the selected faces. If more than one texture in the currently loaded texture collections matches the pattern, a dropdown menu is shown to allow you to choose one of the options.
-	- **Content Flags** Can be set and unset. Setting a face type sets one of the configured content flags on the selected faces. If more than one content flag was configured, a dropdown menu is shown to allow you to choose one of the options. Unsetting clears all of the configured content flags.
-	- **Surface Flags** Can be set and unset. Setting a face type sets one of the configured surface flags on the selected faces. If more than one surface flag was configured, a dropdown menu is shown to allow you to choose one of the options. Unsetting clears all of the configured surface flags.
-	- **Surface Parm** Can neither be set nor unset.
+  - **Material Name Pattern** Can be set only. Setting a face type sets a material whose name matches the pattern on the selected faces. If more than one material in the currently loaded material collections matches the pattern, a dropdown menu is shown to allow you to choose one of the options.
+  - **Content Flags** Can be set and unset. Setting a face type sets one of the configured content flags on the selected faces. If more than one content flag was configured, a dropdown menu is shown to allow you to choose one of the options. Unsetting clears all of the configured content flags.
+  - **Surface Flags** Can be set and unset. Setting a face type sets one of the configured surface flags on the selected faces. If more than one surface flag was configured, a dropdown menu is shown to allow you to choose one of the options. Unsetting clears all of the configured surface flags.
+  - **Surface Parm** Can neither be set nor unset.
 
 Finally, every special brush or face type that supports unsetting can be cleared using the *Make Structural* command #action(Controls/Map view/Make structural).
 
-## Working with Textures {#working_with_textures}
+## Working with Materials {#working_with_materials}
 
-There are two aspects to working with textures in a level editor. [Texture management](#texture_management) and texture application. This section deals with the latter, so you will learn different ways to apply textures to brush faces and to manipulate their alignment to the faces. But before we dive into that, we have to cover three general topics: First, we present the texture browser, then we explain how TrenchBroom assigns textures to newly created brush faces, and finally we discuss different texture projection modes in TrenchBroom.
+There are two aspects to working with materials in a level editor. [Material management](#material_management) and material application. This section deals with the latter, so you will learn different ways to apply material to brush faces and to manipulate their alignment to the faces. But before we dive into that, we have to cover three general topics: First, we present the material browser, then we explain how TrenchBroom assigns material to newly created brush faces, and finally we discuss different material projection modes in TrenchBroom.
 
-### The Texture Browser {#texture_browser}
+### The Material Browser {#material_browser}
 
-![The texture browser](images/TextureBrowser.png) The texture browser is part of the face inspector and is used for two purposes: Changing the texture for the currently selected faces and selecting the _current texture_. In the texture browser, textures are displayed with a maximum width of 64 pixels - wider textures are proportionally scaled down. The name of every texture is displayed below the image. Textures that are currently in use have a yellow border, while the current texture has a red border. If you hover over a texture image with the mouse, you will see a tooltip with the name and the dimensions of the texture.
+![The material browser](images/TextureBrowser.png) The material browser is part of the face inspector and is used for two purposes: Changing the material for the currently selected faces and selecting the _current material_. In the material browser, materials are displayed with a maximum width of 64 pixels - wider materials are proportionally scaled down. The name of every material is displayed below the image. materials that are currently in use have a yellow border, while the current material has a red border. If you hover over a material image with the mouse, you will see a tooltip with the name and the dimensions of the corresponding texture.
 
-Below the texture browser, there are the same controls as in the [entity browser](#entity_browser): A dropdown for changing the sort order (name or usage count), a button to group by [texture collection](#texture_management), a button to filter by usage, and a text field to filter by name. Multiple words (space delimited) can be used to show only textures that contain all of the words. If the size of the images is too small or too large on your monitor, you can change it in the [preferences](#view_layout_and_rendering).
+Below the material browser, there are the same controls as in the [entity browser](#entity_browser): A dropdown for changing the sort order (name or usage count), a button to group by [material collection](#material_management), a button to filter by usage, and a text field to filter by name. Multiple words (space delimited) can be used to show only materials that contain all of the words. If the size of the images is too small or too large on your monitor, you can change it in the [preferences](#view_layout_and_rendering).
 
-To select all faces having a certain texture, right click that texture in the texture browser and click "Select Faces" from the popup menu.
+To select all faces having a certain material, right click that material in the material browser and click "Select Faces" from the popup menu.
 
-### Filtering Texture Collections
+### Filtering Material Collections
 
-![Filtering texture collections](images/TextureCollectionEditor.png) To filter out texture collections, click on the "Settings" button in the texture browser's title bar. This reveals a UI to enable or disable individual texture collections. Select one or more texture collections from the "Available" section and click on the "+" icon to enable them. To disable texture collections, select them in the "Enabled" section and click on the "-" icon. Click on the circular arrow icon to reload all texture collections.
+![Filtering material collections](images/TextureCollectionEditor.png) To filter out material collections, click on the "Settings" button in the material browser's title bar. This reveals a UI to enable or disable individual material collections. Select one or more material collections from the "Available" section and click on the "+" icon to enable them. To disable material collections, select them in the "Enabled" section and click on the "-" icon. Click on the circular arrow icon to reload all material collections.
 
-Click on the "Browser" button in the texture browser's title bar to return to the texture browser.
+Click on the "Browser" button in the material browser's title bar to return to the material browser.
 
-### Texture Projection Modes {#texture_projection_modes}
+### Material Projection Modes {#material_projection_modes}
 
-In the original Quake engine, textures are projected onto brush faces along the axes of the coordinate system. In practice, the engine (the compiler, to be precise), uses the normal of a brush face to determine the projection axis - the chose axis is the one that has the smallest angle with the face's normal. Then, the texture is projected onto the brush face along that axis. This leads to some distortion (shearing) that is particularly apparent for slanted brush faces where the face's normal is linearly dependent on all three coordinate system axes. However, this type of projection, which we call _paraxial texture projection_ in TrenchBroom, also has an advantage: If the face's normal is linearly dependent on only two or less coordinate system axes (that is, it lies in the plane defined by two of the axes, e.g., the XY plane), then the paraxial projection ensures that the texture still fits the brush faces without having to change the scaling factors.
+In the original Quake engine, materials are projected onto brush faces along the axes of the coordinate system. In practice, the engine (the compiler, to be precise), uses the normal of a brush face to determine the projection axis - the chose axis is the one that has the smallest angle with the face's normal. Then, the material is projected onto the brush face along that axis. This leads to some distortion (shearing) that is particularly apparent for slanted brush faces where the face's normal is linearly dependent on all three coordinate system axes. However, this type of projection, which we call _paraxial projection_ in TrenchBroom, also has an advantage: If the face's normal is linearly dependent on only two or less coordinate system axes (that is, it lies in the plane defined by two of the axes, e.g., the XY plane), then the paraxial projection ensures that the material still fits the brush faces without having to change the scaling factors.
 
-The main disadvantage of paraxial texture projection is that it is impossible to do perfect texture locking. _Texture locking_ means that the texture remains perfectly in place on the brush faces during all transformations of the face. For example, if the brush moves by 16 units along the X axis, then the textures on all faces of the brush do not move relatively to the brush. With paraxial texture projection, textures may become distorted due to the face normals changing by the transformation, but it is impossible to compensate for that shearing.
+The main disadvantage of paraxial projection is that it is impossible to do perfect alignment locking. _Alignment locking_ means that the material remains perfectly in place on the brush faces during all transformations of the face. For example, if the brush moves by 16 units along the X axis, then the materials on all faces of the brush do not move relatively to the brush. With paraxial projection, materials may become distorted due to the face normals changing by the transformation, but it is impossible to compensate for that shearing.
 
-This is (probably) one of the reasons why the Valve 220 map format was introduced for Half Life. This map format extends the brush faces with additional information about the texture axes for each brush faces. In principle, this makes it possible to have arbitrary linear transformations for the texture coordinates due to their projection, but in practice, most editors keep the texture axes perpendicular to the face normals. In that case, the texture is projected onto the face along the normal of the face (and not a coordinate system axis). In TrenchBroom, this mode of texture projection is called _parallel texture projection_, and it is only available in maps that have the Valve 220 map format.
+This is (probably) one of the reasons why the Valve 220 map format was introduced for Half Life. This map format extends the brush faces with additional information about the UV axes for each brush faces. In principle, this makes it possible to have arbitrary linear transformations for the UV coordinates due to their projection, but in practice, most editors keep the UV axes perpendicular to the face normals. In that case, the material is projected onto the face along the normal of the face (and not a coordinate system axis). In TrenchBroom, this mode of projection is called _parallel projection_, and it is only available in maps that have the Valve 220 map format.
 
-### How TrenchBroom Assigns Textures to New Brushes
+### How TrenchBroom Assigns Materials to New Brushes
 
-In TrenchBroom, there is the notion of a current texture, which we have already mentioned previous sections. Initially, the current texture is unset, and it is changed by two actions: selecting a brush face and selecting the current texture by clicking on a texture in the texture browser. When TrenchBroom creates a new brush or a new brush face, it may consult the current texture to determine which texture to apply to the newly created brush faces. This is not always the case: Sometimes, TrenchBroom can determine textures for newly created brush faces from the context of the operations. We have discussed this earlier for [CSG operations](#textures_and_csg_operations). In other cases, such as when you create a new brush with the mouse, TrenchBroom will always apply the current texture.
+In TrenchBroom, there is the notion of a current material, which we have already mentioned previous sections. Initially, the current material is unset, and it is changed by two actions: selecting a brush face and selecting the current material by clicking on a material in the material browser. When TrenchBroom creates a new brush or a new brush face, it may consult the current material to determine which material to apply to the newly created brush faces. This is not always the case: Sometimes, TrenchBroom can determine materials for newly created brush faces from the context of the operations. We have discussed this earlier for [CSG operations](#materials_and_csg_operations). In other cases, such as when you create a new brush with the mouse, TrenchBroom will always apply the current material.
 
-### Assigning Textures Manually
+### Assigning Materials Manually
 
-To change the texture of the currently selected faces, left click on a texture in the texture browser. This also works if you have selected brushes (and nothing else) - in this case, the new texture is applied to all faces of the currently selected brushes. 
+To change the material of the currently selected faces, left click on a material in the material browser. This also works if you have selected brushes (and nothing else) - in this case, the new material is applied to all faces of the currently selected brushes. 
 
-You can also transfer texture and attributes from one face to another. "Attributes" in this context refers to almost any characteristic &mdash; such as offset, scale, or surface flags &mdash; that you can modify through the [face attribute editor](#face_attribute_editor). The sole exception to this is content flags; the content flags on the target face(s) will always be preserved unchanged.
+You can also transfer material and attributes from one face to another. "Attributes" in this context refers to almost any characteristic &mdash; such as offset, scale, or surface flags &mdash; that you can modify through the [face attribute editor](#face_attribute_editor). The sole exception to this is content flags; the content flags on the target face(s) will always be preserved unchanged.
 
 To do this transfer, start by selecting the source face with #key(Shift) + left click. Then, hold one of the following modifier combinations depending on what you want to transfer:
 
 Modifier Keys            Meaning
 -------------            -------
-#key(Alt)                Transfer texture and attributes from selected face (by projecting it on to the target faces)
-#key(Alt)#key(Shift)     Transfer texture and attributes from selected face (by rotating it on to the target faces, available on Valve format maps only)
-#key(Alt)#key(Ctrl)      Transfer texture only (attributes of the target are preserved)
+#key(Alt)                Transfer material and attributes from selected face (by projecting it on to the target faces)
+#key(Alt)#key(Shift)     Transfer material and attributes from selected face (by rotating it on to the target faces, available on Valve format maps only)
+#key(Alt)#key(Ctrl)      Transfer material only (attributes of the target are preserved)
 
 and perform one of the following actions, depending on which faces you want to transfer to:
 
@@ -921,28 +921,28 @@ Left mouse click           clicked face
 Left mouse drag            all faces dragged over (each subsequent face dragged over will transfer from the last)
 Left mouse double click    all faces of target brush
 
-To clarify, using the #key(Alt) modifier copies the source face's texture projection to the target face without altering it. Sometimes this is desirable, but it can lead to the target face having a stretched texture if the face normals are very different. The #key(Alt)#key(Shift) combination avoids this by rotating the source face's texture projection onto the target face, but it's only available on Valve format maps.
+To clarify, using the #key(Alt) modifier copies the source face's UV axes to the target face without altering it. Sometimes this is desirable, but it can lead to the target face having a stretched material if the face normals are very different. The #key(Alt)#key(Shift) combination avoids this by rotating the source face's UV axes onto the target face, but it's only available on Valve format maps.
 
-Finally, you can use copy and paste to copy the texture and attributes of a selected face onto other faces:
+Finally, you can use copy and paste to copy the material and attributes of a selected face onto other faces:
 
 1. Select the face that you wish to copy from and choose #menu(Menu/Edit/Copy)
 2. Select the faces that you wish to copy to, and choose #menu(Menu/Edit/Paste)
 
-### Replacing Textures
+### Replacing Materials
 
-If you want to replace a particular texture with another one, you can choose #menu(Menu/Edit/Replace Texture...). This opens a window where you can select the texture to be replaced and the replacement texture using two texture browser. This window is depicted in the following screenshot.
+If you want to replace a particular material with another one, you can choose #menu(Menu/Edit/Replace Material...). This opens a window where you can select the material to be replaced and the replacement material using two material browser. This window is depicted in the following screenshot.
 
-![Texture Replace Window (Mac OS X)](images/ReplaceTexture.png)
+![Material Replace Window (Mac OS X)](images/ReplaceTexture.png)
 
-Select the texture you wish to replace in the left texture browser. This browser by default only shows you the textures which are currently in use in the map. In the screenshot, the texture "b_pv_v1a1" has been selected for replacement and therefore has a red border. Then select the replacement texture in the right texture browser ("b_sr_20c" in the screenshot). Finally, hit the "Replace" button. The replacement is applied to all brush faces in the map if nothing is currently selected. Otherwise, it is applied to the selected brush faces only. If the replacement succeeded, the faces which have been replaced are subsequently selected. Otherwise, the selection remains unchanged.
+Select the material you wish to replace in the left material browser. This browser by default only shows you the materials which are currently in use in the map. In the screenshot, the material "b_pv_v1a1" has been selected for replacement and therefore has a red border. Then select the replacement material in the right material browser ("b_sr_20c" in the screenshot). Finally, hit the "Replace" button. The replacement is applied to all brush faces in the map if nothing is currently selected. Otherwise, it is applied to the selected brush faces only. If the replacement succeeded, the faces which have been replaced are subsequently selected. Otherwise, the selection remains unchanged.
 
 ### Setting Face Attributes
 
-Face attributes control how textures are mapped onto brush faces. At the very least, every face has the attributes offset, scale, and angle. The offset allows you to shift a texture on a face, the scale factors stretch the texture, and by changing the angle you can rotate the texture. Additionally, some engines have further attributes. Quake 2 adds surface flags and a surface value, and additional content flags. All of these values can be changed in different ways: There is a face attribute editor that allows you to enter the values directly, you can use keyboard shortcuts in the 3D viewport, or you can use the UV editor.
+Face attributes control how materials are mapped onto brush faces. At the very least, every face has the attributes offset, scale, and angle. The offset allows you to shift a material on a face, the scale factors stretch the material, and by changing the angle you can rotate the material. Additionally, some engines have further attributes. Quake 2 adds surface flags and a surface value, and additional content flags. All of these values can be changed in different ways: There is a face attribute editor that allows you to enter the values directly, you can use keyboard shortcuts in the 3D viewport, or you can use the UV editor.
 
 #### The Face Attribute Editor {#face_attribute_editor}
 
-The face attribute editor is located in the face inspector, right between the UV editor and the texture browser. It contains several controls to edit the face attributes of one or several selected brush faces.
+The face attribute editor is located in the face inspector, right between the UV editor and the material browser. It contains several controls to edit the face attributes of one or several selected brush faces.
 
 ![Face Attribute Editor (Mac OS X)](images/FaceAttribsEditor.png)
 
@@ -966,7 +966,7 @@ The text field for content flags will display "multi" if the currently selected 
 
 The surface flags text field will also display "multi" if the selected faces have different sets of surface flags, but this is not necessarily a situation that needs to be corrected. It is often valid to have different surface flags on different faces of a brush.
 
-#### Texture Alignment Keyboard Shortcuts
+#### Material Alignment Keyboard Shortcuts
 
 The following shortcuts work in the 3D viewport, and affect all selected brushes or brush faces:
 
@@ -979,38 +979,38 @@ Command                                   Keys
 -------                                   ----
 Flip Horizontally                         #action(Controls/Map view/Flip textures horizontally)
 Flip Vertically                           #action(Controls/Map view/Flip textures vertically)
-Reset texture alignment                   #action(Controls/Map view/Reset texture alignment)
-Reset texture alignment to world aligned  #action(Controls/Map view/Reset texture alignment to world aligned)
+Reset alignment                           #action(Controls/Map view/Reset texture alignment)
+Reset alignment to world aligned          #action(Controls/Map view/Reset texture alignment to world aligned)
 
-These are interpreted relative to the 3D camera (except "Reset"). This means that pressing #key(Up) will move a texture roughly in that direction visually, possibly increasing or decreasing the X or Y offset depending on the camera and face orientation. The angle is treated similarly: Pressing #key(PgUp) will rotate the texture counterclockwise visually, and pressing #key(PgDown) will rotate it clockwise.
+These are interpreted relative to the 3D camera (except "Reset"). This means that pressing #key(Up) will move a material roughly in that direction visually, possibly increasing or decreasing the X or Y offset depending on the camera and face orientation. The angle is treated similarly: Pressing #key(PgUp) will rotate the material counterclockwise visually, and pressing #key(PgDown) will rotate it clockwise.
 
 #### The UV Editor {#uv_editor}
 
-The UV editor is located at the top of the face inspector. Using the UV editor, you can adjust the offset, the scale and the angle of the texture of the currently selected brush face. Note that the UV editor is only usable if one brush face is selected. If multiple brush faces are selected, the UV editor is empty.
+The UV editor is located at the top of the face inspector. Using the UV editor, you can adjust the offset, the scale and the angle of the material of the currently selected brush face. Note that the UV editor is only usable if one brush face is selected. If multiple brush faces are selected, the UV editor is empty.
 
 ![UV Editor](images/UVEditor.png)
 
-The texture of the current face is shown in the background of the UV editor. The texture is tiled, and the tiling edges are displayed in gray. These tiling edges are called the _texture grid_. The shape of the currently selected brush face is displayed in white. The yellow filled circle marks the origin of the texture, and the two red lines that meet at the origin mark the origin axes of the texture - these are used for scaling. The larger yellow circle is a handle used for rotating the texture. The texture axes are displayed in red and green at the center of the brush face.
+The material of the current face is shown in the background of the UV editor. The material is tiled, and the tiling edges are displayed in gray. These tiling edges are called the _UV grid_. The shape of the currently selected brush face is displayed in white. The yellow filled circle marks the origin of the material, and the two red lines that meet at the origin mark the origin axes of the material - these are used for scaling. The larger yellow circle is a handle used for rotating the material. The UV axes are displayed in red and green at the center of the brush face.
 
-To change the offset of the texture in relation to the brush face, you can just click and drag the texture anywhere with the left mouse button. Note that the texture will snap to the vertices of the brush face to make alignment easier.
+To change the offset of the material in relation to the brush face, you can just click and drag the material anywhere with the left mouse button. Note that the material will snap to the vertices of the brush face to make alignment easier.
 
-You can scale the texture by clicking and dragging the gray texture grid lines, which will also snap to the vertices of the brush face. Scaling is relative to the origin of the texture, as marked by the yellow circle. To change the scaling origin, you can left click and drag the yellow circle, or you can left click and drag the red lines meeting at the origin. The lines allow you to set the X and Y coordinates of the origin separately. The origin snaps to the vertices of the face and to its center.
+You can scale the material by clicking and dragging the gray UV grid lines, which will also snap to the vertices of the brush face. Scaling is relative to the origin of the material, as marked by the yellow circle. To change the scaling origin, you can left click and drag the yellow circle, or you can left click and drag the red lines meeting at the origin. The lines allow you to set the X and Y coordinates of the origin separately. The origin snaps to the vertices of the face and to its center.
 
-To rotate the texture about the origin, left click and drag the large yellow circle, or hold #key(Ctrl) and left click and drag anywhere in the UV editor. The angle will snap to the edges of the brush face to make it easier to adjust it to the shape of the face.
+To rotate the material about the origin, left click and drag the large yellow circle, or hold #key(Ctrl) and left click and drag anywhere in the UV editor. The angle will snap to the edges of the brush face to make it easier to adjust it to the shape of the face.
 
-Shearing the texture is possible if the map uses a [parallel texture projection](#texture_projection_modes). Shear by holding #key(Alt) while left clicking and dragging the gray texture grid lines.
+Shearing the material is possible if the map uses a [parallel projection](#material_projection_modes). Shear by holding #key(Alt) while left clicking and dragging the gray UV grid lines.
 
 At the bottom of the UV editor are the following controls:
 
 ![UV Editor Toolbar](images/UVEditorToolbar.png)
 
-- Reset texture alignment. All attributes are reset, and in [parallel texture projection](#texture_projection_modes) format maps, the texture is projected from the face plane. In standard format maps, acts the same as "Reset texture alignment to world aligned".
-- Reset texture alignment to world aligned. All attributes are reset and the texture is projected from an axial plane.
-- Flip texture horizontally
-- Flip texture vertically
-- Rotate texture 90° counterclockwise
-- Rotate texture 90° clockwise
-- Grid controls for subdividing the texture grid. This can be useful to align part of a larger trim sheet to the face.
+- Reset alignment. All attributes are reset, and in [parallel projection](#material_projection_modes) format maps, the material is projected from the face plane. In standard format maps, acts the same as "Reset alignment to world aligned".
+- Reset alignment to world aligned. All attributes are reset and the material is projected from an axial plane.
+- Flip material horizontally
+- Flip material vertically
+- Rotate material 90° counterclockwise
+- Rotate material 90° clockwise
+- Grid controls for subdividing the UV grid. This can be useful to align part of a larger trim sheet to the face.
 
 ## Entity Properties {#entity_properties}
 
@@ -1437,12 +1437,12 @@ The remaining settings affect how the viewports are rendered.
 
 Setting 					Description
 ------- 					-----------
-Brightness 					The brightness of the textures (affects the 3D viewport, the entity and the texture browser)
+Brightness 					The brightness of the textures (affects the 3D viewport, the entity and the material browser)
 Grid 						Opacity of the grid in the 3D and 2D viewports
 Coordinate System Axes 		Show the coordinate system axes in the 3D and 2D viewports
-Texture Mode 				Texture filtering mode in the 3D viewport
+Filter Mode 				Texture filtering mode in the 3D viewport
 Enable multisampling        Whether rendering is antialiased
-Texture Browser Icon Size   The size of the texture icons in the texture browser
+Material Browser Icon Size   The size of the material icons in the material browser
 Renderer Font Size          Text size in the map viewports (e.g. entity classnames)
 
 ## Mouse Input {#mouse_input}
@@ -1467,12 +1467,12 @@ In this preference pane, you can change the keyboard shortcuts used in TrenchBro
 If you open the preference dialog when a map is currently opened, the list of shortcuts will contain additional entries depending on the loaded entity configuration file and the game configuration file. For each entity and special brush or face types, the following keyboard shortcuts are available.
 
 * **Entity**
-	- `View Filter > Toggle CLASSNAME visible` to toggle entities with this classname visible and invisible ([more info](#filtering_rendering_options))
-	- `Create CLASSNAME` to create entities with this classname ([more info](#creating_entities))
+  - `View Filter > Toggle CLASSNAME visible` to toggle entities with this classname visible and invisible ([more info](#filtering_rendering_options))
+  - `Create CLASSNAME` to create entities with this classname ([more info](#creating_entities))
 * **Brush / Face Type**
-	- `View Filter > Toggle TYPE visible` to toggle brushes or faces with this type visible and invisible ([more info](#filtering_rendering_options))
-	- `Turn selection into TYPE` to set this type to the selected brushes or faces
-	- `Turn selection into non-TYPE` to unset this type from the selected brushes or faces
+  - `View Filter > Toggle TYPE visible` to toggle brushes or faces with this type visible and invisible ([more info](#filtering_rendering_options))
+  - `Turn selection into TYPE` to set this type to the selected brushes or faces
+  - `Turn selection into non-TYPE` to unset this type from the selected brushes or faces
 
 Note that if you assign a keyboard shortcut to different actions in the same context, the shortcut creates a conflict and you cannot exit the preference pane or close the dialog until you resolve the conflict. Conflicting shortcuts are highlighted in red.
 
@@ -1665,34 +1665,34 @@ A string value can be converted to a number value if and only if the string is a
 
 Every expression is made of one single term. A term is something that can be evaluated, such as an addition (`7.0 + 3.0`) or a variable (which is then evaluated to its value).
 
-	Expression     = GroupedTerm | Term
-	GroupedTerm    = "(" Term ")"
-	Term           = SimpleTerm | Switch | CompoundTerm
+  Expression     = GroupedTerm | Term
+  GroupedTerm    = "(" Term ")"
+  Term           = SimpleTerm | Switch | CompoundTerm
 
-	SimpleTerm     = Name | Literal | Subscript | UnaryTerm | GroupedTerm
-	CompoundTerm   = AlgebraicTerm | LogicalTerm | ComparisonTerm | Case
+  SimpleTerm     = Name | Literal | Subscript | UnaryTerm | GroupedTerm
+  CompoundTerm   = AlgebraicTerm | LogicalTerm | ComparisonTerm | Case
 
-	UnaryTerm      = Plus | Minus | LogicalNegation | BinaryNegation
-	AlgebraicTerm  = Addition | Subtraction | Multiplication | Division | Modulus
-	LogicalTerm    = LogicalAnd | LogicalOr
-	BinaryTerm     = BinaryAnd | BinaryXor | BinaryOr | BinaryLeftShift | BinaryRightShift
-	ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
+  UnaryTerm      = Plus | Minus | LogicalNegation | BinaryNegation
+  AlgebraicTerm  = Addition | Subtraction | Multiplication | Division | Modulus
+  LogicalTerm    = LogicalAnd | LogicalOr
+  BinaryTerm     = BinaryAnd | BinaryXor | BinaryOr | BinaryLeftShift | BinaryRightShift
+  ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
 
 ### Names and Literals
 
 A name is a string that begins with an alphabetic character or an underscore, possibly followed by more alphanumeric characters and underscores.
 
-	Name       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
+  Name       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
 
 `MODS`, `_var1`, `_123` are all valid names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
 
 A literal is either a string, a number, a boolean, an array, or a map literal.
 
-	Literal        = String | Number | Boolean | Array | Map
+  Literal        = String | Number | Boolean | Array | Map
 
-	Boolean        = "true" | "false"
-	String         = """ { Char } """ | "'" { Char } "'"
-	Number         = Numeric { Numeric } [ "." Numeric { Numeric } ]
+  Boolean        = "true" | "false"
+  String         = """ { Char } """ | "'" { Char } "'"
+  Number         = Numeric { Numeric } [ "." Numeric { Numeric } ]
 
 Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal.
 
@@ -1700,9 +1700,9 @@ Further note that number literals need not contain a fractional part and can be 
 
 Array literals can be specified by giving a comma-separated list of expressions or ranges enclosed in brackets.
 
-	Array          = "[" [ ExpOrRange { "," ExpOrRange } ] "]"
-	ExpOrRange     = Expression | Range
-	Range 		   = Expression ".." Expression
+  Array          = "[" [ ExpOrRange { "," ExpOrRange } ] "]"
+  ExpOrRange     = Expression | Range
+  Range 		   = Expression ".." Expression
 
 An array literal is a possibly empty comma-separated list of expressions or ranges. A range is a special type that represents a range of integer values. Ranges are specified by two expressions separated by two dots. A range denotes a list of number values, so both expressions must evaluate to a value that is convertible to type `Number`. The first expression denotes the starting value of the range, and the second expression denotes the ending value of the range, both of which are inclusive. The range `1.0..3.0` therefore denotes the list `1.0`, `2.0`, `3.0`. Note that the starting value may also be greater than the ending value, e.g. `3.0..1.0`, which denotes the same list as `1.0..3.0`, but in the opposite order.
 
@@ -1719,16 +1719,16 @@ Expression Value
 
 A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings or names. To use certain special characters or whitespace in the key, it must be given as a string. The value is separated from the key by a colon character.
 
-	Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
-	KeyValuePair   = StringOrName ":" Expression
-	StringOrName   = String | Name
+  Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
+  KeyValuePair   = StringOrName ":" Expression
+  StringOrName   = String | Name
 
 An example of a valid map expression looks as follows:
 
     {
-    	"some key"   : "a string",
-    	other_key  : 1+2,
-    	another_key: [1..3]
+      "some key"   : "a string",
+      other_key  : 1+2,
+      another_key: [1..3]
     }
 
 This expression evaluates to a map containing the value `"a string"` under the key `some key`, the value `3.0` under the key `other_key`, and an array containing the values `1.0`, `2.0`, and `3.0` under the key `another_key`.
@@ -1737,9 +1737,9 @@ This expression evaluates to a map containing the value `"a string"` under the k
 
 Certain values such as strings, arrays, or maps can be subscripted to access some of their elements.
 
-	Subscript      = SimpleTerm "[" ExpOrAnyRange { "," ExpOrAnyRange } "]"
-	ExpOrAnyRange  = ExpOrRange | AutoRange
-	AutoRange      = ".." Expression | Expression ".."
+  Subscript      = SimpleTerm "[" ExpOrAnyRange { "," ExpOrAnyRange } "]"
+  ExpOrAnyRange  = ExpOrRange | AutoRange
+  AutoRange      = ".." Expression | Expression ".."
 
 A subscript expression comprises of two parts: The expression that is being indexed and the indexing expression. The former can be any expression that evaluates to a value of type `String`, `Array` or `Map`, while the latter is a list of expressions or ranges. Depending of the type of the expression being subscripted, only certain values are allows as indices. The following sections explain which types of indexing values are permissible for the three subscriptable types.
 
@@ -1797,7 +1797,7 @@ Just like string subscripts, array subscripts are very powerful because they all
 
 Simple subscripting with integer indices behaves as expected:
 
-	arr[0] // 7
+  arr[0] // 7
     arr[3] // "test"
     arr[4] // [10, 11, 12]
 
@@ -1843,10 +1843,10 @@ Index    Effect
 For the following example, assume that the value of variable `map` is the following map:
 
     {
-    	"some number": 1.0,
-    	"some string": "test",
-    	"some array" : [ 1, 2, 3, 4 ],
-    	"some map"   : { "key1": 5, "key2": "asdf" }
+      "some number": 1.0,
+      "some string": "test",
+      "some array" : [ 1, 2, 3, 4 ],
+      "some map"   : { "key1": 5, "key2": "asdf" }
     }
 
 We begin with simple indexing using strings:
@@ -1870,10 +1870,10 @@ Like arrays, maps can contain other subscriptable values such as strings, arrays
 
 A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.
 
-	Plus            = "+" SimpleTerm
-	Minus           = "-" SimpleTerm
-	LogicalNegation = "!" SimpleTerm
-	BinaryNegation  = "~" SimpleTerm
+  Plus            = "+" SimpleTerm
+  Minus           = "-" SimpleTerm
+  LogicalNegation = "!" SimpleTerm
+  BinaryNegation  = "~" SimpleTerm
 
 The following table explains the effects of applying the unary operators to values depending on the type of the values.
 
@@ -1913,11 +1913,11 @@ A binary operator is an operator that takes two operands. Binary operators are s
 
 Algebraic terms are terms that use the binary operators `+`, `-`, `*`, `/`, or `%`.
 
-	Addition       = SimpleTerm "+" Expression
-	Subtraction    = SimpleTerm "-" Expression
-	Multiplication = SimpleTerm "*" Expression
-	Division       = SimpleTerm "/" Expression
-	Modulus        = SimpleTerm "%" Expression
+  Addition       = SimpleTerm "+" Expression
+  Subtraction    = SimpleTerm "-" Expression
+  Multiplication = SimpleTerm "*" Expression
+  Division       = SimpleTerm "/" Expression
+  Modulus        = SimpleTerm "%" Expression
 
 All of these operators can be applied to operands of type `Boolean` or `Number`. If an operand is of type `Boolean`, it is converted to type `Number` before the operation is applied.
 
@@ -1942,8 +1942,8 @@ Note that the value under key `'k3'` is `4` and not `3`!
 
 Logical terms can be applied to if both operands are of type `Boolean`. If one of the operands is not of type `Boolean`, an error is thrown.
 
-	LogicalAnd    = SimpleTerm "&&" Expression
-	LogicalOr     = SimpleTerm "||" Expression
+  LogicalAnd    = SimpleTerm "&&" Expression
+  LogicalOr     = SimpleTerm "||" Expression
 
 The following table shows the effects of applying the logical operators.
 
@@ -1980,12 +1980,12 @@ Here are some examples of the operators in use:
 
 Comparison operators always return a boolean value depending on the result of the comparison.
 
-	Less           = SimpleTerm "<"  Expression
-	LessOrEqual    = SimpleTerm "<=" Expression
-	Equal          = SimpleTerm "==" Expression
-	InEqual        = SimpleTerm "!=" Expression
-	GreaterOrEqual = SimpleTerm ">=" Expression
-	Greater        = SimpleTerm ">"  Expression
+  Less           = SimpleTerm "<"  Expression
+  LessOrEqual    = SimpleTerm "<=" Expression
+  Equal          = SimpleTerm "==" Expression
+  InEqual        = SimpleTerm "!=" Expression
+  GreaterOrEqual = SimpleTerm ">=" Expression
+  Greater        = SimpleTerm ">"  Expression
 
  Left        Right      Effect
 ------      -------     ------
@@ -2102,8 +2102,8 @@ The switch operator comprises of zero or more sub expressions and its evaluation
 The following example demonstrates a very simple `if / then / else` use of the switch term.
 
     {{
-    	x == 0 -> 'x equals 0',
-    	x == 1 -> 'x equals 1'
+      x == 0 -> 'x equals 0',
+      x == 1 -> 'x equals 1'
     }}
 
 This expression evaluates to the string `'x equals 0'` if the value of the variable `x` equals `0` and it evaluates to the string `'x equals 1'` if the value of the variable `x` equals `1`. In all other cases, the switch expression evaluates to `undefined`.
@@ -2111,17 +2111,17 @@ This expression evaluates to the string `'x equals 0'` if the value of the varia
 But what if we wanted to have a default result for all those other cases? That's easy with the switch expression.
 
     {{
-    	x == 0 -> 'x equals 0',
-    	x == 1 -> 'x equals 1',
-    	true   -> 'otherwise'   // the default case
+      x == 0 -> 'x equals 0',
+      x == 1 -> 'x equals 1',
+      true   -> 'otherwise'   // the default case
     }}
 
 However, due to how the sub expressions of the switch expression are evaluated, we can abbreviate the default case:
 
     {{
-    	x == 0 -> 'x equals 0',
-    	x == 1 -> 'x equals 1',
-    	          'otherwise'   // the default case
+      x == 0 -> 'x equals 0',
+      x == 1 -> 'x equals 1',
+                'otherwise'   // the default case
     }}
 
 Remember that the switch expression will return the value of the first expression that does not evaluate to `undefined`. Since the first two sub expressions do evaluate to `undefined`, and the string `'otherwise'` is not `undefined`, the switch expression will return `'otherwise'` as its result.
@@ -2167,9 +2167,9 @@ If the builtin precedence does not reflect your intention, you can use parenthes
 
 In EBNF, terminal rules are those which only contain terminal symbols on the right hand side. A symbol is terminal if it is enclosed in double quotes. Note that for the `Char` rule, we have chosen to not enumerate all actual ASCII characters and have used a placeholder string instead.
 
-	Alpha          = "a" | "b" | ... "z" | "A" | "B" | ... "Z"
-	Numeric        = "0" | "1" | ... "9"
-	Char           = Any ASCII character
+  Alpha          = "a" | "b" | ... "z" | "A" | "B" | ... "Z"
+  Numeric        = "0" | "1" | ... "9"
+  Char           = Any ASCII character
 
 This concludes the manual for TrenchBroom's expression language.
 
@@ -2200,9 +2200,9 @@ In ENT files, the model definitions are given as XML attribute values of the `<p
 Thereby, the ellipsis contains the actual information about the model to display. You can use TrenchBroom's [expression language](#expression_language) to define the actual models. Each entity definition should contain only one model definition, and the expression in the model definition should evaluate either to a value of type string or to a value of type map. If the expression evaluates to a map, it must have the following structure:
 
     {
-    	"path" : MODEL,
-    	"skin" : SKIN,
-    	"frame": FRAME,
+      "path" : MODEL,
+      "skin" : SKIN,
+      "frame": FRAME,
         "scale": SCALE_EXPRESSION
     }
 
@@ -2229,41 +2229,41 @@ If the model expression has a scale expression, then its result is used as the s
 
 So a valid model definitions might look like this:
 
-	// use the model found at the given path with skin 0 and frame 0
-	model("progs/armor")
+  // use the model found at the given path with skin 0 and frame 0
+  model("progs/armor")
 
-	// use the model found at the given path with skin 1 and frame 0
+  // use the model found at the given path with skin 1 and frame 0
     model({
-    	"path": "progs/armor",
-    	"skin": 1
+      "path": "progs/armor",
+      "skin": 1
     })
 
-	// use the model found at the given path with skin 1 and frame 3
+  // use the model found at the given path with skin 1 and frame 3
     model({
-    	"path" : "progs/armor",
-    	"skin" : 1,
-    	"frame": 3
+      "path" : "progs/armor",
+      "skin" : 1,
+      "frame": 3
     })
 
-	// set a fixed uniform model scale factor 2
+  // set a fixed uniform model scale factor 2
     model({
-    	"path" : "progs/armor",
-    	"scale" : 2
+      "path" : "progs/armor",
+      "scale" : 2
     })
 
 Sometimes, the actual model that is displayed in game depends on the value of an entity property. TrenchBroom allows you to mimic this behavior by using conditional expressions using the switch and case operators and by referring to the entity properties as variables in the expressions. Let's look at an example where we combine several model definitions using a literal value.
 
     model({{
-		dangle == "1" -> { "path": "progs/voreling.mdl", "skin": 0, "frame": 13 },
+    dangle == "1" -> { "path": "progs/voreling.mdl", "skin": 0, "frame": 13 },
                          { "path": "progs/voreling.mdl" }
     }})
 
 The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling. The model expression contains a switch expression (note the double braces) that comprises of a case expression (note the arrow operator) and a literal map expression. You can interpret this expression as follows:
 
-	dangle == "1"                                             // If the value of property 'dangle' equals "1"
-	->            											  // then
-	{ "path": "progs/voreling.mdl", "skin": 0, "frame": 13 }  // use this as the model.
-	,                                                         // Otherwise,
+  dangle == "1"                                             // If the value of property 'dangle' equals "1"
+  ->            											  // then
+  { "path": "progs/voreling.mdl", "skin": 0, "frame": 13 }  // use this as the model.
+  ,                                                         // Otherwise,
     { "path": "progs/voreling.mdl" }                          // use this as the model.
 
 If you have problems understanding this syntax, you should read the section on TrenchBroom's [expression language](#expression_language).
@@ -2289,9 +2289,9 @@ The basic expressions you have seen so far allow you to customize which model, s
 Remember the structure of the model definition maps:
 
     {
-    	"path" : MODEL,
-    	"skin" : SKIN,
-    	"frame": FRAME
+      "path" : MODEL,
+      "skin" : SKIN,
+      "frame": FRAME
     }
 
 So far, we have used hardcoded literals for the values of the map entries like so:
@@ -2301,9 +2301,9 @@ So far, we have used hardcoded literals for the values of the map entries like s
 However, nothing prevents us from using variables instead of hardcoded literals, thereby referring to the entities properties.
 
     model({
-    	"path" : PATHKEY,
-    	"skin" : SKINKEY,
-    	"frame": FRAMEKEY
+      "path" : PATHKEY,
+      "skin" : SKINKEY,
+      "frame": FRAMEKEY
     })
 
 The placeholders `PATHKEY`, `SKINKEY` and `FRAMEKEY` have the following meaning
@@ -2317,19 +2317,19 @@ Placeholder 		Description
 A valid dynamic model definition might look like this:
 
     model({
-    	"path" : mdl,
-    	"skin" : skin,
-    	"frame": frame
+      "path" : mdl,
+      "skin" : skin,
+      "frame": frame
     })
 
 Then, if you create an entity with the appropriate classname and specifies three properties as follows
 
-	{
-		"classname" "mydynamicmodelentity"
-		"mdl" "progs/armor.mdl"
-		"skin" "2"
-		"frame" "1"
-	}
+  {
+    "classname" "mydynamicmodelentity"
+    "mdl" "progs/armor.mdl"
+    "skin" "2"
+    "frame" "1"
+  }
 
 TrenchBroom will display the second frame of the `progs/armor.mdl` model using its third skin. If you change these values, the model will be updated in the 3D and 2D viewports accordingly.
 
@@ -2337,42 +2337,42 @@ TrenchBroom will display the second frame of the `progs/armor.mdl` model using i
 
 In both files, the model definitions are just specified alongside with other entity property definitions (note the semicolon after the model definition -- this is only necessary in DEF files). An example from a DEF file might look as follows.
 
-	/*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) ROTTEN MEGAHEALTH
-	{
-	    model({{ spawnflags == 2 -> "maps/b_bh100.bsp", spawnflags == 1 -> "maps/b_bh10.bsp", "maps/b_bh25.bsp" }});
-	}
-	Health box. Normally gives 25 points.
+  /*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) ROTTEN MEGAHEALTH
+  {
+      model({{ spawnflags == 2 -> "maps/b_bh100.bsp", spawnflags == 1 -> "maps/b_bh10.bsp", "maps/b_bh25.bsp" }});
+  }
+  Health box. Normally gives 25 points.
 
-	Flags:
-	"rotten"
-	gives 15 points
-	"megahealth"
-	will add 100 health, then rot you down to your maximum health limit
-	one point per second
-	*/
+  Flags:
+  "rotten"
+  gives 15 points
+  "megahealth"
+  will add 100 health, then rot you down to your maximum health limit
+  one point per second
+  */
 
 An example from an FGD file might look as follows.
 
-	@PointClass base(Monster) size(-32 -32 -24, 32 32 64)
-	    model({{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }})
-	    = monster_gaunt : "Gaunt"
-	[
-	    perch(choices) : "Starting pose" : 0 =
-	    [
-	        0 : "Flying"
-	        1 : "On ground"
-	    ]
-	]
+  @PointClass base(Monster) size(-32 -32 -24, 32 32 64)
+      model({{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }})
+      = monster_gaunt : "Gaunt"
+  [
+      perch(choices) : "Starting pose" : 0 =
+      [
+          0 : "Flying"
+          1 : "On ground"
+      ]
+  ]
 
 To improve compatibility to other editors, the model definition can also be named _studio_ or _studioprop_ in FGD files.
 
 In an ENT file, the same model specification might look like this.
 
     <point
-    	name="ammo_bfg" color=".3 .3 1"
-    	box="-16 -16 -16 16 16 16"
-    	model="{{ perch == '1' -> 'progs/gaunt.mdl', { 'path': 'progs/gaunt.mdl', 'skin': 0, 'frame': 24 } }}"
-	/>
+      name="ammo_bfg" color=".3 .3 1"
+      box="-16 -16 -16 16 16 16"
+      model="{{ perch == '1' -> 'progs/gaunt.mdl', { 'path': 'progs/gaunt.mdl', 'skin': 0, 'frame': 24 } }}"
+  />
 
 ## Point Files and Portal Files
 
@@ -2419,13 +2419,13 @@ Game configuration files need to specify the following information.
 * **File formats** to identify which map file formats to support for this game
 * A **Filesystem** to specify the game asset search paths and package file format (e.g. pak files)
 * **Textures**
-	* A list of **file extensions** such as `.jpg`
-	* A **palette file** (optional)
-	* The **worldspawn property** to store the texture packages in the map file
+  * A list of **file extensions** such as `.jpg`
+  * A **palette file** (optional)
+  * The **worldspawn property** to store the texture packages in the map file
   * A list of **exclusion patterns** to hide textures matching any of these patterns.
 * **Entities**
-	* The builtin **entity definition files**
-	* The **default color** to use in the UI
+  * The builtin **entity definition files**
+  * The **default color** to use in the UI
   * A default **model scale expression**
   * Whether to automatically set default entity properties
 * **Tags** to attach additional information to faces or brushes in the editor, e.g. whether a face is detail or hint. (optional)
@@ -2558,7 +2558,7 @@ Version 3 deprecated the `brushtypes` key in favor of the `tags` key, but the co
 
 Match        Description
 -----        -----------
-texture      Match against a texture name, must match all brush faces
+texture      Match against a material name, must match all brush faces
 contentflag  Match against face content flags (used by Quake 2, Quake 3)
 surfaceflag  Match against face surface flags (used by Quake 2)
 surfaceparm  Match against shader surface parameters (used by Quake 3)
@@ -2580,7 +2580,7 @@ The file format is specified by an array of maps under the key `fileformats`. Th
 Format           Description
 ------           -----------
 Standard         Standard Quake map file
-Valve            Valve map file (like Standard, but with more control over texture mapping)
+Valve            Valve map file (like Standard, but with more control over UV mapping)
 Quake2           Quake 2 map file with Standard style texture info
 Quake2 (Valve)   Quake 2 map file with Valve style texture info
 Quake3 (legacy)  Quake 3 map file with Standard style texture info
@@ -2592,8 +2592,8 @@ Note that the "Quake3" format, which will include Quake 3 brush primitives suppo
 Each entry of the array must have the following structure:
 
     {
-    	"format": "Standard",
-    	"initialmap: "initial_standard.map"
+      "format": "Standard",
+      "initialmap: "initial_standard.map"
     }
 
 Thereby, the `format` key is mandatory but the `initialmap` key is optional. The `initialmap` key refers to a map file in the game's configuration sub folder which should be loaded if a new document is created. If no initial map is specified, or if the file cannot be found, TrenchBroom will create a map containing a single brush at the origin.
@@ -2604,8 +2604,8 @@ The file system is used in the editor to load game assets, and it is specified b
 
 * `searchpath` is the subdirectory under the game directory (set in the game preferences) at which the editor will search for game assets. The editor will search loose files in this path, but it will also mount packages found here.
 * `packageformat` specifies the format of the packages to mount. It is a map with two keys, `extension` and `format`.
-	* `extensions` specifies the file extensions of the package files to mount (alternatively allows `extension` to specify only one extension)
-	* `format` specifies the format of the package files
+  * `extensions` specifies the file extensions of the package files to mount (alternatively allows `extension` to specify only one extension)
+  * `format` specifies the format of the package files
 
 The following package formats are supported.
 
@@ -2615,21 +2615,21 @@ idpak        Id pak file
 dkpak        Daikatana pak file
 zip          Zip file, often uses other extensions such as pk3
 
-#### Texture Configurations
+#### Material Configurations
 
-Every texture configuration consists of a root search directory, and optionally a list of included file extensions, a palette path, an attribute for wad file lists and a list of exclusion patterns.
+Every material configuration consists of a root search directory, and optionally a list of included file extensions, a palette path, an attribute for wad file lists and a list of exclusion patterns.
 
-	"textures": {
+  "textures": {
         "root": "textures",
         "extensions": [ ".D" ],
         "palette": "pics/colormap.pcx",
         "attribute": "wad",
         "excludes": [ "*_norm", "*_gloss" ],
-	},
+  },
 
-The `root` key specifies the folder at which to search for the texture packages. This folder is relative to the game file system set up according to the `filesystem` configuration earlier in the file. TrenchBroom will create a texture collection for each folder contained in the root folder specified here.
+The `root` key specifies the folder at which to search for the material packages. This folder is relative to the game file system set up according to the `filesystem` configuration earlier in the file. TrenchBroom will create a material collection for each folder contained in the root folder specified here.
 
-In the case of Quake 2, the builtin game configuration specifies the search path of the file system as `"baseq2"` and the texture package root as `"textures"`, so TrenchBroom will create a texture collection for each folder found in `<Game Path>/baseq2/textures`.
+In the case of Quake 2, the builtin game configuration specifies the search path of the file system as `"baseq2"` and the texture package root as `"textures"`, so TrenchBroom will create a material collection for each folder found in `<Game Path>/baseq2/textures`.
 
 TrenchBroom supports a wide array of image formats such as tga, pcx, jpeg, and so on. TrenchBroom uses the [FreeImage Library] to load these images and supports any file type supported by this library.
 
@@ -2637,9 +2637,9 @@ Optionally, you can specify a palette. The value of the `palette` key specifies 
 
 The `attribute` key specifies the name of a worldspawn property where TrenchBroom will store the wad files in the map file.
 
-The optional `excludes` key specifies a list of patterns matched against texture names which will be ignored and not displayed in the [texture browser](#texture_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+The optional `excludes` key specifies a list of patterns matched against texture names which will be ignored and not displayed in the [material browser](#material_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 
-	"textures": {
+  "textures": {
         "root": "textures",
         "extensions": [ "" ],
         "excludes": [ "*_norm", "*_gloss" ]
@@ -2649,9 +2649,9 @@ The optional `excludes` key specifies a list of patterns matched against texture
 
 In the entity configuration section, you can specify which entity definition files come with your game configuration, a default color for entities and an expression that yields a default scale when evaluated against an entities' properties.
 
-  	"entities": { // the builtin entity definition files for this game
-		"definitions": [ "Quake2/Quake2.fgd" ],
-    	"defaultcolor": "0.6 0.6 0.6 1.0",
+    "entities": { // the builtin entity definition files for this game
+    "definitions": [ "Quake2/Quake2.fgd" ],
+      "defaultcolor": "0.6 0.6 0.6 1.0",
       "scale": [ modelscale, modelscale_vec ],
       "setDefaultProperties": true
     },
@@ -2709,7 +2709,7 @@ For a `brushface` smart tag, the `match` key can have the following values and w
 
 Match        Description                            Shortcut to apply  Shortcut to remove
 -----        -----------                            -----------------  ------------------
-texture      Match against a texture name           Yes                No
+texture      Match against a material name          Yes                No
 contentflag  Match against face content flags       Yes                Yes
 surfaceflag  Match against face surface flags       Yes                Yes
 surfaceparm  Match against shader surface parameter Yes                No
@@ -2717,8 +2717,8 @@ surfaceparm  Match against shader surface parameter Yes                No
 Additional keys will be required to configure the matcher, depending on the value of the `match` key.
 
 * For the `classname` matcher, the key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-    - Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the texture with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` texture).
-* For the `texture` matcher, the key `pattern` contains a pattern that is matched against a face's texture name. If the pattern does *not* contain a slash, it will only be matched against the segment after the final slash (if any) in the texture name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+    - Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the material with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` material).
+* For the `texture` matcher, the key `pattern` contains a pattern that is matched against a face's material name. If the pattern does *not* contain a slash, it will only be matched against the segment after the final slash (if any) in the material name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
 * For the `surfaceparm` matcher, the key `pattern` contains a name that is matched against the surface parameters of a face's shader. No wildcards allowed; the parameter name must match exactly. In version 4 of the game config format, you may alternately specify a *list* of surfaceparm names for this value, which will match against a shader if it has any of those surfaceparms.
 

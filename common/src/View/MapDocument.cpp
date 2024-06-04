@@ -3630,14 +3630,14 @@ bool MapDocument::setFaceAttributes(
 }
 
 bool MapDocument::copyUVFromFace(
-  const Model::TexCoordSystemSnapshot& coordSystemSnapshot,
+  const Model::UVCoordSystemSnapshot& coordSystemSnapshot,
   const Model::BrushFaceAttributes& attribs,
   const vm::plane3& sourceFacePlane,
   const Model::WrapStyle wrapStyle)
 {
   return applyAndSwap(
     *this, "Copy UV Alignment", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.copyTexCoordSystemFromFace(
+      face.copyUVCoordSystemFromFace(
         coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
       return true;
     });

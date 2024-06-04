@@ -238,7 +238,7 @@ namespace GLVertexAttributeTypes
 using P2 = GLVertexAttributePosition<GL_FLOAT, 2>;
 using P3 = GLVertexAttributePosition<GL_FLOAT, 3>;
 using N = GLVertexAttributeNormal<GL_FLOAT, 3>;
-using T02 = GLVertexAttributeUVCoord0<GL_FLOAT, 2>;
+using UV02 = GLVertexAttributeUVCoord0<GL_FLOAT, 2>;
 using C4 = GLVertexAttributeColor<GL_FLOAT, 4>;
 } // namespace GLVertexAttributeTypes
 } // namespace Renderer

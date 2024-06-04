@@ -45,10 +45,10 @@ struct PatchGrid
   struct Point
   {
     vm::vec3 position;
-    vm::vec2 texCoords;
+    vm::vec2 uvCoords;
     vm::vec3 normal;
 
-    kdl_reflect_decl(Point, position, texCoords, normal);
+    kdl_reflect_decl(Point, position, uvCoords, normal);
   };
 
   size_t pointRowCount;

@@ -441,7 +441,7 @@ auto collectStringVertices(
   const float height,
   Renderer::FontManager& fontManager)
 {
-  using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
+  using TextVertex = Renderer::GLVertexTypes::P2UV2C4::Vertex;
 
   auto defaultFont = Renderer::FontDescriptor{
     pref(Preferences::RendererFontPath()), size_t(pref(Preferences::BrowserFontSize))};

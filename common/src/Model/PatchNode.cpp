@@ -284,8 +284,8 @@ PatchGrid makePatchGrid(const BezierPatch& patch, const size_t subdivisionsPerSu
   for (const auto [point, normal] : kdl::make_zip_range(patchGrid, normals))
   {
     const auto position = vm::slice<3>(point, 0);
-    const auto texCoords = vm::slice<2>(point, 3);
-    points.push_back(PatchGrid::Point{position, texCoords, normal});
+    const auto uvCoords = vm::slice<2>(point, 3);
+    points.push_back(PatchGrid::Point{position, uvCoords, normal});
     boundsBuilder.add(position);
   }
 

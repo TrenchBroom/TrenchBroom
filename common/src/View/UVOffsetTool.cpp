@@ -52,7 +52,7 @@ vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
   return *kdl::optional_transform(
     vm::intersect_ray_plane(ray, boundary), [&](const auto distance) {
       const auto hitPoint = vm::point_at_distance(ray, distance);
-      const auto transform = helper.face()->toTexCoordSystemMatrix(
+      const auto transform = helper.face()->toUVCoordSystemMatrix(
         vm::vec2f::zero(), helper.face()->attributes().scale(), true);
       return vm::vec2f{transform * hitPoint};
     });
@@ -64,7 +64,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
 
   if (helper.material())
   {
-    const auto transform = helper.face()->toTexCoordSystemMatrix(
+    const auto transform = helper.face()->toUVCoordSystemMatrix(
       helper.face()->attributes().offset() - delta,
       helper.face()->attributes().scale(),
       true);

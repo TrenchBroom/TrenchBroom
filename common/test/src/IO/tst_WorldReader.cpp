@@ -29,7 +29,7 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/ParallelTexCoordSystem.h"
+#include "Model/ParallelUVCoordSystem.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
@@ -212,7 +212,7 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneBrush")
   CHECK(defaultLayer->childCount() == 1u);
 
   auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brushNode, false);
+  checkBrushUVCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
 
@@ -292,7 +292,7 @@ TEST_CASE("WorldReader.parseMapAndCheckFaceFlags")
   CHECK(defaultLayer->childCount() == 1u);
 
   auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brushNode, false);
+  checkBrushUVCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
 
@@ -335,7 +335,7 @@ TEST_CASE("WorldReader.parseBrushWithCurlyBraceInMaterialName")
   CHECK(defaultLayer->childCount() == 1u);
 
   auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brushNode, false);
+  checkBrushUVCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
 
@@ -408,7 +408,7 @@ TEST_CASE("WorldReader.parseValveBrush")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
   auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brush, true);
+  checkBrushUVCoordSystem(brush, true);
 }
 
 TEST_CASE("WorldReader.parseQuake2Brush")
@@ -436,7 +436,7 @@ TEST_CASE("WorldReader.parseQuake2Brush")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
   auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brush, false);
+  checkBrushUVCoordSystem(brush, false);
 
   SECTION("surface attributes for face attribsExplicit")
   {
@@ -505,7 +505,7 @@ TEST_CASE("WorldReader.parseQuake2ValveBrush")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
   auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brush, true);
+  checkBrushUVCoordSystem(brush, true);
 }
 
 TEST_CASE("WorldReader.parseQuake3ValveBrush")
@@ -535,7 +535,7 @@ TEST_CASE("WorldReader.parseQuake3ValveBrush")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
   auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brush, true);
+  checkBrushUVCoordSystem(brush, true);
 }
 
 TEST_CASE("WorldReader.parseDaikatanaBrush")
@@ -565,7 +565,7 @@ TEST_CASE("WorldReader.parseDaikatanaBrush")
 
   const auto* brushNode =
     static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brushNode, false);
+  checkBrushUVCoordSystem(brushNode, false);
   const auto& brush = brushNode->brush();
 
   const auto c_mf_v3cw_index = brush.findFace("rtz/c_mf_v3cw");
@@ -626,7 +626,7 @@ TEST_CASE("WorldReader.parseDaikatanaMapHeader")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
   auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brush, false);
+  checkBrushUVCoordSystem(brush, false);
 }
 
 TEST_CASE("WorldReader.parseQuakeBrushWithNumericalMaterialName")
@@ -654,7 +654,7 @@ TEST_CASE("WorldReader.parseQuakeBrushWithNumericalMaterialName")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
   auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
-  checkBrushTexCoordSystem(brush, false);
+  checkBrushUVCoordSystem(brush, false);
 }
 
 TEST_CASE("WorldReader.parseBrushesWithLayer")

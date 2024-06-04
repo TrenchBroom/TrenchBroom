@@ -2200,7 +2200,7 @@ TEST_CASE("moveFaceWithUVLock")
 
   for (auto& oldFace : brush.faces())
   {
-    const auto oldTexCoords = kdl::vec_transform(
+    const auto oldUVCoords = kdl::vec_transform(
       oldFace.vertexPositions(), [&](auto x) { return oldFace.uvCoords(x); });
     const auto shearedVertexPositions =
       kdl::vec_transform(oldFace.vertexPositions(), [&](auto x) { return M * x; });
@@ -2214,18 +2214,18 @@ TEST_CASE("moveFaceWithUVLock")
       const auto newFaceIndex = changed.findFace(shearedPolygon);
       REQUIRE(newFaceIndex);
       const BrushFace& newFace = changed.face(*newFaceIndex);
-      const auto newTexCoords = kdl::vec_transform(
+      const auto newUVCoords = kdl::vec_transform(
         shearedVertexPositions, [&](auto x) { return newFace.uvCoords(x); });
       if (
         normal == vm::vec3::pos_z() || normal == vm::vec3::pos_y()
         || normal == vm::vec3::neg_y())
       {
-        CHECK_FALSE(uvListsEqual(oldTexCoords, newTexCoords));
+        CHECK_FALSE(uvListsEqual(oldUVCoords, newUVCoords));
         // TODO: actually check the UV's
       }
       else
       {
-        CHECK(uvListsEqual(oldTexCoords, newTexCoords));
+        CHECK(uvListsEqual(oldUVCoords, newUVCoords));
       }
     }
 
@@ -2236,11 +2236,11 @@ TEST_CASE("moveFaceWithUVLock")
       REQUIRE(newFaceWithUVLockIndex);
       const BrushFace& newFaceWithUVLock =
         changedWithUVLock.face(*newFaceWithUVLockIndex);
-      const auto newTexCoordsWithUVLock = kdl::vec_transform(
+      const auto newUVCoordsWithUVLock = kdl::vec_transform(
         shearedVertexPositions, [&](auto x) { return newFaceWithUVLock.uvCoords(x); });
       if (normal == vm::vec3d::pos_z() || (format == MapFormat::Valve))
       {
-        CHECK(uvListsEqual(oldTexCoords, newTexCoordsWithUVLock));
+        CHECK(uvListsEqual(oldUVCoords, newUVCoordsWithUVLock));
       }
     }
   }

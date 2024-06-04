@@ -58,7 +58,7 @@ public:
   friend constexpr bool operator==(const GP& lhs, const approx<GP>& rhs)
   {
     return lhs.position == approx<vec3>{rhs.m_value.position, rhs.m_epsilon}
-           && lhs.texCoords == approx<vec2>{rhs.m_value.texCoords, rhs.m_epsilon}
+           && lhs.uvCoords == approx<vec2>{rhs.m_value.uvCoords, rhs.m_epsilon}
            && lhs.normal == approx<vec3>{rhs.m_value.normal, rhs.m_epsilon};
   }
 

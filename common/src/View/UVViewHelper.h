@@ -79,7 +79,7 @@ public:
 
   const vm::vec3 origin() const;
   const vm::vec2f originInFaceCoords() const;
-  const vm::vec2f originInTexCoords() const;
+  const vm::vec2f originInUVCoords() const;
   void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
 
   const Renderer::OrthographicCamera& camera() const;

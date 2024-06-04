@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
-#include "Model/ParaxialTexCoordSystem.h"
+#include "Model/ParaxialUVCoordSystem.h"
 
 #include "vm/bbox.h"
 
@@ -76,7 +76,7 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat")
 
   Brush brush = brushNode->brush();
   CHECK(
-    dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem())
+    dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
     != nullptr);
 }
 
@@ -116,7 +116,7 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups")
 
   const Brush brush = brushNode->brush();
   CHECK(
-    dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem())
+    dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
     != nullptr);
 }
 

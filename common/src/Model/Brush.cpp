@@ -25,7 +25,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/MapFormat.h"
-#include "Model/TexCoordSystem.h"
+#include "Model/UVCoordSystem.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 
@@ -270,10 +270,10 @@ void Brush::cloneFaceAttributesFrom(const Brush& brush)
       const auto& source = brush.face(*sourceIndex);
       destination.setAttributes(source.attributes());
 
-      auto snapshot = source.takeTexCoordSystemSnapshot();
+      auto snapshot = source.takeUVCoordSystemSnapshot();
       if (snapshot != nullptr)
       {
-        destination.copyTexCoordSystemFromFace(
+        destination.copyUVCoordSystemFromFace(
           *snapshot, source.attributes(), source.boundary(), WrapStyle::Projection);
       }
     }
@@ -336,10 +336,10 @@ void Brush::cloneFaceAttributesFrom(const std::vector<const Brush*>& brushes)
     {
       face.setAttributes(bestMatch->attributes());
 
-      auto snapshot = bestMatch->takeTexCoordSystemSnapshot();
+      auto snapshot = bestMatch->takeUVCoordSystemSnapshot();
       if (snapshot != nullptr)
       {
-        face.copyTexCoordSystemFromFace(
+        face.copyUVCoordSystemFromFace(
           *snapshot, bestMatch->attributes(), face.boundary(), WrapStyle::Projection);
       }
     }
@@ -356,10 +356,10 @@ void Brush::cloneInvertedFaceAttributesFrom(const Brush& brush)
       // Todo: invert the face attributes?
       destination.setAttributes(source.attributes());
 
-      auto snapshot = source.takeTexCoordSystemSnapshot();
+      auto snapshot = source.takeUVCoordSystemSnapshot();
       if (snapshot != nullptr)
       {
-        destination.copyTexCoordSystemFromFace(
+        destination.copyUVCoordSystemFromFace(
           *snapshot, source.attributes(), destination.boundary(), WrapStyle::Projection);
       }
     }
@@ -1073,16 +1073,16 @@ void Brush::applyUVLock(
     leftClone.transform(*M, true)
       .transform([&]() {
         auto snapshot =
-          std::unique_ptr<TexCoordSystemSnapshot>(leftClone.takeTexCoordSystemSnapshot());
+          std::unique_ptr<UVCoordSystemSnapshot>(leftClone.takeUVCoordSystemSnapshot());
         rightFace.setAttributes(leftClone.attributes());
         if (snapshot)
         {
           // Note, the wrap style doesn't matter because the source and destination faces
           // should have the same plane
-          rightFace.copyTexCoordSystemFromFace(
+          rightFace.copyUVCoordSystemFromFace(
             *snapshot, leftClone.attributes(), leftClone.boundary(), WrapStyle::Rotation);
         }
-        rightFace.resetTexCoordSystemCache();
+        rightFace.resetUVCoordSystemCache();
       })
       .transform_error([](auto) {
         // do nothing

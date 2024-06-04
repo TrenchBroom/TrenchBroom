@@ -44,7 +44,7 @@ namespace Assets
 class Material;
 }
 
-bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
+bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
 bool pointExactlyIntegral(const vm::vec3d& point);
 bool uvListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
@@ -142,8 +142,8 @@ const Model::BrushFace* findFaceByPoints(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2);
-void checkFaceTexCoordSystem(const Model::BrushFace& face, bool expectParallel);
-void checkBrushTexCoordSystem(const Model::BrushNode* brushNode, bool expectParallel);
+void checkFaceUVCoordSystem(const Model::BrushFace& face, bool expectParallel);
+void checkBrushUVCoordSystem(const Model::BrushNode* brushNode, bool expectParallel);
 
 void setLinkId(Node& node, std::string linkId);
 

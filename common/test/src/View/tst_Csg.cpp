@@ -24,7 +24,7 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
-#include "Model/ParallelTexCoordSystem.h"
+#include "Model/ParallelUVCoordSystem.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
@@ -118,20 +118,20 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto texAlignment = Model::ParallelTexCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
+  auto texAlignment = Model::ParallelUVCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
   auto brush1 =
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 64, 64}}, "material")
       .value();
   brush1.face(*brush1.findFace(vm::vec3::pos_z()))
-    .restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+    .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto brush2 =
     builder.createCuboid(vm::bbox3{vm::vec3{32, 0, 0}, vm::vec3{64, 64, 64}}, "material")
       .value();
   brush2.face(*brush2.findFace(vm::vec3::pos_z()))
-    .restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+    .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
   auto* brushNode2 = new Model::BrushNode{std::move(brush2)};
@@ -160,7 +160,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto texAlignment = Model::ParallelTexCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
+  auto texAlignment = Model::ParallelUVCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
   auto brush1 =
@@ -170,7 +170,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 32}}, "material")
       .value();
   brush2.face(*brush2.findFace(vm::vec3::pos_z()))
-    .restoreTexCoordSystemSnapshot(*texAlignmentSnapshot);
+    .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
   auto* brushNode2 = new Model::BrushNode{std::move(brush2)};

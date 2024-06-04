@@ -29,6 +29,6 @@ class EntityModel;
 class EntityModelLoadedFrame;
 class EntityModelSurface;
 
-using EntityModelVertex = Renderer::GLVertexTypes::P3T2::Vertex;
+using EntityModelVertex = Renderer::GLVertexTypes::P3UV2::Vertex;
 } // namespace Assets
 } // namespace TrenchBroom

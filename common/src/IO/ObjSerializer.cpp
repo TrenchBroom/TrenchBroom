@@ -40,7 +40,7 @@ namespace TrenchBroom::IO
 
 std::ostream& operator<<(std::ostream& str, const ObjSerializer::IndexedVertex& vertex)
 {
-  str << " " << (vertex.vertex + 1u) << "/" << (vertex.texCoords + 1u) << "/"
+  str << " " << (vertex.vertex + 1u) << "/" << (vertex.uvCoords + 1u) << "/"
       << (vertex.normal + 1u);
   return str;
 }
@@ -162,10 +162,10 @@ static void writeVertices(std::ostream& str, const std::vector<vm::vec3>& vertic
   }
 }
 
-static void writeTexCoords(std::ostream& str, const std::vector<vm::vec2f>& texCoords)
+static void writeUVCoords(std::ostream& str, const std::vector<vm::vec2f>& uvCoords)
 {
   str << "# texture coordinates\n";
-  for (const auto& elem : texCoords)
+  for (const auto& elem : uvCoords)
   {
     // multiplying Y by -1 needed to get the UV's to appear correct in Blender and UE4
     // (see: https://github.com/TrenchBroom/TrenchBroom/issues/2851 )
@@ -193,7 +193,7 @@ static void writeObjFile(
   std::ostream& str,
   const std::string mtlFilename,
   const std::vector<vm::vec3>& vertices,
-  const std::vector<vm::vec2f>& texCoords,
+  const std::vector<vm::vec2f>& uvCoords,
   const std::vector<vm::vec3>& normals,
   const std::vector<ObjSerializer::Object>& objects)
 {
@@ -201,7 +201,7 @@ static void writeObjFile(
   str << "mtllib " << mtlFilename << "\n";
   writeVertices(str, vertices);
   str << "\n";
-  writeTexCoords(str, texCoords);
+  writeUVCoords(str, uvCoords);
   str << "\n";
   writeNormals(str, normals);
   str << "\n";
@@ -220,7 +220,7 @@ void ObjSerializer::doEndFile()
     m_objStream,
     m_mtlFilename,
     m_vertices.list(),
-    m_texCoords.list(),
+    m_uvCoords.list(),
     m_normals.list(),
     m_objects);
 }
@@ -257,12 +257,12 @@ void ObjSerializer::doBrushFace(const Model::BrushFace& face)
   for (const auto* vertex : face.vertices())
   {
     const auto& position = vertex->position();
-    const auto texCoords = face.uvCoords(position);
+    const auto uvCoords = face.uvCoords(position);
 
     const auto vertexIndex = m_vertices.index(position);
-    const auto texCoordsIndex = m_texCoords.index(texCoords);
+    const auto uvCoordsIndex = m_uvCoords.index(uvCoords);
 
-    indexedVertices.push_back(IndexedVertex{vertexIndex, texCoordsIndex, normalIndex});
+    indexedVertices.push_back(IndexedVertex{vertexIndex, uvCoordsIndex, normalIndex});
   }
 
   m_currentBrush->faces.emplace_back(BrushFace{
@@ -283,10 +283,10 @@ void ObjSerializer::doPatch(const Model::PatchNode* patchNode)
 
   const auto makeIndexedVertex = [&](const auto& p) {
     const auto positionIndex = m_vertices.index(p.position);
-    const auto texCoordsIndex = m_texCoords.index(vm::vec2f{p.texCoords});
+    const auto uvCoordsIndex = m_uvCoords.index(vm::vec2f{p.uvCoords});
     const auto normalIndex = m_normals.index(p.normal);
 
-    return IndexedVertex{positionIndex, texCoordsIndex, normalIndex};
+    return IndexedVertex{positionIndex, uvCoordsIndex, normalIndex};
   };
 
   for (size_t row = 0u; row < patchGrid.pointRowCount - 1u; ++row)

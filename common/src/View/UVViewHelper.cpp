@@ -115,15 +115,15 @@ const vm::vec3 UVViewHelper::origin() const
 const vm::vec2f UVViewHelper::originInFaceCoords() const
 {
   const auto toFace =
-    face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
   return vm::vec2f{toFace * origin()};
 }
 
-const vm::vec2f UVViewHelper::originInTexCoords() const
+const vm::vec2f UVViewHelper::originInUVCoords() const
 {
   assert(valid());
 
-  const auto toFace = face()->toTexCoordSystemMatrix(
+  const auto toFace = face()->toUVCoordSystemMatrix(
     face()->attributes().offset(), face()->attributes().scale(), true);
   return vm::vec2f{toFace * origin()};
 }
@@ -131,7 +131,7 @@ const vm::vec2f UVViewHelper::originInTexCoords() const
 void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
 {
   const auto fromFace =
-    face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
   m_origin = fromFace * vm::vec3{originInFaceCoords};
 }
 
@@ -158,32 +158,32 @@ void UVViewHelper::pickUVGrid(
     if (const auto distance = vm::intersect_ray_plane(ray, boundary))
     {
       const auto hitPointInWorldCoords = vm::point_at_distance(ray, *distance);
-      const auto hitPointInTexCoords = vm::vec2f{
-        face()->toTexCoordSystemMatrix(
+      const auto hitPointInUVCoords = vm::vec2f{
+        face()->toUVCoordSystemMatrix(
           face()->attributes().offset(), face()->attributes().scale(), true)
         * hitPointInWorldCoords};
-      const auto hitPointInViewCoords = uvToViewCoords(hitPointInTexCoords);
+      const auto hitPointInViewCoords = uvToViewCoords(hitPointInUVCoords);
 
       // X and Y distance in texels to the closest grid intersection.
       // (i.e. so the X component is the distance to the closest vertical gridline, and
       // the Y the distance to the closest horizontal gridline.)
-      const auto distanceFromGridTexCoords =
-        computeDistanceFromUVGrid(vm::vec3(hitPointInTexCoords, 0.0f));
-      const vm::vec2f closestPointsOnGridInTexCoords[2] = {
-        hitPointInTexCoords
-          + vm::vec2f{distanceFromGridTexCoords.x(), 0.0f}, // closest point on a vertical
-                                                            // gridline
-        hitPointInTexCoords
-          + vm::vec2f{0.0f, distanceFromGridTexCoords.y()}, // closest point on a
-                                                            // horizontal gridline
+      const auto distanceFromGridUVCoords =
+        computeDistanceFromUVGrid(vm::vec3(hitPointInUVCoords, 0.0f));
+      const vm::vec2f closestPointsOnGridInUVCoords[2] = {
+        hitPointInUVCoords
+          + vm::vec2f{distanceFromGridUVCoords.x(), 0.0f}, // closest point on a vertical
+                                                           // gridline
+        hitPointInUVCoords
+          + vm::vec2f{0.0f, distanceFromGridUVCoords.y()}, // closest point on a
+                                                           // horizontal gridline
       };
 
       // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
       const float distToClosestGridInViewCoords[2] = {
         vm::distance(
-          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInTexCoords[0])),
+          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUVCoords[0])),
         vm::distance(
-          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInTexCoords[1]))};
+          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInUVCoords[1]))};
 
       // FIXME: factor out and share with other tools
       constexpr auto maxDistance = 5.0f;
@@ -195,7 +195,7 @@ void UVViewHelper::pickUVGrid(
         if (error <= maxDistance)
         {
           const auto stripeSize = UVViewHelper::stripeSize();
-          const auto index = int(vm::round(hitPointInTexCoords[i] / stripeSize[i]));
+          const auto index = int(vm::round(hitPointInUVCoords[i] / stripeSize[i]));
           pickResult.addHit(
             {hitTypes[i], *distance, hitPointInWorldCoords, index, error});
         }
@@ -232,9 +232,9 @@ void UVViewHelper::computeOriginHandleVertices(
   assert(valid());
 
   const auto toTex =
-    face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
   const auto toWorld =
-    face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
   computeLineVertices(vm::vec2{originInFaceCoords()}, x1, x2, y1, y2, toTex, toWorld);
 }
 
@@ -243,9 +243,9 @@ void UVViewHelper::computeScaleHandleVertices(
 {
   assert(valid());
 
-  const auto toTex = face()->toTexCoordSystemMatrix(
+  const auto toTex = face()->toUVCoordSystemMatrix(
     face()->attributes().offset(), face()->attributes().scale(), true);
-  const auto toWorld = face()->fromTexCoordSystemMatrix(
+  const auto toWorld = face()->fromUVCoordSystemMatrix(
     face()->attributes().offset(), face()->attributes().scale(), true);
   computeLineVertices(pos, x1, x2, y1, y2, toTex, toWorld);
 }
@@ -274,7 +274,7 @@ void UVViewHelper::computeLineVertices(
 vm::vec2f UVViewHelper::uvToViewCoords(const vm::vec2f& pos) const
 {
   const auto posInWorldCoords =
-    face()->fromTexCoordSystemMatrix(
+    face()->fromUVCoordSystemMatrix(
       face()->attributes().offset(), face()->attributes().scale(), true)
     * vm::vec3{pos, 0.0};
   return m_camera.project(vm::vec3f(posInWorldCoords)).xy();
@@ -285,7 +285,7 @@ void UVViewHelper::resetOrigin()
   assert(valid());
 
   const auto toTex =
-    face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
   const auto texVertices = toTex * face()->vertexPositions();
 
   const auto toCam = vm::mat4x4{m_camera.viewMatrix()};

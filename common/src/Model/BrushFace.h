@@ -47,8 +47,8 @@ class Material;
 
 namespace TrenchBroom::Model
 {
-class TexCoordSystem;
-class TexCoordSystemSnapshot;
+class UVCoordSystem;
+class UVCoordSystemSnapshot;
 enum class WrapStyle;
 enum class MapFormat;
 
@@ -94,7 +94,7 @@ private:
   BrushFaceAttributes m_attributes;
 
   Assets::AssetReference<Assets::Material> m_materialReference;
-  std::unique_ptr<TexCoordSystem> m_texCoordSystem;
+  std::unique_ptr<UVCoordSystem> m_uvCoordSystem;
   BrushFaceGeometry* m_geometry;
 
   mutable size_t m_lineNumber;
@@ -124,7 +124,7 @@ public:
    * face-aligned UV projection, whereas createFromStandard() creates an axis-aligned
    * UV projection.
    *
-   * The returned face has a TexCoordSystem matching the given format.
+   * The returned face has a UVCoordSystem matching the given format.
    */
   static Result<BrushFace> create(
     const vm::vec3& point0,
@@ -139,7 +139,7 @@ public:
    *
    * Used when loading/pasting a Standard format map.
    *
-   * The returned face has a TexCoordSystem matching the given format.
+   * The returned face has a UVCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromStandard(
     const vm::vec3& point0,
@@ -154,15 +154,15 @@ public:
    *
    * Used when loading/pasting a Valve format map.
    *
-   * The returned face has a TexCoordSystem matching the given format.
+   * The returned face has a UVCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromValve(
     const vm::vec3& point1,
     const vm::vec3& point2,
     const vm::vec3& point3,
     const BrushFaceAttributes& attributes,
-    const vm::vec3& texAxisX,
-    const vm::vec3& texAxisY,
+    const vm::vec3& uAxis,
+    const vm::vec3& vAxis,
     MapFormat mapFormat);
 
   static Result<BrushFace> create(
@@ -170,20 +170,20 @@ public:
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attributes,
-    std::unique_ptr<TexCoordSystem> texCoordSystem);
+    std::unique_ptr<UVCoordSystem> uvCoordSystem);
 
   BrushFace(
     const BrushFace::Points& points,
     const vm::plane3& boundary,
     const BrushFaceAttributes& attributes,
-    std::unique_ptr<TexCoordSystem> texCoordSystem);
+    std::unique_ptr<UVCoordSystem> uvCoordSystem);
 
   static void sortFaces(std::vector<BrushFace>& faces);
 
-  std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
-  void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
-  void copyTexCoordSystemFromFace(
-    const TexCoordSystemSnapshot& coordSystemSnapshot,
+  std::unique_ptr<UVCoordSystemSnapshot> takeUVCoordSystemSnapshot() const;
+  void restoreUVCoordSystemSnapshot(const UVCoordSystemSnapshot& coordSystemSnapshot);
+  void copyUVCoordSystemFromFace(
+    const UVCoordSystemSnapshot& coordSystemSnapshot,
     const BrushFaceAttributes& attributes,
     const vm::plane3& sourceFacePlane,
     WrapStyle wrapStyle);
@@ -206,8 +206,8 @@ public:
   float resolvedSurfaceValue() const;
   Color resolvedColor() const;
 
-  void resetTexCoordSystemCache();
-  const TexCoordSystem& texCoordSystem() const;
+  void resetUVCoordSystemCache();
+  const UVCoordSystem& uvCoordSystem() const;
 
   const Assets::Material* material() const;
   vm::vec2f textureSize() const;
@@ -237,9 +237,9 @@ public:
   Result<void> updatePointsFromVertices();
 
   vm::mat4x4 projectToBoundaryMatrix() const;
-  vm::mat4x4 toTexCoordSystemMatrix(
+  vm::mat4x4 toUVCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
-  vm::mat4x4 fromTexCoordSystemMatrix(
+  vm::mat4x4 fromUVCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
   float measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 

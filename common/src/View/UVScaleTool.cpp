@@ -78,7 +78,7 @@ std::optional<vm::vec2f> getHitPoint(const UVViewHelper& helper, const vm::ray3&
   return kdl::optional_transform(
     vm::intersect_ray_plane(pickRay, boundary), [&](const auto facePointDist) {
       const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
-      const auto toTex = helper.face()->toTexCoordSystemMatrix({0, 0}, {1, 1}, true);
+      const auto toTex = helper.face()->toUVCoordSystemMatrix({0, 0}, {1, 1}, true);
 
       return vm::vec2f{toTex * facePoint};
     });
@@ -91,10 +91,10 @@ vm::vec2f getScaledTranslatedHandlePos(const UVViewHelper& helper, const vm::vec
 
 vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
 {
-  const auto toWorld = helper.face()->fromTexCoordSystemMatrix(
+  const auto toWorld = helper.face()->fromUVCoordSystemMatrix(
     helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
   const auto toTex =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
   return vm::vec2f{
     toTex * toWorld * vm::vec3{getScaledTranslatedHandlePos(helper, handle)}};
@@ -103,7 +103,7 @@ vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
 vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 {
   const auto toTex =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
   const auto vertices = helper.face()->vertices();
   auto distance = std::accumulate(
@@ -203,23 +203,23 @@ public:
 
     const auto dragDeltaFaceCoords = *curPoint - m_lastHitPoint;
 
-    const auto curHandlePosTexCoords = getScaledTranslatedHandlePos(m_helper, m_handle);
+    const auto curHandlePosUVCoords = getScaledTranslatedHandlePos(m_helper, m_handle);
     const auto newHandlePosFaceCoords =
       getHandlePos(m_helper, m_handle) + dragDeltaFaceCoords;
     const auto newHandlePosSnapped = snap(m_helper, newHandlePosFaceCoords);
 
     const auto originHandlePosFaceCoords = m_helper.originInFaceCoords();
-    const auto originHandlePosTexCoords = m_helper.originInTexCoords();
+    const auto originHandlePosUVCoords = m_helper.originInUVCoords();
 
     const auto newHandleDistFaceCoords = newHandlePosSnapped - originHandlePosFaceCoords;
-    const auto curHandleDistTexCoords = curHandlePosTexCoords - originHandlePosTexCoords;
+    const auto curHandleDistUVCoords = curHandlePosUVCoords - originHandlePosUVCoords;
 
     auto newScale = m_helper.face()->attributes().scale();
     for (size_t i = 0; i < 2; ++i)
     {
       if (m_selector[i])
       {
-        const auto value = newHandleDistFaceCoords[i] / curHandleDistTexCoords[i];
+        const auto value = newHandleDistFaceCoords[i] / curHandleDistUVCoords[i];
         if (value != 0.0f)
         {
           newScale[i] = value;
@@ -232,8 +232,8 @@ public:
     request.setScale(newScale);
     m_document.setFaceAttributes(request);
 
-    const auto newOriginInTexCoords = vm::correct(m_helper.originInTexCoords(), 4, 0.0f);
-    const auto originDelta = originHandlePosTexCoords - newOriginInTexCoords;
+    const auto newOriginInUVCoords = vm::correct(m_helper.originInUVCoords(), 4, 0.0f);
+    const auto originDelta = originHandlePosUVCoords - newOriginInUVCoords;
 
     request.clear();
     request.addOffset(originDelta);

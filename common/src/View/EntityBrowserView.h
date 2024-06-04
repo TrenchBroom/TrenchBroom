@@ -77,7 +77,7 @@ class EntityBrowserView : public CellView
 private:
   using EntityRenderer = Renderer::MaterialRenderer;
 
-  using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
+  using TextVertex = Renderer::GLVertexTypes::P2UV2C4::Vertex;
   using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
   static constexpr auto CameraPosition = vm::vec3f{256.0f, 0.0f, 0.0f};

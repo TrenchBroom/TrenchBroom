@@ -458,7 +458,7 @@ std::unique_ptr<Assets::EntityModel> Md2Parser::initializeModel(Logger& logger)
 
   const auto skinCount = reader.readSize<int32_t>();
   /* const auto frameVertexCount = */ reader.readSize<int32_t>();
-  /* const auto texCoordCount =*/reader.readSize<int32_t>();
+  /* const auto uvCoordCount =*/reader.readSize<int32_t>();
   /* const auto triangleCount =*/reader.readSize<int32_t>();
   /* const auto commandCount = */ reader.readSize<int32_t>();
 
@@ -503,13 +503,13 @@ void Md2Parser::loadFrame(
 
   /* const auto skinCount = */ reader.readSize<int32_t>();
   const auto vertexCount = reader.readSize<int32_t>();
-  /* const auto texCoordCount =*/reader.readSize<int32_t>();
+  /* const auto uvCoordCount =*/reader.readSize<int32_t>();
   /* const auto triangleCount =*/reader.readSize<int32_t>();
   const auto commandCount = reader.readSize<int32_t>();
   /* const auto frameCount = */ reader.readSize<int32_t>();
 
   /* const auto skinOffset = */ reader.readSize<int32_t>();
-  /* const auto texCoordOffset =*/reader.readSize<int32_t>();
+  /* const auto uvCoordOffset =*/reader.readSize<int32_t>();
   /* const auto triangleOffset =*/reader.readSize<int32_t>();
   const auto frameOffset = reader.readSize<int32_t>();
   const auto commandOffset = reader.readSize<int32_t>();

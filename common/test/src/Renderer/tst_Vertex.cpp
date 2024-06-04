@@ -40,7 +40,7 @@ struct TestVertex
 
 TEST_CASE("VertexTest.memoryLayoutSingleVertex")
 {
-  using Vertex = GLVertexTypes::P3T2C4::Vertex;
+  using Vertex = GLVertexTypes::P3UV2C4::Vertex;
 
   const auto pos = vm::vec3f(1.0f, 2.0f, 3.0f);
   const auto uv = vm::vec2f(4.0f, 5.0f);
@@ -55,7 +55,7 @@ TEST_CASE("VertexTest.memoryLayoutSingleVertex")
 
 TEST_CASE("VertexTest.memoryLayoutVertexList")
 {
-  using Vertex = GLVertexTypes::P3T2C4::Vertex;
+  using Vertex = GLVertexTypes::P3UV2C4::Vertex;
 
   auto expected = std::vector<TestVertex>();
   auto actual = std::vector<Vertex>();

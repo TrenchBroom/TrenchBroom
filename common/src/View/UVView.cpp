@@ -113,7 +113,7 @@ private:
   {
     const auto& offset = m_helper.face()->attributes().offset();
     const auto& scale = m_helper.face()->attributes().scale();
-    const auto toTex = m_helper.face()->toTexCoordSystemMatrix(offset, scale, true);
+    const auto toTex = m_helper.face()->toUVCoordSystemMatrix(offset, scale, true);
 
     const auto* material = m_helper.face()->material();
     ensure(material, "material is null");

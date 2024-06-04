@@ -32,8 +32,8 @@
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
-#include "Model/ParallelTexCoordSystem.h"
-#include "Model/ParaxialTexCoordSystem.h"
+#include "Model/ParallelUVCoordSystem.h"
+#include "Model/ParaxialUVCoordSystem.h"
 #include "Model/Polyhedron.h"
 #include "TestUtils.h"
 
@@ -64,7 +64,7 @@ TEST_CASE("BrushFaceTest.constructWithValidPoints")
   const BrushFaceAttributes attribs("");
   BrushFace face =
     BrushFace::create(
-      p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs))
+      p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
       .value();
   CHECK(face.points()[0] == vm::approx(p0));
   CHECK(face.points()[1] == vm::approx(p1));
@@ -82,7 +82,7 @@ TEST_CASE("BrushFaceTest.constructWithColinearPoints")
   const BrushFaceAttributes attribs("");
   CHECK_FALSE(
     BrushFace::create(
-      p0, p1, p2, attribs, std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs))
+      p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
       .is_success());
 }
 
@@ -100,13 +100,10 @@ TEST_CASE("BrushFaceTest.materialUsageCount")
   BrushFaceAttributes attribs("");
   {
     // test constructor
-    BrushFace face = BrushFace::create(
-                       p0,
-                       p1,
-                       p2,
-                       attribs,
-                       std::make_unique<ParaxialTexCoordSystem>(p0, p1, p2, attribs))
-                       .value();
+    BrushFace face =
+      BrushFace::create(
+        p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
+        .value();
     CHECK(material.usageCount() == 0u);
 
     // test setMaterial
@@ -161,17 +158,17 @@ TEST_CASE("BrushFaceTest.projectedArea")
   CHECK(face.projectedArea(vm::axis::z) == vm::approx{0.0});
 }
 
-static void getFaceVertsAndTexCoords(
+static void getFaceVertsAndUVCoords(
   const BrushFace& face,
   std::vector<vm::vec3>* vertPositions,
-  std::vector<vm::vec2f>* vertTexCoords)
+  std::vector<vm::vec2f>* vertUVCoords)
 {
   for (const auto* vertex : face.vertices())
   {
     vertPositions->push_back(vertex->position());
-    if (vertTexCoords != nullptr)
+    if (vertUVCoords != nullptr)
     {
-      vertTexCoords->push_back(face.uvCoords(vm::vec3(vertex->position())));
+      vertUVCoords->push_back(face.uvCoords(vm::vec3(vertex->position())));
     }
   }
 }
@@ -219,7 +216,7 @@ static void checkAlignmentLockOffWithTransform(
   BrushFace face = origFace;
   resetFaceUVAlignment(face);
   REQUIRE(face.transform(transform, false).is_success());
-  face.resetTexCoordSystemCache();
+  face.resetUVCoordSystemCache();
 
   // reset alignment, transform the face (alignment lock off), then reset the alignment
   // again
@@ -231,7 +228,7 @@ static void checkAlignmentLockOffWithTransform(
   // UVs of the verts of `face` and `resetFace` should be the same now
 
   std::vector<vm::vec3> verts;
-  getFaceVertsAndTexCoords(origFace, &verts, nullptr);
+  getFaceVertsAndUVCoords(origFace, &verts, nullptr);
 
   // transform the verts
   std::vector<vm::vec3> transformedVerts;
@@ -291,13 +288,13 @@ static void checkAlignmentLockOnWithTransform(
 {
   std::vector<vm::vec3> verts;
   std::vector<vm::vec2f> uvs;
-  getFaceVertsAndTexCoords(origFace, &verts, &uvs);
+  getFaceVertsAndUVCoords(origFace, &verts, &uvs);
   CHECK(verts.size() >= 3u);
 
   // transform the face
   BrushFace face = origFace;
   REQUIRE(face.transform(transform, true).is_success());
-  face.resetTexCoordSystemCache();
+  face.resetUVCoordSystemCache();
 
   // transform the verts
   std::vector<vm::vec3> transformedVerts;
@@ -476,7 +473,7 @@ static void doWithAlignmentLockTestTransforms(const bool doParallelTests, L&& la
   doWithSingleAxisRotations(45, lambda);
 
   // rotation on multiple axes simultaneously is only expected to work on
-  // ParallelTexCoordSystem
+  // ParallelUVCoordSystem
   if (doParallelTests)
   {
     doMultiAxisRotations(30.0, lambda);
@@ -513,7 +510,7 @@ static void checkAlignmentLockOffWithVerticalFlip(const Brush& cube)
   // transform the face (alignment lock off)
   BrushFace face = origFace;
   REQUIRE(face.transform(transform, false).is_success());
-  face.resetTexCoordSystemCache();
+  face.resetUVCoordSystemCache();
 
   // UVs of the verts of `face` and `origFace` should be the same now
 
@@ -543,12 +540,12 @@ static void checkAlignmentLockOffWithScale(const Brush& cube)
   // transform the face (alignment lock off)
   BrushFace face = origFace;
   REQUIRE(face.transform(transform, false).is_success());
-  face.resetTexCoordSystemCache();
+  face.resetUVCoordSystemCache();
 
   // get UV at mins; should be equal
   const vm::vec2f left_origTC = origFace.uvCoords(mins);
   const vm::vec2f left_transformedTC = face.uvCoords(mins);
-  CHECK(texCoordsEqual(left_origTC, left_transformedTC));
+  CHECK(uvCoordsEqual(left_origTC, left_transformedTC));
 
   // get UVs at mins, plus the X size of the cube
   const vm::vec2f right_origTC =
@@ -691,7 +688,7 @@ TEST_CASE("BrushFaceTest.testValveRotation")
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/1995
-TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
+TEST_CASE("BrushFaceTest.testCopyUVCoordSystem")
 {
   const std::string data(
     "{\n"
@@ -746,10 +743,10 @@ TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
   CHECK(negYFace->uAxis() == vm::vec3::pos_x());
   CHECK(negYFace->vAxis() == vm::vec3::neg_z());
 
-  auto snapshot = negYFace->takeTexCoordSystemSnapshot();
+  auto snapshot = negYFace->takeUVCoordSystemSnapshot();
 
   // copy texturing from the negYFace to posXFace using the rotation method
-  posXFace->copyTexCoordSystemFromFace(
+  posXFace->copyUVCoordSystemFromFace(
     *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Rotation);
   CHECK(
     posXFace->uAxis()
@@ -761,7 +758,7 @@ TEST_CASE("BrushFaceTest.testCopyTexCoordSystem")
       vm::vec3(-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011)));
 
   // copy texturing from the negYFace to posXFace using the projection method
-  posXFace->copyTexCoordSystemFromFace(
+  posXFace->copyUVCoordSystemFromFace(
     *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Projection);
   CHECK(posXFace->uAxis() == vm::approx(vm::vec3::neg_y()));
   CHECK(posXFace->vAxis() == vm::approx(vm::vec3::neg_z()));
@@ -837,17 +834,16 @@ TEST_CASE("BrushFaceTest.formatConversion")
   auto testTransform = [&](const vm::mat4x4& transform) {
     auto standardCube = startingCube;
     REQUIRE(standardCube.transform(worldBounds, transform, true).is_success());
-    CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(
-      &standardCube.face(0).texCoordSystem()));
+    CHECK(
+      dynamic_cast<const ParaxialUVCoordSystem*>(&standardCube.face(0).uvCoordSystem()));
 
     const Brush valveCube = standardCube.convertToParallel();
-    CHECK(
-      dynamic_cast<const ParallelTexCoordSystem*>(&valveCube.face(0).texCoordSystem()));
+    CHECK(dynamic_cast<const ParallelUVCoordSystem*>(&valveCube.face(0).uvCoordSystem()));
     checkBrushUVsEqual(standardCube, valveCube);
 
     const Brush standardCubeRoundTrip = valveCube.convertToParaxial();
-    CHECK(dynamic_cast<const ParaxialTexCoordSystem*>(
-      &standardCubeRoundTrip.face(0).texCoordSystem()));
+    CHECK(dynamic_cast<const ParaxialUVCoordSystem*>(
+      &standardCubeRoundTrip.face(0).uvCoordSystem()));
     checkBrushUVsEqual(standardCube, standardCubeRoundTrip);
   };
 

@@ -24,10 +24,9 @@
 #include <ostream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 MapFormat formatFromName(const std::string& formatName)
 {
   if (formatName == "Standard")
@@ -166,7 +165,7 @@ std::vector<MapFormat> compatibleFormats(const MapFormat format)
   }
 }
 
-bool isParallelTexCoordSystem(const MapFormat format)
+bool isParallelUVCoordSystem(const MapFormat format)
 {
   switch (format)
   {
@@ -185,5 +184,5 @@ bool isParallelTexCoordSystem(const MapFormat format)
     switchDefault();
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

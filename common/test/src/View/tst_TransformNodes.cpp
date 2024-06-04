@@ -478,7 +478,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
   const auto delta = vm::vec3{0.125, 0, 0};
   REQUIRE(document->translateObjects(delta));
 
-  auto getTexCoords =
+  auto getUVCoords =
     [](auto* brushNode, const vm::vec3& normal) -> std::vector<vm::vec2f> {
     const Model::BrushFace& face =
       brushNode->brush().face(*brushNode->brush().findFace(normal));
@@ -488,8 +488,8 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
 
   // Brushes in linked groups should have alignment lock forced on
   CHECK(uvListsEqual(
-    getTexCoords(brushNode1, vm::vec3::pos_z()),
-    getTexCoords(linkedBrushNode, vm::vec3::pos_z())));
+    getUVCoords(brushNode1, vm::vec3::pos_z()),
+    getUVCoords(linkedBrushNode, vm::vec3::pos_z())));
 
   PreferenceManager::instance().resetToDefault(Preferences::AlignmentLock);
 }

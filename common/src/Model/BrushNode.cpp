@@ -36,7 +36,7 @@
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
-#include "Model/TexCoordSystem.h"
+#include "Model/UVCoordSystem.h"
 #include "Model/Validator.h"
 #include "Model/WorldNode.h"
 #include "Polyhedron.h"

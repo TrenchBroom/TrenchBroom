@@ -164,8 +164,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Object.cpp
-        ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.cpp
+        ${COMMON_SOURCE_DIR}/Model/ParallelUVCoordSystem.cpp
+        ${COMMON_SOURCE_DIR}/Model/ParaxialUVCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/PatchNode.cpp
         ${COMMON_SOURCE_DIR}/Model/PickResult.cpp
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesValidator.cpp
@@ -181,7 +181,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/TagManager.cpp
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
+        ${COMMON_SOURCE_DIR}/Model/UVCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/Validator.cpp
         ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsValidator.cpp
@@ -661,8 +661,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.h
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesValidator.h
         ${COMMON_SOURCE_DIR}/Model/Object.h
-        ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.h
-        ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.h
+        ${COMMON_SOURCE_DIR}/Model/ParallelUVCoordSystem.h
+        ${COMMON_SOURCE_DIR}/Model/ParaxialUVCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/PatchNode.h
         ${COMMON_SOURCE_DIR}/Model/PickResult.h
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesValidator.h
@@ -696,7 +696,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.h
         ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
+        ${COMMON_SOURCE_DIR}/Model/UVCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/Validator.h
         ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.h
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.cpp

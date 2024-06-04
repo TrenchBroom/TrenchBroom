@@ -20,8 +20,8 @@
 #include "Assets/Material.h"
 #include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
-#include "Model/ParallelTexCoordSystem.h"
-#include "Model/ParaxialTexCoordSystem.h"
+#include "Model/ParallelUVCoordSystem.h"
+#include "Model/ParaxialUVCoordSystem.h"
 
 #include "vm/vec.h"
 
@@ -37,14 +37,14 @@ namespace Model
 #pragma clang diagnostic ignored "-Wcovered-switch-default"
 #endif
 
-TEST_CASE("TexCoordSystemTest.testSnapshotTypeSafety")
+TEST_CASE("UVCoordSystemTest.testSnapshotTypeSafety")
 {
   BrushFaceAttributes attribs("");
 
-  ParaxialTexCoordSystem paraxial(vm::vec3::pos_z(), attribs);
+  ParaxialUVCoordSystem paraxial(vm::vec3::pos_z(), attribs);
   CHECK(paraxial.takeSnapshot() == nullptr);
 
-  ParallelTexCoordSystem parallel(vm::vec3::pos_y(), vm::vec3::pos_x());
+  ParallelUVCoordSystem parallel(vm::vec3::pos_y(), vm::vec3::pos_x());
   auto parallelSnapshot = parallel.takeSnapshot();
   CHECK(parallelSnapshot != nullptr);
 
