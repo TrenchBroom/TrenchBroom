@@ -222,7 +222,7 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneBrush")
     vm::vec3{0.0, 0.0, 0.0},
     vm::vec3{64.0, 0.0, -16.0});
   CHECK(face1 != nullptr);
-  CHECK(face1->attributes().textureName() == "tex1");
+  CHECK(face1->attributes().materialName() == "tex1");
   CHECK(face1->attributes().xOffset() == 1.0);
   CHECK(face1->attributes().yOffset() == 2.0);
   CHECK(face1->attributes().rotation() == 3.0);
@@ -309,7 +309,7 @@ TEST_CASE("WorldReader.parseMapAndCheckFaceFlags")
   CHECK(face->attributes().yScale() == -0.55f);
 }
 
-TEST_CASE("WorldReader.parseBrushWithCurlyBraceInTextureName")
+TEST_CASE("WorldReader.parseBrushWithCurlyBraceInMaterialName")
 {
   const auto data = R"(
 {
@@ -629,7 +629,7 @@ TEST_CASE("WorldReader.parseDaikatanaMapHeader")
   checkBrushTexCoordSystem(brush, false);
 }
 
-TEST_CASE("WorldReader.parseQuakeBrushWithNumericalTextureName")
+TEST_CASE("WorldReader.parseQuakeBrushWithNumericalMaterialName")
 {
   const auto data = R"(
 {
@@ -1228,7 +1228,7 @@ common/caulk
   CHECK(patchNode != nullptr);
 
   const auto& patch = patchNode->patch();
-  CHECK(patch.textureName() == "common/caulk");
+  CHECK(patch.materialName() == "common/caulk");
   CHECK(patch.pointRowCount() == 5);
   CHECK(patch.pointColumnCount() == 3);
 
@@ -1460,11 +1460,11 @@ TEST_CASE("WorldReader.parseHeretic2QuarkMap")
   CHECK(brushNode->logicalBounds() == vm::bbox3{{-512, -512, -64}, {512, 512, 0}});
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK("general/sand1" == face.attributes().textureName());
+    CHECK("general/sand1" == face.attributes().materialName());
   }
 }
 
-TEST_CASE("WorldReader.parseTBEmptyTextureName")
+TEST_CASE("WorldReader.parseTBEmptyMaterialName")
 {
   const auto data = R"(
 // entity 0
@@ -1499,18 +1499,18 @@ TEST_CASE("WorldReader.parseTBEmptyTextureName")
 
   for (const auto& face : brush->brush().faces())
   {
-    CHECK(!face.attributes().textureName().empty());
-    CHECK(face.attributes().textureName() == Model::BrushFaceAttributes::NoTextureName);
+    CHECK(!face.attributes().materialName().empty());
+    CHECK(face.attributes().materialName() == Model::BrushFaceAttributes::NoMaterialName);
   }
 }
 
-TEST_CASE("WorldReader.parseQuotedTextureNames")
+TEST_CASE("WorldReader.parseQuotedMaterialNames")
 {
   using NameInfo = std::tuple<std::string, std::string>;
 
   // clang-format off
   const auto 
-  [textureName,       expectedName] = GENERATE(values<NameInfo>({
+  [materialName,      expectedName] = GENERATE(values<NameInfo>({
   {R"(some_name)",    R"(some_name)"},
   {R"("some name")",  R"(some name)"},
   {R"("some\\name")", R"(some\name)"},
@@ -1519,7 +1519,7 @@ TEST_CASE("WorldReader.parseQuotedTextureNames")
   }));
   // clang-format on
 
-  CAPTURE(textureName, expectedName);
+  CAPTURE(materialName, expectedName);
 
   const auto data = fmt::format(
     R"(
@@ -1536,7 +1536,7 @@ TEST_CASE("WorldReader.parseQuotedTextureNames")
 ( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) {0} 0 0 0 1 1
 }}
 }})",
-    textureName);
+    materialName);
 
   const auto worldBounds = vm::bbox3{8192.0};
 
@@ -1556,7 +1556,7 @@ TEST_CASE("WorldReader.parseQuotedTextureNames")
     dynamic_cast<Model::BrushNode*>(defaultLayerNode->children().front());
   REQUIRE(brushNode != nullptr);
 
-  CHECK(brushNode->brush().face(0).attributes().textureName() == expectedName);
+  CHECK(brushNode->brush().face(0).attributes().materialName() == expectedName);
 }
 
 TEST_CASE("WorldReader.parseLinkedGroups")

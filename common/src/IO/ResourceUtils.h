@@ -33,7 +33,7 @@ class Logger;
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::IO
@@ -41,14 +41,14 @@ namespace TrenchBroom::IO
 class FileSystem;
 
 /**
- * Loads a default texture file from the given file system. If the default texture cannot
- * be found or opened, an empty texture is returned.
+ * Loads a default material from the given file system. If the default material cannot be
+ * found or opened, an empty material is returned.
  *
- * @param fs the file system used to locate the texture file
- * @param name the name of the texture to be returned
- * @return the default texture
+ * @param fs the file system used to locate the material file
+ * @param name the name of the material to be returned
+ * @return the default material
  */
-Assets::Texture loadDefaultTexture(
+Assets::Material loadDefaultMaterial(
   const FileSystem& fs, std::string name, Logger& logger);
 
 QPixmap loadPixmapResource(const std::filesystem::path& imagePath);

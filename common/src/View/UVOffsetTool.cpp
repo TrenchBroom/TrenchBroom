@@ -62,7 +62,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
 {
   assert(helper.valid());
 
-  if (helper.texture())
+  if (helper.material())
   {
     const auto transform = helper.face()->toTexCoordSystemMatrix(
       helper.face()->attributes().offset() - delta,
@@ -72,8 +72,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
     auto distance = vm::vec2f::max();
     for (const auto* vertex : helper.face()->vertices())
     {
-      const auto temp =
-        helper.computeDistanceFromTextureGrid(transform * vertex->position());
+      const auto temp = helper.computeDistanceFromUVGrid(transform * vertex->position());
       distance = vm::abs_min(distance, temp);
     }
 
@@ -97,7 +96,7 @@ public:
     , m_helper{helper}
     , m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())}
   {
-    m_document.startTransaction("Move Texture", TransactionScope::LongRunning);
+    m_document.startTransaction("Move UV", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override

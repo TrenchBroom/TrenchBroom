@@ -82,7 +82,7 @@ public:
   const vm::bbox3& bounds() const;
 
 public: // face management:
-  std::optional<size_t> findFace(const std::string& textureName) const;
+  std::optional<size_t> findFace(const std::string& materialName) const;
   std::optional<size_t> findFace(const vm::vec3& normal) const;
   std::optional<size_t> findFace(const vm::plane3& boundary) const;
   std::optional<size_t> findFace(
@@ -117,7 +117,7 @@ public: // move face along normal
    * @param worldBounds the world bounds
    * @param faceIndex the index of the face to translate
    * @param delta the vector by which to translate the face
-   * @param lockTexture whether textures should be locked
+   * @param lockMaterial whether material alignment should be locked
    *
    * @return a void result or an error
    */
@@ -125,7 +125,7 @@ public: // move face along normal
     const vm::bbox3& worldBounds,
     size_t faceIndex,
     const vm::vec3& delta,
-    bool lockTexture);
+    bool lockMaterial);
 
   /**
    * Moves all faces by `delta` units along their normals; negative values shrink the
@@ -133,11 +133,11 @@ public: // move face along normal
    *
    * @param worldBounds the world bounds
    * @param delta the distance by which to move the faces
-   * @param lockTexture whether textures should be locked
+   * @param lockMaterial whether material alignment should be locked
    *
    * @return a void result or an error
    */
-  Result<void> expand(const vm::bbox3& worldBounds, FloatType delta, bool lockTexture);
+  Result<void> expand(const vm::bbox3& worldBounds, FloatType delta, bool lockMaterial);
 
 public:
   // geometry access
@@ -235,7 +235,7 @@ private:
     const vm::bbox3& worldBounds,
     const std::vector<vm::vec3>& vertexPositions,
     const vm::vec3& delta,
-    bool lockTexture);
+    bool lockMaterial);
   /**
    * Tries to find 3 vertices in `left` and `right` that are related according to the
    * PolyhedronMatcher, and generates an affine transform for them which can then be used
@@ -296,12 +296,12 @@ public:
   std::vector<Result<Brush>> subtract(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
-    const std::string& defaultTextureName,
+    const std::string& defaultMaterialName,
     const std::vector<const Brush*>& subtrahends) const;
   std::vector<Result<Brush>> subtract(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
-    const std::string& defaultTextureName,
+    const std::string& defaultMaterialName,
     const Brush& subtrahend) const;
 
   /**
@@ -322,11 +322,11 @@ public:
    *
    * @param worldBounds the world bounds
    * @param transformation the transformation to apply
-   * @param lockTextures whether textures should be locked
+   * @param lockMaterials whether material alignment should be locked
    * @return a void result or an error if the operation fails
    */
   Result<void> transform(
-    const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures);
+    const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockMaterials);
 
 public:
   bool contains(const vm::bbox3& bounds) const;
@@ -337,24 +337,24 @@ public:
 private:
   /**
    * Final step of CSG subtraction; takes the geometry that is the result of the
-   * subtraction, and turns it into a Brush by copying texturing from `this` (for
+   * subtraction, and turns it into a Brush by copying materials from `this` (for
    * un-clipped faces) or the brushes in `subtrahends` (for clipped faces).
    *
    * @param mapFormat the map format
    * @param worldBounds the world bounds
-   * @param defaultTextureName default texture name
+   * @param defaultMaterialName default material name
    * @param geometry the geometry for the newly created brush
-   * @param subtrahends used as a source of texture alignment only
+   * @param subtrahends used as a source of material alignment only
    * @return the newly created brush
    */
   Result<Brush> createBrush(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
-    const std::string& defaultTextureName,
+    const std::string& defaultMaterialName,
     const BrushGeometry& geometry,
     const std::vector<const Brush*>& subtrahends) const;
 
-public: // texture format conversion
+public: // UV format conversion
   Brush convertToParaxial() const;
   Brush convertToParallel() const;
 

@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Assets/Palette.h"
-#include "IO/TextureUtils.h"
+#include "IO/MaterialUtils.h"
 
 #include "kdl/result_forward.h"
 
@@ -28,14 +28,14 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::IO
 {
 class Reader;
 
-Result<Assets::Texture, ReadTextureError> readWalTexture(
+Result<Assets::Material, ReadMaterialError> readWalTexture(
   std::string name, Reader& reader, const std::optional<Assets::Palette>& palette);
 
 } // namespace TrenchBroom::IO

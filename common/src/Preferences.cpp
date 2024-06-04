@@ -188,7 +188,7 @@ Preference<int> TextureMinFilter("Renderer/Texture mode min filter", 0x2700);
 Preference<int> TextureMagFilter("Renderer/Texture mode mag filter", 0x2600);
 Preference<bool> EnableMSAA("Renderer/Enable multisampling", true);
 
-Preference<bool> TextureLock("Editor/Texture lock", true);
+Preference<bool> AlignmentLock("Editor/Texture lock", true);
 Preference<bool> UVLock("Editor/UV lock", false);
 
 Preference<std::filesystem::path>& RendererFontPath()
@@ -208,12 +208,12 @@ Preference<Color> BrowserGroupBackgroundColor(
   "Browser/Group background color", Color(0.1f, 0.1f, 0.1f, 0.8f));
 Preference<Color> BrowserBackgroundColor(
   "Browser/Background color", Color(0.14f, 0.14f, 0.14f, 1.0f));
-Preference<float> TextureBrowserIconSize("Texture Browser/Icon size", 1.0f);
-Preference<Color> TextureBrowserDefaultColor(
+Preference<float> MaterialBrowserIconSize("Texture Browser/Icon size", 1.0f);
+Preference<Color> MaterialBrowserDefaultColor(
   "Texture Browser/Default color", Color(0.0f, 0.0f, 0.0f, 0.0f));
-Preference<Color> TextureBrowserSelectedColor(
+Preference<Color> MaterialBrowserSelectedColor(
   "Texture Browser/Selected color", Color(1.0f, 0.0f, 0.0f, 1.0f));
-Preference<Color> TextureBrowserUsedColor(
+Preference<Color> MaterialBrowserUsedColor(
   "Texture Browser/Used color", Color(1.0f, 0.7f, 0.0f, 1.0f));
 
 Preference<float> CameraLookSpeed("Controls/Camera/Look speed", 0.5f);
@@ -382,7 +382,7 @@ const std::vector<PreferenceBase*>& staticPreferences()
     &GridColor2D,
     &TextureMinFilter,
     &TextureMagFilter,
-    &TextureLock,
+    &AlignmentLock,
     &UVLock,
     &RendererFontPath(),
     &RendererFontSize,
@@ -391,10 +391,10 @@ const std::vector<PreferenceBase*>& staticPreferences()
     &BrowserSubTextColor,
     &BrowserBackgroundColor,
     &BrowserGroupBackgroundColor,
-    &TextureBrowserIconSize,
-    &TextureBrowserDefaultColor,
-    &TextureBrowserSelectedColor,
-    &TextureBrowserUsedColor,
+    &MaterialBrowserIconSize,
+    &MaterialBrowserDefaultColor,
+    &MaterialBrowserSelectedColor,
+    &MaterialBrowserUsedColor,
     &CameraLookSpeed,
     &CameraLookInvertH,
     &CameraLookInvertV,

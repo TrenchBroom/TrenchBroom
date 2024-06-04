@@ -18,8 +18,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -37,7 +37,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-static Assets::Texture loadTexture(const std::string& name)
+static Assets::Material loadTexture(const std::string& name)
 {
   const auto ddsPath = std::filesystem::current_path() / "fixture/test/IO/Dds/";
   auto diskFS = DiskFileSystem{ddsPath};
@@ -47,7 +47,7 @@ static Assets::Texture loadTexture(const std::string& name)
   return readDdsTexture(name, reader).value();
 }
 
-static void assertTexture(
+static void assertMaterial(
   const std::string& name, const size_t width, const size_t height, const GLenum format)
 {
   const auto texture = loadTexture(name);
@@ -61,11 +61,11 @@ static void assertTexture(
 
 TEST_CASE("ReadDdsTextureTest.testLoadDds")
 {
-  assertTexture("dds_rgb.dds", 128, 128, GL_BGR);
-  assertTexture("dds_rgba.dds", 128, 128, GL_BGRA);
-  assertTexture("dds_bc1.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
-  assertTexture("dds_bc2.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
-  assertTexture("dds_bc3.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+  assertMaterial("dds_rgb.dds", 128, 128, GL_BGR);
+  assertMaterial("dds_rgba.dds", 128, 128, GL_BGRA);
+  assertMaterial("dds_bc1.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
+  assertMaterial("dds_bc2.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
+  assertMaterial("dds_bc3.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
 }
 } // namespace IO
 } // namespace TrenchBroom

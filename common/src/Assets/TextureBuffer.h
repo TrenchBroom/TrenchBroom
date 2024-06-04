@@ -26,18 +26,17 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 class TextureBuffer
 {
 private:
   std::unique_ptr<unsigned char[]> m_buffer;
-  size_t m_size;
+  size_t m_size = 0;
 
 public:
-  explicit TextureBuffer();
+  TextureBuffer();
   explicit TextureBuffer(size_t size);
 
   const unsigned char* data() const;
@@ -45,6 +44,9 @@ public:
 
   size_t size() const;
 };
+
+std::ostream& operator<<(std::ostream& lhs, const TextureBuffer& rhs);
+
 using TextureBufferList = std::vector<TextureBuffer>;
 
 vm::vec2s sizeAtMipLevel(size_t width, size_t height, size_t level);
@@ -60,5 +62,5 @@ void setMipBufferSize(
 
 void resizeMips(
   TextureBufferList& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize);
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

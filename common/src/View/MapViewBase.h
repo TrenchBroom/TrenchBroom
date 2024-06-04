@@ -39,24 +39,25 @@ class QAction;
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class BrushEntityDefinition;
 class EntityDefinition;
 enum class EntityDefinitionType;
 class PointEntityDefinition;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class GroupNode;
 class Node;
 class NodeCollection;
 class SmartTag;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class Compass;
@@ -65,9 +66,9 @@ class PrimitiveRenderer;
 class RenderBatch;
 class RenderContext;
 enum class RenderMode;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class Action;
 class AnimationManager;
@@ -89,14 +90,14 @@ public:
   static const int DefaultCameraAnimationDuration;
 
 protected:
-  Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
   MapViewToolBox& m_toolBox;
+  Renderer::MapRenderer& m_renderer;
+  Logger* m_logger = nullptr;
 
   std::unique_ptr<AnimationManager> m_animationManager;
 
 private:
-  Renderer::MapRenderer& m_renderer;
   std::unique_ptr<Renderer::Compass> m_compass;
   std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
 
@@ -104,9 +105,9 @@ private:
    * Tracks whether this map view has most recently gotten the focus. This is tracked and
    * updated by a MapViewActivationTracker instance.
    */
-  bool m_isCurrent;
+  bool m_isCurrent = false;
 
-  SignalDelayer* m_updateActionStatesSignalDelayer;
+  SignalDelayer* m_updateActionStatesSignalDelayer = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -115,11 +116,11 @@ private: // shortcuts
 
 protected:
   MapViewBase(
-    Logger* logger,
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& renderer,
-    GLContextManager& contextManager);
+    GLContextManager& contextManager,
+    Logger* logger);
 
   void setCompass(std::unique_ptr<Renderer::Compass> compass);
 
@@ -155,7 +156,7 @@ private:
   void commandDone(Command& command);
   void commandUndone(UndoableCommand& command);
   void selectionDidChange(const Selection& selection);
-  void textureCollectionsDidChange();
+  void materialCollectionsDidChange();
   void entityDefinitionsDidChange();
   void modsDidChange();
   void editorContextDidChange();
@@ -191,22 +192,24 @@ public: // move, rotate, flip actions
   void flipObjects(vm::direction direction);
   bool canFlipObjects() const;
 
-public: // texture actions
-  enum class TextureActionMode
+public: // UV actions
+  enum class UVActionMode
   {
     Normal,
     Coarse,
     Fine
   };
 
-  void moveTextures(vm::direction direction, TextureActionMode mode);
-  vm::vec2f moveTextureOffset(vm::direction direction, TextureActionMode mode) const;
-  float moveTextureDistance(TextureActionMode mode) const;
-  void rotateTextures(bool clockwise, TextureActionMode mode);
-  float rotateTextureAngle(bool clockwise, TextureActionMode mode) const;
-  void flipTextures(vm::direction direction);
-  void resetTextures();
-  void resetTexturesToWorld();
+  void moveUV(vm::direction direction, UVActionMode mode);
+  vm::vec2f moveUVOffset(vm::direction direction, UVActionMode mode) const;
+  float moveUVDistance(UVActionMode mode) const;
+
+  void rotateUV(bool clockwise, UVActionMode mode);
+  float rotateUVAngle(bool clockwise, UVActionMode mode) const;
+
+  void flipUV(vm::direction direction);
+  void resetUV();
+  void resetUVToWorld();
 
 public: // tool mode actions
   void createComplexBrush();
@@ -289,8 +292,8 @@ public: // view filters
   void toggleShowPointEntities();
   void toggleShowPointEntityModels();
   void toggleShowBrushes();
-  void showTextures();
-  void hideTextures();
+  void showMaterials();
+  void hideMaterials();
   void hideFaces();
   void toggleShadeFaces();
   void toggleShowFog();
@@ -393,5 +396,5 @@ private: // subclassing interface
   virtual bool doBeforePopupMenu();
   virtual void doAfterPopupMenu();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

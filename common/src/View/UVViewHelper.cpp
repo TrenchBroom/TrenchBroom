@@ -19,7 +19,7 @@
 
 #include "UVViewHelper.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/PickResult.h"
@@ -51,9 +51,9 @@ const Model::BrushFace* UVViewHelper::face() const
   return valid() ? &m_faceHandle->face() : nullptr;
 }
 
-const Assets::Texture* UVViewHelper::texture() const
+const Assets::Material* UVViewHelper::material() const
 {
-  return valid() ? face()->texture() : nullptr;
+  return valid() ? face()->material() : nullptr;
 }
 
 void UVViewHelper::setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle)
@@ -90,10 +90,10 @@ vm::vec2 UVViewHelper::stripeSize() const
 {
   assert(valid());
 
-  if (const auto* texture = face()->texture())
+  if (const auto* material = face()->material())
   {
-    const auto width = FloatType(texture->width()) / FloatType(m_subDivisions.x());
-    const auto height = FloatType(texture->height()) / FloatType(m_subDivisions.y());
+    const auto width = FloatType(material->width()) / FloatType(m_subDivisions.x());
+    const auto height = FloatType(material->height()) / FloatType(m_subDivisions.y());
     return vm::vec2{width, height};
   }
 
@@ -145,14 +145,14 @@ float UVViewHelper::cameraZoom() const
   return m_camera.zoom();
 }
 
-void UVViewHelper::pickTextureGrid(
+void UVViewHelper::pickUVGrid(
   const vm::ray3& ray,
   const Model::HitType::Type hitTypes[2],
   Model::PickResult& pickResult) const
 {
   assert(valid());
 
-  if (face()->texture())
+  if (face()->material())
   {
     const auto& boundary = face()->boundary();
     if (const auto distance = vm::intersect_ray_plane(ray, boundary))
@@ -162,13 +162,13 @@ void UVViewHelper::pickTextureGrid(
         face()->toTexCoordSystemMatrix(
           face()->attributes().offset(), face()->attributes().scale(), true)
         * hitPointInWorldCoords};
-      const auto hitPointInViewCoords = texToViewCoords(hitPointInTexCoords);
+      const auto hitPointInViewCoords = uvToViewCoords(hitPointInTexCoords);
 
       // X and Y distance in texels to the closest grid intersection.
       // (i.e. so the X component is the distance to the closest vertical gridline, and
       // the Y the distance to the closest horizontal gridline.)
       const auto distanceFromGridTexCoords =
-        computeDistanceFromTextureGrid(vm::vec3(hitPointInTexCoords, 0.0f));
+        computeDistanceFromUVGrid(vm::vec3(hitPointInTexCoords, 0.0f));
       const vm::vec2f closestPointsOnGridInTexCoords[2] = {
         hitPointInTexCoords
           + vm::vec2f{distanceFromGridTexCoords.x(), 0.0f}, // closest point on a vertical
@@ -181,9 +181,9 @@ void UVViewHelper::pickTextureGrid(
       // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
       const float distToClosestGridInViewCoords[2] = {
         vm::distance(
-          hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[0])),
+          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInTexCoords[0])),
         vm::distance(
-          hitPointInViewCoords, texToViewCoords(closestPointsOnGridInTexCoords[1]))};
+          hitPointInViewCoords, uvToViewCoords(closestPointsOnGridInTexCoords[1]))};
 
       // FIXME: factor out and share with other tools
       constexpr auto maxDistance = 5.0f;
@@ -217,7 +217,7 @@ vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& dista
   return result;
 }
 
-vm::vec2f UVViewHelper::computeDistanceFromTextureGrid(const vm::vec3& position) const
+vm::vec2f UVViewHelper::computeDistanceFromUVGrid(const vm::vec3& position) const
 {
   const auto stripe = stripeSize();
   assert(stripe.x() != 0.0 && stripe.y() != 0);
@@ -271,7 +271,7 @@ void UVViewHelper::computeLineVertices(
   y2 = toWorld * vm::vec3{max.x(), pos.y(), 0.0};
 }
 
-vm::vec2f UVViewHelper::texToViewCoords(const vm::vec2f& pos) const
+vm::vec2f UVViewHelper::uvToViewCoords(const vm::vec2f& pos) const
 {
   const auto posInWorldCoords =
     face()->fromTexCoordSystemMatrix(

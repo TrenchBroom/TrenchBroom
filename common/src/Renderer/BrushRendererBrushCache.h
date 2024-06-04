@@ -23,21 +23,20 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
+
 class BrushRendererBrushCache
 {
 public:
@@ -46,7 +45,7 @@ public:
 
   struct CachedFace
   {
-    const Assets::Texture* texture;
+    const Assets::Material* material;
     const Model::BrushFace* face;
     size_t vertexCount;
     size_t indexOfFirstVertexRelativeToBrush;
@@ -72,7 +71,7 @@ public:
 private:
   std::vector<Vertex> m_cachedVertices;
   std::vector<CachedEdge> m_cachedEdges;
-  std::vector<CachedFace> m_cachedFacesSortedByTexture;
+  std::vector<CachedFace> m_cachedFacesSortedByMaterial;
   bool m_rendererCacheValid;
 
 public:
@@ -83,7 +82,7 @@ public:
    */
   void invalidateVertexCache();
   /**
-   * Call this before cachedVertices()/cachedFacesSortedByTexture()/cachedEdges()
+   * Call this before cachedVertices()/cachedFacesSortedByMaterial()/cachedEdges()
    *
    * NOTE: The reason for having this cache is we often need to re-upload the brush to
    * VBO's when the brush itself hasn't changed, but we're moving it between VBO's for
@@ -96,8 +95,8 @@ public:
    * Returns all vertices for all faces of the brush.
    */
   const std::vector<Vertex>& cachedVertices() const;
-  const std::vector<CachedFace>& cachedFacesSortedByTexture() const;
+  const std::vector<CachedFace>& cachedFacesSortedByMaterial() const;
   const std::vector<CachedEdge>& cachedEdges() const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

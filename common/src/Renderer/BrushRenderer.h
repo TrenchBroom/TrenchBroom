@@ -32,17 +32,16 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
 class EditorContext;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
+
 class BrushRenderer
 {
 public:
@@ -118,18 +117,15 @@ public:
   };
 
 private:
-  class FilterWrapper;
-
-private:
   std::unique_ptr<Filter> m_filter;
 
   struct BrushInfo
   {
     AllocationTracker::Block* vertexHolderKey;
     AllocationTracker::Block* edgeIndicesKey;
-    std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>>
+    std::vector<std::pair<const Assets::Material*, AllocationTracker::Block*>>
       opaqueFaceIndicesKeys;
-    std::vector<std::pair<const Assets::Texture*, AllocationTracker::Block*>>
+    std::vector<std::pair<const Assets::Material*, AllocationTracker::Block*>>
       transparentFaceIndicesKeys;
   };
   /**
@@ -150,39 +146,32 @@ private:
   std::shared_ptr<BrushVertexArray> m_vertexArray;
   std::shared_ptr<BrushIndexArray> m_edgeIndices;
 
-  using TextureToBrushIndicesMap =
-    std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
-  std::shared_ptr<TextureToBrushIndicesMap> m_transparentFaces;
-  std::shared_ptr<TextureToBrushIndicesMap> m_opaqueFaces;
+  using MaterialToBrushIndicesMap =
+    std::unordered_map<const Assets::Material*, std::shared_ptr<BrushIndexArray>>;
+  std::shared_ptr<MaterialToBrushIndicesMap> m_transparentFaces;
+  std::shared_ptr<MaterialToBrushIndicesMap> m_opaqueFaces;
 
   FaceRenderer m_opaqueFaceRenderer;
   FaceRenderer m_transparentFaceRenderer;
   IndexedEdgeRenderer m_edgeRenderer;
 
   Color m_faceColor;
-  bool m_showEdges;
+  bool m_showEdges = false;
   Color m_edgeColor;
-  bool m_grayscale;
-  bool m_tint;
+  bool m_grayscale = false;
+  bool m_tint = false;
   Color m_tintColor;
-  bool m_showOccludedEdges;
+  bool m_showOccludedEdges = false;
   Color m_occludedEdgeColor;
-  bool m_forceTransparent;
-  float m_transparencyAlpha;
+  bool m_forceTransparent = false;
+  float m_transparencyAlpha = 1.0f;
 
-  bool m_showHiddenBrushes;
+  bool m_showHiddenBrushes = false;
 
 public:
   template <typename FilterT>
-  explicit BrushRenderer(const FilterT& filter)
-    : m_filter{std::make_unique<FilterT>(filter)}
-    , m_showEdges{false}
-    , m_grayscale{false}
-    , m_tint{false}
-    , m_showOccludedEdges{false}
-    , m_forceTransparent{false}
-    , m_transparencyAlpha{1.0f}
-    , m_showHiddenBrushes{false}
+  explicit BrushRenderer(FilterT filter)
+    : m_filter{std::make_unique<FilterT>(std::move(filter))}
   {
     clear();
   }
@@ -206,14 +195,14 @@ public:
    *
    * Additionally, calling `invalidate()` guarantees the m_brushInfo, m_transparentFaces,
    * and m_opaqueFaces maps will be empty, so the BrushRenderer will not have any
-   * lingering Texture* pointers.
+   * lingering Material* pointers.
    */
   void invalidate();
   void invalidateBrush(const Model::BrushNode* brush);
   bool valid() const;
 
   /**
-   * Sets the color to render untextured faces with.
+   * Sets the color to render faces with no material with.
    */
   void setFaceColor(const Color& faceColor);
 
@@ -322,5 +311,5 @@ private:
 
   deleteCopyAndMove(BrushRenderer);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

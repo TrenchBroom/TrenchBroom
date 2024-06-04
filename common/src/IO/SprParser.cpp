@@ -20,8 +20,8 @@
 #include "IO/SprParser.h"
 
 #include "Assets/EntityModel.h"
+#include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "Color.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -36,10 +36,9 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 SprParser::SprParser(
   std::string name, const Reader& reader, const Assets::Palette& palette)
   : m_name{std::move(name)}
@@ -63,7 +62,7 @@ bool SprParser::canParse(const std::filesystem::path& path, Reader reader)
 
 struct SprPicture
 {
-  Assets::Texture texture;
+  Assets::Material material;
   int x;
   int y;
   size_t width;
@@ -233,7 +232,7 @@ static Assets::Palette parseEmbeddedPalette(Reader& reader, const RenderMode ren
     .value();
 }
 
-std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* logger */)
+std::unique_ptr<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)
 {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 
@@ -288,13 +287,13 @@ std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* log
 
   auto& surface = model->addSurface(m_name);
 
-  auto textures = std::vector<Assets::Texture>{};
-  textures.reserve(frameCount);
+  auto materials = std::vector<Assets::Material>{};
+  materials.reserve(frameCount);
 
   for (size_t i = 0; i < frameCount; ++i)
   {
     auto pictureFrame = parsePictureFrame(reader, palette);
-    textures.push_back(std::move(pictureFrame.texture));
+    materials.push_back(std::move(pictureFrame.material));
 
     const auto w = static_cast<float>(pictureFrame.width);
     const auto h = static_cast<float>(pictureFrame.height);
@@ -324,18 +323,18 @@ std::unique_ptr<Assets::EntityModel> SprParser::doInitializeModel(Logger& /* log
       Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{6, size};
     builder.addTriangles(triangles);
 
-    surface.addIndexedMesh(modelFrame, builder.vertices(), builder.indices());
+    surface.addMesh(modelFrame, builder.vertices(), builder.indices());
   }
 
-  surface.setSkins(std::move(textures));
+  surface.setSkins(std::move(materials));
 
   return model;
 }
 
-void SprParser::doLoadFrame(
+void SprParser::loadFrame(
   const size_t /* frameIndex */, Assets::EntityModel& /* model */, Logger& /* logger */)
 {
-  // already loaded everything in doInitializeModel
+  // already loaded everything in initializeModel
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

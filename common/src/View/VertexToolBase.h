@@ -336,7 +336,7 @@ public: // csg convex merge
       document->world()->mapFormat(),
       document->worldBounds(),
       game->defaultFaceAttribs()};
-    builder.createBrush(polyhedron, document->currentTextureName())
+    builder.createBrush(polyhedron, document->currentMaterialName())
       .transform([&](auto b) {
         for (const auto* selectedBrushNode : document->selectedNodes().brushes())
         {

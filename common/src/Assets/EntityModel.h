@@ -38,14 +38,16 @@ class octree;
 namespace TrenchBroom::Renderer
 {
 enum class PrimType;
-class TexturedIndexRangeRenderer;
-class TexturedRenderer;
+class IndexRangeMap;
+class MaterialIndexRangeMap;
+class MaterialIndexRangeRenderer;
+class MaterialRenderer;
 } // namespace TrenchBroom::Renderer
 
 namespace TrenchBroom::Assets
 {
-class Texture;
-class TextureCollection;
+class Material;
+class MaterialCollection;
 
 enum class PitchType
 {
@@ -213,8 +215,6 @@ public:
 };
 
 class EntityModelMesh;
-class EntityModelIndexedMesh;
-class EntityModelTexturedMesh;
 
 /**
  * A model surface represents an individual part of a model. MDL and MD2 models use only
@@ -229,7 +229,7 @@ class EntityModelSurface
 private:
   std::string m_name;
   std::vector<std::unique_ptr<EntityModelMesh>> m_meshes;
-  std::unique_ptr<TextureCollection> m_skins;
+  std::unique_ptr<MaterialCollection> m_skins;
 
 public:
   /**
@@ -250,7 +250,7 @@ public:
   const std::string& name() const;
 
   /**
-   * Prepares the skin textures of this surface for rendering.
+   * Prepares the skin materials of this surface for rendering.
    *
    * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
    * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
@@ -258,13 +258,13 @@ public:
   void prepare(int minFilter, int magFilter);
 
   /**
-   * Sets the minification and magnification filters for the skin textures of this
+   * Sets the minification and magnification filters for the skin materials of this
    * surface.
    *
    * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
    * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
    */
-  void setTextureMode(int minFilter, int magFilter);
+  void setFilterMode(int minFilter, int magFilter);
 
   /**
    * Adds a new mesh to this surface.
@@ -273,29 +273,29 @@ public:
    * @param vertices the mesh vertices
    * @param indices the vertex indices
    */
-  void addIndexedMesh(
+  void addMesh(
     EntityModelLoadedFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    EntityModelIndices indices);
+    Renderer::IndexRangeMap indices);
 
   /**
-   * Adds a new multitextured mesh to this surface.
+   * Adds a new material mesh to this surface.
    *
    * @param frame the frame which the mesh belongs to
    * @param vertices the mesh vertices
-   * @param indices the per texture vertex indices
+   * @param indices the per material vertex indices
    */
-  void addTexturedMesh(
+  void addMesh(
     EntityModelLoadedFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    EntityModelTexturedIndices indices);
+    Renderer::MaterialIndexRangeMap indices);
 
   /**
-   * Sets the given textures as skins to this surface.
+   * Sets the given materials as skins to this surface.
    *
-   * @param skins the textures to set
+   * @param skins the materials to set
    */
-  void setSkins(std::vector<Texture> skins);
+  void setSkins(std::vector<Material> skins);
 
   /**
    * Returns the number of frame meshes in this surface, should match the model's frame
@@ -318,7 +318,7 @@ public:
    * @param name the name of the skin to find
    * @return the skin with the given name, or null if no such skin was found
    */
-  const Texture* skin(const std::string& name) const;
+  const Material* skin(const std::string& name) const;
 
   /**
    * Returns the skin with the given index.
@@ -326,16 +326,16 @@ public:
    * @param index the index of the skin to find
    * @return the skin with the given index, or null if the index is out of bounds
    */
-  const Texture* skin(size_t index) const;
+  const Material* skin(size_t index) const;
 
-  std::unique_ptr<Renderer::TexturedIndexRangeRenderer> buildRenderer(
+  std::unique_ptr<Renderer::MaterialIndexRangeRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex);
 };
 
 /**
  * Manages all data necessary to render an entity model. Each model can have multiple
  * frames, and multiple surfaces. Each surface represents an independent mesh of
- * primitives such as triangles, and the corresponding textures. Every surface has a
+ * primitives such as triangles, and the corresponding materials. Every surface has a
  * separate mesh for each frame of the model.
  */
 class EntityModel
@@ -359,6 +359,11 @@ public:
   explicit EntityModel(std::string name, PitchType pitchType, Orientation orientation);
 
   /**
+   * Returns the name of this model.
+   */
+  const std::string& name() const;
+
+  /**
    * Creates a renderer to render the given frame of the model using the skin with the
    * given index.
    *
@@ -366,7 +371,7 @@ public:
    * @param frameIndex the index of the frame to render
    * @return the renderer
    */
-  std::unique_ptr<Renderer::TexturedRenderer> buildRenderer(
+  std::unique_ptr<Renderer::MaterialRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex) const;
 
   /**
@@ -385,7 +390,7 @@ public:
   bool prepared() const;
 
   /**
-   * Prepares this model for rendering by uploading its skin textures.
+   * Prepares this model for rendering by uploading its skin materials.
    *
    * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
    * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
@@ -393,12 +398,12 @@ public:
   void prepare(int minFilter, int magFilter);
 
   /**
-   * Sets the minification and magnification filters for the skin textures of this model.
+   * Sets the minification and magnification filters for the skin materials of this model.
    *
    * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
    * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
    */
-  void setTextureMode(int minFilter, int magFilter);
+  void setFilterMode(int minFilter, int magFilter);
 
   /**
    * Add a frame to this model.

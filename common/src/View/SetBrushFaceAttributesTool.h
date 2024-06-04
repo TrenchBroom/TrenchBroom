@@ -35,9 +35,9 @@ class MapDocument;
  * Functionality summary:
  *
  * Modifier combinations:
- * - Alt:       transfer texture and alignment from selected
- * - Alt+Shift: transfer texture and alignment (rotation method) from selected
- * - Alt+Ctrl:  transfer texture (but not alignment) from selected
+ * - Alt:       transfer material and alignment from selected
+ * - Alt+Shift: transfer material and alignment (rotation method) from selected
+ * - Alt+Ctrl:  transfer material (but not alignment) from selected
  *
  * Actions:
  * - LMB Click: applies to clicked faces

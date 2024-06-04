@@ -94,7 +94,7 @@ public:
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
     auto* entityNode = new EntityNode{Entity{}};
@@ -117,7 +117,7 @@ public:
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
     worldNode.defaultLayer()->addChild(patchNode);
@@ -162,7 +162,7 @@ public:
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
     auto* groupNode = new GroupNode{Group{"somegroup"}};
@@ -193,7 +193,7 @@ public:
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
     auto* entityNode = new EntityNode{Entity{}};

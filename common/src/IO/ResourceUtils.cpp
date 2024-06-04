@@ -30,7 +30,7 @@
 #include <QSvgRenderer>
 #include <QThread>
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/File.h"
@@ -49,7 +49,8 @@
 namespace TrenchBroom::IO
 {
 
-Assets::Texture loadDefaultTexture(const FileSystem& fs, std::string name, Logger& logger)
+Assets::Material loadDefaultMaterial(
+  const FileSystem& fs, std::string name, Logger& logger)
 {
   // recursion guard
   static auto executing = false;
@@ -63,16 +64,16 @@ Assets::Texture loadDefaultTexture(const FileSystem& fs, std::string name, Logge
         return readFreeImageTexture(name, reader);
       })
       .transform_error([&](auto e) {
-        logger.error() << "Could not load default texture: " << e.msg;
-        return Assets::Texture{std::move(name), 32, 32};
+        logger.error() << "Could not load default material: " << e.msg;
+        return Assets::Material{std::move(name), 32, 32};
       })
       .value();
   }
   else
   {
-    logger.error() << "Could not load default texture";
+    logger.error() << "Could not load default material";
   }
-  return Assets::Texture{std::move(name), 32, 32};
+  return Assets::Material{std::move(name), 32, 32};
 }
 
 static QString imagePathToString(const std::filesystem::path& imagePath)

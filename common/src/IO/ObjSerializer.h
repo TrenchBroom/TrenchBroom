@@ -33,22 +33,20 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
 class EntityProperty;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class ObjSerializer : public NodeSerializer
 {
@@ -91,8 +89,8 @@ public:
   struct BrushFace
   {
     std::vector<IndexedVertex> verts;
-    std::string textureName;
-    const Assets::Texture* texture;
+    std::string materialName;
+    const Assets::Material* material;
   };
 
   struct BrushObject
@@ -112,8 +110,8 @@ public:
     size_t entityNo;
     size_t patchNo;
     std::vector<PatchQuad> quads;
-    std::string textureName;
-    const Assets::Texture* texture;
+    std::string materialName;
+    const Assets::Material* material;
   };
 
   using Object = std::variant<BrushObject, PatchObject>;
@@ -158,5 +156,5 @@ private:
 
   void doPatch(const Model::PatchNode* patchNode) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

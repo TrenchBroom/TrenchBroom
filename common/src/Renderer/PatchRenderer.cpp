@@ -19,7 +19,7 @@
 
 #include "PatchRenderer.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Model/EditorContext.h"
 #include "Model/PatchNode.h"
 #include "PreferenceManager.h"
@@ -28,14 +28,14 @@
 #include "Renderer/Camera.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/IndexRangeMapBuilder.h"
+#include "Renderer/MaterialIndexArrayMapBuilder.h"
+#include "Renderer/MaterialIndexArrayRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
-#include "Renderer/TexturedIndexArrayMapBuilder.h"
-#include "Renderer/TexturedIndexArrayRenderer.h"
 #include "Renderer/VertexArray.h"
 
 #include "kdl/vector_utils.h"
@@ -43,15 +43,11 @@
 #include "vm/forward.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 PatchRenderer::PatchRenderer(const Model::EditorContext& editorContext)
   : m_editorContext{editorContext}
-  , m_grayscale{false}
-  , m_tint{false}
-  , m_alpha{1.0f}
 {
 }
 
@@ -155,12 +151,12 @@ void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatc
   }
 }
 
-static TexturedIndexArrayRenderer buildMeshRenderer(
+static MaterialIndexArrayRenderer buildMeshRenderer(
   const std::vector<const Model::PatchNode*>& patchNodes,
   const Model::EditorContext& editorContext)
 {
   size_t vertexCount = 0u;
-  auto indexArrayMapSize = TexturedIndexArrayMap::Size{};
+  auto indexArrayMapSize = MaterialIndexArrayMap::Size{};
 
   for (const auto* patchNode : patchNodes)
   {
@@ -168,10 +164,10 @@ static TexturedIndexArrayRenderer buildMeshRenderer(
     {
       vertexCount += patchNode->grid().pointRowCount * patchNode->grid().pointColumnCount;
 
-      const auto* texture = patchNode->patch().texture();
+      const auto* material = patchNode->patch().material();
       const auto quadCount =
         patchNode->grid().quadRowCount() * patchNode->grid().quadColumnCount();
-      indexArrayMapSize.inc(texture, PrimType::Triangles, 6u * quadCount);
+      indexArrayMapSize.inc(material, PrimType::Triangles, 6u * quadCount);
     }
   }
 
@@ -179,8 +175,8 @@ static TexturedIndexArrayRenderer buildMeshRenderer(
   auto vertices = std::vector<Vertex>{};
   vertices.reserve(vertexCount);
 
-  auto indexArrayMapBuilder = TexturedIndexArrayMapBuilder{indexArrayMapSize};
-  using Index = TexturedIndexArrayMapBuilder::Index;
+  auto indexArrayMapBuilder = MaterialIndexArrayMapBuilder{indexArrayMapSize};
+  using Index = MaterialIndexArrayMapBuilder::Index;
 
   for (const auto* patchNode : patchNodes)
   {
@@ -194,7 +190,7 @@ static TexturedIndexArrayRenderer buildMeshRenderer(
       });
       vertices = kdl::vec_concat(std::move(vertices), std::move(gridVertices));
 
-      const auto* texture = patchNode->patch().texture();
+      const auto* material = patchNode->patch().material();
 
       const auto pointsPerRow = grid.pointColumnCount;
       for (size_t row = 0u; row < grid.quadRowCount(); ++row)
@@ -207,12 +203,12 @@ static TexturedIndexArrayRenderer buildMeshRenderer(
           const auto i3 = vertexOffset + (row + 1u) * pointsPerRow + col;
 
           indexArrayMapBuilder.addTriangle(
-            texture,
+            material,
             static_cast<Index>(i0),
             static_cast<Index>(i1),
             static_cast<Index>(i2));
           indexArrayMapBuilder.addTriangle(
-            texture,
+            material,
             static_cast<Index>(i2),
             static_cast<Index>(i3),
             static_cast<Index>(i0));
@@ -223,7 +219,7 @@ static TexturedIndexArrayRenderer buildMeshRenderer(
 
   auto vertexArray = VertexArray::move(std::move(vertices));
   auto indexArray = IndexArray::move(std::move(indexArrayMapBuilder.indices()));
-  return TexturedIndexArrayRenderer{
+  return MaterialIndexArrayRenderer{
     std::move(vertexArray),
     std::move(indexArray),
     std::move(indexArrayMapBuilder.ranges())};
@@ -266,8 +262,8 @@ static DirectEdgeRenderer buildEdgeRenderer(
       const auto l = 0u;
       const auto r = grid.pointColumnCount - 1u;
 
-      size_t row = t;
-      size_t col = l;
+      auto row = t;
+      auto col = l;
 
       while (col < r)
       {
@@ -320,41 +316,41 @@ void PatchRenderer::prepareVerticesAndIndices(VboManager& vboManager)
 
 namespace
 {
-struct RenderFunc : public TextureRenderFunc
+struct RenderFunc : public MaterialRenderFunc
 {
   ActiveShader& shader;
-  bool applyTexture;
+  bool applyMaterial;
   const Color& defaultColor;
 
   RenderFunc(
-    ActiveShader& i_shader, const bool i_applyTexture, const Color& i_defaultColor)
+    ActiveShader& i_shader, const bool i_applyMaterial, const Color& i_defaultColor)
     : shader{i_shader}
-    , applyTexture{i_applyTexture}
+    , applyMaterial{i_applyMaterial}
     , defaultColor{i_defaultColor}
   {
   }
 
-  void before(const Assets::Texture* texture) override
+  void before(const Assets::Material* material) override
   {
-    shader.set("GridColor", gridColorForTexture(texture));
-    if (texture != nullptr)
+    shader.set("GridColor", gridColorForMaterial(material));
+    if (material)
     {
-      texture->activate();
-      shader.set("ApplyTexture", applyTexture);
-      shader.set("Color", texture->averageColor());
+      material->activate();
+      shader.set("ApplyMaterial", applyMaterial);
+      shader.set("Color", material->averageColor());
     }
     else
     {
-      shader.set("ApplyTexture", false);
+      shader.set("ApplyMaterial", false);
       shader.set("Color", defaultColor);
     }
   }
 
-  void after(const Assets::Texture* texture) override
+  void after(const Assets::Material* material) override
   {
-    if (texture != nullptr)
+    if (material)
     {
-      texture->deactivate();
+      material->deactivate();
     }
   }
 };
@@ -366,7 +362,7 @@ void PatchRenderer::doRender(RenderContext& context)
   auto shader = ActiveShader{shaderManager, Shaders::FaceShader};
   auto& prefs = PreferenceManager::instance();
 
-  const bool applyTexture = context.showTextures();
+  const bool applyMaterial = context.showMaterials();
   const bool shadeFaces = context.shadeFaces();
   const bool showFog = context.showFog();
 
@@ -376,8 +372,8 @@ void PatchRenderer::doRender(RenderContext& context)
   shader.set("RenderGrid", context.showGrid());
   shader.set("GridSize", static_cast<float>(context.gridSize()));
   shader.set("GridAlpha", prefs.get(Preferences::GridAlpha));
-  shader.set("ApplyTexture", applyTexture);
-  shader.set("Texture", 0);
+  shader.set("ApplyMaterial", applyMaterial);
+  shader.set("Material", 0);
   shader.set("ApplyTinting", m_tint);
   if (m_tint)
   {
@@ -400,7 +396,7 @@ void PatchRenderer::doRender(RenderContext& context)
       prefs.get(Preferences::SoftMapBoundsColor).b(),
       0.1f});
 
-  auto func = RenderFunc{shader, applyTexture, m_defaultColor};
+  auto func = RenderFunc{shader, applyMaterial, m_defaultColor};
   /*
   if (m_alpha < 1.0f) {
       glAssert(glDepthMask(GL_FALSE));
@@ -415,5 +411,5 @@ void PatchRenderer::doRender(RenderContext& context)
   }
   */
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

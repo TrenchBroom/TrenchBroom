@@ -81,7 +81,7 @@ MapView2D::MapView2D(
   GLContextManager& contextManager,
   ViewPlane viewPlane,
   Logger* logger)
-  : MapViewBase(logger, document, toolBox, renderer, contextManager)
+  : MapViewBase(document, toolBox, renderer, contextManager, logger)
   , m_camera(std::make_unique<Renderer::OrthographicCamera>())
 {
   connectObservers();

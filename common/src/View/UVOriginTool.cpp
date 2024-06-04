@@ -19,7 +19,7 @@
 
 #include "UVOriginTool.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Hit.h"
@@ -107,11 +107,11 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
     return delta;
   }
 
-  // The delta is given in non-translated and non-scaled texture coordinates because
-  // that's how the origin is stored. We have to convert to translated and scaled texture
-  // coordinates to do our snapping because that's how the helper computes the distance to
-  // the texture grid. Finally, we will convert the distance back to non-translated and
-  // non-scaled texture coordinates and snap the delta to the distance.
+  // The delta is given in non-translated and non-scaled UV coordinates because that's how
+  // the origin is stored. We have to convert to translated and scaled UV coordinates to
+  // do our snapping because that's how the helper computes the distance to the UV grid.
+  // Finally, we will convert the distance back to non-translated and non-scaled UV
+  // coordinates and snap the delta to the distance.
 
   const auto w2fTransform =
     helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
@@ -139,13 +139,13 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
       vm::vec2f{w2tTransform * vertex->position()} - newOriginInTexCoords);
   }
 
-  // and to the texture grid
-  const auto* texture = helper.face()->texture();
-  if (texture != nullptr)
+  // and to the UV grid
+  const auto* material = helper.face()->material();
+  if (material != nullptr)
   {
     distanceInTexCoords = vm::abs_min(
       distanceInTexCoords,
-      helper.computeDistanceFromTextureGrid(vm::vec3{newOriginInTexCoords}));
+      helper.computeDistanceFromUVGrid(vm::vec3{newOriginInTexCoords}));
   }
 
   // finally snap to the face center
@@ -153,9 +153,9 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   distanceInTexCoords =
     vm::abs_min(distanceInTexCoords, faceCenter - newOriginInTexCoords);
 
-  // now we have a distance in the scaled and translated texture coordinate system
-  // so we transform the new position plus distance back to the unscaled and untranslated
-  // texture coordinate system and take the actual distance
+  // now we have a distance in the scaled and translated UV coordinate system so we
+  // transform the new position plus distance back to the unscaled and untranslated UV
+  // coordinate system and take the actual distance
   const auto distanceInFaceCoords =
     newOriginInFaceCoords
     - vm::vec2f{t2fTransform * vm::vec3{newOriginInTexCoords + distanceInTexCoords}};

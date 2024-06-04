@@ -31,14 +31,12 @@
 
 #include <optional>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 
@@ -93,7 +91,7 @@ public:
   const BezierPatch& patch() const;
   BezierPatch setPatch(BezierPatch patch);
 
-  void setTexture(Assets::Texture* texture);
+  void setMaterial(Assets::Material* material);
 
   const PatchGrid& grid() const;
 
@@ -132,5 +130,5 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(TagVisitor& visitor) override;
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

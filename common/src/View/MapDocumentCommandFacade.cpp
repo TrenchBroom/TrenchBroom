@@ -20,7 +20,7 @@
 #include "MapDocumentCommandFacade.h"
 
 #include "Assets/EntityDefinitionFileSpec.h"
-#include "Assets/TextureManager.h"
+#include "Assets/MaterialManager.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "Model/Brush.h"
@@ -281,7 +281,7 @@ void MapDocumentCommandFacade::performAddNodes(
   setHasPendingChanges(Model::collectGroups(addedNodes), false);
   setEntityDefinitions(addedNodes);
   setEntityModels(addedNodes);
-  setTextures(addedNodes);
+  setMaterials(addedNodes);
   invalidateSelectionBounds();
 
   nodesWereAddedNotifier(addedNodes);
@@ -302,7 +302,7 @@ void MapDocumentCommandFacade::performRemoveNodes(
   {
     unsetEntityModels(children);
     unsetEntityDefinitions(children);
-    unsetTextures(children);
+    unsetMaterials(children);
     parent->removeChildren(std::begin(children), std::end(children));
   }
 
@@ -355,11 +355,11 @@ MapDocumentCommandFacade::performReplaceChildren(
 
   unsetEntityModels(allOldChildren);
   unsetEntityDefinitions(allOldChildren);
-  unsetTextures(allOldChildren);
+  unsetMaterials(allOldChildren);
 
   setEntityDefinitions(allNewChildren);
   setEntityModels(allNewChildren);
-  setTextures(allNewChildren);
+  setMaterials(allNewChildren);
 
   invalidateSelectionBounds();
 
@@ -422,8 +422,8 @@ void MapDocumentCommandFacade::performSwapNodeContents(
     notifySpecialWorldProperties(*game(), nodesToSwap);
   NotifyBeforeAndAfter notifyWads(
     notifyWadsChange,
-    textureCollectionsWillChangeNotifier,
-    textureCollectionsDidChangeNotifier);
+    materialCollectionsWillChangeNotifier,
+    materialCollectionsDidChangeNotifier);
   NotifyBeforeAndAfter notifyEntityDefinitions(
     notifyEntityDefinitionsChange,
     entityDefinitionsWillChangeNotifier,
@@ -470,7 +470,7 @@ void MapDocumentCommandFacade::performSwapNodeContents(
   }
   if (!notifyWadsChange)
   {
-    setTextures(nodes);
+    setMaterials(nodes);
   }
 
   invalidateSelectionBounds();

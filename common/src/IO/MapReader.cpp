@@ -149,12 +149,12 @@ void MapReader::onValveBrushFace(
   const vm::vec3& point2,
   const vm::vec3& point3,
   const Model::BrushFaceAttributes& attribs,
-  const vm::vec3& texAxisX,
-  const vm::vec3& texAxisY,
+  const vm::vec3& uAxis,
+  const vm::vec3& vAxis,
   ParserStatus& status)
 {
   Model::BrushFace::createFromValve(
-    point1, point2, point3, attribs, texAxisX, texAxisY, targetMapFormat)
+    point1, point2, point3, attribs, uAxis, vAxis, targetMapFormat)
     .transform([&](Model::BrushFace&& face) {
       face.setFilePosition(line, 1u);
       onBrushFace(std::move(face), status);
@@ -169,14 +169,14 @@ void MapReader::onPatch(
   const size_t rowCount,
   const size_t columnCount,
   std::vector<vm::vec<FloatType, 5>> controlPoints,
-  std::string textureName,
+  std::string materialName,
   ParserStatus&)
 {
   m_objectInfos.emplace_back(PatchInfo{
     rowCount,
     columnCount,
     std::move(controlPoints),
-    std::move(textureName),
+    std::move(materialName),
     startLine,
     lineCount,
     m_currentEntityInfo});
@@ -600,7 +600,7 @@ CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo)
     patchInfo.rowCount,
     patchInfo.columnCount,
     std::move(patchInfo.controlPoints),
-    std::move(patchInfo.textureName)});
+    std::move(patchInfo.materialName)});
   patchNode->setFilePosition(patchInfo.startLine, patchInfo.lineCount);
 
   auto parentInfo = patchInfo.parentIndex ? ParentInfo{*patchInfo.parentIndex}

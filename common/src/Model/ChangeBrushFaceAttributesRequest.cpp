@@ -29,30 +29,31 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
+
+namespace
 {
 template <typename T>
-static T evaluateValueOp(
+T evaluateValueOp(
   const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::ValueOp op)
 {
   switch (op)
   {
-  case ChangeBrushFaceAttributesRequest::ValueOp_Set:
+  case ChangeBrushFaceAttributesRequest::ValueOp::Set:
     return newValue;
-  case ChangeBrushFaceAttributesRequest::ValueOp_Add:
+  case ChangeBrushFaceAttributesRequest::ValueOp::Add:
     return oldValue + newValue;
-  case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
+  case ChangeBrushFaceAttributesRequest::ValueOp::Mul:
     return oldValue * newValue;
-  case ChangeBrushFaceAttributesRequest::ValueOp_None:
+  case ChangeBrushFaceAttributesRequest::ValueOp::None:
     return oldValue;
     switchDefault();
   }
 }
 
 template <typename T>
-static std::optional<T> evaluateValueOp(
+std::optional<T> evaluateValueOp(
   const std::optional<T>& oldValue,
   const T oldValueFallback,
   const std::optional<T>& newValue,
@@ -60,38 +61,38 @@ static std::optional<T> evaluateValueOp(
 {
   switch (op)
   {
-  case ChangeBrushFaceAttributesRequest::ValueOp_Set:
+  case ChangeBrushFaceAttributesRequest::ValueOp::Set:
     return newValue;
-  case ChangeBrushFaceAttributesRequest::ValueOp_Add:
+  case ChangeBrushFaceAttributesRequest::ValueOp::Add:
     return oldValue.value_or(oldValueFallback) + newValue.value_or(T{});
-  case ChangeBrushFaceAttributesRequest::ValueOp_Mul:
+  case ChangeBrushFaceAttributesRequest::ValueOp::Mul:
     return oldValue.value_or(oldValueFallback) * newValue.value_or(T{});
-  case ChangeBrushFaceAttributesRequest::ValueOp_None:
+  case ChangeBrushFaceAttributesRequest::ValueOp::None:
     return oldValue;
     switchDefault();
   }
 }
 
 template <typename T>
-static T evaluateFlagOp(
+T evaluateFlagOp(
   const T oldValue, const T newValue, const ChangeBrushFaceAttributesRequest::FlagOp op)
 {
   switch (op)
   {
-  case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
+  case ChangeBrushFaceAttributesRequest::FlagOp::Replace:
     return newValue;
-  case ChangeBrushFaceAttributesRequest::FlagOp_Set:
+  case ChangeBrushFaceAttributesRequest::FlagOp::Set:
     return oldValue | newValue;
-  case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
+  case ChangeBrushFaceAttributesRequest::FlagOp::Unset:
     return oldValue & ~newValue;
-  case ChangeBrushFaceAttributesRequest::FlagOp_None:
+  case ChangeBrushFaceAttributesRequest::FlagOp::None:
     return oldValue;
     switchDefault();
   }
 }
 
 template <typename T>
-static std::optional<T> evaluateFlagOp(
+std::optional<T> evaluateFlagOp(
   const std::optional<T>& oldValue,
   const T oldValueFallback,
   const std::optional<T>& newValue,
@@ -99,57 +100,24 @@ static std::optional<T> evaluateFlagOp(
 {
   switch (op)
   {
-  case ChangeBrushFaceAttributesRequest::FlagOp_Replace:
+  case ChangeBrushFaceAttributesRequest::FlagOp::Replace:
     return newValue;
-  case ChangeBrushFaceAttributesRequest::FlagOp_Set:
+  case ChangeBrushFaceAttributesRequest::FlagOp::Set:
     return oldValue.value_or(oldValueFallback) | newValue.value_or(T{});
-  case ChangeBrushFaceAttributesRequest::FlagOp_Unset:
+  case ChangeBrushFaceAttributesRequest::FlagOp::Unset:
     return oldValue.value_or(oldValueFallback) & ~newValue.value_or(T{});
-  case ChangeBrushFaceAttributesRequest::FlagOp_None:
+  case ChangeBrushFaceAttributesRequest::FlagOp::None:
     return oldValue;
     switchDefault();
   }
 }
+} // namespace
 
-ChangeBrushFaceAttributesRequest::ChangeBrushFaceAttributesRequest()
-  : m_xOffset(0.0f)
-  , m_yOffset(0.0f)
-  , m_rotation(0.0f)
-  , m_xScale(0.0f)
-  , m_yScale(0.0f)
-  , m_surfaceFlags(0)
-  , m_contentFlags(0)
-  , m_surfaceValue(0.0f)
-  , m_textureOp(TextureOp_None)
-  , m_axisOp(AxisOp_None)
-  , m_xOffsetOp(ValueOp_None)
-  , m_yOffsetOp(ValueOp_None)
-  , m_rotationOp(ValueOp_None)
-  , m_xScaleOp(ValueOp_None)
-  , m_yScaleOp(ValueOp_None)
-  , m_surfaceFlagsOp(FlagOp_None)
-  , m_contentFlagsOp(FlagOp_None)
-  , m_surfaceValueOp(ValueOp_None)
-  , m_colorValueOp(ValueOp_None)
-{
-}
+ChangeBrushFaceAttributesRequest::ChangeBrushFaceAttributesRequest() = default;
 
 void ChangeBrushFaceAttributesRequest::clear()
 {
-  m_textureName = "";
-  m_xOffset = m_yOffset = 0.0f;
-  m_rotation = 0.0f;
-  m_xScale = m_yScale = 1.0f;
-  m_surfaceFlags = m_contentFlags = 0;
-  m_surfaceValue = 0.0f;
-  m_textureOp = TextureOp_None;
-  m_axisOp = AxisOp_None;
-  m_xOffsetOp = m_yOffsetOp = ValueOp_None;
-  m_rotationOp = ValueOp_None;
-  m_xScaleOp = m_yScaleOp = ValueOp_None;
-  m_surfaceFlagsOp = m_contentFlagsOp = FlagOp_None;
-  m_surfaceValueOp = ValueOp_None;
-  m_colorValueOp = ValueOp_None;
+  *this = ChangeBrushFaceAttributesRequest{};
 }
 
 const std::string ChangeBrushFaceAttributesRequest::name() const
@@ -163,12 +131,12 @@ bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const
 
   BrushFaceAttributes attributes = brushFace.attributes();
 
-  switch (m_textureOp)
+  switch (m_materialOp)
   {
-  case TextureOp_Set:
-    result |= attributes.setTextureName(m_textureName);
+  case MaterialOp::Set:
+    result |= attributes.setMaterialName(m_materialName);
     break;
-  case TextureOp_None:
+  case MaterialOp::None:
     break;
     switchDefault();
   }
@@ -205,17 +173,17 @@ bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const
 
   switch (m_axisOp)
   {
-  case AxisOp_Reset:
-    brushFace.resetTextureAxes();
+  case AxisOp::Reset:
+    brushFace.resetUVAxes();
     result |= true;
     break;
-  case AxisOp_None:
+  case AxisOp::None:
     break;
-  case AxisOp_ToParaxial:
-    brushFace.resetTextureAxesToParaxial();
+  case AxisOp::ToParaxial:
+    brushFace.resetUVAxesToParaxial();
     result |= true;
     break;
-  case AxisOp_ToParallel:
+  case AxisOp::ToParallel:
     break;
     switchDefault();
   }
@@ -226,7 +194,7 @@ bool ChangeBrushFaceAttributesRequest::evaluate(BrushFace& brushFace) const
 void ChangeBrushFaceAttributesRequest::resetAll(
   const BrushFaceAttributes& defaultFaceAttributes)
 {
-  resetTextureAxes();
+  resetUVAxes();
   setOffset(vm::vec2f::zero());
   setRotation(0.0f);
   setScale(defaultFaceAttributes.scale());
@@ -235,31 +203,31 @@ void ChangeBrushFaceAttributesRequest::resetAll(
 void ChangeBrushFaceAttributesRequest::resetAllToParaxial(
   const BrushFaceAttributes& defaultFaceAttributes)
 {
-  resetTextureAxesToParaxial();
+  resetUVAxesToParaxial();
   setOffset(vm::vec2f::zero());
   setRotation(0.0f);
   setScale(defaultFaceAttributes.scale());
 }
 
-void ChangeBrushFaceAttributesRequest::setTextureName(const std::string& textureName)
+void ChangeBrushFaceAttributesRequest::setMaterialName(const std::string& materialName)
 {
-  m_textureName = textureName;
-  m_textureOp = TextureOp_Set;
+  m_materialName = materialName;
+  m_materialOp = MaterialOp::Set;
 }
 
-void ChangeBrushFaceAttributesRequest::resetTextureAxes()
+void ChangeBrushFaceAttributesRequest::resetUVAxes()
 {
-  m_axisOp = AxisOp_Reset;
+  m_axisOp = AxisOp::Reset;
 }
 
-void ChangeBrushFaceAttributesRequest::resetTextureAxesToParaxial()
+void ChangeBrushFaceAttributesRequest::resetUVAxesToParaxial()
 {
-  m_axisOp = AxisOp_ToParaxial;
+  m_axisOp = AxisOp::ToParaxial;
 }
 
-void ChangeBrushFaceAttributesRequest::resetTextureAxesToParallel()
+void ChangeBrushFaceAttributesRequest::resetUVAxesToParallel()
 {
-  m_axisOp = AxisOp_ToParallel;
+  m_axisOp = AxisOp::ToParallel;
 }
 
 void ChangeBrushFaceAttributesRequest::setOffset(const vm::vec2f& offset)
@@ -283,55 +251,55 @@ void ChangeBrushFaceAttributesRequest::mulOffset(const vm::vec2f& offset)
 void ChangeBrushFaceAttributesRequest::setXOffset(const float xOffset)
 {
   m_xOffset = xOffset;
-  m_xOffsetOp = ValueOp_Set;
+  m_xOffsetOp = ValueOp::Set;
 }
 
 void ChangeBrushFaceAttributesRequest::addXOffset(const float xOffset)
 {
   m_xOffset = xOffset;
-  m_xOffsetOp = ValueOp_Add;
+  m_xOffsetOp = ValueOp::Add;
 }
 
 void ChangeBrushFaceAttributesRequest::mulXOffset(const float xOffset)
 {
   m_xOffset = xOffset;
-  m_xOffsetOp = ValueOp_Mul;
+  m_xOffsetOp = ValueOp::Mul;
 }
 
 void ChangeBrushFaceAttributesRequest::setYOffset(const float yOffset)
 {
   m_yOffset = yOffset;
-  m_yOffsetOp = ValueOp_Set;
+  m_yOffsetOp = ValueOp::Set;
 }
 
 void ChangeBrushFaceAttributesRequest::addYOffset(const float yOffset)
 {
   m_yOffset = yOffset;
-  m_yOffsetOp = ValueOp_Add;
+  m_yOffsetOp = ValueOp::Add;
 }
 
 void ChangeBrushFaceAttributesRequest::mulYOffset(const float yOffset)
 {
   m_yOffset = yOffset;
-  m_yOffsetOp = ValueOp_Mul;
+  m_yOffsetOp = ValueOp::Mul;
 }
 
 void ChangeBrushFaceAttributesRequest::setRotation(const float rotation)
 {
   m_rotation = rotation;
-  m_rotationOp = ValueOp_Set;
+  m_rotationOp = ValueOp::Set;
 }
 
 void ChangeBrushFaceAttributesRequest::addRotation(const float rotation)
 {
   m_rotation = rotation;
-  m_rotationOp = ValueOp_Add;
+  m_rotationOp = ValueOp::Add;
 }
 
 void ChangeBrushFaceAttributesRequest::mulRotation(const float rotation)
 {
   m_rotation = rotation;
-  m_rotationOp = ValueOp_Mul;
+  m_rotationOp = ValueOp::Mul;
 }
 
 void ChangeBrushFaceAttributesRequest::setScale(const vm::vec2f& scale)
@@ -355,100 +323,100 @@ void ChangeBrushFaceAttributesRequest::mulScale(const vm::vec2f& scale)
 void ChangeBrushFaceAttributesRequest::setXScale(const float xScale)
 {
   m_xScale = xScale;
-  m_xScaleOp = ValueOp_Set;
+  m_xScaleOp = ValueOp::Set;
 }
 
 void ChangeBrushFaceAttributesRequest::addXScale(const float xScale)
 {
   m_xScale = xScale;
-  m_xScaleOp = ValueOp_Add;
+  m_xScaleOp = ValueOp::Add;
 }
 
 void ChangeBrushFaceAttributesRequest::mulXScale(const float xScale)
 {
   m_xScale = xScale;
-  m_xScaleOp = ValueOp_Mul;
+  m_xScaleOp = ValueOp::Mul;
 }
 
 void ChangeBrushFaceAttributesRequest::setYScale(const float yScale)
 {
   m_yScale = yScale;
-  m_yScaleOp = ValueOp_Set;
+  m_yScaleOp = ValueOp::Set;
 }
 
 void ChangeBrushFaceAttributesRequest::addYScale(const float yScale)
 {
   m_yScale = yScale;
-  m_yScaleOp = ValueOp_Add;
+  m_yScaleOp = ValueOp::Add;
 }
 
 void ChangeBrushFaceAttributesRequest::mulYScale(const float yScale)
 {
   m_yScale = yScale;
-  m_yScaleOp = ValueOp_Mul;
+  m_yScaleOp = ValueOp::Mul;
 }
 
 void ChangeBrushFaceAttributesRequest::setSurfaceFlags(const int surfaceFlags)
 {
   m_surfaceFlags = surfaceFlags;
-  m_surfaceFlagsOp = FlagOp_Set;
+  m_surfaceFlagsOp = FlagOp::Set;
 }
 
 void ChangeBrushFaceAttributesRequest::unsetSurfaceFlags(const int surfaceFlags)
 {
   m_surfaceFlags = surfaceFlags;
-  m_surfaceFlagsOp = FlagOp_Unset;
+  m_surfaceFlagsOp = FlagOp::Unset;
 }
 
 void ChangeBrushFaceAttributesRequest::replaceSurfaceFlags(
   const std::optional<int>& surfaceFlags)
 {
   m_surfaceFlags = surfaceFlags;
-  m_surfaceFlagsOp = FlagOp_Replace;
+  m_surfaceFlagsOp = FlagOp::Replace;
 }
 
 void ChangeBrushFaceAttributesRequest::setContentFlags(const int contentFlags)
 {
   m_contentFlags = contentFlags;
-  m_contentFlagsOp = FlagOp_Set;
+  m_contentFlagsOp = FlagOp::Set;
 }
 
 void ChangeBrushFaceAttributesRequest::unsetContentFlags(const int contentFlags)
 {
   m_contentFlags = contentFlags;
-  m_contentFlagsOp = FlagOp_Unset;
+  m_contentFlagsOp = FlagOp::Unset;
 }
 
 void ChangeBrushFaceAttributesRequest::replaceContentFlags(
   const std::optional<int>& contentFlags)
 {
   m_contentFlags = contentFlags;
-  m_contentFlagsOp = FlagOp_Replace;
+  m_contentFlagsOp = FlagOp::Replace;
 }
 
 void ChangeBrushFaceAttributesRequest::setSurfaceValue(
   const std::optional<float>& surfaceValue)
 {
   m_surfaceValue = surfaceValue;
-  m_surfaceValueOp = ValueOp_Set;
+  m_surfaceValueOp = ValueOp::Set;
 }
 
 void ChangeBrushFaceAttributesRequest::addSurfaceValue(const float surfaceValue)
 {
   m_surfaceValue = surfaceValue;
-  m_surfaceValueOp = ValueOp_Add;
+  m_surfaceValueOp = ValueOp::Add;
 }
 
 void ChangeBrushFaceAttributesRequest::mulSurfaceValue(const float surfaceValue)
 {
   m_surfaceValue = surfaceValue;
-  m_surfaceValueOp = ValueOp_Mul;
+  m_surfaceValueOp = ValueOp::Mul;
 }
 
 void ChangeBrushFaceAttributesRequest::setColor(const std::optional<Color>& colorValue)
 {
   m_colorValue = colorValue;
-  m_colorValueOp = ValueOp_Set;
+  m_colorValueOp = ValueOp::Set;
 }
 
 void ChangeBrushFaceAttributesRequest::setAll(const Model::BrushFace& face)
@@ -472,7 +440,7 @@ void ChangeBrushFaceAttributesRequest::setAll(
 void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(
   const Model::BrushFaceAttributes& attributes)
 {
-  setTextureName(attributes.textureName());
+  setMaterialName(attributes.materialName());
   setXOffset(attributes.xOffset());
   setYOffset(attributes.yOffset());
   setRotation(attributes.rotation());
@@ -482,5 +450,5 @@ void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(
   setSurfaceValue(attributes.surfaceValue());
   setColor(attributes.color());
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

@@ -19,7 +19,7 @@
 
 #include "UVScaleTool.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -176,7 +176,7 @@ private:
   const UVViewHelper& m_helper;
   vm::vec2i m_handle;
   vm::vec2b m_selector;
-  vm::vec2f m_lastHitPoint; // in non-scaled, non-translated texture coordinates
+  vm::vec2f m_lastHitPoint; // in non-scaled, non-translated UV coordinates
 public:
   UVScaleDragTracker(
     MapDocument& document,
@@ -190,7 +190,7 @@ public:
     , m_selector{selector}
     , m_lastHitPoint{initialHitPoint}
   {
-    document.startTransaction("Scale Texture", TransactionScope::LongRunning);
+    document.startTransaction("Scale UV", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override
@@ -286,7 +286,7 @@ void UVScaleTool::pick(const InputState& inputState, Model::PickResult& pickResu
   static const Model::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
   if (m_helper.valid())
   {
-    m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
+    m_helper.pickUVGrid(inputState.pickRay(), HitTypes, pickResult);
   }
 }
 

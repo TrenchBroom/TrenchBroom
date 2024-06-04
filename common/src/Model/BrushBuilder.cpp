@@ -39,7 +39,7 @@ namespace TrenchBroom::Model
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBounds)
   : m_mapFormat{mapFormat}
   , m_worldBounds{worldBounds}
-  , m_defaultAttribs{BrushFaceAttributes::NoTextureName}
+  , m_defaultAttribs{BrushFaceAttributes::NoMaterialName}
 {
 }
 
@@ -54,111 +54,117 @@ BrushBuilder::BrushBuilder(
 }
 
 Result<Brush> BrushBuilder::createCube(
-  const FloatType size, const std::string& textureName) const
+  const FloatType size, const std::string& materialName) const
 {
   return createCuboid(
     vm::bbox3{size / 2.0},
-    textureName,
-    textureName,
-    textureName,
-    textureName,
-    textureName,
-    textureName);
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName);
 }
 
 Result<Brush> BrushBuilder::createCube(
   FloatType size,
-  const std::string& leftTexture,
-  const std::string& rightTexture,
-  const std::string& frontTexture,
-  const std::string& backTexture,
-  const std::string& topTexture,
-  const std::string& bottomTexture) const
+  const std::string& leftMaterial,
+  const std::string& rightMaterial,
+  const std::string& frontMaterial,
+  const std::string& backMaterial,
+  const std::string& topMaterial,
+  const std::string& bottomMaterial) const
 {
   return createCuboid(
     vm::bbox3{size / 2.0},
-    leftTexture,
-    rightTexture,
-    frontTexture,
-    backTexture,
-    topTexture,
-    bottomTexture);
+    leftMaterial,
+    rightMaterial,
+    frontMaterial,
+    backMaterial,
+    topMaterial,
+    bottomMaterial);
 }
 
 Result<Brush> BrushBuilder::createCuboid(
-  const vm::vec3& size, const std::string& textureName) const
+  const vm::vec3& size, const std::string& materialName) const
 {
   return createCuboid(
     vm::bbox3{-size / 2.0, size / 2.0},
-    textureName,
-    textureName,
-    textureName,
-    textureName,
-    textureName,
-    textureName);
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName);
 }
 
 Result<Brush> BrushBuilder::createCuboid(
   const vm::vec3& size,
-  const std::string& leftTexture,
-  const std::string& rightTexture,
-  const std::string& frontTexture,
-  const std::string& backTexture,
-  const std::string& topTexture,
-  const std::string& bottomTexture) const
+  const std::string& leftMaterial,
+  const std::string& rightMaterial,
+  const std::string& frontMaterial,
+  const std::string& backMaterial,
+  const std::string& topMaterial,
+  const std::string& bottomMaterial) const
 {
   return createCuboid(
     vm::bbox3{-size / 2.0, size / 2.0},
-    leftTexture,
-    rightTexture,
-    frontTexture,
-    backTexture,
-    topTexture,
-    bottomTexture);
+    leftMaterial,
+    rightMaterial,
+    frontMaterial,
+    backMaterial,
+    topMaterial,
+    bottomMaterial);
 }
 
 Result<Brush> BrushBuilder::createCuboid(
-  const vm::bbox3& bounds, const std::string& textureName) const
+  const vm::bbox3& bounds, const std::string& materialName) const
 {
   return createCuboid(
-    bounds, textureName, textureName, textureName, textureName, textureName, textureName);
+    bounds,
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName);
 }
 
 Result<Brush> BrushBuilder::createCuboid(
   const vm::bbox3& bounds,
-  const std::string& leftTexture,
-  const std::string& rightTexture,
-  const std::string& frontTexture,
-  const std::string& backTexture,
-  const std::string& topTexture,
-  const std::string& bottomTexture) const
+  const std::string& leftMaterial,
+  const std::string& rightMaterial,
+  const std::string& frontMaterial,
+  const std::string& backMaterial,
+  const std::string& topMaterial,
+  const std::string& bottomMaterial) const
 {
   const auto specs =
     std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3, BrushFaceAttributes>>({
       {bounds.min,
        bounds.min + vm::vec3::pos_y(),
        bounds.min + vm::vec3::pos_z(),
-       {leftTexture, m_defaultAttribs}}, // left
+       {leftMaterial, m_defaultAttribs}}, // left
       {bounds.max,
        bounds.max + vm::vec3::pos_z(),
        bounds.max + vm::vec3::pos_y(),
-       {rightTexture, m_defaultAttribs}}, // right
+       {rightMaterial, m_defaultAttribs}}, // right
       {bounds.min,
        bounds.min + vm::vec3::pos_z(),
        bounds.min + vm::vec3::pos_x(),
-       {frontTexture, m_defaultAttribs}}, // front
+       {frontMaterial, m_defaultAttribs}}, // front
       {bounds.max,
        bounds.max + vm::vec3::pos_x(),
        bounds.max + vm::vec3::pos_z(),
-       {backTexture, m_defaultAttribs}}, // back
+       {backMaterial, m_defaultAttribs}}, // back
       {bounds.max,
        bounds.max + vm::vec3::pos_y(),
        bounds.max + vm::vec3::pos_x(),
-       {topTexture, m_defaultAttribs}}, // top
+       {topMaterial, m_defaultAttribs}}, // top
       {bounds.min,
        bounds.min + vm::vec3::pos_x(),
        bounds.min + vm::vec3::pos_y(),
-       {bottomTexture, m_defaultAttribs}}, // bottom
+       {bottomMaterial, m_defaultAttribs}}, // bottom
     });
 
   return kdl::fold_results(kdl::vec_transform(
@@ -171,13 +177,13 @@ Result<Brush> BrushBuilder::createCuboid(
 }
 
 Result<Brush> BrushBuilder::createBrush(
-  const std::vector<vm::vec3>& points, const std::string& textureName) const
+  const std::vector<vm::vec3>& points, const std::string& materialName) const
 {
-  return createBrush(Polyhedron3{points}, textureName);
+  return createBrush(Polyhedron3{points}, materialName);
 }
 
 Result<Brush> BrushBuilder::createBrush(
-  const Polyhedron3& polyhedron, const std::string& textureName) const
+  const Polyhedron3& polyhedron, const std::string& materialName) const
 {
   assert(polyhedron.closed());
 
@@ -199,7 +205,7 @@ Result<Brush> BrushBuilder::createBrush(
                                  p1,
                                  p3,
                                  p2,
-                                 BrushFaceAttributes{textureName, m_defaultAttribs},
+                                 BrushFaceAttributes{materialName, m_defaultAttribs},
                                  m_mapFormat);
                              }))
     .and_then([&](auto faces) { return Brush::create(m_worldBounds, std::move(faces)); });

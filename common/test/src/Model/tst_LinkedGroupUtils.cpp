@@ -545,7 +545,8 @@ TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
   const auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
 
   auto sourceGroupNode = GroupNode{Group{"name"}};
-  auto* sourceBrushNode = new BrushNode{brushBuilder.createCube(64.0, "texture").value()};
+  auto* sourceBrushNode =
+    new BrushNode{brushBuilder.createCube(64.0, "material").value()};
   auto* sourceEntityNode = new EntityNode{Entity{
     {},
     {
@@ -604,7 +605,7 @@ auto* createPatchNode()
     return new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 }
 
@@ -713,7 +714,7 @@ TEST_CASE("initializeLinkIds")
 
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* outerEntityNode = new EntityNode{Entity{}};
-  auto* outerBrushNode = new BrushNode{brushBuilder.createCube(64.0, "texture").value()};
+  auto* outerBrushNode = new BrushNode{brushBuilder.createCube(64.0, "material").value()};
 
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* innerPatchNode = createPatchNode();
@@ -725,7 +726,7 @@ TEST_CASE("initializeLinkIds")
   auto* linkedOuterGroupNode = new GroupNode{Group{"outer"}};
   auto* linkedOuterEntityNode = new EntityNode{Entity{}};
   auto* linkedOuterBrushNode =
-    new BrushNode{brushBuilder.createCube(64.0, "texture").value()};
+    new BrushNode{brushBuilder.createCube(64.0, "material").value()};
 
   auto* linkedInnerGroupNode = new GroupNode{Group{"inner"}};
   auto* linkedInnerPatchNode = createPatchNode();
@@ -784,7 +785,7 @@ TEST_CASE("initializeLinkIds")
       auto* linkedOuterGroupNode2 = new GroupNode{Group{"outer"}};
       auto* linkedOuterEntityNode2 = new EntityNode{Entity{}};
       auto* linkedOuterBrushNode2 =
-        new BrushNode{brushBuilder.createCube(64.0, "texture").value()};
+        new BrushNode{brushBuilder.createCube(64.0, "material").value()};
 
       auto* linkedInnerGroupNode2 = new GroupNode{Group{"inner"}};
       auto* linkedInnerPatchNode2 = createPatchNode();

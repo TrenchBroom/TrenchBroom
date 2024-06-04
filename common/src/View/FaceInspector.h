@@ -27,30 +27,28 @@
 class QSplitter;
 class QWidget;
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class CollapsibleTitledPanel;
 class FaceAttribsEditor;
 class GLContextManager;
 class MapDocument;
-class TextureBrowser;
+class MaterialBrowser;
 
 class FaceInspector : public TabBookPage
 {
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  QSplitter* m_splitter{nullptr};
-  FaceAttribsEditor* m_faceAttribsEditor{nullptr};
-  TextureBrowser* m_textureBrowser{nullptr};
-  QWidget* m_textureBrowserInfo{nullptr};
+  QSplitter* m_splitter = nullptr;
+  FaceAttribsEditor* m_faceAttribsEditor = nullptr;
+  MaterialBrowser* m_materialBrowser = nullptr;
+  QWidget* m_materialBrowserInfo = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -62,18 +60,18 @@ public:
   ~FaceInspector() override;
 
   bool cancelMouseDrag();
-  void revealTexture(const Assets::Texture* texture);
+  void revealMaterial(const Assets::Material* material);
 
 private:
   void createGui(GLContextManager& contextManager);
   QWidget* createFaceAttribsEditor(GLContextManager& contextManager);
-  QWidget* createTextureBrowser(GLContextManager& contextManager);
-  QWidget* createTextureBrowserInfo();
+  QWidget* createMaterialBrowser(GLContextManager& contextManager);
+  QWidget* createMaterialBrowserInfo();
 
-  void textureSelected(const Assets::Texture* texture);
+  void materialSelected(const Assets::Material* material);
 
   void connectObservers();
   void documentWasNewedOrOpened(MapDocument* document);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

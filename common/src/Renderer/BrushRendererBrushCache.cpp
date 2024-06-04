@@ -26,13 +26,12 @@
 
 #include <algorithm>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 BrushRendererBrushCache::CachedFace::CachedFace(
   const Model::BrushFace* i_face, const size_t i_indexOfFirstVertexRelativeToBrush)
-  : texture(i_face->texture())
+  : material(i_face->material())
   , face(i_face)
   , vertexCount(i_face->vertexCount())
   , indexOfFirstVertexRelativeToBrush(i_indexOfFirstVertexRelativeToBrush)
@@ -61,7 +60,7 @@ void BrushRendererBrushCache::invalidateVertexCache()
   m_rendererCacheValid = false;
   m_cachedVertices.clear();
   m_cachedEdges.clear();
-  m_cachedFacesSortedByTexture.clear();
+  m_cachedFacesSortedByMaterial.clear();
 }
 
 void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode& brushNode)
@@ -77,8 +76,8 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode& brushN
   m_cachedVertices.clear();
   m_cachedVertices.reserve(brush.vertexCount());
 
-  m_cachedFacesSortedByTexture.clear();
-  m_cachedFacesSortedByTexture.reserve(brush.faceCount());
+  m_cachedFacesSortedByMaterial.clear();
+  m_cachedFacesSortedByMaterial.reserve(brush.faceCount());
 
   for (const auto& face : brush.faces())
   {
@@ -100,25 +99,23 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode& brushN
 
       const auto& position = vertex->position();
       m_cachedVertices.emplace_back(
-        vm::vec3f{position},
-        vm::vec3f{face.boundary().normal},
-        face.textureCoords(position));
+        vm::vec3f{position}, vm::vec3f{face.boundary().normal}, face.uvCoords(position));
 
       currentHalfEdge = currentHalfEdge->previous();
     }
 
     // face cache
-    m_cachedFacesSortedByTexture.emplace_back(&face, indexOfFirstVertexRelativeToBrush);
+    m_cachedFacesSortedByMaterial.emplace_back(&face, indexOfFirstVertexRelativeToBrush);
   }
 
-  // Sort by texture so BrushRenderer can efficiently step through the BrushFaces
-  // grouped by texture (via `BrushRendererBrushCache::cachedFacesSortedByTexture()`),
+  // Sort by material so BrushRenderer can efficiently step through the BrushFaces
+  // grouped by material (via `BrushRendererBrushCache::cachedFacesSortedByMaterial()`),
   // without needing to build an std::map
 
   std::sort(
-    m_cachedFacesSortedByTexture.begin(),
-    m_cachedFacesSortedByTexture.end(),
-    [](const CachedFace& a, const CachedFace& b) { return a.texture < b.texture; });
+    m_cachedFacesSortedByMaterial.begin(),
+    m_cachedFacesSortedByMaterial.end(),
+    [](const CachedFace& a, const CachedFace& b) { return a.material < b.material; });
 
   // Build edge index cache
 
@@ -152,10 +149,10 @@ const std::vector<BrushRendererBrushCache::Vertex>& BrushRendererBrushCache::
 }
 
 const std::vector<BrushRendererBrushCache::CachedFace>& BrushRendererBrushCache::
-  cachedFacesSortedByTexture() const
+  cachedFacesSortedByMaterial() const
 {
   assert(m_rendererCacheValid);
-  return m_cachedFacesSortedByTexture;
+  return m_cachedFacesSortedByMaterial;
 }
 
 const std::vector<BrushRendererBrushCache::CachedEdge>& BrushRendererBrushCache::
@@ -164,5 +161,5 @@ const std::vector<BrushRendererBrushCache::CachedEdge>& BrushRendererBrushCache:
   assert(m_rendererCacheValid);
   return m_cachedEdges;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

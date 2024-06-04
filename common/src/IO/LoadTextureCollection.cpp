@@ -19,13 +19,14 @@
 
 #include "LoadTextureCollection.h"
 
+#include "Assets/MaterialCollection.h"
+#include "Assets/MaterialManager.h"
 #include "Assets/Palette.h"
-#include "Assets/TextureCollection.h"
-#include "Assets/TextureManager.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/MaterialUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/PathMatcher.h"
 #include "IO/ReadDdsTexture.h"
@@ -35,7 +36,6 @@
 #include "IO/ReadQuake3ShaderTexture.h"
 #include "IO/ReadWalTexture.h"
 #include "IO/ResourceUtils.h"
-#include "IO/TextureUtils.h"
 #include "IO/TraversalMode.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
@@ -67,7 +67,7 @@ bool shouldExclude(
 }
 
 Result<Assets::Palette> loadPalette(
-  const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig)
 {
   if (textureConfig.palette.empty())
   {
@@ -79,23 +79,24 @@ Result<Assets::Palette> loadPalette(
   });
 }
 
-using ReadTextureFunc = std::function<Result<Assets::Texture, ReadTextureError>(
+using ReadMaterialFunc = std::function<Result<Assets::Material, ReadMaterialError>(
   const File&, const std::filesystem::path&)>;
 
-Result<Assets::Texture, ReadTextureError> readTexture(
+Result<Assets::Material, ReadMaterialError> readTexture(
   const File& file,
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const size_t prefixLength,
   const std::optional<Assets::Palette>& palette)
 {
-  auto name = getTextureNameFromPathSuffix(path, prefixLength);
+  auto name = getMaterialNameFromPathSuffix(path, prefixLength);
   const auto extension = kdl::str_to_lower(path.extension().string());
   if (extension == ".d")
   {
     if (!palette)
     {
-      return ReadTextureError{std::move(name), "Could not load texture: missing palette"};
+      return ReadMaterialError{
+        std::move(name), "Could not load texture: missing palette"};
     }
     auto reader = file.reader().buffer();
     return readIdMipTexture(std::move(name), reader, *palette);
@@ -131,12 +132,12 @@ Result<Assets::Texture, ReadTextureError> readTexture(
     return readFreeImageTexture(std::move(name), reader);
   }
 
-  return ReadTextureError{
+  return ReadMaterialError{
     std::move(name), "Unknown texture file extension: " + path.extension().string()};
 }
 
-Result<ReadTextureFunc> makeReadTextureFunc(
-  const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
+Result<ReadMaterialFunc> makeReadTextureFunc(
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig)
 {
   return loadPalette(gameFS, textureConfig)
     .transform([](auto palette) { return std::optional{std::move(palette)}; })
@@ -153,8 +154,8 @@ Result<ReadTextureFunc> makeReadTextureFunc(
 
 } // namespace
 
-Result<std::vector<std::filesystem::path>> findTextureCollections(
-  const FileSystem& gameFS, const Model::TextureConfig& textureConfig)
+Result<std::vector<std::filesystem::path>> findMaterialCollections(
+  const FileSystem& gameFS, const Model::MaterialConfig& textureConfig)
 {
   return gameFS
     .find(
@@ -167,10 +168,10 @@ Result<std::vector<std::filesystem::path>> findTextureCollections(
     });
 }
 
-Result<Assets::TextureCollection> loadTextureCollection(
+Result<Assets::MaterialCollection> loadMaterialCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
-  const Model::TextureConfig& textureConfig,
+  const Model::MaterialConfig& textureConfig,
   Logger&)
 {
   if (gameFS.pathInfo(path) != PathInfo::Directory)
@@ -212,7 +213,7 @@ Result<Assets::TextureCollection> loadTextureCollection(
                      .or_else(makeReadTextureErrorHandler(gameFS, nullLogger));
                  }))
         .transform([&](auto textures) {
-          return Assets::TextureCollection{path, std::move(textures)};
+          return Assets::MaterialCollection{path, std::move(textures)};
         });
     });
 }

@@ -19,8 +19,8 @@
 
 #include "SkinLoader.h"
 
+#include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -43,33 +43,33 @@ namespace TrenchBroom
 namespace IO
 {
 
-Assets::Texture loadSkin(
+Assets::Material loadSkin(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   return loadSkin(path, fs, std::nullopt, logger);
 }
 
-Assets::Texture loadSkin(
+Assets::Material loadSkin(
   const std::filesystem::path& path,
   const FileSystem& fs,
   const std::optional<Assets::Palette>& palette,
   Logger& logger)
 {
   return fs.openFile(path)
-    .and_then([&](auto file) -> Result<Assets::Texture, ReadTextureError> {
+    .and_then([&](auto file) -> Result<Assets::Material, ReadMaterialError> {
       const auto extension = kdl::str_to_lower(path.extension().string());
       auto reader = file->reader().buffer();
       return extension == ".wal" ? readWalTexture(path.stem().string(), reader, palette)
                                  : readFreeImageTexture(path.stem().string(), reader);
     })
-    .transform_error([&](auto e) -> Assets::Texture {
+    .transform_error([&](auto e) -> Assets::Material {
       logger.error() << "Could not load skin '" << path << "': " << e.msg;
-      return loadDefaultTexture(fs, path.stem().string(), logger);
+      return loadDefaultMaterial(fs, path.stem().string(), logger);
     })
     .value();
 }
 
-Assets::Texture loadShader(
+Assets::Material loadShader(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   const auto pathWithoutExtension = kdl::path_remove_extension(path);
@@ -83,7 +83,7 @@ Assets::Texture loadShader(
     .and_then([&](auto file) { return readQuake3ShaderTexture(name, *file, fs); })
     .transform_error([&](auto e) {
       logger.error() << "Could not load shader '" << path << "': " << e.msg;
-      return loadDefaultTexture(fs, name, logger);
+      return loadDefaultMaterial(fs, name, logger);
     })
     .value();
 }

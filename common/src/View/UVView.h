@@ -35,22 +35,20 @@
 
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFaceHandle;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class ActiveShader;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class Selection;
@@ -62,9 +60,9 @@ class UVOffsetTool;
 class UVCameraTool;
 
 /**
- A view which allows the user to manipulate the texture projection interactively with the
- mouse. The user can change texture offsets, scaling factors and rotation. If supported by
- the map format, the user can manipulate the texture axes as well.
+ A view which allows the user to manipulate the UV projection interactively with the
+ mouse. The user can change UV offsets, scaling factors and rotation. If supported by the
+ map format, the user can manipulate the UV axes as well.
  */
 class UVView : public RenderView, public ToolBoxConnector
 {
@@ -109,13 +107,12 @@ private:
 
   void setupGL(Renderer::RenderContext& renderContext);
 
-  class RenderTexture;
-  void renderTexture(
+  void renderMaterial(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
   void renderFace(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-  void renderTextureAxes(
+  void renderUVAxes(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
   void renderToolBox(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -129,5 +126,5 @@ private:
   PickRequest doGetPickRequest(float x, float y) const override;
   Model::PickResult doPick(const vm::ray3& pickRay) const override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -146,7 +146,7 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
        Model::MapFormatConfig{"Standard", {}},
        Model::MapFormatConfig{"Valve", {}}},
       Model::FileSystemConfig{{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
-      Model::TextureConfig{
+      Model::MaterialConfig{
         {"textures"},
         {".D"},
         {"gfx/palette.lmp"},
@@ -168,17 +168,17 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
         Model::SmartTag{
           "Clip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("clip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("clip")},
         Model::SmartTag{
           "Skip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("skip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("skip")},
         Model::SmartTag{
           "Hint",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("hint*")},
+          std::make_unique<Model::MaterialNameTagMatcher>("hint*")},
         Model::SmartTag{
-          "Liquid", {}, std::make_unique<Model::TextureNameTagMatcher>("\\**")},
+          "Liquid", {}, std::make_unique<Model::MaterialNameTagMatcher>("\\**")},
       },            // smart tags
       std::nullopt, // soft map bounds
       {}            // compilation tools
@@ -405,7 +405,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
       false,
       {Model::MapFormatConfig{"Quake2", {}}},
       Model::FileSystemConfig{{"baseq2"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
-      Model::TextureConfig{
+      Model::MaterialConfig{
         {"textures"},
         {".wal"},
         {"pics/colormap.pcx"},
@@ -462,7 +462,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
           {"ladder",
            "Brushes with this flag allow a player to move up and down a vertical surface",
            1 << 29}}},
-        Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName}},
+        Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName}},
       {
         Model::SmartTag{
           "Trigger",
@@ -471,15 +471,15 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
         Model::SmartTag{
           "Clip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("clip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("clip")},
         Model::SmartTag{
           "Skip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("skip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("skip")},
         Model::SmartTag{
           "Hint",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("hint*")},
+          std::make_unique<Model::MaterialNameTagMatcher>("hint*")},
         Model::SmartTag{
           "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
         Model::SmartTag{
@@ -566,7 +566,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
     },
     "faceattribs": {
         "defaults": {
-            "textureName": "defaultTexture",
+            "textureName": "defaultMaterial",
             "offset": [0, 0],
             "scale": [0.5, 0.5],
             "rotation": 0,
@@ -716,7 +716,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
 }
 )%");
 
-  Model::BrushFaceAttributes expectedBrushFaceAttributes("defaultTexture");
+  Model::BrushFaceAttributes expectedBrushFaceAttributes("defaultMaterial");
   expectedBrushFaceAttributes.setOffset(vm::vec2f(0.0f, 0.0f));
   expectedBrushFaceAttributes.setScale(vm::vec2f(0.5f, 0.5f));
   expectedBrushFaceAttributes.setRotation(0.0f);
@@ -734,7 +734,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
       false,
       {Model::MapFormatConfig{"Quake3", {}}},
       Model::FileSystemConfig{{"baseq3"}, Model::PackageFormatConfig{{".pk3"}, "zip"}},
-      Model::TextureConfig{
+      Model::MaterialConfig{
         {"textures"},
         {""},
         {},
@@ -811,15 +811,15 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
         Model::SmartTag{
           "Clip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("clip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("clip")},
         Model::SmartTag{
           "Skip",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("skip")},
+          std::make_unique<Model::MaterialNameTagMatcher>("skip")},
         Model::SmartTag{
           "Hint",
           {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::TextureNameTagMatcher>("hint*")},
+          std::make_unique<Model::MaterialNameTagMatcher>("hint*")},
         Model::SmartTag{
           "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
         Model::SmartTag{
@@ -921,7 +921,7 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
       false,
       {Model::MapFormatConfig{"Standard", {}}},
       Model::FileSystemConfig{{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
-      Model::TextureConfig{
+      Model::MaterialConfig{
         {"textures"},
         {".D"},
         {"gfx/palette.lmp"},

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Exceptions.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
@@ -173,7 +173,7 @@ TEST_CASE("BrushNodeTest.containsPatchNode")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
-  auto brushNode = BrushNode{builder.createCube(64.0, "some_texture").value()};
+  auto brushNode = BrushNode{builder.createCube(64.0, "some_material").value()};
   transformNode(
     brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
@@ -183,7 +183,7 @@ TEST_CASE("BrushNodeTest.containsPatchNode")
     { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
       {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
       {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
-  }, "some_texture"}};
+  }, "some_material"}};
   // clang-format on
 
   CHECK_FALSE(brushNode.contains(&patchNode));
@@ -201,7 +201,7 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode")
 
   auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
 
-  auto brushNode = BrushNode{builder.createCube(64.0, "some_texture").value()};
+  auto brushNode = BrushNode{builder.createCube(64.0, "some_material").value()};
   transformNode(
     brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
@@ -211,7 +211,7 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode")
     { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
       {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
       {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
-  }, "some_texture"}};
+  }, "some_material"}};
   // clang-format on
 
   CHECK(brushNode.intersects(&patchNode));
@@ -245,7 +245,7 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode")
     auto thinBrushNode = BrushNode{
       builder
         .createCuboid(
-          vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_texture")
+          vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_material")
         .value()};
     for (const auto& point : patchNode.grid().points)
     {

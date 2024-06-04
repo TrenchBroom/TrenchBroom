@@ -54,8 +54,8 @@ class EntityDefinition;
 class EntityDefinitionFileSpec;
 class EntityDefinitionManager;
 class EntityModelManager;
-class Texture;
-class TextureManager;
+class Material;
+class MaterialManager;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::Model
@@ -121,7 +121,7 @@ protected:
 
   std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
   std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
-  std::unique_ptr<Assets::TextureManager> m_textureManager;
+  std::unique_ptr<Assets::MaterialManager> m_materialManager;
   std::unique_ptr<Model::TagManager> m_tagManager;
 
   std::unique_ptr<Model::EditorContext> m_editorContext;
@@ -139,7 +139,7 @@ protected:
   std::vector<Model::BrushFaceHandle> m_selectedBrushFaces;
 
   Model::LayerNode* m_currentLayer;
-  std::string m_currentTextureName;
+  std::string m_currentMaterialName;
   vm::bbox3 m_lastSelectionBounds;
   mutable vm::bbox3 m_selectionBounds;
   mutable bool m_selectionBoundsValid;
@@ -174,7 +174,7 @@ public: // notification
 
   Notifier<> editorContextDidChangeNotifier;
   Notifier<const Model::LayerNode*> currentLayerDidChangeNotifier;
-  Notifier<const std::string&> currentTextureNameDidChangeNotifier;
+  Notifier<const std::string&> currentMaterialNameDidChangeNotifier;
 
   Notifier<> selectionWillChangeNotifier;
   Notifier<const Selection&> selectionDidChangeNotifier;
@@ -193,10 +193,10 @@ public: // notification
 
   Notifier<const std::vector<Model::BrushFaceHandle>&> brushFacesDidChangeNotifier;
 
-  Notifier<> textureCollectionsWillChangeNotifier;
-  Notifier<> textureCollectionsDidChangeNotifier;
+  Notifier<> materialCollectionsWillChangeNotifier;
+  Notifier<> materialCollectionsDidChangeNotifier;
 
-  Notifier<> textureUsageCountsDidChangeNotifier;
+  Notifier<> materialUsageCountsDidChangeNotifier;
 
   Notifier<> entityDefinitionsWillChangeNotifier;
   Notifier<> entityDefinitionsDidChangeNotifier;
@@ -258,7 +258,7 @@ public:
 
   Assets::EntityDefinitionManager& entityDefinitionManager() override;
   Assets::EntityModelManager& entityModelManager() override;
-  Assets::TextureManager& textureManager() override;
+  Assets::MaterialManager& materialManager() override;
 
   Grid& grid() const;
 
@@ -382,7 +382,7 @@ public: // selection
    * Unlike allSelectedBrushNodes()/allSelectedEntityNodes(), if multiple groups in a link
    * set are selected, only return one representative face per brush, so that user actions
    * can be performed without generating conflicts. (e.g. this allows selecting 2 closed
-   * linked groups in a link set and applying textures.)
+   * linked groups in a link set and applying materials.)
    */
   std::vector<Model::BrushFaceHandle> allSelectedBrushFaces() const override;
   std::vector<Model::BrushFaceHandle> selectedBrushFaces() const override;
@@ -390,8 +390,8 @@ public: // selection
   const vm::bbox3& referenceBounds() const override;
   const vm::bbox3& lastSelectionBounds() const override;
   const vm::bbox3& selectionBounds() const override;
-  const std::string& currentTextureName() const override;
-  void setCurrentTextureName(const std::string& currentTextureName);
+  const std::string& currentMaterialName() const override;
+  void setCurrentMaterialName(const std::string& currentMaterialName);
 
   void selectAllNodes() override;
   void selectSiblings() override;
@@ -402,7 +402,7 @@ public: // selection
   void selectNodes(const std::vector<Model::Node*>& nodes) override;
   void selectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) override;
   void convertToFaceSelection() override;
-  void selectFacesWithTexture(const Assets::Texture* texture);
+  void selectFacesWithMaterial(const Assets::Material* material);
   void selectTall(vm::axis::type cameraAxis);
 
   void deselectAll() override;
@@ -604,18 +604,18 @@ public:
   bool setFaceAttributesExceptContentFlags(
     const Model::BrushFaceAttributes& attributes) override;
   bool setFaceAttributes(const Model::ChangeBrushFaceAttributesRequest& request) override;
-  bool copyTexCoordSystemFromFace(
+  bool copyUVFromFace(
     const Model::TexCoordSystemSnapshot& coordSystemSnapshot,
     const Model::BrushFaceAttributes& attribs,
     const vm::plane3& sourceFacePlane,
     Model::WrapStyle wrapStyle);
-  bool moveTextures(
+  bool translateUV(
     const vm::vec3f& cameraUp,
     const vm::vec3f& cameraRight,
     const vm::vec2f& delta) override;
-  bool rotateTextures(float angle) override;
-  bool shearTextures(const vm::vec2f& factors) override;
-  bool flipTextures(
+  bool rotateUV(float angle) override;
+  bool shearUV(const vm::vec2f& factors) override;
+  bool flipUV(
     const vm::vec3f& cameraUp,
     const vm::vec3f& cameraRight,
     vm::direction cameraRelativeFlipDirection);
@@ -705,14 +705,14 @@ public: // asset management
   void setEntityDefinitions(
     std::vector<std::unique_ptr<Assets::EntityDefinition>> definitions);
 
-  void reloadTextureCollections();
+  void reloadMaterialCollections();
   void reloadEntityDefinitions();
 
-  std::vector<std::filesystem::path> enabledTextureCollections() const;
-  std::vector<std::filesystem::path> disabledTextureCollections() const;
+  std::vector<std::filesystem::path> enabledMaterialCollections() const;
+  std::vector<std::filesystem::path> disabledMaterialCollections() const;
 
-  void setEnabledTextureCollections(
-    const std::vector<std::filesystem::path>& enabledTextureCollections);
+  void setEnabledMaterialCollections(
+    const std::vector<std::filesystem::path>& enabledMaterialCollections);
 
 private:
   void loadAssets();
@@ -725,15 +725,15 @@ private:
   void unloadEntityModels();
 
 protected:
-  void reloadTextures();
-  void loadTextures();
-  void unloadTextures();
+  void reloadMaterials();
+  void loadMaterials();
+  void unloadMaterials();
 
-  void setTextures();
-  void setTextures(const std::vector<Model::Node*>& nodes);
-  void setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles);
-  void unsetTextures();
-  void unsetTextures(const std::vector<Model::Node*>& nodes);
+  void setMaterials();
+  void setMaterials(const std::vector<Model::Node*>& nodes);
+  void setMaterials(const std::vector<Model::BrushFaceHandle>& faceHandles);
+  void unsetMaterials();
+  void unsetMaterials(const std::vector<Model::Node*>& nodes);
 
   void setEntityDefinitions();
   void setEntityDefinitions(const std::vector<Model::Node*>& nodes);
@@ -805,8 +805,8 @@ private:
 
 private: // observers
   void connectObservers();
-  void textureCollectionsWillChange();
-  void textureCollectionsDidChange();
+  void materialCollectionsWillChange();
+  void materialCollectionsDidChange();
   void entityDefinitionsWillChange();
   void entityDefinitionsDidChange();
   void modsWillChange();

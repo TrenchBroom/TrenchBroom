@@ -84,7 +84,7 @@ public:
     , m_initialHit{initialHit}
     , m_lastHit{initialHit}
   {
-    m_document.startTransaction("Shear Texture", TransactionScope::LongRunning);
+    m_document.startTransaction("Shear UV", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override
@@ -108,7 +108,7 @@ public:
       const auto factors = vm::vec2f{-delta.y() / m_initialHit.x(), 0.0f};
       if (!vm::is_zero(factors, vm::Cf::almost_zero()))
       {
-        m_document.shearTextures(factors);
+        m_document.shearUV(factors);
       }
     }
     else if (m_selector[1])
@@ -116,7 +116,7 @@ public:
       const auto factors = vm::vec2f{0.0f, -delta.x() / m_initialHit.y()};
       if (!vm::is_zero(factors, vm::Cf::almost_zero()))
       {
-        m_document.shearTextures(factors);
+        m_document.shearUV(factors);
       }
     }
 
@@ -167,7 +167,7 @@ void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResu
   static const Model::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
   if (m_helper.valid())
   {
-    m_helper.pickTextureGrid(inputState.pickRay(), HitTypes, pickResult);
+    m_helper.pickUVGrid(inputState.pickRay(), HitTypes, pickResult);
   }
 }
 
@@ -199,8 +199,8 @@ std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inpu
 
   const auto selector = vm::vec2b{xHit.isMatch(), yHit.isMatch()};
 
-  const auto xAxis = m_helper.face()->textureXAxis();
-  const auto yAxis = m_helper.face()->textureYAxis();
+  const auto xAxis = m_helper.face()->uAxis();
+  const auto yAxis = m_helper.face()->vAxis();
   const auto initialHit = getHit(m_helper, xAxis, yAxis, inputState.pickRay());
   if (!initialHit)
   {
@@ -208,7 +208,7 @@ std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inpu
   }
 
   // #1350: Don't allow shearing if the shear would result in very large changes. This
-  // happens if the shear handle to be dragged is very close to one of the texture axes.
+  // happens if the shear handle to be dragged is very close to one of the UV axes.
   if (vm::is_zero(initialHit->x(), 6.0f) || vm::is_zero(initialHit->y(), 6.0f))
   {
     return nullptr;

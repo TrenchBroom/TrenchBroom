@@ -42,7 +42,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
@@ -93,7 +93,7 @@ private:
   vm::plane3 m_boundary;
   BrushFaceAttributes m_attributes;
 
-  Assets::AssetReference<Assets::Texture> m_textureReference;
+  Assets::AssetReference<Assets::Material> m_materialReference;
   std::unique_ptr<TexCoordSystem> m_texCoordSystem;
   BrushFaceGeometry* m_geometry;
 
@@ -113,16 +113,16 @@ public:
 
   ~BrushFace();
 
-  kdl_reflect_decl(BrushFace, m_points, m_boundary, m_attributes, m_textureReference);
+  kdl_reflect_decl(BrushFace, m_points, m_boundary, m_attributes, m_materialReference);
 
   /**
-   * Creates a face using TB's default texture projection for the given map format and the
+   * Creates a face using TB's default UV projection for the given map format and the
    * given plane.
    *
-   * Used when creating new faces when we don't have a particular texture alignment to
-   * request. On Valve format maps, this differs from createFromStandard() by creating a
-   * face-aligned texture projection, whereas createFromStandard() creates an axis-aligned
-   * texture projection.
+   * Used when creating new faces when we don't have a particular alignment to request.
+   * On Valve format maps, this differs from createFromStandard() by creating a
+   * face-aligned UV projection, whereas createFromStandard() creates an axis-aligned
+   * UV projection.
    *
    * The returned face has a TexCoordSystem matching the given format.
    */
@@ -134,7 +134,7 @@ public:
     MapFormat mapFormat);
 
   /**
-   * Creates a face from a Standard texture projection, converting it to Valve if
+   * Creates a face from a Standard UV projection, converting it to Valve if
    * necessary.
    *
    * Used when loading/pasting a Standard format map.
@@ -149,7 +149,7 @@ public:
     MapFormat mapFormat);
 
   /**
-   * Creates a face from a Valve texture projection, converting it to Standard if
+   * Creates a face from a Valve UV projection, converting it to Standard if
    * necessary.
    *
    * Used when loading/pasting a Valve format map.
@@ -209,29 +209,29 @@ public:
   void resetTexCoordSystemCache();
   const TexCoordSystem& texCoordSystem() const;
 
-  const Assets::Texture* texture() const;
+  const Assets::Material* material() const;
   vm::vec2f textureSize() const;
   vm::vec2f modOffset(const vm::vec2f& offset) const;
 
-  bool setTexture(Assets::Texture* texture);
+  bool setMaterial(Assets::Material* material);
 
-  vm::vec3 textureXAxis() const;
-  vm::vec3 textureYAxis() const;
-  void resetTextureAxes();
-  void resetTextureAxesToParaxial();
+  vm::vec3 uAxis() const;
+  vm::vec3 vAxis() const;
+  void resetUVAxes();
+  void resetUVAxesToParaxial();
 
   void convertToParaxial();
   void convertToParallel();
 
-  void moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset);
-  void rotateTexture(float angle);
-  void shearTexture(const vm::vec2f& factors);
-  void flipTexture(
+  void moveUV(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset);
+  void rotateUV(float angle);
+  void shearUV(const vm::vec2f& factors);
+  void flipUV(
     const vm::vec3& cameraUp,
     const vm::vec3& cameraRight,
     vm::direction cameraRelativeFlipDirection);
 
-  Result<void> transform(const vm::mat4x4& transform, bool lockTexture);
+  Result<void> transform(const vm::mat4x4& transform, bool lockAlignment);
   void invert();
 
   Result<void> updatePointsFromVertices();
@@ -241,7 +241,7 @@ public:
     const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
   vm::mat4x4 fromTexCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
-  float measureTextureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
+  float measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
   size_t vertexCount() const;
   EdgeList edges() const;
@@ -263,7 +263,7 @@ public:
   void select();
   void deselect();
 
-  vm::vec2f textureCoords(const vm::vec3& point) const;
+  vm::vec2f uvCoords(const vm::vec3& point) const;
 
   std::optional<FloatType> intersectWithRay(const vm::ray3& ray) const;
 

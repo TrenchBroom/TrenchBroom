@@ -20,7 +20,7 @@
 #include "Md3Parser.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Exceptions.h"
 #include "IO/Reader.h"
 #include "IO/ResourceUtils.h"
@@ -32,12 +32,13 @@
 #include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
+#include <fmt/core.h>
+
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 namespace Md3Layout
 {
 static const int Ident = (('3' << 24) + ('P' << 16) + ('D' << 8) + 'I');
@@ -51,110 +52,58 @@ static const size_t SurfaceNameLength = 64;
 static const size_t TriangleLength = 3 * sizeof(int32_t);
 static const size_t ShaderNameLength = 64;
 static const size_t ShaderLength = ShaderNameLength + sizeof(int32_t);
-static const size_t TexCoordLength = 2 * sizeof(float);
+static const size_t UVLength = 2 * sizeof(float);
 static const size_t VertexLength = 4 * sizeof(int16_t);
 static const float VertexScale = 1.0f / 64.0f;
 } // namespace Md3Layout
 
-Md3Parser::Md3Parser(const std::string& name, const Reader& reader, const FileSystem& fs)
-  : m_name(name)
-  , m_reader(reader)
-  , m_fs(fs)
+namespace
 {
+
+struct Md3Triangle
+{
+  size_t i1, i2, i3;
+};
+
+
+auto parseShaders(Reader reader, const size_t shaderCount)
+{
+  auto shaders = std::vector<std::filesystem::path>{};
+  shaders.reserve(shaderCount);
+
+  for (size_t i = 0; i < shaderCount; ++i)
+  {
+    const auto shaderName = reader.readString(Md3Layout::ShaderNameLength);
+    /* const auto shaderIndex = */ reader.readSize<int32_t>();
+    shaders.emplace_back(shaderName);
+  }
+
+  return shaders;
 }
 
-bool Md3Parser::canParse(const std::filesystem::path& path, Reader reader)
+void loadSurfaceMaterials(
+  Assets::EntityModelSurface& surface,
+  const std::vector<std::filesystem::path>& shaderPaths,
+  const FileSystem& fs,
+  Logger& logger)
 {
-  if (kdl::str_to_lower(path.extension().string()) != ".md3")
+  auto materials = std::vector<Assets::Material>{};
+  materials.reserve(shaderPaths.size());
+
+  for (const auto& shaderPath : shaderPaths)
   {
-    return false;
+    materials.push_back(loadShader(kdl::path_remove_extension(shaderPath), fs, logger));
   }
 
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  return ident == Md3Layout::Ident && version == Md3Layout::Version;
+  surface.setSkins(std::move(materials));
 }
 
-std::unique_ptr<Assets::EntityModel> Md3Parser::doInitializeModel(Logger& logger)
-{
-  auto reader = m_reader;
-
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  if (ident != Md3Layout::Ident)
-  {
-    throw AssetException("Unknown MD3 model ident: " + std::to_string(ident));
-  }
-  if (version != Md3Layout::Version)
-  {
-    throw AssetException("Unknown MD3 model version: " + std::to_string(version));
-  }
-
-  /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
-  /* const auto flags = */ reader.readInt<int32_t>();
-
-  const auto frameCount = reader.readSize<int32_t>();
-  /* const auto tagCount = */ reader.readSize<int32_t>();
-  const auto surfaceCount = reader.readSize<int32_t>();
-  /* const auto skinCount = */ reader.readSize<int32_t>();
-
-  /* const auto frameOffset = */ reader.readSize<int32_t>();
-  /* const auto tagOffset = */ reader.readSize<int32_t>();
-  const auto surfaceOffset = reader.readSize<int32_t>();
-
-  auto model = std::make_unique<Assets::EntityModel>(
-    m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    model->addFrame();
-  }
-
-  parseSurfaces(reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model, logger);
-
-  return model;
-}
-
-void Md3Parser::doLoadFrame(
-  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
-{
-  auto reader = m_reader;
-
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  if (ident != Md3Layout::Ident)
-  {
-    throw AssetException("Unknown MD3 model ident: " + std::to_string(ident));
-  }
-  if (version != Md3Layout::Version)
-  {
-    throw AssetException("Unknown MD3 model version: " + std::to_string(version));
-  }
-
-  /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
-  /* const auto flags = */ reader.readInt<int32_t>();
-
-  /* const auto frameCount = */ reader.readSize<int32_t>();
-  /* const auto tagCount = */ reader.readSize<int32_t>();
-  /* const auto surfaceCount = */ reader.readSize<int32_t>();
-  /* const auto skinCount = */ reader.readSize<int32_t>();
-
-  const auto frameOffset = reader.readSize<int32_t>();
-  /* const auto tagOffset = */ reader.readSize<int32_t>();
-  const auto surfaceOffset = reader.readSize<int32_t>();
-
-  auto& frame = parseFrame(
-    reader.subReaderFromBegin(
-      frameOffset + frameIndex * Md3Layout::FrameLength, Md3Layout::FrameLength),
-    frameIndex,
-    model);
-  parseFrameSurfaces(reader.subReaderFromBegin(surfaceOffset), frame, model);
-}
-
-void Md3Parser::parseSurfaces(
-  Reader reader, const size_t surfaceCount, Assets::EntityModel& model, Logger& logger)
+void parseSurfaces(
+  Reader reader,
+  const size_t surfaceCount,
+  Assets::EntityModel& model,
+  const FileSystem& fs,
+  Logger& logger)
 {
   for (size_t i = 0; i < surfaceCount; ++i)
   {
@@ -162,22 +111,20 @@ void Md3Parser::parseSurfaces(
 
     if (ident != Md3Layout::Ident)
     {
-      throw AssetException("Unknown MD3 model surface ident: " + std::to_string(ident));
+      throw AssetException{fmt::format("Unknown MD3 model surface ident: {}", ident)};
     }
 
     const auto surfaceName = reader.readString(Md3Layout::SurfaceNameLength);
     /* const auto flags = */ reader.readInt<int32_t>();
     /* const auto frameCount = */ reader.readSize<int32_t>();
     const auto shaderCount = reader.readSize<int32_t>();
-    /* const auto vertexCount = */ reader
-      .readSize<int32_t>(); // the number of vertices per frame!
+    /* const auto vertexCount = */ reader.readSize<int32_t>();
     /* const auto triangleCount = */ reader.readSize<int32_t>();
 
     /* const auto triangleOffset = */ reader.readSize<int32_t>();
     const auto shaderOffset = reader.readSize<int32_t>();
-    /* const auto texCoordOffset = */ reader.readSize<int32_t>();
-    /* const auto vertexOffset = */ reader
-      .readSize<int32_t>(); // all vertices for all frames are stored there!
+    /* const auto uvOffset = */ reader.readSize<int32_t>();
+    /* const auto vertexOffset = */ reader.readSize<int32_t>();
     const auto endOffset = reader.readSize<int32_t>();
 
     const auto shaders = parseShaders(
@@ -185,14 +132,13 @@ void Md3Parser::parseSurfaces(
       shaderCount);
 
     auto& surface = model.addSurface(surfaceName);
-    loadSurfaceSkins(surface, shaders, logger);
+    loadSurfaceMaterials(surface, shaders, fs, logger);
 
     reader = reader.subReaderFromBegin(endOffset);
   }
 }
 
-Assets::EntityModelLoadedFrame& Md3Parser::parseFrame(
-  Reader reader, const size_t frameIndex, Assets::EntityModel& model)
+auto& parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model)
 {
   const auto minBounds = reader.readVec<float, 3>();
   const auto maxBounds = reader.readVec<float, 3>();
@@ -200,172 +146,86 @@ Assets::EntityModelLoadedFrame& Md3Parser::parseFrame(
   /* const auto radius = */ reader.readFloat<float>();
   const auto frameName = reader.readString(Md3Layout::FrameNameLength);
 
-  return model.loadFrame(frameIndex, frameName, vm::bbox3f(minBounds, maxBounds));
+  return model.loadFrame(frameIndex, frameName, vm::bbox3f{minBounds, maxBounds});
 }
 
-void Md3Parser::parseFrameSurfaces(
-  Reader reader, Assets::EntityModelLoadedFrame& frame, Assets::EntityModel& model)
+auto parseVertexPositions(Reader reader, const size_t vertexCount)
 {
-  for (size_t i = 0; i < model.surfaceCount(); ++i)
-  {
-    const auto ident = reader.readInt<int32_t>();
+  auto positions = std::vector<vm::vec3f>{};
+  positions.reserve(vertexCount);
 
-    if (ident != Md3Layout::Ident)
-    {
-      throw AssetException("Unknown MD3 model surface ident: " + std::to_string(ident));
-    }
-
-    /* const auto surfaceName = */ reader.readString(Md3Layout::SurfaceNameLength);
-    /* const auto flags = */ reader.readInt<int32_t>();
-    const auto frameCount = reader.readSize<int32_t>();
-    /* const auto shaderCount = */ reader.readSize<int32_t>();
-    const auto vertexCount =
-      reader.readSize<int32_t>(); // the number of vertices per frame!
-    const auto triangleCount = reader.readSize<int32_t>();
-
-    const auto triangleOffset = reader.readSize<int32_t>();
-    /* const auto shaderOffset = */ reader.readSize<int32_t>();
-    const auto texCoordOffset = reader.readSize<int32_t>();
-    const auto vertexOffset =
-      reader.readSize<int32_t>(); // all vertices for all frames are stored there!
-    const auto endOffset = reader.readSize<int32_t>();
-
-    if (frameCount > 0)
-    {
-      const auto frameVertexLength = vertexCount * Md3Layout::VertexLength;
-      const auto frameVertexOffset = vertexOffset + frame.index() * frameVertexLength;
-
-      const auto vertexPositions = parseVertexPositions(
-        reader.subReaderFromBegin(frameVertexOffset, frameVertexLength), vertexCount);
-      const auto texCoords = parseTexCoords(
-        reader.subReaderFromBegin(
-          texCoordOffset, vertexCount * Md3Layout::TexCoordLength),
-        vertexCount);
-      const auto vertices = buildVertices(vertexPositions, texCoords);
-
-      const auto triangles = parseTriangles(
-        reader.subReaderFromBegin(
-          triangleOffset, triangleCount * Md3Layout::TriangleLength),
-        triangleCount);
-
-      auto& surface = model.surface(i);
-      buildFrameSurface(frame, surface, triangles, vertices);
-    }
-
-    reader = reader.subReaderFromBegin(endOffset);
-  }
-}
-
-std::vector<Md3Parser::Md3Triangle> Md3Parser::parseTriangles(
-  Reader reader, const size_t triangleCount)
-{
-  std::vector<Md3Triangle> result;
-  result.reserve(triangleCount);
-  for (size_t i = 0; i < triangleCount; ++i)
-  {
-    const auto i1 = reader.readSize<int32_t>();
-    const auto i2 = reader.readSize<int32_t>();
-    const auto i3 = reader.readSize<int32_t>();
-    result.push_back(Md3Triangle{i1, i2, i3});
-  }
-  return result;
-}
-
-std::vector<std::filesystem::path> Md3Parser::parseShaders(
-  Reader reader, const size_t shaderCount)
-{
-  std::vector<std::filesystem::path> result;
-  result.reserve(shaderCount);
-  for (size_t i = 0; i < shaderCount; ++i)
-  {
-    const auto shaderName = reader.readString(Md3Layout::ShaderNameLength);
-    /* const auto shaderIndex = */ reader.readSize<int32_t>();
-    result.emplace_back(shaderName);
-  }
-  return result;
-}
-
-std::vector<vm::vec3f> Md3Parser::parseVertexPositions(
-  Reader reader, const size_t vertexCount)
-{
-  std::vector<vm::vec3f> result;
-  result.reserve(vertexCount);
   for (size_t i = 0; i < vertexCount; ++i)
   {
     const auto x = static_cast<float>(reader.readInt<int16_t>()) * Md3Layout::VertexScale;
     const auto y = static_cast<float>(reader.readInt<int16_t>()) * Md3Layout::VertexScale;
     const auto z = static_cast<float>(reader.readInt<int16_t>()) * Md3Layout::VertexScale;
     /* const auto n = */ reader.readInt<int16_t>();
-    result.emplace_back(x, y, z);
+    positions.emplace_back(x, y, z);
   }
-  return result;
+
+  return positions;
 }
 
-std::vector<vm::vec2f> Md3Parser::parseTexCoords(Reader reader, const size_t vertexCount)
+auto parseUV(Reader reader, const size_t vertexCount)
 {
-  std::vector<vm::vec2f> result;
-  result.reserve(vertexCount);
+  auto uv = std::vector<vm::vec2f>{};
+  uv.reserve(vertexCount);
+
   for (size_t i = 0; i < vertexCount; ++i)
   {
-    const auto s = reader.readFloat<float>();
-    const auto t = reader.readFloat<float>();
-    result.emplace_back(s, t);
+    const auto u = reader.readFloat<float>();
+    const auto v = reader.readFloat<float>();
+    uv.emplace_back(u, v);
   }
-  return result;
+
+  return uv;
 }
 
-std::vector<Assets::EntityModelVertex> Md3Parser::buildVertices(
+auto buildVertices(
   const std::vector<vm::vec3f>& positions, const std::vector<vm::vec2f>& texCoords)
 {
   assert(positions.size() == texCoords.size());
   const auto vertexCount = positions.size();
 
   using Vertex = Assets::EntityModelVertex;
-  std::vector<Vertex> result;
-  result.reserve(vertexCount);
+  auto vertices = std::vector<Vertex>{};
+  vertices.reserve(vertexCount);
 
   for (size_t i = 0; i < vertexCount; ++i)
   {
-    result.emplace_back(positions[i], texCoords[i]);
+    vertices.emplace_back(positions[i], texCoords[i]);
   }
 
-  return result;
+  return vertices;
 }
 
-void Md3Parser::loadSurfaceSkins(
-  Assets::EntityModelSurface& surface,
-  const std::vector<std::filesystem::path>& shaders,
-  Logger& logger)
+auto parseTriangles(Reader reader, const size_t triangleCount)
 {
-  std::vector<Assets::Texture> textures;
-  textures.reserve(shaders.size());
+  auto triangles = std::vector<Md3Triangle>{};
+  triangles.reserve(triangleCount);
 
-  for (const auto& shader : shaders)
+  for (size_t i = 0; i < triangleCount; ++i)
   {
-    textures.push_back(loadShader(logger, shader));
+    const auto i1 = reader.readSize<int32_t>();
+    const auto i2 = reader.readSize<int32_t>();
+    const auto i3 = reader.readSize<int32_t>();
+    triangles.push_back(Md3Triangle{i1, i2, i3});
   }
 
-  surface.setSkins(std::move(textures));
+  return triangles;
 }
 
-Assets::Texture Md3Parser::loadShader(
-  Logger& logger, const std::filesystem::path& path) const
-{
-  const auto shaderPath = kdl::path_remove_extension(path);
-  return IO::loadShader(shaderPath, m_fs, logger);
-}
-
-void Md3Parser::buildFrameSurface(
+void buildFrameSurface(
   Assets::EntityModelLoadedFrame& frame,
   Assets::EntityModelSurface& surface,
-  const std::vector<Md3Parser::Md3Triangle>& triangles,
+  const std::vector<Md3Triangle>& triangles,
   const std::vector<Assets::EntityModelVertex>& vertices)
 {
   using Vertex = Assets::EntityModelVertex;
 
-  const auto rangeMap =
-    Renderer::IndexRangeMap(Renderer::PrimType::Triangles, 0, 3 * triangles.size());
-  std::vector<Vertex> frameVertices;
+  auto rangeMap =
+    Renderer::IndexRangeMap{Renderer::PrimType::Triangles, 0, 3 * triangles.size()};
+  auto frameVertices = std::vector<Vertex>{};
   frameVertices.reserve(3 * triangles.size());
 
   for (const auto& triangle : triangles)
@@ -386,7 +246,159 @@ void Md3Parser::buildFrameSurface(
     frameVertices.push_back(v3);
   }
 
-  surface.addIndexedMesh(frame, std::move(frameVertices), std::move(rangeMap));
+  surface.addMesh(frame, std::move(frameVertices), std::move(rangeMap));
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+void parseFrameSurfaces(
+  Reader reader, Assets::EntityModelLoadedFrame& frame, Assets::EntityModel& model)
+{
+  for (size_t i = 0; i < model.surfaceCount(); ++i)
+  {
+    const auto ident = reader.readInt<int32_t>();
+
+    if (ident != Md3Layout::Ident)
+    {
+      throw AssetException{fmt::format("Unknown MD3 model surface ident: {}", ident)};
+    }
+
+    /* const auto surfaceName = */ reader.readString(Md3Layout::SurfaceNameLength);
+    /* const auto flags = */ reader.readInt<int32_t>();
+    const auto frameCount = reader.readSize<int32_t>();
+    /* const auto shaderCount = */ reader.readSize<int32_t>();
+    const auto vertexCount = reader.readSize<int32_t>();
+    const auto triangleCount = reader.readSize<int32_t>();
+
+    const auto triangleOffset = reader.readSize<int32_t>();
+    /* const auto shaderOffset = */ reader.readSize<int32_t>();
+    const auto texCoordOffset = reader.readSize<int32_t>();
+    const auto vertexOffset = reader.readSize<int32_t>();
+    const auto endOffset = reader.readSize<int32_t>();
+
+    if (frameCount > 0)
+    {
+      const auto frameVertexLength = vertexCount * Md3Layout::VertexLength;
+      const auto frameVertexOffset = vertexOffset + frame.index() * frameVertexLength;
+
+      const auto vertexPositions = parseVertexPositions(
+        reader.subReaderFromBegin(frameVertexOffset, frameVertexLength), vertexCount);
+      const auto texCoords = parseUV(
+        reader.subReaderFromBegin(texCoordOffset, vertexCount * Md3Layout::UVLength),
+        vertexCount);
+      const auto vertices = buildVertices(vertexPositions, texCoords);
+
+      const auto triangles = parseTriangles(
+        reader.subReaderFromBegin(
+          triangleOffset, triangleCount * Md3Layout::TriangleLength),
+        triangleCount);
+
+      auto& surface = model.surface(i);
+      buildFrameSurface(frame, surface, triangles, vertices);
+    }
+
+    reader = reader.subReaderFromBegin(endOffset);
+  }
+}
+
+} // namespace
+
+Md3Parser::Md3Parser(std::string name, const Reader& reader, const FileSystem& fs)
+  : m_name{std::move(name)}
+  , m_reader{reader}
+  , m_fs{fs}
+{
+}
+
+bool Md3Parser::canParse(const std::filesystem::path& path, Reader reader)
+{
+  if (kdl::str_to_lower(path.extension().string()) != ".md3")
+  {
+    return false;
+  }
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == Md3Layout::Ident && version == Md3Layout::Version;
+}
+
+std::unique_ptr<Assets::EntityModel> Md3Parser::initializeModel(Logger& logger)
+{
+  auto reader = m_reader;
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  if (ident != Md3Layout::Ident)
+  {
+    throw AssetException{fmt::format("Unknown MD3 model ident: {}", ident)};
+  }
+
+  if (version != Md3Layout::Version)
+  {
+    throw AssetException{fmt::format("Unknown MD3 model version: {}", version)};
+  }
+
+  /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
+  /* const auto flags = */ reader.readInt<int32_t>();
+
+  const auto frameCount = reader.readSize<int32_t>();
+  /* const auto tagCount = */ reader.readSize<int32_t>();
+  const auto surfaceCount = reader.readSize<int32_t>();
+  /* const auto materialCount = */ reader.readSize<int32_t>();
+
+  /* const auto frameOffset = */ reader.readSize<int32_t>();
+  /* const auto tagOffset = */ reader.readSize<int32_t>();
+  const auto surfaceOffset = reader.readSize<int32_t>();
+
+  auto model = std::make_unique<Assets::EntityModel>(
+    m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
+  for (size_t i = 0; i < frameCount; ++i)
+  {
+    model->addFrame();
+  }
+
+  parseSurfaces(
+    reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model, m_fs, logger);
+
+  return model;
+}
+
+void Md3Parser::loadFrame(
+  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
+{
+  auto reader = m_reader;
+
+  const auto ident = reader.readInt<int32_t>();
+  const auto version = reader.readInt<int32_t>();
+
+  if (ident != Md3Layout::Ident)
+  {
+    throw AssetException{fmt::format("Unknown MD3 model ident: {}", ident)};
+  }
+
+  if (version != Md3Layout::Version)
+  {
+    throw AssetException{fmt::format("Unknown MD3 model version: {}", version)};
+  }
+
+  /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
+  /* const auto flags = */ reader.readInt<int32_t>();
+
+  /* const auto frameCount = */ reader.readSize<int32_t>();
+  /* const auto tagCount = */ reader.readSize<int32_t>();
+  /* const auto surfaceCount = */ reader.readSize<int32_t>();
+  /* const auto materialCount = */ reader.readSize<int32_t>();
+
+  const auto frameOffset = reader.readSize<int32_t>();
+  /* const auto tagOffset = */ reader.readSize<int32_t>();
+  const auto surfaceOffset = reader.readSize<int32_t>();
+
+  auto& frame = parseFrame(
+    reader.subReaderFromBegin(
+      frameOffset + frameIndex * Md3Layout::FrameLength, Md3Layout::FrameLength),
+    frameIndex,
+    model);
+  parseFrameSurfaces(reader.subReaderFromBegin(surfaceOffset), frame, model);
+}
+
+} // namespace TrenchBroom::IO

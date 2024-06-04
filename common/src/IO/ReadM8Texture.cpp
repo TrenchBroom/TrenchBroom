@@ -19,8 +19,8 @@
 
 #include "ReadM8Texture.h"
 
+#include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Error.h"
 #include "IO/Reader.h"
@@ -43,14 +43,15 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader& reader)
+Result<Assets::Material, ReadMaterialError> readM8Texture(
+  std::string name, Reader& reader)
 {
   try
   {
     const auto version = reader.readInt<int32_t>();
     if (version != M8Layout::Version)
     {
-      return ReadTextureError{
+      return ReadMaterialError{
         std::move(name), "Unknown M8 texture version: " + std::to_string(version)};
     }
 
@@ -115,7 +116,7 @@ Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader
           }
         }
 
-        return Result<Assets::Texture>{Assets::Texture{
+        return Result<Assets::Material>{Assets::Material{
           std::move(name),
           widths[0],
           heights[0],
@@ -125,13 +126,13 @@ Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader
           Assets::TextureType::Opaque}};
       })
       .or_else([&](const auto& error) {
-        return Result<Assets::Texture, ReadTextureError>{
-          ReadTextureError{std::move(name), error.msg}};
+        return Result<Assets::Material, ReadMaterialError>{
+          ReadMaterialError{std::move(name), error.msg}};
       });
   }
   catch (const ReaderException& e)
   {
-    return ReadTextureError{std::move(name), e.what()};
+    return ReadMaterialError{std::move(name), e.what()};
   }
 }
 

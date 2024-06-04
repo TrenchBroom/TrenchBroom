@@ -20,13 +20,12 @@
 #pragma once
 
 #include "FloatType.h"
+#include "Macros.h"
 #include "Renderer/Transformation.h"
 
 #include "vm/bbox.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class FontManager;
@@ -57,30 +56,30 @@ private:
   ShaderManager& m_shaderManager;
 
   // settings for any map rendering view
-  bool m_showTextures;
-  bool m_showFaces;
-  bool m_showEdges;
-  bool m_shadeFaces;
+  bool m_showMaterials = true;
+  bool m_showFaces = true;
+  bool m_showEdges = true;
+  bool m_shadeFaces = true;
 
-  bool m_showPointEntities;
-  bool m_showPointEntityModels;
-  bool m_showEntityClassnames;
+  bool m_showPointEntities = true;
+  bool m_showPointEntityModels = true;
+  bool m_showEntityClassnames = true;
 
-  bool m_showGroupBounds;
-  bool m_showBrushEntityBounds;
-  bool m_showPointEntityBounds;
+  bool m_showGroupBounds = true;
+  bool m_showBrushEntityBounds = true;
+  bool m_showPointEntityBounds = true;
 
-  bool m_showFog;
+  bool m_showFog = false;
 
-  bool m_showGrid;
-  FloatType m_gridSize;
-  float m_dpiScale;
+  bool m_showGrid = true;
+  FloatType m_gridSize = 4;
+  float m_dpiScale = 1.0;
 
-  bool m_hideSelection;
-  bool m_tintSelection;
+  bool m_hideSelection = false;
+  bool m_tintSelection = false;
 
-  ShowSelectionGuide m_showSelectionGuide;
-  vm::bbox3f m_sofMapBounds;
+  ShowSelectionGuide m_showSelectionGuide = ShowSelectionGuide::Hide;
+  vm::bbox3f m_softMapBounds;
 
 public:
   RenderContext(
@@ -88,6 +87,8 @@ public:
     const Camera& camera,
     FontManager& fontManager,
     ShaderManager& shaderManager);
+
+  deleteCopyAndMove(RenderContext);
 
   bool render2D() const;
   bool render3D() const;
@@ -97,8 +98,8 @@ public:
   FontManager& fontManager();
   ShaderManager& shaderManager();
 
-  bool showTextures() const;
-  void setShowTextures(bool showTextures);
+  bool showMaterials() const;
+  void setShowMaterials(bool showMaterials);
 
   bool showFaces() const;
   void setShowFaces(bool showFaces);
@@ -156,10 +157,6 @@ public:
 
 private:
   void setShowSelectionGuide(ShowSelectionGuide showSelectionGuide);
-
-private:
-  RenderContext(const RenderContext& other);
-  RenderContext& operator=(const RenderContext& other);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

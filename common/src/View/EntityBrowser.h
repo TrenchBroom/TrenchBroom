@@ -32,14 +32,12 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Node;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class EntityBrowserView;
 class GLContextManager;
@@ -50,12 +48,12 @@ class EntityBrowser : public QWidget
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  QComboBox* m_sortOrderChoice;
-  QPushButton* m_groupButton;
-  QPushButton* m_usedButton;
-  QLineEdit* m_filterBox;
-  QScrollBar* m_scrollBar;
-  EntityBrowserView* m_view;
+  QComboBox* m_sortOrderChoice = nullptr;
+  QPushButton* m_groupButton = nullptr;
+  QPushButton* m_usedButton = nullptr;
+  QLineEdit* m_filterBox = nullptr;
+  QScrollBar* m_scrollBar = nullptr;
+  EntityBrowserView* m_view = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -80,5 +78,4 @@ private:
   void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

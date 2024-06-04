@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "IO/TextureUtils.h"
+#include "IO/MaterialUtils.h"
 #include "Renderer/GL.h"
 #include "Result.h"
 
@@ -30,7 +30,7 @@ namespace TrenchBroom::IO
 {
 class Reader;
 
-Result<Assets::Texture, ReadTextureError> readDdsTexture(
+Result<Assets::Material, ReadMaterialError> readDdsTexture(
   std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO

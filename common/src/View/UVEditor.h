@@ -29,9 +29,7 @@ class QSpinBox;
 class QWidget;
 class QAbstractButton;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class Selection;
 class GLContextManager;
@@ -44,16 +42,16 @@ class UVEditor : public QWidget
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  UVView* m_uvView{nullptr};
-  QSpinBox* m_xSubDivisionEditor{nullptr};
-  QSpinBox* m_ySubDivisionEditor{nullptr};
+  UVView* m_uvView = nullptr;
+  QSpinBox* m_xSubDivisionEditor = nullptr;
+  QSpinBox* m_ySubDivisionEditor = nullptr;
 
-  QAbstractButton* m_resetTextureButton{nullptr};
-  QAbstractButton* m_resetTextureToWorldButton{nullptr};
-  QAbstractButton* m_flipTextureHButton{nullptr};
-  QAbstractButton* m_flipTextureVButton{nullptr};
-  QAbstractButton* m_rotateTextureCCWButton{nullptr};
-  QAbstractButton* m_rotateTextureCWButton{nullptr};
+  QAbstractButton* m_resetUVButton = nullptr;
+  QAbstractButton* m_resetUVToWorldButton = nullptr;
+  QAbstractButton* m_flipUAxisButton = nullptr;
+  QAbstractButton* m_flipVAxisButton = nullptr;
+  QAbstractButton* m_rotateUVCCWButton = nullptr;
+  QAbstractButton* m_rotateUVCWButton = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -75,13 +73,13 @@ private:
 
   void connectObservers();
 
-  void resetTextureClicked();
-  void resetTextureToWorldClicked();
-  void flipTextureHClicked();
-  void flipTextureVClicked();
-  void rotateTextureCCWClicked();
-  void rotateTextureCWClicked();
+  void resetUVClicked();
+  void resetUVToWorldClicked();
+  void flipUVHClicked();
+  void flipUVVClicked();
+  void rotateUVCCWClicked();
+  void rotateUVCWClicked();
   void subDivisionChanged();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

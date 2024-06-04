@@ -480,34 +480,28 @@ auto collectStringVertices(
         {
           for (const auto& cell : row.cells())
           {
-            const auto& cellTitle = cell.title();
-            const auto textureNameBounds = cell.titleBounds();
-            const auto textureNameFont = fontManager.selectFontSize(
-              defaultFont, cellTitle, textureNameBounds.width, 6);
-            const auto& font = fontManager.font(textureNameFont);
-            const auto textureNameSize = font.measure(cellTitle);
+            const auto& title = cell.title();
+            const auto bounds = cell.titleBounds();
+            const auto fontDescriptor =
+              fontManager.selectFontSize(defaultFont, title, bounds.width, 6);
+            const auto& font = fontManager.font(fontDescriptor);
+            const auto size = font.measure(title);
 
-            const auto textureNameX =
-              textureNameBounds.left()
-              + std::max((textureNameBounds.width - textureNameSize.x()) / 2.0f, 0.0f);
+            const auto x =
+              bounds.left() + std::max((bounds.width - size.x()) / 2.0f, 0.0f);
 
             // y is relative to top, but OpenGL coords are relative to bottom, so invert
-            const auto renderOffset =
-              vm::vec2f{textureNameX, y + height - textureNameBounds.bottom()};
+            const auto yOffset = vm::vec2f{x, y + height - bounds.bottom()};
 
-            const auto cellTitleQuads = font.quads(cellTitle, false, renderOffset);
-
-            const auto textureNameVertices = TextVertex::toList(
-              cellTitleQuads.size() / 2,
-              kdl::skip_iterator{
-                std::begin(cellTitleQuads), std::end(cellTitleQuads), 0, 2},
-              kdl::skip_iterator{
-                std::begin(cellTitleQuads), std::end(cellTitleQuads), 1, 2},
+            const auto quads = font.quads(title, false, yOffset);
+            const auto vertices = TextVertex::toList(
+              quads.size() / 2,
+              kdl::skip_iterator{std::begin(quads), std::end(quads), 0, 2},
+              kdl::skip_iterator{std::begin(quads), std::end(quads), 1, 2},
               kdl::skip_iterator{std::begin(textColor), std::end(textColor), 0, 0});
 
-            auto& allTextureNameVertices = stringVertices[textureNameFont];
-            allTextureNameVertices =
-              kdl::vec_concat(std::move(allTextureNameVertices), textureNameVertices);
+            stringVertices[fontDescriptor] =
+              kdl::vec_concat(std::move(stringVertices[fontDescriptor]), vertices);
           }
         }
       }
@@ -532,7 +526,7 @@ void CellView::renderTitleStrings(float y, float height)
 
   auto shader =
     Renderer::ActiveShader{shaderManager(), Renderer::Shaders::ColoredTextShader};
-  shader.set("Texture", 0);
+  shader.set("Material", 0);
 
   for (auto& [descriptor, vertexArray] : stringRenderers)
   {

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
@@ -551,7 +551,7 @@ TEST_CASE("BrushTest.moveVertexFailing1")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   for (size_t i = 0; i < oldPositions.size(); ++i)
   {
@@ -678,7 +678,7 @@ TEST_CASE("BrushTest.moveVerticesFail_2158")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
+TEST_CASE("BrushTest.removeVertexWithCorrectMaterials_2082")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2082
 
@@ -721,46 +721,46 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
 
   const vm::vec3 p11(32.0, 0.0, 64.0);
 
-  // Make sure that the faces have the textures we expect before the vertex is deleted.
+  // Make sure that the faces have the materials we expect before the vertex is deleted.
 
   // side faces
-  assertTexture("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p7, p6});
-  assertTexture("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8, p7});
-  assertTexture("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
-  assertTexture("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
-  assertTexture("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
+  assertMaterial("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p7, p6});
+  assertMaterial("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8, p7});
+  assertMaterial("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
+  assertMaterial("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
+  assertMaterial("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
 
   // bottom face
-  assertTexture("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
+  assertMaterial("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
 
   // top faces
-  assertTexture("*slime", brush, std::vector<vm::vec3d>{p6, p7, p11});
-  assertTexture("*slime0", brush, std::vector<vm::vec3d>{p7, p8, p11});
-  assertTexture("*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11});
-  assertTexture("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
+  assertMaterial("*slime", brush, std::vector<vm::vec3d>{p6, p7, p11});
+  assertMaterial("*slime0", brush, std::vector<vm::vec3d>{p7, p8, p11});
+  assertMaterial("*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11});
+  assertMaterial("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
 
   // delete the vertex
   CHECK(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3d>{p7}));
   CHECK(brush.removeVertices(worldBounds, std::vector<vm::vec3d>{p7}).is_success());
 
-  // assert the structure and textures
+  // assert the structure and materials
 
   // side faces
-  assertTexture("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p6});
-  assertTexture("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8});
-  assertTexture("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
-  assertTexture("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
-  assertTexture("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
+  assertMaterial("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p6});
+  assertMaterial("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8});
+  assertMaterial("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
+  assertMaterial("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
+  assertMaterial("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
 
   // bottom face
-  assertTexture("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
+  assertMaterial("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
 
   // top faces
-  assertTexture("*slime", brush, std::vector<vm::vec3d>{p6, p2, p11});
-  assertTexture("*slime0", brush, std::vector<vm::vec3d>{p2, p8, p11});
-  assertTexture(
+  assertMaterial("*slime", brush, std::vector<vm::vec3d>{p6, p2, p11});
+  assertMaterial("*slime0", brush, std::vector<vm::vec3d>{p2, p8, p11});
+  assertMaterial(
     "*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11}); // failure, becomes *slime0
-  assertTexture("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
+  assertMaterial("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
 
   kdl::col_delete_all(nodes);
 }
@@ -1561,7 +1561,7 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
   const auto result = kdl::fold_results(
-    minuend.subtract(MapFormat::Valve, worldBounds, "some_texture", subtrahend));
+    minuend.subtract(MapFormat::Valve, worldBounds, "some_material", subtrahend));
   CHECK_FALSE(result.is_error());
 
   kdl::col_delete_all(minuendNodes);
@@ -1597,7 +1597,7 @@ TEST_CASE("BrushTest.subtractDome")
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
   const auto result =
-    minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend);
+    minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend);
 
   kdl::col_delete_all(minuendNodes);
   kdl::col_delete_all(subtrahendNodes);
@@ -1698,7 +1698,7 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
 
   const auto fragments =
     kdl::fold_results(
-      minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend))
+      minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend))
       .value();
   CHECK(fragments.size() == 8u);
 

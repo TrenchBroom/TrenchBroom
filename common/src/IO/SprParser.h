@@ -25,14 +25,12 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Palette;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class File;
 class FileSystem;
@@ -50,10 +48,8 @@ public:
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
-private:
-  std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
-  void doLoadFrame(
-    size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
+  std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger) override;
+  void loadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

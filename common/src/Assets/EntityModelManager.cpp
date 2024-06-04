@@ -26,7 +26,7 @@
 #include "Logger.h"
 #include "Macros.h"
 #include "Model/EntityNode.h"
-#include "Renderer/TexturedIndexRangeRenderer.h"
+#include "Renderer/MaterialIndexRangeRenderer.h"
 
 namespace TrenchBroom
 {
@@ -38,7 +38,7 @@ EntityModelManager::EntityModelManager(
   , m_loader(nullptr)
   , m_minFilter(minFilter)
   , m_magFilter(magFilter)
-  , m_resetTextureMode(false)
+  , m_resetFilterMode(false)
 {
 }
 
@@ -60,11 +60,11 @@ void EntityModelManager::clear()
   // Remove logging because it might fail when the document is already destroyed.
 }
 
-void EntityModelManager::setTextureMode(const int minFilter, const int magFilter)
+void EntityModelManager::setFilterMode(const int minFilter, const int magFilter)
 {
   m_minFilter = minFilter;
   m_magFilter = magFilter;
-  m_resetTextureMode = true;
+  m_resetFilterMode = true;
 }
 
 void EntityModelManager::setLoader(const IO::EntityModelLoader* loader)
@@ -73,7 +73,7 @@ void EntityModelManager::setLoader(const IO::EntityModelLoader* loader)
   m_loader = loader;
 }
 
-Renderer::TexturedRenderer* EntityModelManager::renderer(
+Renderer::MaterialRenderer* EntityModelManager::renderer(
   const Assets::ModelSpecification& spec) const
 {
   auto* entityModel = safeGetModel(spec.path);
@@ -212,20 +212,20 @@ void EntityModelManager::loadFrame(
 
 void EntityModelManager::prepare(Renderer::VboManager& vboManager)
 {
-  resetTextureMode();
+  resetFilterMode();
   prepareModels();
   prepareRenderers(vboManager);
 }
 
-void EntityModelManager::resetTextureMode()
+void EntityModelManager::resetFilterMode()
 {
-  if (m_resetTextureMode)
+  if (m_resetFilterMode)
   {
     for (const auto& [path, model] : m_models)
     {
-      model->setTextureMode(m_minFilter, m_magFilter);
+      model->setFilterMode(m_minFilter, m_magFilter);
     }
-    m_resetTextureMode = false;
+    m_resetFilterMode = false;
   }
 }
 

@@ -107,17 +107,17 @@ bool SetBrushFaceAttributesTool::mouseDoubleClick(const InputState& inputState)
 namespace
 {
 
-bool copyTextureOnlyModifiersDown(const InputState& inputState)
+bool copyMaterialOnlyModifiersDown(const InputState& inputState)
 {
   return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd);
 }
 
-bool copyTextureAttribsProjectionModifiersDown(const InputState& inputState)
+bool copyMaterialAttribsProjectionModifiersDown(const InputState& inputState)
 {
   return inputState.modifierKeys() == (ModifierKeys::MKAlt);
 }
 
-bool copyTextureAttribsRotationModifiersDown(const InputState& inputState)
+bool copyMaterialAttribsRotationModifiersDown(const InputState& inputState)
 {
   return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKShift);
 }
@@ -128,12 +128,12 @@ bool copyTextureAttribsRotationModifiersDown(const InputState& inputState)
  */
 bool applies(const InputState& inputState)
 {
-  const auto textureOnly = copyTextureOnlyModifiersDown(inputState);
-  const auto projection = copyTextureAttribsProjectionModifiersDown(inputState);
-  const auto rotation = copyTextureAttribsRotationModifiersDown(inputState);
+  const auto materialOnly = copyMaterialOnlyModifiersDown(inputState);
+  const auto projection = copyMaterialAttribsProjectionModifiersDown(inputState);
+  const auto rotation = copyMaterialAttribsRotationModifiersDown(inputState);
 
   return inputState.mouseButtonsPressed(MouseButtons::MBLeft)
-         && (textureOnly || projection || rotation);
+         && (materialOnly || projection || rotation);
 }
 
 size_t findClosestFace(const Model::Brush& brush, const vm::vec3& normal)
@@ -263,7 +263,7 @@ void transferFaceAttributes(
   const auto targetFaceHandlesForLinkedGroups =
     selectTargetFaceHandlesForLinkedGroups(sourceFaceHandle, targetFaceHandles);
 
-  const auto style = copyTextureAttribsRotationModifiersDown(inputState)
+  const auto style = copyMaterialAttribsRotationModifiersDown(inputState)
                        ? Model::WrapStyle::Rotation
                        : Model::WrapStyle::Projection;
 
@@ -271,10 +271,10 @@ void transferFaceAttributes(
   document.deselectAll();
   document.selectBrushFaces(targetFaceHandlesForLinkedGroups);
 
-  if (copyTextureOnlyModifiersDown(inputState))
+  if (copyMaterialOnlyModifiersDown(inputState))
   {
     auto request = Model::ChangeBrushFaceAttributesRequest{};
-    request.setTextureName(sourceFaceHandle.face().attributes().textureName());
+    request.setMaterialName(sourceFaceHandle.face().attributes().materialName());
     document.setFaceAttributes(request);
   }
   else
@@ -283,7 +283,7 @@ void transferFaceAttributes(
     document.setFaceAttributesExceptContentFlags(sourceFaceHandle.face().attributes());
     if (snapshot)
     {
-      document.copyTexCoordSystemFromFace(
+      document.copyUVFromFace(
         *snapshot,
         sourceFaceHandle.face().attributes(),
         sourceFaceHandle.face().boundary(),

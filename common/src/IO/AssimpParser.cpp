@@ -22,7 +22,7 @@
 #include "AssimpParser.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/PathInfo.h"
@@ -162,9 +162,9 @@ public:
   }
 };
 
-std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
+std::optional<Assets::Material> loadFallbackTexture(const FileSystem& fs)
 {
-  static const auto NoTextureName = Model::BrushFaceAttributes::NoTextureName;
+  static const auto NoTextureName = Model::BrushFaceAttributes::NoMaterialName;
 
   static const auto texturePaths = std::vector<std::filesystem::path>{
     "textures" / kdl::path_add_extension(NoTextureName, ".png"),
@@ -181,17 +181,17 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
   });
 }
 
-Assets::Texture loadFallbackOrDefaultTexture(
+Assets::Material loadFallbackOrDefaultTexture(
   const FileSystem& fs, const std::string& defaultMaterialName, Logger& logger)
 {
   if (auto fallbackTexture = loadFallbackTexture(fs))
   {
     return {std::move(*fallbackTexture)};
   }
-  return {loadDefaultTexture(fs, defaultMaterialName, logger)};
+  return {loadDefaultMaterial(fs, defaultMaterialName, logger)};
 }
 
-Assets::Texture loadTextureFromFileSystem(
+Assets::Material loadTextureFromFileSystem(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   return fs.openFile(path)
@@ -199,11 +199,11 @@ Assets::Texture loadTextureFromFileSystem(
       auto reader = file->reader().buffer();
       return readFreeImageTexture("", reader);
     })
-    .or_else(makeReadTextureErrorHandler(fs, logger))
+    .or_else(makeReadMaterialErrorHandler(fs, logger))
     .value();
 }
 
-Assets::Texture loadUncompressedEmbeddedTexture(
+Assets::Material loadUncompressedEmbeddedTexture(
   std::string name, const aiTexel& data, const size_t width, const size_t height)
 {
   auto buffer = Assets::TextureBuffer{width * height * sizeof(aiTexel)};
@@ -220,7 +220,7 @@ Assets::Texture loadUncompressedEmbeddedTexture(
     Assets::TextureType::Masked};
 }
 
-Assets::Texture loadCompressedEmbeddedTexture(
+Assets::Material loadCompressedEmbeddedTexture(
   std::string name,
   const aiTexel& data,
   const size_t size,
@@ -229,11 +229,11 @@ Assets::Texture loadCompressedEmbeddedTexture(
 {
   return readFreeImageTextureFromMemory(
            std::move(name), reinterpret_cast<const uint8_t*>(&data), size)
-    .or_else(makeReadTextureErrorHandler(fs, logger))
+    .or_else(makeReadMaterialErrorHandler(fs, logger))
     .value();
 }
 
-Assets::Texture loadTexture(
+Assets::Material loadTexture(
   const aiTexture* texture,
   const std::filesystem::path& texturePath,
   const std::filesystem::path& modelPath,
@@ -259,14 +259,14 @@ Assets::Texture loadTexture(
     texture->mFilename.C_Str(), *texture->pcData, texture->mWidth, fs, logger);
 }
 
-std::vector<Assets::Texture> loadTexturesForMaterial(
+std::vector<Assets::Material> loadTexturesForMaterial(
   const aiScene& scene,
   const size_t materialIndex,
   const std::filesystem::path& modelPath,
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Texture>{};
+  auto textures = std::vector<Assets::Material>{};
 
   // Is there even a single diffuse texture? If not, fail and load fallback material.
   const auto textureCount =
@@ -305,7 +305,7 @@ struct AssimpComputedMeshData
 {
   size_t m_meshIndex;
   std::vector<Assets::EntityModelVertex> m_vertices;
-  Assets::EntityModelIndices m_indices;
+  Renderer::IndexRangeMap m_indices;
 };
 
 struct AssimpBoneInformation
@@ -768,7 +768,7 @@ Result<void> loadSceneFrame(
   for (const auto& data : meshData)
   {
     auto& surface = model.surface(data.m_meshIndex);
-    surface.addIndexedMesh(frame, data.m_vertices, data.m_indices);
+    surface.addMesh(frame, data.m_vertices, data.m_indices);
   }
 
   return Result<void>{};
@@ -804,7 +804,7 @@ bool AssimpParser::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
-std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
+std::unique_ptr<Assets::EntityModel> AssimpParser::initializeModel(
   TrenchBroom::Logger& logger)
 {
   constexpr auto assimpFlags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
@@ -857,7 +857,7 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::doInitializeModel(
   return model;
 }
 
-void AssimpParser::doLoadFrame(
+void AssimpParser::loadFrame(
   size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
 {
   constexpr auto assimpFlags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices

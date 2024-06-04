@@ -24,25 +24,23 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityModel;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
+
 class EntityModelParser
 {
 public:
   virtual ~EntityModelParser();
 
-  std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger);
-  void loadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
-
-private:
-  virtual std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) = 0;
-  virtual void doLoadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
+  virtual std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger) = 0;
+  virtual void loadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "IO/TextureUtils.h"
+#include "IO/MaterialUtils.h"
 #include "Result.h"
 
 #include <string>
@@ -31,6 +31,7 @@ class Reader;
 /**
  * Heretic 2 .m8 format
  */
-Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader& reader);
+Result<Assets::Material, ReadMaterialError> readM8Texture(
+  std::string name, Reader& reader);
 
 } // namespace TrenchBroom::IO

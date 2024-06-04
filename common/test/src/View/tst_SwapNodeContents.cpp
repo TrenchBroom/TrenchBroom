@@ -18,8 +18,8 @@
  */
 
 #include "Assets/EntityDefinition.h"
-#include "Assets/Texture.h"
-#include "Assets/TextureManager.h"
+#include "Assets/Material.h"
+#include "Assets/MaterialManager.h"
 #include "FloatType.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
@@ -51,10 +51,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes")
 {
   auto* brushNode = createBrushNode();
@@ -96,17 +95,17 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches")
   CHECK(patchNode->patch() == originalPatch);
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount")
+TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.materialUsageCount")
 {
   document->deselectAll();
   document->setProperty(
     Model::EntityPropertyKeys::Wad, "fixture/test/IO/Wad/cr8_czg.wad");
 
-  constexpr auto TextureName = "bongs2";
-  const auto* texture = document->textureManager().texture(TextureName);
-  REQUIRE(texture != nullptr);
+  constexpr auto MaterialName = "bongs2";
+  const auto* material = document->materialManager().material(MaterialName);
+  REQUIRE(material != nullptr);
 
-  auto* brushNode = createBrushNode(TextureName);
+  auto* brushNode = createBrushNode(MaterialName);
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const auto& originalBrush = brushNode->brush();
@@ -119,13 +118,13 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.textureUsageCount")
   auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
   nodesToSwap.emplace_back(brushNode, std::move(modifiedBrush));
 
-  REQUIRE(texture->usageCount() == 6u);
+  REQUIRE(material->usageCount() == 6u);
 
   document->swapNodeContents("Swap Nodes", std::move(nodesToSwap), {});
-  CHECK(texture->usageCount() == 6u);
+  CHECK(material->usageCount() == 6u);
 
   document->undoCommand();
-  CHECK(texture->usageCount() == 6u);
+  CHECK(material->usageCount() == 6u);
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCount")
@@ -230,5 +229,5 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
     linkedBrushNode->physicalBounds()
     == brushNode->physicalBounds().transform(linkedGroupNode->group().transformation()));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

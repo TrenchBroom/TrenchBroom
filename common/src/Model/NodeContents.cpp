@@ -39,7 +39,7 @@ NodeContents::NodeContents(
       [](Brush& brush) {
         for (auto& face : brush.faces())
         {
-          face.setTexture(nullptr);
+          face.setMaterial(nullptr);
         }
       },
       [](BezierPatch&) {}),

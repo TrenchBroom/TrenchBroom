@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
-#include "Assets/TextureCollection.h"
-#include "Assets/TextureManager.h"
+#include "Assets/Material.h"
+#include "Assets/MaterialCollection.h"
+#include "Assets/MaterialManager.h"
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/BrushFace.h"
@@ -33,88 +33,98 @@
 #include "TestUtils.h"
 #include "View/MapDocumentTest.h"
 
+#include "kdl/vector_utils.h"
+
 #include <filesystem>
 #include <vector>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
+
 class TagManagementTest : public MapDocumentTest
 {
 protected:
-  Assets::Texture* m_textureA;
-  Assets::Texture* m_textureB;
-  Assets::Texture* m_textureC;
-  const Assets::TextureCollection* m_textureCollection;
+  Assets::Material* m_materialA = nullptr;
+  Assets::Material* m_materialB = nullptr;
+  Assets::Material* m_materialC = nullptr;
+  const Assets::MaterialCollection* m_materialCollection = nullptr;
 
 private:
   void SetUp()
   {
-    auto textureA = Assets::Texture("some_texture", 16, 16);
-    auto textureB = Assets::Texture("other_texture", 32, 32);
-    auto textureC = Assets::Texture("yet_another_texture", 64, 64);
+    auto materialA = Assets::Material{"some_material", 16, 16};
+    auto materialB = Assets::Material{"other_material", 32, 32};
+    auto materialC = Assets::Material{"yet_another_material", 64, 64};
 
-    const std::string singleParam("some_parm");
-    const std::set<std::string> multiParams({"parm1", "parm2"});
+    const auto singleParam = std::string{"some_parm"};
+    const auto multiParams = std::set<std::string>{"parm1", "parm2"};
 
-    textureA.setSurfaceParms({singleParam});
-    textureB.setSurfaceParms(multiParams);
+    materialA.setSurfaceParms({singleParam});
+    materialB.setSurfaceParms(multiParams);
 
-    std::vector<Assets::Texture> textures;
-    textures.push_back(std::move(textureA));
-    textures.push_back(std::move(textureB));
-    textures.push_back(std::move(textureC));
+    auto materials =
+      kdl::vec_from(std::move(materialA), std::move(materialB), std::move(materialC));
 
-    std::vector<Assets::TextureCollection> collections;
-    collections.emplace_back(std::move(textures));
+    auto collections = kdl::vec_from(Assets::MaterialCollection{std::move(materials)});
 
-    auto& textureManager = document->textureManager();
-    textureManager.setTextureCollections(std::move(collections));
-    m_textureCollection = &textureManager.collections().back();
+    auto& materialManager = document->materialManager();
+    materialManager.setMaterialCollections(std::move(collections));
+    m_materialCollection = &materialManager.collections().back();
 
-    m_textureA = textureManager.texture("some_texture");
-    m_textureB = textureManager.texture("other_texture");
-    m_textureC = textureManager.texture("yet_another_texture");
+    m_materialA = materialManager.material("some_material");
+    m_materialB = materialManager.material("other_material");
+    m_materialC = materialManager.material("yet_another_material");
 
-    const std::string textureMatch("some_texture");
-    const std::string texturePatternMatch("*er_texture");
-    const std::string singleParamMatch("parm2");
-    const kdl::vector_set<std::string> multiParamsMatch{"some_parm", "parm1", "parm3"};
+    const auto materialMatch = std::string{"some_material"};
+    const auto materialPatternMatch = std::string{"*er_material"};
+    const auto singleParamMatch = std::string{"parm2"};
+    const auto multiParamsMatch =
+      kdl::vector_set<std::string>{"some_parm", "parm1", "parm3"};
     game->setSmartTags(
-      {Model::SmartTag(
-         "texture", {}, std::make_unique<Model::TextureNameTagMatcher>(textureMatch)),
-       Model::SmartTag(
-         "texturePattern",
+      {Model::SmartTag{
+         "material",
          {},
-         std::make_unique<Model::TextureNameTagMatcher>(texturePatternMatch)),
-       Model::SmartTag(
+         std::make_unique<Model::MaterialNameTagMatcher>(materialMatch),
+       },
+       Model::SmartTag{
+         "materialPattern",
+         {},
+         std::make_unique<Model::MaterialNameTagMatcher>(materialPatternMatch),
+       },
+       Model::SmartTag{
          "surfaceparm_single",
          {},
-         std::make_unique<Model::SurfaceParmTagMatcher>(singleParamMatch)),
-       Model::SmartTag(
+         std::make_unique<Model::SurfaceParmTagMatcher>(singleParamMatch),
+       },
+       Model::SmartTag{
          "surfaceparm_multi",
          {},
-         std::make_unique<Model::SurfaceParmTagMatcher>(multiParamsMatch)),
-       Model::SmartTag(
-         "contentflags", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1)),
-       Model::SmartTag(
-         "surfaceflags", {}, std::make_unique<Model::SurfaceFlagsTagMatcher>(1)),
-       Model::SmartTag(
+         std::make_unique<Model::SurfaceParmTagMatcher>(multiParamsMatch),
+       },
+       Model::SmartTag{
+         "contentflags",
+         {},
+         std::make_unique<Model::ContentFlagsTagMatcher>(1),
+       },
+       Model::SmartTag{
+         "surfaceflags",
+         {},
+         std::make_unique<Model::SurfaceFlagsTagMatcher>(1),
+       },
+       Model::SmartTag{
          "entity",
          {},
-         std::make_unique<Model::EntityClassNameTagMatcher>("brush_entity", ""))});
+         std::make_unique<Model::EntityClassNameTagMatcher>("brush_entity", ""),
+       }});
     document->registerSmartTags();
   }
 
 protected:
-  TagManagementTest()
-    : MapDocumentTest()
-  {
-    SetUp();
-  }
+  TagManagementTest() { SetUp(); }
 };
 
 class TestCallback : public Model::TagMatcherCallback
@@ -124,17 +134,19 @@ private:
 
 public:
   explicit TestCallback(const size_t option)
-    : m_option(option)
+    : m_option{option}
   {
   }
 
-  size_t selectOption(const std::vector<std::string>& /* options */) { return m_option; }
+  size_t selectOption(const std::vector<std::string>&) override { return m_option; }
 };
+
+} // namespace
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistration")
 {
-  CHECK(document->isRegisteredSmartTag("texture"));
-  CHECK(document->isRegisteredSmartTag("texturePattern"));
+  CHECK(document->isRegisteredSmartTag("material"));
+  CHECK(document->isRegisteredSmartTag("materialPattern"));
   CHECK(document->isRegisteredSmartTag("surfaceparm_single"));
   CHECK(document->isRegisteredSmartTag("surfaceparm_multi"));
   CHECK(document->isRegisteredSmartTag("contentflags"));
@@ -146,8 +158,8 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistration")
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistrationAssignsIndexes")
 {
-  CHECK(document->smartTag("texture").index() == 0u);
-  CHECK(document->smartTag("texturePattern").index() == 1u);
+  CHECK(document->smartTag("material").index() == 0u);
+  CHECK(document->smartTag("materialPattern").index() == 1u);
   CHECK(document->smartTag("surfaceparm_single").index() == 2u);
   CHECK(document->smartTag("surfaceparm_multi").index() == 3u);
   CHECK(document->smartTag("contentflags").index() == 4u);
@@ -157,8 +169,8 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistrationAssignsInd
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistrationAssignsTypes")
 {
-  CHECK(document->smartTag("texture").type() == 1u);
-  CHECK(document->smartTag("texturePattern").type() == 2u);
+  CHECK(document->smartTag("material").type() == 1u);
+  CHECK(document->smartTag("materialPattern").type() == 2u);
   CHECK(document->smartTag("surfaceparm_single").type() == 4u);
   CHECK(document->smartTag("surfaceparm_multi").type() == 8u);
   CHECK(document->smartTag("contentflags").type() == 16u);
@@ -170,23 +182,27 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRegistrationAssignsTyp
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.duplicateTag")
 {
   game->setSmartTags({
-    Model::SmartTag(
-      "texture", {}, std::make_unique<Model::TextureNameTagMatcher>("some_texture")),
-    Model::SmartTag(
-      "texture",
+    Model::SmartTag{
+      "material",
       {},
-      std::make_unique<Model::SurfaceParmTagMatcher>("some_other_texture")),
+      std::make_unique<Model::MaterialNameTagMatcher>("some_material"),
+    },
+    Model::SmartTag{
+      "material",
+      {},
+      std::make_unique<Model::SurfaceParmTagMatcher>("some_other_material"),
+    },
   });
   CHECK_THROWS_AS(document->registerSmartTags(), std::logic_error);
 }
 
-TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchTextureNameTag")
+TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchMaterialNameTag")
 {
-  auto nodeA = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureA->name()));
-  auto nodeB = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureB->name()));
-  auto nodeC = std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureC->name()));
-  const auto& tag = document->smartTag("texture");
-  const auto& patternTag = document->smartTag("texturePattern");
+  auto nodeA = std::unique_ptr<Model::BrushNode>(createBrushNode(m_materialA->name()));
+  auto nodeB = std::unique_ptr<Model::BrushNode>(createBrushNode(m_materialB->name()));
+  auto nodeC = std::unique_ptr<Model::BrushNode>(createBrushNode(m_materialC->name()));
+  const auto& tag = document->smartTag("material");
+  const auto& patternTag = document->smartTag("materialPattern");
   for (const auto& face : nodeA->brush().faces())
   {
     CHECK(tag.matches(face));
@@ -204,52 +220,52 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchTextureNameTag")
   }
 }
 
-TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableTextureNameTag")
+TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableMaterialNameTag")
 {
   auto* nonMatchingBrushNode = createBrushNode("asdf");
   document->addNodes({{document->parentForNodes(), {nonMatchingBrushNode}}});
 
-  const auto& tag = document->smartTag("texture");
+  const auto& tag = document->smartTag("material");
   CHECK(tag.canEnable());
 
-  const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{nonMatchingBrushNode, 0u};
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
 
   CHECK(tag.matches(faceHandle.face()));
 }
 
-TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableTextureNameTag")
+TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableMaterialNameTag")
 {
-  const auto& tag = document->smartTag("texture");
+  const auto& tag = document->smartTag("material");
   CHECK_FALSE(tag.canDisable());
 }
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchSurfaceParmTag")
 {
   auto nodeA =
-    std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureA->name(), [&](auto& b) {
+    std::unique_ptr<Model::BrushNode>(createBrushNode(m_materialA->name(), [&](auto& b) {
       for (auto& face : b.faces())
       {
-        face.setTexture(m_textureA);
+        face.setMaterial(m_materialA);
       }
     }));
   auto nodeB =
-    std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureB->name(), [&](auto& b) {
+    std::unique_ptr<Model::BrushNode>(createBrushNode(m_materialB->name(), [&](auto& b) {
       for (auto& face : b.faces())
       {
-        face.setTexture(m_textureB);
+        face.setMaterial(m_materialB);
       }
     }));
   auto nodeC =
-    std::unique_ptr<Model::BrushNode>(createBrushNode(m_textureC->name(), [&](auto& b) {
+    std::unique_ptr<Model::BrushNode>(createBrushNode(m_materialC->name(), [&](auto& b) {
       for (auto& face : b.faces())
       {
-        face.setTexture(m_textureC);
+        face.setMaterial(m_materialC);
       }
     }));
   const auto& singleTag = document->smartTag("surfaceparm_single");
@@ -279,12 +295,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceParmTag")
   const auto& tag = document->smartTag("surfaceparm_single");
   CHECK(tag.canEnable());
 
-  const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{nonMatchingBrushNode, 0u};
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
 
   CHECK(tag.matches(faceHandle.face()));
@@ -336,12 +352,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableContentFlagsTag")
   const auto& tag = document->smartTag("contentflags");
   CHECK(tag.canEnable());
 
-  const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{nonMatchingBrushNode, 0u};
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
 
   CHECK(tag.matches(faceHandle.face()));
@@ -363,12 +379,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableContentFlagsTag")
   const auto& tag = document->smartTag("contentflags");
   CHECK(tag.canDisable());
 
-  const auto faceHandle = Model::BrushFaceHandle(matchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{matchingBrushNode, 0u};
   CHECK(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.disable(callback, *document);
 
   CHECK_FALSE(tag.matches(faceHandle.face()));
@@ -414,12 +430,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableSurfaceFlagsTag")
   const auto& tag = document->smartTag("surfaceflags");
   CHECK(tag.canEnable());
 
-  const auto faceHandle = Model::BrushFaceHandle(nonMatchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{nonMatchingBrushNode, 0u};
   CHECK_FALSE(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
 
   CHECK(tag.matches(faceHandle.face()));
@@ -441,12 +457,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableSurfaceFlagsTag")
   const auto& tag = document->smartTag("surfaceflags");
   CHECK(tag.canDisable());
 
-  const auto faceHandle = Model::BrushFaceHandle(matchingBrushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{matchingBrushNode, 0u};
   CHECK(tag.matches(faceHandle.face()));
 
   document->selectBrushFaces({faceHandle});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.disable(callback, *document);
 
   CHECK_FALSE(tag.matches(faceHandle.face()));
@@ -482,7 +498,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.enableEntityClassnameTag"
 
   document->selectNodes({brushNode});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
   CHECK(tag.matches(*brushNode));
 }
@@ -501,7 +517,7 @@ TEST_CASE_METHOD(
   const auto& tag = document->smartTag("entity");
   document->selectNodes({brushNode});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.enable(callback, *document);
   CHECK(tag.matches(*brushNode));
 
@@ -529,7 +545,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag
 
   document->selectNodes({brushNode});
 
-  TestCallback callback(0);
+  auto callback = TestCallback{0};
   tag.disable(callback, *document);
   CHECK_FALSE(tag.matches(*brushNode));
 }
@@ -539,7 +555,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushTags")
   auto* entityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto* brush = createBrushNode("some_texture");
+  auto* brush = createBrushNode("some_material");
   document->addNodes({{entityNode, {brush}}});
 
   const auto& tag = document->smartTag("entity");
@@ -551,7 +567,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushTags")
   auto* entityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto* brush = createBrushNode("some_texture");
+  auto* brush = createBrushNode("some_material");
   document->addNodes({{entityNode, {brush}}});
 
   document->removeNodes({brush});
@@ -562,7 +578,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushTags")
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTags")
 {
-  auto* brushNode = createBrushNode("some_texture");
+  auto* brushNode = createBrushNode("some_material");
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   auto* entityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
@@ -584,7 +600,7 @@ TEST_CASE_METHOD(
   auto* otherEntityNode = new Model::EntityNode{{}, {{"classname", "other"}}};
   document->addNodes({{document->parentForNodes(), {otherEntityNode}}});
 
-  auto* brushNode = createBrushNode("some_texture");
+  auto* brushNode = createBrushNode("some_material");
   document->addNodes({{otherEntityNode, {brushNode}}});
 
   const auto& tag = document->smartTag("entity");
@@ -600,7 +616,7 @@ TEST_CASE_METHOD(
   auto* lightEntityNode = new Model::EntityNode{{}, {{"classname", "asdf"}}};
   document->addNodes({{document->parentForNodes(), {lightEntityNode}}});
 
-  auto* brushNode = createBrushNode("some_texture");
+  auto* brushNode = createBrushNode("some_material");
   document->addNodes({{lightEntityNode, {brushNode}}});
 
   const auto& tag = document->smartTag("entity");
@@ -618,7 +634,7 @@ TEST_CASE_METHOD(
   "TagManagementTest.tagInitializeBrushFaceTags",
   "[TagManagementTest]")
 {
-  auto* brushNodeWithTags = createBrushNode("some_texture");
+  auto* brushNodeWithTags = createBrushNode("some_material");
   document->addNodes({{document->parentForNodes(), {brushNodeWithTags}}});
   document->selectNodes({brushNodeWithTags});
 
@@ -631,7 +647,7 @@ TEST_CASE_METHOD(
     REQUIRE(result.hasRemainingVertices);
   }
 
-  const auto& tag = document->smartTag("texture");
+  const auto& tag = document->smartTag("material");
   for (const auto& face : brushNodeWithTags->brush().faces())
   {
     CHECK(face.hasTag(tag));
@@ -648,11 +664,11 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushFaceTags")
 {
-  auto* brushNodeWithTags = createBrushNode("some_texture");
+  auto* brushNodeWithTags = createBrushNode("some_material");
   document->addNodes({{document->parentForNodes(), {brushNodeWithTags}}});
   document->removeNodes({brushNodeWithTags});
 
-  const auto& tag = document->smartTag("texture");
+  const auto& tag = document->smartTag("material");
   for (const auto& face : brushNodeWithTags->brush().faces())
   {
     CHECK_FALSE(face.hasTag(tag));
@@ -666,7 +682,7 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushFaceTags")
 
   const auto& tag = document->smartTag("contentflags");
 
-  const auto faceHandle = Model::BrushFaceHandle(brushNode, 0u);
+  const auto faceHandle = Model::BrushFaceHandle{brushNode, 0u};
   CHECK_FALSE(faceHandle.face().hasTag(tag));
 
   Model::ChangeBrushFaceAttributesRequest request;
@@ -683,5 +699,5 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushFaceTags")
     CHECK(!faces[i].hasTag(tag));
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

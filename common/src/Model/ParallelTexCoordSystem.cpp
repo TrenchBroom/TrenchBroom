@@ -19,9 +19,10 @@
 
 #include "ParallelTexCoordSystem.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Ensure.h"
 #include "FloatType.h"
+#include "Macros.h"
 #include "Model/BrushFace.h"
 #include "Model/ParaxialTexCoordSystem.h"
 
@@ -29,28 +30,58 @@
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
-#include <algorithm> // for std::max_element
+#include <algorithm>
 #include <cstddef>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
+
+namespace
 {
+
+/**
+ * Generates two vectors which are perpendicular to `normal` and perpendicular to each
+ * other.
+ */
+std::tuple<vm::vec3, vm::vec3> computeInitialAxes(const vm::vec3& normal)
+{
+  const auto xAxis = vm::find_abs_max_component(normal) == vm::axis::z
+                       ? vm::normalize(vm::cross(vm::vec3::pos_y(), normal))
+                       : vm::normalize(vm::cross(vm::vec3::pos_z(), normal));
+
+  return {xAxis, vm::normalize(vm::cross(xAxis, normal))};
+}
+
+/**
+ * Rotate CCW by `angle` radians about `normal`.
+ */
+std::tuple<vm::vec3, vm::vec3> applyRotation(
+  const vm::vec3& xAxis,
+  const vm::vec3& yAxis,
+  const vm::vec3& normal,
+  const FloatType angle)
+{
+  const auto rot = vm::quat3{normal, angle};
+  return {rot * xAxis, rot * yAxis};
+}
+
+} // namespace
+
 ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(
   const vm::vec3& xAxis, const vm::vec3& yAxis)
-  : m_xAxis(xAxis)
-  , m_yAxis(yAxis)
+  : m_xAxis{xAxis}
+  , m_yAxis{yAxis}
 {
 }
 
 ParallelTexCoordSystemSnapshot::ParallelTexCoordSystemSnapshot(
   const ParallelTexCoordSystem* coordSystem)
-  : m_xAxis(coordSystem->xAxis())
-  , m_yAxis(coordSystem->yAxis())
+  : m_xAxis{coordSystem->xAxis()}
+  , m_yAxis{coordSystem->yAxis()}
 {
 }
 
-std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystemSnapshot::doClone() const
+std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystemSnapshot::clone() const
 {
   return std::make_unique<ParallelTexCoordSystemSnapshot>(m_xAxis, m_yAxis);
 }
@@ -82,15 +113,16 @@ ParallelTexCoordSystem::ParallelTexCoordSystem(
   const vm::vec3& point2,
   const BrushFaceAttributes& attribs)
 {
-  const vm::vec3 normal = vm::normalize(vm::cross(point2 - point0, point1 - point0));
-  computeInitialAxes(normal, m_xAxis, m_yAxis);
-  applyRotation(normal, static_cast<FloatType>(attribs.rotation()));
+  const auto normal = vm::normalize(vm::cross(point2 - point0, point1 - point0));
+  std::tie(m_xAxis, m_yAxis) = computeInitialAxes(normal);
+  std::tie(m_xAxis, m_yAxis) =
+    applyRotation(xAxis(), yAxis(), normal, FloatType(attribs.rotation()));
 }
 
 ParallelTexCoordSystem::ParallelTexCoordSystem(
   const vm::vec3& xAxis, const vm::vec3& yAxis)
-  : m_xAxis(xAxis)
-  , m_yAxis(yAxis)
+  : m_xAxis{xAxis}
+  , m_yAxis{yAxis}
 {
 }
 
@@ -101,42 +133,42 @@ std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoor
     const vm::vec3& point2,
     const BrushFaceAttributes& attribs)
 {
-  const auto tempParaxial = ParaxialTexCoordSystem(point0, point1, point2, attribs);
+  const auto tempParaxial = ParaxialTexCoordSystem{point0, point1, point2, attribs};
   return {
-    ParallelTexCoordSystem(tempParaxial.xAxis(), tempParaxial.yAxis()).clone(), attribs};
+    ParallelTexCoordSystem{tempParaxial.xAxis(), tempParaxial.yAxis()}.clone(), attribs};
 }
 
-std::unique_ptr<TexCoordSystem> ParallelTexCoordSystem::doClone() const
+std::unique_ptr<TexCoordSystem> ParallelTexCoordSystem::clone() const
 {
-  return std::make_unique<ParallelTexCoordSystem>(m_xAxis, m_yAxis);
+  return std::make_unique<ParallelTexCoordSystem>(xAxis(), yAxis());
 }
 
-std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystem::doTakeSnapshot() const
+std::unique_ptr<TexCoordSystemSnapshot> ParallelTexCoordSystem::takeSnapshot() const
 {
   return std::make_unique<ParallelTexCoordSystemSnapshot>(this);
 }
 
-void ParallelTexCoordSystem::doRestoreSnapshot(const TexCoordSystemSnapshot& snapshot)
+void ParallelTexCoordSystem::restoreSnapshot(const TexCoordSystemSnapshot& snapshot)
 {
   snapshot.doRestore(*this);
 }
 
-vm::vec3 ParallelTexCoordSystem::getXAxis() const
+vm::vec3 ParallelTexCoordSystem::xAxis() const
 {
   return m_xAxis;
 }
 
-vm::vec3 ParallelTexCoordSystem::getYAxis() const
+vm::vec3 ParallelTexCoordSystem::yAxis() const
 {
   return m_yAxis;
 }
 
-vm::vec3 ParallelTexCoordSystem::getZAxis() const
+vm::vec3 ParallelTexCoordSystem::zAxis() const
 {
-  return normalize(cross(m_xAxis, m_yAxis));
+  return vm::normalize(vm::cross(xAxis(), yAxis()));
 }
 
-void ParallelTexCoordSystem::doResetCache(
+void ParallelTexCoordSystem::resetCache(
   const vm::vec3& /* point0 */,
   const vm::vec3& /* point1 */,
   const vm::vec3& /* point2 */,
@@ -145,32 +177,27 @@ void ParallelTexCoordSystem::doResetCache(
   // no-op
 }
 
-void ParallelTexCoordSystem::doResetTextureAxes(const vm::vec3& normal)
+void ParallelTexCoordSystem::resetTextureAxes(const vm::vec3& normal)
 {
-  computeInitialAxes(normal, m_xAxis, m_yAxis);
+  std::tie(m_xAxis, m_yAxis) = computeInitialAxes(normal);
 }
 
-void ParallelTexCoordSystem::doResetTextureAxesToParaxial(
+void ParallelTexCoordSystem::resetTextureAxesToParaxial(
   const vm::vec3& normal, float angle)
 {
-  const size_t index = ParaxialTexCoordSystem::planeNormalIndex(normal);
-  ParaxialTexCoordSystem::axes(index, m_xAxis, m_yAxis);
-  applyRotation(normal, static_cast<FloatType>(angle));
+  const auto index = ParaxialTexCoordSystem::planeNormalIndex(normal);
+  std::tie(m_xAxis, m_yAxis, std::ignore) = ParaxialTexCoordSystem::axes(index);
+  std::tie(m_xAxis, m_yAxis) = applyRotation(xAxis(), yAxis(), normal, FloatType(angle));
 }
 
-void ParallelTexCoordSystem::doResetTextureAxesToParallel(
+void ParallelTexCoordSystem::resetTextureAxesToParallel(
   const vm::vec3& normal, float angle)
 {
-  computeInitialAxes(normal, m_xAxis, m_yAxis);
-  applyRotation(normal, static_cast<FloatType>(angle));
+  std::tie(m_xAxis, m_yAxis) = computeInitialAxes(normal);
+  std::tie(m_xAxis, m_yAxis) = applyRotation(xAxis(), yAxis(), normal, FloatType(angle));
 }
 
-bool ParallelTexCoordSystem::isRotationInverted(const vm::vec3& /* normal */) const
-{
-  return false;
-}
-
-vm::vec2f ParallelTexCoordSystem::doGetTexCoords(
+vm::vec2f ParallelTexCoordSystem::getTexCoords(
   const vm::vec3& point,
   const BrushFaceAttributes& attribs,
   const vm::vec2f& textureSize) const
@@ -182,28 +209,18 @@ vm::vec2f ParallelTexCoordSystem::doGetTexCoords(
  * Rotates from `oldAngle` to `newAngle`. Both of these are in CCW degrees about
  * the texture normal (`getZAxis()`). The provided `normal` is ignored.
  */
-void ParallelTexCoordSystem::doSetRotation(
+void ParallelTexCoordSystem::setRotation(
   const vm::vec3& /* normal */, const float oldAngle, const float newAngle)
 {
-  const float angleDelta = newAngle - oldAngle;
-  if (angleDelta == 0.0f)
-    return;
-
-  const FloatType angle = static_cast<FloatType>(vm::to_radians(angleDelta));
-  applyRotation(getZAxis(), angle);
+  const auto angleDelta = newAngle - oldAngle;
+  if (angleDelta != 0.0f)
+  {
+    std::tie(m_xAxis, m_yAxis) =
+      applyRotation(xAxis(), yAxis(), zAxis(), FloatType(vm::to_radians(angleDelta)));
+  }
 }
 
-/**
- * Rotate CCW by `angle` radians about `normal`.
- */
-void ParallelTexCoordSystem::applyRotation(const vm::vec3& normal, const FloatType angle)
-{
-  const vm::quat3 rot(normal, angle);
-  m_xAxis = rot * m_xAxis;
-  m_yAxis = rot * m_yAxis;
-}
-
-void ParallelTexCoordSystem::doTransform(
+void ParallelTexCoordSystem::transform(
   const vm::plane3& oldBoundary,
   const vm::plane3& newBoundary,
   const vm::mat4x4& transformation,
@@ -220,7 +237,7 @@ void ParallelTexCoordSystem::doTransform(
   // when texture lock is off, just project the current texturing
   if (!lockTexture)
   {
-    doUpdateNormalWithProjection(newBoundary.normal, attribs);
+    updateNormalWithProjection(newBoundary.normal, attribs);
     return;
   }
 
@@ -240,7 +257,7 @@ void ParallelTexCoordSystem::doTransform(
   assert(!vm::is_nan(oldInvariantTechCoords));
 
   // compute the new texture axes
-  const auto worldToTexSpace = toMatrix(vm::vec2f(0, 0), vm::vec2f(1, 1));
+  const auto worldToTexSpace = toMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
   // The formula for texturing is:
   //
@@ -263,8 +280,8 @@ void ParallelTexCoordSystem::doTransform(
     m_xAxis[i] = newWorldToTexSpace[i][0];
     m_yAxis[i] = newWorldToTexSpace[i][1];
   }
-  assert(!vm::is_nan(m_xAxis));
-  assert(!vm::is_nan(m_yAxis));
+  assert(!vm::is_nan(xAxis()));
+  assert(!vm::is_nan(yAxis()));
 
   // determine the new texture coordinates of the transformed center of the face, sans
   // offsets
@@ -279,22 +296,62 @@ void ParallelTexCoordSystem::doTransform(
   attribs.setOffset(newOffset);
 }
 
-float ParallelTexCoordSystem::computeTextureAngle(
-  const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const
+void ParallelTexCoordSystem::shearTexture(
+  const vm::vec3& /* normal */, const vm::vec2f& f)
 {
-  const vm::mat4x4& rotationScale = vm::strip_translation(transformation);
-  const vm::vec3& oldNormal = oldBoundary.normal;
-  const vm::vec3 newNormal = vm::normalize(rotationScale * oldNormal);
+  const vm::mat4x4 shear(
+    1.0, f[0], 0.0, 0.0, f[1], 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
 
-  const auto nonTextureRotation = vm::quatd(oldNormal, newNormal);
-  const vm::vec3 newXAxis = vm::normalize(rotationScale * m_xAxis);
-  const vm::vec3 nonXAxis = vm::normalize(nonTextureRotation * m_xAxis);
-  const FloatType angle =
-    vm::to_degrees(vm::measure_angle(nonXAxis, newXAxis, newNormal));
-  return static_cast<float>(angle);
+  const auto toMatrix =
+    vm::coordinate_system_matrix(xAxis(), yAxis(), zAxis(), vm::vec3::zero());
+  const auto fromMatrix = vm::invert(toMatrix);
+
+  const auto transform = *fromMatrix * shear * toMatrix;
+  m_xAxis = transform * xAxis();
+  m_yAxis = transform * yAxis();
 }
 
-void ParallelTexCoordSystem::doUpdateNormalWithProjection(
+/**
+ * Measures the angle between the line from `center` to `point` and the texture space X
+ * axis, in CCW degrees about the texture normal. Returns this, added to `currentAngle`
+ * (also in CCW degrees).
+ */
+float ParallelTexCoordSystem::measureAngle(
+  const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const
+{
+  const auto vec = vm::vec3f{point - center};
+  const auto angleInRadians =
+    vm::measure_angle(vm::normalize(vec), vm::vec3f::pos_x(), vm::vec3f::pos_z());
+  return currentAngle + vm::to_degrees(angleInRadians);
+}
+
+std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::
+  toParallel(
+    const vm::vec3&,
+    const vm::vec3&,
+    const vm::vec3&,
+    const BrushFaceAttributes& attribs) const
+{
+  return {clone(), attribs};
+}
+
+std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::
+  toParaxial(
+    const vm::vec3& point0,
+    const vm::vec3& point1,
+    const vm::vec3& point2,
+    const BrushFaceAttributes& attribs) const
+{
+  return ParaxialTexCoordSystem::fromParallel(
+    point0, point1, point2, attribs, xAxis(), yAxis());
+}
+
+bool ParallelTexCoordSystem::isRotationInverted(const vm::vec3& /* normal */) const
+{
+  return false;
+}
+
+void ParallelTexCoordSystem::updateNormalWithProjection(
   const vm::vec3& newNormal, const BrushFaceAttributes& /* attribs */)
 {
   // Goal: (m_xAxis, m_yAxis) define the texture projection that was used for a face with
@@ -308,48 +365,49 @@ void ParallelTexCoordSystem::doUpdateNormalWithProjection(
   // whose texture normal (cross product of the x and y axis) is closest to newNormal (the
   // new face normal).
 
-  std::vector<std::pair<vm::vec3, vm::vec3>> possibleTexAxes;
-  possibleTexAxes.push_back({m_xAxis, m_yAxis}); // possibleTexAxes[0] = front
-  possibleTexAxes.push_back({m_yAxis, m_xAxis}); // possibleTexAxes[1] = back
-  const std::vector<vm::quat3> rotations{
-    vm::quat3(
-      normalize(m_xAxis),
-      vm::to_radians(90.0)), // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
-    vm::quat3(normalize(m_xAxis), vm::to_radians(-90.0)), // possibleTexAxes[3] = top
-    vm::quat3(normalize(m_yAxis), vm::to_radians(90.0)),  // possibleTexAxes[4] = left
-    vm::quat3(normalize(m_yAxis), vm::to_radians(-90.0)), // possibleTexAxes[5] = right
+  auto possibleTexAxes = std::vector<std::pair<vm::vec3, vm::vec3>>{};
+  possibleTexAxes.emplace_back(xAxis(), yAxis()); // possibleTexAxes[0] = front
+  possibleTexAxes.emplace_back(yAxis(), xAxis()); // possibleTexAxes[1] = back
+  const auto rotations = std::vector<vm::quat3>{
+    vm::quat3{
+      vm::normalize(xAxis()),
+      vm::to_radians(90.0)}, // possibleTexAxes[2]= bottom (90 degrees CCW about m_xAxis)
+    vm::quat3{vm::normalize(xAxis()), vm::to_radians(-90.0)}, // possibleTexAxes[3] = top
+    vm::quat3{vm::normalize(yAxis()), vm::to_radians(90.0)},  // possibleTexAxes[4] = left
+    vm::quat3{
+      vm::normalize(yAxis()), vm::to_radians(-90.0)}, // possibleTexAxes[5] = right
   };
-  for (const vm::quat3& rotation : rotations)
+  for (const auto& rotation : rotations)
   {
-    possibleTexAxes.push_back({rotation * m_xAxis, rotation * m_yAxis});
+    possibleTexAxes.emplace_back(rotation * xAxis(), rotation * yAxis());
   }
   assert(possibleTexAxes.size() == 6);
 
-  std::vector<vm::vec3> possibleTexAxesNormals;
+  auto possibleTexAxesNormals = std::vector<vm::vec3>{};
   for (const auto& axes : possibleTexAxes)
   {
-    const vm::vec3 texNormal = normalize(cross(axes.first, axes.second));
+    const auto texNormal = vm::normalize(vm::cross(axes.first, axes.second));
     possibleTexAxesNormals.push_back(texNormal);
   }
   assert(possibleTexAxesNormals.size() == 6);
 
   // Find the index in possibleTexAxesNormals of the normal closest to the newNormal (face
   // normal)
-  std::vector<FloatType> cosAngles;
+  auto cosAngles = std::vector<FloatType>{};
   for (const auto& texNormal : possibleTexAxesNormals)
   {
-    const FloatType cosAngle = dot(texNormal, newNormal);
+    const auto cosAngle = vm::dot(texNormal, newNormal);
     cosAngles.push_back(cosAngle);
   }
   assert(cosAngles.size() == 6);
 
-  const ptrdiff_t index = std::distance(
+  const auto index = std::distance(
     cosAngles.begin(), std::max_element(cosAngles.begin(), cosAngles.end()));
   assert(index >= 0);
   assert(index < 6);
 
   // Skip 0 because it is "no change".
-  // Skip 1 becaues it's a 180 degree flip, we prefer to just project the "front" texture
+  // Skip 1 because it's a 180 degree flip, we prefer to just project the "front" texture
   // axes.
   if (index >= 2)
   {
@@ -359,100 +417,39 @@ void ParallelTexCoordSystem::doUpdateNormalWithProjection(
   }
 }
 
-void ParallelTexCoordSystem::doUpdateNormalWithRotation(
+void ParallelTexCoordSystem::updateNormalWithRotation(
   const vm::vec3& oldNormal,
   const vm::vec3& newNormal,
   const BrushFaceAttributes& /* attribs */)
 {
-  vm::quat3 rotation;
-  auto axis = vm::cross(oldNormal, newNormal);
-  if (axis == vm::vec3::zero())
+  const auto cross = vm::cross(oldNormal, newNormal);
+  if (cross == vm::vec3::zero())
   {
     // oldNormal and newNormal are either the same or opposite.
     // in this case, no need to update the texture axes.
     return;
   }
-  else
-  {
-    axis = vm::normalize(axis);
-  }
 
+  const auto axis = vm::normalize(cross);
   const auto angle = vm::measure_angle(newNormal, oldNormal, axis);
-  rotation = vm::quat3(axis, angle);
+  const auto rotation = vm::quat3{axis, angle};
 
-  m_xAxis = rotation * m_xAxis;
-  m_yAxis = rotation * m_yAxis;
+  m_xAxis = rotation * xAxis();
+  m_yAxis = rotation * yAxis();
 }
 
-void ParallelTexCoordSystem::doShearTexture(
-  const vm::vec3& /* normal */, const vm::vec2f& f)
+float ParallelTexCoordSystem::computeTextureAngle(
+  const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const
 {
-  const vm::mat4x4 shear(
-    1.0, f[0], 0.0, 0.0, f[1], 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+  const auto rotationScale = vm::strip_translation(transformation);
+  const auto oldNormal = oldBoundary.normal;
+  const auto newNormal = vm::normalize(rotationScale * oldNormal);
 
-  const auto toMatrix =
-    vm::coordinate_system_matrix(m_xAxis, m_yAxis, getZAxis(), vm::vec3::zero());
-  const auto fromMatrix = vm::invert(toMatrix);
-
-  const auto transform = *fromMatrix * shear * toMatrix;
-  m_xAxis = transform * m_xAxis;
-  m_yAxis = transform * m_yAxis;
+  const auto nonTextureRotation = vm::quat{oldNormal, newNormal};
+  const auto newXAxis = vm::normalize(rotationScale * xAxis());
+  const auto nonXAxis = vm::normalize(nonTextureRotation * yAxis());
+  const auto angle = vm::to_degrees(vm::measure_angle(nonXAxis, newXAxis, newNormal));
+  return float(angle);
 }
 
-/**
- * Measures the angle between the line from `center` to `point` and the texture space X
- * axis, in CCW degrees about the texture normal. Returns this, added to `currentAngle`
- * (also in CCW degrees).
- */
-float ParallelTexCoordSystem::doMeasureAngle(
-  const float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const
-{
-  const auto vec = vm::vec3f(point - center);
-  const auto angleInRadians =
-    vm::measure_angle(vm::normalize(vec), vm::vec3f::pos_x(), vm::vec3f::pos_z());
-  return currentAngle + vm::to_degrees(angleInRadians);
-}
-
-/**
- * Generates two vectors which are perpendicular to `normal` and perpendicular to each
- * other.
- */
-void ParallelTexCoordSystem::computeInitialAxes(
-  const vm::vec3& normal, vm::vec3& xAxis, vm::vec3& yAxis) const
-{
-  switch (vm::find_abs_max_component(normal))
-  {
-  case vm::axis::x:
-  case vm::axis::y:
-    xAxis = vm::normalize(vm::cross(vm::vec3::pos_z(), normal));
-    break;
-  case vm::axis::z:
-    xAxis = vm::normalize(vm::cross(vm::vec3::pos_y(), normal));
-    break;
-  }
-
-  yAxis = vm::normalize(vm::cross(m_xAxis, normal));
-}
-
-std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::
-  doToParallel(
-    const vm::vec3&,
-    const vm::vec3&,
-    const vm::vec3&,
-    const BrushFaceAttributes& attribs) const
-{
-  return {clone(), attribs};
-}
-
-std::tuple<std::unique_ptr<TexCoordSystem>, BrushFaceAttributes> ParallelTexCoordSystem::
-  doToParaxial(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
-    const BrushFaceAttributes& attribs) const
-{
-  return ParaxialTexCoordSystem::fromParallel(
-    point0, point1, point2, attribs, m_xAxis, m_yAxis);
-}
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
@@ -225,7 +225,7 @@ TEST_CASE("BrushTest.resizePastWorldBounds")
                        vm::vec3(64, 64, -16),
                        vm::vec3(48, 64, 16),
                        vm::vec3(48, 64, -16)},
-                     "texture")
+                     "material")
                    .value();
 
   const auto rightFaceIndex = brush1.findFace(vm::vec3::pos_x());
@@ -242,7 +242,7 @@ TEST_CASE("BrushTest.expand")
 
   Brush brush1 =
     builder
-      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture")
+      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
       .value();
   CHECK(brush1.expand(worldBounds, 6, true).is_success());
 
@@ -262,7 +262,7 @@ TEST_CASE("BrushTest.contract")
 
   Brush brush1 =
     builder
-      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture")
+      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
       .value();
   CHECK(brush1.expand(worldBounds, -32, true).is_success());
 
@@ -282,7 +282,7 @@ TEST_CASE("BrushTest.contractToZero")
 
   Brush brush1 =
     builder
-      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "texture")
+      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
       .value();
   CHECK(brush1.expand(worldBounds, -64, true).is_error());
 }
@@ -313,14 +313,14 @@ TEST_CASE("BrushTest.moveVertex")
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p9));
 
-  assertTexture("left", brush, p1, p2, p4, p3);
-  assertTexture("right", brush, p5, p7, p6);
-  assertTexture("right", brush, p6, p7, p9);
-  assertTexture("front", brush, p1, p5, p6, p2);
-  assertTexture("back", brush, p3, p4, p7);
-  assertTexture("back", brush, p4, p9, p7);
-  assertTexture("top", brush, p2, p6, p9, p4);
-  assertTexture("bottom", brush, p1, p3, p7, p5);
+  assertMaterial("left", brush, p1, p2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p6);
+  assertMaterial("right", brush, p6, p7, p9);
+  assertMaterial("front", brush, p1, p5, p6, p2);
+  assertMaterial("back", brush, p3, p4, p7);
+  assertMaterial("back", brush, p4, p9, p7);
+  assertMaterial("top", brush, p2, p6, p9, p4);
+  assertMaterial("bottom", brush, p1, p3, p7, p5);
 
   oldVertexPositions = std::move(newVertexPositions);
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, p8 - p9).is_success());
@@ -329,12 +329,12 @@ TEST_CASE("BrushTest.moveVertex")
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p8));
 
-  assertTexture("left", brush, p1, p2, p4, p3);
-  assertTexture("right", brush, p5, p7, p8, p6);
-  assertTexture("front", brush, p1, p5, p6, p2);
-  assertTexture("back", brush, p3, p4, p8, p7);
-  assertTexture("top", brush, p2, p6, p8, p4);
-  assertTexture("bottom", brush, p1, p3, p7, p5);
+  assertMaterial("left", brush, p1, p2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p8, p6);
+  assertMaterial("front", brush, p1, p5, p6, p2);
+  assertMaterial("back", brush, p3, p4, p8, p7);
+  assertMaterial("top", brush, p2, p6, p8, p4);
+  assertMaterial("bottom", brush, p1, p3, p7, p5);
 }
 
 TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide")
@@ -350,7 +350,7 @@ TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide")
   points.push_back(top);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(points, "some_texture").value();
+  Brush brush = builder.createBrush(points, "some_material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({top});
   auto delta = vm::vec3(0.0, 0.0, -32.0);
@@ -387,7 +387,7 @@ TEST_CASE("BrushTest.moveVertexInwardWithoutMerges")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -462,7 +462,7 @@ TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -537,7 +537,7 @@ TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -610,7 +610,7 @@ TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -681,7 +681,7 @@ TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -750,7 +750,7 @@ TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -818,7 +818,7 @@ TEST_CASE("BrushTest.moveVertexUpThroughPlane")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -889,7 +889,7 @@ TEST_CASE("BrushTest.moveVertexOntoEdge")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -956,7 +956,7 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertex")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p7 - p8;
@@ -1024,7 +1024,7 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p7});
   auto delta = p8 - p7;
@@ -1093,7 +1093,7 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p6});
   auto delta = p9 - p6;
@@ -1162,7 +1162,7 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex2")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -1233,7 +1233,7 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material").value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p9});
   auto delta = p10 - p9;
@@ -1281,7 +1281,7 @@ TEST_CASE("BrushTest.moveVerticesPastWorldBounds")
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
 
-  Model::Brush brush = builder.createCube(128.0, "texture").value();
+  Model::Brush brush = builder.createCube(128.0, "material").value();
 
   std::vector<vm::vec3> allVertexPositions;
   for (const auto* vertex : brush.vertices())
@@ -1371,7 +1371,7 @@ TEST_CASE("BrushTest.movePointRemainingPolygon")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -127.0));
@@ -1437,7 +1437,7 @@ TEST_CASE("BrushTest.movePointRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   assertMovingVertexDeletes(
@@ -1598,12 +1598,12 @@ TEST_CASE("BrushTest.moveEdge")
   const vm::vec3 p1_2(-32.0, -32.0, -16.0);
   const vm::vec3 p2_2(-32.0, -32.0, +48.0);
 
-  assertTexture("left", brush, p1, p2, p4, p3);
-  assertTexture("right", brush, p5, p7, p8, p6);
-  assertTexture("front", brush, p1, p5, p6, p2);
-  assertTexture("back", brush, p3, p4, p8, p7);
-  assertTexture("top", brush, p2, p6, p8, p4);
-  assertTexture("bottom", brush, p1, p3, p7, p5);
+  assertMaterial("left", brush, p1, p2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p8, p6);
+  assertMaterial("front", brush, p1, p5, p6, p2);
+  assertMaterial("back", brush, p3, p4, p8, p7);
+  assertMaterial("top", brush, p2, p6, p8, p4);
+  assertMaterial("bottom", brush, p1, p3, p7, p5);
 
   const auto originalEdge = vm::segment(p1, p2);
   auto oldEdgePositions = std::vector<vm::segment3>({originalEdge});
@@ -1615,14 +1615,14 @@ TEST_CASE("BrushTest.moveEdge")
   CHECK(newEdgePositions.size() == 1u);
   CHECK(newEdgePositions[0] == vm::segment3(p1_2, p2_2));
 
-  assertTexture("left", brush, p1_2, p2_2, p4, p3);
-  assertTexture("right", brush, p5, p7, p8, p6);
-  assertTexture("front", brush, p1_2, p5, p6, p2_2);
-  assertTexture("back", brush, p3, p4, p8, p7);
-  assertTexture("top", brush, p2_2, p6, p8);
-  assertTexture("top", brush, p2_2, p8, p4);
-  assertTexture("bottom", brush, p1_2, p3, p5);
-  assertTexture("bottom", brush, p3, p7, p5);
+  assertMaterial("left", brush, p1_2, p2_2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p8, p6);
+  assertMaterial("front", brush, p1_2, p5, p6, p2_2);
+  assertMaterial("back", brush, p3, p4, p8, p7);
+  assertMaterial("top", brush, p2_2, p6, p8);
+  assertMaterial("top", brush, p2_2, p8, p4);
+  assertMaterial("bottom", brush, p1_2, p3, p5);
+  assertMaterial("bottom", brush, p3, p7, p5);
 
   CHECK(brush.canMoveEdges(worldBounds, newEdgePositions, p1 - p1_2));
 
@@ -1635,12 +1635,12 @@ TEST_CASE("BrushTest.moveEdge")
   CHECK(newEdgePositions.size() == 1u);
   CHECK(newEdgePositions[0] == originalEdge);
 
-  assertTexture("left", brush, p1, p2, p4, p3);
-  assertTexture("right", brush, p5, p7, p8, p6);
-  assertTexture("front", brush, p1, p5, p6, p2);
-  assertTexture("back", brush, p3, p4, p8, p7);
-  assertTexture("top", brush, p2, p6, p8, p4);
-  assertTexture("bottom", brush, p1, p3, p7, p5);
+  assertMaterial("left", brush, p1, p2, p4, p3);
+  assertMaterial("right", brush, p5, p7, p8, p6);
+  assertMaterial("front", brush, p1, p5, p6, p2);
+  assertMaterial("back", brush, p3, p4, p8, p7);
+  assertMaterial("top", brush, p2, p6, p8, p4);
+  assertMaterial("bottom", brush, p1, p3, p7, p5);
 }
 
 static void assertCanMoveEdges(
@@ -1677,7 +1677,7 @@ TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
+    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName).value();
   CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 
@@ -1711,7 +1711,7 @@ TEST_CASE("BrushTest.moveEdgesRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
+    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName).value();
   CHECK(brush.addVertex(worldBounds, edge1.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge1.end()).is_success());
   CHECK(brush.addVertex(worldBounds, edge2.start()).is_success());
@@ -1781,7 +1781,7 @@ TEST_CASE("BrushNodeTest.cannotMoveFace")
   Brush brush =
     builder
       .createCuboid(
-        vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoTextureName)
+        vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   std::vector<vm::vec3> vertexPositions(4);
@@ -1876,7 +1876,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPoint")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -1897,7 +1897,7 @@ TEST_CASE("BrushTest.movePolygonRemainingEdge")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -1909,7 +1909,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128.0, Model::BrushFaceAttributes::NoTextureName).value();
+    builder.createCube(128.0, Model::BrushFaceAttributes::NoMaterialName).value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
@@ -1933,7 +1933,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon2")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
   CHECK(brush.bounds() == vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)));
 
@@ -1968,7 +1968,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   const auto topFaceIndex = brush.findFace(topFaceNormal);
@@ -2016,7 +2016,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   // Try to move the top face down along the Z axis
@@ -2083,7 +2083,7 @@ TEST_CASE("BrushTest.moveTwoFaces")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoTextureName)
+    builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
       .value();
 
   CHECK(brush.hasFace(vm::polygon3(leftPolygon)));
@@ -2111,7 +2111,7 @@ TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128, Model::BrushFaceAttributes::NoTextureName).value();
+    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName).value();
   CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 
@@ -2173,13 +2173,13 @@ TEST_CASE("moveFaceWithUVLock")
 
   const vm::bbox3 worldBounds(4096.0);
 
-  Assets::Texture testTexture("testTexture", 64, 64);
+  Assets::Material testMaterial("testMaterial", 64, 64);
 
   BrushBuilder builder(format, worldBounds);
   Brush brush = builder.createCube(64.0, "").value();
   for (auto& face : brush.faces())
   {
-    face.setTexture(&testTexture);
+    face.setMaterial(&testMaterial);
   }
 
   const auto delta = vm::vec3(+8.0, 0.0, 0.0);
@@ -2201,35 +2201,35 @@ TEST_CASE("moveFaceWithUVLock")
   for (auto& oldFace : brush.faces())
   {
     const auto oldTexCoords = kdl::vec_transform(
-      oldFace.vertexPositions(), [&](auto x) { return oldFace.textureCoords(x); });
+      oldFace.vertexPositions(), [&](auto x) { return oldFace.uvCoords(x); });
     const auto shearedVertexPositions =
       kdl::vec_transform(oldFace.vertexPositions(), [&](auto x) { return M * x; });
     const auto shearedPolygon = vm::polygon3(shearedVertexPositions);
 
     const auto normal = oldFace.boundary().normal;
 
-    // The brush modified without texture lock is expected to have changed UV's on some
+    // The brush modified without alignment lock is expected to have changed UV's on some
     // faces, but not on others
     {
       const auto newFaceIndex = changed.findFace(shearedPolygon);
       REQUIRE(newFaceIndex);
       const BrushFace& newFace = changed.face(*newFaceIndex);
       const auto newTexCoords = kdl::vec_transform(
-        shearedVertexPositions, [&](auto x) { return newFace.textureCoords(x); });
+        shearedVertexPositions, [&](auto x) { return newFace.uvCoords(x); });
       if (
         normal == vm::vec3::pos_z() || normal == vm::vec3::pos_y()
         || normal == vm::vec3::neg_y())
       {
-        CHECK_FALSE(UVListsEqual(oldTexCoords, newTexCoords));
+        CHECK_FALSE(uvListsEqual(oldTexCoords, newTexCoords));
         // TODO: actually check the UV's
       }
       else
       {
-        CHECK(UVListsEqual(oldTexCoords, newTexCoords));
+        CHECK(uvListsEqual(oldTexCoords, newTexCoords));
       }
     }
 
-    // UV's should all be the same when using texture lock (with Valve format).
+    // UV's should all be the same when using alignment lock (with Valve format).
     // Standard format can only do UV lock on the top face, which is not sheared.
     {
       const auto newFaceWithUVLockIndex = changedWithUVLock.findFace(shearedPolygon);
@@ -2237,11 +2237,10 @@ TEST_CASE("moveFaceWithUVLock")
       const BrushFace& newFaceWithUVLock =
         changedWithUVLock.face(*newFaceWithUVLockIndex);
       const auto newTexCoordsWithUVLock = kdl::vec_transform(
-        shearedVertexPositions,
-        [&](auto x) { return newFaceWithUVLock.textureCoords(x); });
+        shearedVertexPositions, [&](auto x) { return newFaceWithUVLock.uvCoords(x); });
       if (normal == vm::vec3d::pos_z() || (format == MapFormat::Valve))
       {
-        CHECK(UVListsEqual(oldTexCoords, newTexCoordsWithUVLock));
+        CHECK(uvListsEqual(oldTexCoords, newTexCoordsWithUVLock));
       }
     }
   }
@@ -2251,27 +2250,27 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 {
   const vm::bbox3 worldBounds(4096.0);
 
-  const std::string minuendTexture("minuend");
-  const std::string subtrahendTexture("subtrahend");
-  const std::string defaultTexture("default");
+  const std::string minuendMaterial("minuend");
+  const std::string subtrahendMaterial("subtrahend");
+  const std::string defaultMaterial("default");
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   const Brush minuend =
     builder
       .createCuboid(
         vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)),
-        minuendTexture)
+        minuendMaterial)
       .value();
   const Brush subtrahend =
     builder
       .createCuboid(
         vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)),
-        subtrahendTexture)
+        subtrahendMaterial)
       .value();
 
   const auto fragments =
     kdl::fold_results(
-      minuend.subtract(MapFormat::Standard, worldBounds, defaultTexture, subtrahend))
+      minuend.subtract(MapFormat::Standard, worldBounds, defaultMaterial, subtrahend))
       .value();
   CHECK(fragments.size() == 3u);
 
@@ -2308,25 +2307,25 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
   CHECK(left->findFace(vm::plane3(+32.0, vm::vec3::pos_z())));
   CHECK(left->findFace(vm::plane3(+32.0, vm::vec3::neg_z())));
 
-  // left brush textures
+  // left brush materials
   CHECK(
-    left->face(*left->findFace(vm::vec3::pos_x())).attributes().textureName()
-    == subtrahendTexture);
+    left->face(*left->findFace(vm::vec3::pos_x())).attributes().materialName()
+    == subtrahendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3::neg_x())).attributes().textureName()
-    == minuendTexture);
+    left->face(*left->findFace(vm::vec3::neg_x())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3::pos_y())).attributes().textureName()
-    == minuendTexture);
+    left->face(*left->findFace(vm::vec3::pos_y())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3::neg_y())).attributes().textureName()
-    == minuendTexture);
+    left->face(*left->findFace(vm::vec3::neg_y())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3::pos_z())).attributes().textureName()
-    == minuendTexture);
+    left->face(*left->findFace(vm::vec3::pos_z())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3::neg_z())).attributes().textureName()
-    == minuendTexture);
+    left->face(*left->findFace(vm::vec3::neg_z())).attributes().materialName()
+    == minuendMaterial);
 
   // top brush faces
   CHECK(top->faceCount() == 6u);
@@ -2337,25 +2336,25 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
   CHECK(top->findFace(vm::plane3(+32.0, vm::vec3::pos_z())));
   CHECK(top->findFace(vm::plane3(0.0, vm::vec3::neg_z())));
 
-  // top brush textures
+  // top brush materials
   CHECK(
-    top->face(*top->findFace(vm::vec3::pos_x())).attributes().textureName()
-    == subtrahendTexture);
+    top->face(*top->findFace(vm::vec3::pos_x())).attributes().materialName()
+    == subtrahendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3::neg_x())).attributes().textureName()
-    == subtrahendTexture);
+    top->face(*top->findFace(vm::vec3::neg_x())).attributes().materialName()
+    == subtrahendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3::pos_y())).attributes().textureName()
-    == minuendTexture);
+    top->face(*top->findFace(vm::vec3::pos_y())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3::neg_y())).attributes().textureName()
-    == minuendTexture);
+    top->face(*top->findFace(vm::vec3::neg_y())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3::pos_z())).attributes().textureName()
-    == minuendTexture);
+    top->face(*top->findFace(vm::vec3::pos_z())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3::neg_z())).attributes().textureName()
-    == subtrahendTexture);
+    top->face(*top->findFace(vm::vec3::neg_z())).attributes().materialName()
+    == subtrahendMaterial);
 
   // right brush faces
   CHECK(right->faceCount() == 6u);
@@ -2366,25 +2365,25 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
   CHECK(right->findFace(vm::plane3(+32.0, vm::vec3::pos_z())));
   CHECK(right->findFace(vm::plane3(+32.0, vm::vec3::neg_z())));
 
-  // right brush textures
+  // right brush materials
   CHECK(
-    right->face(*right->findFace(vm::vec3::pos_x())).attributes().textureName()
-    == minuendTexture);
+    right->face(*right->findFace(vm::vec3::pos_x())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3::neg_x())).attributes().textureName()
-    == subtrahendTexture);
+    right->face(*right->findFace(vm::vec3::neg_x())).attributes().materialName()
+    == subtrahendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3::pos_y())).attributes().textureName()
-    == minuendTexture);
+    right->face(*right->findFace(vm::vec3::pos_y())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3::neg_y())).attributes().textureName()
-    == minuendTexture);
+    right->face(*right->findFace(vm::vec3::neg_y())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3::pos_z())).attributes().textureName()
-    == minuendTexture);
+    right->face(*right->findFace(vm::vec3::pos_z())).attributes().materialName()
+    == minuendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3::neg_z())).attributes().textureName()
-    == minuendTexture);
+    right->face(*right->findFace(vm::vec3::neg_z())).attributes().materialName()
+    == minuendMaterial);
 }
 
 TEST_CASE("BrushTest.subtractDisjoint")
@@ -2397,12 +2396,12 @@ TEST_CASE("BrushTest.subtractDisjoint")
   CHECK_FALSE(brush1Bounds.intersects(brush2Bounds));
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
-  const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
+  const Brush brush1 = builder.createCuboid(brush1Bounds, "material").value();
+  const Brush brush2 = builder.createCuboid(brush2Bounds, "material").value();
 
   const auto fragments =
     kdl::fold_results(
-      brush1.subtract(MapFormat::Standard, worldBounds, "texture", brush2))
+      brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2))
       .value();
   CHECK(fragments.size() == 1u);
 
@@ -2420,12 +2419,12 @@ TEST_CASE("BrushTest.subtractEnclosed")
   CHECK(brush1Bounds.intersects(brush2Bounds));
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  const Brush brush1 = builder.createCuboid(brush1Bounds, "texture").value();
-  const Brush brush2 = builder.createCuboid(brush2Bounds, "texture").value();
+  const Brush brush1 = builder.createCuboid(brush1Bounds, "material").value();
+  const Brush brush2 = builder.createCuboid(brush2Bounds, "material").value();
 
   const auto fragments =
     kdl::fold_results(
-      brush1.subtract(MapFormat::Standard, worldBounds, "texture", brush2))
+      brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2))
       .value();
   CHECK(fragments.empty());
 }

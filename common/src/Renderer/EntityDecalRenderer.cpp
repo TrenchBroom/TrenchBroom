@@ -20,8 +20,8 @@
 #include "EntityDecalRenderer.h"
 
 #include "Assets/DecalDefinition.h"
-#include "Assets/Texture.h"
-#include "Assets/TextureManager.h"
+#include "Assets/Material.h"
+#include "Assets/MaterialManager.h"
 #include "BrushRendererArrays.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -51,7 +51,7 @@ std::optional<Assets::DecalSpecification> getDecalSpecification(
   const Model::EntityNode* entityNode)
 {
   const auto decalSpec = entityNode->entity().decalSpecification();
-  return decalSpec.textureName.empty() ? std::nullopt : std::make_optional(decalSpec);
+  return decalSpec.materialName.empty() ? std::nullopt : std::make_optional(decalSpec);
 }
 
 using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
@@ -59,26 +59,23 @@ std::vector<Vertex> createDecalBrushFace(
   const Model::EntityNode* entityNode,
   const Model::BrushNode* brush,
   const Model::BrushFace& face,
-  const Assets::Texture* texture)
+  const Assets::Material& material)
 {
-  assert(texture != nullptr);
+  const auto textureSize = vm::vec2f{float(material.width()), float(material.height())};
+  const auto materialName = material.name();
 
-  const auto textureSize = vm::vec2f{float(texture->width()), float(texture->height())};
-  const auto textureName = texture->name();
-
-  // copy the face properties, used to calculate the decal size and texture coords
-  auto attrs = Model::BrushFaceAttributes{textureName, face.attributes()};
-  auto texCoords = face.texCoordSystem().clone();
-  const auto tex = texCoords.get();
+  // copy the face properties, used to calculate the decal size and UV coords
+  auto attrs = Model::BrushFaceAttributes{materialName, face.attributes()};
+  auto uvCoords = face.texCoordSystem().clone();
 
   // create the geometry for the decal
   const auto plane = face.boundary();
   const auto origin = entityNode->physicalBounds().center();
   const auto center = plane.project_point(origin);
 
-  // re-project the vertices in case the texture axes are not on the face plane
-  const auto xShift = tex->xAxis() * double(attrs.xScale() * textureSize.x() / 2.0f);
-  const auto yShift = tex->yAxis() * double(attrs.yScale() * textureSize.y() / 2.0f);
+  // re-project the vertices in case the UV axes are not on the face plane
+  const auto xShift = uvCoords->xAxis() * double(attrs.xScale() * textureSize.x() / 2.0f);
+  const auto yShift = uvCoords->yAxis() * double(attrs.yScale() * textureSize.y() / 2.0f);
 
   // we want to shift every vertex by just a little bit to avoid z-fighting
   const auto offset = plane.normal * 0.1;
@@ -91,7 +88,7 @@ std::vector<Vertex> createDecalBrushFace(
     plane.project_point(center - xShift - yShift) + offset  // Bottom Left
   };
 
-  // because the texture axes don't have to align to the face, we might have a reversed
+  // because the UV axes don't have to align to the face, we might have a reversed
   // face here. if so, reverse the points to get a valid face for the plane
   const auto vertPlane = vm::from_points(verts[0], verts[1], verts[2]);
   if (!vertPlane)
@@ -104,10 +101,10 @@ std::vector<Vertex> createDecalBrushFace(
     std::reverse(std::begin(verts), std::end(verts));
   }
 
-  // calculate the texture offset based on the first vertex location
+  // calculate the UV offset based on the first vertex location
   const auto vtx = verts[0];
-  const auto xOffs = -vm::dot(vtx, tex->xAxis()) / attrs.xScale();
-  const auto yOffs = -vm::dot(vtx, tex->yAxis()) / attrs.yScale();
+  const auto xOffs = -vm::dot(vtx, uvCoords->xAxis()) / attrs.xScale();
+  const auto yOffs = -vm::dot(vtx, uvCoords->yAxis()) / attrs.yScale();
   attrs.setXOffset(float(xOffs));
   attrs.setYOffset(float(yOffs));
 
@@ -131,7 +128,7 @@ std::vector<Vertex> createDecalBrushFace(
   // convert the geometry into a list of vertices
   const auto norm = vm::vec3f{plane.normal};
   return kdl::vec_transform(verts, [&](const auto& v) {
-    return Vertex{vm::vec3f{v}, norm, tex->getTexCoords(v, attrs, textureSize)};
+    return Vertex{vm::vec3f{v}, norm, uvCoords->getTexCoords(v, attrs, textureSize)};
   });
 }
 
@@ -155,7 +152,7 @@ void EntityDecalRenderer::clear()
 {
   m_entities.clear();
   m_vertexArray = std::make_shared<BrushVertexArray>();
-  m_faces = std::make_shared<TextureToBrushIndicesMap>();
+  m_faces = std::make_shared<MaterialToBrushIndicesMap>();
   m_faceRenderer = FaceRenderer{m_vertexArray, m_faces, m_faceColor};
 }
 
@@ -278,9 +275,9 @@ void EntityDecalRenderer::invalidateDecalData(EntityDecalData& data) const
 
   data.validated = false;
 
-  // if the texture doesn't exist, do nothing
+  // if the material doesn't exist, do nothing
   // also do nothing if the VBO storage fields are null, but it shouldn't happen
-  if (!data.texture || !data.vertexHolderKey || !data.faceIndicesKey)
+  if (!data.material || !data.vertexHolderKey || !data.faceIndicesKey)
   {
     return;
   }
@@ -288,13 +285,13 @@ void EntityDecalRenderer::invalidateDecalData(EntityDecalData& data) const
   // update the VBO
   m_vertexArray->deleteVerticesWithKey(data.vertexHolderKey);
 
-  const auto faceIndexHolder = m_faces->at(data.texture);
+  const auto faceIndexHolder = m_faces->at(data.material);
   faceIndexHolder->zeroElementsWithKey(data.faceIndicesKey);
 
   if (!faceIndexHolder->hasValidIndices())
   {
-    // there are no indices left to render for this texture
-    m_faces->erase(data.texture);
+    // there are no indices left to render for this material
+    m_faces->erase(data.material);
   }
 
   data.vertexHolderKey = nullptr;
@@ -332,10 +329,10 @@ void EntityDecalRenderer::validateDecalData(
     }
   }
 
-  data.texture = document->textureManager().texture(spec->textureName);
-  if (!data.texture)
+  data.material = document->materialManager().material(spec->materialName);
+  if (!data.material)
   {
-    // no decal texture was found, don't generate any geometry
+    // no decal material was found, don't generate any geometry
     data.validated = true;
     return;
   }
@@ -361,8 +358,9 @@ void EntityDecalRenderer::validateDecalData(
       if (vm::intersect_bbox_polygon(
             shrunkBounds, facePolygon.begin(), facePolygon.end()))
       {
+        assert(data.material);
         const auto decalPolygon =
-          createDecalBrushFace(entityNode, brush, face, data.texture);
+          createDecalBrushFace(entityNode, brush, face, *data.material);
         if (!decalPolygon.empty())
         {
           // add the geometry to be uploaded into the VBO
@@ -392,7 +390,7 @@ void EntityDecalRenderer::validateDecalData(
     const auto brushVerticesStartIndex = GLuint(vertBlock->pos);
 
     auto& faceVboMap = *m_faces;
-    auto& holderPtr = faceVboMap[data.texture];
+    auto& holderPtr = faceVboMap[data.material];
     if (!holderPtr)
     {
       // inserts into map!

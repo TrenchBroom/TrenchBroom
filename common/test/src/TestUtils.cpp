@@ -19,7 +19,7 @@
 
 #include "TestUtils.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/DiskIO.h"
@@ -82,7 +82,7 @@ bool pointExactlyIntegral(const vm::vec3d& point)
 /**
  * Assumes the UV's have been divided by the texture size.
  */
-bool UVListsEqual(
+bool uvListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs)
 {
   if (uvs.size() != transformedVertUVs.size())
@@ -129,22 +129,20 @@ TEST_CASE("TestUtilsTest.testTexCoordsEqual")
   CHECK_FALSE(texCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
 }
 
-TEST_CASE("TestUtilsTest.UVListsEqual")
+TEST_CASE("TestUtilsTest.uvListsEqual")
 {
-  CHECK(UVListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}}));
-  CHECK(UVListsEqual(
+  CHECK(uvListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}}));
+  CHECK(uvListsEqual(
     {{0, 0}, {1, 0}, {0, 1}},
-    {{10, 0}, {11, 0}, {10, 1}})); // translation by whole texture increments OK
+    {{10, 0}, {11, 0}, {10, 1}})); // translation by whole UV increments OK
 
-  CHECK_FALSE(UVListsEqual(
+  CHECK_FALSE(uvListsEqual(
     {{0, 0}, {1, 0}, {0, 1}},
-    {{10.5, 0},
-     {11.5, 0},
-     {10.5, 1}})); // translation by partial texture increments not OK
+    {{10.5, 0}, {11.5, 0}, {10.5, 1}})); // translation by partial UV increments not OK
   CHECK_FALSE(
-    UVListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {0, 1}, {1, 0}})); // wrong order
+    uvListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {0, 1}, {1, 0}})); // wrong order
   CHECK_FALSE(
-    UVListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {2, 0}, {0, 2}})); // unwanted scaling
+    uvListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {2, 0}, {0, 2}})); // unwanted scaling
 }
 
 TEST_CASE("TestUtilsTest.pointExactlyIntegral")
@@ -180,9 +178,9 @@ BrushFace createParaxial(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
-  const std::string& textureName)
+  const std::string& materialName)
 {
-  const BrushFaceAttributes attributes(textureName);
+  const BrushFaceAttributes attributes(materialName);
   return BrushFace::create(
            point0,
            point1,
@@ -208,23 +206,23 @@ std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces)
   return result;
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const BrushNode* brushNode, const vm::vec3& faceNormal)
 {
-  assertTexture(expected, brushNode->brush(), faceNormal);
+  assertMaterial(expected, brushNode->brush(), faceNormal);
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brushNode,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3)
 {
-  return assertTexture(expected, brushNode, std::vector<vm::vec3d>({v1, v2, v3}));
+  return assertMaterial(expected, brushNode, std::vector<vm::vec3d>({v1, v2, v3}));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brushNode,
   const vm::vec3d& v1,
@@ -232,44 +230,44 @@ void assertTexture(
   const vm::vec3d& v3,
   const vm::vec3d& v4)
 {
-  return assertTexture(expected, brushNode, std::vector<vm::vec3d>({v1, v2, v3, v4}));
+  return assertMaterial(expected, brushNode, std::vector<vm::vec3d>({v1, v2, v3, v4}));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brushNode,
   const std::vector<vm::vec3d>& vertices)
 {
-  return assertTexture(expected, brushNode, vm::polygon3d(vertices));
+  return assertMaterial(expected, brushNode, vm::polygon3d(vertices));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const BrushNode* brushNode, const vm::polygon3d& vertices)
 {
-  assertTexture(expected, brushNode->brush(), vertices);
+  assertMaterial(expected, brushNode->brush(), vertices);
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const Brush& brush, const vm::vec3& faceNormal)
 {
   const auto faceIndex = brush.findFace(faceNormal);
   REQUIRE(faceIndex);
 
   const BrushFace& face = brush.face(*faceIndex);
-  CHECK(face.attributes().textureName() == expected);
+  CHECK(face.attributes().materialName() == expected);
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3)
 {
-  return assertTexture(expected, brush, std::vector<vm::vec3d>({v1, v2, v3}));
+  return assertMaterial(expected, brush, std::vector<vm::vec3d>({v1, v2, v3}));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const vm::vec3d& v1,
@@ -277,23 +275,23 @@ void assertTexture(
   const vm::vec3d& v3,
   const vm::vec3d& v4)
 {
-  return assertTexture(expected, brush, std::vector<vm::vec3d>({v1, v2, v3, v4}));
+  return assertMaterial(expected, brush, std::vector<vm::vec3d>({v1, v2, v3, v4}));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const Brush& brush, const std::vector<vm::vec3d>& vertices)
 {
-  return assertTexture(expected, brush, vm::polygon3d(vertices));
+  return assertMaterial(expected, brush, vm::polygon3d(vertices));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const Brush& brush, const vm::polygon3d& vertices)
 {
   const auto faceIndex = brush.findFace(vertices, 0.0001);
   REQUIRE(faceIndex);
 
   const BrushFace& face = brush.face(*faceIndex);
-  CHECK(face.attributes().textureName() == expected);
+  CHECK(face.attributes().materialName() == expected);
 }
 
 void transformNode(
@@ -426,12 +424,12 @@ DocumentGameConfig newMapDocument(
 } // namespace View
 
 int getComponentOfPixel(
-  const Assets::Texture& texture,
+  const Assets::Material& material,
   const std::size_t x,
   const std::size_t y,
   const Component component)
 {
-  const auto format = texture.format();
+  const auto format = material.format();
 
   ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
 
@@ -473,18 +471,18 @@ int getComponentOfPixel(
     }
   }
 
-  const auto& mip0DataBuffer = texture.buffersIfUnprepared().at(0);
-  assert(texture.width() * texture.height() * 4 == mip0DataBuffer.size());
-  assert(x < texture.width());
-  assert(y < texture.height());
+  const auto& mip0DataBuffer = material.buffersIfUnprepared().at(0);
+  assert(material.width() * material.height() * 4 == mip0DataBuffer.size());
+  assert(x < material.width());
+  assert(y < material.height());
 
   const uint8_t* mip0Data = mip0DataBuffer.data();
   return static_cast<int>(
-    mip0Data[(texture.width() * 4u * y) + (x * 4u) + componentIndex]);
+    mip0Data[(material.width() * 4u * y) + (x * 4u) + componentIndex]);
 }
 
 void checkColor(
-  const Assets::Texture& texture,
+  const Assets::Material& material,
   const std::size_t x,
   const std::size_t y,
   const int r,
@@ -494,10 +492,10 @@ void checkColor(
   const ColorMatch match)
 {
 
-  const auto actualR = getComponentOfPixel(texture, x, y, Component::R);
-  const auto actualG = getComponentOfPixel(texture, x, y, Component::G);
-  const auto actualB = getComponentOfPixel(texture, x, y, Component::B);
-  const auto actualA = getComponentOfPixel(texture, x, y, Component::A);
+  const auto actualR = getComponentOfPixel(material, x, y, Component::R);
+  const auto actualG = getComponentOfPixel(material, x, y, Component::G);
+  const auto actualB = getComponentOfPixel(material, x, y, Component::B);
+  const auto actualA = getComponentOfPixel(material, x, y, Component::A);
 
   if (match == ColorMatch::Approximate)
   {

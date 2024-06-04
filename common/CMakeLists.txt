@@ -9,14 +9,14 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.cpp
+        ${COMMON_SOURCE_DIR}/Assets/Material.cpp
+        ${COMMON_SOURCE_DIR}/Assets/MaterialCollection.cpp
+        ${COMMON_SOURCE_DIR}/Assets/MaterialManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Palette.cpp
         ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
-        ${COMMON_SOURCE_DIR}/Assets/Texture.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
-        ${COMMON_SOURCE_DIR}/Assets/TextureCollection.cpp
-        ${COMMON_SOURCE_DIR}/Assets/TextureManager.cpp
         ${COMMON_SOURCE_DIR}/Color.cpp
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/EL/EvaluationContext.cpp
@@ -62,10 +62,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.cpp
         ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.cpp
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/LoadTextureCollection.cpp
+        ${COMMON_SOURCE_DIR}/IO/LoadMaterialCollection.cpp
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/MapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MapReader.cpp
+        ${COMMON_SOURCE_DIR}/IO/MaterialUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/Md2Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.cpp
         ${COMMON_SOURCE_DIR}/IO/MdlParser.cpp
@@ -93,7 +94,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/SprParser.cpp
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.cpp
-        ${COMMON_SOURCE_DIR}/IO/TextureUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/TraversalMode.cpp
         ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/WadFileSystem.cpp
@@ -140,7 +140,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitFilter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitType.cpp
-        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/InvalidUVScaleValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Issue.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueType.cpp
@@ -204,8 +204,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/Compass2D.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Compass3D.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EdgeRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityDecalRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.cpp
@@ -227,6 +227,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/LinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMap.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMapBuilder.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeMap.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ObjectRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/OrthographicCamera.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PatchRenderer.cpp
@@ -250,11 +255,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.cpp
@@ -389,6 +389,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/MapViewBase.cpp
         ${COMMON_SOURCE_DIR}/View/MapViewContainer.cpp
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowser.cpp
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowserView.cpp
+        ${COMMON_SOURCE_DIR}/View/MaterialCollectionEditor.cpp
         ${COMMON_SOURCE_DIR}/View/ModEditor.cpp
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
         ${COMMON_SOURCE_DIR}/View/MoveHandleDragTracker.cpp
@@ -410,7 +413,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/RenderView.cpp
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RepeatStack.cpp
-        ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
+        ${COMMON_SOURCE_DIR}/View/ReplaceMaterialDialog.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.cpp
@@ -445,9 +448,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/TabBar.cpp
         ${COMMON_SOURCE_DIR}/View/TabBook.cpp
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.cpp
-        ${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
-        ${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
-        ${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.cpp
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/TitleBar.cpp
         ${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
@@ -494,14 +494,14 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
+        ${COMMON_SOURCE_DIR}/Assets/Material.h
+        ${COMMON_SOURCE_DIR}/Assets/MaterialCollection.h
+        ${COMMON_SOURCE_DIR}/Assets/MaterialManager.h
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Palette.h
         ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
-        ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h
-        ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
-        ${COMMON_SOURCE_DIR}/Assets/TextureManager.h
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/EL/EL_Forward.h
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
@@ -549,10 +549,11 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.h
         ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.h
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.h
-        ${COMMON_SOURCE_DIR}/IO/LoadTextureCollection.h
+        ${COMMON_SOURCE_DIR}/IO/LoadMaterialCollection.h
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
         ${COMMON_SOURCE_DIR}/IO/MapParser.h
         ${COMMON_SOURCE_DIR}/IO/MapReader.h
+        ${COMMON_SOURCE_DIR}/IO/MaterialUtils.h
         ${COMMON_SOURCE_DIR}/IO/Md2Parser.h
         ${COMMON_SOURCE_DIR}/IO/Md3Parser.h
         ${COMMON_SOURCE_DIR}/IO/MdlParser.h
@@ -582,7 +583,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/SprParser.h
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.h
-        ${COMMON_SOURCE_DIR}/IO/TextureUtils.h
         ${COMMON_SOURCE_DIR}/IO/Token.h
         ${COMMON_SOURCE_DIR}/IO/Tokenizer.h
         ${COMMON_SOURCE_DIR}/IO/TraversalMode.h
@@ -634,7 +634,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
         ${COMMON_SOURCE_DIR}/Model/HitType.h
         ${COMMON_SOURCE_DIR}/Model/IdType.h
-        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleValidator.h
+        ${COMMON_SOURCE_DIR}/Model/InvalidUVScaleValidator.h
         ${COMMON_SOURCE_DIR}/Model/Issue.h
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/IssueType.h
@@ -722,8 +722,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/Compass2D.h
         ${COMMON_SOURCE_DIR}/Renderer/Compass3D.h
         ${COMMON_SOURCE_DIR}/Renderer/EdgeRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityDecalRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.h
@@ -750,6 +750,12 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/LinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMap.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMapBuilder.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeMap.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeMapBuilder.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/ObjectRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/OrthographicCamera.h
         ${COMMON_SOURCE_DIR}/Renderer/PatchRenderer.h
@@ -773,12 +779,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.h
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMapBuilder.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.h
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.h
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.h
@@ -915,6 +915,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MapViewContainer.h
         ${COMMON_SOURCE_DIR}/View/MapViewLayout.h
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.h
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowser.h
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowserView.h
+        ${COMMON_SOURCE_DIR}/View/MaterialCollectionEditor.h
         ${COMMON_SOURCE_DIR}/View/ModEditor.h
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.h
         ${COMMON_SOURCE_DIR}/View/MoveHandleDragTracker.h
@@ -937,7 +940,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/RenderView.h
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/RepeatStack.h
-        ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.h
+        ${COMMON_SOURCE_DIR}/View/ReplaceMaterialDialog.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.h
@@ -972,9 +975,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/TabBar.h
         ${COMMON_SOURCE_DIR}/View/TabBook.h
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.h
-        ${COMMON_SOURCE_DIR}/View/TextureBrowser.h
-        ${COMMON_SOURCE_DIR}/View/TextureBrowserView.h
-        ${COMMON_SOURCE_DIR}/View/TextureCollectionEditor.h
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.h
         ${COMMON_SOURCE_DIR}/View/TitleBar.h
         ${COMMON_SOURCE_DIR}/View/TitledPanel.h

@@ -67,7 +67,7 @@ constexpr auto RotateHandleWidth = 5.0;
 float measureAngle(const UVViewHelper& helper, const vm::vec2f& point)
 {
   const auto origin = helper.originInFaceCoords();
-  return vm::mod(helper.face()->measureTextureAngle(origin, point), 360.0f);
+  return vm::mod(helper.face()->measureUVAngle(origin, point), 360.0f);
 }
 
 float snapAngle(const UVViewHelper& helper, const float angle)
@@ -86,8 +86,8 @@ float snapAngle(const UVViewHelper& helper, const float angle)
   {
     const auto startInFaceCoords = vm::vec2f{toFace * edge->firstVertex()->position()};
     const auto endInFaceCoords = vm::vec2f{toFace * edge->secondVertex()->position()};
-    const auto edgeAngle = vm::mod(
-      helper.face()->measureTextureAngle(startInFaceCoords, endInFaceCoords), 360.0f);
+    const auto edgeAngle =
+      vm::mod(helper.face()->measureUVAngle(startInFaceCoords, endInFaceCoords), 360.0f);
 
     for (size_t i = 0; i < 4; ++i)
     {
@@ -199,7 +199,7 @@ public:
     , m_helper{helper}
     , m_initialAngle{initialAngle}
   {
-    document.startTransaction("Rotate Texture", TransactionScope::LongRunning);
+    document.startTransaction("Rotate UV", TransactionScope::LongRunning);
   }
 
   bool drag(const InputState& inputState) override

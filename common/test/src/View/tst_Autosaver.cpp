@@ -94,7 +94,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInter
   auto autosaver = Autosaver{document, 10s};
 
   // modify the map
-  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_material")}}});
 
   autosaver.triggerAutosave(logger);
 
@@ -132,7 +132,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterv
   auto autosaver = Autosaver{document, 100ms};
 
   // modify the map
-  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_material")}}});
 
   std::this_thread::sleep_for(100ms);
 
@@ -155,7 +155,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
   auto autosaver = Autosaver{document, 100ms};
 
   // modify the map
-  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_material")}}});
 
   std::this_thread::sleep_for(100ms);
 
@@ -172,7 +172,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
   CHECK_FALSE(env.fileExists("autosave/test.2.map"));
 
   // modify the map
-  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_material")}}});
 
   autosaver.triggerAutosave(logger);
   CHECK(env.fileExists("autosave/test.2.map"));
@@ -348,7 +348,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesP
   auto autosaver = Autosaver{document, 0s};
 
   // modify the map
-  document->addNodes({{document->currentLayer(), {createBrushNode("some_texture")}}});
+  document->addNodes({{document->currentLayer(), {createBrushNode("some_material")}}});
 
   autosaver.triggerAutosave(logger);
 

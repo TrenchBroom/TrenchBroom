@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Color.h"
-#include "IO/TextureUtils.h"
+#include "IO/MaterialUtils.h"
 #include "Renderer/GL.h"
 #include "Result.h"
 
@@ -38,10 +38,10 @@ class Reader;
 
 Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
 
-Result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
+Result<Assets::Material, ReadMaterialError> readFreeImageTextureFromMemory(
   std::string name, const uint8_t* begin, size_t size);
 
-Result<Assets::Texture, ReadTextureError> readFreeImageTexture(
+Result<Assets::Material, ReadMaterialError> readFreeImageTexture(
   std::string name, Reader& reader);
 
 bool isSupportedFreeImageExtension(const std::string& extension);

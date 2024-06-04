@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
@@ -47,7 +47,7 @@ auto loadTexture(const std::string& name)
   return readFreeImageTexture(name, reader);
 }
 
-void assertTexture(const std::string& name, const size_t width, const size_t height)
+void assertMaterial(const std::string& name, const size_t width, const size_t height)
 {
   loadTexture(name)
     .transform([&](const auto& texture) {
@@ -61,7 +61,7 @@ void assertTexture(const std::string& name, const size_t width, const size_t hei
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2474
-void testImageContents(const Assets::Texture& texture, const ColorMatch match)
+void testImageContents(const Assets::Material& texture, const ColorMatch match)
 {
   const std::size_t w = 64u;
   const std::size_t h = 64u;
@@ -101,8 +101,8 @@ TEST_CASE("readFreeImageTexture")
 {
   SECTION("loading PNGs")
   {
-    assertTexture("5x5.png", 5, 5);
-    assertTexture("707x710.png", 707, 710);
+    assertMaterial("5x5.png", 5, 5);
+    assertMaterial("707x710.png", 707, 710);
     testImageContents(loadTexture("pngContentsTest.png").value(), ColorMatch::Exact);
     CHECK(loadTexture("corruptPngTest.png").is_error());
 

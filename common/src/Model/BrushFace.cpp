@@ -19,7 +19,7 @@
 
 #include "BrushFace.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -70,7 +70,7 @@ BrushFace::BrushFace(const BrushFace& other)
   , m_points(other.m_points)
   , m_boundary(other.m_boundary)
   , m_attributes(other.m_attributes)
-  , m_textureReference(other.m_textureReference)
+  , m_materialReference(other.m_materialReference)
   , m_texCoordSystem(other.m_texCoordSystem ? other.m_texCoordSystem->clone() : nullptr)
   , m_geometry(nullptr)
   , m_lineNumber(other.m_lineNumber)
@@ -85,7 +85,7 @@ BrushFace::BrushFace(BrushFace&& other) noexcept
   , m_points(std::move(other.m_points))
   , m_boundary(std::move(other.m_boundary))
   , m_attributes(std::move(other.m_attributes))
-  , m_textureReference(std::move(other.m_textureReference))
+  , m_materialReference(std::move(other.m_materialReference))
   , m_texCoordSystem(std::move(other.m_texCoordSystem))
   , m_geometry(other.m_geometry)
   , m_lineNumber(other.m_lineNumber)
@@ -109,7 +109,7 @@ void swap(BrushFace& lhs, BrushFace& rhs) noexcept
   swap(lhs.m_points, rhs.m_points);
   swap(lhs.m_boundary, rhs.m_boundary);
   swap(lhs.m_attributes, rhs.m_attributes);
-  swap(lhs.m_textureReference, rhs.m_textureReference);
+  swap(lhs.m_materialReference, rhs.m_materialReference);
   swap(lhs.m_texCoordSystem, rhs.m_texCoordSystem);
   swap(lhs.m_geometry, rhs.m_geometry);
   swap(lhs.m_lineNumber, rhs.m_lineNumber);
@@ -290,7 +290,7 @@ void BrushFace::copyTexCoordSystemFromFace(
 
   coordSystemSnapshot.restore(*m_texCoordSystem);
 
-  // Get the texcoords at the refPoint using the source face's attributes and tex coord
+  // Get the UV coords at the refPoint using the source face's attributes and tex coord
   // system
   const auto desriedCoords =
     m_texCoordSystem->getTexCoords(refPoint, attributes, vm::vec2f::one());
@@ -298,7 +298,7 @@ void BrushFace::copyTexCoordSystemFromFace(
   m_texCoordSystem->updateNormal(
     sourceFacePlane.normal, m_boundary.normal, m_attributes, wrapStyle);
 
-  // Adjust the offset on this face so that the texture coordinates at the refPoint stay
+  // Adjust the offset on this face so that the UV coordinates at the refPoint stay
   // the same
   const auto currentCoords =
     m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
@@ -421,7 +421,7 @@ void BrushFace::setAttributes(const BrushFaceAttributes& attributes)
 bool BrushFace::setAttributes(const BrushFace& other)
 {
   auto result = false;
-  result |= m_attributes.setTextureName(other.attributes().textureName());
+  result |= m_attributes.setMaterialName(other.attributes().materialName());
   result |= m_attributes.setXOffset(other.attributes().xOffset());
   result |= m_attributes.setYOffset(other.attributes().yOffset());
   result |= m_attributes.setRotation(other.attributes().rotation());
@@ -439,9 +439,9 @@ int BrushFace::resolvedSurfaceContents() const
   {
     return *m_attributes.surfaceContents();
   }
-  if (texture())
+  if (material())
   {
-    if (const auto* q2data = std::get_if<Assets::Q2Data>(&texture()->gameData()))
+    if (const auto* q2data = std::get_if<Assets::Q2Data>(&material()->gameData()))
     {
       return q2data->contents;
     }
@@ -455,9 +455,9 @@ int BrushFace::resolvedSurfaceFlags() const
   {
     return *m_attributes.surfaceFlags();
   }
-  if (texture())
+  if (material())
   {
-    if (const auto* q2data = std::get_if<Assets::Q2Data>(&texture()->gameData()))
+    if (const auto* q2data = std::get_if<Assets::Q2Data>(&material()->gameData()))
     {
       return q2data->flags;
     }
@@ -471,9 +471,9 @@ float BrushFace::resolvedSurfaceValue() const
   {
     return *m_attributes.surfaceValue();
   }
-  if (texture())
+  if (material())
   {
-    if (const auto* q2data = std::get_if<Assets::Q2Data>(&texture()->gameData()))
+    if (const auto* q2data = std::get_if<Assets::Q2Data>(&material()->gameData()))
     {
       return static_cast<float>(q2data->value);
     }
@@ -499,55 +499,60 @@ const TexCoordSystem& BrushFace::texCoordSystem() const
   return *m_texCoordSystem;
 }
 
-const Assets::Texture* BrushFace::texture() const
+const Assets::Material* BrushFace::material() const
 {
-  return m_textureReference.get();
+  return m_materialReference.get();
 }
 
 vm::vec2f BrushFace::textureSize() const
 {
-  if (texture() == nullptr)
+  if (material() == nullptr)
   {
     return vm::vec2f::one();
   }
-  const float w = texture()->width() == 0 ? 1.0f : static_cast<float>(texture()->width());
+  const float w =
+    material()->width() == 0 ? 1.0f : static_cast<float>(material()->width());
   const float h =
-    texture()->height() == 0 ? 1.0f : static_cast<float>(texture()->height());
+    material()->height() == 0 ? 1.0f : static_cast<float>(material()->height());
   return vm::vec2f(w, h);
 }
 
 vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const
 {
-  return m_attributes.modOffset(offset, textureSize());
+  const auto textureSize = material() ? vm::vec2f(
+                             std::max(1.0f, float(material()->width())),
+                             std::max(1.0f, float(material()->height())))
+                                      : vm::vec2f::one();
+  return m_attributes.modOffset(offset, textureSize);
 }
 
-bool BrushFace::setTexture(Assets::Texture* texture)
+bool BrushFace::setMaterial(Assets::Material* material)
 {
-  if (texture == this->texture())
+  if (material == this->material())
   {
     return false;
   }
 
-  m_textureReference = Assets::AssetReference(texture);
+  m_materialReference = Assets::AssetReference(material);
   return true;
 }
 
-vm::vec3 BrushFace::textureXAxis() const
+vm::vec3 BrushFace::uAxis() const
 {
   return m_texCoordSystem->xAxis();
 }
 
-vm::vec3 BrushFace::textureYAxis() const
+vm::vec3 BrushFace::vAxis() const
 {
   return m_texCoordSystem->yAxis();
 }
 
-void BrushFace::resetTextureAxes()
+void BrushFace::resetUVAxes()
 {
   m_texCoordSystem->resetTextureAxes(m_boundary.normal);
 }
 
-void BrushFace::resetTextureAxesToParaxial()
+void BrushFace::resetUVAxesToParaxial()
 {
   m_texCoordSystem->resetTextureAxesToParaxial(m_boundary.normal, 0.0f);
 }
@@ -570,25 +575,24 @@ void BrushFace::convertToParallel()
   m_texCoordSystem = std::move(newTexCoordSystem);
 }
 
-void BrushFace::moveTexture(
-  const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset)
+void BrushFace::moveUV(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset)
 {
   m_texCoordSystem->moveTexture(m_boundary.normal, up, right, offset, m_attributes);
 }
 
-void BrushFace::rotateTexture(const float angle)
+void BrushFace::rotateUV(const float angle)
 {
   const float oldRotation = m_attributes.rotation();
   m_texCoordSystem->rotateTexture(m_boundary.normal, angle, m_attributes);
   m_texCoordSystem->setRotation(m_boundary.normal, oldRotation, m_attributes.rotation());
 }
 
-void BrushFace::shearTexture(const vm::vec2f& factors)
+void BrushFace::shearUV(const vm::vec2f& factors)
 {
   m_texCoordSystem->shearTexture(m_boundary.normal, factors);
 }
 
-void BrushFace::flipTexture(
+void BrushFace::flipUV(
   const vm::vec3& /* cameraUp */,
   const vm::vec3& cameraRight,
   const vm::direction cameraRelativeFlipDirection)
@@ -604,27 +608,27 @@ void BrushFace::flipTexture(
   // Get the cos(angle) between cameraRight and the texUAxisInWorld _line_ (so, take the
   // smaller of the angles among -texUAxisInWorld and texUAxisInWorld). Note that larger
   // cos(angle) means smaller angle.
-  const FloatType UAxisCosAngle = vm::max(
+  const FloatType uAxisCosAngle = vm::max(
     vm::dot(texUAxisInWorld, cameraRight), vm::dot(-texUAxisInWorld, cameraRight));
 
-  const FloatType VAxisCosAngle = vm::max(
+  const FloatType vAxisCosAngle = vm::max(
     vm::dot(texVAxisInWorld, cameraRight), vm::dot(-texVAxisInWorld, cameraRight));
 
-  // If this is true, it means the texture's V axis is closer to the camera's right vector
-  // than the texture's U axis is (i.e. we're looking at the texture sideways), so we
-  // should map "camera relative horizontal" to "texture space Y".
-  const bool cameraRightCloserToTexV = (VAxisCosAngle > UAxisCosAngle);
+  // If this is true, it means the V axis is closer to the camera's right vector than the
+  // U axis is (i.e. we're looking at the material sideways), so we should map "camera
+  // relative horizontal" to "material space Y".
+  const bool cameraRightCloserToV = (vAxisCosAngle > uAxisCosAngle);
 
-  bool flipTextureX =
+  bool flipUAxis =
     (cameraRelativeFlipDirection == vm::direction::left
      || cameraRelativeFlipDirection == vm::direction::right);
 
-  if (cameraRightCloserToTexV)
+  if (cameraRightCloserToV)
   {
-    flipTextureX = !flipTextureX;
+    flipUAxis = !flipUAxis;
   }
 
-  if (flipTextureX)
+  if (flipUAxis)
   {
     m_attributes.setXScale(-1.0f * m_attributes.xScale());
   }
@@ -634,7 +638,7 @@ void BrushFace::flipTexture(
   }
 }
 
-Result<void> BrushFace::transform(const vm::mat4x4& transform, const bool lockTexture)
+Result<void> BrushFace::transform(const vm::mat4x4& transform, const bool lockAlignment)
 {
   using std::swap;
 
@@ -661,7 +665,7 @@ Result<void> BrushFace::transform(const vm::mat4x4& transform, const bool lockTe
       transform,
       m_attributes,
       textureSize(),
-      lockTexture,
+      lockAlignment,
       invariant);
   });
 }
@@ -691,15 +695,15 @@ Result<void> BrushFace::updatePointsFromVertices()
       {
         const auto refPoint = project_point(*seam, center());
 
-        // Get the texcoords at the refPoint using the old face's attribs and tex coord
-        // system
+        // Get the UV coordinates at the refPoint using the old face's attribs and UV
+        // coordinage system
         const auto desriedCoords =
           m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
 
         m_texCoordSystem->updateNormal(
           oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
 
-        // Adjust the offset on this face so that the texture coordinates at the refPoint
+        // Adjust the offset on this face so that the UV coordinates at the refPoint
         // stay the same
         const auto currentCoords =
           m_texCoordSystem->getTexCoords(refPoint, m_attributes, vm::vec2f::one());
@@ -746,8 +750,7 @@ vm::mat4x4 BrushFace::fromTexCoordSystemMatrix(
   }
 }
 
-float BrushFace::measureTextureAngle(
-  const vm::vec2f& center, const vm::vec2f& point) const
+float BrushFace::measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const
 {
   return m_texCoordSystem->measureAngle(m_attributes.rotation(), center, point);
 }
@@ -826,7 +829,7 @@ void BrushFace::deselect()
   m_selected = false;
 }
 
-vm::vec2f BrushFace::textureCoords(const vm::vec3& point) const
+vm::vec2f BrushFace::uvCoords(const vm::vec3& point) const
 {
   return m_texCoordSystem->getTexCoords(point, m_attributes, textureSize());
 }

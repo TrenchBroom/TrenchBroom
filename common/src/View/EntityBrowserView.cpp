@@ -34,11 +34,11 @@
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
 #include "Renderer/GLVertex.h"
+#include "Renderer/MaterialIndexRangeRenderer.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
-#include "Renderer/TexturedIndexRangeRenderer.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "View/MapFrame.h"
@@ -236,7 +236,7 @@ void EntityBrowserView::addEntityToLayout(
       EL::NullVariableStore{},
       m_defaultScaleModelExpression)};
 
-    auto* modelRenderer = static_cast<Renderer::TexturedRenderer*>(nullptr);
+    auto* modelRenderer = static_cast<Renderer::MaterialRenderer*>(nullptr);
     auto rotatedBounds = vm::bbox3f{};
     auto modelOrientation = Assets::Orientation::Oriented;
 

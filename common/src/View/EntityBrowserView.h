@@ -51,7 +51,7 @@ class PointEntityDefinition;
 namespace TrenchBroom::Renderer
 {
 class FontDescriptor;
-class TexturedRenderer;
+class MaterialRenderer;
 class Transformation;
 } // namespace TrenchBroom::Renderer
 
@@ -62,7 +62,7 @@ using EntityGroupData = std::string;
 
 struct EntityCellData
 {
-  using EntityRenderer = Renderer::TexturedRenderer;
+  using EntityRenderer = Renderer::MaterialRenderer;
   const Assets::PointEntityDefinition* entityDefinition;
   EntityRenderer* modelRenderer;
   Assets::Orientation modelOrientation;
@@ -75,7 +75,7 @@ class EntityBrowserView : public CellView
 {
   Q_OBJECT
 private:
-  using EntityRenderer = Renderer::TexturedRenderer;
+  using EntityRenderer = Renderer::MaterialRenderer;
 
   using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
   using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;

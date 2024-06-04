@@ -62,7 +62,7 @@ private:
   void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
-    writeTextureInfo(stream, face);
+    writeMaterialInfo(stream, face);
     fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
   }
 
@@ -85,27 +85,28 @@ protected:
       points[2].z());
   }
 
-  static bool shouldQuoteTextureName(const std::string& textureName)
+  static bool shouldQuoteMaterialName(const std::string& materialName)
   {
-    return textureName.empty()
-           || textureName.find_first_of("\"\\ \t") != std::string::npos;
+    return materialName.empty()
+           || materialName.find_first_of("\"\\ \t") != std::string::npos;
   }
 
-  static std::string quoteTextureName(const std::string& textureName)
+  static std::string quoteMaterialName(const std::string& materialName)
   {
-    return "\"" + kdl::str_escape(textureName, "\"") + "\"";
+    return "\"" + kdl::str_escape(materialName, "\"") + "\"";
   }
 
-  void writeTextureInfo(std::ostream& stream, const Model::BrushFace& face) const
+  void writeMaterialInfo(std::ostream& stream, const Model::BrushFace& face) const
   {
-    const std::string& textureName = face.attributes().textureName().empty()
-                                       ? Model::BrushFaceAttributes::NoTextureName
-                                       : face.attributes().textureName();
+    const std::string& materialName = face.attributes().materialName().empty()
+                                        ? Model::BrushFaceAttributes::NoMaterialName
+                                        : face.attributes().materialName();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>(stream),
       " {} {} {} {} {} {}",
-      shouldQuoteTextureName(textureName) ? quoteTextureName(textureName) : textureName,
+      shouldQuoteMaterialName(materialName) ? quoteMaterialName(materialName)
+                                            : materialName,
       face.attributes().xOffset(),
       face.attributes().yOffset(),
       face.attributes().rotation(),
@@ -113,27 +114,28 @@ protected:
       face.attributes().yScale());
   }
 
-  void writeValveTextureInfo(std::ostream& stream, const Model::BrushFace& face) const
+  void writeValveMaterialInfo(std::ostream& stream, const Model::BrushFace& face) const
   {
-    const std::string& textureName = face.attributes().textureName().empty()
-                                       ? Model::BrushFaceAttributes::NoTextureName
-                                       : face.attributes().textureName();
-    const vm::vec3 xAxis = face.textureXAxis();
-    const vm::vec3 yAxis = face.textureYAxis();
+    const std::string& materialName = face.attributes().materialName().empty()
+                                        ? Model::BrushFaceAttributes::NoMaterialName
+                                        : face.attributes().materialName();
+    const vm::vec3 uAxis = face.uAxis();
+    const vm::vec3 vAxis = face.vAxis();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>(stream),
       " {} [ {} {} {} {} ] [ {} {} {} {} ] {} {} {}",
-      shouldQuoteTextureName(textureName) ? quoteTextureName(textureName) : textureName,
+      shouldQuoteMaterialName(materialName) ? quoteMaterialName(materialName)
+                                            : materialName,
 
-      xAxis.x(),
-      xAxis.y(),
-      xAxis.z(),
+      uAxis.x(),
+      uAxis.y(),
+      uAxis.z(),
       face.attributes().xOffset(),
 
-      yAxis.x(),
-      yAxis.y(),
-      yAxis.z(),
+      vAxis.x(),
+      vAxis.y(),
+      vAxis.z(),
       face.attributes().yOffset(),
 
       face.attributes().rotation(),
@@ -154,7 +156,7 @@ private:
   void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
-    writeTextureInfo(stream, face);
+    writeMaterialInfo(stream, face);
 
     if (face.attributes().hasSurfaceAttributes())
     {
@@ -188,7 +190,7 @@ private:
   void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
-    writeValveTextureInfo(stream, face);
+    writeValveMaterialInfo(stream, face);
 
     if (face.attributes().hasSurfaceAttributes())
     {
@@ -215,7 +217,7 @@ private:
   void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
-    writeTextureInfo(stream, face);
+    writeMaterialInfo(stream, face);
 
     if (face.attributes().hasSurfaceAttributes() || face.attributes().hasColor())
     {
@@ -253,7 +255,7 @@ private:
   void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
-    writeTextureInfo(stream, face);
+    writeMaterialInfo(stream, face);
     fmt::format_to(
       std::ostreambuf_iterator<char>(stream), " 0\n"); // extra value written here
   }
@@ -271,7 +273,7 @@ private:
   void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
-    writeValveTextureInfo(stream, face);
+    writeValveMaterialInfo(stream, face);
     fmt::format_to(std::ostreambuf_iterator<char>(stream), "\n");
   }
 };
@@ -474,7 +476,7 @@ MapFileSerializer::PrecomputedString MapFileSerializer::writePatch(
   ++lineCount;
   fmt::format_to(std::ostreambuf_iterator<char>(stream), "{{\n");
   ++lineCount;
-  fmt::format_to(std::ostreambuf_iterator<char>(stream), "{}\n", patch.textureName());
+  fmt::format_to(std::ostreambuf_iterator<char>(stream), "{}\n", patch.materialName());
   ++lineCount;
   fmt::format_to(
     std::ostreambuf_iterator<char>(stream),

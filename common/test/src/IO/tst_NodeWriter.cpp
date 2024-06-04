@@ -191,7 +191,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 
     auto& face = brush1.face(*index);
     auto attribs = face.attributes();
-    attribs.setTextureName("e1u1/brwater");
+    attribs.setMaterialName("e1u1/brwater");
     attribs.setSurfaceContents(0);
     attribs.setSurfaceFlags(0);
     attribs.setSurfaceValue(0.0f);
@@ -204,7 +204,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 
     auto& face = brush1.face(*index);
     auto attribs = face.attributes();
-    attribs.setTextureName("e1u1/brlava");
+    attribs.setMaterialName("e1u1/brlava");
     attribs.setSurfaceContents(8);
     attribs.setSurfaceFlags(9);
     attribs.setSurfaceValue(700.0f);
@@ -670,7 +670,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
     new Model::EntityNode{Model::Entity{{}, {{"classname", "defaultLayerPointEntity"}}}};
 
   auto* defaultLayerBrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "defaultTexture").value()};
+    new Model::BrushNode{builder.createCube(64.0, "defaultMaterial").value()};
   map.defaultLayer()->addChild(defaultLayerPointEntityNode);
   map.defaultLayer()->addChild(defaultLayerBrushNode);
 
@@ -688,7 +688,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
   layerNode1->addChild(layer1PointEntityNode);
 
   auto* layer1BrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "layer1Texture").value()};
+    new Model::BrushNode{builder.createCube(64.0, "layer1Material").value()};
   layerNode1->addChild(layer1BrushNode);
 
   // layer2
@@ -700,7 +700,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
   layerNode2->addChild(layer2PointEntityNode);
 
   auto* layer2BrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "layer2Texture").value()};
+    new Model::BrushNode{builder.createCube(64.0, "layer2Material").value()};
   layerNode2->addChild(layer2BrushNode);
 
   auto str = std::stringstream{};
@@ -723,12 +723,12 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
 "_tb_id" "*"
 // brush 0
 {
-( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) layer2Texture 0 0 0 1 1
-( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) layer2Texture 0 0 0 1 1
-( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) layer2Texture 0 0 0 1 1
-( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) layer2Texture 0 0 0 1 1
-( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) layer2Texture 0 0 0 1 1
-( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) layer2Texture 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -31 -32 ) ( -32 -32 -31 ) layer2Material 0 0 0 1 1
+( -32 -32 -32 ) ( -32 -32 -31 ) ( -31 -32 -32 ) layer2Material 0 0 0 1 1
+( -32 -32 -32 ) ( -31 -32 -32 ) ( -32 -31 -32 ) layer2Material 0 0 0 1 1
+( 32 32 32 ) ( 32 33 32 ) ( 33 32 32 ) layer2Material 0 0 0 1 1
+( 32 32 32 ) ( 33 32 32 ) ( 32 32 33 ) layer2Material 0 0 0 1 1
+( 32 32 32 ) ( 32 32 33 ) ( 32 33 32 ) layer2Material 0 0 0 1 1
 }
 }
 // entity 2

@@ -33,7 +33,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
@@ -50,8 +50,8 @@ private:
   std::vector<Point> m_controlPoints;
   vm::bbox3 m_bounds;
 
-  std::string m_textureName;
-  Assets::AssetReference<Assets::Texture> m_textureReference;
+  std::string m_materialName;
+  Assets::AssetReference<Assets::Material> m_materialReference;
 
   kdl_reflect_decl(
     BezierPatch,
@@ -59,14 +59,14 @@ private:
     m_pointColumnCount,
     m_bounds,
     m_controlPoints,
-    m_textureName);
+    m_materialName);
 
 public:
   BezierPatch(
     size_t pointRowCount,
     size_t pointColumnCount,
     std::vector<Point> controlPoints,
-    std::string textureName);
+    std::string materialName);
   ~BezierPatch();
 
   BezierPatch(const BezierPatch& other);
@@ -91,11 +91,11 @@ public: // control points:
 
   const vm::bbox3& bounds() const;
 
-  const std::string& textureName() const;
-  void setTextureName(std::string textureName);
+  const std::string& materialName() const;
+  void setMaterialName(std::string materialName);
 
-  const Assets::Texture* texture() const;
-  bool setTexture(Assets::Texture* texture);
+  const Assets::Material* material() const;
+  bool setMaterial(Assets::Material* material);
 
   void transform(const vm::mat4x4& transformation);
 

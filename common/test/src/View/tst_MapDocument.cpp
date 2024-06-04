@@ -44,19 +44,15 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 MapDocumentTest::MapDocumentTest()
-  : MapDocumentTest(Model::MapFormat::Standard)
+  : MapDocumentTest{Model::MapFormat::Standard}
 {
 }
 
 MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat)
-  : m_mapFormat(mapFormat)
-  , m_pointEntityDef(nullptr)
-  , m_brushEntityDef(nullptr)
+  : m_mapFormat{mapFormat}
 {
   SetUp();
 }
@@ -65,15 +61,15 @@ void MapDocumentTest::SetUp()
 {
   game = std::make_shared<Model::TestGame>();
   document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(m_mapFormat, vm::bbox3(8192.0), game).transform_error([](auto e) {
+  document->newDocument(m_mapFormat, vm::bbox3{8192.0}, game).transform_error([](auto e) {
     throw std::runtime_error{e.msg};
   });
 
   // create two entity definitions
-  m_pointEntityDef = new Assets::PointEntityDefinition(
-    "point_entity", Color(), vm::bbox3(16.0), "this is a point entity", {}, {}, {});
-  m_brushEntityDef = new Assets::BrushEntityDefinition(
-    "brush_entity", Color(), "this is a brush entity", {});
+  m_pointEntityDef = new Assets::PointEntityDefinition{
+    "point_entity", Color{}, vm::bbox3{16.0}, "this is a point entity", {}, {}, {}};
+  m_brushEntityDef = new Assets::BrushEntityDefinition{
+    "brush_entity", Color{}, "this is a brush entity", {}};
 
   document->setEntityDefinitions(kdl::vec_from(
     std::unique_ptr<Assets::EntityDefinition>{m_pointEntityDef},
@@ -87,29 +83,32 @@ MapDocumentTest::~MapDocumentTest()
 }
 
 Model::BrushNode* MapDocumentTest::createBrushNode(
-  const std::string& textureName,
+  const std::string& materialName,
   const std::function<void(Model::Brush&)>& brushFunc) const
 {
-  const Model::WorldNode* world = document->world();
-  Model::BrushBuilder builder(
-    world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs());
-  Model::Brush brush = builder.createCube(32.0, textureName).value();
+  const auto* worldNode = document->world();
+  auto builder = Model::BrushBuilder{
+    worldNode->mapFormat(),
+    document->worldBounds(),
+    document->game()->defaultFaceAttribs()};
+
+  auto brush = builder.createCube(32.0, materialName).value();
   brushFunc(brush);
-  return new Model::BrushNode(std::move(brush));
+  return new Model::BrushNode{std::move(brush)};
 }
 
-Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& textureName) const
+Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& materialName) const
 {
   // clang-format off
   return new Model::PatchNode{Model::BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, textureName}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, materialName}};
   // clang-format on
 }
 
 ValveMapDocumentTest::ValveMapDocumentTest()
-  : MapDocumentTest(Model::MapFormat::Valve)
+  : MapDocumentTest{Model::MapFormat::Valve}
 {
 }
 
@@ -165,10 +164,10 @@ TEST_CASE("MapDocumentTest.mixedFormats")
     IO::WorldReaderException);
 }
 
-TEST_CASE("MapDocument.reloadTextureCollections")
+TEST_CASE("MapDocument.reloadMaterialCollections")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    "fixture/test/View/MapDocumentTest/reloadTextureCollectionsQ2.map",
+    "fixture/test/View/MapDocumentTest/reloadMaterialCollectionsQ2.map",
     "Quake2",
     Model::MapFormat::Quake2);
 
@@ -183,17 +182,17 @@ TEST_CASE("MapDocument.reloadTextureCollections")
   REQUIRE(faces.size() == 4);
   REQUIRE(
     kdl::vec_transform(
-      faces, [](const auto* face) { return face->attributes().textureName(); })
+      faces, [](const auto* face) { return face->attributes().materialName(); })
     == std::vector<std::string>{
       "b_pv_v1a1", "e1m1/b_pv_v1a2", "e1m1/f1/b_rc_v4", "lavatest"});
 
   REQUIRE(
-    kdl::none_of(faces, [](const auto* face) { return face->texture() == nullptr; }));
+    kdl::none_of(faces, [](const auto* face) { return face->material() == nullptr; }));
 
-  CHECK_NOTHROW(document->reloadTextureCollections());
+  CHECK_NOTHROW(document->reloadMaterialCollections());
 
   REQUIRE(
-    kdl::none_of(faces, [](const auto* face) { return face->texture() == nullptr; }));
+    kdl::none_of(faces, [](const auto* face) { return face->material() == nullptr; }));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
@@ -533,7 +532,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
 
   SECTION("Brush entity is created and selected")
   {
-    auto* brushNode = createBrushNode("some_texture");
+    auto* brushNode = createBrushNode("some_material");
     document->addNodes({{document->parentForNodes(), {brushNode}}});
 
     document->selectNodes({brushNode});
@@ -545,9 +544,9 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
 
   SECTION("Copies properties from existing brush entity")
   {
-    auto* brushNode1 = createBrushNode("some_texture");
-    auto* brushNode2 = createBrushNode("some_texture");
-    auto* brushNode3 = createBrushNode("some_texture");
+    auto* brushNode1 = createBrushNode("some_material");
+    auto* brushNode2 = createBrushNode("some_material");
+    auto* brushNode3 = createBrushNode("some_material");
     document->addNodes(
       {{document->parentForNodes(), {brushNode1, brushNode2, brushNode3}}});
 
@@ -589,7 +588,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
       kdl::vec_from<std::unique_ptr<Assets::EntityDefinition>>(
         std::move(definitionWithDefaultsOwner)));
 
-    auto* brushNode = createBrushNode("some_texture");
+    auto* brushNode = createBrushNode("some_material");
     document->addNodes({{document->parentForNodes(), {brushNode}}});
 
     document->selectNodes({brushNode});
@@ -843,5 +842,4 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
   }
 }
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

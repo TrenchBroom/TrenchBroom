@@ -32,21 +32,20 @@
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
+#include "Renderer/MaterialIndexRangeRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
-#include "Renderer/TexturedIndexRangeRenderer.h"
 #include "Renderer/Transformation.h"
 
 #include "vm/mat.h"
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 EntityModelRenderer::EntityModelRenderer(
   Logger& logger,
   Assets::EntityModelManager& entityModelManager,
@@ -54,8 +53,6 @@ EntityModelRenderer::EntityModelRenderer(
   : m_logger{logger}
   , m_entityModelManager{entityModelManager}
   , m_editorContext{editorContext}
-  , m_applyTinting{false}
-  , m_showHiddenEntities{false}
 {
 }
 
@@ -172,7 +169,7 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
   shader.set("ApplyTinting", m_applyTinting);
   shader.set("TintColor", m_tintColor);
   shader.set("GrayScale", false);
-  shader.set("Texture", 0);
+  shader.set("Material", 0);
   shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
   shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
   shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
@@ -214,5 +211,5 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
     renderer->render();
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

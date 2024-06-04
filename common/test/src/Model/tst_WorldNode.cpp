@@ -42,10 +42,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("WorldNodeTest.canAddChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
@@ -56,13 +55,13 @@ TEST_CASE("WorldNodeTest.canAddChild")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   CHECK_FALSE(worldNode.canAddChild(&worldNode));
@@ -83,13 +82,13 @@ TEST_CASE("WorldNodeTest.canRemoveChild")
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   CHECK_FALSE(worldNode.canRemoveChild(&worldNode));
@@ -111,13 +110,13 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates")
   auto* groupNode = new GroupNode{Group{"group"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   const auto& nodeTree = worldNode.nodeTree();
@@ -255,13 +254,13 @@ TEST_CASE("WorldNodeTest.rebuildNodeTree")
   auto* groupNode = new GroupNode{Group{"group"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   worldNode.addChild(layerNode);
@@ -296,13 +295,13 @@ TEST_CASE("WorldNodeTest.disableNodeTreeUpdates")
   auto* groupNode = new GroupNode{Group{"group"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   worldNode.disableNodeTreeUpdates();
@@ -429,5 +428,5 @@ TEST_CASE("WorldNodeTest.setPersistentIdsWhenAddingLayersAndGroups")
   layerNode->addChild(groupNode);
   CHECK(groupNode->persistentId() == 2u);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

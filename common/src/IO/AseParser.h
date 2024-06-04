@@ -39,7 +39,7 @@ class Logger;
 namespace Assets
 {
 class EntityModel;
-class Texture;
+class Material;
 } // namespace Assets
 
 namespace IO
@@ -121,14 +121,13 @@ public:
    *
    * @param name the name of the model
    * @param str the text to parse
-   * @param fs the file system used to load texture files
+   * @param fs the file system used to load material files
    */
   AseParser(std::string name, std::string_view str, const FileSystem& fs);
 
   static bool canParse(const std::filesystem::path& path);
 
-private:
-  std::unique_ptr<Assets::EntityModel> doInitializeModel(Logger& logger) override;
+  std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger) override;
 
 private: // parsing
   void parseAseFile(Logger& logger, Scene& scene);
@@ -186,8 +185,8 @@ private: // model construction
     Logger& logger, const Scene& scene) const;
   bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
 
-  Assets::Texture loadTexture(Logger& logger, const std::filesystem::path& path) const;
-  std::filesystem::path fixTexturePath(Logger& logger, std::filesystem::path path) const;
+  Assets::Material loadMaterial(Logger& logger, const std::filesystem::path& path) const;
+  std::filesystem::path fixMaterialPath(Logger& logger, std::filesystem::path path) const;
 };
 } // namespace IO
 } // namespace TrenchBroom

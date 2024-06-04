@@ -391,7 +391,7 @@ bool splitBrushesOutward(
   MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState)
 {
   const auto& worldBounds = document.worldBounds();
-  const bool lockTextures = pref(Preferences::TextureLock);
+  const bool lockAlignment = pref(Preferences::AlignmentLock);
 
   // First ensure that the drag can be applied at all. For this, check whether each drag
   // handle is moved "up" along its normal.
@@ -419,7 +419,7 @@ bool splitBrushesOutward(
 
                auto newBrush = oldBrush;
                return newBrush
-                 .moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
+                 .moveBoundary(worldBounds, dragFaceIndex, delta, lockAlignment)
                  .and_then([&]() {
                    auto clipFace = oldBrush.face(dragFaceIndex);
                    clipFace.invert();
@@ -471,7 +471,7 @@ bool splitBrushesInward(
   MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState)
 {
   const auto& worldBounds = document.worldBounds();
-  const bool lockTextures = pref(Preferences::TextureLock);
+  const bool lockAlignment = pref(Preferences::AlignmentLock);
 
   // First ensure that the drag can be applied at all. For this, check whether each drag
   // handle is moved "down" along its normal.
@@ -501,7 +501,7 @@ bool splitBrushesInward(
 
     auto clipFace = frontBrush.face(dragHandle.faceHandle.faceIndex());
 
-    if (clipFace.transform(vm::translation_matrix(delta), lockTextures).is_error())
+    if (clipFace.transform(vm::translation_matrix(delta), lockAlignment).is_error())
     {
       document.error() << "Could not extrude inwards: Error transforming face";
       kdl::map_clear_and_delete(newNodes);

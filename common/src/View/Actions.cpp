@@ -646,8 +646,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(Qt::Key_Up),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::up, MapViewBase::TextureActionMode::Normal);
+      context.view()->moveUV(vm::direction::up, MapViewBase::UVActionMode::Normal);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -656,8 +655,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::SHIFT + Qt::Key_Up),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::up, MapViewBase::TextureActionMode::Coarse);
+      context.view()->moveUV(vm::direction::up, MapViewBase::UVActionMode::Coarse);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -666,8 +664,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::CTRL + Qt::Key_Up),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::up, MapViewBase::TextureActionMode::Fine);
+      context.view()->moveUV(vm::direction::up, MapViewBase::UVActionMode::Fine);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -676,8 +673,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(Qt::Key_Down),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::down, MapViewBase::TextureActionMode::Normal);
+      context.view()->moveUV(vm::direction::down, MapViewBase::UVActionMode::Normal);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -686,8 +682,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::SHIFT + Qt::Key_Down),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::down, MapViewBase::TextureActionMode::Coarse);
+      context.view()->moveUV(vm::direction::down, MapViewBase::UVActionMode::Coarse);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -696,8 +691,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::CTRL + Qt::Key_Down),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::down, MapViewBase::TextureActionMode::Fine);
+      context.view()->moveUV(vm::direction::down, MapViewBase::UVActionMode::Fine);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -706,8 +700,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(Qt::Key_Left),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::left, MapViewBase::TextureActionMode::Normal);
+      context.view()->moveUV(vm::direction::left, MapViewBase::UVActionMode::Normal);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -716,8 +709,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::SHIFT + Qt::Key_Left),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::left, MapViewBase::TextureActionMode::Coarse);
+      context.view()->moveUV(vm::direction::left, MapViewBase::UVActionMode::Coarse);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -726,8 +718,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::CTRL + Qt::Key_Left),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::left, MapViewBase::TextureActionMode::Fine);
+      context.view()->moveUV(vm::direction::left, MapViewBase::UVActionMode::Fine);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -736,8 +727,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(Qt::Key_Right),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::right, MapViewBase::TextureActionMode::Normal);
+      context.view()->moveUV(vm::direction::right, MapViewBase::UVActionMode::Normal);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -746,8 +736,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::SHIFT + Qt::Key_Right),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::right, MapViewBase::TextureActionMode::Coarse);
+      context.view()->moveUV(vm::direction::right, MapViewBase::UVActionMode::Coarse);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -756,8 +745,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::CTRL + Qt::Key_Right),
     [](ActionExecutionContext& context) {
-      context.view()->moveTextures(
-        vm::direction::right, MapViewBase::TextureActionMode::Fine);
+      context.view()->moveUV(vm::direction::right, MapViewBase::UVActionMode::Fine);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -766,7 +754,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(Qt::Key_PageUp),
     [](ActionExecutionContext& context) {
-      context.view()->rotateTextures(true, MapViewBase::TextureActionMode::Normal);
+      context.view()->rotateUV(true, MapViewBase::UVActionMode::Normal);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -775,7 +763,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::SHIFT + Qt::Key_PageUp),
     [](ActionExecutionContext& context) {
-      context.view()->rotateTextures(true, MapViewBase::TextureActionMode::Coarse);
+      context.view()->rotateUV(true, MapViewBase::UVActionMode::Coarse);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -784,7 +772,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::CTRL + Qt::Key_PageUp),
     [](ActionExecutionContext& context) {
-      context.view()->rotateTextures(true, MapViewBase::TextureActionMode::Fine);
+      context.view()->rotateUV(true, MapViewBase::UVActionMode::Fine);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -793,7 +781,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(Qt::Key_PageDown),
     [](ActionExecutionContext& context) {
-      context.view()->rotateTextures(false, MapViewBase::TextureActionMode::Normal);
+      context.view()->rotateUV(false, MapViewBase::UVActionMode::Normal);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -802,7 +790,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::SHIFT + Qt::Key_PageDown),
     [](ActionExecutionContext& context) {
-      context.view()->rotateTextures(false, MapViewBase::TextureActionMode::Coarse);
+      context.view()->rotateUV(false, MapViewBase::UVActionMode::Coarse);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -811,7 +799,7 @@ void ActionManager::createViewActions()
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::CTRL + Qt::Key_PageDown),
     [](ActionExecutionContext& context) {
-      context.view()->rotateTextures(false, MapViewBase::TextureActionMode::Fine);
+      context.view()->rotateUV(false, MapViewBase::UVActionMode::Fine);
     },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -819,39 +807,35 @@ void ActionManager::createViewActions()
     QObject::tr("Reveal in texture browser"),
     ActionContext::View3D | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     QKeySequence(),
-    [](ActionExecutionContext& context) { context.frame()->revealTexture(); },
+    [](ActionExecutionContext& context) { context.frame()->revealMaterial(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
     std::filesystem::path{"Controls/Map view/Flip textures horizontally"},
     QObject::tr("Flip textures horizontally"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::CTRL + Qt::Key_F),
-    [](ActionExecutionContext& context) {
-      context.view()->flipTextures(vm::direction::right);
-    },
+    [](ActionExecutionContext& context) { context.view()->flipUV(vm::direction::right); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
     std::filesystem::path{"Controls/Map view/Flip textures vertically"},
     QObject::tr("Flip textures vertically"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::CTRL + Qt::ALT + Qt::Key_F),
-    [](ActionExecutionContext& context) {
-      context.view()->flipTextures(vm::direction::up);
-    },
+    [](ActionExecutionContext& context) { context.view()->flipUV(vm::direction::up); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
     std::filesystem::path{"Controls/Map view/Reset texture alignment"},
     QObject::tr("Reset texture alignment"),
     ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::SHIFT + Qt::Key_R),
-    [](ActionExecutionContext& context) { context.view()->resetTextures(); },
+    [](ActionExecutionContext& context) { context.view()->resetUV(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
     std::filesystem::path{"Controls/Map view/Reset texture alignment to world aligned"},
     QObject::tr("Reset texture alignment to world aligned"),
     ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
     QKeySequence(+Qt::SHIFT + Qt::ALT + Qt::Key_R),
-    [](ActionExecutionContext& context) { context.view()->resetTexturesToWorld(); },
+    [](ActionExecutionContext& context) { context.view()->resetUVToWorld(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
 
   /* ========== Tag Actions ========== */
@@ -928,14 +912,14 @@ void ActionManager::createViewActions()
     QObject::tr("Show Textures"),
     ActionContext::Any,
     QKeySequence(),
-    [](ActionExecutionContext& context) { context.view()->showTextures(); },
+    [](ActionExecutionContext& context) { context.view()->showMaterials(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
     std::filesystem::path{"Controls/Map view/View Filter > Hide textures"},
     QObject::tr("Hide Textures"),
     ActionContext::Any,
     QKeySequence(),
-    [](ActionExecutionContext& context) { context.view()->hideTextures(); },
+    [](ActionExecutionContext& context) { context.view()->hideMaterials(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
     std::filesystem::path{"Controls/Map view/View Filter > Hide faces"},
@@ -1140,7 +1124,7 @@ void ActionManager::createFileMenu()
     std::filesystem::path{"Menu/File/Reload Texture Collections"},
     QObject::tr("Reload Texture Collections"),
     Qt::Key_F5,
-    [](ActionExecutionContext& context) { context.frame()->reloadTextureCollections(); },
+    [](ActionExecutionContext& context) { context.frame()->reloadMaterialCollections(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); }));
   fileMenu.addItem(createMenuAction(
     std::filesystem::path{"Menu/File/Reload Entity Definitions"},
@@ -1588,10 +1572,10 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Texture Lock"},
     QObject::tr("Texture Lock"),
     0,
-    [](ActionExecutionContext& context) { context.frame()->toggleTextureLock(); },
+    [](ActionExecutionContext& context) { context.frame()->toggleAlignmentLock(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); },
-    [](ActionExecutionContext&) { return pref(Preferences::TextureLock); },
-    std::filesystem::path{"TextureLock.svg"}));
+    [](ActionExecutionContext&) { return pref(Preferences::AlignmentLock); },
+    std::filesystem::path{"AlignmentLock.svg"}));
   editMenu.addItem(createMenuAction(
     std::filesystem::path{"Menu/Edit/UV Lock"},
     QObject::tr("UV Lock"),
@@ -1605,7 +1589,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Replace Texture..."},
     QObject::tr("Replace Texture..."),
     0,
-    [](ActionExecutionContext& context) { context.frame()->replaceTexture(); },
+    [](ActionExecutionContext& context) { context.frame()->replaceMaterial(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); }));
 }
 

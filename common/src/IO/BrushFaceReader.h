@@ -41,7 +41,7 @@ namespace IO
 class ParserStatus;
 
 /**
- * Used for pasting brush faces (i.e. their texture alignment only)
+ * Used for pasting brush faces (i.e. their UVs only)
  */
 class BrushFaceReader : public MapReader
 {

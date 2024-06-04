@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Error.h"
 #include "IO/ExportOptions.h"
 #include "IO/NodeWriter.h"
@@ -55,7 +55,7 @@ TEST_CASE("ObjSerializer.writeBrush")
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+    new Model::BrushNode{builder.createCube(64.0, "some_material").value()};
   map.defaultLayer()->addChild(brushNode);
 
   auto objStream = std::ostringstream{};
@@ -94,22 +94,22 @@ vn 0 0 -1
 vn 1 0 -0
 
 o entity0_brush0
-usemtl some_texture
+usemtl some_material
 f  1/1/1  2/2/1  3/3/1  4/4/1
-usemtl some_texture
+usemtl some_material
 f  5/4/2  3/3/2  2/2/2  6/1/2
-usemtl some_texture
+usemtl some_material
 f  6/1/3  2/2/3  1/3/3  7/4/3
-usemtl some_texture
+usemtl some_material
 f  8/4/4  4/3/4  3/2/4  5/1/4
-usemtl some_texture
+usemtl some_material
 f  7/1/5  1/2/5  4/3/5  8/4/5
-usemtl some_texture
+usemtl some_material
 f  8/4/6  5/3/6  6/2/6  7/1/6
 
 )");
 
-  CHECK(mtlStream.str() == R"(newmtl some_texture
+  CHECK(mtlStream.str() == R"(newmtl some_material
 
 )");
 }
@@ -133,7 +133,7 @@ TEST_CASE("ObjSerializer.writePatch")
      {0, 2, 0},
      {1, 2, 1},
      {2, 2, 0}},
-    "some_texture"}};
+    "some_material"}};
   map.defaultLayer()->addChild(patchNode);
 
   auto objStream = std::ostringstream{};
@@ -317,7 +317,7 @@ vn -0.4915391523114243 -0.6553855364152325 0.5734623443633283
 vn -0.5499719409228703 -0.6285393610547089 0.5499719409228703
 
 o entity0_patch0
-usemtl some_texture
+usemtl some_material
 f  1/1/1  2/1/2  3/1/3  4/1/4
 f  4/1/4  3/1/3  5/1/5  6/1/6
 f  6/1/6  5/1/5  7/1/7  8/1/8
@@ -385,7 +385,7 @@ f  71/1/71  80/1/80  81/1/81  72/1/72
 
 )");
 
-  CHECK(mtlStream.str() == R"(newmtl some_texture
+  CHECK(mtlStream.str() == R"(newmtl some_material
 
 )");
 }
@@ -395,19 +395,19 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   const auto worldBounds = vm::bbox3{8192.0};
 
   // must outlive map
-  auto texture = Assets::Texture{"some_texture", 16, 16};
-  texture.setRelativePath("textures/some_texture.png");
+  auto material = Assets::Material{"some_material", 16, 16};
+  material.setRelativePath("textures/some_material.png");
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+    new Model::BrushNode{builder.createCube(64.0, "some_material").value()};
   map.defaultLayer()->addChild(brushNode);
 
   for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)
   {
-    brushNode->setFaceTexture(i, &texture);
+    brushNode->setFaceMaterial(i, &material);
   }
 
   auto objStream = std::ostringstream{};
@@ -416,33 +416,33 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
 
   using T = std::tuple<ObjExportOptions, std::string, std::optional<std::string>>;
 
-  const auto [options, textureAbsolutePath, expectedPath] = GENERATE(values<T>({
+  const auto [options, materialAbsPath, expectedPath] = GENERATE(values<T>({
     {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToExportPath},
-     "/home/that_guy/quake/textures/some_texture.png",
-     "../textures/some_texture.png"},
+     "/home/that_guy/quake/textures/some_material.png",
+     "../textures/some_material.png"},
     {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToExportPath},
      "",
      std::nullopt},
     {{"/home/that_guy/quake/export/file.obj", ObjMtlPathMode::RelativeToGamePath},
-     "/home/that_guy/quake/textures/some_texture.png",
-     "textures/some_texture.png"},
+     "/home/that_guy/quake/textures/some_material.png",
+     "textures/some_material.png"},
   }));
 
-  CAPTURE(options, textureAbsolutePath);
+  CAPTURE(options, materialAbsPath);
 
-  texture.setAbsolutePath(textureAbsolutePath);
+  material.setAbsolutePath(materialAbsPath);
 
   auto writer = NodeWriter{
     map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
   writer.writeMap();
 
   const auto expectedMtl = expectedPath ? fmt::format(
-                             R"(newmtl some_texture
+                             R"(newmtl some_material
 map_Kd {}
 
 )",
                              *expectedPath)
-                                        : R"(newmtl some_texture
+                                        : R"(newmtl some_material
 
 )";
 

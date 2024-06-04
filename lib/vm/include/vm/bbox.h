@@ -210,7 +210,7 @@ private:
   /**
    * This constructor is used by the builder to create an invalid bbox.
    */
-  constexpr bbox(const bool)
+  explicit constexpr bbox(const bool)
     : min(vec<T, S>::fill(T(1)))
     , max(vec<T, S>::fill(T(0)))
   {

@@ -25,8 +25,8 @@
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
-#include "Assets/Texture.h"
-#include "Assets/TextureManager.h"
+#include "Assets/Material.h"
+#include "Assets/MaterialManager.h"
 #include "EL/ELExceptions.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -55,7 +55,7 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
-#include "Model/InvalidTextureScaleValidator.h"
+#include "Model/InvalidUVScaleValidator.h"
 #include "Model/LayerNode.h"
 #include "Model/LinkSourceValidator.h"
 #include "Model/LinkTargetValidator.h"
@@ -379,7 +379,7 @@ MapDocument::MapDocument()
   , m_entityDefinitionManager(std::make_unique<Assets::EntityDefinitionManager>())
   , m_entityModelManager(std::make_unique<Assets::EntityModelManager>(
       pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
-  , m_textureManager(std::make_unique<Assets::TextureManager>(
+  , m_materialManager(std::make_unique<Assets::MaterialManager>(
       pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
   , m_tagManager(std::make_unique<Model::TagManager>())
   , m_editorContext(std::make_unique<Model::EditorContext>())
@@ -388,7 +388,7 @@ MapDocument::MapDocument()
   , m_lastSaveModificationCount(0)
   , m_modificationCount(0)
   , m_currentLayer(nullptr)
-  , m_currentTextureName(Model::BrushFaceAttributes::NoTextureName)
+  , m_currentMaterialName(Model::BrushFaceAttributes::NoMaterialName)
   , m_lastSelectionBounds(0.0, 32.0)
   , m_selectionBoundsValid(true)
   , m_viewEffectsService(nullptr)
@@ -534,9 +534,9 @@ Assets::EntityModelManager& MapDocument::entityModelManager()
   return *m_entityModelManager;
 }
 
-Assets::TextureManager& MapDocument::textureManager()
+Assets::MaterialManager& MapDocument::materialManager()
 {
-  return *m_textureManager;
+  return *m_materialManager;
 }
 
 Grid& MapDocument::grid() const
@@ -1205,17 +1205,17 @@ const vm::bbox3& MapDocument::selectionBounds() const
   return m_selectionBounds;
 }
 
-const std::string& MapDocument::currentTextureName() const
+const std::string& MapDocument::currentMaterialName() const
 {
-  return m_currentTextureName;
+  return m_currentMaterialName;
 }
 
-void MapDocument::setCurrentTextureName(const std::string& currentTextureName)
+void MapDocument::setCurrentMaterialName(const std::string& currentMaterialName)
 {
-  if (m_currentTextureName != currentTextureName)
+  if (m_currentMaterialName != currentMaterialName)
   {
-    m_currentTextureName = currentTextureName;
-    currentTextureNameDidChangeNotifier(m_currentTextureName);
+    m_currentMaterialName = currentMaterialName;
+    currentMaterialNameDidChangeNotifier(m_currentMaterialName);
   }
 }
 
@@ -1411,7 +1411,7 @@ void MapDocument::selectBrushFaces(const std::vector<Model::BrushFaceHandle>& ha
   executeAndStore(SelectionCommand::select(handles));
   if (!handles.empty())
   {
-    setCurrentTextureName(handles.back().face().attributes().textureName());
+    setCurrentMaterialName(handles.back().face().attributes().materialName());
   }
 }
 
@@ -1421,14 +1421,14 @@ void MapDocument::convertToFaceSelection()
   executeAndStore(SelectionCommand::convertToFaces());
 }
 
-void MapDocument::selectFacesWithTexture(const Assets::Texture* texture)
+void MapDocument::selectFacesWithMaterial(const Assets::Material* material)
 {
   const auto faces = kdl::vec_filter(
     Model::collectSelectableBrushFaces(
       std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
-    [&](const auto& faceHandle) { return faceHandle.face().texture() == texture; });
+    [&](const auto& faceHandle) { return faceHandle.face().material() == material; });
 
-  auto transaction = Transaction{*this, "Select Faces with Texture"};
+  auto transaction = Transaction{*this, "Select Faces with Material"};
   deselectAll();
   selectBrushFaces(faces);
   transaction.commit();
@@ -1467,7 +1467,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
         }
 
         return brushBuilder
-          .createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
+          .createBrush(tallVertices, Model::BrushFaceAttributes::NoMaterialName)
           .transform([](auto brush) {
             return std::make_unique<Model::BrushNode>(std::move(brush));
           });
@@ -2885,7 +2885,7 @@ bool MapDocument::transformObjects(
 
   using TransformResult = Result<std::pair<Model::Node*, Model::NodeContents>>;
 
-  const bool lockTexturesPref = pref(Preferences::TextureLock);
+  const bool alignmentLock = pref(Preferences::AlignmentLock);
   auto transformResults = kdl::vec_parallel_transform(
     nodesToTransform, [&](Model::Node* node) -> TransformResult {
       return node->accept(kdl::overload(
@@ -2906,12 +2906,12 @@ bool MapDocument::transformObjects(
           return std::make_pair(entityNode, Model::NodeContents{std::move(entity)});
         },
         [&](Model::BrushNode* brushNode) -> TransformResult {
-          const bool lockTextures =
-            lockTexturesPref
+          const bool lockAlignment =
+            alignmentLock
             || Model::collectLinkedNodes({m_world.get()}, *brushNode).size() > 1;
 
           auto brush = brushNode->brush();
-          return brush.transform(m_worldBounds, transformation, lockTextures)
+          return brush.transform(m_worldBounds, transformation, lockAlignment)
             .and_then([&]() -> TransformResult {
               return std::make_pair(brushNode, Model::NodeContents{std::move(brush)});
             });
@@ -2989,7 +2989,7 @@ bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
   const auto builder = Model::BrushBuilder{
     m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
 
-  return builder.createBrush(points, currentTextureName())
+  return builder.createBrush(points, currentMaterialName())
     .and_then([&](auto b) -> Result<void> {
       auto* brushNode = new Model::BrushNode{std::move(b)};
 
@@ -3050,7 +3050,7 @@ bool MapDocument::csgConvexMerge()
 
   const auto builder = Model::BrushBuilder{
     m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
-  return builder.createBrush(polyhedron, currentTextureName())
+  return builder.createBrush(polyhedron, currentMaterialName())
     .transform([&](auto b) {
       b.cloneFaceAttributesFrom(kdl::vec_transform(
         selectedNodes().brushes(),
@@ -3118,7 +3118,7 @@ bool MapDocument::csgSubtract()
              [&](auto* minuendNode) {
                const auto& minuend = minuendNode->brush();
                auto currentSubtractionResults = minuend.subtract(
-                 m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
+                 m_world->mapFormat(), m_worldBounds, currentMaterialName(), subtrahends);
 
                return kdl::fold_results(kdl::vec_filter(
                                           std::move(currentSubtractionResults),
@@ -3224,7 +3224,7 @@ bool MapDocument::csgHollow()
         return kdl::fold_results(originalBrush.subtract(
                                    m_world->mapFormat(),
                                    m_worldBounds,
-                                   currentTextureName(),
+                                   currentMaterialName(),
                                    shrunkenBrush))
           .transform([&](auto fragments) {
             auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
@@ -3270,7 +3270,7 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
                         p1,
                         p2,
                         p3,
-                        Model::BrushFaceAttributes{currentTextureName()},
+                        Model::BrushFaceAttributes{currentMaterialName()},
                         m_world->mapFormat())
                  .and_then([&](Model::BrushFace&& clipFace) {
                    return clippedBrush.clip(m_worldBounds, std::move(clipFace));
@@ -3592,7 +3592,8 @@ bool MapDocument::extrudeBrushes(
         }
 
         return brush
-          .moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
+          .moveBoundary(
+            m_worldBounds, *faceIndex, delta, pref(Preferences::AlignmentLock))
           .transform([&]() { return m_worldBounds.contains(brush.bounds()); })
           .transform_error([&](auto e) {
             error() << "Could not resize brush: " << e.msg;
@@ -3628,49 +3629,49 @@ bool MapDocument::setFaceAttributes(
     });
 }
 
-bool MapDocument::copyTexCoordSystemFromFace(
+bool MapDocument::copyUVFromFace(
   const Model::TexCoordSystemSnapshot& coordSystemSnapshot,
   const Model::BrushFaceAttributes& attribs,
   const vm::plane3& sourceFacePlane,
   const Model::WrapStyle wrapStyle)
 {
   return applyAndSwap(
-    *this, "Copy Texture Alignment", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+    *this, "Copy UV Alignment", m_selectedBrushFaces, [&](Model::BrushFace& face) {
       face.copyTexCoordSystemFromFace(
         coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
       return true;
     });
 }
 
-bool MapDocument::moveTextures(
+bool MapDocument::translateUV(
   const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta)
 {
   return applyAndSwap(
-    *this, "Move Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
+    *this, "Move UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.moveUV(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
       return true;
     });
 }
 
-bool MapDocument::rotateTextures(const float angle)
+bool MapDocument::rotateUV(const float angle)
 {
   return applyAndSwap(
-    *this, "Rotate Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.rotateTexture(angle);
+    *this, "Rotate UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.rotateUV(angle);
       return true;
     });
 }
 
-bool MapDocument::shearTextures(const vm::vec2f& factors)
+bool MapDocument::shearUV(const vm::vec2f& factors)
 {
   return applyAndSwap(
-    *this, "Shear Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.shearTexture(factors);
+    *this, "Shear UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.shearUV(factors);
       return true;
     });
 }
 
-bool MapDocument::flipTextures(
+bool MapDocument::flipUV(
   const vm::vec3f& cameraUp,
   const vm::vec3f& cameraRight,
   const vm::direction cameraRelativeFlipDirection)
@@ -3680,11 +3681,10 @@ bool MapDocument::flipTextures(
      || cameraRelativeFlipDirection == vm::direction::right);
   return applyAndSwap(
     *this,
-    isHFlip ? "Flip Textures Horizontally" : "Flip Textures Vertically",
+    isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
     m_selectedBrushFaces,
     [&](Model::BrushFace& face) {
-      face.flipTexture(
-        vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
+      face.flipUV(vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
       return true;
     });
 }
@@ -4226,7 +4226,7 @@ std::unique_ptr<CommandResult> MapDocument::executeAndStore(
 
 void MapDocument::commitPendingAssets()
 {
-  m_textureManager->commitChanges();
+  m_materialManager->commitChanges();
 }
 
 void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const
@@ -4325,17 +4325,17 @@ void MapDocument::setEntityDefinitions(
   m_entityDefinitionManager->setDefinitions(std::move(definitions));
 }
 
-void MapDocument::reloadTextureCollections()
+void MapDocument::reloadMaterialCollections()
 {
   const auto nodes = std::vector<Model::Node*>{m_world.get()};
   NotifyBeforeAndAfter notifyNodes(
     nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-  NotifyBeforeAndAfter notifyTextureCollections(
-    textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
+  NotifyBeforeAndAfter notifyMaterialCollections(
+    materialCollectionsWillChangeNotifier, materialCollectionsDidChangeNotifier);
 
-  info("Reloading texture collections");
-  reloadTextures();
-  setTextures();
+  info("Reloading material collections");
+  reloadMaterials();
+  setMaterials();
   initializeAllNodeTags(this);
 }
 
@@ -4350,16 +4350,16 @@ void MapDocument::reloadEntityDefinitions()
   info("Reloading entity definitions");
 }
 
-std::vector<std::filesystem::path> MapDocument::enabledTextureCollections() const
+std::vector<std::filesystem::path> MapDocument::enabledMaterialCollections() const
 {
   if (m_world)
   {
     if (
-      const auto* textureCollectionStr =
-        m_world->entity().property(Model::EntityPropertyKeys::EnabledTextureCollections))
+      const auto* materialCollectionStr =
+        m_world->entity().property(Model::EntityPropertyKeys::EnabledMaterialCollections))
     {
       return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-        kdl::str_split(*textureCollectionStr, ";"),
+        kdl::str_split(*materialCollectionStr, ";"),
         [](const auto& str) { return std::filesystem::path{str}; }));
     }
 
@@ -4367,16 +4367,16 @@ std::vector<std::filesystem::path> MapDocument::enabledTextureCollections() cons
     if (m_world->entity().property(Model::EntityPropertyKeys::Wad))
     {
       return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-        m_textureManager->collections(),
+        m_materialManager->collections(),
         [](const auto& collection) { return collection.path(); }));
     }
 
-    // Otherwise, enable all texture collections with used textures in them
+    // Otherwise, enable all material collections with used materials in them
     auto result = std::vector<std::filesystem::path>{};
-    for (const auto& collection : m_textureManager->collections())
+    for (const auto& collection : m_materialManager->collections())
     {
-      if (kdl::any_of(collection.textures(), [](const auto& texture) {
-            return texture.usageCount() > 0;
+      if (kdl::any_of(collection.materials(), [](const auto& material) {
+            return material.usageCount() > 0;
           }))
       {
         result.push_back(collection.path());
@@ -4387,31 +4387,31 @@ std::vector<std::filesystem::path> MapDocument::enabledTextureCollections() cons
   return {};
 }
 
-std::vector<std::filesystem::path> MapDocument::disabledTextureCollections() const
+std::vector<std::filesystem::path> MapDocument::disabledMaterialCollections() const
 {
   if (m_world)
   {
-    auto textureCollections = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-      m_textureManager->collections(),
+    auto materialCollections = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+      m_materialManager->collections(),
       [](const auto& collection) { return collection.path(); }));
 
-    return kdl::set_difference(textureCollections, enabledTextureCollections());
+    return kdl::set_difference(materialCollections, enabledMaterialCollections());
   }
   return {};
 }
 
-void MapDocument::setEnabledTextureCollections(
-  const std::vector<std::filesystem::path>& enabledTextureCollections)
+void MapDocument::setEnabledMaterialCollections(
+  const std::vector<std::filesystem::path>& enabledMaterialCollections)
 {
-  const auto enabledTextureCollectionStr = kdl::str_join(
+  const auto enabledMaterialCollectionStr = kdl::str_join(
     kdl::vec_transform(
-      kdl::vec_sort_and_remove_duplicates(enabledTextureCollections),
+      kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections),
       [](const auto& path) { return path.string(); }),
     ";");
 
-  auto transaction = Transaction{*this, "Set enabled texture collections"};
+  auto transaction = Transaction{*this, "Set enabled material collections"};
   const auto success = setProperty(
-    Model::EntityPropertyKeys::EnabledTextureCollections, enabledTextureCollectionStr);
+    Model::EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
   transaction.finish(success);
 }
 
@@ -4420,15 +4420,15 @@ void MapDocument::loadAssets()
   loadEntityDefinitions();
   setEntityDefinitions();
   loadEntityModels();
-  loadTextures();
-  setTextures();
+  loadMaterials();
+  setMaterials();
 }
 
 void MapDocument::unloadAssets()
 {
   unloadEntityDefinitions();
   unloadEntityModels();
-  unloadTextures();
+  unloadMaterials();
 }
 
 void MapDocument::loadEntityDefinitions()
@@ -4475,15 +4475,15 @@ void MapDocument::unloadEntityModels()
   m_entityModelManager->setLoader(nullptr);
 }
 
-void MapDocument::reloadTextures()
+void MapDocument::reloadMaterials()
 {
-  unloadTextures();
+  unloadMaterials();
   m_game->reloadShaders().transform_error(
     [&](auto e) { error() << "Failed to reload shaders: " << e.msg; });
-  loadTextures();
+  loadMaterials();
 }
 
-void MapDocument::loadTextures()
+void MapDocument::loadMaterials()
 {
   try
   {
@@ -4494,7 +4494,7 @@ void MapDocument::loadTextures()
         [](const auto& str) { return std::filesystem::path{str}; });
       m_game->reloadWads(path(), wadPaths, logger());
     }
-    m_game->loadTextureCollections(*m_textureManager);
+    m_game->loadMaterialCollections(*m_materialManager);
   }
   catch (const Exception& e)
   {
@@ -4502,13 +4502,13 @@ void MapDocument::loadTextures()
   }
 }
 
-void MapDocument::unloadTextures()
+void MapDocument::unloadMaterials()
 {
-  unsetTextures();
-  m_textureManager->clear();
+  unsetMaterials();
+  m_materialManager->clear();
 }
 
-static auto makeSetTexturesVisitor(Assets::TextureManager& manager)
+static auto makeSetMaterialsVisitor(Assets::MaterialManager& manager)
 {
   return kdl::overload(
     [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -4522,17 +4522,17 @@ static auto makeSetTexturesVisitor(Assets::TextureManager& manager)
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
         const Model::BrushFace& face = brush.face(i);
-        Assets::Texture* texture = manager.texture(face.attributes().textureName());
-        brushNode->setFaceTexture(i, texture);
+        Assets::Material* material = manager.material(face.attributes().materialName());
+        brushNode->setFaceMaterial(i, material);
       }
     },
     [&](Model::PatchNode* patchNode) {
-      auto* texture = manager.texture(patchNode->patch().textureName());
-      patchNode->setTexture(texture);
+      auto* material = manager.material(patchNode->patch().materialName());
+      patchNode->setMaterial(material);
     });
 }
 
-static auto makeUnsetTexturesVisitor()
+static auto makeUnsetMaterialsVisitor()
 {
   return kdl::overload(
     [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -4545,46 +4545,46 @@ static auto makeUnsetTexturesVisitor()
       const Model::Brush& brush = brushNode->brush();
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
-        brushNode->setFaceTexture(i, nullptr);
+        brushNode->setFaceMaterial(i, nullptr);
       }
     },
-    [](Model::PatchNode* patchNode) { patchNode->setTexture(nullptr); });
+    [](Model::PatchNode* patchNode) { patchNode->setMaterial(nullptr); });
 }
 
-void MapDocument::setTextures()
+void MapDocument::setMaterials()
 {
-  m_world->accept(makeSetTexturesVisitor(*m_textureManager));
-  textureUsageCountsDidChangeNotifier();
+  m_world->accept(makeSetMaterialsVisitor(*m_materialManager));
+  materialUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::setTextures(const std::vector<Model::Node*>& nodes)
+void MapDocument::setMaterials(const std::vector<Model::Node*>& nodes)
 {
-  Model::Node::visitAll(nodes, makeSetTexturesVisitor(*m_textureManager));
-  textureUsageCountsDidChangeNotifier();
+  Model::Node::visitAll(nodes, makeSetMaterialsVisitor(*m_materialManager));
+  materialUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles)
+void MapDocument::setMaterials(const std::vector<Model::BrushFaceHandle>& faceHandles)
 {
   for (const auto& faceHandle : faceHandles)
   {
     Model::BrushNode* node = faceHandle.node();
     const Model::BrushFace& face = faceHandle.face();
-    Assets::Texture* texture = m_textureManager->texture(face.attributes().textureName());
-    node->setFaceTexture(faceHandle.faceIndex(), texture);
+    auto* material = m_materialManager->material(face.attributes().materialName());
+    node->setFaceMaterial(faceHandle.faceIndex(), material);
   }
-  textureUsageCountsDidChangeNotifier();
+  materialUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::unsetTextures()
+void MapDocument::unsetMaterials()
 {
-  m_world->accept(makeUnsetTexturesVisitor());
-  textureUsageCountsDidChangeNotifier();
+  m_world->accept(makeUnsetMaterialsVisitor());
+  materialUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::unsetTextures(const std::vector<Model::Node*>& nodes)
+void MapDocument::unsetMaterials(const std::vector<Model::Node*>& nodes)
 {
-  Model::Node::visitAll(nodes, makeUnsetTexturesVisitor());
-  textureUsageCountsDidChangeNotifier();
+  Model::Node::visitAll(nodes, makeUnsetMaterialsVisitor());
+  materialUsageCountsDidChangeNotifier();
 }
 
 static auto makeSetEntityDefinitionsVisitor(Assets::EntityDefinitionManager& manager)
@@ -4841,7 +4841,7 @@ void MapDocument::registerValidators()
     std::make_unique<Model::PropertyKeyWithDoubleQuotationMarksValidator>());
   m_world->registerValidator(
     std::make_unique<Model::PropertyValueWithDoubleQuotationMarksValidator>());
-  m_world->registerValidator(std::make_unique<Model::InvalidTextureScaleValidator>());
+  m_world->registerValidator(std::make_unique<Model::InvalidUVScaleValidator>());
 }
 
 void MapDocument::registerSmartTags()
@@ -5018,10 +5018,10 @@ void MapDocument::clearModificationCount()
 
 void MapDocument::connectObservers()
 {
-  m_notifierConnection += textureCollectionsWillChangeNotifier.connect(
-    this, &MapDocument::textureCollectionsWillChange);
-  m_notifierConnection += textureCollectionsDidChangeNotifier.connect(
-    this, &MapDocument::textureCollectionsDidChange);
+  m_notifierConnection += materialCollectionsWillChangeNotifier.connect(
+    this, &MapDocument::materialCollectionsWillChange);
+  m_notifierConnection += materialCollectionsDidChangeNotifier.connect(
+    this, &MapDocument::materialCollectionsDidChange);
 
   m_notifierConnection += entityDefinitionsWillChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsWillChange);
@@ -5062,18 +5062,18 @@ void MapDocument::connectObservers()
   m_notifierConnection +=
     modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
   m_notifierConnection +=
-    textureCollectionsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
+    materialCollectionsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
 }
 
-void MapDocument::textureCollectionsWillChange()
+void MapDocument::materialCollectionsWillChange()
 {
-  unsetTextures();
+  unsetMaterials();
 }
 
-void MapDocument::textureCollectionsDidChange()
+void MapDocument::materialCollectionsDidChange()
 {
-  loadTextures();
-  setTextures();
+  loadMaterials();
+  setMaterials();
 }
 
 void MapDocument::entityDefinitionsWillChange()
@@ -5114,16 +5114,16 @@ void MapDocument::preferenceDidChange(const std::filesystem::path& path)
     clearEntityModels();
     setEntityModels();
 
-    reloadTextures();
-    setTextures();
+    reloadMaterials();
+    setMaterials();
   }
   else if (
     path == Preferences::TextureMinFilter.path()
     || path == Preferences::TextureMagFilter.path())
   {
-    m_entityModelManager->setTextureMode(
+    m_entityModelManager->setFilterMode(
       pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
-    m_textureManager->setTextureMode(
+    m_materialManager->setFilterMode(
       pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
   }
 }
