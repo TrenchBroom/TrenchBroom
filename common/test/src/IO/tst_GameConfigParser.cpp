@@ -73,7 +73,7 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
 {
   const std::string config(R"(
 {
-    "version": 7,
+    "version": 9,
     "unexpectedKey": [],
     "name": "Quake",
     "icon": "Icon.png",
@@ -85,9 +85,9 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
         "searchpath": "id1",
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
-    "textures": {
+    "materials": {
         "root": "textures",
-        "format": { "extension": "D", "format": "idmip" },
+        "extensions": ["D"],
         "palette": "gfx/palette.lmp",
         "attribute": "wad"
     },
@@ -109,24 +109,24 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
             {
                 "name": "Clip",
                 "attribs": [ "transparent" ],
-                "match": "texture",
+                "match": "material",
                 "pattern": "clip"
             },
             {
                 "name": "Skip",
                 "attribs": [ "transparent" ],
-                "match": "texture",
+                "match": "material",
                 "pattern": "skip"
             },
             {
                 "name": "Hint",
                 "attribs": [ "transparent" ],
-                "match": "texture",
+                "match": "material",
                 "pattern": "hint*"
             },
             {
                 "name": "Liquid",
-                "match": "texture",
+                "match": "material",
                 "pattern": "\**"
             }
         ]
@@ -188,7 +188,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
 {
   const std::string config(R"%(
 {
-    "version": 8,
+    "version": 9,
     "name": "Quake 2",
     "icon": "Icon.png",
     "fileformats": [ { "format": "Quake2" } ],
@@ -196,7 +196,7 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
         "searchpath": "baseq2",
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
-    "textures": {
+    "materials": {
         "root": "textures",
         "extensions": ["wal"],
         "palette": "pics/colormap.pcx"
@@ -213,26 +213,26 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
                 "attribs": [ "transparent" ],
                 "match": "classname",
                 "pattern": "trigger*",
-                "texture": "trigger"
+                "material": "trigger"
             }
         ],
         "brushface": [
             {
                 "name": "Clip",
                 "attribs": [ "transparent" ],
-                "match": "texture",
+                "match": "material",
                 "pattern": "clip"
             },
             {
                 "name": "Skip",
                 "attribs": [ "transparent" ],
-                "match": "texture",
+                "match": "material",
                 "pattern": "skip"
             },
             {
                 "name": "Hint",
                 "attribs": [ "transparent" ],
-                "match": "texture",
+                "match": "material",
                 "pattern": "hint*"
             },
             {
@@ -500,14 +500,14 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
 {
   const std::string config(R"%(
 {
-    "version": 8,
+    "version": 9,
     "name": "Extras",
     "fileformats": [ { "format": "Quake3" } ],
     "filesystem": {
         "searchpath": "baseq3",
         "packageformat": { "extension": "pk3", "format": "zip" }
     },
-    "textures": {
+    "materials": {
         "root": "textures",
         "extensions": [ "" ],
         "shaderSearchPath": "scripts", // this will likely change when we get a material system
@@ -529,7 +529,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
                 "attribs": [ "transparent" ],
                 "match": "classname",
                 "pattern": "trigger*",
-                "texture": "trigger"
+                "material": "trigger"
             }
         ],
         "brushface": [
@@ -542,13 +542,13 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
             {
                 "name": "Skip",
                 "attribs": [ "transparent" ],
-                "match": "texture",
+                "match": "material",
                 "pattern": "skip"
             },
             {
                 "name": "Hint",
                 "attribs": [ "transparent" ],
-                "match": "texture",
+                "match": "material",
                 "pattern": "hint*"
             },
             {
@@ -565,7 +565,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
     },
     "faceattribs": {
         "defaults": {
-            "textureName": "defaultMaterial",
+            "materialName": "defaultMaterial",
             "offset": [0, 0],
             "scale": [0.5, 0.5],
             "rotation": 0,
@@ -836,7 +836,7 @@ TEST_CASE("GameConfigParserTest.parseDuplicateTags")
 {
   const std::string config(R"(
 {
-    "version": 8,
+    "version": 9,
     "name": "Quake",
     "icon": "Icon.png",
     "fileformats": [
@@ -846,7 +846,7 @@ TEST_CASE("GameConfigParserTest.parseDuplicateTags")
         "searchpath": "id1",
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
-    "textures": {
+    "materials": {
         "root": "textures",
         "extensions": ["D"],
         "palette": "gfx/palette.lmp",
@@ -870,7 +870,7 @@ TEST_CASE("GameConfigParserTest.parseDuplicateTags")
             {
                 "name": "Trigger",
                 "attribs": [ "transparent" ],
-                "match": "texture",
+                "match": "material",
                 "pattern": "clip"
             }
         ]
@@ -886,7 +886,7 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
 {
   const std::string config(R"(
 {
-    "version": 8,
+    "version": 9,
     "name": "Quake",
     "icon": "Icon.png",
     "fileformats": [
@@ -896,7 +896,7 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
         "searchpath": "id1",
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
-    "textures": {
+    "materials": {
         "root": "textures",
         "extensions": ["D"],
         "palette": "gfx/palette.lmp",

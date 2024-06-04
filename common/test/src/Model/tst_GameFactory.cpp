@@ -40,7 +40,7 @@ void setupTestEnvironment(IO::TestEnvironment& env)
   env.createDirectory(gamesPath);
   env.createDirectory(gamesPath / "Quake");
   env.createFile(gamesPath / "Quake/GameConfig.cfg", R"({
-    "version": 8,
+    "version": 9,
     "name": "Quake",
     "icon": "Icon.png",
     "fileformats": [
@@ -50,7 +50,7 @@ void setupTestEnvironment(IO::TestEnvironment& env)
         "searchpath": "id1",
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
-    "textures": {
+    "materials": {
         "root": "textures",
         "extensions": [".D"],
         "palette": "gfx/palette.lmp",
@@ -105,7 +105,7 @@ void setupTestEnvironment(IO::TestEnvironment& env)
   env.createDirectory(gamesPath);
   env.createDirectory(gamesPath / "Quake 3");
   env.createFile(gamesPath / "Quake 3/GameConfig.cfg", R"({
-    "version": 8,
+    "version": 9,
     "name": "Quake 3",
     "icon": "Icon.png",
     "fileformats": [
@@ -116,7 +116,7 @@ void setupTestEnvironment(IO::TestEnvironment& env)
         "searchpath": "baseq3",
         "packageformat": { "extension": "pk3", "format": "zip" }
     },
-    "textures": {
+    "materials": {
         "root": "textures",
         "extensions": [ "" ],
         "shaderSearchPath": "scripts"
@@ -147,7 +147,7 @@ void setupTestEnvironment(IO::TestEnvironment& env)
 
   env.createDirectory(gamesPath / "Daikatana");
   env.createFile(gamesPath / "Daikatana/GameConfig.cfg", R"({
-    "version": 8,
+    "version": 9,
     "name": "Daikatana",
     "icon": "Icon.png",
     "fileformats": [
@@ -157,7 +157,7 @@ void setupTestEnvironment(IO::TestEnvironment& env)
         "searchpath": "id1",
         "packageformat": { "extension": "pak", "format": "idpak" }
     },
-    "textures": {
+    "materials": {
         "root": "textures",
         "extensions": [".D"],
         "palette": "gfx/palette.lmp",
