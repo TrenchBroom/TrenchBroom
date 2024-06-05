@@ -101,12 +101,27 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
         std::move(name), "Could not load texture: missing palette"};
     }
     auto reader = file.reader().buffer();
-    return readIdMipTexture(std::move(name), reader, *palette);
+    const auto mask = getTextureMaskFromName(name);
+    return readIdMipTexture(reader, *palette, mask)
+      .transform([&](auto texture) {
+        return Assets::Material{std::move(name), std::move(texture)};
+      })
+      .or_else([&](auto e) {
+        return Result<Assets::Material, ReadMaterialError>{
+          ReadMaterialError{std::move(name), std::move(e.msg)}};
+      });
   }
   else if (extension == ".c")
   {
     auto reader = file.reader().buffer();
-    return readHlMipTexture(std::move(name), reader);
+    const auto mask = getTextureMaskFromName(name);
+    return readHlMipTexture(reader, mask) | kdl::transform([&](auto texture) {
+             return Assets::Material{std::move(name), std::move(texture)};
+           })
+           | kdl::or_else([&](auto e) {
+               return Result<Assets::Material, ReadMaterialError>{
+                 ReadMaterialError{std::move(name), std::move(e.msg)}};
+             });
   }
   else if (extension == ".wal")
   {

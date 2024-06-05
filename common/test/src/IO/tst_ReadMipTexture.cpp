@@ -84,11 +84,11 @@ TEST_CASE("readIdMipTexture")
 
   const auto file = wadFS.openFile(textureName + ".D").value();
   auto reader = file->reader().buffer();
-  const auto texture = readIdMipTexture(textureName, reader, palette).value();
+  const auto texture =
+    readIdMipTexture(reader, palette, Assets::TextureMask::Off).value();
 
-  CHECK(texture.name() == textureName);
-  CHECK(texture.texture().width() == width);
-  CHECK(texture.texture().height() == height);
+  CHECK(texture.width() == width);
+  CHECK(texture.height() == height);
 }
 
 TEST_CASE("readHlMipTexture")
@@ -112,13 +112,12 @@ TEST_CASE("readHlMipTexture")
 
   const auto file = wadFS.openFile(textureName + ".C").value();
   auto reader = file->reader().buffer();
-  const auto texture = readHlMipTexture(textureName, reader).value();
+  const auto texture = readHlMipTexture(reader, Assets::TextureMask::Off).value();
 
   CHECK(logger.countMessages(LogLevel::Error) == 0);
   CHECK(logger.countMessages(LogLevel::Warn) == 0);
-  CHECK(texture.name() == textureName);
-  CHECK(texture.texture().width() == width);
-  CHECK(texture.texture().height() == height);
+  CHECK(texture.width() == width);
+  CHECK(texture.height() == height);
 }
 
 } // namespace TrenchBroom::IO

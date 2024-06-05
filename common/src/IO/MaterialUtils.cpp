@@ -25,6 +25,7 @@
 
 #include "kdl/path_utils.h"
 #include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
 
 namespace TrenchBroom::IO
 {
@@ -50,5 +51,11 @@ size_t mipSize(const size_t width, const size_t height, const size_t mipLevel)
 }
 
 kdl_reflect_impl(ReadMaterialError);
+
+Assets::TextureMask getTextureMaskFromName(std::string_view name)
+{
+  return kdl::cs::str_is_prefix(name, "{") ? Assets::TextureMask::On
+                                           : Assets::TextureMask::Off;
+}
 
 } // namespace TrenchBroom::IO

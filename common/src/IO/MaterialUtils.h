@@ -33,6 +33,7 @@
 #include <functional>
 #include <iosfwd>
 #include <string>
+#include <string_view>
 
 namespace TrenchBroom
 {
@@ -42,7 +43,8 @@ class Logger;
 namespace TrenchBroom::Assets
 {
 class Material;
-}
+enum class TextureMask;
+} // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::IO
 {
@@ -84,5 +86,7 @@ inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
       return Result<Assets::Material>{loadDefaultMaterial(fs, e.materialName, logger)};
     });
 }
+
+Assets::TextureMask getTextureMaskFromName(std::string_view name);
 
 } // namespace TrenchBroom::IO
