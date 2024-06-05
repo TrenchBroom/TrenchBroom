@@ -33,39 +33,41 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
+namespace
 {
-static Assets::Material loadTexture(const std::string& name)
+
+Assets::Texture loadTexture(const std::string& name)
 {
   const auto ddsPath = std::filesystem::current_path() / "fixture/test/IO/Dds/";
   auto diskFS = DiskFileSystem{ddsPath};
 
   const auto file = diskFS.openFile(name).value();
   auto reader = file->reader().buffer();
-  return readDdsTexture(name, reader).value();
+  return readDdsTexture(reader).value();
 }
 
-static void assertMaterial(
+void assertTexture(
   const std::string& name, const size_t width, const size_t height, const GLenum format)
 {
   const auto texture = loadTexture(name);
 
-  CHECK(texture.name() == name);
-  CHECK(texture.texture().width() == width);
-  CHECK(texture.texture().height() == height);
-  CHECK(texture.texture().format() == format);
-  CHECK(texture.texture().mask() == Assets::TextureMask::Off);
+  CHECK(texture.width() == width);
+  CHECK(texture.height() == height);
+  CHECK(texture.format() == format);
+  CHECK(texture.mask() == Assets::TextureMask::Off);
 }
+
+} // namespace
 
 TEST_CASE("ReadDdsTextureTest.testLoadDds")
 {
-  assertMaterial("dds_rgb.dds", 128, 128, GL_BGR);
-  assertMaterial("dds_rgba.dds", 128, 128, GL_BGRA);
-  assertMaterial("dds_bc1.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
-  assertMaterial("dds_bc2.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
-  assertMaterial("dds_bc3.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
+  assertTexture("dds_rgb.dds", 128, 128, GL_BGR);
+  assertTexture("dds_rgba.dds", 128, 128, GL_BGRA);
+  assertTexture("dds_bc1.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT1_EXT);
+  assertTexture("dds_bc2.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
+  assertTexture("dds_bc3.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO
