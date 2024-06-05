@@ -137,6 +137,7 @@ public:
 
   size_t width() const;
   size_t height() const;
+  vm::vec2f sizef() const;
   const Color& averageColor() const;
 
   GLenum format() const;

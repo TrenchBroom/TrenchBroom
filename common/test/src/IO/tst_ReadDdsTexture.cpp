@@ -53,10 +53,10 @@ static void assertMaterial(
   const auto texture = loadTexture(name);
 
   CHECK(texture.name() == name);
-  CHECK(texture.width() == width);
-  CHECK(texture.height() == height);
-  CHECK(texture.format() == format);
-  CHECK(texture.type() == Assets::TextureType::Opaque);
+  CHECK(texture.texture().width() == width);
+  CHECK(texture.texture().height() == height);
+  CHECK(texture.texture().format() == format);
+  CHECK(texture.texture().mask() == Assets::TextureMask::Off);
 }
 
 TEST_CASE("ReadDdsTextureTest.testLoadDds")

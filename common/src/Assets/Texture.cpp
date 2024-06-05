@@ -238,6 +238,11 @@ size_t Texture::height() const
   return m_height;
 }
 
+vm::vec2f Texture::sizef() const
+{
+  return vm::vec2f(float(m_width), float(m_height));
+}
+
 const Color& Texture::averageColor() const
 {
   return m_averageColor;

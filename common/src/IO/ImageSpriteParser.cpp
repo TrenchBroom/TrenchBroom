@@ -77,8 +77,9 @@ void ImageSpriteParser::loadFrame(
 
   if (const auto* material = surface.skin(0))
   {
-    const auto w = static_cast<float>(material->width());
-    const auto h = static_cast<float>(material->height());
+    const auto textureSize = material->texture().sizef();
+    const auto w = textureSize.x();
+    const auto h = textureSize.y();
     const auto x1 = -w / 2.0f;
     const auto y1 = -h / 2.0f;
     const auto x2 = x1 + w;

@@ -87,8 +87,8 @@ TEST_CASE("readIdMipTexture")
   const auto texture = readIdMipTexture(textureName, reader, palette).value();
 
   CHECK(texture.name() == textureName);
-  CHECK(texture.width() == width);
-  CHECK(texture.height() == height);
+  CHECK(texture.texture().width() == width);
+  CHECK(texture.texture().height() == height);
 }
 
 TEST_CASE("readHlMipTexture")
@@ -117,8 +117,8 @@ TEST_CASE("readHlMipTexture")
   CHECK(logger.countMessages(LogLevel::Error) == 0);
   CHECK(logger.countMessages(LogLevel::Warn) == 0);
   CHECK(texture.name() == textureName);
-  CHECK(texture.width() == width);
-  CHECK(texture.height() == height);
+  CHECK(texture.texture().width() == width);
+  CHECK(texture.texture().height() == height);
 }
 
 } // namespace TrenchBroom::IO

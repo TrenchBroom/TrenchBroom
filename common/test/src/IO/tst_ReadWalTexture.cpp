@@ -44,20 +44,21 @@ TEST_CASE("readWalTexture")
   auto paletteFile = fs.openFile("fixture/test/colormap.pcx").value();
   const auto palette = Assets::loadPalette(*paletteFile, palettePath).value();
 
-  using TexInfo = std::tuple<std::filesystem::path, size_t, size_t, Assets::GameData>;
+  using TexInfo =
+    std::tuple<std::filesystem::path, size_t, size_t, Assets::EmbeddedDefaults>;
 
   // clang-format off
   const auto 
-  [path,                        width, height, gameData] = GENERATE(values<TexInfo>({
-  { "rtz/b_pv_v1a1.wal",  128,   256,    Assets::Q2Data{0, 0, 0} },
-  { "rtz/b_pv_v1a2.wal",  128,   256,    Assets::Q2Data{0, 0, 0} },
-  { "rtz/b_pv_v1a3.wal",  128,   128,    Assets::Q2Data{0, 0, 0} },
-  { "rtz/b_rc_v16.wal",   128,   128,    Assets::Q2Data{0, 0, 0} },
-  { "rtz/b_rc_v16w.wal",  128,   128,    Assets::Q2Data{0, 0, 0} },
-  { "rtz/b_rc_v28.wal",   128,    64,    Assets::Q2Data{0, 0, 0} },
-  { "rtz/b_rc_v4.wal",    128,   128,    Assets::Q2Data{0, 0, 0} },
-  { "lavatest.wal",       64,     64,    Assets::Q2Data{9, 8, 700} },
-  { "watertest.wal",      64,     64,    Assets::Q2Data{9, 32, 120} },
+  [path,                  width, height, embeddedDefaults] = GENERATE(values<TexInfo>({
+  { "rtz/b_pv_v1a1.wal",  128,   256,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_pv_v1a2.wal",  128,   256,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_pv_v1a3.wal",  128,   128,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v16.wal",   128,   128,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v16w.wal",  128,   128,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v28.wal",   128,    64,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v4.wal",    128,   128,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "lavatest.wal",       64,     64,    Assets::Q2EmbeddedDefaults{9, 8, 700} },
+  { "watertest.wal",      64,     64,    Assets::Q2EmbeddedDefaults{9, 32, 120} },
   }));
   // clang-format on
 
@@ -71,9 +72,9 @@ TEST_CASE("readWalTexture")
   const auto name = path.stem().generic_string();
   const auto texture = readWalTexture(name, reader, palette).value();
   CHECK(texture.name() == name);
-  CHECK(texture.width() == width);
-  CHECK(texture.height() == height);
-  CHECK(texture.gameData() == gameData);
+  CHECK(texture.texture().width() == width);
+  CHECK(texture.texture().height() == height);
+  CHECK(texture.texture().embeddedDefaults() == embeddedDefaults);
 }
 } // namespace IO
 } // namespace TrenchBroom

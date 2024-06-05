@@ -69,8 +69,8 @@ TEST_CASE("makeReadMaterialErrorHandler")
   const auto defaultMagerial =
     std::move(result).or_else(makeReadMaterialErrorHandler(diskFS, logger)).value();
   CHECK(defaultMagerial.name() == "corruptPngTest");
-  CHECK(defaultMagerial.width() == 32);
-  CHECK(defaultMagerial.height() == 32);
+  CHECK(defaultMagerial.texture().width() == 32);
+  CHECK(defaultMagerial.texture().height() == 32);
 }
 } // namespace IO
 } // namespace TrenchBroom

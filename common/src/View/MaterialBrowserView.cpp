@@ -190,14 +190,13 @@ void MaterialBrowserView::addMaterialToLayout(
   const auto titleHeight = fontManager().font(font).measure(materialName).y();
 
   const auto scaleFactor = pref(Preferences::MaterialBrowserIconSize);
-  const auto scaledMaterialWidth = vm::round(scaleFactor * float(material->width()));
-  const auto scaledMaterialHeight = vm::round(scaleFactor * float(material->height()));
+  const auto scaledTextureSize = vm::round(scaleFactor * material->texture().sizef());
 
   layout.addItem(
     material,
     materialName,
-    scaledMaterialWidth,
-    scaledMaterialHeight,
+    scaledTextureSize.x(),
+    scaledTextureSize.y(),
     maxCellWidth,
     titleHeight + 4.0f);
 }
@@ -425,10 +424,12 @@ void MaterialBrowserView::doLeftClick(Layout& layout, const float x, const float
 
 QString MaterialBrowserView::tooltip(const Cell& cell)
 {
+  const auto& material = cellData(cell);
+  const auto& texture = material.texture();
   auto tooltip = QString{};
   auto ss = QTextStream{&tooltip};
-  ss << QString::fromStdString(cellData(cell).name()) << "\n";
-  ss << cellData(cell).width() << "x" << cellData(cell).height();
+  ss << QString::fromStdString(material.name()) << "\n";
+  ss << texture.width() << "x" << texture.height();
   return tooltip;
 }
 

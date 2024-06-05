@@ -123,11 +123,10 @@ private:
     auto shader = Renderer::ActiveShader{
       renderContext.shaderManager(), Renderer::Shaders::UVViewShader};
     shader.set("ApplyMaterial", true);
-    shader.set("Color", material->averageColor());
+    shader.set("Color", material->texture().averageColor());
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
-    shader.set(
-      "GridSizes", vm::vec2f{float(material->width()), float(material->height())});
+    shader.set("GridSizes", material->texture().sizef());
     shader.set("GridColor", vm::vec4f{Renderer::gridColorForMaterial(material), 0.6f});
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);

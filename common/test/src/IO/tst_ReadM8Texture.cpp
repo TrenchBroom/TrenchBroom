@@ -46,8 +46,8 @@ TEST_CASE("ReadM8TextureTest.testBasicLoading")
   auto texture = readM8Texture("test", reader).value();
 
   CHECK("test" == texture.name());
-  CHECK(64 == texture.width());
-  CHECK(64 == texture.height());
+  CHECK(64 == texture.texture().width());
+  CHECK(64 == texture.texture().height());
 
   for (size_t y = 0; y < 64; ++y)
   {

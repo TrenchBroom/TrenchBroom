@@ -52,10 +52,11 @@ void assertMaterial(const std::string& name, const size_t width, const size_t he
   loadTexture(name)
     .transform([&](const auto& texture) {
       CHECK(texture.name() == name);
-      CHECK(texture.width() == width);
-      CHECK(texture.height() == height);
-      CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-      CHECK(texture.type() == Assets::TextureType::Opaque);
+      CHECK(texture.texture().width() == width);
+      CHECK(texture.texture().height() == height);
+      CHECK(
+        (texture.texture().format() == GL_BGRA || texture.texture().format() == GL_RGBA));
+      CHECK(texture.texture().mask() == Assets::TextureMask::Off);
     })
     .transform_error([](const auto&) { FAIL(); });
 }
@@ -66,11 +67,11 @@ void testImageContents(const Assets::Material& texture, const ColorMatch match)
   const std::size_t w = 64u;
   const std::size_t h = 64u;
 
-  CHECK(texture.width() == w);
-  CHECK(texture.height() == h);
-  CHECK(texture.buffersIfUnprepared().size() == 1u);
-  CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-  CHECK(texture.type() == Assets::TextureType::Opaque);
+  CHECK(texture.texture().width() == w);
+  CHECK(texture.texture().height() == h);
+  CHECK(texture.texture().buffersIfLoaded().size() == 1u);
+  CHECK((texture.texture().format() == GL_BGRA || texture.texture().format() == GL_RGBA));
+  CHECK(texture.texture().mask() == Assets::TextureMask::Off);
 
   for (std::size_t y = 0; y < h; ++y)
   {
@@ -122,13 +123,14 @@ TEST_CASE("readFreeImageTexture")
     const std::size_t w = 25u;
     const std::size_t h = 10u;
 
-    CHECK(texture.width() == w);
-    CHECK(texture.height() == h);
-    CHECK(texture.buffersIfUnprepared().size() == 1u);
-    CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-    CHECK(texture.type() == Assets::TextureType::Masked);
+    CHECK(texture.texture().width() == w);
+    CHECK(texture.texture().height() == h);
+    CHECK(texture.texture().buffersIfLoaded().size() == 1u);
+    CHECK(
+      (texture.texture().format() == GL_BGRA || texture.texture().format() == GL_RGBA));
+    CHECK(texture.texture().mask() == Assets::TextureMask::On);
 
-    auto& mip0Data = texture.buffersIfUnprepared().at(0);
+    auto& mip0Data = texture.texture().buffersIfLoaded().at(0);
     CHECK(mip0Data.size() == w * h * 4);
 
     for (std::size_t y = 0; y < h; ++y)

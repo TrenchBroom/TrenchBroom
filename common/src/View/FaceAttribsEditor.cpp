@@ -760,8 +760,9 @@ void FaceAttribsEditor::updateControls()
         if (const auto* material = firstFace.material())
         {
           m_materialName->setText(QString::fromStdString(materialName));
-          m_textureSize->setText(
-            QStringLiteral("%1 * %2").arg(material->width()).arg(material->height()));
+          m_textureSize->setText(QStringLiteral("%1 * %2")
+                                   .arg(material->texture().width())
+                                   .arg(material->texture().height()));
           m_materialName->setEnabled(true);
           m_textureSize->setEnabled(true);
         }

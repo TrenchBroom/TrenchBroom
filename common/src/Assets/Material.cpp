@@ -19,7 +19,6 @@
 
 #include "Material.h"
 
-#include "Assets/MaterialCollection.h"
 #include "Assets/TextureBuffer.h"
 #include "Macros.h"
 #include "Renderer/GL.h"
@@ -257,29 +256,14 @@ void Material::setRelativePath(std::filesystem::path relativePath)
   m_relativePath = std::move(relativePath);
 }
 
-size_t Material::width() const
+const Texture& Material::texture() const
 {
-  return m_texture.width();
+  return m_texture;
 }
 
-size_t Material::height() const
+Texture& Material::texture()
 {
-  return m_texture.height();
-}
-
-const Color& Material::averageColor() const
-{
-  return m_texture.averageColor();
-}
-
-bool Material::masked() const
-{
-  return m_texture.mask() == TextureMask::On;
-}
-
-void Material::setOpaque()
-{
-  m_texture.setMask(TextureMask::Off);
+  return m_texture;
 }
 
 const std::set<std::string>& Material::surfaceParms() const
@@ -314,17 +298,6 @@ void Material::disableBlend()
   m_blendFunc.enable = MaterialBlendFunc::Enable::DisableBlend;
 }
 
-GameData Material::gameData() const
-{
-  return std::visit(
-    kdl::overload(
-      [](const NoEmbeddedDefaults&) -> GameData { return std::monostate{}; },
-      [](const Q2EmbeddedDefaults& x) -> GameData {
-        return Q2Data{x.flags, x.contents, x.value};
-      }),
-    m_texture.embeddedDefaults());
-}
-
 size_t Material::usageCount() const
 {
   return static_cast<size_t>(m_usageCount);
@@ -340,22 +313,6 @@ void Material::decUsageCount()
   const size_t previous = m_usageCount--;
   assert(previous > 0);
   unused(previous);
-}
-
-bool Material::isPrepared() const
-{
-  return m_texture.isReady();
-}
-
-void Material::prepare(const GLuint, const int minFilter, const int magFilter)
-{
-  m_texture.upload();
-  m_texture.setFilterMode(minFilter, magFilter);
-}
-
-void Material::setFilterMode(const int minFilter, const int magFilter)
-{
-  m_texture.setFilterMode(minFilter, magFilter);
 }
 
 void Material::activate() const
@@ -421,21 +378,6 @@ void Material::deactivate() const
 
     glAssert(glBindTexture(GL_TEXTURE_2D, 0));
   }
-}
-
-const Material::BufferList& Material::buffersIfUnprepared() const
-{
-  return m_texture.buffersIfLoaded();
-}
-
-GLenum Material::format() const
-{
-  return m_texture.format();
-}
-
-TextureType Material::type() const
-{
-  return m_texture.mask() == TextureMask::On ? TextureType::Masked : TextureType::Opaque;
 }
 
 } // namespace TrenchBroom::Assets

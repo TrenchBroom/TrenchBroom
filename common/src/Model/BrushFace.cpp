@@ -446,13 +446,13 @@ SurfaceData getDefaultSurfaceData(const Assets::Material* material)
 {
   if (material)
   {
-    const auto gameData = material->gameData();
-    if (const auto* q2Data = std::get_if<Assets::Q2Data>(&gameData))
+    const auto& defaults = material->texture().embeddedDefaults();
+    if (const auto* q2Defaults = std::get_if<Assets::Q2EmbeddedDefaults>(&defaults))
     {
       return {
-        q2Data->contents,
-        q2Data->flags,
-        static_cast<float>(q2Data->value),
+        q2Defaults->contents,
+        q2Defaults->flags,
+        static_cast<float>(q2Defaults->value),
       };
     }
   }
@@ -511,24 +511,17 @@ const Assets::Material* BrushFace::material() const
 
 vm::vec2f BrushFace::textureSize() const
 {
-  if (material() == nullptr)
+  if (!material())
   {
-    return vm::vec2f::one();
+    return vm::vec2f{1, 1};
   }
-  const float w =
-    material()->width() == 0 ? 1.0f : static_cast<float>(material()->width());
-  const float h =
-    material()->height() == 0 ? 1.0f : static_cast<float>(material()->height());
-  return vm::vec2f(w, h);
+
+  return vm::max(material()->texture().sizef(), vm::vec2f{1, 1});
 }
 
 vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const
 {
-  const auto textureSize = material() ? vm::vec2f(
-                             std::max(1.0f, float(material()->width())),
-                             std::max(1.0f, float(material()->height())))
-                                      : vm::vec2f::one();
-  return m_attributes.modOffset(offset, textureSize);
+  return m_attributes.modOffset(offset, textureSize());
 }
 
 bool BrushFace::setMaterial(Assets::Material* material)

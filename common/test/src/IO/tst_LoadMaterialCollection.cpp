@@ -74,8 +74,8 @@ std::optional<MaterialCollectionInfo> makeInfo(
           kdl::vec_transform(materialCollection.materials(), [](const auto& material) {
             return MaterialInfo{
               material.name(),
-              material.width(),
-              material.height(),
+              material.texture().width(),
+              material.texture().height(),
             };
           })};
       })

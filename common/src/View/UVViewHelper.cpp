@@ -92,12 +92,10 @@ vm::vec2 UVViewHelper::stripeSize() const
 
   if (const auto* material = face()->material())
   {
-    const auto width = FloatType(material->width()) / FloatType(m_subDivisions.x());
-    const auto height = FloatType(material->height()) / FloatType(m_subDivisions.y());
-    return vm::vec2{width, height};
+    return vm::vec2{material->texture().sizef()} / vm::vec2{m_subDivisions};
   }
 
-  return vm::vec2::zero();
+  return vm::vec2{0, 0};
 }
 
 void UVViewHelper::setSubDivisions(const vm::vec2i& subDivisions)

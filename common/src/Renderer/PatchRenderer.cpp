@@ -337,7 +337,7 @@ struct RenderFunc : public MaterialRenderFunc
     {
       material->activate();
       shader.set("ApplyMaterial", applyMaterial);
-      shader.set("Color", material->averageColor());
+      shader.set("Color", material->texture().averageColor());
     }
     else
     {

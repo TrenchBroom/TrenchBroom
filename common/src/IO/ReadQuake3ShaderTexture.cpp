@@ -151,22 +151,22 @@ Result<Assets::Material, ReadMaterialError> readQuake3ShaderTexture(
   }
 
   return loadTextureImage(std::move(shaderName), *imagePath, fs)
-    .transform([&](auto texture) {
-      texture.setSurfaceParms(shader.surfaceParms);
-      texture.setOpaque();
+    .transform([&](auto material) {
+      material.setSurfaceParms(shader.surfaceParms);
+      material.texture().setMask(Assets::TextureMask::Off);
 
       // Note that Quake 3 has a different understanding of front and back, so we need to
       // invert them.
       switch (shader.culling)
       {
       case Assets::Quake3Shader::Culling::Front:
-        texture.setCulling(Assets::MaterialCulling::Back);
+        material.setCulling(Assets::MaterialCulling::Back);
         break;
       case Assets::Quake3Shader::Culling::Back:
-        texture.setCulling(Assets::MaterialCulling::Front);
+        material.setCulling(Assets::MaterialCulling::Front);
         break;
       case Assets::Quake3Shader::Culling::None:
-        texture.setCulling(Assets::MaterialCulling::None);
+        material.setCulling(Assets::MaterialCulling::None);
         break;
       }
 
@@ -175,16 +175,16 @@ Result<Assets::Material, ReadMaterialError> readQuake3ShaderTexture(
         const auto& stage = shader.stages.front();
         if (stage.blendFunc.enable())
         {
-          texture.setBlendFunc(
+          material.setBlendFunc(
             glGetEnum(stage.blendFunc.srcFactor), glGetEnum(stage.blendFunc.destFactor));
         }
         else
         {
-          texture.disableBlend();
+          material.disableBlend();
         }
       }
 
-      return texture;
+      return material;
     });
 }
 

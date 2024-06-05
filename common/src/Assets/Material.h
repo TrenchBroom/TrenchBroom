@@ -190,12 +190,8 @@ public:
   const std::filesystem::path& relativePath() const;
   void setRelativePath(std::filesystem::path relativePath);
 
-  size_t width() const;
-  size_t height() const;
-  const Color& averageColor() const;
-
-  bool masked() const;
-  void setOpaque();
+  const Texture& texture() const;
+  Texture& texture();
 
   const std::set<std::string>& surfaceParms() const;
   void setSurfaceParms(std::set<std::string> surfaceParms);
@@ -206,30 +202,12 @@ public:
   void setBlendFunc(GLenum srcFactor, GLenum destFactor);
   void disableBlend();
 
-  GameData gameData() const;
-
   size_t usageCount() const;
   void incUsageCount();
   void decUsageCount();
 
-  bool isPrepared() const;
-  void prepare(GLuint textureId, int minFilter, int magFilter);
-  void setFilterMode(int minFilter, int magFilter);
-
   void activate() const;
   void deactivate() const;
-
-public: // exposed for tests only
-  /**
-   * Returns the texture data in the format returned by format().
-   * Once prepare() is called, this will be an empty vector.
-   */
-  const BufferList& buffersIfUnprepared() const;
-  /**
-   * Will be one of GL_RGB, GL_BGR, GL_RGBA, GL_BGRA.
-   */
-  GLenum format() const;
-  TextureType type() const;
 };
 
 } // namespace TrenchBroom::Assets
