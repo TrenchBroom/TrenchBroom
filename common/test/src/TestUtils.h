@@ -42,7 +42,8 @@ namespace TrenchBroom
 namespace Assets
 {
 class Material;
-}
+class Texture;
+} // namespace Assets
 
 bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
 bool pointExactlyIntegral(const vm::vec3d& point);
@@ -180,6 +181,18 @@ enum class ColorMatch
   Exact,
   Approximate
 };
+
+int getComponentOfPixel(
+  const Assets::Texture& texture, std::size_t x, std::size_t y, Component component);
+void checkColor(
+  const Assets::Texture& texture,
+  std::size_t x,
+  std::size_t y,
+  int r,
+  int g,
+  int b,
+  int a,
+  ColorMatch match = ColorMatch::Exact);
 
 int getComponentOfPixel(
   const Assets::Material& material, std::size_t x, std::size_t y, Component component);

@@ -423,12 +423,12 @@ DocumentGameConfig newMapDocument(
 } // namespace View
 
 int getComponentOfPixel(
-  const Assets::Material& material,
+  const Assets::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const Component component)
 {
-  const auto format = material.texture().format();
+  const auto format = texture.format();
 
   ensure(GL_BGRA == format || GL_RGBA == format, "expected GL_BGRA or GL_RGBA");
 
@@ -470,8 +470,7 @@ int getComponentOfPixel(
     }
   }
 
-  const auto& mip0DataBuffer = material.texture().buffersIfLoaded().at(0);
-  const auto& texture = material.texture();
+  const auto& mip0DataBuffer = texture.buffersIfLoaded().at(0);
   assert(texture.width() * texture.height() * 4 == mip0DataBuffer.size());
   assert(x < texture.width());
   assert(y < texture.height());
@@ -482,7 +481,7 @@ int getComponentOfPixel(
 }
 
 void checkColor(
-  const Assets::Material& material,
+  const Assets::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const int r,
@@ -492,10 +491,10 @@ void checkColor(
   const ColorMatch match)
 {
 
-  const auto actualR = getComponentOfPixel(material, x, y, Component::R);
-  const auto actualG = getComponentOfPixel(material, x, y, Component::G);
-  const auto actualB = getComponentOfPixel(material, x, y, Component::B);
-  const auto actualA = getComponentOfPixel(material, x, y, Component::A);
+  const auto actualR = getComponentOfPixel(texture, x, y, Component::R);
+  const auto actualG = getComponentOfPixel(texture, x, y, Component::G);
+  const auto actualB = getComponentOfPixel(texture, x, y, Component::B);
+  const auto actualA = getComponentOfPixel(texture, x, y, Component::A);
 
   if (match == ColorMatch::Approximate)
   {
@@ -512,5 +511,24 @@ void checkColor(
     CHECK(b == actualB);
     CHECK(a == actualA);
   }
+}
+
+int getComponentOfPixel(
+  const Assets::Material& material, std::size_t x, std::size_t y, Component component)
+{
+  return getComponentOfPixel(material.texture(), x, y, component);
+}
+
+void checkColor(
+  const Assets::Material& material,
+  const std::size_t x,
+  const std::size_t y,
+  const int r,
+  const int g,
+  const int b,
+  const int a,
+  const ColorMatch match)
+{
+  return checkColor(material.texture(), x, y, r, g, b, a, match);
 }
 } // namespace TrenchBroom

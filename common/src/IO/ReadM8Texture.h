@@ -19,10 +19,12 @@
 
 #pragma once
 
-#include "IO/MaterialUtils.h"
 #include "Result.h"
 
-#include <string>
+namespace TrenchBroom::Assets
+{
+class Texture;
+}
 
 namespace TrenchBroom::IO
 {
@@ -31,7 +33,6 @@ class Reader;
 /**
  * Heretic 2 .m8 format
  */
-Result<Assets::Material, ReadMaterialError> readM8Texture(
-  std::string name, Reader& reader);
+Result<Assets::Texture> readM8Texture(Reader& reader);
 
 } // namespace TrenchBroom::IO
