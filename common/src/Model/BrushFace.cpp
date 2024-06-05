@@ -432,52 +432,58 @@ bool BrushFace::setAttributes(const BrushFace& other)
   return result;
 }
 
-int BrushFace::resolvedSurfaceContents() const
+namespace
 {
-  if (m_attributes.surfaceContents())
+
+struct SurfaceData
+{
+  int surfaceContents;
+  int surfaceFlags;
+  float surfaceValue;
+};
+
+SurfaceData getDefaultSurfaceData(const Assets::Material* material)
+{
+  if (material)
   {
-    return *m_attributes.surfaceContents();
-  }
-  if (material())
-  {
-    if (const auto* q2data = std::get_if<Assets::Q2Data>(&material()->gameData()))
+    const auto gameData = material->gameData();
+    if (const auto* q2Data = std::get_if<Assets::Q2Data>(&gameData))
     {
-      return q2data->contents;
+      return {
+        q2Data->contents,
+        q2Data->flags,
+        static_cast<float>(q2Data->value),
+      };
     }
   }
-  return 0;
+  return {0, 0, 0.0f};
+}
+
+SurfaceData resolveSurfaceData(
+  const BrushFaceAttributes& attributes, const Assets::Material* material)
+{
+  const auto defaultSurfaceData = getDefaultSurfaceData(material);
+  return {
+    attributes.surfaceContents().value_or(defaultSurfaceData.surfaceContents),
+    attributes.surfaceFlags().value_or(defaultSurfaceData.surfaceFlags),
+    attributes.surfaceValue().value_or(defaultSurfaceData.surfaceValue)};
+}
+
+} // namespace
+
+int BrushFace::resolvedSurfaceContents() const
+{
+  return resolveSurfaceData(m_attributes, material()).surfaceContents;
 }
 
 int BrushFace::resolvedSurfaceFlags() const
 {
-  if (m_attributes.surfaceFlags())
-  {
-    return *m_attributes.surfaceFlags();
-  }
-  if (material())
-  {
-    if (const auto* q2data = std::get_if<Assets::Q2Data>(&material()->gameData()))
-    {
-      return q2data->flags;
-    }
-  }
-  return 0;
+  return resolveSurfaceData(m_attributes, material()).surfaceFlags;
 }
 
 float BrushFace::resolvedSurfaceValue() const
 {
-  if (m_attributes.surfaceValue())
-  {
-    return *m_attributes.surfaceValue();
-  }
-  if (material())
-  {
-    if (const auto* q2data = std::get_if<Assets::Q2Data>(&material()->gameData()))
-    {
-      return static_cast<float>(q2data->value);
-    }
-  }
-  return 0.0f;
+  return resolveSurfaceData(m_attributes, material()).surfaceValue;
 }
 
 Color BrushFace::resolvedColor() const
