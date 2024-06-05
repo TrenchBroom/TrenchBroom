@@ -58,7 +58,7 @@ std::vector<std::string> prependDot(const std::vector<std::string>& extensions)
 
 void checkVersion(const EL::Value& version)
 {
-  const auto validVsns = std::vector<EL::IntegerType>{7, 8};
+  const auto validVsns = std::vector<EL::IntegerType>{9};
   const auto isValidVersion =
     version.convertibleTo(EL::ValueType::Number)
     && std::find(validVsns.begin(), validVsns.end(), version.integerValue())
@@ -235,7 +235,7 @@ void parseFaceTags(
     checkTagName(entry["name"], result);
 
     const auto match = entry["match"].stringValue();
-    if (match == "texture")
+    if (match == "material")
     {
       expectMapEntry(entry, "pattern", EL::ValueType::String);
       result.emplace_back(
@@ -288,7 +288,7 @@ void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& result
       entry,
       R"([
         {'name': 'String', 'match': 'String'},
-        {'attribs': 'Array', 'pattern': 'String', 'texture': 'String' }
+        {'attribs': 'Array', 'pattern': 'String', 'material': 'String' }
       ])");
     checkTagName(entry["name"], result);
 
@@ -299,7 +299,7 @@ void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& result
         entry["name"].stringValue(),
         parseTagAttributes(entry["attribs"]),
         std::make_unique<Model::EntityClassNameTagMatcher>(
-          entry["pattern"].stringValue(), entry["texture"].stringValue()));
+          entry["pattern"].stringValue(), entry["material"].stringValue()));
     }
     else
     {
@@ -345,12 +345,12 @@ Model::BrushFaceAttributes parseFaceAttribsDefaults(
     value,
     R"([
       {},
-      {'textureName': 'String', 'offset': 'Array', 'scale': 'Array', 'rotation': 'Number', 'surfaceContents': 'Array', 'surfaceFlags': 'Array', 'surfaceValue': 'Number', 'color': 'String'}
+      {'materialName': 'String', 'offset': 'Array', 'scale': 'Array', 'rotation': 'Number', 'surfaceContents': 'Array', 'surfaceFlags': 'Array', 'surfaceValue': 'Number', 'color': 'String'}
     ])");
 
-  if (value["textureName"] != EL::Value::Null)
+  if (value["materialName"] != EL::Value::Null)
   {
-    defaults = Model::BrushFaceAttributes{value["textureName"].stringValue()};
+    defaults = Model::BrushFaceAttributes{value["materialName"].stringValue()};
   }
   if (value["offset"] != EL::Value::Null && value["offset"].length() == 2)
   {
@@ -621,13 +621,13 @@ Model::GameConfig GameConfigParser::parse()
   expectStructure(
     root,
     R"([
-      {'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'textures': 'Map', 'entities': 'Map'},
+      {'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'materials': 'Map', 'entities': 'Map'},
       {'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map', 'softMapBounds': 'String'}
     ])");
 
   auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"]);
   auto fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
-  auto materialConfig = parseMaterialConfig(root["textures"]);
+  auto materialConfig = parseMaterialConfig(root["materials"]);
   auto entityConfig = parseEntityConfig(root["entities"]);
   auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
   auto tags = parseTags(root["tags"], faceAttribsConfig);

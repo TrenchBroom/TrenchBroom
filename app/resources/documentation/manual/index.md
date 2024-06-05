@@ -2534,10 +2534,12 @@ The game configuration files are versioned. Whenever a breaking change to the ga
 
 **Current Versions**
 
-TrenchBroom currently supports game config versions 7 through 8.
+TrenchBroom currently supports game config version 9.
 
 **Version History**
 
+* Version 9
+  - Adapt to terminology change: `texture` renamed to `material`
 * Version 8
   - Remove texture format configuration and just keep a list of extensions to search for.
 * Version 7
@@ -2558,20 +2560,11 @@ Version 3 deprecated the `brushtypes` key in favor of the `tags` key, but the co
 
 Match        Description
 -----        -----------
-texture      Match against a material name, must match all brush faces
+material     Match against a material name, must match all brush faces
 contentflag  Match against face content flags (used by Quake 2, Quake 3)
 surfaceflag  Match against face surface flags (used by Quake 2)
 surfaceparm  Match against shader surface parameters (used by Quake 3)
 classname    Match against a brush entity class name
-
-In versions 3 and 4, the `tags` key is a map with two possible keys: `brush` and `brushface`. For both keys, the value is again an array of type matchers. The `brush` key supports the `classname` matcher and the `brushface` key supports the `texture`, `contentflag`, `surfaceflag` and `surfaceparm` matchers. To migrate the `brushtypes` key to the `tags` key, you create the basic structure as follows:
-
-    "tags": {
-        "brush": [ ... ],
-        "brushface": [ ... ]
-    }
-
-Then you need to copy your `classname` matchers into the array value of the `brush` key and all other matchers into the array of the `brushface` key. Finally, you can delete your `brushtypes` key. See the [tags](#game_configuration_files_tags) section for more information.
 
 #### File Formats
 
@@ -2619,7 +2612,7 @@ zip          Zip file, often uses other extensions such as pk3
 
 Every material configuration consists of a root search directory, and optionally a list of included file extensions, a palette path, an attribute for wad file lists and a list of exclusion patterns.
 
-  "textures": {
+  "materials": {
         "root": "textures",
         "extensions": [ ".D" ],
         "palette": "pics/colormap.pcx",
@@ -2629,7 +2622,7 @@ Every material configuration consists of a root search directory, and optionally
 
 The `root` key specifies the folder at which to search for the material packages. This folder is relative to the game file system set up according to the `filesystem` configuration earlier in the file. TrenchBroom will create a material collection for each folder contained in the root folder specified here.
 
-In the case of Quake 2, the builtin game configuration specifies the search path of the file system as `"baseq2"` and the texture package root as `"textures"`, so TrenchBroom will create a material collection for each folder found in `<Game Path>/baseq2/textures`.
+In the case of Quake 2, the builtin game configuration specifies the search path of the file system as `"baseq2"` and the material package root as `"textures"`, so TrenchBroom will create a material collection for each folder found in `<Game Path>/baseq2/textures`.
 
 TrenchBroom supports a wide array of image formats such as tga, pcx, jpeg, and so on. TrenchBroom uses the [FreeImage Library] to load these images and supports any file type supported by this library.
 
@@ -2637,9 +2630,9 @@ Optionally, you can specify a palette. The value of the `palette` key specifies 
 
 The `attribute` key specifies the name of a worldspawn property where TrenchBroom will store the wad files in the map file.
 
-The optional `excludes` key specifies a list of patterns matched against texture names which will be ignored and not displayed in the [material browser](#material_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+The optional `excludes` key specifies a list of patterns matched against material names which will be ignored and not displayed in the [material browser](#material_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 
-  "textures": {
+  "materials": {
         "root": "textures",
         "extensions": [ "" ],
         "excludes": [ "*_norm", "*_gloss" ]
@@ -2691,7 +2684,7 @@ Each of these keys has a list of tags. Each tag looks as follows.
     {
         "name": "Clip",
         "attribs": [ "transparent" ],
-        "match": "texture",
+        "match": "material",
         "pattern": "clip"
     },
 
@@ -2709,7 +2702,7 @@ For a `brushface` smart tag, the `match` key can have the following values and w
 
 Match        Description                            Shortcut to apply  Shortcut to remove
 -----        -----------                            -----------------  ------------------
-texture      Match against a material name          Yes                No
+material     Match against a material name          Yes                No
 contentflag  Match against face content flags       Yes                Yes
 surfaceflag  Match against face surface flags       Yes                Yes
 surfaceparm  Match against shader surface parameter Yes                No
@@ -2717,8 +2710,8 @@ surfaceparm  Match against shader surface parameter Yes                No
 Additional keys will be required to configure the matcher, depending on the value of the `match` key.
 
 * For the `classname` matcher, the key `pattern` contains a pattern that is matched against the classname of the brush entity that contains the brush. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
-    - Additionally, the `classname` matcher can contain an optional `texture` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the material with the name given as the value of this key (e.g. `"texture": "trigger"` will assign the `trigger` material).
-* For the `texture` matcher, the key `pattern` contains a pattern that is matched against a face's material name. If the pattern does *not* contain a slash, it will only be matched against the segment after the final slash (if any) in the material name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
+    - Additionally, the `classname` matcher can contain an optional `material` key. When this tag is applied by the use of its keyboard shortcut, then the selected brushes will receive the material with the name given as the value of this key (e.g. `"material": "trigger"` will assign the `trigger` material).
+* For the `material` matcher, the key `pattern` contains a pattern that is matched against a face's material name. If the pattern does *not* contain a slash, it will only be matched against the segment after the final slash (if any) in the material name. Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 * For the `contentflag` and `surfaceflag` matchers, the key `flags` contains a list of content or surface flag names to match against (see below for more info on content and surface flags).
 * For the `surfaceparm` matcher, the key `pattern` contains a name that is matched against the surface parameters of a face's shader. No wildcards allowed; the parameter name must match exactly. In version 4 of the game config format, you may alternately specify a *list* of surfaceparm names for this value, which will match against a shader if it has any of those surfaceparms.
 
