@@ -70,11 +70,10 @@ TEST_CASE("readWalTexture")
   auto reader = file->reader().buffer();
 
   const auto name = path.stem().generic_string();
-  const auto texture = readWalTexture(name, reader, palette).value();
-  CHECK(texture.name() == name);
-  CHECK(texture.texture().width() == width);
-  CHECK(texture.texture().height() == height);
-  CHECK(texture.texture().embeddedDefaults() == embeddedDefaults);
+  const auto texture = readWalTexture(reader, palette).value();
+  CHECK(texture.width() == width);
+  CHECK(texture.height() == height);
+  CHECK(texture.embeddedDefaults() == embeddedDefaults);
 }
 } // namespace IO
 } // namespace TrenchBroom

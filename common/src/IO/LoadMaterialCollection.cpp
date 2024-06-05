@@ -126,7 +126,13 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   else if (extension == ".wal")
   {
     auto reader = file.reader().buffer();
-    return readWalTexture(std::move(name), reader, palette);
+    return readWalTexture(reader, palette) | kdl::transform([&](auto texture) {
+             return Assets::Material{std::move(name), std::move(texture)};
+           })
+           | kdl::or_else([&](auto e) {
+               return Result<Assets::Material, ReadMaterialError>{
+                 ReadMaterialError{std::move(name), std::move(e.msg)}};
+             });
   }
   else if (extension == ".m8")
   {
