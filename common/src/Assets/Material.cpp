@@ -226,11 +226,6 @@ Material& Material::operator=(Material&& other)
   return *this;
 }
 
-TextureType Material::selectTextureType(const bool masked)
-{
-  return masked ? TextureType::Masked : TextureType::Opaque;
-}
-
 const std::string& Material::name() const
 {
   return m_name;

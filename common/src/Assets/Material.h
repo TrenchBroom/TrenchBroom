@@ -174,8 +174,6 @@ public:
 
   ~Material();
 
-  static TextureType selectTextureType(bool masked);
-
   const std::string& name() const;
 
   /**

@@ -156,15 +156,21 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
                  ReadMaterialError{std::move(name), std::move(e.msg)}};
              });
   }
+  else if (isSupportedFreeImageExtension(extension))
+  {
+    auto reader = file.reader().buffer();
+    return readFreeImageTexture(reader) | kdl::transform([&](auto texture) {
+             return Assets::Material{std::move(name), std::move(texture)};
+           })
+           | kdl::or_else([&](auto e) {
+               return Result<Assets::Material, ReadMaterialError>{
+                 ReadMaterialError{std::move(name), std::move(e.msg)}};
+             });
+  }
   else if (extension.empty())
   {
     auto reader = file.reader().buffer();
     return readQuake3ShaderTexture(std::move(name), file, gameFS);
-  }
-  else if (isSupportedFreeImageExtension(extension))
-  {
-    auto reader = file.reader().buffer();
-    return readFreeImageTexture(std::move(name), reader);
   }
 
   return ReadMaterialError{

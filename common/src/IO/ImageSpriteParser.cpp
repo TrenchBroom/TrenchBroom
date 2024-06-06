@@ -21,8 +21,10 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
+#include "Error.h"
 #include "FloatType.h"
 #include "IO/File.h"
+#include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
@@ -56,9 +58,12 @@ std::unique_ptr<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& 
   auto materials = std::vector<Assets::Material>{};
 
   auto reader = m_file->reader().buffer();
-  materials.push_back(readFreeImageTexture(m_name, reader)
-                        .or_else(makeReadMaterialErrorHandler(m_fs, logger))
-                        .value());
+  materials.push_back(
+    readFreeImageTexture(reader) | kdl::or_else(makeReadTextureErrorHandler(m_fs, logger))
+    | kdl::and_then([&](auto texture) {
+        return Result<Assets::Material>{Assets::Material{m_name, std::move(texture)}};
+      })
+    | kdl::value());
 
   auto model = std::make_unique<Assets::EntityModel>(
     m_name, Assets::PitchType::Normal, Assets::Orientation::ViewPlaneParallel);
