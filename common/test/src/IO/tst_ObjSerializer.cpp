@@ -395,7 +395,7 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   const auto worldBounds = vm::bbox3{8192.0};
 
   // must outlive map
-  auto material = Assets::Material{"some_material", 16, 16};
+  auto material = Assets::Material{"some_material", Assets::Texture{16, 16}};
   material.setRelativePath("textures/some_material.png");
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};

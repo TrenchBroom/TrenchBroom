@@ -478,9 +478,9 @@ Assets::Material parseSkin(
   const auto transparency = (flags & MF_HOLEY)
                               ? Assets::PaletteTransparency::Index255Transparent
                               : Assets::PaletteTransparency::Opaque;
-  const auto type = (transparency == Assets::PaletteTransparency::Index255Transparent)
-                      ? Assets::TextureType::Masked
-                      : Assets::TextureType::Opaque;
+  const auto mask = (transparency == Assets::PaletteTransparency::Index255Transparent)
+                      ? Assets::TextureMask::On
+                      : Assets::TextureMask::Off;
   auto avgColor = Color{};
   auto rgbaImage = Assets::TextureBuffer{size * 4};
 
@@ -489,8 +489,16 @@ Assets::Material parseSkin(
   {
     palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
-    return Assets::Material{
-      std::move(skinName), width, height, avgColor, std::move(rgbaImage), GL_RGBA, type};
+    auto texture = Assets::Texture{
+      width,
+      height,
+      avgColor,
+      GL_RGBA,
+      mask,
+      Assets::NoEmbeddedDefaults{},
+      std::move(rgbaImage)};
+
+    return Assets::Material{std::move(skinName), std::move(texture)};
   }
 
   const auto pictureCount = reader.readSize<int32_t>();
@@ -499,8 +507,15 @@ Assets::Material parseSkin(
   palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
   reader.seekForward((pictureCount - 1) * size); // skip all remaining pictures
 
-  return Assets::Material{
-    std::move(skinName), width, height, avgColor, std::move(rgbaImage), GL_RGBA, type};
+  auto texture = Assets::Texture{
+    width,
+    height,
+    avgColor,
+    GL_RGBA,
+    mask,
+    Assets::NoEmbeddedDefaults{},
+    std::move(rgbaImage)};
+  return Assets::Material{std::move(skinName), std::move(texture)};
 }
 
 void parseSkins(

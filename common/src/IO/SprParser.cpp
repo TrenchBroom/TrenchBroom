@@ -85,18 +85,17 @@ static SprPicture parsePicture(Reader& reader, const Assets::Palette& palette)
     Assets::PaletteTransparency::Index255Transparent,
     averageColor);
 
-  return SprPicture{
-    {"",
-     width,
-     height,
-     averageColor,
-     std::move(rgbaImage),
-     GL_RGBA,
-     Assets::TextureType::Masked},
-    xOffset,
-    yOffset,
+  auto texture = Assets::Texture{
     width,
-    height};
+    height,
+    averageColor,
+    GL_RGBA,
+    Assets::TextureMask::On,
+    Assets::NoEmbeddedDefaults{},
+    std::move(rgbaImage)};
+  auto material = Assets::Material{"", std::move(texture)};
+
+  return SprPicture{std::move(material), xOffset, yOffset, width, height};
 }
 
 static void skipPicture(Reader& reader)

@@ -2170,7 +2170,7 @@ TEST_CASE("moveFaceWithUVLock")
 
   const vm::bbox3 worldBounds(4096.0);
 
-  Assets::Material testMaterial("testMaterial", 64, 64);
+  Assets::Material testMaterial("testMaterial", Assets::Texture{64, 64});
 
   BrushBuilder builder(format, worldBounds);
   Brush brush = builder.createCube(64.0, "") | kdl::value();

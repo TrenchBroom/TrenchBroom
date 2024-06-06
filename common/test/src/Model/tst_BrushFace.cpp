@@ -91,8 +91,8 @@ TEST_CASE("BrushFaceTest.materialUsageCount")
   const vm::vec3 p0(0.0, 0.0, 4.0);
   const vm::vec3 p1(1.0, 0.0, 4.0);
   const vm::vec3 p2(0.0, -1.0, 4.0);
-  Assets::Material material("testMaterial", 64, 64);
-  Assets::Material material2("testMaterial2", 64, 64);
+  Assets::Material material("testMaterial", Assets::Texture{64, 64});
+  Assets::Material material2("testMaterial2", Assets::Texture{64, 64});
 
   CHECK(material.usageCount() == 0u);
   CHECK(material2.usageCount() == 0u);
@@ -564,7 +564,7 @@ static void checkAlignmentLockOffWithScale(const Brush& cube)
 TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
 {
   const vm::bbox3 worldBounds(8192.0);
-  Assets::Material material("testMaterial", 64, 64);
+  Assets::Material material("testMaterial", Assets::Texture{64, 64});
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush cube = builder.createCube(128.0, "") | kdl::value();
@@ -588,7 +588,7 @@ TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
 TEST_CASE("BrushFaceTest.testAlignmentLock_Paraxial")
 {
   const vm::bbox3 worldBounds(8192.0);
-  Assets::Material material("testMaterial", 64, 64);
+  Assets::Material material("testMaterial", Assets::Texture{64, 64});
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush cube = builder.createCube(128.0, "") | kdl::value();
@@ -608,7 +608,7 @@ TEST_CASE("BrushFaceTest.testAlignmentLock_Paraxial")
 TEST_CASE("BrushFaceTest.testAlignmentLock_Parallel")
 {
   const vm::bbox3 worldBounds(8192.0);
-  Assets::Material material("testMaterial", 64, 64);
+  Assets::Material material("testMaterial", Assets::Texture{64, 64});
 
   BrushBuilder builder(MapFormat::Valve, worldBounds);
   Brush cube = builder.createCube(128.0, "") | kdl::value();
@@ -817,7 +817,7 @@ TEST_CASE("BrushFaceTest.formatConversion")
   BrushBuilder standardBuilder(MapFormat::Standard, worldBounds);
   BrushBuilder valveBuilder(MapFormat::Valve, worldBounds);
 
-  Assets::Material material("testMaterial", 64, 64);
+  Assets::Material material("testMaterial", Assets::Texture{64, 64});
 
   const Brush startingCube = standardBuilder.createCube(128.0, "")
                              | kdl::transform([&](Brush&& brush) {

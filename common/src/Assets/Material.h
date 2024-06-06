@@ -103,10 +103,6 @@ std::ostream& operator<<(std::ostream& lhs, const GameData& rhs);
 class Material
 {
 private:
-  using Buffer = TextureBuffer;
-  using BufferList = std::vector<Buffer>;
-
-private:
   std::string m_name;
   std::filesystem::path m_absolutePath;
   std::filesystem::path m_relativePath;
@@ -138,32 +134,6 @@ private:
     m_blendFunc);
 
 public:
-  Material(
-    std::string name,
-    size_t width,
-    size_t height,
-    const Color& averageColor,
-    Buffer&& buffer,
-    GLenum format,
-    TextureType type,
-    GameData gameData = std::monostate{});
-  Material(
-    std::string name,
-    size_t width,
-    size_t height,
-    const Color& averageColor,
-    BufferList buffers,
-    GLenum format,
-    TextureType type,
-    GameData gameData = std::monostate{});
-  Material(
-    std::string name,
-    size_t width,
-    size_t height,
-    GLenum format = GL_RGB,
-    TextureType type = TextureType::Opaque,
-    GameData gameData = std::monostate{});
-
   Material(std::string name, Texture texture);
 
   Material(const Material&) = delete;
