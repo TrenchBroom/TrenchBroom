@@ -64,6 +64,14 @@ struct ReadMaterialError
   kdl_reflect_decl(ReadMaterialError, materialName, msg);
 };
 
+inline auto makeReadTextureErrorHandler(const FileSystem& fs, Logger& logger)
+{
+  return [&](Error e) {
+    logger.error() << "Could not open texture file: " << e.msg;
+    return Result<Assets::Texture>{loadDefaultTexture(fs, logger)};
+  };
+}
+
 inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
 {
   return kdl::overload(
