@@ -18,6 +18,7 @@
  */
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"

@@ -19,6 +19,8 @@
 
 #include "Material.h"
 
+#include "Assets/Resource.h"
+#include "Assets/Texture.h"
 #include "Macros.h"
 
 #include "kdl/overload.h"
@@ -96,7 +98,7 @@ kdl_reflect_impl(Material);
 
 Material::Material(std::string name, Texture texture)
   : m_name{std::move(name)}
-  , m_texture{std::move(texture)}
+  , m_textureResource{createTextureResource(std::move(texture))}
 {
 }
 
@@ -106,7 +108,7 @@ Material::Material(Material&& other)
   : m_name{std::move(other.m_name)}
   , m_absolutePath{std::move(other.m_absolutePath)}
   , m_relativePath{std::move(other.m_relativePath)}
-  , m_texture{std::move(other.m_texture)}
+  , m_textureResource{std::move(other.m_textureResource)}
   , m_usageCount{static_cast<size_t>(other.m_usageCount)}
   , m_surfaceParms{std::move(other.m_surfaceParms)}
   , m_culling{std::move(other.m_culling)}
@@ -119,7 +121,7 @@ Material& Material::operator=(Material&& other)
   m_name = std::move(other.m_name);
   m_absolutePath = std::move(other.m_absolutePath);
   m_relativePath = std::move(other.m_relativePath);
-  m_texture = std::move(other.m_texture);
+  m_textureResource = std::move(other.m_textureResource);
   m_usageCount = static_cast<size_t>(other.m_usageCount);
   m_surfaceParms = std::move(other.m_surfaceParms);
   m_culling = std::move(other.m_culling);
@@ -154,12 +156,17 @@ void Material::setRelativePath(std::filesystem::path relativePath)
 
 const Texture* Material::texture() const
 {
-  return &m_texture;
+  return m_textureResource->get();
 }
 
 Texture* Material::texture()
 {
-  return &m_texture;
+  return m_textureResource->get();
+}
+
+const TextureResource& Material::textureResource() const
+{
+  return *m_textureResource;
 }
 
 const std::set<std::string>& Material::surfaceParms() const
@@ -213,7 +220,7 @@ void Material::decUsageCount()
 
 void Material::activate() const
 {
-  if (m_texture.activate())
+  if (const auto* texture = m_textureResource->get(); texture && texture->activate())
   {
     switch (m_culling)
     {
@@ -249,7 +256,7 @@ void Material::activate() const
 
 void Material::deactivate() const
 {
-  if (m_texture.deactivate())
+  if (const auto* texture = m_textureResource->get(); texture && texture->deactivate())
   {
     if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
     {

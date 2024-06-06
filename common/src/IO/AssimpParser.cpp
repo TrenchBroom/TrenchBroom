@@ -23,6 +23,7 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/MaterialUtils.h"

@@ -18,6 +18,7 @@
  */
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"

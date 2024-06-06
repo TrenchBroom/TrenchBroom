@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Assets/Texture.h"
+#include "Assets/TextureResource.h"
 #include "Renderer/GL.h"
 
 #include "kdl/reflection_decl.h"
@@ -28,6 +28,7 @@
 
 #include <atomic>
 #include <filesystem>
+#include <memory>
 #include <set>
 #include <string>
 
@@ -90,7 +91,7 @@ private:
   std::filesystem::path m_absolutePath;
   std::filesystem::path m_relativePath;
 
-  Texture m_texture;
+  std::shared_ptr<TextureResource> m_textureResource;
 
   std::atomic<size_t> m_usageCount = 0;
 
@@ -110,6 +111,7 @@ private:
     m_name,
     m_absolutePath,
     m_relativePath,
+    m_textureResource,
     m_usageCount,
     m_surfaceParms,
     m_culling,
@@ -142,6 +144,8 @@ public:
 
   const Texture* texture() const;
   Texture* texture();
+
+  const TextureResource& textureResource() const;
 
   const std::set<std::string>& surfaceParms() const;
   void setSurfaceParms(std::set<std::string> surfaceParms);

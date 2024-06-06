@@ -20,6 +20,7 @@
 #include "FaceRenderer.h"
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"

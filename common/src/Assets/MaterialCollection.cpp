@@ -19,6 +19,7 @@
 
 #include "MaterialCollection.h"
 
+#include "Assets/Texture.h"
 #include "Ensure.h"
 
 #include "kdl/reflection_impl.h"

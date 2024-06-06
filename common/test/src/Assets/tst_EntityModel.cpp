@@ -19,6 +19,7 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "IO/DiskIO.h"
 #include "IO/EntityModelLoader.h"
 #include "IO/GameConfigParser.h"

@@ -21,6 +21,7 @@
 
 #include "Assets/Material.h"
 #include "Assets/Quake3Shader.h"
+#include "Assets/Texture.h"
 #include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"

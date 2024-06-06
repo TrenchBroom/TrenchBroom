@@ -22,6 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Palette.h"
+#include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Exceptions.h"
 #include "IO/Reader.h"

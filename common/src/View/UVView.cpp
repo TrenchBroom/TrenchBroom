@@ -20,6 +20,7 @@
 #include "UVView.h"
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"

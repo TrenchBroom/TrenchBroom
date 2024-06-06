@@ -22,6 +22,7 @@
 #include "Assets/MaterialCollection.h"
 #include "Assets/MaterialManager.h"
 #include "Assets/Palette.h"
+#include "Assets/Texture.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/File.h"

@@ -22,6 +22,7 @@
 #include "Assets/DecalDefinition.h"
 #include "Assets/Material.h"
 #include "Assets/MaterialManager.h"
+#include "Assets/Texture.h"
 #include "BrushRendererArrays.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"

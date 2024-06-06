@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "Error.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
