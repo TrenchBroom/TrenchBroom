@@ -82,10 +82,9 @@ Result<Assets::Palette> loadPalette(
 }
 
 using ReadMaterialFunc = std::function<Result<Assets::Material, ReadMaterialError>(
-  const File&, const std::filesystem::path&)>;
+  const std::filesystem::path&)>;
 
 Result<Assets::Material, ReadMaterialError> readMaterial(
-  const File& file,
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const size_t prefixLength,
@@ -102,12 +101,16 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
       return ReadMaterialError{
         std::move(name), "Could not load texture: missing palette"};
     }
-    auto reader = file.reader().buffer();
-    const auto mask = getTextureMaskFromName(name);
-    return readIdMipTexture(reader, *palette, mask) | kdl::transform([&](auto texture) {
-             auto textureResource = createTextureResource(std::move(texture));
-             return Assets::Material{std::move(name), std::move(textureResource)};
+
+    return gameFS.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             const auto mask = getTextureMaskFromName(name);
+             return readIdMipTexture(reader, *palette, mask);
            })
+           | kdl::transform([&](auto texture) {
+               auto textureResource = createTextureResource(std::move(texture));
+               return Assets::Material{std::move(name), std::move(textureResource)};
+             })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
                  ReadMaterialError{std::move(name), std::move(e.msg)}};
@@ -115,12 +118,15 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   }
   else if (extension == ".c")
   {
-    auto reader = file.reader().buffer();
     const auto mask = getTextureMaskFromName(name);
-    return readHlMipTexture(reader, mask) | kdl::transform([&](auto texture) {
-             auto textureResource = createTextureResource(std::move(texture));
-             return Assets::Material{std::move(name), std::move(textureResource)};
+    return gameFS.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readHlMipTexture(reader, mask);
            })
+           | kdl::transform([&](auto texture) {
+               auto textureResource = createTextureResource(std::move(texture));
+               return Assets::Material{std::move(name), std::move(textureResource)};
+             })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
                  ReadMaterialError{std::move(name), std::move(e.msg)}};
@@ -128,11 +134,14 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   }
   else if (extension == ".wal")
   {
-    auto reader = file.reader().buffer();
-    return readWalTexture(reader, palette) | kdl::transform([&](auto texture) {
-             auto textureResource = createTextureResource(std::move(texture));
-             return Assets::Material{std::move(name), std::move(textureResource)};
+    return gameFS.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readWalTexture(reader, palette);
            })
+           | kdl::transform([&](auto texture) {
+               auto textureResource = createTextureResource(std::move(texture));
+               return Assets::Material{std::move(name), std::move(textureResource)};
+             })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
                  ReadMaterialError{std::move(name), std::move(e.msg)}};
@@ -140,11 +149,14 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   }
   else if (extension == ".m8")
   {
-    auto reader = file.reader().buffer();
-    return readM8Texture(reader) | kdl::transform([&](auto texture) {
-             auto textureResource = createTextureResource(std::move(texture));
-             return Assets::Material{std::move(name), std::move(textureResource)};
+    return gameFS.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readM8Texture(reader);
            })
+           | kdl::transform([&](auto texture) {
+               auto textureResource = createTextureResource(std::move(texture));
+               return Assets::Material{std::move(name), std::move(textureResource)};
+             })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
                  ReadMaterialError{std::move(name), std::move(e.msg)}};
@@ -152,11 +164,14 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   }
   else if (extension == ".dds")
   {
-    auto reader = file.reader().buffer();
-    return readDdsTexture(reader) | kdl::transform([&](auto texture) {
-             auto textureResource = createTextureResource(std::move(texture));
-             return Assets::Material{std::move(name), std::move(textureResource)};
+    return gameFS.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readDdsTexture(reader);
            })
+           | kdl::transform([&](auto texture) {
+               auto textureResource = createTextureResource(std::move(texture));
+               return Assets::Material{std::move(name), std::move(textureResource)};
+             })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
                  ReadMaterialError{std::move(name), std::move(e.msg)}};
@@ -164,11 +179,14 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   }
   else if (isSupportedFreeImageExtension(extension))
   {
-    auto reader = file.reader().buffer();
-    return readFreeImageTexture(reader) | kdl::transform([&](auto texture) {
-             auto textureResource = createTextureResource(std::move(texture));
-             return Assets::Material{std::move(name), std::move(textureResource)};
+    return gameFS.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readFreeImageTexture(reader);
            })
+           | kdl::transform([&](auto texture) {
+               auto textureResource = createTextureResource(std::move(texture));
+               return Assets::Material{std::move(name), std::move(textureResource)};
+             })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
                  ReadMaterialError{std::move(name), std::move(e.msg)}};
@@ -176,8 +194,13 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   }
   else if (extension.empty())
   {
-    auto reader = file.reader().buffer();
-    return readQuake3ShaderTexture(std::move(name), file, gameFS);
+    return gameFS.openFile(path) | kdl::or_else([&](auto e) {
+             return Result<std::shared_ptr<File>, ReadMaterialError>{
+               ReadMaterialError{std::move(name), std::move(e.msg)}};
+           })
+           | kdl::and_then([&](auto file) {
+               return readQuake3ShaderTexture(std::move(name), *file, gameFS);
+             });
   }
 
   return ReadMaterialError{
@@ -195,8 +218,8 @@ Result<ReadMaterialFunc> makeReadMaterialFunc(
              return [&,
                      palette = std::move(palette),
                      prefixLength = kdl::path_length(materialConfig.root)](
-                      const File& file, const std::filesystem::path& path) {
-               return readMaterial(file, path, gameFS, prefixLength, palette);
+                      const std::filesystem::path& path) {
+               return readMaterial(path, gameFS, prefixLength, palette);
              };
            });
 }
@@ -245,20 +268,16 @@ Result<Assets::MaterialCollection> loadMaterialCollection(
              return kdl::vec_parallel_transform(
                       std::move(materialPaths),
                       [&](const auto materialPath) {
-                        return gameFS.openFile(materialPath)
-                               | kdl::and_then([&](const auto& file) {
-                                   return readMaterial(*file, materialPath)
-                                          | kdl::transform([&](auto material) {
-                                              gameFS.makeAbsolute(materialPath)
-                                                | kdl::transform([&](auto absPath) {
-                                                    material.setAbsolutePath(
-                                                      std::move(absPath));
-                                                  })
-                                                | kdl::or_else(
-                                                  [](auto) { return kdl::void_success; });
-                                              material.setRelativePath(materialPath);
-                                              return material;
-                                            });
+                        return readMaterial(materialPath)
+                               | kdl::transform([&](auto material) {
+                                   gameFS.makeAbsolute(materialPath)
+                                     | kdl::transform([&](auto absPath) {
+                                         material.setAbsolutePath(std::move(absPath));
+                                       })
+                                     | kdl::or_else(
+                                       [](auto) { return kdl::void_success; });
+                                   material.setRelativePath(materialPath);
+                                   return material;
                                  })
                                | kdl::or_else(
                                  makeReadMaterialErrorHandler(gameFS, logger));
