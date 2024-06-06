@@ -526,7 +526,7 @@ void CellView::renderTitleStrings(float y, float height)
 
   auto shader =
     Renderer::ActiveShader{shaderManager(), Renderer::Shaders::ColoredTextShader};
-  shader.set("Material", 0);
+  shader.set("Texture", 0);
 
   for (auto& [descriptor, vertexArray] : stringRenderers)
   {
