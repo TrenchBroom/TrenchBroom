@@ -177,23 +177,25 @@ void MaterialBrowserView::addMaterialsToLayout(
 {
   for (const auto* material : materials)
   {
-    addMaterialToLayout(layout, material, font);
+    addMaterialToLayout(layout, *material, font);
   }
 }
 
 void MaterialBrowserView::addMaterialToLayout(
-  Layout& layout, const Assets::Material* material, const Renderer::FontDescriptor& font)
+  Layout& layout, const Assets::Material& material, const Renderer::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
 
-  const auto materialName = std::filesystem::path{material->name()}.filename().string();
+  const auto materialName = std::filesystem::path{material.name()}.filename().string();
   const auto titleHeight = fontManager().font(font).measure(materialName).y();
 
   const auto scaleFactor = pref(Preferences::MaterialBrowserIconSize);
-  const auto scaledTextureSize = vm::round(scaleFactor * material->texture().sizef());
+  const auto* texture = material.texture();
+  const auto textureSize = texture ? texture->sizef() : vm::vec2f{64, 64};
+  const auto scaledTextureSize = vm::round(scaleFactor * textureSize);
 
   layout.addItem(
-    material,
+    &material,
     materialName,
     scaledTextureSize.x(),
     scaledTextureSize.y(),
@@ -425,11 +427,19 @@ void MaterialBrowserView::doLeftClick(Layout& layout, const float x, const float
 QString MaterialBrowserView::tooltip(const Cell& cell)
 {
   const auto& material = cellData(cell);
-  const auto& texture = material.texture();
+
   auto tooltip = QString{};
   auto ss = QTextStream{&tooltip};
   ss << QString::fromStdString(material.name()) << "\n";
-  ss << texture.width() << "x" << texture.height();
+
+  if (const auto* texture = material.texture())
+  {
+    ss << texture->width() << "x" << texture->height();
+  }
+  else
+  {
+    ss << "Loading...";
+  }
   return tooltip;
 }
 

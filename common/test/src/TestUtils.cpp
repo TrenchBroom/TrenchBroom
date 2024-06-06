@@ -514,7 +514,8 @@ void checkColor(
 int getComponentOfPixel(
   const Assets::Material& material, std::size_t x, std::size_t y, Component component)
 {
-  return getComponentOfPixel(material.texture(), x, y, component);
+  ensure(material.texture(), "expected material to have a texture");
+  return getComponentOfPixel(*material.texture(), x, y, component);
 }
 
 void checkColor(
@@ -527,6 +528,7 @@ void checkColor(
   const int a,
   const ColorMatch match)
 {
-  return checkColor(material.texture(), x, y, r, g, b, a, match);
+  ensure(material.texture(), "expected material to have a texture");
+  return checkColor(*material.texture(), x, y, r, g, b, a, match);
 }
 } // namespace TrenchBroom

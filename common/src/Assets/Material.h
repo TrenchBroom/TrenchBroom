@@ -140,8 +140,8 @@ public:
   const std::filesystem::path& relativePath() const;
   void setRelativePath(std::filesystem::path relativePath);
 
-  const Texture& texture() const;
-  Texture& texture();
+  const Texture* texture() const;
+  Texture* texture();
 
   const std::set<std::string>& surfaceParms() const;
   void setSurfaceParms(std::set<std::string> surfaceParms);
@@ -159,5 +159,8 @@ public:
   void activate() const;
   void deactivate() const;
 };
+
+const Texture* getTexture(const Material* material);
+Texture* getTexture(Material* material);
 
 } // namespace TrenchBroom::Assets

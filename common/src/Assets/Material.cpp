@@ -152,14 +152,14 @@ void Material::setRelativePath(std::filesystem::path relativePath)
   m_relativePath = std::move(relativePath);
 }
 
-const Texture& Material::texture() const
+const Texture* Material::texture() const
 {
-  return m_texture;
+  return &m_texture;
 }
 
-Texture& Material::texture()
+Texture* Material::texture()
 {
-  return m_texture;
+  return &m_texture;
 }
 
 const std::set<std::string>& Material::surfaceParms() const
@@ -274,6 +274,16 @@ void Material::deactivate() const
 
     glAssert(glBindTexture(GL_TEXTURE_2D, 0));
   }
+}
+
+const Texture* getTexture(const Material* material)
+{
+  return material ? material->texture() : nullptr;
+}
+
+Texture* getTexture(Material* material)
+{
+  return material ? material->texture() : nullptr;
 }
 
 } // namespace TrenchBroom::Assets

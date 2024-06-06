@@ -333,11 +333,11 @@ struct RenderFunc : public MaterialRenderFunc
   void before(const Assets::Material* material) override
   {
     shader.set("GridColor", gridColorForMaterial(material));
-    if (material)
+    if (const auto* texture = getTexture(material))
     {
       material->activate();
       shader.set("ApplyMaterial", applyMaterial);
-      shader.set("Color", material->texture().averageColor());
+      shader.set("Color", texture->averageColor());
     }
     else
     {

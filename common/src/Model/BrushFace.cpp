@@ -444,9 +444,9 @@ struct SurfaceData
 
 SurfaceData getDefaultSurfaceData(const Assets::Material* material)
 {
-  if (material)
+  if (const auto* texture = getTexture(material))
   {
-    const auto& defaults = material->texture().embeddedDefaults();
+    const auto& defaults = texture->embeddedDefaults();
     if (const auto* q2Defaults = std::get_if<Assets::Q2EmbeddedDefaults>(&defaults))
     {
       return {
@@ -511,12 +511,11 @@ const Assets::Material* BrushFace::material() const
 
 vm::vec2f BrushFace::textureSize() const
 {
-  if (!material())
+  if (const auto* texture = getTexture(material()))
   {
-    return vm::vec2f{1, 1};
+    return vm::max(texture->sizef(), vm::vec2f{1, 1});
   }
-
-  return vm::max(material()->texture().sizef(), vm::vec2f{1, 1});
+  return vm::vec2f{1, 1};
 }
 
 vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const

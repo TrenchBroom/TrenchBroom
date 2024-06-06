@@ -90,9 +90,9 @@ vm::vec2 UVViewHelper::stripeSize() const
 {
   assert(valid());
 
-  if (const auto* material = face()->material())
+  if (const auto* texture = getTexture(face()->material()))
   {
-    return vm::vec2{material->texture().sizef()} / vm::vec2{m_subDivisions};
+    return vm::vec2{texture->sizef()} / vm::vec2{m_subDivisions};
   }
 
   return vm::vec2{0, 0};

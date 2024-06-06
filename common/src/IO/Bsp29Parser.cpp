@@ -189,16 +189,16 @@ vm::vec2f uvCoords(
   const MaterialInfo& materialInfo,
   const Assets::Material* material)
 {
-  if (!material)
+  if (const auto* texture = getTexture(material))
   {
-    return vm::vec2f{0, 0};
+    const auto textureSize = texture->sizef();
+    return vm::vec2f{
+      (vm::dot(vertex, materialInfo.uAxis) + materialInfo.uOffset) / textureSize.x(),
+      (vm::dot(vertex, materialInfo.vAxis) + materialInfo.vOffset) / textureSize.y(),
+    };
   }
 
-  const auto textureSize = material->texture().sizef();
-  return vm::vec2f{
-    (vm::dot(vertex, materialInfo.uAxis) + materialInfo.uOffset) / textureSize.x(),
-    (vm::dot(vertex, materialInfo.vAxis) + materialInfo.vOffset) / textureSize.y(),
-  };
+  return vm::vec2f{0, 0};
 }
 
 void parseFrame(

@@ -93,7 +93,7 @@ private:
     const Renderer::FontDescriptor& font);
   void addMaterialToLayout(
     Layout& layout,
-    const Assets::Material* material,
+    const Assets::Material& material,
     const Renderer::FontDescriptor& font);
 
   std::vector<const Assets::MaterialCollection*> getCollections() const;

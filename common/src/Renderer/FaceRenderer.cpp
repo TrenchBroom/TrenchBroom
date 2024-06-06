@@ -55,11 +55,11 @@ public:
 
   void before(const Assets::Material* material) override
   {
-    if (material)
+    if (const auto* texture = getTexture(material))
     {
       material->activate();
       m_shader.set("ApplyMaterial", m_applyMaterial);
-      m_shader.set("Color", material->texture().averageColor());
+      m_shader.set("Color", texture->averageColor());
     }
     else
     {
@@ -173,8 +173,8 @@ void FaceRenderer::doRender(RenderContext& context)
     {
       if (brushIndexHolderPtr->hasValidIndices())
       {
-        const auto enableMasked =
-          material && material->texture().mask() == Assets::TextureMask::On;
+        const auto* texture = getTexture(material);
+        const auto enableMasked = texture && texture->mask() == Assets::TextureMask::On;
 
         // set any per-material uniforms
         shader.set("GridColor", gridColorForMaterial(material));

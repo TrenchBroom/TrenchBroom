@@ -145,9 +145,10 @@ Result<Assets::Material, ReadMaterialError> readQuake3ShaderTexture(
   }
 
   return loadTextureImage(*imagePath, fs) | kdl::and_then([&](auto texture) {
+           texture.setMask(Assets::TextureMask::Off);
+
            auto material = Assets::Material{std::move(shaderName), std::move(texture)};
            material.setSurfaceParms(shader.surfaceParms);
-           material.texture().setMask(Assets::TextureMask::Off);
 
            // Note that Quake 3 has a different understanding of front and back, so we
            // need to invert them.

@@ -118,15 +118,18 @@ private:
     const auto* material = m_helper.face()->material();
     ensure(material, "material is null");
 
+    const auto* texture = material->texture();
+    ensure(texture, "texture is null");
+
     material->activate();
 
     auto shader = Renderer::ActiveShader{
       renderContext.shaderManager(), Renderer::Shaders::UVViewShader};
     shader.set("ApplyMaterial", true);
-    shader.set("Color", material->texture().averageColor());
+    shader.set("Color", texture->averageColor());
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
-    shader.set("GridSizes", material->texture().sizef());
+    shader.set("GridSizes", texture->sizef());
     shader.set("GridColor", vm::vec4f{Renderer::gridColorForMaterial(material), 0.6f});
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
@@ -329,7 +332,7 @@ void UVView::setupGL(Renderer::RenderContext& renderContext)
 
 void UVView::renderMaterial(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
 {
-  if (m_helper.face()->material())
+  if (getTexture(m_helper.face()->material()))
   {
     renderBatch.addOneShot(new RenderMaterial{m_helper});
   }

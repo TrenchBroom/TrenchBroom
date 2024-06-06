@@ -75,8 +75,8 @@ std::optional<MaterialCollectionInfo> makeInfo(
                  materialCollection.materials(), [](const auto& material) {
                    return MaterialInfo{
                      material.name(),
-                     material.texture().width(),
-                     material.texture().height(),
+                     material.texture()->width(),
+                     material.texture()->height(),
                    };
                  })};
            })

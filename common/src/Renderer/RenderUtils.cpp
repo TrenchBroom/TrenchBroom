@@ -38,9 +38,9 @@ constexpr auto EdgeOffset = 0.0001;
 
 vm::vec3f gridColorForMaterial(const Assets::Material* material)
 {
-  if (material)
+  if (const auto* texture = getTexture(material))
   {
-    const auto& averageColor = material->texture().averageColor();
+    const auto& averageColor = texture->averageColor();
     if ((averageColor.r() + averageColor.g() + averageColor.b()) / 3.0f > 0.50f)
     {
       // bright material grid color
