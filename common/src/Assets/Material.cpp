@@ -19,9 +19,7 @@
 
 #include "Material.h"
 
-#include "Assets/TextureBuffer.h"
 #include "Macros.h"
-#include "Renderer/GL.h"
 
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
@@ -93,18 +91,6 @@ std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs
   }
   return lhs;
 }
-
-std::ostream& operator<<(std::ostream& lhs, const GameData& rhs)
-{
-  std::visit(
-    kdl::overload(
-      [&](const std::monostate&) { lhs << "std::monostate"; },
-      [&](const auto& x) { lhs << x; }),
-    rhs);
-  return lhs;
-}
-
-kdl_reflect_impl(Q2Data);
 
 kdl_reflect_impl(Material);
 

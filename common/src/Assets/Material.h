@@ -20,8 +20,6 @@
 #pragma once
 
 #include "Assets/Texture.h"
-#include "Assets/TextureBuffer.h"
-#include "Color.h"
 #include "Renderer/GL.h"
 
 #include "kdl/reflection_decl.h"
@@ -32,8 +30,6 @@
 #include <filesystem>
 #include <set>
 #include <string>
-#include <variant>
-#include <vector>
 
 namespace TrenchBroom::Assets
 {
@@ -87,19 +83,6 @@ struct MaterialBlendFunc
 
 std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs);
 
-struct Q2Data
-{
-  int flags;
-  int contents;
-  int value;
-
-  kdl_reflect_decl(Q2Data, flags, contents, value);
-};
-
-using GameData = std::variant<std::monostate, Q2Data>;
-
-std::ostream& operator<<(std::ostream& lhs, const GameData& rhs);
-
 class Material
 {
 private:
@@ -111,7 +94,6 @@ private:
 
   std::atomic<size_t> m_usageCount = 0;
 
-  // TODO: move these to a Q3Data variant case of m_gameData if possible
   // Quake 3 surface parameters; move these to materials when we add proper support for
   // those.
   std::set<std::string> m_surfaceParms;
