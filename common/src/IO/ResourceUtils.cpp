@@ -32,6 +32,7 @@
 
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureResource.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/File.h"
@@ -79,7 +80,8 @@ Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
 Assets::Material loadDefaultMaterial(
   const FileSystem& fs, std::string name, Logger& logger)
 {
-  return Assets::Material{std::move(name), loadDefaultTexture(fs, logger)};
+  auto textureResource = createTextureResource(loadDefaultTexture(fs, logger));
+  return Assets::Material{std::move(name), std::move(textureResource)};
 }
 
 static QString imagePathToString(const std::filesystem::path& imagePath)

@@ -20,6 +20,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureResource.h"
 #include "IO/DiskIO.h"
 #include "IO/EntityModelLoader.h"
 #include "IO/GameConfigParser.h"
@@ -90,7 +91,8 @@ TEST_CASE("BSP model intersection test")
 
 static Material makeDummyMaterial(std::string name)
 {
-  return Material{std::move(name), Texture{1, 1}};
+  auto textureResource = createTextureResource(Texture{1, 1});
+  return Material{std::move(name), std::move(textureResource)};
 }
 
 static Renderer::IndexRangeMapBuilder<EntityModelVertex::Type> makeDummyBuilder()

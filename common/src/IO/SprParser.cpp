@@ -24,6 +24,7 @@
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
+#include "Assets/TextureResource.h"
 #include "Color.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -95,7 +96,9 @@ static SprPicture parsePicture(Reader& reader, const Assets::Palette& palette)
     Assets::TextureMask::On,
     Assets::NoEmbeddedDefaults{},
     std::move(rgbaImage)};
-  auto material = Assets::Material{"", std::move(texture)};
+  auto textureResource = createTextureResource(std::move(texture));
+
+  auto material = Assets::Material{"", std::move(textureResource)};
 
   return SprPicture{std::move(material), xOffset, yOffset, width, height};
 }

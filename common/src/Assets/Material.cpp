@@ -96,9 +96,9 @@ std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs
 
 kdl_reflect_impl(Material);
 
-Material::Material(std::string name, Texture texture)
+Material::Material(std::string name, std::shared_ptr<TextureResource> textureResource)
   : m_name{std::move(name)}
-  , m_textureResource{createTextureResource(std::move(texture))}
+  , m_textureResource{std::move(textureResource)}
 {
 }
 

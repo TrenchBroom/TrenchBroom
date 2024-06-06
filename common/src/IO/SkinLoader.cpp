@@ -21,6 +21,7 @@
 
 #include "Assets/Material.h"
 #include "Assets/Palette.h"
+#include "Assets/TextureResource.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -62,7 +63,9 @@ Assets::Material loadSkin(
              return (extension == ".wal" ? readWalTexture(reader, palette)
                                          : readFreeImageTexture(reader))
                     | kdl::transform([&](auto texture) {
-                        return Assets::Material{path.stem().string(), std::move(texture)};
+                        auto textureResource = createTextureResource(std::move(texture));
+                        return Assets::Material{
+                          path.stem().string(), std::move(textureResource)};
                       })
                     | kdl::or_else([&](auto e) {
                         return Result<Assets::Material, ReadMaterialError>{

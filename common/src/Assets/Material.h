@@ -118,7 +118,7 @@ private:
     m_blendFunc);
 
 public:
-  Material(std::string name, Texture texture);
+  Material(std::string name, std::shared_ptr<TextureResource> textureResource);
 
   Material(const Material&) = delete;
   Material& operator=(const Material&) = delete;

@@ -22,6 +22,7 @@
 #include "Assets/Material.h"
 #include "Assets/Quake3Shader.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureResource.h"
 #include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
@@ -148,7 +149,9 @@ Result<Assets::Material, ReadMaterialError> readQuake3ShaderTexture(
   return loadTextureImage(*imagePath, fs) | kdl::and_then([&](auto texture) {
            texture.setMask(Assets::TextureMask::Off);
 
-           auto material = Assets::Material{std::move(shaderName), std::move(texture)};
+           auto textureResource = createTextureResource(std::move(texture));
+           auto material =
+             Assets::Material{std::move(shaderName), std::move(textureResource)};
            material.setSurfaceParms(shader.surfaceParms);
 
            // Note that Quake 3 has a different understanding of front and back, so we

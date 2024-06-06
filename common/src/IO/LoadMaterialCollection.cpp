@@ -23,6 +23,7 @@
 #include "Assets/MaterialManager.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureResource.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/File.h"
@@ -104,7 +105,8 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
     auto reader = file.reader().buffer();
     const auto mask = getTextureMaskFromName(name);
     return readIdMipTexture(reader, *palette, mask) | kdl::transform([&](auto texture) {
-             return Assets::Material{std::move(name), std::move(texture)};
+             auto textureResource = createTextureResource(std::move(texture));
+             return Assets::Material{std::move(name), std::move(textureResource)};
            })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
@@ -116,7 +118,8 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
     auto reader = file.reader().buffer();
     const auto mask = getTextureMaskFromName(name);
     return readHlMipTexture(reader, mask) | kdl::transform([&](auto texture) {
-             return Assets::Material{std::move(name), std::move(texture)};
+             auto textureResource = createTextureResource(std::move(texture));
+             return Assets::Material{std::move(name), std::move(textureResource)};
            })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
@@ -127,7 +130,8 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   {
     auto reader = file.reader().buffer();
     return readWalTexture(reader, palette) | kdl::transform([&](auto texture) {
-             return Assets::Material{std::move(name), std::move(texture)};
+             auto textureResource = createTextureResource(std::move(texture));
+             return Assets::Material{std::move(name), std::move(textureResource)};
            })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
@@ -138,7 +142,8 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   {
     auto reader = file.reader().buffer();
     return readM8Texture(reader) | kdl::transform([&](auto texture) {
-             return Assets::Material{std::move(name), std::move(texture)};
+             auto textureResource = createTextureResource(std::move(texture));
+             return Assets::Material{std::move(name), std::move(textureResource)};
            })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
@@ -149,7 +154,8 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   {
     auto reader = file.reader().buffer();
     return readDdsTexture(reader) | kdl::transform([&](auto texture) {
-             return Assets::Material{std::move(name), std::move(texture)};
+             auto textureResource = createTextureResource(std::move(texture));
+             return Assets::Material{std::move(name), std::move(textureResource)};
            })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{
@@ -160,7 +166,8 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
   {
     auto reader = file.reader().buffer();
     return readFreeImageTexture(reader) | kdl::transform([&](auto texture) {
-             return Assets::Material{std::move(name), std::move(texture)};
+             auto textureResource = createTextureResource(std::move(texture));
+             return Assets::Material{std::move(name), std::move(textureResource)};
            })
            | kdl::or_else([&](auto e) {
                return Result<Assets::Material, ReadMaterialError>{

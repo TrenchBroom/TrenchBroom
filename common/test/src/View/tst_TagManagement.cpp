@@ -57,9 +57,12 @@ protected:
 private:
   void SetUp()
   {
-    auto materialA = Assets::Material{"some_material", Assets::Texture{16, 16}};
-    auto materialB = Assets::Material{"other_material", Assets::Texture{32, 32}};
-    auto materialC = Assets::Material{"yet_another_material", Assets::Texture{64, 64}};
+    auto materialA =
+      Assets::Material{"some_material", createTextureResource(Assets::Texture{16, 16})};
+    auto materialB =
+      Assets::Material{"other_material", createTextureResource(Assets::Texture{32, 32})};
+    auto materialC = Assets::Material{
+      "yet_another_material", createTextureResource(Assets::Texture{64, 64})};
 
     const auto singleParam = std::string{"some_parm"};
     const auto multiParams = std::set<std::string>{"parm1", "parm2"};

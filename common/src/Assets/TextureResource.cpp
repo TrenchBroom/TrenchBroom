@@ -26,7 +26,7 @@ namespace TrenchBroom::Assets
 
 std::shared_ptr<TextureResource> createTextureResource(Texture texture)
 {
-  return std::make_shared<Resource<Texture>>(std::move(texture));
+  return std::make_shared<TextureResource>(std::move(texture));
 }
 
 } // namespace TrenchBroom::Assets

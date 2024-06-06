@@ -22,6 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureResource.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "IO/File.h"
@@ -116,7 +117,8 @@ std::vector<Assets::Material> parseMaterials(
       readIdMipTexture(textureReader, palette, mask)
       | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
       | kdl::transform([&](auto texture) {
-          return Assets::Material{std::move(materialName), std::move(texture)};
+          auto textureResource = createTextureResource(std::move(texture));
+          return Assets::Material{std::move(materialName), std::move(textureResource)};
         })
       | kdl::value());
   }

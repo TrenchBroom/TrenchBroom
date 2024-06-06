@@ -840,7 +840,8 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::initializeModel(
     auto textures =
       loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger);
     auto materials = kdl::vec_transform(std::move(textures), [](auto texture) {
-      return Assets::Material{"", std::move(texture)};
+      auto textureResource = createTextureResource(std::move(texture));
+      return Assets::Material{"", std::move(textureResource)};
     });
     surface.setSkins(std::move(materials));
   }

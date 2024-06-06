@@ -57,8 +57,9 @@ makeBrushes()
   for (size_t i = 0; i < NumMaterials; ++i)
   {
     auto materialName = "material " + std::to_string(i);
+    auto textureResource = createTextureResource(Assets::Texture{64, 64});
     materials.push_back(
-      new Assets::Material(std::move(materialName), Assets::Texture{64, 64}));
+      new Assets::Material(std::move(materialName), std::move(textureResource)));
   }
 
   // make brushes, cycling through the materials for each face

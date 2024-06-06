@@ -22,6 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
+#include "Assets/TextureResource.h"
 #include "Error.h"
 #include "FloatType.h"
 #include "IO/File.h"
@@ -62,7 +63,9 @@ std::unique_ptr<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& 
   materials.push_back(
     readFreeImageTexture(reader) | kdl::or_else(makeReadTextureErrorHandler(m_fs, logger))
     | kdl::and_then([&](auto texture) {
-        return Result<Assets::Material>{Assets::Material{m_name, std::move(texture)}};
+        auto textureResource = createTextureResource(std::move(texture));
+        return Result<Assets::Material>{
+          Assets::Material{m_name, std::move(textureResource)}};
       })
     | kdl::value());
 

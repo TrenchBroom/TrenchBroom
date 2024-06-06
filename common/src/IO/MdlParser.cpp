@@ -24,6 +24,7 @@
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
+#include "Assets/TextureResource.h"
 #include "Exceptions.h"
 #include "IO/Reader.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -499,7 +500,8 @@ Assets::Material parseSkin(
       Assets::NoEmbeddedDefaults{},
       std::move(rgbaImage)};
 
-    return Assets::Material{std::move(skinName), std::move(texture)};
+    auto textureResource = createTextureResource(std::move(texture));
+    return Assets::Material{std::move(skinName), std::move(textureResource)};
   }
 
   const auto pictureCount = reader.readSize<int32_t>();
@@ -516,7 +518,9 @@ Assets::Material parseSkin(
     mask,
     Assets::NoEmbeddedDefaults{},
     std::move(rgbaImage)};
-  return Assets::Material{std::move(skinName), std::move(texture)};
+
+  auto textureResource = createTextureResource(std::move(texture));
+  return Assets::Material{std::move(skinName), std::move(textureResource)};
 }
 
 void parseSkins(
