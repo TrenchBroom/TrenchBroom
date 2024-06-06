@@ -76,7 +76,7 @@ static SprPicture parsePicture(Reader& reader, const Assets::Palette& palette)
   const auto width = reader.readSize<int32_t>();
   const auto height = reader.readSize<int32_t>();
 
-  Assets::TextureBuffer rgbaImage(4 * width * height);
+  auto rgbaImage = Assets::TextureBuffer{4 * width * height};
   auto averageColor = Color{};
   palette.indexedToRgba(
     reader,
