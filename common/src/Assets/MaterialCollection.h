@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Assets/Material.h"
-#include "Renderer/GL.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -34,13 +33,11 @@ namespace TrenchBroom::Assets
 class MaterialCollection
 {
 private:
-  using TextureIdList = std::vector<GLuint>;
-
   std::filesystem::path m_path;
   std::vector<Material> m_materials;
 
-  bool m_loaded{false};
-  TextureIdList m_textureIds;
+  bool m_loaded = false;
+  bool m_prepared = false;
 
   friend class Material;
 
@@ -57,8 +54,6 @@ public:
 
   MaterialCollection(MaterialCollection&& other) = default;
   MaterialCollection& operator=(MaterialCollection&& other) = default;
-
-  ~MaterialCollection();
 
   bool loaded() const;
   const std::filesystem::path& path() const;

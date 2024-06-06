@@ -52,17 +52,6 @@ MaterialCollection::MaterialCollection(
 {
 }
 
-MaterialCollection::~MaterialCollection()
-{
-  if (!m_textureIds.empty())
-  {
-    glAssert(glDeleteTextures(
-      static_cast<GLsizei>(m_textureIds.size()),
-      static_cast<GLuint*>(&m_textureIds.front())));
-    m_textureIds.clear();
-  }
-}
-
 bool MaterialCollection::loaded() const
 {
   return m_loaded;
@@ -116,27 +105,21 @@ Material* MaterialCollection::materialByName(const std::string& name)
 
 bool MaterialCollection::prepared() const
 {
-  return !m_textureIds.empty();
+  return m_prepared;
 }
 
 void MaterialCollection::prepare(const int minFilter, const int magFilter)
 {
   assert(!prepared());
 
-  m_textureIds.resize(materialCount());
-  if (materialCount() != 0u)
+  for (size_t i = 0; i < materialCount(); ++i)
   {
-    glAssert(glGenTextures(
-      static_cast<GLsizei>(materialCount()),
-      static_cast<GLuint*>(&m_textureIds.front())));
-
-    for (size_t i = 0; i < materialCount(); ++i)
-    {
-      auto& material = m_materials[i];
-      material.texture().upload();
-      material.texture().setFilterMode(minFilter, magFilter);
-    }
+    auto& material = m_materials[i];
+    material.texture().upload();
+    material.texture().setFilterMode(minFilter, magFilter);
   }
+
+  m_prepared = true;
 }
 
 void MaterialCollection::setFilterMode(const int minFilter, const int magFilter)
