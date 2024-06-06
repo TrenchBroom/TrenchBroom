@@ -101,37 +101,76 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
         std::move(name), "Could not load texture: missing palette"};
     }
     auto reader = file.reader().buffer();
-    return readIdMipTexture(std::move(name), reader, *palette);
+    const auto mask = getTextureMaskFromName(name);
+    return readIdMipTexture(reader, *palette, mask)
+      .transform([&](auto texture) {
+        return Assets::Material{std::move(name), std::move(texture)};
+      })
+      .or_else([&](auto e) {
+        return Result<Assets::Material, ReadMaterialError>{
+          ReadMaterialError{std::move(name), std::move(e.msg)}};
+      });
   }
   else if (extension == ".c")
   {
     auto reader = file.reader().buffer();
-    return readHlMipTexture(std::move(name), reader);
+    const auto mask = getTextureMaskFromName(name);
+    return readHlMipTexture(reader, mask) | kdl::transform([&](auto texture) {
+             return Assets::Material{std::move(name), std::move(texture)};
+           })
+           | kdl::or_else([&](auto e) {
+               return Result<Assets::Material, ReadMaterialError>{
+                 ReadMaterialError{std::move(name), std::move(e.msg)}};
+             });
   }
   else if (extension == ".wal")
   {
     auto reader = file.reader().buffer();
-    return readWalTexture(std::move(name), reader, palette);
+    return readWalTexture(reader, palette) | kdl::transform([&](auto texture) {
+             return Assets::Material{std::move(name), std::move(texture)};
+           })
+           | kdl::or_else([&](auto e) {
+               return Result<Assets::Material, ReadMaterialError>{
+                 ReadMaterialError{std::move(name), std::move(e.msg)}};
+             });
   }
   else if (extension == ".m8")
   {
     auto reader = file.reader().buffer();
-    return readM8Texture(std::move(name), reader);
+    return readM8Texture(reader) | kdl::transform([&](auto texture) {
+             return Assets::Material{std::move(name), std::move(texture)};
+           })
+           | kdl::or_else([&](auto e) {
+               return Result<Assets::Material, ReadMaterialError>{
+                 ReadMaterialError{std::move(name), std::move(e.msg)}};
+             });
   }
   else if (extension == ".dds")
   {
     auto reader = file.reader().buffer();
-    return readDdsTexture(std::move(name), reader);
+    return readDdsTexture(reader) | kdl::transform([&](auto texture) {
+             return Assets::Material{std::move(name), std::move(texture)};
+           })
+           | kdl::or_else([&](auto e) {
+               return Result<Assets::Material, ReadMaterialError>{
+                 ReadMaterialError{std::move(name), std::move(e.msg)}};
+             });
+  }
+  else if (isSupportedFreeImageExtension(extension))
+  {
+    auto reader = file.reader().buffer();
+    return readFreeImageTexture(reader) | kdl::transform([&](auto texture) {
+             return Assets::Material{std::move(name), std::move(texture)};
+           })
+           | kdl::or_else([&](auto e) {
+               return Result<Assets::Material, ReadMaterialError>{
+                 ReadMaterialError{std::move(name), std::move(e.msg)}};
+             });
   }
   else if (extension.empty())
   {
     auto reader = file.reader().buffer();
     return readQuake3ShaderTexture(std::move(name), file, gameFS);
-  }
-  else if (isSupportedFreeImageExtension(extension))
-  {
-    auto reader = file.reader().buffer();
-    return readFreeImageTexture(std::move(name), reader);
   }
 
   return ReadMaterialError{
@@ -174,7 +213,7 @@ Result<Assets::MaterialCollection> loadMaterialCollection(
   const std::filesystem::path& path,
   const FileSystem& gameFS,
   const Model::MaterialConfig& materialConfig,
-  Logger&)
+  Logger& logger)
 {
   if (gameFS.pathInfo(path) != PathInfo::Directory)
   {
@@ -194,7 +233,6 @@ Result<Assets::MaterialCollection> loadMaterialCollection(
     })
     .join(makeReadMaterialFunc(gameFS, materialConfig))
     .and_then([&](auto materialPaths, const auto& readMaterial) {
-      auto nullLogger = NullLogger{};
       return kdl::fold_results(
                kdl::vec_parallel_transform(
                  std::move(materialPaths),
@@ -212,7 +250,7 @@ Result<Assets::MaterialCollection> loadMaterialCollection(
                            return material;
                          });
                      })
-                     .or_else(makeReadMaterialErrorHandler(gameFS, nullLogger));
+                     .or_else(makeReadMaterialErrorHandler(gameFS, logger));
                  }))
         .transform([&](auto materials) {
           return Assets::MaterialCollection{path, std::move(materials)};

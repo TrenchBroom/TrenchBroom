@@ -38,23 +38,18 @@ constexpr auto EdgeOffset = 0.0001;
 
 vm::vec3f gridColorForMaterial(const Assets::Material* material)
 {
-  if (!material)
+  if (material)
   {
-    return vm::vec3f::fill(1.0f);
-  }
-
-  if (
-    (material->averageColor().r() + material->averageColor().g()
-     + material->averageColor().b())
-      / 3.0f
-    > 0.50f)
-  {
-    // bright material grid color
-    return vm::vec3f::fill(0.0f);
+    const auto& averageColor = material->texture().averageColor();
+    if ((averageColor.r() + averageColor.g() + averageColor.b()) / 3.0f > 0.50f)
+    {
+      // bright material grid color
+      return vm::vec3f{0, 0, 0};
+    }
   }
 
   // dark material grid color
-  return vm::vec3f::fill(1.0f);
+  return vm::vec3f{1, 1, 1};
 }
 
 void glSetEdgeOffset(const double f)

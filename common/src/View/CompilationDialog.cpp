@@ -64,7 +64,7 @@ void CompilationDialog::createGui()
 
   auto document = m_mapFrame->document();
   auto game = document->game();
-  auto& compilationConfig = game->compilationConfig();
+  const auto& compilationConfig = game->config().compilationConfig;
 
   m_profileManager = new CompilationProfileManager{document, compilationConfig};
 
@@ -252,7 +252,7 @@ void CompilationDialog::profileChanged()
 void CompilationDialog::saveProfile()
 {
   auto document = m_mapFrame->document();
-  const auto& gameName = document->game()->gameName();
+  const auto& gameName = document->game()->config().name;
   auto& gameFactory = Model::GameFactory::instance();
   gameFactory.saveCompilationConfig(
     gameName, m_profileManager->config(), m_mapFrame->logger());

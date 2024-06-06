@@ -19,11 +19,13 @@
 
 #include "ReadFreeImageTexture.h"
 
-#include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Ensure.h"
+#include "Error.h"
 #include "FreeImage.h"
 #include "IO/ImageLoaderImpl.h"
+#include "IO/MaterialUtils.h"
 #include "IO/Reader.h"
 
 #include "kdl/invoke.h"
@@ -36,6 +38,8 @@
 
 #include <cassert>
 #include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace TrenchBroom::IO
 {
@@ -98,8 +102,8 @@ Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format)
   return average;
 }
 
-Result<Assets::Material, ReadMaterialError> readFreeImageTextureFromMemory(
-  std::string name, const uint8_t* begin, const size_t size)
+Result<Assets::Texture> readFreeImageTextureFromMemory(
+  const uint8_t* begin, const size_t size)
 {
   try
   {
@@ -115,7 +119,7 @@ Result<Assets::Material, ReadMaterialError> readFreeImageTextureFromMemory(
 
     if (!image)
     {
-      return ReadMaterialError{std::move(name), "FreeImage could not load image data"};
+      return Error{"FreeImage could not load image data"};
     }
 
     const auto imageWidth = size_t(FreeImage_GetWidth(*image));
@@ -123,8 +127,7 @@ Result<Assets::Material, ReadMaterialError> readFreeImageTextureFromMemory(
 
     if (!checkTextureDimensions(imageWidth, imageHeight))
     {
-      return ReadMaterialError{
-        std::move(name),
+      return Error{
         fmt::format("Invalid texture dimensions: {}*{}", imageWidth, imageHeight)};
     }
 
@@ -146,7 +149,7 @@ Result<Assets::Material, ReadMaterialError> readFreeImageTextureFromMemory(
 
     if (!image)
     {
-      return ReadMaterialError{std::move(name), "Unsupported pixel format"};
+      return Error{"Unsupported pixel format"};
     }
 
     assert(FreeImage_GetLine(*image) / FreeImage_GetWidth(*image) == 4);
@@ -164,26 +167,26 @@ Result<Assets::Material, ReadMaterialError> readFreeImageTextureFromMemory(
       FI_RGBA_BLUE_MASK,
       TRUE);
 
-    const auto textureType = Assets::Material::selectTextureType(masked);
+
+    const auto textureMask = masked ? Assets::TextureMask::On : Assets::TextureMask::Off;
     const auto averageColor = getAverageColor(buffers.at(0), format);
 
-    return Assets::Material{
-      std::move(name),
+    return Assets::Texture{
       imageWidth,
       imageHeight,
       averageColor,
-      std::move(buffers),
       format,
-      textureType};
+      textureMask,
+      Assets::NoEmbeddedDefaults{},
+      std::move(buffers)};
   }
   catch (const std::exception& e)
   {
-    return ReadMaterialError{std::move(name), e.what()};
+    return Error{e.what()};
   }
 }
 
-Result<Assets::Material, ReadMaterialError> readFreeImageTexture(
-  std::string name, Reader& reader)
+Result<Assets::Texture> readFreeImageTexture(Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   const auto* begin = bufferedReader.begin();
@@ -191,7 +194,7 @@ Result<Assets::Material, ReadMaterialError> readFreeImageTexture(
   const auto imageSize = size_t(end - begin);
   auto* imageBegin = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
 
-  return readFreeImageTextureFromMemory(std::move(name), imageBegin, imageSize);
+  return readFreeImageTextureFromMemory(imageBegin, imageSize);
 }
 
 namespace
@@ -222,7 +225,7 @@ std::vector<std::string> getSupportedFreeImageExtensions()
 }
 } // namespace
 
-bool isSupportedFreeImageExtension(const std::string& extension)
+bool isSupportedFreeImageExtension(const std::string_view extension)
 {
   InitFreeImage::initialize();
 

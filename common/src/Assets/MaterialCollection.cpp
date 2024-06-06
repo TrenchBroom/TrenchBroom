@@ -133,7 +133,8 @@ void MaterialCollection::prepare(const int minFilter, const int magFilter)
     for (size_t i = 0; i < materialCount(); ++i)
     {
       auto& material = m_materials[i];
-      material.prepare(m_textureIds[i], minFilter, magFilter);
+      material.texture().upload();
+      material.texture().setFilterMode(minFilter, magFilter);
     }
   }
 }
@@ -142,7 +143,7 @@ void MaterialCollection::setFilterMode(const int minFilter, const int magFilter)
 {
   for (auto& material : m_materials)
   {
-    material.setFilterMode(minFilter, magFilter);
+    material.texture().setFilterMode(minFilter, magFilter);
   }
 }
 

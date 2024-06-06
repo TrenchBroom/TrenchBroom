@@ -19,8 +19,8 @@
 
 #include "ReadM8Texture.h"
 
-#include "Assets/Material.h"
 #include "Assets/Palette.h"
+#include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Error.h"
 #include "IO/Reader.h"
@@ -43,16 +43,14 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<Assets::Material, ReadMaterialError> readM8Texture(
-  std::string name, Reader& reader)
+Result<Assets::Texture> readM8Texture(Reader& reader)
 {
   try
   {
     const auto version = reader.readInt<int32_t>();
     if (version != M8Layout::Version)
     {
-      return ReadMaterialError{
-        std::move(name), "Unknown M8 texture version: " + std::to_string(version)};
+      return Error{"Unknown M8 texture version: " + std::to_string(version)};
     }
 
     reader.seekForward(M8Layout::TextureNameLength);
@@ -84,7 +82,7 @@ Result<Assets::Material, ReadMaterialError> readM8Texture(
     reader.seekForward(M8Layout::PaletteSize);
 
     return Assets::loadPalette(paletteReader, Assets::PaletteColorFormat::Rgb)
-      .and_then([&](const auto& palette) {
+      .transform([&](const auto& palette) {
         reader.seekForward(4); // flags
         reader.seekForward(4); // contents
         reader.seekForward(4); // value
@@ -116,23 +114,19 @@ Result<Assets::Material, ReadMaterialError> readM8Texture(
           }
         }
 
-        return Result<Assets::Material>{Assets::Material{
-          std::move(name),
+        return Assets::Texture{
           widths[0],
           heights[0],
           mip0AverageColor,
-          std::move(buffers),
           GL_RGBA,
-          Assets::TextureType::Opaque}};
-      })
-      .or_else([&](const auto& error) {
-        return Result<Assets::Material, ReadMaterialError>{
-          ReadMaterialError{std::move(name), error.msg}};
+          Assets::TextureMask::Off,
+          Assets::NoEmbeddedDefaults{},
+          std::move(buffers)};
       });
   }
   catch (const ReaderException& e)
   {
-    return ReadMaterialError{std::move(name), e.what()};
+    return Error{e.what()};
   }
 }
 

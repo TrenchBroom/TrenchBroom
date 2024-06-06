@@ -20,8 +20,10 @@
 
 #include "ReadDdsTexture.h"
 
-#include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
+#include "Error.h"
+#include "IO/MaterialUtils.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
@@ -128,16 +130,14 @@ void readDdsMips(Reader& reader, Assets::TextureBufferList& buffers)
 
 } // namespace
 
-Result<Assets::Material, ReadMaterialError> readDdsTexture(
-  std::string name, Reader& reader)
+Result<Assets::Texture> readDdsTexture(Reader& reader)
 {
   try
   {
     const auto ident = reader.readSize<uint32_t>();
     if (ident != DdsLayout::Ident)
     {
-      return ReadMaterialError{
-        std::move(name), "Unknown Dds ident: " + std::to_string(ident)};
+      return Error{"Unknown Dds ident: " + std::to_string(ident)};
     }
 
     /*const auto size =*/reader.readSize<uint32_t>();
@@ -150,8 +150,7 @@ Result<Assets::Material, ReadMaterialError> readDdsTexture(
 
     if (!checkTextureDimensions(width, height))
     {
-      return ReadMaterialError{
-        std::move(name), fmt::format("Invalid texture dimensions: {}*{}", width, height)};
+      return Error{fmt::format("Invalid texture dimensions: {}*{}", width, height)};
     }
 
     reader.seekFromBegin(DdsLayout::PixelFormatOffset);
@@ -244,8 +243,7 @@ Result<Assets::Material, ReadMaterialError> readDdsTexture(
 
     if (!format)
     {
-      return ReadMaterialError{
-        std::move(name), "Invalid Dds texture format: " + std::to_string(format)};
+      return Error{"Invalid Dds texture format: " + std::to_string(format)};
     }
 
     const auto numMips = mipMapsCount ? mipMapsCount : 1;
@@ -254,18 +252,18 @@ Result<Assets::Material, ReadMaterialError> readDdsTexture(
     Assets::setMipBufferSize(buffers, numMips, width, height, format);
     readDdsMips(reader, buffers);
 
-    return Assets::Material{
-      std::move(name),
+    return Assets::Texture{
       width,
       height,
       Color{},
-      std::move(buffers),
       format,
-      Assets::TextureType::Opaque};
+      Assets::TextureMask::Off,
+      Assets::NoEmbeddedDefaults{},
+      std::move(buffers)};
   }
   catch (const ReaderException& e)
   {
-    return ReadMaterialError{std::move(name), e.what()};
+    return Error{e.what()};
   }
 }
 

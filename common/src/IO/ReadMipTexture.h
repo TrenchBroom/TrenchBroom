@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "IO/MaterialUtils.h"
 #include "Result.h"
 
 #include <string>
@@ -27,7 +26,9 @@
 namespace TrenchBroom::Assets
 {
 class Palette;
-}
+class Texture;
+enum class TextureMask;
+} // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::IO
 {
@@ -35,10 +36,9 @@ class Reader;
 
 std::string readMipTextureName(Reader& reader);
 
-Result<Assets::Material, ReadMaterialError> readIdMipTexture(
-  std::string name, Reader& reader, const Assets::Palette& palette);
+Result<Assets::Texture> readIdMipTexture(
+  Reader& reader, const Assets::Palette& palette, Assets::TextureMask mask);
 
-Result<Assets::Material, ReadMaterialError> readHlMipTexture(
-  std::string name, Reader& reader);
+Result<Assets::Texture> readHlMipTexture(Reader& reader, Assets::TextureMask mask);
 
 } // namespace TrenchBroom::IO

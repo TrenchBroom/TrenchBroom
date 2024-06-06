@@ -44,33 +44,32 @@ auto loadTexture(const std::string& name)
 
   const auto file = diskFS.openFile(name).value();
   auto reader = file->reader().buffer();
-  return readFreeImageTexture(name, reader);
+  return readFreeImageTexture(reader);
 }
 
-void assertMaterial(const std::string& name, const size_t width, const size_t height)
+void assertTexture(const std::string& name, const size_t width, const size_t height)
 {
   loadTexture(name)
     .transform([&](const auto& texture) {
-      CHECK(texture.name() == name);
       CHECK(texture.width() == width);
       CHECK(texture.height() == height);
-      CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-      CHECK(texture.type() == Assets::TextureType::Opaque);
+      CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
+      CHECK(texture.mask() == Assets::TextureMask::Off);
     })
     .transform_error([](const auto&) { FAIL(); });
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2474
-void testImageContents(const Assets::Material& texture, const ColorMatch match)
+void testImageContents(const Assets::Texture& texture, const ColorMatch match)
 {
   const std::size_t w = 64u;
   const std::size_t h = 64u;
 
   CHECK(texture.width() == w);
   CHECK(texture.height() == h);
-  CHECK(texture.buffersIfUnprepared().size() == 1u);
-  CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-  CHECK(texture.type() == Assets::TextureType::Opaque);
+  CHECK(texture.buffersIfLoaded().size() == 1u);
+  CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
+  CHECK(texture.mask() == Assets::TextureMask::Off);
 
   for (std::size_t y = 0; y < h; ++y)
   {
@@ -101,8 +100,8 @@ TEST_CASE("readFreeImageTexture")
 {
   SECTION("loading PNGs")
   {
-    assertMaterial("5x5.png", 5, 5);
-    assertMaterial("707x710.png", 707, 710);
+    assertTexture("5x5.png", 5, 5);
+    assertTexture("707x710.png", 707, 710);
     testImageContents(loadTexture("pngContentsTest.png").value(), ColorMatch::Exact);
     CHECK(loadTexture("corruptPngTest.png").is_error());
 
@@ -124,11 +123,11 @@ TEST_CASE("readFreeImageTexture")
 
     CHECK(texture.width() == w);
     CHECK(texture.height() == h);
-    CHECK(texture.buffersIfUnprepared().size() == 1u);
-    CHECK((GL_BGRA == texture.format() || GL_RGBA == texture.format()));
-    CHECK(texture.type() == Assets::TextureType::Masked);
+    CHECK(texture.buffersIfLoaded().size() == 1u);
+    CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
+    CHECK(texture.mask() == Assets::TextureMask::On);
 
-    auto& mip0Data = texture.buffersIfUnprepared().at(0);
+    auto& mip0Data = texture.buffersIfLoaded().at(0);
     CHECK(mip0Data.size() == w * h * 4);
 
     for (std::size_t y = 0; y < h; ++y)

@@ -432,52 +432,58 @@ bool BrushFace::setAttributes(const BrushFace& other)
   return result;
 }
 
-int BrushFace::resolvedSurfaceContents() const
+namespace
 {
-  if (m_attributes.surfaceContents())
+
+struct SurfaceData
+{
+  int surfaceContents;
+  int surfaceFlags;
+  float surfaceValue;
+};
+
+SurfaceData getDefaultSurfaceData(const Assets::Material* material)
+{
+  if (material)
   {
-    return *m_attributes.surfaceContents();
-  }
-  if (material())
-  {
-    if (const auto* q2data = std::get_if<Assets::Q2Data>(&material()->gameData()))
+    const auto& defaults = material->texture().embeddedDefaults();
+    if (const auto* q2Defaults = std::get_if<Assets::Q2EmbeddedDefaults>(&defaults))
     {
-      return q2data->contents;
+      return {
+        q2Defaults->contents,
+        q2Defaults->flags,
+        static_cast<float>(q2Defaults->value),
+      };
     }
   }
-  return 0;
+  return {0, 0, 0.0f};
+}
+
+SurfaceData resolveSurfaceData(
+  const BrushFaceAttributes& attributes, const Assets::Material* material)
+{
+  const auto defaultSurfaceData = getDefaultSurfaceData(material);
+  return {
+    attributes.surfaceContents().value_or(defaultSurfaceData.surfaceContents),
+    attributes.surfaceFlags().value_or(defaultSurfaceData.surfaceFlags),
+    attributes.surfaceValue().value_or(defaultSurfaceData.surfaceValue)};
+}
+
+} // namespace
+
+int BrushFace::resolvedSurfaceContents() const
+{
+  return resolveSurfaceData(m_attributes, material()).surfaceContents;
 }
 
 int BrushFace::resolvedSurfaceFlags() const
 {
-  if (m_attributes.surfaceFlags())
-  {
-    return *m_attributes.surfaceFlags();
-  }
-  if (material())
-  {
-    if (const auto* q2data = std::get_if<Assets::Q2Data>(&material()->gameData()))
-    {
-      return q2data->flags;
-    }
-  }
-  return 0;
+  return resolveSurfaceData(m_attributes, material()).surfaceFlags;
 }
 
 float BrushFace::resolvedSurfaceValue() const
 {
-  if (m_attributes.surfaceValue())
-  {
-    return *m_attributes.surfaceValue();
-  }
-  if (material())
-  {
-    if (const auto* q2data = std::get_if<Assets::Q2Data>(&material()->gameData()))
-    {
-      return static_cast<float>(q2data->value);
-    }
-  }
-  return 0.0f;
+  return resolveSurfaceData(m_attributes, material()).surfaceValue;
 }
 
 Color BrushFace::resolvedColor() const
@@ -505,24 +511,17 @@ const Assets::Material* BrushFace::material() const
 
 vm::vec2f BrushFace::textureSize() const
 {
-  if (material() == nullptr)
+  if (!material())
   {
-    return vm::vec2f::one();
+    return vm::vec2f{1, 1};
   }
-  const float w =
-    material()->width() == 0 ? 1.0f : static_cast<float>(material()->width());
-  const float h =
-    material()->height() == 0 ? 1.0f : static_cast<float>(material()->height());
-  return vm::vec2f(w, h);
+
+  return vm::max(material()->texture().sizef(), vm::vec2f{1, 1});
 }
 
 vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const
 {
-  const auto textureSize = material() ? vm::vec2f(
-                             std::max(1.0f, float(material()->width())),
-                             std::max(1.0f, float(material()->height())))
-                                      : vm::vec2f::one();
-  return m_attributes.modOffset(offset, textureSize);
+  return m_attributes.modOffset(offset, textureSize());
 }
 
 bool BrushFace::setMaterial(Assets::Material* material)

@@ -308,9 +308,14 @@ void GameImpl::loadFrame(
   }
 }
 
-const std::string& GameImpl::gameName() const
+const GameConfig& GameImpl::config() const
 {
-  return m_config.name;
+  return m_config;
+}
+
+const IO::FileSystem& GameImpl::gameFileSystem() const
+{
+  return m_fs;
 }
 
 std::filesystem::path GameImpl::gamePath() const
@@ -352,26 +357,6 @@ Game::PathErrors GameImpl::checkAdditionalSearchPaths(
   return result;
 }
 
-const CompilationConfig& GameImpl::compilationConfig()
-{
-  return m_config.compilationConfig;
-}
-
-const std::vector<CompilationTool>& GameImpl::compilationTools() const
-{
-  return m_config.compilationTools;
-}
-
-size_t GameImpl::maxPropertyLength() const
-{
-  return m_config.maxPropertyLength;
-}
-
-std::optional<vm::bbox3> GameImpl::softMapBounds() const
-{
-  return m_config.softMapBounds;
-}
-
 Game::SoftMapBounds GameImpl::extractSoftMapBounds(const Entity& entity) const
 {
   if (const auto* mapValue = entity.property(EntityPropertyKeys::SoftMapBounds))
@@ -383,12 +368,7 @@ Game::SoftMapBounds GameImpl::extractSoftMapBounds(const Entity& entity) const
   }
 
   // Not set in map -> use Game value
-  return SoftMapBounds{SoftMapBoundsType::Game, softMapBounds()};
-}
-
-const std::vector<SmartTag>& GameImpl::smartTags() const
-{
-  return m_config.smartTags;
+  return SoftMapBounds{SoftMapBoundsType::Game, config().softMapBounds};
 }
 
 Result<std::unique_ptr<WorldNode>> GameImpl::newMap(
@@ -421,8 +401,8 @@ Result<std::unique_ptr<WorldNode>> GameImpl::newMap(
   auto worldNode = std::make_unique<WorldNode>(
     std::move(propertyConfig), std::move(worldEntity), format);
 
-  const auto builder =
-    Model::BrushBuilder{worldNode->mapFormat(), worldBounds, defaultFaceAttribs()};
+  const auto builder = Model::BrushBuilder{
+    worldNode->mapFormat(), worldBounds, config().faceAttribsConfig.defaults};
   builder.createCuboid({128.0, 128.0, 32.0}, Model::BrushFaceAttributes::NoMaterialName)
     .transform(
       [&](auto b) { worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)}); })
@@ -467,7 +447,7 @@ Result<void> GameImpl::writeMap(
 {
   return IO::Disk::withOutputStream(path, [&](auto& stream) {
     const auto mapFormatName = formatName(world.mapFormat());
-    stream << "// Game: " << gameName() << "\n"
+    stream << "// Game: " << config().name << "\n"
            << "// Format: " << mapFormatName << "\n";
 
     auto writer = IO::NodeWriter{world, stream};
@@ -545,11 +525,6 @@ void GameImpl::loadMaterialCollections(Assets::MaterialManager& materialManager)
   materialManager.reload(m_fs, m_config.materialConfig);
 }
 
-const std::optional<std::string>& GameImpl::wadProperty() const
-{
-  return m_config.materialConfig.property;
-}
-
 void GameImpl::reloadWads(
   const std::filesystem::path& documentPath,
   const std::vector<std::filesystem::path>& wadPaths,
@@ -602,7 +577,8 @@ Assets::EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const
     return Assets::EntityDefinitionFileSpec::builtin(paths.front());
   }
 
-  throw GameException{"No entity definition files found for game '" + gameName() + "'"};
+  throw GameException{
+    "No entity definition files found for game '" + config().name + "'"};
 }
 
 std::filesystem::path GameImpl::findEntityDefinitionFile(
@@ -671,21 +647,6 @@ std::vector<std::string> GameImpl::extractEnabledMods(const Entity& entity) cons
 std::string GameImpl::defaultMod() const
 {
   return m_config.fileSystemConfig.searchPath.string();
-}
-
-const FlagsConfig& GameImpl::surfaceFlags() const
-{
-  return m_config.faceAttribsConfig.surfaceFlags;
-}
-
-const FlagsConfig& GameImpl::contentFlags() const
-{
-  return m_config.faceAttribsConfig.contentFlags;
-}
-
-const BrushFaceAttributes& GameImpl::defaultFaceAttribs() const
-{
-  return m_config.faceAttribsConfig.defaults;
 }
 
 void GameImpl::initializeFileSystem(Logger& logger)

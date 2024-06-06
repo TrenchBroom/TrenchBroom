@@ -61,7 +61,7 @@ std::vector<Vertex> createDecalBrushFace(
   const Model::BrushFace& face,
   const Assets::Material& material)
 {
-  const auto textureSize = vm::vec2f{float(material.width()), float(material.height())};
+  const auto textureSize = material.texture().sizef();
   const auto materialName = material.name();
 
   // copy the face properties, used to calculate the decal size and UV coords

@@ -760,8 +760,9 @@ void FaceAttribsEditor::updateControls()
         if (const auto* material = firstFace.material())
         {
           m_materialName->setText(QString::fromStdString(materialName));
-          m_textureSize->setText(
-            QStringLiteral("%1 * %2").arg(material->width()).arg(material->height()));
+          m_textureSize->setText(QStringLiteral("%1 * %2")
+                                   .arg(material->texture().width())
+                                   .arg(material->texture().height()));
           m_materialName->setEnabled(true);
           m_textureSize->setEnabled(true);
         }
@@ -836,14 +837,14 @@ bool FaceAttribsEditor::hasSurfaceFlags() const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  return !game->surfaceFlags().flags.empty();
+  return !game->config().faceAttribsConfig.surfaceFlags.flags.empty();
 }
 
 bool FaceAttribsEditor::hasContentFlags() const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  return !game->contentFlags().flags.empty();
+  return !game->config().faceAttribsConfig.contentFlags.flags.empty();
 }
 
 void FaceAttribsEditor::showSurfaceFlagsEditor()
@@ -917,7 +918,7 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFl
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  const auto& surfaceFlags = game->surfaceFlags();
+  const auto& surfaceFlags = game->config().faceAttribsConfig.surfaceFlags;
   return getFlags(surfaceFlags.flags);
 }
 
@@ -926,7 +927,7 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFl
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  const auto& contentFlags = game->contentFlags();
+  const auto& contentFlags = game->config().faceAttribsConfig.contentFlags;
   return getFlags(contentFlags.flags);
 }
 

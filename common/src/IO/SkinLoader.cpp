@@ -59,8 +59,15 @@ Assets::Material loadSkin(
     .and_then([&](auto file) -> Result<Assets::Material, ReadMaterialError> {
       const auto extension = kdl::str_to_lower(path.extension().string());
       auto reader = file->reader().buffer();
-      return extension == ".wal" ? readWalTexture(path.stem().string(), reader, palette)
-                                 : readFreeImageTexture(path.stem().string(), reader);
+      return (extension == ".wal" ? readWalTexture(reader, palette)
+                                  : readFreeImageTexture(reader))
+             | kdl::transform([&](auto texture) {
+                 return Assets::Material{path.stem().string(), std::move(texture)};
+               })
+             | kdl::or_else([&](auto e) {
+                 return Result<Assets::Material, ReadMaterialError>{
+                   ReadMaterialError{path.stem().string(), std::move(e.msg)}};
+               });
     })
     .transform_error([&](auto e) -> Assets::Material {
       logger.error() << "Could not load skin '" << path << "': " << e.msg;

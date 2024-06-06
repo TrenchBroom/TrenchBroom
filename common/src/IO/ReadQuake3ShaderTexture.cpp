@@ -109,25 +109,20 @@ std::optional<std::filesystem::path> findImagePath(
   return std::nullopt;
 }
 
-Result<Assets::Material, ReadMaterialError> loadTextureImage(
-  std::string shaderName, const std::filesystem::path& imagePath, const FileSystem& fs)
+Result<Assets::Texture> loadTextureImage(
+  const std::filesystem::path& imagePath, const FileSystem& fs)
 {
   auto imageName = imagePath.filename();
   if (fs.pathInfo(imagePath) != PathInfo::File)
   {
-    return ReadMaterialError{
-      std::move(shaderName), "Image file '" + imagePath.string() + "' does not exist"};
+    return Error{"Image file '" + imagePath.string() + "' does not exist"};
   }
 
-  return fs.openFile(imagePath)
-    .and_then([&](auto file) {
-      auto reader = file->reader().buffer();
-      return readFreeImageTexture(shaderName, reader);
-    })
-    .or_else([&](auto e) {
-      return Result<Assets::Material, ReadMaterialError>{
-        ReadMaterialError{shaderName, e.msg}};
-    });
+  return fs.openFile(imagePath) | kdl::and_then([&](auto file) {
+           auto reader = file->reader().buffer();
+           return readFreeImageTexture(reader);
+         })
+         | kdl::or_else([&](auto e) { return Result<Assets::Texture>{Error{e.msg}}; });
 }
 
 } // namespace
@@ -150,42 +145,47 @@ Result<Assets::Material, ReadMaterialError> readQuake3ShaderTexture(
       "Could not find texture path for shader '" + shader.shaderPath.string() + "'"};
   }
 
-  return loadTextureImage(std::move(shaderName), *imagePath, fs)
-    .transform([&](auto texture) {
-      texture.setSurfaceParms(shader.surfaceParms);
-      texture.setOpaque();
+  return loadTextureImage(*imagePath, fs) | kdl::and_then([&](auto texture) {
+           auto material = Assets::Material{std::move(shaderName), std::move(texture)};
+           material.setSurfaceParms(shader.surfaceParms);
+           material.texture().setMask(Assets::TextureMask::Off);
 
-      // Note that Quake 3 has a different understanding of front and back, so we need to
-      // invert them.
-      switch (shader.culling)
-      {
-      case Assets::Quake3Shader::Culling::Front:
-        texture.setCulling(Assets::MaterialCulling::Back);
-        break;
-      case Assets::Quake3Shader::Culling::Back:
-        texture.setCulling(Assets::MaterialCulling::Front);
-        break;
-      case Assets::Quake3Shader::Culling::None:
-        texture.setCulling(Assets::MaterialCulling::None);
-        break;
-      }
+           // Note that Quake 3 has a different understanding of front and back, so we
+           // need to invert them.
+           switch (shader.culling)
+           {
+           case Assets::Quake3Shader::Culling::Front:
+             material.setCulling(Assets::MaterialCulling::Back);
+             break;
+           case Assets::Quake3Shader::Culling::Back:
+             material.setCulling(Assets::MaterialCulling::Front);
+             break;
+           case Assets::Quake3Shader::Culling::None:
+             material.setCulling(Assets::MaterialCulling::None);
+             break;
+           }
 
-      if (!shader.stages.empty())
-      {
-        const auto& stage = shader.stages.front();
-        if (stage.blendFunc.enable())
-        {
-          texture.setBlendFunc(
-            glGetEnum(stage.blendFunc.srcFactor), glGetEnum(stage.blendFunc.destFactor));
-        }
-        else
-        {
-          texture.disableBlend();
-        }
-      }
+           if (!shader.stages.empty())
+           {
+             const auto& stage = shader.stages.front();
+             if (stage.blendFunc.enable())
+             {
+               material.setBlendFunc(
+                 glGetEnum(stage.blendFunc.srcFactor),
+                 glGetEnum(stage.blendFunc.destFactor));
+             }
+             else
+             {
+               material.disableBlend();
+             }
+           }
 
-      return texture;
-    });
+           return Result<Assets::Material>{std::move(material)};
+         })
+         | kdl::or_else([&](auto e) {
+             return Result<Assets::Material, ReadMaterialError>{
+               ReadMaterialError{std::move(shaderName), e.msg}};
+           });
 }
 
 } // namespace TrenchBroom::IO

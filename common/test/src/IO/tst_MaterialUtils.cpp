@@ -55,7 +55,7 @@ TEST_CASE("getMaterialNameFromPathSuffix")
   CHECK(getMaterialNameFromPathSuffix(path, prefixLength) == expectedResult);
 }
 
-TEST_CASE("makeReadMaterialErrorHandler")
+TEST_CASE("makeReadTextureErrorHandler")
 {
   auto logger = NullLogger{};
   auto diskFS = DiskFileSystem{
@@ -63,14 +63,13 @@ TEST_CASE("makeReadMaterialErrorHandler")
 
   const auto file = diskFS.openFile("textures/corruptPngTest.png").value();
   auto reader = file->reader().buffer();
-  auto result = readFreeImageTexture("corruptPngTest", reader);
+  auto result = readFreeImageTexture(reader);
   REQUIRE(result.is_error());
 
-  const auto defaultMagerial =
-    std::move(result).or_else(makeReadMaterialErrorHandler(diskFS, logger)).value();
-  CHECK(defaultMagerial.name() == "corruptPngTest");
-  CHECK(defaultMagerial.width() == 32);
-  CHECK(defaultMagerial.height() == 32);
+  const auto defaultTexture =
+    std::move(result).or_else(makeReadTextureErrorHandler(diskFS, logger)).value();
+  CHECK(defaultTexture.width() == 32);
+  CHECK(defaultTexture.height() == 32);
 }
 } // namespace IO
 } // namespace TrenchBroom

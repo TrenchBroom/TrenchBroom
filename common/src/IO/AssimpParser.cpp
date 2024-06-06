@@ -25,6 +25,7 @@
 #include "Assets/Material.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/MaterialUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"
@@ -162,7 +163,7 @@ public:
   }
 };
 
-std::optional<Assets::Material> loadFallbackTexture(const FileSystem& fs)
+std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
 {
   static const auto NoTextureName = Model::BrushFaceAttributes::NoMaterialName;
 
@@ -174,66 +175,57 @@ std::optional<Assets::Material> loadFallbackTexture(const FileSystem& fs)
   };
 
   return kdl::select_first(texturePaths, [&](const auto& texturePath) {
-    return fs.openFile(texturePath).and_then([](auto file) {
-      auto reader = file->reader().buffer();
-      return readFreeImageTexture("", reader);
-    });
+    return fs.openFile(texturePath) | kdl::and_then([](auto file) {
+             auto reader = file->reader().buffer();
+             return readFreeImageTexture(reader);
+           });
   });
 }
 
-Assets::Material loadFallbackOrDefaultTexture(
-  const FileSystem& fs, const std::string& defaultMaterialName, Logger& logger)
+Assets::Texture loadFallbackOrDefaultTexture(const FileSystem& fs, Logger& logger)
 {
   if (auto fallbackTexture = loadFallbackTexture(fs))
   {
-    return {std::move(*fallbackTexture)};
+    return std::move(*fallbackTexture);
   }
-  return {loadDefaultMaterial(fs, defaultMaterialName, logger)};
+  return loadDefaultTexture(fs, logger);
 }
 
-Assets::Material loadTextureFromFileSystem(
+Assets::Texture loadTextureFromFileSystem(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
-  return fs.openFile(path)
-    .and_then([](auto file) {
-      auto reader = file->reader().buffer();
-      return readFreeImageTexture("", reader);
-    })
-    .or_else(makeReadMaterialErrorHandler(fs, logger))
-    .value();
+  return fs.openFile(path) | kdl::and_then([](auto file) {
+           auto reader = file->reader().buffer();
+           return readFreeImageTexture(reader);
+         })
+         | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
 }
 
-Assets::Material loadUncompressedEmbeddedTexture(
-  std::string name, const aiTexel& data, const size_t width, const size_t height)
+Assets::Texture loadUncompressedEmbeddedTexture(
+  const aiTexel& data, const size_t width, const size_t height)
 {
   auto buffer = Assets::TextureBuffer{width * height * sizeof(aiTexel)};
   std::memcpy(buffer.data(), &data, width * height * sizeof(aiTexel));
 
   const auto averageColor = getAverageColor(buffer, GL_BGRA);
   return {
-    std::move(name),
     width,
     height,
     averageColor,
-    std::move(buffer),
     GL_BGRA,
-    Assets::TextureType::Masked};
+    Assets::TextureMask::On,
+    Assets::NoEmbeddedDefaults{},
+    std::move(buffer)};
 }
 
-Assets::Material loadCompressedEmbeddedTexture(
-  std::string name,
-  const aiTexel& data,
-  const size_t size,
-  const FileSystem& fs,
-  Logger& logger)
+Assets::Texture loadCompressedEmbeddedTexture(
+  const aiTexel& data, const size_t size, const FileSystem& fs, Logger& logger)
 {
-  return readFreeImageTextureFromMemory(
-           std::move(name), reinterpret_cast<const uint8_t*>(&data), size)
-    .or_else(makeReadMaterialErrorHandler(fs, logger))
-    .value();
+  return readFreeImageTextureFromMemory(reinterpret_cast<const uint8_t*>(&data), size)
+         | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
 }
 
-Assets::Material loadTexture(
+Assets::Texture loadTexture(
   const aiTexture* texture,
   const std::filesystem::path& texturePath,
   const std::filesystem::path& modelPath,
@@ -251,24 +243,23 @@ Assets::Material loadTexture(
   {
     // The texture is uncompressed, load it directly.
     return loadUncompressedEmbeddedTexture(
-      texture->mFilename.C_Str(), *texture->pcData, texture->mWidth, texture->mHeight);
+      *texture->pcData, texture->mWidth, texture->mHeight);
   }
 
   // The texture is embedded, but compressed. Let FreeImage load it from memory.
-  return loadCompressedEmbeddedTexture(
-    texture->mFilename.C_Str(), *texture->pcData, texture->mWidth, fs, logger);
+  return loadCompressedEmbeddedTexture(*texture->pcData, texture->mWidth, fs, logger);
 }
 
-std::vector<Assets::Material> loadTexturesForMaterial(
+std::vector<Assets::Texture> loadTexturesForMaterial(
   const aiScene& scene,
   const size_t materialIndex,
   const std::filesystem::path& modelPath,
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Material>{};
+  auto textures = std::vector<Assets::Texture>{};
 
-  // Is there even a single diffuse texture? If not, fail and load fallback material.
+  // Is there even a single diffuse texture? If not, fail and load fallback texture.
   const auto textureCount =
     scene.mMaterials[materialIndex]->GetTextureCount(aiTextureType_DIFFUSE);
   if (textureCount > 0)
@@ -291,11 +282,7 @@ std::vector<Assets::Material> loadTexturesForMaterial(
       materialIndex,
       modelPath.string()));
 
-    // Materials aren't guaranteed to have a name.
-    const auto materialName = scene.mMaterials[materialIndex]->GetName() != aiString{""}
-                                ? scene.mMaterials[materialIndex]->GetName().C_Str()
-                                : "nr. " + std::to_string(materialIndex + 1);
-    textures.push_back(loadFallbackOrDefaultTexture(fs, materialName, logger));
+    textures.push_back(loadFallbackOrDefaultTexture(fs, logger));
   }
 
   return textures;
@@ -850,8 +837,12 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::initializeModel(
     // alternatives (this is how assimp handles skins)
 
     // load skins for this surface
-    surface.setSkins(
-      {loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger)});
+    auto textures =
+      loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger);
+    auto materials = kdl::vec_transform(std::move(textures), [](auto texture) {
+      return Assets::Material{"", std::move(texture)};
+    });
+    surface.setSkins(std::move(materials));
   }
 
   return model;

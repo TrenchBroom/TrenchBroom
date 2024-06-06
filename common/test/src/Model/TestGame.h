@@ -45,34 +45,24 @@ namespace TrenchBroom::Model
 class TestGame : public Game
 {
 private:
-  mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
-  std::vector<SmartTag> m_smartTags;
-  Model::BrushFaceAttributes m_defaultFaceAttributes;
-  std::vector<CompilationTool> m_compilationTools;
+  GameConfig m_config = {"Test", {}, {}, false, {}, {}, {}, {}, {}, {}, {}, {}};
   std::unique_ptr<IO::VirtualFileSystem> m_fs;
+  mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
 
 public:
   TestGame();
   ~TestGame() override;
 
-  const std::string& gameName() const override;
+  const GameConfig& config() const override;
+  const IO::FileSystem& gameFileSystem() const override;
 
   std::filesystem::path gamePath() const override;
   void setGamePath(const std::filesystem::path& gamePath, Logger& logger) override;
-  std::optional<vm::bbox3> softMapBounds() const override;
   Game::SoftMapBounds extractSoftMapBounds(const Entity& entity) const override;
   void setAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger) override;
   PathErrors checkAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths) const override;
-
-  const CompilationConfig& compilationConfig() override;
-
-  const std::vector<CompilationTool>& compilationTools() const override;
-
-  size_t maxPropertyLength() const override;
-
-  const std::vector<SmartTag>& smartTags() const override;
 
   Result<std::unique_ptr<WorldNode>> newMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
@@ -107,7 +97,6 @@ public:
 
   void loadMaterialCollections(Assets::MaterialManager& materialManager) const override;
 
-  const std::optional<std::string>& wadProperty() const override;
   void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
@@ -125,10 +114,6 @@ public:
   Result<std::vector<std::string>> availableMods() const override;
   std::vector<std::string> extractEnabledMods(const Entity& entity) const override;
   std::string defaultMod() const override;
-
-  const FlagsConfig& surfaceFlags() const override;
-  const FlagsConfig& contentFlags() const override;
-  const BrushFaceAttributes& defaultFaceAttribs() const override;
 
   Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> loadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;

@@ -33,6 +33,7 @@
 #include <functional>
 #include <iosfwd>
 #include <string>
+#include <string_view>
 
 namespace TrenchBroom
 {
@@ -42,7 +43,8 @@ class Logger;
 namespace TrenchBroom::Assets
 {
 class Material;
-}
+enum class TextureMask;
+} // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::IO
 {
@@ -64,6 +66,14 @@ struct ReadMaterialError
   kdl_reflect_decl(ReadMaterialError, materialName, msg);
 };
 
+inline auto makeReadTextureErrorHandler(const FileSystem& fs, Logger& logger)
+{
+  return [&](Error e) {
+    logger.error() << "Could not open texture file: " << e.msg;
+    return Result<Assets::Texture>{loadDefaultTexture(fs, logger)};
+  };
+}
+
 inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
 {
   return kdl::overload(
@@ -76,5 +86,7 @@ inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
       return Result<Assets::Material>{loadDefaultMaterial(fs, e.materialName, logger)};
     });
 }
+
+Assets::TextureMask getTextureMaskFromName(std::string_view name);
 
 } // namespace TrenchBroom::IO

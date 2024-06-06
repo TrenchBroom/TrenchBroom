@@ -21,8 +21,11 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/File.h"
+#include "IO/MaterialUtils.h"
 #include "IO/ReadMipTexture.h"
 #include "IO/Reader.h"
 #include "IO/ResourceUtils.h"
@@ -105,12 +108,17 @@ std::vector<Assets::Material> parseMaterials(
       continue;
     }
 
-    const auto materialName = readMipTextureName(reader);
-    auto materialReader = reader.subReaderFromBegin(size_t(offset)).buffer();
+    auto materialName = readMipTextureName(reader);
+    auto textureReader = reader.subReaderFromBegin(size_t(offset)).buffer();
+    const auto mask = getTextureMaskFromName(materialName);
 
-    result.push_back(readIdMipTexture(materialName, materialReader, palette)
-                       .or_else(makeReadMaterialErrorHandler(fs, logger))
-                       .value());
+    result.push_back(
+      readIdMipTexture(textureReader, palette, mask)
+      | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
+      | kdl::transform([&](auto texture) {
+          return Assets::Material{std::move(materialName), std::move(texture)};
+        })
+      | kdl::value());
   }
 
   return result;
@@ -181,12 +189,16 @@ vm::vec2f uvCoords(
   const MaterialInfo& materialInfo,
   const Assets::Material* material)
 {
-  return material ? vm::vec2f{
-           (vm::dot(vertex, materialInfo.uAxis) + materialInfo.uOffset)
-             / float(material->width()),
-           (vm::dot(vertex, materialInfo.vAxis) + materialInfo.vOffset)
-             / float(material->height())}
-                 : vm::vec2f::zero();
+  if (!material)
+  {
+    return vm::vec2f{0, 0};
+  }
+
+  const auto textureSize = material->texture().sizef();
+  return vm::vec2f{
+    (vm::dot(vertex, materialInfo.uAxis) + materialInfo.uOffset) / textureSize.x(),
+    (vm::dot(vertex, materialInfo.vAxis) + materialInfo.vOffset) / textureSize.y(),
+  };
 }
 
 void parseFrame(

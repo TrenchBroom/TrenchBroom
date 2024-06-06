@@ -21,8 +21,10 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
+#include "Error.h"
 #include "FloatType.h"
 #include "IO/File.h"
+#include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
@@ -56,9 +58,12 @@ std::unique_ptr<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& 
   auto materials = std::vector<Assets::Material>{};
 
   auto reader = m_file->reader().buffer();
-  materials.push_back(readFreeImageTexture(m_name, reader)
-                        .or_else(makeReadMaterialErrorHandler(m_fs, logger))
-                        .value());
+  materials.push_back(
+    readFreeImageTexture(reader) | kdl::or_else(makeReadTextureErrorHandler(m_fs, logger))
+    | kdl::and_then([&](auto texture) {
+        return Result<Assets::Material>{Assets::Material{m_name, std::move(texture)}};
+      })
+    | kdl::value());
 
   auto model = std::make_unique<Assets::EntityModel>(
     m_name, Assets::PitchType::Normal, Assets::Orientation::ViewPlaneParallel);
@@ -77,8 +82,9 @@ void ImageSpriteParser::loadFrame(
 
   if (const auto* material = surface.skin(0))
   {
-    const auto w = static_cast<float>(material->width());
-    const auto h = static_cast<float>(material->height());
+    const auto textureSize = material->texture().sizef();
+    const auto w = textureSize.x();
+    const auto h = textureSize.y();
     const auto x1 = -w / 2.0f;
     const auto y1 = -h / 2.0f;
     const auto x2 = x1 + w;

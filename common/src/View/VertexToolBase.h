@@ -335,7 +335,7 @@ public: // csg convex merge
     const auto builder = Model::BrushBuilder{
       document->world()->mapFormat(),
       document->worldBounds(),
-      game->defaultFaceAttribs()};
+      game->config().faceAttribsConfig.defaults};
     builder.createBrush(polyhedron, document->currentMaterialName())
       .transform([&](auto b) {
         for (const auto* selectedBrushNode : document->selectedNodes().brushes())
