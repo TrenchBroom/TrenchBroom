@@ -63,15 +63,7 @@ Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
            })
            | kdl::transform_error([&](auto e) {
                logger.error() << "Could not load default texture: " << e.msg;
-               return Assets::Texture{
-                 32,
-                 32,
-                 Color{0, 0, 0, 1},
-                 GL_RGBA,
-                 Assets::TextureMask::Off,
-                 Assets::Q2EmbeddedDefaults{},
-                 std::vector<Assets::TextureBuffer>{},
-               };
+               return Assets::Texture{32, 32};
              })
            | kdl::value();
   }
@@ -80,15 +72,7 @@ Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
     logger.error() << "Could not load default texture";
   }
 
-  return Assets::Texture{
-    32,
-    32,
-    Color{0, 0, 0, 1},
-    GL_RGBA,
-    Assets::TextureMask::Off,
-    Assets::Q2EmbeddedDefaults{},
-    std::vector<Assets::TextureBuffer>{},
-  };
+  return Assets::Texture{32, 32};
 }
 
 Assets::Material loadDefaultMaterial(
