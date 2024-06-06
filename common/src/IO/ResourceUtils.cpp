@@ -49,8 +49,7 @@
 namespace TrenchBroom::IO
 {
 
-Assets::Material loadDefaultMaterial(
-  const FileSystem& fs, std::string name, Logger& logger)
+Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
 {
   // recursion guard
   static auto executing = false;
@@ -58,22 +57,44 @@ Assets::Material loadDefaultMaterial(
   {
     const auto set_executing = kdl::set_temp{executing};
 
-    return fs.openFile("textures/__TB_empty.png")
-      .and_then([&](auto file) {
-        auto reader = file->reader().buffer();
-        return readFreeImageTexture(name, reader);
-      })
-      .transform_error([&](auto e) {
-        logger.error() << "Could not load default material: " << e.msg;
-        return Assets::Material{std::move(name), 32, 32};
-      })
-      .value();
+    return fs.openFile("textures/__TB_empty.png") | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readFreeImageTexture(reader);
+           })
+           | kdl::transform_error([&](auto e) {
+               logger.error() << "Could not load default texture: " << e.msg;
+               return Assets::Texture{
+                 32,
+                 32,
+                 Color{0, 0, 0, 1},
+                 GL_RGBA,
+                 Assets::TextureMask::Off,
+                 Assets::Q2EmbeddedDefaults{},
+                 std::vector<Assets::TextureBuffer>{},
+               };
+             })
+           | kdl::value();
   }
   else
   {
-    logger.error() << "Could not load default material";
+    logger.error() << "Could not load default texture";
   }
-  return Assets::Material{std::move(name), 32, 32};
+
+  return Assets::Texture{
+    32,
+    32,
+    Color{0, 0, 0, 1},
+    GL_RGBA,
+    Assets::TextureMask::Off,
+    Assets::Q2EmbeddedDefaults{},
+    std::vector<Assets::TextureBuffer>{},
+  };
+}
+
+Assets::Material loadDefaultMaterial(
+  const FileSystem& fs, std::string name, Logger& logger)
+{
+  return Assets::Material{std::move(name), loadDefaultTexture(fs, logger)};
 }
 
 static QString imagePathToString(const std::filesystem::path& imagePath)

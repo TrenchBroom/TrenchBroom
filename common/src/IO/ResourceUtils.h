@@ -34,11 +34,22 @@ class Logger;
 namespace TrenchBroom::Assets
 {
 class Material;
-}
+class Texture;
+} // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::IO
 {
 class FileSystem;
+
+/**
+ * Loads a default texture from the given file system. If the default texture cannot be
+ * found or opened, an empty texture is returned.
+ *
+ * @param fs the file system used to locate the texture file
+ * @param name the name of the texture to be returned
+ * @return the default texture
+ */
+Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger);
 
 /**
  * Loads a default material from the given file system. If the default material cannot be
