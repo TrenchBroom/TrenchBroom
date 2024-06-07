@@ -22,8 +22,8 @@
 #include "Assets/MaterialCollection.h"
 
 #include <filesystem>
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom
@@ -55,7 +55,7 @@ private:
   std::vector<size_t> m_toPrepare;
   std::vector<MaterialCollection> m_toRemove;
 
-  std::map<std::string, Material*> m_materialsByName;
+  std::unordered_map<std::string, Material*> m_materialsByName;
   std::vector<const Material*> m_materials;
 
   int m_minFilter;
