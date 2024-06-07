@@ -24,12 +24,14 @@
 #include "IO/FileSystem.h"
 #include "Result.h"
 
+#include "kdl/path_hash.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
 
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <unordered_map>
 #include <variant>
 
 namespace TrenchBroom::IO
@@ -52,6 +54,7 @@ struct ImageDirectoryEntry
 {
   std::filesystem::path name;
   std::vector<ImageEntry> entries;
+  std::unordered_map<std::filesystem::path, size_t, kdl::path_hash> entryMapLC;
 };
 
 class ImageFileSystemBase : public FileSystem
