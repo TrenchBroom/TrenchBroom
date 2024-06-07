@@ -41,8 +41,8 @@ TEST_CASE("readWalTexture")
 {
   const auto palettePath = "fixture/test/colormap.pcx";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  auto paletteFile = fs.openFile("fixture/test/colormap.pcx").value();
-  const auto palette = Assets::loadPalette(*paletteFile, palettePath).value();
+  auto paletteFile = fs.openFile("fixture/test/colormap.pcx") | kdl::value();
+  const auto palette = Assets::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   using TexInfo =
     std::tuple<std::filesystem::path, size_t, size_t, Assets::EmbeddedDefaults>;
@@ -66,11 +66,11 @@ TEST_CASE("readWalTexture")
   INFO(width);
   INFO(height);
 
-  const auto file = fs.openFile(fixturePath / path).value();
+  const auto file = fs.openFile(fixturePath / path) | kdl::value();
   auto reader = file->reader().buffer();
 
   const auto name = path.stem().generic_string();
-  const auto texture = readWalTexture(reader, palette).value();
+  const auto texture = readWalTexture(reader, palette) | kdl::value();
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
   CHECK(texture.embeddedDefaults() == embeddedDefaults);

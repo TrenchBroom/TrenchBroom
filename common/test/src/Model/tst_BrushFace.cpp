@@ -65,7 +65,7 @@ TEST_CASE("BrushFaceTest.constructWithValidPoints")
   BrushFace face =
     BrushFace::create(
       p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
-      .value();
+    | kdl::value();
   CHECK(face.points()[0] == vm::approx(p0));
   CHECK(face.points()[1] == vm::approx(p1));
   CHECK(face.points()[2] == vm::approx(p2));
@@ -103,7 +103,7 @@ TEST_CASE("BrushFaceTest.materialUsageCount")
     BrushFace face =
       BrushFace::create(
         p0, p1, p2, attribs, std::make_unique<ParaxialUVCoordSystem>(p0, p1, p2, attribs))
-        .value();
+      | kdl::value();
     CHECK(material.usageCount() == 0u);
 
     // test setMaterial
@@ -139,10 +139,9 @@ TEST_CASE("BrushFaceTest.projectedArea")
   const auto worldBounds = vm::bbox3{8192.0};
   const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
-  auto brush =
-    builder
-      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
-      .value();
+  auto brush = builder.createCuboid(
+                 vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
+               | kdl::value();
   REQUIRE(
     brush
       .transform(worldBounds, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), false)
@@ -568,7 +567,7 @@ TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
   Assets::Material material("testMaterial", 64, 64);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush cube = builder.createCube(128.0, "").value();
+  Brush cube = builder.createCube(128.0, "") | kdl::value();
   BrushFace& face = cube.faces().front();
 
   // This face's UV normal is in the same direction as the face normal
@@ -592,7 +591,7 @@ TEST_CASE("BrushFaceTest.testAlignmentLock_Paraxial")
   Assets::Material material("testMaterial", 64, 64);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush cube = builder.createCube(128.0, "").value();
+  Brush cube = builder.createCube(128.0, "") | kdl::value();
   auto& faces = cube.faces();
 
   for (size_t i = 0; i < faces.size(); ++i)
@@ -612,7 +611,7 @@ TEST_CASE("BrushFaceTest.testAlignmentLock_Parallel")
   Assets::Material material("testMaterial", 64, 64);
 
   BrushBuilder builder(MapFormat::Valve, worldBounds);
-  Brush cube = builder.createCube(128.0, "").value();
+  Brush cube = builder.createCube(128.0, "") | kdl::value();
   auto& faces = cube.faces();
 
   for (size_t i = 0; i < faces.size(); ++i)
@@ -821,7 +820,7 @@ TEST_CASE("BrushFaceTest.formatConversion")
   Assets::Material material("testMaterial", 64, 64);
 
   const Brush startingCube = standardBuilder.createCube(128.0, "")
-                               .transform([&](Brush&& brush) {
+                             | kdl::transform([&](Brush&& brush) {
                                  for (size_t i = 0; i < brush.faceCount(); ++i)
                                  {
                                    BrushFace& face = brush.face(i);
@@ -829,7 +828,7 @@ TEST_CASE("BrushFaceTest.formatConversion")
                                  }
                                  return std::move(brush);
                                })
-                               .value();
+                             | kdl::value();
 
   auto testTransform = [&](const vm::mat4x4& transform) {
     auto standardCube = startingCube;

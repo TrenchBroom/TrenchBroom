@@ -426,7 +426,7 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
   auto* brushNode = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material").value()};
+    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   document->selectAllNodes();

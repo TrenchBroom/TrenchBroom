@@ -81,7 +81,7 @@ public:
   std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     auto* entityNode = new EntityNode{Entity{}};
     entityNode->addChild(brushNode);
     worldNode.defaultLayer()->addChild(entityNode);
@@ -106,7 +106,7 @@ public:
   BrushNode* createTopLevelBrush()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     worldNode.defaultLayer()->addChild(brushNode);
     return brushNode;
   }
@@ -136,7 +136,7 @@ public:
   std::tuple<GroupNode*, BrushNode*> createGroupedBrush()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     auto* groupNode = new GroupNode{Group{"somegroup"}};
 
     groupNode->addChild(brushNode);
@@ -176,7 +176,7 @@ public:
   std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     auto* entityNode = new EntityNode{Entity{}};
     auto* groupNode = new GroupNode{Group{"somegroup"}};
 
@@ -209,7 +209,8 @@ public:
   std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* innerBrushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* innerBrushNode =
+      new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     auto* innerGroupNode = new GroupNode{Group{"inner"}};
     auto* outerGroupNode = new GroupNode{Group{"outer"}};
 

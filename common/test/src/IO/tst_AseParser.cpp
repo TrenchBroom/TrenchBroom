@@ -55,9 +55,10 @@ TEST_CASE("AseParserTest.loadWithoutException")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
-  const auto aseFile = fs.openFile("models/mapobjects/wedges/wedge_45.ase").value();
+  const auto aseFile =
+    fs.openFile("models/mapobjects/wedges/wedge_45.ase") | kdl::value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -87,9 +88,9 @@ TEST_CASE("AseParserTest.fallbackToMaterialName")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
-  const auto aseFile = fs.openFile("models/wedge_45.ase").value();
+  const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -123,9 +124,9 @@ TEST_CASE("AseParserTest.loadDefaultMaterial")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
-  const auto aseFile = fs.openFile("models/wedge_45.ase").value();
+  const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 

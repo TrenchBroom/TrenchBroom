@@ -42,11 +42,11 @@ TEST_CASE("MdlParserTest.loadValidMdl")
 
   const auto palettePath = "fixture/test/palette.lmp";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  auto paletteFile = fs.openFile("fixture/test/palette.lmp").value();
-  const auto palette = Assets::loadPalette(*paletteFile, palettePath).value();
+  auto paletteFile = fs.openFile("fixture/test/palette.lmp") | kdl::value();
+  const auto palette = Assets::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   const auto mdlPath = std::filesystem::current_path() / "fixture/test/IO/Mdl/armor.mdl";
-  const auto mdlFile = Disk::openFile(mdlPath).value();
+  const auto mdlFile = Disk::openFile(mdlPath) | kdl::value();
 
   auto reader = mdlFile->reader().buffer();
   auto parser = MdlParser("armor", reader, palette);
@@ -69,12 +69,12 @@ TEST_CASE("MdlParserTest.loadInvalidMdl")
 
   const auto palettePath = "fixture/test/palette.lmp";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  auto paletteFile = fs.openFile("fixture/test/palette.lmp").value();
-  const auto palette = Assets::loadPalette(*paletteFile, palettePath).value();
+  auto paletteFile = fs.openFile("fixture/test/palette.lmp") | kdl::value();
+  const auto palette = Assets::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   const auto mdlPath =
     std::filesystem::current_path() / "fixture/test/IO/Mdl/invalid.mdl";
-  const auto mdlFile = Disk::openFile(mdlPath).value();
+  const auto mdlFile = Disk::openFile(mdlPath) | kdl::value();
 
   auto reader = mdlFile->reader().buffer();
   auto parser = MdlParser("armor", reader, palette);

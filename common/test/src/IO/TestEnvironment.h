@@ -72,9 +72,8 @@ public:
       std::filesystem::remove(path, error);
     }};
 
-    Disk::withOutputStream(path, [&](auto& stream) {
-      stream << contents;
-    }).transform_error([](auto e) { throw std::runtime_error{e.msg}; });
+    Disk::withOutputStream(path, [&](auto& stream) { stream << contents; })
+      | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
     return f(path);
   }
 };

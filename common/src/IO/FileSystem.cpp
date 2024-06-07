@@ -53,11 +53,11 @@ Result<std::vector<std::filesystem::path>> FileSystem::find(
     return Error{"Path does not denote a directory: '" + path.string() + "'"};
   }
 
-  return doFind(path, traversalMode).transform([&](auto paths) {
-    return kdl::vec_filter(std::move(paths), [&](const auto& p) {
-      return pathMatcher(p, [&](const auto& x) { return pathInfo(x); });
-    });
-  });
+  return doFind(path, traversalMode) | kdl::transform([&](auto paths) {
+           return kdl::vec_filter(std::move(paths), [&](const auto& p) {
+             return pathMatcher(p, [&](const auto& x) { return pathInfo(x); });
+           });
+         });
 }
 
 Result<std::shared_ptr<File>> FileSystem::openFile(
@@ -87,9 +87,8 @@ Result<void> WritableFileSystem::createFileAtomic(
   }
 
   const auto tmpPath = kdl::path_add_extension(path, "tmp");
-  return doCreateFile(tmpPath, contents).and_then([&]() {
-    return doMoveFile(tmpPath, path);
-  });
+  return doCreateFile(tmpPath, contents)
+         | kdl::and_then([&]() { return doMoveFile(tmpPath, path); });
 }
 
 Result<void> WritableFileSystem::createFile(

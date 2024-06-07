@@ -55,7 +55,7 @@ TEST_CASE("ObjSerializer.writeBrush")
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new Model::BrushNode{builder.createCube(64.0, "some_material").value()};
+    new Model::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   auto objStream = std::ostringstream{};
@@ -402,7 +402,7 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new Model::BrushNode{builder.createCube(64.0, "some_material").value()};
+    new Model::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)

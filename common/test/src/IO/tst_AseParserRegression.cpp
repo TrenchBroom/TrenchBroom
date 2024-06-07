@@ -53,9 +53,9 @@ TEST_CASE("AseParserTest.parseFailure_2657")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
-  const auto aseFile = fs.openFile("player.ase").value();
+  const auto aseFile = fs.openFile("player.ase") | kdl::value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"player", reader.stringView(), fs};
 
@@ -85,9 +85,9 @@ TEST_CASE("AseParserTest.parseFailure_2679")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
-  const auto aseFile = fs.openFile("wedge_45.ase").value();
+  const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -117,9 +117,9 @@ TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
-  const auto aseFile = fs.openFile("wedge_45.ase").value();
+  const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
@@ -149,9 +149,9 @@ TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
-  const auto aseFile = fs.openFile("wedge_45_no_uv.ase").value();
+  const auto aseFile = fs.openFile("wedge_45_no_uv.ase") | kdl::value();
   auto reader = aseFile->reader().buffer();
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 

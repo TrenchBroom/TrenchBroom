@@ -153,76 +153,76 @@ void VirtualFileSystem::unmountAll()
 Result<std::vector<std::filesystem::path>> VirtualFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
-  return kdl::fold_results(
-           kdl::vec_transform(
-             m_mountPoints,
-             [&](const auto& mountPoint) -> Result<std::vector<std::filesystem::path>> {
-               if (kdl::path_has_prefix(
-                     kdl::path_to_lower(path), kdl::path_to_lower(mountPoint.path)))
+  return kdl::vec_transform(
+           m_mountPoints,
+           [&](const auto& mountPoint) -> Result<std::vector<std::filesystem::path>> {
+             if (kdl::path_has_prefix(
+                   kdl::path_to_lower(path), kdl::path_to_lower(mountPoint.path)))
+             {
+               // path points into the mounted filesystem, search there
+               const auto pathSuffix =
+                 kdl::path_clip(path, kdl::path_length(mountPoint.path));
+               if (
+                 mountPoint.mountedFileSystem->pathInfo(pathSuffix)
+                 == PathInfo::Directory)
                {
-                 // path points into the mounted filesystem, search there
-                 const auto pathSuffix =
-                   kdl::path_clip(path, kdl::path_length(mountPoint.path));
-                 if (
-                   mountPoint.mountedFileSystem->pathInfo(pathSuffix)
-                   == PathInfo::Directory)
+                 return mountPoint.mountedFileSystem->find(pathSuffix, traversalMode)
+                        | kdl::transform([&](auto paths) {
+                            return kdl::vec_transform(std::move(paths), [&](auto p) {
+                              return mountPoint.path / p;
+                            });
+                          });
+               }
+             }
+             else if (
+               kdl::path_length(path) < kdl::path_length(mountPoint.path)
+               && kdl::path_has_prefix(
+                 kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path)))
+             {
+               // path is a prefix of the mount point path, treat as a match
+               return std::vector<std::filesystem::path>{
+                 kdl::path_clip(mountPoint.path, 0, kdl::path_length(path) + 1)};
+             }
+             // path is unrelated to the mount point
+             return std::vector<std::filesystem::path>{};
+           })
+         | kdl::fold() | kdl::transform([](auto nestedPaths) {
+             if (nestedPaths.empty())
+             {
+               return std::vector<std::filesystem::path>{};
+             }
+             if (nestedPaths.size() == 1)
+             {
+               return std::move(nestedPaths.front());
+             }
+
+             auto result = std::vector<std::filesystem::path>{};
+             auto lastOccurrence = std::unordered_map<std::string, size_t>{};
+
+             for (size_t i = 0; i < nestedPaths.size(); ++i)
+             {
+               const auto& paths = nestedPaths[i];
+               for (const auto& p : paths)
+               {
+                 lastOccurrence[p.generic_string()] = i;
+               }
+             }
+
+             for (size_t i = 0; i < nestedPaths.size(); ++i)
+             {
+               auto& paths = nestedPaths[i];
+               for (auto& p : paths)
+               {
+                 if (lastOccurrence[p.generic_string()] == i)
                  {
-                   return mountPoint.mountedFileSystem->find(pathSuffix, traversalMode)
-                     .transform([&](auto paths) {
-                       return kdl::vec_transform(
-                         std::move(paths), [&](auto p) { return mountPoint.path / p; });
-                     });
+                   result.push_back(std::move(p));
                  }
                }
-               else if (
-                 kdl::path_length(path) < kdl::path_length(mountPoint.path)
-                 && kdl::path_has_prefix(
-                   kdl::path_to_lower(mountPoint.path), kdl::path_to_lower(path)))
-               {
-                 // path is a prefix of the mount point path, treat as a match
-                 return std::vector<std::filesystem::path>{
-                   kdl::path_clip(mountPoint.path, 0, kdl::path_length(path) + 1)};
-               }
-               // path is unrelated to the mount point
-               return std::vector<std::filesystem::path>{};
-             }))
-    .transform([](auto nestedPaths) {
-      if (nestedPaths.empty())
-      {
-        return std::vector<std::filesystem::path>{};
-      }
-      if (nestedPaths.size() == 1)
-      {
-        return std::move(nestedPaths.front());
-      }
-
-      auto result = std::vector<std::filesystem::path>{};
-      auto lastOccurrence = std::unordered_map<std::string, size_t>{};
-
-      for (size_t i = 0; i < nestedPaths.size(); ++i)
-      {
-        const auto& paths = nestedPaths[i];
-        for (const auto& p : paths)
-        {
-          lastOccurrence[p.generic_string()] = i;
-        }
-      }
-
-      for (size_t i = 0; i < nestedPaths.size(); ++i)
-      {
-        auto& paths = nestedPaths[i];
-        for (auto& p : paths)
-        {
-          if (lastOccurrence[p.generic_string()] == i)
-          {
-            result.push_back(std::move(p));
-          }
-        }
-      }
+             }
 
 
-      return result;
-    });
+             return result;
+           });
 }
 
 Result<std::shared_ptr<File>> VirtualFileSystem::doOpenFile(

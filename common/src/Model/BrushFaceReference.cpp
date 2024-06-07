@@ -60,7 +60,8 @@ std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& h
 Result<std::vector<BrushFaceHandle>> resolveAllRefs(
   const std::vector<BrushFaceReference>& faceRefs)
 {
-  return kdl::fold_results(
-    kdl::vec_transform(faceRefs, [](const auto& faceRef) { return faceRef.resolve(); }));
+  return kdl::vec_transform(
+           faceRefs, [](const auto& faceRef) { return faceRef.resolve(); })
+         | kdl::fold();
 }
 } // namespace TrenchBroom::Model

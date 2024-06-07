@@ -28,7 +28,6 @@
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
-#include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
 
 #include <memory>
@@ -60,28 +59,29 @@ Result<std::filesystem::path> DiskFileSystem::makeAbsolute(
 PathInfo DiskFileSystem::pathInfo(const std::filesystem::path& path) const
 {
   return makeAbsolute(path)
-    .transform([](const auto& absPath) { return Disk::pathInfo(absPath); })
-    .transform_error([](const auto&) { return PathInfo::Unknown; })
-    .value();
+         | kdl::transform([](const auto& absPath) { return Disk::pathInfo(absPath); })
+         | kdl::transform_error([](const auto&) { return PathInfo::Unknown; })
+         | kdl::value();
 }
 
 Result<std::vector<std::filesystem::path>> DiskFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode traversalMode) const
 {
-  return makeAbsolute(path)
-    .and_then([&](const auto& absPath) { return Disk::find(absPath, traversalMode); })
-    .transform([&](const auto& paths) {
-      return kdl::vec_transform(
-        paths, [&](auto p) { return p.lexically_relative(m_root); });
-    });
+  return makeAbsolute(path) | kdl::and_then([&](const auto& absPath) {
+           return Disk::find(absPath, traversalMode);
+         })
+         | kdl::transform([&](const auto& paths) {
+             return kdl::vec_transform(
+               paths, [&](auto p) { return p.lexically_relative(m_root); });
+           });
 }
 
 Result<std::shared_ptr<File>> DiskFileSystem::doOpenFile(
   const std::filesystem::path& path) const
 {
-  return makeAbsolute(path).and_then(Disk::openFile).transform([](auto cFile) {
-    return std::static_pointer_cast<File>(cFile);
-  });
+  return makeAbsolute(path) | kdl::and_then(Disk::openFile)
+         | kdl::transform(
+           [](auto cFile) { return std::static_pointer_cast<File>(cFile); });
 }
 
 WritableDiskFileSystem::WritableDiskFileSystem(const std::filesystem::path& root)
@@ -92,30 +92,33 @@ WritableDiskFileSystem::WritableDiskFileSystem(const std::filesystem::path& root
 Result<void> WritableDiskFileSystem::doCreateFile(
   const std::filesystem::path& path, const std::string& contents)
 {
-  return makeAbsolute(path).and_then([&](const auto& absPath) {
-    return Disk::withOutputStream(absPath, [&](auto& stream) { stream << contents; });
-  });
+  return makeAbsolute(path) | kdl::and_then([&](const auto& absPath) {
+           return Disk::withOutputStream(
+             absPath, [&](auto& stream) { stream << contents; });
+         });
 }
 
 Result<bool> WritableDiskFileSystem::doCreateDirectory(const std::filesystem::path& path)
 {
-  return makeAbsolute(path).and_then(Disk::createDirectory);
+  return makeAbsolute(path) | kdl::and_then(Disk::createDirectory);
 }
 
 Result<bool> WritableDiskFileSystem::doDeleteFile(const std::filesystem::path& path)
 {
-  return makeAbsolute(path).and_then(Disk::deleteFile);
+  return makeAbsolute(path) | kdl::and_then(Disk::deleteFile);
 }
 
 Result<void> WritableDiskFileSystem::doCopyFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  return makeAbsolute(sourcePath).join(makeAbsolute(destPath)).and_then(Disk::copyFile);
+  return makeAbsolute(sourcePath).join(makeAbsolute(destPath))
+         | kdl::and_then(Disk::copyFile);
 }
 
 Result<void> WritableDiskFileSystem::doMoveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
 {
-  return makeAbsolute(sourcePath).join(makeAbsolute(destPath)).and_then(Disk::moveFile);
+  return makeAbsolute(sourcePath).join(makeAbsolute(destPath))
+         | kdl::and_then(Disk::moveFile);
 }
 } // namespace TrenchBroom::IO

@@ -130,7 +130,7 @@ TEST_CASE("NodeWriterTest.writeDaikatanaMap")
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Daikatana};
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto brush1 = builder.createCube(64.0, "none").value();
+  auto brush1 = builder.createCube(64.0, "none") | kdl::value();
   for (auto& face : brush1.faces())
   {
     auto attributes = face.attributes();
@@ -140,7 +140,8 @@ TEST_CASE("NodeWriterTest.writeDaikatanaMap")
   auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
   map.defaultLayer()->addChild(brushNode1);
 
-  auto* brushNode2 = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode2 =
+    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   map.defaultLayer()->addChild(brushNode2);
 
   auto str = std::stringstream{};
@@ -182,7 +183,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake2_Valve};
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto brush1 = builder.createCube(64.0, "e1u1/alarm0").value();
+  auto brush1 = builder.createCube(64.0, "e1u1/alarm0") | kdl::value();
 
   // set +Z face to e1u1/brwater with contents 0, flags 0, value 0
   {
@@ -246,7 +247,8 @@ TEST_CASE("NodeWriterTest.writeQuake3ValveMap")
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3_Valve};
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode1 = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode1 =
+    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   map.defaultLayer()->addChild(brushNode1);
 
   auto str = std::stringstream{};
@@ -280,7 +282,7 @@ TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer")
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -320,7 +322,7 @@ TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer")
   map.addChild(layerNode);
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   layerNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -406,7 +408,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer")
   map.defaultLayer()->addChild(groupNode);
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   groupNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -455,7 +457,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer")
   layerNode->addChild(groupNode);
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   groupNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -517,7 +519,7 @@ TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer")
   outerGroupNode->addChild(innerGroupNode);
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   innerGroupNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -596,7 +598,7 @@ TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs")
   map.addChild(layerNode2);
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   innerGroupNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -670,7 +672,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
     new Model::EntityNode{Model::Entity{{}, {{"classname", "defaultLayerPointEntity"}}}};
 
   auto* defaultLayerBrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "defaultMaterial").value()};
+    new Model::BrushNode{builder.createCube(64.0, "defaultMaterial") | kdl::value()};
   map.defaultLayer()->addChild(defaultLayerPointEntityNode);
   map.defaultLayer()->addChild(defaultLayerBrushNode);
 
@@ -688,7 +690,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
   layerNode1->addChild(layer1PointEntityNode);
 
   auto* layer1BrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "layer1Material").value()};
+    new Model::BrushNode{builder.createCube(64.0, "layer1Material") | kdl::value()};
   layerNode1->addChild(layer1BrushNode);
 
   // layer2
@@ -700,7 +702,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
   layerNode2->addChild(layer2PointEntityNode);
 
   auto* layer2BrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "layer2Material").value()};
+    new Model::BrushNode{builder.createCube(64.0, "layer2Material") | kdl::value()};
   layerNode2->addChild(layer2BrushNode);
 
   auto str = std::stringstream{};
@@ -785,10 +787,12 @@ TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup")
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
 
-  auto* worldBrushNode = new Model::BrushNode{builder.createCube(64.0, "some").value()};
+  auto* worldBrushNode =
+    new Model::BrushNode{builder.createCube(64.0, "some") | kdl::value()};
   auto* outerGroupNode = new Model::GroupNode{Model::Group{"Outer Group"}};
   auto* innerGroupNode = new Model::GroupNode{Model::Group{"Inner Group"}};
-  auto* innerBrushNode = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* innerBrushNode =
+    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
 
   Model::setLinkId(*outerGroupNode, "outer_group_link_id");
   Model::setLinkId(*innerGroupNode, "inner_group_link_id");
@@ -996,7 +1000,7 @@ TEST_CASE("NodeWriterTest.writeFaces")
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none").value()};
+  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{map, str};

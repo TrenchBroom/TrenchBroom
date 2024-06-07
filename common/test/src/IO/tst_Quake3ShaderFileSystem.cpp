@@ -56,7 +56,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testShaderLinking")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
   CHECK_THAT(
     fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""})),
@@ -103,7 +103,7 @@ TEST_CASE("Quake3ShaderFileSystemTest.testSkipMalformedFiles")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
   CHECK_THAT(
     fs.find(texturePrefix / "test", TraversalMode::Flat, makeExtensionPathMatcher({""})),

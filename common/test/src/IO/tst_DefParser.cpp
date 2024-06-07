@@ -41,13 +41,14 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
-    Disk::find(basePath, TraversalMode::Flat, makeExtensionPathMatcher({".def"})).value();
+    Disk::find(basePath, TraversalMode::Flat, makeExtensionPathMatcher({".def"}))
+    | kdl::value();
 
   for (const auto& path : cfgFiles)
   {
     CAPTURE(path);
 
-    auto file = Disk::openFile(path).value();
+    auto file = Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
     auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
@@ -79,11 +80,11 @@ TEST_CASE("DefParserTest.parseExtraDefFiles")
   const auto basePath = std::filesystem::current_path() / "fixture/test/IO/Def";
   const auto cfgFiles =
     Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".def"}))
-      .value();
+    | kdl::value();
 
   for (const auto& path : cfgFiles)
   {
-    auto file = Disk::openFile(path).value();
+    auto file = Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
     auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 

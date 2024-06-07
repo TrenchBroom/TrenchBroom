@@ -37,7 +37,6 @@
 
 #include "kdl/parallel.h"
 #include "kdl/result.h"
-#include "kdl/result_fold.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
@@ -135,11 +134,12 @@ void MapReader::onStandardBrushFace(
   ParserStatus& status)
 {
   Model::BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat)
-    .transform([&](auto face) {
-      face.setFilePosition(line, 1u);
-      onBrushFace(std::move(face), status);
-    })
-    .transform_error([&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+    | kdl::transform([&](auto face) {
+        face.setFilePosition(line, 1u);
+        onBrushFace(std::move(face), status);
+      })
+    | kdl::transform_error(
+      [&](auto e) { status.error(line, "Skipping face: " + e.msg); });
 }
 
 void MapReader::onValveBrushFace(
@@ -155,11 +155,12 @@ void MapReader::onValveBrushFace(
 {
   Model::BrushFace::createFromValve(
     point1, point2, point3, attribs, uAxis, vAxis, targetMapFormat)
-    .transform([&](Model::BrushFace&& face) {
-      face.setFilePosition(line, 1u);
-      onBrushFace(std::move(face), status);
-    })
-    .transform_error([&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+    | kdl::transform([&](Model::BrushFace&& face) {
+        face.setFilePosition(line, 1u);
+        onBrushFace(std::move(face), status);
+      })
+    | kdl::transform_error(
+      [&](auto e) { status.error(line, "Skipping face: " + e.msg); });
 }
 
 void MapReader::onPatch(
@@ -576,19 +577,20 @@ CreateNodeResult createBrushNode(
   MapReader::BrushInfo brushInfo, const vm::bbox3& worldBounds)
 {
   return Model::Brush::create(worldBounds, std::move(brushInfo.faces))
-    .transform([&](auto brush) {
-      auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
-      brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
+         | kdl::transform([&](auto brush) {
+             auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
+             brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
 
-      auto parentInfo = brushInfo.parentIndex ? ParentInfo{*brushInfo.parentIndex}
-                                              : std::optional<ParentInfo>{};
-      return NodeInfo{
-        std::move(brushNode), std::move(parentInfo), {} // issues
-      };
-    })
-    .or_else([&](auto e) {
-      return CreateNodeResult{NodeError{brushInfo.startLine, kdl::str_to_string(e)}};
-    });
+             auto parentInfo = brushInfo.parentIndex ? ParentInfo{*brushInfo.parentIndex}
+                                                     : std::optional<ParentInfo>{};
+             return NodeInfo{
+               std::move(brushNode), std::move(parentInfo), {} // issues
+             };
+           })
+         | kdl::or_else([&](auto e) {
+             return CreateNodeResult{
+               NodeError{brushInfo.startLine, kdl::str_to_string(e)}};
+           });
 }
 
 /**
@@ -650,14 +652,14 @@ std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
       assert(createNodeResult.has_value());
 
       return std::move(*createNodeResult)
-        .transform([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
-          return std::move(nodeInfo);
-        })
-        .transform_error([&](const NodeError& e) -> std::optional<NodeInfo> {
-          status.error(e.line, e.msg);
-          return std::nullopt;
-        })
-        .value();
+             | kdl::transform([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
+                 return std::move(nodeInfo);
+               })
+             | kdl::transform_error([&](const NodeError& e) -> std::optional<NodeInfo> {
+                 status.error(e.line, e.msg);
+                 return std::nullopt;
+               })
+             | kdl::value();
     });
 }
 

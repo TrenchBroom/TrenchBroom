@@ -40,10 +40,10 @@ namespace IO
 TEST_CASE("ReadM8TextureTest.testBasicLoading")
 {
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  const auto file = fs.openFile("fixture/test/IO/M8/test.m8").value();
+  const auto file = fs.openFile("fixture/test/IO/M8/test.m8") | kdl::value();
 
   auto reader = file->reader().buffer();
-  auto texture = readM8Texture(reader).value();
+  auto texture = readM8Texture(reader) | kdl::value();
 
   CHECK(texture.width() == 64);
   CHECK(texture.height() == 64);

@@ -882,7 +882,7 @@ TEST_CASE("Hierarchical ImageFileSystems")
 
   SECTION("openFile")
   {
-    const auto amnet_cfg = fs->openFile("amnet.cfg").value();
+    const auto amnet_cfg = fs->openFile("amnet.cfg") | kdl::value();
 
     auto reader = amnet_cfg->reader();
     CHECK(reader.readString(reader.size()) == R"(//
@@ -954,7 +954,7 @@ TEST_CASE("Flat ImageFileSystems")
 
   SECTION("openFile")
   {
-    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D").value();
+    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D") | kdl::value();
 
     auto reader = cr8_czg_3_d->reader();
     auto contents = std::vector<unsigned char>(reader.size());

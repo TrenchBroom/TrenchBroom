@@ -413,11 +413,11 @@ auto findSkin(const std::string& skin, const FileSystem& fs)
   // Search for any file with the correct base name.
   const auto folder = skinPath.parent_path();
   const auto basename = skinPath.stem();
-  return fs
-    .find(folder, TraversalMode::Flat, makeFilenamePathMatcher(basename.string() + ".*"))
-    .transform([&](auto items) { return items.size() == 1 ? items.front() : skinPath; })
-    .if_error([](auto e) { throw AssetException{e.msg}; })
-    .value();
+  return fs.find(
+           folder, TraversalMode::Flat, makeFilenamePathMatcher(basename.string() + ".*"))
+         | kdl::transform(
+           [&](auto items) { return items.size() == 1 ? items.front() : skinPath; })
+         | kdl::if_error([](auto e) { throw AssetException{e.msg}; }) | kdl::value();
 }
 
 void loadSkins(

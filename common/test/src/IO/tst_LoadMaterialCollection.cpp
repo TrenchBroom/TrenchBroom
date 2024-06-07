@@ -67,19 +67,20 @@ std::optional<MaterialCollectionInfo> makeInfo(
   const Result<Assets::MaterialCollection>& result)
 {
   return result
-    .transform(
-      [](const auto& materialCollection) -> std::optional<MaterialCollectionInfo> {
-        return MaterialCollectionInfo{
-          materialCollection.path(),
-          kdl::vec_transform(materialCollection.materials(), [](const auto& material) {
-            return MaterialInfo{
-              material.name(),
-              material.texture().width(),
-              material.texture().height(),
-            };
-          })};
-      })
-    .value_or(std::nullopt);
+         | kdl::transform(
+           [](const auto& materialCollection) -> std::optional<MaterialCollectionInfo> {
+             return MaterialCollectionInfo{
+               materialCollection.path(),
+               kdl::vec_transform(
+                 materialCollection.materials(), [](const auto& material) {
+                   return MaterialInfo{
+                     material.name(),
+                     material.texture().width(),
+                     material.texture().height(),
+                   };
+                 })};
+           })
+         | kdl::value_or(std::nullopt);
 }
 
 } // namespace

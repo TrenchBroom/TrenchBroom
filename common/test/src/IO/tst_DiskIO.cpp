@@ -170,7 +170,7 @@ TEST_CASE("DiskIO")
       }));
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode::Flat).value(),
+      Disk::find(env.dir(), TraversalMode::Flat) | kdl::value(),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
@@ -182,7 +182,7 @@ TEST_CASE("DiskIO")
       }));
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode::Recursive).value(),
+      Disk::find(env.dir(), TraversalMode::Recursive) | kdl::value(),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",

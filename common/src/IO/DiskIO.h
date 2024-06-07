@@ -71,11 +71,12 @@ auto withStream(
     {
       if constexpr (std::is_same_v<typename FnResultType::value_type, void>)
       {
-        return function(stream).and_then([]() { return ResultType{}; });
+        return function(stream) | kdl::and_then([]() { return ResultType{}; });
       }
       else
       {
-        return function(stream).and_then([](auto x) { return ResultType{std::move(x)}; });
+        return function(stream)
+               | kdl::and_then([](auto x) { return ResultType{std::move(x)}; });
       }
     }
     else if constexpr (std::is_same_v<typename ResultType::value_type, void>)

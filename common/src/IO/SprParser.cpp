@@ -228,8 +228,8 @@ static Assets::Palette parseEmbeddedPalette(Reader& reader, const RenderMode ren
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
   return Assets::makePalette(data, Assets::PaletteColorFormat::Rgba)
-    .if_error([](const auto& e) { throw AssetException{e.msg}; })
-    .value();
+         | kdl::if_error([](const auto& e) { throw AssetException{e.msg}; })
+         | kdl::value();
 }
 
 std::unique_ptr<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)

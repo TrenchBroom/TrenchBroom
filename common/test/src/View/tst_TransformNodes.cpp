@@ -108,10 +108,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
-      .value()};
+    | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
-      .value()};
+    | kdl::value()};
 
   checkBrushIntegral(brushNode1);
   checkBrushIntegral(brushNode2);
@@ -197,10 +197,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
-      .value()};
+    | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
-      .value()};
+    | kdl::value()};
 
   checkBrushIntegral(brushNode1);
   checkBrushIntegral(brushNode2);
@@ -233,10 +233,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
-      .value()};
+    | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
-      .value()};
+    | kdl::value()};
 
   auto* entityNode = new Model::EntityNode{
     Model::Entity{{}, {{"classname", "func_door"}, {"angle", "45"}}}};
@@ -285,7 +285,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -331,7 +331,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -379,7 +379,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
   const auto& brush = brushNode->brush();
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -413,7 +413,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -435,7 +435,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsWithCenter")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material").value()};
+    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -456,7 +456,8 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
 
-  auto* brushNode1 = new Model::BrushNode{builder.createCuboid(box, "material").value()};
+  auto* brushNode1 =
+    new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 

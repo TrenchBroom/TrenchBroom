@@ -56,24 +56,24 @@ Assets::Material loadSkin(
   Logger& logger)
 {
   return fs.openFile(path)
-    .and_then([&](auto file) -> Result<Assets::Material, ReadMaterialError> {
-      const auto extension = kdl::str_to_lower(path.extension().string());
-      auto reader = file->reader().buffer();
-      return (extension == ".wal" ? readWalTexture(reader, palette)
-                                  : readFreeImageTexture(reader))
-             | kdl::transform([&](auto texture) {
-                 return Assets::Material{path.stem().string(), std::move(texture)};
-               })
-             | kdl::or_else([&](auto e) {
-                 return Result<Assets::Material, ReadMaterialError>{
-                   ReadMaterialError{path.stem().string(), std::move(e.msg)}};
-               });
-    })
-    .transform_error([&](auto e) -> Assets::Material {
-      logger.error() << "Could not load skin '" << path << "': " << e.msg;
-      return loadDefaultMaterial(fs, path.stem().string(), logger);
-    })
-    .value();
+         | kdl::and_then([&](auto file) -> Result<Assets::Material, ReadMaterialError> {
+             const auto extension = kdl::str_to_lower(path.extension().string());
+             auto reader = file->reader().buffer();
+             return (extension == ".wal" ? readWalTexture(reader, palette)
+                                         : readFreeImageTexture(reader))
+                    | kdl::transform([&](auto texture) {
+                        return Assets::Material{path.stem().string(), std::move(texture)};
+                      })
+                    | kdl::or_else([&](auto e) {
+                        return Result<Assets::Material, ReadMaterialError>{
+                          ReadMaterialError{path.stem().string(), std::move(e.msg)}};
+                      });
+           })
+         | kdl::transform_error([&](auto e) -> Assets::Material {
+             logger.error() << "Could not load skin '" << path << "': " << e.msg;
+             return loadDefaultMaterial(fs, path.stem().string(), logger);
+           })
+         | kdl::value();
 }
 
 Assets::Material loadShader(
@@ -86,13 +86,14 @@ Assets::Material loadShader(
   const auto name = path.generic_string();
 
   logger.debug() << "Loading shader '" << path << "'";
-  return fs.openFile(actualPath)
-    .and_then([&](auto file) { return readQuake3ShaderTexture(name, *file, fs); })
-    .transform_error([&](auto e) {
-      logger.error() << "Could not load shader '" << path << "': " << e.msg;
-      return loadDefaultMaterial(fs, name, logger);
-    })
-    .value();
+  return fs.openFile(actualPath) | kdl::and_then([&](auto file) {
+           return readQuake3ShaderTexture(name, *file, fs);
+         })
+         | kdl::transform_error([&](auto e) {
+             logger.error() << "Could not load shader '" << path << "': " << e.msg;
+             return loadDefaultMaterial(fs, name, logger);
+           })
+         | kdl::value();
 }
 } // namespace IO
 } // namespace TrenchBroom

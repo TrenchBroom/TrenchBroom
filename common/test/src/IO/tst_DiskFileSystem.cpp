@@ -208,8 +208,8 @@ TEST_CASE("DiskFileSystemTest")
       == Result<std::shared_ptr<File>>{Error{"'anotherDir' not found"}});
 
     const auto checkOpenFile = [&](const auto& path) {
-      const auto file = fs.openFile(path).value();
-      const auto expected = Disk::openFile(env.dir() / path).value();
+      const auto file = fs.openFile(path) | kdl::value();
+      const auto expected = Disk::openFile(env.dir() / path) | kdl::value();
       CHECK(
         file->reader().readString(file->size())
         == expected->reader().readString(expected->size()));

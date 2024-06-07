@@ -154,11 +154,10 @@ public:
       throw ParserException{"Assimp attempted to open a file not for reading."};
     }
 
-    return m_fs.openFile(path)
-      .transform(
-        [](auto file) { return std::make_unique<AssimpIOStream>(std::move(file)); })
-      .if_error([](auto e) { throw ParserException{e.msg}; })
-      .value()
+    return (m_fs.openFile(path) | kdl::transform([](auto file) {
+              return std::make_unique<AssimpIOStream>(std::move(file));
+            })
+            | kdl::if_error([](auto e) { throw ParserException{e.msg}; }) | kdl::value())
       .release();
   }
 };
@@ -174,12 +173,12 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
     kdl::path_add_extension(NoTextureName, ".jpg"),
   };
 
-  return kdl::select_first(texturePaths, [&](const auto& texturePath) {
-    return fs.openFile(texturePath) | kdl::and_then([](auto file) {
-             auto reader = file->reader().buffer();
-             return readFreeImageTexture(reader);
-           });
-  });
+  return texturePaths | kdl::first([&](const auto& texturePath) {
+           return fs.openFile(texturePath) | kdl::and_then([](auto file) {
+                    auto reader = file->reader().buffer();
+                    return readFreeImageTexture(reader);
+                  });
+         });
 }
 
 Assets::Texture loadFallbackOrDefaultTexture(const FileSystem& fs, Logger& logger)
@@ -871,10 +870,11 @@ void AssimpParser::loadFrame(
   }
 
   // load the requested frame
-  loadSceneFrame(*scene, frameIndex, model, modelPath).transform_error([&](auto e) {
-    throw ParserException{
-      fmt::format("Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
-  });
+  loadSceneFrame(*scene, frameIndex, model, modelPath)
+    | kdl::transform_error([&](auto e) {
+        throw ParserException{fmt::format(
+          "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
+      });
 }
 
 } // namespace TrenchBroom::IO

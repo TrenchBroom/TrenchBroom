@@ -42,21 +42,19 @@ auto loadTexture(const std::string& name)
   auto diskFS =
     DiskFileSystem{std::filesystem::current_path() / "fixture/test/IO/Image/"};
 
-  const auto file = diskFS.openFile(name).value();
+  const auto file = diskFS.openFile(name) | kdl::value();
   auto reader = file->reader().buffer();
   return readFreeImageTexture(reader);
 }
 
 void assertTexture(const std::string& name, const size_t width, const size_t height)
 {
-  loadTexture(name)
-    .transform([&](const auto& texture) {
-      CHECK(texture.width() == width);
-      CHECK(texture.height() == height);
-      CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
-      CHECK(texture.mask() == Assets::TextureMask::Off);
-    })
-    .transform_error([](const auto&) { FAIL(); });
+  loadTexture(name) | kdl::transform([&](const auto& texture) {
+    CHECK(texture.width() == width);
+    CHECK(texture.height() == height);
+    CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
+    CHECK(texture.mask() == Assets::TextureMask::Off);
+  }) | kdl::transform_error([](const auto&) { FAIL(); });
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2474
@@ -102,7 +100,8 @@ TEST_CASE("readFreeImageTexture")
   {
     assertTexture("5x5.png", 5, 5);
     assertTexture("707x710.png", 707, 710);
-    testImageContents(loadTexture("pngContentsTest.png").value(), ColorMatch::Exact);
+    testImageContents(
+      loadTexture("pngContentsTest.png") | kdl::value(), ColorMatch::Exact);
     CHECK(loadTexture("corruptPngTest.png").is_error());
 
     // we don't support this format currently
@@ -112,12 +111,12 @@ TEST_CASE("readFreeImageTexture")
   SECTION("loading JPGs")
   {
     testImageContents(
-      loadTexture("jpgContentsTest.jpg").value(), ColorMatch::Approximate);
+      loadTexture("jpgContentsTest.jpg") | kdl::value(), ColorMatch::Approximate);
   }
 
   SECTION("alpha mask")
   {
-    const auto texture = loadTexture("alphaMaskTest.png").value();
+    const auto texture = loadTexture("alphaMaskTest.png") | kdl::value();
     const std::size_t w = 25u;
     const std::size_t h = 10u;
 

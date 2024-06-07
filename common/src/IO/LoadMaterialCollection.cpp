@@ -74,9 +74,9 @@ Result<Assets::Palette> loadPalette(
     return Error{"Material config is missing palette definition"};
   }
 
-  return gameFS.openFile(materialConfig.palette).and_then([&](auto file) {
-    return Assets::loadPalette(*file, materialConfig.palette);
-  });
+  return gameFS.openFile(materialConfig.palette) | kdl::and_then([&](auto file) {
+           return Assets::loadPalette(*file, materialConfig.palette);
+         });
 }
 
 using ReadMaterialFunc = std::function<Result<Assets::Material, ReadMaterialError>(
@@ -102,14 +102,13 @@ Result<Assets::Material, ReadMaterialError> readMaterial(
     }
     auto reader = file.reader().buffer();
     const auto mask = getTextureMaskFromName(name);
-    return readIdMipTexture(reader, *palette, mask)
-      .transform([&](auto texture) {
-        return Assets::Material{std::move(name), std::move(texture)};
-      })
-      .or_else([&](auto e) {
-        return Result<Assets::Material, ReadMaterialError>{
-          ReadMaterialError{std::move(name), std::move(e.msg)}};
-      });
+    return readIdMipTexture(reader, *palette, mask) | kdl::transform([&](auto texture) {
+             return Assets::Material{std::move(name), std::move(texture)};
+           })
+           | kdl::or_else([&](auto e) {
+               return Result<Assets::Material, ReadMaterialError>{
+                 ReadMaterialError{std::move(name), std::move(e.msg)}};
+             });
   }
   else if (extension == ".c")
   {
@@ -181,16 +180,17 @@ Result<ReadMaterialFunc> makeReadMaterialFunc(
   const FileSystem& gameFS, const Model::MaterialConfig& materialConfig)
 {
   return loadPalette(gameFS, materialConfig)
-    .transform([](auto palette) { return std::optional{std::move(palette)}; })
-    .transform_error([](auto) -> std::optional<Assets::Palette> { return std::nullopt; })
-    .and_then([&](auto palette) -> Result<ReadMaterialFunc> {
-      return [&,
-              palette = std::move(palette),
-              prefixLength = kdl::path_length(materialConfig.root)](
-               const File& file, const std::filesystem::path& path) {
-        return readMaterial(file, path, gameFS, prefixLength, palette);
-      };
-    });
+         | kdl::transform([](auto palette) { return std::optional{std::move(palette)}; })
+         | kdl::transform_error(
+           [](auto) -> std::optional<Assets::Palette> { return std::nullopt; })
+         | kdl::and_then([&](auto palette) -> Result<ReadMaterialFunc> {
+             return [&,
+                     palette = std::move(palette),
+                     prefixLength = kdl::path_length(materialConfig.root)](
+                      const File& file, const std::filesystem::path& path) {
+               return readMaterial(file, path, gameFS, prefixLength, palette);
+             };
+           });
 }
 
 } // namespace
@@ -198,15 +198,14 @@ Result<ReadMaterialFunc> makeReadMaterialFunc(
 Result<std::vector<std::filesystem::path>> findMaterialCollections(
   const FileSystem& gameFS, const Model::MaterialConfig& materialConfig)
 {
-  return gameFS
-    .find(
-      materialConfig.root,
-      TraversalMode::Recursive,
-      makePathInfoPathMatcher({PathInfo::Directory}))
-    .transform([&](auto paths) {
-      paths.insert(paths.begin(), materialConfig.root);
-      return paths;
-    });
+  return gameFS.find(
+           materialConfig.root,
+           TraversalMode::Recursive,
+           makePathInfoPathMatcher({PathInfo::Directory}))
+         | kdl::transform([&](auto paths) {
+             paths.insert(paths.begin(), materialConfig.root);
+             return paths;
+           });
 }
 
 Result<Assets::MaterialCollection> loadMaterialCollection(
@@ -226,36 +225,40 @@ Result<Assets::MaterialCollection> loadMaterialCollection(
                              : matchAnyPath;
 
   return gameFS.find(path, TraversalMode::Flat, pathMatcher)
-    .transform([&](auto materialPaths) {
-      return kdl::vec_filter(std::move(materialPaths), [&](const auto& materialPath) {
-        return !shouldExclude(materialPath.stem().string(), materialConfig.excludes);
-      });
-    })
-    .join(makeReadMaterialFunc(gameFS, materialConfig))
-    .and_then([&](auto materialPaths, const auto& readMaterial) {
-      return kdl::fold_results(
-               kdl::vec_parallel_transform(
-                 std::move(materialPaths),
-                 [&](const auto materialPath) {
-                   return gameFS.openFile(materialPath)
-                     .and_then([&](const auto& file) {
-                       return readMaterial(*file, materialPath)
-                         .transform([&](auto material) {
-                           gameFS.makeAbsolute(materialPath)
-                             .transform([&](auto absPath) {
-                               material.setAbsolutePath(std::move(absPath));
-                             })
-                             .or_else([](auto) { return kdl::void_success; });
-                           material.setRelativePath(materialPath);
-                           return material;
-                         });
-                     })
-                     .or_else(makeReadMaterialErrorHandler(gameFS, logger));
-                 }))
-        .transform([&](auto materials) {
-          return Assets::MaterialCollection{path, std::move(materials)};
-        });
-    });
+         | kdl::transform([&](auto materialPaths) {
+             return kdl::vec_filter(
+               std::move(materialPaths), [&](const auto& materialPath) {
+                 return !shouldExclude(
+                   materialPath.stem().string(), materialConfig.excludes);
+               });
+           })
+         | kdl::join(makeReadMaterialFunc(gameFS, materialConfig))
+         | kdl::and_then([&](auto materialPaths, const auto& readMaterial) {
+             return kdl::vec_parallel_transform(
+                      std::move(materialPaths),
+                      [&](const auto materialPath) {
+                        return gameFS.openFile(materialPath)
+                               | kdl::and_then([&](const auto& file) {
+                                   return readMaterial(*file, materialPath)
+                                          | kdl::transform([&](auto material) {
+                                              gameFS.makeAbsolute(materialPath)
+                                                | kdl::transform([&](auto absPath) {
+                                                    material.setAbsolutePath(
+                                                      std::move(absPath));
+                                                  })
+                                                | kdl::or_else(
+                                                  [](auto) { return kdl::void_success; });
+                                              material.setRelativePath(materialPath);
+                                              return material;
+                                            });
+                                 })
+                               | kdl::or_else(
+                                 makeReadMaterialErrorHandler(gameFS, logger));
+                      })
+                    | kdl::fold() | kdl::transform([&](auto materials) {
+                        return Assets::MaterialCollection{path, std::move(materials)};
+                      });
+           });
 }
 
 } // namespace TrenchBroom::IO

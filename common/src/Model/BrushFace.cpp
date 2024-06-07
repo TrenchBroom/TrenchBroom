@@ -656,16 +656,16 @@ Result<void> BrushFace::transform(const vm::mat4x4& transform, const bool lockAl
     swap(m_points[1], m_points[2]);
   }
 
-  return setPoints(m_points[0], m_points[1], m_points[2]).transform([&]() {
-    m_uvCoordSystem->transform(
-      oldBoundary,
-      m_boundary,
-      transform,
-      m_attributes,
-      textureSize(),
-      lockAlignment,
-      invariant);
-  });
+  return setPoints(m_points[0], m_points[1], m_points[2]) | kdl::transform([&]() {
+           m_uvCoordSystem->transform(
+             oldBoundary,
+             m_boundary,
+             transform,
+             m_attributes,
+             textureSize(),
+             lockAlignment,
+             invariant);
+         });
 }
 
 void BrushFace::invert()
@@ -686,30 +686,30 @@ Result<void> BrushFace::updatePointsFromVertices()
            first->next()->origin()->position(),
            first->origin()->position(),
            first->previous()->origin()->position())
-    .transform([&]() {
-      // Get a line, and a reference point, that are on both the old plane
-      // (before moving the face) and after moving the face.
-      if (const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary))
-      {
-        const auto refPoint = project_point(*seam, center());
+         | kdl::transform([&]() {
+             // Get a line, and a reference point, that are on both the old plane
+             // (before moving the face) and after moving the face.
+             if (const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary))
+             {
+               const auto refPoint = project_point(*seam, center());
 
-        // Get the UV coordinates at the refPoint using the old face's attribs and UV
-        // coordinage system
-        const auto desriedCoords =
-          m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
+               // Get the UV coordinates at the refPoint using the old face's attribs and
+               // UV coordinage system
+               const auto desriedCoords =
+                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
 
-        m_uvCoordSystem->setNormal(
-          oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
+               m_uvCoordSystem->setNormal(
+                 oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
 
-        // Adjust the offset on this face so that the UV coordinates at the refPoint
-        // stay the same
-        const auto currentCoords =
-          m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
-        const auto offsetChange = desriedCoords - currentCoords;
-        m_attributes.setOffset(
-          correct(modOffset(m_attributes.offset() + offsetChange), 4));
-      }
-    });
+               // Adjust the offset on this face so that the UV coordinates at the
+               // refPoint stay the same
+               const auto currentCoords =
+                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
+               const auto offsetChange = desriedCoords - currentCoords;
+               m_attributes.setOffset(
+                 correct(modOffset(m_attributes.offset() + offsetChange), 4));
+             }
+           });
 }
 
 vm::mat4x4 BrushFace::projectToBoundaryMatrix() const

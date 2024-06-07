@@ -39,7 +39,7 @@ TEST_CASE("ObjParserTest.loadValidObj")
   DiskFileSystem fs(basePath);
 
   const auto mdlPath = "pointyship.obj";
-  const auto mdlFile = fs.openFile(mdlPath).value();
+  const auto mdlFile = fs.openFile(mdlPath) | kdl::value();
 
   auto reader = mdlFile->reader().buffer();
   auto parser = NvObjParser(mdlPath, reader.stringView(), fs);

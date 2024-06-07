@@ -55,7 +55,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleBrush")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material").value()};
+    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto pickResult = Model::PickResult{};
@@ -116,13 +116,13 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material").value()};
+    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 = new Model::BrushNode{
-    builder
-      .createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
-      .value()};
+    builder.createCuboid(
+      vm::bbox3{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
+    | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   document->selectAllNodes();
@@ -194,13 +194,13 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material").value()};
+    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 = new Model::BrushNode{
-    builder
-      .createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
-      .value()};
+    builder.createCuboid(
+      vm::bbox3{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
+    | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   document->selectAllNodes();
@@ -208,9 +208,9 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
 
   document->deselectAll();
   auto* brushNode3 = new Model::BrushNode{
-    builder
-      .createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 256}), "material")
-      .value()};
+    builder.createCuboid(
+      vm::bbox3{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 256}), "material")
+    | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
   document->selectAllNodes();
@@ -360,13 +360,13 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickBrushEntity")
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material").value()};
+    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto* brushNode2 = new Model::BrushNode{
-    builder
-      .createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
-      .value()};
+    builder.createCuboid(
+      vm::bbox3{{0, 0, 0}, {64, 64, 64}}.translate({0, 0, 128}), "material")
+    | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
   document->selectAllNodes();

@@ -391,7 +391,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   auto* brushNode1 = new Model::BrushNode(
-    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material").value());
+    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value());
   document->addNodes({{entityNode1, {brushNode1}}});
   document->selectNodes({entityNode1});
   CHECK_THAT(

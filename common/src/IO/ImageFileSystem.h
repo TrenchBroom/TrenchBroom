@@ -104,7 +104,7 @@ template <typename T, typename... Args>
 Result<std::unique_ptr<T>> createImageFileSystem(Args&&... args)
 {
   auto fs = std::make_unique<T>(std::forward<Args>(args)...);
-  return fs->reload().transform([&]() { return std::move(fs); });
+  return fs->reload() | kdl::transform([&]() { return std::move(fs); });
 }
 
 } // namespace TrenchBroom::IO

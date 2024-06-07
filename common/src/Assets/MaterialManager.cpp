@@ -55,13 +55,13 @@ void MaterialManager::reload(
   const IO::FileSystem& fs, const Model::MaterialConfig& materialConfig)
 {
   findMaterialCollections(fs, materialConfig)
-    .transform([&](auto materialCollections) {
-      setMaterialCollections(std::move(materialCollections), fs, materialConfig);
-    })
-    .transform_error([&](auto e) {
-      m_logger.error() << "Could not reload material collections: " + e.msg;
-      setMaterialCollections({}, fs, materialConfig);
-    });
+    | kdl::transform([&](auto materialCollections) {
+        setMaterialCollections(std::move(materialCollections), fs, materialConfig);
+      })
+    | kdl::transform_error([&](auto e) {
+        m_logger.error() << "Could not reload material collections: " + e.msg;
+        setMaterialCollections({}, fs, materialConfig);
+      });
 }
 
 void MaterialManager::setMaterialCollections(std::vector<MaterialCollection> collections)
@@ -91,21 +91,21 @@ void MaterialManager::setMaterialCollections(
     if (it == collections.end() || !it->loaded())
     {
       IO::loadMaterialCollection(path, fs, materialConfig, m_logger)
-        .transform_error([&](const auto& error) {
-          if (it == collections.end())
-          {
-            m_logger.error() << "Could not load material collection '" << path
-                             << "': " << error.msg;
-          }
-          return Assets::MaterialCollection{path};
-        })
-        .transform([&](auto collection) {
-          if (!collection.materials().empty())
-          {
-            m_logger.info() << "Loaded material collection '" << path << "'";
-          }
-          addMaterialCollection(std::move(collection));
-        });
+        | kdl::transform_error([&](const auto& error) {
+            if (it == collections.end())
+            {
+              m_logger.error() << "Could not load material collection '" << path
+                               << "': " << error.msg;
+            }
+            return Assets::MaterialCollection{path};
+          })
+        | kdl::transform([&](auto collection) {
+            if (!collection.materials().empty())
+            {
+              m_logger.info() << "Loaded material collection '" << path << "'";
+            }
+            addMaterialCollection(std::move(collection));
+          });
     }
     else
     {

@@ -2267,6 +2267,25 @@ auto operator|(R&& r, const result_transform_error<F>& t)
   return std::forward<R>(r).transform_error(t.transform_error);
 }
 
+template <typename F>
+struct result_if_error
+{
+  F if_error;
+};
+
+template <typename F>
+auto if_error(F f)
+{
+  return result_if_error<F>{std::move(f)};
+}
+
+template <typename R, typename F>
+auto operator|(R&& r, const result_if_error<F>& i)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).if_error(i.if_error);
+}
+
 struct result_value
 {
 };
@@ -2316,6 +2335,22 @@ auto operator|(R&& r, const result_error&)
 {
   static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
   return std::forward<R>(r).error();
+}
+
+struct result_is_success
+{
+};
+
+inline result_is_success is_success()
+{
+  return result_is_success{};
+}
+
+template <typename R>
+auto operator|(R&& r, const result_is_success&)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).is_success();
 }
 
 } // namespace kdl

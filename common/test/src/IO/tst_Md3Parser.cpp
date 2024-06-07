@@ -55,10 +55,10 @@ TEST_CASE("Md3ParserTest.loadValidMd3")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
   const auto md3Path = "models/weapons2/bfg/bfg.md3";
-  const auto md3File = fs.openFile(md3Path).value();
+  const auto md3File = fs.openFile(md3Path) | kdl::value();
 
   auto reader = md3File->reader().buffer();
   auto parser = Md3Parser("bfg", reader, fs);

@@ -928,7 +928,7 @@ Result<bool> MapFrame::newDocument(
   }
 
   return m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game)
-    .transform([]() { return true; });
+         | kdl::transform([]() { return true; });
 }
 
 Result<bool> MapFrame::openDocument(
@@ -943,17 +943,17 @@ Result<bool> MapFrame::openDocument(
 
   const auto startTime = std::chrono::high_resolution_clock::now();
   return m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path)
-    .transform([&]() {
-      const auto endTime = std::chrono::high_resolution_clock::now();
+         | kdl::transform([&]() {
+             const auto endTime = std::chrono::high_resolution_clock::now();
 
-      logger().info() << "Loaded " << m_document->path() << " in "
-                      << std::chrono::duration_cast<std::chrono::milliseconds>(
-                           endTime - startTime)
-                           .count()
-                      << "ms";
+             logger().info() << "Loaded " << m_document->path() << " in "
+                             << std::chrono::duration_cast<std::chrono::milliseconds>(
+                                  endTime - startTime)
+                                  .count()
+                             << "ms";
 
-      return true;
-    });
+             return true;
+           });
 }
 
 bool MapFrame::saveDocument()
@@ -1033,7 +1033,7 @@ void MapFrame::revertDocument()
     const auto game = m_document->game();
     const auto path = m_document->path();
     m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path)
-      .transform_error(
+      | kdl::transform_error(
         [&](auto e) { m_document->error() << "Failed to rever document: " << e.msg; });
   }
 }
@@ -1080,17 +1080,16 @@ bool MapFrame::exportDocument(const IO::ExportOptions& options)
     return false;
   }
 
-  return m_document->exportDocumentAs(options)
-    .transform([&]() {
-      logger().info() << "Exported " << exportPath;
-      return true;
-    })
-    .transform_error([&](auto e) {
-      logger().error() << "Could not export '" << exportPath << "': " + e.msg;
-      QMessageBox::critical(this, "", QString::fromStdString(e.msg));
-      return false;
-    })
-    .value();
+  return m_document->exportDocumentAs(options) | kdl::transform([&]() {
+           logger().info() << "Exported " << exportPath;
+           return true;
+         })
+         | kdl::transform_error([&](auto e) {
+             logger().error() << "Could not export '" << exportPath << "': " + e.msg;
+             QMessageBox::critical(this, "", QString::fromStdString(e.msg));
+             return false;
+           })
+         | kdl::value();
 }
 
 /**

@@ -68,7 +68,7 @@ makeBrushes()
   size_t currentMaterialIndex = 0;
   for (size_t i = 0; i < NumBrushes; ++i)
   {
-    Model::Brush brush = builder.createCube(64.0, "").value();
+    Model::Brush brush = builder.createCube(64.0, "") | kdl::value();
     for (Model::BrushFace& face : brush.faces())
     {
       face.setMaterial(materials.at((currentMaterialIndex++) % NumMaterials));

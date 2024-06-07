@@ -43,9 +43,9 @@ Assets::Texture loadTexture(const std::string& name)
   const auto ddsPath = std::filesystem::current_path() / "fixture/test/IO/Dds/";
   auto diskFS = DiskFileSystem{ddsPath};
 
-  const auto file = diskFS.openFile(name).value();
+  const auto file = diskFS.openFile(name) | kdl::value();
   auto reader = file->reader().buffer();
-  return readDdsTexture(reader).value();
+  return readDdsTexture(reader) | kdl::value();
 }
 
 void assertTexture(

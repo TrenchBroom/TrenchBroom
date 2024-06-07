@@ -59,30 +59,31 @@ auto loadFont(FT_Library library, const FontDescriptor& fontDescriptor)
                           : IO::SystemPaths::findResourceFile(fontDescriptor.path());
 
   return IO::Disk::openFile(fontPath)
-    .and_then(
-      [&](auto file) -> Result<std::pair<kdl::resource<FT_Face>, IO::BufferedReader>> {
-        auto reader = file->reader().buffer();
+         | kdl::and_then(
+           [&](
+             auto file) -> Result<std::pair<kdl::resource<FT_Face>, IO::BufferedReader>> {
+             auto reader = file->reader().buffer();
 
-        auto face = FT_Face{};
-        const auto error = FT_New_Memory_Face(
-          library,
-          reinterpret_cast<const FT_Byte*>(reader.begin()),
-          FT_Long(reader.size()),
-          0,
-          &face);
-        if (error)
-        {
-          return Error{"FT_New_Memory_Face returned " + std::to_string(error)};
-        }
+             auto face = FT_Face{};
+             const auto error = FT_New_Memory_Face(
+               library,
+               reinterpret_cast<const FT_Byte*>(reader.begin()),
+               FT_Long(reader.size()),
+               0,
+               &face);
+             if (error)
+             {
+               return Error{"FT_New_Memory_Face returned " + std::to_string(error)};
+             }
 
-        FT_Set_Pixel_Sizes(face, 0, FT_UInt(fontDescriptor.size()));
-        return std::pair{kdl::resource{face, FT_Done_Face}, std::move(reader)};
-      })
-    .if_error([&](auto e) {
-      throw RenderException{
-        "Error loading font '" + fontDescriptor.name() + "': " + e.msg};
-    })
-    .value();
+             FT_Set_Pixel_Sizes(face, 0, FT_UInt(fontDescriptor.size()));
+             return std::pair{kdl::resource{face, FT_Done_Face}, std::move(reader)};
+           })
+         | kdl::if_error([&](auto e) {
+             throw RenderException{
+               "Error loading font '" + fontDescriptor.name() + "': " + e.msg};
+           })
+         | kdl::value();
 }
 
 FontFactory::Metrics computeMetrics(FT_Face face)

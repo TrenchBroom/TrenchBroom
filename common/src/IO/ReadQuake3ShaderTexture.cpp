@@ -62,21 +62,20 @@ std::optional<std::filesystem::path> findImage(
 
     const auto directoryPath = texturePath.parent_path();
     const auto basename = texturePath.stem().string();
-    return fs
-      .find(
-        texturePath.parent_path(),
-        TraversalMode::Flat,
-        kdl::lift_and(
-          makeFilenamePathMatcher(basename + ".*"),
-          makeExtensionPathMatcher(imageExtensions)))
-      .transform([](auto candidates) -> std::optional<std::filesystem::path> {
-        if (!candidates.empty())
-        {
-          return candidates.front();
-        }
-        return std::nullopt;
-      })
-      .value_or(std::nullopt);
+    return fs.find(
+             texturePath.parent_path(),
+             TraversalMode::Flat,
+             kdl::lift_and(
+               makeFilenamePathMatcher(basename + ".*"),
+               makeExtensionPathMatcher(imageExtensions)))
+           | kdl::transform([](auto candidates) -> std::optional<std::filesystem::path> {
+               if (!candidates.empty())
+               {
+                 return candidates.front();
+               }
+               return std::nullopt;
+             })
+           | kdl::value_or(std::nullopt);
   }
 
   // texture path is empty OR (the extension is not empty AND the file does not exist)

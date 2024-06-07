@@ -111,15 +111,15 @@ TEST_CASE("GroupNode.updateLinkedGroups")
   SECTION("Target group list is empty")
   {
     updateLinkedGroups(groupNode, {}, worldBounds)
-      .transform([&](const UpdateLinkedGroupsResult& r) { CHECK(r.empty()); })
-      .transform_error([](const auto&) { FAIL(); });
+      | kdl::transform([&](const UpdateLinkedGroupsResult& r) { CHECK(r.empty()); })
+      | kdl::transform_error([](const auto&) { FAIL(); });
   }
 
   SECTION("Target group list contains only source group")
   {
     updateLinkedGroups(groupNode, {&groupNode}, worldBounds)
-      .transform([&](const UpdateLinkedGroupsResult& r) { CHECK(r.empty()); })
-      .transform_error([](const auto&) { FAIL(); });
+      | kdl::transform([&](const UpdateLinkedGroupsResult& r) { CHECK(r.empty()); })
+      | kdl::transform_error([](const auto&) { FAIL(); });
   }
 
   SECTION("Update a single target group")
@@ -143,21 +143,22 @@ TEST_CASE("GroupNode.updateLinkedGroups")
     REQUIRE(entityNode->entity().origin() == vm::vec3{1, 0, 3});
 
     updateLinkedGroups(groupNode, {groupNodeClone.get()}, worldBounds)
-      .transform([&](const UpdateLinkedGroupsResult& r) {
-        CHECK(r.size() == 1u);
+      | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
+          CHECK(r.size() == 1u);
 
-        const auto& p = r.front();
-        const auto& [groupNodeToUpdate, newChildren] = p;
+          const auto& p = r.front();
+          const auto& [groupNodeToUpdate, newChildren] = p;
 
-        CHECK(groupNodeToUpdate == groupNodeClone.get());
-        CHECK(newChildren.size() == 1u);
+          CHECK(groupNodeToUpdate == groupNodeClone.get());
+          CHECK(newChildren.size() == 1u);
 
-        const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
-        CHECK(newEntityNode != nullptr);
+          const auto* newEntityNode =
+            dynamic_cast<EntityNode*>(newChildren.front().get());
+          CHECK(newEntityNode != nullptr);
 
-        CHECK(newEntityNode->entity().origin() == vm::vec3{1, 2, 3});
-      })
-      .transform_error([](const auto&) { FAIL(); });
+          CHECK(newEntityNode->entity().origin() == vm::vec3{1, 2, 3});
+        })
+      | kdl::transform_error([](const auto&) { FAIL(); });
   }
 }
 
@@ -196,21 +197,22 @@ TEST_CASE("GroupNode.updateNestedLinkedGroups")
       == vm::translation_matrix(vm::vec3{0, 2, 0}));
 
     updateLinkedGroups(*innerGroupNode, {innerGroupNodeClone.get()}, worldBounds)
-      .transform([&](const UpdateLinkedGroupsResult& r) {
-        CHECK(r.size() == 1u);
+      | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
+          CHECK(r.size() == 1u);
 
-        const auto& p = r.front();
-        const auto& [groupNodeToUpdate, newChildren] = p;
+          const auto& p = r.front();
+          const auto& [groupNodeToUpdate, newChildren] = p;
 
-        CHECK(groupNodeToUpdate == innerGroupNodeClone.get());
-        CHECK(newChildren.size() == 1u);
+          CHECK(groupNodeToUpdate == innerGroupNodeClone.get());
+          CHECK(newChildren.size() == 1u);
 
-        const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
-        CHECK(newEntityNode != nullptr);
+          const auto* newEntityNode =
+            dynamic_cast<EntityNode*>(newChildren.front().get());
+          CHECK(newEntityNode != nullptr);
 
-        CHECK(newEntityNode->entity().origin() == vm::vec3{0, 2, 0});
-      })
-      .transform_error([](const auto&) { FAIL(); });
+          CHECK(newEntityNode->entity().origin() == vm::vec3{0, 2, 0});
+        })
+      | kdl::transform_error([](const auto&) { FAIL(); });
   }
 
   SECTION("Transforming the inner group node's entity and updating the linked group")
@@ -225,21 +227,22 @@ TEST_CASE("GroupNode.updateNestedLinkedGroups")
       == vm::translation_matrix(vm::vec3{0, 2, 0}));
 
     updateLinkedGroups(*innerGroupNode, {innerGroupNodeClone.get()}, worldBounds)
-      .transform([&](const UpdateLinkedGroupsResult& r) {
-        CHECK(r.size() == 1u);
+      | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
+          CHECK(r.size() == 1u);
 
-        const auto& p = r.front();
-        const auto& [groupNodeToUpdate, newChildren] = p;
+          const auto& p = r.front();
+          const auto& [groupNodeToUpdate, newChildren] = p;
 
-        CHECK(groupNodeToUpdate == innerGroupNodeClone.get());
-        CHECK(newChildren.size() == 1u);
+          CHECK(groupNodeToUpdate == innerGroupNodeClone.get());
+          CHECK(newChildren.size() == 1u);
 
-        const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
-        CHECK(newEntityNode != nullptr);
+          const auto* newEntityNode =
+            dynamic_cast<EntityNode*>(newChildren.front().get());
+          CHECK(newEntityNode != nullptr);
 
-        CHECK(newEntityNode->entity().origin() == vm::vec3{1, 2, 0});
-      })
-      .transform_error([](const auto&) { FAIL(); });
+          CHECK(newEntityNode->entity().origin() == vm::vec3{1, 2, 0});
+        })
+      | kdl::transform_error([](const auto&) { FAIL(); });
   }
 }
 
@@ -294,24 +297,25 @@ TEST_CASE("GroupNode.updateLinkedGroupsRecursively")
   REQUIRE(innerGroupEntityNodeClone != nullptr);
 
   updateLinkedGroups(outerGroupNode, {outerGroupNodeClone.get()}, worldBounds)
-    .transform([&](const UpdateLinkedGroupsResult& r) {
-      REQUIRE(r.size() == 1u);
-      const auto& [groupNodeToUpdate, newChildren] = r.front();
+    | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
+        REQUIRE(r.size() == 1u);
+        const auto& [groupNodeToUpdate, newChildren] = r.front();
 
-      REQUIRE(groupNodeToUpdate == outerGroupNodeClone.get());
-      REQUIRE(newChildren.size() == 1u);
+        REQUIRE(groupNodeToUpdate == outerGroupNodeClone.get());
+        REQUIRE(newChildren.size() == 1u);
 
-      auto* newInnerGroupNodeClone = dynamic_cast<GroupNode*>(newChildren.front().get());
-      CHECK(newInnerGroupNodeClone != nullptr);
-      CHECK(newInnerGroupNodeClone->group() == innerGroupNode->group());
-      CHECK(newInnerGroupNodeClone->childCount() == 1u);
+        auto* newInnerGroupNodeClone =
+          dynamic_cast<GroupNode*>(newChildren.front().get());
+        CHECK(newInnerGroupNodeClone != nullptr);
+        CHECK(newInnerGroupNodeClone->group() == innerGroupNode->group());
+        CHECK(newInnerGroupNodeClone->childCount() == 1u);
 
-      auto* newInnerGroupEntityNodeClone =
-        dynamic_cast<EntityNode*>(newInnerGroupNodeClone->children().front());
-      CHECK(newInnerGroupEntityNodeClone != nullptr);
-      CHECK(newInnerGroupEntityNodeClone->entity() == innerGroupEntityNode->entity());
-    })
-    .transform_error([](const auto&) { FAIL(); });
+        auto* newInnerGroupEntityNodeClone =
+          dynamic_cast<EntityNode*>(newInnerGroupNodeClone->children().front());
+        CHECK(newInnerGroupEntityNodeClone != nullptr);
+        CHECK(newInnerGroupEntityNodeClone->entity() == innerGroupEntityNode->entity());
+      })
+    | kdl::transform_error([](const auto&) { FAIL(); });
 }
 
 TEST_CASE("GroupNode.updateLinkedGroupsExceedsWorldBounds")
@@ -335,10 +339,9 @@ TEST_CASE("GroupNode.updateLinkedGroupsExceedsWorldBounds")
   REQUIRE(entityNode->entity().origin() == vm::vec3{1, 0, 0});
 
   updateLinkedGroups(groupNode, {groupNodeClone.get()}, worldBounds)
-    .transform([](auto) { FAIL(); })
-    .transform_error([](auto e) {
-      CHECK(e == Error{"Updating a linked node would exceed world bounds"});
-    });
+    | kdl::transform([](auto) { FAIL(); }) | kdl::transform_error([](auto e) {
+        CHECK(e == Error{"Updating a linked node would exceed world bounds"});
+      });
 }
 
 static void setGroupName(GroupNode& groupNode, const std::string& name)
@@ -381,16 +384,17 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveNestedGroupNames")
     "group")
   {
     updateLinkedGroups(outerGroupNode, {outerGroupNodeClone.get()}, worldBounds)
-      .transform([&](const UpdateLinkedGroupsResult& r) {
-        REQUIRE(r.size() == 1u);
+      | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
+          REQUIRE(r.size() == 1u);
 
-        const auto& [groupNodeToUpdate, newChildren] = r.front();
-        REQUIRE(groupNodeToUpdate == outerGroupNodeClone.get());
+          const auto& [groupNodeToUpdate, newChildren] = r.front();
+          REQUIRE(groupNodeToUpdate == outerGroupNodeClone.get());
 
-        const auto* innerReplacement = static_cast<GroupNode*>(newChildren.front().get());
-        CHECK(innerReplacement->name() == innerGroupNodeNestedClone->name());
-      })
-      .transform_error([](const auto&) { FAIL(); });
+          const auto* innerReplacement =
+            static_cast<GroupNode*>(newChildren.front().get());
+          CHECK(innerReplacement->name() == innerGroupNodeNestedClone->name());
+        })
+      | kdl::transform_error([](const auto&) { FAIL(); });
   }
 }
 
@@ -517,24 +521,24 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveEntityProperties")
   const auto expectedTargetProperties = expectedProperties;
 
   updateLinkedGroups(sourceGroupNode, {targetGroupNode.get()}, worldBounds)
-    .transform([&](const UpdateLinkedGroupsResult& r) {
-      REQUIRE(r.size() == 1u);
-      const auto& p = r.front();
+    | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
+        REQUIRE(r.size() == 1u);
+        const auto& p = r.front();
 
-      const auto& newChildren = p.second;
-      REQUIRE(newChildren.size() == 1u);
+        const auto& newChildren = p.second;
+        REQUIRE(newChildren.size() == 1u);
 
-      const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
-      REQUIRE(newEntityNode != nullptr);
+        const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
+        REQUIRE(newEntityNode != nullptr);
 
-      CHECK_THAT(
-        newEntityNode->entity().properties(),
-        Catch::UnorderedEquals(expectedTargetProperties));
-      CHECK_THAT(
-        newEntityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(targetEntityNode->entity().protectedProperties()));
-    })
-    .transform_error([](const auto&) { FAIL(); });
+        CHECK_THAT(
+          newEntityNode->entity().properties(),
+          Catch::UnorderedEquals(expectedTargetProperties));
+        CHECK_THAT(
+          newEntityNode->entity().protectedProperties(),
+          Catch::UnorderedEquals(targetEntityNode->entity().protectedProperties()));
+      })
+    | kdl::transform_error([](const auto&) { FAIL(); });
 }
 
 TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
@@ -546,7 +550,7 @@ TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
 
   auto sourceGroupNode = GroupNode{Group{"name"}};
   auto* sourceBrushNode =
-    new BrushNode{brushBuilder.createCube(64.0, "material").value()};
+    new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
   auto* sourceEntityNode = new EntityNode{Entity{
     {},
     {
@@ -575,26 +579,26 @@ TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
   sourceGroupNode.addChildren({sourceBrushEntity});
 
   updateLinkedGroups(sourceGroupNode, {targetGroupNode.get()}, worldBounds)
-    .transform([&](const UpdateLinkedGroupsResult& r) {
-      REQUIRE(r.size() == 1u);
-      const auto& p = r.front();
+    | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
+        REQUIRE(r.size() == 1u);
+        const auto& p = r.front();
 
-      const auto& newChildren = p.second;
-      REQUIRE(newChildren.size() == 2u);
+        const auto& newChildren = p.second;
+        REQUIRE(newChildren.size() == 2u);
 
-      const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
-      REQUIRE(newEntityNode != nullptr);
+        const auto* newEntityNode = dynamic_cast<EntityNode*>(newChildren.front().get());
+        REQUIRE(newEntityNode != nullptr);
 
-      CHECK_THAT(
-        newEntityNode->entity().properties(),
-        Catch::UnorderedEquals(std::vector<EntityProperty>{
-          {"light", "500"},
-        }));
-      CHECK_THAT(
-        newEntityNode->entity().protectedProperties(),
-        Catch::UnorderedEquals(std::vector<std::string>{"light"}));
-    })
-    .transform_error([](const auto&) { FAIL(); });
+        CHECK_THAT(
+          newEntityNode->entity().properties(),
+          Catch::UnorderedEquals(std::vector<EntityProperty>{
+            {"light", "500"},
+          }));
+        CHECK_THAT(
+          newEntityNode->entity().protectedProperties(),
+          Catch::UnorderedEquals(std::vector<std::string>{"light"}));
+      })
+    | kdl::transform_error([](const auto&) { FAIL(); });
 }
 
 namespace
@@ -714,7 +718,8 @@ TEST_CASE("initializeLinkIds")
 
   auto* outerGroupNode = new GroupNode{Group{"outer"}};
   auto* outerEntityNode = new EntityNode{Entity{}};
-  auto* outerBrushNode = new BrushNode{brushBuilder.createCube(64.0, "material").value()};
+  auto* outerBrushNode =
+    new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
 
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* innerPatchNode = createPatchNode();
@@ -726,7 +731,7 @@ TEST_CASE("initializeLinkIds")
   auto* linkedOuterGroupNode = new GroupNode{Group{"outer"}};
   auto* linkedOuterEntityNode = new EntityNode{Entity{}};
   auto* linkedOuterBrushNode =
-    new BrushNode{brushBuilder.createCube(64.0, "material").value()};
+    new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
 
   auto* linkedInnerGroupNode = new GroupNode{Group{"inner"}};
   auto* linkedInnerPatchNode = createPatchNode();
@@ -785,7 +790,7 @@ TEST_CASE("initializeLinkIds")
       auto* linkedOuterGroupNode2 = new GroupNode{Group{"outer"}};
       auto* linkedOuterEntityNode2 = new EntityNode{Entity{}};
       auto* linkedOuterBrushNode2 =
-        new BrushNode{brushBuilder.createCube(64.0, "material").value()};
+        new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
 
       auto* linkedInnerGroupNode2 = new GroupNode{Group{"inner"}};
       auto* linkedInnerPatchNode2 = createPatchNode();

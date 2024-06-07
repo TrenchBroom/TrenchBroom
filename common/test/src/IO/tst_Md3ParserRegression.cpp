@@ -57,10 +57,10 @@ TEST_CASE("Md3ParserTest.loadFailure_2659")
     "",
     createImageFileSystem<Quake3ShaderFileSystem>(
       fs, shaderSearchPath, textureSearchPaths, logger)
-      .value());
+      | kdl::value());
 
   const auto md3Path = "models/armor_red.md3";
-  const auto md3File = fs.openFile(md3Path).value();
+  const auto md3File = fs.openFile(md3Path) | kdl::value();
 
   auto reader = md3File->reader().buffer();
   auto parser = Md3Parser{"armor_red", reader, fs};
