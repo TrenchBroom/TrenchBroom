@@ -244,6 +244,7 @@ class [[nodiscard]] result
 {
 public:
   using value_type = Value;
+  using error_variant = std::variant<Errors...>;
   static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
 
   template <typename OtherValue>
@@ -879,7 +880,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -887,8 +888,8 @@ public:
   {
     return std::visit(
       overload(
-        [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](const auto& e) -> std::variant<Errors...> { return e; }),
+        [](const value_type&) -> error_variant { throw bad_result_access{}; },
+        [](const auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -896,7 +897,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -904,8 +905,8 @@ public:
   {
     return std::visit(
       overload(
-        [](value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](auto& e) -> std::variant<Errors...> { return e; }),
+        [](value_type&) -> error_variant { throw bad_result_access{}; },
+        [](auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -913,7 +914,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing the error in this result
+   * @return a variant containing the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -921,8 +922,8 @@ public:
   {
     return std::visit(
       overload(
-        [](value_type&&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }),
+        [](value_type&&) -> error_variant { throw bad_result_access{}; },
+        [](auto&& e) -> error_variant { return std::forward<decltype(e)>(e); }),
       std::move(m_value));
   }
 
@@ -969,6 +970,7 @@ class [[nodiscard]] result<multi_value<Values...>, Errors...>
 {
 public:
   using value_type = multi_value<Values...>;
+  using error_variant = std::variant<Errors...>;
   static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
 
   template <typename OtherValue>
@@ -1493,7 +1495,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -1501,8 +1503,8 @@ public:
   {
     return std::visit(
       overload(
-        [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](const auto& e) -> std::variant<Errors...> { return e; }),
+        [](const value_type&) -> error_variant { throw bad_result_access{}; },
+        [](const auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -1510,7 +1512,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -1518,8 +1520,8 @@ public:
   {
     return std::visit(
       overload(
-        [](value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](auto& e) -> std::variant<Errors...> { return e; }),
+        [](value_type&) -> error_variant { throw bad_result_access{}; },
+        [](auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -1527,7 +1529,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing the error in this result
+   * @return a variant containing the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -1535,8 +1537,8 @@ public:
   {
     return std::visit(
       overload(
-        [](value_type&&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }),
+        [](value_type&&) -> error_variant { throw bad_result_access{}; },
+        [](auto&& e) -> error_variant { return std::forward<decltype(e)>(e); }),
       std::move(m_value));
   }
 
@@ -1606,6 +1608,7 @@ class result<void>
 {
 public:
   using value_type = void;
+  using error_variant = std::variant<>;
   static constexpr auto error_count = size_t{0};
 
   template <typename OtherValue>
@@ -1695,6 +1698,7 @@ class [[nodiscard]] result<void, Errors...>
 {
 public:
   using value_type = void;
+  using error_variant = std::variant<Errors...>;
   static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
 
   template <typename OtherValue>
@@ -2081,7 +2085,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -2089,10 +2093,10 @@ public:
   {
     return std::visit(
       overload(
-        [](const detail::void_success_value_type&) -> std::variant<Errors...> {
+        [](const detail::void_success_value_type&) -> error_variant {
           throw bad_result_access{};
         },
-        [](const auto& e) -> std::variant<Errors...> { return e; }),
+        [](const auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -2100,7 +2104,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -2108,10 +2112,10 @@ public:
   {
     return std::visit(
       overload(
-        [](detail::void_success_value_type&) -> std::variant<Errors...> {
+        [](detail::void_success_value_type&) -> error_variant {
           throw bad_result_access{};
         },
-        [](auto& e) -> std::variant<Errors...> { return e; }),
+        [](auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -2119,7 +2123,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing the error in this result
+   * @return a variant containing the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -2127,10 +2131,10 @@ public:
   {
     return std::visit(
       overload(
-        [](detail::void_success_value_type&&) -> std::variant<Errors...> {
+        [](detail::void_success_value_type&&) -> error_variant {
           throw bad_result_access{};
         },
-        [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }),
+        [](auto&& e) -> error_variant { return std::forward<decltype(e)>(e); }),
       std::move(m_value));
   }
 
