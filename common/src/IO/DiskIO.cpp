@@ -108,36 +108,41 @@ PathInfo pathInfo(const std::filesystem::path& path)
 
 Result<std::vector<std::filesystem::path>> find(
   const std::filesystem::path& path,
-  const TraversalMode traversalMode,
+  const TraversalMode& traversalMode,
   const PathMatcher& pathMatcher)
 {
   const auto fixedPath = fixPath(path);
   auto error = std::error_code{};
   auto result = std::vector<std::filesystem::path>{};
-  switch (traversalMode)
+
+  auto it = std::filesystem::recursive_directory_iterator{
+    fixedPath, std::filesystem::directory_options::follow_directory_symlink, error};
+  auto end = std::filesystem::recursive_directory_iterator{};
+
+  while (it != end)
   {
-  case TraversalMode::Flat:
-    std::transform(
-      std::filesystem::directory_iterator{fixedPath, error},
-      std::filesystem::directory_iterator{},
-      std::back_inserter(result),
-      [&](const auto& entry) { return entry.path(); });
-    break;
-  case TraversalMode::Recursive:
-    std::transform(
-      std::filesystem::recursive_directory_iterator{
-        fixedPath, std::filesystem::directory_options::follow_directory_symlink, error},
-      std::filesystem::recursive_directory_iterator{},
-      std::back_inserter(result),
-      [&](const auto& entry) { return entry.path(); });
-    break;
+    assert(!traversalMode.depth || it.depth() <= traversalMode.depth);
+
+    const auto& entryPath = it->path();
+    if (pathMatcher(entryPath, pathInfo))
+    {
+      result.push_back(entryPath);
+    }
+
+    if (traversalMode.depth && it.depth() == int(*traversalMode.depth))
+    {
+      it.disable_recursion_pending();
+    }
+
+    ++it;
   }
 
   if (error)
   {
     return Error{"Failed to open '" + fixedPath.string() + "': " + error.message()};
   }
-  return kdl::vec_filter(result, [&](const auto& p) { return pathMatcher(p, pathInfo); });
+
+  return result;
 }
 
 Result<std::shared_ptr<CFile>> openFile(const std::filesystem::path& path)

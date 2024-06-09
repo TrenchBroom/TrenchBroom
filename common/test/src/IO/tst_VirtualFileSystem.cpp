@@ -141,6 +141,40 @@ TEST_CASE("VirtualFileSystem")
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar/baz",
         }});
+      CHECK(
+        vfs.find("", TraversalMode::Recursive)
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "foo/bar",
+          "foo/bar/baz",
+          "bar",
+          "bar/foo",
+        }});
+      CHECK(
+        vfs.find("", TraversalMode{0})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "bar",
+        }});
+      CHECK(
+        vfs.find("", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "foo/bar",
+          "bar",
+          "bar/foo",
+        }});
+      CHECK(
+        vfs.find("foo", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar",
+          "foo/bar/baz",
+        }});
+      CHECK(
+        vfs.find("foo/bar", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar/baz",
+        }});
     }
 
     SECTION("openFile")
@@ -262,6 +296,48 @@ TEST_CASE("VirtualFileSystem")
           "bar/baz",
           "bar/cat",
         }});
+      CHECK(
+        vfs.find("", TraversalMode::Recursive)
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "foo/bar",
+          "foo/bar/baz",
+          "bar/foo",
+          "bar",
+          "bar/bat",
+          "bar/baz",
+          "bar/cat",
+          "baz",
+          "baz/foo",
+        }});
+      CHECK(
+        vfs.find("", TraversalMode{0})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "bar",
+          "baz",
+        }});
+      CHECK(
+        vfs.find("", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "foo/bar",
+          "bar/foo",
+          "bar",
+          "bar/bat",
+          "bar/baz",
+          "bar/cat",
+          "baz",
+          "baz/foo",
+        }});
+      CHECK(
+        vfs.find("bar", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "bar/foo",
+          "bar/bat",
+          "bar/baz",
+          "bar/cat",
+        }});
     }
 
     SECTION("openFile")
@@ -346,6 +422,34 @@ TEST_CASE("VirtualFileSystem")
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "bar/foo",
         }});
+      CHECK(
+        vfs.find("", TraversalMode::Recursive)
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "foo/bar",
+          "foo/bar/baz",
+          "bar",
+          "bar/foo",
+        }});
+      CHECK(
+        vfs.find("", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "foo/bar",
+          "bar",
+          "bar/foo",
+        }});
+      CHECK(
+        vfs.find("foo", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar",
+          "foo/bar/baz",
+        }});
+      CHECK(
+        vfs.find("foo/bar", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar/baz",
+        }});
     }
 
     SECTION("openFile")
@@ -420,6 +524,25 @@ TEST_CASE("VirtualFileSystem")
         == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
           "foo/bar/baz",
           "foo/bar/foo",
+        }});
+      CHECK(
+        vfs.find("", TraversalMode::Recursive)
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar/baz",
+          "foo",
+          "foo/bar",
+          "foo/bar/foo",
+        }});
+      CHECK(
+        vfs.find("", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "foo/bar",
+        }});
+      CHECK(
+        vfs.find("foo", TraversalMode{0})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar",
         }});
     }
 
@@ -501,6 +624,30 @@ TEST_CASE("VirtualFileSystem")
           "foo/bar/d",
           "foo/bar/f",
           "foo/bar/g",
+        }});
+      CHECK(
+        vfs.find("", TraversalMode::Recursive)
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar/a",
+          "foo/bar/e",
+          "foo",
+          "foo/bar",
+          "foo/bar/b",
+          "foo/bar/c",
+          "foo/bar/d",
+          "foo/bar/f",
+          "foo/bar/g",
+        }});
+      CHECK(
+        vfs.find("", TraversalMode{1})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo",
+          "foo/bar",
+        }});
+      CHECK(
+        vfs.find("foo", TraversalMode{0})
+        == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+          "foo/bar",
         }});
     }
 

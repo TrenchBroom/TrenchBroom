@@ -65,7 +65,7 @@ PathInfo DiskFileSystem::pathInfo(const std::filesystem::path& path) const
 }
 
 Result<std::vector<std::filesystem::path>> DiskFileSystem::doFind(
-  const std::filesystem::path& path, const TraversalMode traversalMode) const
+  const std::filesystem::path& path, const TraversalMode& traversalMode) const
 {
   return makeAbsolute(path) | kdl::and_then([&](const auto& absPath) {
            return Disk::find(absPath, traversalMode);

@@ -19,26 +19,25 @@
 
 #include "TraversalMode.h"
 
-#include "Macros.h"
+#include "Ensure.h"
 
-#include <ostream>
+#include "kdl/reflection_impl.h"
 
 namespace TrenchBroom::IO
 {
 
-std::ostream& operator<<(std::ostream& lhs, const TraversalMode& rhs)
+const TraversalMode TraversalMode::Flat = TraversalMode{0};
+const TraversalMode TraversalMode::Recursive = TraversalMode{};
+
+kdl_reflect_impl(TraversalMode);
+
+std::optional<TraversalMode> TraversalMode::reduceDepth(size_t depthToSubtract) const
 {
-  switch (rhs)
-  {
-  case TraversalMode::Flat:
-    lhs << "Normal";
-    break;
-  case TraversalMode::Recursive:
-    lhs << "Recursive";
-    break;
-    switchDefault();
-  }
-  return lhs;
+  return !depth ? std::optional{*this}
+         : *depth >= depthToSubtract
+           ? std::optional{TraversalMode{*depth - depthToSubtract}}
+           : std::nullopt;
 }
+
 
 } // namespace TrenchBroom::IO

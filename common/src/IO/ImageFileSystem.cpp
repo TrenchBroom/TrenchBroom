@@ -220,29 +220,30 @@ namespace
 void doFindImpl(
   const ImageEntry& entry,
   const std::filesystem::path& entryPath,
-  const TraversalMode traversalMode,
+  const size_t depth,
+  const TraversalMode& traversalMode,
   std::vector<std::filesystem::path>& result)
 {
-  std::visit(
-    kdl::overload(
-      [&](const ImageDirectoryEntry& directoryEntry) {
-        for (const auto& childEntry : directoryEntry.entries)
-        {
-          const auto childPath = entryPath / getName(childEntry);
-          result.push_back(childPath);
-          if (traversalMode == TraversalMode::Recursive)
+  if (!traversalMode.depth || depth <= *traversalMode.depth)
+  {
+    std::visit(
+      kdl::overload(
+        [&](const ImageDirectoryEntry& directoryEntry) {
+          for (const auto& childEntry : directoryEntry.entries)
           {
-            doFindImpl(childEntry, childPath, traversalMode, result);
+            const auto childPath = entryPath / getName(childEntry);
+            result.push_back(childPath);
+            doFindImpl(childEntry, childPath, depth + 1, traversalMode, result);
           }
-        }
-      },
-      [](const ImageFileEntry&) {}),
-    entry);
+        },
+        [](const ImageFileEntry&) {}),
+      entry);
+  }
 }
 } // namespace
 
 Result<std::vector<std::filesystem::path>> ImageFileSystemBase::doFind(
-  const std::filesystem::path& path, const TraversalMode traversalMode) const
+  const std::filesystem::path& path, const TraversalMode& traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   withEntry(
@@ -250,7 +251,7 @@ Result<std::vector<std::filesystem::path>> ImageFileSystemBase::doFind(
     m_root,
     {},
     [&](const ImageEntry& entry, const std::filesystem::path& entryPath) {
-      doFindImpl(entry, entryPath, traversalMode, result);
+      doFindImpl(entry, entryPath, 0, traversalMode, result);
     });
   return result;
 }

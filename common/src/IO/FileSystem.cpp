@@ -40,7 +40,7 @@ FileSystem::~FileSystem() = default;
 
 Result<std::vector<std::filesystem::path>> FileSystem::find(
   const std::filesystem::path& path,
-  const TraversalMode traversalMode,
+  const TraversalMode& traversalMode,
   const PathMatcher& pathMatcher) const
 {
   if (path.is_absolute())

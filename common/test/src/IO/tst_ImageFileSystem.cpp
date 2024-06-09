@@ -878,6 +878,29 @@ TEST_CASE("Hierarchical ImageFileSystems")
         "pics/tag1.pcx",
         "bear.cfg",
       }));
+
+    CHECK_THAT(
+      fs->find("", TraversalMode{0}),
+      MatchesPathsResult({
+        "amnet.cfg",
+        "textures",
+        "pics",
+        "bear.cfg",
+      }));
+
+    CHECK_THAT(
+      fs->find("", TraversalMode{1}),
+      MatchesPathsResult({
+        "amnet.cfg",
+        "textures",
+        "textures/e1u3",
+        "textures/e1u2",
+        "textures/e1u1",
+        "pics",
+        "pics/tag2.pcx",
+        "pics/tag1.pcx",
+        "bear.cfg",
+      }));
   }
 
   SECTION("openFile")
