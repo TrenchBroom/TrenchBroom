@@ -752,9 +752,19 @@ auto vec_transform(const Range& range, Transform&& transform)
   auto result = std::vector<ResultType>{};
   vec_reserve_to(result, range);
 
-  for (const auto& x : range)
+  if constexpr (std::is_reference_v<decltype(*range.begin())>)
   {
-    result.push_back(transform(x));
+    for (const auto& x : range)
+    {
+      result.push_back(transform(x));
+    }
+  }
+  else
+  {
+    for (auto x : range)
+    {
+      result.push_back(transform(x));
+    }
   }
 
   return result;
@@ -825,9 +835,19 @@ auto vec_transform(Range& range, Transform&& transform)
   auto result = std::vector<ResultType>{};
   vec_reserve_to(result, range);
 
-  for (auto& x : range)
+  if constexpr (std::is_reference_v<decltype(*range.begin())>)
   {
-    result.push_back(transform(x));
+    for (auto& x : range)
+    {
+      result.push_back(transform(x));
+    }
+  }
+  else
+  {
+    for (auto x : range)
+    {
+      result.push_back(transform(x));
+    }
   }
 
   return result;
