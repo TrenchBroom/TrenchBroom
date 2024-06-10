@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include "catch2.h"
+#include "catch2.h" // IWYU pragma: keep
 
 namespace kdl
 {
@@ -39,6 +39,30 @@ auto make_window(const std::vector<T>& v, const D offset, const D length)
 
 TEST_CASE("grouped_range")
 {
+  SECTION("value_type (const lvalue ref)")
+  {
+    const auto v = std::vector<int>{};
+    auto r = make_grouped_range(v, [](const auto& lhs, const auto& rhs) {
+      return (lhs < 2 && rhs < 2) || (lhs >= 2 && rhs >= 2 && lhs < 4 && rhs < 4)
+             || (lhs >= 4 && rhs >= 4);
+    });
+
+    using G = std::decay_t<decltype(r)>;
+    static_assert(std::is_same_v<G::value_type, range<std::vector<int>::const_iterator>>);
+  }
+
+  SECTION("value_type (lvalue ref)")
+  {
+    auto v = std::vector<int>{};
+    auto r = make_grouped_range(v, [](const auto& lhs, const auto& rhs) {
+      return (lhs < 2 && rhs < 2) || (lhs >= 2 && rhs >= 2 && lhs < 4 && rhs < 4)
+             || (lhs >= 4 && rhs >= 4);
+    });
+
+    using G = std::decay_t<decltype(r)>;
+    static_assert(std::is_same_v<G::value_type, range<std::vector<int>::iterator>>);
+  }
+
   SECTION("Empty range")
   {
     auto v = std::vector<int>{};
