@@ -57,7 +57,7 @@ Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
   {
     const auto set_executing = kdl::set_temp{executing};
 
-    return fs.openFile("textures/__TB_empty.png") | kdl::and_then([&](auto file) {
+    return fs.openFile(DefaultTexturePath) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              return readFreeImageTexture(reader);
            })
