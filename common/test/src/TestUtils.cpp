@@ -20,6 +20,7 @@
 #include "TestUtils.h"
 
 #include "Assets/Material.h"
+#include "Assets/Resource.h"
 #include "Assets/Texture.h"
 #include "Ensure.h"
 #include "Error.h"
@@ -404,6 +405,8 @@ DocumentGameConfig loadMapDocument(
     document->game(),
     std::filesystem::current_path() / mapPath)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
+
+  document->processResourcesSync(Assets::ProcessContext{false});
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }

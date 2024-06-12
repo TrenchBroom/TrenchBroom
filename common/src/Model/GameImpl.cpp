@@ -518,9 +518,11 @@ void GameImpl::writeBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void GameImpl::loadMaterialCollections(Assets::MaterialManager& materialManager) const
+void GameImpl::loadMaterialCollections(
+  Assets::MaterialManager& materialManager,
+  const Assets::CreateTextureResource& createResource) const
 {
-  materialManager.reload(m_fs, m_config.materialConfig);
+  materialManager.reload(m_fs, m_config.materialConfig, createResource);
 }
 
 void GameImpl::reloadWads(
@@ -534,11 +536,6 @@ void GameImpl::reloadWads(
     IO::SystemPaths::appDirectory(), // Search for assets relative to the application.
   };
   m_fs.reloadWads(m_config.materialConfig.root, searchPaths, wadPaths, logger);
-}
-
-Result<void> GameImpl::reloadShaders()
-{
-  return m_fs.reloadShaders();
 }
 
 bool GameImpl::isEntityDefinitionFile(const std::filesystem::path& path) const

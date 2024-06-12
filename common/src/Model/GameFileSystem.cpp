@@ -26,7 +26,6 @@
 #include "IO/File.h"
 #include "IO/IdPakFileSystem.h"
 #include "IO/PathInfo.h"
-#include "IO/Quake3ShaderFileSystem.h"
 #include "IO/SystemPaths.h"
 #include "IO/TraversalMode.h"
 #include "IO/WadFileSystem.h"
@@ -50,20 +49,13 @@ void GameFileSystem::initialize(
   Logger& logger)
 {
   unmountAll();
-  m_shaderFS = nullptr;
 
   addDefaultAssetPaths(config, logger);
 
   if (!gamePath.empty() && IO::Disk::pathInfo(gamePath) == IO::PathInfo::Directory)
   {
     addGameFileSystems(config, gamePath, additionalSearchPaths, logger);
-    addShaderFileSystem(config, logger);
   }
-}
-
-Result<void> GameFileSystem::reloadShaders()
-{
-  return m_shaderFS ? m_shaderFS->reload() : Result<void>{};
 }
 
 void GameFileSystem::reloadWads(
@@ -191,27 +183,6 @@ void GameFileSystem::addFileSystemPackages(
       | kdl::transform_error([&](auto e) {
           logger.error() << "Could not add file system packages: " << e.msg;
         });
-  }
-}
-
-void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logger)
-{
-  // To support Quake 3 shaders, we add a shader file system that loads the shaders
-  // and makes them available as virtual files.
-  const auto& materialConfig = config.materialConfig;
-  if (!materialConfig.shaderSearchPath.empty())
-  {
-    logger.info() << "Adding shader file system";
-    auto shaderSearchPath = materialConfig.shaderSearchPath;
-    auto textureSearchPaths =
-      std::vector<std::filesystem::path>{materialConfig.root, "models"};
-
-    auto shaderFs =
-      IO::createImageFileSystem<IO::Quake3ShaderFileSystem>(
-        *this, std::move(shaderSearchPath), std::move(textureSearchPaths), logger)
-      | kdl::value();
-    m_shaderFS = shaderFs.get();
-    mount(std::filesystem::path{}, std::move(shaderFs));
   }
 }
 

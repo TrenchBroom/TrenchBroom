@@ -20,6 +20,7 @@
 #include "EntityModel.h"
 
 #include "Assets/MaterialCollection.h"
+#include "Assets/Texture.h"
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/MaterialIndexRangeMap.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
@@ -413,7 +414,14 @@ const std::string& EntityModelSurface::name() const
 
 void EntityModelSurface::prepare(const int minFilter, const int magFilter)
 {
-  m_skins->prepare(minFilter, magFilter);
+  for (auto& material : m_skins->materials())
+  {
+    if (auto* texture = material.texture())
+    {
+      texture->upload(true);
+      texture->setFilterMode(minFilter, magFilter);
+    }
+  }
 }
 
 void EntityModelSurface::setFilterMode(const int minFilter, const int magFilter)

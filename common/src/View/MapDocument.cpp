@@ -4387,9 +4387,8 @@ void MapDocument::reloadMaterialCollections()
     materialCollectionsWillChangeNotifier, materialCollectionsDidChangeNotifier);
 
   info("Reloading material collections");
-  reloadMaterials();
-  setMaterials();
-  initializeAllNodeTags(this);
+  unloadMaterials();
+  // materialCollectionsDidChange will load the collections again
 }
 
 void MapDocument::reloadEntityDefinitions()
@@ -4531,9 +4530,6 @@ void MapDocument::unloadEntityModels()
 void MapDocument::reloadMaterials()
 {
   unloadMaterials();
-  m_game->reloadShaders() | kdl::transform_error([&](auto e) {
-    error() << "Failed to reload shaders: " << e.msg;
-  });
   loadMaterials();
 }
 
@@ -4548,7 +4544,12 @@ void MapDocument::loadMaterials()
         [](const auto& str) { return std::filesystem::path{str}; });
       m_game->reloadWads(path(), wadPaths, logger());
     }
-    m_game->loadMaterialCollections(*m_materialManager);
+    m_game->loadMaterialCollections(*m_materialManager, [&](auto resourceLoader) {
+      auto resource =
+        std::make_shared<Assets::TextureResource>(std::move(resourceLoader));
+      m_resourceManager->addResource(resource);
+      return resource;
+    });
   }
   catch (const Exception& e)
   {
@@ -5115,8 +5116,6 @@ void MapDocument::connectObservers()
     brushFacesDidChangeNotifier.connect(this, &MapDocument::updateFaceTags);
   m_notifierConnection +=
     modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
-  m_notifierConnection +=
-    materialCollectionsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
 }
 
 void MapDocument::materialCollectionsWillChange()
@@ -5128,6 +5127,7 @@ void MapDocument::materialCollectionsDidChange()
 {
   loadMaterials();
   setMaterials();
+  updateAllFaceTags();
 }
 
 void MapDocument::entityDefinitionsWillChange()

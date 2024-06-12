@@ -95,13 +95,14 @@ public:
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  void loadMaterialCollections(Assets::MaterialManager& materialManager) const override;
+  void loadMaterialCollections(
+    Assets::MaterialManager& materialManager,
+    const Assets::CreateTextureResource& createResource) const override;
 
   void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) override;
-  Result<void> reloadShaders() override;
 
   bool isEntityDefinitionFile(const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;

@@ -25,7 +25,7 @@
 #include "Assets/Texture.h"
 #include "Error.h"
 #include "Exceptions.h"
-#include "IO/LoadMaterialCollection.h"
+#include "IO/LoadMaterialCollections.h"
 #include "Logger.h"
 
 #include "kdl/map_utils.h"
@@ -55,15 +55,21 @@ MaterialManager::MaterialManager(int magFilter, int minFilter, Logger& logger)
 MaterialManager::~MaterialManager() = default;
 
 void MaterialManager::reload(
-  const IO::FileSystem& fs, const Model::MaterialConfig& materialConfig)
+  const IO::FileSystem& fs,
+  const Model::MaterialConfig& materialConfig,
+  const Assets::CreateTextureResource& createResource)
 {
-  findMaterialCollections(fs, materialConfig)
+  clear();
+  IO::loadMaterialCollections(fs, materialConfig, createResource, m_logger)
     | kdl::transform([&](auto materialCollections) {
-        setMaterialCollections(std::move(materialCollections), fs, materialConfig);
+        for (auto& collection : materialCollections)
+        {
+          addMaterialCollection(std::move(collection));
+        }
+        updateMaterials();
       })
     | kdl::transform_error([&](auto e) {
         m_logger.error() << "Could not reload material collections: " + e.msg;
-        setMaterialCollections({}, fs, materialConfig);
       });
 }
 
@@ -74,55 +80,6 @@ void MaterialManager::setMaterialCollections(std::vector<MaterialCollection> col
     addMaterialCollection(std::move(collection));
   }
   updateMaterials();
-}
-
-void MaterialManager::setMaterialCollections(
-  const std::vector<std::filesystem::path>& paths,
-  const IO::FileSystem& fs,
-  const Model::MaterialConfig& materialConfig)
-{
-  auto collections = std::move(m_collections);
-  clear();
-
-  for (const auto& path : paths)
-  {
-    const auto it =
-      std::find_if(collections.begin(), collections.end(), [&](const auto& c) {
-        return c.path() == path;
-      });
-
-    if (it == collections.end() || !it->loaded())
-    {
-      IO::loadMaterialCollection(path, fs, materialConfig, m_logger)
-        | kdl::transform_error([&](const auto& error) {
-            if (it == collections.end())
-            {
-              m_logger.error() << "Could not load material collection '" << path
-                               << "': " << error.msg;
-            }
-            return Assets::MaterialCollection{path};
-          })
-        | kdl::transform([&](auto collection) {
-            if (!collection.materials().empty())
-            {
-              m_logger.info() << "Loaded material collection '" << path << "'";
-            }
-            addMaterialCollection(std::move(collection));
-          });
-    }
-    else
-    {
-      addMaterialCollection(std::move(*it));
-    }
-
-    if (it != collections.end())
-    {
-      collections.erase(it);
-    }
-  }
-
-  updateMaterials();
-  m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
 }
 
 void MaterialManager::addMaterialCollection(Assets::MaterialCollection collection)

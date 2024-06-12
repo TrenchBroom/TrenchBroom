@@ -166,7 +166,9 @@ void TestGame::writeBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void TestGame::loadMaterialCollections(Assets::MaterialManager& materialManager) const
+void TestGame::loadMaterialCollections(
+  Assets::MaterialManager& materialManager,
+  const Assets::CreateTextureResource& createResource) const
 {
   const Model::MaterialConfig materialConfig{
     "textures",
@@ -177,7 +179,7 @@ void TestGame::loadMaterialCollections(Assets::MaterialManager& materialManager)
     {},
   };
 
-  materialManager.reload(*m_fs, materialConfig);
+  materialManager.reload(*m_fs, materialConfig, createResource);
 }
 
 void TestGame::reloadWads(
@@ -193,12 +195,6 @@ void TestGame::reloadWads(
     const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
     m_fs->mount("textures", IO::openFS<IO::WadFileSystem>(absoluteWadPath));
   }
-}
-
-Result<void> TestGame::reloadShaders()
-{
-  return kdl::void_success;
-  ;
 }
 
 bool TestGame::isEntityDefinitionFile(const std::filesystem::path& /* path */) const

@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Assets/TextureResource.h"
 #include "FloatType.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/EntityModelLoader.h"
@@ -139,13 +140,13 @@ public: // parsing and serializing objects
 
 public: // material collection handling
   virtual void loadMaterialCollections(
-    Assets::MaterialManager& materialManager) const = 0;
+    Assets::MaterialManager& materialManager,
+    const Assets::CreateTextureResource& createResource) const = 0;
 
   virtual void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) = 0;
-  virtual Result<void> reloadShaders() = 0;
 
 public: // entity definition handling
   virtual bool isEntityDefinitionFile(const std::filesystem::path& path) const = 0;

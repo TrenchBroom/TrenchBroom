@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Assets/MaterialCollection.h"
+#include "Assets/TextureResource.h"
 
 #include <filesystem>
 #include <string>
@@ -67,17 +68,15 @@ public:
   MaterialManager(int magFilter, int minFilter, Logger& logger);
   ~MaterialManager();
 
-  void reload(const IO::FileSystem& fs, const Model::MaterialConfig& materialConfig);
+  void reload(
+    const IO::FileSystem& fs,
+    const Model::MaterialConfig& materialConfig,
+    const Assets::CreateTextureResource& createResource);
 
   // for testing
   void setMaterialCollections(std::vector<MaterialCollection> collections);
 
 private:
-  void setMaterialCollections(
-    const std::vector<std::filesystem::path>& paths,
-    const IO::FileSystem& fs,
-    const Model::MaterialConfig& materialConfig);
-
   void addMaterialCollection(Assets::MaterialCollection collection);
 
 public:
