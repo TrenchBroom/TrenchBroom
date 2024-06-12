@@ -153,8 +153,8 @@ public:
   bool activate() const;
   bool deactivate() const;
 
-  void upload();
-  void drop();
+  void upload(bool glContextAvailable);
+  void drop(bool glContextAvailable);
 
   const std::vector<TextureBuffer>& buffersIfLoaded() const;
 };

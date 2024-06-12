@@ -115,7 +115,7 @@ void MaterialCollection::prepare(const int minFilter, const int magFilter)
   for (size_t i = 0; i < materialCount(); ++i)
   {
     auto& material = m_materials[i];
-    material.texture().upload();
+    material.texture().upload(true);
     material.texture().setFilterMode(minFilter, magFilter);
   }
 

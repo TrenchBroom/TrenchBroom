@@ -317,13 +317,15 @@ bool Texture::deactivate() const
   return false;
 }
 
-void Texture::upload()
+void Texture::upload(const bool glContextAvailable)
 {
   m_state = std::visit(
     kdl::overload(
       [&](const TextureLoadedState& textureLoadedState) -> TextureState {
         const auto textureId =
-          uploadTexture(m_format, m_mask, textureLoadedState.buffers, m_width, m_height);
+          glContextAvailable ? uploadTexture(
+            m_format, m_mask, textureLoadedState.buffers, m_width, m_height)
+                             : 0;
         return TextureReadyState{textureId};
       },
       [](TextureReadyState textureReadyState) -> TextureState {
@@ -335,13 +337,16 @@ void Texture::upload()
     std::move(m_state));
 }
 
-void Texture::drop()
+void Texture::drop(const bool glContextAvailable)
 {
   m_state = std::visit(
     kdl::overload(
       [&](const TextureLoadedState&) { return TextureDroppedState{}; },
-      [](const TextureReadyState& textureReadyState) {
-        dropTexture(textureReadyState.textureId);
+      [&](const TextureReadyState& textureReadyState) {
+        if (glContextAvailable)
+        {
+          dropTexture(textureReadyState.textureId);
+        }
         return TextureDroppedState{};
       },
       [](TextureDroppedState textureDroppedState) { return textureDroppedState; }),
