@@ -29,7 +29,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
-#include "IO/LoadMaterialCollection.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/TestParserStatus.h"

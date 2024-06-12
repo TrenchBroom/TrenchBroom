@@ -37,7 +37,6 @@
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"
 #include "IO/LoadEntityModel.h"
-#include "IO/LoadMaterialCollection.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"

@@ -27,9 +27,9 @@
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
+#include "IO/MaterialUtils.h"
 #include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
-#include "IO/ReadQuake3ShaderTexture.h"
 #include "IO/ReadWalTexture.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
@@ -79,24 +79,5 @@ Assets::Material loadSkin(
          | kdl::value();
 }
 
-Assets::Material loadShader(
-  const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
-{
-  const auto pathWithoutExtension = kdl::path_remove_extension(path);
-  auto actualPath = !path.empty() && fs.pathInfo(pathWithoutExtension) == PathInfo::File
-                      ? pathWithoutExtension
-                      : path;
-  const auto name = path.generic_string();
-
-  logger.debug() << "Loading shader '" << path << "'";
-  return fs.openFile(actualPath) | kdl::and_then([&](auto file) {
-           return readQuake3ShaderTexture(name, *file, fs);
-         })
-         | kdl::transform_error([&](auto e) {
-             logger.error() << "Could not load shader '" << path << "': " << e.msg;
-             return loadDefaultMaterial(fs, name, logger);
-           })
-         | kdl::value();
-}
 } // namespace IO
 } // namespace TrenchBroom
