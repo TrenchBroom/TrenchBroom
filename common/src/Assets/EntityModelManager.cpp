@@ -22,10 +22,11 @@
 #include "Assets/EntityModel.h"
 #include "Assets/ModelDefinition.h"
 #include "Exceptions.h"
-#include "IO/EntityModelLoader.h"
+#include "IO/LoadEntityModel.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "Model/EntityNode.h"
+#include "Model/Game.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 
 namespace TrenchBroom
@@ -34,11 +35,9 @@ namespace Assets
 {
 EntityModelManager::EntityModelManager(
   const int magFilter, const int minFilter, Logger& logger)
-  : m_logger(logger)
-  , m_loader(nullptr)
-  , m_minFilter(minFilter)
-  , m_magFilter(magFilter)
-  , m_resetFilterMode(false)
+  : m_logger{logger}
+  , m_minFilter{minFilter}
+  , m_magFilter{magFilter}
 {
 }
 
@@ -67,10 +66,10 @@ void EntityModelManager::setFilterMode(const int minFilter, const int magFilter)
   m_resetFilterMode = true;
 }
 
-void EntityModelManager::setLoader(const IO::EntityModelLoader* loader)
+void EntityModelManager::setGame(const Model::Game* game)
 {
   clear();
-  m_loader = loader;
+  m_game = game;
 }
 
 Renderer::MaterialRenderer* EntityModelManager::renderer(
@@ -187,8 +186,13 @@ EntityModel* EntityModelManager::safeGetModel(const std::filesystem::path& path)
 std::unique_ptr<EntityModel> EntityModelManager::loadModel(
   const std::filesystem::path& path) const
 {
-  ensure(m_loader != nullptr, "loader is null");
-  return m_loader->loadModel(path, m_logger);
+  if (m_game)
+  {
+    const auto& fs = m_game->gameFileSystem();
+    const auto& materialConfig = m_game->config().materialConfig;
+    return IO::loadEntityModel(fs, materialConfig, path, m_logger);
+  }
+  return nullptr;
 }
 
 void EntityModelManager::prepare(Renderer::VboManager& vboManager)

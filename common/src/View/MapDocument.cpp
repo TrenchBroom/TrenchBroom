@@ -4309,6 +4309,7 @@ Result<void> MapDocument::createWorld(
              m_worldBounds = worldBounds;
              m_game = game;
              m_world = std::move(world);
+             m_entityModelManager->setGame(game.get());
              performSetCurrentLayer(m_world->defaultLayer());
 
              updateGameSearchPaths();
@@ -4327,6 +4328,7 @@ Result<void> MapDocument::loadWorld(
              m_worldBounds = worldBounds;
              m_game = game;
              m_world = std::move(world);
+             m_entityModelManager->setGame(game.get());
              performSetCurrentLayer(m_world->defaultLayer());
 
              updateGameSearchPaths();
@@ -4517,14 +4519,12 @@ void MapDocument::unloadEntityDefinitions()
 
 void MapDocument::loadEntityModels()
 {
-  m_entityModelManager->setLoader(m_game.get());
   setEntityModels();
 }
 
 void MapDocument::unloadEntityModels()
 {
   clearEntityModels();
-  m_entityModelManager->setLoader(nullptr);
 }
 
 void MapDocument::reloadMaterials()
@@ -4713,7 +4713,7 @@ void MapDocument::clearEntityModels()
 }
 
 static auto makeSetEntityModelsVisitor(
-  Logger& logger, Assets::EntityModelManager& manager)
+  Assets::EntityModelManager& manager, Logger& logger)
 {
   return kdl::overload(
     [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -4744,12 +4744,12 @@ static auto makeUnsetEntityModelsVisitor()
 
 void MapDocument::setEntityModels()
 {
-  m_world->accept(makeSetEntityModelsVisitor(*this, *m_entityModelManager));
+  m_world->accept(makeSetEntityModelsVisitor(*m_entityModelManager, *this));
 }
 
 void MapDocument::setEntityModels(const std::vector<Model::Node*>& nodes)
 {
-  Model::Node::visitAll(nodes, makeSetEntityModelsVisitor(*this, *m_entityModelManager));
+  Model::Node::visitAll(nodes, makeSetEntityModelsVisitor(*m_entityModelManager, *this));
 }
 
 void MapDocument::unsetEntityModels()

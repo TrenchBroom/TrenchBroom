@@ -22,8 +22,8 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
 #include "IO/DiskIO.h"
-#include "IO/EntityModelLoader.h"
 #include "IO/GameConfigParser.h"
+#include "IO/LoadEntityModel.h"
 #include "Model/GameConfig.h"
 #include "Model/GameImpl.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -51,9 +51,10 @@ TEST_CASE("BSP model intersection test")
 
   const auto path = std::filesystem::path{"cube.bsp"};
 
-  std::unique_ptr<Assets::EntityModel> model = game->loadModel(path, logger);
+  auto model = IO::loadEntityModel(
+    game->gameFileSystem(), game->config().materialConfig, path, logger);
 
-  Assets::EntityModelFrame* frame = model->frames().at(0);
+  auto* frame = model->frames().at(0);
 
   const auto box = vm::bbox3f(vm::vec3f::fill(-32), vm::vec3f::fill(32));
   CHECK(box == frame->bounds());

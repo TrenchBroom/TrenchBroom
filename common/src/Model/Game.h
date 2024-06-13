@@ -22,7 +22,6 @@
 #include "Assets/TextureResource.h"
 #include "FloatType.h"
 #include "IO/EntityDefinitionLoader.h"
-#include "IO/EntityModelLoader.h"
 #include "IO/ExportOptions.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
@@ -67,7 +66,7 @@ class Node;
 class SmartTag;
 class WorldNode;
 
-class Game : public IO::EntityDefinitionLoader, public IO::EntityModelLoader
+class Game : public IO::EntityDefinitionLoader
 {
 public: // game configuration
   virtual const GameConfig& config() const = 0;

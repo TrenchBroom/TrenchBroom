@@ -30,15 +30,11 @@ namespace TrenchBroom
 {
 class Logger;
 
-namespace IO
-{
-class EntityModelLoader;
-}
-
 namespace Model
 {
 class EntityNode;
-}
+class Game;
+} // namespace Model
 
 namespace Renderer
 {
@@ -66,11 +62,11 @@ private:
   using RendererList = std::vector<Renderer::MaterialRenderer*>;
 
   Logger& m_logger;
-  const IO::EntityModelLoader* m_loader;
 
   int m_minFilter;
   int m_magFilter;
-  bool m_resetFilterMode;
+  bool m_resetFilterMode = false;
+  const Model::Game* m_game = nullptr;
 
   mutable ModelCache m_models;
   mutable ModelMismatches m_modelMismatches;
@@ -87,7 +83,8 @@ public:
   void clear();
 
   void setFilterMode(int minFilter, int magFilter);
-  void setLoader(const IO::EntityModelLoader* loader);
+  void setGame(const Model::Game* game);
+
   Renderer::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 
   const EntityModelFrame* frame(const ModelSpecification& spec) const;

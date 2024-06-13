@@ -120,12 +120,6 @@ Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> GameImpl::
   }
 }
 
-std::unique_ptr<Assets::EntityModel> GameImpl::loadModel(
-  const std::filesystem::path& path, Logger& logger) const
-{
-  return IO::loadEntityModel(m_fs, m_config.materialConfig, path, logger);
-}
-
 const GameConfig& GameImpl::config() const
 {
   return m_config;

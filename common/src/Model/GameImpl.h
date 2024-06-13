@@ -59,10 +59,6 @@ public: // implement EntityDefinitionLoader interface:
   Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> loadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
 
-public: // implement EntityModelLoader interface:
-  std::unique_ptr<Assets::EntityModel> loadModel(
-    const std::filesystem::path& path, Logger& logger) const override;
-
 public: // implement Game interface
   const GameConfig& config() const override;
   const IO::FileSystem& gameFileSystem() const override;
