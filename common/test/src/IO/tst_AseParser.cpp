@@ -66,7 +66,6 @@ TEST_CASE("AseParserTest.loadWithoutException")
   auto model = parser.initializeModel(logger);
   CHECK(model != nullptr);
 
-  CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
   CHECK(model->frame(0)->loaded());
 }
 
@@ -98,7 +97,6 @@ TEST_CASE("AseParserTest.fallbackToMaterialName")
   auto model = parser.initializeModel(logger);
   CHECK(model != nullptr);
 
-  CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
   CHECK(model->frame(0)->loaded());
 
   // account for the default material
@@ -134,7 +132,6 @@ TEST_CASE("AseParserTest.loadDefaultMaterial")
   auto model = parser.initializeModel(logger);
   CHECK(model != nullptr);
 
-  CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
   CHECK(model->frame(0)->loaded());
 
   // account for the default texture

@@ -62,11 +62,6 @@ public: // implement EntityDefinitionLoader interface:
 public: // implement EntityModelLoader interface:
   std::unique_ptr<Assets::EntityModel> initializeModel(
     const std::filesystem::path& path, Logger& logger) const override;
-  void loadFrame(
-    const std::filesystem::path& path,
-    size_t frameIndex,
-    Assets::EntityModel& model,
-    Logger& logger) const override;
 
 public: // implement Game interface
   const GameConfig& config() const override;

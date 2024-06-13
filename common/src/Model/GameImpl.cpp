@@ -126,16 +126,6 @@ std::unique_ptr<Assets::EntityModel> GameImpl::initializeModel(
   return IO::initializeEntityModel(m_fs, m_config.materialConfig, path, logger);
 }
 
-void GameImpl::loadFrame(
-  const std::filesystem::path& path,
-  size_t frameIndex,
-  Assets::EntityModel& model,
-  Logger& logger) const
-{
-  return IO::loadEntityModelFrame(
-    m_fs, m_config.materialConfig, path, frameIndex, model, logger);
-}
-
 const GameConfig& GameImpl::config() const
 {
   return m_config;

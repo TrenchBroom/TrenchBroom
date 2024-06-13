@@ -129,10 +129,6 @@ const EntityModelFrame* EntityModelManager::frame(
   }
   else
   {
-    if (!model->frame(spec.frameIndex)->loaded())
-    {
-      loadFrame(spec, *model);
-    }
     return model->frame(spec.frameIndex);
   }
 }
@@ -193,21 +189,6 @@ std::unique_ptr<EntityModel> EntityModelManager::loadModel(
 {
   ensure(m_loader != nullptr, "loader is null");
   return m_loader->initializeModel(path, m_logger);
-}
-
-void EntityModelManager::loadFrame(
-  const Assets::ModelSpecification& spec, Assets::EntityModel& model) const
-{
-  try
-  {
-    ensure(m_loader != nullptr, "loader is null");
-    m_loader->loadFrame(spec.path, spec.frameIndex, model, m_logger);
-  }
-  catch (const Exception& e)
-  {
-    // FIXME: be specific about which exceptions to catch here
-    m_logger.error() << "Could not load entity model frame " << spec << ": " << e.what();
-  }
 }
 
 void EntityModelManager::prepare(Renderer::VboManager& vboManager)

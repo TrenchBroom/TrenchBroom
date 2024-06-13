@@ -40,7 +40,6 @@ public:
   virtual ~EntityModelParser();
 
   virtual std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger) = 0;
-  virtual void loadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger);
 };
 
 } // namespace TrenchBroom::IO

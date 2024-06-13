@@ -335,10 +335,4 @@ std::unique_ptr<Assets::EntityModel> SprParser::initializeModel(Logger& /* logge
   return model;
 }
 
-void SprParser::loadFrame(
-  const size_t /* frameIndex */, Assets::EntityModel& /* model */, Logger& /* logger */)
-{
-  // already loaded everything in initializeModel
-}
-
 } // namespace TrenchBroom::IO

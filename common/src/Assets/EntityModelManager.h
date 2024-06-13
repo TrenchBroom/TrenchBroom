@@ -96,7 +96,6 @@ private:
   EntityModel* model(const std::filesystem::path& path) const;
   EntityModel* safeGetModel(const std::filesystem::path& path) const;
   std::unique_ptr<EntityModel> loadModel(const std::filesystem::path& path) const;
-  void loadFrame(const ModelSpecification& spec, EntityModel& model) const;
 
 public:
   void prepare(Renderer::VboManager& vboManager);

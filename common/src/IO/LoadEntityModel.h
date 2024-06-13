@@ -47,13 +47,4 @@ std::unique_ptr<Assets::EntityModel> initializeEntityModel(
   const std::filesystem::path& path,
   Logger& logger);
 
-void loadEntityModelFrame(
-  const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
-  const std::filesystem::path& path,
-  size_t frameIndex,
-  Assets::EntityModel& model,
-  Logger& logger);
-
-
 } // namespace TrenchBroom::IO

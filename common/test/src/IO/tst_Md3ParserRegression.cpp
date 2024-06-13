@@ -70,11 +70,6 @@ TEST_CASE("Md3ParserTest.loadFailure_2659")
 
   CHECK(model->frameCount() == 30u);
   CHECK(model->surfaceCount() == 2u);
-
-  for (size_t i = 0; i < model->frameCount(); ++i)
-  {
-    CHECK_NOTHROW(parser.loadFrame(i, *model, logger));
-  }
 }
 } // namespace IO
 } // namespace TrenchBroom

@@ -248,13 +248,6 @@ std::unique_ptr<Assets::EntityModel> TestGame::initializeModel(
 {
   return nullptr;
 }
-void TestGame::loadFrame(
-  const std::filesystem::path& /* path */,
-  size_t /* frameIndex */,
-  Assets::EntityModel& /* model */,
-  Logger& /* logger */) const
-{
-}
 
 void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)
 {

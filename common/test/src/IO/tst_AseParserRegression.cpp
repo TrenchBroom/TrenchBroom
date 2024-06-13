@@ -62,7 +62,6 @@ TEST_CASE("AseParserTest.parseFailure_2657")
   auto model = parser.initializeModel(logger);
   CHECK(model != nullptr);
 
-  CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
   CHECK(model->frame(0)->loaded());
 }
 
@@ -94,7 +93,6 @@ TEST_CASE("AseParserTest.parseFailure_2679")
   auto model = parser.initializeModel(logger);
   CHECK(model != nullptr);
 
-  CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
   CHECK(model->frame(0)->loaded());
 }
 
@@ -126,7 +124,6 @@ TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
   auto model = parser.initializeModel(logger);
   CHECK(model != nullptr);
 
-  CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
   CHECK(model->frame(0)->loaded());
 }
 
@@ -158,7 +155,6 @@ TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
   auto model = parser.initializeModel(logger);
   CHECK(model != nullptr);
 
-  CHECK_NOTHROW(parser.loadFrame(0, *model, logger));
   CHECK(model->frame(0)->loaded());
 }
 } // namespace IO

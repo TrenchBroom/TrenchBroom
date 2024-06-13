@@ -42,11 +42,6 @@ public:
 
   virtual std::unique_ptr<Assets::EntityModel> initializeModel(
     const std::filesystem::path& path, Logger& logger) const = 0;
-  virtual void loadFrame(
-    const std::filesystem::path& path,
-    size_t frameIndex,
-    Assets::EntityModel& model,
-    Logger& logger) const = 0;
 };
 
 } // namespace TrenchBroom::IO

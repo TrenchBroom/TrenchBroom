@@ -121,11 +121,6 @@ public:
 
   std::unique_ptr<Assets::EntityModel> initializeModel(
     const std::filesystem::path& path, Logger& logger) const override;
-  void loadFrame(
-    const std::filesystem::path& path,
-    size_t frameIndex,
-    Assets::EntityModel& model,
-    Logger& logger) const override;
 
   void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
   void setSmartTags(std::vector<SmartTag> smartTags);

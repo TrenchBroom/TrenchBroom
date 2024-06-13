@@ -26,6 +26,4 @@ namespace TrenchBroom::IO
 
 EntityModelParser::~EntityModelParser() = default;
 
-void EntityModelParser::loadFrame(const size_t, Assets::EntityModel&, Logger&) {}
-
 } // namespace TrenchBroom::IO
