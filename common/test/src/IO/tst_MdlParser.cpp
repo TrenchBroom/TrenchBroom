@@ -29,6 +29,7 @@
 #include "Model/EntityNode.h"
 
 #include "kdl/result.h"
+#include "kdl/result_io.h"
 
 #include "Catch2.h"
 
@@ -52,11 +53,11 @@ TEST_CASE("MdlParserTest.loadValidMdl")
   auto parser = MdlParser("armor", reader, palette);
   auto model = parser.initializeModel(logger);
 
-  CHECK(model != nullptr);
-  CHECK(model->surfaceCount() == 1u);
-  CHECK(model->frameCount() == 1u);
+  CHECK(model.is_success());
+  CHECK(model.value().surfaceCount() == 1u);
+  CHECK(model.value().frameCount() == 1u);
 
-  const auto surfaces = model->surfaces();
+  const auto surfaces = model.value().surfaces();
   const auto& surface = *surfaces.front();
   CHECK(surface.skinCount() == 3u);
   CHECK(surface.frameCount() == 1u);
@@ -77,7 +78,9 @@ TEST_CASE("MdlParserTest.loadInvalidMdl")
 
   auto reader = mdlFile->reader().buffer();
   auto parser = MdlParser("armor", reader, palette);
-  CHECK_THROWS_AS(parser.initializeModel(logger), AssetException);
+  CHECK(
+    parser.initializeModel(logger)
+    == Result<Assets::EntityModel>{Error{"Unknown MDL model version: 538976288"}});
 }
 } // namespace IO
 } // namespace TrenchBroom

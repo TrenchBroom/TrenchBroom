@@ -54,7 +54,7 @@ TEST_CASE("BSP model intersection test")
   auto model = IO::loadEntityModel(
     game->gameFileSystem(), game->config().materialConfig, path, logger);
 
-  auto* frame = model->frames().at(0);
+  auto* frame = model.value().frames().at(0);
 
   const auto box = vm::bbox3f(vm::vec3f::fill(-32), vm::vec3f::fill(32));
   CHECK(box == frame->bounds());

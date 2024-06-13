@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 
 #include "vm/forward.h"
@@ -50,7 +49,7 @@ public:
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
-  std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger) override;
+  Result<Assets::EntityModel> initializeModel(Logger& logger) override;
 };
 
 } // namespace TrenchBroom::IO

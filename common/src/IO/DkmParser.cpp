@@ -22,10 +22,10 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Error.h"
-#include "Exceptions.h"
 #include "IO/FileSystem.h"
 #include "IO/PathInfo.h"
 #include "IO/Reader.h"
+#include "IO/ReaderException.h"
 #include "IO/SkinLoader.h"
 #include "IO/TraversalMode.h"
 #include "Renderer/GLVertex.h"
@@ -35,6 +35,7 @@
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
+#include "kdl/result_fold.h"
 #include "kdl/string_format.h"
 
 #include "vm/vec.h"
@@ -392,7 +393,7 @@ auto parseMeshes(Reader reader, const size_t /* commandCount */)
  * which does not exist, and the correct skin file name will be "x/y.wal" instead. That's
  * why we try to find a matching file name by disregarding the extension.
  */
-auto findSkin(const std::string& skin, const FileSystem& fs)
+Result<std::filesystem::path> findSkin(const std::string& skin, const FileSystem& fs)
 {
   const auto skinPath = std::filesystem::path{skin};
   if (fs.pathInfo(skinPath) == PathInfo::File)
@@ -416,26 +417,25 @@ auto findSkin(const std::string& skin, const FileSystem& fs)
   return fs.find(
            folder, TraversalMode::Flat, makeFilenamePathMatcher(basename.string() + ".*"))
          | kdl::transform(
-           [&](auto items) { return items.size() == 1 ? items.front() : skinPath; })
-         | kdl::if_error([](auto e) { throw AssetException{e.msg}; }) | kdl::value();
+           [&](auto items) { return items.size() == 1 ? items.front() : skinPath; });
 }
 
-void loadSkins(
+Result<void> loadSkins(
   Assets::EntityModelSurface& surface,
   const std::vector<std::string>& skins,
   const FileSystem& fs,
   Logger& logger)
 {
-  auto materials = std::vector<Assets::Material>{};
-  materials.reserve(skins.size());
-
-  for (const auto& skin : skins)
-  {
-    const auto skinPath = findSkin(skin, fs);
-    materials.push_back(loadSkin(skinPath, fs, logger));
-  }
-
-  surface.setSkins(std::move(materials));
+  return kdl::vec_transform(
+           skins,
+           [&](const auto& skin) {
+             return findSkin(skin, fs) | kdl::transform([&](const auto skinPath) {
+                      return loadSkin(skinPath, fs, logger);
+                    });
+           })
+         | kdl::fold() | kdl::transform([&](auto materials) {
+             surface.setSkins(std::move(materials));
+           });
 }
 
 auto getVertices(const DkmFrame& frame, const std::vector<DkmMeshVertex>& meshVertices)
@@ -514,69 +514,76 @@ bool DkmParser::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-std::unique_ptr<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
 {
-  auto reader = m_reader;
-
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  if (ident != DkmLayout::Ident)
+  try
   {
-    throw AssetException{fmt::format("Unknown DKM model ident: {}", ident)};
-  }
+    auto reader = m_reader;
 
-  if (version != DkmLayout::Version1 && version != DkmLayout::Version2)
+    const auto ident = reader.readInt<int32_t>();
+    const auto version = reader.readInt<int32_t>();
+
+    if (ident != DkmLayout::Ident)
+    {
+      return Error{fmt::format("Unknown DKM model ident: {}", ident)};
+    }
+
+    if (version != DkmLayout::Version1 && version != DkmLayout::Version2)
+    {
+      return Error{fmt::format("Unknown DKM model version: {}", version)};
+    }
+
+    /* const auto origin = */ reader.readVec<float, 3>();
+
+    const auto frameSize = reader.readSize<int32_t>();
+
+    const auto skinCount = reader.readSize<int32_t>();
+    const auto vertexCount = reader.readSize<int32_t>();
+    /* const auto uvCoordCount =*/reader.readSize<int32_t>();
+    /* const auto triangleCount =*/reader.readSize<int32_t>();
+    const auto commandCount = reader.readSize<int32_t>();
+    const auto frameCount = reader.readSize<int32_t>();
+    /* const auto surfaceCount =*/reader.readSize<int32_t>();
+
+    const auto skinOffset = reader.readSize<int32_t>();
+    /* const auto uvCoordOffset =*/reader.readSize<int32_t>();
+    /* const auto triangleOffset =*/reader.readSize<int32_t>();
+    const auto frameOffset = reader.readSize<int32_t>();
+    const auto commandOffset = reader.readSize<int32_t>();
+    /* const auto surfaceOffset =*/reader.readSize<int32_t>();
+
+    const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
+
+    auto model = Assets::EntityModel{
+      m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+    for (size_t i = 0; i < frameCount; ++i)
+    {
+      model.addFrame();
+    }
+
+    auto& surface = model.addSurface(m_name);
+    return loadSkins(surface, skins, m_fs, logger).transform([&]() {
+      const auto meshes = parseMeshes(
+        reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
+
+      for (size_t i = 0; i < frameCount; ++i)
+      {
+        const auto frame = parseFrame(
+          reader.subReaderFromBegin(frameOffset + i * frameSize, frameSize),
+          i,
+          vertexCount,
+          version);
+
+        buildFrame(model, surface, i, frame, meshes);
+      }
+
+      return std::move(model);
+    });
+  }
+  catch (const ReaderException& e)
   {
-    throw AssetException{fmt::format("Unknown DKM model version: {}", version)};
+    return Error{e.what()};
   }
-
-  /* const auto origin = */ reader.readVec<float, 3>();
-
-  const auto frameSize = reader.readSize<int32_t>();
-
-  const auto skinCount = reader.readSize<int32_t>();
-  const auto vertexCount = reader.readSize<int32_t>();
-  /* const auto uvCoordCount =*/reader.readSize<int32_t>();
-  /* const auto triangleCount =*/reader.readSize<int32_t>();
-  const auto commandCount = reader.readSize<int32_t>();
-  const auto frameCount = reader.readSize<int32_t>();
-  /* const auto surfaceCount =*/reader.readSize<int32_t>();
-
-  const auto skinOffset = reader.readSize<int32_t>();
-  /* const auto uvCoordOffset =*/reader.readSize<int32_t>();
-  /* const auto triangleOffset =*/reader.readSize<int32_t>();
-  const auto frameOffset = reader.readSize<int32_t>();
-  const auto commandOffset = reader.readSize<int32_t>();
-  /* const auto surfaceOffset =*/reader.readSize<int32_t>();
-
-  const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
-
-  auto model = std::make_unique<Assets::EntityModel>(
-    m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    model->addFrame();
-  }
-
-  auto& surface = model->addSurface(m_name);
-  loadSkins(surface, skins, m_fs, logger);
-
-  const auto meshes =
-    parseMeshes(reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
-
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    const auto frame = parseFrame(
-      reader.subReaderFromBegin(frameOffset + i * frameSize, frameSize),
-      i,
-      vertexCount,
-      version);
-
-    buildFrame(*model, surface, i, frame, meshes);
-  }
-
-  return model;
 }
 
 } // namespace TrenchBroom::IO

@@ -19,6 +19,9 @@
 
 #pragma once
 
+#include "Assets/EntityModel.h"
+#include "Result.h"
+
 #include "kdl/vector_set.h"
 
 #include <filesystem>
@@ -44,7 +47,6 @@ class VboManager;
 
 namespace Assets
 {
-class EntityModel;
 class EntityModelFrame;
 struct ModelSpecification;
 enum class Orientation;
@@ -52,7 +54,7 @@ enum class Orientation;
 class EntityModelManager
 {
 private:
-  using ModelCache = std::map<std::filesystem::path, std::unique_ptr<EntityModel>>;
+  using ModelCache = std::map<std::filesystem::path, EntityModel>;
   using ModelMismatches = kdl::vector_set<std::filesystem::path>;
   using ModelList = std::vector<EntityModel*>;
 
@@ -92,7 +94,7 @@ public:
 private:
   EntityModel* model(const std::filesystem::path& path) const;
   EntityModel* safeGetModel(const std::filesystem::path& path) const;
-  std::unique_ptr<EntityModel> loadModel(const std::filesystem::path& path) const;
+  Result<EntityModel> loadModel(const std::filesystem::path& path) const;
 
 public:
   void prepare(Renderer::VboManager& vboManager);

@@ -64,9 +64,9 @@ TEST_CASE("AseParserTest.loadWithoutException")
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
   auto model = parser.initializeModel(logger);
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->frame(0)->loaded());
+  CHECK(model.value().frame(0)->loaded());
 }
 
 TEST_CASE("AseParserTest.fallbackToMaterialName")
@@ -95,13 +95,13 @@ TEST_CASE("AseParserTest.fallbackToMaterialName")
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
   auto model = parser.initializeModel(logger);
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->frame(0)->loaded());
+  CHECK(model.value().frame(0)->loaded());
 
   // account for the default material
-  CHECK(model->surface(0).skinCount() == 2u);
-  CHECK(model->surface(0).skin(0)->name() == "textures/bigtile");
+  CHECK(model.value().surface(0).skinCount() == 2u);
+  CHECK(model.value().surface(0).skin(0)->name() == "textures/bigtile");
 }
 
 TEST_CASE("AseParserTest.loadDefaultMaterial")
@@ -130,15 +130,15 @@ TEST_CASE("AseParserTest.loadDefaultMaterial")
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
   auto model = parser.initializeModel(logger);
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->frame(0)->loaded());
+  CHECK(model.value().frame(0)->loaded());
 
   // account for the default texture
-  CHECK(model->surface(0).skinCount() == 2u);
+  CHECK(model.value().surface(0).skinCount() == 2u);
   // shader name is correct, but we loaded the default material
 
-  const auto* material = model->surface(0).skin(0);
+  const auto* material = model.value().surface(0).skin(0);
   CHECK(material->name() == "textures/bigtile");
   CHECK(material->texture()->width() == 32u);
   CHECK(material->texture()->height() == 32u);

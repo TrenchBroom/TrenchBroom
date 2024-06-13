@@ -55,91 +55,76 @@ auto loadPalette(const FileSystem& fs, const Model::MaterialConfig& materialConf
 
 } // namespace
 
-std::unique_ptr<Assets::EntityModel> loadEntityModel(
+Result<Assets::EntityModel> loadEntityModel(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   Logger& logger)
 {
-  using result_type = Result<std::unique_ptr<Assets::EntityModel>>;
+  return fs.openFile(path) | kdl::and_then([&](auto file) -> Result<Assets::EntityModel> {
+           const auto modelName = path.filename().string();
+           auto reader = file->reader().buffer();
 
-  try
-  {
-    return fs.openFile(path) | kdl::and_then([&](auto file) -> result_type {
-             const auto modelName = path.filename().string();
-             auto reader = file->reader().buffer();
-
-             if (IO::MdlParser::canParse(path, reader))
-             {
-               return loadPalette(fs, materialConfig) | kdl::transform([&](auto palette) {
-                        auto parser = IO::MdlParser{modelName, reader, palette};
-                        return parser.initializeModel(logger);
-                      });
-             }
-             if (IO::Md2Parser::canParse(path, reader))
-             {
-               return loadPalette(fs, materialConfig) | kdl::transform([&](auto palette) {
-                        auto parser = IO::Md2Parser{modelName, reader, palette, fs};
-                        return parser.initializeModel(logger);
-                      });
-             }
-             if (IO::Bsp29Parser::canParse(path, reader))
-             {
-               return loadPalette(fs, materialConfig) | kdl::transform([&](auto palette) {
-                        auto parser = IO::Bsp29Parser{modelName, reader, palette, fs};
-                        return parser.initializeModel(logger);
-                      });
-             }
-             if (IO::SprParser::canParse(path, reader))
-             {
-               return loadPalette(fs, materialConfig) | kdl::transform([&](auto palette) {
-                        auto parser = IO::SprParser{modelName, reader, palette};
-                        return parser.initializeModel(logger);
-                      });
-             }
-             if (IO::Md3Parser::canParse(path, reader))
-             {
-               auto parser = IO::Md3Parser{modelName, reader, fs};
-               return parser.initializeModel(logger);
-             }
-             if (IO::MdxParser::canParse(path, reader))
-             {
-               auto parser = IO::MdxParser{modelName, reader, fs};
-               return parser.initializeModel(logger);
-             }
-             if (IO::DkmParser::canParse(path, reader))
-             {
-               auto parser = IO::DkmParser{modelName, reader, fs};
-               return parser.initializeModel(logger);
-             }
-             if (IO::AseParser::canParse(path))
-             {
-               auto parser = IO::AseParser{modelName, reader.stringView(), fs};
-               return parser.initializeModel(logger);
-             }
-             if (IO::ImageSpriteParser::canParse(path))
-             {
-               auto parser = IO::ImageSpriteParser{modelName, file, fs};
-               return parser.initializeModel(logger);
-             }
-             if (IO::AssimpParser::canParse(path))
-             {
-               auto parser = IO::AssimpParser{path, fs};
-               return parser.initializeModel(logger);
-             }
-             return Error{"Unknown model format: '" + path.string() + "'"};
-           })
-           | kdl::if_error([&](auto e) {
-               throw GameException{
-                 "Could not load model " + path.string() + ": " + e.msg};
-             })
-           | kdl::value();
-  }
-  catch (const ParserException& e)
-  {
-    throw GameException{
-      "Could not load model " + path.string() + ": " + std::string{e.what()}};
-  }
+           if (IO::MdlParser::canParse(path, reader))
+           {
+             return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
+                      auto parser = IO::MdlParser{modelName, reader, palette};
+                      return parser.initializeModel(logger);
+                    });
+           }
+           if (IO::Md2Parser::canParse(path, reader))
+           {
+             return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
+                      auto parser = IO::Md2Parser{modelName, reader, palette, fs};
+                      return parser.initializeModel(logger);
+                    });
+           }
+           if (IO::Bsp29Parser::canParse(path, reader))
+           {
+             return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
+                      auto parser = IO::Bsp29Parser{modelName, reader, palette, fs};
+                      return parser.initializeModel(logger);
+                    });
+           }
+           if (IO::SprParser::canParse(path, reader))
+           {
+             return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
+                      auto parser = IO::SprParser{modelName, reader, palette};
+                      return parser.initializeModel(logger);
+                    });
+           }
+           if (IO::Md3Parser::canParse(path, reader))
+           {
+             auto parser = IO::Md3Parser{modelName, reader, fs};
+             return parser.initializeModel(logger);
+           }
+           if (IO::MdxParser::canParse(path, reader))
+           {
+             auto parser = IO::MdxParser{modelName, reader, fs};
+             return parser.initializeModel(logger);
+           }
+           if (IO::DkmParser::canParse(path, reader))
+           {
+             auto parser = IO::DkmParser{modelName, reader, fs};
+             return parser.initializeModel(logger);
+           }
+           if (IO::AseParser::canParse(path))
+           {
+             auto parser = IO::AseParser{modelName, reader.stringView(), fs};
+             return parser.initializeModel(logger);
+           }
+           if (IO::ImageSpriteParser::canParse(path))
+           {
+             auto parser = IO::ImageSpriteParser{modelName, file, fs};
+             return parser.initializeModel(logger);
+           }
+           if (IO::AssimpParser::canParse(path))
+           {
+             auto parser = IO::AssimpParser{path, fs};
+             return parser.initializeModel(logger);
+           }
+           return Error{"Unknown model format: '" + path.string() + "'"};
+         });
 }
 
 } // namespace TrenchBroom::IO

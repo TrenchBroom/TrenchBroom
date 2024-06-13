@@ -21,6 +21,7 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/ModelDefinition.h"
+#include "Error.h"
 #include "Exceptions.h"
 #include "IO/LoadEntityModel.h"
 #include "Logger.h"
@@ -28,6 +29,8 @@
 #include "Model/EntityNode.h"
 #include "Model/Game.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
+
+#include "kdl/result.h"
 
 namespace TrenchBroom
 {
@@ -142,7 +145,7 @@ EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
   auto it = m_models.find(path);
   if (it != std::end(m_models))
   {
-    return it->second.get();
+    return &it->second;
   }
 
   if (m_modelMismatches.count(path) > 0)
@@ -150,25 +153,24 @@ EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
     return nullptr;
   }
 
-  try
-  {
-    const auto [pos, success] = m_models.emplace(path, loadModel(path));
-    assert(success);
-    unused(success);
+  return loadModel(path) | kdl::transform([&](auto model) {
+           const auto [pos, success] = m_models.emplace(path, std::move(model));
+           assert(success);
+           unused(success);
 
-    auto* model = pos->second.get();
-    m_unpreparedModels.push_back(model);
+           auto* modelPtr = &(pos->second);
+           m_unpreparedModels.push_back(modelPtr);
 
-    m_logger.debug() << "Loaded entity model " << path;
+           m_logger.debug() << "Loaded entity model " << path;
 
-    return model;
-  }
-  catch (const Exception& e)
-  {
-    m_logger.error() << e.what();
-    m_modelMismatches.insert(path);
-    throw GameException{e.what()};
-  }
+           return modelPtr;
+         })
+         | kdl::if_error([&](auto e) {
+             m_logger.error() << e.msg;
+             m_modelMismatches.insert(path);
+             throw GameException{e.msg};
+           })
+         | kdl::value();
 }
 
 EntityModel* EntityModelManager::safeGetModel(const std::filesystem::path& path) const
@@ -183,8 +185,7 @@ EntityModel* EntityModelManager::safeGetModel(const std::filesystem::path& path)
   }
 }
 
-std::unique_ptr<EntityModel> EntityModelManager::loadModel(
-  const std::filesystem::path& path) const
+Result<EntityModel> EntityModelManager::loadModel(const std::filesystem::path& path) const
 {
   if (m_game)
   {
@@ -192,7 +193,7 @@ std::unique_ptr<EntityModel> EntityModelManager::loadModel(
     const auto& materialConfig = m_game->config().materialConfig;
     return IO::loadEntityModel(fs, materialConfig, path, m_logger);
   }
-  return nullptr;
+  return Error{"Game is not set"};
 }
 
 void EntityModelManager::prepare(Renderer::VboManager& vboManager)
@@ -206,9 +207,9 @@ void EntityModelManager::resetFilterMode()
 {
   if (m_resetFilterMode)
   {
-    for (const auto& [path, model] : m_models)
+    for (auto& [path, model] : m_models)
     {
-      model->setFilterMode(m_minFilter, m_magFilter);
+      model.setFilterMode(m_minFilter, m_magFilter);
     }
     m_resetFilterMode = false;
   }

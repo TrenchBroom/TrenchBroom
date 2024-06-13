@@ -21,6 +21,7 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
+#include "Error.h"
 #include "IO/FileSystem.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"
@@ -31,6 +32,7 @@
 #include "Renderer/PrimType.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/result.h"
 #include "kdl/string_format.h"
 
 #include "vm/forward.h"
@@ -135,11 +137,18 @@ bool AseParser::canParse(const std::filesystem::path& path)
   return kdl::str_to_lower(path.extension().string()) == ".ase";
 }
 
-std::unique_ptr<Assets::EntityModel> AseParser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> AseParser::initializeModel(Logger& logger)
 {
-  auto scene = Scene{};
-  parseAseFile(logger, scene);
-  return buildModel(logger, scene);
+  try
+  {
+    auto scene = Scene{};
+    parseAseFile(logger, scene);
+    return buildModel(logger, scene);
+  }
+  catch (const ParserException& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 void AseParser::parseAseFile(Logger& logger, Scene& scene)
@@ -655,15 +664,15 @@ AseParser::TokenNameMap AseParser::tokenNames() const
   return result;
 }
 
-std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
+Result<Assets::EntityModel> AseParser::buildModel(
   Logger& logger, const Scene& scene) const
 {
   using Vertex = Assets::EntityModelVertex;
 
-  auto model = std::make_unique<Assets::EntityModel>(
-    m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-  model->addFrame();
-  auto& surface = model->addSurface(m_name);
+  auto model =
+    Assets::EntityModel{m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+  model.addFrame();
+  auto& surface = model.addSurface(m_name);
 
   // Load the materials
   auto materials = std::vector<Assets::Material>{};
@@ -699,7 +708,7 @@ std::unique_ptr<Assets::EntityModel> AseParser::buildModel(
     totalVertexCount += vertexCount;
   }
 
-  auto& frame = model->loadFrame(0, m_name, bounds.bounds());
+  auto& frame = model.loadFrame(0, m_name, bounds.bounds());
 
   // Collect vertex data
   auto builder =

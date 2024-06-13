@@ -19,7 +19,8 @@
 
 #pragma once
 
-#include <memory>
+#include "Assets/EntityModel_Forward.h"
+#include "Result.h"
 
 namespace TrenchBroom
 {
@@ -39,7 +40,7 @@ class EntityModelParser
 public:
   virtual ~EntityModelParser();
 
-  virtual std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger) = 0;
+  virtual Result<Assets::EntityModel> initializeModel(Logger& logger) = 0;
 };
 
 } // namespace TrenchBroom::IO

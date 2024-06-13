@@ -27,6 +27,7 @@
 #include "Renderer/PrimType.h"
 #include "octree.h"
 
+#include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/bbox.h"
@@ -39,9 +40,49 @@
 #include <string>
 
 namespace TrenchBroom::Assets
-
 {
+
+std::ostream& operator<<(std::ostream& lhs, const PitchType rhs)
+{
+  switch (rhs)
+  {
+  case PitchType::Normal:
+    lhs << "Normal";
+    break;
+  case PitchType::MdlInverted:
+    lhs << "MdlInverted";
+    break;
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const Orientation rhs)
+{
+  switch (rhs)
+  {
+  case Orientation::ViewPlaneParallelUpright:
+    lhs << "ViewPlaneParallelUpright";
+    break;
+  case Orientation::FacingUpright:
+    lhs << "FacingUpright";
+    break;
+  case Orientation::ViewPlaneParallel:
+    lhs << "ViewPlaneParallel";
+    break;
+  case Orientation::Oriented:
+    lhs << "Oriented";
+    break;
+  case Orientation::ViewPlaneParallelOriented:
+    lhs << "ViewPlaneParallelOriented";
+    break;
+  }
+  return lhs;
+}
+
+
 // EntityModelFrame
+
+kdl_reflect_impl(EntityModelFrame);
 
 EntityModelFrame::EntityModelFrame(const size_t index)
   : m_index{index}
@@ -66,7 +107,9 @@ void EntityModelFrame::setSkinOffset(const size_t skinOffset)
   m_skinOffset = skinOffset;
 }
 
-// EntityModel::LoadedFrame
+// EntityModelLoadedFrame
+
+kdl_reflect_impl(EntityModelLoadedFrame);
 
 EntityModelLoadedFrame::EntityModelLoadedFrame(
   const size_t index,
@@ -227,6 +270,8 @@ void EntityModelLoadedFrame::addToSpacialTree(
  */
 class EntityModelUnloadedFrame : public EntityModelFrame
 {
+  kdl_reflect_inline_empty(EntityModelUnloadedFrame);
+
 public:
   /**
    * Creates a new frame with the given index.
@@ -268,6 +313,8 @@ class EntityModelMesh
 {
 protected:
   std::vector<EntityModelVertex> m_vertices;
+
+  kdl_reflect_inline_empty(EntityModelMesh);
 
   /**
    * Creates a new frame mesh that uses the given vertices.
@@ -321,6 +368,8 @@ class EntityModelIndexedMesh : public EntityModelMesh
 private:
   Renderer::IndexRangeMap m_indices;
 
+  kdl_reflect_inline_empty(EntityModelIndexedMesh);
+
 public:
   /**
    * Creates a new frame mesh with the given vertices and indices.
@@ -362,6 +411,8 @@ class EntityModelMaterialMesh : public EntityModelMesh
 private:
   Renderer::MaterialIndexRangeMap m_indices;
 
+  kdl_reflect_inline_empty(EntityModelMaterialMesh);
+
 public:
   /**
    * Creates a new frame mesh with the given vertices and per material indices.
@@ -396,7 +447,9 @@ private:
 
 } // namespace
 
-// EntityModel::Surface
+// EntityModelSurface
+
+kdl_reflect_impl(EntityModelSurface);
 
 EntityModelSurface::EntityModelSurface(std::string name, const size_t frameCount)
   : m_name{std::move(name)}
@@ -485,6 +538,8 @@ std::unique_ptr<Renderer::MaterialIndexRangeRenderer> EntityModelSurface::buildR
 }
 
 // EntityModel
+
+kdl_reflect_impl(EntityModel);
 
 EntityModel::EntityModel(
   std::string name, const PitchType pitchType, const Orientation orientation)
@@ -627,13 +682,19 @@ const EntityModelFrame* EntityModel::frame(const size_t index) const
   return index < frameCount() ? m_frames[index].get() : nullptr;
 }
 
-EntityModelSurface& EntityModel::surface(const size_t index)
+const EntityModelSurface& EntityModel::surface(const size_t index) const
 {
   if (index >= surfaceCount())
   {
     throw std::out_of_range{"Surface index is out of bounds"};
   }
   return *m_surfaces[index];
+}
+
+EntityModelSurface& EntityModel::surface(const size_t index)
+{
+  return const_cast<EntityModelSurface&>(
+    const_cast<const EntityModel&>(*this).surface(index));
 }
 
 const EntityModelSurface* EntityModel::surface(const std::string& name) const

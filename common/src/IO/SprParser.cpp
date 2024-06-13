@@ -29,6 +29,7 @@
 #include "Error.h"
 #include "Exceptions.h"
 #include "IO/Reader.h"
+#include "IO/ReaderException.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
@@ -42,26 +43,8 @@
 namespace TrenchBroom::IO
 {
 
-SprParser::SprParser(
-  std::string name, const Reader& reader, const Assets::Palette& palette)
-  : m_name{std::move(name)}
-  , m_reader{reader}
-  , m_palette{palette}
+namespace
 {
-}
-
-bool SprParser::canParse(const std::filesystem::path& path, Reader reader)
-{
-  if (kdl::path_to_lower(path.extension()) != ".spr")
-  {
-    return false;
-  }
-
-  const auto ident = reader.readString(4);
-  const auto version = reader.readInt<int32_t>();
-
-  return ident == "IDSP" && (version == 1 || version == 2);
-}
 
 struct SprPicture
 {
@@ -72,7 +55,7 @@ struct SprPicture
   size_t height;
 };
 
-static SprPicture parsePicture(Reader& reader, const Assets::Palette& palette)
+SprPicture parsePicture(Reader& reader, const Assets::Palette& palette)
 {
   const auto xOffset = reader.readInt<int32_t>();
   const auto yOffset = reader.readInt<int32_t>();
@@ -103,7 +86,7 @@ static SprPicture parsePicture(Reader& reader, const Assets::Palette& palette)
   return SprPicture{std::move(material), xOffset, yOffset, width, height};
 }
 
-static void skipPicture(Reader& reader)
+void skipPicture(Reader& reader)
 {
   /* const auto xOffset = */ reader.readInt<int32_t>();
   /* const auto yOffset = */ reader.readInt<int32_t>();
@@ -113,7 +96,7 @@ static void skipPicture(Reader& reader)
   reader.seekForward(width * height);
 }
 
-static SprPicture parsePictureFrame(Reader& reader, const Assets::Palette& palette)
+SprPicture parsePictureFrame(Reader& reader, const Assets::Palette& palette)
 {
   const auto group = reader.readInt<int32_t>();
   if (group == 0)
@@ -134,12 +117,12 @@ static SprPicture parsePictureFrame(Reader& reader, const Assets::Palette& palet
   return picture;
 }
 
-static Assets::Orientation parseSpriteOrientationType(Reader& reader)
+Result<Assets::Orientation> parseSpriteOrientationType(Reader& reader)
 {
   const auto type = reader.readInt<int32_t>();
   if (type < 0 || type > 4)
   {
-    throw AssetException{"Unknown SPR type: " + std::to_string(type)};
+    return Error{"Unknown SPR type: " + std::to_string(type)};
   }
 
   return static_cast<Assets::Orientation>(type);
@@ -161,18 +144,23 @@ enum class RenderMode : int32_t
   AlphaTest = 3
 };
 
-static RenderMode parseSpriteRenderMode(Reader& reader)
+Result<RenderMode> parseSpriteRenderMode(const int version, Reader& reader)
 {
+  if (version != 2)
+  {
+    return RenderMode::IndexAlpha;
+  }
+
   const auto mode = reader.readInt<int32_t>();
   if (mode < 0 || mode > 3)
   {
-    throw AssetException{"Unknown SPR render mode: " + std::to_string(mode)};
+    return Error{"Unknown SPR render mode: " + std::to_string(mode)};
   }
 
   return static_cast<RenderMode>(mode);
 }
 
-static std::vector<unsigned char> processGoldsourcePalette(
+std::vector<unsigned char> processGoldsourcePalette(
   const RenderMode mode, const std::vector<unsigned char>& data)
 {
   // Convert the data into a Goldsource palette
@@ -220,23 +208,53 @@ static std::vector<unsigned char> processGoldsourcePalette(
   return processed;
 }
 
-static Assets::Palette parseEmbeddedPalette(Reader& reader, const RenderMode renderMode)
+Result<Assets::Palette> parseEmbeddedPalette(
+  Reader& reader,
+  const RenderMode renderMode,
+  const int version,
+  const Assets::Palette& defaultPalette)
 {
+  if (version != 2)
+  {
+    return defaultPalette;
+  }
+
   const auto paletteSize = reader.readSize<int16_t>();
   if (paletteSize != 256)
   {
-    throw AssetException{
+    return Error{
       "Incorrect SPR palette size: expected 256, got " + std::to_string(paletteSize)};
   }
   auto data = std::vector<unsigned char>(paletteSize * 3);
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
-  return Assets::makePalette(data, Assets::PaletteColorFormat::Rgba)
-         | kdl::if_error([](const auto& e) { throw AssetException{e.msg}; })
-         | kdl::value();
+  return Assets::makePalette(data, Assets::PaletteColorFormat::Rgba);
 }
 
-std::unique_ptr<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)
+} // namespace
+
+SprParser::SprParser(
+  std::string name, const Reader& reader, const Assets::Palette& palette)
+  : m_name{std::move(name)}
+  , m_reader{reader}
+  , m_palette{palette}
+{
+}
+
+bool SprParser::canParse(const std::filesystem::path& path, Reader reader)
+{
+  if (kdl::path_to_lower(path.extension()) != ".spr")
+  {
+    return false;
+  }
+
+  const auto ident = reader.readString(4);
+  const auto version = reader.readInt<int32_t>();
+
+  return ident == "IDSP" && (version == 1 || version == 2);
+}
+
+Result<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)
 {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 
@@ -244,95 +262,98 @@ std::unique_ptr<Assets::EntityModel> SprParser::initializeModel(Logger& /* logge
   // there is an additional integer in the header (render mode), and the palette
   // data is embedded after the header instead of using the external palette file.
 
-  auto reader = m_reader;
-
-  const auto ident = reader.readString(4);
-  if (ident != "IDSP")
+  try
   {
-    throw AssetException{"Unknown SPR ident: " + ident};
-  }
+    auto reader = m_reader;
 
-  // Version 1: Quake SPR format
-  // Version 2: Half-Life SPR format
-  const auto version = reader.readInt<int32_t>();
-  if (version != 1 && version != 2)
+    const auto ident = reader.readString(4);
+    if (ident != "IDSP")
+    {
+      return Error{"Unknown SPR ident: " + ident};
+    }
+
+    // Version 1: Quake SPR format
+    // Version 2: Half-Life SPR format
+    const auto version = reader.readInt<int32_t>();
+    if (version != 1 && version != 2)
+    {
+      return Error{"Unknown SPR version: " + std::to_string(version)};
+    }
+
+    return parseSpriteOrientationType(reader).and_then([&](const auto orientationType) {
+      return parseSpriteRenderMode(version, reader).and_then([&](const auto renderMode) {
+        /* const auto radius = */ reader.readFloat<float>();
+        /* const auto maxWidth = */ reader.readSize<int32_t>();
+        /* const auto maxHeight = */ reader.readSize<int32_t>();
+        const auto frameCount = reader.readSize<int32_t>();
+        /* const auto beamLength = */ reader.readFloat<float>();
+        /* const auto synchtype = */ reader.readInt<int32_t>();
+
+        return parseEmbeddedPalette(reader, renderMode, version, m_palette)
+          .transform([&](auto palette) {
+            auto model =
+              Assets::EntityModel{m_name, Assets::PitchType::Normal, orientationType};
+            for (size_t i = 0; i < frameCount; ++i)
+            {
+              auto& frame = model.addFrame();
+              frame.setSkinOffset(i);
+            }
+
+            auto& surface = model.addSurface(m_name);
+
+            auto materials = std::vector<Assets::Material>{};
+            materials.reserve(frameCount);
+
+            for (size_t i = 0; i < frameCount; ++i)
+            {
+              auto pictureFrame = parsePictureFrame(reader, palette);
+              materials.push_back(std::move(pictureFrame.material));
+
+              const auto w = static_cast<float>(pictureFrame.width);
+              const auto h = static_cast<float>(pictureFrame.height);
+              const auto x1 = static_cast<float>(pictureFrame.x);
+              const auto y1 = static_cast<float>(pictureFrame.y) - h;
+              const auto x2 = x1 + w;
+              const auto y2 = y1 + h;
+
+              const auto bboxMin =
+                vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
+              const auto bboxMax =
+                vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
+              auto& modelFrame =
+                model.loadFrame(i, std::to_string(i), {bboxMin, bboxMax});
+
+              const auto triangles = std::vector<Assets::EntityModelVertex>{
+                Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+                Assets::EntityModelVertex{{x1, y2, 0}, {0, 0}},
+                Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+
+                Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+                Assets::EntityModelVertex{{x2, y1, 0}, {1, 1}},
+                Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+              };
+
+              auto size = Renderer::IndexRangeMap::Size{};
+              size.inc(Renderer::PrimType::Triangles, 2);
+
+              auto builder =
+                Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{6, size};
+              builder.addTriangles(triangles);
+
+              surface.addMesh(modelFrame, builder.vertices(), builder.indices());
+            }
+
+            surface.setSkins(std::move(materials));
+
+            return model;
+          });
+      });
+    });
+  }
+  catch (const ReaderException& e)
   {
-    throw AssetException{"Unknown SPR version: " + std::to_string(version)};
+    return Error{e.what()};
   }
-
-  auto renderMode = RenderMode::IndexAlpha;
-
-  const auto orientationType = parseSpriteOrientationType(reader);
-  if (version == 2)
-  {
-    renderMode = parseSpriteRenderMode(reader);
-  }
-
-  /* const auto radius = */ reader.readFloat<float>();
-  /* const auto maxWidth = */ reader.readSize<int32_t>();
-  /* const auto maxHeight = */ reader.readSize<int32_t>();
-  const auto frameCount = reader.readSize<int32_t>();
-  /* const auto beamLength = */ reader.readFloat<float>();
-  /* const auto synchtype = */ reader.readInt<int32_t>();
-
-  Assets::Palette palette = m_palette;
-  if (version == 2)
-  {
-    palette = parseEmbeddedPalette(reader, renderMode);
-  }
-
-  auto model = std::make_unique<Assets::EntityModel>(
-    m_name, Assets::PitchType::Normal, orientationType);
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    auto& frame = model->addFrame();
-    frame.setSkinOffset(i);
-  }
-
-  auto& surface = model->addSurface(m_name);
-
-  auto materials = std::vector<Assets::Material>{};
-  materials.reserve(frameCount);
-
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    auto pictureFrame = parsePictureFrame(reader, palette);
-    materials.push_back(std::move(pictureFrame.material));
-
-    const auto w = static_cast<float>(pictureFrame.width);
-    const auto h = static_cast<float>(pictureFrame.height);
-    const auto x1 = static_cast<float>(pictureFrame.x);
-    const auto y1 = static_cast<float>(pictureFrame.y) - h;
-    const auto x2 = x1 + w;
-    const auto y2 = y1 + h;
-
-    const auto bboxMin = vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
-    const auto bboxMax = vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
-    auto& modelFrame = model->loadFrame(i, std::to_string(i), {bboxMin, bboxMax});
-
-    const auto triangles = std::vector<Assets::EntityModelVertex>{
-      Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
-      Assets::EntityModelVertex{{x1, y2, 0}, {0, 0}},
-      Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
-
-      Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
-      Assets::EntityModelVertex{{x2, y1, 0}, {1, 1}},
-      Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
-    };
-
-    auto size = Renderer::IndexRangeMap::Size{};
-    size.inc(Renderer::PrimType::Triangles, 2);
-
-    auto builder =
-      Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{6, size};
-    builder.addTriangles(triangles);
-
-    surface.addMesh(modelFrame, builder.vertices(), builder.indices());
-  }
-
-  surface.setSkins(std::move(materials));
-
-  return model;
 }
 
 } // namespace TrenchBroom::IO

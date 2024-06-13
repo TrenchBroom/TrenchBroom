@@ -21,6 +21,8 @@
 
 #include "Assets/EntityModel_Forward.h"
 
+#include "kdl/reflection_decl.h"
+
 #include "vm/bbox.h"
 #include "vm/forward.h"
 
@@ -55,6 +57,8 @@ enum class PitchType
   MdlInverted
 };
 
+std::ostream& operator<<(std::ostream& lhs, PitchType rhs);
+
 /**
  * Controls the orientation of an entity model.
  *
@@ -75,6 +79,8 @@ enum class Orientation
   ViewPlaneParallelOriented,
 };
 
+std::ostream& operator<<(std::ostream& lhs, Orientation rhs);
+
 /**
  * One frame of the model. Since frames are loaded on demand, each frame has two possible
  * states: loaded and unloaded. These states are modeled as subclasses of this class.
@@ -84,6 +90,8 @@ class EntityModelFrame
 private:
   size_t m_index;
   size_t m_skinOffset;
+
+  kdl_reflect_decl(EntityModelFrame, m_index, m_skinOffset);
 
 public:
   /**
@@ -172,6 +180,8 @@ private:
   using SpacialTree = octree<float, TriNum>;
   std::unique_ptr<SpacialTree> m_spacialTree;
 
+  kdl_reflect_decl(EntityModelLoadedFrame, m_name, m_bounds, m_pitchType, m_orientation);
+
 public:
   /**
    * Creates a new frame.
@@ -230,6 +240,8 @@ private:
   std::string m_name;
   std::vector<std::unique_ptr<EntityModelMesh>> m_meshes;
   std::unique_ptr<MaterialCollection> m_skins;
+
+  kdl_reflect_decl(EntityModelSurface, m_name, m_meshes, m_skins);
 
 public:
   /**
@@ -347,6 +359,9 @@ private:
   PitchType m_pitchType;
   Orientation m_orientation;
   bool m_prepared = false;
+
+  kdl_reflect_decl(
+    EntityModel, m_name, m_frames, m_surfaces, m_pitchType, m_orientation, m_prepared);
 
 public:
   /**
@@ -481,6 +496,15 @@ public:
    * @return the frame with the given index or null if the index is out of bounds
    */
   const EntityModelFrame* frame(size_t index) const;
+
+  /**
+   * Returns the surface with the given index.
+   *
+   * @param index the index of the surface to return
+   * @return the surface with the given index
+   * @throw std::out_of_range if the given index is out of bounds
+   */
+  const EntityModelSurface& surface(size_t index) const;
 
   /**
    * Returns the surface with the given index.

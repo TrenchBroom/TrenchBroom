@@ -19,8 +19,9 @@
 
 #pragma once
 
+#include "Result.h"
+
 #include <filesystem>
-#include <memory>
 
 namespace TrenchBroom
 {
@@ -41,7 +42,7 @@ namespace TrenchBroom::IO
 {
 class FileSystem;
 
-std::unique_ptr<Assets::EntityModel> loadEntityModel(
+Result<Assets::EntityModel> loadEntityModel(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,

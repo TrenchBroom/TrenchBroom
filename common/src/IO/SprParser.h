@@ -22,7 +22,6 @@
 #include "IO/EntityModelParser.h"
 
 #include <filesystem>
-#include <memory>
 #include <string>
 
 namespace TrenchBroom::Assets
@@ -48,7 +47,7 @@ public:
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
-  std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger) override;
+  Result<Assets::EntityModel> initializeModel(Logger& logger) override;
 };
 
 } // namespace TrenchBroom::IO

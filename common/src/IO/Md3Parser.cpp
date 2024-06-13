@@ -21,8 +21,9 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
-#include "Exceptions.h"
+#include "Error.h"
 #include "IO/Reader.h"
+#include "IO/ReaderException.h"
 #include "IO/ResourceUtils.h"
 #include "IO/SkinLoader.h"
 #include "Logger.h"
@@ -30,10 +31,14 @@
 #include "Renderer/PrimType.h"
 
 #include "kdl/path_utils.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
 #include "kdl/string_format.h"
+#include "kdl/vector_utils.h"
 
 #include <fmt/core.h>
 
+#include <ranges>
 #include <string>
 
 namespace TrenchBroom::IO
@@ -98,7 +103,7 @@ void loadSurfaceMaterials(
   surface.setSkins(std::move(materials));
 }
 
-void parseSurfaces(
+Result<void> parseSurfaces(
   Reader reader,
   const size_t surfaceCount,
   Assets::EntityModel& model,
@@ -111,7 +116,7 @@ void parseSurfaces(
 
     if (ident != Md3Layout::Ident)
     {
-      throw AssetException{fmt::format("Unknown MD3 model surface ident: {}", ident)};
+      return Error{fmt::format("Unknown MD3 model surface ident: {}", ident)};
     }
 
     const auto surfaceName = reader.readString(Md3Layout::SurfaceNameLength);
@@ -136,6 +141,8 @@ void parseSurfaces(
 
     reader = reader.subReaderFromBegin(endOffset);
   }
+
+  return Result<void>{};
 }
 
 auto& parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model)
@@ -249,7 +256,7 @@ void buildFrameSurface(
   surface.addMesh(frame, std::move(frameVertices), std::move(rangeMap));
 }
 
-void parseFrameSurfaces(
+Result<void> parseFrameSurfaces(
   Reader reader, Assets::EntityModelLoadedFrame& frame, Assets::EntityModel& model)
 {
   for (size_t i = 0; i < model.surfaceCount(); ++i)
@@ -258,7 +265,7 @@ void parseFrameSurfaces(
 
     if (ident != Md3Layout::Ident)
     {
-      throw AssetException{fmt::format("Unknown MD3 model surface ident: {}", ident)};
+      return Error{fmt::format("Unknown MD3 model surface ident: {}", ident)};
     }
 
     /* const auto surfaceName = */ reader.readString(Md3Layout::SurfaceNameLength);
@@ -297,6 +304,8 @@ void parseFrameSurfaces(
 
     reader = reader.subReaderFromBegin(endOffset);
   }
+
+  return Result<void>{};
 }
 
 } // namespace
@@ -321,56 +330,65 @@ bool Md3Parser::canParse(const std::filesystem::path& path, Reader reader)
   return ident == Md3Layout::Ident && version == Md3Layout::Version;
 }
 
-std::unique_ptr<Assets::EntityModel> Md3Parser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> Md3Parser::initializeModel(Logger& logger)
 {
-  auto reader = m_reader;
-
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  if (ident != Md3Layout::Ident)
+  try
   {
-    throw AssetException{fmt::format("Unknown MD3 model ident: {}", ident)};
-  }
+    auto reader = m_reader;
 
-  if (version != Md3Layout::Version)
+    const auto ident = reader.readInt<int32_t>();
+    const auto version = reader.readInt<int32_t>();
+
+    if (ident != Md3Layout::Ident)
+    {
+      return Error{fmt::format("Unknown MD3 model ident: {}", ident)};
+    }
+
+    if (version != Md3Layout::Version)
+    {
+      return Error{fmt::format("Unknown MD3 model version: {}", version)};
+    }
+
+    /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
+    /* const auto flags = */ reader.readInt<int32_t>();
+
+    const auto frameCount = reader.readSize<int32_t>();
+    /* const auto tagCount = */ reader.readSize<int32_t>();
+    const auto surfaceCount = reader.readSize<int32_t>();
+    /* const auto materialCount = */ reader.readSize<int32_t>();
+
+    const auto frameOffset = reader.readSize<int32_t>();
+    /* const auto tagOffset = */ reader.readSize<int32_t>();
+    const auto surfaceOffset = reader.readSize<int32_t>();
+
+    auto model = Assets::EntityModel{
+      m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+    for (size_t i = 0; i < frameCount; ++i)
+    {
+      model.addFrame();
+    }
+
+    return parseSurfaces(
+             reader.subReaderFromBegin(surfaceOffset), surfaceCount, model, m_fs, logger)
+      .and_then([&]() {
+        return kdl::vec_transform(
+                 std::views::iota(0u, frameCount),
+                 [&](const auto i) {
+                   auto& frame = parseFrame(
+                     reader.subReaderFromBegin(
+                       frameOffset + i * Md3Layout::FrameLength, Md3Layout::FrameLength),
+                     i,
+                     model);
+                   return parseFrameSurfaces(
+                     reader.subReaderFromBegin(surfaceOffset), frame, model);
+                 })
+               | kdl::fold() | kdl::transform([&]() { return std::move(model); });
+      });
+  }
+  catch (const ReaderException& e)
   {
-    throw AssetException{fmt::format("Unknown MD3 model version: {}", version)};
+    return Error{e.what()};
   }
-
-  /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
-  /* const auto flags = */ reader.readInt<int32_t>();
-
-  const auto frameCount = reader.readSize<int32_t>();
-  /* const auto tagCount = */ reader.readSize<int32_t>();
-  const auto surfaceCount = reader.readSize<int32_t>();
-  /* const auto materialCount = */ reader.readSize<int32_t>();
-
-  const auto frameOffset = reader.readSize<int32_t>();
-  /* const auto tagOffset = */ reader.readSize<int32_t>();
-  const auto surfaceOffset = reader.readSize<int32_t>();
-
-  auto model = std::make_unique<Assets::EntityModel>(
-    m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    model->addFrame();
-  }
-
-  parseSurfaces(
-    reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model, m_fs, logger);
-
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    auto& frame = parseFrame(
-      reader.subReaderFromBegin(
-        frameOffset + i * Md3Layout::FrameLength, Md3Layout::FrameLength),
-      i,
-      *model);
-    parseFrameSurfaces(reader.subReaderFromBegin(surfaceOffset), frame, *model);
-  }
-
-  return model;
 }
 
 } // namespace TrenchBroom::IO

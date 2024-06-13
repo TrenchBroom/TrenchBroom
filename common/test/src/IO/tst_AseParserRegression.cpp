@@ -60,9 +60,9 @@ TEST_CASE("AseParserTest.parseFailure_2657")
   auto parser = AseParser{"player", reader.stringView(), fs};
 
   auto model = parser.initializeModel(logger);
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->frame(0)->loaded());
+  CHECK(model.value().frame(0)->loaded());
 }
 
 TEST_CASE("AseParserTest.parseFailure_2679")
@@ -91,9 +91,9 @@ TEST_CASE("AseParserTest.parseFailure_2679")
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
   auto model = parser.initializeModel(logger);
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->frame(0)->loaded());
+  CHECK(model.value().frame(0)->loaded());
 }
 
 TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
@@ -122,9 +122,9 @@ TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
   auto model = parser.initializeModel(logger);
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->frame(0)->loaded());
+  CHECK(model.value().frame(0)->loaded());
 }
 
 TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
@@ -153,9 +153,9 @@ TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
   auto parser = AseParser{"wedge", reader.stringView(), fs};
 
   auto model = parser.initializeModel(logger);
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->frame(0)->loaded());
+  CHECK(model.value().frame(0)->loaded());
 }
 } // namespace IO
 } // namespace TrenchBroom

@@ -791,71 +791,77 @@ bool AssimpParser::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
-std::unique_ptr<Assets::EntityModel> AssimpParser::initializeModel(
-  TrenchBroom::Logger& logger)
+Result<Assets::EntityModel> AssimpParser::initializeModel(TrenchBroom::Logger& logger)
 {
-  constexpr auto assimpFlags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
-                               | aiProcess_FlipWindingOrder | aiProcess_SortByPType
-                               | aiProcess_FlipUVs;
-
-  const auto modelPath = m_path.string();
-
-  // Import the file as an Assimp scene and populate our vectors.
-  auto importer = Assimp::Importer{};
-  importer.SetIOHandler(new AssimpIOSystem{m_fs});
-
-  const auto* scene = importer.ReadFile(modelPath, assimpFlags);
-  if (!scene)
+  try
   {
-    throw ParserException{fmt::format(
-      "Assimp couldn't import model from '{}': {}",
-      m_path.string(),
-      importer.GetErrorString())};
-  }
+    constexpr auto assimpFlags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
+                                 | aiProcess_FlipWindingOrder | aiProcess_SortByPType
+                                 | aiProcess_FlipUVs;
 
-  // Create model.
-  auto model = std::make_unique<Assets::EntityModel>(
-    modelPath, Assets::PitchType::Normal, Assets::Orientation::Oriented);
+    const auto modelPath = m_path.string();
 
-  // create a frame for each animation in the scene
-  // if we have no animations, always load 1 frame for the reference model
-  const auto numSequences = std::max(scene->mNumAnimations, 1u);
-  for (size_t i = 0; i < numSequences; ++i)
-  {
-    model->addFrame();
-  }
+    // Import the file as an Assimp scene and populate our vectors.
+    auto importer = Assimp::Importer{};
+    importer.SetIOHandler(new AssimpIOSystem{m_fs});
 
-  // create a surface for each mesh in the scene and assign the skins/materials to it
-  const auto numMeshes = scene->mNumMeshes;
-  for (size_t i = 0; i < numMeshes; ++i)
-  {
-    const auto& mesh = scene->mMeshes[i];
-
-    auto& surface = model->addSurface(scene->mMeshes[i]->mName.data);
-
-    // an assimp mesh will only ever have one material, but a material can have multiple
-    // alternatives (this is how assimp handles skins)
-
-    // load skins for this surface
-    auto textures =
-      loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger);
-    auto materials = kdl::vec_transform(std::move(textures), [](auto texture) {
-      auto textureResource = createTextureResource(std::move(texture));
-      return Assets::Material{"", std::move(textureResource)};
-    });
-    surface.setSkins(std::move(materials));
-  }
-
-  for (size_t i = 0; i < numSequences; ++i)
-  {
-    // load the requested frame
-    loadSceneFrame(*scene, i, *model, modelPath) | kdl::transform_error([&](auto e) {
+    const auto* scene = importer.ReadFile(modelPath, assimpFlags);
+    if (!scene)
+    {
       throw ParserException{fmt::format(
-        "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
-    });
-  }
+        "Assimp couldn't import model from '{}': {}",
+        m_path.string(),
+        importer.GetErrorString())};
+    }
 
-  return model;
+    // Create model.
+    auto model = Assets::EntityModel{
+      modelPath, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+
+    // create a frame for each animation in the scene
+    // if we have no animations, always load 1 frame for the reference model
+    const auto numSequences = std::max(scene->mNumAnimations, 1u);
+    for (size_t i = 0; i < numSequences; ++i)
+    {
+      model.addFrame();
+    }
+
+    // create a surface for each mesh in the scene and assign the skins/materials to it
+    const auto numMeshes = scene->mNumMeshes;
+    for (size_t i = 0; i < numMeshes; ++i)
+    {
+      const auto& mesh = scene->mMeshes[i];
+
+      auto& surface = model.addSurface(scene->mMeshes[i]->mName.data);
+
+      // an assimp mesh will only ever have one material, but a material can have multiple
+      // alternatives (this is how assimp handles skins)
+
+      // load skins for this surface
+      auto textures =
+        loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger);
+      auto materials = kdl::vec_transform(std::move(textures), [](auto texture) {
+        auto textureResource = createTextureResource(std::move(texture));
+        return Assets::Material{"", std::move(textureResource)};
+      });
+      surface.setSkins(std::move(materials));
+    }
+
+    for (size_t i = 0; i < numSequences; ++i)
+    {
+      // load the requested frame
+      loadSceneFrame(*scene, i, model, modelPath) | kdl::transform_error([&](auto e) {
+        throw ParserException{fmt::format(
+          "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
+      });
+    }
+
+    return model;
+  }
+  catch (const ParserException& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 } // namespace TrenchBroom::IO

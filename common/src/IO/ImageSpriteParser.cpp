@@ -24,11 +24,11 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
 #include "Error.h"
-#include "Exceptions.h"
 #include "FloatType.h"
 #include "IO/File.h"
 #include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"
+#include "IO/ReaderException.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
@@ -114,20 +114,29 @@ bool ImageSpriteParser::canParse(const std::filesystem::path& path)
   return isSupportedFreeImageExtension(path.extension().string());
 }
 
-std::unique_ptr<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& logger)
 {
-  return loadMaterial(m_fs, *m_file, m_name, logger) | kdl::transform([&](auto material) {
-           auto model = std::make_unique<Assets::EntityModel>(
-             m_name, Assets::PitchType::Normal, Assets::Orientation::ViewPlaneParallel);
-           model->addFrame();
+  try
+  {
+    return loadMaterial(m_fs, *m_file, m_name, logger)
+           | kdl::transform([&](auto material) {
+               auto model = Assets::EntityModel{
+                 m_name,
+                 Assets::PitchType::Normal,
+                 Assets::Orientation::ViewPlaneParallel};
+               model.addFrame();
 
-           auto& surface = model->addSurface(m_name);
-           surface.setSkins(kdl::vec_from(std::move(material)));
+               auto& surface = model.addSurface(m_name);
+               surface.setSkins(kdl::vec_from(std::move(material)));
 
-           createFrame(*model);
+               createFrame(model);
 
-           return model;
-         })
-         | kdl::if_error([](auto e) { throw AssetException{e.msg}; }) | kdl::value();
+               return model;
+             });
+  }
+  catch (const ReaderException& e)
+  {
+    return Error{e.what()};
+  }
 }
 } // namespace TrenchBroom::IO

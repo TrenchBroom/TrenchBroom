@@ -19,6 +19,7 @@
  */
 
 #include "Assets/EntityModel.h"
+#include "Error.h"
 #include "IO/AssimpParser.h"
 #include "IO/DiskFileSystem.h"
 #include "Logger.h"
@@ -38,11 +39,11 @@ TEST_CASE("AssimpParserTest.loadBlenderModel")
   auto assimpParser = AssimpParser{"cube.dae", *fs};
 
   auto model = assimpParser.initializeModel(logger);
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->frameCount() == 1);
-  CHECK(model->surfaceCount() == 1);
-  CHECK(model->surface(0).skinCount() == 1);
+  CHECK(model.value().frameCount() == 1);
+  CHECK(model.value().surfaceCount() == 1);
+  CHECK(model.value().surface(0u).skinCount() == 1);
 }
 
 TEST_CASE("AssimpParserTest.loadHLModelWithSkins")
@@ -55,13 +56,13 @@ TEST_CASE("AssimpParserTest.loadHLModelWithSkins")
   auto assimpParser = AssimpParser{"cube.mdl", *fs};
 
   auto model = assimpParser.initializeModel(logger);
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->surfaceCount() == 4);
-  CHECK(model->surface(0).skinCount() == 1);
-  CHECK(model->surface(1).skinCount() == 3);
-  CHECK(model->surface(2).skinCount() == 1);
-  CHECK(model->surface(3).skinCount() == 1);
+  CHECK(model.value().surfaceCount() == 4);
+  CHECK(model.value().surface(0).skinCount() == 1);
+  CHECK(model.value().surface(1).skinCount() == 3);
+  CHECK(model.value().surface(2).skinCount() == 1);
+  CHECK(model.value().surface(3).skinCount() == 1);
 }
 
 TEST_CASE("AssimpParserTest.loadHLModelWithAnimations")
@@ -74,8 +75,8 @@ TEST_CASE("AssimpParserTest.loadHLModelWithAnimations")
   auto assimpParser = AssimpParser{"cube.mdl", *fs};
 
   auto model = assimpParser.initializeModel(logger);
-  CHECK(model != nullptr);
-  CHECK(model->frameCount() == 3);
+  CHECK(model.is_success());
+  CHECK(model.value().frameCount() == 3);
 }
 
 } // namespace TrenchBroom::IO

@@ -25,11 +25,13 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Assets/TextureResource.h"
-#include "Exceptions.h"
+#include "Error.h"
 #include "IO/Reader.h"
+#include "IO/ReaderException.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
+#include "kdl/result.h"
 #include "kdl/string_utils.h"
 
 #include <fmt/format.h>
@@ -521,66 +523,74 @@ bool MdlParser::canParse(const std::filesystem::path& path, Reader reader)
   return ident == MdlLayout::Ident && version == MdlLayout::Version6;
 }
 
-std::unique_ptr<Assets::EntityModel> MdlParser::initializeModel(Logger& /* logger */)
+Result<Assets::EntityModel> MdlParser::initializeModel(Logger& /* logger */)
 {
-  auto reader = m_reader;
-
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  if (ident != MdlLayout::Ident)
+  try
   {
-    throw AssetException{fmt::format("Unknown MDL model ident: {}", ident)};
+    auto reader = m_reader;
+
+    const auto ident = reader.readInt<int32_t>();
+    const auto version = reader.readInt<int32_t>();
+
+    if (ident != MdlLayout::Ident)
+    {
+      return Error{fmt::format("Unknown MDL model ident: {}", ident)};
+    }
+    if (version != MdlLayout::Version6)
+    {
+      return Error{fmt::format("Unknown MDL model version: {}", version)};
+    }
+
+    const auto scale = reader.readVec<float, 3>();
+    const auto origin = reader.readVec<float, 3>();
+
+    reader.seekFromBegin(MdlLayout::HeaderNumSkins);
+    const auto skinCount = reader.readSize<int32_t>();
+    const auto skinWidth = reader.readSize<int32_t>();
+    const auto skinHeight = reader.readSize<int32_t>();
+    const auto vertexCount = reader.readSize<int32_t>();
+    const auto triangleCount = reader.readSize<int32_t>();
+    const auto frameCount = reader.readSize<int32_t>();
+    /* const auto syncType = */ reader.readSize<int32_t>();
+    const auto flags = reader.readInt<int32_t>();
+
+    auto model = Assets::EntityModel{
+      m_name, Assets::PitchType::MdlInverted, Assets::Orientation::Oriented};
+    for (size_t i = 0; i < frameCount; ++i)
+    {
+      model.addFrame();
+    }
+
+    auto& surface = model.addSurface(m_name);
+
+    reader.seekFromBegin(MdlLayout::Skins);
+    parseSkins(
+      reader, surface, skinCount, skinWidth, skinHeight, flags, m_name, m_palette);
+
+    const auto vertices = parseVertices(reader, vertexCount);
+    const auto triangles = parseTriangles(reader, triangleCount);
+
+    for (size_t i = 0; i < frameCount; ++i)
+    {
+      parseFrame(
+        reader,
+        model,
+        i,
+        surface,
+        triangles,
+        vertices,
+        skinWidth,
+        skinHeight,
+        origin,
+        scale);
+    }
+
+    return model;
   }
-  if (version != MdlLayout::Version6)
+  catch (const ReaderException& e)
   {
-    throw AssetException{fmt::format("Unknown MDL model version: {}", version)};
+    return Error{e.what()};
   }
-
-  const auto scale = reader.readVec<float, 3>();
-  const auto origin = reader.readVec<float, 3>();
-
-  reader.seekFromBegin(MdlLayout::HeaderNumSkins);
-  const auto skinCount = reader.readSize<int32_t>();
-  const auto skinWidth = reader.readSize<int32_t>();
-  const auto skinHeight = reader.readSize<int32_t>();
-  const auto vertexCount = reader.readSize<int32_t>();
-  const auto triangleCount = reader.readSize<int32_t>();
-  const auto frameCount = reader.readSize<int32_t>();
-  /* const auto syncType = */ reader.readSize<int32_t>();
-  const auto flags = reader.readInt<int32_t>();
-
-  auto model = std::make_unique<Assets::EntityModel>(
-    m_name, Assets::PitchType::MdlInverted, Assets::Orientation::Oriented);
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    model->addFrame();
-  }
-
-  auto& surface = model->addSurface(m_name);
-
-  reader.seekFromBegin(MdlLayout::Skins);
-  parseSkins(reader, surface, skinCount, skinWidth, skinHeight, flags, m_name, m_palette);
-
-  const auto vertices = parseVertices(reader, vertexCount);
-  const auto triangles = parseTriangles(reader, triangleCount);
-
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    parseFrame(
-      reader,
-      *model,
-      i,
-      surface,
-      triangles,
-      vertices,
-      skinWidth,
-      skinHeight,
-      origin,
-      scale);
-  }
-
-  return model;
 }
 
 } // namespace TrenchBroom::IO

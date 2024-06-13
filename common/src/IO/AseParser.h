@@ -127,7 +127,7 @@ public:
 
   static bool canParse(const std::filesystem::path& path);
 
-  std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger) override;
+  Result<Assets::EntityModel> initializeModel(Logger& logger) override;
 
 private: // parsing
   void parseAseFile(Logger& logger, Scene& scene);
@@ -181,8 +181,7 @@ private: // parsing
   TokenNameMap tokenNames() const override;
 
 private: // model construction
-  std::unique_ptr<Assets::EntityModel> buildModel(
-    Logger& logger, const Scene& scene) const;
+  Result<Assets::EntityModel> buildModel(Logger& logger, const Scene& scene) const;
   bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
 
   Assets::Material loadMaterial(Logger& logger, const std::filesystem::path& path) const;

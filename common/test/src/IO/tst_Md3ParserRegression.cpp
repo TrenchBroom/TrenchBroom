@@ -64,12 +64,12 @@ TEST_CASE("Md3ParserTest.loadFailure_2659")
 
   auto reader = md3File->reader().buffer();
   auto parser = Md3Parser{"armor_red", reader, fs};
-  auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
+  auto model = parser.initializeModel(logger);
 
-  CHECK(model != nullptr);
+  CHECK(model.is_success());
 
-  CHECK(model->frameCount() == 30u);
-  CHECK(model->surfaceCount() == 2u);
+  CHECK(model.value().frameCount() == 30u);
+  CHECK(model.value().surfaceCount() == 2u);
 }
 } // namespace IO
 } // namespace TrenchBroom

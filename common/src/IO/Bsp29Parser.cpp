@@ -24,11 +24,11 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
 #include "Error.h"
-#include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/MaterialUtils.h"
 #include "IO/ReadMipTexture.h"
 #include "IO/Reader.h"
+#include "IO/ReaderException.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Renderer/MaterialIndexRangeMap.h"
@@ -296,89 +296,96 @@ bool Bsp29Parser::canParse(const std::filesystem::path& path, Reader reader)
   return version == 29;
 }
 
-std::unique_ptr<Assets::EntityModel> Bsp29Parser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> Bsp29Parser::initializeModel(Logger& logger)
 {
-  auto reader = m_reader;
-  const auto version = reader.readInt<int32_t>();
-  if (version != 29)
+  try
   {
-    throw AssetException("Unsupported BSP model version: " + std::to_string(version));
+    auto reader = m_reader;
+    const auto version = reader.readInt<int32_t>();
+    if (version != 29)
+    {
+      return Error{"Unsupported BSP model version: " + std::to_string(version)};
+    }
+
+    reader.seekFromBegin(BspLayout::DirModelAddress);
+    const auto modelsOffset = reader.readSize<int32_t>();
+    const auto modelsLength = reader.readSize<int32_t>();
+    const auto frameCount = modelsLength / BspLayout::ModelSize;
+
+    reader.seekFromBegin(BspLayout::DirTexInfosAddress);
+    const auto materialInfoOffset = reader.readSize<int32_t>();
+    const auto materialInfoLength = reader.readSize<int32_t>();
+    const auto materialInfoCount = materialInfoLength / BspLayout::MaterialInfoSize;
+
+    reader.seekFromBegin(BspLayout::DirVerticesAddress);
+    const auto vertexOffset = reader.readSize<int32_t>();
+    const auto vertexLength = reader.readSize<int32_t>();
+    const auto vertexCount = vertexLength / (3 * sizeof(float));
+
+    reader.seekFromBegin(BspLayout::DirEdgesAddress);
+    const auto edgeInfoOffset = reader.readSize<int32_t>();
+    const auto edgeInfoLength = reader.readSize<int32_t>();
+    const auto edgeInfoCount = edgeInfoLength / (2 * sizeof(uint16_t));
+
+    reader.seekFromBegin(BspLayout::DirFacesAddress);
+    const auto faceInfoOffset = reader.readSize<int32_t>();
+    const auto faceInfoLength = reader.readSize<int32_t>();
+    const auto faceInfoCount = faceInfoLength / BspLayout::FaceSize;
+
+    reader.seekFromBegin(BspLayout::DirFaceEdgesAddress);
+    const auto faceEdgesOffset = reader.readSize<int32_t>();
+    const auto faceEdgesLength = reader.readSize<int32_t>();
+    const auto faceEdgesCount = faceEdgesLength / BspLayout::FaceEdgeSize;
+
+    reader.seekFromBegin(BspLayout::DirMaterialsAddress);
+    const auto materialsOffset = reader.readSize<int32_t>();
+
+    auto model = Assets::EntityModel{
+      m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+
+    for (size_t i = 0; i < frameCount; ++i)
+    {
+      model.addFrame();
+    }
+
+    auto materials =
+      parseMaterials(reader.subReaderFromBegin(materialsOffset), m_palette, m_fs, logger);
+
+    auto& surface = model.addSurface(m_name);
+    surface.setSkins(std::move(materials));
+
+    const auto materialInfos = parseMaterialInfos(
+      reader.subReaderFromBegin(materialInfoOffset), materialInfoCount);
+    const auto vertices =
+      parseVertices(reader.subReaderFromBegin(vertexOffset), vertexCount);
+    const auto edgeInfos =
+      parseEdgeInfos(reader.subReaderFromBegin(edgeInfoOffset), edgeInfoCount);
+    const auto faceInfos =
+      parseFaceInfos(reader.subReaderFromBegin(faceInfoOffset), faceInfoCount);
+    const auto faceEdges =
+      parseFaceEdges(reader.subReaderFromBegin(faceEdgesOffset), faceEdgesCount);
+
+
+    for (size_t i = 0; i < frameCount; ++i)
+    {
+      parseFrame(
+        reader.subReaderFromBegin(
+          modelsOffset + i * BspLayout::ModelSize, BspLayout::ModelSize),
+        i,
+        model,
+        materialInfos,
+        vertices,
+        edgeInfos,
+        faceInfos,
+        faceEdges);
+    }
+
+    return model;
   }
-
-  reader.seekFromBegin(BspLayout::DirModelAddress);
-  const auto modelsOffset = reader.readSize<int32_t>();
-  const auto modelsLength = reader.readSize<int32_t>();
-  const auto frameCount = modelsLength / BspLayout::ModelSize;
-
-  reader.seekFromBegin(BspLayout::DirTexInfosAddress);
-  const auto materialInfoOffset = reader.readSize<int32_t>();
-  const auto materialInfoLength = reader.readSize<int32_t>();
-  const auto materialInfoCount = materialInfoLength / BspLayout::MaterialInfoSize;
-
-  reader.seekFromBegin(BspLayout::DirVerticesAddress);
-  const auto vertexOffset = reader.readSize<int32_t>();
-  const auto vertexLength = reader.readSize<int32_t>();
-  const auto vertexCount = vertexLength / (3 * sizeof(float));
-
-  reader.seekFromBegin(BspLayout::DirEdgesAddress);
-  const auto edgeInfoOffset = reader.readSize<int32_t>();
-  const auto edgeInfoLength = reader.readSize<int32_t>();
-  const auto edgeInfoCount = edgeInfoLength / (2 * sizeof(uint16_t));
-
-  reader.seekFromBegin(BspLayout::DirFacesAddress);
-  const auto faceInfoOffset = reader.readSize<int32_t>();
-  const auto faceInfoLength = reader.readSize<int32_t>();
-  const auto faceInfoCount = faceInfoLength / BspLayout::FaceSize;
-
-  reader.seekFromBegin(BspLayout::DirFaceEdgesAddress);
-  const auto faceEdgesOffset = reader.readSize<int32_t>();
-  const auto faceEdgesLength = reader.readSize<int32_t>();
-  const auto faceEdgesCount = faceEdgesLength / BspLayout::FaceEdgeSize;
-
-  reader.seekFromBegin(BspLayout::DirMaterialsAddress);
-  const auto materialsOffset = reader.readSize<int32_t>();
-
-  auto model = std::make_unique<Assets::EntityModel>(
-    m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-
-  for (size_t i = 0; i < frameCount; ++i)
+  catch (const ReaderException& e)
   {
-    model->addFrame();
+    return Error{e.what()};
   }
-
-  auto materials =
-    parseMaterials(reader.subReaderFromBegin(materialsOffset), m_palette, m_fs, logger);
-
-  auto& surface = model->addSurface(m_name);
-  surface.setSkins(std::move(materials));
-
-  const auto materialInfos =
-    parseMaterialInfos(reader.subReaderFromBegin(materialInfoOffset), materialInfoCount);
-  const auto vertices =
-    parseVertices(reader.subReaderFromBegin(vertexOffset), vertexCount);
-  const auto edgeInfos =
-    parseEdgeInfos(reader.subReaderFromBegin(edgeInfoOffset), edgeInfoCount);
-  const auto faceInfos =
-    parseFaceInfos(reader.subReaderFromBegin(faceInfoOffset), faceInfoCount);
-  const auto faceEdges =
-    parseFaceEdges(reader.subReaderFromBegin(faceEdgesOffset), faceEdgesCount);
-
-
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    parseFrame(
-      reader.subReaderFromBegin(
-        modelsOffset + i * BspLayout::ModelSize, BspLayout::ModelSize),
-      i,
-      *model,
-      materialInfos,
-      vertices,
-      edgeInfos,
-      faceInfos,
-      faceEdges);
-  }
-
-  return model;
 }
 
 } // namespace TrenchBroom::IO
