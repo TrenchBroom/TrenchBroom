@@ -51,7 +51,6 @@ TEST_CASE("MdlParserTest.loadValidMdl")
   auto reader = mdlFile->reader().buffer();
   auto parser = MdlParser("armor", reader, palette);
   auto model = parser.initializeModel(logger);
-  parser.loadFrame(0, *model, logger);
 
   CHECK(model != nullptr);
   CHECK(model->surfaceCount() == 1u);

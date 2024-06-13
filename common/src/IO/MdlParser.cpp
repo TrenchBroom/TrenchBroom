@@ -363,6 +363,7 @@ void parseFrame(
       skinHeight,
       origin,
       scale);
+    reader.seekForward(frameLength);
   }
   else
   { // frame group, but we only read the first frame
@@ -382,32 +383,8 @@ void parseFrame(
       skinHeight,
       origin,
       scale);
-  }
-}
 
-void skipFrames(Reader& reader, const size_t count, size_t vertexCount)
-{
-  const auto frameLength =
-    MdlLayout::SimpleFrameName + MdlLayout::SimpleFrameLength + vertexCount * 4;
-
-  for (size_t i = 0; i < count; ++i)
-  {
-    const auto type = reader.readInt<int32_t>();
-    if (type == 0)
-    { // single frame
-      reader.seekForward(frameLength);
-    }
-    else
-    { // frame group, but we only read the first frame
-      const auto groupFrameCount = reader.readSize<int32_t>();
-      reader.seekBackward(sizeof(int32_t));
-
-      const auto frameTimeLength =
-        MdlLayout::MultiFrameTimes + groupFrameCount * sizeof(float);
-
-      // forward to after the last group frame as if we had read them
-      reader.seekForward(frameTimeLength + groupFrameCount * frameLength);
-    }
+    reader.seekForward(frameTimeLength + groupFrameCount * frameLength);
   }
 }
 
@@ -441,31 +418,6 @@ std::vector<MdlSkinVertex> parseVertices(Reader& reader, size_t count)
   }
 
   return vertices;
-}
-
-void skipSkins(
-  Reader& reader,
-  const size_t count,
-  const size_t width,
-  const size_t height,
-  const int /* flags */)
-{
-  const auto size = width * height;
-
-  for (size_t i = 0; i < count; ++i)
-  {
-    const auto skinGroup = reader.readSize<int32_t>();
-    if (skinGroup == 0)
-    {
-      reader.seekForward(size);
-    }
-    else
-    {
-      const auto pictureCount = reader.readSize<int32_t>();
-      reader.seekForward(pictureCount * 4);    // skip the picture times
-      reader.seekForward(pictureCount * size); // skip all pictures
-    }
-  }
 }
 
 Assets::Material parseSkin(
@@ -585,15 +537,15 @@ std::unique_ptr<Assets::EntityModel> MdlParser::initializeModel(Logger& /* logge
     throw AssetException{fmt::format("Unknown MDL model version: {}", version)};
   }
 
-  /* const auto scale = */ reader.readVec<float, 3>();
-  /* const auto origin = */ reader.readVec<float, 3>();
+  const auto scale = reader.readVec<float, 3>();
+  const auto origin = reader.readVec<float, 3>();
 
   reader.seekFromBegin(MdlLayout::HeaderNumSkins);
   const auto skinCount = reader.readSize<int32_t>();
   const auto skinWidth = reader.readSize<int32_t>();
   const auto skinHeight = reader.readSize<int32_t>();
-  /* const auto skinVertexCount = */ reader.readSize<int32_t>();
-  /* const auto skinTriangleCount = */ reader.readSize<int32_t>();
+  const auto vertexCount = reader.readSize<int32_t>();
+  const auto triangleCount = reader.readSize<int32_t>();
   const auto frameCount = reader.readSize<int32_t>();
   /* const auto syncType = */ reader.readSize<int32_t>();
   const auto flags = reader.readInt<int32_t>();
@@ -610,58 +562,25 @@ std::unique_ptr<Assets::EntityModel> MdlParser::initializeModel(Logger& /* logge
   reader.seekFromBegin(MdlLayout::Skins);
   parseSkins(reader, surface, skinCount, skinWidth, skinHeight, flags, m_name, m_palette);
 
-  return model;
-}
-
-void MdlParser::loadFrame(
-  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
-{
-  auto reader = m_reader;
-
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  if (ident != MdlLayout::Ident)
-  {
-    throw AssetException{fmt::format("Unknown MDL model ident: {}", ident)};
-  }
-  if (version != MdlLayout::Version6)
-  {
-    throw AssetException{fmt::format("Unknown MDL model version: {}", version)};
-  }
-
-  const auto scale = reader.readVec<float, 3>();
-  const auto origin = reader.readVec<float, 3>();
-
-  reader.seekFromBegin(MdlLayout::HeaderNumSkins);
-  const auto skinCount = reader.readSize<int32_t>();
-  const auto skinWidth = reader.readSize<int32_t>();
-  const auto skinHeight = reader.readSize<int32_t>();
-  const auto vertexCount = reader.readSize<int32_t>();
-  const auto triangleCount = reader.readSize<int32_t>();
-  /* const auto frameCount = */ reader.readSize<int32_t>();
-  /* const auto syncType = */ reader.readSize<int32_t>();
-  const auto flags = reader.readInt<int32_t>();
-
-  reader.seekFromBegin(MdlLayout::Skins);
-  skipSkins(reader, skinCount, skinWidth, skinHeight, flags);
-
   const auto vertices = parseVertices(reader, vertexCount);
   const auto triangles = parseTriangles(reader, triangleCount);
 
-  auto& surface = model.surface(0);
-  skipFrames(reader, frameIndex, vertexCount);
-  parseFrame(
-    reader,
-    model,
-    frameIndex,
-    surface,
-    triangles,
-    vertices,
-    skinWidth,
-    skinHeight,
-    origin,
-    scale);
+  for (size_t i = 0; i < frameCount; ++i)
+  {
+    parseFrame(
+      reader,
+      *model,
+      i,
+      surface,
+      triangles,
+      vertices,
+      skinWidth,
+      skinHeight,
+      origin,
+      scale);
+  }
+
+  return model;
 }
 
 } // namespace TrenchBroom::IO
