@@ -41,7 +41,7 @@ namespace TrenchBroom::IO
 {
 class FileSystem;
 
-std::unique_ptr<Assets::EntityModel> initializeEntityModel(
+std::unique_ptr<Assets::EntityModel> loadEntityModel(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
