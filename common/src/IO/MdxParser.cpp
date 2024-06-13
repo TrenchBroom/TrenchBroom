@@ -309,12 +309,12 @@ auto parseMeshVertices(Reader& reader, const size_t count)
   return vertices;
 }
 
-auto parseMeshes(Reader reader, const size_t /* commandCount */)
+auto parseMeshes(Reader reader, const size_t commandCount)
 {
   auto meshes = std::vector<MdxMesh>{};
 
   auto vertexCount = reader.readInt<int32_t>();
-  while (vertexCount != 0)
+  for (size_t i = 0; i < commandCount && vertexCount != 0; ++i)
   {
     const auto type = vertexCount < 0 ? Renderer::PrimType::TriangleFan
                                       : Renderer::PrimType::TriangleStrip;
@@ -448,9 +448,9 @@ std::unique_ptr<Assets::EntityModel> MdxParser::initializeModel(Logger& logger)
   /*const auto frameSize =*/reader.readSize<int32_t>();
 
   const auto skinCount = reader.readSize<int32_t>();
-  /* const auto vertexCount = */ reader.readSize<int32_t>();
+  const auto vertexCount = reader.readSize<int32_t>();
   /* const auto triangleCount =*/reader.readSize<int32_t>();
-  /* const auto commandCount = */ reader.readSize<int32_t>();
+  const auto commandCount = reader.readSize<int32_t>();
   const auto frameCount = reader.readSize<int32_t>();
 
   /* const auto sfxDefineCount = */ reader.readSize<int32_t>();
@@ -458,6 +458,9 @@ std::unique_ptr<Assets::EntityModel> MdxParser::initializeModel(Logger& logger)
   /* const auto subObjectCount = */ reader.readSize<int32_t>();
 
   const auto skinOffset = reader.readSize<int32_t>();
+  /* const auto triangleOffset =*/reader.readSize<int32_t>();
+  const auto frameOffset = reader.readSize<int32_t>();
+  const auto commandOffset = reader.readSize<int32_t>();
 
   const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
@@ -471,55 +474,19 @@ std::unique_ptr<Assets::EntityModel> MdxParser::initializeModel(Logger& logger)
   auto& surface = model->addSurface(m_name);
   loadSkins(surface, skins, m_fs, logger);
 
-  return model;
-}
-
-void MdxParser::loadFrame(
-  size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
-{
-  auto reader = m_reader;
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  if (ident != MdxLayout::Ident)
-  {
-    throw AssetException{fmt::format("Unknown MDX model ident: {}", ident)};
-  }
-
-  if (version != MdxLayout::Version)
-  {
-    throw AssetException{fmt::format("Unknown MDX model version: {}", version)};
-  }
-
-  /*const auto skinWidth =*/reader.readSize<int32_t>();
-  /*const auto skinHeight =*/reader.readSize<int32_t>();
-  /*const auto frameSize =*/reader.readSize<int32_t>();
-
-  /* const auto skinCount = */ reader.readSize<int32_t>();
-  const auto vertexCount = reader.readSize<int32_t>();
-  /* const auto triangleCount =*/reader.readSize<int32_t>();
-  const auto commandCount = reader.readSize<int32_t>();
-  /* const auto frameCount = */ reader.readSize<int32_t>();
-
-  /* const auto sfxDefineCount = */ reader.readSize<int32_t>();
-  /* const auto sfxEntryCount = */ reader.readSize<int32_t>();
-  /* const auto subObjectCount = */ reader.readSize<int32_t>();
-
-  /* const auto skinOffset = */ reader.readSize<int32_t>();
-  /* const auto triangleOffset =*/reader.readSize<int32_t>();
-  const auto frameOffset = reader.readSize<int32_t>();
-  const auto commandOffset = reader.readSize<int32_t>();
-
   const auto frameSize = 6 * sizeof(float) + MdxLayout::FrameNameLength + vertexCount * 4;
-  const auto frame = parseFrame(
-    reader.subReaderFromBegin(frameOffset + frameIndex * frameSize, frameSize),
-    frameIndex,
-    vertexCount);
   const auto meshes =
     parseMeshes(reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
 
-  auto& surface = model.surface(0);
-  buildFrame(model, surface, frameIndex, frame, meshes);
+  for (size_t i = 0; i < frameCount; ++i)
+  {
+    const auto frame = parseFrame(
+      reader.subReaderFromBegin(frameOffset + i * frameSize, frameSize), i, vertexCount);
+
+    buildFrame(*model, surface, i, frame, meshes);
+  }
+
+  return model;
 }
 
 } // namespace TrenchBroom::IO
