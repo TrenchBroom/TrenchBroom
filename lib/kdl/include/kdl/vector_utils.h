@@ -670,7 +670,7 @@ std::vector<T, A> vec_sort_and_remove_duplicates(
 template <
   typename Range,
   typename Predicate,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Predicate, const T&>>* = nullptr>
 auto vec_filter(Range range, Predicate&& predicate)
 {
@@ -706,7 +706,7 @@ auto vec_filter(Range range, Predicate&& predicate)
 template <
   typename Range,
   typename Predicate,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Predicate, const T&, std::size_t>>* =
     nullptr>
 auto vec_filter(Range range, Predicate&& predicate)
@@ -743,7 +743,7 @@ auto vec_filter(Range range, Predicate&& predicate)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, const T&>>* = nullptr>
 auto vec_transform(const Range& range, Transform&& transform)
 {
@@ -790,7 +790,7 @@ auto vec_transform(const Range& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, const T&, std::size_t>>* =
     nullptr>
 auto vec_transform(const Range& range, Transform&& transform)
@@ -826,7 +826,7 @@ auto vec_transform(const Range& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, T&>>* = nullptr>
 auto vec_transform(Range& range, Transform&& transform)
 {
@@ -873,7 +873,7 @@ auto vec_transform(Range& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, T&, std::size_t>>* = nullptr>
 auto vec_transform(Range& range, Transform&& transform)
 {
@@ -907,7 +907,7 @@ auto vec_transform(Range& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, T&&>>* = nullptr>
 auto vec_transform(Range&& range, Transform&& transform)
 {
@@ -944,7 +944,7 @@ auto vec_transform(Range&& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, T&&, std::size_t>>* = nullptr>
 auto vec_transform(Range&& range, Transform&& transform)
 {
