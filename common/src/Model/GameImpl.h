@@ -134,8 +134,6 @@ public: // implement Game interface
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
-  Result<Assets::Palette> loadPalette() const;
-
   Result<std::vector<std::string>> availableMods() const override;
   std::vector<std::string> extractEnabledMods(const Entity& entity) const override;
   std::string defaultMod() const override;
