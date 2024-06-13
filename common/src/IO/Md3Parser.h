@@ -52,7 +52,6 @@ public:
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
   std::unique_ptr<Assets::EntityModel> initializeModel(Logger& logger) override;
-  void loadFrame(size_t frameIndex, Assets::EntityModel& model, Logger& logger) override;
 };
 
 } // namespace TrenchBroom::IO

@@ -346,7 +346,7 @@ std::unique_ptr<Assets::EntityModel> Md3Parser::initializeModel(Logger& logger)
   const auto surfaceCount = reader.readSize<int32_t>();
   /* const auto materialCount = */ reader.readSize<int32_t>();
 
-  /* const auto frameOffset = */ reader.readSize<int32_t>();
+  const auto frameOffset = reader.readSize<int32_t>();
   /* const auto tagOffset = */ reader.readSize<int32_t>();
   const auto surfaceOffset = reader.readSize<int32_t>();
 
@@ -360,45 +360,17 @@ std::unique_ptr<Assets::EntityModel> Md3Parser::initializeModel(Logger& logger)
   parseSurfaces(
     reader.subReaderFromBegin(surfaceOffset), surfaceCount, *model, m_fs, logger);
 
+  for (size_t i = 0; i < frameCount; ++i)
+  {
+    auto& frame = parseFrame(
+      reader.subReaderFromBegin(
+        frameOffset + i * Md3Layout::FrameLength, Md3Layout::FrameLength),
+      i,
+      *model);
+    parseFrameSurfaces(reader.subReaderFromBegin(surfaceOffset), frame, *model);
+  }
+
   return model;
-}
-
-void Md3Parser::loadFrame(
-  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
-{
-  auto reader = m_reader;
-
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  if (ident != Md3Layout::Ident)
-  {
-    throw AssetException{fmt::format("Unknown MD3 model ident: {}", ident)};
-  }
-
-  if (version != Md3Layout::Version)
-  {
-    throw AssetException{fmt::format("Unknown MD3 model version: {}", version)};
-  }
-
-  /* const auto name = */ reader.readString(Md3Layout::ModelNameLength);
-  /* const auto flags = */ reader.readInt<int32_t>();
-
-  /* const auto frameCount = */ reader.readSize<int32_t>();
-  /* const auto tagCount = */ reader.readSize<int32_t>();
-  /* const auto surfaceCount = */ reader.readSize<int32_t>();
-  /* const auto materialCount = */ reader.readSize<int32_t>();
-
-  const auto frameOffset = reader.readSize<int32_t>();
-  /* const auto tagOffset = */ reader.readSize<int32_t>();
-  const auto surfaceOffset = reader.readSize<int32_t>();
-
-  auto& frame = parseFrame(
-    reader.subReaderFromBegin(
-      frameOffset + frameIndex * Md3Layout::FrameLength, Md3Layout::FrameLength),
-    frameIndex,
-    model);
-  parseFrameSurfaces(reader.subReaderFromBegin(surfaceOffset), frame, model);
 }
 
 } // namespace TrenchBroom::IO

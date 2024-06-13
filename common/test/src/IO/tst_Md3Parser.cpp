@@ -63,7 +63,6 @@ TEST_CASE("Md3ParserTest.loadValidMd3")
   auto reader = md3File->reader().buffer();
   auto parser = Md3Parser("bfg", reader, fs);
   auto model = std::unique_ptr<Assets::EntityModel>(parser.initializeModel(logger));
-  parser.loadFrame(0, *model, logger);
 
   CHECK(model != nullptr);
 
