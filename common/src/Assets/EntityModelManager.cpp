@@ -168,11 +168,11 @@ EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
 
     return model;
   }
-  catch (const GameException& e)
+  catch (const Exception& e)
   {
     m_logger.error() << e.what();
     m_modelMismatches.insert(path);
-    throw;
+    throw GameException{e.what()};
   }
 }
 
