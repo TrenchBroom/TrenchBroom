@@ -305,43 +305,10 @@ std::unique_ptr<Assets::EntityModel> Bsp29Parser::initializeModel(Logger& logger
     throw AssetException("Unsupported BSP model version: " + std::to_string(version));
   }
 
-  reader.seekFromBegin(BspLayout::DirMaterialsAddress);
-  const auto offset = reader.readSize<int32_t>();
-
   reader.seekFromBegin(BspLayout::DirModelAddress);
-  /* const auto modelsOffset = */ reader.readSize<int32_t>();
+  const auto modelsOffset = reader.readSize<int32_t>();
   const auto modelsLength = reader.readSize<int32_t>();
   const auto frameCount = modelsLength / BspLayout::ModelSize;
-
-  auto materials =
-    parseMaterials(reader.subReaderFromBegin(offset), m_palette, m_fs, logger);
-
-  auto model = std::make_unique<Assets::EntityModel>(
-    m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
-  for (size_t i = 0; i < frameCount; ++i)
-  {
-    model->addFrame();
-  }
-
-  auto& surface = model->addSurface(m_name);
-  surface.setSkins(std::move(materials));
-
-  return model;
-}
-
-void Bsp29Parser::loadFrame(
-  const size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
-{
-  auto reader = m_reader;
-  const auto version = reader.readInt<int32_t>();
-  if (version != 29)
-  {
-    throw AssetException("Unsupported BSP model version: " + std::to_string(version));
-  }
-
-  reader.seekFromBegin(BspLayout::DirMaterialsAddress);
-  /* const auto materialOffset = */ reader.readSize<int32_t>();
-  /* const auto materialLength = */ reader.readSize<int32_t>();
 
   reader.seekFromBegin(BspLayout::DirTexInfosAddress);
   const auto materialInfoOffset = reader.readSize<int32_t>();
@@ -368,8 +335,22 @@ void Bsp29Parser::loadFrame(
   const auto faceEdgesLength = reader.readSize<int32_t>();
   const auto faceEdgesCount = faceEdgesLength / BspLayout::FaceEdgeSize;
 
-  reader.seekFromBegin(BspLayout::DirModelAddress);
-  const auto modelsOffset = reader.readSize<int32_t>();
+  reader.seekFromBegin(BspLayout::DirMaterialsAddress);
+  const auto materialsOffset = reader.readSize<int32_t>();
+
+  auto model = std::make_unique<Assets::EntityModel>(
+    m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented);
+
+  for (size_t i = 0; i < frameCount; ++i)
+  {
+    model->addFrame();
+  }
+
+  auto materials =
+    parseMaterials(reader.subReaderFromBegin(materialsOffset), m_palette, m_fs, logger);
+
+  auto& surface = model->addSurface(m_name);
+  surface.setSkins(std::move(materials));
 
   const auto materialInfos =
     parseMaterialInfos(reader.subReaderFromBegin(materialInfoOffset), materialInfoCount);
@@ -382,16 +363,22 @@ void Bsp29Parser::loadFrame(
   const auto faceEdges =
     parseFaceEdges(reader.subReaderFromBegin(faceEdgesOffset), faceEdgesCount);
 
-  parseFrame(
-    reader.subReaderFromBegin(
-      modelsOffset + frameIndex * BspLayout::ModelSize, BspLayout::ModelSize),
-    frameIndex,
-    model,
-    materialInfos,
-    vertices,
-    edgeInfos,
-    faceInfos,
-    faceEdges);
+
+  for (size_t i = 0; i < frameCount; ++i)
+  {
+    parseFrame(
+      reader.subReaderFromBegin(
+        modelsOffset + i * BspLayout::ModelSize, BspLayout::ModelSize),
+      i,
+      *model,
+      materialInfos,
+      vertices,
+      edgeInfos,
+      faceInfos,
+      faceEdges);
+  }
+
+  return model;
 }
 
 } // namespace TrenchBroom::IO
