@@ -846,37 +846,16 @@ std::unique_ptr<Assets::EntityModel> AssimpParser::initializeModel(
     surface.setSkins(std::move(materials));
   }
 
-  return model;
-}
-
-void AssimpParser::loadFrame(
-  size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
-{
-  constexpr auto assimpFlags = aiProcess_Triangulate | aiProcess_JoinIdenticalVertices
-                               | aiProcess_FlipWindingOrder | aiProcess_SortByPType
-                               | aiProcess_FlipUVs;
-
-  const auto modelPath = m_path.string();
-
-  // Import the file as an Assimp scene and populate our vectors.
-  auto importer = Assimp::Importer{};
-  importer.SetIOHandler(new AssimpIOSystem{m_fs});
-
-  const auto* scene = importer.ReadFile(modelPath, assimpFlags);
-  if (!scene)
+  for (size_t i = 0; i < numSequences; ++i)
   {
-    throw ParserException{fmt::format(
-      "Assimp couldn't import model from '{}': {}",
-      m_path.string(),
-      importer.GetErrorString())};
+    // load the requested frame
+    loadSceneFrame(*scene, i, *model, modelPath) | kdl::transform_error([&](auto e) {
+      throw ParserException{fmt::format(
+        "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
+    });
   }
 
-  // load the requested frame
-  loadSceneFrame(*scene, frameIndex, model, modelPath)
-    | kdl::transform_error([&](auto e) {
-        throw ParserException{fmt::format(
-          "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
-      });
+  return model;
 }
 
 } // namespace TrenchBroom::IO

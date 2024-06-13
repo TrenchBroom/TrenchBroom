@@ -75,9 +75,7 @@ TEST_CASE("AssimpParserTest.loadHLModelWithAnimations")
 
   auto model = assimpParser.initializeModel(logger);
   CHECK(model != nullptr);
-
   CHECK(model->frameCount() == 3);
-  CHECK_NOTHROW(assimpParser.loadFrame(1, *model, logger));
 }
 
 } // namespace TrenchBroom::IO
