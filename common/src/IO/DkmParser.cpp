@@ -533,17 +533,22 @@ std::unique_ptr<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
 
   /* const auto origin = */ reader.readVec<float, 3>();
 
-  /* const auto frameSize = */ reader.readSize<int32_t>();
+  const auto frameSize = reader.readSize<int32_t>();
 
   const auto skinCount = reader.readSize<int32_t>();
-  /* const auto vertexCount = */ reader.readSize<int32_t>();
+  const auto vertexCount = reader.readSize<int32_t>();
   /* const auto uvCoordCount =*/reader.readSize<int32_t>();
   /* const auto triangleCount =*/reader.readSize<int32_t>();
-  /* const auto commandCount = */ reader.readSize<int32_t>();
+  const auto commandCount = reader.readSize<int32_t>();
   const auto frameCount = reader.readSize<int32_t>();
   /* const auto surfaceCount =*/reader.readSize<int32_t>();
 
   const auto skinOffset = reader.readSize<int32_t>();
+  /* const auto uvCoordOffset =*/reader.readSize<int32_t>();
+  /* const auto triangleOffset =*/reader.readSize<int32_t>();
+  const auto frameOffset = reader.readSize<int32_t>();
+  const auto commandOffset = reader.readSize<int32_t>();
+  /* const auto surfaceOffset =*/reader.readSize<int32_t>();
 
   const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
@@ -557,55 +562,21 @@ std::unique_ptr<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
   auto& surface = model->addSurface(m_name);
   loadSkins(surface, skins, m_fs, logger);
 
-  return model;
-}
-
-void DkmParser::loadFrame(
-  size_t frameIndex, Assets::EntityModel& model, Logger& /* logger */)
-{
-  auto reader = m_reader;
-  const auto ident = reader.readInt<int32_t>();
-  const auto version = reader.readInt<int32_t>();
-
-  if (ident != DkmLayout::Ident)
-  {
-    throw AssetException{fmt::format("Unknown DKM model ident: {}", ident)};
-  }
-
-  if (version != DkmLayout::Version1 && version != DkmLayout::Version2)
-  {
-    throw AssetException{fmt::format("Unknown DKM model version: {}", version)};
-  }
-
-  /* const auto origin = */ reader.readVec<float, 3>();
-
-  const auto frameSize = reader.readSize<int32_t>();
-
-  /* const auto skinCount = */ reader.readSize<int32_t>();
-  const auto vertexCount = reader.readSize<int32_t>();
-  /* const auto uvCoordCount =*/reader.readSize<int32_t>();
-  /* const auto triangleCount =*/reader.readSize<int32_t>();
-  const auto commandCount = reader.readSize<int32_t>();
-  /* const auto frameCount = */ reader.readSize<int32_t>();
-  /* const auto surfaceCount =*/reader.readSize<int32_t>();
-
-  /* const auto skinOffset = */ reader.readSize<int32_t>();
-  /* const auto uvCoordOffset =*/reader.readSize<int32_t>();
-  /* const auto triangleOffset =*/reader.readSize<int32_t>();
-  const auto frameOffset = reader.readSize<int32_t>();
-  const auto commandOffset = reader.readSize<int32_t>();
-  /* const auto surfaceOffset =*/reader.readSize<int32_t>();
-
-  const auto frame = parseFrame(
-    reader.subReaderFromBegin(frameOffset + frameIndex * frameSize, frameSize),
-    frameIndex,
-    vertexCount,
-    version);
   const auto meshes =
     parseMeshes(reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
 
-  auto& surface = model.surface(0);
-  buildFrame(model, surface, frameIndex, frame, meshes);
+  for (size_t i = 0; i < frameCount; ++i)
+  {
+    const auto frame = parseFrame(
+      reader.subReaderFromBegin(frameOffset + i * frameSize, frameSize),
+      i,
+      vertexCount,
+      version);
+
+    buildFrame(*model, surface, i, frame, meshes);
+  }
+
+  return model;
 }
 
 } // namespace TrenchBroom::IO
