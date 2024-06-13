@@ -188,7 +188,7 @@ std::unique_ptr<EntityModel> EntityModelManager::loadModel(
   const std::filesystem::path& path) const
 {
   ensure(m_loader != nullptr, "loader is null");
-  return m_loader->initializeModel(path, m_logger);
+  return m_loader->loadModel(path, m_logger);
 }
 
 void EntityModelManager::prepare(Renderer::VboManager& vboManager)

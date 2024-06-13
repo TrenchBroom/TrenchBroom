@@ -51,7 +51,7 @@ TEST_CASE("BSP model intersection test")
 
   const auto path = std::filesystem::path{"cube.bsp"};
 
-  std::unique_ptr<Assets::EntityModel> model = game->initializeModel(path, logger);
+  std::unique_ptr<Assets::EntityModel> model = game->loadModel(path, logger);
 
   Assets::EntityModelFrame* frame = model->frames().at(0);
 

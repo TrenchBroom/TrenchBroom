@@ -243,7 +243,7 @@ Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> TestGame::
     std::vector<std::unique_ptr<Assets::EntityDefinition>>{}};
 }
 
-std::unique_ptr<Assets::EntityModel> TestGame::initializeModel(
+std::unique_ptr<Assets::EntityModel> TestGame::loadModel(
   const std::filesystem::path& /* path */, Logger& /* logger */) const
 {
   return nullptr;

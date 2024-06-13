@@ -40,7 +40,7 @@ class EntityModelLoader
 public:
   virtual ~EntityModelLoader();
 
-  virtual std::unique_ptr<Assets::EntityModel> initializeModel(
+  virtual std::unique_ptr<Assets::EntityModel> loadModel(
     const std::filesystem::path& path, Logger& logger) const = 0;
 };
 

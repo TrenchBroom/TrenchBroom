@@ -119,7 +119,7 @@ public:
   Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> loadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
 
-  std::unique_ptr<Assets::EntityModel> initializeModel(
+  std::unique_ptr<Assets::EntityModel> loadModel(
     const std::filesystem::path& path, Logger& logger) const override;
 
   void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
