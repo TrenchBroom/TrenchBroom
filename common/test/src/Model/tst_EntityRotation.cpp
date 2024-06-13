@@ -83,9 +83,9 @@ TEST_CASE("entityRotationInfo")
   auto manglePropertyDef =
     std::make_shared<StringPropertyDefinition>("mangle", "", "", false);
   auto normalPitch =
-    EntityModelLoadedFrame{0, "", {}, PitchType::Normal, Orientation::Oriented};
+    EntityModelFrame{0, "", {}, PitchType::Normal, Orientation::Oriented};
   auto invertedPitch =
-    EntityModelLoadedFrame{0, "", {}, PitchType::MdlInverted, Orientation::Oriented};
+    EntityModelFrame{0, "", {}, PitchType::MdlInverted, Orientation::Oriented};
 
   using T = std::tuple<
     std::vector<EntityProperty>,

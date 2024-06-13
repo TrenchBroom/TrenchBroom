@@ -368,7 +368,6 @@ auto getVertices(const Md2Frame& frame, const std::vector<Md2MeshVertex>& meshVe
 void buildFrame(
   Assets::EntityModel& model,
   Assets::EntityModelSurface& surface,
-  const size_t frameIndex,
   const Md2Frame& frame,
   const std::vector<Md2Mesh>& meshes)
 {
@@ -405,7 +404,7 @@ void buildFrame(
     }
   }
 
-  auto& modelFrame = model.loadFrame(frameIndex, frame.name, bounds.bounds());
+  auto& modelFrame = model.addFrame(frame.name, bounds.bounds());
   surface.addMesh(
     modelFrame, std::move(builder.vertices()), std::move(builder.indices()));
 }
@@ -477,12 +476,8 @@ Result<Assets::EntityModel> Md2Parser::initializeModel(Logger& logger)
 
     auto model = Assets::EntityModel{
       m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
-    for (size_t i = 0; i < frameCount; ++i)
-    {
-      model.addFrame();
-    }
 
-    auto& surface = model.addSurface(m_name);
+    auto& surface = model.addSurface(m_name, frameCount);
     loadSkins(surface, skins, m_palette, m_fs, logger);
 
     const auto frameSize =
@@ -497,7 +492,7 @@ Result<Assets::EntityModel> Md2Parser::initializeModel(Logger& logger)
         i,
         vertexCount);
 
-      buildFrame(model, surface, i, frame, meshes);
+      buildFrame(model, surface, frame, meshes);
     }
 
     return model;

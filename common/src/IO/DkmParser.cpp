@@ -449,7 +449,6 @@ auto getVertices(const DkmFrame& frame, const std::vector<DkmMeshVertex>& meshVe
 void buildFrame(
   Assets::EntityModel& model,
   Assets::EntityModelSurface& surface,
-  const size_t frameIndex,
   const DkmFrame& frame,
   const std::vector<DkmMesh>& meshes)
 {
@@ -485,7 +484,7 @@ void buildFrame(
     }
   }
 
-  auto& modelFrame = model.loadFrame(frameIndex, frame.name, bounds.bounds());
+  auto& modelFrame = model.addFrame(frame.name, bounds.bounds());
   surface.addMesh(
     modelFrame, std::move(builder.vertices()), std::move(builder.indices()));
 }
@@ -556,12 +555,8 @@ Result<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
 
     auto model = Assets::EntityModel{
       m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
-    for (size_t i = 0; i < frameCount; ++i)
-    {
-      model.addFrame();
-    }
 
-    auto& surface = model.addSurface(m_name);
+    auto& surface = model.addSurface(m_name, frameCount);
     return loadSkins(surface, skins, m_fs, logger).transform([&]() {
       const auto meshes = parseMeshes(
         reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
@@ -574,7 +569,7 @@ Result<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
           vertexCount,
           version);
 
-        buildFrame(model, surface, i, frame, meshes);
+        buildFrame(model, surface, frame, meshes);
       }
 
       return std::move(model);

@@ -750,7 +750,7 @@ Result<void> loadSceneFrame(
 
   // we've processed the model, now we can create the frame and bind the meshes to it
   const auto frameBounds = bounds.bounds();
-  auto& frame = model.loadFrame(frameIndex, name, frameBounds);
+  auto& frame = model.addFrame(name, frameBounds);
 
   for (const auto& data : meshData)
   {
@@ -821,10 +821,6 @@ Result<Assets::EntityModel> AssimpParser::initializeModel(TrenchBroom::Logger& l
     // create a frame for each animation in the scene
     // if we have no animations, always load 1 frame for the reference model
     const auto numSequences = std::max(scene->mNumAnimations, 1u);
-    for (size_t i = 0; i < numSequences; ++i)
-    {
-      model.addFrame();
-    }
 
     // create a surface for each mesh in the scene and assign the skins/materials to it
     const auto numMeshes = scene->mNumMeshes;
@@ -832,7 +828,7 @@ Result<Assets::EntityModel> AssimpParser::initializeModel(TrenchBroom::Logger& l
     {
       const auto& mesh = scene->mMeshes[i];
 
-      auto& surface = model.addSurface(scene->mMeshes[i]->mName.data);
+      auto& surface = model.addSurface(scene->mMeshes[i]->mName.data, numSequences);
 
       // an assimp mesh will only ever have one material, but a material can have multiple
       // alternatives (this is how assimp handles skins)

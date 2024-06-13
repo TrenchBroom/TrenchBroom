@@ -57,8 +57,8 @@ TEST_CASE("MdlParserTest.loadValidMdl")
   CHECK(model.value().surfaceCount() == 1u);
   CHECK(model.value().frameCount() == 1u);
 
-  const auto surfaces = model.value().surfaces();
-  const auto& surface = *surfaces.front();
+  const auto& surfaces = model.value().surfaces();
+  const auto& surface = surfaces.front();
   CHECK(surface.skinCount() == 3u);
   CHECK(surface.frameCount() == 1u);
 }

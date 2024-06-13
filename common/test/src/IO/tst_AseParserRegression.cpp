@@ -61,8 +61,6 @@ TEST_CASE("AseParserTest.parseFailure_2657")
 
   auto model = parser.initializeModel(logger);
   CHECK(model.is_success());
-
-  CHECK(model.value().frame(0)->loaded());
 }
 
 TEST_CASE("AseParserTest.parseFailure_2679")
@@ -92,8 +90,6 @@ TEST_CASE("AseParserTest.parseFailure_2679")
 
   auto model = parser.initializeModel(logger);
   CHECK(model.is_success());
-
-  CHECK(model.value().frame(0)->loaded());
 }
 
 TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
@@ -123,8 +119,6 @@ TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
 
   auto model = parser.initializeModel(logger);
   CHECK(model.is_success());
-
-  CHECK(model.value().frame(0)->loaded());
 }
 
 TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
@@ -154,8 +148,6 @@ TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
 
   auto model = parser.initializeModel(logger);
   CHECK(model.is_success());
-
-  CHECK(model.value().frame(0)->loaded());
 }
 } // namespace IO
 } // namespace TrenchBroom

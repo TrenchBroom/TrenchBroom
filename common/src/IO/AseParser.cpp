@@ -671,8 +671,7 @@ Result<Assets::EntityModel> AseParser::buildModel(
 
   auto model =
     Assets::EntityModel{m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
-  model.addFrame();
-  auto& surface = model.addSurface(m_name);
+  auto& surface = model.addSurface(m_name, 1);
 
   // Load the materials
   auto materials = std::vector<Assets::Material>{};
@@ -708,7 +707,7 @@ Result<Assets::EntityModel> AseParser::buildModel(
     totalVertexCount += vertexCount;
   }
 
-  auto& frame = model.loadFrame(0, m_name, bounds.bounds());
+  auto& frame = model.addFrame(m_name, bounds.bounds());
 
   // Collect vertex data
   auto builder =

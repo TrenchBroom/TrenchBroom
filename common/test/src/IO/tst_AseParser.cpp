@@ -65,8 +65,6 @@ TEST_CASE("AseParserTest.loadWithoutException")
 
   auto model = parser.initializeModel(logger);
   CHECK(model.is_success());
-
-  CHECK(model.value().frame(0)->loaded());
 }
 
 TEST_CASE("AseParserTest.fallbackToMaterialName")
@@ -96,8 +94,6 @@ TEST_CASE("AseParserTest.fallbackToMaterialName")
 
   auto model = parser.initializeModel(logger);
   CHECK(model.is_success());
-
-  CHECK(model.value().frame(0)->loaded());
 
   // account for the default material
   CHECK(model.value().surface(0).skinCount() == 2u);
@@ -131,8 +127,6 @@ TEST_CASE("AseParserTest.loadDefaultMaterial")
 
   auto model = parser.initializeModel(logger);
   CHECK(model.is_success());
-
-  CHECK(model.value().frame(0)->loaded());
 
   // account for the default texture
   CHECK(model.value().surface(0).skinCount() == 2u);

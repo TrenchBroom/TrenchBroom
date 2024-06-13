@@ -54,10 +54,10 @@ TEST_CASE("BSP model intersection test")
   auto model = IO::loadEntityModel(
     game->gameFileSystem(), game->config().materialConfig, path, logger);
 
-  auto* frame = model.value().frames().at(0);
+  auto& frame = model.value().frames().at(0);
 
   const auto box = vm::bbox3f(vm::vec3f::fill(-32), vm::vec3f::fill(32));
-  CHECK(box == frame->bounds());
+  CHECK(box == frame.bounds());
 
   // test some hitting rays
   for (int x = -45; x <= 45; x += 15)
@@ -75,7 +75,7 @@ TEST_CASE("BSP model intersection test")
         const auto endPoint = vm::vec3f::zero();
         const auto ray = vm::ray3f(startPoint, vm::normalize(endPoint - startPoint));
 
-        const auto treeDist = frame->intersect(ray);
+        const auto treeDist = frame.intersect(ray);
         const auto expected = vm::intersect_ray_bbox(ray, box);
 
         CHECK(expected == vm::optional_approx(treeDist));
@@ -85,7 +85,7 @@ TEST_CASE("BSP model intersection test")
 
   // test a missing ray
   const auto missRay = vm::ray3f(vm::vec3f(0, -33, -33), vm::vec3f::pos_y());
-  CHECK(frame->intersect(missRay) == std::nullopt);
+  CHECK(frame.intersect(missRay) == std::nullopt);
   CHECK(vm::intersect_ray_bbox(missRay, box) == std::nullopt);
 }
 
@@ -114,11 +114,10 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   // present for the surface.
 
   auto model = EntityModel{"test", PitchType::Normal, Orientation::Oriented};
-  model.addFrame();
-  auto& frame = model.loadFrame(0, "test", vm::bbox3f{0, 8});
+  auto& frame = model.addFrame("test", vm::bbox3f{0, 8});
 
   // Prepare the first surface - it will only have one skin
-  auto& surface1 = model.addSurface("surface 1");
+  auto& surface1 = model.addSurface("surface 1", 1);
 
   auto materials1 = std::vector<Material>{};
   materials1.push_back(makeDummyMaterial("skin1"));
@@ -128,7 +127,7 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   surface1.addMesh(frame, builder1.vertices(), builder1.indices());
 
   // The second surface will have two skins
-  auto& surface2 = model.addSurface("surface 2");
+  auto& surface2 = model.addSurface("surface 2", 1);
 
   auto materials2 = std::vector<Material>{};
   materials2.push_back(makeDummyMaterial("skin2a"));

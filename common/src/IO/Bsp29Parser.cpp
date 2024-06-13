@@ -269,8 +269,8 @@ void parseFrame(
     }
   }
 
-  const auto frameName = fmt::format("{}_{}", model.name(), frameIndex);
-  auto& frame = model.loadFrame(frameIndex, frameName, bounds.bounds());
+  auto frameName = fmt::format("{}_{}", model.name(), frameIndex);
+  auto& frame = model.addFrame(std::move(frameName), bounds.bounds());
   surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 
@@ -343,15 +343,10 @@ Result<Assets::EntityModel> Bsp29Parser::initializeModel(Logger& logger)
     auto model = Assets::EntityModel{
       m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
 
-    for (size_t i = 0; i < frameCount; ++i)
-    {
-      model.addFrame();
-    }
-
     auto materials =
       parseMaterials(reader.subReaderFromBegin(materialsOffset), m_palette, m_fs, logger);
 
-    auto& surface = model.addSurface(m_name);
+    auto& surface = model.addSurface(m_name, frameCount);
     surface.setSkins(std::move(materials));
 
     const auto materialInfos = parseMaterialInfos(

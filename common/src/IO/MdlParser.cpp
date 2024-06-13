@@ -305,7 +305,6 @@ auto makeFrameTriangles(
 void doParseFrame(
   Reader reader,
   Assets::EntityModel& model,
-  size_t frameIndex,
   Assets::EntityModelSurface& surface,
   const std::vector<MdlSkinTriangle>& triangles,
   const std::vector<MdlSkinVertex>& vertices,
@@ -315,7 +314,7 @@ void doParseFrame(
   const vm::vec3f& scale)
 {
   reader.seekForward(MdlLayout::SimpleFrameName);
-  const auto name = reader.readString(MdlLayout::SimpleFrameLength);
+  auto name = reader.readString(MdlLayout::SimpleFrameLength);
 
   const auto positions = parseFrameVertices(reader, vertices, origin, scale);
 
@@ -332,14 +331,13 @@ void doParseFrame(
     frameTriangles.size() * 3, size};
   builder.addTriangles(frameTriangles);
 
-  auto& frame = model.loadFrame(frameIndex, name, bounds.bounds());
+  auto& frame = model.addFrame(std::move(name), bounds.bounds());
   surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 
 void parseFrame(
   Reader& reader,
   Assets::EntityModel& model,
-  size_t frameIndex,
   Assets::EntityModelSurface& surface,
   const std::vector<MdlSkinTriangle>& triangles,
   const std::vector<MdlSkinVertex>& vertices,
@@ -357,7 +355,6 @@ void parseFrame(
     doParseFrame(
       reader.subReaderFromCurrent(frameLength),
       model,
-      frameIndex,
       surface,
       triangles,
       vertices,
@@ -377,7 +374,6 @@ void parseFrame(
     doParseFrame(
       reader.subReaderFromCurrent(frameTimeLength, frameLength),
       model,
-      frameIndex,
       surface,
       triangles,
       vertices,
@@ -556,12 +552,7 @@ Result<Assets::EntityModel> MdlParser::initializeModel(Logger& /* logger */)
 
     auto model = Assets::EntityModel{
       m_name, Assets::PitchType::MdlInverted, Assets::Orientation::Oriented};
-    for (size_t i = 0; i < frameCount; ++i)
-    {
-      model.addFrame();
-    }
-
-    auto& surface = model.addSurface(m_name);
+    auto& surface = model.addSurface(m_name, frameCount);
 
     reader.seekFromBegin(MdlLayout::Skins);
     parseSkins(
@@ -575,7 +566,6 @@ Result<Assets::EntityModel> MdlParser::initializeModel(Logger& /* logger */)
       parseFrame(
         reader,
         model,
-        i,
         surface,
         triangles,
         vertices,

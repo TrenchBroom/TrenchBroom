@@ -293,13 +293,7 @@ Result<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)
           .transform([&](auto palette) {
             auto model =
               Assets::EntityModel{m_name, Assets::PitchType::Normal, orientationType};
-            for (size_t i = 0; i < frameCount; ++i)
-            {
-              auto& frame = model.addFrame();
-              frame.setSkinOffset(i);
-            }
-
-            auto& surface = model.addSurface(m_name);
+            auto& surface = model.addSurface(m_name, frameCount);
 
             auto materials = std::vector<Assets::Material>{};
             materials.reserve(frameCount);
@@ -320,8 +314,8 @@ Result<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)
                 vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
               const auto bboxMax =
                 vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
-              auto& modelFrame =
-                model.loadFrame(i, std::to_string(i), {bboxMin, bboxMax});
+              auto& modelFrame = model.addFrame(std::to_string(i), {bboxMin, bboxMax});
+              modelFrame.setSkinOffset(i);
 
               const auto triangles = std::vector<Assets::EntityModelVertex>{
                 Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},

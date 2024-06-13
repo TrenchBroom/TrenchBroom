@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Assets/EntityModel_Forward.h"
+#include "octree.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -89,9 +90,26 @@ class EntityModelFrame
 {
 private:
   size_t m_index;
-  size_t m_skinOffset;
+  std::string m_name;
+  vm::bbox3f m_bounds;
+  PitchType m_pitchType;
+  Orientation m_orientation;
+  size_t m_skinOffset = 0;
 
-  kdl_reflect_decl(EntityModelFrame, m_index, m_skinOffset);
+  // For hit testing
+  std::vector<vm::vec3f> m_tris;
+  using TriNum = size_t;
+  using SpacialTree = octree<float, TriNum>;
+  SpacialTree m_spacialTree;
+
+  kdl_reflect_decl(
+    EntityModelFrame,
+    m_index,
+    m_name,
+    m_bounds,
+    m_pitchType,
+    m_orientation,
+    m_skinOffset);
 
 public:
   /**
@@ -99,16 +117,12 @@ public:
    *
    * @param index the index of this frame
    */
-  explicit EntityModelFrame(size_t index);
-
-  virtual ~EntityModelFrame();
-
-  /**
-   * Indicates whether this frame is already loaded.
-   *
-   * @return true if this frame is loaded and false otherwise
-   */
-  virtual bool loaded() const = 0;
+  explicit EntityModelFrame(
+    size_t index,
+    std::string name,
+    const vm::bbox3f& bounds,
+    PitchType pitchType,
+    Orientation orientation);
 
   /**
    * Returns the index of this frame.
@@ -132,26 +146,26 @@ public:
    *
    * @return the name
    */
-  virtual const std::string& name() const = 0;
+  const std::string& name() const;
 
   /**
    * Returns this frame's bounding box.
    *
    * @return the bounding box
    */
-  virtual const vm::bbox3f& bounds() const = 0;
+  const vm::bbox3f& bounds() const;
 
   /**
    * Returns this frame's pitch type. The pitch type controls how a rotational
    * transformation matrix can be computed from an entity that uses this model frame.
    */
-  virtual PitchType pitchType() const = 0;
+  PitchType pitchType() const;
 
   /**
    * Returns this frame's orientation. The orientation controls how the frame is oriented
    * in space depending on the camera position.
    */
-  virtual Orientation orientation() const = 0;
+  Orientation orientation() const;
 
   /**
    * Intersects this frame with the given ray and returns the point of intersection.
@@ -160,53 +174,7 @@ public:
    * @return the distance to the point of intersection or nullopt if the given ray does
    * not intersect this frame
    */
-  virtual std::optional<float> intersect(const vm::ray3f& ray) const = 0;
-};
-
-/**
- * A frame of the model in its loaded state.
- */
-class EntityModelLoadedFrame : public EntityModelFrame
-{
-private:
-  std::string m_name;
-  vm::bbox3f m_bounds;
-  PitchType m_pitchType;
-  Orientation m_orientation;
-
-  // For hit testing
-  std::vector<vm::vec3f> m_tris;
-  using TriNum = size_t;
-  using SpacialTree = octree<float, TriNum>;
-  std::unique_ptr<SpacialTree> m_spacialTree;
-
-  kdl_reflect_decl(EntityModelLoadedFrame, m_name, m_bounds, m_pitchType, m_orientation);
-
-public:
-  /**
-   * Creates a new frame.
-   *
-   * @param index the index of this frame
-   * @param name the frame name
-   * @param bounds the bounding box of the frame
-   * @param pitchType the pitch type
-   * @param orientation the orientation
-   */
-  EntityModelLoadedFrame(
-    size_t index,
-    std::string name,
-    const vm::bbox3f& bounds,
-    PitchType pitchType,
-    Orientation orientation);
-
-  ~EntityModelLoadedFrame() override;
-
-  bool loaded() const override;
-  const std::string& name() const override;
-  const vm::bbox3f& bounds() const override;
-  PitchType pitchType() const override;
-  Orientation orientation() const override;
-  std::optional<float> intersect(const vm::ray3f& ray) const override;
+  std::optional<float> intersect(const vm::ray3f& ray) const;
 
   /**
    * Adds the given primitives to the spacial tree for this frame.
@@ -250,7 +218,9 @@ public:
    * @param name the surface's name
    * @param frameCount the number of frames
    */
-  explicit EntityModelSurface(std::string name, size_t frameCount);
+  EntityModelSurface(std::string name, size_t frameCount);
+
+  moveOnly(EntityModelSurface);
 
   ~EntityModelSurface();
 
@@ -286,7 +256,7 @@ public:
    * @param indices the vertex indices
    */
   void addMesh(
-    EntityModelLoadedFrame& frame,
+    EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
     Renderer::IndexRangeMap indices);
 
@@ -298,7 +268,7 @@ public:
    * @param indices the per material vertex indices
    */
   void addMesh(
-    EntityModelLoadedFrame& frame,
+    EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
     Renderer::MaterialIndexRangeMap indices);
 
@@ -354,8 +324,8 @@ class EntityModel
 {
 private:
   std::string m_name;
-  std::vector<std::unique_ptr<EntityModelFrame>> m_frames;
-  std::vector<std::unique_ptr<EntityModelSurface>> m_surfaces;
+  std::vector<EntityModelFrame> m_frames;
+  std::vector<EntityModelSurface> m_surfaces;
   PitchType m_pitchType;
   Orientation m_orientation;
   bool m_prepared = false;
@@ -387,7 +357,7 @@ public:
    * @return the renderer
    */
   std::unique_ptr<Renderer::MaterialRenderer> buildRenderer(
-    size_t skinIndex, size_t frameIndex) const;
+    size_t skinIndex, size_t frameIndex);
 
   /**
    * Returns the bounds of the given frame of this model.
@@ -421,30 +391,22 @@ public:
   void setFilterMode(int minFilter, int magFilter);
 
   /**
-   * Add a frame to this model.
-   */
-  EntityModelFrame& addFrame();
-
-  /**
    * Adds a frame with the given name and bounds.
    *
-   * @param frameIndex the frame's index
    * @param name the frame name
    * @param bounds the frame bounds
    * @return the newly added frame
-   *
-   * @throws AssetException if the given frame index is out of bounds
    */
-  EntityModelLoadedFrame& loadFrame(
-    size_t frameIndex, std::string name, const vm::bbox3f& bounds);
+  EntityModelFrame& addFrame(std::string name, const vm::bbox3f& bounds);
 
   /**
    * Adds a surface with the given name.
    *
    * @param name the surface name
+   * @param frameCount the number of frames
    * @return the newly added surface
    */
-  EntityModelSurface& addSurface(std::string name);
+  EntityModelSurface& addSurface(std::string name, size_t frameCount);
 
   /**
    * Returns the number of frames of this model.
@@ -465,21 +427,21 @@ public:
    *
    * @return the frames
    */
-  std::vector<const EntityModelFrame*> frames() const;
+  const std::vector<EntityModelFrame>& frames() const;
 
   /**
    * Returns all frames of this model.
    *
    * @return the frames
    */
-  std::vector<EntityModelFrame*> frames();
+  std::vector<EntityModelFrame>& frames();
 
   /**
    * Returns all surfaces of this model.
    *
    * @return the surfaces
    */
-  std::vector<const EntityModelSurface*> surfaces() const;
+  const std::vector<EntityModelSurface>& surfaces() const;
 
   /**
    * Returns the frame with the given name.

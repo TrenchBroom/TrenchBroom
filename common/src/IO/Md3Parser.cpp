@@ -106,6 +106,7 @@ void loadSurfaceMaterials(
 Result<void> parseSurfaces(
   Reader reader,
   const size_t surfaceCount,
+  const size_t frameCount,
   Assets::EntityModel& model,
   const FileSystem& fs,
   Logger& logger)
@@ -136,7 +137,7 @@ Result<void> parseSurfaces(
       reader.subReaderFromBegin(shaderOffset, shaderCount * Md3Layout::ShaderLength),
       shaderCount);
 
-    auto& surface = model.addSurface(surfaceName);
+    auto& surface = model.addSurface(surfaceName, frameCount);
     loadSurfaceMaterials(surface, shaders, fs, logger);
 
     reader = reader.subReaderFromBegin(endOffset);
@@ -145,7 +146,7 @@ Result<void> parseSurfaces(
   return Result<void>{};
 }
 
-auto& parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& model)
+auto& parseFrame(Reader reader, Assets::EntityModel& model)
 {
   const auto minBounds = reader.readVec<float, 3>();
   const auto maxBounds = reader.readVec<float, 3>();
@@ -153,7 +154,7 @@ auto& parseFrame(Reader reader, const size_t frameIndex, Assets::EntityModel& mo
   /* const auto radius = */ reader.readFloat<float>();
   const auto frameName = reader.readString(Md3Layout::FrameNameLength);
 
-  return model.loadFrame(frameIndex, frameName, vm::bbox3f{minBounds, maxBounds});
+  return model.addFrame(frameName, vm::bbox3f{minBounds, maxBounds});
 }
 
 auto parseVertexPositions(Reader reader, const size_t vertexCount)
@@ -223,7 +224,7 @@ auto parseTriangles(Reader reader, const size_t triangleCount)
 }
 
 void buildFrameSurface(
-  Assets::EntityModelLoadedFrame& frame,
+  Assets::EntityModelFrame& frame,
   Assets::EntityModelSurface& surface,
   const std::vector<Md3Triangle>& triangles,
   const std::vector<Assets::EntityModelVertex>& vertices)
@@ -257,7 +258,7 @@ void buildFrameSurface(
 }
 
 Result<void> parseFrameSurfaces(
-  Reader reader, Assets::EntityModelLoadedFrame& frame, Assets::EntityModel& model)
+  Reader reader, Assets::EntityModelFrame& frame, Assets::EntityModel& model)
 {
   for (size_t i = 0; i < model.surfaceCount(); ++i)
   {
@@ -363,27 +364,28 @@ Result<Assets::EntityModel> Md3Parser::initializeModel(Logger& logger)
 
     auto model = Assets::EntityModel{
       m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
-    for (size_t i = 0; i < frameCount; ++i)
-    {
-      model.addFrame();
-    }
 
     return parseSurfaces(
-             reader.subReaderFromBegin(surfaceOffset), surfaceCount, model, m_fs, logger)
-      .and_then([&]() {
-        return kdl::vec_transform(
-                 std::views::iota(0u, frameCount),
-                 [&](const auto i) {
-                   auto& frame = parseFrame(
-                     reader.subReaderFromBegin(
-                       frameOffset + i * Md3Layout::FrameLength, Md3Layout::FrameLength),
-                     i,
-                     model);
-                   return parseFrameSurfaces(
-                     reader.subReaderFromBegin(surfaceOffset), frame, model);
-                 })
-               | kdl::fold() | kdl::transform([&]() { return std::move(model); });
-      });
+             reader.subReaderFromBegin(surfaceOffset),
+             surfaceCount,
+             frameCount,
+             model,
+             m_fs,
+             logger)
+           | kdl::and_then([&]() {
+               return kdl::vec_transform(
+                        std::views::iota(0u, frameCount),
+                        [&](const auto i) {
+                          auto& frame = parseFrame(
+                            reader.subReaderFromBegin(
+                              frameOffset + i * Md3Layout::FrameLength,
+                              Md3Layout::FrameLength),
+                            model);
+                          return parseFrameSurfaces(
+                            reader.subReaderFromBegin(surfaceOffset), frame, model);
+                        })
+                      | kdl::fold() | kdl::transform([&]() { return std::move(model); });
+             });
   }
   catch (const ReaderException& e)
   {

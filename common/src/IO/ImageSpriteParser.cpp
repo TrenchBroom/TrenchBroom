@@ -76,7 +76,7 @@ void createFrame(Assets::EntityModel& model)
 
     const auto bboxMin = vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
     const auto bboxMax = vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
-    auto& frame = model.loadFrame(0, model.name(), {bboxMin, bboxMax});
+    auto& frame = model.addFrame(model.name(), {bboxMin, bboxMax});
 
     const auto triangles = std::vector<Assets::EntityModelVertex>{
       Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
@@ -124,9 +124,8 @@ Result<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& logger)
                  m_name,
                  Assets::PitchType::Normal,
                  Assets::Orientation::ViewPlaneParallel};
-               model.addFrame();
 
-               auto& surface = model.addSurface(m_name);
+               auto& surface = model.addSurface(m_name, 1);
                surface.setSkins(kdl::vec_from(std::move(material)));
 
                createFrame(model);
