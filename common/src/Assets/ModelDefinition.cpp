@@ -35,28 +35,8 @@
 
 #include <ostream>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-ModelSpecification::ModelSpecification()
-  : path{""}
-  , skinIndex{0}
-  , frameIndex{0}
-{
-}
-
-ModelSpecification::ModelSpecification(
-  const std::filesystem::path& i_path,
-  const size_t i_skinIndex,
-  const size_t i_frameIndex)
-  : path{i_path}
-  , skinIndex{i_skinIndex}
-  , frameIndex{i_frameIndex}
-{
-}
-
-kdl_reflect_impl(ModelSpecification);
 
 ModelDefinition::ModelDefinition()
   : m_expression{EL::LiteralExpression{EL::Value::Undefined}, 0, 0}
@@ -239,5 +219,5 @@ vm::vec3 safeGetModelScale(
     return vm::vec3{1, 1, 1};
   }
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

@@ -24,17 +24,15 @@
 #include <filesystem>
 #include <optional>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
 {
   TestLogger logger;
 
-  const auto expected = ModelSpecification("test/test", 1, 2);
+  const auto expected = ModelSpecification{"test/test", 1, 2};
   std::optional<ModelSpecification> actual;
 
   // regular execution is fine
@@ -69,5 +67,4 @@ TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
     CHECK(*actual == ModelSpecification());
   }
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets
