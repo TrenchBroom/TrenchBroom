@@ -22,6 +22,7 @@
 #include "Result.h"
 
 #include <filesystem>
+#include <functional>
 
 namespace TrenchBroom
 {
@@ -31,7 +32,8 @@ class Logger;
 namespace TrenchBroom::Assets
 {
 class EntityModel;
-}
+class Material;
+} // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::Model
 {
@@ -42,10 +44,13 @@ namespace TrenchBroom::IO
 {
 class FileSystem;
 
+using LoadMaterialFunc = std::function<Assets::Material(const std::filesystem::path&)>;
+
 Result<Assets::EntityModel> loadEntityModel(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
+  const LoadMaterialFunc& loadMaterial,
   Logger& logger);
 
 } // namespace TrenchBroom::IO

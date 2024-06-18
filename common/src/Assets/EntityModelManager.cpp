@@ -20,21 +20,25 @@
 #include "EntityModelManager.h"
 
 #include "Assets/EntityModel.h"
+#include "Assets/Material.h"
 #include "Assets/ModelDefinition.h"
+#include "Assets/Palette.h"
+#include "Assets/Quake3Shader.h"
+#include "Assets/Resource.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "IO/LoadEntityModel.h"
+#include "IO/LoadMaterialCollections.h"
+#include "IO/LoadShaders.h"
+#include "IO/MaterialUtils.h"
 #include "Logger.h"
 #include "Macros.h"
-#include "Model/EntityNode.h"
 #include "Model/Game.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 
 #include "kdl/result.h"
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 EntityModelManager::EntityModelManager(
   const int magFilter, const int minFilter, Logger& logger)
@@ -62,6 +66,20 @@ void EntityModelManager::clear()
   // Remove logging because it might fail when the document is already destroyed.
 }
 
+void EntityModelManager::reloadShaders()
+{
+  m_shaders.clear();
+  if (m_game)
+  {
+    m_shaders =
+      IO::loadShaders(m_game->gameFileSystem(), m_game->config().materialConfig, m_logger)
+      | kdl::if_error(
+        [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
+      | kdl::value_or(std::vector<Quake3Shader>{});
+  }
+}
+
+
 void EntityModelManager::setFilterMode(const int minFilter, const int magFilter)
 {
   m_minFilter = minFilter;
@@ -73,6 +91,7 @@ void EntityModelManager::setGame(const Model::Game* game)
 {
   clear();
   m_game = game;
+  reloadShaders();
 }
 
 Renderer::MaterialRenderer* EntityModelManager::renderer(
@@ -185,13 +204,26 @@ EntityModel* EntityModelManager::safeGetModel(const std::filesystem::path& path)
   }
 }
 
-Result<EntityModel> EntityModelManager::loadModel(const std::filesystem::path& path) const
+Result<EntityModel> EntityModelManager::loadModel(
+  const std::filesystem::path& modelPath) const
 {
   if (m_game)
   {
     const auto& fs = m_game->gameFileSystem();
     const auto& materialConfig = m_game->config().materialConfig;
-    return IO::loadEntityModel(fs, materialConfig, path, m_logger);
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, m_shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, m_logger))
+             | kdl::value();
+    };
+
+    return IO::loadEntityModel(fs, materialConfig, modelPath, loadMaterial, m_logger);
   }
   return Error{"Game is not set"};
 }
@@ -232,5 +264,4 @@ void EntityModelManager::prepareRenderers(Renderer::VboManager& vboManager)
   }
   m_unpreparedRenderers.clear();
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

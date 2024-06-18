@@ -38,9 +38,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct MapFormatConfig
 {
@@ -173,5 +171,4 @@ struct GameConfig
   std::filesystem::path findInitialMap(const std::string& formatName) const;
   std::filesystem::path findConfigFile(const std::filesystem::path& filePath) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

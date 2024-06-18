@@ -21,11 +21,9 @@
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
-#include "IO/DiskIO.h"
-#include "IO/GameConfigParser.h"
 #include "IO/LoadEntityModel.h"
+#include "Model/Game.h"
 #include "Model/GameConfig.h"
-#include "Model/GameImpl.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 #include "TestLogger.h"
@@ -38,11 +36,9 @@
 
 #include <filesystem>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 TEST_CASE("BSP model intersection test")
 {
@@ -50,9 +46,12 @@ TEST_CASE("BSP model intersection test")
   auto [game, gameConfig] = Model::loadGame("Quake");
 
   const auto path = std::filesystem::path{"cube.bsp"};
+  const auto loadMaterial = [](auto) -> Assets::Material {
+    throw std::runtime_error{"should not be called"};
+  };
 
   auto model = IO::loadEntityModel(
-    game->gameFileSystem(), game->config().materialConfig, path, logger);
+    game->gameFileSystem(), game->config().materialConfig, path, loadMaterial, logger);
 
   auto& frame = model.value().frames().at(0);
 
@@ -147,5 +146,4 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   CHECK(renderer1 != nullptr);
   CHECK(renderer2 != nullptr);
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

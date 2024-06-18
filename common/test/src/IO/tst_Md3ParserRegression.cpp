@@ -18,52 +18,65 @@
  */
 
 #include "Assets/EntityModel.h"
+#include "Assets/Palette.h"
+#include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/LoadMaterialCollections.h"
+#include "IO/LoadShaders.h"
+#include "IO/MaterialUtils.h"
 #include "IO/Md3Parser.h"
-#include "IO/Quake3ShaderFileSystem.h"
 #include "IO/Reader.h"
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
-
-#include "vm/bbox.h"
-#include "vm/forward.h"
-#include "vm/vec.h"
+#include "Model/GameConfig.h"
 
 #include <cstdio>
 #include <filesystem>
 #include <memory>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 TEST_CASE("Md3ParserTest.loadFailure_2659")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2659
 
-  NullLogger logger;
-  const auto shaderSearchPath = "scripts";
-  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
+  auto logger = NullLogger{};
+
+  const auto materialConfig = Model::MaterialConfig{
+    {},
+    {".tga", ".png", ".jpg", ".jpeg"},
+    {},
+    {},
+    "scripts",
+    {},
+  };
+
   auto fs = VirtualFileSystem{};
   fs.mount(
     "",
     std::make_unique<DiskFileSystem>(
       std::filesystem::current_path() / "fixture/test/IO/Md3/armor"));
-  fs.mount(
-    "",
-    createImageFileSystem<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger)
-      | kdl::value());
+
+  const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+
+  const auto createResource = [](auto resourceLoader) {
+    return createResourceSync(std::move(resourceLoader));
+  };
+
+  const auto loadMaterial = [&](const auto& materialPath) {
+    return IO::loadMaterial(
+             fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+           | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+  };
 
   const auto md3Path = "models/armor_red.md3";
   const auto md3File = fs.openFile(md3Path) | kdl::value();
 
   auto reader = md3File->reader().buffer();
-  auto parser = Md3Parser{"armor_red", reader, fs};
+  auto parser = Md3Parser{"armor_red", reader, loadMaterial};
   auto model = parser.initializeModel(logger);
 
   CHECK(model.is_success());
@@ -71,5 +84,4 @@ TEST_CASE("Md3ParserTest.loadFailure_2659")
   CHECK(model.value().frameCount() == 30u);
   CHECK(model.value().surfaceCount() == 2u);
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

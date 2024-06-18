@@ -24,13 +24,11 @@
 #include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
-#include "IO/ResourceUtils.h"
-#include "IO/SkinLoader.h"
 #include "Logger.h"
-#include "Renderer/IndexRangeMapBuilder.h"
+#include "Renderer/IndexRangeMapBuilder.h" // IWYU pragma: keep
 #include "Renderer/PrimType.h"
 
-#include "kdl/path_utils.h"
+#include "kdl/range_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/string_format.h"
@@ -89,18 +87,10 @@ auto parseShaders(Reader reader, const size_t shaderCount)
 void loadSurfaceMaterials(
   Assets::EntityModelSurface& surface,
   const std::vector<std::filesystem::path>& shaderPaths,
-  const FileSystem& fs,
-  Logger& logger)
+  const LoadMaterialFunc& loadMaterial)
 {
-  auto materials = std::vector<Assets::Material>{};
-  materials.reserve(shaderPaths.size());
-
-  for (const auto& shaderPath : shaderPaths)
-  {
-    materials.push_back(loadShader(kdl::path_remove_extension(shaderPath), fs, logger));
-  }
-
-  surface.setSkins(std::move(materials));
+  using std::views::transform;
+  surface.setSkins(shaderPaths | transform(loadMaterial) | kdl::to_vector());
 }
 
 Result<void> parseSurfaces(
@@ -108,8 +98,7 @@ Result<void> parseSurfaces(
   const size_t surfaceCount,
   const size_t frameCount,
   Assets::EntityModel& model,
-  const FileSystem& fs,
-  Logger& logger)
+  const LoadMaterialFunc& loadMaterial)
 {
   for (size_t i = 0; i < surfaceCount; ++i)
   {
@@ -138,7 +127,7 @@ Result<void> parseSurfaces(
       shaderCount);
 
     auto& surface = model.addSurface(surfaceName, frameCount);
-    loadSurfaceMaterials(surface, shaders, fs, logger);
+    loadSurfaceMaterials(surface, shaders, loadMaterial);
 
     reader = reader.subReaderFromBegin(endOffset);
   }
@@ -311,10 +300,11 @@ Result<void> parseFrameSurfaces(
 
 } // namespace
 
-Md3Parser::Md3Parser(std::string name, const Reader& reader, const FileSystem& fs)
+Md3Parser::Md3Parser(
+  std::string name, const Reader& reader, LoadMaterialFunc loadMaterial)
   : m_name{std::move(name)}
   , m_reader{reader}
-  , m_fs{fs}
+  , m_loadMaterial{std::move(loadMaterial)}
 {
 }
 
@@ -331,7 +321,7 @@ bool Md3Parser::canParse(const std::filesystem::path& path, Reader reader)
   return ident == Md3Layout::Ident && version == Md3Layout::Version;
 }
 
-Result<Assets::EntityModel> Md3Parser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> Md3Parser::initializeModel(Logger&)
 {
   try
   {
@@ -370,8 +360,7 @@ Result<Assets::EntityModel> Md3Parser::initializeModel(Logger& logger)
              surfaceCount,
              frameCount,
              model,
-             m_fs,
-             logger)
+             m_loadMaterial)
            | kdl::and_then([&]() {
                return kdl::vec_transform(
                         std::views::iota(0u, frameCount),

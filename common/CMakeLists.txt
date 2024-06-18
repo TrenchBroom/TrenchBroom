@@ -490,6 +490,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/AssetReference.h
         ${COMMON_SOURCE_DIR}/Assets/AssetUtils.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
+        ${COMMON_SOURCE_DIR}/Assets/CreateResource.h
         ${COMMON_SOURCE_DIR}/Assets/DecalDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.h

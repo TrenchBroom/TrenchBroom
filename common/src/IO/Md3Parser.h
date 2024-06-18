@@ -22,9 +22,8 @@
 #include "Assets/EntityModel_Forward.h"
 #include "IO/EntityModelParser.h"
 
-#include "vm/forward.h"
-
 #include <filesystem>
+#include <functional>
 #include <string>
 
 namespace TrenchBroom::Assets
@@ -37,15 +36,17 @@ namespace TrenchBroom::IO
 class FileSystem;
 class Reader;
 
+using LoadMaterialFunc = std::function<Assets::Material(const std::filesystem::path&)>;
+
 class Md3Parser : public EntityModelParser
 {
 private:
   std::string m_name;
   const Reader& m_reader;
-  const FileSystem& m_fs;
+  LoadMaterialFunc m_loadMaterial;
 
 public:
-  Md3Parser(std::string name, const Reader& reader, const FileSystem& fs);
+  Md3Parser(std::string name, const Reader& reader, LoadMaterialFunc loadMaterial);
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 

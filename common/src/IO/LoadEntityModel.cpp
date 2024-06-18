@@ -21,7 +21,6 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
-#include "Ensure.h"
 #include "Error.h"
 #include "IO/AseParser.h"
 #include "IO/AssimpParser.h"
@@ -59,6 +58,7 @@ Result<Assets::EntityModel> loadEntityModel(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
+  const LoadMaterialFunc& loadMaterial,
   Logger& logger)
 {
   return fs.openFile(path) | kdl::and_then([&](auto file) -> Result<Assets::EntityModel> {
@@ -95,7 +95,7 @@ Result<Assets::EntityModel> loadEntityModel(
            }
            if (IO::Md3Parser::canParse(path, reader))
            {
-             auto parser = IO::Md3Parser{modelName, reader, fs};
+             auto parser = IO::Md3Parser{modelName, reader, loadMaterial};
              return parser.initializeModel(logger);
            }
            if (IO::MdxParser::canParse(path, reader))

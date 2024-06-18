@@ -50,6 +50,7 @@ namespace Assets
 class EntityModelFrame;
 struct ModelSpecification;
 enum class Orientation;
+class Quake3Shader;
 
 class EntityModelManager
 {
@@ -70,6 +71,9 @@ private:
   bool m_resetFilterMode = false;
   const Model::Game* m_game = nullptr;
 
+  // Cache Quake 3 shaders to use when loading models
+  std::vector<Quake3Shader> m_shaders;
+
   mutable ModelCache m_models;
   mutable ModelMismatches m_modelMismatches;
   mutable RendererCache m_renderers;
@@ -83,6 +87,7 @@ public:
   ~EntityModelManager();
 
   void clear();
+  void reloadShaders();
 
   void setFilterMode(int minFilter, int magFilter);
   void setGame(const Model::Game* game);
