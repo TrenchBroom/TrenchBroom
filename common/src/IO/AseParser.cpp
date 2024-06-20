@@ -22,10 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Error.h"
-#include "IO/FileSystem.h"
-#include "IO/ReadFreeImageTexture.h"
 #include "IO/ResourceUtils.h"
-#include "IO/SkinLoader.h"
 #include "Logger.h"
 #include "Renderer/MaterialIndexRangeMap.h"
 #include "Renderer/MaterialIndexRangeMapBuilder.h"
@@ -40,9 +37,7 @@
 #include <functional>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 AseTokenizer::AseTokenizer(const std::string_view str)
   : Tokenizer{str, "", 0}
@@ -125,10 +120,11 @@ Tokenizer<unsigned int>::Token AseTokenizer::emitToken()
   return Token{AseToken::Eof, nullptr, nullptr, length(), line(), column()};
 }
 
-AseParser::AseParser(std::string name, const std::string_view str, const FileSystem& fs)
+AseParser::AseParser(
+  std::string name, const std::string_view str, LoadMaterialFunc loadMaterial)
   : m_name{std::move(name)}
   , m_tokenizer{str}
-  , m_fs{fs}
+  , m_loadMaterial{std::move(loadMaterial)}
 {
 }
 
@@ -674,14 +670,12 @@ Result<Assets::EntityModel> AseParser::buildModel(
   auto& surface = model.addSurface(m_name, 1);
 
   // Load the materials
-  auto materials = std::vector<Assets::Material>{};
-  materials.reserve(scene.materialPaths.size());
-  for (const auto& path : scene.materialPaths)
-  {
-    materials.push_back(loadMaterial(logger, path));
-  }
+  auto materials = kdl::vec_transform(scene.materialPaths, [&](const auto& path) {
+    const auto fixedPath = fixMaterialPath(path);
+    return m_loadMaterial(fixedPath);
+  });
 
-  materials.push_back(loadDefaultMaterial(m_fs, "", logger));
+  materials.push_back(m_loadMaterial(DefaultTexturePath));
   surface.setSkins(std::move(materials));
 
   // Count vertices and build bounds
@@ -771,15 +765,7 @@ bool AseParser::checkIndices(Logger& logger, const MeshFace& face, const Mesh& m
   return true;
 }
 
-Assets::Material AseParser::loadMaterial(
-  Logger& logger, const std::filesystem::path& path) const
-{
-  const auto actualPath = fixMaterialPath(logger, path);
-  return loadShader(actualPath, m_fs, logger);
-}
-
-std::filesystem::path AseParser::fixMaterialPath(
-  Logger& /* logger */, std::filesystem::path path) const
+std::filesystem::path AseParser::fixMaterialPath(std::filesystem::path path) const
 {
   if (!path.is_absolute())
   {
@@ -792,5 +778,4 @@ std::filesystem::path AseParser::fixMaterialPath(
   }
   return path;
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

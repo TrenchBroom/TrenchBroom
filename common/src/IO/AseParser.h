@@ -22,6 +22,7 @@
 #include "IO/EntityModelParser.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
+#include "Result.h"
 
 #include "vm/forward.h"
 
@@ -44,8 +45,6 @@ class Material;
 
 namespace IO
 {
-class FileSystem;
-
 namespace AseToken
 {
 using Type = unsigned int;
@@ -60,6 +59,8 @@ static const Type ArgumentName = 1 << 7; // argument name: A:, B: etc.
 static const Type Colon = 1 << 8;        // colon: :
 static const Type Eof = 1 << 12;         // end of file
 } // namespace AseToken
+
+using LoadMaterialFunc = std::function<Assets::Material(const std::filesystem::path&)>;
 
 class AseTokenizer : public Tokenizer<AseToken::Type>
 {
@@ -113,7 +114,7 @@ private:
 
   std::string m_name;
   AseTokenizer m_tokenizer;
-  const FileSystem& m_fs;
+  LoadMaterialFunc m_loadMaterial;
 
 public:
   /**
@@ -121,9 +122,9 @@ public:
    *
    * @param name the name of the model
    * @param str the text to parse
-   * @param fs the file system used to load material files
+   * @param loadMaterialFunc a function to load materials
    */
-  AseParser(std::string name, std::string_view str, const FileSystem& fs);
+  AseParser(std::string name, std::string_view str, LoadMaterialFunc loadMaterialFunc);
 
   static bool canParse(const std::filesystem::path& path);
 
@@ -184,8 +185,7 @@ private: // model construction
   Result<Assets::EntityModel> buildModel(Logger& logger, const Scene& scene) const;
   bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
 
-  Assets::Material loadMaterial(Logger& logger, const std::filesystem::path& path) const;
-  std::filesystem::path fixMaterialPath(Logger& logger, std::filesystem::path path) const;
+  std::filesystem::path fixMaterialPath(std::filesystem::path path) const;
 };
 } // namespace IO
 } // namespace TrenchBroom

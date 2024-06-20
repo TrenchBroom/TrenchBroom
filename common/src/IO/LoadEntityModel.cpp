@@ -110,7 +110,7 @@ Result<Assets::EntityModel> loadEntityModel(
            }
            if (IO::AseParser::canParse(path))
            {
-             auto parser = IO::AseParser{modelName, reader.stringView(), fs};
+             auto parser = IO::AseParser{modelName, reader.stringView(), loadMaterial};
              return parser.initializeModel(logger);
            }
            if (IO::ImageSpriteParser::canParse(path))

@@ -19,135 +19,145 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
+#include "Assets/Palette.h"
+#include "Assets/Quake3Shader.h"
 #include "IO/AseParser.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/Quake3ShaderFileSystem.h"
+#include "IO/LoadMaterialCollections.h"
+#include "IO/LoadShaders.h"
+#include "IO/MaterialUtils.h"
 #include "IO/Reader.h"
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
+#include "Model/GameConfig.h"
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-TEST_CASE("AseParserTest.parseFailure_2657")
+TEST_CASE("AseParserTest")
 {
   auto logger = NullLogger{};
+
+  const auto materialConfig = Model::MaterialConfig{
+    {},
+    {".tga", ".png", ".jpg", ".jpeg"},
+    {},
+    {},
+    "scripts",
+    {},
+  };
+
   auto fs = VirtualFileSystem{};
 
   const auto defaultAssetsPath =
     std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
   fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
-  const auto basePath =
-    std::filesystem::current_path() / "fixture/test/IO/Ase/steelstorm_player";
-  fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+  SECTION("parseFailure_2657")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/IO/Ase/steelstorm_player";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-  const auto shaderSearchPath = std::filesystem::path{"scripts"};
-  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
-  fs.mount(
-    "",
-    createImageFileSystem<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger)
-      | kdl::value());
+    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
 
-  const auto aseFile = fs.openFile("player.ase") | kdl::value();
-  auto reader = aseFile->reader().buffer();
-  auto parser = AseParser{"player", reader.stringView(), fs};
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
 
-  auto model = parser.initializeModel(logger);
-  CHECK(model.is_success());
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile = fs.openFile("player.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto parser = AseParser{"player", reader.stringView(), loadMaterial};
+
+    auto model = parser.initializeModel(logger);
+    CHECK(model.is_success());
+  }
+
+  SECTION("parseFailure_2679")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/IO/Ase/no_scene_directive";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+
+    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto parser = AseParser{"wedge", reader.stringView(), loadMaterial};
+
+    auto model = parser.initializeModel(logger);
+    CHECK(model.is_success());
+  }
+
+  SECTION("parseFailure_2898_vertex_index")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/IO/Ase/index_out_of_bounds";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+
+    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto parser = AseParser{"wedge", reader.stringView(), loadMaterial};
+
+    auto model = parser.initializeModel(logger);
+    CHECK(model.is_success());
+  }
+
+  SECTION("parseFailure_2898_no_uv")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/IO/Ase/index_out_of_bounds";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+
+    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile = fs.openFile("wedge_45_no_uv.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto parser = AseParser{"wedge", reader.stringView(), loadMaterial};
+
+    auto model = parser.initializeModel(logger);
+    CHECK(model.is_success());
+  }
 }
 
-TEST_CASE("AseParserTest.parseFailure_2679")
-{
-  auto logger = NullLogger{};
-  auto fs = VirtualFileSystem{};
-
-  const auto defaultAssetsPath =
-    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
-  fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
-
-  const auto basePath =
-    std::filesystem::current_path() / "fixture/test/IO/Ase/no_scene_directive";
-  fs.mount("", std::make_unique<DiskFileSystem>(basePath));
-
-  const auto shaderSearchPath = std::filesystem::path{"scripts"};
-  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
-  fs.mount(
-    "",
-    createImageFileSystem<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger)
-      | kdl::value());
-
-  const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
-  auto reader = aseFile->reader().buffer();
-  auto parser = AseParser{"wedge", reader.stringView(), fs};
-
-  auto model = parser.initializeModel(logger);
-  CHECK(model.is_success());
-}
-
-TEST_CASE("AseParserTest.parseFailure_2898_vertex_index")
-{
-  auto logger = NullLogger{};
-  auto fs = VirtualFileSystem{};
-
-  const auto defaultAssetsPath =
-    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
-  fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
-
-  const auto basePath =
-    std::filesystem::current_path() / "fixture/test/IO/Ase/index_out_of_bounds";
-  fs.mount("", std::make_unique<DiskFileSystem>(basePath));
-
-  const auto shaderSearchPath = std::filesystem::path{"scripts"};
-  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
-  fs.mount(
-    "",
-    createImageFileSystem<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger)
-      | kdl::value());
-
-  const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
-  auto reader = aseFile->reader().buffer();
-  auto parser = AseParser{"wedge", reader.stringView(), fs};
-
-  auto model = parser.initializeModel(logger);
-  CHECK(model.is_success());
-}
-
-TEST_CASE("AseParserTest.parseFailure_2898_no_uv")
-{
-  auto logger = NullLogger{};
-  auto fs = VirtualFileSystem{};
-
-  const auto defaultAssetsPath =
-    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
-  fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
-
-  const auto basePath =
-    std::filesystem::current_path() / "fixture/test/IO/Ase/index_out_of_bounds";
-  fs.mount("", std::make_unique<DiskFileSystem>(basePath));
-
-  const auto shaderSearchPath = std::filesystem::path{"scripts"};
-  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
-  fs.mount(
-    "",
-    createImageFileSystem<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger)
-      | kdl::value());
-
-  const auto aseFile = fs.openFile("wedge_45_no_uv.ase") | kdl::value();
-  auto reader = aseFile->reader().buffer();
-  auto parser = AseParser{"wedge", reader.stringView(), fs};
-
-  auto model = parser.initializeModel(logger);
-  CHECK(model.is_success());
-}
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

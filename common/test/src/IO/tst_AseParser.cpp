@@ -19,123 +19,134 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
-#include "Assets/Texture.h"
+#include "Assets/Palette.h"
+#include "Assets/Quake3Shader.h"
 #include "IO/AseParser.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/Quake3ShaderFileSystem.h"
+#include "IO/LoadMaterialCollections.h"
+#include "IO/LoadShaders.h"
+#include "IO/MaterialUtils.h"
 #include "IO/Reader.h"
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
+#include "Model/GameConfig.h"
 
 #include <filesystem>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-TEST_CASE("AseParserTest.loadWithoutException")
+TEST_CASE("AseParserTest")
 {
   auto logger = NullLogger{};
+
+  const auto materialConfig = Model::MaterialConfig{
+    {},
+    {".tga", ".png", ".jpg", ".jpeg"},
+    {},
+    {},
+    "scripts",
+    {},
+  };
 
   const auto defaultAssetsPath =
     std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
   auto fs = VirtualFileSystem{};
   fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
-  const auto basePath =
-    std::filesystem::current_path() / "fixture/test/IO/Ase/wedge_with_shader";
-  fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+  SECTION("loadWithoutException")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/IO/Ase/wedge_with_shader";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-  const auto shaderSearchPath = "scripts";
-  const auto textureSearchPaths = std::vector<std::filesystem::path>{"models"};
-  fs.mount(
-    "",
-    createImageFileSystem<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger)
-      | kdl::value());
+    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
 
-  const auto aseFile =
-    fs.openFile("models/mapobjects/wedges/wedge_45.ase") | kdl::value();
-  auto reader = aseFile->reader().buffer();
-  auto parser = AseParser{"wedge", reader.stringView(), fs};
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
 
-  auto model = parser.initializeModel(logger);
-  CHECK(model.is_success());
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile =
+      fs.openFile("models/mapobjects/wedges/wedge_45.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto parser = AseParser{"wedge", reader.stringView(), loadMaterial};
+
+    auto model = parser.initializeModel(logger);
+    CHECK(model.is_success());
+  }
+
+  SECTION("fallbackToMaterialName")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/IO/Ase/fallback_to_materialname";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+
+    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto parser = AseParser{"wedge", reader.stringView(), loadMaterial};
+
+    auto model = parser.initializeModel(logger);
+    CHECK(model.is_success());
+
+    // account for the default material
+    CHECK(model.value().surface(0).skinCount() == 2u);
+    CHECK(model.value().surface(0).skin(0)->name() == "textures/bigtile");
+  }
+
+  SECTION("loadDefaultMaterial")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/IO/Ase/load_default_material";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
+
+    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto parser = AseParser{"wedge", reader.stringView(), loadMaterial};
+
+    auto model = parser.initializeModel(logger);
+    CHECK(model.is_success());
+
+    // account for the default texture
+    CHECK(model.value().surface(0).skinCount() == 2u);
+    // shader name is correct, but we loaded the default material
+
+    const auto* material = model.value().surface(0).skin(0);
+    CHECK(material->name() == "textures/bigtile");
+    CHECK(material->texture()->width() == 32u);
+    CHECK(material->texture()->height() == 32u);
+  }
 }
 
-TEST_CASE("AseParserTest.fallbackToMaterialName")
-{
-  auto logger = NullLogger{};
-
-  const auto defaultAssetsPath =
-    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
-  auto fs = VirtualFileSystem{};
-  fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
-
-  const auto basePath =
-    std::filesystem::current_path() / "fixture/test/IO/Ase/fallback_to_materialname";
-  fs.mount("", std::make_unique<DiskFileSystem>(basePath));
-
-  const auto shaderSearchPath = std::filesystem::path{"scripts"};
-  const auto textureSearchPaths = std::vector<std::filesystem::path>{"textures"};
-  fs.mount(
-    "",
-    createImageFileSystem<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger)
-      | kdl::value());
-
-  const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
-  auto reader = aseFile->reader().buffer();
-  auto parser = AseParser{"wedge", reader.stringView(), fs};
-
-  auto model = parser.initializeModel(logger);
-  CHECK(model.is_success());
-
-  // account for the default material
-  CHECK(model.value().surface(0).skinCount() == 2u);
-  CHECK(model.value().surface(0).skin(0)->name() == "textures/bigtile");
-}
-
-TEST_CASE("AseParserTest.loadDefaultMaterial")
-{
-  auto logger = NullLogger{};
-
-  const auto defaultAssetsPath =
-    std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
-  auto fs = VirtualFileSystem{};
-  fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
-
-  const auto basePath =
-    std::filesystem::current_path() / "fixture/test/IO/Ase/load_default_material";
-  fs.mount("", std::make_unique<DiskFileSystem>(basePath));
-
-  const auto shaderSearchPath = std::filesystem::path{"scripts"};
-  const auto textureSearchPaths = std::vector<std::filesystem::path>{"textures"};
-  fs.mount(
-    "",
-    createImageFileSystem<Quake3ShaderFileSystem>(
-      fs, shaderSearchPath, textureSearchPaths, logger)
-      | kdl::value());
-
-  const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
-  auto reader = aseFile->reader().buffer();
-  auto parser = AseParser{"wedge", reader.stringView(), fs};
-
-  auto model = parser.initializeModel(logger);
-  CHECK(model.is_success());
-
-  // account for the default texture
-  CHECK(model.value().surface(0).skinCount() == 2u);
-  // shader name is correct, but we loaded the default material
-
-  const auto* material = model.value().surface(0).skin(0);
-  CHECK(material->name() == "textures/bigtile");
-  CHECK(material->texture()->width() == 32u);
-  CHECK(material->texture()->height() == 32u);
-}
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO
