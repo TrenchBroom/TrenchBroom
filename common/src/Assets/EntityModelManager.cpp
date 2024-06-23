@@ -68,6 +68,7 @@ void EntityModelManager::clear()
 void EntityModelManager::reloadShaders()
 {
   m_shaders.clear();
+
   if (m_game)
   {
     m_shaders =
@@ -96,99 +97,82 @@ void EntityModelManager::setGame(const Model::Game* game)
 Renderer::MaterialRenderer* EntityModelManager::renderer(
   const Assets::ModelSpecification& spec) const
 {
-  auto* entityModel = safeGetModel(spec.path);
-
-  if (entityModel == nullptr)
+  if (auto* entityModel = safeGetModel(spec.path))
   {
-    return nullptr;
+    auto it = m_renderers.find(spec);
+    if (it != std::end(m_renderers))
+    {
+      return it->second.get();
+    }
+
+    if (!m_rendererMismatches.contains(spec))
+    {
+      if (auto renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex))
+      {
+        const auto [pos, success] = m_renderers.emplace(spec, std::move(renderer));
+        assert(success);
+        unused(success);
+
+        auto* result = pos->second.get();
+        m_unpreparedRenderers.push_back(result);
+        m_logger.debug() << "Constructed entity model renderer for " << spec;
+        return result;
+      }
+
+      m_rendererMismatches.insert(spec);
+      m_logger.error() << "Failed to construct entity model renderer for " << spec
+                       << ", check the skin and frame indices";
+    }
   }
 
-  auto it = m_renderers.find(spec);
-  if (it != std::end(m_renderers))
-  {
-    return it->second.get();
-  }
-
-  if (m_rendererMismatches.count(spec) > 0)
-  {
-    return nullptr;
-  }
-
-  auto renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
-  if (renderer != nullptr)
-  {
-    const auto [pos, success] = m_renderers.emplace(spec, std::move(renderer));
-    assert(success);
-    unused(success);
-
-    auto* result = pos->second.get();
-    m_unpreparedRenderers.push_back(result);
-    m_logger.debug() << "Constructed entity model renderer for " << spec;
-    return result;
-  }
-  else
-  {
-    m_rendererMismatches.insert(spec);
-    m_logger.error() << "Failed to construct entity model renderer for " << spec
-                     << ", check the skin and frame indices";
-    return nullptr;
-  }
+  return nullptr;
 }
 
 const EntityModelFrame* EntityModelManager::frame(
   const Assets::ModelSpecification& spec) const
 {
-  auto* model = this->safeGetModel(spec.path);
-  if (model == nullptr)
-  {
-    return nullptr;
-  }
-  else if (spec.frameIndex >= model->frameCount())
-  {
-    return nullptr;
-  }
-  else
+  if (auto* model = this->safeGetModel(spec.path))
   {
     return model->frame(spec.frameIndex);
   }
+
+  return nullptr;
 }
 
 EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
 {
-  if (path.empty())
+  if (!path.empty())
   {
-    return nullptr;
+    auto it = m_models.find(path);
+    if (it != std::end(m_models))
+    {
+      return &it->second;
+    }
+
+    if (!m_modelMismatches.contains(path))
+    {
+      return loadModel(path) | kdl::transform([&](auto model) {
+               const auto [pos, success] = m_models.emplace(path, std::move(model));
+               assert(success);
+               unused(success);
+
+               auto* modelPtr = &(pos->second);
+               m_unpreparedModels.push_back(modelPtr);
+
+               m_logger.debug() << "Loaded entity model " << path;
+
+               return modelPtr;
+             })
+             | kdl::if_error([&](auto e) {
+                 m_logger.error() << e.msg;
+                 m_modelMismatches.insert(path);
+                 throw GameException{e.msg};
+               })
+             | kdl::value();
+    }
   }
 
-  auto it = m_models.find(path);
-  if (it != std::end(m_models))
-  {
-    return &it->second;
-  }
-
-  if (m_modelMismatches.count(path) > 0)
-  {
-    return nullptr;
-  }
-
-  return loadModel(path) | kdl::transform([&](auto model) {
-           const auto [pos, success] = m_models.emplace(path, std::move(model));
-           assert(success);
-           unused(success);
-
-           auto* modelPtr = &(pos->second);
-           m_unpreparedModels.push_back(modelPtr);
-
-           m_logger.debug() << "Loaded entity model " << path;
-
-           return modelPtr;
-         })
-         | kdl::if_error([&](auto e) {
-             m_logger.error() << e.msg;
-             m_modelMismatches.insert(path);
-             throw GameException{e.msg};
-           })
-         | kdl::value();
+  return nullptr;
 }
 
 EntityModel* EntityModelManager::safeGetModel(const std::filesystem::path& path) const
