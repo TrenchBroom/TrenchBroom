@@ -56,16 +56,6 @@ class Quake3Shader;
 class EntityModelManager
 {
 private:
-  using ModelCache =
-    std::unordered_map<std::filesystem::path, EntityModel, kdl::path_hash>;
-  using ModelMismatches = std::unordered_set<std::filesystem::path, kdl::path_hash>;
-  using ModelList = std::vector<EntityModel*>;
-
-  using RendererCache =
-    std::unordered_map<ModelSpecification, std::unique_ptr<Renderer::MaterialRenderer>>;
-  using RendererMismatches = std::unordered_set<ModelSpecification>;
-  using RendererList = std::vector<Renderer::MaterialRenderer*>;
-
   Logger& m_logger;
 
   int m_minFilter;
@@ -76,13 +66,15 @@ private:
   // Cache Quake 3 shaders to use when loading models
   std::vector<Quake3Shader> m_shaders;
 
-  mutable ModelCache m_models;
-  mutable ModelMismatches m_modelMismatches;
-  mutable RendererCache m_renderers;
-  mutable RendererMismatches m_rendererMismatches;
+  mutable std::unordered_map<std::filesystem::path, EntityModel, kdl::path_hash> m_models;
+  mutable std::unordered_set<std::filesystem::path, kdl::path_hash> m_modelMismatches;
+  mutable std::
+    unordered_map<ModelSpecification, std::unique_ptr<Renderer::MaterialRenderer>>
+      m_renderers;
+  mutable std::unordered_set<ModelSpecification> m_rendererMismatches;
 
-  mutable ModelList m_unpreparedModels;
-  mutable RendererList m_unpreparedRenderers;
+  mutable std::vector<EntityModel*> m_unpreparedModels;
+  mutable std::vector<Renderer::MaterialRenderer*> m_unpreparedRenderers;
 
 public:
   EntityModelManager(int magFilter, int minFilter, Logger& logger);
