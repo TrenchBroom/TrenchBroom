@@ -24,11 +24,11 @@
 #include "Result.h"
 
 #include "kdl/path_hash.h"
-#include "kdl/vector_set.h"
 
 #include <filesystem>
 #include <memory>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace TrenchBroom
@@ -58,12 +58,12 @@ class EntityModelManager
 private:
   using ModelCache =
     std::unordered_map<std::filesystem::path, EntityModel, kdl::path_hash>;
-  using ModelMismatches = kdl::vector_set<std::filesystem::path>;
+  using ModelMismatches = std::unordered_set<std::filesystem::path, kdl::path_hash>;
   using ModelList = std::vector<EntityModel*>;
 
   using RendererCache =
     std::unordered_map<ModelSpecification, std::unique_ptr<Renderer::MaterialRenderer>>;
-  using RendererMismatches = kdl::vector_set<ModelSpecification>;
+  using RendererMismatches = std::unordered_set<ModelSpecification>;
   using RendererList = std::vector<Renderer::MaterialRenderer*>;
 
   Logger& m_logger;
