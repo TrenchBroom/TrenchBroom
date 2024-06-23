@@ -21,7 +21,6 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
-#include "Assets/ModelDefinition.h"
 #include "Assets/Palette.h"
 #include "Assets/Quake3Shader.h"
 #include "Assets/Resource.h"

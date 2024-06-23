@@ -20,13 +20,15 @@
 #pragma once
 
 #include "Assets/EntityModel.h"
+#include "Assets/ModelSpecification.h"
 #include "Result.h"
 
+#include "kdl/path_hash.h"
 #include "kdl/vector_set.h"
 
 #include <filesystem>
-#include <map>
 #include <memory>
+#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom
@@ -48,19 +50,19 @@ class VboManager;
 namespace Assets
 {
 class EntityModelFrame;
-struct ModelSpecification;
 enum class Orientation;
 class Quake3Shader;
 
 class EntityModelManager
 {
 private:
-  using ModelCache = std::map<std::filesystem::path, EntityModel>;
+  using ModelCache =
+    std::unordered_map<std::filesystem::path, EntityModel, kdl::path_hash>;
   using ModelMismatches = kdl::vector_set<std::filesystem::path>;
   using ModelList = std::vector<EntityModel*>;
 
   using RendererCache =
-    std::map<ModelSpecification, std::unique_ptr<Renderer::MaterialRenderer>>;
+    std::unordered_map<ModelSpecification, std::unique_ptr<Renderer::MaterialRenderer>>;
   using RendererMismatches = kdl::vector_set<ModelSpecification>;
   using RendererList = std::vector<Renderer::MaterialRenderer*>;
 
