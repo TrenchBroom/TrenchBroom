@@ -218,8 +218,11 @@ std::unique_ptr<Assets::PropertyDefinition> parseListDeclaration(
       }
       itemElement = itemElement->NextSiblingElement("item");
     }
-    return std::make_unique<Assets::ChoicePropertyDefinition>(
-      std::move(name), "", "", std::move(options), false);
+    auto definition =
+      std::make_unique<Assets::ChoicePropertyDefinition>(std::move(name), "", "", false);
+    definition->setOptions(std::move(options));
+
+    return definition;
   }
   return nullptr;
 }
@@ -266,12 +269,9 @@ std::unique_ptr<Assets::PropertyDefinition> parseTargetNamePropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   auto factory = [](std::string name, std::string shortDesc, std::string longDesc) {
-    return std::make_unique<Assets::PropertyDefinition>(
-      std::move(name),
-      Assets::PropertyDefinitionType::TargetSourceProperty,
-      std::move(shortDesc),
-      std::move(longDesc),
-      false);
+    return std::make_unique<
+      Assets::PropertyDefinitionT<Assets::PropertyDefinitionType::TargetSourceProperty>>(
+      std::move(name), std::move(shortDesc), std::move(longDesc), false);
   };
   return parsePropertyDefinition(element, factory, status);
 }
@@ -280,12 +280,9 @@ std::unique_ptr<Assets::PropertyDefinition> parseTargetPropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   auto factory = [](std::string name, std::string shortDesc, std::string longDesc) {
-    return std::make_unique<Assets::PropertyDefinition>(
-      std::move(name),
-      Assets::PropertyDefinitionType::TargetDestinationProperty,
-      std::move(shortDesc),
-      std::move(longDesc),
-      false);
+    return std::make_unique<Assets::PropertyDefinitionT<
+      Assets::PropertyDefinitionType::TargetDestinationProperty>>(
+      std::move(name), std::move(shortDesc), std::move(longDesc), false);
   };
   return parsePropertyDefinition(element, factory, status);
 }
@@ -426,7 +423,7 @@ std::unique_ptr<Assets::PropertyDefinition> parseUnknownPropertyDefinition(
     auto defaultValue = hasAttribute(element, "value")
                           ? std::optional(parseString(element, "value"))
                           : std::nullopt;
-    return std::make_unique<Assets::UnknownPropertyDefinition>(
+    return std::make_unique<Assets::StringPropertyDefinition>(
       std::move(name),
       std::move(shortDesc),
       std::move(longDesc),
@@ -550,7 +547,9 @@ std::unique_ptr<Assets::PropertyDefinition> parseSpawnflags(
         const auto value = 1 << *bit;
         auto shortDesc = parseString(*flagElement, "key");
         auto longDesc = parseString(*flagElement, "name");
-        result->addOption(value, std::move(shortDesc), std::move(longDesc), false);
+        const auto option =
+          Assets::FlagsPropertyOption(value, std::move(shortDesc), std::move(longDesc), false);
+        result->addOption(&option);
       }
 
       flagElement = flagElement->NextSiblingElement("flag");

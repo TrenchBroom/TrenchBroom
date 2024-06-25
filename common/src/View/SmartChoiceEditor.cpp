@@ -117,7 +117,7 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
   {
     m_comboBox->setDisabled(false);
     const auto* choiceDef = static_cast<const Assets::ChoicePropertyDefinition*>(propDef);
-    const auto& options = choiceDef->options();
+    const auto& options = choiceDef->options().value_or(std::vector<Assets::ChoicePropertyOption>{});
 
     for (const Assets::ChoicePropertyOption& option : options)
     {

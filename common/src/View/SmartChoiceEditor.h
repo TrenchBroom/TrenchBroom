@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Assets/PropertyDefinition.h"
 #include "View/SmartPropertyEditor.h"
 
 #include <memory>
@@ -33,7 +34,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class ChoicePropertyDefinition;
+
 }
 
 namespace View

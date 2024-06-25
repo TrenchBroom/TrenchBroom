@@ -19,11 +19,13 @@
 
 #pragma once
 
+#include "Assets/PropertyDefinition.h"
 #include "Color.h"
 #include "FloatType.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
+#include "ParserStatus.h"
 
 #include <filesystem>
 #include <memory>
@@ -44,6 +46,10 @@ struct EntityDefinitionClassInfo;
 enum class EntityDefinitionClassType;
 class FileSystem;
 class ParserStatus;
+
+using PropertyTypeMap = std::unordered_map<std::string, Assets::PropertyDefinitionType>;
+using PropertyDefinitionType = Assets::PropertyDefinitionType;
+using IOTypeMap = std::unordered_map<std::string, Assets::IOType>;
 
 namespace FgdToken
 {
@@ -78,6 +84,7 @@ class FgdParser : public EntityDefinitionParser, public Parser<FgdToken::Type>
 private:
   using Token = FgdTokenizer::Token;
 
+
   std::vector<std::filesystem::path> m_paths;
   std::unique_ptr<FileSystem> m_fs;
 
@@ -102,6 +109,8 @@ private:
 
 private:
   TokenNameMap tokenNames() const override;
+  PropertyTypeMap propertyTypeNames() const;
+  IOTypeMap ioTypeNames() const;
 
   std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
@@ -124,12 +133,33 @@ private:
 
   std::vector<std::shared_ptr<Assets::PropertyDefinition>> parsePropertyDefinitions(
     ParserStatus& status);
-  std::unique_ptr<Assets::PropertyDefinition> parsePropertyDefinition(
+  Assets::PropertyDefinitionType getPropertyType(std::string typeName);
+  Assets::IOType getIOType(ParserStatus& status);
+
+  std::unique_ptr<Assets::PropertyDefinition> parseGenericProperty(
     ParserStatus& status,
     std::string propertyKey,
-    const std::string& typeName,
-    size_t line,
-    size_t column);
+    Assets::PropertyDefinitionType propertyType);
+  std::unique_ptr<Assets::PropertyDefinition> parseTargetPropertyDefinition(
+    ParserStatus& status,
+    std::string propertyKey,
+    Assets::PropertyDefinitionType propertyType);
+
+
+  template <typename T>
+  std::optional<T> parseDefaultValue(ParserStatus& status);
+
+  template <Assets::PropertyDefinitionType T>
+  std::unique_ptr<Assets::PropertyDefinitionT<T>> parsePropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
+
+  // template <>
+  // std::unique_ptr<Assets::PropertyDefinitionT<PropertyDefinitionType::UnknownProperty>>
+  // parsePropertyDefinition(ParserStatus& status, std::string propertyKey);
+
+
+  std::unique_ptr<Assets::PropertyDefinition> parseIOPropertyDefinition(
+    ParserStatus& status, std::string propertyKey);
   std::unique_ptr<Assets::PropertyDefinition> parseTargetSourcePropertyDefinition(
     ParserStatus& status, std::string propertyKey);
   std::unique_ptr<Assets::PropertyDefinition> parseTargetDestinationPropertyDefinition(
@@ -163,5 +193,57 @@ private:
   std::vector<EntityDefinitionClassInfo> handleInclude(
     ParserStatus& status, const std::filesystem::path& path);
 };
+
+template <Assets::PropertyDefinitionType T>
+std::unique_ptr<Assets::PropertyDefinitionT<T>> FgdParser::parsePropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
+{
+  const auto readOnly = parseReadOnlyFlag(status);
+  const auto shortDescription = parsePropertyDescription(status);
+
+  using DefaultValueType = Assets::PropertyTypeMap::find_type<PropertyDefinitionType, T>;
+  auto defaultValue = parseDefaultValue<DefaultValueType>(status);
+  const auto longDescription = parsePropertyDescription(status);
+
+  return std::make_unique<Assets::PropertyDefinitionT<T>>(
+    propertyKey, shortDescription, longDescription, readOnly, defaultValue);
+}
+
+template <>
+std::optional<std::string> FgdParser::parseDefaultValue<std::string>(
+  ParserStatus& status);
+
+template <>
+std::optional<int> FgdParser::parseDefaultValue<int>(
+  ParserStatus& status);
+
+template <>
+std::optional<float> FgdParser::parseDefaultValue<float>(
+  ParserStatus& status);
+
+template <>
+std::optional<bool> FgdParser::parseDefaultValue<bool>(
+  ParserStatus& status);
+
+template <>
+std::optional<char> FgdParser::parseDefaultValue<char>(
+  ParserStatus& status);
+
+template <>
+std::unique_ptr<
+  Assets::PropertyDefinitionT<PropertyDefinitionType::FlagsProperty>> inline FgdParser::
+  parsePropertyDefinition(ParserStatus& status, std::string propertyKey);
+template <>
+std::unique_ptr<
+  Assets::PropertyDefinitionT<PropertyDefinitionType::ChoiceProperty>> inline FgdParser::
+  parsePropertyDefinition(ParserStatus& status, std::string propertyKey);
+template <>
+std::unique_ptr<
+  Assets::PropertyDefinitionT<PropertyDefinitionType::InputProperty>> inline FgdParser::
+  parsePropertyDefinition(ParserStatus& status, std::string propertyKey);
+template <>
+std::unique_ptr<
+  Assets::PropertyDefinitionT<PropertyDefinitionType::OutputProperty>> inline FgdParser::
+  parsePropertyDefinition(ParserStatus& status, std::string propertyKey);
 
 } // namespace TrenchBroom::IO
