@@ -374,7 +374,7 @@ void MaterialBrowserView::renderMaterials(
   auto shader =
     Renderer::ActiveShader{shaderManager(), Renderer::Shaders::MaterialBrowserShader};
   shader.set("ApplyTinting", false);
-  shader.set("Texture", 0);
+  shader.set("Material", 0);
   shader.set("Brightness", pref(Preferences::Brightness));
 
   for (const auto& group : layout.groups())
