@@ -23,7 +23,6 @@
 #include "Assets/Texture.h"
 #include "Macros.h"
 
-#include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 
 #include "vm/vec_io.h"
