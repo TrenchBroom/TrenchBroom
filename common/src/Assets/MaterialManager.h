@@ -54,9 +54,6 @@ private:
 
   std::vector<MaterialCollection> m_collections;
 
-  std::vector<size_t> m_toPrepare;
-  std::vector<MaterialCollection> m_toRemove;
-
   std::unordered_map<std::string, Material*> m_materialsByName;
   std::vector<const Material*> m_materials;
 
@@ -83,7 +80,6 @@ public:
   void clear();
 
   void setFilterMode(int minFilter, int magFilter);
-  void commitChanges();
 
   const Material* material(const std::string& name) const;
   Material* material(const std::string& name);
@@ -96,7 +92,6 @@ public:
 
 private:
   void resetFilterMode();
-  void prepare();
 
   void updateMaterials();
 };

@@ -36,12 +36,9 @@ private:
   std::filesystem::path m_path;
   std::vector<Material> m_materials;
 
-  bool m_loaded = false;
-  bool m_prepared = false;
-
   friend class Material;
 
-  kdl_reflect_decl(MaterialCollection, m_loaded, m_path, m_materials);
+  kdl_reflect_decl(MaterialCollection, m_path, m_materials);
 
 public:
   MaterialCollection();
@@ -55,7 +52,6 @@ public:
   MaterialCollection(MaterialCollection&& other) = default;
   MaterialCollection& operator=(MaterialCollection&& other) = default;
 
-  bool loaded() const;
   const std::filesystem::path& path() const;
   size_t materialCount() const;
 
@@ -68,8 +64,6 @@ public:
   const Material* materialByName(const std::string& name) const;
   Material* materialByName(const std::string& name);
 
-  bool prepared() const;
-  void prepare(int minFilter, int magFilter);
   void setFilterMode(int minFilter, int magFilter);
 };
 

@@ -49,13 +49,7 @@ MaterialCollection::MaterialCollection(
   std::filesystem::path path, std::vector<Material> materials)
   : m_path{std::move(path)}
   , m_materials{std::move(materials)}
-  , m_loaded{true}
 {
-}
-
-bool MaterialCollection::loaded() const
-{
-  return m_loaded;
 }
 
 const std::filesystem::path& MaterialCollection::path() const
@@ -102,28 +96,6 @@ Material* MaterialCollection::materialByName(const std::string& name)
 {
   return const_cast<Material*>(
     const_cast<const MaterialCollection*>(this)->materialByName(name));
-}
-
-bool MaterialCollection::prepared() const
-{
-  return m_prepared;
-}
-
-void MaterialCollection::prepare(const int minFilter, const int magFilter)
-{
-  assert(!prepared());
-
-  for (size_t i = 0; i < materialCount(); ++i)
-  {
-    auto& material = m_materials[i];
-    if (auto* texture = material.texture())
-    {
-      texture->upload(true);
-      texture->setFilterMode(minFilter, magFilter);
-    }
-  }
-
-  m_prepared = true;
 }
 
 void MaterialCollection::setFilterMode(const int minFilter, const int magFilter)
