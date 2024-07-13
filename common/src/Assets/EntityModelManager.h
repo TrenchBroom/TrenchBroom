@@ -67,7 +67,6 @@ private:
   std::vector<Quake3Shader> m_shaders;
 
   mutable std::unordered_map<std::filesystem::path, EntityModel, kdl::path_hash> m_models;
-  mutable std::unordered_set<std::filesystem::path, kdl::path_hash> m_modelMismatches;
   mutable std::
     unordered_map<ModelSpecification, std::unique_ptr<Renderer::MaterialRenderer>>
       m_renderers;

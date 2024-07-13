@@ -57,7 +57,6 @@ void EntityModelManager::clear()
   m_renderers.clear();
   m_models.clear();
   m_rendererMismatches.clear();
-  m_modelMismatches.clear();
 
   m_unpreparedModels.clear();
   m_unpreparedRenderers.clear();
@@ -149,27 +148,22 @@ EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
       return &it->second;
     }
 
-    if (!m_modelMismatches.contains(path))
-    {
-      return loadModel(path) | kdl::transform([&](auto model) {
-               const auto [pos, success] = m_models.emplace(path, std::move(model));
-               assert(success);
-               unused(success);
+    return loadModel(path) | kdl::transform([&](auto model) {
+             const auto [pos, success] = m_models.emplace(path, std::move(model));
+             assert(success);
+             unused(success);
 
-               auto* modelPtr = &(pos->second);
-               m_unpreparedModels.push_back(modelPtr);
+             auto* modelPtr = &(pos->second);
+             m_unpreparedModels.push_back(modelPtr);
+             m_logger.debug() << "Loaded entity model " << path;
 
-               m_logger.debug() << "Loaded entity model " << path;
-
-               return modelPtr;
+             return modelPtr;
+           })
+           | kdl::if_error([&](auto e) {
+               m_logger.error() << e.msg;
+               throw GameException{e.msg};
              })
-             | kdl::if_error([&](auto e) {
-                 m_logger.error() << e.msg;
-                 m_modelMismatches.insert(path);
-                 throw GameException{e.msg};
-               })
-             | kdl::value();
-    }
+           | kdl::value();
   }
 
   return nullptr;
