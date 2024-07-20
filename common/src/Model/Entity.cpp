@@ -169,13 +169,13 @@ void Entity::setDefinition(
   updateCachedProperties(propertyConfig);
 }
 
-const Assets::EntityModelFrame* Entity::model() const
+const Assets::EntityModel* Entity::model() const
 {
   return m_model;
 }
 
 void Entity::setModel(
-  const EntityPropertyConfig& propertyConfig, const Assets::EntityModelFrame* model)
+  const EntityPropertyConfig& propertyConfig, const Assets::EntityModel* model)
 {
   if (m_model == model)
   {
@@ -184,6 +184,11 @@ void Entity::setModel(
 
   m_model = model;
   updateCachedProperties(propertyConfig);
+}
+
+const Assets::EntityModelFrame* Entity::modelFrame() const
+{
+  return m_model ? m_model->frame(modelSpecification().frameIndex) : nullptr;
 }
 
 Assets::ModelSpecification Entity::modelSpecification() const

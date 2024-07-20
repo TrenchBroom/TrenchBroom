@@ -92,8 +92,6 @@ private:
   size_t m_index;
   std::string m_name;
   vm::bbox3f m_bounds;
-  PitchType m_pitchType;
-  Orientation m_orientation;
   size_t m_skinOffset = 0;
 
   // For hit testing
@@ -102,14 +100,7 @@ private:
   using SpacialTree = octree<float, TriNum>;
   SpacialTree m_spacialTree;
 
-  kdl_reflect_decl(
-    EntityModelFrame,
-    m_index,
-    m_name,
-    m_bounds,
-    m_pitchType,
-    m_orientation,
-    m_skinOffset);
+  kdl_reflect_decl(EntityModelFrame, m_index, m_name, m_bounds, m_skinOffset);
 
 public:
   /**
@@ -117,12 +108,7 @@ public:
    *
    * @param index the index of this frame
    */
-  explicit EntityModelFrame(
-    size_t index,
-    std::string name,
-    const vm::bbox3f& bounds,
-    PitchType pitchType,
-    Orientation orientation);
+  explicit EntityModelFrame(size_t index, std::string name, const vm::bbox3f& bounds);
 
   /**
    * Returns the index of this frame.
@@ -154,18 +140,6 @@ public:
    * @return the bounding box
    */
   const vm::bbox3f& bounds() const;
-
-  /**
-   * Returns this frame's pitch type. The pitch type controls how a rotational
-   * transformation matrix can be computed from an entity that uses this model frame.
-   */
-  PitchType pitchType() const;
-
-  /**
-   * Returns this frame's orientation. The orientation controls how the frame is oriented
-   * in space depending on the camera position.
-   */
-  Orientation orientation() const;
 
   /**
    * Intersects this frame with the given ray and returns the point of intersection.
@@ -324,14 +298,14 @@ class EntityModel
 {
 private:
   std::string m_name;
-  std::vector<EntityModelFrame> m_frames;
-  std::vector<EntityModelSurface> m_surfaces;
   PitchType m_pitchType;
   Orientation m_orientation;
+  std::vector<EntityModelFrame> m_frames;
+  std::vector<EntityModelSurface> m_surfaces;
   bool m_prepared = false;
 
   kdl_reflect_decl(
-    EntityModel, m_name, m_frames, m_surfaces, m_pitchType, m_orientation, m_prepared);
+    EntityModel, m_name, m_pitchType, m_orientation, m_frames, m_surfaces, m_prepared);
 
 public:
   /**
@@ -347,6 +321,18 @@ public:
    * Returns the name of this model.
    */
   const std::string& name() const;
+
+  /**
+   * Returns this model's pitch type. The pitch type controls how a rotational
+   * transformation matrix can be computed from an entity that uses this model.
+   */
+  PitchType pitchType() const;
+
+  /**
+   * Returns this model's orientation. The orientation controls how the model is oriented
+   * in space depending on the camera position.
+   */
+  Orientation orientation() const;
 
   /**
    * Creates a renderer to render the given frame of the model using the skin with the

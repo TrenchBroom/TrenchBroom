@@ -29,16 +29,14 @@
 #include "vm/approx.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/mat_io.h"
+#include "vm/mat_io.h" // IWYU pragma: keep
 #include "vm/scalar.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
@@ -82,16 +80,14 @@ TEST_CASE("entityRotationInfo")
 
   auto manglePropertyDef =
     std::make_shared<StringPropertyDefinition>("mangle", "", "", false);
-  auto normalPitch =
-    EntityModelFrame{0, "", {}, PitchType::Normal, Orientation::Oriented};
-  auto invertedPitch =
-    EntityModelFrame{0, "", {}, PitchType::MdlInverted, Orientation::Oriented};
+  auto normalPitch = EntityModel{"", PitchType::Normal, Orientation::Oriented};
+  auto invertedPitch = EntityModel{"", PitchType::MdlInverted, Orientation::Oriented};
 
   using T = std::tuple<
     std::vector<EntityProperty>,
     bool,
     std::optional<EntityDefinitionInfo>,
-    EntityModelFrame*,
+    EntityModel*,
     EntityRotationInfo>;
 
   // clang-format off
@@ -281,5 +277,4 @@ TEST_CASE("applyEntityRotation")
   CHECK(applyEntityRotation(properties, info, transform) == expectedProperty);
 }
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

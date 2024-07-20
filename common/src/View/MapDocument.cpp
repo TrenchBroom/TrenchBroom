@@ -4724,8 +4724,8 @@ static auto makeSetEntityModelsVisitor(
         logger, entityNode->entity().classname(), [&]() {
           return entityNode->entity().modelSpecification();
         });
-      const auto* frame = manager.frame(modelSpec);
-      entityNode->setModelFrame(frame);
+      const auto* model = manager.model(modelSpec.path);
+      entityNode->setModel(model);
     },
     [](Model::BrushNode*) {},
     [](Model::PatchNode*) {});
@@ -4737,7 +4737,7 @@ static auto makeUnsetEntityModelsVisitor()
     [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
     [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
     [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
-    [](Model::EntityNode* entity) { entity->setModelFrame(nullptr); },
+    [](Model::EntityNode* entity) { entity->setModel(nullptr); },
     [](Model::BrushNode*) {},
     [](Model::PatchNode*) {});
 }

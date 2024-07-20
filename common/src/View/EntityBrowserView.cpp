@@ -230,7 +230,6 @@ void EntityBrowserView::addEntityToLayout(
         return definition->modelDefinition().defaultModelSpecification();
       });
 
-    const auto* frame = m_entityModelManager.frame(spec);
     const auto modelScale = vm::vec3f{Assets::safeGetModelScale(
       definition->modelDefinition(),
       EL::NullVariableStore{},
@@ -240,10 +239,12 @@ void EntityBrowserView::addEntityToLayout(
     auto rotatedBounds = vm::bbox3f{};
     auto modelOrientation = Assets::Orientation::Oriented;
 
-    if (frame != nullptr)
+    const auto* model = m_entityModelManager.model(spec.path);
+    const auto* modelFrame = model ? model->frame(spec.frameIndex) : nullptr;
+    if (modelFrame)
     {
       const auto scalingMatrix = vm::scaling_matrix(modelScale);
-      const auto bounds = frame->bounds();
+      const auto bounds = modelFrame->bounds();
       const auto center = bounds.center();
       const auto scaledCenter = scalingMatrix * center;
       const auto transform = vm::translation_matrix(scaledCenter)
@@ -252,7 +253,7 @@ void EntityBrowserView::addEntityToLayout(
 
       modelRenderer = m_entityModelManager.renderer(spec);
       rotatedBounds = bounds.transform(transform);
-      modelOrientation = frame->orientation();
+      modelOrientation = model->orientation();
     }
     else
     {

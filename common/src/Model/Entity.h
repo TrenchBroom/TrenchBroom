@@ -36,6 +36,7 @@ namespace TrenchBroom::Assets
 {
 struct DecalSpecification;
 class EntityDefinition;
+class EntityModel;
 class EntityModelFrame;
 struct ModelSpecification;
 } // namespace TrenchBroom::Assets
@@ -103,7 +104,7 @@ private:
   bool m_pointEntity = true;
 
   Assets::AssetReference<Assets::EntityDefinition> m_definition;
-  const Assets::EntityModelFrame* m_model = nullptr;
+  const Assets::EntityModel* m_model = nullptr;
 
   /**
    * These properties are cached for performance reasons.
@@ -158,10 +159,11 @@ public: // property management
   void setDefinition(
     const EntityPropertyConfig& propertyConfig, Assets::EntityDefinition* definition);
 
-  const Assets::EntityModelFrame* model() const;
+  const Assets::EntityModel* model() const;
   void setModel(
-    const EntityPropertyConfig& propertyConfig, const Assets::EntityModelFrame* model);
+    const EntityPropertyConfig& propertyConfig, const Assets::EntityModel* model);
 
+  const Assets::EntityModelFrame* modelFrame() const;
   Assets::ModelSpecification modelSpecification() const;
   const vm::mat4x4& modelTransformation() const;
 

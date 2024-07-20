@@ -84,16 +84,10 @@ std::ostream& operator<<(std::ostream& lhs, const Orientation rhs)
 kdl_reflect_impl(EntityModelFrame);
 
 EntityModelFrame::EntityModelFrame(
-  const size_t index,
-  std::string name,
-  const vm::bbox3f& bounds,
-  const PitchType pitchType,
-  const Orientation orientation)
+  const size_t index, std::string name, const vm::bbox3f& bounds)
   : m_index{index}
   , m_name{std::move(name)}
   , m_bounds{bounds}
-  , m_pitchType{pitchType}
-  , m_orientation{orientation}
   , m_spacialTree{16.0f}
 {
 }
@@ -121,16 +115,6 @@ const std::string& EntityModelFrame::name() const
 const vm::bbox3f& EntityModelFrame::bounds() const
 {
   return m_bounds;
-}
-
-PitchType EntityModelFrame::pitchType() const
-{
-  return m_pitchType;
-}
-
-Orientation EntityModelFrame::orientation() const
-{
-  return m_orientation;
 }
 
 std::optional<float> EntityModelFrame::intersect(const vm::ray3f& ray) const
@@ -493,6 +477,16 @@ const std::string& EntityModel::name() const
   return m_name;
 }
 
+PitchType EntityModel::pitchType() const
+{
+  return m_pitchType;
+}
+
+Orientation EntityModel::orientation() const
+{
+  return m_orientation;
+}
+
 std::unique_ptr<Renderer::MaterialRenderer> EntityModel::buildRenderer(
   const size_t skinIndex, const size_t frameIndex) const
 {
@@ -551,8 +545,7 @@ void EntityModel::setFilterMode(const int minFilter, const int magFilter)
 
 EntityModelFrame& EntityModel::addFrame(std::string name, const vm::bbox3f& bounds)
 {
-  return m_frames.emplace_back(
-    frameCount(), std::move(name), bounds, m_pitchType, m_orientation);
+  return m_frames.emplace_back(frameCount(), std::move(name), bounds);
 }
 
 EntityModelSurface& EntityModel::addSurface(std::string name, const size_t frameCount)

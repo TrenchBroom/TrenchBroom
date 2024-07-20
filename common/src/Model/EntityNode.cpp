@@ -71,9 +71,9 @@ const vm::bbox3& EntityNode::modelBounds() const
   return m_cachedBounds->modelBounds;
 }
 
-void EntityNode::setModelFrame(const Assets::EntityModelFrame* modelFrame)
+void EntityNode::setModel(const Assets::EntityModel* model)
 {
-  m_entity.setModel(entityPropertyConfig(), modelFrame);
+  m_entity.setModel(entityPropertyConfig(), model);
   nodePhysicalBoundsDidChange();
 }
 
@@ -185,14 +185,14 @@ void EntityNode::doPick(
     }
 
     // only if the bbox hit test failed do we hit test the model
-    if (m_entity.model() != nullptr)
+    if (const auto* modelFrame = m_entity.modelFrame())
     {
       // we transform the ray into the model's space
       const auto transform = m_entity.modelTransformation();
       if (const auto inverse = vm::invert(transform))
       {
         const auto transformedRay = vm::ray3f{ray.transform(*inverse)};
-        if (const auto distance = m_entity.model()->intersect(transformedRay))
+        if (const auto distance = modelFrame->intersect(transformedRay))
         {
           // transform back to world space
           const auto transformedHitPoint =
@@ -290,11 +290,11 @@ void EntityNode::validateBounds() const
 
   m_cachedBounds = CachedBounds{};
 
-  const auto hasModel = m_entity.model() != nullptr;
+  const auto hasModel = m_entity.modelFrame() != nullptr;
   if (hasModel)
   {
-    m_cachedBounds->modelBounds =
-      vm::bbox3(m_entity.model()->bounds()).transform(m_entity.modelTransformation());
+    m_cachedBounds->modelBounds = vm::bbox3(m_entity.modelFrame()->bounds())
+                                    .transform(m_entity.modelTransformation());
   }
   else
   {
