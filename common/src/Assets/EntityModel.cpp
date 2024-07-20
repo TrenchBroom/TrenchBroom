@@ -276,7 +276,7 @@ public:
    * @return the renderer
    */
   std::unique_ptr<Renderer::MaterialIndexRangeRenderer> buildRenderer(
-    const Material* skin)
+    const Material* skin) const
   {
     const auto vertexArray = Renderer::VertexArray::ref(m_vertices);
     return doBuildRenderer(skin, vertexArray);
@@ -291,7 +291,7 @@ private:
    * @return the renderer
    */
   virtual std::unique_ptr<Renderer::MaterialIndexRangeRenderer> doBuildRenderer(
-    const Material* skin, const Renderer::VertexArray& vertices) = 0;
+    const Material* skin, const Renderer::VertexArray& vertices) const = 0;
 };
 
 // EntityModel::IndexedMesh
@@ -332,7 +332,7 @@ public:
 
 private:
   std::unique_ptr<Renderer::MaterialIndexRangeRenderer> doBuildRenderer(
-    const Material* skin, const Renderer::VertexArray& vertices) override
+    const Material* skin, const Renderer::VertexArray& vertices) const override
   {
     const Renderer::MaterialIndexRangeMap indices(skin, m_indices);
     return std::make_unique<Renderer::MaterialIndexRangeRenderer>(vertices, indices);
@@ -378,7 +378,7 @@ public:
 
 private:
   std::unique_ptr<Renderer::MaterialIndexRangeRenderer> doBuildRenderer(
-    const Material* /* skin */, const Renderer::VertexArray& vertices) override
+    const Material* /* skin */, const Renderer::VertexArray& vertices) const override
   {
     return std::make_unique<Renderer::MaterialIndexRangeRenderer>(vertices, m_indices);
   }
@@ -467,7 +467,7 @@ const Material* EntityModelSurface::skin(const size_t index) const
 }
 
 std::unique_ptr<Renderer::MaterialIndexRangeRenderer> EntityModelSurface::buildRenderer(
-  const size_t skinIndex, const size_t frameIndex)
+  const size_t skinIndex, const size_t frameIndex) const
 {
   assert(frameIndex < frameCount());
   assert(skinIndex < skinCount());
@@ -494,7 +494,7 @@ const std::string& EntityModel::name() const
 }
 
 std::unique_ptr<Renderer::MaterialRenderer> EntityModel::buildRenderer(
-  const size_t skinIndex, const size_t frameIndex)
+  const size_t skinIndex, const size_t frameIndex) const
 {
   auto renderers = std::vector<std::unique_ptr<Renderer::MaterialIndexRangeRenderer>>{};
   if (frameIndex >= frameCount())

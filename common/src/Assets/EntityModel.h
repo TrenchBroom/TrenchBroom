@@ -311,7 +311,7 @@ public:
   const Material* skin(size_t index) const;
 
   std::unique_ptr<Renderer::MaterialIndexRangeRenderer> buildRenderer(
-    size_t skinIndex, size_t frameIndex);
+    size_t skinIndex, size_t frameIndex) const;
 };
 
 /**
@@ -357,7 +357,7 @@ public:
    * @return the renderer
    */
   std::unique_ptr<Renderer::MaterialRenderer> buildRenderer(
-    size_t skinIndex, size_t frameIndex);
+    size_t skinIndex, size_t frameIndex) const;
 
   /**
    * Returns the bounds of the given frame of this model.
