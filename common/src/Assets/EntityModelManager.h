@@ -90,8 +90,8 @@ public:
   const EntityModelFrame* frame(const ModelSpecification& spec) const;
 
 private:
-  EntityModel* model(const std::filesystem::path& path) const;
-  EntityModel* safeGetModel(const std::filesystem::path& path) const;
+  const EntityModel* model(const std::filesystem::path& path) const;
+  const EntityModel* safeGetModel(const std::filesystem::path& path) const;
   Result<EntityModel> loadModel(const std::filesystem::path& path) const;
 
 public:

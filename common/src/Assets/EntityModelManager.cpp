@@ -138,7 +138,7 @@ const EntityModelFrame* EntityModelManager::frame(
   return nullptr;
 }
 
-EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
+const EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
 {
   if (!path.empty())
   {
@@ -169,7 +169,8 @@ EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
   return nullptr;
 }
 
-EntityModel* EntityModelManager::safeGetModel(const std::filesystem::path& path) const
+const EntityModel* EntityModelManager::safeGetModel(
+  const std::filesystem::path& path) const
 {
   try
   {
