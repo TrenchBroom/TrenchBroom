@@ -61,7 +61,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
   {
     auto* brushNode =
       new Model::BrushNode{builder.createCube(32.0, "some_face") | kdl::value()};
-    auto* entityNode = new Model::EntityNode{{}, {{"origin", "64 0 0"}}};
+    auto* entityNode = new Model::EntityNode{Model::Entity{{{"origin", "64 0 0"}}}};
     auto* groupNode = new Model::GroupNode(Model::Group{"some_group"});
 
     document->addNodes({{document->parentForNodes(), {groupNode}}});
@@ -131,7 +131,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
     const auto topFaceIndex = *brushNode->brush().findFace("top_face");
     const auto frontFaceIndex = *brushNode->brush().findFace("front_face");
 
-    auto* entityNode = new Model::EntityNode{{}, {{"origin", "64 0 0"}}};
+    auto* entityNode = new Model::EntityNode{Model::Entity{{{"origin", "64 0 0"}}}};
 
     document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
 

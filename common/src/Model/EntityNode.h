@@ -64,9 +64,6 @@ private:
 
 public:
   explicit EntityNode(Entity entity);
-  EntityNode(
-    const Model::EntityPropertyConfig& entityPropertyConfig,
-    std::initializer_list<EntityProperty> properties);
 
 public: // entity model
   const vm::bbox3& modelBounds() const;

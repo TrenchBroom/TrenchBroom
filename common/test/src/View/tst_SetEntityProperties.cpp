@@ -68,7 +68,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
   document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<Assets::EntityDefinition>>(
     std::move(pointEntityDefOwner), std::move(largeEntityDefOwner)));
 
-  auto* entityNode = new Model::EntityNode({}, {{"classname", "large_entity"}});
+  auto* entityNode =
+    new Model::EntityNode(Model::Entity{{{"classname", "large_entity"}}});
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   REQUIRE(entityNode->entity().definition() == largeEntityDef);
@@ -147,7 +148,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProp
 TEST_CASE_METHOD(
   ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedPropertyRestoresValue")
 {
-  auto* entityNode = new Model::EntityNode{{}, {{"some_key", "some_value"}}};
+  auto* entityNode = new Model::EntityNode{Model::Entity{{{"some_key", "some_value"}}}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   document->selectNodes({entityNode});
@@ -292,8 +293,10 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedProperties")
 {
-  auto* entityNode = new Model::EntityNode{
-    {}, {{"some_key", "some_value"}, {"another_key", "another_value"}}};
+  auto* entityNode = new Model::EntityNode{Model::Entity{{
+    {"some_key", "some_value"},
+    {"another_key", "another_value"},
+  }}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   CHECK_FALSE(document->canClearProtectedProperties());

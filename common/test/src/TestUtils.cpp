@@ -310,8 +310,11 @@ void transformNode(
       groupNode->visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, EntityNode* entityNode) {
+      const auto updateAngleProperty =
+        entityNode->entityPropertyConfig().updateAnglePropertyAfterTransform;
+
       auto entity = entityNode->entity();
-      entity.transform(entityNode->entityPropertyConfig(), transformation);
+      entity.transform(transformation, updateAngleProperty);
       entityNode->setEntity(std::move(entity));
 
       entityNode->visitChildren(thisLambda);

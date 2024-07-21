@@ -1895,17 +1895,13 @@ Model::EntityNode* MapDocument::createPointEntity(
 {
   ensure(definition != nullptr, "definition is null");
 
-  auto entity = Model::Entity{
-    m_world->entityPropertyConfig(),
-    {{Model::EntityPropertyKeys::Classname, definition->name()}}};
+  auto entity =
+    Model::Entity{{{Model::EntityPropertyKeys::Classname, definition->name()}}};
 
   if (m_world->entityPropertyConfig().setDefaultProperties)
   {
     Model::setDefaultProperties(
-      m_world->entityPropertyConfig(),
-      *definition,
-      entity,
-      Model::SetDefaultPropertyMode::SetAll);
+      *definition, entity, Model::SetDefaultPropertyMode::SetAll);
   }
 
   auto* entityNode = new Model::EntityNode{std::move(entity)};
@@ -1951,18 +1947,12 @@ Model::EntityNode* MapDocument::createBrushEntity(
       ? brushes.front()->entity()->entity()
       : Model::Entity{};
 
-  entity.addOrUpdateProperty(
-    m_world->entityPropertyConfig(),
-    Model::EntityPropertyKeys::Classname,
-    definition->name());
+  entity.addOrUpdateProperty(Model::EntityPropertyKeys::Classname, definition->name());
 
   if (m_world->entityPropertyConfig().setDefaultProperties)
   {
     Model::setDefaultProperties(
-      m_world->entityPropertyConfig(),
-      *definition,
-      entity,
-      Model::SetDefaultPropertyMode::SetAll);
+      *definition, entity, Model::SetDefaultPropertyMode::SetAll);
   }
 
   auto* entityNode = new Model::EntityNode{std::move(entity)};
@@ -2890,7 +2880,10 @@ bool MapDocument::transformObjects(
 
   using TransformResult = Result<std::pair<Model::Node*, Model::NodeContents>>;
 
-  const bool alignmentLock = pref(Preferences::AlignmentLock);
+  const auto alignmentLock = pref(Preferences::AlignmentLock);
+  const auto updateAngleProperty =
+    m_world->entityPropertyConfig().updateAnglePropertyAfterTransform;
+
   auto transformResults = kdl::vec_parallel_transform(
     nodesToTransform, [&](Model::Node* node) -> TransformResult {
       return node->accept(kdl::overload(
@@ -2907,7 +2900,7 @@ bool MapDocument::transformObjects(
         },
         [&](Model::EntityNode* entityNode) -> TransformResult {
           auto entity = entityNode->entity();
-          entity.transform(m_world->entityPropertyConfig(), transformation);
+          entity.transform(transformation, updateAngleProperty);
           return std::make_pair(entityNode, Model::NodeContents{std::move(entity)});
         },
         [&](Model::BrushNode* brushNode) -> TransformResult {
@@ -3333,8 +3326,7 @@ bool MapDocument::setProperty(
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
-        entity.addOrUpdateProperty(
-          m_world->entityPropertyConfig(), key, value, defaultToProtected);
+        entity.addOrUpdateProperty(key, value, defaultToProtected);
         return true;
       },
       [](Model::Brush&) { return true; },
@@ -3353,7 +3345,7 @@ bool MapDocument::renameProperty(const std::string& oldKey, const std::string& n
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
-        entity.renameProperty(m_world->entityPropertyConfig(), oldKey, newKey);
+        entity.renameProperty(oldKey, newKey);
         return true;
       },
       [](Model::Brush&) { return true; },
@@ -3372,7 +3364,7 @@ bool MapDocument::removeProperty(const std::string& key)
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
-        entity.removeProperty(m_world->entityPropertyConfig(), key);
+        entity.removeProperty(key);
         return true;
       },
       [](Model::Brush&) { return true; },
@@ -3394,10 +3386,7 @@ bool MapDocument::convertEntityColorRange(
       [&](Model::Entity& entity) {
         if (const auto* oldValue = entity.property(key))
         {
-          entity.addOrUpdateProperty(
-            m_world->entityPropertyConfig(),
-            key,
-            Model::convertEntityColor(*oldValue, range));
+          entity.addOrUpdateProperty(key, Model::convertEntityColor(*oldValue, range));
         }
         return true;
       },
@@ -3423,8 +3412,7 @@ bool MapDocument::updateSpawnflag(
         const int flagValue = (1 << flagIndex);
 
         intValue = setFlag ? intValue | flagValue : intValue & ~flagValue;
-        entity.addOrUpdateProperty(
-          m_world->entityPropertyConfig(), key, kdl::str_to_string(intValue));
+        entity.addOrUpdateProperty(key, kdl::str_to_string(intValue));
 
         return true;
       },
@@ -3496,7 +3484,7 @@ bool MapDocument::setProtectedProperty(const std::string& key, const bool value)
         const auto newValue =
           findUnprotectedPropertyValue(key, *entityNode, *m_world.get()))
       {
-        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, *newValue);
+        entity.addOrUpdateProperty(key, *newValue);
       }
 
       protectedProperties = kdl::vec_erase(std::move(protectedProperties), key);
@@ -3532,7 +3520,7 @@ bool MapDocument::clearProtectedProperties()
     {
       if (const auto newValue = findUnprotectedPropertyValue(key, linkedEntities))
       {
-        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, *newValue);
+        entity.addOrUpdateProperty(key, *newValue);
       }
     }
 
@@ -3571,8 +3559,7 @@ void MapDocument::setDefaultProperties(const Model::SetDefaultPropertyMode mode)
       [&](Model::Entity& entity) {
         if (const auto* definition = entity.definition())
         {
-          Model::setDefaultProperties(
-            m_world->entityPropertyConfig(), *definition, entity, mode);
+          Model::setDefaultProperties(*definition, entity, mode);
         }
         return true;
       },
@@ -4366,10 +4353,7 @@ void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec
   const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
   auto entity = m_world->entity();
-  entity.addOrUpdateProperty(
-    m_world->entityPropertyConfig(),
-    Model::EntityPropertyKeys::EntityDefinitions,
-    formatted);
+  entity.addOrUpdateProperty(Model::EntityPropertyKeys::EntityDefinitions, formatted);
   swapNodeContents(
     "Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}}, {});
 }
@@ -4798,14 +4782,12 @@ void MapDocument::setMods(const std::vector<std::string>& mods)
   auto entity = m_world->entity();
   if (mods.empty())
   {
-    entity.removeProperty(
-      m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Mods);
+    entity.removeProperty(Model::EntityPropertyKeys::Mods);
   }
   else
   {
     const std::string newValue = kdl::str_join(mods, ";");
-    entity.addOrUpdateProperty(
-      m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Mods, newValue);
+    entity.addOrUpdateProperty(Model::EntityPropertyKeys::Mods, newValue);
   }
   swapNodeContents(
     "Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}}, {});
@@ -4830,22 +4812,19 @@ void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds)
       // Set the worldspawn key EntityPropertyKeys::SoftMaxMapSize's value to the empty
       // string to indicate that we are overriding the Game's bounds with unlimited.
       entity.addOrUpdateProperty(
-        m_world->entityPropertyConfig(),
         Model::EntityPropertyKeys::SoftMapBounds,
         Model::EntityPropertyValues::NoSoftMapBounds);
     }
     else
     {
       entity.addOrUpdateProperty(
-        m_world->entityPropertyConfig(),
         Model::EntityPropertyKeys::SoftMapBounds,
         IO::serializeSoftMapBoundsString(*bounds.bounds));
     }
     break;
   case Model::Game::SoftMapBoundsType::Game:
     // Unset the map's setting
-    entity.removeProperty(
-      m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds);
+    entity.removeProperty(Model::EntityPropertyKeys::SoftMapBounds);
     break;
     switchDefault();
   }

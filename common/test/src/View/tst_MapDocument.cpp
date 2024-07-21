@@ -628,11 +628,9 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
   document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<Assets::EntityDefinition>>(
     std::move(definitionWithDefaultsOwner)));
 
-  auto* entityNodeWithoutDefinition = new Model::EntityNode{
-    document->world()->entityPropertyConfig(),
-    {
-      {"classname", "some_class"},
-    }};
+  auto* entityNodeWithoutDefinition = new Model::EntityNode{Model::Entity{{
+    {"classname", "some_class"},
+  }}};
   document->addNodes({{document->parentForNodes(), {entityNodeWithoutDefinition}}});
   document->selectNodes({entityNodeWithoutDefinition});
   document->setProperty("some_prop", "some_value");

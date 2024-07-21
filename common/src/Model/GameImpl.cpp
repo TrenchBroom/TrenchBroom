@@ -199,14 +199,12 @@ Result<std::unique_ptr<WorldNode>> GameImpl::newMap(
     format == MapFormat::Valve || format == MapFormat::Quake2_Valve
     || format == MapFormat::Quake3_Valve)
   {
-    worldEntity.addOrUpdateProperty(
-      propertyConfig, EntityPropertyKeys::ValveVersion, "220");
+    worldEntity.addOrUpdateProperty(EntityPropertyKeys::ValveVersion, "220");
   }
 
   if (m_config.materialConfig.property)
   {
-    worldEntity.addOrUpdateProperty(
-      propertyConfig, *m_config.materialConfig.property, "");
+    worldEntity.addOrUpdateProperty(*m_config.materialConfig.property, "");
   }
 
   auto worldNode = std::make_unique<WorldNode>(
@@ -469,15 +467,14 @@ void GameImpl::writeLongAttribute(
   const size_t maxLength) const
 {
   auto entity = node.entity();
-  entity.removeNumberedProperty(entityPropertyConfig(), baseName);
+  entity.removeNumberedProperty(baseName);
 
   auto nameStr = std::stringstream{};
   for (size_t i = 0; i <= value.size() / maxLength; ++i)
   {
     nameStr.str("");
     nameStr << baseName << i + 1;
-    entity.addOrUpdateProperty(
-      entityPropertyConfig(), nameStr.str(), value.substr(i * maxLength, maxLength));
+    entity.addOrUpdateProperty(nameStr.str(), value.substr(i * maxLength, maxLength));
   }
 
   node.setEntity(std::move(entity));

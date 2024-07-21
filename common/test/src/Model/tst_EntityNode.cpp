@@ -160,7 +160,7 @@ protected:
   EntityNodeTest()
   {
     m_worldBounds = vm::bbox3d(8192.0);
-    m_entity = new EntityNode({}, {{EntityPropertyKeys::Classname, TestClassname}});
+    m_entity = new EntityNode(Entity{{{EntityPropertyKeys::Classname, TestClassname}}});
     m_world = new WorldNode({}, {}, MapFormat::Standard);
   }
 
@@ -182,7 +182,7 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties")
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
     newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-  m_entity->setEntity(Entity({}, {{"origin", "10 20 30"}}));
+  m_entity->setEntity(Entity{{{"origin", "10 20 30"}}});
   CHECK(m_entity->entity().origin() == newOrigin);
   CHECK(m_entity->logicalBounds() == newBounds);
 }
@@ -194,7 +194,7 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProp
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
     newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-  m_entity->setEntity(Entity({}, {{"origin", "10 20 30"}}));
+  m_entity->setEntity(Entity{{{"origin", "10 20 30"}}});
   CHECK(m_entity->entity().origin() == newOrigin);
   CHECK(m_entity->logicalBounds() == newBounds);
 }
@@ -209,7 +209,7 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateInWorld")
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
     newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-  m_entity->setEntity(Entity({}, {{"origin", "10 20 30"}}));
+  m_entity->setEntity(Entity{{{"origin", "10 20 30"}}});
   CHECK(m_entity->entity().origin() == newOrigin);
   CHECK(m_entity->logicalBounds() == newBounds);
 }

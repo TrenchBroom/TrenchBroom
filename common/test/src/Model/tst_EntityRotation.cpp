@@ -179,10 +179,10 @@ TEST_CASE("entityRotationInfo")
   CAPTURE(entityProperties, point, entityDefinitionInfo, entityModel);
 
   auto entityDefinition = createEntityDefinition(entityDefinitionInfo);
-  auto entity = Entity{{}, entityProperties};
-  entity.setDefinition({}, entityDefinition.get());
-  entity.setModel({}, entityModel);
-  entity.setPointEntity({}, point);
+  auto entity = Entity{entityProperties};
+  entity.setDefinition(entityDefinition.get());
+  entity.setModel(entityModel);
+  entity.setPointEntity(point);
 
   CHECK(entityRotationInfo(entity) == expectedRotationInfo);
 }

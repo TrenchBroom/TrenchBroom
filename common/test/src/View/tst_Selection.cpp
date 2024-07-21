@@ -576,7 +576,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds")
 {
-  auto* entityNode = new Model::EntityNode{{}, {{"classname", "point_entity"}}};
+  auto* entityNode =
+    new Model::EntityNode{Model::Entity{{{"classname", "point_entity"}}}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   REQUIRE(!entityNode->logicalBounds().is_empty());
 

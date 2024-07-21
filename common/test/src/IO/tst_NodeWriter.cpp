@@ -669,7 +669,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
   map.defaultLayer()->setLayer(std::move(defaultLayer));
 
   auto* defaultLayerPointEntityNode =
-    new Model::EntityNode{Model::Entity{{}, {{"classname", "defaultLayerPointEntity"}}}};
+    new Model::EntityNode{Model::Entity{{{"classname", "defaultLayerPointEntity"}}}};
 
   auto* defaultLayerBrushNode =
     new Model::BrushNode{builder.createCube(64.0, "defaultMaterial") | kdl::value()};
@@ -686,7 +686,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
   map.addChild(layerNode1);
 
   auto* layer1PointEntityNode =
-    new Model::EntityNode{Model::Entity{{}, {{"classname", "layer1PointEntity"}}}};
+    new Model::EntityNode{Model::Entity{{{"classname", "layer1PointEntity"}}}};
   layerNode1->addChild(layer1PointEntityNode);
 
   auto* layer1BrushNode =
@@ -698,7 +698,7 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
   map.addChild(layerNode2);
 
   auto* layer2PointEntityNode =
-    new Model::EntityNode{Model::Entity{{}, {{"classname", "layer2PointEntity"}}}};
+    new Model::EntityNode{Model::Entity{{{"classname", "layer2PointEntity"}}}};
   layerNode2->addChild(layer2PointEntityNode);
 
   auto* layer2BrushNode =

@@ -94,57 +94,47 @@ void NodeSerializer::defaultLayer(const Model::WorldNode& world)
   // object to worldspawn
   const Model::LayerNode* defaultLayerNode = world.defaultLayer();
   const Model::Layer& defaultLayer = defaultLayerNode->layer();
-  const auto& entityPropertyConfig = world.entityPropertyConfig();
   if (defaultLayer.color())
   {
     worldEntity.addOrUpdateProperty(
-      entityPropertyConfig,
-      Model::EntityPropertyKeys::LayerColor,
-      kdl::str_to_string(*defaultLayer.color()));
+      Model::EntityPropertyKeys::LayerColor, kdl::str_to_string(*defaultLayer.color()));
   }
   else
   {
-    worldEntity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerColor);
+    worldEntity.removeProperty(Model::EntityPropertyKeys::LayerColor);
   }
 
   if (defaultLayerNode->lockState() == Model::LockState::Locked)
   {
     worldEntity.addOrUpdateProperty(
-      entityPropertyConfig,
       Model::EntityPropertyKeys::LayerLocked,
       Model::EntityPropertyValues::LayerLockedValue);
   }
   else
   {
-    worldEntity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerLocked);
+    worldEntity.removeProperty(Model::EntityPropertyKeys::LayerLocked);
   }
 
   if (defaultLayerNode->hidden())
   {
     worldEntity.addOrUpdateProperty(
-      entityPropertyConfig,
       Model::EntityPropertyKeys::LayerHidden,
       Model::EntityPropertyValues::LayerHiddenValue);
   }
   else
   {
-    worldEntity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerHidden);
+    worldEntity.removeProperty(Model::EntityPropertyKeys::LayerHidden);
   }
 
   if (defaultLayer.omitFromExport())
   {
     worldEntity.addOrUpdateProperty(
-      entityPropertyConfig,
       Model::EntityPropertyKeys::LayerOmitFromExport,
       Model::EntityPropertyValues::LayerOmitFromExportValue);
   }
   else
   {
-    worldEntity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
+    worldEntity.removeProperty(Model::EntityPropertyKeys::LayerOmitFromExport);
   }
 
   if (m_exporting && defaultLayer.omitFromExport())

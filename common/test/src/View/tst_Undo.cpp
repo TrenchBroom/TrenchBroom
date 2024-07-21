@@ -105,8 +105,9 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
 
 TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation")
 {
-  auto* entityNode =
-    new Model::EntityNode{{}, {{Model::EntityPropertyKeys::Classname, "test"}}};
+  auto* entityNode = new Model::EntityNode{Model::Entity{{
+    {Model::EntityPropertyKeys::Classname, "test"},
+  }}};
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   CHECK(!entityNode->entity().hasProperty("angle"));

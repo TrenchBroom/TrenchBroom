@@ -291,8 +291,10 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
           return std::make_pair(nodeToTransform, NodeContents{std::move(group)});
         },
         [&](const EntityNode* entityNode) -> TransformResult {
+          const auto updateAngleProperty =
+            entityNode->entityPropertyConfig().updateAnglePropertyAfterTransform;
           auto entity = entityNode->entity();
-          entity.transform(entityNode->entityPropertyConfig(), transformation);
+          entity.transform(transformation, updateAngleProperty);
           return std::make_pair(nodeToTransform, NodeContents{std::move(entity)});
         },
         [&](const BrushNode* brushNode) -> TransformResult {
@@ -419,14 +421,13 @@ void preserveEntityProperties(
 
   clonedEntity.setProtectedProperties(correspondingEntity.protectedProperties());
 
-  const auto entityPropertyConfig = clonedEntityNode.entityPropertyConfig();
   for (const auto& propertyKey : allProtectedProperties)
   {
     // this can change the order of properties
-    clonedEntity.removeProperty(entityPropertyConfig, propertyKey);
+    clonedEntity.removeProperty(propertyKey);
     if (const auto* propertyValue = correspondingEntity.property(propertyKey))
     {
-      clonedEntity.addOrUpdateProperty(entityPropertyConfig, propertyKey, *propertyValue);
+      clonedEntity.addOrUpdateProperty(propertyKey, *propertyValue);
     }
   }
 

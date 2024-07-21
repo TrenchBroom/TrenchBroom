@@ -20,15 +20,16 @@
 #pragma once
 
 #include "Assets/AssetReference.h"
+#include "EL/EL_Forward.h" // IWYU pragma: keep
 #include "FloatType.h"
 #include "Model/EntityProperties.h"
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/forward.h"
-#include "vm/mat.h"
-#include "vm/vec.h"
+#include "vm/mat.h" // IWYU pragma: keep
+#include "vm/vec.h" // IWYU pragma: keep
 
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -54,7 +55,6 @@ enum class SetDefaultPropertyMode
 };
 
 void setDefaultProperties(
-  const EntityPropertyConfig& propertyConfig,
   const Assets::EntityDefinition& entityDefinition,
   Entity& entity,
   SetDefaultPropertyMode mode);
@@ -109,23 +109,14 @@ private:
   /**
    * These properties are cached for performance reasons.
    */
-  struct CachedProperties
-  {
-    std::string classname;
-    vm::vec3 origin;
-    vm::mat4x4 rotation;
-    vm::mat4x4 modelTransformation;
-  };
-
-  CachedProperties m_cachedProperties;
+  mutable std::optional<std::string> m_cachedClassname;
+  mutable std::optional<vm::vec3> m_cachedOrigin;
+  mutable std::optional<vm::mat4x4> m_cachedRotation;
+  mutable std::optional<vm::mat4x4> m_cachedModelTransformation;
 
 public:
   Entity();
-  Entity(
-    const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties);
-  Entity(
-    const EntityPropertyConfig& propertyConfig,
-    std::initializer_list<EntityProperty> properties);
+  explicit Entity(std::vector<EntityProperty> properties);
 
   Entity(const Entity& other);
   Entity(Entity&& other);
@@ -137,8 +128,7 @@ public:
 
 public: // property management
   const std::vector<EntityProperty>& properties() const;
-  void setProperties(
-    const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties);
+  void setProperties(std::vector<EntityProperty> properties);
 
   /**
    * Sets the protected property keys of this entity.
@@ -151,38 +141,30 @@ public: // property management
   void setProtectedProperties(std::vector<std::string> protectedProperties);
 
   bool pointEntity() const;
-  void setPointEntity(const EntityPropertyConfig& propertyConfig, bool pointEntity);
+  void setPointEntity(bool pointEntity);
 
   Assets::EntityDefinition* definition();
   const Assets::EntityDefinition* definition() const;
   const vm::bbox3& definitionBounds() const;
-  void setDefinition(
-    const EntityPropertyConfig& propertyConfig, Assets::EntityDefinition* definition);
+  void setDefinition(Assets::EntityDefinition* definition);
 
   const Assets::EntityModel* model() const;
-  void setModel(
-    const EntityPropertyConfig& propertyConfig, const Assets::EntityModel* model);
+  void setModel(const Assets::EntityModel* model);
 
   const Assets::EntityModelFrame* modelFrame() const;
   Assets::ModelSpecification modelSpecification() const;
-  const vm::mat4x4& modelTransformation() const;
+  const vm::mat4x4& modelTransformation(
+    const std::optional<EL::Expression>& defaultModelScaleExpression) const;
 
   Assets::DecalSpecification decalSpecification() const;
 
   void unsetEntityDefinitionAndModel();
 
   void addOrUpdateProperty(
-    const EntityPropertyConfig& propertyConfig,
-    std::string key,
-    std::string value,
-    bool defaultToProtected = false);
-  void renameProperty(
-    const EntityPropertyConfig& propertyConfig,
-    const std::string& oldKey,
-    std::string newKey);
-  void removeProperty(const EntityPropertyConfig& propertyConfig, const std::string& key);
-  void removeNumberedProperty(
-    const EntityPropertyConfig& propertyConfig, const std::string& prefix);
+    std::string key, std::string value, bool defaultToProtected = false);
+  void renameProperty(const std::string& oldKey, std::string newKey);
+  void removeProperty(const std::string& key);
+  void removeNumberedProperty(const std::string& prefix);
 
   bool hasProperty(const std::string& key) const;
   bool hasProperty(const std::string& key, const std::string& value) const;
@@ -194,11 +176,10 @@ public: // property management
   std::vector<std::string> propertyKeys() const;
 
   const std::string& classname() const;
-  void setClassname(
-    const EntityPropertyConfig& propertyConfig, const std::string& classname);
+  void setClassname(const std::string& classname);
 
   const vm::vec3& origin() const;
-  void setOrigin(const EntityPropertyConfig& propertyConfig, const vm::vec3& origin);
+  void setOrigin(const vm::vec3& origin);
 
   const vm::mat4x4& rotation() const;
 
@@ -206,14 +187,7 @@ public: // property management
   std::vector<EntityProperty> propertiesWithPrefix(const std::string& property) const;
   std::vector<EntityProperty> numberedProperties(const std::string& property) const;
 
-  void transform(
-    const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation);
-
-private:
-  void applyRotation(
-    const EntityPropertyConfig& propertyConfig, const vm::mat4x4& rotation);
-
-  void updateCachedProperties(const EntityPropertyConfig& propertyConfig);
+  void transform(const vm::mat4x4& transformation, bool updateAngleProperty);
 };
 
 } // namespace TrenchBroom::Model

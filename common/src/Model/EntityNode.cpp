@@ -58,13 +58,6 @@ EntityNode::EntityNode(Entity entity)
 {
 }
 
-EntityNode::EntityNode(
-  const Model::EntityPropertyConfig& entityPropertyConfig,
-  std::initializer_list<EntityProperty> properties)
-  : EntityNode{Entity{entityPropertyConfig, std::move(properties)}}
-{
-}
-
 const vm::bbox3& EntityNode::modelBounds() const
 {
   validateBounds();
@@ -73,7 +66,7 @@ const vm::bbox3& EntityNode::modelBounds() const
 
 void EntityNode::setModel(const Assets::EntityModel* model)
 {
-  m_entity.setModel(entityPropertyConfig(), model);
+  m_entity.setModel(model);
   nodePhysicalBoundsDidChange();
 }
 
@@ -142,13 +135,13 @@ bool EntityNode::doShouldAddToSpacialIndex() const
 
 void EntityNode::doChildWasAdded(Node* /* node */)
 {
-  m_entity.setPointEntity(entityPropertyConfig(), !hasChildren());
+  m_entity.setPointEntity(!hasChildren());
   nodePhysicalBoundsDidChange();
 }
 
 void EntityNode::doChildWasRemoved(Node* /* node */)
 {
-  m_entity.setPointEntity(entityPropertyConfig(), !hasChildren());
+  m_entity.setPointEntity(!hasChildren());
   nodePhysicalBoundsDidChange();
 }
 
@@ -188,7 +181,9 @@ void EntityNode::doPick(
     if (const auto* modelFrame = m_entity.modelFrame())
     {
       // we transform the ray into the model's space
-      const auto transform = m_entity.modelTransformation();
+      const auto defaultModelScaleExpression =
+        entityPropertyConfig().defaultModelScaleExpression;
+      const auto transform = m_entity.modelTransformation(defaultModelScaleExpression);
       if (const auto inverse = vm::invert(transform))
       {
         const auto transformedRay = vm::ray3f{ray.transform(*inverse)};
@@ -291,14 +286,18 @@ void EntityNode::validateBounds() const
   m_cachedBounds = CachedBounds{};
 
   const auto hasModel = m_entity.modelFrame() != nullptr;
+  const auto& defaultModelScaleExpression =
+    entityPropertyConfig().defaultModelScaleExpression;
   if (hasModel)
   {
-    m_cachedBounds->modelBounds = vm::bbox3(m_entity.modelFrame()->bounds())
-                                    .transform(m_entity.modelTransformation());
+    m_cachedBounds->modelBounds =
+      vm::bbox3(m_entity.modelFrame()->bounds())
+        .transform(m_entity.modelTransformation(defaultModelScaleExpression));
   }
   else
   {
-    m_cachedBounds->modelBounds = DefaultBounds.transform(m_entity.modelTransformation());
+    m_cachedBounds->modelBounds =
+      DefaultBounds.transform(m_entity.modelTransformation(defaultModelScaleExpression));
   }
 
   if (hasChildren())

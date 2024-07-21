@@ -401,10 +401,7 @@ std::optional<EntityProperty> applyEntityRotation(
   }
 }
 
-void applyEntityRotation(
-  Entity& entity,
-  const EntityPropertyConfig& propertyConfig,
-  const vm::mat4x4& transformation)
+void applyEntityRotation(Entity& entity, const vm::mat4x4& transformation)
 {
   const auto info = entityRotationInfo(entity);
 
@@ -412,8 +409,7 @@ void applyEntityRotation(
     const auto entityProperty =
       applyEntityRotation(entity.properties(), info, transformation))
   {
-    entity.addOrUpdateProperty(
-      propertyConfig, entityProperty->key(), entityProperty->value());
+    entity.addOrUpdateProperty(entityProperty->key(), entityProperty->value());
   }
 }
 

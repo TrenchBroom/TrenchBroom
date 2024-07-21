@@ -307,7 +307,7 @@ CreateNodeResult createWorldNode(
   const Model::EntityPropertyConfig& entityPropertyConfig,
   const Model::MapFormat mapFormat)
 {
-  auto entity = Model::Entity{entityPropertyConfig, std::move(entityInfo.properties)};
+  auto entity = Model::Entity{std::move(entityInfo.properties)};
   auto worldNode =
     std::make_unique<Model::WorldNode>(entityPropertyConfig, Model::Entity{}, mapFormat);
   worldNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
@@ -321,7 +321,7 @@ CreateNodeResult createWorldNode(
     {
       defaultLayer.setColor(*color);
     }
-    entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerColor);
+    entity.removeProperty(Model::EntityPropertyKeys::LayerColor);
   }
   if (
     const auto* omitFromExportStr =
@@ -331,8 +331,7 @@ CreateNodeResult createWorldNode(
     {
       defaultLayer.setOmitFromExport(true);
     }
-    entity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
+    entity.removeProperty(Model::EntityPropertyKeys::LayerOmitFromExport);
   }
   defaultLayerNode->setLayer(std::move(defaultLayer));
 
@@ -342,8 +341,7 @@ CreateNodeResult createWorldNode(
     {
       defaultLayerNode->setLockState(Model::LockState::Locked);
     }
-    entity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
+    entity.removeProperty(Model::EntityPropertyKeys::LayerOmitFromExport);
   }
   if (const auto* hiddenStr = entity.property(Model::EntityPropertyKeys::LayerHidden))
   {
@@ -351,8 +349,7 @@ CreateNodeResult createWorldNode(
     {
       defaultLayerNode->setVisibilityState(Model::VisibilityState::Hidden);
     }
-    entity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
+    entity.removeProperty(Model::EntityPropertyKeys::LayerOmitFromExport);
   }
 
   worldNode->setEntity(std::move(entity));
@@ -513,27 +510,24 @@ CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
 /**
  * Creates an entity node for the given entity info.
  */
-CreateNodeResult createEntityNode(
-  const Model::EntityPropertyConfig& entityPropertyConfig,
-  MapReader::EntityInfo entityInfo)
+CreateNodeResult createEntityNode(MapReader::EntityInfo entityInfo)
 {
-  auto entity = Model::Entity{entityPropertyConfig, std::move(entityInfo.properties)};
+  auto entity = Model::Entity{std::move(entityInfo.properties)};
   if (
     const auto* protectedPropertiesStr =
       entity.property(Model::EntityPropertyKeys::ProtectedEntityProperties))
   {
     auto protectedProperties = kdl::str_split(*protectedPropertiesStr, ";");
     entity.setProtectedProperties(std::move(protectedProperties));
-    entity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::ProtectedEntityProperties);
+    entity.removeProperty(Model::EntityPropertyKeys::ProtectedEntityProperties);
   }
 
   auto nodeIssues = std::vector<NodeIssue>{};
   auto containerInfo = extractContainerInfo(entity.properties(), nodeIssues);
 
   // strip container properties
-  entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::Layer);
-  entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::Group);
+  entity.removeProperty(Model::EntityPropertyKeys::Layer);
+  entity.removeProperty(Model::EntityPropertyKeys::Group);
 
   auto entityNode = std::make_unique<Model::EntityNode>(std::move(entity));
   entityNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
@@ -566,7 +560,7 @@ CreateNodeResult createNodeFromEntityInfo(
   {
     return createGroupNode(entityInfo);
   }
-  return createEntityNode(entityPropertyConfig, std::move(entityInfo));
+  return createEntityNode(std::move(entityInfo));
 }
 
 /**

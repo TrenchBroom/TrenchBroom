@@ -159,56 +159,63 @@ void EntityModelRenderer::doPrepareVertices(VboManager& vboManager)
 
 void EntityModelRenderer::doRender(RenderContext& renderContext)
 {
-  auto& prefs = PreferenceManager::instance();
-
-  glAssert(glEnable(GL_TEXTURE_2D));
-  glAssert(glActiveTexture(GL_TEXTURE0));
-
-  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::EntityModelShader};
-  shader.set("Brightness", prefs.get(Preferences::Brightness));
-  shader.set("ApplyTinting", m_applyTinting);
-  shader.set("TintColor", m_tintColor);
-  shader.set("GrayScale", false);
-  shader.set("Material", 0);
-  shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
-  shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
-  shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
-  shader.set(
-    "SoftMapBoundsColor",
-    vm::vec4f{
-      prefs.get(Preferences::SoftMapBoundsColor).r(),
-      prefs.get(Preferences::SoftMapBoundsColor).g(),
-      prefs.get(Preferences::SoftMapBoundsColor).b(),
-      0.1f});
-
-  shader.set("CameraPosition", renderContext.camera().position());
-  shader.set("CameraDirection", renderContext.camera().direction());
-  shader.set("CameraRight", renderContext.camera().right());
-  shader.set("CameraUp", renderContext.camera().up());
-  shader.set("ViewMatrix", renderContext.camera().viewMatrix());
-
-  for (const auto& [entityNode, renderer] : m_entities)
+  if (!m_entities.empty())
   {
-    if (!m_showHiddenEntities && !m_editorContext.visible(entityNode))
+    auto& prefs = PreferenceManager::instance();
+
+    glAssert(glEnable(GL_TEXTURE_2D));
+    glAssert(glActiveTexture(GL_TEXTURE0));
+
+    auto shader = ActiveShader{renderContext.shaderManager(), Shaders::EntityModelShader};
+    shader.set("Brightness", prefs.get(Preferences::Brightness));
+    shader.set("ApplyTinting", m_applyTinting);
+    shader.set("TintColor", m_tintColor);
+    shader.set("GrayScale", false);
+    shader.set("Material", 0);
+    shader.set("ShowSoftMapBounds", !renderContext.softMapBounds().is_empty());
+    shader.set("SoftMapBoundsMin", renderContext.softMapBounds().min);
+    shader.set("SoftMapBoundsMax", renderContext.softMapBounds().max);
+    shader.set(
+      "SoftMapBoundsColor",
+      vm::vec4f{
+        prefs.get(Preferences::SoftMapBoundsColor).r(),
+        prefs.get(Preferences::SoftMapBoundsColor).g(),
+        prefs.get(Preferences::SoftMapBoundsColor).b(),
+        0.1f});
+
+    shader.set("CameraPosition", renderContext.camera().position());
+    shader.set("CameraDirection", renderContext.camera().direction());
+    shader.set("CameraRight", renderContext.camera().right());
+    shader.set("CameraUp", renderContext.camera().up());
+    shader.set("ViewMatrix", renderContext.camera().viewMatrix());
+
+    const auto& propertyConfig = m_entities.begin()->first->entityPropertyConfig();
+    const auto& defaultModelScaleExpression = propertyConfig.defaultModelScaleExpression;
+
+    for (const auto& [entityNode, renderer] : m_entities)
     {
-      continue;
+      if (!m_showHiddenEntities && !m_editorContext.visible(entityNode))
+      {
+        continue;
+      }
+
+      const auto* model = entityNode->entity().model();
+      if (!model)
+      {
+        continue;
+      }
+
+      shader.set("Orientation", static_cast<int>(model->orientation()));
+
+      const auto transformation = vm::mat4x4f{
+        entityNode->entity().modelTransformation(defaultModelScaleExpression)};
+      const auto multMatrix =
+        MultiplyModelMatrix{renderContext.transformation(), transformation};
+
+      shader.set("ModelMatrix", transformation);
+
+      renderer->render();
     }
-
-    const auto* model = entityNode->entity().model();
-    if (!model)
-    {
-      continue;
-    }
-
-    shader.set("Orientation", static_cast<int>(model->orientation()));
-
-    const auto transformation = vm::mat4x4f{entityNode->entity().modelTransformation()};
-    const auto multMatrix =
-      MultiplyModelMatrix{renderContext.transformation(), transformation};
-
-    shader.set("ModelMatrix", transformation);
-
-    renderer->render();
   }
 }
 

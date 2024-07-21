@@ -238,8 +238,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
     builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
     | kdl::value()};
 
-  auto* entityNode = new Model::EntityNode{
-    Model::Entity{{}, {{"classname", "func_door"}, {"angle", "45"}}}};
+  auto* entityNode = new Model::EntityNode{Model::Entity{{
+    {"classname", "func_door"},
+    {"angle", "45"},
+  }}};
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   document->addNodes({{entityNode, {brushNode1, brushNode2}}});

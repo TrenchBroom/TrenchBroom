@@ -505,14 +505,14 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveEntityProperties")
 
   {
     auto entity = sourceEntityNode->entity();
-    entity.setProperties({}, sourceProperties);
+    entity.setProperties(sourceProperties);
     entity.setProtectedProperties(srcProtProperties);
     sourceEntityNode->setEntity(std::move(entity));
   }
 
   {
     auto entity = targetEntityNode->entity();
-    entity.setProperties({}, targetProperties);
+    entity.setProperties(targetProperties);
     entity.setProtectedProperties(trgtProtProperties);
     targetEntityNode->setEntity(std::move(entity));
   }
@@ -551,11 +551,9 @@ TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
   auto sourceGroupNode = GroupNode{Group{"name"}};
   auto* sourceBrushNode =
     new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
-  auto* sourceEntityNode = new EntityNode{Entity{
-    {},
-    {
-      {"light", "400"},
-    }}};
+  auto* sourceEntityNode = new EntityNode{Entity{{
+    {"light", "400"},
+  }}};
 
   sourceGroupNode.addChildren({sourceBrushNode, sourceEntityNode});
 
@@ -569,7 +567,7 @@ TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
   {
     auto targetEntity = targetEntityNode->entity();
     targetEntity.setProtectedProperties({"light"});
-    targetEntity.addOrUpdateProperty({}, "light", "500");
+    targetEntity.addOrUpdateProperty("light", "500");
     targetEntityNode->setEntity(std::move(targetEntity));
   }
 
