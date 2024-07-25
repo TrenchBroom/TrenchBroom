@@ -109,8 +109,8 @@ TEST_CASE("AseParserTest")
     CHECK(model.is_success());
 
     // account for the default material
-    CHECK(model.value().surface(0).skinCount() == 2u);
-    CHECK(model.value().surface(0).skin(0)->name() == "textures/bigtile");
+    CHECK(model.value().data().surface(0).skinCount() == 2u);
+    CHECK(model.value().data().surface(0).skin(0)->name() == "textures/bigtile");
   }
 
   SECTION("loadDefaultMaterial")
@@ -139,10 +139,10 @@ TEST_CASE("AseParserTest")
     CHECK(model.is_success());
 
     // account for the default texture
-    CHECK(model.value().surface(0).skinCount() == 2u);
+    CHECK(model.value().data().surface(0).skinCount() == 2u);
     // shader name is correct, but we loaded the default material
 
-    const auto* material = model.value().surface(0).skin(0);
+    const auto* material = model.value().data().surface(0).skin(0);
     CHECK(material->name() == "textures/bigtile");
     CHECK(material->texture()->width() == 32u);
     CHECK(material->texture()->height() == 32u);

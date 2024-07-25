@@ -205,7 +205,7 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
         continue;
       }
 
-      shader.set("Orientation", static_cast<int>(model->orientation()));
+      shader.set("Orientation", static_cast<int>(model->data().orientation()));
 
       const auto transformation = vm::mat4x4f{
         entityNode->entity().modelTransformation(defaultModelScaleExpression)};

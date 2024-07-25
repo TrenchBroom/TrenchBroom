@@ -178,7 +178,7 @@ void Entity::setModel(const Assets::EntityModel* model)
 
 const Assets::EntityModelFrame* Entity::modelFrame() const
 {
-  return m_model ? m_model->frame(modelSpecification().frameIndex) : nullptr;
+  return m_model ? m_model->data().frame(modelSpecification().frameIndex) : nullptr;
 }
 
 Assets::ModelSpecification Entity::modelSpecification() const

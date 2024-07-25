@@ -139,7 +139,9 @@ Result<Assets::EntityModel> AseParser::initializeModel(Logger& logger)
   {
     auto scene = Scene{};
     parseAseFile(logger, scene);
-    return buildModel(logger, scene);
+    return buildModelData(logger, scene).transform([&](auto data) {
+      return Assets::EntityModel{m_name, std::move(data)};
+    });
   }
   catch (const ParserException& e)
   {
@@ -660,14 +662,14 @@ AseParser::TokenNameMap AseParser::tokenNames() const
   return result;
 }
 
-Result<Assets::EntityModel> AseParser::buildModel(
+Result<Assets::EntityModelData> AseParser::buildModelData(
   Logger& logger, const Scene& scene) const
 {
   using Vertex = Assets::EntityModelVertex;
 
-  auto model =
-    Assets::EntityModel{m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
-  auto& surface = model.addSurface(m_name, 1);
+  auto data =
+    Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
+  auto& surface = data.addSurface(m_name, 1);
 
   // Load the materials
   auto materials = kdl::vec_transform(scene.materialPaths, [&](const auto& path) {
@@ -701,7 +703,7 @@ Result<Assets::EntityModel> AseParser::buildModel(
     totalVertexCount += vertexCount;
   }
 
-  auto& frame = model.addFrame(m_name, bounds.bounds());
+  auto& frame = data.addFrame(m_name, bounds.bounds());
 
   // Collect vertex data
   auto builder =
@@ -741,7 +743,7 @@ Result<Assets::EntityModel> AseParser::buildModel(
   }
   surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 
-  return model;
+  return data;
 }
 
 bool AseParser::checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const

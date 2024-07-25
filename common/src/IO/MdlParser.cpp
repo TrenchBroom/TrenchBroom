@@ -32,7 +32,7 @@
 #include "Renderer/PrimType.h"
 
 #include "kdl/result.h"
-#include "kdl/string_utils.h"
+#include "kdl/string_format.h"
 
 #include <fmt/format.h>
 
@@ -304,7 +304,7 @@ auto makeFrameTriangles(
 
 void doParseFrame(
   Reader reader,
-  Assets::EntityModel& model,
+  Assets::EntityModelData& model,
   Assets::EntityModelSurface& surface,
   const std::vector<MdlSkinTriangle>& triangles,
   const std::vector<MdlSkinVertex>& vertices,
@@ -337,7 +337,7 @@ void doParseFrame(
 
 void parseFrame(
   Reader& reader,
-  Assets::EntityModel& model,
+  Assets::EntityModelData& model,
   Assets::EntityModelSurface& surface,
   const std::vector<MdlSkinTriangle>& triangles,
   const std::vector<MdlSkinVertex>& vertices,
@@ -550,9 +550,9 @@ Result<Assets::EntityModel> MdlParser::initializeModel(Logger& /* logger */)
     /* const auto syncType = */ reader.readSize<int32_t>();
     const auto flags = reader.readInt<int32_t>();
 
-    auto model = Assets::EntityModel{
-      m_name, Assets::PitchType::MdlInverted, Assets::Orientation::Oriented};
-    auto& surface = model.addSurface(m_name, frameCount);
+    auto data = Assets::EntityModelData{
+      Assets::PitchType::MdlInverted, Assets::Orientation::Oriented};
+    auto& surface = data.addSurface(m_name, frameCount);
 
     reader.seekFromBegin(MdlLayout::Skins);
     parseSkins(
@@ -564,18 +564,10 @@ Result<Assets::EntityModel> MdlParser::initializeModel(Logger& /* logger */)
     for (size_t i = 0; i < frameCount; ++i)
     {
       parseFrame(
-        reader,
-        model,
-        surface,
-        triangles,
-        vertices,
-        skinWidth,
-        skinHeight,
-        origin,
-        scale);
+        reader, data, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
     }
 
-    return model;
+    return Assets::EntityModel{m_name, std::move(data)};
   }
   catch (const ReaderException& e)
   {

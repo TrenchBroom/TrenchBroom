@@ -1,21 +1,21 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+Copyright (C) 2010-2017 Kristian Duske
 
- This file is part of TrenchBroom.
+This file is part of TrenchBroom.
 
- TrenchBroom is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+TrenchBroom is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
- TrenchBroom is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+TrenchBroom is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
- */
+You should have received a copy of the GNU General Public License
+along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #pragma once
 
@@ -294,10 +294,9 @@ public:
  * primitives such as triangles, and the corresponding materials. Every surface has a
  * separate mesh for each frame of the model.
  */
-class EntityModel
+class EntityModelData
 {
 private:
-  std::string m_name;
   PitchType m_pitchType;
   Orientation m_orientation;
   std::vector<EntityModelFrame> m_frames;
@@ -305,22 +304,10 @@ private:
   bool m_prepared = false;
 
   kdl_reflect_decl(
-    EntityModel, m_name, m_pitchType, m_orientation, m_frames, m_surfaces, m_prepared);
+    EntityModelData, m_pitchType, m_orientation, m_frames, m_surfaces, m_prepared);
 
 public:
-  /**
-   * Creates a new entity model.
-   *
-   * @param name the name of the model
-   * @param pitchType the pitch type
-   * @param orientation the orientation of the model
-   */
-  explicit EntityModel(std::string name, PitchType pitchType, Orientation orientation);
-
-  /**
-   * Returns the name of this model.
-   */
-  const std::string& name() const;
+  EntityModelData(PitchType pitchType, Orientation orientation);
 
   /**
    * Returns this model's pitch type. The pitch type controls how a rotational
@@ -470,6 +457,26 @@ public:
    * @return the surface with the given name or null if no such surface was found
    */
   const EntityModelSurface* surface(const std::string& name) const;
+};
+
+class EntityModel
+{
+private:
+  std::string m_name;
+  EntityModelData m_data;
+
+  kdl_reflect_decl(EntityModel, m_name, m_data);
+
+public:
+  EntityModel(std::string name, EntityModelData data);
+
+  /**
+   * Returns the name of this model.
+   */
+  const std::string& name() const;
+
+  const EntityModelData& data() const;
+  EntityModelData& data();
 };
 
 } // namespace TrenchBroom::Assets

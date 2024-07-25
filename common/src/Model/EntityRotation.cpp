@@ -37,9 +37,7 @@
 
 #include <ostream>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 
 std::ostream& operator<<(std::ostream& lhs, const EntityRotationType& rhs)
@@ -123,7 +121,7 @@ EntityRotationInfo entityRotationInfo(const Entity& entity)
   EntityRotationUsage usage = EntityRotationUsage::Allowed;
 
   const auto* model = entity.model();
-  const auto pitchType = model ? model->pitchType() : Assets::PitchType::Normal;
+  const auto pitchType = model ? model->data().pitchType() : Assets::PitchType::Normal;
   const EntityRotationType eulerType =
     (pitchType == Assets::PitchType::MdlInverted
        ? EntityRotationType::Euler
@@ -413,5 +411,4 @@ void applyEntityRotation(Entity& entity, const vm::mat4x4& transformation)
   }
 }
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

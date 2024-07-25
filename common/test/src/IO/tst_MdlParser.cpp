@@ -54,10 +54,10 @@ TEST_CASE("MdlParserTest.loadValidMdl")
   auto model = parser.initializeModel(logger);
 
   CHECK(model.is_success());
-  CHECK(model.value().surfaceCount() == 1u);
-  CHECK(model.value().frameCount() == 1u);
+  CHECK(model.value().data().surfaceCount() == 1u);
+  CHECK(model.value().data().frameCount() == 1u);
 
-  const auto& surfaces = model.value().surfaces();
+  const auto& surfaces = model.value().data().surfaces();
   const auto& surface = surfaces.front();
   CHECK(surface.skinCount() == 3u);
   CHECK(surface.frameCount() == 1u);

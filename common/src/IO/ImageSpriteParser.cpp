@@ -22,9 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
-#include "Assets/TextureResource.h"
 #include "Error.h"
-#include "FloatType.h"
 #include "IO/File.h"
 #include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"
@@ -32,9 +30,7 @@
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
-#include "kdl/path_utils.h"
 #include "kdl/result.h"
-#include "kdl/string_format.h"
 
 #include "vm/bbox.h"
 #include "vm/vec.h"
@@ -59,9 +55,9 @@ auto loadMaterial(const FileSystem& fs, File& file, std::string name, Logger& lo
            });
 }
 
-void createFrame(Assets::EntityModel& model)
+void createFrame(Assets::EntityModelData& modelData)
 {
-  auto& surface = model.surface(0);
+  auto& surface = modelData.surface(0);
 
   if (const auto* texture = getTexture(surface.skin(0)))
   {
@@ -76,7 +72,7 @@ void createFrame(Assets::EntityModel& model)
 
     const auto bboxMin = vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
     const auto bboxMax = vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
-    auto& frame = model.addFrame(model.name(), {bboxMin, bboxMax});
+    auto& frame = modelData.addFrame("frame", {bboxMin, bboxMax});
 
     const auto triangles = std::vector<Assets::EntityModelVertex>{
       Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
@@ -120,17 +116,15 @@ Result<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& logger)
   {
     return loadMaterial(m_fs, *m_file, m_name, logger)
            | kdl::transform([&](auto material) {
-               auto model = Assets::EntityModel{
-                 m_name,
-                 Assets::PitchType::Normal,
-                 Assets::Orientation::ViewPlaneParallel};
+               auto data = Assets::EntityModelData{
+                 Assets::PitchType::Normal, Assets::Orientation::ViewPlaneParallel};
 
-               auto& surface = model.addSurface(m_name, 1);
+               auto& surface = data.addSurface(m_name, 1);
                surface.setSkins(kdl::vec_from(std::move(material)));
 
-               createFrame(model);
+               createFrame(data);
 
-               return model;
+               return Assets::EntityModel{m_name, std::move(data)};
              });
   }
   catch (const ReaderException& e)

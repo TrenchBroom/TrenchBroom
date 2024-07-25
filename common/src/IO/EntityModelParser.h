@@ -27,11 +27,6 @@ namespace TrenchBroom
 class Logger;
 }
 
-namespace TrenchBroom::Assets
-{
-class EntityModel;
-}
-
 namespace TrenchBroom::IO
 {
 

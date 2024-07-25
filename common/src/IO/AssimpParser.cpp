@@ -678,7 +678,7 @@ aiMatrix4x4 getAxisTransform(const aiScene& scene)
 Result<void> loadSceneFrame(
   const aiScene& scene,
   const size_t frameIndex,
-  Assets::EntityModel& model,
+  Assets::EntityModelData& model,
   const std::string& name)
 {
   // load the animation information for the current "frame" (animation)
@@ -814,9 +814,9 @@ Result<Assets::EntityModel> AssimpParser::initializeModel(TrenchBroom::Logger& l
         importer.GetErrorString())};
     }
 
-    // Create model.
-    auto model = Assets::EntityModel{
-      modelPath, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+    // Create model data.
+    auto data =
+      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
 
     // create a frame for each animation in the scene
     // if we have no animations, always load 1 frame for the reference model
@@ -828,7 +828,7 @@ Result<Assets::EntityModel> AssimpParser::initializeModel(TrenchBroom::Logger& l
     {
       const auto& mesh = scene->mMeshes[i];
 
-      auto& surface = model.addSurface(scene->mMeshes[i]->mName.data, numSequences);
+      auto& surface = data.addSurface(scene->mMeshes[i]->mName.data, numSequences);
 
       // an assimp mesh will only ever have one material, but a material can have multiple
       // alternatives (this is how assimp handles skins)
@@ -846,13 +846,13 @@ Result<Assets::EntityModel> AssimpParser::initializeModel(TrenchBroom::Logger& l
     for (size_t i = 0; i < numSequences; ++i)
     {
       // load the requested frame
-      loadSceneFrame(*scene, i, model, modelPath) | kdl::transform_error([&](auto e) {
+      loadSceneFrame(*scene, i, data, modelPath) | kdl::transform_error([&](auto e) {
         throw ParserException{fmt::format(
           "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
       });
     }
 
-    return model;
+    return Assets::EntityModel{modelPath, std::move(data)};
   }
   catch (const ParserException& e)
   {

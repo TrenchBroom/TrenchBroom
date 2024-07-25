@@ -106,7 +106,8 @@ Renderer::MaterialRenderer* EntityModelManager::renderer(
 
     if (!m_rendererMismatches.contains(spec))
     {
-      if (auto renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex))
+      const auto& entityModelData = entityModel->data();
+      if (auto renderer = entityModelData.buildRenderer(spec.skinIndex, spec.frameIndex))
       {
         const auto [pos, success] = m_renderers.emplace(spec, std::move(renderer));
         assert(success);
@@ -132,7 +133,8 @@ const EntityModelFrame* EntityModelManager::frame(
 {
   if (auto* model = this->safeGetModel(spec.path))
   {
-    return model->frame(spec.frameIndex);
+    const auto& entityModelData = model->data();
+    return entityModelData.frame(spec.frameIndex);
   }
 
   return nullptr;
@@ -219,7 +221,8 @@ void EntityModelManager::resetFilterMode()
   {
     for (auto& [path, model] : m_models)
     {
-      model.setFilterMode(m_minFilter, m_magFilter);
+      auto& entityModelData = model.data();
+      entityModelData.setFilterMode(m_minFilter, m_magFilter);
     }
     m_resetFilterMode = false;
   }
@@ -229,7 +232,8 @@ void EntityModelManager::prepareModels()
 {
   for (auto* model : m_unpreparedModels)
   {
-    model->prepare(m_minFilter, m_magFilter);
+    auto& entityModelData = model->data();
+    entityModelData.prepare(m_minFilter, m_magFilter);
   }
   m_unpreparedModels.clear();
 }

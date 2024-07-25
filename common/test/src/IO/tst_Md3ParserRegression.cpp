@@ -81,7 +81,7 @@ TEST_CASE("Md3ParserTest.loadFailure_2659")
 
   CHECK(model.is_success());
 
-  CHECK(model.value().frameCount() == 30u);
-  CHECK(model.value().surfaceCount() == 2u);
+  CHECK(model.value().data().frameCount() == 30u);
+  CHECK(model.value().data().surfaceCount() == 2u);
 }
 } // namespace TrenchBroom::IO

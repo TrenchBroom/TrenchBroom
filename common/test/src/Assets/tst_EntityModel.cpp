@@ -53,7 +53,7 @@ TEST_CASE("BSP model intersection test")
   auto model = IO::loadEntityModel(
     game->gameFileSystem(), game->config().materialConfig, path, loadMaterial, logger);
 
-  auto& frame = model.value().frames().at(0);
+  auto& frame = model.value().data().frames().at(0);
 
   const auto box = vm::bbox3f(vm::vec3f::fill(-32), vm::vec3f::fill(32));
   CHECK(box == frame.bounds());
@@ -112,11 +112,12 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   // default to a skin index of 0 if the provided index is not
   // present for the surface.
 
-  auto model = EntityModel{"test", PitchType::Normal, Orientation::Oriented};
-  auto& frame = model.addFrame("test", vm::bbox3f{0, 8});
+  auto modelData =
+    EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
+  auto& frame = modelData.addFrame("test", vm::bbox3f{0, 8});
 
   // Prepare the first surface - it will only have one skin
-  auto& surface1 = model.addSurface("surface 1", 1);
+  auto& surface1 = modelData.addSurface("surface 1", 1);
 
   auto materials1 = std::vector<Material>{};
   materials1.push_back(makeDummyMaterial("skin1"));
@@ -126,7 +127,7 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   surface1.addMesh(frame, builder1.vertices(), builder1.indices());
 
   // The second surface will have two skins
-  auto& surface2 = model.addSurface("surface 2", 1);
+  auto& surface2 = modelData.addSurface("surface 2", 1);
 
   auto materials2 = std::vector<Material>{};
   materials2.push_back(makeDummyMaterial("skin2a"));
@@ -138,9 +139,9 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
 
   // even though the model has 2 skins, we should get a valid renderer even if we request
   // to use skin 3
-  const auto renderer0 = model.buildRenderer(0, 0);
-  const auto renderer1 = model.buildRenderer(1, 0);
-  const auto renderer2 = model.buildRenderer(2, 0);
+  const auto renderer0 = modelData.buildRenderer(0, 0);
+  const auto renderer1 = modelData.buildRenderer(1, 0);
+  const auto renderer2 = modelData.buildRenderer(2, 0);
 
   CHECK(renderer0 != nullptr);
   CHECK(renderer1 != nullptr);

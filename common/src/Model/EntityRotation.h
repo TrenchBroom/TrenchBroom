@@ -30,14 +30,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 enum class PitchType;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class Entity;
 class EntityProperty;
@@ -87,5 +85,4 @@ std::optional<EntityProperty> applyEntityRotation(
   const vm::mat4x4& transformation);
 void applyEntityRotation(Entity& entity, const vm::mat4x4& transformation);
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

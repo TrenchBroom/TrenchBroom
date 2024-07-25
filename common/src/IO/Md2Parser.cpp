@@ -33,7 +33,6 @@
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
-#include "kdl/string_format.h"
 
 #include <fmt/format.h>
 
@@ -366,7 +365,7 @@ auto getVertices(const Md2Frame& frame, const std::vector<Md2MeshVertex>& meshVe
 }
 
 void buildFrame(
-  Assets::EntityModel& model,
+  Assets::EntityModelData& model,
   Assets::EntityModelSurface& surface,
   const Md2Frame& frame,
   const std::vector<Md2Mesh>& meshes)
@@ -474,10 +473,10 @@ Result<Assets::EntityModel> Md2Parser::initializeModel(Logger& logger)
 
     const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
-    auto model = Assets::EntityModel{
-      m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+    auto data =
+      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
 
-    auto& surface = model.addSurface(m_name, frameCount);
+    auto& surface = data.addSurface(m_name, frameCount);
     loadSkins(surface, skins, m_palette, m_fs, logger);
 
     const auto frameSize =
@@ -492,10 +491,10 @@ Result<Assets::EntityModel> Md2Parser::initializeModel(Logger& logger)
         i,
         vertexCount);
 
-      buildFrame(model, surface, frame, meshes);
+      buildFrame(data, surface, frame, meshes);
     }
 
-    return model;
+    return Assets::EntityModel{m_name, std::move(data)};
   }
   catch (const ReaderException& e)
   {

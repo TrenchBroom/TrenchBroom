@@ -227,7 +227,7 @@ void EntityModelFrame::addToSpacialTree(
   }
 }
 
-// EntityModel::Mesh
+// EntityModelData::Mesh
 
 /**
  * The mesh associated with a frame and a surface.
@@ -278,7 +278,7 @@ private:
     const Material* skin, const Renderer::VertexArray& vertices) const = 0;
 };
 
-// EntityModel::IndexedMesh
+// EntityModelData::IndexedMesh
 
 namespace
 {
@@ -460,34 +460,27 @@ std::unique_ptr<Renderer::MaterialIndexRangeRenderer> EntityModelSurface::buildR
                               : nullptr;
 }
 
-// EntityModel
+// EntityModelData
 
-kdl_reflect_impl(EntityModel);
+kdl_reflect_impl(EntityModelData);
 
-EntityModel::EntityModel(
-  std::string name, const PitchType pitchType, const Orientation orientation)
-  : m_name{std::move(name)}
-  , m_pitchType{pitchType}
+EntityModelData::EntityModelData(const PitchType pitchType, const Orientation orientation)
+  : m_pitchType{pitchType}
   , m_orientation{orientation}
 {
 }
 
-const std::string& EntityModel::name() const
-{
-  return m_name;
-}
-
-PitchType EntityModel::pitchType() const
+PitchType EntityModelData::pitchType() const
 {
   return m_pitchType;
 }
 
-Orientation EntityModel::orientation() const
+Orientation EntityModelData::orientation() const
 {
   return m_orientation;
 }
 
-std::unique_ptr<Renderer::MaterialRenderer> EntityModel::buildRenderer(
+std::unique_ptr<Renderer::MaterialRenderer> EntityModelData::buildRenderer(
   const size_t skinIndex, const size_t frameIndex) const
 {
   auto renderers = std::vector<std::unique_ptr<Renderer::MaterialIndexRangeRenderer>>{};
@@ -513,17 +506,17 @@ std::unique_ptr<Renderer::MaterialRenderer> EntityModel::buildRenderer(
                             : nullptr;
 }
 
-vm::bbox3f EntityModel::bounds(const size_t frameIndex) const
+vm::bbox3f EntityModelData::bounds(const size_t frameIndex) const
 {
   return frameIndex < m_frames.size() ? m_frames[frameIndex].bounds() : vm::bbox3f{8.0f};
 }
 
-bool EntityModel::prepared() const
+bool EntityModelData::prepared() const
 {
   return m_prepared;
 }
 
-void EntityModel::prepare(const int minFilter, const int magFilter)
+void EntityModelData::prepare(const int minFilter, const int magFilter)
 {
   if (!m_prepared)
   {
@@ -535,7 +528,7 @@ void EntityModel::prepare(const int minFilter, const int magFilter)
   }
 }
 
-void EntityModel::setFilterMode(const int minFilter, const int magFilter)
+void EntityModelData::setFilterMode(const int minFilter, const int magFilter)
 {
   for (auto& surface : m_surfaces)
   {
@@ -543,54 +536,54 @@ void EntityModel::setFilterMode(const int minFilter, const int magFilter)
   }
 }
 
-EntityModelFrame& EntityModel::addFrame(std::string name, const vm::bbox3f& bounds)
+EntityModelFrame& EntityModelData::addFrame(std::string name, const vm::bbox3f& bounds)
 {
   return m_frames.emplace_back(frameCount(), std::move(name), bounds);
 }
 
-EntityModelSurface& EntityModel::addSurface(std::string name, const size_t frameCount)
+EntityModelSurface& EntityModelData::addSurface(std::string name, const size_t frameCount)
 {
   return m_surfaces.emplace_back(std::move(name), frameCount);
 }
 
-size_t EntityModel::frameCount() const
+size_t EntityModelData::frameCount() const
 {
   return m_frames.size();
 }
 
-size_t EntityModel::surfaceCount() const
+size_t EntityModelData::surfaceCount() const
 {
   return m_surfaces.size();
 }
 
-const std::vector<EntityModelFrame>& EntityModel::frames() const
+const std::vector<EntityModelFrame>& EntityModelData::frames() const
 {
   return m_frames;
 }
 
-std::vector<EntityModelFrame>& EntityModel::frames()
+std::vector<EntityModelFrame>& EntityModelData::frames()
 {
   return m_frames;
 }
 
-const std::vector<EntityModelSurface>& EntityModel::surfaces() const
+const std::vector<EntityModelSurface>& EntityModelData::surfaces() const
 {
   return m_surfaces;
 }
 
-const EntityModelFrame* EntityModel::frame(const std::string& name) const
+const EntityModelFrame* EntityModelData::frame(const std::string& name) const
 {
   const auto it = std::ranges::find_if(
     m_frames, [&](const auto& frame) { return frame.name() == name; });
   return it != m_frames.end() ? &*it : nullptr;
 }
 
-const EntityModelFrame* EntityModel::frame(const size_t index) const
+const EntityModelFrame* EntityModelData::frame(const size_t index) const
 {
   return index < frameCount() ? &m_frames[index] : nullptr;
 }
 
-const EntityModelSurface& EntityModel::surface(const size_t index) const
+const EntityModelSurface& EntityModelData::surface(const size_t index) const
 {
   if (index >= surfaceCount())
   {
@@ -599,17 +592,40 @@ const EntityModelSurface& EntityModel::surface(const size_t index) const
   return m_surfaces[index];
 }
 
-EntityModelSurface& EntityModel::surface(const size_t index)
+EntityModelSurface& EntityModelData::surface(const size_t index)
 {
   return const_cast<EntityModelSurface&>(
-    const_cast<const EntityModel&>(*this).surface(index));
+    const_cast<const EntityModelData&>(*this).surface(index));
 }
 
-const EntityModelSurface* EntityModel::surface(const std::string& name) const
+const EntityModelSurface* EntityModelData::surface(const std::string& name) const
 {
   const auto it = std::ranges::find_if(
     m_surfaces, [&](const auto& surface) { return surface.name() == name; });
   return it != m_surfaces.end() ? &*it : nullptr;
+}
+
+kdl_reflect_impl(EntityModel);
+
+EntityModel::EntityModel(std::string name, EntityModelData data)
+  : m_name{std::move(name)}
+  , m_data{std::move(data)}
+{
+}
+
+const std::string& EntityModel::name() const
+{
+  return m_name;
+}
+
+const EntityModelData& EntityModel::data() const
+{
+  return m_data;
+}
+
+EntityModelData& EntityModel::data()
+{
+  return m_data;
 }
 
 } // namespace TrenchBroom::Assets

@@ -32,7 +32,6 @@
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
-#include "kdl/string_format.h"
 
 #include <fmt/core.h>
 
@@ -362,7 +361,7 @@ auto getVertices(const MdxFrame& frame, const std::vector<MdxMeshVertex>& meshVe
 }
 
 void buildFrame(
-  Assets::EntityModel& model,
+  Assets::EntityModelData& model,
   Assets::EntityModelSurface& surface,
   const MdxFrame& frame,
   const std::vector<MdxMesh>& meshes)
@@ -467,9 +466,9 @@ Result<Assets::EntityModel> MdxParser::initializeModel(Logger& logger)
 
     const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
-    auto model = Assets::EntityModel{
-      m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
-    auto& surface = model.addSurface(m_name, frameCount);
+    auto data =
+      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
+    auto& surface = data.addSurface(m_name, frameCount);
 
     loadSkins(surface, skins, m_fs, logger);
 
@@ -485,10 +484,10 @@ Result<Assets::EntityModel> MdxParser::initializeModel(Logger& logger)
         i,
         vertexCount);
 
-      buildFrame(model, surface, frame, meshes);
+      buildFrame(data, surface, frame, meshes);
     }
 
-    return model;
+    return Assets::EntityModel{m_name, std::move(data)};
   }
   catch (const ReaderException& e)
   {

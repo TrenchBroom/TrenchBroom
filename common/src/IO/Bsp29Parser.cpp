@@ -206,7 +206,7 @@ vm::vec2f uvCoords(
 void parseFrame(
   Reader reader,
   const size_t frameIndex,
-  Assets::EntityModel& model,
+  Assets::EntityModelData& modelData,
   const std::vector<MaterialInfo>& materialInfos,
   const std::vector<vm::vec3f>& vertices,
   const std::vector<EdgeInfo>& edgeInfos,
@@ -215,7 +215,7 @@ void parseFrame(
 {
   using Vertex = Assets::EntityModelVertex;
 
-  auto& surface = model.surface(0);
+  auto& surface = modelData.surface(0);
 
   reader.seekForward(BspLayout::ModelFaceIndex);
   const auto modelFaceIndex = reader.readSize<int32_t>();
@@ -269,8 +269,8 @@ void parseFrame(
     }
   }
 
-  auto frameName = fmt::format("{}_{}", model.name(), frameIndex);
-  auto& frame = model.addFrame(std::move(frameName), bounds.bounds());
+  auto frameName = fmt::format("frame_{}", frameIndex);
+  auto& frame = modelData.addFrame(std::move(frameName), bounds.bounds());
   surface.addMesh(frame, std::move(builder.vertices()), std::move(builder.indices()));
 }
 
@@ -340,13 +340,13 @@ Result<Assets::EntityModel> Bsp29Parser::initializeModel(Logger& logger)
     reader.seekFromBegin(BspLayout::DirMaterialsAddress);
     const auto materialsOffset = reader.readSize<int32_t>();
 
-    auto model = Assets::EntityModel{
-      m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+    auto data =
+      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
 
     auto materials =
       parseMaterials(reader.subReaderFromBegin(materialsOffset), m_palette, m_fs, logger);
 
-    auto& surface = model.addSurface(m_name, frameCount);
+    auto& surface = data.addSurface(m_name, frameCount);
     surface.setSkins(std::move(materials));
 
     const auto materialInfos = parseMaterialInfos(
@@ -367,7 +367,7 @@ Result<Assets::EntityModel> Bsp29Parser::initializeModel(Logger& logger)
         reader.subReaderFromBegin(
           modelsOffset + i * BspLayout::ModelSize, BspLayout::ModelSize),
         i,
-        model,
+        data,
         materialInfos,
         vertices,
         edgeInfos,
@@ -375,7 +375,7 @@ Result<Assets::EntityModel> Bsp29Parser::initializeModel(Logger& logger)
         faceEdges);
     }
 
-    return model;
+    return Assets::EntityModel{m_name, std::move(data)};
   }
   catch (const ReaderException& e)
   {

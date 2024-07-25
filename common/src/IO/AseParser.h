@@ -39,7 +39,7 @@ class Logger;
 
 namespace Assets
 {
-class EntityModel;
+class EntityModelData;
 class Material;
 } // namespace Assets
 
@@ -182,7 +182,8 @@ private: // parsing
   TokenNameMap tokenNames() const override;
 
 private: // model construction
-  Result<Assets::EntityModel> buildModel(Logger& logger, const Scene& scene) const;
+  Result<Assets::EntityModelData> buildModelData(
+    Logger& logger, const Scene& scene) const;
   bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
 
   std::filesystem::path fixMaterialPath(std::filesystem::path path) const;

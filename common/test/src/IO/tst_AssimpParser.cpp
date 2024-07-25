@@ -41,9 +41,9 @@ TEST_CASE("AssimpParserTest.loadBlenderModel")
   auto model = assimpParser.initializeModel(logger);
   CHECK(model.is_success());
 
-  CHECK(model.value().frameCount() == 1);
-  CHECK(model.value().surfaceCount() == 1);
-  CHECK(model.value().surface(0u).skinCount() == 1);
+  CHECK(model.value().data().frameCount() == 1);
+  CHECK(model.value().data().surfaceCount() == 1);
+  CHECK(model.value().data().surface(0u).skinCount() == 1);
 }
 
 TEST_CASE("AssimpParserTest.loadHLModelWithSkins")
@@ -58,11 +58,11 @@ TEST_CASE("AssimpParserTest.loadHLModelWithSkins")
   auto model = assimpParser.initializeModel(logger);
   CHECK(model.is_success());
 
-  CHECK(model.value().surfaceCount() == 4);
-  CHECK(model.value().surface(0).skinCount() == 1);
-  CHECK(model.value().surface(1).skinCount() == 3);
-  CHECK(model.value().surface(2).skinCount() == 1);
-  CHECK(model.value().surface(3).skinCount() == 1);
+  CHECK(model.value().data().surfaceCount() == 4);
+  CHECK(model.value().data().surface(0).skinCount() == 1);
+  CHECK(model.value().data().surface(1).skinCount() == 3);
+  CHECK(model.value().data().surface(2).skinCount() == 1);
+  CHECK(model.value().data().surface(3).skinCount() == 1);
 }
 
 TEST_CASE("AssimpParserTest.loadHLModelWithAnimations")
@@ -76,7 +76,7 @@ TEST_CASE("AssimpParserTest.loadHLModelWithAnimations")
 
   auto model = assimpParser.initializeModel(logger);
   CHECK(model.is_success());
-  CHECK(model.value().frameCount() == 3);
+  CHECK(model.value().data().frameCount() == 3);
 }
 
 } // namespace TrenchBroom::IO

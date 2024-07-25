@@ -35,7 +35,6 @@
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
-#include "kdl/string_format.h"
 
 #include "vm/bbox.h"
 #include "vm/vec.h"
@@ -291,9 +290,9 @@ Result<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)
 
         return parseEmbeddedPalette(reader, renderMode, version, m_palette)
           .transform([&](auto palette) {
-            auto model =
-              Assets::EntityModel{m_name, Assets::PitchType::Normal, orientationType};
-            auto& surface = model.addSurface(m_name, frameCount);
+            auto data =
+              Assets::EntityModelData{Assets::PitchType::Normal, orientationType};
+            auto& surface = data.addSurface(m_name, frameCount);
 
             auto materials = std::vector<Assets::Material>{};
             materials.reserve(frameCount);
@@ -314,7 +313,7 @@ Result<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)
                 vm::vec3f{vm::min(x1, x2), vm::min(x1, x2), vm::min(y1, y2)};
               const auto bboxMax =
                 vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
-              auto& modelFrame = model.addFrame(std::to_string(i), {bboxMin, bboxMax});
+              auto& modelFrame = data.addFrame(std::to_string(i), {bboxMin, bboxMax});
               modelFrame.setSkinOffset(i);
 
               const auto triangles = std::vector<Assets::EntityModelVertex>{
@@ -339,7 +338,7 @@ Result<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)
 
             surface.setSkins(std::move(materials));
 
-            return model;
+            return Assets::EntityModel{m_name, std::move(data)};
           });
       });
     });

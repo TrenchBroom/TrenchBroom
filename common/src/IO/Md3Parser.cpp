@@ -30,7 +30,7 @@
 
 #include "kdl/range_utils.h"
 #include "kdl/result.h"
-#include "kdl/result_fold.h"
+#include "kdl/result_fold.h" // IWYU pragma: keep
 #include "kdl/string_format.h"
 #include "kdl/vector_utils.h"
 
@@ -97,7 +97,7 @@ Result<void> parseSurfaces(
   Reader reader,
   const size_t surfaceCount,
   const size_t frameCount,
-  Assets::EntityModel& model,
+  Assets::EntityModelData& model,
   const LoadMaterialFunc& loadMaterial)
 {
   for (size_t i = 0; i < surfaceCount; ++i)
@@ -135,7 +135,7 @@ Result<void> parseSurfaces(
   return Result<void>{};
 }
 
-auto& parseFrame(Reader reader, Assets::EntityModel& model)
+auto& parseFrame(Reader reader, Assets::EntityModelData& model)
 {
   const auto minBounds = reader.readVec<float, 3>();
   const auto maxBounds = reader.readVec<float, 3>();
@@ -247,7 +247,7 @@ void buildFrameSurface(
 }
 
 Result<void> parseFrameSurfaces(
-  Reader reader, Assets::EntityModelFrame& frame, Assets::EntityModel& model)
+  Reader reader, Assets::EntityModelFrame& frame, Assets::EntityModelData& model)
 {
   for (size_t i = 0; i < model.surfaceCount(); ++i)
   {
@@ -352,14 +352,14 @@ Result<Assets::EntityModel> Md3Parser::initializeModel(Logger&)
     /* const auto tagOffset = */ reader.readSize<int32_t>();
     const auto surfaceOffset = reader.readSize<int32_t>();
 
-    auto model = Assets::EntityModel{
-      m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+    auto data =
+      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
 
     return parseSurfaces(
              reader.subReaderFromBegin(surfaceOffset),
              surfaceCount,
              frameCount,
-             model,
+             data,
              m_loadMaterial)
            | kdl::and_then([&]() {
                return kdl::vec_transform(
@@ -369,11 +369,13 @@ Result<Assets::EntityModel> Md3Parser::initializeModel(Logger&)
                             reader.subReaderFromBegin(
                               frameOffset + i * Md3Layout::FrameLength,
                               Md3Layout::FrameLength),
-                            model);
+                            data);
                           return parseFrameSurfaces(
-                            reader.subReaderFromBegin(surfaceOffset), frame, model);
+                            reader.subReaderFromBegin(surfaceOffset), frame, data);
                         })
-                      | kdl::fold() | kdl::transform([&]() { return std::move(model); });
+                      | kdl::fold() | kdl::transform([&]() {
+                          return Assets::EntityModel{m_name, std::move(data)};
+                        });
              });
   }
   catch (const ReaderException& e)

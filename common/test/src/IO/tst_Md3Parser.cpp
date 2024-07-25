@@ -83,10 +83,10 @@ TEST_CASE("Md3ParserTest.loadValidMd3")
 
   CHECK(model.is_success());
 
-  CHECK(model.value().frameCount() == 1u);
-  CHECK(model.value().surfaceCount() == 2u);
+  CHECK(model.value().data().frameCount() == 1u);
+  CHECK(model.value().data().surfaceCount() == 2u);
 
-  const auto* frame = model.value().frame("MilkShape 3D");
+  const auto* frame = model.value().data().frame("MilkShape 3D");
   CHECK(frame != nullptr);
   CHECK(vm::is_equal(
     vm::bbox3f(
@@ -95,7 +95,7 @@ TEST_CASE("Md3ParserTest.loadValidMd3")
     frame->bounds(),
     0.01f));
 
-  const auto* surface1 = model.value().surface("x_bfg");
+  const auto* surface1 = model.value().data().surface("x_bfg");
   CHECK(surface1 != nullptr);
   CHECK(surface1->frameCount() == 1u);
   CHECK(surface1->skinCount() == 1u);
@@ -103,7 +103,7 @@ TEST_CASE("Md3ParserTest.loadValidMd3")
   const auto* skin1 = surface1->skin("models/weapons2/bfg/LDAbfg");
   CHECK(skin1 != nullptr);
 
-  const auto* surface2 = model.value().surface("x_fx");
+  const auto* surface2 = model.value().data().surface("x_fx");
   CHECK(surface2 != nullptr);
   CHECK(surface2->frameCount() == 1u);
   CHECK(surface2->skinCount() == 1u);

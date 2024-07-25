@@ -447,7 +447,7 @@ auto getVertices(const DkmFrame& frame, const std::vector<DkmMeshVertex>& meshVe
 }
 
 void buildFrame(
-  Assets::EntityModel& model,
+  Assets::EntityModelData& model,
   Assets::EntityModelSurface& surface,
   const DkmFrame& frame,
   const std::vector<DkmMesh>& meshes)
@@ -553,10 +553,10 @@ Result<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
 
     const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
-    auto model = Assets::EntityModel{
-      m_name, Assets::PitchType::Normal, Assets::Orientation::Oriented};
+    auto data =
+      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
 
-    auto& surface = model.addSurface(m_name, frameCount);
+    auto& surface = data.addSurface(m_name, frameCount);
     return loadSkins(surface, skins, m_fs, logger).transform([&]() {
       const auto meshes = parseMeshes(
         reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
@@ -569,10 +569,10 @@ Result<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
           vertexCount,
           version);
 
-        buildFrame(model, surface, frame, meshes);
+        buildFrame(data, surface, frame, meshes);
       }
 
-      return std::move(model);
+      return Assets::EntityModel{m_name, std::move(data)};
     });
   }
   catch (const ReaderException& e)
