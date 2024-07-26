@@ -133,7 +133,7 @@ bool AseLoader::canParse(const std::filesystem::path& path)
   return kdl::str_to_lower(path.extension().string()) == ".ase";
 }
 
-Result<Assets::EntityModel> AseLoader::initializeModel(Logger& logger)
+Result<Assets::EntityModel> AseLoader::load(Logger& logger)
 {
   try
   {

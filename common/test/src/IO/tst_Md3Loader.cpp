@@ -79,7 +79,7 @@ TEST_CASE("Md3LoaderTest.loadValidMd3")
 
   auto reader = md3File->reader().buffer();
   auto loader = Md3Loader("bfg", reader, loadMaterial);
-  auto model = loader.initializeModel(logger);
+  auto model = loader.load(logger);
 
   CHECK(model.is_success());
 

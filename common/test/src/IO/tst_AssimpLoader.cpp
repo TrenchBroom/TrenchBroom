@@ -38,7 +38,7 @@ TEST_CASE("AssimpLoaderTest.loadBlenderModel")
 
   auto loader = AssimpLoader{"cube.dae", *fs};
 
-  auto model = loader.initializeModel(logger);
+  auto model = loader.load(logger);
   CHECK(model.is_success());
 
   CHECK(model.value().data().frameCount() == 1);
@@ -55,7 +55,7 @@ TEST_CASE("AssimpLoaderTest.loadHLModelWithSkins")
 
   auto loader = AssimpLoader{"cube.mdl", *fs};
 
-  auto model = loader.initializeModel(logger);
+  auto model = loader.load(logger);
   CHECK(model.is_success());
 
   CHECK(model.value().data().surfaceCount() == 4);
@@ -74,7 +74,7 @@ TEST_CASE("AssimpLoaderTest.loadHLModelWithAnimations")
 
   auto loader = AssimpLoader{"cube.mdl", *fs};
 
-  auto model = loader.initializeModel(logger);
+  auto model = loader.load(logger);
   CHECK(model.is_success());
   CHECK(model.value().data().frameCount() == 3);
 }

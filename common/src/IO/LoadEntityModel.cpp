@@ -69,59 +69,59 @@ Result<Assets::EntityModel> loadEntityModel(
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
                       auto loader = IO::MdlLoader{modelName, reader, palette};
-                      return loader.initializeModel(logger);
+                      return loader.load(logger);
                     });
            }
            if (IO::Md2Loader::canParse(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
                       auto loader = IO::Md2Loader{modelName, reader, palette, fs};
-                      return loader.initializeModel(logger);
+                      return loader.load(logger);
                     });
            }
            if (IO::BspLoader::canParse(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
                       auto loader = IO::BspLoader{modelName, reader, palette, fs};
-                      return loader.initializeModel(logger);
+                      return loader.load(logger);
                     });
            }
            if (IO::SprLoader::canParse(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
                       auto loader = IO::SprLoader{modelName, reader, palette};
-                      return loader.initializeModel(logger);
+                      return loader.load(logger);
                     });
            }
            if (IO::Md3Loader::canParse(path, reader))
            {
              auto loader = IO::Md3Loader{modelName, reader, loadMaterial};
-             return loader.initializeModel(logger);
+             return loader.load(logger);
            }
            if (IO::MdxLoader::canParse(path, reader))
            {
              auto loader = IO::MdxLoader{modelName, reader, fs};
-             return loader.initializeModel(logger);
+             return loader.load(logger);
            }
            if (IO::DkmLoader::canParse(path, reader))
            {
              auto loader = IO::DkmLoader{modelName, reader, fs};
-             return loader.initializeModel(logger);
+             return loader.load(logger);
            }
            if (IO::AseLoader::canParse(path))
            {
              auto loader = IO::AseLoader{modelName, reader.stringView(), loadMaterial};
-             return loader.initializeModel(logger);
+             return loader.load(logger);
            }
            if (IO::ImageSpriteLoader::canParse(path))
            {
              auto loader = IO::ImageSpriteLoader{modelName, file, fs};
-             return loader.initializeModel(logger);
+             return loader.load(logger);
            }
            if (IO::AssimpLoader::canParse(path))
            {
              auto loader = IO::AssimpLoader{path, fs};
-             return loader.initializeModel(logger);
+             return loader.load(logger);
            }
            return Error{"Unknown model format: '" + path.string() + "'"};
          });

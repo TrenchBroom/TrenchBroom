@@ -427,7 +427,7 @@ bool MdxLoader::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<Assets::EntityModel> MdxLoader::initializeModel(Logger& logger)
+Result<Assets::EntityModel> MdxLoader::load(Logger& logger)
 {
   try
   {

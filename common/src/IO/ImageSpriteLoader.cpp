@@ -110,7 +110,7 @@ bool ImageSpriteLoader::canParse(const std::filesystem::path& path)
   return isSupportedFreeImageExtension(path.extension().string());
 }
 
-Result<Assets::EntityModel> ImageSpriteLoader::initializeModel(Logger& logger)
+Result<Assets::EntityModel> ImageSpriteLoader::load(Logger& logger)
 {
   try
   {

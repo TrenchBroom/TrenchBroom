@@ -128,7 +128,7 @@ public:
 
   static bool canParse(const std::filesystem::path& path);
 
-  Result<Assets::EntityModel> initializeModel(Logger& logger) override;
+  Result<Assets::EntityModel> load(Logger& logger) override;
 
 private: // parsing
   void parseAseFile(Logger& logger, Scene& scene);

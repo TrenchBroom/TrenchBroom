@@ -321,7 +321,7 @@ bool Md3Loader::canParse(const std::filesystem::path& path, Reader reader)
   return ident == Md3Layout::Ident && version == Md3Layout::Version;
 }
 
-Result<Assets::EntityModel> Md3Loader::initializeModel(Logger&)
+Result<Assets::EntityModel> Md3Loader::load(Logger&)
 {
   try
   {

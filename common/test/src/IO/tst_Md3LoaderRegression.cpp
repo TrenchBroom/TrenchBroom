@@ -77,7 +77,7 @@ TEST_CASE("Md3LoaderTest.loadFailure_2659")
 
   auto reader = md3File->reader().buffer();
   auto loader = Md3Loader{"armor_red", reader, loadMaterial};
-  auto model = loader.initializeModel(logger);
+  auto model = loader.load(logger);
 
   CHECK(model.is_success());
 

@@ -51,7 +51,7 @@ TEST_CASE("MdlLoaderTest.loadValidMdl")
 
   auto reader = mdlFile->reader().buffer();
   auto loader = MdlLoader("armor", reader, palette);
-  auto model = loader.initializeModel(logger);
+  auto model = loader.load(logger);
 
   CHECK(model.is_success());
   CHECK(model.value().data().surfaceCount() == 1u);
@@ -79,7 +79,7 @@ TEST_CASE("MdlLoaderTest.loadInvalidMdl")
   auto reader = mdlFile->reader().buffer();
   auto loader = MdlLoader("armor", reader, palette);
   CHECK(
-    loader.initializeModel(logger)
+    loader.load(logger)
     == Result<Assets::EntityModel>{Error{"Unknown MDL model version: 538976288"}});
 }
 } // namespace IO

@@ -53,7 +53,7 @@ public:
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
-  Result<Assets::EntityModel> initializeModel(Logger& logger) override;
+  Result<Assets::EntityModel> load(Logger& logger) override;
 };
 
 } // namespace TrenchBroom::IO

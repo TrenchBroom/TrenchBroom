@@ -513,7 +513,7 @@ bool DkmLoader::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<Assets::EntityModel> DkmLoader::initializeModel(Logger& logger)
+Result<Assets::EntityModel> DkmLoader::load(Logger& logger)
 {
   try
   {

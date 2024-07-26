@@ -35,7 +35,7 @@ class EntityModelLoader
 public:
   virtual ~EntityModelLoader();
 
-  virtual Result<Assets::EntityModel> initializeModel(Logger& logger) = 0;
+  virtual Result<Assets::EntityModel> load(Logger& logger) = 0;
 };
 
 } // namespace TrenchBroom::IO

@@ -253,7 +253,7 @@ bool SprLoader::canParse(const std::filesystem::path& path, Reader reader)
   return ident == "IDSP" && (version == 1 || version == 2);
 }
 
-Result<Assets::EntityModel> SprLoader::initializeModel(Logger& /* logger */)
+Result<Assets::EntityModel> SprLoader::load(Logger& /* logger */)
 {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 

@@ -519,7 +519,7 @@ bool MdlLoader::canParse(const std::filesystem::path& path, Reader reader)
   return ident == MdlLayout::Ident && version == MdlLayout::Version6;
 }
 
-Result<Assets::EntityModel> MdlLoader::initializeModel(Logger& /* logger */)
+Result<Assets::EntityModel> MdlLoader::load(Logger& /* logger */)
 {
   try
   {

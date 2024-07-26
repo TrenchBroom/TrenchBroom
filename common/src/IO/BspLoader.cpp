@@ -17,11 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "BspLoader.h"
+
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
-#include "BspLoader.h"
 #include "Error.h"
 #include "IO/File.h"
 #include "IO/MaterialUtils.h"
@@ -295,7 +296,7 @@ bool BspLoader::canParse(const std::filesystem::path& path, Reader reader)
   return version == 29;
 }
 
-Result<Assets::EntityModel> BspLoader::initializeModel(Logger& logger)
+Result<Assets::EntityModel> BspLoader::load(Logger& logger)
 {
   try
   {

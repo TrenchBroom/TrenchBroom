@@ -79,7 +79,7 @@ TEST_CASE("AseLoaderTest")
     auto reader = aseFile->reader().buffer();
     auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto model = loader.initializeModel(logger);
+    auto model = loader.load(logger);
     CHECK(model.is_success());
   }
 
@@ -105,7 +105,7 @@ TEST_CASE("AseLoaderTest")
     auto reader = aseFile->reader().buffer();
     auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto model = loader.initializeModel(logger);
+    auto model = loader.load(logger);
     CHECK(model.is_success());
 
     // account for the default material
@@ -135,7 +135,7 @@ TEST_CASE("AseLoaderTest")
     auto reader = aseFile->reader().buffer();
     auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto model = loader.initializeModel(logger);
+    auto model = loader.load(logger);
     CHECK(model.is_success());
 
     // account for the default texture

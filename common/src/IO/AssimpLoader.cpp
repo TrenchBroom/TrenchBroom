@@ -791,7 +791,7 @@ bool AssimpLoader::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
-Result<Assets::EntityModel> AssimpLoader::initializeModel(TrenchBroom::Logger& logger)
+Result<Assets::EntityModel> AssimpLoader::load(TrenchBroom::Logger& logger)
 {
   try
   {
