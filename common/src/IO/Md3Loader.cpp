@@ -321,7 +321,7 @@ bool Md3Loader::canParse(const std::filesystem::path& path, Reader reader)
   return ident == Md3Layout::Ident && version == Md3Layout::Version;
 }
 
-Result<Assets::EntityModel> Md3Loader::load(Logger&)
+Result<Assets::EntityModelData> Md3Loader::load(Logger&)
 {
   try
   {
@@ -373,9 +373,7 @@ Result<Assets::EntityModel> Md3Loader::load(Logger&)
                           return parseFrameSurfaces(
                             reader.subReaderFromBegin(surfaceOffset), frame, data);
                         })
-                      | kdl::fold() | kdl::transform([&]() {
-                          return Assets::EntityModel{m_name, std::move(data)};
-                        });
+                      | kdl::fold() | kdl::transform([&]() { return std::move(data); });
              });
   }
   catch (const ReaderException& e)

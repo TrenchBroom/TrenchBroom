@@ -519,7 +519,7 @@ bool MdlLoader::canParse(const std::filesystem::path& path, Reader reader)
   return ident == MdlLayout::Ident && version == MdlLayout::Version6;
 }
 
-Result<Assets::EntityModel> MdlLoader::load(Logger& /* logger */)
+Result<Assets::EntityModelData> MdlLoader::load(Logger& /* logger */)
 {
   try
   {
@@ -567,7 +567,7 @@ Result<Assets::EntityModel> MdlLoader::load(Logger& /* logger */)
         reader, data, surface, triangles, vertices, skinWidth, skinHeight, origin, scale);
     }
 
-    return Assets::EntityModel{m_name, std::move(data)};
+    return data;
   }
   catch (const ReaderException& e)
   {

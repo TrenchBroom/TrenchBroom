@@ -77,11 +77,11 @@ TEST_CASE("Md3LoaderTest.loadFailure_2659")
 
   auto reader = md3File->reader().buffer();
   auto loader = Md3Loader{"armor_red", reader, loadMaterial};
-  auto model = loader.load(logger);
+  auto modelData = loader.load(logger);
 
-  CHECK(model.is_success());
+  CHECK(modelData.is_success());
 
-  CHECK(model.value().data().frameCount() == 30u);
-  CHECK(model.value().data().surfaceCount() == 2u);
+  CHECK(modelData.value().frameCount() == 30u);
+  CHECK(modelData.value().surfaceCount() == 2u);
 }
 } // namespace TrenchBroom::IO

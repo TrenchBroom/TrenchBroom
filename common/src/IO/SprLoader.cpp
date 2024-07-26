@@ -253,7 +253,7 @@ bool SprLoader::canParse(const std::filesystem::path& path, Reader reader)
   return ident == "IDSP" && (version == 1 || version == 2);
 }
 
-Result<Assets::EntityModel> SprLoader::load(Logger& /* logger */)
+Result<Assets::EntityModelData> SprLoader::load(Logger& /* logger */)
 {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 
@@ -338,7 +338,7 @@ Result<Assets::EntityModel> SprLoader::load(Logger& /* logger */)
 
             surface.setSkins(std::move(materials));
 
-            return Assets::EntityModel{m_name, std::move(data)};
+            return data;
           });
       });
     });

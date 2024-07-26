@@ -427,7 +427,7 @@ bool MdxLoader::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<Assets::EntityModel> MdxLoader::load(Logger& logger)
+Result<Assets::EntityModelData> MdxLoader::load(Logger& logger)
 {
   try
   {
@@ -487,7 +487,7 @@ Result<Assets::EntityModel> MdxLoader::load(Logger& logger)
       buildFrame(data, surface, frame, meshes);
     }
 
-    return Assets::EntityModel{m_name, std::move(data)};
+    return data;
   }
   catch (const ReaderException& e)
   {

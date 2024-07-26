@@ -38,12 +38,12 @@ TEST_CASE("AssimpLoaderTest.loadBlenderModel")
 
   auto loader = AssimpLoader{"cube.dae", *fs};
 
-  auto model = loader.load(logger);
-  CHECK(model.is_success());
+  auto modelData = loader.load(logger);
+  CHECK(modelData.is_success());
 
-  CHECK(model.value().data().frameCount() == 1);
-  CHECK(model.value().data().surfaceCount() == 1);
-  CHECK(model.value().data().surface(0u).skinCount() == 1);
+  CHECK(modelData.value().frameCount() == 1);
+  CHECK(modelData.value().surfaceCount() == 1);
+  CHECK(modelData.value().surface(0u).skinCount() == 1);
 }
 
 TEST_CASE("AssimpLoaderTest.loadHLModelWithSkins")
@@ -55,14 +55,14 @@ TEST_CASE("AssimpLoaderTest.loadHLModelWithSkins")
 
   auto loader = AssimpLoader{"cube.mdl", *fs};
 
-  auto model = loader.load(logger);
-  CHECK(model.is_success());
+  auto modelData = loader.load(logger);
+  CHECK(modelData.is_success());
 
-  CHECK(model.value().data().surfaceCount() == 4);
-  CHECK(model.value().data().surface(0).skinCount() == 1);
-  CHECK(model.value().data().surface(1).skinCount() == 3);
-  CHECK(model.value().data().surface(2).skinCount() == 1);
-  CHECK(model.value().data().surface(3).skinCount() == 1);
+  CHECK(modelData.value().surfaceCount() == 4);
+  CHECK(modelData.value().surface(0).skinCount() == 1);
+  CHECK(modelData.value().surface(1).skinCount() == 3);
+  CHECK(modelData.value().surface(2).skinCount() == 1);
+  CHECK(modelData.value().surface(3).skinCount() == 1);
 }
 
 TEST_CASE("AssimpLoaderTest.loadHLModelWithAnimations")
@@ -74,9 +74,9 @@ TEST_CASE("AssimpLoaderTest.loadHLModelWithAnimations")
 
   auto loader = AssimpLoader{"cube.mdl", *fs};
 
-  auto model = loader.load(logger);
-  CHECK(model.is_success());
-  CHECK(model.value().data().frameCount() == 3);
+  auto modelData = loader.load(logger);
+  CHECK(modelData.is_success());
+  CHECK(modelData.value().frameCount() == 3);
 }
 
 } // namespace TrenchBroom::IO

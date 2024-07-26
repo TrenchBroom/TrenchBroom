@@ -513,7 +513,7 @@ bool DkmLoader::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<Assets::EntityModel> DkmLoader::load(Logger& logger)
+Result<Assets::EntityModelData> DkmLoader::load(Logger& logger)
 {
   try
   {
@@ -572,7 +572,7 @@ Result<Assets::EntityModel> DkmLoader::load(Logger& logger)
         buildFrame(data, surface, frame, meshes);
       }
 
-      return Assets::EntityModel{m_name, std::move(data)};
+      return std::move(data);
     });
   }
   catch (const ReaderException& e)

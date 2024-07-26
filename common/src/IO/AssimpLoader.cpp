@@ -791,7 +791,7 @@ bool AssimpLoader::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
-Result<Assets::EntityModel> AssimpLoader::load(TrenchBroom::Logger& logger)
+Result<Assets::EntityModelData> AssimpLoader::load(TrenchBroom::Logger& logger)
 {
   try
   {
@@ -852,7 +852,7 @@ Result<Assets::EntityModel> AssimpLoader::load(TrenchBroom::Logger& logger)
       });
     }
 
-    return Assets::EntityModel{modelPath, std::move(data)};
+    return data;
   }
   catch (const ParserException& e)
   {

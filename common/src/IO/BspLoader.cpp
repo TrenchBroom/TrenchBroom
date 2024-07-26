@@ -296,7 +296,7 @@ bool BspLoader::canParse(const std::filesystem::path& path, Reader reader)
   return version == 29;
 }
 
-Result<Assets::EntityModel> BspLoader::load(Logger& logger)
+Result<Assets::EntityModelData> BspLoader::load(Logger& logger)
 {
   try
   {
@@ -375,7 +375,7 @@ Result<Assets::EntityModel> BspLoader::load(Logger& logger)
         faceEdges);
     }
 
-    return Assets::EntityModel{m_name, std::move(data)};
+    return data;
   }
   catch (const ReaderException& e)
   {

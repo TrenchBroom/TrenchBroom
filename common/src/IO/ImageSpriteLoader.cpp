@@ -110,7 +110,7 @@ bool ImageSpriteLoader::canParse(const std::filesystem::path& path)
   return isSupportedFreeImageExtension(path.extension().string());
 }
 
-Result<Assets::EntityModel> ImageSpriteLoader::load(Logger& logger)
+Result<Assets::EntityModelData> ImageSpriteLoader::load(Logger& logger)
 {
   try
   {
@@ -123,8 +123,7 @@ Result<Assets::EntityModel> ImageSpriteLoader::load(Logger& logger)
                surface.setSkins(kdl::vec_from(std::move(material)));
 
                createFrame(data);
-
-               return Assets::EntityModel{m_name, std::move(data)};
+               return data;
              });
   }
   catch (const ReaderException& e)

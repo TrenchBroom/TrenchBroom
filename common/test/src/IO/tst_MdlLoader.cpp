@@ -51,13 +51,13 @@ TEST_CASE("MdlLoaderTest.loadValidMdl")
 
   auto reader = mdlFile->reader().buffer();
   auto loader = MdlLoader("armor", reader, palette);
-  auto model = loader.load(logger);
+  auto modelData = loader.load(logger);
 
-  CHECK(model.is_success());
-  CHECK(model.value().data().surfaceCount() == 1u);
-  CHECK(model.value().data().frameCount() == 1u);
+  CHECK(modelData.is_success());
+  CHECK(modelData.value().surfaceCount() == 1u);
+  CHECK(modelData.value().frameCount() == 1u);
 
-  const auto& surfaces = model.value().data().surfaces();
+  const auto& surfaces = modelData.value().surfaces();
   const auto& surface = surfaces.front();
   CHECK(surface.skinCount() == 3u);
   CHECK(surface.frameCount() == 1u);
@@ -80,7 +80,7 @@ TEST_CASE("MdlLoaderTest.loadInvalidMdl")
   auto loader = MdlLoader("armor", reader, palette);
   CHECK(
     loader.load(logger)
-    == Result<Assets::EntityModel>{Error{"Unknown MDL model version: 538976288"}});
+    == Result<Assets::EntityModelData>{Error{"Unknown MDL model version: 538976288"}});
 }
 } // namespace IO
 } // namespace TrenchBroom

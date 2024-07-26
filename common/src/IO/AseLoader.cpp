@@ -133,15 +133,13 @@ bool AseLoader::canParse(const std::filesystem::path& path)
   return kdl::str_to_lower(path.extension().string()) == ".ase";
 }
 
-Result<Assets::EntityModel> AseLoader::load(Logger& logger)
+Result<Assets::EntityModelData> AseLoader::load(Logger& logger)
 {
   try
   {
     auto scene = Scene{};
     parseAseFile(logger, scene);
-    return buildModelData(logger, scene).transform([&](auto data) {
-      return Assets::EntityModel{m_name, std::move(data)};
-    });
+    return buildModelData(logger, scene);
   }
   catch (const ParserException& e)
   {

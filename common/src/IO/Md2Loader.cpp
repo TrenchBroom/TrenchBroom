@@ -436,7 +436,7 @@ bool Md2Loader::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<Assets::EntityModel> Md2Loader::load(Logger& logger)
+Result<Assets::EntityModelData> Md2Loader::load(Logger& logger)
 {
   try
   {
@@ -494,7 +494,7 @@ Result<Assets::EntityModel> Md2Loader::load(Logger& logger)
       buildFrame(data, surface, frame, meshes);
     }
 
-    return Assets::EntityModel{m_name, std::move(data)};
+    return data;
   }
   catch (const ReaderException& e)
   {
