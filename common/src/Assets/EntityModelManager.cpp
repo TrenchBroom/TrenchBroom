@@ -106,22 +106,25 @@ Renderer::MaterialRenderer* EntityModelManager::renderer(
 
     if (!m_rendererMismatches.contains(spec))
     {
-      const auto& entityModelData = entityModel->data();
-      if (auto renderer = entityModelData.buildRenderer(spec.skinIndex, spec.frameIndex))
+      if (const auto* entityModelData = entityModel->data())
       {
-        const auto [pos, success] = m_renderers.emplace(spec, std::move(renderer));
-        assert(success);
-        unused(success);
+        if (
+          auto renderer = entityModelData->buildRenderer(spec.skinIndex, spec.frameIndex))
+        {
+          const auto [pos, success] = m_renderers.emplace(spec, std::move(renderer));
+          assert(success);
+          unused(success);
 
-        auto* result = pos->second.get();
-        m_unpreparedRenderers.push_back(result);
-        m_logger.debug() << "Constructed entity model renderer for " << spec;
-        return result;
+          auto* result = pos->second.get();
+          m_unpreparedRenderers.push_back(result);
+          m_logger.debug() << "Constructed entity model renderer for " << spec;
+          return result;
+        }
+
+        m_rendererMismatches.insert(spec);
+        m_logger.error() << "Failed to construct entity model renderer for " << spec
+                         << ", check the skin and frame indices";
       }
-
-      m_rendererMismatches.insert(spec);
-      m_logger.error() << "Failed to construct entity model renderer for " << spec
-                       << ", check the skin and frame indices";
     }
   }
 
@@ -133,8 +136,10 @@ const EntityModelFrame* EntityModelManager::frame(
 {
   if (auto* model = this->safeGetModel(spec.path))
   {
-    const auto& entityModelData = model->data();
-    return entityModelData.frame(spec.frameIndex);
+    if (const auto* entityModelData = model->data())
+    {
+      return entityModelData->frame(spec.frameIndex);
+    }
   }
 
   return nullptr;
@@ -221,8 +226,10 @@ void EntityModelManager::resetFilterMode()
   {
     for (auto& [path, model] : m_models)
     {
-      auto& entityModelData = model.data();
-      entityModelData.setFilterMode(m_minFilter, m_magFilter);
+      if (auto* entityModelData = model.data())
+      {
+        entityModelData->setFilterMode(m_minFilter, m_magFilter);
+      }
     }
     m_resetFilterMode = false;
   }
@@ -232,8 +239,10 @@ void EntityModelManager::prepareModels()
 {
   for (auto* model : m_unpreparedModels)
   {
-    auto& entityModelData = model->data();
-    entityModelData.prepare(m_minFilter, m_magFilter);
+    if (auto* entityModelData = model->data())
+    {
+      entityModelData->prepare(m_minFilter, m_magFilter);
+    }
   }
   m_unpreparedModels.clear();
 }

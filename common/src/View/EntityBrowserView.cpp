@@ -240,7 +240,8 @@ void EntityBrowserView::addEntityToLayout(
     auto modelOrientation = Assets::Orientation::Oriented;
 
     const auto* model = m_entityModelManager.model(spec.path);
-    const auto* modelFrame = model ? model->data().frame(spec.frameIndex) : nullptr;
+    const auto* modelData = model ? model->data() : nullptr;
+    const auto* modelFrame = modelData ? modelData->frame(spec.frameIndex) : nullptr;
     if (modelFrame)
     {
       const auto scalingMatrix = vm::scaling_matrix(modelScale);
@@ -253,7 +254,7 @@ void EntityBrowserView::addEntityToLayout(
 
       modelRenderer = m_entityModelManager.renderer(spec);
       rotatedBounds = bounds.transform(transform);
-      modelOrientation = model->data().orientation();
+      modelOrientation = modelData->orientation();
     }
     else
     {

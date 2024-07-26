@@ -618,14 +618,14 @@ const std::string& EntityModel::name() const
   return m_name;
 }
 
-const EntityModelData& EntityModel::data() const
+const EntityModelData* EntityModel::data() const
 {
-  return m_data;
+  return &m_data;
 }
 
-EntityModelData& EntityModel::data()
+EntityModelData* EntityModel::data()
 {
-  return m_data;
+  return &m_data;
 }
 
 } // namespace TrenchBroom::Assets

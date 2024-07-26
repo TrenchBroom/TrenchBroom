@@ -475,8 +475,8 @@ public:
    */
   const std::string& name() const;
 
-  const EntityModelData& data() const;
-  EntityModelData& data();
+  const EntityModelData* data() const;
+  EntityModelData* data();
 };
 
 } // namespace TrenchBroom::Assets

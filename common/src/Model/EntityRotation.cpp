@@ -121,7 +121,8 @@ EntityRotationInfo entityRotationInfo(const Entity& entity)
   EntityRotationUsage usage = EntityRotationUsage::Allowed;
 
   const auto* model = entity.model();
-  const auto pitchType = model ? model->data().pitchType() : Assets::PitchType::Normal;
+  const auto* modelData = model ? model->data() : nullptr;
+  const auto pitchType = modelData ? modelData->pitchType() : Assets::PitchType::Normal;
   const EntityRotationType eulerType =
     (pitchType == Assets::PitchType::MdlInverted
        ? EntityRotationType::Euler
