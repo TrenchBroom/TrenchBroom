@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,13 +17,37 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EntityModelParser.h"
+#pragma once
 
-#include "Assets/EntityModel.h"
+#include "IO/EntityModelLoader.h"
+
+#include <filesystem>
+#include <string>
+
+namespace TrenchBroom::Assets
+{
+class Palette;
+}
 
 namespace TrenchBroom::IO
 {
+class File;
+class FileSystem;
+class Reader;
 
-EntityModelParser::~EntityModelParser() = default;
+class SprLoader : public EntityModelLoader
+{
+private:
+  std::string m_name;
+  const Reader& m_reader;
+  const Assets::Palette& m_palette;
+
+public:
+  SprLoader(std::string name, const Reader& reader, const Assets::Palette& palette);
+
+  static bool canParse(const std::filesystem::path& path, Reader reader);
+
+  Result<Assets::EntityModel> initializeModel(Logger& logger) override;
+};
 
 } // namespace TrenchBroom::IO

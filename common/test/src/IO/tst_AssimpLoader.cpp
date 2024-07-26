@@ -20,7 +20,7 @@
 
 #include "Assets/EntityModel.h"
 #include "Error.h"
-#include "IO/AssimpParser.h"
+#include "IO/AssimpLoader.h"
 #include "IO/DiskFileSystem.h"
 #include "Logger.h"
 
@@ -29,16 +29,16 @@
 namespace TrenchBroom::IO
 {
 
-TEST_CASE("AssimpParserTest.loadBlenderModel")
+TEST_CASE("AssimpLoaderTest.loadBlenderModel")
 {
   auto logger = NullLogger{};
 
   const auto basePath = std::filesystem::current_path() / "fixture/test/IO/assimp";
   auto fs = std::make_shared<DiskFileSystem>(basePath);
 
-  auto assimpParser = AssimpParser{"cube.dae", *fs};
+  auto loader = AssimpLoader{"cube.dae", *fs};
 
-  auto model = assimpParser.initializeModel(logger);
+  auto model = loader.initializeModel(logger);
   CHECK(model.is_success());
 
   CHECK(model.value().data().frameCount() == 1);
@@ -46,16 +46,16 @@ TEST_CASE("AssimpParserTest.loadBlenderModel")
   CHECK(model.value().data().surface(0u).skinCount() == 1);
 }
 
-TEST_CASE("AssimpParserTest.loadHLModelWithSkins")
+TEST_CASE("AssimpLoaderTest.loadHLModelWithSkins")
 {
   auto logger = NullLogger{};
 
   const auto basePath = std::filesystem::current_path() / "fixture/test/IO/assimp";
   auto fs = std::make_shared<DiskFileSystem>(basePath);
 
-  auto assimpParser = AssimpParser{"cube.mdl", *fs};
+  auto loader = AssimpLoader{"cube.mdl", *fs};
 
-  auto model = assimpParser.initializeModel(logger);
+  auto model = loader.initializeModel(logger);
   CHECK(model.is_success());
 
   CHECK(model.value().data().surfaceCount() == 4);
@@ -65,16 +65,16 @@ TEST_CASE("AssimpParserTest.loadHLModelWithSkins")
   CHECK(model.value().data().surface(3).skinCount() == 1);
 }
 
-TEST_CASE("AssimpParserTest.loadHLModelWithAnimations")
+TEST_CASE("AssimpLoaderTest.loadHLModelWithAnimations")
 {
   auto logger = NullLogger{};
 
   const auto basePath = std::filesystem::current_path() / "fixture/test/IO/assimp";
   auto fs = std::make_shared<DiskFileSystem>(basePath);
 
-  auto assimpParser = AssimpParser{"cube.mdl", *fs};
+  auto loader = AssimpLoader{"cube.mdl", *fs};
 
-  auto model = assimpParser.initializeModel(logger);
+  auto model = loader.initializeModel(logger);
   CHECK(model.is_success());
   CHECK(model.value().data().frameCount() == 3);
 }

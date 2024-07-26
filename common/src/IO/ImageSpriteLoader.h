@@ -1,7 +1,5 @@
 /*
- Copyright (C) 2023 Daniel Walder
- Copyright (C) 2022 Amara M. Kilic
- Copyright (C) 2022 Kristian Duske
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -21,44 +19,28 @@
 
 #pragma once
 
-#include "IO/EntityModelParser.h"
-
-#include <assimp/matrix4x4.h>
+#include "IO/EntityModelLoader.h"
 
 #include <filesystem>
-
-struct aiNode;
-struct aiScene;
-struct aiMesh;
-
-namespace TrenchBroom::Assets
-{
-class Material;
-} // namespace TrenchBroom::Assets
+#include <string>
 
 namespace TrenchBroom::IO
 {
+class File;
 class FileSystem;
 
-struct AssimpMeshWithTransforms
-{
-  const aiMesh* m_mesh;
-  aiMatrix4x4 m_transform;
-  aiMatrix4x4 m_axisTransform;
-};
-
-class AssimpParser : public EntityModelParser
+class ImageSpriteLoader : public EntityModelLoader
 {
 private:
-  std::filesystem::path m_path;
+  std::string m_name;
+  std::shared_ptr<File> m_file;
   const FileSystem& m_fs;
 
 public:
-  AssimpParser(std::filesystem::path path, const FileSystem& fs);
+  ImageSpriteLoader(std::string name, std::shared_ptr<File> file, const FileSystem& fs);
 
   static bool canParse(const std::filesystem::path& path);
 
   Result<Assets::EntityModel> initializeModel(Logger& logger) override;
 };
-
 } // namespace TrenchBroom::IO

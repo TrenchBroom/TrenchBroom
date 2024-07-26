@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DkmParser.h"
+#include "DkmLoader.h"
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
@@ -491,14 +491,14 @@ void buildFrame(
 
 } // namespace
 
-DkmParser::DkmParser(std::string name, const Reader& reader, const FileSystem& fs)
+DkmLoader::DkmLoader(std::string name, const Reader& reader, const FileSystem& fs)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_fs{fs}
 {
 }
 
-bool DkmParser::canParse(const std::filesystem::path& path, Reader reader)
+bool DkmLoader::canParse(const std::filesystem::path& path, Reader reader)
 {
   if (kdl::path_to_lower(path.extension()) != ".dkm")
   {
@@ -513,7 +513,7 @@ bool DkmParser::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<Assets::EntityModel> DkmParser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> DkmLoader::initializeModel(Logger& logger)
 {
   try
   {

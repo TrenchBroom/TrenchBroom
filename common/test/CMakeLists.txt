@@ -37,8 +37,8 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_EL.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_Expression.cpp"
         "${COMMON_TEST_SOURCE_DIR}/EL/tst_Interpolator.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/IO/tst_AseParser.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/IO/tst_AssimpParser.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_AseLoader.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_AssimpLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_CompilationConfigParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_DefParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_DiskFileSystem.cpp"
@@ -53,8 +53,8 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ImageFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_LoadMaterialCollections.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_MaterialUtils.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/IO/tst_Md3Parser.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/IO/tst_MdlParser.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_Md3Loader.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_MdlLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_NodeReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_NodeWriter.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_ObjSerializer.cpp"
@@ -153,8 +153,8 @@ set(COMMON_TEST_SOURCE
 )
 
 set(COMMON_REGRESSION_TEST_SOURCE
-        "${COMMON_TEST_SOURCE_DIR}/IO/tst_AseParserRegression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/IO/tst_Md3ParserRegression.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_AseLoaderRegression.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/IO/tst_Md3LoaderRegression.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_Quake3ShaderParserRegression.cpp"
         "${COMMON_TEST_SOURCE_DIR}/IO/tst_WorldReaderRegression.cpp"
         "${COMMON_TEST_SOURCE_DIR}/Model/tst_BrushNodeRegression.cpp"

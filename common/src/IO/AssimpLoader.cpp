@@ -19,7 +19,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "AssimpParser.h"
+#include "AssimpLoader.h"
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
@@ -763,13 +763,13 @@ Result<void> loadSceneFrame(
 
 } // namespace
 
-AssimpParser::AssimpParser(std::filesystem::path path, const FileSystem& fs)
+AssimpLoader::AssimpLoader(std::filesystem::path path, const FileSystem& fs)
   : m_path{std::move(path)}
   , m_fs{fs}
 {
 }
 
-bool AssimpParser::canParse(const std::filesystem::path& path)
+bool AssimpLoader::canParse(const std::filesystem::path& path)
 {
   // clang-format off
   static const auto supportedExtensions = std::vector<std::string>{
@@ -791,7 +791,7 @@ bool AssimpParser::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
-Result<Assets::EntityModel> AssimpParser::initializeModel(TrenchBroom::Logger& logger)
+Result<Assets::EntityModel> AssimpLoader::initializeModel(TrenchBroom::Logger& logger)
 {
   try
   {

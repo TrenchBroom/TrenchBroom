@@ -19,26 +19,36 @@
 
 #pragma once
 
-#include "IO/EntityModelParser.h"
+#include "Assets/Palette.h"
+#include "IO/EntityModelLoader.h"
 
 #include <filesystem>
 #include <string>
+
+namespace TrenchBroom::Assets
+{
+class Palette;
+} // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::IO
 {
 class FileSystem;
 class Reader;
 
-// see http://tfc.duke.free.fr/coding/md2-specs-en.html
-class DkmParser : public EntityModelParser
+class BspLoader : public EntityModelLoader
 {
 private:
   std::string m_name;
   const Reader& m_reader;
+  const Assets::Palette m_palette;
   const FileSystem& m_fs;
 
 public:
-  DkmParser(std::string name, const Reader& reader, const FileSystem& fs);
+  BspLoader(
+    std::string name,
+    const Reader& reader,
+    Assets::Palette palette,
+    const FileSystem& fs);
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 

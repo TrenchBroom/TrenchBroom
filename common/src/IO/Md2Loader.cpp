@@ -17,10 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MdxParser.h"
+#include "Md2Loader.h"
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
+#include "Assets/Palette.h"
 #include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
@@ -33,19 +34,19 @@
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 
 #include <string>
 
 namespace TrenchBroom::IO
 {
-namespace MdxLayout
+namespace Md2Layout
 {
-static const int Ident = (('X' << 24) + ('P' << 16) + ('D' << 8) + 'I');
-static const int Version = 4;
+static const int Ident = (('2' << 24) + ('P' << 16) + ('D' << 8) + 'I');
+static const int Version = 8;
 static const size_t SkinNameLength = 64;
 static const size_t FrameNameLength = 16;
-} // namespace MdxLayout
+} // namespace Md2Layout
 
 namespace
 {
@@ -214,18 +215,18 @@ const vm::vec3f Normals[162] = {
   vm::vec3f{-0.688191f, -0.587785f, -0.425325f},
 };
 
-struct MdxVertex
+struct Md2Vertex
 {
   unsigned char x, y, z;
   unsigned char normalIndex;
 };
 
-struct MdxFrame
+struct Md2Frame
 {
   vm::vec3f scale;
   vm::vec3f offset;
   std::string name;
-  std::vector<MdxVertex> vertices;
+  std::vector<Md2Vertex> vertices;
 
   vm::vec3f vertex(size_t index) const
   {
@@ -241,27 +242,27 @@ struct MdxFrame
   }
 };
 
-struct MdxMeshVertex
+struct Md2MeshVertex
 {
   size_t vertexIndex;
   vm::vec2f uv;
 };
 
-struct MdxMesh
+struct Md2Mesh
 {
   Renderer::PrimType type;
-  std::vector<MdxMeshVertex> vertices;
+  std::vector<Md2MeshVertex> vertices;
 };
 
 
-auto parseSkins(Reader reader, const size_t skinCount)
+std::vector<std::string> parseSkins(Reader reader, const size_t count)
 {
   auto skins = std::vector<std::string>{};
-  skins.reserve(skinCount);
+  skins.reserve(count);
 
-  for (size_t i = 0; i < skinCount; ++i)
+  for (size_t i = 0; i < count; ++i)
   {
-    skins.push_back(reader.readString(MdxLayout::SkinNameLength));
+    skins.push_back(reader.readString(Md2Layout::SkinNameLength));
   }
 
   return skins;
@@ -269,7 +270,7 @@ auto parseSkins(Reader reader, const size_t skinCount)
 
 auto parseVertices(Reader& reader, const size_t vertexCount)
 {
-  auto vertices = std::vector<MdxVertex>{};
+  auto vertices = std::vector<Md2Vertex>{};
   vertices.reserve(vertexCount);
 
   for (size_t i = 0; i < vertexCount; ++i)
@@ -288,41 +289,42 @@ auto parseFrame(Reader reader, const size_t /* frameIndex */, const size_t verte
 {
   const auto scale = reader.readVec<float, 3>();
   const auto offset = reader.readVec<float, 3>();
-  auto name = reader.readString(MdxLayout::FrameNameLength);
+  auto name = reader.readString(Md2Layout::FrameNameLength);
   auto vertices = parseVertices(reader, vertexCount);
 
-  return MdxFrame{scale, offset, std::move(name), std::move(vertices)};
+  return Md2Frame{scale, offset, std::move(name), std::move(vertices)};
 }
 
 auto parseMeshVertices(Reader& reader, const size_t count)
 {
-  auto vertices = std::vector<MdxMeshVertex>{};
+  auto vertices = std::vector<Md2MeshVertex>{};
   vertices.reserve(count);
 
   for (size_t i = 0; i < count; ++i)
   {
-    const auto vertexIndex = reader.readSize<int32_t>();
     const auto u = reader.readFloat<float>();
     const auto v = reader.readFloat<float>();
+    const auto vertexIndex = reader.readSize<int32_t>();
     vertices.push_back({vertexIndex, {u, v}});
   }
 
   return vertices;
 }
 
-auto parseMeshes(Reader reader, const size_t commandCount)
+auto parseMeshes(Reader reader, const size_t /* commandCount */)
 {
-  auto meshes = std::vector<MdxMesh>{};
+  auto meshes = std::vector<Md2Mesh>{};
 
-  auto vertexCount = reader.readInt<int32_t>();
-  for (size_t i = 0; i < commandCount && vertexCount != 0; ++i)
+  // vertex count is signed, where < 0 indicates a triangle fan and > 0 indicates a
+  // triangle strip
+  while (!reader.eof())
   {
+    const auto vertexCount = reader.readInt<int32_t>();
+
     const auto type = vertexCount < 0 ? Renderer::PrimType::TriangleFan
                                       : Renderer::PrimType::TriangleStrip;
     auto vertices = parseMeshVertices(reader, size_t(std::abs(vertexCount)));
     meshes.push_back({type, std::move(vertices)});
-
-    vertexCount = reader.readInt<int32_t>();
   }
 
   return meshes;
@@ -331,6 +333,7 @@ auto parseMeshes(Reader reader, const size_t commandCount)
 void loadSkins(
   Assets::EntityModelSurface& surface,
   const std::vector<std::string>& skins,
+  const Assets::Palette& palette,
   const FileSystem& fs,
   Logger& logger)
 {
@@ -339,14 +342,13 @@ void loadSkins(
 
   for (const auto& skin : skins)
   {
-    const auto path = std::filesystem::path{skin}.relative_path();
-    materials.push_back(loadSkin(path, fs, logger));
+    materials.push_back(loadSkin(skin, fs, palette, logger));
   }
 
   surface.setSkins(std::move(materials));
 }
 
-auto getVertices(const MdxFrame& frame, const std::vector<MdxMeshVertex>& meshVertices)
+auto getVertices(const Md2Frame& frame, const std::vector<Md2MeshVertex>& meshVertices)
 {
   auto vertices = std::vector<Assets::EntityModelVertex>{};
   vertices.reserve(meshVertices.size());
@@ -354,7 +356,9 @@ auto getVertices(const MdxFrame& frame, const std::vector<MdxMeshVertex>& meshVe
   for (const auto& md2MeshVertex : meshVertices)
   {
     const auto position = frame.vertex(md2MeshVertex.vertexIndex);
-    vertices.emplace_back(position, md2MeshVertex.uv);
+    const auto& uv = md2MeshVertex.uv;
+
+    vertices.emplace_back(position, uv);
   }
 
   return vertices;
@@ -363,8 +367,8 @@ auto getVertices(const MdxFrame& frame, const std::vector<MdxMeshVertex>& meshVe
 void buildFrame(
   Assets::EntityModelData& model,
   Assets::EntityModelSurface& surface,
-  const MdxFrame& frame,
-  const std::vector<MdxMesh>& meshes)
+  const Md2Frame& frame,
+  const std::vector<Md2Mesh>& meshes)
 {
   size_t vertexCount = 0;
   auto size = Renderer::IndexRangeMap::Size{};
@@ -406,16 +410,21 @@ void buildFrame(
 
 } // namespace
 
-MdxParser::MdxParser(std::string name, const Reader& reader, const FileSystem& fs)
+Md2Loader::Md2Loader(
+  std::string name,
+  const Reader& reader,
+  const Assets::Palette& palette,
+  const FileSystem& fs)
   : m_name{std::move(name)}
   , m_reader{reader}
+  , m_palette{palette}
   , m_fs{fs}
 {
 }
 
-bool MdxParser::canParse(const std::filesystem::path& path, Reader reader)
+bool Md2Loader::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::path_to_lower(path.extension()) != ".mdx")
+  if (kdl::path_to_lower(path.extension()) != ".md2")
   {
     return false;
   }
@@ -423,26 +432,26 @@ bool MdxParser::canParse(const std::filesystem::path& path, Reader reader)
   const auto ident = reader.readInt<int32_t>();
   const auto version = reader.readInt<int32_t>();
 
-  return ident == MdxLayout::Ident && version == MdxLayout::Version;
+  return ident == Md2Layout::Ident && version == Md2Layout::Version;
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<Assets::EntityModel> MdxParser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> Md2Loader::initializeModel(Logger& logger)
 {
   try
   {
     auto reader = m_reader;
-    const auto ident = reader.readInt<int32_t>();
-    const auto version = reader.readInt<int32_t>();
+    const int ident = reader.readInt<int32_t>();
+    const int version = reader.readInt<int32_t>();
 
-    if (ident != MdxLayout::Ident)
+    if (ident != Md2Layout::Ident)
     {
-      return Error{fmt::format("Unknown MDX model ident: {}", ident)};
+      return Error{fmt::format("Unknown MD2 model ident: {}", ident)};
     }
 
-    if (version != MdxLayout::Version)
+    if (version != Md2Layout::Version)
     {
-      return Error{fmt::format("Unknown MDX model version: {}", version)};
+      return Error{fmt::format("Unknown MD2 model version: {}", version)};
     }
 
     /*const auto skinWidth =*/reader.readSize<int32_t>();
@@ -451,15 +460,13 @@ Result<Assets::EntityModel> MdxParser::initializeModel(Logger& logger)
 
     const auto skinCount = reader.readSize<int32_t>();
     const auto vertexCount = reader.readSize<int32_t>();
+    /* const auto uvCoordCount =*/reader.readSize<int32_t>();
     /* const auto triangleCount =*/reader.readSize<int32_t>();
     const auto commandCount = reader.readSize<int32_t>();
+
     const auto frameCount = reader.readSize<int32_t>();
-
-    /* const auto sfxDefineCount = */ reader.readSize<int32_t>();
-    /* const auto sfxEntryCount = */ reader.readSize<int32_t>();
-    /* const auto subObjectCount = */ reader.readSize<int32_t>();
-
     const auto skinOffset = reader.readSize<int32_t>();
+    /* const auto uvCoordOffset =*/reader.readSize<int32_t>();
     /* const auto triangleOffset =*/reader.readSize<int32_t>();
     const auto frameOffset = reader.readSize<int32_t>();
     const auto commandOffset = reader.readSize<int32_t>();
@@ -468,12 +475,12 @@ Result<Assets::EntityModel> MdxParser::initializeModel(Logger& logger)
 
     auto data =
       Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
-    auto& surface = data.addSurface(m_name, frameCount);
 
-    loadSkins(surface, skins, m_fs, logger);
+    auto& surface = data.addSurface(m_name, frameCount);
+    loadSkins(surface, skins, m_palette, m_fs, logger);
 
     const auto frameSize =
-      6 * sizeof(float) + MdxLayout::FrameNameLength + vertexCount * 4;
+      6 * sizeof(float) + Md2Layout::FrameNameLength + vertexCount * 4;
     const auto meshes = parseMeshes(
       reader.subReaderFromBegin(commandOffset, commandCount * 4), commandCount);
 

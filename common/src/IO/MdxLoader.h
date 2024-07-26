@@ -19,16 +19,14 @@
 
 #pragma once
 
-#include "Assets/EntityModel_Forward.h"
-#include "IO/EntityModelParser.h"
+#include "IO/EntityModelLoader.h"
 
 #include <filesystem>
-#include <functional>
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace TrenchBroom
 {
-class Material;
+class Logger;
 }
 
 namespace TrenchBroom::IO
@@ -36,17 +34,17 @@ namespace TrenchBroom::IO
 class FileSystem;
 class Reader;
 
-using LoadMaterialFunc = std::function<Assets::Material(const std::filesystem::path&)>;
-
-class Md3Parser : public EntityModelParser
+// see
+// https://web.archive.org/web/20020404103848/http://members.cheapnet.co.uk/~tical/misc/mdx.htm
+class MdxLoader : public EntityModelLoader
 {
 private:
   std::string m_name;
   const Reader& m_reader;
-  LoadMaterialFunc m_loadMaterial;
+  const FileSystem& m_fs;
 
 public:
-  Md3Parser(std::string name, const Reader& reader, LoadMaterialFunc loadMaterial);
+  MdxLoader(std::string name, const Reader& reader, const FileSystem& fs);
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 

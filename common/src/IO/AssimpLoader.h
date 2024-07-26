@@ -1,5 +1,7 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2023 Daniel Walder
+ Copyright (C) 2022 Amara M. Kilic
+ Copyright (C) 2022 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,38 +21,42 @@
 
 #pragma once
 
-#include "Assets/Palette.h"
-#include "IO/EntityModelParser.h"
+#include "IO/EntityModelLoader.h"
+
+#include <assimp/matrix4x4.h>
 
 #include <filesystem>
-#include <string>
+
+struct aiNode;
+struct aiScene;
+struct aiMesh;
 
 namespace TrenchBroom::Assets
 {
-class Palette;
+class Material;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::IO
 {
 class FileSystem;
-class Reader;
 
-class Bsp29Parser : public EntityModelParser
+struct AssimpMeshWithTransforms
+{
+  const aiMesh* m_mesh;
+  aiMatrix4x4 m_transform;
+  aiMatrix4x4 m_axisTransform;
+};
+
+class AssimpLoader : public EntityModelLoader
 {
 private:
-  std::string m_name;
-  const Reader& m_reader;
-  const Assets::Palette m_palette;
+  std::filesystem::path m_path;
   const FileSystem& m_fs;
 
 public:
-  Bsp29Parser(
-    std::string name,
-    const Reader& reader,
-    Assets::Palette palette,
-    const FileSystem& fs);
+  AssimpLoader(std::filesystem::path path, const FileSystem& fs);
 
-  static bool canParse(const std::filesystem::path& path, Reader reader);
+  static bool canParse(const std::filesystem::path& path);
 
   Result<Assets::EntityModel> initializeModel(Logger& logger) override;
 };

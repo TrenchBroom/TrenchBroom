@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/SprParser.h"
+#include "IO/SprLoader.h"
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
@@ -232,7 +232,7 @@ Result<Assets::Palette> parseEmbeddedPalette(
 
 } // namespace
 
-SprParser::SprParser(
+SprLoader::SprLoader(
   std::string name, const Reader& reader, const Assets::Palette& palette)
   : m_name{std::move(name)}
   , m_reader{reader}
@@ -240,7 +240,7 @@ SprParser::SprParser(
 {
 }
 
-bool SprParser::canParse(const std::filesystem::path& path, Reader reader)
+bool SprLoader::canParse(const std::filesystem::path& path, Reader reader)
 {
   if (kdl::path_to_lower(path.extension()) != ".spr")
   {
@@ -253,7 +253,7 @@ bool SprParser::canParse(const std::filesystem::path& path, Reader reader)
   return ident == "IDSP" && (version == 1 || version == 2);
 }
 
-Result<Assets::EntityModel> SprParser::initializeModel(Logger& /* logger */)
+Result<Assets::EntityModel> SprLoader::initializeModel(Logger& /* logger */)
 {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 

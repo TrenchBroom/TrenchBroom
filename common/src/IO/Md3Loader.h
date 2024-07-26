@@ -20,14 +20,15 @@
 #pragma once
 
 #include "Assets/EntityModel_Forward.h"
-#include "IO/EntityModelParser.h"
+#include "IO/EntityModelLoader.h"
 
 #include <filesystem>
+#include <functional>
 #include <string>
 
 namespace TrenchBroom::Assets
 {
-class Palette;
+class Material;
 }
 
 namespace TrenchBroom::IO
@@ -35,21 +36,17 @@ namespace TrenchBroom::IO
 class FileSystem;
 class Reader;
 
-// see http://tfc.duke.free.fr/coding/md2-specs-en.html
-class Md2Parser : public EntityModelParser
+using LoadMaterialFunc = std::function<Assets::Material(const std::filesystem::path&)>;
+
+class Md3Loader : public EntityModelLoader
 {
 private:
   std::string m_name;
   const Reader& m_reader;
-  const Assets::Palette& m_palette;
-  const FileSystem& m_fs;
+  LoadMaterialFunc m_loadMaterial;
 
 public:
-  Md2Parser(
-    std::string name,
-    const Reader& reader,
-    const Assets::Palette& palette,
-    const FileSystem& fs);
+  Md3Loader(std::string name, const Reader& reader, LoadMaterialFunc loadMaterial);
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 

@@ -17,12 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Bsp29Parser.h"
-
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
+#include "BspLoader.h"
 #include "Error.h"
 #include "IO/File.h"
 #include "IO/MaterialUtils.h"
@@ -276,7 +275,7 @@ void parseFrame(
 
 } // namespace
 
-Bsp29Parser::Bsp29Parser(
+BspLoader::BspLoader(
   std::string name, const Reader& reader, Assets::Palette palette, const FileSystem& fs)
   : m_name{std::move(name)}
   , m_reader{reader}
@@ -285,7 +284,7 @@ Bsp29Parser::Bsp29Parser(
 {
 }
 
-bool Bsp29Parser::canParse(const std::filesystem::path& path, Reader reader)
+bool BspLoader::canParse(const std::filesystem::path& path, Reader reader)
 {
   if (kdl::str_to_lower(path.extension().string()) != ".bsp")
   {
@@ -296,7 +295,7 @@ bool Bsp29Parser::canParse(const std::filesystem::path& path, Reader reader)
   return version == 29;
 }
 
-Result<Assets::EntityModel> Bsp29Parser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> BspLoader::initializeModel(Logger& logger)
 {
   try
   {

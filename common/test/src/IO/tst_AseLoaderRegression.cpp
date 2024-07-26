@@ -21,7 +21,7 @@
 #include "Assets/Material.h"
 #include "Assets/Palette.h"
 #include "Assets/Quake3Shader.h"
-#include "IO/AseParser.h"
+#include "IO/AseLoader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/File.h"
 #include "IO/LoadMaterialCollections.h"
@@ -32,13 +32,11 @@
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
-#include <filesystem>
-
 #include "Catch2.h" // IWYU pragma: keep
 
 namespace TrenchBroom::IO
 {
-TEST_CASE("AseParserTest")
+TEST_CASE("AseLoaderTest")
 {
   auto logger = NullLogger{};
 
@@ -51,15 +49,16 @@ TEST_CASE("AseParserTest")
     {},
   };
 
+  auto fs = VirtualFileSystem{};
+
   const auto defaultAssetsPath =
     std::filesystem::current_path() / "fixture/test/IO/ResourceUtils/assets";
-  auto fs = VirtualFileSystem{};
   fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
-  SECTION("loadWithoutException")
+  SECTION("parseFailure_2657")
   {
     const auto basePath =
-      std::filesystem::current_path() / "fixture/test/IO/Ase/wedge_with_shader";
+      std::filesystem::current_path() / "fixture/test/IO/Ase/steelstorm_player";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
     const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
@@ -74,19 +73,18 @@ TEST_CASE("AseParserTest")
              | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
     };
 
-    const auto aseFile =
-      fs.openFile("models/mapobjects/wedges/wedge_45.ase") | kdl::value();
+    const auto aseFile = fs.openFile("player.ase") | kdl::value();
     auto reader = aseFile->reader().buffer();
-    auto parser = AseParser{"wedge", reader.stringView(), loadMaterial};
+    auto loader = AseLoader{"player", reader.stringView(), loadMaterial};
 
-    auto model = parser.initializeModel(logger);
+    auto model = loader.initializeModel(logger);
     CHECK(model.is_success());
   }
 
-  SECTION("fallbackToMaterialName")
+  SECTION("parseFailure_2679")
   {
     const auto basePath =
-      std::filesystem::current_path() / "fixture/test/IO/Ase/fallback_to_materialname";
+      std::filesystem::current_path() / "fixture/test/IO/Ase/no_scene_directive";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
     const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
@@ -101,22 +99,18 @@ TEST_CASE("AseParserTest")
              | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
     };
 
-    const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
+    const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
     auto reader = aseFile->reader().buffer();
-    auto parser = AseParser{"wedge", reader.stringView(), loadMaterial};
+    auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto model = parser.initializeModel(logger);
+    auto model = loader.initializeModel(logger);
     CHECK(model.is_success());
-
-    // account for the default material
-    CHECK(model.value().data().surface(0).skinCount() == 2u);
-    CHECK(model.value().data().surface(0).skin(0)->name() == "textures/bigtile");
   }
 
-  SECTION("loadDefaultMaterial")
+  SECTION("parseFailure_2898_vertex_index")
   {
     const auto basePath =
-      std::filesystem::current_path() / "fixture/test/IO/Ase/load_default_material";
+      std::filesystem::current_path() / "fixture/test/IO/Ase/index_out_of_bounds";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
     const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
@@ -131,21 +125,38 @@ TEST_CASE("AseParserTest")
              | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
     };
 
-    const auto aseFile = fs.openFile("models/wedge_45.ase") | kdl::value();
+    const auto aseFile = fs.openFile("wedge_45.ase") | kdl::value();
     auto reader = aseFile->reader().buffer();
-    auto parser = AseParser{"wedge", reader.stringView(), loadMaterial};
+    auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto model = parser.initializeModel(logger);
+    auto model = loader.initializeModel(logger);
     CHECK(model.is_success());
+  }
 
-    // account for the default texture
-    CHECK(model.value().data().surface(0).skinCount() == 2u);
-    // shader name is correct, but we loaded the default material
+  SECTION("parseFailure_2898_no_uv")
+  {
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/IO/Ase/index_out_of_bounds";
+    fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-    const auto* material = model.value().data().surface(0).skin(0);
-    CHECK(material->name() == "textures/bigtile");
-    CHECK(material->texture()->width() == 32u);
-    CHECK(material->texture()->height() == 32u);
+    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, logger)) | kdl::value();
+    };
+
+    const auto aseFile = fs.openFile("wedge_45_no_uv.ase") | kdl::value();
+    auto reader = aseFile->reader().buffer();
+    auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
+
+    auto model = loader.initializeModel(logger);
+    CHECK(model.is_success());
   }
 }
 

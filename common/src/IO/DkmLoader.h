@@ -19,23 +19,30 @@
 
 #pragma once
 
-#include "Assets/EntityModel_Forward.h"
-#include "Result.h"
+#include "IO/EntityModelLoader.h"
 
-namespace TrenchBroom
-{
-class Logger;
-}
+#include <filesystem>
+#include <string>
 
 namespace TrenchBroom::IO
 {
+class FileSystem;
+class Reader;
 
-class EntityModelParser
+// see http://tfc.duke.free.fr/coding/md2-specs-en.html
+class DkmLoader : public EntityModelLoader
 {
-public:
-  virtual ~EntityModelParser();
+private:
+  std::string m_name;
+  const Reader& m_reader;
+  const FileSystem& m_fs;
 
-  virtual Result<Assets::EntityModel> initializeModel(Logger& logger) = 0;
+public:
+  DkmLoader(std::string name, const Reader& reader, const FileSystem& fs);
+
+  static bool canParse(const std::filesystem::path& path, Reader reader);
+
+  Result<Assets::EntityModel> initializeModel(Logger& logger) override;
 };
 
 } // namespace TrenchBroom::IO

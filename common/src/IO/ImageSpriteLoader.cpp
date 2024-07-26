@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ImageSpriteParser.h"
+#include "ImageSpriteLoader.h"
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
@@ -97,7 +97,7 @@ void createFrame(Assets::EntityModelData& modelData)
 
 } // namespace
 
-ImageSpriteParser::ImageSpriteParser(
+ImageSpriteLoader::ImageSpriteLoader(
   std::string name, std::shared_ptr<File> file, const FileSystem& fs)
   : m_name{std::move(name)}
   , m_file{std::move(file)}
@@ -105,12 +105,12 @@ ImageSpriteParser::ImageSpriteParser(
 {
 }
 
-bool ImageSpriteParser::canParse(const std::filesystem::path& path)
+bool ImageSpriteLoader::canParse(const std::filesystem::path& path)
 {
   return isSupportedFreeImageExtension(path.extension().string());
 }
 
-Result<Assets::EntityModel> ImageSpriteParser::initializeModel(Logger& logger)
+Result<Assets::EntityModel> ImageSpriteLoader::initializeModel(Logger& logger)
 {
   try
   {

@@ -19,37 +19,23 @@
 
 #pragma once
 
-#include "IO/EntityModelParser.h"
+#include "Assets/EntityModel_Forward.h"
+#include "Result.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h"
-
-#include <filesystem>
-#include <string>
-#include <vector>
-
-namespace TrenchBroom::Assets
+namespace TrenchBroom
 {
-class Palette;
+class Logger;
 }
 
 namespace TrenchBroom::IO
 {
-class Reader;
 
-class MdlParser : public EntityModelParser
+class EntityModelLoader
 {
-private:
-  std::string m_name;
-  const Reader& m_reader;
-  const Assets::Palette& m_palette;
-
 public:
-  MdlParser(std::string name, const Reader& reader, const Assets::Palette& palette);
+  virtual ~EntityModelLoader();
 
-  static bool canParse(const std::filesystem::path& path, Reader reader);
-
-  Result<Assets::EntityModel> initializeModel(Logger& logger) override;
+  virtual Result<Assets::EntityModel> initializeModel(Logger& logger) = 0;
 };
 
 } // namespace TrenchBroom::IO

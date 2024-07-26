@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MdlParser.h"
+#include "MdlLoader.h"
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
@@ -498,7 +498,7 @@ void parseSkins(
 
 } // namespace
 
-MdlParser::MdlParser(
+MdlLoader::MdlLoader(
   std::string name, const Reader& reader, const Assets::Palette& palette)
   : m_name{std::move(name)}
   , m_reader{reader}
@@ -506,7 +506,7 @@ MdlParser::MdlParser(
 {
 }
 
-bool MdlParser::canParse(const std::filesystem::path& path, Reader reader)
+bool MdlLoader::canParse(const std::filesystem::path& path, Reader reader)
 {
   if (kdl::str_to_lower(path.extension().string()) != ".mdl")
   {
@@ -519,7 +519,7 @@ bool MdlParser::canParse(const std::filesystem::path& path, Reader reader)
   return ident == MdlLayout::Ident && version == MdlLayout::Version6;
 }
 
-Result<Assets::EntityModel> MdlParser::initializeModel(Logger& /* logger */)
+Result<Assets::EntityModel> MdlLoader::initializeModel(Logger& /* logger */)
 {
   try
   {

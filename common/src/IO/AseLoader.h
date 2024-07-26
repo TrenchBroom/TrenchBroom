@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "IO/EntityModelParser.h"
+#include "IO/EntityModelLoader.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 #include "Result.h"
@@ -74,7 +74,7 @@ private:
   Token emitToken() override;
 };
 
-class AseParser : public EntityModelParser, private Parser<AseToken::Type>
+class AseLoader : public EntityModelLoader, private Parser<AseToken::Type>
 {
 private:
   using Token = AseTokenizer::Token;
@@ -124,7 +124,7 @@ public:
    * @param str the text to parse
    * @param loadMaterialFunc a function to load materials
    */
-  AseParser(std::string name, std::string_view str, LoadMaterialFunc loadMaterialFunc);
+  AseLoader(std::string name, std::string_view str, LoadMaterialFunc loadMaterialFunc);
 
   static bool canParse(const std::filesystem::path& path);
 

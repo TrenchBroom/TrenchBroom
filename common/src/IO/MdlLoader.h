@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Kristian Duske
+ Copyright (C) 2010-2017 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,28 +19,37 @@
 
 #pragma once
 
-#include "IO/EntityModelParser.h"
+#include "IO/EntityModelLoader.h"
+
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <filesystem>
 #include <string>
+#include <vector>
+
+namespace TrenchBroom::Assets
+{
+class Palette;
+}
 
 namespace TrenchBroom::IO
 {
-class File;
-class FileSystem;
+class Reader;
 
-class ImageSpriteParser : public EntityModelParser
+class MdlLoader : public EntityModelLoader
 {
 private:
   std::string m_name;
-  std::shared_ptr<File> m_file;
-  const FileSystem& m_fs;
+  const Reader& m_reader;
+  const Assets::Palette& m_palette;
 
 public:
-  ImageSpriteParser(std::string name, std::shared_ptr<File> file, const FileSystem& fs);
+  MdlLoader(std::string name, const Reader& reader, const Assets::Palette& palette);
 
-  static bool canParse(const std::filesystem::path& path);
+  static bool canParse(const std::filesystem::path& path, Reader reader);
 
   Result<Assets::EntityModel> initializeModel(Logger& logger) override;
 };
+
 } // namespace TrenchBroom::IO

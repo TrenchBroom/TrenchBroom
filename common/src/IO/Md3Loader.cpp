@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Md3Parser.h"
+#include "Md3Loader.h"
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
@@ -300,7 +300,7 @@ Result<void> parseFrameSurfaces(
 
 } // namespace
 
-Md3Parser::Md3Parser(
+Md3Loader::Md3Loader(
   std::string name, const Reader& reader, LoadMaterialFunc loadMaterial)
   : m_name{std::move(name)}
   , m_reader{reader}
@@ -308,7 +308,7 @@ Md3Parser::Md3Parser(
 {
 }
 
-bool Md3Parser::canParse(const std::filesystem::path& path, Reader reader)
+bool Md3Loader::canParse(const std::filesystem::path& path, Reader reader)
 {
   if (kdl::str_to_lower(path.extension().string()) != ".md3")
   {
@@ -321,7 +321,7 @@ bool Md3Parser::canParse(const std::filesystem::path& path, Reader reader)
   return ident == Md3Layout::Ident && version == Md3Layout::Version;
 }
 
-Result<Assets::EntityModel> Md3Parser::initializeModel(Logger&)
+Result<Assets::EntityModel> Md3Loader::initializeModel(Logger&)
 {
   try
   {

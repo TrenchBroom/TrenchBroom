@@ -23,7 +23,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
-#include "IO/MdlParser.h"
+#include "IO/MdlLoader.h"
 #include "IO/Reader.h"
 #include "Logger.h"
 #include "Model/EntityNode.h"
@@ -37,7 +37,7 @@ namespace TrenchBroom
 {
 namespace IO
 {
-TEST_CASE("MdlParserTest.loadValidMdl")
+TEST_CASE("MdlLoaderTest.loadValidMdl")
 {
   auto logger = NullLogger{};
 
@@ -50,8 +50,8 @@ TEST_CASE("MdlParserTest.loadValidMdl")
   const auto mdlFile = Disk::openFile(mdlPath) | kdl::value();
 
   auto reader = mdlFile->reader().buffer();
-  auto parser = MdlParser("armor", reader, palette);
-  auto model = parser.initializeModel(logger);
+  auto loader = MdlLoader("armor", reader, palette);
+  auto model = loader.initializeModel(logger);
 
   CHECK(model.is_success());
   CHECK(model.value().data().surfaceCount() == 1u);
@@ -63,7 +63,7 @@ TEST_CASE("MdlParserTest.loadValidMdl")
   CHECK(surface.frameCount() == 1u);
 }
 
-TEST_CASE("MdlParserTest.loadInvalidMdl")
+TEST_CASE("MdlLoaderTest.loadInvalidMdl")
 {
   auto logger = NullLogger{};
 
@@ -77,9 +77,9 @@ TEST_CASE("MdlParserTest.loadInvalidMdl")
   const auto mdlFile = Disk::openFile(mdlPath) | kdl::value();
 
   auto reader = mdlFile->reader().buffer();
-  auto parser = MdlParser("armor", reader, palette);
+  auto loader = MdlLoader("armor", reader, palette);
   CHECK(
-    parser.initializeModel(logger)
+    loader.initializeModel(logger)
     == Result<Assets::EntityModel>{Error{"Unknown MDL model version: 538976288"}});
 }
 } // namespace IO

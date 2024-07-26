@@ -33,23 +33,23 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Error.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
-        ${COMMON_SOURCE_DIR}/IO/AseParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/AssimpParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/AseLoader.cpp
+        ${COMMON_SOURCE_DIR}/IO/AssimpLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/BrushFaceReader.cpp
-        ${COMMON_SOURCE_DIR}/IO/Bsp29Parser.cpp
+        ${COMMON_SOURCE_DIR}/IO/BspLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigWriter.cpp
         ${COMMON_SOURCE_DIR}/IO/ConfigParserBase.cpp
         ${COMMON_SOURCE_DIR}/IO/DefParser.cpp
         ${COMMON_SOURCE_DIR}/IO/DiskFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/DiskIO.cpp
-        ${COMMON_SOURCE_DIR}/IO/DkmParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/DkmLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/DkPakFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/ELParser.cpp
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionClassInfo.cpp
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/EntityModelParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/EntityModelLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/EntParser.cpp
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
@@ -62,7 +62,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ImageFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/ImageLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.cpp
-        ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/ImageSpriteLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.cpp
         ${COMMON_SOURCE_DIR}/IO/LoadEntityModel.cpp
         ${COMMON_SOURCE_DIR}/IO/LoadMaterialCollections.cpp
@@ -71,10 +71,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/MapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MapReader.cpp
         ${COMMON_SOURCE_DIR}/IO/MaterialUtils.cpp
-        ${COMMON_SOURCE_DIR}/IO/Md2Parser.cpp
-        ${COMMON_SOURCE_DIR}/IO/Md3Parser.cpp
-        ${COMMON_SOURCE_DIR}/IO/MdlParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/MdxParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/Md2Loader.cpp
+        ${COMMON_SOURCE_DIR}/IO/Md3Loader.cpp
+        ${COMMON_SOURCE_DIR}/IO/MdlLoader.cpp
+        ${COMMON_SOURCE_DIR}/IO/MdxLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeReader.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeWriter.cpp
@@ -93,7 +93,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.cpp
         ${COMMON_SOURCE_DIR}/IO/SkinLoader.cpp
-        ${COMMON_SOURCE_DIR}/IO/SprParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/SprLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.cpp
         ${COMMON_SOURCE_DIR}/IO/TraversalMode.cpp
@@ -524,23 +524,23 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/FloatType.h
-        ${COMMON_SOURCE_DIR}/IO/AseParser.h
-        ${COMMON_SOURCE_DIR}/IO/AssimpParser.h
+        ${COMMON_SOURCE_DIR}/IO/AseLoader.h
+        ${COMMON_SOURCE_DIR}/IO/AssimpLoader.h
         ${COMMON_SOURCE_DIR}/IO/BrushFaceReader.h
-        ${COMMON_SOURCE_DIR}/IO/Bsp29Parser.h
+        ${COMMON_SOURCE_DIR}/IO/BspLoader.h
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigWriter.h
         ${COMMON_SOURCE_DIR}/IO/ConfigParserBase.h
         ${COMMON_SOURCE_DIR}/IO/DefParser.h
         ${COMMON_SOURCE_DIR}/IO/DiskFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/DiskIO.h
-        ${COMMON_SOURCE_DIR}/IO/DkmParser.h
+        ${COMMON_SOURCE_DIR}/IO/DkmLoader.h
         ${COMMON_SOURCE_DIR}/IO/DkPakFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/ELParser.h
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionClassInfo.h
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionLoader.h
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionParser.h
-        ${COMMON_SOURCE_DIR}/IO/EntityModelParser.h
+        ${COMMON_SOURCE_DIR}/IO/EntityModelLoader.h
         ${COMMON_SOURCE_DIR}/IO/EntParser.h
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.h
         ${COMMON_SOURCE_DIR}/IO/FgdParser.h
@@ -553,7 +553,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ImageFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/ImageLoader.h
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.h
-        ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.h
+        ${COMMON_SOURCE_DIR}/IO/ImageSpriteLoader.h
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.h
         ${COMMON_SOURCE_DIR}/IO/LoadEntityModel.h
         ${COMMON_SOURCE_DIR}/IO/LoadMaterialCollections.h
@@ -562,10 +562,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/MapParser.h
         ${COMMON_SOURCE_DIR}/IO/MapReader.h
         ${COMMON_SOURCE_DIR}/IO/MaterialUtils.h
-        ${COMMON_SOURCE_DIR}/IO/Md2Parser.h
-        ${COMMON_SOURCE_DIR}/IO/Md3Parser.h
-        ${COMMON_SOURCE_DIR}/IO/MdlParser.h
-        ${COMMON_SOURCE_DIR}/IO/MdxParser.h
+        ${COMMON_SOURCE_DIR}/IO/Md2Loader.h
+        ${COMMON_SOURCE_DIR}/IO/Md3Loader.h
+        ${COMMON_SOURCE_DIR}/IO/MdlLoader.h
+        ${COMMON_SOURCE_DIR}/IO/MdxLoader.h
         ${COMMON_SOURCE_DIR}/IO/NodeReader.h
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.h
         ${COMMON_SOURCE_DIR}/IO/NodeWriter.h
@@ -586,7 +586,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.h
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.h
         ${COMMON_SOURCE_DIR}/IO/SkinLoader.h
-        ${COMMON_SOURCE_DIR}/IO/SprParser.h
+        ${COMMON_SOURCE_DIR}/IO/SprLoader.h
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.h
         ${COMMON_SOURCE_DIR}/IO/Token.h

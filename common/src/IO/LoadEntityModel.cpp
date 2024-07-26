@@ -22,18 +22,18 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
 #include "Error.h"
-#include "IO/AseParser.h"
-#include "IO/AssimpParser.h"
-#include "IO/Bsp29Parser.h"
-#include "IO/DkmParser.h"
+#include "IO/AseLoader.h"
+#include "IO/AssimpLoader.h"
+#include "IO/BspLoader.h"
+#include "IO/DkmLoader.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
-#include "IO/ImageSpriteParser.h"
-#include "IO/Md2Parser.h"
-#include "IO/Md3Parser.h"
-#include "IO/MdlParser.h"
-#include "IO/MdxParser.h"
-#include "IO/SprParser.h"
+#include "IO/ImageSpriteLoader.h"
+#include "IO/Md2Loader.h"
+#include "IO/Md3Loader.h"
+#include "IO/MdlLoader.h"
+#include "IO/MdxLoader.h"
+#include "IO/SprLoader.h"
 #include "Model/GameConfig.h"
 #include "Result.h"
 
@@ -65,63 +65,63 @@ Result<Assets::EntityModel> loadEntityModel(
            const auto modelName = path.filename().string();
            auto reader = file->reader().buffer();
 
-           if (IO::MdlParser::canParse(path, reader))
+           if (IO::MdlLoader::canParse(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      auto parser = IO::MdlParser{modelName, reader, palette};
-                      return parser.initializeModel(logger);
+                      auto loader = IO::MdlLoader{modelName, reader, palette};
+                      return loader.initializeModel(logger);
                     });
            }
-           if (IO::Md2Parser::canParse(path, reader))
+           if (IO::Md2Loader::canParse(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      auto parser = IO::Md2Parser{modelName, reader, palette, fs};
-                      return parser.initializeModel(logger);
+                      auto loader = IO::Md2Loader{modelName, reader, palette, fs};
+                      return loader.initializeModel(logger);
                     });
            }
-           if (IO::Bsp29Parser::canParse(path, reader))
+           if (IO::BspLoader::canParse(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      auto parser = IO::Bsp29Parser{modelName, reader, palette, fs};
-                      return parser.initializeModel(logger);
+                      auto loader = IO::BspLoader{modelName, reader, palette, fs};
+                      return loader.initializeModel(logger);
                     });
            }
-           if (IO::SprParser::canParse(path, reader))
+           if (IO::SprLoader::canParse(path, reader))
            {
              return loadPalette(fs, materialConfig) | kdl::and_then([&](auto palette) {
-                      auto parser = IO::SprParser{modelName, reader, palette};
-                      return parser.initializeModel(logger);
+                      auto loader = IO::SprLoader{modelName, reader, palette};
+                      return loader.initializeModel(logger);
                     });
            }
-           if (IO::Md3Parser::canParse(path, reader))
+           if (IO::Md3Loader::canParse(path, reader))
            {
-             auto parser = IO::Md3Parser{modelName, reader, loadMaterial};
-             return parser.initializeModel(logger);
+             auto loader = IO::Md3Loader{modelName, reader, loadMaterial};
+             return loader.initializeModel(logger);
            }
-           if (IO::MdxParser::canParse(path, reader))
+           if (IO::MdxLoader::canParse(path, reader))
            {
-             auto parser = IO::MdxParser{modelName, reader, fs};
-             return parser.initializeModel(logger);
+             auto loader = IO::MdxLoader{modelName, reader, fs};
+             return loader.initializeModel(logger);
            }
-           if (IO::DkmParser::canParse(path, reader))
+           if (IO::DkmLoader::canParse(path, reader))
            {
-             auto parser = IO::DkmParser{modelName, reader, fs};
-             return parser.initializeModel(logger);
+             auto loader = IO::DkmLoader{modelName, reader, fs};
+             return loader.initializeModel(logger);
            }
-           if (IO::AseParser::canParse(path))
+           if (IO::AseLoader::canParse(path))
            {
-             auto parser = IO::AseParser{modelName, reader.stringView(), loadMaterial};
-             return parser.initializeModel(logger);
+             auto loader = IO::AseLoader{modelName, reader.stringView(), loadMaterial};
+             return loader.initializeModel(logger);
            }
-           if (IO::ImageSpriteParser::canParse(path))
+           if (IO::ImageSpriteLoader::canParse(path))
            {
-             auto parser = IO::ImageSpriteParser{modelName, file, fs};
-             return parser.initializeModel(logger);
+             auto loader = IO::ImageSpriteLoader{modelName, file, fs};
+             return loader.initializeModel(logger);
            }
-           if (IO::AssimpParser::canParse(path))
+           if (IO::AssimpLoader::canParse(path))
            {
-             auto parser = IO::AssimpParser{path, fs};
-             return parser.initializeModel(logger);
+             auto loader = IO::AssimpLoader{path, fs};
+             return loader.initializeModel(logger);
            }
            return Error{"Unknown model format: '" + path.string() + "'"};
          });
