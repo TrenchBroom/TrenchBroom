@@ -8,6 +8,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionGroup.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.cpp
+        ${COMMON_SOURCE_DIR}/Assets/EntityModelDataResource.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/Material.cpp
         ${COMMON_SOURCE_DIR}/Assets/MaterialCollection.cpp
@@ -496,6 +497,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.h
+        ${COMMON_SOURCE_DIR}/Assets/EntityModelDataResource.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
         ${COMMON_SOURCE_DIR}/Assets/Material.h
         ${COMMON_SOURCE_DIR}/Assets/MaterialCollection.h
