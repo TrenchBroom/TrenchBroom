@@ -111,6 +111,13 @@ public:
    */
   void invalidateEntity(const Model::EntityNode* entity);
 
+  /**
+   * Invalidates cached renderer data to be result for any entity that references any of
+   * the given models.
+   */
+  void invalidateEntityModels(
+    const std::vector<const Assets::EntityModel*>& entityModels);
+
   void setShowOverlays(bool showOverlays);
   void setOverlayTextColor(const Color& overlayTextColor);
   void setOverlayBackgroundColor(const Color& overlayBackgroundColor);

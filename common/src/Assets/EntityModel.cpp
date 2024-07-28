@@ -629,4 +629,9 @@ EntityModelData* EntityModel::data()
   return m_dataResource->get();
 }
 
+const EntityModelDataResource& EntityModel::dataResource() const
+{
+  return *m_dataResource;
+}
+
 } // namespace TrenchBroom::Assets

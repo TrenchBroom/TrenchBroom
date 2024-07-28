@@ -20,6 +20,7 @@
 #include "MapRenderer.h"
 
 #include "Assets/EntityDefinitionManager.h"
+#include "Assets/EntityModelManager.h"
 #include "Assets/MaterialManager.h"
 #include "Assets/Resource.h"
 #include "Model/Brush.h"
@@ -811,6 +812,13 @@ void MapRenderer::resourcesWereProcessed(
   m_defaultRenderer->invalidateMaterials(materials);
   m_selectionRenderer->invalidateMaterials(materials);
   m_lockedRenderer->invalidateMaterials(materials);
+
+  const auto& entityModelManager = document->entityModelManager();
+  const auto entityModels =
+    entityModelManager.findEntityModelsByTextureResourceId(resourceIds);
+  m_defaultRenderer->invalidateEntityModels(entityModels);
+  m_selectionRenderer->invalidateEntityModels(entityModels);
+  m_lockedRenderer->invalidateEntityModels(entityModels);
 }
 
 void MapRenderer::materialCollectionsWillChange()

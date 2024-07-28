@@ -124,6 +124,20 @@ void EntityRenderer::invalidateEntity(const Model::EntityNode* entity)
   invalidateBounds();
 }
 
+void EntityRenderer::invalidateEntityModels(
+  const std::vector<const Assets::EntityModel*>& entityModels)
+{
+  const auto entityModelSet = std::unordered_set<const Assets::EntityModel*>{
+    entityModels.begin(), entityModels.end()};
+  for (const auto* entity : m_entities)
+  {
+    if (entityModelSet.contains(entity->entity().model()))
+    {
+      invalidateEntity(entity);
+    }
+  }
+}
+
 void EntityRenderer::setShowOverlays(const bool showOverlays)
 {
   m_showOverlays = showOverlays;

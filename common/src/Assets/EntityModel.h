@@ -478,6 +478,8 @@ public:
 
   const EntityModelData* data() const;
   EntityModelData* data();
+
+  const EntityModelDataResource& dataResource() const;
 };
 
 } // namespace TrenchBroom::Assets

@@ -34,8 +34,9 @@ class Logger;
 
 namespace Assets
 {
+class EntityModel;
 class EntityModelManager;
-}
+} // namespace Assets
 
 namespace Model
 {
@@ -78,6 +79,8 @@ public: // object management
   void addNode(Model::Node* node);
   void removeNode(Model::Node* node);
   void invalidateMaterials(const std::vector<const Assets::Material*>& materials);
+  void invalidateEntityModels(
+    const std::vector<const Assets::EntityModel*>& entityModels);
   void invalidateNode(Model::Node* node);
   void invalidate();
   void clear();

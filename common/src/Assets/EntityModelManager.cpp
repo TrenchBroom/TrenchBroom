@@ -35,6 +35,7 @@
 #include "Model/Game.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 
+#include "kdl/range_utils.h"
 #include "kdl/result.h"
 
 namespace TrenchBroom::Assets
@@ -174,6 +175,23 @@ const EntityModel* EntityModelManager::model(const std::filesystem::path& path) 
   }
 
   return nullptr;
+}
+
+const std::vector<const EntityModel*> EntityModelManager::
+  findEntityModelsByTextureResourceId(const std::vector<ResourceId>& resourceIds) const
+{
+  using namespace std::ranges;
+
+  const auto filterByResourceId =
+    [resourceIdSet = std::unordered_set<ResourceId>{
+       resourceIds.begin(), resourceIds.end()}](const auto& model) {
+      return resourceIdSet.contains(model.dataResource().id());
+    };
+
+  const auto toPointer = [](const auto& model) { return &model; };
+
+  return m_models | views::values | views::filter(filterByResourceId)
+         | views::transform(toPointer) | kdl::to_vector();
 }
 
 const EntityModel* EntityModelManager::safeGetModel(

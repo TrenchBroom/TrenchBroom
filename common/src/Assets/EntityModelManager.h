@@ -90,6 +90,9 @@ public:
   const EntityModelFrame* frame(const ModelSpecification& spec) const;
   const EntityModel* model(const std::filesystem::path& path) const;
 
+  const std::vector<const EntityModel*> findEntityModelsByTextureResourceId(
+    const std::vector<ResourceId>& resourceIds) const;
+
 private:
   const EntityModel* safeGetModel(const std::filesystem::path& path) const;
   Result<EntityModel> loadModel(const std::filesystem::path& path) const;
