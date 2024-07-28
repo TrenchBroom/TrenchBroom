@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Assets/EntityModelDataResource.h"
 #include "Result.h"
 
 #include <filesystem>
@@ -46,11 +47,19 @@ class FileSystem;
 
 using LoadMaterialFunc = std::function<Assets::Material(const std::filesystem::path&)>;
 
-Result<Assets::EntityModel> loadEntityModel(
+Result<Assets::EntityModel> loadEntityModelSync(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
+  Logger& logger);
+
+Assets::EntityModel loadEntityModelAsync(
+  const FileSystem& fs,
+  const Model::MaterialConfig& materialConfig,
+  const std::filesystem::path& path,
+  const LoadMaterialFunc& loadMaterial,
+  const Assets::CreateEntityModelDataResource& createResource,
   Logger& logger);
 
 } // namespace TrenchBroom::IO

@@ -388,14 +388,24 @@ const std::string& EntityModelSurface::name() const
   return m_name;
 }
 
-void EntityModelSurface::prepare(const int minFilter, const int magFilter)
+void EntityModelSurface::upload(const bool glContextAvailable)
 {
   for (auto& material : m_skins->materials())
   {
     if (auto* texture = material.texture())
     {
-      texture->upload(true);
-      texture->setFilterMode(minFilter, magFilter);
+      texture->upload(glContextAvailable);
+    }
+  }
+}
+
+void EntityModelSurface::drop(const bool glContextAvailable)
+{
+  for (auto& material : m_skins->materials())
+  {
+    if (auto* texture = material.texture())
+    {
+      texture->drop(glContextAvailable);
     }
   }
 }
@@ -511,20 +521,19 @@ vm::bbox3f EntityModelData::bounds(const size_t frameIndex) const
   return frameIndex < m_frames.size() ? m_frames[frameIndex].bounds() : vm::bbox3f{8.0f};
 }
 
-bool EntityModelData::prepared() const
+void EntityModelData::upload(const bool glContextAvailable)
 {
-  return m_prepared;
+  for (auto& surface : m_surfaces)
+  {
+    surface.upload(glContextAvailable);
+  }
 }
 
-void EntityModelData::prepare(const int minFilter, const int magFilter)
+void EntityModelData::drop(const bool glContextAvailable)
 {
-  if (!m_prepared)
+  for (auto& surface : m_surfaces)
   {
-    for (auto& surface : m_surfaces)
-    {
-      surface.prepare(minFilter, magFilter);
-    }
-    m_prepared = true;
+    surface.drop(glContextAvailable);
   }
 }
 

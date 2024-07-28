@@ -56,11 +56,12 @@ class Quake3Shader;
 class EntityModelManager
 {
 private:
-  Logger& m_logger;
-
+  Assets::CreateEntityModelDataResource m_createResource;
   int m_minFilter;
   int m_magFilter;
   bool m_resetFilterMode = false;
+  Logger& m_logger;
+
   const Model::Game* m_game = nullptr;
 
   // Cache Quake 3 shaders to use when loading models
@@ -72,11 +73,14 @@ private:
       m_renderers;
   mutable std::unordered_set<ModelSpecification> m_rendererMismatches;
 
-  mutable std::vector<EntityModel*> m_unpreparedModels;
   mutable std::vector<Renderer::MaterialRenderer*> m_unpreparedRenderers;
 
 public:
-  EntityModelManager(int magFilter, int minFilter, Logger& logger);
+  EntityModelManager(
+    Assets::CreateEntityModelDataResource createResource,
+    int magFilter,
+    int minFilter,
+    Logger& logger);
   ~EntityModelManager();
 
   void clear();
@@ -102,7 +106,6 @@ public:
 
 private:
   void resetFilterMode();
-  void prepareModels();
   void prepareRenderers(Renderer::VboManager& vboManager);
 };
 } // namespace Assets

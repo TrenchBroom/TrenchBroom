@@ -50,7 +50,7 @@ TEST_CASE("BSP model intersection test")
     throw std::runtime_error{"should not be called"};
   };
 
-  auto model = IO::loadEntityModel(
+  auto model = IO::loadEntityModelSync(
     game->gameFileSystem(), game->config().materialConfig, path, loadMaterial, logger);
 
   auto& frame = model.value().data()->frames().at(0);

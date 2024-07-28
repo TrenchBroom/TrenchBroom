@@ -207,12 +207,14 @@ public:
   const std::string& name() const;
 
   /**
-   * Prepares the skin materials of this surface for rendering.
-   *
-   * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
-   * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
+   * Uploads the skin materials of this surface for rendering.
    */
-  void prepare(int minFilter, int magFilter);
+  void upload(bool glContextAvailable);
+
+  /**
+   * Drops the skin materials of this surface.
+   */
+  void drop(bool glContextAvailable);
 
   /**
    * Sets the minification and magnification filters for the skin materials of this
@@ -302,10 +304,8 @@ private:
   Orientation m_orientation;
   std::vector<EntityModelFrame> m_frames;
   std::vector<EntityModelSurface> m_surfaces;
-  bool m_prepared = false;
 
-  kdl_reflect_decl(
-    EntityModelData, m_pitchType, m_orientation, m_frames, m_surfaces, m_prepared);
+  kdl_reflect_decl(EntityModelData, m_pitchType, m_orientation, m_frames, m_surfaces);
 
 public:
   EntityModelData(PitchType pitchType, Orientation orientation);
@@ -342,19 +342,14 @@ public:
   vm::bbox3f bounds(size_t frameIndex) const;
 
   /**
-   * Indicates whether or not this model has been prepared for rendering.
-   *
-   * @return true if this model has been prepared and false otherwise
+   * Prepares this model for rendering by uploading its skin materials.
    */
-  bool prepared() const;
+  void upload(bool glContextAvailable);
 
   /**
-   * Prepares this model for rendering by uploading its skin materials.
-   *
-   * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
-   * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
+   * Drops the rendering resources associated with this model.
    */
-  void prepare(int minFilter, int magFilter);
+  void drop(bool glContextAvailable);
 
   /**
    * Sets the minification and magnification filters for the skin materials of this model.

@@ -382,7 +382,15 @@ MapDocument::MapDocument()
   , m_resourceManager(std::make_unique<Assets::ResourceManager>())
   , m_entityDefinitionManager(std::make_unique<Assets::EntityDefinitionManager>())
   , m_entityModelManager(std::make_unique<Assets::EntityModelManager>(
-      pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
+      [&](auto resourceLoader) {
+        auto resource =
+          std::make_shared<Assets::EntityModelDataResource>(std::move(resourceLoader));
+        m_resourceManager->addResource(resource);
+        return resource;
+      },
+      pref(Preferences::TextureMagFilter),
+      pref(Preferences::TextureMinFilter),
+      logger()))
   , m_materialManager(std::make_unique<Assets::MaterialManager>(
       pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
   , m_tagManager(std::make_unique<Model::TagManager>())

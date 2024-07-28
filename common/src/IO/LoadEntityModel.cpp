@@ -125,9 +125,22 @@ Result<Assets::EntityModelData> loadEntityModelData(
              return Error{"Unknown model format: '" + path.string() + "'"};
            });
 }
+
+Assets::ResourceLoader<Assets::EntityModelData> makeEntityModelDataResourceLoader(
+  const FileSystem& fs,
+  const Model::MaterialConfig& materialConfig,
+  const std::filesystem::path& path,
+  const LoadMaterialFunc& loadMaterial,
+  Logger& logger)
+{
+  return [&fs, materialConfig, path, loadMaterial, &logger]() {
+    return loadEntityModelData(fs, materialConfig, path, loadMaterial, logger);
+  };
+}
+
 } // namespace
 
-Result<Assets::EntityModel> loadEntityModel(
+Result<Assets::EntityModel> loadEntityModelSync(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
@@ -141,6 +154,21 @@ Result<Assets::EntityModel> loadEntityModel(
                Assets::createEntityModelDataResource(std::move(modelData));
              return Assets::EntityModel{std::move(modelName), std::move(modelResource)};
            });
+}
+
+Assets::EntityModel loadEntityModelAsync(
+  const FileSystem& fs,
+  const Model::MaterialConfig& materialConfig,
+  const std::filesystem::path& path,
+  const LoadMaterialFunc& loadMaterial,
+  const Assets::CreateEntityModelDataResource& createResource,
+  Logger& logger)
+{
+  auto name = path.filename().string();
+  auto loader =
+    makeEntityModelDataResourceLoader(fs, materialConfig, path, loadMaterial, logger);
+  auto resource = createResource(std::move(loader));
+  return Assets::EntityModel{std::move(name), std::move(resource)};
 }
 
 } // namespace TrenchBroom::IO

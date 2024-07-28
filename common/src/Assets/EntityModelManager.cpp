@@ -41,10 +41,14 @@
 namespace TrenchBroom::Assets
 {
 EntityModelManager::EntityModelManager(
-  const int magFilter, const int minFilter, Logger& logger)
-  : m_logger{logger}
+  Assets::CreateEntityModelDataResource createResource,
+  const int magFilter,
+  const int minFilter,
+  Logger& logger)
+  : m_createResource{std::move(createResource)}
   , m_minFilter{minFilter}
   , m_magFilter{magFilter}
+  , m_logger{logger}
 {
 }
 
@@ -59,7 +63,6 @@ void EntityModelManager::clear()
   m_models.clear();
   m_rendererMismatches.clear();
 
-  m_unpreparedModels.clear();
   m_unpreparedRenderers.clear();
 
   // Remove logging because it might fail when the document is already destroyed.
@@ -162,7 +165,6 @@ const EntityModel* EntityModelManager::model(const std::filesystem::path& path) 
              unused(success);
 
              auto* modelPtr = &(pos->second);
-             m_unpreparedModels.push_back(modelPtr);
              m_logger.debug() << "Loaded entity model " << path;
 
              return modelPtr;
@@ -226,7 +228,8 @@ Result<EntityModel> EntityModelManager::loadModel(
              | kdl::value();
     };
 
-    return IO::loadEntityModel(fs, materialConfig, modelPath, loadMaterial, m_logger);
+    return IO::loadEntityModelAsync(
+      fs, materialConfig, modelPath, loadMaterial, m_createResource, m_logger);
   }
   return Error{"Game is not set"};
 }
@@ -234,7 +237,6 @@ Result<EntityModel> EntityModelManager::loadModel(
 void EntityModelManager::prepare(Renderer::VboManager& vboManager)
 {
   resetFilterMode();
-  prepareModels();
   prepareRenderers(vboManager);
 }
 
@@ -251,18 +253,6 @@ void EntityModelManager::resetFilterMode()
     }
     m_resetFilterMode = false;
   }
-}
-
-void EntityModelManager::prepareModels()
-{
-  for (auto* model : m_unpreparedModels)
-  {
-    if (auto* entityModelData = model->data())
-    {
-      entityModelData->prepare(m_minFilter, m_magFilter);
-    }
-  }
-  m_unpreparedModels.clear();
 }
 
 void EntityModelManager::prepareRenderers(Renderer::VboManager& vboManager)
