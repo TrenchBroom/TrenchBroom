@@ -607,9 +607,10 @@ const EntityModelSurface* EntityModelData::surface(const std::string& name) cons
 
 kdl_reflect_impl(EntityModel);
 
-EntityModel::EntityModel(std::string name, EntityModelData data)
+EntityModel::EntityModel(
+  std::string name, std::shared_ptr<EntityModelDataResource> dataResource)
   : m_name{std::move(name)}
-  , m_data{std::move(data)}
+  , m_dataResource{std::move(dataResource)}
 {
 }
 
@@ -620,12 +621,12 @@ const std::string& EntityModel::name() const
 
 const EntityModelData* EntityModel::data() const
 {
-  return &m_data;
+  return m_dataResource->get();
 }
 
 EntityModelData* EntityModel::data()
 {
-  return &m_data;
+  return m_dataResource->get();
 }
 
 } // namespace TrenchBroom::Assets

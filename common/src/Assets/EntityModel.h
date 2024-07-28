@@ -19,6 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
+#include "Assets/EntityModelDataResource.h"
 #include "Assets/EntityModel_Forward.h"
 #include "octree.h"
 
@@ -463,12 +464,12 @@ class EntityModel
 {
 private:
   std::string m_name;
-  EntityModelData m_data;
+  std::shared_ptr<EntityModelDataResource> m_dataResource;
 
-  kdl_reflect_decl(EntityModel, m_name, m_data);
+  kdl_reflect_decl(EntityModel, m_name, m_dataResource);
 
 public:
-  EntityModel(std::string name, EntityModelData data);
+  EntityModel(std::string name, std::shared_ptr<EntityModelDataResource> dataResource);
 
   /**
    * Returns the name of this model.

@@ -137,7 +137,9 @@ Result<Assets::EntityModel> loadEntityModel(
   return loadEntityModelData(fs, materialConfig, path, loadMaterial, logger)
          | kdl::transform([&](auto modelData) {
              auto modelName = path.filename().string();
-             return Assets::EntityModel{std::move(modelName), std::move(modelData)};
+             auto modelResource =
+               Assets::createEntityModelDataResource(std::move(modelData));
+             return Assets::EntityModel{std::move(modelName), std::move(modelResource)};
            });
 }
 
