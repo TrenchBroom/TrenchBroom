@@ -25,9 +25,9 @@
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 #include "vm/forward.h"
-#include "vm/quat.h"
+#include "vm/quat.h" // IWYU pragma: keep
 
 #include <optional>
 #include <string>
@@ -44,6 +44,7 @@ class EntityDefinition;
 enum class EntityDefinitionSortOrder;
 enum class Orientation;
 class PointEntityDefinition;
+class ResourceId;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::Renderer
@@ -116,6 +117,8 @@ private:
 
   bool dndEnabled() override;
   QString dndData(const Cell& cell) override;
+
+  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resources);
 
   void addEntitiesToLayout(
     Layout& layout,

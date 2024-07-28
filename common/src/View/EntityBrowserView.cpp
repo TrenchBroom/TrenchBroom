@@ -63,14 +63,19 @@ namespace TrenchBroom::View
 EntityBrowserView::EntityBrowserView(
   QScrollBar* scrollBar,
   GLContextManager& contextManager,
-  std::weak_ptr<MapDocument> document)
+  std::weak_ptr<MapDocument> i_document)
   : CellView{contextManager, scrollBar}
-  , m_document{std::move(document)}
+  , m_document{std::move(i_document)}
   , m_sortOrder{Assets::EntityDefinitionSortOrder::Name}
 {
   const auto hRotation = vm::quatf{vm::vec3f::pos_z(), vm::to_radians(-30.0f)};
   const auto vRotation = vm::quatf{vm::vec3f::pos_y(), vm::to_radians(20.0f)};
   m_rotation = vRotation * hRotation;
+
+  auto document = kdl::mem_lock(m_document);
+
+  m_notifierConnection += document->resourcesWereProcessedNotifier.connect(
+    this, &EntityBrowserView::resourcesWereProcessed);
 }
 
 EntityBrowserView::~EntityBrowserView()
@@ -179,6 +184,12 @@ QString EntityBrowserView::dndData(const Cell& cell)
   static const auto prefix = QString{"entity:"};
   const auto name = QString::fromStdString(cellData(cell).entityDefinition->name());
   return prefix + name;
+}
+
+void EntityBrowserView::resourcesWereProcessed(const std::vector<Assets::ResourceId>&)
+{
+  invalidate();
+  update();
 }
 
 void EntityBrowserView::addEntitiesToLayout(
