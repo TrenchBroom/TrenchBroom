@@ -34,27 +34,27 @@
 namespace TrenchBroom
 {
 class Logger;
-
-namespace Assets
-{
-class EntityModelManager;
 }
 
-namespace Model
+namespace TrenchBroom::Assets
+{
+class EntityModel;
+class EntityModelManager;
+} // namespace TrenchBroom::Assets
+
+namespace TrenchBroom::Model
 {
 class EditorContext;
 class EntityNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class AttrString;
 
 class EntityRenderer
 {
 private:
-  class EntityClassnameAnchor;
-
   Assets::EntityModelManager& m_entityModelManager;
   const Model::EditorContext& m_editorContext;
   kdl::vector_set<const Model::EntityNode*> m_entities;
@@ -64,21 +64,21 @@ private:
 
   TriangleRenderer m_solidBoundsRenderer;
   EntityModelRenderer m_modelRenderer;
-  bool m_boundsValid;
+  bool m_boundsValid = false;
 
-  bool m_showOverlays;
+  bool m_showOverlays = true;
   Color m_overlayTextColor;
   Color m_overlayBackgroundColor;
-  bool m_showOccludedOverlays;
-  bool m_tint;
+  bool m_showOccludedOverlays = false;
+  bool m_tint = false;
   Color m_tintColor;
-  bool m_overrideBoundsColor;
+  bool m_overrideBoundsColor = false;
   Color m_boundsColor;
-  bool m_showOccludedBounds;
+  bool m_showOccludedBounds = false;
   Color m_occludedBoundsColor;
-  bool m_showAngles;
+  bool m_showAngles = false;
   Color m_angleColor;
-  bool m_showHiddenEntities;
+  bool m_showHiddenEntities = false;
 
 public:
   EntityRenderer(
@@ -143,15 +143,11 @@ private:
   void renderAngles(RenderContext& renderContext, RenderBatch& renderBatch);
   std::vector<vm::vec3f> arrowHead(float length, float width) const;
 
-  struct BuildColoredSolidBoundsVertices;
-  struct BuildColoredWireframeBoundsVertices;
-  struct BuildWireframeBoundsVertices;
-
   void invalidateBounds();
   void validateBounds();
 
   AttrString entityString(const Model::EntityNode* entityNode) const;
   const Color& boundsColor(const Model::EntityNode* entityNode) const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

@@ -30,7 +30,6 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
-#include "Preferences.h"
 #include "View/EntityBrowserView.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"

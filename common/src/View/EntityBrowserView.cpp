@@ -42,13 +42,9 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 #include "View/MapFrame.h"
-#include "View/QtUtils.h"
 
-#include "kdl/overload.h"
-#include "kdl/skip_iterator.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/forward.h"
 #include "vm/mat.h"
@@ -56,7 +52,6 @@
 #include "vm/quat.h"
 #include "vm/vec.h"
 
-#include <map>
 #include <string>
 #include <vector>
 

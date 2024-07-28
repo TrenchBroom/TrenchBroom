@@ -26,8 +26,6 @@
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
@@ -39,53 +37,45 @@
 #include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/scalar.h"
 #include "vm/vec.h"
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
+namespace
 {
-class EntityRenderer::EntityClassnameAnchor : public TextAnchor3D
+
+class EntityClassnameAnchor : public TextAnchor3D
 {
 private:
   const Model::EntityNode* m_entity;
 
 public:
-  EntityClassnameAnchor(const Model::EntityNode* entity)
-    : m_entity(entity)
+  explicit EntityClassnameAnchor(const Model::EntityNode* entity)
+    : m_entity{entity}
   {
   }
 
 private:
   vm::vec3f basePosition() const override
   {
-    auto position = vm::vec3f(m_entity->logicalBounds().center());
-    position[2] = float(m_entity->logicalBounds().max.z());
-    position[2] += 2.0f;
-    return position;
+    return vm::vec3f{
+      m_entity->logicalBounds().center().xy(), m_entity->logicalBounds().max.z() + 2.0};
   }
 
   TextAlignment::Type alignment() const override { return TextAlignment::Bottom; }
 };
 
+} // namespace
+
 EntityRenderer::EntityRenderer(
   Logger& logger,
   Assets::EntityModelManager& entityModelManager,
   const Model::EditorContext& editorContext)
-  : m_entityModelManager(entityModelManager)
-  , m_editorContext(editorContext)
-  , m_modelRenderer(logger, m_entityModelManager, m_editorContext)
-  , m_boundsValid(false)
-  , m_showOverlays(true)
-  , m_showOccludedOverlays(false)
-  , m_tint(false)
-  , m_overrideBoundsColor(false)
-  , m_showOccludedBounds(false)
-  , m_showAngles(false)
-  , m_showHiddenEntities(false)
+  : m_entityModelManager{entityModelManager}
+  , m_editorContext{editorContext}
+  , m_modelRenderer{logger, m_entityModelManager, m_editorContext}
 {
 }
 
@@ -213,19 +203,24 @@ void EntityRenderer::render(RenderContext& renderContext, RenderBatch& renderBat
 void EntityRenderer::renderBounds(RenderContext& renderContext, RenderBatch& renderBatch)
 {
   if (!m_boundsValid)
+  {
     validateBounds();
+  }
 
   if (renderContext.showPointEntityBounds())
   {
     renderPointEntityWireframeBounds(renderBatch);
   }
+
   if (renderContext.showBrushEntityBounds())
   {
     renderBrushEntityWireframeBounds(renderBatch);
   }
 
   if (m_showHiddenEntities || renderContext.showPointEntities())
+  {
     renderSolidBounds(renderBatch);
+  }
 }
 
 void EntityRenderer::renderPointEntityWireframeBounds(RenderBatch& renderBatch)
@@ -235,6 +230,7 @@ void EntityRenderer::renderPointEntityWireframeBounds(RenderBatch& renderBatch)
     m_pointEntityWireframeBoundsRenderer.renderOnTop(
       renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
   }
+
   m_pointEntityWireframeBoundsRenderer.render(
     renderBatch, m_overrideBoundsColor, m_boundsColor);
 }
@@ -246,6 +242,7 @@ void EntityRenderer::renderBrushEntityWireframeBounds(RenderBatch& renderBatch)
     m_brushEntityWireframeBoundsRenderer.renderOnTop(
       renderBatch, m_overrideBoundsColor, m_occludedBoundsColor);
   }
+
   m_brushEntityWireframeBoundsRenderer.render(
     renderBatch, m_overrideBoundsColor, m_boundsColor);
 }
@@ -275,23 +272,28 @@ void EntityRenderer::renderClassnames(
 {
   if (m_showOverlays && renderContext.showEntityClassnames())
   {
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(m_overlayTextColor);
     renderService.setBackgroundColor(m_overlayBackgroundColor);
 
-    for (const Model::EntityNode* entity : m_entities)
+    for (const auto* entity : m_entities)
     {
       if (m_showHiddenEntities || m_editorContext.visible(entity))
       {
         if (
-          entity->containingGroup() == nullptr
+          !entity->containingGroup()
           || entity->containingGroup() == m_editorContext.currentGroup())
         {
           if (m_showOccludedOverlays)
+          {
             renderService.setShowOccludedObjects();
+          }
           else
+          {
             renderService.setHideOccludedObjects();
-          renderService.renderString(entityString(entity), EntityClassnameAnchor(entity));
+          }
+
+          renderService.renderString(entityString(entity), EntityClassnameAnchor{entity});
         }
       }
     }
@@ -300,59 +302,56 @@ void EntityRenderer::renderClassnames(
 
 void EntityRenderer::renderAngles(RenderContext& renderContext, RenderBatch& renderBatch)
 {
-  if (!m_showAngles)
+  static constexpr auto maxDistance2 = 500.0f * 500.0f;
+
+  if (m_showAngles)
   {
-    return;
-  }
+    const auto arrow = arrowHead(9.0f, 6.0f);
 
-  static const auto maxDistance2 = 500.0f * 500.0f;
-  const auto arrow = arrowHead(9.0f, 6.0f);
+    auto renderService = RenderService{renderContext, renderBatch};
+    renderService.setShowOccludedObjectsTransparent();
+    renderService.setForegroundColor(m_angleColor);
 
-  RenderService renderService(renderContext, renderBatch);
-  renderService.setShowOccludedObjectsTransparent();
-  renderService.setForegroundColor(m_angleColor);
-
-  std::vector<vm::vec3f> vertices(3);
-  for (const auto* entityNode : m_entities)
-  {
-    if (!m_showHiddenEntities && !m_editorContext.visible(entityNode))
+    for (const auto* entityNode : m_entities)
     {
-      continue;
+      if (!m_showHiddenEntities && !m_editorContext.visible(entityNode))
+      {
+        continue;
+      }
+
+      const auto rotation = vm::mat4x4f{entityNode->entity().rotation()};
+      const auto direction = rotation * vm::vec3f{0, 0, 1};
+      const auto center = vm::vec3f{entityNode->logicalBounds().center()};
+
+      const auto toCam = renderContext.camera().position() - center;
+      // only distance cull for perspective camera, since the 2D one is always very far
+      // from the level
+      if (
+        renderContext.camera().perspectiveProjection()
+        && vm::squared_length(toCam) > maxDistance2)
+      {
+        continue;
+      }
+
+      auto onPlane = toCam - vm::dot(toCam, direction) * direction;
+      if (vm::is_zero(onPlane, vm::Cf::almost_zero()))
+      {
+        continue;
+      }
+
+      onPlane = vm::normalize(onPlane);
+
+      const auto rotZ = rotation * vm::vec3f{0, 0, 1};
+      const auto angle = -vm::measure_angle(rotZ, onPlane, direction);
+      const auto matrix = vm::translation_matrix(center)
+                          * vm::rotation_matrix(direction, angle) * rotation
+                          * vm::translation_matrix(16.0f * vm::vec3f{0, 0, 1});
+
+
+      const auto vertices =
+        kdl::vec_transform(arrow, [&](const auto& x) { return matrix * x; });
+      renderService.renderPolygonOutline(vertices);
     }
-
-    const auto rotation = vm::mat4x4f(entityNode->entity().rotation());
-    const auto direction = rotation * vm::vec3f::pos_x();
-    const auto center = vm::vec3f(entityNode->logicalBounds().center());
-
-    const auto toCam = renderContext.camera().position() - center;
-    // only distance cull for perspective camera, since the 2D one is always very far from
-    // the level
-    if (
-      renderContext.camera().perspectiveProjection()
-      && vm::squared_length(toCam) > maxDistance2)
-    {
-      continue;
-    }
-
-    auto onPlane = toCam - dot(toCam, direction) * direction;
-    if (vm::is_zero(onPlane, vm::Cf::almost_zero()))
-    {
-      continue;
-    }
-
-    onPlane = vm::normalize(onPlane);
-
-    const auto rotZ = rotation * vm::vec3f::pos_z();
-    const auto angle = -vm::measure_angle(rotZ, onPlane, direction);
-    const auto matrix = vm::translation_matrix(center)
-                        * vm::rotation_matrix(direction, angle) * rotation
-                        * vm::translation_matrix(16.0f * vm::vec3f::pos_x());
-
-    for (size_t i = 0; i < 3; ++i)
-    {
-      vertices[i] = matrix * arrow[i];
-    }
-    renderService.renderPolygonOutline(vertices);
   }
 }
 
@@ -360,166 +359,128 @@ std::vector<vm::vec3f> EntityRenderer::arrowHead(
   const float length, const float width) const
 {
   // clockwise winding
-  std::vector<vm::vec3f> result(3);
-  result[0] = vm::vec3f(0.0f, width / 2.0f, 0.0f);
-  result[1] = vm::vec3f(length, 0.0f, 0.0f);
-  result[2] = vm::vec3f(0.0f, -width / 2.0f, 0.0f);
-  return result;
+  return std::vector{
+    vm::vec3f{0.0f, width / 2.0f, 0.0f},
+    vm::vec3f{length, 0.0f, 0.0f},
+    vm::vec3f{0.0f, -width / 2.0f, 0.0f},
+  };
 }
-
-struct EntityRenderer::BuildColoredSolidBoundsVertices
-{
-  using Vertex = GLVertexTypes::P3NC4::Vertex;
-
-  std::vector<Vertex>& vertices;
-  Color color;
-
-  BuildColoredSolidBoundsVertices(std::vector<Vertex>& i_vertices, const Color& i_color)
-    : vertices(i_vertices)
-    , color(i_color)
-  {
-  }
-
-  void operator()(
-    const vm::vec3& v1,
-    const vm::vec3& v2,
-    const vm::vec3& v3,
-    const vm::vec3& v4,
-    const vm::vec3& n)
-  {
-    vertices.emplace_back(vm::vec3f(v1), vm::vec3f(n), color);
-    vertices.emplace_back(vm::vec3f(v2), vm::vec3f(n), color);
-    vertices.emplace_back(vm::vec3f(v3), vm::vec3f(n), color);
-    vertices.emplace_back(vm::vec3f(v4), vm::vec3f(n), color);
-  }
-};
-
-struct EntityRenderer::BuildColoredWireframeBoundsVertices
-{
-  using Vertex = GLVertexTypes::P3C4::Vertex;
-
-  std::vector<Vertex>& vertices;
-  Color color;
-
-  BuildColoredWireframeBoundsVertices(
-    std::vector<Vertex>& i_vertices, const Color& i_color)
-    : vertices(i_vertices)
-    , color(i_color)
-  {
-  }
-
-  void operator()(const vm::vec3& v1, const vm::vec3& v2)
-  {
-    vertices.emplace_back(vm::vec3f(v1), color);
-    vertices.emplace_back(vm::vec3f(v2), color);
-  }
-};
-
-struct EntityRenderer::BuildWireframeBoundsVertices
-{
-  std::vector<GLVertexTypes::P3::Vertex>& vertices;
-
-  explicit BuildWireframeBoundsVertices(
-    std::vector<GLVertexTypes::P3::Vertex>& i_vertices)
-    : vertices(i_vertices)
-  {
-  }
-
-  void operator()(const vm::vec3& v1, const vm::vec3& v2)
-  {
-    vertices.emplace_back(vm::vec3f(v1));
-    vertices.emplace_back(vm::vec3f(v2));
-  }
-};
 
 void EntityRenderer::invalidateBounds()
 {
   m_boundsValid = false;
 }
 
+namespace
+{
+
+auto makeWireFrameBoundsVertexBuilder(std::vector<GLVertexTypes::P3::Vertex>& vertices)
+{
+  return [&](const vm::vec3& v1, const vm::vec3& v2) {
+    vertices.emplace_back(vm::vec3f{v1});
+    vertices.emplace_back(vm::vec3f{v2});
+  };
+}
+
+auto makeColoredWireFrameBoundsVertexBuilder(
+  std::vector<GLVertexTypes::P3C4::Vertex>& vertices, const Color& color)
+{
+  return [&](const vm::vec3& v1, const vm::vec3& v2) {
+    vertices.emplace_back(vm::vec3f{v1}, color);
+    vertices.emplace_back(vm::vec3f{v2}, color);
+  };
+}
+
+auto makeColoredSolidBoundsVertexBuilder(
+  std::vector<GLVertexTypes::P3NC4::Vertex>& vertices, const Color& color)
+{
+  return [&](
+           const vm::vec3& v1,
+           const vm::vec3& v2,
+           const vm::vec3& v3,
+           const vm::vec3& v4,
+           const vm::vec3& n) {
+    vertices.emplace_back(vm::vec3f{v1}, vm::vec3f{n}, color);
+    vertices.emplace_back(vm::vec3f{v2}, vm::vec3f{n}, color);
+    vertices.emplace_back(vm::vec3f{v3}, vm::vec3f{n}, color);
+    vertices.emplace_back(vm::vec3f{v4}, vm::vec3f{n}, color);
+  };
+}
+
+} // namespace
+
 void EntityRenderer::validateBounds()
 {
-  std::vector<GLVertexTypes::P3NC4::Vertex> solidVertices;
+  auto solidVertices = std::vector<GLVertexTypes::P3NC4::Vertex>{};
   solidVertices.reserve(36 * m_entities.size());
 
   if (m_overrideBoundsColor)
   {
     using Vertex = GLVertexTypes::P3::Vertex;
-    std::vector<Vertex> pointEntityWireframeVertices;
-    std::vector<Vertex> brushEntityWireframeVertices;
+    auto pointEntityWireframeVertices = std::vector<Vertex>{};
+    auto brushEntityWireframeVertices = std::vector<Vertex>{};
 
     pointEntityWireframeVertices.reserve(24 * m_entities.size());
     brushEntityWireframeVertices.reserve(24 * m_entities.size());
 
-    BuildWireframeBoundsVertices pointEntityWireframeBoundsBuilder(
-      pointEntityWireframeVertices);
-    BuildWireframeBoundsVertices brushEntityWireframeBoundsBuilder(
-      brushEntityWireframeVertices);
-
-    for (const Model::EntityNode* entityNode : m_entities)
+    for (const auto* entityNode : m_entities)
     {
       if (m_editorContext.visible(entityNode))
       {
-        const bool pointEntity = !entityNode->hasChildren();
-        if (pointEntity)
+        const auto pointEntity = !entityNode->hasChildren();
+        if (pointEntity && !entityNode->entity().model())
         {
-          entityNode->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
+          entityNode->logicalBounds().for_each_face(
+            makeColoredSolidBoundsVertexBuilder(solidVertices, boundsColor(entityNode)));
+        }
+        else if (pointEntity)
+        {
+          entityNode->logicalBounds().for_each_edge(
+            makeWireFrameBoundsVertexBuilder(pointEntityWireframeVertices));
         }
         else
         {
-          entityNode->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
-        }
-
-        if (pointEntity && entityNode->entity().model() == nullptr)
-        {
-          BuildColoredSolidBoundsVertices solidBoundsBuilder(
-            solidVertices, boundsColor(entityNode));
-          entityNode->logicalBounds().for_each_face(solidBoundsBuilder);
+          entityNode->logicalBounds().for_each_edge(
+            makeWireFrameBoundsVertexBuilder(brushEntityWireframeVertices));
         }
       }
     }
 
-    m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer(
-      VertexArray::move(std::move(pointEntityWireframeVertices)), PrimType::Lines);
-    m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer(
-      VertexArray::move(std::move(brushEntityWireframeVertices)), PrimType::Lines);
+    m_pointEntityWireframeBoundsRenderer = DirectEdgeRenderer{
+      VertexArray::move(std::move(pointEntityWireframeVertices)), PrimType::Lines};
+    m_brushEntityWireframeBoundsRenderer = DirectEdgeRenderer{
+      VertexArray::move(std::move(brushEntityWireframeVertices)), PrimType::Lines};
   }
   else
   {
     using Vertex = GLVertexTypes::P3C4::Vertex;
-    std::vector<Vertex> pointEntityWireframeVertices;
-    std::vector<Vertex> brushEntityWireframeVertices;
+    auto pointEntityWireframeVertices = std::vector<Vertex>{};
+    auto brushEntityWireframeVertices = std::vector<Vertex>{};
 
     pointEntityWireframeVertices.reserve(24 * m_entities.size());
     brushEntityWireframeVertices.reserve(24 * m_entities.size());
 
-    for (const Model::EntityNode* entityNode : m_entities)
+    for (auto* entityNode : m_entities)
     {
       if (m_editorContext.visible(entityNode))
       {
-        const bool pointEntity = !entityNode->hasChildren();
-
-        if (pointEntity && entityNode->entity().model() == nullptr)
+        const auto pointEntity = !entityNode->hasChildren();
+        if (pointEntity && !entityNode->entity().model())
         {
-          BuildColoredSolidBoundsVertices solidBoundsBuilder(
-            solidVertices, boundsColor(entityNode));
-          entityNode->logicalBounds().for_each_face(solidBoundsBuilder);
+          entityNode->logicalBounds().for_each_face(
+            makeColoredSolidBoundsVertexBuilder(solidVertices, boundsColor(entityNode)));
+        }
+        else if (pointEntity)
+        {
+          entityNode->logicalBounds().for_each_edge(
+            makeColoredWireFrameBoundsVertexBuilder(
+              pointEntityWireframeVertices, boundsColor(entityNode)));
         }
         else
         {
-          BuildColoredWireframeBoundsVertices pointEntityWireframeBoundsBuilder(
-            pointEntityWireframeVertices, boundsColor(entityNode));
-          BuildColoredWireframeBoundsVertices brushEntityWireframeBoundsBuilder(
-            brushEntityWireframeVertices, boundsColor(entityNode));
-
-          if (pointEntity)
-          {
-            entityNode->logicalBounds().for_each_edge(pointEntityWireframeBoundsBuilder);
-          }
-          else
-          {
-            entityNode->logicalBounds().for_each_edge(brushEntityWireframeBoundsBuilder);
-          }
+          entityNode->logicalBounds().for_each_edge(
+            makeColoredWireFrameBoundsVertexBuilder(
+              brushEntityWireframeVertices, boundsColor(entityNode)));
         }
       }
     }
@@ -531,7 +492,7 @@ void EntityRenderer::validateBounds()
   }
 
   m_solidBoundsRenderer =
-    TriangleRenderer(VertexArray::move(std::move(solidVertices)), PrimType::Quads);
+    TriangleRenderer{VertexArray::move(std::move(solidVertices)), PrimType::Quads};
   m_boundsValid = true;
 }
 
@@ -541,7 +502,7 @@ AttrString EntityRenderer::entityString(const Model::EntityNode* entityNode) con
   // const Model::AttributeValue& targetname =
   // entity->attribute(Model::AttributeNames::Targetname);
 
-  AttrString str;
+  auto str = AttrString{};
   str.appendCentered(classname);
   // if (!targetname.empty())
   // str.appendCentered(targetname);
@@ -550,15 +511,11 @@ AttrString EntityRenderer::entityString(const Model::EntityNode* entityNode) con
 
 const Color& EntityRenderer::boundsColor(const Model::EntityNode* entityNode) const
 {
-  const Assets::EntityDefinition* definition = entityNode->entity().definition();
-  if (definition == nullptr)
-  {
-    return m_boundsColor;
-  }
-  else
+  if (const auto* definition = entityNode->entity().definition())
   {
     return definition->color();
   }
+  return m_boundsColor;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

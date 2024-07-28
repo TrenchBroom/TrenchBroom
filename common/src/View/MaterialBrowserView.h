@@ -21,10 +21,8 @@
 
 #include "NotifierConnection.h"
 #include "Renderer/FontDescriptor.h"
-#include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
