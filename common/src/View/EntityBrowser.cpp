@@ -68,14 +68,7 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 {
   m_scrollBar = new QScrollBar{Qt::Vertical};
 
-  auto document = kdl::mem_lock(m_document);
-
-  m_view = new EntityBrowserView{
-    m_scrollBar,
-    contextManager,
-    document->entityDefinitionManager(),
-    document->entityModelManager(),
-    *document};
+  m_view = new EntityBrowserView{m_scrollBar, contextManager, m_document};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);

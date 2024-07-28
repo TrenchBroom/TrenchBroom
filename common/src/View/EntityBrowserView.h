@@ -41,9 +41,7 @@ class Logger;
 namespace TrenchBroom::Assets
 {
 class EntityDefinition;
-class EntityDefinitionManager;
 enum class EntityDefinitionSortOrder;
-class EntityModelManager;
 enum class Orientation;
 class PointEntityDefinition;
 } // namespace TrenchBroom::Assets
@@ -57,6 +55,7 @@ class Transformation;
 
 namespace TrenchBroom::View
 {
+class MapDocument;
 
 using EntityGroupData = std::string;
 
@@ -84,10 +83,8 @@ private:
   static constexpr auto CameraDirection = vm::vec3f::neg_x();
   static constexpr auto CameraUp = vm::vec3f::pos_z();
 
-  Assets::EntityDefinitionManager& m_entityDefinitionManager;
-  Assets::EntityModelManager& m_entityModelManager;
+  std::weak_ptr<MapDocument> m_document;
   std::optional<EL::Expression> m_defaultScaleModelExpression;
-  Logger& m_logger;
   vm::quatf m_rotation;
 
   bool m_group = false;
@@ -101,9 +98,7 @@ public:
   EntityBrowserView(
     QScrollBar* scrollBar,
     GLContextManager& contextManager,
-    Assets::EntityDefinitionManager& entityDefinitionManager,
-    Assets::EntityModelManager& entityModelManager,
-    Logger& logger);
+    std::weak_ptr<MapDocument> document);
   ~EntityBrowserView() override;
 
 public:

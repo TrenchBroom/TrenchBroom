@@ -41,8 +41,10 @@
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
+#include "View/MapDocument.h"
 #include "View/MapFrame.h"
 
+#include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 
@@ -61,13 +63,9 @@ namespace TrenchBroom::View
 EntityBrowserView::EntityBrowserView(
   QScrollBar* scrollBar,
   GLContextManager& contextManager,
-  Assets::EntityDefinitionManager& entityDefinitionManager,
-  Assets::EntityModelManager& entityModelManager,
-  Logger& logger)
+  std::weak_ptr<MapDocument> document)
   : CellView{contextManager, scrollBar}
-  , m_entityDefinitionManager{entityDefinitionManager}
-  , m_entityModelManager{entityModelManager}
-  , m_logger{logger}
+  , m_document{std::move(document)}
   , m_sortOrder{Assets::EntityDefinitionSortOrder::Name}
 {
   const auto hRotation = vm::quatf{vm::vec3f::pos_z(), vm::to_radians(-30.0f)};
@@ -143,11 +141,13 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   const auto fontSize = pref(Preferences::BrowserFontSize);
   assert(fontSize > 0);
 
+  const auto document = kdl::mem_lock(m_document);
+  const auto& entityDefinitionManager = document->entityDefinitionManager();
   const auto font = Renderer::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
 
   if (m_group)
   {
-    for (const auto& group : m_entityDefinitionManager.groups())
+    for (const auto& group : entityDefinitionManager.groups())
     {
       const auto& definitions =
         group.definitions(Assets::EntityDefinitionType::PointEntity, m_sortOrder);
@@ -163,7 +163,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   }
   else
   {
-    const auto& definitions = m_entityDefinitionManager.definitions(
+    const auto& definitions = entityDefinitionManager.definitions(
       Assets::EntityDefinitionType::PointEntity, m_sortOrder);
     addEntitiesToLayout(layout, definitions, font);
   }
@@ -215,13 +215,15 @@ void EntityBrowserView::addEntityToLayout(
     (!m_hideUnused || definition->usageCount() > 0)
     && matchesFilterText(*definition, m_filterText))
   {
+    const auto document = kdl::mem_lock(m_document);
+    const auto& entityModelManager = document->entityModelManager();
 
     const auto maxCellWidth = layout.maxCellWidth();
     const auto actualFont =
       fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
     const auto actualSize = fontManager().font(actualFont).measure(definition->name());
     const auto spec =
-      Assets::safeGetModelSpecification(m_logger, definition->name(), [&]() {
+      Assets::safeGetModelSpecification(document->logger(), definition->name(), [&]() {
         return definition->modelDefinition().defaultModelSpecification();
       });
 
@@ -234,7 +236,7 @@ void EntityBrowserView::addEntityToLayout(
     auto rotatedBounds = vm::bbox3f{};
     auto modelOrientation = Assets::Orientation::Oriented;
 
-    const auto* model = m_entityModelManager.model(spec.path);
+    const auto* model = entityModelManager.model(spec.path);
     const auto* modelData = model ? model->data() : nullptr;
     const auto* modelFrame = modelData ? modelData->frame(spec.frameIndex) : nullptr;
     if (modelFrame)
@@ -247,7 +249,7 @@ void EntityBrowserView::addEntityToLayout(
                              * vm::rotation_matrix(m_rotation) * scalingMatrix
                              * vm::translation_matrix(-center);
 
-      modelRenderer = m_entityModelManager.renderer(spec);
+      modelRenderer = entityModelManager.renderer(spec);
       rotatedBounds = bounds.transform(transform);
       modelOrientation = modelData->orientation();
     }
@@ -357,7 +359,9 @@ void EntityBrowserView::renderModels(
 {
   glAssert(glFrontFace(GL_CW));
 
-  m_entityModelManager.prepare(vboManager());
+  const auto document = kdl::mem_lock(m_document);
+  auto& entityModelManager = document->entityModelManager();
+  entityModelManager.prepare(vboManager());
 
   auto shader =
     Renderer::ActiveShader{shaderManager(), Renderer::Shaders::EntityModelShader};
