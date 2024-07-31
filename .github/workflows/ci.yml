@@ -19,7 +19,7 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-13, windows-2022]
+        os: [ubuntu-22.04, ubuntu-24.04, macos-13, windows-2022]
         tb-build-type: [release]
         tb-arch: [default-arch]
         exclude:
@@ -67,13 +67,7 @@ jobs:
         if: ${{ startsWith(matrix.os, 'ubuntu-') }}
         run: |
           sudo apt update
-          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev
-
-      - name: Install Qt5 on Ubuntu 22.04
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          sudo apt update
-          sudo apt install qtbase5-dev libqt5svg5-dev
+          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev qtbase5-dev libqt5svg5-dev
 
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2022' }}
@@ -163,6 +157,16 @@ jobs:
         if: ${{ matrix.os == 'ubuntu-22.04' }}
         with:
           name: ubuntu-22.04
+          path: |
+            build/*.deb
+            build/*.md5
+
+      # Ubuntu 24.04
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'ubuntu-24.04' }}
+        with:
+          name: ubuntu-24.04
           path: |
             build/*.deb
             build/*.md5
