@@ -40,9 +40,8 @@
 
 #include "Assets/Resource.h"
 #include "Console.h"
-#include "Error.h"
+#include "Error.h" // IWYU pragma: keep
 #include "Exceptions.h"
-#include "FileLogger.h"
 #include "IO/ExportOptions.h"
 #include "IO/PathQt.h"
 #include "Model/BrushNode.h"
@@ -64,7 +63,6 @@
 #include "TrenchBroomApp.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
-#include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/ClipTool.h"
 #include "View/ColorButton.h"
@@ -112,19 +110,18 @@
 namespace TrenchBroom::View
 {
 
-MapFrame::MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document)
+MapFrame::MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> document)
   : m_frameManager{frameManager}
   , m_document{std::move(document)}
-  , m_lastInputTime(std::chrono::system_clock::now())
-  , m_autosaver(std::make_unique<Autosaver>(m_document))
-  , m_autosaveTimer(new QTimer{this})
-  , m_processResourcesTimer(new QTimer{this})
-  , m_contextManager(std::make_unique<GLContextManager>())
+  , m_lastInputTime{std::chrono::system_clock::now()}
+  , m_autosaver{std::make_unique<Autosaver>(m_document)}
+  , m_autosaveTimer{new QTimer{this}}
+  , m_processResourcesTimer{new QTimer{this}}
+  , m_contextManager{std::make_unique<GLContextManager>()}
   , m_updateTitleSignalDelayer{new SignalDelayer{this}}
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
   , m_updateStatusBarSignalDelayer{new SignalDelayer{this}}
 {
-  ensure(m_frameManager != nullptr, "frameManager is null");
   ensure(m_document != nullptr, "document is null");
 
   setAttribute(Qt::WA_DeleteOnClose);
@@ -400,7 +397,6 @@ void MapFrame::createGui()
 
   auto* frameLayout = new QVBoxLayout{};
   frameLayout->setContentsMargins(0, 0, 0, 0);
-  frameLayout->setSpacing(0); // no space between BorderLine and m_hSplitter
   frameLayout->addWidget(m_hSplitter);
 
   // NOTE: you can't set the layout of a QMainWindow, so make another widget to wrap this
@@ -2404,7 +2400,6 @@ void MapFrame::closeEvent(QCloseEvent* event)
   }
   else
   {
-    ensure(m_frameManager, "frameManager is null");
     if (!confirmOrDiscardChanges())
     {
       event->ignore();
@@ -2416,7 +2411,7 @@ void MapFrame::closeEvent(QCloseEvent* event)
       saveWindowState(m_hSplitter);
       saveWindowState(m_vSplitter);
 
-      m_frameManager->removeFrame(this);
+      m_frameManager.removeFrame(this);
       event->accept();
     }
   }
