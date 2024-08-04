@@ -1,4 +1,6 @@
 on:
+  # Allow manually running workflow
+  workflow_dispatch:
   # Run on pushes to tags, the "master" branch, and PR's
   push:
     tags:
