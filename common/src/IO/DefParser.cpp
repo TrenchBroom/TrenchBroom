@@ -280,7 +280,8 @@ std::unique_ptr<Assets::PropertyDefinition> DefParser::parseSpawnflags(
     token = m_tokenizer.nextToken();
     const auto name = token.hasType(DefToken::Word) ? token.data() : "";
     const auto value = 1 << numOptions++;
-    definition->addOption(value, name, "", false);
+    const auto option = Assets::FlagsPropertyOption(value, name, "", false);
+    definition->addOption(&option);
     token = m_tokenizer.peekToken();
   }
 
@@ -390,8 +391,11 @@ std::unique_ptr<Assets::PropertyDefinition> DefParser::parseChoicePropertyDefini
 
   expect(status, DefToken::CParenthesis, token);
 
-  return std::make_unique<Assets::ChoicePropertyDefinition>(
-    std::move(propertyKey), "", "", std::move(options), false);
+  auto definition = std::make_unique<Assets::ChoicePropertyDefinition>(
+    std::move(propertyKey), "", "", false);
+  definition->setOptions(std::move(options));
+
+  return definition;
 }
 
 Assets::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
