@@ -733,7 +733,7 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
 
     // save the map
     auto doc = topDocument();
-    if (doc.get())
+    if (doc.get() && doc->game())
     {
       doc->saveDocumentTo(mapPath);
       std::cerr << "wrote map to " << mapPath.string() << std::endl;
