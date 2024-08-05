@@ -38,6 +38,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/optional_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/pair_iterator.h"
     "${KDL_INCLUDE_DIR}/kdl/parallel.h"
+    "${KDL_INCLUDE_DIR}/kdl/path_hash.h"
     "${KDL_INCLUDE_DIR}/kdl/path_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/product_iterator.h"
     "${KDL_INCLUDE_DIR}/kdl/range_io.h"
