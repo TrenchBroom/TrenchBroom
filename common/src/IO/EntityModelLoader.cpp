@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityModel.h"
 #include "EntityModelLoader.h"
 
 namespace TrenchBroom::IO
